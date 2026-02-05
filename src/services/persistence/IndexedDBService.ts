@@ -1,15 +1,15 @@
 /**
  * IndexedDB Service
- * 
+ *
  * Low-level IndexedDB operations for persistent browser storage.
- * 
+ *
  * @spec openspec/specs/persistence-services/spec.md
  */
 
 import { StorageError } from '../common/errors';
 
 const DB_NAME = 'mekstation';
-const DB_VERSION = 4;  // Bumped for campaign instances stores
+const DB_VERSION = 4; // Bumped for campaign instances stores
 
 /**
  * Object store names
@@ -23,7 +23,7 @@ export const STORES = {
   CAMPAIGN_PILOT_INSTANCES: 'campaign-pilot-instances',
 } as const;
 
-type StoreName = typeof STORES[keyof typeof STORES];
+type StoreName = (typeof STORES)[keyof typeof STORES];
 
 /**
  * IndexedDB service interface
@@ -69,9 +69,11 @@ export class IndexedDBService implements IIndexedDBService {
 
       request.onerror = () => {
         this.initPromise = null;
-        reject(new StorageError('Failed to open database', {
-          error: request.error?.message,
-        }));
+        reject(
+          new StorageError('Failed to open database', {
+            error: request.error?.message,
+          }),
+        );
       };
 
       request.onsuccess = () => {
@@ -108,7 +110,9 @@ export class IndexedDBService implements IIndexedDBService {
 
   private ensureDb(): IDBDatabase {
     if (!this.db) {
-      throw new StorageError('Database not initialized. Call initialize() first.');
+      throw new StorageError(
+        'Database not initialized. Call initialize() first.',
+      );
     }
     return this.db;
   }
@@ -118,17 +122,19 @@ export class IndexedDBService implements IIndexedDBService {
    */
   async put<T>(store: StoreName, key: string, value: T): Promise<void> {
     const db = this.ensureDb();
-    
+
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(store, 'readwrite');
       const objectStore = transaction.objectStore(store);
       const request = objectStore.put(value, key);
 
       request.onerror = () => {
-        reject(new StorageError(`Failed to store item in ${store}`, {
-          key,
-          error: request.error?.message,
-        }));
+        reject(
+          new StorageError(`Failed to store item in ${store}`, {
+            key,
+            error: request.error?.message,
+          }),
+        );
       };
 
       request.onsuccess = () => {
@@ -149,10 +155,12 @@ export class IndexedDBService implements IIndexedDBService {
       const request = objectStore.get(key);
 
       request.onerror = () => {
-        reject(new StorageError(`Failed to retrieve item from ${store}`, {
-          key,
-          error: request.error?.message,
-        }));
+        reject(
+          new StorageError(`Failed to retrieve item from ${store}`, {
+            key,
+            error: request.error?.message,
+          }),
+        );
       };
 
       request.onsuccess = () => {
@@ -173,10 +181,12 @@ export class IndexedDBService implements IIndexedDBService {
       const request = objectStore.delete(key);
 
       request.onerror = () => {
-        reject(new StorageError(`Failed to delete item from ${store}`, {
-          key,
-          error: request.error?.message,
-        }));
+        reject(
+          new StorageError(`Failed to delete item from ${store}`, {
+            key,
+            error: request.error?.message,
+          }),
+        );
       };
 
       request.onsuccess = () => {
@@ -197,9 +207,11 @@ export class IndexedDBService implements IIndexedDBService {
       const request = objectStore.getAll();
 
       request.onerror = () => {
-        reject(new StorageError(`Failed to retrieve all items from ${store}`, {
-          error: request.error?.message,
-        }));
+        reject(
+          new StorageError(`Failed to retrieve all items from ${store}`, {
+            error: request.error?.message,
+          }),
+        );
       };
 
       request.onsuccess = () => {
@@ -220,9 +232,11 @@ export class IndexedDBService implements IIndexedDBService {
       const request = objectStore.clear();
 
       request.onerror = () => {
-        reject(new StorageError(`Failed to clear ${store}`, {
-          error: request.error?.message,
-        }));
+        reject(
+          new StorageError(`Failed to clear ${store}`, {
+            error: request.error?.message,
+          }),
+        );
       };
 
       request.onsuccess = () => {
@@ -268,4 +282,3 @@ export function _resetIndexedDBService(): void {
 // Legacy export for backward compatibility
 // @deprecated Use getIndexedDBService() instead
 export const indexedDBService = getIndexedDBService();
-

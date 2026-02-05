@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { ArmorDiagramModeSwitch } from './ArmorDiagramModeSwitch';
 
 const meta: Meta<typeof ArmorDiagramModeSwitch> = {
@@ -10,7 +11,7 @@ const meta: Meta<typeof ArmorDiagramModeSwitch> = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <div className="p-4 bg-surface-deep">
+      <div className="bg-surface-deep p-4">
         <Story />
       </div>
     ),

@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 /**
  * Force Roster Page
  * Browse, search, and manage all forces in the roster.
@@ -5,20 +7,13 @@
  * @spec openspec/changes/add-force-management/proposal.md
  */
 import { useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import {
-  PageLayout,
-  Card,
-  Input,
-  Button,
-  EmptyState,
-} from '@/components/ui';
+
 import {
   SkeletonText,
   SkeletonInput,
 } from '@/components/common/SkeletonLoader';
 import { ForceCard } from '@/components/force';
+import { PageLayout, Card, Input, Button, EmptyState } from '@/components/ui';
 import { useForceStore } from '@/stores/useForceStore';
 import { IForce } from '@/types/force';
 
@@ -55,7 +50,7 @@ export default function ForceRosterPage(): React.ReactElement {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchQuery(e.target.value);
     },
-    [setSearchQuery]
+    [setSearchQuery],
   );
 
   // Navigate to create page
@@ -69,7 +64,7 @@ export default function ForceRosterPage(): React.ReactElement {
       selectForce(force.id);
       router.push(`/gameplay/forces/${force.id}`);
     },
-    [router, selectForce]
+    [router, selectForce],
   );
 
   if (!isInitialized || isLoading) {
@@ -80,7 +75,7 @@ export default function ForceRosterPage(): React.ReactElement {
         maxWidth="wide"
       >
         <Card className="mb-6">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <div className="flex-1">
               <SkeletonInput width="w-full" />
             </div>
@@ -90,10 +85,13 @@ export default function ForceRosterPage(): React.ReactElement {
           </div>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="p-5 rounded-xl border-2 border-border-theme-subtle bg-surface-raised/30">
-              <div className="flex items-start justify-between gap-3 mb-4">
+            <div
+              key={i}
+              className="border-border-theme-subtle bg-surface-raised/30 rounded-xl border-2 p-5"
+            >
+              <div className="mb-4 flex items-start justify-between gap-3">
                 <div className="flex-1 space-y-2">
                   <SkeletonText width="w-32" />
                   <SkeletonText width="w-24" />
@@ -126,7 +124,7 @@ export default function ForceRosterPage(): React.ReactElement {
           data-testid="create-force-btn"
           leftIcon={
             <svg
-              className="w-4 h-4"
+              className="h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -146,7 +144,7 @@ export default function ForceRosterPage(): React.ReactElement {
     >
       {/* Filters */}
       <Card className="mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row">
           {/* Search */}
           <div className="flex-1">
             <Input
@@ -161,7 +159,7 @@ export default function ForceRosterPage(): React.ReactElement {
         </div>
 
         {/* Results count */}
-        <div className="mt-4 text-sm text-text-theme-secondary">
+        <div className="text-text-theme-secondary mt-4 text-sm">
           Showing {filteredForces.length} force
           {filteredForces.length !== 1 ? 's' : ''}
           {searchQuery && <span className="text-accent ml-1">(filtered)</span>}
@@ -170,7 +168,7 @@ export default function ForceRosterPage(): React.ReactElement {
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30">
+        <div className="mb-6 rounded-lg border border-red-600/30 bg-red-900/20 p-4">
           <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
@@ -180,9 +178,9 @@ export default function ForceRosterPage(): React.ReactElement {
         <EmptyState
           data-testid="forces-empty-state"
           icon={
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
+            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
               <svg
-                className="w-8 h-8 text-text-theme-muted"
+                className="text-text-theme-muted h-8 w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -211,7 +209,7 @@ export default function ForceRosterPage(): React.ReactElement {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
+        <div className="grid grid-cols-1 gap-4 pb-20 md:grid-cols-2 lg:grid-cols-3">
           {rootForces.map((force) => (
             <ForceCard
               key={force.id}
@@ -224,13 +222,13 @@ export default function ForceRosterPage(): React.ReactElement {
       )}
 
       {/* Link to pilots */}
-      <div className="mt-8 pt-6 border-t border-border-theme-subtle">
+      <div className="border-border-theme-subtle mt-8 border-t pt-6">
         <Link
           href="/gameplay/pilots"
-          className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+          className="text-accent hover:text-accent/80 inline-flex items-center gap-2 transition-colors"
         >
           <svg
-            className="w-4 h-4"
+            className="h-4 w-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

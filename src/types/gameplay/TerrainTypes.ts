@@ -127,9 +127,19 @@ export interface IHexTerrain {
  * Complete terrain properties mapping per TechManual.
  * Includes movement costs, to-hit modifiers, heat effects, cover, and LOS blocking.
  */
-export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties>> = {
+export const TERRAIN_PROPERTIES: Readonly<
+  Record<TerrainType, ITerrainProperties>
+> = {
   [TerrainType.Clear]: {
-    movementCostModifier: { walk: 0, run: 0, jump: 0, tracked: 0, wheeled: 0, hover: 0, vtol: 0 },
+    movementCostModifier: {
+      walk: 0,
+      run: 0,
+      jump: 0,
+      tracked: 0,
+      wheeled: 0,
+      hover: 0,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 0,
     heatEffect: 0,
@@ -141,7 +151,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Pavement]: {
-    movementCostModifier: { walk: 0, run: 0, jump: 0, tracked: 0, wheeled: 0, hover: 0, vtol: 0 },
+    movementCostModifier: {
+      walk: 0,
+      run: 0,
+      jump: 0,
+      tracked: 0,
+      wheeled: 0,
+      hover: 0,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 0,
     heatEffect: 0,
@@ -153,7 +171,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Road]: {
-    movementCostModifier: { walk: 0, run: 0, jump: 0, tracked: 0, wheeled: 0, hover: 0, vtol: 0 },
+    movementCostModifier: {
+      walk: 0,
+      run: 0,
+      jump: 0,
+      tracked: 0,
+      wheeled: 0,
+      hover: 0,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 0,
     heatEffect: 0,
@@ -165,7 +191,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.LightWoods]: {
-    movementCostModifier: { walk: 1, run: 1, jump: 1, tracked: 1, wheeled: 1, hover: 1, vtol: 0 },
+    movementCostModifier: {
+      walk: 1,
+      run: 1,
+      jump: 1,
+      tracked: 1,
+      wheeled: 1,
+      hover: 1,
+      vtol: 0,
+    },
     toHitInterveningModifier: 1,
     toHitTargetInModifier: 1,
     heatEffect: 0,
@@ -177,7 +211,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.HeavyWoods]: {
-    movementCostModifier: { walk: 2, run: 2, jump: 2, tracked: 2, wheeled: 2, hover: 2, vtol: 0 },
+    movementCostModifier: {
+      walk: 2,
+      run: 2,
+      jump: 2,
+      tracked: 2,
+      wheeled: 2,
+      hover: 2,
+      vtol: 0,
+    },
     toHitInterveningModifier: 2,
     toHitTargetInModifier: 2,
     heatEffect: 0,
@@ -189,7 +231,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Rough]: {
-    movementCostModifier: { walk: 1, run: 1, jump: 1, tracked: 1, wheeled: 1, hover: 1, vtol: 0 },
+    movementCostModifier: {
+      walk: 1,
+      run: 1,
+      jump: 1,
+      tracked: 1,
+      wheeled: 1,
+      hover: 1,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 0,
     heatEffect: 0,
@@ -201,7 +251,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Rubble]: {
-    movementCostModifier: { walk: 1, run: 1, jump: 1, tracked: 1, wheeled: 1, hover: 1, vtol: 0 },
+    movementCostModifier: {
+      walk: 1,
+      run: 1,
+      jump: 1,
+      tracked: 1,
+      wheeled: 1,
+      hover: 1,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 0,
     heatEffect: 0,
@@ -213,7 +271,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Water]: {
-    movementCostModifier: { walk: 1, run: 1, jump: 1, tracked: 1, wheeled: 1, hover: 0, vtol: 0 },
+    movementCostModifier: {
+      walk: 1,
+      run: 1,
+      jump: 1,
+      tracked: 1,
+      wheeled: 1,
+      hover: 0,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: -1,
     heatEffect: -2,
@@ -225,7 +291,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Sand]: {
-    movementCostModifier: { walk: 1, run: 1, jump: 1, tracked: 1, wheeled: 1, hover: 1, vtol: 0 },
+    movementCostModifier: {
+      walk: 1,
+      run: 1,
+      jump: 1,
+      tracked: 1,
+      wheeled: 1,
+      hover: 1,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 0,
     heatEffect: 0,
@@ -237,7 +311,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Mud]: {
-    movementCostModifier: { walk: 1, run: 1, jump: 1, tracked: 1, wheeled: 1, hover: 1, vtol: 0 },
+    movementCostModifier: {
+      walk: 1,
+      run: 1,
+      jump: 1,
+      tracked: 1,
+      wheeled: 1,
+      hover: 1,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 0,
     heatEffect: 0,
@@ -249,7 +331,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Snow]: {
-    movementCostModifier: { walk: 0, run: 0, jump: 0, tracked: 0, wheeled: 0, hover: 0, vtol: 0 },
+    movementCostModifier: {
+      walk: 0,
+      run: 0,
+      jump: 0,
+      tracked: 0,
+      wheeled: 0,
+      hover: 0,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 0,
     heatEffect: 0,
@@ -261,7 +351,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Ice]: {
-    movementCostModifier: { walk: 0, run: 0, jump: 0, tracked: 0, wheeled: 0, hover: 0, vtol: 0 },
+    movementCostModifier: {
+      walk: 0,
+      run: 0,
+      jump: 0,
+      tracked: 0,
+      wheeled: 0,
+      hover: 0,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 0,
     heatEffect: 0,
@@ -273,7 +371,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Swamp]: {
-    movementCostModifier: { walk: 2, run: 2, jump: 2, tracked: 2, wheeled: 2, hover: 2, vtol: 0 },
+    movementCostModifier: {
+      walk: 2,
+      run: 2,
+      jump: 2,
+      tracked: 2,
+      wheeled: 2,
+      hover: 2,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 1,
     heatEffect: 0,
@@ -285,7 +391,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Building]: {
-    movementCostModifier: { walk: 1, run: 1, jump: 1, tracked: 1, wheeled: 1, hover: 1, vtol: 0 },
+    movementCostModifier: {
+      walk: 1,
+      run: 1,
+      jump: 1,
+      tracked: 1,
+      wheeled: 1,
+      hover: 1,
+      vtol: 0,
+    },
     toHitInterveningModifier: 1,
     toHitTargetInModifier: 1,
     heatEffect: 0,
@@ -297,7 +411,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Bridge]: {
-    movementCostModifier: { walk: 0, run: 0, jump: 0, tracked: 0, wheeled: 0, hover: 0, vtol: 0 },
+    movementCostModifier: {
+      walk: 0,
+      run: 0,
+      jump: 0,
+      tracked: 0,
+      wheeled: 0,
+      hover: 0,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 0,
     heatEffect: 0,
@@ -309,7 +431,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Fire]: {
-    movementCostModifier: { walk: 0, run: 0, jump: 0, tracked: 0, wheeled: 0, hover: 0, vtol: 0 },
+    movementCostModifier: {
+      walk: 0,
+      run: 0,
+      jump: 0,
+      tracked: 0,
+      wheeled: 0,
+      hover: 0,
+      vtol: 0,
+    },
     toHitInterveningModifier: 0,
     toHitTargetInModifier: 0,
     heatEffect: 5,
@@ -321,7 +451,15 @@ export const TERRAIN_PROPERTIES: Readonly<Record<TerrainType, ITerrainProperties
   },
 
   [TerrainType.Smoke]: {
-    movementCostModifier: { walk: 0, run: 0, jump: 0, tracked: 0, wheeled: 0, hover: 0, vtol: 0 },
+    movementCostModifier: {
+      walk: 0,
+      run: 0,
+      jump: 0,
+      tracked: 0,
+      wheeled: 0,
+      hover: 0,
+      vtol: 0,
+    },
     toHitInterveningModifier: 1,
     toHitTargetInModifier: 1,
     heatEffect: 0,

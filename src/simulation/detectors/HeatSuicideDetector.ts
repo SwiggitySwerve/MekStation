@@ -12,12 +12,14 @@
  */
 
 import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
+
 import {
   GameEventType,
   GameSide,
   type IGameEvent,
   type IHeatPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+
 import { getPayload } from './utils/getPayload';
 
 // =============================================================================
@@ -99,7 +101,10 @@ function getUnitName(units: readonly BattleUnit[], unitId: string): string {
 /**
  * Gets the side of a unit by ID.
  */
-function getUnitSide(units: readonly BattleUnit[], unitId: string): GameSide | undefined {
+function getUnitSide(
+  units: readonly BattleUnit[],
+  unitId: string,
+): GameSide | undefined {
   const unit = units.find((u) => u.id === unitId);
   return unit?.side;
 }
@@ -222,7 +227,9 @@ export class HeatSuicideDetector {
     // Check if heat exceeds threshold
     if (newTotal > threshold) {
       // Check for last-ditch exemption
-      if (isLastDitchScenario(battleState.units, state.destroyedUnits, unitId)) {
+      if (
+        isLastDitchScenario(battleState.units, state.destroyedUnits, unitId)
+      ) {
         return; // Exempt from anomaly detection
       }
 
@@ -240,7 +247,10 @@ export class HeatSuicideDetector {
     }
   }
 
-  private processUnitDestroyed(event: IGameEvent, state: DetectorTrackingState): void {
+  private processUnitDestroyed(
+    event: IGameEvent,
+    state: DetectorTrackingState,
+  ): void {
     const payload = getPayload<{ readonly unitId: string }>(event);
     state.destroyedUnits.add(payload.unitId);
   }

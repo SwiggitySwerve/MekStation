@@ -2,8 +2,9 @@
  * Unit Validation Registry Tests
  */
 
-import { UnitValidationRegistry, getUnitValidationRegistry } from '../UnitValidationRegistry';
+import { TechBase, RulesLevel, Era } from '@/types/enums';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   UnitCategory,
   IUnitValidationRuleDefinition,
@@ -11,8 +12,11 @@ import {
   IUnitValidationRuleResult,
   UnitValidationSeverity,
 } from '@/types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
-import { TechBase, RulesLevel, Era } from '@/types/enums';
+
+import {
+  UnitValidationRegistry,
+  getUnitValidationRegistry,
+} from '../UnitValidationRegistry';
 
 // =============================================================================
 // Test Helpers
@@ -21,7 +25,7 @@ import { TechBase, RulesLevel, Era } from '@/types/enums';
 function createTestRuleResult(
   ruleId: string,
   passed: boolean,
-  message?: string
+  message?: string,
 ): IUnitValidationRuleResult {
   return {
     ruleId,
@@ -45,7 +49,9 @@ function createTestRuleResult(
   };
 }
 
-function createTestContext(overrides: Partial<IUnitValidationContext> = {}): IUnitValidationContext {
+function createTestContext(
+  overrides: Partial<IUnitValidationContext> = {},
+): IUnitValidationContext {
   return {
     unit: {
       id: 'test-unit-1',
@@ -70,7 +76,7 @@ function createTestContext(overrides: Partial<IUnitValidationContext> = {}): IUn
 
 function createTestRule(
   id: string,
-  overrides: Partial<IUnitValidationRuleDefinition> = {}
+  overrides: Partial<IUnitValidationRuleDefinition> = {},
 ): IUnitValidationRuleDefinition {
   return {
     id,
@@ -128,7 +134,9 @@ describe('UnitValidationRegistry', () => {
       registry.registerCategoryRule(UnitCategory.MECH, rule);
 
       const categoryRules = registry.getCategoryRules(UnitCategory.MECH);
-      expect(categoryRules.some((r) => r.id === 'VAL-MECH-TEST-001')).toBe(true);
+      expect(categoryRules.some((r) => r.id === 'VAL-MECH-TEST-001')).toBe(
+        true,
+      );
     });
 
     it('should make category rule available for unit types in that category', () => {
@@ -140,7 +148,9 @@ describe('UnitValidationRegistry', () => {
 
       expect(mechRules.some((r) => r.id === 'VAL-MECH-TEST-002')).toBe(true);
       // Vehicles are not in MECH category
-      expect(vehicleRules.some((r) => r.id === 'VAL-MECH-TEST-002')).toBe(false);
+      expect(vehicleRules.some((r) => r.id === 'VAL-MECH-TEST-002')).toBe(
+        false,
+      );
     });
   });
 
@@ -190,13 +200,23 @@ describe('UnitValidationRegistry', () => {
   describe('getRulesForUnitType', () => {
     it('should return all applicable rules for unit type', () => {
       registry.registerUniversalRule(createTestRule('UNIV-001'));
-      registry.registerCategoryRule(UnitCategory.MECH, createTestRule('MECH-001'));
-      registry.registerUnitTypeRule(UnitType.BATTLEMECH, createTestRule('BM-001'));
+      registry.registerCategoryRule(
+        UnitCategory.MECH,
+        createTestRule('MECH-001'),
+      );
+      registry.registerUnitTypeRule(
+        UnitType.BATTLEMECH,
+        createTestRule('BM-001'),
+      );
 
       const rules = registry.getRulesForUnitType(UnitType.BATTLEMECH);
 
       expect(rules.length).toBe(3);
-      expect(rules.map((r) => r.id).sort()).toEqual(['BM-001', 'MECH-001', 'UNIV-001']);
+      expect(rules.map((r) => r.id).sort()).toEqual([
+        'BM-001',
+        'MECH-001',
+        'UNIV-001',
+      ]);
     });
 
     it('should sort rules by priority', () => {
@@ -226,7 +246,10 @@ describe('UnitValidationRegistry', () => {
     it('should return all universal rules', () => {
       registry.registerUniversalRule(createTestRule('UNIV-001'));
       registry.registerUniversalRule(createTestRule('UNIV-002'));
-      registry.registerCategoryRule(UnitCategory.MECH, createTestRule('MECH-001'));
+      registry.registerCategoryRule(
+        UnitCategory.MECH,
+        createTestRule('MECH-001'),
+      );
 
       const universalRules = registry.getUniversalRules();
 
@@ -236,8 +259,14 @@ describe('UnitValidationRegistry', () => {
 
   describe('getCategoryRules', () => {
     it('should return rules for specific category', () => {
-      registry.registerCategoryRule(UnitCategory.MECH, createTestRule('MECH-001'));
-      registry.registerCategoryRule(UnitCategory.VEHICLE, createTestRule('VEH-001'));
+      registry.registerCategoryRule(
+        UnitCategory.MECH,
+        createTestRule('MECH-001'),
+      );
+      registry.registerCategoryRule(
+        UnitCategory.VEHICLE,
+        createTestRule('VEH-001'),
+      );
 
       const mechRules = registry.getCategoryRules(UnitCategory.MECH);
       const vehicleRules = registry.getCategoryRules(UnitCategory.VEHICLE);
@@ -263,7 +292,10 @@ describe('UnitValidationRegistry', () => {
     });
 
     it('should remove category rule', () => {
-      registry.registerCategoryRule(UnitCategory.MECH, createTestRule('TO-REMOVE'));
+      registry.registerCategoryRule(
+        UnitCategory.MECH,
+        createTestRule('TO-REMOVE'),
+      );
 
       registry.unregister('TO-REMOVE');
 
@@ -287,8 +319,14 @@ describe('UnitValidationRegistry', () => {
   describe('clear', () => {
     it('should remove all rules', () => {
       registry.registerUniversalRule(createTestRule('UNIV-001'));
-      registry.registerCategoryRule(UnitCategory.MECH, createTestRule('MECH-001'));
-      registry.registerUnitTypeRule(UnitType.BATTLEMECH, createTestRule('BM-001'));
+      registry.registerCategoryRule(
+        UnitCategory.MECH,
+        createTestRule('MECH-001'),
+      );
+      registry.registerUnitTypeRule(
+        UnitType.BATTLEMECH,
+        createTestRule('BM-001'),
+      );
 
       registry.clear();
 
@@ -305,7 +343,12 @@ describe('UnitValidationRegistry', () => {
   describe('enableRule / disableRule', () => {
     it('should disable rule from execution', () => {
       const rule = createTestRule('TOGGLE-001', {
-        validate: () => createTestRuleResult('TOGGLE-001', false, 'Should not run when disabled'),
+        validate: () =>
+          createTestRuleResult(
+            'TOGGLE-001',
+            false,
+            'Should not run when disabled',
+          ),
       });
       registry.registerUniversalRule(rule);
 
@@ -340,8 +383,9 @@ describe('UnitValidationRegistry', () => {
       // Register base universal rule
       registry.registerUniversalRule(
         createTestRule('OVERRIDE-TARGET', {
-          validate: () => createTestRuleResult('OVERRIDE-TARGET', false, 'Base rule'),
-        })
+          validate: () =>
+            createTestRuleResult('OVERRIDE-TARGET', false, 'Base rule'),
+        }),
       );
 
       // Register overriding unit-type rule
@@ -349,8 +393,9 @@ describe('UnitValidationRegistry', () => {
         UnitType.BATTLEMECH,
         createTestRule('BM-OVERRIDE', {
           overrides: 'OVERRIDE-TARGET',
-          validate: () => createTestRuleResult('BM-OVERRIDE', true, 'Override rule'),
-        })
+          validate: () =>
+            createTestRuleResult('BM-OVERRIDE', true, 'Override rule'),
+        }),
       );
 
       const rules = registry.getRulesForUnitType(UnitType.BATTLEMECH);
@@ -376,7 +421,7 @@ describe('UnitValidationRegistry', () => {
             executionLog.push('base');
             return createTestRuleResult('EXTEND-TARGET', true);
           },
-        })
+        }),
       );
 
       // Register extending unit-type rule
@@ -389,7 +434,7 @@ describe('UnitValidationRegistry', () => {
             executionLog.push('extend');
             return createTestRuleResult('BM-EXTEND', true);
           },
-        })
+        }),
       );
 
       const rules = registry.getRulesForUnitType(UnitType.BATTLEMECH);

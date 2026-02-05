@@ -19,14 +19,14 @@ export * from './OmniMechValidationRules';
 export * from './BipedValidationRules';
 export * from './GenericValidationRules';
 
-// Import rule arrays from each module
-import { QuadValidationRules } from './QuadValidationRules';
-import { LAMValidationRules } from './LAMValidationRules';
-import { TripodValidationRules } from './TripodValidationRules';
-import { QuadVeeValidationRules } from './QuadVeeValidationRules';
-import { OmniMechValidationRules } from './OmniMechValidationRules';
 import { BipedValidationRules } from './BipedValidationRules';
 import { GenericValidationRules } from './GenericValidationRules';
+import { LAMValidationRules } from './LAMValidationRules';
+import { OmniMechValidationRules } from './OmniMechValidationRules';
+// Import rule arrays from each module
+import { QuadValidationRules } from './QuadValidationRules';
+import { QuadVeeValidationRules } from './QuadVeeValidationRules';
+import { TripodValidationRules } from './TripodValidationRules';
 
 /**
  * Get all configuration-specific validation rules

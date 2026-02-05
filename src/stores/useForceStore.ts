@@ -8,6 +8,7 @@
  */
 
 import { create } from 'zustand';
+
 import {
   IForce,
   IForceSummary,
@@ -95,19 +96,19 @@ interface ForceStoreActions {
   assignPilotAndUnit: (
     assignmentId: string,
     pilotId: string,
-    unitId: string
+    unitId: string,
   ) => Promise<boolean>;
   /** Clear an assignment */
   clearAssignment: (assignmentId: string) => Promise<boolean>;
   /** Swap two assignments */
   swapAssignments: (
     assignmentId1: string,
-    assignmentId2: string
+    assignmentId2: string,
   ) => Promise<boolean>;
   /** Set assignment position */
   setAssignmentPosition: (
     assignmentId: string,
-    position: ForcePosition
+    position: ForcePosition,
   ) => Promise<boolean>;
   /** Promote to lead */
   promoteToLead: (assignmentId: string) => Promise<boolean>;
@@ -172,7 +173,10 @@ export const useForceStore = create<ForceStore>((set, get) => ({
       });
       const data = (await response.json()) as CreateForceResponse;
       if (!data.success || !data.id) {
-        set({ error: data.error ?? 'Failed to create force', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to create force',
+          isLoading: false,
+        });
         return null;
       }
       // Reload forces to get the new one
@@ -196,7 +200,10 @@ export const useForceStore = create<ForceStore>((set, get) => ({
       });
       const data = (await response.json()) as UpdateForceResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to update force', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to update force',
+          isLoading: false,
+        });
         return false;
       }
       await get().loadForces();
@@ -217,7 +224,10 @@ export const useForceStore = create<ForceStore>((set, get) => ({
       });
       const data = (await response.json()) as DeleteForceResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to delete force', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to delete force',
+          isLoading: false,
+        });
         return false;
       }
       // Clear selection if deleted
@@ -249,14 +259,20 @@ export const useForceStore = create<ForceStore>((set, get) => ({
   assignPilot: async (assignmentId: string, pilotId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`/api/forces/assignments/${assignmentId}/pilot`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pilotId }),
-      });
+      const response = await fetch(
+        `/api/forces/assignments/${assignmentId}/pilot`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pilotId }),
+        },
+      );
       const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to assign pilot', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to assign pilot',
+          isLoading: false,
+        });
         return false;
       }
       await get().loadForces();
@@ -271,11 +287,14 @@ export const useForceStore = create<ForceStore>((set, get) => ({
   assignUnit: async (assignmentId: string, unitId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`/api/forces/assignments/${assignmentId}/unit`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ unitId }),
-      });
+      const response = await fetch(
+        `/api/forces/assignments/${assignmentId}/unit`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ unitId }),
+        },
+      );
       const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
         set({ error: data.error ?? 'Failed to assign unit', isLoading: false });
@@ -293,7 +312,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
   assignPilotAndUnit: async (
     assignmentId: string,
     pilotId: string,
-    unitId: string
+    unitId: string,
   ) => {
     set({ isLoading: true, error: null });
     try {
@@ -324,7 +343,10 @@ export const useForceStore = create<ForceStore>((set, get) => ({
       });
       const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to clear assignment', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to clear assignment',
+          isLoading: false,
+        });
         return false;
       }
       await get().loadForces();
@@ -346,7 +368,10 @@ export const useForceStore = create<ForceStore>((set, get) => ({
       });
       const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to swap assignments', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to swap assignments',
+          isLoading: false,
+        });
         return false;
       }
       await get().loadForces();
@@ -358,17 +383,26 @@ export const useForceStore = create<ForceStore>((set, get) => ({
     }
   },
 
-  setAssignmentPosition: async (assignmentId: string, position: ForcePosition) => {
+  setAssignmentPosition: async (
+    assignmentId: string,
+    position: ForcePosition,
+  ) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`/api/forces/assignments/${assignmentId}/position`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ position }),
-      });
+      const response = await fetch(
+        `/api/forces/assignments/${assignmentId}/position`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ position }),
+        },
+      );
       const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to set position', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to set position',
+          isLoading: false,
+        });
         return false;
       }
       await get().loadForces();
@@ -383,9 +417,12 @@ export const useForceStore = create<ForceStore>((set, get) => ({
   promoteToLead: async (assignmentId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`/api/forces/assignments/${assignmentId}/promote`, {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `/api/forces/assignments/${assignmentId}/promote`,
+        {
+          method: 'POST',
+        },
+      );
       const data = (await response.json()) as AssignmentResponse;
       if (!data.success) {
         set({ error: data.error ?? 'Failed to promote', isLoading: false });
@@ -456,7 +493,7 @@ export const useForceStore = create<ForceStore>((set, get) => ({
       (f) =>
         f.name.toLowerCase().includes(lowerQuery) ||
         f.affiliation?.toLowerCase().includes(lowerQuery) ||
-        f.description?.toLowerCase().includes(lowerQuery)
+        f.description?.toLowerCase().includes(lowerQuery),
     );
   },
 

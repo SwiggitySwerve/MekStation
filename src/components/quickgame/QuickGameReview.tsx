@@ -5,9 +5,9 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { Button, Card } from '@/components/ui';
 import { FACTION_NAMES, Faction } from '@/constants/scenario/rats';
+import { useQuickGameStore } from '@/stores/useQuickGameStore';
 
 // =============================================================================
 // Force Display Component
@@ -34,16 +34,24 @@ interface ForceDisplayProps {
   isOpponent?: boolean;
 }
 
-function ForceDisplay({ title, force, isOpponent }: ForceDisplayProps): React.ReactElement {
+function ForceDisplay({
+  title,
+  force,
+  isOpponent,
+}: ForceDisplayProps): React.ReactElement {
   return (
     <Card className={isOpponent ? 'border-red-500/30' : 'border-cyan-500/30'}>
-      <div className="p-4 border-b border-gray-700">
+      <div className="border-b border-gray-700 p-4">
         <div className="flex items-center justify-between">
-          <h3 className={`font-medium ${isOpponent ? 'text-red-400' : 'text-cyan-400'}`}>
+          <h3
+            className={`font-medium ${isOpponent ? 'text-red-400' : 'text-cyan-400'}`}
+          >
             {title}
           </h3>
           <div className="text-sm text-gray-400">
-            <span className={`font-medium ${isOpponent ? 'text-red-400' : 'text-cyan-400'}`}>
+            <span
+              className={`font-medium ${isOpponent ? 'text-red-400' : 'text-cyan-400'}`}
+            >
               {force.totalBV.toLocaleString()}
             </span>{' '}
             BV / {force.totalTonnage} tons
@@ -56,10 +64,10 @@ function ForceDisplay({ title, force, isOpponent }: ForceDisplayProps): React.Re
           {force.units.map((unit) => (
             <div
               key={unit.instanceId}
-              className="flex items-center justify-between p-2 bg-gray-800 rounded"
+              className="flex items-center justify-between rounded bg-gray-800 p-2"
             >
               <div>
-                <p className="text-white text-sm">{unit.name}</p>
+                <p className="text-sm text-white">{unit.name}</p>
                 <p className="text-xs text-gray-500">
                   {unit.pilotName && `${unit.pilotName} - `}
                   {unit.gunnery}/{unit.piloting}
@@ -88,7 +96,7 @@ function ModifierDisplay(): React.ReactElement {
   if (modifiers.length === 0) {
     return (
       <Card className="bg-gray-800/50">
-        <div className="p-4 text-center text-gray-500 text-sm">
+        <div className="p-4 text-center text-sm text-gray-500">
           No battle modifiers active
         </div>
       </Card>
@@ -97,48 +105,82 @@ function ModifierDisplay(): React.ReactElement {
 
   return (
     <Card>
-      <div className="p-4 border-b border-gray-700">
+      <div className="border-b border-gray-700 p-4">
         <h3 className="font-medium text-white">Battle Modifiers</h3>
       </div>
-      <div className="p-4 space-y-2">
+      <div className="space-y-2 p-4">
         {modifiers.map((modifier) => (
           <div
             key={modifier.id}
-            className={`p-3 rounded ${
+            className={`rounded p-3 ${
               modifier.effect === 'positive'
-                ? 'bg-emerald-900/30 border border-emerald-700/50'
+                ? 'border border-emerald-700/50 bg-emerald-900/30'
                 : modifier.effect === 'negative'
-                ? 'bg-red-900/30 border border-red-700/50'
-                : 'bg-gray-800 border border-gray-700'
+                  ? 'border border-red-700/50 bg-red-900/30'
+                  : 'border border-gray-700 bg-gray-800'
             }`}
           >
             <div className="flex items-start gap-2">
               <div
-                className={`w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded ${
                   modifier.effect === 'positive'
                     ? 'bg-emerald-500/20 text-emerald-400'
                     : modifier.effect === 'negative'
-                    ? 'bg-red-500/20 text-red-400'
-                    : 'bg-gray-600 text-gray-400'
+                      ? 'bg-red-500/20 text-red-400'
+                      : 'bg-gray-600 text-gray-400'
                 }`}
               >
                 {modifier.effect === 'positive' ? (
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 ) : modifier.effect === 'negative' ? (
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 ) : (
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                  <svg
+                    className="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 12H4"
+                    />
                   </svg>
                 )}
               </div>
               <div>
-                <p className="text-white text-sm font-medium">{modifier.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{modifier.description}</p>
+                <p className="text-sm font-medium text-white">
+                  {modifier.name}
+                </p>
+                <p className="mt-0.5 text-xs text-gray-400">
+                  {modifier.description}
+                </p>
               </div>
             </div>
           </div>
@@ -157,7 +199,7 @@ export function QuickGameReview(): React.ReactElement {
 
   if (!game || !game.scenario || !game.opponentForce) {
     return (
-      <div className="max-w-4xl mx-auto p-4">
+      <div className="mx-auto max-w-4xl p-4">
         <Card className="p-8 text-center">
           <p className="text-gray-400">Scenario not generated yet.</p>
           <Button variant="secondary" onClick={previousStep} className="mt-4">
@@ -172,26 +214,34 @@ export function QuickGameReview(): React.ReactElement {
   const faction = game.scenarioConfig.enemyFaction as Faction;
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="mx-auto max-w-4xl p-4">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-white mb-2">Review Scenario</h2>
-        <p className="text-gray-400 text-sm">
+        <h2 className="mb-2 text-xl font-semibold text-white">
+          Review Scenario
+        </h2>
+        <p className="text-sm text-gray-400">
           Review the generated battle scenario before starting.
         </p>
       </div>
 
       {/* Scenario overview */}
-      <Card className="mb-6 bg-gradient-to-r from-cyan-900/20 to-purple-900/20 border-cyan-500/30">
+      <Card className="mb-6 border-cyan-500/30 bg-gradient-to-r from-cyan-900/20 to-purple-900/20">
         <div className="p-6">
-          <div className="flex items-start justify-between mb-4">
+          <div className="mb-4 flex items-start justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-white">{scenario.template.name}</h3>
-              <p className="text-gray-400 text-sm mt-1">{scenario.template.description}</p>
+              <h3 className="text-lg font-semibold text-white">
+                {scenario.template.name}
+              </h3>
+              <p className="mt-1 text-sm text-gray-400">
+                {scenario.template.description}
+              </p>
             </div>
             <div className="text-right">
               <p className="text-xs text-gray-500">Turn Limit</p>
-              <p className="text-white font-medium">
-                {scenario.turnLimit === 0 ? 'Unlimited' : `${scenario.turnLimit} turns`}
+              <p className="font-medium text-white">
+                {scenario.turnLimit === 0
+                  ? 'Unlimited'
+                  : `${scenario.turnLimit} turns`}
               </p>
             </div>
           </div>
@@ -200,7 +250,9 @@ export function QuickGameReview(): React.ReactElement {
             <div>
               <p className="text-gray-500">Map</p>
               <p className="text-white">{scenario.mapPreset.name}</p>
-              <p className="text-xs text-gray-500 capitalize">{scenario.mapPreset.biome}</p>
+              <p className="text-xs text-gray-500 capitalize">
+                {scenario.mapPreset.biome}
+              </p>
             </div>
             <div>
               <p className="text-gray-500">Objective</p>
@@ -217,16 +269,22 @@ export function QuickGameReview(): React.ReactElement {
       </Card>
 
       {/* Forces comparison */}
-      <div className="grid md:grid-cols-2 gap-4 mb-6">
+      <div className="mb-6 grid gap-4 md:grid-cols-2">
         <ForceDisplay title="Your Force" force={game.playerForce} />
-        <ForceDisplay title="Opposition" force={game.opponentForce} isOpponent />
+        <ForceDisplay
+          title="Opposition"
+          force={game.opponentForce}
+          isOpponent
+        />
       </div>
 
       {/* BV comparison */}
       <Card className="mb-6 bg-gray-800/50">
         <div className="p-4">
-          <h3 className="text-sm font-medium text-gray-300 mb-3">Force Balance</h3>
-          <div className="relative h-4 bg-gray-700 rounded-full overflow-hidden">
+          <h3 className="mb-3 text-sm font-medium text-gray-300">
+            Force Balance
+          </h3>
+          <div className="relative h-4 overflow-hidden rounded-full bg-gray-700">
             <div
               className="absolute inset-y-0 left-0 bg-cyan-500"
               style={{
@@ -234,7 +292,7 @@ export function QuickGameReview(): React.ReactElement {
               }}
             />
           </div>
-          <div className="flex justify-between mt-2 text-xs">
+          <div className="mt-2 flex justify-between text-xs">
             <span className="text-cyan-400">
               Player: {game.playerForce.totalBV.toLocaleString()} BV
             </span>
@@ -242,8 +300,15 @@ export function QuickGameReview(): React.ReactElement {
               Opposition: {game.opponentForce.totalBV.toLocaleString()} BV
             </span>
           </div>
-          <p className="text-center text-xs text-gray-500 mt-2">
-            Difficulty: {game.playerForce.totalBV > 0 ? ((game.opponentForce.totalBV / game.playerForce.totalBV) * 100).toFixed(0) : 0}%
+          <p className="mt-2 text-center text-xs text-gray-500">
+            Difficulty:{' '}
+            {game.playerForce.totalBV > 0
+              ? (
+                  (game.opponentForce.totalBV / game.playerForce.totalBV) *
+                  100
+                ).toFixed(0)
+              : 0}
+            %
           </p>
         </div>
       </Card>
@@ -255,7 +320,7 @@ export function QuickGameReview(): React.ReactElement {
 
       {/* Victory conditions */}
       <Card className="mb-6">
-        <div className="p-4 border-b border-gray-700">
+        <div className="border-b border-gray-700 p-4">
           <h3 className="font-medium text-white">Victory Conditions</h3>
         </div>
         <div className="p-4">
@@ -263,7 +328,7 @@ export function QuickGameReview(): React.ReactElement {
             {scenario.template.victoryConditions.map((condition, index) => (
               <li key={index} className="flex items-start gap-2 text-sm">
                 <svg
-                  className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5"
+                  className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

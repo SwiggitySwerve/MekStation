@@ -7,9 +7,15 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { CapitalShipLocation } from '../../../types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
+import {
+  AerospaceMotionType,
+  IAerospaceMovement,
+} from '../../../types/unit/BaseUnitInterfaces';
+import { IBaseUnit } from '../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import {
   ICapitalMountedEquipment,
   ITransportBay,
@@ -19,18 +25,12 @@ import {
   QuartersType,
   CapitalArc,
 } from '../../../types/unit/CapitalShipInterfaces';
-import {
-  AerospaceMotionType,
-  IAerospaceMovement,
-} from '../../../types/unit/BaseUnitInterfaces';
-import { CapitalShipLocation } from '../../../types/construction/UnitLocation';
+import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
-import { IBaseUnit } from '../../../types/unit/BaseUnitInterfaces';
 
 // ============================================================================
 // JumpShip Interface
@@ -119,7 +119,9 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
   /**
    * Parse JumpShip-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<IJumpShip> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<IJumpShip> & {
     errors: string[];
     warnings: string[];
   } {
@@ -241,12 +243,14 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
    */
   private parseKFDrive(
     rawTags: Record<string, string | string[]>,
-    tonnage: number
+    tonnage: number,
   ): IJumpShip['kfDrive'] {
-    const rating = this.parseNumericRaw(rawTags, 'kfrating') || Math.ceil(tonnage / 10000);
+    const rating =
+      this.parseNumericRaw(rawTags, 'kfrating') || Math.ceil(tonnage / 10000);
     const integrityPoints = this.parseNumericRaw(rawTags, 'kfintegrity') || 4;
     const hasDriveCore = true; // JumpShips always have K-F drive
-    const hasLithiumFusion = this.getBooleanFromRaw(rawTags, 'lithiumfusion') || false;
+    const hasLithiumFusion =
+      this.getBooleanFromRaw(rawTags, 'lithiumfusion') || false;
 
     return { rating, integrityPoints, hasDriveCore, hasLithiumFusion };
   }
@@ -254,7 +258,9 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
   /**
    * Parse crew configuration
    */
-  private parseCrewConfiguration(document: IBlkDocument): ICapitalCrewConfiguration {
+  private parseCrewConfiguration(
+    document: IBlkDocument,
+  ): ICapitalCrewConfiguration {
     return {
       crew: document.crew || 0,
       officers: document.officers || 0,
@@ -291,7 +297,7 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
    */
   private parseTransporterString(
     transporter: string,
-    bayNumber: number
+    bayNumber: number,
   ): ITransportBay | null {
     const lower = transporter.toLowerCase();
     const parts = lower.split(':');
@@ -343,11 +349,15 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly ICapitalMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly ICapitalMountedEquipment[] {
     const equipment: ICapitalMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const arc = this.normalizeArc(locationKey);
 
       for (const item of items) {
@@ -387,7 +397,10 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
   /**
    * Parse numeric value from raw tags
    */
-  private parseNumericRaw(rawTags: Record<string, string | string[]>, key: string): number {
+  private parseNumericRaw(
+    rawTags: Record<string, string | string[]>,
+    key: string,
+  ): number {
     const value = rawTags[key];
     if (Array.isArray(value)) {
       return parseFloat(value[0]) || 0;
@@ -400,7 +413,7 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
    */
   private getBooleanFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): boolean {
     const value = rawTags[key];
     if (value === undefined) return false;
@@ -415,7 +428,7 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<IJumpShip>
+    typeSpecificFields: Partial<IJumpShip>,
   ): IJumpShip {
     const techBase = this.parseTechBase(commonFields.techBase);
     const rulesLevel = this.parseRulesLevel(commonFields.techBase);
@@ -493,7 +506,9 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
   /**
    * Serialize JumpShip-specific fields
    */
-  protected serializeTypeSpecificFields(unit: IJumpShip): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: IJumpShip,
+  ): Partial<ISerializedUnit> {
     return {
       configuration: 'JumpShip',
       rulesLevel: String(unit.rulesLevel),
@@ -504,7 +519,9 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
    * Deserialize from standard format
    */
   deserialize(_serialized: ISerializedUnit): IUnitParseResult<IJumpShip> {
-    return createFailureResult(['JumpShip deserialization not yet implemented']);
+    return createFailureResult([
+      'JumpShip deserialization not yet implemented',
+    ]);
   }
 
   /**

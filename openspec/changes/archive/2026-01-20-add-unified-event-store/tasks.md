@@ -89,6 +89,7 @@
 ## Implementation Summary
 
 **Completed (31/46 tasks):**
+
 - Core types and interfaces (6/6)
 - Chunk & checkpoint types (5/5)
 - Event store service (6/6)
@@ -98,6 +99,7 @@
 - Testing (7/7)
 
 **Deferred for future phases:**
+
 - IndexedDB persistence (0/6) - requires campaign/multiplayer use case
 - Migration (0/4) - requires campaign system
 - Zustand integration (0/6) - requires campaign/multiplayer features

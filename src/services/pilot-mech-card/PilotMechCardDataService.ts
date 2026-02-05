@@ -7,9 +7,12 @@
  * @spec Phase 2 - Gameplay Roadmap
  */
 
-import { IPilot, PilotStatus } from '@/types/pilot';
 import { IUnitCardData } from '@/services/unit-card';
-import { IPilotMechCardData, IPilotMechCardMechData } from '@/types/pilot/pilot-mech-card';
+import { IPilot, PilotStatus } from '@/types/pilot';
+import {
+  IPilotMechCardData,
+  IPilotMechCardMechData,
+} from '@/types/pilot/pilot-mech-card';
 
 // =============================================================================
 // Constants
@@ -89,7 +92,9 @@ export function getStatusDisplayName(status: PilotStatus): string {
  * @param unitData - Full unit card data
  * @returns Mech data for pilot-mech card display
  */
-export function extractMechData(unitData: IUnitCardData): IPilotMechCardMechData {
+export function extractMechData(
+  unitData: IUnitCardData,
+): IPilotMechCardMechData {
   return {
     unitId: unitData.id,
     name: unitData.name,
@@ -119,7 +124,7 @@ export function extractMechData(unitData: IUnitCardData): IPilotMechCardMechData
  */
 export function createPilotMechCardData(
   pilot: IPilot,
-  mech: IUnitCardData | null
+  mech: IUnitCardData | null,
 ): IPilotMechCardData {
   // Extract ability names from pilot's ability references
   // Note: In a full implementation, you'd resolve ability IDs to names
@@ -182,9 +187,7 @@ export function formatSkills(gunnery: number, piloting: number): string {
  */
 export function isPilotCombatReady(data: IPilotMechCardData): boolean {
   return (
-    data.status === 'Active' &&
-    data.wounds < MAX_WOUNDS &&
-    data.mech !== null
+    data.status === 'Active' && data.wounds < MAX_WOUNDS && data.mech !== null
   );
 }
 
@@ -195,7 +198,7 @@ export function isPilotCombatReady(data: IPilotMechCardData): boolean {
  * @returns Severity level: 'none', 'light', 'moderate', 'severe', 'critical'
  */
 export function getWoundSeverity(
-  wounds: number
+  wounds: number,
 ): 'none' | 'light' | 'moderate' | 'severe' | 'critical' {
   if (wounds === 0) return 'none';
   if (wounds <= 2) return 'light';
@@ -211,7 +214,10 @@ export function getWoundSeverity(
  * @param maxArmor - Maximum possible armor
  * @returns Percentage (0-100)
  */
-export function calculateArmorPercentage(totalArmor: number, maxArmor: number): number {
+export function calculateArmorPercentage(
+  totalArmor: number,
+  maxArmor: number,
+): number {
   if (maxArmor <= 0) return 0;
   return Math.round((totalArmor / maxArmor) * 100);
 }

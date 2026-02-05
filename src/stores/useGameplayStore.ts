@@ -6,6 +6,15 @@
  */
 
 import { create } from 'zustand';
+
+import {
+  createDemoSession,
+  createDemoWeapons,
+  createDemoMaxArmor,
+  createDemoMaxStructure,
+  createDemoPilotNames,
+  createDemoHeatSinks,
+} from '@/__fixtures__/gameplay';
 import {
   IGameSession,
   IGameplayUIState,
@@ -22,14 +31,6 @@ import {
   endGame,
   replayToSequence,
 } from '@/utils/gameplay/gameSession';
-import {
-  createDemoSession,
-  createDemoWeapons,
-  createDemoMaxArmor,
-  createDemoMaxStructure,
-  createDemoPilotNames,
-  createDemoHeatSinks,
-} from '@/__fixtures__/gameplay';
 
 // =============================================================================
 // Types
@@ -118,7 +119,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
     }
   },
 
-createDemoSession: () => {
+  createDemoSession: () => {
     const session = createDemoSession();
     set({
       session,
@@ -144,7 +145,7 @@ createDemoSession: () => {
     }));
   },
 
-handleAction: (actionId: string) => {
+  handleAction: (actionId: string) => {
     const { session, ui } = get();
     if (!session) return;
 

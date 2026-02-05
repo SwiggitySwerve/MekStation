@@ -3,9 +3,16 @@
  * Tests for StatDisplay Components
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { StatRow, StatList, StatCard, StatGrid, SimpleStatCard } from '@/components/ui/StatDisplay';
+import React from 'react';
+
+import {
+  StatRow,
+  StatList,
+  StatCard,
+  StatGrid,
+  SimpleStatCard,
+} from '@/components/ui/StatDisplay';
 
 describe('StatDisplay Components', () => {
   describe('StatRow', () => {
@@ -61,12 +68,19 @@ describe('StatDisplay Components', () => {
     });
 
     it('should keep specified color when highlight is true', () => {
-      render(<StatRow label="Value" value="100" highlight valueColor="amber" />);
+      render(
+        <StatRow label="Value" value="100" highlight valueColor="amber" />,
+      );
       expect(screen.getByText('100')).toHaveClass('text-accent');
     });
 
     it('should render React node as value', () => {
-      render(<StatRow label="Component" value={<span data-testid="custom">Custom</span>} />);
+      render(
+        <StatRow
+          label="Component"
+          value={<span data-testid="custom">Custom</span>}
+        />,
+      );
       expect(screen.getByTestId('custom')).toBeInTheDocument();
     });
 
@@ -83,7 +97,7 @@ describe('StatDisplay Components', () => {
         <StatList>
           <StatRow label="A" value="1" />
           <StatRow label="B" value="2" />
-        </StatList>
+        </StatList>,
       );
       expect(screen.getByText('A')).toBeInTheDocument();
       expect(screen.getByText('B')).toBeInTheDocument();
@@ -93,7 +107,7 @@ describe('StatDisplay Components', () => {
       const { container } = render(
         <StatList>
           <div>Item</div>
-        </StatList>
+        </StatList>,
       );
       expect(container.firstChild).toHaveClass('space-y-2');
     });
@@ -102,7 +116,7 @@ describe('StatDisplay Components', () => {
       const { container } = render(
         <StatList className="custom-list">
           <div>Item</div>
-        </StatList>
+        </StatList>,
       );
       expect(container.firstChild).toHaveClass('custom-list');
     });
@@ -113,7 +127,7 @@ describe('StatDisplay Components', () => {
       render(
         <StatCard title="Combat Stats">
           <div>Content</div>
-        </StatCard>
+        </StatCard>,
       );
       expect(screen.getByText('Combat Stats')).toBeInTheDocument();
     });
@@ -122,7 +136,7 @@ describe('StatDisplay Components', () => {
       render(
         <StatCard title="Stats">
           <div data-testid="content">Content</div>
-        </StatCard>
+        </StatCard>,
       );
       expect(screen.getByTestId('content')).toBeInTheDocument();
     });
@@ -131,33 +145,53 @@ describe('StatDisplay Components', () => {
       render(
         <StatCard title="Stats" icon={<span data-testid="icon">🎯</span>}>
           <div>Content</div>
-        </StatCard>
+        </StatCard>,
       );
       expect(screen.getByTestId('icon')).toBeInTheDocument();
     });
 
     it('should apply amber variant by default', () => {
-      render(<StatCard title="Amber"><div>Content</div></StatCard>);
+      render(
+        <StatCard title="Amber">
+          <div>Content</div>
+        </StatCard>,
+      );
       expect(screen.getByText('Amber')).toHaveClass('text-amber-400');
     });
 
     it('should apply cyan variant', () => {
-      render(<StatCard title="Cyan" variant="cyan"><div>Content</div></StatCard>);
+      render(
+        <StatCard title="Cyan" variant="cyan">
+          <div>Content</div>
+        </StatCard>,
+      );
       expect(screen.getByText('Cyan')).toHaveClass('text-cyan-400');
     });
 
     it('should apply emerald variant', () => {
-      render(<StatCard title="Emerald" variant="emerald"><div>Content</div></StatCard>);
+      render(
+        <StatCard title="Emerald" variant="emerald">
+          <div>Content</div>
+        </StatCard>,
+      );
       expect(screen.getByText('Emerald')).toHaveClass('text-emerald-400');
     });
 
     it('should apply violet variant', () => {
-      render(<StatCard title="Violet" variant="violet"><div>Content</div></StatCard>);
+      render(
+        <StatCard title="Violet" variant="violet">
+          <div>Content</div>
+        </StatCard>,
+      );
       expect(screen.getByText('Violet')).toHaveClass('text-violet-400');
     });
 
     it('should apply rose variant', () => {
-      render(<StatCard title="Rose" variant="rose"><div>Content</div></StatCard>);
+      render(
+        <StatCard title="Rose" variant="rose">
+          <div>Content</div>
+        </StatCard>,
+      );
       expect(screen.getByText('Rose')).toHaveClass('text-rose-400');
     });
 
@@ -165,7 +199,7 @@ describe('StatDisplay Components', () => {
       const { container } = render(
         <StatCard title="Card" className="custom-card">
           <div>Content</div>
-        </StatCard>
+        </StatCard>,
       );
       expect(container.firstChild).toHaveClass('custom-card');
     });
@@ -174,7 +208,7 @@ describe('StatDisplay Components', () => {
       const { container } = render(
         <StatCard title="Card">
           <div>Content</div>
-        </StatCard>
+        </StatCard>,
       );
       expect(container.firstChild).toHaveClass('bg-surface-base/30');
       expect(container.firstChild).toHaveClass('border');
@@ -188,7 +222,7 @@ describe('StatDisplay Components', () => {
         <StatGrid>
           <div>Item 1</div>
           <div>Item 2</div>
-        </StatGrid>
+        </StatGrid>,
       );
       expect(screen.getByText('Item 1')).toBeInTheDocument();
       expect(screen.getByText('Item 2')).toBeInTheDocument();
@@ -198,7 +232,7 @@ describe('StatDisplay Components', () => {
       const { container } = render(
         <StatGrid>
           <div>Item</div>
-        </StatGrid>
+        </StatGrid>,
       );
       expect(container.firstChild).toHaveClass('grid');
       expect(container.firstChild).toHaveClass('md:grid-cols-2');
@@ -208,7 +242,7 @@ describe('StatDisplay Components', () => {
       const { container } = render(
         <StatGrid cols={3}>
           <div>Item</div>
-        </StatGrid>
+        </StatGrid>,
       );
       expect(container.firstChild).toHaveClass('lg:grid-cols-3');
     });
@@ -217,7 +251,7 @@ describe('StatDisplay Components', () => {
       const { container } = render(
         <StatGrid cols={4}>
           <div>Item</div>
-        </StatGrid>
+        </StatGrid>,
       );
       expect(container.firstChild).toHaveClass('lg:grid-cols-4');
     });
@@ -226,7 +260,7 @@ describe('StatDisplay Components', () => {
       const { container } = render(
         <StatGrid>
           <div>Item</div>
-        </StatGrid>
+        </StatGrid>,
       );
       expect(container.firstChild).toHaveClass('gap-6');
     });
@@ -235,7 +269,7 @@ describe('StatDisplay Components', () => {
       const { container } = render(
         <StatGrid className="custom-grid">
           <div>Item</div>
-        </StatGrid>
+        </StatGrid>,
       );
       expect(container.firstChild).toHaveClass('custom-grid');
     });
@@ -269,7 +303,9 @@ describe('StatDisplay Components', () => {
     });
 
     it('should show loading skeleton when loading', () => {
-      const { container } = render(<SimpleStatCard value="150" label="Units" loading />);
+      const { container } = render(
+        <SimpleStatCard value="150" label="Units" loading />,
+      );
       expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
     });
 
@@ -285,20 +321,21 @@ describe('StatDisplay Components', () => {
 
     it('should render React node as value', () => {
       render(
-        <SimpleStatCard 
-          value={<span data-testid="custom-value">Custom</span>} 
-          label="Label" 
-        />
+        <SimpleStatCard
+          value={<span data-testid="custom-value">Custom</span>}
+          label="Label"
+        />,
       );
       expect(screen.getByTestId('custom-value')).toBeInTheDocument();
     });
 
     it('should have card styling', () => {
-      const { container } = render(<SimpleStatCard value="150" label="Units" />);
+      const { container } = render(
+        <SimpleStatCard value="150" label="Units" />,
+      );
       expect(container.firstChild).toHaveClass('bg-surface-base/50');
       expect(container.firstChild).toHaveClass('rounded-xl');
       expect(container.firstChild).toHaveClass('text-center');
     });
   });
 });
-

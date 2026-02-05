@@ -11,7 +11,10 @@ import React from 'react';
 import { StoreApi } from 'zustand';
 
 // Store
-import { ProtoMechStoreContext, ProtoMechStore } from '@/stores/useProtoMechStore';
+import {
+  ProtoMechStoreContext,
+  ProtoMechStore,
+} from '@/stores/useProtoMechStore';
 
 // Components
 import { ProtoMechStructureTab } from './ProtoMechStructureTab';
@@ -43,10 +46,12 @@ export function ProtoMechCustomizer({
 }: ProtoMechCustomizerProps): React.ReactElement {
   return (
     <ProtoMechStoreContext.Provider value={store}>
-      <div className={`flex flex-col h-full ${className}`}>
+      <div className={`flex h-full flex-col ${className}`}>
         {/* Header */}
-        <div className="flex items-center border-b border-border-theme bg-surface-base px-4 py-2">
-          <span className="text-sm font-medium text-white">ProtoMech Configuration</span>
+        <div className="border-border-theme bg-surface-base flex items-center border-b px-4 py-2">
+          <span className="text-sm font-medium text-white">
+            ProtoMech Configuration
+          </span>
         </div>
 
         {/* Main Content Area */}

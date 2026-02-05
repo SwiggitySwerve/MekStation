@@ -6,9 +6,8 @@
  * @spec openspec/changes/add-awards-system/specs/awards/spec.md
  */
 import React, { useMemo, useState } from 'react';
+
 import { Card } from '@/components/ui';
-import { AwardBadge } from './AwardBadge';
-import { AwardDetailModal } from './AwardDetailModal';
 import { useAwardStore } from '@/stores/useAwardStore';
 import {
   IAward,
@@ -17,6 +16,9 @@ import {
   AwardRarity,
   AWARD_CATALOG,
 } from '@/types/award';
+
+import { AwardBadge } from './AwardBadge';
+import { AwardDetailModal } from './AwardDetailModal';
 
 // =============================================================================
 // Types
@@ -165,26 +167,23 @@ export function AwardGrid({
     <>
       <Card className={className}>
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-4 border-b border-border-theme-subtle">
+        <div className="border-border-theme-subtle mb-6 flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-lg font-bold text-text-theme-primary">Awards</h3>
-            <p className="text-sm text-text-theme-muted">
+            <h3 className="text-text-theme-primary text-lg font-bold">
+              Awards
+            </h3>
+            <p className="text-text-theme-muted text-sm">
               {earnedCount} of {totalVisible} earned
             </p>
           </div>
 
           {/* Sort Controls */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-text-theme-muted">Sort by:</span>
+            <span className="text-text-theme-muted text-xs">Sort by:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="
-                px-2 py-1 text-sm rounded-md
-                bg-surface-deep border border-border-theme-subtle
-                text-text-theme-secondary
-                focus:outline-none focus:border-accent
-              "
+              className="bg-surface-deep border-border-theme-subtle text-text-theme-secondary focus:border-accent rounded-md border px-2 py-1 text-sm focus:outline-none"
             >
               <option value="rarity">Rarity</option>
               <option value="earned">Earned First</option>
@@ -196,9 +195,9 @@ export function AwardGrid({
 
         {/* Empty State */}
         {displayAwards.length === 0 && (
-          <div className="text-center py-12">
+          <div className="py-12 text-center">
             <svg
-              className="w-16 h-16 mx-auto mb-4 text-text-theme-muted opacity-30"
+              className="text-text-theme-muted mx-auto mb-4 h-16 w-16 opacity-30"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -231,14 +230,14 @@ export function AwardGrid({
 
         {/* Progress Bar */}
         {totalVisible > 0 && (
-          <div className="mt-6 pt-4 border-t border-border-theme-subtle">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-text-theme-muted">Progress</span>
-              <span className="text-xs font-medium text-text-theme-secondary">
+          <div className="border-border-theme-subtle mt-6 border-t pt-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-text-theme-muted text-xs">Progress</span>
+              <span className="text-text-theme-secondary text-xs font-medium">
                 {Math.round((earnedCount / totalVisible) * 100)}%
               </span>
             </div>
-            <div className="h-2 bg-surface-deep rounded-full overflow-hidden">
+            <div className="bg-surface-deep h-2 overflow-hidden rounded-full">
               <div
                 className="h-full bg-gradient-to-r from-emerald-500 to-amber-500 transition-all duration-500"
                 style={{ width: `${(earnedCount / totalVisible) * 100}%` }}

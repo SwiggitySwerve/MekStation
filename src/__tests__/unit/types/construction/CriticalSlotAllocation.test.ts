@@ -1,13 +1,13 @@
 /**
  * Tests for CriticalSlotAllocation - Slot Counts and Location Definitions
- * 
+ *
  * @spec openspec/changes/integrate-mm-data-assets/specs/record-sheet-export/spec.md
- * 
+ *
  * Verifies that all mech locations have correct slot counts per BattleTech rules.
  */
 
-import { 
-  MechLocation, 
+import {
+  MechLocation,
   LOCATION_SLOT_COUNTS,
 } from '@/types/construction/CriticalSlotAllocation';
 
@@ -139,7 +139,7 @@ describe('CriticalSlotAllocation', () => {
 
     describe('Total Slot Counts by Configuration', () => {
       it('should total 78 slots for biped (6 + 12*3 + 12*2 + 6*2)', () => {
-        const bipedTotal = 
+        const bipedTotal =
           LOCATION_SLOT_COUNTS[MechLocation.HEAD] +
           LOCATION_SLOT_COUNTS[MechLocation.CENTER_TORSO] +
           LOCATION_SLOT_COUNTS[MechLocation.LEFT_TORSO] +
@@ -148,12 +148,12 @@ describe('CriticalSlotAllocation', () => {
           LOCATION_SLOT_COUNTS[MechLocation.RIGHT_ARM] +
           LOCATION_SLOT_COUNTS[MechLocation.LEFT_LEG] +
           LOCATION_SLOT_COUNTS[MechLocation.RIGHT_LEG];
-        
+
         expect(bipedTotal).toBe(78);
       });
 
       it('should total 66 slots for quad (6 + 12*3 + 6*4)', () => {
-        const quadTotal = 
+        const quadTotal =
           LOCATION_SLOT_COUNTS[MechLocation.HEAD] +
           LOCATION_SLOT_COUNTS[MechLocation.CENTER_TORSO] +
           LOCATION_SLOT_COUNTS[MechLocation.LEFT_TORSO] +
@@ -162,12 +162,12 @@ describe('CriticalSlotAllocation', () => {
           LOCATION_SLOT_COUNTS[MechLocation.FRONT_RIGHT_LEG] +
           LOCATION_SLOT_COUNTS[MechLocation.REAR_LEFT_LEG] +
           LOCATION_SLOT_COUNTS[MechLocation.REAR_RIGHT_LEG];
-        
+
         expect(quadTotal).toBe(66);
       });
 
       it('should total 84 slots for tripod (6 + 12*3 + 12*2 + 6*3)', () => {
-        const tripodTotal = 
+        const tripodTotal =
           LOCATION_SLOT_COUNTS[MechLocation.HEAD] +
           LOCATION_SLOT_COUNTS[MechLocation.CENTER_TORSO] +
           LOCATION_SLOT_COUNTS[MechLocation.LEFT_TORSO] +
@@ -177,7 +177,7 @@ describe('CriticalSlotAllocation', () => {
           LOCATION_SLOT_COUNTS[MechLocation.LEFT_LEG] +
           LOCATION_SLOT_COUNTS[MechLocation.RIGHT_LEG] +
           LOCATION_SLOT_COUNTS[MechLocation.CENTER_LEG];
-        
+
         expect(tripodTotal).toBe(84);
       });
     });
@@ -185,8 +185,8 @@ describe('CriticalSlotAllocation', () => {
     describe('Completeness', () => {
       it('should have slot counts for all MechLocation values', () => {
         const allLocations = Object.values(MechLocation);
-        
-        allLocations.forEach(location => {
+
+        allLocations.forEach((location) => {
           expect(LOCATION_SLOT_COUNTS[location]).toBeDefined();
           expect(typeof LOCATION_SLOT_COUNTS[location]).toBe('number');
         });
@@ -208,8 +208,8 @@ describe('CriticalSlotAllocation', () => {
           MechLocation.REAR_LEFT_LEG,
           MechLocation.REAR_RIGHT_LEG,
         ];
-        
-        mechLocations.forEach(location => {
+
+        mechLocations.forEach((location) => {
           expect(LOCATION_SLOT_COUNTS[location]).toBeGreaterThan(0);
         });
       });
@@ -223,8 +223,8 @@ describe('CriticalSlotAllocation', () => {
           MechLocation.AFT,
           MechLocation.FUSELAGE,
         ];
-        
-        aeroLocations.forEach(location => {
+
+        aeroLocations.forEach((location) => {
           expect(LOCATION_SLOT_COUNTS[location]).toBe(0);
         });
       });

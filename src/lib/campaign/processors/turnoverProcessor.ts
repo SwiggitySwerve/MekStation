@@ -1,9 +1,16 @@
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import type { IPerson } from '@/types/campaign/Person';
+import type { Transaction } from '@/types/campaign/Transaction';
+
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
-import type { Transaction } from '@/types/campaign/Transaction';
 import { Money } from '@/types/campaign/Money';
+
+import type {
+  TurnoverReport,
+  TurnoverCheckResult,
+} from '../turnover/turnoverCheck';
+
 import {
   IDayProcessor,
   IDayProcessorResult,
@@ -15,7 +22,6 @@ import {
   isFirstOfYear,
 } from '../dayPipeline';
 import { runTurnoverChecks } from '../turnover/turnoverCheck';
-import type { TurnoverReport, TurnoverCheckResult } from '../turnover/turnoverCheck';
 
 const QUARTER_MONTHS = new Set([0, 3, 6, 9]);
 
@@ -53,7 +59,9 @@ export function applyTurnoverResults(
   report: TurnoverReport,
   date: Date,
 ): ICampaign {
-  const departures = report.results.filter((r) => !r.passed && r.departureType !== null);
+  const departures = report.results.filter(
+    (r) => !r.passed && r.departureType !== null,
+  );
 
   if (departures.length === 0) return campaign;
 
@@ -64,7 +72,8 @@ export function applyTurnoverResults(
     const person = updatedPersonnel.get(departure.personId);
     if (!person) continue;
 
-    const newStatus = DEPARTURE_STATUS[departure.departureType!] ?? PersonnelStatus.RETIRED;
+    const newStatus =
+      DEPARTURE_STATUS[departure.departureType!] ?? PersonnelStatus.RETIRED;
 
     const updatedPerson: IPerson = {
       ...person,

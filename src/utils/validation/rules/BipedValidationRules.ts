@@ -1,3 +1,4 @@
+import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
 import {
   IValidationRuleDefinition,
   IValidationRuleResult,
@@ -6,7 +7,6 @@ import {
   ValidationCategory,
   ValidationSeverity,
 } from '../../../types/validation/rules/ValidationRuleInterfaces';
-import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
 import { pass, fail } from './validationHelpers';
 
 export const BipedNoQuadLegsRule: IValidationRuleDefinition = {
@@ -24,7 +24,9 @@ export const BipedNoQuadLegsRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const equipment = unit.equipment as Array<Record<string, unknown>> | undefined;
+    const equipment = unit.equipment as
+      | Array<Record<string, unknown>>
+      | undefined;
 
     if (!equipment) {
       return pass(this.id);
@@ -61,6 +63,4 @@ export const BipedNoQuadLegsRule: IValidationRuleDefinition = {
   },
 };
 
-export const BipedValidationRules = [
-  BipedNoQuadLegsRule,
-];
+export const BipedValidationRules = [BipedNoQuadLegsRule];

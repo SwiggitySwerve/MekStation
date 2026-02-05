@@ -13,48 +13,52 @@ This document captures the analysis and design decisions for the codebase cleanu
 #### Result Type Duplication
 
 **Location 1: `src/services/core/types/BaseTypes.ts`**
+
 ```typescript
 export type ResultType<T, E = string> =
   | { success: true; data: T; error?: never }
   | { success: false; error: E; data?: never };
 
 export class Result {
-  static success<T>(data: T): ResultType<T, never>
-  static error<E = string>(error: E): ResultType<never, E>
-  static isSuccess<T, E>(result): result is { success: true; data: T }
-  static isError<T, E>(result): result is { success: false; error: E }
-  static unwrap<T, E>(result): T
-  static unwrapOr<T, E>(result, defaultValue): T
-  static map<T, U, E>(result, fn): ResultType<U, E>
-  static flatMap<T, U, E>(result, fn): ResultType<U, E>
+  static success<T>(data: T): ResultType<T, never>;
+  static error<E = string>(error: E): ResultType<never, E>;
+  static isSuccess<T, E>(result): result is { success: true; data: T };
+  static isError<T, E>(result): result is { success: false; error: E };
+  static unwrap<T, E>(result): T;
+  static unwrapOr<T, E>(result, defaultValue): T;
+  static map<T, U, E>(result, fn): ResultType<U, E>;
+  static flatMap<T, U, E>(result, fn): ResultType<U, E>;
 }
 ```
 
 **Location 2: `src/services/common/types.ts`**
+
 ```typescript
 export type Result<T, E = Error> =
   | { success: true; data: T }
   | { success: false; error: E };
 
-export function success<T>(data: T): Result<T>
-export function failure<T, E = Error>(error: E): Result<T, E>
+export function success<T>(data: T): Result<T>;
+export function failure<T, E = Error>(error: E): Result<T, E>;
 ```
 
 **Recommendation:** Use `BaseTypes.ts` version as canonical source because:
+
 1. Richer API with map, flatMap, unwrap utilities
 2. Better type narrowing with `error?: never` / `data?: never`
 3. Class-based API is more discoverable
 
 #### UnitType Fragmentation
 
-| Location | Type | Values |
-|----------|------|--------|
+| Location                  | Type   | Values                                                                                                                                                                                            |
+| ------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `BattleMechInterfaces.ts` | `enum` | BATTLEMECH, OMNIMECH, INDUSTRIALMECH, PROTOMECH, VEHICLE, VTOL, AEROSPACE, CONVENTIONAL_FIGHTER, SMALL_CRAFT, DROPSHIP, JUMPSHIP, WARSHIP, SPACE_STATION, INFANTRY, BATTLE_ARMOR, SUPPORT_VEHICLE |
-| `common/types.ts` | `type` | BattleMech, Vehicle, Infantry, ProtoMech, BattleArmor, Aerospace, ConvFighter, Dropship, Jumpship, Warship, SpaceStation, SmallCraft |
-| `desktop/BaseTypes.ts` | `type` | BattleMech, Vehicle, Infantry, ProtoMech, Aerospace, Unknown |
-| `useElectron.ts` | `type` | BattleMech, Vehicle, Infantry, ProtoMech, Aerospace, Unknown |
+| `common/types.ts`         | `type` | BattleMech, Vehicle, Infantry, ProtoMech, BattleArmor, Aerospace, ConvFighter, Dropship, Jumpship, Warship, SpaceStation, SmallCraft                                                              |
+| `desktop/BaseTypes.ts`    | `type` | BattleMech, Vehicle, Infantry, ProtoMech, Aerospace, Unknown                                                                                                                                      |
+| `useElectron.ts`          | `type` | BattleMech, Vehicle, Infantry, ProtoMech, Aerospace, Unknown                                                                                                                                      |
 
 **Recommendation:** Use enum from `BattleMechInterfaces.ts` because:
+
 1. Most complete with all 16 unit types
 2. Enum provides better type safety and refactoring support
 3. Values match game terminology (e.g., `OMNIMECH` vs `OmniMech`)
@@ -97,10 +101,12 @@ Configuration Rules
 ```
 
 **Assessment:** These systems serve different purposes:
+
 - Services validation: Cross-unit-type, hierarchical
 - Utils validation: BattleMech-specific, configuration-aware
 
 **Recommendation:** Keep both but document their relationship:
+
 - Utils validation = detailed BattleMech configuration rules
 - Services validation = universal framework for all unit types
 - Future: Utils rules could be migrated into Services as BattleMech-specific layer
@@ -108,6 +114,7 @@ Configuration Rules
 ### File Organization Patterns
 
 #### Current (Dot-Notation)
+
 ```
 UnitLoaderService.ts                    # Main file
 UnitLoaderService.armor-calculations.ts # Segment
@@ -116,11 +123,13 @@ UnitLoaderService.component-mappers.ts  # Segment
 ```
 
 **Problems:**
+
 1. Non-standard TypeScript/JavaScript convention
 2. IDE file sorting puts segments far from main file
 3. No clear hierarchy or index
 
 #### Proposed (Directory)
+
 ```
 unitLoaderService/
 ├── index.ts           # Public API (re-exports UnitLoaderService)
@@ -131,6 +140,7 @@ unitLoaderService/
 ```
 
 **Benefits:**
+
 1. Standard JavaScript/TypeScript module pattern
 2. Clear public API via index.ts
 3. Better IDE navigation (collapse directory)
@@ -139,6 +149,7 @@ unitLoaderService/
 ### Naming Conventions
 
 #### Store Naming
+
 Current pattern: `use<Name>Store.ts`
 Exception: `navigationStore.ts` (exports `useNavigationStore`, `useMobileSidebarStore`)
 
@@ -151,8 +162,12 @@ Exception: `navigationStore.ts` (exports `useNavigationStore`, `useMobileSidebar
 ### Result Type Migration
 
 1. Add re-export in `common/types.ts`:
+
    ```typescript
-   export { ResultType as Result, Result as ResultHelpers } from '../core/types/BaseTypes';
+   export {
+     ResultType as Result,
+     Result as ResultHelpers,
+   } from '../core/types/BaseTypes';
    ```
 
 2. Gradually migrate call sites from `success(data)` to `Result.success(data)`
@@ -170,6 +185,7 @@ Exception: `navigationStore.ts` (exports `useNavigationStore`, `useMobileSidebar
 ### Store Migration Assessment
 
 Check usage counts before removing:
+
 ```bash
 grep -r "useCustomizerStore" src/ --include="*.ts" --include="*.tsx" | wc -l
 grep -r "useMultiUnitStore" src/ --include="*.ts" --include="*.tsx" | wc -l

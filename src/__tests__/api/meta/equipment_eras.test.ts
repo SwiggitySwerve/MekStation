@@ -2,8 +2,10 @@
  * Tests for /api/meta/equipment_eras endpoint
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import { createMocks } from 'node-mocks-http';
+
 import handler from '@/pages/api/meta/equipment_eras';
 import { ALL_ERAS } from '@/types/enums/Era';
 

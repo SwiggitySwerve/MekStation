@@ -37,7 +37,7 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
     },
   },
 
-  'marksman': {
+  marksman: {
     id: 'marksman',
     name: 'Marksman',
     description:
@@ -52,7 +52,7 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
     },
   },
 
-  'sniper': {
+  sniper: {
     id: 'sniper',
     name: 'Sniper',
     description:
@@ -102,7 +102,7 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
   // Piloting Abilities
   // ===========================================================================
 
-  'evasive': {
+  evasive: {
     id: 'evasive',
     name: 'Evasive',
     description:
@@ -132,7 +132,7 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
     },
   },
 
-  'acrobat': {
+  acrobat: {
     id: 'acrobat',
     name: 'Acrobat',
     description:
@@ -150,8 +150,7 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
   'terrain-master': {
     id: 'terrain-master',
     name: 'Terrain Master',
-    description:
-      'Ignores +1 piloting modifier for woods and rough terrain.',
+    description: 'Ignores +1 piloting modifier for woods and rough terrain.',
     xpCost: 50,
     prerequisites: [],
     minPiloting: 4,
@@ -192,7 +191,7 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
     },
   },
 
-  'edge': {
+  edge: {
     id: 'edge',
     name: 'Edge',
     description:
@@ -212,8 +211,7 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
   'tactical-genius': {
     id: 'tactical-genius',
     name: 'Tactical Genius',
-    description:
-      '+1 to initiative roll for the controlling player.',
+    description: '+1 to initiative roll for the controlling player.',
     xpCost: 75,
     prerequisites: [],
     effectType: AbilityEffectType.InitiativeModifier,
@@ -241,8 +239,7 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
   'cool-under-fire': {
     id: 'cool-under-fire',
     name: 'Cool Under Fire',
-    description:
-      'Mech generates 1 less heat per turn (minimum 0).',
+    description: 'Mech generates 1 less heat per turn (minimum 0).',
     xpCost: 50,
     prerequisites: [],
     effectType: AbilityEffectType.HeatModifier,
@@ -289,7 +286,7 @@ export function getAllAbilities(): ISpecialAbility[] {
 export function getAvailableAbilities(
   gunnery: number,
   piloting: number,
-  ownedAbilityIds: string[]
+  ownedAbilityIds: string[],
 ): ISpecialAbility[] {
   return getAllAbilities().filter((ability) => {
     // Check if already owned
@@ -310,7 +307,7 @@ export function getAvailableAbilities(
     // Check ability prerequisites
     if (ability.prerequisites.length > 0) {
       const hasAllPrereqs = ability.prerequisites.every((prereq) =>
-        ownedAbilityIds.includes(prereq)
+        ownedAbilityIds.includes(prereq),
       );
       if (!hasAllPrereqs) {
         return false;
@@ -328,10 +325,10 @@ export function getAffordableAbilities(
   gunnery: number,
   piloting: number,
   ownedAbilityIds: string[],
-  availableXp: number
+  availableXp: number,
 ): ISpecialAbility[] {
   return getAvailableAbilities(gunnery, piloting, ownedAbilityIds).filter(
-    (ability) => ability.xpCost <= availableXp
+    (ability) => ability.xpCost <= availableXp,
   );
 }
 
@@ -342,7 +339,7 @@ export function meetsPrerequisites(
   abilityId: string,
   gunnery: number,
   piloting: number,
-  ownedAbilityIds: string[]
+  ownedAbilityIds: string[],
 ): { meets: boolean; missing: string[] } {
   const ability = getAbility(abilityId);
   if (!ability) {
@@ -419,7 +416,10 @@ export function getAbilityCategory(abilityId: string): AbilityCategory {
 /**
  * Get abilities grouped by category.
  */
-export function getAbilitiesByCategory(): Record<AbilityCategory, ISpecialAbility[]> {
+export function getAbilitiesByCategory(): Record<
+  AbilityCategory,
+  ISpecialAbility[]
+> {
   const result: Record<AbilityCategory, ISpecialAbility[]> = {
     [AbilityCategory.Gunnery]: [],
     [AbilityCategory.Piloting]: [],

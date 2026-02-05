@@ -1,16 +1,21 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+
 import { PanelStack, Panel } from '../../../components/mobile/PanelStack';
-import { useNavigationStore } from '../../../stores/useNavigationStore';
 import { useDeviceType } from '../../../hooks/useDeviceType';
+import { useNavigationStore } from '../../../stores/useNavigationStore';
 
 // Mock dependencies
 jest.mock('../../../stores/useNavigationStore');
 jest.mock('../../../hooks/useDeviceType');
 
 describe('PanelStack', () => {
-  const mockUseNavigationStore = useNavigationStore as jest.MockedFunction<typeof useNavigationStore>;
-  const mockUseDeviceType = useDeviceType as jest.MockedFunction<typeof useDeviceType>;
+  const mockUseNavigationStore = useNavigationStore as jest.MockedFunction<
+    typeof useNavigationStore
+  >;
+  const mockUseDeviceType = useDeviceType as jest.MockedFunction<
+    typeof useDeviceType
+  >;
 
   beforeEach(() => {
     // Default mocks
@@ -62,13 +67,13 @@ describe('PanelStack', () => {
           <Panel id="catalog">
             <div>Catalog Content</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       expect(screen.getByText('Catalog Content')).toBeInTheDocument();
     });
 
-it('should not render when isMobile is false', () => {
+    it('should not render when isMobile is false', () => {
       mockUseDeviceType.mockReturnValue({
         isMobile: false,
         isTablet: false,
@@ -84,7 +89,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="catalog">
             <div>Catalog Content</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       expect(container.firstChild).toBeNull();
@@ -109,7 +114,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="catalog">
             <div>Catalog Content</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       const wrapper = container.firstChild as HTMLElement;
@@ -140,7 +145,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="editor">
             <div data-testid="editor-panel">Editor</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       expect(screen.getByTestId('catalog-panel')).toBeInTheDocument();
@@ -156,7 +161,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="editor">
             <div data-testid="editor-panel">Editor</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       expect(screen.getByTestId('catalog-panel')).toBeInTheDocument();
@@ -183,7 +188,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="editor">
             <div data-testid="editor-panel">Editor</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       expect(screen.getByTestId('editor-panel')).toBeInTheDocument();
@@ -210,11 +215,13 @@ it('should not render when isMobile is false', () => {
             <div data-testid="catalog-panel">Catalog</div>
           </Panel>
           <span>This should also not render</span>
-        </PanelStack>
+        </PanelStack>,
       );
 
       expect(screen.getByTestId('catalog-panel')).toBeInTheDocument();
-      expect(screen.queryByText('This should not render')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('This should not render'),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -238,7 +245,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="catalog">
             <div>Catalog</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       const panel = container.querySelector('[data-panel-id="catalog"]');
@@ -267,7 +274,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="editor">
             <div>Editor</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       const catalogPanel = container.querySelector('[data-panel-id="catalog"]');
@@ -296,7 +303,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="editor">
             <div>Editor</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       const editorPanel = container.querySelector('[data-panel-id="editor"]');
@@ -322,7 +329,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="catalog">
             <div>Catalog</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       const panel = container.querySelector('[data-panel-id="catalog"]');
@@ -354,11 +361,13 @@ it('should not render when isMobile is false', () => {
           <Panel id="editor">
             <div>Editor</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       const activePanel = container.querySelector('[data-panel-id="editor"]');
-      const previousPanel = container.querySelector('[data-panel-id="catalog"]');
+      const previousPanel = container.querySelector(
+        '[data-panel-id="catalog"]',
+      );
 
       expect(activePanel).toHaveStyle({ zIndex: 10 });
       expect(previousPanel).toHaveStyle({ zIndex: 5 });
@@ -394,16 +403,24 @@ it('should not render when isMobile is false', () => {
           <Panel id="settings">
             <div data-panel-id="settings">Settings</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       // Should render catalog (previous), editor (active), equipment (next)
-      expect(container.querySelector('[data-panel-id="catalog"]')).toBeInTheDocument();
-      expect(container.querySelector('[data-panel-id="editor"]')).toBeInTheDocument();
-      expect(container.querySelector('[data-panel-id="equipment"]')).toBeInTheDocument();
+      expect(
+        container.querySelector('[data-panel-id="catalog"]'),
+      ).toBeInTheDocument();
+      expect(
+        container.querySelector('[data-panel-id="editor"]'),
+      ).toBeInTheDocument();
+      expect(
+        container.querySelector('[data-panel-id="equipment"]'),
+      ).toBeInTheDocument();
 
       // Should not render settings (not adjacent)
-      expect(container.querySelector('[data-panel-id="settings"]')).not.toBeInTheDocument();
+      expect(
+        container.querySelector('[data-panel-id="settings"]'),
+      ).not.toBeInTheDocument();
     });
 
     it('should unmount panels after transition completes', async () => {
@@ -431,12 +448,16 @@ it('should not render when isMobile is false', () => {
           <Panel id="equipment">
             <div data-panel-id="equipment">Equipment</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       // Both catalog and editor should be rendered initially
-      expect(container.querySelector('[data-panel-id="catalog"]')).toBeInTheDocument();
-      expect(container.querySelector('[data-panel-id="editor"]')).toBeInTheDocument();
+      expect(
+        container.querySelector('[data-panel-id="catalog"]'),
+      ).toBeInTheDocument();
+      expect(
+        container.querySelector('[data-panel-id="editor"]'),
+      ).toBeInTheDocument();
 
       // Navigate to equipment (index 2)
       mockUseNavigationStore.mockReturnValue({
@@ -463,15 +484,17 @@ it('should not render when isMobile is false', () => {
           <Panel id="equipment">
             <div data-panel-id="equipment">Equipment</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       // After 300ms, catalog should be unmounted
       await waitFor(
         () => {
-          expect(container.querySelector('[data-panel-id="catalog"]')).not.toBeInTheDocument();
+          expect(
+            container.querySelector('[data-panel-id="catalog"]'),
+          ).not.toBeInTheDocument();
         },
-        { timeout: 400 }
+        { timeout: 400 },
       );
     }, 10000);
   });
@@ -481,7 +504,7 @@ it('should not render when isMobile is false', () => {
       render(
         <Panel id="test">
           <div data-testid="test-content">Test Content</div>
-        </Panel>
+        </Panel>,
       );
 
       expect(screen.getByTestId('test-content')).toBeInTheDocument();
@@ -506,11 +529,13 @@ it('should not render when isMobile is false', () => {
           <Panel id="test-panel">
             <div>Content</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       // PanelStack uses the id to render the panel
-      expect(container.querySelector('[data-panel-id="test-panel"]')).toBeInTheDocument();
+      expect(
+        container.querySelector('[data-panel-id="test-panel"]'),
+      ).toBeInTheDocument();
     });
   });
 
@@ -534,7 +559,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="catalog">
             <div>Catalog</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       const wrapper = container.firstChild as HTMLElement;
@@ -560,7 +585,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="catalog">
             <div>Catalog</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       const wrapper = container.firstChild as HTMLElement;
@@ -598,11 +623,13 @@ it('should not render when isMobile is false', () => {
           <Panel id="unnamed">
             <div>Unnamed Panel</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       // Should only render catalog panel
-      expect(container.querySelector('[data-panel-id="catalog"]')).toBeInTheDocument();
+      expect(
+        container.querySelector('[data-panel-id="catalog"]'),
+      ).toBeInTheDocument();
       expect(screen.queryByText('Unnamed Panel')).not.toBeInTheDocument();
     });
 
@@ -625,7 +652,7 @@ it('should not render when isMobile is false', () => {
           <Panel id="catalog">
             <div>Catalog</div>
           </Panel>
-        </PanelStack>
+        </PanelStack>,
       );
 
       // Should render wrapper but no panels

@@ -7,6 +7,7 @@ Fix incorrect slot count validation for exotic mech configurations (Quad, QuadVe
 ## Problem Statement
 
 The `ConfigurationValidationRules.ts` validation code uses incorrect maximum slot counts:
+
 - **Quad mechs**: Code uses 66 slots max (assumes 6-slot legs), but quad legs have 12 slots each
 - **Correct Quad total**: 6 (head) + 36 (torsos) + 48 (4x12 legs) = **90 slots**
 
@@ -17,6 +18,7 @@ Additionally, the `critical-slot-allocation` spec only documents biped slot coun
 ## Current State
 
 ### CriticalSlotAllocation.ts (Canonical - CORRECT)
+
 ```typescript
 // Quad/QuadVee leg locations (12 slots each)
 [MechLocation.FRONT_LEFT_LEG]: 12,
@@ -26,6 +28,7 @@ Additionally, the `critical-slot-allocation` spec only documents biped slot coun
 ```
 
 ### ConfigurationValidationRules.ts (INCORRECT)
+
 ```typescript
 // Quad mechs: 6 (head) + 12*3 (torsos) + 6*4 (legs) = 6 + 36 + 24 = 66 slots
 const maxSlots = 66; // WRONG - should be 90
@@ -34,12 +37,16 @@ const maxSlots = 66; // WRONG - should be 90
 ## Proposed Solution
 
 ### 1. Fix Validation Code
+
 Update `ConfigurationValidationRules.ts` to use correct slot counts:
+
 - Quad: 90 slots (not 66)
 - Import slot counts from `CriticalSlotAllocation.ts` instead of hardcoding
 
 ### 2. Document All Configuration Slot Counts
+
 Add requirements to `critical-slot-allocation` spec for:
+
 - **Biped**: 78 slots (6 head + 36 torsos + 24 arms + 12 legs)
 - **Quad**: 90 slots (6 head + 36 torsos + 48 quad legs)
 - **Tripod**: 84 slots (6 head + 36 torsos + 24 arms + 18 tripod legs)
@@ -47,6 +54,7 @@ Add requirements to `critical-slot-allocation` spec for:
 - **LAM**: 78 slots (same as Biped, fighter mode uses different locations)
 
 ### 3. Update Validation Rules Spec
+
 Add configuration-specific validation rules to `validation-rules-master` spec.
 
 ## Impact

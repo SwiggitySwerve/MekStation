@@ -1,3 +1,5 @@
+import type { IGeneratedScenario } from '@/types/scenario';
+
 /**
  * Generate Scenario Modal
  * Modal dialog for generating a battle scenario with full configuration options.
@@ -6,8 +8,8 @@
  */
 import { ModalOverlay } from '@/components/customizer/dialogs/ModalOverlay';
 import { Button } from '@/components/ui';
+
 import { ScenarioGenerator } from './ScenarioGenerator';
-import type { IGeneratedScenario } from '@/types/scenario';
 
 // =============================================================================
 // Types
@@ -43,14 +45,10 @@ export function GenerateScenarioModal({
   };
 
   return (
-    <ModalOverlay
-      isOpen={isOpen}
-      onClose={onClose}
-      className="max-w-4xl"
-    >
+    <ModalOverlay isOpen={isOpen} onClose={onClose} className="max-w-4xl">
       <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-text-theme-primary">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-text-theme-primary text-xl font-semibold">
             Generate Battle Scenario
           </h2>
           <Button
@@ -59,8 +57,19 @@ export function GenerateScenarioModal({
             onClick={onClose}
             aria-label="Close"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="h-5 w-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </Button>
         </div>
@@ -73,7 +82,7 @@ export function GenerateScenarioModal({
             variant="modal"
           />
         ) : (
-          <div className="text-center py-8">
+          <div className="py-8 text-center">
             <p className="text-text-theme-secondary mb-4">
               You need to select a player force before generating a scenario.
             </p>

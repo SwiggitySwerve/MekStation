@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { AnomalyAlertCard } from '../AnomalyAlertCard';
+import React from 'react';
+
 import type { IAnomaly } from '@/types/simulation-viewer';
+
+import { AnomalyAlertCard } from '../AnomalyAlertCard';
 
 const criticalAnomaly: IAnomaly = {
   id: 'anom-001',
@@ -63,18 +65,19 @@ describe('AnomalyAlertCard', () => {
   describe('Rendering', () => {
     it('renders icon, title, message, and context', () => {
       render(
-        <AnomalyAlertCard
-          anomaly={criticalAnomaly}
-          onDismiss={jest.fn()}
-        />,
+        <AnomalyAlertCard anomaly={criticalAnomaly} onDismiss={jest.fn()} />,
       );
 
       expect(screen.getByTestId('anomaly-icon')).toBeInTheDocument();
-      expect(screen.getByTestId('anomaly-title')).toHaveTextContent('Invariant Violation');
+      expect(screen.getByTestId('anomaly-title')).toHaveTextContent(
+        'Invariant Violation',
+      );
       expect(screen.getByTestId('anomaly-message')).toHaveTextContent(
         'Negative armor value detected on Atlas AS7-D',
       );
-      expect(screen.getByTestId('anomaly-context')).toHaveTextContent('Battle: battle-100');
+      expect(screen.getByTestId('anomaly-context')).toHaveTextContent(
+        'Battle: battle-100',
+      );
       expect(screen.getByTestId('anomaly-context')).toHaveTextContent('Turn 5');
     });
 
@@ -88,17 +91,24 @@ describe('AnomalyAlertCard', () => {
 
     it('has role=alert for accessibility', () => {
       render(<AnomalyAlertCard anomaly={criticalAnomaly} />);
-      expect(screen.getByTestId('anomaly-alert-card')).toHaveAttribute('role', 'alert');
+      expect(screen.getByTestId('anomaly-alert-card')).toHaveAttribute(
+        'role',
+        'alert',
+      );
     });
 
     it('applies custom className', () => {
-      render(<AnomalyAlertCard anomaly={criticalAnomaly} className="my-custom" />);
+      render(
+        <AnomalyAlertCard anomaly={criticalAnomaly} className="my-custom" />,
+      );
       expect(screen.getByTestId('anomaly-alert-card')).toHaveClass('my-custom');
     });
 
     it('formats hyphenated type into title case', () => {
       render(<AnomalyAlertCard anomaly={warningAnomaly} />);
-      expect(screen.getByTestId('anomaly-title')).toHaveTextContent('Heat Suicide');
+      expect(screen.getByTestId('anomaly-title')).toHaveTextContent(
+        'Heat Suicide',
+      );
     });
   });
 
@@ -149,7 +159,10 @@ describe('AnomalyAlertCard', () => {
 
     it('icon has aria-hidden for screen readers', () => {
       render(<AnomalyAlertCard anomaly={criticalAnomaly} />);
-      expect(screen.getByTestId('anomaly-icon')).toHaveAttribute('aria-hidden', 'true');
+      expect(screen.getByTestId('anomaly-icon')).toHaveAttribute(
+        'aria-hidden',
+        'true',
+      );
     });
   });
 
@@ -178,7 +191,9 @@ describe('AnomalyAlertCard', () => {
         />,
       );
 
-      expect(screen.queryByTestId('action-view-snapshot')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('action-view-snapshot'),
+      ).not.toBeInTheDocument();
     });
 
     it('does not show "View Snapshot" for info severity', () => {
@@ -191,15 +206,14 @@ describe('AnomalyAlertCard', () => {
         />,
       );
 
-      expect(screen.queryByTestId('action-view-snapshot')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('action-view-snapshot'),
+      ).not.toBeInTheDocument();
     });
 
     it('shows "View Battle" when onViewBattle provided', () => {
       render(
-        <AnomalyAlertCard
-          anomaly={warningAnomaly}
-          onViewBattle={jest.fn()}
-        />,
+        <AnomalyAlertCard anomaly={warningAnomaly} onViewBattle={jest.fn()} />,
       );
 
       expect(screen.getByTestId('action-view-battle')).toBeInTheDocument();
@@ -215,7 +229,9 @@ describe('AnomalyAlertCard', () => {
         />,
       );
 
-      expect(screen.getByTestId('action-configure-threshold')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('action-configure-threshold'),
+      ).toBeInTheDocument();
     });
 
     it('does not show "Configure Threshold" for warning without configKey', () => {
@@ -227,7 +243,9 @@ describe('AnomalyAlertCard', () => {
         />,
       );
 
-      expect(screen.queryByTestId('action-configure-threshold')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('action-configure-threshold'),
+      ).not.toBeInTheDocument();
     });
 
     it('does not show "Configure Threshold" for critical severity', () => {
@@ -239,13 +257,13 @@ describe('AnomalyAlertCard', () => {
         />,
       );
 
-      expect(screen.queryByTestId('action-configure-threshold')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('action-configure-threshold'),
+      ).not.toBeInTheDocument();
     });
 
     it('shows "Dismiss" when onDismiss provided', () => {
-      render(
-        <AnomalyAlertCard anomaly={infoAnomaly} onDismiss={jest.fn()} />,
-      );
+      render(<AnomalyAlertCard anomaly={infoAnomaly} onDismiss={jest.fn()} />);
 
       expect(screen.getByTestId('action-dismiss')).toBeInTheDocument();
     });
@@ -304,7 +322,9 @@ describe('AnomalyAlertCard', () => {
         <AnomalyAlertCard anomaly={criticalAnomaly} onDismiss={jest.fn()} />,
       );
 
-      expect(screen.getByTestId('anomaly-alert-card')).toHaveClass('opacity-100');
+      expect(screen.getByTestId('anomaly-alert-card')).toHaveClass(
+        'opacity-100',
+      );
     });
 
     it('transitions to opacity-0 on dismiss click', () => {
@@ -329,7 +349,10 @@ describe('AnomalyAlertCard', () => {
     it('calls onDismiss after 300ms timeout', () => {
       const handleDismiss = jest.fn();
       render(
-        <AnomalyAlertCard anomaly={criticalAnomaly} onDismiss={handleDismiss} />,
+        <AnomalyAlertCard
+          anomaly={criticalAnomaly}
+          onDismiss={handleDismiss}
+        />,
       );
 
       fireEvent.click(screen.getByTestId('action-dismiss'));
@@ -353,7 +376,9 @@ describe('AnomalyAlertCard', () => {
         jest.advanceTimersByTime(300);
       });
 
-      expect(screen.queryByTestId('anomaly-alert-card')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('anomaly-alert-card'),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -364,7 +389,9 @@ describe('AnomalyAlertCard', () => {
         <AnomalyAlertCard anomaly={infoAnomaly} onViewBattle={handleBattle} />,
       );
 
-      fireEvent.keyDown(screen.getByTestId('action-view-battle'), { key: 'Enter' });
+      fireEvent.keyDown(screen.getByTestId('action-view-battle'), {
+        key: 'Enter',
+      });
       expect(handleBattle).toHaveBeenCalledWith('battle-300');
     });
 
@@ -384,7 +411,9 @@ describe('AnomalyAlertCard', () => {
         <AnomalyAlertCard anomaly={infoAnomaly} onViewBattle={handleBattle} />,
       );
 
-      fireEvent.keyDown(screen.getByTestId('action-view-battle'), { key: 'Escape' });
+      fireEvent.keyDown(screen.getByTestId('action-view-battle'), {
+        key: 'Escape',
+      });
       expect(handleBattle).not.toHaveBeenCalled();
     });
   });
@@ -406,15 +435,23 @@ describe('AnomalyAlertCard', () => {
     it('warning card has dark mode classes', () => {
       render(<AnomalyAlertCard anomaly={warningAnomaly} />);
 
-      expect(screen.getByTestId('anomaly-alert-card')).toHaveClass('dark:bg-orange-900/20');
-      expect(screen.getByTestId('anomaly-title')).toHaveClass('dark:text-orange-100');
+      expect(screen.getByTestId('anomaly-alert-card')).toHaveClass(
+        'dark:bg-orange-900/20',
+      );
+      expect(screen.getByTestId('anomaly-title')).toHaveClass(
+        'dark:text-orange-100',
+      );
     });
 
     it('info card has dark mode classes', () => {
       render(<AnomalyAlertCard anomaly={infoAnomaly} />);
 
-      expect(screen.getByTestId('anomaly-alert-card')).toHaveClass('dark:bg-blue-900/20');
-      expect(screen.getByTestId('anomaly-title')).toHaveClass('dark:text-blue-100');
+      expect(screen.getByTestId('anomaly-alert-card')).toHaveClass(
+        'dark:bg-blue-900/20',
+      );
+      expect(screen.getByTestId('anomaly-title')).toHaveClass(
+        'dark:text-blue-100',
+      );
     });
   });
 
@@ -432,7 +469,9 @@ describe('AnomalyAlertCard', () => {
       expect(screen.getByTestId('action-view-snapshot')).toBeInTheDocument();
       expect(screen.getByTestId('action-view-battle')).toBeInTheDocument();
       expect(screen.getByTestId('action-dismiss')).toBeInTheDocument();
-      expect(screen.queryByTestId('action-configure-threshold')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('action-configure-threshold'),
+      ).not.toBeInTheDocument();
     });
 
     it('warning with configKey shows: View Battle, Configure Threshold, Dismiss', () => {
@@ -445,9 +484,13 @@ describe('AnomalyAlertCard', () => {
         />,
       );
 
-      expect(screen.queryByTestId('action-view-snapshot')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('action-view-snapshot'),
+      ).not.toBeInTheDocument();
       expect(screen.getByTestId('action-view-battle')).toBeInTheDocument();
-      expect(screen.getByTestId('action-configure-threshold')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('action-configure-threshold'),
+      ).toBeInTheDocument();
       expect(screen.getByTestId('action-dismiss')).toBeInTheDocument();
     });
 
@@ -460,9 +503,13 @@ describe('AnomalyAlertCard', () => {
         />,
       );
 
-      expect(screen.queryByTestId('action-view-snapshot')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('action-view-snapshot'),
+      ).not.toBeInTheDocument();
       expect(screen.getByTestId('action-view-battle')).toBeInTheDocument();
-      expect(screen.queryByTestId('action-configure-threshold')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('action-configure-threshold'),
+      ).not.toBeInTheDocument();
       expect(screen.getByTestId('action-dismiss')).toBeInTheDocument();
     });
   });

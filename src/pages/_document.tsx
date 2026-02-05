@@ -1,12 +1,14 @@
-import React from 'react';
 import { Html, Head, Main, NextScript } from 'next/document';
+import React from 'react';
 
 export default function Document(): React.ReactElement {
   return (
     <Html lang="en">
       <Head>
         {/* Splash Screen - Prevents white flash on load */}
-        <style dangerouslySetInnerHTML={{__html: `
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
           #__splash {
             position: fixed;
             inset: 0;
@@ -51,7 +53,9 @@ export default function Document(): React.ReactElement {
           #__splash {
             animation: splash-fallback-hide 5s ease-out forwards;
           }
-        `}} />
+        `,
+          }}
+        />
 
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
@@ -71,7 +75,10 @@ export default function Document(): React.ReactElement {
         <meta name="mobile-web-app-capable" content="yes" />
 
         {/* Viewport */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+        />
       </Head>
       <body>
         <div id="__splash">
@@ -80,7 +87,9 @@ export default function Document(): React.ReactElement {
         </div>
         <Main />
         <NextScript />
-        <script dangerouslySetInnerHTML={{__html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
           (function() {
             var splash = document.getElementById('__splash');
             if (!splash) return;
@@ -94,8 +103,10 @@ export default function Document(): React.ReactElement {
               window.addEventListener('load', hideSplash);
             }
           })();
-        `}} />
+        `,
+          }}
+        />
       </body>
     </Html>
-  )
+  );
 }

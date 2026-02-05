@@ -6,18 +6,21 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.5
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
+import {
+  SquadMotionType,
+  ISquadMovement,
+} from '../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import {
   IInfantry,
   IInfantryFieldGun,
   InfantryArmorKit,
   InfantrySpecialization,
 } from '../../../types/unit/PersonnelInterfaces';
-import { SquadMotionType, ISquadMovement } from '../../../types/unit/BaseUnitInterfaces';
+import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
@@ -77,7 +80,9 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
   /**
    * Parse Infantry-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<IInfantry> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<IInfantry> & {
     errors: string[];
     warnings: string[];
   } {
@@ -108,7 +113,8 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
     const armorKit = ARMOR_KIT_MAP[armorKitStr] || InfantryArmorKit.NONE;
 
     // Armor per trooper (from armor array or calculated)
-    const armorPerTrooper = document.armor?.[0] || (armorKit === InfantryArmorKit.NONE ? 0 : 1);
+    const armorPerTrooper =
+      document.armor?.[0] || (armorKit === InfantryArmorKit.NONE ? 0 : 1);
 
     // Specialization (from raw tags)
     const rawTags = document.rawTags || {};
@@ -153,8 +159,13 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
   /**
    * Parse specialization from raw tags
    */
-  private parseSpecialization(rawTags: Record<string, string | string[]>): InfantrySpecialization {
-    const spec = this.getStringFromRaw(rawTags, 'specialization')?.toLowerCase();
+  private parseSpecialization(
+    rawTags: Record<string, string | string[]>,
+  ): InfantrySpecialization {
+    const spec = this.getStringFromRaw(
+      rawTags,
+      'specialization',
+    )?.toLowerCase();
     if (!spec) return InfantrySpecialization.NONE;
 
     if (spec.includes('anti-mech') || spec.includes('antimech')) {
@@ -197,7 +208,7 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
    */
   private getStringFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): string | undefined {
     const value = rawTags[key];
     if (Array.isArray(value)) return value[0];
@@ -209,7 +220,7 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
    */
   private getBooleanFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): boolean {
     const value = this.getStringFromRaw(rawTags, key);
     return value?.toLowerCase() === 'true' || value === '1';
@@ -220,7 +231,7 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<IInfantry>
+    typeSpecificFields: Partial<IInfantry>,
   ): IInfantry {
     const techBase = this.parseTechBase(commonFields.techBase);
     const rulesLevel = this.parseRulesLevel(commonFields.techBase);
@@ -298,7 +309,9 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
   /**
    * Serialize Infantry-specific fields
    */
-  protected serializeTypeSpecificFields(unit: IInfantry): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: IInfantry,
+  ): Partial<ISerializedUnit> {
     return {
       configuration: unit.motionType,
       rulesLevel: String(unit.rulesLevel),
@@ -309,7 +322,9 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
    * Deserialize from standard format
    */
   deserialize(_serialized: ISerializedUnit): IUnitParseResult<IInfantry> {
-    return createFailureResult(['Infantry deserialization not yet implemented']);
+    return createFailureResult([
+      'Infantry deserialization not yet implemented',
+    ]);
   }
 
   /**

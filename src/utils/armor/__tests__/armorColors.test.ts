@@ -171,10 +171,10 @@ describe('getMegaMekFrontStatusColor', () => {
     // Total max = 100, expected front = 75
     // 75 front armor = 100% of expected = HEALTHY
     expect(getMegaMekFrontStatusColor(75, 100)).toBe(MEGAMEK_COLORS.HEALTHY);
-    
+
     // 45 front armor = 60% of expected = HEALTHY
     expect(getMegaMekFrontStatusColor(45, 100)).toBe(MEGAMEK_COLORS.HEALTHY);
-    
+
     // 30 front armor = 40% of expected = MODERATE
     expect(getMegaMekFrontStatusColor(30, 100)).toBe(MEGAMEK_COLORS.MODERATE);
   });
@@ -193,10 +193,10 @@ describe('getMegaMekRearStatusColor', () => {
     // Total max = 100, expected rear = 25
     // 25 rear armor = 100% of expected = HEALTHY
     expect(getMegaMekRearStatusColor(25, 100)).toBe(MEGAMEK_COLORS.HEALTHY);
-    
+
     // 15 rear armor = 60% of expected = HEALTHY
     expect(getMegaMekRearStatusColor(15, 100)).toBe(MEGAMEK_COLORS.HEALTHY);
-    
+
     // 10 rear armor = 40% of expected = MODERATE
     expect(getMegaMekRearStatusColor(10, 100)).toBe(MEGAMEK_COLORS.MODERATE);
   });
@@ -215,7 +215,7 @@ describe('getTorsoFrontStatusColor', () => {
     // Total max = 100, expected front = 75
     // 75 front = 100% = HEALTHY
     expect(getTorsoFrontStatusColor(75, 100)).toBe(ARMOR_STATUS.HEALTHY.color);
-    
+
     // 45 front = 60% = HEALTHY
     expect(getTorsoFrontStatusColor(45, 100)).toBe(ARMOR_STATUS.HEALTHY.color);
   });
@@ -230,7 +230,7 @@ describe('getTorsoRearStatusColor', () => {
     // Total max = 100, expected rear = 25
     // 25 rear = 100% = HEALTHY
     expect(getTorsoRearStatusColor(25, 100)).toBe(ARMOR_STATUS.HEALTHY.color);
-    
+
     // 15 rear = 60% = HEALTHY
     expect(getTorsoRearStatusColor(15, 100)).toBe(ARMOR_STATUS.HEALTHY.color);
   });
@@ -244,7 +244,7 @@ describe('getTorsoStatusColor', () => {
   it('should calculate status based on total (front + rear) armor', () => {
     // Total max = 100, front 60 + rear 20 = 80 total = 80% = HEALTHY
     expect(getTorsoStatusColor(60, 100, 20)).toBe(ARMOR_STATUS.HEALTHY.color);
-    
+
     // Total max = 100, front 30 + rear 10 = 40 total = 40% = MODERATE
     expect(getTorsoStatusColor(30, 100, 10)).toBe(ARMOR_STATUS.MODERATE.color);
   });
@@ -263,7 +263,7 @@ describe('getTorsoFillPercent', () => {
   it('should calculate fill percentage based on total armor', () => {
     // Front 50 + rear 25 = 75 of 100 = 75%
     expect(getTorsoFillPercent(50, 100, 25)).toBe(75);
-    
+
     // Front 100 + rear 0 = 100 of 100 = 100%
     expect(getTorsoFillPercent(100, 100, 0)).toBe(100);
   });
@@ -353,21 +353,33 @@ describe('darkenColor', () => {
 
 describe('getArmorGradientId', () => {
   it('should return selected gradient when selected', () => {
-    expect(getArmorGradientId(50, 100, true)).toBe('url(#armor-gradient-selected)');
+    expect(getArmorGradientId(50, 100, true)).toBe(
+      'url(#armor-gradient-selected)',
+    );
   });
 
   it('should return critical gradient when max is 0', () => {
-    expect(getArmorGradientId(0, 0, false)).toBe('url(#armor-gradient-critical)');
+    expect(getArmorGradientId(0, 0, false)).toBe(
+      'url(#armor-gradient-critical)',
+    );
   });
 
   it('should return healthy gradient for >= 60%', () => {
-    expect(getArmorGradientId(60, 100, false)).toBe('url(#armor-gradient-healthy)');
-    expect(getArmorGradientId(100, 100, false)).toBe('url(#armor-gradient-healthy)');
+    expect(getArmorGradientId(60, 100, false)).toBe(
+      'url(#armor-gradient-healthy)',
+    );
+    expect(getArmorGradientId(100, 100, false)).toBe(
+      'url(#armor-gradient-healthy)',
+    );
   });
 
   it('should return moderate gradient for 40-59%', () => {
-    expect(getArmorGradientId(40, 100, false)).toBe('url(#armor-gradient-moderate)');
-    expect(getArmorGradientId(59, 100, false)).toBe('url(#armor-gradient-moderate)');
+    expect(getArmorGradientId(40, 100, false)).toBe(
+      'url(#armor-gradient-moderate)',
+    );
+    expect(getArmorGradientId(59, 100, false)).toBe(
+      'url(#armor-gradient-moderate)',
+    );
   });
 
   it('should return low gradient for 20-39%', () => {
@@ -376,7 +388,11 @@ describe('getArmorGradientId', () => {
   });
 
   it('should return critical gradient for < 20%', () => {
-    expect(getArmorGradientId(0, 100, false)).toBe('url(#armor-gradient-critical)');
-    expect(getArmorGradientId(19, 100, false)).toBe('url(#armor-gradient-critical)');
+    expect(getArmorGradientId(0, 100, false)).toBe(
+      'url(#armor-gradient-critical)',
+    );
+    expect(getArmorGradientId(19, 100, false)).toBe(
+      'url(#armor-gradient-critical)',
+    );
   });
 });

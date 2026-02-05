@@ -3,8 +3,9 @@
  * Tests for Input Components
  */
 
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+
 import { Input, Select, SearchInput } from '@/components/ui/Input';
 
 describe('Input', () => {
@@ -22,7 +23,10 @@ describe('Input', () => {
 
     it('should use id prop for label association', () => {
       render(<Input label="Email" id="email-input" />);
-      expect(screen.getByLabelText('Email')).toHaveAttribute('id', 'email-input');
+      expect(screen.getByLabelText('Email')).toHaveAttribute(
+        'id',
+        'email-input',
+      );
     });
 
     it('should use name as fallback for id', () => {
@@ -68,12 +72,16 @@ describe('Input', () => {
 
     it('should apply emerald accent', () => {
       render(<Input accent="emerald" />);
-      expect(screen.getByRole('textbox')).toHaveClass('focus:border-emerald-500');
+      expect(screen.getByRole('textbox')).toHaveClass(
+        'focus:border-emerald-500',
+      );
     });
 
     it('should apply violet accent', () => {
       render(<Input accent="violet" />);
-      expect(screen.getByRole('textbox')).toHaveClass('focus:border-violet-500');
+      expect(screen.getByRole('textbox')).toHaveClass(
+        'focus:border-violet-500',
+      );
     });
 
     it('should apply custom className', () => {
@@ -84,14 +92,16 @@ describe('Input', () => {
     it('should handle value changes', () => {
       const handleChange = jest.fn();
       render(<Input onChange={handleChange} />);
-      
-      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'test' } });
+
+      fireEvent.change(screen.getByRole('textbox'), {
+        target: { value: 'test' },
+      });
       expect(handleChange).toHaveBeenCalled();
     });
 
     it('should pass through HTML input attributes', () => {
       render(<Input placeholder="Enter text" disabled maxLength={10} />);
-      
+
       const input = screen.getByRole('textbox');
       expect(input).toHaveAttribute('placeholder', 'Enter text');
       expect(input).toBeDisabled();
@@ -112,13 +122,19 @@ describe('Input', () => {
 
     it('should render all options', () => {
       render(<Select options={options} />);
-      expect(screen.getByRole('option', { name: 'Option 1' })).toBeInTheDocument();
-      expect(screen.getByRole('option', { name: 'Option 2' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('option', { name: 'Option 1' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('option', { name: 'Option 2' }),
+      ).toBeInTheDocument();
     });
 
     it('should render placeholder option when provided', () => {
       render(<Select options={options} placeholder="Select an option" />);
-      expect(screen.getByRole('option', { name: 'Select an option' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('option', { name: 'Select an option' }),
+      ).toBeInTheDocument();
     });
 
     it('should render label when provided', () => {
@@ -140,8 +156,10 @@ describe('Input', () => {
     it('should handle selection changes', () => {
       const handleChange = jest.fn();
       render(<Select options={options} onChange={handleChange} />);
-      
-      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'opt2' } });
+
+      fireEvent.change(screen.getByRole('combobox'), {
+        target: { value: 'opt2' },
+      });
       expect(handleChange).toHaveBeenCalled();
     });
   });
@@ -172,7 +190,7 @@ describe('Input', () => {
     it('should call onClear when clear button clicked', () => {
       const handleClear = jest.fn();
       render(<SearchInput value="test" onClear={handleClear} />);
-      
+
       fireEvent.click(screen.getByRole('button'));
       expect(handleClear).toHaveBeenCalledTimes(1);
     });
@@ -183,4 +201,3 @@ describe('Input', () => {
     });
   });
 });
-

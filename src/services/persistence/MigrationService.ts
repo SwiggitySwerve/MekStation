@@ -1,16 +1,16 @@
 /**
  * Migration Service
- * 
+ *
  * Utility for migrating custom units from IndexedDB to SQLite.
  * This is a one-time migration tool for transitioning existing data.
- * 
+ *
  * @spec openspec/specs/persistence-services/spec.md
  */
 
+import { IFullUnit } from '../units/CanonicalUnitService';
+import { getUnitRepository } from '../units/UnitRepository';
 import { indexedDBService, STORES } from './IndexedDBService';
 import { getSQLiteService } from './SQLiteService';
-import { getUnitRepository } from '../units/UnitRepository';
-import { IFullUnit } from '../units/CanonicalUnitService';
 
 /**
  * Migration result
@@ -46,7 +46,9 @@ export type MigrationProgressCallback = (progress: {
  */
 export interface IMigrationService {
   hasIndexedDBData(): Promise<boolean>;
-  migrateToSQLite(onProgress?: MigrationProgressCallback): Promise<IMigrationResult>;
+  migrateToSQLite(
+    onProgress?: MigrationProgressCallback,
+  ): Promise<IMigrationResult>;
   clearIndexedDB(): Promise<void>;
 }
 
@@ -60,7 +62,9 @@ export class MigrationService implements IMigrationService {
   async hasIndexedDBData(): Promise<boolean> {
     try {
       await indexedDBService.initialize();
-      const units = await indexedDBService.getAll<IFullUnit>(STORES.CUSTOM_UNITS);
+      const units = await indexedDBService.getAll<IFullUnit>(
+        STORES.CUSTOM_UNITS,
+      );
       return units.length > 0;
     } catch {
       // IndexedDB not available or empty
@@ -71,7 +75,9 @@ export class MigrationService implements IMigrationService {
   /**
    * Migrate all custom units from IndexedDB to SQLite
    */
-  async migrateToSQLite(onProgress?: MigrationProgressCallback): Promise<IMigrationResult> {
+  async migrateToSQLite(
+    onProgress?: MigrationProgressCallback,
+  ): Promise<IMigrationResult> {
     const errors: IMigrationError[] = [];
     let migratedCount = 0;
 
@@ -81,7 +87,9 @@ export class MigrationService implements IMigrationService {
       getSQLiteService().initialize();
 
       // Get all units from IndexedDB
-      const units = await indexedDBService.getAll<IFullUnit>(STORES.CUSTOM_UNITS);
+      const units = await indexedDBService.getAll<IFullUnit>(
+        STORES.CUSTOM_UNITS,
+      );
       const totalUnits = units.length;
 
       if (totalUnits === 0) {
@@ -114,7 +122,7 @@ export class MigrationService implements IMigrationService {
           // Skip if unit already exists in SQLite (by name)
           const existing = unitRepository.findByName(
             unit.chassis || '',
-            unit.variant || ''
+            unit.variant || '',
           );
 
           if (existing) {
@@ -164,11 +172,13 @@ export class MigrationService implements IMigrationService {
         totalUnits: 0,
         migratedUnits: migratedCount,
         failedUnits: 1,
-        errors: [{
-          unitId: 'migration',
-          unitName: 'Migration Process',
-          error: message,
-        }],
+        errors: [
+          {
+            unitId: 'migration',
+            unitName: 'Migration Process',
+            error: message,
+          },
+        ],
       };
     }
   }
@@ -185,4 +195,3 @@ export class MigrationService implements IMigrationService {
 
 // Singleton instance
 export const migrationService = new MigrationService();
-

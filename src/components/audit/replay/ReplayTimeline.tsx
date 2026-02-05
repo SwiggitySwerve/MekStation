@@ -6,6 +6,7 @@
  */
 
 import React, { useCallback, useRef, useState } from 'react';
+
 import { type IEventMarker } from '@/hooks/audit';
 import { EventCategory } from '@/types/events';
 
@@ -73,19 +74,25 @@ export function ReplayTimeline({
   }, []);
 
   // Handle mouse down on track
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-    const newProgress = calculateProgress(e.clientX);
-    onSeek(newProgress);
-  }, [calculateProgress, onSeek]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsDragging(true);
+      const newProgress = calculateProgress(e.clientX);
+      onSeek(newProgress);
+    },
+    [calculateProgress, onSeek],
+  );
 
   // Handle mouse move while dragging
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const newProgress = calculateProgress(e.clientX);
-    onSeek(newProgress);
-  }, [isDragging, calculateProgress, onSeek]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDragging) return;
+      const newProgress = calculateProgress(e.clientX);
+      onSeek(newProgress);
+    },
+    [isDragging, calculateProgress, onSeek],
+  );
 
   // Handle mouse up
   const handleMouseUp = useCallback(() => {
@@ -99,28 +106,29 @@ export function ReplayTimeline({
   }, []);
 
   // Handle click on timeline track
-  const handleTrackClick = useCallback((e: React.MouseEvent) => {
-    const newProgress = calculateProgress(e.clientX);
-    onSeek(newProgress);
-  }, [calculateProgress, onSeek]);
+  const handleTrackClick = useCallback(
+    (e: React.MouseEvent) => {
+      const newProgress = calculateProgress(e.clientX);
+      onSeek(newProgress);
+    },
+    [calculateProgress, onSeek],
+  );
 
   // Handle marker click
-  const handleMarkerClick = useCallback((e: React.MouseEvent, marker: IEventMarker) => {
-    e.stopPropagation();
-    onSeek(marker.position);
-  }, [onSeek]);
+  const handleMarkerClick = useCallback(
+    (e: React.MouseEvent, marker: IEventMarker) => {
+      e.stopPropagation();
+      onSeek(marker.position);
+    },
+    [onSeek],
+  );
 
   return (
     <div className={`relative ${className}`}>
       {/* Timeline Track */}
       <div
         ref={trackRef}
-        className={`
-          relative h-8 bg-surface-base/60 rounded-lg border border-border-theme-subtle
-          cursor-pointer select-none overflow-hidden
-          transition-all duration-150
-          ${isDragging ? 'ring-2 ring-accent/30' : 'hover:bg-surface-base/80'}
-        `}
+        className={`bg-surface-base/60 border-border-theme-subtle relative h-8 cursor-pointer overflow-hidden rounded-lg border transition-all duration-150 select-none ${isDragging ? 'ring-accent/30 ring-2' : 'hover:bg-surface-base/80'} `}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -134,7 +142,7 @@ export function ReplayTimeline({
       >
         {/* Progress Fill */}
         <div
-          className="absolute inset-y-0 left-0 bg-gradient-to-r from-accent/40 to-accent/60 transition-all duration-75"
+          className="from-accent/40 to-accent/60 absolute inset-y-0 left-0 bg-gradient-to-r transition-all duration-75"
           style={{ width: `${progress * 100}%` }}
         />
 
@@ -142,18 +150,21 @@ export function ReplayTimeline({
         <div className="absolute inset-0 flex items-center">
           {markers.map((marker) => {
             const isCurrentEvent = marker.sequence === currentSequence;
-            const categoryColor = CATEGORY_COLORS[marker.category] || CATEGORY_COLORS[EventCategory.Meta];
-            const hoverColor = CATEGORY_HOVER_COLORS[marker.category] || CATEGORY_HOVER_COLORS[EventCategory.Meta];
+            const categoryColor =
+              CATEGORY_COLORS[marker.category] ||
+              CATEGORY_COLORS[EventCategory.Meta];
+            const hoverColor =
+              CATEGORY_HOVER_COLORS[marker.category] ||
+              CATEGORY_HOVER_COLORS[EventCategory.Meta];
 
             return (
               <div
                 key={marker.id}
-                className={`
-                  absolute w-1.5 rounded-full cursor-pointer transition-all duration-150
-                  ${categoryColor} ${hoverColor}
-                  ${isCurrentEvent ? 'h-6 ring-2 ring-white/50 shadow-lg' : 'h-3 opacity-70 hover:opacity-100 hover:h-5'}
-                `}
-                style={{ left: `${marker.position * 100}%`, transform: 'translateX(-50%)' }}
+                className={`absolute w-1.5 cursor-pointer rounded-full transition-all duration-150 ${categoryColor} ${hoverColor} ${isCurrentEvent ? 'h-6 shadow-lg ring-2 ring-white/50' : 'h-3 opacity-70 hover:h-5 hover:opacity-100'} `}
+                style={{
+                  left: `${marker.position * 100}%`,
+                  transform: 'translateX(-50%)',
+                }}
                 onClick={(e) => handleMarkerClick(e, marker)}
                 onMouseEnter={() => setHoveredMarker(marker)}
                 onMouseLeave={() => setHoveredMarker(null)}
@@ -165,21 +176,12 @@ export function ReplayTimeline({
 
         {/* Current Position Indicator (Playhead) */}
         <div
-          className={`
-            absolute top-0 bottom-0 w-0.5 bg-white shadow-lg
-            transition-all duration-75
-            ${isDragging ? 'w-1' : ''}
-          `}
+          className={`absolute top-0 bottom-0 w-0.5 bg-white shadow-lg transition-all duration-75 ${isDragging ? 'w-1' : ''} `}
           style={{ left: `${progress * 100}%`, transform: 'translateX(-50%)' }}
         >
           {/* Playhead Handle */}
           <div
-            className={`
-              absolute -top-1 left-1/2 -translate-x-1/2
-              w-3 h-3 bg-white rounded-full shadow-md border-2 border-accent
-              transition-transform duration-150
-              ${isDragging ? 'scale-125' : 'hover:scale-110'}
-            `}
+            className={`border-accent absolute -top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full border-2 bg-white shadow-md transition-transform duration-150 ${isDragging ? 'scale-125' : 'hover:scale-110'} `}
           />
         </div>
       </div>
@@ -187,23 +189,27 @@ export function ReplayTimeline({
       {/* Marker Tooltip */}
       {hoveredMarker && (
         <div
-          className="absolute -top-10 bg-surface-raised/95 backdrop-blur-sm border border-border-theme-subtle rounded-md px-2 py-1 text-xs text-text-theme-primary shadow-xl z-10 whitespace-nowrap pointer-events-none"
+          className="bg-surface-raised/95 border-border-theme-subtle text-text-theme-primary pointer-events-none absolute -top-10 z-10 rounded-md border px-2 py-1 text-xs whitespace-nowrap shadow-xl backdrop-blur-sm"
           style={{
             left: `${hoveredMarker.position * 100}%`,
             transform: 'translateX(-50%)',
           }}
         >
           <span className="font-medium">{hoveredMarker.type}</span>
-          <span className="text-text-theme-muted ml-1.5">#{hoveredMarker.sequence}</span>
+          <span className="text-text-theme-muted ml-1.5">
+            #{hoveredMarker.sequence}
+          </span>
         </div>
       )}
 
       {/* Time/Progress Indicators */}
-      <div className="flex justify-between mt-1 text-xs text-text-theme-muted">
+      <div className="text-text-theme-muted mt-1 flex justify-between text-xs">
         <span>Start</span>
         <span className="font-mono">
           {Math.round(progress * 100)}%
-          <span className="text-text-theme-secondary ml-2">Seq #{currentSequence}</span>
+          <span className="text-text-theme-secondary ml-2">
+            Seq #{currentSequence}
+          </span>
         </span>
         <span>End</span>
       </div>

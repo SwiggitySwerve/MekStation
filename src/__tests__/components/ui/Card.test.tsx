@@ -3,8 +3,9 @@
  * Tests for Card Component
  */
 
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+
 import { Card, CardSection } from '@/components/ui/Card';
 
 describe('Card', () => {
@@ -54,7 +55,7 @@ describe('Card', () => {
     it('should handle onClick', () => {
       const handleClick = jest.fn();
       render(<Card onClick={handleClick}>Clickable</Card>);
-      
+
       fireEvent.click(screen.getByText('Clickable'));
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
@@ -95,14 +96,16 @@ describe('Card', () => {
       render(
         <CardSection title="Title">
           <p>Section Content</p>
-        </CardSection>
+        </CardSection>,
       );
       expect(screen.getByText('Section Content')).toBeInTheDocument();
     });
 
     it('should apply white title color by default', () => {
       render(<CardSection title="White Title" />);
-      expect(screen.getByText('White Title')).toHaveClass('text-text-theme-primary');
+      expect(screen.getByText('White Title')).toHaveClass(
+        'text-text-theme-primary',
+      );
     });
 
     it('should apply amber title color', () => {
@@ -132,10 +135,10 @@ describe('Card', () => {
 
     it('should render icon', () => {
       render(
-        <CardSection 
-          title="With Icon" 
+        <CardSection
+          title="With Icon"
           icon={<span data-testid="icon">🔥</span>}
-        />
+        />,
       );
       expect(screen.getByTestId('icon')).toBeInTheDocument();
     });
@@ -150,7 +153,7 @@ describe('Card', () => {
       const { container } = render(
         <CardSection title="Card Section" asCard>
           <p>Content</p>
-        </CardSection>
+        </CardSection>,
       );
       // Should have card styling
       const card = container.querySelector('.bg-surface-base\\/50');
@@ -167,7 +170,7 @@ describe('Card', () => {
       render(
         <CardSection title="Title With Content">
           <p>Content</p>
-        </CardSection>
+        </CardSection>,
       );
       expect(screen.getByText('Title With Content')).toHaveClass('mb-4');
     });
@@ -178,4 +181,3 @@ describe('Card', () => {
     });
   });
 });
-

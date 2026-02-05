@@ -90,7 +90,9 @@ describe('isCausedBy', () => {
     expect(isCausedBy({ eventId: 'e1', relationship: 'triggered' })).toBe(true);
     expect(isCausedBy({ eventId: 'e2', relationship: 'derived' })).toBe(true);
     expect(isCausedBy({ eventId: 'e3', relationship: 'undone' })).toBe(true);
-    expect(isCausedBy({ eventId: 'e4', relationship: 'superseded' })).toBe(true);
+    expect(isCausedBy({ eventId: 'e4', relationship: 'superseded' })).toBe(
+      true,
+    );
   });
 
   it('should return false for invalid objects', () => {
@@ -119,7 +121,7 @@ describe('isEventContext', () => {
         pilotId: 'p1',
         unitId: 'u1',
         forceId: 'f1',
-      })
+      }),
     ).toBe(true);
   });
 

@@ -1,7 +1,7 @@
 /**
  * IValuedComponent - Economic properties interface
  * Components with economic value SHALL implement IValuedComponent.
- * 
+ *
  * @spec core-entity-types/spec.md
  */
 
@@ -37,4 +37,3 @@ export function isValuedComponent(obj: unknown): obj is IValuedComponent {
     (obj as IValuedComponent).battleValue >= 0
   );
 }
-

@@ -15,8 +15,12 @@ describe('Variable Equipment Formulas', () => {
   // ============================================================================
   describe('VARIABLE_EQUIPMENT_FORMULAS', () => {
     it('should contain targeting computer formulas', () => {
-      expect(VARIABLE_EQUIPMENT_FORMULAS['targeting-computer-is']).toBeDefined();
-      expect(VARIABLE_EQUIPMENT_FORMULAS['targeting-computer-clan']).toBeDefined();
+      expect(
+        VARIABLE_EQUIPMENT_FORMULAS['targeting-computer-is'],
+      ).toBeDefined();
+      expect(
+        VARIABLE_EQUIPMENT_FORMULAS['targeting-computer-clan'],
+      ).toBeDefined();
     });
 
     it('should contain MASC formulas', () => {
@@ -152,7 +156,7 @@ describe('Variable Equipment Formulas', () => {
         'flail',
         'wrecking-ball',
       ];
-      
+
       for (const weapon of physicalWeapons) {
         expect(VARIABLE_EQUIPMENT_FORMULAS[weapon]).toBeDefined();
         expect(VARIABLE_EQUIPMENT_FORMULAS[weapon].damage).toBeDefined();
@@ -167,4 +171,3 @@ describe('Variable Equipment Formulas', () => {
     });
   });
 });
-

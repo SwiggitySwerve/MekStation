@@ -1,10 +1,14 @@
-import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import {
+  ICampaign,
+  createDefaultCampaignOptions,
+} from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { IPerson } from '@/types/campaign/Person';
-import { IMission } from '@/types/campaign/Mission';
 import { IForce } from '@/types/campaign/Force';
-import { Money } from '@/types/campaign/Money';
 import { PersonnelMarketStyle } from '@/types/campaign/markets/marketTypes';
+import { IMission } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
+import { IPerson } from '@/types/campaign/Person';
+
 import { DayPhase } from '../../dayPipeline';
 import {
   unitMarketProcessor,
@@ -54,7 +58,10 @@ describe('unitMarketProcessor', () => {
   it('should skip when unitMarketMethod is undefined', () => {
     const campaign = createTestCampaign({
       currentDate: new Date('3025-01-01T00:00:00Z'),
-      options: { ...createDefaultCampaignOptions(), unitMarketMethod: undefined },
+      options: {
+        ...createDefaultCampaignOptions(),
+        unitMarketMethod: undefined,
+      },
     });
     const result = unitMarketProcessor.process(campaign, campaign.currentDate);
 
@@ -65,7 +72,10 @@ describe('unitMarketProcessor', () => {
   it('should skip on non-first-of-month when atb_monthly', () => {
     const campaign = createTestCampaign({
       currentDate: new Date('3025-06-15T00:00:00Z'),
-      options: { ...createDefaultCampaignOptions(), unitMarketMethod: 'atb_monthly' },
+      options: {
+        ...createDefaultCampaignOptions(),
+        unitMarketMethod: 'atb_monthly',
+      },
     });
     const result = unitMarketProcessor.process(campaign, campaign.currentDate);
 
@@ -76,7 +86,10 @@ describe('unitMarketProcessor', () => {
   it('should refresh on first of month when atb_monthly', () => {
     const campaign = createTestCampaign({
       currentDate: new Date('3025-01-01T00:00:00Z'),
-      options: { ...createDefaultCampaignOptions(), unitMarketMethod: 'atb_monthly' },
+      options: {
+        ...createDefaultCampaignOptions(),
+        unitMarketMethod: 'atb_monthly',
+      },
     });
     const result = unitMarketProcessor.process(campaign, campaign.currentDate);
 
@@ -91,14 +104,22 @@ describe('personnelMarketProcessor', () => {
   it('should have correct id, phase, and displayName', () => {
     expect(personnelMarketProcessor.id).toBe('personnel-market');
     expect(personnelMarketProcessor.phase).toBe(DayPhase.MARKETS);
-    expect(personnelMarketProcessor.displayName).toBe('Personnel Market Refresh');
+    expect(personnelMarketProcessor.displayName).toBe(
+      'Personnel Market Refresh',
+    );
   });
 
   it('should skip when personnelMarketStyle is disabled', () => {
     const campaign = createTestCampaign({
-      options: { ...createDefaultCampaignOptions(), personnelMarketStyle: PersonnelMarketStyle.DISABLED },
+      options: {
+        ...createDefaultCampaignOptions(),
+        personnelMarketStyle: PersonnelMarketStyle.DISABLED,
+      },
     });
-    const result = personnelMarketProcessor.process(campaign, campaign.currentDate);
+    const result = personnelMarketProcessor.process(
+      campaign,
+      campaign.currentDate,
+    );
 
     expect(result.events).toHaveLength(0);
     expect(result.campaign).toBe(campaign);
@@ -106,9 +127,15 @@ describe('personnelMarketProcessor', () => {
 
   it('should skip when personnelMarketStyle is undefined', () => {
     const campaign = createTestCampaign({
-      options: { ...createDefaultCampaignOptions(), personnelMarketStyle: undefined },
+      options: {
+        ...createDefaultCampaignOptions(),
+        personnelMarketStyle: undefined,
+      },
     });
-    const result = personnelMarketProcessor.process(campaign, campaign.currentDate);
+    const result = personnelMarketProcessor.process(
+      campaign,
+      campaign.currentDate,
+    );
 
     expect(result.events).toHaveLength(0);
     expect(result.campaign).toBe(campaign);
@@ -116,14 +143,22 @@ describe('personnelMarketProcessor', () => {
 
   it('should generate daily when mekhq style', () => {
     const campaign = createTestCampaign({
-      options: { ...createDefaultCampaignOptions(), personnelMarketStyle: PersonnelMarketStyle.MEKHQ },
+      options: {
+        ...createDefaultCampaignOptions(),
+        personnelMarketStyle: PersonnelMarketStyle.MEKHQ,
+      },
     });
-    const result = personnelMarketProcessor.process(campaign, campaign.currentDate);
+    const result = personnelMarketProcessor.process(
+      campaign,
+      campaign.currentDate,
+    );
 
     expect(result.events).toHaveLength(1);
     expect(result.events[0].type).toBe('market_refresh');
     expect(result.events[0].severity).toBe('info');
-    expect(result.events[0].description).toContain('Personnel market refreshed');
+    expect(result.events[0].description).toContain(
+      'Personnel market refreshed',
+    );
   });
 });
 
@@ -137,9 +172,15 @@ describe('contractMarketProcessor', () => {
   it('should skip when contractMarketMethod is none', () => {
     const campaign = createTestCampaign({
       currentDate: new Date('3025-01-01T00:00:00Z'),
-      options: { ...createDefaultCampaignOptions(), contractMarketMethod: 'none' },
+      options: {
+        ...createDefaultCampaignOptions(),
+        contractMarketMethod: 'none',
+      },
     });
-    const result = contractMarketProcessor.process(campaign, campaign.currentDate);
+    const result = contractMarketProcessor.process(
+      campaign,
+      campaign.currentDate,
+    );
 
     expect(result.events).toHaveLength(0);
     expect(result.campaign).toBe(campaign);
@@ -148,9 +189,15 @@ describe('contractMarketProcessor', () => {
   it('should skip when contractMarketMethod is undefined', () => {
     const campaign = createTestCampaign({
       currentDate: new Date('3025-01-01T00:00:00Z'),
-      options: { ...createDefaultCampaignOptions(), contractMarketMethod: undefined },
+      options: {
+        ...createDefaultCampaignOptions(),
+        contractMarketMethod: undefined,
+      },
     });
-    const result = contractMarketProcessor.process(campaign, campaign.currentDate);
+    const result = contractMarketProcessor.process(
+      campaign,
+      campaign.currentDate,
+    );
 
     expect(result.events).toHaveLength(0);
     expect(result.campaign).toBe(campaign);
@@ -159,9 +206,15 @@ describe('contractMarketProcessor', () => {
   it('should skip on non-first-of-month when atb_monthly', () => {
     const campaign = createTestCampaign({
       currentDate: new Date('3025-06-15T00:00:00Z'),
-      options: { ...createDefaultCampaignOptions(), contractMarketMethod: 'atb_monthly' },
+      options: {
+        ...createDefaultCampaignOptions(),
+        contractMarketMethod: 'atb_monthly',
+      },
     });
-    const result = contractMarketProcessor.process(campaign, campaign.currentDate);
+    const result = contractMarketProcessor.process(
+      campaign,
+      campaign.currentDate,
+    );
 
     expect(result.events).toHaveLength(0);
     expect(result.campaign).toBe(campaign);
@@ -170,9 +223,15 @@ describe('contractMarketProcessor', () => {
   it('should refresh on first of month when atb_monthly', () => {
     const campaign = createTestCampaign({
       currentDate: new Date('3025-01-01T00:00:00Z'),
-      options: { ...createDefaultCampaignOptions(), contractMarketMethod: 'atb_monthly' },
+      options: {
+        ...createDefaultCampaignOptions(),
+        contractMarketMethod: 'atb_monthly',
+      },
     });
-    const result = contractMarketProcessor.process(campaign, campaign.currentDate);
+    const result = contractMarketProcessor.process(
+      campaign,
+      campaign.currentDate,
+    );
 
     expect(result.events).toHaveLength(1);
     expect(result.events[0].type).toBe('market_refresh');

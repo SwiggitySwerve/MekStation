@@ -19,8 +19,9 @@
  */
 
 import * as path from 'path';
-import { getParityValidationService } from '../src/services/conversion/ParityValidationService';
+
 import { getParityReportWriter } from '../src/services/conversion/ParityReportWriter';
+import { getParityValidationService } from '../src/services/conversion/ParityValidationService';
 import { IParityValidationOptions } from '../src/services/conversion/types/ParityValidation';
 
 interface CLIOptions {
@@ -137,7 +138,7 @@ async function main(): Promise<void> {
     validationOptions,
     (current, total, unit) => {
       reportWriter.printProgress(current, total, unit, options.verbose);
-    }
+    },
   );
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);

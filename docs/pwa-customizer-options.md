@@ -7,6 +7,7 @@ This document presents 4 distinct approaches to improving the customizer UI for 
 ## Current State Analysis
 
 ### Key Components
+
 - **CustomizerWithRouter**: Main container with URL routing and DnD provider
 - **MultiUnitTabs**: Browser-like tabs for multiple units
 - **UnitEditorWithRouting**: Main editor with section tabs + GlobalLoadoutTray
@@ -15,6 +16,7 @@ This document presents 4 distinct approaches to improving the customizer UI for 
 - **CustomizerTabs**: Section tabs (Overview, Structure, Armor, Equipment, Critical Slots, Fluff, Preview)
 
 ### Current Issues
+
 1. Fixed pixel widths prevent responsive layouts
 2. Touch targets too small (py-2.5, px-4 = ~40px height)
 3. Drag-and-drop uses HTML5Backend only (no touch support)
@@ -32,17 +34,20 @@ This document presents 4 distinct approaches to improving the customizer UI for 
 ### Key Changes
 
 #### 1. Touch Target Sizing
+
 ```typescript
 // New touch-safe button styles in styles.ts
 const button = {
   // Minimum 44x44px touch targets
   touchSafe: 'min-h-[44px] min-w-[44px] px-4 py-3',
   stepperTouch: 'min-h-[44px] min-w-[44px] flex items-center justify-center',
-}
+};
 ```
 
 #### 2. Bottom Sheet Loadout Tray (Mobile)
+
 Replace side tray with bottom sheet on mobile:
+
 ```tsx
 // GlobalLoadoutTray becomes adaptive
 <div className={`
@@ -54,6 +59,7 @@ Replace side tray with bottom sheet on mobile:
 ```
 
 #### 3. Touch DnD Backend
+
 ```tsx
 import { TouchBackend } from 'react-dnd-touch-backend';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -63,7 +69,9 @@ const Backend = isTouchDevice() ? TouchBackend : HTML5Backend;
 ```
 
 #### 4. Long-Press Context Actions
+
 Replace right-click menus with long-press + action sheet:
+
 ```tsx
 const useLongPress = (callback: () => void, ms = 500) => {
   // Long press detection hook
@@ -71,11 +79,13 @@ const useLongPress = (callback: () => void, ms = 500) => {
 ```
 
 ### Pros
+
 - True mobile-first experience
 - Consistent with native app patterns
 - Better accessibility
 
 ### Cons
+
 - Significant refactoring required
 - Desktop experience may feel different
 - Needs extensive testing on multiple devices
@@ -91,6 +101,7 @@ const useLongPress = (callback: () => void, ms = 500) => {
 ### Key Changes
 
 #### 1. Responsive Tray Width
+
 ```tsx
 // GlobalLoadoutTray.tsx
 <div className={`
@@ -101,6 +112,7 @@ const useLongPress = (callback: () => void, ms = 500) => {
 ```
 
 #### 2. Collapsible Stats Banner
+
 ```tsx
 // UnitInfoBanner.tsx - Stack on mobile
 <div className="flex flex-col sm:flex-row flex-wrap items-stretch">
@@ -109,6 +121,7 @@ const useLongPress = (callback: () => void, ms = 500) => {
 ```
 
 #### 3. Responsive Tab Labels
+
 ```tsx
 // CustomizerTabs.tsx - Icons on mobile, labels on desktop
 <button className="flex items-center gap-2 px-2 sm:px-4 py-2.5">
@@ -118,20 +131,23 @@ const useLongPress = (callback: () => void, ms = 500) => {
 ```
 
 #### 4. Stacking Two-Column Layouts
+
 ```typescript
 // styles.ts - already has this but needs enforcement
 const layout = {
   twoColumn: 'grid grid-cols-1 md:grid-cols-2 gap-4', // md breakpoint
-}
+};
 ```
 
 ### Pros
+
 - Minimal code changes
 - Progressive enhancement
 - Easy to test incrementally
 - Maintains desktop experience
 
 ### Cons
+
 - Doesn't address touch interaction issues
 - DnD still problematic on touch devices
 - Context menus still need right-click
@@ -147,6 +163,7 @@ const layout = {
 ### Key Changes
 
 #### 1. Device Detection Hook
+
 ```tsx
 // hooks/useDeviceType.ts
 export function useDeviceType() {
@@ -173,6 +190,7 @@ export function useDeviceType() {
 ```
 
 #### 2. Adaptive Components
+
 ```tsx
 // UnitEditorWithRouting.tsx
 function UnitEditorWithRouting({ ... }) {
@@ -207,6 +225,7 @@ function UnitEditorWithRouting({ ... }) {
 ```
 
 #### 3. Conditional DnD Backend
+
 ```tsx
 // CustomizerWithRouter.tsx
 import { DndProvider } from 'react-dnd';
@@ -218,7 +237,10 @@ export default function CustomizerWithRouter() {
   const Backend = isTouch ? TouchBackend : HTML5Backend;
 
   return (
-    <DndProvider backend={Backend} options={isTouch ? { enableMouseEvents: true } : undefined}>
+    <DndProvider
+      backend={Backend}
+      options={isTouch ? { enableMouseEvents: true } : undefined}
+    >
       {/* ... */}
     </DndProvider>
   );
@@ -226,25 +248,50 @@ export default function CustomizerWithRouter() {
 ```
 
 #### 4. Action Sheet for Mobile Context
+
 ```tsx
 // components/shared/ActionSheet.tsx
 interface ActionSheetProps {
   isOpen: boolean;
-  actions: Array<{ label: string; icon?: ReactNode; onClick: () => void; variant?: 'default' | 'danger' }>;
+  actions: Array<{
+    label: string;
+    icon?: ReactNode;
+    onClick: () => void;
+    variant?: 'default' | 'danger';
+  }>;
   onClose: () => void;
 }
 
 export function ActionSheet({ isOpen, actions, onClose }: ActionSheetProps) {
   return (
-    <div className={`fixed inset-0 z-50 ${isOpen ? '' : 'pointer-events-none'}`}>
-      <div className={`absolute inset-0 bg-black/50 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`} onClick={onClose} />
-      <div className={`absolute bottom-0 left-0 right-0 bg-slate-800 rounded-t-2xl transition-transform ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
+    <div
+      className={`fixed inset-0 z-50 ${isOpen ? '' : 'pointer-events-none'}`}
+    >
+      <div
+        className={`absolute inset-0 bg-black/50 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`}
+        onClick={onClose}
+      />
+      <div
+        className={`absolute bottom-0 left-0 right-0 bg-slate-800 rounded-t-2xl transition-transform ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}
+      >
         {actions.map((action, i) => (
-          <button key={i} onClick={() => { action.onClick(); onClose(); }} className="w-full p-4 text-left border-b border-slate-700">
+          <button
+            key={i}
+            onClick={() => {
+              action.onClick();
+              onClose();
+            }}
+            className="w-full p-4 text-left border-b border-slate-700"
+          >
             {action.label}
           </button>
         ))}
-        <button onClick={onClose} className="w-full p-4 text-center text-slate-400">Cancel</button>
+        <button
+          onClick={onClose}
+          className="w-full p-4 text-center text-slate-400"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );
@@ -252,12 +299,14 @@ export function ActionSheet({ isOpen, actions, onClose }: ActionSheetProps) {
 ```
 
 ### Pros
+
 - Best of both worlds - optimized for each device type
 - Maintains full desktop functionality
 - Progressive enhancement for touch
 - Clean separation of concerns
 
 ### Cons
+
 - More code to maintain (two UI paths)
 - Need to test both variants
 - Potential for divergence over time
@@ -273,6 +322,7 @@ export function ActionSheet({ isOpen, actions, onClose }: ActionSheetProps) {
 ### Key Changes
 
 #### 1. Safe Area Handling
+
 ```tsx
 // Add to global CSS or tailwind
 // globals.css
@@ -288,12 +338,17 @@ export function ActionSheet({ isOpen, actions, onClose }: ActionSheetProps) {
 ```
 
 #### 2. Viewport Meta Optimization
+
 ```html
 <!-- Already in _document or layout -->
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+/>
 ```
 
 #### 3. Touch Action Hints
+
 ```tsx
 // styles.ts additions
 const touch = {
@@ -303,10 +358,11 @@ const touch = {
   smoothScroll: 'scroll-smooth touch-pan-y',
   /** Prevent text selection on interactive elements */
   noSelect: 'select-none',
-}
+};
 ```
 
 #### 4. Input Mode Hints
+
 ```tsx
 // ArmorTab.tsx - numeric keyboard on mobile
 <input
@@ -318,6 +374,7 @@ const touch = {
 ```
 
 #### 5. Larger Touch Targets via CSS
+
 ```typescript
 // tailwind.config.ts - add touch-friendly spacing
 theme: {
@@ -337,6 +394,7 @@ theme: {
 ```
 
 #### 6. Haptic Feedback (where supported)
+
 ```tsx
 // hooks/useHaptics.ts
 export function useHaptics() {
@@ -355,12 +413,14 @@ const { vibrate } = useHaptics();
 ```
 
 ### Pros
+
 - Minimal structural changes
 - Improves PWA "feel" significantly
 - Easy to implement incrementally
 - Low risk of regression
 
 ### Cons
+
 - Doesn't solve fundamental layout issues
 - Touch DnD still not addressed
 - Mobile UX still suboptimal
@@ -371,17 +431,17 @@ const { vibrate } = useHaptics();
 
 ## Comparison Matrix
 
-| Aspect | Option A | Option B | Option C | Option D |
-|--------|----------|----------|----------|----------|
-| **Touch Targets** | Full redesign | Responsive padding | Adaptive sizing | CSS only |
-| **Tray Layout** | Bottom sheet | Responsive width | Both variants | No change |
-| **DnD Touch** | Touch backend | No change | Conditional | No change |
-| **Context Menus** | Action sheets | No change | Conditional | No change |
-| **Safe Areas** | Full support | Partial | Full support | Full support |
-| **Effort** | High | Low-Medium | Medium | Low |
-| **Risk** | High | Low | Medium | Low |
-| **Desktop Impact** | May change | Minimal | None | None |
-| **Mobile UX** | Excellent | Good | Excellent | Moderate |
+| Aspect             | Option A      | Option B           | Option C        | Option D     |
+| ------------------ | ------------- | ------------------ | --------------- | ------------ |
+| **Touch Targets**  | Full redesign | Responsive padding | Adaptive sizing | CSS only     |
+| **Tray Layout**    | Bottom sheet  | Responsive width   | Both variants   | No change    |
+| **DnD Touch**      | Touch backend | No change          | Conditional     | No change    |
+| **Context Menus**  | Action sheets | No change          | Conditional     | No change    |
+| **Safe Areas**     | Full support  | Partial            | Full support    | Full support |
+| **Effort**         | High          | Low-Medium         | Medium          | Low          |
+| **Risk**           | High          | Low                | Medium          | Low          |
+| **Desktop Impact** | May change    | Minimal            | None            | None         |
+| **Mobile UX**      | Excellent     | Good               | Excellent       | Moderate     |
 
 ---
 
@@ -394,6 +454,7 @@ Consider a **phased implementation**:
 3. **Phase 3**: Option C elements (Touch backend, Bottom sheet) - As needed
 
 This provides:
+
 - Immediate improvements with low risk
 - Progressive enhancement over time
 - Ability to validate each phase before proceeding

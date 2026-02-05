@@ -36,7 +36,7 @@ import {
 // =============================================================================
 
 function createTestLocationDamage(
-  overrides: Partial<ILocationDamage> = {}
+  overrides: Partial<ILocationDamage> = {},
 ): ILocationDamage {
   return {
     location: UnitLocation.CenterTorso,
@@ -51,7 +51,7 @@ function createTestLocationDamage(
 }
 
 function createTestAssessment(
-  overrides: Partial<IDamageAssessment> = {}
+  overrides: Partial<IDamageAssessment> = {},
 ): IDamageAssessment {
   return {
     unitId: 'unit-1',
@@ -69,7 +69,9 @@ function createTestAssessment(
   };
 }
 
-function createTestRepairItem(overrides: Partial<IRepairItem> = {}): IRepairItem {
+function createTestRepairItem(
+  overrides: Partial<IRepairItem> = {},
+): IRepairItem {
   return {
     id: 'item-1',
     type: RepairType.Armor,
@@ -147,7 +149,9 @@ describe('Repair Constants', () => {
     });
 
     it('structure should cost more than armor per point', () => {
-      expect(REPAIR_COSTS.STRUCTURE_PER_POINT).toBeGreaterThan(REPAIR_COSTS.ARMOR_PER_POINT);
+      expect(REPAIR_COSTS.STRUCTURE_PER_POINT).toBeGreaterThan(
+        REPAIR_COSTS.ARMOR_PER_POINT,
+      );
     });
 
     it('critical damage multiplier should be > 1', () => {
@@ -365,7 +369,7 @@ describe('createDamageAssessment', () => {
       { center_torso: 0 },
       [],
       { center_torso: 40 },
-      { center_torso: 20 }
+      { center_torso: 20 },
     );
 
     expect(assessment.unitId).toBe('unit-1');
@@ -382,7 +386,7 @@ describe('createDamageAssessment', () => {
       { center_torso: 20 },
       [],
       { center_torso: 40 },
-      { center_torso: 20 }
+      { center_torso: 20 },
     );
 
     expect(assessment.isDestroyed).toBe(true);
@@ -397,7 +401,7 @@ describe('createDamageAssessment', () => {
       { center_torso: 0 },
       [],
       { center_torso: 40 },
-      { center_torso: 20 }
+      { center_torso: 20 },
     );
 
     expect(assessment.operationalPercent).toBeGreaterThan(0);
@@ -450,7 +454,9 @@ describe('generateRepairItems', () => {
 
     const items = generateRepairItems(assessment);
 
-    expect(items.some((i) => i.type === RepairType.ComponentReplace)).toBe(true);
+    expect(items.some((i) => i.type === RepairType.ComponentReplace)).toBe(
+      true,
+    );
   });
 
   it('should mark all items as selected by default', () => {
@@ -499,7 +505,9 @@ describe('validateRepairJob', () => {
     const result = validateRepairJob(job, 5000, 100);
 
     expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.includes('No repair items are selected'))).toBe(true);
+    expect(
+      result.errors.some((e) => e.includes('No repair items are selected')),
+    ).toBe(true);
   });
 
   it('should warn about high cost', () => {

@@ -6,6 +6,18 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
+
+// Event factory imports available if needed for future tests
+// import { createGameCreatedEvent, createGameStartedEvent } from '@/utils/gameplay/gameEvents';
+import {
+  IGameConfig,
+  IGameUnit,
+  GameStatus,
+  GamePhase,
+  GameSide,
+  LockState,
+} from '@/types/gameplay';
+import { Facing, MovementType } from '@/types/gameplay';
 import {
   createGameSession,
   startGame,
@@ -25,17 +37,6 @@ import {
   allUnitsLocked,
   isGameOver,
 } from '@/utils/gameplay/gameState';
-// Event factory imports available if needed for future tests
-// import { createGameCreatedEvent, createGameStartedEvent } from '@/utils/gameplay/gameEvents';
-import {
-  IGameConfig,
-  IGameUnit,
-  GameStatus,
-  GamePhase,
-  GameSide,
-  LockState,
-} from '@/types/gameplay';
-import { Facing, MovementType } from '@/types/gameplay';
 
 describe('gameSession', () => {
   // Test fixtures
@@ -74,7 +75,7 @@ describe('gameSession', () => {
   describe('createGameSession()', () => {
     it('should create a new game session', () => {
       const session = createGameSession(testConfig, testUnits);
-      
+
       expect(session.id).toBeDefined();
       expect(session.config).toEqual(testConfig);
       expect(session.units).toEqual(testUnits);
@@ -84,7 +85,7 @@ describe('gameSession', () => {
 
     it('should create initial state with units', () => {
       const session = createGameSession(testConfig, testUnits);
-      
+
       expect(Object.keys(session.currentState.units).length).toBe(2);
       expect(session.currentState.units['unit-1']).toBeDefined();
       expect(session.currentState.units['unit-2']).toBeDefined();
@@ -95,7 +96,7 @@ describe('gameSession', () => {
     it('should start a game in setup state', () => {
       const session = createGameSession(testConfig, testUnits);
       const started = startGame(session, GameSide.Player);
-      
+
       expect(started.currentState.status).toBe(GameStatus.Active);
       expect(started.currentState.turn).toBe(1);
       expect(started.events.length).toBe(2);
@@ -104,7 +105,7 @@ describe('gameSession', () => {
     it('should throw if game is not in setup state', () => {
       const session = createGameSession(testConfig, testUnits);
       const started = startGame(session, GameSide.Player);
-      
+
       expect(() => startGame(started, GameSide.Player)).toThrow();
     });
   });
@@ -114,14 +115,14 @@ describe('gameSession', () => {
       const session = createGameSession(testConfig, testUnits);
       const started = startGame(session, GameSide.Player);
       const ended = endGame(started, GameSide.Player, 'destruction');
-      
+
       expect(ended.currentState.status).toBe(GameStatus.Completed);
       expect(ended.currentState.result?.winner).toBe(GameSide.Player);
     });
 
     it('should throw if game is not active', () => {
       const session = createGameSession(testConfig, testUnits);
-      
+
       expect(() => endGame(session, GameSide.Player, 'destruction')).toThrow();
     });
   });
@@ -144,10 +145,10 @@ describe('gameSession', () => {
     it('should advance to the next phase', () => {
       let session = createGameSession(testConfig, testUnits);
       session = startGame(session, GameSide.Player);
-      
+
       // Start at Initiative
       expect(session.currentState.phase).toBe(GamePhase.Initiative);
-      
+
       // Advance to Movement
       session = advancePhase(session);
       expect(session.currentState.phase).toBe(GamePhase.Movement);
@@ -163,7 +164,7 @@ describe('gameSession', () => {
       let session = createGameSession(testConfig, testUnits);
       session = startGame(session, GameSide.Player);
       session = rollInitiative(session);
-      
+
       expect(session.currentState.initiativeWinner).toBeDefined();
       expect(session.currentState.firstMover).toBeDefined();
     });
@@ -172,7 +173,7 @@ describe('gameSession', () => {
       let session = createGameSession(testConfig, testUnits);
       session = startGame(session, GameSide.Player);
       session = advancePhase(session); // Move to Movement phase
-      
+
       expect(() => rollInitiative(session)).toThrow();
     });
   });
@@ -186,7 +187,7 @@ describe('gameSession', () => {
       let session = createGameSession(testConfig, testUnits);
       session = startGame(session, GameSide.Player);
       session = advancePhase(session); // Initiative -> Movement
-      
+
       session = declareMovement(
         session,
         'unit-1',
@@ -195,9 +196,9 @@ describe('gameSession', () => {
         Facing.North,
         MovementType.Walk,
         1,
-        1
+        1,
       );
-      
+
       const unit = session.currentState.units['unit-1'];
       expect(unit.position).toEqual({ q: 1, r: 0 });
       expect(unit.movementThisTurn).toBe(MovementType.Walk);
@@ -208,17 +209,19 @@ describe('gameSession', () => {
       let session = createGameSession(testConfig, testUnits);
       session = startGame(session, GameSide.Player);
       // Still in Initiative phase
-      
-      expect(() => declareMovement(
-        session,
-        'unit-1',
-        { q: 0, r: 0 },
-        { q: 1, r: 0 },
-        Facing.North,
-        MovementType.Walk,
-        1,
-        1
-      )).toThrow();
+
+      expect(() =>
+        declareMovement(
+          session,
+          'unit-1',
+          { q: 0, r: 0 },
+          { q: 1, r: 0 },
+          Facing.North,
+          MovementType.Walk,
+          1,
+          1,
+        ),
+      ).toThrow();
     });
   });
 
@@ -227,7 +230,7 @@ describe('gameSession', () => {
       let session = createGameSession(testConfig, testUnits);
       session = startGame(session, GameSide.Player);
       session = advancePhase(session); // Initiative -> Movement
-      
+
       session = declareMovement(
         session,
         'unit-1',
@@ -236,10 +239,10 @@ describe('gameSession', () => {
         Facing.North,
         MovementType.Walk,
         1,
-        1
+        1,
       );
       session = lockMovement(session, 'unit-1');
-      
+
       const unit = session.currentState.units['unit-1'];
       expect(unit.lockState).toBe(LockState.Locked);
     });
@@ -254,7 +257,7 @@ describe('gameSession', () => {
       let session = createGameSession(testConfig, testUnits);
       session = startGame(session, GameSide.Player);
       session = advancePhase(session);
-      
+
       // Replay to before phase change
       const stateAtSeq1 = replayToSequence(session, 1);
       expect(stateAtSeq1.status).toBe(GameStatus.Active);
@@ -266,7 +269,7 @@ describe('gameSession', () => {
     it('should return state at specific turn', () => {
       let session = createGameSession(testConfig, testUnits);
       session = startGame(session, GameSide.Player);
-      
+
       // Replay to turn 1
       const stateAtTurn1 = replayToTurn(session, 1);
       expect(stateAtTurn1.turn).toBe(1);
@@ -277,9 +280,9 @@ describe('gameSession', () => {
     it('should generate a text log of events', () => {
       let session = createGameSession(testConfig, testUnits);
       session = startGame(session, GameSide.Player);
-      
+
       const log = generateGameLog(session);
-      
+
       expect(log).toContain('Game created');
       expect(log).toContain('Game started');
     });
@@ -290,7 +293,7 @@ describe('gameState', () => {
   describe('deriveState()', () => {
     it('should derive state from empty events', () => {
       const state = deriveState('game-1', []);
-      
+
       expect(state.gameId).toBe('game-1');
       expect(state.status).toBe(GameStatus.Setup);
       expect(state.turn).toBe(0);

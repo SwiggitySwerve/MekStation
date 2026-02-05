@@ -3,6 +3,7 @@
 ## Context
 
 MekStation is a Next.js 16 application with React 19 and TypeScript 5.8. The UI layer consists of:
+
 - 9 core UI components (`src/components/ui/`)
 - 105 domain-specific components across 12 directories
 - Tailwind CSS 4 with CSS variables for theming
@@ -14,6 +15,7 @@ Storybook will serve as the component development and documentation platform.
 ## Goals / Non-Goals
 
 ### Goals
+
 - Provide isolated component development environment
 - Document all 114 components with interactive examples
 - Document design tokens (colors, spacing, typography)
@@ -22,6 +24,7 @@ Storybook will serve as the component development and documentation platform.
 - Run Storybook build in CI to catch breaking changes
 
 ### Non-Goals
+
 - Visual regression testing (Chromatic) - defer to future iteration
 - Storybook deployment to GitHub Pages - defer to future iteration
 - Replacing existing Jest tests with Storybook interaction tests
@@ -34,12 +37,14 @@ Storybook will serve as the component development and documentation platform.
 **Decision**: Use `@storybook/react-vite` builder
 
 **Rationale**:
+
 - Vite is 10-20x faster for dev server startup than Webpack
 - Next.js 16 supports Vite-based tooling
 - Storybook 8.x has first-class Vite support
 - Webpack builder would conflict with Next.js's own Webpack config
 
 **Alternatives considered**:
+
 - Webpack builder: Slower, config conflicts with next.config.ts
 - Turbopack: Not yet supported by Storybook
 
@@ -56,12 +61,14 @@ src/components/ui/
 ```
 
 **Rationale**:
+
 - Matches existing test file pattern (`__tests__/*.test.tsx` nearby)
 - Easier to find and maintain stories
 - Component + story + test form a complete unit
 - Storybook glob pattern: `../src/**/*.stories.@(ts|tsx)`
 
 **Alternatives considered**:
+
 - Separate `stories/` directory: Harder to maintain, stories drift from components
 - `__stories__/` subdirectories: Too much nesting
 
@@ -89,6 +96,7 @@ Storybook Sidebar:
 ```
 
 **Rationale**:
+
 - Mirrors folder structure (easy mental mapping)
 - Scales to 114 components without overwhelming sidebar
 - "Design System" section provides token documentation
@@ -116,6 +124,7 @@ const preview: Preview = {
 ```
 
 **Rationale**:
+
 - Reuses existing Tailwind config and CSS variables
 - Components render identically to production
 - Background switcher helps test dark theme variants
@@ -124,18 +133,20 @@ const preview: Preview = {
 
 **Decision**: Install these addons:
 
-| Addon | Purpose |
-|-------|---------|
-| `@storybook/addon-essentials` | Docs, controls, actions, viewport, backgrounds, measure, outline |
-| `@storybook/addon-a11y` | Accessibility panel with axe-core |
-| `@storybook/addon-interactions` | Play function testing, step-through debugging |
+| Addon                           | Purpose                                                          |
+| ------------------------------- | ---------------------------------------------------------------- |
+| `@storybook/addon-essentials`   | Docs, controls, actions, viewport, backgrounds, measure, outline |
+| `@storybook/addon-a11y`         | Accessibility panel with axe-core                                |
+| `@storybook/addon-interactions` | Play function testing, step-through debugging                    |
 
 **Rationale**:
+
 - Essentials covers 90% of documentation needs
 - A11y is critical for gaming UI (contrast, focus management)
 - Interactions enables component testing without full E2E
 
 **Deferred**:
+
 - `@chromatic-com/storybook`: Visual regression (adds CI cost)
 - `@storybook/addon-designs`: Figma integration (no Figma files exist)
 
@@ -158,36 +169,37 @@ type Story = StoryObj<typeof meta>;
 ```
 
 **Rationale**:
+
 - Full type inference for args
 - Catches prop mismatches at compile time
 - Matches project's strict TypeScript config
 
 ### 7. Component Categories and Story Counts
 
-| Category | Directory | Components | Priority |
-|----------|-----------|------------|----------|
-| UI (Core) | `ui/` | 9 | P0 - First |
-| Common | `common/` | ~5 | P0 |
-| Armor | `armor/` | ~8 | P1 |
-| Customizer | `customizer/` | ~40 | P1 |
-| Equipment | `equipment/` | ~10 | P1 |
-| Gameplay | `gameplay/` | ~5 | P2 |
-| Critical Slots | `critical-slots/` | ~8 | P2 |
-| Mobile | `mobile/` | ~5 | P2 |
-| Settings | `settings/` | ~3 | P2 |
-| Shared | `shared/` | ~3 | P2 |
-| Providers | `providers/` | ~2 | P3 (may skip) |
-| PWA | `pwa/` | ~2 | P3 (may skip) |
+| Category       | Directory         | Components | Priority      |
+| -------------- | ----------------- | ---------- | ------------- |
+| UI (Core)      | `ui/`             | 9          | P0 - First    |
+| Common         | `common/`         | ~5         | P0            |
+| Armor          | `armor/`          | ~8         | P1            |
+| Customizer     | `customizer/`     | ~40        | P1            |
+| Equipment      | `equipment/`      | ~10        | P1            |
+| Gameplay       | `gameplay/`       | ~5         | P2            |
+| Critical Slots | `critical-slots/` | ~8         | P2            |
+| Mobile         | `mobile/`         | ~5         | P2            |
+| Settings       | `settings/`       | ~3         | P2            |
+| Shared         | `shared/`         | ~3         | P2            |
+| Providers      | `providers/`      | ~2         | P3 (may skip) |
+| PWA            | `pwa/`            | ~2         | P3 (may skip) |
 
 ## Risks / Trade-offs
 
-| Risk | Mitigation |
-|------|------------|
+| Risk                              | Mitigation                                                          |
+| --------------------------------- | ------------------------------------------------------------------- |
 | Vite/Next.js compatibility issues | Use `@storybook/nextjs` framework preset which handles RSC, routing |
-| Stories become stale | Enforce story updates in PR review checklist |
-| Large bundle from 114 stories | Storybook lazy-loads stories; not a runtime concern |
-| Zustand store dependencies | Create mock store wrapper decorator |
-| react-dnd context dependencies | Create DnD provider decorator |
+| Stories become stale              | Enforce story updates in PR review checklist                        |
+| Large bundle from 114 stories     | Storybook lazy-loads stories; not a runtime concern                 |
+| Zustand store dependencies        | Create mock store wrapper decorator                                 |
+| react-dnd context dependencies    | Create DnD provider decorator                                       |
 
 ## Migration Plan
 

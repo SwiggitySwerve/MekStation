@@ -1,13 +1,18 @@
-import type { IBotBehavior, IMove } from './types';
-import type { SeededRandom } from '../core/SeededRandom';
 import type {
   IHexGrid,
   IUnitPosition,
   IMovementCapability,
 } from '@/types/gameplay';
+
 import { Facing, MovementType } from '@/types/gameplay';
-import { getValidDestinations, calculateMovementHeat } from '@/utils/gameplay/movement';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+import {
+  getValidDestinations,
+  calculateMovementHeat,
+} from '@/utils/gameplay/movement';
+
+import type { SeededRandom } from '../core/SeededRandom';
+import type { IBotBehavior, IMove } from './types';
 
 export class MoveAI {
   constructor(private readonly behavior: IBotBehavior) {}
@@ -16,9 +21,14 @@ export class MoveAI {
     grid: IHexGrid,
     position: IUnitPosition,
     movementType: MovementType,
-    capability: IMovementCapability
+    capability: IMovementCapability,
   ): readonly IMove[] {
-    const destinations = getValidDestinations(grid, position, movementType, capability);
+    const destinations = getValidDestinations(
+      grid,
+      position,
+      movementType,
+      capability,
+    );
     const moves: IMove[] = [];
 
     for (const destination of destinations) {

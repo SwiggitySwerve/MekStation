@@ -1,11 +1,15 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ArmorDiagramModeSwitch } from '../ArmorDiagramModeSwitch';
+import React from 'react';
+
 import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+
+import { ArmorDiagramModeSwitch } from '../ArmorDiagramModeSwitch';
 
 // Mock the store
 jest.mock('@/stores/useAppSettingsStore');
-const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<typeof useAppSettingsStore>;
+const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<
+  typeof useAppSettingsStore
+>;
 
 describe('ArmorDiagramModeSwitch', () => {
   const mockSetArmorDiagramMode = jest.fn();

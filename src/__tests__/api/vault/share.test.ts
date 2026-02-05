@@ -11,11 +11,14 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import indexHandler from '@/pages/api/vault/share/index';
+
+import { createMocks } from 'node-mocks-http';
+
 import idHandler from '@/pages/api/vault/share/[id]';
+import indexHandler from '@/pages/api/vault/share/index';
 import redeemHandler from '@/pages/api/vault/share/redeem';
+
 import { parseApiResponse, parseErrorResponse } from '../../helpers';
 
 // =============================================================================
@@ -356,7 +359,10 @@ describe('/api/vault/share', () => {
       await idHandler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      expect(mockUpdateLabel).toHaveBeenCalledWith('link-test-123', 'New Label');
+      expect(mockUpdateLabel).toHaveBeenCalledWith(
+        'link-test-123',
+        'New Label',
+      );
     });
 
     it('should update isActive (deactivate)', async () => {
@@ -422,7 +428,10 @@ describe('/api/vault/share', () => {
     });
 
     it('should return 404 for non-existent link', async () => {
-      mockDelete.mockResolvedValue({ success: false, error: 'Share link not found' });
+      mockDelete.mockResolvedValue({
+        success: false,
+        error: 'Share link not found',
+      });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'DELETE',
@@ -473,13 +482,18 @@ describe('/api/vault/share', () => {
       await redeemHandler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      expect(mockRedeemByUrl).toHaveBeenCalledWith('mekstation://share/test-token');
+      expect(mockRedeemByUrl).toHaveBeenCalledWith(
+        'mekstation://share/test-token',
+      );
     });
 
     it('should return 404 for non-existent token', async () => {
       mockRedeem.mockResolvedValue({
         success: false,
-        error: { message: 'Share link not found', errorCode: 'NOT_FOUND' as const },
+        error: {
+          message: 'Share link not found',
+          errorCode: 'NOT_FOUND' as const,
+        },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -495,7 +509,10 @@ describe('/api/vault/share', () => {
     it('should return 410 for expired link', async () => {
       mockRedeem.mockResolvedValue({
         success: false,
-        error: { message: 'Share link has expired', errorCode: 'EXPIRED' as const },
+        error: {
+          message: 'Share link has expired',
+          errorCode: 'EXPIRED' as const,
+        },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -511,7 +528,10 @@ describe('/api/vault/share', () => {
     it('should return 410 for max uses reached', async () => {
       mockRedeem.mockResolvedValue({
         success: false,
-        error: { message: 'Share link has reached maximum uses', errorCode: 'MAX_USES' as const },
+        error: {
+          message: 'Share link has reached maximum uses',
+          errorCode: 'MAX_USES' as const,
+        },
       });
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({

@@ -65,18 +65,18 @@ src/simulation/
 
 ### Component Overview
 
-| Component | Purpose |
-|-----------|---------|
-| **SeededRandom** | Deterministic PRNG (Mulberry32) for reproducible simulations |
-| **WeightedTable** | Weighted random selection for unit/terrain generation |
-| **BotPlayer** | AI that makes valid moves for both sides |
-| **InvariantRunner** | Detects game state violations (bugs) |
-| **SimulationRunner** | Executes single game with turn loop |
-| **BatchRunner** | Runs multiple simulations sequentially |
-| **MetricsCollector** | Tracks win rates, turn counts, violations |
-| **ReportGenerator** | Creates JSON reports for analysis |
-| **SnapshotManager** | Saves failed scenarios for debugging |
-| **ScenarioGenerator** | Creates random valid starting positions |
+| Component             | Purpose                                                      |
+| --------------------- | ------------------------------------------------------------ |
+| **SeededRandom**      | Deterministic PRNG (Mulberry32) for reproducible simulations |
+| **WeightedTable**     | Weighted random selection for unit/terrain generation        |
+| **BotPlayer**         | AI that makes valid moves for both sides                     |
+| **InvariantRunner**   | Detects game state violations (bugs)                         |
+| **SimulationRunner**  | Executes single game with turn loop                          |
+| **BatchRunner**       | Runs multiple simulations sequentially                       |
+| **MetricsCollector**  | Tracks win rates, turn counts, violations                    |
+| **ReportGenerator**   | Creates JSON reports for analysis                            |
+| **SnapshotManager**   | Saves failed scenarios for debugging                         |
+| **ScenarioGenerator** | Creates random valid starting positions                      |
 
 ## Running Tests
 
@@ -90,11 +90,11 @@ npm test src/simulation/
 
 ## Configuration Presets
 
-| Preset | Units | Turns | Map | Use Case |
-|--------|-------|-------|-----|----------|
-| `light` | 2v2 | 10 | R5 | Quick smoke tests |
-| `standard` | 4v4 | 20 | R7 | Normal testing |
-| `stress` | 4v4 | 50 | R10 | Load/performance testing |
+| Preset     | Units | Turns | Map | Use Case                 |
+| ---------- | ----- | ----- | --- | ------------------------ |
+| `light`    | 2v2   | 10    | R5  | Quick smoke tests        |
+| `standard` | 4v4   | 20    | R7  | Normal testing           |
+| `stress`   | 4v4   | 50    | R10 | Load/performance testing |
 
 ## Reproducibility
 
@@ -131,6 +131,7 @@ Failed scenarios are saved to `src/simulation/__snapshots__/failed/` for debuggi
 ```
 
 Each snapshot contains:
+
 - Seed and configuration
 - All game events
 - Violations detected
@@ -138,11 +139,11 @@ Each snapshot contains:
 
 ## Performance Targets
 
-| Metric | Target | Measured |
-|--------|--------|----------|
-| 100 games | <60s | ~5s |
-| Per game | <600ms | ~50ms |
-| Scenario gen | <50ms | <5ms |
+| Metric       | Target | Measured |
+| ------------ | ------ | -------- |
+| 100 games    | <60s   | ~5s      |
+| Per game     | <600ms | ~50ms    |
+| Scenario gen | <50ms  | <5ms     |
 
 ## Invariant Checks
 
@@ -169,7 +170,7 @@ import { IGameState, IViolation } from './types';
 
 export function checkMyInvariant(
   state: IGameState,
-  previousState?: IGameState
+  previousState?: IGameState,
 ): IViolation[] {
   const violations: IViolation[] = [];
   // Check logic here

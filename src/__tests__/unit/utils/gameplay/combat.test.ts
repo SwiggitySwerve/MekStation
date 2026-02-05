@@ -7,6 +7,43 @@
 
 import { describe, it, expect } from '@jest/globals';
 
+// Types
+import {
+  MovementType,
+  RangeBracket,
+  FiringArc,
+  CombatLocation,
+} from '@/types/gameplay';
+// Cluster Weapons
+import {
+  lookupClusterHits,
+  getNearestClusterSize,
+  groupClusterHitsByLocation,
+  CLUSTER_HIT_TABLE,
+} from '@/utils/gameplay/clusterWeapons';
+// Damage
+import {
+  applyDamageToLocation,
+  applyDamageWithTransfer,
+  checkCriticalHitTrigger,
+  getCriticalHitCount,
+  applyPilotDamage,
+  checkUnitDestruction,
+  createDamageState,
+  IUnitDamageState,
+} from '@/utils/gameplay/damage';
+// Hit Location
+import {
+  FRONT_HIT_LOCATION_TABLE,
+  REAR_HIT_LOCATION_TABLE,
+  getHitLocationTable,
+  determineHitLocationFromRoll,
+  createDiceRoll,
+  isCriticalLocation,
+  isHeadHit,
+  usesRearArmor,
+  getLocationDisplayName,
+} from '@/utils/gameplay/hitLocation';
 // To-Hit Calculation
 import {
   createBaseModifier,
@@ -20,47 +57,6 @@ import {
   RANGE_MODIFIERS,
   ATTACKER_MOVEMENT_MODIFIERS,
 } from '@/utils/gameplay/toHit';
-
-// Hit Location
-import {
-  FRONT_HIT_LOCATION_TABLE,
-  REAR_HIT_LOCATION_TABLE,
-  getHitLocationTable,
-  determineHitLocationFromRoll,
-  createDiceRoll,
-  isCriticalLocation,
-  isHeadHit,
-  usesRearArmor,
-  getLocationDisplayName,
-} from '@/utils/gameplay/hitLocation';
-
-// Damage
-import {
-  applyDamageToLocation,
-  applyDamageWithTransfer,
-  checkCriticalHitTrigger,
-  getCriticalHitCount,
-  applyPilotDamage,
-  checkUnitDestruction,
-  createDamageState,
-  IUnitDamageState,
-} from '@/utils/gameplay/damage';
-
-// Cluster Weapons
-import {
-  lookupClusterHits,
-  getNearestClusterSize,
-  groupClusterHitsByLocation,
-  CLUSTER_HIT_TABLE,
-} from '@/utils/gameplay/clusterWeapons';
-
-// Types
-import { 
-  MovementType, 
-  RangeBracket,
-  FiringArc,
-  CombatLocation,
-} from '@/types/gameplay';
 
 // =============================================================================
 // To-Hit Calculation Tests
@@ -119,7 +115,9 @@ describe('To-Hit Calculation', () => {
 
   describe('calculateAttackerMovementModifier', () => {
     it('should return 0 for stationary', () => {
-      const modifier = calculateAttackerMovementModifier(MovementType.Stationary);
+      const modifier = calculateAttackerMovementModifier(
+        MovementType.Stationary,
+      );
       expect(modifier.value).toBe(0);
     });
 
@@ -183,7 +181,7 @@ describe('To-Hit Calculation', () => {
         MovementType.Run,
         MovementType.Walk,
         5,
-        8
+        8,
       );
       // 4 (gunnery) + 2 (medium) + 2 (run) + 1 (TMM for 5 hexes) + 2 (heat 8) = 11
       expect(result.finalToHit).toBe(11);
@@ -196,7 +194,7 @@ describe('To-Hit Calculation', () => {
         MovementType.Jump,
         MovementType.Jump,
         15,
-        15
+        15,
       );
       expect(result.impossible).toBe(true);
       expect(result.probability).toBe(0);
@@ -311,7 +309,9 @@ describe('Hit Location', () => {
   describe('getLocationDisplayName', () => {
     it('should return proper display names', () => {
       expect(getLocationDisplayName('head')).toBe('Head');
-      expect(getLocationDisplayName('center_torso_rear')).toBe('Center Torso (Rear)');
+      expect(getLocationDisplayName('center_torso_rear')).toBe(
+        'Center Torso (Rear)',
+      );
     });
   });
 });
@@ -323,25 +323,25 @@ describe('Hit Location', () => {
 describe('Damage Application', () => {
   const createTestState = () => {
     const armor: Record<CombatLocation, number> = {
-      'head': 9,
-      'center_torso': 30,
-      'center_torso_rear': 10,
-      'left_torso': 20,
-      'left_torso_rear': 8,
-      'right_torso': 20,
-      'right_torso_rear': 8,
-      'left_arm': 16,
-      'right_arm': 16,
-      'left_leg': 24,
-      'right_leg': 24,
+      head: 9,
+      center_torso: 30,
+      center_torso_rear: 10,
+      left_torso: 20,
+      left_torso_rear: 8,
+      right_torso: 20,
+      right_torso_rear: 8,
+      left_arm: 16,
+      right_arm: 16,
+      left_leg: 24,
+      right_leg: 24,
     };
-    
+
     const rearArmor = {
-      'center_torso': 10,
-      'left_torso': 8,
-      'right_torso': 8,
+      center_torso: 10,
+      left_torso: 8,
+      right_torso: 8,
     };
-    
+
     return createDamageState(50, armor, rearArmor);
   };
 
@@ -349,7 +349,7 @@ describe('Damage Application', () => {
     it('should apply damage to armor first', () => {
       const state = createTestState();
       const { result } = applyDamageToLocation(state, 'left_arm', 10);
-      
+
       expect(result.armorDamage).toBe(10);
       expect(result.structureDamage).toBe(0);
       expect(result.armorRemaining).toBe(6);
@@ -359,7 +359,7 @@ describe('Damage Application', () => {
     it('should apply excess damage to structure', () => {
       const state = createTestState();
       const { result } = applyDamageToLocation(state, 'left_arm', 20);
-      
+
       expect(result.armorDamage).toBe(16);
       expect(result.structureDamage).toBe(4);
       expect(result.armorRemaining).toBe(0);
@@ -367,8 +367,12 @@ describe('Damage Application', () => {
 
     it('should destroy location when structure depleted', () => {
       const state = createTestState();
-      const { state: newState, result } = applyDamageToLocation(state, 'left_arm', 30);
-      
+      const { state: newState, result } = applyDamageToLocation(
+        state,
+        'left_arm',
+        30,
+      );
+
       expect(result.destroyed).toBe(true);
       expect(newState.destroyedLocations.includes('left_arm')).toBe(true);
     });
@@ -377,7 +381,7 @@ describe('Damage Application', () => {
       const state = createTestState();
       // Destroy the arm with 30 damage (16 armor + 8 structure = 24, so 6 excess)
       const { result } = applyDamageToLocation(state, 'left_arm', 30);
-      
+
       expect(result.destroyed).toBe(true);
       expect(result.transferredDamage).toBe(6);
       expect(result.transferLocation).toBe('left_torso');
@@ -390,12 +394,16 @@ describe('Damage Application', () => {
       const baseState = createTestState();
       const weakenedState: IUnitDamageState = {
         ...baseState,
-        armor: { ...baseState.armor, 'left_arm': 0 },
-        structure: { ...baseState.structure, 'left_arm': 1 },
+        armor: { ...baseState.armor, left_arm: 0 },
+        structure: { ...baseState.structure, left_arm: 1 },
       };
-      
-      const { results } = applyDamageWithTransfer(weakenedState, 'left_arm', 10);
-      
+
+      const { results } = applyDamageWithTransfer(
+        weakenedState,
+        'left_arm',
+        10,
+      );
+
       // Should have hit arm and transferred to torso
       expect(results.length).toBeGreaterThanOrEqual(1);
       expect(results[0].location).toBe('left_arm');
@@ -422,7 +430,7 @@ describe('Damage Application', () => {
     it('should apply wounds to pilot', () => {
       const state = createTestState();
       const { result } = applyPilotDamage(state, 1, 'head_hit');
-      
+
       expect(result.woundsInflicted).toBe(1);
       expect(result.totalWounds).toBe(1);
       expect(result.consciousnessCheckRequired).toBe(true);
@@ -435,9 +443,13 @@ describe('Damage Application', () => {
         ...baseState,
         pilotWounds: 5,
       };
-      
-      const { state: newState, result } = applyPilotDamage(woundedState, 1, 'head_hit');
-      
+
+      const { state: newState, result } = applyPilotDamage(
+        woundedState,
+        1,
+        'head_hit',
+      );
+
       expect(result.dead).toBe(true);
       expect(newState.destroyed).toBe(true);
       expect(newState.destructionCause).toBe('pilot_death');
@@ -452,9 +464,9 @@ describe('Damage Application', () => {
         ...baseState,
         destroyedLocations: ['head'],
       };
-      
+
       const result = checkUnitDestruction(stateWithDestroyedHead);
-      
+
       expect(result.destroyed).toBe(true);
       expect(result.cause).toBe('damage');
     });
@@ -466,9 +478,9 @@ describe('Damage Application', () => {
         ...baseState,
         destroyedLocations: ['center_torso'],
       };
-      
+
       const result = checkUnitDestruction(stateWithDestroyedCT);
-      
+
       expect(result.destroyed).toBe(true);
     });
 
@@ -479,9 +491,9 @@ describe('Damage Application', () => {
         ...baseState,
         destroyedLocations: ['left_arm'],
       };
-      
+
       const result = checkUnitDestruction(stateWithDestroyedArm);
-      
+
       expect(result.destroyed).toBe(false);
     });
   });
@@ -512,9 +524,9 @@ describe('Cluster Weapons', () => {
     it('should round up to next available size', () => {
       // Sizes available: 2, 4, 5, 6, 10, 15, 20
       // Implementation rounds up to next available threshold
-      expect(getNearestClusterSize(7)).toBe(10);  // 7 <= 10, returns 10
+      expect(getNearestClusterSize(7)).toBe(10); // 7 <= 10, returns 10
       expect(getNearestClusterSize(12)).toBe(15); // 12 <= 15, returns 15
-      expect(getNearestClusterSize(3)).toBe(4);   // 3 <= 4, returns 4
+      expect(getNearestClusterSize(3)).toBe(4); // 3 <= 4, returns 4
     });
 
     it('should cap at 20', () => {
@@ -537,13 +549,25 @@ describe('Cluster Weapons', () => {
   describe('groupClusterHitsByLocation', () => {
     it('should group hits by location', () => {
       const hits = [
-        { location: 'left_arm' as CombatLocation, damage: 1, roll: createDiceRoll(3, 3) },
-        { location: 'left_arm' as CombatLocation, damage: 1, roll: createDiceRoll(3, 4) },
-        { location: 'center_torso' as CombatLocation, damage: 1, roll: createDiceRoll(3, 4) },
+        {
+          location: 'left_arm' as CombatLocation,
+          damage: 1,
+          roll: createDiceRoll(3, 3),
+        },
+        {
+          location: 'left_arm' as CombatLocation,
+          damage: 1,
+          roll: createDiceRoll(3, 4),
+        },
+        {
+          location: 'center_torso' as CombatLocation,
+          damage: 1,
+          roll: createDiceRoll(3, 4),
+        },
       ];
 
       const grouped = groupClusterHitsByLocation(hits);
-      
+
       expect(grouped.get('left_arm')?.count).toBe(2);
       expect(grouped.get('left_arm')?.totalDamage).toBe(2);
       expect(grouped.get('center_torso')?.count).toBe(1);
@@ -560,7 +584,7 @@ describe('Combat Integration', () => {
     // Attacker: Gunnery 4, walked, heat 5
     // Target: Ran 6 hexes
     // Range: 4 hexes (medium)
-    
+
     const result = calculateToHit(
       {
         gunnery: 4,
@@ -576,7 +600,7 @@ describe('Combat Integration', () => {
         partialCover: false,
       },
       RangeBracket.Medium,
-      4
+      4,
     );
 
     // Expected: 4 (gunnery) + 2 (medium) + 1 (walk) + 2 (TMM 6/5=2) + 1 (heat 5-7) = 10

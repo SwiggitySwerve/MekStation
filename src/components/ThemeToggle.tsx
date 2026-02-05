@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+
 import { useThemeStore } from '@/stores/useThemeStore';
 
 const SunIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -45,7 +46,9 @@ export interface IThemeToggleProps {
   readonly className?: string;
 }
 
-export const ThemeToggle: React.FC<IThemeToggleProps> = ({ className = '' }) => {
+export const ThemeToggle: React.FC<IThemeToggleProps> = ({
+  className = '',
+}) => {
   const { theme, toggleTheme, applyTheme } = useThemeStore();
 
   useEffect(() => {
@@ -76,9 +79,9 @@ export const ThemeToggle: React.FC<IThemeToggleProps> = ({ className = '' }) => 
       data-theme={theme}
     >
       {isDark ? (
-        <SunIcon className="w-5 h-5" />
+        <SunIcon className="h-5 w-5" />
       ) : (
-        <MoonIcon className="w-5 h-5" />
+        <MoonIcon className="h-5 w-5" />
       )}
     </button>
   );

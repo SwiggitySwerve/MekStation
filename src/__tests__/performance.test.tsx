@@ -1,9 +1,11 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
+
+import type { IViolation } from '@/components/simulation-viewer/pages/AnalysisBugs';
+import type { IBattleEvent } from '@/components/simulation-viewer/pages/EncounterHistory';
+
 import { VirtualizedTimeline } from '@/components/simulation-viewer/VirtualizedTimeline';
 import { VirtualizedViolationLog } from '@/components/simulation-viewer/VirtualizedViolationLog';
-import type { IBattleEvent } from '@/components/simulation-viewer/pages/EncounterHistory';
-import type { IViolation } from '@/components/simulation-viewer/pages/AnalysisBugs';
 
 function generateEvents(count: number): IBattleEvent[] {
   return Array.from({ length: count }, (_, i) => ({
@@ -20,7 +22,9 @@ function generateEvents(count: number): IBattleEvent[] {
 function generateViolations(count: number): IViolation[] {
   return Array.from({ length: count }, (_, i) => ({
     id: `violation-${i}`,
-    type: ['heat-check', 'movement-rules', 'los-validation', 'damage-calc'][i % 4],
+    type: ['heat-check', 'movement-rules', 'los-validation', 'damage-calc'][
+      i % 4
+    ],
     severity: (['critical', 'warning', 'info'] as const)[i % 3],
     message: `Violation ${i}: Invariant check failed for unit ${i % 10}`,
     battleId: `battle-${i % 5}`,
@@ -54,7 +58,9 @@ describe('Performance Tests', () => {
     it('should render empty state when no events provided', () => {
       render(<VirtualizedTimeline events={[]} />);
 
-      expect(screen.getByTestId('virtualized-timeline-empty')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('virtualized-timeline-empty'),
+      ).toBeInTheDocument();
       expect(screen.getByText('No events recorded.')).toBeInTheDocument();
     });
 
@@ -62,11 +68,7 @@ describe('Performance Tests', () => {
       const events = generateEvents(100);
 
       render(
-        <VirtualizedTimeline
-          events={events}
-          height={400}
-          itemHeight={60}
-        />,
+        <VirtualizedTimeline events={events} height={400} itemHeight={60} />,
       );
 
       expect(screen.getByTestId('virtualized-timeline')).toBeInTheDocument();
@@ -93,7 +95,9 @@ describe('Performance Tests', () => {
       const end = performance.now();
 
       expect(end - start).toBeLessThan(500);
-      expect(screen.getByTestId('virtualized-violation-log')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('virtualized-violation-log'),
+      ).toBeInTheDocument();
     });
 
     it('should render 5000 violations in <500ms', () => {
@@ -109,8 +113,12 @@ describe('Performance Tests', () => {
     it('should render empty state when no violations provided', () => {
       render(<VirtualizedViolationLog violations={[]} />);
 
-      expect(screen.getByTestId('virtualized-violation-log-empty')).toBeInTheDocument();
-      expect(screen.getByText('No violations match the current filters.')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('virtualized-violation-log-empty'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('No violations match the current filters.'),
+      ).toBeInTheDocument();
     });
 
     it('should accept custom height and itemHeight props', () => {
@@ -124,7 +132,9 @@ describe('Performance Tests', () => {
         />,
       );
 
-      expect(screen.getByTestId('virtualized-violation-log')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('virtualized-violation-log'),
+      ).toBeInTheDocument();
     });
 
     it('should render column headers', () => {
@@ -155,12 +165,14 @@ describe('Performance Tests', () => {
 
   describe('React.memo optimization', () => {
     it('TrendChart should be memoized (has displayName)', async () => {
-      const { TrendChart } = await import('@/components/simulation-viewer/TrendChart');
+      const { TrendChart } =
+        await import('@/components/simulation-viewer/TrendChart');
       expect(TrendChart.displayName).toBe('TrendChart');
     });
 
     it('KPICard should be memoized (has displayName)', async () => {
-      const { KPICard } = await import('@/components/simulation-viewer/KPICard');
+      const { KPICard } =
+        await import('@/components/simulation-viewer/KPICard');
       expect(KPICard.displayName).toBe('KPICard');
     });
 
@@ -169,13 +181,16 @@ describe('Performance Tests', () => {
     });
 
     it('VirtualizedViolationLog should be memoized (has displayName)', () => {
-      expect(VirtualizedViolationLog.displayName).toBe('VirtualizedViolationLog');
+      expect(VirtualizedViolationLog.displayName).toBe(
+        'VirtualizedViolationLog',
+      );
     });
   });
 
   describe('FilterPanel debounce', () => {
     it('should have DEBOUNCE_MS constant set to 300', async () => {
-      const filterPanelSource = await import('@/components/simulation-viewer/FilterPanel');
+      const filterPanelSource =
+        await import('@/components/simulation-viewer/FilterPanel');
       expect(filterPanelSource).toBeDefined();
     });
   });

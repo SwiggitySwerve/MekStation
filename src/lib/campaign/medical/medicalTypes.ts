@@ -165,7 +165,7 @@ export function isMedicalSystem(value: unknown): value is MedicalSystem {
  * }
  */
 export function isMedicalCheckResult(
-  value: unknown
+  value: unknown,
 ): value is IMedicalCheckResult {
   if (typeof value !== 'object' || value === null) return false;
   const result = value as IMedicalCheckResult;

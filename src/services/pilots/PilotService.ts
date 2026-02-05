@@ -24,6 +24,7 @@ import {
   MAX_SKILL_VALUE,
   XP_AWARDS,
 } from '@/types/pilot';
+
 import {
   getPilotRepository,
   IPilotOperationResult,
@@ -39,7 +40,7 @@ export interface IPilotService {
   createPilot(options: ICreatePilotOptions): IPilotOperationResult;
   createFromTemplate(
     level: PilotExperienceLevel,
-    identity: IPilotIdentity
+    identity: IPilotIdentity,
   ): IPilotOperationResult;
   createRandom(identity: IPilotIdentity): IPilotOperationResult;
   createStatblock(statblock: IPilotStatblock): IPilot;
@@ -52,15 +53,21 @@ export interface IPilotService {
   // Skill advancement
   improveGunnery(pilotId: string): IPilotOperationResult;
   improvePiloting(pilotId: string): IPilotOperationResult;
-  canImproveGunnery(pilot: IPilot): { canImprove: boolean; cost: number | null };
-  canImprovePiloting(pilot: IPilot): { canImprove: boolean; cost: number | null };
+  canImproveGunnery(pilot: IPilot): {
+    canImprove: boolean;
+    cost: number | null;
+  };
+  canImprovePiloting(pilot: IPilot): {
+    canImprove: boolean;
+    cost: number | null;
+  };
 
   // XP operations
   awardMissionXp(
     pilotId: string,
     outcome: 'victory' | 'defeat' | 'draw',
     kills: number,
-    bonuses?: { firstBlood?: boolean; higherBVOpponent?: boolean }
+    bonuses?: { firstBlood?: boolean; higherBVOpponent?: boolean },
   ): IPilotOperationResult;
 
   // Wounds
@@ -103,7 +110,7 @@ export class PilotService implements IPilotService {
    */
   createFromTemplate(
     level: PilotExperienceLevel,
-    identity: IPilotIdentity
+    identity: IPilotIdentity,
   ): IPilotOperationResult {
     const template = PILOT_TEMPLATES[level];
 
@@ -204,7 +211,10 @@ export class PilotService implements IPilotService {
   /**
    * Check if pilot can improve gunnery
    */
-  canImproveGunnery(pilot: IPilot): { canImprove: boolean; cost: number | null } {
+  canImproveGunnery(pilot: IPilot): {
+    canImprove: boolean;
+    cost: number | null;
+  } {
     const cost = getGunneryImprovementCost(pilot.skills.gunnery);
     if (cost === null) {
       return { canImprove: false, cost: null };
@@ -217,7 +227,10 @@ export class PilotService implements IPilotService {
   /**
    * Check if pilot can improve piloting
    */
-  canImprovePiloting(pilot: IPilot): { canImprove: boolean; cost: number | null } {
+  canImprovePiloting(pilot: IPilot): {
+    canImprove: boolean;
+    cost: number | null;
+  } {
     const cost = getPilotingImprovementCost(pilot.skills.piloting);
     if (cost === null) {
       return { canImprove: false, cost: null };
@@ -244,12 +257,14 @@ export class PilotService implements IPilotService {
     if (!canImprove || cost === null) {
       return {
         success: false,
-        error: cost === null 
-          ? 'Gunnery is already at maximum (1)'
-          : `Insufficient XP. Need ${cost}, have ${pilot.career?.xp || 0}`,
-        errorCode: cost === null 
-          ? PilotErrorCode.ValidationError 
-          : PilotErrorCode.InsufficientXp,
+        error:
+          cost === null
+            ? 'Gunnery is already at maximum (1)'
+            : `Insufficient XP. Need ${cost}, have ${pilot.career?.xp || 0}`,
+        errorCode:
+          cost === null
+            ? PilotErrorCode.ValidationError
+            : PilotErrorCode.InsufficientXp,
       };
     }
 
@@ -285,12 +300,14 @@ export class PilotService implements IPilotService {
     if (!canImprove || cost === null) {
       return {
         success: false,
-        error: cost === null 
-          ? 'Piloting is already at maximum (1)'
-          : `Insufficient XP. Need ${cost}, have ${pilot.career?.xp || 0}`,
-        errorCode: cost === null 
-          ? PilotErrorCode.ValidationError 
-          : PilotErrorCode.InsufficientXp,
+        error:
+          cost === null
+            ? 'Piloting is already at maximum (1)'
+            : `Insufficient XP. Need ${cost}, have ${pilot.career?.xp || 0}`,
+        errorCode:
+          cost === null
+            ? PilotErrorCode.ValidationError
+            : PilotErrorCode.InsufficientXp,
       };
     }
 
@@ -320,7 +337,7 @@ export class PilotService implements IPilotService {
     pilotId: string,
     outcome: 'victory' | 'defeat' | 'draw',
     kills: number,
-    bonuses?: { firstBlood?: boolean; higherBVOpponent?: boolean }
+    bonuses?: { firstBlood?: boolean; higherBVOpponent?: boolean },
   ): IPilotOperationResult {
     let totalXp = XP_AWARDS.missionSurvival;
 
@@ -426,10 +443,14 @@ export class PilotService implements IPilotService {
 
     if (pilot.skills) {
       if (!isValidSkillValue(pilot.skills.gunnery)) {
-        errors.push(`Gunnery must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`);
+        errors.push(
+          `Gunnery must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`,
+        );
       }
       if (!isValidSkillValue(pilot.skills.piloting)) {
-        errors.push(`Piloting must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`);
+        errors.push(
+          `Piloting must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`,
+        );
       }
     }
 
@@ -457,10 +478,14 @@ export class PilotService implements IPilotService {
 
     if (options.skills) {
       if (!isValidSkillValue(options.skills.gunnery)) {
-        errors.push(`Gunnery must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`);
+        errors.push(
+          `Gunnery must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`,
+        );
       }
       if (!isValidSkillValue(options.skills.piloting)) {
-        errors.push(`Piloting must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`);
+        errors.push(
+          `Piloting must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`,
+        );
       }
     }
 

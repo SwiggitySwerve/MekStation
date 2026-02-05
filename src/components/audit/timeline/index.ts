@@ -12,22 +12,13 @@ export {
 } from './EventTimelineItem';
 
 // Timeline list with infinite scroll
-export {
-  EventTimeline,
-  type EventTimelineProps,
-} from './EventTimeline';
+export { EventTimeline, type EventTimelineProps } from './EventTimeline';
 
 // Filter controls
-export {
-  TimelineFilters,
-  type TimelineFiltersProps,
-} from './TimelineFilters';
+export { TimelineFilters, type TimelineFiltersProps } from './TimelineFilters';
 
 // Search input
-export {
-  TimelineSearch,
-  type TimelineSearchProps,
-} from './TimelineSearch';
+export { TimelineSearch, type TimelineSearchProps } from './TimelineSearch';
 
 // Date range picker
 export {

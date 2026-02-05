@@ -1,5 +1,6 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+
 import { DrillDownLink } from '../DrillDownLink';
 
 describe('DrillDownLink', () => {
@@ -9,7 +10,9 @@ describe('DrillDownLink', () => {
         <DrillDownLink label="View All Anomalies" targetTab="analysis-bugs" />,
       );
 
-      expect(screen.getByTestId('drill-down-label')).toHaveTextContent('View All Anomalies');
+      expect(screen.getByTestId('drill-down-label')).toHaveTextContent(
+        'View All Anomalies',
+      );
     });
 
     it('renders link container', () => {
@@ -68,11 +71,7 @@ describe('DrillDownLink', () => {
 
     it('falls back to raw icon string for unknown icons', () => {
       render(
-        <DrillDownLink
-          label="Custom"
-          targetTab="analysis-bugs"
-          icon="★"
-        />,
+        <DrillDownLink label="Custom" targetTab="analysis-bugs" icon="★" />,
       );
 
       expect(screen.getByTestId('drill-down-icon')).toHaveTextContent('★');
@@ -87,13 +86,14 @@ describe('DrillDownLink', () => {
         />,
       );
 
-      expect(screen.getByTestId('drill-down-icon')).toHaveAttribute('aria-hidden', 'true');
+      expect(screen.getByTestId('drill-down-icon')).toHaveAttribute(
+        'aria-hidden',
+        'true',
+      );
     });
 
     it('stores targetTab as data attribute', () => {
-      render(
-        <DrillDownLink label="Go" targetTab="analysis-bugs" />,
-      );
+      render(<DrillDownLink label="Go" targetTab="analysis-bugs" />);
 
       expect(screen.getByTestId('drill-down-link')).toHaveAttribute(
         'data-target-tab',
@@ -146,9 +146,7 @@ describe('DrillDownLink', () => {
     });
 
     it('does not throw when clicked without onClick', () => {
-      render(
-        <DrillDownLink label="Safe" targetTab="campaign-dashboard" />,
-      );
+      render(<DrillDownLink label="Safe" targetTab="campaign-dashboard" />);
 
       expect(() => {
         fireEvent.click(screen.getByTestId('drill-down-link'));
@@ -167,7 +165,9 @@ describe('DrillDownLink', () => {
         />,
       );
 
-      fireEvent.keyDown(screen.getByTestId('drill-down-link'), { key: 'Enter' });
+      fireEvent.keyDown(screen.getByTestId('drill-down-link'), {
+        key: 'Enter',
+      });
       expect(handleClick).toHaveBeenCalledWith('encounter-history', undefined);
     });
 
@@ -195,7 +195,9 @@ describe('DrillDownLink', () => {
         />,
       );
 
-      fireEvent.keyDown(screen.getByTestId('drill-down-link'), { key: 'Escape' });
+      fireEvent.keyDown(screen.getByTestId('drill-down-link'), {
+        key: 'Escape',
+      });
       expect(handleClick).not.toHaveBeenCalled();
     });
   });
@@ -206,7 +208,10 @@ describe('DrillDownLink', () => {
         <DrillDownLink label="Accessible" targetTab="campaign-dashboard" />,
       );
 
-      expect(screen.getByTestId('drill-down-link')).toHaveAttribute('role', 'link');
+      expect(screen.getByTestId('drill-down-link')).toHaveAttribute(
+        'role',
+        'link',
+      );
     });
 
     it('has tabIndex=0 for keyboard focus', () => {
@@ -214,15 +219,16 @@ describe('DrillDownLink', () => {
         <DrillDownLink label="Focusable" targetTab="campaign-dashboard" />,
       );
 
-      expect(screen.getByTestId('drill-down-link')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('drill-down-link')).toHaveAttribute(
+        'tabindex',
+        '0',
+      );
     });
   });
 
   describe('Focus and Hover Styles', () => {
     it('has focus ring classes', () => {
-      render(
-        <DrillDownLink label="Focus" targetTab="campaign-dashboard" />,
-      );
+      render(<DrillDownLink label="Focus" targetTab="campaign-dashboard" />);
 
       const link = screen.getByTestId('drill-down-link');
       expect(link).toHaveClass('focus:ring-2');
@@ -232,45 +238,43 @@ describe('DrillDownLink', () => {
     });
 
     it('has hover:underline class', () => {
-      render(
-        <DrillDownLink label="Hover" targetTab="campaign-dashboard" />,
-      );
+      render(<DrillDownLink label="Hover" targetTab="campaign-dashboard" />);
 
-      expect(screen.getByTestId('drill-down-link')).toHaveClass('hover:underline');
+      expect(screen.getByTestId('drill-down-link')).toHaveClass(
+        'hover:underline',
+      );
     });
 
     it('has cursor-pointer class', () => {
-      render(
-        <DrillDownLink label="Pointer" targetTab="campaign-dashboard" />,
-      );
+      render(<DrillDownLink label="Pointer" targetTab="campaign-dashboard" />);
 
-      expect(screen.getByTestId('drill-down-link')).toHaveClass('cursor-pointer');
+      expect(screen.getByTestId('drill-down-link')).toHaveClass(
+        'cursor-pointer',
+      );
     });
   });
 
   describe('Dark Mode', () => {
     it('has dark mode text color', () => {
-      render(
-        <DrillDownLink label="Dark" targetTab="campaign-dashboard" />,
-      );
+      render(<DrillDownLink label="Dark" targetTab="campaign-dashboard" />);
 
-      expect(screen.getByTestId('drill-down-link')).toHaveClass('dark:text-blue-400');
+      expect(screen.getByTestId('drill-down-link')).toHaveClass(
+        'dark:text-blue-400',
+      );
     });
 
     it('has light mode text color', () => {
-      render(
-        <DrillDownLink label="Light" targetTab="campaign-dashboard" />,
-      );
+      render(<DrillDownLink label="Light" targetTab="campaign-dashboard" />);
 
-      expect(screen.getByTestId('drill-down-link')).toHaveClass('text-blue-600');
+      expect(screen.getByTestId('drill-down-link')).toHaveClass(
+        'text-blue-600',
+      );
     });
   });
 
   describe('Layout', () => {
     it('has inline-flex items-center gap-2 layout', () => {
-      render(
-        <DrillDownLink label="Layout" targetTab="campaign-dashboard" />,
-      );
+      render(<DrillDownLink label="Layout" targetTab="campaign-dashboard" />);
 
       const link = screen.getByTestId('drill-down-link');
       expect(link).toHaveClass('inline-flex');

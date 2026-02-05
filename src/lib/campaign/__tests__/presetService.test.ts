@@ -1,3 +1,6 @@
+import { createDefaultCampaignOptions } from '../../../types/campaign/Campaign';
+import { CampaignPreset } from '../../../types/campaign/CampaignPreset';
+import { CampaignType } from '../../../types/campaign/CampaignType';
 import {
   getPresetDefinition,
   getAllPresets,
@@ -6,17 +9,22 @@ import {
   exportPreset,
   importPreset,
 } from '../presetService';
-import { CampaignPreset } from '../../../types/campaign/CampaignPreset';
-import { CampaignType } from '../../../types/campaign/CampaignType';
-import { createDefaultCampaignOptions } from '../../../types/campaign/Campaign';
 
 describe('presetService', () => {
   describe('getPresetDefinition', () => {
     it('should return correct definition for each preset', () => {
-      expect(getPresetDefinition(CampaignPreset.CASUAL).id).toBe(CampaignPreset.CASUAL);
-      expect(getPresetDefinition(CampaignPreset.STANDARD).id).toBe(CampaignPreset.STANDARD);
-      expect(getPresetDefinition(CampaignPreset.FULL).id).toBe(CampaignPreset.FULL);
-      expect(getPresetDefinition(CampaignPreset.CUSTOM).id).toBe(CampaignPreset.CUSTOM);
+      expect(getPresetDefinition(CampaignPreset.CASUAL).id).toBe(
+        CampaignPreset.CASUAL,
+      );
+      expect(getPresetDefinition(CampaignPreset.STANDARD).id).toBe(
+        CampaignPreset.STANDARD,
+      );
+      expect(getPresetDefinition(CampaignPreset.FULL).id).toBe(
+        CampaignPreset.FULL,
+      );
+      expect(getPresetDefinition(CampaignPreset.CUSTOM).id).toBe(
+        CampaignPreset.CUSTOM,
+      );
     });
   });
 
@@ -60,7 +68,10 @@ describe('presetService', () => {
 
   describe('applyPreset', () => {
     it('should layer defaults → type defaults → preset overrides', () => {
-      const options = applyPreset(CampaignPreset.CASUAL, CampaignType.MERCENARY);
+      const options = applyPreset(
+        CampaignPreset.CASUAL,
+        CampaignType.MERCENARY,
+      );
       expect(options.useTurnover).toBe(false);
       expect(options.healingRateMultiplier).toBe(2.0);
       expect(options.maintenanceCycleDays).toBe(0);
@@ -77,7 +88,10 @@ describe('presetService', () => {
     });
 
     it('should return defaults for CUSTOM preset with MERCENARY type', () => {
-      const options = applyPreset(CampaignPreset.CUSTOM, CampaignType.MERCENARY);
+      const options = applyPreset(
+        CampaignPreset.CUSTOM,
+        CampaignType.MERCENARY,
+      );
       const defaults = createDefaultCampaignOptions();
       expect(options).toEqual(defaults);
     });
@@ -103,7 +117,10 @@ describe('presetService', () => {
 
   describe('importPreset', () => {
     it('should import valid JSON as partial options', () => {
-      const json = JSON.stringify({ healingRateMultiplier: 2.0, useTurnover: false });
+      const json = JSON.stringify({
+        healingRateMultiplier: 2.0,
+        useTurnover: false,
+      });
       const partial = importPreset(json);
       expect(partial.healingRateMultiplier).toBe(2.0);
       expect(partial.useTurnover).toBe(false);
@@ -113,7 +130,9 @@ describe('presetService', () => {
       const options = createDefaultCampaignOptions();
       const json = exportPreset(options);
       const imported = importPreset(json);
-      expect(imported.healingRateMultiplier).toBe(options.healingRateMultiplier);
+      expect(imported.healingRateMultiplier).toBe(
+        options.healingRateMultiplier,
+      );
       expect(imported.salaryMultiplier).toBe(options.salaryMultiplier);
       expect(imported.useTurnover).toBe(options.useTurnover);
     });
@@ -123,9 +142,15 @@ describe('presetService', () => {
     });
 
     it('should throw on non-object JSON', () => {
-      expect(() => importPreset('"string"')).toThrow('Invalid preset format: expected an object');
-      expect(() => importPreset('[1,2,3]')).toThrow('Invalid preset format: expected an object');
-      expect(() => importPreset('null')).toThrow('Invalid preset format: expected an object');
+      expect(() => importPreset('"string"')).toThrow(
+        'Invalid preset format: expected an object',
+      );
+      expect(() => importPreset('[1,2,3]')).toThrow(
+        'Invalid preset format: expected an object',
+      );
+      expect(() => importPreset('null')).toThrow(
+        'Invalid preset format: expected an object',
+      );
     });
   });
 });

@@ -3,10 +3,12 @@
 ## Why
 
 The current implementation has two critical issues:
+
 1. **Integral heat sink calculation is incorrectly capped at 10** - The formula should be `floor(rating / 25)` with no cap. A 400-rating engine should provide 16 integral heat sinks, not 10.
 2. **External heat sinks are not added to the equipment loadout** - Unlike jump jets, Endo Steel, and Ferro-Fibrous, external heat sinks are not materialized as equipment items for critical slot assignment.
 
 Evidence from MegaMekLab:
+
 - 100-ton mech with 400-rating engine shows "Engine Free: 16" (not 10)
 - 75-ton mech with 300-rating engine shows "Engine Free: 12" (not 10)
 
@@ -24,4 +26,3 @@ Evidence from MegaMekLab:
   - `src/services/units/UnitFactoryService.ts` - Remove secondary cap
   - `src/stores/useUnitStore.ts` - Add heat sink equipment sync
   - Tests expecting capped behavior
-

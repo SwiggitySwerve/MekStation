@@ -1,8 +1,8 @@
 /**
  * Fluff Tab Component
- * 
+ *
  * Non-mechanical unit information (history, description, manufacturer).
- * 
+ *
  * @spec openspec/specs/customizer-tabs/spec.md
  */
 
@@ -31,86 +31,102 @@ export function FluffTab({
   return (
     <div className={`space-y-6 p-4 ${className}`}>
       {/* Unit Identity */}
-      <div className="bg-surface-base rounded-lg border border-border-theme p-4">
-        <h3 className="text-lg font-semibold text-white mb-4">Unit Identity</h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-surface-base border-border-theme rounded-lg border p-4">
+        <h3 className="mb-4 text-lg font-semibold text-white">Unit Identity</h3>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm text-text-theme-secondary mb-1">Chassis Name</label>
+            <label className="text-text-theme-secondary mb-1 block text-sm">
+              Chassis Name
+            </label>
             <input
               type="text"
               defaultValue={chassis}
               placeholder="e.g., Atlas"
               disabled={readOnly}
-              className="w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-white placeholder-slate-500 disabled:opacity-50"
+              className="bg-surface-raised border-border-theme-strong w-full rounded border px-3 py-2 text-white placeholder-slate-500 disabled:opacity-50"
             />
           </div>
           <div>
-            <label className="block text-sm text-text-theme-secondary mb-1">Model/Variant</label>
+            <label className="text-text-theme-secondary mb-1 block text-sm">
+              Model/Variant
+            </label>
             <input
               type="text"
               defaultValue={model}
               placeholder="e.g., AS7-D"
               disabled={readOnly}
-              className="w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-white placeholder-slate-500 disabled:opacity-50"
+              className="bg-surface-raised border-border-theme-strong w-full rounded border px-3 py-2 text-white placeholder-slate-500 disabled:opacity-50"
             />
           </div>
         </div>
       </div>
 
       {/* Manufacturing Info */}
-      <div className="bg-surface-base rounded-lg border border-border-theme p-4">
-        <h3 className="text-lg font-semibold text-white mb-4">Manufacturing</h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-surface-base border-border-theme rounded-lg border p-4">
+        <h3 className="mb-4 text-lg font-semibold text-white">Manufacturing</h3>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm text-text-theme-secondary mb-1">Manufacturer</label>
+            <label className="text-text-theme-secondary mb-1 block text-sm">
+              Manufacturer
+            </label>
             <input
               type="text"
               placeholder="e.g., Defiance Industries"
               disabled={readOnly}
-              className="w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-white placeholder-slate-500 disabled:opacity-50"
+              className="bg-surface-raised border-border-theme-strong w-full rounded border px-3 py-2 text-white placeholder-slate-500 disabled:opacity-50"
             />
           </div>
           <div>
-            <label className="block text-sm text-text-theme-secondary mb-1">Primary Factory</label>
+            <label className="text-text-theme-secondary mb-1 block text-sm">
+              Primary Factory
+            </label>
             <input
               type="text"
               placeholder="e.g., Hesperus II"
               disabled={readOnly}
-              className="w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-white placeholder-slate-500 disabled:opacity-50"
+              className="bg-surface-raised border-border-theme-strong w-full rounded border px-3 py-2 text-white placeholder-slate-500 disabled:opacity-50"
             />
           </div>
           <div>
-            <label className="block text-sm text-text-theme-secondary mb-1">Introduction Year</label>
+            <label className="text-text-theme-secondary mb-1 block text-sm">
+              Introduction Year
+            </label>
             <input
               type="number"
               placeholder="e.g., 3025"
               disabled={readOnly}
-              className="w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-white placeholder-slate-500 disabled:opacity-50"
+              className="bg-surface-raised border-border-theme-strong w-full rounded border px-3 py-2 text-white placeholder-slate-500 disabled:opacity-50"
             />
           </div>
           <div>
-            <label className="block text-sm text-text-theme-secondary mb-1">Cost (C-Bills)</label>
+            <label className="text-text-theme-secondary mb-1 block text-sm">
+              Cost (C-Bills)
+            </label>
             <input
               type="text"
               placeholder="Calculated automatically"
               disabled
-              className="w-full px-3 py-2 bg-surface-deep border border-border-theme rounded text-text-theme-secondary"
+              className="bg-surface-deep border-border-theme text-text-theme-secondary w-full rounded border px-3 py-2"
             />
           </div>
         </div>
       </div>
 
       {/* Role/Notes */}
-      <div className="bg-surface-base rounded-lg border border-border-theme p-4">
-        <h3 className="text-lg font-semibold text-white mb-4">Role & Description</h3>
-        
+      <div className="bg-surface-base border-border-theme rounded-lg border p-4">
+        <h3 className="mb-4 text-lg font-semibold text-white">
+          Role & Description
+        </h3>
+
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-text-theme-secondary mb-1">Combat Role</label>
+            <label className="text-text-theme-secondary mb-1 block text-sm">
+              Combat Role
+            </label>
             <select
-              className="w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-white"
+              className="bg-surface-raised border-border-theme-strong w-full rounded border px-3 py-2 text-white"
               disabled={readOnly}
             >
               <option value="">-- Select Role --</option>
@@ -125,29 +141,32 @@ export function FluffTab({
               <option>Striker</option>
             </select>
           </div>
-          
+
           <div>
-            <label className="block text-sm text-text-theme-secondary mb-1">Notes</label>
+            <label className="text-text-theme-secondary mb-1 block text-sm">
+              Notes
+            </label>
             <textarea
               rows={4}
               placeholder="Add notes about this unit variant..."
               disabled={readOnly}
-              className="w-full px-3 py-2 bg-surface-raised border border-border-theme-strong rounded text-white placeholder-slate-500 disabled:opacity-50 resize-none"
+              className="bg-surface-raised border-border-theme-strong w-full resize-none rounded border px-3 py-2 text-white placeholder-slate-500 disabled:opacity-50"
             />
           </div>
         </div>
       </div>
 
       {/* Quirks (placeholder) */}
-      <div className="bg-surface-base rounded-lg border border-border-theme p-4">
-        <h3 className="text-lg font-semibold text-white mb-4">Quirks</h3>
+      <div className="bg-surface-base border-border-theme rounded-lg border p-4">
+        <h3 className="mb-4 text-lg font-semibold text-white">Quirks</h3>
 
-        <div className="text-center py-6 text-text-theme-secondary">
+        <div className="text-text-theme-secondary py-6 text-center">
           <p>Quirks system coming soon</p>
-          <p className="text-sm mt-2">Positive and negative design quirks can be added here</p>
+          <p className="mt-2 text-sm">
+            Positive and negative design quirks can be added here
+          </p>
         </div>
       </div>
     </div>
   );
 }
-

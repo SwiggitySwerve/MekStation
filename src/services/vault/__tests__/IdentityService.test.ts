@@ -66,7 +66,7 @@ describe('Friend Code', () => {
 
       // Should be XXXX-XXXX-XXXX-XXXX format
       expect(friendCode).toMatch(
-        /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/
+        /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/,
       );
     });
 
@@ -240,7 +240,8 @@ describe('Cryptographic Operations', () => {
         return;
       }
 
-      const { generateKeyPair } = await import('@/services/vault/IdentityService');
+      const { generateKeyPair } =
+        await import('@/services/vault/IdentityService');
       const keyPair = await generateKeyPair();
 
       expect(keyPair.publicKey).toBeInstanceOf(Uint8Array);
@@ -253,11 +254,14 @@ describe('Cryptographic Operations', () => {
         return;
       }
 
-      const { generateKeyPair } = await import('@/services/vault/IdentityService');
+      const { generateKeyPair } =
+        await import('@/services/vault/IdentityService');
       const keyPair1 = await generateKeyPair();
       const keyPair2 = await generateKeyPair();
 
-      expect(toBase64(keyPair1.publicKey)).not.toBe(toBase64(keyPair2.publicKey));
+      expect(toBase64(keyPair1.publicKey)).not.toBe(
+        toBase64(keyPair2.publicKey),
+      );
     });
   });
 
@@ -267,9 +271,8 @@ describe('Cryptographic Operations', () => {
         return;
       }
 
-      const { generateKeyPair, signData, verifySignature } = await import(
-        '@/services/vault/IdentityService'
-      );
+      const { generateKeyPair, signData, verifySignature } =
+        await import('@/services/vault/IdentityService');
 
       const keyPair = await generateKeyPair();
       const message = new TextEncoder().encode('Hello, World!');
@@ -278,7 +281,7 @@ describe('Cryptographic Operations', () => {
       const isValid = await verifySignature(
         message,
         signature,
-        keyPair.publicKey
+        keyPair.publicKey,
       );
 
       expect(isValid).toBe(true);
@@ -289,9 +292,8 @@ describe('Cryptographic Operations', () => {
         return;
       }
 
-      const { generateKeyPair, signData, verifySignature } = await import(
-        '@/services/vault/IdentityService'
-      );
+      const { generateKeyPair, signData, verifySignature } =
+        await import('@/services/vault/IdentityService');
 
       const keyPair = await generateKeyPair();
       const message = new TextEncoder().encode('Hello, World!');
@@ -301,7 +303,7 @@ describe('Cryptographic Operations', () => {
       const isValid = await verifySignature(
         tampered,
         signature,
-        keyPair.publicKey
+        keyPair.publicKey,
       );
 
       expect(isValid).toBe(false);
@@ -312,9 +314,8 @@ describe('Cryptographic Operations', () => {
         return;
       }
 
-      const { generateKeyPair, signData, verifySignature } = await import(
-        '@/services/vault/IdentityService'
-      );
+      const { generateKeyPair, signData, verifySignature } =
+        await import('@/services/vault/IdentityService');
 
       const keyPair1 = await generateKeyPair();
       const keyPair2 = await generateKeyPair();
@@ -324,7 +325,7 @@ describe('Cryptographic Operations', () => {
       const isValid = await verifySignature(
         message,
         signature,
-        keyPair2.publicKey
+        keyPair2.publicKey,
       );
 
       expect(isValid).toBe(false);
@@ -337,9 +338,8 @@ describe('Cryptographic Operations', () => {
         return;
       }
 
-      const { encryptWithPassword, decryptWithPassword } = await import(
-        '@/services/vault/IdentityService'
-      );
+      const { encryptWithPassword, decryptWithPassword } =
+        await import('@/services/vault/IdentityService');
 
       const data = new TextEncoder().encode('Secret message');
       const password = 'testpassword123';
@@ -355,15 +355,14 @@ describe('Cryptographic Operations', () => {
         return;
       }
 
-      const { encryptWithPassword, decryptWithPassword } = await import(
-        '@/services/vault/IdentityService'
-      );
+      const { encryptWithPassword, decryptWithPassword } =
+        await import('@/services/vault/IdentityService');
 
       const data = new TextEncoder().encode('Secret message');
       const encrypted = await encryptWithPassword(data, 'correctpassword');
 
       await expect(
-        decryptWithPassword(encrypted, 'wrongpassword')
+        decryptWithPassword(encrypted, 'wrongpassword'),
       ).rejects.toThrow();
     });
 
@@ -372,9 +371,8 @@ describe('Cryptographic Operations', () => {
         return;
       }
 
-      const { encryptWithPassword } = await import(
-        '@/services/vault/IdentityService'
-      );
+      const { encryptWithPassword } =
+        await import('@/services/vault/IdentityService');
 
       const data = new TextEncoder().encode('Secret message');
       const password = 'testpassword123';
@@ -393,7 +391,8 @@ describe('Cryptographic Operations', () => {
         return;
       }
 
-      const { createIdentity } = await import('@/services/vault/IdentityService');
+      const { createIdentity } =
+        await import('@/services/vault/IdentityService');
 
       const stored = await createIdentity('TestUser', 'password123');
 
@@ -402,7 +401,7 @@ describe('Cryptographic Operations', () => {
       expect(stored.publicKey).toBeDefined();
       expect(stored.encryptedPrivateKey).toBeDefined();
       expect(stored.friendCode).toMatch(
-        /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/
+        /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/,
       );
       expect(stored.createdAt).toBeDefined();
     });
@@ -414,9 +413,8 @@ describe('Cryptographic Operations', () => {
         return;
       }
 
-      const { createIdentity, unlockIdentity } = await import(
-        '@/services/vault/IdentityService'
-      );
+      const { createIdentity, unlockIdentity } =
+        await import('@/services/vault/IdentityService');
 
       const stored = await createIdentity('TestUser', 'password123');
       const identity = await unlockIdentity(stored, 'password123');
@@ -431,9 +429,8 @@ describe('Cryptographic Operations', () => {
         return;
       }
 
-      const { createIdentity, unlockIdentity } = await import(
-        '@/services/vault/IdentityService'
-      );
+      const { createIdentity, unlockIdentity } =
+        await import('@/services/vault/IdentityService');
 
       const stored = await createIdentity('TestUser', 'password123');
 

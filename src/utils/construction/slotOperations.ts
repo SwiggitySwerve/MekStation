@@ -1,20 +1,26 @@
 /**
  * Slot Operations Utility
- * 
+ *
  * Provides algorithms for managing critical slot assignments:
  * - Fill: Distribute unhittable slots evenly across locations
  * - Compact: Move equipment to lowest available slot indices
  * - Sort: Reorder equipment by size (largest first)
- * 
+ *
  * @spec openspec/specs/critical-slots-display/spec.md
  */
 
-import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
-import { EngineType, getEngineDefinition } from '@/types/construction/EngineType';
-import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
 import { IMountedEquipmentInstance } from '@/stores/unitState';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import {
+  MechLocation,
+  LOCATION_SLOT_COUNTS,
+} from '@/types/construction/CriticalSlotAllocation';
+import {
+  EngineType,
+  getEngineDefinition,
+} from '@/types/construction/EngineType';
+import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
 
 // =============================================================================
 // Types
@@ -45,11 +51,12 @@ export interface SlotOperationResult {
  * Paired locations for even distribution (fill algorithm)
  * Order: Side Torsos, Arms, Legs, then CT, then Head
  */
-const FILL_LOCATION_PAIRS: readonly (readonly [MechLocation, MechLocation])[] = [
-  [MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO],
-  [MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM],
-  [MechLocation.LEFT_LEG, MechLocation.RIGHT_LEG],
-];
+const FILL_LOCATION_PAIRS: readonly (readonly [MechLocation, MechLocation])[] =
+  [
+    [MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO],
+    [MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM],
+    [MechLocation.LEFT_LEG, MechLocation.RIGHT_LEG],
+  ];
 
 const FILL_SINGLE_LOCATIONS: readonly MechLocation[] = [
   MechLocation.CENTER_TORSO,
@@ -67,7 +74,7 @@ const FILL_SINGLE_LOCATIONS: readonly MechLocation[] = [
 export function getFixedSlotIndices(
   location: MechLocation,
   engineType: EngineType,
-  gyroType: GyroType
+  gyroType: GyroType,
 ): Set<number> {
   const fixed = new Set<number>();
 
@@ -140,11 +147,11 @@ export function getAvailableSlotIndices(
   location: MechLocation,
   engineType: EngineType,
   gyroType: GyroType,
-  equipment: readonly IMountedEquipmentInstance[]
+  equipment: readonly IMountedEquipmentInstance[],
 ): number[] {
   const totalSlots = LOCATION_SLOT_COUNTS[location] || 0;
   const fixedSlots = getFixedSlotIndices(location, engineType, gyroType);
-  
+
   // Get slots already used by equipment in this location
   const usedSlots = new Set<number>();
   for (const eq of equipment) {
@@ -154,7 +161,7 @@ export function getAvailableSlotIndices(
       }
     }
   }
-  
+
   // Return slots that are neither fixed nor used
   const available: number[] = [];
   for (let i = 0; i < totalSlots; i++) {
@@ -162,7 +169,7 @@ export function getAvailableSlotIndices(
       available.push(i);
     }
   }
-  
+
   return available;
 }
 
@@ -195,27 +202,34 @@ const SLOTTED_ARMOR_TYPES: readonly ArmorTypeEnum[] = [
 /**
  * Check if an equipment item is an "unhittable" slot (Endo Steel, Ferro-Fibrous, etc.)
  */
-export function isUnhittableEquipment(equipment: IMountedEquipmentInstance): boolean {
+export function isUnhittableEquipment(
+  equipment: IMountedEquipmentInstance,
+): boolean {
   const name = equipment.name.toLowerCase();
-  
+
   // Check for structure types
   for (const structType of SLOTTED_STRUCTURE_TYPES) {
-    if (name.includes(structType.toLowerCase()) || equipment.equipmentId.includes('endo')) {
+    if (
+      name.includes(structType.toLowerCase()) ||
+      equipment.equipmentId.includes('endo')
+    ) {
       return true;
     }
   }
-  
+
   // Check for armor types
   for (const armorType of SLOTTED_ARMOR_TYPES) {
-    if (name.includes(armorType.toLowerCase()) || 
-        equipment.equipmentId.includes('ferro') ||
-        equipment.equipmentId.includes('stealth') ||
-        equipment.equipmentId.includes('reactive') ||
-        equipment.equipmentId.includes('reflective')) {
+    if (
+      name.includes(armorType.toLowerCase()) ||
+      equipment.equipmentId.includes('ferro') ||
+      equipment.equipmentId.includes('stealth') ||
+      equipment.equipmentId.includes('reactive') ||
+      equipment.equipmentId.includes('reflective')
+    ) {
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -223,10 +237,10 @@ export function isUnhittableEquipment(equipment: IMountedEquipmentInstance): boo
  * Get all unallocated unhittable equipment
  */
 export function getUnallocatedUnhittables(
-  equipment: readonly IMountedEquipmentInstance[]
+  equipment: readonly IMountedEquipmentInstance[],
 ): IMountedEquipmentInstance[] {
-  return equipment.filter(eq => 
-    eq.location === undefined && isUnhittableEquipment(eq)
+  return equipment.filter(
+    (eq) => eq.location === undefined && isUnhittableEquipment(eq),
   );
 }
 
@@ -236,44 +250,47 @@ export function getUnallocatedUnhittables(
 
 /**
  * Distribute unallocated unhittable slots evenly across locations.
- * 
+ *
  * Distribution order:
  * 1. LT/RT alternating until both full
  * 2. LA/RA alternating until both full
  * 3. LL/RL alternating until both full
  * 4. CT
  * 5. Head (slot 3 only, last resort)
- * 
+ *
  * Only fills unallocated unhittables - already-placed ones are skipped.
  */
 export function fillUnhittableSlots(
   equipment: readonly IMountedEquipmentInstance[],
   engineType: EngineType,
-  gyroType: GyroType
+  gyroType: GyroType,
 ): SlotOperationResult {
   const assignments: SlotAssignment[] = [];
   const unassigned: string[] = [];
-  
+
   // Get unallocated unhittables
   const unhittables = getUnallocatedUnhittables(equipment);
   if (unhittables.length === 0) {
     return { assignments, unassigned };
   }
-  
+
   // Build a working copy of available slots per location
   const availableByLocation = new Map<MechLocation, number[]>();
   for (const loc of Object.values(MechLocation)) {
     availableByLocation.set(
       loc,
-      getAvailableSlotIndices(loc, engineType, gyroType, equipment)
+      getAvailableSlotIndices(loc, engineType, gyroType, equipment),
     );
   }
-  
+
   // Helper to assign one unhittable to a location
-  const assignToLocation = (eq: IMountedEquipmentInstance, location: MechLocation): boolean => {
+  const assignToLocation = (
+    eq: IMountedEquipmentInstance,
+    location: MechLocation,
+  ): boolean => {
     const available = availableByLocation.get(location) || [];
     if (available.length === 0) return false;
-    
+
     // Take the first available slot
     const slot = available.shift()!;
     assignments.push({
@@ -283,24 +300,24 @@ export function fillUnhittableSlots(
     });
     return true;
   };
-  
+
   // Process unhittables one by one
   let unhittableIndex = 0;
-  
+
   // Phase 1-3: Paired locations (alternate between left and right)
   for (const [leftLoc, rightLoc] of FILL_LOCATION_PAIRS) {
     let useLeft = true;
-    
+
     while (unhittableIndex < unhittables.length) {
       const eq = unhittables[unhittableIndex];
       const leftAvailable = (availableByLocation.get(leftLoc) || []).length;
       const rightAvailable = (availableByLocation.get(rightLoc) || []).length;
-      
+
       if (leftAvailable === 0 && rightAvailable === 0) {
         // Both locations full, move to next pair
         break;
       }
-      
+
       // Try to alternate, but use whichever has space
       let assigned = false;
       if (useLeft && leftAvailable > 0) {
@@ -312,7 +329,7 @@ export function fillUnhittableSlots(
       } else if (rightAvailable > 0) {
         assigned = assignToLocation(eq, rightLoc);
       }
-      
+
       if (assigned) {
         unhittableIndex++;
         useLeft = !useLeft; // Alternate for next iteration
@@ -321,7 +338,7 @@ export function fillUnhittableSlots(
       }
     }
   }
-  
+
   // Phase 4-5: Single locations (CT, then Head)
   for (const loc of FILL_SINGLE_LOCATIONS) {
     while (unhittableIndex < unhittables.length) {
@@ -333,13 +350,13 @@ export function fillUnhittableSlots(
       }
     }
   }
-  
+
   // Any remaining are unassigned
   while (unhittableIndex < unhittables.length) {
     unassigned.push(unhittables[unhittableIndex].instanceId);
     unhittableIndex++;
   }
-  
+
   return { assignments, unassigned };
 }
 
@@ -354,38 +371,40 @@ export function fillUnhittableSlots(
 export function compactEquipmentSlots(
   equipment: readonly IMountedEquipmentInstance[],
   engineType: EngineType,
-  gyroType: GyroType
+  gyroType: GyroType,
 ): SlotOperationResult {
   const assignments: SlotAssignment[] = [];
-  
+
   // Process each location independently
   for (const location of Object.values(MechLocation)) {
     // Get equipment in this location, sorted by current slot index
     const locationEquipment = equipment
-      .filter(eq => eq.location === location && eq.slots && eq.slots.length > 0)
+      .filter(
+        (eq) => eq.location === location && eq.slots && eq.slots.length > 0,
+      )
       .sort((a, b) => {
         const aMin = Math.min(...(a.slots || [Infinity]));
         const bMin = Math.min(...(b.slots || [Infinity]));
         return aMin - bMin;
       });
-    
+
     if (locationEquipment.length === 0) continue;
-    
+
     // Get fixed slots for this location
     const fixedSlots = getFixedSlotIndices(location, engineType, gyroType);
     const totalSlots = LOCATION_SLOT_COUNTS[location] || 0;
-    
+
     // Find first available slot index (after fixed slots)
     let nextSlot = 0;
     while (nextSlot < totalSlots && fixedSlots.has(nextSlot)) {
       nextSlot++;
     }
-    
+
     // Assign each equipment to consecutive slots starting at nextSlot
     for (const eq of locationEquipment) {
       const slotsNeeded = eq.criticalSlots;
       const newSlots: number[] = [];
-      
+
       // Find contiguous slots, skipping fixed slots
       while (newSlots.length < slotsNeeded && nextSlot < totalSlots) {
         if (!fixedSlots.has(nextSlot)) {
@@ -393,7 +412,7 @@ export function compactEquipmentSlots(
         }
         nextSlot++;
       }
-      
+
       if (newSlots.length === slotsNeeded) {
         assignments.push({
           instanceId: eq.instanceId,
@@ -403,7 +422,7 @@ export function compactEquipmentSlots(
       }
     }
   }
-  
+
   return { assignments, unassigned: [] };
 }
 
@@ -418,18 +437,19 @@ export function compactEquipmentSlots(
 export function sortEquipmentBySize(
   equipment: readonly IMountedEquipmentInstance[],
   engineType: EngineType,
-  gyroType: GyroType
+  gyroType: GyroType,
 ): SlotOperationResult {
   const assignments: SlotAssignment[] = [];
-  
+
   // Process each location independently
   for (const location of Object.values(MechLocation)) {
     // Get equipment in this location
-    const locationEquipment = equipment
-      .filter(eq => eq.location === location && eq.slots && eq.slots.length > 0);
-    
+    const locationEquipment = equipment.filter(
+      (eq) => eq.location === location && eq.slots && eq.slots.length > 0,
+    );
+
     if (locationEquipment.length === 0) continue;
-    
+
     // Sort by criticalSlots descending (largest first), then alphabetically by name
     const sorted = [...locationEquipment].sort((a, b) => {
       // Primary: by slot count descending (biggest first)
@@ -439,29 +459,29 @@ export function sortEquipmentBySize(
       // Secondary: alphabetically by name
       return a.name.localeCompare(b.name);
     });
-    
+
     // Get fixed slots for this location
     const fixedSlots = getFixedSlotIndices(location, engineType, gyroType);
     const totalSlots = LOCATION_SLOT_COUNTS[location] || 0;
-    
+
     // Find first available slot index
     let nextSlot = 0;
     while (nextSlot < totalSlots && fixedSlots.has(nextSlot)) {
       nextSlot++;
     }
-    
+
     // Assign each equipment to consecutive slots
     for (const eq of sorted) {
       const slotsNeeded = eq.criticalSlots;
       const newSlots: number[] = [];
-      
+
       while (newSlots.length < slotsNeeded && nextSlot < totalSlots) {
         if (!fixedSlots.has(nextSlot)) {
           newSlots.push(nextSlot);
         }
         nextSlot++;
       }
-      
+
       if (newSlots.length === slotsNeeded) {
         assignments.push({
           instanceId: eq.instanceId,
@@ -471,7 +491,6 @@ export function sortEquipmentBySize(
       }
     }
   }
-  
+
   return { assignments, unassigned: [] };
 }
-

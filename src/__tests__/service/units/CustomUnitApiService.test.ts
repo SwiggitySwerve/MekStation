@@ -1,11 +1,13 @@
-import { CustomUnitApiService } from '@/services/units/CustomUnitApiService';
 import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { IFullUnit } from '@/services/units/CanonicalUnitService';
+import { CustomUnitApiService } from '@/services/units/CustomUnitApiService';
 
 // Mock dependencies
 jest.mock('@/services/units/CanonicalUnitService');
 
-const mockCanonicalUnitService = canonicalUnitService as jest.Mocked<typeof canonicalUnitService>;
+const mockCanonicalUnitService = canonicalUnitService as jest.Mocked<
+  typeof canonicalUnitService
+>;
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -58,7 +60,12 @@ describe('CustomUnitApiService', () => {
         id: 'custom-1',
         chassis: 'Atlas',
         variant: 'AS7-X',
-        parsedData: { id: 'custom-1', chassis: 'Atlas', variant: 'AS7-X', tonnage: 100 },
+        parsedData: {
+          id: 'custom-1',
+          chassis: 'Atlas',
+          variant: 'AS7-X',
+          tonnage: 100,
+        },
         currentVersion: 1,
         createdAt: '2024-01-01',
         updatedAt: '2024-01-02',
@@ -102,7 +109,9 @@ describe('CustomUnitApiService', () => {
         statusText: 'Internal Server Error',
       } as Response);
 
-      await expect(service.getById('custom-1')).rejects.toThrow('Failed to get unit');
+      await expect(service.getById('custom-1')).rejects.toThrow(
+        'Failed to get unit',
+      );
     });
   });
 
@@ -234,7 +243,7 @@ describe('CustomUnitApiService', () => {
         expect.objectContaining({
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-        })
+        }),
       );
     });
   });
@@ -396,7 +405,7 @@ describe('CustomUnitApiService', () => {
       } as Response);
 
       await expect(service.getVersionHistory('custom-1')).rejects.toThrow(
-        'Failed to get version history: Server failure'
+        'Failed to get version history: Server failure',
       );
     });
   });
@@ -446,7 +455,7 @@ describe('CustomUnitApiService', () => {
       } as Response);
 
       await expect(service.getVersion('custom-1', 3)).rejects.toThrow(
-        'Failed to get version: Boom'
+        'Failed to get version: Boom',
       );
     });
   });
@@ -458,7 +467,11 @@ describe('CustomUnitApiService', () => {
         json: async () => ({ data: { id: 'custom-1', version: 3 } }),
       } as Response);
 
-      const result = await service.revert('custom-1', 2, 'Reverted to version 2');
+      const result = await service.revert(
+        'custom-1',
+        2,
+        'Reverted to version 2',
+      );
 
       expect(result.success).toBe(true);
       if (!result.success) return;
@@ -515,7 +528,7 @@ describe('CustomUnitApiService', () => {
       } as Response);
 
       await expect(service.exportUnit('custom-1')).rejects.toThrow(
-        'Failed to export unit: Down'
+        'Failed to export unit: Down',
       );
     });
   });
@@ -570,7 +583,9 @@ describe('CustomUnitApiService', () => {
       const createObjectURLSpy = jest
         .spyOn(URL, 'createObjectURL')
         .mockReturnValue('blob:mock');
-      const revokeObjectURLSpy = jest.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+      const revokeObjectURLSpy = jest
+        .spyOn(URL, 'revokeObjectURL')
+        .mockImplementation(() => undefined);
       const clickSpy = jest
         .spyOn(HTMLAnchorElement.prototype, 'click')
         .mockImplementation(() => undefined);
@@ -587,7 +602,9 @@ describe('CustomUnitApiService', () => {
 
       await service.downloadUnit('custom-1');
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/units/custom/custom-1/export');
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/units/custom/custom-1/export',
+      );
       expect(createObjectURLSpy).toHaveBeenCalled();
       expect(clickSpy).toHaveBeenCalled();
       expect(appendSpy).toHaveBeenCalled();
@@ -607,7 +624,9 @@ describe('CustomUnitApiService', () => {
         json: async () => ({}),
       } as Response);
 
-      await expect(service.downloadUnit('missing')).rejects.toThrow('Unit not found');
+      await expect(service.downloadUnit('missing')).rejects.toThrow(
+        'Unit not found',
+      );
     });
   });
 
@@ -671,4 +690,3 @@ describe('CustomUnitApiService', () => {
     });
   });
 });
-

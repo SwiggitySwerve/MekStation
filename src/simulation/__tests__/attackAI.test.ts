@@ -1,7 +1,9 @@
+import { Facing, MovementType } from '@/types/gameplay';
+
+import type { IAIUnitState, IWeapon } from '../ai/types';
+
 import { AttackAI } from '../ai/AttackAI';
 import { SeededRandom } from '../core/SeededRandom';
-import type { IAIUnitState, IWeapon } from '../ai/types';
-import { Facing, MovementType } from '@/types/gameplay';
 
 function createMockWeapon(overrides: Partial<IWeapon> = {}): IWeapon {
   return {
@@ -75,8 +77,16 @@ describe('AttackAI', () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({ position: { q: 0, r: 0 } });
       const targets: IAIUnitState[] = [
-        createMockUnit({ unitId: 'alive', position: { q: 3, r: 0 }, destroyed: false }),
-        createMockUnit({ unitId: 'dead', position: { q: 3, r: 0 }, destroyed: true }),
+        createMockUnit({
+          unitId: 'alive',
+          position: { q: 3, r: 0 },
+          destroyed: false,
+        }),
+        createMockUnit({
+          unitId: 'dead',
+          position: { q: 3, r: 0 },
+          destroyed: true,
+        }),
       ];
 
       const validTargets = attackAI.getValidTargets(attacker, targets);
@@ -146,7 +156,7 @@ describe('AttackAI', () => {
       const selected = attackAI.selectTarget(targets, random);
 
       expect(selected).not.toBeNull();
-      expect(targets.map(t => t.unitId)).toContain(selected?.unitId);
+      expect(targets.map((t) => t.unitId)).toContain(selected?.unitId);
     });
 
     it('should return null when no targets available', () => {
@@ -180,7 +190,7 @@ describe('AttackAI', () => {
     it('should produce different results with different seeds', () => {
       const attackAI = new AttackAI();
       const targets: IAIUnitState[] = Array.from({ length: 20 }, (_, i) =>
-        createMockUnit({ unitId: `target-${i}` })
+        createMockUnit({ unitId: `target-${i}` }),
       );
 
       const results = new Set<string>();
@@ -255,7 +265,7 @@ describe('AttackAI', () => {
           createMockWeapon({ id: 'laser', ammoPerTon: -1 }),
           createMockWeapon({ id: 'ac10', ammoPerTon: 10 }),
         ],
-        ammo: { 'laser': -1, 'ac10': 0 },
+        ammo: { laser: -1, ac10: 0 },
       });
       const target = createMockUnit({ position: { q: 3, r: 0 } });
 
@@ -269,9 +279,7 @@ describe('AttackAI', () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
-        weapons: [
-          createMockWeapon({ id: 'laser', ammoPerTon: -1 }),
-        ],
+        weapons: [createMockWeapon({ id: 'laser', ammoPerTon: -1 })],
         ammo: {},
       });
       const target = createMockUnit({ position: { q: 3, r: 0 } });
@@ -286,10 +294,8 @@ describe('AttackAI', () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
-        weapons: [
-          createMockWeapon({ id: 'ac10', ammoPerTon: 10 }),
-        ],
-        ammo: { 'ac10': 5 },
+        weapons: [createMockWeapon({ id: 'ac10', ammoPerTon: 10 })],
+        ammo: { ac10: 5 },
       });
       const target = createMockUnit({ position: { q: 3, r: 0 } });
 
@@ -303,9 +309,7 @@ describe('AttackAI', () => {
       const attackAI = new AttackAI();
       const attacker = createMockUnit({
         position: { q: 0, r: 0 },
-        weapons: [
-          createMockWeapon({ id: 'short', longRange: 3 }),
-        ],
+        weapons: [createMockWeapon({ id: 'short', longRange: 3 })],
       });
       const target = createMockUnit({ position: { q: 20, r: 0 } });
 

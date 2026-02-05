@@ -11,6 +11,7 @@
  * - Integration tests (campaign with personnel + forces + finances)
  */
 
+import { MedicalSystem } from '../../../lib/campaign/medical/medicalTypes';
 import {
   ICampaign,
   IMission,
@@ -36,11 +37,6 @@ import {
   createCampaignWithData,
 } from '../Campaign';
 import { CampaignType } from '../CampaignType';
-import { IPerson } from '../Person';
-import { IForce } from '../Force';
-import { IFinances } from '../IFinances';
-import { Money } from '../Money';
-import { MedicalSystem } from '../../../lib/campaign/medical/medicalTypes';
 import {
   PersonnelStatus,
   CampaignPersonnelRole,
@@ -48,6 +44,10 @@ import {
   ForceRole,
   FormationLevel,
 } from '../enums';
+import { IForce } from '../Force';
+import { IFinances } from '../IFinances';
+import { Money } from '../Money';
+import { IPerson } from '../Person';
 
 // =============================================================================
 // Test Fixtures
@@ -56,7 +56,7 @@ import {
 function createTestPerson(
   id: string,
   name: string,
-  status: PersonnelStatus = PersonnelStatus.ACTIVE
+  status: PersonnelStatus = PersonnelStatus.ACTIVE,
 ): IPerson {
   return {
     id,
@@ -70,7 +70,16 @@ function createTestPerson(
     hits: 0,
     injuries: [],
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     recruitmentDate: new Date('2025-01-01'),
     missionsCompleted: 0,
@@ -86,7 +95,7 @@ function createTestForce(
   name: string,
   parentForceId?: string,
   subForceIds: string[] = [],
-  unitIds: string[] = []
+  unitIds: string[] = [],
 ): IForce {
   return {
     id,
@@ -104,7 +113,7 @@ function createTestForce(
 function createTestMission(
   id: string,
   name: string,
-  status: MissionStatus = MissionStatus.PENDING
+  status: MissionStatus = MissionStatus.PENDING,
 ): IMission {
   return {
     id,
@@ -120,44 +129,92 @@ function createTestMission(
 
 function createTestCampaign(): ICampaign {
   const personnel = new Map<string, IPerson>();
-  personnel.set('person-1', createTestPerson('person-1', 'John Smith', PersonnelStatus.ACTIVE));
-  personnel.set('person-2', createTestPerson('person-2', 'Jane Doe', PersonnelStatus.ACTIVE));
-  personnel.set('person-3', createTestPerson('person-3', 'Bob Wilson', PersonnelStatus.WOUNDED));
-  personnel.set('person-4', createTestPerson('person-4', 'Alice Brown', PersonnelStatus.MIA));
+  personnel.set(
+    'person-1',
+    createTestPerson('person-1', 'John Smith', PersonnelStatus.ACTIVE),
+  );
+  personnel.set(
+    'person-2',
+    createTestPerson('person-2', 'Jane Doe', PersonnelStatus.ACTIVE),
+  );
+  personnel.set(
+    'person-3',
+    createTestPerson('person-3', 'Bob Wilson', PersonnelStatus.WOUNDED),
+  );
+  personnel.set(
+    'person-4',
+    createTestPerson('person-4', 'Alice Brown', PersonnelStatus.MIA),
+  );
 
   const forces = new Map<string, IForce>();
-  forces.set('force-root', createTestForce('force-root', 'Root Force', undefined, ['force-1', 'force-2'], []));
-  forces.set('force-1', createTestForce('force-1', 'Alpha Lance', 'force-root', [], ['unit-1', 'unit-2']));
-  forces.set('force-2', createTestForce('force-2', 'Beta Lance', 'force-root', [], ['unit-3', 'unit-4']));
+  forces.set(
+    'force-root',
+    createTestForce(
+      'force-root',
+      'Root Force',
+      undefined,
+      ['force-1', 'force-2'],
+      [],
+    ),
+  );
+  forces.set(
+    'force-1',
+    createTestForce(
+      'force-1',
+      'Alpha Lance',
+      'force-root',
+      [],
+      ['unit-1', 'unit-2'],
+    ),
+  );
+  forces.set(
+    'force-2',
+    createTestForce(
+      'force-2',
+      'Beta Lance',
+      'force-root',
+      [],
+      ['unit-3', 'unit-4'],
+    ),
+  );
 
   const missions = new Map<string, IMission>();
-  missions.set('mission-1', createTestMission('mission-1', 'Raid Mission', MissionStatus.ACTIVE));
-  missions.set('mission-2', createTestMission('mission-2', 'Defense Mission', MissionStatus.PENDING));
-  missions.set('mission-3', createTestMission('mission-3', 'Completed Mission', MissionStatus.SUCCESS));
+  missions.set(
+    'mission-1',
+    createTestMission('mission-1', 'Raid Mission', MissionStatus.ACTIVE),
+  );
+  missions.set(
+    'mission-2',
+    createTestMission('mission-2', 'Defense Mission', MissionStatus.PENDING),
+  );
+  missions.set(
+    'mission-3',
+    createTestMission('mission-3', 'Completed Mission', MissionStatus.SUCCESS),
+  );
 
   const finances: IFinances = {
     transactions: [],
     balance: new Money(1000000),
   };
 
-    return {
-      id: 'campaign-001',
-      name: "Wolf's Dragoons",
-      currentDate: new Date('3025-01-01'),
-      factionId: 'mercenary',
-      personnel,
-      forces,
-      rootForceId: 'force-root',
-      missions,
-      finances,
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: createDefaultCampaignOptions(),
-      campaignType: CampaignType.MERCENARY,
-      campaignStartDate: new Date('3025-01-01'),
-      createdAt: '2026-01-26T10:00:00Z',
-      updatedAt: '2026-01-26T10:00:00Z',
-    };
+  return {
+    id: 'campaign-001',
+    name: "Wolf's Dragoons",
+    currentDate: new Date('3025-01-01'),
+    factionId: 'mercenary',
+    personnel,
+    forces,
+    rootForceId: 'force-root',
+    missions,
+    finances,
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: createDefaultCampaignOptions(),
+    campaignType: CampaignType.MERCENARY,
+    campaignStartDate: new Date('3025-01-01'),
+    createdAt: '2026-01-26T10:00:00Z',
+    updatedAt: '2026-01-26T10:00:00Z',
+  };
 }
 
 // =============================================================================
@@ -294,7 +351,11 @@ describe('ICampaignOptions Interface', () => {
 describe('IMission Interface', () => {
   describe('interface structure', () => {
     it('should have all required fields', () => {
-      const mission = createTestMission('mission-1', 'Test Mission', MissionStatus.ACTIVE);
+      const mission = createTestMission(
+        'mission-1',
+        'Test Mission',
+        MissionStatus.ACTIVE,
+      );
 
       expect(mission.id).toBe('mission-1');
       expect(mission.name).toBe('Test Mission');
@@ -370,12 +431,17 @@ describe('Helper Functions', () => {
       const active = getActivePersonnel(campaign);
 
       expect(active).toHaveLength(2);
-      expect(active.every((p) => p.status === PersonnelStatus.ACTIVE)).toBe(true);
+      expect(active.every((p) => p.status === PersonnelStatus.ACTIVE)).toBe(
+        true,
+      );
     });
 
     it('should return empty array when no active personnel', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('person-1', createTestPerson('person-1', 'John', PersonnelStatus.WOUNDED));
+      personnel.set(
+        'person-1',
+        createTestPerson('person-1', 'John', PersonnelStatus.WOUNDED),
+      );
 
       const campaign = createCampaignWithData({
         id: 'campaign-1',
@@ -457,8 +523,26 @@ describe('Helper Functions', () => {
 
     it('should not include duplicate unit IDs', () => {
       const forces = new Map<string, IForce>();
-      forces.set('force-root', createTestForce('force-root', 'Root', undefined, ['force-1'], ['unit-1']));
-      forces.set('force-1', createTestForce('force-1', 'Child', 'force-root', [], ['unit-1', 'unit-2']));
+      forces.set(
+        'force-root',
+        createTestForce(
+          'force-root',
+          'Root',
+          undefined,
+          ['force-1'],
+          ['unit-1'],
+        ),
+      );
+      forces.set(
+        'force-1',
+        createTestForce(
+          'force-1',
+          'Child',
+          'force-root',
+          [],
+          ['unit-1', 'unit-2'],
+        ),
+      );
 
       const campaign = createCampaignWithData({
         id: 'campaign-1',
@@ -616,7 +700,11 @@ describe('Helper Functions', () => {
 describe('Type Guards', () => {
   describe('isMission', () => {
     it('should return true for valid mission', () => {
-      const mission = createTestMission('mission-1', 'Test', MissionStatus.ACTIVE);
+      const mission = createTestMission(
+        'mission-1',
+        'Test',
+        MissionStatus.ACTIVE,
+      );
       expect(isMission(mission)).toBe(true);
     });
 
@@ -634,7 +722,15 @@ describe('Type Guards', () => {
     });
 
     it('should return false for wrong field types', () => {
-      expect(isMission({ id: 123, name: 'Test', status: 'Active', createdAt: '', updatedAt: '' })).toBe(false);
+      expect(
+        isMission({
+          id: 123,
+          name: 'Test',
+          status: 'Active',
+          createdAt: '',
+          updatedAt: '',
+        }),
+      ).toBe(false);
     });
   });
 
@@ -889,12 +985,60 @@ describe('Integration Tests', () => {
 
     it('should support complex force hierarchies', () => {
       const forces = new Map<string, IForce>();
-      forces.set('battalion', createTestForce('battalion', 'Battalion', undefined, ['company-1', 'company-2'], []));
-      forces.set('company-1', createTestForce('company-1', 'Company 1', 'battalion', ['lance-1', 'lance-2'], []));
-      forces.set('company-2', createTestForce('company-2', 'Company 2', 'battalion', ['lance-3'], []));
-      forces.set('lance-1', createTestForce('lance-1', 'Lance 1', 'company-1', [], ['unit-1', 'unit-2', 'unit-3', 'unit-4']));
-      forces.set('lance-2', createTestForce('lance-2', 'Lance 2', 'company-1', [], ['unit-5', 'unit-6', 'unit-7', 'unit-8']));
-      forces.set('lance-3', createTestForce('lance-3', 'Lance 3', 'company-2', [], ['unit-9', 'unit-10', 'unit-11', 'unit-12']));
+      forces.set(
+        'battalion',
+        createTestForce(
+          'battalion',
+          'Battalion',
+          undefined,
+          ['company-1', 'company-2'],
+          [],
+        ),
+      );
+      forces.set(
+        'company-1',
+        createTestForce(
+          'company-1',
+          'Company 1',
+          'battalion',
+          ['lance-1', 'lance-2'],
+          [],
+        ),
+      );
+      forces.set(
+        'company-2',
+        createTestForce('company-2', 'Company 2', 'battalion', ['lance-3'], []),
+      );
+      forces.set(
+        'lance-1',
+        createTestForce(
+          'lance-1',
+          'Lance 1',
+          'company-1',
+          [],
+          ['unit-1', 'unit-2', 'unit-3', 'unit-4'],
+        ),
+      );
+      forces.set(
+        'lance-2',
+        createTestForce(
+          'lance-2',
+          'Lance 2',
+          'company-1',
+          [],
+          ['unit-5', 'unit-6', 'unit-7', 'unit-8'],
+        ),
+      );
+      forces.set(
+        'lance-3',
+        createTestForce(
+          'lance-3',
+          'Lance 3',
+          'company-2',
+          [],
+          ['unit-9', 'unit-10', 'unit-11', 'unit-12'],
+        ),
+      );
 
       const campaign = createCampaignWithData({
         id: 'campaign-1',
@@ -927,8 +1071,12 @@ describe('Integration Tests', () => {
     it('should support large personnel counts', () => {
       const personnel = new Map<string, IPerson>();
       for (let i = 0; i < 100; i++) {
-        const status = i % 4 === 0 ? PersonnelStatus.WOUNDED : PersonnelStatus.ACTIVE;
-        personnel.set(`person-${i}`, createTestPerson(`person-${i}`, `Person ${i}`, status));
+        const status =
+          i % 4 === 0 ? PersonnelStatus.WOUNDED : PersonnelStatus.ACTIVE;
+        personnel.set(
+          `person-${i}`,
+          createTestPerson(`person-${i}`, `Person ${i}`, status),
+        );
       }
 
       const campaign = createCampaignWithData({
@@ -946,7 +1094,9 @@ describe('Integration Tests', () => {
 
       expect(getTotalPersonnel(campaign)).toBe(100);
       expect(getActivePersonnel(campaign)).toHaveLength(75); // 75% active
-      expect(getPersonnelByStatus(campaign, PersonnelStatus.WOUNDED)).toHaveLength(25);
+      expect(
+        getPersonnelByStatus(campaign, PersonnelStatus.WOUNDED),
+      ).toHaveLength(25);
     });
 
     it('should correctly calculate balance with starting funds', () => {

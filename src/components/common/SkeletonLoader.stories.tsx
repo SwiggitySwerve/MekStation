@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SkeletonInput, SkeletonSelect, SkeletonNumberInput, SkeletonText, SkeletonButton, SkeletonFormSection } from './SkeletonLoader';
+
+import {
+  SkeletonInput,
+  SkeletonSelect,
+  SkeletonNumberInput,
+  SkeletonText,
+  SkeletonButton,
+  SkeletonFormSection,
+} from './SkeletonLoader';
 
 const meta: Meta<typeof SkeletonInput> = {
   title: 'Common/SkeletonLoader',
@@ -61,25 +69,25 @@ export const FormSection: StoryObj = {
 
 export const AllVariants: StoryObj = {
   render: () => (
-    <div className="space-y-6 w-80">
+    <div className="w-80 space-y-6">
       <div>
-        <p className="text-text-theme-secondary text-sm mb-2">Input</p>
+        <p className="text-text-theme-secondary mb-2 text-sm">Input</p>
         <SkeletonInput />
       </div>
       <div>
-        <p className="text-text-theme-secondary text-sm mb-2">Select</p>
+        <p className="text-text-theme-secondary mb-2 text-sm">Select</p>
         <SkeletonSelect />
       </div>
       <div>
-        <p className="text-text-theme-secondary text-sm mb-2">Number Input</p>
+        <p className="text-text-theme-secondary mb-2 text-sm">Number Input</p>
         <SkeletonNumberInput />
       </div>
       <div>
-        <p className="text-text-theme-secondary text-sm mb-2">Text</p>
+        <p className="text-text-theme-secondary mb-2 text-sm">Text</p>
         <SkeletonText />
       </div>
       <div>
-        <p className="text-text-theme-secondary text-sm mb-2">Button</p>
+        <p className="text-text-theme-secondary mb-2 text-sm">Button</p>
         <SkeletonButton />
       </div>
     </div>

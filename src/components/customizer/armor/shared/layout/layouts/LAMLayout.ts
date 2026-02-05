@@ -8,12 +8,13 @@
  *
  * This layout represents the Mech mode configuration with visual hints
  * of the transformation capability (slightly different proportions).
- * 
+ *
  * Note: LAMs are limited to 55 tons max and use specific equipment
  * (Landing Gear, Avionics) for transformation capability.
  */
 
 import { MechLocation } from '@/types/construction';
+
 import {
   LayoutConstraint,
   MechLayoutConfig,
@@ -29,9 +30,7 @@ const HEAD: PartDefinition = {
   baseWidth: 65,
   baseHeight: 50,
   shape: 'path',
-  anchors: [
-    { id: 'neck', position: 'bottom', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'neck', position: 'bottom', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}
@@ -49,10 +48,26 @@ const CENTER_TORSO: PartDefinition = {
   isRoot: true,
   anchors: [
     { id: 'neck', position: 'top', offset: { x: 0, y: 0 } },
-    { id: 'left_side', position: 'left', edgePosition: { edge: 'left', at: 0 } },
-    { id: 'right_side', position: 'right', edgePosition: { edge: 'right', at: 0 } },
-    { id: 'left_hip', position: 'bottom', edgePosition: { edge: 'bottom', at: 0.25 } },
-    { id: 'right_hip', position: 'bottom', edgePosition: { edge: 'bottom', at: 0.75 } },
+    {
+      id: 'left_side',
+      position: 'left',
+      edgePosition: { edge: 'left', at: 0 },
+    },
+    {
+      id: 'right_side',
+      position: 'right',
+      edgePosition: { edge: 'right', at: 0 },
+    },
+    {
+      id: 'left_hip',
+      position: 'bottom',
+      edgePosition: { edge: 'bottom', at: 0.25 },
+    },
+    {
+      id: 'right_hip',
+      position: 'bottom',
+      edgePosition: { edge: 'bottom', at: 0.75 },
+    },
   ],
   pathTemplate: `
     M {x} {y}
@@ -70,7 +85,11 @@ const LEFT_TORSO: PartDefinition = {
   shape: 'path',
   anchors: [
     { id: 'inner', position: 'right', edgePosition: { edge: 'right', at: 0 } },
-    { id: 'arm_mount', position: 'left', edgePosition: { edge: 'left', at: 0.2 } },
+    {
+      id: 'arm_mount',
+      position: 'left',
+      edgePosition: { edge: 'left', at: 0.2 },
+    },
   ],
   pathTemplate: `
     M {x} {y}
@@ -88,7 +107,11 @@ const RIGHT_TORSO: PartDefinition = {
   shape: 'path',
   anchors: [
     { id: 'inner', position: 'left', edgePosition: { edge: 'left', at: 0 } },
-    { id: 'arm_mount', position: 'right', edgePosition: { edge: 'right', at: 0.2 } },
+    {
+      id: 'arm_mount',
+      position: 'right',
+      edgePosition: { edge: 'right', at: 0.2 },
+    },
   ],
   pathTemplate: `
     M {x} {y}
@@ -104,9 +127,7 @@ const LEFT_ARM: PartDefinition = {
   baseWidth: 30,
   baseHeight: 130,
   shape: 'path',
-  anchors: [
-    { id: 'shoulder', position: 'top-right', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'shoulder', position: 'top-right', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}
@@ -121,9 +142,7 @@ const RIGHT_ARM: PartDefinition = {
   baseWidth: 30,
   baseHeight: 130,
   shape: 'path',
-  anchors: [
-    { id: 'shoulder', position: 'top-left', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'shoulder', position: 'top-left', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}
@@ -138,9 +157,7 @@ const LEFT_LEG: PartDefinition = {
   baseWidth: 50,
   baseHeight: 130,
   shape: 'path',
-  anchors: [
-    { id: 'hip', position: 'top-right', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'hip', position: 'top-right', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}
@@ -155,9 +172,7 @@ const RIGHT_LEG: PartDefinition = {
   baseWidth: 50,
   baseHeight: 130,
   shape: 'path',
-  anchors: [
-    { id: 'hip', position: 'top-left', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'hip', position: 'top-left', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}

@@ -8,6 +8,7 @@
  */
 
 import { create } from 'zustand';
+
 import type { IPublicIdentity } from '@/types/vault';
 
 // =============================================================================
@@ -122,7 +123,8 @@ export const useIdentityStore = create<IdentityStore>((set, get) => ({
       set({
         initialized: true,
         hasIdentity: false,
-        error: error instanceof Error ? error.message : 'Failed to check identity',
+        error:
+          error instanceof Error ? error.message : 'Failed to check identity',
         loading: false,
       });
     }
@@ -157,7 +159,8 @@ export const useIdentityStore = create<IdentityStore>((set, get) => ({
       }
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to create identity',
+        error:
+          error instanceof Error ? error.message : 'Failed to create identity',
         loading: false,
       });
       return false;
@@ -192,7 +195,8 @@ export const useIdentityStore = create<IdentityStore>((set, get) => ({
       }
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to unlock identity',
+        error:
+          error instanceof Error ? error.message : 'Failed to unlock identity',
         loading: false,
       });
       return false;
@@ -238,7 +242,10 @@ export const useIdentityStore = create<IdentityStore>((set, get) => ({
       }
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to update display name',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update display name',
         loading: false,
       });
       return false;

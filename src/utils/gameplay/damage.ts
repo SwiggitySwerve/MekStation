@@ -21,6 +21,7 @@ import {
   IHexTerrain,
   TerrainType,
 } from '@/types/gameplay';
+
 import { roll2d6, isHeadHit } from './hitLocation';
 
 // =============================================================================
@@ -35,7 +36,9 @@ export interface IUnitDamageState {
   /** Armor values by location */
   readonly armor: Readonly<Record<CombatLocation, number>>;
   /** Rear armor values (for torso locations) */
-  readonly rearArmor: Readonly<Record<'center_torso' | 'left_torso' | 'right_torso', number>>;
+  readonly rearArmor: Readonly<
+    Record<'center_torso' | 'left_torso' | 'right_torso', number>
+  >;
   /** Internal structure values by location */
   readonly structure: Readonly<Record<CombatLocation, number>>;
   /** Destroyed locations */
@@ -47,7 +50,11 @@ export interface IUnitDamageState {
   /** Is unit destroyed? */
   readonly destroyed: boolean;
   /** Destruction cause */
-  readonly destructionCause?: 'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed';
+  readonly destructionCause?:
+    | 'damage'
+    | 'ammo_explosion'
+    | 'pilot_death'
+    | 'engine_destroyed';
 }
 
 /**
@@ -127,13 +134,18 @@ export interface ITerrainDamageResult extends IResolveDamageResult {
  * Standard internal structure values by tonnage.
  * Key is tonnage, value is structure points for each location.
  */
-export const STANDARD_STRUCTURE_TABLE: Readonly<Record<number, {
-  head: number;
-  centerTorso: number;
-  sideTorso: number;
-  arm: number;
-  leg: number;
-}>> = {
+export const STANDARD_STRUCTURE_TABLE: Readonly<
+  Record<
+    number,
+    {
+      head: number;
+      centerTorso: number;
+      sideTorso: number;
+      arm: number;
+      leg: number;
+    }
+  >
+> = {
   20: { head: 3, centerTorso: 6, sideTorso: 5, arm: 3, leg: 4 },
   25: { head: 3, centerTorso: 8, sideTorso: 6, arm: 4, leg: 6 },
   30: { head: 3, centerTorso: 10, sideTorso: 7, arm: 5, leg: 7 },
@@ -160,7 +172,10 @@ export const STANDARD_STRUCTURE_TABLE: Readonly<Record<number, {
 /**
  * Check if a location is in the destroyed locations array.
  */
-function isLocationDestroyed(state: IUnitDamageState, location: CombatLocation): boolean {
+function isLocationDestroyed(
+  state: IUnitDamageState,
+  location: CombatLocation,
+): boolean {
   return state.destroyedLocations.includes(location);
 }
 
@@ -169,7 +184,7 @@ function isLocationDestroyed(state: IUnitDamageState, location: CombatLocation):
  */
 function addDestroyedLocation(
   destroyedLocations: readonly CombatLocation[],
-  location: CombatLocation
+  location: CombatLocation,
 ): readonly CombatLocation[] {
   if (destroyedLocations.includes(location)) {
     return destroyedLocations;
@@ -188,7 +203,7 @@ function addDestroyedLocation(
 export function applyDamageToLocation(
   state: IUnitDamageState,
   location: CombatLocation,
-  damage: number
+  damage: number,
 ): ILocationDamageResult {
   // Check if location is already destroyed
   if (isLocationDestroyed(state, location)) {
@@ -229,7 +244,7 @@ export function applyDamageToLocation(
   // Get appropriate armor (rear vs front)
   const isRear = isRearCombatLocation(location);
   const armorKey = isRear ? getFrontCombatLocation(location) : location;
-  
+
   let currentArmor: number;
   if (isRear) {
     const rearKey = armorKey as 'center_torso' | 'left_torso' | 'right_torso';
@@ -237,7 +252,7 @@ export function applyDamageToLocation(
   } else {
     currentArmor = state.armor[location] ?? 0;
   }
-  
+
   const currentStructure = state.structure[armorKey] ?? 0;
 
   let remainingDamage = damage;
@@ -256,7 +271,7 @@ export function applyDamageToLocation(
   if (currentArmor > 0) {
     armorDamage = Math.min(currentArmor, remainingDamage);
     remainingDamage -= armorDamage;
-    
+
     // Update armor (immutably)
     if (isRear) {
       const rearKey = armorKey as 'center_torso' | 'left_torso' | 'right_torso';
@@ -270,19 +285,28 @@ export function applyDamageToLocation(
   if (remainingDamage > 0 && currentStructure > 0) {
     structureDamage = Math.min(currentStructure, remainingDamage);
     remainingDamage -= structureDamage;
-    
+
     // Update structure (immutably)
-    newStructure = { ...newStructure, [armorKey]: currentStructure - structureDamage };
-    
+    newStructure = {
+      ...newStructure,
+      [armorKey]: currentStructure - structureDamage,
+    };
+
     // Check for destruction
     if (newStructure[armorKey] <= 0) {
       destroyed = true;
-      newDestroyedLocations = addDestroyedLocation(newDestroyedLocations, location);
+      newDestroyedLocations = addDestroyedLocation(
+        newDestroyedLocations,
+        location,
+      );
       if (isRear) {
         // Also mark front as destroyed
-        newDestroyedLocations = addDestroyedLocation(newDestroyedLocations, armorKey);
+        newDestroyedLocations = addDestroyedLocation(
+          newDestroyedLocations,
+          armorKey,
+        );
       }
-      
+
       // Transfer remaining damage
       if (remainingDamage > 0) {
         const transferTo = getTransferCombatLocation(location);
@@ -294,7 +318,7 @@ export function applyDamageToLocation(
   }
 
   // Calculate remaining values
-  const armorRemaining = isRear 
+  const armorRemaining = isRear
     ? newRearArmor[armorKey as 'center_torso' | 'left_torso' | 'right_torso']
     : newArmor[location];
   const structureRemaining = newStructure[armorKey];
@@ -318,7 +342,10 @@ export function applyDamageToLocation(
       structureRemaining,
       destroyed,
       transferredDamage,
-      transferLocation: transferredDamage > 0 ? getTransferCombatLocation(location) ?? undefined : undefined,
+      transferLocation:
+        transferredDamage > 0
+          ? (getTransferCombatLocation(location) ?? undefined)
+          : undefined,
     },
   };
 }
@@ -330,7 +357,7 @@ export function applyDamageToLocation(
 export function applyDamageWithTransfer(
   state: IUnitDamageState,
   location: CombatLocation,
-  damage: number
+  damage: number,
 ): IDamageWithTransferResult {
   const results: ILocationDamage[] = [];
   let currentState = state;
@@ -338,7 +365,11 @@ export function applyDamageWithTransfer(
   let currentDamage = damage;
 
   while (currentLocation && currentDamage > 0) {
-    const { state: newState, result } = applyDamageToLocation(currentState, currentLocation, currentDamage);
+    const { state: newState, result } = applyDamageToLocation(
+      currentState,
+      currentLocation,
+      currentDamage,
+    );
     currentState = newState;
     results.push(result);
 
@@ -369,7 +400,10 @@ export function checkCriticalHitTrigger(structureDamage: number): {
   roll: ReturnType<typeof roll2d6>;
 } {
   if (structureDamage <= 0) {
-    return { triggered: false, roll: { dice: [0, 0], total: 0, isSnakeEyes: false, isBoxcars: false } };
+    return {
+      triggered: false,
+      roll: { dice: [0, 0], total: 0, isSnakeEyes: false, isBoxcars: false },
+    };
   }
 
   const roll = roll2d6();
@@ -400,11 +434,17 @@ export function getCriticalHitCount(roll: number): number {
 export function applyPilotDamage(
   state: IUnitDamageState,
   wounds: number,
-  source: 'head_hit' | 'ammo_explosion' | 'mech_destruction' | 'fall' | 'physical_attack' | 'heat'
+  source:
+    | 'head_hit'
+    | 'ammo_explosion'
+    | 'mech_destruction'
+    | 'fall'
+    | 'physical_attack'
+    | 'heat',
 ): IPilotDamageResultWithState {
   const newPilotWounds = state.pilotWounds + wounds;
   const dead = newPilotWounds >= 6;
-  
+
   // Consciousness check required if wounded
   const consciousnessCheckRequired = wounds > 0 && !dead;
   let consciousnessRoll: ReturnType<typeof roll2d6> | undefined;
@@ -419,7 +459,7 @@ export function applyPilotDamage(
     consciousnessTarget = 3 + newPilotWounds;
     consciousnessRoll = roll2d6();
     conscious = consciousnessRoll.total > consciousnessTarget;
-    
+
     if (!conscious) {
       newPilotConscious = false;
     }
@@ -461,13 +501,15 @@ export function applyPilotDamage(
 /**
  * Check if unit is destroyed based on current state (immutable).
  */
-export function checkUnitDestruction(state: IUnitDamageState): IDestructionCheckResult {
+export function checkUnitDestruction(
+  state: IUnitDamageState,
+): IDestructionCheckResult {
   // Already destroyed
   if (state.destroyed) {
-    return { 
-      state, 
-      destroyed: true, 
-      cause: state.destructionCause ?? 'damage' 
+    return {
+      state,
+      destroyed: true,
+      cause: state.destructionCause ?? 'damage',
     };
   }
 
@@ -515,19 +557,24 @@ export function checkUnitDestruction(state: IUnitDamageState): IDestructionCheck
 export function resolveDamage(
   state: IUnitDamageState,
   location: CombatLocation,
-  damage: number
+  damage: number,
 ): IResolveDamageResult {
   let currentState = state;
-  
-  const { state: stateAfterDamage, results: locationDamages } = applyDamageWithTransfer(currentState, location, damage);
+
+  const { state: stateAfterDamage, results: locationDamages } =
+    applyDamageWithTransfer(currentState, location, damage);
   currentState = stateAfterDamage;
-  
+
   const criticalHits: ICriticalHitResult[] = [];
   let pilotDamage: IPilotDamageResult | undefined;
 
   // Check for pilot damage from head hit
   if (isHeadHit(location) && damage > 0) {
-    const { state: stateAfterPilot, result } = applyPilotDamage(currentState, 1, 'head_hit');
+    const { state: stateAfterPilot, result } = applyPilotDamage(
+      currentState,
+      1,
+      'head_hit',
+    );
     currentState = stateAfterPilot;
     pilotDamage = result;
   }
@@ -544,7 +591,11 @@ export function resolveDamage(
   }
 
   // Check for unit destruction
-  const { state: stateAfterDestruction, destroyed, cause } = checkUnitDestruction(currentState);
+  const {
+    state: stateAfterDestruction,
+    destroyed,
+    cause,
+  } = checkUnitDestruction(currentState);
   currentState = stateAfterDestruction;
 
   return {
@@ -568,8 +619,10 @@ export function resolveDamage(
  */
 function hasDeepWater(terrain: IHexTerrain | null): number {
   if (!terrain) return 0;
-  
-  const waterFeature = terrain.features.find(f => f.type === TerrainType.Water);
+
+  const waterFeature = terrain.features.find(
+    (f) => f.type === TerrainType.Water,
+  );
   return waterFeature && waterFeature.level >= 2 ? waterFeature.level : 0;
 }
 
@@ -577,7 +630,7 @@ function hasDeepWater(terrain: IHexTerrain | null): number {
  * Check if damage result indicates a fall (location destroyed).
  */
 function indicatesFall(damageResult: IDamageResult): boolean {
-  return damageResult.locationDamages.some(ld => ld.destroyed);
+  return damageResult.locationDamages.some((ld) => ld.destroyed);
 }
 
 /**
@@ -588,26 +641,30 @@ export function applyDamageWithTerrainEffects(
   state: IUnitDamageState,
   location: CombatLocation,
   damage: number,
-  terrain: IHexTerrain | null
+  terrain: IHexTerrain | null,
 ): ITerrainDamageResult {
   const baseResult = resolveDamage(state, location, damage);
-  
+
   if (!terrain) {
     return baseResult;
   }
-  
+
   const waterDepth = hasDeepWater(terrain);
   const unitFell = indicatesFall(baseResult.result);
-  
+
   if (waterDepth >= 2 && unitFell) {
     const drowningRoll = roll2d6();
     const psrTarget = 5;
     const drowningCheckPassed = drowningRoll.total >= psrTarget;
-    
+
     if (!drowningCheckPassed) {
       const drowningDamage = 1;
-      const drowningResult = resolveDamage(baseResult.state, 'center_torso', drowningDamage);
-      
+      const drowningResult = resolveDamage(
+        baseResult.state,
+        'center_torso',
+        drowningDamage,
+      );
+
       return {
         state: drowningResult.state,
         result: {
@@ -625,7 +682,7 @@ export function applyDamageWithTerrainEffects(
         },
       };
     }
-    
+
     return {
       ...baseResult,
       terrainEffects: {
@@ -635,7 +692,7 @@ export function applyDamageWithTerrainEffects(
       },
     };
   }
-  
+
   return baseResult;
 }
 
@@ -649,22 +706,26 @@ export function applyDamageWithTerrainEffects(
 export function createDamageState(
   tonnage: number,
   armorValues: Record<CombatLocation, number>,
-  rearArmorValues: Record<'center_torso' | 'left_torso' | 'right_torso', number>
+  rearArmorValues: Record<
+    'center_torso' | 'left_torso' | 'right_torso',
+    number
+  >,
 ): IUnitDamageState {
-  const structureTable = STANDARD_STRUCTURE_TABLE[tonnage] ?? STANDARD_STRUCTURE_TABLE[50];
-  
+  const structureTable =
+    STANDARD_STRUCTURE_TABLE[tonnage] ?? STANDARD_STRUCTURE_TABLE[50];
+
   const structure: Record<CombatLocation, number> = {
-    'head': structureTable.head,
-    'center_torso': structureTable.centerTorso,
-    'center_torso_rear': structureTable.centerTorso, // Shares with front
-    'left_torso': structureTable.sideTorso,
-    'left_torso_rear': structureTable.sideTorso,
-    'right_torso': structureTable.sideTorso,
-    'right_torso_rear': structureTable.sideTorso,
-    'left_arm': structureTable.arm,
-    'right_arm': structureTable.arm,
-    'left_leg': structureTable.leg,
-    'right_leg': structureTable.leg,
+    head: structureTable.head,
+    center_torso: structureTable.centerTorso,
+    center_torso_rear: structureTable.centerTorso, // Shares with front
+    left_torso: structureTable.sideTorso,
+    left_torso_rear: structureTable.sideTorso,
+    right_torso: structureTable.sideTorso,
+    right_torso_rear: structureTable.sideTorso,
+    left_arm: structureTable.arm,
+    right_arm: structureTable.arm,
+    left_leg: structureTable.leg,
+    right_leg: structureTable.leg,
   };
 
   return {
@@ -683,16 +744,18 @@ export function createDamageState(
  */
 export function getLocationDamageCapacity(
   state: IUnitDamageState,
-  location: CombatLocation
+  location: CombatLocation,
 ): number {
   const isRear = isRearCombatLocation(location);
   const armorKey = isRear ? getFrontCombatLocation(location) : location;
-  
-  const armor = isRear 
-    ? state.rearArmor[armorKey as 'center_torso' | 'left_torso' | 'right_torso'] ?? 0
-    : state.armor[location] ?? 0;
+
+  const armor = isRear
+    ? (state.rearArmor[
+        armorKey as 'center_torso' | 'left_torso' | 'right_torso'
+      ] ?? 0)
+    : (state.armor[location] ?? 0);
   const structure = state.structure[armorKey] ?? 0;
-  
+
   return armor + structure;
 }
 
@@ -703,18 +766,20 @@ export function getLocationHealthPercent(
   state: IUnitDamageState,
   location: CombatLocation,
   maxArmor: number,
-  maxStructure: number
+  maxStructure: number,
 ): number {
   const isRear = isRearCombatLocation(location);
   const armorKey = isRear ? getFrontCombatLocation(location) : location;
-  
-  const currentArmor = isRear 
-    ? state.rearArmor[armorKey as 'center_torso' | 'left_torso' | 'right_torso'] ?? 0
-    : state.armor[location] ?? 0;
+
+  const currentArmor = isRear
+    ? (state.rearArmor[
+        armorKey as 'center_torso' | 'left_torso' | 'right_torso'
+      ] ?? 0)
+    : (state.armor[location] ?? 0);
   const currentStructure = state.structure[armorKey] ?? 0;
-  
+
   const maxTotal = maxArmor + maxStructure;
   const currentTotal = currentArmor + currentStructure;
-  
+
   return maxTotal > 0 ? (currentTotal / maxTotal) * 100 : 0;
 }

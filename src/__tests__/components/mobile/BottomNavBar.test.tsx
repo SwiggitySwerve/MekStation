@@ -1,8 +1,12 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+
 import { BottomNavBar, Tab } from '../../../components/mobile/BottomNavBar';
-import { useNavigationStore, PanelId } from '../../../stores/useNavigationStore';
 import { useDeviceType } from '../../../hooks/useDeviceType';
+import {
+  useNavigationStore,
+  PanelId,
+} from '../../../stores/useNavigationStore';
 
 // Mock dependencies
 jest.mock('../../../stores/useNavigationStore');
@@ -10,17 +14,36 @@ jest.mock('../../../hooks/useDeviceType');
 
 describe('BottomNavBar', () => {
   const mockPushPanel = jest.fn();
-  const mockUseNavigationStore = useNavigationStore as jest.MockedFunction<typeof useNavigationStore>;
-  const mockUseDeviceType = useDeviceType as jest.MockedFunction<typeof useDeviceType>;
+  const mockUseNavigationStore = useNavigationStore as jest.MockedFunction<
+    typeof useNavigationStore
+  >;
+  const mockUseDeviceType = useDeviceType as jest.MockedFunction<
+    typeof useDeviceType
+  >;
 
   // Sample tabs for testing - use valid PanelId values
   const sampleTabs: Tab[] = [
-    { id: 'catalog', icon: <span data-testid="icon-catalog">C</span>, label: 'Catalog', panelId: 'catalog' },
-    { id: 'editor', icon: <span data-testid="icon-editor">E</span>, label: 'Editor', panelId: 'editor' },
-    { id: 'equipment-browser', icon: <span data-testid="icon-equipment">Q</span>, label: 'Equipment', panelId: 'equipment-browser' },
+    {
+      id: 'catalog',
+      icon: <span data-testid="icon-catalog">C</span>,
+      label: 'Catalog',
+      panelId: 'catalog',
+    },
+    {
+      id: 'editor',
+      icon: <span data-testid="icon-editor">E</span>,
+      label: 'Editor',
+      panelId: 'editor',
+    },
+    {
+      id: 'equipment-browser',
+      icon: <span data-testid="icon-equipment">Q</span>,
+      label: 'Equipment',
+      panelId: 'equipment-browser',
+    },
   ];
 
-beforeEach(() => {
+  beforeEach(() => {
     mockUseDeviceType.mockReturnValue({
       isMobile: true,
       isTablet: false,
@@ -58,7 +81,7 @@ beforeEach(() => {
       expect(nav).toHaveClass('md:hidden');
     });
 
-it('should not render when isMobile is false', () => {
+    it('should not render when isMobile is false', () => {
       mockUseDeviceType.mockReturnValue({
         isMobile: false,
         isTablet: false,
@@ -124,7 +147,7 @@ it('should not render when isMobile is false', () => {
 
       const buttons = container.querySelectorAll('button');
       const catalogButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Catalog')
+        btn.textContent?.includes('Catalog'),
       );
 
       expect(catalogButton).toHaveClass('text-blue-600');
@@ -135,7 +158,7 @@ it('should not render when isMobile is false', () => {
 
       const buttons = container.querySelectorAll('button');
       const editorButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Editor')
+        btn.textContent?.includes('Editor'),
       );
 
       expect(editorButton).not.toHaveClass('text-blue-600');
@@ -149,7 +172,7 @@ it('should not render when isMobile is false', () => {
       let container = render(<BottomNavBar tabs={sampleTabs} />).container;
       let buttons = container.querySelectorAll('button');
       const catalogButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Catalog')
+        btn.textContent?.includes('Catalog'),
       );
       expect(catalogButton).toHaveClass('text-blue-600');
 
@@ -171,7 +194,7 @@ it('should not render when isMobile is false', () => {
       container = render(<BottomNavBar tabs={sampleTabs} />).container;
       buttons = container.querySelectorAll('button');
       const editorButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Editor')
+        btn.textContent?.includes('Editor'),
       );
 
       expect(editorButton).toHaveClass('text-blue-600');
@@ -184,7 +207,7 @@ it('should not render when isMobile is false', () => {
 
       const buttons = container.querySelectorAll('button');
       const editorButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Editor')
+        btn.textContent?.includes('Editor'),
       );
 
       fireEvent.click(editorButton!);
@@ -197,7 +220,7 @@ it('should not render when isMobile is false', () => {
 
       const buttons = container.querySelectorAll('button');
       const catalogButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Catalog')
+        btn.textContent?.includes('Catalog'),
       );
 
       fireEvent.click(catalogButton!);
@@ -211,15 +234,17 @@ it('should not render when isMobile is false', () => {
       const buttons = container.querySelectorAll('button');
 
       // Click editor tab
-      fireEvent.click(Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Editor')
-      )!);
+      fireEvent.click(
+        Array.from(buttons).find((btn) => btn.textContent?.includes('Editor'))!,
+      );
       expect(mockPushPanel).toHaveBeenLastCalledWith('editor');
 
       // Click equipment tab
-      fireEvent.click(Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Equipment')
-      )!);
+      fireEvent.click(
+        Array.from(buttons).find((btn) =>
+          btn.textContent?.includes('Equipment'),
+        )!,
+      );
       expect(mockPushPanel).toHaveBeenLastCalledWith('equipment-browser');
     });
   });
@@ -265,7 +290,7 @@ it('should not render when isMobile is false', () => {
 
     it('should apply custom className', () => {
       const { container } = render(
-        <BottomNavBar tabs={sampleTabs} className="custom-class" />
+        <BottomNavBar tabs={sampleTabs} className="custom-class" />,
       );
 
       const nav = container.querySelector('nav');
@@ -304,7 +329,7 @@ it('should not render when isMobile is false', () => {
 
       const buttons = container.querySelectorAll('button');
       const catalogButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Catalog')
+        btn.textContent?.includes('Catalog'),
       );
 
       expect(catalogButton).toHaveAttribute('aria-current', 'page');
@@ -320,7 +345,7 @@ it('should not render when isMobile is false', () => {
       });
 
       const catalogButton = Array.from(buttons).find((btn) =>
-        btn.textContent?.includes('Catalog')
+        btn.textContent?.includes('Catalog'),
       );
       expect(catalogButton).toHaveAttribute('aria-selected', 'true');
     });
@@ -374,8 +399,18 @@ it('should not render when isMobile is false', () => {
     it('should handle many tabs (flex distribution)', () => {
       const manyTabs: Tab[] = [
         ...sampleTabs,
-        { id: 'sidebar', icon: <span>S</span>, label: 'Sidebar', panelId: 'sidebar' },
-        { id: 'unit-detail', icon: <span>U</span>, label: 'Unit', panelId: 'unit-detail' },
+        {
+          id: 'sidebar',
+          icon: <span>S</span>,
+          label: 'Sidebar',
+          panelId: 'sidebar',
+        },
+        {
+          id: 'unit-detail',
+          icon: <span>U</span>,
+          label: 'Unit',
+          panelId: 'unit-detail',
+        },
       ];
 
       const { container } = render(<BottomNavBar tabs={manyTabs} />);
@@ -408,13 +443,23 @@ it('should not render when isMobile is false', () => {
 
     it('should handle tabs with React elements as icons', () => {
       const customIcon = (
-        <svg data-testid="custom-icon" viewBox="0 0 24 24" width="24" height="24">
+        <svg
+          data-testid="custom-icon"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24"
+        >
           <circle cx="12" cy="12" r="10" />
         </svg>
       );
 
       const tabsWithCustomIcon: Tab[] = [
-        { id: 'catalog', icon: customIcon, label: 'Custom', panelId: 'catalog' },
+        {
+          id: 'catalog',
+          icon: customIcon,
+          label: 'Custom',
+          panelId: 'catalog',
+        },
       ];
 
       render(<BottomNavBar tabs={tabsWithCustomIcon} />);

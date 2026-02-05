@@ -1,5 +1,6 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+
 import { ArmorLocation } from '../ArmorLocation';
 
 describe('ArmorLocation', () => {
@@ -27,7 +28,9 @@ describe('ArmorLocation', () => {
 
     it('should use semantic HTML structure', () => {
       const { container } = render(<ArmorLocation {...mockProps} />);
-      const section = container.querySelector('section[aria-label*="armor allocation"]');
+      const section = container.querySelector(
+        'section[aria-label*="armor allocation"]',
+      );
       expect(section).toBeInTheDocument();
     });
 
@@ -47,8 +50,17 @@ describe('ArmorLocation', () => {
     });
 
     it('should have green color for max armor', () => {
-      render(<ArmorLocation {...mockProps} currentArmor={100} maxArmor={100} />);
-      const { container } = render(<ArmorLocation currentArmor={100} maxArmor={100} onArmorChange={jest.fn()} location="Head" />);
+      render(
+        <ArmorLocation {...mockProps} currentArmor={100} maxArmor={100} />,
+      );
+      const { container } = render(
+        <ArmorLocation
+          currentArmor={100}
+          maxArmor={100}
+          onArmorChange={jest.fn()}
+          location="Head"
+        />,
+      );
       const progressbar = container.querySelector('[role="progressbar"]');
       expect(progressbar).toHaveClass('bg-green-500');
     });
@@ -60,7 +72,9 @@ describe('ArmorLocation', () => {
     });
 
     it('should apply custom className', () => {
-      const { container } = render(<ArmorLocation {...mockProps} className="custom-class" />);
+      const { container } = render(
+        <ArmorLocation {...mockProps} className="custom-class" />,
+      );
       const section = container.querySelector('.custom-class');
       expect(section).toBeInTheDocument();
     });
@@ -76,15 +90,21 @@ describe('ArmorLocation', () => {
 
     it('should collapse when header is clicked again', () => {
       const { container } = render(<ArmorLocation {...mockProps} />);
-      const header = container.querySelector('button[aria-expanded="false"]') as HTMLElement;
+      const header = container.querySelector(
+        'button[aria-expanded="false"]',
+      ) as HTMLElement;
       fireEvent.click(header);
       fireEvent.click(header);
-      expect(container.querySelector('[id*="-details"]')).not.toBeInTheDocument();
+      expect(
+        container.querySelector('[id*="-details"]'),
+      ).not.toBeInTheDocument();
     });
 
     it('should update aria-expanded when toggled', () => {
       const { container } = render(<ArmorLocation {...mockProps} />);
-      const header = container.querySelector('button[aria-expanded="false"]') as HTMLElement;
+      const header = container.querySelector(
+        'button[aria-expanded="false"]',
+      ) as HTMLElement;
       fireEvent.click(header);
       expect(header).toHaveAttribute('aria-expanded', 'true');
     });
@@ -94,7 +114,9 @@ describe('ArmorLocation', () => {
     beforeEach(() => {
       // Start with component expanded
       const { container } = render(<ArmorLocation {...mockProps} />);
-      const header = container.querySelector('button[aria-expanded="false"]') as HTMLElement;
+      const header = container.querySelector(
+        'button[aria-expanded="false"]',
+      ) as HTMLElement;
       fireEvent.click(header);
     });
 
@@ -129,9 +151,16 @@ describe('ArmorLocation', () => {
     it('should not exceed max armor with quick add', () => {
       const onArmorChange = jest.fn();
       const { container } = render(
-        <ArmorLocation currentArmor={95} maxArmor={100} onArmorChange={onArmorChange} location="Test" />
+        <ArmorLocation
+          currentArmor={95}
+          maxArmor={100}
+          onArmorChange={onArmorChange}
+          location="Test"
+        />,
       );
-      const header = container.querySelector('button[aria-expanded="false"]') as HTMLElement;
+      const header = container.querySelector(
+        'button[aria-expanded="false"]',
+      ) as HTMLElement;
       fireEvent.click(header);
 
       const button = screen.getByLabelText('Add 10 armor to Test');
@@ -142,9 +171,16 @@ describe('ArmorLocation', () => {
     it('should disable quick add buttons at max armor', () => {
       const onArmorChange = jest.fn();
       const { container } = render(
-        <ArmorLocation currentArmor={100} maxArmor={100} onArmorChange={onArmorChange} location="Test" />
+        <ArmorLocation
+          currentArmor={100}
+          maxArmor={100}
+          onArmorChange={onArmorChange}
+          location="Test"
+        />,
       );
-      const header = container.querySelector('button[aria-expanded="false"]') as HTMLElement;
+      const header = container.querySelector(
+        'button[aria-expanded="false"]',
+      ) as HTMLElement;
       fireEvent.click(header);
 
       // Check each quick add button specifically
@@ -158,7 +194,9 @@ describe('ArmorLocation', () => {
   describe('Stepper Controls', () => {
     it('should display current armor value in stepper', () => {
       const { container } = render(<ArmorLocation {...mockProps} />);
-      const header = container.querySelector('button[aria-expanded="false"]') as HTMLElement;
+      const header = container.querySelector(
+        'button[aria-expanded="false"]',
+      ) as HTMLElement;
       fireEvent.click(header);
 
       const value = container.querySelector('.text-2xl');
@@ -167,27 +205,44 @@ describe('ArmorLocation', () => {
 
     it('should increment armor when + button is clicked', () => {
       const { container } = render(<ArmorLocation {...mockProps} />);
-      const header = container.querySelector('button[aria-expanded="false"]') as HTMLElement;
+      const header = container.querySelector(
+        'button[aria-expanded="false"]',
+      ) as HTMLElement;
       fireEvent.click(header);
 
-      const incrementButton = screen.getByLabelText('Add 1 armor to Center Torso');
+      const incrementButton = screen.getByLabelText(
+        'Add 1 armor to Center Torso',
+      );
       fireEvent.click(incrementButton);
       expect(mockProps.onArmorChange).toHaveBeenCalledWith(51);
     });
 
     it('should decrement armor when - button is clicked', () => {
       const { container } = render(<ArmorLocation {...mockProps} />);
-      const header = container.querySelector('button[aria-expanded="false"]') as HTMLElement;
+      const header = container.querySelector(
+        'button[aria-expanded="false"]',
+      ) as HTMLElement;
       fireEvent.click(header);
 
-      const decrementButton = screen.getByLabelText('Remove 1 armor from Center Torso');
+      const decrementButton = screen.getByLabelText(
+        'Remove 1 armor from Center Torso',
+      );
       fireEvent.click(decrementButton);
       expect(mockProps.onArmorChange).toHaveBeenCalledWith(49);
     });
 
     it('should not decrement below 0', () => {
-      const { container } = render(<ArmorLocation currentArmor={0} maxArmor={100} onArmorChange={jest.fn()} location="Test" />);
-      const header = container.querySelector('button[aria-expanded="false"]') as HTMLElement;
+      const { container } = render(
+        <ArmorLocation
+          currentArmor={0}
+          maxArmor={100}
+          onArmorChange={jest.fn()}
+          location="Test"
+        />,
+      );
+      const header = container.querySelector(
+        'button[aria-expanded="false"]',
+      ) as HTMLElement;
       fireEvent.click(header);
 
       const decrementButton = screen.getByLabelText('Remove 1 armor from Test');
@@ -195,8 +250,17 @@ describe('ArmorLocation', () => {
     });
 
     it('should not increment above max', () => {
-      const { container } = render(<ArmorLocation currentArmor={100} maxArmor={100} onArmorChange={jest.fn()} location="Test" />);
-      const header = container.querySelector('button[aria-expanded="false"]') as HTMLElement;
+      const { container } = render(
+        <ArmorLocation
+          currentArmor={100}
+          maxArmor={100}
+          onArmorChange={jest.fn()}
+          location="Test"
+        />,
+      );
+      const header = container.querySelector(
+        'button[aria-expanded="false"]',
+      ) as HTMLElement;
       fireEvent.click(header);
 
       const incrementButton = screen.getByLabelText('Add 1 armor to Test');
@@ -205,7 +269,9 @@ describe('ArmorLocation', () => {
 
     it('should have 44x44px minimum touch targets', () => {
       const { container } = render(<ArmorLocation {...mockProps} />);
-      const header = container.querySelector('button[aria-expanded="false"]') as HTMLElement;
+      const header = container.querySelector(
+        'button[aria-expanded="false"]',
+      ) as HTMLElement;
       fireEvent.click(header);
 
       const stepperButtons = container.querySelectorAll('.min-h-\\[44px\\]');
@@ -217,7 +283,9 @@ describe('ArmorLocation', () => {
     it('should have proper ARIA labels', () => {
       const { container } = render(<ArmorLocation {...mockProps} />);
       const section = container.querySelector('section[aria-label]');
-      expect(section?.getAttribute('aria-label')).toBe('Center Torso armor allocation');
+      expect(section?.getAttribute('aria-label')).toBe(
+        'Center Torso armor allocation',
+      );
     });
 
     it('should have aria-expanded on header button', () => {
@@ -229,13 +297,18 @@ describe('ArmorLocation', () => {
     it('should have aria-controls linking to details', () => {
       const { container } = render(<ArmorLocation {...mockProps} />);
       const header = container.querySelector('button[aria-controls]');
-      expect(header?.getAttribute('aria-controls')).toBe('center torso-details');
+      expect(header?.getAttribute('aria-controls')).toBe(
+        'center torso-details',
+      );
     });
 
     it('should have proper progressbar attributes', () => {
       const { container } = render(<ArmorLocation {...mockProps} />);
       const progressbar = container.querySelector('[role="progressbar"]');
-      expect(progressbar).toHaveAttribute('aria-label', 'Center Torso armor: 50 of 100');
+      expect(progressbar).toHaveAttribute(
+        'aria-label',
+        'Center Torso armor: 50 of 100',
+      );
     });
 
     it('should hide icons from screen readers', () => {
@@ -247,12 +320,26 @@ describe('ArmorLocation', () => {
 
   describe('Edge Cases', () => {
     it('should handle 0 current armor', () => {
-      render(<ArmorLocation currentArmor={0} maxArmor={100} onArmorChange={jest.fn()} location="Test" />);
+      render(
+        <ArmorLocation
+          currentArmor={0}
+          maxArmor={100}
+          onArmorChange={jest.fn()}
+          location="Test"
+        />,
+      );
       expect(screen.getByText('0 / 100')).toBeInTheDocument();
     });
 
     it('should handle zero max armor gracefully', () => {
-      render(<ArmorLocation currentArmor={0} maxArmor={0} onArmorChange={jest.fn()} location="Test" />);
+      render(
+        <ArmorLocation
+          currentArmor={0}
+          maxArmor={0}
+          onArmorChange={jest.fn()}
+          location="Test"
+        />,
+      );
       expect(screen.getByText('0 / 0')).toBeInTheDocument();
     });
 

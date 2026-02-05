@@ -1,5 +1,6 @@
 // src/stores/__tests__/useAppSettingsStore.armorMode.test.ts
 import { renderHook, act } from '@testing-library/react';
+
 import { useAppSettingsStore } from '../useAppSettingsStore';
 
 describe('useAppSettingsStore - armorDiagramMode', () => {

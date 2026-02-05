@@ -11,10 +11,13 @@
 ## Overview
 
 ### Purpose
+
 Validates complete simulation pipeline with comprehensive integration tests, statistical validation over 1000+ games, and performance profiling.
 
 ### Scope
+
 **In Scope:**
+
 - Full pipeline integration test
 - Statistical validation (win rates, violation rates)
 - Reproducibility verification
@@ -23,6 +26,7 @@ Validates complete simulation pipeline with comprehensive integration tests, sta
 - Package.json script integration
 
 **Out of Scope:**
+
 - New feature development
 - UI testing
 - Network/API testing
@@ -39,6 +43,7 @@ The system SHALL validate complete simulation pipeline end-to-end.
 **Priority**: Critical
 
 #### Scenario: Run 1000 simulations
+
 **GIVEN** SIMULATION_COUNT=1000
 **WHEN** running full test suite
 **THEN** all 1000 simulations SHALL complete
@@ -47,6 +52,7 @@ The system SHALL validate complete simulation pipeline end-to-end.
 **AND** violation rate SHALL be <5%
 
 #### Scenario: Reproducibility check
+
 **GIVEN** same seed used twice
 **WHEN** running simulation
 **THEN** both runs SHALL produce identical results
@@ -60,6 +66,7 @@ The system SHALL validate game balance through statistical analysis.
 **Priority**: High
 
 #### Scenario: Win rate distribution
+
 **GIVEN** 1000 simulations with balanced forces
 **WHEN** computing win rates
 **THEN** player wins SHALL be 40-60%
@@ -67,6 +74,7 @@ The system SHALL validate game balance through statistical analysis.
 **AND** draws SHALL be <10%
 
 #### Scenario: Violation rate threshold
+
 **GIVEN** 1000 simulations
 **WHEN** counting violations
 **THEN** critical violations SHALL be <5% of games
@@ -79,6 +87,7 @@ The system SHALL provide command-line tool for manual batch runs.
 **Priority**: Medium
 
 #### Scenario: CLI execution
+
 **GIVEN** command: node scripts/run-simulation.js --count=10 --seed=12345
 **WHEN** executing
 **THEN** 10 simulations SHALL run
@@ -166,6 +175,7 @@ node scripts/run-simulation.js --count=1000 --seed=12345
 ## Changelog
 
 ### Version 1.0 (2026-02-01)
+
 - Initial specification
 - Defined integration test requirements
 - Specified CLI tool interface

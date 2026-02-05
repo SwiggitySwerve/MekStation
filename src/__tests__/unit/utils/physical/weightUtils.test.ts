@@ -77,19 +77,19 @@ describe('weightUtils', () => {
 
   describe('percentOfTonnage()', () => {
     it('should calculate percentage of tonnage', () => {
-      expect(percentOfTonnage(0.10, 50)).toBe(5); // 10% of 50 = 5
-      expect(percentOfTonnage(0.20, 50)).toBe(10); // 20% of 50 = 10
+      expect(percentOfTonnage(0.1, 50)).toBe(5); // 10% of 50 = 5
+      expect(percentOfTonnage(0.2, 50)).toBe(10); // 20% of 50 = 10
     });
 
     it('should return 0 for invalid input', () => {
       expect(percentOfTonnage(Infinity, 50)).toBe(0);
-      expect(percentOfTonnage(0.10, Infinity)).toBe(0);
+      expect(percentOfTonnage(0.1, Infinity)).toBe(0);
     });
   });
 
   describe('percentOfTonnageRounded()', () => {
     it('should calculate and round percentage', () => {
-      const result = percentOfTonnageRounded(0.10, 50);
+      const result = percentOfTonnageRounded(0.1, 50);
       expect(result).toBe(5.0);
     });
   });

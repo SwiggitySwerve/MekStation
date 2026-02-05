@@ -3,7 +3,7 @@
  *
  * Tests for the pilot awards system including award tracking,
  * progress tracking, and award evaluation.
- * 
+ *
  * NOTE: The pilot store uses API persistence, so we use mock pilot IDs
  * for award store testing since the award store tracks stats independently
  * of the pilot store.
@@ -30,10 +30,12 @@ async function waitForHydration(page: Page): Promise<void> {
 async function waitForAwardStoreReady(page: Page): Promise<void> {
   await page.waitForFunction(
     () => {
-      const win = window as unknown as { __ZUSTAND_STORES__?: { award?: unknown } };
+      const win = window as unknown as {
+        __ZUSTAND_STORES__?: { award?: unknown };
+      };
       return win.__ZUSTAND_STORES__?.award !== undefined;
     },
-    { timeout: 10000 }
+    { timeout: 10000 },
   );
 }
 
@@ -54,24 +56,26 @@ function generateTestPilotId(): string {
  */
 async function getPilotStats(
   page: Page,
-  pilotId: string
+  pilotId: string,
 ): Promise<{
   combat: { totalKills: number; totalDamageDealt: number };
   career: { missionsCompleted: number; gamesPlayed: number };
 } | null> {
   return page.evaluate((id) => {
-    const stores = (window as unknown as {
-      __ZUSTAND_STORES__?: {
-        award?: {
-          getState: () => {
-            getPilotStats: (pilotId: string) => {
-              combat: { totalKills: number; totalDamageDealt: number };
-              career: { missionsCompleted: number; gamesPlayed: number };
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          award?: {
+            getState: () => {
+              getPilotStats: (pilotId: string) => {
+                combat: { totalKills: number; totalDamageDealt: number };
+                career: { missionsCompleted: number; gamesPlayed: number };
+              };
             };
           };
         };
-      };
-    }).__ZUSTAND_STORES__;
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.award) {
       return null;
@@ -86,15 +90,17 @@ async function getPilotStats(
  */
 async function recordKill(page: Page, pilotId: string): Promise<void> {
   await page.evaluate((id) => {
-    const stores = (window as unknown as {
-      __ZUSTAND_STORES__?: {
-        award?: {
-          getState: () => {
-            recordKill: (pilotId: string, context: object) => void;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          award?: {
+            getState: () => {
+              recordKill: (pilotId: string, context: object) => void;
+            };
           };
         };
-      };
-    }).__ZUSTAND_STORES__;
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.award) {
       throw new Error('Award store not exposed');
@@ -110,19 +116,25 @@ async function recordKill(page: Page, pilotId: string): Promise<void> {
 async function recordDamage(
   page: Page,
   pilotId: string,
-  damage: number
+  damage: number,
 ): Promise<void> {
   await page.evaluate(
     ({ id, dmg }) => {
-      const stores = (window as unknown as {
-        __ZUSTAND_STORES__?: {
-          award?: {
-            getState: () => {
-              recordDamage: (pilotId: string, damage: number, context: object) => void;
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            award?: {
+              getState: () => {
+                recordDamage: (
+                  pilotId: string,
+                  damage: number,
+                  context: object,
+                ) => void;
+              };
             };
           };
-        };
-      }).__ZUSTAND_STORES__;
+        }
+      ).__ZUSTAND_STORES__;
 
       if (!stores?.award) {
         throw new Error('Award store not exposed');
@@ -130,7 +142,7 @@ async function recordDamage(
 
       stores.award.getState().recordDamage(id, dmg, {});
     },
-    { id: pilotId, dmg: damage }
+    { id: pilotId, dmg: damage },
   );
 }
 
@@ -140,23 +152,25 @@ async function recordDamage(
 async function recordMissionComplete(
   page: Page,
   pilotId: string,
-  survived: boolean = true
+  survived: boolean = true,
 ): Promise<void> {
   await page.evaluate(
     ({ id, surv }) => {
-      const stores = (window as unknown as {
-        __ZUSTAND_STORES__?: {
-          award?: {
-            getState: () => {
-              recordMissionComplete: (
-                pilotId: string,
-                survived: boolean,
-                context: object
-              ) => void;
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            award?: {
+              getState: () => {
+                recordMissionComplete: (
+                  pilotId: string,
+                  survived: boolean,
+                  context: object,
+                ) => void;
+              };
             };
           };
-        };
-      }).__ZUSTAND_STORES__;
+        }
+      ).__ZUSTAND_STORES__;
 
       if (!stores?.award) {
         throw new Error('Award store not exposed');
@@ -164,7 +178,7 @@ async function recordMissionComplete(
 
       stores.award.getState().recordMissionComplete(id, surv, {});
     },
-    { id: pilotId, surv: survived }
+    { id: pilotId, surv: survived },
   );
 }
 
@@ -173,18 +187,22 @@ async function recordMissionComplete(
  */
 async function getPilotAwards(
   page: Page,
-  pilotId: string
+  pilotId: string,
 ): Promise<Array<{ awardId: string; earnedAt: string }>> {
   return page.evaluate((id) => {
-    const stores = (window as unknown as {
-      __ZUSTAND_STORES__?: {
-        award?: {
-          getState: () => {
-            getPilotAwards: (pilotId: string) => Array<{ awardId: string; earnedAt: string }>;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          award?: {
+            getState: () => {
+              getPilotAwards: (
+                pilotId: string,
+              ) => Array<{ awardId: string; earnedAt: string }>;
+            };
           };
         };
-      };
-    }).__ZUSTAND_STORES__;
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.award) {
       return [];
@@ -200,19 +218,21 @@ async function getPilotAwards(
 async function hasPilotAward(
   page: Page,
   pilotId: string,
-  awardId: string
+  awardId: string,
 ): Promise<boolean> {
   return page.evaluate(
     ({ id, award }) => {
-      const stores = (window as unknown as {
-        __ZUSTAND_STORES__?: {
-          award?: {
-            getState: () => {
-              hasPilotAward: (pilotId: string, awardId: string) => boolean;
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            award?: {
+              getState: () => {
+                hasPilotAward: (pilotId: string, awardId: string) => boolean;
+              };
             };
           };
-        };
-      }).__ZUSTAND_STORES__;
+        }
+      ).__ZUSTAND_STORES__;
 
       if (!stores?.award) {
         return false;
@@ -220,7 +240,7 @@ async function hasPilotAward(
 
       return stores.award.getState().hasPilotAward(id, award);
     },
-    { id: pilotId, award: awardId }
+    { id: pilotId, award: awardId },
   );
 }
 
@@ -230,27 +250,34 @@ async function hasPilotAward(
 async function grantAward(
   page: Page,
   pilotId: string,
-  awardId: string
+  awardId: string,
 ): Promise<boolean> {
   return page.evaluate(
     ({ id, award }) => {
-      const stores = (window as unknown as {
-        __ZUSTAND_STORES__?: {
-          award?: {
-            getState: () => {
-              grantAward: (input: { pilotId: string; awardId: string }) => boolean;
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            award?: {
+              getState: () => {
+                grantAward: (input: {
+                  pilotId: string;
+                  awardId: string;
+                }) => boolean;
+              };
             };
           };
-        };
-      }).__ZUSTAND_STORES__;
+        }
+      ).__ZUSTAND_STORES__;
 
       if (!stores?.award) {
         return false;
       }
 
-      return stores.award.getState().grantAward({ pilotId: id, awardId: award });
+      return stores.award
+        .getState()
+        .grantAward({ pilotId: id, awardId: award });
     },
-    { id: pilotId, award: awardId }
+    { id: pilotId, award: awardId },
   );
 }
 

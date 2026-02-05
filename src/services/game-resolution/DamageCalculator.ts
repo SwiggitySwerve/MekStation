@@ -101,7 +101,7 @@ export const MECH_LOCATIONS = [
  */
 export function calculateDamagePercent(
   current: Record<string, number>,
-  max: Record<string, number>
+  max: Record<string, number>,
 ): number {
   let totalCurrent = 0;
   let totalMax = 0;
@@ -123,13 +123,17 @@ export function calculateDamagePercent(
 export function assessUnitDamage(
   unit: IUnitGameState,
   maxArmor: Record<string, number>,
-  maxStructure: Record<string, number>
+  maxStructure: Record<string, number>,
 ): IDamageAssessment {
   const armorDamagePercent = calculateDamagePercent(unit.armor, maxArmor);
-  const structureDamagePercent = calculateDamagePercent(unit.structure, maxStructure);
+  const structureDamagePercent = calculateDamagePercent(
+    unit.structure,
+    maxStructure,
+  );
 
   // Overall damage weighted: structure damage is more severe
-  const overallDamagePercent = armorDamagePercent * 0.3 + structureDamagePercent * 0.7;
+  const overallDamagePercent =
+    armorDamagePercent * 0.3 + structureDamagePercent * 0.7;
 
   const destroyedLocations = unit.destroyedLocations.length;
   const destroyedComponents = unit.destroyedEquipment.length;
@@ -174,7 +178,7 @@ export function assessUnitDamage(
 export function getLocationDamage(
   unit: IUnitGameState,
   maxArmor: Record<string, number>,
-  maxStructure: Record<string, number>
+  maxStructure: Record<string, number>,
 ): readonly ILocationDamage[] {
   const locations: ILocationDamage[] = [];
 
@@ -204,7 +208,7 @@ export function getLocationDamage(
  */
 export function estimateRepairCost(
   assessment: IDamageAssessment,
-  unitValue: number
+  unitValue: number,
 ): number {
   // Base repair cost is a percentage of unit value based on damage
   const baseCost = unitValue * (assessment.overallDamagePercent / 100) * 0.5;
@@ -222,7 +226,9 @@ export function estimateRepairCost(
  * Check if a unit needs critical repairs (structure damage).
  */
 export function needsCriticalRepair(assessment: IDamageAssessment): boolean {
-  return assessment.structureDamagePercent > 0 || assessment.destroyedLocations > 0;
+  return (
+    assessment.structureDamagePercent > 0 || assessment.destroyedLocations > 0
+  );
 }
 
 /**

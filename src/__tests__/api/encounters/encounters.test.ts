@@ -13,6 +13,20 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import cloneHandler from '@/pages/api/encounters/[id]/clone';
+import encounterByIdHandler from '@/pages/api/encounters/[id]/index';
+import launchHandler from '@/pages/api/encounters/[id]/launch';
+import opponentForceHandler from '@/pages/api/encounters/[id]/opponent-force';
+import playerForceHandler from '@/pages/api/encounters/[id]/player-force';
+import templateHandler from '@/pages/api/encounters/[id]/template';
+import validateHandler from '@/pages/api/encounters/[id]/validate';
+// Import handlers
+import encountersHandler from '@/pages/api/encounters/index';
+import {
+  IEncounterOperationResult,
+  EncounterErrorCode,
+} from '@/services/encounter/EncounterRepository';
 import {
   IEncounter,
   ICreateEncounterInput,
@@ -22,17 +36,6 @@ import {
   TerrainPreset,
   VictoryConditionType,
 } from '@/types/encounter';
-import { IEncounterOperationResult, EncounterErrorCode } from '@/services/encounter/EncounterRepository';
-
-// Import handlers
-import encountersHandler from '@/pages/api/encounters/index';
-import encounterByIdHandler from '@/pages/api/encounters/[id]/index';
-import cloneHandler from '@/pages/api/encounters/[id]/clone';
-import launchHandler from '@/pages/api/encounters/[id]/launch';
-import validateHandler from '@/pages/api/encounters/[id]/validate';
-import templateHandler from '@/pages/api/encounters/[id]/template';
-import playerForceHandler from '@/pages/api/encounters/[id]/player-force';
-import opponentForceHandler from '@/pages/api/encounters/[id]/opponent-force';
 
 // =============================================================================
 // Mocks
@@ -69,7 +72,9 @@ jest.mock('@/services/encounter/EncounterService', () => ({
 // Test Helpers
 // =============================================================================
 
-function createMockRequest(overrides: Partial<NextApiRequest> = {}): NextApiRequest {
+function createMockRequest(
+  overrides: Partial<NextApiRequest> = {},
+): NextApiRequest {
   return {
     method: 'GET',
     query: {},
@@ -120,7 +125,9 @@ function createMockEncounter(overrides: Partial<IEncounter> = {}): IEncounter {
   };
 }
 
-function createSuccessResult(overrides: Partial<IEncounterOperationResult> = {}): IEncounterOperationResult {
+function createSuccessResult(
+  overrides: Partial<IEncounterOperationResult> = {},
+): IEncounterOperationResult {
   return {
     success: true,
     id: 'encounter-1',
@@ -128,7 +135,10 @@ function createSuccessResult(overrides: Partial<IEncounterOperationResult> = {})
   };
 }
 
-function createErrorResult(error: string, code?: EncounterErrorCode): IEncounterOperationResult {
+function createErrorResult(
+  error: string,
+  code?: EncounterErrorCode,
+): IEncounterOperationResult {
   return {
     success: false,
     error,
@@ -230,13 +240,18 @@ describe('POST /api/encounters', () => {
     await encountersHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing required field: name' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing required field: name',
+    });
     expect(mockEncounterService.createEncounter).not.toHaveBeenCalled();
   });
 
   it('should handle service validation errors', async () => {
     const input: ICreateEncounterInput = { name: 'Test' };
-    const result = createErrorResult('Invalid encounter data', EncounterErrorCode.ValidationError);
+    const result = createErrorResult(
+      'Invalid encounter data',
+      EncounterErrorCode.ValidationError,
+    );
 
     mockEncounterService.createEncounter.mockReturnValue(result);
 
@@ -277,7 +292,9 @@ describe('Unsupported methods /api/encounters', () => {
 
     expect(res.setHeader).toHaveBeenCalledWith('Allow', ['GET', 'POST']);
     expect(res.status).toHaveBeenCalledWith(405);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Method DELETE Not Allowed' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Method DELETE Not Allowed',
+    });
   });
 });
 
@@ -294,12 +311,17 @@ describe('GET /api/encounters/[id]', () => {
     const encounter = createMockEncounter();
     mockEncounterService.getEncounter.mockReturnValue(encounter);
 
-    const req = createMockRequest({ method: 'GET', query: { id: 'encounter-1' } });
+    const req = createMockRequest({
+      method: 'GET',
+      query: { id: 'encounter-1' },
+    });
     const res = createMockResponse();
 
     await encounterByIdHandler(req, res);
 
-    expect(mockEncounterService.getEncounter).toHaveBeenCalledWith('encounter-1');
+    expect(mockEncounterService.getEncounter).toHaveBeenCalledWith(
+      'encounter-1',
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ encounter });
   });
@@ -307,7 +329,10 @@ describe('GET /api/encounters/[id]', () => {
   it('should return 404 when encounter not found', async () => {
     mockEncounterService.getEncounter.mockReturnValue(null);
 
-    const req = createMockRequest({ method: 'GET', query: { id: 'nonexistent' } });
+    const req = createMockRequest({
+      method: 'GET',
+      query: { id: 'nonexistent' },
+    });
     const res = createMockResponse();
 
     await encounterByIdHandler(req, res);
@@ -323,7 +348,9 @@ describe('GET /api/encounters/[id]', () => {
     await encounterByIdHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing or invalid encounter ID' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing or invalid encounter ID',
+    });
   });
 
   it('should reject invalid ID type', async () => {
@@ -333,7 +360,9 @@ describe('GET /api/encounters/[id]', () => {
     await encounterByIdHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing or invalid encounter ID' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing or invalid encounter ID',
+    });
   });
 
   it('should handle service errors', async () => {
@@ -341,7 +370,10 @@ describe('GET /api/encounters/[id]', () => {
       throw new Error('Database error');
     });
 
-    const req = createMockRequest({ method: 'GET', query: { id: 'encounter-1' } });
+    const req = createMockRequest({
+      method: 'GET',
+      query: { id: 'encounter-1' },
+    });
     const res = createMockResponse();
 
     await encounterByIdHandler(req, res);
@@ -373,14 +405,20 @@ describe('PATCH /api/encounters/[id]', () => {
 
     await encounterByIdHandler(req, res);
 
-    expect(mockEncounterService.updateEncounter).toHaveBeenCalledWith('encounter-1', update);
+    expect(mockEncounterService.updateEncounter).toHaveBeenCalledWith(
+      'encounter-1',
+      update,
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ ...result, encounter });
   });
 
   it('should handle update validation errors', async () => {
     const update: IUpdateEncounterInput = { name: '' };
-    const result = createErrorResult('Name cannot be empty', EncounterErrorCode.ValidationError);
+    const result = createErrorResult(
+      'Name cannot be empty',
+      EncounterErrorCode.ValidationError,
+    );
 
     mockEncounterService.updateEncounter.mockReturnValue(result);
 
@@ -429,21 +467,32 @@ describe('DELETE /api/encounters/[id]', () => {
     const result = createSuccessResult();
     mockEncounterService.deleteEncounter.mockReturnValue(result);
 
-    const req = createMockRequest({ method: 'DELETE', query: { id: 'encounter-1' } });
+    const req = createMockRequest({
+      method: 'DELETE',
+      query: { id: 'encounter-1' },
+    });
     const res = createMockResponse();
 
     await encounterByIdHandler(req, res);
 
-    expect(mockEncounterService.deleteEncounter).toHaveBeenCalledWith('encounter-1');
+    expect(mockEncounterService.deleteEncounter).toHaveBeenCalledWith(
+      'encounter-1',
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(result);
   });
 
   it('should handle delete errors', async () => {
-    const result = createErrorResult('Cannot delete active encounter', EncounterErrorCode.InvalidStatus);
+    const result = createErrorResult(
+      'Cannot delete active encounter',
+      EncounterErrorCode.InvalidStatus,
+    );
     mockEncounterService.deleteEncounter.mockReturnValue(result);
 
-    const req = createMockRequest({ method: 'DELETE', query: { id: 'encounter-1' } });
+    const req = createMockRequest({
+      method: 'DELETE',
+      query: { id: 'encounter-1' },
+    });
     const res = createMockResponse();
 
     await encounterByIdHandler(req, res);
@@ -461,7 +510,10 @@ describe('DELETE /api/encounters/[id]', () => {
       throw new Error('Delete failed');
     });
 
-    const req = createMockRequest({ method: 'DELETE', query: { id: 'encounter-1' } });
+    const req = createMockRequest({
+      method: 'DELETE',
+      query: { id: 'encounter-1' },
+    });
     const res = createMockResponse();
 
     await encounterByIdHandler(req, res);
@@ -473,12 +525,19 @@ describe('DELETE /api/encounters/[id]', () => {
 
 describe('Unsupported methods /api/encounters/[id]', () => {
   it('should reject unsupported methods', async () => {
-    const req = createMockRequest({ method: 'POST', query: { id: 'encounter-1' } });
+    const req = createMockRequest({
+      method: 'POST',
+      query: { id: 'encounter-1' },
+    });
     const res = createMockResponse();
 
     await encounterByIdHandler(req, res);
 
-    expect(res.setHeader).toHaveBeenCalledWith('Allow', ['GET', 'PATCH', 'DELETE']);
+    expect(res.setHeader).toHaveBeenCalledWith('Allow', [
+      'GET',
+      'PATCH',
+      'DELETE',
+    ]);
     expect(res.status).toHaveBeenCalledWith(405);
   });
 });
@@ -494,7 +553,10 @@ describe('POST /api/encounters/[id]/clone', () => {
 
   it('should clone encounter with new name', async () => {
     const newName = 'Cloned Encounter';
-    const clonedEncounter = createMockEncounter({ id: 'encounter-2', name: newName });
+    const clonedEncounter = createMockEncounter({
+      id: 'encounter-2',
+      name: newName,
+    });
     const result = createSuccessResult({ id: 'encounter-2' });
 
     mockEncounterService.cloneEncounter.mockReturnValue(result);
@@ -509,9 +571,15 @@ describe('POST /api/encounters/[id]/clone', () => {
 
     await cloneHandler(req, res);
 
-    expect(mockEncounterService.cloneEncounter).toHaveBeenCalledWith('encounter-1', newName);
+    expect(mockEncounterService.cloneEncounter).toHaveBeenCalledWith(
+      'encounter-1',
+      newName,
+    );
     expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith({ ...result, encounter: clonedEncounter });
+    expect(res.json).toHaveBeenCalledWith({
+      ...result,
+      encounter: clonedEncounter,
+    });
   });
 
   it('should reject clone without newName', async () => {
@@ -525,7 +593,9 @@ describe('POST /api/encounters/[id]/clone', () => {
     await cloneHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing required field: newName' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing required field: newName',
+    });
     expect(mockEncounterService.cloneEncounter).not.toHaveBeenCalled();
   });
 
@@ -540,11 +610,16 @@ describe('POST /api/encounters/[id]/clone', () => {
     await cloneHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing or invalid encounter ID' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing or invalid encounter ID',
+    });
   });
 
   it('should handle clone errors', async () => {
-    const result = createErrorResult('Source encounter not found', EncounterErrorCode.NotFound);
+    const result = createErrorResult(
+      'Source encounter not found',
+      EncounterErrorCode.NotFound,
+    );
     mockEncounterService.cloneEncounter.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -623,7 +698,9 @@ describe('POST /api/encounters/[id]/launch', () => {
 
     await launchHandler(req, res);
 
-    expect(mockEncounterService.launchEncounter).toHaveBeenCalledWith('encounter-1');
+    expect(mockEncounterService.launchEncounter).toHaveBeenCalledWith(
+      'encounter-1',
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       ...result,
@@ -633,7 +710,10 @@ describe('POST /api/encounters/[id]/launch', () => {
   });
 
   it('should handle launch validation errors', async () => {
-    const result = createErrorResult('Both forces must be set before launching', EncounterErrorCode.ValidationError);
+    const result = createErrorResult(
+      'Both forces must be set before launching',
+      EncounterErrorCode.ValidationError,
+    );
     mockEncounterService.launchEncounter.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -662,7 +742,9 @@ describe('POST /api/encounters/[id]/launch', () => {
     await launchHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing or invalid encounter ID' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing or invalid encounter ID',
+    });
   });
 
   it('should handle launch service exceptions', async () => {
@@ -721,7 +803,9 @@ describe('GET /api/encounters/[id]/validate', () => {
 
     await validateHandler(req, res);
 
-    expect(mockEncounterService.validateEncounter).toHaveBeenCalledWith('encounter-1');
+    expect(mockEncounterService.validateEncounter).toHaveBeenCalledWith(
+      'encounter-1',
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ validation });
   });
@@ -756,7 +840,9 @@ describe('GET /api/encounters/[id]/validate', () => {
     await validateHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing or invalid encounter ID' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing or invalid encounter ID',
+    });
   });
 
   it('should handle validate service exceptions', async () => {
@@ -818,7 +904,10 @@ describe('PUT /api/encounters/[id]/template', () => {
 
     await templateHandler(req, res);
 
-    expect(mockEncounterService.applyTemplate).toHaveBeenCalledWith('encounter-1', template);
+    expect(mockEncounterService.applyTemplate).toHaveBeenCalledWith(
+      'encounter-1',
+      template,
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ ...result, encounter });
   });
@@ -834,7 +923,9 @@ describe('PUT /api/encounters/[id]/template', () => {
     await templateHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing required field: template' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing required field: template',
+    });
     expect(mockEncounterService.applyTemplate).not.toHaveBeenCalled();
   });
 
@@ -849,11 +940,16 @@ describe('PUT /api/encounters/[id]/template', () => {
     await templateHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing or invalid encounter ID' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing or invalid encounter ID',
+    });
   });
 
   it('should handle template application errors', async () => {
-    const result = createErrorResult('Invalid template type', EncounterErrorCode.ValidationError);
+    const result = createErrorResult(
+      'Invalid template type',
+      EncounterErrorCode.ValidationError,
+    );
     mockEncounterService.applyTemplate.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -888,7 +984,9 @@ describe('PUT /api/encounters/[id]/template', () => {
     await templateHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Template application failed' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Template application failed',
+    });
   });
 
   it('should reject non-PUT methods', async () => {
@@ -938,7 +1036,10 @@ describe('PUT /api/encounters/[id]/player-force', () => {
 
     await playerForceHandler(req, res);
 
-    expect(mockEncounterService.setPlayerForce).toHaveBeenCalledWith('encounter-1', forceId);
+    expect(mockEncounterService.setPlayerForce).toHaveBeenCalledWith(
+      'encounter-1',
+      forceId,
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ ...result, encounter });
   });
@@ -954,12 +1055,17 @@ describe('PUT /api/encounters/[id]/player-force', () => {
     await playerForceHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing required field: forceId' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing required field: forceId',
+    });
     expect(mockEncounterService.setPlayerForce).not.toHaveBeenCalled();
   });
 
   it('should handle set player force errors', async () => {
-    const result = createErrorResult('Force not found', EncounterErrorCode.NotFound);
+    const result = createErrorResult(
+      'Force not found',
+      EncounterErrorCode.NotFound,
+    );
     mockEncounterService.setPlayerForce.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -1000,15 +1106,21 @@ describe('DELETE /api/encounters/[id]/player-force', () => {
 
     await playerForceHandler(req, res);
 
-    expect(mockEncounterService.updateEncounter).toHaveBeenCalledWith('encounter-1', {
-      playerForceId: undefined,
-    });
+    expect(mockEncounterService.updateEncounter).toHaveBeenCalledWith(
+      'encounter-1',
+      {
+        playerForceId: undefined,
+      },
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ ...result, encounter });
   });
 
   it('should handle clear player force errors', async () => {
-    const result = createErrorResult('Cannot clear force from active encounter', EncounterErrorCode.InvalidStatus);
+    const result = createErrorResult(
+      'Cannot clear force from active encounter',
+      EncounterErrorCode.InvalidStatus,
+    );
     mockEncounterService.updateEncounter.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -1044,7 +1156,9 @@ describe('Player force - missing ID and exceptions', () => {
     await playerForceHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing or invalid encounter ID' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing or invalid encounter ID',
+    });
   });
 
   it('should handle service exceptions', async () => {
@@ -1112,7 +1226,10 @@ describe('PUT /api/encounters/[id]/opponent-force', () => {
 
     await opponentForceHandler(req, res);
 
-    expect(mockEncounterService.setOpponentForce).toHaveBeenCalledWith('encounter-1', forceId);
+    expect(mockEncounterService.setOpponentForce).toHaveBeenCalledWith(
+      'encounter-1',
+      forceId,
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ ...result, encounter });
   });
@@ -1128,12 +1245,17 @@ describe('PUT /api/encounters/[id]/opponent-force', () => {
     await opponentForceHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing required field: forceId' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing required field: forceId',
+    });
     expect(mockEncounterService.setOpponentForce).not.toHaveBeenCalled();
   });
 
   it('should handle set opponent force errors', async () => {
-    const result = createErrorResult('Force not found', EncounterErrorCode.NotFound);
+    const result = createErrorResult(
+      'Force not found',
+      EncounterErrorCode.NotFound,
+    );
     mockEncounterService.setOpponentForce.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -1174,13 +1296,18 @@ describe('DELETE /api/encounters/[id]/opponent-force', () => {
 
     await opponentForceHandler(req, res);
 
-    expect(mockEncounterService.clearOpponentForce).toHaveBeenCalledWith('encounter-1');
+    expect(mockEncounterService.clearOpponentForce).toHaveBeenCalledWith(
+      'encounter-1',
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ ...result, encounter });
   });
 
   it('should handle clear opponent force errors', async () => {
-    const result = createErrorResult('Cannot clear force from active encounter', EncounterErrorCode.InvalidStatus);
+    const result = createErrorResult(
+      'Cannot clear force from active encounter',
+      EncounterErrorCode.InvalidStatus,
+    );
     mockEncounterService.clearOpponentForce.mockReturnValue(result);
 
     const req = createMockRequest({
@@ -1216,7 +1343,9 @@ describe('Opponent force - missing ID and exceptions', () => {
     await opponentForceHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing or invalid encounter ID' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Missing or invalid encounter ID',
+    });
   });
 
   it('should handle service exceptions', async () => {

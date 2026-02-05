@@ -1,8 +1,8 @@
 /**
  * Heat Management Tests
- * 
+ *
  * Tests for heat scale effects, shutdown risks, and ammo explosion calculations.
- * 
+ *
  * @spec openspec/specs/heat-overflow-effects/spec.md
  */
 
@@ -19,7 +19,7 @@ import {
 describe('Heat Scale Effects', () => {
   describe('HEAT_SCALE_EFFECTS constant', () => {
     it('should have complete thresholds', () => {
-      const thresholds = HEAT_SCALE_EFFECTS.map(e => e.threshold);
+      const thresholds = HEAT_SCALE_EFFECTS.map((e) => e.threshold);
       expect(thresholds).toContain(0);
       expect(thresholds).toContain(5);
       expect(thresholds).toContain(10);
@@ -37,7 +37,7 @@ describe('Heat Scale Effects', () => {
     it('should be sorted by threshold ascending', () => {
       for (let i = 1; i < HEAT_SCALE_EFFECTS.length; i++) {
         expect(HEAT_SCALE_EFFECTS[i].threshold).toBeGreaterThan(
-          HEAT_SCALE_EFFECTS[i - 1].threshold
+          HEAT_SCALE_EFFECTS[i - 1].threshold,
         );
       }
     });
@@ -189,4 +189,3 @@ describe('Heat Scale Effects', () => {
     });
   });
 });
-

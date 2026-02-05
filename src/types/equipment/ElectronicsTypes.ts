@@ -1,17 +1,17 @@
 /**
  * Electronics Equipment Type Definitions
- * 
+ *
  * Type definitions for electronic warfare, targeting, and C3 systems.
- * 
+ *
  * NOTE: Actual electronics data is now loaded from JSON files at runtime.
  * This file only contains type exports and empty arrays for backwards compatibility.
- * 
+ *
  * @spec openspec/specs/electronics-system/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
-import { RulesLevel } from '../enums/RulesLevel';
 import { EquipmentFlag } from '../enums/EquipmentFlag';
+import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 import { UnitType } from '../unit/BattleMechInterfaces';
 
 /**
@@ -104,15 +104,17 @@ export const ALL_ELECTRONICS: readonly IElectronics[] = [] as const;
  * @deprecated Use EquipmentLookupService.getById() instead.
  */
 export function getElectronicsById(id: string): IElectronics | undefined {
-  return ALL_ELECTRONICS.find(e => e.id === id);
+  return ALL_ELECTRONICS.find((e) => e.id === id);
 }
 
 /**
  * Get electronics by category
  * @deprecated Use EquipmentLookupService instead.
  */
-export function getElectronicsByCategory(category: ElectronicsCategory): IElectronics[] {
-  return ALL_ELECTRONICS.filter(e => e.category === category);
+export function getElectronicsByCategory(
+  category: ElectronicsCategory,
+): IElectronics[] {
+  return ALL_ELECTRONICS.filter((e) => e.category === category);
 }
 
 /**
@@ -120,5 +122,5 @@ export function getElectronicsByCategory(category: ElectronicsCategory): IElectr
  * @deprecated Use EquipmentLookupService instead.
  */
 export function getElectronicsByTechBase(techBase: TechBase): IElectronics[] {
-  return ALL_ELECTRONICS.filter(e => e.techBase === techBase);
+  return ALL_ELECTRONICS.filter((e) => e.techBase === techBase);
 }

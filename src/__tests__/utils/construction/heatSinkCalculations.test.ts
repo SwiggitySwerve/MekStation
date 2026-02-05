@@ -1,9 +1,11 @@
 /**
  * Tests for Heat Sink Calculations
- * 
+ *
  * @spec openspec/specs/heat-sink-system/spec.md
  */
 
+import { EngineType } from '@/types/construction/EngineType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import {
   MINIMUM_HEAT_SINKS,
   calculateHeatDissipation,
@@ -14,8 +16,6 @@ import {
   validateHeatSinks,
   getHeatSinkSummary,
 } from '@/utils/construction/heatSinkCalculations';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { EngineType } from '@/types/construction/EngineType';
 
 describe('Heat Sink Calculations', () => {
   describe('MINIMUM_HEAT_SINKS constant', () => {
@@ -133,37 +133,62 @@ describe('Heat Sink Calculations', () => {
 
   describe('validateHeatSinks', () => {
     it('should pass for valid configuration', () => {
-      const result = validateHeatSinks(10, HeatSinkType.SINGLE, 250, EngineType.STANDARD);
-      
+      const result = validateHeatSinks(
+        10,
+        HeatSinkType.SINGLE,
+        250,
+        EngineType.STANDARD,
+      );
+
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
     it('should fail for less than 10 heat sinks', () => {
-      const result = validateHeatSinks(8, HeatSinkType.SINGLE, 200, EngineType.STANDARD);
-      
+      const result = validateHeatSinks(
+        8,
+        HeatSinkType.SINGLE,
+        200,
+        EngineType.STANDARD,
+      );
+
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('Minimum'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('Minimum'))).toBe(true);
     });
 
     it('should warn for large number of external heat sinks', () => {
-      const result = validateHeatSinks(35, HeatSinkType.SINGLE, 100, EngineType.STANDARD);
-      
+      const result = validateHeatSinks(
+        35,
+        HeatSinkType.SINGLE,
+        100,
+        EngineType.STANDARD,
+      );
+
       // Should be valid but have warnings
       expect(result.warnings.length).toBeGreaterThan(0);
     });
 
     it('should pass for exactly 10 heat sinks', () => {
-      const result = validateHeatSinks(10, HeatSinkType.DOUBLE_IS, 250, EngineType.STANDARD);
-      
+      const result = validateHeatSinks(
+        10,
+        HeatSinkType.DOUBLE_IS,
+        250,
+        EngineType.STANDARD,
+      );
+
       expect(result.isValid).toBe(true);
     });
   });
 
   describe('getHeatSinkSummary', () => {
     it('should return complete summary', () => {
-      const summary = getHeatSinkSummary(12, HeatSinkType.SINGLE, 200, EngineType.STANDARD);
-      
+      const summary = getHeatSinkSummary(
+        12,
+        HeatSinkType.SINGLE,
+        200,
+        EngineType.STANDARD,
+      );
+
       expect(summary).toHaveProperty('integrated');
       expect(summary).toHaveProperty('external');
       expect(summary).toHaveProperty('weight');
@@ -172,27 +197,54 @@ describe('Heat Sink Calculations', () => {
     });
 
     it('should calculate integrated heat sinks', () => {
-      const summary = getHeatSinkSummary(10, HeatSinkType.SINGLE, 250, EngineType.STANDARD);
-      
+      const summary = getHeatSinkSummary(
+        10,
+        HeatSinkType.SINGLE,
+        250,
+        EngineType.STANDARD,
+      );
+
       expect(summary.integrated).toBeGreaterThan(0);
     });
 
     it('should calculate external heat sinks', () => {
-      const summary = getHeatSinkSummary(15, HeatSinkType.SINGLE, 200, EngineType.STANDARD);
-      
+      const summary = getHeatSinkSummary(
+        15,
+        HeatSinkType.SINGLE,
+        200,
+        EngineType.STANDARD,
+      );
+
       expect(summary.external).toBeGreaterThan(0);
     });
 
     it('should calculate dissipation based on type', () => {
-      const singleSummary = getHeatSinkSummary(10, HeatSinkType.SINGLE, 250, EngineType.STANDARD);
-      const doubleSummary = getHeatSinkSummary(10, HeatSinkType.DOUBLE_IS, 250, EngineType.STANDARD);
-      
-      expect(doubleSummary.dissipation).toBeGreaterThan(singleSummary.dissipation);
+      const singleSummary = getHeatSinkSummary(
+        10,
+        HeatSinkType.SINGLE,
+        250,
+        EngineType.STANDARD,
+      );
+      const doubleSummary = getHeatSinkSummary(
+        10,
+        HeatSinkType.DOUBLE_IS,
+        250,
+        EngineType.STANDARD,
+      );
+
+      expect(doubleSummary.dissipation).toBeGreaterThan(
+        singleSummary.dissipation,
+      );
     });
 
     it('should have weight of 0 when total <= 10 (first 10 are weight-free)', () => {
-      const summary = getHeatSinkSummary(10, HeatSinkType.SINGLE, 300, EngineType.STANDARD);
-      
+      const summary = getHeatSinkSummary(
+        10,
+        HeatSinkType.SINGLE,
+        300,
+        EngineType.STANDARD,
+      );
+
       // First 10 heat sinks are weight-free, regardless of external count
       expect(summary.weight).toBe(0);
       expect(summary.weightFree).toBe(10);
@@ -200,8 +252,13 @@ describe('Heat Sink Calculations', () => {
 
     it('should calculate correct weight for Marauder C (19 HS, 300 engine)', () => {
       // Marauder C: 19 heat sinks, 300 engine
-      const summary = getHeatSinkSummary(19, HeatSinkType.SINGLE, 300, EngineType.STANDARD);
-      
+      const summary = getHeatSinkSummary(
+        19,
+        HeatSinkType.SINGLE,
+        300,
+        EngineType.STANDARD,
+      );
+
       // 300 engine integrates 12 heat sinks (slots)
       expect(summary.integrated).toBe(12);
       // 19 - 12 = 7 external (require slots)

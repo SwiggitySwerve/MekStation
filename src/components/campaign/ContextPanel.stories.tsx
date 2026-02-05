@@ -1,5 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ContextPanel, ContextPanelMode, ContextPanelProps } from './ContextPanel';
+
+import {
+  ContextPanel,
+  ContextPanelMode,
+  ContextPanelProps,
+} from './ContextPanel';
 
 const meta: Meta<typeof ContextPanel> = {
   title: 'Campaign/ContextPanel',
@@ -10,7 +15,10 @@ const meta: Meta<typeof ContextPanel> = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <div className="bg-slate-800 border border-slate-700 rounded-lg" style={{ height: 120 }}>
+      <div
+        className="rounded-lg border border-slate-700 bg-slate-800"
+        style={{ height: 120 }}
+      >
         <Story />
       </div>
     ),
@@ -222,11 +230,12 @@ export const InCampaignLayout: Story = {
   decorators: [
     (Story) => (
       <div className="bg-slate-900 p-4">
-        <p className="text-slate-400 text-sm mb-4">
-          As it would appear in CampaignLayout&apos;s contextPanelContent slot (120px height):
+        <p className="mb-4 text-sm text-slate-400">
+          As it would appear in CampaignLayout&apos;s contextPanelContent slot
+          (120px height):
         </p>
         <div
-          className="bg-slate-800 border-t border-slate-700"
+          className="border-t border-slate-700 bg-slate-800"
           style={{ height: 120 }}
         >
           <Story />
@@ -244,33 +253,60 @@ export const AllModes: Story = {
   render: () => (
     <div className="space-y-4">
       <div>
-        <p className="text-slate-400 text-sm mb-2">Empty Mode</p>
-        <div className="bg-slate-800 border border-slate-700 rounded-lg" style={{ height: 120 }}>
+        <p className="mb-2 text-sm text-slate-400">Empty Mode</p>
+        <div
+          className="rounded-lg border border-slate-700 bg-slate-800"
+          style={{ height: 120 }}
+        >
           <ContextPanel mode={ContextPanelMode.Empty} />
         </div>
       </div>
       <div>
-        <p className="text-slate-400 text-sm mb-2">System Details</p>
-        <div className="bg-slate-800 border border-slate-700 rounded-lg" style={{ height: 120 }}>
-          <ContextPanel mode={ContextPanelMode.SystemDetails} systemData={sampleSystemData} />
+        <p className="mb-2 text-sm text-slate-400">System Details</p>
+        <div
+          className="rounded-lg border border-slate-700 bg-slate-800"
+          style={{ height: 120 }}
+        >
+          <ContextPanel
+            mode={ContextPanelMode.SystemDetails}
+            systemData={sampleSystemData}
+          />
         </div>
       </div>
       <div>
-        <p className="text-slate-400 text-sm mb-2">Contract Details</p>
-        <div className="bg-slate-800 border border-slate-700 rounded-lg" style={{ height: 120 }}>
-          <ContextPanel mode={ContextPanelMode.ContractDetails} contractData={sampleContractData} />
+        <p className="mb-2 text-sm text-slate-400">Contract Details</p>
+        <div
+          className="rounded-lg border border-slate-700 bg-slate-800"
+          style={{ height: 120 }}
+        >
+          <ContextPanel
+            mode={ContextPanelMode.ContractDetails}
+            contractData={sampleContractData}
+          />
         </div>
       </div>
       <div>
-        <p className="text-slate-400 text-sm mb-2">Mech Status</p>
-        <div className="bg-slate-800 border border-slate-700 rounded-lg" style={{ height: 120 }}>
-          <ContextPanel mode={ContextPanelMode.MechStatus} mechData={sampleMechData} />
+        <p className="mb-2 text-sm text-slate-400">Mech Status</p>
+        <div
+          className="rounded-lg border border-slate-700 bg-slate-800"
+          style={{ height: 120 }}
+        >
+          <ContextPanel
+            mode={ContextPanelMode.MechStatus}
+            mechData={sampleMechData}
+          />
         </div>
       </div>
       <div>
-        <p className="text-slate-400 text-sm mb-2">Pilot Status</p>
-        <div className="bg-slate-800 border border-slate-700 rounded-lg" style={{ height: 120 }}>
-          <ContextPanel mode={ContextPanelMode.PilotStatus} pilotData={samplePilotData} />
+        <p className="mb-2 text-sm text-slate-400">Pilot Status</p>
+        <div
+          className="rounded-lg border border-slate-700 bg-slate-800"
+          style={{ height: 120 }}
+        >
+          <ContextPanel
+            mode={ContextPanelMode.PilotStatus}
+            pilotData={samplePilotData}
+          />
         </div>
       </div>
     </div>

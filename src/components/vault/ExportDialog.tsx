@@ -8,20 +8,28 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { DialogTemplate } from '@/components/ui/DialogTemplate';
-import { useVaultExport, type ExportOptions } from '@/hooks/useVaultExport';
-import { useIdentityStore } from '@/stores/useIdentityStore';
+
 import type {
   IExportableUnit,
   IExportablePilot,
   IExportableForce,
 } from '@/types/vault';
 
+import { DialogTemplate } from '@/components/ui/DialogTemplate';
+import { useVaultExport, type ExportOptions } from '@/hooks/useVaultExport';
+import { useIdentityStore } from '@/stores/useIdentityStore';
+
 // =============================================================================
 // Types
 // =============================================================================
 
-export type ExportContentType = 'unit' | 'units' | 'pilot' | 'pilots' | 'force' | 'forces';
+export type ExportContentType =
+  | 'unit'
+  | 'units'
+  | 'pilot'
+  | 'pilots'
+  | 'force'
+  | 'forces';
 
 export interface ExportDialogProps {
   /** Whether the dialog is open */
@@ -34,7 +42,13 @@ export interface ExportDialogProps {
   contentType: ExportContentType;
 
   /** Content to export */
-  content: IExportableUnit | IExportableUnit[] | IExportablePilot | IExportablePilot[] | IExportableForce | IExportableForce[];
+  content:
+    | IExportableUnit
+    | IExportableUnit[]
+    | IExportablePilot
+    | IExportablePilot[]
+    | IExportableForce
+    | IExportableForce[];
 
   /** Callback when export completes successfully */
   onExportComplete?: () => void;
@@ -89,21 +103,21 @@ export function ExportDialog({
       case 'units':
         exportResult = await exportUnits(
           normalizeToArray(content as IExportableUnit | IExportableUnit[]),
-          options
+          options,
         );
         break;
       case 'pilot':
       case 'pilots':
         exportResult = await exportPilots(
           normalizeToArray(content as IExportablePilot | IExportablePilot[]),
-          options
+          options,
         );
         break;
       case 'force':
       case 'forces':
         exportResult = await exportForces(
           normalizeToArray(content as IExportableForce | IExportableForce[]),
-          options
+          options,
         );
         break;
     }
@@ -153,11 +167,11 @@ export function ExportDialog({
         isOpen={isOpen}
         onClose={handleClose}
         title={`Export ${contentLabel}`}
-        className="w-full max-w-md mx-4"
+        className="mx-4 w-full max-w-md"
         footer={
           <button
             onClick={handleClose}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+            className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-500"
           >
             Close
           </button>
@@ -177,29 +191,30 @@ export function ExportDialog({
         isOpen={isOpen}
         onClose={handleClose}
         title="Export Complete"
-        className="w-full max-w-md mx-4"
+        className="mx-4 w-full max-w-md"
         footer={
           <button
             onClick={handleClose}
-            className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+            className="rounded bg-gray-700 px-4 py-2 text-white hover:bg-gray-600"
           >
             Close
           </button>
         }
       >
-        <p className="text-gray-300 mb-4">
-          Successfully exported {itemCount} {itemCount === 1 ? contentLabel : `${contentLabel}s`}.
+        <p className="mb-4 text-gray-300">
+          Successfully exported {itemCount}{' '}
+          {itemCount === 1 ? contentLabel : `${contentLabel}s`}.
         </p>
         <div className="flex flex-col gap-3">
           <button
             onClick={handleDownload}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+            className="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-500"
           >
             Download File
           </button>
           <button
             onClick={handleCopy}
-            className="w-full px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+            className="w-full rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-500"
           >
             {copied ? 'Copied!' : 'Copy to Clipboard'}
           </button>
@@ -214,21 +229,21 @@ export function ExportDialog({
       isOpen={isOpen}
       onClose={handleClose}
       title={`Export ${itemCount} ${itemCount === 1 ? contentLabel : `${contentLabel}s`}`}
-      className="w-full max-w-md mx-4"
+      className="mx-4 w-full max-w-md"
       preventClose={exporting}
       footer={
         <>
           <button
             onClick={handleClose}
             disabled={exporting}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 disabled:opacity-50"
+            className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-500 disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleExport}
             disabled={exporting || !password}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50"
+            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 disabled:opacity-50"
           >
             {exporting ? 'Exporting...' : 'Export'}
           </button>
@@ -236,27 +251,27 @@ export function ExportDialog({
       }
     >
       {error && (
-        <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-2 rounded mb-4">
+        <div className="mb-4 rounded border border-red-500 bg-red-900/50 px-4 py-2 text-red-200">
           {error}
         </div>
       )}
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">
+          <label className="mb-1 block text-sm text-gray-400">
             Description (optional)
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Add a description for this export..."
-            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500 resize-none"
+            className="w-full resize-none rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-500"
             rows={3}
           />
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-1">
+          <label className="mb-1 block text-sm text-gray-400">
             Password (required to sign)
           </label>
           <input
@@ -264,14 +279,16 @@ export function ExportDialog({
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your vault password"
-            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
+            className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-500"
           />
         </div>
 
         <div className="text-sm text-gray-400">
-          Signed by: <span className="text-white">{publicIdentity.displayName}</span>
+          Signed by:{' '}
+          <span className="text-white">{publicIdentity.displayName}</span>
           <br />
-          Friend code: <span className="font-mono text-xs">{publicIdentity.friendCode}</span>
+          Friend code:{' '}
+          <span className="font-mono text-xs">{publicIdentity.friendCode}</span>
         </div>
       </div>
     </DialogTemplate>

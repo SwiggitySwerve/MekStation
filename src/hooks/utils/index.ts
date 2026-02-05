@@ -6,7 +6,10 @@
  * @module hooks/utils
  */
 
-export { useEventListener, type UseEventListenerOptions } from './useEventListener';
+export {
+  useEventListener,
+  type UseEventListenerOptions,
+} from './useEventListener';
 export {
   usePagination,
   type UsePaginationOptions,

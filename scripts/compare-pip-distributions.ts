@@ -119,7 +119,7 @@ function seededRandom(seed: number): () => number {
 function poissonDiskSampling(
   bounds: { minX: number; minY: number; maxX: number; maxY: number },
   targetCount: number,
-  seed: number
+  seed: number,
 ): Point2D[] {
   const random = seededRandom(seed);
   const width = bounds.maxX - bounds.minX;
@@ -166,7 +166,12 @@ function poissonDiskSampling(
       const newX = activePoint.x + Math.cos(angle) * dist;
       const newY = activePoint.y + Math.sin(angle) * dist;
 
-      if (newX < bounds.minX || newX > bounds.maxX || newY < bounds.minY || newY > bounds.maxY) {
+      if (
+        newX < bounds.minX ||
+        newX > bounds.maxX ||
+        newY < bounds.minY ||
+        newY > bounds.maxY
+      ) {
         continue;
       }
 
@@ -182,7 +187,8 @@ function poissonDiskSampling(
           if (nx >= 0 && nx < gridWidth && ny >= 0 && ny < gridHeight) {
             const neighbor = grid[nx][ny];
             if (neighbor) {
-              const distSq = (newX - neighbor.x) ** 2 + (newY - neighbor.y) ** 2;
+              const distSq =
+                (newX - neighbor.x) ** 2 + (newY - neighbor.y) ** 2;
               if (distSq < spacing * spacing) {
                 tooClose = true;
               }
@@ -195,7 +201,12 @@ function poissonDiskSampling(
         const newPoint: Point2D = { x: newX, y: newY };
         points.push(newPoint);
         activeList.push(newPoint);
-        if (newGridX >= 0 && newGridX < gridWidth && newGridY >= 0 && newGridY < gridHeight) {
+        if (
+          newGridX >= 0 &&
+          newGridX < gridWidth &&
+          newGridY >= 0 &&
+          newGridY < gridHeight
+        ) {
           grid[newGridX][newGridY] = newPoint;
         }
         found = true;
@@ -261,12 +272,14 @@ function calculateMetrics(positions: Point2D[]): {
     }
   }
 
-  const avgSpacing = nnDistances.reduce((a, b) => a + b, 0) / nnDistances.length;
+  const avgSpacing =
+    nnDistances.reduce((a, b) => a + b, 0) / nnDistances.length;
   const minSpacing = Math.min(...nnDistances);
 
   // Uniformity = coefficient of variation (std dev / mean)
   const variance =
-    nnDistances.reduce((sum, d) => sum + (d - avgSpacing) ** 2, 0) / nnDistances.length;
+    nnDistances.reduce((sum, d) => sum + (d - avgSpacing) ** 2, 0) /
+    nnDistances.length;
   const stdDev = Math.sqrt(variance);
   const uniformity = avgSpacing > 0 ? stdDev / avgSpacing : 0;
 
@@ -283,7 +296,7 @@ function generateComparisonSVG(
   legacyPips: Point2D[],
   poissonPips: Point2D[],
   bounds: { minX: number; minY: number; maxX: number; maxY: number },
-  radius: number
+  radius: number,
 ): string {
   const padding = 20;
   const width = bounds.maxX - bounds.minX + padding * 2;
@@ -296,14 +309,14 @@ function generateComparisonSVG(
   const legacyCircles = legacyPips
     .map(
       (p) =>
-        `<circle cx="${p.x + offsetX}" cy="${p.y + offsetY}" r="${radius}" fill="none" stroke="#000" stroke-width="0.5"/>`
+        `<circle cx="${p.x + offsetX}" cy="${p.y + offsetY}" r="${radius}" fill="none" stroke="#000" stroke-width="0.5"/>`,
     )
     .join('\n    ');
 
   const poissonCircles = poissonPips
     .map(
       (p) =>
-        `<circle cx="${p.x + offsetX + width + 20}" cy="${p.y + offsetY}" r="${radius}" fill="none" stroke="#0066cc" stroke-width="0.5"/>`
+        `<circle cx="${p.x + offsetX + width + 20}" cy="${p.y + offsetY}" r="${radius}" fill="none" stroke="#0066cc" stroke-width="0.5"/>`,
     )
     .join('\n    ');
 
@@ -338,7 +351,13 @@ function generateComparisonSVG(
 // ============================================================================
 
 async function main(): Promise<void> {
-  const pipsDir = path.join(__dirname, '..', 'public', 'record-sheets', 'biped_pips');
+  const pipsDir = path.join(
+    __dirname,
+    '..',
+    'public',
+    'record-sheets',
+    'biped_pips',
+  );
   const outputDir = path.join(__dirname, '..', 'pip-comparison-output');
 
   // Create output directory
@@ -365,7 +384,9 @@ async function main(): Promise<void> {
   const allMetrics: ComparisonMetrics[] = [];
 
   console.log('='.repeat(70));
-  console.log('Pip Distribution Comparison: MegaMekLab vs Poisson Disk Sampling');
+  console.log(
+    'Pip Distribution Comparison: MegaMekLab vs Poisson Disk Sampling',
+  );
   console.log('='.repeat(70));
   console.log('');
 
@@ -391,7 +412,11 @@ async function main(): Promise<void> {
       }
 
       // Generate Poisson pips using same bounds
-      const poissonPips = poissonDiskSampling(legacyResult.bounds, pipCount, 42);
+      const poissonPips = poissonDiskSampling(
+        legacyResult.bounds,
+        pipCount,
+        42,
+      );
 
       // Calculate metrics
       const legacyMetrics = calculateMetrics(legacyResult.positions);
@@ -412,18 +437,22 @@ async function main(): Promise<void> {
         legacyResult.positions,
         poissonPips,
         legacyResult.bounds,
-        legacyResult.radius
+        legacyResult.radius,
       );
 
       const outputFileName = `comparison_${testCase.location}_${pipCount}.svg`;
       fs.writeFileSync(path.join(outputDir, outputFileName), comparisonSVG);
 
       // Log metrics
-      const uniformityDiff = poissonMetrics.uniformity - legacyMetrics.uniformity;
-      const uniformityStatus = uniformityDiff <= 0.1 ? '✓' : uniformityDiff <= 0.2 ? '~' : '✗';
+      const uniformityDiff =
+        poissonMetrics.uniformity - legacyMetrics.uniformity;
+      const uniformityStatus =
+        uniformityDiff <= 0.1 ? '✓' : uniformityDiff <= 0.2 ? '~' : '✗';
 
-      console.log(`  ${pipCount} pips: Legacy uniformity=${legacyMetrics.uniformity.toFixed(3)}, ` +
-        `Poisson=${poissonMetrics.uniformity.toFixed(3)} ${uniformityStatus}`);
+      console.log(
+        `  ${pipCount} pips: Legacy uniformity=${legacyMetrics.uniformity.toFixed(3)}, ` +
+          `Poisson=${poissonMetrics.uniformity.toFixed(3)} ${uniformityStatus}`,
+      );
     }
   }
 
@@ -435,7 +464,8 @@ async function main(): Promise<void> {
   const avgLegacyUniformity =
     allMetrics.reduce((s, m) => s + m.legacy.uniformity, 0) / allMetrics.length;
   const avgPoissonUniformity =
-    allMetrics.reduce((s, m) => s + m.poisson.uniformity, 0) / allMetrics.length;
+    allMetrics.reduce((s, m) => s + m.poisson.uniformity, 0) /
+    allMetrics.length;
 
   console.log(`\nAverage Uniformity (lower is better):`);
   console.log(`  Legacy (MegaMekLab): ${avgLegacyUniformity.toFixed(4)}`);
@@ -443,9 +473,13 @@ async function main(): Promise<void> {
 
   const improvement = avgLegacyUniformity - avgPoissonUniformity;
   if (improvement > 0) {
-    console.log(`  → Poisson is ${(improvement * 100).toFixed(1)}% more uniform`);
+    console.log(
+      `  → Poisson is ${(improvement * 100).toFixed(1)}% more uniform`,
+    );
   } else {
-    console.log(`  → Legacy is ${(-improvement * 100).toFixed(1)}% more uniform`);
+    console.log(
+      `  → Legacy is ${(-improvement * 100).toFixed(1)}% more uniform`,
+    );
   }
 
   // Write JSON report
@@ -461,7 +495,7 @@ async function main(): Promise<void> {
 
   fs.writeFileSync(
     path.join(outputDir, 'comparison-report.json'),
-    JSON.stringify(report, null, 2)
+    JSON.stringify(report, null, 2),
   );
 
   console.log(`\nOutput files written to: ${outputDir}`);

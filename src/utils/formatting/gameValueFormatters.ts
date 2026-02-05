@@ -35,7 +35,9 @@ export function formatBV(bv: number): string {
  */
 export function formatWeight(tons: number, precision = 1): string {
   // Remove unnecessary decimal places for whole numbers
-  const formatted = Number.isInteger(tons) ? tons.toString() : tons.toFixed(precision);
+  const formatted = Number.isInteger(tons)
+    ? tons.toString()
+    : tons.toFixed(precision);
   return `${formatted} ton${tons === 1 ? '' : 's'}`;
 }
 
@@ -137,7 +139,11 @@ export function formatDamage(damage: number): string {
  * @example
  * formatRange(3, 6, 9) // "3/6/9"
  */
-export function formatRange(short: number, medium: number, long: number): string {
+export function formatRange(
+  short: number,
+  medium: number,
+  long: number,
+): string {
   return `${short}/${medium}/${long}`;
 }
 
@@ -153,7 +159,11 @@ export function formatRange(short: number, medium: number, long: number): string
  * formatMovement(4, 6)    // "4/6"
  * formatMovement(4, 6, 4) // "4/6/4"
  */
-export function formatMovement(walk: number, run?: number, jump?: number): string {
+export function formatMovement(
+  walk: number,
+  run?: number,
+  jump?: number,
+): string {
   const actualRun = run ?? Math.ceil(walk * 1.5);
   if (jump !== undefined && jump > 0) {
     return `${walk}/${actualRun}/${jump}`;

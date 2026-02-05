@@ -58,7 +58,9 @@ describe('HEAT_EFFECTS', () => {
   });
 
   it('should have ammo explosion risk description', () => {
-    expect(HEAT_EFFECTS[HEAT_THRESHOLDS.AMMO_EXPLOSION_RISK]).toBe('Ammo explosion risk');
+    expect(HEAT_EFFECTS[HEAT_THRESHOLDS.AMMO_EXPLOSION_RISK]).toBe(
+      'Ammo explosion risk',
+    );
   });
 
   it('should have shutdown description', () => {
@@ -72,11 +74,21 @@ describe('HEAT_EFFECTS', () => {
 
 describe('HEAT_DISPLAY_THRESHOLDS', () => {
   it('should have display zones in ascending order', () => {
-    expect(HEAT_DISPLAY_THRESHOLDS.SAFE).toBeLessThan(HEAT_DISPLAY_THRESHOLDS.CAUTION);
-    expect(HEAT_DISPLAY_THRESHOLDS.CAUTION).toBeLessThan(HEAT_DISPLAY_THRESHOLDS.WARNING);
-    expect(HEAT_DISPLAY_THRESHOLDS.WARNING).toBeLessThan(HEAT_DISPLAY_THRESHOLDS.DANGER);
-    expect(HEAT_DISPLAY_THRESHOLDS.DANGER).toBeLessThan(HEAT_DISPLAY_THRESHOLDS.CRITICAL);
-    expect(HEAT_DISPLAY_THRESHOLDS.CRITICAL).toBeLessThan(HEAT_DISPLAY_THRESHOLDS.SHUTDOWN);
+    expect(HEAT_DISPLAY_THRESHOLDS.SAFE).toBeLessThan(
+      HEAT_DISPLAY_THRESHOLDS.CAUTION,
+    );
+    expect(HEAT_DISPLAY_THRESHOLDS.CAUTION).toBeLessThan(
+      HEAT_DISPLAY_THRESHOLDS.WARNING,
+    );
+    expect(HEAT_DISPLAY_THRESHOLDS.WARNING).toBeLessThan(
+      HEAT_DISPLAY_THRESHOLDS.DANGER,
+    );
+    expect(HEAT_DISPLAY_THRESHOLDS.DANGER).toBeLessThan(
+      HEAT_DISPLAY_THRESHOLDS.CRITICAL,
+    );
+    expect(HEAT_DISPLAY_THRESHOLDS.CRITICAL).toBeLessThan(
+      HEAT_DISPLAY_THRESHOLDS.SHUTDOWN,
+    );
   });
 });
 
@@ -182,8 +194,12 @@ describe('getActiveHeatEffects', () => {
   it('should return effects in severity order (highest first)', () => {
     const effects = getActiveHeatEffects(30);
     // Verify highest severity effects come first
-    expect(effects.indexOf('SHUTDOWN')).toBeLessThan(effects.indexOf('+5 to-hit penalty'));
-    expect(effects.indexOf('+5 to-hit penalty')).toBeLessThan(effects.indexOf('Ammo explosion risk'));
+    expect(effects.indexOf('SHUTDOWN')).toBeLessThan(
+      effects.indexOf('+5 to-hit penalty'),
+    );
+    expect(effects.indexOf('+5 to-hit penalty')).toBeLessThan(
+      effects.indexOf('Ammo explosion risk'),
+    );
   });
 
   it('should handle heat values between thresholds correctly', () => {

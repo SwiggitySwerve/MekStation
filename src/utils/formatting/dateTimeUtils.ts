@@ -47,7 +47,10 @@ export function formatNumber(num: number): string {
  * @param locale - Locale string (defaults to 'en-US')
  * @returns Formatted string with separators
  */
-export function formatNumberWithSeparators(num: number, locale = 'en-US'): string {
+export function formatNumberWithSeparators(
+  num: number,
+  locale = 'en-US',
+): string {
   return num.toLocaleString(locale);
 }
 
@@ -67,7 +70,7 @@ export function formatDate(
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-  }
+  },
 ): string {
   const date = new Date(isoDate);
   return date.toLocaleDateString('en-US', options);
@@ -103,7 +106,7 @@ export function formatFullDateTime(isoDate: string): string {
  */
 export function formatRelativeTime(
   isoDate: string | null | undefined,
-  fallbackText = 'Never'
+  fallbackText = 'Never',
 ): string {
   if (!isoDate) return fallbackText;
 
@@ -136,7 +139,10 @@ export function formatRelativeTime(
  * @param isoDate - ISO 8601 date string or null
  * @returns Object with text and isExpired flag
  */
-export function formatExpiry(isoDate: string | null): { text: string; isExpired: boolean } {
+export function formatExpiry(isoDate: string | null): {
+  text: string;
+  isExpired: boolean;
+} {
   if (!isoDate) {
     return { text: 'Never', isExpired: false };
   }
@@ -164,7 +170,10 @@ export function formatExpiry(isoDate: string | null): { text: string; isExpired:
   }
 
   return {
-    text: expiry.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    text: expiry.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    }),
     isExpired: false,
   };
 }

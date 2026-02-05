@@ -74,7 +74,9 @@ export class RepairBayPage extends BasePage {
    * Filter by status.
    * @param status - 'all' | 'pending' | 'in-progress' | 'complete'
    */
-  async filterByStatus(status: 'all' | 'pending' | 'in-progress' | 'complete'): Promise<void> {
+  async filterByStatus(
+    status: 'all' | 'pending' | 'in-progress' | 'complete',
+  ): Promise<void> {
     await this.clickByTestId(`repair-status-filter-${status}`);
     await this.page.waitForTimeout(200);
   }

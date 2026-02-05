@@ -13,6 +13,7 @@
  */
 
 import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
+
 import {
   GameEventType,
   GameSide,
@@ -20,6 +21,7 @@ import {
   type IDamageAppliedPayload,
   type IHeatPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+
 import { getPayload } from './utils/getPayload';
 
 // =============================================================================
@@ -96,7 +98,7 @@ interface DetectorTrackingState {
 /**
  * Gets a unit name by ID, falling back to the ID itself.
  */
- 
+
 function _getUnitName(units: readonly BattleUnit[], unitId: string): string {
   const unit = units.find((u) => u.id === unitId);
   return unit ? unit.name : unitId;
@@ -136,7 +138,10 @@ function structureEqual(
   if (keys1.length !== keys2.length) return false;
 
   for (let i = 0; i < keys1.length; i++) {
-    if (keys1[i] !== keys2[i] || structure1[keys1[i]] !== structure2[keys2[i]]) {
+    if (
+      keys1[i] !== keys2[i] ||
+      structure1[keys1[i]] !== structure2[keys2[i]]
+    ) {
       return false;
     }
   }
@@ -199,7 +204,9 @@ function createSnapshot(
 /**
  * Serializes a snapshot for inclusion in anomaly metadata.
  */
-function serializeSnapshot(snapshot: BattleStateSnapshot): Record<string, unknown> {
+function serializeSnapshot(
+  snapshot: BattleStateSnapshot,
+): Record<string, unknown> {
   return {
     turn: snapshot.turn,
     armor: Object.fromEntries(
@@ -318,7 +325,10 @@ export class StateCycleDetector {
     }
   }
 
-  private processMovement(event: IGameEvent, state: DetectorTrackingState): void {
+  private processMovement(
+    event: IGameEvent,
+    state: DetectorTrackingState,
+  ): void {
     state.movementThisTurn = true;
   }
 
@@ -366,7 +376,10 @@ export class StateCycleDetector {
     turnHeat.set(unitId, newTotal);
   }
 
-  private processUnitDestroyed(event: IGameEvent, state: DetectorTrackingState): void {
+  private processUnitDestroyed(
+    event: IGameEvent,
+    state: DetectorTrackingState,
+  ): void {
     const payload = getPayload<{ readonly unitId: string }>(event);
     state.destroyedUnits.add(payload.unitId);
   }
@@ -392,17 +405,23 @@ export class StateCycleDetector {
 
     // Get current state, inheriting from previous turn if not updated
     const currentArmor = new Map(state.unitArmor.get(currentTurn) || new Map());
-    const currentStructure = new Map(state.unitStructure.get(currentTurn) || new Map());
+    const currentStructure = new Map(
+      state.unitStructure.get(currentTurn) || new Map(),
+    );
     const currentHeat = new Map(state.unitHeat.get(currentTurn) || new Map());
 
     // If state wasn't updated this turn, inherit from last snapshot
     if (state.snapshotHistory.length > 0) {
-      const lastSnapshot = state.snapshotHistory[state.snapshotHistory.length - 1];
+      const lastSnapshot =
+        state.snapshotHistory[state.snapshotHistory.length - 1];
       for (const unit of battleState.units) {
         if (!currentArmor.has(unit.id) && lastSnapshot.armor.has(unit.id)) {
           currentArmor.set(unit.id, lastSnapshot.armor.get(unit.id)!);
         }
-        if (!currentStructure.has(unit.id) && lastSnapshot.structure.has(unit.id)) {
+        if (
+          !currentStructure.has(unit.id) &&
+          lastSnapshot.structure.has(unit.id)
+        ) {
           currentStructure.set(unit.id, lastSnapshot.structure.get(unit.id)!);
         }
         if (!currentHeat.has(unit.id) && lastSnapshot.heat.has(unit.id)) {
@@ -412,14 +431,21 @@ export class StateCycleDetector {
     }
 
     // Create snapshot of current state
-    const currentSnapshot = createSnapshot(currentTurn, currentArmor, currentStructure, currentHeat);
+    const currentSnapshot = createSnapshot(
+      currentTurn,
+      currentArmor,
+      currentStructure,
+      currentHeat,
+    );
 
     // Check for state cycle
     if (state.snapshotHistory.length > 0) {
       // Count how many recent snapshots match the current state
       let cycleCount = 0;
       for (let i = state.snapshotHistory.length - 1; i >= 0; i--) {
-        if (snapshotsEqual(state.snapshotHistory[i], currentSnapshot, battleState)) {
+        if (
+          snapshotsEqual(state.snapshotHistory[i], currentSnapshot, battleState)
+        ) {
           cycleCount++;
         } else {
           break;
@@ -427,8 +453,17 @@ export class StateCycleDetector {
       }
 
       // If we found a cycle, check if it meets threshold
-      if (cycleCount > 0 && cycleCount >= threshold - 1 && !state.anomalyTriggered) {
-        const anomaly = this.createAnomaly(event, state, currentSnapshot, threshold);
+      if (
+        cycleCount > 0 &&
+        cycleCount >= threshold - 1 &&
+        !state.anomalyTriggered
+      ) {
+        const anomaly = this.createAnomaly(
+          event,
+          state,
+          currentSnapshot,
+          threshold,
+        );
         state.anomalies.push(anomaly);
         state.anomalyTriggered = true;
       }

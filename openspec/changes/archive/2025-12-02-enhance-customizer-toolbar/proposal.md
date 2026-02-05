@@ -1,20 +1,24 @@
 # Proposal: Enhance Customizer Toolbar
 
 ## Change ID
+
 `enhance-customizer-toolbar`
 
 ## Summary
+
 Update the customizer tab bar to match MegaMekLab UI conventions with document/folder icons for new/load actions, and specify the complete tab switching, saving, loading, and naming behavior.
 
 ## Motivation
 
 ### Current State
+
 - Tab bar has a "New" button with plus icon and text label
 - No dedicated "Load" button in the tab bar (only in empty state)
 - Save flow is partially implemented but lacks complete specification
 - Unit naming (Chassis + Variant) flow is implemented but not formally specified
 
 ### Desired State
+
 - Document icon for creating new units (matches MegaMekLab)
 - Folder icon for loading units from library (matches MegaMekLab)
 - Complete specification of save/load/naming flows for multi-user self-hosted scenarios
@@ -22,6 +26,7 @@ Update the customizer tab bar to match MegaMekLab UI conventions with document/f
 ## Scope
 
 ### In Scope
+
 1. **Toolbar Icon Updates**
    - Replace "New" button with document icon (no text)
    - Add folder icon button for unit loading
@@ -49,6 +54,7 @@ Update the customizer tab bar to match MegaMekLab UI conventions with document/f
    - MUL ID, Year, Tech Level in compact 3-column row at bottom
 
 ### Out of Scope
+
 - Full implementation of Tech Level filtering (placeholder only)
 - Changes to other section tabs (Structure/Armor, Equipment, etc.)
 - Export/import formats
@@ -57,19 +63,22 @@ Update the customizer tab bar to match MegaMekLab UI conventions with document/f
 ## Impact Assessment
 
 ### Files Affected
-| File | Change Type | Description |
-|------|-------------|-------------|
-| `TabBar.tsx` | MODIFIED | Replace New button with document/folder icons, add tooltips with shortcuts |
-| `MultiUnitTabs.tsx` | MODIFIED | Add load dialog trigger, keyboard shortcuts (Ctrl+N, Ctrl+O) |
-| `UnitLoadDialog.tsx` | ADDED | Unit search/browse popup with filters |
-| `OverviewTab.tsx` | MODIFIED | Two-column layout with Basic Info (left) and Chassis (right), compact bottom row |
-| `unitState.ts` | MODIFIED | Add chassis, clanName, model, mulId (string), year (3145 default), rulesLevel fields |
-| `useUnitStore.ts` | MODIFIED | Add setter actions for new identity fields |
+
+| File                 | Change Type | Description                                                                          |
+| -------------------- | ----------- | ------------------------------------------------------------------------------------ |
+| `TabBar.tsx`         | MODIFIED    | Replace New button with document/folder icons, add tooltips with shortcuts           |
+| `MultiUnitTabs.tsx`  | MODIFIED    | Add load dialog trigger, keyboard shortcuts (Ctrl+N, Ctrl+O)                         |
+| `UnitLoadDialog.tsx` | ADDED       | Unit search/browse popup with filters                                                |
+| `OverviewTab.tsx`    | MODIFIED    | Two-column layout with Basic Info (left) and Chassis (right), compact bottom row     |
+| `unitState.ts`       | MODIFIED    | Add chassis, clanName, model, mulId (string), year (3145 default), rulesLevel fields |
+| `useUnitStore.ts`    | MODIFIED    | Add setter actions for new identity fields                                           |
 
 ### Breaking Changes
+
 None - visual update only
 
 ### Dependencies
+
 - Existing `UnitNameValidator` service
 - Existing `SaveUnitDialog` component
 - Existing unit services (`CanonicalUnitService`, `CustomUnitService`)
@@ -86,12 +95,13 @@ None - visual update only
 
 ## Risks and Mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Icons not intuitive | Add tooltips; document icon universally means "new document" |
-| Load dialog complexity | Reuse existing unit browser patterns |
+| Risk                   | Mitigation                                                   |
+| ---------------------- | ------------------------------------------------------------ |
+| Icons not intuitive    | Add tooltips; document icon universally means "new document" |
+| Load dialog complexity | Reuse existing unit browser patterns                         |
 
 ## Success Criteria
+
 - [x] Document icon creates new unit via existing modal
 - [x] Folder icon opens unit load dialog
 - [x] All toolbar actions accessible via keyboard shortcuts (Ctrl+N, Ctrl+O)
@@ -101,4 +111,3 @@ None - visual update only
 - [x] Tab name updates when Chassis or Model changes
 - [x] MUL ID accepts text input (numbers and hyphens)
 - [x] Year defaults to 3145, Tech Level defaults to Standard
-

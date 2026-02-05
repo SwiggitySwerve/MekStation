@@ -78,7 +78,11 @@ export function useLongPress({
 
   // Start tracking for long press
   const start = useCallback(
-    (event: React.TouchEvent | React.MouseEvent, clientX: number, clientY: number) => {
+    (
+      event: React.TouchEvent | React.MouseEvent,
+      clientX: number,
+      clientY: number,
+    ) => {
       isLongPressRef.current = false;
       startPosRef.current = { x: clientX, y: clientY };
 
@@ -87,7 +91,7 @@ export function useLongPress({
         onLongPress(event);
       }, delay);
     },
-    [delay, onLongPress]
+    [delay, onLongPress],
   );
 
   // Check if movement exceeds threshold
@@ -100,7 +104,7 @@ export function useLongPress({
 
       return deltaX > moveThreshold || deltaY > moveThreshold;
     },
-    [moveThreshold]
+    [moveThreshold],
   );
 
   // Touch event handlers
@@ -110,7 +114,7 @@ export function useLongPress({
       const touch = event.touches[0];
       start(event, touch.clientX, touch.clientY);
     },
-    [start]
+    [start],
   );
 
   const onTouchEnd = useCallback(
@@ -123,7 +127,7 @@ export function useLongPress({
         onClick(event);
       }
     },
-    [clear, onClick]
+    [clear, onClick],
   );
 
   const onTouchMove = useCallback(
@@ -133,7 +137,7 @@ export function useLongPress({
         clear();
       }
     },
-    [checkMovement, clear]
+    [checkMovement, clear],
   );
 
   // Mouse event handlers
@@ -150,7 +154,7 @@ export function useLongPress({
 
       start(event, event.clientX, event.clientY);
     },
-    [start]
+    [start],
   );
 
   const onMouseUp = useCallback(
@@ -163,7 +167,7 @@ export function useLongPress({
         onClick(event);
       }
     },
-    [clear, onClick]
+    [clear, onClick],
   );
 
   const onMouseMove = useCallback(
@@ -172,7 +176,7 @@ export function useLongPress({
         clear();
       }
     },
-    [checkMovement, clear]
+    [checkMovement, clear],
   );
 
   const onMouseLeave = useCallback(() => {
@@ -186,7 +190,7 @@ export function useLongPress({
         event.preventDefault();
       }
     },
-    [preventContextMenu]
+    [preventContextMenu],
   );
 
   return {

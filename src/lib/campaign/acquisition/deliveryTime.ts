@@ -20,7 +20,7 @@ export function roll1d6(random: RandomFn = Math.random): number {
 export function calculateDeliveryTime(
   availability: AvailabilityRating,
   _transitUnit: TransitUnit = 'month',
-  random: RandomFn = Math.random
+  random: RandomFn = Math.random,
 ): number {
   const BASE_MODIFIER = 7;
   const availabilityIndex = AVAILABILITY_INDEX[availability];

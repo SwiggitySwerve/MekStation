@@ -1,12 +1,14 @@
-import React, { useEffect } from 'react';
 import type { Decorator } from '@storybook/react';
-import { 
-  enableMockElectron, 
+
+import React, { useEffect } from 'react';
+
+import { IDesktopSettings } from '../../src/components/settings/useElectron';
+import {
+  enableMockElectron,
   disableMockElectron,
   setMockElectronSettings,
   resetMockElectronSettings,
 } from '../mocks/useElectron';
-import { IDesktopSettings } from '../../src/components/settings/useElectron';
 
 interface ElectronParameters {
   enabled?: boolean;
@@ -14,8 +16,9 @@ interface ElectronParameters {
 }
 
 export const ElectronDecorator: Decorator = (Story, context) => {
-  const { electron } = context.parameters as { electron?: ElectronParameters } || {};
-  
+  const { electron } =
+    (context.parameters as { electron?: ElectronParameters }) || {};
+
   useEffect(() => {
     if (electron?.enabled !== false) {
       if (electron?.settings) {
@@ -23,7 +26,7 @@ export const ElectronDecorator: Decorator = (Story, context) => {
       }
       enableMockElectron();
     }
-    
+
     return () => {
       disableMockElectron();
       resetMockElectronSettings();

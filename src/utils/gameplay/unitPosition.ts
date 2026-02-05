@@ -5,11 +5,7 @@
  * @spec openspec/changes/add-hex-grid-system/specs/hex-grid-system/spec.md
  */
 
-import {
-  IHexCoordinate,
-  IUnitPosition,
-  Facing,
-} from '@/types/gameplay';
+import { IHexCoordinate, IUnitPosition, Facing } from '@/types/gameplay';
 
 // =============================================================================
 // Position Creation
@@ -22,7 +18,7 @@ export function createUnitPosition(
   unitId: string,
   coord: IHexCoordinate,
   facing: Facing = Facing.North,
-  prone: boolean = false
+  prone: boolean = false,
 ): IUnitPosition {
   return {
     unitId,
@@ -41,7 +37,7 @@ export function createUnitPosition(
  */
 export function setPositionCoord(
   position: IUnitPosition,
-  coord: IHexCoordinate
+  coord: IHexCoordinate,
 ): IUnitPosition {
   return { ...position, coord };
 }
@@ -51,7 +47,7 @@ export function setPositionCoord(
  */
 export function setPositionFacing(
   position: IUnitPosition,
-  facing: Facing
+  facing: Facing,
 ): IUnitPosition {
   return { ...position, facing };
 }
@@ -61,7 +57,7 @@ export function setPositionFacing(
  */
 export function setPositionProne(
   position: IUnitPosition,
-  prone: boolean
+  prone: boolean,
 ): IUnitPosition {
   return { ...position, prone };
 }
@@ -72,7 +68,7 @@ export function setPositionProne(
 export function movePosition(
   position: IUnitPosition,
   coord: IHexCoordinate,
-  facing: Facing
+  facing: Facing,
 ): IUnitPosition {
   return {
     ...position,
@@ -89,15 +85,21 @@ export function movePosition(
 /**
  * Rotate facing clockwise by N steps (60 degrees each).
  */
-export function rotateFacingClockwise(facing: Facing, steps: number = 1): Facing {
+export function rotateFacingClockwise(
+  facing: Facing,
+  steps: number = 1,
+): Facing {
   return ((facing + steps) % 6) as Facing;
 }
 
 /**
  * Rotate facing counter-clockwise by N steps (60 degrees each).
  */
-export function rotateFacingCounterClockwise(facing: Facing, steps: number = 1): Facing {
-  return (((facing - steps) % 6) + 6) % 6 as Facing;
+export function rotateFacingCounterClockwise(
+  facing: Facing,
+  steps: number = 1,
+): Facing {
+  return ((((facing - steps) % 6) + 6) % 6) as Facing;
 }
 
 /**
@@ -121,10 +123,10 @@ export function getFacingDifference(from: Facing, to: Facing): number {
  */
 export function getFacingRotationDirection(from: Facing, to: Facing): number {
   if (from === to) return 0;
-  
+
   const clockwiseDiff = (to - from + 6) % 6;
   const counterClockwiseDiff = (from - to + 6) % 6;
-  
+
   if (clockwiseDiff <= counterClockwiseDiff) {
     return 1; // Clockwise is shorter or equal
   }
@@ -200,7 +202,7 @@ export function createPositionMap(): UnitPositionMap {
  */
 export function getUnitPosition(
   map: UnitPositionMap,
-  unitId: string
+  unitId: string,
 ): IUnitPosition | undefined {
   return map.get(unitId);
 }
@@ -210,7 +212,7 @@ export function getUnitPosition(
  */
 export function setUnitPosition(
   map: UnitPositionMap,
-  position: IUnitPosition
+  position: IUnitPosition,
 ): UnitPositionMap {
   const newMap = new Map(map);
   newMap.set(position.unitId, position);
@@ -222,7 +224,7 @@ export function setUnitPosition(
  */
 export function removeUnitPosition(
   map: UnitPositionMap,
-  unitId: string
+  unitId: string,
 ): UnitPositionMap {
   const newMap = new Map(map);
   newMap.delete(unitId);
@@ -234,7 +236,7 @@ export function removeUnitPosition(
  */
 export function findUnitAtCoord(
   map: UnitPositionMap,
-  coord: IHexCoordinate
+  coord: IHexCoordinate,
 ): IUnitPosition | undefined {
   for (const position of Array.from(map.values())) {
     if (position.coord.q === coord.q && position.coord.r === coord.r) {
@@ -247,7 +249,9 @@ export function findUnitAtCoord(
 /**
  * Get all unit positions as an array.
  */
-export function getAllPositions(map: UnitPositionMap): readonly IUnitPosition[] {
+export function getAllPositions(
+  map: UnitPositionMap,
+): readonly IUnitPosition[] {
   return Array.from(map.values());
 }
 

@@ -8,18 +8,20 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import { TabNavigation } from '@/components/simulation-viewer/TabNavigation';
-import { CampaignDashboard } from '@/components/simulation-viewer/pages/CampaignDashboard';
-import { EncounterHistory } from '@/components/simulation-viewer/pages/EncounterHistory';
-import { AnalysisBugs } from '@/components/simulation-viewer/pages/AnalysisBugs';
-import type { ICampaignDashboardMetrics } from '@/types/simulation-viewer';
-import type { IBattle } from '@/components/simulation-viewer/pages/EncounterHistory';
+
 import type {
   IInvariant,
   IPageAnomaly,
   IViolation,
   IThresholds,
 } from '@/components/simulation-viewer/pages/AnalysisBugs';
+import type { IBattle } from '@/components/simulation-viewer/pages/EncounterHistory';
+import type { ICampaignDashboardMetrics } from '@/types/simulation-viewer';
+
+import { AnalysisBugs } from '@/components/simulation-viewer/pages/AnalysisBugs';
+import { CampaignDashboard } from '@/components/simulation-viewer/pages/CampaignDashboard';
+import { EncounterHistory } from '@/components/simulation-viewer/pages/EncounterHistory';
+import { TabNavigation } from '@/components/simulation-viewer/TabNavigation';
 
 // Block in production
 const isTestEnv =
@@ -97,15 +99,35 @@ const MOCK_BATTLES: IBattle[] = [
     forces: {
       player: {
         units: [
-          { id: 'u1', name: 'Atlas AS7-D', pilot: 'Natasha Kerensky', status: 'operational' },
-          { id: 'u2', name: 'Marauder MAD-3R', pilot: 'Kai Allard-Liao', status: 'damaged' },
+          {
+            id: 'u1',
+            name: 'Atlas AS7-D',
+            pilot: 'Natasha Kerensky',
+            status: 'operational',
+          },
+          {
+            id: 'u2',
+            name: 'Marauder MAD-3R',
+            pilot: 'Kai Allard-Liao',
+            status: 'damaged',
+          },
         ],
         totalBV: 5200,
       },
       enemy: {
         units: [
-          { id: 'e1', name: 'Timber Wolf Prime', pilot: 'Star Captain Vlad', status: 'destroyed' },
-          { id: 'e2', name: 'Dire Wolf Prime', pilot: 'Star Colonel Ward', status: 'damaged' },
+          {
+            id: 'e1',
+            name: 'Timber Wolf Prime',
+            pilot: 'Star Captain Vlad',
+            status: 'destroyed',
+          },
+          {
+            id: 'e2',
+            name: 'Dire Wolf Prime',
+            pilot: 'Star Colonel Ward',
+            status: 'damaged',
+          },
         ],
         totalBV: 6100,
       },
@@ -141,14 +163,78 @@ const MOCK_BATTLES: IBattle[] = [
       },
     ],
     events: [
-      { id: 'ev1', turn: 1, phase: 'Movement', timestamp: 1, type: 'movement', description: 'Atlas advances to hex 0505', involvedUnits: ['u1'] },
-      { id: 'ev2', turn: 1, phase: 'Weapon Attack', timestamp: 2, type: 'attack', description: 'Atlas fires AC/20 at Timber Wolf', involvedUnits: ['u1', 'e1'] },
-      { id: 'ev3', turn: 2, phase: 'Movement', timestamp: 3, type: 'movement', description: 'Marauder flanks to hex 0607', involvedUnits: ['u2'] },
-      { id: 'ev4', turn: 2, phase: 'Weapon Attack', timestamp: 4, type: 'attack', description: 'Marauder fires PPCs at Dire Wolf', involvedUnits: ['u2', 'e2'] },
-      { id: 'ev5', turn: 3, phase: 'Weapon Attack', timestamp: 5, type: 'attack', description: 'Atlas headshot on Timber Wolf', involvedUnits: ['u1', 'e1'] },
-      { id: 'ev6', turn: 3, phase: 'Damage', timestamp: 6, type: 'damage', description: 'Timber Wolf destroyed — head destroyed', involvedUnits: ['e1'] },
-      { id: 'ev7', turn: 4, phase: 'Movement', timestamp: 7, type: 'movement', description: 'Dire Wolf attempts retreat', involvedUnits: ['e2'] },
-      { id: 'ev8', turn: 5, phase: 'Physical Attack', timestamp: 8, type: 'damage', description: 'Dire Wolf falls after leg damage', involvedUnits: ['e2'] },
+      {
+        id: 'ev1',
+        turn: 1,
+        phase: 'Movement',
+        timestamp: 1,
+        type: 'movement',
+        description: 'Atlas advances to hex 0505',
+        involvedUnits: ['u1'],
+      },
+      {
+        id: 'ev2',
+        turn: 1,
+        phase: 'Weapon Attack',
+        timestamp: 2,
+        type: 'attack',
+        description: 'Atlas fires AC/20 at Timber Wolf',
+        involvedUnits: ['u1', 'e1'],
+      },
+      {
+        id: 'ev3',
+        turn: 2,
+        phase: 'Movement',
+        timestamp: 3,
+        type: 'movement',
+        description: 'Marauder flanks to hex 0607',
+        involvedUnits: ['u2'],
+      },
+      {
+        id: 'ev4',
+        turn: 2,
+        phase: 'Weapon Attack',
+        timestamp: 4,
+        type: 'attack',
+        description: 'Marauder fires PPCs at Dire Wolf',
+        involvedUnits: ['u2', 'e2'],
+      },
+      {
+        id: 'ev5',
+        turn: 3,
+        phase: 'Weapon Attack',
+        timestamp: 5,
+        type: 'attack',
+        description: 'Atlas headshot on Timber Wolf',
+        involvedUnits: ['u1', 'e1'],
+      },
+      {
+        id: 'ev6',
+        turn: 3,
+        phase: 'Damage',
+        timestamp: 6,
+        type: 'damage',
+        description: 'Timber Wolf destroyed — head destroyed',
+        involvedUnits: ['e1'],
+      },
+      {
+        id: 'ev7',
+        turn: 4,
+        phase: 'Movement',
+        timestamp: 7,
+        type: 'movement',
+        description: 'Dire Wolf attempts retreat',
+        involvedUnits: ['e2'],
+      },
+      {
+        id: 'ev8',
+        turn: 5,
+        phase: 'Physical Attack',
+        timestamp: 8,
+        type: 'damage',
+        description: 'Dire Wolf falls after leg damage',
+        involvedUnits: ['e2'],
+      },
     ],
     stats: { totalKills: 1, totalDamage: 200, unitsLost: 0 },
   },
@@ -162,13 +248,23 @@ const MOCK_BATTLES: IBattle[] = [
     forces: {
       player: {
         units: [
-          { id: 'u3', name: 'Hunchback HBK-4G', pilot: 'Aidan Pryde', status: 'operational' },
+          {
+            id: 'u3',
+            name: 'Hunchback HBK-4G',
+            pilot: 'Aidan Pryde',
+            status: 'operational',
+          },
         ],
         totalBV: 2800,
       },
       enemy: {
         units: [
-          { id: 'e3', name: 'Stormcrow Prime', pilot: 'Star Commander Trent', status: 'destroyed' },
+          {
+            id: 'e3',
+            name: 'Stormcrow Prime',
+            pilot: 'Star Commander Trent',
+            status: 'destroyed',
+          },
         ],
         totalBV: 3100,
       },
@@ -190,10 +286,42 @@ const MOCK_BATTLES: IBattle[] = [
       },
     ],
     events: [
-      { id: 'ev9', turn: 1, phase: 'Movement', timestamp: 1, type: 'movement', description: 'Hunchback takes position', involvedUnits: ['u3'] },
-      { id: 'ev10', turn: 2, phase: 'Weapon Attack', timestamp: 2, type: 'attack', description: 'Hunchback fires AC/20', involvedUnits: ['u3', 'e3'] },
-      { id: 'ev11', turn: 3, phase: 'Movement', timestamp: 3, type: 'movement', description: 'Stormcrow closes range', involvedUnits: ['e3'] },
-      { id: 'ev12', turn: 4, phase: 'Weapon Attack', timestamp: 4, type: 'attack', description: 'Hunchback destroys Stormcrow', involvedUnits: ['u3', 'e3'] },
+      {
+        id: 'ev9',
+        turn: 1,
+        phase: 'Movement',
+        timestamp: 1,
+        type: 'movement',
+        description: 'Hunchback takes position',
+        involvedUnits: ['u3'],
+      },
+      {
+        id: 'ev10',
+        turn: 2,
+        phase: 'Weapon Attack',
+        timestamp: 2,
+        type: 'attack',
+        description: 'Hunchback fires AC/20',
+        involvedUnits: ['u3', 'e3'],
+      },
+      {
+        id: 'ev11',
+        turn: 3,
+        phase: 'Movement',
+        timestamp: 3,
+        type: 'movement',
+        description: 'Stormcrow closes range',
+        involvedUnits: ['e3'],
+      },
+      {
+        id: 'ev12',
+        turn: 4,
+        phase: 'Weapon Attack',
+        timestamp: 4,
+        type: 'attack',
+        description: 'Hunchback destroys Stormcrow',
+        involvedUnits: ['u3', 'e3'],
+      },
     ],
     stats: { totalKills: 1, totalDamage: 120, unitsLost: 0 },
   },
@@ -207,13 +335,23 @@ const MOCK_BATTLES: IBattle[] = [
     forces: {
       player: {
         units: [
-          { id: 'u4', name: 'Locust LCT-1V', pilot: 'MechWarrior Doe', status: 'destroyed' },
+          {
+            id: 'u4',
+            name: 'Locust LCT-1V',
+            pilot: 'MechWarrior Doe',
+            status: 'destroyed',
+          },
         ],
         totalBV: 800,
       },
       enemy: {
         units: [
-          { id: 'e4', name: 'Mad Cat Mk II', pilot: 'Galaxy Commander Pryde', status: 'operational' },
+          {
+            id: 'e4',
+            name: 'Mad Cat Mk II',
+            pilot: 'Galaxy Commander Pryde',
+            status: 'operational',
+          },
         ],
         totalBV: 4500,
       },
@@ -238,9 +376,33 @@ const MOCK_BATTLES: IBattle[] = [
       },
     ],
     events: [
-      { id: 'ev13', turn: 1, phase: 'Movement', timestamp: 1, type: 'movement', description: 'Locust scouts ahead', involvedUnits: ['u4'] },
-      { id: 'ev14', turn: 2, phase: 'Weapon Attack', timestamp: 2, type: 'attack', description: 'Mad Cat fires alpha strike', involvedUnits: ['e4', 'u4'] },
-      { id: 'ev15', turn: 2, phase: 'Damage', timestamp: 3, type: 'damage', description: 'Locust ammo explosion — destroyed', involvedUnits: ['u4'] },
+      {
+        id: 'ev13',
+        turn: 1,
+        phase: 'Movement',
+        timestamp: 1,
+        type: 'movement',
+        description: 'Locust scouts ahead',
+        involvedUnits: ['u4'],
+      },
+      {
+        id: 'ev14',
+        turn: 2,
+        phase: 'Weapon Attack',
+        timestamp: 2,
+        type: 'attack',
+        description: 'Mad Cat fires alpha strike',
+        involvedUnits: ['e4', 'u4'],
+      },
+      {
+        id: 'ev15',
+        turn: 2,
+        phase: 'Damage',
+        timestamp: 3,
+        type: 'damage',
+        description: 'Locust ammo explosion — destroyed',
+        involvedUnits: ['u4'],
+      },
     ],
     stats: { totalKills: 0, totalDamage: 10, unitsLost: 1 },
   },
@@ -287,7 +449,8 @@ const MOCK_ANOMALIES: IPageAnomaly[] = [
     detector: 'heat-suicide',
     severity: 'critical',
     title: 'Detected Heat Suicide',
-    description: 'Unit repeatedly fired alpha strikes causing shutdown and death',
+    description:
+      'Unit repeatedly fired alpha strikes causing shutdown and death',
     battleId: 'battle-1',
     snapshotId: 'snap-1',
     timestamp: '2025-06-15T10:05:00Z',
@@ -357,11 +520,18 @@ export default function SimulationViewerTestPage(): React.JSX.Element {
     setActiveTab(tabId as TabId);
   }, []);
 
-  const handleDrillDown = useCallback((target: string, _context: Record<string, unknown>) => {
-    if (target === 'encounter-history' || target === 'analysis-bugs' || target === 'campaign-dashboard') {
-      setActiveTab(target as TabId);
-    }
-  }, []);
+  const handleDrillDown = useCallback(
+    (target: string, _context: Record<string, unknown>) => {
+      if (
+        target === 'encounter-history' ||
+        target === 'analysis-bugs' ||
+        target === 'campaign-dashboard'
+      ) {
+        setActiveTab(target as TabId);
+      }
+    },
+    [],
+  );
 
   const handleToggleDarkMode = useCallback(() => {
     setIsDark((prev) => {
@@ -375,11 +545,14 @@ export default function SimulationViewerTestPage(): React.JSX.Element {
     });
   }, []);
 
-  const handleThresholdChange = useCallback((detector: string, value: number) => {
-    setThresholds((prev) => ({ ...prev, [detector]: value }));
-    setThresholdSaved(true);
-    setTimeout(() => setThresholdSaved(false), 3000);
-  }, []);
+  const handleThresholdChange = useCallback(
+    (detector: string, value: number) => {
+      setThresholds((prev) => ({ ...prev, [detector]: value }));
+      setThresholdSaved(true);
+      setTimeout(() => setThresholdSaved(false), 3000);
+    },
+    [],
+  );
 
   // Memoize battle count by outcome for filter testing
   const victoryCount = useMemo(
@@ -403,14 +576,17 @@ export default function SimulationViewerTestPage(): React.JSX.Element {
       data-victory-count={victoryCount}
     >
       {/* Dark Mode Toggle */}
-      <div className="flex items-center justify-between px-4 py-2 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300" data-testid="harness-label">
+      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
+        <span
+          className="text-sm font-medium text-gray-700 dark:text-gray-300"
+          data-testid="harness-label"
+        >
           Simulation Viewer E2E Harness
         </span>
         <button
           type="button"
           onClick={handleToggleDarkMode}
-          className="px-4 py-2 min-h-[44px] text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="min-h-[44px] rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           data-testid="dark-mode-toggle"
         >
@@ -419,10 +595,7 @@ export default function SimulationViewerTestPage(): React.JSX.Element {
       </div>
 
       {/* Tab Navigation */}
-      <TabNavigation
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-      />
+      <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Tab Panels */}
       <div
@@ -462,7 +635,7 @@ export default function SimulationViewerTestPage(): React.JSX.Element {
       {/* Threshold Saved Toast */}
       {thresholdSaved && (
         <div
-          className="fixed bottom-4 right-4 px-4 py-3 bg-green-600 text-white rounded-lg shadow-lg"
+          className="fixed right-4 bottom-4 rounded-lg bg-green-600 px-4 py-3 text-white shadow-lg"
           data-testid="threshold-saved-toast"
           role="status"
         >

@@ -1,5 +1,11 @@
-import { PartQuality, QUALITY_TN_MODIFIER } from '@/types/campaign/quality/PartQuality';
 import { MAINTENANCE_THRESHOLDS } from '@/types/campaign/quality/IUnitQuality';
+import {
+  PartQuality,
+  QUALITY_TN_MODIFIER,
+} from '@/types/campaign/quality/PartQuality';
+
+import type { MaintenanceCheckInput, RandomFn } from '../maintenanceCheck';
+
 import {
   calculateMaintenanceTN,
   performMaintenanceCheck,
@@ -8,7 +14,6 @@ import {
   getPlanetaryModifier,
   getTechSpecialtiesModifier,
 } from '../maintenanceCheck';
-import type { MaintenanceCheckInput, RandomFn } from '../maintenanceCheck';
 
 function makeSeededRandom(values: number[]): RandomFn {
   let i = 0;
@@ -23,7 +28,9 @@ function makeDiceRandom(die1: number, die2: number): RandomFn {
   return makeSeededRandom([(die1 - 1) / 6, (die2 - 1) / 6]);
 }
 
-function makeDefaultInput(overrides: Partial<MaintenanceCheckInput> = {}): MaintenanceCheckInput {
+function makeDefaultInput(
+  overrides: Partial<MaintenanceCheckInput> = {},
+): MaintenanceCheckInput {
   return {
     unitId: 'unit-001',
     quality: PartQuality.D,
@@ -157,7 +164,10 @@ describe('performMaintenanceCheck', () => {
     });
 
     it('should not improve quality beyond F (ceiling)', () => {
-      const input = makeDefaultInput({ quality: PartQuality.F, techSkillValue: 3 });
+      const input = makeDefaultInput({
+        quality: PartQuality.F,
+        techSkillValue: 3,
+      });
       const random = makeDiceRandom(6, 6);
       const result = performMaintenanceCheck(input, random);
 
@@ -215,7 +225,10 @@ describe('performMaintenanceCheck', () => {
     });
 
     it('should not degrade quality below A (floor)', () => {
-      const input = makeDefaultInput({ quality: PartQuality.A, techSkillValue: 12 });
+      const input = makeDefaultInput({
+        quality: PartQuality.A,
+        techSkillValue: 12,
+      });
       const random = makeDiceRandom(5, 5);
       const result = performMaintenanceCheck(input, random);
 
@@ -229,7 +242,12 @@ describe('performMaintenanceCheck', () => {
 
   describe('critical failure (margin <= -6)', () => {
     it('should return critical_failure and degrade quality when margin is exactly -6', () => {
-      const input = makeDefaultInput({ techSkillValue: 8, quality: PartQuality.A, overtimeModifier: 3, shorthandedModifier: 1 });
+      const input = makeDefaultInput({
+        techSkillValue: 8,
+        quality: PartQuality.A,
+        overtimeModifier: 3,
+        shorthandedModifier: 1,
+      });
       const tn = 8 + 3 + 3 + 1;
       const random = makeDiceRandom(4, 5);
       const result = performMaintenanceCheck(input, random);
@@ -243,7 +261,10 @@ describe('performMaintenanceCheck', () => {
     });
 
     it('should return critical_failure when margin is well below -6', () => {
-      const input = makeDefaultInput({ techSkillValue: 12, quality: PartQuality.A });
+      const input = makeDefaultInput({
+        techSkillValue: 12,
+        quality: PartQuality.A,
+      });
       const random = makeDiceRandom(1, 1);
       const result = performMaintenanceCheck(input, random);
 
@@ -255,7 +276,10 @@ describe('performMaintenanceCheck', () => {
     });
 
     it('should degrade quality on critical failure', () => {
-      const input = makeDefaultInput({ techSkillValue: 12, quality: PartQuality.D });
+      const input = makeDefaultInput({
+        techSkillValue: 12,
+        quality: PartQuality.D,
+      });
       const random = makeDiceRandom(1, 1);
       const result = performMaintenanceCheck(input, random);
 
@@ -309,12 +333,15 @@ describe('performMaintenanceCheck', () => {
       expect(result.modifierBreakdown).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ name: 'Tech Skill', value: 7 }),
-          expect.objectContaining({ name: 'Quality', value: QUALITY_TN_MODIFIER[PartQuality.B] }),
+          expect.objectContaining({
+            name: 'Quality',
+            value: QUALITY_TN_MODIFIER[PartQuality.B],
+          }),
           expect.objectContaining({ name: 'Mode', value: 1 }),
           expect.objectContaining({ name: 'Quirks', value: -1 }),
           expect.objectContaining({ name: 'Overtime', value: 3 }),
           expect.objectContaining({ name: 'Shorthanded', value: 2 }),
-        ])
+        ]),
       );
     });
 
@@ -329,7 +356,10 @@ describe('performMaintenanceCheck', () => {
       const random = makeDiceRandom(4, 3);
       const result = performMaintenanceCheck(input, random);
 
-      const breakdownSum = result.modifierBreakdown.reduce((sum, m) => sum + m.value, 0);
+      const breakdownSum = result.modifierBreakdown.reduce(
+        (sum, m) => sum + m.value,
+        0,
+      );
       expect(breakdownSum).toBe(result.targetNumber);
     });
 

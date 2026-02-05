@@ -3,7 +3,14 @@ import { useCallback } from 'react';
 /**
  * Haptic feedback patterns for different interactions
  */
-export type HapticPattern = 'light' | 'medium' | 'heavy' | 'success' | 'warning' | 'error' | 'selection';
+export type HapticPattern =
+  | 'light'
+  | 'medium'
+  | 'heavy'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'selection';
 
 /**
  * Vibration patterns in milliseconds
@@ -57,7 +64,8 @@ export function useHaptics(): UseHapticsReturn {
   /**
    * Check if the Vibration API is supported
    */
-  const isSupported = typeof navigator !== 'undefined' && 'vibrate' in navigator;
+  const isSupported =
+    typeof navigator !== 'undefined' && 'vibrate' in navigator;
 
   /**
    * Trigger haptic feedback with a predefined pattern
@@ -79,7 +87,7 @@ export function useHaptics(): UseHapticsReturn {
         return false;
       }
     },
-    [isSupported]
+    [isSupported],
   );
 
   /**
@@ -100,7 +108,7 @@ export function useHaptics(): UseHapticsReturn {
         return false;
       }
     },
-    [isSupported]
+    [isSupported],
   );
 
   /**

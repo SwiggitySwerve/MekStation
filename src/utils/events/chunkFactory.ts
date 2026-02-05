@@ -6,6 +6,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
+
 import {
   IBaseEvent,
   IEventChunk,
@@ -14,6 +15,7 @@ import {
   ICreateChunkParams,
   ICreateCheckpointParams,
 } from '@/types/events';
+
 import { hashChunk, hashState } from './hashUtils';
 
 // =============================================================================
@@ -23,7 +25,9 @@ import { hashChunk, hashState } from './hashUtils';
 /**
  * Create a summary of events for a chunk.
  */
-export function createChunkSummary(events: readonly IBaseEvent[]): IChunkSummary {
+export function createChunkSummary(
+  events: readonly IBaseEvent[],
+): IChunkSummary {
   const eventTypes: Record<string, number> = {};
   const unitSet = new Set<string>();
   const pilotSet = new Set<string>();
@@ -58,7 +62,12 @@ export function createChunkSummary(events: readonly IBaseEvent[]): IChunkSummary
  * Create an event chunk from a sequence of events.
  */
 export function createChunk(params: ICreateChunkParams): IEventChunk {
-  const { chunkId = uuidv4(), campaignId, events, previousHash = null } = params;
+  const {
+    chunkId = uuidv4(),
+    campaignId,
+    events,
+    previousHash = null,
+  } = params;
 
   if (events.length === 0) {
     throw new Error('Cannot create chunk with no events');
@@ -103,7 +112,7 @@ export function createChunk(params: ICreateChunkParams): IEventChunk {
  * Create a checkpoint at a specific sequence.
  */
 export function createCheckpoint<TState>(
-  params: ICreateCheckpointParams<TState>
+  params: ICreateCheckpointParams<TState>,
 ): ICheckpoint<TState> {
   const { checkpointId = uuidv4(), campaignId, sequence, state } = params;
 

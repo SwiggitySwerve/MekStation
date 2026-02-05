@@ -6,18 +6,23 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { SmallCraftUnitHandler, createSmallCraftHandler } from '../SmallCraftUnitHandler';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { TechBase, RulesLevel } from '../../../../types/enums';
 import { SmallCraftLocation } from '../../../../types/construction/UnitLocation';
+import { TechBase, RulesLevel } from '../../../../types/enums';
+import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { AerospaceMotionType } from '../../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import {
+  SmallCraftUnitHandler,
+  createSmallCraftHandler,
+} from '../SmallCraftUnitHandler';
 
 // ============================================================================
 // Test Fixtures
 // ============================================================================
 
-function createMockBlkDocument(overrides: Partial<IBlkDocument> = {}): IBlkDocument {
+function createMockBlkDocument(
+  overrides: Partial<IBlkDocument> = {},
+): IBlkDocument {
   return {
     blockVersion: 1,
     version: 'MAM0',
@@ -240,8 +245,8 @@ describe('SmallCraftUnitHandler', () => {
       expect(result.success).toBe(true);
       expect(result.data?.unit?.equipment.length).toBeGreaterThan(0);
 
-      const noseWeapon = result.data?.unit?.equipment.find((e) =>
-        e.location === SmallCraftLocation.NOSE
+      const noseWeapon = result.data?.unit?.equipment.find(
+        (e) => e.location === SmallCraftLocation.NOSE,
       );
       expect(noseWeapon).toBeDefined();
     });
@@ -286,9 +291,15 @@ describe('SmallCraftUnitHandler', () => {
       const standardDoc = createMockBlkDocument({ type: 'IS Level 2' });
       const advancedDoc = createMockBlkDocument({ type: 'IS Level 3' });
 
-      expect(handler.parse(introDoc).data?.unit?.rulesLevel).toBe(RulesLevel.INTRODUCTORY);
-      expect(handler.parse(standardDoc).data?.unit?.rulesLevel).toBe(RulesLevel.STANDARD);
-      expect(handler.parse(advancedDoc).data?.unit?.rulesLevel).toBe(RulesLevel.ADVANCED);
+      expect(handler.parse(introDoc).data?.unit?.rulesLevel).toBe(
+        RulesLevel.INTRODUCTORY,
+      );
+      expect(handler.parse(standardDoc).data?.unit?.rulesLevel).toBe(
+        RulesLevel.STANDARD,
+      );
+      expect(handler.parse(advancedDoc).data?.unit?.rulesLevel).toBe(
+        RulesLevel.ADVANCED,
+      );
     });
   });
 
@@ -334,12 +345,18 @@ describe('SmallCraftUnitHandler', () => {
       // Manually set to 0 for validation test
       const unit = {
         ...parseResult.data!.unit,
-        movement: { ...parseResult.data!.unit.movement, safeThrust: 0, maxThrust: 0 },
+        movement: {
+          ...parseResult.data!.unit.movement,
+          safeThrust: 0,
+          maxThrust: 0,
+        },
       };
       const validateResult = handler.validate(unit);
 
       expect(validateResult.isValid).toBe(false);
-      expect(validateResult.errors.some((e) => e.includes('thrust'))).toBe(true);
+      expect(validateResult.errors.some((e) => e.includes('thrust'))).toBe(
+        true,
+      );
     });
 
     it('should error for zero structural integrity', () => {
@@ -362,7 +379,9 @@ describe('SmallCraftUnitHandler', () => {
       // Manually set crew to 0 to test validation
       const unitWithNoCrew = { ...parseResult.data!.unit, crew: 0 };
       const validateResult = handler.validate(unitWithNoCrew);
-      expect(validateResult.warnings.some((w) => w.includes('no crew assigned'))).toBe(true);
+      expect(
+        validateResult.warnings.some((w) => w.includes('no crew assigned')),
+      ).toBe(true);
     });
 
     it('should warn for insufficient escape capacity', () => {
@@ -376,7 +395,9 @@ describe('SmallCraftUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const validateResult = handler.validate(parseResult.data!.unit);
-      expect(validateResult.warnings.some((w) => w.includes('escape capacity'))).toBe(true);
+      expect(
+        validateResult.warnings.some((w) => w.includes('escape capacity')),
+      ).toBe(true);
     });
   });
 
@@ -474,10 +495,10 @@ describe('SmallCraftUnitHandler', () => {
       const spheroidSerialized = handler.serialize(spheroidResult.data!.unit);
 
       expect(aerodyneSerialized.data?.serialized?.configuration).toBe(
-        String(AerospaceMotionType.AERODYNE)
+        String(AerospaceMotionType.AERODYNE),
       );
       expect(spheroidSerialized.data?.serialized?.configuration).toBe(
-        String(AerospaceMotionType.SPHEROID)
+        String(AerospaceMotionType.SPHEROID),
       );
     });
   });
@@ -507,7 +528,9 @@ describe('SmallCraftUnitHandler', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error!.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
+      expect(
+        result.error!.errors.some((e) => e.includes('not yet implemented')),
+      ).toBe(true);
     });
   });
 });

@@ -3,6 +3,7 @@
 ## Context
 
 The customizer is a complex multi-panel interface with:
+
 1. Multi-unit tabs (top)
 2. Section tabs (Overview, Structure, Armor, Equipment, Criticals, Fluff, Preview)
 3. Info banner (stats summary)
@@ -10,6 +11,7 @@ The customizer is a complex multi-panel interface with:
 5. Loadout sidebar (equipment list)
 
 On mobile/tablet, these compete for limited horizontal space, causing:
+
 - Tabs to be cut off
 - Content to overflow
 - Loadout sidebar blocking main content
@@ -36,6 +38,7 @@ On mobile/tablet, these compete for limited horizontal space, causing:
 **Rationale**: Icons are recognizable and save significant horizontal space. Labels are already defined with icons in `CustomizerTabs.tsx`.
 
 **Implementation**:
+
 ```tsx
 // Already exists but may need reinforcement:
 <span className="hidden sm:inline">{tab.label}</span>
@@ -45,11 +48,11 @@ On mobile/tablet, these compete for limited horizontal space, causing:
 
 **Decision**: Use fluid responsive widths with auto-collapse.
 
-| Breakpoint | Behavior |
-|------------|----------|
-| < md (768px) | Bottom sheet (already implemented) |
+| Breakpoint         | Behavior                                |
+| ------------------ | --------------------------------------- |
+| < md (768px)       | Bottom sheet (already implemented)      |
 | md-lg (768-1024px) | Sidebar collapsed by default, 40px wide |
-| lg+ (1024px+) | Sidebar expanded, 240px wide |
+| lg+ (1024px+)      | Sidebar expanded, 240px wide            |
 
 **Rationale**: Tablet users often work in portrait mode where 200px sidebar leaves little room for two-column content. Auto-collapse gives them full content width with a visible toggle.
 
@@ -67,11 +70,11 @@ On mobile/tablet, these compete for limited horizontal space, causing:
 
 ## Risks / Trade-offs
 
-| Risk | Mitigation |
-|------|------------|
+| Risk                                   | Mitigation                                       |
+| -------------------------------------- | ------------------------------------------------ |
 | Too many breakpoints create complexity | Use consistent Tailwind breakpoints (sm, md, lg) |
-| Auto-collapse may confuse users | Show clear toggle button with tooltip |
-| Touch targets too small | Enforce 44px minimum on mobile |
+| Auto-collapse may confuse users        | Show clear toggle button with tooltip            |
+| Touch targets too small                | Enforce 44px minimum on mobile                   |
 
 ## Migration Plan
 

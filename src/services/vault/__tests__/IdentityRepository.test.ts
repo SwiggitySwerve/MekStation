@@ -7,11 +7,12 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type { IStoredIdentity, IEncryptedData } from '@/types/vault';
+
 import {
   IdentityRepository,
   getIdentityRepository,
 } from '../IdentityRepository';
-import type { IStoredIdentity, IEncryptedData } from '@/types/vault';
 
 // =============================================================================
 // Mock Setup
@@ -36,7 +37,7 @@ interface StoredIdentityRow {
 
 const createMockStatement = (
   returnValue?: unknown,
-  changes = 0
+  changes = 0,
 ): MockStatement => ({
   run: jest.fn().mockReturnValue({ changes }),
   get: jest.fn().mockReturnValue(returnValue),
@@ -62,7 +63,7 @@ jest.mock('@/services/persistence', () => ({
 // =============================================================================
 
 const createMockEncryptedData = (
-  overrides: Partial<IEncryptedData> = {}
+  overrides: Partial<IEncryptedData> = {},
 ): IEncryptedData => ({
   ciphertext: 'encrypted-private-key-base64',
   iv: 'initialization-vector-base64',
@@ -72,7 +73,7 @@ const createMockEncryptedData = (
 });
 
 const createMockStoredIdentity = (
-  overrides: Partial<IStoredIdentity> = {}
+  overrides: Partial<IStoredIdentity> = {},
 ): IStoredIdentity => ({
   id: 'identity-test-123',
   displayName: 'Test User',
@@ -85,7 +86,7 @@ const createMockStoredIdentity = (
 });
 
 const createMockStoredIdentityRow = (
-  overrides: Partial<StoredIdentityRow> = {}
+  overrides: Partial<StoredIdentityRow> = {},
 ): StoredIdentityRow => ({
   id: 'identity-test-123',
   display_name: 'Test User',
@@ -134,7 +135,7 @@ describe('IdentityRepository', () => {
 
       expect(mockSQLiteService.initialize).toHaveBeenCalled();
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE TABLE IF NOT EXISTS vault_identities')
+        expect.stringContaining('CREATE TABLE IF NOT EXISTS vault_identities'),
       );
     });
 
@@ -142,28 +143,28 @@ describe('IdentityRepository', () => {
       await repository.initialize();
 
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('id TEXT PRIMARY KEY')
+        expect.stringContaining('id TEXT PRIMARY KEY'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('display_name TEXT NOT NULL')
+        expect.stringContaining('display_name TEXT NOT NULL'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('public_key TEXT NOT NULL')
+        expect.stringContaining('public_key TEXT NOT NULL'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('encrypted_private_key TEXT NOT NULL')
+        expect.stringContaining('encrypted_private_key TEXT NOT NULL'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('friend_code TEXT NOT NULL UNIQUE')
+        expect.stringContaining('friend_code TEXT NOT NULL UNIQUE'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('created_at TEXT NOT NULL')
+        expect.stringContaining('created_at TEXT NOT NULL'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('avatar TEXT')
+        expect.stringContaining('avatar TEXT'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('is_active INTEGER DEFAULT 0')
+        expect.stringContaining('is_active INTEGER DEFAULT 0'),
       );
     });
 
@@ -171,7 +172,9 @@ describe('IdentityRepository', () => {
       await repository.initialize();
 
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_vault_identities_friend_code')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_vault_identities_friend_code',
+        ),
       );
     });
 
@@ -196,7 +199,7 @@ describe('IdentityRepository', () => {
       await repository.save(identity);
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO vault_identities')
+        expect.stringContaining('INSERT INTO vault_identities'),
       );
       expect(mockStatement.run).toHaveBeenCalledWith(
         identity.id,
@@ -206,7 +209,7 @@ describe('IdentityRepository', () => {
         identity.friendCode,
         identity.createdAt,
         null, // avatar
-        1 // is_active = 1 by default
+        1, // is_active = 1 by default
       );
     });
 
@@ -223,7 +226,7 @@ describe('IdentityRepository', () => {
         identity.friendCode,
         identity.createdAt,
         'avatar-url-123',
-        1
+        1,
       );
     });
 
@@ -264,7 +267,7 @@ describe('IdentityRepository', () => {
       const result = await repository.getActive();
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_identities WHERE is_active = 1 LIMIT 1'
+        'SELECT * FROM vault_identities WHERE is_active = 1 LIMIT 1',
       );
       expect(result).not.toBeNull();
       expect(result?.id).toBe('identity-test-123');
@@ -280,7 +283,9 @@ describe('IdentityRepository', () => {
     });
 
     it('should parse encrypted private key from JSON', async () => {
-      const encryptedKey = createMockEncryptedData({ ciphertext: 'parsed-cipher' });
+      const encryptedKey = createMockEncryptedData({
+        ciphertext: 'parsed-cipher',
+      });
       const storedRow = createMockStoredIdentityRow({
         encrypted_private_key: JSON.stringify(encryptedKey),
       });
@@ -322,7 +327,7 @@ describe('IdentityRepository', () => {
       const result = await repository.getById('identity-test-123');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_identities WHERE id = ?'
+        'SELECT * FROM vault_identities WHERE id = ?',
       );
       expect(mockStatement.get).toHaveBeenCalledWith('identity-test-123');
       expect(result?.id).toBe('identity-test-123');
@@ -351,7 +356,7 @@ describe('IdentityRepository', () => {
       const result = await repository.getByFriendCode('wxyz-wxyz-wxyz-wxy2');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_identities WHERE friend_code = ?'
+        'SELECT * FROM vault_identities WHERE friend_code = ?',
       );
       expect(mockStatement.get).toHaveBeenCalledWith('WXYZ-WXYZ-WXYZ-WXY2');
       expect(result?.friendCode).toBe('WXYZ-WXYZ-WXYZ-WXY2');
@@ -381,16 +386,25 @@ describe('IdentityRepository', () => {
   describe('getAll', () => {
     it('should return all identities sorted by created_at DESC', async () => {
       const rows = [
-        createMockStoredIdentityRow({ id: 'id-1', created_at: '2024-03-01T00:00:00.000Z' }),
-        createMockStoredIdentityRow({ id: 'id-2', created_at: '2024-02-01T00:00:00.000Z' }),
-        createMockStoredIdentityRow({ id: 'id-3', created_at: '2024-01-01T00:00:00.000Z' }),
+        createMockStoredIdentityRow({
+          id: 'id-1',
+          created_at: '2024-03-01T00:00:00.000Z',
+        }),
+        createMockStoredIdentityRow({
+          id: 'id-2',
+          created_at: '2024-02-01T00:00:00.000Z',
+        }),
+        createMockStoredIdentityRow({
+          id: 'id-3',
+          created_at: '2024-01-01T00:00:00.000Z',
+        }),
       ];
       mockStatement.all.mockReturnValue(rows);
 
       const result = await repository.getAll();
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_identities ORDER BY created_at DESC'
+        'SELECT * FROM vault_identities ORDER BY created_at DESC',
       );
       expect(result).toHaveLength(3);
       expect(result[0].id).toBe('id-1');
@@ -427,10 +441,10 @@ describe('IdentityRepository', () => {
       await repository.setActive('identity-123');
 
       expect(mockDb.exec).toHaveBeenCalledWith(
-        'UPDATE vault_identities SET is_active = 0'
+        'UPDATE vault_identities SET is_active = 0',
       );
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_identities SET is_active = 1 WHERE id = ?'
+        'UPDATE vault_identities SET is_active = 1 WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('identity-123');
     });
@@ -451,18 +465,24 @@ describe('IdentityRepository', () => {
       await repository.update('identity-123', { displayName: 'New Name' });
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_identities SET display_name = ? WHERE id = ?'
+        'UPDATE vault_identities SET display_name = ? WHERE id = ?',
       );
-      expect(mockStatement.run).toHaveBeenCalledWith('New Name', 'identity-123');
+      expect(mockStatement.run).toHaveBeenCalledWith(
+        'New Name',
+        'identity-123',
+      );
     });
 
     it('should update avatar only', async () => {
       await repository.update('identity-123', { avatar: 'new-avatar' });
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_identities SET avatar = ? WHERE id = ?'
+        'UPDATE vault_identities SET avatar = ? WHERE id = ?',
       );
-      expect(mockStatement.run).toHaveBeenCalledWith('new-avatar', 'identity-123');
+      expect(mockStatement.run).toHaveBeenCalledWith(
+        'new-avatar',
+        'identity-123',
+      );
     });
 
     it('should update both display name and avatar', async () => {
@@ -472,12 +492,12 @@ describe('IdentityRepository', () => {
       });
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_identities SET display_name = ?, avatar = ? WHERE id = ?'
+        'UPDATE vault_identities SET display_name = ?, avatar = ? WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith(
         'Updated Name',
         'updated-avatar',
-        'identity-123'
+        'identity-123',
       );
     });
 
@@ -492,7 +512,7 @@ describe('IdentityRepository', () => {
 
       // prepare should only be called for initialization, not for update
       expect(mockDb.prepare).not.toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE vault_identities SET')
+        expect.stringContaining('UPDATE vault_identities SET'),
       );
     });
 
@@ -513,7 +533,7 @@ describe('IdentityRepository', () => {
       await repository.delete('identity-123');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'DELETE FROM vault_identities WHERE id = ?'
+        'DELETE FROM vault_identities WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('identity-123');
     });
@@ -536,7 +556,7 @@ describe('IdentityRepository', () => {
       const result = await repository.hasIdentity();
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT COUNT(*) as count FROM vault_identities'
+        'SELECT COUNT(*) as count FROM vault_identities',
       );
       expect(result).toBe(true);
     });
@@ -661,7 +681,9 @@ describe('IdentityRepository', () => {
 
       const result = await repository.getById('identity-test');
 
-      expect(result?.encryptedPrivateKey.ciphertext).toBe(complexKey.ciphertext);
+      expect(result?.encryptedPrivateKey.ciphertext).toBe(
+        complexKey.ciphertext,
+      );
     });
 
     it('should handle friend code with different formats', async () => {

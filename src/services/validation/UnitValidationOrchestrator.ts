@@ -7,6 +7,7 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import { ValidationCategory } from '../../types/validation/rules/ValidationRuleInterfaces';
 import {
   UnitCategory,
   IValidatableUnit,
@@ -18,7 +19,6 @@ import {
   IUnitValidationRegistry,
   UnitValidationSeverity,
 } from '../../types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '../../types/validation/rules/ValidationRuleInterfaces';
 import { getCategoryForUnitType } from '../../utils/validation/UnitCategoryMapper';
 import { getUnitValidationRegistry } from './UnitValidationRegistry';
 
@@ -51,7 +51,10 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
   /**
    * Validate a unit with full rule set
    */
-  validate(unit: IValidatableUnit, options?: IUnitValidationOptions): IUnitValidationResult {
+  validate(
+    unit: IValidatableUnit,
+    options?: IUnitValidationOptions,
+  ): IUnitValidationResult {
     const startTime = performance.now();
     const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
 
@@ -85,7 +88,7 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
    */
   validateCategory(
     unit: IValidatableUnit,
-    category: ValidationCategory
+    category: ValidationCategory,
   ): IUnitValidationResult {
     return this.validate(unit, { categories: [category] });
   }
@@ -95,7 +98,7 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
    */
   validateUnitCategory(
     unit: IValidatableUnit,
-    unitCategory: UnitCategory
+    unitCategory: UnitCategory,
   ): IUnitValidationResult {
     return this.validate(unit, { unitCategories: [unitCategory] });
   }
@@ -105,7 +108,7 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
    */
   validateRule(
     unit: IValidatableUnit,
-    ruleId: string
+    ruleId: string,
   ): IUnitValidationRuleResult | null {
     const rule = this.registry.getRule(ruleId);
     if (!rule) {
@@ -133,9 +136,10 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
    */
   private buildContext(
     unit: IValidatableUnit,
-    options: IUnitValidationOptions
+    options: IUnitValidationOptions,
   ): IUnitValidationContext {
-    const unitCategory = getCategoryForUnitType(unit.unitType) ?? UnitCategory.MECH;
+    const unitCategory =
+      getCategoryForUnitType(unit.unitType) ?? UnitCategory.MECH;
 
     return {
       unit,
@@ -153,9 +157,11 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
    * Execute rules and collect results
    */
   private executeRules(
-    rules: readonly ReturnType<IUnitValidationRegistry['getRulesForUnitType']>[number][],
+    rules: readonly ReturnType<
+      IUnitValidationRegistry['getRulesForUnitType']
+    >[number][],
     context: IUnitValidationContext,
-    options: IUnitValidationOptions
+    options: IUnitValidationOptions,
   ): IUnitValidationRuleResult[] {
     const results: IUnitValidationRuleResult[] = [];
     let errorCount = 0;
@@ -180,7 +186,7 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
       errorCount += result.errors.filter(
         (e) =>
           e.severity === UnitValidationSeverity.CRITICAL_ERROR ||
-          e.severity === UnitValidationSeverity.ERROR
+          e.severity === UnitValidationSeverity.ERROR,
       ).length;
     }
 
@@ -192,7 +198,7 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
    */
   private executeRule(
     rule: ReturnType<IUnitValidationRegistry['getRule']> & object,
-    context: IUnitValidationContext
+    context: IUnitValidationContext,
   ): IUnitValidationRuleResult {
     const startTime = performance.now();
 
@@ -234,7 +240,7 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
   private buildResult(
     results: IUnitValidationRuleResult[],
     context: IUnitValidationContext,
-    startTime: number
+    startTime: number,
   ): IUnitValidationResult {
     let criticalErrorCount = 0;
     let errorCount = 0;
@@ -303,7 +309,7 @@ export function resetUnitValidationOrchestrator(): void {
  */
 export function validateUnit(
   unit: IValidatableUnit,
-  options?: IUnitValidationOptions
+  options?: IUnitValidationOptions,
 ): IUnitValidationResult {
   return getUnitValidationOrchestrator().validate(unit, options);
 }

@@ -138,7 +138,9 @@ describe('IAttributes', () => {
           10: 5,
         };
 
-        for (const [value, expectedModifier] of Object.entries(expectedMappings)) {
+        for (const [value, expectedModifier] of Object.entries(
+          expectedMappings,
+        )) {
           const numValue = parseInt(value, 10);
           expect(getAttributeModifier(numValue)).toBe(expectedModifier);
         }
@@ -158,13 +160,13 @@ describe('IAttributes', () => {
 
       it('should reject value below minimum (0)', () => {
         expect(() => getAttributeModifier(0)).toThrow(
-          'Invalid attribute value: 0. Attribute values must be between 1 and 10.'
+          'Invalid attribute value: 0. Attribute values must be between 1 and 10.',
         );
       });
 
       it('should reject value above maximum (11)', () => {
         expect(() => getAttributeModifier(11)).toThrow(
-          'Invalid attribute value: 11. Attribute values must be between 1 and 10.'
+          'Invalid attribute value: 11. Attribute values must be between 1 and 10.',
         );
       });
 
@@ -185,7 +187,7 @@ describe('IAttributes', () => {
 
         for (const value of invalidValues) {
           expect(() => getAttributeModifier(value)).toThrow(
-            `Invalid attribute value: ${value}. Attribute values must be between 1 and 10.`
+            `Invalid attribute value: ${value}. Attribute values must be between 1 and 10.`,
           );
         }
       });

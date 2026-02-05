@@ -22,7 +22,10 @@ const DEFAULT_TIMEOUT = 10000;
  * await waitForPageReady(page, 15000); // with custom timeout
  * ```
  */
-export async function waitForPageReady(page: Page, timeout = DEFAULT_TIMEOUT): Promise<void> {
+export async function waitForPageReady(
+  page: Page,
+  timeout = DEFAULT_TIMEOUT,
+): Promise<void> {
   await page.waitForLoadState('networkidle', { timeout });
   // Wait for React hydration
   await page.waitForTimeout(500);
@@ -52,7 +55,7 @@ export async function waitForListItems(
   page: Page,
   testId: string,
   minCount = 1,
-  timeout = DEFAULT_TIMEOUT
+  timeout = DEFAULT_TIMEOUT,
 ): Promise<void> {
   const items = page.getByTestId(testId);
   await expect(async () => {
@@ -83,7 +86,7 @@ export async function waitForListItems(
 export async function waitForToast(
   page: Page,
   type?: 'success' | 'error',
-  timeout = DEFAULT_TIMEOUT
+  timeout = DEFAULT_TIMEOUT,
 ): Promise<void> {
   // Common toast selectors - adjust based on your toast library
   const toastSelector = type
@@ -106,7 +109,10 @@ export async function waitForToast(
  * await waitForModalClosed(page);
  * ```
  */
-export async function waitForModalClosed(page: Page, timeout = DEFAULT_TIMEOUT): Promise<void> {
+export async function waitForModalClosed(
+  page: Page,
+  timeout = DEFAULT_TIMEOUT,
+): Promise<void> {
   // Common modal selectors - adjust based on your modal implementation
   const modalSelectors = [
     '[data-testid="modal"]',
@@ -146,7 +152,7 @@ export async function waitForModalClosed(page: Page, timeout = DEFAULT_TIMEOUT):
 export async function waitForLoading(
   page: Page,
   testId?: string,
-  timeout = DEFAULT_TIMEOUT
+  timeout = DEFAULT_TIMEOUT,
 ): Promise<void> {
   if (testId) {
     await expect(page.getByTestId(testId)).not.toBeVisible({ timeout });
@@ -189,9 +195,11 @@ export async function waitForLoading(
 export async function waitForConnectionState(
   page: Page,
   expectedState: string,
-  timeout = DEFAULT_TIMEOUT
+  timeout = DEFAULT_TIMEOUT,
 ): Promise<void> {
-  await expect(page.getByTestId('connection-state')).toHaveText(expectedState, { timeout });
+  await expect(page.getByTestId('connection-state')).toHaveText(expectedState, {
+    timeout,
+  });
 }
 
 /**
@@ -212,7 +220,9 @@ export async function waitForText(
   page: Page,
   testId: string,
   expectedText: string,
-  timeout = DEFAULT_TIMEOUT
+  timeout = DEFAULT_TIMEOUT,
 ): Promise<void> {
-  await expect(page.getByTestId(testId)).toContainText(expectedText, { timeout });
+  await expect(page.getByTestId(testId)).toContainText(expectedText, {
+    timeout,
+  });
 }

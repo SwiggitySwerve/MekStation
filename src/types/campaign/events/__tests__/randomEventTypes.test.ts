@@ -1,3 +1,5 @@
+import type { IRandomEvent, IRandomEventEffect } from '../randomEventTypes';
+
 import {
   RandomEventCategory,
   RandomEventSeverity,
@@ -11,7 +13,6 @@ import {
   isRandomEventSeverity,
   isPrisonerEventType,
 } from '../randomEventTypes';
-import type { IRandomEvent, IRandomEventEffect } from '../randomEventTypes';
 
 describe('randomEventTypes', () => {
   // ===========================================================================
@@ -222,7 +223,10 @@ describe('randomEventTypes', () => {
     });
 
     it('supports prisoner_escape effect', () => {
-      const effect: IRandomEventEffect = { type: 'prisoner_escape', percentage: 10 };
+      const effect: IRandomEventEffect = {
+        type: 'prisoner_escape',
+        percentage: 10,
+      };
       expect(effect.type).toBe('prisoner_escape');
     });
 

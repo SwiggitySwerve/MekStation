@@ -1,13 +1,17 @@
 /**
  * Tests for MetricsCollector
- * 
+ *
  * Tests per-game metrics recording and aggregate statistics computation.
  */
 
-import { MetricsCollector } from '../metrics/MetricsCollector';
+import {
+  GameEventType,
+  GamePhase,
+} from '@/types/gameplay/GameSessionInterfaces';
+
 import { ISimulationResult } from '../core/types';
 import { IViolation } from '../invariants/types';
-import { GameEventType, GamePhase } from '@/types/gameplay/GameSessionInterfaces';
+import { MetricsCollector } from '../metrics/MetricsCollector';
 
 describe('MetricsCollector', () => {
   let collector: MetricsCollector;
@@ -178,7 +182,13 @@ describe('MetricsCollector', () => {
     it('should compute averages correctly', () => {
       const results: ISimulationResult[] = [
         { seed: 1, winner: 'player', turns: 10, durationMs: 5000, events: [] },
-        { seed: 2, winner: 'opponent', turns: 20, durationMs: 10000, events: [] },
+        {
+          seed: 2,
+          winner: 'opponent',
+          turns: 20,
+          durationMs: 10000,
+          events: [],
+        },
         { seed: 3, winner: 'draw', turns: 30, durationMs: 15000, events: [] },
       ];
 

@@ -5,12 +5,12 @@
  * @spec openspec/changes/add-combat-resolution/specs/combat-resolution/spec.md
  */
 
-import { FiringArc, RangeBracket, MovementType } from './HexGridInterfaces';
-import { IToHitModifier } from './GameSessionInterfaces';
 // Re-export from construction for backwards compatibility
 import { MechLocation } from '../construction/CriticalSlotAllocation';
-// Re-export from equipment for backwards compatibility  
+// Re-export from equipment for backwards compatibility
 import { WeaponCategory } from '../equipment/weapons/interfaces';
+import { IToHitModifier } from './GameSessionInterfaces';
+import { FiringArc, RangeBracket, MovementType } from './HexGridInterfaces';
 
 // Re-export for convenience
 export { MechLocation, WeaponCategory };
@@ -25,7 +25,7 @@ export { MechLocation, WeaponCategory };
  * The existing MechLocation enum uses 'Center Torso' etc, but combat
  * often needs rear-specific locations.
  */
-export type CombatLocation = 
+export type CombatLocation =
   | 'head'
   | 'center_torso'
   | 'center_torso_rear'
@@ -41,19 +41,21 @@ export type CombatLocation =
 /**
  * Map combat location strings to MechLocation enum values.
  */
-export function combatLocationToMechLocation(loc: CombatLocation): MechLocation {
+export function combatLocationToMechLocation(
+  loc: CombatLocation,
+): MechLocation {
   const map: Record<CombatLocation, MechLocation> = {
-    'head': MechLocation.HEAD,
-    'center_torso': MechLocation.CENTER_TORSO,
-    'center_torso_rear': MechLocation.CENTER_TORSO, // Rear uses same base location
-    'left_torso': MechLocation.LEFT_TORSO,
-    'left_torso_rear': MechLocation.LEFT_TORSO,
-    'right_torso': MechLocation.RIGHT_TORSO,
-    'right_torso_rear': MechLocation.RIGHT_TORSO,
-    'left_arm': MechLocation.LEFT_ARM,
-    'right_arm': MechLocation.RIGHT_ARM,
-    'left_leg': MechLocation.LEFT_LEG,
-    'right_leg': MechLocation.RIGHT_LEG,
+    head: MechLocation.HEAD,
+    center_torso: MechLocation.CENTER_TORSO,
+    center_torso_rear: MechLocation.CENTER_TORSO, // Rear uses same base location
+    left_torso: MechLocation.LEFT_TORSO,
+    left_torso_rear: MechLocation.LEFT_TORSO,
+    right_torso: MechLocation.RIGHT_TORSO,
+    right_torso_rear: MechLocation.RIGHT_TORSO,
+    left_arm: MechLocation.LEFT_ARM,
+    right_arm: MechLocation.RIGHT_ARM,
+    left_leg: MechLocation.LEFT_LEG,
+    right_leg: MechLocation.RIGHT_LEG,
   };
   return map[loc];
 }
@@ -337,7 +339,11 @@ export interface IDamageResult {
   /** Was unit destroyed? */
   readonly unitDestroyed: boolean;
   /** Destruction cause */
-  readonly destructionCause?: 'damage' | 'ammo_explosion' | 'pilot_death' | 'engine_destroyed';
+  readonly destructionCause?:
+    | 'damage'
+    | 'ammo_explosion'
+    | 'pilot_death'
+    | 'engine_destroyed';
 }
 
 // =============================================================================
@@ -612,7 +618,9 @@ export function isTorsoLocation(location: MechLocation): boolean {
 /**
  * Get the front version of a rear combat location.
  */
-export function getFrontCombatLocation(location: CombatLocation): CombatLocation {
+export function getFrontCombatLocation(
+  location: CombatLocation,
+): CombatLocation {
   switch (location) {
     case 'center_torso_rear':
       return 'center_torso';
@@ -628,7 +636,9 @@ export function getFrontCombatLocation(location: CombatLocation): CombatLocation
 /**
  * Get the damage transfer location for a destroyed limb.
  */
-export function getTransferLocation(location: MechLocation): MechLocation | null {
+export function getTransferLocation(
+  location: MechLocation,
+): MechLocation | null {
   switch (location) {
     case MechLocation.LEFT_ARM:
       return MechLocation.LEFT_TORSO;
@@ -650,7 +660,9 @@ export function getTransferLocation(location: MechLocation): MechLocation | null
 /**
  * Get the transfer combat location for a destroyed limb.
  */
-export function getTransferCombatLocation(location: CombatLocation): CombatLocation | null {
+export function getTransferCombatLocation(
+  location: CombatLocation,
+): CombatLocation | null {
   switch (location) {
     case 'left_arm':
       return 'left_torso';

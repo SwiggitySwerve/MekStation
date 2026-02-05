@@ -7,8 +7,9 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+
 import { getEncounterService } from '@/services/encounter/EncounterService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IEncounterValidationResult } from '@/types/encounter';
 
 // =============================================================================
@@ -29,13 +30,14 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ValidationResponse | ErrorResponse>
+  res: NextApiResponse<ValidationResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -55,7 +57,8 @@ export default async function handler(
     const validation = encounterService.validateEncounter(id);
     return res.status(200).json({ validation });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to validate encounter';
+    const message =
+      error instanceof Error ? error.message : 'Failed to validate encounter';
     return res.status(500).json({ error: message });
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Unit Card Components
- * 
+ *
  * Three levels of detail for displaying BattleTech unit information:
  * - UnitCardCompact: Minimal info for list views
  * - UnitCardStandard: Full combat details
@@ -16,11 +16,14 @@ export { UnitCardStandard } from './UnitCardStandard';
 export type { UnitCardStandardProps, WeaponEntry } from './UnitCardStandard';
 
 export { UnitCardExpanded } from './UnitCardExpanded';
-export type { 
-  UnitCardExpandedProps, 
-  EquipmentEntry, 
-  CriticalSlotSummary 
+export type {
+  UnitCardExpandedProps,
+  EquipmentEntry,
+  CriticalSlotSummary,
 } from './UnitCardExpanded';
 
 export { useUnitCardActions } from './useUnitCardActions';
-export type { UseUnitCardActionsOptions, UnitCardActions } from './useUnitCardActions';
+export type {
+  UseUnitCardActionsOptions,
+  UnitCardActions,
+} from './useUnitCardActions';

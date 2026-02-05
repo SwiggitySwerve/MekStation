@@ -1,9 +1,9 @@
 /**
  * Backup Service for MekStation Desktop App
- * 
+ *
  * Provides automatic backup and restoration capabilities
  * for the self-hosted MekStation application.
- * 
+ *
  * Features:
  * - Automatic scheduled backups
  * - Compressed backup archives
@@ -13,12 +13,12 @@
  * - Restoration with rollback support
  */
 
-import { promises as fs } from 'fs';
-import * as path from 'path';
 import * as crypto from 'crypto';
+import { promises as fs } from 'fs';
 import { createReadStream, createWriteStream } from 'fs';
-import { createGzip, createGunzip } from 'zlib';
+import * as path from 'path';
 import { pipeline } from 'stream/promises';
+import { createGzip, createGunzip } from 'zlib';
 
 // Service interfaces
 import { IService, ResultType, Result } from '../../types/BaseTypes';
@@ -81,8 +81,8 @@ export class BackupService implements IService {
         '*.temp',
         '*.log',
         '.DS_Store',
-        'Thumbs.db'
-      ]
+        'Thumbs.db',
+      ],
     };
 
     this.metadataPath = path.join(this.config.backupPath, '.metadata');
@@ -122,7 +122,9 @@ export class BackupService implements IService {
   /**
    * Create a backup
    */
-  async createBackup(type: 'full' | 'incremental' = 'full'): Promise<ResultType<string, string>> {
+  async createBackup(
+    type: 'full' | 'incremental' = 'full',
+  ): Promise<ResultType<string, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -142,7 +144,7 @@ export class BackupService implements IService {
 
       // Get files to backup
       const filesToBackup = await this.getFilesToBackup(type);
-      
+
       if (filesToBackup.length === 0) {
         return Result.error('No files to backup');
       }
@@ -161,8 +163,11 @@ export class BackupService implements IService {
         createdAt: new Date(),
         size: stats.size,
         checksum,
-        files: filesToBackup.map(f => path.relative(this.config.dataPath, f)),
-        parent: type === 'incremental' ? (await this.getLatestBackupId()) || undefined : undefined
+        files: filesToBackup.map((f) => path.relative(this.config.dataPath, f)),
+        parent:
+          type === 'incremental'
+            ? (await this.getLatestBackupId()) || undefined
+            : undefined,
       };
 
       // Save metadata
@@ -172,7 +177,9 @@ export class BackupService implements IService {
       await this.cleanupOldBackups();
 
       const duration = Date.now() - startTime;
-      console.log(`✅ Backup created successfully: ${backupFileName} (${this.formatFileSize(stats.size)}, ${duration}ms)`);
+      console.log(
+        `✅ Backup created successfully: ${backupFileName} (${this.formatFileSize(stats.size)}, ${duration}ms)`,
+      );
 
       return Result.success(backupFilePath);
     } catch (error) {
@@ -186,7 +193,9 @@ export class BackupService implements IService {
   /**
    * Restore from backup
    */
-  async restoreBackup(backupPath: string): Promise<ResultType<IRestoreResult, string>> {
+  async restoreBackup(
+    backupPath: string,
+  ): Promise<ResultType<IRestoreResult, string>> {
     try {
       if (!this.initialized) {
         return Result.error('Service not initialized');
@@ -211,11 +220,18 @@ export class BackupService implements IService {
       // Create backup of current state before restoration
       const currentStateBackup = await this.createBackup('full');
       if (!currentStateBackup.success) {
-        console.warn('Failed to create pre-restoration backup:', currentStateBackup.error);
+        console.warn(
+          'Failed to create pre-restoration backup:',
+          currentStateBackup.error,
+        );
       }
 
       // Extract backup
-      const extractPath = path.join(this.config.backupPath, '.temp', metadata.id);
+      const extractPath = path.join(
+        this.config.backupPath,
+        '.temp',
+        metadata.id,
+      );
       await fs.mkdir(extractPath, { recursive: true });
 
       const result = await this.extractBackupArchive(backupPath, extractPath);
@@ -239,7 +255,8 @@ export class BackupService implements IService {
           await fs.copyFile(sourcePath, targetPath);
           restoredFiles.push(relativePath);
         } catch (error) {
-          const message = error instanceof Error ? error.message : 'Unknown error';
+          const message =
+            error instanceof Error ? error.message : 'Unknown error';
           errors.push(`Failed to restore ${relativePath}: ${message}`);
         }
       }
@@ -252,10 +269,12 @@ export class BackupService implements IService {
         success: errors.length === 0,
         restoredFiles,
         errors,
-        duration
+        duration,
       };
 
-      console.log(`✅ Backup restored: ${restoredFiles.length} files, ${errors.length} errors, ${duration}ms`);
+      console.log(
+        `✅ Backup restored: ${restoredFiles.length} files, ${errors.length} errors, ${duration}ms`,
+      );
       return Result.success(restoreResult);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -338,8 +357,10 @@ export class BackupService implements IService {
 
       const backups = backupsResult.data;
       const totalSize = backups.reduce((sum, backup) => sum + backup.size, 0);
-      const fullBackups = backups.filter(b => b.type === 'full').length;
-      const incrementalBackups = backups.filter(b => b.type === 'incremental').length;
+      const fullBackups = backups.filter((b) => b.type === 'full').length;
+      const incrementalBackups = backups.filter(
+        (b) => b.type === 'incremental',
+      ).length;
 
       const stats: IBackupStats = {
         totalBackups: backups.length,
@@ -347,7 +368,7 @@ export class BackupService implements IService {
         fullBackups,
         incrementalBackups,
         latestBackup: backups[0]?.createdAt,
-        backupPath: this.config.backupPath
+        backupPath: this.config.backupPath,
       };
 
       return Result.success(stats);
@@ -369,9 +390,13 @@ export class BackupService implements IService {
   /**
    * Get files to backup based on type
    */
-  private async getFilesToBackup(type: 'full' | 'incremental'): Promise<string[]> {
+  private async getFilesToBackup(
+    type: 'full' | 'incremental',
+  ): Promise<string[]> {
     const allFiles = await this.getAllFiles(this.config.dataPath);
-    const filteredFiles = allFiles.filter(file => !this.shouldExcludeFile(file));
+    const filteredFiles = allFiles.filter(
+      (file) => !this.shouldExcludeFile(file),
+    );
 
     if (type === 'full') {
       return filteredFiles;
@@ -384,7 +409,7 @@ export class BackupService implements IService {
     }
 
     const lastBackupMetadata = await this.loadBackupMetadata(
-      path.join(this.config.backupPath, `${lastBackupId}.tar.gz`)
+      path.join(this.config.backupPath, `${lastBackupId}.tar.gz`),
     );
     if (!lastBackupMetadata) {
       return filteredFiles; // Can't find last backup metadata, do full backup
@@ -434,7 +459,7 @@ export class BackupService implements IService {
    */
   private shouldExcludeFile(filePath: string): boolean {
     const fileName = path.basename(filePath);
-    return this.config.excludePatterns.some(pattern => {
+    return this.config.excludePatterns.some((pattern) => {
       const regex = new RegExp(pattern.replace(/\*/g, '.*'));
       return regex.test(fileName);
     });
@@ -443,22 +468,27 @@ export class BackupService implements IService {
   /**
    * Create backup archive
    */
-  private async createBackupArchive(backupPath: string, files: string[]): Promise<void> {
+  private async createBackupArchive(
+    backupPath: string,
+    files: string[],
+  ): Promise<void> {
     const writeStream = createWriteStream(backupPath);
     const gzipStream = createGzip({ level: this.config.compressionLevel });
-    
+
     // Simple tar-like archive format for cross-platform compatibility
     const archiveData = JSON.stringify({
       version: '1.0',
-      files: await Promise.all(files.map(async (file) => {
-        const relativePath = path.relative(this.config.dataPath, file);
-        const content = await fs.readFile(file);
-        return {
-          path: relativePath,
-          content: content.toString('base64'),
-          size: content.length
-        };
-      }))
+      files: await Promise.all(
+        files.map(async (file) => {
+          const relativePath = path.relative(this.config.dataPath, file);
+          const content = await fs.readFile(file);
+          return {
+            path: relativePath,
+            content: content.toString('base64'),
+            size: content.length,
+          };
+        }),
+      ),
     });
 
     await pipeline(
@@ -466,18 +496,21 @@ export class BackupService implements IService {
         yield Buffer.from(archiveData);
       },
       gzipStream,
-      writeStream
+      writeStream,
     );
   }
 
   /**
    * Extract backup archive
    */
-  private async extractBackupArchive(backupPath: string, extractPath: string): Promise<ResultType<void, string>> {
+  private async extractBackupArchive(
+    backupPath: string,
+    extractPath: string,
+  ): Promise<ResultType<void, string>> {
     try {
       const readStream = createReadStream(backupPath);
       const gunzipStream = createGunzip();
-      
+
       let data = '';
       gunzipStream.on('data', (chunk) => {
         data += chunk.toString();
@@ -486,7 +519,7 @@ export class BackupService implements IService {
       await pipeline(readStream, gunzipStream);
 
       const archive = JSON.parse(data);
-      
+
       for (const file of archive.files) {
         const filePath = path.join(extractPath, file.path);
         await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -507,7 +540,7 @@ export class BackupService implements IService {
   private async calculateFileChecksum(filePath: string): Promise<string> {
     const hash = crypto.createHash('sha256');
     const stream = createReadStream(filePath);
-    
+
     return new Promise((resolve, reject) => {
       stream.on('data', (data) => hash.update(data));
       stream.on('end', () => resolve(hash.digest('hex')));
@@ -518,7 +551,10 @@ export class BackupService implements IService {
   /**
    * Verify backup integrity
    */
-  private async verifyBackupIntegrity(backupPath: string, metadata: IBackupMetadata): Promise<boolean> {
+  private async verifyBackupIntegrity(
+    backupPath: string,
+    metadata: IBackupMetadata,
+  ): Promise<boolean> {
     try {
       const checksum = await this.calculateFileChecksum(backupPath);
       return checksum === metadata.checksum;
@@ -532,14 +568,19 @@ export class BackupService implements IService {
    * Save backup metadata
    */
   private async saveBackupMetadata(metadata: IBackupMetadata): Promise<void> {
-    const metadataFilePath = path.join(this.metadataPath, `${metadata.id}.json`);
+    const metadataFilePath = path.join(
+      this.metadataPath,
+      `${metadata.id}.json`,
+    );
     await fs.writeFile(metadataFilePath, JSON.stringify(metadata, null, 2));
   }
 
   /**
    * Load backup metadata
    */
-  private async loadBackupMetadata(backupPath: string): Promise<IBackupMetadata | null> {
+  private async loadBackupMetadata(
+    backupPath: string,
+  ): Promise<IBackupMetadata | null> {
     try {
       const backupId = path.basename(backupPath, '.tar.gz');
       const metadataFilePath = path.join(this.metadataPath, `${backupId}.json`);
@@ -606,7 +647,10 @@ export class BackupService implements IService {
       const corruptedBackups: string[] = [];
 
       for (const backup of backups) {
-        const backupPath = path.join(this.config.backupPath, `${backup.id}.tar.gz`);
+        const backupPath = path.join(
+          this.config.backupPath,
+          `${backup.id}.tar.gz`,
+        );
         const isValid = await this.verifyBackupIntegrity(backupPath, backup);
         if (!isValid) {
           corruptedBackups.push(backup.id);
@@ -614,7 +658,9 @@ export class BackupService implements IService {
       }
 
       if (corruptedBackups.length > 0) {
-        console.warn(`⚠️ Found ${corruptedBackups.length} corrupted backups: ${corruptedBackups.join(', ')}`);
+        console.warn(
+          `⚠️ Found ${corruptedBackups.length} corrupted backups: ${corruptedBackups.join(', ')}`,
+        );
       }
     } catch (error) {
       console.error('Failed to validate existing backups:', error);

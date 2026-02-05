@@ -13,12 +13,11 @@
  */
 
 import React, { useState } from 'react';
+
 import { MechLocation } from '@/types/construction';
+
 import { LocationArmorData } from '../ArmorDiagram';
-import {
-  getLocationLabel,
-  hasTorsoRear,
-} from '../shared/MechSilhouette';
+import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared';
 import {
   GradientDefs,
   getArmorStatusColor,
@@ -29,8 +28,13 @@ import {
   SELECTED_STROKE,
 } from '../shared/ArmorFills';
 import { DiagramHeader } from '../shared/DiagramHeader';
-import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared';
-import { useResolvedLayout, ResolvedPosition, MechConfigType, getLayoutIdForConfig } from '../shared/layout';
+import {
+  useResolvedLayout,
+  ResolvedPosition,
+  MechConfigType,
+  getLayoutIdForConfig,
+} from '../shared/layout';
+import { getLocationLabel, hasTorsoRear } from '../shared/MechSilhouette';
 
 interface CleanTechLocationProps {
   location: MechLocation;
@@ -81,15 +85,19 @@ function CleanTechLocation({
     ? SELECTED_COLOR
     : getTorsoRearStatusColor(rear, maximum);
 
-  const fillColor = isHovered ? lightenColor(frontBaseColor, 0.15) : frontBaseColor;
-  const rearFillColor = isHovered ? lightenColor(rearBaseColor, 0.15) : rearBaseColor;
+  const fillColor = isHovered
+    ? lightenColor(frontBaseColor, 0.15)
+    : frontBaseColor;
+  const rearFillColor = isHovered
+    ? lightenColor(rearBaseColor, 0.15)
+    : rearBaseColor;
   const strokeColor = isSelected ? SELECTED_STROKE : '#475569';
   const strokeWidth = isSelected ? 2.5 : 1;
 
   // Split positions for front/rear - 60/40 split for consistency across variants
   const dividerHeight = showRear ? 2 : 0;
-  const frontHeight = showRear ? pos.height * 0.60 : pos.height;
-  const rearHeight = showRear ? pos.height * 0.40 - dividerHeight : 0;
+  const frontHeight = showRear ? pos.height * 0.6 : pos.height;
+  const rearHeight = showRear ? pos.height * 0.4 - dividerHeight : 0;
   const dividerY = pos.y + frontHeight;
   const rearY = dividerY + dividerHeight;
 
@@ -144,7 +152,7 @@ function CleanTechLocation({
         x={center.x}
         y={pos.y + (isHead ? 9 : showRear ? 10 : 12)}
         textAnchor="middle"
-        className="fill-white/80 font-semibold pointer-events-none"
+        className="pointer-events-none fill-white/80 font-semibold"
         style={{ fontSize: isHead ? '7px' : showRear ? '8px' : '10px' }}
       >
         {frontLabel}
@@ -153,10 +161,21 @@ function CleanTechLocation({
       {/* Front armor value - large bold number */}
       <text
         x={center.x}
-        y={pos.y + (isHead ? frontHeight / 2 + 4 : frontHeight / 2 + (showRear ? 2 : 5))}
+        y={
+          pos.y +
+          (isHead ? frontHeight / 2 + 4 : frontHeight / 2 + (showRear ? 2 : 5))
+        }
         textAnchor="middle"
-        className="fill-white font-bold pointer-events-none"
-        style={{ fontSize: isHead ? '12px' : showRear ? '14px' : (pos.width < 40 ? '14px' : '18px') }}
+        className="pointer-events-none fill-white font-bold"
+        style={{
+          fontSize: isHead
+            ? '12px'
+            : showRear
+              ? '14px'
+              : pos.width < 40
+                ? '14px'
+                : '18px',
+        }}
       >
         {current}
       </text>
@@ -167,7 +186,7 @@ function CleanTechLocation({
           x={center.x}
           y={pos.y + frontHeight / 2 + (showRear ? 14 : 18)}
           textAnchor="middle"
-          className="fill-white/60 pointer-events-none"
+          className="pointer-events-none fill-white/60"
           style={{ fontSize: '9px' }}
         >
           / {maximum}
@@ -208,7 +227,7 @@ function CleanTechLocation({
             x={center.x}
             y={rearY + 9}
             textAnchor="middle"
-            className="fill-white/80 font-semibold pointer-events-none"
+            className="pointer-events-none fill-white/80 font-semibold"
             style={{ fontSize: '8px' }}
           >
             {rearLabel}
@@ -219,7 +238,7 @@ function CleanTechLocation({
             x={center.x}
             y={rearY + rearHeight / 2 + 4}
             textAnchor="middle"
-            className="fill-white font-bold pointer-events-none"
+            className="pointer-events-none fill-white font-bold"
             style={{ fontSize: '12px' }}
           >
             {rear}
@@ -292,7 +311,9 @@ export function CleanTechDiagram({
   className = '',
   mechConfigType = 'biped',
 }: CleanTechDiagramProps): React.ReactElement {
-  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
+    null,
+  );
 
   // Get layout ID based on mech configuration type
   const layoutId = getLayoutIdForConfig(mechConfigType, 'battlemech');
@@ -300,7 +321,9 @@ export function CleanTechDiagram({
   // Use the layout engine to get resolved positions
   const { getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
 
-  const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
+  const getArmorData = (
+    location: MechLocation,
+  ): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
 
@@ -308,14 +331,16 @@ export function CleanTechDiagram({
   const locations = getLocationsForConfig(mechConfigType);
 
   return (
-    <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
+    <div
+      className={`bg-surface-base border-border-theme-subtle rounded-lg border p-4 ${className}`}
+    >
       <DiagramHeader title="Armor Allocation" />
 
       {/* Diagram - uses auto-calculated viewBox from layout engine */}
       <div className="relative">
         <svg
           viewBox={viewBox}
-          className="w-full max-w-[280px] mx-auto"
+          className="mx-auto w-full max-w-[280px]"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
@@ -334,7 +359,7 @@ export function CleanTechDiagram({
           {locations.map((loc) => {
             const position = getPosition(loc);
             if (!position) return null;
-            
+
             return (
               <CleanTechLocation
                 key={loc}

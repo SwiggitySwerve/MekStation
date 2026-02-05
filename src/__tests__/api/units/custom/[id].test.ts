@@ -1,19 +1,37 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/units/custom/[id] endpoint
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/units/custom/[id]';
-import { getSQLiteService, SQLiteService } from '@/services/persistence/SQLiteService';
-import { getUnitRepository, UnitRepository } from '@/services/units/UnitRepository';
-import { parseErrorResponse, parseApiResponse, parseUnitResponse, createMock } from '../../../helpers';
+import {
+  getSQLiteService,
+  SQLiteService,
+} from '@/services/persistence/SQLiteService';
+import {
+  getUnitRepository,
+  UnitRepository,
+} from '@/services/units/UnitRepository';
+
+import {
+  parseErrorResponse,
+  parseApiResponse,
+  parseUnitResponse,
+  createMock,
+} from '../../../helpers';
 
 // Mock dependencies
 jest.mock('@/services/persistence/SQLiteService');
 jest.mock('@/services/units/UnitRepository');
 
-const mockSQLiteService = getSQLiteService as jest.MockedFunction<typeof getSQLiteService>;
-const mockGetUnitRepository = getUnitRepository as jest.MockedFunction<typeof getUnitRepository>;
+const mockSQLiteService = getSQLiteService as jest.MockedFunction<
+  typeof getSQLiteService
+>;
+const mockGetUnitRepository = getUnitRepository as jest.MockedFunction<
+  typeof getUnitRepository
+>;
 
 interface UpdateResponse {
   success: boolean;
@@ -36,21 +54,25 @@ describe('/api/units/custom/[id]', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     mockUnitRepository = {
       getById: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
     };
-    
-    mockSQLiteService.mockReturnValue(createMock<SQLiteService>({
-      initialize: jest.fn(),
-      getDatabase: jest.fn(),
-      close: jest.fn(),
-      isInitialized: jest.fn().mockReturnValue(true),
-    }));
-    
-    mockGetUnitRepository.mockReturnValue(createMock<UnitRepository>(mockUnitRepository));
+
+    mockSQLiteService.mockReturnValue(
+      createMock<SQLiteService>({
+        initialize: jest.fn(),
+        getDatabase: jest.fn(),
+        close: jest.fn(),
+        isInitialized: jest.fn().mockReturnValue(true),
+      }),
+    );
+
+    mockGetUnitRepository.mockReturnValue(
+      createMock<UnitRepository>(mockUnitRepository),
+    );
   });
 
   describe('ID validation', () => {
@@ -85,7 +107,12 @@ describe('/api/units/custom/[id]', () => {
         id: 'custom-1',
         chassis: 'Atlas',
         variant: 'AS7-X',
-        data: JSON.stringify({ id: 'custom-1', chassis: 'Atlas', variant: 'AS7-X', tonnage: 100 }),
+        data: JSON.stringify({
+          id: 'custom-1',
+          chassis: 'Atlas',
+          variant: 'AS7-X',
+          tonnage: 100,
+        }),
         currentVersion: 1,
         createdAt: '2024-01-01',
         updatedAt: '2024-01-02',
@@ -104,7 +131,12 @@ describe('/api/units/custom/[id]', () => {
       const data = parseUnitResponse(res);
       expect(data.id).toBe('custom-1');
       expect(data.chassis).toBe('Atlas');
-      expect(data.parsedData).toEqual({ id: 'custom-1', chassis: 'Atlas', variant: 'AS7-X', tonnage: 100 });
+      expect(data.parsedData).toEqual({
+        id: 'custom-1',
+        chassis: 'Atlas',
+        variant: 'AS7-X',
+        tonnage: 100,
+      });
     });
 
     it('should return 404 when unit not found', async () => {
@@ -175,7 +207,10 @@ describe('/api/units/custom/[id]', () => {
       const data = parseApiResponse<UpdateResponse>(res);
       expect(data.success).toBe(true);
       expect(data.data?.version).toBe(2);
-      expect(mockUnitRepository.update).toHaveBeenCalledWith('custom-1', requestBody);
+      expect(mockUnitRepository.update).toHaveBeenCalledWith(
+        'custom-1',
+        requestBody,
+      );
     });
 
     it('should reject missing data field', async () => {
@@ -308,14 +343,16 @@ describe('/api/units/custom/[id]', () => {
 
   describe('Database initialization', () => {
     it('should handle database initialization errors', async () => {
-      mockSQLiteService.mockReturnValue(createMock<SQLiteService>({
-        initialize: jest.fn(() => {
-          throw new Error('Database init failed');
+      mockSQLiteService.mockReturnValue(
+        createMock<SQLiteService>({
+          initialize: jest.fn(() => {
+            throw new Error('Database init failed');
+          }),
+          getDatabase: jest.fn(),
+          close: jest.fn(),
+          isInitialized: jest.fn().mockReturnValue(false),
         }),
-        getDatabase: jest.fn(),
-        close: jest.fn(),
-        isInitialized: jest.fn().mockReturnValue(false),
-      }));
+      );
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'GET',

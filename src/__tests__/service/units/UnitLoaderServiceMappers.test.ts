@@ -1,13 +1,3 @@
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import {
   mapEngineType,
   mapGyroType,
@@ -21,13 +11,29 @@ import {
   mapMechLocation,
   mapArmorAllocation,
 } from '@/services/units/unitLoaderService/componentMappers';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 
 describe('UnitLoaderService Component Mappers', () => {
   describe('mapEngineType', () => {
     it('should map standard fusion engines', () => {
-      expect(mapEngineType('Fusion', TechBase.INNER_SPHERE)).toBe(EngineType.STANDARD);
-      expect(mapEngineType('Standard', TechBase.INNER_SPHERE)).toBe(EngineType.STANDARD);
-      expect(mapEngineType('Standard Fusion', TechBase.INNER_SPHERE)).toBe(EngineType.STANDARD);
+      expect(mapEngineType('Fusion', TechBase.INNER_SPHERE)).toBe(
+        EngineType.STANDARD,
+      );
+      expect(mapEngineType('Standard', TechBase.INNER_SPHERE)).toBe(
+        EngineType.STANDARD,
+      );
+      expect(mapEngineType('Standard Fusion', TechBase.INNER_SPHERE)).toBe(
+        EngineType.STANDARD,
+      );
     });
 
     it('should map XL engines based on tech base', () => {
@@ -37,21 +43,35 @@ describe('UnitLoaderService Component Mappers', () => {
 
     it('should map specific XL engines', () => {
       expect(mapEngineType('XL IS', TechBase.CLAN)).toBe(EngineType.XL_IS);
-      expect(mapEngineType('XL Clan', TechBase.INNER_SPHERE)).toBe(EngineType.XL_CLAN);
+      expect(mapEngineType('XL Clan', TechBase.INNER_SPHERE)).toBe(
+        EngineType.XL_CLAN,
+      );
     });
 
     it('should map other engine types', () => {
-      expect(mapEngineType('Light', TechBase.INNER_SPHERE)).toBe(EngineType.LIGHT);
+      expect(mapEngineType('Light', TechBase.INNER_SPHERE)).toBe(
+        EngineType.LIGHT,
+      );
       expect(mapEngineType('XXL', TechBase.INNER_SPHERE)).toBe(EngineType.XXL);
-      expect(mapEngineType('Compact', TechBase.INNER_SPHERE)).toBe(EngineType.COMPACT);
+      expect(mapEngineType('Compact', TechBase.INNER_SPHERE)).toBe(
+        EngineType.COMPACT,
+      );
       expect(mapEngineType('ICE', TechBase.INNER_SPHERE)).toBe(EngineType.ICE);
-      expect(mapEngineType('Internal Combustion', TechBase.INNER_SPHERE)).toBe(EngineType.ICE);
-      expect(mapEngineType('Fuel Cell', TechBase.INNER_SPHERE)).toBe(EngineType.FUEL_CELL);
-      expect(mapEngineType('Fission', TechBase.INNER_SPHERE)).toBe(EngineType.FISSION);
+      expect(mapEngineType('Internal Combustion', TechBase.INNER_SPHERE)).toBe(
+        EngineType.ICE,
+      );
+      expect(mapEngineType('Fuel Cell', TechBase.INNER_SPHERE)).toBe(
+        EngineType.FUEL_CELL,
+      );
+      expect(mapEngineType('Fission', TechBase.INNER_SPHERE)).toBe(
+        EngineType.FISSION,
+      );
     });
 
     it('should default to standard for unknown types', () => {
-      expect(mapEngineType('Unknown', TechBase.INNER_SPHERE)).toBe(EngineType.STANDARD);
+      expect(mapEngineType('Unknown', TechBase.INNER_SPHERE)).toBe(
+        EngineType.STANDARD,
+      );
     });
   });
 
@@ -71,21 +91,39 @@ describe('UnitLoaderService Component Mappers', () => {
 
   describe('mapStructureType', () => {
     it('should map standard and endo steel based on tech base', () => {
-      expect(mapStructureType('Standard', TechBase.INNER_SPHERE)).toBe(InternalStructureType.STANDARD);
-      expect(mapStructureType('Endo Steel', TechBase.INNER_SPHERE)).toBe(InternalStructureType.ENDO_STEEL_IS);
-      expect(mapStructureType('Endo Steel', TechBase.CLAN)).toBe(InternalStructureType.ENDO_STEEL_CLAN);
+      expect(mapStructureType('Standard', TechBase.INNER_SPHERE)).toBe(
+        InternalStructureType.STANDARD,
+      );
+      expect(mapStructureType('Endo Steel', TechBase.INNER_SPHERE)).toBe(
+        InternalStructureType.ENDO_STEEL_IS,
+      );
+      expect(mapStructureType('Endo Steel', TechBase.CLAN)).toBe(
+        InternalStructureType.ENDO_STEEL_CLAN,
+      );
     });
 
     it('should map specific endo steel types', () => {
-      expect(mapStructureType('Endo Steel IS', TechBase.CLAN)).toBe(InternalStructureType.ENDO_STEEL_IS);
-      expect(mapStructureType('Endo Steel Clan', TechBase.INNER_SPHERE)).toBe(InternalStructureType.ENDO_STEEL_CLAN);
+      expect(mapStructureType('Endo Steel IS', TechBase.CLAN)).toBe(
+        InternalStructureType.ENDO_STEEL_IS,
+      );
+      expect(mapStructureType('Endo Steel Clan', TechBase.INNER_SPHERE)).toBe(
+        InternalStructureType.ENDO_STEEL_CLAN,
+      );
     });
 
     it('should map advanced structure types', () => {
-      expect(mapStructureType('Endo-Composite', TechBase.INNER_SPHERE)).toBe(InternalStructureType.ENDO_COMPOSITE);
-      expect(mapStructureType('Reinforced', TechBase.INNER_SPHERE)).toBe(InternalStructureType.REINFORCED);
-      expect(mapStructureType('Composite', TechBase.INNER_SPHERE)).toBe(InternalStructureType.COMPOSITE);
-      expect(mapStructureType('Industrial', TechBase.INNER_SPHERE)).toBe(InternalStructureType.INDUSTRIAL);
+      expect(mapStructureType('Endo-Composite', TechBase.INNER_SPHERE)).toBe(
+        InternalStructureType.ENDO_COMPOSITE,
+      );
+      expect(mapStructureType('Reinforced', TechBase.INNER_SPHERE)).toBe(
+        InternalStructureType.REINFORCED,
+      );
+      expect(mapStructureType('Composite', TechBase.INNER_SPHERE)).toBe(
+        InternalStructureType.COMPOSITE,
+      );
+      expect(mapStructureType('Industrial', TechBase.INNER_SPHERE)).toBe(
+        InternalStructureType.INDUSTRIAL,
+      );
     });
   });
 
@@ -93,7 +131,9 @@ describe('UnitLoaderService Component Mappers', () => {
     it('should map cockpit types', () => {
       expect(mapCockpitType('Standard')).toBe(CockpitType.STANDARD);
       expect(mapCockpitType('Small')).toBe(CockpitType.SMALL);
-      expect(mapCockpitType('Command Console')).toBe(CockpitType.COMMAND_CONSOLE);
+      expect(mapCockpitType('Command Console')).toBe(
+        CockpitType.COMMAND_CONSOLE,
+      );
       expect(mapCockpitType('Torso Mounted')).toBe(CockpitType.TORSO_MOUNTED);
       expect(mapCockpitType('Primitive')).toBe(CockpitType.PRIMITIVE);
       expect(mapCockpitType('Industrial')).toBe(CockpitType.INDUSTRIAL);
@@ -118,23 +158,45 @@ describe('UnitLoaderService Component Mappers', () => {
 
   describe('mapArmorType', () => {
     it('should map armor types based on tech base', () => {
-      expect(mapArmorType('Standard', TechBase.INNER_SPHERE)).toBe(ArmorTypeEnum.STANDARD);
-      expect(mapArmorType('Ferro-Fibrous', TechBase.INNER_SPHERE)).toBe(ArmorTypeEnum.FERRO_FIBROUS_IS);
-      expect(mapArmorType('Ferro-Fibrous', TechBase.CLAN)).toBe(ArmorTypeEnum.FERRO_FIBROUS_CLAN);
+      expect(mapArmorType('Standard', TechBase.INNER_SPHERE)).toBe(
+        ArmorTypeEnum.STANDARD,
+      );
+      expect(mapArmorType('Ferro-Fibrous', TechBase.INNER_SPHERE)).toBe(
+        ArmorTypeEnum.FERRO_FIBROUS_IS,
+      );
+      expect(mapArmorType('Ferro-Fibrous', TechBase.CLAN)).toBe(
+        ArmorTypeEnum.FERRO_FIBROUS_CLAN,
+      );
     });
 
     it('should map specific ferro types', () => {
-      expect(mapArmorType('Ferro-Fibrous IS', TechBase.CLAN)).toBe(ArmorTypeEnum.FERRO_FIBROUS_IS);
-      expect(mapArmorType('Ferro-Fibrous Clan', TechBase.INNER_SPHERE)).toBe(ArmorTypeEnum.FERRO_FIBROUS_CLAN);
-      expect(mapArmorType('Light Ferro', TechBase.INNER_SPHERE)).toBe(ArmorTypeEnum.LIGHT_FERRO);
-      expect(mapArmorType('Heavy Ferro', TechBase.INNER_SPHERE)).toBe(ArmorTypeEnum.HEAVY_FERRO);
+      expect(mapArmorType('Ferro-Fibrous IS', TechBase.CLAN)).toBe(
+        ArmorTypeEnum.FERRO_FIBROUS_IS,
+      );
+      expect(mapArmorType('Ferro-Fibrous Clan', TechBase.INNER_SPHERE)).toBe(
+        ArmorTypeEnum.FERRO_FIBROUS_CLAN,
+      );
+      expect(mapArmorType('Light Ferro', TechBase.INNER_SPHERE)).toBe(
+        ArmorTypeEnum.LIGHT_FERRO,
+      );
+      expect(mapArmorType('Heavy Ferro', TechBase.INNER_SPHERE)).toBe(
+        ArmorTypeEnum.HEAVY_FERRO,
+      );
     });
 
     it('should map advanced armor types', () => {
-      expect(mapArmorType('Stealth', TechBase.INNER_SPHERE)).toBe(ArmorTypeEnum.STEALTH);
-      expect(mapArmorType('Reactive', TechBase.INNER_SPHERE)).toBe(ArmorTypeEnum.REACTIVE);
-      expect(mapArmorType('Reflective', TechBase.INNER_SPHERE)).toBe(ArmorTypeEnum.REFLECTIVE);
-      expect(mapArmorType('Hardened', TechBase.INNER_SPHERE)).toBe(ArmorTypeEnum.HARDENED);
+      expect(mapArmorType('Stealth', TechBase.INNER_SPHERE)).toBe(
+        ArmorTypeEnum.STEALTH,
+      );
+      expect(mapArmorType('Reactive', TechBase.INNER_SPHERE)).toBe(
+        ArmorTypeEnum.REACTIVE,
+      );
+      expect(mapArmorType('Reflective', TechBase.INNER_SPHERE)).toBe(
+        ArmorTypeEnum.REFLECTIVE,
+      );
+      expect(mapArmorType('Hardened', TechBase.INNER_SPHERE)).toBe(
+        ArmorTypeEnum.HARDENED,
+      );
     });
   });
 
@@ -200,7 +262,7 @@ describe('UnitLoaderService Component Mappers', () => {
 
     it('should map simple numeric values', () => {
       const allocation = {
-        'Head': 9,
+        Head: 9,
         'Center Torso': 30,
       };
       const result = mapArmorAllocation(allocation);
@@ -225,8 +287,8 @@ describe('UnitLoaderService Component Mappers', () => {
 
     it('should ignore unknown locations', () => {
       const allocation = {
-        'Unknown': 10,
-        'Head': 9,
+        Unknown: 10,
+        Head: 9,
       };
       const result = mapArmorAllocation(allocation);
       expect(result[MechLocation.HEAD]).toBe(9);

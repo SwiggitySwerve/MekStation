@@ -32,4 +32,7 @@ export { RoomCodeDialog } from './RoomCodeDialog';
 export { SyncBadge } from './SyncBadge';
 export { ConflictResolutionDialog } from './ConflictResolutionDialog';
 export { PeerItemList } from './PeerItemList';
-export { ConnectionQualityIndicator, type ConnectionQuality } from './ConnectionQualityIndicator';
+export {
+  ConnectionQualityIndicator,
+  type ConnectionQuality,
+} from './ConnectionQualityIndicator';

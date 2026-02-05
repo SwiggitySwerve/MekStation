@@ -11,14 +11,17 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { StoreApi } from 'zustand';
 
 // Store
-import { AerospaceStoreContext, AerospaceStore } from '@/stores/useAerospaceStore';
+import {
+  AerospaceStoreContext,
+  AerospaceStore,
+} from '@/stores/useAerospaceStore';
 
+import { AerospaceArmorTab } from './AerospaceArmorTab';
+import { AerospaceDiagram } from './AerospaceDiagram';
+import { AerospaceEquipmentTab } from './AerospaceEquipmentTab';
+import { AerospaceStatusBar } from './AerospaceStatusBar';
 // Components
 import { AerospaceStructureTab } from './AerospaceStructureTab';
-import { AerospaceArmorTab } from './AerospaceArmorTab';
-import { AerospaceEquipmentTab } from './AerospaceEquipmentTab';
-import { AerospaceDiagram } from './AerospaceDiagram';
-import { AerospaceStatusBar } from './AerospaceStatusBar';
 
 // =============================================================================
 // Types
@@ -65,17 +68,19 @@ interface TabButtonProps {
   onClick: () => void;
 }
 
-function TabButton({ tab, isActive, onClick }: TabButtonProps): React.ReactElement {
+function TabButton({
+  tab,
+  isActive,
+  onClick,
+}: TabButtonProps): React.ReactElement {
   return (
     <button
       onClick={onClick}
-      className={`
-        px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap
-        ${isActive
-          ? 'bg-accent text-white border-b-2 border-accent'
-          : 'text-text-theme-secondary hover:text-white hover:bg-surface-raised/50'
-        }
-      `}
+      className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+        isActive
+          ? 'bg-accent border-accent border-b-2 text-white'
+          : 'text-text-theme-secondary hover:bg-surface-raised/50 hover:text-white'
+      } `}
       data-testid={`aerospace-tab-${tab.id}`}
       data-active={isActive}
     >
@@ -108,7 +113,7 @@ export function AerospaceCustomizer({
       setActiveTab(tabId);
       onTabChange?.(tabId);
     },
-    [onTabChange]
+    [onTabChange],
   );
 
   // Get current tab content
@@ -127,12 +132,18 @@ export function AerospaceCustomizer({
 
   return (
     <AerospaceStoreContext.Provider value={store}>
-      <div className={`flex flex-col h-full ${className}`} data-testid="aerospace-customizer">
+      <div
+        className={`flex h-full flex-col ${className}`}
+        data-testid="aerospace-customizer"
+      >
         {/* Status Bar */}
         <AerospaceStatusBar />
 
         {/* Tab Bar */}
-        <div className="flex items-center border-b border-border-theme bg-surface-base overflow-x-auto" data-testid="aerospace-tab-bar">
+        <div
+          className="border-border-theme bg-surface-base flex items-center overflow-x-auto border-b"
+          data-testid="aerospace-tab-bar"
+        >
           {AEROSPACE_TABS.map((tab) => (
             <TabButton
               key={tab.id}
@@ -144,15 +155,23 @@ export function AerospaceCustomizer({
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex min-h-0 overflow-hidden">
+        <div className="flex min-h-0 flex-1 overflow-hidden">
           {/* Tab Content */}
-          <div className="flex-1 overflow-auto p-4" data-testid="aerospace-tab-content">
+          <div
+            className="flex-1 overflow-auto p-4"
+            data-testid="aerospace-tab-content"
+          >
             {tabContent}
           </div>
 
           {/* Aerospace Diagram Sidebar (visible on large screens) */}
-          <div className="hidden lg:block w-64 border-l border-border-theme bg-surface-base p-4 overflow-auto" data-testid="aerospace-diagram-sidebar">
-            <h3 className="text-sm font-semibold text-white mb-3">Fighter Overview</h3>
+          <div
+            className="border-border-theme bg-surface-base hidden w-64 overflow-auto border-l p-4 lg:block"
+            data-testid="aerospace-diagram-sidebar"
+          >
+            <h3 className="mb-3 text-sm font-semibold text-white">
+              Fighter Overview
+            </h3>
             <AerospaceDiagram />
           </div>
         </div>

@@ -3,8 +3,8 @@
  * Validates weighted random selection with statistical validation
  */
 
-import { WeightedTable } from '../core/WeightedTable';
 import { SeededRandom } from '../core/SeededRandom';
+import { WeightedTable } from '../core/WeightedTable';
 
 describe('WeightedTable', () => {
   describe('basic functionality', () => {
@@ -79,8 +79,12 @@ describe('WeightedTable', () => {
       const rng1 = new SeededRandom(seed);
       const rng2 = new SeededRandom(seed);
 
-      const results1 = Array.from({ length: 100 }, () => table.select(() => rng1.next()));
-      const results2 = Array.from({ length: 100 }, () => table.select(() => rng2.next()));
+      const results1 = Array.from({ length: 100 }, () =>
+        table.select(() => rng1.next()),
+      );
+      const results2 = Array.from({ length: 100 }, () =>
+        table.select(() => rng2.next()),
+      );
 
       expect(results1).toEqual(results2);
     });
@@ -94,8 +98,12 @@ describe('WeightedTable', () => {
       const rng1 = new SeededRandom(11111);
       const rng2 = new SeededRandom(22222);
 
-      const results1 = Array.from({ length: 100 }, () => table.select(() => rng1.next()));
-      const results2 = Array.from({ length: 100 }, () => table.select(() => rng2.next()));
+      const results1 = Array.from({ length: 100 }, () =>
+        table.select(() => rng1.next()),
+      );
+      const results2 = Array.from({ length: 100 }, () =>
+        table.select(() => rng2.next()),
+      );
 
       expect(results1).not.toEqual(results2);
     });
@@ -104,9 +112,9 @@ describe('WeightedTable', () => {
   describe('statistical validation', () => {
     it('should respect weight distribution over many samples', () => {
       const table = new WeightedTable<string>();
-      table.add(1, 'rare');      // 10% (1/10)
-      table.add(3, 'uncommon');  // 30% (3/10)
-      table.add(6, 'common');    // 60% (6/10)
+      table.add(1, 'rare'); // 10% (1/10)
+      table.add(3, 'uncommon'); // 30% (3/10)
+      table.add(6, 'common'); // 60% (6/10)
 
       const rng = new SeededRandom(999);
       const randomFn = () => rng.next();
@@ -155,7 +163,7 @@ describe('WeightedTable', () => {
 
       // Each should be ~2500 (25% of 10000)
       // Allow 20% deviation (2000-3000)
-      Object.values(counts).forEach(count => {
+      Object.values(counts).forEach((count) => {
         expect(count).toBeGreaterThan(2000);
         expect(count).toBeLessThan(3000);
       });

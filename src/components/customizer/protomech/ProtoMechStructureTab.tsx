@@ -7,8 +7,10 @@
  */
 
 import React, { useCallback } from 'react';
+
 import { useProtoMechStore } from '@/stores/useProtoMechStore';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -72,30 +74,35 @@ export function ProtoMechStructureTab({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!readOnly) setChassis(e.target.value);
     },
-    [setChassis, readOnly]
+    [setChassis, readOnly],
   );
 
   const handleModelChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!readOnly) setModel(e.target.value);
     },
-    [setModel, readOnly]
+    [setModel, readOnly],
   );
 
   // Armor locations (exclude main gun if not equipped)
   const armorLocations = hasMainGun
     ? Object.values(ProtoMechLocation)
-    : Object.values(ProtoMechLocation).filter((l) => l !== ProtoMechLocation.MAIN_GUN);
+    : Object.values(ProtoMechLocation).filter(
+        (l) => l !== ProtoMechLocation.MAIN_GUN,
+      );
 
   // Calculate total armor
-  const totalArmor = Object.values(armorByLocation).reduce((sum, v) => sum + (v || 0), 0);
+  const totalArmor = Object.values(armorByLocation).reduce(
+    (sum, v) => sum + (v || 0),
+    0,
+  );
 
   return (
     <div className="space-y-6">
       {/* Identity Section */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Identity</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className={cs.text.label}>Chassis Name</label>
             <input
@@ -122,7 +129,7 @@ export function ProtoMechStructureTab({
       {/* Chassis Configuration */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Chassis Configuration</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div>
             <label className={cs.text.label}>Tonnage</label>
             <select
@@ -132,44 +139,46 @@ export function ProtoMechStructureTab({
               className={cs.select.full}
             >
               {TONNAGE_OPTIONS.map((t) => (
-                <option key={t} value={t}>{t} tons</option>
+                <option key={t} value={t}>
+                  {t} tons
+                </option>
               ))}
             </select>
           </div>
           <div className="flex items-end">
-            <label className="flex items-center gap-2 cursor-pointer pb-2">
+            <label className="flex cursor-pointer items-center gap-2 pb-2">
               <input
                 type="checkbox"
                 checked={isQuad}
                 onChange={(e) => !readOnly && setQuad(e.target.checked)}
                 disabled={readOnly}
-                className="rounded border-border-theme bg-surface-raised"
+                className="border-border-theme bg-surface-raised rounded"
               />
-              <span className="text-white text-sm">Quad</span>
+              <span className="text-sm text-white">Quad</span>
             </label>
           </div>
           <div className="flex items-end">
-            <label className="flex items-center gap-2 cursor-pointer pb-2">
+            <label className="flex cursor-pointer items-center gap-2 pb-2">
               <input
                 type="checkbox"
                 checked={isGlider}
                 onChange={(e) => !readOnly && setGlider(e.target.checked)}
                 disabled={readOnly}
-                className="rounded border-border-theme bg-surface-raised"
+                className="border-border-theme bg-surface-raised rounded"
               />
-              <span className="text-white text-sm">Glider</span>
+              <span className="text-sm text-white">Glider</span>
             </label>
           </div>
           <div className="flex items-end">
-            <label className="flex items-center gap-2 cursor-pointer pb-2">
+            <label className="flex cursor-pointer items-center gap-2 pb-2">
               <input
                 type="checkbox"
                 checked={hasMainGun}
                 onChange={(e) => !readOnly && setMainGun(e.target.checked)}
                 disabled={readOnly}
-                className="rounded border-border-theme bg-surface-raised"
+                className="border-border-theme bg-surface-raised rounded"
               />
-              <span className="text-white text-sm">Main Gun Mount</span>
+              <span className="text-sm text-white">Main Gun Mount</span>
             </label>
           </div>
         </div>
@@ -178,7 +187,7 @@ export function ProtoMechStructureTab({
       {/* Movement */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Movement</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label className={cs.text.label}>Cruise MP</label>
             <input
@@ -193,7 +202,7 @@ export function ProtoMechStructureTab({
           </div>
           <div>
             <label className={cs.text.label}>Flank MP</label>
-            <div className="px-3 py-2 bg-surface-raised border border-border-theme rounded text-white text-sm">
+            <div className="bg-surface-raised border-border-theme rounded border px-3 py-2 text-sm text-white">
               {flankMP}
             </div>
           </div>
@@ -214,8 +223,10 @@ export function ProtoMechStructureTab({
 
       {/* Armor */}
       <div className={cs.panel.main}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className={cs.text.sectionTitle.replace('mb-4', 'mb-0')}>Armor Allocation</h3>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className={cs.text.sectionTitle.replace('mb-4', 'mb-0')}>
+            Armor Allocation
+          </h3>
           <div className="flex gap-2">
             <button
               onClick={() => !readOnly && autoAllocateArmor()}
@@ -240,16 +251,19 @@ export function ProtoMechStructureTab({
           </span>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           {armorLocations.map((location) => (
             <div key={location}>
-              <label className={cs.text.label}>{LOCATION_LABELS[location]}</label>
+              <label className={cs.text.label}>
+                {LOCATION_LABELS[location]}
+              </label>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
                   value={armorByLocation[location] ?? 0}
                   onChange={(e) =>
-                    !readOnly && setLocationArmor(location, Number(e.target.value))
+                    !readOnly &&
+                    setLocationArmor(location, Number(e.target.value))
                   }
                   disabled={readOnly}
                   min={0}

@@ -8,9 +8,14 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getPilotService, IPilotOperationResult } from '@/services/pilots';
-import { IPilot, ICreatePilotOptions, PilotExperienceLevel } from '@/types/pilot';
+import {
+  IPilot,
+  ICreatePilotOptions,
+  PilotExperienceLevel,
+} from '@/types/pilot';
 
 // =============================================================================
 // Response Types
@@ -56,13 +61,14 @@ interface CreatePilotBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListResponse | CreateResponse | ErrorResponse>
+  res: NextApiResponse<ListResponse | CreateResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -75,7 +81,9 @@ export default async function handler(
       return handlePost(pilotService, req, res);
     default:
       res.setHeader('Allow', ['GET', 'POST']);
-      return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+      return res
+        .status(405)
+        .json({ error: `Method ${req.method} Not Allowed` });
   }
 }
 
@@ -85,7 +93,7 @@ export default async function handler(
 function handleGet(
   pilotService: ReturnType<typeof getPilotService>,
   req: NextApiRequest,
-  res: NextApiResponse<ListResponse | ErrorResponse>
+  res: NextApiResponse<ListResponse | ErrorResponse>,
 ) {
   try {
     const { status } = req.query;
@@ -102,7 +110,8 @@ function handleGet(
       count: pilots.length,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to list pilots';
+    const message =
+      error instanceof Error ? error.message : 'Failed to list pilots';
     return res.status(500).json({ error: message });
   }
 }
@@ -113,7 +122,7 @@ function handleGet(
 function handlePost(
   pilotService: ReturnType<typeof getPilotService>,
   req: NextApiRequest,
-  res: NextApiResponse<CreateResponse | ErrorResponse>
+  res: NextApiResponse<CreateResponse | ErrorResponse>,
 ) {
   try {
     const body = req.body as CreatePilotBody;
@@ -139,7 +148,8 @@ function handlePost(
       case 'template':
         if (!body.template || !body.identity) {
           return res.status(400).json({
-            error: 'Missing required fields: template, identity (for template mode)',
+            error:
+              'Missing required fields: template, identity (for template mode)',
           });
         }
         result = pilotService.createFromTemplate(body.template, body.identity);
@@ -171,7 +181,8 @@ function handlePost(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to create pilot';
+    const message =
+      error instanceof Error ? error.message : 'Failed to create pilot';
     return res.status(500).json({ error: message });
   }
 }

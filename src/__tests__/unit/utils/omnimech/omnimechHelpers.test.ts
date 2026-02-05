@@ -5,6 +5,14 @@
  */
 
 import {
+  IMountedEquipmentInstance,
+  UnitState,
+  createDefaultUnitState,
+} from '@/stores/unitState';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
+import {
   isOmniFixedOnly,
   canPodMount,
   getFixedEquipment,
@@ -12,14 +20,10 @@ import {
   calculatePodSpace,
   getEffectiveBaseChassisHeatSinks,
 } from '@/utils/omnimech';
-import { IMountedEquipmentInstance, UnitState, createDefaultUnitState } from '@/stores/unitState';
-import { TechBase } from '@/types/enums/TechBase';
-import { EquipmentCategory } from '@/types/equipment';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
 // Helper to create mock equipment
 function createMockEquipment(
-  overrides: Partial<IMountedEquipmentInstance> = {}
+  overrides: Partial<IMountedEquipmentInstance> = {},
 ): IMountedEquipmentInstance {
   return {
     instanceId: 'test-' + Math.random().toString(36).substr(2, 9),
@@ -156,13 +160,15 @@ describe('OmniMech Helpers', () => {
     describe('heat sink special rules', () => {
       it('should allow pod-mounting heat sink when above minimum', () => {
         // State with 12 fixed heat sinks, minimum is 10
-        const fixedHeatSinks = Array(12).fill(null).map((_, i) =>
-          createMockEquipment({
-            instanceId: `hs-fixed-${i}`,
-            name: 'Double Heat Sink',
-            isOmniPodMounted: false,
-          })
-        );
+        const fixedHeatSinks = Array(12)
+          .fill(null)
+          .map((_, i) =>
+            createMockEquipment({
+              instanceId: `hs-fixed-${i}`,
+              name: 'Double Heat Sink',
+              isOmniPodMounted: false,
+            }),
+          );
         const state = createOmniMechState({
           baseChassisHeatSinks: 10,
           equipment: fixedHeatSinks,
@@ -178,13 +184,15 @@ describe('OmniMech Helpers', () => {
 
       it('should prevent pod-mounting heat sink at minimum', () => {
         // State with exactly 10 fixed heat sinks, minimum is 10
-        const fixedHeatSinks = Array(10).fill(null).map((_, i) =>
-          createMockEquipment({
-            instanceId: `hs-fixed-${i}`,
-            name: 'Double Heat Sink',
-            isOmniPodMounted: false,
-          })
-        );
+        const fixedHeatSinks = Array(10)
+          .fill(null)
+          .map((_, i) =>
+            createMockEquipment({
+              instanceId: `hs-fixed-${i}`,
+              name: 'Double Heat Sink',
+              isOmniPodMounted: false,
+            }),
+          );
         const state = createOmniMechState({
           baseChassisHeatSinks: 10,
           equipment: fixedHeatSinks,

@@ -1335,12 +1335,10 @@ describe('Simulation Viewer Integration Tests', () => {
         useFilterStore
           .getState()
           .setEncounterHistoryFilters({ outcome: 'victory', sortBy: 'kills' });
-        useFilterStore
-          .getState()
-          .setAnalysisBugsFilters({
-            severity: 'critical',
-            showDismissed: true,
-          });
+        useFilterStore.getState().setAnalysisBugsFilters({
+          severity: 'critical',
+          showDismissed: true,
+        });
       });
 
       expect(useFilterStore.getState().encounterHistory.outcome).toBe(
@@ -1361,12 +1359,10 @@ describe('Simulation Viewer Integration Tests', () => {
       expect(useFilterStore.getState().analysisBugs).toEqual({});
 
       act(() => {
-        useFilterStore
-          .getState()
-          .setEncounterHistoryFilters({
-            keyMomentTier: 'critical',
-            keyMomentType: 'kill',
-          });
+        useFilterStore.getState().setEncounterHistoryFilters({
+          keyMomentTier: 'critical',
+          keyMomentType: 'kill',
+        });
         useFilterStore
           .getState()
           .setAnalysisBugsFilters({ detector: 'heat-suicide', battleId: 'b1' });

@@ -7,7 +7,10 @@
  * @spec openspec/specs/mtf-parity-validation/spec.md
  */
 
-import { ISerializedUnit, ISerializedFluff } from '@/types/unit/UnitSerialization';
+import {
+  ISerializedUnit,
+  ISerializedFluff,
+} from '@/types/unit/UnitSerialization';
 /**
  * Result of parsing an MTF file
  */
@@ -138,9 +141,8 @@ export class MTFParserService {
       const rulesLevel = this.mapRulesLevel(header.rulesLevel);
 
       // Normalize configuration to remove "Omnimech" suffix for base config
-      const baseConfig = header.config
-        .replace(/\s*omnimech\s*/i, '')
-        .trim() || 'Biped';
+      const baseConfig =
+        header.config.replace(/\s*omnimech\s*/i, '').trim() || 'Biped';
 
       const unit: ISerializedUnit = {
         id,
@@ -194,7 +196,12 @@ export class MTFParserService {
         source: header.source,
       };
 
-      return { success: true, unit: extendedUnit as ISerializedUnit, errors, warnings };
+      return {
+        success: true,
+        unit: extendedUnit as ISerializedUnit,
+        errors,
+        warnings,
+      };
     } catch (e) {
       errors.push(`Parse error: ${e}`);
       return { success: false, errors, warnings };
@@ -228,7 +235,9 @@ export class MTFParserService {
 
     // Parse Base Chassis Heat Sinks (only present for OmniMechs)
     const baseHSField = this.parseField(lines, 'Base Chassis Heat Sinks');
-    const baseChassisHeatSinks = baseHSField ? parseInt(baseHSField, 10) : undefined;
+    const baseChassisHeatSinks = baseHSField
+      ? parseInt(baseHSField, 10)
+      : undefined;
 
     return {
       chassis,
@@ -309,9 +318,11 @@ export class MTFParserService {
     type: string;
     allocation: Record<string, number | { front: number; rear: number }>;
   } {
-    const armorType = this.parseField(lines, 'armor') || 'Standard(Inner Sphere)';
+    const armorType =
+      this.parseField(lines, 'armor') || 'Standard(Inner Sphere)';
 
-    const allocation: Record<string, number | { front: number; rear: number }> = {};
+    const allocation: Record<string, number | { front: number; rear: number }> =
+      {};
 
     // Parse per-location armor values (biped and quad)
     const armorFields: Record<string, string> = {
@@ -379,8 +390,14 @@ export class MTFParserService {
    * Parse weapons list
    * Handles (omnipod) suffix for OmniMech pod-mounted equipment
    */
-  private parseWeapons(lines: string[]): Array<{ id: string; location: string; isOmniPodMounted?: boolean }> {
-    const weapons: Array<{ id: string; location: string; isOmniPodMounted?: boolean }> = [];
+  private parseWeapons(
+    lines: string[],
+  ): Array<{ id: string; location: string; isOmniPodMounted?: boolean }> {
+    const weapons: Array<{
+      id: string;
+      location: string;
+      isOmniPodMounted?: boolean;
+    }> = [];
 
     // Find "Weapons:" section
     let inWeaponsSection = false;
@@ -409,7 +426,9 @@ export class MTFParserService {
           const location = this.normalizeLocation(match[2].trim());
 
           // Check for (omnipod) suffix
-          const isOmniPodMounted = weaponName.toLowerCase().includes('(omnipod)');
+          const isOmniPodMounted = weaponName
+            .toLowerCase()
+            .includes('(omnipod)');
           if (isOmniPodMounted) {
             weaponName = weaponName.replace(/\s*\(omnipod\)\s*/i, '').trim();
           }
@@ -429,7 +448,9 @@ export class MTFParserService {
   /**
    * Parse critical slot sections
    */
-  private parseCriticalSlots(lines: string[]): Record<string, (string | null)[]> {
+  private parseCriticalSlots(
+    lines: string[],
+  ): Record<string, (string | null)[]> {
     const criticalSlots: Record<string, (string | null)[]> = {};
 
     let currentLocation: string | null = null;
@@ -441,7 +462,10 @@ export class MTFParserService {
         if (line.trim() === header) {
           // Save previous location if any
           if (currentLocation) {
-            criticalSlots[currentLocation] = this.padSlots(currentSlots, currentLocation);
+            criticalSlots[currentLocation] = this.padSlots(
+              currentSlots,
+              currentLocation,
+            );
           }
           currentLocation = location;
           currentSlots = [];
@@ -459,10 +483,17 @@ export class MTFParserService {
         }
 
         // Check for section breaks (like "overview:", "capabilities:", etc.)
-        if (slotContent.includes(':') && !slotContent.startsWith('-') && !slotContent.includes('(')) {
+        if (
+          slotContent.includes(':') &&
+          !slotContent.startsWith('-') &&
+          !slotContent.includes('(')
+        ) {
           // This is likely a new section, save current location and reset
           if (currentLocation) {
-            criticalSlots[currentLocation] = this.padSlots(currentSlots, currentLocation);
+            criticalSlots[currentLocation] = this.padSlots(
+              currentSlots,
+              currentLocation,
+            );
           }
           currentLocation = null;
           continue;
@@ -478,7 +509,10 @@ export class MTFParserService {
 
     // Save final location
     if (currentLocation) {
-      criticalSlots[currentLocation] = this.padSlots(currentSlots, currentLocation);
+      criticalSlots[currentLocation] = this.padSlots(
+        currentSlots,
+        currentLocation,
+      );
     }
 
     return criticalSlots;
@@ -487,7 +521,10 @@ export class MTFParserService {
   /**
    * Pad slots array to expected count for location
    */
-  private padSlots(slots: (string | null)[], location: string): (string | null)[] {
+  private padSlots(
+    slots: (string | null)[],
+    location: string,
+  ): (string | null)[] {
     const expectedCount = SLOT_COUNTS[location] || 12;
     const result = [...slots];
 
@@ -587,7 +624,7 @@ export class MTFParserService {
       'Left Torso': 'LEFT_TORSO',
       'Right Torso': 'RIGHT_TORSO',
       'Center Torso': 'CENTER_TORSO',
-      'Head': 'HEAD',
+      Head: 'HEAD',
       'Left Leg': 'LEFT_LEG',
       'Right Leg': 'RIGHT_LEG',
       // Quad locations
@@ -661,12 +698,14 @@ export class MTFParserService {
     const normalized = lower.replace(/\./g, '');
     // Check XXL before XL (xxl contains xl)
     if (normalized.includes('xxl')) return 'XXL';
-    if (normalized.includes('xl') && normalized.includes('clan')) return 'XL_CLAN';
+    if (normalized.includes('xl') && normalized.includes('clan'))
+      return 'XL_CLAN';
     if (normalized.includes('xl')) return 'XL';
     if (normalized.includes('light')) return 'LIGHT';
     if (normalized.includes('compact')) return 'COMPACT';
     if (normalized.includes('ice')) return 'ICE';
-    if (lower.includes('fuel cell') || lower.includes('fuel-cell')) return 'FUEL_CELL';
+    if (lower.includes('fuel cell') || lower.includes('fuel-cell'))
+      return 'FUEL_CELL';
     if (normalized.includes('fission')) return 'FISSION';
     return 'FUSION';
   }
@@ -676,8 +715,10 @@ export class MTFParserService {
    */
   private mapStructureType(structure: string): string {
     const lower = structure.toLowerCase();
-    if (lower.includes('endo') && lower.includes('composite')) return 'ENDO_COMPOSITE';
-    if (lower.includes('endo') && lower.includes('clan')) return 'ENDO_STEEL_CLAN';
+    if (lower.includes('endo') && lower.includes('composite'))
+      return 'ENDO_COMPOSITE';
+    if (lower.includes('endo') && lower.includes('clan'))
+      return 'ENDO_STEEL_CLAN';
     if (lower.includes('endo')) return 'ENDO_STEEL';
     if (lower.includes('reinforced')) return 'REINFORCED';
     if (lower.includes('composite')) return 'COMPOSITE';
@@ -694,9 +735,12 @@ export class MTFParserService {
     if (lower.includes('reactive')) return 'REACTIVE';
     if (lower.includes('reflective')) return 'REFLECTIVE';
     if (lower.includes('hardened')) return 'HARDENED';
-    if (lower.includes('heavy') && lower.includes('ferro')) return 'HEAVY_FERRO';
-    if (lower.includes('light') && lower.includes('ferro')) return 'LIGHT_FERRO';
-    if (lower.includes('ferro') && lower.includes('clan')) return 'FERRO_FIBROUS_CLAN';
+    if (lower.includes('heavy') && lower.includes('ferro'))
+      return 'HEAVY_FERRO';
+    if (lower.includes('light') && lower.includes('ferro'))
+      return 'LIGHT_FERRO';
+    if (lower.includes('ferro') && lower.includes('clan'))
+      return 'FERRO_FIBROUS_CLAN';
     if (lower.includes('ferro')) return 'FERRO_FIBROUS';
     return 'STANDARD';
   }

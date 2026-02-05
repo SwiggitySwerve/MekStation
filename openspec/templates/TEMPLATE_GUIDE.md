@@ -11,7 +11,9 @@ This directory contains templates for creating MekStation OpenSpec specification
 ## When to Use Each Template
 
 ### spec.md Template
+
 Use this for defining **WHAT** the system must do:
+
 - Requirements and constraints
 - Business rules and formulas
 - Data models and interfaces
@@ -19,7 +21,9 @@ Use this for defining **WHAT** the system must do:
 - Tech base variants
 
 ### design.md Template
+
 Use this for defining **HOW** to implement it:
+
 - Technical decisions and rationale
 - Architecture and data flow
 - Implementation strategy
@@ -30,17 +34,20 @@ Use this for defining **HOW** to implement it:
 ## Creating a New Spec
 
 ### Step 1: Create Directory Structure
+
 ```bash
 mkdir -p openspec/specs/[subsystem-name]
 ```
 
 ### Step 2: Copy Templates
+
 ```bash
 cp openspec/templates/spec-template.md openspec/specs/[subsystem-name]/spec.md
 cp openspec/templates/design-template.md openspec/specs/[subsystem-name]/design.md
 ```
 
 ### Step 3: Fill Out spec.md
+
 1. Replace all `[placeholder]` text
 2. Define requirements using SHALL/MUST language
 3. Add scenarios for each requirement (GIVEN/WHEN/THEN)
@@ -50,6 +57,7 @@ cp openspec/templates/design-template.md openspec/specs/[subsystem-name]/design.
 7. Document tech base variants
 
 ### Step 4: Fill Out design.md
+
 1. Document design decisions
 2. Show architecture diagrams
 3. Define implementation phases
@@ -60,15 +68,19 @@ cp openspec/templates/design-template.md openspec/specs/[subsystem-name]/design.
 ## Spec Writing Guidelines
 
 ### Requirement Language
+
 - Use **SHALL** or **MUST** for mandatory requirements
 - Use **SHOULD** for recommended but not required
 - Use **MAY** for optional features
 - Be specific and testable
 
 ### Scenario Format
+
 Always use:
+
 ```markdown
 #### Scenario: [Descriptive name]
+
 **GIVEN** [initial state]
 **WHEN** [action]
 **THEN** [expected outcome]
@@ -76,7 +88,9 @@ Always use:
 ```
 
 ### Data Model Format
+
 Always use TypeScript interfaces:
+
 ```typescript
 /**
  * [Description]
@@ -88,10 +102,13 @@ interface IInterfaceName {
 ```
 
 ### Formula Format
+
 ```markdown
 **Formula**:
 ```
+
 result = expression
+
 ```
 
 **Where**:
@@ -117,6 +134,7 @@ openspec list --specs
 ## Common Sections
 
 ### Every spec.md Should Have
+
 1. Overview (Purpose, Scope, Key Concepts)
 2. Requirements (with Scenarios)
 3. Data Model Requirements
@@ -126,6 +144,7 @@ openspec list --specs
 7. References
 
 ### Every design.md Should Have
+
 1. Context (Background, Constraints)
 2. Goals & Non-Goals
 3. Design Decisions (with rationale)
@@ -137,6 +156,7 @@ openspec list --specs
 ## Tips
 
 ### For BattleTech Rule Specs
+
 - Always reference official source books (TechManual, Total Warfare)
 - Include exact formulas from rules
 - Show both IS and Clan variants
@@ -144,6 +164,7 @@ openspec list --specs
 - Provide worked examples
 
 ### For Type System Specs
+
 - Show complete TypeScript interfaces
 - Document required vs optional properties
 - Include type guards
@@ -151,6 +172,7 @@ openspec list --specs
 - Provide type hierarchy diagrams
 
 ### For Integration Specs
+
 - Show data flow diagrams
 - Document state transitions
 - Include sequence diagrams

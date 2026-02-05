@@ -8,8 +8,8 @@
  */
 
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { SkillExperienceLevel } from '@/types/campaign/skills/experienceLevels';
 import { ISkill } from '@/types/campaign/skills';
+import { SkillExperienceLevel } from '@/types/campaign/skills/experienceLevels';
 
 /**
  * A set of default skills for a particular role.
@@ -241,23 +241,23 @@ export const EXPERIENCE_SKILL_MODIFIER: Record<SkillExperienceLevel, number> = {
  * @returns A Record of skillId → ISkill for the role and experience level
  *
  * @example
-  * // Create skills for a GREEN pilot
-  * const skills = createDefaultSkills(CampaignPersonnelRole.PILOT, SkillExperienceLevel.Green);
-  * // {
-  * //   gunnery: { level: 5, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
-  * //   piloting: { level: 6, bonus: 0, xpProgress: 0, typeId: 'piloting' }
-  * // }
-  *
-  * // Create skills for an ELITE pilot
-  * const eliteSkills = createDefaultSkills(CampaignPersonnelRole.PILOT, SkillExperienceLevel.Elite);
-  * // {
-  * //   gunnery: { level: 2, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
-  * //   piloting: { level: 3, bonus: 0, xpProgress: 0, typeId: 'piloting' }
-  * // }
+ * // Create skills for a GREEN pilot
+ * const skills = createDefaultSkills(CampaignPersonnelRole.PILOT, SkillExperienceLevel.Green);
+ * // {
+ * //   gunnery: { level: 5, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
+ * //   piloting: { level: 6, bonus: 0, xpProgress: 0, typeId: 'piloting' }
+ * // }
+ *
+ * // Create skills for an ELITE pilot
+ * const eliteSkills = createDefaultSkills(CampaignPersonnelRole.PILOT, SkillExperienceLevel.Elite);
+ * // {
+ * //   gunnery: { level: 2, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
+ * //   piloting: { level: 3, bonus: 0, xpProgress: 0, typeId: 'piloting' }
+ * // }
  */
 export function createDefaultSkills(
   role: CampaignPersonnelRole,
-  level: SkillExperienceLevel
+  level: SkillExperienceLevel,
 ): Record<string, ISkill> {
   const skillSet = DEFAULT_SKILLS_BY_ROLE[role];
   const modifier = EXPERIENCE_SKILL_MODIFIER[level];

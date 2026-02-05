@@ -1,7 +1,7 @@
 /**
  * ISlottedComponent - Critical slot interface
  * Components that occupy critical slots SHALL implement this interface.
- * 
+ *
  * @spec core-entity-types/spec.md
  */
 
@@ -36,10 +36,5 @@ export function isSlottedComponent(obj: unknown): obj is ISlottedComponent {
  * @returns true if slots is a non-negative integer
  */
 export function isValidCriticalSlots(slots: unknown): slots is number {
-  return (
-    typeof slots === 'number' &&
-    Number.isInteger(slots) &&
-    slots >= 0
-  );
+  return typeof slots === 'number' && Number.isInteger(slots) && slots >= 0;
 }
-

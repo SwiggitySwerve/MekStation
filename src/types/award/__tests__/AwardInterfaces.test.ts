@@ -43,7 +43,9 @@ function createTestAward(overrides: Partial<IAward> = {}): IAward {
   };
 }
 
-function createTestPilotAward(overrides: Partial<IPilotAward> = {}): IPilotAward {
+function createTestPilotAward(
+  overrides: Partial<IPilotAward> = {},
+): IPilotAward {
   return {
     awardId: 'test-award',
     earnedAt: new Date().toISOString(),

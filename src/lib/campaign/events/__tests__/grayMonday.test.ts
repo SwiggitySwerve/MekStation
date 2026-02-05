@@ -1,5 +1,12 @@
-import { RandomEventCategory, RandomEventSeverity } from '@/types/campaign/events/randomEventTypes';
-import { processGrayMonday, GRAY_MONDAY, _resetGrayMondayCounter } from '@/lib/campaign/events/grayMonday';
+import {
+  processGrayMonday,
+  GRAY_MONDAY,
+  _resetGrayMondayCounter,
+} from '@/lib/campaign/events/grayMonday';
+import {
+  RandomEventCategory,
+  RandomEventSeverity,
+} from '@/types/campaign/events/randomEventTypes';
 
 describe('grayMonday', () => {
   beforeEach(() => {
@@ -10,7 +17,11 @@ describe('grayMonday', () => {
     it('should export GRAY_MONDAY with correct dates', () => {
       expect(GRAY_MONDAY.START).toEqual({ year: 3132, month: 8, day: 3 });
       expect(GRAY_MONDAY.BANKRUPTCY).toEqual({ year: 3132, month: 8, day: 9 });
-      expect(GRAY_MONDAY.EMPLOYER_BEGGING).toEqual({ year: 3132, month: 8, day: 10 });
+      expect(GRAY_MONDAY.EMPLOYER_BEGGING).toEqual({
+        year: 3132,
+        month: 8,
+        day: 10,
+      });
       expect(GRAY_MONDAY.END).toEqual({ year: 3132, month: 8, day: 12 });
     });
   });
@@ -46,7 +57,7 @@ describe('grayMonday', () => {
           type: 'notification',
           message: 'HPG network failures detected across the Inner Sphere',
           severity: 'critical',
-        })
+        }),
       );
     });
   });
@@ -72,7 +83,7 @@ describe('grayMonday', () => {
           type: 'financial',
           amount: -expectedLoss,
           description: 'Gray Monday bankruptcy - 99% balance seized',
-        })
+        }),
       );
     });
 
@@ -85,7 +96,7 @@ describe('grayMonday', () => {
         expect.objectContaining({
           type: 'financial',
           amount: -expectedLoss,
-        })
+        }),
       );
     });
 
@@ -96,7 +107,7 @@ describe('grayMonday', () => {
         expect.objectContaining({
           type: 'financial',
           amount: -0,
-        })
+        }),
       );
     });
 
@@ -109,7 +120,7 @@ describe('grayMonday', () => {
         expect.objectContaining({
           type: 'financial',
           amount: -expectedLoss,
-        })
+        }),
       );
     });
   });
@@ -133,7 +144,7 @@ describe('grayMonday', () => {
           type: 'notification',
           message: 'Contract payments suspended - employer cannot pay',
           severity: 'critical',
-        })
+        }),
       );
     });
   });
@@ -157,7 +168,7 @@ describe('grayMonday', () => {
           type: 'notification',
           message: 'Gray Monday crisis period ends',
           severity: 'warning',
-        })
+        }),
       );
     });
   });

@@ -22,7 +22,9 @@ async function navigateToHarness(page: Page): Promise<void> {
   await page.evaluate(() => {
     document.querySelectorAll('nextjs-portal').forEach((el) => el.remove());
   });
-  await expect(page.getByTestId('simulation-viewer-harness')).toBeVisible({ timeout: 10000 });
+  await expect(page.getByTestId('simulation-viewer-harness')).toBeVisible({
+    timeout: 10000,
+  });
 }
 
 // =============================================================================
@@ -30,12 +32,16 @@ async function navigateToHarness(page: Page): Promise<void> {
 // =============================================================================
 
 test.describe('Simulation Viewer E2E Tests', () => {
-  test('Full workflow: dashboard → history → analysis @smoke @simulation-viewer', async ({ page }) => {
+  test('Full workflow: dashboard → history → analysis @smoke @simulation-viewer', async ({
+    page,
+  }) => {
     await navigateToHarness(page);
 
     // Verify Campaign Dashboard is the default tab
     await expect(page.getByTestId('campaign-dashboard')).toBeVisible();
-    await expect(page.getByTestId('dashboard-title')).toContainText('Campaign Dashboard');
+    await expect(page.getByTestId('dashboard-title')).toContainText(
+      'Campaign Dashboard',
+    );
 
     // Verify KPI cards are rendered
     const kpiCards = page.getByTestId('kpi-card');
@@ -48,9 +54,14 @@ test.describe('Simulation Viewer E2E Tests', () => {
     await page.getByTestId('tab-encounter-history').click({ force: true });
 
     // Verify Encounter History tab is active
-    await expect(page.getByTestId('tab-encounter-history')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByTestId('tab-encounter-history')).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
     await expect(page.getByTestId('encounter-history')).toBeVisible();
-    await expect(page.getByTestId('encounter-history-title')).toContainText('Encounter History');
+    await expect(page.getByTestId('encounter-history-title')).toContainText(
+      'Encounter History',
+    );
 
     // Verify battle list is displayed
     await expect(page.getByTestId('battle-list')).toBeVisible();
@@ -66,9 +77,14 @@ test.describe('Simulation Viewer E2E Tests', () => {
     await page.getByTestId('tab-analysis-bugs').click({ force: true });
 
     // Verify Analysis & Bugs tab is active
-    await expect(page.getByTestId('tab-analysis-bugs')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByTestId('tab-analysis-bugs')).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
     await expect(page.getByTestId('analysis-bugs-page')).toBeVisible();
-    await expect(page.getByTestId('page-title')).toContainText('Analysis & Bugs');
+    await expect(page.getByTestId('page-title')).toContainText(
+      'Analysis & Bugs',
+    );
 
     // Verify all four sections are visible
     await expect(page.getByTestId('invariant-section')).toBeVisible();
@@ -81,7 +97,9 @@ test.describe('Simulation Viewer E2E Tests', () => {
   // Test 2: Drill-down navigation with filter application
   // ===========================================================================
 
-  test('Drill-down navigation with filter application @simulation-viewer', async ({ page }) => {
+  test('Drill-down navigation with filter application @simulation-viewer', async ({
+    page,
+  }) => {
     await navigateToHarness(page);
 
     // Navigate to Encounter History tab
@@ -156,13 +174,18 @@ test.describe('Simulation Viewer E2E Tests', () => {
     await page.getByTestId('vcr-play-pause').click({ force: true });
 
     // Wait for at least one turn advance (speed=1x means ~1s per turn)
-    await expect(page.getByTestId('vcr-turn-display')).not.toContainText('Turn 2', { timeout: 3000 });
+    await expect(page.getByTestId('vcr-turn-display')).not.toContainText(
+      'Turn 2',
+      { timeout: 3000 },
+    );
 
     // Click pause (button label changes to Pause when playing)
     await page.getByTestId('vcr-play-pause').click({ force: true });
 
     // After pausing, turn should remain stable
-    const currentText = await page.getByTestId('vcr-turn-display').textContent();
+    const currentText = await page
+      .getByTestId('vcr-turn-display')
+      .textContent();
     await page.waitForTimeout(1200);
     await expect(page.getByTestId('vcr-turn-display')).toHaveText(currentText!);
 
@@ -175,7 +198,9 @@ test.describe('Simulation Viewer E2E Tests', () => {
   // Test 4: Threshold configuration with live preview
   // ===========================================================================
 
-  test('Threshold configuration with live preview @simulation-viewer', async ({ page }) => {
+  test('Threshold configuration with live preview @simulation-viewer', async ({
+    page,
+  }) => {
     await navigateToHarness(page);
 
     // Navigate to Analysis & Bugs tab
@@ -187,27 +212,35 @@ test.describe('Simulation Viewer E2E Tests', () => {
     await expect(heatSlider).toBeVisible();
 
     // Read initial value
-    const initialValue = await page.getByTestId('threshold-value-heatSuicide').textContent();
+    const initialValue = await page
+      .getByTestId('threshold-value-heatSuicide')
+      .textContent();
     expect(initialValue).toBe('80');
 
     // Adjust slider value via fill (simulates user typing)
     await heatSlider.fill('50');
 
     // Verify displayed value updates to reflect the new threshold
-    await expect(page.getByTestId('threshold-value-heatSuicide')).toHaveText('50');
+    await expect(page.getByTestId('threshold-value-heatSuicide')).toHaveText(
+      '50',
+    );
 
     // Click Save Thresholds button
     await page.getByTestId('threshold-save').click({ force: true });
 
     // Verify success toast
     await expect(page.getByTestId('threshold-saved-toast')).toBeVisible();
-    await expect(page.getByTestId('threshold-saved-toast')).toContainText('Thresholds saved');
+    await expect(page.getByTestId('threshold-saved-toast')).toContainText(
+      'Thresholds saved',
+    );
 
     // Reset to defaults
     await page.getByTestId('threshold-reset').click({ force: true });
 
     // Verify reset back to 80
-    await expect(page.getByTestId('threshold-value-heatSuicide')).toHaveText('80');
+    await expect(page.getByTestId('threshold-value-heatSuicide')).toHaveText(
+      '80',
+    );
   });
 
   // ===========================================================================
@@ -245,7 +278,9 @@ test.describe('Simulation Viewer E2E Tests', () => {
   // Test 6: Responsive layout — mobile (480px)
   // ===========================================================================
 
-  test('Responsive layout at mobile (480px) @simulation-viewer', async ({ page }) => {
+  test('Responsive layout at mobile (480px) @simulation-viewer', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 480, height: 800 });
     await navigateToHarness(page);
 
@@ -286,7 +321,9 @@ test.describe('Simulation Viewer E2E Tests', () => {
   // Test 7: Responsive layout — tablet (768px)
   // ===========================================================================
 
-  test('Responsive layout at tablet (768px) @simulation-viewer', async ({ page }) => {
+  test('Responsive layout at tablet (768px) @simulation-viewer', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 768, height: 1024 });
     await navigateToHarness(page);
 
@@ -312,7 +349,9 @@ test.describe('Simulation Viewer E2E Tests', () => {
   // Test 8: Responsive layout — desktop (1920px)
   // ===========================================================================
 
-  test('Responsive layout at desktop (1920px) @simulation-viewer', async ({ page }) => {
+  test('Responsive layout at desktop (1920px) @simulation-viewer', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await navigateToHarness(page);
 

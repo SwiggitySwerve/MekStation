@@ -5,8 +5,9 @@
  * @spec openspec/changes/add-p2p-vault-sync/specs/vault-sync/spec.md
  */
 import { useEffect } from 'react';
-import { onSyncEvent, type SyncEvent } from '@/lib/p2p';
+
 import { useToastSafe } from '@/components/ui/Toast';
+import { onSyncEvent, type SyncEvent } from '@/lib/p2p';
 
 /**
  * Maps sync events to toast notifications.

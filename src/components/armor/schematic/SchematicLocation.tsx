@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { MechLocation } from '@/types/construction';
+
 import { hasRearArmor, LOCATION_SHORT_LABELS } from '../shared/types';
 
 /**
@@ -48,37 +50,37 @@ export function SchematicLocation({
       aria-label={ariaLabel}
       aria-pressed={isSelected}
       onClick={() => onClick(location)}
-      className={`
-        relative p-3 rounded-lg border transition-all duration-150
-        bg-surface-base hover:bg-surface-raised
-        ${isSelected ? 'ring-2 ring-blue-500 border-blue-500' : 'border-border-theme-subtle'}
-        focus:outline-none focus:ring-2 focus:ring-blue-500
-        min-h-[44px] min-w-[44px]
-      `}
+      className={`bg-surface-base hover:bg-surface-raised relative rounded-lg border p-3 transition-all duration-150 ${isSelected ? 'border-blue-500 ring-2 ring-blue-500' : 'border-border-theme-subtle'} min-h-[44px] min-w-[44px] focus:ring-2 focus:ring-blue-500 focus:outline-none`}
     >
       {/* Location Label */}
-      <div className="text-xs font-semibold text-text-theme-secondary mb-1">
+      <div className="text-text-theme-secondary mb-1 text-xs font-semibold">
         {label}
       </div>
 
       {/* Front Armor Section */}
       <div className="flex items-center gap-2">
-        <div className={`w-2 h-8 rounded ${frontColor}`} />
+        <div className={`h-8 w-2 rounded ${frontColor}`} />
         <div className="flex flex-col">
-          <span className="text-lg font-bold text-white tabular-nums">{current}</span>
-          <span className="text-xs text-text-theme-secondary">/ {maximum}</span>
+          <span className="text-lg font-bold text-white tabular-nums">
+            {current}
+          </span>
+          <span className="text-text-theme-secondary text-xs">/ {maximum}</span>
         </div>
       </div>
 
       {/* Rear Armor Section (torso only) */}
       {showRear && (
-        <div className="mt-2 pt-2 border-t border-border-theme-subtle">
-          <div className="text-xs text-text-theme-secondary mb-1">Rear</div>
+        <div className="border-border-theme-subtle mt-2 border-t pt-2">
+          <div className="text-text-theme-secondary mb-1 text-xs">Rear</div>
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-6 rounded ${rearColor}`} />
+            <div className={`h-6 w-2 rounded ${rearColor}`} />
             <div className="flex flex-col">
-              <span className="text-sm font-bold text-white tabular-nums">{rear}</span>
-              <span className="text-xs text-text-theme-secondary">/ {rearMaximum}</span>
+              <span className="text-sm font-bold text-white tabular-nums">
+                {rear}
+              </span>
+              <span className="text-text-theme-secondary text-xs">
+                / {rearMaximum}
+              </span>
             </div>
           </div>
         </div>

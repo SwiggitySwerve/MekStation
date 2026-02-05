@@ -27,6 +27,5 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
  * double-cast pattern (as unknown as T).
  */
 export function getPayload<T>(event: IGameEvent): T {
-   
   return event.payload as T;
 }

@@ -114,7 +114,7 @@ export function ActionSheet({
         onClose();
       }
     },
-    [onClose]
+    [onClose],
   );
 
   // Handle escape key
@@ -147,7 +147,7 @@ export function ActionSheet({
       action.onSelect();
       onClose();
     },
-    [onClose]
+    [onClose],
   );
 
   if (!isVisible) {
@@ -156,11 +156,7 @@ export function ActionSheet({
 
   return (
     <div
-      className={`
-        fixed inset-0 z-50 flex items-end justify-center
-        transition-opacity duration-200
-        ${isAnimating ? 'bg-black/50' : 'bg-transparent'}
-      `}
+      className={`fixed inset-0 z-50 flex items-end justify-center transition-opacity duration-200 ${isAnimating ? 'bg-black/50' : 'bg-transparent'} `}
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -169,20 +165,22 @@ export function ActionSheet({
       {/* Action Sheet Container */}
       <div
         ref={sheetRef}
-        className={`
-          w-full max-w-lg bg-surface-base rounded-t-2xl
-          transform transition-transform duration-200 ease-out
-          ${isAnimating ? 'translate-y-0' : 'translate-y-full'}
-        `}
+        className={`bg-surface-base w-full max-w-lg transform rounded-t-2xl transition-transform duration-200 ease-out ${isAnimating ? 'translate-y-0' : 'translate-y-full'} `}
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
         {/* Header */}
         {(title || subtitle) && (
-          <div className="px-4 py-3 border-b border-border-theme text-center">
-            {title && <h2 className="text-base font-semibold text-white">{title}</h2>}
-            {subtitle && <p className="text-sm text-text-theme-secondary mt-0.5">{subtitle}</p>}
+          <div className="border-border-theme border-b px-4 py-3 text-center">
+            {title && (
+              <h2 className="text-base font-semibold text-white">{title}</h2>
+            )}
+            {subtitle && (
+              <p className="text-text-theme-secondary mt-0.5 text-sm">
+                {subtitle}
+              </p>
+            )}
           </div>
         )}
 
@@ -193,16 +191,12 @@ export function ActionSheet({
               key={action.id}
               onClick={() => handleActionSelect(action)}
               disabled={action.disabled}
-              className={`
-                w-full px-4 py-3 flex items-center gap-3
-                text-left transition-colors min-h-[48px]
-                ${action.disabled ? 'opacity-50 cursor-not-allowed' : 'active:bg-surface-raised'}
-                ${action.danger ? 'text-red-400' : 'text-white'}
-                ${index > 0 ? 'border-t border-border-theme/50' : ''}
-              `}
+              className={`flex min-h-[48px] w-full items-center gap-3 px-4 py-3 text-left transition-colors ${action.disabled ? 'cursor-not-allowed opacity-50' : 'active:bg-surface-raised'} ${action.danger ? 'text-red-400' : 'text-white'} ${index > 0 ? 'border-border-theme/50 border-t' : ''} `}
             >
               {action.icon && (
-                <span className="flex-shrink-0 w-6 text-center">{action.icon}</span>
+                <span className="w-6 flex-shrink-0 text-center">
+                  {action.icon}
+                </span>
               )}
               <span className="flex-1 text-base">{action.label}</span>
             </button>
@@ -212,11 +206,10 @@ export function ActionSheet({
         {/* Cancel Button */}
         {showCancel && (
           <>
-            <div className="h-2 bg-surface-deep/50" />
+            <div className="bg-surface-deep/50 h-2" />
             <button
               onClick={onClose}
-              className="w-full px-4 py-3 text-center text-base font-medium text-text-theme-primary
-                         bg-surface-base active:bg-surface-raised transition-colors min-h-[48px]"
+              className="text-text-theme-primary bg-surface-base active:bg-surface-raised min-h-[48px] w-full px-4 py-3 text-center text-base font-medium transition-colors"
             >
               {cancelLabel}
             </button>

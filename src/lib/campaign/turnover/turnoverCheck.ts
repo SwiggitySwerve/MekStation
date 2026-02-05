@@ -1,8 +1,11 @@
-import type { IPerson } from '@/types/campaign/Person';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
+
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
+
 import type { TurnoverModifierResult } from './modifiers/types';
+
 import {
   getBaseTargetModifier,
   getFounderModifier,
@@ -65,7 +68,10 @@ export function roll2d6(random: RandomFn): number {
 }
 
 /** @stub Returns flat monthly salary. Replace with Plan 4's salaryService when built. */
-export function getPersonMonthlySalary(_person: IPerson, _options: ICampaignOptions): Money {
+export function getPersonMonthlySalary(
+  _person: IPerson,
+  _options: ICampaignOptions,
+): Money {
   return new Money(DEFAULT_MONTHLY_SALARY);
 }
 
@@ -73,7 +79,8 @@ function isEligibleForCheck(person: IPerson, campaign: ICampaign): boolean {
   if (person.status !== PersonnelStatus.ACTIVE) return false;
   if (SKIPPED_STATUSES.has(person.status)) return false;
 
-  if (person.isCommander && campaign.options.turnoverCommanderImmune) return false;
+  if (person.isCommander && campaign.options.turnoverCommanderImmune)
+    return false;
 
   return true;
 }
@@ -87,27 +94,95 @@ function buildModifier(
   return { modifierId, displayName, value, isStub };
 }
 
-function calculateModifiers(person: IPerson, campaign: ICampaign): TurnoverModifierResult[] {
+function calculateModifiers(
+  person: IPerson,
+  campaign: ICampaign,
+): TurnoverModifierResult[] {
   return [
-    buildModifier('baseTarget', 'Base Target', getBaseTargetModifier(campaign), false),
+    buildModifier(
+      'baseTarget',
+      'Base Target',
+      getBaseTargetModifier(campaign),
+      false,
+    ),
     buildModifier('founder', 'Founder', getFounderModifier(person), false),
-    buildModifier('serviceContract', 'Service Contract', getServiceContractModifier(person), false),
-    buildModifier('skillDesirability', 'Skill Desirability', getSkillDesirabilityModifier(person, campaign), false),
-    buildModifier('recentPromotion', 'Recent Promotion', getRecentPromotionModifier(person, campaign), false),
+    buildModifier(
+      'serviceContract',
+      'Service Contract',
+      getServiceContractModifier(person),
+      false,
+    ),
+    buildModifier(
+      'skillDesirability',
+      'Skill Desirability',
+      getSkillDesirabilityModifier(person, campaign),
+      false,
+    ),
+    buildModifier(
+      'recentPromotion',
+      'Recent Promotion',
+      getRecentPromotionModifier(person, campaign),
+      false,
+    ),
     buildModifier('fatigue', 'Fatigue', getFatigueModifier(person), true),
     buildModifier('hrStrain', 'HR Strain', getHRStrainModifier(campaign), true),
-    buildModifier('managementSkill', 'Management Skill', getManagementSkillModifier(campaign), true),
-    buildModifier('shares', 'Shares', getSharesModifier(person, campaign), true),
-    buildModifier('unitRating', 'Unit Rating', getUnitRatingModifier(campaign), true),
-    buildModifier('hostileTerritory', 'Hostile Territory', getHostileTerritoryModifier(campaign), true),
-    buildModifier('missionStatus', 'Mission Status', getMissionStatusModifier(campaign), false),
+    buildModifier(
+      'managementSkill',
+      'Management Skill',
+      getManagementSkillModifier(campaign),
+      true,
+    ),
+    buildModifier(
+      'shares',
+      'Shares',
+      getSharesModifier(person, campaign),
+      true,
+    ),
+    buildModifier(
+      'unitRating',
+      'Unit Rating',
+      getUnitRatingModifier(campaign),
+      true,
+    ),
+    buildModifier(
+      'hostileTerritory',
+      'Hostile Territory',
+      getHostileTerritoryModifier(campaign),
+      true,
+    ),
+    buildModifier(
+      'missionStatus',
+      'Mission Status',
+      getMissionStatusModifier(campaign),
+      false,
+    ),
     buildModifier('loyalty', 'Loyalty', getLoyaltyModifier(person), true),
-    buildModifier('factionCampaign', 'Faction (Campaign)', getFactionCampaignModifier(campaign), true),
-    buildModifier('factionOrigin', 'Faction (Origin)', getFactionOriginModifier(person), true),
+    buildModifier(
+      'factionCampaign',
+      'Faction (Campaign)',
+      getFactionCampaignModifier(campaign),
+      true,
+    ),
+    buildModifier(
+      'factionOrigin',
+      'Faction (Origin)',
+      getFactionOriginModifier(person),
+      true,
+    ),
     buildModifier('age', 'Age', getAgeModifier(person, campaign), false),
-    buildModifier('family', 'Family', getFamilyModifier(person, campaign), true),
+    buildModifier(
+      'family',
+      'Family',
+      getFamilyModifier(person, campaign),
+      true,
+    ),
     buildModifier('injuries', 'Injuries', getInjuryModifier(person), false),
-    buildModifier('officer', 'Officer Status', getOfficerModifier(person), false),
+    buildModifier(
+      'officer',
+      'Officer Status',
+      getOfficerModifier(person),
+      false,
+    ),
   ];
 }
 
@@ -152,9 +227,12 @@ export function checkTurnover(
   }
 
   const isDesertion = diceRoll < targetNumber - DESERTION_THRESHOLD;
-  const departureType = isDesertion ? 'deserted' as const : 'retired' as const;
+  const departureType = isDesertion
+    ? ('deserted' as const)
+    : ('retired' as const);
 
-  const payoutMultiplier = campaign.options.turnoverPayoutMultiplier ?? DEFAULT_PAYOUT_MULTIPLIER;
+  const payoutMultiplier =
+    campaign.options.turnoverPayoutMultiplier ?? DEFAULT_PAYOUT_MULTIPLIER;
   const salary = getPersonMonthlySalary(person, campaign.options);
   const payout = isDesertion ? Money.ZERO : salary.multiply(payoutMultiplier);
 

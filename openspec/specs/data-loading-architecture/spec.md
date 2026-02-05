@@ -3,7 +3,9 @@
 ## Purpose
 
 Defines the data-driven architecture for loading equipment and unit data from static JSON files. This approach separates data from code, enabling easy updates, user customization, and MegaMek compatibility.
+
 ## Requirements
+
 ### Requirement: Directory Structure
 
 The system SHALL organize data files in a hierarchical directory structure under `public/data/`.
@@ -13,6 +15,7 @@ The system SHALL organize data files in a hierarchical directory structure under
 **Priority**: Critical
 
 #### Scenario: Equipment directory structure
+
 - **GIVEN** the application needs equipment data
 - **WHEN** accessing `public/data/equipment/`
 - **THEN** structure SHALL be:
@@ -22,6 +25,7 @@ The system SHALL organize data files in a hierarchical directory structure under
   - `name-mappings.json` - MTF name to canonical ID mappings
 
 #### Scenario: Unit directory structure
+
 - **GIVEN** the application needs unit data
 - **WHEN** accessing `public/data/units/battlemechs/`
 - **THEN** structure SHALL be organized by era with numbered prefixes:
@@ -34,6 +38,7 @@ The system SHALL organize data files in a hierarchical directory structure under
   - `7-ilclan/`
 
 #### Scenario: Rules level sub-organization
+
 - **GIVEN** a unit era folder exists
 - **WHEN** accessing units within that era
 - **THEN** units SHALL be organized by rules level:
@@ -52,6 +57,7 @@ The system SHALL store equipment definitions in JSON files organized by category
 **Priority**: Critical
 
 #### Scenario: Weapon files
+
 - **GIVEN** weapon equipment needs to be loaded
 - **WHEN** accessing `public/data/equipment/official/weapons/`
 - **THEN** weapons SHALL be organized as:
@@ -61,6 +67,7 @@ The system SHALL store equipment definitions in JSON files organized by category
   - `physical.json` - Hatchets, swords, claws
 
 #### Scenario: Other equipment files
+
 - **GIVEN** non-weapon equipment needs to be loaded
 - **WHEN** accessing `public/data/equipment/official/`
 - **THEN** equipment SHALL be in category files:
@@ -69,6 +76,7 @@ The system SHALL store equipment definitions in JSON files organized by category
   - `miscellaneous.json` - MASC, TSM, jump jets, heat sinks
 
 #### Scenario: Equipment index
+
 - **GIVEN** equipment files have been loaded
 - **WHEN** accessing `public/data/equipment/official/index.json`
 - **THEN** index SHALL list all equipment files and item counts
@@ -84,17 +92,20 @@ The system SHALL store unit definitions as individual JSON files matching the IS
 **Priority**: Critical
 
 #### Scenario: Unit file naming
+
 - **GIVEN** a unit needs to be stored
 - **WHEN** writing the unit file
 - **THEN** filename SHALL be `{Chassis} {Model}.json`
 - **AND** filename SHALL have invalid characters replaced with `-`
 
 #### Scenario: Unit file location
+
 - **GIVEN** a unit with introduction year 3050 and Advanced rules level
 - **WHEN** determining file location
 - **THEN** path SHALL be `public/data/units/battlemechs/4-clan-invasion/advanced/{filename}.json`
 
 #### Scenario: Unit index file
+
 - **GIVEN** units exist in an era folder
 - **WHEN** accessing `public/data/units/battlemechs/index.json`
 - **THEN** index SHALL contain:
@@ -114,6 +125,7 @@ The system SHALL validate equipment and unit data against JSON Schema definition
 **Priority**: High
 
 #### Scenario: Equipment schema files
+
 - **GIVEN** equipment data needs validation
 - **WHEN** accessing `public/data/equipment/_schema/`
 - **THEN** schemas SHALL exist for:
@@ -125,6 +137,7 @@ The system SHALL validate equipment and unit data against JSON Schema definition
   - `unit-schema.json`
 
 #### Scenario: Schema validation on load
+
 - **GIVEN** JSON data is being loaded
 - **WHEN** the loader processes the data
 - **THEN** data SHOULD be validated against the appropriate schema
@@ -141,12 +154,14 @@ The system SHALL use index files for fast catalog browsing without loading full 
 **Priority**: High
 
 #### Scenario: Load unit catalog
+
 - **GIVEN** the application is starting
 - **WHEN** loading the unit catalog
 - **THEN** system SHALL load only `index.json` initially
 - **AND** full unit data SHALL be lazy-loaded on demand
 
 #### Scenario: Index metadata
+
 - **GIVEN** a unit index entry
 - **THEN** entry SHALL contain:
   - `id` - Unique unit identifier
@@ -169,6 +184,7 @@ The system SHALL organize units by BattleTech era using numbered prefixes.
 **Priority**: High
 
 #### Scenario: Era folder mapping
+
 - **GIVEN** a unit with a specific introduction year
 - **WHEN** determining the era folder
 - **THEN** mapping SHALL be:
@@ -192,18 +208,21 @@ The system SHALL distinguish between static (bundled) and dynamic (user-created)
 **Priority**: High
 
 #### Scenario: Official data access
+
 - **GIVEN** official equipment or units
 - **WHEN** accessing the data
 - **THEN** data SHALL be loaded from `public/data/` (static files)
 - **AND** data SHALL NOT be modifiable by the user
 
 #### Scenario: Custom data access
+
 - **GIVEN** user-created equipment or units
 - **WHEN** accessing the data
 - **THEN** data SHALL be loaded from IndexedDB (dynamic storage)
 - **AND** data SHALL support CRUD operations
 
 #### Scenario: Merged data view
+
 - **GIVEN** both official and custom data exist
 - **WHEN** querying equipment or units
 - **THEN** results SHALL include both sources
@@ -220,16 +239,19 @@ The system SHALL map legacy MTF equipment names to canonical IDs.
 **Priority**: High
 
 #### Scenario: Load name mappings
+
 - **GIVEN** the application is initializing
 - **WHEN** loading equipment
 - **THEN** system SHALL load `public/data/equipment/name-mappings.json`
 
 #### Scenario: Resolve equipment name
+
 - **GIVEN** an MTF file contains "Medium Laser"
 - **WHEN** resolving the equipment reference
 - **THEN** mapper SHALL return canonical ID "medium-laser"
 
 #### Scenario: Unknown equipment name
+
 - **GIVEN** an MTF file contains an unrecognized name
 - **WHEN** resolving the equipment reference
 - **THEN** mapper SHALL return null
@@ -246,6 +268,7 @@ The system SHALL load equipment JSON files in both server-side (Node.js) and cli
 **Priority**: Critical
 
 #### Scenario: Server-side loading
+
 - **GIVEN** the application is running in a Node.js environment (SSR/API routes)
 - **WHEN** loading equipment JSON files
 - **THEN** system SHALL use dynamic import of `fs/promises` module
@@ -253,6 +276,7 @@ The system SHALL load equipment JSON files in both server-side (Node.js) and cli
 - **AND** system SHALL NOT use `fetch` (unavailable for local files in Node.js)
 
 #### Scenario: Client-side loading
+
 - **GIVEN** the application is running in a browser environment
 - **WHEN** loading equipment JSON files
 - **THEN** system SHALL use `fetch` API
@@ -260,6 +284,7 @@ The system SHALL load equipment JSON files in both server-side (Node.js) and cli
 - **AND** system SHALL handle network errors gracefully
 
 #### Scenario: Environment detection
+
 - **GIVEN** the equipment loader is initializing
 - **WHEN** determining the runtime environment
 - **THEN** system SHALL check `typeof window === 'undefined'`
@@ -277,6 +302,7 @@ The system SHALL provide fallback equipment definitions for critical constructio
 **Priority**: Critical
 
 #### Scenario: Critical equipment fallbacks
+
 - **GIVEN** the JSON equipment loader has not completed initialization
 - **WHEN** equipment utilities request critical equipment definitions
 - **THEN** system SHALL provide hardcoded fallback definitions for:
@@ -286,6 +312,7 @@ The system SHALL provide fallback equipment definitions for critical constructio
   - Movement enhancements (MASC IS, MASC Clan, TSM, Supercharger)
 
 #### Scenario: Fallback lookup order
+
 - **GIVEN** equipment is requested by ID
 - **WHEN** resolving the equipment definition
 - **THEN** system SHALL first attempt JSON loader lookup
@@ -293,6 +320,7 @@ The system SHALL provide fallback equipment definitions for critical constructio
 - **AND** fallback SHALL contain all required fields (id, name, weight, criticalSlots, etc.)
 
 #### Scenario: Fallback completeness
+
 - **GIVEN** a fallback equipment definition exists
 - **WHEN** the fallback is used
 - **THEN** definition SHALL include:
@@ -306,4 +334,3 @@ The system SHALL provide fallback equipment definitions for critical constructio
   - `costCBills` - C-Bill cost
   - `battleValue` - Battle value
   - `introductionYear` - Year of introduction
-

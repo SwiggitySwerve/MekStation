@@ -4,13 +4,16 @@
  */
 
 import { IGameState, IGameEvent, GamePhase } from '@/types/gameplay';
+
 import { IViolation } from './types';
 
 function coordKey(q: number, r: number): string {
   return `${q},${r}`;
 }
 
-export function checkUnitPositionUniqueness(state: IGameState): readonly IViolation[] {
+export function checkUnitPositionUniqueness(
+  state: IGameState,
+): readonly IViolation[] {
   const violations: IViolation[] = [];
   const positionMap = new Map<string, string[]>();
 
@@ -103,7 +106,7 @@ export function checkArmorBounds(state: IGameState): readonly IViolation[] {
 
 export function checkDestroyedUnitsStayDestroyed(
   currentState: IGameState,
-  previousState: IGameState | undefined
+  previousState: IGameState | undefined,
 ): readonly IViolation[] {
   if (!previousState) return [];
 
@@ -130,7 +133,7 @@ export function checkDestroyedUnitsStayDestroyed(
 
 export function checkPhaseTransitions(
   currentState: IGameState,
-  previousState: IGameState | undefined
+  previousState: IGameState | undefined,
 ): readonly IViolation[] {
   if (!previousState) return [];
 
@@ -166,7 +169,9 @@ export function checkPhaseTransitions(
   return violations;
 }
 
-export function checkSequenceMonotonicity(events: readonly IGameEvent[]): readonly IViolation[] {
+export function checkSequenceMonotonicity(
+  events: readonly IGameEvent[],
+): readonly IViolation[] {
   const violations: IViolation[] = [];
 
   for (let i = 1; i < events.length; i++) {
@@ -193,7 +198,7 @@ export function checkSequenceMonotonicity(events: readonly IGameEvent[]): readon
 
 export function checkTurnNonDecreasing(
   currentState: IGameState,
-  previousState: IGameState | undefined
+  previousState: IGameState | undefined,
 ): readonly IViolation[] {
   if (!previousState) return [];
 

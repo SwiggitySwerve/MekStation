@@ -44,7 +44,9 @@ function createTestEncounter(overrides: Partial<IEncounter> = {}): IEncounter {
   };
 }
 
-function createTestForceRef(overrides: Partial<IForceReference> = {}): IForceReference {
+function createTestForceRef(
+  overrides: Partial<IForceReference> = {},
+): IForceReference {
   return {
     forceId: 'force-1',
     forceName: 'Alpha Lance',
@@ -121,17 +123,23 @@ describe('SCENARIO_TEMPLATES', () => {
   });
 
   it('Duel template has correct defaults', () => {
-    const duel = SCENARIO_TEMPLATES.find((t) => t.type === ScenarioTemplateType.Duel);
+    const duel = SCENARIO_TEMPLATES.find(
+      (t) => t.type === ScenarioTemplateType.Duel,
+    );
     expect(duel).toBeDefined();
     expect(duel!.name).toBe('Duel');
     expect(duel!.suggestedUnitCount).toBe(1);
     expect(duel!.defaultMapConfig.radius).toBe(5);
     expect(duel!.defaultVictoryConditions).toHaveLength(1);
-    expect(duel!.defaultVictoryConditions[0].type).toBe(VictoryConditionType.DestroyAll);
+    expect(duel!.defaultVictoryConditions[0].type).toBe(
+      VictoryConditionType.DestroyAll,
+    );
   });
 
   it('Skirmish template has correct defaults', () => {
-    const skirmish = SCENARIO_TEMPLATES.find((t) => t.type === ScenarioTemplateType.Skirmish);
+    const skirmish = SCENARIO_TEMPLATES.find(
+      (t) => t.type === ScenarioTemplateType.Skirmish,
+    );
     expect(skirmish).toBeDefined();
     expect(skirmish!.name).toBe('Skirmish');
     expect(skirmish!.suggestedUnitCount).toBe(4);
@@ -140,7 +148,9 @@ describe('SCENARIO_TEMPLATES', () => {
   });
 
   it('Battle template has correct defaults', () => {
-    const battle = SCENARIO_TEMPLATES.find((t) => t.type === ScenarioTemplateType.Battle);
+    const battle = SCENARIO_TEMPLATES.find(
+      (t) => t.type === ScenarioTemplateType.Battle,
+    );
     expect(battle).toBeDefined();
     expect(battle!.name).toBe('Battle');
     expect(battle!.suggestedUnitCount).toBe(12);
@@ -152,10 +162,10 @@ describe('SCENARIO_TEMPLATES', () => {
       expect(template.defaultMapConfig.radius).toBeGreaterThan(0);
       expect(template.defaultMapConfig.terrain).toBeDefined();
       expect(['north', 'south', 'east', 'west']).toContain(
-        template.defaultMapConfig.playerDeploymentZone
+        template.defaultMapConfig.playerDeploymentZone,
       );
       expect(['north', 'south', 'east', 'west']).toContain(
-        template.defaultMapConfig.opponentDeploymentZone
+        template.defaultMapConfig.opponentDeploymentZone,
       );
     }
   });
@@ -188,7 +198,9 @@ describe('validateEncounter', () => {
     });
     const result = validateEncounter(encounter);
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain('Opponent force or OpFor configuration is required');
+    expect(result.errors).toContain(
+      'Opponent force or OpFor configuration is required',
+    );
   });
 
   it('returns invalid for encounter without victory conditions', () => {
@@ -199,7 +211,9 @@ describe('validateEncounter', () => {
     });
     const result = validateEncounter(encounter);
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain('At least one victory condition is required');
+    expect(result.errors).toContain(
+      'At least one victory condition is required',
+    );
   });
 
   it('returns invalid for turn limit condition without turn limit value', () => {
@@ -211,7 +225,7 @@ describe('validateEncounter', () => {
     const result = validateEncounter(encounter);
     expect(result.valid).toBe(false);
     expect(result.errors).toContain(
-      'Turn limit victory condition requires a positive turn limit'
+      'Turn limit victory condition requires a positive turn limit',
     );
   });
 

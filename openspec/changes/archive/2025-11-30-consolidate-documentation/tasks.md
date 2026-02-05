@@ -7,4 +7,3 @@
 ## 2. Create Redirect
 
 - [x] 2.1 Create `docs/battletech/README.md` pointing to OpenSpec
-

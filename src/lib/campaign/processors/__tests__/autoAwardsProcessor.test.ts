@@ -1,14 +1,21 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import type { IPerson } from '@/types/campaign/Person';
+
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
+
+import { createDefaultAutoAwardConfig } from '@/types/campaign/awards/autoAwardTypes';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
+
 import { DayPhase } from '../../dayPipeline';
-import { autoAwardsProcessor, processPostMissionAwards, processPostScenarioAwards } from '../autoAwardsProcessor';
-import { createDefaultAutoAwardConfig } from '@/types/campaign/awards/autoAwardTypes';
+import {
+  autoAwardsProcessor,
+  processPostMissionAwards,
+  processPostScenarioAwards,
+} from '../autoAwardsProcessor';
 
 function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
   return {
@@ -27,7 +34,16 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '3000-01-01T00:00:00Z',
     updatedAt: '3025-06-15T00:00:00Z',
@@ -82,7 +98,10 @@ describe('autoAwardsProcessor', () => {
         currentDate: new Date('3025-01-15T00:00:00Z'),
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-15T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-15T00:00:00Z'),
+      );
 
       expect(result.events).toHaveLength(0);
       expect(result.campaign).toEqual(campaign);
@@ -96,42 +115,57 @@ describe('autoAwardsProcessor', () => {
         },
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
 
       expect(result.events).toHaveLength(0);
     });
 
     it('should return events when 1st of month and awards qualify', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+        }),
+      );
 
       const campaign = createTestCampaign({
         currentDate: new Date('3025-01-01T00:00:00Z'),
         personnel,
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
 
       expect(result.events.length).toBeGreaterThanOrEqual(0);
     });
 
     it('should apply awards to person awards array after processing', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-        awards: [],
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+          awards: [],
+        }),
+      );
 
       const campaign = createTestCampaign({
         currentDate: new Date('3025-01-01T00:00:00Z'),
         personnel,
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
       const updatedPerson = result.campaign.personnel.get('p1');
 
       expect(updatedPerson).toBeDefined();
@@ -142,17 +176,23 @@ describe('autoAwardsProcessor', () => {
   describe('day events', () => {
     it('should create day events with type award_granted', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+        }),
+      );
 
       const campaign = createTestCampaign({
         currentDate: new Date('3025-01-01T00:00:00Z'),
         personnel,
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
 
       for (const event of result.events) {
         expect(event.type).toBe('award_granted');
@@ -161,17 +201,23 @@ describe('autoAwardsProcessor', () => {
 
     it('should create day events with info severity', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+        }),
+      );
 
       const campaign = createTestCampaign({
         currentDate: new Date('3025-01-01T00:00:00Z'),
         personnel,
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
 
       for (const event of result.events) {
         expect(event.severity).toBe('info');
@@ -180,17 +226,23 @@ describe('autoAwardsProcessor', () => {
 
     it('should include award data in day events', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+        }),
+      );
 
       const campaign = createTestCampaign({
         currentDate: new Date('3025-01-01T00:00:00Z'),
         personnel,
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
 
       for (const event of result.events) {
         expect(event.data).toBeDefined();
@@ -205,10 +257,13 @@ describe('autoAwardsProcessor', () => {
   describe('post-mission awards', () => {
     it('should return events for qualifying personnel', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+        }),
+      );
 
       const campaign = createTestCampaign({
         personnel,
@@ -222,11 +277,14 @@ describe('autoAwardsProcessor', () => {
 
     it('should return updated campaign with awards applied', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-        awards: [],
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+          awards: [],
+        }),
+      );
 
       const campaign = createTestCampaign({
         personnel,
@@ -242,10 +300,13 @@ describe('autoAwardsProcessor', () => {
   describe('post-scenario awards', () => {
     it('should return events for qualifying personnel', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+        }),
+      );
 
       const campaign = createTestCampaign({
         personnel,
@@ -259,11 +320,14 @@ describe('autoAwardsProcessor', () => {
 
     it('should return updated campaign with awards applied', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-        awards: [],
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+          awards: [],
+        }),
+      );
 
       const campaign = createTestCampaign({
         personnel,
@@ -279,18 +343,24 @@ describe('autoAwardsProcessor', () => {
   describe('award application', () => {
     it('should add award IDs to personnel awards array', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-        awards: [],
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+          awards: [],
+        }),
+      );
 
       const campaign = createTestCampaign({
         currentDate: new Date('3025-01-01T00:00:00Z'),
         personnel,
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
       const updatedPerson = result.campaign.personnel.get('p1');
 
       expect(updatedPerson?.awards).toBeDefined();
@@ -299,18 +369,24 @@ describe('autoAwardsProcessor', () => {
 
     it('should grant multiple awards to same person', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 50,
-        awards: [],
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 50,
+          awards: [],
+        }),
+      );
 
       const campaign = createTestCampaign({
         currentDate: new Date('3025-01-01T00:00:00Z'),
         personnel,
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
       const updatedPerson = result.campaign.personnel.get('p1');
 
       expect(updatedPerson?.awards).toBeDefined();
@@ -318,23 +394,32 @@ describe('autoAwardsProcessor', () => {
 
     it('should grant awards to multiple personnel', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-        awards: [],
-      }));
-      personnel.set('p2', createTestPerson({
-        id: 'p2',
-        totalKills: 15,
-        awards: [],
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+          awards: [],
+        }),
+      );
+      personnel.set(
+        'p2',
+        createTestPerson({
+          id: 'p2',
+          totalKills: 15,
+          awards: [],
+        }),
+      );
 
       const campaign = createTestCampaign({
         currentDate: new Date('3025-01-01T00:00:00Z'),
         personnel,
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
 
       const p1 = result.campaign.personnel.get('p1');
       const p2 = result.campaign.personnel.get('p2');
@@ -349,7 +434,10 @@ describe('autoAwardsProcessor', () => {
         personnel: new Map(),
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
 
       expect(result.events).toHaveLength(0);
     });
@@ -358,18 +446,24 @@ describe('autoAwardsProcessor', () => {
   describe('edge cases', () => {
     it('should handle person with no existing awards', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-        awards: undefined,
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+          awards: undefined,
+        }),
+      );
 
       const campaign = createTestCampaign({
         currentDate: new Date('3025-01-01T00:00:00Z'),
         personnel,
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
       const updatedPerson = result.campaign.personnel.get('p1');
 
       expect(updatedPerson?.awards).toBeDefined();
@@ -378,18 +472,24 @@ describe('autoAwardsProcessor', () => {
 
     it('should preserve existing awards when adding new ones', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 10,
-        awards: ['award-existing'],
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 10,
+          awards: ['award-existing'],
+        }),
+      );
 
       const campaign = createTestCampaign({
         currentDate: new Date('3025-01-01T00:00:00Z'),
         personnel,
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
       const updatedPerson = result.campaign.personnel.get('p1');
 
       expect(updatedPerson?.awards).toContain('award-existing');
@@ -397,18 +497,24 @@ describe('autoAwardsProcessor', () => {
 
     it('should not modify campaign when no awards granted', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({
-        id: 'p1',
-        totalKills: 0,
-        awards: [],
-      }));
+      personnel.set(
+        'p1',
+        createTestPerson({
+          id: 'p1',
+          totalKills: 0,
+          awards: [],
+        }),
+      );
 
       const campaign = createTestCampaign({
         currentDate: new Date('3025-01-01T00:00:00Z'),
         personnel,
       });
 
-      const result = autoAwardsProcessor.process(campaign, new Date('3025-01-01T00:00:00Z'));
+      const result = autoAwardsProcessor.process(
+        campaign,
+        new Date('3025-01-01T00:00:00Z'),
+      );
 
       expect(result.campaign.personnel.size).toBe(campaign.personnel.size);
     });

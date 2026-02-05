@@ -1,8 +1,15 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { TechBaseConfiguration, DEFAULT_COMPONENT_VALUES } from '@/components/customizer/shared/TechBaseConfiguration';
-import { TechBaseMode, createDefaultComponentTechBases } from '@/types/construction/TechBaseConfiguration';
+import React from 'react';
+
+import {
+  TechBaseConfiguration,
+  DEFAULT_COMPONENT_VALUES,
+} from '@/components/customizer/shared/TechBaseConfiguration';
+import {
+  TechBaseMode,
+  createDefaultComponentTechBases,
+} from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 
 describe('TechBaseConfiguration', () => {
@@ -20,7 +27,7 @@ describe('TechBaseConfiguration', () => {
 
   it('should render tech base mode buttons', () => {
     render(<TechBaseConfiguration {...defaultProps} />);
-    
+
     expect(screen.getByText('Inner Sphere')).toBeInTheDocument();
     // Use getAllByText and check that at least one exists (mode button + component buttons)
     const clanButtons = screen.getAllByText('Clan');
@@ -29,29 +36,37 @@ describe('TechBaseConfiguration', () => {
   });
 
   it('should highlight active mode', () => {
-    render(<TechBaseConfiguration {...defaultProps} mode={TechBaseMode.CLAN} />);
-    
+    render(
+      <TechBaseConfiguration {...defaultProps} mode={TechBaseMode.CLAN} />,
+    );
+
     // Find the mode button by title attribute
-    const clanModeButton = screen.getByTitle('All components use Clan technology');
+    const clanModeButton = screen.getByTitle(
+      'All components use Clan technology',
+    );
     expect(clanModeButton).toHaveClass('bg-red-600');
   });
 
   it('should call onModeChange when mode button is clicked', async () => {
     const user = userEvent.setup();
     render(<TechBaseConfiguration {...defaultProps} />);
-    
+
     // Find the mode button by title attribute to avoid clicking component buttons
-    const clanModeButton = screen.getByTitle('All components use Clan technology');
+    const clanModeButton = screen.getByTitle(
+      'All components use Clan technology',
+    );
     await user.click(clanModeButton);
-    
+
     expect(defaultProps.onModeChange).toHaveBeenCalledWith(TechBaseMode.CLAN);
   });
 
   it('should render component rows', () => {
     render(<TechBaseConfiguration {...defaultProps} />);
-    
+
     // Check for component labels - they might be in different format
-    const componentLabels = screen.getAllByText(/Chassis|Gyro|Engine|Heat Sink|Targeting|Myomer|Movement|Armor/i);
+    const componentLabels = screen.getAllByText(
+      /Chassis|Gyro|Engine|Heat Sink|Targeting|Myomer|Movement|Armor/i,
+    );
     expect(componentLabels.length).toBeGreaterThan(0);
   });
 
@@ -61,17 +76,24 @@ describe('TechBaseConfiguration', () => {
       engine: 'Standard Fusion 300',
       gyro: 'XL',
     };
-    
-    render(<TechBaseConfiguration {...defaultProps} componentValues={componentValues} />);
-    
+
+    render(
+      <TechBaseConfiguration
+        {...defaultProps}
+        componentValues={componentValues}
+      />,
+    );
+
     expect(screen.getByText('Standard Fusion 300')).toBeInTheDocument();
     expect(screen.getByText('XL')).toBeInTheDocument();
   });
 
   it('should call onComponentChange when component tech base changes', async () => {
     const user = userEvent.setup();
-    render(<TechBaseConfiguration {...defaultProps} mode={TechBaseMode.MIXED} />);
-    
+    render(
+      <TechBaseConfiguration {...defaultProps} mode={TechBaseMode.MIXED} />,
+    );
+
     // Find component Clan buttons (skip the mode button)
     const clanButtons = screen.getAllByText('Clan');
     if (clanButtons.length > 1) {
@@ -81,8 +103,13 @@ describe('TechBaseConfiguration', () => {
   });
 
   it('should disable component tech base buttons in non-mixed mode', () => {
-    render(<TechBaseConfiguration {...defaultProps} mode={TechBaseMode.INNER_SPHERE} />);
-    
+    render(
+      <TechBaseConfiguration
+        {...defaultProps}
+        mode={TechBaseMode.INNER_SPHERE}
+      />,
+    );
+
     // In non-mixed mode, component tech base buttons should be disabled
     const isButtons = screen.getAllByText('IS');
     const clanButtons = screen.getAllByText('Clan');
@@ -91,11 +118,12 @@ describe('TechBaseConfiguration', () => {
   });
 
   it('should enable component tech base buttons in mixed mode', () => {
-    render(<TechBaseConfiguration {...defaultProps} mode={TechBaseMode.MIXED} />);
-    
+    render(
+      <TechBaseConfiguration {...defaultProps} mode={TechBaseMode.MIXED} />,
+    );
+
     // In mixed mode, component tech base buttons should be enabled
     const clanButtons = screen.getAllByText('Clan');
     expect(clanButtons.length).toBeGreaterThan(1); // Mode button + component buttons
   });
 });
-

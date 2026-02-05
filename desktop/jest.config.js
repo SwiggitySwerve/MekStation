@@ -6,14 +6,14 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.test.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: {
-    '^.+\\.ts$': ['ts-jest', {
-      tsconfig: '<rootDir>/tsconfig.test.json'
-    }]
+    '^.+\\.ts$': [
+      'ts-jest',
+      {
+        tsconfig: '<rootDir>/tsconfig.test.json',
+      },
+    ],
   },
-  collectCoverageFrom: [
-    'services/**/*.ts',
-    '!services/**/__tests__/**'
-  ],
+  collectCoverageFrom: ['services/**/*.ts', '!services/**/__tests__/**'],
   coverageDirectory: 'coverage',
-  verbose: true
+  verbose: true,
 };

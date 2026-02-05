@@ -8,6 +8,7 @@
  */
 
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -17,7 +18,6 @@ import {
   createUnitValidationRuleResult,
   IValidatableUnit,
 } from '../../../../types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 
 /**
  * Extended personnel unit interface for personnel-specific validation
@@ -32,7 +32,10 @@ interface IPersonnelUnit extends IValidatableUnit {
  * Type guard for personnel units
  */
 function isPersonnelUnit(unit: IValidatableUnit): unit is IPersonnelUnit {
-  return unit.unitType === UnitType.INFANTRY || unit.unitType === UnitType.BATTLE_ARMOR;
+  return (
+    unit.unitType === UnitType.INFANTRY ||
+    unit.unitType === UnitType.BATTLE_ARMOR
+  );
 }
 
 /**
@@ -76,13 +79,20 @@ export const PersonnelSquadSizeValid: IUnitValidationRuleDefinition = {
               expected: '> 0 (integer)',
               actual: String(unit.squadSize),
               suggestion: 'Set a valid positive integer squad size',
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -104,7 +114,10 @@ export const BattleArmorWeightRange: IUnitValidationRuleDefinition = {
     if (unit.unitType === UnitType.BATTLE_ARMOR && isPersonnelUnit(unit)) {
       const trooperWeight = unit.trooperWeight ?? unit.weight;
 
-      if (trooperWeight < BATTLE_ARMOR_WEIGHT.min || trooperWeight > BATTLE_ARMOR_WEIGHT.max) {
+      if (
+        trooperWeight < BATTLE_ARMOR_WEIGHT.min ||
+        trooperWeight > BATTLE_ARMOR_WEIGHT.max
+      ) {
         errors.push(
           createUnitValidationError(
             this.id,
@@ -117,13 +130,20 @@ export const BattleArmorWeightRange: IUnitValidationRuleDefinition = {
               expected: `${BATTLE_ARMOR_WEIGHT.min}-${BATTLE_ARMOR_WEIGHT.max}`,
               actual: String(trooperWeight),
               suggestion: `Adjust trooper weight to be within ${BATTLE_ARMOR_WEIGHT.min}-${BATTLE_ARMOR_WEIGHT.max} tons`,
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -154,21 +174,29 @@ export const InfantryPrimaryWeaponRequired: IUnitValidationRuleDefinition = {
             {
               field: 'primaryWeapon',
               suggestion: 'Define a primary weapon type for the infantry unit',
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, [], warnings, [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      [],
+      warnings,
+      [],
+      0,
+    );
   },
 };
 
 /**
  * All personnel category validation rules
  */
-export const PERSONNEL_CATEGORY_RULES: readonly IUnitValidationRuleDefinition[] = [
-  PersonnelSquadSizeValid,
-  BattleArmorWeightRange,
-  InfantryPrimaryWeaponRequired,
-];
+export const PERSONNEL_CATEGORY_RULES: readonly IUnitValidationRuleDefinition[] =
+  [
+    PersonnelSquadSizeValid,
+    BattleArmorWeightRange,
+    InfantryPrimaryWeaponRequired,
+  ];

@@ -5,7 +5,12 @@
  * @spec openspec/changes/add-scenario-generators/spec.md
  */
 
-import { Era } from '../../types/temporal/Era';
+import {
+  Faction,
+  getRAT,
+  type IRATEntry,
+  selectUnitsFromRAT,
+} from '../../constants/scenario/rats';
 import {
   type IGeneratedPilot,
   type IGeneratedUnit,
@@ -15,12 +20,7 @@ import {
   OpForSkillLevel,
   UnitTypeCategory,
 } from '../../types/scenario';
-import {
-  Faction,
-  getRAT,
-  type IRATEntry,
-  selectUnitsFromRAT,
-} from '../../constants/scenario/rats';
+import { Era } from '../../types/temporal/Era';
 
 // =============================================================================
 // Skill Level Mappings
@@ -29,7 +29,9 @@ import {
 /**
  * Base skills for each skill level.
  */
-const SKILL_LEVEL_BASE: Readonly<Record<OpForSkillLevel, { gunnery: number; piloting: number }>> = {
+const SKILL_LEVEL_BASE: Readonly<
+  Record<OpForSkillLevel, { gunnery: number; piloting: number }>
+> = {
   [OpForSkillLevel.Green]: { gunnery: 5, piloting: 6 },
   [OpForSkillLevel.Regular]: { gunnery: 4, piloting: 5 },
   [OpForSkillLevel.Veteran]: { gunnery: 3, piloting: 4 },
@@ -56,20 +58,76 @@ const DEFAULT_SKILL_VARIANCE: ISkillVariance = {
  * Sample first names for pilot generation.
  */
 const FIRST_NAMES = [
-  'Marcus', 'Helena', 'Viktor', 'Yuki', 'Chen', 'Katrina', 'Dmitri', 'Fatima',
-  'Johann', 'Nadia', 'Rashid', 'Isabella', 'Takeshi', 'Olga', 'Hans', 'Mei',
-  'Aleksei', 'Lydia', 'Tomás', 'Ingrid', 'Kenji', 'Svetlana', 'Erik', 'Aisha',
-  'Wolfgang', 'Valentina', 'Hiroshi', 'Natasha', 'Klaus', 'Zara', 'Gunther', 'Sonja',
+  'Marcus',
+  'Helena',
+  'Viktor',
+  'Yuki',
+  'Chen',
+  'Katrina',
+  'Dmitri',
+  'Fatima',
+  'Johann',
+  'Nadia',
+  'Rashid',
+  'Isabella',
+  'Takeshi',
+  'Olga',
+  'Hans',
+  'Mei',
+  'Aleksei',
+  'Lydia',
+  'Tomás',
+  'Ingrid',
+  'Kenji',
+  'Svetlana',
+  'Erik',
+  'Aisha',
+  'Wolfgang',
+  'Valentina',
+  'Hiroshi',
+  'Natasha',
+  'Klaus',
+  'Zara',
+  'Gunther',
+  'Sonja',
 ];
 
 /**
  * Sample last names for pilot generation.
  */
 const LAST_NAMES = [
-  'Steiner', 'Kurita', 'Liao', 'Davion', 'Marik', 'Kerensky', 'Allard', 'Kell',
-  'Wolf', 'Hazen', 'Pryde', 'Fetladral', 'Radick', 'Osis', 'Moon', 'Carns',
-  'Sorenson', 'Tanaka', 'Mueller', 'Volkov', 'Chen', 'Martinez', 'Nakamura', 'Weber',
-  'Schmidt', 'Ivanov', 'Park', 'Garcia', 'Johansson', 'Petrov', 'Yamamoto', 'Klein',
+  'Steiner',
+  'Kurita',
+  'Liao',
+  'Davion',
+  'Marik',
+  'Kerensky',
+  'Allard',
+  'Kell',
+  'Wolf',
+  'Hazen',
+  'Pryde',
+  'Fetladral',
+  'Radick',
+  'Osis',
+  'Moon',
+  'Carns',
+  'Sorenson',
+  'Tanaka',
+  'Mueller',
+  'Volkov',
+  'Chen',
+  'Martinez',
+  'Nakamura',
+  'Weber',
+  'Schmidt',
+  'Ivanov',
+  'Park',
+  'Garcia',
+  'Johansson',
+  'Petrov',
+  'Yamamoto',
+  'Klein',
 ];
 
 /**
@@ -90,7 +148,10 @@ function generatePilotName(randomFn: () => number = Math.random): string {
  * Filter RAT entries by year availability.
  * Handles optional introductionYear and extinctionYear fields.
  */
-function filterRATEntriesByYear(entries: readonly IRATEntry[], year: number): IRATEntry[] {
+function filterRATEntriesByYear(
+  entries: readonly IRATEntry[],
+  year: number,
+): IRATEntry[] {
   return entries.filter((entry) => {
     if (entry.introductionYear !== undefined && year < entry.introductionYear) {
       return false;
@@ -118,7 +179,10 @@ export class OpForGeneratorService {
    * @param config - OpFor generation configuration
    * @param randomFn - Optional random function for seeded PRNG (defaults to Math.random)
    */
-  generate(config: IOpForGeneratorConfig, randomFn: () => number = Math.random): IOpForGeneratorResult {
+  generate(
+    config: IOpForGeneratorConfig,
+    randomFn: () => number = Math.random,
+  ): IOpForGeneratorResult {
     // Calculate target BV
     const targetBV = Math.round(config.playerBV * config.difficultyMultiplier);
 
@@ -156,7 +220,7 @@ export class OpForGeneratorService {
     rat: ReturnType<typeof getRAT>,
     targetBV: number,
     config: IOpForGeneratorConfig,
-    randomFn: () => number
+    randomFn: () => number,
   ): readonly IRATEntry[] {
     let availableEntries = rat.entries;
 
@@ -165,7 +229,7 @@ export class OpForGeneratorService {
 
       if (availableEntries.length === 0) {
         console.warn(
-          `No units available for year ${config.year} in faction ${config.faction}. Using all available units.`
+          `No units available for year ${config.year} in faction ${config.faction}. Using all available units.`,
         );
         availableEntries = rat.entries;
       }
@@ -212,7 +276,7 @@ export class OpForGeneratorService {
    * Determine which unit types to select and in what proportions.
    */
   private getUnitTypesToSelect(
-    config: IOpForGeneratorConfig
+    config: IOpForGeneratorConfig,
   ): Array<[UnitTypeCategory, number]> {
     const result: Array<[UnitTypeCategory, number]> = [];
     const mix = config.unitTypeMix;
@@ -239,7 +303,7 @@ export class OpForGeneratorService {
   private createGeneratedUnits(
     entries: readonly IRATEntry[],
     config: IOpForGeneratorConfig,
-    randomFn: () => number
+    randomFn: () => number,
   ): readonly IGeneratedUnit[] {
     const units: IGeneratedUnit[] = [];
     let lanceId = 1;
@@ -277,7 +341,10 @@ export class OpForGeneratorService {
   /**
    * Generate a pilot with skills based on configuration.
    */
-  private generatePilot(config: IOpForGeneratorConfig, randomFn: () => number): IGeneratedPilot {
+  private generatePilot(
+    config: IOpForGeneratorConfig,
+    randomFn: () => number,
+  ): IGeneratedPilot {
     const base = SKILL_LEVEL_BASE[config.skillLevel];
     const variance = config.skillVariance || DEFAULT_SKILL_VARIANCE;
 
@@ -299,8 +366,12 @@ export class OpForGeneratorService {
         piloting = Math.min(7, piloting + 1);
       } else {
         // Regular variance
-        const gunneryDelta = Math.floor(randomFn() * (variance.gunneryVariance * 2 + 1)) - variance.gunneryVariance;
-        const pilotingDelta = Math.floor(randomFn() * (variance.pilotingVariance * 2 + 1)) - variance.pilotingVariance;
+        const gunneryDelta =
+          Math.floor(randomFn() * (variance.gunneryVariance * 2 + 1)) -
+          variance.gunneryVariance;
+        const pilotingDelta =
+          Math.floor(randomFn() * (variance.pilotingVariance * 2 + 1)) -
+          variance.pilotingVariance;
         gunnery = Math.max(1, Math.min(6, gunnery + gunneryDelta));
         piloting = Math.max(2, Math.min(7, piloting + pilotingDelta));
       }
@@ -347,7 +418,7 @@ export class OpForGeneratorService {
 export function getDefaultOpForConfig(
   playerBV: number,
   faction?: string,
-  era?: string
+  era?: string,
 ): IOpForGeneratorConfig {
   return {
     playerBV,

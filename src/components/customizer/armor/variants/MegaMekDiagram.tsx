@@ -11,12 +11,11 @@
  */
 
 import React, { useState } from 'react';
+
 import { MechLocation } from '@/types/construction';
+
 import { LocationArmorData } from '../ArmorDiagram';
-import {
-  getLocationLabel,
-  hasTorsoRear,
-} from '../shared/MechSilhouette';
+import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared';
 import {
   getMegaMekStatusColor,
   getMegaMekFrontStatusColor,
@@ -26,8 +25,13 @@ import {
   MEGAMEK_COLORS,
 } from '../shared/ArmorFills';
 import { DiagramHeader } from '../shared/DiagramHeader';
-import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared';
-import { useResolvedLayout, ResolvedPosition, MechConfigType, getLayoutIdForConfig } from '../shared/layout';
+import {
+  useResolvedLayout,
+  ResolvedPosition,
+  MechConfigType,
+  getLayoutIdForConfig,
+} from '../shared/layout';
+import { getLocationLabel, hasTorsoRear } from '../shared/MechSilhouette';
 
 interface MegaMekLocationProps {
   location: MechLocation;
@@ -81,14 +85,16 @@ function MegaMekLocation({
     ? SELECTED_COLOR
     : getMegaMekRearStatusColor(rear, maximum);
 
-  const fillColor = isHovered ? lightenColor(frontBaseColor, 0.1) : frontBaseColor;
+  const fillColor = isHovered
+    ? lightenColor(frontBaseColor, 0.1)
+    : frontBaseColor;
   const shadowColor = MEGAMEK_COLORS.SHADOW;
   const outlineColor = isSelected ? SELECTED_COLOR : MEGAMEK_COLORS.OUTLINE;
   const outlineWidth = isSelected ? 2 : 1.2;
 
   // Split heights for front/rear display - 60/40 split for consistency
-  const frontHeight = showRear ? pos.height * 0.60 : pos.height;
-  const rearHeight = showRear ? pos.height * 0.40 : 0;
+  const frontHeight = showRear ? pos.height * 0.6 : pos.height;
+  const rearHeight = showRear ? pos.height * 0.4 : 0;
   const dividerY = pos.y + frontHeight;
 
   return (
@@ -186,7 +192,13 @@ function MegaMekLocation({
 
       <text
         x={center.x}
-        y={isHead ? pos.y + pos.height / 2 + 4 : showRear ? pos.y + frontHeight / 2 + 8 : pos.y + pos.height / 2 + 10}
+        y={
+          isHead
+            ? pos.y + pos.height / 2 + 4
+            : showRear
+              ? pos.y + frontHeight / 2 + 8
+              : pos.y + pos.height / 2 + 10
+        }
         textAnchor="middle"
         className="pointer-events-none"
         style={{
@@ -202,7 +214,11 @@ function MegaMekLocation({
       {!isHead && (
         <text
           x={center.x}
-          y={showRear ? pos.y + frontHeight / 2 + 22 : pos.y + pos.height / 2 + 24}
+          y={
+            showRear
+              ? pos.y + frontHeight / 2 + 22
+              : pos.y + pos.height / 2 + 24
+          }
           textAnchor="middle"
           className="pointer-events-none"
           style={{ fontSize: '9px', fill: '#5c4f3d' }}
@@ -346,7 +362,9 @@ export function MegaMekDiagram({
   className = '',
   mechConfigType = 'biped',
 }: MegaMekDiagramProps): React.ReactElement {
-  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
+    null,
+  );
 
   // Get layout ID based on mech configuration type
   const layoutId = getLayoutIdForConfig(mechConfigType, 'megamek');
@@ -354,7 +372,9 @@ export function MegaMekDiagram({
   // Use the layout engine to get resolved positions
   const { getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
 
-  const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
+  const getArmorData = (
+    location: MechLocation,
+  ): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
 
@@ -362,19 +382,26 @@ export function MegaMekDiagram({
   const locations = getLocationsForConfig(mechConfigType);
 
   return (
-    <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
+    <div
+      className={`bg-surface-base border-border-theme-subtle rounded-lg border p-4 ${className}`}
+    >
       <DiagramHeader title="Armor Allocation" />
 
       {/* Diagram - uses auto-calculated viewBox from layout engine */}
       <div className="relative">
         <svg
           viewBox={viewBox}
-          className="w-full max-w-[280px] mx-auto"
+          className="mx-auto w-full max-w-[280px]"
           style={{ height: 'auto' }}
         >
           <defs>
             {/* Grid pattern for background */}
-            <pattern id="megamek-grid" width="10" height="10" patternUnits="userSpaceOnUse">
+            <pattern
+              id="megamek-grid"
+              width="10"
+              height="10"
+              patternUnits="userSpaceOnUse"
+            >
               <path
                 d="M 10 0 L 0 0 0 10"
                 fill="none"
@@ -397,7 +424,7 @@ export function MegaMekDiagram({
           {locations.map((loc) => {
             const position = getPosition(loc);
             if (!position) return null;
-            
+
             return (
               <MegaMekLocation
                 key={loc}

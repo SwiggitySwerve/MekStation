@@ -7,7 +7,10 @@
  * @module campaign/scenario/morale
  */
 
-import { AtBMoraleLevel, MORALE_VALUES } from '@/types/campaign/scenario/scenarioTypes';
+import {
+  AtBMoraleLevel,
+  MORALE_VALUES,
+} from '@/types/campaign/scenario/scenarioTypes';
 
 /**
  * Updates morale level based on scenario outcome.
@@ -26,7 +29,7 @@ import { AtBMoraleLevel, MORALE_VALUES } from '@/types/campaign/scenario/scenari
  */
 export function updateMorale(
   currentLevel: AtBMoraleLevel,
-  scenarioOutcome: 'victory' | 'defeat' | 'draw'
+  scenarioOutcome: 'victory' | 'defeat' | 'draw',
 ): AtBMoraleLevel {
   const currentValue = MORALE_VALUES[currentLevel];
   let newValue = currentValue;
@@ -60,7 +63,9 @@ export function getMoraleLevelFromValue(value: number): AtBMoraleLevel {
   const level = Object.entries(MORALE_VALUES).find(([, v]) => v === value)?.[0];
 
   if (!level) {
-    throw new Error(`Invalid morale value: ${value}. Must be between -3 and 3.`);
+    throw new Error(
+      `Invalid morale value: ${value}. Must be between -3 and 3.`,
+    );
   }
 
   return level as AtBMoraleLevel;
@@ -87,7 +92,9 @@ export interface IMoraleDisplayInfo {
  * const info = getMoraleDisplayInfo(AtBMoraleLevel.OVERWHELMING);
  * // Returns { label: 'Overwhelming', color: 'darkgreen', description: '...' }
  */
-export function getMoraleDisplayInfo(level: AtBMoraleLevel): Readonly<IMoraleDisplayInfo> {
+export function getMoraleDisplayInfo(
+  level: AtBMoraleLevel,
+): Readonly<IMoraleDisplayInfo> {
   const displayMap: Record<AtBMoraleLevel, IMoraleDisplayInfo> = {
     [AtBMoraleLevel.ROUTED]: {
       label: 'Routed',

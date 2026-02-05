@@ -12,9 +12,15 @@
 jest.unmock('@/services/conversion/MTFExportService');
 jest.unmock('@/services/conversion/MTFParserService');
 
-import { MTFExportService, getMTFExportService } from '@/services/conversion/MTFExportService';
+import {
+  MTFExportService,
+  getMTFExportService,
+} from '@/services/conversion/MTFExportService';
 import { MTFParserService } from '@/services/conversion/MTFParserService';
-import { ISerializedUnit, ISerializedFluff } from '@/types/unit/UnitSerialization';
+import {
+  ISerializedUnit,
+  ISerializedFluff,
+} from '@/types/unit/UnitSerialization';
 
 describe('MTFExportService', () => {
   let service: MTFExportService;
@@ -43,7 +49,9 @@ describe('MTFExportService', () => {
   // ============================================================================
   // Helper: Create Minimal Valid Unit
   // ============================================================================
-  const createMinimalUnit = (overrides?: Partial<ISerializedUnit>): ISerializedUnit => ({
+  const createMinimalUnit = (
+    overrides?: Partial<ISerializedUnit>,
+  ): ISerializedUnit => ({
     id: 'test-mech-1',
     chassis: 'TestMech',
     model: 'TST-1',
@@ -75,7 +83,14 @@ describe('MTFExportService', () => {
     movement: { walk: 4, jump: 0 },
     equipment: [],
     criticalSlots: {
-      HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+      HEAD: [
+        'Life Support',
+        'Sensors',
+        'Cockpit',
+        null,
+        'Sensors',
+        'Life Support',
+      ],
       LEFT_ARM: [],
       RIGHT_ARM: [],
       LEFT_TORSO: [],
@@ -104,7 +119,9 @@ describe('MTFExportService', () => {
       const unit = createMinimalUnit();
       const result = service.export(unit);
 
-      expect(result.content).toContain('# MegaMek Data (C) 2025 by The MegaMek Team');
+      expect(result.content).toContain(
+        '# MegaMek Data (C) 2025 by The MegaMek Team',
+      );
       expect(result.content).toContain('CC BY-NC-SA 4.0');
       expect(result.content).toContain('# MechWarrior, BattleMech');
     });
@@ -307,14 +324,18 @@ describe('MTFExportService', () => {
   // ============================================================================
   describe('formatEngineType()', () => {
     it('should format FUSION engine', () => {
-      const unit = createMinimalUnit({ engine: { type: 'FUSION', rating: 200 } });
+      const unit = createMinimalUnit({
+        engine: { type: 'FUSION', rating: 200 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('engine:200 Fusion Engine');
     });
 
     it('should format STANDARD engine as Fusion', () => {
-      const unit = createMinimalUnit({ engine: { type: 'STANDARD', rating: 200 } });
+      const unit = createMinimalUnit({
+        engine: { type: 'STANDARD', rating: 200 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('engine:200 Fusion Engine');
@@ -328,28 +349,36 @@ describe('MTFExportService', () => {
     });
 
     it('should format XL_IS engine', () => {
-      const unit = createMinimalUnit({ engine: { type: 'XL_IS', rating: 300 } });
+      const unit = createMinimalUnit({
+        engine: { type: 'XL_IS', rating: 300 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('engine:300 XL Fusion Engine');
     });
 
     it('should format XL_CLAN engine', () => {
-      const unit = createMinimalUnit({ engine: { type: 'XL_CLAN', rating: 300 } });
+      const unit = createMinimalUnit({
+        engine: { type: 'XL_CLAN', rating: 300 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('engine:300 XL Fusion Engine (Clan)');
     });
 
     it('should format LIGHT engine', () => {
-      const unit = createMinimalUnit({ engine: { type: 'LIGHT', rating: 250 } });
+      const unit = createMinimalUnit({
+        engine: { type: 'LIGHT', rating: 250 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('engine:250 Light Fusion Engine');
     });
 
     it('should format COMPACT engine', () => {
-      const unit = createMinimalUnit({ engine: { type: 'COMPACT', rating: 150 } });
+      const unit = createMinimalUnit({
+        engine: { type: 'COMPACT', rating: 150 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('engine:150 Compact Fusion Engine');
@@ -370,21 +399,27 @@ describe('MTFExportService', () => {
     });
 
     it('should format FUEL_CELL engine', () => {
-      const unit = createMinimalUnit({ engine: { type: 'FUEL_CELL', rating: 180 } });
+      const unit = createMinimalUnit({
+        engine: { type: 'FUEL_CELL', rating: 180 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('engine:180 Fuel Cell Engine');
     });
 
     it('should format FISSION engine', () => {
-      const unit = createMinimalUnit({ engine: { type: 'FISSION', rating: 200 } });
+      const unit = createMinimalUnit({
+        engine: { type: 'FISSION', rating: 200 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('engine:200 Fission Engine');
     });
 
     it('should default unknown engine types to Fusion', () => {
-      const unit = createMinimalUnit({ engine: { type: 'UNKNOWN', rating: 200 } });
+      const unit = createMinimalUnit({
+        engine: { type: 'UNKNOWN', rating: 200 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('engine:200 Fusion Engine');
@@ -417,7 +452,9 @@ describe('MTFExportService', () => {
     });
 
     it('should format ENDO_STEEL_CLAN structure', () => {
-      const unit = createMinimalUnit({ structure: { type: 'ENDO_STEEL_CLAN' } });
+      const unit = createMinimalUnit({
+        structure: { type: 'ENDO_STEEL_CLAN' },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('structure:Clan Endo Steel');
@@ -464,35 +501,45 @@ describe('MTFExportService', () => {
   // ============================================================================
   describe('Heat Sink Type Formatting', () => {
     it('should format SINGLE heat sinks', () => {
-      const unit = createMinimalUnit({ heatSinks: { type: 'SINGLE', count: 10 } });
+      const unit = createMinimalUnit({
+        heatSinks: { type: 'SINGLE', count: 10 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('heat sinks:10 Single');
     });
 
     it('should format DOUBLE heat sinks', () => {
-      const unit = createMinimalUnit({ heatSinks: { type: 'DOUBLE', count: 15 } });
+      const unit = createMinimalUnit({
+        heatSinks: { type: 'DOUBLE', count: 15 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('heat sinks:15 Double');
     });
 
     it('should format DOUBLE_IS heat sinks', () => {
-      const unit = createMinimalUnit({ heatSinks: { type: 'DOUBLE_IS', count: 15 } });
+      const unit = createMinimalUnit({
+        heatSinks: { type: 'DOUBLE_IS', count: 15 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('heat sinks:15 Double');
     });
 
     it('should format DOUBLE_CLAN heat sinks', () => {
-      const unit = createMinimalUnit({ heatSinks: { type: 'DOUBLE_CLAN', count: 20 } });
+      const unit = createMinimalUnit({
+        heatSinks: { type: 'DOUBLE_CLAN', count: 20 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('heat sinks:20 Double');
     });
 
     it('should default unknown heat sink types to Single', () => {
-      const unit = createMinimalUnit({ heatSinks: { type: 'UNKNOWN', count: 10 } });
+      const unit = createMinimalUnit({
+        heatSinks: { type: 'UNKNOWN', count: 10 },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('heat sinks:10 Single');
@@ -511,70 +558,90 @@ describe('MTFExportService', () => {
     });
 
     it('should format FERRO_FIBROUS armor', () => {
-      const unit = createMinimalUnit({ armor: { ...createMinimalUnit().armor, type: 'FERRO_FIBROUS' } });
+      const unit = createMinimalUnit({
+        armor: { ...createMinimalUnit().armor, type: 'FERRO_FIBROUS' },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('armor:Ferro-Fibrous');
     });
 
     it('should format FERRO_FIBROUS_IS armor', () => {
-      const unit = createMinimalUnit({ armor: { ...createMinimalUnit().armor, type: 'FERRO_FIBROUS_IS' } });
+      const unit = createMinimalUnit({
+        armor: { ...createMinimalUnit().armor, type: 'FERRO_FIBROUS_IS' },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('armor:Ferro-Fibrous');
     });
 
     it('should format FERRO_FIBROUS_CLAN armor', () => {
-      const unit = createMinimalUnit({ armor: { ...createMinimalUnit().armor, type: 'FERRO_FIBROUS_CLAN' } });
+      const unit = createMinimalUnit({
+        armor: { ...createMinimalUnit().armor, type: 'FERRO_FIBROUS_CLAN' },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('armor:Ferro-Fibrous(Clan)');
     });
 
     it('should format LIGHT_FERRO armor', () => {
-      const unit = createMinimalUnit({ armor: { ...createMinimalUnit().armor, type: 'LIGHT_FERRO' } });
+      const unit = createMinimalUnit({
+        armor: { ...createMinimalUnit().armor, type: 'LIGHT_FERRO' },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('armor:Light Ferro-Fibrous');
     });
 
     it('should format HEAVY_FERRO armor', () => {
-      const unit = createMinimalUnit({ armor: { ...createMinimalUnit().armor, type: 'HEAVY_FERRO' } });
+      const unit = createMinimalUnit({
+        armor: { ...createMinimalUnit().armor, type: 'HEAVY_FERRO' },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('armor:Heavy Ferro-Fibrous');
     });
 
     it('should format STEALTH armor', () => {
-      const unit = createMinimalUnit({ armor: { ...createMinimalUnit().armor, type: 'STEALTH' } });
+      const unit = createMinimalUnit({
+        armor: { ...createMinimalUnit().armor, type: 'STEALTH' },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('armor:Stealth');
     });
 
     it('should format REACTIVE armor', () => {
-      const unit = createMinimalUnit({ armor: { ...createMinimalUnit().armor, type: 'REACTIVE' } });
+      const unit = createMinimalUnit({
+        armor: { ...createMinimalUnit().armor, type: 'REACTIVE' },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('armor:Reactive');
     });
 
     it('should format REFLECTIVE armor', () => {
-      const unit = createMinimalUnit({ armor: { ...createMinimalUnit().armor, type: 'REFLECTIVE' } });
+      const unit = createMinimalUnit({
+        armor: { ...createMinimalUnit().armor, type: 'REFLECTIVE' },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('armor:Reflective');
     });
 
     it('should format HARDENED armor', () => {
-      const unit = createMinimalUnit({ armor: { ...createMinimalUnit().armor, type: 'HARDENED' } });
+      const unit = createMinimalUnit({
+        armor: { ...createMinimalUnit().armor, type: 'HARDENED' },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('armor:Hardened');
     });
 
     it('should default unknown armor types to Standard', () => {
-      const unit = createMinimalUnit({ armor: { ...createMinimalUnit().armor, type: 'UNKNOWN' } });
+      const unit = createMinimalUnit({
+        armor: { ...createMinimalUnit().armor, type: 'UNKNOWN' },
+      });
       const result = service.export(unit);
 
       expect(result.content).toContain('armor:Standard(Inner Sphere)');
@@ -846,7 +913,7 @@ describe('MTFExportService', () => {
           'Head:',
           'Left Leg:',
           'Right Leg:',
-        ].includes(line)
+        ].includes(line),
       );
 
       expect(locationHeaders).toHaveLength(8);
@@ -916,7 +983,13 @@ describe('MTFExportService', () => {
       const unit = createMinimalUnit({
         criticalSlots: {
           HEAD: [],
-          LEFT_ARM: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'Medium Laser'],
+          LEFT_ARM: [
+            'Shoulder',
+            'Upper Arm Actuator',
+            'Lower Arm Actuator',
+            'Hand Actuator',
+            'Medium Laser',
+          ],
           RIGHT_ARM: [],
           LEFT_TORSO: [],
           RIGHT_TORSO: [],
@@ -967,7 +1040,9 @@ describe('MTFExportService', () => {
     it('should handle missing locations in criticalSlots object', () => {
       const unit = createMinimalUnit();
       // Override with incomplete criticals to test handling of missing locations
-      (unit as { criticalSlots: Record<string, (string | null)[]> }).criticalSlots = {
+      (
+        unit as { criticalSlots: Record<string, (string | null)[]> }
+      ).criticalSlots = {
         HEAD: ['Sensors'],
         LEFT_ARM: ['Shoulder'],
         // Missing RIGHT_ARM, LEFT_TORSO, RIGHT_TORSO, CENTER_TORSO, LEFT_LEG, RIGHT_LEG
@@ -1028,7 +1103,9 @@ describe('MTFExportService', () => {
     });
 
     it('should omit quirks section when undefined', () => {
-      const unit = createMinimalUnit() as ISerializedUnit & { quirks?: string[] };
+      const unit = createMinimalUnit() as ISerializedUnit & {
+        quirks?: string[];
+      };
       delete unit.quirks;
       const result = service.export(unit);
 
@@ -1058,7 +1135,9 @@ describe('MTFExportService', () => {
       const unit = createMinimalUnit({ fluff });
       const result = service.export(unit);
 
-      expect(result.content).toContain('overview:This is a test mech overview.');
+      expect(result.content).toContain(
+        'overview:This is a test mech overview.',
+      );
     });
 
     it('should include capabilities when present', () => {
@@ -1088,7 +1167,9 @@ describe('MTFExportService', () => {
       const unit = createMinimalUnit({ fluff });
       const result = service.export(unit);
 
-      expect(result.content).toContain('history:Developed during the Succession Wars.');
+      expect(result.content).toContain(
+        'history:Developed during the Succession Wars.',
+      );
     });
 
     it('should include manufacturer when present', () => {
@@ -1098,7 +1179,9 @@ describe('MTFExportService', () => {
       const unit = createMinimalUnit({ fluff });
       const result = service.export(unit);
 
-      expect(result.content).toContain('manufacturer:Acme BattleMech Industries');
+      expect(result.content).toContain(
+        'manufacturer:Acme BattleMech Industries',
+      );
     });
 
     it('should include primaryFactory when present', () => {
@@ -1123,8 +1206,12 @@ describe('MTFExportService', () => {
       const result = service.export(unit);
 
       expect(result.content).toContain('systemmanufacturer:Engine:Vlar 300');
-      expect(result.content).toContain('systemmanufacturer:Armor:Durallex Light');
-      expect(result.content).toContain('systemmanufacturer:Communications:Tek BattleCom');
+      expect(result.content).toContain(
+        'systemmanufacturer:Armor:Durallex Light',
+      );
+      expect(result.content).toContain(
+        'systemmanufacturer:Communications:Tek BattleCom',
+      );
     });
 
     it('should include all fluff sections together', () => {
@@ -1143,10 +1230,18 @@ describe('MTFExportService', () => {
       const unit = createMinimalUnit({ fluff });
       const result = service.export(unit);
 
-      expect(result.content).toContain('overview:A versatile medium BattleMech.');
-      expect(result.content).toContain('capabilities:Well-balanced firepower and armor.');
-      expect(result.content).toContain('deployment:Used throughout the Inner Sphere.');
-      expect(result.content).toContain('history:One of the most successful designs.');
+      expect(result.content).toContain(
+        'overview:A versatile medium BattleMech.',
+      );
+      expect(result.content).toContain(
+        'capabilities:Well-balanced firepower and armor.',
+      );
+      expect(result.content).toContain(
+        'deployment:Used throughout the Inner Sphere.',
+      );
+      expect(result.content).toContain(
+        'history:One of the most successful designs.',
+      );
       expect(result.content).toContain('manufacturer:Bergan Industries');
       expect(result.content).toContain('primaryfactory:New Avalon');
       expect(result.content).toContain('systemmanufacturer:Engine:Omni 250');
@@ -1154,7 +1249,9 @@ describe('MTFExportService', () => {
     });
 
     it('should omit fluff section when undefined', () => {
-      const unit = createMinimalUnit() as ISerializedUnit & { fluff?: ISerializedFluff };
+      const unit = createMinimalUnit() as ISerializedUnit & {
+        fluff?: ISerializedFluff;
+      };
       delete unit.fluff;
       const result = service.export(unit);
 
@@ -1183,8 +1280,12 @@ describe('MTFExportService', () => {
       const unit = createMinimalUnit({ fluff });
       const result = service.export(unit);
 
-      expect(result.content).toContain("overview:The Atlas is the Inner Sphere's most iconic assault 'Mech.");
-      expect(result.content).toContain('manufacturer:Defiance Industries (A Division of GM)');
+      expect(result.content).toContain(
+        "overview:The Atlas is the Inner Sphere's most iconic assault 'Mech.",
+      );
+      expect(result.content).toContain(
+        'manufacturer:Defiance Industries (A Division of GM)',
+      );
     });
   });
 
@@ -1231,19 +1332,74 @@ describe('MTFExportService', () => {
           { id: 'srm-6', location: 'CENTER_TORSO' },
         ],
         criticalSlots: {
-          HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
-          LEFT_ARM: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'Medium Laser'],
-          RIGHT_ARM: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', 'Medium Laser'],
+          HEAD: [
+            'Life Support',
+            'Sensors',
+            'Cockpit',
+            null,
+            'Sensors',
+            'Life Support',
+          ],
+          LEFT_ARM: [
+            'Shoulder',
+            'Upper Arm Actuator',
+            'Lower Arm Actuator',
+            'Hand Actuator',
+            'Medium Laser',
+          ],
+          RIGHT_ARM: [
+            'Shoulder',
+            'Upper Arm Actuator',
+            'Lower Arm Actuator',
+            'Hand Actuator',
+            'Medium Laser',
+          ],
           LEFT_TORSO: ['LRM 20', 'LRM 20', 'LRM 20', 'LRM 20', 'LRM 20'],
-          RIGHT_TORSO: ['AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20'],
-          CENTER_TORSO: ['Fusion Engine', 'Fusion Engine', 'Fusion Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Fusion Engine', 'Fusion Engine', 'Fusion Engine', 'SRM 6', 'SRM 6'],
-          LEFT_LEG: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator'],
-          RIGHT_LEG: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator'],
+          RIGHT_TORSO: [
+            'AC/20',
+            'AC/20',
+            'AC/20',
+            'AC/20',
+            'AC/20',
+            'AC/20',
+            'AC/20',
+            'AC/20',
+            'AC/20',
+            'AC/20',
+          ],
+          CENTER_TORSO: [
+            'Fusion Engine',
+            'Fusion Engine',
+            'Fusion Engine',
+            'Gyro',
+            'Gyro',
+            'Gyro',
+            'Gyro',
+            'Fusion Engine',
+            'Fusion Engine',
+            'Fusion Engine',
+            'SRM 6',
+            'SRM 6',
+          ],
+          LEFT_LEG: [
+            'Hip',
+            'Upper Leg Actuator',
+            'Lower Leg Actuator',
+            'Foot Actuator',
+          ],
+          RIGHT_LEG: [
+            'Hip',
+            'Upper Leg Actuator',
+            'Lower Leg Actuator',
+            'Foot Actuator',
+          ],
         },
         quirks: ['battle_fists_la', 'battle_fists_ra'],
         fluff: {
-          overview: 'The Atlas is one of the most feared BattleMechs in existence.',
-          capabilities: 'The Atlas is capable of destroying nearly any other BattleMech in one-on-one combat.',
+          overview:
+            'The Atlas is one of the most feared BattleMechs in existence.',
+          capabilities:
+            'The Atlas is capable of destroying nearly any other BattleMech in one-on-one combat.',
           deployment: 'Atlas are prized and protected command units.',
           history: 'Developed by the Star League.',
           manufacturer: 'Defiance Industries',
@@ -1277,7 +1433,9 @@ describe('MTFExportService', () => {
       expect(result.content).toContain('armor:Standard(Inner Sphere)');
       expect(result.content).toContain('Weapons:5');
       expect(result.content).toContain('quirk:battle_fists_la');
-      expect(result.content).toContain('overview:The Atlas is one of the most feared BattleMechs in existence.');
+      expect(result.content).toContain(
+        'overview:The Atlas is one of the most feared BattleMechs in existence.',
+      );
     });
 
     it('should export a Clan tech unit correctly', () => {
@@ -1397,12 +1555,19 @@ describe('MTFExportService', () => {
 
     it('should handle very long equipment names', () => {
       const unit = createMinimalUnit({
-        equipment: [{ id: 'super-long-experimental-weapon-name-that-goes-on-forever', location: 'RIGHT_ARM' }],
+        equipment: [
+          {
+            id: 'super-long-experimental-weapon-name-that-goes-on-forever',
+            location: 'RIGHT_ARM',
+          },
+        ],
       });
       const result = service.export(unit);
 
       expect(result.success).toBe(true);
-      expect(result.content).toContain('Super Long Experimental Weapon Name That Goes On Forever');
+      expect(result.content).toContain(
+        'Super Long Experimental Weapon Name That Goes On Forever',
+      );
     });
 
     it('should handle zero movement', () => {
@@ -1460,7 +1625,9 @@ describe('MTFExportService', () => {
     });
 
     it('should handle zero heat sinks', () => {
-      const unit = createMinimalUnit({ heatSinks: { type: 'SINGLE', count: 0 } });
+      const unit = createMinimalUnit({
+        heatSinks: { type: 'SINGLE', count: 0 },
+      });
       const result = service.export(unit);
 
       expect(result.success).toBe(true);
@@ -1468,7 +1635,9 @@ describe('MTFExportService', () => {
     });
 
     it('should handle very high heat sink count', () => {
-      const unit = createMinimalUnit({ heatSinks: { type: 'DOUBLE', count: 50 } });
+      const unit = createMinimalUnit({
+        heatSinks: { type: 'DOUBLE', count: 50 },
+      });
       const result = service.export(unit);
 
       expect(result.success).toBe(true);
@@ -1496,7 +1665,9 @@ describe('MTFExportService', () => {
   // OmniMech Export Tests
   // ============================================================================
   describe('OmniMech Export', () => {
-    const createOmniMechUnit = (overrides?: Partial<ISerializedUnit>): ISerializedUnit => ({
+    const createOmniMechUnit = (
+      overrides?: Partial<ISerializedUnit>,
+    ): ISerializedUnit => ({
       id: 'mad-cat-prime',
       chassis: 'Mad Cat',
       model: 'Prime',
@@ -1533,10 +1704,21 @@ describe('MTFExportService', () => {
         { id: 'ER Large Laser', location: 'Right Arm', isOmniPodMounted: true },
         { id: 'LRM 20', location: 'Left Torso', isOmniPodMounted: true },
         { id: 'LRM 20', location: 'Right Torso', isOmniPodMounted: true },
-        { id: 'Medium Pulse Laser', location: 'Center Torso', isOmniPodMounted: false },
+        {
+          id: 'Medium Pulse Laser',
+          location: 'Center Torso',
+          isOmniPodMounted: false,
+        },
       ],
       criticalSlots: {
-        HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+        HEAD: [
+          'Life Support',
+          'Sensors',
+          'Cockpit',
+          null,
+          'Sensors',
+          'Life Support',
+        ],
         LEFT_ARM: [],
         RIGHT_ARM: [],
         LEFT_TORSO: [],
@@ -1624,11 +1806,26 @@ describe('MTFExportService', () => {
         heatSinks: { type: 'DOUBLE', count: 10 },
         movement: { walk: 5, jump: 0 },
         equipment: [
-          { id: 'ER Medium Laser', location: 'Left Arm', isOmniPodMounted: true },
-          { id: 'ER Medium Laser', location: 'Right Arm', isOmniPodMounted: true },
+          {
+            id: 'ER Medium Laser',
+            location: 'Left Arm',
+            isOmniPodMounted: true,
+          },
+          {
+            id: 'ER Medium Laser',
+            location: 'Right Arm',
+            isOmniPodMounted: true,
+          },
         ],
         criticalSlots: {
-          HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+          HEAD: [
+            'Life Support',
+            'Sensors',
+            'Cockpit',
+            null,
+            'Sensors',
+            'Life Support',
+          ],
           LEFT_ARM: [],
           RIGHT_ARM: [],
           LEFT_TORSO: [],
@@ -1687,11 +1884,26 @@ describe('MTFExportService', () => {
         heatSinks: { type: 'DOUBLE', count: 10 },
         movement: { walk: 5, jump: 0 },
         equipment: [
-          { id: 'ER Large Laser', location: 'Left Arm', isOmniPodMounted: true },
-          { id: 'Medium Pulse Laser', location: 'Center Torso', isOmniPodMounted: false },
+          {
+            id: 'ER Large Laser',
+            location: 'Left Arm',
+            isOmniPodMounted: true,
+          },
+          {
+            id: 'Medium Pulse Laser',
+            location: 'Center Torso',
+            isOmniPodMounted: false,
+          },
         ],
         criticalSlots: {
-          HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+          HEAD: [
+            'Life Support',
+            'Sensors',
+            'Cockpit',
+            null,
+            'Sensors',
+            'Life Support',
+          ],
           LEFT_ARM: [],
           RIGHT_ARM: [],
           LEFT_TORSO: [],
@@ -1716,8 +1928,12 @@ describe('MTFExportService', () => {
       const equipment = parsedUnit.equipment ?? [];
 
       // Note: Parser normalizes equipment IDs to lowercase-with-dashes
-      const podMountedLaser = equipment.find(e => e.id.includes('er-large-laser'));
-      const fixedLaser = equipment.find(e => e.id.includes('medium-pulse-laser'));
+      const podMountedLaser = equipment.find((e) =>
+        e.id.includes('er-large-laser'),
+      );
+      const fixedLaser = equipment.find((e) =>
+        e.id.includes('medium-pulse-laser'),
+      );
 
       expect(podMountedLaser?.isOmniPodMounted).toBe(true);
       // Fixed equipment should not have isOmniPodMounted or it should be false/undefined
@@ -1759,7 +1975,14 @@ describe('MTFExportService', () => {
         movement: { walk: 5, jump: 0 },
         equipment: [],
         criticalSlots: {
-          HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+          HEAD: [
+            'Life Support',
+            'Sensors',
+            'Cockpit',
+            null,
+            'Sensors',
+            'Life Support',
+          ],
           LEFT_ARM: [],
           RIGHT_ARM: [],
           LEFT_TORSO: [],
@@ -1827,15 +2050,34 @@ describe('MTFExportService', () => {
         movement: { walk: 5, jump: 0 },
         equipment: [
           // Fixed equipment (stays after reset)
-          { id: 'Targeting Computer', location: 'Right Torso', isOmniPodMounted: false },
+          {
+            id: 'Targeting Computer',
+            location: 'Right Torso',
+            isOmniPodMounted: false,
+          },
           // Pod equipment (removed on reset)
-          { id: 'ER Large Laser', location: 'Left Arm', isOmniPodMounted: true },
-          { id: 'ER Large Laser', location: 'Right Arm', isOmniPodMounted: true },
+          {
+            id: 'ER Large Laser',
+            location: 'Left Arm',
+            isOmniPodMounted: true,
+          },
+          {
+            id: 'ER Large Laser',
+            location: 'Right Arm',
+            isOmniPodMounted: true,
+          },
           { id: 'LRM 20', location: 'Left Torso', isOmniPodMounted: true },
           { id: 'LRM 20', location: 'Right Torso', isOmniPodMounted: true },
         ],
         criticalSlots: {
-          HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+          HEAD: [
+            'Life Support',
+            'Sensors',
+            'Cockpit',
+            null,
+            'Sensors',
+            'Life Support',
+          ],
           LEFT_ARM: [],
           RIGHT_ARM: [],
           LEFT_TORSO: [],
@@ -1850,7 +2092,9 @@ describe('MTFExportService', () => {
       expect(primeVariant.equipment.length).toBe(5);
 
       // Step 2: Simulate chassis reset (filter out pod equipment)
-      const fixedEquipment = primeVariant.equipment.filter(eq => !eq.isOmniPodMounted);
+      const fixedEquipment = primeVariant.equipment.filter(
+        (eq) => !eq.isOmniPodMounted,
+      );
       expect(fixedEquipment.length).toBe(1);
       expect(fixedEquipment[0].id).toBe('Targeting Computer');
 
@@ -1866,8 +2110,16 @@ describe('MTFExportService', () => {
           { id: 'Ultra AC/5', location: 'Right Arm', isOmniPodMounted: true },
           { id: 'Ultra AC/5', location: 'Left Arm', isOmniPodMounted: true },
           { id: 'SRM 6', location: 'Center Torso', isOmniPodMounted: true },
-          { id: 'Medium Pulse Laser', location: 'Left Torso', isOmniPodMounted: true },
-          { id: 'Medium Pulse Laser', location: 'Right Torso', isOmniPodMounted: true },
+          {
+            id: 'Medium Pulse Laser',
+            location: 'Left Torso',
+            isOmniPodMounted: true,
+          },
+          {
+            id: 'Medium Pulse Laser',
+            location: 'Right Torso',
+            isOmniPodMounted: true,
+          },
         ],
       };
 
@@ -1880,7 +2132,9 @@ describe('MTFExportService', () => {
 
       // Verify fixed equipment has no (omnipod) suffix
       expect(exportResult.content).toContain('Targeting Computer, Right Torso');
-      expect(exportResult.content).not.toContain('Targeting Computer (omnipod)');
+      expect(exportResult.content).not.toContain(
+        'Targeting Computer (omnipod)',
+      );
 
       // Verify pod equipment has (omnipod) suffix
       expect(exportResult.content).toContain('Ultra AC/5 (omnipod), Right Arm');
@@ -1900,11 +2154,13 @@ describe('MTFExportService', () => {
       expect(equipment.length).toBe(6); // 1 fixed + 5 pod
 
       // Find fixed targeting computer
-      const fixedTC = equipment.find(e => e.id.includes('targeting-computer'));
+      const fixedTC = equipment.find((e) =>
+        e.id.includes('targeting-computer'),
+      );
       expect(fixedTC?.isOmniPodMounted).toBeFalsy();
 
       // Find pod-mounted weapons
-      const podWeapons = equipment.filter(e => e.isOmniPodMounted === true);
+      const podWeapons = equipment.filter((e) => e.isOmniPodMounted === true);
       expect(podWeapons.length).toBe(5);
     });
 
@@ -1944,10 +2200,21 @@ describe('MTFExportService', () => {
         heatSinks: { type: 'DOUBLE', count: 10 },
         movement: { walk: 5, jump: 0 },
         equipment: [
-          { id: 'ER Medium Laser', location: 'Center Torso', isOmniPodMounted: false },
+          {
+            id: 'ER Medium Laser',
+            location: 'Center Torso',
+            isOmniPodMounted: false,
+          },
         ],
         criticalSlots: {
-          HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+          HEAD: [
+            'Life Support',
+            'Sensors',
+            'Cockpit',
+            null,
+            'Sensors',
+            'Life Support',
+          ],
           LEFT_ARM: [],
           RIGHT_ARM: [],
           LEFT_TORSO: [],
@@ -1985,7 +2252,7 @@ describe('MTFExportService', () => {
       expect(unit2.baseChassisHeatSinks).toBe(10);
 
       // Verify fixed equipment preserved
-      const fixedEquip = unit2.equipment?.find(e => !e.isOmniPodMounted);
+      const fixedEquip = unit2.equipment?.find((e) => !e.isOmniPodMounted);
       expect(fixedEquip).toBeDefined();
       expect(fixedEquip!.id).toContain('er-medium-laser');
     });

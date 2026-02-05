@@ -32,7 +32,7 @@ import type {
  */
 export type MessageHandler = (
   peerId: string,
-  message: IP2PMessage
+  message: IP2PMessage,
 ) => void | Promise<void>;
 
 /**
@@ -40,7 +40,7 @@ export type MessageHandler = (
  */
 export type ConnectionStateHandler = (
   peerId: string,
-  state: P2PConnectionState
+  state: P2PConnectionState,
 ) => void;
 
 /**
@@ -71,7 +71,7 @@ const PING_INTERVAL = 30000;
 function createMessage(
   type: P2PMessageType,
   senderId: string,
-  payload: unknown
+  payload: unknown,
 ): IP2PMessage {
   return {
     type,
@@ -89,7 +89,7 @@ export function createHandshake(
   senderId: string,
   publicKey: string,
   displayName: string,
-  lastSyncVersion: number
+  lastSyncVersion: number,
 ): IP2PMessage {
   const payload: IHandshakePayload = {
     protocolVersion: PROTOCOL_VERSION,
@@ -108,7 +108,7 @@ export function createHandshakeAck(
   senderId: string,
   publicKey: string,
   displayName: string,
-  lastSyncVersion: number
+  lastSyncVersion: number,
 ): IP2PMessage {
   const payload: IHandshakePayload = {
     protocolVersion: PROTOCOL_VERSION,
@@ -126,7 +126,7 @@ export function createHandshakeAck(
 export function createSyncRequest(
   senderId: string,
   fromVersion: number,
-  limit = 100
+  limit = 100,
 ): IP2PMessage {
   const payload: ISyncRequestPayload = {
     fromVersion,
@@ -143,7 +143,7 @@ export function createSyncResponse(
   senderId: string,
   changes: IChangeLogEntry[],
   hasMore: boolean,
-  currentVersion: number
+  currentVersion: number,
 ): IP2PMessage {
   const payload: ISyncResponsePayload = {
     changes,
@@ -159,7 +159,7 @@ export function createSyncResponse(
 export function createChange(
   senderId: string,
   change: IChangeLogEntry,
-  content?: string
+  content?: string,
 ): IP2PMessage {
   const payload: IChangePayload = {
     change,
@@ -173,7 +173,7 @@ export function createChange(
  */
 export function createChangeAck(
   senderId: string,
-  changeId: string
+  changeId: string,
 ): IP2PMessage {
   return createMessage('change_ack', senderId, { changeId });
 }
@@ -188,7 +188,10 @@ export function createPing(senderId: string): IP2PMessage {
 /**
  * Create a pong message
  */
-export function createPong(senderId: string, pingTimestamp: number): IP2PMessage {
+export function createPong(
+  senderId: string,
+  pingTimestamp: number,
+): IP2PMessage {
   return createMessage('pong', senderId, {
     pingTimestamp,
     pongTimestamp: Date.now(),
@@ -201,7 +204,7 @@ export function createPong(senderId: string, pingTimestamp: number): IP2PMessage
 export function createError(
   senderId: string,
   code: string,
-  message: string
+  message: string,
 ): IP2PMessage {
   return createMessage('error', senderId, { code, message });
 }
@@ -460,7 +463,10 @@ export class P2PTransport {
   /**
    * Handle ping message
    */
-  private async handlePing(peerId: string, message: IP2PMessage): Promise<void> {
+  private async handlePing(
+    peerId: string,
+    message: IP2PMessage,
+  ): Promise<void> {
     const payload = message.payload as { timestamp: number };
     const pong = createPong(this.myId, payload.timestamp);
     await this.send(peerId, pong);
@@ -514,7 +520,7 @@ export class P2PTransport {
    */
   private notifyConnectionState(
     peerId: string,
-    state: P2PConnectionState
+    state: P2PConnectionState,
   ): void {
     if (this.connectionStateHandler) {
       this.connectionStateHandler(peerId, state);
@@ -537,7 +543,7 @@ export function getP2PTransport(myId?: string): P2PTransport {
   } else if (myId && myId !== p2pTransport.getMyId()) {
     console.warn(
       `getP2PTransport called with different myId (${myId}) than initialized (${p2pTransport.getMyId()}). ` +
-        'Using existing instance. Call resetP2PTransport() first if you need to reinitialize.'
+        'Using existing instance. Call resetP2PTransport() first if you need to reinitialize.',
     );
   }
   return p2pTransport;

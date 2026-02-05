@@ -13,12 +13,11 @@
  */
 
 import React, { useState } from 'react';
+
 import { MechLocation } from '@/types/construction';
+
 import { LocationArmorData } from '../ArmorDiagram';
-import {
-  getLocationLabel,
-  hasTorsoRear,
-} from '../shared/MechSilhouette';
+import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 import {
   GradientDefs,
   getArmorStatusColor,
@@ -27,13 +26,30 @@ import {
   darkenColor,
   ARMOR_STATUS,
 } from '../shared/ArmorFills';
-import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
-import { useResolvedLayout, ResolvedPosition, MechConfigType, getLayoutIdForConfig } from '../shared/layout';
+import {
+  useResolvedLayout,
+  ResolvedPosition,
+  MechConfigType,
+  getLayoutIdForConfig,
+} from '../shared/layout';
+import { getLocationLabel, hasTorsoRear } from '../shared/MechSilhouette';
 
 /**
  * LED-style segmented digit display
  */
-function LEDDigit({ value, x, y, size = 12, color = '#22d3ee' }: { value: string; x: number; y: number; size?: number; color?: string }): React.ReactElement {
+function LEDDigit({
+  value,
+  x,
+  y,
+  size = 12,
+  color = '#22d3ee',
+}: {
+  value: string;
+  x: number;
+  y: number;
+  size?: number;
+  color?: string;
+}): React.ReactElement {
   return (
     <text
       x={x}
@@ -131,15 +147,26 @@ function CornerBrackets({
   color?: string;
 }): React.ReactElement {
   return (
-    <g stroke={color} strokeWidth={1.5} fill="none" style={{ filter: 'url(#armor-glow)' }}>
+    <g
+      stroke={color}
+      strokeWidth={1.5}
+      fill="none"
+      style={{ filter: 'url(#armor-glow)' }}
+    >
       {/* Top-left */}
       <path d={`M ${x} ${y + size} L ${x} ${y} L ${x + size} ${y}`} />
       {/* Top-right */}
-      <path d={`M ${x + width - size} ${y} L ${x + width} ${y} L ${x + width} ${y + size}`} />
+      <path
+        d={`M ${x + width - size} ${y} L ${x + width} ${y} L ${x + width} ${y + size}`}
+      />
       {/* Bottom-left */}
-      <path d={`M ${x} ${y + height - size} L ${x} ${y + height} L ${x + size} ${y + height}`} />
+      <path
+        d={`M ${x} ${y + height - size} L ${x} ${y + height} L ${x + size} ${y + height}`}
+      />
       {/* Bottom-right */}
-      <path d={`M ${x + width - size} ${y + height} L ${x + width} ${y + height} L ${x + width} ${y + height - size}`} />
+      <path
+        d={`M ${x + width - size} ${y + height} L ${x + width} ${y + height} L ${x + width} ${y + height - size}`}
+      />
     </g>
   );
 }
@@ -189,8 +216,10 @@ function TacticalLocation({
   const expectedRearMax = showRear ? Math.round(frontMax * 0.25) : 1;
 
   // Fill percentages based on expected capacity
-  const frontPercent = expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
-  const rearPercent = expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
+  const frontPercent =
+    expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
+  const rearPercent =
+    expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
 
   // Status-based colors for front and rear
   const frontColor = isSelected
@@ -206,8 +235,8 @@ function TacticalLocation({
 
   // Layout for stacked front/rear
   // 60/40 split for consistency across all variants
-  const frontSectionHeight = showRear ? pos.height * 0.60 : pos.height;
-  const rearSectionHeight = showRear ? pos.height * 0.40 : 0;
+  const frontSectionHeight = showRear ? pos.height * 0.6 : pos.height;
+  const rearSectionHeight = showRear ? pos.height * 0.4 : 0;
   const dividerY = pos.y + frontSectionHeight;
 
   // Tank fill calculations
@@ -468,15 +497,24 @@ export function TacticalHUDDiagram({
   className = '',
   mechConfigType = 'biped',
 }: TacticalHUDDiagramProps): React.ReactElement {
-  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
+    null,
+  );
 
   // Get layout ID based on mech configuration type
   const layoutId = getLayoutIdForConfig(mechConfigType, 'geometric');
 
   // Use the layout engine to get resolved positions
-  const { layout: _layout, getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
+  const {
+    layout: _layout,
+    getPosition,
+    viewBox,
+    bounds,
+  } = useResolvedLayout(layoutId);
 
-  const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
+  const getArmorData = (
+    location: MechLocation,
+  ): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
 
@@ -486,12 +524,14 @@ export function TacticalHUDDiagram({
   const locations = getLocationsForConfig(mechConfigType);
 
   return (
-    <div className={`bg-surface-deep rounded-lg border border-border-theme-subtle p-4 ${className}`}>
+    <div
+      className={`bg-surface-deep border-border-theme-subtle rounded-lg border p-4 ${className}`}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <h3 className="text-sm font-mono font-bold text-slate-300 tracking-wider">
+          <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+          <h3 className="font-mono text-sm font-bold tracking-wider text-slate-300">
             ARMOR DIAGNOSTIC
           </h3>
           <ArmorDiagramQuickSettings />
@@ -502,7 +542,7 @@ export function TacticalHUDDiagram({
       <div className="relative">
         <svg
           viewBox={viewBox}
-          className="w-full max-w-[300px] mx-auto"
+          className="mx-auto w-full max-w-[300px]"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
@@ -511,7 +551,7 @@ export function TacticalHUDDiagram({
           {locations.map((loc) => {
             const position = getPosition(loc);
             if (!position) return null;
-            
+
             return (
               <TacticalLocation
                 key={loc}
@@ -554,27 +594,35 @@ export function TacticalHUDDiagram({
       </div>
 
       {/* Legend */}
-      <div className="flex justify-center gap-3 mt-3 text-xs font-mono">
+      <div className="mt-3 flex justify-center gap-3 font-mono text-xs">
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-sm bg-green-500" />
-          <span className="text-text-theme-muted">{Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+</span>
+          <div className="h-2.5 w-2.5 rounded-sm bg-green-500" />
+          <span className="text-text-theme-muted">
+            {Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
-          <span className="text-text-theme-muted">{Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+</span>
+          <div className="h-2.5 w-2.5 rounded-sm bg-amber-500" />
+          <span className="text-text-theme-muted">
+            {Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-sm bg-orange-500" />
-          <span className="text-text-theme-muted">{Math.round(ARMOR_STATUS.LOW.min * 100)}%+</span>
+          <div className="h-2.5 w-2.5 rounded-sm bg-orange-500" />
+          <span className="text-text-theme-muted">
+            {Math.round(ARMOR_STATUS.LOW.min * 100)}%+
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-sm bg-red-500" />
-          <span className="text-text-theme-muted">&lt;{Math.round(ARMOR_STATUS.LOW.min * 100)}%</span>
+          <div className="h-2.5 w-2.5 rounded-sm bg-red-500" />
+          <span className="text-text-theme-muted">
+            &lt;{Math.round(ARMOR_STATUS.LOW.min * 100)}%
+          </span>
         </div>
       </div>
 
       {/* Status readout */}
-      <div className="flex justify-between items-center mt-3 px-2 py-1.5 bg-surface-base/50 rounded text-xs font-mono">
+      <div className="bg-surface-base/50 mt-3 flex items-center justify-between rounded px-2 py-1.5 font-mono text-xs">
         <div className="flex items-center gap-4">
           <span className="text-text-theme-muted">STATUS:</span>
           <span className={isOverAllocated ? 'text-red-400' : 'text-green-400'}>
@@ -583,14 +631,16 @@ export function TacticalHUDDiagram({
         </div>
         <div className="flex items-center gap-4">
           <span className="text-text-theme-muted">AVAIL:</span>
-          <span className={unallocatedPoints < 0 ? 'text-red-400' : 'text-cyan-400'}>
+          <span
+            className={unallocatedPoints < 0 ? 'text-red-400' : 'text-cyan-400'}
+          >
             {unallocatedPoints}
           </span>
         </div>
       </div>
 
       {/* Instructions */}
-      <p className="text-xs text-slate-600 text-center mt-2 font-mono">
+      <p className="mt-2 text-center font-mono text-xs text-slate-600">
         SELECT LOCATION TO MODIFY
       </p>
     </div>

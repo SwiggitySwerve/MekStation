@@ -6,8 +6,9 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import { IBaseEvent, ICausedBy } from '@/types/events';
+
 import { EventStoreService, getEventStore } from '@/services/events';
+import { IBaseEvent, ICausedBy } from '@/types/events';
 
 // =============================================================================
 // Types
@@ -75,7 +76,11 @@ export interface IUseCausalityChainReturn {
   /** Error state */
   error: Error | null;
   /** Compute causality chain for an event */
-  computeChain: (eventId: string, direction?: TraversalDirection, maxDepth?: number) => void;
+  computeChain: (
+    eventId: string,
+    direction?: TraversalDirection,
+    maxDepth?: number,
+  ) => void;
   /** Clear the current chain */
   clear: () => void;
   /** Get the path from root to a specific node */
@@ -111,7 +116,7 @@ const DEFAULT_DIRECTION: TraversalDirection = 'both';
  * Build a map of eventId -> events caused by that event.
  */
 function buildEffectsMap(
-  events: readonly IBaseEvent[]
+  events: readonly IBaseEvent[],
 ): Map<string, IBaseEvent[]> {
   const map = new Map<string, IBaseEvent[]>();
 
@@ -144,7 +149,7 @@ function buildEventMap(events: readonly IBaseEvent[]): Map<string, IBaseEvent> {
 function findRootEvent(
   event: IBaseEvent,
   eventMap: Map<string, IBaseEvent>,
-  visited: Set<string> = new Set()
+  visited: Set<string> = new Set(),
 ): IBaseEvent {
   // Prevent infinite loops
   if (visited.has(event.id)) {
@@ -175,7 +180,7 @@ function buildCausalityNode(
   maxDepth: number,
   direction: TraversalDirection,
   visited: Set<string>,
-  parentNode: ICausalityNode | null
+  parentNode: ICausalityNode | null,
 ): ICausalityNode {
   // Prevent infinite loops
   if (visited.has(event.id)) {
@@ -210,8 +215,8 @@ function buildCausalityNode(
         maxDepth,
         direction,
         visited,
-        node
-      )
+        node,
+      ),
     );
     // Assign to mutable effects property (internal construction)
     Object.assign(node, { effects: effectNodes });
@@ -223,7 +228,10 @@ function buildCausalityNode(
 /**
  * Flatten a causality tree into a list of nodes.
  */
-function flattenNodes(node: ICausalityNode, result: ICausalityNode[] = []): ICausalityNode[] {
+function flattenNodes(
+  node: ICausalityNode,
+  result: ICausalityNode[] = [],
+): ICausalityNode[] {
   result.push(node);
   for (const effect of node.effects) {
     flattenNodes(effect, result);
@@ -284,7 +292,7 @@ function computeStats(nodes: readonly ICausalityNode[]): ICausalityStats {
  * ```
  */
 export function useCausalityChain(
-  options: IUseCausalityChainOptions = {}
+  options: IUseCausalityChainOptions = {},
 ): IUseCausalityChainReturn {
   const {
     eventStore = getEventStore(),
@@ -312,7 +320,7 @@ export function useCausalityChain(
     (
       eventId: string,
       direction: TraversalDirection = defaultDirection,
-      maxDepth: number = defaultMaxDepth
+      maxDepth: number = defaultMaxDepth,
     ) => {
       setIsLoading(true);
       setError(null);
@@ -345,7 +353,7 @@ export function useCausalityChain(
           maxDepth,
           direction,
           visited,
-          null
+          null,
         );
 
         // Flatten for easy access
@@ -367,7 +375,7 @@ export function useCausalityChain(
         setIsLoading(false);
       }
     },
-    [eventStore, defaultDirection, defaultMaxDepth]
+    [eventStore, defaultDirection, defaultMaxDepth],
   );
 
   // Clear chain
@@ -390,7 +398,7 @@ export function useCausalityChain(
       }
       return path;
     },
-    [nodeMap]
+    [nodeMap],
   );
 
   // Check if event is in chain
@@ -398,7 +406,7 @@ export function useCausalityChain(
     (eventId: string): boolean => {
       return nodeMap.has(eventId);
     },
-    [nodeMap]
+    [nodeMap],
   );
 
   return {
@@ -446,7 +454,9 @@ export function getDescendants(node: ICausalityNode): ICausalityNode[] {
  */
 export function getSiblings(node: ICausalityNode): ICausalityNode[] {
   if (!node.cause) return [];
-  return node.cause.effects.filter((n) => n.event.id !== node.event.id) as ICausalityNode[];
+  return node.cause.effects.filter(
+    (n) => n.event.id !== node.event.id,
+  ) as ICausalityNode[];
 }
 
 /**
@@ -454,9 +464,11 @@ export function getSiblings(node: ICausalityNode): ICausalityNode[] {
  */
 export function filterByRelationship(
   nodes: readonly ICausalityNode[],
-  relationship: ICausedBy['relationship']
+  relationship: ICausedBy['relationship'],
 ): ICausalityNode[] {
-  return nodes.filter((n) => n.relationship === relationship) as ICausalityNode[];
+  return nodes.filter(
+    (n) => n.relationship === relationship,
+  ) as ICausalityNode[];
 }
 
 /**
@@ -464,7 +476,7 @@ export function filterByRelationship(
  */
 export function getNodesAtDepth(
   nodes: readonly ICausalityNode[],
-  depth: number
+  depth: number,
 ): ICausalityNode[] {
   return nodes.filter((n) => n.depth === depth) as ICausalityNode[];
 }

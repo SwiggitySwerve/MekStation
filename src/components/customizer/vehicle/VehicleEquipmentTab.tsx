@@ -9,12 +9,17 @@
  */
 
 import React, { useCallback, useMemo } from 'react';
+
 import { useVehicleStore } from '@/stores/useVehicleStore';
-import { EquipmentBrowser } from '../equipment/EquipmentBrowser';
+import {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
-import { VehicleLocation, VTOLLocation } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { IVehicleMountedEquipment } from '@/types/unit/VehicleInterfaces';
+
+import { EquipmentBrowser } from '../equipment/EquipmentBrowser';
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -30,7 +35,10 @@ const VEHICLE_LOCATION_OPTIONS: { value: VehicleLocation; label: string }[] = [
   { value: VehicleLocation.BODY, label: 'Body' },
 ];
 
-const VTOL_LOCATION_OPTIONS: { value: VehicleLocation | VTOLLocation; label: string }[] = [
+const VTOL_LOCATION_OPTIONS: {
+  value: VehicleLocation | VTOLLocation;
+  label: string;
+}[] = [
   { value: VehicleLocation.FRONT, label: 'Front' },
   { value: VehicleLocation.LEFT, label: 'Left' },
   { value: VehicleLocation.RIGHT, label: 'Right' },
@@ -70,8 +78,12 @@ export function VehicleEquipmentTab({
   // Get actions from store
   const addEquipment = useVehicleStore((s) => s.addEquipment);
   const removeEquipment = useVehicleStore((s) => s.removeEquipment);
-  const updateEquipmentLocation = useVehicleStore((s) => s.updateEquipmentLocation);
-  const setEquipmentRearMounted = useVehicleStore((s) => s.setEquipmentRearMounted);
+  const updateEquipmentLocation = useVehicleStore(
+    (s) => s.updateEquipmentLocation,
+  );
+  const setEquipmentRearMounted = useVehicleStore(
+    (s) => s.setEquipmentRearMounted,
+  );
   const clearAllEquipment = useVehicleStore((s) => s.clearAllEquipment);
 
   // Derived state
@@ -80,11 +92,12 @@ export function VehicleEquipmentTab({
 
   // Build location options based on vehicle type
   const locationOptions = useMemo(() => {
-    const baseOptions = isVTOL ? VTOL_LOCATION_OPTIONS : VEHICLE_LOCATION_OPTIONS;
+    const baseOptions = isVTOL
+      ? VTOL_LOCATION_OPTIONS
+      : VEHICLE_LOCATION_OPTIONS;
     // Filter out turret if no turret configured
     return baseOptions.filter(
-      (opt) =>
-        opt.value !== VehicleLocation.TURRET || hasTurret
+      (opt) => opt.value !== VehicleLocation.TURRET || hasTurret,
     );
   }, [isVTOL, hasTurret]);
 
@@ -95,7 +108,7 @@ export function VehicleEquipmentTab({
       // Add to BODY by default, not turret mounted
       addEquipment(item, VehicleLocation.BODY, false);
     },
-    [addEquipment, readOnly]
+    [addEquipment, readOnly],
   );
 
   const handleRemoveEquipment = useCallback(
@@ -103,7 +116,7 @@ export function VehicleEquipmentTab({
       if (readOnly) return;
       removeEquipment(instanceId);
     },
-    [removeEquipment, readOnly]
+    [removeEquipment, readOnly],
   );
 
   const handleLocationChange = useCallback(
@@ -113,7 +126,7 @@ export function VehicleEquipmentTab({
       const isTurretMounted = newLocation === VehicleLocation.TURRET;
       updateEquipmentLocation(instanceId, newLocation, isTurretMounted);
     },
-    [updateEquipmentLocation, readOnly]
+    [updateEquipmentLocation, readOnly],
   );
 
   const handleRearMountedChange = useCallback(
@@ -121,7 +134,7 @@ export function VehicleEquipmentTab({
       if (readOnly) return;
       setEquipmentRearMounted(instanceId, isRearMounted);
     },
-    [setEquipmentRearMounted, readOnly]
+    [setEquipmentRearMounted, readOnly],
   );
 
   const handleClearAll = useCallback(() => {
@@ -130,9 +143,12 @@ export function VehicleEquipmentTab({
   }, [clearAllEquipment, readOnly]);
 
   return (
-    <div className={`flex flex-col h-full gap-4 ${className}`} data-testid="vehicle-equipment-tab">
+    <div
+      className={`flex h-full flex-col gap-4 ${className}`}
+      data-testid="vehicle-equipment-tab"
+    >
       {/* Equipment Browser Section */}
-      <div className="flex-1 min-h-0" data-testid="vehicle-equipment-browser">
+      <div className="min-h-0 flex-1" data-testid="vehicle-equipment-browser">
         <EquipmentBrowser
           onAddEquipment={handleAddEquipment}
           className="h-full"
@@ -141,7 +157,7 @@ export function VehicleEquipmentTab({
 
       {/* Mounted Equipment Section */}
       <div className={cs.panel.main} data-testid="vehicle-mounted-equipment">
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3 flex items-center justify-between">
           <h3 className={cs.text.sectionTitle.replace('mb-4', 'mb-0')}>
             Mounted Equipment ({equipment.length})
           </h3>
@@ -158,12 +174,12 @@ export function VehicleEquipmentTab({
         {equipment.length === 0 ? (
           <div className={cs.panel.empty}>
             <p className="text-text-theme-secondary">No equipment mounted</p>
-            <p className="text-xs text-text-theme-secondary/70 mt-1">
+            <p className="text-text-theme-secondary/70 mt-1 text-xs">
               Add equipment from the browser above
             </p>
           </div>
         ) : (
-          <div className="space-y-2 max-h-64 overflow-auto">
+          <div className="max-h-64 space-y-2 overflow-auto">
             {equipment.map((item) => (
               <MountedEquipmentRow
                 key={item.id}
@@ -198,7 +214,10 @@ interface MountedEquipmentRowProps {
   locationOptions: { value: VehicleLocation | VTOLLocation; label: string }[];
   hasTurret: boolean;
   readOnly: boolean;
-  onLocationChange: (instanceId: string, location: VehicleLocation | VTOLLocation) => void;
+  onLocationChange: (
+    instanceId: string,
+    location: VehicleLocation | VTOLLocation,
+  ) => void;
   onRearMountedChange: (instanceId: string, isRearMounted: boolean) => void;
   onRemove: (instanceId: string) => void;
 }
@@ -213,11 +232,11 @@ function MountedEquipmentRow({
   onRemove,
 }: MountedEquipmentRowProps): React.ReactElement {
   return (
-    <div className="flex items-center gap-2 p-2 bg-surface-raised/50 rounded border border-border-theme-subtle">
+    <div className="bg-surface-raised/50 border-border-theme-subtle flex items-center gap-2 rounded border p-2">
       {/* Equipment Name */}
-      <div className="flex-1 min-w-0">
-        <span className="text-sm text-white truncate block">{item.name}</span>
-        <div className="flex items-center gap-2 text-xs text-text-theme-secondary">
+      <div className="min-w-0 flex-1">
+        <span className="block truncate text-sm text-white">{item.name}</span>
+        <div className="text-text-theme-secondary flex items-center gap-2 text-xs">
           {item.isTurretMounted && hasTurret && (
             <span className="text-amber-400">Turret</span>
           )}
@@ -230,7 +249,12 @@ function MountedEquipmentRow({
       {/* Location Selector */}
       <select
         value={item.location}
-        onChange={(e) => onLocationChange(item.id, e.target.value as VehicleLocation | VTOLLocation)}
+        onChange={(e) =>
+          onLocationChange(
+            item.id,
+            e.target.value as VehicleLocation | VTOLLocation,
+          )
+        }
         disabled={readOnly}
         className={`${cs.select.inline} w-24`}
       >
@@ -242,13 +266,13 @@ function MountedEquipmentRow({
       </select>
 
       {/* Rear Mounted Toggle (for weapons) */}
-      <label className="flex items-center gap-1 text-xs text-text-theme-secondary cursor-pointer">
+      <label className="text-text-theme-secondary flex cursor-pointer items-center gap-1 text-xs">
         <input
           type="checkbox"
           checked={item.isRearMounted}
           onChange={(e) => onRearMountedChange(item.id, e.target.checked)}
           disabled={readOnly}
-          className="w-3 h-3"
+          className="h-3 w-3"
         />
         <span>Rear</span>
       </label>
@@ -257,11 +281,21 @@ function MountedEquipmentRow({
       <button
         onClick={() => onRemove(item.id)}
         disabled={readOnly}
-        className="p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors disabled:opacity-50"
+        className="rounded p-1 text-red-400 transition-colors hover:bg-red-900/30 hover:text-red-300 disabled:opacity-50"
         title="Remove"
       >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
     </div>

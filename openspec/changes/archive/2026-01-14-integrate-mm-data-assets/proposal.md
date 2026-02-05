@@ -7,11 +7,13 @@ Refactor MekStation to use assets from the official `mm-data` distribution rathe
 ## Background
 
 Currently, MekStation has:
+
 1. **Custom armor diagrams** - Hand-coded SVG components in `src/components/customizer/armor/variants/` that generate armor visualizations programmatically
 2. **Partial mm-data copies** - Some assets in `public/record-sheets/biped_pips/` copied from mm-data for PDF record sheet generation
 3. **Custom PDF templates** - Only `mek_biped_default.svg` template present in `public/record-sheets/templates/`
 
 The official mm-data repository (`../mm-data/data/images/`) contains:
+
 - **Record sheet templates** - Complete SVG templates for all unit types (biped, quad, tripod, LAM, etc.)
 - **Armor pip SVGs** - Pre-rendered armor circles by location and count (`Armor_CT_10_Humanoid.svg`)
 - **Internal structure pip SVGs** - Pre-rendered structure pips by tonnage (`BipedIS50_CT.svg`)
@@ -27,12 +29,14 @@ The official mm-data repository (`../mm-data/data/images/`) contains:
 ## Scope
 
 ### In Scope
+
 1. **Armor Diagram Overhaul** - New "MegaMek Classic" variant that renders using mm-data pip SVGs
 2. **Record Sheet Template Integration** - Use all mm-data templates (not just biped)
 3. **Asset Distribution Strategy** - Decide between npm package, git submodule, or symlink approach
 4. **Build-time Asset Sync** - Script to sync/update assets from mm-data repo
 
 ### Out of Scope
+
 - Modifying mm-data repository itself
 - Game-time damage tracking (only construction-time display)
 - Non-mech unit types (vehicles, battle armor, aerospace) - future work
@@ -40,6 +44,7 @@ The official mm-data repository (`../mm-data/data/images/`) contains:
 ## Impact Analysis
 
 ### Files Affected
+
 - `src/components/customizer/armor/variants/*.tsx` - Replace or add new variant
 - `src/components/customizer/armor/shared/MechSilhouette.tsx` - Update to use real silhouettes
 - `src/services/printing/RecordSheetService.ts` - Update template loading for all configs
@@ -47,11 +52,13 @@ The official mm-data repository (`../mm-data/data/images/`) contains:
 - `package.json` - Add asset sync scripts
 
 ### Dependencies
+
 - `armor-diagram` spec - MODIFIED (add MegaMek Classic variant)
 - `armor-diagram-variants` spec - MODIFIED (new variant definition)
 - `record-sheet-export` spec - MODIFIED (expand template support)
 
 ### Risk Assessment
+
 - **Medium Risk**: Large refactor touching visual components
 - **Mitigation**: Keep existing variants functional while adding new "MegaMek Classic" variant
 - **Mitigation**: Feature flag to switch between old/new rendering

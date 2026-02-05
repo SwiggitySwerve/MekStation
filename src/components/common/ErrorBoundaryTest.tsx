@@ -1,9 +1,9 @@
 /**
  * ErrorBoundary Test Component
- * 
+ *
  * Utility component for testing ErrorBoundary functionality.
  * Only available in development mode.
- * 
+ *
  * Usage:
  * 1. Import this component into any page/component
  * 2. Add <ErrorBoundaryTest /> anywhere in the JSX
@@ -50,7 +50,7 @@ export function ErrorBoundaryTest({
     <div className={`fixed ${positionClasses[position]} z-[9999]`}>
       <button
         onClick={() => setShouldThrow(true)}
-        className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-mono rounded shadow-lg border border-red-400 transition-colors"
+        className="rounded border border-red-400 bg-red-600 px-3 py-2 font-mono text-xs text-white shadow-lg transition-colors hover:bg-red-700"
         title="Click to trigger a test error"
       >
         🔥 Trigger Error
@@ -62,18 +62,22 @@ export function ErrorBoundaryTest({
 /**
  * Error component that throws immediately (for testing error boundaries)
  */
-export function ThrowError({ message }: { message?: string }): React.ReactElement {
+export function ThrowError({
+  message,
+}: {
+  message?: string;
+}): React.ReactElement {
   throw new Error(message || 'Immediate test error');
 }
 
 /**
  * Hook to programmatically trigger errors for testing
- * 
+ *
  * @example
  * ```tsx
  * function MyComponent() {
  *   const { triggerError } = useErrorTest();
- *   
+ *
  *   return (
  *     <button onClick={() => triggerError('Test error')}>
  *       Test Error Boundary
@@ -125,38 +129,38 @@ export function ErrorTypeTest(): React.ReactElement | null {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 z-[9999] bg-surface-base border border-border-theme rounded-lg shadow-lg p-3">
-      <p className="text-xs font-semibold text-text-theme-primary mb-2">
+    <div className="bg-surface-base border-border-theme fixed bottom-4 left-4 z-[9999] rounded-lg border p-3 shadow-lg">
+      <p className="text-text-theme-primary mb-2 text-xs font-semibold">
         Test Error Types
       </p>
       <div className="flex flex-col gap-1">
         <button
           onClick={() => setErrorType('syntax')}
-          className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition-colors"
+          className="rounded bg-red-600 px-2 py-1 text-xs text-white transition-colors hover:bg-red-700"
         >
           SyntaxError (non-recoverable)
         </button>
         <button
           onClick={() => setErrorType('type')}
-          className="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white text-xs rounded transition-colors"
+          className="rounded bg-orange-600 px-2 py-1 text-xs text-white transition-colors hover:bg-orange-700"
         >
           TypeError (recoverable)
         </button>
         <button
           onClick={() => setErrorType('reference')}
-          className="px-2 py-1 bg-yellow-600 hover:bg-yellow-700 text-white text-xs rounded transition-colors"
+          className="rounded bg-yellow-600 px-2 py-1 text-xs text-white transition-colors hover:bg-yellow-700"
         >
           ReferenceError (recoverable)
         </button>
         <button
           onClick={() => setErrorType('range')}
-          className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors"
+          className="rounded bg-blue-600 px-2 py-1 text-xs text-white transition-colors hover:bg-blue-700"
         >
           RangeError (recoverable)
         </button>
         <button
           onClick={() => setErrorType('generic')}
-          className="px-2 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded transition-colors"
+          className="rounded bg-purple-600 px-2 py-1 text-xs text-white transition-colors hover:bg-purple-700"
         >
           Generic Error (recoverable)
         </button>

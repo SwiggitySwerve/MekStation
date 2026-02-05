@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import Pagination from './Pagination';
+
 import { useState } from 'react';
+
+import Pagination from './Pagination';
 
 const meta: Meta<typeof Pagination> = {
   title: 'Common/Pagination',
@@ -43,7 +45,7 @@ const InteractiveExample = () => {
   return (
     <div className="space-y-4">
       <Pagination currentPage={page} totalPages={10} onPageChange={setPage} />
-      <p className="text-center text-text-theme-secondary text-sm">
+      <p className="text-text-theme-secondary text-center text-sm">
         Current page: <span className="text-accent font-medium">{page}</span>
       </p>
     </div>

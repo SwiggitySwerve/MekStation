@@ -1,21 +1,31 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+
 import { EquipmentRow } from '@/components/customizer/equipment/EquipmentRow';
-import { EquipmentCategory, IEquipmentItem, getAllWeapons, IWeapon, WeaponCategory } from '@/types/equipment';
-import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import {
+  EquipmentCategory,
+  IEquipmentItem,
+  getAllWeapons,
+  IWeapon,
+  WeaponCategory,
+} from '@/types/equipment';
 
 // Mock getAllWeapons to return our test weapon data
 jest.mock('@/types/equipment', () => {
-  const actual = jest.requireActual<typeof import('@/types/equipment')>('@/types/equipment');
+  const actual =
+    jest.requireActual<typeof import('@/types/equipment')>('@/types/equipment');
   return {
     ...actual,
     getAllWeapons: jest.fn((): ReturnType<typeof actual.getAllWeapons> => []),
   };
 });
 
-const mockGetAllWeapons = getAllWeapons as jest.MockedFunction<typeof getAllWeapons>;
+const mockGetAllWeapons = getAllWeapons as jest.MockedFunction<
+  typeof getAllWeapons
+>;
 
 describe('EquipmentRow', () => {
   beforeEach(() => {
@@ -23,7 +33,9 @@ describe('EquipmentRow', () => {
     mockGetAllWeapons.mockReturnValue([]);
   });
 
-  const createEquipment = (overrides?: Partial<IEquipmentItem>): IEquipmentItem => ({
+  const createEquipment = (
+    overrides?: Partial<IEquipmentItem>,
+  ): IEquipmentItem => ({
     id: 'medium-laser',
     name: 'Medium Laser',
     category: EquipmentCategory.ENERGY_WEAPON,
@@ -41,7 +53,7 @@ describe('EquipmentRow', () => {
     id: 'medium-laser',
     name: 'Medium Laser',
     category: WeaponCategory.ENERGY,
-  subType: '',
+    subType: '',
     weight: 1,
     criticalSlots: 1,
     heat: 3,
@@ -58,45 +70,45 @@ describe('EquipmentRow', () => {
   it('should render equipment name', () => {
     const equipment = createEquipment();
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     expect(screen.getByText('Medium Laser')).toBeInTheDocument();
   });
 
   it('should render weight', () => {
     const equipment = createEquipment({ weight: 2 });
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     expect(screen.getByText('2t')).toBeInTheDocument();
   });
 
   it('should render critical slots', () => {
     const equipment = createEquipment({ criticalSlots: 2 });
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     expect(screen.getByText('2')).toBeInTheDocument();
   });
 
@@ -105,33 +117,33 @@ describe('EquipmentRow', () => {
     mockGetAllWeapons.mockReturnValue([
       createMockWeapon({ id: 'medium-laser', damage: 5 }),
     ]);
-    
+
     const equipment = createEquipment();
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     expect(screen.getByText('5')).toBeInTheDocument();
   });
 
   it('should render dash when damage is missing', () => {
     const equipment = createEquipment();
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     const dashes = screen.getAllByText('-');
     expect(dashes.length).toBeGreaterThan(0);
   });
@@ -141,18 +153,18 @@ describe('EquipmentRow', () => {
     mockGetAllWeapons.mockReturnValue([
       createMockWeapon({ id: 'medium-laser', heat: 3 }),
     ]);
-    
+
     const equipment = createEquipment();
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     expect(screen.getByText('3')).toBeInTheDocument();
   });
 
@@ -164,15 +176,15 @@ describe('EquipmentRow', () => {
 
     const equipment = createEquipment();
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     const dashes = screen.getAllByText('-');
     expect(dashes.length).toBeGreaterThan(0);
   });
@@ -180,38 +192,38 @@ describe('EquipmentRow', () => {
   it('should render range when present', () => {
     // Setup mock weapon data for lookup
     mockGetAllWeapons.mockReturnValue([
-      createMockWeapon({ 
-        id: 'medium-laser', 
-        ranges: { minimum: 0, short: 3, medium: 6, long: 9 } 
+      createMockWeapon({
+        id: 'medium-laser',
+        ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
       }),
     ]);
-    
+
     const equipment = createEquipment();
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     expect(screen.getByText('3/6/9')).toBeInTheDocument();
   });
 
   it('should render dash when range is missing', () => {
     const equipment = createEquipment();
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     const dashes = screen.getAllByText('-');
     expect(dashes.length).toBeGreaterThan(0);
   });
@@ -220,33 +232,33 @@ describe('EquipmentRow', () => {
     const user = userEvent.setup();
     const equipment = createEquipment();
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     const addButton = screen.getByText('Add');
     await user.click(addButton);
-    
+
     expect(onAdd).toHaveBeenCalledTimes(1);
   });
 
   it('should render in compact mode', () => {
     const equipment = createEquipment();
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} compact={true} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     expect(screen.getByText('Medium Laser')).toBeInTheDocument();
     // In compact mode, weight and slots are both 1, so there are multiple elements
     const onesElements = screen.getAllByText('1');
@@ -256,18 +268,17 @@ describe('EquipmentRow', () => {
   it('should display equipment name in compact mode', () => {
     const equipment = createEquipment();
     const onAdd = jest.fn();
-    
+
     render(
       <table>
         <tbody>
           <EquipmentRow equipment={equipment} onAdd={onAdd} compact={true} />
         </tbody>
-      </table>
+      </table>,
     );
-    
+
     expect(screen.getByText('Medium Laser')).toBeInTheDocument();
     // Compact mode renders the row correctly
     expect(screen.getByTitle('Add Medium Laser')).toBeInTheDocument();
   });
 });
-

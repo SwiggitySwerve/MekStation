@@ -23,4 +23,3 @@ The units table currently lacks important gameplay metrics that users need for a
   - `src/utils/construction/battleValueCalculations.ts` - New BV calculation service
   - `src/pages/units/index.tsx` - Add table columns
   - `public/data/units/battlemechs/index.json` - Regenerated with new fields
-

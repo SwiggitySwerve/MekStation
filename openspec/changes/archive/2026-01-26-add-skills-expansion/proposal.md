@@ -1,9 +1,11 @@
 # Change: Skills Expansion
 
 ## Why
+
 MekStation currently has only 2 skills (gunnery, piloting) hardcoded in person creation. Campaign systems need 40+ skill types for turnover modifiers, repair quality checks, financial management, medical treatment effectiveness, and personnel progression. Without a comprehensive skill catalog, other campaign features cannot calculate skill-based modifiers.
 
 ## What Changes
+
 - Add skill catalog with 40+ skill types organized into 6 categories (combat, technical, medical, administrative, physical, knowledge)
 - Implement 2d6 skill check resolution vs target number with modifiers
 - Add XP-based skill progression with attribute-adjusted costs
@@ -12,8 +14,9 @@ MekStation currently has only 2 skills (gunnery, piloting) hardcoded in person c
 - Extend existing ISkillType and ISkill interfaces (no breaking changes)
 
 ## Impact
+
 - Affected specs: `personnel-management` (MODIFIED), `skills-system` (ADDED)
-- Affected code: 
+- Affected code:
   - `src/types/campaign/skills/skillCatalog.ts` (NEW)
   - `src/lib/campaign/skills/skillCheck.ts` (NEW)
   - `src/lib/campaign/skills/skillProgression.ts` (NEW)

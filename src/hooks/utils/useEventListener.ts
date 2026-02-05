@@ -40,7 +40,9 @@ function isRefObject<T>(value: unknown): value is RefObject<T> {
 /**
  * Get the actual target element from the options
  */
-function getTargetElement(target: EventTarget | RefObject<HTMLElement | null> | undefined): EventTarget {
+function getTargetElement(
+  target: EventTarget | RefObject<HTMLElement | null> | undefined,
+): EventTarget {
   if (target === undefined) {
     return typeof window !== 'undefined' ? window : null;
   }
@@ -81,25 +83,27 @@ function getTargetElement(target: EventTarget | RefObject<HTMLElement | null> | 
 export function useEventListener<K extends keyof WindowEventMap>(
   eventName: K,
   handler: (event: WindowEventMap[K]) => void,
-  options?: UseEventListenerOptions
+  options?: UseEventListenerOptions,
 ): void;
 
 export function useEventListener<K extends keyof DocumentEventMap>(
   eventName: K,
   handler: (event: DocumentEventMap[K]) => void,
-  options?: UseEventListenerOptions & { target: Document }
+  options?: UseEventListenerOptions & { target: Document },
 ): void;
 
 export function useEventListener<K extends keyof HTMLElementEventMap>(
   eventName: K,
   handler: (event: HTMLElementEventMap[K]) => void,
-  options?: UseEventListenerOptions & { target: RefObject<HTMLElement | null> | HTMLElement }
+  options?: UseEventListenerOptions & {
+    target: RefObject<HTMLElement | null> | HTMLElement;
+  },
 ): void;
 
 export function useEventListener(
   eventName: string,
   handler: (event: Event) => void,
-  options: UseEventListenerOptions = {}
+  options: UseEventListenerOptions = {},
 ): void {
   const { target, enabled = true, capture, passive, once } = options;
 
@@ -145,7 +149,10 @@ export function useEventListener(
     }
 
     // If target changed, remove from old target first
-    if (previousTargetRef.current && previousTargetRef.current !== targetElement) {
+    if (
+      previousTargetRef.current &&
+      previousTargetRef.current !== targetElement
+    ) {
       previousTargetRef.current.removeEventListener(eventName, eventListener);
     }
 
@@ -153,7 +160,7 @@ export function useEventListener(
     targetElement.addEventListener(
       eventName,
       eventListener,
-      Object.keys(listenerOptions).length > 0 ? listenerOptions : undefined
+      Object.keys(listenerOptions).length > 0 ? listenerOptions : undefined,
     );
 
     // Track current target
@@ -164,7 +171,7 @@ export function useEventListener(
       targetElement.removeEventListener(
         eventName,
         eventListener,
-        Object.keys(listenerOptions).length > 0 ? listenerOptions : undefined
+        Object.keys(listenerOptions).length > 0 ? listenerOptions : undefined,
       );
       previousTargetRef.current = null;
     };

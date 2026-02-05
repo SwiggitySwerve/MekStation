@@ -11,10 +11,13 @@
 ## Overview
 
 ### Purpose
+
 Collects per-game and aggregate metrics from simulation runs for analysis, reporting, and statistical validation.
 
 ### Scope
+
 **In Scope:**
+
 - Per-game metrics (ISimulationMetrics)
 - Aggregate statistics (IAggregateMetrics)
 - Win rate tracking
@@ -22,6 +25,7 @@ Collects per-game and aggregate metrics from simulation runs for analysis, repor
 - Duration tracking
 
 **Out of Scope:**
+
 - Visualization
 - Database storage
 - Real-time dashboards
@@ -37,6 +41,7 @@ The system SHALL record detailed metrics for each simulation.
 **Priority**: Critical
 
 #### Scenario: Complete metrics capture
+
 **GIVEN** completed simulation
 **WHEN** recording metrics
 **THEN** SHALL capture seed, winner, turns, duration, violations
@@ -50,6 +55,7 @@ The system SHALL compute statistics across multiple simulations.
 **Priority**: High
 
 #### Scenario: Win rate calculation
+
 **GIVEN** 100 simulations with 45 player wins, 50 opponent wins, 5 draws
 **WHEN** computing aggregate metrics
 **THEN** playerWins SHALL be 45
@@ -104,4 +110,5 @@ interface IAggregateMetrics {
 ## Changelog
 
 ### Version 1.0 (2026-02-01)
+
 - Initial specification

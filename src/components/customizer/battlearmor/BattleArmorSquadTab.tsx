@@ -7,10 +7,12 @@
  */
 
 import React, { useCallback } from 'react';
+
 import { useBattleArmorStore } from '@/stores/useBattleArmorStore';
-import { EquipmentBrowser } from '../equipment/EquipmentBrowser';
-import { IEquipmentItem } from '@/types/equipment';
 import { BattleArmorLocation } from '@/types/construction/UnitLocation';
+import { IEquipmentItem } from '@/types/equipment';
+
+import { EquipmentBrowser } from '../equipment/EquipmentBrowser';
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -58,7 +60,9 @@ export function BattleArmorSquadTab({
   const setTurretMount = useBattleArmorStore((s) => s.setTurretMount);
   const addEquipment = useBattleArmorStore((s) => s.addEquipment);
   const removeEquipment = useBattleArmorStore((s) => s.removeEquipment);
-  const updateEquipmentLocation = useBattleArmorStore((s) => s.updateEquipmentLocation);
+  const updateEquipmentLocation = useBattleArmorStore(
+    (s) => s.updateEquipmentLocation,
+  );
   const clearAllEquipment = useBattleArmorStore((s) => s.clearAllEquipment);
 
   // Handlers
@@ -67,7 +71,7 @@ export function BattleArmorSquadTab({
       if (readOnly) return;
       addEquipment(item, BattleArmorLocation.SQUAD);
     },
-    [addEquipment, readOnly]
+    [addEquipment, readOnly],
   );
 
   const handleRemoveEquipment = useCallback(
@@ -75,7 +79,7 @@ export function BattleArmorSquadTab({
       if (readOnly) return;
       removeEquipment(instanceId);
     },
-    [removeEquipment, readOnly]
+    [removeEquipment, readOnly],
   );
 
   const handleLocationChange = useCallback(
@@ -83,7 +87,7 @@ export function BattleArmorSquadTab({
       if (readOnly) return;
       updateEquipmentLocation(instanceId, location);
     },
-    [updateEquipmentLocation, readOnly]
+    [updateEquipmentLocation, readOnly],
   );
 
   return (
@@ -91,13 +95,15 @@ export function BattleArmorSquadTab({
       {/* Squad Configuration */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Squad Configuration</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className={cs.text.label}>Squad Size</label>
             <input
               type="number"
               value={squadSize}
-              onChange={(e) => !readOnly && setSquadSize(Number(e.target.value))}
+              onChange={(e) =>
+                !readOnly && setSquadSize(Number(e.target.value))
+              }
               disabled={readOnly}
               min={1}
               max={6}
@@ -110,7 +116,9 @@ export function BattleArmorSquadTab({
             <input
               type="number"
               value={armorPerTrooper}
-              onChange={(e) => !readOnly && setArmorPerTrooper(Number(e.target.value))}
+              onChange={(e) =>
+                !readOnly && setArmorPerTrooper(Number(e.target.value))
+              }
               disabled={readOnly}
               min={0}
               max={14}
@@ -126,36 +134,36 @@ export function BattleArmorSquadTab({
       {/* Mount Options */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Mount Options</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <label className="flex items-center gap-2 cursor-pointer">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <label className="flex cursor-pointer items-center gap-2">
             <input
               type="checkbox"
               checked={hasAPMount}
               onChange={(e) => !readOnly && setAPMount(e.target.checked)}
               disabled={readOnly}
-              className="rounded border-border-theme bg-surface-raised"
+              className="border-border-theme bg-surface-raised rounded"
             />
-            <span className="text-white text-sm">Anti-Personnel Mount</span>
+            <span className="text-sm text-white">Anti-Personnel Mount</span>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex cursor-pointer items-center gap-2">
             <input
               type="checkbox"
               checked={hasModularMount}
               onChange={(e) => !readOnly && setModularMount(e.target.checked)}
               disabled={readOnly}
-              className="rounded border-border-theme bg-surface-raised"
+              className="border-border-theme bg-surface-raised rounded"
             />
-            <span className="text-white text-sm">Modular Mount</span>
+            <span className="text-sm text-white">Modular Mount</span>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex cursor-pointer items-center gap-2">
             <input
               type="checkbox"
               checked={hasTurretMount}
               onChange={(e) => !readOnly && setTurretMount(e.target.checked)}
               disabled={readOnly}
-              className="rounded border-border-theme bg-surface-raised"
+              className="border-border-theme bg-surface-raised rounded"
             />
-            <span className="text-white text-sm">Turret Mount</span>
+            <span className="text-sm text-white">Turret Mount</span>
           </label>
         </div>
       </div>
@@ -163,7 +171,7 @@ export function BattleArmorSquadTab({
       {/* Equipment Browser */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Equipment</h3>
-        <div className="flex-1 min-h-0">
+        <div className="min-h-0 flex-1">
           <EquipmentBrowser
             onAddEquipment={handleAddEquipment}
             className="h-64"
@@ -173,7 +181,7 @@ export function BattleArmorSquadTab({
 
       {/* Mounted Equipment */}
       <div className={cs.panel.main}>
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3 flex items-center justify-between">
           <h3 className={cs.text.sectionTitle.replace('mb-4', 'mb-0')}>
             Mounted Equipment ({equipment.length})
           </h3>
@@ -194,14 +202,17 @@ export function BattleArmorSquadTab({
             {equipment.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between bg-surface-raised p-2 rounded"
+                className="bg-surface-raised flex items-center justify-between rounded p-2"
               >
-                <span className="text-white text-sm">{item.name}</span>
+                <span className="text-sm text-white">{item.name}</span>
                 <div className="flex items-center gap-2">
                   <select
                     value={item.location}
                     onChange={(e) =>
-                      handleLocationChange(item.id, e.target.value as BattleArmorLocation)
+                      handleLocationChange(
+                        item.id,
+                        e.target.value as BattleArmorLocation,
+                      )
                     }
                     disabled={readOnly}
                     className={cs.select.compact}
@@ -215,7 +226,7 @@ export function BattleArmorSquadTab({
                   {!readOnly && (
                     <button
                       onClick={() => handleRemoveEquipment(item.id)}
-                      className="text-red-400 hover:text-red-300 text-sm"
+                      className="text-sm text-red-400 hover:text-red-300"
                     >
                       Remove
                     </button>

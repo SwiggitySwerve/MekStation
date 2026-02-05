@@ -26,7 +26,8 @@ function main() {
   const repoRoot = path.join(__dirname, '..', '..');
   const tag = getArg('--tag');
   const releaseDir = getArg('--release-dir') || path.join(repoRoot, 'release');
-  const outDir = getArg('--out-dir') || path.join(repoRoot, '.tmp', 'update-metadata');
+  const outDir =
+    getArg('--out-dir') || path.join(repoRoot, '.tmp', 'update-metadata');
   const owner = getArg('--owner') || 'SwiggitySwerve';
   const repo = getArg('--repo') || 'MekStation';
 
@@ -43,7 +44,9 @@ function main() {
     tag,
   });
 
-  console.log(`[prepare-update-metadata] Wrote ${writtenFiles.length} file(s) to: ${outDir}`);
+  console.log(
+    `[prepare-update-metadata] Wrote ${writtenFiles.length} file(s) to: ${outDir}`,
+  );
   for (const f of writtenFiles.slice(0, 20)) {
     console.log(`- ${f}`);
   }
@@ -53,5 +56,3 @@ function main() {
 }
 
 main();
-
-

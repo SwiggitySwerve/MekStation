@@ -27,14 +27,18 @@
  *   --strict        Exit with error code on any violation
  */
 
+import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 // Get __dirname equivalent for ES modules
-const __filename_local = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
-const __dirname_local = typeof __dirname !== 'undefined' ? __dirname : path.dirname(__filename_local);
+const __filename_local =
+  typeof __filename !== 'undefined'
+    ? __filename
+    : fileURLToPath(import.meta.url);
+const __dirname_local =
+  typeof __dirname !== 'undefined' ? __dirname : path.dirname(__filename_local);
 
 // ============================================================================
 // Types
@@ -190,7 +194,11 @@ function loadConfig(configPath?: string): TerminologyConfig {
 // File Discovery
 // ============================================================================
 
-function findFiles(rootDir: string, options: CliOptions, config: TerminologyConfig): string[] {
+function findFiles(
+  rootDir: string,
+  options: CliOptions,
+  config: TerminologyConfig,
+): string[] {
   const files: string[] = [];
 
   // If checking only changed files
@@ -205,7 +213,11 @@ function findFiles(rootDir: string, options: CliOptions, config: TerminologyConf
         .map((f) => path.join(rootDir, f))
         .filter((f) => fs.existsSync(f) && matchesPatterns(f, config, options));
     } catch {
-      console.warn(c.warn('Warning: Could not get changed files from git, scanning all files'));
+      console.warn(
+        c.warn(
+          'Warning: Could not get changed files from git, scanning all files',
+        ),
+      );
     }
   }
 
@@ -239,13 +251,27 @@ function isExcluded(filePath: string, excludePatterns: string[]): boolean {
   const normalized = filePath.replace(/\\/g, '/');
   for (const pattern of excludePatterns) {
     // Handle common patterns
-    if (pattern.includes('node_modules') && normalized.includes('node_modules')) return true;
+    if (pattern.includes('node_modules') && normalized.includes('node_modules'))
+      return true;
     if (pattern.includes('.bak') && normalized.endsWith('.bak')) return true;
     if (pattern.includes('dist') && normalized.includes('/dist/')) return true;
-    if (pattern.includes('build') && normalized.includes('/build/')) return true;
-    if (pattern.includes('openspec/scripts') && normalized.includes('/openspec/scripts/')) return true;
-    if (pattern.includes('TERMINOLOGY_GLOSSARY.md') && normalized.endsWith('TERMINOLOGY_GLOSSARY.md')) return true;
-    if (pattern.includes('TERMINOLOGY_FIX_REPORT.md') && normalized.endsWith('TERMINOLOGY_FIX_REPORT.md')) return true;
+    if (pattern.includes('build') && normalized.includes('/build/'))
+      return true;
+    if (
+      pattern.includes('openspec/scripts') &&
+      normalized.includes('/openspec/scripts/')
+    )
+      return true;
+    if (
+      pattern.includes('TERMINOLOGY_GLOSSARY.md') &&
+      normalized.endsWith('TERMINOLOGY_GLOSSARY.md')
+    )
+      return true;
+    if (
+      pattern.includes('TERMINOLOGY_FIX_REPORT.md') &&
+      normalized.endsWith('TERMINOLOGY_FIX_REPORT.md')
+    )
+      return true;
     // Skip any violation reports and templates
     if (normalized.includes('VIOLATIONS_REPORT.md')) return true;
     if (normalized.includes('VALIDATION_FINDINGS')) return true;
@@ -254,7 +280,11 @@ function isExcluded(filePath: string, excludePatterns: string[]): boolean {
   return false;
 }
 
-function matchesPatterns(filePath: string, config: TerminologyConfig, options: CliOptions): boolean {
+function matchesPatterns(
+  filePath: string,
+  config: TerminologyConfig,
+  options: CliOptions,
+): boolean {
   const normalized = filePath.replace(/\\/g, '/');
 
   // Specs only mode
@@ -264,11 +294,14 @@ function matchesPatterns(filePath: string, config: TerminologyConfig, options: C
 
   // Check spec patterns
   const isSpec =
-    (normalized.includes('/openspec/specs/') || normalized.includes('/openspec/changes/')) &&
+    (normalized.includes('/openspec/specs/') ||
+      normalized.includes('/openspec/changes/')) &&
     normalized.endsWith('.md');
 
   // Check source patterns
-  const isSource = (normalized.endsWith('.ts') || normalized.endsWith('.tsx')) && normalized.includes('/src/');
+  const isSource =
+    (normalized.endsWith('.ts') || normalized.endsWith('.tsx')) &&
+    normalized.includes('/src/');
 
   if (options.source) {
     return isSpec || isSource;
@@ -294,7 +327,12 @@ interface LineContext {
   isUserAction: boolean;
 }
 
-function analyzeLineContext(line: string, content: string, lineIndex: number, config: TerminologyConfig): LineContext {
+function analyzeLineContext(
+  line: string,
+  content: string,
+  lineIndex: number,
+  config: TerminologyConfig,
+): LineContext {
   const lines = content.split('\n');
 
   // Count code block markers before this line
@@ -315,14 +353,31 @@ function analyzeLineContext(line: string, content: string, lineIndex: number, co
   return {
     inCodeBlock,
     inTypeScriptBlock: inCodeBlock && isTypeScript,
-    isComment: line.trim().startsWith('//') || line.trim().startsWith('/*') || line.trim().startsWith('*'),
-    isDeprecatedExample: skipPatterns.contexts['deprecated-examples'].some((p) => line.includes(p)),
-    isComparison: skipPatterns.contexts['comparisons'].some((p) => line.includes(p)),
-    isRuleDescription: skipPatterns.contexts['rule-descriptions'].some((p) => line.includes(p)),
-    isRationale: skipPatterns.contexts['rationale'].some((p) => line.includes(p)),
-    isChangelog: skipPatterns.contexts['changelog'].some((p) => line.includes(p)),
-    isWhenClause: skipPatterns.contexts['when-clauses'].some((p) => line.includes(p)),
-    isUserAction: skipPatterns.contexts['user-actions'].some((p) => line.includes(p)),
+    isComment:
+      line.trim().startsWith('//') ||
+      line.trim().startsWith('/*') ||
+      line.trim().startsWith('*'),
+    isDeprecatedExample: skipPatterns.contexts['deprecated-examples'].some(
+      (p) => line.includes(p),
+    ),
+    isComparison: skipPatterns.contexts['comparisons'].some((p) =>
+      line.includes(p),
+    ),
+    isRuleDescription: skipPatterns.contexts['rule-descriptions'].some((p) =>
+      line.includes(p),
+    ),
+    isRationale: skipPatterns.contexts['rationale'].some((p) =>
+      line.includes(p),
+    ),
+    isChangelog: skipPatterns.contexts['changelog'].some((p) =>
+      line.includes(p),
+    ),
+    isWhenClause: skipPatterns.contexts['when-clauses'].some((p) =>
+      line.includes(p),
+    ),
+    isUserAction: skipPatterns.contexts['user-actions'].some((p) =>
+      line.includes(p),
+    ),
   };
 }
 
@@ -330,7 +385,7 @@ function shouldSkipViolation(
   term: DeprecatedTerm | CapitalizationRule,
   context: LineContext,
   line: string,
-  config: TerminologyConfig
+  config: TerminologyConfig,
 ): boolean {
   // Always skip deprecated examples and comparisons
   if (context.isDeprecatedExample || context.isComparison) {
@@ -340,7 +395,8 @@ function shouldSkipViolation(
   // Check rule-specific skip contexts
   if ('skipContexts' in term && term.skipContexts) {
     for (const skipContext of term.skipContexts) {
-      if (skipContext === 'rule-descriptions' && context.isRuleDescription) return true;
+      if (skipContext === 'rule-descriptions' && context.isRuleDescription)
+        return true;
       if (skipContext === 'rationale' && context.isRationale) return true;
       if (skipContext === 'changelog' && context.isChangelog) return true;
       if (skipContext === 'comparisons' && context.isComparison) return true;
@@ -360,7 +416,10 @@ function shouldSkipViolation(
   }
 
   // Skip documentation tables showing deprecated → canonical
-  if (line.match(/^\s*\|.*→.*\|/) || line.match(/^\s*\|.*".*"\s*\|.*".*"\s*\|/)) {
+  if (
+    line.match(/^\s*\|.*→.*\|/) ||
+    line.match(/^\s*\|.*".*"\s*\|.*".*"\s*\|/)
+  ) {
     return true;
   }
 
@@ -371,7 +430,11 @@ function shouldSkipViolation(
 // Violation Detection
 // ============================================================================
 
-function detectViolations(filePath: string, content: string, config: TerminologyConfig): Violation[] {
+function detectViolations(
+  filePath: string,
+  content: string,
+  config: TerminologyConfig,
+): Violation[] {
   const violations: Violation[] = [];
   const lines = content.split('\n');
 
@@ -462,7 +525,11 @@ function detectViolations(filePath: string, content: string, config: Terminology
 // Auto-Fix
 // ============================================================================
 
-function applyFixes(content: string, violations: Violation[], config: TerminologyConfig): { content: string; fixed: number } {
+function applyFixes(
+  content: string,
+  violations: Violation[],
+  config: TerminologyConfig,
+): { content: string; fixed: number } {
   let modifiedContent = content;
   let fixedCount = 0;
 
@@ -486,8 +553,12 @@ function applyFixes(content: string, violations: Violation[], config: Terminolog
     const term = config.deprecatedTerms.find((t) => t.id === violation.ruleId);
     if (term) {
       // Smart case preservation
-      if (term.preserveCase && config.smartReplacements[term.deprecated.toLowerCase()]) {
-        const replacements = config.smartReplacements[term.deprecated.toLowerCase()];
+      if (
+        term.preserveCase &&
+        config.smartReplacements[term.deprecated.toLowerCase()]
+      ) {
+        const replacements =
+          config.smartReplacements[term.deprecated.toLowerCase()];
         for (const [search, replace] of Object.entries(replacements)) {
           if (line.includes(search)) {
             line = line.replace(new RegExp(escapeRegex(search), 'g'), replace);
@@ -506,7 +577,9 @@ function applyFixes(content: string, violations: Violation[], config: Terminolog
     }
 
     // Property violations
-    const prop = config.propertyViolations.find((p) => p.id === violation.ruleId);
+    const prop = config.propertyViolations.find(
+      (p) => p.id === violation.ruleId,
+    );
     if (prop && !fixed) {
       const propMatch = violation.found.match(/^(\s*(?:readonly\s+)?)\w+:/);
       if (propMatch) {
@@ -517,7 +590,9 @@ function applyFixes(content: string, violations: Violation[], config: Terminolog
     }
 
     // Capitalization
-    const capRule = config.capitalizationRules.find((r) => r.id === violation.ruleId);
+    const capRule = config.capitalizationRules.find(
+      (r) => r.id === violation.ruleId,
+    );
     if (capRule && !fixed) {
       const regex = new RegExp(capRule.pattern, 'g');
       // Only fix if canonical is a single option (not "X or Y")
@@ -545,7 +620,11 @@ function escapeRegex(str: string): string {
 // File Processing
 // ============================================================================
 
-function processFile(filePath: string, config: TerminologyConfig, options: CliOptions): FileResult {
+function processFile(
+  filePath: string,
+  config: TerminologyConfig,
+  options: CliOptions,
+): FileResult {
   const content = fs.readFileSync(filePath, 'utf-8');
   const violations = detectViolations(filePath, content, config);
 
@@ -557,7 +636,11 @@ function processFile(filePath: string, config: TerminologyConfig, options: CliOp
   };
 
   if ((options.fix || options.command === 'fix') && violations.length > 0) {
-    const { content: fixedContent, fixed } = applyFixes(content, violations, config);
+    const { content: fixedContent, fixed } = applyFixes(
+      content,
+      violations,
+      config,
+    );
 
     if (fixed > 0 && fixedContent !== content) {
       if (!options.dryRun) {
@@ -605,8 +688,12 @@ function formatSummary(result: RunResult): string {
   lines.push(c.bold('═'.repeat(50)));
   lines.push(c.bold('Summary'));
   lines.push(c.bold('═'.repeat(50)));
-  lines.push(`  Files scanned:          ${c.info(String(result.filesScanned))}`);
-  lines.push(`  Files with violations:  ${c.warn(String(result.filesWithViolations))}`);
+  lines.push(
+    `  Files scanned:          ${c.info(String(result.filesScanned))}`,
+  );
+  lines.push(
+    `  Files with violations:  ${c.warn(String(result.filesWithViolations))}`,
+  );
   lines.push(`  ${c.error('Errors:')}                ${result.totalErrors}`);
   lines.push(`  ${c.warn('Warnings:')}              ${result.totalWarnings}`);
   lines.push(`  Total violations:       ${result.totalViolations}`);
@@ -735,7 +822,9 @@ async function main(): Promise<void> {
       if (options.dryRun) {
         console.log(c.warn('DRY RUN - No files will be modified\n'));
       } else {
-        console.log(c.info('FIX MODE - Violations will be automatically fixed\n'));
+        console.log(
+          c.info('FIX MODE - Violations will be automatically fixed\n'),
+        );
       }
     }
   }
@@ -764,15 +853,19 @@ async function main(): Promise<void> {
     results.push(result);
 
     totalViolations += result.violations.length;
-    totalErrors += result.violations.filter((v) => v.severity === 'error').length;
-    totalWarnings += result.violations.filter((v) => v.severity === 'warning').length;
+    totalErrors += result.violations.filter(
+      (v) => v.severity === 'error',
+    ).length;
+    totalWarnings += result.violations.filter(
+      (v) => v.severity === 'warning',
+    ).length;
     totalFixed += result.fixed;
 
     // Output violations
     if (!options.json && result.violations.length > 0) {
       const relPath = path.relative(rootDir, result.file).replace(/\\/g, '/');
       console.log(
-        `${c.bold(relPath)} (${result.violations.length} violation${result.violations.length !== 1 ? 's' : ''})\n`
+        `${c.bold(relPath)} (${result.violations.length} violation${result.violations.length !== 1 ? 's' : ''})\n`,
       );
 
       for (const v of result.violations) {
@@ -802,14 +895,18 @@ async function main(): Promise<void> {
   } else {
     if (totalViolations === 0) {
       console.log(c.success(`✓ No terminology violations found!\n`));
-      console.log(`All ${files.length} file(s) are compliant with TERMINOLOGY_GLOSSARY.md\n`);
+      console.log(
+        `All ${files.length} file(s) are compliant with TERMINOLOGY_GLOSSARY.md\n`,
+      );
     } else {
       console.log(formatSummary(runResult));
 
       console.log(c.bold('Next Steps:'));
       console.log('  1. Review violations above');
       console.log('  2. Run with --fix to automatically fix violations');
-      console.log('  3. Or update specs to use canonical terminology from TERMINOLOGY_GLOSSARY.md\n');
+      console.log(
+        '  3. Or update specs to use canonical terminology from TERMINOLOGY_GLOSSARY.md\n',
+      );
     }
   }
 
@@ -823,4 +920,3 @@ main().catch((error) => {
   console.error(c.error(`Fatal error: ${error}`));
   process.exit(1);
 });
-

@@ -1,7 +1,7 @@
 /**
  * WeightClass - Mech weight classification enumeration
  * Defines the weight class categories for mechs.
- * 
+ *
  * @spec core-enumerations/spec.md
  */
 
@@ -12,19 +12,19 @@
 export enum WeightClass {
   /** Ultra-Light: 10-15 tons (ProtoMechs, not standard mechs) */
   ULTRALIGHT = 'Ultralight',
-  
+
   /** Light: 20-35 tons */
   LIGHT = 'Light',
-  
+
   /** Medium: 40-55 tons */
   MEDIUM = 'Medium',
-  
+
   /** Heavy: 60-75 tons */
   HEAVY = 'Heavy',
-  
+
   /** Assault: 80-100 tons */
   ASSAULT = 'Assault',
-  
+
   /** Super Heavy: 105+ tons (rare, requires special rules) */
   SUPERHEAVY = 'Super Heavy',
 }
@@ -69,7 +69,7 @@ export function getWeightClass(tonnage: number): WeightClass {
       return range.weightClass;
     }
   }
-  
+
   // Edge cases
   if (tonnage < 10) {
     return WeightClass.ULTRALIGHT;
@@ -80,8 +80,10 @@ export function getWeightClass(tonnage: number): WeightClass {
 /**
  * Get the tonnage range for a weight class
  */
-export function getWeightClassRange(weightClass: WeightClass): WeightClassRange | undefined {
-  return WEIGHT_CLASS_RANGES.find(range => range.weightClass === weightClass);
+export function getWeightClassRange(
+  weightClass: WeightClass,
+): WeightClassRange | undefined {
+  return WEIGHT_CLASS_RANGES.find((range) => range.weightClass === weightClass);
 }
 
 /**
@@ -101,4 +103,3 @@ export function getValidMechTonnages(): number[] {
   }
   return tonnages;
 }
-

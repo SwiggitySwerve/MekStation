@@ -4,6 +4,7 @@
  */
 
 import { IRecordSheetData, ILocationStructure } from '@/types/printing';
+
 import { ArmorPipLayout } from '../ArmorPipLayout';
 import {
   SVG_NS,
@@ -28,7 +29,7 @@ export async function fillStructurePips(
   svgRoot: SVGSVGElement,
   structure: IRecordSheetData['structure'],
   tonnage: number,
-  mechType?: string
+  mechType?: string,
 ): Promise<void> {
   // Fill text labels with structure point values
   structure.locations.forEach((loc) => {
@@ -43,7 +44,9 @@ export async function fillStructurePips(
 
   if (usePremadePips) {
     // Biped: Load pre-made structure pip SVG files
-    let structurePipsGroup: Element | null = svgDoc.getElementById(ELEMENT_IDS.CANON_STRUCTURE_PIPS);
+    let structurePipsGroup: Element | null = svgDoc.getElementById(
+      ELEMENT_IDS.CANON_STRUCTURE_PIPS,
+    );
 
     if (!structurePipsGroup) {
       const templatePips = svgDoc.getElementById(ELEMENT_IDS.STRUCTURE_PIPS);
@@ -53,12 +56,20 @@ export async function fillStructurePips(
 
       const newGroup = svgDoc.createElementNS(SVG_NS, 'g');
       newGroup.setAttribute('id', 'structure-pips-loaded');
-      newGroup.setAttribute('transform', 'matrix(0.971,0,0,0.971,-378.511,-376.966)');
+      newGroup.setAttribute(
+        'transform',
+        'matrix(0.971,0,0,0.971,-378.511,-376.966)',
+      );
       svgRoot.appendChild(newGroup);
       structurePipsGroup = newGroup;
     }
 
-    await loadAllStructurePips(svgDoc, structurePipsGroup, structure.locations, tonnage);
+    await loadAllStructurePips(
+      svgDoc,
+      structurePipsGroup,
+      structure.locations,
+      tonnage,
+    );
   } else {
     // Non-biped (quad, tripod, etc.): Generate pips dynamically using template rects
     generateDynamicStructurePips(svgDoc, structure, mechType || 'quad');
@@ -72,10 +83,15 @@ async function loadAllStructurePips(
   svgDoc: Document,
   parentGroup: Element,
   locations: readonly ILocationStructure[],
-  tonnage: number
+  tonnage: number,
 ): Promise<void> {
   const pipPromises = locations.map(async (loc) => {
-    await loadAndInsertStructurePips(svgDoc, parentGroup, loc.abbreviation, tonnage);
+    await loadAndInsertStructurePips(
+      svgDoc,
+      parentGroup,
+      loc.abbreviation,
+      tonnage,
+    );
   });
 
   await Promise.all(pipPromises);
@@ -89,7 +105,7 @@ async function loadAndInsertStructurePips(
   svgDoc: Document,
   parentGroup: Element,
   locationAbbr: string,
-  tonnage: number
+  tonnage: number,
 ): Promise<void> {
   // Build the pip file path: BipedIS50_CT.svg, BipedIS50_HD.svg, etc.
   const pipFileName = `BipedIS${tonnage}_${locationAbbr}.svg`;
@@ -117,10 +133,13 @@ async function loadAndInsertStructurePips(
     locationGroup.setAttribute('class', 'structure-pips');
 
     // Clone each path into our template
-    paths.forEach(path => {
+    paths.forEach((path) => {
       const clonedPath = svgDoc.importNode(path, true) as SVGPathElement;
       // Ensure proper styling for structure pips (white fill with black stroke)
-      if (!clonedPath.getAttribute('fill') || clonedPath.getAttribute('fill') === 'none') {
+      if (
+        !clonedPath.getAttribute('fill') ||
+        clonedPath.getAttribute('fill') === 'none'
+      ) {
         clonedPath.setAttribute('fill', '#FFFFFF');
       }
       if (!clonedPath.getAttribute('stroke')) {
@@ -142,7 +161,7 @@ async function loadAndInsertStructurePips(
 export function generateStructurePipsForLocationFallback(
   svgDoc: Document,
   parentGroup: Element,
-  location: ILocationStructure
+  location: ILocationStructure,
 ): void {
   const pipGroupId = STRUCTURE_PIP_GROUP_IDS[location.abbreviation];
   if (!pipGroupId) return;
@@ -155,7 +174,9 @@ export function generateStructurePipsForLocationFallback(
   }
 
   // Get all existing pip paths in this group to determine positions
-  const existingPips = existingPipGroup.querySelectorAll('path.pip.structure, circle.pip.structure');
+  const existingPips = existingPipGroup.querySelectorAll(
+    'path.pip.structure, circle.pip.structure',
+  );
 
   // If there are existing pips, we can use them as templates
   // Otherwise, generate pips in a grid layout within the group
@@ -183,13 +204,18 @@ export function generateStructurePipsForLocationFallback(
         svgDoc,
         existingPipGroup,
         location.points - existingPips.length,
-        existingPips[existingPips.length - 1] as SVGElement
+        existingPips[existingPips.length - 1] as SVGElement,
       );
     }
   } else {
     // No existing pips - generate from scratch
     // Get the group's transform to determine position
-    generateStructurePipGrid(svgDoc, existingPipGroup, location.points, location.abbreviation);
+    generateStructurePipGrid(
+      svgDoc,
+      existingPipGroup,
+      location.points,
+      location.abbreviation,
+    );
   }
 }
 
@@ -200,7 +226,7 @@ function generateAdditionalStructurePips(
   svgDoc: Document,
   parentGroup: Element,
   count: number,
-  referencePip: SVGElement
+  referencePip: SVGElement,
 ): void {
   if (count <= 0) return;
 
@@ -223,7 +249,10 @@ function generateAdditionalStructurePips(
   // Generate additional pips in a row/column pattern
   for (let i = 0; i < count; i++) {
     const pipGroup = svgDoc.createElementNS(SVG_NS, 'g');
-    pipGroup.setAttribute('transform', `translate(${baseX + (i + 1) * spacing},${baseY})`);
+    pipGroup.setAttribute(
+      'transform',
+      `translate(${baseX + (i + 1) * spacing},${baseY})`,
+    );
 
     const pip = svgDoc.createElementNS(SVG_NS, 'circle');
     pip.setAttribute('cx', '0');
@@ -246,20 +275,23 @@ function generateStructurePipGrid(
   svgDoc: Document,
   parentGroup: Element,
   count: number,
-  locationAbbr: string
+  locationAbbr: string,
 ): void {
   if (count <= 0) return;
 
   // Pip layout configuration based on location
-  const layouts: Record<string, { cols: number; startX: number; startY: number }> = {
-    'HD': { cols: 3, startX: 0, startY: 0 },
-    'CT': { cols: 5, startX: 0, startY: 0 },
-    'LT': { cols: 4, startX: 0, startY: 0 },
-    'RT': { cols: 4, startX: 0, startY: 0 },
-    'LA': { cols: 3, startX: 0, startY: 0 },
-    'RA': { cols: 3, startX: 0, startY: 0 },
-    'LL': { cols: 3, startX: 0, startY: 0 },
-    'RL': { cols: 3, startX: 0, startY: 0 },
+  const layouts: Record<
+    string,
+    { cols: number; startX: number; startY: number }
+  > = {
+    HD: { cols: 3, startX: 0, startY: 0 },
+    CT: { cols: 5, startX: 0, startY: 0 },
+    LT: { cols: 4, startX: 0, startY: 0 },
+    RT: { cols: 4, startX: 0, startY: 0 },
+    LA: { cols: 3, startX: 0, startY: 0 },
+    RA: { cols: 3, startX: 0, startY: 0 },
+    LL: { cols: 3, startX: 0, startY: 0 },
+    RL: { cols: 3, startX: 0, startY: 0 },
   };
 
   const layout = layouts[locationAbbr] || { cols: 4, startX: 0, startY: 0 };
@@ -296,7 +328,7 @@ function generateStructurePipGrid(
 function generateDynamicStructurePips(
   svgDoc: Document,
   structure: IRecordSheetData['structure'],
-  mechType: string
+  mechType: string,
 ): void {
   // Get the structure pip group IDs based on mech type
   const pipGroupIds = getStructurePipGroupIdsForMechType(mechType);
@@ -305,7 +337,9 @@ function generateDynamicStructurePips(
     // Find the group ID for this location
     const groupId = pipGroupIds[loc.abbreviation];
     if (!groupId) {
-      console.warn(`No structure pip group ID for location: ${loc.abbreviation}`);
+      console.warn(
+        `No structure pip group ID for location: ${loc.abbreviation}`,
+      );
       return;
     }
 
@@ -330,7 +364,9 @@ function generateDynamicStructurePips(
 /**
  * Get structure pip group IDs for a specific mech type
  */
-function getStructurePipGroupIdsForMechType(mechType: string): Record<string, string> {
+function getStructurePipGroupIdsForMechType(
+  mechType: string,
+): Record<string, string> {
   switch (mechType) {
     case 'quad':
       return QUAD_STRUCTURE_PIP_GROUP_IDS;

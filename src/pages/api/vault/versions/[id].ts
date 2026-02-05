@@ -8,7 +8,9 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import type { IVersionSnapshot } from '@/types/vault';
+
 import { getVersionHistoryService } from '@/services/vault/VersionHistoryService';
 
 // =============================================================================
@@ -33,7 +35,7 @@ interface ErrorResponse {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<VersionResponse | DeleteResponse | ErrorResponse>
+  res: NextApiResponse<VersionResponse | DeleteResponse | ErrorResponse>,
 ): Promise<void> {
   const { id } = req.query;
 
@@ -67,7 +69,7 @@ export default async function handler(
 async function handleGet(
   id: string,
   res: NextApiResponse<VersionResponse | ErrorResponse>,
-  versionService: ReturnType<typeof getVersionHistoryService>
+  versionService: ReturnType<typeof getVersionHistoryService>,
 ) {
   const version = await versionService.getVersionById(id);
 
@@ -81,7 +83,7 @@ async function handleGet(
 async function handleDelete(
   id: string,
   res: NextApiResponse<DeleteResponse | ErrorResponse>,
-  versionService: ReturnType<typeof getVersionHistoryService>
+  versionService: ReturnType<typeof getVersionHistoryService>,
 ) {
   const version = await versionService.getVersionById(id);
 
@@ -92,7 +94,7 @@ async function handleDelete(
   // Don't allow deleting the latest version
   const latest = await versionService.getLatestVersion(
     version.itemId,
-    version.contentType
+    version.contentType,
   );
 
   if (latest && latest.id === id) {
@@ -100,7 +102,8 @@ async function handleDelete(
   }
 
   // Use repository directly for delete since service doesn't expose it
-  const { getVersionHistoryRepository } = await import('@/services/vault/VersionHistoryRepository');
+  const { getVersionHistoryRepository } =
+    await import('@/services/vault/VersionHistoryRepository');
   const deleted = await getVersionHistoryRepository().deleteVersion(id);
 
   if (!deleted) {

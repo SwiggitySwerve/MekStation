@@ -1,8 +1,8 @@
 /**
  * Stores Barrel Export
- * 
+ *
  * Zustand-based state management for the BattleTech customizer.
- * 
+ *
  * @spec openspec/specs/multi-unit-tabs/spec.md
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
@@ -55,4 +55,3 @@ export * from './usePilotStore';
 
 // Theme (light/dark mode)
 export * from './useThemeStore';
-

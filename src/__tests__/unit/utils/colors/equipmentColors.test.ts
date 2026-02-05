@@ -1,9 +1,10 @@
 /**
  * Tests for Equipment Color System
- * 
+ *
  * @spec openspec/specs/color-system/spec.md
  */
 
+import { EquipmentCategory } from '@/types/equipment';
 import {
   EQUIPMENT_COLORS,
   EquipmentColorType,
@@ -13,7 +14,6 @@ import {
   classifyEquipment,
   getBattleTechEquipmentClasses,
 } from '@/utils/colors/equipmentColors';
-import { EquipmentCategory } from '@/types/equipment';
 
 describe('Equipment Colors', () => {
   describe('EQUIPMENT_COLORS constant', () => {
@@ -28,14 +28,16 @@ describe('Equipment Colors', () => {
         'structural',
         'misc',
       ];
-      
+
       for (const type of types) {
         expect(EQUIPMENT_COLORS[type]).toBeDefined();
       }
     });
 
     it('should have complete color definitions for each type', () => {
-      for (const type of Object.keys(EQUIPMENT_COLORS) as EquipmentColorType[]) {
+      for (const type of Object.keys(
+        EQUIPMENT_COLORS,
+      ) as EquipmentColorType[]) {
         const colors = EQUIPMENT_COLORS[type];
         expect(colors.bg).toBeDefined();
         expect(colors.border).toBeDefined();
@@ -91,7 +93,7 @@ describe('Equipment Colors', () => {
   describe('getEquipmentColorClasses', () => {
     it('should return combined class string for weapon', () => {
       const classes = getEquipmentColorClasses('weapon');
-      
+
       expect(classes).toContain('bg-yellow-600');
       expect(classes).toContain('border-yellow-700');
       expect(classes).toContain('text-black');
@@ -100,7 +102,7 @@ describe('Equipment Colors', () => {
 
     it('should return combined class string for electronics', () => {
       const classes = getEquipmentColorClasses('electronics');
-      
+
       expect(classes).toContain('bg-cyan-700');
       expect(classes).toContain('border-cyan-800');
     });
@@ -108,27 +110,39 @@ describe('Equipment Colors', () => {
 
   describe('categoryToColorType', () => {
     it('should map energy weapons to weapon color', () => {
-      expect(categoryToColorType(EquipmentCategory.ENERGY_WEAPON)).toBe('weapon');
+      expect(categoryToColorType(EquipmentCategory.ENERGY_WEAPON)).toBe(
+        'weapon',
+      );
     });
 
     it('should map ballistic weapons to weapon color', () => {
-      expect(categoryToColorType(EquipmentCategory.BALLISTIC_WEAPON)).toBe('weapon');
+      expect(categoryToColorType(EquipmentCategory.BALLISTIC_WEAPON)).toBe(
+        'weapon',
+      );
     });
 
     it('should map missile weapons to weapon color', () => {
-      expect(categoryToColorType(EquipmentCategory.MISSILE_WEAPON)).toBe('weapon');
+      expect(categoryToColorType(EquipmentCategory.MISSILE_WEAPON)).toBe(
+        'weapon',
+      );
     });
 
     it('should map ammunition to ammunition color', () => {
-      expect(categoryToColorType(EquipmentCategory.AMMUNITION)).toBe('ammunition');
+      expect(categoryToColorType(EquipmentCategory.AMMUNITION)).toBe(
+        'ammunition',
+      );
     });
 
     it('should map electronics to electronics color', () => {
-      expect(categoryToColorType(EquipmentCategory.ELECTRONICS)).toBe('electronics');
+      expect(categoryToColorType(EquipmentCategory.ELECTRONICS)).toBe(
+        'electronics',
+      );
     });
 
     it('should map physical weapons to physical color', () => {
-      expect(categoryToColorType(EquipmentCategory.PHYSICAL_WEAPON)).toBe('physical');
+      expect(categoryToColorType(EquipmentCategory.PHYSICAL_WEAPON)).toBe(
+        'physical',
+      );
     });
 
     it('should map movement to movement color', () => {
@@ -136,7 +150,9 @@ describe('Equipment Colors', () => {
     });
 
     it('should map misc equipment to misc color', () => {
-      expect(categoryToColorType(EquipmentCategory.MISC_EQUIPMENT)).toBe('misc');
+      expect(categoryToColorType(EquipmentCategory.MISC_EQUIPMENT)).toBe(
+        'misc',
+      );
     });
 
     it('should return misc for unknown category', () => {
@@ -279,7 +295,7 @@ describe('Equipment Colors', () => {
   describe('getBattleTechEquipmentClasses', () => {
     it('should return base classes for equipment', () => {
       const classes = getBattleTechEquipmentClasses('Medium Laser');
-      
+
       expect(classes).toContain('border');
       expect(classes).toContain('rounded');
       expect(classes).toContain('transition-colors');
@@ -287,13 +303,13 @@ describe('Equipment Colors', () => {
 
     it('should include hover classes when not selected', () => {
       const classes = getBattleTechEquipmentClasses('Medium Laser', false);
-      
+
       expect(classes).toContain('hover:');
     });
 
     it('should include ring classes when selected', () => {
       const classes = getBattleTechEquipmentClasses('Medium Laser', true);
-      
+
       expect(classes).toContain('ring-2');
       expect(classes).toContain('ring-yellow-400');
     });
@@ -309,7 +325,7 @@ describe('Equipment Colors', () => {
       const laserClasses = getBattleTechEquipmentClasses('Medium Laser');
       const ammoClasses = getBattleTechEquipmentClasses('AC/10 Ammo');
       const hsClasses = getBattleTechEquipmentClasses('Double Heat Sink');
-      
+
       // Energy weapons use yellow, ammo uses amber, heat sinks use cyan
       expect(laserClasses).toContain('bg-yellow-600');
       expect(ammoClasses).toContain('bg-amber-600');

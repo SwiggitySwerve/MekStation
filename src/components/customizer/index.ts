@@ -1,8 +1,8 @@
 /**
  * Customizer Components Barrel Export
- * 
+ *
  * UI components for the BattleMech customizer.
- * 
+ *
  * @spec openspec/specs/customizer-tabs/spec.md
  */
 
@@ -23,4 +23,3 @@ export * from './dialogs';
 
 // Shared components
 export * from './shared';
-

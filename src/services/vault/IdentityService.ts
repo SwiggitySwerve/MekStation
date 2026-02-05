@@ -126,17 +126,17 @@ export async function generateKeyPair(): Promise<IKeyPair> {
       name: 'Ed25519',
     },
     true, // extractable
-    ['sign', 'verify']
+    ['sign', 'verify'],
   );
 
   // Export keys to raw format
   const publicKeyBuffer = await crypto.subtle.exportKey(
     'raw',
-    keyPair.publicKey
+    keyPair.publicKey,
   );
   const privateKeyBuffer = await crypto.subtle.exportKey(
     'pkcs8',
-    keyPair.privateKey
+    keyPair.privateKey,
   );
 
   return {
@@ -150,7 +150,7 @@ export async function generateKeyPair(): Promise<IKeyPair> {
  */
 export async function signData(
   data: Uint8Array,
-  privateKeyBytes: Uint8Array
+  privateKeyBytes: Uint8Array,
 ): Promise<Uint8Array> {
   const crypto = await getCrypto();
 
@@ -159,7 +159,7 @@ export async function signData(
     privateKeyBytes,
     { name: 'Ed25519' },
     false,
-    ['sign']
+    ['sign'],
   );
 
   const signature = await crypto.subtle.sign('Ed25519', privateKey, data);
@@ -173,7 +173,7 @@ export async function signData(
 export async function verifySignature(
   data: Uint8Array,
   signature: Uint8Array,
-  publicKeyBytes: Uint8Array
+  publicKeyBytes: Uint8Array,
 ): Promise<boolean> {
   const crypto = await getCrypto();
 
@@ -182,7 +182,7 @@ export async function verifySignature(
     publicKeyBytes,
     { name: 'Ed25519' },
     false,
-    ['verify']
+    ['verify'],
   );
 
   return crypto.subtle.verify('Ed25519', publicKey, signature, data);
@@ -237,7 +237,7 @@ export function decodeFriendCode(friendCode: string): Uint8Array {
 
   if (chars.length !== FRIEND_CODE_LENGTH) {
     throw new Error(
-      `Invalid friend code length: expected ${FRIEND_CODE_LENGTH}, got ${chars.length}`
+      `Invalid friend code length: expected ${FRIEND_CODE_LENGTH}, got ${chars.length}`,
     );
   }
 
@@ -269,7 +269,7 @@ export function decodeFriendCode(friendCode: string): Uint8Array {
 export function isValidFriendCode(friendCode: string): boolean {
   const pattern = new RegExp(
     `^[${FRIEND_CODE_ALPHABET}]{4}-[${FRIEND_CODE_ALPHABET}]{4}-[${FRIEND_CODE_ALPHABET}]{4}-[${FRIEND_CODE_ALPHABET}]{4}$`,
-    'i'
+    'i',
   );
   return pattern.test(friendCode);
 }
@@ -279,7 +279,7 @@ export function isValidFriendCode(friendCode: string): boolean {
  */
 export function friendCodeMatchesPublicKey(
   friendCode: string,
-  publicKey: Uint8Array
+  publicKey: Uint8Array,
 ): boolean {
   try {
     const decoded = decodeFriendCode(friendCode);
@@ -306,7 +306,7 @@ export function friendCodeMatchesPublicKey(
  */
 async function deriveKey(
   password: string,
-  salt: Uint8Array
+  salt: Uint8Array,
 ): Promise<CryptoKey> {
   const crypto = await getCrypto();
 
@@ -318,7 +318,7 @@ async function deriveKey(
     passwordBytes,
     'PBKDF2',
     false,
-    ['deriveBits', 'deriveKey']
+    ['deriveBits', 'deriveKey'],
   );
 
   return crypto.subtle.deriveKey(
@@ -331,7 +331,7 @@ async function deriveKey(
     baseKey,
     { name: 'AES-GCM', length: AES_KEY_LENGTH },
     false,
-    ['encrypt', 'decrypt']
+    ['encrypt', 'decrypt'],
   );
 }
 
@@ -340,7 +340,7 @@ async function deriveKey(
  */
 export async function encryptWithPassword(
   data: Uint8Array,
-  password: string
+  password: string,
 ): Promise<IEncryptedData> {
   const crypto = await getCrypto();
 
@@ -351,7 +351,7 @@ export async function encryptWithPassword(
   const ciphertext = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     key,
-    data
+    data,
   );
 
   return {
@@ -367,7 +367,7 @@ export async function encryptWithPassword(
  */
 export async function decryptWithPassword(
   encrypted: IEncryptedData,
-  password: string
+  password: string,
 ): Promise<Uint8Array> {
   const crypto = await getCrypto();
 
@@ -380,7 +380,7 @@ export async function decryptWithPassword(
   const plaintext = await crypto.subtle.decrypt(
     { name: 'AES-GCM', iv },
     key,
-    ciphertext
+    ciphertext,
   );
 
   return new Uint8Array(plaintext);
@@ -395,13 +395,13 @@ export async function decryptWithPassword(
  */
 export async function createIdentity(
   displayName: string,
-  password: string
+  password: string,
 ): Promise<IStoredIdentity> {
   const keyPair = await generateKeyPair();
   const friendCode = encodeFriendCode(keyPair.publicKey);
   const encryptedPrivateKey = await encryptWithPassword(
     keyPair.privateKey,
-    password
+    password,
   );
 
   const id = crypto.randomUUID();
@@ -422,11 +422,11 @@ export async function createIdentity(
  */
 export async function unlockIdentity(
   stored: IStoredIdentity,
-  password: string
+  password: string,
 ): Promise<IVaultIdentity> {
   const privateKeyBytes = await decryptWithPassword(
     stored.encryptedPrivateKey,
-    password
+    password,
   );
 
   return {
@@ -469,7 +469,7 @@ export function verifyIdentityFriendCode(identity: IPublicIdentity): boolean {
  */
 export async function signMessage(
   message: string,
-  identity: IVaultIdentity
+  identity: IVaultIdentity,
 ): Promise<string> {
   const encoder = new TextEncoder();
   const messageBytes = encoder.encode(message);
@@ -485,7 +485,7 @@ export async function signMessage(
 export async function verifyMessage(
   message: string,
   signature: string,
-  publicIdentity: IPublicIdentity
+  publicIdentity: IPublicIdentity,
 ): Promise<boolean> {
   const encoder = new TextEncoder();
   const messageBytes = encoder.encode(message);
@@ -499,9 +499,4 @@ export async function verifyMessage(
 // Export Utilities
 // =============================================================================
 
-export {
-  toBase64,
-  fromBase64,
-  IDENTITY_VERSION,
-  FRIEND_CODE_ALPHABET,
-};
+export { toBase64, fromBase64, IDENTITY_VERSION, FRIEND_CODE_ALPHABET };

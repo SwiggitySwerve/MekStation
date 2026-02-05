@@ -1,24 +1,35 @@
 /**
  * Construction Component Interfaces
- * 
+ *
  * Defines interfaces for mech construction components.
  * All interfaces extend from core entity types.
- * 
+ *
  * @spec openspec/specs/construction-rules-core/spec.md
  */
 
-import { IEntity, ITechBaseEntity, IPlaceableComponent, ITemporalEntity, IValuedComponent } from '../core';
-import { EngineType } from './EngineType';
-import { GyroType } from './GyroType';
-import { InternalStructureType } from './InternalStructureType';
-import { HeatSinkType } from './HeatSinkType';
+import {
+  IEntity,
+  ITechBaseEntity,
+  IPlaceableComponent,
+  ITemporalEntity,
+  IValuedComponent,
+} from '../core';
 import { ArmorTypeEnum } from './ArmorType';
 import { CockpitType } from './CockpitType';
+import { EngineType } from './EngineType';
+import { GyroType } from './GyroType';
+import { HeatSinkType } from './HeatSinkType';
+import { InternalStructureType } from './InternalStructureType';
 
 /**
  * Engine component interface
  */
-export interface IEngine extends ITechBaseEntity, IPlaceableComponent, ITemporalEntity, IValuedComponent {
+export interface IEngine
+  extends
+    ITechBaseEntity,
+    IPlaceableComponent,
+    ITemporalEntity,
+    IValuedComponent {
   readonly engineType: EngineType;
   readonly rating: number;
   readonly ctSlots: number;
@@ -30,7 +41,12 @@ export interface IEngine extends ITechBaseEntity, IPlaceableComponent, ITemporal
 /**
  * Gyro component interface
  */
-export interface IGyro extends ITechBaseEntity, IPlaceableComponent, ITemporalEntity, IValuedComponent {
+export interface IGyro
+  extends
+    ITechBaseEntity,
+    IPlaceableComponent,
+    ITemporalEntity,
+    IValuedComponent {
   readonly gyroType: GyroType;
   readonly hitsToDestroy: number;
 }
@@ -48,7 +64,8 @@ export interface IInternalStructure extends ITechBaseEntity, ITemporalEntity {
 /**
  * Heat sink component interface
  */
-export interface IHeatSink extends ITechBaseEntity, IPlaceableComponent, ITemporalEntity {
+export interface IHeatSink
+  extends ITechBaseEntity, IPlaceableComponent, ITemporalEntity {
   readonly heatSinkType: HeatSinkType;
   readonly dissipation: number;
   readonly isIntegrated: boolean;
@@ -84,7 +101,8 @@ export interface IArmorAllocation {
 /**
  * Cockpit component interface
  */
-export interface ICockpit extends ITechBaseEntity, IPlaceableComponent, ITemporalEntity {
+export interface ICockpit
+  extends ITechBaseEntity, IPlaceableComponent, ITemporalEntity {
   readonly cockpitType: CockpitType;
   readonly headSlots: number;
   readonly otherSlots: number;
@@ -93,7 +111,8 @@ export interface ICockpit extends ITechBaseEntity, IPlaceableComponent, ITempora
 /**
  * Movement enhancement interface (MASC, TSM, Supercharger)
  */
-export interface IMovementEnhancement extends ITechBaseEntity, IPlaceableComponent, ITemporalEntity {
+export interface IMovementEnhancement
+  extends ITechBaseEntity, IPlaceableComponent, ITemporalEntity {
   readonly enhancementType: 'MASC' | 'TSM' | 'Supercharger' | 'PartialWing';
   readonly movementBonus: number;
   readonly isExclusive: boolean; // Can't combine with same type
@@ -102,7 +121,8 @@ export interface IMovementEnhancement extends ITechBaseEntity, IPlaceableCompone
 /**
  * Jump jet component interface
  */
-export interface IJumpJet extends ITechBaseEntity, IPlaceableComponent, ITemporalEntity {
+export interface IJumpJet
+  extends ITechBaseEntity, IPlaceableComponent, ITemporalEntity {
   readonly jumpJetType: string;
   readonly jumpMP: number;
 }
@@ -131,4 +151,3 @@ export interface IMechConfiguration extends IEntity {
   };
   readonly enhancements: IMovementEnhancement[];
 }
-

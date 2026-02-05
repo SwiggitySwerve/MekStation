@@ -4,11 +4,12 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
 import '@testing-library/jest-dom';
-import { ActionBar } from '../ActionBar';
 import { GamePhase } from '@/types/gameplay';
+
+import { ActionBar } from '../ActionBar';
 
 describe('ActionBar', () => {
   const defaultProps = {
@@ -39,7 +40,7 @@ describe('ActionBar', () => {
   it('should call onAction when button clicked', () => {
     const onAction = jest.fn();
     render(<ActionBar {...defaultProps} onAction={onAction} />);
-    
+
     fireEvent.click(screen.getByText(/Lock Movement/));
     expect(onAction).toHaveBeenCalledWith('lock');
   });
@@ -59,7 +60,7 @@ describe('ActionBar', () => {
   it('should disable all buttons when canAct is false', () => {
     render(<ActionBar {...defaultProps} canAct={false} />);
     const buttons = screen.getAllByRole('button');
-    buttons.forEach(button => {
+    buttons.forEach((button) => {
       expect(button).toBeDisabled();
     });
   });

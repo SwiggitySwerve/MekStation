@@ -6,16 +6,22 @@ import { abbreviateEquipmentName } from '@/utils/equipmentNameAbbreviations';
 
 describe('abbreviateEquipmentName', () => {
   it('should abbreviate (Clan) to (C)', () => {
-    expect(abbreviateEquipmentName('ER Medium Laser (Clan)')).toBe('ER Medium Laser (C)');
+    expect(abbreviateEquipmentName('ER Medium Laser (Clan)')).toBe(
+      'ER Medium Laser (C)',
+    );
     expect(abbreviateEquipmentName('Endo Steel (Clan)')).toBe('Endo Steel (C)');
   });
 
   it('should abbreviate (Inner Sphere) to (IS)', () => {
-    expect(abbreviateEquipmentName('ER Large Laser (Inner Sphere)')).toBe('ER Large Laser (IS)');
+    expect(abbreviateEquipmentName('ER Large Laser (Inner Sphere)')).toBe(
+      'ER Large Laser (IS)',
+    );
   });
 
   it('should abbreviate Extended Range to ER', () => {
-    expect(abbreviateEquipmentName('Extended Range Large Laser')).toBe('ER Large Laser');
+    expect(abbreviateEquipmentName('Extended Range Large Laser')).toBe(
+      'ER Large Laser',
+    );
   });
 
   it('should abbreviate pulse laser types', () => {
@@ -53,11 +59,15 @@ describe('abbreviateEquipmentName', () => {
     // Endo Steel stays full, Ferro-Fibrous abbreviated to Ferro-Fib
     expect(abbreviateEquipmentName('Endo Steel')).toBe('Endo Steel');
     expect(abbreviateEquipmentName('Ferro-Fibrous')).toBe('Ferro-Fib');
-    expect(abbreviateEquipmentName('Ferro-Fibrous Armor')).toBe('Ferro-Fib Armor');
+    expect(abbreviateEquipmentName('Ferro-Fibrous Armor')).toBe(
+      'Ferro-Fib Armor',
+    );
   });
 
   it('should handle multiple abbreviations in one name', () => {
-    expect(abbreviateEquipmentName('Extended Range Medium Laser (Clan)')).toBe('ER Medium Laser (C)');
+    expect(abbreviateEquipmentName('Extended Range Medium Laser (Clan)')).toBe(
+      'ER Medium Laser (C)',
+    );
   });
 
   it('should return unchanged name if no abbreviations apply', () => {
@@ -66,7 +76,11 @@ describe('abbreviateEquipmentName', () => {
   });
 
   it('should be case insensitive for (Clan) abbreviation', () => {
-    expect(abbreviateEquipmentName('Medium Laser (CLAN)')).toBe('Medium Laser (C)');
-    expect(abbreviateEquipmentName('Medium Laser (clan)')).toBe('Medium Laser (C)');
+    expect(abbreviateEquipmentName('Medium Laser (CLAN)')).toBe(
+      'Medium Laser (C)',
+    );
+    expect(abbreviateEquipmentName('Medium Laser (clan)')).toBe(
+      'Medium Laser (C)',
+    );
   });
 });

@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+
 import { ICausedBy } from '@/types/events';
 
 // =============================================================================
@@ -86,7 +87,7 @@ export function CausalityEdge({
 
   return (
     <div
-      className="absolute pointer-events-none"
+      className="pointer-events-none absolute"
       style={{
         left: from.x,
         top: from.y,
@@ -120,7 +121,7 @@ export function CausalityEdge({
       {/* Strikethrough for undone relationship */}
       {isUndone && (
         <div
-          className="absolute top-0 left-1/2 w-4 h-[2px] bg-red-500 -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-0 left-1/2 h-[2px] w-4 -translate-x-1/2 -translate-y-1/2 bg-red-500"
           style={{
             transform: 'translateX(-50%) translateY(-50%) rotate(45deg)',
           }}
@@ -129,7 +130,7 @@ export function CausalityEdge({
 
       {/* Arrow head using CSS borders */}
       <div
-        className={`absolute top-0 w-0 h-0 border-y-[5px] border-y-transparent border-l-[8px] ${style.arrowColor}`}
+        className={`absolute top-0 h-0 w-0 border-y-[5px] border-l-[8px] border-y-transparent ${style.arrowColor}`}
         style={{
           left: lineLength,
           transform: 'translateY(-50%)',

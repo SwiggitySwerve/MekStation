@@ -1,4 +1,8 @@
 import {
+  createDefaultCampaignOptions,
+  ICampaignOptions,
+} from '../../types/campaign/Campaign';
+import {
   CampaignPreset,
   PRESET_CASUAL,
   PRESET_STANDARD,
@@ -8,7 +12,6 @@ import {
   ALL_PRESETS,
 } from '../../types/campaign/CampaignPreset';
 import { CampaignType } from '../../types/campaign/CampaignType';
-import { createDefaultCampaignOptions, ICampaignOptions } from '../../types/campaign/Campaign';
 
 export function getPresetDefinition(preset: CampaignPreset): IPresetDefinition {
   switch (preset) {
@@ -29,7 +32,9 @@ export function getAllPresets(): readonly IPresetDefinition[] {
   return ALL_PRESETS;
 }
 
-export function getCampaignTypeDefaults(type: CampaignType): Partial<ICampaignOptions> {
+export function getCampaignTypeDefaults(
+  type: CampaignType,
+): Partial<ICampaignOptions> {
   switch (type) {
     case CampaignType.CLAN:
       return { allowClanEquipment: true, useFactionRules: true };
@@ -45,7 +50,10 @@ export function getCampaignTypeDefaults(type: CampaignType): Partial<ICampaignOp
   }
 }
 
-export function applyPreset(preset: CampaignPreset, campaignType: CampaignType): ICampaignOptions {
+export function applyPreset(
+  preset: CampaignPreset,
+  campaignType: CampaignType,
+): ICampaignOptions {
   const defaults = createDefaultCampaignOptions();
   const typeDefaults = getCampaignTypeDefaults(campaignType);
   const presetDef = getPresetDefinition(preset);

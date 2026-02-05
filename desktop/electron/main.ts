@@ -1,10 +1,10 @@
 /**
  * MekStation - Electron Main Process
- * 
+ *
  * This is the main Electron process that creates and manages the desktop
  * application window, handles system integration, and provides native
  * desktop features for the self-hosted MekStation.
- * 
+ *
  * Features:
  * - Native desktop application experience
  * - Auto-updater for seamless updates
@@ -16,30 +16,32 @@
  * - Recent files tracking
  */
 
-import { 
-  app, 
-  BrowserWindow, 
-  Menu, 
-  Tray, 
-  dialog, 
-  shell, 
+import { spawn } from 'child_process';
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  Tray,
+  dialog,
+  shell,
   ipcMain,
   protocol,
   session,
-  screen
+  screen,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import { spawn } from 'child_process';
-import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as os from 'os';
+import * as path from 'path';
 
+import { BackupService } from '../services/local/BackupService';
 // Import our service layer
 import { LocalStorageService } from '../services/local/LocalStorageService';
-import { BackupService } from '../services/local/BackupService';
+import {
+  RecentFilesService,
+  IAddRecentFileParams,
+} from '../services/local/RecentFilesService';
 import { SettingsService } from '../services/local/SettingsService';
-import { RecentFilesService, IAddRecentFileParams } from '../services/local/RecentFilesService';
-import { MenuManager } from './MenuManager';
 import {
   IDesktopSettings,
   IRecentFile,
@@ -47,8 +49,9 @@ import {
   SETTINGS_IPC_CHANNELS,
   RECENT_FILES_IPC_CHANNELS,
   MENU_IPC_CHANNELS,
-  APP_IPC_CHANNELS
+  APP_IPC_CHANNELS,
 } from '../types/BaseTypes';
+import { MenuManager } from './MenuManager';
 
 /**
  * Application configuration
@@ -80,7 +83,7 @@ class MekStationApp {
   private settingsService: SettingsService | null = null;
   private recentFilesService: RecentFilesService | null = null;
   private menuManager: MenuManager | null = null;
-  
+
   private readonly config: IDesktopAppConfig = {
     enableAutoUpdater: !process.env.NODE_ENV?.includes('dev'),
     enableSystemTray: true,
@@ -88,17 +91,21 @@ class MekStationApp {
     autoSaveInterval: 30000, // 30 seconds
     backupInterval: 300000, // 5 minutes
     updateCheckIntervalMs: (() => {
-      const envIntervalMinutes = Number.parseInt(process.env.MEKSTATION_UPDATE_INTERVAL_MINUTES ?? '', 10);
-      const isValidInterval = Number.isFinite(envIntervalMinutes) && envIntervalMinutes > 0;
+      const envIntervalMinutes = Number.parseInt(
+        process.env.MEKSTATION_UPDATE_INTERVAL_MINUTES ?? '',
+        10,
+      );
+      const isValidInterval =
+        Number.isFinite(envIntervalMinutes) && envIntervalMinutes > 0;
       return (isValidInterval ? envIntervalMinutes : 60) * 60 * 1000;
     })(),
     windowBounds: {
       width: 1400,
       height: 900,
       minWidth: 1024,
-      minHeight: 768
+      minHeight: 768,
     },
-    developmentMode: process.env.NODE_ENV === 'development'
+    developmentMode: process.env.NODE_ENV === 'development',
   };
 
   private readonly userDataPath: string;
@@ -107,7 +114,7 @@ class MekStationApp {
   constructor() {
     this.userDataPath = app.getPath('userData');
     this.appPath = app.getAppPath();
-    
+
     this.initializeApp();
   }
 
@@ -116,44 +123,44 @@ class MekStationApp {
    */
   private async initializeApp(): Promise<void> {
     console.log('🚀 Initializing MekStation Desktop App...');
-    
+
     // Handle app events
     this.registerAppEvents();
-    
+
     // Setup protocol handlers
     this.setupProtocolHandlers();
-    
+
     // Initialize auto-updater
     if (this.config.enableAutoUpdater) {
       this.initializeAutoUpdater();
     }
-    
+
     // Wait for app to be ready
     await app.whenReady();
-    
+
     // Initialize services
     await this.initializeServices();
-    
+
     // Initialize menu manager
     this.initializeMenuManager();
-    
+
     // Create main window
     await this.createMainWindow();
-    
+
     // Setup system tray
     if (this.config.enableSystemTray) {
       this.createSystemTray();
     }
-    
+
     // Setup IPC handlers
     this.setupIpcHandlers();
-    
+
     // Setup periodic tasks
     this.setupPeriodicTasks();
-    
+
     // Apply startup behavior settings
     await this.applyStartupSettings();
-    
+
     console.log('✅ MekStation Desktop App initialized successfully');
   }
 
@@ -216,9 +223,9 @@ class MekStationApp {
           standard: true,
           secure: true,
           allowServiceWorkers: true,
-          supportFetchAPI: true
-        }
-      }
+          supportFetchAPI: true,
+        },
+      },
     ]);
 
     app.whenReady().then(() => {
@@ -236,7 +243,9 @@ class MekStationApp {
    */
   private initializeAutoUpdater(): void {
     const updateChannel = process.env.MEKSTATION_UPDATE_CHANNEL || 'latest';
-    const updateFeedBaseUrl = process.env.MEKSTATION_UPDATE_FEED_BASE_URL || 'https://swiggityswerve.github.io/MekStation/updates';
+    const updateFeedBaseUrl =
+      process.env.MEKSTATION_UPDATE_FEED_BASE_URL ||
+      'https://swiggityswerve.github.io/MekStation/updates';
 
     // Clean-release best practice:
     // - Keep GitHub Releases "installer/package only" (no latest*.yml or *.blockmap clutter)
@@ -275,7 +284,7 @@ class MekStationApp {
     });
 
     console.log(
-      `ℹ️ Auto-updater initialized | version=${app.getVersion()} | channel=${updateChannel} | platform=${process.platform} | arch=${process.arch} | feed=${platformFeedUrl}`
+      `ℹ️ Auto-updater initialized | version=${app.getVersion()} | channel=${updateChannel} | platform=${process.platform} | arch=${process.arch} | feed=${platformFeedUrl}`,
     );
 
     // Initial check
@@ -343,13 +352,13 @@ class MekStationApp {
         dataPath: path.join(this.userDataPath, 'data'),
         enableCompression: true,
         enableEncryption: false, // Optional for local-only data
-        maxFileSize: 10 * 1024 * 1024 // 10MB
+        maxFileSize: 10 * 1024 * 1024, // 10MB
       });
       await this.localStorage.initialize();
 
       // Initialize settings service
       this.settingsService = new SettingsService({
-        localStorage: this.localStorage
+        localStorage: this.localStorage,
       });
       await this.settingsService.initialize();
 
@@ -362,7 +371,7 @@ class MekStationApp {
       const maxRecentFiles = this.settingsService.get('maxRecentFiles');
       this.recentFilesService = new RecentFilesService({
         localStorage: this.localStorage,
-        maxRecentFiles
+        maxRecentFiles,
       });
       await this.recentFilesService.initialize();
 
@@ -376,9 +385,10 @@ class MekStationApp {
         const settings = this.settingsService.getAll();
         this.backupService = new BackupService({
           dataPath: path.join(this.userDataPath, 'data'),
-          backupPath: settings.backupDirectory || path.join(this.userDataPath, 'backups'),
+          backupPath:
+            settings.backupDirectory || path.join(this.userDataPath, 'backups'),
           maxBackups: settings.maxBackupCount,
-          compressionLevel: 6
+          compressionLevel: 6,
         });
         await this.backupService.initialize();
       }
@@ -396,8 +406,9 @@ class MekStationApp {
   private initializeMenuManager(): void {
     this.menuManager = new MenuManager({
       developmentMode: this.config.developmentMode,
-      onMenuCommand: (command, ...args) => this.handleMenuCommand(command, ...args),
-      onOpenRecent: (fileId) => this.handleOpenRecent(fileId)
+      onMenuCommand: (command, ...args) =>
+        this.handleMenuCommand(command, ...args),
+      onOpenRecent: (fileId) => this.handleOpenRecent(fileId),
     });
 
     this.menuManager.initialize();
@@ -448,7 +459,9 @@ class MekStationApp {
         shell.openExternal('https://github.com/SwiggitySwerve/MekStation/wiki');
         break;
       case 'help:report-issue':
-        shell.openExternal('https://github.com/SwiggitySwerve/MekStation/issues/new');
+        shell.openExternal(
+          'https://github.com/SwiggitySwerve/MekStation/issues/new',
+        );
         break;
       case 'help:check-updates':
         void this.checkForUpdates();
@@ -470,7 +483,11 @@ class MekStationApp {
   /**
    * Handle settings changes
    */
-  private handleSettingsChange(event: { key: keyof IDesktopSettings; oldValue: unknown; newValue: unknown }): void {
+  private handleSettingsChange(event: {
+    key: keyof IDesktopSettings;
+    oldValue: unknown;
+    newValue: unknown;
+  }): void {
     console.log(`⚙️ Setting changed: ${event.key}`);
 
     switch (event.key) {
@@ -507,7 +524,10 @@ class MekStationApp {
 
     // Notify renderer
     if (this.recentFilesService) {
-      this.sendToRenderer(RECENT_FILES_IPC_CHANNELS.ON_UPDATE, this.recentFilesService.list());
+      this.sendToRenderer(
+        RECENT_FILES_IPC_CHANNELS.ON_UPDATE,
+        this.recentFilesService.list(),
+      );
     }
   }
 
@@ -522,7 +542,7 @@ class MekStationApp {
       // Windows and macOS use native API
       app.setLoginItemSettings({
         openAtLogin: enabled,
-        openAsHidden: this.settingsService?.get('startMinimized') ?? false
+        openAsHidden: this.settingsService?.get('startMinimized') ?? false,
       });
     }
   }
@@ -586,7 +606,7 @@ X-GNOME-Autostart-enabled=true
       title: 'About MekStation',
       message: 'MekStation',
       detail: `Version: ${app.getVersion()}\nElectron: ${process.versions.electron}\nChrome: ${process.versions.chrome}\nNode.js: ${process.versions.node}\n\nA comprehensive BattleMech editor for the MegaMek ecosystem.`,
-      buttons: ['OK']
+      buttons: ['OK'],
     });
   }
 
@@ -598,21 +618,23 @@ X-GNOME-Autostart-enabled=true
 
     // Get window bounds from settings service or defaults
     const settings = this.settingsService?.getAll();
-    const savedBounds = settings?.rememberWindowState ? settings.windowBounds : null;
-    
+    const savedBounds = settings?.rememberWindowState
+      ? settings.windowBounds
+      : null;
+
     // Validate saved bounds are on a visible display
-    let windowBounds = { 
+    let windowBounds = {
       ...this.config.windowBounds,
       x: savedBounds?.x,
       y: savedBounds?.y,
       width: savedBounds?.width || this.config.windowBounds.width,
-      height: savedBounds?.height || this.config.windowBounds.height
+      height: savedBounds?.height || this.config.windowBounds.height,
     };
 
     // Validate window is within visible display bounds
     if (savedBounds?.x !== undefined && savedBounds?.y !== undefined) {
       const displays = screen.getAllDisplays();
-      const isVisible = displays.some(display => {
+      const isVisible = displays.some((display) => {
         const { x, y, width, height } = display.bounds;
         return (
           savedBounds.x >= x &&
@@ -625,8 +647,12 @@ X-GNOME-Autostart-enabled=true
       if (!isVisible) {
         // Reset to primary display center if not visible
         const primaryDisplay = screen.getPrimaryDisplay();
-        windowBounds.x = Math.round((primaryDisplay.bounds.width - windowBounds.width) / 2);
-        windowBounds.y = Math.round((primaryDisplay.bounds.height - windowBounds.height) / 2);
+        windowBounds.x = Math.round(
+          (primaryDisplay.bounds.width - windowBounds.width) / 2,
+        );
+        windowBounds.y = Math.round(
+          (primaryDisplay.bounds.height - windowBounds.height) / 2,
+        );
       }
     }
 
@@ -641,11 +667,11 @@ X-GNOME-Autostart-enabled=true
         nodeIntegration: false,
         contextIsolation: true,
         preload: path.join(__dirname, 'preload.js'),
-        webSecurity: !this.config.developmentMode
+        webSecurity: !this.config.developmentMode,
       },
       icon: this.getAppIcon(),
       titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-      show: false // Don't show until ready
+      show: false, // Don't show until ready
     });
 
     // Restore maximized state
@@ -671,11 +697,12 @@ X-GNOME-Autostart-enabled=true
 
     // Show window when ready (unless start minimized is enabled)
     this.mainWindow.once('ready-to-show', () => {
-      const startMinimized = this.settingsService?.get('startMinimized') ?? false;
+      const startMinimized =
+        this.settingsService?.get('startMinimized') ?? false;
       if (this.mainWindow) {
         if (!startMinimized) {
           this.mainWindow.show();
-          
+
           // Focus window
           if (process.platform === 'darwin') {
             app.dock.show();
@@ -701,7 +728,7 @@ X-GNOME-Autostart-enabled=true
       const dataDir = path.join(this.userDataPath, 'data');
       const databasePath = path.join(dataDir, 'mekstation.db');
       await fs.mkdir(dataDir, { recursive: true });
-      
+
       // Start the Next.js server
       const server = spawn(process.execPath, [serverPath], {
         env: {
@@ -720,23 +747,24 @@ X-GNOME-Autostart-enabled=true
           void dialog.showMessageBox(this.mainWindow, {
             type: 'error',
             title: 'Startup Error',
-            message: 'Failed to start the local web server required to run MekStation.',
+            message:
+              'Failed to start the local web server required to run MekStation.',
             detail: error.message,
-            buttons: ['OK']
+            buttons: ['OK'],
           });
         }
       });
-      
+
       server.stdout?.on('data', (data: Buffer) => {
         console.log(`Server: ${data.toString()}`);
       });
-      
+
       server.stderr?.on('data', (data: Buffer) => {
         console.error(`Server Error: ${data.toString()}`);
       });
-      
+
       // Wait for server to start and then load
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       try {
         await this.mainWindow.loadURL('http://127.0.0.1:3001');
       } catch (error) {
@@ -748,7 +776,7 @@ X-GNOME-Autostart-enabled=true
             title: 'Startup Error',
             message: 'MekStation failed to load its UI.',
             detail: message,
-            buttons: ['OK']
+            buttons: ['OK'],
           });
         }
         throw error;
@@ -765,13 +793,13 @@ X-GNOME-Autostart-enabled=true
       if (this.mainWindow && this.settingsService) {
         const bounds = this.mainWindow.getBounds();
         const isMaximized = this.mainWindow.isMaximized();
-        
+
         await this.settingsService.updateWindowBounds({
           x: bounds.x,
           y: bounds.y,
           width: bounds.width,
           height: bounds.height,
-          isMaximized
+          isMaximized,
         });
       }
 
@@ -829,26 +857,27 @@ X-GNOME-Autostart-enabled=true
     if (!this.tray) return;
 
     const recentFiles = this.recentFilesService?.list() ?? [];
-    
+
     // Build recent files submenu
-    const recentFilesSubmenu: Electron.MenuItemConstructorOptions[] = recentFiles.length > 0
-      ? [
-          ...recentFiles.slice(0, 5).map(file => ({
-            label: `${file.name}${file.variant ? ` ${file.variant}` : ''}`,
-            click: () => this.handleOpenRecent(file.id)
-          })),
-          { type: 'separator' as const },
-          {
-            label: 'More...',
-            click: () => {
-              if (this.mainWindow) {
-                this.mainWindow.show();
-                this.mainWindow.focus();
-              }
-            }
-          }
-        ]
-      : [{ label: 'No Recent Files', enabled: false }];
+    const recentFilesSubmenu: Electron.MenuItemConstructorOptions[] =
+      recentFiles.length > 0
+        ? [
+            ...recentFiles.slice(0, 5).map((file) => ({
+              label: `${file.name}${file.variant ? ` ${file.variant}` : ''}`,
+              click: () => this.handleOpenRecent(file.id),
+            })),
+            { type: 'separator' as const },
+            {
+              label: 'More...',
+              click: () => {
+                if (this.mainWindow) {
+                  this.mainWindow.show();
+                  this.mainWindow.focus();
+                }
+              },
+            },
+          ]
+        : [{ label: 'No Recent Files', enabled: false }];
 
     const contextMenu = Menu.buildFromTemplate([
       {
@@ -858,25 +887,25 @@ X-GNOME-Autostart-enabled=true
             this.mainWindow.show();
             this.mainWindow.focus();
           }
-        }
+        },
       },
       { type: 'separator' },
       {
         label: 'Recent Files',
-        submenu: recentFilesSubmenu
+        submenu: recentFilesSubmenu,
       },
       { type: 'separator' },
       {
         label: 'New Unit',
         click: () => {
           this.sendToRenderer('create-new-unit');
-        }
+        },
       },
       {
         label: 'Import Unit',
         click: () => {
           this.importUnitFile();
-        }
+        },
       },
       { type: 'separator' },
       {
@@ -887,28 +916,28 @@ X-GNOME-Autostart-enabled=true
             this.mainWindow.focus();
           }
           this.sendToRenderer(APP_IPC_CHANNELS.OPEN_SETTINGS);
-        }
+        },
       },
       { type: 'separator' },
       {
         label: 'Backup Data',
         click: () => {
           this.createBackup();
-        }
+        },
       },
       {
         label: 'Check for Updates',
         click: () => {
           void this.checkForUpdates();
-        }
+        },
       },
       { type: 'separator' },
       {
         label: 'Quit',
         click: () => {
           app.quit();
-        }
-      }
+        },
+      },
     ]);
 
     this.tray.setContextMenu(contextMenu);
@@ -928,19 +957,27 @@ X-GNOME-Autostart-enabled=true
       return this.settingsService?.getAll() ?? null;
     });
 
-    ipcMain.handle(SETTINGS_IPC_CHANNELS.SET, async (event, updates: Partial<IDesktopSettings>) => {
-      if (!this.settingsService) return { success: false, error: 'Settings service not initialized' };
-      return await this.settingsService.setMultiple(updates);
-    });
+    ipcMain.handle(
+      SETTINGS_IPC_CHANNELS.SET,
+      async (event, updates: Partial<IDesktopSettings>) => {
+        if (!this.settingsService)
+          return { success: false, error: 'Settings service not initialized' };
+        return await this.settingsService.setMultiple(updates);
+      },
+    );
 
     ipcMain.handle(SETTINGS_IPC_CHANNELS.RESET, async () => {
-      if (!this.settingsService) return { success: false, error: 'Settings service not initialized' };
+      if (!this.settingsService)
+        return { success: false, error: 'Settings service not initialized' };
       return await this.settingsService.reset();
     });
 
-    ipcMain.handle(SETTINGS_IPC_CHANNELS.GET_VALUE, (event, key: keyof IDesktopSettings) => {
-      return this.settingsService?.get(key) ?? null;
-    });
+    ipcMain.handle(
+      SETTINGS_IPC_CHANNELS.GET_VALUE,
+      (event, key: keyof IDesktopSettings) => {
+        return this.settingsService?.get(key) ?? null;
+      },
+    );
 
     // =========================================================================
     // RECENT FILES IPC HANDLERS
@@ -950,18 +987,36 @@ X-GNOME-Autostart-enabled=true
       return this.recentFilesService?.list() ?? [];
     });
 
-    ipcMain.handle(RECENT_FILES_IPC_CHANNELS.ADD, async (event, params: IAddRecentFileParams) => {
-      if (!this.recentFilesService) return { success: false, error: 'Recent files service not initialized' };
-      return await this.recentFilesService.add(params);
-    });
+    ipcMain.handle(
+      RECENT_FILES_IPC_CHANNELS.ADD,
+      async (event, params: IAddRecentFileParams) => {
+        if (!this.recentFilesService)
+          return {
+            success: false,
+            error: 'Recent files service not initialized',
+          };
+        return await this.recentFilesService.add(params);
+      },
+    );
 
-    ipcMain.handle(RECENT_FILES_IPC_CHANNELS.REMOVE, async (event, id: string) => {
-      if (!this.recentFilesService) return { success: false, error: 'Recent files service not initialized' };
-      return await this.recentFilesService.remove(id);
-    });
+    ipcMain.handle(
+      RECENT_FILES_IPC_CHANNELS.REMOVE,
+      async (event, id: string) => {
+        if (!this.recentFilesService)
+          return {
+            success: false,
+            error: 'Recent files service not initialized',
+          };
+        return await this.recentFilesService.remove(id);
+      },
+    );
 
     ipcMain.handle(RECENT_FILES_IPC_CHANNELS.CLEAR, async () => {
-      if (!this.recentFilesService) return { success: false, error: 'Recent files service not initialized' };
+      if (!this.recentFilesService)
+        return {
+          success: false,
+          error: 'Recent files service not initialized',
+        };
       return await this.recentFilesService.clear();
     });
 
@@ -969,62 +1024,83 @@ X-GNOME-Autostart-enabled=true
     // MENU IPC HANDLERS
     // =========================================================================
 
-    ipcMain.handle(MENU_IPC_CHANNELS.UPDATE_STATE, (event, state: { canUndo?: boolean; canRedo?: boolean; hasUnit?: boolean; hasSelection?: boolean }) => {
-      if (this.menuManager) {
-        this.menuManager.updateMenuState(state);
-      }
-    });
+    ipcMain.handle(
+      MENU_IPC_CHANNELS.UPDATE_STATE,
+      (
+        event,
+        state: {
+          canUndo?: boolean;
+          canRedo?: boolean;
+          hasUnit?: boolean;
+          hasSelection?: boolean;
+        },
+      ) => {
+        if (this.menuManager) {
+          this.menuManager.updateMenuState(state);
+        }
+      },
+    );
 
     // =========================================================================
     // FILE OPERATIONS
     // =========================================================================
 
-    ipcMain.handle('save-file', async (event, defaultPath: string, filters: Electron.FileFilter[]) => {
-      if (!this.mainWindow) return { canceled: true };
-      const result = await dialog.showSaveDialog(this.mainWindow, {
-        defaultPath,
-        filters
-      });
-      return result;
-    });
+    ipcMain.handle(
+      'save-file',
+      async (event, defaultPath: string, filters: Electron.FileFilter[]) => {
+        if (!this.mainWindow) return { canceled: true };
+        const result = await dialog.showSaveDialog(this.mainWindow, {
+          defaultPath,
+          filters,
+        });
+        return result;
+      },
+    );
 
-    ipcMain.handle('open-file', async (event, filters: Electron.FileFilter[]) => {
-      if (!this.mainWindow) return { canceled: true, filePaths: [] };
-      const result = await dialog.showOpenDialog(this.mainWindow, {
-        filters,
-        properties: ['openFile']
-      });
-      return result;
-    });
+    ipcMain.handle(
+      'open-file',
+      async (event, filters: Electron.FileFilter[]) => {
+        if (!this.mainWindow) return { canceled: true, filePaths: [] };
+        const result = await dialog.showOpenDialog(this.mainWindow, {
+          filters,
+          properties: ['openFile'],
+        });
+        return result;
+      },
+    );
 
     ipcMain.handle('read-file', async (event, filePath: string) => {
       try {
         const data = await fs.readFile(filePath, 'utf-8');
         return { success: true, data };
       } catch (error) {
-        return { 
-          success: false, 
-          error: error instanceof Error ? error.message : 'Failed to read file' 
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to read file',
         };
       }
     });
 
-    ipcMain.handle('write-file', async (event, filePath: string, data: string) => {
-      try {
-        await fs.writeFile(filePath, data, 'utf-8');
-        return { success: true };
-      } catch (error) {
-        return { 
-          success: false, 
-          error: error instanceof Error ? error.message : 'Failed to write file' 
-        };
-      }
-    });
+    ipcMain.handle(
+      'write-file',
+      async (event, filePath: string, data: string) => {
+        try {
+          await fs.writeFile(filePath, data, 'utf-8');
+          return { success: true };
+        } catch (error) {
+          return {
+            success: false,
+            error:
+              error instanceof Error ? error.message : 'Failed to write file',
+          };
+        }
+      },
+    );
 
     ipcMain.handle('select-directory', async () => {
       if (!this.mainWindow) return { canceled: true, filePaths: [] };
       const result = await dialog.showOpenDialog(this.mainWindow, {
-        properties: ['openDirectory', 'createDirectory']
+        properties: ['openDirectory', 'createDirectory'],
       });
       return result;
     });
@@ -1037,7 +1113,7 @@ X-GNOME-Autostart-enabled=true
       version: app.getVersion(),
       platform: process.platform,
       userDataPath: this.userDataPath,
-      developmentMode: this.config.developmentMode
+      developmentMode: this.config.developmentMode,
     }));
 
     // =========================================================================
@@ -1087,7 +1163,8 @@ X-GNOME-Autostart-enabled=true
             return { success: false, error: `Unknown method: ${method}` };
         }
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
+        const message =
+          error instanceof Error ? error.message : 'Unknown error';
         return { success: false, error: message };
       }
     });
@@ -1186,8 +1263,12 @@ X-GNOME-Autostart-enabled=true
    * Get application icon path
    */
   private getAppIcon(): string {
-    const iconName = process.platform === 'win32' ? 'icon.ico' : 
-                    process.platform === 'darwin' ? 'icon.icns' : 'icon.png';
+    const iconName =
+      process.platform === 'win32'
+        ? 'icon.ico'
+        : process.platform === 'darwin'
+          ? 'icon.icns'
+          : 'icon.png';
     return path.join(__dirname, '../assets/icons', iconName);
   }
 
@@ -1195,11 +1276,14 @@ X-GNOME-Autostart-enabled=true
    * Get tray icon path
    */
   private getTrayIcon(): string {
-    const iconName = process.platform === 'win32' ? 'tray.ico' : 
-                    process.platform === 'darwin' ? 'tray.png' : 'tray.png';
+    const iconName =
+      process.platform === 'win32'
+        ? 'tray.ico'
+        : process.platform === 'darwin'
+          ? 'tray.png'
+          : 'tray.png';
     return path.join(__dirname, '../assets/icons', iconName);
   }
-
 
   /**
    * Import unit from file
@@ -1211,9 +1295,9 @@ X-GNOME-Autostart-enabled=true
         filters: [
           { name: 'MegaMek Files', extensions: ['mtf'] },
           { name: 'MekStation Files', extensions: ['bte', 'json'] },
-          { name: 'All Files', extensions: ['*'] }
+          { name: 'All Files', extensions: ['*'] },
         ],
-        properties: ['openFile']
+        properties: ['openFile'],
       });
 
       if (!result.canceled && result.filePaths && result.filePaths.length > 0) {
@@ -1271,10 +1355,10 @@ X-GNOME-Autostart-enabled=true
       if (this.backupService) {
         await this.backupService.restoreBackup(backupPath);
         console.log('✅ Backup restored:', backupPath);
-        
+
         // Restart services to pick up restored data
         // Service orchestrator not implemented yet
-        
+
         return true;
       }
       return false;
@@ -1294,7 +1378,7 @@ X-GNOME-Autostart-enabled=true
       title: 'Update Available',
       message: `A new version (${info.version}) is available. Would you like to download it now?`,
       buttons: ['Download', 'Later'],
-      defaultId: 0
+      defaultId: 0,
     });
 
     if (choice.response === 0) {
@@ -1326,13 +1410,16 @@ X-GNOME-Autostart-enabled=true
    */
   private notifyUpdateError(error: unknown): void {
     if (!this.mainWindow) return;
-    const message = error instanceof Error ? error.message : 'Unknown error occurred while checking for updates.';
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Unknown error occurred while checking for updates.';
     dialog.showMessageBox(this.mainWindow, {
       type: 'error',
       title: 'Update Failed',
       message: 'Failed to check for or download updates.',
       detail: message,
-      buttons: ['OK']
+      buttons: ['OK'],
     });
   }
 
@@ -1344,9 +1431,10 @@ X-GNOME-Autostart-enabled=true
     const choice = await dialog.showMessageBox(this.mainWindow, {
       type: 'info',
       title: 'Update Ready',
-      message: 'Update downloaded. The application will restart to apply the update.',
+      message:
+        'Update downloaded. The application will restart to apply the update.',
       buttons: ['Restart Now', 'Later'],
-      defaultId: 0
+      defaultId: 0,
     });
 
     if (choice.response === 0) {

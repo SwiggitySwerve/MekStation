@@ -8,7 +8,13 @@
  * @module campaign/scenario/scenarioTypeSelection
  */
 
-import { CombatRole, AtBScenarioType, AtBMoraleLevel, MORALE_VALUES } from '@/types/campaign/scenario/scenarioTypes';
+import {
+  CombatRole,
+  AtBScenarioType,
+  AtBMoraleLevel,
+  MORALE_VALUES,
+} from '@/types/campaign/scenario/scenarioTypes';
+
 import { calculateBattleTypeMod, type RandomFn } from './battleChance';
 
 // =============================================================================
@@ -62,30 +68,50 @@ export function selectManeuverScenario(roll: number): IScenarioTypeResult {
   const clampedRoll = Math.max(1, roll);
 
   if (clampedRoll === 1) {
-    return Object.freeze({ scenarioType: AtBScenarioType.BASE_ATTACK, isAttacker: false });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.BASE_ATTACK,
+      isAttacker: false,
+    });
   }
   if (clampedRoll >= 2 && clampedRoll <= 8) {
-    return Object.freeze({ scenarioType: AtBScenarioType.BREAKTHROUGH, isAttacker: true });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.BREAKTHROUGH,
+      isAttacker: true,
+    });
   }
   if (clampedRoll >= 9 && clampedRoll <= 16) {
-    return Object.freeze({ scenarioType: AtBScenarioType.STANDUP, isAttacker: true });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.STANDUP,
+      isAttacker: true,
+    });
   }
   if (clampedRoll >= 17 && clampedRoll <= 24) {
-    return Object.freeze({ scenarioType: AtBScenarioType.STANDUP, isAttacker: false });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.STANDUP,
+      isAttacker: false,
+    });
   }
   if (clampedRoll >= 25 && clampedRoll <= 32) {
     // 25-32: chase/hold_the_line - alternate between them
     const isChase = clampedRoll % 2 === 1;
     return Object.freeze({
-      scenarioType: isChase ? AtBScenarioType.CHASE : AtBScenarioType.HOLD_THE_LINE,
+      scenarioType: isChase
+        ? AtBScenarioType.CHASE
+        : AtBScenarioType.HOLD_THE_LINE,
       isAttacker: true,
     });
   }
   if (clampedRoll >= 33 && clampedRoll <= 40) {
-    return Object.freeze({ scenarioType: AtBScenarioType.HOLD_THE_LINE, isAttacker: true });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.HOLD_THE_LINE,
+      isAttacker: true,
+    });
   }
   // 41+: base_attack (player attacks)
-  return Object.freeze({ scenarioType: AtBScenarioType.BASE_ATTACK, isAttacker: true });
+  return Object.freeze({
+    scenarioType: AtBScenarioType.BASE_ATTACK,
+    isAttacker: true,
+  });
 }
 
 // =============================================================================
@@ -116,30 +142,50 @@ export function selectPatrolScenario(roll: number): IScenarioTypeResult {
   const clampedRoll = Math.max(1, roll);
 
   if (clampedRoll === 1) {
-    return Object.freeze({ scenarioType: AtBScenarioType.BASE_ATTACK, isAttacker: false });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.BASE_ATTACK,
+      isAttacker: false,
+    });
   }
   if (clampedRoll >= 2 && clampedRoll <= 10) {
     // 2-10: chase/hide_and_seek - alternate between them
     const isChase = clampedRoll % 2 === 0;
     return Object.freeze({
-      scenarioType: isChase ? AtBScenarioType.CHASE : AtBScenarioType.HIDE_AND_SEEK,
+      scenarioType: isChase
+        ? AtBScenarioType.CHASE
+        : AtBScenarioType.HIDE_AND_SEEK,
       isAttacker: true,
     });
   }
   if (clampedRoll >= 11 && clampedRoll <= 20) {
-    return Object.freeze({ scenarioType: AtBScenarioType.HIDE_AND_SEEK, isAttacker: true });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.HIDE_AND_SEEK,
+      isAttacker: true,
+    });
   }
   if (clampedRoll >= 21 && clampedRoll <= 30) {
-    return Object.freeze({ scenarioType: AtBScenarioType.PROBE, isAttacker: true });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.PROBE,
+      isAttacker: true,
+    });
   }
   if (clampedRoll >= 31 && clampedRoll <= 40) {
-    return Object.freeze({ scenarioType: AtBScenarioType.PROBE, isAttacker: false });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.PROBE,
+      isAttacker: false,
+    });
   }
   if (clampedRoll >= 41 && clampedRoll <= 50) {
-    return Object.freeze({ scenarioType: AtBScenarioType.EXTRACTION, isAttacker: true });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.EXTRACTION,
+      isAttacker: true,
+    });
   }
   // 51-60+: recon_raid (player attacks)
-  return Object.freeze({ scenarioType: AtBScenarioType.RECON_RAID, isAttacker: true });
+  return Object.freeze({
+    scenarioType: AtBScenarioType.RECON_RAID,
+    isAttacker: true,
+  });
 }
 
 // =============================================================================
@@ -169,22 +215,40 @@ export function selectFrontlineScenario(roll: number): IScenarioTypeResult {
   const clampedRoll = Math.max(1, roll);
 
   if (clampedRoll === 1) {
-    return Object.freeze({ scenarioType: AtBScenarioType.BASE_ATTACK, isAttacker: false });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.BASE_ATTACK,
+      isAttacker: false,
+    });
   }
   if (clampedRoll >= 2 && clampedRoll <= 4) {
-    return Object.freeze({ scenarioType: AtBScenarioType.HOLD_THE_LINE, isAttacker: false });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.HOLD_THE_LINE,
+      isAttacker: false,
+    });
   }
   if (clampedRoll >= 5 && clampedRoll <= 8) {
-    return Object.freeze({ scenarioType: AtBScenarioType.RECON_RAID, isAttacker: false });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.RECON_RAID,
+      isAttacker: false,
+    });
   }
   if (clampedRoll >= 9 && clampedRoll <= 12) {
-    return Object.freeze({ scenarioType: AtBScenarioType.EXTRACTION, isAttacker: false });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.EXTRACTION,
+      isAttacker: false,
+    });
   }
   if (clampedRoll >= 13 && clampedRoll <= 16) {
-    return Object.freeze({ scenarioType: AtBScenarioType.HIDE_AND_SEEK, isAttacker: true });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.HIDE_AND_SEEK,
+      isAttacker: true,
+    });
   }
   // 17-20+: breakthrough (enemy attacks)
-  return Object.freeze({ scenarioType: AtBScenarioType.BREAKTHROUGH, isAttacker: false });
+  return Object.freeze({
+    scenarioType: AtBScenarioType.BREAKTHROUGH,
+    isAttacker: false,
+  });
 }
 
 // =============================================================================
@@ -214,29 +278,45 @@ export function selectTrainingScenario(roll: number): IScenarioTypeResult {
   const clampedRoll = Math.max(1, roll);
 
   if (clampedRoll === 1) {
-    return Object.freeze({ scenarioType: AtBScenarioType.BASE_ATTACK, isAttacker: false });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.BASE_ATTACK,
+      isAttacker: false,
+    });
   }
   if (clampedRoll >= 2 && clampedRoll <= 3) {
-    return Object.freeze({ scenarioType: AtBScenarioType.HOLD_THE_LINE, isAttacker: false });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.HOLD_THE_LINE,
+      isAttacker: false,
+    });
   }
   if (clampedRoll >= 4 && clampedRoll <= 5) {
-    return Object.freeze({ scenarioType: AtBScenarioType.BREAKTHROUGH, isAttacker: true });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.BREAKTHROUGH,
+      isAttacker: true,
+    });
   }
   if (clampedRoll >= 6 && clampedRoll <= 7) {
     // 6-7: chase/breakthrough - alternate between them
     const isChase = clampedRoll === 6;
     return Object.freeze({
-      scenarioType: isChase ? AtBScenarioType.CHASE : AtBScenarioType.BREAKTHROUGH,
+      scenarioType: isChase
+        ? AtBScenarioType.CHASE
+        : AtBScenarioType.BREAKTHROUGH,
       isAttacker: true,
     });
   }
   if (clampedRoll >= 8 && clampedRoll <= 9) {
-    return Object.freeze({ scenarioType: AtBScenarioType.HIDE_AND_SEEK, isAttacker: false });
+    return Object.freeze({
+      scenarioType: AtBScenarioType.HIDE_AND_SEEK,
+      isAttacker: false,
+    });
   }
   // 10+: chase/hold_the_line (player attacks)
   const isChase = clampedRoll % 2 === 0;
   return Object.freeze({
-    scenarioType: isChase ? AtBScenarioType.CHASE : AtBScenarioType.HOLD_THE_LINE,
+    scenarioType: isChase
+      ? AtBScenarioType.CHASE
+      : AtBScenarioType.HOLD_THE_LINE,
     isAttacker: true,
   });
 }

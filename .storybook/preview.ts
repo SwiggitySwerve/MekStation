@@ -1,8 +1,9 @@
 import type { Preview } from '@storybook/react';
+
 import '../src/styles/globals.css';
-import { 
-  ThemeDecorator, 
-  DndDecorator, 
+import {
+  ThemeDecorator,
+  DndDecorator,
   NextRouterDecorator,
   ZustandDecorator,
   ElectronDecorator,
@@ -28,9 +29,9 @@ const preview: Preview = {
     layout: 'centered',
   },
   decorators: [
-    ThemeDecorator, 
-    DndDecorator, 
-    NextRouterDecorator, 
+    ThemeDecorator,
+    DndDecorator,
+    NextRouterDecorator,
     ZustandDecorator,
     ElectronDecorator,
   ],

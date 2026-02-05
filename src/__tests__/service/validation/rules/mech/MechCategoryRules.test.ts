@@ -1,6 +1,3 @@
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { TechBase, RulesLevel, Era } from '@/types/enums';
-import { IUnitValidationContext, UnitCategory, IValidatableUnit } from '@/types/validation/UnitValidationInterfaces';
 import {
   MechEngineRequired,
   MechGyroRequired,
@@ -10,9 +7,18 @@ import {
   MechExactWeightMatch,
   MechCriticalSlotLimits,
 } from '@/services/validation/rules/mech/MechCategoryRules';
+import { TechBase, RulesLevel, Era } from '@/types/enums';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  IUnitValidationContext,
+  UnitCategory,
+  IValidatableUnit,
+} from '@/types/validation/UnitValidationInterfaces';
 
 describe('MechCategoryRules', () => {
-  const createBaseUnit = (overrides: Partial<IValidatableUnit> = {}): IValidatableUnit => ({
+  const createBaseUnit = (
+    overrides: Partial<IValidatableUnit> = {},
+  ): IValidatableUnit => ({
     id: 'test-unit',
     name: 'Test Unit',
     unitType: UnitType.BATTLEMECH,
@@ -42,7 +48,9 @@ describe('MechCategoryRules', () => {
 
   describe('VAL-MECH-001: Engine Required', () => {
     it('should pass if engine is present', () => {
-      const result = MechEngineRequired.validate(createContext(createBaseUnit()));
+      const result = MechEngineRequired.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
 
@@ -68,7 +76,10 @@ describe('MechCategoryRules', () => {
     });
 
     it('should skip validation for ProtoMechs', () => {
-      const unit = createBaseUnit({ unitType: UnitType.PROTOMECH, gyroType: undefined });
+      const unit = createBaseUnit({
+        unitType: UnitType.PROTOMECH,
+        gyroType: undefined,
+      });
       const context = createContext(unit);
       expect(MechGyroRequired.canValidate?.(context)).toBe(false);
     });
@@ -76,7 +87,9 @@ describe('MechCategoryRules', () => {
 
   describe('VAL-MECH-003: Cockpit Required', () => {
     it('should pass if cockpit is present', () => {
-      const result = MechCockpitRequired.validate(createContext(createBaseUnit()));
+      const result = MechCockpitRequired.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
 
@@ -90,7 +103,9 @@ describe('MechCategoryRules', () => {
 
   describe('VAL-MECH-004: Internal Structure Required', () => {
     it('should pass if structure is present', () => {
-      const result = MechStructureRequired.validate(createContext(createBaseUnit()));
+      const result = MechStructureRequired.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
 
@@ -104,18 +119,25 @@ describe('MechCategoryRules', () => {
 
   describe('VAL-MECH-005: Minimum Heat Sinks', () => {
     it('should pass if count is 10 or more', () => {
-      const result = MechMinimumHeatSinks.validate(createContext(createBaseUnit({ heatSinkCount: 10 })));
+      const result = MechMinimumHeatSinks.validate(
+        createContext(createBaseUnit({ heatSinkCount: 10 })),
+      );
       expect(result.warnings.length).toBe(0);
     });
 
     it('should issue warning if count is less than 10', () => {
-      const result = MechMinimumHeatSinks.validate(createContext(createBaseUnit({ heatSinkCount: 9 })));
+      const result = MechMinimumHeatSinks.validate(
+        createContext(createBaseUnit({ heatSinkCount: 9 })),
+      );
       expect(result.warnings.length).toBe(1);
       expect(result.warnings[0].message).toContain('at least 10 heat sinks');
     });
 
     it('should skip validation for non-combat mechs', () => {
-      const unit = createBaseUnit({ unitType: UnitType.INDUSTRIALMECH, heatSinkCount: 5 });
+      const unit = createBaseUnit({
+        unitType: UnitType.INDUSTRIALMECH,
+        heatSinkCount: 5,
+      });
       const context = createContext(unit);
       expect(MechMinimumHeatSinks.canValidate?.(context)).toBe(false);
     });
@@ -123,11 +145,15 @@ describe('MechCategoryRules', () => {
 
   describe('Placeholder rules', () => {
     it('VAL-MECH-006 should pass', () => {
-      expect(MechExactWeightMatch.validate(createContext(createBaseUnit())).passed).toBe(true);
+      expect(
+        MechExactWeightMatch.validate(createContext(createBaseUnit())).passed,
+      ).toBe(true);
     });
 
     it('VAL-MECH-007 should pass', () => {
-      expect(MechCriticalSlotLimits.validate(createContext(createBaseUnit())).passed).toBe(true);
+      expect(
+        MechCriticalSlotLimits.validate(createContext(createBaseUnit())).passed,
+      ).toBe(true);
     });
   });
 });

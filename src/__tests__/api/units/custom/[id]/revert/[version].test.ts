@@ -1,13 +1,15 @@
 /**
  * Tests for Unit Revert API
- * 
+ *
  * POST /api/units/custom/:id/revert/:version
- * 
+ *
  * @spec openspec/specs/unit-versioning/spec.md
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import { createMocks } from 'node-mocks-http';
+
 import handler from '@/pages/api/units/custom/[id]/revert/[version]';
 
 // Response types for type-safe assertions
@@ -62,7 +64,9 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing unit ID');
+    expect((res._getJSONData() as ErrorResponse).error).toContain(
+      'Missing unit ID',
+    );
   });
 
   it('should return 400 if version is missing', async () => {
@@ -74,7 +78,9 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing version number');
+    expect((res._getJSONData() as ErrorResponse).error).toContain(
+      'Missing version number',
+    );
   });
 
   it('should return 400 for invalid version number', async () => {
@@ -86,7 +92,9 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect((res._getJSONData() as ErrorResponse).error).toContain('Invalid version number');
+    expect((res._getJSONData() as ErrorResponse).error).toContain(
+      'Invalid version number',
+    );
   });
 
   it('should return 400 for version 0', async () => {
@@ -98,7 +106,9 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect((res._getJSONData() as ErrorResponse).error).toContain('Invalid version number');
+    expect((res._getJSONData() as ErrorResponse).error).toContain(
+      'Invalid version number',
+    );
   });
 
   it('should return 400 for negative version', async () => {
@@ -110,7 +120,9 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect((res._getJSONData() as ErrorResponse).error).toContain('Invalid version number');
+    expect((res._getJSONData() as ErrorResponse).error).toContain(
+      'Invalid version number',
+    );
   });
 
   it('should revert to previous version successfully', async () => {
@@ -142,7 +154,11 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
 
     await handler(req, res);
 
-    expect(mockRevert).toHaveBeenCalledWith('unit-1', 2, 'Reverting to fix bug');
+    expect(mockRevert).toHaveBeenCalledWith(
+      'unit-1',
+      2,
+      'Reverting to fix bug',
+    );
   });
 
   it('should handle missing notes', async () => {
@@ -191,7 +207,10 @@ describe('POST /api/units/custom/:id/revert/:version', () => {
   it('should return 400 for other errors', async () => {
     mockRevert.mockReturnValue({
       success: false,
-      error: { message: 'Cannot revert to current version', errorCode: 'INVALID_OPERATION' },
+      error: {
+        message: 'Cannot revert to current version',
+        errorCode: 'INVALID_OPERATION',
+      },
     });
 
     const { req, res } = createMocks<NextApiRequest, NextApiResponse>({

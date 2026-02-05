@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 /**
  * Create Campaign Page
  * Wizard for setting up a new campaign.
@@ -5,19 +6,17 @@
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
  */
 import { useState, useCallback } from 'react';
-import { useRouter } from 'next/router';
-import {
-  PageLayout,
-  Card,
-  Input,
-  Button,
-} from '@/components/ui';
-import { useCampaignStore } from '@/stores/useCampaignStore';
-import { useToast } from '@/components/shared/Toast';
-import { CampaignType, CAMPAIGN_TYPE_DISPLAY } from '@/types/campaign/CampaignType';
-import { CampaignPreset, ALL_PRESETS } from '@/types/campaign/CampaignPreset';
+
 import { CampaignTypeCard } from '@/components/campaign/CampaignTypeCard';
 import { PresetCard } from '@/components/campaign/PresetCard';
+import { useToast } from '@/components/shared/Toast';
+import { PageLayout, Card, Input, Button } from '@/components/ui';
+import { useCampaignStore } from '@/stores/useCampaignStore';
+import { CampaignPreset, ALL_PRESETS } from '@/types/campaign/CampaignPreset';
+import {
+  CampaignType,
+  CAMPAIGN_TYPE_DISPLAY,
+} from '@/types/campaign/CampaignType';
 
 // =============================================================================
 // Step Indicator Component
@@ -28,24 +27,37 @@ interface StepIndicatorProps {
   currentStep: number;
 }
 
-function StepIndicator({ steps, currentStep }: StepIndicatorProps): React.ReactElement {
+function StepIndicator({
+  steps,
+  currentStep,
+}: StepIndicatorProps): React.ReactElement {
   return (
-    <div className="flex items-center justify-center mb-8">
+    <div className="mb-8 flex items-center justify-center">
       {steps.map((step, idx) => (
         <div key={step} className="flex items-center">
           <div className="flex flex-col items-center">
             <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+              className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
                 idx < currentStep
                   ? 'bg-accent text-surface-deep'
                   : idx === currentStep
-                  ? 'bg-accent/20 border-2 border-accent text-accent'
-                  : 'bg-surface-raised text-text-theme-muted'
+                    ? 'bg-accent/20 border-accent text-accent border-2'
+                    : 'bg-surface-raised text-text-theme-muted'
               }`}
             >
               {idx < currentStep ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               ) : (
                 idx + 1
@@ -61,7 +73,7 @@ function StepIndicator({ steps, currentStep }: StepIndicatorProps): React.ReactE
           </div>
           {idx < steps.length - 1 && (
             <div
-              className={`w-16 h-0.5 mx-2 ${
+              className={`mx-2 h-0.5 w-16 ${
                 idx < currentStep ? 'bg-accent' : 'bg-surface-raised'
               }`}
             />
@@ -86,8 +98,12 @@ export default function CreateCampaignPage(): React.ReactElement {
   const [currentStep, setCurrentStep] = useState(0);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [campaignType, setCampaignType] = useState<CampaignType>(CampaignType.MERCENARY);
-  const [selectedPreset, setSelectedPreset] = useState<CampaignPreset>(CampaignPreset.STANDARD);
+  const [campaignType, setCampaignType] = useState<CampaignType>(
+    CampaignType.MERCENARY,
+  );
+  const [selectedPreset, setSelectedPreset] = useState<CampaignPreset>(
+    CampaignPreset.STANDARD,
+  );
   const [localError, setLocalError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -128,7 +144,10 @@ export default function CreateCampaignPage(): React.ReactElement {
       });
 
       if (campaignId) {
-        showToast({ message: `Campaign "${name.trim()}" created successfully!`, variant: 'success' });
+        showToast({
+          message: `Campaign "${name.trim()}" created successfully!`,
+          variant: 'success',
+        });
         router.push(`/gameplay/campaigns/${campaignId}`);
       } else {
         showToast({ message: 'Failed to create campaign', variant: 'error' });
@@ -136,7 +155,16 @@ export default function CreateCampaignPage(): React.ReactElement {
     } finally {
       setIsSubmitting(false);
     }
-  }, [name, description, unitIds, pilotIds, createCampaign, router, clearError, showToast]);
+  }, [
+    name,
+    description,
+    unitIds,
+    pilotIds,
+    createCampaign,
+    router,
+    clearError,
+    showToast,
+  ]);
 
   const handleCancel = useCallback(() => {
     router.push('/gameplay/campaigns');
@@ -146,15 +174,20 @@ export default function CreateCampaignPage(): React.ReactElement {
     switch (currentStep) {
       case 0:
         return (
-          <Card className="max-w-2xl mx-auto">
-            <h2 className="text-xl font-semibold text-text-theme-primary mb-6">Campaign Details</h2>
-            
+          <Card className="mx-auto max-w-2xl">
+            <h2 className="text-text-theme-primary mb-6 text-xl font-semibold">
+              Campaign Details
+            </h2>
+
             <div className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-text-theme-primary mb-2">
+                <label
+                  htmlFor="name"
+                  className="text-text-theme-primary mb-2 block text-sm font-medium"
+                >
                   Campaign Name *
                 </label>
-<Input
+                <Input
                   id="name"
                   type="text"
                   placeholder="e.g., Operation Steel Thunder"
@@ -166,12 +199,15 @@ export default function CreateCampaignPage(): React.ReactElement {
               </div>
 
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-text-theme-primary mb-2">
+                <label
+                  htmlFor="description"
+                  className="text-text-theme-primary mb-2 block text-sm font-medium"
+                >
                   Description
                 </label>
-<textarea
+                <textarea
                   id="description"
-                  className="w-full px-4 py-3 rounded-lg border border-border-theme-subtle bg-surface-raised text-text-theme-primary placeholder:text-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent/50 resize-none"
+                  className="border-border-theme-subtle bg-surface-raised text-text-theme-primary placeholder:text-text-theme-muted focus:ring-accent/50 w-full resize-none rounded-lg border px-4 py-3 focus:ring-2 focus:outline-none"
                   placeholder="What is this campaign about? Set the stage for your mercenary company..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -185,13 +221,15 @@ export default function CreateCampaignPage(): React.ReactElement {
 
       case 1:
         return (
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl font-semibold text-text-theme-primary mb-2 text-center">Campaign Type</h2>
-            <p className="text-text-theme-secondary text-center mb-6">
+          <div className="mx-auto max-w-4xl">
+            <h2 className="text-text-theme-primary mb-2 text-center text-xl font-semibold">
+              Campaign Type
+            </h2>
+            <p className="text-text-theme-secondary mb-6 text-center">
               Choose the type of campaign you want to run
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {Object.values(CampaignType).map((type) => (
                 <CampaignTypeCard
                   key={type}
@@ -206,13 +244,16 @@ export default function CreateCampaignPage(): React.ReactElement {
 
       case 2:
         return (
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl font-semibold text-text-theme-primary mb-2 text-center">Campaign Preset</h2>
-            <p className="text-text-theme-secondary text-center mb-6">
-              Choose a configuration preset — you can customize individual options later
+          <div className="mx-auto max-w-4xl">
+            <h2 className="text-text-theme-primary mb-2 text-center text-xl font-semibold">
+              Campaign Preset
+            </h2>
+            <p className="text-text-theme-secondary mb-6 text-center">
+              Choose a configuration preset — you can customize individual
+              options later
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {ALL_PRESETS.map((preset) => (
                 <PresetCard
                   key={preset.id}
@@ -227,22 +268,38 @@ export default function CreateCampaignPage(): React.ReactElement {
 
       case 3:
         return (
-          <Card className="max-w-2xl mx-auto">
-            <h2 className="text-xl font-semibold text-text-theme-primary mb-2">Configure Roster</h2>
+          <Card className="mx-auto max-w-2xl">
+            <h2 className="text-text-theme-primary mb-2 text-xl font-semibold">
+              Configure Roster
+            </h2>
             <p className="text-text-theme-secondary mb-6">
               Select units and pilots from your vault to deploy in this campaign
             </p>
 
             <div className="mb-6">
-              <h3 className="text-sm font-medium text-text-theme-primary mb-3">Units</h3>
-              <div className="p-6 rounded-lg border-2 border-dashed border-border-theme-subtle bg-surface-deep/30 text-center">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-surface-raised flex items-center justify-center">
-                  <svg className="w-6 h-6 text-text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <h3 className="text-text-theme-primary mb-3 text-sm font-medium">
+                Units
+              </h3>
+              <div className="border-border-theme-subtle bg-surface-deep/30 rounded-lg border-2 border-dashed p-6 text-center">
+                <div className="bg-surface-raised mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
+                  <svg
+                    className="text-text-theme-muted h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
                   </svg>
                 </div>
-                <p className="text-text-theme-secondary text-sm mb-2">
-                  {unitIds.length > 0 ? `${unitIds.length} units selected` : 'No units selected'}
+                <p className="text-text-theme-secondary mb-2 text-sm">
+                  {unitIds.length > 0
+                    ? `${unitIds.length} units selected`
+                    : 'No units selected'}
                 </p>
                 <p className="text-text-theme-muted text-xs">
                   Unit selection integrates with your vault (coming soon)
@@ -251,15 +308,29 @@ export default function CreateCampaignPage(): React.ReactElement {
             </div>
 
             <div>
-              <h3 className="text-sm font-medium text-text-theme-primary mb-3">Pilots</h3>
-              <div className="p-6 rounded-lg border-2 border-dashed border-border-theme-subtle bg-surface-deep/30 text-center">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-surface-raised flex items-center justify-center">
-                  <svg className="w-6 h-6 text-text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              <h3 className="text-text-theme-primary mb-3 text-sm font-medium">
+                Pilots
+              </h3>
+              <div className="border-border-theme-subtle bg-surface-deep/30 rounded-lg border-2 border-dashed p-6 text-center">
+                <div className="bg-surface-raised mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
+                  <svg
+                    className="text-text-theme-muted h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
                   </svg>
                 </div>
-                <p className="text-text-theme-secondary text-sm mb-2">
-                  {pilotIds.length > 0 ? `${pilotIds.length} pilots selected` : 'No pilots selected'}
+                <p className="text-text-theme-secondary mb-2 text-sm">
+                  {pilotIds.length > 0
+                    ? `${pilotIds.length} pilots selected`
+                    : 'No pilots selected'}
                 </p>
                 <p className="text-text-theme-muted text-xs">
                   Pilot selection integrates with your vault (coming soon)
@@ -271,50 +342,70 @@ export default function CreateCampaignPage(): React.ReactElement {
 
       case 4:
         return (
-          <Card className="max-w-2xl mx-auto">
-            <h2 className="text-xl font-semibold text-text-theme-primary mb-6">Review Campaign</h2>
+          <Card className="mx-auto max-w-2xl">
+            <h2 className="text-text-theme-primary mb-6 text-xl font-semibold">
+              Review Campaign
+            </h2>
 
             <div className="space-y-4">
-              <div className="p-4 rounded-lg bg-surface-deep">
-                <div className="text-xs text-text-theme-muted uppercase tracking-wide mb-1">Name</div>
-                <div className="text-lg font-semibold text-text-theme-primary">{name}</div>
+              <div className="bg-surface-deep rounded-lg p-4">
+                <div className="text-text-theme-muted mb-1 text-xs tracking-wide uppercase">
+                  Name
+                </div>
+                <div className="text-text-theme-primary text-lg font-semibold">
+                  {name}
+                </div>
               </div>
 
               {description && (
-                <div className="p-4 rounded-lg bg-surface-deep">
-                  <div className="text-xs text-text-theme-muted uppercase tracking-wide mb-1">Description</div>
+                <div className="bg-surface-deep rounded-lg p-4">
+                  <div className="text-text-theme-muted mb-1 text-xs tracking-wide uppercase">
+                    Description
+                  </div>
                   <div className="text-text-theme-secondary">{description}</div>
                 </div>
               )}
 
-              <div className="p-4 rounded-lg bg-surface-deep">
-                <div className="text-xs text-text-theme-muted uppercase tracking-wide mb-1">Campaign Type</div>
+              <div className="bg-surface-deep rounded-lg p-4">
+                <div className="text-text-theme-muted mb-1 text-xs tracking-wide uppercase">
+                  Campaign Type
+                </div>
                 <div className="text-text-theme-primary font-medium">
                   {CAMPAIGN_TYPE_DISPLAY[campaignType]}
                 </div>
               </div>
 
-              <div className="p-4 rounded-lg bg-surface-deep">
-                <div className="text-xs text-text-theme-muted uppercase tracking-wide mb-1">Preset</div>
+              <div className="bg-surface-deep rounded-lg p-4">
+                <div className="text-text-theme-muted mb-1 text-xs tracking-wide uppercase">
+                  Preset
+                </div>
                 <div className="text-text-theme-primary font-medium">
                   {selectedPresetDef?.name ?? 'Custom'}
                 </div>
                 {selectedPresetDef && (
-                  <div className="text-text-theme-secondary text-sm mt-1">{selectedPresetDef.description}</div>
+                  <div className="text-text-theme-secondary mt-1 text-sm">
+                    {selectedPresetDef.description}
+                  </div>
                 )}
               </div>
 
-              <div className="p-4 rounded-lg bg-surface-deep">
-                <div className="text-xs text-text-theme-muted uppercase tracking-wide mb-2">Roster</div>
+              <div className="bg-surface-deep rounded-lg p-4">
+                <div className="text-text-theme-muted mb-2 text-xs tracking-wide uppercase">
+                  Roster
+                </div>
                 <div className="flex gap-4">
                   <div>
-                    <span className="text-text-theme-muted text-sm">Units:</span>{' '}
+                    <span className="text-text-theme-muted text-sm">
+                      Units:
+                    </span>{' '}
                     <span className="text-text-theme-primary font-medium">
                       {unitIds.length || 'None selected'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-text-theme-muted text-sm">Pilots:</span>{' '}
+                    <span className="text-text-theme-muted text-sm">
+                      Pilots:
+                    </span>{' '}
                     <span className="text-text-theme-primary font-medium">
                       {pilotIds.length || 'None selected'}
                     </span>
@@ -340,28 +431,36 @@ export default function CreateCampaignPage(): React.ReactElement {
     >
       <StepIndicator steps={WIZARD_STEPS} currentStep={currentStep} />
 
-      <div className="mb-8">
-        {renderStepContent()}
-      </div>
+      <div className="mb-8">{renderStepContent()}</div>
 
-{(error || localError) && (
-        <div className="max-w-2xl mx-auto mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30" data-testid="name-error">
+      {(error || localError) && (
+        <div
+          className="mx-auto mb-6 max-w-2xl rounded-lg border border-red-600/30 bg-red-900/20 p-4"
+          data-testid="name-error"
+        >
           <p className="text-sm text-red-400">{error || localError}</p>
         </div>
       )}
 
-      <div className="max-w-2xl mx-auto flex justify-between">
+      <div className="mx-auto flex max-w-2xl justify-between">
         <Button
           type="button"
           variant="secondary"
           onClick={currentStep === 0 ? handleCancel : handleBack}
-          data-testid={currentStep === 0 ? 'wizard-cancel-btn' : 'wizard-back-btn'}
+          data-testid={
+            currentStep === 0 ? 'wizard-cancel-btn' : 'wizard-back-btn'
+          }
         >
           {currentStep === 0 ? 'Cancel' : 'Back'}
         </Button>
 
         {currentStep < WIZARD_STEPS.length - 1 ? (
-          <Button type="button" variant="primary" onClick={handleNext} data-testid="wizard-next-btn">
+          <Button
+            type="button"
+            variant="primary"
+            onClick={handleNext}
+            data-testid="wizard-next-btn"
+          >
             Continue
           </Button>
         ) : (

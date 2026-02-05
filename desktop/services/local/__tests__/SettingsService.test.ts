@@ -1,13 +1,17 @@
 /**
  * SettingsService Unit Tests
- * 
+ *
  * Tests for the desktop settings service including CRUD operations,
  * validation, persistence, and event notifications.
  */
 
-import { SettingsService } from '../SettingsService';
+import {
+  Result,
+  DEFAULT_DESKTOP_SETTINGS,
+  DESKTOP_SETTINGS_VERSION,
+} from '../../../types/BaseTypes';
 import { LocalStorageService } from '../LocalStorageService';
-import { Result, DEFAULT_DESKTOP_SETTINGS, DESKTOP_SETTINGS_VERSION } from '../../../types/BaseTypes';
+import { SettingsService } from '../SettingsService';
 
 // Mock LocalStorageService
 const mockLocalStorage = {
@@ -15,7 +19,7 @@ const mockLocalStorage = {
   set: jest.fn(),
   delete: jest.fn(),
   initialize: jest.fn(),
-  cleanup: jest.fn()
+  cleanup: jest.fn(),
 };
 
 describe('SettingsService', () => {
@@ -26,16 +30,16 @@ describe('SettingsService', () => {
     mockLocalStorage.get.mockResolvedValue(Result.success(null));
     mockLocalStorage.set.mockResolvedValue(Result.success(undefined));
     settingsService = new SettingsService({
-      localStorage: mockLocalStorage as unknown as LocalStorageService
+      localStorage: mockLocalStorage as unknown as LocalStorageService,
     });
   });
 
   describe('initialize', () => {
     it('should load default settings when no saved settings exist', async () => {
       mockLocalStorage.get.mockResolvedValue(Result.success(null));
-      
+
       await settingsService.initialize();
-      
+
       const settings = settingsService.getAll();
       expect(settings.version).toBe(DESKTOP_SETTINGS_VERSION);
       expect(settings.launchAtLogin).toBe(false);
@@ -45,12 +49,12 @@ describe('SettingsService', () => {
     it('should load and merge saved settings with defaults', async () => {
       const savedSettings = {
         launchAtLogin: true,
-        maxRecentFiles: 20
+        maxRecentFiles: 20,
       };
       mockLocalStorage.get.mockResolvedValue(Result.success(savedSettings));
-      
+
       await settingsService.initialize();
-      
+
       const settings = settingsService.getAll();
       expect(settings.launchAtLogin).toBe(true);
       expect(settings.maxRecentFiles).toBe(20);
@@ -61,7 +65,7 @@ describe('SettingsService', () => {
     it('should only initialize once', async () => {
       await settingsService.initialize();
       await settingsService.initialize();
-      
+
       expect(mockLocalStorage.get).toHaveBeenCalledTimes(1);
     });
   });
@@ -84,7 +88,7 @@ describe('SettingsService', () => {
 
     it('should update a single setting', async () => {
       const result = await settingsService.set('launchAtLogin', true);
-      
+
       expect(result.success).toBe(true);
       expect(settingsService.get('launchAtLogin')).toBe(true);
       expect(mockLocalStorage.set).toHaveBeenCalled();
@@ -93,28 +97,31 @@ describe('SettingsService', () => {
     it('should emit change event when setting is updated', async () => {
       const changeHandler = jest.fn();
       settingsService.on('change', changeHandler);
-      
+
       await settingsService.set('launchAtLogin', true);
-      
+
       expect(changeHandler).toHaveBeenCalledWith({
         key: 'launchAtLogin',
         oldValue: false,
-        newValue: true
+        newValue: true,
       });
     });
 
     it('should not emit event when value unchanged', async () => {
       const changeHandler = jest.fn();
       settingsService.on('change', changeHandler);
-      
+
       await settingsService.set('launchAtLogin', false); // Already false
-      
+
       expect(changeHandler).not.toHaveBeenCalled();
     });
 
     it('should validate setting values', async () => {
-      const result = await settingsService.set('maxRecentFiles', 1000 as unknown as number);
-      
+      const result = await settingsService.set(
+        'maxRecentFiles',
+        1000 as unknown as number,
+      );
+
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error).toContain('must be between');
@@ -142,9 +149,9 @@ describe('SettingsService', () => {
       const result = await settingsService.setMultiple({
         launchAtLogin: true,
         startMinimized: true,
-        maxRecentFiles: 25
+        maxRecentFiles: 25,
       });
-      
+
       expect(result.success).toBe(true);
       expect(settingsService.get('launchAtLogin')).toBe(true);
       expect(settingsService.get('startMinimized')).toBe(true);
@@ -154,21 +161,21 @@ describe('SettingsService', () => {
     it('should emit change events for each changed setting', async () => {
       const changeHandler = jest.fn();
       settingsService.on('change', changeHandler);
-      
+
       await settingsService.setMultiple({
         launchAtLogin: true,
-        startMinimized: true
+        startMinimized: true,
       });
-      
+
       expect(changeHandler).toHaveBeenCalledTimes(2);
     });
 
     it('should fail if any validation fails', async () => {
       const result = await settingsService.setMultiple({
         launchAtLogin: true,
-        maxRecentFiles: 1000 // Invalid
+        maxRecentFiles: 1000, // Invalid
       });
-      
+
       expect(result.success).toBe(false);
       // Original values should be unchanged
       expect(settingsService.get('launchAtLogin')).toBe(false);
@@ -183,9 +190,9 @@ describe('SettingsService', () => {
     it('should reset all settings to defaults', async () => {
       await settingsService.set('launchAtLogin', true);
       await settingsService.set('maxRecentFiles', 30);
-      
+
       const result = await settingsService.reset();
-      
+
       expect(result.success).toBe(true);
       expect(settingsService.get('launchAtLogin')).toBe(false);
       expect(settingsService.get('maxRecentFiles')).toBe(15);
@@ -194,9 +201,9 @@ describe('SettingsService', () => {
     it('should emit reset event', async () => {
       const resetHandler = jest.fn();
       settingsService.on('reset', resetHandler);
-      
+
       await settingsService.reset();
-      
+
       expect(resetHandler).toHaveBeenCalled();
     });
   });
@@ -208,10 +215,12 @@ describe('SettingsService', () => {
 
     it('should reset a single setting to default', async () => {
       await settingsService.set('maxRecentFiles', 30);
-      
+
       await settingsService.resetSetting('maxRecentFiles');
-      
-      expect(settingsService.get('maxRecentFiles')).toBe(DEFAULT_DESKTOP_SETTINGS.maxRecentFiles);
+
+      expect(settingsService.get('maxRecentFiles')).toBe(
+        DEFAULT_DESKTOP_SETTINGS.maxRecentFiles,
+      );
     });
   });
 
@@ -222,7 +231,7 @@ describe('SettingsService', () => {
 
     it('should update window bounds partially', async () => {
       await settingsService.updateWindowBounds({ width: 1600, height: 1000 });
-      
+
       const bounds = settingsService.get('windowBounds');
       expect(bounds.width).toBe(1600);
       expect(bounds.height).toBe(1000);
@@ -239,9 +248,9 @@ describe('SettingsService', () => {
     it('should persist settings on cleanup', async () => {
       await settingsService.set('launchAtLogin', true);
       mockLocalStorage.set.mockClear();
-      
+
       await settingsService.cleanup();
-      
+
       expect(mockLocalStorage.set).toHaveBeenCalled();
     });
   });

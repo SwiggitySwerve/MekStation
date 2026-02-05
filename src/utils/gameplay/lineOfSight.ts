@@ -15,6 +15,7 @@ import {
   TERRAIN_PROPERTIES,
   ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';
+
 import { hexLine, coordToKey, hexEquals } from './hexMath';
 
 // =============================================================================
@@ -46,7 +47,9 @@ export interface ILOSResult {
  * @param terrainString - The terrain string from IHex
  * @returns Array of terrain features
  */
-export function parseTerrainFeatures(terrainString: string): readonly ITerrainFeature[] {
+export function parseTerrainFeatures(
+  terrainString: string,
+): readonly ITerrainFeature[] {
   if (!terrainString) {
     return [];
   }
@@ -78,7 +81,10 @@ export function parseTerrainFeatures(terrainString: string): readonly ITerrainFe
  * @param props - The terrain properties
  * @returns The height in levels
  */
-function getTerrainHeight(feature: ITerrainFeature, props: typeof TERRAIN_PROPERTIES[TerrainType]): number {
+function getTerrainHeight(
+  feature: ITerrainFeature,
+  props: (typeof TERRAIN_PROPERTIES)[TerrainType],
+): number {
   // Buildings: use level to indicate height (each level = 1 elevation)
   if (feature.type === TerrainType.Building && feature.level > 0) {
     return feature.level;
@@ -102,7 +108,7 @@ function interpolateLOSHeight(
   fromHeight: number,
   toHeight: number,
   totalDistance: number,
-  currentDistance: number
+  currentDistance: number,
 ): number {
   if (totalDistance === 0) return fromHeight;
   const t = currentDistance / totalDistance;
@@ -133,14 +139,14 @@ export function calculateLOS(
   to: IHexCoordinate,
   grid: IHexGrid,
   fromElevation?: number,
-  toElevation?: number
+  toElevation?: number,
 ): ILOSResult {
   // Get all hexes on the line (includes endpoints)
   const lineHexes = hexLine(from, to);
 
   // Get intervening hexes (exclude endpoints)
   const interveningHexes = lineHexes.filter(
-    (hex) => !hexEquals(hex, from) && !hexEquals(hex, to)
+    (hex) => !hexEquals(hex, from) && !hexEquals(hex, to),
   );
 
   // If adjacent, always have LOS
@@ -192,7 +198,7 @@ export function calculateLOS(
         shooterHeight,
         targetHeight,
         totalDistance,
-        currentDistance
+        currentDistance,
       );
 
       // LOS is blocked if the blocking terrain is taller than the line of sight
@@ -224,7 +230,7 @@ export function calculateLOS(
  */
 export function getBlockingTerrain(
   hex: IHexCoordinate,
-  grid: IHexGrid
+  grid: IHexGrid,
 ): TerrainType | undefined {
   const hexData = grid.hexes.get(coordToKey(hex));
 

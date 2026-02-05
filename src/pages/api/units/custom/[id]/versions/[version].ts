@@ -1,12 +1,13 @@
 /**
  * Unit Version API - Get Specific Version
- * 
+ *
  * GET /api/units/custom/:id/versions/:version - Get a specific version of a unit
- * 
+ *
  * @spec openspec/specs/unit-versioning/spec.md
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getVersionRepository } from '@/services/units/VersionRepository';
 import { IVersionRecord } from '@/types/persistence/UnitPersistence';
@@ -22,13 +23,14 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<VersionResponse | ErrorResponse>
+  res: NextApiResponse<VersionResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -64,15 +66,18 @@ export default async function handler(
     }
 
     // Parse the JSON data for client convenience
-    const parsedData = JSON.parse(versionRecord.data) as Record<string, unknown>;
+    const parsedData = JSON.parse(versionRecord.data) as Record<
+      string,
+      unknown
+    >;
 
     return res.status(200).json({
       ...versionRecord,
       parsedData,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to get version';
+    const message =
+      error instanceof Error ? error.message : 'Failed to get version';
     return res.status(500).json({ error: message });
   }
 }
-

@@ -72,8 +72,13 @@ export class BlkParserService {
         return { success: false, error: { errors, warnings } };
       }
 
-      const model = this.getString(rawTags['Model']) ?? this.getString(rawTags['model']) ?? '';
-      const tonnage = this.parseNumber(rawTags['Tonnage']) ?? this.parseNumber(rawTags['tonnage']);
+      const model =
+        this.getString(rawTags['Model']) ??
+        this.getString(rawTags['model']) ??
+        '';
+      const tonnage =
+        this.parseNumber(rawTags['Tonnage']) ??
+        this.parseNumber(rawTags['tonnage']);
 
       if (tonnage === undefined) {
         errors.push('Missing required field: Tonnage');
@@ -161,7 +166,8 @@ export class BlkParserService {
 
       return { success: true, data: { document, warnings } };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown parse error';
+      const message =
+        error instanceof Error ? error.message : 'Unknown parse error';
       errors.push(`Parse error: ${message}`);
       return { success: false, error: { errors, warnings } };
     }
@@ -224,7 +230,7 @@ export class BlkParserService {
    */
   private isEquipmentBlock(tagName: string): boolean {
     return BLK_EQUIPMENT_BLOCK_TAGS.some(
-      (block) => tagName.toLowerCase() === block.toLowerCase()
+      (block) => tagName.toLowerCase() === block.toLowerCase(),
     );
   }
 
@@ -260,7 +266,9 @@ export class BlkParserService {
   /**
    * Parse number from tag value
    */
-  private parseNumber(value: string | string[] | undefined): number | undefined {
+  private parseNumber(
+    value: string | string[] | undefined,
+  ): number | undefined {
     if (value === undefined) return undefined;
     const str = Array.isArray(value) ? value[0] : value;
     const num = parseFloat(str);
@@ -270,7 +278,9 @@ export class BlkParserService {
   /**
    * Parse armor array from multi-line value
    */
-  private parseArmorArray(value: string | string[] | undefined): readonly number[] {
+  private parseArmorArray(
+    value: string | string[] | undefined,
+  ): readonly number[] {
     if (value === undefined) return [];
 
     const str = Array.isArray(value) ? value.join('\n') : value;
@@ -286,7 +296,7 @@ export class BlkParserService {
    * Parse equipment blocks from raw tags
    */
   private parseEquipmentBlocks(
-    rawTags: Record<string, string | string[]>
+    rawTags: Record<string, string | string[]>,
   ): Record<string, readonly string[]> {
     const equipment: Record<string, string[]> = {};
 
@@ -311,7 +321,7 @@ export class BlkParserService {
    * Parse transporters/bays from tag
    */
   private parseTransporters(
-    value: string | string[] | undefined
+    value: string | string[] | undefined,
   ): readonly string[] | undefined {
     if (value === undefined) return undefined;
     if (Array.isArray(value)) return value.filter((v) => v.length > 0);
@@ -327,7 +337,9 @@ export class BlkParserService {
   /**
    * Parse quirks from tag
    */
-  private parseQuirks(value: string | string[] | undefined): readonly string[] | undefined {
+  private parseQuirks(
+    value: string | string[] | undefined,
+  ): readonly string[] | undefined {
     if (value === undefined) return undefined;
     if (Array.isArray(value)) return value.filter((v) => v.length > 0);
 

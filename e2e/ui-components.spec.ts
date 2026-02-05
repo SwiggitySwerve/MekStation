@@ -9,6 +9,7 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
+
 import {
   waitForTabManagerStoreReady,
   createMechUnit,
@@ -37,7 +38,9 @@ test.describe('Unit Card Components @ui @components @unit-card', () => {
     await waitForHydration(page);
 
     // Look for unit card elements
-    const unitCards = page.locator('[data-testid="unit-card"], .unit-card, [class*="UnitCard"]');
+    const unitCards = page.locator(
+      '[data-testid="unit-card"], .unit-card, [class*="UnitCard"]',
+    );
     const count = await unitCards.count();
 
     // Should have unit cards or be on the units page
@@ -91,7 +94,9 @@ test.describe('Armor Diagram Components @ui @components @armor', () => {
     await waitForHydration(page);
 
     // Look for armor diagram
-    const armorDiagram = page.locator('[data-testid="armor-diagram"], [class*="ArmorDiagram"], svg').first();
+    const armorDiagram = page
+      .locator('[data-testid="armor-diagram"], [class*="ArmorDiagram"], svg')
+      .first();
     const count = await armorDiagram.count();
 
     // Should have armor-related content or be on armor tab
@@ -103,7 +108,11 @@ test.describe('Armor Diagram Components @ui @components @armor', () => {
     await waitForHydration(page);
 
     // Look for armor tab
-    const armorTab = page.locator('button:has-text("Armor"), [data-testid="armor-tab"], a[href*="armor"]').first();
+    const armorTab = page
+      .locator(
+        'button:has-text("Armor"), [data-testid="armor-tab"], a[href*="armor"]',
+      )
+      .first();
     const count = await armorTab.count();
 
     if (count > 0) {
@@ -117,7 +126,11 @@ test.describe('Armor Diagram Components @ui @components @armor', () => {
     await waitForHydration(page);
 
     // Look for armor allocation controls
-    const controls = page.locator('input[type="number"], input[type="range"], button:has-text("Max"), button:has-text("Auto")').first();
+    const controls = page
+      .locator(
+        'input[type="number"], input[type="range"], button:has-text("Max"), button:has-text("Auto")',
+      )
+      .first();
     const count = await controls.count();
 
     // Controls may exist
@@ -135,7 +148,9 @@ test.describe('Hex Grid Components @ui @components @hex-grid', () => {
     await waitForHydration(page);
 
     // Look for hex map display
-    const hexMap = page.locator('[data-testid="hex-map"], [data-testid="hex-grid"], [class*="HexMap"], svg, canvas');
+    const hexMap = page.locator(
+      '[data-testid="hex-map"], [data-testid="hex-grid"], [class*="HexMap"], svg, canvas',
+    );
     const count = await hexMap.count();
 
     // Should have some visual content
@@ -147,7 +162,9 @@ test.describe('Hex Grid Components @ui @components @hex-grid', () => {
     await waitForHydration(page);
 
     // Look for unit tokens
-    const unitTokens = page.locator('[data-testid*="unit-token"], [data-testid*="mech-token"], [class*="UnitToken"]');
+    const unitTokens = page.locator(
+      '[data-testid*="unit-token"], [data-testid*="mech-token"], [class*="UnitToken"]',
+    );
     const count = await unitTokens.count();
 
     // Tokens may exist
@@ -159,7 +176,11 @@ test.describe('Hex Grid Components @ui @components @hex-grid', () => {
     await waitForHydration(page);
 
     // Look for zoom controls
-    const zoomControls = page.locator('[data-testid="zoom-in"], [data-testid="zoom-out"], button:has-text("Zoom"), button:has-text("+"), button:has-text("-")').first();
+    const zoomControls = page
+      .locator(
+        '[data-testid="zoom-in"], [data-testid="zoom-out"], button:has-text("Zoom"), button:has-text("+"), button:has-text("-")',
+      )
+      .first();
     const count = await zoomControls.count();
 
     // Zoom controls may exist
@@ -171,7 +192,11 @@ test.describe('Hex Grid Components @ui @components @hex-grid', () => {
     await waitForHydration(page);
 
     // Get the map container
-    const mapContainer = page.locator('[data-testid="hex-map"], [data-testid="game-board"], [class*="HexMap"]').first();
+    const mapContainer = page
+      .locator(
+        '[data-testid="hex-map"], [data-testid="game-board"], [class*="HexMap"]',
+      )
+      .first();
     const count = await mapContainer.count();
 
     if (count > 0) {
@@ -193,7 +218,9 @@ test.describe('PilotMechCard Components @ui @components @pilot-mech', () => {
     await waitForHydration(page);
 
     // Look for pilot/mech card elements
-    const cards = page.locator('[data-testid*="pilot"], [data-testid*="mech-card"], [class*="PilotMechCard"]');
+    const cards = page.locator(
+      '[data-testid*="pilot"], [data-testid*="mech-card"], [class*="PilotMechCard"]',
+    );
     const count = await cards.count();
 
     // Cards may exist if forces have units assigned
@@ -218,7 +245,9 @@ test.describe('Record Sheet Display @ui @components @record-sheet', () => {
     await waitForHydration(page);
 
     // Look for record sheet elements
-    const recordSheet = page.locator('[data-testid="record-sheet"], [data-testid="unit-stats"], [class*="RecordSheet"]');
+    const recordSheet = page.locator(
+      '[data-testid="record-sheet"], [data-testid="unit-stats"], [class*="RecordSheet"]',
+    );
     const count = await recordSheet.count();
 
     // Record sheet may be visible
@@ -230,7 +259,9 @@ test.describe('Record Sheet Display @ui @components @record-sheet', () => {
     await waitForHydration(page);
 
     // Look for armor/structure status
-    const armorStatus = page.locator('[data-testid*="armor"], [data-testid*="structure"], [class*="ArmorStatus"]');
+    const armorStatus = page.locator(
+      '[data-testid*="armor"], [data-testid*="structure"], [class*="ArmorStatus"]',
+    );
     const count = await armorStatus.count();
 
     // Status displays may exist
@@ -242,7 +273,9 @@ test.describe('Record Sheet Display @ui @components @record-sheet', () => {
     await waitForHydration(page);
 
     // Look for heat tracker
-    const heatTracker = page.locator('[data-testid="heat-tracker"], [data-testid*="heat"], [class*="HeatTracker"]');
+    const heatTracker = page.locator(
+      '[data-testid="heat-tracker"], [data-testid*="heat"], [class*="HeatTracker"]',
+    );
     const count = await heatTracker.count();
 
     // Heat tracker may exist
@@ -260,7 +293,9 @@ test.describe('Action Bar Components @ui @components @action-bar', () => {
     await waitForHydration(page);
 
     // Look for action bar
-    const actionBar = page.locator('[data-testid="action-bar"], [class*="ActionBar"]');
+    const actionBar = page.locator(
+      '[data-testid="action-bar"], [class*="ActionBar"]',
+    );
     const count = await actionBar.count();
 
     // Action bar should exist in game view
@@ -272,7 +307,9 @@ test.describe('Action Bar Components @ui @components @action-bar', () => {
     await waitForHydration(page);
 
     // Look for phase banner
-    const phaseBanner = page.locator('[data-testid="phase-banner"], [class*="PhaseBanner"]');
+    const phaseBanner = page.locator(
+      '[data-testid="phase-banner"], [class*="PhaseBanner"]',
+    );
     const count = await phaseBanner.count();
 
     // Phase banner may exist
@@ -301,7 +338,9 @@ test.describe('Tab Manager Components @ui @components @tabs', () => {
     await waitForHydration(page);
 
     // Look for tab bar
-    const tabBar = page.locator('[data-testid="tab-bar"], [class*="TabBar"], [role="tablist"]');
+    const tabBar = page.locator(
+      '[data-testid="tab-bar"], [class*="TabBar"], [role="tablist"]',
+    );
     const count = await tabBar.count();
 
     // Tab bar may exist
@@ -324,7 +363,9 @@ test.describe('Tab Manager Components @ui @components @tabs', () => {
     await waitForHydration(page);
 
     // Look for structure/armor/equipment tabs
-    const tabs = page.locator('[role="tab"], button:has-text("Structure"), button:has-text("Armor"), button:has-text("Equipment")');
+    const tabs = page.locator(
+      '[role="tab"], button:has-text("Structure"), button:has-text("Armor"), button:has-text("Equipment")',
+    );
     const count = await tabs.count();
 
     if (count > 0) {

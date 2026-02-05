@@ -1,8 +1,8 @@
 /**
  * Validation Orchestrator
- * 
+ *
  * Coordinates execution of validation rules.
- * 
+ *
  * @spec openspec/specs/validation-rules-master/spec.md
  */
 
@@ -47,7 +47,7 @@ function aggregateResults(results: IValidationRuleResult[]): IValidationResult {
     warningCount += result.warnings.length;
     infoCount += result.infos.length;
     totalExecutionTime += result.executionTime;
-    
+
     if (!result.passed) {
       isValid = false;
     }
@@ -68,34 +68,36 @@ function aggregateResults(results: IValidationRuleResult[]): IValidationResult {
  * Create a validation orchestrator
  */
 export function createValidationOrchestrator(
-  registry?: IValidationRuleRegistry
+  registry?: IValidationRuleRegistry,
 ): IValidationOrchestrator {
   const ruleRegistry = registry ?? createValidationRuleRegistry();
 
   return {
-    validate(unit: unknown, options: IValidationOptions = {}): IValidationResult {
+    validate(
+      unit: unknown,
+      options: IValidationOptions = {},
+    ): IValidationResult {
       const context: IValidationContext = {
         unit,
         options,
         cache: new Map(),
       };
 
-      const rules = ruleRegistry.getAllRules()
-        .filter(rule => {
-          // Check if rule is enabled
-          if (!rule.isEnabled) return false;
-          
-          // Check if rule is in skip list
-          if (options.skipRules?.includes(rule.id)) return false;
-          
-          // Check if rule category is in filter
-          if (options.categories && !options.categories.includes(rule.category)) {
-            return false;
-          }
-          
-          // Check if rule can validate this context
-          return rule.canValidate(context);
-        });
+      const rules = ruleRegistry.getAllRules().filter((rule) => {
+        // Check if rule is enabled
+        if (!rule.isEnabled) return false;
+
+        // Check if rule is in skip list
+        if (options.skipRules?.includes(rule.id)) return false;
+
+        // Check if rule category is in filter
+        if (options.categories && !options.categories.includes(rule.category)) {
+          return false;
+        }
+
+        // Check if rule can validate this context
+        return rule.canValidate(context);
+      });
 
       const results: IValidationRuleResult[] = [];
       let totalErrors = 0;
@@ -107,29 +109,31 @@ export function createValidationOrchestrator(
         }
 
         const startTime = performance.now();
-        
+
         try {
           const result = rule.validate(context);
           const executionTime = performance.now() - startTime;
-          
+
           results.push({
             ...result,
             executionTime,
           });
-          
+
           totalErrors += result.errors.length;
         } catch (error) {
           // Rule execution failed - treat as error
           results.push({
             ruleId: rule.id,
             passed: false,
-            errors: [{
-              ruleId: rule.id,
-              ruleName: rule.name,
-              severity: ValidationSeverity.ERROR,
-              category: rule.category,
-              message: `Rule execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            }],
+            errors: [
+              {
+                ruleId: rule.id,
+                ruleName: rule.name,
+                severity: ValidationSeverity.ERROR,
+                category: rule.category,
+                message: `Rule execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+              },
+            ],
             warnings: [],
             infos: [],
             executionTime: performance.now() - startTime,
@@ -141,7 +145,10 @@ export function createValidationOrchestrator(
       return aggregateResults(results);
     },
 
-    validateCategory(unit: unknown, category: ValidationCategory): IValidationResult {
+    validateCategory(
+      unit: unknown,
+      category: ValidationCategory,
+    ): IValidationResult {
       return this.validate(unit, { categories: [category] });
     },
 
@@ -162,7 +169,7 @@ export function createValidationOrchestrator(
       }
 
       const startTime = performance.now();
-      
+
       try {
         const result = rule.validate(context);
         return {
@@ -173,13 +180,15 @@ export function createValidationOrchestrator(
         return {
           ruleId: rule.id,
           passed: false,
-          errors: [{
-            ruleId: rule.id,
-            ruleName: rule.name,
-            severity: ValidationSeverity.ERROR,
-            category: rule.category,
-            message: `Rule execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          }],
+          errors: [
+            {
+              ruleId: rule.id,
+              ruleName: rule.name,
+              severity: ValidationSeverity.ERROR,
+              category: rule.category,
+              message: `Rule execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
+          ],
           warnings: [],
           infos: [],
           executionTime: performance.now() - startTime,
@@ -192,4 +201,3 @@ export function createValidationOrchestrator(
     },
   };
 }
-

@@ -3,6 +3,7 @@
 ## Context
 
 MekStation needs automated content generation for gameplay, similar to MekHQ's Against the Bot (AtB) and StratCon systems. This enables:
+
 - Quick skirmish games without manual enemy setup
 - Campaign missions with appropriate challenge scaling
 - Variety through modifiers and scenario types
@@ -35,6 +36,7 @@ ceiling = targetBV × 1.1
 **Rationale**: BV (Battle Value) is the canonical BattleTech balance metric. MekHQ uses this approach successfully.
 
 **Algorithm**:
+
 1. Select a lance from appropriate RAT
 2. If totalBV < floor, add another lance
 3. If floor <= totalBV <= ceiling, roll 2d6:
@@ -68,11 +70,11 @@ Scenario templates are defined as JSON data files, not code:
 
 Modifiers are categorized by effect type:
 
-| Category | Examples | Balance Impact |
-|----------|----------|----------------|
-| Positive | Allied reinforcements, artillery support | Helps player |
-| Negative | Enemy reinforcements, minefield, ambush | Helps enemy |
-| Neutral | Weather (affects both), sensor conditions | Situational |
+| Category | Examples                                  | Balance Impact |
+| -------- | ----------------------------------------- | -------------- |
+| Positive | Allied reinforcements, artillery support  | Helps player   |
+| Negative | Enemy reinforcements, minefield, ambush   | Helps enemy    |
+| Neutral  | Weather (affects both), sensor conditions | Situational    |
 
 Default configuration allows up to 3 modifiers per battle, rolled randomly. Campaign facilities can force specific modifiers.
 
@@ -87,7 +89,7 @@ interface IRAT {
   unitType: 'mech' | 'vehicle' | 'infantry' | 'aerospace';
   entries: Array<{
     unitId: string;
-    weight: number;  // Relative probability
+    weight: number; // Relative probability
   }>;
 }
 ```
@@ -116,23 +118,23 @@ interface IRAT {
 
 ## Difficulty Levels
 
-| Level | BV Multiplier | Skill Range |
-|-------|---------------|-------------|
-| Ultra-Green | 80% | 6/7, 5/6 |
-| Green | 90% | 5/6, 4/5 |
-| Regular | 100% | 4/5, 3/4 |
-| Veteran | 110% | 3/4, 2/3 |
-| Elite | 120% | 2/3, 1/2 |
-| Heroic | 130% | 1/2, 0/1 |
-| Legendary | 140% | 0/1 |
+| Level       | BV Multiplier | Skill Range |
+| ----------- | ------------- | ----------- |
+| Ultra-Green | 80%           | 6/7, 5/6    |
+| Green       | 90%           | 5/6, 4/5    |
+| Regular     | 100%          | 4/5, 3/4    |
+| Veteran     | 110%          | 3/4, 2/3    |
+| Elite       | 120%          | 2/3, 1/2    |
+| Heroic      | 130%          | 1/2, 0/1    |
+| Legendary   | 140%          | 0/1         |
 
 ## Risks / Trade-offs
 
-| Risk | Mitigation |
-|------|------------|
-| Generated forces may feel repetitive | Wide variety of modifiers, random lance selection |
+| Risk                                   | Mitigation                                                  |
+| -------------------------------------- | ----------------------------------------------------------- |
+| Generated forces may feel repetitive   | Wide variety of modifiers, random lance selection           |
 | BV doesn't capture all balance factors | Allow manual adjustment, display warnings for quirky setups |
-| RAT data maintenance burden | Start with core factions, allow community contributions |
+| RAT data maintenance burden            | Start with core factions, allow community contributions     |
 
 ## Open Questions
 

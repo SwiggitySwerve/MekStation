@@ -16,7 +16,7 @@ import { ISkillType } from '@/types/campaign/skills/ISkillType';
  */
 export const SKILL_CATALOG: Record<string, ISkillType> = {
   // Combat Skills (11 total)
-  'gunnery': {
+  gunnery: {
     id: 'gunnery',
     name: 'Gunnery',
     description: 'Ranged weapon accuracy',
@@ -24,7 +24,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 8, 8, 12, 16, 24, 32, 48, 64, 80, 120],
     linkedAttribute: 'REF',
   },
-  'piloting': {
+  piloting: {
     id: 'piloting',
     name: 'Piloting',
     description: 'BattleMech/vehicle handling',
@@ -56,7 +56,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 8, 8, 12, 16, 24, 32, 48, 64, 80, 120],
     linkedAttribute: 'REF',
   },
-  'driving': {
+  driving: {
     id: 'driving',
     name: 'Driving',
     description: 'Ground vehicle operation',
@@ -88,7 +88,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 4, 8, 12, 16, 20, 28, 36, 44, 60],
     linkedAttribute: 'REF',
   },
-  'artillery': {
+  artillery: {
     id: 'artillery',
     name: 'Artillery',
     description: 'Long-range artillery systems',
@@ -96,7 +96,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 8, 8, 12, 16, 24, 32, 48, 64, 80, 120],
     linkedAttribute: 'INT',
   },
-  'tactics': {
+  tactics: {
     id: 'tactics',
     name: 'Tactics',
     description: 'Combat tactics and strategy',
@@ -146,7 +146,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 8, 12, 20, 30, 45, 60, 80, 100, 150],
     linkedAttribute: 'DEX',
   },
-  'astech': {
+  astech: {
     id: 'astech',
     name: 'AsTech',
     description: 'Technical assistant work',
@@ -164,7 +164,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
   },
 
   // Medical Skills (3 total)
-  'medicine': {
+  medicine: {
     id: 'medicine',
     name: 'Medicine',
     description: 'Medical treatment and surgery',
@@ -172,7 +172,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 8, 12, 20, 30, 45, 60, 80, 100, 150],
     linkedAttribute: 'INT',
   },
-  'medtech': {
+  medtech: {
     id: 'medtech',
     name: 'MedTech',
     description: 'Field medical assistance',
@@ -180,7 +180,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 4, 8, 12, 16, 20, 28, 36, 44, 60],
     linkedAttribute: 'INT',
   },
-  'veterinary': {
+  veterinary: {
     id: 'veterinary',
     name: 'Veterinary Medicine',
     description: 'Animal care (beast-mounted infantry)',
@@ -190,7 +190,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
   },
 
   // Administrative Skills (5 total)
-  'administration': {
+  administration: {
     id: 'administration',
     name: 'Administration',
     description: 'Organizational management and logistics',
@@ -198,7 +198,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 8, 12, 20, 30, 45, 60, 80, 100, 150],
     linkedAttribute: 'INT',
   },
-  'negotiation': {
+  negotiation: {
     id: 'negotiation',
     name: 'Negotiation',
     description: 'Contract and deal negotiation',
@@ -206,7 +206,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 8, 12, 20, 30, 45, 60, 80, 100, 150],
     linkedAttribute: 'CHA',
   },
-  'leadership': {
+  leadership: {
     id: 'leadership',
     name: 'Leadership',
     description: 'Unit command and morale management',
@@ -214,7 +214,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 8, 12, 20, 30, 45, 60, 80, 100, 150],
     linkedAttribute: 'CHA',
   },
-  'strategy': {
+  strategy: {
     id: 'strategy',
     name: 'Strategy',
     description: 'Long-term strategic planning',
@@ -222,7 +222,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 8, 12, 20, 30, 45, 60, 80, 100, 150],
     linkedAttribute: 'INT',
   },
-  'communications': {
+  communications: {
     id: 'communications',
     name: 'Communications',
     description: 'Electronic warfare and signals',
@@ -232,7 +232,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
   },
 
   // Physical Skills (6 total)
-  'melee': {
+  melee: {
     id: 'melee',
     name: 'Melee Combat',
     description: 'Hand-to-hand and melee weapons',
@@ -240,7 +240,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 4, 8, 12, 16, 20, 28, 36, 44, 60],
     linkedAttribute: 'STR',
   },
-  'stealth': {
+  stealth: {
     id: 'stealth',
     name: 'Stealth',
     description: 'Covert movement and concealment',
@@ -248,7 +248,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 4, 8, 12, 16, 20, 28, 36, 44, 60],
     linkedAttribute: 'DEX',
   },
-  'survival': {
+  survival: {
     id: 'survival',
     name: 'Survival',
     description: 'Wilderness survival',
@@ -256,7 +256,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 4, 8, 12, 16, 20, 28, 36, 44, 60],
     linkedAttribute: 'BOD',
   },
-  'tracking': {
+  tracking: {
     id: 'tracking',
     name: 'Tracking',
     description: 'Target tracking and pursuit',
@@ -264,7 +264,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 4, 8, 12, 16, 20, 28, 36, 44, 60],
     linkedAttribute: 'INT',
   },
-  'demolitions': {
+  demolitions: {
     id: 'demolitions',
     name: 'Demolitions',
     description: 'Explosives handling',
@@ -282,7 +282,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
   },
 
   // Knowledge Skills (8 total)
-  'computers': {
+  computers: {
     id: 'computers',
     name: 'Computers',
     description: 'Computer systems and hacking',
@@ -290,7 +290,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 8, 12, 20, 30, 45, 60, 80, 100, 150],
     linkedAttribute: 'INT',
   },
-  'navigation': {
+  navigation: {
     id: 'navigation',
     name: 'Navigation',
     description: 'Interstellar and planetary navigation',
@@ -306,7 +306,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 4, 8, 12, 16, 20, 28, 36, 44, 60],
     linkedAttribute: 'INT',
   },
-  'protocol': {
+  protocol: {
     id: 'protocol',
     name: 'Protocol/Etiquette',
     description: 'Formal diplomatic conduct',
@@ -314,7 +314,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 4, 8, 12, 16, 20, 28, 36, 44, 60],
     linkedAttribute: 'CHA',
   },
-  'interest': {
+  interest: {
     id: 'interest',
     name: 'Interest',
     description: 'Hobby or academic knowledge',
@@ -322,7 +322,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 2, 4, 6, 8, 10, 14, 18, 24, 32, 40],
     linkedAttribute: 'INT',
   },
-  'language': {
+  language: {
     id: 'language',
     name: 'Language',
     description: 'Foreign language proficiency',
@@ -330,7 +330,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 2, 4, 6, 8, 10, 14, 18, 24, 32, 40],
     linkedAttribute: 'INT',
   },
-  'training': {
+  training: {
     id: 'training',
     name: 'Training',
     description: 'Ability to train others',
@@ -338,7 +338,7 @@ export const SKILL_CATALOG: Record<string, ISkillType> = {
     costs: [0, 4, 8, 12, 20, 30, 45, 60, 80, 100, 150],
     linkedAttribute: 'CHA',
   },
-  'scrounge': {
+  scrounge: {
     id: 'scrounge',
     name: 'Scrounge',
     description: 'Finding and acquiring supplies',
@@ -445,7 +445,7 @@ export function getSkillType(id: string): ISkillType | undefined {
  */
 export function getSkillsByCategory(category: string): ISkillType[] {
   return Object.values(SKILL_CATALOG).filter(
-    (skill) => SKILL_CATEGORY_MAP[skill.id] === category
+    (skill) => SKILL_CATEGORY_MAP[skill.id] === category,
   );
 }
 

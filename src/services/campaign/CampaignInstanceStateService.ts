@@ -7,12 +7,14 @@
  * @spec openspec/changes/add-campaign-instances/specs/campaign-instances/spec.md
  */
 
-import { getCampaignInstanceService } from '../persistence/CampaignInstanceService';
 import type {
   ICampaignUnitInstance,
   ICampaignPilotInstance,
   IUnitDamageState,
 } from '../../types/campaign/CampaignInstanceInterfaces';
+import type { ICausedBy } from '../../types/events';
+import type { IPilotSkills } from '../../types/pilot/PilotInterfaces';
+
 import {
   calculateDamagePercentage,
   determineUnitStatus,
@@ -23,7 +25,6 @@ import {
   XP_REWARDS,
   SKILL_IMPROVEMENT_COSTS,
 } from '../../types/campaign/CampaignInterfaces';
-import type { IPilotSkills } from '../../types/pilot/PilotInterfaces';
 import {
   emitUnitInstanceDamageApplied,
   emitUnitInstanceStatusChanged,
@@ -40,7 +41,7 @@ import {
   emitPilotInstanceMissionCompleted,
   emitPilotInstanceDeceased,
 } from '../../utils/events/campaignInstanceEvents';
-import type { ICausedBy } from '../../types/events';
+import { getCampaignInstanceService } from '../persistence/CampaignInstanceService';
 
 // =============================================================================
 // Types
@@ -92,33 +93,39 @@ export interface ICampaignInstanceStateService {
       attackerUnitId?: string;
       gameId?: string;
       causedBy?: ICausedBy;
-    }
+    },
   ): Promise<IApplyDamageResult>;
 
   startRepair(
     instanceId: string,
     repairItems: readonly string[],
     estimatedCost: number,
-    estimatedTime: number
+    estimatedTime: number,
   ): Promise<ICampaignUnitInstance>;
 
   completeRepair(
     instanceId: string,
     actualCost: number,
     actualTime: number,
-    newDamageState: IUnitDamageState
+    newDamageState: IUnitDamageState,
   ): Promise<ICampaignUnitInstance>;
 
   // Pilot state changes
   awardXP(
     instanceId: string,
     xpAmount: number,
-    source: 'mission_participation' | 'kill' | 'victory' | 'objective' | 'survival' | 'other',
+    source:
+      | 'mission_participation'
+      | 'kill'
+      | 'victory'
+      | 'objective'
+      | 'survival'
+      | 'other',
     options?: {
       details?: string;
       gameId?: string;
       causedBy?: ICausedBy;
-    }
+    },
   ): Promise<ICampaignPilotInstance>;
 
   applyWounds(
@@ -128,7 +135,7 @@ export interface ICampaignInstanceStateService {
     options?: {
       gameId?: string;
       causedBy?: ICausedBy;
-    }
+    },
   ): Promise<IApplyWoundsResult>;
 
   recordKill(
@@ -139,12 +146,12 @@ export interface ICampaignInstanceStateService {
       targetUnitId?: string;
       gameId?: string;
       causedBy?: ICausedBy;
-    }
+    },
   ): Promise<ICampaignPilotInstance>;
 
   improveSkill(
     instanceId: string,
-    skill: 'gunnery' | 'piloting'
+    skill: 'gunnery' | 'piloting',
   ): Promise<ICampaignPilotInstance>;
 
   completeMission(
@@ -156,18 +163,18 @@ export interface ICampaignInstanceStateService {
     options?: {
       survivedCritical?: boolean;
       optionalObjectivesCompleted?: number;
-    }
+    },
   ): Promise<IMissionCompletionResult>;
 
   // Assignment changes
   assignPilotToUnit(
     pilotInstanceId: string,
-    unitInstanceId: string
+    unitInstanceId: string,
   ): Promise<{ pilot: ICampaignPilotInstance; unit: ICampaignUnitInstance }>;
 
   unassignPilot(
     pilotInstanceId: string,
-    reason?: 'manual' | 'pilot_wounded' | 'pilot_kia' | 'unit_destroyed'
+    reason?: 'manual' | 'pilot_wounded' | 'pilot_kia' | 'unit_destroyed',
   ): Promise<ICampaignPilotInstance>;
 }
 
@@ -205,7 +212,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
       attackerUnitId?: string;
       gameId?: string;
       causedBy?: ICausedBy;
-    } = {}
+    } = {},
   ): Promise<IApplyDamageResult> {
     const service = getCampaignInstanceService();
     const instance = await service.getUnitInstance(instanceId);
@@ -214,9 +221,12 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
       throw new Error(`Unit instance not found: ${instanceId}`);
     }
 
-    const previousDamagePercentage = calculateDamagePercentage(instance.damageState);
+    const previousDamagePercentage = calculateDamagePercentage(
+      instance.damageState,
+    );
     const newDamagePercentage = calculateDamagePercentage(newDamageState);
-    const damagePercentageChange = newDamagePercentage - previousDamagePercentage;
+    const damagePercentageChange =
+      newDamagePercentage - previousDamagePercentage;
 
     // Emit damage applied event
     const damageEvent = emitUnitInstanceDamageApplied(
@@ -230,7 +240,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
         attackerUnitId: options.attackerUnitId,
         gameId: options.gameId,
       },
-      options.causedBy
+      options.causedBy,
     );
 
     // Determine new status
@@ -254,7 +264,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
           newStatus,
           reason: destroyed ? 'Structure destroyed' : 'Damage received',
         },
-        { eventId: damageEvent.id, relationship: 'triggered' }
+        { eventId: damageEvent.id, relationship: 'triggered' },
       );
     }
 
@@ -264,7 +274,9 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
 
       // Handle pilot if assigned
       if (instance.assignedPilotInstanceId) {
-        const pilot = await service.getPilotInstance(instance.assignedPilotInstanceId);
+        const pilot = await service.getPilotInstance(
+          instance.assignedPilotInstanceId,
+        );
         if (pilot) {
           // Determine pilot fate based on current wounds (simplified)
           // In a real implementation, this would consider cockpit hits, etc.
@@ -296,7 +308,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
                 totalMissions: pilot.missionsParticipated,
                 gameId: options.gameId,
               },
-              { eventId: damageEvent.id, relationship: 'triggered' }
+              { eventId: damageEvent.id, relationship: 'triggered' },
             );
           }
         }
@@ -312,7 +324,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
           pilotFate,
           gameId: options.gameId,
         },
-        { eventId: damageEvent.id, relationship: 'triggered' }
+        { eventId: damageEvent.id, relationship: 'triggered' },
       );
 
       // Refresh instance after updates
@@ -333,7 +345,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
     instanceId: string,
     repairItems: readonly string[],
     estimatedCost: number,
-    estimatedTime: number
+    estimatedTime: number,
   ): Promise<ICampaignUnitInstance> {
     const service = getCampaignInstanceService();
     const instance = await service.getUnitInstance(instanceId);
@@ -371,7 +383,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
         newStatus: CampaignUnitStatus.Repairing,
         reason: 'Repair initiated',
       },
-      { eventId: repairEvent.id, relationship: 'triggered' }
+      { eventId: repairEvent.id, relationship: 'triggered' },
     );
 
     return updated;
@@ -381,7 +393,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
     instanceId: string,
     actualCost: number,
     actualTime: number,
-    newDamageState: IUnitDamageState
+    newDamageState: IUnitDamageState,
   ): Promise<ICampaignUnitInstance> {
     const service = getCampaignInstanceService();
     const instance = await service.getUnitInstance(instanceId);
@@ -422,7 +434,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
         newStatus,
         reason: 'Repair completed',
       },
-      { eventId: repairEvent.id, relationship: 'triggered' }
+      { eventId: repairEvent.id, relationship: 'triggered' },
     );
 
     return updated;
@@ -435,12 +447,18 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
   async awardXP(
     instanceId: string,
     xpAmount: number,
-    source: 'mission_participation' | 'kill' | 'victory' | 'objective' | 'survival' | 'other',
+    source:
+      | 'mission_participation'
+      | 'kill'
+      | 'victory'
+      | 'objective'
+      | 'survival'
+      | 'other',
     options: {
       details?: string;
       gameId?: string;
       causedBy?: ICausedBy;
-    } = {}
+    } = {},
   ): Promise<ICampaignPilotInstance> {
     const service = getCampaignInstanceService();
     const instance = await service.getPilotInstance(instanceId);
@@ -467,7 +485,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
         details: options.details,
         gameId: options.gameId,
       },
-      options.causedBy
+      options.causedBy,
     );
 
     return updated;
@@ -480,7 +498,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
     options: {
       gameId?: string;
       causedBy?: ICausedBy;
-    } = {}
+    } = {},
   ): Promise<IApplyWoundsResult> {
     const service = getCampaignInstanceService();
     const instance = await service.getPilotInstance(instanceId);
@@ -526,7 +544,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
         recoveryTime,
         gameId: options.gameId,
       },
-      options.causedBy
+      options.causedBy,
     );
 
     // Emit status changed if needed
@@ -539,7 +557,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
           newStatus,
           reason: deceased ? 'Fatal wounds' : 'Wounds received',
         },
-        { eventId: woundEvent.id, relationship: 'triggered' }
+        { eventId: woundEvent.id, relationship: 'triggered' },
       );
     }
 
@@ -547,7 +565,9 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
     if (deceased) {
       // Unassign from unit if assigned
       if (instance.assignedUnitInstanceId) {
-        const unit = await service.getUnitInstance(instance.assignedUnitInstanceId);
+        const unit = await service.getUnitInstance(
+          instance.assignedUnitInstanceId,
+        );
         if (unit) {
           await service.updateUnitInstance(unit.id, {
             assignedPilotInstanceId: null, // Use null to explicitly clear
@@ -573,7 +593,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
           totalMissions: instance.missionsParticipated,
           gameId: options.gameId,
         },
-        { eventId: woundEvent.id, relationship: 'triggered' }
+        { eventId: woundEvent.id, relationship: 'triggered' },
       );
 
       // Refresh instance
@@ -598,7 +618,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
       targetUnitId?: string;
       gameId?: string;
       causedBy?: ICausedBy;
-    } = {}
+    } = {},
   ): Promise<ICampaignPilotInstance> {
     const service = getCampaignInstanceService();
     const instance = await service.getPilotInstance(instanceId);
@@ -624,7 +644,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
         totalKills: newKillCount,
         gameId: options.gameId,
       },
-      options.causedBy
+      options.causedBy,
     );
 
     // Award XP for kill
@@ -640,7 +660,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
 
   async improveSkill(
     instanceId: string,
-    skill: 'gunnery' | 'piloting'
+    skill: 'gunnery' | 'piloting',
   ): Promise<ICampaignPilotInstance> {
     const service = getCampaignInstanceService();
     const instance = await service.getPilotInstance(instanceId);
@@ -657,10 +677,14 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
 
     // Validate
     if (currentValue <= SKILL_IMPROVEMENT_COSTS.MIN_SKILL) {
-      throw new Error(`${skill} is already at maximum (${SKILL_IMPROVEMENT_COSTS.MIN_SKILL})`);
+      throw new Error(
+        `${skill} is already at maximum (${SKILL_IMPROVEMENT_COSTS.MIN_SKILL})`,
+      );
     }
     if (instance.currentXP < xpCost) {
-      throw new Error(`Not enough XP. Need ${xpCost}, have ${instance.currentXP}`);
+      throw new Error(
+        `Not enough XP. Need ${xpCost}, have ${instance.currentXP}`,
+      );
     }
 
     const newValue = currentValue - 1;
@@ -695,7 +719,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
     options: {
       survivedCritical?: boolean;
       optionalObjectivesCompleted?: number;
-    } = {}
+    } = {},
   ): Promise<IMissionCompletionResult> {
     const service = getCampaignInstanceService();
     const instance = await service.getPilotInstance(instanceId);
@@ -715,7 +739,8 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
       xpEarned += XP_REWARDS.SURVIVAL_BONUS;
     }
     if (options.optionalObjectivesCompleted) {
-      xpEarned += options.optionalObjectivesCompleted * XP_REWARDS.OPTIONAL_OBJECTIVE;
+      xpEarned +=
+        options.optionalObjectivesCompleted * XP_REWARDS.OPTIONAL_OBJECTIVE;
     }
     // Note: Kill XP is awarded separately via recordKill
 
@@ -739,10 +764,15 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
     eventIds.push(missionEvent.id);
 
     // Award XP
-    const xpUpdated = await this.awardXP(instanceId, xpEarned, 'mission_participation', {
-      details: `${missionName} - ${outcome}`,
-      causedBy: { eventId: missionEvent.id, relationship: 'derived' },
-    });
+    const xpUpdated = await this.awardXP(
+      instanceId,
+      xpEarned,
+      'mission_participation',
+      {
+        details: `${missionName} - ${outcome}`,
+        causedBy: { eventId: missionEvent.id, relationship: 'derived' },
+      },
+    );
 
     return {
       instance: xpUpdated,
@@ -757,7 +787,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
 
   async assignPilotToUnit(
     pilotInstanceId: string,
-    unitInstanceId: string
+    unitInstanceId: string,
   ): Promise<{ pilot: ICampaignPilotInstance; unit: ICampaignUnitInstance }> {
     const service = getCampaignInstanceService();
 
@@ -808,7 +838,11 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
 
   async unassignPilot(
     pilotInstanceId: string,
-    reason: 'manual' | 'pilot_wounded' | 'pilot_kia' | 'unit_destroyed' = 'manual'
+    reason:
+      | 'manual'
+      | 'pilot_wounded'
+      | 'pilot_kia'
+      | 'unit_destroyed' = 'manual',
   ): Promise<ICampaignPilotInstance> {
     const service = getCampaignInstanceService();
 

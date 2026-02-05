@@ -54,7 +54,9 @@ describe('XPCalculator', () => {
         optionalObjectivesCompleted: 0,
       });
 
-      expect(xp).toBe(XP_VALUES.BASE_PARTICIPATION + XP_VALUES.CRITICAL_SURVIVAL);
+      expect(xp).toBe(
+        XP_VALUES.BASE_PARTICIPATION + XP_VALUES.CRITICAL_SURVIVAL,
+      );
     });
 
     it('should award objective bonus', () => {
@@ -65,7 +67,9 @@ describe('XPCalculator', () => {
         optionalObjectivesCompleted: 2,
       });
 
-      expect(xp).toBe(XP_VALUES.BASE_PARTICIPATION + 2 * XP_VALUES.PER_OBJECTIVE);
+      expect(xp).toBe(
+        XP_VALUES.BASE_PARTICIPATION + 2 * XP_VALUES.PER_OBJECTIVE,
+      );
     });
 
     it('should stack all bonuses correctly', () => {
@@ -111,7 +115,7 @@ describe('XPCalculator', () => {
           breakdown.victoryXP +
           breakdown.survivalXP +
           breakdown.objectiveXP +
-          breakdown.bonusXP
+          breakdown.bonusXP,
       );
     });
 
@@ -126,7 +130,7 @@ describe('XPCalculator', () => {
       });
 
       expect(breakdown.bonusXP).toBe(
-        XP_VALUES.WOUNDED_SURVIVAL + XP_VALUES.HEAVY_DAMAGE_SURVIVAL
+        XP_VALUES.WOUNDED_SURVIVAL + XP_VALUES.HEAVY_DAMAGE_SURVIVAL,
       );
     });
   });

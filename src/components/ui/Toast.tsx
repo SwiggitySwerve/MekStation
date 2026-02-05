@@ -2,7 +2,13 @@
  * Toast Component
  * Simple toast notification system for displaying transient messages.
  */
-import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  createContext,
+  useContext,
+} from 'react';
 
 // =============================================================================
 // Types
@@ -77,31 +83,36 @@ export function ToastProvider({
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const addToast = useCallback((options: ToastOptions): string => {
-    const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-    const toast: Toast = {
-      id,
-      message: options.message,
-      variant: options.variant ?? 'info',
-      duration: options.duration ?? defaultDuration,
-      action: options.action,
-    };
+  const addToast = useCallback(
+    (options: ToastOptions): string => {
+      const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      const toast: Toast = {
+        id,
+        message: options.message,
+        variant: options.variant ?? 'info',
+        duration: options.duration ?? defaultDuration,
+        action: options.action,
+      };
 
-    setToasts((prev) => {
-      // Remove oldest if at max
-      const updated = prev.length >= maxToasts ? prev.slice(1) : prev;
-      return [...updated, toast];
-    });
+      setToasts((prev) => {
+        // Remove oldest if at max
+        const updated = prev.length >= maxToasts ? prev.slice(1) : prev;
+        return [...updated, toast];
+      });
 
-    return id;
-  }, [defaultDuration, maxToasts]);
+      return id;
+    },
+    [defaultDuration, maxToasts],
+  );
 
   const clearToasts = useCallback(() => {
     setToasts([]);
   }, []);
 
   return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast, clearToasts }}>
+    <ToastContext.Provider
+      value={{ toasts, addToast, removeToast, clearToasts }}
+    >
       {children}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </ToastContext.Provider>
@@ -117,12 +128,15 @@ interface ToastContainerProps {
   onRemove: (id: string) => void;
 }
 
-function ToastContainer({ toasts, onRemove }: ToastContainerProps): React.ReactElement | null {
+function ToastContainer({
+  toasts,
+  onRemove,
+}: ToastContainerProps): React.ReactElement | null {
   if (toasts.length === 0) return null;
 
   return (
     <div
-      className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"
+      className="pointer-events-none fixed right-4 bottom-4 z-50 flex flex-col gap-2"
       aria-live="polite"
       aria-label="Notifications"
     >
@@ -142,13 +156,26 @@ interface ToastItemProps {
   onRemove: (id: string) => void;
 }
 
-const variantStyles: Record<ToastVariant, { bg: string; border: string; icon: React.ReactElement }> = {
+const variantStyles: Record<
+  ToastVariant,
+  { bg: string; border: string; icon: React.ReactElement }
+> = {
   info: {
     bg: 'bg-surface-raised',
     border: 'border-cyan-500/40',
     icon: (
-      <svg className="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <svg
+        className="h-5 w-5 text-cyan-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
       </svg>
     ),
   },
@@ -156,8 +183,18 @@ const variantStyles: Record<ToastVariant, { bg: string; border: string; icon: Re
     bg: 'bg-surface-raised',
     border: 'border-emerald-500/40',
     icon: (
-      <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <svg
+        className="h-5 w-5 text-emerald-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
       </svg>
     ),
   },
@@ -165,8 +202,18 @@ const variantStyles: Record<ToastVariant, { bg: string; border: string; icon: Re
     bg: 'bg-surface-raised',
     border: 'border-amber-500/40',
     icon: (
-      <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      <svg
+        className="h-5 w-5 text-amber-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        />
       </svg>
     ),
   },
@@ -174,8 +221,18 @@ const variantStyles: Record<ToastVariant, { bg: string; border: string; icon: Re
     bg: 'bg-surface-raised',
     border: 'border-red-500/40',
     icon: (
-      <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <svg
+        className="h-5 w-5 text-red-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
       </svg>
     ),
   },
@@ -209,32 +266,24 @@ function ToastItem({ toast, onRemove }: ToastItemProps): React.ReactElement {
 
   return (
     <div
-      className={`
-        pointer-events-auto min-w-[320px] max-w-[420px] p-4 rounded-lg shadow-lg
-        ${styles.bg} border ${styles.border}
-        transform transition-all duration-200 ease-out
-        ${isExiting
-          ? 'opacity-0 translate-x-4'
-          : 'opacity-100 translate-x-0 animate-in slide-in-from-right-4'
-        }
-      `}
+      className={`pointer-events-auto max-w-[420px] min-w-[320px] rounded-lg p-4 shadow-lg ${styles.bg} border ${styles.border} transform transition-all duration-200 ease-out ${
+        isExiting
+          ? 'translate-x-4 opacity-0'
+          : 'animate-in slide-in-from-right-4 translate-x-0 opacity-100'
+      } `}
       role="alert"
     >
       <div className="flex items-start gap-3">
         {/* Icon */}
-        <div className="flex-shrink-0 mt-0.5">
-          {styles.icon}
-        </div>
+        <div className="mt-0.5 flex-shrink-0">{styles.icon}</div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm text-text-theme-primary">
-            {toast.message}
-          </p>
+        <div className="min-w-0 flex-1">
+          <p className="text-text-theme-primary text-sm">{toast.message}</p>
           {toast.action && (
             <button
               onClick={toast.action.onClick}
-              className="mt-2 text-sm font-medium text-cyan-400 hover:text-cyan-300 transition-colors"
+              className="mt-2 text-sm font-medium text-cyan-400 transition-colors hover:text-cyan-300"
             >
               {toast.action.label}
             </button>
@@ -244,11 +293,21 @@ function ToastItem({ toast, onRemove }: ToastItemProps): React.ReactElement {
         {/* Dismiss button */}
         <button
           onClick={handleDismiss}
-          className="flex-shrink-0 p-1 rounded hover:bg-surface-base/50 text-text-theme-muted hover:text-text-theme-secondary transition-colors"
+          className="hover:bg-surface-base/50 text-text-theme-muted hover:text-text-theme-secondary flex-shrink-0 rounded p-1 transition-colors"
           aria-label="Dismiss notification"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>

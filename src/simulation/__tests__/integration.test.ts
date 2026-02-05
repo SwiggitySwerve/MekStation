@@ -7,25 +7,34 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { BatchRunner } from '../runner/BatchRunner';
-import { SimulationRunner } from '../runner/SimulationRunner';
-import { InvariantRunner } from '../invariants/InvariantRunner';
+
+import type { ISimulationRunResult } from '../runner/types';
+
+import { SeededRandom } from '../core/SeededRandom';
+import { ISimulationConfig } from '../core/types';
+import { STANDARD_LANCE, LIGHT_SKIRMISH } from '../generator/presets';
+import {
+  ScenarioGenerator,
+  createDefaultUnitWeights,
+  createDefaultTerrainWeights,
+} from '../generator/ScenarioGenerator';
 import {
   checkUnitPositionUniqueness,
   checkHeatNonNegative,
   checkArmorBounds,
 } from '../invariants/checkers';
+import { InvariantRunner } from '../invariants/InvariantRunner';
 import { MetricsCollector } from '../metrics/MetricsCollector';
 import { ReportGenerator } from '../reporting/ReportGenerator';
+import { BatchRunner } from '../runner/BatchRunner';
+import { SimulationRunner } from '../runner/SimulationRunner';
 import { SnapshotManager } from '../snapshot/SnapshotManager';
-import { ScenarioGenerator, createDefaultUnitWeights, createDefaultTerrainWeights } from '../generator/ScenarioGenerator';
-import { STANDARD_LANCE, LIGHT_SKIRMISH } from '../generator/presets';
-import { SeededRandom } from '../core/SeededRandom';
-import { ISimulationConfig } from '../core/types';
-import type { ISimulationRunResult } from '../runner/types';
 
 // Test configuration
-const STATISTICAL_GAME_COUNT = parseInt(process.env.SIMULATION_COUNT || '100', 10);
+const STATISTICAL_GAME_COUNT = parseInt(
+  process.env.SIMULATION_COUNT || '100',
+  10,
+);
 const TEST_REPORT_DIR = 'simulation-reports/test';
 const TEST_SNAPSHOT_DIR = 'src/simulation/__snapshots__/test-failed';
 
@@ -79,7 +88,7 @@ describe('Simulation System Integration', () => {
       // 1. Generate scenario
       const generator = new ScenarioGenerator(
         createDefaultUnitWeights(),
-        createDefaultTerrainWeights()
+        createDefaultTerrainWeights(),
       );
       const random = new SeededRandom(seed);
       const scenario = generator.generate(config, random);
@@ -117,7 +126,7 @@ describe('Simulation System Integration', () => {
       const report = reportGenerator.generate(
         metricsCollector.getMetrics(),
         aggregate,
-        config
+        config,
       );
 
       expect(report).toBeDefined();
@@ -138,12 +147,15 @@ describe('Simulation System Integration', () => {
       const aggregate = metricsCollector.getAggregate();
 
       const reportGenerator = new ReportGenerator();
-      const outputPath = path.join(TEST_REPORT_DIR, 'integration-test-report.json');
+      const outputPath = path.join(
+        TEST_REPORT_DIR,
+        'integration-test-report.json',
+      );
       const savedPath = reportGenerator.saveTo(
         metricsCollector.getMetrics(),
         aggregate,
         config,
-        outputPath
+        outputPath,
       );
 
       expect(fs.existsSync(savedPath)).toBe(true);
@@ -168,7 +180,12 @@ describe('Simulation System Integration', () => {
       const aggregate = metricsCollector.getAggregate();
 
       expect(aggregate.totalGames).toBe(10);
-      expect(aggregate.playerWins + aggregate.opponentWins + aggregate.draws + aggregate.incompleteGames).toBe(10);
+      expect(
+        aggregate.playerWins +
+          aggregate.opponentWins +
+          aggregate.draws +
+          aggregate.incompleteGames,
+      ).toBe(10);
     });
   });
 
@@ -181,11 +198,15 @@ describe('Simulation System Integration', () => {
       const config: ISimulationConfig = { ...STANDARD_LANCE, seed: 50000 };
       const batchRunner = new BatchRunner();
 
-      console.log(`Running ${STATISTICAL_GAME_COUNT} simulations for statistical validation...`);
+      console.log(
+        `Running ${STATISTICAL_GAME_COUNT} simulations for statistical validation...`,
+      );
       const startTime = Date.now();
       batchResults = batchRunner.runBatch(STATISTICAL_GAME_COUNT, config);
       const elapsed = Date.now() - startTime;
-      console.log(`Completed in ${elapsed}ms (${(elapsed / STATISTICAL_GAME_COUNT).toFixed(2)}ms per game)`);
+      console.log(
+        `Completed in ${elapsed}ms (${(elapsed / STATISTICAL_GAME_COUNT).toFixed(2)}ms per game)`,
+      );
 
       metricsCollector = new MetricsCollector();
       for (const result of batchResults) {
@@ -201,22 +222,32 @@ describe('Simulation System Integration', () => {
     it('should have balanced win rates (40-60% range for MVP)', () => {
       const completedGames = aggregate.totalGames - aggregate.incompleteGames;
       const hasCompletedOrIncomplete = aggregate.totalGames > 0;
-      
+
       expect(hasCompletedOrIncomplete).toBe(true);
-      console.log(`Win rates: Player=${aggregate.playerWinRate.toFixed(1)}%, Opponent=${aggregate.opponentWinRate.toFixed(1)}%, Draw=${aggregate.drawRate.toFixed(1)}%`);
-      console.log(`Completed: ${completedGames}, Incomplete: ${aggregate.incompleteGames}`);
-      
+      console.log(
+        `Win rates: Player=${aggregate.playerWinRate.toFixed(1)}%, Opponent=${aggregate.opponentWinRate.toFixed(1)}%, Draw=${aggregate.drawRate.toFixed(1)}%`,
+      );
+      console.log(
+        `Completed: ${completedGames}, Incomplete: ${aggregate.incompleteGames}`,
+      );
+
       if (completedGames > 0) {
-        const hasWinners = aggregate.playerWins > 0 || aggregate.opponentWins > 0;
+        const hasWinners =
+          aggregate.playerWins > 0 || aggregate.opponentWins > 0;
         expect(hasWinners).toBe(true);
       }
     });
 
     it('should have less than 5% games with violations', () => {
-      const gamesWithViolations = batchResults.filter(r => r.violations.length > 0).length;
-      const violationRate = (gamesWithViolations / STATISTICAL_GAME_COUNT) * 100;
+      const gamesWithViolations = batchResults.filter(
+        (r) => r.violations.length > 0,
+      ).length;
+      const violationRate =
+        (gamesWithViolations / STATISTICAL_GAME_COUNT) * 100;
 
-      console.log(`Violation rate: ${violationRate.toFixed(1)}% (${gamesWithViolations}/${STATISTICAL_GAME_COUNT} games)`);
+      console.log(
+        `Violation rate: ${violationRate.toFixed(1)}% (${gamesWithViolations}/${STATISTICAL_GAME_COUNT} games)`,
+      );
 
       expect(violationRate).toBeLessThan(5);
     });
@@ -226,24 +257,32 @@ describe('Simulation System Integration', () => {
 
       for (const result of batchResults) {
         for (const violation of result.violations) {
-          violationCounts[violation.invariant] = (violationCounts[violation.invariant] || 0) + 1;
+          violationCounts[violation.invariant] =
+            (violationCounts[violation.invariant] || 0) + 1;
         }
       }
 
       const threshold = STATISTICAL_GAME_COUNT * 0.1;
       for (const [type, count] of Object.entries(violationCounts)) {
         if (count > threshold) {
-          console.warn(`Systematic violation detected: ${type} occurred ${count} times`);
+          console.warn(
+            `Systematic violation detected: ${type} occurred ${count} times`,
+          );
         }
         expect(count).toBeLessThanOrEqual(threshold);
       }
     });
 
     it('should complete within performance budget (<60s for 100 games)', () => {
-      const totalDuration = batchResults.reduce((sum, r) => sum + r.durationMs, 0);
+      const totalDuration = batchResults.reduce(
+        (sum, r) => sum + r.durationMs,
+        0,
+      );
       const avgDuration = totalDuration / STATISTICAL_GAME_COUNT;
 
-      console.log(`Performance: total=${totalDuration}ms, avg=${avgDuration.toFixed(2)}ms/game`);
+      console.log(
+        `Performance: total=${totalDuration}ms, avg=${avgDuration.toFixed(2)}ms/game`,
+      );
 
       // Target: 100 games in <60 seconds (600ms/game average)
       expect(avgDuration).toBeLessThan(600);
@@ -273,7 +312,7 @@ describe('Simulation System Integration', () => {
 
       const generator = new ScenarioGenerator(
         createDefaultUnitWeights(),
-        createDefaultTerrainWeights()
+        createDefaultTerrainWeights(),
       );
 
       const random1 = new SeededRandom(seed);
@@ -301,8 +340,8 @@ describe('Simulation System Integration', () => {
       const runner2 = new SimulationRunner(22222);
       const result2 = runner2.run(config2);
 
-       // At least one property should differ
-      const _isDifferent = 
+      // At least one property should differ
+      const _isDifferent =
         result1.winner !== result2.winner ||
         result1.turns !== result2.turns ||
         result1.events.length !== result2.events.length;
@@ -344,7 +383,7 @@ describe('Simulation System Integration', () => {
       // Generate scenario
       const generator = new ScenarioGenerator(
         createDefaultUnitWeights(),
-        createDefaultTerrainWeights()
+        createDefaultTerrainWeights(),
       );
       const random = new SeededRandom(seed);
       const scenario = generator.generate(config, random);
@@ -377,7 +416,7 @@ describe('Simulation System Integration', () => {
       const report = reportGenerator.generate(
         metricsCollector.getMetrics(),
         metricsCollector.getAggregate(),
-        config
+        config,
       );
 
       expect(report.summary.total).toBe(5);
@@ -388,7 +427,7 @@ describe('Simulation System Integration', () => {
     it('should integrate SnapshotManager with failed scenarios', () => {
       const config: ISimulationConfig = { ...LIGHT_SKIRMISH, seed: 55555 };
       const snapshotManager = new SnapshotManager(TEST_SNAPSHOT_DIR);
-      
+
       // Run a simulation
       const runner = new SimulationRunner(55555);
       const result = runner.run(config);
@@ -396,19 +435,24 @@ describe('Simulation System Integration', () => {
       // Save snapshot
       const filepath = snapshotManager.saveFailedScenario(result, config);
 
-       // Verify file structure
-       expect(fs.existsSync(filepath)).toBe(true);
-       
-       const content = JSON.parse(fs.readFileSync(filepath, 'utf-8')) as { seed: number; config: ISimulationConfig; events: unknown; timestamp: unknown };
-       expect(content.seed).toBe(55555);
-       expect(content.config).toEqual(config);
-       expect(content.events).toBeDefined();
-       expect(content.timestamp).toBeDefined();
+      // Verify file structure
+      expect(fs.existsSync(filepath)).toBe(true);
+
+      const content = JSON.parse(fs.readFileSync(filepath, 'utf-8')) as {
+        seed: number;
+        config: ISimulationConfig;
+        events: unknown;
+        timestamp: unknown;
+      };
+      expect(content.seed).toBe(55555);
+      expect(content.config).toEqual(config);
+      expect(content.events).toBeDefined();
+      expect(content.timestamp).toBeDefined();
 
       // List snapshots
       const snapshots = snapshotManager.listSnapshots();
       expect(snapshots.length).toBeGreaterThan(0);
-      expect(snapshots.some(s => s.includes('55555'))).toBe(true);
+      expect(snapshots.some((s) => s.includes('55555'))).toBe(true);
     });
   });
 
@@ -486,7 +530,7 @@ describe('Simulation System Integration', () => {
       const generatorStart = process.hrtime.bigint();
       const generator = new ScenarioGenerator(
         createDefaultUnitWeights(),
-        createDefaultTerrainWeights()
+        createDefaultTerrainWeights(),
       );
       const random = new SeededRandom(seed);
       generator.generate(config, random);
@@ -527,7 +571,9 @@ describe('Simulation System Integration', () => {
       const results = batchRunner.runBatch(100, config);
       const elapsed = Date.now() - startTime;
 
-      console.log(`100-game benchmark: ${elapsed}ms total, ${(elapsed / 100).toFixed(2)}ms/game`);
+      console.log(
+        `100-game benchmark: ${elapsed}ms total, ${(elapsed / 100).toFixed(2)}ms/game`,
+      );
 
       expect(results).toHaveLength(100);
       expect(elapsed).toBeLessThan(60000); // 60 seconds

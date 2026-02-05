@@ -1,13 +1,20 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/equipment/filters endpoint
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/equipment/filters';
-import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
-import { parseSuccessResponse, parseErrorResponse, type FilterItem } from '../../helpers';
+
+import {
+  parseSuccessResponse,
+  parseErrorResponse,
+  type FilterItem,
+} from '../../helpers';
 
 /**
  * Filters response data type
@@ -157,15 +164,13 @@ describe('/api/equipment/filters', () => {
       // Find INNER_SPHERE and check label formatting
       // Note: TechBase.INNER_SPHERE = 'Inner Sphere', formatLabel converts to 'Inner sphere'
       const innerSphere = techBases.find(
-        (t) => t.value === TechBase.INNER_SPHERE
+        (t) => t.value === TechBase.INNER_SPHERE,
       );
       expect(innerSphere).toBeDefined();
       expect(innerSphere?.label).toBe('Inner sphere');
 
       // Find CLAN and check label formatting
-      const clan = techBases.find(
-        (t) => t.value === TechBase.CLAN
-      );
+      const clan = techBases.find((t) => t.value === TechBase.CLAN);
       expect(clan).toBeDefined();
       expect(clan?.label).toBe('Clan');
     });

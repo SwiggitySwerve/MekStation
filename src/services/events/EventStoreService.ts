@@ -36,7 +36,7 @@ export class EventStoreService {
   append(event: IBaseEvent): void {
     if (event.sequence <= this.latestSequence) {
       throw new Error(
-        `Event sequence ${event.sequence} must be greater than latest sequence ${this.latestSequence}`
+        `Event sequence ${event.sequence} must be greater than latest sequence ${this.latestSequence}`,
       );
     }
     this.events.push(event);
@@ -58,7 +58,7 @@ export class EventStoreService {
     for (const event of sorted) {
       if (event.sequence < expectedNext) {
         throw new Error(
-          `Event sequence ${event.sequence} is less than expected ${expectedNext}`
+          `Event sequence ${event.sequence} is less than expected ${expectedNext}`,
         );
       }
       expectedNext = event.sequence + 1;
@@ -155,7 +155,7 @@ export class EventStoreService {
    */
   private applyFilters(
     events: readonly IBaseEvent[],
-    filters?: IEventQueryFilters
+    filters?: IEventQueryFilters,
   ): IBaseEvent[] {
     if (!filters) return [...events];
 
@@ -190,7 +190,9 @@ export class EventStoreService {
 
     // Filter by causedBy event
     if (filters.causedByEventId) {
-      result = result.filter((e) => e.causedBy?.eventId === filters.causedByEventId);
+      result = result.filter(
+        (e) => e.causedBy?.eventId === filters.causedByEventId,
+      );
     }
 
     // Filter to root events only
@@ -206,10 +208,13 @@ export class EventStoreService {
    */
   private matchContext(
     event: IBaseEvent,
-    context: Partial<typeof event.context>
+    context: Partial<typeof event.context>,
   ): boolean {
     for (const [key, value] of Object.entries(context)) {
-      if (value !== undefined && event.context[key as keyof typeof event.context] !== value) {
+      if (
+        value !== undefined &&
+        event.context[key as keyof typeof event.context] !== value
+      ) {
         return false;
       }
     }
@@ -222,7 +227,7 @@ export class EventStoreService {
   private applySort(
     events: IBaseEvent[],
     field: 'sequence' | 'timestamp',
-    direction: 'asc' | 'desc'
+    direction: 'asc' | 'desc',
   ): IBaseEvent[] {
     const sorted = [...events];
     const multiplier = direction === 'asc' ? 1 : -1;
@@ -230,7 +235,9 @@ export class EventStoreService {
     if (field === 'sequence') {
       sorted.sort((a, b) => (a.sequence - b.sequence) * multiplier);
     } else {
-      sorted.sort((a, b) => a.timestamp.localeCompare(b.timestamp) * multiplier);
+      sorted.sort(
+        (a, b) => a.timestamp.localeCompare(b.timestamp) * multiplier,
+      );
     }
 
     return sorted;

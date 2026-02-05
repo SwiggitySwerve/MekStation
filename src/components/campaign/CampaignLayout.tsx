@@ -67,46 +67,71 @@ interface HudBarProps {
   reputation: string;
 }
 
-function HudBar({ date, cBills, morale, reputation }: HudBarProps): React.ReactElement {
+function HudBar({
+  date,
+  cBills,
+  morale,
+  reputation,
+}: HudBarProps): React.ReactElement {
   return (
     <div
-      className="flex items-center justify-between px-4 bg-slate-900 border-b border-slate-700"
+      className="flex items-center justify-between border-b border-slate-700 bg-slate-900 px-4"
       style={{ height: HUD_HEIGHT }}
       data-testid="hud-bar"
     >
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
-          <span className="text-slate-500 text-xs uppercase tracking-wider">Date</span>
-          <span className="text-slate-200 font-mono text-sm">{date}</span>
+          <span className="text-xs tracking-wider text-slate-500 uppercase">
+            Date
+          </span>
+          <span className="font-mono text-sm text-slate-200">{date}</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-slate-500 text-xs uppercase tracking-wider">C-Bills</span>
-          <span className="text-amber-400 font-mono text-sm font-semibold">
+          <span className="text-xs tracking-wider text-slate-500 uppercase">
+            C-Bills
+          </span>
+          <span className="font-mono text-sm font-semibold text-amber-400">
             {formatCBills(cBills)}
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-slate-500 text-xs uppercase tracking-wider">Morale</span>
-          <span className={`font-mono text-sm font-semibold ${getMoraleColor(morale)}`}>
+          <span className="text-xs tracking-wider text-slate-500 uppercase">
+            Morale
+          </span>
+          <span
+            className={`font-mono text-sm font-semibold ${getMoraleColor(morale)}`}
+          >
             {morale}%
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-slate-500 text-xs uppercase tracking-wider">Rep</span>
-          <span className="text-sky-400 text-sm font-medium">{reputation}</span>
+          <span className="text-xs tracking-wider text-slate-500 uppercase">
+            Rep
+          </span>
+          <span className="text-sm font-medium text-sky-400">{reputation}</span>
         </div>
       </div>
 
       <button
         type="button"
-        className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded transition-colors"
+        className="rounded p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
         aria-label="Menu"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        <svg
+          className="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6h16M4 12h16M4 18h16"
+          />
         </svg>
       </button>
     </div>
@@ -122,35 +147,39 @@ interface SidePanelProps {
   testId: string;
 }
 
-function SidePanel({ title, side, isOpen, onToggle, children, testId }: SidePanelProps): React.ReactElement {
+function SidePanel({
+  title,
+  side,
+  isOpen,
+  onToggle,
+  children,
+  testId,
+}: SidePanelProps): React.ReactElement {
   const isLeft = side === 'left';
 
   return (
     <div
-      className={`
-        relative flex-shrink-0 bg-slate-800 border-slate-700
-        transition-all duration-300 ease-in-out overflow-hidden
-        ${isLeft ? 'border-r' : 'border-l'}
-      `}
+      className={`relative flex-shrink-0 overflow-hidden border-slate-700 bg-slate-800 transition-all duration-300 ease-in-out ${isLeft ? 'border-r' : 'border-l'} `}
       style={{ width: isOpen ? PANEL_WIDTH_OPEN : PANEL_WIDTH_COLLAPSED }}
       data-testid={testId}
     >
       {isOpen ? (
-        <div className="h-full flex flex-col">
+        <div className="flex h-full flex-col">
           <div
-            className={`
-              flex items-center gap-2 px-3 py-2 
-              border-b border-slate-700 bg-slate-850
-              ${isLeft ? 'flex-row' : 'flex-row-reverse'}
-            `}
+            className={`bg-slate-850 flex items-center gap-2 border-b border-slate-700 px-3 py-2 ${isLeft ? 'flex-row' : 'flex-row-reverse'} `}
           >
             <button
               type="button"
               onClick={onToggle}
-              className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded transition-colors"
+              className="rounded p-1 text-slate-400 transition-colors hover:bg-slate-700 hover:text-slate-200"
               aria-label={`Collapse ${title}`}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -159,7 +188,7 @@ function SidePanel({ title, side, isOpen, onToggle, children, testId }: SidePane
                 />
               </svg>
             </button>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex-1">
+            <h3 className="flex-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">
               {title}
             </h3>
           </div>
@@ -170,10 +199,15 @@ function SidePanel({ title, side, isOpen, onToggle, children, testId }: SidePane
         <button
           type="button"
           onClick={onToggle}
-          className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 transition-colors"
+          className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-400 transition-colors hover:bg-slate-700 hover:text-slate-200"
           aria-label={`Expand ${title}`}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -182,7 +216,7 @@ function SidePanel({ title, side, isOpen, onToggle, children, testId }: SidePane
             />
           </svg>
           <span
-            className="text-xs font-semibold uppercase tracking-wider"
+            className="text-xs font-semibold tracking-wider uppercase"
             style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
           >
             {title}
@@ -209,30 +243,47 @@ export function CampaignLayout({
   className = '',
 }: CampaignLayoutProps): React.ReactElement {
   return (
-    <div className={`flex flex-col h-full bg-slate-900 ${className}`}>
-      <HudBar date={date} cBills={cBills} morale={morale} reputation={reputation} />
+    <div className={`flex h-full flex-col bg-slate-900 ${className}`}>
+      <HudBar
+        date={date}
+        cBills={cBills}
+        morale={morale}
+        reputation={reputation}
+      />
 
       <div className="flex flex-1 overflow-hidden">
-        <SidePanel title="Roster" side="left" isOpen={leftPanelOpen} onToggle={onLeftPanelToggle} testId="left-panel">
+        <SidePanel
+          title="Roster"
+          side="left"
+          isOpen={leftPanelOpen}
+          onToggle={onLeftPanelToggle}
+          testId="left-panel"
+        >
           {leftPanelContent}
         </SidePanel>
 
-        <div className="flex-1 relative overflow-hidden" data-testid="map-area">
+        <div className="relative flex-1 overflow-hidden" data-testid="map-area">
           {children}
         </div>
 
-        <SidePanel title="Events" side="right" isOpen={rightPanelOpen} onToggle={onRightPanelToggle} testId="right-panel">
+        <SidePanel
+          title="Events"
+          side="right"
+          isOpen={rightPanelOpen}
+          onToggle={onRightPanelToggle}
+          testId="right-panel"
+        >
           {rightPanelContent}
         </SidePanel>
       </div>
 
       <div
-        className="border-t border-slate-700 bg-slate-800 overflow-hidden"
+        className="overflow-hidden border-t border-slate-700 bg-slate-800"
         style={{ height: CONTEXT_PANEL_HEIGHT }}
         data-testid="context-panel"
       >
         {contextPanelContent ?? (
-          <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+          <div className="flex h-full items-center justify-center text-sm text-slate-500">
             Select a system or unit to view details
           </div>
         )}

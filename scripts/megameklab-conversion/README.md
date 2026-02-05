@@ -16,6 +16,7 @@ This directory contains the PostgreSQL-based version of the MegaMekLab data conv
 ## Current Status
 
 **DEPRECATED**: The mekstation-app now uses SQLite instead of PostgreSQL. The active conversion scripts are located in:
+
 - `mekstation-app/data/populate_db.py` (SQLite version)
 - `mekstation-app/data/schema_sqlite.sql` (SQLite schema)
 
@@ -24,6 +25,7 @@ These PostgreSQL scripts are kept for reference only.
 ## Usage (Historical)
 
 These scripts were originally designed to:
+
 1. Convert MegaMekLab data files to JSON
 2. Populate a PostgreSQL database
 3. Validate unit construction rules

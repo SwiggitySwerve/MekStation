@@ -5,6 +5,11 @@
  */
 
 import {
+  IUnitQuality,
+  IMaintenanceRecord,
+  MAINTENANCE_THRESHOLDS,
+} from '../IUnitQuality';
+import {
   PartQuality,
   QUALITY_TN_MODIFIER,
   QUALITY_ORDER,
@@ -13,12 +18,6 @@ import {
   getQualityDisplayName,
   getQualityColor,
 } from '../PartQuality';
-
-import {
-  IUnitQuality,
-  IMaintenanceRecord,
-  MAINTENANCE_THRESHOLDS,
-} from '../IUnitQuality';
 
 describe('PartQuality Enum', () => {
   describe('Enum Values', () => {
@@ -71,11 +70,21 @@ describe('PartQuality Enum', () => {
     });
 
     it('should have modifiers that decrease from A to F (worst to best)', () => {
-      expect(QUALITY_TN_MODIFIER[PartQuality.A]).toBeGreaterThan(QUALITY_TN_MODIFIER[PartQuality.B]);
-      expect(QUALITY_TN_MODIFIER[PartQuality.B]).toBeGreaterThan(QUALITY_TN_MODIFIER[PartQuality.C]);
-      expect(QUALITY_TN_MODIFIER[PartQuality.C]).toBeGreaterThan(QUALITY_TN_MODIFIER[PartQuality.D]);
-      expect(QUALITY_TN_MODIFIER[PartQuality.D]).toBeGreaterThan(QUALITY_TN_MODIFIER[PartQuality.E]);
-      expect(QUALITY_TN_MODIFIER[PartQuality.E]).toBeGreaterThan(QUALITY_TN_MODIFIER[PartQuality.F]);
+      expect(QUALITY_TN_MODIFIER[PartQuality.A]).toBeGreaterThan(
+        QUALITY_TN_MODIFIER[PartQuality.B],
+      );
+      expect(QUALITY_TN_MODIFIER[PartQuality.B]).toBeGreaterThan(
+        QUALITY_TN_MODIFIER[PartQuality.C],
+      );
+      expect(QUALITY_TN_MODIFIER[PartQuality.C]).toBeGreaterThan(
+        QUALITY_TN_MODIFIER[PartQuality.D],
+      );
+      expect(QUALITY_TN_MODIFIER[PartQuality.D]).toBeGreaterThan(
+        QUALITY_TN_MODIFIER[PartQuality.E],
+      );
+      expect(QUALITY_TN_MODIFIER[PartQuality.E]).toBeGreaterThan(
+        QUALITY_TN_MODIFIER[PartQuality.F],
+      );
     });
   });
 
@@ -183,7 +192,9 @@ describe('PartQuality Enum', () => {
     });
 
     it('should return different colors for worst (A) and best (F)', () => {
-      expect(getQualityColor(PartQuality.A)).not.toBe(getQualityColor(PartQuality.F));
+      expect(getQualityColor(PartQuality.A)).not.toBe(
+        getQualityColor(PartQuality.F),
+      );
     });
   });
 });
@@ -295,7 +306,7 @@ describe('MAINTENANCE_THRESHOLDS', () => {
 
   it('should have critical failure margin more negative than degrade margin', () => {
     expect(MAINTENANCE_THRESHOLDS.CRITICAL_FAILURE_MARGIN).toBeLessThan(
-      MAINTENANCE_THRESHOLDS.QUALITY_DEGRADE_MARGIN
+      MAINTENANCE_THRESHOLDS.QUALITY_DEGRADE_MARGIN,
     );
   });
 });

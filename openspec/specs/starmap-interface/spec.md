@@ -11,10 +11,13 @@
 ## Overview
 
 ### Purpose
+
 Defines the Inner Sphere starmap display system for BattleTech campaign navigation, including Canvas-based rendering, level-of-detail optimization, pan/zoom controls, system selection, and faction visualization. This specification enables strategic navigation across 2,000-3,500 star systems.
 
 ### Scope
+
 **In Scope:**
+
 - Canvas-based rendering using react-konva (NOT SVG)
 - Level-of-detail (LOD) strategy for performance at scale
 - Pan and zoom with smooth transitions
@@ -25,6 +28,7 @@ Defines the Inner Sphere starmap display system for BattleTech campaign navigati
 - Performance thresholds and rendering recommendations
 
 **Out of Scope:**
+
 - Jump route pathfinding algorithm (future scope)
 - Faction border rendering (future scope)
 - Multiplayer synchronization
@@ -32,6 +36,7 @@ Defines the Inner Sphere starmap display system for BattleTech campaign navigati
 - Campaign game logic (see campaign-hud)
 
 ### Key Concepts
+
 - **Star System**: A planetary system in the Inner Sphere with coordinates, faction ownership, and strategic properties
 - **Level of Detail (LOD)**: Rendering strategy that adjusts visual fidelity based on zoom level to maintain performance
 - **Viewport Culling**: Only rendering systems visible within the current viewport bounds
@@ -43,6 +48,7 @@ Defines the Inner Sphere starmap display system for BattleTech campaign navigati
 ## Requirements
 
 ### Requirement: Canvas-Based Rendering
+
 The system SHALL use Canvas 2D rendering via react-konva for starmap display.
 
 **Rationale**: The full Inner Sphere contains 2,000-3,500 star systems. SVG rendering degrades at 3,000-5,000 elements, while Canvas 2D remains comfortable up to 10,000 elements.
@@ -50,18 +56,21 @@ The system SHALL use Canvas 2D rendering via react-konva for starmap display.
 **Priority**: Critical
 
 #### Scenario: Full Inner Sphere rendering
+
 **GIVEN** a starmap with 3,359 star systems (SUCKit dataset)
 **WHEN** rendering the complete Inner Sphere
 **THEN** Canvas 2D rendering SHALL be used
 **AND** performance SHALL remain above 30 FPS at 1x zoom
 
 #### Scenario: Regional starmap rendering
+
 **GIVEN** a starmap with 200-500 systems (regional view)
 **WHEN** rendering a sector or region
 **THEN** Canvas 2D rendering SHALL be used
 **AND** performance SHALL remain above 60 FPS
 
 #### Scenario: SVG not used for large maps
+
 **GIVEN** a starmap with more than 1,000 systems
 **WHEN** selecting rendering technology
 **THEN** SVG rendering SHALL NOT be used
@@ -70,6 +79,7 @@ The system SHALL use Canvas 2D rendering via react-konva for starmap display.
 ---
 
 ### Requirement: Level of Detail (LOD) Strategy
+
 The system SHALL implement a four-level LOD strategy based on zoom level to maintain performance.
 
 **Rationale**: Rendering all system details at all zoom levels wastes GPU resources and degrades performance. LOD reduces visual complexity when zoomed out.
@@ -77,6 +87,7 @@ The system SHALL implement a four-level LOD strategy based on zoom level to main
 **Priority**: Critical
 
 #### Scenario: Far zoom (overview)
+
 **GIVEN** zoom level is 0.1x to 0.25x
 **WHEN** rendering the starmap
 **THEN** systems SHALL be rendered as 3-5px dots with faction color
@@ -84,6 +95,7 @@ The system SHALL implement a four-level LOD strategy based on zoom level to main
 **AND** only faction region boundaries SHALL be visible
 
 #### Scenario: Medium zoom (major systems)
+
 **GIVEN** zoom level is 0.25x to 0.5x
 **WHEN** rendering the starmap
 **THEN** major systems (population > 1 billion) SHALL be rendered as 8px dots
@@ -91,6 +103,7 @@ The system SHALL implement a four-level LOD strategy based on zoom level to main
 **AND** minor systems SHALL be rendered as 5px dots without labels
 
 #### Scenario: Close zoom (all systems)
+
 **GIVEN** zoom level is 0.5x to 2x
 **WHEN** rendering the starmap
 **THEN** all systems SHALL be rendered with full icons and faction colors
@@ -98,6 +111,7 @@ The system SHALL implement a four-level LOD strategy based on zoom level to main
 **AND** jump routes SHALL be visible (if enabled)
 
 #### Scenario: Detail zoom (tooltips)
+
 **GIVEN** zoom level is 2x or greater
 **WHEN** hovering over a system
 **THEN** a tooltip SHALL display system details (population, industrial rating, faction)
@@ -107,6 +121,7 @@ The system SHALL implement a four-level LOD strategy based on zoom level to main
 ---
 
 ### Requirement: Pan and Zoom Controls
+
 The system SHALL support pan and zoom interactions with smooth transitions.
 
 **Rationale**: Strategic navigation requires fluid map exploration across large distances.
@@ -114,6 +129,7 @@ The system SHALL support pan and zoom interactions with smooth transitions.
 **Priority**: High
 
 #### Scenario: Mouse wheel zoom
+
 **GIVEN** the starmap is displayed
 **WHEN** the user scrolls the mouse wheel
 **THEN** the zoom level SHALL increase (scroll up) or decrease (scroll down)
@@ -121,24 +137,28 @@ The system SHALL support pan and zoom interactions with smooth transitions.
 **AND** zoom range SHALL be 0.1x to 3x
 
 #### Scenario: Pan with click-drag
+
 **GIVEN** the starmap is displayed
 **WHEN** the user middle-clicks or Alt+clicks and drags
 **THEN** the viewport SHALL pan in the drag direction
 **AND** panning SHALL be smooth with no lag
 
 #### Scenario: Keyboard zoom
+
 **GIVEN** the starmap is displayed
 **WHEN** the user presses + or - keys
 **THEN** zoom SHALL increase (+) or decrease (-)
 **AND** zoom SHALL be centered on the viewport center
 
 #### Scenario: Double-click to center
+
 **GIVEN** the starmap is displayed
 **WHEN** the user double-clicks a system
 **THEN** the viewport SHALL smoothly pan to center on that system
 **AND** zoom level SHALL remain unchanged
 
 #### Scenario: Minimap navigation
+
 **GIVEN** a minimap is displayed
 **WHEN** the user clicks a location on the minimap
 **THEN** the main viewport SHALL jump to that location
@@ -147,6 +167,7 @@ The system SHALL support pan and zoom interactions with smooth transitions.
 ---
 
 ### Requirement: System Selection and Hover
+
 The system SHALL support selecting and hovering over star systems with visual feedback.
 
 **Rationale**: Users need to interact with systems to view details and initiate actions.
@@ -154,12 +175,14 @@ The system SHALL support selecting and hovering over star systems with visual fe
 **Priority**: High
 
 #### Scenario: Hover highlights system
+
 **GIVEN** the starmap is displayed
 **WHEN** the user hovers over a system
 **THEN** the system SHALL be highlighted with a bright border
 **AND** a tooltip SHALL appear showing system name and faction
 
 #### Scenario: Click selects system
+
 **GIVEN** the starmap is displayed
 **WHEN** the user clicks a system
 **THEN** the system SHALL be marked as selected
@@ -167,12 +190,14 @@ The system SHALL support selecting and hovering over star systems with visual fe
 **AND** the context panel SHALL update with system details
 
 #### Scenario: Deselect by clicking empty space
+
 **GIVEN** a system is selected
 **WHEN** the user clicks empty space on the starmap
 **THEN** the selection SHALL be cleared
 **AND** the selection ring SHALL disappear
 
 #### Scenario: Hover at far zoom
+
 **GIVEN** zoom level is 0.1x (far zoom)
 **WHEN** the user hovers over a system dot
 **THEN** the system SHALL be highlighted
@@ -181,6 +206,7 @@ The system SHALL support selecting and hovering over star systems with visual fe
 ---
 
 ### Requirement: Faction Coloring
+
 The system SHALL display faction ownership using distinct hues per faction.
 
 **Rationale**: Visual differentiation of political control is essential for strategic planning.
@@ -188,6 +214,7 @@ The system SHALL display faction ownership using distinct hues per faction.
 **Priority**: High
 
 #### Scenario: Distinct faction colors
+
 **GIVEN** the starmap displays multiple factions
 **WHEN** rendering systems
 **THEN** each faction SHALL have a unique color hue
@@ -195,17 +222,20 @@ The system SHALL display faction ownership using distinct hues per faction.
 **AND** colors SHALL meet WCAG AA contrast requirements against the background
 
 #### Scenario: Faction color consistency
+
 **GIVEN** a faction controls multiple systems
 **WHEN** rendering those systems
 **THEN** all systems SHALL use the same faction color
 **AND** the color SHALL remain consistent across zoom levels
 
 #### Scenario: Neutral or unowned systems
+
 **GIVEN** a system has no faction ownership
 **WHEN** rendering the system
 **THEN** the system SHALL be rendered in a neutral gray color
 
 #### Scenario: Contested systems
+
 **GIVEN** a system is marked as contested (multiple factions)
 **WHEN** rendering the system
 **THEN** the system SHALL be rendered with a striped or split color pattern
@@ -214,6 +244,7 @@ The system SHALL display faction ownership using distinct hues per faction.
 ---
 
 ### Requirement: Viewport Culling
+
 The system SHALL only render systems within the current viewport bounds plus a margin.
 
 **Rationale**: Rendering off-screen systems wastes GPU resources and degrades performance.
@@ -221,18 +252,21 @@ The system SHALL only render systems within the current viewport bounds plus a m
 **Priority**: High
 
 #### Scenario: Cull off-screen systems
+
 **GIVEN** the starmap has 3,000 systems
 **WHEN** the viewport shows a region containing 200 systems
 **THEN** only systems within the viewport bounds SHALL be rendered
 **AND** systems outside the viewport SHALL be skipped
 
 #### Scenario: Margin for smooth panning
+
 **GIVEN** the viewport is being panned
 **WHEN** calculating visible systems
 **THEN** a margin of 10% viewport size SHALL be added to the culling bounds
 **AND** systems within the margin SHALL be pre-rendered for smooth panning
 
 #### Scenario: Culling updates on pan/zoom
+
 **GIVEN** the viewport is panned or zoomed
 **WHEN** the viewport bounds change
 **THEN** the visible systems list SHALL be recalculated
@@ -241,6 +275,7 @@ The system SHALL only render systems within the current viewport bounds plus a m
 ---
 
 ### Requirement: Performance Thresholds
+
 The system SHALL meet defined performance thresholds for rendering and interaction.
 
 **Rationale**: Smooth interaction is critical for user experience. Performance must be validated against known thresholds.
@@ -248,18 +283,21 @@ The system SHALL meet defined performance thresholds for rendering and interacti
 **Priority**: Critical
 
 #### Scenario: Canvas 2D comfortable threshold
+
 **GIVEN** the starmap uses Canvas 2D rendering
 **WHEN** rendering fewer than 10,000 elements
 **THEN** performance SHALL remain above 60 FPS
 **AND** interaction SHALL feel responsive
 
 #### Scenario: Canvas 2D degradation threshold
+
 **GIVEN** the starmap uses Canvas 2D rendering
 **WHEN** rendering 20,000-50,000 elements
 **THEN** performance MAY degrade to 30-60 FPS
 **AND** LOD SHALL be applied to reduce element count
 
 #### Scenario: SVG not used for large maps
+
 **GIVEN** the starmap has more than 1,000 systems
 **WHEN** selecting rendering technology
 **THEN** SVG SHALL NOT be used
@@ -469,16 +507,16 @@ interface IStarmapDisplayProps {
 
 ### Required Properties
 
-| Property | Type | Required | Description | Valid Values | Default |
-|----------|------|----------|-------------|--------------|---------|
-| `id` | `string` | Yes | Unique system identifier | Non-empty string | - |
-| `name` | `string` | Yes | Display name | Non-empty string | - |
-| `x` | `number` | Yes | X coordinate (light-years) | Finite number | - |
-| `y` | `number` | Yes | Y coordinate (light-years) | Finite number | - |
-| `faction` | `string \| null` | Yes | Controlling faction | Faction name or null | null |
-| `population` | `number` | Yes | Population (billions) | >= 0 | 0 |
-| `industrialRating` | `number` | Yes | Industrial capacity | 0-5 | 0 |
-| `zoom` | `number` | Yes | Zoom level | 0.1 to 3.0 | 1.0 |
+| Property           | Type             | Required | Description                | Valid Values         | Default |
+| ------------------ | ---------------- | -------- | -------------------------- | -------------------- | ------- |
+| `id`               | `string`         | Yes      | Unique system identifier   | Non-empty string     | -       |
+| `name`             | `string`         | Yes      | Display name               | Non-empty string     | -       |
+| `x`                | `number`         | Yes      | X coordinate (light-years) | Finite number        | -       |
+| `y`                | `number`         | Yes      | Y coordinate (light-years) | Finite number        | -       |
+| `faction`          | `string \| null` | Yes      | Controlling faction        | Faction name or null | null    |
+| `population`       | `number`         | Yes      | Population (billions)      | >= 0                 | 0       |
+| `industrialRating` | `number`         | Yes      | Industrial capacity        | 0-5                  | 0       |
+| `zoom`             | `number`         | Yes      | Zoom level                 | 0.1 to 3.0           | 1.0     |
 
 ### Type Constraints
 
@@ -495,6 +533,7 @@ interface IStarmapDisplayProps {
 ### Viewport Culling Formula
 
 **Formula**:
+
 ```
 isVisible = (
   systemX >= viewportMinX - margin &&
@@ -505,6 +544,7 @@ isVisible = (
 ```
 
 **Where**:
+
 - `systemX`, `systemY` = star system coordinates in world space
 - `viewportMinX` = `centerX - (width / 2) / zoom`
 - `viewportMaxX` = `centerX + (width / 2) / zoom`
@@ -513,6 +553,7 @@ isVisible = (
 - `margin` = `0.1 * (width / zoom)` (10% of viewport width)
 
 **Example**:
+
 ```
 Viewport: centerX=0, centerY=0, zoom=1.0, width=1920, height=1080
 viewportMinX = 0 - (1920 / 2) / 1.0 = -960
@@ -528,8 +569,9 @@ System at (500, 300):
 ### LOD Level Determination
 
 **Formula**:
+
 ```
-lodLevel = 
+lodLevel =
   zoom < farThreshold ? LOD_FAR :
   zoom < mediumThreshold ? LOD_MEDIUM :
   zoom < closeThreshold ? LOD_CLOSE :
@@ -537,11 +579,13 @@ lodLevel =
 ```
 
 **Where**:
+
 - `farThreshold` = 0.25 (default)
 - `mediumThreshold` = 0.5 (default)
 - `closeThreshold` = 2.0 (default)
 
 **Example**:
+
 ```
 zoom = 0.15 → LOD_FAR (faction blobs)
 zoom = 0.4 → LOD_MEDIUM (major systems only)
@@ -555,31 +599,33 @@ zoom = 2.5 → LOD_DETAIL (tooltips, HPG indicators)
 
 ### Rendering Technology Recommendations
 
-| Hex/System Count | Recommended Renderer | Performance Target |
-|------------------|---------------------|-------------------|
-| < 1,000 | SVG | 60 FPS |
-| 1,000 - 10,000 | Canvas 2D (react-konva) | 60 FPS |
-| 10,000 - 50,000 | Canvas 2D with LOD | 30-60 FPS |
-| > 50,000 | WebGL (pixi-react) | 60 FPS |
+| Hex/System Count | Recommended Renderer    | Performance Target |
+| ---------------- | ----------------------- | ------------------ |
+| < 1,000          | SVG                     | 60 FPS             |
+| 1,000 - 10,000   | Canvas 2D (react-konva) | 60 FPS             |
+| 10,000 - 50,000  | Canvas 2D with LOD      | 30-60 FPS          |
+| > 50,000         | WebGL (pixi-react)      | 60 FPS             |
 
 ### Full Inner Sphere Performance
 
-| Dataset | System Count | Renderer | LOD Required | Expected FPS |
-|---------|-------------|----------|--------------|--------------|
-| SUCKit | ~3,359 | Canvas 2D | Yes | 60 FPS |
-| InnerSphereMap | ~2,000 | Canvas 2D | Yes | 60 FPS |
-| MekHQ | ~2,500 | Canvas 2D | Yes | 60 FPS |
+| Dataset        | System Count | Renderer  | LOD Required | Expected FPS |
+| -------------- | ------------ | --------- | ------------ | ------------ |
+| SUCKit         | ~3,359       | Canvas 2D | Yes          | 60 FPS       |
+| InnerSphereMap | ~2,000       | Canvas 2D | Yes          | 60 FPS       |
+| MekHQ          | ~2,500       | Canvas 2D | Yes          | 60 FPS       |
 
 ---
 
 ## Validation Rules
 
 ### Validation: Valid Zoom Range
+
 **Rule**: Zoom level MUST be within 0.1x to 3.0x range.
 
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
 if (zoom < 0.1 || zoom > 3.0) {
   // invalid
@@ -591,11 +637,13 @@ if (zoom < 0.1 || zoom > 3.0) {
 **User Action**: Reset zoom to 1.0 or clamp to valid range.
 
 ### Validation: Valid Coordinates
+
 **Rule**: System coordinates MUST be finite numbers.
 
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
 if (!isFinite(system.x) || !isFinite(system.y)) {
   // invalid
@@ -607,11 +655,13 @@ if (!isFinite(system.x) || !isFinite(system.y)) {
 **User Action**: Correct system data or exclude from rendering.
 
 ### Validation: Valid Industrial Rating
+
 **Rule**: Industrial rating MUST be between 0 and 5.
 
 **Severity**: Warning
 
 **Condition**:
+
 ```typescript
 if (system.industrialRating < 0 || system.industrialRating > 5) {
   // invalid - clamp to range
@@ -627,9 +677,11 @@ if (system.industrialRating < 0 || system.industrialRating > 5) {
 ## Dependencies
 
 ### Depends On
+
 - None (standalone display component)
 
 ### Used By
+
 - **campaign-hud**: Embeds starmap in campaign layout for strategic navigation
 
 ---
@@ -637,6 +689,7 @@ if (system.industrialRating < 0 || system.industrialRating > 5) {
 ## Implementation Notes
 
 ### Performance Considerations
+
 - Use spatial indexing (quadtree or R-tree) for fast hover/click detection
 - Pre-calculate faction colors at load time
 - Batch render systems by faction to reduce draw calls
@@ -644,6 +697,7 @@ if (system.industrialRating < 0 || system.industrialRating > 5) {
 - Debounce viewport change events to avoid excessive re-renders
 
 ### Edge Cases
+
 - **Empty starmap**: Display message "No systems to display"
 - **Single system**: Center viewport on that system
 - **Overlapping systems**: Use z-index based on population or industrial rating
@@ -651,6 +705,7 @@ if (system.industrialRating < 0 || system.industrialRating > 5) {
 - **Very small zoom**: Clamp to 0.1x to prevent invisible systems
 
 ### Common Pitfalls
+
 - **Pitfall**: Rendering all systems at all zoom levels
   - **Solution**: Implement LOD and viewport culling
 - **Pitfall**: Using SVG for large starmaps
@@ -667,6 +722,7 @@ if (system.industrialRating < 0 || system.industrialRating > 5) {
 ### Example 1: Basic Starmap Display
 
 **Input**:
+
 ```typescript
 const systems: IStarSystem[] = [
   {
@@ -714,41 +770,54 @@ const lodConfig: ILODConfig = {
 ```
 
 **Processing**:
+
 ```typescript
 // Determine LOD level
-const lodLevel = viewport.zoom < 0.25 ? 'FAR' :
-                 viewport.zoom < 0.5 ? 'MEDIUM' :
-                 viewport.zoom < 2.0 ? 'CLOSE' : 'DETAIL';
+const lodLevel =
+  viewport.zoom < 0.25
+    ? 'FAR'
+    : viewport.zoom < 0.5
+      ? 'MEDIUM'
+      : viewport.zoom < 2.0
+        ? 'CLOSE'
+        : 'DETAIL';
 
 // Calculate visible systems
-const visibleSystems = systems.filter(system => {
-  const viewportMinX = viewport.centerX - (viewport.width / 2) / viewport.zoom;
-  const viewportMaxX = viewport.centerX + (viewport.width / 2) / viewport.zoom;
-  const viewportMinY = viewport.centerY - (viewport.height / 2) / viewport.zoom;
-  const viewportMaxY = viewport.centerY + (viewport.height / 2) / viewport.zoom;
+const visibleSystems = systems.filter((system) => {
+  const viewportMinX = viewport.centerX - viewport.width / 2 / viewport.zoom;
+  const viewportMaxX = viewport.centerX + viewport.width / 2 / viewport.zoom;
+  const viewportMinY = viewport.centerY - viewport.height / 2 / viewport.zoom;
+  const viewportMaxY = viewport.centerY + viewport.height / 2 / viewport.zoom;
   const margin = 0.1 * (viewport.width / viewport.zoom);
 
-  return system.x >= viewportMinX - margin &&
-         system.x <= viewportMaxX + margin &&
-         system.y >= viewportMinY - margin &&
-         system.y <= viewportMaxY + margin;
+  return (
+    system.x >= viewportMinX - margin &&
+    system.x <= viewportMaxX + margin &&
+    system.y >= viewportMinY - margin &&
+    system.y <= viewportMaxY + margin
+  );
 });
 
 // Render systems based on LOD
-visibleSystems.forEach(system => {
-  const dotSize = lodLevel === 'FAR' ? lodConfig.farDotSize :
-                  lodLevel === 'MEDIUM' ? lodConfig.mediumDotSize :
-                  lodConfig.closeDotSize;
+visibleSystems.forEach((system) => {
+  const dotSize =
+    lodLevel === 'FAR'
+      ? lodConfig.farDotSize
+      : lodLevel === 'MEDIUM'
+        ? lodConfig.mediumDotSize
+        : lodConfig.closeDotSize;
 
-  const showLabel = (lodLevel === 'MEDIUM' && lodConfig.showLabelsAtMedium) ||
-                    (lodLevel === 'CLOSE' && lodConfig.showLabelsAtClose) ||
-                    lodLevel === 'DETAIL';
+  const showLabel =
+    (lodLevel === 'MEDIUM' && lodConfig.showLabelsAtMedium) ||
+    (lodLevel === 'CLOSE' && lodConfig.showLabelsAtClose) ||
+    lodLevel === 'DETAIL';
 
   renderSystem(system, dotSize, showLabel);
 });
 ```
 
 **Output**:
+
 ```
 LOD Level: CLOSE (zoom = 1.0)
 Visible Systems: 2 (Terra, Tharkad)
@@ -759,6 +828,7 @@ Labels: Shown
 ### Example 2: Viewport Culling at Far Zoom
 
 **Input**:
+
 ```typescript
 const viewport: IStarmapViewport = {
   centerX: 0.0,
@@ -769,12 +839,13 @@ const viewport: IStarmapViewport = {
 };
 
 const systems: IStarSystem[] = [
-  { id: 's1', name: 'System 1', x: 0, y: 0, /* ... */ },
-  { id: 's2', name: 'System 2', x: 5000, y: 5000, /* ... */ }, // Off-screen
+  { id: 's1', name: 'System 1', x: 0, y: 0 /* ... */ },
+  { id: 's2', name: 'System 2', x: 5000, y: 5000 /* ... */ }, // Off-screen
 ];
 ```
 
 **Processing**:
+
 ```typescript
 const viewportMinX = 0 - (1920 / 2) / 0.1 = -9600;
 const viewportMaxX = 0 + (1920 / 2) / 0.1 = 9600;
@@ -785,6 +856,7 @@ System 2: 5000 >= -9600 - 1920 && 5000 <= 9600 + 1920 → visible
 ```
 
 **Output**:
+
 ```
 Visible Systems: 2 (both within expanded viewport)
 LOD Level: FAR
@@ -797,15 +869,18 @@ Labels: Hidden
 ## References
 
 ### Data Sources
+
 - **SUCKit**: ~3,359 star system coordinates (GNU FDL 1.2) - https://docs.google.com/spreadsheets/d/1uO6aZ20rfEcAZJ-nDRhCnaNUiCPemuoOOd67Zqi1MVM
 - **InnerSphereMap**: JSON per system with descriptions (GPL-3.0) - https://github.com/Morphyum/InnerSphereMap
 - **MekHQ**: YAML with detailed planetary data (GPL-2.0) - https://github.com/MegaMek/mekhq
 
 ### Technical Resources
+
 - **react-konva**: Canvas rendering for React - https://konvajs.org/docs/react/
 - **Red Blob Games**: Hexagonal grids and spatial algorithms - https://www.redblobgames.com/grids/hexagons/
 
 ### Related Documentation
+
 - **campaign-map-design-research.md**: Part 10 (data sources), Part 12 (Canvas vs SVG), Part 13 (LOD strategy)
 
 ---
@@ -813,6 +888,7 @@ Labels: Hidden
 ## Changelog
 
 ### Version 1.0 (2026-01-31)
+
 - Initial specification based on campaign map design research
 - Canvas 2D rendering with react-konva
 - Four-level LOD strategy (Far, Medium, Close, Detail)

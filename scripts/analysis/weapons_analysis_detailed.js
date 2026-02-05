@@ -5,11 +5,11 @@ const fs = require('fs');
 
 async function detailedWeaponsAnalysis() {
   const dbPath = path.join(__dirname, 'data/battletech_dev.sqlite');
-  
+
   try {
     const db = await open({
       filename: dbPath,
-      driver: sqlite3.Database
+      driver: sqlite3.Database,
     });
 
     console.log('⚔️ Detailed Weapons Analysis - Phase 2, Step 3\n');
@@ -35,52 +35,52 @@ async function detailedWeaponsAnalysis() {
 
     // Weapon analysis categories
     const weaponCategories = {
-      'EnergyWeapons': {
-        'StandardLasers': [],
-        'ERLasers': [], 
-        'PulseLasers': [],
-        'PPCs': [],
-        'PlasmaWeapons': [],
-        'Flamers': [],
-        'SpecialEnergy': []
+      EnergyWeapons: {
+        StandardLasers: [],
+        ERLasers: [],
+        PulseLasers: [],
+        PPCs: [],
+        PlasmaWeapons: [],
+        Flamers: [],
+        SpecialEnergy: [],
       },
-      'BallisticWeapons': {
-        'StandardAutocannons': [],
-        'UltraAutocannons': [],
-        'LBXAutocannons': [],
-        'GaussRifles': [],
-        'MachineGuns': [],
-        'SpecialBallistic': []
+      BallisticWeapons: {
+        StandardAutocannons: [],
+        UltraAutocannons: [],
+        LBXAutocannons: [],
+        GaussRifles: [],
+        MachineGuns: [],
+        SpecialBallistic: [],
       },
-      'MissileWeapons': {
-        'LRMSystems': [],
-        'SRMSystems': [],
-        'StreakSystems': [],
-        'ATMSystems': [],
-        'MMLSystems': [],
-        'RocketLaunchers': [],
-        'CapitalMissiles': [],
-        'SpecialMissile': []
-      }
+      MissileWeapons: {
+        LRMSystems: [],
+        SRMSystems: [],
+        StreakSystems: [],
+        ATMSystems: [],
+        MMLSystems: [],
+        RocketLaunchers: [],
+        CapitalMissiles: [],
+        SpecialMissile: [],
+      },
     };
 
     // IS vs Clan variant analysis
     const techBaseVariants = {
-      'ISVariants': [],
-      'ClanVariants': [],
-      'MixedClassification': [],
-      'MissingISVariant': [],
-      'MissingClanVariant': [],
-      'NeedsSeparation': []
+      ISVariants: [],
+      ClanVariants: [],
+      MixedClassification: [],
+      MissingISVariant: [],
+      MissingClanVariant: [],
+      NeedsSeparation: [],
     };
 
     // Performance comparison data
     const performanceComparisons = {
-      'WeightDifferences': [],
-      'SlotDifferences': [],
-      'RangeDifferences': [],
-      'DamageDifferences': [],
-      'HeatDifferences': []
+      WeightDifferences: [],
+      SlotDifferences: [],
+      RangeDifferences: [],
+      DamageDifferences: [],
+      HeatDifferences: [],
     };
 
     // Process each weapon
@@ -94,14 +94,18 @@ async function detailedWeaponsAnalysis() {
       }
 
       // Categorize weapon by type
-      const category = categorizeWeapon(weapon.name, weapon.type, weapon.internal_id);
+      const category = categorizeWeapon(
+        weapon.name,
+        weapon.type,
+        weapon.internal_id,
+      );
       if (category.main && category.sub) {
         weaponCategories[category.main][category.sub].push({
           internal_id: weapon.internal_id,
           name: weapon.name,
           type: weapon.type,
           tech_base: weapon.tech_base,
-          data: parsedData
+          data: parsedData,
         });
       }
 
@@ -113,17 +117,17 @@ async function detailedWeaponsAnalysis() {
         current_tech_base: weapon.tech_base,
         recommendation: techAnalysis.recommendation,
         base_weapon: techAnalysis.baseWeapon,
-        variant_needed: techAnalysis.variantNeeded
+        variant_needed: techAnalysis.variantNeeded,
       });
 
       // Analyze performance data
       const perfAnalysis = analyzeWeaponPerformance(weapon, parsedData);
       if (perfAnalysis.differences.length > 0) {
-        perfAnalysis.differences.forEach(diff => {
+        perfAnalysis.differences.forEach((diff) => {
           performanceComparisons[diff.type].push({
             weapon: weapon.name,
             tech_base: weapon.tech_base,
-            difference: diff
+            difference: diff,
           });
         });
       }
@@ -132,15 +136,20 @@ async function detailedWeaponsAnalysis() {
     // Generate detailed reports
     console.log('⚔️ WEAPON CATEGORIZATION ANALYSIS');
     console.log('==================================');
-    
-    for (const [mainCategory, subCategories] of Object.entries(weaponCategories)) {
-      const totalInCategory = Object.values(subCategories).reduce((sum, items) => sum + items.length, 0);
+
+    for (const [mainCategory, subCategories] of Object.entries(
+      weaponCategories,
+    )) {
+      const totalInCategory = Object.values(subCategories).reduce(
+        (sum, items) => sum + items.length,
+        0,
+      );
       if (totalInCategory > 0) {
         console.log(`\n${mainCategory}: ${totalInCategory} weapons`);
         for (const [subCategory, weapons] of Object.entries(subCategories)) {
           if (weapons.length > 0) {
             console.log(`  ${subCategory}: ${weapons.length} weapons`);
-            weapons.slice(0, 5).forEach(weapon => {
+            weapons.slice(0, 5).forEach((weapon) => {
               console.log(`    - ${weapon.name} (${weapon.tech_base})`);
             });
             if (weapons.length > 5) {
@@ -153,16 +162,22 @@ async function detailedWeaponsAnalysis() {
 
     console.log('\n🎯 WEAPON TECH BASE VARIANT ANALYSIS');
     console.log('=====================================');
-    
+
     for (const [classification, weapons] of Object.entries(techBaseVariants)) {
       if (weapons.length > 0) {
         console.log(`\n${classification}: ${weapons.length} weapons`);
-        weapons.slice(0, 8).forEach(weapon => {
+        weapons.slice(0, 8).forEach((weapon) => {
           if (weapon.base_weapon && weapon.variant_needed) {
-            console.log(`  - ${weapon.name} (${weapon.current_tech_base}) -> ${weapon.recommendation}`);
-            console.log(`    Base: ${weapon.base_weapon}, Need: ${weapon.variant_needed}`);
+            console.log(
+              `  - ${weapon.name} (${weapon.current_tech_base}) -> ${weapon.recommendation}`,
+            );
+            console.log(
+              `    Base: ${weapon.base_weapon}, Need: ${weapon.variant_needed}`,
+            );
           } else {
-            console.log(`  - ${weapon.name} (${weapon.current_tech_base}) -> ${weapon.recommendation}`);
+            console.log(
+              `  - ${weapon.name} (${weapon.current_tech_base}) -> ${weapon.recommendation}`,
+            );
           }
         });
         if (weapons.length > 8) {
@@ -172,49 +187,70 @@ async function detailedWeaponsAnalysis() {
     }
 
     // Create IS vs Clan performance comparison matrix
-    const performanceMatrix = createPerformanceMatrix(weaponCategories, techBaseVariants);
-    
+    const performanceMatrix = createPerformanceMatrix(
+      weaponCategories,
+      techBaseVariants,
+    );
+
     console.log('\n📊 IS vs CLAN PERFORMANCE COMPARISON MATRIX');
     console.log('===========================================');
-    
-    performanceMatrix.forEach(comparison => {
+
+    performanceMatrix.forEach((comparison) => {
       console.log(`\n${comparison.weaponType}:`);
       console.log(`  IS Variant: ${comparison.isVariant || 'Missing'}`);
       console.log(`  Clan Variant: ${comparison.clanVariant || 'Missing'}`);
       if (comparison.differences.length > 0) {
         console.log(`  Key Differences:`);
-        comparison.differences.forEach(diff => {
+        comparison.differences.forEach((diff) => {
           console.log(`    - ${diff}`);
         });
       }
     });
 
     // Generate weapons specification matrix
-    const weaponsSpecMatrix = generateWeaponsSpecMatrix(weaponCategories, allEquipment);
+    const weaponsSpecMatrix = generateWeaponsSpecMatrix(
+      weaponCategories,
+      allEquipment,
+    );
 
     // Save detailed analysis results
     const analysisResults = {
       summary: {
         total_weapons: allEquipment.length,
-        energy_weapons: Object.values(weaponCategories.EnergyWeapons).reduce((sum, arr) => sum + arr.length, 0),
-        ballistic_weapons: Object.values(weaponCategories.BallisticWeapons).reduce((sum, arr) => sum + arr.length, 0),
-        missile_weapons: Object.values(weaponCategories.MissileWeapons).reduce((sum, arr) => sum + arr.length, 0),
-        tech_base_issues: techBaseVariants.NeedsSeparation.length + techBaseVariants.MissingISVariant.length + techBaseVariants.MissingClanVariant.length
+        energy_weapons: Object.values(weaponCategories.EnergyWeapons).reduce(
+          (sum, arr) => sum + arr.length,
+          0,
+        ),
+        ballistic_weapons: Object.values(
+          weaponCategories.BallisticWeapons,
+        ).reduce((sum, arr) => sum + arr.length, 0),
+        missile_weapons: Object.values(weaponCategories.MissileWeapons).reduce(
+          (sum, arr) => sum + arr.length,
+          0,
+        ),
+        tech_base_issues:
+          techBaseVariants.NeedsSeparation.length +
+          techBaseVariants.MissingISVariant.length +
+          techBaseVariants.MissingClanVariant.length,
       },
       weapon_categories: weaponCategories,
       tech_base_variants: techBaseVariants,
       performance_comparisons: performanceComparisons,
       performance_matrix: performanceMatrix,
       weapons_specification_matrix: weaponsSpecMatrix,
-      analysis_date: new Date().toISOString()
+      analysis_date: new Date().toISOString(),
     };
 
-    fs.writeFileSync('data/weapons_analysis_results.json', JSON.stringify(analysisResults, null, 2));
-    console.log('\n💾 Detailed weapons analysis results saved to weapons_analysis_results.json');
+    fs.writeFileSync(
+      'data/weapons_analysis_results.json',
+      JSON.stringify(analysisResults, null, 2),
+    );
+    console.log(
+      '\n💾 Detailed weapons analysis results saved to weapons_analysis_results.json',
+    );
 
     await db.close();
     console.log('\n✅ Detailed weapons analysis complete!');
-    
   } catch (error) {
     console.error('❌ Error during weapons analysis:', error);
   }
@@ -253,20 +289,36 @@ function categorizeWeapon(name, type, internal_id) {
     return { main: 'BallisticWeapons', sub: 'GaussRifles' };
   }
 
-  if (nameLower.includes('ultra ac') || nameLower.includes('ultraac') || typeLower.includes('ultra')) {
+  if (
+    nameLower.includes('ultra ac') ||
+    nameLower.includes('ultraac') ||
+    typeLower.includes('ultra')
+  ) {
     return { main: 'BallisticWeapons', sub: 'UltraAutocannons' };
   }
 
-  if (nameLower.includes('lb ') || nameLower.includes('lb-') || typeLower.includes('lbx')) {
+  if (
+    nameLower.includes('lb ') ||
+    nameLower.includes('lb-') ||
+    typeLower.includes('lbx')
+  ) {
     return { main: 'BallisticWeapons', sub: 'LBXAutocannons' };
   }
 
-  if (nameLower.includes('autocannon') || nameLower.includes('ac/') || nameLower.includes('ac ') || 
-      typeLower.includes('autocannon')) {
+  if (
+    nameLower.includes('autocannon') ||
+    nameLower.includes('ac/') ||
+    nameLower.includes('ac ') ||
+    typeLower.includes('autocannon')
+  ) {
     return { main: 'BallisticWeapons', sub: 'StandardAutocannons' };
   }
 
-  if (nameLower.includes('machine gun') || nameLower.includes('mg ') || typeLower.includes('machinegun')) {
+  if (
+    nameLower.includes('machine gun') ||
+    nameLower.includes('mg ') ||
+    typeLower.includes('machinegun')
+  ) {
     return { main: 'BallisticWeapons', sub: 'MachineGuns' };
   }
 
@@ -295,15 +347,28 @@ function categorizeWeapon(name, type, internal_id) {
     return { main: 'MissileWeapons', sub: 'RocketLaunchers' };
   }
 
-  if (nameLower.includes('arrow') || nameLower.includes('thunderbolt') || nameLower.includes('long tom')) {
+  if (
+    nameLower.includes('arrow') ||
+    nameLower.includes('thunderbolt') ||
+    nameLower.includes('long tom')
+  ) {
     return { main: 'MissileWeapons', sub: 'CapitalMissiles' };
   }
 
   // Default classification
-  if (nameLower.includes('laser') || nameLower.includes('ppc') || nameLower.includes('flamer') || nameLower.includes('plasma')) {
+  if (
+    nameLower.includes('laser') ||
+    nameLower.includes('ppc') ||
+    nameLower.includes('flamer') ||
+    nameLower.includes('plasma')
+  ) {
     return { main: 'EnergyWeapons', sub: 'SpecialEnergy' };
   }
-  if (nameLower.includes('autocannon') || nameLower.includes('gauss') || nameLower.includes('machine')) {
+  if (
+    nameLower.includes('autocannon') ||
+    nameLower.includes('gauss') ||
+    nameLower.includes('machine')
+  ) {
     return { main: 'BallisticWeapons', sub: 'SpecialBallistic' };
   }
   if (nameLower.includes('missile') || nameLower.includes('rocket')) {
@@ -323,25 +388,60 @@ function analyzeWeaponTechBase(weapon, parsedData) {
 
   if (nameLower.includes('large laser')) {
     baseWeapon = 'Large Laser';
-    variantNeeded = techBase === 'IS' ? 'Clan Large Laser' : techBase === 'Clan' ? 'IS Large Laser' : 'Both variants';
+    variantNeeded =
+      techBase === 'IS'
+        ? 'Clan Large Laser'
+        : techBase === 'Clan'
+          ? 'IS Large Laser'
+          : 'Both variants';
   } else if (nameLower.includes('medium laser')) {
     baseWeapon = 'Medium Laser';
-    variantNeeded = techBase === 'IS' ? 'Clan Medium Laser' : techBase === 'Clan' ? 'IS Medium Laser' : 'Both variants';
+    variantNeeded =
+      techBase === 'IS'
+        ? 'Clan Medium Laser'
+        : techBase === 'Clan'
+          ? 'IS Medium Laser'
+          : 'Both variants';
   } else if (nameLower.includes('small laser')) {
     baseWeapon = 'Small Laser';
-    variantNeeded = techBase === 'IS' ? 'Clan Small Laser' : techBase === 'Clan' ? 'IS Small Laser' : 'Both variants';
+    variantNeeded =
+      techBase === 'IS'
+        ? 'Clan Small Laser'
+        : techBase === 'Clan'
+          ? 'IS Small Laser'
+          : 'Both variants';
   } else if (nameLower.includes('ppc')) {
     baseWeapon = 'PPC';
-    variantNeeded = techBase === 'IS' ? 'Clan PPC' : techBase === 'Clan' ? 'IS PPC' : 'Both variants';
+    variantNeeded =
+      techBase === 'IS'
+        ? 'Clan PPC'
+        : techBase === 'Clan'
+          ? 'IS PPC'
+          : 'Both variants';
   } else if (nameLower.includes('gauss rifle')) {
     baseWeapon = 'Gauss Rifle';
-    variantNeeded = techBase === 'IS' ? 'Clan Gauss Rifle' : techBase === 'Clan' ? 'IS Gauss Rifle' : 'Both variants';
+    variantNeeded =
+      techBase === 'IS'
+        ? 'Clan Gauss Rifle'
+        : techBase === 'Clan'
+          ? 'IS Gauss Rifle'
+          : 'Both variants';
   } else if (nameLower.includes('ultra ac')) {
     baseWeapon = 'Ultra Autocannon';
-    variantNeeded = techBase === 'IS' ? 'Clan Ultra AC' : techBase === 'Clan' ? 'IS Ultra AC' : 'Both variants';
+    variantNeeded =
+      techBase === 'IS'
+        ? 'Clan Ultra AC'
+        : techBase === 'Clan'
+          ? 'IS Ultra AC'
+          : 'Both variants';
   } else if (nameLower.includes('lb ')) {
     baseWeapon = 'LB-X Autocannon';
-    variantNeeded = techBase === 'IS' ? 'Clan LB-X AC' : techBase === 'Clan' ? 'IS LB-X AC' : 'Both variants';
+    variantNeeded =
+      techBase === 'IS'
+        ? 'Clan LB-X AC'
+        : techBase === 'Clan'
+          ? 'IS LB-X AC'
+          : 'Both variants';
   }
 
   // Classification logic
@@ -351,14 +451,14 @@ function analyzeWeaponTechBase(weapon, parsedData) {
         classification: 'NeedsSeparation',
         recommendation: 'Separate into IS and Clan variants',
         baseWeapon,
-        variantNeeded
+        variantNeeded,
       };
     }
     return {
       classification: 'MixedClassification',
       recommendation: 'Review mixed tech classification',
       baseWeapon: 'Unknown',
-      variantNeeded: 'Needs analysis'
+      variantNeeded: 'Needs analysis',
     };
   }
 
@@ -367,7 +467,7 @@ function analyzeWeaponTechBase(weapon, parsedData) {
       classification: 'MissingClanVariant',
       recommendation: 'Create Clan variant',
       baseWeapon,
-      variantNeeded
+      variantNeeded,
     };
   }
 
@@ -376,7 +476,7 @@ function analyzeWeaponTechBase(weapon, parsedData) {
       classification: 'MissingISVariant',
       recommendation: 'Create IS variant',
       baseWeapon,
-      variantNeeded
+      variantNeeded,
     };
   }
 
@@ -385,7 +485,7 @@ function analyzeWeaponTechBase(weapon, parsedData) {
       classification: 'ISVariants',
       recommendation: 'Properly classified IS weapon',
       baseWeapon: baseWeapon || weapon.name,
-      variantNeeded: 'None'
+      variantNeeded: 'None',
     };
   }
 
@@ -394,7 +494,7 @@ function analyzeWeaponTechBase(weapon, parsedData) {
       classification: 'ClanVariants',
       recommendation: 'Properly classified Clan weapon',
       baseWeapon: baseWeapon || weapon.name,
-      variantNeeded: 'None'
+      variantNeeded: 'None',
     };
   }
 
@@ -402,7 +502,7 @@ function analyzeWeaponTechBase(weapon, parsedData) {
     classification: 'ISVariants',
     recommendation: 'Default IS classification',
     baseWeapon: weapon.name,
-    variantNeeded: 'None'
+    variantNeeded: 'None',
   };
 }
 
@@ -413,24 +513,48 @@ function analyzeWeaponPerformance(weapon, parsedData) {
   // Expected performance differences for common weapons
   if (nameLower.includes('large laser')) {
     if (weapon.tech_base === 'IS') {
-      differences.push({ type: 'WeightDifferences', expected: 'Clan 20% lighter (4 tons vs 5 tons)' });
-      differences.push({ type: 'SlotDifferences', expected: 'Clan half slots (1 vs 2 slots)' });
+      differences.push({
+        type: 'WeightDifferences',
+        expected: 'Clan 20% lighter (4 tons vs 5 tons)',
+      });
+      differences.push({
+        type: 'SlotDifferences',
+        expected: 'Clan half slots (1 vs 2 slots)',
+      });
     } else if (weapon.tech_base === 'Clan') {
-      differences.push({ type: 'WeightDifferences', expected: 'IS 25% heavier (5 tons vs 4 tons)' });
-      differences.push({ type: 'SlotDifferences', expected: 'IS double slots (2 vs 1 slot)' });
+      differences.push({
+        type: 'WeightDifferences',
+        expected: 'IS 25% heavier (5 tons vs 4 tons)',
+      });
+      differences.push({
+        type: 'SlotDifferences',
+        expected: 'IS double slots (2 vs 1 slot)',
+      });
     }
   }
 
   if (nameLower.includes('medium laser')) {
     if (weapon.tech_base === 'IS') {
-      differences.push({ type: 'WeightDifferences', expected: 'Clan 50% lighter (0.5 tons vs 1 ton)' });
-      differences.push({ type: 'SlotDifferences', expected: 'Same slots (1 slot each)' });
+      differences.push({
+        type: 'WeightDifferences',
+        expected: 'Clan 50% lighter (0.5 tons vs 1 ton)',
+      });
+      differences.push({
+        type: 'SlotDifferences',
+        expected: 'Same slots (1 slot each)',
+      });
     }
   }
 
   if (nameLower.includes('gauss rifle')) {
-    differences.push({ type: 'WeightDifferences', expected: 'Clan slightly lighter' });
-    differences.push({ type: 'RangeDifferences', expected: 'Similar range profiles' });
+    differences.push({
+      type: 'WeightDifferences',
+      expected: 'Clan slightly lighter',
+    });
+    differences.push({
+      type: 'RangeDifferences',
+      expected: 'Similar range profiles',
+    });
   }
 
   return { differences };
@@ -439,26 +563,52 @@ function analyzeWeaponPerformance(weapon, parsedData) {
 function createPerformanceMatrix(weaponCategories, techBaseVariants) {
   const matrix = [];
   const commonWeapons = [
-    'Small Laser', 'Medium Laser', 'Large Laser',
-    'ER Small Laser', 'ER Medium Laser', 'ER Large Laser',
-    'Small Pulse Laser', 'Medium Pulse Laser', 'Large Pulse Laser',
-    'PPC', 'ER PPC',
-    'AC/2', 'AC/5', 'AC/10', 'AC/20',
-    'Ultra AC/5', 'Ultra AC/10', 'Ultra AC/20',
-    'LB 10-X AC', 'LB 20-X AC',
+    'Small Laser',
+    'Medium Laser',
+    'Large Laser',
+    'ER Small Laser',
+    'ER Medium Laser',
+    'ER Large Laser',
+    'Small Pulse Laser',
+    'Medium Pulse Laser',
+    'Large Pulse Laser',
+    'PPC',
+    'ER PPC',
+    'AC/2',
+    'AC/5',
+    'AC/10',
+    'AC/20',
+    'Ultra AC/5',
+    'Ultra AC/10',
+    'Ultra AC/20',
+    'LB 10-X AC',
+    'LB 20-X AC',
     'Gauss Rifle',
-    'LRM 5', 'LRM 10', 'LRM 15', 'LRM 20',
-    'SRM 2', 'SRM 4', 'SRM 6',
-    'Streak SRM 2', 'Streak SRM 4', 'Streak SRM 6'
+    'LRM 5',
+    'LRM 10',
+    'LRM 15',
+    'LRM 20',
+    'SRM 2',
+    'SRM 4',
+    'SRM 6',
+    'Streak SRM 2',
+    'Streak SRM 4',
+    'Streak SRM 6',
   ];
 
-  commonWeapons.forEach(weaponType => {
-    const isVariant = techBaseVariants.ISVariants.find(w => w.name.toLowerCase().includes(weaponType.toLowerCase()));
-    const clanVariant = techBaseVariants.ClanVariants.find(w => w.name.toLowerCase().includes(weaponType.toLowerCase()));
-    const mixed = techBaseVariants.NeedsSeparation.find(w => w.base_weapon === weaponType);
+  commonWeapons.forEach((weaponType) => {
+    const isVariant = techBaseVariants.ISVariants.find((w) =>
+      w.name.toLowerCase().includes(weaponType.toLowerCase()),
+    );
+    const clanVariant = techBaseVariants.ClanVariants.find((w) =>
+      w.name.toLowerCase().includes(weaponType.toLowerCase()),
+    );
+    const mixed = techBaseVariants.NeedsSeparation.find(
+      (w) => w.base_weapon === weaponType,
+    );
 
     const differences = [];
-    
+
     // Add expected differences based on weapon type
     if (weaponType.includes('Laser')) {
       differences.push('Clan typically 20% lighter weight');
@@ -480,7 +630,7 @@ function createPerformanceMatrix(weaponCategories, techBaseVariants) {
       isVariant: isVariant?.name,
       clanVariant: clanVariant?.name,
       mixedItem: mixed?.name,
-      differences
+      differences,
     });
   });
 
@@ -491,38 +641,68 @@ function generateWeaponsSpecMatrix(weaponCategories, allWeapons) {
   const specMatrix = {
     energyWeapons: [],
     ballisticWeapons: [],
-    missileWeapons: []
+    missileWeapons: [],
   };
 
   // Process energy weapons
-  Object.values(weaponCategories.EnergyWeapons).flat().forEach(weapon => {
-    specMatrix.energyWeapons.push({
-      name: weapon.name,
-      tech_base: weapon.tech_base,
-      type: weapon.type,
-      specs_needed: ['weight', 'slots', 'damage', 'heat', 'range', 'cost', 'bv']
+  Object.values(weaponCategories.EnergyWeapons)
+    .flat()
+    .forEach((weapon) => {
+      specMatrix.energyWeapons.push({
+        name: weapon.name,
+        tech_base: weapon.tech_base,
+        type: weapon.type,
+        specs_needed: [
+          'weight',
+          'slots',
+          'damage',
+          'heat',
+          'range',
+          'cost',
+          'bv',
+        ],
+      });
     });
-  });
 
   // Process ballistic weapons
-  Object.values(weaponCategories.BallisticWeapons).flat().forEach(weapon => {
-    specMatrix.ballisticWeapons.push({
-      name: weapon.name,
-      tech_base: weapon.tech_base,
-      type: weapon.type,
-      specs_needed: ['weight', 'slots', 'damage', 'range', 'ammo_per_ton', 'cost', 'bv']
+  Object.values(weaponCategories.BallisticWeapons)
+    .flat()
+    .forEach((weapon) => {
+      specMatrix.ballisticWeapons.push({
+        name: weapon.name,
+        tech_base: weapon.tech_base,
+        type: weapon.type,
+        specs_needed: [
+          'weight',
+          'slots',
+          'damage',
+          'range',
+          'ammo_per_ton',
+          'cost',
+          'bv',
+        ],
+      });
     });
-  });
 
   // Process missile weapons
-  Object.values(weaponCategories.MissileWeapons).flat().forEach(weapon => {
-    specMatrix.missileWeapons.push({
-      name: weapon.name,
-      tech_base: weapon.tech_base,
-      type: weapon.type,
-      specs_needed: ['weight', 'slots', 'damage', 'range', 'ammo_per_ton', 'cost', 'bv']
+  Object.values(weaponCategories.MissileWeapons)
+    .flat()
+    .forEach((weapon) => {
+      specMatrix.missileWeapons.push({
+        name: weapon.name,
+        tech_base: weapon.tech_base,
+        type: weapon.type,
+        specs_needed: [
+          'weight',
+          'slots',
+          'damage',
+          'range',
+          'ammo_per_ton',
+          'cost',
+          'bv',
+        ],
+      });
     });
-  });
 
   return specMatrix;
 }

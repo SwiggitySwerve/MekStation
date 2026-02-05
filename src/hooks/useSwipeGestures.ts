@@ -66,7 +66,9 @@ export interface SwipeGestureHandlers {
  * });
  * ```
  */
-export function useSwipeGestures(config: SwipeGestureConfig = {}): SwipeGestureHandlers {
+export function useSwipeGestures(
+  config: SwipeGestureConfig = {},
+): SwipeGestureHandlers {
   const {
     onSwipeLeft,
     onSwipeRight,
@@ -151,7 +153,16 @@ export function useSwipeGestures(config: SwipeGestureConfig = {}): SwipeGestureH
     // Reset refs
     touchStartRef.current = null;
     touchEndRef.current = null;
-  }, [onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown, minSwipeDistance, verticalThreshold, leftEdgeOnly, edgeWidth]);
+  }, [
+    onSwipeLeft,
+    onSwipeRight,
+    onSwipeUp,
+    onSwipeDown,
+    minSwipeDistance,
+    verticalThreshold,
+    leftEdgeOnly,
+    edgeWidth,
+  ]);
 
   // Clean up refs on unmount
   useEffect(() => {
@@ -183,7 +194,9 @@ export function useSwipeGestures(config: SwipeGestureConfig = {}): SwipeGestureH
  * <div {...handlers}>Tab content</div>
  * ```
  */
-export function useTabSwipeGestures(config: Pick<SwipeGestureConfig, 'onSwipeLeft' | 'onSwipeRight'> = {}): SwipeGestureHandlers {
+export function useTabSwipeGestures(
+  config: Pick<SwipeGestureConfig, 'onSwipeLeft' | 'onSwipeRight'> = {},
+): SwipeGestureHandlers {
   return useSwipeGestures({
     ...config,
     swipeThreshold: 50,
@@ -205,7 +218,9 @@ export function useTabSwipeGestures(config: Pick<SwipeGestureConfig, 'onSwipeLef
  * <div {...handlers}>Panel content</div>
  * ```
  */
-export function useBackSwipeGesture(config: Pick<SwipeGestureConfig, 'onSwipeRight'>): SwipeGestureHandlers {
+export function useBackSwipeGesture(
+  config: Pick<SwipeGestureConfig, 'onSwipeRight'>,
+): SwipeGestureHandlers {
   return useSwipeGestures({
     onSwipeRight: config.onSwipeRight,
     leftEdgeOnly: true,

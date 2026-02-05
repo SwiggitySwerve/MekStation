@@ -6,8 +6,8 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { Card } from '@/components/ui';
+import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { GameEventType, GamePhase } from '@/types/gameplay';
 
 // =============================================================================
@@ -61,7 +61,11 @@ function getEventColor(type: GameEventType): string {
 
 function formatTime(timestamp: string): string {
   const date = new Date(timestamp);
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  return date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
 }
 
 // =============================================================================
@@ -73,9 +77,7 @@ export function QuickGameTimeline(): React.ReactElement {
 
   if (!game) {
     return (
-      <div className="p-4 text-center text-gray-400">
-        No game in progress
-      </div>
+      <div className="p-4 text-center text-gray-400">No game in progress</div>
     );
   }
 
@@ -84,7 +86,7 @@ export function QuickGameTimeline(): React.ReactElement {
   if (events.length === 0) {
     return (
       <Card className="p-4">
-        <p className="text-gray-400 text-center">No events recorded yet</p>
+        <p className="text-center text-gray-400">No events recorded yet</p>
       </Card>
     );
   }
@@ -102,26 +104,26 @@ export function QuickGameTimeline(): React.ReactElement {
             {events.map((event, index) => (
               <div
                 key={event.id}
-                className="p-3 hover:bg-gray-800/50 transition-colors"
+                className="p-3 transition-colors hover:bg-gray-800/50"
               >
                 <div className="flex items-start gap-3">
                   {/* Event indicator */}
                   <div
-                    className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${getEventColor(event.type)}`}
+                    className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${getEventColor(event.type)}`}
                   />
 
                   {/* Event content */}
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-medium text-white truncate">
+                      <p className="truncate text-sm font-medium text-white">
                         {EVENT_LABELS[event.type] ?? event.type}
                       </p>
-                      <span className="text-xs text-gray-500 flex-shrink-0">
+                      <span className="flex-shrink-0 text-xs text-gray-500">
                         {formatTime(event.timestamp)}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="mt-1 flex items-center gap-2">
                       <span className="text-xs text-gray-400">
                         Turn {event.turn}
                       </span>
@@ -132,7 +134,7 @@ export function QuickGameTimeline(): React.ReactElement {
                       {event.actorId && (
                         <>
                           <span className="text-xs text-gray-600">|</span>
-                          <span className="text-xs text-cyan-400 truncate">
+                          <span className="truncate text-xs text-cyan-400">
                             {event.actorId}
                           </span>
                         </>
@@ -141,7 +143,7 @@ export function QuickGameTimeline(): React.ReactElement {
                   </div>
 
                   {/* Sequence number */}
-                  <span className="text-xs text-gray-600 flex-shrink-0">
+                  <span className="flex-shrink-0 text-xs text-gray-600">
                     #{event.sequence}
                   </span>
                 </div>

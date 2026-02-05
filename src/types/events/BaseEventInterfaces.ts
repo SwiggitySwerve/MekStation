@@ -124,7 +124,9 @@ export function isCausedBy(obj: unknown): obj is ICausedBy {
   const causedBy = obj as ICausedBy;
   return (
     typeof causedBy.eventId === 'string' &&
-    ['triggered', 'derived', 'undone', 'superseded'].includes(causedBy.relationship)
+    ['triggered', 'derived', 'undone', 'superseded'].includes(
+      causedBy.relationship,
+    )
   );
 }
 
@@ -135,12 +137,16 @@ export function isEventContext(obj: unknown): obj is IEventContext {
   if (typeof obj !== 'object' || obj === null) return false;
   const ctx = obj as IEventContext;
   // All fields are optional, but if present must be strings
-  if (ctx.campaignId !== undefined && typeof ctx.campaignId !== 'string') return false;
-  if (ctx.missionId !== undefined && typeof ctx.missionId !== 'string') return false;
+  if (ctx.campaignId !== undefined && typeof ctx.campaignId !== 'string')
+    return false;
+  if (ctx.missionId !== undefined && typeof ctx.missionId !== 'string')
+    return false;
   if (ctx.gameId !== undefined && typeof ctx.gameId !== 'string') return false;
-  if (ctx.pilotId !== undefined && typeof ctx.pilotId !== 'string') return false;
+  if (ctx.pilotId !== undefined && typeof ctx.pilotId !== 'string')
+    return false;
   if (ctx.unitId !== undefined && typeof ctx.unitId !== 'string') return false;
-  if (ctx.forceId !== undefined && typeof ctx.forceId !== 'string') return false;
+  if (ctx.forceId !== undefined && typeof ctx.forceId !== 'string')
+    return false;
   return true;
 }
 
@@ -148,7 +154,9 @@ export function isEventContext(obj: unknown): obj is IEventContext {
  * Create an event context with the specified scope IDs.
  * Helper function for building context objects.
  */
-export function createEventContext(scopes: Partial<IEventContext>): IEventContext {
+export function createEventContext(
+  scopes: Partial<IEventContext>,
+): IEventContext {
   return { ...scopes };
 }
 

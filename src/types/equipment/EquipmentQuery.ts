@@ -1,13 +1,13 @@
 /**
  * Equipment Query and Calculation Types
- * 
+ *
  * Domain types for equipment filtering, context, and property calculations.
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  */
 
-import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 
 /**

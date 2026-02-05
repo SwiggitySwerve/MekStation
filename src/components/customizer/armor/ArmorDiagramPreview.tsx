@@ -6,7 +6,19 @@
  */
 
 import React, { useState, useMemo } from 'react';
+
+import { SchematicDiagram } from '@/components/armor/schematic';
+import {
+  ArmorDiagramVariant,
+  ArmorDiagramMode,
+} from '@/stores/useAppSettingsStore';
 import { MechLocation } from '@/types/construction';
+import {
+  getSampleArmorData,
+  SAMPLE_BIPED_ARMOR_DATA,
+} from '@/utils/armor/armorDataRegistry';
+
+import { MechConfigType } from './shared/layout/useResolvedLayout';
 import {
   CleanTechDiagram,
   NeonOperatorDiagram,
@@ -14,10 +26,6 @@ import {
   PremiumMaterialDiagram,
   MegaMekDiagram,
 } from './variants';
-import { SchematicDiagram } from '@/components/armor/schematic';
-import { ArmorDiagramVariant, ArmorDiagramMode } from '@/stores/useAppSettingsStore';
-import { MechConfigType } from './shared/layout/useResolvedLayout';
-import { getSampleArmorData, SAMPLE_BIPED_ARMOR_DATA } from '@/utils/armor/armorDataRegistry';
 
 // Backward compatibility alias
 const SAMPLE_ARMOR_DATA = SAMPLE_BIPED_ARMOR_DATA;
@@ -119,14 +127,19 @@ export function ArmorDiagramPreview({
   isSelected = false,
   className = '',
 }: ArmorDiagramPreviewProps): React.ReactElement {
-  const [selectedLocation, setSelectedLocation] = useState<MechLocation | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<MechLocation | null>(
+    null,
+  );
 
   const handleLocationClick = (location: MechLocation) => {
     setSelectedLocation((prev) => (prev === location ? null : location));
   };
 
   // Get sample armor data for the mech configuration type
-  const armorData = useMemo(() => getSampleArmorData(mechConfigType), [mechConfigType]);
+  const armorData = useMemo(
+    () => getSampleArmorData(mechConfigType),
+    [mechConfigType],
+  );
 
   // Common props for all diagrams
   const diagramProps = {
@@ -165,16 +178,18 @@ export function ArmorDiagramPreview({
       {showLabel && (
         <div className="mb-2">
           <div className="text-sm font-medium text-white">{info.name}</div>
-          <div className="text-xs text-text-theme-secondary">{info.description}</div>
+          <div className="text-text-theme-secondary text-xs">
+            {info.description}
+          </div>
         </div>
       )}
       <div
-        className={`rounded-lg overflow-hidden transition-all ${
+        className={`overflow-hidden rounded-lg transition-all ${
           isSelected
-            ? 'ring-2 ring-accent ring-offset-2 ring-offset-surface-deep'
+            ? 'ring-accent ring-offset-surface-deep ring-2 ring-offset-2'
             : onClick
-            ? 'hover:ring-2 hover:ring-slate-500 hover:ring-offset-2 hover:ring-offset-surface-deep'
-            : ''
+              ? 'hover:ring-offset-surface-deep hover:ring-2 hover:ring-slate-500 hover:ring-offset-2'
+              : ''
         }`}
       >
         {renderDiagram()}
@@ -200,32 +215,31 @@ export function ArmorDiagramGridPreview({
   onSelectVariant,
   className = '',
 }: ArmorDiagramGridPreviewProps): React.ReactElement {
-
   return (
-    <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${className}`}>
+    <div className={`grid grid-cols-1 gap-4 lg:grid-cols-2 ${className}`}>
       {ALL_VARIANTS.map((variant) => (
         <div
           key={variant}
-          className={`p-3 rounded-lg border-2 transition-all cursor-pointer overflow-hidden ${
+          className={`cursor-pointer overflow-hidden rounded-lg border-2 p-3 transition-all ${
             selectedVariant === variant
               ? 'border-accent bg-accent/5'
               : 'border-border-theme-subtle hover:border-border-theme bg-surface-base/30'
           }`}
           onClick={() => onSelectVariant(variant)}
         >
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <div>
               <div className="text-sm font-medium text-white">
                 {DIAGRAM_VARIANT_INFO[variant].name}
               </div>
-              <div className="text-xs text-text-theme-secondary">
+              <div className="text-text-theme-secondary text-xs">
                 {DIAGRAM_VARIANT_INFO[variant].description}
               </div>
             </div>
             {selectedVariant === variant && (
-              <div className="w-5 h-5 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+              <div className="bg-accent flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full">
                 <svg
-                  className="w-3 h-3 text-white"
+                  className="h-3 w-3 text-white"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -240,7 +254,7 @@ export function ArmorDiagramGridPreview({
           </div>
           {/* Container sized to fit scaled content: ~320px * 0.5 = 160px wide, ~500px * 0.5 = 250px tall */}
           <div className="relative h-[280px] overflow-hidden">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 origin-top scale-50">
+            <div className="absolute top-0 left-1/2 origin-top -translate-x-1/2 scale-50">
               <ArmorDiagramPreview variant={variant} />
             </div>
           </div>
@@ -263,10 +277,10 @@ export function ArmorDiagramFeatureList({
   return (
     <div className="space-y-1">
       <div className="text-sm font-medium text-white">{info.name}</div>
-      <ul className="text-xs text-text-theme-secondary space-y-0.5">
+      <ul className="text-text-theme-secondary space-y-0.5 text-xs">
         {info.features.map((feature, i) => (
           <li key={i} className="flex items-center gap-1.5">
-            <span className="w-1 h-1 rounded-full bg-accent" />
+            <span className="bg-accent h-1 w-1 rounded-full" />
             {feature}
           </li>
         ))}
@@ -321,7 +335,9 @@ export function ArmorDiagramModePreview({
   onSelectMode,
   className = '',
 }: ArmorDiagramModePreviewProps): React.ReactElement {
-  const [selectedLocation, setSelectedLocation] = useState<MechLocation | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<MechLocation | null>(
+    null,
+  );
   const modes: ArmorDiagramMode[] = ['schematic', 'silhouette'];
 
   const handleLocationClick = (location: MechLocation) => {
@@ -329,7 +345,7 @@ export function ArmorDiagramModePreview({
   };
 
   return (
-    <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${className}`}>
+    <div className={`grid grid-cols-1 gap-4 lg:grid-cols-2 ${className}`}>
       {modes.map((mode) => {
         const info = DIAGRAM_MODE_INFO[mode];
         const isSelected = selectedMode === mode;
@@ -337,26 +353,26 @@ export function ArmorDiagramModePreview({
         return (
           <div
             key={mode}
-            className={`p-3 rounded-lg border-2 transition-all cursor-pointer overflow-hidden ${
+            className={`cursor-pointer overflow-hidden rounded-lg border-2 p-3 transition-all ${
               isSelected
                 ? 'border-accent bg-accent/5'
                 : 'border-border-theme-subtle hover:border-border-theme bg-surface-base/30'
             }`}
             onClick={() => onSelectMode(mode)}
           >
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium text-text-theme-primary">
+                <div className="text-text-theme-primary text-sm font-medium">
                   {info.name}
                 </div>
-                <div className="text-xs text-text-theme-secondary">
+                <div className="text-text-theme-secondary text-xs">
                   {info.description}
                 </div>
               </div>
               {isSelected && (
-                <div className="w-5 h-5 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                <div className="bg-accent flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full">
                   <svg
-                    className="w-3 h-3 text-white"
+                    className="h-3 w-3 text-white"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -371,7 +387,7 @@ export function ArmorDiagramModePreview({
             </div>
             {/* Preview container */}
             <div className="relative h-[280px] overflow-hidden">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 origin-top scale-50">
+              <div className="absolute top-0 left-1/2 origin-top -translate-x-1/2 scale-50">
                 {mode === 'schematic' ? (
                   <SchematicDiagram
                     armorData={SAMPLE_ARMOR_DATA}

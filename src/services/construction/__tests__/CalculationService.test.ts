@@ -7,14 +7,14 @@
  * @spec openspec/specs/construction-services/spec.md
  */
 
-import { TechBase } from '@/types/enums/TechBase';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { IEditableMech, IArmorAllocation, IEquipmentSlot } from '../MechBuilderService';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { TechBase } from '@/types/enums/TechBase';
+
 import {
   CalculationService,
   getCalculationService,
@@ -23,22 +23,48 @@ import {
   IHeatProfile,
   IMovementProfile,
 } from '../CalculationService';
+import {
+  IEditableMech,
+  IArmorAllocation,
+  IEquipmentSlot,
+} from '../MechBuilderService';
 
 // =============================================================================
 // Mock Equipment Registry
 // =============================================================================
 
-const mockEquipment: Map<string, { battleValue?: number; heat?: number; cost?: number; category?: string }> = new Map([
-  ['medium-laser', { battleValue: 46, heat: 3, cost: 40000, category: 'Energy' }],
-  ['large-laser', { battleValue: 123, heat: 8, cost: 100000, category: 'Energy' }],
+const mockEquipment: Map<
+  string,
+  { battleValue?: number; heat?: number; cost?: number; category?: string }
+> = new Map([
+  [
+    'medium-laser',
+    { battleValue: 46, heat: 3, cost: 40000, category: 'Energy' },
+  ],
+  [
+    'large-laser',
+    { battleValue: 123, heat: 8, cost: 100000, category: 'Energy' },
+  ],
   ['ppc', { battleValue: 176, heat: 10, cost: 200000, category: 'Energy' }],
   ['lrm-10', { battleValue: 90, heat: 4, cost: 100000, category: 'Missile' }],
   ['ac-10', { battleValue: 124, heat: 3, cost: 200000, category: 'Ballistic' }],
   ['jump-jet', { battleValue: 0, heat: 0, cost: 50000, category: 'Movement' }],
-  ['jump-jet-light', { battleValue: 0, heat: 0, cost: 25000, category: 'Movement' }],
-  ['improved-jump-jet', { battleValue: 0, heat: 0, cost: 75000, category: 'Movement' }],
-  ['ammo-lrm-10', { battleValue: 11, heat: 0, cost: 30000, category: 'Ammunition' }],
-  ['ammo-ac-10', { battleValue: 8, heat: 0, cost: 12000, category: 'Ammunition' }],
+  [
+    'jump-jet-light',
+    { battleValue: 0, heat: 0, cost: 25000, category: 'Movement' },
+  ],
+  [
+    'improved-jump-jet',
+    { battleValue: 0, heat: 0, cost: 75000, category: 'Movement' },
+  ],
+  [
+    'ammo-lrm-10',
+    { battleValue: 11, heat: 0, cost: 30000, category: 'Ammunition' },
+  ],
+  [
+    'ammo-ac-10',
+    { battleValue: 8, heat: 0, cost: 12000, category: 'Ammunition' },
+  ],
   ['heat-sink', { battleValue: 0, heat: 0, cost: 2000, category: 'Heat Sink' }],
 ]);
 
@@ -65,7 +91,9 @@ jest.mock('@/services/equipment/EquipmentRegistry', () => ({
 /**
  * Create a standard armor allocation for testing
  */
-function createArmorAllocation(overrides: Partial<IArmorAllocation> = {}): IArmorAllocation {
+function createArmorAllocation(
+  overrides: Partial<IArmorAllocation> = {},
+): IArmorAllocation {
   return {
     head: 9,
     centerTorso: 30,
@@ -111,7 +139,11 @@ function createTestMech(overrides: Partial<IEditableMech> = {}): IEditableMech {
 /**
  * Create equipment slots for testing
  */
-function createEquipmentSlot(equipmentId: string, location: string = 'rightArm', slotIndex: number = 0): IEquipmentSlot {
+function createEquipmentSlot(
+  equipmentId: string,
+  location: string = 'rightArm',
+  slotIndex: number = 0,
+): IEquipmentSlot {
   return { equipmentId, location, slotIndex };
 }
 
@@ -197,8 +229,12 @@ describe('CalculationService', () => {
       const assaultTotals = service.calculateTotals(assaultMech);
 
       // Max armor increases with tonnage
-      expect(assaultTotals.maxArmorPoints).toBeGreaterThan(heavyTotals.maxArmorPoints);
-      expect(heavyTotals.maxArmorPoints).toBeGreaterThan(lightTotals.maxArmorPoints);
+      expect(assaultTotals.maxArmorPoints).toBeGreaterThan(
+        heavyTotals.maxArmorPoints,
+      );
+      expect(heavyTotals.maxArmorPoints).toBeGreaterThan(
+        lightTotals.maxArmorPoints,
+      );
     });
 
     it('should calculate total armor points from all locations', () => {
@@ -304,12 +340,12 @@ describe('CalculationService', () => {
         heatSinkType: HeatSinkType.SINGLE,
         equipment: [
           createEquipmentSlot('ppc', 'rightArm', 0), // 10 heat
-          createEquipmentSlot('ppc', 'leftArm', 0),  // 10 heat - should get penalty
+          createEquipmentSlot('ppc', 'leftArm', 0), // 10 heat - should get penalty
         ],
       });
 
       const bv = service.calculateBattleValue(mech);
-      
+
       // BV should still be positive and include weapons
       expect(bv).toBeGreaterThan(0);
     });
@@ -397,8 +433,12 @@ describe('CalculationService', () => {
     });
 
     it('should increase cost with endo steel structure', () => {
-      const standardMech = createTestMech({ structureType: InternalStructureType.STANDARD });
-      const endoMech = createTestMech({ structureType: InternalStructureType.ENDO_STEEL_IS });
+      const standardMech = createTestMech({
+        structureType: InternalStructureType.STANDARD,
+      });
+      const endoMech = createTestMech({
+        structureType: InternalStructureType.ENDO_STEEL_IS,
+      });
 
       const standardCost = service.calculateCost(standardMech);
       const endoCost = service.calculateCost(endoMech);
@@ -439,7 +479,9 @@ describe('CalculationService', () => {
     });
 
     it('should increase cost with small cockpit', () => {
-      const standardMech = createTestMech({ cockpitType: CockpitType.STANDARD });
+      const standardMech = createTestMech({
+        cockpitType: CockpitType.STANDARD,
+      });
       const smallMech = createTestMech({ cockpitType: CockpitType.SMALL });
 
       const standardCost = service.calculateCost(standardMech);
@@ -450,8 +492,12 @@ describe('CalculationService', () => {
     });
 
     it('should increase cost with command console', () => {
-      const standardMech = createTestMech({ cockpitType: CockpitType.STANDARD });
-      const commandMech = createTestMech({ cockpitType: CockpitType.COMMAND_CONSOLE });
+      const standardMech = createTestMech({
+        cockpitType: CockpitType.STANDARD,
+      });
+      const commandMech = createTestMech({
+        cockpitType: CockpitType.COMMAND_CONSOLE,
+      });
 
       const standardCost = service.calculateCost(standardMech);
       const commandCost = service.calculateCost(commandMech);
@@ -460,8 +506,12 @@ describe('CalculationService', () => {
     });
 
     it('should increase cost with ferro-fibrous armor', () => {
-      const standardMech = createTestMech({ armorType: ArmorTypeEnum.STANDARD });
-      const ferroMech = createTestMech({ armorType: ArmorTypeEnum.FERRO_FIBROUS_IS });
+      const standardMech = createTestMech({
+        armorType: ArmorTypeEnum.STANDARD,
+      });
+      const ferroMech = createTestMech({
+        armorType: ArmorTypeEnum.FERRO_FIBROUS_IS,
+      });
 
       const standardCost = service.calculateCost(standardMech);
       const ferroCost = service.calculateCost(ferroMech);
@@ -470,7 +520,9 @@ describe('CalculationService', () => {
     });
 
     it('should increase cost with stealth armor', () => {
-      const standardMech = createTestMech({ armorType: ArmorTypeEnum.STANDARD });
+      const standardMech = createTestMech({
+        armorType: ArmorTypeEnum.STANDARD,
+      });
       const stealthMech = createTestMech({ armorType: ArmorTypeEnum.STEALTH });
 
       const standardCost = service.calculateCost(standardMech);
@@ -541,7 +593,9 @@ describe('CalculationService', () => {
 
     it('should handle legacy string engine types', () => {
       const mechXL = createTestMech({ engineType: 'XL' as EngineType });
-      const mechStandard = createTestMech({ engineType: 'Standard' as EngineType });
+      const mechStandard = createTestMech({
+        engineType: 'Standard' as EngineType,
+      });
 
       const xlCost = service.calculateCost(mechXL);
       const standardCost = service.calculateCost(mechStandard);
@@ -599,7 +653,7 @@ describe('CalculationService', () => {
       const mech = createTestMech({
         equipment: [
           createEquipmentSlot('medium-laser', 'rightArm', 0), // 3 heat
-          createEquipmentSlot('large-laser', 'leftArm', 0),   // 8 heat
+          createEquipmentSlot('large-laser', 'leftArm', 0), // 8 heat
         ],
       });
       const profile = service.calculateHeatProfile(mech);
@@ -642,7 +696,9 @@ describe('CalculationService', () => {
       });
       const profile = service.calculateHeatProfile(mech);
 
-      expect(profile.netHeat).toBe(profile.heatGenerated - profile.heatDissipated);
+      expect(profile.netHeat).toBe(
+        profile.heatGenerated - profile.heatDissipated,
+      );
     });
 
     it('should return zeroed heat when registry not ready', () => {
@@ -699,8 +755,8 @@ describe('CalculationService', () => {
       const mech5 = createTestMech({ walkMP: 5 });
       const mech7 = createTestMech({ walkMP: 7 });
 
-      expect(service.calculateMovement(mech4).runMP).toBe(6);  // 4 * 1.5 = 6
-      expect(service.calculateMovement(mech5).runMP).toBe(7);  // 5 * 1.5 = 7.5 -> 7
+      expect(service.calculateMovement(mech4).runMP).toBe(6); // 4 * 1.5 = 6
+      expect(service.calculateMovement(mech5).runMP).toBe(7); // 5 * 1.5 = 7.5 -> 7
       expect(service.calculateMovement(mech7).runMP).toBe(10); // 7 * 1.5 = 10.5 -> 10
     });
 
@@ -732,9 +788,7 @@ describe('CalculationService', () => {
 
     it('should return 0 jumpMP without jump jets', () => {
       const mech = createTestMech({
-        equipment: [
-          createEquipmentSlot('medium-laser', 'rightArm', 0),
-        ],
+        equipment: [createEquipmentSlot('medium-laser', 'rightArm', 0)],
       });
       const movement = service.calculateMovement(mech);
 
@@ -786,9 +840,7 @@ describe('CalculationService', () => {
 
     it('should handle unknown equipment gracefully', () => {
       const mech = createTestMech({
-        equipment: [
-          createEquipmentSlot('unknown-weapon-xyz', 'rightArm', 0),
-        ],
+        equipment: [createEquipmentSlot('unknown-weapon-xyz', 'rightArm', 0)],
       });
 
       // Should not throw
@@ -819,14 +871,18 @@ describe('CalculationService', () => {
     });
 
     it('should handle Clan Endo Steel structure', () => {
-      const mech = createTestMech({ structureType: InternalStructureType.ENDO_STEEL_CLAN });
+      const mech = createTestMech({
+        structureType: InternalStructureType.ENDO_STEEL_CLAN,
+      });
       const cost = service.calculateCost(mech);
 
       expect(cost).toBeGreaterThan(0);
     });
 
     it('should handle Endo-Composite structure', () => {
-      const mech = createTestMech({ structureType: InternalStructureType.ENDO_COMPOSITE });
+      const mech = createTestMech({
+        structureType: InternalStructureType.ENDO_COMPOSITE,
+      });
       const cost = service.calculateCost(mech);
 
       expect(cost).toBeGreaterThan(0);
@@ -847,7 +903,9 @@ describe('CalculationService', () => {
     });
 
     it('should handle Clan Ferro-Fibrous armor', () => {
-      const mech = createTestMech({ armorType: ArmorTypeEnum.FERRO_FIBROUS_CLAN });
+      const mech = createTestMech({
+        armorType: ArmorTypeEnum.FERRO_FIBROUS_CLAN,
+      });
       const cost = service.calculateCost(mech);
 
       expect(cost).toBeGreaterThan(0);

@@ -2,7 +2,7 @@
  * P2P Sync E2E Tests
  *
  * Tests for the P2P sync test harness UI and basic functionality.
- * 
+ *
  * NOTE: Full peer-to-peer tests require real WebRTC connections which need
  * signaling servers. The core sync logic is tested via unit tests in:
  * - src/lib/p2p/__tests__/useSyncedVaultStore.test.ts
@@ -24,21 +24,32 @@ const TEST_URL = '/e2e/sync-test?mockSync=true';
 async function waitForConnectionState(
   page: Page,
   expectedState: string,
-  timeout = 10000
+  timeout = 10000,
 ): Promise<void> {
-  await expect(page.getByTestId('connection-state')).toHaveText(expectedState, { timeout });
-}
-
-async function waitForItemCount(page: Page, expectedCount: number, timeout = 5000): Promise<void> {
-  await expect(page.getByTestId('item-count')).toContainText(`Total items: ${expectedCount}`, {
+  await expect(page.getByTestId('connection-state')).toHaveText(expectedState, {
     timeout,
   });
+}
+
+async function waitForItemCount(
+  page: Page,
+  expectedCount: number,
+  timeout = 5000,
+): Promise<void> {
+  await expect(page.getByTestId('item-count')).toContainText(
+    `Total items: ${expectedCount}`,
+    {
+      timeout,
+    },
+  );
 }
 
 async function addItem(page: Page, name: string): Promise<void> {
   await page.getByTestId('new-item-input').fill(name);
   await page.getByTestId('add-item-btn').click({ force: true });
-  await expect(page.getByTestId('new-item-input')).toHaveValue('', { timeout: 2000 });
+  await expect(page.getByTestId('new-item-input')).toHaveValue('', {
+    timeout: 2000,
+  });
 }
 
 // =============================================================================
@@ -57,10 +68,14 @@ test.describe('P2P Sync - Test Harness UI', () => {
   test('test page loads and shows mock mode indicator', async ({ page }) => {
     // Should show mock mode indicator
     await expect(page.getByTestId('mock-mode-indicator')).toBeVisible();
-    await expect(page.getByTestId('mock-mode-indicator')).toContainText('Mock Mode');
+    await expect(page.getByTestId('mock-mode-indicator')).toContainText(
+      'Mock Mode',
+    );
 
     // Should show connection status
-    await expect(page.getByTestId('connection-state')).toHaveText('disconnected');
+    await expect(page.getByTestId('connection-state')).toHaveText(
+      'disconnected',
+    );
     await expect(page.getByTestId('room-code')).toHaveText('N/A');
     await expect(page.getByTestId('peer-count')).toHaveText('0');
   });
@@ -131,7 +146,9 @@ test.describe('P2P Sync - Test Harness UI', () => {
 
     // Should have one item left
     await waitForItemCount(page, 1);
-    await expect(page.getByTestId('items-list')).not.toContainText('Item to Delete');
+    await expect(page.getByTestId('items-list')).not.toContainText(
+      'Item to Delete',
+    );
     await expect(page.getByTestId('items-list')).toContainText('Item to Keep');
   });
 
@@ -243,7 +260,7 @@ test.describe('P2P Sync - Multi-Peer Flow', () => {
   //
   // The underlying sync logic is tested in unit tests:
   // - src/lib/p2p/__tests__/useSyncedVaultStore.test.ts
-  
+
   test.skip('two peers can connect via room code', async () => {
     // This test would:
     // 1. Create two browser contexts

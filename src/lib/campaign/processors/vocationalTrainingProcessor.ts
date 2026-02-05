@@ -13,8 +13,10 @@
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IPerson } from '@/types/campaign/Person';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+
 import {
   IDayProcessor,
   IDayProcessorResult,
@@ -56,7 +58,10 @@ function isEligibleForVocational(person: IPerson, campaignDate: Date): boolean {
 
   // Not a child (under 13 years old)
   if (person.birthDate) {
-    const birthDate = person.birthDate instanceof Date ? person.birthDate : new Date(person.birthDate);
+    const birthDate =
+      person.birthDate instanceof Date
+        ? person.birthDate
+        : new Date(person.birthDate);
     const age = campaignDate.getFullYear() - birthDate.getFullYear();
     if (age < 13) {
       return false;
@@ -193,7 +198,10 @@ export const vocationalTrainingProcessor: IDayProcessor = {
   displayName: 'Vocational Training',
 
   process(campaign: ICampaign): IDayProcessorResult {
-    const { updatedCampaign, events } = processVocationalTraining(campaign, Math.random);
+    const { updatedCampaign, events } = processVocationalTraining(
+      campaign,
+      Math.random,
+    );
     return { events, campaign: updatedCampaign };
   },
 };

@@ -4,7 +4,7 @@ test.describe('Application Routes', () => {
   test('homepage loads without errors', async ({ page }) => {
     // Listen for console errors
     const errors: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -17,12 +17,13 @@ test.describe('Application Routes', () => {
     await expect(page).toHaveURL(/localhost:3000/);
 
     // Filter out expected/benign errors
-    const criticalErrors = errors.filter(err =>
-      !err.includes('favicon') &&
-      !err.includes('404') &&
-      !err.includes('service-worker') &&
-      !err.includes('legacyBehavior') &&
-      !err.includes('codemod')
+    const criticalErrors = errors.filter(
+      (err) =>
+        !err.includes('favicon') &&
+        !err.includes('404') &&
+        !err.includes('service-worker') &&
+        !err.includes('legacyBehavior') &&
+        !err.includes('codemod'),
     );
 
     // Should have no critical console errors
@@ -39,13 +40,17 @@ test.describe('Application Routes', () => {
 
     for (let i = 0; i < imageCount; i++) {
       const img = images.nth(i);
-      const naturalWidth = await img.evaluate((el: HTMLImageElement) => el.naturalWidth);
+      const naturalWidth = await img.evaluate(
+        (el: HTMLImageElement) => el.naturalWidth,
+      );
       // naturalWidth > 0 means image loaded successfully
       expect(naturalWidth).toBeGreaterThan(0);
     }
   });
 
-  test('should have no accessibility violations on critical elements', async ({ page }) => {
+  test('should have no accessibility violations on critical elements', async ({
+    page,
+  }) => {
     await page.goto('/');
 
     // Check that interactive elements have accessible names
@@ -55,8 +60,9 @@ test.describe('Application Routes', () => {
     for (let i = 0; i < Math.min(buttonCount, 10); i++) {
       const button = buttons.nth(i);
       if (await button.isVisible()) {
-        const accessibleName = await button.getAttribute('aria-label') ||
-          await button.textContent();
+        const accessibleName =
+          (await button.getAttribute('aria-label')) ||
+          (await button.textContent());
         expect(accessibleName?.trim().length).toBeGreaterThan(0);
       }
     }
@@ -83,7 +89,7 @@ test.describe('Network Requests', () => {
   test('should not have failed network requests', async ({ page }) => {
     const failedRequests: string[] = [];
 
-    page.on('requestfailed', request => {
+    page.on('requestfailed', (request) => {
       // Ignore certain expected failures
       const url = request.url();
       if (!url.includes('favicon') && !url.includes('analytics')) {

@@ -1,13 +1,13 @@
 /**
  * Weapon Utilities Tests
- * 
+ *
  * Tests for weapon query and filter functions including
  * direct fire weapon classification for targeting computers.
  */
 
-import { WeaponCategory, IWeapon } from '@/types/equipment/weapons/interfaces';
-import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { WeaponCategory, IWeapon } from '@/types/equipment/weapons/interfaces';
 
 // Mock weapon data
 const mockWeapons: IWeapon[] = [
@@ -162,7 +162,9 @@ jest.mock('@/services/equipment/EquipmentLoaderService', () => ({
   getEquipmentLoader: jest.fn(() => ({
     getIsLoaded: jest.fn(() => true),
     getAllWeapons: jest.fn(() => mockWeapons),
-    getWeaponById: jest.fn((id: string) => mockWeapons.find(w => w.id === id) ?? null),
+    getWeaponById: jest.fn(
+      (id: string) => mockWeapons.find((w) => w.id === id) ?? null,
+    ),
   })),
 }));
 
@@ -196,13 +198,15 @@ describe('Weapon Utilities', () => {
     it('should get weapons by category', () => {
       const energyWeapons = getWeaponsByCategory(WeaponCategory.ENERGY);
       expect(energyWeapons.length).toBeGreaterThan(0);
-      expect(energyWeapons.every(w => w.category === WeaponCategory.ENERGY)).toBe(true);
+      expect(
+        energyWeapons.every((w) => w.category === WeaponCategory.ENERGY),
+      ).toBe(true);
     });
 
     it('should get weapons by tech base', () => {
       const clanWeapons = getWeaponsByTechBase(TechBase.CLAN);
       expect(clanWeapons.length).toBeGreaterThan(0);
-      expect(clanWeapons.every(w => w.techBase === TechBase.CLAN)).toBe(true);
+      expect(clanWeapons.every((w) => w.techBase === TechBase.CLAN)).toBe(true);
     });
   });
 
@@ -300,17 +304,22 @@ describe('Weapon Utilities', () => {
     describe('getDirectFireWeapons', () => {
       it('should return only Energy and Ballistic weapons', () => {
         const directFireWeapons = getDirectFireWeapons();
-        
+
         expect(directFireWeapons.length).toBeGreaterThan(0);
-        expect(directFireWeapons.every(w => 
-          w.category === WeaponCategory.ENERGY || 
-          w.category === WeaponCategory.BALLISTIC
-        )).toBe(true);
+        expect(
+          directFireWeapons.every(
+            (w) =>
+              w.category === WeaponCategory.ENERGY ||
+              w.category === WeaponCategory.BALLISTIC,
+          ),
+        ).toBe(true);
       });
 
       it('should not include any Missile weapons', () => {
         const directFireWeapons = getDirectFireWeapons();
-        expect(directFireWeapons.some(w => w.category === WeaponCategory.MISSILE)).toBe(false);
+        expect(
+          directFireWeapons.some((w) => w.category === WeaponCategory.MISSILE),
+        ).toBe(false);
       });
     });
   });
@@ -321,10 +330,10 @@ describe('Weapon Utilities', () => {
         // Medium Laser = 1 ton, AC/10 = 12 tons, LRM-10 = 5 tons (excluded)
         const tonnage = calculateDirectFireWeaponTonnage([
           'medium-laser', // 1 ton (direct fire)
-          'ac-10',        // 12 tons (direct fire)
-          'lrm-10',       // 5 tons (NOT direct fire)
+          'ac-10', // 12 tons (direct fire)
+          'lrm-10', // 5 tons (NOT direct fire)
         ]);
-        
+
         expect(tonnage).toBe(13); // 1 + 12 = 13 (LRM excluded)
       });
 
@@ -363,7 +372,7 @@ describe('Weapon Utilities', () => {
           { category: WeaponCategory.BALLISTIC, weight: 12 } as IWeapon,
           { category: WeaponCategory.MISSILE, weight: 5 } as IWeapon,
         ];
-        
+
         const tonnage = calculateDirectFireTonnageFromWeapons(weapons);
         expect(tonnage).toBe(17); // 5 + 12 = 17 (missile excluded)
       });
@@ -376,7 +385,7 @@ describe('Weapon Utilities', () => {
 
   describe('Targeting Computer Use Cases', () => {
     it('should calculate correct tonnage for typical mech loadout', () => {
-      // Example: 2 × Medium Laser (2 tons), 1 × Large Laser (5 tons), 
+      // Example: 2 × Medium Laser (2 tons), 1 × Large Laser (5 tons),
       // 1 × AC/10 (12 tons), 1 × LRM-10 (5 tons)
       const weaponIds = [
         'medium-laser',
@@ -385,11 +394,11 @@ describe('Weapon Utilities', () => {
         'ac-10',
         'lrm-10', // Should be excluded
       ];
-      
+
       const directFireTonnage = calculateDirectFireWeaponTonnage(weaponIds);
       // 1 + 1 + 5 + 12 = 19 tons
       expect(directFireTonnage).toBe(19);
-      
+
       // IS Targeting Computer: ceil(19 / 4) = 5 tons, 5 slots
       // Clan Targeting Computer: ceil(19 / 5) = 4 tons, 4 slots
     });

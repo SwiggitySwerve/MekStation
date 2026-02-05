@@ -1,28 +1,35 @@
 /**
  * Responsive Loadout Tray Component
- * 
+ *
  * Wrapper that switches between GlobalLoadoutTray (desktop sidebar) and
  * BottomSheetTray (mobile bottom sheet) based on screen size.
- * 
+ *
  * Responsive behavior:
  * - Mobile (<768px): Bottom sheet with simple expand/collapse toggle
  * - Desktop (768px+): Sidebar with expand/collapse toggle
- * 
+ *
  * Both states are persisted to localStorage so user preferences are remembered.
  * No auto-collapse behavior - only changes state on explicit user interaction.
- * 
+ *
  * Uses CSS-based responsive display (md: breakpoint) for smooth transitions
  * without layout shift on resize.
- * 
+ *
  * @spec openspec/changes/pwa-implementation-tasks.md - Phase 3.3
  * @spec openspec/specs/customizer-responsive-layout/spec.md
  */
 
 import React from 'react';
-import { GlobalLoadoutTray, LoadoutEquipmentItem, AvailableLocation } from './GlobalLoadoutTray';
-import { BottomSheetTray } from './BottomSheetTray';
+
 import { MechLocation } from '@/types/construction';
+
 import type { MobileLoadoutStats } from '../mobile';
+
+import { BottomSheetTray } from './BottomSheetTray';
+import {
+  GlobalLoadoutTray,
+  LoadoutEquipmentItem,
+  AvailableLocation,
+} from './GlobalLoadoutTray';
 
 // =============================================================================
 // Types
@@ -52,7 +59,9 @@ export interface ResponsiveLoadoutTrayProps {
   /** Available locations with slot info for context menu */
   availableLocations?: AvailableLocation[];
   /** Function to get available locations for any equipment item */
-  getAvailableLocationsForEquipment?: (instanceId: string) => AvailableLocation[];
+  getAvailableLocationsForEquipment?: (
+    instanceId: string,
+  ) => AvailableLocation[];
   /** Whether this is an OmniMech */
   isOmni?: boolean;
   /** Unit stats for mobile status bar */
@@ -66,10 +75,10 @@ export interface ResponsiveLoadoutTrayProps {
 /**
  * Responsive loadout tray that switches between sidebar (desktop) and
  * bottom sheet (mobile) layouts.
- * 
+ *
  * - Mobile (<768px): Bottom sheet with simple toggle
  * - Desktop (768px+): Sidebar with expand/collapse
- * 
+ *
  * State is persisted to localStorage - no auto-collapse behavior.
  */
 export function ResponsiveLoadoutTray({
@@ -89,11 +98,11 @@ export function ResponsiveLoadoutTray({
   mobileStats,
 }: ResponsiveLoadoutTrayProps): React.ReactElement {
   // No auto-collapse behavior - state is persisted and only changed by user interaction
-  
+
   return (
     <>
       {/* Desktop/Tablet: Sidebar tray (hidden on mobile) */}
-      <div className="hidden md:flex h-full">
+      <div className="hidden h-full md:flex">
         <GlobalLoadoutTray
           equipment={equipment}
           equipmentCount={equipmentCount}
@@ -109,7 +118,7 @@ export function ResponsiveLoadoutTray({
           isOmni={isOmni}
         />
       </div>
-      
+
       {/* Mobile: Bottom sheet tray (hidden on desktop) */}
       <div className="md:hidden">
         <BottomSheetTray

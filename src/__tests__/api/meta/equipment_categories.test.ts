@@ -1,10 +1,13 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/meta/equipment_categories endpoint
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/meta/equipment_categories';
 import { EquipmentCategory } from '@/types/equipment';
+
 import { parseApiResponse } from '../../helpers';
 
 /**

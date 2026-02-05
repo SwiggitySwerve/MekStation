@@ -1,16 +1,17 @@
 /**
  * useDesktopSettings Hook
- * 
+ *
  * Provides access to desktop application settings.
  * Handles loading, saving, and real-time updates.
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  useElectron, 
-  IDesktopSettings, 
+
+import {
+  useElectron,
+  IDesktopSettings,
   ISettingsChangeEvent,
-  IServiceResult 
+  IServiceResult,
 } from './useElectron';
 
 /**
@@ -28,7 +29,7 @@ const DEFAULT_SETTINGS: IDesktopSettings = {
     y: 100,
     width: 1400,
     height: 900,
-    isMaximized: false
+    isMaximized: false,
   },
   enableAutoBackup: true,
   backupIntervalMinutes: 5,
@@ -38,7 +39,7 @@ const DEFAULT_SETTINGS: IDesktopSettings = {
   updateChannel: 'stable',
   maxRecentFiles: 15,
   dataDirectory: '',
-  enableDevTools: false
+  enableDevTools: false,
 };
 
 interface UseDesktopSettingsResult {
@@ -51,7 +52,9 @@ interface UseDesktopSettingsResult {
   /** Whether running in Electron */
   isElectron: boolean;
   /** Update settings */
-  updateSettings: (updates: Partial<IDesktopSettings>) => Promise<IServiceResult>;
+  updateSettings: (
+    updates: Partial<IDesktopSettings>,
+  ) => Promise<IServiceResult>;
   /** Reset settings to defaults */
   resetSettings: () => Promise<IServiceResult>;
   /** Reload settings from disk */
@@ -82,7 +85,8 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
         setSettings(loadedSettings);
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load settings';
+      const message =
+        err instanceof Error ? err.message : 'Failed to load settings';
       setError(message);
       console.error('Failed to load settings:', err);
     } finally {
@@ -100,9 +104,9 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
     if (!api) return;
 
     const handleSettingsChange = (event: ISettingsChangeEvent) => {
-      setSettings(prev => ({
+      setSettings((prev) => ({
         ...prev,
-        [event.key]: event.newValue
+        [event.key]: event.newValue,
       }));
     };
 
@@ -114,28 +118,30 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
   }, [api]);
 
   // Update settings
-  const updateSettings = useCallback(async (
-    updates: Partial<IDesktopSettings>
-  ): Promise<IServiceResult> => {
-    if (!api) {
-      return { success: false, error: 'Not running in Electron' };
-    }
-
-    try {
-      const result = await api.setSettings(updates);
-      if (result.success) {
-        // Optimistically update local state
-        setSettings(prev => ({ ...prev, ...updates }));
-      } else {
-        setError(result.error ?? 'Failed to update settings');
+  const updateSettings = useCallback(
+    async (updates: Partial<IDesktopSettings>): Promise<IServiceResult> => {
+      if (!api) {
+        return { success: false, error: 'Not running in Electron' };
       }
-      return result;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to update settings';
-      setError(message);
-      return { success: false, error: message };
-    }
-  }, [api]);
+
+      try {
+        const result = await api.setSettings(updates);
+        if (result.success) {
+          // Optimistically update local state
+          setSettings((prev) => ({ ...prev, ...updates }));
+        } else {
+          setError(result.error ?? 'Failed to update settings');
+        }
+        return result;
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Failed to update settings';
+        setError(message);
+        return { success: false, error: message };
+      }
+    },
+    [api],
+  );
 
   // Reset settings
   const resetSettings = useCallback(async (): Promise<IServiceResult> => {
@@ -153,7 +159,8 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
       }
       return result;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to reset settings';
+      const message =
+        err instanceof Error ? err.message : 'Failed to reset settings';
       setError(message);
       return { success: false, error: message };
     }
@@ -166,6 +173,6 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
     isElectron: api !== null,
     updateSettings,
     resetSettings,
-    reloadSettings: loadSettings
+    reloadSettings: loadSettings,
   };
 }

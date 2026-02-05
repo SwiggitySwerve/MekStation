@@ -14,30 +14,30 @@ directories:
 # Files to include in the application
 # Paths are relative to the desktop directory when running from desktop/
 files:
-  - "dist/**/*"
-  - "assets/**/*"
-  - "package.json"
+  - 'dist/**/*'
+  - 'assets/**/*'
+  - 'package.json'
   # Reduce shipped size (debug/dev artifacts are not required at runtime)
-  - "!**/*.map"
-  - "!**/*.d.ts"
-  - "!**/*.d.ts.map"
+  - '!**/*.map'
+  - '!**/*.d.ts'
+  - '!**/*.d.ts.map'
 
 # Extra resources to include (outside of app.asar)
 extraResources:
   # Next.js standalone output (self-contained server + deps)
-  - from: "../.next/standalone"
-    to: "next-standalone"
+  - from: '../.next/standalone'
+    to: 'next-standalone'
   # Next.js static assets (CSS/JS) for standalone server
-  - from: "../.next/static"
-    to: "next-standalone/.next/static"
+  - from: '../.next/static'
+    to: 'next-standalone/.next/static'
   # NOTE: Next.js public assets are copied via an afterPack hook (with retries)
   # to avoid intermittent Windows file locking errors during electron-builder bulk copy.
 
 # ASAR archive configuration
 asar: true
 asarUnpack:
-  - "**/*.node"
-  - "**/better-sqlite3/**/*"
+  - '**/*.node'
+  - '**/better-sqlite3/**/*'
 
 # =============================================================================
 # macOS Configuration
@@ -46,7 +46,7 @@ mac:
   category: public.app-category.games
   # icon: assets/icons/icon.icns  # TODO: Generate .icns from SVG
   darkModeSupport: true
-  hardenedRuntime: false  # Disable for unsigned builds
+  hardenedRuntime: false # Disable for unsigned builds
   gatekeeperAssess: false
   entitlements: assets/entitlements.mac.plist
   entitlementsInherit: assets/entitlements.mac.plist
@@ -106,7 +106,7 @@ nsis:
   license: ../LICENSE
 
 portable:
-  artifactName: "${productName}-${version}-portable.exe"
+  artifactName: '${productName}-${version}-portable.exe'
 
 # =============================================================================
 # Linux Configuration
@@ -141,7 +141,7 @@ deb:
   afterRemove: scripts/linux/after-remove.sh
 
 appImage:
-  artifactName: "${productName}-${version}.AppImage"
+  artifactName: '${productName}-${version}.AppImage'
 
 # =============================================================================
 # Auto-Update Configuration
@@ -163,10 +163,10 @@ electronDownload:
 compression: normal
 
 # Consistent artifact naming across platforms/architectures
-artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
+artifactName: '${productName}-${version}-${os}-${arch}.${ext}'
 
 # Build metadata
-buildVersion: "1"
+buildVersion: '1'
 
 # Skip downloading signing tools when signing is disabled
 # This prevents symlink extraction errors on Windows

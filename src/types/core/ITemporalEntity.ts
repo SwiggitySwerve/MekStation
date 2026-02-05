@@ -1,7 +1,7 @@
 /**
  * ITemporalEntity - Temporal availability interface
  * Components with introduction dates SHALL implement ITemporalEntity.
- * 
+ *
  * @spec core-entity-types/spec.md
  */
 
@@ -55,7 +55,10 @@ export function isTemporalEntity(obj: unknown): obj is ITemporalEntity {
  * @param year - The year to check availability for
  * @returns true if the entity is available in the given year
  */
-export function isAvailableInYear(entity: ITemporalEntity, year: number): boolean {
+export function isAvailableInYear(
+  entity: ITemporalEntity,
+  year: number,
+): boolean {
   // Not yet introduced
   if (year < entity.introductionYear) {
     return false;
@@ -64,7 +67,10 @@ export function isAvailableInYear(entity: ITemporalEntity, year: number): boolea
   // Check extinction
   if (entity.extinctionYear !== undefined && year >= entity.extinctionYear) {
     // Check for reintroduction
-    if (entity.reintroductionYear !== undefined && year >= entity.reintroductionYear) {
+    if (
+      entity.reintroductionYear !== undefined &&
+      year >= entity.reintroductionYear
+    ) {
       return true;
     }
     return false;
@@ -72,4 +78,3 @@ export function isAvailableInYear(entity: ITemporalEntity, year: number): boolea
 
   return true;
 }
-

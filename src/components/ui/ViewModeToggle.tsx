@@ -38,13 +38,11 @@ function ViewModeButton({
       onClick={onClick}
       aria-label={`Switch to ${label} view`}
       aria-pressed={isActive}
-      className={`
-        p-2 rounded transition-all duration-150
-        ${isActive
-          ? 'bg-accent/20 text-accent border border-accent/30'
+      className={`rounded p-2 transition-all duration-150 ${
+        isActive
+          ? 'bg-accent/20 text-accent border-accent/30 border'
           : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 border border-transparent'
-        }
-      `}
+      } `}
     >
       {icon}
     </button>
@@ -59,7 +57,7 @@ const ListIcon = () => (
     viewBox="0 0 24 24"
     strokeWidth={1.5}
     stroke="currentColor"
-    className="w-5 h-5"
+    className="h-5 w-5"
   >
     <path
       strokeLinecap="round"
@@ -76,7 +74,7 @@ const TableIcon = () => (
     viewBox="0 0 24 24"
     strokeWidth={1.5}
     stroke="currentColor"
-    className="w-5 h-5"
+    className="h-5 w-5"
   >
     <path
       strokeLinecap="round"
@@ -93,7 +91,7 @@ const GridIcon = () => (
     viewBox="0 0 24 24"
     strokeWidth={1.5}
     stroke="currentColor"
-    className="w-5 h-5"
+    className="h-5 w-5"
   >
     <path
       strokeLinecap="round"
@@ -110,7 +108,7 @@ export function ViewModeToggle({
 }: ViewModeToggleProps): React.ReactElement {
   return (
     <div
-      className={`inline-flex items-center gap-1 p-1 bg-surface-base/50 rounded-lg border border-border-theme-subtle/50 ${className}`}
+      className={`bg-surface-base/50 border-border-theme-subtle/50 inline-flex items-center gap-1 rounded-lg border p-1 ${className}`}
       role="group"
       aria-label="View mode selection"
     >
@@ -140,4 +138,3 @@ export function ViewModeToggle({
 }
 
 export default ViewModeToggle;
-

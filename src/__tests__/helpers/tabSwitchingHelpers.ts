@@ -1,15 +1,29 @@
 /**
  * Tab Switching Test Helpers
- * 
+ *
  * Utilities for testing tab switching, URL synchronization, and sub-tab persistence.
  * These helpers simplify creating multi-unit test scenarios and verifying state.
  */
 
 import { act } from '@testing-library/react';
-import { useTabManagerStore, UNIT_TEMPLATES, TabInfo } from '@/stores/useTabManagerStore';
-import { clearAllStores, getUnitStore, hasUnitStore } from '@/stores/unitStoreRegistry';
+
+import {
+  CustomizerTabId,
+  VALID_TAB_IDS,
+  DEFAULT_TAB,
+} from '@/hooks/useCustomizerRouter';
+import {
+  clearAllStores,
+  getUnitStore,
+  hasUnitStore,
+} from '@/stores/unitStoreRegistry';
+import {
+  useTabManagerStore,
+  UNIT_TEMPLATES,
+  TabInfo,
+} from '@/stores/useTabManagerStore';
 import { TechBase } from '@/types/enums/TechBase';
-import { CustomizerTabId, VALID_TAB_IDS, DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
+
 import { setupMockLocalStorage, MockLocalStorage } from './storeTestHelpers';
 
 // =============================================================================
@@ -56,7 +70,9 @@ export interface MockRouterState {
 /**
  * Create a mock Next.js router for testing
  */
-export function createMockRouter(initialPath: string = '/customizer'): MockRouterState {
+export function createMockRouter(
+  initialPath: string = '/customizer',
+): MockRouterState {
   const parsePathToQuery = (path: string): { slug?: string[] } => {
     const match = path.match(/^\/customizer(?:\/(.+))?$/);
     if (!match || !match[1]) {
@@ -87,16 +103,19 @@ export function createMockRouter(initialPath: string = '/customizer'): MockRoute
 /**
  * Parse URL path to extract unitId and tabId
  */
-export function parseCustomizerUrl(path: string): { unitId: string | null; tabId: CustomizerTabId } {
+export function parseCustomizerUrl(path: string): {
+  unitId: string | null;
+  tabId: CustomizerTabId;
+} {
   const match = path.match(/^\/customizer(?:\/([^/]+))?(?:\/([^/]+))?$/);
-  
+
   if (!match) {
     return { unitId: null, tabId: DEFAULT_TAB };
   }
-  
+
   const unitId = match[1] || null;
-  const tabId = match[2] as CustomizerTabId || DEFAULT_TAB;
-  
+  const tabId = (match[2] as CustomizerTabId) || DEFAULT_TAB;
+
   return { unitId, tabId };
 }
 
@@ -106,7 +125,7 @@ export function parseCustomizerUrl(path: string): { unitId: string | null; tabId
 export function verifyUrlMatchesState(
   mockRouter: MockRouterState,
   expectedUnitId: string,
-  expectedSubTab: CustomizerTabId
+  expectedSubTab: CustomizerTabId,
 ): void {
   const { unitId, tabId } = parseCustomizerUrl(mockRouter.pathname);
   expect(unitId).toBe(expectedUnitId);
@@ -122,7 +141,7 @@ export function verifyUrlMatchesState(
  */
 export function createMultiUnitScenario(unitCount: number): TestScenario {
   const mockStorage = setupMockLocalStorage();
-  
+
   // Reset stores
   clearAllStores(true);
   useTabManagerStore.setState({
@@ -131,20 +150,22 @@ export function createMultiUnitScenario(unitCount: number): TestScenario {
     isLoading: false,
     isNewTabModalOpen: false,
   });
-  
+
   const tabIds: string[] = [];
-  
+
   // Create units
   act(() => {
     for (let i = 0; i < unitCount; i++) {
       const template = UNIT_TEMPLATES[i % UNIT_TEMPLATES.length];
-      const tabId = useTabManagerStore.getState().createTab(template, `Unit ${i + 1}`);
+      const tabId = useTabManagerStore
+        .getState()
+        .createTab(template, `Unit ${i + 1}`);
       tabIds.push(tabId);
     }
   });
-  
+
   const tabs = useTabManagerStore.getState().tabs;
-  
+
   return {
     tabIds,
     tabs,
@@ -166,25 +187,26 @@ export function createMockUnitWithData(options: UnitDataOptions = {}): string {
     walkMP = 4,
     lastSubTab,
   } = options;
-  
+
   // Find matching template or use medium as fallback, then override with requested values
-  const baseTemplate = UNIT_TEMPLATES.find(t => t.tonnage === tonnage) || UNIT_TEMPLATES[1];
-  const customTemplate = { 
-    ...baseTemplate, 
+  const baseTemplate =
+    UNIT_TEMPLATES.find((t) => t.tonnage === tonnage) || UNIT_TEMPLATES[1];
+  const customTemplate = {
+    ...baseTemplate,
     tonnage, // Override with requested tonnage
     techBase,
     walkMP,
   };
-  
+
   let tabId = '';
   act(() => {
     tabId = useTabManagerStore.getState().createTab(customTemplate, name);
-    
+
     if (lastSubTab) {
       useTabManagerStore.getState().setLastSubTab(tabId, lastSubTab);
     }
   });
-  
+
   return tabId;
 }
 
@@ -204,7 +226,10 @@ export function simulateTabSwitch(fromUnitId: string, toUnitId: string): void {
 /**
  * Simulate navigating to a sub-tab within a unit
  */
-export function simulateSubTabNavigation(unitId: string, subTab: CustomizerTabId): void {
+export function simulateSubTabNavigation(
+  unitId: string,
+  subTab: CustomizerTabId,
+): void {
   act(() => {
     useTabManagerStore.getState().setLastSubTab(unitId, subTab);
   });
@@ -227,10 +252,10 @@ export function getActiveSubTab(): string | undefined {
  * Assert that each unit has the expected lastSubTab
  */
 export function expectSubTabsMatch(
-  expectedSubTabs: Record<string, CustomizerTabId>
+  expectedSubTabs: Record<string, CustomizerTabId>,
 ): void {
   const state = useTabManagerStore.getState();
-  
+
   for (const [tabId, expectedSubTab] of Object.entries(expectedSubTabs)) {
     const actualSubTab = state.getLastSubTab(tabId);
     expect(actualSubTab).toBe(expectedSubTab);
@@ -304,13 +329,13 @@ export function resetTabStores(): void {
  * Setup function for tab switching tests
  * Returns cleanup function
  */
-export function setupTabSwitchingTest(): { 
+export function setupTabSwitchingTest(): {
   mockStorage: ReturnType<typeof setupMockLocalStorage>;
   cleanup: () => void;
 } {
   const mockStorage = setupMockLocalStorage();
   resetTabStores();
-  
+
   return {
     mockStorage,
     cleanup: () => {

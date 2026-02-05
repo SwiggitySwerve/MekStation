@@ -16,4 +16,3 @@
 ## Documentation
 
 - [x] Archive change after implementation
-

@@ -35,6 +35,7 @@ This enables both quick skirmish games and full campaign play without requiring 
 ## Sequencing
 
 This is a complex feature. Recommend implementing in phases:
+
 1. Basic scenario templates (manual selection)
 2. OpFor generator with BV scaling
 3. Modifier system

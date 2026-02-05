@@ -5,10 +5,17 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { ISimulationRunResult } from '../runner/types';
+
+import {
+  IGameSession,
+  IGameEvent,
+  GameStatus,
+  GamePhase,
+} from '@/types/gameplay/GameSessionInterfaces';
+
 import { ISimulationConfig } from '../core/types';
-import { IGameSession, IGameEvent, GameStatus, GamePhase } from '@/types/gameplay/GameSessionInterfaces';
 import { IViolation } from '../invariants/types';
+import { ISimulationRunResult } from '../runner/types';
 
 export interface ISnapshot {
   readonly seed: number;
@@ -27,7 +34,7 @@ export class SnapshotManager {
 
   saveFailedScenario(
     result: ISimulationRunResult,
-    config: ISimulationConfig
+    config: ISimulationConfig,
   ): string {
     if (!fs.existsSync(this.snapshotDir)) {
       fs.mkdirSync(this.snapshotDir, { recursive: true });

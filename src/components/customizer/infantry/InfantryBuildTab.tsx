@@ -7,13 +7,15 @@
  */
 
 import React, { useCallback } from 'react';
+
 import { useInfantryStore } from '@/stores/useInfantryStore';
+import { TechBase } from '@/types/enums/TechBase';
 import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
   InfantryArmorKit,
   InfantrySpecialization,
 } from '@/types/unit/PersonnelInterfaces';
-import { TechBase } from '@/types/enums/TechBase';
+
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -72,7 +74,9 @@ export function InfantryBuildTab({
   const setJumpMP = useInfantryStore((s) => s.setJumpMP);
   const setPrimaryWeapon = useInfantryStore((s) => s.setPrimaryWeapon);
   const setSecondaryWeapon = useInfantryStore((s) => s.setSecondaryWeapon);
-  const setSecondaryWeaponCount = useInfantryStore((s) => s.setSecondaryWeaponCount);
+  const setSecondaryWeaponCount = useInfantryStore(
+    (s) => s.setSecondaryWeaponCount,
+  );
   const setArmorKit = useInfantryStore((s) => s.setArmorKit);
   const setSpecialization = useInfantryStore((s) => s.setSpecialization);
   const setAntiMechTraining = useInfantryStore((s) => s.setAntiMechTraining);
@@ -82,14 +86,14 @@ export function InfantryBuildTab({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!readOnly) setChassis(e.target.value);
     },
-    [setChassis, readOnly]
+    [setChassis, readOnly],
   );
 
   const handleModelChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!readOnly) setModel(e.target.value);
     },
-    [setModel, readOnly]
+    [setModel, readOnly],
   );
 
   // Calculated values
@@ -100,7 +104,7 @@ export function InfantryBuildTab({
       {/* Identity Section */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Identity</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label className={cs.text.label}>Unit Name</label>
             <input
@@ -125,7 +129,9 @@ export function InfantryBuildTab({
             <label className={cs.text.label}>Tech Base</label>
             <select
               value={techBase}
-              onChange={(e) => !readOnly && setTechBase(e.target.value as TechBase)}
+              onChange={(e) =>
+                !readOnly && setTechBase(e.target.value as TechBase)
+              }
               disabled={readOnly}
               className={cs.select.full}
             >
@@ -139,13 +145,15 @@ export function InfantryBuildTab({
       {/* Platoon Configuration */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Platoon Configuration</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div>
             <label className={cs.text.label}>Squad Size</label>
             <input
               type="number"
               value={squadSize}
-              onChange={(e) => !readOnly && setSquadSize(Number(e.target.value))}
+              onChange={(e) =>
+                !readOnly && setSquadSize(Number(e.target.value))
+              }
               disabled={readOnly}
               min={1}
               max={10}
@@ -157,7 +165,9 @@ export function InfantryBuildTab({
             <input
               type="number"
               value={numberOfSquads}
-              onChange={(e) => !readOnly && setNumberOfSquads(Number(e.target.value))}
+              onChange={(e) =>
+                !readOnly && setNumberOfSquads(Number(e.target.value))
+              }
               disabled={readOnly}
               min={1}
               max={10}
@@ -166,7 +176,7 @@ export function InfantryBuildTab({
           </div>
           <div>
             <label className={cs.text.label}>Platoon Strength</label>
-            <div className="px-3 py-2 bg-surface-raised border border-border-theme rounded text-white text-sm">
+            <div className="bg-surface-raised border-border-theme rounded border px-3 py-2 text-sm text-white">
               {platoonStrength} soldiers
             </div>
           </div>
@@ -174,17 +184,21 @@ export function InfantryBuildTab({
             <label className={cs.text.label}>Motion Type</label>
             <select
               value={motionType}
-              onChange={(e) => !readOnly && setMotionType(e.target.value as SquadMotionType)}
+              onChange={(e) =>
+                !readOnly && setMotionType(e.target.value as SquadMotionType)
+              }
               disabled={readOnly}
               className={cs.select.full}
             >
               {MOTION_TYPE_OPTIONS.map((type) => (
-                <option key={type} value={type}>{type}</option>
+                <option key={type} value={type}>
+                  {type}
+                </option>
               ))}
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className={cs.text.label}>Ground MP</label>
             <input
@@ -215,7 +229,7 @@ export function InfantryBuildTab({
       {/* Weapons */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Weapons</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label className={cs.text.label}>Primary Weapon</label>
             <input
@@ -231,7 +245,9 @@ export function InfantryBuildTab({
             <input
               type="text"
               value={secondaryWeapon ?? ''}
-              onChange={(e) => !readOnly && setSecondaryWeapon(e.target.value || undefined)}
+              onChange={(e) =>
+                !readOnly && setSecondaryWeapon(e.target.value || undefined)
+              }
               disabled={readOnly}
               placeholder="None"
               className={cs.input.full}
@@ -242,7 +258,9 @@ export function InfantryBuildTab({
             <input
               type="number"
               value={secondaryWeaponCount}
-              onChange={(e) => !readOnly && setSecondaryWeaponCount(Number(e.target.value))}
+              onChange={(e) =>
+                !readOnly && setSecondaryWeaponCount(Number(e.target.value))
+              }
               disabled={readOnly}
               min={0}
               className={cs.input.full}
@@ -254,17 +272,21 @@ export function InfantryBuildTab({
       {/* Protection & Specialization */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Protection & Specialization</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label className={cs.text.label}>Armor Kit</label>
             <select
               value={armorKit}
-              onChange={(e) => !readOnly && setArmorKit(e.target.value as InfantryArmorKit)}
+              onChange={(e) =>
+                !readOnly && setArmorKit(e.target.value as InfantryArmorKit)
+              }
               disabled={readOnly}
               className={cs.select.full}
             >
               {ARMOR_KIT_OPTIONS.map((kit) => (
-                <option key={kit} value={kit}>{kit}</option>
+                <option key={kit} value={kit}>
+                  {kit}
+                </option>
               ))}
             </select>
           </div>
@@ -272,25 +294,32 @@ export function InfantryBuildTab({
             <label className={cs.text.label}>Specialization</label>
             <select
               value={specialization}
-              onChange={(e) => !readOnly && setSpecialization(e.target.value as InfantrySpecialization)}
+              onChange={(e) =>
+                !readOnly &&
+                setSpecialization(e.target.value as InfantrySpecialization)
+              }
               disabled={readOnly}
               className={cs.select.full}
             >
               {SPECIALIZATION_OPTIONS.map((spec) => (
-                <option key={spec} value={spec}>{spec}</option>
+                <option key={spec} value={spec}>
+                  {spec}
+                </option>
               ))}
             </select>
           </div>
           <div className="flex items-end">
-            <label className="flex items-center gap-2 cursor-pointer pb-2">
+            <label className="flex cursor-pointer items-center gap-2 pb-2">
               <input
                 type="checkbox"
                 checked={hasAntiMechTraining}
-                onChange={(e) => !readOnly && setAntiMechTraining(e.target.checked)}
+                onChange={(e) =>
+                  !readOnly && setAntiMechTraining(e.target.checked)
+                }
                 disabled={readOnly}
-                className="rounded border-border-theme bg-surface-raised"
+                className="border-border-theme bg-surface-raised rounded"
               />
-              <span className="text-white text-sm">Anti-Mech Training</span>
+              <span className="text-sm text-white">Anti-Mech Training</span>
             </label>
           </div>
         </div>

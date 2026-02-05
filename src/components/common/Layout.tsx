@@ -1,5 +1,6 @@
-import React, { ReactNode } from 'react';
 import Head from 'next/head';
+import React, { ReactNode } from 'react';
+
 import { MobileBottomNav } from './MobileBottomNav';
 
 interface LayoutProps {
@@ -23,7 +24,7 @@ const Layout: React.FC<LayoutProps> = ({
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
 
-      <div className="flex flex-col h-screen bg-surface-deep overflow-hidden">
+      <div className="bg-surface-deep flex h-screen flex-col overflow-hidden">
         {/* Top bar navigation */}
         {topBarComponent}
 
@@ -31,13 +32,13 @@ const Layout: React.FC<LayoutProps> = ({
         <div className="flex flex-1 overflow-hidden">
           {/* Optional page-specific secondary sidebar */}
           {secondarySidebar && (
-            <aside className="w-64 bg-surface-base border-r border-border-theme-subtle print:hidden overflow-auto">
+            <aside className="bg-surface-base border-border-theme-subtle w-64 overflow-auto border-r print:hidden">
               {secondarySidebar}
             </aside>
           )}
 
-{/* Main content */}
-          <main className="flex-1 overflow-auto bg-surface-deep pb-16 md:pb-0">
+          {/* Main content */}
+          <main className="bg-surface-deep flex-1 overflow-auto pb-16 md:pb-0">
             {children}
           </main>
         </div>

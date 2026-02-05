@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 /**
  * Create Encounter Page
  * Wizard for setting up a new encounter configuration.
@@ -5,16 +6,10 @@
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
 import { useState, useCallback } from 'react';
-import { useRouter } from 'next/router';
-import {
-  PageLayout,
-  Card,
-  Input,
-  Textarea,
-  Button,
-} from '@/components/ui';
-import { useEncounterStore } from '@/stores/useEncounterStore';
+
 import { useToast } from '@/components/shared/Toast';
+import { PageLayout, Card, Input, Textarea, Button } from '@/components/ui';
+import { useEncounterStore } from '@/stores/useEncounterStore';
 import { SCENARIO_TEMPLATES, ScenarioTemplateType } from '@/types/encounter';
 
 // =============================================================================
@@ -27,20 +22,28 @@ interface TemplateCardProps {
   onSelect: () => void;
 }
 
-function TemplateCard({ template, selected, onSelect }: TemplateCardProps): React.ReactElement {
+function TemplateCard({
+  template,
+  selected,
+  onSelect,
+}: TemplateCardProps): React.ReactElement {
   return (
     <Card
       className={`cursor-pointer transition-all ${
         selected
-          ? 'border-accent ring-1 ring-accent/30'
+          ? 'border-accent ring-accent/30 ring-1'
           : 'hover:border-accent/50'
       }`}
       onClick={onSelect}
       data-testid={`template-${template.type}`}
     >
-      <h3 className="font-medium text-text-theme-primary mb-1">{template.name}</h3>
-      <p className="text-sm text-text-theme-secondary mb-3">{template.description}</p>
-      <div className="text-xs text-text-theme-muted space-y-1">
+      <h3 className="text-text-theme-primary mb-1 font-medium">
+        {template.name}
+      </h3>
+      <p className="text-text-theme-secondary mb-3 text-sm">
+        {template.description}
+      </p>
+      <div className="text-text-theme-muted space-y-1 text-xs">
         <div>Suggested Units: {template.suggestedUnitCount} per side</div>
         <div>
           BV Range: {template.suggestedBVRange.min.toLocaleString()} -{' '}
@@ -63,7 +66,8 @@ export default function CreateEncounterPage(): React.ReactElement {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState<ScenarioTemplateType | null>(null);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<ScenarioTemplateType | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
 
   // Handle form submission
@@ -85,13 +89,24 @@ export default function CreateEncounterPage(): React.ReactElement {
       });
 
       if (id) {
-        showToast({ message: `Encounter "${name.trim()}" created successfully!`, variant: 'success' });
+        showToast({
+          message: `Encounter "${name.trim()}" created successfully!`,
+          variant: 'success',
+        });
         router.push(`/gameplay/encounters/${id}`);
       } else {
         showToast({ message: 'Failed to create encounter', variant: 'error' });
       }
     },
-    [name, description, selectedTemplate, createEncounter, router, clearError, showToast]
+    [
+      name,
+      description,
+      selectedTemplate,
+      createEncounter,
+      router,
+      clearError,
+      showToast,
+    ],
   );
 
   // Handle cancel
@@ -108,11 +123,16 @@ export default function CreateEncounterPage(): React.ReactElement {
       <form onSubmit={handleSubmit}>
         {/* Basic Info */}
         <Card className="mb-6">
-          <h2 className="text-lg font-medium text-text-theme-primary mb-4">Basic Information</h2>
-          
+          <h2 className="text-text-theme-primary mb-4 text-lg font-medium">
+            Basic Information
+          </h2>
+
           <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-text-theme-primary mb-1">
+              <label
+                htmlFor="name"
+                className="text-text-theme-primary mb-1 block text-sm font-medium"
+              >
                 Encounter Name *
               </label>
               <Input
@@ -125,7 +145,12 @@ export default function CreateEncounterPage(): React.ReactElement {
                 data-testid="encounter-name-input"
               />
               {localError && localError.includes('name') && (
-                <p className="mt-1 text-sm text-red-400" data-testid="name-error">{localError}</p>
+                <p
+                  className="mt-1 text-sm text-red-400"
+                  data-testid="name-error"
+                >
+                  {localError}
+                </p>
               )}
             </div>
 
@@ -143,13 +168,16 @@ export default function CreateEncounterPage(): React.ReactElement {
 
         {/* Template Selection */}
         <Card className="mb-6">
-          <h2 className="text-lg font-medium text-text-theme-primary mb-4">Scenario Template</h2>
-          <p className="text-sm text-text-theme-secondary mb-4">
-            Choose a template to pre-configure map size, victory conditions, and recommended force sizes.
-            You can customize these settings after creation.
+          <h2 className="text-text-theme-primary mb-4 text-lg font-medium">
+            Scenario Template
+          </h2>
+          <p className="text-text-theme-secondary mb-4 text-sm">
+            Choose a template to pre-configure map size, victory conditions, and
+            recommended force sizes. You can customize these settings after
+            creation.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {SCENARIO_TEMPLATES.map((template) => (
               <TemplateCard
                 key={template.type}
@@ -175,17 +203,27 @@ export default function CreateEncounterPage(): React.ReactElement {
 
         {/* Error Display */}
         {(error || localError) && (
-          <div className="mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30">
+          <div className="mb-6 rounded-lg border border-red-600/30 bg-red-900/20 p-4">
             <p className="text-sm text-red-400">{error || localError}</p>
           </div>
         )}
 
         {/* Actions */}
         <div className="flex justify-end gap-3">
-          <Button type="button" variant="secondary" onClick={handleCancel} data-testid="cancel-btn">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleCancel}
+            data-testid="cancel-btn"
+          >
             Cancel
           </Button>
-          <Button type="submit" variant="primary" disabled={isLoading} data-testid="submit-encounter-btn">
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={isLoading}
+            data-testid="submit-encounter-btn"
+          >
             {isLoading ? 'Creating...' : 'Create Encounter'}
           </Button>
         </div>

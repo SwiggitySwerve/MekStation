@@ -32,4 +32,3 @@ When a unit tab exists but lacks a valid UUID (due to stale cache, migration iss
   - `src/hooks/useCustomizerRouter.ts` - Add fallback to activeTabId from store
   - `src/stores/unitStoreRegistry.ts` - Add ID validation on hydration
   - `src/components/customizer/CustomizerWithRouter.tsx` - Pass activeTabId to router
-

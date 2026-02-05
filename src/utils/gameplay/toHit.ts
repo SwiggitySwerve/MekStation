@@ -13,7 +13,11 @@ import {
   ITargetState,
   ICombatContext,
 } from '@/types/gameplay';
-import { TerrainType, TERRAIN_PROPERTIES, ITerrainFeature } from '@/types/gameplay/TerrainTypes';
+import {
+  TerrainType,
+  TERRAIN_PROPERTIES,
+  ITerrainFeature,
+} from '@/types/gameplay/TerrainTypes';
 
 // =============================================================================
 // Constants
@@ -34,7 +38,9 @@ export const RANGE_MODIFIERS: Readonly<Record<RangeBracket, number>> = {
 /**
  * Attacker movement modifiers.
  */
-export const ATTACKER_MOVEMENT_MODIFIERS: Readonly<Record<MovementType, number>> = {
+export const ATTACKER_MOVEMENT_MODIFIERS: Readonly<
+  Record<MovementType, number>
+> = {
   [MovementType.Stationary]: 0,
   [MovementType.Walk]: 1,
   [MovementType.Run]: 2,
@@ -45,7 +51,11 @@ export const ATTACKER_MOVEMENT_MODIFIERS: Readonly<Record<MovementType, number>>
  * Heat level to-hit penalty thresholds.
  * Heat 0-4: +0, 5-7: +1, 8-12: +2, 13+: +3
  */
-export const HEAT_THRESHOLDS: readonly { minHeat: number; maxHeat: number; modifier: number }[] = [
+export const HEAT_THRESHOLDS: readonly {
+  minHeat: number;
+  maxHeat: number;
+  modifier: number;
+}[] = [
   { minHeat: 0, maxHeat: 4, modifier: 0 },
   { minHeat: 5, maxHeat: 7, modifier: 1 },
   { minHeat: 8, maxHeat: 12, modifier: 2 },
@@ -56,18 +66,18 @@ export const HEAT_THRESHOLDS: readonly { minHeat: number; maxHeat: number; modif
  * 2d6 probability table: P(roll >= target)
  */
 export const PROBABILITY_TABLE: Readonly<Record<number, number>> = {
-  2: 1.0,        // 36/36
-  3: 35 / 36,    // 35/36
-  4: 33 / 36,    // 33/36
-  5: 30 / 36,    // 30/36
-  6: 26 / 36,    // 26/36
-  7: 21 / 36,    // 21/36
-  8: 15 / 36,    // 15/36
-  9: 10 / 36,    // 10/36
-  10: 6 / 36,    // 6/36
-  11: 3 / 36,    // 3/36
-  12: 1 / 36,    // 1/36
-  13: 0,         // Impossible
+  2: 1.0, // 36/36
+  3: 35 / 36, // 35/36
+  4: 33 / 36, // 33/36
+  5: 30 / 36, // 30/36
+  6: 26 / 36, // 26/36
+  7: 21 / 36, // 21/36
+  8: 15 / 36, // 15/36
+  9: 10 / 36, // 10/36
+  10: 6 / 36, // 6/36
+  11: 3 / 36, // 3/36
+  12: 1 / 36, // 1/36
+  13: 0, // Impossible
 };
 
 // =============================================================================
@@ -93,7 +103,7 @@ export function calculateRangeModifier(
   range: number,
   shortRange: number,
   mediumRange: number,
-  longRange: number
+  longRange: number,
 ): IToHitModifierDetail {
   let bracket: RangeBracket;
   let value: number;
@@ -123,7 +133,9 @@ export function calculateRangeModifier(
 /**
  * Calculate range modifier from bracket.
  */
-export function getRangeModifierForBracket(bracket: RangeBracket): IToHitModifierDetail {
+export function getRangeModifierForBracket(
+  bracket: RangeBracket,
+): IToHitModifierDetail {
   return {
     name: `Range (${bracket})`,
     value: RANGE_MODIFIERS[bracket],
@@ -136,10 +148,10 @@ export function getRangeModifierForBracket(bracket: RangeBracket): IToHitModifie
  * Calculate attacker movement modifier.
  */
 export function calculateAttackerMovementModifier(
-  movementType: MovementType
+  movementType: MovementType,
 ): IToHitModifierDetail {
   const value = ATTACKER_MOVEMENT_MODIFIERS[movementType];
-  
+
   return {
     name: 'Attacker Movement',
     value,
@@ -155,7 +167,7 @@ export function calculateAttackerMovementModifier(
  */
 export function calculateTMM(
   movementType: MovementType,
-  hexesMoved: number
+  hexesMoved: number,
 ): IToHitModifierDetail {
   if (movementType === MovementType.Stationary || hexesMoved === 0) {
     return {
@@ -186,7 +198,9 @@ export function calculateTMM(
  * Calculate heat modifier.
  */
 export function calculateHeatModifier(heat: number): IToHitModifierDetail {
-  const threshold = HEAT_THRESHOLDS.find(t => heat >= t.minHeat && heat <= t.maxHeat);
+  const threshold = HEAT_THRESHOLDS.find(
+    (t) => heat >= t.minHeat && heat <= t.maxHeat,
+  );
   const value = threshold?.modifier ?? 0;
 
   return {
@@ -203,7 +217,7 @@ export function calculateHeatModifier(heat: number): IToHitModifierDetail {
  */
 export function calculateMinimumRangeModifier(
   range: number,
-  minRange: number
+  minRange: number,
 ): IToHitModifierDetail | null {
   if (minRange <= 0 || range >= minRange) {
     return null;
@@ -224,7 +238,7 @@ export function calculateMinimumRangeModifier(
  */
 export function calculateProneModifier(
   targetProne: boolean,
-  range: number
+  range: number,
 ): IToHitModifierDetail | null {
   if (!targetProne) {
     return null;
@@ -235,9 +249,10 @@ export function calculateProneModifier(
     name: 'Target Prone',
     value,
     source: 'other',
-    description: range <= 1 
-      ? 'Target prone at close range: +1' 
-      : 'Target prone at range: -2',
+    description:
+      range <= 1
+        ? 'Target prone at close range: +1'
+        : 'Target prone at range: -2',
   };
 }
 
@@ -245,7 +260,9 @@ export function calculateProneModifier(
  * Target immobile modifier.
  * -4 to hit immobile targets.
  */
-export function calculateImmobileModifier(immobile: boolean): IToHitModifierDetail | null {
+export function calculateImmobileModifier(
+  immobile: boolean,
+): IToHitModifierDetail | null {
   if (!immobile) {
     return null;
   }
@@ -262,7 +279,9 @@ export function calculateImmobileModifier(immobile: boolean): IToHitModifierDeta
  * Partial cover modifier.
  * +1 to hit target in partial cover.
  */
-export function calculatePartialCoverModifier(partialCover: boolean): IToHitModifierDetail | null {
+export function calculatePartialCoverModifier(
+  partialCover: boolean,
+): IToHitModifierDetail | null {
   if (!partialCover) {
     return null;
   }
@@ -283,29 +302,31 @@ export function calculatePartialCoverModifier(partialCover: boolean): IToHitModi
  */
 export function getTerrainToHitModifier(
   targetTerrain: readonly ITerrainFeature[],
-  interveningTerrain: readonly ITerrainFeature[][]
+  interveningTerrain: readonly ITerrainFeature[][],
 ): number {
   let modifier = 0;
-  
+
   // Add intervening terrain modifiers
   for (const hexFeatures of interveningTerrain) {
     for (const feature of hexFeatures) {
       modifier += TERRAIN_PROPERTIES[feature.type].toHitInterveningModifier;
     }
   }
-  
+
   // Add target-in-terrain modifier (use highest if multiple)
   if (targetTerrain.length > 0) {
-    let targetModifier = TERRAIN_PROPERTIES[targetTerrain[0].type].toHitTargetInModifier;
+    let targetModifier =
+      TERRAIN_PROPERTIES[targetTerrain[0].type].toHitTargetInModifier;
     for (let i = 1; i < targetTerrain.length; i++) {
-      const featureModifier = TERRAIN_PROPERTIES[targetTerrain[i].type].toHitTargetInModifier;
+      const featureModifier =
+        TERRAIN_PROPERTIES[targetTerrain[i].type].toHitTargetInModifier;
       if (featureModifier > targetModifier) {
         targetModifier = featureModifier;
       }
     }
     modifier += targetModifier;
   }
-  
+
   return modifier;
 }
 
@@ -321,7 +342,7 @@ export function calculateToHit(
   target: ITargetState,
   rangeBracket: RangeBracket,
   range: number,
-  minRange: number = 0
+  minRange: number = 0,
 ): IToHitCalculation {
   const modifiers: IToHitModifierDetail[] = [];
 
@@ -365,7 +386,7 @@ export function calculateToHit(
  */
 export function calculateToHitFromContext(
   context: ICombatContext,
-  minRange: number = 0
+  minRange: number = 0,
 ): IToHitCalculation {
   const rangeBracket = getRangeBracket(context.range, 3, 6, 15); // Default ranges
   return calculateToHit(
@@ -373,7 +394,7 @@ export function calculateToHitFromContext(
     context.target,
     rangeBracket,
     context.range,
-    minRange
+    minRange,
   );
 }
 
@@ -381,14 +402,14 @@ export function calculateToHitFromContext(
  * Aggregate modifiers into final to-hit calculation.
  */
 export function aggregateModifiers(
-  modifiers: readonly IToHitModifierDetail[]
+  modifiers: readonly IToHitModifierDetail[],
 ): IToHitCalculation {
   const totalModifier = modifiers.reduce((sum, mod) => sum + mod.value, 0);
-  
+
   // Final to-hit capped at 12 (anything higher is impossible)
   const finalToHit = Math.min(totalModifier, 13);
   const impossible = finalToHit > 12;
-  
+
   // Calculate probability (0 if impossible)
   const probability = impossible ? 0 : getProbability(finalToHit);
 
@@ -417,7 +438,7 @@ export function getRangeBracket(
   range: number,
   shortRange: number,
   mediumRange: number,
-  longRange: number
+  longRange: number,
 ): RangeBracket {
   if (range <= shortRange) return RangeBracket.Short;
   if (range <= mediumRange) return RangeBracket.Medium;
@@ -438,7 +459,7 @@ export function simpleToHit(
   attackerMovement: MovementType = MovementType.Stationary,
   targetMovement: MovementType = MovementType.Stationary,
   hexesMoved: number = 0,
-  heat: number = 0
+  heat: number = 0,
 ): IToHitCalculation {
   const modifiers: IToHitModifierDetail[] = [
     createBaseModifier(gunnery),
@@ -455,14 +476,16 @@ export function simpleToHit(
  * Format to-hit calculation for display.
  */
 export function formatToHitBreakdown(calc: IToHitCalculation): string {
-  const lines = calc.modifiers.map(mod => {
+  const lines = calc.modifiers.map((mod) => {
     const sign = mod.value >= 0 ? '+' : '';
     return `  ${mod.name}: ${sign}${mod.value}`;
   });
 
   lines.push('  ─────────────');
-  lines.push(`  Total: ${calc.finalToHit}${calc.impossible ? ' (impossible)' : ''}`);
-  
+  lines.push(
+    `  Total: ${calc.finalToHit}${calc.impossible ? ' (impossible)' : ''}`,
+  );
+
   if (!calc.impossible) {
     lines.push(`  Probability: ${(calc.probability * 100).toFixed(1)}%`);
   }

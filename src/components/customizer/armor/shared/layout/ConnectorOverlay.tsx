@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+
 import { ConnectorPath, ResolvedLayout } from './LayoutTypes';
 
 // ============================================================================
@@ -304,9 +305,7 @@ export function DebugOverlay({
       )}
 
       {/* Connectors */}
-      {showConnectors && (
-        <ConnectorOverlay layout={layout} style="dashed" />
-      )}
+      {showConnectors && <ConnectorOverlay layout={layout} style="dashed" />}
     </g>
   );
 }

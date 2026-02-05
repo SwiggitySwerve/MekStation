@@ -1,14 +1,16 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { KPICard } from '../KPICard';
+import React from 'react';
+
 import type { IKPICardProps } from '@/components/simulation-viewer/types';
+
+import { KPICard } from '../KPICard';
 
 const defaultProps: IKPICardProps = {
   label: 'Win Rate',
   value: '80%',
   comparison: '+5%',
   comparisonDirection: 'up',
-  trend: [0.75, 0.76, 0.78, 0.80],
+  trend: [0.75, 0.76, 0.78, 0.8],
 };
 
 describe('KPICard', () => {
@@ -44,7 +46,7 @@ describe('KPICard', () => {
           value="80%"
           comparison="+5%"
           comparisonDirection="up"
-        />
+        />,
       );
 
       expect(screen.queryByTestId('kpi-trend')).not.toBeInTheDocument();
@@ -75,7 +77,7 @@ describe('KPICard', () => {
           value="80%"
           comparison="+5%"
           comparisonDirection="up"
-        />
+        />,
       );
 
       const comparison = screen.getByTestId('kpi-comparison');
@@ -90,7 +92,7 @@ describe('KPICard', () => {
           value="60%"
           comparison="-10%"
           comparisonDirection="down"
-        />
+        />,
       );
 
       const comparison = screen.getByTestId('kpi-comparison');
@@ -105,7 +107,7 @@ describe('KPICard', () => {
           value="75%"
           comparison="0%"
           comparisonDirection="neutral"
-        />
+        />,
       );
 
       const comparison = screen.getByTestId('kpi-comparison');
@@ -114,9 +116,7 @@ describe('KPICard', () => {
     });
 
     it('defaults to neutral when comparisonDirection is not provided', () => {
-      render(
-        <KPICard label="Win Rate" value="75%" comparison="0%" />
-      );
+      render(<KPICard label="Win Rate" value="75%" comparison="0%" />);
 
       const comparison = screen.getByTestId('kpi-comparison');
       expect(comparison).toHaveClass('text-gray-600');
@@ -131,7 +131,7 @@ describe('KPICard', () => {
           value="100"
           comparisonDirection="up"
           trend={[1, 2, 3, 4]}
-        />
+        />,
       );
 
       const polyline = container.querySelector('polyline');
@@ -146,7 +146,7 @@ describe('KPICard', () => {
           value="100"
           comparisonDirection="down"
           trend={[4, 3, 2, 1]}
-        />
+        />,
       );
 
       const polyline = container.querySelector('polyline');
@@ -160,7 +160,7 @@ describe('KPICard', () => {
           value="100"
           comparisonDirection="neutral"
           trend={[2, 2, 2, 2]}
-        />
+        />,
       );
 
       const polyline = container.querySelector('polyline');

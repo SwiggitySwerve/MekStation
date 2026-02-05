@@ -1,17 +1,23 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { EquipmentBrowser } from '@/components/customizer/equipment/EquipmentBrowser';
-import { EquipmentCategory } from '@/types/equipment';
-import { TechBase } from '@/types/enums/TechBase';
+import React from 'react';
+
 import type { CompactFilterBarProps } from '@/components/customizer/equipment/CompactFilterBar';
+
+import { EquipmentBrowser } from '@/components/customizer/equipment/EquipmentBrowser';
+import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
 
 jest.mock('@/hooks/useEquipmentBrowser', () => ({
   useEquipmentBrowser: jest.fn(),
 }));
 
 jest.mock('@/components/customizer/equipment/CompactFilterBar', () => ({
-  CompactFilterBar: ({ search, onSearchChange, onClearFilters }: CompactFilterBarProps) => (
+  CompactFilterBar: ({
+    search,
+    onSearchChange,
+    onClearFilters,
+  }: CompactFilterBarProps) => (
     <div data-testid="compact-filter-bar">
       <input
         placeholder="Search..."
@@ -25,7 +31,13 @@ jest.mock('@/components/customizer/equipment/CompactFilterBar', () => ({
 
 // Mock EquipmentRow
 jest.mock('@/components/customizer/equipment/EquipmentRow', () => ({
-  EquipmentRow: ({ equipment, onAdd }: { equipment: { name: string }; onAdd: () => void }) => (
+  EquipmentRow: ({
+    equipment,
+    onAdd,
+  }: {
+    equipment: { name: string };
+    onAdd: () => void;
+  }) => (
     <tr>
       <td>{equipment.name}</td>
       <td>
@@ -34,8 +46,6 @@ jest.mock('@/components/customizer/equipment/EquipmentRow', () => ({
     </tr>
   ),
 }));
-
-
 
 import { useEquipmentBrowser } from '@/hooks/useEquipmentBrowser';
 
@@ -99,13 +109,13 @@ describe('EquipmentBrowser', () => {
 
   it('should render equipment browser', () => {
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    
+
     expect(screen.getByText('Equipment Database')).toBeInTheDocument();
   });
 
   it('should render equipment table', () => {
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    
+
     expect(screen.getByText('Medium Laser')).toBeInTheDocument();
     expect(screen.getByText('Large Laser')).toBeInTheDocument();
   });
@@ -113,12 +123,12 @@ describe('EquipmentBrowser', () => {
   it('should call onAddEquipment when equipment is added', async () => {
     const user = userEvent.setup();
     const onAddEquipment = jest.fn();
-    
+
     render(<EquipmentBrowser onAddEquipment={onAddEquipment} />);
-    
+
     const addButtons = screen.getAllByText('Add');
     await user.click(addButtons[0]);
-    
+
     expect(onAddEquipment).toHaveBeenCalledWith(mockEquipment[0]);
   });
 
@@ -127,9 +137,9 @@ describe('EquipmentBrowser', () => {
       ...defaultMockHook,
       isLoading: true,
     });
-    
+
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    
+
     expect(screen.getByText('Loading equipment...')).toBeInTheDocument();
   });
 
@@ -138,9 +148,9 @@ describe('EquipmentBrowser', () => {
       ...defaultMockHook,
       error: 'Failed to load',
     });
-    
+
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    
+
     expect(screen.getByText('Failed to load equipment')).toBeInTheDocument();
     expect(screen.getByText('Failed to load')).toBeInTheDocument();
   });
@@ -148,18 +158,18 @@ describe('EquipmentBrowser', () => {
   it('should call refresh when retry button is clicked', async () => {
     const user = userEvent.setup();
     const refresh = jest.fn();
-    
+
     (useEquipmentBrowser as jest.Mock).mockReturnValue({
       ...defaultMockHook,
       error: 'Failed to load',
       refresh,
     });
-    
+
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    
+
     const retryButton = screen.getByText('Retry');
     await user.click(retryButton);
-    
+
     expect(refresh).toHaveBeenCalledTimes(1);
   });
 
@@ -169,47 +179,47 @@ describe('EquipmentBrowser', () => {
       paginatedEquipment: [],
       totalItems: 0,
     });
-    
+
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    
+
     expect(screen.getByText('No equipment found')).toBeInTheDocument();
   });
 
   it('should display pagination info', () => {
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    
+
     expect(screen.getByText('Page 1/1')).toBeInTheDocument();
   });
 
   it('should call setSearch when search input changes', async () => {
     const user = userEvent.setup();
     const setSearch = jest.fn();
-    
+
     (useEquipmentBrowser as jest.Mock).mockReturnValue({
       ...defaultMockHook,
       setSearch,
     });
-    
+
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    
+
     const searchInput = screen.getByPlaceholderText('Search...');
     await user.type(searchInput, 'laser');
-    
+
     expect(setSearch).toHaveBeenCalled();
   });
 
   it('should call clearFilters when clear button is clicked', async () => {
     const user = userEvent.setup();
     const clearFilters = jest.fn();
-    
+
     (useEquipmentBrowser as jest.Mock).mockReturnValue({
       ...defaultMockHook,
       search: 'test',
       clearFilters,
     });
-    
+
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    
+
     const clearButton = screen.getByText('Clear');
     await user.click(clearButton);
 
@@ -219,14 +229,14 @@ describe('EquipmentBrowser', () => {
   it('should call setSort when sortable header is clicked', async () => {
     const user = userEvent.setup();
     const setSort = jest.fn();
-    
+
     (useEquipmentBrowser as jest.Mock).mockReturnValue({
       ...defaultMockHook,
       setSort,
     });
-    
+
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    
+
     const weightHeader = screen.getByText('Wt');
     await user.click(weightHeader);
 
@@ -240,11 +250,10 @@ describe('EquipmentBrowser', () => {
       unitYear: 3050,
       unitTechBase: TechBase.INNER_SPHERE,
     });
-    
+
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    
+
     expect(screen.getByText(/Year ≤ 3050/i)).toBeInTheDocument();
     expect(screen.getByText(TechBase.INNER_SPHERE)).toBeInTheDocument();
   });
 });
-

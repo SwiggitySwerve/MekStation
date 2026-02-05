@@ -1,21 +1,28 @@
 /**
  * Unit Factory Service Integration Tests
- * 
+ *
  * Tests conversion of ISerializedUnit to IBattleMech.
  * Validates parsing, equipment resolution, and derived value calculation.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { getUnitFactory, resetUnitFactory } from '@/services/units/UnitFactoryService';
-import { ISerializedUnit } from '@/types/unit/UnitSerialization';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { Era } from '@/types/enums/Era';
 
-const UNITS_PATH = path.join(__dirname, '../../../../public/data/units/battlemechs');
+import {
+  getUnitFactory,
+  resetUnitFactory,
+} from '@/services/units/UnitFactoryService';
+import { Era } from '@/types/enums/Era';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
+
+const UNITS_PATH = path.join(
+  __dirname,
+  '../../../../public/data/units/battlemechs',
+);
 
 describe('UnitFactoryService', () => {
   beforeAll(() => {
@@ -29,14 +36,17 @@ describe('UnitFactoryService', () => {
     let atlasData: ISerializedUnit;
 
     beforeAll(() => {
-      const filePath = path.join(UNITS_PATH, '2-star-league/standard/Atlas AS7-D.json');
+      const filePath = path.join(
+        UNITS_PATH,
+        '2-star-league/standard/Atlas AS7-D.json',
+      );
       const content = fs.readFileSync(filePath, 'utf-8');
       atlasData = JSON.parse(content) as ISerializedUnit;
     });
 
     it('should successfully convert Atlas AS7-D', () => {
       const result = getUnitFactory().createFromSerialized(atlasData);
-      
+
       expect(result.success).toBe(true);
       expect(result.unit).not.toBeNull();
       expect(result.errors).toHaveLength(0);
@@ -285,8 +295,10 @@ describe('UnitFactoryService', () => {
         // Missing most required fields
       };
 
-      const result = getUnitFactory().createFromSerialized(invalidData as ISerializedUnit);
-      
+      const result = getUnitFactory().createFromSerialized(
+        invalidData as ISerializedUnit,
+      );
+
       expect(result.success).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
     });
@@ -299,7 +311,7 @@ describe('UnitFactoryService', () => {
       };
 
       const result = getUnitFactory().createFromSerialized(invalidData);
-      
+
       // Should still succeed but use default engine type
       expect(result.unit).not.toBeNull();
     });
@@ -333,9 +345,14 @@ describe('UnitFactoryService', () => {
       // Find a Clan unit
       const clanPath = path.join(UNITS_PATH, '4-clan-invasion/advanced');
       if (fs.existsSync(clanPath)) {
-        const files = fs.readdirSync(clanPath).filter(f => f.endsWith('.json'));
+        const files = fs
+          .readdirSync(clanPath)
+          .filter((f) => f.endsWith('.json'));
         if (files.length > 0) {
-          const content = fs.readFileSync(path.join(clanPath, files[0]), 'utf-8');
+          const content = fs.readFileSync(
+            path.join(clanPath, files[0]),
+            'utf-8',
+          );
           const data = JSON.parse(content) as ISerializedUnit;
           const result = getUnitFactory().createFromSerialized(data);
 
@@ -354,4 +371,3 @@ function loadUnit(relativePath: string): ISerializedUnit {
   const content = fs.readFileSync(fullPath, 'utf-8');
   return JSON.parse(content) as ISerializedUnit;
 }
-

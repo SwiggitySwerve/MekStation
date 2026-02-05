@@ -15,6 +15,7 @@
 ### Task 1.1: Base Event Types
 
 **Files:**
+
 - Create: `src/types/events/BaseEventInterfaces.ts`
 - Create: `src/types/events/index.ts`
 - Test: `src/__tests__/types/events/BaseEventInterfaces.test.ts`
@@ -164,7 +165,7 @@ export function isBaseEvent(value: unknown): value is IBaseEvent {
  * Create event context with optional scope IDs.
  */
 export function createEventContext(
-  scopes: Partial<IEventContext>
+  scopes: Partial<IEventContext>,
 ): IEventContext {
   return { ...scopes };
 }
@@ -196,6 +197,7 @@ git commit -m "feat(events): add base event interfaces and type guards"
 ### Task 1.2: Event Factory Functions
 
 **Files:**
+
 - Create: `src/utils/events/eventFactory.ts`
 - Test: `src/__tests__/utils/events/eventFactory.test.ts`
 
@@ -220,7 +222,8 @@ describe('eventFactory', () => {
   describe('createEventId', () => {
     it('should generate valid UUID v4', () => {
       const id = createEventId();
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
       expect(id).toMatch(uuidRegex);
     });
   });
@@ -369,6 +372,7 @@ git commit -m "feat(events): add event factory with ID and sequence generation"
 ### Task 1.3: Event Chunk Types
 
 **Files:**
+
 - Create: `src/types/events/ChunkInterfaces.ts`
 - Modify: `src/types/events/index.ts`
 - Test: `src/__tests__/types/events/ChunkInterfaces.test.ts`
@@ -391,9 +395,27 @@ describe('ChunkInterfaces', () => {
   describe('createChunkSummary', () => {
     it('should summarize events in a chunk', () => {
       const events = [
-        { id: '1', sequence: 1, category: EventCategory.Game, type: 'movement_declared', context: { pilotId: 'p1' } },
-        { id: '2', sequence: 2, category: EventCategory.Game, type: 'movement_declared', context: { pilotId: 'p2' } },
-        { id: '3', sequence: 3, category: EventCategory.Game, type: 'damage_applied', context: { pilotId: 'p1' } },
+        {
+          id: '1',
+          sequence: 1,
+          category: EventCategory.Game,
+          type: 'movement_declared',
+          context: { pilotId: 'p1' },
+        },
+        {
+          id: '2',
+          sequence: 2,
+          category: EventCategory.Game,
+          type: 'movement_declared',
+          context: { pilotId: 'p2' },
+        },
+        {
+          id: '3',
+          sequence: 3,
+          category: EventCategory.Game,
+          type: 'damage_applied',
+          context: { pilotId: 'p1' },
+        },
       ];
 
       const summary = createChunkSummary(events as any);
@@ -507,7 +529,9 @@ export interface ICheckpoint {
 /**
  * Create summary from events.
  */
-export function createChunkSummary(events: readonly IBaseEvent[]): IChunkSummary {
+export function createChunkSummary(
+  events: readonly IBaseEvent[],
+): IChunkSummary {
   const eventTypes: Record<string, number> = {};
   const unitsSet = new Set<string>();
   const pilotsSet = new Set<string>();
@@ -571,6 +595,7 @@ git commit -m "feat(events): add chunk and checkpoint interfaces"
 ### Task 1.4: Event Store Service
 
 **Files:**
+
 - Create: `src/services/events/EventStoreService.ts`
 - Test: `src/services/events/__tests__/EventStoreService.test.ts`
 
@@ -623,9 +648,24 @@ describe('EventStoreService', () => {
 
   describe('query', () => {
     beforeEach(async () => {
-      await store.append({ category: EventCategory.Game, type: 'a', payload: {}, context: { gameId: 'g1' } });
-      await store.append({ category: EventCategory.Pilot, type: 'b', payload: {}, context: { pilotId: 'p1' } });
-      await store.append({ category: EventCategory.Game, type: 'c', payload: {}, context: { gameId: 'g1' } });
+      await store.append({
+        category: EventCategory.Game,
+        type: 'a',
+        payload: {},
+        context: { gameId: 'g1' },
+      });
+      await store.append({
+        category: EventCategory.Pilot,
+        type: 'b',
+        payload: {},
+        context: { pilotId: 'p1' },
+      });
+      await store.append({
+        category: EventCategory.Game,
+        type: 'c',
+        payload: {},
+        context: { gameId: 'g1' },
+      });
     });
 
     it('should filter by category', async () => {
@@ -646,9 +686,24 @@ describe('EventStoreService', () => {
 
   describe('getEventsInRange', () => {
     it('should return events within sequence range', async () => {
-      await store.append({ category: EventCategory.Game, type: 'a', payload: {}, context: {} });
-      await store.append({ category: EventCategory.Game, type: 'b', payload: {}, context: {} });
-      await store.append({ category: EventCategory.Game, type: 'c', payload: {}, context: {} });
+      await store.append({
+        category: EventCategory.Game,
+        type: 'a',
+        payload: {},
+        context: {},
+      });
+      await store.append({
+        category: EventCategory.Game,
+        type: 'b',
+        payload: {},
+        context: {},
+      });
+      await store.append({
+        category: EventCategory.Game,
+        type: 'c',
+        payload: {},
+        context: {},
+      });
 
       const events = await store.getEventsInRange(1, 2);
       expect(events).toHaveLength(2);
@@ -674,12 +729,12 @@ Expected: FAIL
  * Production implementation would use IndexedDB via Dexie.
  */
 
+import { IBaseEvent, EventCategory, IEventContext } from '@/types/events';
 import {
-  IBaseEvent,
-  EventCategory,
-  IEventContext,
-} from '@/types/events';
-import { createEvent, CreateEventParams, resetSequence } from '@/utils/events/eventFactory';
+  createEvent,
+  CreateEventParams,
+  resetSequence,
+} from '@/utils/events/eventFactory';
 
 /**
  * Query parameters for filtering events.
@@ -776,7 +831,7 @@ export class EventStoreService {
    */
   async getEventsInRange(
     fromSequence: number,
-    toSequence: number
+    toSequence: number,
   ): Promise<readonly IBaseEvent[]> {
     return this.query({ fromSequence, toSequence });
   }
@@ -815,7 +870,7 @@ Expected: PASS
 **Step 5: Commit**
 
 ```bash
-git add src/services/events/ 
+git add src/services/events/
 git commit -m "feat(events): add EventStoreService with query capabilities"
 ```
 
@@ -824,6 +879,7 @@ git commit -m "feat(events): add EventStoreService with query capabilities"
 ### Task 1.5: Chunk Manager Service
 
 **Files:**
+
 - Create: `src/services/events/ChunkManagerService.ts`
 - Test: `src/services/events/__tests__/ChunkManagerService.test.ts`
 
@@ -848,9 +904,24 @@ describe('ChunkManagerService', () => {
   describe('createChunk', () => {
     it('should create chunk from events in range', async () => {
       // Add some events
-      await eventStore.append({ category: EventCategory.Game, type: 'start', payload: {}, context: { gameId: 'g1' } });
-      await eventStore.append({ category: EventCategory.Game, type: 'move', payload: {}, context: { gameId: 'g1', pilotId: 'p1' } });
-      await eventStore.append({ category: EventCategory.Game, type: 'end', payload: {}, context: { gameId: 'g1' } });
+      await eventStore.append({
+        category: EventCategory.Game,
+        type: 'start',
+        payload: {},
+        context: { gameId: 'g1' },
+      });
+      await eventStore.append({
+        category: EventCategory.Game,
+        type: 'move',
+        payload: {},
+        context: { gameId: 'g1', pilotId: 'p1' },
+      });
+      await eventStore.append({
+        category: EventCategory.Game,
+        type: 'end',
+        payload: {},
+        context: { gameId: 'g1' },
+      });
 
       const chunk = await chunkManager.createChunk({
         chunkId: '001-mission-1',
@@ -873,7 +944,7 @@ describe('ChunkManagerService', () => {
         sequence: 100,
         state: {
           campaign: { name: 'Test Campaign', mission: 5 },
-          pilots: { 'p1': { xp: 500, kills: 3 } },
+          pilots: { p1: { xp: 500, kills: 3 } },
           units: {},
           resources: { cBills: 10000 },
         },
@@ -902,11 +973,7 @@ Expected: FAIL
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import {
-  IEventChunk,
-  ICheckpoint,
-  createChunkSummary,
-} from '@/types/events';
+import { IEventChunk, ICheckpoint, createChunkSummary } from '@/types/events';
 import { EventStoreService } from './EventStoreService';
 
 /**
@@ -946,14 +1013,15 @@ export class ChunkManagerService {
   async createChunk(params: CreateChunkParams): Promise<IEventChunk> {
     const events = await this.eventStore.getEventsInRange(
       params.fromSequence,
-      params.toSequence
+      params.toSequence,
     );
 
     const summary = createChunkSummary(events);
 
-    const timeRange: [string, string] = events.length > 0
-      ? [events[0].timestamp, events[events.length - 1].timestamp]
-      : [new Date().toISOString(), new Date().toISOString()];
+    const timeRange: [string, string] =
+      events.length > 0
+        ? [events[0].timestamp, events[events.length - 1].timestamp]
+        : [new Date().toISOString(), new Date().toISOString()];
 
     const chunk: IEventChunk = {
       chunkId: params.chunkId,
@@ -1006,6 +1074,7 @@ git commit -m "feat(events): add ChunkManagerService for chunks and checkpoints"
 ### Task 2.1: Hash Utilities
 
 **Files:**
+
 - Create: `src/utils/events/hashUtils.ts`
 - Test: `src/__tests__/utils/events/hashUtils.test.ts`
 
@@ -1043,8 +1112,24 @@ describe('hashUtils', () => {
     });
 
     it('should produce different hash for different events', async () => {
-      const event1 = { id: '1', sequence: 1, timestamp: '2026-01-20T12:00:00Z', category: EventCategory.Game, type: 'a', payload: {}, context: {} };
-      const event2 = { id: '2', sequence: 2, timestamp: '2026-01-20T12:00:00Z', category: EventCategory.Game, type: 'b', payload: {}, context: {} };
+      const event1 = {
+        id: '1',
+        sequence: 1,
+        timestamp: '2026-01-20T12:00:00Z',
+        category: EventCategory.Game,
+        type: 'a',
+        payload: {},
+        context: {},
+      };
+      const event2 = {
+        id: '2',
+        sequence: 2,
+        timestamp: '2026-01-20T12:00:00Z',
+        category: EventCategory.Game,
+        type: 'b',
+        payload: {},
+        context: {},
+      };
 
       const hash1 = await hashEvent(event1 as any);
       const hash2 = await hashEvent(event2 as any);
@@ -1055,7 +1140,11 @@ describe('hashUtils', () => {
 
   describe('verifyChainIntegrity', () => {
     it('should verify valid chain', async () => {
-      const chunk1 = { chunkId: '001', hash: 'abc123', previousHash: undefined };
+      const chunk1 = {
+        chunkId: '001',
+        hash: 'abc123',
+        previousHash: undefined,
+      };
       const chunk2 = { chunkId: '002', hash: 'def456', previousHash: 'abc123' };
       const chunk3 = { chunkId: '003', hash: 'ghi789', previousHash: 'def456' };
 
@@ -1066,7 +1155,11 @@ describe('hashUtils', () => {
     });
 
     it('should detect broken chain', async () => {
-      const chunk1 = { chunkId: '001', hash: 'abc123', previousHash: undefined };
+      const chunk1 = {
+        chunkId: '001',
+        hash: 'abc123',
+        previousHash: undefined,
+      };
       const chunk2 = { chunkId: '002', hash: 'def456', previousHash: 'WRONG' };
 
       const result = verifyChainIntegrity([chunk1, chunk2] as any);
@@ -1118,7 +1211,9 @@ export async function hashEvent(event: IBaseEvent): Promise<string> {
 /**
  * Hash multiple events (merkle-style: hash of hashes).
  */
-export async function hashEvents(events: readonly IBaseEvent[]): Promise<string> {
+export async function hashEvents(
+  events: readonly IBaseEvent[],
+): Promise<string> {
   const hashes = await Promise.all(events.map(hashEvent));
   return sha256(hashes.join(''));
 }
@@ -1151,7 +1246,7 @@ export interface ChainIntegrityResult {
  * Verify chain integrity (each chunk references previous chunk's hash).
  */
 export function verifyChainIntegrity(
-  chunks: readonly IEventChunk[]
+  chunks: readonly IEventChunk[],
 ): ChainIntegrityResult {
   for (let i = 1; i < chunks.length; i++) {
     const current = chunks[i];
@@ -1189,6 +1284,7 @@ git commit -m "feat(events): add hash utilities for event verification"
 ### Task 3.1: Create add-unified-event-store OpenSpec
 
 **Files:**
+
 - Create: `openspec/changes/add-unified-event-store/proposal.md`
 - Create: `openspec/changes/add-unified-event-store/tasks.md`
 - Create: `openspec/changes/add-unified-event-store/specs/event-store/spec.md`
@@ -1201,6 +1297,7 @@ git commit -m "feat(events): add hash utilities for event verification"
 ## Why
 
 MekStation needs full auditability across games, campaigns, pilots, and repairs. Users want to:
+
 - Replay any game turn-by-turn
 - View campaign history as a timeline
 - Track pilot careers across multiple campaigns
@@ -1406,6 +1503,7 @@ git commit -m "docs(openspec): add unified-event-store specification"
 ### Task 3.2: Create add-audit-timeline OpenSpec
 
 **Files:**
+
 - Create: `openspec/changes/add-audit-timeline/proposal.md`
 - Create: `openspec/changes/add-audit-timeline/tasks.md`
 - Create: `openspec/changes/add-audit-timeline/specs/audit-timeline/spec.md`
@@ -1418,6 +1516,7 @@ git commit -m "docs(openspec): add unified-event-store specification"
 ## Why
 
 With the unified event store capturing all state changes, users need ways to view and navigate this history. The audit timeline provides multiple views for different use cases:
+
 - Timeline feed for narrative/storytelling
 - Diff view for debugging
 - Query interface for analytics
@@ -1622,6 +1721,7 @@ This plan creates the foundation for a unified event store with full auditabilit
 **Estimated effort:** 2-3 days for Phase 1-2, plus UI work for audit timeline.
 
 **Next steps after this plan:**
+
 - Migrate existing game events to new types
 - Add IndexedDB persistence
 - Build audit timeline UI components

@@ -7,12 +7,16 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import { VersionHistoryService, type ApplyContentFn } from '../VersionHistoryService';
 import {
   MockVersionHistoryRepository,
   mockUnitContent,
   mockUnitContentV2,
 } from '@/__tests__/helpers/vault';
+
+import {
+  VersionHistoryService,
+  type ApplyContentFn,
+} from '../VersionHistoryService';
 
 // =============================================================================
 // Tests
@@ -41,7 +45,7 @@ describe('VersionHistoryService', () => {
         'unit',
         'unit-atlas-1',
         mockUnitContent,
-        'local'
+        'local',
       );
 
       expect(version).toBeDefined();
@@ -58,43 +62,63 @@ describe('VersionHistoryService', () => {
         'unit-atlas-1',
         mockUnitContent,
         'local',
-        { message: 'Initial commit' }
+        { message: 'Initial commit' },
       );
 
       expect(version?.message).toBe('Initial commit');
     });
 
     it('should increment version number for same item', async () => {
-      await service.saveVersion('unit', 'unit-atlas-1', mockUnitContent, 'local');
-      const v2 = await service.saveVersion('unit', 'unit-atlas-1', mockUnitContentV2, 'local');
+      await service.saveVersion(
+        'unit',
+        'unit-atlas-1',
+        mockUnitContent,
+        'local',
+      );
+      const v2 = await service.saveVersion(
+        'unit',
+        'unit-atlas-1',
+        mockUnitContentV2,
+        'local',
+      );
 
       expect(v2?.version).toBe(2);
     });
 
     it('should skip unchanged content when requested', async () => {
-      await service.saveVersion('unit', 'unit-atlas-1', mockUnitContent, 'local');
-      
+      await service.saveVersion(
+        'unit',
+        'unit-atlas-1',
+        mockUnitContent,
+        'local',
+      );
+
       // Same content, should skip
       const v2 = await service.saveVersion(
         'unit',
         'unit-atlas-1',
         mockUnitContent,
         'local',
-        { skipIfUnchanged: true }
+        { skipIfUnchanged: true },
       );
 
       expect(v2).toBeNull();
     });
 
     it('should not skip when content changes', async () => {
-      await service.saveVersion('unit', 'unit-atlas-1', mockUnitContent, 'local');
-      
+      await service.saveVersion(
+        'unit',
+        'unit-atlas-1',
+        mockUnitContent,
+        'local',
+      );
+
       const v2 = await service.saveVersion(
         'unit',
         'unit-atlas-1',
         mockUnitContentV2,
         'local',
-        { skipIfUnchanged: true }
+        { skipIfUnchanged: true },
       );
 
       expect(v2).toBeDefined();
@@ -146,8 +170,13 @@ describe('VersionHistoryService', () => {
     });
 
     it('should get version by ID', async () => {
-      const saved = await service.saveVersion('unit', 'unit-1', mockUnitContent, 'local');
-      
+      const saved = await service.saveVersion(
+        'unit',
+        'unit-1',
+        mockUnitContent,
+        'local',
+      );
+
       const found = await service.getVersionById(saved!.id);
 
       expect(found).toBeDefined();
@@ -267,7 +296,12 @@ describe('VersionHistoryService', () => {
       await service.saveVersion('unit', 'unit-1', '{"v":2}', 'local');
       await service.saveVersion('unit', 'unit-1', '{"v":3}', 'local');
 
-      const result = await service.rollbackToVersion('unit-1', 'unit', 1, 'local');
+      const result = await service.rollbackToVersion(
+        'unit-1',
+        'unit',
+        1,
+        'local',
+      );
 
       expect(result.success).toBe(true);
       expect(result.restoredVersion).toBeDefined();
@@ -279,7 +313,12 @@ describe('VersionHistoryService', () => {
     it('should fail rollback for non-existent version', async () => {
       await service.saveVersion('unit', 'unit-1', '{"v":1}', 'local');
 
-      const result = await service.rollbackToVersion('unit-1', 'unit', 99, 'local');
+      const result = await service.rollbackToVersion(
+        'unit-1',
+        'unit',
+        99,
+        'local',
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('not found');
@@ -304,14 +343,24 @@ describe('VersionHistoryService', () => {
       await service.saveVersion('unit', 'unit-1', '{"v":1}', 'local');
       await service.saveVersion('unit', 'unit-1', '{"v":2}', 'local');
 
-      const result = await service.rollbackToVersion('unit-1', 'unit', 1, 'local');
+      const result = await service.rollbackToVersion(
+        'unit-1',
+        'unit',
+        1,
+        'local',
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Failed to apply');
     });
 
     it('should rollback by version ID', async () => {
-      const v1 = await service.saveVersion('unit', 'unit-1', '{"v":1}', 'local');
+      const v1 = await service.saveVersion(
+        'unit',
+        'unit-1',
+        '{"v":1}',
+        'local',
+      );
       await service.saveVersion('unit', 'unit-1', '{"v":2}', 'local');
 
       const result = await service.rollbackToVersionById(v1!.id, 'local');
@@ -368,7 +417,7 @@ describe('VersionHistoryService', () => {
 
       const remaining = await service.getHistory('unit-1', 'unit');
       expect(remaining).toHaveLength(3);
-      expect(remaining.map(v => v.version)).toEqual([5, 4, 3]);
+      expect(remaining.map((v) => v.version)).toEqual([5, 4, 3]);
     });
 
     it('should not prune when fewer versions than keep count', async () => {

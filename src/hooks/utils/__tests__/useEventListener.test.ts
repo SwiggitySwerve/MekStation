@@ -5,6 +5,7 @@
  */
 
 import { renderHook } from '@testing-library/react';
+
 import { useEventListener } from '../useEventListener';
 
 describe('useEventListener', () => {
@@ -31,7 +32,7 @@ describe('useEventListener', () => {
       expect(addEventListenerSpy).toHaveBeenCalledWith(
         'resize',
         expect.any(Function),
-        undefined
+        undefined,
       );
     });
 
@@ -44,7 +45,7 @@ describe('useEventListener', () => {
       expect(removeEventListenerSpy).toHaveBeenCalledWith(
         'resize',
         expect.any(Function),
-        undefined
+        undefined,
       );
     });
 
@@ -93,20 +94,30 @@ describe('useEventListener', () => {
     it('should add event listener to document', () => {
       const handler = jest.fn();
 
-      renderHook(() => useEventListener('keydown', handler, { target: document }));
+      renderHook(() =>
+        useEventListener('keydown', handler, { target: document }),
+      );
 
-      expect(docAddSpy).toHaveBeenCalledWith('keydown', expect.any(Function), undefined);
+      expect(docAddSpy).toHaveBeenCalledWith(
+        'keydown',
+        expect.any(Function),
+        undefined,
+      );
     });
 
     it('should remove event listener from document on unmount', () => {
       const handler = jest.fn();
 
       const { unmount } = renderHook(() =>
-        useEventListener('keydown', handler, { target: document })
+        useEventListener('keydown', handler, { target: document }),
       );
       unmount();
 
-      expect(docRemoveSpy).toHaveBeenCalledWith('keydown', expect.any(Function), undefined);
+      expect(docRemoveSpy).toHaveBeenCalledWith(
+        'keydown',
+        expect.any(Function),
+        undefined,
+      );
     });
   });
 
@@ -120,7 +131,11 @@ describe('useEventListener', () => {
 
       renderHook(() => useEventListener('click', handler, { target: ref }));
 
-      expect(addSpy).toHaveBeenCalledWith('click', expect.any(Function), undefined);
+      expect(addSpy).toHaveBeenCalledWith(
+        'click',
+        expect.any(Function),
+        undefined,
+      );
     });
 
     it('should remove event listener from element ref on unmount', () => {
@@ -131,11 +146,15 @@ describe('useEventListener', () => {
       const ref = { current: element };
 
       const { unmount } = renderHook(() =>
-        useEventListener('click', handler, { target: ref })
+        useEventListener('click', handler, { target: ref }),
       );
       unmount();
 
-      expect(removeSpy).toHaveBeenCalledWith('click', expect.any(Function), undefined);
+      expect(removeSpy).toHaveBeenCalledWith(
+        'click',
+        expect.any(Function),
+        undefined,
+      );
     });
 
     it('should handle null ref gracefully', () => {
@@ -161,7 +180,7 @@ describe('useEventListener', () => {
 
       const { rerender } = renderHook(
         ({ t }) => useEventListener('click', handler, { target: t }),
-        { initialProps: { t: target } }
+        { initialProps: { t: target } },
       );
 
       expect(add1Spy).toHaveBeenCalled();
@@ -179,7 +198,9 @@ describe('useEventListener', () => {
     it('should use latest handler without re-subscribing', () => {
       let handler = jest.fn();
 
-      const { rerender } = renderHook(() => useEventListener('resize', handler));
+      const { rerender } = renderHook(() =>
+        useEventListener('resize', handler),
+      );
 
       // Verify initial subscription
       expect(addEventListenerSpy).toHaveBeenCalledTimes(1);
@@ -206,13 +227,13 @@ describe('useEventListener', () => {
         useEventListener('scroll', handler, {
           capture: true,
           passive: true,
-        })
+        }),
       );
 
       expect(addEventListenerSpy).toHaveBeenCalledWith(
         'scroll',
         expect.any(Function),
-        expect.objectContaining({ capture: true, passive: true })
+        expect.objectContaining({ capture: true, passive: true }),
       );
     });
   });
@@ -231,7 +252,7 @@ describe('useEventListener', () => {
       let enabled = false;
 
       const { rerender } = renderHook(() =>
-        useEventListener('resize', handler, { enabled })
+        useEventListener('resize', handler, { enabled }),
       );
 
       expect(addEventListenerSpy).not.toHaveBeenCalled();
@@ -247,7 +268,7 @@ describe('useEventListener', () => {
       let enabled = true;
 
       const { rerender } = renderHook(() =>
-        useEventListener('resize', handler, { enabled })
+        useEventListener('resize', handler, { enabled }),
       );
 
       expect(addEventListenerSpy).toHaveBeenCalled();

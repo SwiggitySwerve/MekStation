@@ -6,6 +6,8 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
+
+import { IHexCoordinate } from '@/types/gameplay';
 import {
   createHex,
   createHexGrid,
@@ -27,7 +29,6 @@ import {
   getOccupiedCount,
   getEmptyCount,
 } from '@/utils/gameplay/hexGrid';
-import { IHexCoordinate } from '@/types/gameplay';
 
 describe('hexGrid', () => {
   // =========================================================================
@@ -38,7 +39,7 @@ describe('hexGrid', () => {
     it('should create a hex with default values', () => {
       const coord: IHexCoordinate = { q: 1, r: 2 };
       const hex = createHex(coord);
-      
+
       expect(hex.coord).toEqual(coord);
       expect(hex.occupantId).toBeNull();
       expect(hex.terrain).toBe('clear');
@@ -118,7 +119,7 @@ describe('hexGrid', () => {
     it('should return false/null for empty hex', () => {
       const grid = createHexGrid({ radius: 2 });
       const coord: IHexCoordinate = { q: 0, r: 0 };
-      
+
       expect(isOccupied(grid, coord)).toBe(false);
       expect(getOccupant(grid, coord)).toBeNull();
     });
@@ -126,9 +127,9 @@ describe('hexGrid', () => {
     it('should return true/unitId for occupied hex', () => {
       let grid = createHexGrid({ radius: 2 });
       const coord: IHexCoordinate = { q: 0, r: 0 };
-      
+
       grid = placeUnit(grid, coord, 'unit-1');
-      
+
       expect(isOccupied(grid, coord)).toBe(true);
       expect(getOccupant(grid, coord)).toBe('unit-1');
     });
@@ -138,14 +139,14 @@ describe('hexGrid', () => {
     it('should return hexes within range', () => {
       const grid = createHexGrid({ radius: 5 });
       const hexes = getHexesInRange(grid, { q: 0, r: 0 }, 2);
-      
+
       expect(hexes.length).toBe(19); // 1 + 6 + 12
     });
 
     it('should not include hexes outside grid bounds', () => {
       const grid = createHexGrid({ radius: 2 });
       const hexes = getHexesInRange(grid, { q: 2, r: 0 }, 3);
-      
+
       // Should be limited by grid boundary
       expect(hexes.length).toBeLessThan(37);
     });
@@ -173,31 +174,31 @@ describe('hexGrid', () => {
     it('should place a unit on an empty hex', () => {
       let grid = createHexGrid({ radius: 2 });
       const coord: IHexCoordinate = { q: 0, r: 0 };
-      
+
       grid = placeUnit(grid, coord, 'unit-1');
-      
+
       expect(getOccupant(grid, coord)).toBe('unit-1');
     });
 
     it('should throw when placing on occupied hex', () => {
       let grid = createHexGrid({ radius: 2 });
       const coord: IHexCoordinate = { q: 0, r: 0 };
-      
+
       grid = placeUnit(grid, coord, 'unit-1');
-      
+
       expect(() => placeUnit(grid, coord, 'unit-2')).toThrow();
     });
 
     it('should throw when placing outside grid', () => {
       const grid = createHexGrid({ radius: 2 });
-      
+
       expect(() => placeUnit(grid, { q: 10, r: 10 }, 'unit-1')).toThrow();
     });
 
     it('should return a new grid (immutable)', () => {
       const grid1 = createHexGrid({ radius: 2 });
       const grid2 = placeUnit(grid1, { q: 0, r: 0 }, 'unit-1');
-      
+
       expect(grid1).not.toBe(grid2);
       expect(getOccupant(grid1, { q: 0, r: 0 })).toBeNull();
       expect(getOccupant(grid2, { q: 0, r: 0 })).toBe('unit-1');
@@ -208,10 +209,10 @@ describe('hexGrid', () => {
     it('should remove a unit from a hex', () => {
       let grid = createHexGrid({ radius: 2 });
       const coord: IHexCoordinate = { q: 0, r: 0 };
-      
+
       grid = placeUnit(grid, coord, 'unit-1');
       expect(getOccupant(grid, coord)).toBe('unit-1');
-      
+
       grid = removeUnit(grid, coord);
       expect(getOccupant(grid, coord)).toBeNull();
     });
@@ -222,26 +223,26 @@ describe('hexGrid', () => {
       let grid = createHexGrid({ radius: 2 });
       const from: IHexCoordinate = { q: 0, r: 0 };
       const to: IHexCoordinate = { q: 1, r: 0 };
-      
+
       grid = placeUnit(grid, from, 'unit-1');
       grid = moveUnit(grid, from, to);
-      
+
       expect(getOccupant(grid, from)).toBeNull();
       expect(getOccupant(grid, to)).toBe('unit-1');
     });
 
     it('should throw when moving from empty hex', () => {
       const grid = createHexGrid({ radius: 2 });
-      
+
       expect(() => moveUnit(grid, { q: 0, r: 0 }, { q: 1, r: 0 })).toThrow();
     });
 
     it('should throw when moving to occupied hex', () => {
       let grid = createHexGrid({ radius: 2 });
-      
+
       grid = placeUnit(grid, { q: 0, r: 0 }, 'unit-1');
       grid = placeUnit(grid, { q: 1, r: 0 }, 'unit-2');
-      
+
       expect(() => moveUnit(grid, { q: 0, r: 0 }, { q: 1, r: 0 })).toThrow();
     });
   });
@@ -250,9 +251,9 @@ describe('hexGrid', () => {
     it('should update terrain type', () => {
       let grid = createHexGrid({ radius: 2 });
       const coord: IHexCoordinate = { q: 0, r: 0 };
-      
+
       grid = setTerrain(grid, coord, 'woods');
-      
+
       const hex = getHex(grid, coord);
       expect(hex?.terrain).toBe('woods');
     });
@@ -272,13 +273,13 @@ describe('hexGrid', () => {
   describe('getOccupiedCount() / getEmptyCount()', () => {
     it('should count occupied and empty hexes', () => {
       let grid = createHexGrid({ radius: 2 });
-      
+
       expect(getEmptyCount(grid)).toBe(19);
       expect(getOccupiedCount(grid)).toBe(0);
-      
+
       grid = placeUnit(grid, { q: 0, r: 0 }, 'unit-1');
       grid = placeUnit(grid, { q: 1, r: 0 }, 'unit-2');
-      
+
       expect(getEmptyCount(grid)).toBe(17);
       expect(getOccupiedCount(grid)).toBe(2);
     });
@@ -288,7 +289,7 @@ describe('hexGrid', () => {
     it('should find hex where unit is located', () => {
       let grid = createHexGrid({ radius: 2 });
       grid = placeUnit(grid, { q: 1, r: -1 }, 'unit-1');
-      
+
       const hex = findUnitHex(grid, 'unit-1');
       expect(hex).toBeDefined();
       expect(hex?.coord).toEqual({ q: 1, r: -1 });
@@ -304,12 +305,12 @@ describe('hexGrid', () => {
   describe('getEmptyHexes() / getOccupiedHexes()', () => {
     it('should return correct hex arrays', () => {
       let grid = createHexGrid({ radius: 1 });
-      
+
       expect(getEmptyHexes(grid).length).toBe(7);
       expect(getOccupiedHexes(grid).length).toBe(0);
-      
+
       grid = placeUnit(grid, { q: 0, r: 0 }, 'unit-1');
-      
+
       expect(getEmptyHexes(grid).length).toBe(6);
       expect(getOccupiedHexes(grid).length).toBe(1);
     });

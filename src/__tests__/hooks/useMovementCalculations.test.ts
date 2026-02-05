@@ -3,6 +3,7 @@
  */
 
 import { renderHook } from '@testing-library/react';
+
 import {
   useMovementCalculations,
   getWalkMPRange,
@@ -13,8 +14,8 @@ import {
   MAX_ENGINE_RATING,
   MIN_ENGINE_RATING,
 } from '@/hooks/useMovementCalculations';
-import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
+import { JumpJetType } from '@/utils/construction/movementCalculations';
 
 describe('useMovementCalculations', () => {
   describe('pure functions', () => {
@@ -86,7 +87,7 @@ describe('useMovementCalculations', () => {
           jumpMP: 0,
           jumpJetType: JumpJetType.STANDARD,
           enhancement: null,
-        })
+        }),
       );
 
       expect(result.current.walkMP).toBe(4);
@@ -101,7 +102,7 @@ describe('useMovementCalculations', () => {
           jumpMP: 0,
           jumpJetType: JumpJetType.STANDARD,
           enhancement: null,
-        })
+        }),
       );
 
       expect(result.current.walkMPRange.min).toBe(1);
@@ -116,7 +117,7 @@ describe('useMovementCalculations', () => {
           jumpMP: 0,
           jumpJetType: JumpJetType.STANDARD,
           enhancement: null,
-        })
+        }),
       );
 
       expect(result.current.isAtMaxEngineRating).toBe(true);
@@ -130,7 +131,7 @@ describe('useMovementCalculations', () => {
           jumpMP: 0,
           jumpJetType: JumpJetType.STANDARD,
           enhancement: null,
-        })
+        }),
       );
 
       expect(result.current.maxJumpMP).toBe(4); // Equals walk
@@ -144,7 +145,7 @@ describe('useMovementCalculations', () => {
           jumpMP: 0,
           jumpJetType: JumpJetType.IMPROVED,
           enhancement: null,
-        })
+        }),
       );
 
       expect(result.current.maxJumpMP).toBe(6); // Equals run
@@ -158,7 +159,7 @@ describe('useMovementCalculations', () => {
           jumpMP: 0,
           jumpJetType: JumpJetType.STANDARD,
           enhancement: null,
-        })
+        }),
       );
 
       expect(result.current.maxRunMP).toBeUndefined();
@@ -172,7 +173,7 @@ describe('useMovementCalculations', () => {
           jumpMP: 0,
           jumpJetType: JumpJetType.STANDARD,
           enhancement: MovementEnhancementType.MASC,
-        })
+        }),
       );
 
       // MASC: Sprint = Walk × 2 = 8
@@ -188,7 +189,7 @@ describe('useMovementCalculations', () => {
             jumpMP: 0,
             jumpJetType: JumpJetType.STANDARD,
             enhancement: null,
-          })
+          }),
         );
 
         // Range for 100t is 1-4
@@ -205,7 +206,7 @@ describe('useMovementCalculations', () => {
             jumpMP: 0,
             jumpJetType: JumpJetType.STANDARD,
             enhancement: null,
-          })
+          }),
         );
 
         // Max jump for walk 4 with standard jets is 4
@@ -222,7 +223,7 @@ describe('useMovementCalculations', () => {
             jumpMP: 0,
             jumpJetType: JumpJetType.STANDARD,
             enhancement: null,
-          })
+          }),
         );
 
         expect(result.current.getEngineRatingForWalkMP(4)).toBe(200);

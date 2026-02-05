@@ -1,6 +1,9 @@
 import React, { ReactNode, AnchorHTMLAttributes, forwardRef } from 'react';
 
-interface LinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
+interface LinkProps extends Omit<
+  AnchorHTMLAttributes<HTMLAnchorElement>,
+  'href'
+> {
   href: string | { pathname: string; query?: Record<string, string> };
   children: ReactNode;
   prefetch?: boolean;
@@ -13,11 +16,13 @@ interface LinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'
 
 const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
   { href, children, onClick, ...props },
-  ref
+  ref,
 ) {
-  const hrefString = typeof href === 'string' 
-    ? href 
-    : href.pathname + (href.query ? '?' + new URLSearchParams(href.query).toString() : '');
+  const hrefString =
+    typeof href === 'string'
+      ? href
+      : href.pathname +
+        (href.query ? '?' + new URLSearchParams(href.query).toString() : '');
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();

@@ -4,7 +4,13 @@
  */
 import React from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'pagination' | 'danger' | 'success';
+type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'pagination'
+  | 'danger'
+  | 'success';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -17,10 +23,14 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-accent-hover hover:bg-accent text-text-theme-primary border-transparent',
-  secondary: 'bg-surface-raised hover:bg-border-theme border border-border-theme text-slate-300',
-  ghost: 'bg-transparent hover:bg-surface-raised/50 text-text-theme-secondary hover:text-text-theme-primary border-transparent',
-  pagination: 'bg-surface-base border border-border-theme-subtle text-text-theme-secondary hover:text-text-theme-primary hover:border-border-theme',
+  primary:
+    'bg-accent-hover hover:bg-accent text-text-theme-primary border-transparent',
+  secondary:
+    'bg-surface-raised hover:bg-border-theme border border-border-theme text-slate-300',
+  ghost:
+    'bg-transparent hover:bg-surface-raised/50 text-text-theme-secondary hover:text-text-theme-primary border-transparent',
+  pagination:
+    'bg-surface-base border border-border-theme-subtle text-text-theme-secondary hover:text-text-theme-primary hover:border-border-theme',
   danger: 'bg-red-600 hover:bg-red-500 text-white border-transparent',
   success: 'bg-emerald-600 hover:bg-emerald-500 text-white border-transparent',
 };
@@ -43,7 +53,8 @@ export function Button({
   className = '',
   ...props
 }: ButtonProps): React.ReactElement {
-  const baseClasses = 'rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses =
+    'rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed';
   const widthClass = fullWidth ? 'w-full' : '';
 
   return (
@@ -53,11 +64,29 @@ export function Button({
       {...props}
     >
       {isLoading ? (
-        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        <svg
+          className="h-4 w-4 animate-spin"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
         </svg>
-      ) : leftIcon}
+      ) : (
+        leftIcon
+      )}
       {children}
       {!isLoading && rightIcon}
     </button>
@@ -71,7 +100,11 @@ interface PaginationButtonsProps {
   onPageChange: (page: number) => void;
 }
 
-export function PaginationButtons({ currentPage, totalPages, onPageChange }: PaginationButtonsProps): React.ReactElement | null {
+export function PaginationButtons({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: PaginationButtonsProps): React.ReactElement | null {
   if (totalPages <= 1) return null;
 
   return (
@@ -90,7 +123,7 @@ export function PaginationButtons({ currentPage, totalPages, onPageChange }: Pag
       >
         Prev
       </Button>
-      <span className="px-4 py-2 text-text-theme-secondary">
+      <span className="text-text-theme-secondary px-4 py-2">
         Page {currentPage} of {totalPages}
       </span>
       <Button
@@ -112,4 +145,3 @@ export function PaginationButtons({ currentPage, totalPages, onPageChange }: Pag
 }
 
 export default Button;
-

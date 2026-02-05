@@ -50,11 +50,13 @@
 ## 5. Domain Component Stories (P1)
 
 ### 5.1 Armor Components
+
 - [x] 5.1.1 Create `src/components/customizer/armor/ArmorDiagram.stories.tsx`
 - [x] 5.1.2 Create `src/components/armor/ArmorLocation.stories.tsx`
 - [x] 5.1.3 Create `src/components/armor/ArmorDiagramModeSwitch.stories.tsx`
 
 ### 5.2 Customizer Components
+
 - [x] 5.2.1 Create `src/components/customizer/tabs/TabBar.stories.tsx`
 - [x] 5.2.2 Create `src/components/customizer/tabs/UnitTab.stories.tsx`
 - [x] 5.2.3 Create `src/components/customizer/dialogs/ModalOverlay.stories.tsx`
@@ -71,25 +73,31 @@
 - [x] 5.2.14 Create `src/components/customizer/equipment/CategoryToggleBar.stories.tsx`
 
 ### 5.3 Equipment Components
+
 - [x] 5.3.1 Create `src/components/equipment/EquipmentDetail.stories.tsx`
 
 ### 5.4 Critical Slots Components
+
 - [x] 5.4.1 Create `src/components/critical-slots/CriticalSlot.stories.tsx`
 
 ## 6. Additional Component Stories (P2)
 
 ### 6.1 Gameplay Components
+
 - [x] 6.1.1 Create `src/components/gameplay/AmmoCounter.stories.tsx`
 - [x] 6.1.2 Create `src/components/gameplay/HeatTracker.stories.tsx`
 - [x] 6.1.3 Create `src/components/gameplay/ArmorPip.stories.tsx`
 
 ### 6.2 Mobile Components
+
 - [x] 6.2.1 Create `src/components/mobile/BottomNavBar.stories.tsx`
 
 ### 6.3 Settings Components
+
 - [x] 6.3.1 Create `src/components/settings/DesktopSettingsDialog.stories.tsx`
 
 ### 6.4 Shared Components
+
 - [x] 6.4.1 Create `src/components/shared/Toast.stories.tsx`
 - [x] 6.4.2 Create `src/components/shared/ActionSheet.stories.tsx`
 
@@ -117,6 +125,7 @@
 ### Completed (44 story files + infrastructure)
 
 **Infrastructure:**
+
 - Complete mocking system for Next.js (Link, Head, router hooks)
 - ZustandDecorator for store state management in stories
 - DeviceCapabilitiesDecorator for mobile component testing
@@ -124,6 +133,7 @@
 - All decorators registered globally in preview.ts
 
 **Story Files:**
+
 - 8 UI component stories (Button, Card, Badge, Input, StatDisplay, CategoryCard, ViewModeToggle, PageLayout)
 - 8 common component stories (Pagination, SkeletonLoader, CustomDropdown, ControlledInput, ErrorBoundary, CategoryNavigation, Layout, Sidebar)
 - 3 armor component stories (ArmorDiagram, ArmorLocation, ArmorDiagramModeSwitch)
@@ -152,34 +162,34 @@
 
 ## Story Count Summary
 
-| Category | Story Files | Components |
-|----------|-------------|------------|
-| UI | 8 | Button, Card, Badge, Input, StatDisplay, CategoryCard, ViewModeToggle, PageLayout |
-| Common | 8 | Pagination, SkeletonLoader, CustomDropdown, ControlledInput, ErrorBoundary, CategoryNavigation, Layout, Sidebar |
-| Armor | 3 | ArmorDiagram, ArmorLocation, ArmorDiagramModeSwitch |
-| Gameplay | 3 | AmmoCounter, HeatTracker, ArmorPip |
-| Shared | 2 | Toast, ActionSheet |
-| Customizer/Tabs | 2 | TabBar, UnitTab |
-| Customizer/Dialogs | 8 | ModalOverlay, UnsavedChangesDialog, ResetConfirmationDialog, SaveUnitDialog, ImportUnitDialog, VersionHistoryDialog, OverwriteConfirmDialog, UnitLoadDialog |
-| Customizer/Shared | 3 | StatCell, ValidationBadge, ColorLegend |
-| Customizer/Equipment | 1 | CategoryToggleBar |
-| Equipment | 1 | EquipmentDetail |
-| Critical-Slots | 1 | CriticalSlot |
-| Mobile | 1 | BottomNavBar |
-| Settings | 1 | DesktopSettingsDialog |
-| Design System | 4 | Introduction, Colors, Typography, Spacing (MDX) |
-| **Total** | **44 story files** | **40 components + 4 docs** |
+| Category             | Story Files        | Components                                                                                                                                                  |
+| -------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UI                   | 8                  | Button, Card, Badge, Input, StatDisplay, CategoryCard, ViewModeToggle, PageLayout                                                                           |
+| Common               | 8                  | Pagination, SkeletonLoader, CustomDropdown, ControlledInput, ErrorBoundary, CategoryNavigation, Layout, Sidebar                                             |
+| Armor                | 3                  | ArmorDiagram, ArmorLocation, ArmorDiagramModeSwitch                                                                                                         |
+| Gameplay             | 3                  | AmmoCounter, HeatTracker, ArmorPip                                                                                                                          |
+| Shared               | 2                  | Toast, ActionSheet                                                                                                                                          |
+| Customizer/Tabs      | 2                  | TabBar, UnitTab                                                                                                                                             |
+| Customizer/Dialogs   | 8                  | ModalOverlay, UnsavedChangesDialog, ResetConfirmationDialog, SaveUnitDialog, ImportUnitDialog, VersionHistoryDialog, OverwriteConfirmDialog, UnitLoadDialog |
+| Customizer/Shared    | 3                  | StatCell, ValidationBadge, ColorLegend                                                                                                                      |
+| Customizer/Equipment | 1                  | CategoryToggleBar                                                                                                                                           |
+| Equipment            | 1                  | EquipmentDetail                                                                                                                                             |
+| Critical-Slots       | 1                  | CriticalSlot                                                                                                                                                |
+| Mobile               | 1                  | BottomNavBar                                                                                                                                                |
+| Settings             | 1                  | DesktopSettingsDialog                                                                                                                                       |
+| Design System        | 4                  | Introduction, Colors, Typography, Spacing (MDX)                                                                                                             |
+| **Total**            | **44 story files** | **40 components + 4 docs**                                                                                                                                  |
 
 ## Infrastructure Files Created
 
-| File | Purpose |
-|------|---------|
-| `.storybook/decorators/ZustandDecorator.tsx` | Mock Zustand store state |
-| `.storybook/decorators/NextRouterDecorator.tsx` | Mock Next.js router context |
-| `.storybook/decorators/DeviceCapabilitiesDecorator.tsx` | Mock device capabilities |
-| `.storybook/decorators/ElectronDecorator.tsx` | Mock Electron APIs |
-| `.storybook/mocks/next-link.tsx` | Mock Next.js Link component |
-| `.storybook/mocks/next-head.tsx` | Mock Next.js Head component |
-| `.storybook/mocks/next-router.tsx` | Mock Next.js router hooks |
-| `.storybook/mocks/useDeviceCapabilities.tsx` | Mock useDeviceCapabilities hook |
-| `.storybook/mocks/useElectron.tsx` | Mock Electron API |
+| File                                                    | Purpose                         |
+| ------------------------------------------------------- | ------------------------------- |
+| `.storybook/decorators/ZustandDecorator.tsx`            | Mock Zustand store state        |
+| `.storybook/decorators/NextRouterDecorator.tsx`         | Mock Next.js router context     |
+| `.storybook/decorators/DeviceCapabilitiesDecorator.tsx` | Mock device capabilities        |
+| `.storybook/decorators/ElectronDecorator.tsx`           | Mock Electron APIs              |
+| `.storybook/mocks/next-link.tsx`                        | Mock Next.js Link component     |
+| `.storybook/mocks/next-head.tsx`                        | Mock Next.js Head component     |
+| `.storybook/mocks/next-router.tsx`                      | Mock Next.js router hooks       |
+| `.storybook/mocks/useDeviceCapabilities.tsx`            | Mock useDeviceCapabilities hook |
+| `.storybook/mocks/useElectron.tsx`                      | Mock Electron API               |

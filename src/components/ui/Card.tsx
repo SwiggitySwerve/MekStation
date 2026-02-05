@@ -4,13 +4,13 @@
  */
 import React from 'react';
 
-type CardVariant = 
-  | 'default' 
-  | 'dark' 
-  | 'header' 
-  | 'interactive' 
+type CardVariant =
+  | 'default'
+  | 'dark'
+  | 'header'
+  | 'interactive'
   | 'gradient'
-  | 'accent-left'    // 4px colored left border
+  | 'accent-left' // 4px colored left border
   | 'accent-bottom'; // Full-width colored bottom bar
 
 export type CardAccentColor = 'amber' | 'cyan' | 'emerald' | 'rose' | 'violet';
@@ -28,13 +28,18 @@ interface CardProps {
 }
 
 const variantClasses: Record<CardVariant, string> = {
-  default: 'bg-surface-base/50 border border-border-theme-subtle rounded-xl p-6',
+  default:
+    'bg-surface-base/50 border border-border-theme-subtle rounded-xl p-6',
   dark: 'bg-surface-base/30 border border-border-theme-subtle rounded-xl p-6',
   header: 'bg-surface-base/50 border border-border-theme-subtle rounded-xl p-6',
-  interactive: 'bg-surface-base/30 border border-border-theme-subtle rounded-xl p-4 hover:border-border-theme hover:bg-surface-base/50 transition-all cursor-pointer',
-  gradient: 'bg-surface-base/40 backdrop-blur border border-border-theme-subtle/50 rounded-2xl p-6 transition-all duration-300 hover:border-border-theme hover:bg-surface-base/60 hover:shadow-xl hover:shadow-amber-900/10',
-  'accent-left': 'bg-surface-base/40 border border-border-theme-subtle/50 border-l-4 rounded-lg p-4 transition-all hover:bg-surface-base/60',
-  'accent-bottom': 'bg-surface-raised rounded-lg overflow-hidden transition-all hover:shadow-lg',
+  interactive:
+    'bg-surface-base/30 border border-border-theme-subtle rounded-xl p-4 hover:border-border-theme hover:bg-surface-base/50 transition-all cursor-pointer',
+  gradient:
+    'bg-surface-base/40 backdrop-blur border border-border-theme-subtle/50 rounded-2xl p-6 transition-all duration-300 hover:border-border-theme hover:bg-surface-base/60 hover:shadow-xl hover:shadow-amber-900/10',
+  'accent-left':
+    'bg-surface-base/40 border border-border-theme-subtle/50 border-l-4 rounded-lg p-4 transition-all hover:bg-surface-base/60',
+  'accent-bottom':
+    'bg-surface-raised rounded-lg overflow-hidden transition-all hover:shadow-lg',
 };
 
 // Accent color classes for left border variant
@@ -66,13 +71,13 @@ export function Card({
 }: CardProps): React.ReactElement {
   // Build classes based on variant
   let classes = variantClasses[variant];
-  
+
   // Add accent color classes for accent variants
   if (variant === 'accent-left') {
     classes = `${classes} ${accentLeftClasses[accentColor]}`;
   }
 
-// For accent-bottom, we wrap children with the bottom bar
+  // For accent-bottom, we wrap children with the bottom bar
   if (variant === 'accent-bottom') {
     return (
       <Component
@@ -80,10 +85,10 @@ export function Card({
         onClick={onClick}
         data-testid={testId}
       >
-        <div className="p-4">
-          {children}
-        </div>
-        <div className={`h-8 ${accentBottomClasses[accentColor]} flex items-center px-3`}>
+        <div className="p-4">{children}</div>
+        <div
+          className={`h-8 ${accentBottomClasses[accentColor]} flex items-center px-3`}
+        >
           {/* Bottom bar content area - can be used for category labels */}
         </div>
       </Component>
@@ -131,7 +136,9 @@ export function CardSection({
 }: CardSectionProps): React.ReactElement {
   const content = (
     <>
-      <h3 className={`text-lg font-semibold ${children ? 'mb-4' : ''} flex items-center gap-2 ${titleColorClasses[titleColor]}`}>
+      <h3
+        className={`text-lg font-semibold ${children ? 'mb-4' : ''} flex items-center gap-2 ${titleColorClasses[titleColor]}`}
+      >
         {icon}
         {title}
       </h3>
@@ -147,4 +154,3 @@ export function CardSection({
 }
 
 export default Card;
-

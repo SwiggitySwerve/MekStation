@@ -8,7 +8,6 @@
  * - Edge cases and deduplication
  */
 
-import { HeatSuicideDetector, type BattleState } from '../HeatSuicideDetector';
 import {
   GameEventType,
   GamePhase,
@@ -16,6 +15,8 @@ import {
   type IGameEvent,
   type IHeatPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+
+import { HeatSuicideDetector, type BattleState } from '../HeatSuicideDetector';
 
 // =============================================================================
 // Test Fixtures
@@ -63,7 +64,9 @@ const createDestroyedEvent = (
   },
 });
 
-const createBattleState = (units: Array<{ id: string; name: string; side: GameSide }>): BattleState => ({
+const createBattleState = (
+  units: Array<{ id: string; name: string; side: GameSide }>,
+): BattleState => ({
   units: units.map((u) => ({
     id: u.id,
     name: u.name,

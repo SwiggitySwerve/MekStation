@@ -1,12 +1,15 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/custom-variants endpoint
- * 
+ *
  * NOTE: This endpoint is DEPRECATED and returns 410 (Gone) for all requests.
  * New code should use /api/units/custom/* endpoints instead.
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/custom-variants';
+
 import { parseDeprecatedResponse } from '../helpers';
 
 /**
@@ -115,7 +118,9 @@ describe('/api/custom-variants (DEPRECATED)', () => {
       expect(data.newApi?.endpoints.create).toBe('POST /api/units/custom');
       expect(data.newApi?.endpoints.get).toBe('GET /api/units/custom/[id]');
       expect(data.newApi?.endpoints.update).toBe('PUT /api/units/custom/[id]');
-      expect(data.newApi?.endpoints.delete).toBe('DELETE /api/units/custom/[id]');
+      expect(data.newApi?.endpoints.delete).toBe(
+        'DELETE /api/units/custom/[id]',
+      );
     });
 
     it('should provide version and export endpoints', async () => {
@@ -127,9 +132,15 @@ describe('/api/custom-variants (DEPRECATED)', () => {
 
       const rawData = res._getData() as string;
       const data = JSON.parse(rawData) as DeprecatedResponseWithApi;
-      expect(data.newApi?.endpoints.versions).toBe('GET /api/units/custom/[id]/versions');
-      expect(data.newApi?.endpoints.revert).toBe('POST /api/units/custom/[id]/revert/[version]');
-      expect(data.newApi?.endpoints.export).toBe('GET /api/units/custom/[id]/export');
+      expect(data.newApi?.endpoints.versions).toBe(
+        'GET /api/units/custom/[id]/versions',
+      );
+      expect(data.newApi?.endpoints.revert).toBe(
+        'POST /api/units/custom/[id]/revert/[version]',
+      );
+      expect(data.newApi?.endpoints.export).toBe(
+        'GET /api/units/custom/[id]/export',
+      );
       expect(data.newApi?.endpoints.import).toBe('POST /api/units/import');
     });
   });

@@ -64,19 +64,28 @@ describe('movementCalculations', () => {
     });
 
     it('should sum modifiers for MASC + Supercharger (2.5x total)', () => {
-      const modifiers = getMovementModifiersFromEquipment(['MASC', 'Supercharger']);
+      const modifiers = getMovementModifiersFromEquipment([
+        'MASC',
+        'Supercharger',
+      ]);
       expect(modifiers.runMultiplierBonus).toBe(1.0); // 0.5 + 0.5 = 1.0
       expect(modifiers.flatMPBonus).toBe(0);
     });
 
     it('should handle TSM flat bonus', () => {
-      const modifiers = getMovementModifiersFromEquipment(['Triple Strength Myomer']);
+      const modifiers = getMovementModifiersFromEquipment([
+        'Triple Strength Myomer',
+      ]);
       expect(modifiers.runMultiplierBonus).toBe(0);
       expect(modifiers.flatMPBonus).toBe(1);
     });
 
     it('should not double-count same enhancement', () => {
-      const modifiers = getMovementModifiersFromEquipment(['MASC', 'IS MASC', 'Clan MASC']);
+      const modifiers = getMovementModifiersFromEquipment([
+        'MASC',
+        'IS MASC',
+        'Clan MASC',
+      ]);
       expect(modifiers.runMultiplierBonus).toBe(0.5); // Only counted once
     });
   });
@@ -128,7 +137,9 @@ describe('movementCalculations', () => {
 
   describe('jump jet calculations', () => {
     it('should return definitions and undefined for unknown type', () => {
-      expect(getJumpJetDefinition(JumpJetType.STANDARD)?.name).toBe('Standard Jump Jet');
+      expect(getJumpJetDefinition(JumpJetType.STANDARD)?.name).toBe(
+        'Standard Jump Jet',
+      );
       expect(getJumpJetDefinition('Unknown' as JumpJetType)).toBeUndefined();
     });
 
@@ -137,13 +148,15 @@ describe('movementCalculations', () => {
       expect(calculateJumpJetWeight(50, 2, JumpJetType.STANDARD)).toBe(1.0);
       expect(calculateJumpJetWeight(75, 2, JumpJetType.STANDARD)).toBe(2.0);
       expect(calculateJumpJetWeight(90, 2, JumpJetType.STANDARD)).toBe(4); // 2 × 2.0t
-      
+
       // Improved: <= 55: 1.0, <= 85: 2.0, > 85: 4.0
       expect(calculateJumpJetWeight(50, 2, JumpJetType.IMPROVED)).toBe(2.0);
       expect(calculateJumpJetWeight(75, 2, JumpJetType.IMPROVED)).toBe(4.0);
       expect(calculateJumpJetWeight(90, 3, JumpJetType.IMPROVED)).toBe(12); // 3 × 4.0t
-      
-      expect(calculateJumpJetWeight(60, 4, JumpJetType.MECHANICAL)).toBeCloseTo(6); // 4 × (60 × 0.025)
+
+      expect(calculateJumpJetWeight(60, 4, JumpJetType.MECHANICAL)).toBeCloseTo(
+        6,
+      ); // 4 × (60 × 0.025)
       expect(calculateJumpJetWeight(45, 2, 'Unknown' as JumpJetType)).toBe(1); // default 0.5t per jump
     });
 
@@ -200,7 +213,11 @@ describe('movementCalculations', () => {
     });
 
     it('should handle triple-strength myomer wording', () => {
-      const enhanced = calculateEnhancedMaxRunMP(6, 'Triple-Strength Myomer', false);
+      const enhanced = calculateEnhancedMaxRunMP(
+        6,
+        'Triple-Strength Myomer',
+        false,
+      );
       expect(enhanced).toBe(calculateRunMP(6) + 1);
     });
   });
@@ -211,7 +228,9 @@ describe('movementCalculations', () => {
     });
 
     it('should include standard jump jets', () => {
-      const standard = JUMP_JET_DEFINITIONS.find(j => j.type === JumpJetType.STANDARD);
+      const standard = JUMP_JET_DEFINITIONS.find(
+        (j) => j.type === JumpJetType.STANDARD,
+      );
       expect(standard).toBeDefined();
     });
   });

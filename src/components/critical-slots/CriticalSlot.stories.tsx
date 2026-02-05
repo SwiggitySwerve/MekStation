@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { CriticalSlot, CriticalSlotsGrid, CriticalSlotData } from './CriticalSlot';
-import { useState } from 'react';
+
 import { fn } from '@storybook/test';
+import { useState } from 'react';
+
+import {
+  CriticalSlot,
+  CriticalSlotsGrid,
+  CriticalSlotData,
+} from './CriticalSlot';
 
 const meta: Meta<typeof CriticalSlot> = {
   title: 'Critical-Slots/CriticalSlot',
@@ -10,7 +16,8 @@ const meta: Meta<typeof CriticalSlot> = {
   parameters: {
     docs: {
       description: {
-        component: 'Single critical slot display with tap-to-highlight and remove functionality.',
+        component:
+          'Single critical slot display with tap-to-highlight and remove functionality.',
       },
     },
   },
@@ -87,16 +94,24 @@ export const WithIcon: Story = {
 export const Interactive: Story = {
   render: () => {
     const [slots, setSlots] = useState<CriticalSlotData[]>([
-      { id: '1', index: 0, equipment: { id: 'e1', name: 'PPC', type: 'Energy' } },
+      {
+        id: '1',
+        index: 0,
+        equipment: { id: 'e1', name: 'PPC', type: 'Energy' },
+      },
       { id: '2', index: 1, equipment: null },
-      { id: '3', index: 2, equipment: { id: 'e2', name: 'Medium Laser', type: 'Energy' } },
+      {
+        id: '3',
+        index: 2,
+        equipment: { id: 'e2', name: 'Medium Laser', type: 'Energy' },
+      },
       { id: '4', index: 3, equipment: null },
     ]);
 
     const handleRemove = (slotId: string) => {
-      setSlots(slots.map((s) => 
-        s.id === slotId ? { ...s, equipment: null } : s
-      ));
+      setSlots(
+        slots.map((s) => (s.id === slotId ? { ...s, equipment: null } : s)),
+      );
     };
 
     return (
@@ -112,7 +127,8 @@ export const Interactive: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Interactive grid. Click equipment to highlight, then click remove button. Tap empty slots to trigger assign.',
+        story:
+          'Interactive grid. Click equipment to highlight, then click remove button. Tap empty slots to trigger assign.',
       },
     },
   },
@@ -121,11 +137,31 @@ export const Interactive: Story = {
 export const MechArm: Story = {
   render: () => {
     const armSlots: CriticalSlotData[] = [
-      { id: '1', index: 0, equipment: { id: 's1', name: 'Shoulder', type: 'Actuator' } },
-      { id: '2', index: 1, equipment: { id: 's2', name: 'Upper Arm Actuator', type: 'Actuator' } },
-      { id: '3', index: 2, equipment: { id: 's3', name: 'Lower Arm Actuator', type: 'Actuator' } },
-      { id: '4', index: 3, equipment: { id: 's4', name: 'Hand Actuator', type: 'Actuator' } },
-      { id: '5', index: 4, equipment: { id: 'e1', name: 'Medium Laser', type: 'Energy Weapon' } },
+      {
+        id: '1',
+        index: 0,
+        equipment: { id: 's1', name: 'Shoulder', type: 'Actuator' },
+      },
+      {
+        id: '2',
+        index: 1,
+        equipment: { id: 's2', name: 'Upper Arm Actuator', type: 'Actuator' },
+      },
+      {
+        id: '3',
+        index: 2,
+        equipment: { id: 's3', name: 'Lower Arm Actuator', type: 'Actuator' },
+      },
+      {
+        id: '4',
+        index: 3,
+        equipment: { id: 's4', name: 'Hand Actuator', type: 'Actuator' },
+      },
+      {
+        id: '5',
+        index: 4,
+        equipment: { id: 'e1', name: 'Medium Laser', type: 'Energy Weapon' },
+      },
       { id: '6', index: 5, equipment: null },
       { id: '7', index: 6, equipment: null },
       { id: '8', index: 7, equipment: null },
@@ -137,7 +173,7 @@ export const MechArm: Story = {
 
     return (
       <div>
-        <h3 className="text-white font-bold mb-4">Left Arm (12 slots)</h3>
+        <h3 className="mb-4 font-bold text-white">Left Arm (12 slots)</h3>
         <CriticalSlotsGrid
           slots={armSlots}
           onRemove={(id) => console.log('Remove', id)}

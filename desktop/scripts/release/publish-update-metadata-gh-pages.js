@@ -63,7 +63,8 @@ function main() {
   const desktopDir = path.join(projectRoot, 'desktop');
 
   const tag = getArg('--tag');
-  const releaseDir = getArg('--release-dir') || path.join(desktopDir, 'release');
+  const releaseDir =
+    getArg('--release-dir') || path.join(desktopDir, 'release');
   const owner = getArg('--owner') || 'SwiggitySwerve';
   const repo = getArg('--repo') || 'MekStation';
   const branch = getArg('--branch') || 'gh-pages';
@@ -87,7 +88,9 @@ function main() {
     repo,
     tag,
   });
-  console.log(`[publish-update-metadata] Prepared ${writtenFiles.length} file(s)`);
+  console.log(
+    `[publish-update-metadata] Prepared ${writtenFiles.length} file(s)`,
+  );
 
   // Step 2: setup worktree
   if (fs.existsSync(worktreeDir)) {
@@ -97,17 +100,30 @@ function main() {
   }
 
   // Ensure branch exists locally (fetch if exists remotely).
-  const hasLocalBranch = execGit(['show-ref', '--verify', '--quiet', `refs/heads/${branch}`], projectRoot, true) !== null;
+  const hasLocalBranch =
+    execGit(
+      ['show-ref', '--verify', '--quiet', `refs/heads/${branch}`],
+      projectRoot,
+      true,
+    ) !== null;
   if (!hasLocalBranch) {
     execGit(['fetch', remote, `${branch}:${branch}`], projectRoot, true);
   }
-  const branchNowExists = execGit(['show-ref', '--verify', '--quiet', `refs/heads/${branch}`], projectRoot, true) !== null;
+  const branchNowExists =
+    execGit(
+      ['show-ref', '--verify', '--quiet', `refs/heads/${branch}`],
+      projectRoot,
+      true,
+    ) !== null;
 
   if (branchNowExists) {
     execGit(['worktree', 'add', '--force', worktreeDir, branch], projectRoot);
   } else {
     // Create an orphan pages branch.
-    execGit(['worktree', 'add', '--force', '--detach', worktreeDir], projectRoot);
+    execGit(
+      ['worktree', 'add', '--force', '--detach', worktreeDir],
+      projectRoot,
+    );
     execGit(['checkout', '--orphan', branch], worktreeDir);
     // Clear all files (if any)
     execGit(['rm', '-rf', '.'], worktreeDir, true);
@@ -123,7 +139,8 @@ function main() {
     fs.mkdirSync(destUpdatesDir, { recursive: true });
   }
 
-  const topLevelDirs = fs.readdirSync(preparedUpdatesDir, { withFileTypes: true })
+  const topLevelDirs = fs
+    .readdirSync(preparedUpdatesDir, { withFileTypes: true })
     .filter((e) => e.isDirectory())
     .map((e) => e.name);
 
@@ -133,7 +150,8 @@ function main() {
 
     if (dirName === 'mac') {
       // Replace only the mac arch directories present in this build output.
-      const archDirs = fs.readdirSync(srcTop, { withFileTypes: true })
+      const archDirs = fs
+        .readdirSync(srcTop, { withFileTypes: true })
         .filter((e) => e.isDirectory())
         .map((e) => e.name);
 
@@ -146,28 +164,37 @@ function main() {
     copyDirReplacing(destTop, srcTop);
   }
 
-  fs.copyFileSync(path.join(preparedOutDir, '.nojekyll'), path.join(worktreeDir, '.nojekyll'));
+  fs.copyFileSync(
+    path.join(preparedOutDir, '.nojekyll'),
+    path.join(worktreeDir, '.nojekyll'),
+  );
 
   if (dryRun) {
-    console.log(`[publish-update-metadata] Dry run complete. Worktree at: ${worktreeDir}`);
+    console.log(
+      `[publish-update-metadata] Dry run complete. Worktree at: ${worktreeDir}`,
+    );
     return;
   }
 
   // Step 4: commit and push
   execGit(['add', '-A'], worktreeDir);
 
-  const status = execFileSync('git', ['status', '--porcelain'], { cwd: worktreeDir, encoding: 'utf8' }).trim();
+  const status = execFileSync('git', ['status', '--porcelain'], {
+    cwd: worktreeDir,
+    encoding: 'utf8',
+  }).trim();
   if (!status) {
     console.log('[publish-update-metadata] No changes to publish.');
     return;
   }
 
-  execGit(['commit', '-m', `updates: publish metadata for ${tag}`], worktreeDir);
+  execGit(
+    ['commit', '-m', `updates: publish metadata for ${tag}`],
+    worktreeDir,
+  );
   execGit(['push', remote, branch], worktreeDir);
 
   console.log(`[publish-update-metadata] Published to ${remote}/${branch}`);
 }
 
 main();
-
-

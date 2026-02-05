@@ -1,4 +1,5 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
+
 import { MissionStatus } from '@/types/campaign/enums';
 
 const DEFAULT_BASE_TARGET = 3;

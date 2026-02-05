@@ -77,11 +77,11 @@ export function FormField({
       {/* Label */}
       <label
         htmlFor={htmlFor}
-        className={`block text-sm font-medium text-text-theme-primary mb-1 ${labelClassName}`}
+        className={`text-text-theme-primary mb-1 block text-sm font-medium ${labelClassName}`}
       >
         {label}
         {required && (
-          <span className="text-red-400 ml-0.5" aria-hidden="true">
+          <span className="ml-0.5 text-red-400" aria-hidden="true">
             *
           </span>
         )}
@@ -89,9 +89,12 @@ export function FormField({
 
       {/* Form control with aria-describedby injected if child is a single element */}
       {describedBy && React.isValidElement(children)
-        ? React.cloneElement(children as React.ReactElement<{ 'aria-describedby'?: string }>, {
-            'aria-describedby': describedBy,
-          })
+        ? React.cloneElement(
+            children as React.ReactElement<{ 'aria-describedby'?: string }>,
+            {
+              'aria-describedby': describedBy,
+            },
+          )
         : children}
 
       {/* Error message (takes precedence over hint) */}
@@ -103,7 +106,7 @@ export function FormField({
 
       {/* Hint text (shown only when no error) */}
       {hint && !error && (
-        <p id={hintId} className="mt-1 text-xs text-text-theme-secondary">
+        <p id={hintId} className="text-text-theme-secondary mt-1 text-xs">
           {hint}
         </p>
       )}

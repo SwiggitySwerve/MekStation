@@ -5,19 +5,6 @@
  */
 
 import {
-  createInitialUnitState,
-  createInitialGameState,
-  applyEvent,
-  deriveState,
-  deriveStateAtSequence,
-  deriveStateAtTurn,
-  getActiveUnits,
-  getUnitsAwaitingAction,
-  allUnitsLocked,
-  isGameOver,
-  checkVictoryConditions,
-} from '../gameState';
-import {
   GameEventType,
   GamePhase,
   GameStatus,
@@ -41,6 +28,20 @@ import {
   IPilotHitPayload,
   IUnitDestroyedPayload,
 } from '@/types/gameplay';
+
+import {
+  createInitialUnitState,
+  createInitialGameState,
+  applyEvent,
+  deriveState,
+  deriveStateAtSequence,
+  deriveStateAtTurn,
+  getActiveUnits,
+  getUnitsAwaitingAction,
+  allUnitsLocked,
+  isGameOver,
+  checkVictoryConditions,
+} from '../gameState';
 
 // =============================================================================
 // Test Fixtures
@@ -91,9 +92,9 @@ describe('createInitialUnitState', () => {
   it('should create unit state with correct initial values', () => {
     const unit = createTestUnit();
     const position = { q: 0, r: 0 };
-    
+
     const state = createInitialUnitState(unit, position);
-    
+
     expect(state.id).toBe(unit.id);
     expect(state.side).toBe(unit.side);
     expect(state.position).toEqual(position);
@@ -110,18 +111,18 @@ describe('createInitialUnitState', () => {
   it('should use provided facing', () => {
     const unit = createTestUnit();
     const position = { q: 0, r: 0 };
-    
+
     const state = createInitialUnitState(unit, position, Facing.South);
-    
+
     expect(state.facing).toBe(Facing.South);
   });
 
   it('should initialize empty collections', () => {
     const unit = createTestUnit();
     const position = { q: 0, r: 0 };
-    
+
     const state = createInitialUnitState(unit, position);
-    
+
     expect(state.armor).toEqual({});
     expect(state.structure).toEqual({});
     expect(state.destroyedLocations).toEqual([]);
@@ -137,7 +138,7 @@ describe('createInitialUnitState', () => {
 describe('createInitialGameState', () => {
   it('should create game state with setup status', () => {
     const state = createInitialGameState('game-1');
-    
+
     expect(state.gameId).toBe('game-1');
     expect(state.status).toBe(GameStatus.Setup);
     expect(state.turn).toBe(0);
@@ -159,7 +160,7 @@ describe('applyEvent - GameCreated', () => {
       createTestUnit({ id: 'unit-1', side: GameSide.Player }),
       createTestUnit({ id: 'unit-2', side: GameSide.Opponent }),
     ];
-    
+
     const event = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -167,9 +168,9 @@ describe('applyEvent - GameCreated', () => {
         units,
       } as IGameCreatedPayload,
     });
-    
+
     const newState = applyEvent(initialState, event);
-    
+
     expect(newState.status).toBe(GameStatus.Setup);
     expect(Object.keys(newState.units)).toHaveLength(2);
     expect(newState.units['unit-1']).toBeDefined();
@@ -182,7 +183,7 @@ describe('applyEvent - GameCreated', () => {
       createTestUnit({ id: 'player-1', side: GameSide.Player }),
       createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
     ];
-    
+
     const event = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -190,9 +191,9 @@ describe('applyEvent - GameCreated', () => {
         units,
       } as IGameCreatedPayload,
     });
-    
+
     const newState = applyEvent(initialState, event);
-    
+
     // Player faces north, opponent faces south
     expect(newState.units['player-1'].facing).toBe(Facing.North);
     expect(newState.units['opponent-1'].facing).toBe(Facing.South);
@@ -206,16 +207,16 @@ describe('applyEvent - GameCreated', () => {
 describe('applyEvent - GameStarted', () => {
   it('should set game to active status', () => {
     const initialState = createInitialGameState('game-1');
-    
+
     const event = createTestEvent({
       type: GameEventType.GameStarted,
       payload: {
         firstSide: GameSide.Player,
       } as IGameStartedPayload,
     });
-    
+
     const newState = applyEvent(initialState, event);
-    
+
     expect(newState.status).toBe(GameStatus.Active);
     expect(newState.turn).toBe(1);
     expect(newState.phase).toBe(GamePhase.Initiative);
@@ -230,7 +231,7 @@ describe('applyEvent - GameStarted', () => {
 describe('applyEvent - GameEnded', () => {
   it('should set game to completed with result', () => {
     const initialState = createInitialGameState('game-1');
-    
+
     const event = createTestEvent({
       type: GameEventType.GameEnded,
       payload: {
@@ -238,9 +239,9 @@ describe('applyEvent - GameEnded', () => {
         reason: 'destruction',
       } as IGameEndedPayload,
     });
-    
+
     const newState = applyEvent(initialState, event);
-    
+
     expect(newState.status).toBe(GameStatus.Completed);
     expect(newState.result?.winner).toBe(GameSide.Player);
     expect(newState.result?.reason).toBe('destruction');
@@ -248,7 +249,7 @@ describe('applyEvent - GameEnded', () => {
 
   it('should handle draw result', () => {
     const initialState = createInitialGameState('game-1');
-    
+
     const event = createTestEvent({
       type: GameEventType.GameEnded,
       payload: {
@@ -256,9 +257,9 @@ describe('applyEvent - GameEnded', () => {
         reason: 'turn_limit',
       } as IGameEndedPayload,
     });
-    
+
     const newState = applyEvent(initialState, event);
-    
+
     expect(newState.result?.winner).toBe('draw');
   });
 });
@@ -270,7 +271,7 @@ describe('applyEvent - GameEnded', () => {
 describe('applyEvent - PhaseChanged', () => {
   it('should update phase and reset lock states', () => {
     let state = createInitialGameState('game-1');
-    
+
     // Create a unit
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
@@ -280,7 +281,7 @@ describe('applyEvent - PhaseChanged', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     // Change phase
     const phaseEvent = createTestEvent({
       sequence: 2,
@@ -290,9 +291,9 @@ describe('applyEvent - PhaseChanged', () => {
         toPhase: GamePhase.Movement,
       } as IPhaseChangedPayload,
     });
-    
+
     const newState = applyEvent(state, phaseEvent);
-    
+
     expect(newState.phase).toBe(GamePhase.Movement);
     expect(newState.activationIndex).toBe(0);
     expect(newState.units['unit-1'].lockState).toBe(LockState.Pending);
@@ -300,7 +301,7 @@ describe('applyEvent - PhaseChanged', () => {
 
   it('should reset movement tracking when entering movement phase', () => {
     let state = createInitialGameState('game-1');
-    
+
     // Create a unit and set some movement values
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
@@ -310,7 +311,7 @@ describe('applyEvent - PhaseChanged', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     // Manually set movement values for testing
     state = {
       ...state,
@@ -323,7 +324,7 @@ describe('applyEvent - PhaseChanged', () => {
         },
       },
     };
-    
+
     // Change to movement phase
     const phaseEvent = createTestEvent({
       sequence: 2,
@@ -333,10 +334,12 @@ describe('applyEvent - PhaseChanged', () => {
         toPhase: GamePhase.Movement,
       } as IPhaseChangedPayload,
     });
-    
+
     const newState = applyEvent(state, phaseEvent);
-    
-    expect(newState.units['unit-1'].movementThisTurn).toBe(MovementType.Stationary);
+
+    expect(newState.units['unit-1'].movementThisTurn).toBe(
+      MovementType.Stationary,
+    );
     expect(newState.units['unit-1'].hexesMovedThisTurn).toBe(0);
   });
 });
@@ -348,15 +351,15 @@ describe('applyEvent - PhaseChanged', () => {
 describe('applyEvent - TurnStarted', () => {
   it('should update turn number and reset events', () => {
     const initialState = createInitialGameState('game-1');
-    
+
     const event = createTestEvent({
       type: GameEventType.TurnStarted,
       turn: 2,
       payload: {},
     });
-    
+
     const newState = applyEvent(initialState, event);
-    
+
     expect(newState.turn).toBe(2);
     expect(newState.phase).toBe(GamePhase.Initiative);
     expect(newState.activationIndex).toBe(0);
@@ -371,7 +374,7 @@ describe('applyEvent - TurnStarted', () => {
 describe('applyEvent - InitiativeRolled', () => {
   it('should set initiative winner and first mover', () => {
     const initialState = createInitialGameState('game-1');
-    
+
     const event = createTestEvent({
       type: GameEventType.InitiativeRolled,
       payload: {
@@ -381,9 +384,9 @@ describe('applyEvent - InitiativeRolled', () => {
         movesFirst: GameSide.Opponent,
       } as IInitiativeRolledPayload,
     });
-    
+
     const newState = applyEvent(initialState, event);
-    
+
     expect(newState.initiativeWinner).toBe(GameSide.Player);
     expect(newState.firstMover).toBe(GameSide.Opponent);
   });
@@ -396,7 +399,7 @@ describe('applyEvent - InitiativeRolled', () => {
 describe('applyEvent - MovementDeclared', () => {
   it('should update unit position and movement state', () => {
     let state = createInitialGameState('game-1');
-    
+
     // Create a unit
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
@@ -406,7 +409,7 @@ describe('applyEvent - MovementDeclared', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     // Declare movement
     const movementEvent = createTestEvent({
       sequence: 2,
@@ -421,10 +424,10 @@ describe('applyEvent - MovementDeclared', () => {
         heatGenerated: 2,
       } as IMovementDeclaredPayload,
     });
-    
+
     const newState = applyEvent(state, movementEvent);
     const unit = newState.units['unit-1'];
-    
+
     expect(unit.position).toEqual({ q: 0, r: 3 });
     expect(unit.facing).toBe(Facing.Northeast);
     expect(unit.movementThisTurn).toBe(MovementType.Run);
@@ -435,7 +438,7 @@ describe('applyEvent - MovementDeclared', () => {
 
   it('should accumulate heat', () => {
     let state = createInitialGameState('game-1');
-    
+
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -444,7 +447,7 @@ describe('applyEvent - MovementDeclared', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     // Set initial heat
     state = {
       ...state,
@@ -453,7 +456,7 @@ describe('applyEvent - MovementDeclared', () => {
         'unit-1': { ...state.units['unit-1'], heat: 5 },
       },
     };
-    
+
     const movementEvent = createTestEvent({
       sequence: 2,
       type: GameEventType.MovementDeclared,
@@ -467,9 +470,9 @@ describe('applyEvent - MovementDeclared', () => {
         heatGenerated: 4,
       } as IMovementDeclaredPayload,
     });
-    
+
     const newState = applyEvent(state, movementEvent);
-    
+
     expect(newState.units['unit-1'].heat).toBe(9); // 5 + 4
   });
 });
@@ -481,7 +484,7 @@ describe('applyEvent - MovementDeclared', () => {
 describe('applyEvent - MovementLocked', () => {
   it('should lock unit movement and increment activation index', () => {
     let state = createInitialGameState('game-1');
-    
+
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -490,16 +493,16 @@ describe('applyEvent - MovementLocked', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     const lockEvent = createTestEvent({
       sequence: 2,
       type: GameEventType.MovementLocked,
       actorId: 'unit-1',
       payload: {},
     });
-    
+
     const newState = applyEvent(state, lockEvent);
-    
+
     expect(newState.units['unit-1'].lockState).toBe(LockState.Locked);
     expect(newState.activationIndex).toBe(1);
   });
@@ -512,7 +515,7 @@ describe('applyEvent - MovementLocked', () => {
 describe('applyEvent - DamageApplied', () => {
   it('should update armor and structure', () => {
     let state = createInitialGameState('game-1');
-    
+
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -521,7 +524,7 @@ describe('applyEvent - DamageApplied', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     const damageEvent = createTestEvent({
       sequence: 2,
       type: GameEventType.DamageApplied,
@@ -534,17 +537,17 @@ describe('applyEvent - DamageApplied', () => {
         locationDestroyed: false,
       } as IDamageAppliedPayload,
     });
-    
+
     const newState = applyEvent(state, damageEvent);
     const unit = newState.units['unit-1'];
-    
+
     expect(unit.armor['center_torso']).toBe(15);
     expect(unit.structure['center_torso']).toBe(16);
   });
 
   it('should track destroyed locations', () => {
     let state = createInitialGameState('game-1');
-    
+
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -553,7 +556,7 @@ describe('applyEvent - DamageApplied', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     const damageEvent = createTestEvent({
       sequence: 2,
       type: GameEventType.DamageApplied,
@@ -566,15 +569,15 @@ describe('applyEvent - DamageApplied', () => {
         locationDestroyed: true,
       } as IDamageAppliedPayload,
     });
-    
+
     const newState = applyEvent(state, damageEvent);
-    
+
     expect(newState.units['unit-1'].destroyedLocations).toContain('left_arm');
   });
 
   it('should track critical hits', () => {
     let state = createInitialGameState('game-1');
-    
+
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -583,7 +586,7 @@ describe('applyEvent - DamageApplied', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     const damageEvent = createTestEvent({
       sequence: 2,
       type: GameEventType.DamageApplied,
@@ -597,9 +600,9 @@ describe('applyEvent - DamageApplied', () => {
         criticals: ['engine', 'gyro'],
       } as IDamageAppliedPayload,
     });
-    
+
     const newState = applyEvent(state, damageEvent);
-    
+
     expect(newState.units['unit-1'].destroyedEquipment).toContain('engine');
     expect(newState.units['unit-1'].destroyedEquipment).toContain('gyro');
   });
@@ -612,7 +615,7 @@ describe('applyEvent - DamageApplied', () => {
 describe('applyEvent - Heat events', () => {
   it('should update heat on HeatGenerated', () => {
     let state = createInitialGameState('game-1');
-    
+
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -621,7 +624,7 @@ describe('applyEvent - Heat events', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     const heatEvent = createTestEvent({
       sequence: 2,
       type: GameEventType.HeatGenerated,
@@ -632,15 +635,15 @@ describe('applyEvent - Heat events', () => {
         newTotal: 8,
       } as IHeatPayload,
     });
-    
+
     const newState = applyEvent(state, heatEvent);
-    
+
     expect(newState.units['unit-1'].heat).toBe(8);
   });
 
   it('should update heat on HeatDissipated', () => {
     let state = createInitialGameState('game-1');
-    
+
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -649,7 +652,7 @@ describe('applyEvent - Heat events', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     // Set initial heat
     state = {
       ...state,
@@ -658,7 +661,7 @@ describe('applyEvent - Heat events', () => {
         'unit-1': { ...state.units['unit-1'], heat: 15 },
       },
     };
-    
+
     const heatEvent = createTestEvent({
       sequence: 2,
       type: GameEventType.HeatDissipated,
@@ -669,9 +672,9 @@ describe('applyEvent - Heat events', () => {
         newTotal: 5,
       } as IHeatPayload,
     });
-    
+
     const newState = applyEvent(state, heatEvent);
-    
+
     expect(newState.units['unit-1'].heat).toBe(5);
   });
 });
@@ -683,7 +686,7 @@ describe('applyEvent - Heat events', () => {
 describe('applyEvent - PilotHit', () => {
   it('should update pilot wounds', () => {
     let state = createInitialGameState('game-1');
-    
+
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -692,7 +695,7 @@ describe('applyEvent - PilotHit', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     const pilotHitEvent = createTestEvent({
       sequence: 2,
       type: GameEventType.PilotHit,
@@ -704,16 +707,16 @@ describe('applyEvent - PilotHit', () => {
         consciousnessCheckRequired: false,
       } as IPilotHitPayload,
     });
-    
+
     const newState = applyEvent(state, pilotHitEvent);
-    
+
     expect(newState.units['unit-1'].pilotWounds).toBe(2);
     expect(newState.units['unit-1'].pilotConscious).toBe(true);
   });
 
   it('should handle consciousness check failure', () => {
     let state = createInitialGameState('game-1');
-    
+
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -722,7 +725,7 @@ describe('applyEvent - PilotHit', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     const pilotHitEvent = createTestEvent({
       sequence: 2,
       type: GameEventType.PilotHit,
@@ -735,9 +738,9 @@ describe('applyEvent - PilotHit', () => {
         consciousnessCheckPassed: false,
       } as IPilotHitPayload,
     });
-    
+
     const newState = applyEvent(state, pilotHitEvent);
-    
+
     expect(newState.units['unit-1'].pilotConscious).toBe(false);
   });
 });
@@ -749,7 +752,7 @@ describe('applyEvent - PilotHit', () => {
 describe('applyEvent - UnitDestroyed', () => {
   it('should mark unit as destroyed', () => {
     let state = createInitialGameState('game-1');
-    
+
     const createEvent = createTestEvent({
       type: GameEventType.GameCreated,
       payload: {
@@ -758,7 +761,7 @@ describe('applyEvent - UnitDestroyed', () => {
       } as IGameCreatedPayload,
     });
     state = applyEvent(state, createEvent);
-    
+
     const destroyedEvent = createTestEvent({
       sequence: 2,
       type: GameEventType.UnitDestroyed,
@@ -767,9 +770,9 @@ describe('applyEvent - UnitDestroyed', () => {
         cause: 'damage',
       } as IUnitDestroyedPayload,
     });
-    
+
     const newState = applyEvent(state, destroyedEvent);
-    
+
     expect(newState.units['unit-1'].destroyed).toBe(true);
   });
 });
@@ -797,9 +800,9 @@ describe('deriveState', () => {
         payload: { firstSide: GameSide.Player } as IGameStartedPayload,
       }),
     ];
-    
+
     const state = deriveState('game-1', events);
-    
+
     expect(state.status).toBe(GameStatus.Active);
     expect(state.turn).toBe(1);
     expect(Object.keys(state.units)).toHaveLength(1);
@@ -807,7 +810,7 @@ describe('deriveState', () => {
 
   it('should return initial state for empty events', () => {
     const state = deriveState('game-1', []);
-    
+
     expect(state.gameId).toBe('game-1');
     expect(state.status).toBe(GameStatus.Setup);
     expect(state.units).toEqual({});
@@ -840,12 +843,15 @@ describe('deriveStateAtSequence', () => {
         id: 'e3',
         sequence: 3,
         type: GameEventType.GameEnded,
-        payload: { winner: GameSide.Player, reason: 'destruction' } as IGameEndedPayload,
+        payload: {
+          winner: GameSide.Player,
+          reason: 'destruction',
+        } as IGameEndedPayload,
       }),
     ];
-    
+
     const state = deriveStateAtSequence('game-1', events, 2);
-    
+
     // Should not have the GameEnded event applied
     expect(state.status).toBe(GameStatus.Active);
     expect(state.result).toBeUndefined();
@@ -884,9 +890,9 @@ describe('deriveStateAtTurn', () => {
         payload: {},
       }),
     ];
-    
+
     const state = deriveStateAtTurn('game-1', events, 1);
-    
+
     expect(state.turn).toBe(1);
   });
 });
@@ -898,14 +904,34 @@ describe('deriveStateAtTurn', () => {
 describe('getActiveUnits', () => {
   it('should return non-destroyed conscious units for a side', () => {
     const state = createStateWithUnits([
-      { id: 'p1', side: GameSide.Player, destroyed: false, pilotConscious: true },
-      { id: 'p2', side: GameSide.Player, destroyed: true, pilotConscious: true },
-      { id: 'p3', side: GameSide.Player, destroyed: false, pilotConscious: false },
-      { id: 'o1', side: GameSide.Opponent, destroyed: false, pilotConscious: true },
+      {
+        id: 'p1',
+        side: GameSide.Player,
+        destroyed: false,
+        pilotConscious: true,
+      },
+      {
+        id: 'p2',
+        side: GameSide.Player,
+        destroyed: true,
+        pilotConscious: true,
+      },
+      {
+        id: 'p3',
+        side: GameSide.Player,
+        destroyed: false,
+        pilotConscious: false,
+      },
+      {
+        id: 'o1',
+        side: GameSide.Opponent,
+        destroyed: false,
+        pilotConscious: true,
+      },
     ]);
-    
+
     const playerUnits = getActiveUnits(state, GameSide.Player);
-    
+
     expect(playerUnits).toHaveLength(1);
     expect(playerUnits[0].id).toBe('p1');
   });
@@ -914,13 +940,28 @@ describe('getActiveUnits', () => {
 describe('getUnitsAwaitingAction', () => {
   it('should return units with pending lock state', () => {
     const state = createStateWithUnits([
-      { id: 'u1', lockState: LockState.Pending, destroyed: false, pilotConscious: true },
-      { id: 'u2', lockState: LockState.Locked, destroyed: false, pilotConscious: true },
-      { id: 'u3', lockState: LockState.Pending, destroyed: true, pilotConscious: true },
+      {
+        id: 'u1',
+        lockState: LockState.Pending,
+        destroyed: false,
+        pilotConscious: true,
+      },
+      {
+        id: 'u2',
+        lockState: LockState.Locked,
+        destroyed: false,
+        pilotConscious: true,
+      },
+      {
+        id: 'u3',
+        lockState: LockState.Pending,
+        destroyed: true,
+        pilotConscious: true,
+      },
     ]);
-    
+
     const awaiting = getUnitsAwaitingAction(state);
-    
+
     expect(awaiting).toHaveLength(1);
     expect(awaiting[0].id).toBe('u1');
   });
@@ -929,20 +970,45 @@ describe('getUnitsAwaitingAction', () => {
 describe('allUnitsLocked', () => {
   it('should return true when all active units are locked', () => {
     const state = createStateWithUnits([
-      { id: 'u1', lockState: LockState.Locked, destroyed: false, pilotConscious: true },
-      { id: 'u2', lockState: LockState.Resolved, destroyed: false, pilotConscious: true },
-      { id: 'u3', lockState: LockState.Pending, destroyed: true, pilotConscious: true },
+      {
+        id: 'u1',
+        lockState: LockState.Locked,
+        destroyed: false,
+        pilotConscious: true,
+      },
+      {
+        id: 'u2',
+        lockState: LockState.Resolved,
+        destroyed: false,
+        pilotConscious: true,
+      },
+      {
+        id: 'u3',
+        lockState: LockState.Pending,
+        destroyed: true,
+        pilotConscious: true,
+      },
     ]);
-    
+
     expect(allUnitsLocked(state)).toBe(true);
   });
 
   it('should return false when any active unit is not locked', () => {
     const state = createStateWithUnits([
-      { id: 'u1', lockState: LockState.Locked, destroyed: false, pilotConscious: true },
-      { id: 'u2', lockState: LockState.Pending, destroyed: false, pilotConscious: true },
+      {
+        id: 'u1',
+        lockState: LockState.Locked,
+        destroyed: false,
+        pilotConscious: true,
+      },
+      {
+        id: 'u2',
+        lockState: LockState.Pending,
+        destroyed: false,
+        pilotConscious: true,
+      },
     ]);
-    
+
     expect(allUnitsLocked(state)).toBe(false);
   });
 });
@@ -953,7 +1019,7 @@ describe('isGameOver', () => {
       ...createInitialGameState('game-1'),
       status: GameStatus.Completed,
     };
-    
+
     expect(isGameOver(state)).toBe(true);
   });
 
@@ -962,7 +1028,7 @@ describe('isGameOver', () => {
       ...createInitialGameState('game-1'),
       status: GameStatus.Abandoned,
     };
-    
+
     expect(isGameOver(state)).toBe(true);
   });
 
@@ -971,7 +1037,7 @@ describe('isGameOver', () => {
       ...createInitialGameState('game-1'),
       status: GameStatus.Active,
     };
-    
+
     expect(isGameOver(state)).toBe(false);
   });
 });
@@ -988,9 +1054,9 @@ describe('checkVictoryConditions', () => {
       { id: 'p1', side: GameSide.Player, destroyed: false },
       { id: 'o1', side: GameSide.Opponent, destroyed: false },
     ]);
-    
+
     const result = checkVictoryConditions(state, config);
-    
+
     expect(result).toBeNull();
   });
 
@@ -999,9 +1065,9 @@ describe('checkVictoryConditions', () => {
       { id: 'p1', side: GameSide.Player, destroyed: true },
       { id: 'o1', side: GameSide.Opponent, destroyed: false },
     ]);
-    
+
     const result = checkVictoryConditions(state, config);
-    
+
     expect(result).toBe(GameSide.Opponent);
   });
 
@@ -1010,9 +1076,9 @@ describe('checkVictoryConditions', () => {
       { id: 'p1', side: GameSide.Player, destroyed: false },
       { id: 'o1', side: GameSide.Opponent, destroyed: true },
     ]);
-    
+
     const result = checkVictoryConditions(state, config);
-    
+
     expect(result).toBe(GameSide.Player);
   });
 
@@ -1021,9 +1087,9 @@ describe('checkVictoryConditions', () => {
       { id: 'p1', side: GameSide.Player, destroyed: true },
       { id: 'o1', side: GameSide.Opponent, destroyed: true },
     ]);
-    
+
     const result = checkVictoryConditions(state, config);
-    
+
     expect(result).toBe('draw');
   });
 
@@ -1035,11 +1101,11 @@ describe('checkVictoryConditions', () => {
         { id: 'p2', side: GameSide.Player, destroyed: false },
         { id: 'o1', side: GameSide.Opponent, destroyed: false },
       ],
-      { turn: 11 }
+      { turn: 11 },
     );
-    
+
     const result = checkVictoryConditions(state, configWithLimit);
-    
+
     expect(result).toBe(GameSide.Player); // 2 vs 1
   });
 
@@ -1050,11 +1116,11 @@ describe('checkVictoryConditions', () => {
         { id: 'p1', side: GameSide.Player, destroyed: false },
         { id: 'o1', side: GameSide.Opponent, destroyed: false },
       ],
-      { turn: 11 }
+      { turn: 11 },
     );
-    
+
     const result = checkVictoryConditions(state, configWithLimit);
-    
+
     expect(result).toBe('draw');
   });
 });
@@ -1073,10 +1139,10 @@ interface TestUnitOverrides {
 
 function createStateWithUnits(
   units: TestUnitOverrides[],
-  stateOverrides: Partial<IGameState> = {}
+  stateOverrides: Partial<IGameState> = {},
 ): IGameState {
   const unitsMap: Record<string, IUnitGameState> = {};
-  
+
   for (const unit of units) {
     unitsMap[unit.id] = {
       id: unit.id,
@@ -1097,7 +1163,7 @@ function createStateWithUnits(
       lockState: unit.lockState ?? LockState.Pending,
     };
   }
-  
+
   return {
     gameId: 'game-1',
     status: GameStatus.Active,

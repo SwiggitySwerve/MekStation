@@ -11,6 +11,7 @@
 'use client';
 
 import { useEffect } from 'react';
+
 import {
   useAppSettingsStore,
   ACCENT_COLOR_CSS,
@@ -54,7 +55,12 @@ export function GlobalStyleProvider({
     root.style.setProperty('--font-size-base', FONT_SIZE_CSS[fontSize]);
 
     // Apply theme class (remove old, add new)
-    const themeClasses = ['theme-default', 'theme-neon', 'theme-tactical', 'theme-minimal'];
+    const themeClasses = [
+      'theme-default',
+      'theme-neon',
+      'theme-tactical',
+      'theme-minimal',
+    ];
     themeClasses.forEach((cls) => body.classList.remove(cls));
     body.classList.add(`theme-${uiTheme}`);
 

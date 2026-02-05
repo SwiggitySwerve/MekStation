@@ -5,11 +5,13 @@
  * Verifies stub behavior (returns empty array) until Plan 3 provides parts data.
  */
 
-import { scanForNeededParts } from '../autoLogistics';
 import type { ICampaign } from '@/types/campaign/Campaign';
+
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { Money } from '@/types/campaign/Money';
+
+import { scanForNeededParts } from '../autoLogistics';
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
   const baseDate = new Date('3025-01-15');

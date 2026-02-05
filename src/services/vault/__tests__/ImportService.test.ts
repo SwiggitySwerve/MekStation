@@ -6,14 +6,15 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type { IShareableBundle } from '@/types/vault';
+
+import { serializeBundle } from '@/services/vault/BundleService';
 import {
   generateImportId,
   remapItemIds,
   validateBundleFile,
   previewBundle,
 } from '@/services/vault/ImportService';
-import { serializeBundle } from '@/services/vault/BundleService';
-import type { IShareableBundle } from '@/types/vault';
 
 // =============================================================================
 // ID Generation
@@ -84,7 +85,9 @@ describe('ID Generation', () => {
 describe('File Validation', () => {
   describe('validateBundleFile', () => {
     it('should accept .mekbundle files', () => {
-      const file = new File(['{}'], 'test.mekbundle', { type: 'application/json' });
+      const file = new File(['{}'], 'test.mekbundle', {
+        type: 'application/json',
+      });
       expect(validateBundleFile(file)).toBeNull();
     });
 

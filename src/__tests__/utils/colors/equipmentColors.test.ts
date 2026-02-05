@@ -44,7 +44,9 @@ describe('EquipmentColors Utility', () => {
     it('should return correct colors for ammo types', () => {
       expect(getAmmoColors('LRM 20 Ammo')).toBe(MISSILE_AMMO_COLORS);
       expect(getAmmoColors('AC/20 Ammo')).toBe(BALLISTIC_AMMO_COLORS);
-      expect(getAmmoColors('Unknown Ammo')).toBe(EQUIPMENT_CATEGORY_COLORS[EquipmentCategory.AMMUNITION]);
+      expect(getAmmoColors('Unknown Ammo')).toBe(
+        EQUIPMENT_CATEGORY_COLORS[EquipmentCategory.AMMUNITION],
+      );
     });
   });
 
@@ -58,8 +60,12 @@ describe('EquipmentColors Utility', () => {
 
   describe('getCategoryBadgeVariant', () => {
     it('should return correct badge variant', () => {
-      expect(getCategoryBadgeVariant(EquipmentCategory.ENERGY_WEAPON)).toBe('yellow');
-      expect(getCategoryBadgeVariant(EquipmentCategory.BALLISTIC_WEAPON)).toBe('red');
+      expect(getCategoryBadgeVariant(EquipmentCategory.ENERGY_WEAPON)).toBe(
+        'yellow',
+      );
+      expect(getCategoryBadgeVariant(EquipmentCategory.BALLISTIC_WEAPON)).toBe(
+        'red',
+      );
     });
   });
 
@@ -80,23 +86,39 @@ describe('EquipmentColors Utility', () => {
 
   describe('getCategoryIndicatorClass', () => {
     it('should return indicator class', () => {
-      expect(getCategoryIndicatorClass(EquipmentCategory.ENERGY_WEAPON)).toBe('bg-yellow-500');
+      expect(getCategoryIndicatorClass(EquipmentCategory.ENERGY_WEAPON)).toBe(
+        'bg-yellow-500',
+      );
     });
   });
 
   describe('classifyEquipmentByName', () => {
     it('should classify equipment correctly', () => {
-      expect(classifyEquipmentByName('Medium Laser')).toBe(EquipmentCategory.ENERGY_WEAPON);
-      expect(classifyEquipmentByName('AC/20')).toBe(EquipmentCategory.BALLISTIC_WEAPON);
-      expect(classifyEquipmentByName('LRM 20')).toBe(EquipmentCategory.MISSILE_WEAPON);
+      expect(classifyEquipmentByName('Medium Laser')).toBe(
+        EquipmentCategory.ENERGY_WEAPON,
+      );
+      expect(classifyEquipmentByName('AC/20')).toBe(
+        EquipmentCategory.BALLISTIC_WEAPON,
+      );
+      expect(classifyEquipmentByName('LRM 20')).toBe(
+        EquipmentCategory.MISSILE_WEAPON,
+      );
       expect(classifyEquipmentByName('Heat Sink')).toBe('heatsink');
-      expect(classifyEquipmentByName('ECM Suite')).toBe(EquipmentCategory.ELECTRONICS);
-      expect(classifyEquipmentByName('Jump Jet')).toBe(EquipmentCategory.MOVEMENT);
-      expect(classifyEquipmentByName('Endo Steel')).toBe(EquipmentCategory.STRUCTURAL);
+      expect(classifyEquipmentByName('ECM Suite')).toBe(
+        EquipmentCategory.ELECTRONICS,
+      );
+      expect(classifyEquipmentByName('Jump Jet')).toBe(
+        EquipmentCategory.MOVEMENT,
+      );
+      expect(classifyEquipmentByName('Endo Steel')).toBe(
+        EquipmentCategory.STRUCTURAL,
+      );
     });
 
     it('should return MISC for unknown equipment', () => {
-      expect(classifyEquipmentByName('Random Widget')).toBe(EquipmentCategory.MISC_EQUIPMENT);
+      expect(classifyEquipmentByName('Random Widget')).toBe(
+        EquipmentCategory.MISC_EQUIPMENT,
+      );
     });
   });
 
@@ -127,15 +149,22 @@ describe('EquipmentColors Utility', () => {
     });
 
     it('categoryToColorType should map correctly', () => {
-      expect(categoryToColorType(EquipmentCategory.ENERGY_WEAPON)).toBe('weapon');
-      expect(categoryToColorType(EquipmentCategory.AMMUNITION)).toBe('ammunition');
+      expect(categoryToColorType(EquipmentCategory.ENERGY_WEAPON)).toBe(
+        'weapon',
+      );
+      expect(categoryToColorType(EquipmentCategory.AMMUNITION)).toBe(
+        'ammunition',
+      );
     });
 
     it('getBattleTechEquipmentClasses should return classes with selection support', () => {
       const classes = getBattleTechEquipmentClasses('Medium Laser', false);
       expect(classes).toContain('bg-yellow-600');
-      
-      const selectedClasses = getBattleTechEquipmentClasses('Medium Laser', true);
+
+      const selectedClasses = getBattleTechEquipmentClasses(
+        'Medium Laser',
+        true,
+      );
       expect(selectedClasses).toContain('ring-2');
     });
   });

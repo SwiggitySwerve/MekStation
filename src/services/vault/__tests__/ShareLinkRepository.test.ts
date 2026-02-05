@@ -7,16 +7,17 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import {
-  ShareLinkRepository,
-  getShareLinkRepository,
-  resetShareLinkRepository,
-} from '@/services/vault/ShareLinkRepository';
 import type {
   IStoredShareLink,
   PermissionScopeType,
   ContentCategory,
 } from '@/types/vault';
+
+import {
+  ShareLinkRepository,
+  getShareLinkRepository,
+  resetShareLinkRepository,
+} from '@/services/vault/ShareLinkRepository';
 
 // =============================================================================
 // Mock Setup
@@ -58,7 +59,7 @@ const originalCrypto = global.crypto;
  * Creates a mock stored share link row
  */
 function createMockStoredLink(
-  overrides: Partial<IStoredShareLink> = {}
+  overrides: Partial<IStoredShareLink> = {},
 ): IStoredShareLink {
   return {
     id: 'link-test-id',
@@ -123,7 +124,7 @@ describe('ShareLinkRepository', () => {
       expect(mockSQLiteService.initialize).toHaveBeenCalled();
       expect(mockDb.exec).toHaveBeenCalledTimes(1);
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE TABLE IF NOT EXISTS vault_share_links')
+        expect.stringContaining('CREATE TABLE IF NOT EXISTS vault_share_links'),
       );
     });
 
@@ -140,9 +141,15 @@ describe('ShareLinkRepository', () => {
 
       const execCalls = mockDb.exec.mock.calls as [[string]];
       const execCall = execCalls[0][0];
-      expect(execCall).toContain('CREATE UNIQUE INDEX IF NOT EXISTS idx_vault_share_links_token');
-      expect(execCall).toContain('CREATE INDEX IF NOT EXISTS idx_vault_share_links_scope');
-      expect(execCall).toContain('CREATE INDEX IF NOT EXISTS idx_vault_share_links_active');
+      expect(execCall).toContain(
+        'CREATE UNIQUE INDEX IF NOT EXISTS idx_vault_share_links_token',
+      );
+      expect(execCall).toContain(
+        'CREATE INDEX IF NOT EXISTS idx_vault_share_links_scope',
+      );
+      expect(execCall).toContain(
+        'CREATE INDEX IF NOT EXISTS idx_vault_share_links_active',
+      );
     });
   });
 
@@ -166,7 +173,7 @@ describe('ShareLinkRepository', () => {
         null, // expiresAt
         null, // maxUses
         expect.any(String), // createdAt
-        null // label
+        null, // label
       );
 
       expect(result.scopeType).toBe('item');
@@ -191,7 +198,7 @@ describe('ShareLinkRepository', () => {
         null,
         null,
         expect.any(String),
-        null
+        null,
       );
 
       expect(result.scopeType).toBe('category');
@@ -218,7 +225,7 @@ describe('ShareLinkRepository', () => {
         expiresAt,
         10,
         expect.any(String),
-        'Test Link'
+        'Test Link',
       );
 
       expect(result.expiresAt).toBe(expiresAt);
@@ -227,8 +234,12 @@ describe('ShareLinkRepository', () => {
     });
 
     it('should generate a unique token for each link', async () => {
-      const result1 = await repository.create('item', 'unit-1', null, { level: 'read' });
-      const result2 = await repository.create('item', 'unit-2', null, { level: 'read' });
+      const result1 = await repository.create('item', 'unit-1', null, {
+        level: 'read',
+      });
+      const result2 = await repository.create('item', 'unit-2', null, {
+        level: 'read',
+      });
 
       // Both should have tokens (we can't test uniqueness with mocked crypto)
       expect(result1.token).toBeDefined();
@@ -268,7 +279,7 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toBeNull();
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_share_links WHERE id = ?'
+        'SELECT * FROM vault_share_links WHERE id = ?',
       );
       expect(mockStatement.get).toHaveBeenCalledWith('non-existent');
     });
@@ -327,7 +338,7 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toBeNull();
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_share_links WHERE token = ?'
+        'SELECT * FROM vault_share_links WHERE token = ?',
       );
       expect(mockStatement.get).toHaveBeenCalledWith('invalid-token');
     });
@@ -355,7 +366,7 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toEqual([]);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE scope_type = ? AND scope_id = ?')
+        expect.stringContaining('WHERE scope_type = ? AND scope_id = ?'),
       );
       expect(mockStatement.all).toHaveBeenCalledWith('item', 'unit-no-links');
     });
@@ -378,7 +389,7 @@ describe('ShareLinkRepository', () => {
       await repository.getByItem('item', 'unit-123');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('ORDER BY created_at DESC')
+        expect.stringContaining('ORDER BY created_at DESC'),
       );
     });
   });
@@ -401,7 +412,7 @@ describe('ShareLinkRepository', () => {
       result.forEach((link) => expect(link.isActive).toBe(true));
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE is_active = 1')
+        expect.stringContaining('WHERE is_active = 1'),
       );
     });
 
@@ -437,7 +448,7 @@ describe('ShareLinkRepository', () => {
       await repository.getAll();
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('ORDER BY created_at DESC')
+        expect.stringContaining('ORDER BY created_at DESC'),
       );
     });
   });
@@ -532,16 +543,16 @@ describe('ShareLinkRepository', () => {
 
       // Verify the atomic UPDATE was called with all conditions
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE vault_share_links')
+        expect.stringContaining('UPDATE vault_share_links'),
       );
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('SET use_count = use_count + 1')
+        expect.stringContaining('SET use_count = use_count + 1'),
       );
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE token = ?')
+        expect.stringContaining('WHERE token = ?'),
       );
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('AND is_active = 1')
+        expect.stringContaining('AND is_active = 1'),
       );
     });
 
@@ -577,7 +588,7 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toBe(true);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_share_links SET is_active = 0 WHERE id = ?'
+        'UPDATE vault_share_links SET is_active = 0 WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('link-123');
     });
@@ -603,7 +614,7 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toBe(true);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_share_links SET is_active = 1 WHERE id = ?'
+        'UPDATE vault_share_links SET is_active = 1 WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('link-123');
     });
@@ -629,7 +640,7 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toBe(true);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_share_links SET label = ? WHERE id = ?'
+        'UPDATE vault_share_links SET label = ? WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('New Label', 'link-123');
     });
@@ -665,7 +676,7 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toBe(true);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_share_links SET expires_at = ? WHERE id = ?'
+        'UPDATE vault_share_links SET expires_at = ? WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith(newExpiry, 'link-123');
     });
@@ -682,7 +693,10 @@ describe('ShareLinkRepository', () => {
     it('should return false when link does not exist', async () => {
       mockStatement.run.mockReturnValue({ changes: 0 });
 
-      const result = await repository.updateExpiry('non-existent', '2025-01-01T00:00:00.000Z');
+      const result = await repository.updateExpiry(
+        'non-existent',
+        '2025-01-01T00:00:00.000Z',
+      );
 
       expect(result).toBe(false);
     });
@@ -700,7 +714,7 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toBe(true);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_share_links SET max_uses = ? WHERE id = ?'
+        'UPDATE vault_share_links SET max_uses = ? WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith(20, 'link-123');
     });
@@ -735,7 +749,7 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toBe(true);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'DELETE FROM vault_share_links WHERE id = ?'
+        'DELETE FROM vault_share_links WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('link-123');
     });
@@ -761,7 +775,7 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toBe(3);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'DELETE FROM vault_share_links WHERE scope_type = ? AND scope_id = ?'
+        'DELETE FROM vault_share_links WHERE scope_type = ? AND scope_id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('item', 'unit-123');
     });
@@ -796,7 +810,7 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toBe(5);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'DELETE FROM vault_share_links WHERE expires_at IS NOT NULL AND expires_at < ?'
+        'DELETE FROM vault_share_links WHERE expires_at IS NOT NULL AND expires_at < ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith(expect.any(String));
     });
@@ -880,7 +894,12 @@ describe('ShareLinkRepository', () => {
 
   describe('edge cases', () => {
     it('should handle all content categories', async () => {
-      const categories: ContentCategory[] = ['units', 'pilots', 'forces', 'encounters'];
+      const categories: ContentCategory[] = [
+        'units',
+        'pilots',
+        'forces',
+        'encounters',
+      ];
 
       for (const category of categories) {
         mockStatement.run.mockReturnValue({ changes: 1 });
@@ -904,7 +923,12 @@ describe('ShareLinkRepository', () => {
     });
 
     it('should handle all scope types', async () => {
-      const scopeTypes: PermissionScopeType[] = ['item', 'folder', 'category', 'all'];
+      const scopeTypes: PermissionScopeType[] = [
+        'item',
+        'folder',
+        'category',
+        'all',
+      ];
 
       for (const scopeType of scopeTypes) {
         mockStatement.run.mockReturnValue({ changes: 1 });
@@ -912,7 +936,7 @@ describe('ShareLinkRepository', () => {
           scopeType,
           scopeType === 'item' || scopeType === 'folder' ? 'test-id' : null,
           scopeType === 'category' ? 'units' : null,
-          { level: 'read' }
+          { level: 'read' },
         );
         expect(result.scopeType).toBe(scopeType);
       }

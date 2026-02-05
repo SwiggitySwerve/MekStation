@@ -63,7 +63,7 @@ export interface IAttributes {
 export function getAttributeModifier(value: number): number {
   if (value < 1 || value > 10) {
     throw new Error(
-      `Invalid attribute value: ${value}. Attribute values must be between 1 and 10.`
+      `Invalid attribute value: ${value}. Attribute values must be between 1 and 10.`,
     );
   }
 

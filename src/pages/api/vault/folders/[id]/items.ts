@@ -9,7 +9,9 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import type { IFolderItem, ShareableContentType } from '@/types/vault';
+
 import { getVaultService } from '@/services/vault/VaultService';
 
 // =============================================================================
@@ -54,7 +56,7 @@ interface ErrorResponse {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListItemsResponse | SuccessResponse | ErrorResponse>
+  res: NextApiResponse<ListItemsResponse | SuccessResponse | ErrorResponse>,
 ): Promise<void> {
   const { id } = req.query;
 
@@ -96,7 +98,7 @@ export default async function handler(
 async function handleList(
   folderId: string,
   res: NextApiResponse<ListItemsResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const items = await vaultService.getFolderItems(folderId);
 
@@ -110,7 +112,7 @@ async function handleAdd(
   folderId: string,
   req: NextApiRequest,
   res: NextApiResponse<SuccessResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const body = req.body as AddItemRequest | BulkAddItemsRequest;
 
@@ -121,8 +123,12 @@ async function handleAdd(
         if (!isValidContentType(item.itemType)) {
           return false;
         }
-        return vaultService.addItemToFolder(folderId, item.itemId, item.itemType);
-      })
+        return vaultService.addItemToFolder(
+          folderId,
+          item.itemId,
+          item.itemType,
+        );
+      }),
     );
 
     const added = results.filter(Boolean).length;
@@ -142,7 +148,11 @@ async function handleAdd(
     return res.status(400).json({ error: 'Invalid item type' });
   }
 
-  const success = await vaultService.addItemToFolder(folderId, itemId, itemType);
+  const success = await vaultService.addItemToFolder(
+    folderId,
+    itemId,
+    itemType,
+  );
 
   return res.status(success ? 200 : 500).json({ success });
 }
@@ -151,7 +161,7 @@ async function handleRemove(
   folderId: string,
   req: NextApiRequest,
   res: NextApiResponse<SuccessResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { itemId, itemType } = req.body as RemoveItemRequest;
 
@@ -163,7 +173,11 @@ async function handleRemove(
     return res.status(400).json({ error: 'Invalid item type' });
   }
 
-  const success = await vaultService.removeItemFromFolder(folderId, itemId, itemType);
+  const success = await vaultService.removeItemFromFolder(
+    folderId,
+    itemId,
+    itemType,
+  );
 
   return res.status(success ? 200 : 404).json({ success });
 }

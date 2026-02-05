@@ -1,6 +1,10 @@
 import React, { ReactNode, useState, useCallback } from 'react';
+
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { tap as hapticTap, error as hapticError } from '../../utils/hapticFeedback';
+import {
+  tap as hapticTap,
+  error as hapticError,
+} from '../../utils/hapticFeedback';
 
 /**
  * Equipment item data
@@ -124,26 +128,29 @@ export function EquipmentAssignmentAdapter({
   /**
    * Handle slot tap (touch mode)
    */
-  const handleSlotTap = useCallback((slot: EquipmentSlot) => {
-    if (!placementMode.isActive || !placementMode.equipment) {
-      return;
-    }
+  const handleSlotTap = useCallback(
+    (slot: EquipmentSlot) => {
+      if (!placementMode.isActive || !placementMode.equipment) {
+        return;
+      }
 
-    // Check if slot is valid
-    const isValid = validSlots.some((validSlot) => validSlot.id === slot.id);
+      // Check if slot is valid
+      const isValid = validSlots.some((validSlot) => validSlot.id === slot.id);
 
-    if (isValid) {
-      // Valid slot - assign equipment
-      onAssign(placementMode.equipment, slot);
-      setPlacementMode({ isActive: false, equipment: null });
-      hapticTap(); // Success feedback
-    } else {
-      // Invalid slot - show error
-      hapticError(); // Error feedback
-      onInvalidSlot?.(placementMode.equipment, slot);
-      // Stay in placement mode
-    }
-  }, [placementMode, validSlots, onAssign, onInvalidSlot]);
+      if (isValid) {
+        // Valid slot - assign equipment
+        onAssign(placementMode.equipment, slot);
+        setPlacementMode({ isActive: false, equipment: null });
+        hapticTap(); // Success feedback
+      } else {
+        // Invalid slot - show error
+        hapticError(); // Error feedback
+        onInvalidSlot?.(placementMode.equipment, slot);
+        // Stay in placement mode
+      }
+    },
+    [placementMode, validSlots, onAssign, onInvalidSlot],
+  );
 
   /**
    * Cancel placement mode

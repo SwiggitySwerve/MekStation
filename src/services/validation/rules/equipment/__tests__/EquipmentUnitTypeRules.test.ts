@@ -6,6 +6,10 @@
  * incompatible equipment, and required equipment checks.
  */
 
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { TechBase, RulesLevel, Era } from '@/types/enums';
+import { EquipmentBehaviorFlag } from '@/types/enums/EquipmentFlag';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   IValidatableUnit,
@@ -13,10 +17,7 @@ import {
   UnitCategory,
   UnitValidationSeverity,
 } from '@/types/validation/UnitValidationInterfaces';
-import { TechBase, RulesLevel, Era } from '@/types/enums';
-import { EquipmentBehaviorFlag } from '@/types/enums/EquipmentFlag';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { VehicleLocation } from '@/types/construction/UnitLocation';
+
 import {
   IValidatableEquipmentItem,
   EquipmentUnitTypeCompatibility,
@@ -37,7 +38,9 @@ interface IEquipmentTestUnit extends IValidatableUnit {
   heatSinkCount?: number;
 }
 
-function createTestUnit(overrides: Partial<IEquipmentTestUnit> = {}): IEquipmentTestUnit {
+function createTestUnit(
+  overrides: Partial<IEquipmentTestUnit> = {},
+): IEquipmentTestUnit {
   return {
     id: 'test-unit-1',
     name: 'Test Unit',
@@ -54,7 +57,7 @@ function createTestUnit(overrides: Partial<IEquipmentTestUnit> = {}): IEquipment
 }
 
 function createEquipmentItem(
-  overrides: Partial<IValidatableEquipmentItem> = {}
+  overrides: Partial<IValidatableEquipmentItem> = {},
 ): IValidatableEquipmentItem {
   return {
     id: 'equip-1',
@@ -67,7 +70,7 @@ function createEquipmentItem(
 
 function createTestContext(
   unit: IValidatableUnit,
-  unitCategory: UnitCategory = UnitCategory.MECH
+  unitCategory: UnitCategory = UnitCategory.MECH,
 ): IUnitValidationContext {
   return {
     unit,
@@ -122,13 +125,17 @@ describe('Equipment Unit Type Rules', () => {
       it('should return false when unit has no equipment', () => {
         const unit = createTestUnit({ equipment: undefined });
         const context = createTestContext(unit);
-        expect(EquipmentUnitTypeCompatibility.canValidate!(context)).toBe(false);
+        expect(EquipmentUnitTypeCompatibility.canValidate!(context)).toBe(
+          false,
+        );
       });
 
       it('should return false when equipment array is empty', () => {
         const unit = createTestUnit({ equipment: [] });
         const context = createTestContext(unit);
-        expect(EquipmentUnitTypeCompatibility.canValidate!(context)).toBe(false);
+        expect(EquipmentUnitTypeCompatibility.canValidate!(context)).toBe(
+          false,
+        );
       });
     });
 
@@ -263,7 +270,9 @@ describe('Equipment Unit Type Rules', () => {
       it('should return false when unit has no equipment', () => {
         const unit = createTestUnit({ equipment: undefined });
         const context = createTestContext(unit);
-        expect(EquipmentLocationCompatibility.canValidate!(context)).toBe(false);
+        expect(EquipmentLocationCompatibility.canValidate!(context)).toBe(
+          false,
+        );
       });
     });
 
@@ -667,7 +676,9 @@ describe('Equipment Unit Type Rules', () => {
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
-        expect(result.errors[0].message).toContain('MASC cannot be combined with Triple Strength Myomer');
+        expect(result.errors[0].message).toContain(
+          'MASC cannot be combined with Triple Strength Myomer',
+        );
       });
 
       it('should fail when MASC and Industrial TSM are both present', () => {
@@ -712,7 +723,9 @@ describe('Equipment Unit Type Rules', () => {
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
-        expect(result.errors[0].message).toContain('Standard TSM cannot be combined with Industrial TSM');
+        expect(result.errors[0].message).toContain(
+          'Standard TSM cannot be combined with Industrial TSM',
+        );
       });
 
       it('should fail when C3 Slave and C3 Improved are both present', () => {
@@ -735,7 +748,9 @@ describe('Equipment Unit Type Rules', () => {
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
-        expect(result.errors[0].message).toContain('C3 Slave cannot be combined with C3 Improved');
+        expect(result.errors[0].message).toContain(
+          'C3 Slave cannot be combined with C3 Improved',
+        );
       });
 
       it('should fail when Stealth armor and Heat Sink are both present', () => {
@@ -758,7 +773,9 @@ describe('Equipment Unit Type Rules', () => {
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
-        expect(result.errors[0].message).toContain('Stealth armor has special heat sink requirements');
+        expect(result.errors[0].message).toContain(
+          'Stealth armor has special heat sink requirements',
+        );
       });
 
       it('should return passing result when equipment is undefined', () => {
@@ -858,8 +875,12 @@ describe('Equipment Unit Type Rules', () => {
 
         expect(result.passed).toBe(true); // Warnings don't fail
         expect(result.warnings.length).toBe(1);
-        expect(result.warnings[0].severity).toBe(UnitValidationSeverity.WARNING);
-        expect(result.warnings[0].message).toContain('requires minimum 10 heat sinks');
+        expect(result.warnings[0].severity).toBe(
+          UnitValidationSeverity.WARNING,
+        );
+        expect(result.warnings[0].message).toContain(
+          'requires minimum 10 heat sinks',
+        );
       });
 
       it('should warn when OmniMech has less than 10 heat sinks', () => {
@@ -932,7 +953,9 @@ describe('Equipment Unit Type Rules', () => {
         const context = createTestContext(unit);
         const result = RequiredEquipmentCheck.validate(context);
 
-        expect(result.warnings[0].details?.condition).toContain('integral heat sinks');
+        expect(result.warnings[0].details?.condition).toContain(
+          'integral heat sinks',
+        );
       });
 
       it('should include suggestion in warning', () => {
@@ -958,28 +981,36 @@ describe('Equipment Unit Type Rules', () => {
   describe('Rule Metadata', () => {
     it('EquipmentUnitTypeCompatibility should have correct metadata', () => {
       expect(EquipmentUnitTypeCompatibility.id).toBe('VAL-EQUIP-UNIT-001');
-      expect(EquipmentUnitTypeCompatibility.name).toBe('Equipment Unit Type Compatibility');
+      expect(EquipmentUnitTypeCompatibility.name).toBe(
+        'Equipment Unit Type Compatibility',
+      );
       expect(EquipmentUnitTypeCompatibility.applicableUnitTypes).toBe('ALL');
       expect(EquipmentUnitTypeCompatibility.priority).toBe(100);
     });
 
     it('EquipmentLocationCompatibility should have correct metadata', () => {
       expect(EquipmentLocationCompatibility.id).toBe('VAL-EQUIP-UNIT-002');
-      expect(EquipmentLocationCompatibility.name).toBe('Equipment Location Compatibility');
+      expect(EquipmentLocationCompatibility.name).toBe(
+        'Equipment Location Compatibility',
+      );
       expect(EquipmentLocationCompatibility.applicableUnitTypes).toBe('ALL');
       expect(EquipmentLocationCompatibility.priority).toBe(101);
     });
 
     it('TurretMountingRequirements should have correct metadata', () => {
       expect(TurretMountingRequirements.id).toBe('VAL-EQUIP-UNIT-003');
-      expect(TurretMountingRequirements.name).toBe('Turret Mounting Requirements');
+      expect(TurretMountingRequirements.name).toBe(
+        'Turret Mounting Requirements',
+      );
       expect(TurretMountingRequirements.applicableUnitTypes).toBe('ALL');
       expect(TurretMountingRequirements.priority).toBe(102);
     });
 
     it('IncompatibleEquipmentCheck should have correct metadata', () => {
       expect(IncompatibleEquipmentCheck.id).toBe('VAL-EQUIP-UNIT-004');
-      expect(IncompatibleEquipmentCheck.name).toBe('Incompatible Equipment Check');
+      expect(IncompatibleEquipmentCheck.name).toBe(
+        'Incompatible Equipment Check',
+      );
       expect(IncompatibleEquipmentCheck.applicableUnitTypes).toBe('ALL');
       expect(IncompatibleEquipmentCheck.priority).toBe(103);
     });

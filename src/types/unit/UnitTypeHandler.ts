@@ -7,12 +7,13 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.3
  */
 
-import { UnitType } from './BattleMechInterfaces';
-import { IBaseUnit } from './BaseUnitInterfaces';
-import { IBlkDocument } from '../formats/BlkFormat';
-import { ISerializedUnit } from './UnitSerialization';
-import { UnitCategory } from '../validation/UnitValidationInterfaces';
 import type { ResultType } from '@/services/core/types/BaseTypes';
+
+import { IBlkDocument } from '../formats/BlkFormat';
+import { UnitCategory } from '../validation/UnitValidationInterfaces';
+import { IBaseUnit } from './BaseUnitInterfaces';
+import { UnitType } from './BattleMechInterfaces';
+import { ISerializedUnit } from './UnitSerialization';
 
 // ============================================================================
 // Handler Result Types
@@ -28,7 +29,10 @@ export interface IUnitParseError {
   readonly warnings: readonly string[];
 }
 
-export type IUnitParseResult<T extends IBaseUnit = IBaseUnit> = ResultType<IUnitParseData<T>, IUnitParseError>;
+export type IUnitParseResult<T extends IBaseUnit = IBaseUnit> = ResultType<
+  IUnitParseData<T>,
+  IUnitParseError
+>;
 
 export interface IUnitSerializeData {
   readonly serialized: ISerializedUnit;
@@ -38,7 +42,10 @@ export interface IUnitSerializeError {
   readonly errors: readonly string[];
 }
 
-export type IUnitSerializeResult = ResultType<IUnitSerializeData, IUnitSerializeError>;
+export type IUnitSerializeResult = ResultType<
+  IUnitSerializeData,
+  IUnitSerializeError
+>;
 
 /**
  * Result of validating a unit

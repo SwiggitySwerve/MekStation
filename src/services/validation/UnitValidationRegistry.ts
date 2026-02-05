@@ -8,6 +8,7 @@
  */
 
 import { UnitType } from '../../types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '../../types/validation/rules/ValidationRuleInterfaces';
 import {
   UnitCategory,
   IUnitValidationRule,
@@ -16,7 +17,6 @@ import {
   IUnitValidationContext,
   IUnitValidationRuleResult,
 } from '../../types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '../../types/validation/rules/ValidationRuleInterfaces';
 import { getCategoryForUnitType } from '../../utils/validation/UnitCategoryMapper';
 
 /**
@@ -38,7 +38,9 @@ class UnitValidationRule implements IUnitValidationRule {
   readonly extends?: string;
   isEnabled: boolean;
 
-  private readonly validateFn: (context: IUnitValidationContext) => IUnitValidationRuleResult;
+  private readonly validateFn: (
+    context: IUnitValidationContext,
+  ) => IUnitValidationRuleResult;
   private readonly canValidateFn?: (context: IUnitValidationContext) => boolean;
 
   constructor(definition: IUnitValidationRuleDefinition) {
@@ -94,16 +96,19 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
   private universalRules: Map<string, IUnitValidationRule> = new Map();
 
   /** Category-specific rules */
-  private categoryRules: Map<UnitCategory, Map<string, IUnitValidationRule>> = new Map();
+  private categoryRules: Map<UnitCategory, Map<string, IUnitValidationRule>> =
+    new Map();
 
   /** Unit-type-specific rules */
-  private unitTypeRules: Map<UnitType, Map<string, IUnitValidationRule>> = new Map();
+  private unitTypeRules: Map<UnitType, Map<string, IUnitValidationRule>> =
+    new Map();
 
   /** All rules by ID for quick lookup */
   private allRulesById: Map<string, IUnitValidationRule> = new Map();
 
   /** Cached resolved rule sets per unit type */
-  private resolvedRulesCache: Map<UnitType, readonly IUnitValidationRule[]> = new Map();
+  private resolvedRulesCache: Map<UnitType, readonly IUnitValidationRule[]> =
+    new Map();
 
   constructor() {
     // Initialize category rule maps
@@ -134,7 +139,10 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
   /**
    * Register a category rule (applies to unit category)
    */
-  registerCategoryRule(category: UnitCategory, definition: IUnitValidationRuleDefinition): void {
+  registerCategoryRule(
+    category: UnitCategory,
+    definition: IUnitValidationRuleDefinition,
+  ): void {
     const rule = new UnitValidationRule(definition);
 
     const categoryMap = this.categoryRules.get(category);
@@ -148,7 +156,10 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
   /**
    * Register a unit-type-specific rule
    */
-  registerUnitTypeRule(unitType: UnitType, definition: IUnitValidationRuleDefinition): void {
+  registerUnitTypeRule(
+    unitType: UnitType,
+    definition: IUnitValidationRuleDefinition,
+  ): void {
     const rule = new UnitValidationRule({
       ...definition,
       applicableUnitTypes: [unitType],
@@ -307,7 +318,9 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
    * - Override: Completely replace a parent rule
    * - Extend: Run after a parent rule
    */
-  private resolveInheritance(rules: IUnitValidationRule[]): IUnitValidationRule[] {
+  private resolveInheritance(
+    rules: IUnitValidationRule[],
+  ): IUnitValidationRule[] {
     const ruleMap = new Map<string, IUnitValidationRule>();
     const extendedRules: IUnitValidationRule[] = [];
 
@@ -349,11 +362,13 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
    */
   private createChainedRule(
     parent: IUnitValidationRule,
-    child: IUnitValidationRule
+    child: IUnitValidationRule,
   ): IUnitValidationRule {
     return {
       ...parent,
-      validate: (context: IUnitValidationContext): IUnitValidationRuleResult => {
+      validate: (
+        context: IUnitValidationContext,
+      ): IUnitValidationRuleResult => {
         const parentResult = parent.validate(context);
         const childResult = child.validate(context);
 

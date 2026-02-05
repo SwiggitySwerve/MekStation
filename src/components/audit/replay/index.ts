@@ -12,7 +12,10 @@ export { ReplayControls, type ReplayControlsProps } from './ReplayControls';
 export { ReplayTimeline, type ReplayTimelineProps } from './ReplayTimeline';
 
 // Speed selector dropdown
-export { ReplaySpeedSelector, type ReplaySpeedSelectorProps } from './ReplaySpeedSelector';
+export {
+  ReplaySpeedSelector,
+  type ReplaySpeedSelectorProps,
+} from './ReplaySpeedSelector';
 
 // Current event overlay card
 export {

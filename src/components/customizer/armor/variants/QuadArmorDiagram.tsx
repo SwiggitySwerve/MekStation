@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import { MechLocation } from '@/types/construction';
+
 import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+import { MechLocation } from '@/types/construction';
+
 import { LocationArmorData } from '../ArmorDiagram';
+import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+import { GradientDefs } from '../shared/ArmorFills';
 import {
   QUAD_SILHOUETTE,
   QUAD_LOCATION_LABELS,
   getLocationCenter,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
-import { GradientDefs } from '../shared/ArmorFills';
-import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+import { VariantLocation } from '../shared/VariantLocationRenderer';
 import {
   getVariantStyle,
   VariantLegend,
   VariantSVGDecorations,
   TargetingReticle,
 } from '../shared/VariantStyles';
-import { VariantLocation } from '../shared/VariantLocationRenderer';
 
 export interface QuadArmorDiagramProps {
   armorData: LocationArmorData[];
@@ -46,18 +48,26 @@ export function QuadArmorDiagram({
   className = '',
   variant = 'clean-tech',
 }: QuadArmorDiagramProps): React.ReactElement {
-  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
+    null,
+  );
   const style = getVariantStyle(variant);
 
-  const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
+  const getArmorData = (
+    location: MechLocation,
+  ): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
 
-  const hoveredPos = hoveredLocation ? QUAD_SILHOUETTE.locations[hoveredLocation] : null;
+  const hoveredPos = hoveredLocation
+    ? QUAD_SILHOUETTE.locations[hoveredLocation]
+    : null;
 
   return (
-    <div className={`${style.containerBg} rounded-lg border ${style.containerBorder} p-4 ${className}`}>
-      <div className="flex items-center justify-between mb-4">
+    <div
+      className={`${style.containerBg} rounded-lg border ${style.containerBorder} p-4 ${className}`}
+    >
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className={style.headerTextClass} style={style.headerTextStyle}>
             Quad Armor Allocation
@@ -69,7 +79,7 @@ export function QuadArmorDiagram({
       <div className="relative">
         <svg
           viewBox={QUAD_SILHOUETTE.viewBox}
-          className="w-full max-w-[300px] mx-auto"
+          className="mx-auto w-full max-w-[300px]"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
@@ -117,8 +127,8 @@ export function QuadArmorDiagram({
 
       <VariantLegend variant={variant} unallocatedPoints={unallocatedPoints} />
 
-      <div className="mt-3 pt-3 border-t border-border-theme-subtle">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-text-theme-secondary">
+      <div className="border-border-theme-subtle mt-3 border-t pt-3">
+        <div className="text-text-theme-secondary grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
           <div>FLL = Front Left Leg</div>
           <div>FRL = Front Right Leg</div>
           <div>RLL = Rear Left Leg</div>
@@ -126,9 +136,7 @@ export function QuadArmorDiagram({
         </div>
       </div>
 
-      <p className={style.instructionsClass}>
-        {style.instructionsText}
-      </p>
+      <p className={style.instructionsClass}>{style.instructionsText}</p>
     </div>
   );
 }

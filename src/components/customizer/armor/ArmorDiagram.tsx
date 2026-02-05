@@ -8,11 +8,13 @@
  */
 
 import React, { useState } from 'react';
-import { ArmorLocation } from './ArmorLocation';
-import { ArmorLegend } from './ArmorLegend';
-import { MechLocation } from '@/types/construction';
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+
 import { SchematicDiagram } from '@/components/armor/schematic';
+import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import { MechLocation } from '@/types/construction';
+
+import { ArmorLegend } from './ArmorLegend';
+import { ArmorLocation } from './ArmorLocation';
 
 /**
  * Armor allocation data for a single location
@@ -48,10 +50,14 @@ export function ArmorDiagram({
   onLocationClick,
   className = '',
 }: ArmorDiagramProps): React.ReactElement {
-  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
+    null,
+  );
   const { armorDiagramMode } = useAppSettingsStore();
 
-  const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
+  const getArmorData = (
+    location: MechLocation,
+  ): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
 
@@ -69,17 +75,21 @@ export function ArmorDiagram({
 
   // Silhouette mode: Use SVG-based diagram
   return (
-    <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
+    <div
+      className={`bg-surface-base border-border-theme-subtle rounded-lg border p-4 ${className}`}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-text-theme-primary">Armor Allocation</h3>
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-text-theme-primary text-lg font-semibold">
+          Armor Allocation
+        </h3>
       </div>
-      
+
       {/* Diagram */}
       <div className="relative">
         <svg
           viewBox="0 0 300 400"
-          className="w-full max-w-[300px] mx-auto"
+          className="mx-auto w-full max-w-[300px]"
           style={{ height: 'auto' }}
         >
           {/* Head */}
@@ -96,7 +106,7 @@ export function ArmorDiagram({
             onHover={(h) => setHoveredLocation(h ? MechLocation.HEAD : null)}
             locationType="head"
           />
-          
+
           {/* Center Torso */}
           <ArmorLocation
             location={MechLocation.CENTER_TORSO}
@@ -108,11 +118,13 @@ export function ArmorDiagram({
             isSelected={selectedLocation === MechLocation.CENTER_TORSO}
             isHovered={hoveredLocation === MechLocation.CENTER_TORSO}
             onClick={() => onLocationClick(MechLocation.CENTER_TORSO)}
-            onHover={(h) => setHoveredLocation(h ? MechLocation.CENTER_TORSO : null)}
+            onHover={(h) =>
+              setHoveredLocation(h ? MechLocation.CENTER_TORSO : null)
+            }
             locationType="torso"
             showRear
           />
-          
+
           {/* Left Torso */}
           <ArmorLocation
             location={MechLocation.LEFT_TORSO}
@@ -124,11 +136,13 @@ export function ArmorDiagram({
             isSelected={selectedLocation === MechLocation.LEFT_TORSO}
             isHovered={hoveredLocation === MechLocation.LEFT_TORSO}
             onClick={() => onLocationClick(MechLocation.LEFT_TORSO)}
-            onHover={(h) => setHoveredLocation(h ? MechLocation.LEFT_TORSO : null)}
+            onHover={(h) =>
+              setHoveredLocation(h ? MechLocation.LEFT_TORSO : null)
+            }
             locationType="torso"
             showRear
           />
-          
+
           {/* Right Torso */}
           <ArmorLocation
             location={MechLocation.RIGHT_TORSO}
@@ -140,11 +154,13 @@ export function ArmorDiagram({
             isSelected={selectedLocation === MechLocation.RIGHT_TORSO}
             isHovered={hoveredLocation === MechLocation.RIGHT_TORSO}
             onClick={() => onLocationClick(MechLocation.RIGHT_TORSO)}
-            onHover={(h) => setHoveredLocation(h ? MechLocation.RIGHT_TORSO : null)}
+            onHover={(h) =>
+              setHoveredLocation(h ? MechLocation.RIGHT_TORSO : null)
+            }
             locationType="torso"
             showRear
           />
-          
+
           {/* Left Arm */}
           <ArmorLocation
             location={MechLocation.LEFT_ARM}
@@ -156,10 +172,12 @@ export function ArmorDiagram({
             isSelected={selectedLocation === MechLocation.LEFT_ARM}
             isHovered={hoveredLocation === MechLocation.LEFT_ARM}
             onClick={() => onLocationClick(MechLocation.LEFT_ARM)}
-            onHover={(h) => setHoveredLocation(h ? MechLocation.LEFT_ARM : null)}
+            onHover={(h) =>
+              setHoveredLocation(h ? MechLocation.LEFT_ARM : null)
+            }
             locationType="limb"
           />
-          
+
           {/* Right Arm */}
           <ArmorLocation
             location={MechLocation.RIGHT_ARM}
@@ -171,10 +189,12 @@ export function ArmorDiagram({
             isSelected={selectedLocation === MechLocation.RIGHT_ARM}
             isHovered={hoveredLocation === MechLocation.RIGHT_ARM}
             onClick={() => onLocationClick(MechLocation.RIGHT_ARM)}
-            onHover={(h) => setHoveredLocation(h ? MechLocation.RIGHT_ARM : null)}
+            onHover={(h) =>
+              setHoveredLocation(h ? MechLocation.RIGHT_ARM : null)
+            }
             locationType="limb"
           />
-          
+
           {/* Left Leg */}
           <ArmorLocation
             location={MechLocation.LEFT_LEG}
@@ -186,10 +206,12 @@ export function ArmorDiagram({
             isSelected={selectedLocation === MechLocation.LEFT_LEG}
             isHovered={hoveredLocation === MechLocation.LEFT_LEG}
             onClick={() => onLocationClick(MechLocation.LEFT_LEG)}
-            onHover={(h) => setHoveredLocation(h ? MechLocation.LEFT_LEG : null)}
+            onHover={(h) =>
+              setHoveredLocation(h ? MechLocation.LEFT_LEG : null)
+            }
             locationType="limb"
           />
-          
+
           {/* Right Leg */}
           <ArmorLocation
             location={MechLocation.RIGHT_LEG}
@@ -201,20 +223,21 @@ export function ArmorDiagram({
             isSelected={selectedLocation === MechLocation.RIGHT_LEG}
             isHovered={hoveredLocation === MechLocation.RIGHT_LEG}
             onClick={() => onLocationClick(MechLocation.RIGHT_LEG)}
-            onHover={(h) => setHoveredLocation(h ? MechLocation.RIGHT_LEG : null)}
+            onHover={(h) =>
+              setHoveredLocation(h ? MechLocation.RIGHT_LEG : null)
+            }
             locationType="limb"
           />
         </svg>
       </div>
-      
+
       {/* Legend */}
       <ArmorLegend className="mt-4" />
-      
+
       {/* Instructions */}
-      <p className="text-xs text-text-theme-secondary text-center mt-2">
+      <p className="text-text-theme-secondary mt-2 text-center text-xs">
         Click a location to edit armor values
       </p>
     </div>
   );
 }
-

@@ -7,18 +7,18 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
 
-import { TechBase } from '@/types/enums/TechBase';
+import { BattleArmorLocation } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { TechBase } from '@/types/enums/TechBase';
+import { IEquipmentItem } from '@/types/equipment';
 import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   BattleArmorChassisType,
   BattleArmorWeightClass,
   ManipulatorType,
   IBattleArmorMountedEquipment,
 } from '@/types/unit/PersonnelInterfaces';
-import { BattleArmorLocation } from '@/types/construction/UnitLocation';
-import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -31,7 +31,7 @@ import { generateUnitId as generateUUID } from '@/utils/uuid';
 export function createBattleArmorMountedEquipment(
   item: IEquipmentItem,
   instanceId: string,
-  location?: BattleArmorLocation
+  location?: BattleArmorLocation,
 ): IBattleArmorMountedEquipment {
   return {
     id: instanceId,
@@ -237,9 +237,15 @@ export interface BattleArmorStoreActions {
   setFireResistantArmor: (value: boolean) => void;
 
   // Equipment Actions
-  addEquipment: (item: IEquipmentItem, location?: BattleArmorLocation) => string;
+  addEquipment: (
+    item: IEquipmentItem,
+    location?: BattleArmorLocation,
+  ) => string;
   removeEquipment: (instanceId: string) => void;
-  updateEquipmentLocation: (instanceId: string, location: BattleArmorLocation) => void;
+  updateEquipmentLocation: (
+    instanceId: string,
+    location: BattleArmorLocation,
+  ) => void;
   setEquipmentAPMount: (instanceId: string, isAPMount: boolean) => void;
   setEquipmentTurretMount: (instanceId: string, isTurret: boolean) => void;
   setEquipmentModular: (instanceId: string, isModular: boolean) => void;
@@ -276,7 +282,7 @@ export interface CreateBattleArmorOptions {
  * Create a default Battle Armor state
  */
 export function createDefaultBattleArmorState(
-  options: CreateBattleArmorOptions = {}
+  options: CreateBattleArmorOptions = {},
 ): BattleArmorState {
   const now = Date.now();
   const id = options.id ?? generateUUID();

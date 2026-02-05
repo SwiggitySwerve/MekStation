@@ -7,9 +7,10 @@
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
  */
 
+import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { v4 as uuidv4 } from 'uuid';
+
 import {
   ICampaign,
   ICampaignMission,
@@ -31,9 +32,15 @@ import {
   validateCampaign,
   calculateMissionXp,
 } from '@/types/campaign';
-import { IGameSession, IGameUnit, GameSide, IHexTerrain, IGameConfig } from '@/types/gameplay';
-import { generateTerrain, BiomeType } from '@/utils/gameplay/terrainGenerator';
+import {
+  IGameSession,
+  IGameUnit,
+  GameSide,
+  IHexTerrain,
+  IGameConfig,
+} from '@/types/gameplay';
 import { createGameSession } from '@/utils/gameplay/gameSession';
+import { generateTerrain, BiomeType } from '@/utils/gameplay/terrainGenerator';
 
 // =============================================================================
 // Campaign View Mode and Mission Context Types
@@ -76,7 +83,10 @@ interface CampaignStoreState {
 
 interface CampaignStoreActions {
   createCampaign: (input: ICreateCampaignInput) => string;
-  createCampaignFromTemplate: (templateId: string, input: Omit<ICreateCampaignInput, 'templateId'>) => string | null;
+  createCampaignFromTemplate: (
+    templateId: string,
+    input: Omit<ICreateCampaignInput, 'templateId'>,
+  ) => string | null;
   getCampaign: (id: string) => ICampaign | undefined;
   updateCampaign: (id: string, updates: Partial<ICampaign>) => boolean;
   deleteCampaign: (id: string) => boolean;
@@ -84,11 +94,18 @@ interface CampaignStoreActions {
   getSelectedCampaign: () => ICampaign | null;
 
   addMission: (campaignId: string, input: IAddMissionInput) => string | null;
-  updateMission: (campaignId: string, missionId: string, updates: Partial<ICampaignMission>) => boolean;
+  updateMission: (
+    campaignId: string,
+    missionId: string,
+    updates: Partial<ICampaignMission>,
+  ) => boolean;
   removeMission: (campaignId: string, missionId: string) => boolean;
   startMission: (campaignId: string, missionId: string) => boolean;
-  recordMissionOutcome: (campaignId: string, input: IRecordMissionOutcomeInput) => boolean;
-  
+  recordMissionOutcome: (
+    campaignId: string,
+    input: IRecordMissionOutcomeInput,
+  ) => boolean;
+
   launchMission: (missionId: string) => boolean;
   endMission: (result: 'victory' | 'defeat' | 'withdraw') => boolean;
   getCurrentMapComponent: () => 'StarmapDisplay' | 'HexMapDisplay';
@@ -98,19 +115,30 @@ interface CampaignStoreActions {
   /** Remove unit from roster */
   removeUnitFromRoster: (campaignId: string, unitId: string) => boolean;
   /** Update unit state in roster */
-  updateUnitState: (campaignId: string, unitId: string, updates: Partial<ICampaignUnitState>) => boolean;
+  updateUnitState: (
+    campaignId: string,
+    unitId: string,
+    updates: Partial<ICampaignUnitState>,
+  ) => boolean;
 
   /** Add pilot to campaign roster */
   addPilotToRoster: (campaignId: string, pilot: ICampaignPilotState) => boolean;
   /** Remove pilot from roster */
   removePilotFromRoster: (campaignId: string, pilotId: string) => boolean;
   /** Update pilot state in roster */
-  updatePilotState: (campaignId: string, pilotId: string, updates: Partial<ICampaignPilotState>) => boolean;
+  updatePilotState: (
+    campaignId: string,
+    pilotId: string,
+    updates: Partial<ICampaignPilotState>,
+  ) => boolean;
   /** Award XP to a pilot */
   awardXp: (campaignId: string, pilotId: string, xp: number) => boolean;
 
   /** Update campaign resources */
-  updateResources: (campaignId: string, updates: Partial<ICampaignResources>) => boolean;
+  updateResources: (
+    campaignId: string,
+    updates: Partial<ICampaignResources>,
+  ) => boolean;
 
   /** Validate a campaign */
   validateCampaign: (id: string) => ICampaignValidationResult;
@@ -145,11 +173,17 @@ function createInitialProgress(): ICampaign['progress'] {
   };
 }
 
-function updateMissionStatuses(missions: readonly ICampaignMission[]): ICampaignMission[] {
+function updateMissionStatuses(
+  missions: readonly ICampaignMission[],
+): ICampaignMission[] {
   const completedIds = new Set(
     missions
-      .filter((m) => m.status === CampaignMissionStatus.Victory || m.status === CampaignMissionStatus.Defeat)
-      .map((m) => m.id)
+      .filter(
+        (m) =>
+          m.status === CampaignMissionStatus.Victory ||
+          m.status === CampaignMissionStatus.Defeat,
+      )
+      .map((m) => m.id),
   );
 
   return missions.map((mission) => {
@@ -158,7 +192,9 @@ function updateMissionStatuses(missions: readonly ICampaignMission[]): ICampaign
     }
 
     // Check if all prerequisites are met
-    const prereqsMet = mission.prerequisites.every((prereq) => completedIds.has(prereq));
+    const prereqsMet = mission.prerequisites.every((prereq) =>
+      completedIds.has(prereq),
+    );
     if (prereqsMet) {
       return { ...mission, status: CampaignMissionStatus.Available };
     }
@@ -239,7 +275,10 @@ export const useCampaignStore = create<CampaignStore>()(
       },
 
       // Create campaign from template
-      createCampaignFromTemplate: (templateId: string, input: Omit<ICreateCampaignInput, 'templateId'>) => {
+      createCampaignFromTemplate: (
+        templateId: string,
+        input: Omit<ICreateCampaignInput, 'templateId'>,
+      ) => {
         const template = CAMPAIGN_TEMPLATES.find((t) => t.id === templateId);
         if (!template) {
           set({ error: `Template not found: ${templateId}` });
@@ -249,7 +288,8 @@ export const useCampaignStore = create<CampaignStore>()(
         const campaignId = get().createCampaign({
           ...input,
           resources: { ...template.startingResources, ...input.resources },
-          difficultyModifier: input.difficultyModifier ?? template.recommendedDifficulty,
+          difficultyModifier:
+            input.difficultyModifier ?? template.recommendedDifficulty,
         });
 
         // Add missions from template
@@ -260,7 +300,9 @@ export const useCampaignStore = create<CampaignStore>()(
             order: missionDef.order,
             prerequisites: [...missionDef.prerequisites],
             isFinal: missionDef.isFinal,
-            optionalObjectives: missionDef.optionalObjectives ? [...missionDef.optionalObjectives] : undefined,
+            optionalObjectives: missionDef.optionalObjectives
+              ? [...missionDef.optionalObjectives]
+              : undefined,
           });
         }
 
@@ -268,7 +310,9 @@ export const useCampaignStore = create<CampaignStore>()(
         const campaign = get().getCampaign(campaignId);
         if (campaign) {
           const updatedMissions = campaign.missions.map((mission) => {
-            const templateMission = template.missions.find((tm) => tm.id === mission.id.split('-').pop());
+            const templateMission = template.missions.find(
+              (tm) => tm.id === mission.id.split('-').pop(),
+            );
             if (templateMission && templateMission.branches.length > 0) {
               // Map template mission IDs to campaign mission IDs
               const campaignMissionMap = new Map<string, string>();
@@ -281,7 +325,9 @@ export const useCampaignStore = create<CampaignStore>()(
                 ...mission,
                 branches: templateMission.branches.map((b) => ({
                   ...b,
-                  targetMissionId: campaignMissionMap.get(b.targetMissionId) ?? b.targetMissionId,
+                  targetMissionId:
+                    campaignMissionMap.get(b.targetMissionId) ??
+                    b.targetMissionId,
                 })),
               };
             }
@@ -309,7 +355,9 @@ export const useCampaignStore = create<CampaignStore>()(
 
         set((state) => ({
           campaigns: state.campaigns.map((c) =>
-            c.id === id ? { ...c, ...updates, updatedAt: new Date().toISOString() } : c
+            c.id === id
+              ? { ...c, ...updates, updatedAt: new Date().toISOString() }
+              : c,
           ),
         }));
 
@@ -326,7 +374,8 @@ export const useCampaignStore = create<CampaignStore>()(
 
         set((state) => ({
           campaigns: state.campaigns.filter((c) => c.id !== id),
-          selectedCampaignId: state.selectedCampaignId === id ? null : state.selectedCampaignId,
+          selectedCampaignId:
+            state.selectedCampaignId === id ? null : state.selectedCampaignId,
         }));
 
         return true;
@@ -359,9 +408,10 @@ export const useCampaignStore = create<CampaignStore>()(
           id: missionId,
           name: input.name,
           description: input.description,
-          status: isFirstMission || (input.prerequisites?.length ?? 0) === 0
-            ? CampaignMissionStatus.Available
-            : CampaignMissionStatus.Locked,
+          status:
+            isFirstMission || (input.prerequisites?.length ?? 0) === 0
+              ? CampaignMissionStatus.Available
+              : CampaignMissionStatus.Locked,
           encounterId: input.encounterId,
           order: input.order,
           prerequisites: input.prerequisites ?? [],
@@ -370,7 +420,10 @@ export const useCampaignStore = create<CampaignStore>()(
           optionalObjectives: input.optionalObjectives,
         };
 
-        const updatedMissions = updateMissionStatuses([...campaign.missions, mission]);
+        const updatedMissions = updateMissionStatuses([
+          ...campaign.missions,
+          mission,
+        ]);
 
         get().updateCampaign(campaignId, {
           missions: updatedMissions,
@@ -384,24 +437,32 @@ export const useCampaignStore = create<CampaignStore>()(
       },
 
       // Update a mission
-      updateMission: (campaignId: string, missionId: string, updates: Partial<ICampaignMission>) => {
+      updateMission: (
+        campaignId: string,
+        missionId: string,
+        updates: Partial<ICampaignMission>,
+      ) => {
         const campaign = get().getCampaign(campaignId);
         if (!campaign) {
           set({ error: `Campaign not found: ${campaignId}` });
           return false;
         }
 
-        const missionIndex = campaign.missions.findIndex((m) => m.id === missionId);
+        const missionIndex = campaign.missions.findIndex(
+          (m) => m.id === missionId,
+        );
         if (missionIndex === -1) {
           set({ error: `Mission not found: ${missionId}` });
           return false;
         }
 
         const updatedMissions = campaign.missions.map((m) =>
-          m.id === missionId ? { ...m, ...updates } : m
+          m.id === missionId ? { ...m, ...updates } : m,
         );
 
-        return get().updateCampaign(campaignId, { missions: updateMissionStatuses(updatedMissions) });
+        return get().updateCampaign(campaignId, {
+          missions: updateMissionStatuses(updatedMissions),
+        });
       },
 
       // Remove a mission
@@ -412,7 +473,9 @@ export const useCampaignStore = create<CampaignStore>()(
           return false;
         }
 
-        const updatedMissions = campaign.missions.filter((m) => m.id !== missionId);
+        const updatedMissions = campaign.missions.filter(
+          (m) => m.id !== missionId,
+        );
 
         return get().updateCampaign(campaignId, {
           missions: updateMissionStatuses(updatedMissions),
@@ -420,7 +483,9 @@ export const useCampaignStore = create<CampaignStore>()(
             ...campaign.progress,
             missionsTotal: updatedMissions.length,
             currentMissionId:
-              campaign.progress.currentMissionId === missionId ? null : campaign.progress.currentMissionId,
+              campaign.progress.currentMissionId === missionId
+                ? null
+                : campaign.progress.currentMissionId,
           },
         });
       },
@@ -453,12 +518,15 @@ export const useCampaignStore = create<CampaignStore>()(
         const updatedMissions = campaign.missions.map((m) =>
           m.id === missionId
             ? { ...m, status: CampaignMissionStatus.InProgress, rosterSnapshot }
-            : m
+            : m,
         );
 
         return get().updateCampaign(campaignId, {
           missions: updatedMissions,
-          status: campaign.status === CampaignStatus.Setup ? CampaignStatus.Active : campaign.status,
+          status:
+            campaign.status === CampaignStatus.Setup
+              ? CampaignStatus.Active
+              : campaign.status,
           progress: {
             ...campaign.progress,
             currentMissionId: missionId,
@@ -467,7 +535,10 @@ export const useCampaignStore = create<CampaignStore>()(
       },
 
       // Record mission outcome
-      recordMissionOutcome: (campaignId: string, input: IRecordMissionOutcomeInput) => {
+      recordMissionOutcome: (
+        campaignId: string,
+        input: IRecordMissionOutcomeInput,
+      ) => {
         const campaign = get().getCampaign(campaignId);
         if (!campaign) {
           set({ error: `Campaign not found: ${campaignId}` });
@@ -483,11 +554,22 @@ export const useCampaignStore = create<CampaignStore>()(
         // Calculate XP awards for each pilot
         const xpAwarded: Record<string, number> = {};
         for (const pilot of campaign.roster.pilots) {
-          if (pilot.status === CampaignPilotStatus.Active || pilot.status === CampaignPilotStatus.Wounded) {
-            const pilotUpdate = input.pilotUpdates.find((u) => u.pilotId === pilot.pilotId);
+          if (
+            pilot.status === CampaignPilotStatus.Active ||
+            pilot.status === CampaignPilotStatus.Wounded
+          ) {
+            const pilotUpdate = input.pilotUpdates.find(
+              (u) => u.pilotId === pilot.pilotId,
+            );
             const kills = pilotUpdate?.campaignKills ?? 0;
-            const survivedCritical = pilotUpdate?.wounds !== undefined && pilotUpdate.wounds > 0;
-            const xp = calculateMissionXp(kills, input.outcome.result === 'victory', survivedCritical, 0);
+            const survivedCritical =
+              pilotUpdate?.wounds !== undefined && pilotUpdate.wounds > 0;
+            const xp = calculateMissionXp(
+              kills,
+              input.outcome.result === 'victory',
+              survivedCritical,
+              0,
+            );
             xpAwarded[pilot.pilotId] = xp;
           }
         }
@@ -499,16 +581,22 @@ export const useCampaignStore = create<CampaignStore>()(
 
         // Update mission status based on outcome
         const newMissionStatus =
-          outcome.result === 'victory' ? CampaignMissionStatus.Victory : CampaignMissionStatus.Defeat;
+          outcome.result === 'victory'
+            ? CampaignMissionStatus.Victory
+            : CampaignMissionStatus.Defeat;
 
         // Update roster with provided updates
         const updatedUnits = campaign.roster.units.map((unit) => {
-          const update = input.unitUpdates.find((u) => u.unitId === unit.unitId);
+          const update = input.unitUpdates.find(
+            (u) => u.unitId === unit.unitId,
+          );
           return update ? { ...unit, ...update } : unit;
         });
 
         const updatedPilots = campaign.roster.pilots.map((pilot) => {
-          const update = input.pilotUpdates.find((u) => u.pilotId === pilot.pilotId);
+          const update = input.pilotUpdates.find(
+            (u) => u.pilotId === pilot.pilotId,
+          );
           const xp = xpAwarded[pilot.pilotId] ?? 0;
           return update
             ? {
@@ -529,9 +617,14 @@ export const useCampaignStore = create<CampaignStore>()(
         const updatedMissions = updateMissionStatuses(
           campaign.missions.map((m) =>
             m.id === input.missionId
-              ? { ...m, status: newMissionStatus, outcome, completedAt: new Date().toISOString() }
-              : m
-          )
+              ? {
+                  ...m,
+                  status: newMissionStatus,
+                  outcome,
+                  completedAt: new Date().toISOString(),
+                }
+              : m,
+          ),
         );
 
         // Check for campaign end conditions
@@ -540,7 +633,9 @@ export const useCampaignStore = create<CampaignStore>()(
           newCampaignStatus = CampaignStatus.Victory;
         } else if (mission.isFinal && outcome.result === 'defeat') {
           // Check if there's a defeat branch
-          const defeatBranch = mission.branches.find((b) => b.condition === 'defeat');
+          const defeatBranch = mission.branches.find(
+            (b) => b.condition === 'defeat',
+          );
           if (!defeatBranch) {
             newCampaignStatus = CampaignStatus.Defeat;
           }
@@ -550,13 +645,15 @@ export const useCampaignStore = create<CampaignStore>()(
         const updatedResources: ICampaignResources = {
           ...campaign.resources,
           cBills: campaign.resources.cBills + outcome.cBillsReward,
-          salvageParts: campaign.resources.salvageParts + outcome.salvage.length,
+          salvageParts:
+            campaign.resources.salvageParts + outcome.salvage.length,
           morale: Math.max(
             0,
             Math.min(
               100,
-              campaign.resources.morale + (outcome.result === 'victory' ? 5 : -10)
-            )
+              campaign.resources.morale +
+                (outcome.result === 'victory' ? 5 : -10),
+            ),
           ),
         };
 
@@ -569,8 +666,11 @@ export const useCampaignStore = create<CampaignStore>()(
             ...campaign.progress,
             currentMissionId: null,
             missionsCompleted: campaign.progress.missionsCompleted + 1,
-            victories: campaign.progress.victories + (outcome.result === 'victory' ? 1 : 0),
-            defeats: campaign.progress.defeats + (outcome.result === 'defeat' ? 1 : 0),
+            victories:
+              campaign.progress.victories +
+              (outcome.result === 'victory' ? 1 : 0),
+            defeats:
+              campaign.progress.defeats + (outcome.result === 'defeat' ? 1 : 0),
             lastMissionAt: new Date().toISOString(),
           },
         });
@@ -614,21 +714,27 @@ export const useCampaignStore = create<CampaignStore>()(
       },
 
       // Update unit state
-      updateUnitState: (campaignId: string, unitId: string, updates: Partial<ICampaignUnitState>) => {
+      updateUnitState: (
+        campaignId: string,
+        unitId: string,
+        updates: Partial<ICampaignUnitState>,
+      ) => {
         const campaign = get().getCampaign(campaignId);
         if (!campaign) {
           set({ error: `Campaign not found: ${campaignId}` });
           return false;
         }
 
-        const unitIndex = campaign.roster.units.findIndex((u) => u.unitId === unitId);
+        const unitIndex = campaign.roster.units.findIndex(
+          (u) => u.unitId === unitId,
+        );
         if (unitIndex === -1) {
           set({ error: `Unit not found in roster: ${unitId}` });
           return false;
         }
 
         const updatedUnits = campaign.roster.units.map((u) =>
-          u.unitId === unitId ? { ...u, ...updates } : u
+          u.unitId === unitId ? { ...u, ...updates } : u,
         );
 
         return get().updateCampaign(campaignId, {
@@ -674,21 +780,27 @@ export const useCampaignStore = create<CampaignStore>()(
       },
 
       // Update pilot state
-      updatePilotState: (campaignId: string, pilotId: string, updates: Partial<ICampaignPilotState>) => {
+      updatePilotState: (
+        campaignId: string,
+        pilotId: string,
+        updates: Partial<ICampaignPilotState>,
+      ) => {
         const campaign = get().getCampaign(campaignId);
         if (!campaign) {
           set({ error: `Campaign not found: ${campaignId}` });
           return false;
         }
 
-        const pilotIndex = campaign.roster.pilots.findIndex((p) => p.pilotId === pilotId);
+        const pilotIndex = campaign.roster.pilots.findIndex(
+          (p) => p.pilotId === pilotId,
+        );
         if (pilotIndex === -1) {
           set({ error: `Pilot not found in roster: ${pilotId}` });
           return false;
         }
 
         const updatedPilots = campaign.roster.pilots.map((p) =>
-          p.pilotId === pilotId ? { ...p, ...updates } : p
+          p.pilotId === pilotId ? { ...p, ...updates } : p,
         );
 
         return get().updateCampaign(campaignId, {
@@ -717,7 +829,10 @@ export const useCampaignStore = create<CampaignStore>()(
       },
 
       // Update resources
-      updateResources: (campaignId: string, updates: Partial<ICampaignResources>) => {
+      updateResources: (
+        campaignId: string,
+        updates: Partial<ICampaignResources>,
+      ) => {
         const campaign = get().getCampaign(campaignId);
         if (!campaign) {
           set({ error: `Campaign not found: ${campaignId}` });
@@ -777,7 +892,7 @@ export const useCampaignStore = create<CampaignStore>()(
           filtered = filtered.filter(
             (c) =>
               c.name.toLowerCase().includes(lowerQuery) ||
-              c.description?.toLowerCase().includes(lowerQuery)
+              c.description?.toLowerCase().includes(lowerQuery),
           );
         }
 
@@ -813,7 +928,10 @@ export const useCampaignStore = create<CampaignStore>()(
           return false;
         }
 
-        const missionStarted = get().startMission(selectedCampaignId, missionId);
+        const missionStarted = get().startMission(
+          selectedCampaignId,
+          missionId,
+        );
         if (!missionStarted) {
           return false;
         }
@@ -826,11 +944,15 @@ export const useCampaignStore = create<CampaignStore>()(
         });
 
         const operationalUnits = campaign.roster.units.filter(
-          (u) => u.status === CampaignUnitStatus.Operational || u.status === CampaignUnitStatus.Damaged
+          (u) =>
+            u.status === CampaignUnitStatus.Operational ||
+            u.status === CampaignUnitStatus.Damaged,
         );
 
         const playerGameUnits: IGameUnit[] = operationalUnits.map((unit) => {
-          const pilot = campaign.roster.pilots.find((p) => p.pilotId === unit.pilotId);
+          const pilot = campaign.roster.pilots.find(
+            (p) => p.pilotId === unit.pilotId,
+          );
           return {
             id: `player-${unit.unitId}`,
             name: unit.unitName,
@@ -870,7 +992,10 @@ export const useCampaignStore = create<CampaignStore>()(
           optionalRules: [],
         };
 
-        const gameSession = createGameSession(config, [...playerGameUnits, ...opponentUnits]);
+        const gameSession = createGameSession(config, [
+          ...playerGameUnits,
+          ...opponentUnits,
+        ]);
 
         const missionContext: IMissionContext = {
           missionId,
@@ -889,9 +1014,14 @@ export const useCampaignStore = create<CampaignStore>()(
       },
 
       endMission: (result: 'victory' | 'defeat' | 'withdraw') => {
-        const { selectedCampaignId, activeGameSession, activeMissionContext } = get();
-        
-        if (!selectedCampaignId || !activeGameSession || !activeMissionContext) {
+        const { selectedCampaignId, activeGameSession, activeMissionContext } =
+          get();
+
+        if (
+          !selectedCampaignId ||
+          !activeGameSession ||
+          !activeMissionContext
+        ) {
           set({ error: 'No active mission to end' });
           return false;
         }
@@ -903,7 +1033,12 @@ export const useCampaignStore = create<CampaignStore>()(
         }
 
         const outcomeResult = result === 'withdraw' ? 'defeat' : result;
-        const cBillsReward = result === 'victory' ? 50000 : (result === 'withdraw' ? -10000 : -25000);
+        const cBillsReward =
+          result === 'victory'
+            ? 50000
+            : result === 'withdraw'
+              ? -10000
+              : -25000;
 
         get().recordMissionOutcome(selectedCampaignId, {
           missionId: activeMissionContext.missionId,
@@ -946,6 +1081,6 @@ export const useCampaignStore = create<CampaignStore>()(
         campaigns: state.campaigns,
         selectedCampaignId: state.selectedCampaignId,
       }),
-    }
-  )
+    },
+  ),
 );

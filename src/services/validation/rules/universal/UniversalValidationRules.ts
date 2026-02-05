@@ -7,6 +7,8 @@
  */
 
 import { RulesLevel } from '../../../../types/enums';
+import { isValidTechBase } from '../../../../types/enums/TechBase';
+import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -16,9 +18,7 @@ import {
   createUnitValidationRuleResult,
   createPassingResult,
 } from '../../../../types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 import { isValidUnitType } from '../../../../utils/validation/UnitCategoryMapper';
-import { isValidTechBase } from '../../../../types/enums/TechBase';
 
 /**
  * Rules level hierarchy for comparison
@@ -33,7 +33,10 @@ const RULES_LEVEL_HIERARCHY: Record<RulesLevel, number> = {
 /**
  * Check if rules level exceeds filter
  */
-function rulesLevelExceedsFilter(level: RulesLevel, filter: RulesLevel): boolean {
+function rulesLevelExceedsFilter(
+  level: RulesLevel,
+  filter: RulesLevel,
+): boolean {
   return RULES_LEVEL_HIERARCHY[level] > RULES_LEVEL_HIERARCHY[filter];
 }
 
@@ -60,12 +63,19 @@ export const EntityIdRequired: IUnitValidationRuleDefinition = {
           UnitValidationSeverity.ERROR,
           this.category,
           'Entity must have non-empty id',
-          { field: 'id', suggestion: 'Provide a valid id for the entity' }
-        )
+          { field: 'id', suggestion: 'Provide a valid id for the entity' },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -92,12 +102,19 @@ export const EntityNameRequired: IUnitValidationRuleDefinition = {
           UnitValidationSeverity.ERROR,
           this.category,
           'Entity must have non-empty name',
-          { field: 'name', suggestion: 'Provide a valid name for the entity' }
-        )
+          { field: 'name', suggestion: 'Provide a valid name for the entity' },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -128,12 +145,19 @@ export const ValidUnitType: IUnitValidationRuleDefinition = {
             field: 'unitType',
             actual: String(unit.unitType),
             suggestion: 'Select a valid unit type',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -164,12 +188,19 @@ export const TechBaseRequired: IUnitValidationRuleDefinition = {
             field: 'techBase',
             actual: String(unit.techBase),
             suggestion: 'Select Inner Sphere or Clan tech base',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -200,13 +231,21 @@ export const RulesLevelRequired: IUnitValidationRuleDefinition = {
           {
             field: 'rulesLevel',
             actual: String(unit.rulesLevel),
-            suggestion: 'Select Introductory, Standard, Advanced, or Experimental',
-          }
-        )
+            suggestion:
+              'Select Introductory, Standard, Advanced, or Experimental',
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -216,7 +255,8 @@ export const RulesLevelRequired: IUnitValidationRuleDefinition = {
 export const IntroductionYearValid: IUnitValidationRuleDefinition = {
   id: 'VAL-UNIV-006',
   name: 'Introduction Year Valid',
-  description: 'Introduction year must be within BattleTech timeline (2005-3250)',
+  description:
+    'Introduction year must be within BattleTech timeline (2005-3250)',
   category: ValidationCategory.ERA,
   priority: 6,
   applicableUnitTypes: 'ALL',
@@ -245,13 +285,21 @@ export const IntroductionYearValid: IUnitValidationRuleDefinition = {
             field: 'introductionYear',
             expected: `${MIN_YEAR}-${MAX_YEAR}`,
             actual: String(unit.introductionYear),
-            suggestion: 'Provide a valid introduction year within the BattleTech timeline',
-          }
-        )
+            suggestion:
+              'Provide a valid introduction year within the BattleTech timeline',
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -285,13 +333,21 @@ export const TemporalConsistency: IUnitValidationRuleDefinition = {
             field: 'extinctionYear',
             expected: `> ${unit.introductionYear}`,
             actual: String(unit.extinctionYear),
-            suggestion: 'Correct the extinction year to be after the introduction year',
-          }
-        )
+            suggestion:
+              'Correct the extinction year to be after the introduction year',
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -323,12 +379,19 @@ export const WeightNonNegative: IUnitValidationRuleDefinition = {
             expected: '>= 0',
             actual: String(unit.weight),
             suggestion: 'Correct the weight value to be >= 0 and finite',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -360,12 +423,19 @@ export const CostNonNegative: IUnitValidationRuleDefinition = {
             expected: '>= 0',
             actual: String(unit.cost),
             suggestion: 'Correct the cost value to be >= 0 and finite',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -397,12 +467,19 @@ export const BattleValueNonNegative: IUnitValidationRuleDefinition = {
             expected: '>= 0',
             actual: String(unit.battleValue),
             suggestion: 'Correct the battle value to be >= 0 and finite',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -444,13 +521,16 @@ export const EraAvailability: IUnitValidationRuleDefinition = {
             expected: `<= ${campaignYear}`,
             actual: String(unit.introductionYear),
             suggestion: 'Change campaign year or select a different unit',
-          }
-        )
+          },
+        ),
       );
     }
 
     // Check if unit is extinct
-    if (unit.extinctionYear !== undefined && campaignYear >= unit.extinctionYear) {
+    if (
+      unit.extinctionYear !== undefined &&
+      campaignYear >= unit.extinctionYear
+    ) {
       errors.push(
         createUnitValidationError(
           this.id,
@@ -463,12 +543,19 @@ export const EraAvailability: IUnitValidationRuleDefinition = {
             expected: `> ${campaignYear}`,
             actual: String(unit.extinctionYear),
             suggestion: 'Change campaign year or select a different unit',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -509,12 +596,19 @@ export const RulesLevelCompliance: IUnitValidationRuleDefinition = {
             expected: `<= ${rulesLevelFilter}`,
             actual: unit.rulesLevel,
             suggestion: 'Change rules level filter or select a different unit',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -552,17 +646,17 @@ export const ArmorAllocationValidation: IUnitValidationRuleDefinition = {
 
     const armor = unit.armorByLocation;
     const CRITICAL_THRESHOLD = 0.2; // < 20% = error
-    const LOW_THRESHOLD = 0.4;      // < 40% but >= 20% = warning
+    const LOW_THRESHOLD = 0.4; // < 40% but >= 20% = warning
 
     // Check each location - uses displayName from the armor entry
     // This supports all mech configurations (Biped, Quad, Tripod, LAM, QuadVee)
     for (const [locationKey, locationArmor] of Object.entries(armor)) {
       const displayName = locationArmor.displayName || locationKey;
-      
+
       if (locationArmor.max <= 0) continue;
-      
+
       const ratio = locationArmor.current / locationArmor.max;
-      
+
       // ERROR: Location has critical armor (< 20%)
       if (ratio < CRITICAL_THRESHOLD) {
         errors.push(
@@ -579,8 +673,8 @@ export const ArmorAllocationValidation: IUnitValidationRuleDefinition = {
               expected: `>= ${Math.ceil(locationArmor.max * CRITICAL_THRESHOLD)} (20%)`,
               actual: String(locationArmor.current),
               suggestion: `Allocate more armor to ${displayName} in the Armor tab`,
-            }
-          )
+            },
+          ),
         );
       }
       // WARNING: Location has low armor (20-40%)
@@ -597,13 +691,20 @@ export const ArmorAllocationValidation: IUnitValidationRuleDefinition = {
               expected: `>= ${Math.ceil(locationArmor.max * LOW_THRESHOLD)} (40%)`,
               actual: String(locationArmor.current),
               suggestion: `Consider adding more armor to ${displayName}`,
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, warnings, [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      warnings,
+      [],
+      0,
+    );
   },
 };
 
@@ -620,7 +721,10 @@ export const WeightOverflowValidation: IUnitValidationRuleDefinition = {
   applicableUnitTypes: 'ALL',
 
   canValidate(context: IUnitValidationContext): boolean {
-    return context.unit.allocatedWeight !== undefined && context.unit.maxWeight !== undefined;
+    return (
+      context.unit.allocatedWeight !== undefined &&
+      context.unit.maxWeight !== undefined
+    );
   },
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
@@ -647,13 +751,21 @@ export const WeightOverflowValidation: IUnitValidationRuleDefinition = {
             field: 'weight',
             expected: `<= ${max} tons`,
             actual: `${allocated.toFixed(1)} tons`,
-            suggestion: 'Remove equipment or reduce armor/components to meet weight limit',
-          }
-        )
+            suggestion:
+              'Remove equipment or reduce armor/components to meet weight limit',
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -681,7 +793,9 @@ export const CriticalSlotOverflowValidation: IUnitValidationRuleDefinition = {
       return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
     }
 
-    for (const [locationKey, slotInfo] of Object.entries(unit.slotsByLocation)) {
+    for (const [locationKey, slotInfo] of Object.entries(
+      unit.slotsByLocation,
+    )) {
       const displayName = slotInfo.displayName || locationKey;
 
       if (slotInfo.used > slotInfo.max) {
@@ -698,36 +812,44 @@ export const CriticalSlotOverflowValidation: IUnitValidationRuleDefinition = {
               expected: `<= ${slotInfo.max} slots`,
               actual: `${slotInfo.used} slots`,
               suggestion: `Remove or relocate equipment from ${displayName}`,
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
 /**
  * All universal validation rules
  */
-export const UNIVERSAL_VALIDATION_RULES: readonly IUnitValidationRuleDefinition[] = [
-  EntityIdRequired,
-  EntityNameRequired,
-  ValidUnitType,
-  TechBaseRequired,
-  RulesLevelRequired,
-  IntroductionYearValid,
-  TemporalConsistency,
-  WeightNonNegative,
-  CostNonNegative,
-  BattleValueNonNegative,
-  EraAvailability,
-  RulesLevelCompliance,
-  ArmorAllocationValidation,
-  WeightOverflowValidation,
-  CriticalSlotOverflowValidation,
-];
+export const UNIVERSAL_VALIDATION_RULES: readonly IUnitValidationRuleDefinition[] =
+  [
+    EntityIdRequired,
+    EntityNameRequired,
+    ValidUnitType,
+    TechBaseRequired,
+    RulesLevelRequired,
+    IntroductionYearValid,
+    TemporalConsistency,
+    WeightNonNegative,
+    CostNonNegative,
+    BattleValueNonNegative,
+    EraAvailability,
+    RulesLevelCompliance,
+    ArmorAllocationValidation,
+    WeightOverflowValidation,
+    CriticalSlotOverflowValidation,
+  ];
 
 // Backwards compatibility alias
 export const ArmorAllocationWarning = ArmorAllocationValidation;

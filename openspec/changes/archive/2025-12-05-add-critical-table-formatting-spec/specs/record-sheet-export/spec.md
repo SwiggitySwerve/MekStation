@@ -11,12 +11,14 @@ The system SHALL render critical hit tables for each location matching MegaMekLa
 **Status**: IMPLEMENTED ✓
 
 #### Scenario: Critical slot display
+
 - **WHEN** critical slots section renders
 - **THEN** render into `crits_*` rect elements in template
 - **AND** display location name label above the rect boundary
 - **AND** show slot numbers 1-6 (restarting for 12-slot locations)
 
 #### Scenario: Critical table title positioning
+
 - **WHEN** location title renders
 - **THEN** position title X at `rectX + rectWidth * 0.075` (7.5% indent from left edge)
 - **AND** position title Y at `rectY - 4` pixels (above the rect boundary with clearance)
@@ -26,12 +28,14 @@ The system SHALL render critical hit tables for each location matching MegaMekLa
 - **AND** use font size of `baseFontSize * 1.25` (8.75px with 7px base)
 
 #### Scenario: Critical slot font sizing
+
 - **WHEN** critical slot entries render
 - **THEN** use constant 7px font size for ALL locations regardless of slot count
 - **AND** use Times New Roman serif font family
 - **AND** this matches MegaMekLab's `DEFAULT_CRITICAL_SLOT_ENTRY_FONT_SIZE = 7f`
 
 #### Scenario: Critical slot line height calculation
+
 - **WHEN** slot entries are positioned vertically
 - **THEN** calculate gap height as `rectHeight * 0.05` for 12-slot locations (0 for 6-slot)
 - **AND** calculate line height as `(rectHeight - gapHeight) / slotCount`
@@ -39,12 +43,14 @@ The system SHALL render critical hit tables for each location matching MegaMekLa
 - **AND** add gap offset for slots 7-12 in 12-slot locations
 
 #### Scenario: Critical slot number positioning
+
 - **WHEN** slot numbers render
 - **THEN** position at `rectX + bracketWidth + bracketMargin + 2` pixels
 - **AND** display as "1." through "6." (restarting after slot 6)
 - **AND** use bold font weight for slot numbers
 
 #### Scenario: Critical slot content positioning
+
 - **WHEN** slot content text renders
 - **THEN** position at `rectX + bracketWidth + bracketMargin + numberWidth` (approximately 11% from left)
 - **AND** where numberWidth is 12px for the slot number column
@@ -52,6 +58,7 @@ The system SHALL render critical hit tables for each location matching MegaMekLa
 - **AND** where bracketMargin is 1px spacing
 
 #### Scenario: Critical slot font styling
+
 - **WHEN** critical slot text renders
 - **THEN** use Times New Roman serif font (matching MegaMekLab)
 - **AND** bold hittable equipment (weapons, system components)
@@ -60,6 +67,7 @@ The system SHALL render critical hit tables for each location matching MegaMekLa
 - **AND** use grey (#999999) for "-Empty-" entries
 
 #### Scenario: Multi-slot equipment brackets
+
 - **WHEN** equipment occupies multiple consecutive slots
 - **THEN** draw L-shaped bracket on left side of slots
 - **AND** bracket width is 3px (horizontal segments)

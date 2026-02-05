@@ -1,9 +1,11 @@
 # Change: Awards Auto-Granting System
 
 ## Why
+
 MekStation has 54 awards in 5 categories with manual granting. MekHQ's auto-award system automatically checks personnel against award criteria on configurable triggers (monthly, post-mission, post-scenario) and grants qualifying awards. This eliminates manual award tracking and ensures consistent recognition of achievements.
 
 ## What Changes
+
 - **Auto-Award Engine**: Processes all eligible personnel against enabled award categories
 - **13 Award Categories**: Contract, faction hunter, injury, kill, scenario kill, rank, scenario, skill, theatre of war, time, training, misc
 - **Multi-Trigger Support**: Monthly (1st of month), post-mission, post-scenario, post-promotion, post-graduation
@@ -13,6 +15,7 @@ MekStation has 54 awards in 5 categories with manual granting. MekHQ's auto-awar
 - **Event Generation**: Auto-granted awards appear in day report
 
 ## Impact
+
 - Affected specs: `awards`, `day-progression`
 - Affected code: New `src/lib/campaign/awards/` directory, new `autoAwardsProcessor`
 - Backward compatible: Existing manual award granting still works, auto-awards are opt-in per category

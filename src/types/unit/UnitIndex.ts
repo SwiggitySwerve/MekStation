@@ -1,13 +1,13 @@
 /**
  * Unit Index and Query Types
- * 
+ *
  * Domain types for unit search, browsing, and filtering.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
-import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/enums/Era';
+import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 

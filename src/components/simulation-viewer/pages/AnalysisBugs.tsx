@@ -1,9 +1,11 @@
 import React, { useState, useCallback, useMemo } from 'react';
+
+import type { IFilterDefinition } from '@/components/simulation-viewer/types';
+import type { IAnomaly } from '@/types/simulation-viewer';
+
 import { AnomalyAlertCard } from '@/components/simulation-viewer/AnomalyAlertCard';
 import { FilterPanel } from '@/components/simulation-viewer/FilterPanel';
 import { VirtualizedViolationLog } from '@/components/simulation-viewer/VirtualizedViolationLog';
-import type { IFilterDefinition } from '@/components/simulation-viewer/types';
-import type { IAnomaly } from '@/types/simulation-viewer';
 import { FOCUS_RING_CLASSES, announce } from '@/utils/accessibility';
 
 /* ========================================================================== */
@@ -17,7 +19,12 @@ type InvariantStatus = 'pass' | 'fail';
 type Severity = 'critical' | 'warning' | 'info';
 
 /** Detector type identifiers matching Wave 3 detectors */
-type DetectorType = 'heat-suicide' | 'passive-unit' | 'no-progress' | 'long-game' | 'state-cycle';
+type DetectorType =
+  | 'heat-suicide'
+  | 'passive-unit'
+  | 'no-progress'
+  | 'long-game'
+  | 'state-cycle';
 
 /** Sort direction for table columns */
 type SortDirection = 'asc' | 'desc';
@@ -190,11 +197,16 @@ function mapToCardAnomaly(anomaly: IPageAnomaly): IAnomaly {
     turn: null,
     unitId: null,
     message: anomaly.description,
-    configKey: anomaly.detector === 'heat-suicide' ? 'heatSuicideThreshold'
-      : anomaly.detector === 'passive-unit' ? 'passiveUnitThreshold'
-      : anomaly.detector === 'no-progress' ? 'noProgressThreshold'
-      : anomaly.detector === 'long-game' ? 'longGameThreshold'
-      : 'stateCycleThreshold',
+    configKey:
+      anomaly.detector === 'heat-suicide'
+        ? 'heatSuicideThreshold'
+        : anomaly.detector === 'passive-unit'
+          ? 'passiveUnitThreshold'
+          : anomaly.detector === 'no-progress'
+            ? 'noProgressThreshold'
+            : anomaly.detector === 'long-game'
+              ? 'longGameThreshold'
+              : 'stateCycleThreshold',
     timestamp: Date.parse(anomaly.timestamp) || Date.now(),
   };
 }
@@ -255,12 +267,15 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
 }) => {
   /* ---- state ---- */
   const [showDismissed, setShowDismissed] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
+  const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>(
+    {},
+  );
   const [violationSort] = useState<{
     key: ViolationSortKey;
     direction: SortDirection;
   }>({ key: 'timestamp', direction: 'desc' });
-  const [localThresholds, setLocalThresholds] = useState<IThresholds>(thresholds);
+  const [localThresholds, setLocalThresholds] =
+    useState<IThresholds>(thresholds);
   const [autoSnapshotCritical, setAutoSnapshotCritical] = useState(true);
   const [autoSnapshotWarning, setAutoSnapshotWarning] = useState(false);
   const [autoSnapshotInfo, setAutoSnapshotInfo] = useState(false);
@@ -299,7 +314,8 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
         const diff = SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity];
         return violationSort.direction === 'asc' ? diff : -diff;
       }
-      const diff = new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+      const diff =
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
       return violationSort.direction === 'asc' ? diff : -diff;
     });
 
@@ -331,9 +347,12 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
   }, [anomalies, localThresholds]);
 
   /* ---- handlers ---- */
-  const handleFilterChange = useCallback((filters: Record<string, string[]>) => {
-    setActiveFilters(filters);
-  }, []);
+  const handleFilterChange = useCallback(
+    (filters: Record<string, string[]>) => {
+      setActiveFilters(filters);
+    },
+    [],
+  );
 
   const handleSliderChange = useCallback((detector: string, value: number) => {
     setLocalThresholds((prev) => ({ ...prev, [detector]: value }));
@@ -386,12 +405,12 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
   /* ---- render ---- */
   return (
     <main
-      className="p-4 md:p-6 lg:p-8 min-h-screen bg-gray-50 dark:bg-gray-900"
+      className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 dark:bg-gray-900"
       data-testid="analysis-bugs-page"
       data-campaign-id={campaignId}
     >
       <h1
-        className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6"
+        className="mb-6 text-2xl font-bold text-gray-900 md:text-3xl dark:text-gray-100"
         data-testid="page-title"
       >
         Analysis & Bugs
@@ -401,7 +420,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
         {/* ── 1. INVARIANT STATUS ──────────────────────────────────── */}
         <section aria-label="Invariant status" data-testid="invariant-section">
           <h2
-            className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4"
+            className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200"
             data-testid="invariant-heading"
           >
             Invariant Status
@@ -409,14 +428,14 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
 
           {invariants.length === 0 ? (
             <p
-              className="text-sm text-gray-500 dark:text-gray-400 italic"
+              className="text-sm text-gray-500 italic dark:text-gray-400"
               data-testid="invariant-empty"
             >
               No invariants configured.
             </p>
           ) : (
             <div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+              className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
               data-testid="invariant-grid"
             >
               {invariants.map((inv) => (
@@ -432,7 +451,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
 
         {/* ── 2. ANOMALY CARDS ─────────────────────────────────────── */}
         <section aria-label="Anomaly alerts" data-testid="anomaly-section">
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <h2
               className="text-lg font-semibold text-gray-800 dark:text-gray-200"
               data-testid="anomaly-heading"
@@ -449,7 +468,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
               <button
                 type="button"
                 onClick={() => setShowDismissed((prev) => !prev)}
-                className={`text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors px-3 py-2 min-h-[44px] md:py-1 md:min-h-0 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 ${FOCUS_RING_CLASSES}`}
+                className={`min-h-[44px] rounded-md px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 md:min-h-0 md:py-1 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200 ${FOCUS_RING_CLASSES}`}
                 data-testid="toggle-dismissed"
                 aria-pressed={showDismissed}
               >
@@ -460,7 +479,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
 
           {visibleAnomalies.length === 0 ? (
             <p
-              className="text-sm text-gray-500 dark:text-gray-400 italic"
+              className="text-sm text-gray-500 italic dark:text-gray-400"
               data-testid="anomaly-empty"
             >
               No anomalies detected.
@@ -470,7 +489,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
               className="overflow-x-auto pb-2"
               data-testid="anomaly-scroll-container"
             >
-              <div className="flex gap-4 min-w-max">
+              <div className="flex min-w-max gap-4">
                 {visibleAnomalies.map((anomaly) => (
                   <div
                     key={anomaly.id}
@@ -479,10 +498,18 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
                   >
                     <AnomalyAlertCard
                       anomaly={mapToCardAnomaly(anomaly)}
-                      onViewSnapshot={onViewSnapshot ? handleViewSnapshot : undefined}
+                      onViewSnapshot={
+                        onViewSnapshot ? handleViewSnapshot : undefined
+                      }
                       onViewBattle={onViewBattle ? handleViewBattle : undefined}
-                      onConfigureThreshold={onConfigureThreshold ? handleConfigureThreshold : undefined}
-                      onDismiss={onDismissAnomaly ? handleDismissAnomaly : undefined}
+                      onConfigureThreshold={
+                        onConfigureThreshold
+                          ? handleConfigureThreshold
+                          : undefined
+                      }
+                      onDismiss={
+                        onDismissAnomaly ? handleDismissAnomaly : undefined
+                      }
                     />
                   </div>
                 ))}
@@ -492,7 +519,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
         </section>
 
         {/* ── 3 & 4. VIOLATION LOG + THRESHOLD CONFIG ─────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
           {/* Violation Log — 60% (3 cols) */}
           <section
             className="lg:col-span-3"
@@ -500,7 +527,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
             data-testid="violation-section"
           >
             <h2
-              className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4"
+              className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200"
               data-testid="violation-heading"
             >
               Violation Log
@@ -533,13 +560,13 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
             data-testid="threshold-section"
           >
             <h2
-              className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4"
+              className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200"
               data-testid="threshold-heading"
             >
               Threshold Configuration
             </h2>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-5">
+            <div className="space-y-5 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
               {(Object.keys(DETECTOR_LABELS) as Array<keyof IThresholds>).map(
                 (detectorKey) => (
                   <ThresholdSlider
@@ -556,13 +583,13 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
 
               {/* Action Buttons */}
               <div
-                className="flex gap-3 pt-2 border-t border-gray-200 dark:border-gray-700"
+                className="flex gap-3 border-t border-gray-200 pt-2 dark:border-gray-700"
                 data-testid="threshold-actions"
               >
                 <button
                   type="button"
                   onClick={handleResetThresholds}
-                  className={`px-4 py-2 min-h-[44px] md:min-h-0 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${FOCUS_RING_CLASSES}`}
+                  className={`min-h-[44px] rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 md:min-h-0 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 ${FOCUS_RING_CLASSES}`}
                   data-testid="threshold-reset"
                 >
                   Reset to Defaults
@@ -570,7 +597,7 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
                 <button
                   type="button"
                   onClick={handleSaveThresholds}
-                  className={`px-4 py-2 min-h-[44px] md:min-h-0 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors ${FOCUS_RING_CLASSES}`}
+                  className={`min-h-[44px] rounded-md bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700 md:min-h-0 dark:bg-blue-500 dark:hover:bg-blue-600 ${FOCUS_RING_CLASSES}`}
                   data-testid="threshold-save"
                 >
                   Save Thresholds
@@ -579,10 +606,10 @@ export const AnalysisBugs: React.FC<IAnalysisBugsProps> = ({
 
               {/* Auto-Snapshot Configuration */}
               <div
-                className="pt-4 border-t border-gray-200 dark:border-gray-700"
+                className="border-t border-gray-200 pt-4 dark:border-gray-700"
                 data-testid="auto-snapshot-config"
               >
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">
+                <h3 className="mb-3 text-sm font-semibold tracking-wide text-gray-700 uppercase dark:text-gray-300">
                   Auto-Snapshot
                 </h3>
                 <div className="space-y-2">
@@ -638,7 +665,7 @@ const InvariantCard: React.FC<{
 
   return (
     <div
-      className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer ${FOCUS_RING_CLASSES}`}
+      className={`cursor-pointer rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800 ${FOCUS_RING_CLASSES}`}
       data-testid="invariant-card"
       data-status={invariant.status}
       role="button"
@@ -647,23 +674,23 @@ const InvariantCard: React.FC<{
       onKeyDown={handleKeyDown}
       aria-label={`${invariant.name}: ${invariant.status}`}
     >
-      <div className="flex items-center justify-between mb-2">
+      <div className="mb-2 flex items-center justify-between">
         <h3
-          className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate mr-2"
+          className="mr-2 truncate text-sm font-semibold text-gray-900 dark:text-gray-100"
           data-testid="invariant-name"
           title={invariant.name}
         >
           {invariant.name}
         </h3>
         <span
-          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase ${INVARIANT_STATUS_CLASSES[invariant.status]}`}
+          className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-bold uppercase ${INVARIANT_STATUS_CLASSES[invariant.status]}`}
           data-testid="invariant-status-badge"
         >
           {invariant.status}
         </span>
       </div>
       <p
-        className="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-2"
+        className="mb-2 line-clamp-2 text-xs text-gray-500 dark:text-gray-400"
         data-testid="invariant-description"
       >
         {invariant.description}
@@ -674,10 +701,11 @@ const InvariantCard: React.FC<{
         </span>
         {invariant.failureCount > 0 && (
           <span
-            className="text-red-600 dark:text-red-400 font-medium"
+            className="font-medium text-red-600 dark:text-red-400"
             data-testid="invariant-failure-count"
           >
-            {invariant.failureCount} failure{invariant.failureCount !== 1 ? 's' : ''}
+            {invariant.failureCount} failure
+            {invariant.failureCount !== 1 ? 's' : ''}
           </span>
         )}
       </div>
@@ -697,7 +725,7 @@ const ThresholdSlider: React.FC<{
   onChange: (detector: string, value: number) => void;
 }> = ({ detectorKey, label, description, value, affectedCount, onChange }) => (
   <div data-testid={`threshold-slider-${detectorKey}`}>
-    <div className="flex items-center justify-between mb-1">
+    <div className="mb-1 flex items-center justify-between">
       <label
         htmlFor={`slider-${detectorKey}`}
         className="text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -705,13 +733,13 @@ const ThresholdSlider: React.FC<{
         {label}
       </label>
       <span
-        className="text-sm font-mono text-gray-900 dark:text-gray-100"
+        className="font-mono text-sm text-gray-900 dark:text-gray-100"
         data-testid={`threshold-value-${detectorKey}`}
       >
         {value}
       </span>
     </div>
-    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+    <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
       {description}
     </p>
     <input
@@ -721,7 +749,7 @@ const ThresholdSlider: React.FC<{
       max={100}
       value={value}
       onChange={(e) => onChange(detectorKey, Number(e.target.value))}
-      className={`w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-600 dark:accent-blue-400 ${FOCUS_RING_CLASSES}`}
+      className={`h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-600 dark:bg-gray-600 dark:accent-blue-400 ${FOCUS_RING_CLASSES}`}
       data-testid={`threshold-input-${detectorKey}`}
       aria-label={`${label} threshold`}
       aria-valuemin={0}
@@ -730,10 +758,11 @@ const ThresholdSlider: React.FC<{
     />
     {affectedCount > 0 && (
       <p
-        className="text-xs text-amber-600 dark:text-amber-400 mt-1"
+        className="mt-1 text-xs text-amber-600 dark:text-amber-400"
         data-testid={`threshold-affected-${detectorKey}`}
       >
-        {affectedCount} anomal{affectedCount === 1 ? 'y' : 'ies'} from this detector
+        {affectedCount} anomal{affectedCount === 1 ? 'y' : 'ies'} from this
+        detector
       </p>
     )}
   </div>
@@ -750,10 +779,10 @@ const ToggleSwitch: React.FC<{
 }> = ({ id, label, checked, onChange }) => (
   <label
     htmlFor={id}
-    className="flex items-center justify-between cursor-pointer group"
+    className="group flex cursor-pointer items-center justify-between"
     data-testid={`toggle-${id}`}
   >
-    <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
+    <span className="text-sm text-gray-700 transition-colors group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-gray-100">
       {label}
     </span>
     <div className="relative">
@@ -762,14 +791,14 @@ const ToggleSwitch: React.FC<{
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="sr-only peer"
+        className="peer sr-only"
         data-testid={`toggle-input-${id}`}
         role="switch"
         aria-checked={checked}
         aria-label={label}
       />
-      <div className="w-9 h-5 bg-gray-300 dark:bg-gray-600 rounded-full peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500 peer-focus:ring-2 peer-focus:ring-blue-500 transition-colors" />
-      <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
+      <div className="h-5 w-9 rounded-full bg-gray-300 transition-colors peer-checked:bg-blue-600 peer-focus:ring-2 peer-focus:ring-blue-500 dark:bg-gray-600 dark:peer-checked:bg-blue-500" />
+      <div className="absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
     </div>
   </label>
 );

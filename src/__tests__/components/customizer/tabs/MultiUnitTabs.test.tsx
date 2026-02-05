@@ -1,12 +1,17 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MultiUnitTabs } from '@/components/customizer/tabs/MultiUnitTabs';
-import { useTabManagerStore, TabManagerState, TabInfo } from '@/stores/useTabManagerStore';
 import { useRouter } from 'next/router';
-import { TechBase } from '@/types/enums/TechBase';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import React from 'react';
+
+import { MultiUnitTabs } from '@/components/customizer/tabs/MultiUnitTabs';
 import { ToastProvider } from '@/components/shared/Toast';
 import { CustomizerTabId, DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
+import {
+  useTabManagerStore,
+  TabManagerState,
+  TabInfo,
+} from '@/stores/useTabManagerStore';
+import { TechBase } from '@/types/enums/TechBase';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 // Mock dependencies
 jest.mock('next/router', () => ({
@@ -19,14 +24,18 @@ jest.mock('@/stores/useTabManagerStore', () => ({
 
 // Mock TabBar with click handlers to test tab selection
 jest.mock('@/components/customizer/tabs/TabBar', () => ({
-  TabBar: ({ onSelectTab, tabs, activeTabId }: { 
-    onSelectTab: (id: string) => void; 
+  TabBar: ({
+    onSelectTab,
+    tabs,
+    activeTabId,
+  }: {
+    onSelectTab: (id: string) => void;
     tabs: { id: string; name: string }[];
     activeTabId: string | null;
   }) => (
     <div data-testid="tab-bar">
       {tabs.map((tab: { id: string; name: string }) => (
-        <button 
+        <button
           key={tab.id}
           data-testid={`tab-${tab.id}`}
           data-active={tab.id === activeTabId}
@@ -64,7 +73,9 @@ jest.mock('@/components/vault/ImportDialog', () => ({
 }));
 
 describe('MultiUnitTabs', () => {
-  const mockUseTabManagerStore = useTabManagerStore as jest.MockedFunction<typeof useTabManagerStore>;
+  const mockUseTabManagerStore = useTabManagerStore as jest.MockedFunction<
+    typeof useTabManagerStore
+  >;
   const mockRouter = {
     push: jest.fn(),
     query: {},
@@ -88,7 +99,9 @@ describe('MultiUnitTabs', () => {
     lastSubTab: 'preview',
   };
 
-  const createMockTabManager = (overrides?: Partial<TabManagerState>): TabManagerState => ({
+  const createMockTabManager = (
+    overrides?: Partial<TabManagerState>,
+  ): TabManagerState => ({
     tabs: [mockTab1],
     activeTabId: 'tab-1',
     isLoading: false,
@@ -119,12 +132,14 @@ describe('MultiUnitTabs', () => {
     jest.clearAllMocks();
     mockTabManager = createMockTabManager();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    mockUseTabManagerStore.mockImplementation((selector: (state: typeof mockTabManager) => unknown) => {
-      if (typeof selector === 'function') {
-        return selector(mockTabManager);
-      }
-      return undefined;
-    });
+    mockUseTabManagerStore.mockImplementation(
+      (selector: (state: typeof mockTabManager) => unknown) => {
+        if (typeof selector === 'function') {
+          return selector(mockTabManager);
+        }
+        return undefined;
+      },
+    );
   });
 
   const renderWithToast = (ui: React.ReactElement) => {
@@ -136,45 +151,69 @@ describe('MultiUnitTabs', () => {
   // ===========================================================================
   describe('Basic Rendering', () => {
     it('should render tab bar', () => {
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       expect(screen.getByTestId('tab-bar')).toBeInTheDocument();
     });
 
     it('should render children content', () => {
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       expect(screen.getByText('Content')).toBeInTheDocument();
     });
 
     it('should render new tab modal when open', () => {
       mockTabManager = createMockTabManager({ isNewTabModalOpen: true });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       expect(screen.getByTestId('new-tab-modal')).toBeInTheDocument();
     });
 
     it('should apply custom className', () => {
-      const { container } = renderWithToast(<MultiUnitTabs className="custom-class"><div>Content</div></MultiUnitTabs>);
-      
+      const { container } = renderWithToast(
+        <MultiUnitTabs className="custom-class">
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       const tabs = container.firstChild;
       expect(tabs).toHaveClass('custom-class');
     });
 
     it('should render loading state', () => {
       mockTabManager = createMockTabManager({ isLoading: true });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       expect(screen.getByText('Loading...')).toBeInTheDocument();
     });
 
     it('should render empty state when no tabs', () => {
       mockTabManager = createMockTabManager({ tabs: [], activeTabId: null });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       expect(screen.getByText('No Units Open')).toBeInTheDocument();
     });
   });
@@ -185,25 +224,33 @@ describe('MultiUnitTabs', () => {
   describe('Tab Selection with lastSubTab', () => {
     it('should call selectTab and navigate when clicking a tab', () => {
       mockTabManager = createMockTabManager({ tabs: [mockTab1, mockTab2] });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       // Click on second tab
       const tab2Button = screen.getByTestId('tab-tab-2');
       fireEvent.click(tab2Button);
-      
+
       // Should have called selectTab
       expect(mockTabManager.selectTab).toHaveBeenCalledWith('tab-2');
     });
 
     it('should call getLastSubTab when selecting a tab', () => {
       mockTabManager = createMockTabManager({ tabs: [mockTab1, mockTab2] });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       const tab2Button = screen.getByTestId('tab-tab-2');
       fireEvent.click(tab2Button);
-      
+
       // Should have called getLastSubTab to determine navigation target
       expect(mockTabManager.getLastSubTab).toHaveBeenCalledWith('tab-2');
     });
@@ -213,64 +260,76 @@ describe('MultiUnitTabs', () => {
         if (tabId === 'tab-2') return 'preview';
         return undefined;
       });
-      
-      mockTabManager = createMockTabManager({ 
+
+      mockTabManager = createMockTabManager({
         tabs: [mockTab1, mockTab2],
         getLastSubTab: getLastSubTabMock,
       });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       const tab2Button = screen.getByTestId('tab-tab-2');
       fireEvent.click(tab2Button);
-      
+
       // Should navigate to the unit with its stored lastSubTab
       expect(mockRouter.push).toHaveBeenCalledWith(
         '/customizer/tab-2/preview',
         undefined,
-        { shallow: true }
+        { shallow: true },
       );
     });
 
     it('should navigate to DEFAULT_TAB when selecting a tab without stored sub-tab', () => {
       const getLastSubTabMock = jest.fn(() => undefined);
-      
-      mockTabManager = createMockTabManager({ 
+
+      mockTabManager = createMockTabManager({
         tabs: [mockTab1, mockTab2],
         getLastSubTab: getLastSubTabMock,
       });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       const tab2Button = screen.getByTestId('tab-tab-2');
       fireEvent.click(tab2Button);
-      
+
       // Should navigate to the unit with DEFAULT_TAB (structure)
       expect(mockRouter.push).toHaveBeenCalledWith(
         `/customizer/tab-2/${DEFAULT_TAB}`,
         undefined,
-        { shallow: true }
+        { shallow: true },
       );
     });
 
     it('should handle invalid lastSubTab by falling back to DEFAULT_TAB', () => {
       const getLastSubTabMock = jest.fn(() => 'invalid-tab-id');
-      
-      mockTabManager = createMockTabManager({ 
+
+      mockTabManager = createMockTabManager({
         tabs: [mockTab1, mockTab2],
         getLastSubTab: getLastSubTabMock,
       });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       const tab2Button = screen.getByTestId('tab-tab-2');
       fireEvent.click(tab2Button);
-      
+
       // Should fall back to DEFAULT_TAB for invalid lastSubTab
       expect(mockRouter.push).toHaveBeenCalledWith(
         `/customizer/tab-2/${DEFAULT_TAB}`,
         undefined,
-        { shallow: true }
+        { shallow: true },
       );
     });
   });
@@ -281,24 +340,32 @@ describe('MultiUnitTabs', () => {
   describe('Multiple Tab Operations', () => {
     it('should render all tabs in the tab bar', () => {
       mockTabManager = createMockTabManager({ tabs: [mockTab1, mockTab2] });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       expect(screen.getByTestId('tab-tab-1')).toBeInTheDocument();
       expect(screen.getByTestId('tab-tab-2')).toBeInTheDocument();
     });
 
     it('should mark active tab correctly', () => {
-      mockTabManager = createMockTabManager({ 
+      mockTabManager = createMockTabManager({
         tabs: [mockTab1, mockTab2],
         activeTabId: 'tab-1',
       });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       const tab1 = screen.getByTestId('tab-tab-1');
       const tab2 = screen.getByTestId('tab-tab-2');
-      
+
       expect(tab1).toHaveAttribute('data-active', 'true');
       expect(tab2).toHaveAttribute('data-active', 'false');
     });
@@ -310,23 +377,30 @@ describe('MultiUnitTabs', () => {
   describe('Empty State', () => {
     it('should show New Unit and Load from Library buttons', () => {
       mockTabManager = createMockTabManager({ tabs: [], activeTabId: null });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       expect(screen.getByText('New Unit')).toBeInTheDocument();
       expect(screen.getByText('Load from Library')).toBeInTheDocument();
     });
 
     it('should open new tab modal when clicking New Unit in empty state', () => {
       mockTabManager = createMockTabManager({ tabs: [], activeTabId: null });
-      
-      renderWithToast(<MultiUnitTabs><div>Content</div></MultiUnitTabs>);
-      
+
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+
       const newUnitButton = screen.getByText('New Unit');
       fireEvent.click(newUnitButton);
-      
+
       expect(mockTabManager.openNewTabModal).toHaveBeenCalled();
     });
   });
 });
-

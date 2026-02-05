@@ -13,11 +13,12 @@ import type {
   IVersionHistorySummary,
   ShareableContentType,
 } from '@/types/vault';
+
+import { createSingleton } from '../core/createSingleton';
 import {
   VersionHistoryRepository,
   getVersionHistoryRepository,
 } from './VersionHistoryRepository';
-import { createSingleton } from '../core/createSingleton';
 
 // =============================================================================
 // Types
@@ -48,7 +49,7 @@ export interface IRollbackResult {
 export type ApplyContentFn = (
   itemId: string,
   contentType: ShareableContentType,
-  content: string
+  content: string,
 ) => Promise<boolean>;
 
 // =============================================================================
@@ -85,13 +86,16 @@ export class VersionHistoryService {
     itemId: string,
     content: string,
     createdBy: string,
-    options?: ISaveVersionOptions
+    options?: ISaveVersionOptions,
   ): Promise<IVersionSnapshot | null> {
     const contentHash = await this.computeHash(content);
 
     // Check if we should skip unchanged content
     if (options?.skipIfUnchanged) {
-      const latest = await this.repository.getLatestVersion(itemId, contentType);
+      const latest = await this.repository.getLatestVersion(
+        itemId,
+        contentType,
+      );
       if (latest && latest.contentHash === contentHash) {
         return null; // No change, skip
       }
@@ -103,7 +107,7 @@ export class VersionHistoryService {
       content,
       contentHash,
       createdBy,
-      options?.message
+      options?.message,
     );
   }
 
@@ -113,7 +117,7 @@ export class VersionHistoryService {
   async getHistory(
     itemId: string,
     contentType: ShareableContentType,
-    limit = 50
+    limit = 50,
   ): Promise<IVersionSnapshot[]> {
     return this.repository.getVersions(itemId, contentType, limit);
   }
@@ -124,7 +128,7 @@ export class VersionHistoryService {
   async getVersion(
     itemId: string,
     contentType: ShareableContentType,
-    version: number
+    version: number,
   ): Promise<IVersionSnapshot | null> {
     return this.repository.getVersion(itemId, contentType, version);
   }
@@ -141,7 +145,7 @@ export class VersionHistoryService {
    */
   async getLatestVersion(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<IVersionSnapshot | null> {
     return this.repository.getLatestVersion(itemId, contentType);
   }
@@ -151,21 +155,29 @@ export class VersionHistoryService {
    */
   async getHistorySummary(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<IVersionHistorySummary> {
-    const versions = await this.repository.getVersions(itemId, contentType, 1000);
+    const versions = await this.repository.getVersions(
+      itemId,
+      contentType,
+      1000,
+    );
     const currentVersion = await this.repository.getCurrentVersionNumber(
       itemId,
-      contentType
+      contentType,
     );
-    const totalSizeBytes = await this.repository.getStorageUsed(itemId, contentType);
+    const totalSizeBytes = await this.repository.getStorageUsed(
+      itemId,
+      contentType,
+    );
 
     return {
       itemId,
       contentType,
       currentVersion,
       totalVersions: versions.length,
-      oldestVersion: versions.length > 0 ? versions[versions.length - 1].createdAt : null,
+      oldestVersion:
+        versions.length > 0 ? versions[versions.length - 1].createdAt : null,
       newestVersion: versions.length > 0 ? versions[0].createdAt : null,
       totalSizeBytes,
     };
@@ -182,17 +194,17 @@ export class VersionHistoryService {
     itemId: string,
     contentType: ShareableContentType,
     fromVersion: number,
-    toVersion: number
+    toVersion: number,
   ): Promise<IVersionDiff | null> {
     const fromSnapshot = await this.repository.getVersion(
       itemId,
       contentType,
-      fromVersion
+      fromVersion,
     );
     const toSnapshot = await this.repository.getVersion(
       itemId,
       contentType,
-      toVersion
+      toVersion,
     );
 
     if (!fromSnapshot || !toSnapshot) {
@@ -208,9 +220,13 @@ export class VersionHistoryService {
   async diffWithLatest(
     itemId: string,
     contentType: ShareableContentType,
-    version: number
+    version: number,
   ): Promise<IVersionDiff | null> {
-    const snapshot = await this.repository.getVersion(itemId, contentType, version);
+    const snapshot = await this.repository.getVersion(
+      itemId,
+      contentType,
+      version,
+    );
     const latest = await this.repository.getLatestVersion(itemId, contentType);
 
     if (!snapshot || !latest) {
@@ -225,7 +241,7 @@ export class VersionHistoryService {
    */
   private computeDiff(
     fromSnapshot: IVersionSnapshot,
-    toSnapshot: IVersionSnapshot
+    toSnapshot: IVersionSnapshot,
   ): IVersionDiff {
     let fromData: Record<string, unknown>;
     let toData: Record<string, unknown>;
@@ -252,7 +268,9 @@ export class VersionHistoryService {
       if (!(key in fromData)) {
         additions[key] = toData[key];
         changedFields.push(key);
-      } else if (JSON.stringify(fromData[key]) !== JSON.stringify(toData[key])) {
+      } else if (
+        JSON.stringify(fromData[key]) !== JSON.stringify(toData[key])
+      ) {
         modifications[key] = { from: fromData[key], to: toData[key] };
         changedFields.push(key);
       }
@@ -289,13 +307,13 @@ export class VersionHistoryService {
     itemId: string,
     contentType: ShareableContentType,
     version: number,
-    createdBy: string
+    createdBy: string,
   ): Promise<IRollbackResult> {
     // Get the target version
     const targetVersion = await this.repository.getVersion(
       itemId,
       contentType,
-      version
+      version,
     );
 
     if (!targetVersion) {
@@ -310,7 +328,7 @@ export class VersionHistoryService {
       const applied = await this.applyContentFn(
         itemId,
         contentType,
-        targetVersion.content
+        targetVersion.content,
       );
 
       if (!applied) {
@@ -327,7 +345,7 @@ export class VersionHistoryService {
       itemId,
       targetVersion.content,
       createdBy,
-      { message: `Rollback to version ${version}` }
+      { message: `Rollback to version ${version}` },
     );
 
     if (!newVersion) {
@@ -348,7 +366,7 @@ export class VersionHistoryService {
    */
   async rollbackToVersionById(
     versionId: string,
-    createdBy: string
+    createdBy: string,
   ): Promise<IRollbackResult> {
     const targetVersion = await this.repository.getVersionById(versionId);
 
@@ -363,7 +381,7 @@ export class VersionHistoryService {
       targetVersion.itemId,
       targetVersion.contentType,
       targetVersion.version,
-      createdBy
+      createdBy,
     );
   }
 
@@ -377,7 +395,7 @@ export class VersionHistoryService {
   async pruneVersions(
     itemId: string,
     contentType: ShareableContentType,
-    keepCount: number
+    keepCount: number,
   ): Promise<number> {
     return this.repository.pruneOldVersions(itemId, contentType, keepCount);
   }
@@ -394,7 +412,7 @@ export class VersionHistoryService {
    */
   async deleteAllVersions(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<number> {
     return this.repository.deleteAllVersions(itemId, contentType);
   }
@@ -431,7 +449,9 @@ export class VersionHistoryService {
 // Singleton
 // =============================================================================
 
-const versionHistoryServiceFactory = createSingleton(() => new VersionHistoryService());
+const versionHistoryServiceFactory = createSingleton(
+  () => new VersionHistoryService(),
+);
 
 export function getVersionHistoryService(): VersionHistoryService {
   return versionHistoryServiceFactory.get();

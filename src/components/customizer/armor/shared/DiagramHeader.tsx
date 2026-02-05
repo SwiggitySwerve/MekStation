@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 
 export interface DiagramHeaderProps {
@@ -31,13 +32,17 @@ export function DiagramHeader({
   className = '',
 }: DiagramHeaderProps): React.ReactElement {
   return (
-    <div className={`flex items-center justify-between mb-4 ${className}`}>
+    <div className={`mb-4 flex items-center justify-between ${className}`}>
       <div className="flex items-center gap-2">
-        <h3 className={`text-lg font-semibold text-text-theme-primary ${titleClassName}`}>
+        <h3
+          className={`text-text-theme-primary text-lg font-semibold ${titleClassName}`}
+        >
           {title}
         </h3>
         {subtitle && (
-          <span className="text-sm text-text-theme-secondary">({subtitle})</span>
+          <span className="text-text-theme-secondary text-sm">
+            ({subtitle})
+          </span>
         )}
         {showQuickSettings && <ArmorDiagramQuickSettings />}
       </div>

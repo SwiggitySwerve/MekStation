@@ -1,14 +1,14 @@
 /**
  * Generic interface for entities that track status changes.
- * 
+ *
  * @template TStatus - The status enum or union type
- * 
+ *
  * @example
  * interface IPilot extends IStatusTrackable<PilotStatus> {
  *   name: string;
  *   skills: IPilotSkills;
  * }
- * 
+ *
  * @example
  * interface ICampaignUnit extends IStatusTrackable<CampaignUnitStatus> {
  *   unitId: string;
@@ -18,10 +18,10 @@
 export interface IStatusTrackable<TStatus extends string = string> {
   /** Current status of this entity */
   readonly status: TStatus;
-  
+
   /** Timestamp when status was last changed (ISO 8601) */
   readonly statusChangedAt?: string;
-  
+
   /** History of status changes for audit trail */
   readonly statusHistory?: IStatusHistoryEntry<TStatus>[];
 }

@@ -1,3 +1,10 @@
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import {
+  MechConfiguration,
+  IBattleMech,
+} from '@/types/unit/BattleMechInterfaces';
+import { CURRENT_FORMAT_VERSION } from '@/types/unit/UnitSerialization';
 import {
   serializeUnit,
   validateSerializedFormat,
@@ -5,75 +12,72 @@ import {
   isFormatVersionSupported,
   createUnitSerializer,
 } from '@/utils/serialization/UnitSerializer';
-import { CURRENT_FORMAT_VERSION } from '@/types/unit/UnitSerialization';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { MechConfiguration, IBattleMech } from '@/types/unit/BattleMechInterfaces';
 
 describe('UnitSerializer', () => {
   // Helper to create partial IBattleMech mocks for testing
   // @ts-expect-error - Partial mock of IBattleMech for testing
-  const createMockUnit = (overrides?: Record<string, unknown>): IBattleMech => ({
-    id: 'test-unit',
-    unitType: 'BattleMech',
-    configuration: MechConfiguration.BIPED,
-    techBase: TechBase.INNER_SPHERE,
-    rulesLevel: RulesLevel.STANDARD,
-    tonnage: 50,
-    metadata: {
-      chassis: 'Test',
-      model: 'TST-1',
-      variant: 'TST-1',
-      era: 'AGE_OF_WAR',
-      year: 2750,
-    },
-    engine: {
-      type: 'Standard Fusion',
-      rating: 250,
-    },
-    gyro: {
-      type: 'Standard',
-    },
-    cockpitType: 'Standard',
-    structure: {
-      type: 'Standard',
-    },
-    armorType: 'Standard',
-    armorAllocation: {
-      head: 9,
-      centerTorso: 16,
-      centerTorsoRear: 5,
-      leftTorso: 12,
-      leftTorsoRear: 4,
-      rightTorso: 12,
-      rightTorsoRear: 4,
-      leftArm: 8,
-      rightArm: 8,
-      leftLeg: 12,
-      rightLeg: 12,
-    },
-    heatSinks: {
-      type: 'Single',
-      total: 10,
-    },
-    movement: {
-      walkMP: 5,
-      jumpMP: 0,
-      jumpJetType: null,
-      hasMASC: false,
-      hasSupercharger: false,
-      hasTSM: false,
-    },
-    equipment: [],
-    criticalSlots: [],
-    ...overrides,
-  }) as IBattleMech;
+  const createMockUnit = (overrides?: Record<string, unknown>): IBattleMech =>
+    ({
+      id: 'test-unit',
+      unitType: 'BattleMech',
+      configuration: MechConfiguration.BIPED,
+      techBase: TechBase.INNER_SPHERE,
+      rulesLevel: RulesLevel.STANDARD,
+      tonnage: 50,
+      metadata: {
+        chassis: 'Test',
+        model: 'TST-1',
+        variant: 'TST-1',
+        era: 'AGE_OF_WAR',
+        year: 2750,
+      },
+      engine: {
+        type: 'Standard Fusion',
+        rating: 250,
+      },
+      gyro: {
+        type: 'Standard',
+      },
+      cockpitType: 'Standard',
+      structure: {
+        type: 'Standard',
+      },
+      armorType: 'Standard',
+      armorAllocation: {
+        head: 9,
+        centerTorso: 16,
+        centerTorsoRear: 5,
+        leftTorso: 12,
+        leftTorsoRear: 4,
+        rightTorso: 12,
+        rightTorsoRear: 4,
+        leftArm: 8,
+        rightArm: 8,
+        leftLeg: 12,
+        rightLeg: 12,
+      },
+      heatSinks: {
+        type: 'Single',
+        total: 10,
+      },
+      movement: {
+        walkMP: 5,
+        jumpMP: 0,
+        jumpJetType: null,
+        hasMASC: false,
+        hasSupercharger: false,
+        hasTSM: false,
+      },
+      equipment: [],
+      criticalSlots: [],
+      ...overrides,
+    }) as IBattleMech;
 
   describe('serializeUnit()', () => {
     it('should serialize unit to JSON', () => {
       const unit = createMockUnit();
       const result = serializeUnit(unit);
-      
+
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
     });
@@ -81,9 +85,11 @@ describe('UnitSerializer', () => {
     it('should include format version in envelope', () => {
       const unit = createMockUnit();
       const result = serializeUnit(unit);
-      
+
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data.serializedContent) as { formatVersion: string };
+        const envelope = JSON.parse(result.data.serializedContent) as {
+          formatVersion: string;
+        };
         expect(envelope.formatVersion).toBe(CURRENT_FORMAT_VERSION);
       }
     });
@@ -91,9 +97,12 @@ describe('UnitSerializer', () => {
     it('should include application info in envelope', () => {
       const unit = createMockUnit();
       const result = serializeUnit(unit);
-      
+
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data.serializedContent) as { application: string; applicationVersion: string };
+        const envelope = JSON.parse(result.data.serializedContent) as {
+          application: string;
+          applicationVersion: string;
+        };
         expect(envelope.application).toBeDefined();
         expect(envelope.application).toBe('MekStation');
         expect(envelope.applicationVersion).toBeDefined();
@@ -103,9 +112,11 @@ describe('UnitSerializer', () => {
     it('should serialize unit metadata', () => {
       const unit = createMockUnit();
       const result = serializeUnit(unit);
-      
+
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data.serializedContent) as { unit: { chassis: string; model: string; variant: string } };
+        const envelope = JSON.parse(result.data.serializedContent) as {
+          unit: { chassis: string; model: string; variant: string };
+        };
         expect(envelope.unit.chassis).toBe('Test');
         expect(envelope.unit.model).toBe('TST-1');
         expect(envelope.unit.variant).toBe('TST-1');
@@ -115,9 +126,11 @@ describe('UnitSerializer', () => {
     it('should serialize engine data', () => {
       const unit = createMockUnit();
       const result = serializeUnit(unit);
-      
+
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data.serializedContent) as { unit: { engine: { type: string; rating: number } } };
+        const envelope = JSON.parse(result.data.serializedContent) as {
+          unit: { engine: { type: string; rating: number } };
+        };
         expect(envelope.unit.engine.type).toBe('Standard Fusion');
         expect(envelope.unit.engine.rating).toBe(250);
       }
@@ -126,9 +139,13 @@ describe('UnitSerializer', () => {
     it('should serialize armor allocation', () => {
       const unit = createMockUnit();
       const result = serializeUnit(unit);
-      
+
       if (result.success && result.data) {
-        const envelope = JSON.parse(result.data.serializedContent) as { unit: { armor: { allocation: { head: number; centerTorso: number } } } };
+        const envelope = JSON.parse(result.data.serializedContent) as {
+          unit: {
+            armor: { allocation: { head: number; centerTorso: number } };
+          };
+        };
         expect(envelope.unit.armor.allocation.head).toBe(9);
         expect(envelope.unit.armor.allocation.centerTorso).toBe(16);
       }
@@ -154,10 +171,7 @@ describe('UnitSerializer', () => {
         criticalSlots: [
           {
             location: 'RA',
-            slots: [
-              { content: { name: 'Medium Laser' } },
-              { content: null },
-            ],
+            slots: [{ content: { name: 'Medium Laser' } }, { content: null }],
           },
         ],
         quirks: ['Nimble Jumper'],
@@ -191,7 +205,9 @@ describe('UnitSerializer', () => {
           };
         };
 
-        const envelope = JSON.parse(result.data.serializedContent) as SerializedUnitEnvelope;
+        const envelope = JSON.parse(
+          result.data.serializedContent,
+        ) as SerializedUnitEnvelope;
 
         expect(envelope.unit.equipment[0]).toMatchObject({
           id: 'medium-laser',
@@ -208,7 +224,7 @@ describe('UnitSerializer', () => {
         expect(envelope.unit.criticalSlots.RA).toEqual(['Medium Laser', null]);
         expect(envelope.unit.quirks?.[0]).toBe('Nimble Jumper');
         expect(envelope.unit.movement.enhancements).toEqual(
-          expect.arrayContaining(['MASC', 'Supercharger', 'TSM'])
+          expect.arrayContaining(['MASC', 'Supercharger', 'TSM']),
         );
       }
     });
@@ -217,7 +233,7 @@ describe('UnitSerializer', () => {
       const invalidUnit = null as unknown;
       // @ts-expect-error - Testing error handling with invalid input
       const result = serializeUnit(invalidUnit);
-      
+
       expect(result.success).toBe(false);
       expect(result.error!.errors.length).toBeGreaterThan(0);
     });
@@ -227,9 +243,11 @@ describe('UnitSerializer', () => {
     it('should validate correct format', () => {
       const unit = createMockUnit();
       const serialized = serializeUnit(unit);
-      
+
       if (serialized.success && serialized.data) {
-        const validation = validateSerializedFormat(serialized.data.serializedContent);
+        const validation = validateSerializedFormat(
+          serialized.data.serializedContent,
+        );
         expect(validation.isValid).toBe(true);
       }
     });
@@ -256,7 +274,7 @@ describe('UnitSerializer', () => {
           'Missing unit.tonnage',
           'Missing unit.engine',
           'Missing unit.armor',
-        ])
+        ]),
       );
     });
 
@@ -279,9 +297,11 @@ describe('UnitSerializer', () => {
     it('should extract format version from valid data', () => {
       const unit = createMockUnit();
       const serialized = serializeUnit(unit);
-      
+
       if (serialized.success && serialized.data) {
-        const version = getSerializedFormatVersion(serialized.data.serializedContent);
+        const version = getSerializedFormatVersion(
+          serialized.data.serializedContent,
+        );
         expect(version).toBe(CURRENT_FORMAT_VERSION);
       }
     });
@@ -333,7 +353,7 @@ describe('UnitSerializer', () => {
       const serializer = createUnitSerializer();
       const unit = createMockUnit();
       const result = serializer.serialize(unit);
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -341,9 +361,11 @@ describe('UnitSerializer', () => {
       const serializer = createUnitSerializer();
       const unit = createMockUnit();
       const serialized = serializer.serialize(unit);
-      
+
       if (serialized.success && serialized.data) {
-        const validation = serializer.validateFormat(serialized.data.serializedContent);
+        const validation = serializer.validateFormat(
+          serialized.data.serializedContent,
+        );
         expect(validation.isValid).toBe(true);
       }
     });
@@ -352,9 +374,11 @@ describe('UnitSerializer', () => {
       const serializer = createUnitSerializer();
       const unit = createMockUnit();
       const serialized = serializer.serialize(unit);
-      
+
       if (serialized.success && serialized.data) {
-        const version = serializer.getFormatVersion(serialized.data.serializedContent);
+        const version = serializer.getFormatVersion(
+          serialized.data.serializedContent,
+        );
         expect(version).toBe(CURRENT_FORMAT_VERSION);
       }
     });
@@ -403,7 +427,9 @@ describe('UnitSerializer', () => {
 
       const result = serializer.deserialize(JSON.stringify(envelope));
       expect(result.success).toBe(false);
-      expect(result.error!.errors[0]).toContain('Deserialization not yet implemented');
+      expect(result.error!.errors[0]).toContain(
+        'Deserialization not yet implemented',
+      );
     });
   });
 });

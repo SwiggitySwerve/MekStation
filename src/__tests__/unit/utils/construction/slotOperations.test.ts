@@ -1,3 +1,15 @@
+import { IMountedEquipmentInstance } from '@/stores/unitState';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import {
+  MechLocation,
+  LOCATION_SLOT_COUNTS,
+} from '@/types/construction/CriticalSlotAllocation';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { BIPED_LOCATIONS } from '@/types/construction/MechConfigurationSystem';
+import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
 import {
   compactEquipmentSlots,
   fillUnhittableSlots,
@@ -7,17 +19,10 @@ import {
   isUnhittableEquipment,
   sortEquipmentBySize,
 } from '@/utils/construction/slotOperations';
-import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
-import { BIPED_LOCATIONS } from '@/types/construction/MechConfigurationSystem';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { IMountedEquipmentInstance } from '@/stores/unitState';
-import { EquipmentCategory } from '@/types/equipment';
-import { TechBase } from '@/types/enums/TechBase';
 
-const createEquipment = (overrides: Partial<IMountedEquipmentInstance>): IMountedEquipmentInstance => ({
+const createEquipment = (
+  overrides: Partial<IMountedEquipmentInstance>,
+): IMountedEquipmentInstance => ({
   instanceId: 'equipment-0',
   equipmentId: 'equipment-0',
   name: 'Equipment',
@@ -34,7 +39,10 @@ const createEquipment = (overrides: Partial<IMountedEquipmentInstance>): IMounte
   ...overrides,
 });
 
-const createUnhittable = (index: number, name: string = InternalStructureType.ENDO_STEEL_IS): IMountedEquipmentInstance =>
+const createUnhittable = (
+  index: number,
+  name: string = InternalStructureType.ENDO_STEEL_IS,
+): IMountedEquipmentInstance =>
   createEquipment({
     instanceId: `unhittable-${index}`,
     equipmentId: `endo-${index}`,
@@ -46,14 +54,20 @@ const createUnhittable = (index: number, name: string = InternalStructureType.EN
 const capacityForLocation = (
   location: MechLocation,
   engineType: EngineType = EngineType.STANDARD,
-  gyroType: GyroType = GyroType.STANDARD
-): number => LOCATION_SLOT_COUNTS[location] - getFixedSlotIndices(location, engineType, gyroType).size;
+  gyroType: GyroType = GyroType.STANDARD,
+): number =>
+  LOCATION_SLOT_COUNTS[location] -
+  getFixedSlotIndices(location, engineType, gyroType).size;
 
 describe('slotOperations', () => {
   describe('getFixedSlotIndices()', () => {
     it('should return fixed slots for head', () => {
-      const fixed = getFixedSlotIndices(MechLocation.HEAD, EngineType.STANDARD, GyroType.STANDARD);
-      
+      const fixed = getFixedSlotIndices(
+        MechLocation.HEAD,
+        EngineType.STANDARD,
+        GyroType.STANDARD,
+      );
+
       // Head has 5 fixed slots (0, 1, 2, 4, 5), only slot 3 is assignable
       expect(fixed.size).toBe(5);
       expect(fixed.has(0)).toBe(true);
@@ -65,29 +79,49 @@ describe('slotOperations', () => {
     });
 
     it('should reserve side torso engine slots for XL engines', () => {
-      const fixedLeft = getFixedSlotIndices(MechLocation.LEFT_TORSO, EngineType.XL_IS, GyroType.STANDARD);
-      const fixedRight = getFixedSlotIndices(MechLocation.RIGHT_TORSO, EngineType.XL_IS, GyroType.STANDARD);
+      const fixedLeft = getFixedSlotIndices(
+        MechLocation.LEFT_TORSO,
+        EngineType.XL_IS,
+        GyroType.STANDARD,
+      );
+      const fixedRight = getFixedSlotIndices(
+        MechLocation.RIGHT_TORSO,
+        EngineType.XL_IS,
+        GyroType.STANDARD,
+      );
 
       expect(Array.from(fixedLeft)).toEqual([0, 1, 2]);
       expect(Array.from(fixedRight)).toEqual([0, 1, 2]);
     });
 
     it('should place compact engine slots before XL gyro slots in center torso', () => {
-      const fixed = getFixedSlotIndices(MechLocation.CENTER_TORSO, EngineType.COMPACT, GyroType.XL);
+      const fixed = getFixedSlotIndices(
+        MechLocation.CENTER_TORSO,
+        EngineType.COMPACT,
+        GyroType.XL,
+      );
       const expectedSlots = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8]); // 3 engine + 6 gyro
 
       expect(fixed.size).toBe(expectedSlots.size);
-      expectedSlots.forEach(slot => expect(fixed.has(slot)).toBe(true));
+      expectedSlots.forEach((slot) => expect(fixed.has(slot)).toBe(true));
       expect(fixed.has(9)).toBe(false);
     });
 
     it('should return fixed slots for arms and legs (actuators)', () => {
-      const armFixed = getFixedSlotIndices(MechLocation.LEFT_ARM, EngineType.STANDARD, GyroType.STANDARD);
-      const legFixed = getFixedSlotIndices(MechLocation.LEFT_LEG, EngineType.STANDARD, GyroType.STANDARD);
+      const armFixed = getFixedSlotIndices(
+        MechLocation.LEFT_ARM,
+        EngineType.STANDARD,
+        GyroType.STANDARD,
+      );
+      const legFixed = getFixedSlotIndices(
+        MechLocation.LEFT_LEG,
+        EngineType.STANDARD,
+        GyroType.STANDARD,
+      );
 
       expect(armFixed.size).toBe(4);
       expect(legFixed.size).toBe(4);
-      [0, 1, 2, 3].forEach(slot => {
+      [0, 1, 2, 3].forEach((slot) => {
         expect(armFixed.has(slot)).toBe(true);
         expect(legFixed.has(slot)).toBe(true);
       });
@@ -102,7 +136,7 @@ describe('slotOperations', () => {
         MechLocation.HEAD,
         EngineType.STANDARD,
         GyroType.STANDARD,
-        []
+        [],
       );
 
       expect(available).toEqual([3]);
@@ -124,7 +158,7 @@ describe('slotOperations', () => {
         MechLocation.LEFT_TORSO,
         EngineType.XL_IS,
         GyroType.STANDARD,
-        equipment
+        equipment,
       );
 
       expect(available.includes(0)).toBe(false);
@@ -178,7 +212,11 @@ describe('slotOperations', () => {
         category: EquipmentCategory.ENERGY_WEAPON,
       });
 
-      const result = getUnallocatedUnhittables([unallocatedEndo, allocatedEndo, weapon]);
+      const result = getUnallocatedUnhittables([
+        unallocatedEndo,
+        allocatedEndo,
+        weapon,
+      ]);
 
       expect(result).toHaveLength(1);
       expect(result[0].instanceId).toBe(unallocatedEndo.instanceId);
@@ -196,7 +234,11 @@ describe('slotOperations', () => {
         slots: [0],
         isRemovable: false,
       });
-      const unhittables = [createUnhittable(0), createUnhittable(1), createUnhittable(2)];
+      const unhittables = [
+        createUnhittable(0),
+        createUnhittable(1),
+        createUnhittable(2),
+      ];
       const other = createEquipment({
         instanceId: 'weapon',
         equipmentId: 'medium-laser',
@@ -207,13 +249,17 @@ describe('slotOperations', () => {
       const result = fillUnhittableSlots(
         [placedUnhittable, ...unhittables, other],
         EngineType.STANDARD,
-        GyroType.STANDARD
+        GyroType.STANDARD,
       );
 
       expect(result.unassigned).toHaveLength(0);
-      expect(result.assignments.map(a => a.instanceId)).not.toContain(placedUnhittable.instanceId);
-      expect(result.assignments.map(a => a.instanceId)).not.toContain(other.instanceId);
-      expect(result.assignments.map(a => a.location)).toEqual([
+      expect(result.assignments.map((a) => a.instanceId)).not.toContain(
+        placedUnhittable.instanceId,
+      );
+      expect(result.assignments.map((a) => a.instanceId)).not.toContain(
+        other.instanceId,
+      );
+      expect(result.assignments.map((a) => a.location)).toEqual([
         MechLocation.LEFT_TORSO,
         MechLocation.RIGHT_TORSO,
         MechLocation.LEFT_TORSO,
@@ -222,38 +268,46 @@ describe('slotOperations', () => {
     });
 
     it('should fill locations in priority order and report overflow', () => {
-      const unhittables = Array.from({ length: 50 }, (_, index) => createUnhittable(index));
+      const unhittables = Array.from({ length: 50 }, (_, index) =>
+        createUnhittable(index),
+      );
 
       const result = fillUnhittableSlots(
         unhittables,
         EngineType.STANDARD,
-        GyroType.STANDARD
+        GyroType.STANDARD,
       );
 
       // Only check biped locations since fillUnhittableSlots only works with biped mechs
-      const expectedCapacity = BIPED_LOCATIONS.reduce<Partial<Record<MechLocation, number>>>(
-        (acc, location) => {
-          acc[location] = capacityForLocation(location);
+      const expectedCapacity = BIPED_LOCATIONS.reduce<
+        Partial<Record<MechLocation, number>>
+      >((acc, location) => {
+        acc[location] = capacityForLocation(location);
+        return acc;
+      }, {});
+
+      const countByLocation = result.assignments.reduce<
+        Record<MechLocation, number>
+      >(
+        (acc, assignment) => {
+          acc[assignment.location] = (acc[assignment.location] ?? 0) + 1;
           return acc;
         },
-        {}
+        {} as Record<MechLocation, number>,
       );
-
-      const countByLocation = result.assignments.reduce<Record<MechLocation, number>>((acc, assignment) => {
-        acc[assignment.location] = (acc[assignment.location] ?? 0) + 1;
-        return acc;
-      }, {} as Record<MechLocation, number>);
 
       Object.entries(expectedCapacity).forEach(([location, capacity]) => {
         expect(countByLocation[location as MechLocation]).toBe(capacity);
       });
 
-      const headAssignment = result.assignments.find(a => a.location === MechLocation.HEAD);
+      const headAssignment = result.assignments.find(
+        (a) => a.location === MechLocation.HEAD,
+      );
       expect(headAssignment?.slots).toEqual([3]);
 
       const ctSlots = result.assignments
-        .filter(a => a.location === MechLocation.CENTER_TORSO)
-        .flatMap(a => a.slots);
+        .filter((a) => a.location === MechLocation.CENTER_TORSO)
+        .flatMap((a) => a.slots);
       expect(ctSlots).toEqual([10, 11]);
 
       expect(result.unassigned).toHaveLength(3);
@@ -286,12 +340,18 @@ describe('slotOperations', () => {
       const result = compactEquipmentSlots(
         equipment,
         EngineType.STANDARD,
-        GyroType.STANDARD
+        GyroType.STANDARD,
       );
 
-      const leftArmAssignments = result.assignments.filter(a => a.location === MechLocation.LEFT_ARM);
+      const leftArmAssignments = result.assignments.filter(
+        (a) => a.location === MechLocation.LEFT_ARM,
+      );
       expect(leftArmAssignments).toEqual([
-        { instanceId: 'equip-1', location: MechLocation.LEFT_ARM, slots: [4, 5] },
+        {
+          instanceId: 'equip-1',
+          location: MechLocation.LEFT_ARM,
+          slots: [4, 5],
+        },
         { instanceId: 'equip-2', location: MechLocation.LEFT_ARM, slots: [6] },
       ]);
     });
@@ -329,10 +389,20 @@ describe('slotOperations', () => {
         }),
       ];
 
-      const result = sortEquipmentBySize(equipment, EngineType.STANDARD, GyroType.STANDARD);
+      const result = sortEquipmentBySize(
+        equipment,
+        EngineType.STANDARD,
+        GyroType.STANDARD,
+      );
 
-      const assignments = result.assignments.filter(a => a.location === MechLocation.LEFT_ARM);
-      expect(assignments.map(a => a.instanceId)).toEqual(['alpha', 'zeta', 'beta']);
+      const assignments = result.assignments.filter(
+        (a) => a.location === MechLocation.LEFT_ARM,
+      );
+      expect(assignments.map((a) => a.instanceId)).toEqual([
+        'alpha',
+        'zeta',
+        'beta',
+      ]);
       expect(assignments[0].slots).toEqual([4, 5]);
       expect(assignments[1].slots).toEqual([6, 7]);
       expect(assignments[2].slots).toEqual([8]);

@@ -1,3 +1,4 @@
+import { RulesLevel } from '@/types/enums/RulesLevel';
 import {
   getRulesLevelIndex,
   compareRulesLevels,
@@ -9,7 +10,6 @@ import {
   getRulesLevelDisplayName,
   getRulesLevelDescription,
 } from '@/utils/rulesLevel/rulesLevelUtils';
-import { RulesLevel } from '@/types/enums/RulesLevel';
 
 describe('rulesLevelUtils', () => {
   describe('getRulesLevelIndex()', () => {
@@ -23,26 +23,38 @@ describe('rulesLevelUtils', () => {
 
   describe('compareRulesLevels()', () => {
     it('should return negative when first is less restrictive', () => {
-      expect(compareRulesLevels(RulesLevel.INTRODUCTORY, RulesLevel.STANDARD)).toBeLessThan(0);
+      expect(
+        compareRulesLevels(RulesLevel.INTRODUCTORY, RulesLevel.STANDARD),
+      ).toBeLessThan(0);
     });
 
     it('should return positive when first is more restrictive', () => {
-      expect(compareRulesLevels(RulesLevel.ADVANCED, RulesLevel.STANDARD)).toBeGreaterThan(0);
+      expect(
+        compareRulesLevels(RulesLevel.ADVANCED, RulesLevel.STANDARD),
+      ).toBeGreaterThan(0);
     });
 
     it('should return zero when equal', () => {
-      expect(compareRulesLevels(RulesLevel.STANDARD, RulesLevel.STANDARD)).toBe(0);
+      expect(compareRulesLevels(RulesLevel.STANDARD, RulesLevel.STANDARD)).toBe(
+        0,
+      );
     });
   });
 
   describe('isWithinRulesLevel()', () => {
     it('should return true when level is at or below max', () => {
-      expect(isWithinRulesLevel(RulesLevel.INTRODUCTORY, RulesLevel.STANDARD)).toBe(true);
-      expect(isWithinRulesLevel(RulesLevel.STANDARD, RulesLevel.STANDARD)).toBe(true);
+      expect(
+        isWithinRulesLevel(RulesLevel.INTRODUCTORY, RulesLevel.STANDARD),
+      ).toBe(true);
+      expect(isWithinRulesLevel(RulesLevel.STANDARD, RulesLevel.STANDARD)).toBe(
+        true,
+      );
     });
 
     it('should return false when level exceeds max', () => {
-      expect(isWithinRulesLevel(RulesLevel.ADVANCED, RulesLevel.STANDARD)).toBe(false);
+      expect(isWithinRulesLevel(RulesLevel.ADVANCED, RulesLevel.STANDARD)).toBe(
+        false,
+      );
     });
   });
 
@@ -57,7 +69,11 @@ describe('rulesLevelUtils', () => {
 
   describe('getMostRestrictiveLevel()', () => {
     it('should return most restrictive level', () => {
-      const levels = [RulesLevel.INTRODUCTORY, RulesLevel.ADVANCED, RulesLevel.STANDARD];
+      const levels = [
+        RulesLevel.INTRODUCTORY,
+        RulesLevel.ADVANCED,
+        RulesLevel.STANDARD,
+      ];
       expect(getMostRestrictiveLevel(levels)).toBe(RulesLevel.ADVANCED);
     });
 
@@ -68,7 +84,11 @@ describe('rulesLevelUtils', () => {
 
   describe('getLeastRestrictiveLevel()', () => {
     it('should return least restrictive level', () => {
-      const levels = [RulesLevel.ADVANCED, RulesLevel.INTRODUCTORY, RulesLevel.STANDARD];
+      const levels = [
+        RulesLevel.ADVANCED,
+        RulesLevel.INTRODUCTORY,
+        RulesLevel.STANDARD,
+      ];
       expect(getLeastRestrictiveLevel(levels)).toBe(RulesLevel.INTRODUCTORY);
     });
 
@@ -84,7 +104,7 @@ describe('rulesLevelUtils', () => {
         { rulesLevel: RulesLevel.ADVANCED, name: 'B' },
         { rulesLevel: RulesLevel.STANDARD, name: 'C' },
       ];
-      
+
       const filtered = filterByRulesLevel(entities, RulesLevel.STANDARD);
       expect(filtered.length).toBe(2);
       expect(filtered).toContainEqual(entities[0]);
@@ -94,16 +114,26 @@ describe('rulesLevelUtils', () => {
 
   describe('getRulesLevelDisplayName()', () => {
     it('should return display name', () => {
-      expect(getRulesLevelDisplayName(RulesLevel.STANDARD)).toBe(RulesLevel.STANDARD);
+      expect(getRulesLevelDisplayName(RulesLevel.STANDARD)).toBe(
+        RulesLevel.STANDARD,
+      );
     });
   });
 
   describe('getRulesLevelDescription()', () => {
     it('should return description for each level', () => {
-      expect(getRulesLevelDescription(RulesLevel.INTRODUCTORY)).toContain('Basic rules');
-      expect(getRulesLevelDescription(RulesLevel.STANDARD)).toContain('Full BattleTech');
-      expect(getRulesLevelDescription(RulesLevel.ADVANCED)).toContain('Complex rules');
-      expect(getRulesLevelDescription(RulesLevel.EXPERIMENTAL)).toContain('Cutting-edge');
+      expect(getRulesLevelDescription(RulesLevel.INTRODUCTORY)).toContain(
+        'Basic rules',
+      );
+      expect(getRulesLevelDescription(RulesLevel.STANDARD)).toContain(
+        'Full BattleTech',
+      );
+      expect(getRulesLevelDescription(RulesLevel.ADVANCED)).toContain(
+        'Complex rules',
+      );
+      expect(getRulesLevelDescription(RulesLevel.EXPERIMENTAL)).toContain(
+        'Cutting-edge',
+      );
     });
   });
 });

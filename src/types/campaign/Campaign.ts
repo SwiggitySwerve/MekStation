@@ -8,14 +8,18 @@
  * @module campaign/Campaign
  */
 
-import { IPerson, isActive } from './Person';
+import type { IShoppingList } from './acquisition/acquisitionTypes';
+import type { IAutoAwardConfig } from './awards/autoAwardTypes';
+import type { IFactionStanding } from './factionStanding/IFactionStanding';
+import type { SalvageRights, CommandRights } from './Mission';
+import type { ICombatTeam } from './scenario/scenarioTypes';
+
+import { MedicalSystem } from '../../lib/campaign/medical/medicalTypes';
+import { CampaignType } from './CampaignType';
+import { MissionStatus, PersonnelStatus } from './enums';
 import { IForce, getAllUnits as getForceUnits } from './Force';
 import { IFinances } from './IFinances';
-import { Money } from './Money';
-import { MissionStatus, PersonnelStatus } from './enums';
-import type { IFactionStanding } from './factionStanding/IFactionStanding';
-import type { IShoppingList } from './acquisition/acquisitionTypes';
-import type { ICombatTeam } from './scenario/scenarioTypes';
+import { PersonnelMarketStyle } from './markets/marketTypes';
 import {
   IMission,
   IContract,
@@ -24,11 +28,8 @@ import {
   createMission as createMissionEntity,
   createContract,
 } from './Mission';
-import type { SalvageRights, CommandRights } from './Mission';
-import { MedicalSystem } from '../../lib/campaign/medical/medicalTypes';
-import type { IAutoAwardConfig } from './awards/autoAwardTypes';
-import { PersonnelMarketStyle } from './markets/marketTypes';
-import { CampaignType } from './CampaignType';
+import { Money } from './Money';
+import { IPerson, isActive } from './Person';
 
 // Re-export Mission types for backwards compatibility
 export type { IMission, IContract, SalvageRights, CommandRights };
@@ -57,7 +58,12 @@ export { isContract, createContract };
  *   // ... more options
  * };
  */
-export type TurnoverFrequency = 'weekly' | 'monthly' | 'quarterly' | 'annually' | 'never';
+export type TurnoverFrequency =
+  | 'weekly'
+  | 'monthly'
+  | 'quarterly'
+  | 'annually'
+  | 'never';
 
 export interface ICampaignOptions {
   // =========================================================================
@@ -76,79 +82,79 @@ export interface ICampaignOptions {
   /** Days to wait between healing checks */
   readonly healingWaitingPeriod: number;
 
-   /** Medical system to use (STANDARD, ADVANCED, ALTERNATE) */
-   readonly medicalSystem: MedicalSystem;
+  /** Medical system to use (STANDARD, ADVANCED, ALTERNATE) */
+  readonly medicalSystem: MedicalSystem;
 
-   /** Maximum patients per doctor */
-   readonly maxPatientsPerDoctor: number;
+  /** Maximum patients per doctor */
+  readonly maxPatientsPerDoctor: number;
 
-   /** Whether doctors use administration skill to increase capacity */
-   readonly doctorsUseAdministration: boolean;
+  /** Whether doctors use administration skill to increase capacity */
+  readonly doctorsUseAdministration: boolean;
 
-   /** XP awarded per mission */
-   readonly xpPerMission: number;
+  /** XP awarded per mission */
+  readonly xpPerMission: number;
 
-   /** XP awarded per kill */
-   readonly xpPerKill: number;
+  /** XP awarded per kill */
+  readonly xpPerKill: number;
 
-   /** Multiplier for skill improvement XP costs (1.0 = normal) */
-   readonly xpCostMultiplier: number;
+  /** Multiplier for skill improvement XP costs (1.0 = normal) */
+  readonly xpCostMultiplier: number;
 
-   /** Whether to track time in service */
-   readonly trackTimeInService: boolean;
+  /** Whether to track time in service */
+  readonly trackTimeInService: boolean;
 
-    /** Whether to use edge points */
-    readonly useEdge: boolean;
+  /** Whether to use edge points */
+  readonly useEdge: boolean;
 
-    // =========================================================================
-    // XP Progression Options (~14)
-    // =========================================================================
+  // =========================================================================
+  // XP Progression Options (~14)
+  // =========================================================================
 
-    /** XP awarded per scenario participation (default 1) */
-    readonly scenarioXP?: number;
+  /** XP awarded per scenario participation (default 1) */
+  readonly scenarioXP?: number;
 
-    /** XP awarded per kill (default 1) */
-    readonly killXPAward?: number;
+  /** XP awarded per kill (default 1) */
+  readonly killXPAward?: number;
 
-    /** Number of kills required to earn killXPAward (default 1) */
-    readonly killsForXP?: number;
+  /** Number of kills required to earn killXPAward (default 1) */
+  readonly killsForXP?: number;
 
-    /** XP awarded per task completion (default 1) */
-    readonly taskXP?: number;
+  /** XP awarded per task completion (default 1) */
+  readonly taskXP?: number;
 
-    /** Number of tasks required to earn taskXP (default 1) */
-    readonly nTasksXP?: number;
+  /** Number of tasks required to earn taskXP (default 1) */
+  readonly nTasksXP?: number;
 
-    /** XP awarded per successful vocational training check (default 1) */
-    readonly vocationalXP?: number;
+  /** XP awarded per successful vocational training check (default 1) */
+  readonly vocationalXP?: number;
 
-    /** Target number for vocational training 2d6 roll (default 7) */
-    readonly vocationalXPTargetNumber?: number;
+  /** Target number for vocational training 2d6 roll (default 7) */
+  readonly vocationalXPTargetNumber?: number;
 
-    /** Days between vocational training checks (default 30) */
-    readonly vocationalXPCheckFrequency?: number;
+  /** Days between vocational training checks (default 30) */
+  readonly vocationalXPCheckFrequency?: number;
 
-    /** XP awarded for administrative duties (default 0) */
-    readonly adminXP?: number;
+  /** XP awarded for administrative duties (default 0) */
+  readonly adminXP?: number;
 
-    /** Days between admin XP awards (default 7) */
-    readonly adminXPPeriod?: number;
+  /** Days between admin XP awards (default 7) */
+  readonly adminXPPeriod?: number;
 
-    /** XP awarded for mission failure (default 1) */
-    readonly missionFailXP?: number;
+  /** XP awarded for mission failure (default 1) */
+  readonly missionFailXP?: number;
 
-    /** XP awarded for mission success (default 3) */
-    readonly missionSuccessXP?: number;
+  /** XP awarded for mission success (default 3) */
+  readonly missionSuccessXP?: number;
 
-    /** XP awarded for mission outstanding success (default 5) */
-    readonly missionOutstandingXP?: number;
+  /** XP awarded for mission outstanding success (default 5) */
+  readonly missionOutstandingXP?: number;
 
-    /** Whether to apply aging effects (attribute decay, trait application) (default true) */
-    readonly useAgingEffects?: boolean;
+  /** Whether to apply aging effects (attribute decay, trait application) (default true) */
+  readonly useAgingEffects?: boolean;
 
-   // =========================================================================
-   // Financial Options (~10)
-   // =========================================================================
+  // =========================================================================
+  // Financial Options (~10)
+  // =========================================================================
 
   /** Starting funds in C-bills */
   readonly startingFunds: number;
@@ -177,51 +183,51 @@ export interface ICampaignOptions {
   /** Days between maintenance cycles */
   readonly maintenanceCycleDays: number;
 
-   /** Whether to use loan system */
-   readonly useLoanSystem: boolean;
+  /** Whether to use loan system */
+  readonly useLoanSystem: boolean;
 
-    /** Whether to use tax system */
-    readonly useTaxes: boolean;
+  /** Whether to use tax system */
+  readonly useTaxes: boolean;
 
-    /** Tax rate as percentage (e.g., 10 = 10%) */
-    readonly taxRate: number;
+  /** Tax rate as percentage (e.g., 10 = 10%) */
+  readonly taxRate: number;
 
-    /** Overhead percentage of salary (e.g., 5 = 5%) */
-    readonly overheadPercent: number;
+  /** Overhead percentage of salary (e.g., 5 = 5%) */
+  readonly overheadPercent: number;
 
-     /** Whether to use role-based salary system (monthly via financialProcessor) */
-     readonly useRoleBasedSalaries: boolean;
+  /** Whether to use role-based salary system (monthly via financialProcessor) */
+  readonly useRoleBasedSalaries: boolean;
 
-     /** Whether to pay for secondary role assignments */
-     readonly payForSecondaryRole: boolean;
+  /** Whether to pay for secondary role assignments */
+  readonly payForSecondaryRole: boolean;
 
-     /** Maximum loan as percentage of total assets (e.g., 50 = 50%) */
-     readonly maxLoanPercent: number;
+  /** Maximum loan as percentage of total assets (e.g., 50 = 50%) */
+  readonly maxLoanPercent: number;
 
-     /** Default annual loan interest rate (e.g., 5 = 5%) */
-     readonly defaultLoanRate: number;
+  /** Default annual loan interest rate (e.g., 5 = 5%) */
+  readonly defaultLoanRate: number;
 
-     /** Tax payment frequency */
-     readonly taxFrequency: 'monthly' | 'quarterly' | 'annually';
+  /** Tax payment frequency */
+  readonly taxFrequency: 'monthly' | 'quarterly' | 'annually';
 
-     /** Whether to use food and housing costs */
-     readonly useFoodAndHousing: boolean;
+  /** Whether to use food and housing costs */
+  readonly useFoodAndHousing: boolean;
 
-     /** Price multiplier for clan equipment (e.g., 2.0 = 200%) */
-     readonly clanPriceMultiplier: number;
+  /** Price multiplier for clan equipment (e.g., 2.0 = 200%) */
+  readonly clanPriceMultiplier: number;
 
-     /** Price multiplier for mixed tech equipment (e.g., 1.5 = 150%) */
-     readonly mixedTechPriceMultiplier: number;
+  /** Price multiplier for mixed tech equipment (e.g., 1.5 = 150%) */
+  readonly mixedTechPriceMultiplier: number;
 
-     /** Price multiplier for used equipment (e.g., 0.5 = 50%) */
-     readonly usedEquipmentMultiplier: number;
+  /** Price multiplier for used equipment (e.g., 0.5 = 50%) */
+  readonly usedEquipmentMultiplier: number;
 
-     /** Price multiplier for damaged equipment (e.g., 0.33 = 33%) */
-     readonly damagedEquipmentMultiplier: number;
+  /** Price multiplier for damaged equipment (e.g., 0.33 = 33%) */
+  readonly damagedEquipmentMultiplier: number;
 
-    // =========================================================================
-    // Combat Options (~8)
-    // =========================================================================
+  // =========================================================================
+  // Combat Options (~8)
+  // =========================================================================
 
   /** Whether to use auto-resolve for battles */
   readonly useAutoResolve: boolean;
@@ -244,18 +250,18 @@ export interface ICampaignOptions {
   /** Whether to track ammunition usage */
   readonly trackAmmunition: boolean;
 
-   /** Whether to use quirks system */
-   readonly useQuirks: boolean;
+  /** Whether to use quirks system */
+  readonly useQuirks: boolean;
 
-    /** Whether to use AtB dynamic scenario generation (optional, defaults to false) */
-    readonly useAtBScenarios?: boolean;
+  /** Whether to use AtB dynamic scenario generation (optional, defaults to false) */
+  readonly useAtBScenarios?: boolean;
 
-    /** Difficulty multiplier for OpFor BV calculation (0.5 easy to 2.0 hard, defaults to 1.0) */
-    readonly difficultyMultiplier?: number;
+  /** Difficulty multiplier for OpFor BV calculation (0.5 easy to 2.0 hard, defaults to 1.0) */
+  readonly difficultyMultiplier?: number;
 
-    // =========================================================================
-    // Force Options (~6)
-    // =========================================================================
+  // =========================================================================
+  // Force Options (~6)
+  // =========================================================================
 
   /** Maximum units per lance */
   readonly maxUnitsPerLance: number;
@@ -282,27 +288,27 @@ export interface ICampaignOptions {
   /** Date format for display (e.g., 'yyyy-MM-dd') */
   readonly dateFormat: string;
 
-   /** Whether to use faction-specific rules */
-   readonly useFactionRules: boolean;
+  /** Whether to use faction-specific rules */
+  readonly useFactionRules: boolean;
 
-   /** Tech level limit (0=Intro, 1=Standard, 2=Advanced, 3=Experimental) */
-   readonly techLevel: number;
+  /** Tech level limit (0=Intro, 1=Standard, 2=Advanced, 3=Experimental) */
+  readonly techLevel: number;
 
-   // =========================================================================
-   // Acquisition Options (~4)
-   // =========================================================================
+  // =========================================================================
+  // Acquisition Options (~4)
+  // =========================================================================
 
-   /** Whether to use the acquisition/procurement system */
-   readonly useAcquisitionSystem?: boolean;
+  /** Whether to use the acquisition/procurement system */
+  readonly useAcquisitionSystem?: boolean;
 
-   /** Whether to apply planetary availability modifiers */
-   readonly usePlanetaryModifiers?: boolean;
+  /** Whether to apply planetary availability modifiers */
+  readonly usePlanetaryModifiers?: boolean;
 
-   /** Time unit for acquisition transit (day, week, or month) */
-   readonly acquisitionTransitUnit?: 'day' | 'week' | 'month';
+  /** Time unit for acquisition transit (day, week, or month) */
+  readonly acquisitionTransitUnit?: 'day' | 'week' | 'month';
 
-   /** Whether to apply penalty for Clan parts in IS factions */
-   readonly clanPartsPenalty?: boolean;
+  /** Whether to apply penalty for Clan parts in IS factions */
+  readonly clanPartsPenalty?: boolean;
 
   /** Whether to limit equipment by year */
   readonly limitByYear: boolean;
@@ -338,45 +344,45 @@ export interface ICampaignOptions {
   readonly turnoverCommanderImmune: boolean;
   readonly turnoverPayoutMultiplier: number;
   readonly turnoverUseSkillModifiers: boolean;
-   readonly turnoverUseAgeModifiers: boolean;
-   readonly turnoverUseMissionStatusModifiers: boolean;
+  readonly turnoverUseAgeModifiers: boolean;
+  readonly turnoverUseMissionStatusModifiers: boolean;
 
-   // =========================================================================
-   // Faction Standing Options (~2)
-   // =========================================================================
+  // =========================================================================
+  // Faction Standing Options (~2)
+  // =========================================================================
 
-    /** Whether to track faction standing */
-    readonly trackFactionStanding: boolean;
+  /** Whether to track faction standing */
+  readonly trackFactionStanding: boolean;
 
-    /** Multiplier for regard changes (1.0 = normal) */
-    readonly regardChangeMultiplier: number;
+  /** Multiplier for regard changes (1.0 = normal) */
+  readonly regardChangeMultiplier: number;
 
-    // =========================================================================
-    // Auto-Award Options
-    // =========================================================================
+  // =========================================================================
+  // Auto-Award Options
+  // =========================================================================
 
-    /** Auto-award system configuration (optional, defaults to all enabled) */
-    readonly autoAwardConfig?: IAutoAwardConfig;
+  /** Auto-award system configuration (optional, defaults to all enabled) */
+  readonly autoAwardConfig?: IAutoAwardConfig;
 
-    // =========================================================================
-    // Rank System Options
-    // =========================================================================
+  // =========================================================================
+  // Rank System Options
+  // =========================================================================
 
-    /** Code of the active rank system (e.g., 'MERC', 'SLDF', 'CLAN', 'COMSTAR', 'HOUSE') */
-    readonly rankSystemCode?: string;
+  /** Code of the active rank system (e.g., 'MERC', 'SLDF', 'CLAN', 'COMSTAR', 'HOUSE') */
+  readonly rankSystemCode?: string;
 
-    // =========================================================================
-    // Market Options
-    // =========================================================================
+  // =========================================================================
+  // Market Options
+  // =========================================================================
 
-    /** Unit market generation method ('none' = disabled, 'atb_monthly' = AtB monthly refresh) */
-    readonly unitMarketMethod?: 'none' | 'atb_monthly';
+  /** Unit market generation method ('none' = disabled, 'atb_monthly' = AtB monthly refresh) */
+  readonly unitMarketMethod?: 'none' | 'atb_monthly';
 
-    /** Personnel market generation style */
-    readonly personnelMarketStyle?: PersonnelMarketStyle;
+  /** Personnel market generation style */
+  readonly personnelMarketStyle?: PersonnelMarketStyle;
 
-    /** Contract market generation method */
-    readonly contractMarketMethod?: 'none' | 'atb_monthly' | 'cam_ops';
+  /** Contract market generation method */
+  readonly contractMarketMethod?: 'none' | 'atb_monthly' | 'cam_ops';
 }
 
 // =============================================================================
@@ -433,23 +439,23 @@ export interface ICampaign {
   /** ID of the root force (top of hierarchy) */
   readonly rootForceId: string;
 
-   /** All missions in the campaign */
-   readonly missions: Map<string, IMission>;
+  /** All missions in the campaign */
+  readonly missions: Map<string, IMission>;
 
-   /** Campaign finances */
-   readonly finances: IFinances;
+  /** Campaign finances */
+  readonly finances: IFinances;
 
-    /** Faction standings (regard tracking) */
-    readonly factionStandings: Record<string, IFactionStanding>;
+  /** Faction standings (regard tracking) */
+  readonly factionStandings: Record<string, IFactionStanding>;
 
-    /** Shopping list for acquisition system */
-    readonly shoppingList?: IShoppingList;
+  /** Shopping list for acquisition system */
+  readonly shoppingList?: IShoppingList;
 
-    /** Combat teams for AtB scenario generation (optional) */
-    readonly combatTeams?: readonly ICombatTeam[];
+  /** Combat teams for AtB scenario generation (optional) */
+  readonly combatTeams?: readonly ICombatTeam[];
 
-     /** Campaign options */
-     readonly options: ICampaignOptions;
+  /** Campaign options */
+  readonly options: ICampaignOptions;
 
   /** Campaign type classification */
   readonly campaignType: CampaignType;
@@ -518,10 +524,10 @@ export function getActivePersonnel(campaign: ICampaign): IPerson[] {
  */
 export function getPersonnelByStatus(
   campaign: ICampaign,
-  status: PersonnelStatus
+  status: PersonnelStatus,
 ): IPerson[] {
   return Array.from(campaign.personnel.values()).filter(
-    (person) => person.status === status
+    (person) => person.status === status,
   );
 }
 
@@ -606,10 +612,10 @@ export function getTotalMissions(campaign: ICampaign): number {
  */
 export function getMissionsByStatus(
   campaign: ICampaign,
-  status: MissionStatus
+  status: MissionStatus,
 ): IMission[] {
   return Array.from(campaign.missions.values()).filter(
-    (mission) => mission.status === status
+    (mission) => mission.status === status,
   );
 }
 
@@ -638,7 +644,7 @@ export function getActiveMissions(campaign: ICampaign): IMission[] {
  */
 export function getPersonById(
   campaign: ICampaign,
-  personId: string
+  personId: string,
 ): IPerson | undefined {
   return campaign.personnel.get(personId);
 }
@@ -655,7 +661,7 @@ export function getPersonById(
  */
 export function getForceById(
   campaign: ICampaign,
-  forceId: string
+  forceId: string,
 ): IForce | undefined {
   return campaign.forces.get(forceId);
 }
@@ -672,7 +678,7 @@ export function getForceById(
  */
 export function getMissionById(
   campaign: ICampaign,
-  missionId: string
+  missionId: string,
 ): IMission | undefined {
   return campaign.missions.get(missionId);
 }
@@ -723,19 +729,19 @@ export function isMission(value: unknown): value is IMission {
  * }
  */
 export function isCampaignOptions(value: unknown): value is ICampaignOptions {
-   if (typeof value !== 'object' || value === null) return false;
-   const options = value as ICampaignOptions;
-   return (
-     typeof options.healingRateMultiplier === 'number' &&
-     typeof options.salaryMultiplier === 'number' &&
-     typeof options.retirementAge === 'number' &&
-     typeof options.startingFunds === 'number' &&
-     typeof options.maintenanceCostMultiplier === 'number' &&
-     typeof options.useAutoResolve === 'boolean' &&
-     typeof options.maxUnitsPerLance === 'number' &&
-     typeof options.dateFormat === 'string' &&
-     typeof options.doctorsUseAdministration === 'boolean'
-   );
+  if (typeof value !== 'object' || value === null) return false;
+  const options = value as ICampaignOptions;
+  return (
+    typeof options.healingRateMultiplier === 'number' &&
+    typeof options.salaryMultiplier === 'number' &&
+    typeof options.retirementAge === 'number' &&
+    typeof options.startingFunds === 'number' &&
+    typeof options.maintenanceCostMultiplier === 'number' &&
+    typeof options.useAutoResolve === 'boolean' &&
+    typeof options.maxUnitsPerLance === 'number' &&
+    typeof options.dateFormat === 'string' &&
+    typeof options.doctorsUseAdministration === 'boolean'
+  );
 }
 
 /**
@@ -784,38 +790,38 @@ export function isCampaign(value: unknown): value is ICampaign {
  * const options = createDefaultCampaignOptions();
  */
 export function createDefaultCampaignOptions(): ICampaignOptions {
-   return {
-     // Personnel options
-     healingRateMultiplier: 1.0,
-     salaryMultiplier: 1.0,
-     retirementAge: 65,
-      healingWaitingPeriod: 1,
-      medicalSystem: MedicalSystem.STANDARD,
-      maxPatientsPerDoctor: 25,
-      doctorsUseAdministration: false,
-      xpPerMission: 1,
-      xpPerKill: 1,
-      xpCostMultiplier: 1.0,
-      trackTimeInService: true,
-      useEdge: true,
+  return {
+    // Personnel options
+    healingRateMultiplier: 1.0,
+    salaryMultiplier: 1.0,
+    retirementAge: 65,
+    healingWaitingPeriod: 1,
+    medicalSystem: MedicalSystem.STANDARD,
+    maxPatientsPerDoctor: 25,
+    doctorsUseAdministration: false,
+    xpPerMission: 1,
+    xpPerKill: 1,
+    xpCostMultiplier: 1.0,
+    trackTimeInService: true,
+    useEdge: true,
 
-      // XP Progression options
-      scenarioXP: 1,
-      killXPAward: 1,
-      killsForXP: 1,
-      taskXP: 1,
-      nTasksXP: 1,
-      vocationalXP: 1,
-      vocationalXPTargetNumber: 7,
-      vocationalXPCheckFrequency: 30,
-      adminXP: 0,
-      adminXPPeriod: 7,
-      missionFailXP: 1,
-      missionSuccessXP: 3,
-      missionOutstandingXP: 5,
-      useAgingEffects: true,
+    // XP Progression options
+    scenarioXP: 1,
+    killXPAward: 1,
+    killsForXP: 1,
+    taskXP: 1,
+    nTasksXP: 1,
+    vocationalXP: 1,
+    vocationalXPTargetNumber: 7,
+    vocationalXPCheckFrequency: 30,
+    adminXP: 0,
+    adminXPPeriod: 7,
+    missionFailXP: 1,
+    missionSuccessXP: 3,
+    missionOutstandingXP: 5,
+    useAgingEffects: true,
 
-     // Financial options
+    // Financial options
     startingFunds: 0,
     maintenanceCostMultiplier: 1.0,
     repairCostMultiplier: 1.0,
@@ -824,23 +830,23 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
     payForRepairs: true,
     payForSalaries: true,
     payForAmmunition: true,
-     maintenanceCycleDays: 7,
-      useLoanSystem: true,
-       useTaxes: true,
-       taxRate: 10,
-       overheadPercent: 5,
-       useRoleBasedSalaries: false,
-       payForSecondaryRole: true,
-       maxLoanPercent: 50,
-       defaultLoanRate: 5,
-       taxFrequency: 'annually',
-       useFoodAndHousing: true,
-       clanPriceMultiplier: 2.0,
-       mixedTechPriceMultiplier: 1.5,
-       usedEquipmentMultiplier: 0.5,
-       damagedEquipmentMultiplier: 0.33,
+    maintenanceCycleDays: 7,
+    useLoanSystem: true,
+    useTaxes: true,
+    taxRate: 10,
+    overheadPercent: 5,
+    useRoleBasedSalaries: false,
+    payForSecondaryRole: true,
+    maxLoanPercent: 50,
+    defaultLoanRate: 5,
+    taxFrequency: 'annually',
+    useFoodAndHousing: true,
+    clanPriceMultiplier: 2.0,
+    mixedTechPriceMultiplier: 1.5,
+    usedEquipmentMultiplier: 0.5,
+    damagedEquipmentMultiplier: 0.33,
 
-      // Combat options
+    // Combat options
     useAutoResolve: false,
     autoResolveCasualtyRate: 1.0,
     allowPilotCapture: true,
@@ -871,34 +877,34 @@ export function createDefaultCampaignOptions(): ICampaignOptions {
     simulateGrayMonday: false,
     enableDayReportNotifications: true,
 
-     // Turnover options
-     useTurnover: true,
-     turnoverFixedTargetNumber: 3,
-     turnoverCheckFrequency: 'monthly',
-     turnoverCommanderImmune: true,
-     turnoverPayoutMultiplier: 12,
-     turnoverUseSkillModifiers: true,
-     turnoverUseAgeModifiers: true,
-     turnoverUseMissionStatusModifiers: true,
+    // Turnover options
+    useTurnover: true,
+    turnoverFixedTargetNumber: 3,
+    turnoverCheckFrequency: 'monthly',
+    turnoverCommanderImmune: true,
+    turnoverPayoutMultiplier: 12,
+    turnoverUseSkillModifiers: true,
+    turnoverUseAgeModifiers: true,
+    turnoverUseMissionStatusModifiers: true,
 
-      // Faction standing options
-      trackFactionStanding: true,
-      regardChangeMultiplier: 1.0,
+    // Faction standing options
+    trackFactionStanding: true,
+    regardChangeMultiplier: 1.0,
 
-      // Acquisition options
-      useAcquisitionSystem: false,
-      usePlanetaryModifiers: true,
-      acquisitionTransitUnit: 'month',
-      clanPartsPenalty: true,
+    // Acquisition options
+    useAcquisitionSystem: false,
+    usePlanetaryModifiers: true,
+    acquisitionTransitUnit: 'month',
+    clanPartsPenalty: true,
 
-      // Rank system
-      rankSystemCode: 'MERC',
+    // Rank system
+    rankSystemCode: 'MERC',
 
-      // Market options
-      unitMarketMethod: 'none',
-      personnelMarketStyle: PersonnelMarketStyle.DISABLED,
-      contractMarketMethod: 'atb_monthly',
-    };
+    // Market options
+    unitMarketMethod: 'none',
+    personnelMarketStyle: PersonnelMarketStyle.DISABLED,
+    contractMarketMethod: 'atb_monthly',
+  };
 }
 
 /**
@@ -935,12 +941,14 @@ export function createMission(params: {
     name: params.name,
     status: params.status,
     description: params.description,
-    startDate: params.startDate instanceof Date
-      ? params.startDate.toISOString()
-      : params.startDate,
-    endDate: params.endDate instanceof Date
-      ? params.endDate.toISOString()
-      : params.endDate,
+    startDate:
+      params.startDate instanceof Date
+        ? params.startDate.toISOString()
+        : params.startDate,
+    endDate:
+      params.endDate instanceof Date
+        ? params.endDate.toISOString()
+        : params.endDate,
     systemId: params.systemId,
     scenarioIds: params.scenarioIds,
     briefing: params.briefing,
@@ -990,27 +998,27 @@ export function createCampaign(
   // Create root force with unique ID
   const rootForceId = generateUniqueId('force');
 
-    return {
-      id: generateUniqueId('campaign'),
-      name,
-      currentDate: new Date(),
-      factionId,
-      personnel: new Map(),
-      forces: new Map(),
-      rootForceId,
-      missions: new Map(),
-      finances: {
-        transactions: [],
-        balance: new Money(mergedOptions.startingFunds),
-      },
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: mergedOptions,
-      campaignType,
-      campaignStartDate: new Date(),
-      createdAt: now,
-      updatedAt: now,
-    };
+  return {
+    id: generateUniqueId('campaign'),
+    name,
+    currentDate: new Date(),
+    factionId,
+    personnel: new Map(),
+    forces: new Map(),
+    rootForceId,
+    missions: new Map(),
+    finances: {
+      transactions: [],
+      balance: new Money(mergedOptions.startingFunds),
+    },
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: mergedOptions,
+    campaignType,
+    campaignStartDate: new Date(),
+    createdAt: now,
+    updatedAt: now,
+  };
 }
 
 /**
@@ -1036,44 +1044,44 @@ export function createCampaign(
  * });
  */
 export function createCampaignWithData(params: {
-    id: string;
-    name: string;
-    currentDate: Date;
-    factionId: string;
-    personnel: Map<string, IPerson>;
-    forces: Map<string, IForce>;
-    rootForceId: string;
-    missions: Map<string, IMission>;
-    finances: IFinances;
-    factionStandings?: Record<string, IFactionStanding>;
-    shoppingList?: IShoppingList;
-    options: ICampaignOptions;
-    campaignType?: CampaignType;
-    activePreset?: string;
-    campaignStartDate?: Date;
-    description?: string;
-    iconUrl?: string;
+  id: string;
+  name: string;
+  currentDate: Date;
+  factionId: string;
+  personnel: Map<string, IPerson>;
+  forces: Map<string, IForce>;
+  rootForceId: string;
+  missions: Map<string, IMission>;
+  finances: IFinances;
+  factionStandings?: Record<string, IFactionStanding>;
+  shoppingList?: IShoppingList;
+  options: ICampaignOptions;
+  campaignType?: CampaignType;
+  activePreset?: string;
+  campaignStartDate?: Date;
+  description?: string;
+  iconUrl?: string;
 }): ICampaign {
-    const now = new Date().toISOString();
-    return {
-      id: params.id,
-      name: params.name,
-      currentDate: params.currentDate,
-      factionId: params.factionId,
-      personnel: params.personnel,
-      forces: params.forces,
-      rootForceId: params.rootForceId,
-      missions: params.missions,
-      finances: params.finances,
-      factionStandings: params.factionStandings ?? {},
-      shoppingList: params.shoppingList,
-      options: params.options,
-      campaignType: params.campaignType ?? CampaignType.MERCENARY,
-      activePreset: params.activePreset,
-      campaignStartDate: params.campaignStartDate,
-      description: params.description,
-      iconUrl: params.iconUrl,
-      createdAt: now,
-      updatedAt: now,
-    };
+  const now = new Date().toISOString();
+  return {
+    id: params.id,
+    name: params.name,
+    currentDate: params.currentDate,
+    factionId: params.factionId,
+    personnel: params.personnel,
+    forces: params.forces,
+    rootForceId: params.rootForceId,
+    missions: params.missions,
+    finances: params.finances,
+    factionStandings: params.factionStandings ?? {},
+    shoppingList: params.shoppingList,
+    options: params.options,
+    campaignType: params.campaignType ?? CampaignType.MERCENARY,
+    activePreset: params.activePreset,
+    campaignStartDate: params.campaignStartDate,
+    description: params.description,
+    iconUrl: params.iconUrl,
+    createdAt: now,
+    updatedAt: now,
+  };
 }

@@ -1,8 +1,8 @@
 /**
  * Equipment Types Barrel Export
- * 
+ *
  * Comprehensive equipment type system for BattleTech.
- * 
+ *
  * @spec openspec/specs/equipment-database/spec.md
  */
 
@@ -40,16 +40,24 @@ export * from './EquipmentQuery';
 // UNIFIED EQUIPMENT ACCESS
 // ============================================================================
 
-import { TechBase } from '../enums/TechBase';
-import { RulesLevel } from '../enums/RulesLevel';
-import { ALL_STANDARD_WEAPONS, IWeapon } from './weapons';
-import { ARTILLERY_WEAPONS, CAPITAL_WEAPONS } from './ArtilleryTypes';
-import { ALL_AMMUNITION, IAmmunition } from './AmmunitionTypes';
-import { ALL_ELECTRONICS, IElectronics } from './ElectronicsTypes';
-import { ALL_MISC_EQUIPMENT, IMiscEquipment, MiscEquipmentCategory } from './MiscEquipmentTypes';
-import { PHYSICAL_WEAPON_DEFINITIONS, IPhysicalWeapon } from './PhysicalWeaponTypes';
 import { weaponCategoryToEquipmentCategory } from '@/utils/equipment/categoryRegistry';
+
+import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
+import { ALL_AMMUNITION, IAmmunition } from './AmmunitionTypes';
+import { ARTILLERY_WEAPONS, CAPITAL_WEAPONS } from './ArtilleryTypes';
+import { ALL_ELECTRONICS, IElectronics } from './ElectronicsTypes';
 import { EquipmentCategory } from './EquipmentCategory';
+import {
+  ALL_MISC_EQUIPMENT,
+  IMiscEquipment,
+  MiscEquipmentCategory,
+} from './MiscEquipmentTypes';
+import {
+  PHYSICAL_WEAPON_DEFINITIONS,
+  IPhysicalWeapon,
+} from './PhysicalWeaponTypes';
+import { ALL_STANDARD_WEAPONS, IWeapon } from './weapons';
 
 /**
  * Unified equipment item (for listing/browsing)
@@ -58,7 +66,7 @@ export interface IEquipmentItem {
   readonly id: string;
   readonly name: string;
   readonly category: EquipmentCategory;
-  /** 
+  /**
    * Additional categories this equipment should appear under.
    * Used for dual-purpose equipment like AMS (weapon + defensive).
    */
@@ -74,7 +82,7 @@ export interface IEquipmentItem {
    * Variable equipment formula ID for equipment with variable properties.
    * If present, weight and criticalSlots should be calculated dynamically
    * using the EquipmentCalculatorService with the appropriate context.
-   * 
+   *
    * Examples: 'targeting-computer-is', 'masc-is', 'hatchet'
    */
   readonly variableEquipmentId?: string;
@@ -212,7 +220,7 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
   // Physical Weapons (melee weapons - for lookup/conversion)
   for (const physicalWeapon of getAllPhysicalWeapons()) {
     const id = physicalWeapon.type.toLowerCase().replace(/\s+/g, '-');
-    
+
     items.push({
       id,
       name: physicalWeapon.name,
@@ -301,7 +309,7 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
     if (EXCLUDED_MISC_CATEGORIES.includes(misc.category)) {
       continue;
     }
-    
+
     items.push({
       id: misc.id,
       name: misc.name,
@@ -322,7 +330,7 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
   for (const physicalWeapon of getAllPhysicalWeapons()) {
     // Generate ID from weapon type (lowercase, hyphenated)
     const id = physicalWeapon.type.toLowerCase().replace(/\s+/g, '-');
-    
+
     items.push({
       id,
       name: physicalWeapon.name,
@@ -345,33 +353,39 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
  * Get equipment by ID (searches all categories)
  */
 export function getEquipmentById(id: string): IEquipmentItem | undefined {
-  return getAllEquipmentItems().find(e => e.id === id);
+  return getAllEquipmentItems().find((e) => e.id === id);
 }
 
 /**
  * Filter equipment by tech base
  */
-export function filterEquipmentByTechBase(techBase: TechBase): IEquipmentItem[] {
-  return getAllEquipmentItems().filter(e => e.techBase === techBase);
+export function filterEquipmentByTechBase(
+  techBase: TechBase,
+): IEquipmentItem[] {
+  return getAllEquipmentItems().filter((e) => e.techBase === techBase);
 }
 
 /**
  * Filter equipment by rules level
  */
-export function filterEquipmentByRulesLevel(rulesLevel: RulesLevel): IEquipmentItem[] {
-  return getAllEquipmentItems().filter(e => e.rulesLevel === rulesLevel);
+export function filterEquipmentByRulesLevel(
+  rulesLevel: RulesLevel,
+): IEquipmentItem[] {
+  return getAllEquipmentItems().filter((e) => e.rulesLevel === rulesLevel);
 }
 
 /**
  * Filter equipment by availability (introduction year)
  */
 export function filterEquipmentByYear(year: number): IEquipmentItem[] {
-  return getAllEquipmentItems().filter(e => e.introductionYear <= year);
+  return getAllEquipmentItems().filter((e) => e.introductionYear <= year);
 }
 
 /**
  * Filter equipment by category
  */
-export function filterEquipmentByCategory(category: EquipmentCategory): IEquipmentItem[] {
-  return getAllEquipmentItems().filter(e => e.category === category);
+export function filterEquipmentByCategory(
+  category: EquipmentCategory,
+): IEquipmentItem[] {
+  return getAllEquipmentItems().filter((e) => e.category === category);
 }

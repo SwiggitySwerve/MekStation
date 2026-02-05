@@ -34,7 +34,7 @@ const ABBREVIATIONS: [RegExp, string][] = [
 /**
  * Abbreviates equipment names for compact display.
  * Applies common BattleTech abbreviations to reduce text length.
- * 
+ *
  * @param name - The full equipment name
  * @returns Abbreviated name for compact display
  */

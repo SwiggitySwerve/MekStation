@@ -66,10 +66,16 @@ export interface CustomizerSettingsState {
 
 /** Keys that are action functions, not state */
 type ActionKeys =
-  | 'setArmorDiagramMode' | 'setArmorDiagramVariant' | 'setShowArmorDiagramSelector'
-  | 'setDraftArmorDiagramMode' | 'setDraftArmorDiagramVariant'
-  | 'saveCustomizer' | 'revertCustomizer' | 'initDraftCustomizer'
-  | 'getEffectiveArmorDiagramMode' | 'getEffectiveArmorDiagramVariant'
+  | 'setArmorDiagramMode'
+  | 'setArmorDiagramVariant'
+  | 'setShowArmorDiagramSelector'
+  | 'setDraftArmorDiagramMode'
+  | 'setDraftArmorDiagramVariant'
+  | 'saveCustomizer'
+  | 'revertCustomizer'
+  | 'initDraftCustomizer'
+  | 'getEffectiveArmorDiagramMode'
+  | 'getEffectiveArmorDiagramVariant'
   | 'resetToDefaults';
 
 const DEFAULT_CUSTOMIZER_SETTINGS: Omit<CustomizerSettingsState, ActionKeys> = {
@@ -90,65 +96,81 @@ export const useCustomizerSettingsStore = create<CustomizerSettingsState>()(
 
       // Direct setters (immediately persisted)
       setArmorDiagramMode: (mode) => set({ armorDiagramMode: mode }),
-      setArmorDiagramVariant: (variant) => set({ armorDiagramVariant: variant }),
-      setShowArmorDiagramSelector: (show) => set({ showArmorDiagramSelector: show }),
+      setArmorDiagramVariant: (variant) =>
+        set({ armorDiagramVariant: variant }),
+      setShowArmorDiagramSelector: (show) =>
+        set({ showArmorDiagramSelector: show }),
 
       // Draft customizer setters for live preview (not persisted until save)
-      setDraftArmorDiagramMode: (mode) => set((state) => ({
-        draftCustomizer: {
-          armorDiagramMode: mode,
-          armorDiagramVariant: state.draftCustomizer?.armorDiagramVariant ?? state.armorDiagramVariant,
-        },
-        hasUnsavedCustomizer: true,
-      })),
+      setDraftArmorDiagramMode: (mode) =>
+        set((state) => ({
+          draftCustomizer: {
+            armorDiagramMode: mode,
+            armorDiagramVariant:
+              state.draftCustomizer?.armorDiagramVariant ??
+              state.armorDiagramVariant,
+          },
+          hasUnsavedCustomizer: true,
+        })),
 
-      setDraftArmorDiagramVariant: (variant) => set((state) => ({
-        draftCustomizer: {
-          armorDiagramMode: state.draftCustomizer?.armorDiagramMode ?? state.armorDiagramMode,
-          armorDiagramVariant: variant,
-        },
-        hasUnsavedCustomizer: true,
-      })),
+      setDraftArmorDiagramVariant: (variant) =>
+        set((state) => ({
+          draftCustomizer: {
+            armorDiagramMode:
+              state.draftCustomizer?.armorDiagramMode ?? state.armorDiagramMode,
+            armorDiagramVariant: variant,
+          },
+          hasUnsavedCustomizer: true,
+        })),
 
       // Initialize draft customizer with current saved values (call when entering customizer settings)
-      initDraftCustomizer: () => set((state) => ({
-        draftCustomizer: {
-          armorDiagramMode: state.armorDiagramMode,
-          armorDiagramVariant: state.armorDiagramVariant,
-        },
-        hasUnsavedCustomizer: false,
-      })),
+      initDraftCustomizer: () =>
+        set((state) => ({
+          draftCustomizer: {
+            armorDiagramMode: state.armorDiagramMode,
+            armorDiagramVariant: state.armorDiagramVariant,
+          },
+          hasUnsavedCustomizer: false,
+        })),
 
       // Save draft customizer to persisted state
-      saveCustomizer: () => set((state) => {
-        if (!state.draftCustomizer) return state;
-        return {
-          armorDiagramMode: state.draftCustomizer.armorDiagramMode,
-          armorDiagramVariant: state.draftCustomizer.armorDiagramVariant,
-          hasUnsavedCustomizer: false,
-        };
-      }),
+      saveCustomizer: () =>
+        set((state) => {
+          if (!state.draftCustomizer) return state;
+          return {
+            armorDiagramMode: state.draftCustomizer.armorDiagramMode,
+            armorDiagramVariant: state.draftCustomizer.armorDiagramVariant,
+            hasUnsavedCustomizer: false,
+          };
+        }),
 
       // Revert draft customizer to saved state (call when leaving customizer without save)
-      revertCustomizer: () => set({
-        draftCustomizer: null,
-        hasUnsavedCustomizer: false,
-      }),
+      revertCustomizer: () =>
+        set({
+          draftCustomizer: null,
+          hasUnsavedCustomizer: false,
+        }),
 
       // Getters for effective customizer (draft if exists, otherwise saved)
       getEffectiveArmorDiagramMode: () => {
         const state = get();
-        return state.draftCustomizer?.armorDiagramMode ?? state.armorDiagramMode;
+        return (
+          state.draftCustomizer?.armorDiagramMode ?? state.armorDiagramMode
+        );
       },
 
       getEffectiveArmorDiagramVariant: () => {
         const state = get();
-        return state.draftCustomizer?.armorDiagramVariant ?? state.armorDiagramVariant;
+        return (
+          state.draftCustomizer?.armorDiagramVariant ??
+          state.armorDiagramVariant
+        );
       },
 
-      resetToDefaults: () => set({
-        ...DEFAULT_CUSTOMIZER_SETTINGS,
-      }),
+      resetToDefaults: () =>
+        set({
+          ...DEFAULT_CUSTOMIZER_SETTINGS,
+        }),
     }),
     {
       name: 'mekstation-customizer-settings',
@@ -158,6 +180,6 @@ export const useCustomizerSettingsStore = create<CustomizerSettingsState>()(
         armorDiagramVariant: state.armorDiagramVariant,
         showArmorDiagramSelector: state.showArmorDiagramSelector,
       }),
-    }
-  )
+    },
+  ),
 );

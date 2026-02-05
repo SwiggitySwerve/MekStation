@@ -1,6 +1,17 @@
+import {
+  render,
+  screen,
+  fireEvent,
+  renderHook,
+  act,
+} from '@testing-library/react';
 import React from 'react';
-import { render, screen, fireEvent, renderHook, act } from '@testing-library/react';
-import { EquipmentAssignmentAdapter, usePlacementMode, PlacementModeState } from '../../../components/mobile/EquipmentAssignmentAdapter';
+
+import {
+  EquipmentAssignmentAdapter,
+  usePlacementMode,
+  PlacementModeState,
+} from '../../../components/mobile/EquipmentAssignmentAdapter';
 import { useDeviceType } from '../../../hooks/useDeviceType';
 import * as hapticFeedback from '../../../utils/hapticFeedback';
 
@@ -12,7 +23,9 @@ jest.mock('../../../hooks/useDeviceType');
 jest.mock('../../../utils/hapticFeedback');
 
 describe('EquipmentAssignmentAdapter', () => {
-  const mockUseDeviceType = useDeviceType as jest.MockedFunction<typeof useDeviceType>;
+  const mockUseDeviceType = useDeviceType as jest.MockedFunction<
+    typeof useDeviceType
+  >;
   const mockHapticTap = jest.fn();
   const mockHapticError = jest.fn();
 
@@ -35,10 +48,14 @@ describe('EquipmentAssignmentAdapter', () => {
     mockHapticTap.mockClear();
     mockHapticError.mockClear();
 
-    (hapticFeedback.tap as jest.MockedFunction<typeof hapticFeedback.tap>).mockReturnValue(true);
-    (hapticFeedback.error as jest.MockedFunction<typeof hapticFeedback.error>).mockReturnValue(true);
+    (
+      hapticFeedback.tap as jest.MockedFunction<typeof hapticFeedback.tap>
+    ).mockReturnValue(true);
+    (
+      hapticFeedback.error as jest.MockedFunction<typeof hapticFeedback.error>
+    ).mockReturnValue(true);
 
-// Default: touch device
+    // Default: touch device
     mockUseDeviceType.mockReturnValue({
       isMobile: true,
       isTablet: false,
@@ -67,11 +84,14 @@ describe('EquipmentAssignmentAdapter', () => {
               {state.isActive ? 'Placing...' : 'Normal'}
             </div>
           )}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       expect(screen.getByTestId('child')).toBeInTheDocument();
-      expect(screen.getByTestId('child')).toHaveAttribute('data-active', 'false');
+      expect(screen.getByTestId('child')).toHaveAttribute(
+        'data-active',
+        'false',
+      );
     });
 
     it('should enter placement mode when activate is called', () => {
@@ -83,19 +103,30 @@ describe('EquipmentAssignmentAdapter', () => {
         >
           {(state) => (
             <div>
-              <div data-testid="child" data-active={state.isActive.toString()} />
-              {state.isActive && <div data-testid="placement-mode">Placing...</div>}
+              <div
+                data-testid="child"
+                data-active={state.isActive.toString()}
+              />
+              {state.isActive && (
+                <div data-testid="placement-mode">Placing...</div>
+              )}
               <button onClick={state.activatePlacementMode}>Activate</button>
             </div>
           )}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
-      expect(screen.getByTestId('child')).toHaveAttribute('data-active', 'false');
+      expect(screen.getByTestId('child')).toHaveAttribute(
+        'data-active',
+        'false',
+      );
 
       fireEvent.click(screen.getByText('Activate'));
 
-      expect(screen.getByTestId('child')).toHaveAttribute('data-active', 'true');
+      expect(screen.getByTestId('child')).toHaveAttribute(
+        'data-active',
+        'true',
+      );
       expect(screen.getByTestId('placement-mode')).toBeInTheDocument();
     });
 
@@ -115,14 +146,16 @@ describe('EquipmentAssignmentAdapter', () => {
               <div>
                 <button onClick={state.activatePlacementMode}>Activate</button>
                 {state.isActive && (
-                  <button onClick={() => state.handleSlotTap(mockValidSlots[0])}>
+                  <button
+                    onClick={() => state.handleSlotTap(mockValidSlots[0])}
+                  >
                     Assign to Slot
                   </button>
                 )}
               </div>
             );
           }}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       // Activate placement mode
@@ -135,7 +168,9 @@ describe('EquipmentAssignmentAdapter', () => {
       expect(hapticFeedback.tap).toHaveBeenCalledTimes(1);
 
       // Placement mode should be exited
-      expect((placementState as PlacementModeState | null)?.isActive).toBe(false);
+      expect((placementState as PlacementModeState | null)?.isActive).toBe(
+        false,
+      );
     });
 
     it('should show error and stay in placement mode for invalid slot', () => {
@@ -163,7 +198,7 @@ describe('EquipmentAssignmentAdapter', () => {
               </div>
             );
           }}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       // Activate placement mode
@@ -173,11 +208,16 @@ describe('EquipmentAssignmentAdapter', () => {
       fireEvent.click(screen.getByText('Assign to Invalid Slot'));
 
       expect(onAssign).not.toHaveBeenCalled();
-      expect(onInvalidSlot).toHaveBeenCalledWith(mockEquipment, mockInvalidSlot);
+      expect(onInvalidSlot).toHaveBeenCalledWith(
+        mockEquipment,
+        mockInvalidSlot,
+      );
       expect(hapticFeedback.error).toHaveBeenCalledTimes(1);
 
       // Should stay in placement mode
-      expect((placementState as PlacementModeState | null)?.isActive).toBe(true);
+      expect((placementState as PlacementModeState | null)?.isActive).toBe(
+        true,
+      );
     });
 
     it('should cancel placement mode', () => {
@@ -198,7 +238,7 @@ describe('EquipmentAssignmentAdapter', () => {
               )}
             </div>
           )}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       // Activate placement mode
@@ -210,7 +250,7 @@ describe('EquipmentAssignmentAdapter', () => {
       expect(onCancel).toHaveBeenCalledTimes(1);
     });
 
-it('should not activate placement mode in mouse mode', () => {
+    it('should not activate placement mode in mouse mode', () => {
       mockUseDeviceType.mockReturnValue({
         isMobile: false,
         isTablet: false,
@@ -231,7 +271,7 @@ it('should not activate placement mode in mouse mode', () => {
           dragComponent={dragComponent}
         >
           {(_state) => <div data-testid="child">Child</div>}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       // Should render drag component instead of children
@@ -241,7 +281,7 @@ it('should not activate placement mode in mouse mode', () => {
   });
 
   describe('mouse mode', () => {
-it('should render drag component when not touch device', () => {
+    it('should render drag component when not touch device', () => {
       mockUseDeviceType.mockReturnValue({
         isMobile: false,
         isTablet: false,
@@ -262,14 +302,14 @@ it('should render drag component when not touch device', () => {
           dragComponent={dragComponent}
         >
           {(_state) => <div data-testid="child">Child</div>}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       expect(screen.getByTestId('drag-component')).toBeInTheDocument();
       expect(screen.queryByTestId('child')).not.toBeInTheDocument();
     });
 
-it('should render nothing when drag component not provided in mouse mode', () => {
+    it('should render nothing when drag component not provided in mouse mode', () => {
       mockUseDeviceType.mockReturnValue({
         isMobile: false,
         isTablet: false,
@@ -287,7 +327,7 @@ it('should render nothing when drag component not provided in mouse mode', () =>
           onAssign={jest.fn()}
         >
           {(_state) => <div data-testid="child">Child</div>}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       expect(screen.queryByTestId('child')).not.toBeInTheDocument();
@@ -296,7 +336,7 @@ it('should render nothing when drag component not provided in mouse mode', () =>
   });
 
   describe('dual-mode devices', () => {
-it('should use touch mode when device has both touch and mouse', () => {
+    it('should use touch mode when device has both touch and mouse', () => {
       mockUseDeviceType.mockReturnValue({
         isMobile: false,
         isTablet: true,
@@ -315,7 +355,7 @@ it('should use touch mode when device has both touch and mouse', () => {
           dragComponent={<div>Drag</div>}
         >
           {(_state) => <div data-testid="child">Child</div>}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       // Should render children (touch mode) despite drag component
@@ -399,10 +439,12 @@ it('should use touch mode when device has both touch and mouse', () => {
           {(state) => (
             <div>
               <button onClick={state.activatePlacementMode}>Activate</button>
-              {state.isActive && <div data-testid="placement-mode">Placing</div>}
+              {state.isActive && (
+                <div data-testid="placement-mode">Placing</div>
+              )}
             </div>
           )}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       fireEvent.click(screen.getByText('Activate'));
@@ -423,7 +465,7 @@ it('should use touch mode when device has both touch and mouse', () => {
               Tap Slot
             </button>
           )}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       // Tap slot when not in placement mode
@@ -441,7 +483,7 @@ it('should use touch mode when device has both touch and mouse', () => {
           className="custom-class"
         >
           {(_state) => <div>Child</div>}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       const wrapper = container.querySelector('.equipment-assignment-adapter');
@@ -466,7 +508,7 @@ it('should use touch mode when device has both touch and mouse', () => {
               )}
             </div>
           )}
-        </EquipmentAssignmentAdapter>
+        </EquipmentAssignmentAdapter>,
       );
 
       fireEvent.click(screen.getByText('Activate'));

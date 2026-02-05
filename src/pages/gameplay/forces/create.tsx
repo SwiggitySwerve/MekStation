@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 /**
  * Force Creation Page
  * Create a new force with name, type, and affiliation.
@@ -5,7 +6,8 @@
  * @spec openspec/changes/add-force-management/proposal.md
  */
 import { useState, useCallback } from 'react';
-import { useRouter } from 'next/router';
+
+import { useToast } from '@/components/shared/Toast';
 import {
   PageLayout,
   Card,
@@ -16,7 +18,6 @@ import {
   Badge,
 } from '@/components/ui';
 import { useForceStore } from '@/stores/useForceStore';
-import { useToast } from '@/components/shared/Toast';
 import { ForceType } from '@/types/force';
 
 // =============================================================================
@@ -96,25 +97,22 @@ function ForceTypeCard({
       type="button"
       onClick={onClick}
       data-testid={`force-type-${option.type}`}
-      className={`
-        text-left p-4 rounded-lg border-2 transition-all duration-200
-        ${
-          isSelected
-            ? 'border-accent bg-accent/10'
-            : 'border-border-theme-subtle hover:border-border-theme bg-surface-raised/50'
-        }
-      `}
+      className={`rounded-lg border-2 p-4 text-left transition-all duration-200 ${
+        isSelected
+          ? 'border-accent bg-accent/10'
+          : 'border-border-theme-subtle hover:border-border-theme bg-surface-raised/50'
+      } `}
     >
-      <div className="flex items-start justify-between mb-2">
-        <h3 className="font-bold text-text-theme-primary">{option.name}</h3>
+      <div className="mb-2 flex items-start justify-between">
+        <h3 className="text-text-theme-primary font-bold">{option.name}</h3>
         <Badge variant={isSelected ? 'amber' : 'slate'} size="sm">
           {option.slots} slots
         </Badge>
       </div>
-      <p className="text-sm text-text-theme-secondary mb-2">
+      <p className="text-text-theme-secondary mb-2 text-sm">
         {option.description}
       </p>
-      <span className="text-xs text-text-theme-muted">{option.faction}</span>
+      <span className="text-text-theme-muted text-xs">{option.faction}</span>
     </button>
   );
 }
@@ -153,13 +151,26 @@ export default function CreateForcePage(): React.ReactElement {
       });
 
       if (forceId) {
-        showToast({ message: `Force "${name.trim()}" created successfully!`, variant: 'success' });
+        showToast({
+          message: `Force "${name.trim()}" created successfully!`,
+          variant: 'success',
+        });
         router.push(`/gameplay/forces/${forceId}`);
       } else {
         showToast({ message: 'Failed to create force', variant: 'error' });
       }
     },
-    [isValid, name, forceType, affiliation, description, createForce, router, clearError, showToast]
+    [
+      isValid,
+      name,
+      forceType,
+      affiliation,
+      description,
+      createForce,
+      router,
+      clearError,
+      showToast,
+    ],
   );
 
   // Handle cancel
@@ -176,10 +187,10 @@ export default function CreateForcePage(): React.ReactElement {
       backLink="/gameplay/forces"
       backLabel="Back to Roster"
     >
-      <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-6">
+      <form onSubmit={handleSubmit} className="mx-auto max-w-3xl space-y-6">
         {/* Error Display */}
         {error && (
-          <div className="p-4 rounded-lg bg-red-900/20 border border-red-600/30">
+          <div className="rounded-lg border border-red-600/30 bg-red-900/20 p-4">
             <p className="text-sm text-red-400">{error}</p>
           </div>
         )}
@@ -191,7 +202,7 @@ export default function CreateForcePage(): React.ReactElement {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-text-theme-secondary mb-1.5"
+                className="text-text-theme-secondary mb-1.5 block text-sm font-medium"
               >
                 Force Name *
               </label>
@@ -205,7 +216,7 @@ export default function CreateForcePage(): React.ReactElement {
                 autoFocus
                 data-testid="force-name-input"
               />
-              <p className="mt-1 text-xs text-text-theme-muted">
+              <p className="text-text-theme-muted mt-1 text-xs">
                 Minimum 2 characters
               </p>
             </div>
@@ -213,7 +224,7 @@ export default function CreateForcePage(): React.ReactElement {
             <div>
               <label
                 htmlFor="affiliation"
-                className="block text-sm font-medium text-text-theme-secondary mb-1.5"
+                className="text-text-theme-secondary mb-1.5 block text-sm font-medium"
               >
                 Affiliation
               </label>
@@ -244,7 +255,7 @@ export default function CreateForcePage(): React.ReactElement {
         {/* Force Type Selection */}
         <Card variant="dark">
           <CardSection title="Force Type" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {FORCE_TYPE_OPTIONS.map((option) => (
               <ForceTypeCard
                 key={option.type}
@@ -257,18 +268,18 @@ export default function CreateForcePage(): React.ReactElement {
 
           {/* Selected type info */}
           {selectedOption && (
-            <div className="mt-6 p-4 rounded-lg bg-surface-raised/50 border border-border-theme-subtle">
+            <div className="bg-surface-raised/50 border-border-theme-subtle mt-6 rounded-lg border p-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
-                  <span className="text-xl font-bold text-accent">
+                <div className="bg-accent/10 flex h-12 w-12 items-center justify-center rounded-lg">
+                  <span className="text-accent text-xl font-bold">
                     {selectedOption.slots}
                   </span>
                 </div>
                 <div>
-                  <h4 className="font-medium text-text-theme-primary">
+                  <h4 className="text-text-theme-primary font-medium">
                     {selectedOption.name}
                   </h4>
-                  <p className="text-sm text-text-theme-secondary">
+                  <p className="text-text-theme-secondary text-sm">
                     {selectedOption.slots} assignment slots will be created
                   </p>
                 </div>
@@ -278,7 +289,7 @@ export default function CreateForcePage(): React.ReactElement {
         </Card>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-4 pt-4 border-t border-border-theme-subtle">
+        <div className="border-border-theme-subtle flex items-center justify-end gap-4 border-t pt-4">
           <Button
             type="button"
             variant="ghost"
@@ -296,7 +307,7 @@ export default function CreateForcePage(): React.ReactElement {
             data-testid="submit-force-btn"
             leftIcon={
               <svg
-                className="w-4 h-4"
+                className="h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

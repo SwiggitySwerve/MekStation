@@ -36,12 +36,12 @@ Users need a visual interface for gameplay: a hex map for positioning, record sh
 
 ## Contextual Emphasis
 
-| Phase | Map Emphasis | Record Sheet Emphasis |
-|-------|--------------|----------------------|
-| Movement | **Primary** | Secondary |
-| Attack Declaration | Target overlay | **Primary** |
-| Attack Resolution | Hit indicators | **Primary** |
-| Heat | Dim | **Primary** |
+| Phase              | Map Emphasis   | Record Sheet Emphasis |
+| ------------------ | -------------- | --------------------- |
+| Movement           | **Primary**    | Secondary             |
+| Attack Declaration | Target overlay | **Primary**           |
+| Attack Resolution  | Hit indicators | **Primary**           |
+| Heat               | Dim            | **Primary**           |
 
 ## Impact
 

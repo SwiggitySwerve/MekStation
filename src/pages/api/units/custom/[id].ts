@@ -1,14 +1,15 @@
 /**
  * Custom Unit API - Single Unit Operations
- * 
+ *
  * GET /api/units/custom/:id - Get a custom unit by ID
  * PUT /api/units/custom/:id - Update a custom unit
  * DELETE /api/units/custom/:id - Delete a custom unit
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import {
@@ -33,13 +34,16 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<GetResponse | UpdateResponse | DeleteResponse | ErrorResponse>
+  res: NextApiResponse<
+    GetResponse | UpdateResponse | DeleteResponse | ErrorResponse
+  >,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -59,7 +63,9 @@ export default async function handler(
       return handleDelete(unitRepository, id, res);
     default:
       res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
-      return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+      return res
+        .status(405)
+        .json({ error: `Method ${req.method} Not Allowed` });
   }
 }
 
@@ -69,7 +75,7 @@ export default async function handler(
 function handleGet(
   unitRepository: ReturnType<typeof getUnitRepository>,
   id: string,
-  res: NextApiResponse<GetResponse | ErrorResponse>
+  res: NextApiResponse<GetResponse | ErrorResponse>,
 ) {
   try {
     const unit = unitRepository.getById(id);
@@ -86,7 +92,8 @@ function handleGet(
       parsedData,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to get unit';
+    const message =
+      error instanceof Error ? error.message : 'Failed to get unit';
     return res.status(500).json({ error: message });
   }
 }
@@ -98,7 +105,7 @@ function handlePut(
   unitRepository: ReturnType<typeof getUnitRepository>,
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<UpdateResponse | ErrorResponse>
+  res: NextApiResponse<UpdateResponse | ErrorResponse>,
 ) {
   try {
     const body = req.body as IUpdateUnitRequest;
@@ -119,7 +126,8 @@ function handlePut(
       return res.status(statusCode).json(result);
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to update unit';
+    const message =
+      error instanceof Error ? error.message : 'Failed to update unit';
     return res.status(500).json({ error: message });
   }
 }
@@ -130,7 +138,7 @@ function handlePut(
 function handleDelete(
   unitRepository: ReturnType<typeof getUnitRepository>,
   id: string,
-  res: NextApiResponse<DeleteResponse | ErrorResponse>
+  res: NextApiResponse<DeleteResponse | ErrorResponse>,
 ) {
   try {
     const result = unitRepository.delete(id);
@@ -141,8 +149,8 @@ function handleDelete(
       return res.status(400).json(result);
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to delete unit';
+    const message =
+      error instanceof Error ? error.message : 'Failed to delete unit';
     return res.status(500).json({ error: message });
   }
 }
-

@@ -2,11 +2,7 @@
  * P2P Types Tests
  */
 
-import {
-  ConnectionState,
-  SyncState,
-  P2P_CONFIG,
-} from '../types';
+import { ConnectionState, SyncState, P2P_CONFIG } from '../types';
 
 // =============================================================================
 // Enum Tests

@@ -5,6 +5,10 @@
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react';
+
+import { EventStoreService } from '@/services/events';
+import { EventCategory, IBaseEvent, ICausedBy } from '@/types/events';
+
 import {
   useCausalityChain,
   getAncestors,
@@ -14,8 +18,6 @@ import {
   getNodesAtDepth,
   ICausalityNode,
 } from '../useCausalityChain';
-import { EventStoreService } from '@/services/events';
-import { EventCategory, IBaseEvent, ICausedBy } from '@/types/events';
 
 // =============================================================================
 // Test Helpers
@@ -24,7 +26,7 @@ import { EventCategory, IBaseEvent, ICausedBy } from '@/types/events';
 function createMockEvent(
   id: string,
   sequence: number,
-  causedBy?: ICausedBy
+  causedBy?: ICausedBy,
 ): IBaseEvent {
   return {
     id,
@@ -54,9 +56,7 @@ describe('useCausalityChain', () => {
   describe('basic functionality', () => {
     it('should start with null chain', () => {
       const eventStore = createMockEventStore([]);
-      const { result } = renderHook(() =>
-        useCausalityChain({ eventStore })
-      );
+      const { result } = renderHook(() => useCausalityChain({ eventStore }));
 
       expect(result.current.chain).toBeNull();
       expect(result.current.isLoading).toBe(false);
@@ -67,9 +67,7 @@ describe('useCausalityChain', () => {
       const events = [createMockEvent('event-1', 1)];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useCausalityChain({ eventStore })
-      );
+      const { result } = renderHook(() => useCausalityChain({ eventStore }));
 
       act(() => {
         result.current.computeChain('event-1');
@@ -87,9 +85,7 @@ describe('useCausalityChain', () => {
     it('should handle event not found', async () => {
       const eventStore = createMockEventStore([]);
 
-      const { result } = renderHook(() =>
-        useCausalityChain({ eventStore })
-      );
+      const { result } = renderHook(() => useCausalityChain({ eventStore }));
 
       act(() => {
         result.current.computeChain('nonexistent');
@@ -113,15 +109,22 @@ describe('useCausalityChain', () => {
       //       └── grandchild (seq 4) triggered by child-2
       const events = [
         createMockEvent('root', 1),
-        createMockEvent('child-1', 2, { eventId: 'root', relationship: 'triggered' }),
-        createMockEvent('child-2', 3, { eventId: 'root', relationship: 'triggered' }),
-        createMockEvent('grandchild', 4, { eventId: 'child-2', relationship: 'derived' }),
+        createMockEvent('child-1', 2, {
+          eventId: 'root',
+          relationship: 'triggered',
+        }),
+        createMockEvent('child-2', 3, {
+          eventId: 'root',
+          relationship: 'triggered',
+        }),
+        createMockEvent('grandchild', 4, {
+          eventId: 'child-2',
+          relationship: 'derived',
+        }),
       ];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useCausalityChain({ eventStore })
-      );
+      const { result } = renderHook(() => useCausalityChain({ eventStore }));
 
       act(() => {
         result.current.computeChain('grandchild', 'both');
@@ -145,14 +148,18 @@ describe('useCausalityChain', () => {
     it('should respect maxDepth', async () => {
       const events = [
         createMockEvent('root', 1),
-        createMockEvent('child', 2, { eventId: 'root', relationship: 'triggered' }),
-        createMockEvent('grandchild', 3, { eventId: 'child', relationship: 'triggered' }),
+        createMockEvent('child', 2, {
+          eventId: 'root',
+          relationship: 'triggered',
+        }),
+        createMockEvent('grandchild', 3, {
+          eventId: 'child',
+          relationship: 'triggered',
+        }),
       ];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useCausalityChain({ eventStore })
-      );
+      const { result } = renderHook(() => useCausalityChain({ eventStore }));
 
       act(() => {
         result.current.computeChain('root', 'effects', 1);
@@ -169,14 +176,18 @@ describe('useCausalityChain', () => {
     it('should traverse only causes direction', async () => {
       const events = [
         createMockEvent('root', 1),
-        createMockEvent('child', 2, { eventId: 'root', relationship: 'triggered' }),
-        createMockEvent('grandchild', 3, { eventId: 'child', relationship: 'triggered' }),
+        createMockEvent('child', 2, {
+          eventId: 'root',
+          relationship: 'triggered',
+        }),
+        createMockEvent('grandchild', 3, {
+          eventId: 'child',
+          relationship: 'triggered',
+        }),
       ];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useCausalityChain({ eventStore })
-      );
+      const { result } = renderHook(() => useCausalityChain({ eventStore }));
 
       act(() => {
         result.current.computeChain('grandchild', 'causes');
@@ -194,14 +205,18 @@ describe('useCausalityChain', () => {
     it('should traverse only effects direction', async () => {
       const events = [
         createMockEvent('root', 1),
-        createMockEvent('child-1', 2, { eventId: 'root', relationship: 'triggered' }),
-        createMockEvent('child-2', 3, { eventId: 'root', relationship: 'triggered' }),
+        createMockEvent('child-1', 2, {
+          eventId: 'root',
+          relationship: 'triggered',
+        }),
+        createMockEvent('child-2', 3, {
+          eventId: 'root',
+          relationship: 'triggered',
+        }),
       ];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useCausalityChain({ eventStore })
-      );
+      const { result } = renderHook(() => useCausalityChain({ eventStore }));
 
       act(() => {
         result.current.computeChain('root', 'effects');
@@ -220,15 +235,22 @@ describe('useCausalityChain', () => {
     it('should compute correct statistics', async () => {
       const events = [
         createMockEvent('root', 1),
-        createMockEvent('child-1', 2, { eventId: 'root', relationship: 'triggered' }),
-        createMockEvent('child-2', 3, { eventId: 'root', relationship: 'derived' }),
-        createMockEvent('grandchild', 4, { eventId: 'child-1', relationship: 'triggered' }),
+        createMockEvent('child-1', 2, {
+          eventId: 'root',
+          relationship: 'triggered',
+        }),
+        createMockEvent('child-2', 3, {
+          eventId: 'root',
+          relationship: 'derived',
+        }),
+        createMockEvent('grandchild', 4, {
+          eventId: 'child-1',
+          relationship: 'triggered',
+        }),
       ];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useCausalityChain({ eventStore })
-      );
+      const { result } = renderHook(() => useCausalityChain({ eventStore }));
 
       act(() => {
         result.current.computeChain('root', 'both');
@@ -251,13 +273,14 @@ describe('useCausalityChain', () => {
     it('should check if event is in chain', async () => {
       const events = [
         createMockEvent('root', 1),
-        createMockEvent('child', 2, { eventId: 'root', relationship: 'triggered' }),
+        createMockEvent('child', 2, {
+          eventId: 'root',
+          relationship: 'triggered',
+        }),
       ];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useCausalityChain({ eventStore })
-      );
+      const { result } = renderHook(() => useCausalityChain({ eventStore }));
 
       act(() => {
         result.current.computeChain('root');
@@ -275,14 +298,18 @@ describe('useCausalityChain', () => {
     it('should get path to node', async () => {
       const events = [
         createMockEvent('root', 1),
-        createMockEvent('child', 2, { eventId: 'root', relationship: 'triggered' }),
-        createMockEvent('grandchild', 3, { eventId: 'child', relationship: 'triggered' }),
+        createMockEvent('child', 2, {
+          eventId: 'root',
+          relationship: 'triggered',
+        }),
+        createMockEvent('grandchild', 3, {
+          eventId: 'child',
+          relationship: 'triggered',
+        }),
       ];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useCausalityChain({ eventStore })
-      );
+      const { result } = renderHook(() => useCausalityChain({ eventStore }));
 
       act(() => {
         result.current.computeChain('grandchild', 'both');
@@ -305,9 +332,7 @@ describe('useCausalityChain', () => {
       const events = [createMockEvent('event-1', 1)];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useCausalityChain({ eventStore })
-      );
+      const { result } = renderHook(() => useCausalityChain({ eventStore }));
 
       act(() => {
         result.current.computeChain('event-1');
@@ -332,7 +357,7 @@ describe('utility functions', () => {
   const createMockNode = (
     id: string,
     depth: number,
-    relationship: ICausedBy['relationship'] | null = null
+    relationship: ICausedBy['relationship'] | null = null,
   ): ICausalityNode => ({
     event: createMockEvent(id, depth + 1),
     depth,

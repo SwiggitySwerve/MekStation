@@ -100,6 +100,7 @@ Assets are pinned to a specific mm-data version in `config/mm-data-assets.json`:
 5. Commit the config change with the new version
 
 **Verifying assets:**
+
 ```bash
 # Check what version is currently fetched
 cat public/record-sheets/mm-data-version.json
@@ -204,4 +205,3 @@ Business logic is in `src/services/`:
 1. Read [Coding Standards](./coding-standards.md) for development guidelines
 2. Explore OpenSpec specs for domain knowledge
 3. Check `.cursorrules` for project-specific rules
-

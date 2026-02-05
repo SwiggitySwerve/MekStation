@@ -9,10 +9,7 @@
 
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import {
-  UnitTypeRegistry,
-  getUnitTypeRegistry,
-} from '../../UnitTypeRegistry';
+import { UnitTypeRegistry, getUnitTypeRegistry } from '../../UnitTypeRegistry';
 import {
   initializeUnitTypeHandlers,
   resetHandlerInitialization,
@@ -427,7 +424,7 @@ describe('Handler Integration', () => {
 function createBaseDocument(
   unitType: string,
   mappedUnitType: UnitType,
-  overrides: Partial<IBlkDocument> = {}
+  overrides: Partial<IBlkDocument> = {},
 ): IBlkDocument {
   return {
     blockVersion: 1,

@@ -4,15 +4,24 @@
  */
 
 import * as fs from 'fs';
-import { SnapshotManager, ISnapshot } from '../snapshot/SnapshotManager';
-import { ISimulationRunResult } from '../runner/types';
+
+import {
+  GamePhase,
+  GameEventType,
+  GameSide,
+} from '@/types/gameplay/GameSessionInterfaces';
+
 import { ISimulationConfig } from '../core/types';
 import { IViolation } from '../invariants/types';
-import { GamePhase, GameEventType, GameSide } from '@/types/gameplay/GameSessionInterfaces';
+import { ISimulationRunResult } from '../runner/types';
+import { SnapshotManager, ISnapshot } from '../snapshot/SnapshotManager';
 
 const TEST_SNAPSHOT_DIR = 'src/simulation/__snapshots__/test-replay';
 
-function createTestResult(seed: number, violations: IViolation[] = []): ISimulationRunResult {
+function createTestResult(
+  seed: number,
+  violations: IViolation[] = [],
+): ISimulationRunResult {
   return {
     seed,
     winner: 'player',
@@ -64,7 +73,7 @@ describe('Snapshot Replay Integration', () => {
 
   beforeEach(() => {
     manager = new SnapshotManager(TEST_SNAPSHOT_DIR);
-    
+
     if (fs.existsSync(TEST_SNAPSHOT_DIR)) {
       fs.rmSync(TEST_SNAPSHOT_DIR, { recursive: true, force: true });
     }
@@ -128,7 +137,9 @@ describe('Snapshot Replay Integration', () => {
       const snapshot = JSON.parse(content) as ISnapshot;
 
       expect(snapshot.violations).toHaveLength(1);
-      expect(snapshot.violations[0].invariant).toBe('checkUnitPositionUniqueness');
+      expect(snapshot.violations[0].invariant).toBe(
+        'checkUnitPositionUniqueness',
+      );
     });
 
     it('should handle multiple violations', () => {
@@ -217,8 +228,14 @@ describe('Snapshot Replay Integration', () => {
     it('should allow loading multiple snapshots with different seeds', () => {
       const config = createTestConfig();
 
-      const filepath1 = manager.saveFailedScenario(createTestResult(11111), config);
-      const filepath2 = manager.saveFailedScenario(createTestResult(22222), config);
+      const filepath1 = manager.saveFailedScenario(
+        createTestResult(11111),
+        config,
+      );
+      const filepath2 = manager.saveFailedScenario(
+        createTestResult(22222),
+        config,
+      );
 
       const session1 = manager.loadSnapshot(filepath1);
       const session2 = manager.loadSnapshot(filepath2);
@@ -231,7 +248,7 @@ describe('Snapshot Replay Integration', () => {
   describe('Cleanup Utility', () => {
     it('should export cleanup function', async () => {
       const snapshotModule = await import('../snapshot');
-      
+
       expect(typeof snapshotModule.cleanupOldSnapshots).toBe('function');
     });
   });

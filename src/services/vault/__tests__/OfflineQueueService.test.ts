@@ -7,11 +7,12 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import { OfflineQueueService } from '../OfflineQueueService';
 import {
   MockOfflineQueueRepository,
   createQueuedMessage,
 } from '@/__tests__/helpers/vault';
+
+import { OfflineQueueService } from '../OfflineQueueService';
 
 // =============================================================================
 // Tests
@@ -40,7 +41,7 @@ describe('OfflineQueueService', () => {
       const message = await service.queueMessage(
         'PEER-1234-ABCD',
         'change',
-        JSON.stringify({ type: 'change', data: 'test' })
+        JSON.stringify({ type: 'change', data: 'test' }),
       );
 
       expect(message).toBeDefined();
@@ -56,7 +57,7 @@ describe('OfflineQueueService', () => {
         'PEER-1234-ABCD',
         'ping',
         '{}',
-        { expiryMs: oneDay }
+        { expiryMs: oneDay },
       );
 
       const expiresAt = new Date(message.expiresAt);
@@ -71,7 +72,7 @@ describe('OfflineQueueService', () => {
         'PEER-1234-ABCD',
         'ping',
         '{}',
-        { priority: 5 }
+        { priority: 5 },
       );
 
       expect(message.priority).toBe(5);
@@ -86,7 +87,10 @@ describe('OfflineQueueService', () => {
         payload: { data: 'test' },
       };
 
-      const queued = await service.queueP2PMessage('PEER-1234-ABCD', p2pMessage);
+      const queued = await service.queueP2PMessage(
+        'PEER-1234-ABCD',
+        p2pMessage,
+      );
 
       expect(queued.messageType).toBe('change');
       const parsed = JSON.parse(queued.payload) as { messageId: string };
@@ -116,9 +120,15 @@ describe('OfflineQueueService', () => {
     });
 
     it('should return messages sorted by priority then queue time', async () => {
-      await service.queueMessage('PEER-1', 'change', '{"order":1}', { priority: 0 });
-      await service.queueMessage('PEER-1', 'change', '{"order":2}', { priority: 5 });
-      await service.queueMessage('PEER-1', 'change', '{"order":3}', { priority: 0 });
+      await service.queueMessage('PEER-1', 'change', '{"order":1}', {
+        priority: 0,
+      });
+      await service.queueMessage('PEER-1', 'change', '{"order":2}', {
+        priority: 5,
+      });
+      await service.queueMessage('PEER-1', 'change', '{"order":3}', {
+        priority: 0,
+      });
 
       const messages = await service.getPendingForPeer('PEER-1');
 
@@ -163,7 +173,7 @@ describe('OfflineQueueService', () => {
           targetPeerId: 'PEER-1',
           status: 'failed',
           attempts: 3,
-        })
+        }),
       );
 
       const summary = await service.getPeerSummary('PEER-1');
@@ -185,7 +195,7 @@ describe('OfflineQueueService', () => {
           targetPeerId: 'PEER-1',
           expiresAt: '2020-01-01T00:00:00.000Z',
           status: 'pending',
-        })
+        }),
       );
 
       const markedCount = await service.processExpired(false);
@@ -201,7 +211,7 @@ describe('OfflineQueueService', () => {
           targetPeerId: 'PEER-1',
           expiresAt: '2020-01-01T00:00:00.000Z',
           status: 'expired',
-        })
+        }),
       );
 
       // Process and delete
@@ -209,7 +219,7 @@ describe('OfflineQueueService', () => {
 
       // Try to get the message
       const messages = await mockRepo.getAllPending();
-      const expiredMessages = messages.filter(m => m.id === 'expired-1');
+      const expiredMessages = messages.filter((m) => m.id === 'expired-1');
 
       expect(expiredMessages).toHaveLength(0);
     });
@@ -223,7 +233,7 @@ describe('OfflineQueueService', () => {
           targetPeerId: 'PEER-1',
           expiresAt: soonExpiry,
           status: 'pending',
-        })
+        }),
       );
 
       const stats = await service.getStats();
@@ -260,7 +270,7 @@ describe('OfflineQueueService', () => {
           id: 'old-1',
           targetPeerId: 'PEER-1',
           queuedAt: '2020-01-01T00:00:00.000Z',
-        })
+        }),
       );
 
       // Queue new message
@@ -317,13 +327,16 @@ describe('OfflineQueueService', () => {
       const queued = await service.storeFromRelay(
         'PEER-1234',
         message,
-        'RELAY-5678'
+        'RELAY-5678',
       );
 
       expect(queued.targetPeerId).toBe('PEER-1234');
       expect(queued.priority).toBe(1); // Higher priority for relayed
 
-      const parsed = JSON.parse(queued.payload) as { _relayId: string; _relayedAt: string };
+      const parsed = JSON.parse(queued.payload) as {
+        _relayId: string;
+        _relayedAt: string;
+      };
       expect(parsed._relayId).toBe('RELAY-5678');
       expect(parsed._relayedAt).toBeDefined();
     });
@@ -342,7 +355,7 @@ describe('OfflineQueueService', () => {
         'PEER-1',
         message,
         'RELAY-1',
-        oneDay
+        oneDay,
       );
 
       const expiresAt = new Date(queued.expiresAt);
@@ -374,7 +387,11 @@ describe('OfflineQueueService', () => {
 
     it('should track separate stats per peer', async () => {
       await service.queueMessage('PEER-A', 'change', '{"size":"small"}');
-      await service.queueMessage('PEER-A', 'change', '{"size":"large-data-here"}');
+      await service.queueMessage(
+        'PEER-A',
+        'change',
+        '{"size":"large-data-here"}',
+      );
       await service.queueMessage('PEER-B', 'change', '{}');
 
       const summaryA = await service.getPeerSummary('PEER-A');
@@ -382,7 +399,9 @@ describe('OfflineQueueService', () => {
 
       expect(summaryA.pendingCount).toBe(2);
       expect(summaryB.pendingCount).toBe(1);
-      expect(summaryA.pendingSizeBytes).toBeGreaterThan(summaryB.pendingSizeBytes);
+      expect(summaryA.pendingSizeBytes).toBeGreaterThan(
+        summaryB.pendingSizeBytes,
+      );
     });
   });
 
@@ -430,7 +449,7 @@ describe('OfflineQueueService', () => {
             targetPeerId: 'PEER-1',
             expiresAt: '2020-01-01T00:00:00.000Z',
             status: 'pending',
-          })
+          }),
         );
 
         const result = await service.flushPeer('PEER-1');
@@ -476,9 +495,15 @@ describe('OfflineQueueService', () => {
 
   describe('Cleanup Sent Messages', () => {
     it('should delete sent messages', async () => {
-      mockRepo.seedMessage(createQueuedMessage({ id: 'sent-1', status: 'sent' }));
-      mockRepo.seedMessage(createQueuedMessage({ id: 'sent-2', status: 'sent' }));
-      mockRepo.seedMessage(createQueuedMessage({ id: 'pending-1', status: 'pending' }));
+      mockRepo.seedMessage(
+        createQueuedMessage({ id: 'sent-1', status: 'sent' }),
+      );
+      mockRepo.seedMessage(
+        createQueuedMessage({ id: 'sent-2', status: 'sent' }),
+      );
+      mockRepo.seedMessage(
+        createQueuedMessage({ id: 'pending-1', status: 'pending' }),
+      );
 
       const deleted = await service.cleanupSent();
 

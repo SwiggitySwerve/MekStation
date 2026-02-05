@@ -35,12 +35,12 @@ P2P Vault Sync enables players to share and collaborate on vault items in real-t
 
 ### Technology Stack
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| P2P Layer | y-webrtc | WebRTC connections via signaling servers |
-| CRDT Engine | Yjs | Conflict-free data synchronization |
-| Persistence | y-indexeddb | Offline storage and recovery |
-| State | Zustand | React state management |
+| Component   | Technology  | Purpose                                  |
+| ----------- | ----------- | ---------------------------------------- |
+| P2P Layer   | y-webrtc    | WebRTC connections via signaling servers |
+| CRDT Engine | Yjs         | Conflict-free data synchronization       |
+| Persistence | y-indexeddb | Offline storage and recovery             |
+| State       | Zustand     | React state management                   |
 
 ### Connection Flow
 
@@ -99,12 +99,12 @@ The imported item is independent - changes won't sync back.
 
 The sync indicator shows current status:
 
-| Status | Meaning |
-|--------|---------|
-| Connected (green) | Active connection to room |
-| Connecting (yellow) | Establishing connection |
-| Disconnected (gray) | Not in any room |
-| Retrying (orange) | Connection lost, attempting reconnect |
+| Status              | Meaning                               |
+| ------------------- | ------------------------------------- |
+| Connected (green)   | Active connection to room             |
+| Connecting (yellow) | Establishing connection               |
+| Disconnected (gray) | Not in any room                       |
+| Retrying (orange)   | Connection lost, attempting reconnect |
 
 ### Automatic Reconnection
 
@@ -163,14 +163,14 @@ const unsubscribe = onSyncEvent((event) => {
 import { useSyncedVaultStore } from '@/lib/p2p/useSyncedVaultStore';
 
 const {
-  items,           // Record<string, ISyncableVaultItem>
-  addItem,         // (item) => void
-  removeItem,      // (id) => void
-  updateItem,      // (id, data) => void
-  toggleSync,      // (id, enabled) => void
-  importFromPeer,  // (item) => newId
-  getItemsByType,  // (type) => items[]
-  getSyncState,    // (id) => SyncState
+  items, // Record<string, ISyncableVaultItem>
+  addItem, // (item) => void
+  removeItem, // (id) => void
+  updateItem, // (id, data) => void
+  toggleSync, // (id, enabled) => void
+  importFromPeer, // (item) => newId
+  getItemsByType, // (type) => items[]
+  getSyncState, // (id) => SyncState
 } = useSyncedVaultStore();
 ```
 

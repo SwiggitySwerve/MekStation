@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { useState } from 'react';
+
 import { ControlledInput, ValidationResult } from './ControlledInput';
 
 const meta: Meta<typeof ControlledInput> = {
@@ -261,7 +263,8 @@ export const InteractiveDemo: Story = {
     const validation = (val: string): ValidationResult => {
       if (!val) return { isValid: false, error: 'Mech name is required' };
       if (val.length < 2) return { isValid: false, error: 'Name too short' };
-      if (val.length > 20) return { isValid: false, error: 'Name too long (max 20)' };
+      if (val.length > 20)
+        return { isValid: false, error: 'Name too long (max 20)' };
       if (!/^[a-zA-Z0-9-]+$/.test(val)) {
         return { isValid: true, warning: 'Special characters detected' };
       }
@@ -280,7 +283,7 @@ export const InteractiveDemo: Story = {
         />
         <button
           onClick={() => setSubmitted(value)}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
           disabled={!validation(value).isValid}
         >
           Submit
@@ -308,7 +311,11 @@ export const FormIntegration: Story = {
           placeholder="Enter designation"
           value={name}
           onChange={setName}
-          validation={(v) => (v.length >= 2 ? { isValid: true } : { isValid: false, error: 'Required' })}
+          validation={(v) =>
+            v.length >= 2
+              ? { isValid: true }
+              : { isValid: false, error: 'Required' }
+          }
           required
         />
         <ControlledInput<number>
@@ -326,7 +333,7 @@ export const FormIntegration: Story = {
           value={notes}
           onChange={setNotes}
         />
-        <div className="pt-2 border-t border-gray-200">
+        <div className="border-t border-gray-200 pt-2">
           <p className="text-sm text-gray-500">
             Mech: {name || '—'} | Tonnage: {tonnage}t | Notes: {notes || '—'}
           </p>

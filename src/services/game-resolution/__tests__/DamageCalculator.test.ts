@@ -3,6 +3,14 @@
  */
 
 import {
+  IUnitGameState,
+  GameSide,
+  Facing,
+  MovementType,
+  LockState,
+} from '@/types/gameplay';
+
+import {
   calculateDamagePercent,
   assessUnitDamage,
   getLocationDamage,
@@ -11,19 +19,14 @@ import {
   estimateRepairTime,
   isSalvageable,
 } from '../DamageCalculator';
-import {
-  IUnitGameState,
-  GameSide,
-  Facing,
-  MovementType,
-  LockState,
-} from '@/types/gameplay';
 
 // =============================================================================
 // Test Helpers
 // =============================================================================
 
-function createMockUnit(overrides: Partial<IUnitGameState> = {}): IUnitGameState {
+function createMockUnit(
+  overrides: Partial<IUnitGameState> = {},
+): IUnitGameState {
   return {
     id: 'test-unit',
     side: GameSide.Player,
@@ -120,7 +123,11 @@ describe('DamageCalculator', () => {
         structure: { ...MOCK_MAX_STRUCTURE },
       });
 
-      const assessment = assessUnitDamage(unit, MOCK_MAX_ARMOR, MOCK_MAX_STRUCTURE);
+      const assessment = assessUnitDamage(
+        unit,
+        MOCK_MAX_ARMOR,
+        MOCK_MAX_STRUCTURE,
+      );
 
       expect(assessment.status).toBe('operational');
       expect(assessment.armorDamagePercent).toBe(0);
@@ -139,7 +146,11 @@ describe('DamageCalculator', () => {
         structure: { ...MOCK_MAX_STRUCTURE },
       });
 
-      const assessment = assessUnitDamage(unit, MOCK_MAX_ARMOR, MOCK_MAX_STRUCTURE);
+      const assessment = assessUnitDamage(
+        unit,
+        MOCK_MAX_ARMOR,
+        MOCK_MAX_STRUCTURE,
+      );
 
       expect(assessment.armorDamagePercent).toBeGreaterThan(0);
       expect(['operational', 'damaged']).toContain(assessment.status);
@@ -150,7 +161,11 @@ describe('DamageCalculator', () => {
         destroyed: true,
       });
 
-      const assessment = assessUnitDamage(unit, MOCK_MAX_ARMOR, MOCK_MAX_STRUCTURE);
+      const assessment = assessUnitDamage(
+        unit,
+        MOCK_MAX_ARMOR,
+        MOCK_MAX_STRUCTURE,
+      );
 
       expect(assessment.status).toBe('destroyed');
       expect(assessment.combatEffective).toBe(false);
@@ -161,7 +176,11 @@ describe('DamageCalculator', () => {
         destroyedLocations: ['left_arm', 'right_arm'],
       });
 
-      const assessment = assessUnitDamage(unit, MOCK_MAX_ARMOR, MOCK_MAX_STRUCTURE);
+      const assessment = assessUnitDamage(
+        unit,
+        MOCK_MAX_ARMOR,
+        MOCK_MAX_STRUCTURE,
+      );
 
       expect(assessment.destroyedLocations).toBe(2);
     });
@@ -171,7 +190,11 @@ describe('DamageCalculator', () => {
         destroyedEquipment: ['medium_laser_1', 'heat_sink_3'],
       });
 
-      const assessment = assessUnitDamage(unit, MOCK_MAX_ARMOR, MOCK_MAX_STRUCTURE);
+      const assessment = assessUnitDamage(
+        unit,
+        MOCK_MAX_ARMOR,
+        MOCK_MAX_STRUCTURE,
+      );
 
       expect(assessment.destroyedComponents).toBe(2);
     });
@@ -183,7 +206,11 @@ describe('DamageCalculator', () => {
         structure: { ...MOCK_MAX_STRUCTURE },
       });
 
-      const assessment = assessUnitDamage(unit, MOCK_MAX_ARMOR, MOCK_MAX_STRUCTURE);
+      const assessment = assessUnitDamage(
+        unit,
+        MOCK_MAX_ARMOR,
+        MOCK_MAX_STRUCTURE,
+      );
 
       expect(assessment.combatEffective).toBe(false);
     });
@@ -196,7 +223,11 @@ describe('DamageCalculator', () => {
         structure: { ...MOCK_MAX_STRUCTURE },
       });
 
-      const locations = getLocationDamage(unit, MOCK_MAX_ARMOR, MOCK_MAX_STRUCTURE);
+      const locations = getLocationDamage(
+        unit,
+        MOCK_MAX_ARMOR,
+        MOCK_MAX_STRUCTURE,
+      );
 
       expect(locations.length).toBe(8); // Standard mech locations
     });
@@ -208,7 +239,11 @@ describe('DamageCalculator', () => {
         destroyedLocations: ['left_arm'],
       });
 
-      const locations = getLocationDamage(unit, MOCK_MAX_ARMOR, MOCK_MAX_STRUCTURE);
+      const locations = getLocationDamage(
+        unit,
+        MOCK_MAX_ARMOR,
+        MOCK_MAX_STRUCTURE,
+      );
       const leftArm = locations.find((l) => l.location === 'left_arm');
 
       expect(leftArm?.isDestroyed).toBe(true);

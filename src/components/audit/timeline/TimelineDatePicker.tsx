@@ -6,6 +6,7 @@
  */
 
 import React, { useCallback, useMemo } from 'react';
+
 import { Button } from '@/components/ui/Button';
 
 // =============================================================================
@@ -37,7 +38,7 @@ type PresetOption = {
 
 function getPresets(): PresetOption[] {
   const now = new Date();
-  
+
   return [
     {
       label: 'Last hour',
@@ -129,8 +130,13 @@ export function TimelineDatePicker({
     // Compare with each preset (within 1 minute tolerance)
     for (const preset of presets) {
       const presetValue = preset.getValue();
-      const fromDiff = Math.abs(new Date(timeRange.from).getTime() - new Date(presetValue.from).getTime());
-      const toDiff = Math.abs(new Date(timeRange.to).getTime() - new Date(presetValue.to).getTime());
+      const fromDiff = Math.abs(
+        new Date(timeRange.from).getTime() -
+          new Date(presetValue.from).getTime(),
+      );
+      const toDiff = Math.abs(
+        new Date(timeRange.to).getTime() - new Date(presetValue.to).getTime(),
+      );
       if (fromDiff < 60000 && toDiff < 60000) {
         return preset.label;
       }
@@ -143,7 +149,7 @@ export function TimelineDatePicker({
     (preset: PresetOption) => {
       onChange(preset.getValue());
     },
-    [onChange]
+    [onChange],
   );
 
   // Handle "All time" click
@@ -160,7 +166,7 @@ export function TimelineDatePicker({
       const toIso = timeRange?.to || new Date().toISOString();
       onChange({ from: fromIso, to: toIso });
     },
-    [timeRange, onChange]
+    [timeRange, onChange],
   );
 
   // Handle to date change
@@ -172,14 +178,14 @@ export function TimelineDatePicker({
       const fromIso = timeRange?.from || new Date(0).toISOString();
       onChange({ from: fromIso, to: toIso });
     },
-    [timeRange, onChange]
+    [timeRange, onChange],
   );
 
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Quick Presets */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-text-theme-secondary">
+        <label className="text-text-theme-secondary block text-sm font-medium">
           Quick Select
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -187,13 +193,11 @@ export function TimelineDatePicker({
           <button
             type="button"
             onClick={handleAllTime}
-            className={`
-              px-3 py-1.5 text-sm font-medium rounded-lg border transition-all duration-200
-              ${!timeRange
+            className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
+              !timeRange
                 ? 'border-accent bg-accent/10 text-accent'
                 : 'border-border-theme-subtle text-text-theme-secondary hover:text-text-theme-primary hover:border-border-theme'
-              }
-            `}
+            } `}
           >
             All time
           </button>
@@ -204,13 +208,11 @@ export function TimelineDatePicker({
               key={preset.label}
               type="button"
               onClick={() => handlePresetClick(preset)}
-              className={`
-                px-3 py-1.5 text-sm font-medium rounded-lg border transition-all duration-200
-                ${activePreset === preset.label
+              className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
+                activePreset === preset.label
                   ? 'border-accent bg-accent/10 text-accent'
                   : 'border-border-theme-subtle text-text-theme-secondary hover:text-text-theme-primary hover:border-border-theme'
-                }
-              `}
+              } `}
             >
               {preset.label}
             </button>
@@ -220,43 +222,29 @@ export function TimelineDatePicker({
 
       {/* Custom Date Range */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-text-theme-secondary">
+        <label className="text-text-theme-secondary block text-sm font-medium">
           Custom Range
         </label>
         <div className="grid grid-cols-2 gap-3">
           {/* From Date */}
           <div className="space-y-1">
-            <label className="block text-xs text-text-theme-muted">From</label>
+            <label className="text-text-theme-muted block text-xs">From</label>
             <input
               type="datetime-local"
               value={isoToDateTimeInput(timeRange?.from)}
               onChange={handleFromChange}
-              className={`
-                w-full px-3 py-2 rounded-lg text-sm
-                bg-surface-raised/50 border border-border-theme
-                text-text-theme-primary
-                focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
-                transition-colors duration-200
-                [color-scheme:dark]
-              `}
+              className={`bg-surface-raised/50 border-border-theme text-text-theme-primary focus:border-accent focus:ring-accent/20 w-full rounded-lg border px-3 py-2 text-sm [color-scheme:dark] transition-colors duration-200 focus:ring-1 focus:outline-none`}
             />
           </div>
 
           {/* To Date */}
           <div className="space-y-1">
-            <label className="block text-xs text-text-theme-muted">To</label>
+            <label className="text-text-theme-muted block text-xs">To</label>
             <input
               type="datetime-local"
               value={isoToDateTimeInput(timeRange?.to)}
               onChange={handleToChange}
-              className={`
-                w-full px-3 py-2 rounded-lg text-sm
-                bg-surface-raised/50 border border-border-theme
-                text-text-theme-primary
-                focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
-                transition-colors duration-200
-                [color-scheme:dark]
-              `}
+              className={`bg-surface-raised/50 border-border-theme text-text-theme-primary focus:border-accent focus:ring-accent/20 w-full rounded-lg border px-3 py-2 text-sm [color-scheme:dark] transition-colors duration-200 focus:ring-1 focus:outline-none`}
             />
           </div>
         </div>
@@ -264,10 +252,13 @@ export function TimelineDatePicker({
 
       {/* Active Range Display */}
       {timeRange && (
-        <div className="flex items-center justify-between pt-2 border-t border-border-theme-subtle/30">
-          <div className="text-xs text-text-theme-muted">
-            <span className="font-medium text-text-theme-secondary">Active range: </span>
-            {new Date(timeRange.from).toLocaleDateString()} - {new Date(timeRange.to).toLocaleDateString()}
+        <div className="border-border-theme-subtle/30 flex items-center justify-between border-t pt-2">
+          <div className="text-text-theme-muted text-xs">
+            <span className="text-text-theme-secondary font-medium">
+              Active range:{' '}
+            </span>
+            {new Date(timeRange.from).toLocaleDateString()} -{' '}
+            {new Date(timeRange.to).toLocaleDateString()}
           </div>
           <Button
             variant="ghost"

@@ -6,16 +6,16 @@
  */
 
 import {
+  FactionStandingLevel,
+  REGARD_DELTAS,
+  IFactionStanding,
+} from '../../../../types/campaign/factionStanding/IFactionStanding';
+import {
   adjustRegard,
   processContractOutcome,
   processRegardDecay,
   createDefaultStanding,
 } from '../standingService';
-import {
-  FactionStandingLevel,
-  REGARD_DELTAS,
-  IFactionStanding,
-} from '../../../../types/campaign/factionStanding/IFactionStanding';
 
 describe('standingService', () => {
   const testDate = new Date('2025-01-26T00:00:00Z');
@@ -51,7 +51,13 @@ describe('standingService', () => {
       const delta = 10;
       const multiplier = 0.5;
 
-      const updated = adjustRegard(standing, delta, 'test', testDate, multiplier);
+      const updated = adjustRegard(
+        standing,
+        delta,
+        'test',
+        testDate,
+        multiplier,
+      );
 
       expect(updated.regard).toBe(5);
     });
@@ -117,7 +123,7 @@ describe('standingService', () => {
         standing,
         REGARD_DELTAS.CONTRACT_SUCCESS,
         'Contract Success',
-        testDate
+        testDate,
       );
 
       expect(updated.regard).toBe(1.875);
@@ -130,7 +136,7 @@ describe('standingService', () => {
         standing,
         REGARD_DELTAS.CONTRACT_BREACH,
         'Contract Breach',
-        testDate
+        testDate,
       );
 
       expect(updated.regard).toBe(-5.156);
@@ -196,11 +202,11 @@ describe('standingService', () => {
         employerFactionId,
         undefined,
         'success',
-        testDate
+        testDate,
       );
 
       expect(updated[employerFactionId].regard).toBe(
-        REGARD_DELTAS.CONTRACT_SUCCESS
+        REGARD_DELTAS.CONTRACT_SUCCESS,
       );
     });
 
@@ -214,11 +220,11 @@ describe('standingService', () => {
         employerFactionId,
         undefined,
         'breach',
-        testDate
+        testDate,
       );
 
       expect(updated[employerFactionId].regard).toBe(
-        REGARD_DELTAS.CONTRACT_BREACH
+        REGARD_DELTAS.CONTRACT_BREACH,
       );
     });
 
@@ -232,11 +238,11 @@ describe('standingService', () => {
         employerFactionId,
         undefined,
         'partial',
-        testDate
+        testDate,
       );
 
       expect(updated[employerFactionId].regard).toBe(
-        REGARD_DELTAS.CONTRACT_PARTIAL
+        REGARD_DELTAS.CONTRACT_PARTIAL,
       );
     });
 
@@ -250,11 +256,11 @@ describe('standingService', () => {
         employerFactionId,
         undefined,
         'failure',
-        testDate
+        testDate,
       );
 
       expect(updated[employerFactionId].regard).toBe(
-        REGARD_DELTAS.CONTRACT_FAILURE
+        REGARD_DELTAS.CONTRACT_FAILURE,
       );
     });
 
@@ -269,7 +275,7 @@ describe('standingService', () => {
         employerFactionId,
         targetFactionId,
         'success',
-        testDate
+        testDate,
       );
 
       // Target should lose standing (negative delta with reduced magnitude)
@@ -286,12 +292,12 @@ describe('standingService', () => {
         employerFactionId,
         employerFactionId,
         'success',
-        testDate
+        testDate,
       );
 
       // Only one adjustment (employer)
       expect(updated[employerFactionId].regard).toBe(
-        REGARD_DELTAS.CONTRACT_SUCCESS
+        REGARD_DELTAS.CONTRACT_SUCCESS,
       );
     });
 
@@ -305,7 +311,7 @@ describe('standingService', () => {
         employerFactionId,
         targetFactionId,
         'success',
-        testDate
+        testDate,
       );
 
       expect(updated[targetFactionId]).toBeDefined();
@@ -322,7 +328,7 @@ describe('standingService', () => {
         employerFactionId,
         undefined,
         'success',
-        testDate
+        testDate,
       );
 
       expect(updated).not.toBe(standings);

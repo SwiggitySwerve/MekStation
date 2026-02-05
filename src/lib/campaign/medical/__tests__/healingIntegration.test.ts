@@ -1,6 +1,13 @@
+import {
+  PersonnelStatus,
+  CampaignPersonnelRole,
+} from '../../../../types/campaign/enums';
+import {
+  IPerson,
+  IInjury,
+  createInjury,
+} from '../../../../types/campaign/Person';
 import { processHealing } from '../../dayAdvancement';
-import { IPerson, IInjury, createInjury } from '../../../../types/campaign/Person';
-import { PersonnelStatus, CampaignPersonnelRole } from '../../../../types/campaign/enums';
 
 function createTestPerson(overrides?: Partial<IPerson>): IPerson {
   return {
@@ -19,7 +26,16 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
@@ -83,7 +99,7 @@ describe('Healing Integration - Medical System Selection', () => {
       ]);
 
       const result = processHealing(personnel);
-      
+
       const updatedPatient = result.personnel.get(patient.id);
       expect(updatedPatient).toBeDefined();
       expect(updatedPatient!.injuries.length).toBeLessThanOrEqual(1);
@@ -172,12 +188,10 @@ describe('Healing Integration - Medical System Selection', () => {
         injuries: [createTestInjury({ daysToHeal: 14 })],
       });
 
-      const personnel = new Map<string, IPerson>([
-        [patient.id, patient],
-      ]);
+      const personnel = new Map<string, IPerson>([[patient.id, patient]]);
 
       const result = processHealing(personnel);
-      
+
       const updatedPatient = result.personnel.get(patient.id);
       expect(updatedPatient).toBeDefined();
       expect(updatedPatient!.status).toBe(PersonnelStatus.WOUNDED);
@@ -190,12 +204,10 @@ describe('Healing Integration - Medical System Selection', () => {
         injuries: [createTestInjury({ daysToHeal: 1 })],
       });
 
-      const personnel = new Map<string, IPerson>([
-        [patient.id, patient],
-      ]);
+      const personnel = new Map<string, IPerson>([[patient.id, patient]]);
 
       const result = processHealing(personnel);
-      
+
       const updatedPatient = result.personnel.get(patient.id);
       expect(updatedPatient).toBeDefined();
     });
@@ -204,10 +216,10 @@ describe('Healing Integration - Medical System Selection', () => {
   describe('Doctor Capacity', () => {
     it('should skip patients beyond doctor capacity', () => {
       const doctor = createTestDoctor();
-      
+
       const personnel = new Map<string, IPerson>();
       personnel.set(doctor.id, doctor);
-      
+
       for (let i = 0; i < 30; i++) {
         const patient = createTestPerson({
           id: `patient-${i}`,
@@ -237,7 +249,7 @@ describe('Healing Integration - Medical System Selection', () => {
       ]);
 
       const result = processHealing(personnel);
-      
+
       expect(result.events).toBeDefined();
       expect(Array.isArray(result.events)).toBe(true);
     });
@@ -257,7 +269,7 @@ describe('Healing Integration - Medical System Selection', () => {
       ]);
 
       const result = processHealing(personnel);
-      
+
       expect(result.events).toBeDefined();
       expect(Array.isArray(result.events)).toBe(true);
     });
@@ -277,7 +289,7 @@ describe('Healing Integration - Medical System Selection', () => {
       ]);
 
       const result = processHealing(personnel);
-      
+
       expect(result.events).toBeDefined();
     });
   });
@@ -297,7 +309,7 @@ describe('Healing Integration - Medical System Selection', () => {
       ]);
 
       const result = processHealing(personnel);
-      
+
       const updatedPatient = result.personnel.get(patient.id);
       expect(updatedPatient!.injuries.length).toBe(1);
       expect(updatedPatient!.injuries[0].permanent).toBe(true);
@@ -323,7 +335,7 @@ describe('Healing Integration - Medical System Selection', () => {
       ]);
 
       const result = processHealing(personnel);
-      
+
       const updatedPatient = result.personnel.get(patient.id);
       expect(updatedPatient).toBeDefined();
     });

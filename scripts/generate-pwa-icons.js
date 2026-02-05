@@ -21,19 +21,16 @@ async function generateIcons() {
 
   for (const size of sizes) {
     const outputPath = path.join(ICONS_DIR, `icon-${size}x${size}.png`);
-    
-    await sharp(svgBuffer)
-      .resize(size, size)
-      .png()
-      .toFile(outputPath);
-    
+
+    await sharp(svgBuffer).resize(size, size).png().toFile(outputPath);
+
     console.log(`Generated: icon-${size}x${size}.png`);
   }
 
   console.log('\nPWA icon generation complete!');
 }
 
-generateIcons().catch(err => {
+generateIcons().catch((err) => {
   console.error('Error generating icons:', err);
   process.exit(1);
 });

@@ -92,11 +92,17 @@ export interface IEquipmentDatabase {
 }
 
 export interface IEquipmentFactory {
-  createEquipmentInstance(equipment: IEquipment, configuration?: unknown): IEquipmentInstance;
+  createEquipmentInstance(
+    equipment: IEquipment,
+    configuration?: unknown,
+  ): IEquipmentInstance;
 }
 
 export interface IEquipmentValidationStrategy {
-  validateEquipment(unitConfig: IUnitConfiguration, allocations: IEquipmentAllocation[]): Promise<IEquipmentValidationResult>;
+  validateEquipment(
+    unitConfig: IUnitConfiguration,
+    allocations: IEquipmentAllocation[],
+  ): Promise<IEquipmentValidationResult>;
 }
 
 export interface IUnitConfiguration {
@@ -135,9 +141,21 @@ export interface IWeaponValidation {
 }
 
 export interface IRangeProfile {
-  readonly shortRange: { damage: number; accuracy: number; effectiveness: number };
-  readonly mediumRange: { damage: number; accuracy: number; effectiveness: number };
-  readonly longRange: { damage: number; accuracy: number; effectiveness: number };
+  readonly shortRange: {
+    damage: number;
+    accuracy: number;
+    effectiveness: number;
+  };
+  readonly mediumRange: {
+    damage: number;
+    accuracy: number;
+    effectiveness: number;
+  };
+  readonly longRange: {
+    damage: number;
+    accuracy: number;
+    effectiveness: number;
+  };
   readonly overallEffectiveness: number;
 }
 
@@ -178,5 +196,3 @@ export interface ICompleteUnitState {
   readonly tonnage: number;
   readonly equipment: IEquipmentInstance[];
 }
-
-

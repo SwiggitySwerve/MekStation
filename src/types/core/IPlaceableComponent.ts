@@ -1,19 +1,20 @@
 /**
  * IPlaceableComponent - Composition interface
  * Components with both weight and slots SHALL use IPlaceableComponent composition.
- * 
+ *
  * @spec core-entity-types/spec.md
  */
 
-import { IWeightedComponent } from './IWeightedComponent';
 import { ISlottedComponent } from './ISlottedComponent';
+import { IWeightedComponent } from './IWeightedComponent';
 
 /**
  * Interface for components that can be placed in a mech.
  * Combines both physical weight and critical slot requirements.
  * Equipment requiring both weight and slots SHALL extend this interface.
  */
-export interface IPlaceableComponent extends IWeightedComponent, ISlottedComponent {
+export interface IPlaceableComponent
+  extends IWeightedComponent, ISlottedComponent {
   // Inherits:
   // - weight: number (from IWeightedComponent)
   // - criticalSlots: number (from ISlottedComponent)
@@ -34,4 +35,3 @@ export function isPlaceableComponent(obj: unknown): obj is IPlaceableComponent {
     (obj as IPlaceableComponent).criticalSlots >= 0
   );
 }
-

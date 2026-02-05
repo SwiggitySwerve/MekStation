@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { Card, CardSection } from './Card';
 
 const meta: Meta<typeof Card> = {
@@ -11,7 +12,15 @@ const meta: Meta<typeof Card> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'dark', 'header', 'interactive', 'gradient', 'accent-left', 'accent-bottom'],
+      options: [
+        'default',
+        'dark',
+        'header',
+        'interactive',
+        'gradient',
+        'accent-left',
+        'accent-bottom',
+      ],
     },
     accentColor: {
       control: 'select',
@@ -25,8 +34,12 @@ type Story = StoryObj<typeof Card>;
 
 const SampleContent = () => (
   <>
-    <h3 className="text-lg font-semibold text-text-theme-primary mb-2">Card Title</h3>
-    <p className="text-text-theme-secondary">This is sample card content demonstrating the card component.</p>
+    <h3 className="text-text-theme-primary mb-2 text-lg font-semibold">
+      Card Title
+    </h3>
+    <p className="text-text-theme-secondary">
+      This is sample card content demonstrating the card component.
+    </p>
   </>
 );
 
@@ -92,13 +105,25 @@ export const AccentBottom: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="grid grid-cols-2 gap-4 max-w-4xl">
-      <Card variant="default"><SampleContent /></Card>
-      <Card variant="dark"><SampleContent /></Card>
-      <Card variant="header"><SampleContent /></Card>
-      <Card variant="interactive"><SampleContent /></Card>
-      <Card variant="gradient"><SampleContent /></Card>
-      <Card variant="accent-left" accentColor="cyan"><SampleContent /></Card>
+    <div className="grid max-w-4xl grid-cols-2 gap-4">
+      <Card variant="default">
+        <SampleContent />
+      </Card>
+      <Card variant="dark">
+        <SampleContent />
+      </Card>
+      <Card variant="header">
+        <SampleContent />
+      </Card>
+      <Card variant="interactive">
+        <SampleContent />
+      </Card>
+      <Card variant="gradient">
+        <SampleContent />
+      </Card>
+      <Card variant="accent-left" accentColor="cyan">
+        <SampleContent />
+      </Card>
     </div>
   ),
   parameters: {
@@ -108,12 +133,22 @@ export const AllVariants: Story = {
 
 export const AllAccentColors: Story = {
   render: () => (
-    <div className="grid grid-cols-3 gap-4 max-w-4xl">
-      <Card variant="accent-left" accentColor="amber"><SampleContent /></Card>
-      <Card variant="accent-left" accentColor="cyan"><SampleContent /></Card>
-      <Card variant="accent-left" accentColor="emerald"><SampleContent /></Card>
-      <Card variant="accent-left" accentColor="rose"><SampleContent /></Card>
-      <Card variant="accent-left" accentColor="violet"><SampleContent /></Card>
+    <div className="grid max-w-4xl grid-cols-3 gap-4">
+      <Card variant="accent-left" accentColor="amber">
+        <SampleContent />
+      </Card>
+      <Card variant="accent-left" accentColor="cyan">
+        <SampleContent />
+      </Card>
+      <Card variant="accent-left" accentColor="emerald">
+        <SampleContent />
+      </Card>
+      <Card variant="accent-left" accentColor="rose">
+        <SampleContent />
+      </Card>
+      <Card variant="accent-left" accentColor="violet">
+        <SampleContent />
+      </Card>
     </div>
   ),
   parameters: {

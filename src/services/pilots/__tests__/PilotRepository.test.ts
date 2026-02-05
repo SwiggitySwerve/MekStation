@@ -5,12 +5,9 @@
  * Tests all CRUD operations, career tracking, abilities, and XP management.
  */
 
-import {
-  PilotRepository,
-  getPilotRepository,
-  resetPilotRepository,
-  PilotErrorCode,
-} from '../PilotRepository';
+import fs from 'fs';
+import path from 'path';
+
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -21,8 +18,13 @@ import {
   ICreatePilotOptions,
   DEFAULT_PILOT_SKILLS,
 } from '@/types/pilot';
-import fs from 'fs';
-import path from 'path';
+
+import {
+  PilotRepository,
+  getPilotRepository,
+  resetPilotRepository,
+  PilotErrorCode,
+} from '../PilotRepository';
 
 // Test database path
 const TEST_DB_PATH = './data/test-pilot-repository.db';
@@ -32,7 +34,7 @@ describe('PilotRepository', () => {
 
   // Helper to create valid pilot options
   const createPilotOptions = (
-    overrides: Partial<ICreatePilotOptions> = {}
+    overrides: Partial<ICreatePilotOptions> = {},
   ): ICreatePilotOptions => ({
     identity: {
       name: 'Test Pilot',
@@ -258,7 +260,7 @@ describe('PilotRepository', () => {
 
     it('should return pilot with all abilities loaded', () => {
       const createResult = repository.create(
-        createPilotOptions({ abilityIds: ['marksman', 'dodge', 'toughness'] })
+        createPilotOptions({ abilityIds: ['marksman', 'dodge', 'toughness'] }),
       );
 
       const pilot = repository.getById(createResult.id!);
@@ -272,7 +274,7 @@ describe('PilotRepository', () => {
 
     it('should return pilot with career data for persistent pilots', () => {
       const createResult = repository.create(
-        createPilotOptions({ startingXp: 50 })
+        createPilotOptions({ startingXp: 50 }),
       );
 
       const pilot = repository.getById(createResult.id!);
@@ -422,7 +424,7 @@ describe('PilotRepository', () => {
             name: 'Test',
             callsign: 'Original',
           },
-        })
+        }),
       );
 
       repository.update(createResult.id!, { callsign: '' });
@@ -492,13 +494,13 @@ describe('PilotRepository', () => {
 
     it('should return all pilots', () => {
       repository.create(
-        createPilotOptions({ identity: { name: 'Pilot Alpha' } })
+        createPilotOptions({ identity: { name: 'Pilot Alpha' } }),
       );
       repository.create(
-        createPilotOptions({ identity: { name: 'Pilot Beta' } })
+        createPilotOptions({ identity: { name: 'Pilot Beta' } }),
       );
       repository.create(
-        createPilotOptions({ identity: { name: 'Pilot Gamma' } })
+        createPilotOptions({ identity: { name: 'Pilot Gamma' } }),
       );
 
       const pilots = repository.list();
@@ -508,13 +510,13 @@ describe('PilotRepository', () => {
 
     it('should return pilots sorted by name', () => {
       repository.create(
-        createPilotOptions({ identity: { name: 'Zeta Pilot' } })
+        createPilotOptions({ identity: { name: 'Zeta Pilot' } }),
       );
       repository.create(
-        createPilotOptions({ identity: { name: 'Alpha Pilot' } })
+        createPilotOptions({ identity: { name: 'Alpha Pilot' } }),
       );
       repository.create(
-        createPilotOptions({ identity: { name: 'Mike Pilot' } })
+        createPilotOptions({ identity: { name: 'Mike Pilot' } }),
       );
 
       const pilots = repository.list();
@@ -541,16 +543,16 @@ describe('PilotRepository', () => {
     beforeEach(() => {
       // Create pilots with different statuses
       repository.create(
-        createPilotOptions({ identity: { name: 'Active Pilot 1' } })
+        createPilotOptions({ identity: { name: 'Active Pilot 1' } }),
       );
       repository.create(
-        createPilotOptions({ identity: { name: 'Active Pilot 2' } })
+        createPilotOptions({ identity: { name: 'Active Pilot 2' } }),
       );
       const pilot3 = repository.create(
-        createPilotOptions({ identity: { name: 'Injured Pilot' } })
+        createPilotOptions({ identity: { name: 'Injured Pilot' } }),
       );
       const pilot4 = repository.create(
-        createPilotOptions({ identity: { name: 'KIA Pilot' } })
+        createPilotOptions({ identity: { name: 'KIA Pilot' } }),
       );
 
       repository.update(pilot3.id!, { status: PilotStatus.Injured });
@@ -687,11 +689,11 @@ describe('PilotRepository', () => {
   describe('removeAbility', () => {
     it('should remove ability from pilot', () => {
       const createResult = repository.create(
-        createPilotOptions({ abilityIds: ['marksman', 'dodge'] })
+        createPilotOptions({ abilityIds: ['marksman', 'dodge'] }),
       );
       const removeResult = repository.removeAbility(
         createResult.id!,
-        'marksman'
+        'marksman',
       );
 
       expect(removeResult.success).toBe(true);
@@ -705,7 +707,7 @@ describe('PilotRepository', () => {
       const createResult = repository.create(createPilotOptions());
       const removeResult = repository.removeAbility(
         createResult.id!,
-        'non-existent-ability'
+        'non-existent-ability',
       );
 
       expect(removeResult.success).toBe(true);
@@ -713,11 +715,11 @@ describe('PilotRepository', () => {
 
     it('should return pilot id in result', () => {
       const createResult = repository.create(
-        createPilotOptions({ abilityIds: ['marksman'] })
+        createPilotOptions({ abilityIds: ['marksman'] }),
       );
       const removeResult = repository.removeAbility(
         createResult.id!,
-        'marksman'
+        'marksman',
       );
 
       expect(removeResult.id).toBe(createResult.id);
@@ -861,7 +863,7 @@ describe('PilotRepository', () => {
 
     it('should add XP from mission', () => {
       const createResult = repository.create(
-        createPilotOptions({ startingXp: 50 })
+        createPilotOptions({ startingXp: 50 }),
       );
       repository.recordMission(createResult.id!, {
         gameId: 'game-123',
@@ -967,7 +969,7 @@ describe('PilotRepository', () => {
   describe('addXp', () => {
     it('should add XP to pilot', () => {
       const createResult = repository.create(
-        createPilotOptions({ startingXp: 50 })
+        createPilotOptions({ startingXp: 50 }),
       );
       const addResult = repository.addXp(createResult.id!, 25);
 
@@ -1012,7 +1014,7 @@ describe('PilotRepository', () => {
   describe('spendXp', () => {
     it('should spend XP from pilot pool', () => {
       const createResult = repository.create(
-        createPilotOptions({ startingXp: 100 })
+        createPilotOptions({ startingXp: 100 }),
       );
       const spendResult = repository.spendXp(createResult.id!, 30);
 
@@ -1025,7 +1027,7 @@ describe('PilotRepository', () => {
 
     it('should spend all available XP', () => {
       const createResult = repository.create(
-        createPilotOptions({ startingXp: 50 })
+        createPilotOptions({ startingXp: 50 }),
       );
       const spendResult = repository.spendXp(createResult.id!, 50);
 
@@ -1037,7 +1039,7 @@ describe('PilotRepository', () => {
 
     it('should return error when insufficient XP', () => {
       const createResult = repository.create(
-        createPilotOptions({ startingXp: 50 })
+        createPilotOptions({ startingXp: 50 }),
       );
       const spendResult = repository.spendXp(createResult.id!, 100);
 
@@ -1057,7 +1059,7 @@ describe('PilotRepository', () => {
 
     it('should allow spending after earning more XP', () => {
       const createResult = repository.create(
-        createPilotOptions({ startingXp: 50 })
+        createPilotOptions({ startingXp: 50 }),
       );
 
       // First spend

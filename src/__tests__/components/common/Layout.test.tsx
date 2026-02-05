@@ -2,8 +2,9 @@
  * Tests for Layout component
  */
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
+
 import Layout from '@/components/common/Layout';
 
 // Mock Next.js Head component
@@ -22,7 +23,7 @@ describe('Layout', () => {
       render(
         <Layout>
           <div data-testid="content">Main content</div>
-        </Layout>
+        </Layout>,
       );
 
       expect(screen.getByTestId('content')).toBeInTheDocument();
@@ -33,7 +34,7 @@ describe('Layout', () => {
       render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       expect(document.title).toBeDefined();
@@ -43,7 +44,7 @@ describe('Layout', () => {
       render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       expect(screen.getByRole('main')).toBeInTheDocument();
@@ -55,7 +56,7 @@ describe('Layout', () => {
       render(
         <Layout topBarComponent={<div data-testid="topbar">Top Bar</div>}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       expect(screen.getByTestId('topbar')).toBeInTheDocument();
@@ -65,7 +66,7 @@ describe('Layout', () => {
       render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       expect(screen.queryByTestId('topbar')).not.toBeInTheDocument();
@@ -77,7 +78,7 @@ describe('Layout', () => {
       render(
         <Layout secondarySidebar={<div data-testid="secondary">Secondary</div>}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       expect(screen.getByTestId('secondary')).toBeInTheDocument();
@@ -87,7 +88,7 @@ describe('Layout', () => {
       render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       // No aside element for secondary sidebar
@@ -98,10 +99,12 @@ describe('Layout', () => {
       render(
         <Layout
           topBarComponent={<div data-testid="topbar">Top Bar</div>}
-          secondarySidebar={<div data-testid="secondary-sidebar">Secondary</div>}
+          secondarySidebar={
+            <div data-testid="secondary-sidebar">Secondary</div>
+          }
         >
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       expect(screen.getByTestId('topbar')).toBeInTheDocument();
@@ -114,7 +117,7 @@ describe('Layout', () => {
       const { container } = render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const rootDiv = container.querySelector('.bg-surface-deep');
@@ -125,7 +128,7 @@ describe('Layout', () => {
       const { container } = render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const rootDiv = container.querySelector('.h-screen');
@@ -136,7 +139,7 @@ describe('Layout', () => {
       const { container } = render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const rootDiv = container.querySelector('.overflow-hidden');
@@ -147,7 +150,7 @@ describe('Layout', () => {
       const { container } = render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const flexColDiv = container.querySelector('.flex-col');
@@ -160,7 +163,7 @@ describe('Layout', () => {
       const { container } = render(
         <Layout secondarySidebar={<div>Secondary</div>}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const printHiddenElements = container.querySelectorAll('.print\\:hidden');
@@ -173,7 +176,7 @@ describe('Layout', () => {
       const { container } = render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const flexElements = container.querySelectorAll('.flex');
@@ -184,7 +187,7 @@ describe('Layout', () => {
       const { container } = render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const flexOneElements = container.querySelectorAll('.flex-1');

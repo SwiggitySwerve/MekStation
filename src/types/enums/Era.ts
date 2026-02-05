@@ -1,8 +1,8 @@
 /**
  * Era - Historical era enumeration
- * 
+ *
  * This file re-exports from the canonical source: types/temporal/Era.ts
- * 
+ *
  * @spec core-enumerations/spec.md
  * @see types/temporal/Era.ts for full era definitions and utilities
  */

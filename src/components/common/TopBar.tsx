@@ -1,11 +1,13 @@
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 /**
  * TopBar Navigation Component
  * Google/Facebook-style slim top bar with dropdowns and mobile menu.
  */
 import React, { ReactElement, useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
+
 import { useMobileSidebarStore } from '@/stores/useNavigationStore';
+
 import {
   MekStationIcon,
   HomeIcon,
@@ -49,7 +51,7 @@ interface DropdownProps {
 // Hook for detecting clicks outside an element
 function useClickOutside(
   ref: React.RefObject<HTMLElement | null>,
-  handler: () => void
+  handler: () => void,
 ): void {
   useEffect(() => {
     const listener = (event: MouseEvent | TouchEvent) => {
@@ -97,64 +99,50 @@ function DropdownMenu({
   }, [isOpen, onClose]);
 
   return (
-    <div ref={dropdownRef} className="relative group">
+    <div ref={dropdownRef} className="group relative">
       <button
         onClick={() => (isOpen ? onClose() : onOpen())}
         onMouseEnter={onOpen}
-        className={`
-          flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
-          transition-colors duration-150
-          ${
-            isOpen || isAnyActive
-              ? 'text-accent bg-accent/10'
-              : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-          }
-        `}
+        className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ${
+          isOpen || isAnyActive
+            ? 'text-accent bg-accent/10'
+            : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+        } `}
         aria-expanded={isOpen}
         aria-haspopup="menu"
         title={iconOnly ? label : undefined}
       >
-        {icon && <span className="w-5 h-5">{icon}</span>}
+        {icon && <span className="h-5 w-5">{icon}</span>}
         {!iconOnly && <span>{label}</span>}
         <ChevronDownIcon
-          className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-3 w-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
       {/* Tooltip for icon-only mode (when not open) */}
       {iconOnly && !isOpen && (
-        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-surface-raised text-text-theme-primary text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-40 whitespace-nowrap border border-border-theme-subtle pointer-events-none">
+        <div className="bg-surface-raised text-text-theme-primary border-border-theme-subtle pointer-events-none invisible absolute top-full left-1/2 z-40 mt-2 -translate-x-1/2 rounded border px-2 py-1 text-xs whitespace-nowrap opacity-0 shadow-lg transition-all group-hover:visible group-hover:opacity-100">
           {label}
         </div>
       )}
 
       {/* Dropdown panel */}
       <div
-        className={`
-          absolute top-full left-1/2 -translate-x-1/2 mt-1 min-w-[180px]
-          bg-surface-base border border-border-theme-subtle rounded-lg shadow-lg
-          py-1 z-50
-          transition-all duration-150 origin-top
-          ${isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}
-        `}
+        className={`bg-surface-base border-border-theme-subtle absolute top-full left-1/2 z-50 mt-1 min-w-[180px] origin-top -translate-x-1/2 rounded-lg border py-1 shadow-lg transition-all duration-150 ${isOpen ? 'visible scale-100 opacity-100' : 'invisible scale-95 opacity-0'} `}
         role="menu"
         onMouseLeave={onClose}
       >
         {items.map((item) => (
           <Link key={item.href} href={item.href} legacyBehavior>
             <a
-              className={`
-                flex items-center gap-2.5 px-3 py-2.5 text-sm
-                transition-colors duration-150
-                ${
-                  isPathActive(item.href)
-                    ? 'text-accent bg-accent/10'
-                    : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-                }
-              `}
+              className={`flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors duration-150 ${
+                isPathActive(item.href)
+                  ? 'text-accent bg-accent/10'
+                  : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+              } `}
               role="menuitem"
             >
-              <span className="w-5 h-5 flex-shrink-0">{item.icon}</span>
+              <span className="h-5 w-5 flex-shrink-0">{item.icon}</span>
               <span>{item.label}</span>
             </a>
           </Link>
@@ -181,22 +169,18 @@ function NavLink({
   return (
     <Link href={href} legacyBehavior>
       <a
-        className={`
-          relative flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
-          transition-colors duration-150 group
-          ${
-            isActive
-              ? 'text-accent bg-accent/10'
-              : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-          }
-        `}
+        className={`group relative flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ${
+          isActive
+            ? 'text-accent bg-accent/10'
+            : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+        } `}
         title={iconOnly ? label : undefined}
       >
-        <span className="w-5 h-5">{icon}</span>
+        <span className="h-5 w-5">{icon}</span>
         {!iconOnly && <span>{label}</span>}
         {/* Tooltip for icon-only mode */}
         {iconOnly && (
-          <div className="absolute top-full mt-2 px-2 py-1 bg-surface-raised text-text-theme-primary text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 whitespace-nowrap border border-border-theme-subtle">
+          <div className="bg-surface-raised text-text-theme-primary border-border-theme-subtle invisible absolute top-full z-50 mt-2 rounded border px-2 py-1 text-xs whitespace-nowrap opacity-0 shadow-lg transition-all group-hover:visible group-hover:opacity-100">
             {label}
           </div>
         )}
@@ -246,24 +230,20 @@ function MobileMenu({
   const renderSection = (title: string, items: NavItemConfig[]) => (
     <div className="py-2">
       <div className="px-4 py-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-text-theme-muted">
+        <span className="text-text-theme-muted text-[10px] font-semibold tracking-wider uppercase">
           {title}
         </span>
       </div>
       {items.map((item) => (
         <Link key={item.href} href={item.href} legacyBehavior>
           <a
-            className={`
-              flex items-center gap-3 px-4 py-3 text-sm
-              transition-colors duration-150
-              ${
-                isPathActive(item.href)
-                  ? 'text-accent bg-accent/10'
-                  : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-              }
-            `}
+            className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 ${
+              isPathActive(item.href)
+                ? 'text-accent bg-accent/10'
+                : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+            } `}
           >
-            <span className="w-5 h-5 flex-shrink-0">{item.icon}</span>
+            <span className="h-5 w-5 flex-shrink-0">{item.icon}</span>
             <span>{item.label}</span>
           </a>
         </Link>
@@ -275,24 +255,26 @@ function MobileMenu({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 z-40 md:hidden"
+        className="fixed inset-0 z-40 bg-black/50 md:hidden"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Menu panel */}
-      <div className="fixed inset-0 z-50 md:hidden flex flex-col bg-surface-deep">
+      <div className="bg-surface-deep fixed inset-0 z-50 flex flex-col md:hidden">
         {/* Header */}
-        <div className="flex items-center justify-between h-14 px-4 border-b border-border-theme-subtle bg-surface-base">
+        <div className="border-border-theme-subtle bg-surface-base flex h-14 items-center justify-between border-b px-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#3a3a3c] rounded-lg flex items-center justify-center shadow-lg shadow-cyan-900/30 border-b-2 border-cyan-400/60">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg border-b-2 border-cyan-400/60 bg-[#3a3a3c] shadow-lg shadow-cyan-900/30">
               <MekStationIcon />
             </div>
-            <span className="text-base font-bold text-text-theme-primary">MekStation</span>
+            <span className="text-text-theme-primary text-base font-bold">
+              MekStation
+            </span>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 transition-colors"
+            className="text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 rounded-lg p-2 transition-colors"
             aria-label="Close menu"
           >
             <CloseIcon />
@@ -304,61 +286,57 @@ function MobileMenu({
           {/* Dashboard */}
           <Link href="/" legacyBehavior>
             <a
-              className={`
-                flex items-center gap-3 px-4 py-3 text-sm
-                transition-colors duration-150
-                ${
-                  isPathActive('/')
-                    ? 'text-accent bg-accent/10'
-                    : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-                }
-              `}
+              className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 ${
+                isPathActive('/')
+                  ? 'text-accent bg-accent/10'
+                  : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+              } `}
             >
-              <span className="w-5 h-5"><HomeIcon /></span>
+              <span className="h-5 w-5">
+                <HomeIcon />
+              </span>
               <span>Dashboard</span>
             </a>
           </Link>
 
-          <div className="mx-4 border-t border-border-theme-subtle my-2" />
+          <div className="border-border-theme-subtle mx-4 my-2 border-t" />
 
           {renderSection('Browse', navConfig.browse)}
 
-          <div className="mx-4 border-t border-border-theme-subtle my-2" />
+          <div className="border-border-theme-subtle mx-4 my-2 border-t" />
 
           {renderSection('Tools', navConfig.tools)}
 
-          <div className="mx-4 border-t border-border-theme-subtle my-2" />
+          <div className="border-border-theme-subtle mx-4 my-2 border-t" />
 
           {renderSection('Gameplay', navConfig.gameplay)}
 
-          <div className="mx-4 border-t border-border-theme-subtle my-2" />
+          <div className="border-border-theme-subtle mx-4 my-2 border-t" />
 
           {renderSection('History', navConfig.history)}
 
-          <div className="mx-4 border-t border-border-theme-subtle my-2" />
+          <div className="border-border-theme-subtle mx-4 my-2 border-t" />
 
           {/* Settings */}
           <Link href="/settings" legacyBehavior>
             <a
-              className={`
-                flex items-center gap-3 px-4 py-3 text-sm
-                transition-colors duration-150
-                ${
-                  isPathActive('/settings')
-                    ? 'text-accent bg-accent/10'
-                    : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-                }
-              `}
+              className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 ${
+                isPathActive('/settings')
+                  ? 'text-accent bg-accent/10'
+                  : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+              } `}
             >
-              <span className="w-5 h-5"><GearIcon /></span>
+              <span className="h-5 w-5">
+                <GearIcon />
+              </span>
               <span>Settings</span>
             </a>
           </Link>
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-border-theme-subtle py-3 px-4">
-          <div className="flex items-center justify-between text-xs text-text-theme-muted">
+        <div className="border-border-theme-subtle border-t px-4 py-3">
+          <div className="text-text-theme-muted flex items-center justify-between text-xs">
             <span>v0.1.0</span>
             <a
               href="https://github.com"
@@ -379,7 +357,11 @@ type DropdownId = 'browse' | 'tools' | 'gameplay' | null;
 
 const TopBar: React.FC = () => {
   const router = useRouter();
-  const { isOpen: isMobileOpen, open: openMobile, close: closeMobile } = useMobileSidebarStore();
+  const {
+    isOpen: isMobileOpen,
+    open: openMobile,
+    close: closeMobile,
+  } = useMobileSidebarStore();
 
   // Single state to track which dropdown is open (only one at a time)
   const [openDropdown, setOpenDropdown] = useState<DropdownId>(null);
@@ -415,7 +397,11 @@ const TopBar: React.FC = () => {
     { href: '/gameplay/pilots', icon: <PilotIcon />, label: 'Pilots' },
     { href: '/gameplay/forces', icon: <ForceIcon />, label: 'Forces' },
     { href: '/gameplay/campaigns', icon: <CampaignIcon />, label: 'Campaigns' },
-    { href: '/gameplay/encounters', icon: <EncounterIcon />, label: 'Encounters' },
+    {
+      href: '/gameplay/encounters',
+      icon: <EncounterIcon />,
+      label: 'Encounters',
+    },
     { href: '/gameplay/games', icon: <GameIcon />, label: 'Games' },
   ];
 
@@ -426,20 +412,22 @@ const TopBar: React.FC = () => {
   // Check if any items in a section are active
   const isAnyBrowseActive = browseItems.some((item) => isPathActive(item.href));
   const isAnyToolsActive = toolsItems.some((item) => isPathActive(item.href));
-  const isAnyGameplayActive = gameplayItems.some((item) => isPathActive(item.href));
+  const isAnyGameplayActive = gameplayItems.some((item) =>
+    isPathActive(item.href),
+  );
 
   return (
     <>
-      <header className="sticky top-0 z-40 h-14 bg-surface-base border-b border-border-theme-subtle print:hidden">
-        <div className="flex items-center h-full px-4">
+      <header className="bg-surface-base border-border-theme-subtle sticky top-0 z-40 h-14 border-b print:hidden">
+        <div className="flex h-full items-center px-4">
           {/* Left: Logo + Brand */}
           <Link href="/" legacyBehavior>
-            <a className="flex items-center gap-3 hover:opacity-90 transition-opacity flex-shrink-0">
-              <div className="w-8 h-8 bg-[#3a3a3c] rounded-lg flex items-center justify-center shadow-lg shadow-cyan-900/30 border-b-2 border-cyan-400/60">
+            <a className="flex flex-shrink-0 items-center gap-3 transition-opacity hover:opacity-90">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg border-b-2 border-cyan-400/60 bg-[#3a3a3c] shadow-lg shadow-cyan-900/30">
                 <MekStationIcon />
               </div>
               <div className="hidden sm:block">
-                <span className="text-base font-bold text-text-theme-primary tracking-tight">
+                <span className="text-text-theme-primary text-base font-bold tracking-tight">
                   MekStation
                 </span>
               </div>
@@ -447,7 +435,7 @@ const TopBar: React.FC = () => {
           </Link>
 
           {/* Center: Desktop Navigation (with labels) */}
-          <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
+          <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex">
             <NavLink
               href="/"
               icon={<HomeIcon />}
@@ -493,7 +481,7 @@ const TopBar: React.FC = () => {
           </nav>
 
           {/* Center: Tablet Navigation (icons only) */}
-          <nav className="hidden md:flex lg:hidden items-center gap-1 flex-1 justify-center">
+          <nav className="hidden flex-1 items-center justify-center gap-1 md:flex lg:hidden">
             <NavLink
               href="/"
               icon={<HomeIcon />}
@@ -544,19 +532,16 @@ const TopBar: React.FC = () => {
           </nav>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-1 ml-auto flex-shrink-0">
+          <div className="ml-auto flex flex-shrink-0 items-center gap-1">
             {/* Desktop/Tablet: Settings and GitHub */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden items-center gap-1 md:flex">
               <Link href="/settings" legacyBehavior>
                 <a
-                  className={`
-                    p-2 rounded-lg transition-colors duration-150
-                    ${
-                      isPathActive('/settings')
-                        ? 'text-accent bg-accent/10'
-                        : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-                    }
-                  `}
+                  className={`rounded-lg p-2 transition-colors duration-150 ${
+                    isPathActive('/settings')
+                      ? 'text-accent bg-accent/10'
+                      : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+                  } `}
                   aria-label="Settings"
                 >
                   <GearIcon />
@@ -566,7 +551,7 @@ const TopBar: React.FC = () => {
                 href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-lg text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 transition-colors"
+                className="text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 rounded-lg p-2 transition-colors"
                 aria-label="GitHub"
               >
                 <GithubIcon />
@@ -576,7 +561,7 @@ const TopBar: React.FC = () => {
             {/* Mobile: Hamburger */}
             <button
               onClick={openMobile}
-              className="md:hidden p-2 rounded-lg text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 transition-colors"
+              className="text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 rounded-lg p-2 transition-colors md:hidden"
               aria-label="Open menu"
             >
               <HamburgerIcon />

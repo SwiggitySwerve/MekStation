@@ -1,10 +1,8 @@
-import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import {
+  ICampaign,
+  createDefaultCampaignOptions,
+} from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { IPerson } from '@/types/campaign/Person';
-import { createInjury } from '@/types/campaign/Person';
-import { IMission, createContract } from '@/types/campaign/Mission';
-import { IForce } from '@/types/campaign/Force';
-import { Money } from '@/types/campaign/Money';
 import {
   PersonnelStatus,
   MissionStatus,
@@ -12,12 +10,17 @@ import {
   ForceRole,
   FormationLevel,
 } from '@/types/campaign/enums';
+import { IForce } from '@/types/campaign/Force';
+import { IMission, createContract } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
+import { IPerson } from '@/types/campaign/Person';
+import { createInjury } from '@/types/campaign/Person';
 
-import { healingProcessor } from '../healingProcessor';
+import { DayPhase, getDayPipeline, _resetDayPipeline } from '../../dayPipeline';
 import { contractProcessor } from '../contractProcessor';
 import { dailyCostsProcessor } from '../dailyCostsProcessor';
+import { healingProcessor } from '../healingProcessor';
 import { registerBuiltinProcessors, _resetBuiltinRegistration } from '../index';
-import { DayPhase, getDayPipeline, _resetDayPipeline } from '../../dayPipeline';
 
 function createTestPerson(overrides?: Partial<IPerson>): IPerson {
   return {
@@ -37,7 +40,16 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
@@ -60,24 +72,24 @@ function createTestForce(id: string, unitIds: string[] = []): IForce {
 }
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
-   return {
-      id: 'campaign-001',
-      name: 'Test Campaign',
-      currentDate: new Date('3025-06-15T00:00:00Z'),
-      factionId: 'mercenary',
-      personnel: new Map<string, IPerson>(),
-      forces: new Map<string, IForce>(),
-      rootForceId: 'force-root',
-      missions: new Map<string, IMission>(),
-      finances: { transactions: [], balance: new Money(1000000) },
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: createDefaultCampaignOptions(),
-      campaignType: CampaignType.MERCENARY,
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
-      ...overrides,
-    };
+  return {
+    id: 'campaign-001',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-06-15T00:00:00Z'),
+    factionId: 'mercenary',
+    personnel: new Map<string, IPerson>(),
+    forces: new Map<string, IForce>(),
+    rootForceId: 'force-root',
+    missions: new Map<string, IMission>(),
+    finances: { transactions: [], balance: new Money(1000000) },
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: createDefaultCampaignOptions(),
+    campaignType: CampaignType.MERCENARY,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    ...overrides,
+  };
 }
 
 describe('healingProcessor', () => {
@@ -107,7 +119,7 @@ describe('healingProcessor', () => {
         status: PersonnelStatus.WOUNDED,
         injuries: [injury],
         daysToWaitForHealing: 0,
-      })
+      }),
     );
 
     const campaign = createTestCampaign({ personnel });
@@ -115,7 +127,9 @@ describe('healingProcessor', () => {
 
     expect(result.events).toHaveLength(1);
     expect(result.events[0].type).toBe('healing');
-    expect(result.campaign.personnel.get('p1')!.status).toBe(PersonnelStatus.ACTIVE);
+    expect(result.campaign.personnel.get('p1')!.status).toBe(
+      PersonnelStatus.ACTIVE,
+    );
   });
 
   it('should return empty events when no healing occurs', () => {
@@ -144,7 +158,7 @@ describe('contractProcessor', () => {
         targetId: 'liao',
         status: MissionStatus.ACTIVE,
         endDate: '3025-01-01',
-      })
+      }),
     );
 
     const campaign = createTestCampaign({ missions });
@@ -152,7 +166,9 @@ describe('contractProcessor', () => {
 
     expect(result.events).toHaveLength(1);
     expect(result.events[0].type).toBe('contract_expired');
-    expect(result.campaign.missions.get('c1')!.status).toBe(MissionStatus.SUCCESS);
+    expect(result.campaign.missions.get('c1')!.status).toBe(
+      MissionStatus.SUCCESS,
+    );
   });
 });
 
@@ -165,7 +181,10 @@ describe('dailyCostsProcessor', () => {
 
   it('should return cost events when there are costs', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
 
     const forces = new Map<string, IForce>();
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
@@ -180,7 +199,10 @@ describe('dailyCostsProcessor', () => {
 
   it('should return warning severity when balance goes negative', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
 
     const campaign = createTestCampaign({
       personnel,

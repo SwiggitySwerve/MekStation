@@ -66,14 +66,19 @@ export function HeatTracker({
   const warning = getWarningState();
 
   return (
-    <div className={`heat-tracker bg-gray-50 dark:bg-gray-800 rounded-lg p-4 ${className}`.trim()} data-testid="heat-tracker">
+    <div
+      className={`heat-tracker rounded-lg bg-gray-50 p-4 dark:bg-gray-800 ${className}`.trim()}
+      data-testid="heat-tracker"
+    >
       {/* Header with scale selector */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Heat</h3>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+          Heat
+        </h3>
         <select
           value={heatScale}
           onChange={(e) => onScaleChange(e.target.value as HeatScale)}
-          className="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm min-h-[44px]"
+          className="min-h-[44px] rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700"
           aria-label="Heat scale"
           data-testid="heat-scale-select"
         >
@@ -85,16 +90,26 @@ export function HeatTracker({
 
       {/* Current heat display */}
       <div className="mb-3">
-        <div className="flex items-baseline justify-center mb-2">
-          <span className={`text-4xl font-bold ${warning.textColor} tabular-nums`} data-testid="heat-tracker-current">
+        <div className="mb-2 flex items-baseline justify-center">
+          <span
+            className={`text-4xl font-bold ${warning.textColor} tabular-nums`}
+            data-testid="heat-tracker-current"
+          >
             {currentHeat}
           </span>
-          <span className="text-xl text-gray-500 dark:text-gray-400 mx-1">/</span>
-          <span className="text-xl text-gray-600 dark:text-gray-400 tabular-nums" data-testid="heat-tracker-max">{maxHeat}</span>
+          <span className="mx-1 text-xl text-gray-500 dark:text-gray-400">
+            /
+          </span>
+          <span
+            className="text-xl text-gray-600 tabular-nums dark:text-gray-400"
+            data-testid="heat-tracker-max"
+          >
+            {maxHeat}
+          </span>
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-4 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
           <div
             className={`h-full ${warning.color} transition-all duration-300`}
             style={{ width: `${Math.min(heatPercentage, 100)}%` }}
@@ -111,22 +126,30 @@ export function HeatTracker({
       {/* Warning message */}
       {warning.message && (
         <div
-          className={`mb-3 p-3 rounded-md ${warning.color} bg-opacity-10 border-2 border-opacity-30 ${warning.textColor} border-${warning.color.replace('bg-', '')}`}
+          className={`mb-3 rounded-md p-3 ${warning.color} bg-opacity-10 border-opacity-30 border-2 ${warning.textColor} border-${warning.color.replace('bg-', '')}`}
           data-testid="heat-tracker-warning"
           data-warning-level={warning.level}
         >
-          <p className="text-sm font-semibold text-center">{warning.message}</p>
+          <p className="text-center text-sm font-semibold">{warning.message}</p>
           {warning.showAmmoRisk && (
-            <p className="text-xs text-center mt-1" data-testid="heat-tracker-ammo-risk">⚠️ Ammo explosion risk</p>
+            <p
+              className="mt-1 text-center text-xs"
+              data-testid="heat-tracker-ammo-risk"
+            >
+              ⚠️ Ammo explosion risk
+            </p>
           )}
         </div>
       )}
 
       {/* Cooling indicator */}
       {isCooling && (
-        <div className="flex items-center justify-center gap-2 p-2 bg-blue-100 dark:bg-blue-900/30 rounded-md" data-testid="heat-tracker-cooling">
+        <div
+          className="flex items-center justify-center gap-2 rounded-md bg-blue-100 p-2 dark:bg-blue-900/30"
+          data-testid="heat-tracker-cooling"
+        >
           <svg
-            className="w-5 h-5 text-blue-500 animate-pulse"
+            className="h-5 w-5 animate-pulse text-blue-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -140,15 +163,19 @@ export function HeatTracker({
             />
           </svg>
           <span className="text-sm text-blue-700 dark:text-blue-300">
-            Cooling: {coolingTurns} turn{coolingTurns !== 1 ? 's' : ''} remaining
+            Cooling: {coolingTurns} turn{coolingTurns !== 1 ? 's' : ''}{' '}
+            remaining
           </span>
         </div>
       )}
 
       {/* Overflow indicator */}
       {currentHeat > maxHeat && (
-        <div className="mt-3 p-3 bg-red-100 dark:bg-red-900/30 rounded-md border-2 border-red-500" data-testid="heat-tracker-overflow">
-          <p className="text-sm font-semibold text-red-700 dark:text-red-300 text-center">
+        <div
+          className="mt-3 rounded-md border-2 border-red-500 bg-red-100 p-3 dark:bg-red-900/30"
+          data-testid="heat-tracker-overflow"
+        >
+          <p className="text-center text-sm font-semibold text-red-700 dark:text-red-300">
             ⚠️ HEAT OVERFLOW: {currentHeat - maxHeat} over limit
           </p>
         </div>

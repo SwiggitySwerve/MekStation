@@ -4,6 +4,7 @@
  */
 
 import { ILocationCriticals, IRecordSheetCriticalSlot } from '@/types/printing';
+
 import { SVG_NS } from './constants';
 
 /**
@@ -11,9 +12,9 @@ import { SVG_NS } from './constants';
  */
 export function renderCriticalSlots(
   svgDoc: Document,
-  criticals: readonly ILocationCriticals[]
+  criticals: readonly ILocationCriticals[],
 ): void {
-  criticals.forEach(loc => {
+  criticals.forEach((loc) => {
     renderLocationCriticals(svgDoc, loc);
   });
 }
@@ -24,7 +25,7 @@ export function renderCriticalSlots(
  */
 function renderLocationCriticals(
   svgDoc: Document,
-  location: ILocationCriticals
+  location: ILocationCriticals,
 ): void {
   const abbr = location.abbreviation;
 
@@ -127,7 +128,9 @@ function renderLocationCriticals(
     }
 
     // Truncate long names to fit
-    const maxChars = Math.floor((width - numberWidth - barWidth - barMargin - 6) / (fontSize * 0.5));
+    const maxChars = Math.floor(
+      (width - numberWidth - barWidth - barMargin - 6) / (fontSize * 0.5),
+    );
     if (content.length > maxChars) {
       content = content.substring(0, maxChars - 2) + '..';
     }
@@ -140,8 +143,18 @@ function renderLocationCriticals(
   });
 
   // Draw multi-slot indicator bars
-  multiSlotGroups.forEach(groupInfo => {
-    drawMultiSlotBar(svgDoc, group, x, slotsStartY, slotHeight, gapHeight, slotCount, groupInfo, barWidth);
+  multiSlotGroups.forEach((groupInfo) => {
+    drawMultiSlotBar(
+      svgDoc,
+      group,
+      x,
+      slotsStartY,
+      slotHeight,
+      gapHeight,
+      slotCount,
+      groupInfo,
+      barWidth,
+    );
   });
 
   // Insert after the rect element
@@ -156,7 +169,7 @@ function renderLocationCriticals(
  * Only brackets USER equipment (weapons, ammo) - NOT system components (engine, gyro, actuators)
  */
 function identifyMultiSlotGroups(
-  slots: readonly IRecordSheetCriticalSlot[]
+  slots: readonly IRecordSheetCriticalSlot[],
 ): Array<{ startIndex: number; endIndex: number; content: string }> {
   interface SlotGroup {
     startIndex: number;
@@ -164,17 +177,30 @@ function identifyMultiSlotGroups(
     equipmentId?: string;
   }
 
-  const groups: Array<{ startIndex: number; endIndex: number; content: string }> = [];
+  const groups: Array<{
+    startIndex: number;
+    endIndex: number;
+    content: string;
+  }> = [];
   let currentGroup: SlotGroup | null = null;
 
   for (let index = 0; index < slots.length; index++) {
     const slot = slots[index];
     // Only consider user equipment (not system components) for bracketing
-    const isUserEquipment = slot.content && slot.content.trim() !== '' &&
-                            !slot.isRollAgain && !slot.isSystem;
-    const contentKey = isUserEquipment ? (slot.equipmentId || slot.content) : null;
+    const isUserEquipment =
+      slot.content &&
+      slot.content.trim() !== '' &&
+      !slot.isRollAgain &&
+      !slot.isSystem;
+    const contentKey = isUserEquipment
+      ? slot.equipmentId || slot.content
+      : null;
 
-    if (isUserEquipment && currentGroup !== null && contentKey === (currentGroup.equipmentId || currentGroup.content)) {
+    if (
+      isUserEquipment &&
+      currentGroup !== null &&
+      contentKey === (currentGroup.equipmentId || currentGroup.content)
+    ) {
       // Continue current group - same equipment
       continue;
     }
@@ -227,7 +253,7 @@ function drawMultiSlotBar(
   gapHeight: number,
   slotCount: number,
   groupInfo: { startIndex: number; endIndex: number },
-  barWidth: number
+  barWidth: number,
 ): void {
   const startSlot = groupInfo.startIndex;
   const endSlot = groupInfo.endIndex;
@@ -257,7 +283,15 @@ function drawMultiSlotBar(
 
   // Single continuous bracket - even when spanning the gap
   // The bracket height already accounts for the gap via barEndY calculation
-  drawBracketPath(svgDoc, group, bracketX, barStartY, bracketWidth, barEndY - barStartY, strokeWidth);
+  drawBracketPath(
+    svgDoc,
+    group,
+    bracketX,
+    barStartY,
+    bracketWidth,
+    barEndY - barStartY,
+    strokeWidth,
+  );
 }
 
 /**
@@ -271,15 +305,13 @@ function drawBracketPath(
   y: number,
   width: number,
   height: number,
-  strokeWidth: number
+  strokeWidth: number,
 ): void {
   const path = svgDoc.createElementNS(SVG_NS, 'path');
   // Draw bracket: top horizontal, vertical bar, bottom horizontal
-  path.setAttribute('d',
-    `M ${x} ${y} ` +
-    `h ${-width} ` +
-    `v ${height} ` +
-    `h ${width}`
+  path.setAttribute(
+    'd',
+    `M ${x} ${y} ` + `h ${-width} ` + `v ${height} ` + `h ${width}`,
   );
   path.setAttribute('stroke', '#000000');
   path.setAttribute('stroke-width', String(strokeWidth));

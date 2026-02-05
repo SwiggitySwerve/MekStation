@@ -1,5 +1,7 @@
 ## Context
+
 MekStation desktop releases bundle:
+
 - **Electron main/preload** (`desktop/dist/**/*`)
 - A **Next.js standalone server** built from the root Next app (`.next/standalone` + `.next/static`)
 - Static runtime assets served by Next from `public/` (notably `public/data` and `public/record-sheets`)
@@ -7,6 +9,7 @@ MekStation desktop releases bundle:
 This is a proven deployment model (also used by `Dockerfile`), but it is sensitive to **folder layout** and **writable runtime paths**.
 
 ## Goals
+
 - Define an explicit, testable specification for how release builds are produced and what they contain.
 - Align Electron packaging layout with Next standalone runtime expectations (same pattern as Docker).
 - Reduce release artifact size by excluding dev-only dependencies and non-runtime build outputs.
@@ -14,11 +17,13 @@ This is a proven deployment model (also used by `Dockerfile`), but it is sensiti
 - Keep GitHub Releases **installer/package only** (clean asset list) while still supporting auto-updates.
 
 ## Non-Goals
+
 - Adding CI/CD workflows (GitHub Actions, signing pipelines).
 - Changing BattleTech construction rules or validation behavior.
 - Re-architecting desktop to avoid a bundled Next server (keep the current model).
 
 ## Key Observations (current implementation)
+
 - Next builds with `output: "standalone"` (`next.config.ts`).
 - Electron production mode spawns `server.js` from `resources/next-standalone` (`desktop/electron/main.ts`).
 - Server-side data loaders resolve paths from `process.cwd()/public/...` (e.g., `src/services/equipment/EquipmentLoaderService.ts`).
@@ -30,6 +35,7 @@ This is a proven deployment model (also used by `Dockerfile`), but it is sensiti
 - electron-updater (GitHub provider) expects update metadata files (e.g., `latest*.yml`) to be present in GitHub Release assets, which can clutter releases.
 
 ## Decisions
+
 - **D1: Canonical resource layout**
   - Adopt the same layout used in `Dockerfile`:
     - `next-standalone/server.js`
@@ -52,6 +58,7 @@ This is a proven deployment model (also used by `Dockerfile`), but it is sensiti
   - Disable differential downloads for NSIS so `*.blockmap` files are not required in the update feed.
 
 ## Risks / Trade-offs
+
 - Tightening `files` patterns can break runtime if a needed dependency is accidentally excluded.
   - Mitigation: smoke tests + `desktop/scripts/test-build.js` + explicit allowlist of required runtime deps.
 - Moving `public/` under `next-standalone/public` changes packaged paths; any custom code reading `process.resourcesPath/data` would need updates.
@@ -60,6 +67,7 @@ This is a proven deployment model (also used by `Dockerfile`), but it is sensiti
   - Mitigation: keep installer sizes reasonable; consider re-enabling differential downloads later if GitHub Releases clutter is acceptable or if an alternate update host is used.
 
 ## Migration Plan (implementation stage)
+
 1. Update electron-builder `extraResources` to place `public/` under `next-standalone/public`.
 2. Update `electron-builder.yml` `files` patterns to avoid shipping devDependencies and exclude debug artifacts.
 3. Update Electron main process to pass `DATABASE_PATH` to the Next server spawn environment (and ensure directory exists).
@@ -70,8 +78,7 @@ This is a proven deployment model (also used by `Dockerfile`), but it is sensiti
 6. Validate via pack-mode build and runtime smoke tests.
 
 ## Open Questions
+
 - Should we support signed builds as an optional path (env-gated) or keep signing fully disabled until CI exists?
 - Should the portable build use a “next to executable” data folder (portable UX) or still use per-user `userData`?
 - Do we want to publish/unpublish unpacked directories (`*-unpacked`) in CI once workflows exist?
-
-

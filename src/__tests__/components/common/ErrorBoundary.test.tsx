@@ -2,9 +2,14 @@
  * Tests for ErrorBoundary component
  */
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ErrorBoundary, withErrorBoundary, useErrorBoundary } from '@/components/common/ErrorBoundary';
+import React from 'react';
+
+import {
+  ErrorBoundary,
+  withErrorBoundary,
+  useErrorBoundary,
+} from '@/components/common/ErrorBoundary';
 
 // Mock navigator.clipboard
 const mockClipboard = {
@@ -31,7 +36,11 @@ const mockLocalStorage = (() => {
 Object.defineProperty(window, 'localStorage', { value: mockLocalStorage });
 
 // Component that throws an error
-const ThrowingComponent = ({ shouldThrow = true }: { shouldThrow?: boolean }) => {
+const ThrowingComponent = ({
+  shouldThrow = true,
+}: {
+  shouldThrow?: boolean;
+}) => {
   if (shouldThrow) {
     throw new Error('Test error');
   }
@@ -50,15 +59,14 @@ interface MockCall {
   calls: unknown[][];
 }
 
-
 describe('ErrorBoundary', () => {
   // Suppress console.error for expected errors
   const originalError = console.error;
-  
+
   beforeAll(() => {
     console.error = jest.fn();
   });
-  
+
   afterAll(() => {
     console.error = originalError;
   });
@@ -73,7 +81,7 @@ describe('ErrorBoundary', () => {
       render(
         <ErrorBoundary>
           <div>Child content</div>
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
 
       expect(screen.getByText('Child content')).toBeInTheDocument();
@@ -83,7 +91,7 @@ describe('ErrorBoundary', () => {
       render(
         <ErrorBoundary componentName="TestComponent">
           <ThrowingComponent />
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
 
       expect(screen.getByText('Something went wrong')).toBeInTheDocument();
@@ -95,7 +103,7 @@ describe('ErrorBoundary', () => {
       render(
         <ErrorBoundary>
           <ThrowingComponent />
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
 
       const errorIdElement = screen.getByText(/Error ID:/);
@@ -107,11 +115,13 @@ describe('ErrorBoundary', () => {
       render(
         <ErrorBoundary fallback={<div>Custom fallback</div>}>
           <ThrowingComponent />
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
 
       expect(screen.getByText('Custom fallback')).toBeInTheDocument();
-      expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Something went wrong'),
+      ).not.toBeInTheDocument();
     });
 
     it('should call onError callback when error occurs', () => {
@@ -120,7 +130,7 @@ describe('ErrorBoundary', () => {
       render(
         <ErrorBoundary onError={onError}>
           <ThrowingComponent />
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
 
       expect(onError).toHaveBeenCalled();
@@ -139,17 +149,19 @@ describe('ErrorBoundary', () => {
       render(
         <ErrorBoundary>
           <ThrowingComponent />
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
 
-      expect(screen.getByRole('button', { name: /Try Again/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Try Again/i }),
+      ).toBeInTheDocument();
     });
 
     it('should track recovery attempts', () => {
       render(
         <ErrorBoundary maxRecoveryAttempts={3}>
           <ThrowingComponent />
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
 
       const tryAgainButton = screen.getByRole('button', { name: /Try Again/i });
@@ -160,7 +172,7 @@ describe('ErrorBoundary', () => {
       render(
         <ErrorBoundary>
           <ThrowingComponent shouldThrow={true} />
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
 
       expect(screen.getByText('Something went wrong')).toBeInTheDocument();
@@ -172,7 +184,7 @@ describe('ErrorBoundary', () => {
       // Clicking reset should attempt to clear error (will throw again in this test)
       // This verifies the button is functional
       fireEvent.click(resetButton);
-      
+
       // Since the component still throws, we'll be back in error state
       // The important thing is that handleReset was called (console.log verifies this)
     });
@@ -181,14 +193,16 @@ describe('ErrorBoundary', () => {
   describe('Error reporting', () => {
     it('should copy error report to clipboard when Report Error is clicked', async () => {
       window.alert = jest.fn();
-      
+
       render(
         <ErrorBoundary componentName="TestComponent">
           <ThrowingComponent />
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
 
-      const reportButton = screen.getByRole('button', { name: /Report Error/i });
+      const reportButton = screen.getByRole('button', {
+        name: /Report Error/i,
+      });
       fireEvent.click(reportButton);
 
       expect(mockClipboard.writeText).toHaveBeenCalled();
@@ -208,7 +222,7 @@ describe('ErrorBoundary', () => {
       render(
         <ErrorBoundary componentName="TestComponent">
           <ThrowingComponent />
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
 
       const storedLogsString = mockLocalStorage.getItem('errorLogs');
@@ -217,7 +231,9 @@ describe('ErrorBoundary', () => {
       }
       const storedLogs = JSON.parse(storedLogsString) as ErrorReportData[];
       expect(storedLogs.length).toBeGreaterThan(0);
-      expect(storedLogs[storedLogs.length - 1].componentName).toBe('TestComponent');
+      expect(storedLogs[storedLogs.length - 1].componentName).toBe(
+        'TestComponent',
+      );
     });
   });
 
@@ -230,21 +246,23 @@ describe('ErrorBoundary', () => {
       render(
         <ErrorBoundary>
           <ThrowTypeError />
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
 
-      expect(screen.getByRole('button', { name: /Try Again/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Try Again/i }),
+      ).toBeInTheDocument();
     });
   });
 });
 
 describe('withErrorBoundary HOC', () => {
   const originalError = console.error;
-  
+
   beforeAll(() => {
     console.error = jest.fn();
   });
-  
+
   afterAll(() => {
     console.error = originalError;
   });
@@ -291,7 +309,11 @@ describe('useErrorBoundary hook', () => {
       <div>
         <span data-testid="has-error">{hasError.toString()}</span>
         <span data-testid="error-message">{error?.message || 'No error'}</span>
-        <button onClick={() => handleError(new Error('Hook error'), { componentStack: '' })}>
+        <button
+          onClick={() =>
+            handleError(new Error('Hook error'), { componentStack: '' })
+          }
+        >
           Trigger Error
         </button>
         <button onClick={clearError}>Clear Error</button>
@@ -325,4 +347,3 @@ describe('useErrorBoundary hook', () => {
     expect(screen.getByTestId('has-error').textContent).toBe('false');
   });
 });
-

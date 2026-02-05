@@ -3,6 +3,7 @@
 ## Why
 
 The system needs explicit rules for how calculations are automatically adjusted when user inputs change. Currently missing:
+
 1. Armor tonnage should auto-cap when switching to more efficient armor types
 2. Heat display should show maximum possible heat (weapons + worst-case movement)
 3. UI should prevent invalid states through proactive guards

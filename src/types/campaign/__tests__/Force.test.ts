@@ -2,6 +2,7 @@
  * Force.test.ts - Comprehensive tests for Force interface and traversal functions
  */
 
+import { ForceRole, FormationLevel } from '../enums';
 import {
   IForce,
   getAllParents,
@@ -9,7 +10,6 @@ import {
   getAllUnits,
   getFullName,
 } from '../Force';
-import { ForceRole, FormationLevel } from '../enums';
 
 describe('IForce Interface', () => {
   it('should have all required fields', () => {
@@ -296,7 +296,7 @@ describe('getAllParents', () => {
       });
     }
 
-    const forceMap = new Map<string, IForce>(forces.map(f => [f.id, f]));
+    const forceMap = new Map<string, IForce>(forces.map((f) => [f.id, f]));
     const parents = getAllParents(forces[5], forceMap);
 
     expect(parents).toHaveLength(5);
@@ -556,7 +556,7 @@ describe('getAllSubForces', () => {
       });
     }
 
-    const forceMap = new Map<string, IForce>(forces.map(f => [f.id, f]));
+    const forceMap = new Map<string, IForce>(forces.map((f) => [f.id, f]));
     const subForces = getAllSubForces(forces[0], forceMap);
 
     expect(subForces).toHaveLength(5);
@@ -569,7 +569,13 @@ describe('getAllSubForces', () => {
       id: 'battalion-1',
       name: '1st Battalion',
       parentForceId: undefined,
-      subForceIds: ['company-1', 'company-2', 'company-3', 'company-4', 'company-5'],
+      subForceIds: [
+        'company-1',
+        'company-2',
+        'company-3',
+        'company-4',
+        'company-5',
+      ],
       unitIds: [],
       forceType: ForceRole.STANDARD,
       formationLevel: FormationLevel.BATTALION,
@@ -596,7 +602,7 @@ describe('getAllSubForces', () => {
 
     const forceMap = new Map<string, IForce>([
       [battalion.id, battalion],
-      ...companies.map(c => [c.id, c] as [string, IForce]),
+      ...companies.map((c) => [c.id, c] as [string, IForce]),
     ]);
 
     const subForces = getAllSubForces(battalion, forceMap);
@@ -982,10 +988,12 @@ describe('getFullName', () => {
       });
     }
 
-    const forceMap = new Map<string, IForce>(forces.map(f => [f.id, f]));
+    const forceMap = new Map<string, IForce>(forces.map((f) => [f.id, f]));
     const fullName = getFullName(forces[5], forceMap);
 
-    expect(fullName).toBe('Level 5, Level 4, Level 3, Level 2, Level 1, Level 0');
+    expect(fullName).toBe(
+      'Level 5, Level 4, Level 3, Level 2, Level 1, Level 0',
+    );
   });
 });
 
@@ -1036,7 +1044,7 @@ describe('Edge Cases', () => {
 
   it('should handle large force tree (100+ forces)', () => {
     const forces: IForce[] = [];
-    
+
     // Create root
     forces.push({
       id: 'root',
@@ -1083,7 +1091,7 @@ describe('Edge Cases', () => {
       }
     }
 
-    const forceMap = new Map<string, IForce>(forces.map(f => [f.id, f]));
+    const forceMap = new Map<string, IForce>(forces.map((f) => [f.id, f]));
 
     // Test root has 110 descendants (10 level-1 + 100 level-2)
     const subForces = getAllSubForces(forces[0], forceMap);

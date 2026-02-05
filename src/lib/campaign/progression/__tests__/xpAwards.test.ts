@@ -7,6 +7,14 @@
  * @module campaign/progression/__tests__/xpAwards
  */
 
+import type { ICampaignOptions } from '../../../../types/campaign/Campaign';
+import type { IPerson } from '../../../../types/campaign/Person';
+
+import {
+  PersonnelStatus,
+  CampaignPersonnelRole,
+} from '../../../../types/campaign/enums';
+import { MedicalSystem } from '../../medical/medicalTypes';
 import {
   awardScenarioXP,
   awardKillXP,
@@ -18,10 +26,6 @@ import {
   awardManualXP,
   applyXPAward,
 } from '../xpAwards';
-import type { IPerson } from '../../../../types/campaign/Person';
-import type { ICampaignOptions } from '../../../../types/campaign/Campaign';
-import { PersonnelStatus, CampaignPersonnelRole } from '../../../../types/campaign/enums';
-import { MedicalSystem } from '../../medical/medicalTypes';
 
 // =============================================================================
 // Test Fixtures
@@ -59,7 +63,9 @@ const createTestPerson = (overrides?: Partial<IPerson>): IPerson => ({
   ...overrides,
 });
 
-const createTestOptions = (overrides?: Partial<ICampaignOptions>): ICampaignOptions => ({
+const createTestOptions = (
+  overrides?: Partial<ICampaignOptions>,
+): ICampaignOptions => ({
   healingRateMultiplier: 1.0,
   salaryMultiplier: 1.0,
   retirementAge: 65,
@@ -213,7 +219,10 @@ describe('awardKillXP', () => {
 
   it('should use default threshold and award', () => {
     const person = createTestPerson();
-    const options = createTestOptions({ killsForXP: undefined, killXPAward: undefined });
+    const options = createTestOptions({
+      killsForXP: undefined,
+      killXPAward: undefined,
+    });
 
     const event = awardKillXP(person, 1, options);
 
@@ -267,7 +276,10 @@ describe('awardTaskXP', () => {
 
   it('should use default threshold and award', () => {
     const person = createTestPerson();
-    const options = createTestOptions({ nTasksXP: undefined, taskXP: undefined });
+    const options = createTestOptions({
+      nTasksXP: undefined,
+      taskXP: undefined,
+    });
 
     const event = awardTaskXP(person, 1, options);
 
@@ -515,7 +527,10 @@ describe('applyXPAward', () => {
   it('should handle multiple awards sequentially', () => {
     let person = createTestPerson({ xp: 0, totalXpEarned: 0 });
 
-    const event1 = awardScenarioXP(person, createTestOptions({ scenarioXP: 1 }));
+    const event1 = awardScenarioXP(
+      person,
+      createTestOptions({ scenarioXP: 1 }),
+    );
     person = applyXPAward(person, event1);
 
     const event2 = awardManualXP(person, 5, 'Bonus');
@@ -558,7 +573,8 @@ describe('XP Award Integration', () => {
     expect(person.xp).toBe(1);
 
     // Kill (below threshold)
-    event = awardKillXP(person, 1, options) || awardManualXP(person, 0, 'No kill XP');
+    event =
+      awardKillXP(person, 1, options) || awardManualXP(person, 0, 'No kill XP');
     person = applyXPAward(person, event);
     expect(person.xp).toBe(1);
 
@@ -568,7 +584,8 @@ describe('XP Award Integration', () => {
     expect(person.xp).toBe(2);
 
     // Task (below threshold)
-    event = awardTaskXP(person, 2, options) || awardManualXP(person, 0, 'No task XP');
+    event =
+      awardTaskXP(person, 2, options) || awardManualXP(person, 0, 'No task XP');
     person = applyXPAward(person, event);
     expect(person.xp).toBe(2);
 

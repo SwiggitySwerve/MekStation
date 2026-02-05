@@ -1,3 +1,5 @@
+import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   CATEGORY_TAB_MAP,
   TAB_LABELS,
@@ -5,8 +7,6 @@ import {
   getTabLabel,
   createEmptyValidationCounts,
 } from '@/utils/validation/validationNavigation';
-import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
-import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 
 describe('validationNavigation', () => {
   describe('CATEGORY_TAB_MAP', () => {
@@ -27,7 +27,9 @@ describe('validationNavigation', () => {
     });
 
     it('should map CONSTRUCTION to structure tab', () => {
-      expect(CATEGORY_TAB_MAP[ValidationCategory.CONSTRUCTION]).toBe('structure');
+      expect(CATEGORY_TAB_MAP[ValidationCategory.CONSTRUCTION]).toBe(
+        'structure',
+      );
     });
 
     it('should map EQUIPMENT to equipment tab', () => {
@@ -57,10 +59,16 @@ describe('validationNavigation', () => {
   describe('TAB_LABELS', () => {
     it('should have labels for all customizer tabs', () => {
       const expectedTabs: CustomizerTabId[] = [
-        'overview', 'structure', 'armor', 'weapons', 
-        'equipment', 'criticals', 'fluff', 'preview'
+        'overview',
+        'structure',
+        'armor',
+        'weapons',
+        'equipment',
+        'criticals',
+        'fluff',
+        'preview',
       ];
-      
+
       expectedTabs.forEach((tabId) => {
         expect(TAB_LABELS[tabId]).toBeDefined();
         expect(typeof TAB_LABELS[tabId]).toBe('string');
@@ -107,7 +115,7 @@ describe('validationNavigation', () => {
   describe('createEmptyValidationCounts', () => {
     it('should return object with all tabs', () => {
       const counts = createEmptyValidationCounts();
-      
+
       expect(counts.overview).toBeDefined();
       expect(counts.structure).toBeDefined();
       expect(counts.armor).toBeDefined();
@@ -120,7 +128,7 @@ describe('validationNavigation', () => {
 
     it('should initialize all counts to zero', () => {
       const counts = createEmptyValidationCounts();
-      
+
       Object.values(counts).forEach((tabCounts) => {
         expect(tabCounts.errors).toBe(0);
         expect(tabCounts.warnings).toBe(0);
@@ -131,9 +139,9 @@ describe('validationNavigation', () => {
     it('should return a new object each time', () => {
       const counts1 = createEmptyValidationCounts();
       const counts2 = createEmptyValidationCounts();
-      
+
       expect(counts1).not.toBe(counts2);
-      
+
       counts1.structure.errors = 5;
       expect(counts2.structure.errors).toBe(0);
     });

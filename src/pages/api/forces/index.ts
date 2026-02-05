@@ -8,10 +8,11 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { getForceService } from '@/services/forces/ForceService';
-import { IForce, ICreateForceRequest } from '@/types/force';
+
 import { IForceOperationResult } from '@/services/forces/ForceRepository';
+import { getForceService } from '@/services/forces/ForceService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { IForce, ICreateForceRequest } from '@/types/force';
 
 // =============================================================================
 // Response Types
@@ -37,13 +38,14 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListResponse | CreateResponse | ErrorResponse>
+  res: NextApiResponse<ListResponse | CreateResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -56,7 +58,9 @@ export default async function handler(
       return handlePost(forceService, req, res);
     default:
       res.setHeader('Allow', ['GET', 'POST']);
-      return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+      return res
+        .status(405)
+        .json({ error: `Method ${req.method} Not Allowed` });
   }
 }
 
@@ -65,7 +69,7 @@ export default async function handler(
  */
 function handleGet(
   forceService: ReturnType<typeof getForceService>,
-  res: NextApiResponse<ListResponse | ErrorResponse>
+  res: NextApiResponse<ListResponse | ErrorResponse>,
 ) {
   try {
     const forces = forceService.getAllForces();
@@ -74,7 +78,8 @@ function handleGet(
       count: forces.length,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to list forces';
+    const message =
+      error instanceof Error ? error.message : 'Failed to list forces';
     return res.status(500).json({ error: message });
   }
 }
@@ -85,7 +90,7 @@ function handleGet(
 function handlePost(
   forceService: ReturnType<typeof getForceService>,
   req: NextApiRequest,
-  res: NextApiResponse<CreateResponse | ErrorResponse>
+  res: NextApiResponse<CreateResponse | ErrorResponse>,
 ) {
   try {
     const body = req.body as ICreateForceRequest;
@@ -95,7 +100,9 @@ function handlePost(
     }
 
     if (!body.forceType) {
-      return res.status(400).json({ error: 'Missing required field: forceType' });
+      return res
+        .status(400)
+        .json({ error: 'Missing required field: forceType' });
     }
 
     const result = forceService.createForce(body);
@@ -111,7 +118,8 @@ function handlePost(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to create force';
+    const message =
+      error instanceof Error ? error.message : 'Failed to create force';
     return res.status(500).json({ error: message });
   }
 }

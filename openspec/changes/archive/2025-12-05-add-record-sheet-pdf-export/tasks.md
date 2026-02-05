@@ -23,6 +23,7 @@ All tasks completed. Feature ready for production use.
 - [x] 3.4 ~~Remove legacy canvas renderers~~ (cleanup completed)
 
 **Removed legacy files:**
+
 - ~~RecordSheetLayout.ts~~ - Canvas positioning constants
 - ~~ArmorDiagramRenderer.ts~~ - Canvas armor pip visualization
 - ~~EquipmentTableRenderer.ts~~ - Canvas weapons/equipment table
@@ -64,6 +65,7 @@ All tasks completed. Feature ready for production use.
 ## Final Implementation Summary
 
 **Files Created:**
+
 - `src/types/printing/RecordSheetTypes.ts` - Data interfaces
 - `src/types/printing/index.ts` - Barrel export
 - `src/services/printing/SVGRecordSheetRenderer.ts` - SVG template renderer
@@ -75,6 +77,7 @@ All tasks completed. Feature ready for production use.
 - `src/components/customizer/tabs/PreviewTab.tsx` - Tab wrapper
 
 **Assets Required:**
+
 - `public/record-sheets/templates/mek_biped_default.svg`
 - `public/record-sheets/biped_pips/Armor_*.svg`
 - `public/record-sheets/biped_pips/BipedIS*.svg`

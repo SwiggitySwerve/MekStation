@@ -7,17 +7,20 @@
  * @spec openspec/changes/add-unit-card-view/proposal.md
  */
 
-import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  WeaponCategory,
+  WeaponRanges,
+} from '@/types/equipment/weapons/interfaces';
 import {
   IBaseUnit,
   isGroundUnit,
   isAerospaceUnit,
   isSquadUnit,
 } from '@/types/unit/BaseUnitInterfaces';
-import { WeaponCategory, WeaponRanges } from '@/types/equipment/weapons/interfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 // =============================================================================
 // Unit Card Data Interfaces
@@ -311,7 +314,7 @@ export function calculateMovementSummary(unit: IBaseUnit): IMovementSummary {
 export function calculateArmorStructureSummary(
   unit: IBaseUnit,
   armorTypeName: string = 'Standard',
-  structureTypeName: string = 'Standard'
+  structureTypeName: string = 'Standard',
 ): IArmorStructureSummary {
   if (isGroundUnit(unit)) {
     const armorPercentage =
@@ -369,10 +372,13 @@ export function calculateArmorStructureSummary(
 export function calculateHeatSummary(
   weapons: readonly IWeaponSummary[],
   heatSinkCount: number,
-  heatSinkType: 'single' | 'double' = 'single'
+  heatSinkType: 'single' | 'double' = 'single',
 ): IHeatSummary {
   // Calculate total heat from all weapons
-  const totalHeatGenerated = weapons.reduce((sum, w) => sum + w.heat * w.count, 0);
+  const totalHeatGenerated = weapons.reduce(
+    (sum, w) => sum + w.heat * w.count,
+    0,
+  );
 
   // Calculate heat dissipation (single = 1/sink, double = 2/sink)
   const dissipationPerSink = heatSinkType === 'double' ? 2 : 1;
@@ -393,7 +399,9 @@ export function calculateHeatSummary(
 /**
  * Aggregate weapons by name/type for cleaner display
  */
-export function aggregateWeapons(weapons: readonly IWeaponSummary[]): readonly IWeaponSummary[] {
+export function aggregateWeapons(
+  weapons: readonly IWeaponSummary[],
+): readonly IWeaponSummary[] {
   const aggregated = new Map<string, IWeaponSummary>();
 
   for (const weapon of weapons) {

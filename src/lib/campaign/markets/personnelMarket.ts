@@ -11,9 +11,16 @@
  */
 
 import type { ICampaign } from '@/types/campaign/Campaign';
-import { PersonnelMarketStyle, MarketExperienceLevel } from '@/types/campaign/markets/marketTypes';
 import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
-import { CampaignPersonnelRole, getRoleCategory } from '@/types/campaign/enums/CampaignPersonnelRole';
+
+import {
+  CampaignPersonnelRole,
+  getRoleCategory,
+} from '@/types/campaign/enums/CampaignPersonnelRole';
+import {
+  PersonnelMarketStyle,
+  MarketExperienceLevel,
+} from '@/types/campaign/markets/marketTypes';
 
 // =============================================================================
 // Types
@@ -46,15 +53,33 @@ const SUPPORT_ROLES: readonly CampaignPersonnelRole[] = Object.freeze([
 ]);
 
 const FIRST_NAMES: readonly string[] = Object.freeze([
-  'Alexander', 'Natasha', 'Morgan', 'Hanse', 'Katrina',
-  'Victor', 'Kai', 'Phelan', 'Aidan', 'Joanna',
-  'Takashi', 'Melissa',
+  'Alexander',
+  'Natasha',
+  'Morgan',
+  'Hanse',
+  'Katrina',
+  'Victor',
+  'Kai',
+  'Phelan',
+  'Aidan',
+  'Joanna',
+  'Takashi',
+  'Melissa',
 ]);
 
 const LAST_NAMES: readonly string[] = Object.freeze([
-  'Kerensky', 'Davion', 'Steiner', 'Liao', 'Marik',
-  'Kurita', 'Allard', 'Ward', 'Pryde', 'Sortek',
-  'Cameron', 'Hazen',
+  'Kerensky',
+  'Davion',
+  'Steiner',
+  'Liao',
+  'Marik',
+  'Kurita',
+  'Allard',
+  'Ward',
+  'Pryde',
+  'Sortek',
+  'Cameron',
+  'Hazen',
 ]);
 
 /** Expiration days by experience level. */
@@ -115,7 +140,7 @@ export function selectRandomRole(random: RandomFn): CampaignPersonnelRole {
 /** Selects experience level: GREEN=40%, REGULAR=35%, VETERAN=20%, ELITE=5%. */
 export function selectExperienceLevel(random: RandomFn): MarketExperienceLevel {
   const roll = random();
-  if (roll < 0.40) return MarketExperienceLevel.GREEN;
+  if (roll < 0.4) return MarketExperienceLevel.GREEN;
   if (roll < 0.75) return MarketExperienceLevel.REGULAR;
   if (roll < 0.95) return MarketExperienceLevel.VETERAN;
   return MarketExperienceLevel.ELITE;
@@ -124,7 +149,7 @@ export function selectExperienceLevel(random: RandomFn): MarketExperienceLevel {
 /** Returns default skills for a role and experience level. */
 export function generateDefaultSkills(
   role: CampaignPersonnelRole,
-  experience: MarketExperienceLevel
+  experience: MarketExperienceLevel,
 ): Record<string, number> {
   const level = SKILL_BY_EXPERIENCE[experience];
   const category = getRoleCategory(role);
@@ -138,7 +163,7 @@ export function generateDefaultSkills(
 /** Calculates C-bill hire cost based on role category and experience. */
 export function calculateHireCost(
   role: CampaignPersonnelRole,
-  experience: MarketExperienceLevel
+  experience: MarketExperienceLevel,
 ): number {
   const category = getRoleCategory(role);
   const base = BASE_COST[category] ?? BASE_COST.civilian;
@@ -166,9 +191,10 @@ export function addDays(dateStr: string, days: number): string {
 /** Generates personnel offers for a single day. */
 export function generatePersonnelForDay(
   campaign: ICampaign,
-  random: RandomFn
+  random: RandomFn,
 ): IPersonnelMarketOffer[] {
-  const style = campaign.options.personnelMarketStyle ?? PersonnelMarketStyle.DISABLED;
+  const style =
+    campaign.options.personnelMarketStyle ?? PersonnelMarketStyle.DISABLED;
   if (style === PersonnelMarketStyle.DISABLED) {
     return [];
   }
@@ -202,7 +228,7 @@ export function generatePersonnelForDay(
 /** Removes offers whose expirationDate is before currentDate. */
 export function removeExpiredOffers(
   offers: readonly IPersonnelMarketOffer[],
-  currentDate: string
+  currentDate: string,
 ): IPersonnelMarketOffer[] {
   return offers.filter((offer) => offer.expirationDate >= currentDate);
 }
@@ -210,7 +236,7 @@ export function removeExpiredOffers(
 /** Finds and returns an offer by ID for hiring. */
 export function hirePerson(
   offerId: string,
-  offers: readonly IPersonnelMarketOffer[]
+  offers: readonly IPersonnelMarketOffer[],
 ): { hired: IPersonnelMarketOffer | null; reason?: string } {
   const offer = offers.find((o) => o.id === offerId);
   if (!offer) {

@@ -1,12 +1,12 @@
+import { MechLocation } from '@/types/construction';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
 import {
   getDisplacedEquipment,
   getEquipmentDisplacedByEngineChange,
   getEquipmentDisplacedByGyroChange,
   applyDisplacement,
 } from '@/utils/construction/displacementUtils';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { MechLocation } from '@/types/construction';
 
 interface MockEquipment {
   instanceId: string;
@@ -16,7 +16,9 @@ interface MockEquipment {
 }
 
 describe('displacementUtils', () => {
-  const createEquipment = (overrides?: Partial<MockEquipment>): MockEquipment => ({
+  const createEquipment = (
+    overrides?: Partial<MockEquipment>,
+  ): MockEquipment => ({
     instanceId: 'equip-1',
     equipmentId: 'medium-laser',
     location: MechLocation.CENTER_TORSO,
@@ -33,7 +35,7 @@ describe('displacementUtils', () => {
         EngineType.STANDARD,
         EngineType.STANDARD,
         GyroType.STANDARD,
-        GyroType.STANDARD
+        GyroType.STANDARD,
       );
 
       expect(result.displacedEquipmentIds.length).toBe(0);
@@ -43,7 +45,7 @@ describe('displacementUtils', () => {
     it('should detect equipment displaced by engine change', () => {
       // XL engine takes 3 slots in each side torso
       const equipment = [
-        createEquipment({ location: MechLocation.LEFT_TORSO, slots: [0, 1] })
+        createEquipment({ location: MechLocation.LEFT_TORSO, slots: [0, 1] }),
       ];
       const result = getDisplacedEquipment(
         // @ts-expect-error - MockEquipment is partial for testing
@@ -51,7 +53,7 @@ describe('displacementUtils', () => {
         EngineType.STANDARD,
         EngineType.XL_IS,
         GyroType.STANDARD,
-        GyroType.STANDARD
+        GyroType.STANDARD,
       );
 
       expect(result.displacedEquipmentIds).toContain('equip-1');
@@ -63,7 +65,7 @@ describe('displacementUtils', () => {
       // XL gyro + Standard engine takes slots 0-11
       // Slots 10 and 11 are newly required
       const equipment = [
-        createEquipment({ location: MechLocation.CENTER_TORSO, slots: [10] })
+        createEquipment({ location: MechLocation.CENTER_TORSO, slots: [10] }),
       ];
       const result = getDisplacedEquipment(
         // @ts-expect-error - MockEquipment is partial for testing
@@ -71,7 +73,7 @@ describe('displacementUtils', () => {
         EngineType.STANDARD,
         EngineType.STANDARD,
         GyroType.STANDARD,
-        GyroType.XL
+        GyroType.XL,
       );
 
       expect(result.displacedEquipmentIds).toContain('equip-1');
@@ -79,7 +81,7 @@ describe('displacementUtils', () => {
 
     it('should skip equipment in unaffected locations', () => {
       const equipment = [
-        createEquipment({ location: MechLocation.HEAD, slots: [0] })
+        createEquipment({ location: MechLocation.HEAD, slots: [0] }),
       ];
       const result = getDisplacedEquipment(
         // @ts-expect-error - MockEquipment is partial for testing
@@ -87,21 +89,23 @@ describe('displacementUtils', () => {
         EngineType.STANDARD,
         EngineType.XL_IS,
         GyroType.STANDARD,
-        GyroType.STANDARD
+        GyroType.STANDARD,
       );
 
       expect(result.displacedEquipmentIds.length).toBe(0);
     });
 
     it('should include affected locations', () => {
-      const equipment = [createEquipment({ location: MechLocation.CENTER_TORSO })];
+      const equipment = [
+        createEquipment({ location: MechLocation.CENTER_TORSO }),
+      ];
       const result = getDisplacedEquipment(
         // @ts-expect-error - MockEquipment is partial for testing
         equipment,
         EngineType.STANDARD,
         EngineType.XL_IS,
         GyroType.STANDARD,
-        GyroType.STANDARD
+        GyroType.STANDARD,
       );
 
       expect(result.affectedLocations).toBeDefined();
@@ -116,7 +120,7 @@ describe('displacementUtils', () => {
         equipment,
         EngineType.STANDARD,
         EngineType.XL_IS,
-        GyroType.STANDARD
+        GyroType.STANDARD,
       );
 
       expect(result).toBeDefined();
@@ -132,7 +136,7 @@ describe('displacementUtils', () => {
         equipment,
         EngineType.STANDARD,
         GyroType.STANDARD,
-        GyroType.COMPACT
+        GyroType.COMPACT,
       );
 
       expect(result).toBeDefined();
@@ -144,7 +148,10 @@ describe('displacementUtils', () => {
     it('should return original equipment when no displacement', () => {
       const equipment = [createEquipment()];
       // @ts-expect-error - MockEquipment is partial for testing
-      const result = applyDisplacement(equipment as Parameters<typeof applyDisplacement>[0], []);
+      const result = applyDisplacement(
+        equipment as Parameters<typeof applyDisplacement>[0],
+        [],
+      );
 
       expect(result).toEqual(equipment);
     });

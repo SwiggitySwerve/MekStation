@@ -1,17 +1,17 @@
 /**
  * Miscellaneous Equipment Type Definitions
- * 
+ *
  * Type definitions for heat sinks, jump jets, movement enhancements, and other misc equipment.
- * 
+ *
  * NOTE: Actual equipment data is now loaded from JSON files at runtime.
  * This file only contains type exports and empty arrays for backwards compatibility.
- * 
+ *
  * @spec openspec/specs/electronics-system/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
-import { RulesLevel } from '../enums/RulesLevel';
 import { EquipmentFlag } from '../enums/EquipmentFlag';
+import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 import { UnitType } from '../unit/BattleMechInterfaces';
 
 /**
@@ -105,21 +105,25 @@ export const ALL_MISC_EQUIPMENT: readonly IMiscEquipment[] = [] as const;
  * @deprecated Use EquipmentLookupService.getById() instead.
  */
 export function getMiscEquipmentById(id: string): IMiscEquipment | undefined {
-  return ALL_MISC_EQUIPMENT.find(e => e.id === id);
+  return ALL_MISC_EQUIPMENT.find((e) => e.id === id);
 }
 
 /**
  * Get misc equipment by category
  * @deprecated Use EquipmentLookupService instead.
  */
-export function getMiscEquipmentByCategory(category: MiscEquipmentCategory): IMiscEquipment[] {
-  return ALL_MISC_EQUIPMENT.filter(e => e.category === category);
+export function getMiscEquipmentByCategory(
+  category: MiscEquipmentCategory,
+): IMiscEquipment[] {
+  return ALL_MISC_EQUIPMENT.filter((e) => e.category === category);
 }
 
 /**
  * Get misc equipment by tech base
  * @deprecated Use EquipmentLookupService instead.
  */
-export function getMiscEquipmentByTechBase(techBase: TechBase): IMiscEquipment[] {
-  return ALL_MISC_EQUIPMENT.filter(e => e.techBase === techBase);
+export function getMiscEquipmentByTechBase(
+  techBase: TechBase,
+): IMiscEquipment[] {
+  return ALL_MISC_EQUIPMENT.filter((e) => e.techBase === techBase);
 }

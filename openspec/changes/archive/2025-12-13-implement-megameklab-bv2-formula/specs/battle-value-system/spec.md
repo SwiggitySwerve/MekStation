@@ -7,6 +7,7 @@
 The system SHALL calculate defensive BV from armor, structure, gyro, and defensive speed factor.
 
 #### Scenario: Defensive BV calculation
+
 - **WHEN** calculating defensive BV
 - **THEN** armor BV SHALL be calculated as total armor points × 2.5
 - **AND** structure BV SHALL be calculated as total structure points × 1.5
@@ -16,6 +17,7 @@ The system SHALL calculate defensive BV from armor, structure, gyro, and defensi
 - **AND** final defensive BV SHALL equal base × defensive speed factor
 
 #### Scenario: Gyro BV contribution
+
 - **WHEN** calculating gyro BV
 - **THEN** gyro BV SHALL equal mech tonnage × 0.5
 - **AND** a 75-ton mech SHALL contribute 37.5 gyro BV
@@ -25,6 +27,7 @@ The system SHALL calculate defensive BV from armor, structure, gyro, and defensi
 The system SHALL calculate offensive BV using incremental weapon heat tracking.
 
 #### Scenario: Offensive BV calculation
+
 - **WHEN** calculating offensive BV
 - **THEN** running heat (2) SHALL be added to initial heat pool
 - **AND** weapons SHALL be sorted by BV in descending order
@@ -36,17 +39,20 @@ The system SHALL calculate offensive BV using incremental weapon heat tracking.
 - **AND** offensive speed factor SHALL be applied to total
 
 #### Scenario: Running heat contribution
+
 - **WHEN** calculating heat pool for offensive BV
 - **THEN** running heat of 2 SHALL be added before weapon heat
 - **AND** this represents the heat cost of running movement
 
 #### Scenario: Weapon heat penalty application
+
 - **WHEN** adding a weapon to offensive BV
 - **AND** cumulative heat (running + weapons so far) exceeds dissipation
 - **THEN** the weapon BV SHALL be multiplied by 0.5
 - **AND** subsequent weapons also exceeding dissipation SHALL receive 50% penalty
 
 #### Scenario: Weight bonus
+
 - **WHEN** calculating offensive BV
 - **THEN** mech tonnage SHALL be added as weight bonus
 - **AND** a 75-ton mech SHALL add 75 to offensive BV
@@ -56,6 +62,7 @@ The system SHALL calculate offensive BV using incremental weapon heat tracking.
 Movement capability SHALL modify defensive and offensive BV using separate TMM-based speed factors.
 
 #### Scenario: Speed factor from TMM
+
 - **WHEN** calculating speed factor for BV2
 - **THEN** TMM SHALL be calculated from the higher of run MP or jump MP
 - **AND** speed factor SHALL be looked up from TMM-based table
@@ -64,18 +71,21 @@ Movement capability SHALL modify defensive and offensive BV using separate TMM-b
 - **AND** factor increases by 0.1 per TMM level
 
 #### Scenario: Defensive speed factor
+
 - **WHEN** calculating defensive speed factor
 - **THEN** TMM SHALL be calculated from run MP and jump MP
 - **AND** speed factor SHALL be looked up from TMM-based table
 - **AND** TMM 2 SHALL give defensive factor 1.2
 
 #### Scenario: Offensive speed factor
+
 - **WHEN** calculating offensive speed factor
 - **THEN** a modified speed factor SHALL be used
 - **AND** TMM 2 SHALL give offensive factor 1.12
 - **AND** offensive factor SHALL be slightly lower than defensive factor
 
 #### Scenario: TMM calculation from movement
+
 - **WHEN** calculating Target Movement Modifier
 - **THEN** effective MP SHALL be the higher of run MP or jump MP
 - **AND** 0-2 MP SHALL give TMM 0

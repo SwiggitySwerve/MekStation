@@ -1,6 +1,6 @@
 /**
  * Unit Types Barrel Export
- * 
+ *
  * @spec openspec/specs/unit-entity-model/spec.md
  */
 
@@ -26,4 +26,3 @@ export * from './DataIntegrity';
 
 // Unit index and query types
 export * from './UnitIndex';
-

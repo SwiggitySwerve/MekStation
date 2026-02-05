@@ -1,9 +1,11 @@
 # Change: Medical System
 
 ## Why
+
 MekStation's current healing system is a simple daysToHeal countdown with no doctor involvement, skill checks, or treatment outcomes. This removes strategic medical management from campaigns and makes all injuries heal identically. MekHQ offers three medical systems (Standard skill-check, Advanced d100, Alternate attribute-based) that create meaningful doctor-patient relationships, treatment risk/reward, and capacity management challenges.
 
 ## What Changes
+
 - Implement three selectable medical systems via campaign option
 - **Standard System**: Doctor Medicine skill check (2d6 vs TN), success heals 1 hit, failure waits
 - **Advanced System**: d100 roll with fumble/critical thresholds, injury worsening on fumble
@@ -16,6 +18,7 @@ MekStation's current healing system is a simple daysToHeal countdown with no doc
 - Add medical system options to ICampaignOptions (8 new fields)
 
 ## Impact
+
 - Affected specs: `personnel-management` (MODIFIED), `day-progression` (MODIFIED), `medical-system` (ADDED)
 - Affected code:
   - `src/lib/campaign/medical/` (NEW) - All medical logic

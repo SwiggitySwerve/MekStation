@@ -2,8 +2,10 @@
  * Tests for /api/meta/equipment_tech_bases endpoint
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import { createMocks } from 'node-mocks-http';
+
 import handler from '@/pages/api/meta/equipment_tech_bases';
 import { ALL_TECH_BASES } from '@/types/enums/TechBase';
 

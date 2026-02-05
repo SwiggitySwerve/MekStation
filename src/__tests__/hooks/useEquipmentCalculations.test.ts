@@ -1,17 +1,18 @@
 /**
  * useEquipmentCalculations Hook Tests
- * 
+ *
  * Tests for equipment weight, slots, and heat calculations.
  */
 
 import { renderHook } from '@testing-library/react';
+
 import { useEquipmentCalculations } from '@/hooks/useEquipmentCalculations';
-import { IMountedEquipmentInstance } from '@/stores/unitState';
-import { EquipmentCategory } from '@/types/equipment';
-import { TechBase } from '@/types/enums/TechBase';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { IMountedEquipmentInstance } from '@/stores/unitState';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
 
 // Mock the useEquipmentRegistry hook
 jest.mock('@/hooks/useEquipmentRegistry', () => ({
@@ -30,7 +31,7 @@ describe('useEquipmentCalculations', () => {
   }, 30000);
 
   const createMockEquipment = (
-    overrides: Partial<IMountedEquipmentInstance> = {}
+    overrides: Partial<IMountedEquipmentInstance> = {},
   ): IMountedEquipmentInstance => ({
     instanceId: 'test-instance-1',
     equipmentId: 'medium-laser',
@@ -52,7 +53,7 @@ describe('useEquipmentCalculations', () => {
   describe('Basic Calculations', () => {
     it('should calculate totals for empty equipment array', () => {
       const { result } = renderHook(() => useEquipmentCalculations([]));
-      
+
       expect(result.current.totalWeight).toBe(0);
       expect(result.current.totalSlots).toBe(0);
       expect(result.current.totalHeat).toBe(0);
@@ -62,7 +63,7 @@ describe('useEquipmentCalculations', () => {
     it('should calculate totals for single item', () => {
       const equipment = [createMockEquipment()];
       const { result } = renderHook(() => useEquipmentCalculations(equipment));
-      
+
       expect(result.current.totalWeight).toBe(1);
       expect(result.current.totalSlots).toBe(1);
       expect(result.current.totalHeat).toBe(3);
@@ -76,7 +77,7 @@ describe('useEquipmentCalculations', () => {
         createMockEquipment({ instanceId: '3', heat: 10, weight: 6 }), // Large Pulse Laser
       ];
       const { result } = renderHook(() => useEquipmentCalculations(equipment));
-      
+
       expect(result.current.totalHeat).toBe(16); // 3 + 3 + 10
     });
   });
@@ -88,7 +89,7 @@ describe('useEquipmentCalculations', () => {
     // - 1x Clan UAC/5: 1 heat = 1
     // - 1x UAC/5 Ammo: 0 heat
     // Total: 27 heat
-    
+
     it('should calculate correct heat for Marauder C loadout', () => {
       const marauderCEquipment: IMountedEquipmentInstance[] = [
         {
@@ -188,18 +189,20 @@ describe('useEquipmentCalculations', () => {
           isOmniPodMounted: false,
         },
       ];
-      
-      const { result } = renderHook(() => useEquipmentCalculations(marauderCEquipment));
-      
+
+      const { result } = renderHook(() =>
+        useEquipmentCalculations(marauderCEquipment),
+      );
+
       // Total heat: 10 + 3 + 10 + 3 + 1 + 0 = 27
       expect(result.current.totalHeat).toBe(27);
-      
+
       // Total weight: 6 + 1 + 6 + 1 + 7 + 1 = 22
       expect(result.current.totalWeight).toBe(22);
-      
+
       // Total slots: 2 + 1 + 2 + 1 + 3 + 1 = 10
       expect(result.current.totalSlots).toBe(10);
-      
+
       // Item count: 6
       expect(result.current.itemCount).toBe(6);
     });
@@ -208,63 +211,87 @@ describe('useEquipmentCalculations', () => {
   describe('Category Breakdowns', () => {
     it('should group equipment by category', () => {
       const equipment: IMountedEquipmentInstance[] = [
-        createMockEquipment({ 
-          instanceId: '1', 
-          category: EquipmentCategory.ENERGY_WEAPON, 
-          heat: 10, 
-          weight: 6 
+        createMockEquipment({
+          instanceId: '1',
+          category: EquipmentCategory.ENERGY_WEAPON,
+          heat: 10,
+          weight: 6,
         }),
-        createMockEquipment({ 
-          instanceId: '2', 
-          category: EquipmentCategory.ENERGY_WEAPON, 
-          heat: 3, 
-          weight: 1 
+        createMockEquipment({
+          instanceId: '2',
+          category: EquipmentCategory.ENERGY_WEAPON,
+          heat: 3,
+          weight: 1,
         }),
-        createMockEquipment({ 
-          instanceId: '3', 
-          category: EquipmentCategory.BALLISTIC_WEAPON, 
-          heat: 1, 
-          weight: 7 
+        createMockEquipment({
+          instanceId: '3',
+          category: EquipmentCategory.BALLISTIC_WEAPON,
+          heat: 1,
+          weight: 7,
         }),
-        createMockEquipment({ 
-          instanceId: '4', 
-          category: EquipmentCategory.AMMUNITION, 
-          heat: 0, 
-          weight: 1 
+        createMockEquipment({
+          instanceId: '4',
+          category: EquipmentCategory.AMMUNITION,
+          heat: 0,
+          weight: 1,
         }),
       ];
-      
+
       const { result } = renderHook(() => useEquipmentCalculations(equipment));
-      
+
       // Energy: 2 items, 13 heat, 7 weight
-      expect(result.current.byCategory[EquipmentCategory.ENERGY_WEAPON].count).toBe(2);
-      expect(result.current.byCategory[EquipmentCategory.ENERGY_WEAPON].heat).toBe(13);
-      expect(result.current.byCategory[EquipmentCategory.ENERGY_WEAPON].weight).toBe(7);
-      
+      expect(
+        result.current.byCategory[EquipmentCategory.ENERGY_WEAPON].count,
+      ).toBe(2);
+      expect(
+        result.current.byCategory[EquipmentCategory.ENERGY_WEAPON].heat,
+      ).toBe(13);
+      expect(
+        result.current.byCategory[EquipmentCategory.ENERGY_WEAPON].weight,
+      ).toBe(7);
+
       // Ballistic: 1 item, 1 heat, 7 weight
-      expect(result.current.byCategory[EquipmentCategory.BALLISTIC_WEAPON].count).toBe(1);
-      expect(result.current.byCategory[EquipmentCategory.BALLISTIC_WEAPON].heat).toBe(1);
-      expect(result.current.byCategory[EquipmentCategory.BALLISTIC_WEAPON].weight).toBe(7);
-      
+      expect(
+        result.current.byCategory[EquipmentCategory.BALLISTIC_WEAPON].count,
+      ).toBe(1);
+      expect(
+        result.current.byCategory[EquipmentCategory.BALLISTIC_WEAPON].heat,
+      ).toBe(1);
+      expect(
+        result.current.byCategory[EquipmentCategory.BALLISTIC_WEAPON].weight,
+      ).toBe(7);
+
       // Ammunition: 1 item, 0 heat, 1 weight
-      expect(result.current.byCategory[EquipmentCategory.AMMUNITION].count).toBe(1);
-      expect(result.current.byCategory[EquipmentCategory.AMMUNITION].heat).toBe(0);
-      expect(result.current.byCategory[EquipmentCategory.AMMUNITION].weight).toBe(1);
+      expect(
+        result.current.byCategory[EquipmentCategory.AMMUNITION].count,
+      ).toBe(1);
+      expect(result.current.byCategory[EquipmentCategory.AMMUNITION].heat).toBe(
+        0,
+      );
+      expect(
+        result.current.byCategory[EquipmentCategory.AMMUNITION].weight,
+      ).toBe(1);
     });
   });
 
   describe('Allocated vs Unallocated', () => {
     it('should separate allocated and unallocated equipment', () => {
       const equipment: IMountedEquipmentInstance[] = [
-        createMockEquipment({ instanceId: '1', location: MechLocation.LEFT_ARM }),
-        createMockEquipment({ instanceId: '2', location: MechLocation.RIGHT_ARM }),
+        createMockEquipment({
+          instanceId: '1',
+          location: MechLocation.LEFT_ARM,
+        }),
+        createMockEquipment({
+          instanceId: '2',
+          location: MechLocation.RIGHT_ARM,
+        }),
         createMockEquipment({ instanceId: '3', location: undefined }),
         createMockEquipment({ instanceId: '4', location: undefined }),
         createMockEquipment({ instanceId: '5', location: undefined }),
       ];
-      
+
       const { result } = renderHook(() => useEquipmentCalculations(equipment));
-      
+
       expect(result.current.allocatedCount).toBe(2);
       expect(result.current.unallocatedCount).toBe(3);
       expect(result.current.allocatedEquipment.length).toBe(2);

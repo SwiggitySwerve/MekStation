@@ -19,19 +19,21 @@ export async function loadSVGTemplate(templatePath: string): Promise<{
   if (!response.ok) {
     throw new Error(
       `Failed to load SVG template "${templatePath}": HTTP ${response.status}. ` +
-        `Run 'npm run fetch:assets' to download required record sheet assets.`
+        `Run 'npm run fetch:assets' to download required record sheet assets.`,
     );
   }
 
   // Verify content type is SVG/XML (not HTML from a 404 page served by the dev server)
   const contentType = response.headers.get('content-type') || '';
   const isValidContentType =
-    contentType.includes('svg') || contentType.includes('xml') || contentType.includes('octet-stream');
+    contentType.includes('svg') ||
+    contentType.includes('xml') ||
+    contentType.includes('octet-stream');
 
   if (!isValidContentType && contentType.includes('text/html')) {
     throw new Error(
       `Invalid content type for SVG template "${templatePath}": received HTML instead of SVG. ` +
-        `The asset file may be missing. Run 'npm run fetch:assets' to download required assets.`
+        `The asset file may be missing. Run 'npm run fetch:assets' to download required assets.`,
     );
   }
 
@@ -39,10 +41,13 @@ export async function loadSVGTemplate(templatePath: string): Promise<{
 
   // Additional check: if content starts with HTML doctype or <html, it's not SVG
   const trimmedText = svgText.trim().toLowerCase();
-  if (trimmedText.startsWith('<!doctype html') || trimmedText.startsWith('<html')) {
+  if (
+    trimmedText.startsWith('<!doctype html') ||
+    trimmedText.startsWith('<html')
+  ) {
     throw new Error(
       `SVG template "${templatePath}" returned HTML content instead of SVG. ` +
-        `The asset file is missing. Run 'npm run fetch:assets' to download required assets.`
+        `The asset file is missing. Run 'npm run fetch:assets' to download required assets.`,
     );
   }
 
@@ -87,7 +92,10 @@ export function addDocumentMargins(svgRoot: SVGSVGElement): void {
 
   // Set viewBox to add margins: negative offset positions content with margins
   // viewBox = "minX minY width height"
-  svgRoot.setAttribute('viewBox', `${-marginX} ${-marginY} ${targetWidth} ${targetHeight}`);
+  svgRoot.setAttribute(
+    'viewBox',
+    `${-marginX} ${-marginY} ${targetWidth} ${targetHeight}`,
+  );
 
   // Update width/height to target size
   svgRoot.setAttribute('width', String(targetWidth));
@@ -114,7 +122,10 @@ export function fixCopyrightYear(svgDoc: Document): void {
   const footerElement = svgDoc.getElementById('footer');
   if (footerElement) {
     // Use Eurostile (MegaMekLab's font) with web-safe fallbacks
-    footerElement.setAttribute('font-family', 'Eurostile, "Century Gothic", "Trebuchet MS", Arial, sans-serif');
+    footerElement.setAttribute(
+      'font-family',
+      'Eurostile, "Century Gothic", "Trebuchet MS", Arial, sans-serif',
+    );
     footerElement.setAttribute('font-size', '7.5px');
     footerElement.setAttribute('font-weight', 'bold');
     // Position near bottom with margin space (content area ends at 756, margin adds 18 more)
@@ -124,7 +135,10 @@ export function fixCopyrightYear(svgDoc: Document): void {
   const copyrightElement = svgDoc.getElementById('tspanCopyright');
   if (copyrightElement && copyrightElement.textContent) {
     const currentYear = new Date().getFullYear();
-    copyrightElement.textContent = copyrightElement.textContent.replace('%d', String(currentYear));
+    copyrightElement.textContent = copyrightElement.textContent.replace(
+      '%d',
+      String(currentYear),
+    );
     // Remove textLength and lengthAdjust to prevent text stretching/distortion
     copyrightElement.removeAttribute('textLength');
     copyrightElement.removeAttribute('lengthAdjust');
@@ -145,7 +159,11 @@ export function fixCopyrightYear(svgDoc: Document): void {
 /**
  * Helper to set text content of an element by ID
  */
-export function setTextContent(svgDoc: Document, id: string, text: string): void {
+export function setTextContent(
+  svgDoc: Document,
+  id: string,
+  text: string,
+): void {
   const element = svgDoc.getElementById(id);
   if (element) {
     element.textContent = text;

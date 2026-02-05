@@ -3,6 +3,7 @@
 ## Why
 
 Current BV calculations differ from MegaMekLab due to formula simplifications. For the Marauder C test case:
+
 - **Current MekStation**: ~1,622 BV
 - **MegaMekLab reference**: 1,711 BV
 
@@ -64,6 +65,7 @@ Offensive BV = weaponsBV + ammoBV + tonnage
 **New**: Offensive BV gets its own speed factor (slightly different from defensive)
 
 Per MegaMekLab:
+
 - Defensive uses TMM-based factor (1.2 for TMM 2)
 - Offensive uses modified factor (1.12 for same movement)
 
@@ -78,6 +80,7 @@ Total BV = round(Defensive BV + Offensive BV)
 ## Verification
 
 Using Marauder C as reference:
+
 - Armor: 184 × 2.5 = 460
 - Structure: 114 × 1.5 = 171
 - Gyro: 75 × 0.5 = 37.5

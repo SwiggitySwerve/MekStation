@@ -1,11 +1,13 @@
 # Change: Add Customizer UI Components
 
 ## Why
+
 The BattleMech customizer requires a complete set of interactive UI components to enable users to configure units. These components provide visual feedback, drag-and-drop interactions, and multi-unit management capabilities that are essential for the editing experience.
 
 ## What Changes
 
 ### New Capabilities
+
 - **armor-diagram**: SVG-based interactive armor allocation visualization
 - **color-system**: Unified color scheme for equipment types, tech bases, and states
 - **confirmation-dialogs**: Modal dialogs for destructive actions with progress tracking
@@ -20,6 +22,7 @@ The BattleMech customizer requires a complete set of interactive UI components t
 - **tech-base-integration**: Tech base validation, filtering, and auto-correction
 
 ### Dependencies on Existing Specs
+
 - armor-system (armor calculations)
 - equipment-database (equipment data)
 - critical-slot-allocation (slot data structures)
@@ -30,7 +33,7 @@ The BattleMech customizer requires a complete set of interactive UI components t
 - core-enumerations (TechBase, RulesLevel, etc.)
 
 ## Impact
+
 - Affected specs: None (all new capabilities)
 - Affected code: `src/components/customizer/`, `src/pages/customizer/`, `src/hooks/`, `src/stores/`
 - New dependencies: React DnD, Zustand (for state management)
-

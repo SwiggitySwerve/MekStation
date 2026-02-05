@@ -1,16 +1,17 @@
 /**
  * Unit Persistence Types
- * 
+ *
  * Types for custom unit storage and version history.
- * 
+ *
  * @spec openspec/specs/unit-versioning/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
+import type { ResultType } from '@/services/core/types/BaseTypes';
+
 import { Era } from '../enums/Era';
 import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 import { WeightClass } from '../enums/WeightClass';
-import type { ResultType } from '@/services/core/types/BaseTypes';
 
 /**
  * Custom unit record as stored in database
@@ -79,7 +80,7 @@ export interface IVersionMetadata {
 
 /**
  * Create unit request
- * 
+ *
  * Note: `data` is intentionally typed as Record<string, unknown> because:
  * - It represents a serialized unit from various sources (JSON import, MTF conversion, etc.)
  * - The actual structure varies by unit type (BattleMech, Vehicle, Aerospace, etc.)
@@ -96,7 +97,7 @@ export interface ICreateUnitRequest {
 
 /**
  * Update unit request
- * 
+ *
  * Note: `data` is intentionally typed as Record<string, unknown> because:
  * - It represents a serialized unit from various sources
  * - The actual structure varies by unit type
@@ -135,7 +136,10 @@ export interface IUnitOperationError {
 /**
  * Unit operation result - discriminated union via ResultType
  */
-export type IUnitOperationResult = ResultType<IUnitOperationData, IUnitOperationError>;
+export type IUnitOperationResult = ResultType<
+  IUnitOperationData,
+  IUnitOperationError
+>;
 
 /**
  * Error codes for unit operations
@@ -160,10 +164,10 @@ export interface ICloneNameSuggestion {
 
 /**
  * Serialized unit envelope for export/import
- * 
+ *
  * This is the top-level structure for unit export files (.mek, .json).
  * The `unit` field contains the actual unit data, which varies by unit type.
- * 
+ *
  * Note: `unit` is intentionally typed as Record<string, unknown> because:
  * - Import files come from external sources (user uploads, other apps, etc.)
  * - Format must remain flexible for backward/forward compatibility
@@ -203,4 +207,3 @@ export interface IExportData {
  * Export result - discriminated union via ResultType
  */
 export type IExportResult = ResultType<IExportData, string>;
-

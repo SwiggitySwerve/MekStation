@@ -22,4 +22,3 @@ The Critical Slots Tab toolbar has Fill, Compact, Sort buttons and Auto toggles 
   - `src/utils/construction/slotOperations.ts` - New utility module (to be created)
   - `src/stores/useCustomizerStore.ts` - Add autoCompact, autoSort settings
   - `src/stores/useUnitStore.ts` - Add bulk assignment action
-

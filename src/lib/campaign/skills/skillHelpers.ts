@@ -8,9 +8,9 @@
  * @module campaign/skills/skillHelpers
  */
 
+import { SKILL_CATALOG } from '@/constants/campaign/skillCatalog';
 import { IPerson } from '@/types/campaign/Person';
 import { getSkillValue } from '@/types/campaign/skills';
-import { SKILL_CATALOG } from '@/constants/campaign/skillCatalog';
 
 /**
  * Gets the skill desirability modifier for a person.
@@ -59,7 +59,12 @@ export function getSkillDesirabilityModifier(person: IPerson): number {
  * // value = 10 (unskilled penalty)
  */
 export function getTechSkillValue(person: IPerson): number {
-  const techSkillIds = ['tech-mech', 'tech-vehicle', 'tech-aerospace', 'astech'];
+  const techSkillIds = [
+    'tech-mech',
+    'tech-vehicle',
+    'tech-aerospace',
+    'astech',
+  ];
   let bestValue = 10;
 
   for (const skillId of techSkillIds) {
@@ -256,7 +261,7 @@ export function getPersonSkillLevel(person: IPerson, skillId: string): number {
  * }
  */
 export function getPersonBestCombatSkill(
-  person: IPerson
+  person: IPerson,
 ): { skillId: string; level: number } | null {
   const combatSkillIds = [
     'gunnery',

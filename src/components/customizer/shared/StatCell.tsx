@@ -1,8 +1,8 @@
 /**
  * Stat Cell Component
- * 
+ *
  * Displays a single statistic with label and value.
- * 
+ *
  * @spec openspec/specs/unit-info-banner/spec.md
  */
 
@@ -40,14 +40,17 @@ export function StatCell({
 }: StatCellProps): React.ReactElement {
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      <span className="text-xs text-slate-400 uppercase tracking-wide">
+      <span className="text-xs tracking-wide text-slate-400 uppercase">
         {label}
       </span>
       <span className={`text-lg font-bold ${variantStyles[variant]}`}>
         {value}
-        {unit && <span className="text-sm font-normal text-slate-400 ml-0.5">{unit}</span>}
+        {unit && (
+          <span className="ml-0.5 text-sm font-normal text-slate-400">
+            {unit}
+          </span>
+        )}
       </span>
     </div>
   );
 }
-

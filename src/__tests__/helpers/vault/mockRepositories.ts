@@ -31,7 +31,7 @@ export class MockVaultFolderRepository {
 
   async createFolder(
     name: string,
-    options?: { description?: string; parentId?: string; isShared?: boolean }
+    options?: { description?: string; parentId?: string; isShared?: boolean },
   ): Promise<IVaultFolder> {
     const id = `folder-mock-${++this.idCounter}`;
     const now = new Date().toISOString();
@@ -60,7 +60,7 @@ export class MockVaultFolderRepository {
 
   async getChildFolders(parentId: string): Promise<IVaultFolder[]> {
     return Array.from(this.folders.values()).filter(
-      (f) => f.parentId === parentId
+      (f) => f.parentId === parentId,
     );
   }
 
@@ -82,7 +82,7 @@ export class MockVaultFolderRepository {
 
   async updateFolderDescription(
     id: string,
-    description: string | null
+    description: string | null,
   ): Promise<boolean> {
     const folder = this.folders.get(id);
     if (!folder) return false;
@@ -115,11 +115,11 @@ export class MockVaultFolderRepository {
   async addItemToFolder(
     folderId: string,
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<boolean> {
     const items = this.folderItems.get(folderId) ?? [];
     const exists = items.some(
-      (i) => i.itemId === itemId && i.itemType === itemType
+      (i) => i.itemId === itemId && i.itemType === itemType,
     );
     if (!exists) {
       items.push({
@@ -138,11 +138,11 @@ export class MockVaultFolderRepository {
   async removeItemFromFolder(
     folderId: string,
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<boolean> {
     const items = this.folderItems.get(folderId) ?? [];
     const newItems = items.filter(
-      (i) => !(i.itemId === itemId && i.itemType === itemType)
+      (i) => !(i.itemId === itemId && i.itemType === itemType),
     );
     this.folderItems.set(folderId, newItems);
     const folder = this.folders.get(folderId);
@@ -156,7 +156,7 @@ export class MockVaultFolderRepository {
 
   async getItemFolders(
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<IVaultFolder[]> {
     const result: IVaultFolder[] = [];
     this.folderItems.forEach((items, folderId) => {
@@ -172,7 +172,7 @@ export class MockVaultFolderRepository {
     itemId: string,
     itemType: ShareableContentType,
     fromFolderId: string,
-    toFolderId: string
+    toFolderId: string,
   ): Promise<boolean> {
     await this.removeItemFromFolder(fromFolderId, itemId, itemType);
     return this.addItemToFolder(toFolderId, itemId, itemType);
@@ -180,12 +180,12 @@ export class MockVaultFolderRepository {
 
   async removeItemFromAllFolders(
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<number> {
     let count = 0;
     this.folderItems.forEach((items, folderId) => {
       const newItems = items.filter(
-        (i) => !(i.itemId === itemId && i.itemType === itemType)
+        (i) => !(i.itemId === itemId && i.itemType === itemType),
       );
       if (newItems.length !== items.length) {
         this.folderItems.set(folderId, newItems);
@@ -234,7 +234,7 @@ export class MockVersionHistoryRepository {
     content: string,
     contentHash: string,
     createdBy: string,
-    message?: string
+    message?: string,
   ): Promise<IVersionSnapshot> {
     const existingVersions = await this.getVersions(itemId, contentType, 1000);
     const version = existingVersions.length + 1;
@@ -260,7 +260,7 @@ export class MockVersionHistoryRepository {
   async getVersions(
     itemId: string,
     contentType: ShareableContentType,
-    limit = 50
+    limit = 50,
   ): Promise<IVersionSnapshot[]> {
     return Array.from(this.versions.values())
       .filter((v) => v.itemId === itemId && v.contentType === contentType)
@@ -271,14 +271,14 @@ export class MockVersionHistoryRepository {
   async getVersion(
     itemId: string,
     contentType: ShareableContentType,
-    version: number
+    version: number,
   ): Promise<IVersionSnapshot | null> {
     return (
       Array.from(this.versions.values()).find(
         (v) =>
           v.itemId === itemId &&
           v.contentType === contentType &&
-          v.version === version
+          v.version === version,
       ) ?? null
     );
   }
@@ -289,7 +289,7 @@ export class MockVersionHistoryRepository {
 
   async getLatestVersion(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<IVersionSnapshot | null> {
     const versions = await this.getVersions(itemId, contentType, 1);
     return versions[0] ?? null;
@@ -301,7 +301,7 @@ export class MockVersionHistoryRepository {
 
   async deleteAllVersions(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<number> {
     let count = 0;
     const entries = Array.from(this.versions.entries());
@@ -317,7 +317,7 @@ export class MockVersionHistoryRepository {
   async pruneOldVersions(
     itemId: string,
     contentType: ShareableContentType,
-    keepCount: number
+    keepCount: number,
   ): Promise<number> {
     const versions = await this.getVersions(itemId, contentType, 1000);
     const toDelete = versions.slice(keepCount);
@@ -329,7 +329,7 @@ export class MockVersionHistoryRepository {
 
   async getCurrentVersionNumber(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<number> {
     const versions = await this.getVersions(itemId, contentType, 1);
     return versions[0]?.version ?? 0;
@@ -337,7 +337,7 @@ export class MockVersionHistoryRepository {
 
   async getStorageUsed(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<number> {
     const versions = await this.getVersions(itemId, contentType, 1000);
     return versions.reduce((sum, v) => sum + v.sizeBytes, 0);
@@ -345,7 +345,7 @@ export class MockVersionHistoryRepository {
 
   async getHistorySummary(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<IVersionHistorySummary | null> {
     const versions = await this.getVersions(itemId, contentType, 1000);
     if (versions.length === 0) return null;
@@ -384,7 +384,7 @@ export class MockOfflineQueueRepository {
     targetPeerId: string,
     messageType: P2PMessageType,
     payload: string,
-    options?: { expiryMs?: number; priority?: number }
+    options?: { expiryMs?: number; priority?: number },
   ): Promise<IQueuedMessage> {
     const now = new Date();
     const expiryMs = options?.expiryMs ?? 7 * 24 * 60 * 60 * 1000;
@@ -414,24 +414,30 @@ export class MockOfflineQueueRepository {
 
   async getPendingForPeer(
     peerId: string,
-    limit = 50
+    limit = 50,
   ): Promise<IQueuedMessage[]> {
     return Array.from(this.messages.values())
       .filter((m) => m.targetPeerId === peerId && m.status === 'pending')
-      .sort((a, b) => b.priority - a.priority || a.queuedAt.localeCompare(b.queuedAt))
+      .sort(
+        (a, b) =>
+          b.priority - a.priority || a.queuedAt.localeCompare(b.queuedAt),
+      )
       .slice(0, limit);
   }
 
   async getAllPending(limit = 100): Promise<IQueuedMessage[]> {
     return Array.from(this.messages.values())
       .filter((m) => m.status === 'pending')
-      .sort((a, b) => b.priority - a.priority || a.queuedAt.localeCompare(b.queuedAt))
+      .sort(
+        (a, b) =>
+          b.priority - a.priority || a.queuedAt.localeCompare(b.queuedAt),
+      )
       .slice(0, limit);
   }
 
   async updateStatus(
     id: string,
-    status: QueuedMessageStatus
+    status: QueuedMessageStatus,
   ): Promise<boolean> {
     const message = this.messages.get(id);
     if (!message) return false;
@@ -539,7 +545,7 @@ export class MockOfflineQueueRepository {
 
   async getPeerSummary(peerId: string): Promise<IPeerQueueSummary> {
     const peerMessages = Array.from(this.messages.values()).filter(
-      (m) => m.targetPeerId === peerId
+      (m) => m.targetPeerId === peerId,
     );
     const pending = peerMessages.filter((m) => m.status === 'pending');
     const failed = peerMessages.filter((m) => m.status === 'failed');
@@ -549,13 +555,17 @@ export class MockOfflineQueueRepository {
       peerId,
       pendingCount: pending.length,
       pendingSizeBytes: pending.reduce((sum, m) => sum + m.sizeBytes, 0),
-      oldestPending: pending.length > 0
-        ? pending.sort((a, b) => a.queuedAt.localeCompare(b.queuedAt))[0].queuedAt
-        : null,
+      oldestPending:
+        pending.length > 0
+          ? pending.sort((a, b) => a.queuedAt.localeCompare(b.queuedAt))[0]
+              .queuedAt
+          : null,
       failedCount: failed.length,
-      lastSuccessAt: sent.length > 0
-        ? sent.sort((a, b) => b.queuedAt.localeCompare(a.queuedAt))[0].queuedAt
-        : null,
+      lastSuccessAt:
+        sent.length > 0
+          ? sent.sort((a, b) => b.queuedAt.localeCompare(a.queuedAt))[0]
+              .queuedAt
+          : null,
     };
   }
 
@@ -578,9 +588,7 @@ export class MockOfflineQueueRepository {
 
     const targetPeers = new Set(all.map((m) => m.targetPeerId));
     const expiringSoon = all.filter(
-      (m) =>
-        m.status === 'pending' &&
-        new Date(m.expiresAt) <= oneHourFromNow
+      (m) => m.status === 'pending' && new Date(m.expiresAt) <= oneHourFromNow,
     ).length;
 
     return {
@@ -608,14 +616,22 @@ export class MockOfflineQueueRepository {
 // =============================================================================
 
 export class MockPermissionService {
-  private permissions: Map<string, { level: string; granteeId: string; scopeType: string; scopeId: string | null }> = new Map();
+  private permissions: Map<
+    string,
+    {
+      level: string;
+      granteeId: string;
+      scopeType: string;
+      scopeId: string | null;
+    }
+  > = new Map();
   private idCounter = 0;
 
   async grant(
     granteeId: string,
     scopeType: string,
     scopeId: string | null,
-    level: string
+    level: string,
   ): Promise<{ success: boolean; id: string }> {
     const id = `perm-mock-${++this.idCounter}`;
     this.permissions.set(id, { level, granteeId, scopeType, scopeId });
@@ -629,7 +645,7 @@ export class MockPermissionService {
   async check(
     granteeId: string,
     scopeType: string,
-    scopeId: string | null
+    scopeId: string | null,
   ): Promise<{ hasAccess: boolean; level: string | null }> {
     const allPerms = Array.from(this.permissions.values());
     for (const perm of allPerms) {
@@ -650,7 +666,10 @@ export class MockPermissionService {
       .map(([id, p]) => ({ id, ...p }));
   }
 
-  async getGrantsForItem(scopeType: string, scopeId: string): Promise<unknown[]> {
+  async getGrantsForItem(
+    scopeType: string,
+    scopeId: string,
+  ): Promise<unknown[]> {
     return Array.from(this.permissions.entries())
       .filter(([_, p]) => p.scopeType === scopeType && p.scopeId === scopeId)
       .map(([id, p]) => ({ id, ...p }));
@@ -681,7 +700,8 @@ export class MockPermissionService {
 
 export class MockP2PTransport {
   private connected: Set<string> = new Set();
-  private messageHandler: ((peerId: string, message: unknown) => void) | null = null;
+  private messageHandler: ((peerId: string, message: unknown) => void) | null =
+    null;
   sentMessages: Array<{ peerId: string; message: unknown }> = [];
 
   async connect(peerId: string): Promise<boolean> {

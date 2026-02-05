@@ -9,10 +9,11 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { getForceService } from '@/services/forces/ForceService';
-import { IForce, IUpdateForceRequest } from '@/types/force';
+
 import { IForceOperationResult } from '@/services/forces/ForceRepository';
+import { getForceService } from '@/services/forces/ForceService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { IForce, IUpdateForceRequest } from '@/types/force';
 
 // =============================================================================
 // Response Types
@@ -39,13 +40,16 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<GetResponse | UpdateResponse | DeleteResponse | ErrorResponse>
+  res: NextApiResponse<
+    GetResponse | UpdateResponse | DeleteResponse | ErrorResponse
+  >,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -65,7 +69,9 @@ export default async function handler(
       return handleDelete(forceService, id, res);
     default:
       res.setHeader('Allow', ['GET', 'PATCH', 'DELETE']);
-      return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+      return res
+        .status(405)
+        .json({ error: `Method ${req.method} Not Allowed` });
   }
 }
 
@@ -75,7 +81,7 @@ export default async function handler(
 function handleGet(
   forceService: ReturnType<typeof getForceService>,
   id: string,
-  res: NextApiResponse<GetResponse | ErrorResponse>
+  res: NextApiResponse<GetResponse | ErrorResponse>,
 ) {
   try {
     const force = forceService.getForce(id);
@@ -84,7 +90,8 @@ function handleGet(
     }
     return res.status(200).json({ force });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to get force';
+    const message =
+      error instanceof Error ? error.message : 'Failed to get force';
     return res.status(500).json({ error: message });
   }
 }
@@ -96,7 +103,7 @@ function handlePatch(
   forceService: ReturnType<typeof getForceService>,
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<UpdateResponse | ErrorResponse>
+  res: NextApiResponse<UpdateResponse | ErrorResponse>,
 ) {
   try {
     const body = req.body as IUpdateForceRequest;
@@ -113,7 +120,8 @@ function handlePatch(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to update force';
+    const message =
+      error instanceof Error ? error.message : 'Failed to update force';
     return res.status(500).json({ error: message });
   }
 }
@@ -124,7 +132,7 @@ function handlePatch(
 function handleDelete(
   forceService: ReturnType<typeof getForceService>,
   id: string,
-  res: NextApiResponse<DeleteResponse | ErrorResponse>
+  res: NextApiResponse<DeleteResponse | ErrorResponse>,
 ) {
   try {
     const result = forceService.deleteForce(id);
@@ -139,7 +147,8 @@ function handleDelete(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to delete force';
+    const message =
+      error instanceof Error ? error.message : 'Failed to delete force';
     return res.status(500).json({ error: message });
   }
 }

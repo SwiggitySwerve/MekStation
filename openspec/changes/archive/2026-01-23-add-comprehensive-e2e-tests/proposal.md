@@ -5,6 +5,7 @@
 50+ PRs were merged in January 2026 introducing major features including gameplay systems (campaigns, encounters, combat), customizers (aerospace, vehicle, personnel), data systems (awards, P2P sync, event store), and UI components. Current E2E test coverage is minimal (6 test files, ~1300 lines) and doesn't verify that these features work correctly end-to-end.
 
 Without comprehensive E2E tests:
+
 - Regressions go undetected until manual testing
 - Integration issues between systems are missed
 - Confidence in deployments is low
@@ -15,6 +16,7 @@ Without comprehensive E2E tests:
 Add E2E test suites covering all major features merged this month:
 
 ### Gameplay Systems (High Priority)
+
 - **Campaign Management**: Create/view campaigns, mission progression, audit timeline
 - **Encounter System**: Create/configure/launch encounters
 - **Force Management**: Create forces, assign units and pilots
@@ -24,6 +26,7 @@ Add E2E test suites covering all major features merged this month:
 - **Repair System**: Repair bay, cost calculation, progress tracking
 
 ### Customizer Systems (Medium Priority)
+
 - **Aerospace Customizer**: Create/configure aerospace units
 - **Vehicle Customizer**: Create/configure vehicles
 - **Personnel Customizer**: Create/configure infantry/BA
@@ -31,11 +34,13 @@ Add E2E test suites covering all major features merged this month:
 - **Exotic Mechs**: Quad, LAM, tripod support
 
 ### Data & Storage Systems (Medium Priority)
+
 - **Awards System**: Unlock conditions, display, persistence
 - **P2P Vault Sync**: Enhanced tests for sync scenarios
 - **Event Store**: Event recording, querying, replay
 
 ### UI Components (Medium Priority)
+
 - **Unit Card View**: Data accuracy, interactions
 - **PilotMechCard**: Rendering, state display
 - **Armor Diagram**: Interaction, damage display

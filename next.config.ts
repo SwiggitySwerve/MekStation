@@ -1,6 +1,7 @@
-import type { NextConfig } from "next";
-import type { Configuration, WebpackPluginInstance } from "webpack";
-import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
+import type { NextConfig } from 'next';
+import type { Configuration, WebpackPluginInstance } from 'webpack';
+
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 interface WebpackContext {
   buildId: string;
@@ -20,17 +21,17 @@ interface WebpackContext {
 const nextConfig: NextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
-  
+
   // Turbopack config (empty to silence Next.js 16 warning)
   turbopack: {},
-  
+
   // Configure page extensions to exclude test files
   pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  
+
   // Enable standalone output for Docker and Electron deployment
   // This creates a self-contained build with all dependencies
   output: 'standalone',
-  
+
   // Optimize for production builds
   experimental: {
     // Enable modern output for better tree-shaking
@@ -38,7 +39,10 @@ const nextConfig: NextConfig = {
   },
 
   // Webpack configuration for bundle optimization
-  webpack: (config: Configuration, { dev, isServer, webpack }: WebpackContext): Configuration => {
+  webpack: (
+    config: Configuration,
+    { dev, isServer, webpack }: WebpackContext,
+  ): Configuration => {
     // Enable tree-shaking for equipment data files
     if (!dev && config.optimization && config.module?.rules) {
       config.optimization.sideEffects = false;
@@ -57,22 +61,27 @@ const nextConfig: NextConfig = {
           analyzerMode: 'server',
           analyzerPort: 8888,
           openAnalyzer: false,
-        })
+        }),
       );
     }
 
     // Optimize chunk splitting for better caching
     if (!dev && !isServer && config.optimization) {
       const existingSplitChunks = config.optimization.splitChunks;
-      const existingCacheGroups = existingSplitChunks && typeof existingSplitChunks === 'object'
-        ? existingSplitChunks.cacheGroups
-        : {};
-      
+      const existingCacheGroups =
+        existingSplitChunks && typeof existingSplitChunks === 'object'
+          ? existingSplitChunks.cacheGroups
+          : {};
+
       config.optimization.splitChunks = {
-        ...(existingSplitChunks && typeof existingSplitChunks === 'object' ? existingSplitChunks : {}),
+        ...(existingSplitChunks && typeof existingSplitChunks === 'object'
+          ? existingSplitChunks
+          : {}),
         cacheGroups: {
-          ...(existingCacheGroups && typeof existingCacheGroups === 'object' ? existingCacheGroups : {}),
-          
+          ...(existingCacheGroups && typeof existingCacheGroups === 'object'
+            ? existingCacheGroups
+            : {}),
+
           // Separate chunk for equipment data
           equipment: {
             test: /[\\/]src[\\/]data[\\/]equipment/,
@@ -80,7 +89,7 @@ const nextConfig: NextConfig = {
             chunks: 'all',
             priority: 30,
           },
-          
+
           // Separate chunk for services
           services: {
             test: /[\\/]src[\\/]services[\\/]/,
@@ -88,7 +97,7 @@ const nextConfig: NextConfig = {
             chunks: 'all',
             priority: 25,
           },
-          
+
           // Separate chunk for utilities
           utils: {
             test: /[\\/]src[\\/]utils[\\/]/,
@@ -96,7 +105,7 @@ const nextConfig: NextConfig = {
             chunks: 'all',
             priority: 20,
           },
-          
+
           // Separate chunk for components
           components: {
             test: /[\\/]src[\\/]components[\\/]/,
@@ -116,7 +125,7 @@ const nextConfig: NextConfig = {
           entries: true,
           modules: true,
           dependencies: true,
-        })
+        }),
       );
     }
 
@@ -137,7 +146,7 @@ const nextConfig: NextConfig = {
 
   // Enable static optimization
   trailingSlash: false,
-  
+
   // Optimize images
   images: {
     formats: ['image/webp', 'image/avif'],
@@ -149,7 +158,7 @@ const nextConfig: NextConfig = {
 
   // Power-user settings
   poweredByHeader: false,
-  
+
   // Generate build ID for cache busting
   generateBuildId: async () => {
     return `${Date.now()}`;

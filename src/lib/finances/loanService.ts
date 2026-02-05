@@ -16,9 +16,11 @@
  * @module lib/finances/loanService
  */
 
-import { Money } from '@/types/campaign/Money';
-import type { ILoan } from '@/types/campaign/Loan';
 import { randomUUID } from 'crypto';
+
+import type { ILoan } from '@/types/campaign/Loan';
+
+import { Money } from '@/types/campaign/Money';
 
 /**
  * Payment breakdown for a single loan payment
@@ -57,7 +59,7 @@ export interface PaymentResult {
 export function calculateMonthlyPayment(
   principal: Money,
   annualRate: number,
-  termMonths: number
+  termMonths: number,
 ): Money {
   const rate = annualRate / 12;
   const principalAmount = principal.amount;
@@ -96,9 +98,13 @@ export function createLoan(
   principal: Money,
   annualRate: number,
   termMonths: number,
-  startDate: Date
+  startDate: Date,
 ): ILoan {
-  const monthlyPayment = calculateMonthlyPayment(principal, annualRate, termMonths);
+  const monthlyPayment = calculateMonthlyPayment(
+    principal,
+    annualRate,
+    termMonths,
+  );
 
   const nextPaymentDate = new Date(startDate);
   nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
@@ -137,7 +143,8 @@ export function makePayment(loan: ILoan): PaymentResult {
   const interestPortion = loan.remainingPrincipal.multiply(monthlyRate);
   const principalPortion = loan.monthlyPayment.subtract(interestPortion);
 
-  const newRemainingPrincipal = loan.remainingPrincipal.subtract(principalPortion);
+  const newRemainingPrincipal =
+    loan.remainingPrincipal.subtract(principalPortion);
   const newPaymentsRemaining = Math.max(0, loan.paymentsRemaining - 1);
 
   const nextPaymentDate = new Date(loan.nextPaymentDate);

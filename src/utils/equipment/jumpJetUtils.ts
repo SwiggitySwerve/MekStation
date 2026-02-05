@@ -1,18 +1,22 @@
 /**
  * Jump Jet Equipment Utilities
- * 
+ *
  * Functions for creating and managing jump jet equipment.
  * All created items are configuration-based (isRemovable: false).
  */
 
+import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
+import { IMountedEquipmentInstance } from '@/stores/unitState';
+import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
-import { IMountedEquipmentInstance } from '@/stores/unitState';
-import { generateUnitId } from '@/utils/uuid';
+import {
+  MiscEquipmentCategory,
+  IMiscEquipment,
+} from '@/types/equipment/MiscEquipmentTypes';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
-import { MiscEquipmentCategory, IMiscEquipment } from '@/types/equipment/MiscEquipmentTypes';
-import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+import { generateUnitId } from '@/utils/uuid';
+
 import { JUMP_JET_EQUIPMENT_IDS } from './equipmentConstants';
 
 const JUMP_JET_FALLBACKS: Record<string, IMiscEquipment> = {
@@ -90,37 +94,43 @@ const JUMP_JET_FALLBACKS: Record<string, IMiscEquipment> = {
   },
 };
 
-export function getJumpJetEquipmentId(tonnage: number, jumpJetType: JumpJetType): string {
+export function getJumpJetEquipmentId(
+  tonnage: number,
+  jumpJetType: JumpJetType,
+): string {
   const isImproved = jumpJetType === JumpJetType.IMPROVED;
   const prefix = isImproved ? 'improved-jump-jet' : 'jump-jet';
-  
+
   if (tonnage <= 55) return `${prefix}-light`;
   if (tonnage <= 85) return `${prefix}-medium`;
   return `${prefix}-heavy`;
 }
 
-export function getJumpJetEquipment(tonnage: number, jumpJetType: JumpJetType): IMiscEquipment | undefined {
+export function getJumpJetEquipment(
+  tonnage: number,
+  jumpJetType: JumpJetType,
+): IMiscEquipment | undefined {
   const id = getJumpJetEquipmentId(tonnage, jumpJetType);
-  
+
   const loader = getEquipmentLoader();
   if (loader.getIsLoaded()) {
     const loaded = loader.getMiscEquipmentById(id);
     if (loaded) return loaded;
   }
-  
+
   return JUMP_JET_FALLBACKS[id];
 }
 
 export function createJumpJetEquipmentList(
   tonnage: number,
   jumpMP: number,
-  jumpJetType: JumpJetType
+  jumpJetType: JumpJetType,
 ): IMountedEquipmentInstance[] {
   if (jumpMP <= 0) return [];
-  
+
   const jetEquip = getJumpJetEquipment(tonnage, jumpJetType);
   if (!jetEquip) return [];
-  
+
   const result: IMountedEquipmentInstance[] = [];
   for (let i = 0; i < jumpMP; i++) {
     result.push({
@@ -143,6 +153,10 @@ export function createJumpJetEquipmentList(
   return result;
 }
 
-export function filterOutJumpJets(equipment: readonly IMountedEquipmentInstance[]): IMountedEquipmentInstance[] {
-  return equipment.filter(e => !JUMP_JET_EQUIPMENT_IDS.includes(e.equipmentId));
+export function filterOutJumpJets(
+  equipment: readonly IMountedEquipmentInstance[],
+): IMountedEquipmentInstance[] {
+  return equipment.filter(
+    (e) => !JUMP_JET_EQUIPMENT_IDS.includes(e.equipmentId),
+  );
 }

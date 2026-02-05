@@ -24,7 +24,7 @@ export interface IAcquisitionModifier {
 export function calculateAcquisitionTN(
   availability: AvailabilityRating,
   isConsumable: boolean,
-  modifiers: readonly IAcquisitionModifier[]
+  modifiers: readonly IAcquisitionModifier[],
 ): number {
   const baseTN = isConsumable
     ? CONSUMABLE_TN[availability]
@@ -44,12 +44,12 @@ export function performAcquisitionRoll(
   availability: AvailabilityRating,
   isConsumable: boolean,
   modifiers: readonly IAcquisitionModifier[],
-  random: RandomFn = Math.random
+  random: RandomFn = Math.random,
 ): IAcquisitionResult {
   const targetNumber = calculateAcquisitionTN(
     availability,
     isConsumable,
-    modifiers
+    modifiers,
   );
   const roll = roll2d6(random);
   const margin = roll - targetNumber;

@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+
 import { LocationArmorEditor } from '@/components/customizer/armor/LocationArmorEditor';
 import { MechLocation } from '@/types/construction';
 
@@ -65,8 +66,14 @@ describe('LocationArmorEditor', () => {
       <LocationArmorEditor
         {...defaultProps}
         location={MechLocation.CENTER_TORSO}
-        data={{ location: MechLocation.CENTER_TORSO, current: 20, maximum: 46, rear: 5, rearMaximum: 26 }}
-      />
+        data={{
+          location: MechLocation.CENTER_TORSO,
+          current: 20,
+          maximum: 46,
+          rear: 5,
+          rearMaximum: 26,
+        }}
+      />,
     );
 
     // Use getAllByText since there are multiple "Front" and "Rear" elements (label and legend)
@@ -75,7 +82,9 @@ describe('LocationArmorEditor', () => {
   });
 
   it('should not show rear input for non-torso locations', () => {
-    render(<LocationArmorEditor {...defaultProps} location={MechLocation.HEAD} />);
+    render(
+      <LocationArmorEditor {...defaultProps} location={MechLocation.HEAD} />,
+    );
 
     // Should have Front label but no Rear label
     expect(screen.getByText('Front')).toBeInTheDocument();
@@ -89,15 +98,21 @@ describe('LocationArmorEditor', () => {
       <LocationArmorEditor
         {...defaultProps}
         location={MechLocation.CENTER_TORSO}
-        data={{ location: MechLocation.CENTER_TORSO, current: 20, maximum: 46, rear: 5, rearMaximum: 26 }}
-      />
+        data={{
+          location: MechLocation.CENTER_TORSO,
+          current: 20,
+          maximum: 46,
+          rear: 5,
+          rearMaximum: 26,
+        }}
+      />,
     );
 
     // Should have two number inputs - one for front, one for rear
     const inputs = screen.getAllByRole('spinbutton');
     expect(inputs.length).toBe(2);
     expect(inputs[0]).toHaveValue(20); // front
-    expect(inputs[1]).toHaveValue(5);  // rear
+    expect(inputs[1]).toHaveValue(5); // rear
   });
 
   it('should call onChange when front value changes', async () => {
@@ -108,8 +123,14 @@ describe('LocationArmorEditor', () => {
         {...defaultProps}
         onChange={onChange}
         location={MechLocation.CENTER_TORSO}
-        data={{ location: MechLocation.CENTER_TORSO, current: 20, maximum: 46, rear: 5, rearMaximum: 26 }}
-      />
+        data={{
+          location: MechLocation.CENTER_TORSO,
+          current: 20,
+          maximum: 46,
+          rear: 5,
+          rearMaximum: 26,
+        }}
+      />,
     );
 
     const inputs = screen.getAllByRole('spinbutton');
@@ -120,7 +141,10 @@ describe('LocationArmorEditor', () => {
     // Verify onChange was called (exact values vary due to intermediate calls during typing)
     expect(onChange).toHaveBeenCalled();
     // Last call should include rear value 5
-    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1] as [number, number];
+    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1] as [
+      number,
+      number,
+    ];
     expect(lastCall[1]).toBe(5); // rear should be preserved
   });
 
@@ -132,8 +156,14 @@ describe('LocationArmorEditor', () => {
         {...defaultProps}
         onChange={onChange}
         location={MechLocation.CENTER_TORSO}
-        data={{ location: MechLocation.CENTER_TORSO, current: 20, maximum: 46, rear: 5, rearMaximum: 26 }}
-      />
+        data={{
+          location: MechLocation.CENTER_TORSO,
+          current: 20,
+          maximum: 46,
+          rear: 5,
+          rearMaximum: 26,
+        }}
+      />,
     );
 
     const inputs = screen.getAllByRole('spinbutton');
@@ -144,7 +174,10 @@ describe('LocationArmorEditor', () => {
     // Verify onChange was called
     expect(onChange).toHaveBeenCalled();
     // Last call should have front value 20 preserved
-    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1] as [number, number];
+    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1] as [
+      number,
+      number,
+    ];
     expect(lastCall[0]).toBe(20); // front should be preserved
   });
 
@@ -160,8 +193,14 @@ describe('LocationArmorEditor', () => {
       <LocationArmorEditor
         {...defaultProps}
         location={MechLocation.CENTER_TORSO}
-        data={{ location: MechLocation.CENTER_TORSO, current: 20, maximum: 46, rear: 5, rearMaximum: 26 }}
-      />
+        data={{
+          location: MechLocation.CENTER_TORSO,
+          current: 20,
+          maximum: 46,
+          rear: 5,
+          rearMaximum: 26,
+        }}
+      />,
     );
 
     // Total should be 25 (20 front + 5 rear)
@@ -173,8 +212,14 @@ describe('LocationArmorEditor', () => {
       <LocationArmorEditor
         {...defaultProps}
         location={MechLocation.CENTER_TORSO}
-        data={{ location: MechLocation.CENTER_TORSO, current: 20, maximum: 46, rear: 5, rearMaximum: 26 }}
-      />
+        data={{
+          location: MechLocation.CENTER_TORSO,
+          current: 20,
+          maximum: 46,
+          rear: 5,
+          rearMaximum: 26,
+        }}
+      />,
     );
 
     // Should show "max X" indicators for both sliders
@@ -189,8 +234,14 @@ describe('LocationArmorEditor', () => {
         {...defaultProps}
         readOnly={true}
         location={MechLocation.CENTER_TORSO}
-        data={{ location: MechLocation.CENTER_TORSO, current: 20, maximum: 46, rear: 5, rearMaximum: 26 }}
-      />
+        data={{
+          location: MechLocation.CENTER_TORSO,
+          current: 20,
+          maximum: 46,
+          rear: 5,
+          rearMaximum: 26,
+        }}
+      />,
     );
 
     const inputs = screen.getAllByRole('spinbutton');

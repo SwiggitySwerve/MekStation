@@ -6,13 +6,15 @@
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useEquipmentBrowser } from '../useEquipmentBrowser';
-import { useEquipmentStore } from '@/stores/useEquipmentStore';
+import * as React from 'react';
+
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { useEquipmentStore } from '@/stores/useEquipmentStore';
+import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import * as React from 'react';
+
+import { useEquipmentBrowser } from '../useEquipmentBrowser';
 
 // Mock dependencies
 jest.mock('@/stores/useEquipmentStore');
@@ -27,11 +29,17 @@ jest.mock('react', () => {
   };
 });
 
-const mockUseEquipmentStore = useEquipmentStore as jest.MockedFunction<typeof useEquipmentStore>;
-const mockEquipmentLookupService = equipmentLookupService as jest.Mocked<typeof equipmentLookupService>;
+const mockUseEquipmentStore = useEquipmentStore as jest.MockedFunction<
+  typeof useEquipmentStore
+>;
+const mockEquipmentLookupService = equipmentLookupService as jest.Mocked<
+  typeof equipmentLookupService
+>;
 
 // Sample equipment data for testing
-const createMockEquipment = (overrides: Partial<IEquipmentItem> = {}): IEquipmentItem => ({
+const createMockEquipment = (
+  overrides: Partial<IEquipmentItem> = {},
+): IEquipmentItem => ({
   id: 'test-weapon-1',
   name: 'Test Weapon',
   category: EquipmentCategory.ENERGY_WEAPON,
@@ -46,22 +54,37 @@ const createMockEquipment = (overrides: Partial<IEquipmentItem> = {}): IEquipmen
 });
 
 const mockEquipmentList: IEquipmentItem[] = [
-  createMockEquipment({ id: 'medium-laser', name: 'Medium Laser', weight: 1, introductionYear: 2300 }),
-  createMockEquipment({ id: 'large-laser', name: 'Large Laser', weight: 5, introductionYear: 2316 }),
-  createMockEquipment({ id: 'ppc', name: 'PPC', weight: 7, introductionYear: 2460 }),
-  createMockEquipment({ 
-    id: 'er-large-laser', 
-    name: 'ER Large Laser', 
-    weight: 5, 
-    techBase: TechBase.CLAN,
-    introductionYear: 2620 
+  createMockEquipment({
+    id: 'medium-laser',
+    name: 'Medium Laser',
+    weight: 1,
+    introductionYear: 2300,
   }),
-  createMockEquipment({ 
-    id: 'ac-10', 
-    name: 'AC/10', 
+  createMockEquipment({
+    id: 'large-laser',
+    name: 'Large Laser',
+    weight: 5,
+    introductionYear: 2316,
+  }),
+  createMockEquipment({
+    id: 'ppc',
+    name: 'PPC',
+    weight: 7,
+    introductionYear: 2460,
+  }),
+  createMockEquipment({
+    id: 'er-large-laser',
+    name: 'ER Large Laser',
+    weight: 5,
+    techBase: TechBase.CLAN,
+    introductionYear: 2620,
+  }),
+  createMockEquipment({
+    id: 'ac-10',
+    name: 'AC/10',
     category: EquipmentCategory.BALLISTIC_WEAPON,
-    weight: 12, 
-    introductionYear: 2443 
+    weight: 12,
+    introductionYear: 2443,
   }),
 ];
 
@@ -129,8 +152,12 @@ describe('useEquipmentBrowser', () => {
     jest.clearAllMocks();
     mockStoreState = createMockStoreState();
     mockUseEquipmentStore.mockReturnValue(mockStoreState);
-    mockEquipmentLookupService.initialize = jest.fn().mockResolvedValue(undefined);
-    mockEquipmentLookupService.getAllEquipment = jest.fn().mockReturnValue(mockEquipmentList);
+    mockEquipmentLookupService.initialize = jest
+      .fn()
+      .mockResolvedValue(undefined);
+    mockEquipmentLookupService.getAllEquipment = jest
+      .fn()
+      .mockReturnValue(mockEquipmentList);
   });
 
   describe('initial state', () => {
@@ -201,7 +228,9 @@ describe('useEquipmentBrowser', () => {
       const emptyState = createMockStoreState();
       emptyState.equipment = [];
       mockUseEquipmentStore.mockReturnValue(emptyState);
-      mockEquipmentLookupService.initialize = jest.fn().mockRejectedValue(new Error('Load failed'));
+      mockEquipmentLookupService.initialize = jest
+        .fn()
+        .mockRejectedValue(new Error('Load failed'));
 
       renderHook(() => useEquipmentBrowser());
 
@@ -241,7 +270,9 @@ describe('useEquipmentBrowser', () => {
         result.current.setTechBaseFilter(TechBase.CLAN);
       });
 
-      expect(mockStoreState.setTechBaseFilter).toHaveBeenCalledWith(TechBase.CLAN);
+      expect(mockStoreState.setTechBaseFilter).toHaveBeenCalledWith(
+        TechBase.CLAN,
+      );
     });
 
     it('should expose setCategoryFilter action', () => {
@@ -251,17 +282,25 @@ describe('useEquipmentBrowser', () => {
         result.current.setCategoryFilter(EquipmentCategory.ENERGY_WEAPON);
       });
 
-      expect(mockStoreState.setCategoryFilter).toHaveBeenCalledWith(EquipmentCategory.ENERGY_WEAPON);
+      expect(mockStoreState.setCategoryFilter).toHaveBeenCalledWith(
+        EquipmentCategory.ENERGY_WEAPON,
+      );
     });
 
     it('should expose selectCategory action', () => {
       const { result } = renderHook(() => useEquipmentBrowser());
 
       act(() => {
-        result.current.selectCategory(EquipmentCategory.BALLISTIC_WEAPON, false);
+        result.current.selectCategory(
+          EquipmentCategory.BALLISTIC_WEAPON,
+          false,
+        );
       });
 
-      expect(mockStoreState.selectCategory).toHaveBeenCalledWith(EquipmentCategory.BALLISTIC_WEAPON, false);
+      expect(mockStoreState.selectCategory).toHaveBeenCalledWith(
+        EquipmentCategory.BALLISTIC_WEAPON,
+        false,
+      );
     });
 
     it('should expose selectCategory with multi-select', () => {
@@ -271,7 +310,10 @@ describe('useEquipmentBrowser', () => {
         result.current.selectCategory(EquipmentCategory.MISSILE_WEAPON, true);
       });
 
-      expect(mockStoreState.selectCategory).toHaveBeenCalledWith(EquipmentCategory.MISSILE_WEAPON, true);
+      expect(mockStoreState.selectCategory).toHaveBeenCalledWith(
+        EquipmentCategory.MISSILE_WEAPON,
+        true,
+      );
     });
 
     it('should expose showAll action', () => {
@@ -498,7 +540,9 @@ describe('useEquipmentBrowser', () => {
       });
 
       expect(mockEquipmentLookupService.initialize).toHaveBeenCalled();
-      expect(mockStoreState.setEquipment).toHaveBeenCalledWith(mockEquipmentList);
+      expect(mockStoreState.setEquipment).toHaveBeenCalledWith(
+        mockEquipmentList,
+      );
     });
 
     it('should set loading state during refresh', async () => {
@@ -545,7 +589,10 @@ describe('useEquipmentBrowser', () => {
 
   describe('active categories', () => {
     it('should return activeCategories from store', () => {
-      const categories = new Set([EquipmentCategory.ENERGY_WEAPON, EquipmentCategory.BALLISTIC_WEAPON]);
+      const categories = new Set([
+        EquipmentCategory.ENERGY_WEAPON,
+        EquipmentCategory.BALLISTIC_WEAPON,
+      ]);
       mockStoreState.filters.activeCategories = categories;
 
       const { result } = renderHook(() => useEquipmentBrowser());

@@ -9,11 +9,7 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
-import {
-  GameListPage,
-  GameSessionPage,
-  GameReplayPage,
-} from './pages/game.page';
+
 import {
   waitForGameplayStoreReady,
   getGameSession,
@@ -24,6 +20,11 @@ import {
   DEMO_INITIAL_STATE,
   PHASE_ACTIONS,
 } from './fixtures/game';
+import {
+  GameListPage,
+  GameSessionPage,
+  GameReplayPage,
+} from './pages/game.page';
 
 // =============================================================================
 // Test Configuration
@@ -40,7 +41,7 @@ async function waitForStoreReady(page: Page): Promise<void> {
       };
       return win.__ZUSTAND_STORES__?.gameplay !== undefined;
     },
-    { timeout: 10000 }
+    { timeout: 10000 },
   );
 }
 
@@ -78,7 +79,7 @@ test.describe('Game List Page @smoke @game', () => {
     } else {
       // Cards should be visible
       await expect(
-        page.locator('[data-testid^="game-card-"]').first()
+        page.locator('[data-testid^="game-card-"]').first(),
       ).toBeVisible();
     }
   });
@@ -162,10 +163,10 @@ test.describe('Demo Game Session @smoke @game', () => {
 
     // Both demo units should have tokens visible
     const playerUnitVisible = await sessionPage.isUnitTokenVisible(
-      DEMO_UNITS.PLAYER.id
+      DEMO_UNITS.PLAYER.id,
     );
     const opponentUnitVisible = await sessionPage.isUnitTokenVisible(
-      DEMO_UNITS.OPPONENT.id
+      DEMO_UNITS.OPPONENT.id,
     );
 
     expect(playerUnitVisible).toBe(true);
@@ -345,10 +346,10 @@ test.describe('Game Session State @game', () => {
     expect(session?.units).toHaveLength(2);
 
     const playerUnit = session?.units.find(
-      (u) => u.id === DEMO_UNITS.PLAYER.id
+      (u) => u.id === DEMO_UNITS.PLAYER.id,
     );
     const opponentUnit = session?.units.find(
-      (u) => u.id === DEMO_UNITS.OPPONENT.id
+      (u) => u.id === DEMO_UNITS.OPPONENT.id,
     );
 
     expect(playerUnit?.name).toBe(DEMO_UNITS.PLAYER.name);
@@ -359,10 +360,10 @@ test.describe('Game Session State @game', () => {
     const session = await getGameSession(page);
 
     const playerUnit = session?.units.find(
-      (u) => u.id === DEMO_UNITS.PLAYER.id
+      (u) => u.id === DEMO_UNITS.PLAYER.id,
     );
     const opponentUnit = session?.units.find(
-      (u) => u.id === DEMO_UNITS.OPPONENT.id
+      (u) => u.id === DEMO_UNITS.OPPONENT.id,
     );
 
     expect(playerUnit?.side).toBe('player');
@@ -423,7 +424,7 @@ test.describe('Game Replay Page @game', () => {
 
     // One of these should be true - any state is acceptable
     expect(
-      replayPageVisible || errorHeading || noEventsText || loadingSpinner
+      replayPageVisible || errorHeading || noEventsText || loadingSpinner,
     ).toBe(true);
   });
 
@@ -478,7 +479,9 @@ test.describe('Game Flow @game', () => {
     await sessionPage.waitForGameLoaded();
   });
 
-  test('can lock movement for selected unit (requires movement phase)', async ({ page }) => {
+  test('can lock movement for selected unit (requires movement phase)', async ({
+    page,
+  }) => {
     // Demo starts at weapon_attack phase
     // First, verify the current phase
     const initialSession = await getGameSession(page);
@@ -486,7 +489,7 @@ test.describe('Game Flow @game', () => {
 
     // Select a player unit
     await selectUnit(page, DEMO_UNITS.PLAYER.id);
-    
+
     // Verify selection
     const state = await getGameplayState(page);
     expect(state?.ui.selectedUnitId).toBe(DEMO_UNITS.PLAYER.id);
@@ -507,7 +510,15 @@ test.describe('Game Flow @game', () => {
 
     // Queue a weapon (AC/20 from demo weapons)
     await page.evaluate((weaponId) => {
-      const stores = (window as Window & { __ZUSTAND_STORES__?: { gameplay?: { getState: () => { toggleWeapon: (id: string) => void } } } }).__ZUSTAND_STORES__;
+      const stores = (
+        window as Window & {
+          __ZUSTAND_STORES__?: {
+            gameplay?: {
+              getState: () => { toggleWeapon: (id: string) => void };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
       stores?.gameplay?.getState().toggleWeapon(weaponId);
     }, 'weapon-1');
 
@@ -572,10 +583,11 @@ test.describe('Phase Transitions @game', () => {
   test('phase actions match current phase', async ({ page }) => {
     const session = await getGameSession(page);
     const phase = session?.currentState.phase;
-    
+
     // Get expected actions for current phase
-    const expectedActions = PHASE_ACTIONS[phase as keyof typeof PHASE_ACTIONS] ?? [];
-    
+    const expectedActions =
+      PHASE_ACTIONS[phase as keyof typeof PHASE_ACTIONS] ?? [];
+
     // Verify at least one expected action is available
     for (const action of expectedActions) {
       const isVisible = await sessionPage.isActionVisible(action);

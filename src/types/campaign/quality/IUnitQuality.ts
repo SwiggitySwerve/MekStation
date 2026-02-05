@@ -13,7 +13,11 @@ export interface IMaintenanceRecord {
   readonly roll: number;
   readonly targetNumber: number;
   readonly margin: number;
-  readonly outcome: 'success' | 'failure' | 'critical_success' | 'critical_failure';
+  readonly outcome:
+    | 'success'
+    | 'failure'
+    | 'critical_success'
+    | 'critical_failure';
   readonly qualityBefore: PartQuality;
   readonly qualityAfter: PartQuality;
 }

@@ -1,19 +1,21 @@
 /**
  * Custom Unit Service
- * 
+ *
  * CRUD operations for user-created unit variants stored in IndexedDB.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { IUnitIndexEntry } from '../common/types';
+
+import { Era } from '@/types/enums/Era';
+import { TechBase } from '@/types/enums/TechBase';
+import { getWeightClass } from '@/types/enums/WeightClass';
+
 import { NotFoundError } from '../common/errors';
+import { IUnitIndexEntry } from '../common/types';
 import { indexedDBService, STORES } from '../persistence/IndexedDBService';
 import { IFullUnit } from './CanonicalUnitService';
-import { TechBase } from '@/types/enums/TechBase';
-import { Era } from '@/types/enums/Era';
-import { getWeightClass } from '@/types/enums/WeightClass';
 
 /**
  * Unit name entry for quick lookups
@@ -63,13 +65,13 @@ export class CustomUnitService implements ICustomUnitService {
    */
   async create(unit: IFullUnit, overwriteId?: string): Promise<string> {
     await this.ensureInitialized();
-    
+
     // If overwriting, use the existing ID; otherwise generate a new one
     const id = overwriteId || `custom-${uuidv4()}`;
     const unitWithId = { ...unit, id };
-    
+
     await indexedDBService.put(STORES.CUSTOM_UNITS, id, unitWithId);
-    
+
     return id;
   }
 
@@ -78,12 +80,12 @@ export class CustomUnitService implements ICustomUnitService {
    */
   async update(id: string, unit: IFullUnit): Promise<void> {
     await this.ensureInitialized();
-    
+
     const existing = await this.getById(id);
     if (!existing) {
       throw new NotFoundError('Custom Unit', id);
     }
-    
+
     const unitWithId = { ...unit, id };
     await indexedDBService.put(STORES.CUSTOM_UNITS, id, unitWithId);
   }
@@ -111,8 +113,8 @@ export class CustomUnitService implements ICustomUnitService {
   async list(): Promise<readonly IUnitIndexEntry[]> {
     await this.ensureInitialized();
     const units = await indexedDBService.getAll<IFullUnit>(STORES.CUSTOM_UNITS);
-    
-    return units.map(unit => this.toIndexEntry(unit));
+
+    return units.map((unit) => this.toIndexEntry(unit));
   }
 
   /**
@@ -127,20 +129,25 @@ export class CustomUnitService implements ICustomUnitService {
    * Find a custom unit by chassis and variant name
    * Uses case-insensitive comparison
    */
-  async findByName(chassis: string, variant: string): Promise<IFullUnit | null> {
+  async findByName(
+    chassis: string,
+    variant: string,
+  ): Promise<IFullUnit | null> {
     await this.ensureInitialized();
-    
+
     const normalizedChassis = chassis.trim().toLowerCase();
     const normalizedVariant = variant.trim().toLowerCase();
-    
+
     const units = await indexedDBService.getAll<IFullUnit>(STORES.CUSTOM_UNITS);
-    
+
     const match = units.find((unit) => {
       const unitChassis = (unit.chassis || '').trim().toLowerCase();
       const unitVariant = (unit.variant || '').trim().toLowerCase();
-      return unitChassis === normalizedChassis && unitVariant === normalizedVariant;
+      return (
+        unitChassis === normalizedChassis && unitVariant === normalizedVariant
+      );
     });
-    
+
     return match || null;
   }
 
@@ -150,9 +157,9 @@ export class CustomUnitService implements ICustomUnitService {
    */
   async listNames(): Promise<readonly IUnitNameEntry[]> {
     await this.ensureInitialized();
-    
+
     const units = await indexedDBService.getAll<IFullUnit>(STORES.CUSTOM_UNITS);
-    
+
     return units.map((unit) => ({
       id: unit.id,
       chassis: unit.chassis || '',
@@ -166,15 +173,15 @@ export class CustomUnitService implements ICustomUnitService {
    */
   private toIndexEntry(unit: IFullUnit): IUnitIndexEntry {
     const tonnage = typeof unit.tonnage === 'number' ? unit.tonnage : 0;
-    
+
     return {
       id: unit.id,
       name: `${unit.chassis} ${unit.variant}`,
       chassis: unit.chassis,
       variant: unit.variant,
       tonnage,
-      techBase: unit.techBase as TechBase || TechBase.INNER_SPHERE,
-      era: unit.era as Era || Era.LATE_SUCCESSION_WARS,
+      techBase: (unit.techBase as TechBase) || TechBase.INNER_SPHERE,
+      era: (unit.era as Era) || Era.LATE_SUCCESSION_WARS,
       weightClass: getWeightClass(tonnage),
       unitType: (unit.unitType as IUnitIndexEntry['unitType']) || 'BattleMech',
       filePath: '', // Custom units don't have file paths
@@ -207,4 +214,3 @@ export function _resetCustomUnitService(): void {
 // Legacy export for backward compatibility
 // @deprecated Use getCustomUnitService() instead
 export const customUnitService = getCustomUnitService();
-

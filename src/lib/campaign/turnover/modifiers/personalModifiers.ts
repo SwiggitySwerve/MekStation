@@ -1,5 +1,5 @@
-import type { IPerson } from '@/types/campaign/Person';
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
 
 const MONTHS_FOR_RECENT_PROMOTION = 6;
 
@@ -70,9 +70,7 @@ export function getInjuryModifier(person: IPerson): number {
 }
 
 export function getOfficerModifier(person: IPerson): number {
-  return person.isCommander || person.isSecondInCommand
-    ? OFFICER_MODIFIER
-    : 0;
+  return person.isCommander || person.isSecondInCommand ? OFFICER_MODIFIER : 0;
 }
 
 // TODO: Needs per-person contract term tracking to implement properly

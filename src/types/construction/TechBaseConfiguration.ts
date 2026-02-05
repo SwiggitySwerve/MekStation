@@ -1,9 +1,9 @@
 /**
  * Tech Base Configuration Types
- * 
+ *
  * Defines interfaces for global and per-component tech base settings.
  * Supports Inner Sphere, Clan, and Mixed Tech configurations.
- * 
+ *
  * @spec Based on BattleTech TechManual mixed tech rules
  */
 
@@ -40,7 +40,10 @@ export const TECH_BASE_COMPONENT_LABELS: Record<TechBaseComponent, string> = {
 /**
  * Descriptions for each component category
  */
-export const TECH_BASE_COMPONENT_DESCRIPTIONS: Record<TechBaseComponent, string> = {
+export const TECH_BASE_COMPONENT_DESCRIPTIONS: Record<
+  TechBaseComponent,
+  string
+> = {
   [TechBaseComponent.CHASSIS]: 'Internal structure type',
   [TechBaseComponent.GYRO]: 'Gyro technology',
   [TechBaseComponent.ENGINE]: 'Engine technology',
@@ -90,7 +93,9 @@ export interface ITechBaseConfiguration {
 /**
  * Creates default component tech bases for a given tech base
  */
-export function createDefaultComponentTechBases(techBase: TechBase): IComponentTechBases {
+export function createDefaultComponentTechBases(
+  techBase: TechBase,
+): IComponentTechBases {
   return {
     [TechBaseComponent.CHASSIS]: techBase,
     [TechBaseComponent.GYRO]: techBase,
@@ -107,9 +112,10 @@ export function createDefaultComponentTechBases(techBase: TechBase): IComponentT
  * Creates a default tech base configuration
  */
 export function createDefaultTechBaseConfiguration(
-  mode: TechBaseMode = TechBaseMode.INNER_SPHERE
+  mode: TechBaseMode = TechBaseMode.INNER_SPHERE,
 ): ITechBaseConfiguration {
-  const baseTechBase = mode === TechBaseMode.CLAN ? TechBase.CLAN : TechBase.INNER_SPHERE;
+  const baseTechBase =
+    mode === TechBaseMode.CLAN ? TechBase.CLAN : TechBase.INNER_SPHERE;
   return {
     mode,
     components: createDefaultComponentTechBases(baseTechBase),
@@ -123,6 +129,5 @@ export function createDefaultTechBaseConfiguration(
 export function isEffectivelyMixed(components: IComponentTechBases): boolean {
   const values = Object.values(components);
   const firstValue = values[0];
-  return values.some(v => v !== firstValue);
+  return values.some((v) => v !== firstValue);
 }
-

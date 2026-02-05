@@ -5,9 +5,10 @@
  * table on SVG record sheets.
  */
 
-import { renderEquipmentTable } from '../equipment';
 import { IRecordSheetEquipment } from '@/types/printing';
+
 import { ELEMENT_IDS, SVG_NS } from '../constants';
+import { renderEquipmentTable } from '../equipment';
 
 // Helper to create a mock SVG document
 function createMockSvgDocument(): Document {
@@ -31,7 +32,7 @@ function createMockSvgDocument(): Document {
 
 // Helper to create equipment item
 function createEquipment(
-  overrides: Partial<IRecordSheetEquipment> = {}
+  overrides: Partial<IRecordSheetEquipment> = {},
 ): IRecordSheetEquipment {
   return {
     id: 'medium-laser',
@@ -54,11 +55,15 @@ function createEquipment(
 describe('renderEquipmentTable', () => {
   describe('basic rendering', () => {
     it('should do nothing when inventory area is not found', () => {
-      const emptyDoc = document.implementation.createDocument(SVG_NS, 'svg', null);
+      const emptyDoc = document.implementation.createDocument(
+        SVG_NS,
+        'svg',
+        null,
+      );
 
       // Should not throw
       expect(() =>
-        renderEquipmentTable(emptyDoc, [createEquipment()])
+        renderEquipmentTable(emptyDoc, [createEquipment()]),
       ).not.toThrow();
 
       // Should not add any equipment rows
@@ -80,7 +85,7 @@ describe('renderEquipmentTable', () => {
 
       const equipmentRows = doc.getElementById('equipment-rows');
       expect(equipmentRows?.getAttribute('style')).toBe(
-        'font-family: Eurostile, Arial, sans-serif; font-size: 7px;'
+        'font-family: Eurostile, Arial, sans-serif; font-size: 7px;',
       );
     });
 
@@ -101,7 +106,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, []);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       // Extract header text content
       const headers: string[] = [];
@@ -130,7 +138,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, []);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       // Count bold elements (headers)
       let boldCount = 0;
@@ -165,7 +176,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -194,7 +208,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -204,7 +221,9 @@ describe('renderEquipmentTable', () => {
       }
 
       // Heat should be '-' for 0
-      expect(textContents.filter((t) => t === '-').length).toBeGreaterThanOrEqual(1);
+      expect(
+        textContents.filter((t) => t === '-').length,
+      ).toBeGreaterThanOrEqual(1);
     });
 
     it('should display "-" for heat when value is "-"', () => {
@@ -217,7 +236,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -226,7 +248,9 @@ describe('renderEquipmentTable', () => {
         }
       }
 
-      expect(textContents.filter((t) => t === '-').length).toBeGreaterThanOrEqual(1);
+      expect(
+        textContents.filter((t) => t === '-').length,
+      ).toBeGreaterThanOrEqual(1);
     });
 
     it('should display "-" for zero minimum range', () => {
@@ -239,7 +263,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -248,7 +275,9 @@ describe('renderEquipmentTable', () => {
         }
       }
 
-      expect(textContents.filter((t) => t === '-').length).toBeGreaterThanOrEqual(1);
+      expect(
+        textContents.filter((t) => t === '-').length,
+      ).toBeGreaterThanOrEqual(1);
     });
 
     it('should include damage code when present', () => {
@@ -262,7 +291,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -285,7 +317,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -308,7 +343,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -334,7 +372,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [equipment]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -361,7 +402,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [ammo]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -385,7 +429,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [ammo]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -413,7 +460,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [ammo]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       // Count non-header text elements for this row
       const nonHeaderTexts: string[] = [];
@@ -444,7 +494,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -469,7 +522,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -491,7 +547,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -515,7 +574,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -537,7 +599,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -565,14 +630,17 @@ describe('renderEquipmentTable', () => {
             id: `weapon-${i}`,
             name: `Weapon ${i}`,
             isWeapon: true,
-          })
+          }),
         );
       }
 
       renderEquipmentTable(doc, equipment);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       // Count non-header rows (each row has multiple text elements)
       // Headers = 9, each weapon row has 9 elements
@@ -617,7 +685,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, equipment);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -640,7 +711,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [createEquipment()]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       if (textElements && textElements.length > 0) {
         const textEl = textElements[0];
@@ -667,7 +741,7 @@ describe('renderEquipmentTable', () => {
 
       // Should not throw and should use defaults
       expect(() =>
-        renderEquipmentTable(doc, [createEquipment()])
+        renderEquipmentTable(doc, [createEquipment()]),
       ).not.toThrow();
 
       const equipmentRows = doc.getElementById('equipment-rows');
@@ -684,7 +758,10 @@ describe('renderEquipmentTable', () => {
       expect(equipmentRows).not.toBeNull();
 
       // Should still have headers
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
       expect(textElements?.length).toBe(9); // Just headers
     });
 
@@ -700,7 +777,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [weapon]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -726,7 +806,10 @@ describe('renderEquipmentTable', () => {
       renderEquipmentTable(doc, [item]);
 
       const equipmentRows = doc.getElementById('equipment-rows');
-      const textElements = equipmentRows?.getElementsByTagNameNS(SVG_NS, 'text');
+      const textElements = equipmentRows?.getElementsByTagNameNS(
+        SVG_NS,
+        'text',
+      );
 
       const textContents: string[] = [];
       if (textElements) {
@@ -753,7 +836,7 @@ describe('renderEquipmentTable', () => {
 
       // Should not throw even if structure is unusual
       expect(() =>
-        renderEquipmentTable(doc, [createEquipment()])
+        renderEquipmentTable(doc, [createEquipment()]),
       ).not.toThrow();
     });
   });

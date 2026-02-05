@@ -4,8 +4,9 @@
  */
 
 import type { IIdentifiable } from '@/types/core';
-import { Money } from './Money';
+
 import { TransactionType } from './enums/TransactionType';
+import { Money } from './Money';
 
 export { TransactionType };
 
@@ -14,7 +15,6 @@ export { TransactionType };
  * Represents a single financial transaction with type, date, amount, and description
  */
 export interface Transaction extends IIdentifiable {
-
   /** Type of transaction */
   type: TransactionType;
 

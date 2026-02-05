@@ -2,6 +2,12 @@
  * Unit Card Data Service Tests
  */
 
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { WeightClass } from '@/types/enums/WeightClass';
+import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
 import {
   getTechBaseName,
   getRulesLevelName,
@@ -13,11 +19,6 @@ import {
   formatDamage,
   IWeaponSummary,
 } from '../UnitCardDataService';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { WeightClass } from '@/types/enums/WeightClass';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
 
 describe('UnitCardDataService', () => {
   describe('getTechBaseName', () => {
@@ -112,7 +113,7 @@ describe('UnitCardDataService', () => {
     const createWeapon = (
       name: string,
       location?: string,
-      isRearMounted?: boolean
+      isRearMounted?: boolean,
     ): IWeaponSummary => ({
       name,
       category: WeaponCategory.ENERGY,

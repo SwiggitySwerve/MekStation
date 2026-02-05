@@ -281,7 +281,7 @@ export function getLocationsForUnitType(unitType: UnitType): string[] {
  */
 export function isValidLocationForUnitType(
   location: string,
-  unitType: UnitType
+  unitType: UnitType,
 ): boolean {
   const validLocations = getLocationsForUnitType(unitType);
   return validLocations.includes(location);

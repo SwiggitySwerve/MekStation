@@ -1,6 +1,6 @@
 /**
  * Equipment Constants
- * 
+ *
  * Shared constants for equipment IDs used across equipment utility modules.
  * These are essential for construction and are hardcoded since they're
  * fundamental to the mech construction process.

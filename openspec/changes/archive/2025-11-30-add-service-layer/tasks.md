@@ -37,4 +37,3 @@
 - [x] 6.2 Update Zustand stores to call services
 - [x] 6.3 Delete old stub services
 - [x] 6.4 Add service tests
-

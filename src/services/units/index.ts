@@ -1,8 +1,8 @@
 /**
  * Unit Services
- * 
+ *
  * Central export for unit factory and management services.
- * 
+ *
  * @module services/units
  */
 

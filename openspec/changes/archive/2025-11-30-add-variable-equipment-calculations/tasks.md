@@ -34,4 +34,3 @@
 ## 6. Documentation
 
 - [x] 6.1 Create `docs/battletech/agents/09-variable-equipment.md`
-

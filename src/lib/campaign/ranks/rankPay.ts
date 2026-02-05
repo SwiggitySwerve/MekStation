@@ -9,6 +9,7 @@
 
 import type { IPerson } from '@/types/campaign/Person';
 import type { IRankSystem } from '@/types/campaign/ranks/rankTypes';
+
 import { isOfficer } from '@/lib/campaign/ranks/rankService';
 
 /**
@@ -25,7 +26,10 @@ import { isOfficer } from '@/lib/campaign/ranks/rankService';
  * getRankPayMultiplier(person, rankSystem) // 1.1 for Sergeant
  * getRankPayMultiplier(person, rankSystem) // 2.0 for Colonel
  */
-export function getRankPayMultiplier(person: IPerson, rankSystem: IRankSystem): number {
+export function getRankPayMultiplier(
+  person: IPerson,
+  rankSystem: IRankSystem,
+): number {
   const rankIndex = person.rankIndex ?? 0;
   const rank = rankSystem.ranks[rankIndex];
 
@@ -78,7 +82,10 @@ export function getPersonMonthlySalaryWithRank(
  * getOfficerShares(person, rankSystem) // 1 for Lieutenant (at officerCut)
  * getOfficerShares(person, rankSystem) // 5 for Captain (4 ranks above officerCut)
  */
-export function getOfficerShares(person: IPerson, rankSystem: IRankSystem): number {
+export function getOfficerShares(
+  person: IPerson,
+  rankSystem: IRankSystem,
+): number {
   if (!isOfficer(person, rankSystem)) {
     return 0;
   }

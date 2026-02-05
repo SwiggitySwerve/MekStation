@@ -22,7 +22,8 @@ npm run build
 
 **Problem**: Type mismatch errors
 
-**Solution**: 
+**Solution**:
+
 1. Check imports are from `@/types/core` or `@/types/enums`
 2. Use type guards instead of `as any` casts
 3. Verify interface definitions match usage
@@ -75,7 +76,7 @@ npm install
 // ❌ Bad - missing dependency causes stale closure
 useEffect(() => {
   fetchData(id);
-}, []); 
+}, []);
 
 // ✅ Good - all dependencies listed
 useEffect(() => {
@@ -88,6 +89,7 @@ useEffect(() => {
 **Problem**: Slow rendering
 
 **Solutions**:
+
 1. Use `React.memo` for pure components
 2. Use `useMemo` for expensive calculations
 3. Check for unnecessary re-renders with React DevTools
@@ -110,6 +112,7 @@ Ensure scenarios use `#### Scenario:` format (4 hashtags):
 
 ```markdown
 #### Scenario: User login success
+
 - **WHEN** valid credentials provided
 - **THEN** return JWT token
 ```
@@ -121,16 +124,19 @@ Ensure scenarios use `#### Scenario:` format (4 hashtags):
 **Problem**: Record sheet export fails or armor pips don't render.
 
 **Solution**: Fetch the assets from CDN:
+
 ```bash
 npm run fetch:assets
 ```
 
 If assets still missing, force re-download:
+
 ```bash
 npm run fetch:assets:force
 ```
 
 Verify assets exist:
+
 ```bash
 ls public/record-sheets/templates_us/
 ls public/record-sheets/biped_pips/
@@ -145,10 +151,11 @@ ls public/record-sheets/biped_pips/
 1. **Check CDN status**: Visit https://www.jsdelivr.com/status
 2. **Use GitHub raw fallback**: The fetch script automatically falls back to GitHub raw URLs
 3. **Use local repository**:
+
    ```bash
    # Clone mm-data as sibling
    git clone https://github.com/MegaMek/mm-data.git ../mm-data
-   
+
    # Use local copy
    npm run fetch:assets:local
    ```
@@ -170,6 +177,7 @@ ls public/record-sheets/biped_pips/
 **Problem**: Assets don't match expected version or seem outdated.
 
 **Solution**:
+
 ```bash
 # Check current version
 cat public/record-sheets/mm-data-version.json
@@ -187,6 +195,7 @@ npm run fetch:assets:force
 **Problem**: `fetch:assets` script crashes or shows errors.
 
 **Debugging**:
+
 ```bash
 # Test CDN accessibility
 npm run test:cdn-access
@@ -204,4 +213,3 @@ cat config/mm-data-assets.json
 2. Review `.cursorrules` for project conventions
 3. Search existing code for similar patterns
 4. Open a GitHub issue with reproduction steps
-

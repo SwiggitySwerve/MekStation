@@ -1,8 +1,8 @@
 /**
  * Value Mappings Tests
- * 
+ *
  * Tests for mapping MegaMekLab string values to typed enums.
- * 
+ *
  * @spec openspec/specs/tech-base-integration/spec.md
  */
 
@@ -20,15 +20,15 @@ import {
   mapMechConfiguration,
   isOmniMechConfig,
 } from '@/services/conversion/ValueMappings';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { Era } from '@/types/enums/Era';
-import { EngineType } from '@/types/construction/EngineType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { GyroType } from '@/types/construction/GyroType';
 import { CockpitType } from '@/types/construction/CockpitType';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { Era } from '@/types/enums/Era';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 describe('ValueMappings', () => {
@@ -177,7 +177,9 @@ describe('ValueMappings', () => {
       // Direct 'XL' match returns XL_IS by default
       // To get Clan XL, use explicit Clan prefix or fuzzy matching
       expect(mapEngineType('XL', TechBase.INNER_SPHERE)).toBe(EngineType.XL_IS);
-      expect(mapEngineType('XL Engine', TechBase.INNER_SPHERE)).toBe(EngineType.XL_IS);
+      expect(mapEngineType('XL Engine', TechBase.INNER_SPHERE)).toBe(
+        EngineType.XL_IS,
+      );
       // Explicit Clan prefix works
       expect(mapEngineType('Clan XL', TechBase.CLAN)).toBe(EngineType.XL_CLAN);
     });
@@ -219,36 +221,58 @@ describe('ValueMappings', () => {
   describe('mapStructureType()', () => {
     it('should map standard structure', () => {
       expect(mapStructureType('Standard')).toBe(InternalStructureType.STANDARD);
-      expect(mapStructureType('IS Standard')).toBe(InternalStructureType.STANDARD);
+      expect(mapStructureType('IS Standard')).toBe(
+        InternalStructureType.STANDARD,
+      );
     });
 
     it('should map Endo Steel', () => {
-      expect(mapStructureType('Endo Steel')).toBe(InternalStructureType.ENDO_STEEL_IS);
-      expect(mapStructureType('IS Endo Steel')).toBe(InternalStructureType.ENDO_STEEL_IS);
+      expect(mapStructureType('Endo Steel')).toBe(
+        InternalStructureType.ENDO_STEEL_IS,
+      );
+      expect(mapStructureType('IS Endo Steel')).toBe(
+        InternalStructureType.ENDO_STEEL_IS,
+      );
     });
 
     it('should map Clan Endo Steel', () => {
-      expect(mapStructureType('Clan Endo Steel')).toBe(InternalStructureType.ENDO_STEEL_CLAN);
-      expect(mapStructureType('Endo Steel (Clan)')).toBe(InternalStructureType.ENDO_STEEL_CLAN);
+      expect(mapStructureType('Clan Endo Steel')).toBe(
+        InternalStructureType.ENDO_STEEL_CLAN,
+      );
+      expect(mapStructureType('Endo Steel (Clan)')).toBe(
+        InternalStructureType.ENDO_STEEL_CLAN,
+      );
       // Direct 'Endo Steel' maps to IS by default (direct mapping takes precedence)
-      expect(mapStructureType('Endo Steel')).toBe(InternalStructureType.ENDO_STEEL_IS);
+      expect(mapStructureType('Endo Steel')).toBe(
+        InternalStructureType.ENDO_STEEL_IS,
+      );
     });
 
     it('should map Endo-Composite', () => {
-      expect(mapStructureType('Endo-Composite')).toBe(InternalStructureType.ENDO_COMPOSITE);
-      expect(mapStructureType('Endo Composite')).toBe(InternalStructureType.ENDO_COMPOSITE);
+      expect(mapStructureType('Endo-Composite')).toBe(
+        InternalStructureType.ENDO_COMPOSITE,
+      );
+      expect(mapStructureType('Endo Composite')).toBe(
+        InternalStructureType.ENDO_COMPOSITE,
+      );
     });
 
     it('should map Reinforced', () => {
-      expect(mapStructureType('Reinforced')).toBe(InternalStructureType.REINFORCED);
+      expect(mapStructureType('Reinforced')).toBe(
+        InternalStructureType.REINFORCED,
+      );
     });
 
     it('should map Composite', () => {
-      expect(mapStructureType('Composite')).toBe(InternalStructureType.COMPOSITE);
+      expect(mapStructureType('Composite')).toBe(
+        InternalStructureType.COMPOSITE,
+      );
     });
 
     it('should map Industrial', () => {
-      expect(mapStructureType('Industrial')).toBe(InternalStructureType.INDUSTRIAL);
+      expect(mapStructureType('Industrial')).toBe(
+        InternalStructureType.INDUSTRIAL,
+      );
     });
 
     it('should default to Standard', () => {
@@ -274,7 +298,9 @@ describe('ValueMappings', () => {
     it('should map double heat sinks (Clan)', () => {
       expect(mapHeatSinkType('Double (Clan)')).toBe(HeatSinkType.DOUBLE_CLAN);
       expect(mapHeatSinkType('Clan Double')).toBe(HeatSinkType.DOUBLE_CLAN);
-      expect(mapHeatSinkType('Clan Double Heat Sink')).toBe(HeatSinkType.DOUBLE_CLAN);
+      expect(mapHeatSinkType('Clan Double Heat Sink')).toBe(
+        HeatSinkType.DOUBLE_CLAN,
+      );
       // Direct 'Double' maps to IS by default
       expect(mapHeatSinkType('Double')).toBe(HeatSinkType.DOUBLE_IS);
     });
@@ -302,23 +328,37 @@ describe('ValueMappings', () => {
     });
 
     it('should map Ferro-Fibrous (IS)', () => {
-      expect(mapArmorType('Ferro-Fibrous')).toBe(ArmorTypeEnum.FERRO_FIBROUS_IS);
-      expect(mapArmorType('IS Ferro-Fibrous')).toBe(ArmorTypeEnum.FERRO_FIBROUS_IS);
+      expect(mapArmorType('Ferro-Fibrous')).toBe(
+        ArmorTypeEnum.FERRO_FIBROUS_IS,
+      );
+      expect(mapArmorType('IS Ferro-Fibrous')).toBe(
+        ArmorTypeEnum.FERRO_FIBROUS_IS,
+      );
     });
 
     it('should map Ferro-Fibrous (Clan)', () => {
-      expect(mapArmorType('Clan Ferro-Fibrous')).toBe(ArmorTypeEnum.FERRO_FIBROUS_CLAN);
-      expect(mapArmorType('Ferro-Fibrous (Clan)')).toBe(ArmorTypeEnum.FERRO_FIBROUS_CLAN);
+      expect(mapArmorType('Clan Ferro-Fibrous')).toBe(
+        ArmorTypeEnum.FERRO_FIBROUS_CLAN,
+      );
+      expect(mapArmorType('Ferro-Fibrous (Clan)')).toBe(
+        ArmorTypeEnum.FERRO_FIBROUS_CLAN,
+      );
       // Direct 'Ferro-Fibrous' maps to IS by default
-      expect(mapArmorType('Ferro-Fibrous')).toBe(ArmorTypeEnum.FERRO_FIBROUS_IS);
+      expect(mapArmorType('Ferro-Fibrous')).toBe(
+        ArmorTypeEnum.FERRO_FIBROUS_IS,
+      );
     });
 
     it('should map Light Ferro-Fibrous', () => {
-      expect(mapArmorType('Light Ferro-Fibrous')).toBe(ArmorTypeEnum.LIGHT_FERRO);
+      expect(mapArmorType('Light Ferro-Fibrous')).toBe(
+        ArmorTypeEnum.LIGHT_FERRO,
+      );
     });
 
     it('should map Heavy Ferro-Fibrous', () => {
-      expect(mapArmorType('Heavy Ferro-Fibrous')).toBe(ArmorTypeEnum.HEAVY_FERRO);
+      expect(mapArmorType('Heavy Ferro-Fibrous')).toBe(
+        ArmorTypeEnum.HEAVY_FERRO,
+      );
     });
 
     it('should map Stealth armor', () => {
@@ -384,7 +424,9 @@ describe('ValueMappings', () => {
     });
 
     it('should map command console', () => {
-      expect(mapCockpitType('Command Console')).toBe(CockpitType.COMMAND_CONSOLE);
+      expect(mapCockpitType('Command Console')).toBe(
+        CockpitType.COMMAND_CONSOLE,
+      );
     });
 
     it('should map torso-mounted', () => {
@@ -415,12 +457,16 @@ describe('ValueMappings', () => {
   describe('mapMechConfiguration()', () => {
     it('should map biped', () => {
       expect(mapMechConfiguration('Biped')).toBe(MechConfiguration.BIPED);
-      expect(mapMechConfiguration('Biped Omnimech')).toBe(MechConfiguration.BIPED);
+      expect(mapMechConfiguration('Biped Omnimech')).toBe(
+        MechConfiguration.BIPED,
+      );
     });
 
     it('should map quad', () => {
       expect(mapMechConfiguration('Quad')).toBe(MechConfiguration.QUAD);
-      expect(mapMechConfiguration('Quad Omnimech')).toBe(MechConfiguration.QUAD);
+      expect(mapMechConfiguration('Quad Omnimech')).toBe(
+        MechConfiguration.QUAD,
+      );
     });
 
     it('should map tripod', () => {
@@ -462,4 +508,3 @@ describe('ValueMappings', () => {
     });
   });
 });
-

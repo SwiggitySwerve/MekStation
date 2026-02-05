@@ -3,6 +3,9 @@
  * @description Tests for mech location registry utility functions and constants
  */
 
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+
 import {
   BIPED_LOCATIONS,
   QUAD_LOCATIONS,
@@ -14,8 +17,6 @@ import {
   getLocationsForConfigurationString,
   getLocationsForMechType,
 } from '../mechLocationRegistry';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 describe('mechLocationRegistry', () => {
   describe('BIPED_LOCATIONS', () => {
@@ -159,27 +160,39 @@ describe('mechLocationRegistry', () => {
   describe('MECH_LOCATIONS_BY_CONFIG', () => {
     it('contains entry for BIPED configuration', () => {
       expect(MECH_LOCATIONS_BY_CONFIG).toHaveProperty(MechConfiguration.BIPED);
-      expect(MECH_LOCATIONS_BY_CONFIG[MechConfiguration.BIPED]).toBe(BIPED_LOCATIONS);
+      expect(MECH_LOCATIONS_BY_CONFIG[MechConfiguration.BIPED]).toBe(
+        BIPED_LOCATIONS,
+      );
     });
 
     it('contains entry for QUAD configuration', () => {
       expect(MECH_LOCATIONS_BY_CONFIG).toHaveProperty(MechConfiguration.QUAD);
-      expect(MECH_LOCATIONS_BY_CONFIG[MechConfiguration.QUAD]).toBe(QUAD_LOCATIONS);
+      expect(MECH_LOCATIONS_BY_CONFIG[MechConfiguration.QUAD]).toBe(
+        QUAD_LOCATIONS,
+      );
     });
 
     it('contains entry for TRIPOD configuration', () => {
       expect(MECH_LOCATIONS_BY_CONFIG).toHaveProperty(MechConfiguration.TRIPOD);
-      expect(MECH_LOCATIONS_BY_CONFIG[MechConfiguration.TRIPOD]).toBe(TRIPOD_LOCATIONS);
+      expect(MECH_LOCATIONS_BY_CONFIG[MechConfiguration.TRIPOD]).toBe(
+        TRIPOD_LOCATIONS,
+      );
     });
 
     it('contains entry for LAM configuration', () => {
       expect(MECH_LOCATIONS_BY_CONFIG).toHaveProperty(MechConfiguration.LAM);
-      expect(MECH_LOCATIONS_BY_CONFIG[MechConfiguration.LAM]).toBe(LAM_LOCATIONS);
+      expect(MECH_LOCATIONS_BY_CONFIG[MechConfiguration.LAM]).toBe(
+        LAM_LOCATIONS,
+      );
     });
 
     it('contains entry for QUADVEE configuration', () => {
-      expect(MECH_LOCATIONS_BY_CONFIG).toHaveProperty(MechConfiguration.QUADVEE);
-      expect(MECH_LOCATIONS_BY_CONFIG[MechConfiguration.QUADVEE]).toBe(QUADVEE_LOCATIONS);
+      expect(MECH_LOCATIONS_BY_CONFIG).toHaveProperty(
+        MechConfiguration.QUADVEE,
+      );
+      expect(MECH_LOCATIONS_BY_CONFIG[MechConfiguration.QUADVEE]).toBe(
+        QUADVEE_LOCATIONS,
+      );
     });
 
     it('contains all five MechConfiguration enum values', () => {

@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { fn } from '@storybook/test';
+
 import { OverwriteConfirmDialog } from './OverwriteConfirmDialog';
 
 const meta: Meta<typeof OverwriteConfirmDialog> = {
@@ -46,8 +48,10 @@ export const ClanUnit: Story = {
 export const LongNames: Story = {
   args: {
     isOpen: true,
-    newUnitName: 'Marauder IIC 2 Custom Configuration with Extended Range Lasers',
-    existingUnitName: 'Marauder IIC 2 Custom Configuration with Extended Range Lasers',
+    newUnitName:
+      'Marauder IIC 2 Custom Configuration with Extended Range Lasers',
+    existingUnitName:
+      'Marauder IIC 2 Custom Configuration with Extended Range Lasers',
   },
 };
 

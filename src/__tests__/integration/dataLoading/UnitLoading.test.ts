@@ -1,9 +1,9 @@
 /**
  * Unit Loading Integration Tests
- * 
+ *
  * Tests that unit data loads correctly from JSON files.
  * Validates era-based directory structure, file format, and index integrity.
- * 
+ *
  * @spec openspec/specs/data-loading-architecture/spec.md
  * @spec openspec/specs/unit-services/spec.md
  */
@@ -11,10 +11,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const UNITS_PATH = path.join(__dirname, '../../../../public/data/units/battlemechs');
+const UNITS_PATH = path.join(
+  __dirname,
+  '../../../../public/data/units/battlemechs',
+);
 
 describe('Unit Data Loading', () => {
-  
   // ============================================================================
   // Directory Structure
   // ============================================================================
@@ -32,7 +34,7 @@ describe('Unit Data Loading', () => {
       '6-dark-age',
     ];
 
-    expectedEras.forEach(era => {
+    expectedEras.forEach((era) => {
       it(`should have ${era} era folder`, () => {
         const eraPath = path.join(UNITS_PATH, era);
         expect(fs.existsSync(eraPath)).toBe(true);
@@ -40,10 +42,11 @@ describe('Unit Data Loading', () => {
     });
 
     it('era folders should be numbered chronologically', () => {
-      const dirs = fs.readdirSync(UNITS_PATH)
-        .filter(f => fs.statSync(path.join(UNITS_PATH, f)).isDirectory())
-        .filter(f => /^\d+-/.test(f));
-      
+      const dirs = fs
+        .readdirSync(UNITS_PATH)
+        .filter((f) => fs.statSync(path.join(UNITS_PATH, f)).isDirectory())
+        .filter((f) => /^\d+-/.test(f));
+
       // Check ordering
       for (let i = 0; i < dirs.length - 1; i++) {
         const currentNum = parseInt(dirs[i].split('-')[0]);
@@ -60,7 +63,7 @@ describe('Unit Data Loading', () => {
     const era = '3-succession-wars'; // Use one with all rules levels
     const expectedRulesLevels = ['standard', 'advanced', 'experimental'];
 
-    expectedRulesLevels.forEach(rulesLevel => {
+    expectedRulesLevels.forEach((rulesLevel) => {
       it(`should have ${rulesLevel} sub-folder in ${era}`, () => {
         const rulesPath = path.join(UNITS_PATH, era, rulesLevel);
         expect(fs.existsSync(rulesPath)).toBe(true);
@@ -136,7 +139,7 @@ describe('Unit Data Loading', () => {
     });
 
     it('unit IDs should be unique', () => {
-      const ids = index.units.map(u => u.id);
+      const ids = index.units.map((u) => u.id);
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(ids.length);
     });
@@ -156,7 +159,10 @@ describe('Unit Data Loading', () => {
   // ============================================================================
   describe('Unit File Format Validation', () => {
     // Find a sample unit file to validate
-    const sampleUnitPath = path.join(UNITS_PATH, '2-star-league/standard/Atlas AS7-D.json');
+    const sampleUnitPath = path.join(
+      UNITS_PATH,
+      '2-star-league/standard/Atlas AS7-D.json',
+    );
 
     it('sample unit file should exist', () => {
       expect(fs.existsSync(sampleUnitPath)).toBe(true);
@@ -245,19 +251,25 @@ describe('Unit Data Loading', () => {
     let unit: Record<string, unknown>;
 
     beforeAll(() => {
-      const samplePath = path.join(UNITS_PATH, '2-star-league/standard/Atlas AS7-D.json');
+      const samplePath = path.join(
+        UNITS_PATH,
+        '2-star-league/standard/Atlas AS7-D.json',
+      );
       const content = fs.readFileSync(samplePath, 'utf-8');
       unit = JSON.parse(content) as Record<string, unknown>;
     });
 
     it('should have correct slot counts per location', () => {
-      const criticalSlots = unit.criticalSlots as Record<string, (string | null)[]>;
-      
+      const criticalSlots = unit.criticalSlots as Record<
+        string,
+        (string | null)[]
+      >;
+
       // Head and legs should have 6 slots
       expect(criticalSlots.HEAD.length).toBe(6);
       expect(criticalSlots.LEFT_LEG.length).toBe(6);
       expect(criticalSlots.RIGHT_LEG.length).toBe(6);
-      
+
       // Arms and torsos should have 12 slots
       expect(criticalSlots.LEFT_ARM.length).toBe(12);
       expect(criticalSlots.RIGHT_ARM.length).toBe(12);
@@ -267,8 +279,11 @@ describe('Unit Data Loading', () => {
     });
 
     it('each slot should be string or null', () => {
-      const criticalSlots = unit.criticalSlots as Record<string, (string | null)[]>;
-      
+      const criticalSlots = unit.criticalSlots as Record<
+        string,
+        (string | null)[]
+      >;
+
       for (const location of Object.keys(criticalSlots)) {
         for (const slot of criticalSlots[location]) {
           expect(slot === null || typeof slot === 'string').toBe(true);
@@ -287,7 +302,10 @@ describe('Unit Data Loading', () => {
     };
 
     beforeAll(() => {
-      const samplePath = path.join(UNITS_PATH, '2-star-league/standard/Atlas AS7-D.json');
+      const samplePath = path.join(
+        UNITS_PATH,
+        '2-star-league/standard/Atlas AS7-D.json',
+      );
       const content = fs.readFileSync(samplePath, 'utf-8');
       const unit = JSON.parse(content) as { armor: typeof armor };
       armor = unit.armor;
@@ -307,7 +325,10 @@ describe('Unit Data Loading', () => {
     });
 
     it('torso locations should have front/rear object', () => {
-      const leftTorso = armor.allocation.LEFT_TORSO as { front: number; rear: number };
+      const leftTorso = armor.allocation.LEFT_TORSO as {
+        front: number;
+        rear: number;
+      };
       expect(leftTorso).toHaveProperty('front');
       expect(leftTorso).toHaveProperty('rear');
       expect(typeof leftTorso.front).toBe('number');
@@ -320,9 +341,10 @@ describe('Unit Data Loading', () => {
   // ============================================================================
   describe('Era Distribution', () => {
     it('should have units in each era', () => {
-      const eras = fs.readdirSync(UNITS_PATH)
-        .filter(f => fs.statSync(path.join(UNITS_PATH, f)).isDirectory())
-        .filter(f => /^\d+-/.test(f));
+      const eras = fs
+        .readdirSync(UNITS_PATH)
+        .filter((f) => fs.statSync(path.join(UNITS_PATH, f)).isDirectory())
+        .filter((f) => /^\d+-/.test(f));
 
       for (const era of eras) {
         const eraPath = path.join(UNITS_PATH, era);
@@ -332,7 +354,9 @@ describe('Unit Data Loading', () => {
         for (const rulesLevel of ['standard', 'advanced', 'experimental']) {
           const rulesPath = path.join(eraPath, rulesLevel);
           if (fs.existsSync(rulesPath)) {
-            const files = fs.readdirSync(rulesPath).filter(f => f.endsWith('.json'));
+            const files = fs
+              .readdirSync(rulesPath)
+              .filter((f) => f.endsWith('.json'));
             unitCount += files.length;
           }
         }
@@ -342,4 +366,3 @@ describe('Unit Data Loading', () => {
     });
   });
 });
-

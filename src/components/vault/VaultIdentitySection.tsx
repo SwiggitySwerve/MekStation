@@ -8,6 +8,7 @@
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
+
 import { useIdentityStore, selectFriendCode } from '@/stores/useIdentityStore';
 
 // =============================================================================
@@ -56,29 +57,37 @@ function CreateIdentityForm({
         onSuccess();
       }
     },
-    [displayName, password, confirmPassword, createIdentity, clearError, onSuccess]
+    [
+      displayName,
+      password,
+      confirmPassword,
+      createIdentity,
+      clearError,
+      onSuccess,
+    ],
   );
 
   const displayError = localError || error;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-sm text-blue-200">
-        <div className="font-medium mb-1">Create Your Vault Identity</div>
+      <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-4 text-sm text-blue-200">
+        <div className="mb-1 font-medium">Create Your Vault Identity</div>
         <p className="text-blue-300/80">
-          Your vault identity is used to sign and verify shared content. 
-          Choose a display name others will see and a password to protect your signing key.
+          Your vault identity is used to sign and verify shared content. Choose
+          a display name others will see and a password to protect your signing
+          key.
         </p>
       </div>
 
       {displayError && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-200">
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
           {displayError}
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-text-theme-primary mb-1">
+        <label className="text-text-theme-primary mb-1 block text-sm font-medium">
           Display Name
         </label>
         <input
@@ -86,16 +95,16 @@ function CreateIdentityForm({
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           placeholder="Your name or alias"
-          className="w-full px-3 py-2 bg-surface-raised border border-border-theme rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent"
+          className="bg-surface-raised border-border-theme text-text-theme-primary placeholder-text-theme-muted focus:ring-accent w-full rounded-lg border px-3 py-2 focus:ring-2 focus:outline-none"
           maxLength={100}
         />
-        <p className="text-xs text-text-theme-secondary mt-1">
+        <p className="text-text-theme-secondary mt-1 text-xs">
           This name will appear on content you share with others.
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-text-theme-primary mb-1">
+        <label className="text-text-theme-primary mb-1 block text-sm font-medium">
           Password
         </label>
         <input
@@ -103,15 +112,15 @@ function CreateIdentityForm({
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="At least 8 characters"
-          className="w-full px-3 py-2 bg-surface-raised border border-border-theme rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent"
+          className="bg-surface-raised border-border-theme text-text-theme-primary placeholder-text-theme-muted focus:ring-accent w-full rounded-lg border px-3 py-2 focus:ring-2 focus:outline-none"
         />
-        <p className="text-xs text-text-theme-secondary mt-1">
+        <p className="text-text-theme-secondary mt-1 text-xs">
           Used to encrypt your private signing key. Choose a strong password.
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-text-theme-primary mb-1">
+        <label className="text-text-theme-primary mb-1 block text-sm font-medium">
           Confirm Password
         </label>
         <input
@@ -119,14 +128,14 @@ function CreateIdentityForm({
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Confirm your password"
-          className="w-full px-3 py-2 bg-surface-raised border border-border-theme rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent"
+          className="bg-surface-raised border-border-theme text-text-theme-primary placeholder-text-theme-muted focus:ring-accent w-full rounded-lg border px-3 py-2 focus:ring-2 focus:outline-none"
         />
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full px-4 py-2 bg-accent hover:bg-accent-hover text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+        className="bg-accent hover:bg-accent-hover w-full rounded-lg px-4 py-2 font-medium text-white transition-colors disabled:opacity-50"
       >
         {loading ? 'Creating Identity...' : 'Create Identity'}
       </button>
@@ -158,26 +167,27 @@ function UnlockIdentityForm({
         onSuccess();
       }
     },
-    [password, unlockIdentity, clearError, onSuccess]
+    [password, unlockIdentity, clearError, onSuccess],
   );
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 text-sm">
-        <div className="font-medium text-amber-200 mb-1">Vault Locked</div>
+      <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
+        <div className="mb-1 font-medium text-amber-200">Vault Locked</div>
         <p className="text-amber-300/80">
-          Enter your password to unlock your vault identity as <strong>{displayName}</strong>.
+          Enter your password to unlock your vault identity as{' '}
+          <strong>{displayName}</strong>.
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-200">
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
           {error}
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-text-theme-primary mb-1">
+        <label className="text-text-theme-primary mb-1 block text-sm font-medium">
           Password
         </label>
         <input
@@ -185,7 +195,7 @@ function UnlockIdentityForm({
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your vault password"
-          className="w-full px-3 py-2 bg-surface-raised border border-border-theme rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:ring-2 focus:ring-accent"
+          className="bg-surface-raised border-border-theme text-text-theme-primary placeholder-text-theme-muted focus:ring-accent w-full rounded-lg border px-3 py-2 focus:ring-2 focus:outline-none"
           autoFocus
         />
       </div>
@@ -193,7 +203,7 @@ function UnlockIdentityForm({
       <button
         type="submit"
         disabled={loading || !password}
-        className="w-full px-4 py-2 bg-accent hover:bg-accent-hover text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+        className="bg-accent hover:bg-accent-hover w-full rounded-lg px-4 py-2 font-medium text-white transition-colors disabled:opacity-50"
       >
         {loading ? 'Unlocking...' : 'Unlock Vault'}
       </button>
@@ -221,14 +231,14 @@ function UnlockedIdentityDisplay(): React.ReactElement {
 
   return (
     <div className="space-y-4">
-      <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-        <div className="flex items-center justify-between mb-3">
+      <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4">
+        <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">
+            <div className="bg-accent/20 text-accent flex h-8 w-8 items-center justify-center rounded-full font-bold">
               {publicIdentity.displayName.charAt(0).toUpperCase()}
             </div>
             <div>
-              <div className="font-medium text-text-theme-primary">
+              <div className="text-text-theme-primary font-medium">
                 {publicIdentity.displayName}
               </div>
               <div className="text-xs text-green-400">Vault Unlocked</div>
@@ -236,35 +246,37 @@ function UnlockedIdentityDisplay(): React.ReactElement {
           </div>
           <button
             onClick={lockIdentity}
-            className="px-3 py-1.5 text-sm bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary rounded-md transition-colors"
+            className="bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary rounded-md px-3 py-1.5 text-sm transition-colors"
           >
             Lock
           </button>
         </div>
 
         <div className="bg-surface-deep/50 rounded-lg p-3">
-          <div className="text-xs text-text-theme-secondary mb-1">Your Friend Code</div>
+          <div className="text-text-theme-secondary mb-1 text-xs">
+            Your Friend Code
+          </div>
           <div className="flex items-center justify-between">
-            <code className="font-mono text-sm text-text-theme-primary tracking-wider">
+            <code className="text-text-theme-primary font-mono text-sm tracking-wider">
               {friendCode}
             </code>
             <button
               onClick={handleCopyFriendCode}
-              className="px-2 py-1 text-xs bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary rounded transition-colors"
+              className="bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary rounded px-2 py-1 text-xs transition-colors"
             >
               {copied ? 'Copied!' : 'Copy'}
             </button>
           </div>
-          <p className="text-xs text-text-theme-muted mt-2">
+          <p className="text-text-theme-muted mt-2 text-xs">
             Share this code with others so they can verify content you share.
           </p>
         </div>
       </div>
 
-      <div className="text-sm text-text-theme-secondary">
+      <div className="text-text-theme-secondary text-sm">
         <p>
-          Your vault identity is used to sign content you export. 
-          Recipients can verify the authenticity of shared units, pilots, and forces.
+          Your vault identity is used to sign content you export. Recipients can
+          verify the authenticity of shared units, pilots, and forces.
         </p>
       </div>
     </div>
@@ -276,8 +288,14 @@ function UnlockedIdentityDisplay(): React.ReactElement {
 // =============================================================================
 
 export function VaultIdentitySection(): React.ReactElement {
-  const { initialized, hasIdentity, publicIdentity, isUnlocked, checkIdentity, loading } =
-    useIdentityStore();
+  const {
+    initialized,
+    hasIdentity,
+    publicIdentity,
+    isUnlocked,
+    checkIdentity,
+    loading,
+  } = useIdentityStore();
 
   // Check identity status on mount
   useEffect(() => {
@@ -290,7 +308,9 @@ export function VaultIdentitySection(): React.ReactElement {
   if (!initialized || loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="text-text-theme-secondary">Loading vault identity...</div>
+        <div className="text-text-theme-secondary">
+          Loading vault identity...
+        </div>
       </div>
     );
   }

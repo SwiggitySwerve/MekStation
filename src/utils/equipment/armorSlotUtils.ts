@@ -1,26 +1,33 @@
 /**
  * Armor Slot Utilities
- * 
+ *
  * Functions for creating armor equipment items (e.g., Ferro-Fibrous or Stealth slots).
  * All created items are configuration-based (isRemovable: false).
  */
 
-import { EquipmentCategory } from '@/types/equipment';
 import { IMountedEquipmentInstance } from '@/stores/unitState';
+import {
+  ArmorTypeEnum,
+  getArmorDefinition,
+} from '@/types/construction/ArmorType';
+import { EquipmentCategory } from '@/types/equipment';
 import { generateUnitId } from '@/utils/uuid';
-import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
-import { ARMOR_SLOTS_EQUIPMENT_ID, STEALTH_ARMOR_LOCATIONS } from './equipmentConstants';
+
+import {
+  ARMOR_SLOTS_EQUIPMENT_ID,
+  STEALTH_ARMOR_LOCATIONS,
+} from './equipmentConstants';
 
 export function createArmorEquipmentList(
-  armorType: ArmorTypeEnum
+  armorType: ArmorTypeEnum,
 ): IMountedEquipmentInstance[] {
   const armorDef = getArmorDefinition(armorType);
   if (!armorDef || armorDef.criticalSlots === 0) {
     return [];
   }
-  
+
   const result: IMountedEquipmentInstance[] = [];
-  
+
   // Stealth armor: 6 × 2-slot items with fixed locations
   if (armorType === ArmorTypeEnum.STEALTH) {
     for (const location of STEALTH_ARMOR_LOCATIONS) {
@@ -67,6 +74,10 @@ export function createArmorEquipmentList(
   return result;
 }
 
-export function filterOutArmorSlots(equipment: readonly IMountedEquipmentInstance[]): IMountedEquipmentInstance[] {
-  return equipment.filter(e => !e.equipmentId.startsWith(ARMOR_SLOTS_EQUIPMENT_ID));
+export function filterOutArmorSlots(
+  equipment: readonly IMountedEquipmentInstance[],
+): IMountedEquipmentInstance[] {
+  return equipment.filter(
+    (e) => !e.equipmentId.startsWith(ARMOR_SLOTS_EQUIPMENT_ID),
+  );
 }

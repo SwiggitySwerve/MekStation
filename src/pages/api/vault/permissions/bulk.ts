@@ -7,7 +7,13 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { PermissionLevel, ShareableContentType, ContentCategory } from '@/types/vault';
+
+import type {
+  PermissionLevel,
+  ShareableContentType,
+  ContentCategory,
+} from '@/types/vault';
+
 import { getVaultService } from '@/services/vault/VaultService';
 
 // =============================================================================
@@ -102,7 +108,7 @@ interface ErrorResponse {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<BulkResponse | ErrorResponse>
+  res: NextApiResponse<BulkResponse | ErrorResponse>,
 ): Promise<void> {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -148,7 +154,7 @@ export default async function handler(
 async function handleShareFolderWithContacts(
   body: ShareFolderWithContactsRequest,
   res: NextApiResponse<BulkResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!body.folderId) {
     return res.status(400).json({ error: 'Folder ID is required' });
@@ -162,7 +168,10 @@ async function handleShareFolderWithContacts(
     return res.status(404).json({ error: 'Folder not found' });
   }
 
-  const result = await vaultService.shareFolderWithContacts(body.folderId, body.contacts);
+  const result = await vaultService.shareFolderWithContacts(
+    body.folderId,
+    body.contacts,
+  );
 
   return res.status(200).json({
     success: true,
@@ -174,7 +183,7 @@ async function handleShareFolderWithContacts(
 async function handleShareItemsWithContact(
   body: ShareItemsWithContactRequest,
   res: NextApiResponse<BulkResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!Array.isArray(body.items) || body.items.length === 0) {
     return res.status(400).json({ error: 'Items array is required' });
@@ -189,7 +198,7 @@ async function handleShareItemsWithContact(
   const result = await vaultService.shareItemsWithContact(
     body.items,
     body.contactFriendCode,
-    body.level
+    body.level,
   );
 
   return res.status(200).json({
@@ -202,7 +211,7 @@ async function handleShareItemsWithContact(
 async function handleShareFolderContents(
   body: ShareFolderContentsRequest,
   res: NextApiResponse<BulkResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!body.folderId) {
     return res.status(400).json({ error: 'Folder ID is required' });
@@ -222,7 +231,7 @@ async function handleShareFolderContents(
   const result = await vaultService.shareFolderContentsWithContact(
     body.folderId,
     body.contactFriendCode,
-    body.level
+    body.level,
   );
 
   return res.status(200).json({
@@ -235,7 +244,7 @@ async function handleShareFolderContents(
 async function handleShareCategoryWithContacts(
   body: ShareCategoryWithContactsRequest,
   res: NextApiResponse<BulkResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!isValidCategory(body.category)) {
     return res.status(400).json({ error: 'Invalid category' });
@@ -252,7 +261,7 @@ async function handleShareCategoryWithContacts(
       await vaultService.shareCategoryWithContact(
         body.category,
         contact.friendCode,
-        contact.level
+        contact.level,
       );
       success++;
     } catch {
@@ -270,13 +279,15 @@ async function handleShareCategoryWithContacts(
 async function handleRevokeAllForContact(
   body: RevokeAllForContactRequest,
   res: NextApiResponse<BulkResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!body.contactFriendCode) {
     return res.status(400).json({ error: 'Contact friend code is required' });
   }
 
-  const revoked = await vaultService.revokeAllForContact(body.contactFriendCode);
+  const revoked = await vaultService.revokeAllForContact(
+    body.contactFriendCode,
+  );
 
   return res.status(200).json({
     success: true,
@@ -288,7 +299,7 @@ async function handleRevokeAllForContact(
 async function handleUpdateContactLevel(
   body: UpdateContactLevelRequest,
   res: NextApiResponse<BulkResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!body.contactFriendCode) {
     return res.status(400).json({ error: 'Contact friend code is required' });
@@ -299,7 +310,7 @@ async function handleUpdateContactLevel(
 
   const updated = await vaultService.updateContactPermissionLevel(
     body.contactFriendCode,
-    body.newLevel
+    body.newLevel,
   );
 
   return res.status(200).json({
@@ -318,5 +329,7 @@ function isValidPermissionLevel(level: unknown): level is PermissionLevel {
 }
 
 function isValidCategory(category: unknown): category is ContentCategory {
-  return ['units', 'pilots', 'forces', 'encounters'].includes(category as string);
+  return ['units', 'pilots', 'forces', 'encounters'].includes(
+    category as string,
+  );
 }

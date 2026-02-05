@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 /**
  * Force Detail Page
  * Display and edit a force with pilot/unit assignments.
@@ -5,27 +7,22 @@
  * @spec openspec/changes/add-force-management/proposal.md
  */
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import {
-  PageLayout,
-  PageError,
-  Button,
-  Input,
-} from '@/components/ui';
+
 import {
   SkeletonText,
   SkeletonFormSection,
 } from '@/components/common/SkeletonLoader';
-import { ForceBuilder, PilotSelector, UnitSelector, UnitInfo } from '@/components/force';
+import {
+  ForceBuilder,
+  PilotSelector,
+  UnitSelector,
+  UnitInfo,
+} from '@/components/force';
+import { useToast } from '@/components/shared/Toast';
+import { PageLayout, PageError, Button, Input } from '@/components/ui';
 import { useForceStore } from '@/stores/useForceStore';
 import { usePilotStore } from '@/stores/usePilotStore';
-import { useToast } from '@/components/shared/Toast';
-import {
-  IForce,
-  IForceValidation,
-  getForceTypeName,
-} from '@/types/force';
+import { IForce, IForceValidation, getForceTypeName } from '@/types/force';
 import { IPilot, PilotStatus } from '@/types/pilot';
 
 // =============================================================================
@@ -55,11 +52,14 @@ function DeleteConfirmModal({
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={!isDeleting ? onCancel : undefined}
       />
-      <div className="relative bg-surface-base border border-border-theme rounded-xl p-6 max-w-md w-full shadow-2xl" data-testid="delete-confirm-dialog">
+      <div
+        className="bg-surface-base border-border-theme relative w-full max-w-md rounded-xl border p-6 shadow-2xl"
+        data-testid="delete-confirm-dialog"
+      >
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-900/30 flex items-center justify-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-900/30">
             <svg
-              className="w-8 h-8 text-red-400"
+              className="h-8 w-8 text-red-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -73,17 +73,22 @@ function DeleteConfirmModal({
             </svg>
           </div>
 
-          <h3 className="text-xl font-bold text-text-theme-primary mb-2">
+          <h3 className="text-text-theme-primary mb-2 text-xl font-bold">
             Delete Force?
           </h3>
           <p className="text-text-theme-secondary mb-6">
             Are you sure you want to permanently delete{' '}
-            <span className="text-accent font-semibold">{forceName}</span>?
-            This action cannot be undone.
+            <span className="text-accent font-semibold">{forceName}</span>? This
+            action cannot be undone.
           </p>
 
           <div className="flex items-center justify-center gap-3">
-            <Button variant="ghost" onClick={onCancel} disabled={isDeleting} data-testid="cancel-delete-btn">
+            <Button
+              variant="ghost"
+              onClick={onCancel}
+              disabled={isDeleting}
+              data-testid="cancel-delete-btn"
+            >
               Cancel
             </Button>
             <Button
@@ -108,7 +113,11 @@ interface EditNameModalProps {
   currentAffiliation?: string;
   isOpen: boolean;
   isSaving: boolean;
-  onSave: (updates: { name: string; description?: string; affiliation?: string }) => void;
+  onSave: (updates: {
+    name: string;
+    description?: string;
+    affiliation?: string;
+  }) => void;
   onCancel: () => void;
 }
 
@@ -150,14 +159,14 @@ function EditNameModal({
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={!isSaving ? onCancel : undefined}
       />
-      <div className="relative bg-surface-base border border-border-theme rounded-xl p-6 max-w-md w-full shadow-2xl">
-        <h3 className="text-xl font-bold text-text-theme-primary mb-4">
+      <div className="bg-surface-base border-border-theme relative w-full max-w-md rounded-xl border p-6 shadow-2xl">
+        <h3 className="text-text-theme-primary mb-4 text-xl font-bold">
           Edit Force Details
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text-theme-secondary mb-1.5">
+            <label className="text-text-theme-secondary mb-1.5 block text-sm font-medium">
               Name *
             </label>
             <Input
@@ -171,7 +180,7 @@ function EditNameModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-theme-secondary mb-1.5">
+            <label className="text-text-theme-secondary mb-1.5 block text-sm font-medium">
               Affiliation
             </label>
             <Input
@@ -183,7 +192,7 @@ function EditNameModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-theme-secondary mb-1.5">
+            <label className="text-text-theme-secondary mb-1.5 block text-sm font-medium">
               Description
             </label>
             <textarea
@@ -191,7 +200,7 @@ function EditNameModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional notes..."
               rows={3}
-              className="w-full px-4 py-2.5 bg-surface-raised border border-border-theme-subtle rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 resize-none"
+              className="bg-surface-raised border-border-theme-subtle text-text-theme-primary placeholder-text-theme-muted focus:border-accent focus:ring-accent/30 w-full resize-none rounded-lg border px-4 py-2.5 focus:ring-1 focus:outline-none"
             />
           </div>
 
@@ -260,7 +269,9 @@ export default function ForceDetailPage(): React.ReactElement {
   // Selector modals
   const [pilotSelectorOpen, setPilotSelectorOpen] = useState(false);
   const [unitSelectorOpen, setUnitSelectorOpen] = useState(false);
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<
+    string | null
+  >(null);
 
   // Load data on mount
   useEffect(() => {
@@ -347,12 +358,23 @@ export default function ForceDetailPage(): React.ReactElement {
         setValidation(v);
       }
       if (success) {
-        showToast({ message: 'Pilot assigned successfully', variant: 'success' });
+        showToast({
+          message: 'Pilot assigned successfully',
+          variant: 'success',
+        });
       } else {
         showToast({ message: 'Failed to assign pilot', variant: 'error' });
       }
     },
-    [selectedAssignmentId, assignPilot, forceId, loadForces, getForce, validateForce, showToast]
+    [
+      selectedAssignmentId,
+      assignPilot,
+      forceId,
+      loadForces,
+      getForce,
+      validateForce,
+      showToast,
+    ],
   );
 
   // Handler: Assign unit
@@ -369,12 +391,23 @@ export default function ForceDetailPage(): React.ReactElement {
         setValidation(v);
       }
       if (success) {
-        showToast({ message: 'Unit assigned successfully', variant: 'success' });
+        showToast({
+          message: 'Unit assigned successfully',
+          variant: 'success',
+        });
       } else {
         showToast({ message: 'Failed to assign unit', variant: 'error' });
       }
     },
-    [selectedAssignmentId, assignUnit, forceId, loadForces, getForce, validateForce, showToast]
+    [
+      selectedAssignmentId,
+      assignUnit,
+      forceId,
+      loadForces,
+      getForce,
+      validateForce,
+      showToast,
+    ],
   );
 
   // Handler: Clear assignment
@@ -393,7 +426,7 @@ export default function ForceDetailPage(): React.ReactElement {
         showToast({ message: 'Assignment cleared', variant: 'info' });
       }
     },
-    [clearAssignment, forceId, loadForces, getForce, validateForce, showToast]
+    [clearAssignment, forceId, loadForces, getForce, validateForce, showToast],
   );
 
   // Handler: Swap assignments
@@ -407,7 +440,7 @@ export default function ForceDetailPage(): React.ReactElement {
         setForce(updated ?? null);
       }
     },
-    [swapAssignments, forceId, loadForces, getForce]
+    [swapAssignments, forceId, loadForces, getForce],
   );
 
   // Handler: Delete force
@@ -429,7 +462,11 @@ export default function ForceDetailPage(): React.ReactElement {
 
   // Handler: Save force details
   const handleSaveDetails = useCallback(
-    async (updates: { name: string; description?: string; affiliation?: string }) => {
+    async (updates: {
+      name: string;
+      description?: string;
+      affiliation?: string;
+    }) => {
       if (!forceId) return;
 
       setIsSaving(true);
@@ -447,7 +484,7 @@ export default function ForceDetailPage(): React.ReactElement {
         showToast({ message: 'Failed to update force', variant: 'error' });
       }
     },
-    [forceId, updateForce, loadForces, getForce, showToast]
+    [forceId, updateForce, loadForces, getForce, showToast],
   );
 
   if (!isInitialized || forceLoading) {
@@ -461,8 +498,11 @@ export default function ForceDetailPage(): React.ReactElement {
         <SkeletonFormSection title="Force Assignments">
           <div className="space-y-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center gap-4 p-4 rounded-lg bg-surface-raised/50">
-                <div className="w-10 h-10 rounded-lg bg-border-theme/50 animate-pulse" />
+              <div
+                key={i}
+                className="bg-surface-raised/50 flex items-center gap-4 rounded-lg p-4"
+              >
+                <div className="bg-border-theme/50 h-10 w-10 animate-pulse rounded-lg" />
                 <div className="flex-1 space-y-2">
                   <SkeletonText width="w-32" />
                   <SkeletonText width="w-48" />
@@ -473,7 +513,7 @@ export default function ForceDetailPage(): React.ReactElement {
           </div>
         </SkeletonFormSection>
 
-        <div className="mt-8 pt-6 border-t border-border-theme-subtle">
+        <div className="border-border-theme-subtle mt-8 border-t pt-6">
           <SkeletonText width="w-32" />
         </div>
       </PageLayout>
@@ -516,7 +556,7 @@ export default function ForceDetailPage(): React.ReactElement {
             data-testid="edit-force-btn"
             leftIcon={
               <svg
-                className="w-4 h-4"
+                className="h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -536,11 +576,11 @@ export default function ForceDetailPage(): React.ReactElement {
             variant="ghost"
             size="sm"
             onClick={() => setIsDeleteModalOpen(true)}
-            className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+            className="text-red-400 hover:bg-red-900/20 hover:text-red-300"
             data-testid="delete-force-btn"
             leftIcon={
               <svg
-                className="w-4 h-4"
+                className="h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -561,7 +601,7 @@ export default function ForceDetailPage(): React.ReactElement {
     >
       {/* Error Display */}
       {forceError && (
-        <div className="mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30">
+        <div className="mb-6 rounded-lg border border-red-600/30 bg-red-900/20 p-4">
           <div className="flex items-center justify-between">
             <p className="text-sm text-red-400">{forceError}</p>
             <button
@@ -569,7 +609,7 @@ export default function ForceDetailPage(): React.ReactElement {
               className="text-red-400 hover:text-red-300"
             >
               <svg
-                className="w-4 h-4"
+                className="h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -600,14 +640,14 @@ export default function ForceDetailPage(): React.ReactElement {
       />
 
       {/* Link to pilots */}
-      <div className="mt-8 pt-6 border-t border-border-theme-subtle">
+      <div className="border-border-theme-subtle mt-8 border-t pt-6">
         <div className="flex items-center gap-6">
           <Link
             href="/gameplay/pilots"
-            className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+            className="text-accent hover:text-accent/80 inline-flex items-center gap-2 transition-colors"
           >
             <svg
-              className="w-4 h-4"
+              className="h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -622,8 +662,9 @@ export default function ForceDetailPage(): React.ReactElement {
             Manage Pilots
           </Link>
           <span className="text-text-theme-muted">•</span>
-          <span className="text-sm text-text-theme-secondary">
-            {pilots.filter((p) => p.status === PilotStatus.Active).length} active pilots available
+          <span className="text-text-theme-secondary text-sm">
+            {pilots.filter((p) => p.status === PilotStatus.Active).length}{' '}
+            active pilots available
           </span>
         </div>
       </div>

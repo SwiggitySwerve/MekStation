@@ -112,62 +112,69 @@ const CIVILIAN_ROLES = new Set([
   CampaignPersonnelRole.NOBLE,
 ]);
 
-export const ALL_CAMPAIGN_PERSONNEL_ROLES: readonly CampaignPersonnelRole[] = Object.freeze([
-  CampaignPersonnelRole.PILOT,
-  CampaignPersonnelRole.LAM_PILOT,
-  CampaignPersonnelRole.AEROSPACE_PILOT,
-  CampaignPersonnelRole.VEHICLE_DRIVER,
-  CampaignPersonnelRole.VEHICLE_CREW_NAVAL,
-  CampaignPersonnelRole.VEHICLE_CREW_VTOL,
-  CampaignPersonnelRole.CONVENTIONAL_AIRCRAFT_PILOT,
-  CampaignPersonnelRole.PROTOMEK_PILOT,
-  CampaignPersonnelRole.BATTLE_ARMOUR,
-  CampaignPersonnelRole.SOLDIER,
-  CampaignPersonnelRole.VESSEL_PILOT,
-  CampaignPersonnelRole.VESSEL_GUNNER,
-  CampaignPersonnelRole.VESSEL_CREW,
-  CampaignPersonnelRole.VESSEL_NAVIGATOR,
-  CampaignPersonnelRole.TECH,
-  CampaignPersonnelRole.MEK_TECH,
-  CampaignPersonnelRole.MECHANIC,
-  CampaignPersonnelRole.AERO_TEK,
-  CampaignPersonnelRole.BA_TECH,
-  CampaignPersonnelRole.ASTECH,
-  CampaignPersonnelRole.DOCTOR,
-  CampaignPersonnelRole.MEDIC,
-  CampaignPersonnelRole.ADMIN_COMMAND,
-  CampaignPersonnelRole.ADMIN_LOGISTICS,
-  CampaignPersonnelRole.ADMIN_TRANSPORT,
-  CampaignPersonnelRole.ADMIN_HR,
-  CampaignPersonnelRole.DEPENDENT,
-  CampaignPersonnelRole.CIVILIAN_OTHER,
-  CampaignPersonnelRole.MERCHANT,
-  CampaignPersonnelRole.TEACHER,
-  CampaignPersonnelRole.LAWYER,
-  CampaignPersonnelRole.MUSICIAN,
-  CampaignPersonnelRole.CHEF,
-  CampaignPersonnelRole.BARTENDER,
-  CampaignPersonnelRole.FIREFIGHTER,
-  CampaignPersonnelRole.FARMER,
-  CampaignPersonnelRole.MINER,
-  CampaignPersonnelRole.FACTORY_WORKER,
-  CampaignPersonnelRole.COURIER,
-  CampaignPersonnelRole.GAMBLER,
-  CampaignPersonnelRole.HISTORIAN,
-  CampaignPersonnelRole.PAINTER,
-  CampaignPersonnelRole.RELIGIOUS_LEADER,
-  CampaignPersonnelRole.PSYCHOLOGIST,
-  CampaignPersonnelRole.NOBLE,
-  CampaignPersonnelRole.ADMIN,
-  CampaignPersonnelRole.SUPPORT,
-  CampaignPersonnelRole.UNASSIGNED,
-]);
+export const ALL_CAMPAIGN_PERSONNEL_ROLES: readonly CampaignPersonnelRole[] =
+  Object.freeze([
+    CampaignPersonnelRole.PILOT,
+    CampaignPersonnelRole.LAM_PILOT,
+    CampaignPersonnelRole.AEROSPACE_PILOT,
+    CampaignPersonnelRole.VEHICLE_DRIVER,
+    CampaignPersonnelRole.VEHICLE_CREW_NAVAL,
+    CampaignPersonnelRole.VEHICLE_CREW_VTOL,
+    CampaignPersonnelRole.CONVENTIONAL_AIRCRAFT_PILOT,
+    CampaignPersonnelRole.PROTOMEK_PILOT,
+    CampaignPersonnelRole.BATTLE_ARMOUR,
+    CampaignPersonnelRole.SOLDIER,
+    CampaignPersonnelRole.VESSEL_PILOT,
+    CampaignPersonnelRole.VESSEL_GUNNER,
+    CampaignPersonnelRole.VESSEL_CREW,
+    CampaignPersonnelRole.VESSEL_NAVIGATOR,
+    CampaignPersonnelRole.TECH,
+    CampaignPersonnelRole.MEK_TECH,
+    CampaignPersonnelRole.MECHANIC,
+    CampaignPersonnelRole.AERO_TEK,
+    CampaignPersonnelRole.BA_TECH,
+    CampaignPersonnelRole.ASTECH,
+    CampaignPersonnelRole.DOCTOR,
+    CampaignPersonnelRole.MEDIC,
+    CampaignPersonnelRole.ADMIN_COMMAND,
+    CampaignPersonnelRole.ADMIN_LOGISTICS,
+    CampaignPersonnelRole.ADMIN_TRANSPORT,
+    CampaignPersonnelRole.ADMIN_HR,
+    CampaignPersonnelRole.DEPENDENT,
+    CampaignPersonnelRole.CIVILIAN_OTHER,
+    CampaignPersonnelRole.MERCHANT,
+    CampaignPersonnelRole.TEACHER,
+    CampaignPersonnelRole.LAWYER,
+    CampaignPersonnelRole.MUSICIAN,
+    CampaignPersonnelRole.CHEF,
+    CampaignPersonnelRole.BARTENDER,
+    CampaignPersonnelRole.FIREFIGHTER,
+    CampaignPersonnelRole.FARMER,
+    CampaignPersonnelRole.MINER,
+    CampaignPersonnelRole.FACTORY_WORKER,
+    CampaignPersonnelRole.COURIER,
+    CampaignPersonnelRole.GAMBLER,
+    CampaignPersonnelRole.HISTORIAN,
+    CampaignPersonnelRole.PAINTER,
+    CampaignPersonnelRole.RELIGIOUS_LEADER,
+    CampaignPersonnelRole.PSYCHOLOGIST,
+    CampaignPersonnelRole.NOBLE,
+    CampaignPersonnelRole.ADMIN,
+    CampaignPersonnelRole.SUPPORT,
+    CampaignPersonnelRole.UNASSIGNED,
+  ]);
 
-export function isValidCampaignPersonnelRole(value: unknown): value is CampaignPersonnelRole {
-  return Object.values(CampaignPersonnelRole).includes(value as CampaignPersonnelRole);
+export function isValidCampaignPersonnelRole(
+  value: unknown,
+): value is CampaignPersonnelRole {
+  return Object.values(CampaignPersonnelRole).includes(
+    value as CampaignPersonnelRole,
+  );
 }
 
-export function displayCampaignPersonnelRole(role: CampaignPersonnelRole): string {
+export function displayCampaignPersonnelRole(
+  role: CampaignPersonnelRole,
+): string {
   return role;
 }
 
@@ -193,7 +200,9 @@ export function isCivilianRole(role: CampaignPersonnelRole): boolean {
   return CIVILIAN_ROLES.has(role);
 }
 
-export function getRolesByCategory(category: RoleCategory): CampaignPersonnelRole[] {
+export function getRolesByCategory(
+  category: RoleCategory,
+): CampaignPersonnelRole[] {
   if (category === 'combat') {
     return Array.from(COMBAT_ROLES);
   }

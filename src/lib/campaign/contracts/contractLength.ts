@@ -7,7 +7,10 @@
  * @module campaign/contracts/contractLength
  */
 
-import { AtBContractType, CONTRACT_TYPE_DEFINITIONS } from '@/types/campaign/contracts/contractTypes';
+import {
+  AtBContractType,
+  CONTRACT_TYPE_DEFINITIONS,
+} from '@/types/campaign/contracts/contractTypes';
 
 /** Random number generator function type. Returns [0, 1). */
 export type RandomFn = () => number;
@@ -22,7 +25,7 @@ export type RandomFn = () => number;
  */
 export function calculateContractLength(
   contractType: AtBContractType,
-  random: RandomFn
+  random: RandomFn,
 ): number {
   const def = CONTRACT_TYPE_DEFINITIONS[contractType];
   const base = def.durationMonths;
@@ -47,7 +50,10 @@ export function contractLengthToDays(months: number): number {
  * @param contractType - The AtB contract type
  * @returns Object with min and max months
  */
-export function getContractLengthRange(contractType: AtBContractType): { min: number; max: number } {
+export function getContractLengthRange(contractType: AtBContractType): {
+  min: number;
+  max: number;
+} {
   const def = CONTRACT_TYPE_DEFINITIONS[contractType];
   const base = def.durationMonths;
   const minLength = Math.round(base * 0.75);

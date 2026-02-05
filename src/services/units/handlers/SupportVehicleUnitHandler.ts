@@ -8,21 +8,21 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { VehicleLocation } from '../../../types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
+import {
+  GroundMotionType,
+  IGroundMovement,
+} from '../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
+import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
 import {
   ISupportVehicle,
   IVehicleMountedEquipment,
   SupportVehicleSizeClass,
 } from '../../../types/unit/VehicleInterfaces';
-import {
-  GroundMotionType,
-  IGroundMovement,
-} from '../../../types/unit/BaseUnitInterfaces';
-import { VehicleLocation } from '../../../types/construction/UnitLocation';
-import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
@@ -71,7 +71,9 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
   /**
    * Parse support vehicle-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<ISupportVehicle> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<ISupportVehicle> & {
     errors: string[];
     warnings: string[];
   } {
@@ -80,7 +82,8 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
 
     // Motion type
     const motionTypeStr = document.motionType?.toLowerCase() || 'wheeled';
-    const motionType = MOTION_TYPE_MAP[motionTypeStr] || GroundMotionType.WHEELED;
+    const motionType =
+      MOTION_TYPE_MAP[motionTypeStr] || GroundMotionType.WHEELED;
 
     // Movement (support vehicles can have 0 MP for stationary types)
     const cruiseMP = document.cruiseMP || 0;
@@ -115,9 +118,12 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     const passengerCapacity = document.passengers || 0;
 
     // Tech ratings
-    const structuralTechRating = this.parseNumericRaw(rawTags, 'structuraltechrating') || 5;
-    const armorTechRating = this.parseNumericRaw(rawTags, 'armortechrating') || 5;
-    const engineTechRating = this.parseNumericRaw(rawTags, 'enginetechrating') || 5;
+    const structuralTechRating =
+      this.parseNumericRaw(rawTags, 'structuraltechrating') || 5;
+    const armorTechRating =
+      this.parseNumericRaw(rawTags, 'armortechrating') || 5;
+    const engineTechRating =
+      this.parseNumericRaw(rawTags, 'enginetechrating') || 5;
 
     return {
       unitType: UnitType.SUPPORT_VEHICLE,
@@ -157,7 +163,10 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
   /**
    * Parse numeric value from raw tags
    */
-  private parseNumericRaw(rawTags: Record<string, string | string[]>, key: string): number {
+  private parseNumericRaw(
+    rawTags: Record<string, string | string[]>,
+    key: string,
+  ): number {
     const value = rawTags[key];
     if (Array.isArray(value)) {
       return parseFloat(value[0]) || 0;
@@ -177,11 +186,15 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly IVehicleMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly IVehicleMountedEquipment[] {
     const equipment: IVehicleMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const location = this.normalizeLocation(locationKey);
       const isTurretMounted = locationKey.toLowerCase().includes('turret');
 
@@ -253,7 +266,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<ISupportVehicle>
+    typeSpecificFields: Partial<ISupportVehicle>,
   ): ISupportVehicle {
     const weightClass = this.getWeightClass(commonFields.tonnage);
     const techBase = this.parseTechBase(commonFields.techBase);
@@ -345,7 +358,9 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
   /**
    * Serialize support vehicle-specific fields
    */
-  protected serializeTypeSpecificFields(unit: ISupportVehicle): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: ISupportVehicle,
+  ): Partial<ISerializedUnit> {
     return {
       configuration: `Support Vehicle (${unit.sizeClass})`,
       rulesLevel: String(unit.rulesLevel),
@@ -356,7 +371,9 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
    * Deserialize from standard format
    */
   deserialize(_serialized: ISerializedUnit): IUnitParseResult<ISupportVehicle> {
-    return createFailureResult(['Support Vehicle deserialization not yet implemented']);
+    return createFailureResult([
+      'Support Vehicle deserialization not yet implemented',
+    ]);
   }
 
   /**
@@ -375,10 +392,16 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     if (unit.sizeClass === SupportVehicleSizeClass.SMALL && unit.tonnage > 5) {
       errors.push('Small support vehicles cannot exceed 5 tons');
     }
-    if (unit.sizeClass === SupportVehicleSizeClass.MEDIUM && unit.tonnage > 80) {
+    if (
+      unit.sizeClass === SupportVehicleSizeClass.MEDIUM &&
+      unit.tonnage > 80
+    ) {
       errors.push('Medium support vehicles cannot exceed 80 tons');
     }
-    if (unit.sizeClass === SupportVehicleSizeClass.LARGE && unit.tonnage > 300) {
+    if (
+      unit.sizeClass === SupportVehicleSizeClass.LARGE &&
+      unit.tonnage > 300
+    ) {
       errors.push('Large support vehicles cannot exceed 300 tons');
     }
 
@@ -390,7 +413,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     // Armor validation
     if (unit.totalArmorPoints > unit.maxArmorPoints) {
       errors.push(
-        `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`
+        `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,
       );
     }
 

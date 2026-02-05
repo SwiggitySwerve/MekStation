@@ -11,10 +11,13 @@
 ## Overview
 
 ### Purpose
+
 Creates random game scenarios with weighted force composition, map generation, and starting positions using seeded RNG for reproducibility.
 
 ### Scope
+
 **In Scope:**
+
 - ScenarioGenerator class
 - Weighted unit selection by tonnage class
 - Random map generation (radius, terrain)
@@ -23,6 +26,7 @@ Creates random game scenarios with weighted force composition, map generation, a
 - BV-matched force generation
 
 **Out of Scope:**
+
 - Smart/tactical force composition
 - Campaign-level scenarios
 - Physical attack scenarios
@@ -40,6 +44,7 @@ The system SHALL generate valid game scenarios deterministically from seed.
 **Priority**: Critical
 
 #### Scenario: Generate balanced scenario
+
 **GIVEN** config with unitCount=4, mapRadius=8, seed=12345
 **WHEN** calling generate()
 **THEN** scenario SHALL have 4 units per side
@@ -48,6 +53,7 @@ The system SHALL generate valid game scenarios deterministically from seed.
 **AND** same seed SHALL produce identical scenario
 
 #### Scenario: Weighted unit selection
+
 **GIVEN** WeightedTable with Light=3, Medium=2, Heavy=1, Assault=1
 **WHEN** generating 100 units
 **THEN** approximately 43% SHALL be Light
@@ -62,6 +68,7 @@ The system SHALL provide preset scenario configurations.
 **Priority**: Medium
 
 #### Scenario: Light skirmish preset
+
 **GIVEN** preset = 'light-skirmish'
 **WHEN** creating configuration
 **THEN** unitCount SHALL be 2
@@ -85,31 +92,31 @@ const PRESETS: Record<string, IScenarioPreset> = {
     name: 'light-skirmish',
     unitCount: 2,
     mapRadius: 5,
-    turnLimit: 50
+    turnLimit: 50,
   },
   STANDARD_LANCE: {
     name: 'standard-lance',
     unitCount: 4,
     mapRadius: 8,
-    turnLimit: 100
+    turnLimit: 100,
   },
   STRESS_TEST: {
     name: 'stress-test',
     unitCount: 4,
     mapRadius: 10,
-    turnLimit: 200
-  }
+    turnLimit: 200,
+  },
 };
 
 interface IScenarioGenerator {
   readonly generate: (
     config: ISimulationConfig,
-    random: ISeededRandom
+    random: ISeededRandom,
   ) => IGameSession;
 
   readonly generateForce: (
     unitCount: number,
-    random: ISeededRandom
+    random: ISeededRandom,
   ) => IGameUnit[];
 }
 ```
@@ -127,7 +134,7 @@ const config: ISimulationConfig = {
   seed: 12345,
   turnLimit: 100,
   unitCount: 4,
-  mapRadius: 8
+  mapRadius: 8,
 };
 
 const scenario = generator.generate(config, random);
@@ -148,4 +155,5 @@ const scenario = generator.generate(config, random);
 ## Changelog
 
 ### Version 1.0 (2026-02-01)
+
 - Initial specification

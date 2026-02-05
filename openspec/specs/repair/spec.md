@@ -1,8 +1,11 @@
 # repair Specification
 
 ## Purpose
+
 TBD - created by archiving change add-repair-system. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Damage Assessment
 
 The system SHALL assess damage to units after battles.
@@ -138,4 +141,3 @@ The system SHALL allow salvage to offset repair costs.
 - **WHEN** viewing replacement options
 - **THEN** salvage inventory is checked
 - **AND** matching parts are offered as options
-

@@ -5,6 +5,10 @@
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react';
+
+import { EventStoreService } from '@/services/events';
+import { EventCategory, IBaseEvent } from '@/types/events';
+
 import {
   useEventTimeline,
   useGameTimeline,
@@ -13,16 +17,12 @@ import {
   useUnitInstanceTimeline,
   usePilotInstanceTimeline,
 } from '../useEventTimeline';
-import { EventStoreService } from '@/services/events';
-import { EventCategory, IBaseEvent } from '@/types/events';
 
 // =============================================================================
 // Test Helpers
 // =============================================================================
 
-function createMockEvent(
-  overrides: Partial<IBaseEvent> = {}
-): IBaseEvent {
+function createMockEvent(overrides: Partial<IBaseEvent> = {}): IBaseEvent {
   return {
     id: `event-${Math.random().toString(36).slice(2)}`,
     sequence: 1,
@@ -51,9 +51,7 @@ describe('useEventTimeline', () => {
   describe('initial state', () => {
     it('should return empty events with no data', () => {
       const eventStore = createMockEventStore([]);
-      const { result } = renderHook(() =>
-        useEventTimeline({ eventStore })
-      );
+      const { result } = renderHook(() => useEventTimeline({ eventStore }));
 
       expect(result.current.events).toEqual([]);
       expect(result.current.pagination.total).toBe(0);
@@ -69,9 +67,7 @@ describe('useEventTimeline', () => {
       ];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useEventTimeline({ eventStore })
-      );
+      const { result } = renderHook(() => useEventTimeline({ eventStore }));
 
       await waitFor(() => {
         expect(result.current.events.length).toBe(3);
@@ -94,14 +90,16 @@ describe('useEventTimeline', () => {
         useEventTimeline({
           eventStore,
           initialFilters: { category: EventCategory.Game },
-        })
+        }),
       );
 
       await waitFor(() => {
         expect(result.current.events.length).toBe(2);
       });
 
-      expect(result.current.events.every((e) => e.category === EventCategory.Game)).toBe(true);
+      expect(
+        result.current.events.every((e) => e.category === EventCategory.Game),
+      ).toBe(true);
     });
 
     it('should filter by types', async () => {
@@ -116,14 +114,16 @@ describe('useEventTimeline', () => {
         useEventTimeline({
           eventStore,
           initialFilters: { types: ['attack'] },
-        })
+        }),
       );
 
       await waitFor(() => {
         expect(result.current.events.length).toBe(2);
       });
 
-      expect(result.current.events.every((e) => e.type === 'attack')).toBe(true);
+      expect(result.current.events.every((e) => e.type === 'attack')).toBe(
+        true,
+      );
     });
 
     it('should filter by context', async () => {
@@ -138,7 +138,7 @@ describe('useEventTimeline', () => {
         useEventTimeline({
           eventStore,
           initialFilters: { context: { gameId: 'game-1' } },
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -153,9 +153,7 @@ describe('useEventTimeline', () => {
       ];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useEventTimeline({ eventStore })
-      );
+      const { result } = renderHook(() => useEventTimeline({ eventStore }));
 
       await waitFor(() => {
         expect(result.current.events.length).toBe(2);
@@ -173,9 +171,21 @@ describe('useEventTimeline', () => {
 
     it('should filter by searchQuery', async () => {
       const events = [
-        createMockEvent({ sequence: 1, type: 'attack', payload: { target: 'mech-alpha' } }),
-        createMockEvent({ sequence: 2, type: 'movement', payload: { target: 'hex-5' } }),
-        createMockEvent({ sequence: 3, type: 'attack', payload: { target: 'mech-beta' } }),
+        createMockEvent({
+          sequence: 1,
+          type: 'attack',
+          payload: { target: 'mech-alpha' },
+        }),
+        createMockEvent({
+          sequence: 2,
+          type: 'movement',
+          payload: { target: 'hex-5' },
+        }),
+        createMockEvent({
+          sequence: 3,
+          type: 'attack',
+          payload: { target: 'mech-beta' },
+        }),
       ];
       const eventStore = createMockEventStore(events);
 
@@ -183,7 +193,7 @@ describe('useEventTimeline', () => {
         useEventTimeline({
           eventStore,
           initialFilters: { searchQuery: 'mech' },
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -195,7 +205,7 @@ describe('useEventTimeline', () => {
   describe('pagination', () => {
     it('should paginate results', async () => {
       const events = Array.from({ length: 10 }, (_, i) =>
-        createMockEvent({ sequence: i + 1 })
+        createMockEvent({ sequence: i + 1 }),
       );
       const eventStore = createMockEventStore(events);
 
@@ -203,7 +213,7 @@ describe('useEventTimeline', () => {
         useEventTimeline({
           eventStore,
           pageSize: 3,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -219,7 +229,7 @@ describe('useEventTimeline', () => {
 
     it('should go to specific page', async () => {
       const events = Array.from({ length: 10 }, (_, i) =>
-        createMockEvent({ sequence: i + 1 })
+        createMockEvent({ sequence: i + 1 }),
       );
       const eventStore = createMockEventStore(events);
 
@@ -227,7 +237,7 @@ describe('useEventTimeline', () => {
         useEventTimeline({
           eventStore,
           pageSize: 3,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -245,7 +255,7 @@ describe('useEventTimeline', () => {
 
     it('should load more in infinite scroll mode', async () => {
       const events = Array.from({ length: 10 }, (_, i) =>
-        createMockEvent({ sequence: i + 1 })
+        createMockEvent({ sequence: i + 1 }),
       );
       const eventStore = createMockEventStore(events);
 
@@ -254,7 +264,7 @@ describe('useEventTimeline', () => {
           eventStore,
           pageSize: 3,
           infiniteScroll: true,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -277,7 +287,7 @@ describe('useEventTimeline', () => {
 
     it('should change page size', async () => {
       const events = Array.from({ length: 10 }, (_, i) =>
-        createMockEvent({ sequence: i + 1 })
+        createMockEvent({ sequence: i + 1 }),
       );
       const eventStore = createMockEventStore(events);
 
@@ -285,7 +295,7 @@ describe('useEventTimeline', () => {
         useEventTimeline({
           eventStore,
           pageSize: 3,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -308,9 +318,7 @@ describe('useEventTimeline', () => {
       const events = [createMockEvent({ sequence: 1 })];
       const eventStore = createMockEventStore(events);
 
-      const { result } = renderHook(() =>
-        useEventTimeline({ eventStore })
-      );
+      const { result } = renderHook(() => useEventTimeline({ eventStore }));
 
       await waitFor(() => {
         expect(result.current.events.length).toBe(1);
@@ -339,7 +347,7 @@ describe('useEventTimeline', () => {
         useEventTimeline({
           eventStore,
           initialFilters: { category: EventCategory.Game },
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -380,7 +388,7 @@ describe('useGameTimeline', () => {
     const eventStore = createMockEventStore(events);
 
     const { result } = renderHook(() =>
-      useGameTimeline('game-1', { eventStore })
+      useGameTimeline('game-1', { eventStore }),
     );
 
     await waitFor(() => {
@@ -402,14 +410,16 @@ describe('usePilotTimeline', () => {
     const eventStore = createMockEventStore(events);
 
     const { result } = renderHook(() =>
-      usePilotTimeline('pilot-1', { eventStore })
+      usePilotTimeline('pilot-1', { eventStore }),
     );
 
     await waitFor(() => {
       expect(result.current.events.length).toBe(2);
     });
 
-    expect(result.current.events.every((e) => e.context.pilotId === 'pilot-1')).toBe(true);
+    expect(
+      result.current.events.every((e) => e.context.pilotId === 'pilot-1'),
+    ).toBe(true);
   });
 });
 
@@ -423,14 +433,16 @@ describe('useCampaignTimeline', () => {
     const eventStore = createMockEventStore(events);
 
     const { result } = renderHook(() =>
-      useCampaignTimeline('campaign-1', { eventStore })
+      useCampaignTimeline('campaign-1', { eventStore }),
     );
 
     await waitFor(() => {
       expect(result.current.events.length).toBe(2);
     });
 
-    expect(result.current.events.every((e) => e.context.campaignId === 'campaign-1')).toBe(true);
+    expect(
+      result.current.events.every((e) => e.context.campaignId === 'campaign-1'),
+    ).toBe(true);
   });
 });
 
@@ -444,14 +456,16 @@ describe('useUnitInstanceTimeline', () => {
     const eventStore = createMockEventStore(events);
 
     const { result } = renderHook(() =>
-      useUnitInstanceTimeline('unit-inst-1', { eventStore })
+      useUnitInstanceTimeline('unit-inst-1', { eventStore }),
     );
 
     await waitFor(() => {
       expect(result.current.events.length).toBe(2);
     });
 
-    expect(result.current.events.every((e) => e.context.unitId === 'unit-inst-1')).toBe(true);
+    expect(
+      result.current.events.every((e) => e.context.unitId === 'unit-inst-1'),
+    ).toBe(true);
   });
 });
 
@@ -465,13 +479,15 @@ describe('usePilotInstanceTimeline', () => {
     const eventStore = createMockEventStore(events);
 
     const { result } = renderHook(() =>
-      usePilotInstanceTimeline('pilot-inst-1', { eventStore })
+      usePilotInstanceTimeline('pilot-inst-1', { eventStore }),
     );
 
     await waitFor(() => {
       expect(result.current.events.length).toBe(2);
     });
 
-    expect(result.current.events.every((e) => e.context.pilotId === 'pilot-inst-1')).toBe(true);
+    expect(
+      result.current.events.every((e) => e.context.pilotId === 'pilot-inst-1'),
+    ).toBe(true);
   });
 });

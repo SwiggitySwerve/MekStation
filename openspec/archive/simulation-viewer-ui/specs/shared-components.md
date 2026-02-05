@@ -11,10 +11,13 @@
 ## Overview
 
 ### Purpose
+
 Defines reusable UI components shared across all three tabs of the Simulation Viewer (Campaign Dashboard, Encounter History, Analysis & Bugs). Ensures consistent design, behavior, and accessibility across the application.
 
 ### Scope
+
 **In Scope:**
+
 - KPI Card component (single metric display with sparkline)
 - Trend Chart component (line chart for time-series data)
 - Anomaly Alert Card component (severity-based alert display)
@@ -23,12 +26,14 @@ Defines reusable UI components shared across all three tabs of the Simulation Vi
 - Filter Panel component (multi-select filters with search)
 
 **Out of Scope:**
+
 - Page-level layouts (defined in tab specs)
 - Data fetching logic (defined in data model)
 - State management (Zustand stores)
 - Chart library selection (implementation detail)
 
 ### Key Concepts
+
 - **Component Props**: TypeScript interfaces defining component inputs
 - **Responsive Design**: Mobile-first approach with breakpoints at 600px, 960px
 - **Accessibility**: WCAG 2.1 AA compliance (keyboard navigation, ARIA labels, screen reader support)
@@ -40,6 +45,7 @@ Defines reusable UI components shared across all three tabs of the Simulation Vi
 ## Requirements
 
 ### Requirement: KPI Card Component
+
 The system SHALL provide a KPI Card component that displays a single metric with comparison context, sparkline, and drill-down capability.
 
 **Rationale**: Campaign Dashboard needs consistent metric display across roster, force, financial, and progression sections.
@@ -47,24 +53,29 @@ The system SHALL provide a KPI Card component that displays a single metric with
 **Priority**: Critical
 
 #### Scenario: Standard KPI card display
+
 **GIVEN** a KPI card with value=8, label="Active Pilots", comparison="+2 vs last month", trend=[5,6,7,8]
 **WHEN** the component renders
 **THEN** it SHALL display:
+
 - Label "Active Pilots" (text-sm, text-gray-600 dark:text-gray-400)
 - Value "8" (text-3xl, font-bold, text-gray-900 dark:text-gray-100)
 - Comparison "+2 vs last month" (text-sm, text-green-600, with ↑ icon)
 - Sparkline showing trend [5,6,7,8] (height: 40px, stroke: green)
-**AND** the card SHALL have hover state (shadow-md → shadow-lg)
+  **AND** the card SHALL have hover state (shadow-md → shadow-lg)
 
 #### Scenario: KPI card with negative comparison
+
 **GIVEN** a KPI card with comparison="-3 vs last month"
 **WHEN** the component renders
 **THEN** the comparison SHALL display:
+
 - Text color: text-red-600
 - Icon: ↓ (down arrow)
 - Sparkline stroke: red
 
 #### Scenario: KPI card with drill-down
+
 **GIVEN** a KPI card with onClick handler
 **WHEN** the user clicks the card
 **THEN** the onClick handler SHALL be invoked
@@ -72,20 +83,24 @@ The system SHALL provide a KPI Card component that displays a single metric with
 **AND** the card SHALL have focus ring (ring-2 ring-blue-500)
 
 #### Scenario: KPI card without comparison
+
 **GIVEN** a KPI card with comparison=undefined
 **WHEN** the component renders
 **THEN** the comparison section SHALL not be displayed
 **AND** the sparkline SHALL still be visible
 
 #### Scenario: KPI card responsive sizing
+
 **GIVEN** a KPI card on mobile (<600px)
 **WHEN** the component renders
 **THEN** it SHALL use:
+
 - Value: text-2xl (smaller than desktop)
 - Padding: p-4 (reduced from p-6)
 - Sparkline height: 32px (reduced from 40px)
 
 ### Requirement: Trend Chart Component
+
 The system SHALL provide a Trend Chart component that displays time-series data with configurable time range and responsive sizing.
 
 **Rationale**: Campaign Dashboard needs financial trend visualization with user-configurable time ranges.
@@ -93,15 +108,18 @@ The system SHALL provide a Trend Chart component that displays time-series data 
 **Priority**: High
 
 #### Scenario: Standard trend chart display
+
 **GIVEN** a trend chart with data=[{date:"2026-01-01", value:1000}, {date:"2026-01-02", value:1100}, ...]
 **WHEN** the component renders
 **THEN** it SHALL display:
+
 - Line chart with X-axis (dates) and Y-axis (values)
 - Tooltip on hover showing date and value
 - Responsive container (width: 100%, height: 300px on desktop)
 - Grid lines (subtle, gray-200 dark:gray-700)
 
 #### Scenario: Configurable time range
+
 **GIVEN** a trend chart with timeRange="7d"
 **WHEN** the user selects "30d" from the dropdown
 **THEN** the chart SHALL update to show last 30 days
@@ -109,30 +127,37 @@ The system SHALL provide a Trend Chart component that displays time-series data 
 **AND** the selection SHALL persist in the dropdown
 
 #### Scenario: Empty data handling
+
 **GIVEN** a trend chart with data=[]
 **WHEN** the component renders
 **THEN** it SHALL display:
+
 - Empty state message: "No data available"
 - Icon: 📊 (chart icon)
 - Suggestion: "Data will appear after first simulation"
 
 #### Scenario: Responsive sizing
+
 **GIVEN** a trend chart on mobile (<600px)
 **WHEN** the component renders
 **THEN** it SHALL use:
+
 - Height: 200px (reduced from 300px)
 - Simplified X-axis labels (fewer ticks)
 - Touch-friendly tooltip (larger hit area)
 
 #### Scenario: Threshold line display
+
 **GIVEN** a trend chart with threshold=100000
 **WHEN** the component renders
 **THEN** it SHALL display:
+
 - Horizontal line at y=100000
 - Line color: red (if below threshold), green (if above)
 - Label: "Threshold: $100,000"
 
 ### Requirement: Anomaly Alert Card Component
+
 The system SHALL provide an Anomaly Alert Card component that displays anomalies with severity-based styling, icons, and actions.
 
 **Rationale**: Analysis & Bugs tab needs consistent anomaly display with visual hierarchy and actionable buttons.
@@ -140,9 +165,11 @@ The system SHALL provide an Anomaly Alert Card component that displays anomalies
 **Priority**: Critical
 
 #### Scenario: Critical anomaly card
+
 **GIVEN** an anomaly with severity="critical", type="state-cycle", message="Game state repeated 3 times"
 **WHEN** the component renders
 **THEN** it SHALL display:
+
 - Border: border-l-4 border-red-600
 - Background: bg-red-50 dark:bg-red-900/20
 - Icon: 🔴 (red circle)
@@ -151,9 +178,11 @@ The system SHALL provide an Anomaly Alert Card component that displays anomalies
 - Actions: "View Snapshot", "View Battle", "Dismiss"
 
 #### Scenario: Warning anomaly card
+
 **GIVEN** an anomaly with severity="warning", type="heat-suicide"
 **WHEN** the component renders
 **THEN** it SHALL display:
+
 - Border: border-l-4 border-orange-600
 - Background: bg-orange-50 dark:bg-orange-900/20
 - Icon: ⚠️ (warning triangle)
@@ -161,9 +190,11 @@ The system SHALL provide an Anomaly Alert Card component that displays anomalies
 - Actions: "View Battle", "Configure Threshold", "Dismiss"
 
 #### Scenario: Info anomaly card
+
 **GIVEN** an anomaly with severity="info", type="long-game"
 **WHEN** the component renders
 **THEN** it SHALL display:
+
 - Border: border-l-4 border-blue-600
 - Background: bg-blue-50 dark:bg-blue-900/20
 - Icon: ℹ️ (info circle)
@@ -171,6 +202,7 @@ The system SHALL provide an Anomaly Alert Card component that displays anomalies
 - Actions: "View Battle", "Dismiss"
 
 #### Scenario: Dismiss action
+
 **GIVEN** an anomaly alert card
 **WHEN** the user clicks "Dismiss"
 **THEN** the onDismiss callback SHALL be invoked
@@ -178,6 +210,7 @@ The system SHALL provide an Anomaly Alert Card component that displays anomalies
 **AND** the card SHALL be removed from DOM after animation
 
 #### Scenario: Keyboard navigation
+
 **GIVEN** an anomaly alert card with focus
 **WHEN** the user presses Tab
 **THEN** focus SHALL move to the first action button
@@ -185,6 +218,7 @@ The system SHALL provide an Anomaly Alert Card component that displays anomalies
 **AND** Enter/Space SHALL activate the focused button
 
 ### Requirement: Tab Navigation Component
+
 The system SHALL provide a Tab Navigation component that switches between Campaign Dashboard, Encounter History, and Analysis & Bugs tabs with keyboard support and URL state preservation.
 
 **Rationale**: All three tabs need consistent navigation with accessibility and state management.
@@ -192,15 +226,18 @@ The system SHALL provide a Tab Navigation component that switches between Campai
 **Priority**: Critical
 
 #### Scenario: Standard tab navigation
+
 **GIVEN** a tab navigation with activeTab="campaign-dashboard"
 **WHEN** the component renders
 **THEN** it SHALL display:
+
 - Three tabs: "Campaign Dashboard", "Encounter History", "Analysis & Bugs"
 - Active tab with: bg-white dark:bg-gray-800, border-b-2 border-blue-600, text-blue-600
 - Inactive tabs with: bg-gray-100 dark:bg-gray-900, text-gray-600 dark:text-gray-400
 - Hover state on inactive tabs: bg-gray-200 dark:bg-gray-800
 
 #### Scenario: Tab switching
+
 **GIVEN** a tab navigation with activeTab="campaign-dashboard"
 **WHEN** the user clicks "Encounter History"
 **THEN** the onTabChange callback SHALL be invoked with "encounter-history"
@@ -208,6 +245,7 @@ The system SHALL provide a Tab Navigation component that switches between Campai
 **AND** the active tab indicator SHALL move to "Encounter History"
 
 #### Scenario: Keyboard navigation
+
 **GIVEN** a tab navigation with focus on "Campaign Dashboard"
 **WHEN** the user presses ArrowRight
 **THEN** focus SHALL move to "Encounter History"
@@ -216,20 +254,24 @@ The system SHALL provide a Tab Navigation component that switches between Campai
 **THEN** focus SHALL move back to "Campaign Dashboard"
 
 #### Scenario: URL state preservation
+
 **GIVEN** a URL with ?tab=analysis-bugs
 **WHEN** the tab navigation mounts
 **THEN** the activeTab SHALL be set to "analysis-bugs"
 **AND** the "Analysis & Bugs" tab SHALL be displayed as active
 
 #### Scenario: Responsive layout
+
 **GIVEN** a tab navigation on mobile (<600px)
 **WHEN** the component renders
 **THEN** it SHALL use:
+
 - Full-width tabs (w-full)
 - Stacked layout (flex-col) if needed
 - Smaller text (text-sm)
 
 ### Requirement: Drill-Down Link Component
+
 The system SHALL provide a Drill-Down Link component that navigates to related details with context preservation and breadcrumb trail.
 
 **Rationale**: Campaign Dashboard needs to link to Encounter History with filters applied and context preserved.
@@ -237,38 +279,46 @@ The system SHALL provide a Drill-Down Link component that navigates to related d
 **Priority**: High
 
 #### Scenario: Standard drill-down link
+
 **GIVEN** a drill-down link with label="View Battles", targetTab="encounter-history", filter={status:"wounded"}
 **WHEN** the user clicks the link
 **THEN** the system SHALL:
+
 - Navigate to Encounter History tab
 - Apply filter: status="wounded"
 - Add breadcrumb: "Dashboard > Roster > Wounded"
 - Preserve scroll position when returning
 
 #### Scenario: Link with icon
+
 **GIVEN** a drill-down link with icon="arrow-right"
 **WHEN** the component renders
 **THEN** it SHALL display:
+
 - Link text with underline on hover
 - Icon to the right of text
 - Color: text-blue-600 dark:text-blue-400
 - Cursor: pointer
 
 #### Scenario: Keyboard navigation
+
 **GIVEN** a drill-down link with focus
 **WHEN** the user presses Enter or Space
 **THEN** the navigation SHALL be triggered
 **AND** the link SHALL have focus ring (ring-2 ring-blue-500)
 
 #### Scenario: Back navigation
+
 **GIVEN** a user navigated via drill-down link
 **WHEN** the user clicks the browser back button
 **THEN** the system SHALL:
+
 - Return to the previous tab
 - Restore scroll position
 - Clear applied filters (unless explicitly preserved)
 
 ### Requirement: Filter Panel Component
+
 The system SHALL provide a Filter Panel component that supports multi-select filters, search input, and active filter display.
 
 **Rationale**: Encounter History and Analysis & Bugs tabs need consistent filtering UI.
@@ -276,15 +326,18 @@ The system SHALL provide a Filter Panel component that supports multi-select fil
 **Priority**: High
 
 #### Scenario: Standard filter panel
+
 **GIVEN** a filter panel with filters=[{id:"severity", label:"Severity", options:["critical","warning","info"]}]
 **WHEN** the component renders
 **THEN** it SHALL display:
+
 - Filter label "Severity"
 - Multi-select dropdown with checkboxes
 - Options: "Critical", "Warning", "Info"
 - "Clear All" button (disabled if no filters active)
 
 #### Scenario: Multi-select filter
+
 **GIVEN** a filter panel with severity filter
 **WHEN** the user selects "Critical" and "Warning"
 **THEN** the onFilterChange callback SHALL be invoked with {severity:["critical","warning"]}
@@ -292,6 +345,7 @@ The system SHALL provide a Filter Panel component that supports multi-select fil
 **AND** the dropdown SHALL show checkmarks next to selected options
 
 #### Scenario: Search input
+
 **GIVEN** a filter panel with search enabled
 **WHEN** the user types "Atlas" in the search box
 **THEN** the onSearchChange callback SHALL be invoked with "Atlas"
@@ -299,6 +353,7 @@ The system SHALL provide a Filter Panel component that supports multi-select fil
 **AND** a clear button (X) SHALL appear in the input
 
 #### Scenario: Clear all filters
+
 **GIVEN** a filter panel with 3 active filters
 **WHEN** the user clicks "Clear All"
 **THEN** all filters SHALL be cleared
@@ -306,16 +361,20 @@ The system SHALL provide a Filter Panel component that supports multi-select fil
 **AND** active filter badges SHALL be removed
 
 #### Scenario: Active filter count badge
+
 **GIVEN** a filter panel with 3 active filters
 **WHEN** the component renders
 **THEN** it SHALL display:
+
 - Badge: "3 active filters" (bg-blue-100 dark:bg-blue-900, text-blue-800 dark:text-blue-200)
 - Badge position: top-right of filter panel
 
 #### Scenario: Responsive layout
+
 **GIVEN** a filter panel on mobile (<600px)
 **WHEN** the component renders
 **THEN** it SHALL use:
+
 - Full-width dropdowns
 - Stacked layout (flex-col)
 - Collapsible sections (expand/collapse)
@@ -352,7 +411,7 @@ interface IKPICardProps {
   /**
    * Comparison direction (for color coding)
    */
-  readonly comparisonDirection?: "up" | "down" | "neutral";
+  readonly comparisonDirection?: 'up' | 'down' | 'neutral';
 
   /**
    * Sparkline data (optional)
@@ -369,7 +428,7 @@ interface IKPICardProps {
    * Status indicator color (optional)
    * @example "green" | "red" | "yellow" | "gray"
    */
-  readonly status?: "success" | "error" | "warning" | "neutral";
+  readonly status?: 'success' | 'error' | 'warning' | 'neutral';
 
   /**
    * Additional CSS classes
@@ -474,7 +533,10 @@ interface ITabNavigationProps {
   /**
    * Currently active tab
    */
-  readonly activeTab: "campaign-dashboard" | "encounter-history" | "analysis-bugs";
+  readonly activeTab:
+    | 'campaign-dashboard'
+    | 'encounter-history'
+    | 'analysis-bugs';
 
   /**
    * Callback when tab changes
@@ -500,7 +562,10 @@ interface IDrillDownLinkProps {
   /**
    * Target tab to navigate to
    */
-  readonly targetTab: "campaign-dashboard" | "encounter-history" | "analysis-bugs";
+  readonly targetTab:
+    | 'campaign-dashboard'
+    | 'encounter-history'
+    | 'analysis-bugs';
 
   /**
    * Filter to apply on target tab (optional)
@@ -593,16 +658,16 @@ interface IFilterDefinition {
 
 ### Required Properties
 
-| Property | Type | Required | Description | Valid Values | Default |
-|----------|------|----------|-------------|--------------|---------|
-| `IKPICardProps.label` | `string` | Yes | Metric label | Non-empty string | N/A |
-| `IKPICardProps.value` | `number \| string` | Yes | Metric value | Any | N/A |
-| `IKPICardProps.comparisonDirection` | `string` | No | Comparison direction | "up", "down", "neutral" | "neutral" |
-| `ITrendChartProps.data` | `IFinancialDataPoint[]` | Yes | Chart data | Non-empty array | N/A |
-| `ITrendChartProps.height` | `number` | No | Chart height | > 0 | 300 |
-| `IAnomalyAlertCardProps.anomaly` | `IAnomaly` | Yes | Anomaly data | Valid IAnomaly | N/A |
-| `ITabNavigationProps.activeTab` | `string` | Yes | Active tab | "campaign-dashboard", "encounter-history", "analysis-bugs" | N/A |
-| `IFilterPanelProps.filters` | `IFilterDefinition[]` | Yes | Filter definitions | Non-empty array | N/A |
+| Property                            | Type                    | Required | Description          | Valid Values                                               | Default   |
+| ----------------------------------- | ----------------------- | -------- | -------------------- | ---------------------------------------------------------- | --------- |
+| `IKPICardProps.label`               | `string`                | Yes      | Metric label         | Non-empty string                                           | N/A       |
+| `IKPICardProps.value`               | `number \| string`      | Yes      | Metric value         | Any                                                        | N/A       |
+| `IKPICardProps.comparisonDirection` | `string`                | No       | Comparison direction | "up", "down", "neutral"                                    | "neutral" |
+| `ITrendChartProps.data`             | `IFinancialDataPoint[]` | Yes      | Chart data           | Non-empty array                                            | N/A       |
+| `ITrendChartProps.height`           | `number`                | No       | Chart height         | > 0                                                        | 300       |
+| `IAnomalyAlertCardProps.anomaly`    | `IAnomaly`              | Yes      | Anomaly data         | Valid IAnomaly                                             | N/A       |
+| `ITabNavigationProps.activeTab`     | `string`                | Yes      | Active tab           | "campaign-dashboard", "encounter-history", "analysis-bugs" | N/A       |
+| `IFilterPanelProps.filters`         | `IFilterDefinition[]`   | Yes      | Filter definitions   | Non-empty array                                            | N/A       |
 
 ### Type Constraints
 
@@ -620,13 +685,15 @@ interface IFilterDefinition {
 ## Validation Rules
 
 ### Validation: KPI Card Props
+
 **Rule**: KPI Card must have valid label and value
 
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
-if (!props.label || props.label.trim() === "") {
+if (!props.label || props.label.trim() === '') {
   // invalid - empty label
 }
 if (props.value === null || props.value === undefined) {
@@ -639,14 +706,16 @@ if (props.value === null || props.value === undefined) {
 **User Action**: Provide valid label and value props
 
 ### Validation: Trend Chart Data
+
 **Rule**: Trend Chart data must be chronologically sorted
 
 **Severity**: Warning
 
 **Condition**:
+
 ```typescript
 for (let i = 1; i < props.data.length; i++) {
-  if (new Date(props.data[i].date) < new Date(props.data[i-1].date)) {
+  if (new Date(props.data[i].date) < new Date(props.data[i - 1].date)) {
     // invalid - not sorted
   }
 }
@@ -657,13 +726,15 @@ for (let i = 1; i < props.data.length; i++) {
 **User Action**: Sort data by date before passing to component
 
 ### Validation: Anomaly Alert Card Actions
+
 **Rule**: Critical anomalies must have "View Snapshot" action available
 
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
-if (props.anomaly.severity === "critical" && !props.onViewSnapshot) {
+if (props.anomaly.severity === 'critical' && !props.onViewSnapshot) {
   // invalid - missing required action
 }
 ```
@@ -673,13 +744,15 @@ if (props.anomaly.severity === "critical" && !props.onViewSnapshot) {
 **User Action**: Provide onViewSnapshot callback for critical anomalies
 
 ### Validation: Tab Navigation Active Tab
+
 **Rule**: Active tab must be one of the valid tab IDs
 
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
-const validTabs = ["campaign-dashboard", "encounter-history", "analysis-bugs"];
+const validTabs = ['campaign-dashboard', 'encounter-history', 'analysis-bugs'];
 if (!validTabs.includes(props.activeTab)) {
   // invalid - unknown tab
 }
@@ -694,12 +767,14 @@ if (!validTabs.includes(props.activeTab)) {
 ## Dependencies
 
 ### Depends On
+
 - **data-model.md**: Uses `IAnomaly`, `IFinancialDataPoint` interfaces
 - **campaign-dashboard.md**: KPI Card, Trend Chart usage requirements
 - **encounter-history.md**: Filter Panel, Drill-Down Link usage requirements
 - **analysis-bugs.md**: Anomaly Alert Card, Filter Panel usage requirements
 
 ### Used By
+
 - **Campaign Dashboard**: KPI Card, Trend Chart, Drill-Down Link, Tab Navigation
 - **Encounter History**: Filter Panel, Drill-Down Link, Tab Navigation
 - **Analysis & Bugs**: Anomaly Alert Card, Filter Panel, Tab Navigation
@@ -709,12 +784,14 @@ if (!validTabs.includes(props.activeTab)) {
 ## Implementation Notes
 
 ### Performance Considerations
+
 - **Sparklines**: Use lightweight library (react-sparklines or custom SVG) to avoid heavy chart library overhead
 - **Trend Charts**: Debounce time range changes (300ms) to avoid excessive re-renders
 - **Filter Panel**: Debounce search input (300ms) to reduce callback frequency
 - **Anomaly Cards**: Use CSS transitions for dismiss animation (avoid JS animation)
 
 ### Accessibility Requirements
+
 - **Keyboard Navigation**: All interactive components must be keyboard accessible (Tab, Enter, Space, Arrow keys)
 - **ARIA Labels**: All components must have appropriate ARIA labels and roles
 - **Screen Reader Support**: All components must announce state changes (e.g., "Filter applied: Critical")
@@ -722,17 +799,20 @@ if (!validTabs.includes(props.activeTab)) {
 - **Color Contrast**: All text must meet WCAG 2.1 AA contrast ratios (4.5:1 for normal text, 3:1 for large text)
 
 ### Responsive Design
+
 - **Breakpoints**: Mobile <600px, Tablet 600-960px, Desktop >960px
 - **Touch Targets**: Minimum 44px for mobile (buttons, links, checkboxes)
 - **Spacing**: 8px/16px/24px grid system (Tailwind defaults)
 - **Typography**: Responsive text sizes (text-sm on mobile, text-base on desktop)
 
 ### Dark Mode Support
+
 - **Color Scheme**: Use Tailwind dark: classes for all color properties
 - **Contrast**: Ensure sufficient contrast in both light and dark modes
 - **Testing**: Test all components in both modes
 
 ### Common Pitfalls
+
 - **Pitfall**: Hardcoding colors instead of using Tailwind classes
   - **Solution**: Use semantic color classes (text-red-600, bg-blue-50) with dark: variants
 - **Pitfall**: Not handling empty data states
@@ -749,6 +829,7 @@ if (!validTabs.includes(props.activeTab)) {
 ### Example 1: KPI Card Usage
 
 **Input**:
+
 ```typescript
 <KPICard
   label="Active Pilots"
@@ -762,6 +843,7 @@ if (!validTabs.includes(props.activeTab)) {
 ```
 
 **Output**:
+
 ```
 ┌─────────────────────────────┐
 │ Active Pilots               │
@@ -775,6 +857,7 @@ if (!validTabs.includes(props.activeTab)) {
 ### Example 2: Trend Chart Usage
 
 **Input**:
+
 ```typescript
 <TrendChart
   title="Financial Trend"
@@ -793,6 +876,7 @@ if (!validTabs.includes(props.activeTab)) {
 ```
 
 **Output**:
+
 ```
 Financial Trend                    [7d] [14d] [30d] [60d] [90d]
 ┌─────────────────────────────────────────────────────┐
@@ -812,6 +896,7 @@ Financial Trend                    [7d] [14d] [30d] [60d] [90d]
 ### Example 3: Anomaly Alert Card Usage
 
 **Input**:
+
 ```typescript
 <AnomalyAlertCard
   anomaly={{
@@ -834,6 +919,7 @@ Financial Trend                    [7d] [14d] [30d] [60d] [90d]
 ```
 
 **Output**:
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │ ⚠️  Heat Suicide                                    │
@@ -849,6 +935,7 @@ Financial Trend                    [7d] [14d] [30d] [60d] [90d]
 ### Example 4: Tab Navigation Usage
 
 **Input**:
+
 ```typescript
 <TabNavigation
   activeTab="campaign-dashboard"
@@ -860,6 +947,7 @@ Financial Trend                    [7d] [14d] [30d] [60d] [90d]
 ```
 
 **Output**:
+
 ```
 ┌─────────────────┬─────────────────┬─────────────────┐
 │ Campaign        │ Encounter       │ Analysis &      │
@@ -871,6 +959,7 @@ Financial Trend                    [7d] [14d] [30d] [60d] [90d]
 ### Example 5: Filter Panel Usage
 
 **Input**:
+
 ```typescript
 <FilterPanel
   filters={[
@@ -895,6 +984,7 @@ Financial Trend                    [7d] [14d] [30d] [60d] [90d]
 ```
 
 **Output**:
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │ Filters                          [2 active filters] │
@@ -915,12 +1005,14 @@ Financial Trend                    [7d] [14d] [30d] [60d] [90d]
 ## References
 
 ### Design System References
+
 - **Material Design**: Component patterns, spacing, typography
 - **Tailwind CSS**: Utility classes, dark mode, responsive design
 - **Shadcn UI**: Component structure, accessibility patterns
 - **Carbon Design System**: Status indicators, alert cards
 
 ### Related Documentation
+
 - `openspec/changes/simulation-viewer-ui/specs/data-model.md` - TypeScript interfaces
 - `openspec/changes/simulation-viewer-ui/specs/campaign-dashboard.md` - KPI Card, Trend Chart usage
 - `openspec/changes/simulation-viewer-ui/specs/encounter-history.md` - Filter Panel, Drill-Down Link usage
@@ -928,6 +1020,7 @@ Financial Trend                    [7d] [14d] [30d] [60d] [90d]
 - `.sisyphus/notepads/simulation-viewer-specs/learnings.md` - UI research findings
 
 ### UI Pattern Research
+
 - Dashboard design: F-pattern layout, KPI cards, sparklines (ses_3e0154034ffeo3Jxu4RhRS4iA5)
 - Anomaly detection UI: Severity colors, alert cards, threshold config (ses_3e0153219ffeZJiTyVruBchDn6)
 - Event timeline UI: Vertical timeline, key moment indicators, VCR controls (ses_3e01521c8ffemQx7DML9ffemG7)
@@ -937,6 +1030,7 @@ Financial Trend                    [7d] [14d] [30d] [60d] [90d]
 ## Changelog
 
 ### Version 1.0 (2026-02-02)
+
 - Initial specification
 - Defined 6 shared components: KPI Card, Trend Chart, Anomaly Alert Card, Tab Navigation, Drill-Down Link, Filter Panel
 - Established component props interfaces with TypeScript

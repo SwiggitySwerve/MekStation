@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
+
 import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
 
 // Mock localStorage
@@ -95,7 +96,14 @@ describe('useAppSettingsStore', () => {
 
     it('should accept all valid accent colors', () => {
       const { result } = renderHook(() => useAppSettingsStore());
-      const colors = ['amber', 'cyan', 'emerald', 'rose', 'violet', 'blue'] as const;
+      const colors = [
+        'amber',
+        'cyan',
+        'emerald',
+        'rose',
+        'violet',
+        'blue',
+      ] as const;
 
       colors.forEach((color) => {
         act(() => {
@@ -167,7 +175,12 @@ describe('useAppSettingsStore', () => {
 
     it('should accept all valid variants', () => {
       const { result } = renderHook(() => useAppSettingsStore());
-      const variants = ['clean-tech', 'neon-operator', 'tactical-hud', 'premium-material'] as const;
+      const variants = [
+        'clean-tech',
+        'neon-operator',
+        'tactical-hud',
+        'premium-material',
+      ] as const;
 
       variants.forEach((variant) => {
         act(() => {
@@ -412,7 +425,9 @@ describe('useAppSettingsStore', () => {
         result.current.setDraftArmorDiagramVariant('megamek');
       });
 
-      expect(result.current.draftCustomizer?.armorDiagramVariant).toBe('megamek');
+      expect(result.current.draftCustomizer?.armorDiagramVariant).toBe(
+        'megamek',
+      );
       expect(result.current.armorDiagramVariant).toBe('clean-tech'); // Not persisted
       expect(result.current.hasUnsavedCustomizer).toBe(true);
     });
@@ -451,7 +466,9 @@ describe('useAppSettingsStore', () => {
         result.current.setDraftArmorDiagramVariant('tactical-hud');
       });
 
-      expect(result.current.getEffectiveArmorDiagramVariant()).toBe('tactical-hud');
+      expect(result.current.getEffectiveArmorDiagramVariant()).toBe(
+        'tactical-hud',
+      );
     });
 
     it('getEffectiveArmorDiagramVariant returns saved when no draft', () => {
@@ -463,7 +480,9 @@ describe('useAppSettingsStore', () => {
       });
 
       // Without initializing draft, should return saved value
-      expect(result.current.getEffectiveArmorDiagramVariant()).toBe('neon-operator');
+      expect(result.current.getEffectiveArmorDiagramVariant()).toBe(
+        'neon-operator',
+      );
     });
 
     it('should update draft armor diagram mode without persisting', () => {
@@ -474,7 +493,9 @@ describe('useAppSettingsStore', () => {
         result.current.setDraftArmorDiagramMode('schematic');
       });
 
-      expect(result.current.draftCustomizer?.armorDiagramMode).toBe('schematic');
+      expect(result.current.draftCustomizer?.armorDiagramMode).toBe(
+        'schematic',
+      );
       expect(result.current.armorDiagramMode).toBe('silhouette'); // Not persisted
       expect(result.current.hasUnsavedCustomizer).toBe(true);
     });
@@ -511,16 +532,24 @@ describe('useAppSettingsStore', () => {
       });
 
       // Variant should be preserved from initial state
-      expect(result.current.draftCustomizer?.armorDiagramMode).toBe('schematic');
-      expect(result.current.draftCustomizer?.armorDiagramVariant).toBe('clean-tech');
+      expect(result.current.draftCustomizer?.armorDiagramMode).toBe(
+        'schematic',
+      );
+      expect(result.current.draftCustomizer?.armorDiagramVariant).toBe(
+        'clean-tech',
+      );
 
       act(() => {
         result.current.setDraftArmorDiagramVariant('megamek');
       });
 
       // Mode should be preserved from draft
-      expect(result.current.draftCustomizer?.armorDiagramMode).toBe('schematic');
-      expect(result.current.draftCustomizer?.armorDiagramVariant).toBe('megamek');
+      expect(result.current.draftCustomizer?.armorDiagramMode).toBe(
+        'schematic',
+      );
+      expect(result.current.draftCustomizer?.armorDiagramVariant).toBe(
+        'megamek',
+      );
     });
 
     it('should save both mode and variant together', () => {

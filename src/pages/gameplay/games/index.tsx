@@ -5,16 +5,11 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import { useCallback } from 'react';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
-import {
-  PageLayout,
-  Card,
-  Button,
-  EmptyState,
-  Badge,
-} from '@/components/ui';
+import { useRouter } from 'next/router';
+import { useCallback } from 'react';
+
+import { PageLayout, Card, Button, EmptyState, Badge } from '@/components/ui';
 
 // =============================================================================
 // Types
@@ -66,28 +61,33 @@ function GameCard({ game, onClick }: GameCardProps): React.ReactElement {
 
   return (
     <Card
-      className="cursor-pointer hover:ring-2 hover:ring-accent/50 transition-all"
+      className="hover:ring-accent/50 cursor-pointer transition-all hover:ring-2"
       onClick={onClick}
       data-testid={`game-card-${game.id}`}
     >
-      <div className="flex items-start justify-between mb-3">
-        <h3 className="font-bold text-lg text-text-theme-primary">{game.name}</h3>
+      <div className="mb-3 flex items-start justify-between">
+        <h3 className="text-text-theme-primary text-lg font-bold">
+          {game.name}
+        </h3>
         <Badge variant={statusVariant[game.status]} size="sm">
           {game.status}
         </Badge>
       </div>
-      <div className="text-sm text-text-theme-secondary space-y-1">
+      <div className="text-text-theme-secondary space-y-1 text-sm">
         <p>
-          <span className="font-medium text-text-theme-primary">Turn:</span> {game.turn}
+          <span className="text-text-theme-primary font-medium">Turn:</span>{' '}
+          {game.turn}
         </p>
         <p>
-          <span className="font-medium text-text-theme-primary">Player:</span> {game.playerForce}
+          <span className="text-text-theme-primary font-medium">Player:</span>{' '}
+          {game.playerForce}
         </p>
         <p>
-          <span className="font-medium text-text-theme-primary">Opponent:</span> {game.opponentForce}
+          <span className="text-text-theme-primary font-medium">Opponent:</span>{' '}
+          {game.opponentForce}
         </p>
       </div>
-      <div className="mt-4 pt-3 border-t border-border-theme-subtle text-xs text-text-theme-muted">
+      <div className="border-border-theme-subtle text-text-theme-muted mt-4 border-t pt-3 text-xs">
         Last played: {new Date(game.updatedAt).toLocaleDateString()}
       </div>
     </Card>
@@ -106,7 +106,7 @@ export default function GamesListPage(): React.ReactElement {
     (game: GameSummary) => {
       router.push(`/gameplay/games/${game.id}`);
     },
-    [router]
+    [router],
   );
 
   // Handle new game
@@ -121,7 +121,11 @@ export default function GamesListPage(): React.ReactElement {
       subtitle="Active and completed game sessions"
       maxWidth="wide"
       headerContent={
-        <Button variant="primary" onClick={handleNewGame} data-testid="new-game-btn">
+        <Button
+          variant="primary"
+          onClick={handleNewGame}
+          data-testid="new-game-btn"
+        >
           New Game (Demo)
         </Button>
       }
@@ -131,9 +135,9 @@ export default function GamesListPage(): React.ReactElement {
         <EmptyState
           data-testid="games-empty-state"
           icon={
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
+            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
               <svg
-                className="w-8 h-8 text-text-theme-muted"
+                className="text-text-theme-muted h-8 w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -162,7 +166,7 @@ export default function GamesListPage(): React.ReactElement {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {DEMO_GAMES.map((game) => (
             <GameCard
               key={game.id}
@@ -174,13 +178,13 @@ export default function GamesListPage(): React.ReactElement {
       )}
 
       {/* Navigation links */}
-      <div className="mt-8 pt-6 border-t border-border-theme-subtle flex gap-6">
+      <div className="border-border-theme-subtle mt-8 flex gap-6 border-t pt-6">
         <Link
           href="/gameplay/forces"
-          className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+          className="text-accent hover:text-accent/80 inline-flex items-center gap-2 transition-colors"
         >
           <svg
-            className="w-4 h-4"
+            className="h-4 w-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -196,10 +200,10 @@ export default function GamesListPage(): React.ReactElement {
         </Link>
         <Link
           href="/gameplay/pilots"
-          className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+          className="text-accent hover:text-accent/80 inline-flex items-center gap-2 transition-colors"
         >
           <svg
-            className="w-4 h-4"
+            className="h-4 w-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

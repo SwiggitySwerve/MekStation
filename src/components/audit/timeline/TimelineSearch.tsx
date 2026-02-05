@@ -61,7 +61,7 @@ export function TimelineSearch({
         onChange(newValue);
       }, debounceMs);
     },
-    [onChange, debounceMs]
+    [onChange, debounceMs],
   );
 
   // Clear search
@@ -89,25 +89,25 @@ export function TimelineSearch({
         handleClear();
       }
     },
-    [localValue, handleClear]
+    [localValue, handleClear],
   );
 
   return (
     <div className={`relative ${className}`}>
       {/* Search Icon */}
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          fill="none" 
-          viewBox="0 0 24 24" 
-          strokeWidth={1.5} 
-          stroke="currentColor" 
-          className="w-5 h-5 text-text-theme-muted"
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="text-text-theme-muted h-5 w-5"
         >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" 
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
           />
         </svg>
       </div>
@@ -120,13 +120,7 @@ export function TimelineSearch({
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className={`
-          w-full pl-10 pr-10 py-2.5 rounded-lg
-          bg-surface-raised/50 border border-border-theme
-          text-text-theme-primary placeholder-text-theme-muted
-          focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20
-          transition-colors duration-200
-        `}
+        className={`bg-surface-raised/50 border-border-theme text-text-theme-primary placeholder-text-theme-muted focus:border-accent focus:ring-accent/20 w-full rounded-lg border py-2.5 pr-10 pl-10 transition-colors duration-200 focus:ring-1 focus:outline-none`}
       />
 
       {/* Clear Button */}
@@ -134,17 +128,21 @@ export function TimelineSearch({
         <button
           type="button"
           onClick={handleClear}
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-theme-muted hover:text-text-theme-primary transition-colors"
+          className="text-text-theme-muted hover:text-text-theme-primary absolute inset-y-0 right-0 flex items-center pr-3 transition-colors"
         >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            strokeWidth={1.5} 
-            stroke="currentColor" 
-            className="w-5 h-5"
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="h-5 w-5"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       )}
@@ -152,7 +150,7 @@ export function TimelineSearch({
       {/* Loading indicator during debounce */}
       {localValue !== value && (
         <div className="absolute inset-y-0 right-8 flex items-center pr-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+          <div className="bg-accent h-1.5 w-1.5 animate-pulse rounded-full" />
         </div>
       )}
     </div>

@@ -3,6 +3,7 @@
 ## Why
 
 Double type assertions (`as unknown as T`) completely bypass TypeScript's type system, creating a code smell that often masks deeper type compatibility issues. This pattern:
+
 - Silences compiler errors but causes runtime crashes
 - Makes code harder to refactor safely
 - Indicates missing type guards or conversion functions
@@ -18,7 +19,7 @@ Double type assertions (`as unknown as T`) completely bypass TypeScript's type s
 ## Impact
 
 - **Affected specs**: `validation-patterns`
-- **Affected code**: 
+- **Affected code**:
   - `eslint.config.mjs` - New lint rule (already implemented)
   - 15 test files containing 55+ violations requiring fixes
 - **Breaking**: No - existing violations emit warnings, not errors
@@ -30,4 +31,3 @@ Double type assertions (`as unknown as T`) completely bypass TypeScript's type s
 2. All existing violations are fixed with proper typing
 3. Build and tests pass without the double-casting pattern
 4. Spec documents the requirement and approved alternatives
-

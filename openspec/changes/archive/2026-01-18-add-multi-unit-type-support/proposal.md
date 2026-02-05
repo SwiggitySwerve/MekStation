@@ -7,6 +7,7 @@ MekStation currently only supports BattleMech construction. The mm-data reposito
 ## What Changes
 
 ### Phase 1: Foundation & Data Layer
+
 - **BREAKING**: Refactor `ISerializedUnit` to support polymorphic unit types
 - Add BLK file format parser for non-mech units
 - Create abstract `IBaseUnit` interface with shared properties
@@ -14,18 +15,21 @@ MekStation currently only supports BattleMech construction. The mm-data reposito
 - Implement unit type detection and routing
 
 ### Phase 2: Import & Validation Pipeline
+
 - Extend `UnitLoaderService` to handle all unit types
 - Create unit-type-specific validation rule registries
 - Implement component mappers for each unit type
 - Add unit-specific equipment filtering
 
 ### Phase 3: Customizer UI Per Unit Type
+
 - Create unit-type-specific customizer tabs (following MegaMekLab patterns)
 - Implement unit-specific diagrams (vehicle locations, aerospace arcs, etc.)
 - Add unit-specific toggles and controls
 - Create unit-specific status bars
 
 ### Phase 4: Export & Printing
+
 - Extend serialization to support all unit types
 - Implement unit-type-specific record sheet generation
 - Add BLK export capability
@@ -33,6 +37,7 @@ MekStation currently only supports BattleMech construction. The mm-data reposito
 ## Impact
 
 ### Affected Specs
+
 - `serialization-formats` - Add polymorphic unit serialization
 - `unit-entity-model` - Expand to all unit types
 - `mm-data-asset-integration` - Add vehicle/aerospace assets
@@ -41,6 +46,7 @@ MekStation currently only supports BattleMech construction. The mm-data reposito
 - `armor-diagram` - Add vehicle/aerospace variants
 
 ### Affected Code
+
 - `src/types/unit/` - All unit interfaces
 - `src/services/units/` - Loader, factory, repository
 - `src/services/validation/` - Validation rules
@@ -48,6 +54,7 @@ MekStation currently only supports BattleMech construction. The mm-data reposito
 - `src/stores/unitState.ts` - Unit state model
 
 ### New Specs Required
+
 - `unit-type-hierarchy` - Base interface architecture
 - `vehicle-construction-system` - Vehicle-specific rules
 - `aerospace-construction-system` - Aerospace-specific rules
@@ -58,19 +65,19 @@ MekStation currently only supports BattleMech construction. The mm-data reposito
 
 ## External References
 
-| Resource | Location | Purpose |
-|----------|----------|---------|
-| mm-data | `E:\Projects\mm-data` or `github.com/MegaMek/mm-data` | Unit data files (BLK/MTF) |
-| MegaMekLab | `E:\Projects\megameklab` or `github.com/MegaMek/megameklab` | Reference implementation |
+| Resource   | Location                                                    | Purpose                   |
+| ---------- | ----------------------------------------------------------- | ------------------------- |
+| mm-data    | `E:\Projects\mm-data` or `github.com/MegaMek/mm-data`       | Unit data files (BLK/MTF) |
+| MegaMekLab | `E:\Projects\megameklab` or `github.com/MegaMek/megameklab` | Reference implementation  |
 
 ## Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| Scope creep | High | High | Phased approach, validate each phase |
-| MegaMek parity gaps | Medium | Medium | Document deviations, prioritize common units |
-| Performance with large datasets | Medium | Low | Lazy loading, pagination |
-| Incompatible data formats | Low | High | Extensive BLK parser testing |
+| Risk                            | Likelihood | Impact | Mitigation                                   |
+| ------------------------------- | ---------- | ------ | -------------------------------------------- |
+| Scope creep                     | High       | High   | Phased approach, validate each phase         |
+| MegaMek parity gaps             | Medium     | Medium | Document deviations, prioritize common units |
+| Performance with large datasets | Medium     | Low    | Lazy loading, pagination                     |
+| Incompatible data formats       | Low        | High   | Extensive BLK parser testing                 |
 
 ## Success Criteria
 

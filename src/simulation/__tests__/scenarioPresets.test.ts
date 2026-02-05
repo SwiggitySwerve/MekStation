@@ -1,3 +1,5 @@
+import { isGameSession, GameSide, IGameUnit } from '@/types/gameplay';
+
 import { SeededRandom } from '../core/SeededRandom';
 import {
   ScenarioGenerator,
@@ -7,7 +9,6 @@ import {
   createDefaultUnitWeights,
   createDefaultTerrainWeights,
 } from '../generator';
-import { isGameSession, GameSide, IGameUnit } from '@/types/gameplay';
 
 describe('Scenario Presets', () => {
   let generator: ScenarioGenerator;
@@ -15,7 +16,7 @@ describe('Scenario Presets', () => {
   beforeEach(() => {
     generator = new ScenarioGenerator(
       createDefaultUnitWeights(),
-      createDefaultTerrainWeights()
+      createDefaultTerrainWeights(),
     );
   });
 
@@ -33,8 +34,12 @@ describe('Scenario Presets', () => {
       const random = new SeededRandom(configWithSeed.seed);
       const session = generator.generate(configWithSeed, random);
 
-      const playerUnits = session.units.filter((u: IGameUnit) => u.side === GameSide.Player);
-      const opponentUnits = session.units.filter((u: IGameUnit) => u.side === GameSide.Opponent);
+      const playerUnits = session.units.filter(
+        (u: IGameUnit) => u.side === GameSide.Player,
+      );
+      const opponentUnits = session.units.filter(
+        (u: IGameUnit) => u.side === GameSide.Opponent,
+      );
 
       expect(playerUnits.length).toBe(2);
       expect(opponentUnits.length).toBe(2);
@@ -72,8 +77,12 @@ describe('Scenario Presets', () => {
       const random = new SeededRandom(configWithSeed.seed);
       const session = generator.generate(configWithSeed, random);
 
-      const playerUnits = session.units.filter((u: IGameUnit) => u.side === GameSide.Player);
-      const opponentUnits = session.units.filter((u: IGameUnit) => u.side === GameSide.Opponent);
+      const playerUnits = session.units.filter(
+        (u: IGameUnit) => u.side === GameSide.Player,
+      );
+      const opponentUnits = session.units.filter(
+        (u: IGameUnit) => u.side === GameSide.Opponent,
+      );
 
       expect(playerUnits.length).toBe(4);
       expect(opponentUnits.length).toBe(4);
@@ -110,8 +119,12 @@ describe('Scenario Presets', () => {
       const random = new SeededRandom(configWithSeed.seed);
       const session = generator.generate(configWithSeed, random);
 
-      const playerUnits = session.units.filter((u: IGameUnit) => u.side === GameSide.Player);
-      const opponentUnits = session.units.filter((u: IGameUnit) => u.side === GameSide.Opponent);
+      const playerUnits = session.units.filter(
+        (u: IGameUnit) => u.side === GameSide.Player,
+      );
+      const opponentUnits = session.units.filter(
+        (u: IGameUnit) => u.side === GameSide.Opponent,
+      );
 
       expect(playerUnits.length).toBe(4);
       expect(opponentUnits.length).toBe(4);
@@ -141,36 +154,42 @@ describe('Scenario Presets', () => {
       { name: 'STRESS_TEST', config: STRESS_TEST },
     ];
 
-    it.each(presets)('$name should produce valid session with multiple seeds', ({ config }) => {
-      for (const seed of [1, 100, 9999, 123456789]) {
-        const configWithSeed = { ...config, seed };
-        const random = new SeededRandom(seed);
+    it.each(presets)(
+      '$name should produce valid session with multiple seeds',
+      ({ config }) => {
+        for (const seed of [1, 100, 9999, 123456789]) {
+          const configWithSeed = { ...config, seed };
+          const random = new SeededRandom(seed);
+          const session = generator.generate(configWithSeed, random);
+
+          expect(isGameSession(session)).toBe(true);
+          expect(session.units.length).toBeGreaterThan(0);
+        }
+      },
+    );
+
+    it.each(presets)(
+      '$name should have all units with valid stats',
+      ({ config }) => {
+        const configWithSeed = { ...config, seed: 42 };
+        const random = new SeededRandom(42);
         const session = generator.generate(configWithSeed, random);
 
-        expect(isGameSession(session)).toBe(true);
-        expect(session.units.length).toBeGreaterThan(0);
-      }
-    });
+        for (const unitId of Object.keys(session.currentState.units)) {
+          const unit = session.currentState.units[unitId];
 
-    it.each(presets)('$name should have all units with valid stats', ({ config }) => {
-      const configWithSeed = { ...config, seed: 42 };
-      const random = new SeededRandom(42);
-      const session = generator.generate(configWithSeed, random);
+          expect(Object.keys(unit.armor).length).toBeGreaterThanOrEqual(8);
+          expect(Object.keys(unit.structure).length).toBeGreaterThanOrEqual(8);
 
-      for (const unitId of Object.keys(session.currentState.units)) {
-        const unit = session.currentState.units[unitId];
-
-        expect(Object.keys(unit.armor).length).toBeGreaterThanOrEqual(8);
-        expect(Object.keys(unit.structure).length).toBeGreaterThanOrEqual(8);
-
-        for (const value of Object.values(unit.armor)) {
-          expect(value).toBeGreaterThanOrEqual(0);
+          for (const value of Object.values(unit.armor)) {
+            expect(value).toBeGreaterThanOrEqual(0);
+          }
+          for (const value of Object.values(unit.structure)) {
+            expect(value).toBeGreaterThan(0);
+          }
         }
-        for (const value of Object.values(unit.structure)) {
-          expect(value).toBeGreaterThan(0);
-        }
-      }
-    });
+      },
+    );
   });
 
   describe('preset unit counts', () => {

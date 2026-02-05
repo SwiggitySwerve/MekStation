@@ -181,14 +181,14 @@ export interface PartReference {
  * Defines how two connection points relate to each other
  */
 export interface ConnectionAlignment {
-  /** 
+  /**
    * How the source anchor aligns to target anchor:
    * - 'match': source point moves to target point (default)
    * - 'adjacent': source edge touches target edge with gap between anchors
    * - 'offset': anchors are offset by specified amount
    */
   mode: 'match' | 'adjacent' | 'offset';
-  /** 
+  /**
    * For 'offset' mode: x,y offset from target anchor to source anchor
    * Positive x = source is to the right of target
    * Positive y = source is below target
@@ -306,7 +306,10 @@ export interface ResolvedPosition {
 /**
  * Get a point at a specific position along an edge
  */
-export function getPointOnEdge(edge: ResolvedEdge, at: number): { x: number; y: number } {
+export function getPointOnEdge(
+  edge: ResolvedEdge,
+  at: number,
+): { x: number; y: number } {
   return {
     x: edge.start.x + (edge.end.x - edge.start.x) * at,
     y: edge.start.y + (edge.end.y - edge.start.y) * at,

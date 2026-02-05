@@ -3,7 +3,7 @@
 **Date**: 2026-01-14  
 **Status**: Ready for Implementation  
 **Estimated Effort**: 4-6 hours  
-**Risk Level**: Low  
+**Risk Level**: Low
 
 ## Executive Summary
 
@@ -34,10 +34,12 @@ src/components/customizer/
 **Path**: `src/components/customizer/equipment/equipmentConstants.ts`
 
 **Extract from**:
+
 - `GlobalLoadoutTray.tsx` lines 83-132
 - `MobileLoadoutList.tsx` lines 51-73
 
 **Contents**:
+
 ```typescript
 // Category ordering for display
 export const CATEGORY_ORDER: EquipmentCategory[] = [...]
@@ -66,15 +68,17 @@ export const OTHER_CATEGORIES: EquipmentCategory[] = [...]
 **Path**: `src/utils/locationUtils.ts`
 
 **Extract from**:
+
 - `GlobalLoadoutTray.tsx` lines 194-207
 - `MobileEquipmentRow.tsx` lines 75-87
 
 **Contents**:
+
 ```typescript
 /** Convert location names to shorthand (e.g., "Right Torso" -> "RT") */
 export function getLocationShorthand(location: string): string {
   const shortcuts: Record<string, string> = {
-    'Head': 'HD',
+    Head: 'HD',
     'Center Torso': 'CT',
     'Left Torso': 'LT',
     'Right Torso': 'RT',
@@ -96,10 +100,12 @@ export function getLocationShorthand(location: string): string {
 **Path**: `src/components/customizer/equipment/CategoryFilterBar.tsx`
 
 **Extract from**:
+
 - `GlobalLoadoutTray.tsx` lines 213-247 (CategoryFilterBar component)
 - `MobileLoadoutList.tsx` lines 79-113 (CategoryFilterBar component)
 
 **Interface**:
+
 ```typescript
 interface CategoryFilterBarProps {
   activeCategory: EquipmentCategory | 'ALL';
@@ -113,6 +119,7 @@ interface CategoryFilterBarProps {
 ```
 
 **Behavior**:
+
 - `compact={true}` (desktop): 28px buttons, icons only, tight spacing
 - `compact={false}` (mobile): Larger buttons, optional labels, more padding
 - `showLabels={true}`: Show category labels (hidden on xs, visible on sm+)
@@ -126,10 +133,12 @@ interface CategoryFilterBarProps {
 **Path**: `src/hooks/useEquipmentFiltering.ts`
 
 **Extract from**:
+
 - `GlobalLoadoutTray.tsx` lines 592-615 (filtering/grouping logic)
 - `MobileLoadoutList.tsx` lines 237-268 (filtering/grouping logic)
 
 **Interface**:
+
 ```typescript
 interface UseEquipmentFilteringOptions<T extends { category: EquipmentCategory; isAllocated: boolean }> {
   equipment: T[];
@@ -208,16 +217,16 @@ export function useEquipmentFiltering<T>(...): UseEquipmentFilteringResult<T>
 
 ## Files Modified
 
-| File | Action | Changes |
-|------|--------|---------|
-| `src/components/customizer/equipment/equipmentConstants.ts` | CREATE | New file with shared constants |
-| `src/utils/locationUtils.ts` | CREATE | New file with location shorthand function |
-| `src/components/customizer/equipment/CategoryFilterBar.tsx` | CREATE | New shared filter bar component |
-| `src/hooks/useEquipmentFiltering.ts` | CREATE | New hook for filtering/grouping logic |
-| `src/components/customizer/equipment/GlobalLoadoutTray.tsx` | MODIFY | Remove duplicates, import shared code |
-| `src/components/customizer/mobile/MobileLoadoutList.tsx` | MODIFY | Remove duplicates, import shared code |
-| `src/components/customizer/mobile/MobileEquipmentRow.tsx` | MODIFY | Import shared location utility |
-| `src/components/customizer/equipment/index.ts` | MODIFY | Add new exports |
+| File                                                        | Action | Changes                                   |
+| ----------------------------------------------------------- | ------ | ----------------------------------------- |
+| `src/components/customizer/equipment/equipmentConstants.ts` | CREATE | New file with shared constants            |
+| `src/utils/locationUtils.ts`                                | CREATE | New file with location shorthand function |
+| `src/components/customizer/equipment/CategoryFilterBar.tsx` | CREATE | New shared filter bar component           |
+| `src/hooks/useEquipmentFiltering.ts`                        | CREATE | New hook for filtering/grouping logic     |
+| `src/components/customizer/equipment/GlobalLoadoutTray.tsx` | MODIFY | Remove duplicates, import shared code     |
+| `src/components/customizer/mobile/MobileLoadoutList.tsx`    | MODIFY | Remove duplicates, import shared code     |
+| `src/components/customizer/mobile/MobileEquipmentRow.tsx`   | MODIFY | Import shared location utility            |
+| `src/components/customizer/equipment/index.ts`              | MODIFY | Add new exports                           |
 
 ---
 
@@ -226,14 +235,21 @@ export function useEquipmentFiltering<T>(...): UseEquipmentFilteringResult<T>
 ### GlobalLoadoutTray.tsx Changes
 
 **Remove** (lines to delete):
+
 - Lines 83-132: CATEGORY_ORDER, CATEGORY_LABELS, CategoryFilterConfig, CATEGORY_FILTERS, OTHER_CATEGORIES
 - Lines 194-207: getLocationShorthand function
 - Lines 213-247: CategoryFilterBar component
 - Lines 592-615: Filtering/grouping useMemo blocks (replace with hook)
 
 **Add** (imports):
+
 ```typescript
-import { CATEGORY_ORDER, CATEGORY_LABELS, CATEGORY_FILTERS, OTHER_CATEGORIES } from './equipmentConstants';
+import {
+  CATEGORY_ORDER,
+  CATEGORY_LABELS,
+  CATEGORY_FILTERS,
+  OTHER_CATEGORIES,
+} from './equipmentConstants';
 import { getLocationShorthand } from '@/utils/locationUtils';
 import { CategoryFilterBar } from './CategoryFilterBar';
 import { useEquipmentFiltering } from '@/hooks/useEquipmentFiltering';
@@ -246,13 +262,18 @@ import { useEquipmentFiltering } from '@/hooks/useEquipmentFiltering';
 ### MobileLoadoutList.tsx Changes
 
 **Remove** (lines to delete):
+
 - Lines 51-73: CategoryConfig, CATEGORY_FILTERS, OTHER_CATEGORIES
 - Lines 79-113: CategoryFilterBar component
 - Lines 237-268: Filtering logic (replace with hook)
 
 **Add** (imports):
+
 ```typescript
-import { CATEGORY_FILTERS, OTHER_CATEGORIES } from '../equipment/equipmentConstants';
+import {
+  CATEGORY_FILTERS,
+  OTHER_CATEGORIES,
+} from '../equipment/equipmentConstants';
 import { CategoryFilterBar } from '../equipment/CategoryFilterBar';
 import { useEquipmentFiltering } from '@/hooks/useEquipmentFiltering';
 ```
@@ -264,9 +285,11 @@ import { useEquipmentFiltering } from '@/hooks/useEquipmentFiltering';
 ### MobileEquipmentRow.tsx Changes
 
 **Remove**:
+
 - Lines 75-87: getLocationShorthand function
 
 **Add**:
+
 ```typescript
 import { getLocationShorthand } from '@/utils/locationUtils';
 ```
@@ -278,6 +301,7 @@ import { getLocationShorthand } from '@/utils/locationUtils';
 ## Rollback Plan
 
 If issues arise:
+
 1. All changes are additive until final step
 2. Git revert to pre-refactoring commit
 3. Original files preserved in git history
@@ -312,6 +336,7 @@ Merging them would create unnecessary complexity and conditional logic.
 ### What We're Extracting
 
 Only the **implementation details** that are truly duplicated:
+
 - Constants (category configs)
 - Utilities (location shorthand)
 - UI patterns (filter bar with same functionality)

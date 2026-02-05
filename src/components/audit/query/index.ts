@@ -6,10 +6,7 @@
  */
 
 // Query builder form
-export {
-  QueryBuilder,
-  type QueryBuilderProps,
-} from './QueryBuilder';
+export { QueryBuilder, type QueryBuilderProps } from './QueryBuilder';
 
 // Filter display chips
 export {
@@ -26,13 +23,7 @@ export {
 } from './SavedQueries';
 
 // Query results display
-export {
-  QueryResults,
-  type QueryResultsProps,
-} from './QueryResults';
+export { QueryResults, type QueryResultsProps } from './QueryResults';
 
 // Export functionality
-export {
-  ExportButton,
-  type ExportButtonProps,
-} from './ExportButton';
+export { ExportButton, type ExportButtonProps } from './ExportButton';

@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { MechLocation } from '@/types/construction';
+
 import {
   ArmorDiagramBaseProps,
   LocationArmorData,
@@ -19,8 +21,13 @@ export function SchematicDiagram({
   selectedLocation,
   onLocationClick,
   className = '',
-}: Omit<ArmorDiagramBaseProps, 'unallocatedPoints' | 'onAutoAllocate'>): React.ReactElement {
-  const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
+}: Omit<
+  ArmorDiagramBaseProps,
+  'unallocatedPoints' | 'onAutoAllocate'
+>): React.ReactElement {
+  const getArmorData = (
+    location: MechLocation,
+  ): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
 
@@ -41,15 +48,19 @@ export function SchematicDiagram({
   };
 
   return (
-    <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
+    <div
+      className={`bg-surface-base border-border-theme-subtle rounded-lg border p-4 ${className}`}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-text-theme-primary">Armor Allocation</h3>
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-text-theme-primary text-lg font-semibold">
+          Armor Allocation
+        </h3>
       </div>
 
       {/* Anatomically Correct Grid Layout */}
       <div
-        className="hidden lg:grid gap-2"
+        className="hidden gap-2 lg:grid"
         style={{
           gridTemplateAreas: `
             ".    .    head   .    ."
@@ -60,27 +71,47 @@ export function SchematicDiagram({
           gridTemplateRows: 'auto auto auto',
         }}
       >
-        <div style={{ gridArea: 'head' }}>{renderLocation(MechLocation.HEAD)}</div>
-        <div style={{ gridArea: 'ct' }}>{renderLocation(MechLocation.CENTER_TORSO)}</div>
-        <div style={{ gridArea: 'lt' }}>{renderLocation(MechLocation.LEFT_TORSO)}</div>
-        <div style={{ gridArea: 'rt' }}>{renderLocation(MechLocation.RIGHT_TORSO)}</div>
-        <div style={{ gridArea: 'la' }}>{renderLocation(MechLocation.LEFT_ARM)}</div>
-        <div style={{ gridArea: 'ra' }}>{renderLocation(MechLocation.RIGHT_ARM)}</div>
-        <div style={{ gridArea: 'll' }}>{renderLocation(MechLocation.LEFT_LEG)}</div>
-        <div style={{ gridArea: 'rl' }}>{renderLocation(MechLocation.RIGHT_LEG)}</div>
+        <div style={{ gridArea: 'head' }}>
+          {renderLocation(MechLocation.HEAD)}
+        </div>
+        <div style={{ gridArea: 'ct' }}>
+          {renderLocation(MechLocation.CENTER_TORSO)}
+        </div>
+        <div style={{ gridArea: 'lt' }}>
+          {renderLocation(MechLocation.LEFT_TORSO)}
+        </div>
+        <div style={{ gridArea: 'rt' }}>
+          {renderLocation(MechLocation.RIGHT_TORSO)}
+        </div>
+        <div style={{ gridArea: 'la' }}>
+          {renderLocation(MechLocation.LEFT_ARM)}
+        </div>
+        <div style={{ gridArea: 'ra' }}>
+          {renderLocation(MechLocation.RIGHT_ARM)}
+        </div>
+        <div style={{ gridArea: 'll' }}>
+          {renderLocation(MechLocation.LEFT_LEG)}
+        </div>
+        <div style={{ gridArea: 'rl' }}>
+          {renderLocation(MechLocation.RIGHT_LEG)}
+        </div>
       </div>
 
       {/* Mobile Stacked Layout */}
-      <div className="lg:hidden flex flex-col gap-3">
+      <div className="flex flex-col gap-3 lg:hidden">
         {/* Head */}
         <div>
-          <h4 className="text-xs font-medium text-text-theme-secondary mb-1 px-1">Head</h4>
+          <h4 className="text-text-theme-secondary mb-1 px-1 text-xs font-medium">
+            Head
+          </h4>
           {renderLocation(MechLocation.HEAD)}
         </div>
 
         {/* Torso */}
         <div>
-          <h4 className="text-xs font-medium text-text-theme-secondary mb-1 px-1">Torso</h4>
+          <h4 className="text-text-theme-secondary mb-1 px-1 text-xs font-medium">
+            Torso
+          </h4>
           <div className="flex flex-col gap-2">
             {renderLocation(MechLocation.CENTER_TORSO)}
             <div className="flex gap-2">
@@ -92,7 +123,9 @@ export function SchematicDiagram({
 
         {/* Arms */}
         <div>
-          <h4 className="text-xs font-medium text-text-theme-secondary mb-1 px-1">Arms</h4>
+          <h4 className="text-text-theme-secondary mb-1 px-1 text-xs font-medium">
+            Arms
+          </h4>
           <div className="flex gap-2">
             {renderLocation(MechLocation.LEFT_ARM)}
             {renderLocation(MechLocation.RIGHT_ARM)}
@@ -101,7 +134,9 @@ export function SchematicDiagram({
 
         {/* Legs */}
         <div>
-          <h4 className="text-xs font-medium text-text-theme-secondary mb-1 px-1">Legs</h4>
+          <h4 className="text-text-theme-secondary mb-1 px-1 text-xs font-medium">
+            Legs
+          </h4>
           <div className="flex gap-2">
             {renderLocation(MechLocation.LEFT_LEG)}
             {renderLocation(MechLocation.RIGHT_LEG)}

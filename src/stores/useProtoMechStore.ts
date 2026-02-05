@@ -7,13 +7,15 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.3
  */
 
+import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { createContext, useContext } from 'react';
+
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId } from '@/utils/uuid';
+
 import {
   ProtoMechState,
   ProtoMechStore,
@@ -33,7 +35,9 @@ export type { ProtoMechStore } from './protoMechState';
 /**
  * Create an isolated Zustand store for a single ProtoMech unit
  */
-export function createProtoMechStore(initialState: ProtoMechState): StoreApi<ProtoMechStore> {
+export function createProtoMechStore(
+  initialState: ProtoMechState,
+): StoreApi<ProtoMechStore> {
   return create<ProtoMechStore>()(
     persist(
       (set, _get) => ({
@@ -193,15 +197,17 @@ export function createProtoMechStore(initialState: ProtoMechState): StoreApi<Pro
             const maxArmor = state.tonnage * 6; // Simplified calculation
             const torsoPercent = 0.35;
             const legsPercent = 0.25;
-            const armPercent = 0.10;
-            const headPercent = 0.10;
+            const armPercent = 0.1;
+            const headPercent = 0.1;
 
             return {
               armorByLocation: {
                 [ProtoMechLocation.HEAD]: Math.floor(maxArmor * headPercent),
                 [ProtoMechLocation.TORSO]: Math.floor(maxArmor * torsoPercent),
                 [ProtoMechLocation.LEFT_ARM]: Math.floor(maxArmor * armPercent),
-                [ProtoMechLocation.RIGHT_ARM]: Math.floor(maxArmor * armPercent),
+                [ProtoMechLocation.RIGHT_ARM]: Math.floor(
+                  maxArmor * armPercent,
+                ),
                 [ProtoMechLocation.LEGS]: Math.floor(maxArmor * legsPercent),
                 [ProtoMechLocation.MAIN_GUN]: state.hasMainGun ? 2 : 0,
               },
@@ -259,7 +265,11 @@ export function createProtoMechStore(initialState: ProtoMechState): StoreApi<Pro
 
         addEquipment: (item: IEquipmentItem, location?) => {
           const instanceId = generateUnitId();
-          const mountedEquipment = createProtoMechMountedEquipment(item, instanceId, location);
+          const mountedEquipment = createProtoMechMountedEquipment(
+            item,
+            instanceId,
+            location,
+          );
 
           set((state) => ({
             equipment: [...state.equipment, mountedEquipment],
@@ -280,16 +290,21 @@ export function createProtoMechStore(initialState: ProtoMechState): StoreApi<Pro
         updateEquipmentLocation: (instanceId: string, location) =>
           set((state) => ({
             equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, location } : e
+              e.id === instanceId ? { ...e, location } : e,
             ),
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
 
-        linkAmmo: (weaponInstanceId: string, ammoInstanceId: string | undefined) =>
+        linkAmmo: (
+          weaponInstanceId: string,
+          ammoInstanceId: string | undefined,
+        ) =>
           set((state) => ({
             equipment: state.equipment.map((e) =>
-              e.id === weaponInstanceId ? { ...e, linkedAmmoId: ammoInstanceId } : e
+              e.id === weaponInstanceId
+                ? { ...e, linkedAmmoId: ammoInstanceId }
+                : e,
             ),
             isModified: true,
             lastModifiedAt: Date.now(),
@@ -346,15 +361,17 @@ export function createProtoMechStore(initialState: ProtoMechState): StoreApi<Pro
           createdAt: state.createdAt,
           lastModifiedAt: state.lastModifiedAt,
         }),
-      }
-    )
+      },
+    ),
   );
 }
 
 /**
  * Create a new ProtoMech store from options
  */
-export function createNewProtoMechStore(options: CreateProtoMechOptions): StoreApi<ProtoMechStore> {
+export function createNewProtoMechStore(
+  options: CreateProtoMechOptions,
+): StoreApi<ProtoMechStore> {
   const initialState = createDefaultProtoMechState(options);
   return createProtoMechStore(initialState);
 }
@@ -366,18 +383,21 @@ export function createNewProtoMechStore(options: CreateProtoMechOptions): StoreA
 /**
  * Context for providing the active ProtoMech's store
  */
-export const ProtoMechStoreContext = createContext<StoreApi<ProtoMechStore> | null>(null);
+export const ProtoMechStoreContext =
+  createContext<StoreApi<ProtoMechStore> | null>(null);
 
 /**
  * Hook to access the ProtoMech store from context
  */
-export function useProtoMechStore<T>(selector: (state: ProtoMechStore) => T): T {
+export function useProtoMechStore<T>(
+  selector: (state: ProtoMechStore) => T,
+): T {
   const store = useContext(ProtoMechStoreContext);
 
   if (!store) {
     throw new Error(
       'useProtoMechStore must be used within a ProtoMechStoreProvider. ' +
-        'Wrap your component tree with <ProtoMechStoreContext.Provider>.'
+        'Wrap your component tree with <ProtoMechStoreContext.Provider>.',
     );
   }
 
@@ -391,7 +411,9 @@ export function useProtoMechStoreApi(): StoreApi<ProtoMechStore> {
   const store = useContext(ProtoMechStoreContext);
 
   if (!store) {
-    throw new Error('useProtoMechStoreApi must be used within a ProtoMechStoreProvider.');
+    throw new Error(
+      'useProtoMechStoreApi must be used within a ProtoMechStoreProvider.',
+    );
   }
 
   return store;

@@ -5,6 +5,7 @@
 The equipment loading system has transitioned from hardcoded TypeScript constants to runtime JSON-based loading. However, certain critical equipment types (heat sinks, jump jets, targeting computers, and movement enhancements like MASC/TSM) require immediate availability during unit construction—before the async JSON loader completes.
 
 Without fallback definitions, these essential components fail to load when:
+
 1. The JSON loader hasn't initialized yet
 2. The server-side environment attempts to load before data is available
 3. Unit construction utilities need equipment definitions synchronously
@@ -30,7 +31,7 @@ Without fallback definitions, these essential components fail to load when:
 
 ## Impact
 
-- **Affected specs**: 
+- **Affected specs**:
   - `data-loading-architecture` - Add cross-environment and fallback patterns
   - `equipment-services` - Add initialization and fallback behavior
 

@@ -15,6 +15,7 @@ MekStation is a comprehensive toolkit for browsing, building, and battling with 
 ## Features
 
 ### Compendium
+
 Your complete reference library for the BattleTech universe.
 
 - **4,200+ Canonical Units** - Browse the full catalog of BattleMechs, vehicles, and combat units
@@ -23,6 +24,7 @@ Your complete reference library for the BattleTech universe.
 - **Era & Tech Filtering** - Filter by timeline era and tech base (Inner Sphere, Clan, Mixed)
 
 ### Unit Builder
+
 Design and customize your own BattleMech variants.
 
 - **Tabbed Workflow** - Structure, Armor, Equipment, Criticals, and Preview tabs
@@ -33,6 +35,7 @@ Design and customize your own BattleMech variants.
 - **Version History** - Track changes and revert to previous builds
 
 ### Unit Comparison
+
 Analyze and compare multiple units side-by-side.
 
 - **Multi-Unit Workspace** - Compare stats, weapons, and capabilities
@@ -40,6 +43,7 @@ Analyze and compare multiple units side-by-side.
 - **Cost Breakdown** - C-Bill pricing with component details
 
 ### Gameplay Tools
+
 Manage your forces and run encounters.
 
 - **Force Builder** - Organize units into combat forces with pilots
@@ -50,6 +54,7 @@ Manage your forces and run encounters.
 - **Game Replay** - Review past battles turn-by-turn
 
 ### Cross-Platform
+
 Run MekStation anywhere.
 
 - **Web App** - Works in any modern browser
@@ -112,29 +117,29 @@ See [Getting Started](docs/development/getting-started.md) for detailed setup in
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | Next.js 16 |
-| UI | React 19 + Tailwind CSS 4 |
-| State | Zustand 5 |
-| Database | SQLite (better-sqlite3) |
-| Desktop | Electron |
-| Testing | Jest + React Testing Library |
-| Language | TypeScript 5.8 |
+| Layer     | Technology                   |
+| --------- | ---------------------------- |
+| Framework | Next.js 16                   |
+| UI        | React 19 + Tailwind CSS 4    |
+| State     | Zustand 5                    |
+| Database  | SQLite (better-sqlite3)      |
+| Desktop   | Electron                     |
+| Testing   | Jest + React Testing Library |
+| Language  | TypeScript 5.8               |
 
 ---
 
 ## Documentation
 
-| Topic | Location |
-|-------|----------|
-| Project Overview | `docs/overview.md` |
-| Getting Started | `docs/development/getting-started.md` |
-| Architecture | `docs/architecture/project-structure.md` |
-| Coding Standards | `docs/development/coding-standards.md` |
-| OpenSpec Guide | `openspec/config.yaml` |
-| BattleTech Rules | `openspec/specs/` |
-| Contributing | `docs/CONTRIBUTING.md` |
+| Topic            | Location                                 |
+| ---------------- | ---------------------------------------- |
+| Project Overview | `docs/overview.md`                       |
+| Getting Started  | `docs/development/getting-started.md`    |
+| Architecture     | `docs/architecture/project-structure.md` |
+| Coding Standards | `docs/development/coding-standards.md`   |
+| OpenSpec Guide   | `openspec/config.yaml`                   |
+| BattleTech Rules | `openspec/specs/`                        |
+| Contributing     | `docs/CONTRIBUTING.md`                   |
 
 ---
 
@@ -172,4 +177,4 @@ See `LICENSE` for full details.
 - Unit data and record sheet templates derived from MegaMek (CC-BY-NC-SA-4.0)
 - BattleTech is a registered trademark of The Topps Company, Inc.
 
-*This is an unofficial, fan-created tool. Not affiliated with or endorsed by Catalyst Game Labs or The Topps Company.*
+_This is an unofficial, fan-created tool. Not affiliated with or endorsed by Catalyst Game Labs or The Topps Company._

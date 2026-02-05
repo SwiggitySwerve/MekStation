@@ -1,5 +1,6 @@
 // src/__tests__/types/events/BaseEventInterfaces.test.ts
 import { describe, it, expect } from '@jest/globals';
+
 import {
   IBaseEvent,
   EventCategory,

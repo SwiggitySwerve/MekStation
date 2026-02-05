@@ -20,6 +20,7 @@
  */
 
 import { StoreApi } from 'zustand';
+
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -80,16 +81,17 @@ export interface StoreRegistryConfig<
   readonly getIdFromState: (state: TStore) => string;
 
   /** Optional: merge saved state with default state during hydration */
-  readonly mergeState?: (defaultState: TState, savedState: Partial<TState>, id: string) => TState;
+  readonly mergeState?: (
+    defaultState: TState,
+    savedState: Partial<TState>,
+    id: string,
+  ) => TState;
 }
 
 /**
  * Store registry interface
  */
-export interface StoreRegistry<
-  TStore extends BaseStoreState,
-  TOptions,
-> {
+export interface StoreRegistry<TStore extends BaseStoreState, TOptions> {
   /** Get a store by ID */
   get: (id: string) => StoreApi<TStore> | undefined;
 
@@ -135,7 +137,9 @@ export function createStoreRegistry<
   TStore extends BaseStoreState,
   TState extends BaseStoreState,
   TOptions,
->(config: StoreRegistryConfig<TStore, TState, TOptions>): StoreRegistry<TStore, TOptions> {
+>(
+  config: StoreRegistryConfig<TStore, TState, TOptions>,
+): StoreRegistry<TStore, TOptions> {
   const {
     storageKeyPrefix,
     registryName,
@@ -152,14 +156,17 @@ export function createStoreRegistry<
   /**
    * Validate and potentially repair an ID
    */
-  function ensureValidId(id: string | undefined | null, context: string): string {
+  function ensureValidId(
+    id: string | undefined | null,
+    context: string,
+  ): string {
     if (id && isValidUUID(id)) {
       return id;
     }
 
     const newId = generateUUID();
     console.warn(
-      `[${registryName}] ${context}: Invalid ID "${id || '(missing)'}" replaced with "${newId}"`
+      `[${registryName}] ${context}: Invalid ID "${id || '(missing)'}" replaced with "${newId}"`,
     );
     return newId;
   }
@@ -232,12 +239,18 @@ export function createStoreRegistry<
             return store;
           }
         } catch (e) {
-          console.warn(`Failed to hydrate ${registryName} ${validId}, creating new:`, e);
+          console.warn(
+            `Failed to hydrate ${registryName} ${validId}, creating new:`,
+            e,
+          );
         }
       }
 
       // Create new store with fallback options
-      const store = createNewStore({ ...fallbackOptions, id: validId } as TOptions);
+      const store = createNewStore({
+        ...fallbackOptions,
+        id: validId,
+      } as TOptions);
       stores.set(validId, store);
       return store;
     },

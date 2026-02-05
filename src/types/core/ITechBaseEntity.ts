@@ -1,12 +1,12 @@
 /**
  * ITechBaseEntity - Tech base classification interface
  * All components and equipment SHALL implement ITechBaseEntity to declare their tech base.
- * 
+ *
  * @spec core-entity-types/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 
 /**
  * Interface for entities that have a technology base classification.
@@ -37,4 +37,3 @@ export function isTechBaseEntity(obj: unknown): obj is ITechBaseEntity {
     typeof (obj as ITechBaseEntity).rulesLevel === 'string'
   );
 }
-

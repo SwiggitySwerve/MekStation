@@ -8,6 +8,7 @@
  */
 
 import { create } from 'zustand';
+
 import {
   IPilot,
   IPilotStatblock,
@@ -72,7 +73,7 @@ interface PilotStoreActions {
   /** Create pilot from template */
   createFromTemplate: (
     level: PilotExperienceLevel,
-    identity: IPilotIdentity
+    identity: IPilotIdentity,
   ) => Promise<string | null>;
   /** Create random pilot */
   createRandom: (identity: IPilotIdentity) => Promise<string | null>;
@@ -95,7 +96,11 @@ interface PilotStoreActions {
   /** Heal pilot wounds */
   healWounds: (pilotId: string) => Promise<boolean>;
   /** Purchase an ability for a pilot */
-  purchaseAbility: (pilotId: string, abilityId: string, xpCost: number) => Promise<boolean>;
+  purchaseAbility: (
+    pilotId: string,
+    abilityId: string,
+    xpCost: number,
+  ) => Promise<boolean>;
   /** Set filter */
   setShowActiveOnly: (value: boolean) => void;
   /** Set search query */
@@ -131,7 +136,8 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
       const data = (await response.json()) as ListPilotsResponse;
       set({ pilots: data.pilots, isLoading: false });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to load pilots';
+      const message =
+        error instanceof Error ? error.message : 'Failed to load pilots';
       set({ error: message, isLoading: false });
     }
   },
@@ -153,11 +159,15 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         set({ selectedPilotId: data.id, isLoading: false });
         return data.id;
       } else {
-        set({ error: data.error || 'Failed to create pilot', isLoading: false });
+        set({
+          error: data.error || 'Failed to create pilot',
+          isLoading: false,
+        });
         return null;
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create pilot';
+      const message =
+        error instanceof Error ? error.message : 'Failed to create pilot';
       set({ error: message, isLoading: false });
       return null;
     }
@@ -180,11 +190,15 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         set({ selectedPilotId: data.id, isLoading: false });
         return data.id;
       } else {
-        set({ error: data.error || 'Failed to create pilot', isLoading: false });
+        set({
+          error: data.error || 'Failed to create pilot',
+          isLoading: false,
+        });
         return null;
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create pilot';
+      const message =
+        error instanceof Error ? error.message : 'Failed to create pilot';
       set({ error: message, isLoading: false });
       return null;
     }
@@ -207,11 +221,15 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         set({ selectedPilotId: data.id, isLoading: false });
         return data.id;
       } else {
-        set({ error: data.error || 'Failed to create pilot', isLoading: false });
+        set({
+          error: data.error || 'Failed to create pilot',
+          isLoading: false,
+        });
         return null;
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create pilot';
+      const message =
+        error instanceof Error ? error.message : 'Failed to create pilot';
       set({ error: message, isLoading: false });
       return null;
     }
@@ -259,7 +277,8 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         return false;
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to update pilot';
+      const message =
+        error instanceof Error ? error.message : 'Failed to update pilot';
       set({ error: message });
       return false;
     }
@@ -287,7 +306,8 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         return false;
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to delete pilot';
+      const message =
+        error instanceof Error ? error.message : 'Failed to delete pilot';
       set({ error: message });
       return false;
     }
@@ -312,7 +332,10 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         method: 'POST',
       });
 
-      const data = (await response.json()) as { success: boolean; error?: string };
+      const data = (await response.json()) as {
+        success: boolean;
+        error?: string;
+      };
 
       if (data.success) {
         await get().loadPilots();
@@ -322,7 +345,8 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         return false;
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to improve gunnery';
+      const message =
+        error instanceof Error ? error.message : 'Failed to improve gunnery';
       set({ error: message });
       return false;
     }
@@ -337,7 +361,10 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         method: 'POST',
       });
 
-      const data = (await response.json()) as { success: boolean; error?: string };
+      const data = (await response.json()) as {
+        success: boolean;
+        error?: string;
+      };
 
       if (data.success) {
         await get().loadPilots();
@@ -347,7 +374,8 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         return false;
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to improve piloting';
+      const message =
+        error instanceof Error ? error.message : 'Failed to improve piloting';
       set({ error: message });
       return false;
     }
@@ -373,9 +401,13 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         newStatus = PilotStatus.Injured;
       }
 
-      return get().updatePilot(pilotId, { wounds: newWounds, status: newStatus });
+      return get().updatePilot(pilotId, {
+        wounds: newWounds,
+        status: newStatus,
+      });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to apply wound';
+      const message =
+        error instanceof Error ? error.message : 'Failed to apply wound';
       set({ error: message });
       return false;
     }
@@ -401,7 +433,8 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         status: PilotStatus.Active,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to heal wounds';
+      const message =
+        error instanceof Error ? error.message : 'Failed to heal wounds';
       set({ error: message });
       return false;
     }
@@ -417,7 +450,10 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         body: JSON.stringify({ abilityId }),
       });
 
-      const data = (await response.json()) as { success: boolean; error?: string };
+      const data = (await response.json()) as {
+        success: boolean;
+        error?: string;
+      };
 
       if (data.success) {
         await get().loadPilots();
@@ -427,7 +463,8 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
         return false;
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to purchase ability';
+      const message =
+        error instanceof Error ? error.message : 'Failed to purchase ability';
       set({ error: message });
       return false;
     }
@@ -470,7 +507,7 @@ export function useFilteredPilots(): IPilot[] {
       (p) =>
         p.name.toLowerCase().includes(query) ||
         p.callsign?.toLowerCase().includes(query) ||
-        p.affiliation?.toLowerCase().includes(query)
+        p.affiliation?.toLowerCase().includes(query),
     );
   }
 

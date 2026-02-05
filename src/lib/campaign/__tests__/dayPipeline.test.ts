@@ -1,10 +1,15 @@
-import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import {
+  ICampaign,
+  createDefaultCampaignOptions,
+} from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { IPerson, createInjury } from '@/types/campaign/Person';
-import { Money } from '@/types/campaign/Money';
-import { IMission } from '@/types/campaign/Mission';
-import { IForce } from '@/types/campaign/Force';
 import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { IForce } from '@/types/campaign/Force';
+import { IMission } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
+import { IPerson, createInjury } from '@/types/campaign/Person';
+
+import { advanceDays } from '../dayAdvancement';
 import {
   DayPhase,
   DayPipelineRegistry,
@@ -17,37 +22,36 @@ import {
   isMonday,
   isFirstOfYear,
 } from '../dayPipeline';
-import { advanceDays } from '../dayAdvancement';
 
 // =============================================================================
 // Test Fixtures
 // =============================================================================
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
-   return {
-      id: 'campaign-001',
-      name: 'Test Campaign',
-      currentDate: new Date('3025-06-15T00:00:00Z'),
-      factionId: 'mercenary',
-      personnel: new Map<string, IPerson>(),
-      forces: new Map<string, IForce>(),
-      rootForceId: 'force-root',
-      missions: new Map<string, IMission>(),
-      finances: { transactions: [], balance: new Money(1000000) },
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: createDefaultCampaignOptions(),
-      campaignType: CampaignType.MERCENARY,
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
-      ...overrides,
-    };
+  return {
+    id: 'campaign-001',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-06-15T00:00:00Z'),
+    factionId: 'mercenary',
+    personnel: new Map<string, IPerson>(),
+    forces: new Map<string, IForce>(),
+    rootForceId: 'force-root',
+    missions: new Map<string, IMission>(),
+    finances: { transactions: [], balance: new Money(1000000) },
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: createDefaultCampaignOptions(),
+    campaignType: CampaignType.MERCENARY,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    ...overrides,
+  };
 }
 
 function createNoopProcessor(
   id: string,
   phase: DayPhase,
-  events: IDayEvent[] = []
+  events: IDayEvent[] = [],
 ): IDayProcessor {
   return {
     id,
@@ -184,7 +188,9 @@ describe('DayPipelineRegistry', () => {
       registry.register(createNoopProcessor('b', DayPhase.FINANCES));
       registry.register(createNoopProcessor('c', DayPhase.PERSONNEL));
 
-      const personnelProcessors = registry.getProcessorsByPhase(DayPhase.PERSONNEL);
+      const personnelProcessors = registry.getProcessorsByPhase(
+        DayPhase.PERSONNEL,
+      );
       expect(personnelProcessors).toHaveLength(2);
       expect(personnelProcessors.map((p) => p.id)).toEqual(['a', 'c']);
     });
@@ -199,7 +205,10 @@ describe('DayPipelineRegistry', () => {
     it('should call processors in phase order', () => {
       const callOrder: string[] = [];
 
-      const makeTrackingProcessor = (id: string, phase: DayPhase): IDayProcessor => ({
+      const makeTrackingProcessor = (
+        id: string,
+        phase: DayPhase,
+      ): IDayProcessor => ({
         id,
         phase,
         displayName: id,
@@ -299,7 +308,10 @@ describe('DayPipelineRegistry', () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const callOrder: string[] = [];
-      const trackingProcessor = (id: string, phase: DayPhase): IDayProcessor => ({
+      const trackingProcessor = (
+        id: string,
+        phase: DayPhase,
+      ): IDayProcessor => ({
         id,
         phase,
         displayName: id,
@@ -483,36 +495,44 @@ describe('advanceDays', () => {
     });
 
     const personnel = new Map<string, IPerson>();
-    personnel.set(
-      'p1',
-      {
-        id: 'p1',
-        name: 'Test',
-        callsign: 'T',
-        status: PersonnelStatus.WOUNDED,
-        primaryRole: CampaignPersonnelRole.PILOT,
-        rank: 'MechWarrior',
-        recruitmentDate: new Date('3025-01-01'),
-        missionsCompleted: 0,
-        totalKills: 0,
-        xp: 0,
-        totalXpEarned: 0,
-        xpSpent: 0,
-        hits: 0,
-        injuries: [injury],
-        daysToWaitForHealing: 0,
-        skills: {},
-        attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
-        pilotSkills: { gunnery: 4, piloting: 5 },
-        createdAt: '2026-01-01T00:00:00Z',
-        updatedAt: '2026-01-01T00:00:00Z',
-      }
-    );
+    personnel.set('p1', {
+      id: 'p1',
+      name: 'Test',
+      callsign: 'T',
+      status: PersonnelStatus.WOUNDED,
+      primaryRole: CampaignPersonnelRole.PILOT,
+      rank: 'MechWarrior',
+      recruitmentDate: new Date('3025-01-01'),
+      missionsCompleted: 0,
+      totalKills: 0,
+      xp: 0,
+      totalXpEarned: 0,
+      xpSpent: 0,
+      hits: 0,
+      injuries: [injury],
+      daysToWaitForHealing: 0,
+      skills: {},
+      attributes: {
+        STR: 5,
+        BOD: 5,
+        REF: 5,
+        DEX: 5,
+        INT: 5,
+        WIL: 5,
+        CHA: 5,
+        Edge: 0,
+      },
+      pilotSkills: { gunnery: 4, piloting: 5 },
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+    });
 
     const campaign = createTestCampaign({ personnel });
     const reports = advanceDays(campaign, 5);
 
-    expect(reports[2].campaign.personnel.get('p1')!.status).toBe(PersonnelStatus.ACTIVE);
+    expect(reports[2].campaign.personnel.get('p1')!.status).toBe(
+      PersonnelStatus.ACTIVE,
+    );
     expect(reports[2].campaign.personnel.get('p1')!.injuries).toHaveLength(0);
   });
 
@@ -535,7 +555,16 @@ describe('advanceDays', () => {
       injuries: [],
       daysToWaitForHealing: 0,
       skills: {},
-      attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+      attributes: {
+        STR: 5,
+        BOD: 5,
+        REF: 5,
+        DEX: 5,
+        INT: 5,
+        WIL: 5,
+        CHA: 5,
+        Edge: 0,
+      },
       pilotSkills: { gunnery: 4, piloting: 5 },
       createdAt: '2026-01-01T00:00:00Z',
       updatedAt: '2026-01-01T00:00:00Z',

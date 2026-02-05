@@ -1,10 +1,10 @@
 /**
  * MekStation - Electron Preload Script
- * 
+ *
  * This script runs in the renderer process and provides a secure bridge
  * between the main process and the web content. It exposes a limited
  * set of APIs to the renderer while maintaining security.
- * 
+ *
  * Security Features:
  * - Context isolation enabled
  * - Node integration disabled
@@ -24,7 +24,7 @@ import {
   MENU_IPC_CHANNELS,
   APP_IPC_CHANNELS,
   ISettingsChangeEvent,
-  UnitType
+  UnitType,
 } from '../types/BaseTypes';
 
 // Recent file params type for add operation
@@ -41,44 +41,54 @@ interface IAddRecentFileParams {
 interface IElectronAPI {
   // Application info
   getAppInfo(): Promise<IAppInfo>;
-  
+
   // Window operations
   minimizeWindow(): Promise<void>;
   maximizeWindow(): Promise<void>;
   closeWindow(): Promise<void>;
-  
+
   // File operations
-  saveFile(defaultPath: string, filters: IFileFilter[]): Promise<ISaveDialogResult>;
+  saveFile(
+    defaultPath: string,
+    filters: IFileFilter[],
+  ): Promise<ISaveDialogResult>;
   openFile(filters: IFileFilter[]): Promise<IOpenDialogResult>;
   readFile(filePath: string): Promise<IFileResult>;
   writeFile(filePath: string, data: string): Promise<IFileResult>;
   selectDirectory(): Promise<IOpenDialogResult>;
-  
+
   // Settings operations
   getSettings(): Promise<IDesktopSettings | null>;
   setSettings(updates: Partial<IDesktopSettings>): Promise<IServiceResult>;
   resetSettings(): Promise<IServiceResult>;
-  getSettingValue<K extends keyof IDesktopSettings>(key: K): Promise<IDesktopSettings[K] | null>;
+  getSettingValue<K extends keyof IDesktopSettings>(
+    key: K,
+  ): Promise<IDesktopSettings[K] | null>;
   onSettingsChange(callback: (event: ISettingsChangeEvent) => void): void;
-  
+
   // Recent files operations
   getRecentFiles(): Promise<readonly IRecentFile[]>;
   addRecentFile(params: IAddRecentFileParams): Promise<IServiceResult>;
   removeRecentFile(id: string): Promise<IServiceResult>;
   clearRecentFiles(): Promise<IServiceResult>;
   onRecentFilesUpdate(callback: (files: readonly IRecentFile[]) => void): void;
-  
+
   // Menu operations
-  updateMenuState(state: { canUndo?: boolean; canRedo?: boolean; hasUnit?: boolean; hasSelection?: boolean }): void;
+  updateMenuState(state: {
+    canUndo?: boolean;
+    canRedo?: boolean;
+    hasUnit?: boolean;
+    hasSelection?: boolean;
+  }): void;
   onMenuCommand(callback: (command: MenuCommand) => void): void;
-  
+
   // Service operations
   serviceCall(method: string, ...args: unknown[]): Promise<IServiceResult>;
-  
+
   // Backup operations
   createBackup(): Promise<boolean>;
   restoreBackup(backupPath: string): Promise<boolean>;
-  
+
   // Event listeners
   onAutoSaveTrigger(callback: () => void): void;
   onImportUnitFile(callback: (filePath: string) => void): void;
@@ -86,7 +96,7 @@ interface IElectronAPI {
   onOpenUnit(callback: (unitId: string) => void): void;
   onCreateNewUnit(callback: () => void): void;
   onOpenSettings(callback: () => void): void;
-  
+
   // Remove event listeners
   removeAllListeners(channel: string): void;
 }
@@ -149,7 +159,10 @@ const electronAPI: IElectronAPI = {
   },
 
   // File operations
-  async saveFile(defaultPath: string, filters: IFileFilter[]): Promise<ISaveDialogResult> {
+  async saveFile(
+    defaultPath: string,
+    filters: IFileFilter[],
+  ): Promise<ISaveDialogResult> {
     return await ipcRenderer.invoke('save-file', defaultPath, filters);
   },
 
@@ -174,7 +187,9 @@ const electronAPI: IElectronAPI = {
     return await ipcRenderer.invoke(SETTINGS_IPC_CHANNELS.GET);
   },
 
-  async setSettings(updates: Partial<IDesktopSettings>): Promise<IServiceResult> {
+  async setSettings(
+    updates: Partial<IDesktopSettings>,
+  ): Promise<IServiceResult> {
     return await ipcRenderer.invoke(SETTINGS_IPC_CHANNELS.SET, updates);
   },
 
@@ -182,12 +197,16 @@ const electronAPI: IElectronAPI = {
     return await ipcRenderer.invoke(SETTINGS_IPC_CHANNELS.RESET);
   },
 
-  async getSettingValue<K extends keyof IDesktopSettings>(key: K): Promise<IDesktopSettings[K] | null> {
+  async getSettingValue<K extends keyof IDesktopSettings>(
+    key: K,
+  ): Promise<IDesktopSettings[K] | null> {
     return await ipcRenderer.invoke(SETTINGS_IPC_CHANNELS.GET_VALUE, key);
   },
 
   onSettingsChange(callback: (event: ISettingsChangeEvent) => void): void {
-    ipcRenderer.on(SETTINGS_IPC_CHANNELS.ON_CHANGE, (_event, changeEvent) => callback(changeEvent));
+    ipcRenderer.on(SETTINGS_IPC_CHANNELS.ON_CHANGE, (_event, changeEvent) =>
+      callback(changeEvent),
+    );
   },
 
   // Recent files operations
@@ -208,20 +227,32 @@ const electronAPI: IElectronAPI = {
   },
 
   onRecentFilesUpdate(callback: (files: readonly IRecentFile[]) => void): void {
-    ipcRenderer.on(RECENT_FILES_IPC_CHANNELS.ON_UPDATE, (_event, files) => callback(files));
+    ipcRenderer.on(RECENT_FILES_IPC_CHANNELS.ON_UPDATE, (_event, files) =>
+      callback(files),
+    );
   },
 
   // Menu operations
-  updateMenuState(state: { canUndo?: boolean; canRedo?: boolean; hasUnit?: boolean; hasSelection?: boolean }): void {
+  updateMenuState(state: {
+    canUndo?: boolean;
+    canRedo?: boolean;
+    hasUnit?: boolean;
+    hasSelection?: boolean;
+  }): void {
     ipcRenderer.invoke(MENU_IPC_CHANNELS.UPDATE_STATE, state);
   },
 
   onMenuCommand(callback: (command: MenuCommand) => void): void {
-    ipcRenderer.on(MENU_IPC_CHANNELS.COMMAND, (_event, command) => callback(command));
+    ipcRenderer.on(MENU_IPC_CHANNELS.COMMAND, (_event, command) =>
+      callback(command),
+    );
   },
 
   // Service operations
-  async serviceCall(method: string, ...args: unknown[]): Promise<IServiceResult> {
+  async serviceCall(
+    method: string,
+    ...args: unknown[]
+  ): Promise<IServiceResult> {
     return await ipcRenderer.invoke('service-call', method, ...args);
   },
 
@@ -240,7 +271,9 @@ const electronAPI: IElectronAPI = {
   },
 
   onImportUnitFile(callback: (filePath: string) => void): void {
-    ipcRenderer.on('import-unit-file', (_event, filePath) => callback(filePath));
+    ipcRenderer.on('import-unit-file', (_event, filePath) =>
+      callback(filePath),
+    );
   },
 
   onImportUnitUrl(callback: (url: string) => void): void {
@@ -262,7 +295,7 @@ const electronAPI: IElectronAPI = {
   // Remove event listeners
   removeAllListeners(channel: string): void {
     ipcRenderer.removeAllListeners(channel);
-  }
+  },
 };
 
 /**
@@ -279,14 +312,14 @@ if (process.env.NODE_ENV === 'development') {
     openDevTools(): void {
       ipcRenderer.send('open-dev-tools');
     },
-    
+
     reloadWindow(): void {
       ipcRenderer.send('reload-window');
     },
-    
+
     getEnvironment(): string {
       return process.env.NODE_ENV || 'production';
-    }
+    },
   };
 
   contextBridge.exposeInMainWorld('electronDevAPI', devAPI);
@@ -322,11 +355,11 @@ delete nodeWindow.Buffer;
 // Log preload script loaded
 console.log('🔌 MekStation preload script loaded');
 
-export type { 
-  IElectronAPI, 
-  IAppInfo, 
-  IFileFilter, 
-  IFileResult, 
+export type {
+  IElectronAPI,
+  IAppInfo,
+  IFileFilter,
+  IFileResult,
   IServiceResult,
-  IAddRecentFileParams
+  IAddRecentFileParams,
 };

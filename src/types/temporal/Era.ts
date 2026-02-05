@@ -1,49 +1,49 @@
 /**
  * Era Definitions with Year Boundaries
- * 
+ *
  * Defines all canonical BattleTech eras with their historical year ranges.
  * This is the SINGLE SOURCE OF TRUTH for Era definitions.
- * 
+ *
  * @spec openspec/specs/era-temporal-system/spec.md
  */
 
 /**
  * Canonical BattleTech Eras
- * 
+ *
  * These represent the major historical periods in the BattleTech universe.
  * Each era has distinct technological and political characteristics.
  */
 export enum Era {
   /** Early Spaceflight (pre-2005) - Before the Age of War */
   EARLY_SPACEFLIGHT = 'Early Spaceflight',
-  
+
   /** Age of War (2005-2570) */
   AGE_OF_WAR = 'Age of War',
-  
+
   /** Star League (2571-2780) - Golden age of technology */
   STAR_LEAGUE = 'Star League',
-  
+
   /** Early Succession Wars (2781-2900) - Devastating wars following Star League fall */
   EARLY_SUCCESSION_WARS = 'Early Succession Wars',
-  
+
   /** Late Succession Wars (2901-3019) - Period of technological decline */
   LATE_SUCCESSION_WARS = 'Late Succession Wars',
-  
+
   /** Renaissance (3020-3049) - Recovery marked by Helm Memory Core discovery */
   RENAISSANCE = 'Renaissance',
-  
+
   /** Clan Invasion (3050-3061) - Return of the Clans */
   CLAN_INVASION = 'Clan Invasion',
-  
+
   /** Civil War (3062-3067) - FedCom Civil War */
   CIVIL_WAR = 'Civil War',
-  
+
   /** Jihad (3068-3081) - Word of Blake Jihad */
   JIHAD = 'Jihad',
-  
+
   /** Dark Age (3082-3150) - Collapse of HPG network */
   DARK_AGE = 'Dark Age',
-  
+
   /** ilClan (3151+) - Era following ilClan Trial on Terra */
   IL_CLAN = 'ilClan',
 }
@@ -70,7 +70,7 @@ export interface EraRange {
 
 /**
  * Canonical era definitions with year boundaries
- * 
+ *
  * Year ranges are inclusive: a component introduced in 2439 is available
  * in the Age of War era (which ends in 2570).
  */
@@ -80,14 +80,16 @@ export const ERA_DEFINITIONS: readonly EraDefinition[] = [
     name: 'Early Spaceflight',
     startYear: -Infinity,
     endYear: 2004,
-    description: 'The period before widespread interstellar travel and the Age of War.',
+    description:
+      'The period before widespread interstellar travel and the Age of War.',
   },
   {
     era: Era.AGE_OF_WAR,
     name: 'Age of War',
     startYear: 2005,
     endYear: 2570,
-    description: 'The period of interstellar expansion and conflict before the Star League.',
+    description:
+      'The period of interstellar expansion and conflict before the Star League.',
   },
   {
     era: Era.STAR_LEAGUE,
@@ -115,14 +117,16 @@ export const ERA_DEFINITIONS: readonly EraDefinition[] = [
     name: 'Renaissance',
     startYear: 3020,
     endYear: 3049,
-    description: 'The recovery period marked by the discovery of the Helm Memory Core.',
+    description:
+      'The recovery period marked by the discovery of the Helm Memory Core.',
   },
   {
     era: Era.CLAN_INVASION,
     name: 'Clan Invasion',
     startYear: 3050,
     endYear: 3061,
-    description: 'The return of the Clans and their invasion of the Inner Sphere.',
+    description:
+      'The return of the Clans and their invasion of the Inner Sphere.',
   },
   {
     era: Era.CIVIL_WAR,
@@ -157,7 +161,7 @@ export const ERA_DEFINITIONS: readonly EraDefinition[] = [
 /**
  * Era ranges derived from definitions
  */
-export const ERA_RANGES: readonly EraRange[] = ERA_DEFINITIONS.map(def => ({
+export const ERA_RANGES: readonly EraRange[] = ERA_DEFINITIONS.map((def) => ({
   era: def.era,
   startYear: def.startYear,
   endYear: def.endYear,
@@ -167,14 +171,14 @@ export const ERA_RANGES: readonly EraRange[] = ERA_DEFINITIONS.map(def => ({
  * Array of all Era values
  */
 export const ALL_ERAS: readonly Era[] = Object.freeze(
-  ERA_DEFINITIONS.map(def => def.era)
+  ERA_DEFINITIONS.map((def) => def.era),
 );
 
 /**
  * Map for quick era lookup by enum value
  */
 export const ERA_MAP: ReadonlyMap<Era, EraDefinition> = new Map(
-  ERA_DEFINITIONS.map(def => [def.era, def])
+  ERA_DEFINITIONS.map((def) => [def.era, def]),
 );
 
 /**

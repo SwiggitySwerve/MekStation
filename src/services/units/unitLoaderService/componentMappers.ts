@@ -6,17 +6,20 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+import {
+  IArmorAllocation,
+  createEmptyArmorAllocation,
+} from '@/stores/unitState';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { IArmorAllocation, createEmptyArmorAllocation } from '@/stores/unitState';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 
 /**
  * Map engine type string to EngineType enum
@@ -25,7 +28,11 @@ export function mapEngineType(typeStr: string, techBase: TechBase): EngineType {
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
 
   // Standard fusion engine variations
-  if (normalized === 'FUSION' || normalized === 'STANDARD' || normalized === 'STANDARDFUSION') {
+  if (
+    normalized === 'FUSION' ||
+    normalized === 'STANDARD' ||
+    normalized === 'STANDARDFUSION'
+  ) {
     return EngineType.STANDARD;
   }
 
@@ -76,7 +83,11 @@ export function mapGyroType(typeStr: string): GyroType {
   if (normalized === 'COMPACT' || normalized === 'COMPACTGYRO') {
     return GyroType.COMPACT;
   }
-  if (normalized === 'HEAVYDUTY' || normalized === 'HEAVYDUTYGYRO' || normalized === 'HD') {
+  if (
+    normalized === 'HEAVYDUTY' ||
+    normalized === 'HEAVYDUTYGYRO' ||
+    normalized === 'HD'
+  ) {
     return GyroType.HEAVY_DUTY;
   }
 
@@ -86,7 +97,10 @@ export function mapGyroType(typeStr: string): GyroType {
 /**
  * Map structure type string to InternalStructureType enum
  */
-export function mapStructureType(typeStr: string, techBase: TechBase): InternalStructureType {
+export function mapStructureType(
+  typeStr: string,
+  techBase: TechBase,
+): InternalStructureType {
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
 
   if (normalized === 'ENDOSTEEL' || normalized === 'ENDO') {
@@ -128,7 +142,11 @@ export function mapCockpitType(typeStr: string): CockpitType {
   if (normalized === 'COMMAND' || normalized === 'COMMANDCONSOLE') {
     return CockpitType.COMMAND_CONSOLE;
   }
-  if (normalized === 'TORSO' || normalized === 'TORSOMOUNTED' || normalized === 'TORSOMOUNTEDCOCKPIT') {
+  if (
+    normalized === 'TORSO' ||
+    normalized === 'TORSOMOUNTED' ||
+    normalized === 'TORSOMOUNTEDCOCKPIT'
+  ) {
     return CockpitType.TORSO_MOUNTED;
   }
   if (normalized === 'PRIMITIVE' || normalized === 'PRIMITIVECOCKPIT') {
@@ -150,7 +168,11 @@ export function mapCockpitType(typeStr: string): CockpitType {
 export function mapHeatSinkType(typeStr: string): HeatSinkType {
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
 
-  if (normalized === 'DOUBLE' || normalized === 'DOUBLEIS' || normalized === 'DHS') {
+  if (
+    normalized === 'DOUBLE' ||
+    normalized === 'DOUBLEIS' ||
+    normalized === 'DHS'
+  ) {
     return HeatSinkType.DOUBLE_IS;
   }
   if (normalized === 'DOUBLECLAN') {
@@ -169,7 +191,10 @@ export function mapHeatSinkType(typeStr: string): HeatSinkType {
 /**
  * Map armor type string to ArmorTypeEnum
  */
-export function mapArmorType(typeStr: string, techBase: TechBase): ArmorTypeEnum {
+export function mapArmorType(
+  typeStr: string,
+  techBase: TechBase,
+): ArmorTypeEnum {
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
 
   if (normalized === 'FERROFIBROUS' || normalized === 'FERRO') {
@@ -268,36 +293,36 @@ export function mapMechLocation(locationStr: string): MechLocation | undefined {
 
   const locationMap: Record<string, MechLocation> = {
     // Universal locations
-    'HEAD': MechLocation.HEAD,
-    'HD': MechLocation.HEAD,
-    'CENTERTORSO': MechLocation.CENTER_TORSO,
-    'CT': MechLocation.CENTER_TORSO,
-    'LEFTTORSO': MechLocation.LEFT_TORSO,
-    'LT': MechLocation.LEFT_TORSO,
-    'RIGHTTORSO': MechLocation.RIGHT_TORSO,
-    'RT': MechLocation.RIGHT_TORSO,
+    HEAD: MechLocation.HEAD,
+    HD: MechLocation.HEAD,
+    CENTERTORSO: MechLocation.CENTER_TORSO,
+    CT: MechLocation.CENTER_TORSO,
+    LEFTTORSO: MechLocation.LEFT_TORSO,
+    LT: MechLocation.LEFT_TORSO,
+    RIGHTTORSO: MechLocation.RIGHT_TORSO,
+    RT: MechLocation.RIGHT_TORSO,
     // Biped/Tripod/LAM arm locations
-    'LEFTARM': MechLocation.LEFT_ARM,
-    'LA': MechLocation.LEFT_ARM,
-    'RIGHTARM': MechLocation.RIGHT_ARM,
-    'RA': MechLocation.RIGHT_ARM,
+    LEFTARM: MechLocation.LEFT_ARM,
+    LA: MechLocation.LEFT_ARM,
+    RIGHTARM: MechLocation.RIGHT_ARM,
+    RA: MechLocation.RIGHT_ARM,
     // Biped/Tripod/LAM leg locations
-    'LEFTLEG': MechLocation.LEFT_LEG,
-    'LL': MechLocation.LEFT_LEG,
-    'RIGHTLEG': MechLocation.RIGHT_LEG,
-    'RL': MechLocation.RIGHT_LEG,
+    LEFTLEG: MechLocation.LEFT_LEG,
+    LL: MechLocation.LEFT_LEG,
+    RIGHTLEG: MechLocation.RIGHT_LEG,
+    RL: MechLocation.RIGHT_LEG,
     // Tripod center leg
-    'CENTERLEG': MechLocation.CENTER_LEG,
-    'CL': MechLocation.CENTER_LEG,
+    CENTERLEG: MechLocation.CENTER_LEG,
+    CL: MechLocation.CENTER_LEG,
     // Quad/QuadVee leg locations
-    'FRONTLEFTLEG': MechLocation.FRONT_LEFT_LEG,
-    'FLL': MechLocation.FRONT_LEFT_LEG,
-    'FRONTRIGHTLEG': MechLocation.FRONT_RIGHT_LEG,
-    'FRL': MechLocation.FRONT_RIGHT_LEG,
-    'REARLEFTLEG': MechLocation.REAR_LEFT_LEG,
-    'RLL': MechLocation.REAR_LEFT_LEG,
-    'REARRIGHTLEG': MechLocation.REAR_RIGHT_LEG,
-    'RRL': MechLocation.REAR_RIGHT_LEG,
+    FRONTLEFTLEG: MechLocation.FRONT_LEFT_LEG,
+    FLL: MechLocation.FRONT_LEFT_LEG,
+    FRONTRIGHTLEG: MechLocation.FRONT_RIGHT_LEG,
+    FRL: MechLocation.FRONT_RIGHT_LEG,
+    REARLEFTLEG: MechLocation.REAR_LEFT_LEG,
+    RLL: MechLocation.REAR_LEFT_LEG,
+    REARRIGHTLEG: MechLocation.REAR_RIGHT_LEG,
+    RRL: MechLocation.REAR_RIGHT_LEG,
   };
 
   return locationMap[normalized];
@@ -309,7 +334,7 @@ export function mapMechLocation(locationStr: string): MechLocation | undefined {
 function setArmorValue(
   result: IArmorAllocation,
   location: MechLocation,
-  value: number
+  value: number,
 ): void {
   switch (location) {
     case MechLocation.HEAD:
@@ -360,7 +385,9 @@ function setArmorValue(
  * Map armor allocation from JSON format to IArmorAllocation
  */
 export function mapArmorAllocation(
-  allocation: Record<string, number | { front: number; rear: number }> | undefined
+  allocation:
+    | Record<string, number | { front: number; rear: number }>
+    | undefined,
 ): IArmorAllocation {
   if (!allocation) {
     return createEmptyArmorAllocation();
@@ -378,7 +405,12 @@ export function mapArmorAllocation(
     if (typeof value === 'number') {
       // Simple number - direct armor value
       setArmorValue(result, location, value);
-    } else if (typeof value === 'object' && value !== null && 'front' in value && 'rear' in value) {
+    } else if (
+      typeof value === 'object' &&
+      value !== null &&
+      'front' in value &&
+      'rear' in value
+    ) {
       // Object with front/rear
       setArmorValue(result, location, value.front);
 

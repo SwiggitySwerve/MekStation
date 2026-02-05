@@ -6,24 +6,23 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { UnitCategory } from '../../../types/validation/UnitValidationInterfaces';
 import {
   initializeUnitValidationRules,
   getValidationRuleStats,
   resetUnitValidationRules,
   areRulesInitialized,
 } from '../initializeUnitValidation';
-import { getUnitValidationRegistry } from '../UnitValidationRegistry';
-import { UnitCategory } from '../../../types/validation/UnitValidationInterfaces';
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
-
-// Import rule sets to verify counts
-import { UNIVERSAL_VALIDATION_RULES } from '../rules/universal/UniversalValidationRules';
-import { MECH_CATEGORY_RULES } from '../rules/mech/MechCategoryRules';
-import { VEHICLE_CATEGORY_RULES } from '../rules/vehicle/VehicleCategoryRules';
 import { AEROSPACE_CATEGORY_RULES } from '../rules/aerospace/AerospaceCategoryRules';
-import { PERSONNEL_CATEGORY_RULES } from '../rules/personnel/PersonnelCategoryRules';
 import { BATTLEMECH_RULES } from '../rules/battlemech/BattleMechRules';
 import { EQUIPMENT_UNIT_TYPE_RULES } from '../rules/equipment/EquipmentUnitTypeRules';
+import { MECH_CATEGORY_RULES } from '../rules/mech/MechCategoryRules';
+import { PERSONNEL_CATEGORY_RULES } from '../rules/personnel/PersonnelCategoryRules';
+// Import rule sets to verify counts
+import { UNIVERSAL_VALIDATION_RULES } from '../rules/universal/UniversalValidationRules';
+import { VEHICLE_CATEGORY_RULES } from '../rules/vehicle/VehicleCategoryRules';
+import { getUnitValidationRegistry } from '../UnitValidationRegistry';
 
 // =============================================================================
 // Setup and Teardown
@@ -91,7 +90,9 @@ describe('Unit Validation Initialization', () => {
       const universalRules = registry.getUniversalRules();
 
       // Universal rules count should match expected
-      expect(universalRules.length).toBeGreaterThanOrEqual(UNIVERSAL_VALIDATION_RULES.length);
+      expect(universalRules.length).toBeGreaterThanOrEqual(
+        UNIVERSAL_VALIDATION_RULES.length,
+      );
     });
 
     it('should register mech category rules', () => {
@@ -99,7 +100,9 @@ describe('Unit Validation Initialization', () => {
       const registry = getUnitValidationRegistry();
       const mechRules = registry.getCategoryRules(UnitCategory.MECH);
 
-      expect(mechRules.length).toBeGreaterThanOrEqual(MECH_CATEGORY_RULES.length);
+      expect(mechRules.length).toBeGreaterThanOrEqual(
+        MECH_CATEGORY_RULES.length,
+      );
     });
 
     it('should register vehicle category rules', () => {
@@ -107,7 +110,9 @@ describe('Unit Validation Initialization', () => {
       const registry = getUnitValidationRegistry();
       const vehicleRules = registry.getCategoryRules(UnitCategory.VEHICLE);
 
-      expect(vehicleRules.length).toBeGreaterThanOrEqual(VEHICLE_CATEGORY_RULES.length);
+      expect(vehicleRules.length).toBeGreaterThanOrEqual(
+        VEHICLE_CATEGORY_RULES.length,
+      );
     });
 
     it('should register aerospace category rules', () => {
@@ -115,7 +120,9 @@ describe('Unit Validation Initialization', () => {
       const registry = getUnitValidationRegistry();
       const aerospaceRules = registry.getCategoryRules(UnitCategory.AEROSPACE);
 
-      expect(aerospaceRules.length).toBeGreaterThanOrEqual(AEROSPACE_CATEGORY_RULES.length);
+      expect(aerospaceRules.length).toBeGreaterThanOrEqual(
+        AEROSPACE_CATEGORY_RULES.length,
+      );
     });
 
     it('should register personnel category rules', () => {
@@ -123,7 +130,9 @@ describe('Unit Validation Initialization', () => {
       const registry = getUnitValidationRegistry();
       const personnelRules = registry.getCategoryRules(UnitCategory.PERSONNEL);
 
-      expect(personnelRules.length).toBeGreaterThanOrEqual(PERSONNEL_CATEGORY_RULES.length);
+      expect(personnelRules.length).toBeGreaterThanOrEqual(
+        PERSONNEL_CATEGORY_RULES.length,
+      );
     });
 
     it('should register BattleMech unit type rules', () => {
@@ -131,7 +140,9 @@ describe('Unit Validation Initialization', () => {
       const registry = getUnitValidationRegistry();
       const battlemechRules = registry.getUnitTypeRules(UnitType.BATTLEMECH);
 
-      expect(battlemechRules.length).toBeGreaterThanOrEqual(BATTLEMECH_RULES.length);
+      expect(battlemechRules.length).toBeGreaterThanOrEqual(
+        BATTLEMECH_RULES.length,
+      );
     });
 
     it('should register OmniMech unit type rules (same as BattleMech)', () => {
@@ -140,7 +151,9 @@ describe('Unit Validation Initialization', () => {
       const omnimechRules = registry.getUnitTypeRules(UnitType.OMNIMECH);
 
       // OmniMech should have same BattleMech rules
-      expect(omnimechRules.length).toBeGreaterThanOrEqual(BATTLEMECH_RULES.length);
+      expect(omnimechRules.length).toBeGreaterThanOrEqual(
+        BATTLEMECH_RULES.length,
+      );
     });
 
     it('should register equipment rules as universal', () => {
@@ -149,8 +162,8 @@ describe('Unit Validation Initialization', () => {
       const universalRules = registry.getUniversalRules();
 
       // Equipment rules are registered as universal
-      const hasEquipmentRules = EQUIPMENT_UNIT_TYPE_RULES.every(equipRule =>
-        universalRules.some(r => r.id === equipRule.id)
+      const hasEquipmentRules = EQUIPMENT_UNIT_TYPE_RULES.every((equipRule) =>
+        universalRules.some((r) => r.id === equipRule.id),
       );
       expect(hasEquipmentRules).toBe(true);
     });
@@ -320,7 +333,9 @@ describe('Unit Validation Initialization', () => {
       initializeUnitValidationRules();
       const registry = getUnitValidationRegistry();
 
-      const battleArmorRules = registry.getRulesForUnitType(UnitType.BATTLE_ARMOR);
+      const battleArmorRules = registry.getRulesForUnitType(
+        UnitType.BATTLE_ARMOR,
+      );
       expect(battleArmorRules.length).toBeGreaterThan(0);
     });
 
@@ -329,10 +344,10 @@ describe('Unit Validation Initialization', () => {
       const registry = getUnitValidationRegistry();
 
       const infantryRules = registry.getRulesForUnitType(UnitType.INFANTRY);
-      const personnelRuleIds = PERSONNEL_CATEGORY_RULES.map(r => r.id);
+      const personnelRuleIds = PERSONNEL_CATEGORY_RULES.map((r) => r.id);
 
       for (const ruleId of personnelRuleIds) {
-        const hasRule = infantryRules.some(r => r.id === ruleId);
+        const hasRule = infantryRules.some((r) => r.id === ruleId);
         expect(hasRule).toBe(true);
       }
     });
@@ -341,11 +356,13 @@ describe('Unit Validation Initialization', () => {
       initializeUnitValidationRules();
       const registry = getUnitValidationRegistry();
 
-      const battleArmorRules = registry.getRulesForUnitType(UnitType.BATTLE_ARMOR);
-      const personnelRuleIds = PERSONNEL_CATEGORY_RULES.map(r => r.id);
+      const battleArmorRules = registry.getRulesForUnitType(
+        UnitType.BATTLE_ARMOR,
+      );
+      const personnelRuleIds = PERSONNEL_CATEGORY_RULES.map((r) => r.id);
 
       for (const ruleId of personnelRuleIds) {
-        const hasRule = battleArmorRules.some(r => r.id === ruleId);
+        const hasRule = battleArmorRules.some((r) => r.id === ruleId);
         expect(hasRule).toBe(true);
       }
     });
@@ -400,13 +417,17 @@ describe('Unit Validation Initialization', () => {
 
     it('should maintain rule integrity after multiple reinitializations', () => {
       initializeUnitValidationRules();
-      const firstRules = getUnitValidationRegistry().getRulesForUnitType(UnitType.BATTLEMECH);
-      const firstRuleIds = firstRules.map(r => r.id).sort();
+      const firstRules = getUnitValidationRegistry().getRulesForUnitType(
+        UnitType.BATTLEMECH,
+      );
+      const firstRuleIds = firstRules.map((r) => r.id).sort();
 
       resetUnitValidationRules();
       initializeUnitValidationRules();
-      const secondRules = getUnitValidationRegistry().getRulesForUnitType(UnitType.BATTLEMECH);
-      const secondRuleIds = secondRules.map(r => r.id).sort();
+      const secondRules = getUnitValidationRegistry().getRulesForUnitType(
+        UnitType.BATTLEMECH,
+      );
+      const secondRuleIds = secondRules.map((r) => r.id).sort();
 
       expect(secondRuleIds).toEqual(firstRuleIds);
     });

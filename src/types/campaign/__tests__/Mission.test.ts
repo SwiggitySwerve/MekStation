@@ -9,6 +9,8 @@
  * - Factory functions (5+ tests)
  */
 
+import { MissionStatus } from '../enums/MissionStatus';
+import { ScenarioStatus } from '../enums/ScenarioStatus';
 import {
   IMission,
   IContract,
@@ -26,11 +28,9 @@ import {
   createMission,
   createContract,
 } from '../Mission';
-import { IScenario, createScenario } from '../Scenario';
-import { MissionStatus } from '../enums/MissionStatus';
-import { ScenarioStatus } from '../enums/ScenarioStatus';
 import { Money } from '../Money';
 import { createPaymentTerms } from '../PaymentTerms';
+import { IScenario, createScenario } from '../Scenario';
 
 // =============================================================================
 // Test Fixtures
@@ -240,8 +240,18 @@ describe('Mission System', () => {
       });
 
       it('should return true when all scenarios are terminal', () => {
-        const s1 = createScenario({ id: 's1', name: 'S1', missionId: 'mission-001', status: ScenarioStatus.VICTORY });
-        const s2 = createScenario({ id: 's2', name: 'S2', missionId: 'mission-001', status: ScenarioStatus.DEFEAT });
+        const s1 = createScenario({
+          id: 's1',
+          name: 'S1',
+          missionId: 'mission-001',
+          status: ScenarioStatus.VICTORY,
+        });
+        const s2 = createScenario({
+          id: 's2',
+          name: 'S2',
+          missionId: 'mission-001',
+          status: ScenarioStatus.DEFEAT,
+        });
         const mission = createTestMission({ scenarioIds: ['s1', 's2'] });
         const scenarios = createTestScenarioMap(s1, s2);
 
@@ -249,8 +259,18 @@ describe('Mission System', () => {
       });
 
       it('should return false when some scenarios are active', () => {
-        const s1 = createScenario({ id: 's1', name: 'S1', missionId: 'mission-001', status: ScenarioStatus.VICTORY });
-        const s2 = createScenario({ id: 's2', name: 'S2', missionId: 'mission-001', status: ScenarioStatus.CURRENT });
+        const s1 = createScenario({
+          id: 's1',
+          name: 'S1',
+          missionId: 'mission-001',
+          status: ScenarioStatus.VICTORY,
+        });
+        const s2 = createScenario({
+          id: 's2',
+          name: 'S2',
+          missionId: 'mission-001',
+          status: ScenarioStatus.CURRENT,
+        });
         const mission = createTestMission({ scenarioIds: ['s1', 's2'] });
         const scenarios = createTestScenarioMap(s1, s2);
 
@@ -258,8 +278,18 @@ describe('Mission System', () => {
       });
 
       it('should return false when some scenarios are pending', () => {
-        const s1 = createScenario({ id: 's1', name: 'S1', missionId: 'mission-001', status: ScenarioStatus.VICTORY });
-        const s2 = createScenario({ id: 's2', name: 'S2', missionId: 'mission-001', status: ScenarioStatus.PENDING });
+        const s1 = createScenario({
+          id: 's1',
+          name: 'S1',
+          missionId: 'mission-001',
+          status: ScenarioStatus.VICTORY,
+        });
+        const s2 = createScenario({
+          id: 's2',
+          name: 'S2',
+          missionId: 'mission-001',
+          status: ScenarioStatus.PENDING,
+        });
         const mission = createTestMission({ scenarioIds: ['s1', 's2'] });
         const scenarios = createTestScenarioMap(s1, s2);
 
@@ -283,7 +313,12 @@ describe('Mission System', () => {
         ];
 
         terminalStatuses.forEach((status) => {
-          const s = createScenario({ id: 's1', name: 'S1', missionId: 'mission-001', status });
+          const s = createScenario({
+            id: 's1',
+            name: 'S1',
+            missionId: 'mission-001',
+            status,
+          });
           const mission = createTestMission({ scenarioIds: ['s1'] });
           const scenarios = createTestScenarioMap(s);
 
@@ -294,9 +329,24 @@ describe('Mission System', () => {
 
     describe('getActiveScenarios', () => {
       it('should return non-terminal scenarios', () => {
-        const s1 = createScenario({ id: 's1', name: 'S1', missionId: 'mission-001', status: ScenarioStatus.CURRENT });
-        const s2 = createScenario({ id: 's2', name: 'S2', missionId: 'mission-001', status: ScenarioStatus.VICTORY });
-        const s3 = createScenario({ id: 's3', name: 'S3', missionId: 'mission-001', status: ScenarioStatus.PENDING });
+        const s1 = createScenario({
+          id: 's1',
+          name: 'S1',
+          missionId: 'mission-001',
+          status: ScenarioStatus.CURRENT,
+        });
+        const s2 = createScenario({
+          id: 's2',
+          name: 'S2',
+          missionId: 'mission-001',
+          status: ScenarioStatus.VICTORY,
+        });
+        const s3 = createScenario({
+          id: 's3',
+          name: 'S3',
+          missionId: 'mission-001',
+          status: ScenarioStatus.PENDING,
+        });
         const mission = createTestMission({ scenarioIds: ['s1', 's2', 's3'] });
         const scenarios = createTestScenarioMap(s1, s2, s3);
 
@@ -307,7 +357,12 @@ describe('Mission System', () => {
       });
 
       it('should return empty array when all scenarios are terminal', () => {
-        const s1 = createScenario({ id: 's1', name: 'S1', missionId: 'mission-001', status: ScenarioStatus.VICTORY });
+        const s1 = createScenario({
+          id: 's1',
+          name: 'S1',
+          missionId: 'mission-001',
+          status: ScenarioStatus.VICTORY,
+        });
         const mission = createTestMission({ scenarioIds: ['s1'] });
         const scenarios = createTestScenarioMap(s1);
 
@@ -324,8 +379,16 @@ describe('Mission System', () => {
 
     describe('getMissionScenarios', () => {
       it('should return all scenarios for a mission', () => {
-        const s1 = createScenario({ id: 's1', name: 'S1', missionId: 'mission-001' });
-        const s2 = createScenario({ id: 's2', name: 'S2', missionId: 'mission-001' });
+        const s1 = createScenario({
+          id: 's1',
+          name: 'S1',
+          missionId: 'mission-001',
+        });
+        const s2 = createScenario({
+          id: 's2',
+          name: 'S2',
+          missionId: 'mission-001',
+        });
         const mission = createTestMission({ scenarioIds: ['s1', 's2'] });
         const scenarios = createTestScenarioMap(s1, s2);
 
@@ -334,7 +397,11 @@ describe('Mission System', () => {
       });
 
       it('should skip missing scenarios', () => {
-        const s1 = createScenario({ id: 's1', name: 'S1', missionId: 'mission-001' });
+        const s1 = createScenario({
+          id: 's1',
+          name: 'S1',
+          missionId: 'mission-001',
+        });
         const mission = createTestMission({ scenarioIds: ['s1', 'missing'] });
         const scenarios = createTestScenarioMap(s1);
 

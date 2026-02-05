@@ -6,8 +6,9 @@
  */
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { IBaseEvent, ICheckpoint } from '@/types/events';
+
 import { EventStoreService, getEventStore } from '@/services/events';
+import { IBaseEvent, ICheckpoint } from '@/types/events';
 import {
   deriveStateWithCheckpoint,
   ReducerMap,
@@ -151,7 +152,7 @@ function computeDiffEntries(
   path: string,
   depth: number,
   maxDepth: number,
-  ignorePaths: string[]
+  ignorePaths: string[],
 ): IDiffEntry[] {
   // Check if path should be ignored
   if (ignorePaths.includes(path)) {
@@ -190,7 +191,11 @@ function computeDiffEntries(
       if (i >= before.length) {
         entries.push({ path: itemPath, changeType: 'added', after: after[i] });
       } else if (i >= after.length) {
-        entries.push({ path: itemPath, changeType: 'removed', before: before[i] });
+        entries.push({
+          path: itemPath,
+          changeType: 'removed',
+          before: before[i],
+        });
       } else {
         entries.push(
           ...computeDiffEntries(
@@ -199,8 +204,8 @@ function computeDiffEntries(
             itemPath,
             depth + 1,
             maxDepth,
-            ignorePaths
-          )
+            ignorePaths,
+          ),
         );
       }
     }
@@ -221,8 +226,8 @@ function computeDiffEntries(
           keyPath,
           depth + 1,
           maxDepth,
-          ignorePaths
-        )
+          ignorePaths,
+        ),
       );
     }
     return entries;
@@ -285,7 +290,7 @@ function computeSummary(entries: IDiffEntry[]): IDiffSummary {
  * ```
  */
 export function useStateDiff<TState>(
-  options: IUseStateDiffOptions<TState>
+  options: IUseStateDiffOptions<TState>,
 ): IUseStateDiffReturn<TState> {
   const {
     initialState,
@@ -327,7 +332,7 @@ export function useStateDiff<TState>(
           allEvents,
           minSeq,
           reducers,
-          initialState
+          initialState,
         );
 
         const stateB = deriveStateWithCheckpoint(
@@ -335,7 +340,7 @@ export function useStateDiff<TState>(
           allEvents,
           maxSeq,
           reducers,
-          initialState
+          initialState,
         );
 
         // Get events between the sequences
@@ -348,7 +353,7 @@ export function useStateDiff<TState>(
           '',
           0,
           maxDepth,
-          ignorePathsArray
+          ignorePathsArray,
         );
 
         // Compute summary
@@ -370,7 +375,7 @@ export function useStateDiff<TState>(
         setIsLoading(false);
       }
     },
-    [eventStore, initialState, reducers, maxDepth, ignorePathsArray]
+    [eventStore, initialState, reducers, maxDepth, ignorePathsArray],
   );
 
   // Clear diff
@@ -397,7 +402,7 @@ export function useStateDiff<TState>(
  */
 export function useStateDiffFromSequence<TState>(
   targetSequence: number,
-  options: IUseStateDiffOptions<TState>
+  options: IUseStateDiffOptions<TState>,
 ): IUseStateDiffReturn<TState> {
   const { eventStore = getEventStore() } = options;
   const hook = useStateDiff(options);
@@ -441,10 +446,13 @@ export function getValueAtPath(state: unknown, path: string): unknown {
  */
 export function filterDiffByPath(
   entries: IDiffEntry[],
-  pathPrefix: string
+  pathPrefix: string,
 ): IDiffEntry[] {
   return entries.filter(
-    (entry) => entry.path === pathPrefix || entry.path.startsWith(`${pathPrefix}.`) || entry.path.startsWith(`${pathPrefix}[`)
+    (entry) =>
+      entry.path === pathPrefix ||
+      entry.path.startsWith(`${pathPrefix}.`) ||
+      entry.path.startsWith(`${pathPrefix}[`),
   );
 }
 
@@ -452,7 +460,7 @@ export function filterDiffByPath(
  * Group diff entries by top-level path segment.
  */
 export function groupDiffByTopLevel(
-  entries: IDiffEntry[]
+  entries: IDiffEntry[],
 ): Record<string, IDiffEntry[]> {
   const groups: Record<string, IDiffEntry[]> = {};
 

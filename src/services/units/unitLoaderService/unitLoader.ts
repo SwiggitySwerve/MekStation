@@ -8,29 +8,28 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { canonicalUnitService } from '../CanonicalUnitService';
-import { customUnitApiService } from '../CustomUnitApiService';
+
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+import { UnitState, createEmptySelectionMemory } from '@/stores/unitState';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import {
+  LAMMode,
+  QuadVeeMode,
+} from '@/types/construction/MechConfigurationSystem';
+import { createDefaultComponentTechBases } from '@/types/construction/TechBaseConfiguration';
+import { RulesLevel } from '@/types/enums/RulesLevel';
 import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
-import {
-  UnitState,
-  createEmptySelectionMemory,
-} from '@/stores/unitState';
-import {
-  createDefaultComponentTechBases,
-} from '@/types/construction/TechBaseConfiguration';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
-import { LAMMode, QuadVeeMode } from '@/types/construction/MechConfigurationSystem';
-import { IRawSerializedUnit, UnitSource, ILoadUnitResult } from './types';
-import { hasSerializedUnitStructure } from './typeGuards';
+
+import { canonicalUnitService } from '../CanonicalUnitService';
+import { customUnitApiService } from '../CustomUnitApiService';
+import { calculateArmorTonnage } from './armorCalculations';
 import {
   mapEngineType,
   mapGyroType,
@@ -44,7 +43,8 @@ import {
   mapArmorAllocation,
 } from './componentMappers';
 import { mapEquipment } from './equipmentMapping';
-import { calculateArmorTonnage } from './armorCalculations';
+import { hasSerializedUnitStructure } from './typeGuards';
+import { IRawSerializedUnit, UnitSource, ILoadUnitResult } from './types';
 
 /**
  * Unit Loader Service
@@ -76,10 +76,13 @@ export class UnitLoaderService {
         return { success: false, error: `Canonical unit "${id}" not found` };
       }
 
-       const state = this.mapToUnitState(fullUnit as IRawSerializedUnit, true);
+      const state = this.mapToUnitState(fullUnit as IRawSerializedUnit, true);
       return { success: true, state };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to load canonical unit';
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to load canonical unit';
       return { success: false, error: message };
     }
   }
@@ -102,14 +105,18 @@ export class UnitLoaderService {
       // or in serialized format (imported)
       // IFullUnit has [key: string]: unknown, so we can use it as ISerializedUnit if it has the right structure
       if (!hasSerializedUnitStructure(fullUnit)) {
-        return { success: false, error: 'Custom unit data is not in serialized format' };
+        return {
+          success: false,
+          error: 'Custom unit data is not in serialized format',
+        };
       }
-       // Type assertion is safe here because we've verified the structure matches IRawSerializedUnit
-       // and IFullUnit's index signature [key: string]: unknown makes it compatible
-       const state = this.mapToUnitState(fullUnit as IRawSerializedUnit, false);
+      // Type assertion is safe here because we've verified the structure matches IRawSerializedUnit
+      // and IFullUnit's index signature [key: string]: unknown makes it compatible
+      const state = this.mapToUnitState(fullUnit as IRawSerializedUnit, false);
       return { success: true, state };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to load custom unit';
+      const message =
+        error instanceof Error ? error.message : 'Failed to load custom unit';
       return { success: false, error: message };
     }
   }
@@ -128,7 +135,10 @@ export class UnitLoaderService {
   /**
    * Map serialized unit JSON to UnitState
    */
-   mapToUnitState(serialized: IRawSerializedUnit, _isCanonical: boolean): UnitState {
+  mapToUnitState(
+    serialized: IRawSerializedUnit,
+    _isCanonical: boolean,
+  ): UnitState {
     // Determine unit tech base mode first (mixed tech applies at unit level)
     const techBaseMode = mapTechBaseMode(serialized.techBase);
     // Determine binary tech base for component mappings (per spec, components are binary)
@@ -138,7 +148,8 @@ export class UnitLoaderService {
     const engineType = serialized.engine?.type
       ? mapEngineType(serialized.engine.type, techBase)
       : EngineType.STANDARD;
-    const engineRating = serialized.engine?.rating ??
+    const engineRating =
+      serialized.engine?.rating ??
       (serialized.movement?.walk ?? 4) * serialized.tonnage;
 
     // Map gyro
@@ -174,7 +185,7 @@ export class UnitLoaderService {
       serialized.equipment,
       techBase,
       techBaseMode,
-      serialized.criticalSlots
+      serialized.criticalSlots,
     );
 
     // Determine rules level

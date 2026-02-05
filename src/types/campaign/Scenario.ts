@@ -9,8 +9,9 @@
  * @module campaign/Scenario
  */
 
-import { ScenarioStatus } from './enums/ScenarioStatus';
 import type { IScenarioConditions } from './scenario/scenarioTypes';
+
+import { ScenarioStatus } from './enums/ScenarioStatus';
 
 // =============================================================================
 // Objective Type
@@ -128,23 +129,23 @@ export interface IScenario {
     readonly height: number;
   };
 
-   /** Description of opposing forces */
-   readonly opponentForceDescription: string;
+  /** Description of opposing forces */
+  readonly opponentForceDescription: string;
 
-   /** Date when scenario occurs (ISO date string, e.g., '3025-06-20') */
-   readonly date?: string;
+  /** Date when scenario occurs (ISO date string, e.g., '3025-06-20') */
+  readonly date?: string;
 
-   /** Environmental conditions for this scenario (optional) */
-   readonly conditions?: IScenarioConditions;
+  /** Environmental conditions for this scenario (optional) */
+  readonly conditions?: IScenarioConditions;
 
-   /** After-action report (filled after completion) */
-   readonly report?: string;
+  /** After-action report (filled after completion) */
+  readonly report?: string;
 
-   /** Creation timestamp (ISO 8601) */
-   readonly createdAt: string;
+  /** Creation timestamp (ISO 8601) */
+  readonly createdAt: string;
 
-   /** Last update timestamp (ISO 8601) */
-   readonly updatedAt: string;
+  /** Last update timestamp (ISO 8601) */
+  readonly updatedAt: string;
 }
 
 // =============================================================================
@@ -420,7 +421,8 @@ export function createScenario(params: {
     objectives: params.objectives ?? [],
     terrainType: params.terrainType ?? 'Plains',
     mapSize: params.mapSize ?? { width: 30, height: 20 },
-    opponentForceDescription: params.opponentForceDescription ?? 'Unknown forces',
+    opponentForceDescription:
+      params.opponentForceDescription ?? 'Unknown forces',
     date: params.date,
     report: params.report,
     createdAt: now,

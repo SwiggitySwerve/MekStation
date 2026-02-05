@@ -115,7 +115,7 @@ export const LANCE_SIZE = {
 export function calculateOpForBV(
   playerBV: number,
   difficultyMultiplier: number,
-  random: RandomFn
+  random: RandomFn,
 ): number {
   // Calculate variation: (randomInt(8) - 3) * 5 = -15 to +20
   const variation = (Math.floor(random() * 8) - 3) * 5;
@@ -158,7 +158,7 @@ export function calculateOpForBV(
 export function calculateForceComposition(
   targetBV: number,
   faction: string,
-  random: RandomFn
+  random: RandomFn,
 ): IOpForConfig {
   // Determine unit count based on faction (case-insensitive)
   const factionLower = faction.toLowerCase();

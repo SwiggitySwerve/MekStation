@@ -1,7 +1,7 @@
 /**
  * RulesLevel - Rules complexity enumeration
  * Defines the complexity/availability level of equipment.
- * 
+ *
  * @spec core-enumerations/spec.md
  */
 
@@ -12,13 +12,13 @@
 export enum RulesLevel {
   /** Basic equipment available in introductory games */
   INTRODUCTORY = 'Introductory',
-  
+
   /** Standard equipment for regular games */
   STANDARD = 'Standard',
-  
+
   /** Advanced equipment requiring additional rules */
   ADVANCED = 'Advanced',
-  
+
   /** Experimental equipment with limited availability */
   EXPERIMENTAL = 'Experimental',
 }
@@ -36,12 +36,13 @@ export const ALL_RULES_LEVELS: readonly RulesLevel[] = Object.freeze([
 /**
  * Numeric ordering for rules levels (lower = simpler)
  */
-export const RULES_LEVEL_ORDER: Readonly<Record<RulesLevel, number>> = Object.freeze({
-  [RulesLevel.INTRODUCTORY]: 0,
-  [RulesLevel.STANDARD]: 1,
-  [RulesLevel.ADVANCED]: 2,
-  [RulesLevel.EXPERIMENTAL]: 3,
-});
+export const RULES_LEVEL_ORDER: Readonly<Record<RulesLevel, number>> =
+  Object.freeze({
+    [RulesLevel.INTRODUCTORY]: 0,
+    [RulesLevel.STANDARD]: 1,
+    [RulesLevel.ADVANCED]: 2,
+    [RulesLevel.EXPERIMENTAL]: 3,
+  });
 
 /**
  * Compare two rules levels.
@@ -54,7 +55,10 @@ export function compareRulesLevels(a: RulesLevel, b: RulesLevel): number {
 /**
  * Check if a rules level is at or below a maximum level
  */
-export function isWithinRulesLevel(level: RulesLevel, maxLevel: RulesLevel): boolean {
+export function isWithinRulesLevel(
+  level: RulesLevel,
+  maxLevel: RulesLevel,
+): boolean {
   return RULES_LEVEL_ORDER[level] <= RULES_LEVEL_ORDER[maxLevel];
 }
 
@@ -63,6 +67,7 @@ export function isWithinRulesLevel(level: RulesLevel, maxLevel: RulesLevel): boo
  */
 export function getRulesLevelsUpTo(maxLevel: RulesLevel): RulesLevel[] {
   const maxOrder = RULES_LEVEL_ORDER[maxLevel];
-  return ALL_RULES_LEVELS.filter(level => RULES_LEVEL_ORDER[level] <= maxOrder);
+  return ALL_RULES_LEVELS.filter(
+    (level) => RULES_LEVEL_ORDER[level] <= maxOrder,
+  );
 }
-

@@ -1,7 +1,7 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Print styles for unit cards */
-@import "../components/unit-card/UnitCard.print.css";
+@import '../components/unit-card/UnitCard.print.css';
 
 /*
  * Tailwind v4 @theme block for CSS-first configuration.
@@ -57,23 +57,23 @@
   --transition-slow: 300ms;
 
   /* Surface/Container Backgrounds */
-  --surface-base: #1e293b;      /* slate-800 */
-  --surface-deep: #0f172a;      /* slate-900 */
-  --surface-raised: #334155;    /* slate-700 */
+  --surface-base: #1e293b; /* slate-800 */
+  --surface-deep: #0f172a; /* slate-900 */
+  --surface-raised: #334155; /* slate-700 */
 
   /* Border Colors */
-  --border-subtle: #334155;     /* slate-700 */
-  --border-default: #475569;    /* slate-600 */
-  --border-strong: #64748b;     /* slate-500 */
+  --border-subtle: #334155; /* slate-700 */
+  --border-default: #475569; /* slate-600 */
+  --border-strong: #64748b; /* slate-500 */
 
   /* Text Colors */
-  --text-primary: #f8fafc;      /* slate-50 */
-  --text-secondary: #94a3b8;    /* slate-400 */
-  --text-muted: #9ca3af;        /* gray-400 - WCAG AA compliant (5:1 contrast) */
+  --text-primary: #f8fafc; /* slate-50 */
+  --text-secondary: #94a3b8; /* slate-400 */
+  --text-muted: #9ca3af; /* gray-400 - WCAG AA compliant (5:1 contrast) */
 
   /* Accent Color System (defaults to amber, updated by GlobalStyleProvider) */
-  --accent-primary: #f59e0b;    /* amber-500 */
-  --accent-hover: #d97706;      /* amber-600 */
+  --accent-primary: #f59e0b; /* amber-500 */
+  --accent-hover: #d97706; /* amber-600 */
   --accent-muted: rgba(245, 158, 11, 0.15);
 
   /* Font Size (updated by GlobalStyleProvider) */
@@ -87,7 +87,7 @@
   :root {
     --background: #0f172a;
     --foreground: #e2e8f0;
-    
+
     /* Dark Theme Scrollbar Variables */
     --scrollbar-thumb: #475569;
     --scrollbar-thumb-hover: #64748b;
@@ -106,7 +106,7 @@ body {
 
 * {
   box-sizing: border-box;
-  
+
   /* Global scrollbar styling for all elements */
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
@@ -150,13 +150,13 @@ a {
 }
 
 /* Form Elements Styling for Better Visibility */
-input[type="text"],
-input[type="search"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="tel"],
-input[type="url"],
+input[type='text'],
+input[type='search'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='tel'],
+input[type='url'],
 textarea,
 select {
   background-color: #f9fafb;
@@ -166,16 +166,18 @@ select {
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: #111827;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 }
 
-input[type="text"]:focus,
-input[type="search"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="number"]:focus,
-input[type="tel"]:focus,
-input[type="url"]:focus,
+input[type='text']:focus,
+input[type='search']:focus,
+input[type='email']:focus,
+input[type='password']:focus,
+input[type='number']:focus,
+input[type='tel']:focus,
+input[type='url']:focus,
 textarea:focus,
 select:focus {
   outline: none;
@@ -183,13 +185,13 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-input[type="text"]:disabled,
-input[type="search"]:disabled,
-input[type="email"]:disabled,
-input[type="password"]:disabled,
-input[type="number"]:disabled,
-input[type="tel"]:disabled,
-input[type="url"]:disabled,
+input[type='text']:disabled,
+input[type='search']:disabled,
+input[type='email']:disabled,
+input[type='password']:disabled,
+input[type='number']:disabled,
+input[type='tel']:disabled,
+input[type='url']:disabled,
 textarea:disabled,
 select:disabled {
   background-color: #f9fafb;
@@ -208,8 +210,8 @@ select {
 }
 
 /* Checkbox and Radio styling */
-input[type="checkbox"],
-input[type="radio"] {
+input[type='checkbox'],
+input[type='radio'] {
   width: 1rem;
   height: 1rem;
   color: #3b82f6;
@@ -218,18 +220,18 @@ input[type="radio"] {
   border-radius: 0.25rem;
 }
 
-input[type="radio"] {
+input[type='radio'] {
   border-radius: 50%;
 }
 
-input[type="checkbox"]:checked,
-input[type="radio"]:checked {
+input[type='checkbox']:checked,
+input[type='radio']:checked {
   background-color: #3b82f6;
   border-color: #3b82f6;
 }
 
-input[type="checkbox"]:focus,
-input[type="radio"]:focus {
+input[type='checkbox']:focus,
+input[type='radio']:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
@@ -252,13 +254,13 @@ button:disabled {
 
 /* Dark mode form elements */
 @media (prefers-color-scheme: dark) {
-  input[type="text"],
-  input[type="search"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="tel"],
-  input[type="url"],
+  input[type='text'],
+  input[type='search'],
+  input[type='email'],
+  input[type='password'],
+  input[type='number'],
+  input[type='tel'],
+  input[type='url'],
   textarea,
   select {
     background-color: #374151;
@@ -266,40 +268,40 @@ button:disabled {
     color: #f9fafb;
   }
 
-  input[type="text"]:focus,
-  input[type="search"]:focus,
-  input[type="email"]:focus,
-  input[type="password"]:focus,
-  input[type="number"]:focus,
-  input[type="tel"]:focus,
-  input[type="url"]:focus,
+  input[type='text']:focus,
+  input[type='search']:focus,
+  input[type='email']:focus,
+  input[type='password']:focus,
+  input[type='number']:focus,
+  input[type='tel']:focus,
+  input[type='url']:focus,
   textarea:focus,
   select:focus {
     border-color: #60a5fa;
     box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
   }
 
-  input[type="text"]:disabled,
-  input[type="search"]:disabled,
-  input[type="email"]:disabled,
-  input[type="password"]:disabled,
-  input[type="number"]:disabled,
-  input[type="tel"]:disabled,
-  input[type="url"]:disabled,
+  input[type='text']:disabled,
+  input[type='search']:disabled,
+  input[type='email']:disabled,
+  input[type='password']:disabled,
+  input[type='number']:disabled,
+  input[type='tel']:disabled,
+  input[type='url']:disabled,
   textarea:disabled,
   select:disabled {
     background-color: #1f2937;
     color: #9ca3af;
   }
 
-  input[type="checkbox"],
-  input[type="radio"] {
+  input[type='checkbox'],
+  input[type='radio'] {
     background-color: #374151;
     border-color: #4b5563;
   }
 
-  input[type="checkbox"]:checked,
-  input[type="radio"]:checked {
+  input[type='checkbox']:checked,
+  input[type='radio']:checked {
     background-color: #60a5fa;
     border-color: #60a5fa;
   }
@@ -343,7 +345,9 @@ button:disabled {
   padding: 1rem;
   margin-bottom: 1rem;
   background-color: #f9fafb;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border-radius: 0.5rem;
   transition: all 0.15s ease-in-out;
   text-decoration: none;
@@ -361,7 +365,9 @@ button:disabled {
 .content-card {
   background-color: #f9fafb;
   padding: 1rem 1.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
   border-radius: 0.5rem;
 }
 
@@ -379,12 +385,12 @@ button:disabled {
 
 /* Utility class to hide scrollbars */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Safari and Chrome */
+  display: none; /* Safari and Chrome */
 }
 
 /* Elegant auto-hide scrollbars for better UX */
@@ -1019,14 +1025,14 @@ button:disabled {
 @media (max-width: 767px) {
   button.touch-target,
   a.touch-target,
-  [role="button"].touch-target {
+  [role='button'].touch-target {
     min-width: 44px;
     min-height: 44px;
   }
 
   /* Ensure inputs meet touch target size */
-  input[type="checkbox"].touch-target,
-  input[type="radio"].touch-target {
+  input[type='checkbox'].touch-target,
+  input[type='radio'].touch-target {
     width: 44px;
     height: 44px;
   }
@@ -1093,7 +1099,11 @@ button:disabled {
 
 .diagram-container-premium {
   @apply rounded-2xl border border-border-theme p-5;
-  background: linear-gradient(180deg, var(--surface-base) 0%, var(--surface-deep) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--surface-base) 0%,
+    var(--surface-deep) 100%
+  );
 }
 
 /* Diagram headers */
@@ -1319,7 +1329,7 @@ button:disabled {
   --border-strong: rgba(245, 158, 11, 0.6);
   --text-primary: #fef3c7;
   --text-secondary: #fcd34d;
-  --text-muted: #d97706;        /* amber-600 - WCAG AA compliant (5.2:1 contrast) */
+  --text-muted: #d97706; /* amber-600 - WCAG AA compliant (5.2:1 contrast) */
 
   /* Tailwind color token overrides (used by generated utilities) */
   --color-surface-deep: #0a1628;
@@ -1330,7 +1340,7 @@ button:disabled {
   --color-border-theme-strong: rgba(245, 158, 11, 0.6);
   --color-text-theme-primary: #fef3c7;
   --color-text-theme-secondary: #fcd34d;
-  --color-text-theme-muted: #d97706;  /* amber-600 - WCAG AA compliant */
+  --color-text-theme-muted: #d97706; /* amber-600 - WCAG AA compliant */
 }
 
 .theme-tactical h1,
@@ -1436,7 +1446,7 @@ button:disabled {
 
   /* Unit Card Print Styles */
   .unit-card-print,
-  [class*="UnitCard"] {
+  [class*='UnitCard'] {
     background: white !important;
     border: 1px solid #333 !important;
     color: black !important;
@@ -1447,8 +1457,8 @@ button:disabled {
   }
 
   /* Card headers */
-  [class*="UnitCard"] h2,
-  [class*="UnitCard"] h3 {
+  [class*='UnitCard'] h2,
+  [class*='UnitCard'] h3 {
     color: black !important;
     border-bottom: 1px solid #999;
     padding-bottom: 0.5rem;
@@ -1456,12 +1466,12 @@ button:disabled {
   }
 
   /* Stats and values */
-  [class*="UnitCard"] .font-mono {
-    font-family: "Courier New", Courier, monospace !important;
+  [class*='UnitCard'] .font-mono {
+    font-family: 'Courier New', Courier, monospace !important;
   }
 
   /* Badges - convert to bordered text */
-  [class*="Badge"],
+  [class*='Badge'],
   .badge {
     background: transparent !important;
     border: 1px solid #666 !important;
@@ -1470,26 +1480,26 @@ button:disabled {
   }
 
   /* Tables */
-  [class*="UnitCard"] table {
+  [class*='UnitCard'] table {
     border-collapse: collapse;
     width: 100%;
   }
 
-  [class*="UnitCard"] th,
-  [class*="UnitCard"] td {
+  [class*='UnitCard'] th,
+  [class*='UnitCard'] td {
     border: 1px solid #ccc;
     padding: 0.25rem 0.5rem;
     text-align: left;
   }
 
-  [class*="UnitCard"] th {
+  [class*='UnitCard'] th {
     background: #f0f0f0 !important;
     font-weight: bold;
   }
 
   /* Weapons table specific */
-  [class*="UnitCard"] [class*="weapons"] th,
-  [class*="UnitCard"] [class*="weapons"] td {
+  [class*='UnitCard'] [class*='weapons'] th,
+  [class*='UnitCard'] [class*='weapons'] td {
     font-size: 10pt;
   }
 
@@ -1516,7 +1526,7 @@ button:disabled {
   }
 
   /* Critical slots progress bars - convert to text */
-  [class*="critical"] [class*="bar"],
+  [class*='critical'] [class*='bar'],
   .progress-bar {
     display: none !important;
   }
@@ -1561,33 +1571,33 @@ button:disabled {
   }
 
   /* Equipment list - compact */
-  [class*="equipment"] li,
-  [class*="Equipment"] li {
+  [class*='equipment'] li,
+  [class*='Equipment'] li {
     padding: 0.125rem 0;
     border-bottom: 1px dotted #ccc;
   }
 
   /* Quirks as comma-separated list */
-  [class*="quirks"] .flex-wrap {
+  [class*='quirks'] .flex-wrap {
     display: inline !important;
   }
 
-  [class*="quirks"] .badge {
+  [class*='quirks'] .badge {
     display: inline !important;
     margin-right: 0.25rem;
   }
 
-  [class*="quirks"] .badge::after {
-    content: ",";
+  [class*='quirks'] .badge::after {
+    content: ',';
   }
 
-  [class*="quirks"] .badge:last-child::after {
-    content: "";
+  [class*='quirks'] .badge:last-child::after {
+    content: '';
   }
 
   /* Notes/fluff text */
-  [class*="notes"],
-  [class*="overview"] {
+  [class*='notes'],
+  [class*='overview'] {
     font-style: italic;
     border-left: 2px solid #999;
     padding-left: 0.5rem;

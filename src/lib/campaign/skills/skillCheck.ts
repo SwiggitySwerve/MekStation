@@ -95,7 +95,7 @@ export function getEffectiveSkillTN(
   person: IPerson,
   skillId: string,
   skillType: ISkillType,
-  modifiers: readonly { name: string; value: number }[] = []
+  modifiers: readonly { name: string; value: number }[] = [],
 ): number {
   // Look up skill on person
   const skill = person.skills[skillId];
@@ -151,7 +151,7 @@ export function performSkillCheck(
   skillId: string,
   skillType: ISkillType,
   modifiers: readonly { name: string; value: number }[] = [],
-  random: RandomFn
+  random: RandomFn,
 ): SkillCheckResult {
   // Roll 2d6
   const roll = random() + random();
@@ -161,7 +161,7 @@ export function performSkillCheck(
     person,
     skillId,
     skillType,
-    modifiers
+    modifiers,
   );
 
   // Calculate margin

@@ -1,6 +1,6 @@
+import { ServiceError } from '@/services/common/errors';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { getLocationsForConfigurationString } from '@/utils/mech/mechLocationRegistry';
-import { ServiceError } from '@/services/common/errors';
 
 export enum MechConfiguration {
   BIPED = 'Biped',
@@ -23,13 +23,14 @@ export class AssetLoadError extends ServiceError {
   constructor(
     public readonly assetPath: string,
     public readonly attemptedSources: string[],
-    public readonly sourceErrors: Record<string, string>
+    public readonly sourceErrors: Record<string, string>,
   ) {
-    const message = `Failed to load asset: ${assetPath}\n\n` +
-      `Attempted sources:\n${attemptedSources.map(s => `  - ${s}`).join('\n')}\n\n` +
+    const message =
+      `Failed to load asset: ${assetPath}\n\n` +
+      `Attempted sources:\n${attemptedSources.map((s) => `  - ${s}`).join('\n')}\n\n` +
       `To fix this, try running: npm run fetch:assets\n` +
       `This will download the required assets from the MegaMek mm-data repository.`;
-    
+
     super(message, 'ASSET_LOAD_ERROR', {
       assetPath,
       attemptedSources,
@@ -69,19 +70,19 @@ const LOCATION_TO_MM_DATA_CODE: Record<string, string> = {
 };
 
 const LOCATION_ABBREV_TO_MM_DATA_CODE: Record<string, string> = {
-  'HD': 'Head',
-  'CT': 'CT',
-  'LT': 'LT',
-  'RT': 'RT',
-  'LA': 'LArm',
-  'RA': 'RArm',
-  'LL': 'LLeg',
-  'RL': 'RLeg',
-  'FLL': 'FLL',
-  'FRL': 'FRL',
-  'RLL': 'RLL',
-  'RRL': 'RRL',
-  'CL': 'CL',
+  HD: 'Head',
+  CT: 'CT',
+  LT: 'LT',
+  RT: 'RT',
+  LA: 'LArm',
+  RA: 'RArm',
+  LL: 'LLeg',
+  RL: 'RLeg',
+  FLL: 'FLL',
+  FRL: 'FRL',
+  RLL: 'RLL',
+  RRL: 'RRL',
+  CL: 'CL',
 };
 
 const PIPS_BASE_PATH = '/record-sheets/biped_pips';
@@ -181,8 +182,8 @@ class MmDataAssetService {
   private async doLoadConfig(): Promise<MmDataAssetConfig> {
     // Try multiple config paths in order of preference
     const configPaths = [
-      '/config/mm-data-assets.json',    // Public config path
-      '/mm-data-assets.json',            // Root public path fallback
+      '/config/mm-data-assets.json', // Public config path
+      '/mm-data-assets.json', // Root public path fallback
     ];
 
     for (const configPath of configPaths) {
@@ -213,7 +214,9 @@ class MmDataAssetService {
   /**
    * Build URLs for all fallback sources for a given asset path.
    */
-  private buildSourceUrls(assetPath: string): { source: AssetSource; url: string }[] {
+  private buildSourceUrls(
+    assetPath: string,
+  ): { source: AssetSource; url: string }[] {
     const version = this.getVersion();
     const repository = this.config?.repository ?? DEFAULT_REPOSITORY;
     const basePath = this.config?.basePath ?? DEFAULT_BASE_PATH;
@@ -221,48 +224,63 @@ class MmDataAssetService {
     const rawBase = this.config?.rawBase ?? DEFAULT_RAW_BASE;
 
     // Remove leading slash for CDN/GitHub paths
-    const cleanPath = assetPath.startsWith('/record-sheets/') 
+    const cleanPath = assetPath.startsWith('/record-sheets/')
       ? assetPath.slice('/record-sheets/'.length)
-      : assetPath.startsWith('/') 
-        ? assetPath.slice(1) 
+      : assetPath.startsWith('/')
+        ? assetPath.slice(1)
         : assetPath;
 
     return [
       // 1. Local bundled path (for desktop/bundled apps)
-      { source: 'local' as AssetSource, url: assetPath.startsWith('/') ? assetPath : `/${assetPath}` },
+      {
+        source: 'local' as AssetSource,
+        url: assetPath.startsWith('/') ? assetPath : `/${assetPath}`,
+      },
       // 2. jsDelivr CDN
-      { source: 'cdn' as AssetSource, url: `${cdnBase}/${repository}@${version}/${basePath}/${cleanPath}` },
+      {
+        source: 'cdn' as AssetSource,
+        url: `${cdnBase}/${repository}@${version}/${basePath}/${cleanPath}`,
+      },
       // 3. GitHub raw (fallback)
-      { source: 'github-raw' as AssetSource, url: `${rawBase}/${repository}/${version}/${basePath}/${cleanPath}` },
+      {
+        source: 'github-raw' as AssetSource,
+        url: `${rawBase}/${repository}/${version}/${basePath}/${cleanPath}`,
+      },
     ];
   }
 
   getArmorPipPath(
     location: MechLocation | string,
     count: number,
-    isRear: boolean = false
+    isRear: boolean = false,
   ): string {
     const mmCode = this.getLocationCode(location);
     const rearSuffix = isRear ? '_R' : '';
     return `${PIPS_BASE_PATH}/Armor_${mmCode}${rearSuffix}_${count}_Humanoid.svg`;
   }
 
-  getStructurePipPath(tonnage: number, location: MechLocation | string): string {
+  getStructurePipPath(
+    tonnage: number,
+    location: MechLocation | string,
+  ): string {
     const abbrev = this.getLocationAbbreviation(location);
     return `${PIPS_BASE_PATH}/BipedIS${tonnage}_${abbrev}.svg`;
   }
 
   getRecordSheetTemplatePath(
     config: MechConfiguration,
-    paperSize: PaperSize = PaperSize.LETTER
+    paperSize: PaperSize = PaperSize.LETTER,
   ): string {
-    return TEMPLATE_PATHS[config]?.[paperSize] ?? TEMPLATE_PATHS[MechConfiguration.BIPED][paperSize];
+    return (
+      TEMPLATE_PATHS[config]?.[paperSize] ??
+      TEMPLATE_PATHS[MechConfiguration.BIPED][paperSize]
+    );
   }
 
   /**
    * Load SVG content with fallback chain.
    * Tries: local bundled -> jsDelivr CDN -> GitHub raw
-   * 
+   *
    * @throws AssetLoadError if all sources fail
    */
   async loadSVG(path: string): Promise<string> {
@@ -280,7 +298,7 @@ class MmDataAssetService {
 
     for (const { source, url } of sources) {
       attemptedSources.push(`${source}: ${url}`);
-      
+
       try {
         const response = await fetch(url);
         if (response.ok) {
@@ -290,7 +308,8 @@ class MmDataAssetService {
         }
         sourceErrors[source] = `HTTP ${response.status}`;
       } catch (error) {
-        sourceErrors[source] = error instanceof Error ? error.message : String(error);
+        sourceErrors[source] =
+          error instanceof Error ? error.message : String(error);
       }
     }
 
@@ -301,7 +320,7 @@ class MmDataAssetService {
   async loadArmorPipSVG(
     location: MechLocation | string,
     count: number,
-    isRear: boolean = false
+    isRear: boolean = false,
   ): Promise<string> {
     const path = this.getArmorPipPath(location, count, isRear);
     return this.loadSVG(path);
@@ -309,7 +328,7 @@ class MmDataAssetService {
 
   async loadStructurePipSVG(
     tonnage: number,
-    location: MechLocation | string
+    location: MechLocation | string,
   ): Promise<string> {
     const path = this.getStructurePipPath(tonnage, location);
     return this.loadSVG(path);
@@ -317,7 +336,7 @@ class MmDataAssetService {
 
   async loadRecordSheetTemplate(
     config: MechConfiguration,
-    paperSize: PaperSize = PaperSize.LETTER
+    paperSize: PaperSize = PaperSize.LETTER,
   ): Promise<string> {
     const path = this.getRecordSheetTemplatePath(config, paperSize);
     return this.loadSVG(path);
@@ -326,14 +345,14 @@ class MmDataAssetService {
   async preloadConfiguration(
     config: MechConfiguration,
     tonnage: number,
-    paperSize: PaperSize = PaperSize.LETTER
+    paperSize: PaperSize = PaperSize.LETTER,
   ): Promise<void> {
     const locations = this.getLocationsForConfiguration(config);
-    
+
     const templatePromise = this.loadRecordSheetTemplate(config, paperSize);
-    
-    const structurePromises = locations.map(loc => 
-      this.loadStructurePipSVG(tonnage, loc).catch(() => null)
+
+    const structurePromises = locations.map((loc) =>
+      this.loadStructurePipSVG(tonnage, loc).catch(() => null),
     );
 
     await Promise.all([templatePromise, ...structurePromises]);
@@ -348,7 +367,7 @@ class MmDataAssetService {
     const parser = new DOMParser();
     const doc = parser.parseFromString(svgContent, 'image/svg+xml');
     const paths = doc.querySelectorAll('path');
-    return Array.from(paths).map(p => p.outerHTML);
+    return Array.from(paths).map((p) => p.outerHTML);
   }
 
   clearCache(): void {
@@ -358,7 +377,10 @@ class MmDataAssetService {
   }
 
   private getLocationCode(location: MechLocation | string): string {
-    if (typeof location === 'string' && LOCATION_ABBREV_TO_MM_DATA_CODE[location]) {
+    if (
+      typeof location === 'string' &&
+      LOCATION_ABBREV_TO_MM_DATA_CODE[location]
+    ) {
       return LOCATION_ABBREV_TO_MM_DATA_CODE[location];
     }
     return LOCATION_TO_MM_DATA_CODE[location] ?? 'CT';
@@ -368,7 +390,7 @@ class MmDataAssetService {
     if (typeof location === 'string' && location.length <= 3) {
       return location;
     }
-    
+
     const abbrevMap: Record<string, string> = {
       [MechLocation.HEAD]: 'HD',
       [MechLocation.CENTER_TORSO]: 'CT',

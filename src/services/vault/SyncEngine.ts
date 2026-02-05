@@ -14,6 +14,7 @@ import type {
   ShareableContentType,
   ChangeType,
 } from '@/types/vault';
+
 import {
   ChangeLogRepository,
   getChangeLogRepository,
@@ -49,7 +50,7 @@ export interface IReconciliationResult {
  */
 export type ContentHashFn = (
   itemId: string,
-  contentType: ShareableContentType | 'folder'
+  contentType: ShareableContentType | 'folder',
 ) => Promise<string | null>;
 
 /**
@@ -57,7 +58,7 @@ export type ContentHashFn = (
  */
 export type ContentDataFn = (
   itemId: string,
-  contentType: ShareableContentType | 'folder'
+  contentType: ShareableContentType | 'folder',
 ) => Promise<string | null>;
 
 // =============================================================================
@@ -102,7 +103,7 @@ export class SyncEngine {
     changeType: ChangeType,
     contentType: ShareableContentType | 'folder',
     itemId: string,
-    data?: string
+    data?: string,
   ): Promise<IChangeLogEntry> {
     const contentHash = this.contentHashFn
       ? await this.contentHashFn(itemId, contentType)
@@ -113,7 +114,7 @@ export class SyncEngine {
       contentType,
       itemId,
       contentHash,
-      data ?? null
+      data ?? null,
     );
   }
 
@@ -122,7 +123,7 @@ export class SyncEngine {
    */
   async getChangesForPeer(
     peerId: string,
-    limit = 100
+    limit = 100,
   ): Promise<IChangeLogEntry[]> {
     const state = this.syncStates.get(peerId);
     const fromVersion = state?.lastVersion ?? 0;
@@ -153,7 +154,7 @@ export class SyncEngine {
    */
   async applyRemoteChanges(
     peerId: string,
-    changes: IChangeLogEntry[]
+    changes: IChangeLogEntry[],
   ): Promise<IReconciliationResult> {
     const applied: IChangeLogEntry[] = [];
     const conflicts: ISyncConflict[] = [];
@@ -163,7 +164,7 @@ export class SyncEngine {
       // Get local state for this item
       const localChange = await this.changeLog.getLatestForItem(
         remoteChange.itemId,
-        remoteChange.contentType
+        remoteChange.contentType,
       );
 
       // No local changes - apply directly
@@ -178,7 +179,7 @@ export class SyncEngine {
         const conflict = await this.createConflict(
           localChange,
           remoteChange,
-          peerId
+          peerId,
         );
         conflicts.push(conflict);
         continue;
@@ -206,10 +207,7 @@ export class SyncEngine {
   /**
    * Check if two changes conflict
    */
-  private isConflict(
-    local: IChangeLogEntry,
-    remote: IChangeLogEntry
-  ): boolean {
+  private isConflict(local: IChangeLogEntry, remote: IChangeLogEntry): boolean {
     // No conflict if hashes match (same content)
     if (
       local.contentHash &&
@@ -238,7 +236,7 @@ export class SyncEngine {
   private async createConflict(
     local: IChangeLogEntry,
     remote: IChangeLogEntry,
-    peerId: string
+    peerId: string,
   ): Promise<ISyncConflict> {
     const conflictId = await this.changeLog.recordConflict({
       contentType: local.contentType,
@@ -271,7 +269,7 @@ export class SyncEngine {
    */
   private async applyChange(
     change: IChangeLogEntry,
-    sourceId: string
+    sourceId: string,
   ): Promise<void> {
     // Record the change as coming from a remote source
     await this.changeLog.recordChange(
@@ -280,7 +278,7 @@ export class SyncEngine {
       change.itemId,
       change.contentHash,
       change.data,
-      sourceId
+      sourceId,
     );
 
     // The actual content update would be handled by a callback
@@ -423,7 +421,7 @@ export class SyncEngine {
   async recordFolderChange(
     changeType: ChangeType,
     folderId: string,
-    folderData?: string
+    folderData?: string,
   ): Promise<IChangeLogEntry> {
     return this.recordChange(changeType, 'folder', folderId, folderData);
   }
@@ -434,7 +432,7 @@ export class SyncEngine {
   async recordFolderItemAdded(
     folderId: string,
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<IChangeLogEntry> {
     const data = JSON.stringify({
       action: 'item_added',
@@ -451,7 +449,7 @@ export class SyncEngine {
   async recordFolderItemRemoved(
     folderId: string,
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<IChangeLogEntry> {
     const data = JSON.stringify({
       action: 'item_removed',
@@ -468,18 +466,21 @@ export class SyncEngine {
   async getChangesForFolder(
     folderId: string,
     fromVersion = 0,
-    limit = 100
+    limit = 100,
   ): Promise<IChangeLogEntry[]> {
     // Get all changes since version
-    const allChanges = await this.changeLog.getChangesSince(fromVersion, limit * 10);
-    
+    const allChanges = await this.changeLog.getChangesSince(
+      fromVersion,
+      limit * 10,
+    );
+
     // Filter to folder changes and items in that folder
     // For now, we track folder-level changes directly
     // Item membership tracking is via the folder update entries
     return allChanges.filter(
       (change) =>
         (change.contentType === 'folder' && change.itemId === folderId) ||
-        this.isChangeForFolderItem(change, folderId)
+        this.isChangeForFolderItem(change, folderId),
     );
   }
 
@@ -489,7 +490,7 @@ export class SyncEngine {
    */
   private isChangeForFolderItem(
     change: IChangeLogEntry,
-    folderId: string
+    folderId: string,
   ): boolean {
     if (!change.data) return false;
 
@@ -508,7 +509,7 @@ export class SyncEngine {
   async getFolderChangesForPeer(
     folderId: string,
     peerId: string,
-    limit = 100
+    limit = 100,
   ): Promise<IChangeLogEntry[]> {
     const state = this.syncStates.get(peerId);
     const fromVersion = state?.lastVersion ?? 0;
@@ -522,13 +523,13 @@ export class SyncEngine {
   async applyFolderChanges(
     folderId: string,
     peerId: string,
-    changes: IChangeLogEntry[]
+    changes: IChangeLogEntry[],
   ): Promise<IReconciliationResult> {
     // Filter changes to only those for this folder
     const folderChanges = changes.filter(
       (change) =>
         (change.contentType === 'folder' && change.itemId === folderId) ||
-        this.isChangeForFolderItem(change, folderId)
+        this.isChangeForFolderItem(change, folderId),
     );
 
     return this.applyRemoteChanges(peerId, folderChanges);
@@ -564,7 +565,7 @@ export class SyncEngine {
    */
   async getFolderSyncStatus(
     folderId: string,
-    peerId: string
+    peerId: string,
   ): Promise<{
     pendingOutbound: number;
     lastSyncAt: string | null;

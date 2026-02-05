@@ -1,8 +1,9 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SlotRow } from '@/components/customizer/critical-slots/SlotRow';
+import React from 'react';
+
 import { SlotContent } from '@/components/customizer/critical-slots/CriticalSlotsDisplay';
+import { SlotRow } from '@/components/customizer/critical-slots/SlotRow';
 
 describe('SlotRow', () => {
   const defaultProps = {
@@ -20,7 +21,7 @@ describe('SlotRow', () => {
 
   it('should render empty slot', () => {
     render(<SlotRow {...defaultProps} />);
-    
+
     expect(screen.getByText('- Empty -')).toBeInTheDocument();
   });
 
@@ -31,16 +32,16 @@ describe('SlotRow', () => {
       name: 'Medium Laser',
       equipmentId: 'equip-1',
     };
-    
+
     render(<SlotRow {...defaultProps} slot={slot} />);
-    
+
     expect(screen.getByText('Medium Laser')).toBeInTheDocument();
   });
 
   it('should call onClick when clicked', async () => {
     const user = userEvent.setup();
     render(<SlotRow {...defaultProps} />);
-    
+
     const slot = screen.getByText('- Empty -').closest('div');
     if (slot) {
       await user.click(slot);
@@ -56,9 +57,9 @@ describe('SlotRow', () => {
       name: 'Medium Laser',
       equipmentId: 'equip-1',
     };
-    
+
     render(<SlotRow {...defaultProps} slot={slot} />);
-    
+
     const slotElement = screen.getByText('Medium Laser').closest('div');
     if (slotElement) {
       await user.dblClick(slotElement);
@@ -68,7 +69,7 @@ describe('SlotRow', () => {
 
   it('should highlight assignable slots', () => {
     render(<SlotRow {...defaultProps} isAssignable={true} />);
-    
+
     const slot = screen.getByText('- Empty -').closest('div');
     expect(slot).toHaveClass('bg-green-900/60');
   });
@@ -94,7 +95,9 @@ describe('SlotRow', () => {
       render(<SlotRow {...defaultProps} slot={slot} isOmni={true} />);
 
       // Display name includes (Fixed) postfix for fixed equipment on OmniMechs
-      const slotElement = screen.getByText('ER Large Laser (Fixed)').closest('div');
+      const slotElement = screen
+        .getByText('ER Large Laser (Fixed)')
+        .closest('div');
       if (slotElement) {
         await user.dblClick(slotElement);
         expect(defaultProps.onRemove).not.toHaveBeenCalled();
@@ -113,7 +116,9 @@ describe('SlotRow', () => {
       render(<SlotRow {...defaultProps} slot={slot} isOmni={true} />);
 
       // Display name includes (Fixed) postfix for fixed equipment on OmniMechs
-      const slotElement = screen.getByText('ER Large Laser (Fixed)').closest('div');
+      const slotElement = screen
+        .getByText('ER Large Laser (Fixed)')
+        .closest('div');
       expect(slotElement).toHaveClass('opacity-60');
       expect(slotElement).toHaveClass('cursor-not-allowed');
     });
@@ -222,4 +227,3 @@ describe('SlotRow', () => {
     });
   });
 });
-

@@ -1,18 +1,18 @@
 /**
  * Unit Repository
- * 
+ *
  * Data access layer for custom units stored in SQLite.
  * Handles CRUD operations and name uniqueness.
- * 
+ *
  * @spec openspec/specs/persistence-services/spec.md
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { getSQLiteService } from '../persistence/SQLiteService';
-import { getWeightClass } from '@/types/enums/WeightClass';
-import { TechBase } from '@/types/enums/TechBase';
+
 import { Era } from '@/types/enums/Era';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { getWeightClass } from '@/types/enums/WeightClass';
 import {
   ICustomUnitRecord,
   ICustomUnitIndexEntry,
@@ -22,6 +22,8 @@ import {
   UnitErrorCode,
   ICloneNameSuggestion,
 } from '@/types/persistence/UnitPersistence';
+
+import { getSQLiteService } from '../persistence/SQLiteService';
 
 /**
  * Database row type for custom_units table
@@ -70,7 +72,10 @@ export class UnitRepository implements IUnitRepository {
 
     // Check for duplicate name
     if (this.nameExists(request.chassis, request.variant)) {
-      const suggestion = this.suggestCloneName(request.chassis, request.variant);
+      const suggestion = this.suggestCloneName(
+        request.chassis,
+        request.variant,
+      );
       return {
         success: false,
         error: {
@@ -108,7 +113,7 @@ export class UnitRepository implements IUnitRepository {
         unitType,
         JSON.stringify(unitData),
         now,
-        now
+        now,
       );
 
       // Create initial version entry
@@ -123,7 +128,7 @@ export class UnitRepository implements IUnitRepository {
         id,
         JSON.stringify(unitData),
         now,
-        request.notes || null
+        request.notes || null,
       );
 
       return {
@@ -166,7 +171,8 @@ export class UnitRepository implements IUnitRepository {
     const tonnage = (unitData.tonnage as number) || currentUnit.tonnage;
     const techBase = (unitData.techBase as string) || currentUnit.techBase;
     const era = (unitData.era as string) || currentUnit.era;
-    const rulesLevel = (unitData.rulesLevel as string) || currentUnit.rulesLevel;
+    const rulesLevel =
+      (unitData.rulesLevel as string) || currentUnit.rulesLevel;
     const unitType = (unitData.unitType as string) || currentUnit.unitType;
 
     try {
@@ -187,7 +193,7 @@ export class UnitRepository implements IUnitRepository {
         unitType,
         newVersion,
         now,
-        id
+        id,
       );
 
       // Create new version entry
@@ -203,7 +209,7 @@ export class UnitRepository implements IUnitRepository {
         newVersion,
         JSON.stringify(unitData),
         now,
-        request.notes || null
+        request.notes || null,
       );
 
       // Prune old versions if needed
@@ -255,9 +261,11 @@ export class UnitRepository implements IUnitRepository {
   getById(id: string): ICustomUnitRecord | null {
     const db = getSQLiteService().getDatabase();
 
-    const row = db.prepare(`
+    const row = db
+      .prepare(`
       SELECT * FROM custom_units WHERE id = ?
-    `).get(id) as CustomUnitRow | undefined;
+    `)
+      .get(id) as CustomUnitRow | undefined;
 
     if (!row) {
       return null;
@@ -272,10 +280,12 @@ export class UnitRepository implements IUnitRepository {
   findByName(chassis: string, variant: string): ICustomUnitRecord | null {
     const db = getSQLiteService().getDatabase();
 
-    const row = db.prepare(`
+    const row = db
+      .prepare(`
       SELECT * FROM custom_units 
       WHERE LOWER(chassis) = LOWER(?) AND LOWER(variant) = LOWER(?)
-    `).get(chassis, variant) as CustomUnitRow | undefined;
+    `)
+      .get(chassis, variant) as CustomUnitRow | undefined;
 
     if (!row) {
       return null;
@@ -290,14 +300,16 @@ export class UnitRepository implements IUnitRepository {
   list(): readonly ICustomUnitIndexEntry[] {
     const db = getSQLiteService().getDatabase();
 
-    const rows = db.prepare(`
+    const rows = db
+      .prepare(`
       SELECT id, chassis, variant, tonnage, tech_base, era, rules_level, 
              unit_type, current_version, created_at, updated_at
       FROM custom_units
       ORDER BY chassis, variant
-    `).all() as CustomUnitRow[];
+    `)
+      .all() as CustomUnitRow[];
 
-    return rows.map(row => this.rowToIndexEntry(row));
+    return rows.map((row) => this.rowToIndexEntry(row));
   }
 
   /**
@@ -305,7 +317,9 @@ export class UnitRepository implements IUnitRepository {
    */
   exists(id: string): boolean {
     const db = getSQLiteService().getDatabase();
-    const result = db.prepare('SELECT 1 FROM custom_units WHERE id = ?').get(id);
+    const result = db
+      .prepare('SELECT 1 FROM custom_units WHERE id = ?')
+      .get(id);
     return result !== undefined;
   }
 
@@ -314,10 +328,12 @@ export class UnitRepository implements IUnitRepository {
    */
   nameExists(chassis: string, variant: string): boolean {
     const db = getSQLiteService().getDatabase();
-    const result = db.prepare(`
+    const result = db
+      .prepare(`
       SELECT 1 FROM custom_units 
       WHERE LOWER(chassis) = LOWER(?) AND LOWER(variant) = LOWER(?)
-    `).get(chassis, variant);
+    `)
+      .get(chassis, variant);
     return result !== undefined;
   }
 
@@ -327,7 +343,7 @@ export class UnitRepository implements IUnitRepository {
   suggestCloneName(chassis: string, baseVariant: string): ICloneNameSuggestion {
     // Strip any existing -Custom-N suffix
     const cleanVariant = baseVariant.replace(/-Custom-\d+$/, '');
-    
+
     let counter = 1;
     let suggestedVariant = `${cleanVariant}-Custom-${counter}`;
 
@@ -352,9 +368,11 @@ export class UnitRepository implements IUnitRepository {
     const maxVersions = config.maxVersionHistory;
 
     // Get version count
-    const countResult = db.prepare(`
+    const countResult = db
+      .prepare(`
       SELECT COUNT(*) as count FROM unit_versions WHERE unit_id = ?
-    `).get(unitId) as { count: number };
+    `)
+      .get(unitId) as { count: number };
 
     if (countResult.count <= maxVersions) {
       return;
@@ -435,4 +453,3 @@ export function getUnitRepository(): UnitRepository {
 export function resetUnitRepository(): void {
   unitRepositoryInstance = null;
 }
-

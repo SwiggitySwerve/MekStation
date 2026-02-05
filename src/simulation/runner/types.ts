@@ -3,10 +3,11 @@
  * Type definitions for simulation execution.
  */
 
+import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
+import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
+
 import { ISimulationResult } from '../core/types';
 import { IViolation } from '../invariants/types';
-import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
-import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
 
 /**
  * Configuration for simulation anomaly/key-moment detectors.

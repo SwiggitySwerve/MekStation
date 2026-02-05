@@ -1,26 +1,37 @@
 /**
  * Overview Tab Component
- * 
+ *
  * Summary view of the current unit configuration.
  * Uses the contextual unit store - no tabId prop needed.
- * 
+ *
  * @spec openspec/specs/customizer-tabs/spec.md
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 
 import React, { useCallback, useMemo } from 'react';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel, ALL_RULES_LEVELS } from '@/types/enums/RulesLevel';
-import { TechBaseConfiguration, IComponentValues } from '../shared/TechBaseConfiguration';
-import { TechBaseMode, TechBaseComponent } from '@/types/construction/TechBaseConfiguration';
-import { useUnitStore } from '@/stores/useUnitStore';
+
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
+import { useUnitStore } from '@/stores/useUnitStore';
+import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { getEngineDefinition } from '@/types/construction/EngineType';
 import { getGyroDefinition } from '@/types/construction/GyroType';
-import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
 import { getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
-import { getArmorDefinition } from '@/types/construction/ArmorType';
-import { getMovementEnhancementDefinition, MovementEnhancementType } from '@/types/construction/MovementEnhancement';
+import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
+import {
+  getMovementEnhancementDefinition,
+  MovementEnhancementType,
+} from '@/types/construction/MovementEnhancement';
+import {
+  TechBaseMode,
+  TechBaseComponent,
+} from '@/types/construction/TechBaseConfiguration';
+import { RulesLevel, ALL_RULES_LEVELS } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+
+import {
+  TechBaseConfiguration,
+  IComponentValues,
+} from '../shared/TechBaseConfiguration';
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -40,7 +51,7 @@ interface OverviewTabProps {
 
 /**
  * Overview tab showing unit summary
- * 
+ *
  * Uses useUnitStore() to access the current unit's state.
  * No tabId prop needed - context provides the active unit.
  */
@@ -66,7 +77,7 @@ export function OverviewTab({
   const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
   const armorType = useUnitStore((s) => s.armorType);
   const enhancement = useUnitStore((s) => s.enhancement);
-  
+
   // Get actions from context
   const setChassis = useUnitStore((s) => s.setChassis);
   const setClanName = useUnitStore((s) => s.setClanName);
@@ -81,69 +92,103 @@ export function OverviewTab({
   const isOmni = useUnitStore((s) => s.isOmni);
   const setIsOmni = useUnitStore((s) => s.setIsOmni);
   const resetChassis = useUnitStore((s) => s.resetChassis);
-  
+
   // Get tab manager action
   const renameTab = useTabManagerStore((s) => s.renameTab);
-  
-  // Helper to update tab name when chassis/model changes
-  const updateTabName = useCallback((newChassis: string, newModel: string) => {
-    const newName = `${newChassis}${newModel ? ' ' + newModel : ''}`;
-    renameTab(unitId, newName);
-  }, [unitId, renameTab]);
-  
-  // Handlers - Basic info (MegaMekLab format)
-  const handleChassisChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newChassis = e.target.value;
-    setChassis(newChassis);
-    updateTabName(newChassis, model);
-  }, [setChassis, model, updateTabName]);
-  
-  const handleClanNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setClanName(e.target.value);
-  }, [setClanName]);
-  
-  const handleModelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newModel = e.target.value;
-    setModel(newModel);
-    updateTabName(chassis, newModel);
-  }, [setModel, chassis, updateTabName]);
-  
-  const handleMulIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    // Allow numbers and hyphens only, store as string (-1 for custom units)
-    const value = e.target.value.replace(/[^0-9-]/g, '');
-    setMulId(value === '' ? '-1' : value);
-  }, [setMulId]);
-  
-  const handleYearChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10);
-    if (!isNaN(value) && value > 0) {
-      setYear(value);
-    }
-  }, [setYear]);
-  
-  const handleRulesLevelChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setRulesLevel(e.target.value as RulesLevel);
-  }, [setRulesLevel]);
 
-  const handleOmniMechChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsOmni(e.target.checked);
-  }, [setIsOmni]);
+  // Helper to update tab name when chassis/model changes
+  const updateTabName = useCallback(
+    (newChassis: string, newModel: string) => {
+      const newName = `${newChassis}${newModel ? ' ' + newModel : ''}`;
+      renameTab(unitId, newName);
+    },
+    [unitId, renameTab],
+  );
+
+  // Handlers - Basic info (MegaMekLab format)
+  const handleChassisChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newChassis = e.target.value;
+      setChassis(newChassis);
+      updateTabName(newChassis, model);
+    },
+    [setChassis, model, updateTabName],
+  );
+
+  const handleClanNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setClanName(e.target.value);
+    },
+    [setClanName],
+  );
+
+  const handleModelChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newModel = e.target.value;
+      setModel(newModel);
+      updateTabName(chassis, newModel);
+    },
+    [setModel, chassis, updateTabName],
+  );
+
+  const handleMulIdChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      // Allow numbers and hyphens only, store as string (-1 for custom units)
+      const value = e.target.value.replace(/[^0-9-]/g, '');
+      setMulId(value === '' ? '-1' : value);
+    },
+    [setMulId],
+  );
+
+  const handleYearChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = parseInt(e.target.value, 10);
+      if (!isNaN(value) && value > 0) {
+        setYear(value);
+      }
+    },
+    [setYear],
+  );
+
+  const handleRulesLevelChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setRulesLevel(e.target.value as RulesLevel);
+    },
+    [setRulesLevel],
+  );
+
+  const handleOmniMechChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setIsOmni(e.target.checked);
+    },
+    [setIsOmni],
+  );
 
   const handleResetChassis = useCallback(() => {
-    if (window.confirm('Reset to base chassis configuration? This will remove all pod-mounted equipment.')) {
+    if (
+      window.confirm(
+        'Reset to base chassis configuration? This will remove all pod-mounted equipment.',
+      )
+    ) {
       resetChassis();
     }
   }, [resetChassis]);
 
   // Handler for global mode change
-  const handleModeChange = useCallback((newMode: TechBaseMode) => {
-    setTechBaseMode(newMode);
-  }, [setTechBaseMode]);
+  const handleModeChange = useCallback(
+    (newMode: TechBaseMode) => {
+      setTechBaseMode(newMode);
+    },
+    [setTechBaseMode],
+  );
 
   // Handler for individual component change
-  const handleComponentChange = useCallback((component: TechBaseComponent, newTechBase: TechBase) => {
-    setComponentTechBase(component, newTechBase);
-  }, [setComponentTechBase]);
+  const handleComponentChange = useCallback(
+    (component: TechBaseComponent, newTechBase: TechBase) => {
+      setComponentTechBase(component, newTechBase);
+    },
+    [setComponentTechBase],
+  );
 
   // Build component values based on actual store selections
   const componentValues: IComponentValues = useMemo(() => {
@@ -152,7 +197,7 @@ export function OverviewTab({
     const structureDef = getInternalStructureDefinition(internalStructureType);
     const heatSinkDef = getHeatSinkDefinition(heatSinkType);
     const armorDef = getArmorDefinition(armorType);
-    
+
     // Get myomer display name based on enhancement
     let myomerName = 'Standard';
     if (enhancement === MovementEnhancementType.TSM) {
@@ -161,14 +206,14 @@ export function OverviewTab({
       // For MASC/Supercharger, myomer is still standard but movement enhancement is active
       myomerName = 'Standard';
     }
-    
+
     // Get movement enhancement display (MASC, Supercharger, Partial Wing)
     let movementName = 'None';
     if (enhancement && enhancement !== MovementEnhancementType.TSM) {
       const enhancementDef = getMovementEnhancementDefinition(enhancement);
       movementName = enhancementDef?.name ?? enhancement;
     }
-    
+
     return {
       chassis: structureDef?.name ?? 'Standard',
       gyro: gyroDef?.name ?? 'Standard',
@@ -179,14 +224,23 @@ export function OverviewTab({
       movement: movementName,
       armor: armorDef?.name ?? 'Standard',
     };
-  }, [engineType, engineRating, gyroType, internalStructureType, heatSinkType, heatSinkCount, armorType, enhancement]);
+  }, [
+    engineType,
+    engineRating,
+    gyroType,
+    internalStructureType,
+    heatSinkType,
+    heatSinkCount,
+    armorType,
+    enhancement,
+  ]);
 
   return (
     <div className={`space-y-6 p-4 ${className}`}>
       {/* Basic Info Panel */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Basic Information</h3>
-        
+
         <div className={cs.layout.formStack}>
           {/* Chassis, Clan Name, Model - split row */}
           <div className={cs.layout.threeColumn}>
@@ -202,10 +256,12 @@ export function OverviewTab({
                 placeholder="New"
               />
             </div>
-            
+
             {/* Clan Name (optional) */}
             <div className={cs.layout.field}>
-              <label className={cs.text.label}>Clan Name <span className={cs.text.secondary}>(opt)</span></label>
+              <label className={cs.text.label}>
+                Clan Name <span className={cs.text.secondary}>(opt)</span>
+              </label>
               <input
                 type="text"
                 value={clanName}
@@ -215,7 +271,7 @@ export function OverviewTab({
                 placeholder=""
               />
             </div>
-            
+
             {/* Model */}
             <div className={cs.layout.field}>
               <label className={cs.text.label}>Model</label>
@@ -229,7 +285,7 @@ export function OverviewTab({
               />
             </div>
           </div>
-          
+
           {/* MUL ID, Year, Tech Level - split row */}
           <div className={cs.layout.threeColumn}>
             {/* MUL ID */}
@@ -244,7 +300,7 @@ export function OverviewTab({
                 placeholder="-1"
               />
             </div>
-            
+
             {/* Year */}
             <div className={cs.layout.field}>
               <label className={cs.text.label}>Year</label>
@@ -258,7 +314,7 @@ export function OverviewTab({
                 className={`${cs.input.full} ${cs.input.noSpinners}`}
               />
             </div>
-            
+
             {/* Tech Level */}
             <div className={cs.layout.field}>
               <label className={cs.text.label}>Tech Level</label>
@@ -278,27 +334,28 @@ export function OverviewTab({
           </div>
 
           {/* OmniMech Toggle */}
-          <div className="flex items-center gap-2 mt-2" data-testid="omnimech-section">
+          <div
+            className="mt-2 flex items-center gap-2"
+            data-testid="omnimech-section"
+          >
             <input
               type="checkbox"
               id="omniMech"
               checked={isOmni}
               onChange={handleOmniMechChange}
               disabled={readOnly}
-              className="w-4 h-4 rounded border-border-theme-subtle bg-surface-deep text-accent focus:ring-accent"
+              className="border-border-theme-subtle bg-surface-deep text-accent focus:ring-accent h-4 w-4 rounded"
               data-testid="omnimech-checkbox"
             />
             <label htmlFor="omniMech" className={cs.text.label}>
               OmniMech
             </label>
-            <span className={cs.text.secondary}>
-              (Modular equipment pods)
-            </span>
+            <span className={cs.text.secondary}>(Modular equipment pods)</span>
             {isOmni && !readOnly && (
               <button
                 type="button"
                 onClick={handleResetChassis}
-                className="ml-4 px-3 py-1 text-sm rounded border border-border-theme-subtle bg-surface-deep hover:bg-surface-default text-content-secondary hover:text-content-primary transition-colors"
+                className="border-border-theme-subtle bg-surface-deep hover:bg-surface-default text-content-secondary hover:text-content-primary ml-4 rounded border px-3 py-1 text-sm transition-colors"
                 data-testid="reset-chassis-button"
               >
                 Reset Chassis
@@ -323,7 +380,9 @@ export function OverviewTab({
         <h3 className={cs.text.sectionTitle}>Equipment Summary</h3>
         <div className={cs.panel.empty}>
           <p>No equipment mounted</p>
-          <p className="text-sm mt-2">Add weapons and equipment from the Equipment tab</p>
+          <p className="mt-2 text-sm">
+            Add weapons and equipment from the Equipment tab
+          </p>
         </div>
       </div>
 

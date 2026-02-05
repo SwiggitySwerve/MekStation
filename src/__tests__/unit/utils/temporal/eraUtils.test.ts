@@ -1,11 +1,12 @@
 /**
  * Era Utils Tests
- * 
+ *
  * Tests for era determination and boundary functions.
- * 
+ *
  * @spec openspec/specs/era-temporal-system/spec.md
  */
 
+import { Era, ERA_DEFINITIONS } from '@/types/temporal/Era';
 import {
   getEraForYear,
   getEraDefinitionForYear,
@@ -16,7 +17,6 @@ import {
   getErasFromYear,
   getErasUntilYear,
 } from '@/utils/temporal/eraUtils';
-import { Era, ERA_DEFINITIONS } from '@/types/temporal/Era';
 
 describe('eraUtils', () => {
   // ============================================================================
@@ -103,7 +103,7 @@ describe('eraUtils', () => {
 
     it('should return full era definition', () => {
       const def = getEraDefinitionForYear(3055);
-      
+
       expect(def).toBeDefined();
       expect(def?.era).toBe(Era.CLAN_INVASION);
       expect(def?.name).toBe('Clan Invasion');
@@ -213,7 +213,7 @@ describe('eraUtils', () => {
     it('should work for sorting', () => {
       const eras = [Era.DARK_AGE, Era.STAR_LEAGUE, Era.CLAN_INVASION];
       const sorted = [...eras].sort(compareEras);
-      
+
       expect(sorted[0]).toBe(Era.STAR_LEAGUE);
       expect(sorted[1]).toBe(Era.CLAN_INVASION);
       expect(sorted[2]).toBe(Era.DARK_AGE);
@@ -226,7 +226,7 @@ describe('eraUtils', () => {
   describe('getErasFromYear()', () => {
     it('should return all eras from a given year', () => {
       const eras = getErasFromYear(3050);
-      
+
       expect(eras).toContain(Era.CLAN_INVASION);
       expect(eras).toContain(Era.CIVIL_WAR);
       expect(eras).toContain(Era.JIHAD);
@@ -237,26 +237,26 @@ describe('eraUtils', () => {
     it('should include era that contains the year', () => {
       // Year is in Renaissance era (3020-3049)
       const eras = getErasFromYear(3040);
-      
+
       expect(eras).toContain(Era.RENAISSANCE);
     });
 
     it('should not include eras that end before the year', () => {
       const eras = getErasFromYear(3050);
-      
+
       expect(eras).not.toContain(Era.RENAISSANCE);
       expect(eras).not.toContain(Era.STAR_LEAGUE);
     });
 
     it('should return all eras for early year', () => {
       const eras = getErasFromYear(2000);
-      
+
       expect(eras.length).toBe(ERA_DEFINITIONS.length);
     });
 
     it('should return empty array for year after all eras', () => {
       const eras = getErasFromYear(10000);
-      
+
       expect(eras).toHaveLength(0);
     });
   });
@@ -267,7 +267,7 @@ describe('eraUtils', () => {
   describe('getErasUntilYear()', () => {
     it('should return all eras up to a given year', () => {
       const eras = getErasUntilYear(3055);
-      
+
       expect(eras).toContain(Era.AGE_OF_WAR);
       expect(eras).toContain(Era.STAR_LEAGUE);
       expect(eras).toContain(Era.CLAN_INVASION);
@@ -275,26 +275,26 @@ describe('eraUtils', () => {
 
     it('should include era that contains the year', () => {
       const eras = getErasUntilYear(3055);
-      
+
       expect(eras).toContain(Era.CLAN_INVASION);
     });
 
     it('should not include eras that start after the year', () => {
       const eras = getErasUntilYear(3055);
-      
+
       expect(eras).not.toContain(Era.CIVIL_WAR);
       expect(eras).not.toContain(Era.JIHAD);
     });
 
     it('should return all eras for late year', () => {
       const eras = getErasUntilYear(4000);
-      
+
       expect(eras.length).toBe(ERA_DEFINITIONS.length);
     });
 
     it('should return Early Spaceflight for year 1000', () => {
       const eras = getErasUntilYear(1000);
-      
+
       expect(eras).toHaveLength(1);
       expect(eras).toContain(Era.EARLY_SPACEFLIGHT);
     });
@@ -316,11 +316,10 @@ describe('eraUtils', () => {
       for (let i = 0; i < ERA_DEFINITIONS.length - 1; i++) {
         const current = ERA_DEFINITIONS[i];
         const next = ERA_DEFINITIONS[i + 1];
-        
+
         // End of current should be 1 less than start of next
         expect(next.startYear).toBe(current.endYear + 1);
       }
     });
   });
 });
-

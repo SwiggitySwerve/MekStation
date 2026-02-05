@@ -79,18 +79,28 @@ export interface TestEncounterFullOptions extends TestEncounterOptions {
  */
 export async function createTestEncounter(
   page: Page,
-  options: TestEncounterOptions = {}
+  options: TestEncounterOptions = {},
 ): Promise<string | null> {
   const encounterId = await page.evaluate(async (opts) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { encounter?: { getState: () => { createEncounter: (input: {
-      name: string;
-      description?: string;
-      template?: string;
-    }) => Promise<string | null> } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          encounter?: {
+            getState: () => {
+              createEncounter: (input: {
+                name: string;
+                description?: string;
+                template?: string;
+              }) => Promise<string | null>;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.encounter) {
       throw new Error(
-        'Encounter store not exposed. Ensure window.__ZUSTAND_STORES__.encounter is set in your app for E2E testing.'
+        'Encounter store not exposed. Ensure window.__ZUSTAND_STORES__.encounter is set in your app for E2E testing.',
       );
     }
 
@@ -114,7 +124,7 @@ export async function createTestEncounter(
  */
 export async function createDuelEncounter(
   page: Page,
-  name?: string
+  name?: string,
 ): Promise<string | null> {
   return createTestEncounter(page, {
     name: name || `Duel ${Date.now()}`,
@@ -132,7 +142,7 @@ export async function createDuelEncounter(
  */
 export async function createSkirmishEncounter(
   page: Page,
-  name?: string
+  name?: string,
 ): Promise<string | null> {
   return createTestEncounter(page, {
     name: name || `Skirmish ${Date.now()}`,
@@ -150,7 +160,7 @@ export async function createSkirmishEncounter(
  */
 export async function createBattleEncounter(
   page: Page,
-  name?: string
+  name?: string,
 ): Promise<string | null> {
   return createTestEncounter(page, {
     name: name || `Battle ${Date.now()}`,
@@ -172,7 +182,7 @@ export async function createEncounterWithForces(
   page: Page,
   name: string,
   playerForceId: string,
-  opponentForceId: string
+  opponentForceId: string,
 ): Promise<string | null> {
   // First create the encounter
   const encounterId = await createTestEncounter(page, { name });
@@ -184,10 +194,24 @@ export async function createEncounterWithForces(
   // Then assign forces
   await page.evaluate(
     async ({ encounterId, playerForceId, opponentForceId }) => {
-      const stores = (window as unknown as { __ZUSTAND_STORES__?: { encounter?: { getState: () => { 
-        setPlayerForce: (encounterId: string, forceId: string) => Promise<void>;
-        setOpponentForce: (encounterId: string, forceId: string) => Promise<void>;
-      } } } }).__ZUSTAND_STORES__;
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            encounter?: {
+              getState: () => {
+                setPlayerForce: (
+                  encounterId: string,
+                  forceId: string,
+                ) => Promise<void>;
+                setOpponentForce: (
+                  encounterId: string,
+                  forceId: string,
+                ) => Promise<void>;
+              };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
 
       if (!stores?.encounter) {
         throw new Error('Encounter store not exposed');
@@ -197,7 +221,7 @@ export async function createEncounterWithForces(
       await store.setPlayerForce(encounterId, playerForceId);
       await store.setOpponentForce(encounterId, opponentForceId);
     },
-    { encounterId, playerForceId, opponentForceId }
+    { encounterId, playerForceId, opponentForceId },
   );
 
   return encounterId;
@@ -212,7 +236,7 @@ export async function createEncounterWithForces(
  */
 export async function getEncounter(
   page: Page,
-  encounterId: string
+  encounterId: string,
 ): Promise<{
   id: string;
   name: string;
@@ -221,13 +245,23 @@ export async function getEncounter(
   description?: string;
 } | null> {
   return page.evaluate((id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { encounter?: { getState: () => { encounters: Array<{
-      id: string;
-      name: string;
-      status: string;
-      template?: string;
-      description?: string;
-    }> } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          encounter?: {
+            getState: () => {
+              encounters: Array<{
+                id: string;
+                name: string;
+                status: string;
+                template?: string;
+                description?: string;
+              }>;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.encounter) {
       throw new Error('Encounter store not exposed');
@@ -249,18 +283,29 @@ export async function getEncounter(
 export async function setEncounterMapConfig(
   page: Page,
   encounterId: string,
-  mapConfig: TestMapConfig
+  mapConfig: TestMapConfig,
 ): Promise<void> {
   await page.evaluate(
     async ({ encounterId, mapConfig }) => {
-      const stores = (window as unknown as { __ZUSTAND_STORES__?: { encounter?: { getState: () => { 
-        updateMapConfig: (encounterId: string, config: {
-          radius?: number;
-          terrain?: string;
-          playerDeploymentZone?: string;
-          opponentDeploymentZone?: string;
-        }) => Promise<void>;
-      } } } }).__ZUSTAND_STORES__;
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            encounter?: {
+              getState: () => {
+                updateMapConfig: (
+                  encounterId: string,
+                  config: {
+                    radius?: number;
+                    terrain?: string;
+                    playerDeploymentZone?: string;
+                    opponentDeploymentZone?: string;
+                  },
+                ) => Promise<void>;
+              };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
 
       if (!stores?.encounter) {
         throw new Error('Encounter store not exposed');
@@ -273,7 +318,7 @@ export async function setEncounterMapConfig(
         opponentDeploymentZone: mapConfig.opponentDeploymentZone ?? 'north',
       });
     },
-    { encounterId, mapConfig }
+    { encounterId, mapConfig },
   );
 }
 
@@ -285,12 +330,20 @@ export async function setEncounterMapConfig(
  */
 export async function launchEncounter(
   page: Page,
-  encounterId: string
+  encounterId: string,
 ): Promise<void> {
   await page.evaluate(async (id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { encounter?: { getState: () => { 
-      launchEncounter: (id: string) => Promise<void>;
-    } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          encounter?: {
+            getState: () => {
+              launchEncounter: (id: string) => Promise<void>;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.encounter) {
       throw new Error('Encounter store not exposed');
@@ -308,12 +361,20 @@ export async function launchEncounter(
  */
 export async function deleteEncounter(
   page: Page,
-  encounterId: string
+  encounterId: string,
 ): Promise<void> {
   await page.evaluate(async (id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { encounter?: { getState: () => { 
-      deleteEncounter: (id: string) => Promise<void>;
-    } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          encounter?: {
+            getState: () => {
+              deleteEncounter: (id: string) => Promise<void>;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.encounter) {
       throw new Error('Encounter store not exposed');

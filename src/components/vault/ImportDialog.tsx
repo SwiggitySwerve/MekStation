@@ -7,8 +7,10 @@
  */
 
 import React, { useCallback, useRef } from 'react';
-import { useVaultImport } from '@/hooks/useVaultImport';
+
 import type { IImportConflict, IImportHandlers } from '@/types/vault';
+
+import { useVaultImport } from '@/hooks/useVaultImport';
 
 // =============================================================================
 // Types
@@ -61,7 +63,7 @@ export function ImportDialog<T>({
         selectFile(selectedFile);
       }
     },
-    [selectFile]
+    [selectFile],
   );
 
   const handleDrop = useCallback(
@@ -72,7 +74,7 @@ export function ImportDialog<T>({
         selectFile(droppedFile);
       }
     },
-    [selectFile]
+    [selectFile],
   );
 
   const handleDragOver = useCallback((event: React.DragEvent) => {
@@ -93,7 +95,7 @@ export function ImportDialog<T>({
         onImportComplete?.(importResult.data.importedCount);
       }
     },
-    [resolveConflicts, handlers, onImportComplete]
+    [resolveConflicts, handlers, onImportComplete],
   );
 
   const handleClose = useCallback(() => {
@@ -104,14 +106,14 @@ export function ImportDialog<T>({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-lg p-6 max-w-lg w-full mx-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="mx-4 w-full max-w-lg rounded-lg bg-gray-800 p-6">
         {/* Header */}
-        <h2 className="text-xl font-bold text-white mb-4">Import Bundle</h2>
+        <h2 className="mb-4 text-xl font-bold text-white">Import Bundle</h2>
 
         {/* Error display */}
         {error && (
-          <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-2 rounded mb-4">
+          <div className="mb-4 rounded border border-red-500 bg-red-900/50 px-4 py-2 text-red-200">
             {error}
           </div>
         )}
@@ -119,7 +121,7 @@ export function ImportDialog<T>({
         {/* Step: File Selection */}
         {step === 'idle' && (
           <div
-            className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-gray-500 transition-colors"
+            className="cursor-pointer rounded-lg border-2 border-dashed border-gray-600 p-8 text-center transition-colors hover:border-gray-500"
             onClick={() => fileInputRef.current?.click()}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -132,9 +134,9 @@ export function ImportDialog<T>({
               className="hidden"
             />
             <div className="text-gray-400">
-              <div className="text-4xl mb-2">📦</div>
+              <div className="mb-2 text-4xl">📦</div>
               <p>Drop a .mekbundle file here</p>
-              <p className="text-sm mt-1">or click to select</p>
+              <p className="mt-1 text-sm">or click to select</p>
             </div>
           </div>
         )}
@@ -144,12 +146,16 @@ export function ImportDialog<T>({
           <div className="space-y-4">
             {preview.valid ? (
               <>
-                <div className="bg-gray-700 rounded-lg p-4">
-                  <h3 className="text-white font-medium mb-2">Bundle Preview</h3>
+                <div className="rounded-lg bg-gray-700 p-4">
+                  <h3 className="mb-2 font-medium text-white">
+                    Bundle Preview
+                  </h3>
                   <dl className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <dt className="text-gray-400">Content Type:</dt>
-                      <dd className="text-white capitalize">{preview.contentType}</dd>
+                      <dd className="text-white capitalize">
+                        {preview.contentType}
+                      </dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-gray-400">Items:</dt>
@@ -179,26 +185,26 @@ export function ImportDialog<T>({
                 <div className="flex gap-3">
                   <button
                     onClick={clearFile}
-                    className="flex-1 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+                    className="flex-1 rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-500"
                   >
                     Select Different File
                   </button>
                   <button
                     onClick={handleImport}
                     disabled={importing}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50"
+                    className="flex-1 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 disabled:opacity-50"
                   >
                     {importing ? 'Importing...' : 'Import'}
                   </button>
                 </div>
               </>
             ) : (
-              <div className="text-center py-4">
-                <div className="text-red-400 mb-2">Invalid Bundle</div>
-                <p className="text-gray-400 text-sm">{preview.error}</p>
+              <div className="py-4 text-center">
+                <div className="mb-2 text-red-400">Invalid Bundle</div>
+                <p className="text-sm text-gray-400">{preview.error}</p>
                 <button
                   onClick={clearFile}
-                  className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+                  className="mt-4 rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-500"
                 >
                   Try Another File
                 </button>
@@ -218,25 +224,29 @@ export function ImportDialog<T>({
 
         {/* Step: Importing */}
         {step === 'importing' && (
-          <div className="text-center py-8">
-            <div className="animate-spin text-4xl mb-4">⏳</div>
+          <div className="py-8 text-center">
+            <div className="mb-4 animate-spin text-4xl">⏳</div>
             <p className="text-gray-300">Importing...</p>
           </div>
         )}
 
         {/* Step: Complete */}
         {step === 'complete' && result && (
-          <div className="text-center py-4">
-            <div className="text-green-400 text-4xl mb-4">✓</div>
-            <h3 className="text-white font-medium mb-2">Import Complete</h3>
-            <div className="text-gray-300 space-y-1">
+          <div className="py-4 text-center">
+            <div className="mb-4 text-4xl text-green-400">✓</div>
+            <h3 className="mb-2 font-medium text-white">Import Complete</h3>
+            <div className="space-y-1 text-gray-300">
               <p>Imported: {result.success ? result.data.importedCount : 0}</p>
-              {result.success && result.data.skippedCount > 0 && <p>Skipped: {result.data.skippedCount}</p>}
-              {result.success && result.data.replacedCount > 0 && <p>Replaced: {result.data.replacedCount}</p>}
+              {result.success && result.data.skippedCount > 0 && (
+                <p>Skipped: {result.data.skippedCount}</p>
+              )}
+              {result.success && result.data.replacedCount > 0 && (
+                <p>Replaced: {result.data.replacedCount}</p>
+              )}
             </div>
             <button
               onClick={handleClose}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+              className="mt-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-500"
             >
               Done
             </button>
@@ -245,10 +255,10 @@ export function ImportDialog<T>({
 
         {/* Close button for idle/preview states */}
         {(step === 'idle' || step === 'preview') && (
-          <div className="flex justify-end mt-4">
+          <div className="mt-4 flex justify-end">
             <button
               onClick={handleClose}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+              className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-500"
             >
               Cancel
             </button>
@@ -269,10 +279,18 @@ interface ConflictResolverProps {
   onCancel: () => void;
 }
 
-function ConflictResolver({ conflicts, onResolve, onCancel }: ConflictResolverProps) {
-  const [resolutions, setResolutions] = React.useState<IImportConflict[]>(conflicts);
+function ConflictResolver({
+  conflicts,
+  onResolve,
+  onCancel,
+}: ConflictResolverProps) {
+  const [resolutions, setResolutions] =
+    React.useState<IImportConflict[]>(conflicts);
 
-  const handleResolutionChange = (index: number, resolution: IImportConflict['resolution']) => {
+  const handleResolutionChange = (
+    index: number,
+    resolution: IImportConflict['resolution'],
+  ) => {
     const updated = [...resolutions];
     updated[index] = { ...updated[index], resolution };
     setResolutions(updated);
@@ -285,23 +303,31 @@ function ConflictResolver({ conflicts, onResolve, onCancel }: ConflictResolverPr
   return (
     <div className="space-y-4">
       <p className="text-gray-300">
-        {conflicts.length} conflict{conflicts.length > 1 ? 's' : ''} found. Choose how to handle
-        each:
+        {conflicts.length} conflict{conflicts.length > 1 ? 's' : ''} found.
+        Choose how to handle each:
       </p>
 
-      <div className="max-h-64 overflow-y-auto space-y-3">
+      <div className="max-h-64 space-y-3 overflow-y-auto">
         {resolutions.map((conflict, index) => (
-          <div key={conflict.bundleItemId} className="bg-gray-700 rounded-lg p-3">
-            <div className="text-white font-medium mb-2">{conflict.bundleItemName}</div>
-            <div className="text-sm text-gray-400 mb-2">
+          <div
+            key={conflict.bundleItemId}
+            className="rounded-lg bg-gray-700 p-3"
+          >
+            <div className="mb-2 font-medium text-white">
+              {conflict.bundleItemName}
+            </div>
+            <div className="mb-2 text-sm text-gray-400">
               Conflicts with: {conflict.existingItemName}
             </div>
             <select
               value={conflict.resolution}
               onChange={(e) =>
-                handleResolutionChange(index, e.target.value as IImportConflict['resolution'])
+                handleResolutionChange(
+                  index,
+                  e.target.value as IImportConflict['resolution'],
+                )
               }
-              className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white"
+              className="w-full rounded border border-gray-500 bg-gray-600 px-3 py-2 text-white"
             >
               <option value="skip">Skip (keep existing)</option>
               <option value="replace">Replace existing</option>
@@ -315,13 +341,13 @@ function ConflictResolver({ conflicts, onResolve, onCancel }: ConflictResolverPr
       <div className="flex gap-3">
         <button
           onClick={onCancel}
-          className="flex-1 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+          className="flex-1 rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-500"
         >
           Cancel
         </button>
         <button
           onClick={handleApply}
-          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+          className="flex-1 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-500"
         >
           Apply & Import
         </button>

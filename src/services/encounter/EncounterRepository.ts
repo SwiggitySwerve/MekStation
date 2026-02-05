@@ -8,7 +8,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { getSQLiteService } from '../persistence/SQLiteService';
+
 import {
   IEncounter,
   ICreateEncounterInput,
@@ -22,6 +22,8 @@ import {
   SCENARIO_TEMPLATES,
   ScenarioTemplateType,
 } from '@/types/encounter';
+
+import { getSQLiteService } from '../persistence/SQLiteService';
 
 // =============================================================================
 // Database Row Types
@@ -73,10 +75,19 @@ export interface IEncounterRepository {
   getEncounterById(id: string): IEncounter | null;
   getAllEncounters(): readonly IEncounter[];
   getEncountersByStatus(status: EncounterStatus): readonly IEncounter[];
-  updateEncounter(id: string, input: IUpdateEncounterInput): IEncounterOperationResult;
+  updateEncounter(
+    id: string,
+    input: IUpdateEncounterInput,
+  ): IEncounterOperationResult;
   deleteEncounter(id: string): IEncounterOperationResult;
-  setEncounterStatus(id: string, status: EncounterStatus): IEncounterOperationResult;
-  linkGameSession(encounterId: string, gameSessionId: string): IEncounterOperationResult;
+  setEncounterStatus(
+    id: string,
+    status: EncounterStatus,
+  ): IEncounterOperationResult;
+  linkGameSession(
+    encounterId: string,
+    gameSessionId: string,
+  ): IEncounterOperationResult;
 }
 
 // =============================================================================
@@ -126,8 +137,12 @@ export class EncounterRepository implements IEncounterRepository {
     `);
 
     // Create indexes
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_encounters_status ON encounters(status)`);
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_encounters_game_session ON encounters(game_session_id)`);
+    db.exec(
+      `CREATE INDEX IF NOT EXISTS idx_encounters_status ON encounters(status)`,
+    );
+    db.exec(
+      `CREATE INDEX IF NOT EXISTS idx_encounters_game_session ON encounters(game_session_id)`,
+    );
 
     this.initialized = true;
   }
@@ -152,7 +167,9 @@ export class EncounterRepository implements IEncounterRepository {
       let victoryConditions: readonly IVictoryCondition[] = [];
 
       if (input.template) {
-        const template = SCENARIO_TEMPLATES.find((t) => t.type === input.template);
+        const template = SCENARIO_TEMPLATES.find(
+          (t) => t.type === input.template,
+        );
         if (template) {
           mapConfig = template.defaultMapConfig;
           victoryConditions = template.defaultVictoryConditions;
@@ -183,7 +200,7 @@ export class EncounterRepository implements IEncounterRepository {
         JSON.stringify([]),
         null, // game_session_id
         now,
-        now
+        now,
       );
 
       return { success: true, id };
@@ -237,7 +254,9 @@ export class EncounterRepository implements IEncounterRepository {
 
     const db = getSQLiteService().getDatabase();
     const rows = db
-      .prepare('SELECT * FROM encounters WHERE status = ? ORDER BY updated_at DESC')
+      .prepare(
+        'SELECT * FROM encounters WHERE status = ? ORDER BY updated_at DESC',
+      )
       .all(status) as EncounterRow[];
 
     return rows.map((row) => this.rowToEncounter(row));
@@ -246,7 +265,10 @@ export class EncounterRepository implements IEncounterRepository {
   /**
    * Update an encounter.
    */
-  updateEncounter(id: string, input: IUpdateEncounterInput): IEncounterOperationResult {
+  updateEncounter(
+    id: string,
+    input: IUpdateEncounterInput,
+  ): IEncounterOperationResult {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
@@ -314,7 +336,9 @@ export class EncounterRepository implements IEncounterRepository {
       }
       if (input.opForConfig !== undefined) {
         updates.push('opfor_config_json = ?');
-        params.push(input.opForConfig ? JSON.stringify(input.opForConfig) : null);
+        params.push(
+          input.opForConfig ? JSON.stringify(input.opForConfig) : null,
+        );
       }
       if (input.mapConfig !== undefined) {
         // Merge with existing map config
@@ -333,7 +357,9 @@ export class EncounterRepository implements IEncounterRepository {
 
       params.push(id);
 
-      db.prepare(`UPDATE encounters SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+      db.prepare(
+        `UPDATE encounters SET ${updates.join(', ')} WHERE id = ?`,
+      ).run(...params);
 
       // Recalculate status
       this.recalculateStatus(id);
@@ -392,18 +418,19 @@ export class EncounterRepository implements IEncounterRepository {
   /**
    * Set encounter status.
    */
-  setEncounterStatus(id: string, status: EncounterStatus): IEncounterOperationResult {
+  setEncounterStatus(
+    id: string,
+    status: EncounterStatus,
+  ): IEncounterOperationResult {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
     try {
-      db.prepare('UPDATE encounters SET status = ?, updated_at = ? WHERE id = ?').run(
-        status,
-        now,
-        id
-      );
+      db.prepare(
+        'UPDATE encounters SET status = ?, updated_at = ? WHERE id = ?',
+      ).run(status, now, id);
       return { success: true, id };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -418,7 +445,10 @@ export class EncounterRepository implements IEncounterRepository {
   /**
    * Link a game session to an encounter.
    */
-  linkGameSession(encounterId: string, gameSessionId: string): IEncounterOperationResult {
+  linkGameSession(
+    encounterId: string,
+    gameSessionId: string,
+  ): IEncounterOperationResult {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
@@ -426,7 +456,7 @@ export class EncounterRepository implements IEncounterRepository {
 
     try {
       db.prepare(
-        'UPDATE encounters SET game_session_id = ?, status = ?, updated_at = ? WHERE id = ?'
+        'UPDATE encounters SET game_session_id = ?, status = ?, updated_at = ? WHERE id = ?',
       ).run(gameSessionId, EncounterStatus.Launched, now, encounterId);
       return { success: true, id: encounterId };
     } catch (error) {
@@ -471,11 +501,9 @@ export class EncounterRepository implements IEncounterRepository {
     if (newStatus !== encounter.status) {
       const db = getSQLiteService().getDatabase();
       const now = new Date().toISOString();
-      db.prepare('UPDATE encounters SET status = ?, updated_at = ? WHERE id = ?').run(
-        newStatus,
-        now,
-        id
-      );
+      db.prepare(
+        'UPDATE encounters SET status = ?, updated_at = ? WHERE id = ?',
+      ).run(newStatus, now, id);
     }
   }
 
@@ -493,7 +521,9 @@ export class EncounterRepository implements IEncounterRepository {
       ? (JSON.parse(row.opfor_config_json) as IOpForConfig)
       : undefined;
     const mapConfig = JSON.parse(row.map_config_json) as IMapConfiguration;
-    const victoryConditions = JSON.parse(row.victory_conditions_json) as IVictoryCondition[];
+    const victoryConditions = JSON.parse(
+      row.victory_conditions_json,
+    ) as IVictoryCondition[];
     const optionalRules = JSON.parse(row.optional_rules_json) as string[];
 
     return {

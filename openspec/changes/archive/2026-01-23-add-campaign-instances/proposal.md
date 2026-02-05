@@ -2,7 +2,7 @@
 
 ## Why
 
-Units and pilots in the vault are *templates* or *designs* - they have version history for design changes but no gameplay history. When a unit is deployed into a campaign, it needs to become an *instance* that tracks:
+Units and pilots in the vault are _templates_ or _designs_ - they have version history for design changes but no gameplay history. When a unit is deployed into a campaign, it needs to become an _instance_ that tracks:
 
 - Damage taken per mission
 - Repairs performed

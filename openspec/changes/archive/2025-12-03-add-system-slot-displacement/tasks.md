@@ -18,4 +18,3 @@
 - [x] 3.4 Test XL → Compact Gyro: No displacement (freeing slots)
 - [x] 3.5 Test combined engine + gyro changes
 - [x] 3.6 Verify build compiles without errors
-

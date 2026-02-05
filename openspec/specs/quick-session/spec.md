@@ -1,8 +1,11 @@
 # quick-session Specification
 
 ## Purpose
+
 TBD - created by archiving change add-quick-session-mode. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Quick Game Entry
 
 The system SHALL provide a quick game mode separate from campaign gameplay.
@@ -133,4 +136,3 @@ Quick games SHALL share infrastructure with campaign games where appropriate.
 - **WHEN** viewing replay
 - **THEN** the same replay viewer used by campaigns is used
 - **AND** all replay features (play, pause, step, scrub) are available
-

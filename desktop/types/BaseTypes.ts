@@ -1,6 +1,6 @@
 /**
  * Base Types for Desktop Services
- * 
+ *
  * Local copy of core types needed by Electron services.
  * These match the types in src/services/core/types/BaseTypes.ts
  */
@@ -105,7 +105,7 @@ export interface IDesktopSettings {
  */
 export const DEFAULT_DESKTOP_SETTINGS: IDesktopSettings = {
   version: DESKTOP_SETTINGS_VERSION,
-  
+
   // General
   launchAtLogin: false,
   startMinimized: false,
@@ -119,7 +119,7 @@ export const DEFAULT_DESKTOP_SETTINGS: IDesktopSettings = {
     y: 100,
     width: 1400,
     height: 900,
-    isMaximized: false
+    isMaximized: false,
   },
 
   // Backups
@@ -137,7 +137,7 @@ export const DEFAULT_DESKTOP_SETTINGS: IDesktopSettings = {
 
   // Advanced
   dataDirectory: '',
-  enableDevTools: false
+  enableDevTools: false,
 };
 
 // ============================================================================
@@ -147,7 +147,13 @@ export const DEFAULT_DESKTOP_SETTINGS: IDesktopSettings = {
 /**
  * Unit type classification for recent files
  */
-export type UnitType = 'BattleMech' | 'Vehicle' | 'Infantry' | 'ProtoMech' | 'Aerospace' | 'Unknown';
+export type UnitType =
+  | 'BattleMech'
+  | 'Vehicle'
+  | 'Infantry'
+  | 'ProtoMech'
+  | 'Aerospace'
+  | 'Unknown';
 
 /**
  * Recent file entry with metadata
@@ -176,7 +182,7 @@ export interface IRecentFile {
 /**
  * File menu commands
  */
-export type FileMenuCommand = 
+export type FileMenuCommand =
   | 'file:new'
   | 'file:open'
   | 'file:save'
@@ -257,7 +263,7 @@ export const SETTINGS_IPC_CHANNELS = {
   SET: 'settings:set',
   RESET: 'settings:reset',
   GET_VALUE: 'settings:get-value',
-  ON_CHANGE: 'settings:on-change'
+  ON_CHANGE: 'settings:on-change',
 } as const;
 
 /**
@@ -268,7 +274,7 @@ export const RECENT_FILES_IPC_CHANNELS = {
   ADD: 'recent-files:add',
   REMOVE: 'recent-files:remove',
   CLEAR: 'recent-files:clear',
-  ON_UPDATE: 'recent-files:on-update'
+  ON_UPDATE: 'recent-files:on-update',
 } as const;
 
 /**
@@ -277,7 +283,7 @@ export const RECENT_FILES_IPC_CHANNELS = {
 export const MENU_IPC_CHANNELS = {
   COMMAND: 'menu:command',
   UPDATE_RECENT: 'menu:update-recent',
-  UPDATE_STATE: 'menu:update-state'
+  UPDATE_STATE: 'menu:update-state',
 } as const;
 
 /**
@@ -286,16 +292,20 @@ export const MENU_IPC_CHANNELS = {
 export const APP_IPC_CHANNELS = {
   OPEN_SETTINGS: 'app:open-settings',
   SHOW_ABOUT: 'app:show-about',
-  GET_INFO: 'app:get-info'
+  GET_INFO: 'app:get-info',
 } as const;
 
 /**
  * All IPC channel names
  */
-export type SettingsIPCChannel = typeof SETTINGS_IPC_CHANNELS[keyof typeof SETTINGS_IPC_CHANNELS];
-export type RecentFilesIPCChannel = typeof RECENT_FILES_IPC_CHANNELS[keyof typeof RECENT_FILES_IPC_CHANNELS];
-export type MenuIPCChannel = typeof MENU_IPC_CHANNELS[keyof typeof MENU_IPC_CHANNELS];
-export type AppIPCChannel = typeof APP_IPC_CHANNELS[keyof typeof APP_IPC_CHANNELS];
+export type SettingsIPCChannel =
+  (typeof SETTINGS_IPC_CHANNELS)[keyof typeof SETTINGS_IPC_CHANNELS];
+export type RecentFilesIPCChannel =
+  (typeof RECENT_FILES_IPC_CHANNELS)[keyof typeof RECENT_FILES_IPC_CHANNELS];
+export type MenuIPCChannel =
+  (typeof MENU_IPC_CHANNELS)[keyof typeof MENU_IPC_CHANNELS];
+export type AppIPCChannel =
+  (typeof APP_IPC_CHANNELS)[keyof typeof APP_IPC_CHANNELS];
 
 // ============================================================================
 // EVENT TYPES
@@ -350,14 +360,18 @@ export class Result {
   /**
    * Check if a result is successful
    */
-  static isSuccess<T, E>(result: ResultType<T, E>): result is { success: true; data: T } {
+  static isSuccess<T, E>(
+    result: ResultType<T, E>,
+  ): result is { success: true; data: T } {
     return result.success === true;
   }
 
   /**
    * Check if a result is an error
    */
-  static isError<T, E>(result: ResultType<T, E>): result is { success: false; error: E } {
+  static isError<T, E>(
+    result: ResultType<T, E>,
+  ): result is { success: false; error: E } {
     return result.success === false;
   }
 }

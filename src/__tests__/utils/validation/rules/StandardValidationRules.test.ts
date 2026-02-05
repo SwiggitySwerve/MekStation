@@ -1,9 +1,14 @@
 /**
  * Tests for Standard Validation Rules
- * 
+ *
  * @spec openspec/specs/validation-rules-master/spec.md
  */
 
+import {
+  IValidationContext,
+  ValidationCategory,
+  ValidationSeverity,
+} from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   TotalWeightRule,
   WeightRoundingRule,
@@ -17,7 +22,6 @@ import {
   getStandardValidationRules,
   registerStandardRules,
 } from '@/utils/validation/rules/StandardValidationRules';
-import { IValidationContext, ValidationCategory, ValidationSeverity } from '@/types/validation/rules/ValidationRuleInterfaces';
 
 // Helper to create a validation context
 function createContext(unit: Record<string, unknown>): IValidationContext {
@@ -35,9 +39,9 @@ describe('Standard Validation Rules', () => {
         tonnage: 50,
         totalWeight: 50,
       });
-      
+
       const result = TotalWeightRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
@@ -47,9 +51,9 @@ describe('Standard Validation Rules', () => {
         tonnage: 75,
         totalWeight: 70,
       });
-      
+
       const result = TotalWeightRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -58,9 +62,9 @@ describe('Standard Validation Rules', () => {
         tonnage: 50,
         totalWeight: 55,
       });
-      
+
       const result = TotalWeightRule.validate(context);
-      
+
       expect(result.passed).toBe(false);
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].severity).toBe(ValidationSeverity.ERROR);
@@ -72,9 +76,9 @@ describe('Standard Validation Rules', () => {
         tonnage: 50,
         totalWeight: 49.7,
       });
-      
+
       const result = TotalWeightRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0].message).toContain('remaining');
@@ -84,9 +88,9 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         totalWeight: 50,
       });
-      
+
       const result = TotalWeightRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -94,9 +98,9 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         tonnage: 50,
       });
-      
+
       const result = TotalWeightRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -111,9 +115,9 @@ describe('Standard Validation Rules', () => {
         tonnage: 50,
         totalWeight: 55,
       });
-      
+
       const result = TotalWeightRule.validate(context);
-      
+
       expect(result.errors[0].suggestion).toContain('Remove');
       expect(result.errors[0].suggestion).toContain('5');
     });
@@ -124,9 +128,9 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         totalWeight: 50.5,
       });
-      
+
       const result = WeightRoundingRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
       expect(result.warnings).toHaveLength(0);
     });
@@ -135,9 +139,9 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         totalWeight: 75,
       });
-      
+
       const result = WeightRoundingRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -145,9 +149,9 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         totalWeight: 50.3,
       });
-      
+
       const result = WeightRoundingRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0].message).toContain('not properly rounded');
@@ -155,9 +159,9 @@ describe('Standard Validation Rules', () => {
 
     it('should pass when totalWeight is undefined', () => {
       const context = createContext({});
-      
+
       const result = WeightRoundingRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -170,21 +174,19 @@ describe('Standard Validation Rules', () => {
   describe('TotalSlotsRule', () => {
     it('should pass when no criticalSlots defined', () => {
       const context = createContext({});
-      
+
       const result = TotalSlotsRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
     it('should pass when slots under limit', () => {
       const context = createContext({
-        criticalSlots: [
-          { location: 'leftArm', slots: [{ content: 'item' }] },
-        ],
+        criticalSlots: [{ location: 'leftArm', slots: [{ content: 'item' }] }],
       });
-      
+
       const result = TotalSlotsRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -199,9 +201,9 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         heatSinks: { total: 10, type: 'Single' },
       });
-      
+
       const result = MinimumHeatSinksRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -209,9 +211,9 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         heatSinks: { total: 15, type: 'Double' },
       });
-      
+
       const result = MinimumHeatSinksRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -219,25 +221,27 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         heatSinks: { total: 8, type: 'Single' },
       });
-      
+
       const result = MinimumHeatSinksRule.validate(context);
-      
+
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('Minimum 10');
     });
 
     it('should fail when heatSinks is missing', () => {
       const context = createContext({});
-      
+
       const result = MinimumHeatSinksRule.validate(context);
-      
+
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('missing');
     });
 
     it('should have correct rule metadata', () => {
       expect(MinimumHeatSinksRule.id).toBe('construction.min_heat_sinks');
-      expect(MinimumHeatSinksRule.category).toBe(ValidationCategory.CONSTRUCTION);
+      expect(MinimumHeatSinksRule.category).toBe(
+        ValidationCategory.CONSTRUCTION,
+      );
     });
   });
 
@@ -255,9 +259,9 @@ describe('Standard Validation Rules', () => {
           },
         },
       });
-      
+
       const result = ArmorMaximumRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -272,9 +276,9 @@ describe('Standard Validation Rules', () => {
           },
         },
       });
-      
+
       const result = ArmorMaximumRule.validate(context);
-      
+
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('exceeds maximum');
     });
@@ -290,17 +294,17 @@ describe('Standard Validation Rules', () => {
           },
         },
       });
-      
+
       const result = ArmorMaximumRule.validate(context);
-      
+
       expect(result.passed).toBe(false);
     });
 
     it('should pass when no armor allocation', () => {
       const context = createContext({});
-      
+
       const result = ArmorMaximumRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -315,9 +319,9 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         engine: { rating: 300 },
       });
-      
+
       const result = EngineRatingRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -325,9 +329,9 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         engine: { rating: 550 },
       });
-      
+
       const result = EngineRatingRule.validate(context);
-      
+
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('between 10 and 500');
     });
@@ -336,9 +340,9 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         engine: { rating: 5 },
       });
-      
+
       const result = EngineRatingRule.validate(context);
-      
+
       expect(result.passed).toBe(false);
     });
 
@@ -346,18 +350,18 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         engine: { rating: 123 },
       });
-      
+
       const result = EngineRatingRule.validate(context);
-      
+
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('multiple of 5');
     });
 
     it('should fail when engine is missing', () => {
       const context = createContext({});
-      
+
       const result = EngineRatingRule.validate(context);
-      
+
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('missing');
     });
@@ -366,9 +370,9 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         engine: {},
       });
-      
+
       const result = EngineRatingRule.validate(context);
-      
+
       expect(result.passed).toBe(false);
     });
 
@@ -383,23 +387,25 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         techBase: 'Inner Sphere',
       });
-      
+
       const result = TechBaseCompatibilityRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
     it('should pass when techBase is undefined', () => {
       const context = createContext({});
-      
+
       const result = TechBaseCompatibilityRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
     it('should have correct rule metadata', () => {
       expect(TechBaseCompatibilityRule.id).toBe('tech.compatibility');
-      expect(TechBaseCompatibilityRule.category).toBe(ValidationCategory.TECH_BASE);
+      expect(TechBaseCompatibilityRule.category).toBe(
+        ValidationCategory.TECH_BASE,
+      );
     });
   });
 
@@ -408,17 +414,17 @@ describe('Standard Validation Rules', () => {
       const context = createContext({
         year: 3025,
       });
-      
+
       const result = EraAvailabilityRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
     it('should pass when year is undefined', () => {
       const context = createContext({});
-      
+
       const result = EraAvailabilityRule.validate(context);
-      
+
       expect(result.passed).toBe(true);
     });
 
@@ -430,7 +436,9 @@ describe('Standard Validation Rules', () => {
 
   describe('Rule Priorities', () => {
     it('should have increasing priority values', () => {
-      expect(TotalWeightRule.priority ?? 0).toBeLessThan(WeightRoundingRule.priority ?? 0);
+      expect(TotalWeightRule.priority ?? 0).toBeLessThan(
+        WeightRoundingRule.priority ?? 0,
+      );
     });
 
     it('should have category assignments', () => {
@@ -443,7 +451,7 @@ describe('Standard Validation Rules', () => {
   describe('getStandardValidationRules', () => {
     it('should return all standard rules', () => {
       const rules = getStandardValidationRules();
-      
+
       expect(rules).toContain(TotalWeightRule);
       expect(rules).toContain(WeightRoundingRule);
       expect(rules).toContain(TotalSlotsRule);
@@ -464,9 +472,9 @@ describe('Standard Validation Rules', () => {
     it('should register all rules with registry', () => {
       const mockRegister = jest.fn();
       const mockRegistry = { register: mockRegister };
-      
+
       registerStandardRules(mockRegistry);
-      
+
       expect(mockRegister).toHaveBeenCalledTimes(9);
       expect(mockRegister).toHaveBeenCalledWith(TotalWeightRule);
       expect(mockRegister).toHaveBeenCalledWith(ArmorLevelRule);

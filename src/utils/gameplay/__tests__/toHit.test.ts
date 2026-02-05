@@ -4,14 +4,17 @@
  * Comprehensive tests for BattleTech to-hit modifiers and probability calculations.
  */
 
-import { MovementType, RangeBracket } from '@/types/gameplay';
 import type {
   IAttackerState,
   ITargetState,
   ICombatContext,
   IToHitModifierDetail,
 } from '@/types/gameplay';
+import type { ITerrainFeature } from '@/types/gameplay/TerrainTypes';
+
+import { MovementType, RangeBracket } from '@/types/gameplay';
 import { FiringArc } from '@/types/gameplay';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 import {
   // Constants
@@ -41,8 +44,6 @@ import {
   simpleToHit,
   formatToHitBreakdown,
 } from '../toHit';
-import { TerrainType } from '@/types/gameplay/TerrainTypes';
-import type { ITerrainFeature } from '@/types/gameplay/TerrainTypes';
 
 // =============================================================================
 // Test Fixtures
@@ -52,7 +53,7 @@ import type { ITerrainFeature } from '@/types/gameplay/TerrainTypes';
  * Create a test attacker state.
  */
 function createTestAttackerState(
-  overrides: Partial<IAttackerState> = {}
+  overrides: Partial<IAttackerState> = {},
 ): IAttackerState {
   return {
     gunnery: 4,
@@ -67,7 +68,7 @@ function createTestAttackerState(
  * Create a test target state.
  */
 function createTestTargetState(
-  overrides: Partial<ITargetState> = {}
+  overrides: Partial<ITargetState> = {},
 ): ITargetState {
   return {
     movementType: MovementType.Stationary,
@@ -83,7 +84,7 @@ function createTestTargetState(
  * Create a test combat context.
  */
 function createTestCombatContext(
-  overrides: Partial<ICombatContext> = {}
+  overrides: Partial<ICombatContext> = {},
 ): ICombatContext {
   return {
     attacker: createTestAttackerState(),
@@ -199,7 +200,7 @@ describe('HEAT_THRESHOLDS', () => {
     const sorted = [...HEAT_THRESHOLDS].sort((a, b) => a.minHeat - b.minHeat);
     expect(sorted[0].minHeat).toBe(0);
     expect(sorted[sorted.length - 1].maxHeat).toBe(Infinity);
-    
+
     // Verify no gaps between thresholds
     for (let i = 0; i < sorted.length - 1; i++) {
       expect(sorted[i].maxHeat + 1).toBe(sorted[i + 1].minHeat);
@@ -235,7 +236,7 @@ describe('PROBABILITY_TABLE', () => {
   it('should have decreasing probabilities as target number increases', () => {
     for (let target = 2; target < 12; target++) {
       expect(PROBABILITY_TABLE[target]).toBeGreaterThan(
-        PROBABILITY_TABLE[target + 1]
+        PROBABILITY_TABLE[target + 1],
       );
     }
   });
@@ -251,7 +252,8 @@ describe('PROBABILITY_TABLE', () => {
     // Sum of (target * probability) for all should approximate 7 (expected value)
     let weightedSum = 0;
     for (let target = 2; target <= 12; target++) {
-      const probability = PROBABILITY_TABLE[target] - (PROBABILITY_TABLE[target + 1] ?? 0);
+      const probability =
+        PROBABILITY_TABLE[target] - (PROBABILITY_TABLE[target + 1] ?? 0);
       weightedSum += target * probability;
     }
     expect(weightedSum).toBeCloseTo(7, 1);
@@ -305,74 +307,139 @@ describe('calculateRangeModifier', () => {
 
   describe('short range', () => {
     it('should return +0 for range 1', () => {
-      const modifier = calculateRangeModifier(1, shortRange, mediumRange, longRange);
+      const modifier = calculateRangeModifier(
+        1,
+        shortRange,
+        mediumRange,
+        longRange,
+      );
       expect(modifier.value).toBe(0);
     });
 
     it('should return +0 for range equal to short range', () => {
-      const modifier = calculateRangeModifier(3, shortRange, mediumRange, longRange);
+      const modifier = calculateRangeModifier(
+        3,
+        shortRange,
+        mediumRange,
+        longRange,
+      );
       expect(modifier.value).toBe(0);
     });
 
     it('should include "short" in name (case-insensitive)', () => {
-      const modifier = calculateRangeModifier(2, shortRange, mediumRange, longRange);
+      const modifier = calculateRangeModifier(
+        2,
+        shortRange,
+        mediumRange,
+        longRange,
+      );
       expect(modifier.name.toLowerCase()).toContain('short');
     });
   });
 
   describe('medium range', () => {
     it('should return +2 for range just beyond short', () => {
-      const modifier = calculateRangeModifier(4, shortRange, mediumRange, longRange);
+      const modifier = calculateRangeModifier(
+        4,
+        shortRange,
+        mediumRange,
+        longRange,
+      );
       expect(modifier.value).toBe(2);
     });
 
     it('should return +2 for range equal to medium range', () => {
-      const modifier = calculateRangeModifier(6, shortRange, mediumRange, longRange);
+      const modifier = calculateRangeModifier(
+        6,
+        shortRange,
+        mediumRange,
+        longRange,
+      );
       expect(modifier.value).toBe(2);
     });
 
     it('should include "medium" in name (case-insensitive)', () => {
-      const modifier = calculateRangeModifier(5, shortRange, mediumRange, longRange);
+      const modifier = calculateRangeModifier(
+        5,
+        shortRange,
+        mediumRange,
+        longRange,
+      );
       expect(modifier.name.toLowerCase()).toContain('medium');
     });
   });
 
   describe('long range', () => {
     it('should return +4 for range just beyond medium', () => {
-      const modifier = calculateRangeModifier(7, shortRange, mediumRange, longRange);
+      const modifier = calculateRangeModifier(
+        7,
+        shortRange,
+        mediumRange,
+        longRange,
+      );
       expect(modifier.value).toBe(4);
     });
 
     it('should return +4 for range equal to long range', () => {
-      const modifier = calculateRangeModifier(15, shortRange, mediumRange, longRange);
+      const modifier = calculateRangeModifier(
+        15,
+        shortRange,
+        mediumRange,
+        longRange,
+      );
       expect(modifier.value).toBe(4);
     });
 
     it('should include "long" in name (case-insensitive)', () => {
-      const modifier = calculateRangeModifier(10, shortRange, mediumRange, longRange);
+      const modifier = calculateRangeModifier(
+        10,
+        shortRange,
+        mediumRange,
+        longRange,
+      );
       expect(modifier.name.toLowerCase()).toContain('long');
     });
   });
 
   describe('out of range', () => {
     it('should return Infinity for range beyond long', () => {
-      const modifier = calculateRangeModifier(16, shortRange, mediumRange, longRange);
+      const modifier = calculateRangeModifier(
+        16,
+        shortRange,
+        mediumRange,
+        longRange,
+      );
       expect(modifier.value).toBe(Infinity);
     });
 
     it('should include "out_of_range" in name', () => {
-      const modifier = calculateRangeModifier(20, shortRange, mediumRange, longRange);
+      const modifier = calculateRangeModifier(
+        20,
+        shortRange,
+        mediumRange,
+        longRange,
+      );
       expect(modifier.name.toLowerCase()).toContain('out_of_range');
     });
   });
 
   it('should set source to "range"', () => {
-    const modifier = calculateRangeModifier(5, shortRange, mediumRange, longRange);
+    const modifier = calculateRangeModifier(
+      5,
+      shortRange,
+      mediumRange,
+      longRange,
+    );
     expect(modifier.source).toBe('range');
   });
 
   it('should include actual range in description', () => {
-    const modifier = calculateRangeModifier(7, shortRange, mediumRange, longRange);
+    const modifier = calculateRangeModifier(
+      7,
+      shortRange,
+      mediumRange,
+      longRange,
+    );
     expect(modifier.description).toContain('7');
   });
 });
@@ -968,11 +1035,13 @@ describe('calculateToHit', () => {
 
     // Should have: Gunnery, Range, Attacker Movement, TMM, Heat
     expect(result.modifiers.length).toBeGreaterThanOrEqual(5);
-    expect(result.modifiers.some(m => m.name === 'Gunnery Skill')).toBe(true);
-    expect(result.modifiers.some(m => m.name.includes('Range'))).toBe(true);
-    expect(result.modifiers.some(m => m.name === 'Attacker Movement')).toBe(true);
-    expect(result.modifiers.some(m => m.name.includes('TMM'))).toBe(true);
-    expect(result.modifiers.some(m => m.name === 'Heat')).toBe(true);
+    expect(result.modifiers.some((m) => m.name === 'Gunnery Skill')).toBe(true);
+    expect(result.modifiers.some((m) => m.name.includes('Range'))).toBe(true);
+    expect(result.modifiers.some((m) => m.name === 'Attacker Movement')).toBe(
+      true,
+    );
+    expect(result.modifiers.some((m) => m.name.includes('TMM'))).toBe(true);
+    expect(result.modifiers.some((m) => m.name === 'Heat')).toBe(true);
   });
 });
 
@@ -1174,43 +1243,43 @@ describe('getRangeBracket', () => {
 
   it('should return Short for range 0', () => {
     expect(getRangeBracket(0, shortRange, mediumRange, longRange)).toBe(
-      RangeBracket.Short
+      RangeBracket.Short,
     );
   });
 
   it('should return Short for range equal to short range', () => {
     expect(getRangeBracket(3, shortRange, mediumRange, longRange)).toBe(
-      RangeBracket.Short
+      RangeBracket.Short,
     );
   });
 
   it('should return Medium for range just above short', () => {
     expect(getRangeBracket(4, shortRange, mediumRange, longRange)).toBe(
-      RangeBracket.Medium
+      RangeBracket.Medium,
     );
   });
 
   it('should return Medium for range equal to medium range', () => {
     expect(getRangeBracket(6, shortRange, mediumRange, longRange)).toBe(
-      RangeBracket.Medium
+      RangeBracket.Medium,
     );
   });
 
   it('should return Long for range just above medium', () => {
     expect(getRangeBracket(7, shortRange, mediumRange, longRange)).toBe(
-      RangeBracket.Long
+      RangeBracket.Long,
     );
   });
 
   it('should return Long for range equal to long range', () => {
     expect(getRangeBracket(15, shortRange, mediumRange, longRange)).toBe(
-      RangeBracket.Long
+      RangeBracket.Long,
     );
   });
 
   it('should return OutOfRange for range beyond long', () => {
     expect(getRangeBracket(16, shortRange, mediumRange, longRange)).toBe(
-      RangeBracket.OutOfRange
+      RangeBracket.OutOfRange,
     );
   });
 
@@ -1256,7 +1325,7 @@ describe('simpleToHit', () => {
       RangeBracket.Short,
       MovementType.Stationary,
       MovementType.Walk,
-      5
+      5,
     );
     expect(result.finalToHit).toBe(5); // 4 + TMM 1
   });
@@ -1268,7 +1337,7 @@ describe('simpleToHit', () => {
       MovementType.Stationary,
       MovementType.Stationary,
       0,
-      8
+      8,
     );
     expect(result.finalToHit).toBe(6); // 4 + Heat 2
   });
@@ -1280,7 +1349,7 @@ describe('simpleToHit', () => {
       MovementType.Walk,
       MovementType.Run,
       8,
-      5
+      5,
     );
     // Gunnery 4 + Medium 2 + Walk 1 + TMM 2 + Heat 1 = 10
     expect(result.finalToHit).toBe(10);
@@ -1293,7 +1362,7 @@ describe('simpleToHit', () => {
       MovementType.Jump,
       MovementType.Jump,
       15,
-      13
+      13,
     );
     // Should be impossible
     expect(result.impossible).toBe(true);
@@ -1321,7 +1390,7 @@ describe('formatToHitBreakdown', () => {
       MovementType.Walk,
       MovementType.Walk,
       5,
-      5
+      5,
     );
     const formatted = formatToHitBreakdown(calc);
 
@@ -1354,7 +1423,7 @@ describe('formatToHitBreakdown', () => {
       MovementType.Jump,
       MovementType.Jump,
       10,
-      13
+      13,
     );
     const formatted = formatToHitBreakdown(calc);
 
@@ -1368,7 +1437,7 @@ describe('formatToHitBreakdown', () => {
       MovementType.Jump,
       MovementType.Jump,
       10,
-      13
+      13,
     );
     const formatted = formatToHitBreakdown(calc);
 
@@ -1557,12 +1626,16 @@ describe('getTerrainToHitModifier', () => {
 
   describe('target in terrain', () => {
     it('should add +1 for target in light woods', () => {
-      const target: ITerrainFeature[] = [{ type: TerrainType.LightWoods, level: 1 }];
+      const target: ITerrainFeature[] = [
+        { type: TerrainType.LightWoods, level: 1 },
+      ];
       expect(getTerrainToHitModifier(target, [])).toBe(1);
     });
 
     it('should add +2 for target in heavy woods', () => {
-      const target: ITerrainFeature[] = [{ type: TerrainType.HeavyWoods, level: 2 }];
+      const target: ITerrainFeature[] = [
+        { type: TerrainType.HeavyWoods, level: 2 },
+      ];
       expect(getTerrainToHitModifier(target, [])).toBe(2);
     });
 
@@ -1619,7 +1692,9 @@ describe('getTerrainToHitModifier', () => {
 
   describe('combined terrain', () => {
     it('should combine target and intervening modifiers', () => {
-      const target: ITerrainFeature[] = [{ type: TerrainType.LightWoods, level: 1 }];
+      const target: ITerrainFeature[] = [
+        { type: TerrainType.LightWoods, level: 1 },
+      ];
       const intervening: ITerrainFeature[][] = [
         [{ type: TerrainType.LightWoods, level: 1 }],
         [{ type: TerrainType.HeavyWoods, level: 2 }],
@@ -1675,7 +1750,9 @@ describe('getTerrainToHitModifier', () => {
     });
 
     it('should handle empty intervening terrain array', () => {
-      const target: ITerrainFeature[] = [{ type: TerrainType.LightWoods, level: 1 }];
+      const target: ITerrainFeature[] = [
+        { type: TerrainType.LightWoods, level: 1 },
+      ];
       const intervening: ITerrainFeature[][] = [];
       expect(getTerrainToHitModifier(target, intervening)).toBe(1);
     });

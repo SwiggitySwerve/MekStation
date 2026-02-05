@@ -7,22 +7,22 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { VTOLLocation } from '../../../types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
+import {
+  GroundMotionType,
+  IGroundMovement,
+} from '../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
+import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
 import {
   IVTOL,
   IVehicleMountedEquipment,
   ITurretConfiguration,
   TurretType,
 } from '../../../types/unit/VehicleInterfaces';
-import {
-  GroundMotionType,
-  IGroundMovement,
-} from '../../../types/unit/BaseUnitInterfaces';
-import { VTOLLocation } from '../../../types/construction/UnitLocation';
-import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
@@ -136,7 +136,9 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
   /**
    * Parse armor values into location-keyed record
    */
-  private parseArmorByLocation(armor: readonly number[]): Record<VTOLLocation, number> {
+  private parseArmorByLocation(
+    armor: readonly number[],
+  ): Record<VTOLLocation, number> {
     const result: Record<VTOLLocation, number> = {
       [VTOLLocation.FRONT]: 0,
       [VTOLLocation.LEFT]: 0,
@@ -159,7 +161,9 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
   /**
    * Parse chin turret configuration from document
    */
-  private parseChinTurret(document: IBlkDocument): ITurretConfiguration | undefined {
+  private parseChinTurret(
+    document: IBlkDocument,
+  ): ITurretConfiguration | undefined {
     const rawTags = document.rawTags || {};
     const turretType = this.getStringFromRaw(rawTags, 'turrettype');
 
@@ -194,11 +198,15 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly IVehicleMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly IVehicleMountedEquipment[] {
     const equipment: IVehicleMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const location = this.normalizeLocation(locationKey);
       const isTurretMounted =
         locationKey.toLowerCase().includes('turret') ||
@@ -258,7 +266,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
    */
   private getStringFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): string | undefined {
     const value = rawTags[key];
     if (Array.isArray(value)) {
@@ -272,7 +280,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<IVTOL>
+    typeSpecificFields: Partial<IVTOL>,
   ): IVTOL {
     const weightClass = this.getWeightClass(commonFields.tonnage);
     const techBase = this.parseTechBase(commonFields.techBase);
@@ -404,7 +412,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     // Armor validation
     if (unit.totalArmorPoints > unit.maxArmorPoints) {
       errors.push(
-        `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`
+        `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,
       );
     }
 

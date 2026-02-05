@@ -332,7 +332,10 @@ export function createDemoMaxArmor(): Record<string, Record<string, number>> {
 /**
  * Creates max structure values for demo units.
  */
-export function createDemoMaxStructure(): Record<string, Record<string, number>> {
+export function createDemoMaxStructure(): Record<
+  string,
+  Record<string, number>
+> {
   return {
     'unit-player-1': {
       head: 3,

@@ -1,18 +1,22 @@
 /**
  * Heat Sink Equipment Utilities
- * 
+ *
  * Functions for creating and managing heat sink equipment.
  * All created items are configuration-based (isRemovable: false).
  */
 
+import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
+import { IMountedEquipmentInstance } from '@/stores/unitState';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
-import { IMountedEquipmentInstance } from '@/stores/unitState';
+import {
+  MiscEquipmentCategory,
+  IMiscEquipment,
+} from '@/types/equipment/MiscEquipmentTypes';
 import { generateUnitId } from '@/utils/uuid';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { MiscEquipmentCategory, IMiscEquipment } from '@/types/equipment/MiscEquipmentTypes';
-import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+
 import { HEAT_SINK_EQUIPMENT_IDS } from './equipmentConstants';
 
 const HEAT_SINK_FALLBACKS: Record<string, IMiscEquipment> = {
@@ -95,27 +99,29 @@ export function getHeatSinkEquipmentId(heatSinkType: HeatSinkType): string {
   }
 }
 
-export function getHeatSinkEquipment(heatSinkType: HeatSinkType): IMiscEquipment | undefined {
+export function getHeatSinkEquipment(
+  heatSinkType: HeatSinkType,
+): IMiscEquipment | undefined {
   const id = getHeatSinkEquipmentId(heatSinkType);
-  
+
   const loader = getEquipmentLoader();
   if (loader.getIsLoaded()) {
     const loaded = loader.getMiscEquipmentById(id);
     if (loaded) return loaded;
   }
-  
+
   return HEAT_SINK_FALLBACKS[id];
 }
 
 export function createHeatSinkEquipmentList(
   heatSinkType: HeatSinkType,
-  externalCount: number
+  externalCount: number,
 ): IMountedEquipmentInstance[] {
   if (externalCount <= 0) return [];
-  
+
   const hsEquip = getHeatSinkEquipment(heatSinkType);
   if (!hsEquip) return [];
-  
+
   const result: IMountedEquipmentInstance[] = [];
   for (let i = 0; i < externalCount; i++) {
     result.push({
@@ -138,6 +144,10 @@ export function createHeatSinkEquipmentList(
   return result;
 }
 
-export function filterOutHeatSinks(equipment: readonly IMountedEquipmentInstance[]): IMountedEquipmentInstance[] {
-  return equipment.filter(e => !HEAT_SINK_EQUIPMENT_IDS.includes(e.equipmentId));
+export function filterOutHeatSinks(
+  equipment: readonly IMountedEquipmentInstance[],
+): IMountedEquipmentInstance[] {
+  return equipment.filter(
+    (e) => !HEAT_SINK_EQUIPMENT_IDS.includes(e.equipmentId),
+  );
 }

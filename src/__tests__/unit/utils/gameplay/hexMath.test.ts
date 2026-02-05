@@ -6,6 +6,8 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
+
+import { IHexCoordinate, Facing } from '@/types/gameplay';
 import {
   axialToCube,
   cubeToAxial,
@@ -25,13 +27,12 @@ import {
   angleToFacing,
   facingToAngle,
 } from '@/utils/gameplay/hexMath';
-import { IHexCoordinate, Facing } from '@/types/gameplay';
 
 describe('hexMath', () => {
   // =========================================================================
   // Coordinate Conversion
   // =========================================================================
-  
+
   describe('axialToCube()', () => {
     it('should convert origin correctly', () => {
       const cube = axialToCube({ q: 0, r: 0 });
@@ -49,7 +50,7 @@ describe('hexMath', () => {
         { q: -3, r: 5 },
         { q: 10, r: -7 },
       ];
-      
+
       for (const coord of testCases) {
         const cube = axialToCube(coord);
         expect(cube.x + cube.y + cube.z).toBe(0);
@@ -65,7 +66,7 @@ describe('hexMath', () => {
         { q: 0, r: 1 },
         { q: -3, r: 5 },
       ];
-      
+
       for (const coord of testCases) {
         const cube = axialToCube(coord);
         const back = cubeToAxial(cube);
@@ -82,7 +83,7 @@ describe('hexMath', () => {
         { q: 5, r: -3 },
         { q: -10, r: 10 },
       ];
-      
+
       for (const coord of coords) {
         const key = coordToKey(coord);
         const back = keyToCoord(key);
@@ -111,8 +112,14 @@ describe('hexMath', () => {
 
   describe('hexSubtract()', () => {
     it('should subtract coordinates correctly', () => {
-      expect(hexSubtract({ q: 5, r: 3 }, { q: 2, r: 1 })).toEqual({ q: 3, r: 2 });
-      expect(hexSubtract({ q: 0, r: 0 }, { q: 1, r: 1 })).toEqual({ q: -1, r: -1 });
+      expect(hexSubtract({ q: 5, r: 3 }, { q: 2, r: 1 })).toEqual({
+        q: 3,
+        r: 2,
+      });
+      expect(hexSubtract({ q: 0, r: 0 }, { q: 1, r: 1 })).toEqual({
+        q: -1,
+        r: -1,
+      });
     });
   });
 
@@ -172,7 +179,7 @@ describe('hexMath', () => {
   describe('hexNeighbor()', () => {
     it('should return correct neighbor for each direction', () => {
       const center: IHexCoordinate = { q: 0, r: 0 };
-      
+
       expect(hexNeighbor(center, Facing.North)).toEqual({ q: 0, r: -1 });
       expect(hexNeighbor(center, Facing.Northeast)).toEqual({ q: 1, r: -1 });
       expect(hexNeighbor(center, Facing.Southeast)).toEqual({ q: 1, r: 0 });
@@ -191,7 +198,7 @@ describe('hexMath', () => {
     it('should return all neighbors at distance 1', () => {
       const center: IHexCoordinate = { q: 0, r: 0 };
       const neighbors = hexNeighbors(center);
-      
+
       for (const neighbor of neighbors) {
         expect(hexDistance(center, neighbor)).toBe(1);
       }
@@ -260,7 +267,7 @@ describe('hexMath', () => {
       const start: IHexCoordinate = { q: 0, r: 0 };
       const end: IHexCoordinate = { q: 2, r: 2 };
       const line = hexLine(start, end);
-      
+
       expect(hexEquals(line[0], start)).toBe(true);
       expect(hexEquals(line[line.length - 1], end)).toBe(true);
     });
@@ -295,7 +302,7 @@ describe('hexMath', () => {
       // North: -30 to +30 (or 330 to 30)
       expect(angleToFacing(15)).toBe(Facing.North);
       expect(angleToFacing(345)).toBe(Facing.North);
-      
+
       // Northeast: 30 to 90
       expect(angleToFacing(45)).toBe(Facing.Northeast);
       expect(angleToFacing(75)).toBe(Facing.Northeast);

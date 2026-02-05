@@ -9,13 +9,14 @@
  * - Edge cases and boundary conditions
  */
 
-import { PassiveUnitDetector, type BattleState } from '../PassiveUnitDetector';
 import {
   GameEventType,
   GamePhase,
   GameSide,
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
+
+import { PassiveUnitDetector, type BattleState } from '../PassiveUnitDetector';
 
 // =============================================================================
 // Test Fixtures
@@ -99,7 +100,9 @@ const createDestroyedEvent = (
   },
 });
 
-const createBattleState = (units: Array<{ id: string; name: string; side: GameSide }>): BattleState => ({
+const createBattleState = (
+  units: Array<{ id: string; name: string; side: GameSide }>,
+): BattleState => ({
   units: units.map((u) => ({
     id: u.id,
     name: u.name,
@@ -573,9 +576,7 @@ describe('PassiveUnitDetector', () => {
         { id: 'unit-1', name: 'Atlas', side: GameSide.Player },
       ]);
 
-      const events: IGameEvent[] = [
-        createTurnEndedEvent('game-1', 1),
-      ];
+      const events: IGameEvent[] = [createTurnEndedEvent('game-1', 1)];
 
       const anomalies = detector.detect(events, battleState, 1);
 
@@ -774,6 +775,5 @@ describe('PassiveUnitDetector', () => {
       expect(anomalies).toHaveLength(1);
       expect(anomalies[0].message).toContain('Atlas');
     });
-
   });
 });

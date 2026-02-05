@@ -12,6 +12,7 @@ import type {
   IStoredVersionSnapshot,
   ShareableContentType,
 } from '@/types/vault';
+
 import { getSQLiteService } from '@/services/persistence';
 
 // =============================================================================
@@ -72,7 +73,7 @@ export class VersionHistoryRepository {
     content: string,
     contentHash: string,
     createdBy: string,
-    message?: string
+    message?: string,
   ): Promise<IVersionSnapshot> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -80,7 +81,7 @@ export class VersionHistoryRepository {
     // Get next version number
     const lastVersion = db
       .prepare(
-        'SELECT MAX(version) as max_version FROM version_history WHERE item_id = ? AND content_type = ?'
+        'SELECT MAX(version) as max_version FROM version_history WHERE item_id = ? AND content_type = ?',
       )
       .get(itemId, contentType) as { max_version: number | null } | undefined;
 
@@ -104,7 +105,7 @@ export class VersionHistoryRepository {
       now,
       createdBy,
       message ?? null,
-      sizeBytes
+      sizeBytes,
     );
 
     return {
@@ -131,7 +132,7 @@ export class VersionHistoryRepository {
   async getVersions(
     itemId: string,
     contentType: ShareableContentType,
-    limit = 50
+    limit = 50,
   ): Promise<IVersionSnapshot[]> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -141,7 +142,7 @@ export class VersionHistoryRepository {
         `SELECT * FROM version_history 
          WHERE item_id = ? AND content_type = ? 
          ORDER BY version DESC 
-         LIMIT ?`
+         LIMIT ?`,
       )
       .all(itemId, contentType, limit) as IStoredVersionSnapshot[];
 
@@ -154,14 +155,14 @@ export class VersionHistoryRepository {
   async getVersion(
     itemId: string,
     contentType: ShareableContentType,
-    version: number
+    version: number,
   ): Promise<IVersionSnapshot | null> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const row = db
       .prepare(
-        'SELECT * FROM version_history WHERE item_id = ? AND content_type = ? AND version = ?'
+        'SELECT * FROM version_history WHERE item_id = ? AND content_type = ? AND version = ?',
       )
       .get(itemId, contentType, version) as IStoredVersionSnapshot | undefined;
 
@@ -173,7 +174,7 @@ export class VersionHistoryRepository {
    */
   async getLatestVersion(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<IVersionSnapshot | null> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -183,7 +184,7 @@ export class VersionHistoryRepository {
         `SELECT * FROM version_history 
          WHERE item_id = ? AND content_type = ? 
          ORDER BY version DESC 
-         LIMIT 1`
+         LIMIT 1`,
       )
       .get(itemId, contentType) as IStoredVersionSnapshot | undefined;
 
@@ -209,14 +210,14 @@ export class VersionHistoryRepository {
    */
   async getCurrentVersionNumber(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<number> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const row = db
       .prepare(
-        'SELECT MAX(version) as max_version FROM version_history WHERE item_id = ? AND content_type = ?'
+        'SELECT MAX(version) as max_version FROM version_history WHERE item_id = ? AND content_type = ?',
       )
       .get(itemId, contentType) as { max_version: number | null } | undefined;
 
@@ -228,14 +229,14 @@ export class VersionHistoryRepository {
    */
   async getVersionCount(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<number> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const row = db
       .prepare(
-        'SELECT COUNT(*) as count FROM version_history WHERE item_id = ? AND content_type = ?'
+        'SELECT COUNT(*) as count FROM version_history WHERE item_id = ? AND content_type = ?',
       )
       .get(itemId, contentType) as { count: number };
 
@@ -247,14 +248,14 @@ export class VersionHistoryRepository {
    */
   async getStorageUsed(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<number> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const row = db
       .prepare(
-        'SELECT SUM(size_bytes) as total FROM version_history WHERE item_id = ? AND content_type = ?'
+        'SELECT SUM(size_bytes) as total FROM version_history WHERE item_id = ? AND content_type = ?',
       )
       .get(itemId, contentType) as { total: number | null };
 
@@ -268,7 +269,7 @@ export class VersionHistoryRepository {
     itemId: string,
     contentType: ShareableContentType,
     fromVersion: number,
-    toVersion: number
+    toVersion: number,
   ): Promise<IVersionSnapshot[]> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -278,9 +279,14 @@ export class VersionHistoryRepository {
         `SELECT * FROM version_history 
          WHERE item_id = ? AND content_type = ? 
          AND version >= ? AND version <= ?
-         ORDER BY version ASC`
+         ORDER BY version ASC`,
       )
-      .all(itemId, contentType, fromVersion, toVersion) as IStoredVersionSnapshot[];
+      .all(
+        itemId,
+        contentType,
+        fromVersion,
+        toVersion,
+      ) as IStoredVersionSnapshot[];
 
     return rows.map((row) => this.rowToSnapshot(row));
   }
@@ -308,13 +314,15 @@ export class VersionHistoryRepository {
    */
   async deleteAllVersions(
     itemId: string,
-    contentType: ShareableContentType
+    contentType: ShareableContentType,
   ): Promise<number> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const result = db
-      .prepare('DELETE FROM version_history WHERE item_id = ? AND content_type = ?')
+      .prepare(
+        'DELETE FROM version_history WHERE item_id = ? AND content_type = ?',
+      )
       .run(itemId, contentType);
 
     return result.changes;
@@ -326,7 +334,7 @@ export class VersionHistoryRepository {
   async pruneOldVersions(
     itemId: string,
     contentType: ShareableContentType,
-    keepCount: number
+    keepCount: number,
   ): Promise<number> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -337,9 +345,11 @@ export class VersionHistoryRepository {
         `SELECT version FROM version_history 
          WHERE item_id = ? AND content_type = ?
          ORDER BY version DESC 
-         LIMIT 1 OFFSET ?`
+         LIMIT 1 OFFSET ?`,
       )
-      .get(itemId, contentType, keepCount - 1) as { version: number } | undefined;
+      .get(itemId, contentType, keepCount - 1) as
+      | { version: number }
+      | undefined;
 
     if (!cutoffRow) {
       return 0; // Not enough versions to prune
@@ -348,7 +358,7 @@ export class VersionHistoryRepository {
     const result = db
       .prepare(
         `DELETE FROM version_history 
-         WHERE item_id = ? AND content_type = ? AND version < ?`
+         WHERE item_id = ? AND content_type = ? AND version < ?`,
       )
       .run(itemId, contentType, cutoffRow.version);
 

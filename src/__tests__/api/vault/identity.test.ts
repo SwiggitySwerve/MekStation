@@ -9,9 +9,12 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import { createMocks } from 'node-mocks-http';
+
 import handler from '@/pages/api/vault/identity';
+
 import { parseApiResponse, parseErrorResponse } from '../../helpers';
 
 // =============================================================================
@@ -38,7 +41,8 @@ jest.mock('@/services/vault/IdentityRepository', () => ({
 const mockCreateIdentity = jest.fn<Promise<unknown>, unknown[]>();
 
 jest.mock('@/services/vault/IdentityService', () => ({
-  createIdentity: (...args: unknown[]): Promise<unknown> => mockCreateIdentity(...args),
+  createIdentity: (...args: unknown[]): Promise<unknown> =>
+    mockCreateIdentity(...args),
 }));
 
 // =============================================================================
@@ -104,7 +108,10 @@ describe('/api/vault/identity', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = parseApiResponse<{ hasIdentity: boolean; publicIdentity: null }>(res);
+      const data = parseApiResponse<{
+        hasIdentity: boolean;
+        publicIdentity: null;
+      }>(res);
       expect(data.hasIdentity).toBe(false);
       expect(data.publicIdentity).toBeNull();
     });
@@ -131,7 +138,9 @@ describe('/api/vault/identity', () => {
       expect(data.hasIdentity).toBe(true);
       expect(data.publicIdentity.displayName).toBe('TestUser');
       expect(data.publicIdentity.publicKey).toBe(mockStoredIdentity.publicKey);
-      expect(data.publicIdentity.friendCode).toBe(mockStoredIdentity.friendCode);
+      expect(data.publicIdentity.friendCode).toBe(
+        mockStoredIdentity.friendCode,
+      );
     });
 
     it('should not expose encrypted private key in response', async () => {
@@ -181,10 +190,16 @@ describe('/api/vault/identity', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(201);
-      const data = parseApiResponse<{ success: boolean; publicIdentity: { displayName: string } }>(res);
+      const data = parseApiResponse<{
+        success: boolean;
+        publicIdentity: { displayName: string };
+      }>(res);
       expect(data.success).toBe(true);
       expect(data.publicIdentity).toBeDefined();
-      expect(mockCreateIdentity).toHaveBeenCalledWith('NewUser', 'securePassword123');
+      expect(mockCreateIdentity).toHaveBeenCalledWith(
+        'NewUser',
+        'securePassword123',
+      );
       expect(mockSave).toHaveBeenCalled();
     });
 
@@ -300,7 +315,10 @@ describe('/api/vault/identity', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(201);
-      expect(mockCreateIdentity).toHaveBeenCalledWith('TrimmedName', 'password123');
+      expect(mockCreateIdentity).toHaveBeenCalledWith(
+        'TrimmedName',
+        'password123',
+      );
     });
   });
 
@@ -323,7 +341,7 @@ describe('/api/vault/identity', () => {
       expect(data.success).toBe(true);
       expect(mockUpdate).toHaveBeenCalledWith(
         mockStoredIdentity.id,
-        expect.objectContaining({ displayName: 'UpdatedName' })
+        expect.objectContaining({ displayName: 'UpdatedName' }),
       );
     });
 
@@ -343,7 +361,7 @@ describe('/api/vault/identity', () => {
       expect(res._getStatusCode()).toBe(200);
       expect(mockUpdate).toHaveBeenCalledWith(
         mockStoredIdentity.id,
-        expect.objectContaining({ avatar: 'avatar-id-123' })
+        expect.objectContaining({ avatar: 'avatar-id-123' }),
       );
     });
 

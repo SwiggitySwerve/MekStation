@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { useState } from 'react';
+
 import CategoryNavigation from './CategoryNavigation';
 
 const meta: Meta<typeof CategoryNavigation> = {
@@ -17,7 +19,7 @@ const meta: Meta<typeof CategoryNavigation> = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <div className="w-64 h-96 border border-gray-200 rounded">
+      <div className="h-96 w-64 rounded border border-gray-200">
         <Story />
       </div>
     ),
@@ -59,14 +61,16 @@ function MockCategoryNavigation({
   }
 
   return (
-    <nav className="p-4 bg-gray-100 w-full h-full">
-      <h3 className="text-lg font-semibold mb-2">Unit Categories</h3>
+    <nav className="h-full w-full bg-gray-100 p-4">
+      <h3 className="mb-2 text-lg font-semibold">Unit Categories</h3>
       <ul>
         <li key="all-categories" className="mb-1">
           <button
             onClick={() => onSelectCategory(null)}
-            className={`w-full text-left px-2 py-1 rounded ${
-              selectedCategory === null ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+            className={`w-full rounded px-2 py-1 text-left ${
+              selectedCategory === null
+                ? 'bg-blue-500 text-white'
+                : 'hover:bg-gray-200'
             }`}
           >
             All Units
@@ -76,8 +80,10 @@ function MockCategoryNavigation({
           <li key={category} className="mb-1">
             <button
               onClick={() => onSelectCategory(category)}
-              className={`w-full text-left px-2 py-1 rounded ${
-                selectedCategory === category ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+              className={`w-full rounded px-2 py-1 text-left ${
+                selectedCategory === category
+                  ? 'bg-blue-500 text-white'
+                  : 'hover:bg-gray-200'
               }`}
             >
               {category}
@@ -89,8 +95,12 @@ function MockCategoryNavigation({
   );
 }
 
-function InteractiveCategoryNavigation(props: Partial<React.ComponentProps<typeof MockCategoryNavigation>>) {
-  const [selected, setSelected] = useState<string | null>(props.selectedCategory ?? null);
+function InteractiveCategoryNavigation(
+  props: Partial<React.ComponentProps<typeof MockCategoryNavigation>>,
+) {
+  const [selected, setSelected] = useState<string | null>(
+    props.selectedCategory ?? null,
+  );
   return (
     <MockCategoryNavigation
       {...props}
@@ -143,7 +153,8 @@ export const EmptyCategories: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When no categories are available, only the "All Units" option is shown.',
+        story:
+          'When no categories are available, only the "All Units" option is shown.',
       },
     },
   },
@@ -198,7 +209,7 @@ export const ManyCategories: Story = {
   ),
   decorators: [
     (Story) => (
-      <div className="w-64 h-[500px] border border-gray-200 rounded overflow-auto">
+      <div className="h-[500px] w-64 overflow-auto rounded border border-gray-200">
         <Story />
       </div>
     ),
@@ -208,7 +219,7 @@ export const ManyCategories: Story = {
 export const WithContentPreview: Story = {
   render: () => {
     const [selected, setSelected] = useState<string | null>(null);
-    
+
     const unitCounts: Record<string, number> = {
       BattleMech: 1247,
       OmniMech: 432,
@@ -221,14 +232,14 @@ export const WithContentPreview: Story = {
 
     return (
       <div className="flex gap-4">
-        <div className="w-64 h-96 border border-gray-200 rounded">
+        <div className="h-96 w-64 rounded border border-gray-200">
           <MockCategoryNavigation
             selectedCategory={selected}
             onSelectCategory={setSelected}
           />
         </div>
-        <div className="flex-1 p-4 bg-surface-base rounded border border-border-theme-subtle">
-          <h3 className="text-lg font-semibold mb-2">
+        <div className="bg-surface-base border-border-theme-subtle flex-1 rounded border p-4">
+          <h3 className="mb-2 text-lg font-semibold">
             {selected ? `${selected} Units` : 'All Units'}
           </h3>
           <p className="text-text-theme-secondary">
@@ -236,8 +247,8 @@ export const WithContentPreview: Story = {
               ? `Showing ${unitCounts[selected] || 0} ${selected} units`
               : `Showing ${Object.values(unitCounts).reduce((a, b) => a + b, 0)} total units`}
           </p>
-          <div className="mt-4 p-3 bg-surface-raised rounded">
-            <span className="text-sm text-text-theme-muted">
+          <div className="bg-surface-raised mt-4 rounded p-3">
+            <span className="text-text-theme-muted text-sm">
               Selected filter: <strong>{selected || 'None (All)'}</strong>
             </span>
           </div>
@@ -269,15 +280,15 @@ export const WithCallback: Story = {
 
     return (
       <div className="flex gap-4">
-        <div className="w-64 h-96 border border-gray-200 rounded">
+        <div className="h-96 w-64 rounded border border-gray-200">
           <MockCategoryNavigation
             selectedCategory={selected}
             onSelectCategory={handleSelect}
           />
         </div>
         <div className="flex-1">
-          <h4 className="font-semibold mb-2">Selection Log</h4>
-          <div className="p-3 bg-gray-100 rounded text-sm font-mono space-y-1">
+          <h4 className="mb-2 font-semibold">Selection Log</h4>
+          <div className="space-y-1 rounded bg-gray-100 p-3 font-mono text-sm">
             {log.length === 0 ? (
               <p className="text-gray-500">Click a category to see events...</p>
             ) : (

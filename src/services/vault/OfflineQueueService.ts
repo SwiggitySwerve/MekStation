@@ -14,12 +14,13 @@ import type {
   P2PMessageType,
   IP2PMessage,
 } from '@/types/vault';
+
+import { createSingleton } from '../core/createSingleton';
 import {
   OfflineQueueRepository,
   getOfflineQueueRepository,
 } from './OfflineQueueRepository';
 import { getP2PTransport } from './P2PTransport';
-import { createSingleton } from '../core/createSingleton';
 
 // =============================================================================
 // Types
@@ -48,9 +49,7 @@ export interface IFlushResult {
 /**
  * Callback when a message is about to be sent
  */
-export type OnSendCallback = (
-  message: IQueuedMessage
-) => Promise<boolean>;
+export type OnSendCallback = (message: IQueuedMessage) => Promise<boolean>;
 
 // =============================================================================
 // Service
@@ -79,7 +78,7 @@ export class OfflineQueueService {
     targetPeerId: string,
     messageType: P2PMessageType,
     payload: string | object,
-    options?: IQueueOptions
+    options?: IQueueOptions,
   ): Promise<IQueuedMessage> {
     const payloadStr =
       typeof payload === 'string' ? payload : JSON.stringify(payload);
@@ -96,13 +95,13 @@ export class OfflineQueueService {
   async queueP2PMessage(
     targetPeerId: string,
     message: IP2PMessage,
-    options?: IQueueOptions
+    options?: IQueueOptions,
   ): Promise<IQueuedMessage> {
     return this.queueMessage(
       targetPeerId,
       message.type,
       JSON.stringify(message),
-      options
+      options,
     );
   }
 
@@ -111,7 +110,7 @@ export class OfflineQueueService {
    */
   async getPendingForPeer(
     peerId: string,
-    limit = 50
+    limit = 50,
   ): Promise<IQueuedMessage[]> {
     return this.repository.getPendingForPeer(peerId, limit);
   }
@@ -160,7 +159,12 @@ export class OfflineQueueService {
       transport = getP2PTransport();
     } catch {
       // Transport not initialized, can't send
-      return { sent: 0, failed: pending.length, expired, remaining: pending.length };
+      return {
+        sent: 0,
+        failed: pending.length,
+        expired,
+        remaining: pending.length,
+      };
     }
 
     // Check if peer is connected
@@ -262,12 +266,10 @@ export class OfflineQueueService {
   /**
    * Start background processing (flush and expiry)
    */
-  startBackgroundProcessing(
-    options?: {
-      flushIntervalMs?: number;
-      expiryIntervalMs?: number;
-    }
-  ): void {
+  startBackgroundProcessing(options?: {
+    flushIntervalMs?: number;
+    expiryIntervalMs?: number;
+  }): void {
     const flushInterval = options?.flushIntervalMs ?? 30000; // 30 seconds
     const expiryInterval = options?.expiryIntervalMs ?? 300000; // 5 minutes
 
@@ -319,7 +321,7 @@ export class OfflineQueueService {
     targetPeerId: string,
     message: IP2PMessage,
     relayId: string,
-    expiryMs?: number
+    expiryMs?: number,
   ): Promise<IQueuedMessage> {
     // Add relay metadata to the message
     const enrichedMessage = {
@@ -332,7 +334,7 @@ export class OfflineQueueService {
       targetPeerId,
       message.type,
       JSON.stringify(enrichedMessage),
-      { expiryMs: expiryMs ?? 7 * 24 * 60 * 60 * 1000, priority: 1 } // Higher priority for relayed
+      { expiryMs: expiryMs ?? 7 * 24 * 60 * 60 * 1000, priority: 1 }, // Higher priority for relayed
     );
   }
 
@@ -364,7 +366,7 @@ export class OfflineQueueService {
 
 const offlineQueueServiceFactory = createSingleton(
   () => new OfflineQueueService(),
-  (instance) => instance.stopBackgroundProcessing()
+  (instance) => instance.stopBackgroundProcessing(),
 );
 
 export function getOfflineQueueService(): OfflineQueueService {

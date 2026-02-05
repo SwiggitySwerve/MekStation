@@ -34,7 +34,7 @@ export function StatRow({
     : `${valueColorClasses[valueColor]} ${mono ? 'font-mono' : ''}`;
 
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex items-center justify-between">
       <span className="text-text-theme-secondary">{label}</span>
       <span className={valueClasses}>{value}</span>
     </div>
@@ -47,12 +47,11 @@ interface StatListProps {
   className?: string;
 }
 
-export function StatList({ children, className = '' }: StatListProps): React.ReactElement {
-  return (
-    <div className={`space-y-2 ${className}`}>
-      {children}
-    </div>
-  );
+export function StatList({
+  children,
+  className = '',
+}: StatListProps): React.ReactElement {
+  return <div className={`space-y-2 ${className}`}>{children}</div>;
 }
 
 // Section stat card (with title, icon, and children)
@@ -80,8 +79,12 @@ export function StatCard({
   className = '',
 }: StatCardProps): React.ReactElement {
   return (
-    <div className={`bg-surface-base/30 border border-border-theme-subtle rounded-xl p-6 ${className}`}>
-      <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${titleVariantColors[variant]}`}>
+    <div
+      className={`bg-surface-base/30 border-border-theme-subtle rounded-xl border p-6 ${className}`}
+    >
+      <h3
+        className={`mb-4 flex items-center gap-2 text-lg font-semibold ${titleVariantColors[variant]}`}
+      >
         {icon}
         {title}
       </h3>
@@ -97,7 +100,11 @@ interface StatGridProps {
   className?: string;
 }
 
-export function StatGrid({ children, cols = 2, className = '' }: StatGridProps): React.ReactElement {
+export function StatGrid({
+  children,
+  cols = 2,
+  className = '',
+}: StatGridProps): React.ReactElement {
   const colClasses: Record<number, string> = {
     2: 'grid-cols-1 md:grid-cols-2',
     3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
@@ -133,15 +140,19 @@ export function SimpleStatCard({
   valueColor = 'amber',
 }: SimpleStatCardProps): React.ReactElement {
   return (
-    <div className="bg-surface-base/50 backdrop-blur border border-border-theme-subtle rounded-xl p-6 text-center">
-      <div className={`text-3xl font-bold mb-1 ${simpleCardValueColors[valueColor]}`}>
+    <div className="bg-surface-base/50 border-border-theme-subtle rounded-xl border p-6 text-center backdrop-blur">
+      <div
+        className={`mb-1 text-3xl font-bold ${simpleCardValueColors[valueColor]}`}
+      >
         {loading ? (
-          <span className="inline-block w-16 h-8 bg-surface-raised rounded animate-pulse" />
+          <span className="bg-surface-raised inline-block h-8 w-16 animate-pulse rounded" />
         ) : (
           value
         )}
       </div>
-      <div className="text-text-theme-secondary text-sm uppercase tracking-wide">{label}</div>
+      <div className="text-text-theme-secondary text-sm tracking-wide uppercase">
+        {label}
+      </div>
     </div>
   );
 }

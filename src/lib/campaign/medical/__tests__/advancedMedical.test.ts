@@ -5,14 +5,14 @@
  * and injury worsening mechanics.
  */
 
+import { ICampaignOptions } from '../../../../types/campaign/Campaign';
+import { IPerson, IInjury } from '../../../../types/campaign/Person';
 import {
   advancedMedicalCheck,
   untreatedAdvanced,
   rollD100,
 } from '../advancedMedical';
 import { MedicalSystem } from '../medicalTypes';
-import { IPerson, IInjury } from '../../../../types/campaign/Person';
-import { ICampaignOptions } from '../../../../types/campaign/Campaign';
 
 // Mock person factory
 function createMockPerson(id: string, overrides?: Partial<IPerson>): IPerson {
@@ -112,7 +112,7 @@ describe('advancedMedical', () => {
         injury,
         null,
         options,
-        () => 0.15
+        () => 0.15,
       );
 
       expect(result.doctorId).toBeUndefined();
@@ -132,7 +132,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.15
+        () => 0.15,
       );
 
       expect(result.outcome).toBe('fumble');
@@ -150,7 +150,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.15 // Fumble for Regular doctor
+        () => 0.15, // Fumble for Regular doctor
       );
 
       expect(result.outcome).toBe('fumble');
@@ -171,7 +171,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.96
+        () => 0.96,
       );
 
       expect(result.outcome).toBe('critical_success');
@@ -188,7 +188,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.96 // Crit for Green doctor
+        () => 0.96, // Crit for Green doctor
       );
 
       expect(result.outcome).toBe('critical_success');
@@ -208,7 +208,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.5
+        () => 0.5,
       );
 
       expect(result.outcome).toBe('healed');
@@ -226,7 +226,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.85
+        () => 0.85,
       );
 
       expect(result.outcome).toBe('no_change');
@@ -245,7 +245,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.15
+        () => 0.15,
       );
       expect(fumbleResult.outcome).toBe('fumble');
 
@@ -255,7 +255,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.25
+        () => 0.25,
       );
       expect(noFumbleResult.outcome).not.toBe('fumble');
     });
@@ -273,7 +273,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.92
+        () => 0.92,
       );
       expect(critResult.outcome).toBe('critical_success');
 
@@ -283,7 +283,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.85
+        () => 0.85,
       );
       expect(noCritResult.outcome).not.toBe('critical_success');
     });
@@ -299,7 +299,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.5
+        () => 0.5,
       );
 
       expect(result.system).toBe(MedicalSystem.ADVANCED);
@@ -316,7 +316,7 @@ describe('advancedMedical', () => {
         injury,
         doctor,
         options,
-        () => 0.5
+        () => 0.5,
       );
 
       expect(typeof result.roll).toBe('number');

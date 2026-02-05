@@ -8,19 +8,31 @@
  * @see BlkParserService for the corresponding import/parser
  */
 
-import { VehicleState } from '@/stores/vehicleState';
 import { AerospaceState } from '@/stores/aerospaceState';
 import { BattleArmorState } from '@/stores/battleArmorState';
 import { InfantryState } from '@/stores/infantryState';
 import { ProtoMechState } from '@/stores/protoMechState';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { VehicleLocation, VTOLLocation, AerospaceLocation, ProtoMechLocation } from '@/types/construction/UnitLocation';
-import { EngineType } from '@/types/construction/EngineType';
+import { VehicleState } from '@/stores/vehicleState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { GroundMotionType, SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { BattleArmorChassisType, BattleArmorWeightClass, InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
-import { TechBase } from '@/types/enums/TechBase';
+import { EngineType } from '@/types/construction/EngineType';
+import {
+  VehicleLocation,
+  VTOLLocation,
+  AerospaceLocation,
+  ProtoMechLocation,
+} from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import {
+  GroundMotionType,
+  SquadMotionType,
+} from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  BattleArmorChassisType,
+  BattleArmorWeightClass,
+  InfantryArmorKit,
+} from '@/types/unit/PersonnelInterfaces';
 
 /**
  * Result of exporting to BLK format
@@ -130,12 +142,16 @@ export class BlkExportService {
 
       // Year and tech
       lines.push(this.tag('year', unit.year.toString()));
-      lines.push(this.tag('type', this.formatTechType(unit.techBase, unit.rulesLevel)));
+      lines.push(
+        this.tag('type', this.formatTechType(unit.techBase, unit.rulesLevel)),
+      );
       lines.push(this.tag('role', 'Undefined')); // TODO: Add role to VehicleState
       lines.push('');
 
       // Motion type
-      lines.push(this.tag('motion_type', this.formatMotionType(unit.motionType)));
+      lines.push(
+        this.tag('motion_type', this.formatMotionType(unit.motionType)),
+      );
       lines.push('');
 
       // Tonnage and movement
@@ -144,17 +160,28 @@ export class BlkExportService {
       lines.push('');
 
       // Engine
-      lines.push(this.tag('engine_type', this.formatEngineTypeCode(unit.engineType)));
+      lines.push(
+        this.tag('engine_type', this.formatEngineTypeCode(unit.engineType)),
+      );
       lines.push('');
 
       // Armor
-      lines.push(this.tag('armor_type', this.formatArmorTypeCode(unit.armorType)));
-      lines.push(this.tag('armor_tech', this.formatArmorTechCode(unit.techBase)));
+      lines.push(
+        this.tag('armor_type', this.formatArmorTypeCode(unit.armorType)),
+      );
+      lines.push(
+        this.tag('armor_tech', this.formatArmorTechCode(unit.techBase)),
+      );
       lines.push('');
 
       // Armor values
       const isVTOL = unit.unitType === UnitType.VTOL;
-      lines.push(this.tag('armor', this.formatVehicleArmor(unit.armorAllocation, isVTOL)));
+      lines.push(
+        this.tag(
+          'armor',
+          this.formatVehicleArmor(unit.armorAllocation, isVTOL),
+        ),
+      );
       lines.push('');
 
       // Equipment by location
@@ -188,8 +215,10 @@ export class BlkExportService {
       lines.push(
         this.tag(
           'UnitType',
-          unit.unitType === UnitType.CONVENTIONAL_FIGHTER ? 'ConvFighter' : 'Aero'
-        )
+          unit.unitType === UnitType.CONVENTIONAL_FIGHTER
+            ? 'ConvFighter'
+            : 'Aero',
+        ),
       );
       lines.push(this.tag('Name', unit.chassis));
       lines.push(this.tag('Model', unit.model));
@@ -200,7 +229,9 @@ export class BlkExportService {
 
       // Year and tech
       lines.push(this.tag('year', unit.year.toString()));
-      lines.push(this.tag('type', this.formatTechType(unit.techBase, unit.rulesLevel)));
+      lines.push(
+        this.tag('type', this.formatTechType(unit.techBase, unit.rulesLevel)),
+      );
       lines.push(this.tag('role', 'Undefined')); // TODO: Add role to AerospaceState
       lines.push('');
 
@@ -210,7 +241,9 @@ export class BlkExportService {
       lines.push('');
 
       // Engine
-      lines.push(this.tag('engine_type', this.formatEngineTypeCode(unit.engineType)));
+      lines.push(
+        this.tag('engine_type', this.formatEngineTypeCode(unit.engineType)),
+      );
       lines.push('');
 
       // Heat sinks
@@ -220,16 +253,24 @@ export class BlkExportService {
 
       // Fuel and SI
       lines.push(this.tag('fuel', unit.fuel.toString()));
-      lines.push(this.tag('structural_integrity', unit.structuralIntegrity.toString()));
+      lines.push(
+        this.tag('structural_integrity', unit.structuralIntegrity.toString()),
+      );
       lines.push('');
 
       // Armor
-      lines.push(this.tag('armor_type', this.formatArmorTypeCode(unit.armorType)));
-      lines.push(this.tag('armor_tech', this.formatArmorTechCode(unit.techBase)));
+      lines.push(
+        this.tag('armor_type', this.formatArmorTypeCode(unit.armorType)),
+      );
+      lines.push(
+        this.tag('armor_tech', this.formatArmorTechCode(unit.techBase)),
+      );
       lines.push('');
 
       // Armor values (Nose, Left Wing, Right Wing, Aft)
-      lines.push(this.tag('armor', this.formatAerospaceArmor(unit.armorAllocation)));
+      lines.push(
+        this.tag('armor', this.formatAerospaceArmor(unit.armorAllocation)),
+      );
       lines.push('');
 
       // Equipment by arc
@@ -270,18 +311,26 @@ export class BlkExportService {
 
       // Year and tech
       lines.push(this.tag('year', unit.year.toString()));
-      lines.push(this.tag('type', this.formatTechType(unit.techBase, unit.rulesLevel)));
+      lines.push(
+        this.tag('type', this.formatTechType(unit.techBase, unit.rulesLevel)),
+      );
       lines.push(this.tag('role', 'Undefined'));
       lines.push('');
 
       // BA-specific
-      lines.push(this.tag('chassis', this.formatBAChassisType(unit.chassisType)));
+      lines.push(
+        this.tag('chassis', this.formatBAChassisType(unit.chassisType)),
+      );
       lines.push(this.tag('Trooper Count', unit.squadSize.toString()));
-      lines.push(this.tag('weightclass', this.formatBAWeightClass(unit.weightClass)));
+      lines.push(
+        this.tag('weightclass', this.formatBAWeightClass(unit.weightClass)),
+      );
       lines.push('');
 
       // Movement
-      lines.push(this.tag('motion_type', this.formatBAMotionType(unit.motionType)));
+      lines.push(
+        this.tag('motion_type', this.formatBAMotionType(unit.motionType)),
+      );
       lines.push(this.tag('cruiseMP', unit.groundMP.toString()));
       if (unit.jumpMP > 0) {
         lines.push(this.tag('jumpingMP', unit.jumpMP.toString()));
@@ -331,13 +380,17 @@ export class BlkExportService {
 
       // Year and tech
       lines.push(this.tag('year', unit.year.toString()));
-      lines.push(this.tag('type', this.formatTechType(unit.techBase, unit.rulesLevel)));
+      lines.push(
+        this.tag('type', this.formatTechType(unit.techBase, unit.rulesLevel)),
+      );
       lines.push('');
 
       // Infantry-specific
       lines.push(this.tag('squad_size', unit.squadSize.toString()));
       lines.push(this.tag('squadn', unit.numberOfSquads.toString()));
-      lines.push(this.tag('motion_type', this.formatInfantryMotionType(unit.motionType)));
+      lines.push(
+        this.tag('motion_type', this.formatInfantryMotionType(unit.motionType)),
+      );
       lines.push('');
 
       // Weapons
@@ -391,7 +444,9 @@ export class BlkExportService {
 
       // Year and tech
       lines.push(this.tag('year', unit.year.toString()));
-      lines.push(this.tag('type', this.formatTechType(unit.techBase, unit.rulesLevel)));
+      lines.push(
+        this.tag('type', this.formatTechType(unit.techBase, unit.rulesLevel)),
+      );
       lines.push('');
 
       // ProtoMech-specific
@@ -428,8 +483,12 @@ export class BlkExportService {
    * Write standard license header
    */
   private writeLicenseHeader(lines: string[]): void {
-    lines.push('#MegaMek Data (C) 2025 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.');
-    lines.push('#To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/');
+    lines.push(
+      '#MegaMek Data (C) 2025 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.',
+    );
+    lines.push(
+      '#To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/',
+    );
     lines.push('#');
     lines.push('#Generated by MekStation');
     lines.push('');
@@ -572,7 +631,7 @@ export class BlkExportService {
    */
   private formatVehicleArmor(
     allocation: Record<string, number>,
-    isVTOL: boolean
+    isVTOL: boolean,
   ): string {
     const values: number[] = [
       allocation[VehicleLocation.FRONT] || 0,
@@ -688,7 +747,10 @@ export class BlkExportService {
   /**
    * Write battle armor equipment blocks
    */
-  private writeBattleArmorEquipment(lines: string[], unit: BattleArmorState): void {
+  private writeBattleArmorEquipment(
+    lines: string[],
+    unit: BattleArmorState,
+  ): void {
     // BA equipment is typically per-squad or per-trooper
     if (unit.equipment && unit.equipment.length > 0) {
       const items = unit.equipment.map((eq) => eq.name);
@@ -713,7 +775,14 @@ export class BlkExportService {
     }
 
     // Write each location block
-    const locationOrder = ['Head', 'Torso', 'Main Gun', 'Left Arm', 'Right Arm', 'Legs'];
+    const locationOrder = [
+      'Head',
+      'Torso',
+      'Main Gun',
+      'Left Arm',
+      'Right Arm',
+      'Legs',
+    ];
     for (const loc of locationOrder) {
       const items = locationMap[loc];
       if (items && items.length > 0) {

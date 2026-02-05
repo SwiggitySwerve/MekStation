@@ -21,10 +21,12 @@
  * @module lib/finances/taxService
  */
 
-import { Money } from '@/types/campaign/Money';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IPerson } from '@/types/campaign/Person';
+
 import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { Money } from '@/types/campaign/Money';
+
 import { calculateTotalMonthlySalary } from './salaryService';
 
 // =============================================================================

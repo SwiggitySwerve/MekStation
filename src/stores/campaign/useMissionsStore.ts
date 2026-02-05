@@ -11,10 +11,11 @@
 
 import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+import { MissionStatus } from '@/types/campaign/enums';
 import { IMission, IContract, isContract } from '@/types/campaign/Mission';
 import { IScenario } from '@/types/campaign/Scenario';
-import { MissionStatus } from '@/types/campaign/enums';
 
 // =============================================================================
 // Store State
@@ -94,7 +95,9 @@ export type MissionsStore = MissionsState & MissionsActions;
  * const addMission = store.getState().addMission;
  * addMission(newMission);
  */
-export function createMissionsStore(campaignId: string): StoreApi<MissionsStore> {
+export function createMissionsStore(
+  campaignId: string,
+): StoreApi<MissionsStore> {
   return create<MissionsStore>()(
     persist(
       (set, get) => ({
@@ -146,7 +149,7 @@ export function createMissionsStore(campaignId: string): StoreApi<MissionsStore>
 
         getActiveMissions: () =>
           Array.from(get().missions.values()).filter(
-            (m) => m.status === MissionStatus.ACTIVE
+            (m) => m.status === MissionStatus.ACTIVE,
           ),
 
         getCompletedMissions: () =>
@@ -154,24 +157,23 @@ export function createMissionsStore(campaignId: string): StoreApi<MissionsStore>
             (m) =>
               m.status === MissionStatus.SUCCESS ||
               m.status === MissionStatus.PARTIAL ||
-              m.status === MissionStatus.FAILED
+              m.status === MissionStatus.FAILED,
           ),
 
         getMissionsByStatus: (status) =>
           Array.from(get().missions.values()).filter(
-            (m) => m.status === status
+            (m) => m.status === status,
           ),
 
         getActiveContracts: () =>
           Array.from(get().missions.values()).filter(
             (m): m is IContract =>
-              isContract(m) && m.status === MissionStatus.ACTIVE
+              isContract(m) && m.status === MissionStatus.ACTIVE,
           ),
 
         getContractsByEmployer: (employerId) =>
           Array.from(get().missions.values()).filter(
-            (m): m is IContract =>
-              isContract(m) && m.employerId === employerId
+            (m): m is IContract => isContract(m) && m.employerId === employerId,
           ),
 
         // =================================================================
@@ -210,7 +212,7 @@ export function createMissionsStore(campaignId: string): StoreApi<MissionsStore>
 
         getScenariosByMission: (missionId) =>
           Array.from(get().scenarios.values()).filter(
-            (s) => s.missionId === missionId
+            (s) => s.missionId === missionId,
           ),
 
         clearScenarios: () => set({ scenarios: new Map() }),
@@ -235,7 +237,7 @@ export function createMissionsStore(campaignId: string): StoreApi<MissionsStore>
             scenarios: new Map(persistedData?.scenarios || []),
           };
         },
-      }
-    )
+      },
+    ),
   );
 }

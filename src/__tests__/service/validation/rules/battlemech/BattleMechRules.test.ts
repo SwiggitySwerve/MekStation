@@ -1,12 +1,9 @@
 /**
  * Unit tests for BattleMech-Specific Validation Rules
- * 
+ *
  * Tests VAL-BM-001 through VAL-BM-010 for BattleMech and OmniMech units.
  */
 
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { TechBase, RulesLevel, Era } from '@/types/enums';
-import { IUnitValidationContext, UnitCategory, IValidatableUnit } from '@/types/validation/UnitValidationInterfaces';
 import {
   BattleMechTonnageRange,
   BattleMechEngineRatingRange,
@@ -20,9 +17,18 @@ import {
   BattleMechXLEngineSlots,
   BATTLEMECH_RULES,
 } from '@/services/validation/rules/battlemech/BattleMechRules';
+import { TechBase, RulesLevel, Era } from '@/types/enums';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  IUnitValidationContext,
+  UnitCategory,
+  IValidatableUnit,
+} from '@/types/validation/UnitValidationInterfaces';
 
 describe('BattleMechRules', () => {
-  const createBaseUnit = (overrides: Partial<IValidatableUnit> = {}): IValidatableUnit => ({
+  const createBaseUnit = (
+    overrides: Partial<IValidatableUnit> = {},
+  ): IValidatableUnit => ({
     id: 'test-mech',
     name: 'Test BattleMech',
     unitType: UnitType.BATTLEMECH,
@@ -56,7 +62,7 @@ describe('BattleMechRules', () => {
     });
 
     it('should have rules in priority order', () => {
-      const priorities = BATTLEMECH_RULES.map(r => r.priority);
+      const priorities = BATTLEMECH_RULES.map((r) => r.priority);
       const sorted = [...priorities].sort((a, b) => (a ?? 100) - (b ?? 100));
       expect(priorities).toEqual(sorted);
     });
@@ -64,34 +70,46 @@ describe('BattleMechRules', () => {
 
   describe('VAL-BM-001: BattleMech Tonnage Range', () => {
     it('should pass for valid tonnage (50 tons)', () => {
-      const result = BattleMechTonnageRange.validate(createContext(createBaseUnit({ weight: 50 })));
+      const result = BattleMechTonnageRange.validate(
+        createContext(createBaseUnit({ weight: 50 })),
+      );
       expect(result.passed).toBe(true);
     });
 
     it('should pass for minimum tonnage (20 tons)', () => {
-      const result = BattleMechTonnageRange.validate(createContext(createBaseUnit({ weight: 20 })));
+      const result = BattleMechTonnageRange.validate(
+        createContext(createBaseUnit({ weight: 20 })),
+      );
       expect(result.passed).toBe(true);
     });
 
     it('should pass for maximum tonnage (100 tons)', () => {
-      const result = BattleMechTonnageRange.validate(createContext(createBaseUnit({ weight: 100 })));
+      const result = BattleMechTonnageRange.validate(
+        createContext(createBaseUnit({ weight: 100 })),
+      );
       expect(result.passed).toBe(true);
     });
 
     it('should fail for tonnage below 20', () => {
-      const result = BattleMechTonnageRange.validate(createContext(createBaseUnit({ weight: 15 })));
+      const result = BattleMechTonnageRange.validate(
+        createContext(createBaseUnit({ weight: 15 })),
+      );
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('20 and 100');
     });
 
     it('should fail for tonnage above 100', () => {
-      const result = BattleMechTonnageRange.validate(createContext(createBaseUnit({ weight: 150 })));
+      const result = BattleMechTonnageRange.validate(
+        createContext(createBaseUnit({ weight: 150 })),
+      );
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('20 and 100');
     });
 
     it('should fail for tonnage not divisible by 5', () => {
-      const result = BattleMechTonnageRange.validate(createContext(createBaseUnit({ weight: 52 })));
+      const result = BattleMechTonnageRange.validate(
+        createContext(createBaseUnit({ weight: 52 })),
+      );
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('divisible by');
     });
@@ -111,50 +129,69 @@ describe('BattleMechRules', () => {
 
   describe('VAL-BM-002: Engine Rating Range', () => {
     it('should pass for valid engine rating', () => {
-      const result = BattleMechEngineRatingRange.validate(createContext(createBaseUnit({ engineType: 'Standard 250' })));
+      const result = BattleMechEngineRatingRange.validate(
+        createContext(createBaseUnit({ engineType: 'Standard 250' })),
+      );
       expect(result.passed).toBe(true);
     });
 
     it('should pass for minimum engine rating (10)', () => {
-      const result = BattleMechEngineRatingRange.validate(createContext(createBaseUnit({ engineType: 'Standard 10' })));
+      const result = BattleMechEngineRatingRange.validate(
+        createContext(createBaseUnit({ engineType: 'Standard 10' })),
+      );
       expect(result.passed).toBe(true);
     });
 
     it('should pass for maximum engine rating (500)', () => {
-      const result = BattleMechEngineRatingRange.validate(createContext(createBaseUnit({ engineType: 'Standard 500' })));
+      const result = BattleMechEngineRatingRange.validate(
+        createContext(createBaseUnit({ engineType: 'Standard 500' })),
+      );
       expect(result.passed).toBe(true);
     });
 
     it('should fail for engine rating below 10', () => {
-      const result = BattleMechEngineRatingRange.validate(createContext(createBaseUnit({ engineType: 'Standard 5' })));
+      const result = BattleMechEngineRatingRange.validate(
+        createContext(createBaseUnit({ engineType: 'Standard 5' })),
+      );
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('10 and 500');
     });
 
     it('should fail for engine rating above 500', () => {
-      const result = BattleMechEngineRatingRange.validate(createContext(createBaseUnit({ engineType: 'Standard 600' })));
+      const result = BattleMechEngineRatingRange.validate(
+        createContext(createBaseUnit({ engineType: 'Standard 600' })),
+      );
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('10 and 500');
     });
 
     it('should fail for engine rating not divisible by 5', () => {
-      const result = BattleMechEngineRatingRange.validate(createContext(createBaseUnit({ engineType: 'Standard 252' })));
+      const result = BattleMechEngineRatingRange.validate(
+        createContext(createBaseUnit({ engineType: 'Standard 252' })),
+      );
       expect(result.passed).toBe(false);
       expect(result.errors[0].message).toContain('multiple of');
     });
 
     it('should pass for XL engine with valid rating', () => {
-      const result = BattleMechEngineRatingRange.validate(createContext(createBaseUnit({ engineType: 'XL 300' })));
+      const result = BattleMechEngineRatingRange.validate(
+        createContext(createBaseUnit({ engineType: 'XL 300' })),
+      );
       expect(result.passed).toBe(true);
     });
 
     it('should pass when no engine type is specified', () => {
-      const result = BattleMechEngineRatingRange.validate(createContext(createBaseUnit({ engineType: undefined })));
+      const result = BattleMechEngineRatingRange.validate(
+        createContext(createBaseUnit({ engineType: undefined })),
+      );
       expect(result.passed).toBe(true); // No engine to validate
     });
 
     it('should pass for non-BattleMech unit types', () => {
-      const unit = createBaseUnit({ unitType: UnitType.VEHICLE, engineType: 'Standard 5' });
+      const unit = createBaseUnit({
+        unitType: UnitType.VEHICLE,
+        engineType: 'Standard 5',
+      });
       const result = BattleMechEngineRatingRange.validate(createContext(unit));
       expect(result.passed).toBe(true); // Not applicable to vehicles
     });
@@ -162,7 +199,9 @@ describe('BattleMechRules', () => {
 
   describe('VAL-BM-003: Engine Rating Match', () => {
     it('should pass (placeholder implementation)', () => {
-      const result = BattleMechEngineRatingMatch.validate(createContext(createBaseUnit()));
+      const result = BattleMechEngineRatingMatch.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
   });
@@ -181,42 +220,54 @@ describe('BattleMechRules', () => {
 
   describe('VAL-BM-005: Minimum Walk MP', () => {
     it('should pass (placeholder implementation)', () => {
-      const result = BattleMechMinimumWalkMP.validate(createContext(createBaseUnit()));
+      const result = BattleMechMinimumWalkMP.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
   });
 
   describe('VAL-BM-006: Maximum Walk MP', () => {
     it('should pass (placeholder implementation)', () => {
-      const result = BattleMechMaximumWalkMP.validate(createContext(createBaseUnit()));
+      const result = BattleMechMaximumWalkMP.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
   });
 
   describe('VAL-BM-007: Arm Actuator Requirements', () => {
     it('should pass (placeholder implementation)', () => {
-      const result = BattleMechArmActuators.validate(createContext(createBaseUnit()));
+      const result = BattleMechArmActuators.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
   });
 
   describe('VAL-BM-008: Head Location Restrictions', () => {
     it('should pass (placeholder implementation)', () => {
-      const result = BattleMechHeadRestrictions.validate(createContext(createBaseUnit()));
+      const result = BattleMechHeadRestrictions.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
   });
 
   describe('VAL-BM-009: Center Torso Requirements', () => {
     it('should pass (placeholder implementation)', () => {
-      const result = BattleMechCTRequirements.validate(createContext(createBaseUnit()));
+      const result = BattleMechCTRequirements.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
   });
 
   describe('VAL-BM-010: XL Engine Side Torso Slots', () => {
     it('should pass (placeholder implementation)', () => {
-      const result = BattleMechXLEngineSlots.validate(createContext(createBaseUnit()));
+      const result = BattleMechXLEngineSlots.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
   });

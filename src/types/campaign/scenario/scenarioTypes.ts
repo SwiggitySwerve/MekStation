@@ -190,7 +190,12 @@ export interface ICombatTeam {
  */
 export interface IScenarioConditions {
   /** Light level during scenario */
-  readonly light?: 'daylight' | 'dusk' | 'full_moon' | 'moonless' | 'pitch_black';
+  readonly light?:
+    | 'daylight'
+    | 'dusk'
+    | 'full_moon'
+    | 'moonless'
+    | 'pitch_black';
 
   /** Weather conditions */
   readonly weather?:

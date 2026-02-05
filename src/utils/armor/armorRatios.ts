@@ -34,7 +34,10 @@ export const ARMOR_RATIOS = {
  * // front = 75, rear = 25
  * ```
  */
-export function getExpectedArmorCapacity(totalMaxArmor: number): { front: number; rear: number } {
+export function getExpectedArmorCapacity(totalMaxArmor: number): {
+  front: number;
+  rear: number;
+} {
   return {
     front: Math.round(totalMaxArmor * ARMOR_RATIOS.FRONT),
     rear: Math.round(totalMaxArmor * ARMOR_RATIOS.REAR),

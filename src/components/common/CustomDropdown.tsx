@@ -15,7 +15,7 @@ export default function CustomDropdown({
   onChange,
   disabled = false,
   className = '',
-  placeholder = 'Select...'
+  placeholder = 'Select...',
 }: CustomDropdownProps): React.ReactElement {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -23,7 +23,10 @@ export default function CustomDropdown({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -43,39 +46,36 @@ export default function CustomDropdown({
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
-        className={`
-          w-full px-2 py-1 bg-surface-raised border border-border-theme rounded text-sm text-text-theme-primary
-          flex items-center justify-between
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-border-theme-strong cursor-pointer'}
-          ${isOpen ? 'border-accent' : ''}
-          ${className}
-        `}
+        className={`bg-surface-raised border-border-theme text-text-theme-primary flex w-full items-center justify-between rounded border px-2 py-1 text-sm ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:border-border-theme-strong cursor-pointer'} ${isOpen ? 'border-accent' : ''} ${className} `}
       >
         <span>{value || placeholder}</span>
-        <svg 
-          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-surface-base border border-border-theme rounded shadow-lg max-h-60 overflow-auto">
+        <div className="bg-surface-base border-border-theme absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded border shadow-lg">
           {options.map((option) => (
             <button
               key={option}
               type="button"
               onClick={() => handleSelect(option)}
-              className={`
-                w-full px-3 py-2 text-left text-sm
-                ${option === value
+              className={`w-full px-3 py-2 text-left text-sm ${
+                option === value
                   ? 'bg-accent text-white'
                   : 'text-text-theme-primary hover:bg-surface-raised'
-                }
-              `}
+              } `}
             >
               {option}
             </button>

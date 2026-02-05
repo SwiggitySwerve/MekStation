@@ -1,5 +1,10 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useGameStatePersistence, GameState, StoredData } from '../useGameStatePersistence';
+
+import {
+  useGameStatePersistence,
+  GameState,
+  StoredData,
+} from '../useGameStatePersistence';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -33,7 +38,9 @@ const mockBeforeUnload = jest.fn();
 Object.defineProperty(window, 'addEventListener', {
   value: jest.fn((event: string, callback: (e: Event) => void) => {
     if (event === 'beforeunload') {
-      mockBeforeUnload.mockImplementation(() => callback(new Event('beforeunload')));
+      mockBeforeUnload.mockImplementation(() =>
+        callback(new Event('beforeunload')),
+      );
     }
   }),
 });
@@ -76,7 +83,7 @@ describe('useGameStatePersistence', () => {
       const { result } = renderHook(() =>
         useGameStatePersistence({
           storageKey: mockStorageKey,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -98,7 +105,7 @@ describe('useGameStatePersistence', () => {
       const { result } = renderHook(() =>
         useGameStatePersistence({
           storageKey: mockStorageKey,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -121,7 +128,7 @@ describe('useGameStatePersistence', () => {
       const { result } = renderHook(() =>
         useGameStatePersistence({
           storageKey: mockStorageKey,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -134,7 +141,7 @@ describe('useGameStatePersistence', () => {
       const { result } = renderHook(() =>
         useGameStatePersistence({
           storageKey: mockStorageKey,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -149,7 +156,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       await act(async () => {
@@ -172,7 +179,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       const beforeSave = Date.now();
@@ -187,7 +194,7 @@ describe('useGameStatePersistence', () => {
 
       expect(result.current.lastSaved).toBeInstanceOf(Date);
       expect(result.current.lastSaved!.getTime()).toBeGreaterThanOrEqual(
-        beforeSave
+        beforeSave,
       );
     });
 
@@ -196,7 +203,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       await act(async () => {
@@ -217,7 +224,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       await act(async () => {
@@ -237,7 +244,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       // Mock localStorage.setItem to throw error
@@ -268,7 +275,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false, // Disable to avoid timing issues
-        })
+        }),
       );
 
       await act(async () => {
@@ -283,7 +290,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       expect(result.current.hasUnsavedChanges).toBe(false);
@@ -307,14 +314,14 @@ describe('useGameStatePersistence', () => {
           storageKey: mockStorageKey,
           enableAutosave: true,
           autosaveDebounce: 100,
-        })
+        }),
       );
 
       const { result: disabledResult } = renderHook(() =>
         useGameStatePersistence({
           storageKey: `${mockStorageKey}-2`,
           enableAutosave: false,
-        })
+        }),
       );
 
       // Both should have hasUnsavedChanges flag
@@ -339,7 +346,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -353,7 +360,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       localStorage.setItem(mockStorageKey, 'invalid-json');
@@ -368,7 +375,9 @@ describe('useGameStatePersistence', () => {
       });
 
       // State should still be null or have error
-      expect(result.current.state === null || result.current.error !== null).toBe(true);
+      expect(
+        result.current.state === null || result.current.error !== null,
+      ).toBe(true);
     });
 
     it('should return null state when no data exists', async () => {
@@ -376,7 +385,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: 'nonexistent-key',
           enableAutosave: false,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -401,7 +410,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -431,7 +440,11 @@ describe('useGameStatePersistence', () => {
 
       // Save old state
       const oldData = {
-        state: { ...mockState, editorState: oldEditorState, _lastSaved: oldTimestamp },
+        state: {
+          ...mockState,
+          editorState: oldEditorState,
+          _lastSaved: oldTimestamp,
+        },
         metadata: {
           timestamp: oldTimestamp,
           version: '1.0.0',
@@ -444,16 +457,23 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       await waitFor(() => {
-        expect(result.current.state).toEqual({ ...mockState, editorState: oldEditorState });
+        expect(result.current.state).toEqual({
+          ...mockState,
+          editorState: oldEditorState,
+        });
       });
 
       // Simulate external update to localStorage
       const newData = {
-        state: { ...mockState, editorState: newEditorState, _lastSaved: newTimestamp },
+        state: {
+          ...mockState,
+          editorState: newEditorState,
+          _lastSaved: newTimestamp,
+        },
         metadata: {
           timestamp: newTimestamp,
           version: '1.0.0',
@@ -464,7 +484,10 @@ describe('useGameStatePersistence', () => {
 
       // Try to save old state
       await act(async () => {
-        result.current.setState({ ...mockState, editorState: { ...oldEditorState, activeTab: 'equipment' } });
+        result.current.setState({
+          ...mockState,
+          editorState: { ...oldEditorState, activeTab: 'equipment' },
+        });
       });
 
       await expect(async () => {
@@ -494,7 +517,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -503,7 +526,10 @@ describe('useGameStatePersistence', () => {
 
       // Update state (should be newer than what's in localStorage)
       act(() => {
-        result.current.setState({ ...mockState, editorState: { ...mockState.editorState, activeTab: 'equipment' } });
+        result.current.setState({
+          ...mockState,
+          editorState: { ...mockState.editorState, activeTab: 'equipment' },
+        });
       });
 
       await act(async () => {
@@ -522,7 +548,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       expect(mockBeforeUnload).not.toHaveBeenCalled();
@@ -542,7 +568,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       act(() => {
@@ -568,7 +594,7 @@ describe('useGameStatePersistence', () => {
         useGameStatePersistence({
           storageKey: mockStorageKey,
           enableAutosave: false,
-        })
+        }),
       );
 
       // save() should not throw when state is null
@@ -595,7 +621,7 @@ describe('useGameStatePersistence', () => {
           storageKey: mockStorageKey,
           version: '1.0.0',
           enableAutosave: false,
-        })
+        }),
       );
 
       // Should load state regardless of version mismatch
@@ -605,11 +631,16 @@ describe('useGameStatePersistence', () => {
 
       // Saving should update version
       await act(async () => {
-        result.current.setState({ ...mockState, editorState: { ...mockState.editorState, activeTab: 'criticals' } });
+        result.current.setState({
+          ...mockState,
+          editorState: { ...mockState.editorState, activeTab: 'criticals' },
+        });
         await result.current.save();
       });
 
-      const storedData = JSON.parse(localStorage.getItem(mockStorageKey)!) as StoredData;
+      const storedData = JSON.parse(
+        localStorage.getItem(mockStorageKey)!,
+      ) as StoredData;
       expect(storedData.metadata.version).toBe('1.0.0');
     });
   });

@@ -1,16 +1,16 @@
 /**
  * Test Mech Builder
- * 
+ *
  * Utility for creating test BattleMech objects with sensible defaults.
  * Used for unit and integration testing.
  */
 
-import { TechBase } from '@/types/enums/TechBase';
-import { Era } from '@/types/enums/Era';
-import { WeightClass } from '@/types/enums/WeightClass';
-import { RulesLevel } from '@/types/enums/RulesLevel';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
+import { Era } from '@/types/enums/Era';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { WeightClass } from '@/types/enums/WeightClass';
 
 /**
  * Minimal mech structure for testing
@@ -25,15 +25,15 @@ export interface TestMech {
   era: Era;
   rulesLevel: RulesLevel;
   weightClass: WeightClass;
-  
+
   // Construction
   engineType: EngineType;
   engineRating: number;
   gyroType: GyroType;
-  
+
   // Calculated totals (for validation tests)
   totalWeight?: number;
-  
+
   // Armor
   armorPoints?: {
     head: number;
@@ -48,7 +48,7 @@ export interface TestMech {
     leftLeg: number;
     rightLeg: number;
   };
-  
+
   // Equipment
   equipment?: Array<{
     id: string;
@@ -56,7 +56,7 @@ export interface TestMech {
     slots: number;
     weight: number;
   }>;
-  
+
   // Heat sinks
   heatSinks?: {
     type: 'single' | 'double';
@@ -93,18 +93,18 @@ const DEFAULT_TEST_MECH: TestMech = {
 
 /**
  * Create a test mech with specified options
- * 
+ *
  * @param options - Partial mech options to override defaults
  * @returns Complete test mech object
  */
 export function createTestMech(options: TestMechOptions = {}): TestMech {
   const mech = { ...DEFAULT_TEST_MECH, ...options };
-  
+
   // Auto-determine weight class if tonnage is provided
   if (options.tonnage && !options.weightClass) {
     mech.weightClass = getWeightClass(options.tonnage);
   }
-  
+
   return mech;
 }
 
@@ -207,7 +207,7 @@ export const CANONICAL_TEST_MECHS = {
     era: Era.AGE_OF_WAR,
     rulesLevel: RulesLevel.INTRODUCTORY,
   }),
-  
+
   hunchback: createMediumMech({
     id: 'hunchback-hbk-4g',
     name: 'Hunchback HBK-4G',
@@ -215,7 +215,7 @@ export const CANONICAL_TEST_MECHS = {
     engineRating: 200,
     era: Era.LATE_SUCCESSION_WARS,
   }),
-  
+
   marauder: createHeavyMech({
     id: 'marauder-mad-3r',
     name: 'Marauder MAD-3R',
@@ -223,7 +223,7 @@ export const CANONICAL_TEST_MECHS = {
     engineRating: 300,
     era: Era.STAR_LEAGUE,
   }),
-  
+
   atlas: createAssaultMech({
     id: 'atlas-as7-d',
     name: 'Atlas AS7-D',
@@ -231,7 +231,7 @@ export const CANONICAL_TEST_MECHS = {
     engineRating: 300,
     era: Era.LATE_SUCCESSION_WARS,
   }),
-  
+
   timberwolf: createClanMech({
     id: 'timberwolf-prime',
     name: 'Timber Wolf Prime',
@@ -240,4 +240,3 @@ export const CANONICAL_TEST_MECHS = {
     era: Era.CLAN_INVASION,
   }),
 };
-

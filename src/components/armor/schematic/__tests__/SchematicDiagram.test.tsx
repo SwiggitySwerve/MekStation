@@ -1,14 +1,34 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { SchematicDiagram } from '../SchematicDiagram';
+import React from 'react';
+
 import { MechLocation } from '@/types/construction';
+
+import { SchematicDiagram } from '../SchematicDiagram';
 
 describe('SchematicDiagram', () => {
   const mockArmorData = [
     { location: MechLocation.HEAD, current: 9, maximum: 9 },
-    { location: MechLocation.CENTER_TORSO, current: 35, maximum: 47, rear: 12, rearMaximum: 23 },
-    { location: MechLocation.LEFT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
-    { location: MechLocation.RIGHT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
+    {
+      location: MechLocation.CENTER_TORSO,
+      current: 35,
+      maximum: 47,
+      rear: 12,
+      rearMaximum: 23,
+    },
+    {
+      location: MechLocation.LEFT_TORSO,
+      current: 24,
+      maximum: 32,
+      rear: 8,
+      rearMaximum: 16,
+    },
+    {
+      location: MechLocation.RIGHT_TORSO,
+      current: 24,
+      maximum: 32,
+      rear: 8,
+      rearMaximum: 16,
+    },
     { location: MechLocation.LEFT_ARM, current: 20, maximum: 24 },
     { location: MechLocation.RIGHT_ARM, current: 20, maximum: 24 },
     { location: MechLocation.LEFT_LEG, current: 28, maximum: 32 },
@@ -47,14 +67,21 @@ describe('SchematicDiagram', () => {
   it('should call onLocationClick when a location is clicked', () => {
     render(<SchematicDiagram {...defaultProps} />);
     // Both desktop and mobile layouts render, so get all and click first
-    const headButtons = screen.getAllByRole('button', { name: /Head armor: 9 of 9/i });
+    const headButtons = screen.getAllByRole('button', {
+      name: /Head armor: 9 of 9/i,
+    });
     fireEvent.click(headButtons[0]);
-    expect(defaultProps.onLocationClick).toHaveBeenCalledWith(MechLocation.HEAD);
+    expect(defaultProps.onLocationClick).toHaveBeenCalledWith(
+      MechLocation.HEAD,
+    );
   });
 
   it('should show selected state for selected location', () => {
     const { container } = render(
-      <SchematicDiagram {...defaultProps} selectedLocation={MechLocation.HEAD} />
+      <SchematicDiagram
+        {...defaultProps}
+        selectedLocation={MechLocation.HEAD}
+      />,
     );
     const selectedButton = container.querySelector('.ring-2');
     expect(selectedButton).toBeInTheDocument();

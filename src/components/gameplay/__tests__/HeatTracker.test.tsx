@@ -1,5 +1,6 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+
 import { HeatTracker } from '../HeatTracker';
 
 describe('HeatTracker', () => {
@@ -16,7 +17,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('15')).toBeInTheDocument();
@@ -29,7 +30,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('Heat')).toBeInTheDocument();
@@ -41,7 +42,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       const progressbar = container.querySelector('[role="progressbar"]');
@@ -57,7 +58,7 @@ describe('HeatTracker', () => {
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
           className="custom-class"
-        />
+        />,
       );
 
       expect(container.querySelector('.custom-class')).toBeInTheDocument();
@@ -71,7 +72,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       const select = screen.getByLabelText('Heat scale');
@@ -84,7 +85,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('Single Heat')).toBeInTheDocument();
@@ -98,7 +99,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       const select = screen.getByLabelText('Heat scale');
@@ -113,7 +114,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('15')).toBeInTheDocument(); // Current heat
@@ -124,7 +125,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Double"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('15')).toBeInTheDocument(); // Current heat still 15
@@ -137,7 +138,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       const select = screen.getByLabelText('Heat scale');
@@ -152,7 +153,7 @@ describe('HeatTracker', () => {
           currentHeat={10}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('10')).toHaveClass('text-green-500');
@@ -165,7 +166,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('CAUTION: HEAT BUILDUP')).toBeInTheDocument();
@@ -177,7 +178,7 @@ describe('HeatTracker', () => {
           currentHeat={23}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText(/WARNING.*NEAR MAX HEAT/)).toBeInTheDocument();
@@ -189,7 +190,7 @@ describe('HeatTracker', () => {
           currentHeat={30}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('MAX HEAT - SHUTDOWN')).toBeInTheDocument();
@@ -201,7 +202,7 @@ describe('HeatTracker', () => {
           currentHeat={30}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('⚠️ Ammo explosion risk')).toBeInTheDocument();
@@ -213,7 +214,7 @@ describe('HeatTracker', () => {
           currentHeat={5}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       const { container: warningContainer } = render(
@@ -221,7 +222,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       const { container: criticalContainer } = render(
@@ -229,7 +230,7 @@ describe('HeatTracker', () => {
           currentHeat={25}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       const { container: maxContainer } = render(
@@ -237,12 +238,18 @@ describe('HeatTracker', () => {
           currentHeat={30}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
-      expect(normalContainer.querySelector('.bg-green-500')).toBeInTheDocument();
-      expect(warningContainer.querySelector('.bg-amber-500')).toBeInTheDocument();
-      expect(criticalContainer.querySelector('.bg-red-500')).toBeInTheDocument();
+      expect(
+        normalContainer.querySelector('.bg-green-500'),
+      ).toBeInTheDocument();
+      expect(
+        warningContainer.querySelector('.bg-amber-500'),
+      ).toBeInTheDocument();
+      expect(
+        criticalContainer.querySelector('.bg-red-500'),
+      ).toBeInTheDocument();
       expect(maxContainer.querySelector('.bg-red-600')).toBeInTheDocument();
     });
   });
@@ -256,7 +263,7 @@ describe('HeatTracker', () => {
           onScaleChange={mockOnScaleChange}
           isCooling={true}
           coolingTurns={3}
-        />
+        />,
       );
 
       expect(screen.getByText(/Cooling:/)).toBeInTheDocument();
@@ -271,7 +278,7 @@ describe('HeatTracker', () => {
           onScaleChange={mockOnScaleChange}
           isCooling={true}
           coolingTurns={1}
-        />
+        />,
       );
 
       expect(screen.getByText(/1 turn remaining/)).toBeInTheDocument();
@@ -285,7 +292,7 @@ describe('HeatTracker', () => {
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
           isCooling={false}
-        />
+        />,
       );
 
       expect(screen.queryByText(/Cooling:/)).not.toBeInTheDocument();
@@ -299,7 +306,7 @@ describe('HeatTracker', () => {
           onScaleChange={mockOnScaleChange}
           isCooling={true}
           coolingTurns={2}
-        />
+        />,
       );
 
       const icon = container.querySelector('.animate-pulse');
@@ -314,7 +321,7 @@ describe('HeatTracker', () => {
           currentHeat={35}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText(/⚠️ HEAT OVERFLOW:/)).toBeInTheDocument();
@@ -327,7 +334,7 @@ describe('HeatTracker', () => {
           currentHeat={45}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText(/15 over limit/)).toBeInTheDocument();
@@ -339,7 +346,7 @@ describe('HeatTracker', () => {
           currentHeat={30}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.queryByText(/HEAT OVERFLOW/)).not.toBeInTheDocument();
@@ -353,7 +360,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByLabelText('Heat scale')).toBeInTheDocument();
@@ -365,11 +372,14 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       const progressbar = container.querySelector('[role="progressbar"]');
-      expect(progressbar).toHaveAttribute('aria-label', 'Current heat: 15 of 30');
+      expect(progressbar).toHaveAttribute(
+        'aria-label',
+        'Current heat: 15 of 30',
+      );
       expect(progressbar).toHaveAttribute('aria-valuemin', '0');
     });
   });
@@ -381,7 +391,7 @@ describe('HeatTracker', () => {
           currentHeat={15}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       const progressBar = container.querySelector('.transition-all');
@@ -394,7 +404,7 @@ describe('HeatTracker', () => {
           currentHeat={40}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       const progressBar = container.querySelector('[role="progressbar"]');
@@ -412,7 +422,7 @@ describe('HeatTracker', () => {
           currentHeat={0}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('0')).toBeInTheDocument();
@@ -425,7 +435,7 @@ describe('HeatTracker', () => {
           currentHeat={25}
           heatScale="Single"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('25')).toBeInTheDocument();
@@ -436,7 +446,7 @@ describe('HeatTracker', () => {
           currentHeat={30}
           heatScale="Double"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getAllByText('30')).toHaveLength(1); // Only current heat
@@ -449,7 +459,7 @@ describe('HeatTracker', () => {
           currentHeat={60}
           heatScale="Triple"
           onScaleChange={mockOnScaleChange}
-        />
+        />,
       );
 
       expect(screen.getByText('70')).toBeInTheDocument();

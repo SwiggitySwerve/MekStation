@@ -31,7 +31,9 @@ import {
 // Test Data Factories
 // =============================================================================
 
-function createTestUnit(overrides: Partial<ICampaignUnitState> = {}): ICampaignUnitState {
+function createTestUnit(
+  overrides: Partial<ICampaignUnitState> = {},
+): ICampaignUnitState {
   return {
     unitId: 'unit-1',
     unitName: 'Atlas AS7-D',
@@ -47,7 +49,9 @@ function createTestUnit(overrides: Partial<ICampaignUnitState> = {}): ICampaignU
   };
 }
 
-function createTestPilot(overrides: Partial<ICampaignPilotState> = {}): ICampaignPilotState {
+function createTestPilot(
+  overrides: Partial<ICampaignPilotState> = {},
+): ICampaignPilotState {
   return {
     pilotId: 'pilot-1',
     pilotName: 'John Doe',
@@ -62,7 +66,9 @@ function createTestPilot(overrides: Partial<ICampaignPilotState> = {}): ICampaig
   };
 }
 
-function createTestMission(overrides: Partial<ICampaignMission> = {}): ICampaignMission {
+function createTestMission(
+  overrides: Partial<ICampaignMission> = {},
+): ICampaignMission {
   return {
     id: 'mission-1',
     name: 'Test Mission',
@@ -179,7 +185,9 @@ describe('Campaign Constants', () => {
 
   describe('SKILL_IMPROVEMENT_COSTS', () => {
     it('should have valid skill ranges', () => {
-      expect(SKILL_IMPROVEMENT_COSTS.MIN_SKILL).toBeLessThan(SKILL_IMPROVEMENT_COSTS.MAX_SKILL);
+      expect(SKILL_IMPROVEMENT_COSTS.MIN_SKILL).toBeLessThan(
+        SKILL_IMPROVEMENT_COSTS.MAX_SKILL,
+      );
       expect(SKILL_IMPROVEMENT_COSTS.GUNNERY_IMPROVEMENT).toBeGreaterThan(0);
       expect(SKILL_IMPROVEMENT_COSTS.PILOTING_IMPROVEMENT).toBeGreaterThan(0);
     });
@@ -228,18 +236,25 @@ describe('calculateMissionXp', () => {
 
   it('should add victory bonus', () => {
     const xp = calculateMissionXp(0, true, false, 0);
-    expect(xp).toBe(XP_REWARDS.MISSION_PARTICIPATION + XP_REWARDS.VICTORY_BONUS);
+    expect(xp).toBe(
+      XP_REWARDS.MISSION_PARTICIPATION + XP_REWARDS.VICTORY_BONUS,
+    );
   });
 
   it('should add survival bonus', () => {
     const xp = calculateMissionXp(0, false, true, 0);
-    expect(xp).toBe(XP_REWARDS.MISSION_PARTICIPATION + XP_REWARDS.SURVIVAL_BONUS);
+    expect(xp).toBe(
+      XP_REWARDS.MISSION_PARTICIPATION + XP_REWARDS.SURVIVAL_BONUS,
+    );
   });
 
   it('should add optional objective XP', () => {
     const objectives = 2;
     const xp = calculateMissionXp(0, false, false, objectives);
-    expect(xp).toBe(XP_REWARDS.MISSION_PARTICIPATION + objectives * XP_REWARDS.OPTIONAL_OBJECTIVE);
+    expect(xp).toBe(
+      XP_REWARDS.MISSION_PARTICIPATION +
+        objectives * XP_REWARDS.OPTIONAL_OBJECTIVE,
+    );
   });
 
   it('should accumulate all XP types', () => {
@@ -290,18 +305,20 @@ describe('validateCampaign', () => {
     });
     const result = validateCampaign(campaign);
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain('Campaign must have at least one unit or pilot');
+    expect(result.errors).toContain(
+      'Campaign must have at least one unit or pilot',
+    );
   });
 
   it('should fail if prerequisites reference non-existent mission', () => {
     const campaign = createTestCampaign({
-      missions: [
-        createTestMission({ id: 'm1', prerequisites: ['m99'] }),
-      ],
+      missions: [createTestMission({ id: 'm1', prerequisites: ['m99'] })],
     });
     const result = validateCampaign(campaign);
     expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.includes('non-existent prerequisite'))).toBe(true);
+    expect(
+      result.errors.some((e) => e.includes('non-existent prerequisite')),
+    ).toBe(true);
   });
 
   it('should fail if branch targets non-existent mission', () => {
@@ -315,7 +332,9 @@ describe('validateCampaign', () => {
     });
     const result = validateCampaign(campaign);
     expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.includes('branches to non-existent mission'))).toBe(true);
+    expect(
+      result.errors.some((e) => e.includes('branches to non-existent mission')),
+    ).toBe(true);
   });
 
   it('should warn if no final mission', () => {
@@ -323,7 +342,9 @@ describe('validateCampaign', () => {
       missions: [createTestMission({ isFinal: false })],
     });
     const result = validateCampaign(campaign);
-    expect(result.warnings.some((w) => w.includes('no final mission'))).toBe(true);
+    expect(result.warnings.some((w) => w.includes('no final mission'))).toBe(
+      true,
+    );
   });
 
   it('should warn about units without pilots', () => {
@@ -351,8 +372,14 @@ describe('getAvailableMissions', () => {
   it('should return available and in-progress missions', () => {
     const campaign = createTestCampaign({
       missions: [
-        createTestMission({ id: 'm1', status: CampaignMissionStatus.Available }),
-        createTestMission({ id: 'm2', status: CampaignMissionStatus.InProgress }),
+        createTestMission({
+          id: 'm1',
+          status: CampaignMissionStatus.Available,
+        }),
+        createTestMission({
+          id: 'm2',
+          status: CampaignMissionStatus.InProgress,
+        }),
         createTestMission({ id: 'm3', status: CampaignMissionStatus.Locked }),
         createTestMission({ id: 'm4', status: CampaignMissionStatus.Victory }),
       ],
@@ -379,7 +406,10 @@ describe('getOperationalUnits', () => {
   it('should return operational and damaged units', () => {
     const roster: ICampaignRoster = {
       units: [
-        createTestUnit({ unitId: 'u1', status: CampaignUnitStatus.Operational }),
+        createTestUnit({
+          unitId: 'u1',
+          status: CampaignUnitStatus.Operational,
+        }),
         createTestUnit({ unitId: 'u2', status: CampaignUnitStatus.Damaged }),
         createTestUnit({ unitId: 'u3', status: CampaignUnitStatus.Destroyed }),
         createTestUnit({ unitId: 'u4', status: CampaignUnitStatus.Repairing }),

@@ -1,7 +1,7 @@
 /**
  * Types Index
  * Main export barrel for all types
- * 
+ *
  * @spec openspec/specs/phase-1-foundation
  */
 

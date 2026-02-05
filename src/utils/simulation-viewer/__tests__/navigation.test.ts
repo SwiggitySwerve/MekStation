@@ -31,7 +31,9 @@ describe('NavigationManager', () => {
 
       navigationManager.navigateTo(context);
 
-      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(500);
+      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(
+        500,
+      );
     });
 
     it('should add breadcrumb when navigating', () => {
@@ -366,14 +368,18 @@ describe('NavigationManager', () => {
     it('should save scroll position for a tab', () => {
       navigationManager.saveScrollPosition('campaign-dashboard', 250);
 
-      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(250);
+      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(
+        250,
+      );
     });
 
     it('should overwrite previous scroll position', () => {
       navigationManager.saveScrollPosition('campaign-dashboard', 250);
       navigationManager.saveScrollPosition('campaign-dashboard', 500);
 
-      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(500);
+      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(
+        500,
+      );
     });
 
     it('should handle multiple tabs', () => {
@@ -381,8 +387,12 @@ describe('NavigationManager', () => {
       navigationManager.saveScrollPosition('encounter-history', 500);
       navigationManager.saveScrollPosition('analysis-bugs', 750);
 
-      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(250);
-      expect(navigationManager.getScrollPosition('encounter-history')).toBe(500);
+      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(
+        250,
+      );
+      expect(navigationManager.getScrollPosition('encounter-history')).toBe(
+        500,
+      );
       expect(navigationManager.getScrollPosition('analysis-bugs')).toBe(750);
     });
 
@@ -395,7 +405,9 @@ describe('NavigationManager', () => {
     it('should handle large position values', () => {
       navigationManager.saveScrollPosition('campaign-dashboard', 999999);
 
-      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(999999);
+      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(
+        999999,
+      );
     });
   });
 
@@ -403,7 +415,9 @@ describe('NavigationManager', () => {
     it('should return saved scroll position', () => {
       navigationManager.saveScrollPosition('campaign-dashboard', 300);
 
-      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(300);
+      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(
+        300,
+      );
     });
 
     it('should return 0 for unknown tab', () => {
@@ -419,7 +433,9 @@ describe('NavigationManager', () => {
       navigationManager.saveScrollPosition('campaign-dashboard', 200);
       navigationManager.saveScrollPosition('campaign-dashboard', 300);
 
-      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(300);
+      expect(navigationManager.getScrollPosition('campaign-dashboard')).toBe(
+        300,
+      );
     });
   });
 });
@@ -700,7 +716,7 @@ describe('createDrillDownHandler', () => {
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
         filters,
-      })
+      }),
     );
 
     spy.mockRestore();

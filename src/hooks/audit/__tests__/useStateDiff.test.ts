@@ -5,6 +5,11 @@
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react';
+
+import { EventStoreService } from '@/services/events';
+import { EventCategory, IBaseEvent } from '@/types/events';
+import { ReducerMap } from '@/utils/events/stateDerivation';
+
 import {
   useStateDiff,
   getValueAtPath,
@@ -12,9 +17,6 @@ import {
   groupDiffByTopLevel,
   IDiffEntry,
 } from '../useStateDiff';
-import { EventStoreService } from '@/services/events';
-import { EventCategory, IBaseEvent } from '@/types/events';
-import { ReducerMap } from '@/utils/events/stateDerivation';
 
 // =============================================================================
 // Test Types
@@ -42,7 +44,7 @@ const initialState: TestState = {
 function createMockEvent(
   sequence: number,
   type: string,
-  payload: unknown = {}
+  payload: unknown = {},
 ): IBaseEvent {
   return {
     id: `event-${sequence}`,
@@ -65,19 +67,26 @@ const testReducers: ReducerMap<TestState> = {
       ...state,
       player: {
         ...state.player,
-        health: state.player.health - (event.payload as { damage: number }).damage,
+        health:
+          state.player.health - (event.payload as { damage: number }).damage,
       },
     }),
     'unit-added': (state, event) => ({
       ...state,
-      units: [...state.units, (event.payload as { unit: { id: string; damage: number } }).unit],
+      units: [
+        ...state.units,
+        (event.payload as { unit: { id: string; damage: number } }).unit,
+      ],
     }),
     'unit-damaged': (state, event) => {
-      const { unitId, damage } = event.payload as { unitId: string; damage: number };
+      const { unitId, damage } = event.payload as {
+        unitId: string;
+        damage: number;
+      };
       return {
         ...state,
         units: state.units.map((u) =>
-          u.id === unitId ? { ...u, damage: u.damage + damage } : u
+          u.id === unitId ? { ...u, damage: u.damage + damage } : u,
         ),
       };
     },
@@ -105,7 +114,7 @@ describe('useStateDiff', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       expect(result.current.diff).toBeNull();
@@ -126,7 +135,7 @@ describe('useStateDiff', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -155,7 +164,7 @@ describe('useStateDiff', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       // Pass sequences in reverse order
@@ -185,7 +194,7 @@ describe('useStateDiff', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -197,7 +206,7 @@ describe('useStateDiff', () => {
       });
 
       const addedEntries = result.current.diff?.entries.filter(
-        (e) => e.changeType === 'added'
+        (e) => e.changeType === 'added',
       );
       expect(addedEntries?.length).toBeGreaterThan(0);
     });
@@ -214,7 +223,7 @@ describe('useStateDiff', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -226,7 +235,7 @@ describe('useStateDiff', () => {
       });
 
       const scoreEntry = result.current.diff?.entries.find(
-        (e) => e.path === 'score'
+        (e) => e.path === 'score',
       );
       expect(scoreEntry?.changeType).toBe('modified');
       expect(scoreEntry?.before).toBe(10);
@@ -234,9 +243,7 @@ describe('useStateDiff', () => {
     });
 
     it('should detect nested field changes', async () => {
-      const events = [
-        createMockEvent(1, 'player-damage', { damage: 25 }),
-      ];
+      const events = [createMockEvent(1, 'player-damage', { damage: 25 })];
       const eventStore = createMockEventStore(events);
 
       const { result } = renderHook(() =>
@@ -244,7 +251,7 @@ describe('useStateDiff', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -256,7 +263,7 @@ describe('useStateDiff', () => {
       });
 
       const healthEntry = result.current.diff?.entries.find(
-        (e) => e.path === 'player.health'
+        (e) => e.path === 'player.health',
       );
       expect(healthEntry?.changeType).toBe('modified');
       expect(healthEntry?.before).toBe(100);
@@ -278,7 +285,7 @@ describe('useStateDiff', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -310,7 +317,7 @@ describe('useStateDiff', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -336,7 +343,7 @@ describe('useStateDiff', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -365,7 +372,7 @@ describe('useStateDiff', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -407,7 +414,12 @@ describe('getValueAtPath', () => {
 describe('filterDiffByPath', () => {
   const entries: IDiffEntry[] = [
     { path: 'player.health', changeType: 'modified', before: 100, after: 75 },
-    { path: 'player.name', changeType: 'unchanged', before: 'test', after: 'test' },
+    {
+      path: 'player.name',
+      changeType: 'unchanged',
+      before: 'test',
+      after: 'test',
+    },
     { path: 'score', changeType: 'modified', before: 0, after: 10 },
     { path: 'units[0].damage', changeType: 'modified', before: 0, after: 5 },
   ];
@@ -434,7 +446,12 @@ describe('filterDiffByPath', () => {
 describe('groupDiffByTopLevel', () => {
   const entries: IDiffEntry[] = [
     { path: 'player.health', changeType: 'modified', before: 100, after: 75 },
-    { path: 'player.name', changeType: 'unchanged', before: 'test', after: 'test' },
+    {
+      path: 'player.name',
+      changeType: 'unchanged',
+      before: 'test',
+      after: 'test',
+    },
     { path: 'score', changeType: 'modified', before: 0, after: 10 },
   ];
 

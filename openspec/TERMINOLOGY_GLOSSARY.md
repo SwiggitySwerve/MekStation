@@ -37,6 +37,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### A
 
 #### Advanced (Rules Level)
+
 **Canonical Term**: "Advanced"
 **Context**: Rules level classification (third tier)
 **Property**: `RulesLevel.ADVANCED`
@@ -45,6 +46,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"Tournament"~~ (incorrect), ~~"Advanced Tech"~~ (redundant)
 
 #### Allocation
+
 **Canonical Term**: "allocation"
 **Context**: Assigning critical slots or space to components
 **Property**: `allocate()` (function), `allocation` (noun)
@@ -53,6 +55,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: Allocation = assigning space/slots; Placement = physical positioning
 
 #### Armor
+
 **Canonical Term**: "armor"
 **Context**: Protective covering on mech exterior
 **Property**: `armor` (general), `armorType: ArmorType`, `armorPoints: number`
@@ -62,6 +65,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"armour"~~ (British spelling)
 
 #### Armor Points
+
 **Canonical Term**: "armor points"
 **Context**: Quantity of armor protection
 **Property**: `armorPoints: number`
@@ -70,6 +74,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"armor"~~ (when referring to quantity), ~~"AP"~~ (avoid abbreviation in specs)
 
 #### Armor Type
+
 **Canonical Term**: "armor type"
 **Context**: Classification of armor system
 **Property**: `armorType: ArmorType`
@@ -78,6 +83,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Armor, Internal Structure Type
 
 #### Assault (Weight Class)
+
 **Canonical Term**: "Assault"
 **Context**: Weight class for 80-100 ton BattleMechs
 **Property**: `WeightClass.ASSAULT`
@@ -86,6 +92,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Weight Class, Heavy, Light, Medium
 
 #### Assignment
+
 **Canonical Term**: "assignment"
 **Context**: Mapping components to locations
 **Usage**: Use "allocation" or "placement" instead in most cases
@@ -97,6 +104,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### B
 
 #### Battle Value (BV)
+
 **Canonical Term**: "Battle Value" or "BV"
 **Context**: Point cost for unit construction and game balance
 **Property**: `battleValue: number`
@@ -105,6 +113,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Cost, Tech Rating
 
 #### BattleMech
+
 **Canonical Term**: "BattleMech"
 **Context**: Standard 20-100 ton bipedal combat unit
 **Property**: `battleMech` or `mech` (depending on context)
@@ -120,6 +129,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### C
 
 #### Center Torso
+
 **Canonical Term**: "Center Torso"
 **Context**: Central body section of BattleMech
 **Property**: `MechLocation.CENTER_TORSO`
@@ -130,6 +140,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"centre torso"~~ (British spelling), ~~"central torso"~~
 
 #### Clan
+
 **Canonical Term**: "Clan"
 **Context**: Technology base classification
 **Property**: `TechBase.CLAN`
@@ -138,6 +149,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"Clans"~~ (plural in tech base context)
 
 #### Cockpit
+
 **Canonical Term**: "cockpit"
 **Context**: Pilot control station and life support system
 **Property**: `cockpit: ICockpit`, `cockpitType: CockpitType`
@@ -146,6 +158,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Cockpit Type, Head
 
 #### Cockpit Type
+
 **Canonical Term**: "cockpit type"
 **Context**: Classification of cockpit system
 **Property**: `cockpitType: CockpitType`
@@ -153,6 +166,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Usage**: "cockpit type selection", "Standard cockpit type"
 
 #### Component
+
 **Canonical Term**: "component"
 **Context**: Any discrete item in a BattleMech (broad category)
 **Property**: `component: IComponent`
@@ -161,6 +175,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: Broad term - use "equipment" or "system component" when more specific distinction needed
 
 #### Configuration
+
 **Canonical Term**: "configuration"
 **Context**: Current state/setup of a BattleMech
 **Property**: `configuration: IConfiguration`
@@ -169,6 +184,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: Refers to the configured state, not the process
 
 #### Construction
+
 **Canonical Term**: "construction"
 **Context**: Process of building/assembling a BattleMech
 **Property**: `construct()` (function), `construction` (noun)
@@ -177,6 +193,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"build"~~ (informal), ~~"assembly"~~
 
 #### Critical Slots
+
 **Canonical Term**: "critical slots"
 **Context**: Discrete equipment spaces within mech locations
 **Property**: `criticalSlots: number` (count), `slots: ICriticalSlot[]` (array)
@@ -190,6 +207,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### D
 
 #### Dissipation
+
 **Canonical Term**: "dissipation" or "heat dissipation"
 **Context**: Heat removed per turn by heat sinks
 **Property**: `dissipation: number` or `heatDissipation: number`
@@ -202,6 +220,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### E
 
 #### Engine
+
 **Canonical Term**: "engine"
 **Context**: Primary propulsion and power system
 **Property**: `engine: IEngine`, `engineType: EngineType`, `engineRating: number`
@@ -209,6 +228,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Engine Type, Engine Rating, Engine-Mounted
 
 #### Engine-Integrated
+
 **Canonical Term**: "engine-integrated" (adjective) or "integrated in engine" (past participle)
 **Context**: Heat sinks mounted inside engine
 **Property**: `engineIntegrated: number` (count of integrated heat sinks)
@@ -217,6 +237,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"internal heat sinks"~~ (ambiguous), ~~"engine heat sinks"~~
 
 #### Engine-Mounted
+
 **Canonical Term**: "engine-mounted"
 **Context**: Components physically mounted in or on the engine
 **Property**: `engineMountable: boolean` (capability), `engineIntegrated: number` (count)
@@ -225,6 +246,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: "Engine-mounted" is broader than "engine-integrated"; all integrated components are mounted, but not all mounted components are integrated
 
 #### Engine Rating
+
 **Canonical Term**: "engine rating"
 **Context**: Power output of engine (determines walk MP)
 **Property**: `engineRating: number` or `rating: number` (when context is clear)
@@ -233,6 +255,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Engine, Engine Type, Walk MP
 
 #### Engine Type
+
 **Canonical Term**: "engine type"
 **Context**: Classification of engine technology
 **Property**: `engineType: EngineType`
@@ -241,6 +264,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Engine, Engine Rating
 
 #### Equipment
+
 **Canonical Term**: "equipment"
 **Context**: Removable/configurable items (weapons, heat sinks, jump jets, ammunition)
 **Property**: `equipment: IEquipment[]`
@@ -251,6 +275,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Counter-examples**: Engine, gyro, actuators (these are system components)
 
 #### Era
+
 **Canonical Term**: "era"
 **Context**: Historical timeline period in BattleTech universe
 **Property**: `era: Era`
@@ -259,6 +284,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Introduction Year, Extinction Year, Temporal Availability
 
 #### Experimental (Rules Level)
+
 **Canonical Term**: "Experimental"
 **Context**: Rules level classification (fourth/highest tier)
 **Property**: `RulesLevel.EXPERIMENTAL`
@@ -266,6 +292,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Rules Level, Advanced, Standard, Introductory
 
 #### External
+
 **Canonical Term**: "external"
 **Context**: Components placed outside the engine
 **Usage**: "external heat sinks", "external mounting"
@@ -273,6 +300,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: External heat sinks require critical slots; engine-integrated do not
 
 #### Extinction Year
+
 **Canonical Term**: "extinction year"
 **Context**: Year technology became unavailable
 **Property**: `extinctionYear: number | undefined` (optional)
@@ -285,6 +313,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### G
 
 #### Gyro
+
 **Canonical Term**: "gyro"
 **Context**: Stabilization system
 **Property**: `gyro: IGyro`, `gyroType: GyroType`
@@ -294,6 +323,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"gyroscope"~~ (too formal for BattleTech context)
 
 #### Gyro Type
+
 **Canonical Term**: "gyro type"
 **Context**: Classification of gyroscope system
 **Property**: `gyroType: GyroType`
@@ -305,6 +335,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### H
 
 #### Head
+
 **Canonical Term**: "Head"
 **Context**: Head location of BattleMech
 **Property**: `MechLocation.HEAD`
@@ -314,6 +345,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Location, Cockpit
 
 #### Heat
+
 **Canonical Term**: "heat"
 **Context**: Thermal energy generated by weapons and movement
 **Property**: `heat: number`, `heatGenerated: number`
@@ -322,6 +354,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Heat Sink, Dissipation
 
 #### Heat Sink
+
 **Canonical Term**: "heat sink"
 **Context**: Thermal management component
 **Property**: `heatSink: IHeatSink`, `heatSinkType: HeatSinkType`
@@ -332,6 +365,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"heatsink"~~ (one word)
 
 #### Heat Sink Type
+
 **Canonical Term**: "heat sink type"
 **Context**: Classification of heat sink technology
 **Property**: `heatSinkType: HeatSinkType`
@@ -339,6 +373,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Usage**: "Single heat sink type", "Double heat sink type"
 
 #### Heavy (Weight Class)
+
 **Canonical Term**: "Heavy"
 **Context**: Weight class for 60-75 ton BattleMechs
 **Property**: `WeightClass.HEAVY`
@@ -351,6 +386,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### I
 
 #### Inner Sphere
+
 **Canonical Term**: "Inner Sphere"
 **Context**: Technology base classification
 **Property**: `TechBase.INNER_SPHERE`
@@ -360,6 +396,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"IS"~~ (avoid in formal specifications), ~~"inner sphere"~~ (lowercase)
 
 #### Internal Structure
+
 **Canonical Term**: "internal structure"
 **Context**: Skeletal framework of BattleMech
 **Property**: `internalStructure: IInternalStructure`, `structureType: StructureType`
@@ -368,6 +405,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Structure Type, Structure Points
 
 #### Introduction Year
+
 **Canonical Term**: "introduction year"
 **Context**: Year technology became available
 **Property**: `introductionYear: number`
@@ -376,6 +414,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"intro year"~~, ~~"release year"~~, ~~"available year"~~
 
 #### Introductory (Rules Level)
+
 **Canonical Term**: "Introductory"
 **Context**: Rules level classification (first tier)
 **Property**: `RulesLevel.INTRODUCTORY`
@@ -387,6 +426,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### J
 
 #### Jump Jets
+
 **Canonical Term**: "jump jets"
 **Context**: Short-range flight propulsion system
 **Property**: `jumpJets: IJumpJet[]`, `jumpJetType: JumpJetType`
@@ -395,6 +435,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Jump MP, Movement
 
 #### Jump MP
+
 **Canonical Term**: "Jump MP"
 **Context**: Jump movement points
 **Property**: `jumpMP: number`
@@ -407,6 +448,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### L
 
 #### Left Arm
+
 **Canonical Term**: "Left Arm"
 **Property**: `MechLocation.LEFT_ARM`
 **Abbreviation**: "LA"
@@ -415,6 +457,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Location, Right Arm
 
 #### Left Leg
+
 **Canonical Term**: "Left Leg"
 **Property**: `MechLocation.LEFT_LEG`
 **Abbreviation**: "LL"
@@ -423,6 +466,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Location, Right Leg
 
 #### Left Torso
+
 **Canonical Term**: "Left Torso"
 **Property**: `MechLocation.LEFT_TORSO`
 **Abbreviation**: "LT"
@@ -431,6 +475,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Location, Side Torso, Right Torso
 
 #### Light (Weight Class)
+
 **Canonical Term**: "Light"
 **Context**: Weight class for 20-35 ton BattleMechs
 **Property**: `WeightClass.LIGHT`
@@ -439,6 +484,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Weight Class, Medium, Heavy, Assault
 
 #### Location
+
 **Canonical Term**: "location"
 **Context**: Physical section/body part of BattleMech
 **Property**: `location: MechLocation`
@@ -452,6 +498,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### M
 
 #### Mech
+
 **Canonical Term**: "mech"
 **Context**: Informal shorthand for BattleMech
 **Usage**: Acceptable in prose and comments; use "BattleMech" in formal definitions
@@ -459,6 +506,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: Lowercase "mech" is informal; use "BattleMech" for formal specifications
 
 #### Medium (Weight Class)
+
 **Canonical Term**: "Medium"
 **Context**: Weight class for 40-55 ton BattleMechs
 **Property**: `WeightClass.MEDIUM`
@@ -467,6 +515,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Weight Class, Light, Heavy, Assault
 
 #### Mixed Tech
+
 **Canonical Term**: "Mixed Tech"
 **Context**: Unit combining Inner Sphere and Clan technology
 **Property**: `UnitTechBase.MIXED`
@@ -475,6 +524,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Tech Base, Inner Sphere, Clan
 
 #### Mounting
+
 **Canonical Term**: "mounting"
 **Context**: Attaching equipment to a location
 **Property**: `mount()` (function), `mounting` (noun)
@@ -483,6 +533,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: Mounting = physical attachment; Allocation = assigning space
 
 #### Movement Points (MP)
+
 **Canonical Term**: "Movement Points" or "MP"
 **Context**: Unit of movement capability
 **Property**: `walkMP: number`, `runMP: number`, `jumpMP: number`
@@ -495,6 +546,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### P
 
 #### Placement
+
 **Canonical Term**: "placement"
 **Context**: Physical positioning of components
 **Property**: `place()` (function), `placement` (noun)
@@ -503,6 +555,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: Placement = physical positioning; Allocation = assigning space/slots
 
 #### Points Per Ton
+
 **Canonical Term**: "points per ton"
 **Context**: Armor efficiency rating
 **Property**: `pointsPerTon: number`
@@ -514,6 +567,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### R
 
 #### Rating
+
 **Canonical Term**: "rating"
 **Context**: Engine power output number
 **Property**: `rating: number` (when context is engine)
@@ -521,6 +575,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: Use "engine rating" when context is ambiguous
 
 #### Right Arm
+
 **Canonical Term**: "Right Arm"
 **Property**: `MechLocation.RIGHT_ARM`
 **Abbreviation**: "RA"
@@ -529,6 +584,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Location, Left Arm
 
 #### Right Leg
+
 **Canonical Term**: "Right Leg"
 **Property**: `MechLocation.RIGHT_LEG`
 **Abbreviation**: "RL"
@@ -537,6 +593,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Location, Left Leg
 
 #### Right Torso
+
 **Canonical Term**: "Right Torso"
 **Property**: `MechLocation.RIGHT_TORSO`
 **Abbreviation**: "RT"
@@ -545,6 +602,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Location, Side Torso, Left Torso
 
 #### Rules Level
+
 **Canonical Term**: "rules level"
 **Context**: Technology complexity classification
 **Property**: `rulesLevel: RulesLevel`
@@ -554,6 +612,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"tech level"~~ (different concept), ~~"complexity level"~~
 
 #### Run MP
+
 **Canonical Term**: "Run MP"
 **Context**: Running movement points
 **Property**: `runMP: number`
@@ -566,6 +625,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### S
 
 #### Side Torso
+
 **Canonical Term**: "side torso" (generic) or "Left Torso"/"Right Torso" (specific)
 **Context**: Left or right torso location (generic reference)
 **Usage**: "side torso locations", "both side torsos"
@@ -573,6 +633,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: Use specific "Left Torso" or "Right Torso" when referring to a particular location
 
 #### Slot
+
 **Canonical Term**: "slot" or "critical slot"
 **Context**: Individual equipment space
 **Usage**: "critical slot", "12 slots", "slot allocation"
@@ -580,6 +641,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: "Slot" alone is acceptable when context is clear (e.g., "12 slots" instead of "12 critical slots")
 
 #### Standard (Rules Level)
+
 **Canonical Term**: "Standard"
 **Context**: Rules level classification (second tier)
 **Property**: `RulesLevel.STANDARD`
@@ -587,6 +649,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Rules Level, Introductory, Advanced, Experimental
 
 #### Structure
+
 **Canonical Term**: "structure" (short form) or "internal structure" (full form)
 **Context**: Skeletal framework
 **Property**: `structure: IInternalStructure`
@@ -594,6 +657,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Internal Structure, Structure Points, Structure Type
 
 #### Structure Points
+
 **Canonical Term**: "structure points"
 **Context**: Damage capacity of internal structure
 **Property**: `structurePoints: number`
@@ -601,6 +665,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Internal Structure, Armor Points
 
 #### Structure Type
+
 **Canonical Term**: "structure type"
 **Context**: Classification of internal structure technology
 **Property**: `structureType: StructureType`
@@ -608,6 +673,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Usage**: "Standard structure type", "Endo Steel structure type"
 
 #### System Component
+
 **Canonical Term**: "system component"
 **Context**: Fixed/required components (engine, gyro, actuators, cockpit)
 **Usage**: "system components are required", "structural system components"
@@ -621,6 +687,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### T
 
 #### Tech Base
+
 **Canonical Term**: "tech base"
 **Context**: Technology source classification
 **Property**: `techBase: TechBase` (component-level), `unitTechBase: UnitTechBase` (unit-level)
@@ -630,6 +697,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"technology base"~~ (wordy), ~~"faction"~~ (different concept)
 
 #### Temporal Availability
+
 **Canonical Term**: "temporal availability"
 **Context**: When technology is available based on timeline
 **Properties**: `introductionYear: number`, `extinctionYear?: number`
@@ -637,6 +705,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Introduction Year, Extinction Year, Era
 
 #### Tonnage
+
 **Canonical Term**: "tonnage"
 **Context**: Total mass of BattleMech (unit of measurement)
 **Usage**: "55 tons", "total tonnage", "mech tonnage"
@@ -645,6 +714,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: "Tonnage" is acceptable in prose (e.g., "100 tons tonnage") but property should be named `weight`
 
 #### Tons
+
 **Canonical Term**: "tons"
 **Context**: Unit of mass measurement
 **Usage**: "weighs 3 tons", "10 tons"
@@ -656,6 +726,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### U
 
 #### Unit
+
 **Canonical Term**: "unit"
 **Context**: Generic term for any game entity (BattleMech, Vehicle, Infantry, etc.)
 **Property**: `unit: IUnit`
@@ -664,6 +735,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Note**: Too generic for BattleMech-specific contexts - prefer "BattleMech" or "mech"
 
 #### Unit Tech Base
+
 **Canonical Term**: "unit tech base"
 **Context**: Overall tech base classification of a unit
 **Property**: `unitTechBase: UnitTechBase`
@@ -676,6 +748,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### V
 
 #### Validation
+
 **Canonical Term**: "validation"
 **Context**: Checking rules compliance
 **Property**: `validate()` (function), `validation` (noun), `ValidationResult` (interface)
@@ -684,6 +757,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"verification"~~, ~~"checking"~~
 
 #### Validation Error
+
 **Canonical Term**: "validation error" or "error"
 **Context**: Blocking validation failure
 **Property**: `errors: ValidationError[]`
@@ -692,6 +766,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Validation, Validation Warning
 
 #### Validation Warning
+
 **Canonical Term**: "validation warning" or "warning"
 **Context**: Non-blocking validation advisory
 **Property**: `warnings: ValidationWarning[]`
@@ -704,6 +779,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 ### W
 
 #### Walk MP
+
 **Canonical Term**: "Walk MP"
 **Context**: Walking movement points
 **Property**: `walkMP: number`
@@ -712,6 +788,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **See Also**: Run MP, Jump MP, Movement Points
 
 #### Weight
+
 **Canonical Term**: "weight"
 **Context**: Mass property of components and units
 **Property**: `weight: number` (ALWAYS use "weight", never "tons" or "mass" for property names)
@@ -721,6 +798,7 @@ This glossary establishes the **single source of truth** for terminology used ac
 **Deprecated**: ~~"mass"~~, ~~"tons"~~ (as property name), ~~"tonnage"~~ (as property name)
 
 #### Weight Class
+
 **Canonical Term**: "weight class"
 **Context**: BattleMech tonnage classification
 **Property**: `weightClass: WeightClass`
@@ -751,23 +829,23 @@ This glossary establishes the **single source of truth** for terminology used ac
 
 ### Standard Property Names
 
-| Concept | Property Name | Type | Example |
-|---------|---------------|------|---------|
-| Weight | `weight` | `number` | `weight: 10` |
-| Critical slots | `criticalSlots` | `number` | `criticalSlots: 3` |
-| Tonnage (mech total) | `tonnage` or `weight` | `number` | `tonnage: 55` |
-| Engine rating | `engineRating` or `rating` | `number` | `rating: 275` |
-| Introduction year | `introductionYear` | `number` | `introductionYear: 3025` |
-| Extinction year | `extinctionYear` | `number \| undefined` | `extinctionYear: 2855` |
-| Tech base (component) | `techBase` | `TechBase` | `techBase: TechBase.CLAN` |
-| Tech base (unit) | `unitTechBase` | `UnitTechBase` | `unitTechBase: UnitTechBase.MIXED` |
-| Rules level | `rulesLevel` | `RulesLevel` | `rulesLevel: RulesLevel.ADVANCED` |
-| Era | `era` | `Era` | `era: Era.CLAN_INVASION` |
-| Weight class | `weightClass` | `WeightClass` | `weightClass: WeightClass.HEAVY` |
-| Location | `location` | `MechLocation` | `location: MechLocation.CENTER_TORSO` |
-| Engine type | `engineType` | `EngineType` | `engineType: EngineType.XL_CLAN` |
-| Armor type | `armorType` | `ArmorType` | `armorType: ArmorType.FERRO_FIBROUS_CLAN` |
-| Structure type | `structureType` | `StructureType` | `structureType: StructureType.ENDO_STEEL_IS` |
+| Concept               | Property Name              | Type                  | Example                                      |
+| --------------------- | -------------------------- | --------------------- | -------------------------------------------- |
+| Weight                | `weight`                   | `number`              | `weight: 10`                                 |
+| Critical slots        | `criticalSlots`            | `number`              | `criticalSlots: 3`                           |
+| Tonnage (mech total)  | `tonnage` or `weight`      | `number`              | `tonnage: 55`                                |
+| Engine rating         | `engineRating` or `rating` | `number`              | `rating: 275`                                |
+| Introduction year     | `introductionYear`         | `number`              | `introductionYear: 3025`                     |
+| Extinction year       | `extinctionYear`           | `number \| undefined` | `extinctionYear: 2855`                       |
+| Tech base (component) | `techBase`                 | `TechBase`            | `techBase: TechBase.CLAN`                    |
+| Tech base (unit)      | `unitTechBase`             | `UnitTechBase`        | `unitTechBase: UnitTechBase.MIXED`           |
+| Rules level           | `rulesLevel`               | `RulesLevel`          | `rulesLevel: RulesLevel.ADVANCED`            |
+| Era                   | `era`                      | `Era`                 | `era: Era.CLAN_INVASION`                     |
+| Weight class          | `weightClass`              | `WeightClass`         | `weightClass: WeightClass.HEAVY`             |
+| Location              | `location`                 | `MechLocation`        | `location: MechLocation.CENTER_TORSO`        |
+| Engine type           | `engineType`               | `EngineType`          | `engineType: EngineType.XL_CLAN`             |
+| Armor type            | `armorType`                | `ArmorType`           | `armorType: ArmorType.FERRO_FIBROUS_CLAN`    |
+| Structure type        | `structureType`            | `StructureType`       | `structureType: StructureType.ENDO_STEEL_IS` |
 
 ### Enum Naming
 
@@ -801,45 +879,45 @@ This glossary establishes the **single source of truth** for terminology used ac
 
 ### ❌ Incorrect Terms
 
-| ❌ **Deprecated** | ✅ **Use Instead** | Context |
-|---|---|---|
-| ~~"Tournament"~~ | "Advanced" | Rules level (not a rules level value) |
-| ~~"crit slots"~~ | "critical slots" | Slot terminology |
-| ~~"critical spaces"~~ | "critical slots" | Slot terminology |
-| ~~"tons"~~ (property) | `weight` | Property naming |
-| ~~"mass"~~ | `weight` | Property naming |
-| ~~"tonnage"~~ (property) | `weight` | Property naming |
-| ~~"IS"~~ | "Inner Sphere" | Tech base (formal specs) |
-| ~~"tech level"~~ | "rules level" | Different concept |
-| ~~"complexity level"~~ | "rules level" | Rules classification |
-| ~~"section"~~ | "location" | Mech body parts |
-| ~~"body part"~~ | "location" | Mech body parts |
-| ~~"centre torso"~~ | "Center Torso" | British spelling |
-| ~~"armour"~~ | "armor" | British spelling |
-| ~~"gyroscope"~~ | "gyro" | Too formal |
-| ~~"heatsink"~~ | "heat sink" | One word vs two |
-| ~~"internal heat sinks"~~ | "engine-integrated heat sinks" | Ambiguous |
-| ~~"additional heat sinks"~~ | "external heat sinks" | Imprecise |
-| ~~"verify"~~ | "validate" | Validation process |
-| ~~"checking"~~ | "validation" | Validation process |
-| ~~"build"~~ | "construction" | Formal specs |
-| ~~"intro year"~~ | "introduction year" | Abbreviation |
-| ~~"extinct year"~~ | "extinction year" | Incorrect term |
-| ~~"AP"~~ | "armor points" | Abbreviation in formal specs |
-| ~~"Battlemech"~~ | "BattleMech" | Incorrect capitalization |
-| ~~"Battle Mech"~~ | "BattleMech" | Two words |
+| ❌ **Deprecated**           | ✅ **Use Instead**             | Context                               |
+| --------------------------- | ------------------------------ | ------------------------------------- |
+| ~~"Tournament"~~            | "Advanced"                     | Rules level (not a rules level value) |
+| ~~"crit slots"~~            | "critical slots"               | Slot terminology                      |
+| ~~"critical spaces"~~       | "critical slots"               | Slot terminology                      |
+| ~~"tons"~~ (property)       | `weight`                       | Property naming                       |
+| ~~"mass"~~                  | `weight`                       | Property naming                       |
+| ~~"tonnage"~~ (property)    | `weight`                       | Property naming                       |
+| ~~"IS"~~                    | "Inner Sphere"                 | Tech base (formal specs)              |
+| ~~"tech level"~~            | "rules level"                  | Different concept                     |
+| ~~"complexity level"~~      | "rules level"                  | Rules classification                  |
+| ~~"section"~~               | "location"                     | Mech body parts                       |
+| ~~"body part"~~             | "location"                     | Mech body parts                       |
+| ~~"centre torso"~~          | "Center Torso"                 | British spelling                      |
+| ~~"armour"~~                | "armor"                        | British spelling                      |
+| ~~"gyroscope"~~             | "gyro"                         | Too formal                            |
+| ~~"heatsink"~~              | "heat sink"                    | One word vs two                       |
+| ~~"internal heat sinks"~~   | "engine-integrated heat sinks" | Ambiguous                             |
+| ~~"additional heat sinks"~~ | "external heat sinks"          | Imprecise                             |
+| ~~"verify"~~                | "validate"                     | Validation process                    |
+| ~~"checking"~~              | "validation"                   | Validation process                    |
+| ~~"build"~~                 | "construction"                 | Formal specs                          |
+| ~~"intro year"~~            | "introduction year"            | Abbreviation                          |
+| ~~"extinct year"~~          | "extinction year"              | Incorrect term                        |
+| ~~"AP"~~                    | "armor points"                 | Abbreviation in formal specs          |
+| ~~"Battlemech"~~            | "BattleMech"                   | Incorrect capitalization              |
+| ~~"Battle Mech"~~           | "BattleMech"                   | Two words                             |
 
 ### Acceptable Informal Variants
 
 Some terms are acceptable in informal contexts but should be avoided in formal specifications:
 
-| Informal (Comments OK) | Formal (Specs) |
-|---|---|
-| "mech" | "BattleMech" |
-| "CT" | "Center Torso" (spell out first use) |
-| "slots" | "critical slots" (spell out first use) |
-| "BV" | "Battle Value" (spell out first use) |
-| "MP" | "Movement Points" (spell out first use) |
+| Informal (Comments OK) | Formal (Specs)                          |
+| ---------------------- | --------------------------------------- |
+| "mech"                 | "BattleMech"                            |
+| "CT"                   | "Center Torso" (spell out first use)    |
+| "slots"                | "critical slots" (spell out first use)  |
+| "BV"                   | "Battle Value" (spell out first use)    |
+| "MP"                   | "Movement Points" (spell out first use) |
 
 ---
 
@@ -848,12 +926,14 @@ Some terms are acceptable in informal contexts but should be avoided in formal s
 ### Writing Conventions
 
 #### 1. Sentence Structure
+
 - **Use active voice**: "allocate slots" not "slots are allocated"
 - **Use imperative for requirements**: "Component SHALL have weight property"
 - **Avoid future tense**: Use "SHALL" not "will"
 - **Be specific**: "the mech" or "the BattleMech" not just "it"
 
 #### 2. Term Definition
+
 - **Define on first use**: "internal structure (also called 'structure')"
 - **Use consistent terminology**: Once defined, use same term throughout
 - **Clarify abbreviations**: "Battle Value (BV)" before using "BV" alone
@@ -861,26 +941,31 @@ Some terms are acceptable in informal contexts but should be avoided in formal s
 #### 3. Capitalization
 
 **Proper Nouns (Always Capitalize)**:
+
 - Location names: "Center Torso", "Left Arm", "Right Leg"
 - Faction names: "Inner Sphere", "Clan"
 - Era names: "Clan Invasion", "Star League", "Dark Age"
 - Game terms: "BattleMech", "Battle Value"
 
 **Lowercase**:
+
 - Generic terms: "armor", "weight", "engine", "gyro"
 - Descriptive phrases: "tech base", "rules level", "weight class"
 
 **Special Cases**:
+
 - "Inner Sphere" (proper noun - always capitalize)
 - "center torso" (lowercase when used generically, "Center Torso" when referring to specific location)
 
 #### 4. Hyphenation
 
 **Use Hyphens**:
+
 - Compound adjectives before noun: "engine-mounted heat sinks", "tech-base compatibility"
 - Compound terms: "heat-sink slots" (when "heat sink" modifies "slots")
 
 **Don't Hyphenate**:
+
 - Noun phrases: "heat sink", "tech base", "internal structure"
 - After noun: "heat sinks mounted in engine"
 
@@ -895,15 +980,18 @@ Some terms are acceptable in informal contexts but should be avoided in formal s
 #### 6. Abbreviations
 
 **In Formal Specifications**:
+
 - Spell out first use, then abbreviate: "Battle Value (BV)"
 - Avoid in property names: `introductionYear` not `introYear`
 - Avoid in formal definitions
 
 **In Tables and Diagrams**:
+
 - Abbreviations acceptable: CT, LT, RT, LA, RA, LL, RL, HD
 - Use consistently throughout table
 
 **In Comments and Prose**:
+
 - Abbreviations acceptable after first definition
 - Common: BV, MP, IS (after "Inner Sphere" established)
 
@@ -913,66 +1001,66 @@ Some terms are acceptable in informal contexts but should be avoided in formal s
 
 ### Critical Slots Terminology
 
-| ✅ **Correct** | ❌ **Incorrect** |
-|---|---|
-| `criticalSlots: number` | ~~`slots: number`~~ (property name) |
-| "12 critical slots" | ~~"12 crit slots"~~ |
+| ✅ **Correct**             | ❌ **Incorrect**                    |
+| -------------------------- | ----------------------------------- |
+| `criticalSlots: number`    | ~~`slots: number`~~ (property name) |
+| "12 critical slots"        | ~~"12 crit slots"~~                 |
 | "critical slot allocation" | ~~"slot allocation"~~ (be specific) |
-| "available critical slots" | ~~"available spaces"~~ |
+| "available critical slots" | ~~"available spaces"~~              |
 
 ### Weight Terminology
 
-| ✅ **Correct** | ❌ **Incorrect** |
-|---|---|
-| `weight: number` | ~~`tons: number`~~ (property) |
-| `weight: number` | ~~`mass: number`~~ |
-| "weighs 10 tons" | ~~"10 tons weight"~~ |
-| "total tonnage" | ~~"total tons"~~ (awkward) |
-| "component weight" | ~~"component mass"~~ |
+| ✅ **Correct**     | ❌ **Incorrect**              |
+| ------------------ | ----------------------------- |
+| `weight: number`   | ~~`tons: number`~~ (property) |
+| `weight: number`   | ~~`mass: number`~~            |
+| "weighs 10 tons"   | ~~"10 tons weight"~~          |
+| "total tonnage"    | ~~"total tons"~~ (awkward)    |
+| "component weight" | ~~"component mass"~~          |
 
 ### Component Classification
 
-| Type | ✅ **Correct Usage** | Examples |
-|---|---|---|
-| **Component** | Any discrete item (broad) | All engines, gyros, weapons, heat sinks |
-| **System Component** | Fixed/required items | Engine, gyro, cockpit, actuators, structure |
-| **Equipment** | Removable/configurable items | Weapons, ammunition, heat sinks, jump jets |
+| Type                 | ✅ **Correct Usage**         | Examples                                    |
+| -------------------- | ---------------------------- | ------------------------------------------- |
+| **Component**        | Any discrete item (broad)    | All engines, gyros, weapons, heat sinks     |
+| **System Component** | Fixed/required items         | Engine, gyro, cockpit, actuators, structure |
+| **Equipment**        | Removable/configurable items | Weapons, ammunition, heat sinks, jump jets  |
 
 ### Tech Base Terminology
 
-| ✅ **Correct** | ❌ **Incorrect** |
-|---|---|
-| `TechBase.INNER_SPHERE` | ~~`TechBase.IS`~~ |
-| "Inner Sphere technology" | ~~"IS tech"~~ (formal specs) |
-| `techBase: TechBase` | ~~`faction: string`~~ |
+| ✅ **Correct**               | ❌ **Incorrect**               |
+| ---------------------------- | ------------------------------ |
+| `TechBase.INNER_SPHERE`      | ~~`TechBase.IS`~~              |
+| "Inner Sphere technology"    | ~~"IS tech"~~ (formal specs)   |
+| `techBase: TechBase`         | ~~`faction: string`~~          |
 | "Inner Sphere" (capitalized) | ~~"inner sphere"~~ (lowercase) |
 
 ### Location Terminology
 
-| ✅ **Correct** | ❌ **Incorrect** |
-|---|---|
+| ✅ **Correct**              | ❌ **Incorrect**                   |
+| --------------------------- | ---------------------------------- |
 | `MechLocation.CENTER_TORSO` | ~~`MechLocation.CT`~~ (enum value) |
-| "Center Torso location" | ~~"centre torso location"~~ |
-| "location" (generic) | ~~"section"~~, ~~"body part"~~ |
-| "Head location" | ~~"head section"~~ |
+| "Center Torso location"     | ~~"centre torso location"~~        |
+| "location" (generic)        | ~~"section"~~, ~~"body part"~~     |
+| "Head location"             | ~~"head section"~~                 |
 
 ### Engine Heat Sink Terminology
 
-| ✅ **Correct** | ❌ **Incorrect** |
-|---|---|
-| "engine-mounted heat sinks" | ~~"internal heat sinks"~~ |
-| "engine-integrated heat sinks" | ~~"engine heat sinks"~~ |
-| "external heat sinks" | ~~"additional heat sinks"~~ |
-| `engineIntegrated: number` | ~~`internalHS: number`~~ |
+| ✅ **Correct**                 | ❌ **Incorrect**            |
+| ------------------------------ | --------------------------- |
+| "engine-mounted heat sinks"    | ~~"internal heat sinks"~~   |
+| "engine-integrated heat sinks" | ~~"engine heat sinks"~~     |
+| "external heat sinks"          | ~~"additional heat sinks"~~ |
+| `engineIntegrated: number`     | ~~`internalHS: number`~~    |
 
 ### Validation Terminology
 
-| ✅ **Correct** | ❌ **Incorrect** |
-|---|---|
-| `validate()` | ~~`verify()`~~, ~~`check()`~~ |
-| "validation error" | ~~"invalid error"~~, ~~"validation failure"~~ |
-| "validation warning" | ~~"warning error"~~ |
-| `ValidationResult` | ~~`VerificationResult`~~ |
+| ✅ **Correct**       | ❌ **Incorrect**                              |
+| -------------------- | --------------------------------------------- |
+| `validate()`         | ~~`verify()`~~, ~~`check()`~~                 |
+| "validation error"   | ~~"invalid error"~~, ~~"validation failure"~~ |
+| "validation warning" | ~~"warning error"~~                           |
+| `ValidationResult`   | ~~`VerificationResult`~~                      |
 
 ---
 
@@ -983,18 +1071,18 @@ Some terms are acceptable in informal contexts but should be avoided in formal s
 ```typescript
 // Property naming
 interface IBattleMech {
-  weight: number;                    // ✅ Use "weight" not "tons" or "mass"
-  criticalSlots: number;             // ✅ Full "criticalSlots" not "slots"
-  introductionYear: number;          // ✅ Full "introductionYear" not "introYear"
-  techBase: TechBase;                // ✅ "techBase" not "faction"
-  engineIntegrated: number;          // ✅ "engineIntegrated" heat sinks
+  weight: number; // ✅ Use "weight" not "tons" or "mass"
+  criticalSlots: number; // ✅ Full "criticalSlots" not "slots"
+  introductionYear: number; // ✅ Full "introductionYear" not "introYear"
+  techBase: TechBase; // ✅ "techBase" not "faction"
+  engineIntegrated: number; // ✅ "engineIntegrated" heat sinks
 }
 
 // Prose
-"The BattleMech has 12 critical slots in the Center Torso location."
-"Inner Sphere technology uses engine-mounted heat sinks."
-"Component weight must be non-negative."
-"Advanced rules level technology is tournament legal."
+('The BattleMech has 12 critical slots in the Center Torso location.');
+('Inner Sphere technology uses engine-mounted heat sinks.');
+('Component weight must be non-negative.');
+('Advanced rules level technology is tournament legal.');
 
 // Comments
 // Calculate total weight of all components
@@ -1007,18 +1095,18 @@ interface IBattleMech {
 ```typescript
 // ❌ WRONG - Do not use these
 interface IBattleMech {
-  tons: number;                      // ❌ Use "weight" instead
-  slots: number;                     // ❌ Use "criticalSlots"
-  introYear: number;                 // ❌ Don't abbreviate
-  faction: string;                   // ❌ Use "techBase: TechBase"
-  internalHS: number;                // ❌ Use "engineIntegrated"
+  tons: number; // ❌ Use "weight" instead
+  slots: number; // ❌ Use "criticalSlots"
+  introYear: number; // ❌ Don't abbreviate
+  faction: string; // ❌ Use "techBase: TechBase"
+  internalHS: number; // ❌ Use "engineIntegrated"
 }
 
 // ❌ WRONG prose
-"The mech has 12 crit slots in the CT."              // Too many abbreviations
-"IS tech uses internal heat sinks."                  // Ambiguous terminology
-"Component mass must be positive."                   // Use "weight" not "mass"
-"Tournament level technology is legal."              // "Advanced" not "Tournament"
+('The mech has 12 crit slots in the CT.'); // Too many abbreviations
+('IS tech uses internal heat sinks.'); // Ambiguous terminology
+('Component mass must be positive.'); // Use "weight" not "mass"
+('Tournament level technology is legal.'); // "Advanced" not "Tournament"
 ```
 
 ---
@@ -1028,6 +1116,7 @@ interface IBattleMech {
 ### Version History
 
 **Version 1.0** (2025-11-28)
+
 - Initial glossary creation
 - 100+ canonical terms defined
 - Property naming standards established
@@ -1094,6 +1183,7 @@ This glossary establishes **canonical terminology** for all MekStation OpenSpec 
 - **Communication becomes easier**: Team members speak the same language
 
 **Key Principles**:
+
 1. Use canonical terms exclusively
 2. Follow property naming standards
 3. Avoid deprecated terms

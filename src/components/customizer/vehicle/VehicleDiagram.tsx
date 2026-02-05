@@ -8,10 +8,13 @@
  */
 
 import React, { useMemo } from 'react';
-import { useVehicleStore } from '@/stores/useVehicleStore';
-import { VehicleLocation, VTOLLocation } from '@/types/construction/UnitLocation';
-import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
+import { useVehicleStore } from '@/stores/useVehicleStore';
+import {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 // =============================================================================
 // Types
@@ -59,7 +62,7 @@ function ArmorLocation({
     <div
       className={`flex items-center gap-1 ${positionStyles[position]} ${className}`}
     >
-      <span className="text-[10px] text-text-theme-secondary uppercase tracking-wide">
+      <span className="text-text-theme-secondary text-[10px] tracking-wide uppercase">
         {label}
       </span>
       <div className="relative">
@@ -68,12 +71,12 @@ function ArmorLocation({
             value === 0
               ? 'text-text-theme-secondary/50'
               : fillPercent > 75
-              ? 'text-cyan-400'
-              : fillPercent > 50
-              ? 'text-green-400'
-              : fillPercent > 25
-              ? 'text-amber-400'
-              : 'text-red-400'
+                ? 'text-cyan-400'
+                : fillPercent > 50
+                  ? 'text-green-400'
+                  : fillPercent > 25
+                    ? 'text-amber-400'
+                    : 'text-red-400'
           }`}
         >
           {value}
@@ -141,17 +144,27 @@ export function VehicleDiagram({
       <div className={`text-center ${className}`}>
         <div className="inline-grid grid-cols-3 gap-2 text-xs">
           <div />
-          <div className="text-cyan-400 font-mono">{armorAllocation[VehicleLocation.FRONT] ?? 0}</div>
+          <div className="font-mono text-cyan-400">
+            {armorAllocation[VehicleLocation.FRONT] ?? 0}
+          </div>
           <div />
-          <div className="text-cyan-400 font-mono">{armorAllocation[VehicleLocation.LEFT] ?? 0}</div>
+          <div className="font-mono text-cyan-400">
+            {armorAllocation[VehicleLocation.LEFT] ?? 0}
+          </div>
           {hasTurret ? (
-            <div className="text-amber-400 font-mono">{armorAllocation[VehicleLocation.TURRET] ?? 0}</div>
+            <div className="font-mono text-amber-400">
+              {armorAllocation[VehicleLocation.TURRET] ?? 0}
+            </div>
           ) : (
             <div className="text-text-theme-secondary/50">-</div>
           )}
-          <div className="text-cyan-400 font-mono">{armorAllocation[VehicleLocation.RIGHT] ?? 0}</div>
+          <div className="font-mono text-cyan-400">
+            {armorAllocation[VehicleLocation.RIGHT] ?? 0}
+          </div>
           <div />
-          <div className="text-cyan-400 font-mono">{armorAllocation[VehicleLocation.REAR] ?? 0}</div>
+          <div className="font-mono text-cyan-400">
+            {armorAllocation[VehicleLocation.REAR] ?? 0}
+          </div>
           <div />
         </div>
       </div>
@@ -161,17 +174,17 @@ export function VehicleDiagram({
   return (
     <div className={`flex flex-col items-center ${className}`}>
       {/* Vehicle Type Header */}
-      <div className="text-xs text-text-theme-secondary mb-2">
+      <div className="text-text-theme-secondary mb-2 text-xs">
         {motionTypeLabel} Vehicle
         {hasTurret && ` • ${turretTypeLabel} Turret`}
       </div>
 
       {/* Main Diagram */}
-      <div className="relative w-full max-w-xs aspect-[4/5]">
+      <div className="relative aspect-[4/5] w-full max-w-xs">
         {/* Vehicle Body Outline */}
         <svg
           viewBox="0 0 200 250"
-          className="w-full h-full"
+          className="h-full w-full"
           fill="none"
           stroke="currentColor"
         >
@@ -210,7 +223,7 @@ export function VehicleDiagram({
               cx="100"
               cy="120"
               r="25"
-              className="stroke-amber-500 fill-amber-900/30"
+              className="fill-amber-900/30 stroke-amber-500"
               strokeWidth="2"
             />
           )}
@@ -222,7 +235,7 @@ export function VehicleDiagram({
                 cx="60"
                 cy="100"
                 r="15"
-                className="stroke-sky-500 fill-transparent"
+                className="fill-transparent stroke-sky-500"
                 strokeWidth="1"
                 strokeDasharray="4 2"
               />
@@ -230,7 +243,7 @@ export function VehicleDiagram({
                 cx="140"
                 cy="100"
                 r="15"
-                className="stroke-sky-500 fill-transparent"
+                className="fill-transparent stroke-sky-500"
                 strokeWidth="1"
                 strokeDasharray="4 2"
               />
@@ -240,16 +253,50 @@ export function VehicleDiagram({
           {/* Motion type indicators */}
           {motionType === GroundMotionType.TRACKED && (
             <>
-              <rect x="30" y="70" width="10" height="120" rx="2" className="fill-text-theme-secondary/30" />
-              <rect x="160" y="70" width="10" height="120" rx="2" className="fill-text-theme-secondary/30" />
+              <rect
+                x="30"
+                y="70"
+                width="10"
+                height="120"
+                rx="2"
+                className="fill-text-theme-secondary/30"
+              />
+              <rect
+                x="160"
+                y="70"
+                width="10"
+                height="120"
+                rx="2"
+                className="fill-text-theme-secondary/30"
+              />
             </>
           )}
           {motionType === GroundMotionType.WHEELED && (
             <>
-              <circle cx="50" cy="80" r="8" className="fill-text-theme-secondary/30" />
-              <circle cx="150" cy="80" r="8" className="fill-text-theme-secondary/30" />
-              <circle cx="50" cy="180" r="8" className="fill-text-theme-secondary/30" />
-              <circle cx="150" cy="180" r="8" className="fill-text-theme-secondary/30" />
+              <circle
+                cx="50"
+                cy="80"
+                r="8"
+                className="fill-text-theme-secondary/30"
+              />
+              <circle
+                cx="150"
+                cy="80"
+                r="8"
+                className="fill-text-theme-secondary/30"
+              />
+              <circle
+                cx="50"
+                cy="180"
+                r="8"
+                className="fill-text-theme-secondary/30"
+              />
+              <circle
+                cx="150"
+                cy="180"
+                r="8"
+                className="fill-text-theme-secondary/30"
+              />
             </>
           )}
         </svg>
@@ -265,7 +312,7 @@ export function VehicleDiagram({
           />
 
           {/* Middle Row: Left - Center - Right */}
-          <div className="flex items-center justify-between w-full px-2">
+          <div className="flex w-full items-center justify-between px-2">
             <ArmorLocation
               label="Left"
               value={armorAllocation[VehicleLocation.LEFT] ?? 0}
@@ -287,14 +334,20 @@ export function VehicleDiagram({
               {isVTOL && (
                 <ArmorLocation
                   label="Rotor"
-                  value={(armorAllocation as Record<string, number>)[VTOLLocation.ROTOR] ?? 0}
+                  value={
+                    (armorAllocation as Record<string, number>)[
+                      VTOLLocation.ROTOR
+                    ] ?? 0
+                  }
                   maxValue={maxArmor.rotor}
                   position="center"
                   className="text-sky-400"
                 />
               )}
               {!hasTurret && !isVTOL && (
-                <span className="text-xs text-text-theme-secondary/50">Body</span>
+                <span className="text-text-theme-secondary/50 text-xs">
+                  Body
+                </span>
               )}
             </div>
 
@@ -317,20 +370,20 @@ export function VehicleDiagram({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 mt-2 text-[10px] text-text-theme-secondary">
+      <div className="text-text-theme-secondary mt-2 flex items-center gap-4 text-[10px]">
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-cyan-400" />
+          <span className="h-2 w-2 rounded-full bg-cyan-400" />
           Armor
         </span>
         {hasTurret && (
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <span className="h-2 w-2 rounded-full bg-amber-400" />
             Turret
           </span>
         )}
         {isVTOL && (
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-sky-400" />
+            <span className="h-2 w-2 rounded-full bg-sky-400" />
             Rotor
           </span>
         )}

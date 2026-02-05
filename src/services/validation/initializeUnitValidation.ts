@@ -6,18 +6,17 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import { UnitType } from '../../types/unit/BattleMechInterfaces';
 import { UnitCategory } from '../../types/validation/UnitValidationInterfaces';
-import { getUnitValidationRegistry } from './UnitValidationRegistry';
-
-// Import all rule sets
-import { UNIVERSAL_VALIDATION_RULES } from './rules/universal/UniversalValidationRules';
-import { MECH_CATEGORY_RULES } from './rules/mech/MechCategoryRules';
-import { VEHICLE_CATEGORY_RULES } from './rules/vehicle/VehicleCategoryRules';
 import { AEROSPACE_CATEGORY_RULES } from './rules/aerospace/AerospaceCategoryRules';
-import { PERSONNEL_CATEGORY_RULES } from './rules/personnel/PersonnelCategoryRules';
 import { BATTLEMECH_RULES } from './rules/battlemech/BattleMechRules';
 import { EQUIPMENT_UNIT_TYPE_RULES } from './rules/equipment/EquipmentUnitTypeRules';
-import { UnitType } from '../../types/unit/BattleMechInterfaces';
+import { MECH_CATEGORY_RULES } from './rules/mech/MechCategoryRules';
+import { PERSONNEL_CATEGORY_RULES } from './rules/personnel/PersonnelCategoryRules';
+// Import all rule sets
+import { UNIVERSAL_VALIDATION_RULES } from './rules/universal/UniversalValidationRules';
+import { VEHICLE_CATEGORY_RULES } from './rules/vehicle/VehicleCategoryRules';
+import { getUnitValidationRegistry } from './UnitValidationRegistry';
 
 /**
  * Flag to track if rules have been initialized

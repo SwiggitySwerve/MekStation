@@ -48,4 +48,3 @@ export interface MountedBattleArmor {
 // LAMMode and QuadVeeMode enums are defined in MechConfigurationSystem.ts
 // Re-export them here for backward compatibility if needed
 export { LAMMode, QuadVeeMode } from '../construction/MechConfigurationSystem';
-

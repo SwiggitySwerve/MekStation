@@ -1,12 +1,13 @@
+import type { ICampaign } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
+
+import { MAINTENANCE_THRESHOLDS } from '@/types/campaign/quality/IUnitQuality';
 import {
   PartQuality,
   QUALITY_TN_MODIFIER,
   degradeQuality,
   improveQuality,
 } from '@/types/campaign/quality/PartQuality';
-import { MAINTENANCE_THRESHOLDS } from '@/types/campaign/quality/IUnitQuality';
-import type { ICampaign } from '@/types/campaign/Campaign';
-import type { IPerson } from '@/types/campaign/Person';
 
 export type RandomFn = () => number;
 
@@ -30,7 +31,11 @@ export interface MaintenanceCheckResult {
   readonly roll: number;
   readonly targetNumber: number;
   readonly margin: number;
-  readonly outcome: 'success' | 'failure' | 'critical_success' | 'critical_failure';
+  readonly outcome:
+    | 'success'
+    | 'failure'
+    | 'critical_success'
+    | 'critical_failure';
   readonly qualityBefore: PartQuality;
   readonly qualityAfter: PartQuality;
   readonly modifierBreakdown: readonly ModifierEntry[];
@@ -65,9 +70,11 @@ export function calculateMaintenanceTN(input: MaintenanceCheckInput): number {
 function determineOutcome(
   margin: number,
 ): 'success' | 'failure' | 'critical_success' | 'critical_failure' {
-  if (margin >= MAINTENANCE_THRESHOLDS.QUALITY_IMPROVE_MARGIN) return 'critical_success';
+  if (margin >= MAINTENANCE_THRESHOLDS.QUALITY_IMPROVE_MARGIN)
+    return 'critical_success';
   if (margin >= 0) return 'success';
-  if (margin <= MAINTENANCE_THRESHOLDS.CRITICAL_FAILURE_MARGIN) return 'critical_failure';
+  if (margin <= MAINTENANCE_THRESHOLDS.CRITICAL_FAILURE_MARGIN)
+    return 'critical_failure';
   return 'failure';
 }
 
@@ -75,8 +82,10 @@ function determineQualityAfter(
   quality: PartQuality,
   margin: number,
 ): PartQuality {
-  if (margin >= MAINTENANCE_THRESHOLDS.QUALITY_IMPROVE_MARGIN) return improveQuality(quality);
-  if (margin <= MAINTENANCE_THRESHOLDS.QUALITY_DEGRADE_MARGIN) return degradeQuality(quality);
+  if (margin >= MAINTENANCE_THRESHOLDS.QUALITY_IMPROVE_MARGIN)
+    return improveQuality(quality);
+  if (margin <= MAINTENANCE_THRESHOLDS.QUALITY_DEGRADE_MARGIN)
+    return degradeQuality(quality);
   return quality;
 }
 

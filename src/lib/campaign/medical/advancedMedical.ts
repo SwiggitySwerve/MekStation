@@ -11,9 +11,9 @@
  * @module campaign/medical/advancedMedical
  */
 
-import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
-import { IPerson, IInjury } from '../../../types/campaign/Person';
 import { ICampaignOptions } from '../../../types/campaign/Campaign';
+import { IPerson, IInjury } from '../../../types/campaign/Person';
+import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
 import { RandomFn } from './standardMedical';
 
 // =============================================================================
@@ -22,10 +22,10 @@ import { RandomFn } from './standardMedical';
 
 /**
  * Experience level for medical system fumble/crit thresholds.
- * 
+ *
  * Local type alias scoped to the advanced medical system for determining
  * fumble and critical success thresholds based on doctor experience.
- * 
+ *
  * @see SkillExperienceLevel for character progression in campaign skills
  * @see MarketExperienceLevel for personnel market hiring
  * @see PilotExperienceLevel for pilot templates
@@ -100,7 +100,7 @@ function getExperienceLevel(_doctor: IPerson): ExperienceLevel {
 export function untreatedAdvanced(
   patient: IPerson,
   injury: IInjury,
-  random: RandomFn
+  random: RandomFn,
 ): IMedicalCheckResult {
   const roll = random();
   const outcome = roll < 0.3 ? 'worsened' : 'no_change';
@@ -152,7 +152,7 @@ export function advancedMedicalCheck(
   injury: IInjury,
   doctor: IPerson | null,
   options: ICampaignOptions,
-  random: RandomFn
+  random: RandomFn,
 ): IMedicalCheckResult {
   // No doctor: use untreated advanced
   if (!doctor) {
@@ -183,10 +183,7 @@ export function advancedMedicalCheck(
   if (roll <= fumbleThreshold) {
     // Fumble: +20% healing time or +5 days
     outcome = 'fumble';
-    const timeIncrease = Math.max(
-      Math.ceil(injury.daysToHeal * 0.2),
-      5
-    );
+    const timeIncrease = Math.max(Math.ceil(injury.daysToHeal * 0.2), 5);
     healingDaysReduced = -timeIncrease;
   } else if (roll >= critThreshold) {
     // Critical success: -10% healing time

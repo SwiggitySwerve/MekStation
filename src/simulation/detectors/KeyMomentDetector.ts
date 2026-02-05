@@ -7,7 +7,11 @@
  * - Tier 3 (5): heat-crisis, mobility-kill, weapons-kill, rear-arc-hit, overkill
  */
 
-import type { IKeyMoment, KeyMomentType } from '@/types/simulation-viewer/IKeyMoment';
+import type {
+  IKeyMoment,
+  KeyMomentType,
+} from '@/types/simulation-viewer/IKeyMoment';
+
 import {
   GameEventType,
   GameSide,
@@ -17,6 +21,7 @@ import {
   type IAttackResolvedPayload,
   type IPilotHitPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+
 import { getPayload } from './utils/getPayload';
 
 // =============================================================================
@@ -89,8 +94,8 @@ interface IAttackResolvedExtended extends IAttackResolvedPayload {
 const TIER_MAP: Readonly<Record<KeyMomentType, 1 | 2 | 3>> = {
   'first-blood': 1,
   'bv-swing-major': 1,
-  'comeback': 1,
-  'wipe': 1,
+  comeback: 1,
+  wipe: 1,
   'last-stand': 1,
   'ace-kill': 1,
   'head-shot': 2,
@@ -104,11 +109,11 @@ const TIER_MAP: Readonly<Record<KeyMomentType, 1 | 2 | 3>> = {
   'mobility-kill': 3,
   'weapons-kill': 3,
   'rear-arc-hit': 3,
-  'overkill': 3,
+  overkill: 3,
 };
 
 /** Minimum BV advantage shift to trigger bv-swing-major (30 percentage points) */
-const BV_SWING_THRESHOLD = 0.30;
+const BV_SWING_THRESHOLD = 0.3;
 
 /** Minimum number of attackers on same target per turn for focus-fire */
 const FOCUS_FIRE_THRESHOLD = 3;
@@ -273,7 +278,10 @@ export class KeyMomentDetector {
    * @param battleState - Static battle context (units, BV, weapons)
    * @returns Array of detected key moments, sorted by event sequence
    */
-  detect(events: readonly IGameEvent[], battleState: BattleState): IKeyMoment[] {
+  detect(
+    events: readonly IGameEvent[],
+    battleState: BattleState,
+  ): IKeyMoment[] {
     const state = this.initializeTrackingState(battleState);
     const moments: IKeyMoment[] = [];
 
@@ -291,7 +299,9 @@ export class KeyMomentDetector {
   // Initialization
   // ===========================================================================
 
-  private initializeTrackingState(battleState: BattleState): DetectorTrackingState {
+  private initializeTrackingState(
+    battleState: BattleState,
+  ): DetectorTrackingState {
     const armorPerUnit = new Map<string, Record<string, number>>();
     const structurePerUnit = new Map<string, Record<string, number>>();
 
@@ -307,8 +317,16 @@ export class KeyMomentDetector {
       destroyedUnits: new Set(),
       killsPerUnit: new Map(),
       previousBvAdvantage: initialAdvantage,
-      minPlayerBvRatio: calculateBvRatio(battleState.units, new Set(), GameSide.Player),
-      minOpponentBvRatio: calculateBvRatio(battleState.units, new Set(), GameSide.Opponent),
+      minPlayerBvRatio: calculateBvRatio(
+        battleState.units,
+        new Set(),
+        GameSide.Player,
+      ),
+      minOpponentBvRatio: calculateBvRatio(
+        battleState.units,
+        new Set(),
+        GameSide.Opponent,
+      ),
       comebackDetectedPlayer: false,
       comebackDetectedOpponent: false,
       wipeDetected: false,
@@ -408,7 +426,10 @@ export class KeyMomentDetector {
     }
 
     // 2. BV swing major
-    const currentAdvantage = calculateBvAdvantage(battleState.units, state.destroyedUnits);
+    const currentAdvantage = calculateBvAdvantage(
+      battleState.units,
+      state.destroyedUnits,
+    );
     const swing = Math.abs(currentAdvantage - state.previousBvAdvantage);
     if (swing > BV_SWING_THRESHOLD) {
       const swingPercent = Math.round(swing * 100);
@@ -432,7 +453,11 @@ export class KeyMomentDetector {
     }
     state.previousBvAdvantage = currentAdvantage;
 
-    const playerRatio = calculateBvRatio(battleState.units, state.destroyedUnits, GameSide.Player);
+    const playerRatio = calculateBvRatio(
+      battleState.units,
+      state.destroyedUnits,
+      GameSide.Player,
+    );
     const opponentRatio = calculateBvRatio(
       battleState.units,
       state.destroyedUnits,
@@ -454,7 +479,9 @@ export class KeyMomentDetector {
     ) {
       state.comebackDetectedPlayer = true;
       const playerUnits = battleState.units
-        .filter((u) => u.side === GameSide.Player && !state.destroyedUnits.has(u.id))
+        .filter(
+          (u) => u.side === GameSide.Player && !state.destroyedUnits.has(u.id),
+        )
         .map((u) => u.id);
 
       moments.push(
@@ -481,7 +508,10 @@ export class KeyMomentDetector {
     ) {
       state.comebackDetectedOpponent = true;
       const opponentUnits = battleState.units
-        .filter((u) => u.side === GameSide.Opponent && !state.destroyedUnits.has(u.id))
+        .filter(
+          (u) =>
+            u.side === GameSide.Opponent && !state.destroyedUnits.has(u.id),
+        )
         .map((u) => u.id);
 
       moments.push(
@@ -508,7 +538,8 @@ export class KeyMomentDetector {
         const wipedUnits = battleState.units
           .filter((u) => u.side === destroyedSide)
           .map((u) => u.id);
-        const sideName = destroyedSide === GameSide.Player ? 'Player' : 'Opponent';
+        const sideName =
+          destroyedSide === GameSide.Player ? 'Player' : 'Opponent';
 
         moments.push(
           this.createMoment(
@@ -541,7 +572,10 @@ export class KeyMomentDetector {
       if (loneUnit && !state.lastStandDetected.has(loneUnit.id)) {
         state.lastStandDetected.add(loneUnit.id);
         const enemyIds = battleState.units
-          .filter((u) => u.side === GameSide.Opponent && !state.destroyedUnits.has(u.id))
+          .filter(
+            (u) =>
+              u.side === GameSide.Opponent && !state.destroyedUnits.has(u.id),
+          )
           .map((u) => u.id);
 
         moments.push(
@@ -563,7 +597,10 @@ export class KeyMomentDetector {
       if (loneUnit && !state.lastStandDetected.has(loneUnit.id)) {
         state.lastStandDetected.add(loneUnit.id);
         const enemyIds = battleState.units
-          .filter((u) => u.side === GameSide.Player && !state.destroyedUnits.has(u.id))
+          .filter(
+            (u) =>
+              u.side === GameSide.Player && !state.destroyedUnits.has(u.id),
+          )
           .map((u) => u.id);
 
         moments.push(
@@ -581,7 +618,10 @@ export class KeyMomentDetector {
     // 6. Ace kill - check if killer has 3+ kills
     if (payload.killerUnitId) {
       const kills = state.killsPerUnit.get(payload.killerUnitId) ?? [];
-      if (kills.length >= ACE_KILL_THRESHOLD && !state.aceKillDetected.has(payload.killerUnitId)) {
+      if (
+        kills.length >= ACE_KILL_THRESHOLD &&
+        !state.aceKillDetected.has(payload.killerUnitId)
+      ) {
         state.aceKillDetected.add(payload.killerUnitId);
         const aceName = getUnitName(battleState.units, payload.killerUnitId);
 
@@ -616,8 +656,12 @@ export class KeyMomentDetector {
       GameSide.Opponent,
     );
 
-    const totalPlayer = battleState.units.filter((u) => u.side === GameSide.Player).length;
-    const totalOpponent = battleState.units.filter((u) => u.side === GameSide.Opponent).length;
+    const totalPlayer = battleState.units.filter(
+      (u) => u.side === GameSide.Player,
+    ).length;
+    const totalOpponent = battleState.units.filter(
+      (u) => u.side === GameSide.Opponent,
+    ).length;
 
     if (playerCount === 0 && totalPlayer > 0) return GameSide.Player;
     if (opponentCount === 0 && totalOpponent > 0) return GameSide.Opponent;
@@ -659,7 +703,9 @@ export class KeyMomentDetector {
     turnUnits.get(payload.attackerId)!.add(payload.weaponId);
 
     // 12. Alpha strike - unit fires all weapons in one turn
-    const attackerUnit = battleState.units.find((u) => u.id === payload.attackerId);
+    const attackerUnit = battleState.units.find(
+      (u) => u.id === payload.attackerId,
+    );
     if (attackerUnit && attackerUnit.weaponIds.length > 0) {
       const firedWeapons = turnUnits.get(payload.attackerId)!;
       if (!state.alphaStrikeDetected.has(event.turn)) {
@@ -795,7 +841,9 @@ export class KeyMomentDetector {
               damage: payload.damage,
               location: payload.location,
               preDamageStructure,
-              excessMultiplier: Math.round(damageToStructure / preDamageStructure),
+              excessMultiplier: Math.round(
+                damageToStructure / preDamageStructure,
+              ),
             },
           ),
         );

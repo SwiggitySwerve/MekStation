@@ -70,7 +70,7 @@
 export interface ICrudRepository<
   T,
   CreateDTO = Partial<T>,
-  UpdateDTO = Partial<T>
+  UpdateDTO = Partial<T>,
 > {
   /**
    * Create a new entity

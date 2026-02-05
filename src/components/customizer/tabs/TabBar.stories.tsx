@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { fn } from '@storybook/test';
+
 import { TabBar, TabDisplayInfo } from './TabBar';
 
 const meta: Meta<typeof TabBar> = {
@@ -97,8 +99,16 @@ export const WithModifiedIndicators: Story = {
 export const LongTabNames: Story = {
   args: {
     tabs: [
-      { id: 'tab-1', name: 'Timber Wolf (Mad Cat) Prime Configuration', isModified: false },
-      { id: 'tab-2', name: 'Atlas AS7-D-DC Command Configuration', isModified: true },
+      {
+        id: 'tab-1',
+        name: 'Timber Wolf (Mad Cat) Prime Configuration',
+        isModified: false,
+      },
+      {
+        id: 'tab-2',
+        name: 'Atlas AS7-D-DC Command Configuration',
+        isModified: true,
+      },
       { id: 'tab-3', name: 'Marauder IIC 2 (Conjurer)', isModified: false },
     ],
     activeTabId: 'tab-1',

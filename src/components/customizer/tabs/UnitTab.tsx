@@ -1,12 +1,13 @@
 /**
  * Unit Tab Component
- * 
+ *
  * Individual tab with name, modification indicator, and close button.
- * 
+ *
  * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+
 import { TabDisplayInfo } from './TabBar';
 
 interface UnitTabProps {
@@ -38,7 +39,7 @@ export function UnitTab({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(tab.name);
   const inputRef = useRef<HTMLInputElement>(null);
-  
+
   // Focus input when entering edit mode
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -46,12 +47,12 @@ export function UnitTab({
       inputRef.current.select();
     }
   }, [isEditing]);
-  
+
   const handleDoubleClick = () => {
     setEditName(tab.name);
     setIsEditing(true);
   };
-  
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       submitRename();
@@ -59,7 +60,7 @@ export function UnitTab({
       cancelRename();
     }
   };
-  
+
   const submitRename = () => {
     const trimmedName = editName.trim();
     if (trimmedName && trimmedName !== tab.name) {
@@ -67,36 +68,33 @@ export function UnitTab({
     }
     setIsEditing(false);
   };
-  
+
   const cancelRename = () => {
     setEditName(tab.name);
     setIsEditing(false);
   };
-  
+
   const handleCloseClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onClose();
   };
-  
+
   // Truncate long names
-  const displayName = tab.name.length > 48 ? tab.name.substring(0, 45) + '...' : tab.name;
-  
+  const displayName =
+    tab.name.length > 48 ? tab.name.substring(0, 45) + '...' : tab.name;
+
   return (
     <div
-      className={`
-        group flex items-center gap-2 px-3 py-2 sm:py-2 min-h-touch sm:min-h-0
-        min-w-[100px] sm:min-w-[120px] max-w-[160px] sm:max-w-[200px] cursor-pointer
-        border-b-2 transition-colors
-        ${isActive
-          ? 'bg-slate-700 text-slate-100 border-blue-500'
-          : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-700/50 hover:text-slate-300'
-        }
-      `}
+      className={`group min-h-touch flex max-w-[160px] min-w-[100px] cursor-pointer items-center gap-2 border-b-2 px-3 py-2 transition-colors sm:min-h-0 sm:max-w-[200px] sm:min-w-[120px] sm:py-2 ${
+        isActive
+          ? 'border-blue-500 bg-slate-700 text-slate-100'
+          : 'border-transparent bg-transparent text-slate-400 hover:bg-slate-700/50 hover:text-slate-300'
+      } `}
       onClick={onSelect}
       onDoubleClick={handleDoubleClick}
     >
       {/* Tab name or input */}
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         {isEditing ? (
           <input
             ref={inputRef}
@@ -105,24 +103,27 @@ export function UnitTab({
             onChange={(e) => setEditName(e.target.value)}
             onBlur={submitRename}
             onKeyDown={handleKeyDown}
-            className="w-full bg-slate-600 text-white px-1 py-0.5 rounded text-sm outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded bg-slate-600 px-1 py-0.5 text-sm text-white outline-none focus:ring-1 focus:ring-blue-500"
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
           <span className="block truncate text-sm">{displayName}</span>
         )}
       </div>
-      
+
       {/* Modified indicator */}
       {tab.isModified && !isEditing && (
-        <span className="flex-shrink-0 w-2 h-2 rounded-full bg-orange-500" title="Unsaved changes" />
+        <span
+          className="h-2 w-2 flex-shrink-0 rounded-full bg-orange-500"
+          title="Unsaved changes"
+        />
       )}
-      
+
       {/* Close button - Chrome style, larger on touch */}
       {canClose && !isEditing && (
         <button
           onClick={handleCloseClick}
-          className="flex-shrink-0 w-7 h-7 sm:w-[18px] sm:h-[18px] flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-500 hover:text-white transition-all duration-100 text-sm sm:text-xs leading-none"
+          className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-sm leading-none text-slate-400 transition-all duration-100 hover:bg-slate-500 hover:text-white sm:h-[18px] sm:w-[18px] sm:text-xs"
           title="Close (Ctrl+W)"
         >
           ×
@@ -131,4 +132,3 @@ export function UnitTab({
     </div>
   );
 }
-

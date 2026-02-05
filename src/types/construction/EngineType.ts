@@ -1,13 +1,13 @@
 /**
  * Engine Type Definitions
- * 
+ *
  * Defines all standard BattleTech engine types with their characteristics.
- * 
+ *
  * @spec openspec/specs/engine-system/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 
 /**
  * Engine type enumeration
@@ -163,16 +163,18 @@ export const ENGINE_DEFINITIONS: readonly EngineDefinition[] = [
 /**
  * Get engine definition by type
  */
-export function getEngineDefinition(type: EngineType): EngineDefinition | undefined {
-  return ENGINE_DEFINITIONS.find(def => def.type === type);
+export function getEngineDefinition(
+  type: EngineType,
+): EngineDefinition | undefined {
+  return ENGINE_DEFINITIONS.find((def) => def.type === type);
 }
 
 /**
  * Get all engine definitions for a tech base
  */
 export function getEnginesForTechBase(techBase: TechBase): EngineDefinition[] {
-  return ENGINE_DEFINITIONS.filter(def => 
-    def.techBase === techBase || def.techBase === TechBase.INNER_SPHERE
+  return ENGINE_DEFINITIONS.filter(
+    (def) =>
+      def.techBase === techBase || def.techBase === TechBase.INNER_SPHERE,
   );
 }
-

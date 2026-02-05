@@ -15,7 +15,11 @@ import type {
   PermissionScopeType,
   ContentCategory,
 } from '@/types/vault';
-import { getShareLinkRepository, ShareLinkRepository } from './ShareLinkRepository';
+
+import {
+  getShareLinkRepository,
+  ShareLinkRepository,
+} from './ShareLinkRepository';
 
 // =============================================================================
 // Types
@@ -80,7 +84,9 @@ export class ShareLinkService {
   /**
    * Create a new share link
    */
-  async create(options: ICreateShareLinkOptions): Promise<IShareLinkOperationResult> {
+  async create(
+    options: ICreateShareLinkOptions,
+  ): Promise<IShareLinkOperationResult> {
     try {
       // Validate inputs
       if (!options.level) {
@@ -88,13 +94,22 @@ export class ShareLinkService {
       }
 
       // For item/folder scope, require scope ID
-      if ((options.scopeType === 'item' || options.scopeType === 'folder') && !options.scopeId) {
-        return { success: false, error: `Scope ID is required for ${options.scopeType} scope` };
+      if (
+        (options.scopeType === 'item' || options.scopeType === 'folder') &&
+        !options.scopeId
+      ) {
+        return {
+          success: false,
+          error: `Scope ID is required for ${options.scopeType} scope`,
+        };
       }
 
       // For category scope, require category
       if (options.scopeType === 'category' && !options.scopeCategory) {
-        return { success: false, error: 'Category is required for category scope' };
+        return {
+          success: false,
+          error: 'Category is required for category scope',
+        };
       }
 
       // Validate expiry date format
@@ -116,14 +131,15 @@ export class ShareLinkService {
         options.scopeType,
         options.scopeId || null,
         options.scopeCategory || null,
-        linkOptions
+        linkOptions,
       );
 
       const url = this.buildUrl(link.token);
 
       return { success: true, link, url };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create share link';
+      const message =
+        error instanceof Error ? error.message : 'Failed to create share link';
       return { success: false, error: message };
     }
   }
@@ -180,7 +196,10 @@ export class ShareLinkService {
   async redeemByUrl(url: string): Promise<IShareLinkRedeemResult> {
     const token = this.extractToken(url);
     if (!token) {
-      return { success: false, error: { message: 'Invalid share URL', errorCode: 'INVALID' as const } };
+      return {
+        success: false,
+        error: { message: 'Invalid share URL', errorCode: 'INVALID' as const },
+      };
     }
     return this.redeem(token);
   }
@@ -204,7 +223,7 @@ export class ShareLinkService {
    */
   async getLinksForItem(
     scopeType: PermissionScopeType,
-    scopeId: string
+    scopeId: string,
   ): Promise<IShareLink[]> {
     return this.repository.getByItem(scopeType, scopeId);
   }
@@ -235,7 +254,10 @@ export class ShareLinkService {
       const link = await this.repository.getById(linkId);
       return { success: true, link: link || undefined };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to deactivate share link';
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to deactivate share link';
       return { success: false, error: message };
     }
   }
@@ -252,7 +274,10 @@ export class ShareLinkService {
       const link = await this.repository.getById(linkId);
       return { success: true, link: link || undefined };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to reactivate share link';
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to reactivate share link';
       return { success: false, error: message };
     }
   }
@@ -260,7 +285,10 @@ export class ShareLinkService {
   /**
    * Update share link label
    */
-  async updateLabel(linkId: string, label: string | null): Promise<IShareLinkOperationResult> {
+  async updateLabel(
+    linkId: string,
+    label: string | null,
+  ): Promise<IShareLinkOperationResult> {
     try {
       const updated = await this.repository.updateLabel(linkId, label);
       if (!updated) {
@@ -269,7 +297,8 @@ export class ShareLinkService {
       const link = await this.repository.getById(linkId);
       return { success: true, link: link || undefined };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to update label';
+      const message =
+        error instanceof Error ? error.message : 'Failed to update label';
       return { success: false, error: message };
     }
   }
@@ -277,7 +306,10 @@ export class ShareLinkService {
   /**
    * Update share link expiry
    */
-  async updateExpiry(linkId: string, expiresAt: string | null): Promise<IShareLinkOperationResult> {
+  async updateExpiry(
+    linkId: string,
+    expiresAt: string | null,
+  ): Promise<IShareLinkOperationResult> {
     try {
       const updated = await this.repository.updateExpiry(linkId, expiresAt);
       if (!updated) {
@@ -286,7 +318,8 @@ export class ShareLinkService {
       const link = await this.repository.getById(linkId);
       return { success: true, link: link || undefined };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to update expiry';
+      const message =
+        error instanceof Error ? error.message : 'Failed to update expiry';
       return { success: false, error: message };
     }
   }
@@ -294,7 +327,10 @@ export class ShareLinkService {
   /**
    * Update share link max uses
    */
-  async updateMaxUses(linkId: string, maxUses: number | null): Promise<IShareLinkOperationResult> {
+  async updateMaxUses(
+    linkId: string,
+    maxUses: number | null,
+  ): Promise<IShareLinkOperationResult> {
     try {
       const updated = await this.repository.updateMaxUses(linkId, maxUses);
       if (!updated) {
@@ -303,7 +339,8 @@ export class ShareLinkService {
       const link = await this.repository.getById(linkId);
       return { success: true, link: link || undefined };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to update max uses';
+      const message =
+        error instanceof Error ? error.message : 'Failed to update max uses';
       return { success: false, error: message };
     }
   }
@@ -319,7 +356,8 @@ export class ShareLinkService {
       }
       return { success: true };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to delete share link';
+      const message =
+        error instanceof Error ? error.message : 'Failed to delete share link';
       return { success: false, error: message };
     }
   }
@@ -327,7 +365,10 @@ export class ShareLinkService {
   /**
    * Delete all share links for an item
    */
-  async deleteAllForItem(scopeType: PermissionScopeType, scopeId: string): Promise<number> {
+  async deleteAllForItem(
+    scopeType: PermissionScopeType,
+    scopeId: string,
+  ): Promise<number> {
     return this.repository.deleteByItem(scopeType, scopeId);
   }
 

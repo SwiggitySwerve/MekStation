@@ -1,16 +1,17 @@
 /**
  * useRecentFiles Hook
- * 
+ *
  * Provides access to recently opened units list.
  * Handles loading, updating, and real-time updates.
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  useElectron, 
-  IRecentFile, 
+
+import {
+  useElectron,
+  IRecentFile,
   IAddRecentFileParams,
-  IServiceResult 
+  IServiceResult,
 } from './useElectron';
 
 interface UseRecentFilesResult {
@@ -54,7 +55,8 @@ export function useRecentFiles(): UseRecentFilesResult {
       const files = await api.getRecentFiles();
       setRecentFiles(files);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load recent files';
+      const message =
+        err instanceof Error ? err.message : 'Failed to load recent files';
       setError(message);
       console.error('Failed to load recent files:', err);
     } finally {
@@ -83,44 +85,50 @@ export function useRecentFiles(): UseRecentFilesResult {
   }, [api]);
 
   // Add a file to recent files
-  const addRecentFile = useCallback(async (
-    params: IAddRecentFileParams
-  ): Promise<IServiceResult> => {
-    if (!api) {
-      return { success: false, error: 'Not running in Electron' };
-    }
-
-    try {
-      const result = await api.addRecentFile(params);
-      if (!result.success) {
-        setError(result.error ?? 'Failed to add recent file');
+  const addRecentFile = useCallback(
+    async (params: IAddRecentFileParams): Promise<IServiceResult> => {
+      if (!api) {
+        return { success: false, error: 'Not running in Electron' };
       }
-      return result;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to add recent file';
-      setError(message);
-      return { success: false, error: message };
-    }
-  }, [api]);
+
+      try {
+        const result = await api.addRecentFile(params);
+        if (!result.success) {
+          setError(result.error ?? 'Failed to add recent file');
+        }
+        return result;
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Failed to add recent file';
+        setError(message);
+        return { success: false, error: message };
+      }
+    },
+    [api],
+  );
 
   // Remove a file from recent files
-  const removeRecentFile = useCallback(async (id: string): Promise<IServiceResult> => {
-    if (!api) {
-      return { success: false, error: 'Not running in Electron' };
-    }
-
-    try {
-      const result = await api.removeRecentFile(id);
-      if (!result.success) {
-        setError(result.error ?? 'Failed to remove recent file');
+  const removeRecentFile = useCallback(
+    async (id: string): Promise<IServiceResult> => {
+      if (!api) {
+        return { success: false, error: 'Not running in Electron' };
       }
-      return result;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to remove recent file';
-      setError(message);
-      return { success: false, error: message };
-    }
-  }, [api]);
+
+      try {
+        const result = await api.removeRecentFile(id);
+        if (!result.success) {
+          setError(result.error ?? 'Failed to remove recent file');
+        }
+        return result;
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Failed to remove recent file';
+        setError(message);
+        return { success: false, error: message };
+      }
+    },
+    [api],
+  );
 
   // Clear all recent files
   const clearRecentFiles = useCallback(async (): Promise<IServiceResult> => {
@@ -135,7 +143,8 @@ export function useRecentFiles(): UseRecentFilesResult {
       }
       return result;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to clear recent files';
+      const message =
+        err instanceof Error ? err.message : 'Failed to clear recent files';
       setError(message);
       return { success: false, error: message };
     }
@@ -149,6 +158,6 @@ export function useRecentFiles(): UseRecentFilesResult {
     addRecentFile,
     removeRecentFile,
     clearRecentFiles,
-    reloadRecentFiles: loadRecentFiles
+    reloadRecentFiles: loadRecentFiles,
   };
 }

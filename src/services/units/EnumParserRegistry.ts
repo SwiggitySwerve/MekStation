@@ -1,22 +1,22 @@
 /**
  * Enum Parser Registry
- * 
+ *
  * Provides map-based parsing for BattleTech enum types.
  * Replaces switch statements with extensible registry pattern.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
+import { MechConfiguration, MechLocation } from '@/types/construction';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { Era } from '@/types/enums/Era';
-import { MechConfiguration, MechLocation } from '@/types/construction';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 
 // =============================================================================
@@ -58,13 +58,13 @@ const ENGINE_TYPE_MAP = new Map<string, EngineType>([
   // Standard/Fusion
   ['FUSION', EngineType.STANDARD],
   ['STANDARD', EngineType.STANDARD],
-  
+
   // XL variants
   ['XL', EngineType.XL_IS],
   ['XL_IS', EngineType.XL_IS],
   ['CLAN_XL', EngineType.XL_CLAN],
   ['XL_CLAN', EngineType.XL_CLAN],
-  
+
   // Other types
   ['LIGHT', EngineType.LIGHT],
   ['COMPACT', EngineType.COMPACT],
@@ -250,9 +250,9 @@ const MECH_LOCATION_MAP = new Map<string, MechLocation>([
  * Generic map-based parser with default value
  */
 function parseFromMap<T>(
-  value: string, 
-  map: Map<string, T>, 
-  defaultValue: T
+  value: string,
+  map: Map<string, T>,
+  defaultValue: T,
 ): T {
   const normalized = value.toUpperCase().trim();
   return map.get(normalized) ?? defaultValue;
@@ -267,52 +267,55 @@ function parseFromMap<T>(
  * Uses map-based lookups instead of switch statements (OCP compliant)
  */
 class EnumParserRegistryImpl implements IEnumParserRegistry {
-  
   parseEngineType(value: string): EngineType {
     return parseFromMap(value, ENGINE_TYPE_MAP, EngineType.STANDARD);
   }
-  
+
   parseGyroType(value: string): GyroType {
     return parseFromMap(value, GYRO_TYPE_MAP, GyroType.STANDARD);
   }
-  
+
   parseCockpitType(value: string): CockpitType {
     return parseFromMap(value, COCKPIT_TYPE_MAP, CockpitType.STANDARD);
   }
-  
+
   parseStructureType(value: string): InternalStructureType {
-    return parseFromMap(value, STRUCTURE_TYPE_MAP, InternalStructureType.STANDARD);
+    return parseFromMap(
+      value,
+      STRUCTURE_TYPE_MAP,
+      InternalStructureType.STANDARD,
+    );
   }
-  
+
   parseArmorType(value: string): ArmorTypeEnum {
     return parseFromMap(value, ARMOR_TYPE_MAP, ArmorTypeEnum.STANDARD);
   }
-  
+
   parseHeatSinkType(value: string): HeatSinkType {
     return parseFromMap(value, HEAT_SINK_TYPE_MAP, HeatSinkType.SINGLE);
   }
-  
+
   parseTechBase(value: string): TechBase {
     return parseFromMap(value, TECH_BASE_MAP, TechBase.INNER_SPHERE);
   }
-  
+
   parseRulesLevel(value: string): RulesLevel {
     return parseFromMap(value, RULES_LEVEL_MAP, RulesLevel.STANDARD);
   }
-  
+
   parseEra(value: string): Era {
     return parseFromMap(value, ERA_MAP, Era.LATE_SUCCESSION_WARS);
   }
-  
+
   parseMechConfiguration(value: string): MechConfiguration {
     // Handle PascalCase input (e.g., "Biped" -> "BIPED")
     return parseFromMap(value, MECH_CONFIGURATION_MAP, MechConfiguration.BIPED);
   }
-  
+
   parseMechLocation(value: string): MechLocation {
     return parseFromMap(value, MECH_LOCATION_MAP, MechLocation.CENTER_TORSO);
   }
-  
+
   getWeightClass(tonnage: number): WeightClass {
     if (tonnage <= 35) return WeightClass.LIGHT;
     if (tonnage <= 55) return WeightClass.MEDIUM;
@@ -349,40 +352,40 @@ export function _resetEnumParserRegistry(): void {
 // Convenience Exports (direct parser functions)
 // =============================================================================
 
-export const parseEngineType = (value: string): EngineType => 
+export const parseEngineType = (value: string): EngineType =>
   getEnumParserRegistry().parseEngineType(value);
 
-export const parseGyroType = (value: string): GyroType => 
+export const parseGyroType = (value: string): GyroType =>
   getEnumParserRegistry().parseGyroType(value);
 
-export const parseCockpitType = (value: string): CockpitType => 
+export const parseCockpitType = (value: string): CockpitType =>
   getEnumParserRegistry().parseCockpitType(value);
 
-export const parseStructureType = (value: string): InternalStructureType => 
+export const parseStructureType = (value: string): InternalStructureType =>
   getEnumParserRegistry().parseStructureType(value);
 
-export const parseArmorType = (value: string): ArmorTypeEnum => 
+export const parseArmorType = (value: string): ArmorTypeEnum =>
   getEnumParserRegistry().parseArmorType(value);
 
-export const parseHeatSinkType = (value: string): HeatSinkType => 
+export const parseHeatSinkType = (value: string): HeatSinkType =>
   getEnumParserRegistry().parseHeatSinkType(value);
 
-export const parseTechBase = (value: string): TechBase => 
+export const parseTechBase = (value: string): TechBase =>
   getEnumParserRegistry().parseTechBase(value);
 
-export const parseRulesLevel = (value: string): RulesLevel => 
+export const parseRulesLevel = (value: string): RulesLevel =>
   getEnumParserRegistry().parseRulesLevel(value);
 
-export const parseEra = (value: string): Era => 
+export const parseEra = (value: string): Era =>
   getEnumParserRegistry().parseEra(value);
 
-export const parseMechConfiguration = (value: string): MechConfiguration => 
+export const parseMechConfiguration = (value: string): MechConfiguration =>
   getEnumParserRegistry().parseMechConfiguration(value);
 
-export const parseMechLocation = (value: string): MechLocation => 
+export const parseMechLocation = (value: string): MechLocation =>
   getEnumParserRegistry().parseMechLocation(value);
 
-export const getWeightClass = (tonnage: number): WeightClass => 
+export const getWeightClass = (tonnage: number): WeightClass =>
   getEnumParserRegistry().getWeightClass(tonnage);
 
 // Export types

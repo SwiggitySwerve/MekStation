@@ -1,5 +1,6 @@
-import React, { createContext, useContext, ReactNode } from 'react';
 import type { Decorator } from '@storybook/react';
+
+import React, { createContext, useContext, ReactNode } from 'react';
 
 interface DeviceCapabilities {
   hasTouch: boolean;
@@ -22,8 +23,8 @@ interface DeviceCapabilitiesProviderProps {
   capabilities?: Partial<DeviceCapabilities>;
 }
 
-export function DeviceCapabilitiesProvider({ 
-  children, 
+export function DeviceCapabilitiesProvider({
+  children,
   capabilities = {},
 }: DeviceCapabilitiesProviderProps): React.ReactElement {
   const value: DeviceCapabilities = {
@@ -41,7 +42,7 @@ export function DeviceCapabilitiesProvider({
 
 export const DeviceCapabilitiesDecorator: Decorator = (Story, context) => {
   const { deviceCapabilities } = context.parameters || {};
-  
+
   return (
     <DeviceCapabilitiesProvider capabilities={deviceCapabilities}>
       <Story />

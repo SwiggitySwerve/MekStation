@@ -1,8 +1,8 @@
 /**
  * Tech Rating System Types
- * 
+ *
  * Defines technology availability and rating classifications.
- * 
+ *
  * @spec openspec/specs/tech-rating-system/spec.md
  */
 
@@ -78,7 +78,7 @@ export function compareTechRatings(a: TechRating, b: TechRating): number {
  */
 export function getHighestTechRating(ratings: TechRating[]): TechRating {
   if (ratings.length === 0) return TechRating.C;
-  
+
   return ratings.reduce((highest, current) => {
     return compareTechRatings(current, highest) > 0 ? current : highest;
   }, TechRating.A);
@@ -90,25 +90,27 @@ export function getHighestTechRating(ratings: TechRating[]): TechRating {
 export function isTechAvailable(
   availability: TechAvailability,
   year: number,
-  isClan: boolean
+  isClan: boolean,
 ): boolean {
   if (isClan) {
     if (!availability.clanIntroYear) return false;
     if (year < availability.clanIntroYear) return false;
     if (availability.clanExtinctYear && year > availability.clanExtinctYear) {
-      return availability.reintroductionYear 
-        ? year >= availability.reintroductionYear 
+      return availability.reintroductionYear
+        ? year >= availability.reintroductionYear
         : false;
     }
     return true;
   }
-  
+
   if (year < availability.innerSphereIntroYear) return false;
-  if (availability.innerSphereExtinctYear && year > availability.innerSphereExtinctYear) {
-    return availability.reintroductionYear 
-      ? year >= availability.reintroductionYear 
+  if (
+    availability.innerSphereExtinctYear &&
+    year > availability.innerSphereExtinctYear
+  ) {
+    return availability.reintroductionYear
+      ? year >= availability.reintroductionYear
       : false;
   }
   return true;
 }
-

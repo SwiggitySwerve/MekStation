@@ -1,13 +1,13 @@
 #!/usr/bin/env ts-node
 /**
  * MegaMekLab Unit Conversion Script
- * 
+ *
  * Converts all MegaMekLab JSON files to the internal serialized format.
  * Generates converted unit files and a search index.
- * 
+ *
  * Usage:
  *   npx ts-node scripts/data-migration/convert-megameklab-units.ts [options]
- * 
+ *
  * Options:
  *   --source <path>   Source directory (default: data/megameklab_converted_output/mekfiles)
  *   --output <path>   Output directory (default: public/data/units)
@@ -15,7 +15,7 @@
  *   --limit <n>       Limit number of files to process (for testing)
  *   --dry-run         Don't write output files
  *   --verbose         Show detailed output
- * 
+ *
  * @spec unit-json.plan.md
  */
 
@@ -23,7 +23,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Type imports (relative path since we're in scripts/)
-type TechBase = 'Inner Sphere' | 'Clan' | 'Mixed' | 'Mixed (IS Chassis)' | 'Mixed (Clan Chassis)';
+type TechBase =
+  | 'Inner Sphere'
+  | 'Clan'
+  | 'Mixed'
+  | 'Mixed (IS Chassis)'
+  | 'Mixed (Clan Chassis)';
 
 // ============================================================================
 // CONFIGURATION
@@ -54,7 +59,7 @@ const DEFAULT_CONFIG: ConversionConfig = {
 function parseArgs(): ConversionConfig {
   const config = { ...DEFAULT_CONFIG };
   const args = process.argv.slice(2);
-  
+
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
       case '--source':
@@ -67,7 +72,14 @@ function parseArgs(): ConversionConfig {
         config.unitTypes = [args[++i]];
         break;
       case '--all-types':
-        config.unitTypes = ['meks', 'vehicles', 'battlearmor', 'infantry', 'fighters', 'protomeks'];
+        config.unitTypes = [
+          'meks',
+          'vehicles',
+          'battlearmor',
+          'infantry',
+          'fighters',
+          'protomeks',
+        ];
         break;
       case '--limit':
         config.limit = parseInt(args[++i], 10);
@@ -83,7 +95,7 @@ function parseArgs(): ConversionConfig {
         process.exit(0);
     }
   }
-  
+
   return config;
 }
 
@@ -126,19 +138,19 @@ function findJsonFiles(dir: string, files: string[] = []): string[] {
   if (!fs.existsSync(dir)) {
     return files;
   }
-  
+
   const entries = fs.readdirSync(dir, { withFileTypes: true });
-  
+
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
-    
+
     if (entry.isDirectory()) {
       findJsonFiles(fullPath, files);
     } else if (entry.isFile() && entry.name.endsWith('.json')) {
       files.push(fullPath);
     }
   }
-  
+
   return files;
 }
 
@@ -168,14 +180,27 @@ interface SourceUnit {
   heat_sinks: { type: string; count: number };
   walk_mp: string | number;
   jump_mp: string | number;
-  armor: { type: string; locations: Array<{ location: string; armor_points: number }> };
-  weapons_and_equipment: Array<{ item_name: string; location: string; item_type: string; tech_base: string }>;
+  armor: {
+    type: string;
+    locations: Array<{ location: string; armor_points: number }>;
+  };
+  weapons_and_equipment: Array<{
+    item_name: string;
+    location: string;
+    item_type: string;
+    tech_base: string;
+  }>;
   criticals: Array<{ location: string; slots: string[] }>;
   quirks?: string[];
   is_omnimech?: boolean;
   omnimech_configuration?: string;
   clanname?: string;
-  fluff_text?: { overview?: string; capabilities?: string; history?: string; deployment?: string };
+  fluff_text?: {
+    overview?: string;
+    capabilities?: string;
+    history?: string;
+    deployment?: string;
+  };
 }
 
 interface ConvertedUnit {
@@ -217,9 +242,9 @@ interface IndexEntry {
 // Simplified mappings
 const TECH_BASE_MAP: Record<string, string> = {
   'Inner Sphere': 'Inner Sphere',
-  'IS': 'Inner Sphere',
-  'Clan': 'Clan',
-  'Mixed': 'Mixed',
+  IS: 'Inner Sphere',
+  Clan: 'Clan',
+  Mixed: 'Mixed',
   'Mixed (IS Chassis)': 'Mixed (IS Chassis)',
   'Mixed (Clan Chassis)': 'Mixed (Clan Chassis)',
 };
@@ -262,21 +287,30 @@ function mapConfiguration(config: string): string {
 
 function normalizeLocation(loc: string): string {
   const map: Record<string, string> = {
-    'Head': 'Head', 'HD': 'Head', 'H': 'Head',
-    'Center Torso': 'Center Torso', 'CT': 'Center Torso',
-    'Left Torso': 'Left Torso', 'LT': 'Left Torso',
-    'Right Torso': 'Right Torso', 'RT': 'Right Torso',
-    'Left Arm': 'Left Arm', 'LA': 'Left Arm',
-    'Right Arm': 'Right Arm', 'RA': 'Right Arm',
-    'Left Leg': 'Left Leg', 'LL': 'Left Leg',
-    'Right Leg': 'Right Leg', 'RL': 'Right Leg',
+    Head: 'Head',
+    HD: 'Head',
+    H: 'Head',
+    'Center Torso': 'Center Torso',
+    CT: 'Center Torso',
+    'Left Torso': 'Left Torso',
+    LT: 'Left Torso',
+    'Right Torso': 'Right Torso',
+    RT: 'Right Torso',
+    'Left Arm': 'Left Arm',
+    LA: 'Left Arm',
+    'Right Arm': 'Right Arm',
+    RA: 'Right Arm',
+    'Left Leg': 'Left Leg',
+    LL: 'Left Leg',
+    'Right Leg': 'Right Leg',
+    RL: 'Right Leg',
   };
   return map[loc] || loc;
 }
 
 // Critical slot counts per location for biped mechs
 const SLOT_COUNTS: Record<string, number> = {
-  'Head': 6,
+  Head: 6,
   'Center Torso': 12,
   'Left Torso': 12,
   'Right Torso': 12,
@@ -306,63 +340,80 @@ const PADDED_SLOT_COUNT = 12;
  * The converter outputs all slots concatenated into a single "Head" entry
  * with each location padded to 12 slots
  */
-function parseCriticalSlots(criticals: Array<{ location: string; slots: string[] }>): Record<string, (string | null)[]> {
+function parseCriticalSlots(
+  criticals: Array<{ location: string; slots: string[] }>,
+): Record<string, (string | null)[]> {
   const result: Record<string, (string | null)[]> = {};
-  
+
   // Check if we have properly separated location entries (8 locations for biped)
   if (criticals.length >= 8) {
     for (const crit of criticals) {
       const loc = normalizeLocation(crit.location);
       const slotCount = SLOT_COUNTS[loc] || 12;
-      result[loc] = crit.slots.slice(0, slotCount).map(s => s === '-Empty-' ? null : s);
+      result[loc] = crit.slots
+        .slice(0, slotCount)
+        .map((s) => (s === '-Empty-' ? null : s));
     }
     return result;
   }
-  
+
   // Handle combined format - all slots concatenated into one entry
   if (criticals.length === 1 && criticals[0].slots.length > 12) {
     const allSlots = criticals[0].slots;
     let offset = 0;
-    
+
     for (const location of LOCATION_ORDER) {
       const actualSlotCount = SLOT_COUNTS[location];
       const locationSlots = allSlots.slice(offset, offset + actualSlotCount);
-      
+
       if (locationSlots.length > 0) {
-        result[location] = locationSlots.map(s => s === '-Empty-' ? null : s);
+        result[location] = locationSlots.map((s) =>
+          s === '-Empty-' ? null : s,
+        );
       }
-      
+
       // Advance by padded amount (12) not actual count
       offset += PADDED_SLOT_COUNT;
     }
-    
+
     return result;
   }
-  
+
   // Fallback: process as-is
   for (const crit of criticals) {
     const loc = normalizeLocation(crit.location);
-    result[loc] = crit.slots.map(s => s === '-Empty-' ? null : s);
+    result[loc] = crit.slots.map((s) => (s === '-Empty-' ? null : s));
   }
-  
+
   return result;
 }
 
 function generateEquipmentId(itemType: string, itemName: string): string {
   // Simple kebab-case conversion
-  return itemType.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '').replace(/--+/g, '-');
+  return itemType
+    .replace(/([A-Z])/g, '-$1')
+    .toLowerCase()
+    .replace(/^-/, '')
+    .replace(/--+/g, '-');
 }
 
 function convertUnit(source: SourceUnit): ConvertedUnit {
-  const id = source.mul_id ? `mul-${source.mul_id}` : 
-    `${source.chassis}-${source.model}`.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  
+  const id = source.mul_id
+    ? `mul-${source.mul_id}`
+    : `${source.chassis}-${source.model}`
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-');
+
   const techBase = TECH_BASE_MAP[source.tech_base] || 'Inner Sphere';
-  const year = typeof source.era === 'number' ? source.era : parseInt(String(source.era), 10) || 3025;
+  const year =
+    typeof source.era === 'number'
+      ? source.era
+      : parseInt(String(source.era), 10) || 3025;
   const era = getEraForYear(year);
   const rulesLevel = RULES_LEVEL_MAP[String(source.rules_level)] || 'Standard';
-  const isOmni = source.is_omnimech || source.config.toLowerCase().includes('omni');
-  
+  const isOmni =
+    source.is_omnimech || source.config.toLowerCase().includes('omni');
+
   // Convert armor locations
   const armorAllocation: Record<string, unknown> = {};
   for (const loc of source.armor.locations) {
@@ -371,13 +422,15 @@ function convertUnit(source: SourceUnit): ConvertedUnit {
       // Handle rear armor
       const base = normalized.replace(' (Rear)', '');
       const key = base.replace(/ /g, '').replace('Torso', 'Torso');
-      armorAllocation[key.charAt(0).toLowerCase() + key.slice(1) + 'Rear'] = loc.armor_points;
+      armorAllocation[key.charAt(0).toLowerCase() + key.slice(1) + 'Rear'] =
+        loc.armor_points;
     } else {
       const key = normalized.replace(/ /g, '');
-      armorAllocation[key.charAt(0).toLowerCase() + key.slice(1)] = loc.armor_points;
+      armorAllocation[key.charAt(0).toLowerCase() + key.slice(1)] =
+        loc.armor_points;
     }
   }
-  
+
   // Convert equipment
   const equipment: Array<{ id: string; location: string }> = [];
   for (const item of source.weapons_and_equipment) {
@@ -386,10 +439,10 @@ function convertUnit(source: SourceUnit): ConvertedUnit {
       location: normalizeLocation(item.location),
     });
   }
-  
+
   // Convert criticals using the parser that handles combined format
   const criticalSlots = parseCriticalSlots(source.criticals);
-  
+
   return {
     id,
     chassis: source.chassis,
@@ -443,7 +496,7 @@ interface ConversionStats {
 
 async function main(): Promise<void> {
   const config = parseArgs();
-  
+
   console.log('========================================');
   console.log('MegaMekLab Unit Conversion Script');
   console.log('========================================');
@@ -453,7 +506,7 @@ async function main(): Promise<void> {
   if (config.limit) console.log(`Limit: ${config.limit}`);
   if (config.dryRun) console.log('Mode: DRY RUN');
   console.log('');
-  
+
   const stats: ConversionStats = {
     total: 0,
     successful: 0,
@@ -462,44 +515,46 @@ async function main(): Promise<void> {
     validationErrors: 0,
     errors: [],
   };
-  
+
   const indexEntries: IndexEntry[] = [];
-  
+
   for (const unitType of config.unitTypes) {
     const typeDir = path.join(config.sourceDir, unitType);
-    
+
     if (!fs.existsSync(typeDir)) {
       console.log(`Skipping ${unitType}: directory not found`);
       continue;
     }
-    
+
     console.log(`Processing ${unitType}...`);
-    
+
     const jsonFiles = findJsonFiles(typeDir);
     let filesToProcess = jsonFiles;
-    
+
     if (config.limit) {
       filesToProcess = jsonFiles.slice(0, config.limit);
     }
-    
-    console.log(`  Found ${jsonFiles.length} files, processing ${filesToProcess.length}`);
-    
+
+    console.log(
+      `  Found ${jsonFiles.length} files, processing ${filesToProcess.length}`,
+    );
+
     for (const filePath of filesToProcess) {
       stats.total++;
-      
+
       try {
         log(config, `  Converting: ${path.basename(filePath)}`);
-        
+
         const content = fs.readFileSync(filePath, 'utf-8');
         const source: SourceUnit = JSON.parse(content);
-        
+
         const converted = convertUnit(source);
-        
+
         // Generate output path
         const relativePath = path.relative(config.sourceDir, filePath);
         const outputPath = path.join(config.outputDir, relativePath);
         const outputDir = path.dirname(outputPath);
-        
+
         // Create index entry
         const indexEntry: IndexEntry = {
           id: converted.id,
@@ -514,26 +569,25 @@ async function main(): Promise<void> {
           filePath: relativePath.replace(/\\/g, '/'),
         };
         indexEntries.push(indexEntry);
-        
+
         if (!config.dryRun) {
           ensureDir(outputDir);
           fs.writeFileSync(outputPath, JSON.stringify(converted, null, 2));
         }
-        
+
         stats.successful++;
-        
       } catch (error) {
         stats.failed++;
         const errorMsg = `${path.basename(filePath)}: ${error instanceof Error ? error.message : String(error)}`;
         stats.errors.push(errorMsg);
-        
+
         if (config.verbose) {
           console.error(`  ERROR: ${errorMsg}`);
         }
       }
     }
   }
-  
+
   // Write index file
   if (!config.dryRun && indexEntries.length > 0) {
     ensureDir(config.outputDir);
@@ -541,7 +595,7 @@ async function main(): Promise<void> {
     fs.writeFileSync(indexPath, JSON.stringify(indexEntries, null, 2));
     console.log(`\nWrote index file: ${indexPath}`);
   }
-  
+
   // Print summary
   console.log('\n========================================');
   console.log('Conversion Complete');
@@ -550,7 +604,7 @@ async function main(): Promise<void> {
   console.log(`Successful: ${stats.successful}`);
   console.log(`Failed: ${stats.failed}`);
   console.log(`Validation issues: ${stats.validationErrors}`);
-  
+
   if (stats.errors.length > 0) {
     console.log('\nErrors:');
     for (const error of stats.errors.slice(0, 10)) {
@@ -560,7 +614,7 @@ async function main(): Promise<void> {
       console.log(`  ... and ${stats.errors.length - 10} more`);
     }
   }
-  
+
   // Exit with error code if there were failures
   if (stats.failed > 0) {
     process.exit(1);
@@ -568,8 +622,7 @@ async function main(): Promise<void> {
 }
 
 // Run main
-main().catch(error => {
+main().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });
-

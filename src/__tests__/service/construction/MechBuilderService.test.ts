@@ -1,16 +1,19 @@
 /**
  * Mech Builder Service Tests
- * 
+ *
  * Tests for mech construction and modification logic.
- * 
+ *
  * @spec openspec/specs/construction-services/spec.md
  */
 
-import { MechBuilderService, IEditableMech } from '@/services/construction/MechBuilderService';
-import { TechBase } from '@/types/enums/TechBase';
+import {
+  MechBuilderService,
+  IEditableMech,
+} from '@/services/construction/MechBuilderService';
 import { IFullUnit } from '@/services/units/CanonicalUnitService';
 import { EngineType } from '@/types/construction/EngineType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { TechBase } from '@/types/enums/TechBase';
 
 describe('MechBuilderService', () => {
   let service: MechBuilderService;
@@ -24,17 +27,16 @@ describe('MechBuilderService', () => {
   // ============================================================================
   describe('createEmpty', () => {
     describe('valid tonnages', () => {
-      it.each([20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100])(
-        'should create empty %d-ton mech',
-        (tonnage) => {
-          const mech = service.createEmpty(tonnage, TechBase.INNER_SPHERE);
-          
-          expect(mech.tonnage).toBe(tonnage);
-          expect(mech.techBase).toBe(TechBase.INNER_SPHERE);
-          expect(mech.chassis).toBe('New Mech');
-          expect(mech.variant).toBe('Custom');
-        }
-      );
+      it.each([
+        20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
+      ])('should create empty %d-ton mech', (tonnage) => {
+        const mech = service.createEmpty(tonnage, TechBase.INNER_SPHERE);
+
+        expect(mech.tonnage).toBe(tonnage);
+        expect(mech.techBase).toBe(TechBase.INNER_SPHERE);
+        expect(mech.chassis).toBe('New Mech');
+        expect(mech.variant).toBe('Custom');
+      });
     });
 
     describe('default values', () => {
@@ -88,15 +90,21 @@ describe('MechBuilderService', () => {
 
     describe('invalid tonnages', () => {
       it('should throw for tonnage below 20', () => {
-        expect(() => service.createEmpty(15, TechBase.INNER_SPHERE)).toThrow('Invalid tonnage');
+        expect(() => service.createEmpty(15, TechBase.INNER_SPHERE)).toThrow(
+          'Invalid tonnage',
+        );
       });
 
       it('should throw for tonnage above 100', () => {
-        expect(() => service.createEmpty(105, TechBase.INNER_SPHERE)).toThrow('Invalid tonnage');
+        expect(() => service.createEmpty(105, TechBase.INNER_SPHERE)).toThrow(
+          'Invalid tonnage',
+        );
       });
 
       it('should throw for non-5-ton increment', () => {
-        expect(() => service.createEmpty(52, TechBase.INNER_SPHERE)).toThrow('Invalid tonnage');
+        expect(() => service.createEmpty(52, TechBase.INNER_SPHERE)).toThrow(
+          'Invalid tonnage',
+        );
       });
     });
   });
@@ -115,7 +123,7 @@ describe('MechBuilderService', () => {
       } as IFullUnit;
 
       const mech = service.createFromUnit(unit);
-      
+
       expect(mech.id).toBe('test-unit');
       expect(mech.chassis).toBe('Atlas');
       expect(mech.variant).toBe('AS7-D');
@@ -193,7 +201,7 @@ describe('MechBuilderService', () => {
       const updated = service.applyChanges(withArmor, {
         armorAllocation: { leftArm: 10 },
       });
-      
+
       expect(updated.armorAllocation.head).toBe(9);
       expect(updated.armorAllocation.centerTorso).toBe(20);
       expect(updated.armorAllocation.leftArm).toBe(10);
@@ -239,14 +247,18 @@ describe('MechBuilderService', () => {
 
     it('should throw for engine rating exceeding maximum', () => {
       // Walk MP 9 on 50-ton mech = rating 450 (exceeds 400)
-      expect(() => service.setEngine(baseMech, 'Standard', 9)).toThrow('Engine rating 450 exceeds maximum');
+      expect(() => service.setEngine(baseMech, 'Standard', 9)).toThrow(
+        'Engine rating 450 exceeds maximum',
+      );
     });
 
     it('should throw for engine rating below minimum', () => {
       // For very low walk MP
       const heavyMech = service.createEmpty(100, TechBase.INNER_SPHERE);
       // Walk MP of 0 would give rating 0, but we can't set 0 walk
-      expect(() => service.setEngine(heavyMech, 'Standard', 0)).toThrow('Engine rating 0 below minimum');
+      expect(() => service.setEngine(heavyMech, 'Standard', 0)).toThrow(
+        'Engine rating 0 below minimum',
+      );
     });
 
     it('should mark mech as dirty', () => {
@@ -273,7 +285,7 @@ describe('MechBuilderService', () => {
     it('should merge with existing armor', () => {
       const step1 = service.setArmor(baseMech, { head: 9 });
       const step2 = service.setArmor(step1, { centerTorso: 20 });
-      
+
       expect(step2.armorAllocation.head).toBe(9);
       expect(step2.armorAllocation.centerTorso).toBe(20);
     });
@@ -296,7 +308,7 @@ describe('MechBuilderService', () => {
 
     it('should add equipment to location', () => {
       const updated = service.addEquipment(baseMech, 'medium-laser', 'RT');
-      
+
       expect(updated.equipment.length).toBe(1);
       expect(updated.equipment[0].equipmentId).toBe('medium-laser');
       expect(updated.equipment[0].location).toBe('RT');
@@ -307,7 +319,7 @@ describe('MechBuilderService', () => {
       mech = service.addEquipment(mech, 'medium-laser', 'RT');
       mech = service.addEquipment(mech, 'medium-laser', 'RT');
       mech = service.addEquipment(mech, 'medium-laser', 'LT');
-      
+
       expect(mech.equipment[0].slotIndex).toBe(0);
       expect(mech.equipment[1].slotIndex).toBe(1);
       expect(mech.equipment[2].slotIndex).toBe(0); // Different location
@@ -335,16 +347,22 @@ describe('MechBuilderService', () => {
 
     it('should remove equipment by index', () => {
       const updated = service.removeEquipment(mechWithEquipment, 1);
-      
+
       expect(updated.equipment.length).toBe(2);
-      expect(updated.equipment.find(e => e.equipmentId === 'srm-6')).toBeUndefined();
+      expect(
+        updated.equipment.find((e) => e.equipmentId === 'srm-6'),
+      ).toBeUndefined();
     });
 
     it('should preserve other equipment', () => {
       const updated = service.removeEquipment(mechWithEquipment, 1);
-      
-      expect(updated.equipment.find(e => e.equipmentId === 'medium-laser')).toBeDefined();
-      expect(updated.equipment.find(e => e.equipmentId === 'machine-gun')).toBeDefined();
+
+      expect(
+        updated.equipment.find((e) => e.equipmentId === 'medium-laser'),
+      ).toBeDefined();
+      expect(
+        updated.equipment.find((e) => e.equipmentId === 'machine-gun'),
+      ).toBeDefined();
     });
 
     it('should mark mech as dirty', () => {
@@ -359,12 +377,14 @@ describe('MechBuilderService', () => {
   describe('Immutability', () => {
     it('all operations should return new object', () => {
       const original = service.createEmpty(50, TechBase.INNER_SPHERE);
-      
-      const afterChanges = service.applyChanges(original, { chassis: 'Changed' });
+
+      const afterChanges = service.applyChanges(original, {
+        chassis: 'Changed',
+      });
       const afterEngine = service.setEngine(original, 'XL');
       const afterArmor = service.setArmor(original, { head: 9 });
       const afterEquip = service.addEquipment(original, 'laser', 'RA');
-      
+
       expect(afterChanges).not.toBe(original);
       expect(afterEngine).not.toBe(original);
       expect(afterArmor).not.toBe(original);
@@ -374,11 +394,10 @@ describe('MechBuilderService', () => {
     it('original should remain unchanged after modifications', () => {
       const original = service.createEmpty(50, TechBase.INNER_SPHERE);
       const originalChassis = original.chassis;
-      
+
       service.applyChanges(original, { chassis: 'Modified' });
-      
+
       expect(original.chassis).toBe(originalChassis);
     });
   });
 });
-

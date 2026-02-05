@@ -1,18 +1,19 @@
 /**
  * Canonical Unit Service
- * 
+ *
  * Provides read-only access to bundled canonical unit data.
  * Uses lazy loading for full unit data.
  * Supports both server-side (Node.js) and client-side (browser) loading.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
-import { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
-import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/enums/Era';
+import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
+import { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 
 /**
  * Raw unit index entry from index.json
@@ -42,7 +43,7 @@ function mapRawToIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
   } else if (raw.techBase === 'MIXED') {
     techBase = TechBase.INNER_SPHERE; // Default mixed to IS
   }
-  
+
   // Determine weight class from tonnage
   let weightClass: WeightClass;
   if (raw.tonnage <= 35) {
@@ -54,7 +55,7 @@ function mapRawToIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
   } else {
     weightClass = WeightClass.ASSAULT;
   }
-  
+
   // Map era from file path (e.g., "2-star-league/standard/...")
   let era: Era = Era.LATE_SUCCESSION_WARS;
   if (raw.path.includes('1-age-of-war')) {
@@ -72,7 +73,7 @@ function mapRawToIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
   } else if (raw.path.includes('7-ilclan')) {
     era = Era.IL_CLAN;
   }
-  
+
   return {
     id: raw.id,
     name: `${raw.chassis} ${raw.model}`,
@@ -132,7 +133,8 @@ function getBaseUrl(): string {
   }
   // Server-side: construct absolute URL
   // Use NEXT_PUBLIC_BASE_URL if set, otherwise default to localhost
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
     `http://localhost:${process.env.PORT || 3000}`;
   return baseUrl;
 }
@@ -156,7 +158,7 @@ export class CanonicalUnitService implements ICanonicalUnitService {
       if (!response.ok) {
         return null;
       }
-      return await response.json() as T;
+      return (await response.json()) as T;
     } catch {
       return null;
     }
@@ -171,13 +173,15 @@ export class CanonicalUnitService implements ICanonicalUnitService {
     }
 
     try {
-      const data = await this.loadJson<{ units?: RawUnitIndexEntry[] }>(this.indexPath);
-      
+      const data = await this.loadJson<{ units?: RawUnitIndexEntry[] }>(
+        this.indexPath,
+      );
+
       if (!data) {
         this.indexCache = [];
         return this.indexCache;
       }
-      
+
       // Map raw index data to IUnitIndexEntry format
       this.indexCache = (data.units || []).map(mapRawToIndexEntry);
       return this.indexCache;
@@ -199,8 +203,8 @@ export class CanonicalUnitService implements ICanonicalUnitService {
 
     // Find in index to get file path
     const index = await this.getIndex();
-    const entry = index.find(e => e.id === id);
-    
+    const entry = index.find((e) => e.id === id);
+
     if (!entry) {
       return null;
     }
@@ -221,40 +225,40 @@ export class CanonicalUnitService implements ICanonicalUnitService {
    * Get multiple units by ID (parallel loading)
    */
   async getByIds(ids: string[]): Promise<IFullUnit[]> {
-    const results = await Promise.all(
-      ids.map(id => this.getById(id))
-    );
+    const results = await Promise.all(ids.map((id) => this.getById(id)));
     return results.filter((unit): unit is IFullUnit => unit !== null);
   }
 
   /**
    * Query units by criteria (filters index in memory)
    */
-  async query(criteria: IUnitQueryCriteria): Promise<readonly IUnitIndexEntry[]> {
+  async query(
+    criteria: IUnitQueryCriteria,
+  ): Promise<readonly IUnitIndexEntry[]> {
     let results = await this.getIndex();
 
     if (criteria.techBase !== undefined) {
-      results = results.filter(e => e.techBase === criteria.techBase);
+      results = results.filter((e) => e.techBase === criteria.techBase);
     }
 
     if (criteria.era !== undefined) {
-      results = results.filter(e => e.era === criteria.era);
+      results = results.filter((e) => e.era === criteria.era);
     }
 
     if (criteria.weightClass !== undefined) {
-      results = results.filter(e => e.weightClass === criteria.weightClass);
+      results = results.filter((e) => e.weightClass === criteria.weightClass);
     }
 
     if (criteria.unitType !== undefined) {
-      results = results.filter(e => e.unitType === criteria.unitType);
+      results = results.filter((e) => e.unitType === criteria.unitType);
     }
 
     if (criteria.minTonnage !== undefined) {
-      results = results.filter(e => e.tonnage >= criteria.minTonnage!);
+      results = results.filter((e) => e.tonnage >= criteria.minTonnage!);
     }
 
     if (criteria.maxTonnage !== undefined) {
-      results = results.filter(e => e.tonnage <= criteria.maxTonnage!);
+      results = results.filter((e) => e.tonnage <= criteria.maxTonnage!);
     }
 
     return results;
@@ -294,4 +298,3 @@ export function _resetCanonicalUnitService(): void {
 // Legacy export for backward compatibility
 // @deprecated Use getCanonicalUnitService() instead
 export const canonicalUnitService = getCanonicalUnitService();
-

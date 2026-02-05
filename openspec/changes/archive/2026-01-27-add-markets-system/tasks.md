@@ -1,6 +1,7 @@
 # Implementation Tasks: Markets System
 
 ## 1. Foundation - Market Types and Structures
+
 - [ ] 1.1 Define UnitMarketRarity enum (7 levels: MYTHIC to UBIQUITOUS)
 - [ ] 1.2 Define UnitMarketType enum (6 types: OPEN, EMPLOYER, MERCENARY, FACTORY, BLACK_MARKET, CIVILIAN)
 - [ ] 1.3 Define PersonnelMarketStyle enum (4 styles: DISABLED, MEKHQ, CAM_OPS_REVISED, CAM_OPS_STRICT)
@@ -11,6 +12,7 @@
 - [ ] 1.8 Add 3 market options to ICampaignOptions
 
 ## 2. Unit Market Implementation
+
 - [ ] 2.1 Implement calculateItemCount (d6 + rarity_value - 3)
 - [ ] 2.2 Implement calculatePricePercent (2d6 → price modifier 85-115%)
 - [ ] 2.3 Implement getMarketTypeQuality (BLACK_MARKET 50/50 A/F, others fixed)
@@ -20,6 +22,7 @@
 - [ ] 2.7 Implement getEndOfMonth date helper
 
 ## 3. Personnel Market Implementation
+
 - [ ] 3.1 Implement calculateDailyRecruits (based on market style)
 - [ ] 3.2 Implement selectRandomRole (role-weighted selection)
 - [ ] 3.3 Implement selectExperienceLevel (experience distribution)
@@ -31,6 +34,7 @@
 - [ ] 3.9 Implement hirePerson (deduct cost, create IPerson, add to roster)
 
 ## 4. Faction Standing Integration
+
 - [ ] 4.1 Implement getUnitMarketRarityModifier stub (returns 0)
 - [ ] 4.2 Implement getRecruitmentTickets stub (returns 5)
 - [ ] 4.3 Implement getRecruitmentRollsModifier stub (returns 0)
@@ -39,6 +43,7 @@
 - [ ] 4.6 Document Plan 5 dependency
 
 ## 5. Market Day Processors
+
 - [ ] 5.1 Create processUnitMarket (monthly refresh on 1st)
 - [ ] 5.2 Create processPersonnelMarket (daily refresh + expiration)
 - [ ] 5.3 Create processContractMarket (monthly refresh, delegates to contractMarket.ts)
@@ -48,6 +53,7 @@
 - [ ] 5.7 Emit market refresh events
 
 ## 6. Contract Market Enhancement
+
 - [ ] 6.1 Integrate faction standing negotiation modifier
 - [ ] 6.2 Apply contract pay multiplier from faction standing
 - [ ] 6.3 Add followup contract generation after mission completion
@@ -55,6 +61,7 @@
 - [ ] 6.5 Document Plan 12 integration (19 contract types)
 
 ## 7. Campaign Integration
+
 - [ ] 7.1 Add unitMarketOffers array to ICampaign
 - [ ] 7.2 Add personnelMarketOffers array to ICampaign
 - [ ] 7.3 Update createCampaign() to initialize empty offer arrays
@@ -63,6 +70,7 @@
 - [ ] 7.6 Update test helpers to include offer arrays
 
 ## 8. Markets UI
+
 - [ ] 8.1 Create UnitMarketPage component (browse, filter, purchase)
 - [ ] 8.2 Create PersonnelMarketPage component (browse, filter, hire)
 - [ ] 8.3 Create EnhancedContractMarketPage component (negotiate, view all types)
@@ -73,6 +81,7 @@
 - [ ] 8.8 Integrate with campaign navigation
 
 ## 9. Testing
+
 - [ ] 9.1 Test unit market generation (item count, price, quality)
 - [ ] 9.2 Test personnel market generation (daily, expiration)
 - [ ] 9.3 Test faction standing stubs (neutral defaults)
@@ -82,6 +91,7 @@
 - [ ] 9.7 Test UI components (rendering, interactions)
 
 ## 10. Documentation
+
 - [ ] 10.1 Update markets-system spec with implementation details
 - [ ] 10.2 Document unit market formulas (item count, price)
 - [ ] 10.3 Document personnel market expiration mechanics

@@ -6,7 +6,10 @@
  * @spec openspec/specs/mtf-parity-validation/spec.md
  */
 
-import { MTFParserService, getMTFParserService } from '@/services/conversion/MTFParserService';
+import {
+  MTFParserService,
+  getMTFParserService,
+} from '@/services/conversion/MTFParserService';
 
 describe('MTFParserService', () => {
   let service: MTFParserService;
@@ -206,14 +209,24 @@ systemmanufacturer:ENGINE:Vlar 300
       expect(result.unit?.movement.jump).toBe(3);
       expect(result.unit?.armor.type).toBe('FERRO_FIBROUS');
       expect(result.unit?.equipment.length).toBe(3);
-      expect(result.unit?.quirks).toEqual(['battle_fists_la', 'improved_targeting_short']);
-      expect(result.unit?.fluff?.overview).toBe('The Atlas is one of the most feared BattleMechs.');
-      expect(result.unit?.fluff?.capabilities).toBe('Heavy armor and devastating firepower.');
-      expect(result.unit?.fluff?.history).toBe('Developed during the Star League era.');
+      expect(result.unit?.quirks).toEqual([
+        'battle_fists_la',
+        'improved_targeting_short',
+      ]);
+      expect(result.unit?.fluff?.overview).toBe(
+        'The Atlas is one of the most feared BattleMechs.',
+      );
+      expect(result.unit?.fluff?.capabilities).toBe(
+        'Heavy armor and devastating firepower.',
+      );
+      expect(result.unit?.fluff?.history).toBe(
+        'Developed during the Star League era.',
+      );
     });
 
     it('should handle Windows line endings', () => {
-      const mtf = 'chassis:Atlas\r\nmodel:AS7-D\r\nConfig:Biped\r\ntechbase:Inner Sphere\r\nera:2755\r\nrules level:2\r\nmass:100\r\n';
+      const mtf =
+        'chassis:Atlas\r\nmodel:AS7-D\r\nConfig:Biped\r\ntechbase:Inner Sphere\r\nera:2755\r\nrules level:2\r\nmass:100\r\n';
 
       const result = service.parse(mtf);
 
@@ -222,7 +235,8 @@ systemmanufacturer:ENGINE:Vlar 300
     });
 
     it('should handle Unix line endings', () => {
-      const mtf = 'chassis:Atlas\nmodel:AS7-D\nConfig:Biped\ntechbase:Inner Sphere\nera:2755\nrules level:2\nmass:100\n';
+      const mtf =
+        'chassis:Atlas\nmodel:AS7-D\nConfig:Biped\ntechbase:Inner Sphere\nera:2755\nrules level:2\nmass:100\n';
 
       const result = service.parse(mtf);
 
@@ -662,9 +676,18 @@ RTC armor:14
 
       const result = service.parse(mtf);
 
-      expect(result.unit?.armor.allocation.LEFT_TORSO).toEqual({ front: 32, rear: 10 });
-      expect(result.unit?.armor.allocation.RIGHT_TORSO).toEqual({ front: 32, rear: 10 });
-      expect(result.unit?.armor.allocation.CENTER_TORSO).toEqual({ front: 47, rear: 14 });
+      expect(result.unit?.armor.allocation.LEFT_TORSO).toEqual({
+        front: 32,
+        rear: 10,
+      });
+      expect(result.unit?.armor.allocation.RIGHT_TORSO).toEqual({
+        front: 32,
+        rear: 10,
+      });
+      expect(result.unit?.armor.allocation.CENTER_TORSO).toEqual({
+        front: 47,
+        rear: 14,
+      });
     });
 
     it('should default to Standard armor when missing', () => {
@@ -821,7 +844,9 @@ Head:
       const result = service.parse(mtf);
 
       expect(result.unit?.criticalSlots.HEAD).toHaveLength(6);
-      expect(result.unit?.criticalSlots.HEAD.every(slot => slot === null)).toBe(true);
+      expect(
+        result.unit?.criticalSlots.HEAD.every((slot) => slot === null),
+      ).toBe(true);
     });
 
     it('should stop parsing location at section break', () => {
@@ -964,7 +989,9 @@ Foot Actuator
       expect(result.unit?.criticalSlots.REAR_LEFT_LEG).toBeDefined();
       expect(result.unit?.criticalSlots.REAR_RIGHT_LEG).toBeDefined();
       expect(result.unit?.criticalSlots.FRONT_LEFT_LEG?.[0]).toBe('Hip');
-      expect(result.unit?.criticalSlots.FRONT_LEFT_LEG?.[1]).toBe('Upper Leg Actuator');
+      expect(result.unit?.criticalSlots.FRONT_LEFT_LEG?.[1]).toBe(
+        'Upper Leg Actuator',
+      );
     });
 
     it('should parse Quad mech armor with quad leg armor labels', () => {
@@ -1074,7 +1101,9 @@ Avionics
       expect(result.unit?.criticalSlots.CENTER_TORSO).toBeDefined();
       // Check for LAM-specific equipment
       expect(result.unit?.criticalSlots.HEAD?.[3]).toBe('Avionics');
-      expect(result.unit?.criticalSlots.CENTER_TORSO?.[10]).toBe('Landing Gear');
+      expect(result.unit?.criticalSlots.CENTER_TORSO?.[10]).toBe(
+        'Landing Gear',
+      );
       expect(result.unit?.criticalSlots.LEFT_TORSO?.[0]).toBe('Landing Gear');
       expect(result.unit?.criticalSlots.LEFT_TORSO?.[1]).toBe('Avionics');
     });
@@ -1125,7 +1154,9 @@ Foot Actuator
       expect(result.unit?.criticalSlots.RIGHT_LEG).toBeDefined();
       expect(result.unit?.criticalSlots.CENTER_LEG).toBeDefined();
       expect(result.unit?.criticalSlots.CENTER_LEG?.[0]).toBe('Hip');
-      expect(result.unit?.criticalSlots.CENTER_LEG?.[1]).toBe('Upper Leg Actuator');
+      expect(result.unit?.criticalSlots.CENTER_LEG?.[1]).toBe(
+        'Upper Leg Actuator',
+      );
     });
 
     it('should parse Tripod armor with center leg armor', () => {
@@ -1238,7 +1269,9 @@ Tracks
       expect(result.unit?.criticalSlots.REAR_LEFT_LEG).toBeDefined();
       expect(result.unit?.criticalSlots.REAR_RIGHT_LEG).toBeDefined();
       // Check for QuadVee-specific equipment
-      expect(result.unit?.criticalSlots.FRONT_LEFT_LEG?.[4]).toBe('Conversion Equipment');
+      expect(result.unit?.criticalSlots.FRONT_LEFT_LEG?.[4]).toBe(
+        'Conversion Equipment',
+      );
       expect(result.unit?.criticalSlots.FRONT_LEFT_LEG?.[5]).toBe('Tracks');
     });
 
@@ -1400,9 +1433,15 @@ primaryfactory:Hesperus II
 
       const result = service.parse(mtf);
 
-      expect(result.unit?.fluff?.overview).toBe('The Atlas is one of the most feared BattleMechs.');
-      expect(result.unit?.fluff?.capabilities).toBe('Heavy armor and devastating firepower.');
-      expect(result.unit?.fluff?.history).toBe('Developed during the Star League era.');
+      expect(result.unit?.fluff?.overview).toBe(
+        'The Atlas is one of the most feared BattleMechs.',
+      );
+      expect(result.unit?.fluff?.capabilities).toBe(
+        'Heavy armor and devastating firepower.',
+      );
+      expect(result.unit?.fluff?.history).toBe(
+        'Developed during the Star League era.',
+      );
       expect(result.unit?.fluff?.deployment).toBe('Used by all major houses.');
       expect(result.unit?.fluff?.manufacturer).toBe('Defiance Industries');
       expect(result.unit?.fluff?.primaryFactory).toBe('Hesperus II');
@@ -1420,9 +1459,13 @@ systemmanufacturer:ARMOR:Durallex Special Heavy
 
       const result = service.parse(mtf);
 
-      expect(result.unit?.fluff?.systemManufacturer?.CHASSIS).toBe('Foundation Type 10X');
+      expect(result.unit?.fluff?.systemManufacturer?.CHASSIS).toBe(
+        'Foundation Type 10X',
+      );
       expect(result.unit?.fluff?.systemManufacturer?.ENGINE).toBe('Vlar 300');
-      expect(result.unit?.fluff?.systemManufacturer?.ARMOR).toBe('Durallex Special Heavy');
+      expect(result.unit?.fluff?.systemManufacturer?.ARMOR).toBe(
+        'Durallex Special Heavy',
+      );
     });
 
     it('should return undefined fluff when no fields present', () => {
@@ -1448,7 +1491,9 @@ manufacturer:Defiance Industries
 
       const result = service.parse(mtf);
 
-      expect(result.unit?.fluff?.overview).toBe('The Atlas is one of the most feared BattleMechs.');
+      expect(result.unit?.fluff?.overview).toBe(
+        'The Atlas is one of the most feared BattleMechs.',
+      );
       expect(result.unit?.fluff?.manufacturer).toBe('Defiance Industries');
       expect(result.unit?.fluff?.capabilities).toBeUndefined();
       expect(result.unit?.fluff?.history).toBeUndefined();
@@ -1484,7 +1529,11 @@ quirk:command_mech
 
       const result = service.parse(mtf);
 
-      expect(result.unit?.quirks).toEqual(['battle_fists_la', 'improved_targeting_short', 'command_mech']);
+      expect(result.unit?.quirks).toEqual([
+        'battle_fists_la',
+        'improved_targeting_short',
+        'command_mech',
+      ]);
     });
 
     it('should return undefined for no quirks', () => {
@@ -2009,7 +2058,9 @@ overview:Note: This is a test with a colon
 
       const result = service.parse(mtf);
 
-      expect(result.unit?.fluff?.overview).toBe('Note: This is a test with a colon');
+      expect(result.unit?.fluff?.overview).toBe(
+        'Note: This is a test with a colon',
+      );
     });
 
     it('should handle very long field values', () => {
@@ -2226,9 +2277,13 @@ quirk:command_mech
       expect(unit.fluff?.deployment).toContain('AS7-D is the most common');
       expect(unit.fluff?.manufacturer).toBe('Defiance Industries');
       expect(unit.fluff?.primaryFactory).toBe('Hesperus II');
-      expect(unit.fluff?.systemManufacturer?.CHASSIS).toBe('Foundation Type 10X');
+      expect(unit.fluff?.systemManufacturer?.CHASSIS).toBe(
+        'Foundation Type 10X',
+      );
       expect(unit.fluff?.systemManufacturer?.ENGINE).toBe('Vlar 300');
-      expect(unit.fluff?.systemManufacturer?.ARMOR).toBe('Durallex Special Heavy');
+      expect(unit.fluff?.systemManufacturer?.ARMOR).toBe(
+        'Durallex Special Heavy',
+      );
     });
 
     it('should parse Clan mech with XL engine', () => {
@@ -2538,7 +2593,9 @@ LRM 20 (omnipod), Right Torso
 
       // All weapons should be pod-mounted
       expect(result.unit?.equipment).toHaveLength(6);
-      expect(result.unit?.equipment.every(eq => eq.isOmniPodMounted)).toBe(true);
+      expect(result.unit?.equipment.every((eq) => eq.isOmniPodMounted)).toBe(
+        true,
+      );
     });
   });
 });

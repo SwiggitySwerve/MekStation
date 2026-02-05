@@ -12,6 +12,7 @@ import type {
   ChangeType,
   ShareableContentType,
 } from '@/types/vault';
+
 import { getSQLiteService } from '@/services/persistence';
 
 // =============================================================================
@@ -94,7 +95,7 @@ export class ChangeLogRepository {
     itemId: string,
     contentHash: string | null,
     data: string | null,
-    sourceId: string | null = null
+    sourceId: string | null = null,
   ): Promise<IChangeLogEntry> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -123,7 +124,7 @@ export class ChangeLogRepository {
       contentHash,
       data,
       sourceId ? 1 : 0, // Local changes start unsynced, remote changes are already synced
-      sourceId
+      sourceId,
     );
 
     return {
@@ -148,7 +149,9 @@ export class ChangeLogRepository {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare('SELECT * FROM vault_change_log WHERE synced = 0 ORDER BY version ASC')
+      .prepare(
+        'SELECT * FROM vault_change_log WHERE synced = 0 ORDER BY version ASC',
+      )
       .all() as IStoredChangeLogEntry[];
 
     return rows.map((row) => this.rowToEntry(row));
@@ -157,12 +160,17 @@ export class ChangeLogRepository {
   /**
    * Get changes since a specific version
    */
-  async getChangesSince(version: number, limit = 100): Promise<IChangeLogEntry[]> {
+  async getChangesSince(
+    version: number,
+    limit = 100,
+  ): Promise<IChangeLogEntry[]> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare('SELECT * FROM vault_change_log WHERE version > ? ORDER BY version ASC LIMIT ?')
+      .prepare(
+        'SELECT * FROM vault_change_log WHERE version > ? ORDER BY version ASC LIMIT ?',
+      )
       .all(version, limit) as IStoredChangeLogEntry[];
 
     return rows.map((row) => this.rowToEntry(row));
@@ -173,7 +181,7 @@ export class ChangeLogRepository {
    */
   async getLatestForItem(
     itemId: string,
-    contentType: ShareableContentType | 'folder'
+    contentType: ShareableContentType | 'folder',
   ): Promise<IChangeLogEntry | null> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -214,7 +222,9 @@ export class ChangeLogRepository {
     const placeholders = changeIds.map(() => '?').join(',');
 
     const result = db
-      .prepare(`UPDATE vault_change_log SET synced = 1 WHERE id IN (${placeholders})`)
+      .prepare(
+        `UPDATE vault_change_log SET synced = 1 WHERE id IN (${placeholders})`,
+      )
       .run(...changeIds);
 
     return result.changes;
@@ -225,7 +235,7 @@ export class ChangeLogRepository {
    */
   async getHistoryForItem(
     itemId: string,
-    contentType: ShareableContentType | 'folder'
+    contentType: ShareableContentType | 'folder',
   ): Promise<IChangeLogEntry[]> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -248,14 +258,16 @@ export class ChangeLogRepository {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
-    const result = db.prepare(`
+    const result = db
+      .prepare(`
       DELETE FROM vault_change_log 
       WHERE synced = 1 AND version < (
         SELECT MIN(version) FROM (
           SELECT version FROM vault_change_log ORDER BY version DESC LIMIT ?
         )
       )
-    `).run(keepCount);
+    `)
+      .run(keepCount);
 
     return result.changes;
   }
@@ -298,7 +310,7 @@ export class ChangeLogRepository {
       conflict.remoteVersion,
       conflict.remoteHash,
       conflict.remotePeerId,
-      detectedAt
+      detectedAt,
     );
 
     return id;
@@ -307,35 +319,39 @@ export class ChangeLogRepository {
   /**
    * Get pending conflicts
    */
-  async getPendingConflicts(): Promise<Array<{
-    id: string;
-    contentType: ShareableContentType | 'folder';
-    itemId: string;
-    itemName: string;
-    localVersion: number;
-    localHash: string;
-    remoteVersion: number;
-    remoteHash: string;
-    remotePeerId: string;
-    detectedAt: string;
-  }>> {
+  async getPendingConflicts(): Promise<
+    Array<{
+      id: string;
+      contentType: ShareableContentType | 'folder';
+      itemId: string;
+      itemName: string;
+      localVersion: number;
+      localHash: string;
+      remoteVersion: number;
+      remoteHash: string;
+      remotePeerId: string;
+      detectedAt: string;
+    }>
+  > {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare("SELECT * FROM vault_sync_conflicts WHERE resolution = 'pending' ORDER BY detected_at DESC")
+      .prepare(
+        "SELECT * FROM vault_sync_conflicts WHERE resolution = 'pending' ORDER BY detected_at DESC",
+      )
       .all() as Array<{
-        id: string;
-        content_type: ShareableContentType | 'folder';
-        item_id: string;
-        item_name: string;
-        local_version: number;
-        local_hash: string;
-        remote_version: number;
-        remote_hash: string;
-        remote_peer_id: string;
-        detected_at: string;
-      }>;
+      id: string;
+      content_type: ShareableContentType | 'folder';
+      item_id: string;
+      item_name: string;
+      local_version: number;
+      local_hash: string;
+      remote_version: number;
+      remote_hash: string;
+      remote_peer_id: string;
+      detected_at: string;
+    }>;
 
     return rows.map((row) => ({
       id: row.id,
@@ -356,7 +372,7 @@ export class ChangeLogRepository {
    */
   async resolveConflict(
     conflictId: string,
-    resolution: 'local' | 'remote' | 'merged' | 'forked'
+    resolution: 'local' | 'remote' | 'merged' | 'forked',
   ): Promise<boolean> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();

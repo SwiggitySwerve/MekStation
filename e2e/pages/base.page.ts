@@ -35,7 +35,7 @@ export abstract class BasePage {
     await this.page.waitForFunction(
       (url) => window.location.href !== url,
       currentUrl,
-      { timeout: 10000 }
+      { timeout: 10000 },
     );
     await this.page.waitForLoadState('networkidle');
   }

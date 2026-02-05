@@ -33,7 +33,10 @@ export function getStatusColor(status: EncounterStatus): StatusBadgeColor {
  * @param verbose - If true, returns more descriptive labels (e.g., "Ready to Launch" instead of "Ready")
  * @returns Human-readable status label
  */
-export function getStatusLabel(status: EncounterStatus, verbose = false): string {
+export function getStatusLabel(
+  status: EncounterStatus,
+  verbose = false,
+): string {
   switch (status) {
     case EncounterStatus.Draft:
       return 'Draft';

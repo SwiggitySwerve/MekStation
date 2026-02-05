@@ -8,15 +8,15 @@ The codebase currently has **1,209 ESLint issues** (72 errors, 1,137 warnings). 
 
 Based on ESLint analysis, the most common issues are:
 
-| Rule | Count | Severity |
-|------|-------|----------|
-| `no-unsafe-member-access` | 335 | Warning |
-| `no-unsafe-assignment` | 301 | Warning |
-| `no-unused-vars` | 198 | Warning |
-| `explicit-module-boundary-types` | 110 | Warning |
-| `no-explicit-any` | 105 | Warning |
-| `no-unsafe-call` | 57 | Warning |
-| `no-unsafe-return` | 25 | Warning |
+| Rule                             | Count | Severity |
+| -------------------------------- | ----- | -------- |
+| `no-unsafe-member-access`        | 335   | Warning  |
+| `no-unsafe-assignment`           | 301   | Warning  |
+| `no-unused-vars`                 | 198   | Warning  |
+| `explicit-module-boundary-types` | 110   | Warning  |
+| `no-explicit-any`                | 105   | Warning  |
+| `no-unsafe-call`                 | 57    | Warning  |
+| `no-unsafe-return`               | 25    | Warning  |
 
 ## Pattern Categories
 
@@ -28,6 +28,7 @@ Based on ESLint analysis, the most common issues are:
 Imports or variables that are defined but never referenced in the code.
 
 **Common Causes:**
+
 - Leftover imports from refactoring
 - Test helper functions imported but not used
 - Interface/type imports that became unnecessary
@@ -54,6 +55,7 @@ import { createMixedComponentTechBases } from '../helpers/storeTestHelpers';
 3. **Use the import:** If the import should be used, find where it's needed
 
 **Prevention:**
+
 - Use IDE auto-import cleanup features
 - Run ESLint regularly during development
 - Review imports when refactoring
@@ -66,6 +68,7 @@ import { createMixedComponentTechBases } from '../helpers/storeTestHelpers';
 Using `any` type without proper type guards or validation, leading to potential runtime errors.
 
 **Common Causes:**
+
 - JSON.parse() returns `any` and is accessed without type checking
 - Legacy code using `any` for quick prototyping
 - Third-party library integrations with loose typing
@@ -75,17 +78,22 @@ Using `any` type without proper type guards or validation, leading to potential 
 
 ```typescript
 // UnitSerializer.ts - JSON.parse returns any
-export function validateSerializedFormat(data: string): { isValid: boolean; errors: string[] } {
+export function validateSerializedFormat(data: string): {
+  isValid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   try {
     const parsed = JSON.parse(data); // parsed is any
 
-    if (!parsed.formatVersion) { // unsafe member access
+    if (!parsed.formatVersion) {
+      // unsafe member access
       errors.push('Missing formatVersion field');
     }
 
-    if (!parsed.unit) { // unsafe member access
+    if (!parsed.unit) {
+      // unsafe member access
       errors.push('Missing unit field');
     } else {
       const unit = parsed.unit; // unsafe assignment
@@ -94,7 +102,9 @@ export function validateSerializedFormat(data: string): { isValid: boolean; erro
       // ... more unsafe accesses
     }
   } catch (e) {
-    errors.push(`Invalid JSON: ${e instanceof Error ? e.message : 'Parse error'}`);
+    errors.push(
+      `Invalid JSON: ${e instanceof Error ? e.message : 'Parse error'}`,
+    );
   }
 
   return { isValid: errors.length === 0, errors };
@@ -111,6 +121,7 @@ expect(data.error).toContain('Method not allowed'); // unsafe member access
 **Fix Strategies:**
 
 1. **Create proper type definitions:**
+
 ```typescript
 interface SerializedUnitData {
   formatVersion: string;
@@ -124,7 +135,10 @@ interface SerializedUnitData {
   };
 }
 
-export function validateSerializedFormat(data: string): { isValid: boolean; errors: string[] } {
+export function validateSerializedFormat(data: string): {
+  isValid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   try {
@@ -143,7 +157,9 @@ export function validateSerializedFormat(data: string): { isValid: boolean; erro
       // ...
     }
   } catch (e) {
-    errors.push(`Invalid JSON: ${e instanceof Error ? e.message : 'Parse error'}`);
+    errors.push(
+      `Invalid JSON: ${e instanceof Error ? e.message : 'Parse error'}`,
+    );
   }
 
   return { isValid: errors.length === 0, errors };
@@ -151,6 +167,7 @@ export function validateSerializedFormat(data: string): { isValid: boolean; erro
 ```
 
 2. **Use type guards:**
+
 ```typescript
 function isSerializedUnitData(obj: unknown): obj is SerializedUnitData {
   return (
@@ -163,12 +180,14 @@ function isSerializedUnitData(obj: unknown): obj is SerializedUnitData {
 ```
 
 3. **Use `unknown` instead of `any`:**
+
 ```typescript
 const parsed: unknown = JSON.parse(data);
 // Now you must narrow the type before using it
 ```
 
 **Prevention:**
+
 - Enable stricter TypeScript configuration
 - Use `unknown` instead of `any` for untyped data
 - Create proper interfaces for external data structures
@@ -182,6 +201,7 @@ const parsed: unknown = JSON.parse(data);
 Exported functions without explicit return type annotations.
 
 **Common Causes:**
+
 - Quick prototyping without specifying return types
 - Functions added without considering the boundary type requirement
 - Utility functions that should be explicitly typed
@@ -195,7 +215,7 @@ Exported functions without explicit return type annotations.
  */
 export function getJumpJetEquipment(tonnage: number, jumpJetType: JumpJetType) {
   const id = getJumpJetEquipmentId(tonnage, jumpJetType);
-  return JUMP_JETS.find(jj => jj.id === id); // Return type not specified
+  return JUMP_JETS.find((jj) => jj.id === id); // Return type not specified
 }
 
 /**
@@ -203,7 +223,7 @@ export function getJumpJetEquipment(tonnage: number, jumpJetType: JumpJetType) {
  */
 export function getHeatSinkEquipment(heatSinkType: HeatSinkType) {
   const id = getHeatSinkEquipmentId(heatSinkType);
-  return HEAT_SINKS.find(hs => hs.id === id); // Return type not specified
+  return HEAT_SINKS.find((hs) => hs.id === id); // Return type not specified
 }
 
 /**
@@ -211,11 +231,11 @@ export function getHeatSinkEquipment(heatSinkType: HeatSinkType) {
  */
 export function getEnhancementEquipment(
   enhancementType: MovementEnhancementType,
-  techBase: TechBase
+  techBase: TechBase,
 ) {
   const id = getEnhancementEquipmentId(enhancementType, techBase);
   // Check MOVEMENT_EQUIPMENT first (MASC, Supercharger)
-  const movementEquip = MOVEMENT_EQUIPMENT.find(e => e.id === id);
+  const movementEquip = MOVEMENT_EQUIPMENT.find((e) => e.id === id);
   // ... function continues without explicit return type
 }
 ```
@@ -223,24 +243,28 @@ export function getEnhancementEquipment(
 **Fix Strategies:**
 
 1. **Add explicit return types:**
+
 ```typescript
 export function getJumpJetEquipment(
   tonnage: number,
-  jumpJetType: JumpJetType
+  jumpJetType: JumpJetType,
 ): IEquipment | undefined {
   const id = getJumpJetEquipmentId(tonnage, jumpJetType);
-  return JUMP_JETS.find(jj => jj.id === id);
+  return JUMP_JETS.find((jj) => jj.id === id);
 }
 
-export function getHeatSinkEquipment(heatSinkType: HeatSinkType): IEquipment | undefined {
+export function getHeatSinkEquipment(
+  heatSinkType: HeatSinkType,
+): IEquipment | undefined {
   const id = getHeatSinkEquipmentId(heatSinkType);
-  return HEAT_SINKS.find(hs => hs.id === id);
+  return HEAT_SINKS.find((hs) => hs.id === id);
 }
 ```
 
 2. **Determine correct return type:** Check what the function actually returns and specify the appropriate type.
 
 **Prevention:**
+
 - Configure IDE to require return types on exported functions
 - Use TypeScript's `noImplicitReturns` option
 - Review function signatures during code review
@@ -253,6 +277,7 @@ export function getHeatSinkEquipment(heatSinkType: HeatSinkType): IEquipment | u
 Function parameters that are defined but never used in the function body.
 
 **Common Causes:**
+
 - API compatibility (keeping parameter for interface consistency)
 - Future implementation placeholders
 - Refactored functions where parameters became unnecessary
@@ -264,7 +289,7 @@ Function parameters that are defined but never used in the function body.
 export function calculateArmor(
   armorType: ArmorTypeEnum,
   totalArmorPoints: number,
-  tonnage: number  // Parameter defined but never used
+  tonnage: number, // Parameter defined but never used
 ): ConstructionStepResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -272,7 +297,15 @@ export function calculateArmor(
   const definition = getArmorDefinition(armorType);
   if (!definition) {
     errors.push(`Unknown armor type: ${armorType}`);
-    return { step: 7, name: 'Armor', weight: 0, criticalSlots: 0, isValid: false, errors, warnings };
+    return {
+      step: 7,
+      name: 'Armor',
+      weight: 0,
+      criticalSlots: 0,
+      isValid: false,
+      errors,
+      warnings,
+    };
   }
 
   const weight = calculateArmorWeight(totalArmorPoints, armorType);
@@ -301,6 +334,7 @@ export function calculateArmor(
 3. **Use the parameter:** Implement the functionality that would use it
 
 **Prevention:**
+
 - Follow the existing ESLint pattern: `argsIgnorePattern: '^_'`
 - Use underscores for intentionally unused parameters
 - Remove truly unnecessary parameters during refactoring
@@ -313,6 +347,7 @@ export function calculateArmor(
 Type definitions, interfaces, or constants imported but never used.
 
 **Common Causes:**
+
 - Leftover imports from code generation
 - Type definitions that became unnecessary after refactoring
 - Constants imported for future use but never implemented
@@ -337,18 +372,19 @@ import { LOCATION_SLOT_COUNTS } from '@/constants/mechConstants'; // Never used
 3. **Move to file scope:** If the type is used elsewhere in the same file
 
 **Prevention:**
+
 - Regular cleanup passes with ESLint
 - IDE unused import detection
 - Code review checks for unnecessary imports
 
 ## Quick Reference Table
 
-| Pattern | Rule | Fix Command | Auto-fixable |
-|---------|------|-------------|--------------|
-| Unused imports/vars | `no-unused-vars` | Remove or prefix with `_` | Partial |
-| Unsafe `any` usage | `no-unsafe-*` | Add type guards/assertions | No |
-| Missing return types | `explicit-module-boundary-types` | Add `: ReturnType` | No |
-| Unused parameters | `no-unused-vars` | Prefix with `_` | Partial |
+| Pattern              | Rule                             | Fix Command                | Auto-fixable |
+| -------------------- | -------------------------------- | -------------------------- | ------------ |
+| Unused imports/vars  | `no-unused-vars`                 | Remove or prefix with `_`  | Partial      |
+| Unsafe `any` usage   | `no-unsafe-*`                    | Add type guards/assertions | No           |
+| Missing return types | `explicit-module-boundary-types` | Add `: ReturnType`         | No           |
+| Unused parameters    | `no-unused-vars`                 | Prefix with `_`            | Partial      |
 
 ## Automated Fixes
 
@@ -363,10 +399,12 @@ npx eslint . --fix-dry-run
 ```
 
 **Auto-fixable patterns:**
+
 - Some unused imports
 - Some unused variable prefixes
 
 **Manual fixes required:**
+
 - Unsafe `any` usage (requires type system changes)
 - Missing return types (requires type annotations)
 - Complex unused variable scenarios

@@ -1,3 +1,10 @@
+import type {
+  AutoAwardTrigger,
+  IAutoAwardConfig,
+  IAutoGrantCriteria,
+  IAwardGrantEvent,
+} from '../autoAwardTypes';
+
 import {
   AutoAwardCategory,
   ALL_AUTO_AWARD_TRIGGERS,
@@ -7,12 +14,6 @@ import {
   isAutoAwardConfig,
   isAutoGrantCriteria,
   isAwardGrantEvent,
-} from '../autoAwardTypes';
-import type {
-  AutoAwardTrigger,
-  IAutoAwardConfig,
-  IAutoGrantCriteria,
-  IAwardGrantEvent,
 } from '../autoAwardTypes';
 
 describe('AutoAwardCategory', () => {

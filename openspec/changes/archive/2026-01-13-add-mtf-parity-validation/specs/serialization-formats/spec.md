@@ -9,6 +9,7 @@ The system SHALL support exporting ISerializedUnit to MegaMekLab .mtf format.
 **Priority**: High
 
 #### Scenario: MTF export
+
 - **WHEN** exporting to .mtf format
 - **THEN** system SHALL generate MegaMekLab-compatible text format
 - **AND** system SHALL map canonical equipment IDs to MTF names
@@ -16,12 +17,14 @@ The system SHALL support exporting ISerializedUnit to MegaMekLab .mtf format.
 - **AND** system SHALL include all structural component fields
 
 #### Scenario: MTF equipment naming
+
 - **GIVEN** ISerializedUnit with equipment ID "medium-laser"
 - **WHEN** exporting to MTF format
 - **THEN** equipment SHALL appear as "Medium Laser" in output
 - **AND** ammunition SHALL use "IS Ammo" or "Clan Ammo" prefixes as appropriate
 
 #### Scenario: MTF location formatting
+
 - **GIVEN** ISerializedUnit with critical slot assignments
 - **WHEN** exporting to MTF format
 - **THEN** each location section SHALL list slots in order

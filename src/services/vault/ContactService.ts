@@ -12,10 +12,11 @@ import type {
   IAddContactOptions,
   IAddContactResult,
 } from '@/types/vault';
-import { ContactRepository, getContactRepository } from './ContactRepository';
-import { isValidFriendCode, decodeFriendCode } from './IdentityService';
-import { getIdentityRepository } from './IdentityRepository';
+
 import { createSingleton } from '../core/createSingleton';
+import { ContactRepository, getContactRepository } from './ContactRepository';
+import { getIdentityRepository } from './IdentityRepository';
+import { isValidFriendCode, decodeFriendCode } from './IdentityService';
 
 // =============================================================================
 // Types
@@ -56,7 +57,10 @@ export class ContactService {
     if (!isValidFriendCode(friendCode)) {
       return {
         success: false,
-        error: { message: 'Invalid friend code format', errorCode: 'INVALID_CODE' as const },
+        error: {
+          message: 'Invalid friend code format',
+          errorCode: 'INVALID_CODE' as const,
+        },
       };
     }
 
@@ -64,10 +68,16 @@ export class ContactService {
     try {
       const identityRepo = getIdentityRepository();
       const identity = await identityRepo.getActive();
-      if (identity && identity.friendCode.toUpperCase() === friendCode.toUpperCase()) {
+      if (
+        identity &&
+        identity.friendCode.toUpperCase() === friendCode.toUpperCase()
+      ) {
         return {
           success: false,
-          error: { message: 'Cannot add yourself as a contact', errorCode: 'SELF_ADD' as const },
+          error: {
+            message: 'Cannot add yourself as a contact',
+            errorCode: 'SELF_ADD' as const,
+          },
         };
       }
     } catch {
@@ -75,11 +85,16 @@ export class ContactService {
     }
 
     // Check if contact already exists
-    const existing = await this.repository.getByFriendCode(friendCode.toUpperCase());
+    const existing = await this.repository.getByFriendCode(
+      friendCode.toUpperCase(),
+    );
     if (existing) {
       return {
         success: false,
-        error: { message: 'Contact already exists', errorCode: 'ALREADY_EXISTS' as const },
+        error: {
+          message: 'Contact already exists',
+          errorCode: 'ALREADY_EXISTS' as const,
+        },
       };
     }
 
@@ -95,7 +110,10 @@ export class ContactService {
     } catch (_err) {
       return {
         success: false,
-        error: { message: 'Failed to decode friend code', errorCode: 'INVALID_CODE' as const },
+        error: {
+          message: 'Failed to decode friend code',
+          errorCode: 'INVALID_CODE' as const,
+        },
       };
     }
 
@@ -188,7 +206,7 @@ export class ContactService {
     friendCode: string,
     displayName: string,
     publicKey: string,
-    avatar: string | null
+    avatar: string | null,
   ): Promise<boolean> {
     const contact = await this.repository.getByFriendCode(friendCode);
     if (!contact) return false;
@@ -197,7 +215,7 @@ export class ContactService {
     const updated = await this.repository.updateFromIdentity(
       contact.id,
       displayName,
-      avatar
+      avatar,
     );
 
     // If we have a full public key, update it too
@@ -205,8 +223,10 @@ export class ContactService {
       // Need to update public key directly - add a method to repository
       const { getSQLiteService } = await import('@/services/persistence');
       const db = getSQLiteService().getDatabase();
-      db.prepare('UPDATE vault_contacts SET public_key = ? WHERE id = ?')
-        .run(publicKey, contact.id);
+      db.prepare('UPDATE vault_contacts SET public_key = ? WHERE id = ?').run(
+        publicKey,
+        contact.id,
+      );
     }
 
     return updated;

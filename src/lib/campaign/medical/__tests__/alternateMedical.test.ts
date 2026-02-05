@@ -8,11 +8,14 @@
  * - Prosthetic penalty: +4
  */
 
+import { createDefaultCampaignOptions } from '../../../../types/campaign/Campaign';
+import {
+  PersonnelStatus,
+  CampaignPersonnelRole,
+} from '../../../../types/campaign/enums';
+import { IPerson, createInjury } from '../../../../types/campaign/Person';
 import { alternateMedicalCheck } from '../alternateMedical';
 import { MedicalSystem } from '../medicalTypes';
-import { IPerson, createInjury } from '../../../../types/campaign/Person';
-import { createDefaultCampaignOptions } from '../../../../types/campaign/Campaign';
-import { PersonnelStatus, CampaignPersonnelRole } from '../../../../types/campaign/enums';
 
 function createMockPerson(overrides?: Partial<IPerson>): IPerson {
   return {
@@ -31,7 +34,16 @@ function createMockPerson(overrides?: Partial<IPerson>): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 6, REF: 4, DEX: 5, INT: 4, WIL: 5, CHA: 4, Edge: 3 },
+    attributes: {
+      STR: 5,
+      BOD: 6,
+      REF: 4,
+      DEX: 5,
+      INT: 4,
+      WIL: 5,
+      CHA: 4,
+      Edge: 3,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
@@ -43,14 +55,32 @@ describe('alternateMedicalCheck', () => {
   const mockPatient = createMockPerson({
     id: 'patient-001',
     name: 'Test Patient',
-    attributes: { STR: 5, BOD: 6, REF: 4, DEX: 5, INT: 4, WIL: 5, CHA: 4, Edge: 3 },
+    attributes: {
+      STR: 5,
+      BOD: 6,
+      REF: 4,
+      DEX: 5,
+      INT: 4,
+      WIL: 5,
+      CHA: 4,
+      Edge: 3,
+    },
   });
 
   const mockDoctor = createMockPerson({
     id: 'doctor-001',
     name: 'Test Doctor',
     primaryRole: CampaignPersonnelRole.DOCTOR,
-    attributes: { STR: 4, BOD: 5, REF: 5, DEX: 6, INT: 6, WIL: 5, CHA: 5, Edge: 2 },
+    attributes: {
+      STR: 4,
+      BOD: 5,
+      REF: 5,
+      DEX: 6,
+      INT: 6,
+      WIL: 5,
+      CHA: 5,
+      Edge: 2,
+    },
   });
 
   const mockInjury = createInjury({
@@ -74,7 +104,7 @@ describe('alternateMedicalCheck', () => {
         mockInjury,
         mockDoctor,
         mockOptions,
-        random
+        random,
       );
 
       expect(result.outcome).toBe('healed');
@@ -94,7 +124,7 @@ describe('alternateMedicalCheck', () => {
         mockInjury,
         mockDoctor,
         mockOptions,
-        random
+        random,
       );
 
       expect(result.outcome).toBe('no_change');
@@ -103,7 +133,7 @@ describe('alternateMedicalCheck', () => {
     });
   });
 
-   describe('RED: Margin ≤ -6 makes permanent', () => {
+  describe('RED: Margin ≤ -6 makes permanent', () => {
     it('should return outcome "worsened" when margin <= -6', () => {
       const patientWithInjuries = createMockPerson({
         ...mockPatient,
@@ -119,7 +149,7 @@ describe('alternateMedicalCheck', () => {
         mockInjury,
         mockDoctor,
         mockOptions,
-        random
+        random,
       );
 
       expect(result.outcome).toBe('worsened');
@@ -135,7 +165,7 @@ describe('alternateMedicalCheck', () => {
         mockInjury,
         mockDoctor,
         mockOptions,
-        random
+        random,
       );
 
       expect(result.modifiers).toBeDefined();
@@ -152,7 +182,7 @@ describe('alternateMedicalCheck', () => {
         mockInjury,
         mockDoctor,
         mockOptions,
-        random
+        random,
       );
 
       expect(result).toHaveProperty('patientId', 'patient-001');
@@ -177,7 +207,7 @@ describe('alternateMedicalCheck', () => {
         mockInjury,
         null,
         mockOptions,
-        random
+        random,
       );
 
       expect(result.doctorId).toBeUndefined();
@@ -192,7 +222,7 @@ describe('alternateMedicalCheck', () => {
         mockInjury,
         mockDoctor,
         mockOptions,
-        randomHealed
+        randomHealed,
       );
 
       if (resultHealed.outcome === 'healed') {
@@ -206,7 +236,7 @@ describe('alternateMedicalCheck', () => {
         mockInjury,
         mockDoctor,
         mockOptions,
-        randomNoChange
+        randomNoChange,
       );
 
       if (resultNoChange.outcome === 'no_change') {

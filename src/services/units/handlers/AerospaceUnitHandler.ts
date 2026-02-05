@@ -7,9 +7,9 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.3
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { AerospaceLocation } from '../../../types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import {
   IAerospace,
   IAerospaceMountedEquipment,
@@ -19,9 +19,9 @@ import {
   AerospaceMotionType,
   IAerospaceMovement,
 } from '../../../types/unit/BaseUnitInterfaces';
-import { AerospaceLocation } from '../../../types/construction/UnitLocation';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
@@ -76,7 +76,9 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
   /**
    * Parse aerospace-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<IAerospace> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<IAerospace> & {
     errors: string[];
     warnings: string[];
   } {
@@ -126,8 +128,12 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
 
     // Additional features from raw tags
     const rawTags = document.rawTags || {};
-    const hasReinforcedCockpit = this.getBooleanFromRaw(rawTags, 'reinforcedcockpit');
-    const hasEjectionSeat = this.getBooleanFromRaw(rawTags, 'ejectionseat') ?? true; // Default true
+    const hasReinforcedCockpit = this.getBooleanFromRaw(
+      rawTags,
+      'reinforcedcockpit',
+    );
+    const hasEjectionSeat =
+      this.getBooleanFromRaw(rawTags, 'ejectionseat') ?? true; // Default true
 
     return {
       unitType: UnitType.AEROSPACE,
@@ -191,11 +197,15 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly IAerospaceMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly IAerospaceMountedEquipment[] {
     const equipment: IAerospaceMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const location = this.normalizeLocation(locationKey);
 
       for (const item of items) {
@@ -242,7 +252,7 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
    */
   private getBooleanFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): boolean {
     const value = rawTags[key];
     if (Array.isArray(value)) {
@@ -256,7 +266,7 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<IAerospace>
+    typeSpecificFields: Partial<IAerospace>,
   ): IAerospace {
     // Determine weight class (aerospace use different thresholds)
     const weightClass = this.getWeightClass(commonFields.tonnage);
@@ -352,7 +362,9 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
   /**
    * Serialize aerospace-specific fields
    */
-  protected serializeTypeSpecificFields(unit: IAerospace): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: IAerospace,
+  ): Partial<ISerializedUnit> {
     return {
       configuration: 'Aerodyne',
       rulesLevel: String(unit.rulesLevel),
@@ -363,7 +375,9 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
    * Deserialize from standard format
    */
   deserialize(_serialized: ISerializedUnit): IUnitParseResult<IAerospace> {
-    return createFailureResult(['Aerospace deserialization not yet implemented']);
+    return createFailureResult([
+      'Aerospace deserialization not yet implemented',
+    ]);
   }
 
   /**

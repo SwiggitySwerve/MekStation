@@ -5,6 +5,7 @@
 See `EQUIPMENT_CONSTRAINTS_ANALYSIS.md` for detailed analysis.
 
 ### 0.1 Equipment Schema Updates
+
 - [x] 0.1.1 Add `EquipmentFlag` enum to `src/types/enums/EquipmentFlag.ts`
   - Unit type flags: MECH_EQUIPMENT, VEHICLE_EQUIPMENT, VTOL_EQUIPMENT, AEROSPACE_EQUIPMENT, BA_EQUIPMENT, INF_EQUIPMENT, PROTO_EQUIPMENT, SC_EQUIPMENT, DS_EQUIPMENT, JS_EQUIPMENT, WS_EQUIPMENT, SS_EQUIPMENT
   - Behavior flags: HEAT_SINK, DOUBLE_HEAT_SINK, JUMP_JET, MASC, TSM, CASE, CASE_II, ECM, BAP, C3_SYSTEM, TARGETING_COMPUTER, ARTEMIS, EXPLOSIVE, SPREADABLE, VARIABLE_SIZE
@@ -18,6 +19,7 @@ See `EQUIPMENT_CONSTRAINTS_ANALYSIS.md` for detailed analysis.
   - Added `allowedUnitTypes`, `flags`, `allowedLocations` to all schemas
 
 ### 0.2 Equipment Filter Updates
+
 - [x] 0.2.1 Add `unitType?: UnitType | UnitType[]` to `IEquipmentFilter`
 - [x] 0.2.2 Add `hasFlags?: EquipmentFlag[]` to `IEquipmentFilter`
 - [x] 0.2.3 Add `excludeFlags?: EquipmentFlag[]` to `IEquipmentFilter`
@@ -26,13 +28,14 @@ See `EQUIPMENT_CONSTRAINTS_ANALYSIS.md` for detailed analysis.
 - [x] 0.2.6 Added search methods for ammunition, electronics, misc equipment
 
 ### 0.3 Equipment Data Migration
+
 **Note**: Equipment without `allowedUnitTypes` defaults to [BattleMech, Vehicle, Aerospace] in the loader.
 This allows incremental migration - only unit-specific equipment needs explicit types.
 
 - [x] 0.3.1 Audit existing weapons JSON for unit type compatibility
   - Standard weapons (lasers, PPCs, ACs, etc.) - default is correct
   - BA-specific weapons (baflamer, etc.) - need explicit `["Battle Armor"]`
-  - Capital weapons (naval-ppc-*, etc.) - need explicit capital ship types
+  - Capital weapons (naval-ppc-\*, etc.) - need explicit capital ship types
   - Infantry weapons (laser pistols, rifles) - need explicit `["Infantry"]`
 - [x] 0.3.2 Add `allowedUnitTypes` to BA-specific weapons in energy.json
   - baflamer, baheavyflamer, ba-support-ppc, baclermediumpulselaser, etc.
@@ -48,7 +51,9 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [ ] 0.3.9 Convert existing `special[]` to `flags[]` where applicable (deferred)
 
 ### 0.4 Unit-Type-Specific Equipment Data
+
 **DEFERRED** - Equipment data files will be created incrementally as customizer UIs are implemented.
+
 - [~] 0.4.1 Create `public/data/equipment/official/weapons/battle-armor.json`
 - [~] 0.4.2 Create `public/data/equipment/official/weapons/infantry.json`
 - [~] 0.4.3 Create `public/data/equipment/official/weapons/vehicle.json`
@@ -59,6 +64,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [~] 0.4.8 Create `public/data/equipment/official/miscellaneous-aerospace.json`
 
 ### 0.5 Location System Updates
+
 - [x] 0.5.1 Create `LocationType` union type for all unit type locations
 - [x] 0.5.2 Create `VehicleLocation` enum (FRONT, LEFT, RIGHT, REAR, TURRET, BODY)
 - [x] 0.5.3 Create `VTOLLocation` enum (adds ROTOR)
@@ -70,7 +76,9 @@ This allows incremental migration - only unit-specific equipment needs explicit 
   - Created `isValidLocationForUnitType()` helper
 
 ### 0.6 Equipment Validation Rules
+
 **DEFERRED** - Equipment validation rules will be implemented alongside customizer UIs.
+
 - [~] 0.6.1 Create `VAL-EQUIP-UNIT-001`: Unit type compatibility check
 - [~] 0.6.2 Create `VAL-EQUIP-UNIT-002`: Location compatibility check
 - [~] 0.6.3 Create `VAL-EQUIP-UNIT-003`: Turret mounting requirements
@@ -79,7 +87,9 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [~] 0.6.6 Register validation rules with orchestrator
 
 ### 0.7 Equipment Browser UI Updates
+
 **DEFERRED** - Equipment browser updates will be implemented alongside customizer UIs.
+
 - [~] 0.7.1 Add unit type filter to equipment browser
 - [~] 0.7.2 Auto-filter equipment based on active unit type
 - [~] 0.7.3 Show compatibility warnings for invalid equipment
@@ -91,6 +101,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 ## Phase 1: Foundation & Data Layer
 
 ### 1.1 Unit Type Hierarchy
+
 - [x] 1.1.1 Create `IBaseUnit` interface in `src/types/unit/BaseUnitInterfaces.ts`
 - [x] 1.1.2 Create `IGroundUnit` extending IBaseUnit (shared by vehicles, mechs)
 - [x] 1.1.3 Create `IAerospaceUnit` extending IBaseUnit
@@ -105,6 +116,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [x] 1.1.12 Add unit tests for type hierarchy (type guards in BaseUnitInterfaces.ts, tested via handler tests)
 
 ### 1.2 BLK Format Parser
+
 - [x] 1.2.1 Create `IBlkDocument` interface in `src/types/formats/BlkFormat.ts`
 - [x] 1.2.2 Implement `BlkParser` class in `src/services/conversion/BlkParserService.ts`
 - [x] 1.2.3 Handle BLK tag extraction (`<UnitType>`, `<Name>`, etc.)
@@ -115,6 +127,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [x] 1.2.8 Create comprehensive test suite with sample BLK files from each unit type
 
 ### 1.3 Unit Type Registry
+
 - [x] 1.3.1 Create `IUnitTypeHandler<T>` interface in `src/types/unit/UnitTypeHandler.ts`
 - [x] 1.3.2 Create `UnitTypeRegistry` singleton in `src/services/units/UnitTypeRegistry.ts`
 - [x] 1.3.3 Implement handler registration and lookup
@@ -125,7 +138,9 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [x] 1.3.8 Create integration test suite (29 tests) covering all unit types
 
 ### 1.4 Serialization Updates
+
 **DEFERRED** - Serialization is for customizer state persistence. Will be implemented when customizer UIs are added for each unit type.
+
 - [~] 1.4.1 Update `ISerializedUnit` to support polymorphic type field
 - [~] 1.4.2 Add `unitTypeDiscriminator` field for deserialization
 - [~] 1.4.3 Create `ISerializedVehicle`, `ISerializedAerospace`, etc.
@@ -138,7 +153,9 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 ## Phase 2: Import & Validation Pipeline
 
 ### 2.1 Extend Unit Loader
+
 **DEFERRED** - Unit loader extension for BLK files. Core parsing infrastructure is complete; loader integration will be done when customizer UIs are added.
+
 - [~] 2.1.1 Add BLK file detection to `UnitLoaderService`
 - [~] 2.1.2 Create `loadBlkUnit()` method
 - [~] 2.1.3 Route to appropriate handler based on detected unit type
@@ -147,6 +164,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [~] 2.1.6 Add mm-data directory scanning for all unit types
 
 ### 2.2 Vehicle Handler
+
 - [x] 2.2.1 Create `VehicleUnitHandler` implementing `IUnitTypeHandler<IVehicle>`
 - [x] 2.2.2 Implement `parse()` for vehicle BLK files
 - [x] 2.2.3 Map motion types (Wheeled, Tracked, Hover, VTOL, etc.)
@@ -157,6 +175,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [x] 2.2.8 Test with sample mm-data vehicle files (24 unit tests passing)
 
 ### 2.3 Aerospace Handler
+
 - [x] 2.3.1 Create `AerospaceUnitHandler` implementing `IUnitTypeHandler<IAerospace>`
 - [x] 2.3.2 Implement `parse()` for aerospace BLK files
 - [x] 2.3.3 Map thrust and fuel values
@@ -167,6 +186,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [x] 2.3.8 Test with sample mm-data fighter files (19 unit tests)
 
 ### 2.4 Battle Armor Handler
+
 - [x] 2.4.1 Create `BattleArmorUnitHandler` implementing `IUnitTypeHandler<IBattleArmor>`
 - [x] 2.4.2 Implement `parse()` for BA BLK files
 - [x] 2.4.3 Map chassis type and weight class
@@ -177,6 +197,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [x] 2.4.8 Test with sample mm-data BA files (19 unit tests)
 
 ### 2.5 Infantry Handler
+
 - [x] 2.5.1 Create `InfantryUnitHandler` implementing `IUnitTypeHandler<IInfantry>`
 - [x] 2.5.2 Implement `parse()` for infantry BLK files
 - [x] 2.5.3 Map squad configuration
@@ -187,6 +208,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [x] 2.5.8 Test with sample mm-data infantry files (18 unit tests)
 
 ### 2.6 ProtoMech Handler
+
 - [x] 2.6.1 Create `ProtoMechUnitHandler` implementing `IUnitTypeHandler<IProtoMech>`
 - [x] 2.6.2 Implement `parse()` for protomech BLK files
 - [x] 2.6.3 Map simplified location structure
@@ -195,6 +217,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [x] 2.6.6 Test with sample mm-data protomech files (22 unit tests)
 
 ### 2.7 Large Aerospace Handlers
+
 - [x] 2.7.1 Create `DropShipUnitHandler`
 - [x] 2.7.2 Create `JumpShipUnitHandler`
 - [x] 2.7.3 Create `WarShipUnitHandler`
@@ -209,7 +232,9 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [x] 2.7.12 Create `ConventionalFighterUnitHandler`
 
 ### 2.8 Validation Rules
+
 **DEFERRED** - Validation rules for non-mech unit types. Will be implemented alongside customizer UIs.
+
 - [~] 2.8.1 Create `VehicleValidationRules` extending validation framework
 - [~] 2.8.2 Create `AerospaceValidationRules`
 - [~] 2.8.3 Create `BattleArmorValidationRules`
@@ -226,12 +251,14 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 **OUT OF SCOPE** - Vehicle customizer UI is a separate feature that builds on this foundation. Create separate change proposal when ready to implement.
 
 ### 3.1 Vehicle State Management
+
 - [ ] 3.1.1 Create `VehicleState` interface extending UnitState patterns
 - [ ] 3.1.2 Add vehicle-specific fields (motionType, turretType, etc.)
 - [ ] 3.1.3 Create `useVehicleStore` or extend `useUnitStore`
 - [ ] 3.1.4 Implement vehicle state <-> serialization mapping
 
 ### 3.2 Vehicle Customizer Tabs
+
 - [ ] 3.2.1 Create `VehicleStructureTab` component
   - [ ] Chassis selection (tonnage, motion type)
   - [ ] Engine type/rating selection
@@ -249,6 +276,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
   - [ ] Turret weight tracking
 
 ### 3.3 Vehicle Diagram
+
 - [ ] 3.3.1 Create `VehicleDiagram` component
 - [ ] 3.3.2 Implement location click targets for vehicle shape
 - [ ] 3.3.3 Display armor pips per location
@@ -256,6 +284,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [ ] 3.3.5 Integrate with mm-data vehicle assets (if available)
 
 ### 3.4 Vehicle Status Bar
+
 - [ ] 3.4.1 Create `VehicleStatusBar` extending base StatusBar
 - [ ] 3.4.2 Show vehicle-specific calculations (cruise/flank MP)
 - [ ] 3.4.3 Show turret weight allocation
@@ -268,11 +297,13 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 **OUT OF SCOPE** - Aerospace customizer UI is a separate feature. Create separate change proposal when ready to implement.
 
 ### 4.1 Aerospace State Management
+
 - [ ] 4.1.1 Create `AerospaceState` interface
 - [ ] 4.1.2 Add aerospace-specific fields (thrust, fuel, SI)
 - [ ] 4.1.3 Implement aerospace state <-> serialization mapping
 
 ### 4.2 Aerospace Customizer Tabs
+
 - [ ] 4.2.1 Create `AerospaceStructureTab` component
   - [ ] Tonnage and engine selection
   - [ ] Heat sink configuration
@@ -286,12 +317,14 @@ This allows incremental migration - only unit-specific equipment needs explicit 
   - [ ] Bomb bay equipment (if applicable)
 
 ### 4.3 Aerospace Diagram
+
 - [ ] 4.3.1 Create `AerospaceDiagram` component
 - [ ] 4.3.2 Implement weapon arc visualization
 - [ ] 4.3.3 Show nose/wing/aft locations
 - [ ] 4.3.4 Display armor and equipment
 
 ### 4.4 Aerospace Status Bar
+
 - [ ] 4.4.1 Create `AerospaceStatusBar` extending base
 - [ ] 4.4.2 Show thrust ratings
 - [ ] 4.4.3 Show fuel consumption
@@ -304,6 +337,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 **OUT OF SCOPE** - Personnel unit customizer UIs are separate features. Create separate change proposals when ready to implement.
 
 ### 5.1 Battle Armor Customizer
+
 - [ ] 5.1.1 Create `BattleArmorState` interface
 - [ ] 5.1.2 Create `BattleArmorStructureTab`
   - [ ] Chassis type selection
@@ -318,6 +352,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
   - [ ] Equipment locations
 
 ### 5.2 Infantry Customizer
+
 - [ ] 5.2.1 Create `InfantryState` interface
 - [ ] 5.2.2 Create `InfantryBuildTab` (simplified)
   - [ ] Platoon configuration
@@ -328,6 +363,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [ ] 5.2.3 Create minimal infantry diagram
 
 ### 5.3 ProtoMech Customizer
+
 - [ ] 5.3.1 Create `ProtoMechState` interface
 - [ ] 5.3.2 Adapt mech-style tabs for protomech constraints
 - [ ] 5.3.3 Create ProtoMech-specific diagram
@@ -339,12 +375,14 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 **OUT OF SCOPE** - Export and integration features are separate. Create separate change proposals when ready to implement.
 
 ### 6.1 BLK Export
+
 - [ ] 6.1.1 Create `BlkExporter` class in `src/services/exporters/`
 - [ ] 6.1.2 Implement `export()` for each unit type
 - [ ] 6.1.3 Ensure round-trip fidelity with mm-data files
 - [ ] 6.1.4 Add export option to UI
 
 ### 6.2 Record Sheets
+
 - [ ] 6.2.1 Create vehicle record sheet template
 - [ ] 6.2.2 Create aerospace record sheet template
 - [ ] 6.2.3 Create battle armor record sheet template
@@ -352,11 +390,13 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [ ] 6.2.5 Integrate with existing record sheet system
 
 ### 6.3 Unit Browser Updates
+
 - [ ] 6.3.1 Add unit type filter to browser
 - [ ] 6.3.2 Display unit type icons
 - [ ] 6.3.3 Route to appropriate customizer on selection
 
 ### 6.4 Documentation
+
 - [ ] 6.4.1 Update AGENTS.md with new specs
 - [ ] 6.4.2 Create unit type reference documentation
 - [ ] 6.4.3 Document BLK format specification
@@ -367,11 +407,13 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 ## Testing Milestones
 
 ### Milestone 1: Foundation Complete ✅
+
 - [x] All base interfaces defined and exported (IBaseUnit, IGroundUnit, IAerospaceUnit, ISquadUnit + 13 unit type interfaces)
 - [x] BLK parser handles all unit type tags and equipment blocks
 - [x] Unit type registry correctly routes all 13 types (152 tests passing)
 
 ### Milestone 2: Handlers Complete ✅
+
 - [x] VehicleUnitHandler parses vehicle BLK files (24 tests)
 - [x] AerospaceUnitHandler parses aerospace BLK files (19 tests)
 - [x] BattleArmorUnitHandler parses BA BLK files (19 tests)
@@ -381,6 +423,7 @@ This allows incremental migration - only unit-specific equipment needs explicit 
 - [x] VTOLUnitHandler, SupportVehicleUnitHandler, ConventionalFighterUnitHandler
 
 ### Milestone 3-5: Customizer UIs (OUT OF SCOPE)
+
 Customizer UIs for non-mech units are separate features to be implemented in future changes.
 
 ---
@@ -388,12 +431,14 @@ Customizer UIs for non-mech units are separate features to be implemented in fut
 ## Quality Checklist Per Unit Type
 
 **For this change (foundation/parsing):**
+
 - [x] Parser handles all BLK fields for that type
 - [x] State interface covers core properties for import
 - [x] Unit tests cover edge cases (152 tests total)
 - [x] Integration tests with mm-data sample files
 
 **For future customizer changes:**
+
 - [ ] State interface covers all editable properties
 - [ ] Validation rules match TechManual
 - [ ] Customizer tabs expose all options

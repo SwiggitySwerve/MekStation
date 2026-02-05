@@ -56,13 +56,9 @@ const DEFAULT_MIN_SIZE = 44;
  * ```
  */
 export function useTouchTarget(
-  config: TouchTargetConfig = {}
+  config: TouchTargetConfig = {},
 ): TouchTargetStyles {
-  const {
-    contentWidth,
-    contentHeight,
-    minSize = DEFAULT_MIN_SIZE,
-  } = config;
+  const { contentWidth, contentHeight, minSize = DEFAULT_MIN_SIZE } = config;
 
   const styles = useMemo(() => {
     const style: CSSProperties = {};
@@ -70,13 +66,15 @@ export function useTouchTarget(
 
     // If content dimensions are provided, calculate padding/margin to expand hit area
     if (contentWidth !== undefined || contentHeight !== undefined) {
-      const paddingX = contentWidth !== undefined && contentWidth < minSize
-        ? (minSize - contentWidth) / 2
-        : 0;
+      const paddingX =
+        contentWidth !== undefined && contentWidth < minSize
+          ? (minSize - contentWidth) / 2
+          : 0;
 
-      const paddingY = contentHeight !== undefined && contentHeight < minSize
-        ? (minSize - contentHeight) / 2
-        : 0;
+      const paddingY =
+        contentHeight !== undefined && contentHeight < minSize
+          ? (minSize - contentHeight) / 2
+          : 0;
 
       if (paddingX > 0) {
         style.paddingLeft = paddingX;

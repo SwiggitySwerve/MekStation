@@ -7,9 +7,11 @@
  * @spec openspec/changes/add-p2p-vault-sync/specs/vault-sync/spec.md
  */
 
-import * as Y from 'yjs';
-import { WebrtcProvider } from 'y-webrtc';
 import { IndexeddbPersistence } from 'y-indexeddb';
+import { WebrtcProvider } from 'y-webrtc';
+import * as Y from 'yjs';
+
+import { generateRoomCode } from './roomCodes';
 import {
   ISyncRoom,
   ISyncRoomOptions,
@@ -18,7 +20,6 @@ import {
   type SyncEvent,
   type SyncEventListener,
 } from './types';
-import { generateRoomCode } from './roomCodes';
 
 // =============================================================================
 // Event Emitter
@@ -100,7 +101,11 @@ function resetRetryState(): void {
 /**
  * Get current retry state for UI display.
  */
-export function getRetryState(): { isRetrying: boolean; attempts: number; maxAttempts: number } {
+export function getRetryState(): {
+  isRetrying: boolean;
+  attempts: number;
+  maxAttempts: number;
+} {
   return {
     isRetrying: retryState.isRetrying,
     attempts: retryState.attempts,
@@ -153,7 +158,7 @@ function attemptReconnect(roomCode: string, password?: string): void {
   const delay = calculateRetryDelay(retryState.attempts - 1);
 
   console.log(
-    `[SyncProvider] Reconnect attempt ${retryState.attempts}/${P2P_CONFIG.maxReconnectAttempts} in ${delay}ms`
+    `[SyncProvider] Reconnect attempt ${retryState.attempts}/${P2P_CONFIG.maxReconnectAttempts} in ${delay}ms`,
   );
 
   emitEvent({
@@ -231,21 +236,24 @@ export function createSyncRoom(options: ISyncRoomOptions = {}): ISyncRoom {
     emitEvent({ type: 'connected', roomCode });
   });
 
-  webrtcProvider.on('peers', (event: { added: string[]; removed: string[] }) => {
-    // Handle peer changes
-    for (const peerId of event.added) {
-      emitEvent({
-        type: 'peer-joined',
-        peer: {
-          id: peerId,
-          connectedAt: new Date().toISOString(),
-        },
-      });
-    }
-    for (const peerId of event.removed) {
-      emitEvent({ type: 'peer-left', peerId });
-    }
-  });
+  webrtcProvider.on(
+    'peers',
+    (event: { added: string[]; removed: string[] }) => {
+      // Handle peer changes
+      for (const peerId of event.added) {
+        emitEvent({
+          type: 'peer-joined',
+          peer: {
+            id: peerId,
+            connectedAt: new Date().toISOString(),
+          },
+        });
+      }
+      for (const peerId of event.removed) {
+        emitEvent({ type: 'peer-left', peerId });
+      }
+    },
+  );
 
   // Handle connection status changes for retry logic
   webrtcProvider.on('status', (event: { connected: boolean }) => {
@@ -295,7 +303,10 @@ export function destroySyncRoom(room: ISyncRoom): void {
   try {
     room.persistence.destroy();
   } catch (error) {
-    console.error('[SyncProvider] Error destroying IndexedDB persistence:', error);
+    console.error(
+      '[SyncProvider] Error destroying IndexedDB persistence:',
+      error,
+    );
   }
 
   try {
@@ -385,7 +396,10 @@ export function getAllAwarenessStates(): Map<number, Record<string, unknown>> {
     return new Map();
   }
 
-  return activeRoom.webrtcProvider.awareness.getStates() as Map<number, Record<string, unknown>>;
+  return activeRoom.webrtcProvider.awareness.getStates() as Map<
+    number,
+    Record<string, unknown>
+  >;
 }
 
 // =============================================================================

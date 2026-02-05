@@ -4,16 +4,21 @@
  * Tests for ProtoMech BLK parsing and validation
  */
 
-import { ProtoMechUnitHandler, createProtoMechHandler } from '../ProtoMechUnitHandler';
+import { TechBase } from '../../../../types/enums';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { TechBase } from '../../../../types/enums';
+import {
+  ProtoMechUnitHandler,
+  createProtoMechHandler,
+} from '../ProtoMechUnitHandler';
 
 // ============================================================================
 // Test Fixtures
 // ============================================================================
 
-function createMockBlkDocument(overrides: Partial<IBlkDocument> = {}): IBlkDocument {
+function createMockBlkDocument(
+  overrides: Partial<IBlkDocument> = {},
+): IBlkDocument {
   return {
     blockVersion: 1,
     version: 'MAM0',
@@ -209,7 +214,7 @@ describe('ProtoMechUnitHandler', () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some(e => e.includes('2 tons'))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('2 tons'))).toBe(true);
     });
 
     it('should fail validation for too heavy ProtoMech', () => {
@@ -219,7 +224,7 @@ describe('ProtoMechUnitHandler', () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some(e => e.includes('9 tons'))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('9 tons'))).toBe(true);
     });
 
     it('should fail validation for quad with main gun', () => {
@@ -237,7 +242,11 @@ describe('ProtoMechUnitHandler', () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some(e => e.includes('Quad') && e.includes('main gun'))).toBe(true);
+      expect(
+        validation.errors.some(
+          (e) => e.includes('Quad') && e.includes('main gun'),
+        ),
+      ).toBe(true);
     });
 
     it('should fail validation for glider with insufficient jump', () => {
@@ -250,7 +259,11 @@ describe('ProtoMechUnitHandler', () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some(e => e.includes('Glider') && e.includes('jump'))).toBe(true);
+      expect(
+        validation.errors.some(
+          (e) => e.includes('Glider') && e.includes('jump'),
+        ),
+      ).toBe(true);
     });
   });
 

@@ -90,10 +90,23 @@ export interface AppearanceState {
 
 /** Keys that are action functions, not state */
 type ActionKeys =
-  | 'setAccentColor' | 'setFontSize' | 'setAnimationLevel' | 'setCompactMode' | 'setUITheme'
-  | 'setDraftAccentColor' | 'setDraftFontSize' | 'setDraftAnimationLevel' | 'setDraftCompactMode' | 'setDraftUITheme'
-  | 'saveUITheme' | 'saveOtherAppearance' | 'revertAppearance' | 'initDraftAppearance'
-  | 'getEffectiveAccentColor' | 'getEffectiveUITheme' | 'getEffectiveFontSize'
+  | 'setAccentColor'
+  | 'setFontSize'
+  | 'setAnimationLevel'
+  | 'setCompactMode'
+  | 'setUITheme'
+  | 'setDraftAccentColor'
+  | 'setDraftFontSize'
+  | 'setDraftAnimationLevel'
+  | 'setDraftCompactMode'
+  | 'setDraftUITheme'
+  | 'saveUITheme'
+  | 'saveOtherAppearance'
+  | 'revertAppearance'
+  | 'initDraftAppearance'
+  | 'getEffectiveAccentColor'
+  | 'getEffectiveUITheme'
+  | 'getEffectiveFontSize'
   | 'resetToDefaults';
 
 const DEFAULT_APPEARANCE: Omit<AppearanceState, ActionKeys> = {
@@ -123,117 +136,126 @@ export const useAppearanceStore = create<AppearanceState>()(
       setUITheme: (theme) => set({ uiTheme: theme }),
 
       // Draft setters for live preview (not persisted until save)
-      setDraftAccentColor: (color) => set((state) => ({
-        draftAppearance: {
-          ...(state.draftAppearance ?? {
-            accentColor: state.accentColor,
-            fontSize: state.fontSize,
-            animationLevel: state.animationLevel,
-            compactMode: state.compactMode,
-            uiTheme: state.uiTheme,
-          }),
-          accentColor: color,
-        },
-        hasUnsavedOtherAppearance: true,
-      })),
+      setDraftAccentColor: (color) =>
+        set((state) => ({
+          draftAppearance: {
+            ...(state.draftAppearance ?? {
+              accentColor: state.accentColor,
+              fontSize: state.fontSize,
+              animationLevel: state.animationLevel,
+              compactMode: state.compactMode,
+              uiTheme: state.uiTheme,
+            }),
+            accentColor: color,
+          },
+          hasUnsavedOtherAppearance: true,
+        })),
 
-      setDraftFontSize: (size) => set((state) => ({
-        draftAppearance: {
-          ...(state.draftAppearance ?? {
-            accentColor: state.accentColor,
-            fontSize: state.fontSize,
-            animationLevel: state.animationLevel,
-            compactMode: state.compactMode,
-            uiTheme: state.uiTheme,
-          }),
-          fontSize: size,
-        },
-        hasUnsavedOtherAppearance: true,
-      })),
+      setDraftFontSize: (size) =>
+        set((state) => ({
+          draftAppearance: {
+            ...(state.draftAppearance ?? {
+              accentColor: state.accentColor,
+              fontSize: state.fontSize,
+              animationLevel: state.animationLevel,
+              compactMode: state.compactMode,
+              uiTheme: state.uiTheme,
+            }),
+            fontSize: size,
+          },
+          hasUnsavedOtherAppearance: true,
+        })),
 
-      setDraftAnimationLevel: (level) => set((state) => ({
-        draftAppearance: {
-          ...(state.draftAppearance ?? {
-            accentColor: state.accentColor,
-            fontSize: state.fontSize,
-            animationLevel: state.animationLevel,
-            compactMode: state.compactMode,
-            uiTheme: state.uiTheme,
-          }),
-          animationLevel: level,
-        },
-        hasUnsavedOtherAppearance: true,
-      })),
+      setDraftAnimationLevel: (level) =>
+        set((state) => ({
+          draftAppearance: {
+            ...(state.draftAppearance ?? {
+              accentColor: state.accentColor,
+              fontSize: state.fontSize,
+              animationLevel: state.animationLevel,
+              compactMode: state.compactMode,
+              uiTheme: state.uiTheme,
+            }),
+            animationLevel: level,
+          },
+          hasUnsavedOtherAppearance: true,
+        })),
 
-      setDraftCompactMode: (compact) => set((state) => ({
-        draftAppearance: {
-          ...(state.draftAppearance ?? {
-            accentColor: state.accentColor,
-            fontSize: state.fontSize,
-            animationLevel: state.animationLevel,
-            compactMode: state.compactMode,
-            uiTheme: state.uiTheme,
-          }),
-          compactMode: compact,
-        },
-        hasUnsavedOtherAppearance: true,
-      })),
+      setDraftCompactMode: (compact) =>
+        set((state) => ({
+          draftAppearance: {
+            ...(state.draftAppearance ?? {
+              accentColor: state.accentColor,
+              fontSize: state.fontSize,
+              animationLevel: state.animationLevel,
+              compactMode: state.compactMode,
+              uiTheme: state.uiTheme,
+            }),
+            compactMode: compact,
+          },
+          hasUnsavedOtherAppearance: true,
+        })),
 
       // Draft UITheme - tracked separately from other appearance settings
-      setDraftUITheme: (theme) => set((state) => ({
-        draftAppearance: {
-          ...(state.draftAppearance ?? {
+      setDraftUITheme: (theme) =>
+        set((state) => ({
+          draftAppearance: {
+            ...(state.draftAppearance ?? {
+              accentColor: state.accentColor,
+              fontSize: state.fontSize,
+              animationLevel: state.animationLevel,
+              compactMode: state.compactMode,
+              uiTheme: state.uiTheme,
+            }),
+            uiTheme: theme,
+          },
+          hasUnsavedUITheme: true,
+        })),
+
+      // Initialize draft with current saved values (call when entering settings)
+      initDraftAppearance: () =>
+        set((state) => ({
+          draftAppearance: {
             accentColor: state.accentColor,
             fontSize: state.fontSize,
             animationLevel: state.animationLevel,
             compactMode: state.compactMode,
             uiTheme: state.uiTheme,
-          }),
-          uiTheme: theme,
-        },
-        hasUnsavedUITheme: true,
-      })),
-
-      // Initialize draft with current saved values (call when entering settings)
-      initDraftAppearance: () => set((state) => ({
-        draftAppearance: {
-          accentColor: state.accentColor,
-          fontSize: state.fontSize,
-          animationLevel: state.animationLevel,
-          compactMode: state.compactMode,
-          uiTheme: state.uiTheme,
-        },
-        hasUnsavedUITheme: false,
-        hasUnsavedOtherAppearance: false,
-      })),
+          },
+          hasUnsavedUITheme: false,
+          hasUnsavedOtherAppearance: false,
+        })),
 
       // Save UI Theme only (separate from other appearance settings)
-      saveUITheme: () => set((state) => {
-        if (!state.draftAppearance) return state;
-        return {
-          uiTheme: state.draftAppearance.uiTheme,
-          hasUnsavedUITheme: false,
-        };
-      }),
+      saveUITheme: () =>
+        set((state) => {
+          if (!state.draftAppearance) return state;
+          return {
+            uiTheme: state.draftAppearance.uiTheme,
+            hasUnsavedUITheme: false,
+          };
+        }),
 
       // Save other appearance settings (accent, font, animation, compact) - NOT theme
-      saveOtherAppearance: () => set((state) => {
-        if (!state.draftAppearance) return state;
-        return {
-          accentColor: state.draftAppearance.accentColor,
-          fontSize: state.draftAppearance.fontSize,
-          animationLevel: state.draftAppearance.animationLevel,
-          compactMode: state.draftAppearance.compactMode,
-          hasUnsavedOtherAppearance: false,
-        };
-      }),
+      saveOtherAppearance: () =>
+        set((state) => {
+          if (!state.draftAppearance) return state;
+          return {
+            accentColor: state.draftAppearance.accentColor,
+            fontSize: state.draftAppearance.fontSize,
+            animationLevel: state.draftAppearance.animationLevel,
+            compactMode: state.draftAppearance.compactMode,
+            hasUnsavedOtherAppearance: false,
+          };
+        }),
 
       // Revert draft to saved state (call when leaving settings without save)
-      revertAppearance: () => set({
-        draftAppearance: null,
-        hasUnsavedUITheme: false,
-        hasUnsavedOtherAppearance: false,
-      }),
+      revertAppearance: () =>
+        set({
+          draftAppearance: null,
+          hasUnsavedUITheme: false,
+          hasUnsavedOtherAppearance: false,
+        }),
 
       // Getters for effective appearance (draft if exists, otherwise saved)
       getEffectiveAccentColor: () => {
@@ -251,9 +273,10 @@ export const useAppearanceStore = create<AppearanceState>()(
         return state.draftAppearance?.fontSize ?? state.fontSize;
       },
 
-      resetToDefaults: () => set({
-        ...DEFAULT_APPEARANCE,
-      }),
+      resetToDefaults: () =>
+        set({
+          ...DEFAULT_APPEARANCE,
+        }),
     }),
     {
       name: 'mekstation-appearance',
@@ -265,14 +288,17 @@ export const useAppearanceStore = create<AppearanceState>()(
         compactMode: state.compactMode,
         uiTheme: state.uiTheme,
       }),
-    }
-  )
+    },
+  ),
 );
 
 /**
  * Accent color CSS variable mappings
  */
-export const ACCENT_COLOR_CSS: Record<AccentColor, { primary: string; hover: string; muted: string }> = {
+export const ACCENT_COLOR_CSS: Record<
+  AccentColor,
+  { primary: string; hover: string; muted: string }
+> = {
   amber: {
     primary: '#f59e0b',
     hover: '#d97706',

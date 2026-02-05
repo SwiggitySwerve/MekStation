@@ -12,7 +12,9 @@ let mockCapabilities: DeviceCapabilities = {
   isMobile: false,
 };
 
-export function setMockDeviceCapabilities(capabilities: Partial<DeviceCapabilities>): void {
+export function setMockDeviceCapabilities(
+  capabilities: Partial<DeviceCapabilities>,
+): void {
   mockCapabilities = { ...mockCapabilities, ...capabilities };
 }
 
@@ -25,7 +27,8 @@ export function resetMockDeviceCapabilities(): void {
 }
 
 export function useDeviceCapabilities(): DeviceCapabilities {
-  const [capabilities, setCapabilities] = useState<DeviceCapabilities>(mockCapabilities);
+  const [capabilities, setCapabilities] =
+    useState<DeviceCapabilities>(mockCapabilities);
 
   useEffect(() => {
     setCapabilities(mockCapabilities);

@@ -1,12 +1,19 @@
-import { IndexedDBService, STORES } from '@/services/persistence/IndexedDBService';
 import { StorageError } from '@/services/common/errors';
+import {
+  IndexedDBService,
+  STORES,
+} from '@/services/persistence/IndexedDBService';
 
 // Enhanced mock that supports transactions
 class MockTransaction {
   private store: MockObjectStore;
   mode: 'readonly' | 'readwrite';
 
-  constructor(storeName: string, mode: 'readonly' | 'readwrite', db: MockDatabase) {
+  constructor(
+    storeName: string,
+    mode: 'readonly' | 'readwrite',
+    db: MockDatabase,
+  ) {
     this.mode = mode;
     this.store = new MockObjectStore(storeName, db);
   }
@@ -126,7 +133,9 @@ class MockDatabase {
       length: 0,
       contains: (name: string) => storeNamesSet.has(name),
       item: () => null,
-      [Symbol.iterator]: function* () { yield* []; },
+      [Symbol.iterator]: function* () {
+        yield* [];
+      },
     } as DOMStringList;
   }
 
@@ -140,7 +149,10 @@ class MockDatabase {
     return this.stores.get(name);
   }
 
-  transaction(storeNames: string | string[], mode: 'readonly' | 'readwrite'): MockTransaction {
+  transaction(
+    storeNames: string | string[],
+    mode: 'readonly' | 'readwrite',
+  ): MockTransaction {
     const names = Array.isArray(storeNames) ? storeNames : [storeNames];
     return new MockTransaction(names[0], mode, this);
   }
@@ -169,14 +181,14 @@ const mockIndexedDBWithTransactions = {
       try {
         let db = mockDatabases.get(name);
         const isNew = !db;
-        
+
         if (isNew || (db && db.version < dbVersion)) {
           db = new MockDatabase(name, dbVersion);
           mockDatabases.set(name, db);
-          
+
           // Set result before calling onupgradeneeded so it can access db
           request.result = db;
-          
+
           if (request.onupgradeneeded) {
             // Create upgrade event with minimal required properties for testing
             // The mock target contains result property needed by the upgrade handler
@@ -190,7 +202,7 @@ const mockIndexedDBWithTransactions = {
             request.onupgradeneeded(upgradeEvent);
           }
         }
-        
+
         request.result = db ?? null;
         if (request.onsuccess) {
           request.onsuccess(new Event('success'));
@@ -269,7 +281,7 @@ describe('IndexedDBService', () => {
       });
 
       await expect(service.initialize()).rejects.toThrow(StorageError);
-      
+
       mockIndexedDBWithTransactions.open = originalOpen;
     });
   });
@@ -278,17 +290,17 @@ describe('IndexedDBService', () => {
     it('should store a value', async () => {
       await service.initialize();
       const value = { id: '1', name: 'Test Unit' };
-      
+
       await service.put(STORES.CUSTOM_UNITS, 'unit-1', value);
-      
+
       const retrieved = await service.get(STORES.CUSTOM_UNITS, 'unit-1');
       expect(retrieved).toEqual(value);
     });
 
     it('should throw if database not initialized', async () => {
-      await expect(
-        service.put(STORES.CUSTOM_UNITS, 'key', {})
-      ).rejects.toThrow(StorageError);
+      await expect(service.put(STORES.CUSTOM_UNITS, 'key', {})).rejects.toThrow(
+        StorageError,
+      );
     });
   });
 
@@ -296,25 +308,25 @@ describe('IndexedDBService', () => {
     it('should retrieve a stored value', async () => {
       await service.initialize();
       const value = { id: '1', name: 'Test Unit' };
-      
+
       await service.put(STORES.CUSTOM_UNITS, 'unit-1', value);
       const retrieved = await service.get(STORES.CUSTOM_UNITS, 'unit-1');
-      
+
       expect(retrieved).toEqual(value);
     });
 
     it('should return undefined for non-existent key', async () => {
       await service.initialize();
-      
+
       const retrieved = await service.get(STORES.CUSTOM_UNITS, 'non-existent');
-      
+
       expect(retrieved).toBeUndefined();
     });
 
     it('should throw if database not initialized', async () => {
-      await expect(
-        service.get(STORES.CUSTOM_UNITS, 'key')
-      ).rejects.toThrow(StorageError);
+      await expect(service.get(STORES.CUSTOM_UNITS, 'key')).rejects.toThrow(
+        StorageError,
+      );
     });
   });
 
@@ -322,18 +334,18 @@ describe('IndexedDBService', () => {
     it('should delete a stored value', async () => {
       await service.initialize();
       const value = { id: '1', name: 'Test Unit' };
-      
+
       await service.put(STORES.CUSTOM_UNITS, 'unit-1', value);
       await service.delete(STORES.CUSTOM_UNITS, 'unit-1');
-      
+
       const retrieved = await service.get(STORES.CUSTOM_UNITS, 'unit-1');
       expect(retrieved).toBeUndefined();
     });
 
     it('should throw if database not initialized', async () => {
-      await expect(
-        service.delete(STORES.CUSTOM_UNITS, 'key')
-      ).rejects.toThrow(StorageError);
+      await expect(service.delete(STORES.CUSTOM_UNITS, 'key')).rejects.toThrow(
+        StorageError,
+      );
     });
   });
 
@@ -342,12 +354,12 @@ describe('IndexedDBService', () => {
       await service.initialize();
       const unit1 = { id: '1', name: 'Unit 1' };
       const unit2 = { id: '2', name: 'Unit 2' };
-      
+
       await service.put(STORES.CUSTOM_UNITS, 'unit-1', unit1);
       await service.put(STORES.CUSTOM_UNITS, 'unit-2', unit2);
-      
+
       const all = await service.getAll(STORES.CUSTOM_UNITS);
-      
+
       expect(all).toHaveLength(2);
       expect(all).toContainEqual(unit1);
       expect(all).toContainEqual(unit2);
@@ -355,16 +367,16 @@ describe('IndexedDBService', () => {
 
     it('should return empty array for empty store', async () => {
       await service.initialize();
-      
+
       const all = await service.getAll(STORES.CUSTOM_UNITS);
-      
+
       expect(all).toEqual([]);
     });
 
     it('should throw if database not initialized', async () => {
-      await expect(
-        service.getAll(STORES.CUSTOM_UNITS)
-      ).rejects.toThrow(StorageError);
+      await expect(service.getAll(STORES.CUSTOM_UNITS)).rejects.toThrow(
+        StorageError,
+      );
     });
   });
 
@@ -373,26 +385,26 @@ describe('IndexedDBService', () => {
       await service.initialize();
       await service.put(STORES.CUSTOM_UNITS, 'unit-1', { id: '1' });
       await service.put(STORES.CUSTOM_UNITS, 'unit-2', { id: '2' });
-      
+
       await service.clear(STORES.CUSTOM_UNITS);
-      
+
       const all = await service.getAll(STORES.CUSTOM_UNITS);
       expect(all).toEqual([]);
     });
 
     it('should throw if database not initialized', async () => {
-      await expect(
-        service.clear(STORES.CUSTOM_UNITS)
-      ).rejects.toThrow(StorageError);
+      await expect(service.clear(STORES.CUSTOM_UNITS)).rejects.toThrow(
+        StorageError,
+      );
     });
   });
 
   describe('close', () => {
     it('should close database connection', async () => {
       await service.initialize();
-      
+
       service.close();
-      
+
       // Should be able to initialize again after close
       await service.initialize();
     });
@@ -400,7 +412,7 @@ describe('IndexedDBService', () => {
     it('should reset initialization promise', async () => {
       await service.initialize();
       service.close();
-      
+
       // Should be able to re-initialize after close
       await service.initialize();
       // After reinitialize, db should be connected again
@@ -459,7 +471,7 @@ describe('IndexedDBService', () => {
 
     it('should handle transaction errors in put', async () => {
       await service.initialize();
-      
+
       const db = mockDatabases.get('mekstation');
       if (db) {
         // @ts-expect-error - Mocking transaction for error testing
@@ -469,13 +481,13 @@ describe('IndexedDBService', () => {
       }
 
       await expect(
-        service.put(STORES.CUSTOM_UNITS, 'test-key', {})
+        service.put(STORES.CUSTOM_UNITS, 'test-key', {}),
       ).rejects.toThrow(StorageError);
     });
 
     it('should handle transaction errors in get', async () => {
       await service.initialize();
-      
+
       const db = mockDatabases.get('mekstation');
       if (db) {
         // @ts-expect-error - Mocking transaction for error testing
@@ -485,13 +497,13 @@ describe('IndexedDBService', () => {
       }
 
       await expect(
-        service.get(STORES.CUSTOM_UNITS, 'test-key')
+        service.get(STORES.CUSTOM_UNITS, 'test-key'),
       ).rejects.toThrow(StorageError);
     });
 
     it('should handle transaction errors in delete', async () => {
       await service.initialize();
-      
+
       const db = mockDatabases.get('mekstation');
       if (db) {
         // @ts-expect-error - Mocking transaction for error testing
@@ -501,13 +513,13 @@ describe('IndexedDBService', () => {
       }
 
       await expect(
-        service.delete(STORES.CUSTOM_UNITS, 'test-key')
+        service.delete(STORES.CUSTOM_UNITS, 'test-key'),
       ).rejects.toThrow(StorageError);
     });
 
     it('should handle transaction errors in getAll', async () => {
       await service.initialize();
-      
+
       const db = mockDatabases.get('mekstation');
       if (db) {
         // @ts-expect-error - Mocking transaction for error testing
@@ -516,14 +528,14 @@ describe('IndexedDBService', () => {
         }));
       }
 
-      await expect(
-        service.getAll(STORES.CUSTOM_UNITS)
-      ).rejects.toThrow(StorageError);
+      await expect(service.getAll(STORES.CUSTOM_UNITS)).rejects.toThrow(
+        StorageError,
+      );
     });
 
     it('should handle transaction errors in clear', async () => {
       await service.initialize();
-      
+
       const db = mockDatabases.get('mekstation');
       if (db) {
         // @ts-expect-error - Mocking transaction for error testing
@@ -532,16 +544,16 @@ describe('IndexedDBService', () => {
         }));
       }
 
-      await expect(
-        service.clear(STORES.CUSTOM_UNITS)
-      ).rejects.toThrow(StorageError);
+      await expect(service.clear(STORES.CUSTOM_UNITS)).rejects.toThrow(
+        StorageError,
+      );
     });
   });
 
   describe('edge cases', () => {
     it('should handle null values', async () => {
       await service.initialize();
-      
+
       await service.put(STORES.CUSTOM_UNITS, 'null-key', null as unknown);
       const retrieved = await service.get(STORES.CUSTOM_UNITS, 'null-key');
       expect(retrieved).toBeNull();
@@ -549,8 +561,12 @@ describe('IndexedDBService', () => {
 
     it('should handle undefined values', async () => {
       await service.initialize();
-      
-      await service.put(STORES.CUSTOM_UNITS, 'undefined-key', undefined as unknown);
+
+      await service.put(
+        STORES.CUSTOM_UNITS,
+        'undefined-key',
+        undefined as unknown,
+      );
       const retrieved = await service.get(STORES.CUSTOM_UNITS, 'undefined-key');
       expect(retrieved).toBeUndefined();
     });
@@ -564,7 +580,7 @@ describe('IndexedDBService', () => {
           array: Array(100).fill({ value: 'test' }),
         },
       };
-      
+
       await service.put(STORES.CUSTOM_UNITS, 'large-key', largeObject);
       const retrieved = await service.get(STORES.CUSTOM_UNITS, 'large-key');
       expect(retrieved).toEqual(largeObject);
@@ -573,15 +589,18 @@ describe('IndexedDBService', () => {
     it('should handle all store types', async () => {
       await service.initialize();
       const testValue = { id: 'test' };
-      
+
       await service.put(STORES.CUSTOM_UNITS, 'key1', testValue);
       await service.put(STORES.UNIT_METADATA, 'key2', testValue);
       await service.put(STORES.CUSTOM_FORMULAS, 'key3', testValue);
-      
+
       expect(await service.get(STORES.CUSTOM_UNITS, 'key1')).toEqual(testValue);
-      expect(await service.get(STORES.UNIT_METADATA, 'key2')).toEqual(testValue);
-      expect(await service.get(STORES.CUSTOM_FORMULAS, 'key3')).toEqual(testValue);
+      expect(await service.get(STORES.UNIT_METADATA, 'key2')).toEqual(
+        testValue,
+      );
+      expect(await service.get(STORES.CUSTOM_FORMULAS, 'key3')).toEqual(
+        testValue,
+      );
     });
   });
 });
-

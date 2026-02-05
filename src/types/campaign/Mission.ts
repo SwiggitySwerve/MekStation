@@ -9,13 +9,18 @@
  * @module campaign/Mission
  */
 
+import type { AtBContractType } from './contracts/contractTypes';
+import type { IScenario } from './Scenario';
+import type { AtBMoraleLevel } from './scenario/scenarioTypes';
+
 import { MissionStatus } from './enums/MissionStatus';
 import { ScenarioStatus } from './enums/ScenarioStatus';
 import { Money } from './Money';
-import { IPaymentTerms, calculateTotalPayout, createDefaultPaymentTerms } from './PaymentTerms';
-import type { IScenario } from './Scenario';
-import type { AtBMoraleLevel } from './scenario/scenarioTypes';
-import type { AtBContractType } from './contracts/contractTypes';
+import {
+  IPaymentTerms,
+  calculateTotalPayout,
+  createDefaultPaymentTerms,
+} from './PaymentTerms';
 
 // =============================================================================
 // Salvage Rights
@@ -173,7 +178,7 @@ export interface IContract extends IMission {
  */
 export function isMissionComplete(
   mission: IMission,
-  scenarios: Map<string, IScenario>
+  scenarios: Map<string, IScenario>,
 ): boolean {
   if (mission.scenarioIds.length === 0) return true;
 
@@ -204,7 +209,7 @@ export function isMissionComplete(
  */
 export function getActiveScenarios(
   mission: IMission,
-  scenarios: Map<string, IScenario>
+  scenarios: Map<string, IScenario>,
 ): IScenario[] {
   const terminalStatuses: ScenarioStatus[] = [
     ScenarioStatus.VICTORY,
@@ -229,7 +234,7 @@ export function getActiveScenarios(
  */
 export function getMissionScenarios(
   mission: IMission,
-  scenarios: Map<string, IScenario>
+  scenarios: Map<string, IScenario>,
 ): IScenario[] {
   return mission.scenarioIds
     .map((id) => scenarios.get(id))

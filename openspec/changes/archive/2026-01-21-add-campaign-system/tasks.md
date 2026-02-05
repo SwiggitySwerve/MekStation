@@ -66,6 +66,7 @@
 ## Implementation Summary
 
 **Completed (38/39 tasks):**
+
 - Full data model with enums, interfaces, validation, type guards, utility functions
 - Campaign store with CRUD, mission management, roster tracking, resource management
 - Pilot progression with XP tracking and skill improvement costs
@@ -76,10 +77,12 @@
 - 164 comprehensive tests (all passing)
 
 **Deferred:**
+
 - 3.4 Ability unlocks at milestones (requires ability catalog)
 - 7.3 Template import/export
 
 **Files Created:**
+
 - `src/types/campaign/CampaignInterfaces.ts` - 480+ lines
 - `src/types/campaign/index.ts` - exports
 - `src/stores/useCampaignStore.ts` - 540+ lines

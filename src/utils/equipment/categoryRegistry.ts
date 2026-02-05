@@ -7,14 +7,17 @@
  * @module utils/equipment/categoryRegistry
  */
 
-import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
+import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
 
 /**
  * Registry mapping weapon categories to equipment categories.
  * To add a new weapon category, simply add a new entry to this registry.
  */
-export const WEAPON_TO_EQUIPMENT_CATEGORY: Record<WeaponCategory, EquipmentCategory> = {
+export const WEAPON_TO_EQUIPMENT_CATEGORY: Record<
+  WeaponCategory,
+  EquipmentCategory
+> = {
   [WeaponCategory.ENERGY]: EquipmentCategory.ENERGY_WEAPON,
   [WeaponCategory.BALLISTIC]: EquipmentCategory.BALLISTIC_WEAPON,
   [WeaponCategory.MISSILE]: EquipmentCategory.MISSILE_WEAPON,
@@ -29,6 +32,10 @@ export const WEAPON_TO_EQUIPMENT_CATEGORY: Record<WeaponCategory, EquipmentCateg
  * @param category - The weapon category to convert
  * @returns The corresponding equipment category
  */
-export function weaponCategoryToEquipmentCategory(category: WeaponCategory): EquipmentCategory {
-  return WEAPON_TO_EQUIPMENT_CATEGORY[category] ?? EquipmentCategory.MISC_EQUIPMENT;
+export function weaponCategoryToEquipmentCategory(
+  category: WeaponCategory,
+): EquipmentCategory {
+  return (
+    WEAPON_TO_EQUIPMENT_CATEGORY[category] ?? EquipmentCategory.MISC_EQUIPMENT
+  );
 }

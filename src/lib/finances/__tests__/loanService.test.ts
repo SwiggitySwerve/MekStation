@@ -1,3 +1,7 @@
+import type { ILoan } from '@/types/campaign/Loan';
+
+import { Money } from '@/types/campaign/Money';
+
 import {
   calculateMonthlyPayment,
   createLoan,
@@ -6,9 +10,6 @@ import {
   isLoanPaidOff,
   getLoanDefaultPenalty,
 } from '../loanService';
-
-import { Money } from '@/types/campaign/Money';
-import type { ILoan } from '@/types/campaign/Loan';
 
 // =============================================================================
 // Test Fixtures
@@ -116,14 +117,29 @@ describe('createLoan', () => {
   });
 
   it('generates unique ID for each loan', () => {
-    const loan1 = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
-    const loan2 = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan1 = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
+    const loan2 = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     expect(loan1.id).not.toBe(loan2.id);
   });
 
   it('calculates correct monthly payment on creation', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     expect(loan.monthlyPayment.amount).toBeCloseTo(8560.75, 2);
   });
@@ -136,7 +152,12 @@ describe('createLoan', () => {
   });
 
   it('sets payments remaining equal to term months', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     expect(loan.paymentsRemaining).toBe(12);
   });
@@ -150,7 +171,12 @@ describe('createLoan', () => {
   });
 
   it('sets isDefaulted to false on creation', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     expect(loan.isDefaulted).toBe(false);
   });
@@ -162,7 +188,12 @@ describe('createLoan', () => {
 
 describe('makePayment', () => {
   it('returns updated loan and payment breakdown', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     const result = makePayment(loan);
 
@@ -171,7 +202,12 @@ describe('makePayment', () => {
   });
 
   it('payment breakdown includes interest and principal portions', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     const result = makePayment(loan);
 
@@ -181,17 +217,28 @@ describe('makePayment', () => {
   });
 
   it('interest + principal = monthly payment', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     const result = makePayment(loan);
-    const { interestPortion, principalPortion, totalPayment } = result.paymentBreakdown;
+    const { interestPortion, principalPortion, totalPayment } =
+      result.paymentBreakdown;
 
     const sum = interestPortion.add(principalPortion);
     expect(sum.equals(totalPayment)).toBe(true);
   });
 
   it('decrements payments remaining', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     const result = makePayment(loan);
 
@@ -199,32 +246,56 @@ describe('makePayment', () => {
   });
 
   it('reduces remaining principal by principal portion of payment', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     const result = makePayment(loan);
-    const expectedRemaining = loan.remainingPrincipal.subtract(result.paymentBreakdown.principalPortion);
+    const expectedRemaining = loan.remainingPrincipal.subtract(
+      result.paymentBreakdown.principalPortion,
+    );
 
-    expect(result.updatedLoan.remainingPrincipal.equals(expectedRemaining)).toBe(true);
+    expect(
+      result.updatedLoan.remainingPrincipal.equals(expectedRemaining),
+    ).toBe(true);
   });
 
   it('advances next payment date by one month', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     const result = makePayment(loan);
 
     const expectedNextDate = new Date(loan.nextPaymentDate);
     expectedNextDate.setMonth(expectedNextDate.getMonth() + 1);
-    expect(result.updatedLoan.nextPaymentDate.getTime()).toBe(expectedNextDate.getTime());
+    expect(result.updatedLoan.nextPaymentDate.getTime()).toBe(
+      expectedNextDate.getTime(),
+    );
   });
 
   it('calculates interest on remaining balance', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     const result = makePayment(loan);
 
     // First payment: interest = 100000 * (0.05 / 12) = 416.67
     const expectedInterest = loan.remainingPrincipal.multiply(0.05 / 12);
-    expect(result.paymentBreakdown.interestPortion.amount).toBeCloseTo(expectedInterest.amount, 2);
+    expect(result.paymentBreakdown.interestPortion.amount).toBeCloseTo(
+      expectedInterest.amount,
+      2,
+    );
   });
 
   it('handles final payment correctly', () => {
@@ -240,7 +311,9 @@ describe('makePayment', () => {
     const finalResult = makePayment(loan);
 
     expect(finalResult.updatedLoan.paymentsRemaining).toBe(0);
-    expect(Math.abs(finalResult.updatedLoan.remainingPrincipal.amount)).toBeLessThan(0.1);
+    expect(
+      Math.abs(finalResult.updatedLoan.remainingPrincipal.amount),
+    ).toBeLessThan(0.1);
   });
 });
 
@@ -280,13 +353,21 @@ describe('getRemainingBalance', () => {
 
 describe('isLoanPaidOff', () => {
   it('returns false for new loan', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     expect(isLoanPaidOff(loan)).toBe(false);
   });
 
   it('returns true when payments remaining is 0', () => {
-    const loan = createTestLoan({ paymentsRemaining: 0, remainingPrincipal: new Money(0) });
+    const loan = createTestLoan({
+      paymentsRemaining: 0,
+      remainingPrincipal: new Money(0),
+    });
 
     expect(isLoanPaidOff(loan)).toBe(true);
   });
@@ -298,7 +379,10 @@ describe('isLoanPaidOff', () => {
   });
 
   it('returns false during amortization', () => {
-    const loan = createTestLoan({ paymentsRemaining: 6, remainingPrincipal: new Money(50000) });
+    const loan = createTestLoan({
+      paymentsRemaining: 6,
+      remainingPrincipal: new Money(50000),
+    });
 
     expect(isLoanPaidOff(loan)).toBe(false);
   });
@@ -327,7 +411,12 @@ describe('getLoanDefaultPenalty', () => {
   });
 
   it('calculates penalty on full principal for new loan', () => {
-    const loan = createLoan(new Money(100000), 0.05, 12, new Date('3025-01-01'));
+    const loan = createLoan(
+      new Money(100000),
+      0.05,
+      12,
+      new Date('3025-01-01'),
+    );
 
     const penalty = getLoanDefaultPenalty(loan);
 

@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { useState, ReactNode } from 'react';
+
 import { ErrorBoundary } from './ErrorBoundary';
 
 const meta: Meta<typeof ErrorBoundary> = {
@@ -20,12 +22,16 @@ const meta: Meta<typeof ErrorBoundary> = {
 export default meta;
 type Story = StoryObj<typeof ErrorBoundary>;
 
-function ThrowingComponent({ shouldThrow }: { shouldThrow: boolean }): ReactNode {
+function ThrowingComponent({
+  shouldThrow,
+}: {
+  shouldThrow: boolean;
+}): ReactNode {
   if (shouldThrow) {
     throw new Error('This is a simulated component error for testing');
   }
   return (
-    <div className="p-4 bg-green-100 border border-green-300 rounded">
+    <div className="rounded border border-green-300 bg-green-100 p-4">
       <p className="text-green-800">Component rendered successfully!</p>
     </div>
   );
@@ -39,11 +45,13 @@ function ThrowOnClickComponent(): ReactNode {
   }
 
   return (
-    <div className="p-4 bg-blue-100 border border-blue-300 rounded space-y-3">
-      <p className="text-blue-800">This component works until you click the button.</p>
+    <div className="space-y-3 rounded border border-blue-300 bg-blue-100 p-4">
+      <p className="text-blue-800">
+        This component works until you click the button.
+      </p>
       <button
         onClick={() => setShouldThrow(true)}
-        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
       >
         Trigger Error
       </button>
@@ -51,7 +59,9 @@ function ThrowOnClickComponent(): ReactNode {
   );
 }
 
-function createSpecificErrorComponent(errorType: 'syntax' | 'type' | 'reference' | 'custom'): () => ReactNode {
+function createSpecificErrorComponent(
+  errorType: 'syntax' | 'type' | 'reference' | 'custom',
+): () => ReactNode {
   return function SpecificError(): ReactNode {
     switch (errorType) {
       case 'syntax':
@@ -69,9 +79,11 @@ function createSpecificErrorComponent(errorType: 'syntax' | 'type' | 'reference'
 
 function WorkingComponent(): ReactNode {
   return (
-    <div className="p-6 bg-surface-base border border-border-theme-subtle rounded-lg">
-      <h3 className="text-lg font-semibold text-text-theme-primary mb-2">Mech Configuration</h3>
-      <ul className="space-y-1 text-text-theme-secondary">
+    <div className="bg-surface-base border-border-theme-subtle rounded-lg border p-6">
+      <h3 className="text-text-theme-primary mb-2 text-lg font-semibold">
+        Mech Configuration
+      </h3>
+      <ul className="text-text-theme-secondary space-y-1">
         <li>Chassis: Atlas AS7-D</li>
         <li>Tonnage: 100 tons</li>
         <li>Tech Base: Inner Sphere</li>
@@ -105,7 +117,8 @@ export const InteractiveError: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Click the button to trigger an error and see the error boundary in action.',
+        story:
+          'Click the button to trigger an error and see the error boundary in action.',
       },
     },
   },
@@ -116,15 +129,17 @@ export const CustomFallback: Story = {
     <ErrorBoundary
       componentName="CustomFallbackDemo"
       fallback={
-        <div className="p-6 bg-amber-50 border-2 border-amber-400 rounded-lg text-center">
-          <div className="text-4xl mb-2">⚠️</div>
-          <h3 className="text-lg font-bold text-amber-800 mb-2">Oops! Something went wrong</h3>
+        <div className="rounded-lg border-2 border-amber-400 bg-amber-50 p-6 text-center">
+          <div className="mb-2 text-4xl">⚠️</div>
+          <h3 className="mb-2 text-lg font-bold text-amber-800">
+            Oops! Something went wrong
+          </h3>
           <p className="text-amber-700">
             The mech configurator encountered an unexpected error.
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
+            className="mt-4 rounded bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
           >
             Reload Page
           </button>
@@ -146,10 +161,7 @@ export const WithErrorHandler: Story = {
     };
 
     return (
-      <ErrorBoundary
-        componentName="ErrorHandlerDemo"
-        onError={handleError}
-      >
+      <ErrorBoundary componentName="ErrorHandlerDemo" onError={handleError}>
         <ThrowingComponent shouldThrow={true} />
       </ErrorBoundary>
     );
@@ -157,7 +169,8 @@ export const WithErrorHandler: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Check the console to see the error being logged via the onError callback.',
+        story:
+          'Check the console to see the error being logged via the onError callback.',
       },
     },
   },
@@ -165,17 +178,15 @@ export const WithErrorHandler: Story = {
 
 export const MaxRecoveryAttempts: Story = {
   render: () => (
-    <ErrorBoundary
-      componentName="RecoveryDemo"
-      maxRecoveryAttempts={5}
-    >
+    <ErrorBoundary componentName="RecoveryDemo" maxRecoveryAttempts={5}>
       <ThrowingComponent shouldThrow={true} />
     </ErrorBoundary>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'This error boundary allows 5 recovery attempts before disabling the retry button.',
+        story:
+          'This error boundary allows 5 recovery attempts before disabling the retry button.',
       },
     },
   },
@@ -183,10 +194,7 @@ export const MaxRecoveryAttempts: Story = {
 
 export const SingleRetry: Story = {
   render: () => (
-    <ErrorBoundary
-      componentName="SingleRetryDemo"
-      maxRecoveryAttempts={1}
-    >
+    <ErrorBoundary componentName="SingleRetryDemo" maxRecoveryAttempts={1}>
       <ThrowingComponent shouldThrow={true} />
     </ErrorBoundary>
   ),
@@ -203,7 +211,7 @@ export const NestedBoundaries: Story = {
   render: () => (
     <div className="space-y-4">
       <ErrorBoundary componentName="OuterBoundary">
-        <div className="p-4 border border-gray-300 rounded space-y-4">
+        <div className="space-y-4 rounded border border-gray-300 p-4">
           <h3 className="font-semibold">Parent Component</h3>
           <div className="grid grid-cols-2 gap-4">
             <ErrorBoundary componentName="LeftChild">
@@ -220,7 +228,8 @@ export const NestedBoundaries: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Nested error boundaries isolate failures. The left component continues working even when the right one fails.',
+        story:
+          'Nested error boundaries isolate failures. The left component continues working even when the right one fails.',
       },
     },
   },
@@ -239,7 +248,8 @@ export const SyntaxErrorDemo: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'SyntaxError is marked as non-recoverable, so the retry button is disabled.',
+        story:
+          'SyntaxError is marked as non-recoverable, so the retry button is disabled.',
       },
     },
   },
@@ -265,27 +275,29 @@ export const MechConfiguratorError: Story = {
   render: () => {
     const MechConfigurator = (): ReactNode => {
       const [loadData, setLoadData] = useState(false);
-      
+
       if (loadData) {
         throw new Error('Failed to load mech configuration from server');
       }
 
       return (
-        <div className="p-6 bg-surface-base rounded-lg space-y-4">
-          <h2 className="text-xl font-bold text-text-theme-primary">Mech Configurator</h2>
+        <div className="bg-surface-base space-y-4 rounded-lg p-6">
+          <h2 className="text-text-theme-primary text-xl font-bold">
+            Mech Configurator
+          </h2>
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-3 bg-surface-raised rounded">
+            <div className="bg-surface-raised rounded p-3">
               <span className="text-text-theme-secondary">Chassis</span>
               <p className="font-semibold">Atlas AS7-D</p>
             </div>
-            <div className="p-3 bg-surface-raised rounded">
+            <div className="bg-surface-raised rounded p-3">
               <span className="text-text-theme-secondary">Tonnage</span>
               <p className="font-semibold">100 tons</p>
             </div>
           </div>
           <button
             onClick={() => setLoadData(true)}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
           >
             Load Remote Config (Will Fail)
           </button>
@@ -307,7 +319,8 @@ export const MechConfiguratorError: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'A realistic example showing how the error boundary would wrap a mech configurator component.',
+        story:
+          'A realistic example showing how the error boundary would wrap a mech configurator component.',
       },
     },
   },

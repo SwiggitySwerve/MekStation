@@ -1,8 +1,8 @@
 /**
  * Battle Value System Types
- * 
+ *
  * Defines BV calculation types and interfaces.
- * 
+ *
  * @spec openspec/specs/battle-value-system/spec.md
  */
 
@@ -39,7 +39,7 @@ export const BV2_SPEED_FACTORS_BY_TMM: Record<number, number> = {
 export function calculateTMM(runMP: number, jumpMP: number = 0): number {
   // Use the better of run or jump MP for TMM calculation
   const effectiveMP = Math.max(runMP, jumpMP);
-  
+
   if (effectiveMP <= 2) return 0;
   if (effectiveMP <= 4) return 1;
   if (effectiveMP <= 6) return 2;
@@ -127,15 +127,15 @@ export const GYRO_BV_MULTIPLIERS: Record<string, number> = {
  * Baseline (4/5): 1.0
  */
 export const PILOT_SKILL_MULTIPLIERS: number[][] = [
-  [ 2.42, 2.31, 2.21, 2.10, 1.93, 1.75, 1.68, 1.59, 1.50 ], // gunnery 0
-  [ 2.21, 2.11, 2.02, 1.92, 1.76, 1.60, 1.54, 1.46, 1.38 ], // gunnery 1
-  [ 1.93, 1.85, 1.76, 1.68, 1.54, 1.40, 1.35, 1.28, 1.21 ], // gunnery 2
-  [ 1.66, 1.58, 1.51, 1.44, 1.32, 1.20, 1.16, 1.10, 1.04 ], // gunnery 3
-  [ 1.38, 1.32, 1.26, 1.20, 1.10, 1.00, 0.95, 0.90, 0.85 ], // gunnery 4
-  [ 1.31, 1.19, 1.13, 1.08, 0.99, 0.90, 0.86, 0.81, 0.77 ], // gunnery 5
-  [ 1.24, 1.12, 1.07, 1.02, 0.94, 0.85, 0.81, 0.77, 0.72 ], // gunnery 6
-  [ 1.17, 1.06, 1.01, 0.96, 0.88, 0.80, 0.76, 0.72, 0.68 ], // gunnery 7
-  [ 1.10, 0.99, 0.95, 0.90, 0.83, 0.75, 0.71, 0.68, 0.64 ]  // gunnery 8
+  [2.42, 2.31, 2.21, 2.1, 1.93, 1.75, 1.68, 1.59, 1.5], // gunnery 0
+  [2.21, 2.11, 2.02, 1.92, 1.76, 1.6, 1.54, 1.46, 1.38], // gunnery 1
+  [1.93, 1.85, 1.76, 1.68, 1.54, 1.4, 1.35, 1.28, 1.21], // gunnery 2
+  [1.66, 1.58, 1.51, 1.44, 1.32, 1.2, 1.16, 1.1, 1.04], // gunnery 3
+  [1.38, 1.32, 1.26, 1.2, 1.1, 1.0, 0.95, 0.9, 0.85], // gunnery 4
+  [1.31, 1.19, 1.13, 1.08, 0.99, 0.9, 0.86, 0.81, 0.77], // gunnery 5
+  [1.24, 1.12, 1.07, 1.02, 0.94, 0.85, 0.81, 0.77, 0.72], // gunnery 6
+  [1.17, 1.06, 1.01, 0.96, 0.88, 0.8, 0.76, 0.72, 0.68], // gunnery 7
+  [1.1, 0.99, 0.95, 0.9, 0.83, 0.75, 0.71, 0.68, 0.64], // gunnery 8
 ];
 
 /**
@@ -167,11 +167,14 @@ export function getGyroBVMultiplier(gyroType: string): number {
  * Gunnery/Piloting of 4/5 is baseline (1.0 modifier)
  * Per MegaMek BVCalculator.java:1265-1274
  */
-export function getPilotSkillModifier(gunnery: number, piloting: number): number {
+export function getPilotSkillModifier(
+  gunnery: number,
+  piloting: number,
+): number {
   // Clamp values to valid range (0-8)
   const g = Math.max(0, Math.min(8, Math.floor(gunnery)));
   const p = Math.max(0, Math.min(8, Math.floor(piloting)));
-  
+
   return PILOT_SKILL_MULTIPLIERS[g][p];
 }
 
@@ -230,12 +233,12 @@ export const BV2_OFFENSIVE_SPEED_FACTORS_BY_TMM: Record<number, number> = {
   2: 1.12,
   3: 1.18,
   4: 1.24,
-  5: 1.30,
+  5: 1.3,
   6: 1.36,
   7: 1.42,
   8: 1.48,
   9: 1.54,
-  10: 1.60,
+  10: 1.6,
 };
 
 /**
@@ -266,11 +269,8 @@ export function getOffensiveSpeedFactor(runMP: number, jumpMP: number): number {
 export function getBV2SpeedFactor(runMP: number, jumpMP: number): number {
   // Use higher of run or jump MP (jump weighted by 0.5)
   const effectiveSpeed = Math.max(runMP, Math.ceil(jumpMP * 0.5));
-  
+
   if (effectiveSpeed <= 0) return BV2_SPEED_FACTORS[0];
   if (effectiveSpeed >= 25) return BV2_SPEED_FACTORS[25];
   return BV2_SPEED_FACTORS[effectiveSpeed] ?? 1.0;
 }
-
-
-

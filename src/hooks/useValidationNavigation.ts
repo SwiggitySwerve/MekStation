@@ -8,9 +8,13 @@
  */
 
 import { useMemo, useCallback } from 'react';
-import { UnitValidationState } from '@/hooks/useUnitValidation';
-import { IUnitValidationError, UnitValidationSeverity } from '@/types/validation/UnitValidationInterfaces';
+
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
+import { UnitValidationState } from '@/hooks/useUnitValidation';
+import {
+  IUnitValidationError,
+  UnitValidationSeverity,
+} from '@/types/validation/UnitValidationInterfaces';
 import {
   CATEGORY_TAB_MAP,
   getTabForCategory,
@@ -23,7 +27,10 @@ import {
 export interface UseValidationNavigationResult {
   errorsByTab: ValidationCountsByTab;
   getTabCounts: (tabId: CustomizerTabId) => TabValidationCounts;
-  navigateToError: (error: IUnitValidationError, onTabChange: (tabId: CustomizerTabId) => void) => void;
+  navigateToError: (
+    error: IUnitValidationError,
+    onTabChange: (tabId: CustomizerTabId) => void,
+  ) => void;
   getTargetTabForError: (error: IUnitValidationError) => CustomizerTabId;
   getTargetTabLabel: (error: IUnitValidationError) => string;
   hasErrorsOnTab: (tabId: CustomizerTabId) => boolean;
@@ -31,7 +38,7 @@ export interface UseValidationNavigationResult {
 }
 
 export function useValidationNavigation(
-  validation: UnitValidationState
+  validation: UnitValidationState,
 ): UseValidationNavigationResult {
   const errorsByTab = useMemo<ValidationCountsByTab>(() => {
     const counts = createEmptyValidationCounts();
@@ -41,8 +48,10 @@ export function useValidationNavigation(
     for (const ruleResult of validation.result.results) {
       for (const error of ruleResult.errors) {
         const tabId = getTabForCategory(error.category);
-        if (error.severity === UnitValidationSeverity.CRITICAL_ERROR ||
-            error.severity === UnitValidationSeverity.ERROR) {
+        if (
+          error.severity === UnitValidationSeverity.CRITICAL_ERROR ||
+          error.severity === UnitValidationSeverity.ERROR
+        ) {
           counts[tabId].errors++;
         }
       }
@@ -63,14 +72,14 @@ export function useValidationNavigation(
     (tabId: CustomizerTabId): TabValidationCounts => {
       return errorsByTab[tabId] ?? { errors: 0, warnings: 0, infos: 0 };
     },
-    [errorsByTab]
+    [errorsByTab],
   );
 
   const getTargetTabForError = useCallback(
     (error: IUnitValidationError): CustomizerTabId => {
       return getTabForCategory(error.category);
     },
-    []
+    [],
   );
 
   const getTargetTabLabel = useCallback(
@@ -78,29 +87,32 @@ export function useValidationNavigation(
       const tabId = getTabForCategory(error.category);
       return getTabLabel(tabId);
     },
-    []
+    [],
   );
 
   const navigateToError = useCallback(
-    (error: IUnitValidationError, onTabChange: (tabId: CustomizerTabId) => void) => {
+    (
+      error: IUnitValidationError,
+      onTabChange: (tabId: CustomizerTabId) => void,
+    ) => {
       const tabId = getTabForCategory(error.category);
       onTabChange(tabId);
     },
-    []
+    [],
   );
 
   const hasErrorsOnTab = useCallback(
     (tabId: CustomizerTabId): boolean => {
       return errorsByTab[tabId]?.errors > 0;
     },
-    [errorsByTab]
+    [errorsByTab],
   );
 
   const hasWarningsOnTab = useCallback(
     (tabId: CustomizerTabId): boolean => {
       return errorsByTab[tabId]?.warnings > 0;
     },
-    [errorsByTab]
+    [errorsByTab],
   );
 
   return {

@@ -1,8 +1,8 @@
 /**
  * Record Sheet Types
- * 
+ *
  * Interfaces for PDF record sheet generation and preview rendering.
- * 
+ *
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
@@ -20,9 +20,12 @@ export enum PaperSize {
 /**
  * Paper dimensions in points (1/72 inch)
  */
-export const PAPER_DIMENSIONS: Record<PaperSize, { width: number; height: number }> = {
-  [PaperSize.LETTER]: { width: 612, height: 792 },  // 8.5" x 11"
-  [PaperSize.A4]: { width: 595, height: 842 },       // 210mm x 297mm
+export const PAPER_DIMENSIONS: Record<
+  PaperSize,
+  { width: number; height: number }
+> = {
+  [PaperSize.LETTER]: { width: 612, height: 792 }, // 8.5" x 11"
+  [PaperSize.A4]: { width: 595, height: 842 }, // 210mm x 297mm
 };
 
 /**
@@ -222,16 +225,16 @@ const ALL_MECH_LOCATIONS: MechLocation[] = [
   MechLocation.RIGHT_ARM,
   MechLocation.LEFT_LEG,
   MechLocation.RIGHT_LEG,
-  MechLocation.CENTER_LEG,       // Tripod
-  MechLocation.FRONT_LEFT_LEG,   // Quad
-  MechLocation.FRONT_RIGHT_LEG,  // Quad
-  MechLocation.REAR_LEFT_LEG,    // Quad
-  MechLocation.REAR_RIGHT_LEG,   // Quad
-  MechLocation.NOSE,             // LAM/Aerospace
-  MechLocation.LEFT_WING,        // LAM/Aerospace
-  MechLocation.RIGHT_WING,       // LAM/Aerospace
-  MechLocation.AFT,              // LAM/Aerospace
-  MechLocation.FUSELAGE,         // LAM/Aerospace
+  MechLocation.CENTER_LEG, // Tripod
+  MechLocation.FRONT_LEFT_LEG, // Quad
+  MechLocation.FRONT_RIGHT_LEG, // Quad
+  MechLocation.REAR_LEFT_LEG, // Quad
+  MechLocation.REAR_RIGHT_LEG, // Quad
+  MechLocation.NOSE, // LAM/Aerospace
+  MechLocation.LEFT_WING, // LAM/Aerospace
+  MechLocation.RIGHT_WING, // LAM/Aerospace
+  MechLocation.AFT, // LAM/Aerospace
+  MechLocation.FUSELAGE, // LAM/Aerospace
 ];
 
 /**
@@ -239,9 +242,10 @@ const ALL_MECH_LOCATIONS: MechLocation[] = [
  *
  * @see LOCATION_ABBREVIATION_MAP in MechConfigurationSystem for full mapping
  */
-export const LOCATION_ABBREVIATIONS: Record<string, string> = Object.fromEntries(
-  ALL_MECH_LOCATIONS.map(loc => [loc, LOCATION_ABBREVIATION_MAP[loc]])
-);
+export const LOCATION_ABBREVIATIONS: Record<string, string> =
+  Object.fromEntries(
+    ALL_MECH_LOCATIONS.map((loc) => [loc, LOCATION_ABBREVIATION_MAP[loc]]),
+  );
 
 /**
  * Location display names (all mech types for record sheets)
@@ -249,7 +253,7 @@ export const LOCATION_ABBREVIATIONS: Record<string, string> = Object.fromEntries
  * Note: MechLocation enum values are already display names (e.g., 'Left Arm')
  */
 export const LOCATION_NAMES: Record<string, string> = Object.fromEntries(
-  ALL_MECH_LOCATIONS.map(loc => [loc, loc])
+  ALL_MECH_LOCATIONS.map((loc) => [loc, loc]),
 );
 
 /**
@@ -269,4 +273,3 @@ export interface IPreviewOptions {
   readonly highlightEmpty: boolean;
   readonly scale: number;
 }
-

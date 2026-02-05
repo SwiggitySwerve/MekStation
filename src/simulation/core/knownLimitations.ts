@@ -1,10 +1,10 @@
 /**
  * Known Limitations - Programmatic Exclusion Logic
- * 
+ *
  * This module provides functions to identify violations that correspond to
  * documented limitations in the game engine, preventing false positives in
  * simulation bug reports.
- * 
+ *
  * @see src/simulation/known-limitations.md for human-readable documentation
  */
 
@@ -127,27 +127,25 @@ const KNOWN_LIMITATION_PATTERNS = {
   ],
 
   /** MTF file parsing */
-  mtfParsing: [
-    /mtf.*file.*parsing/i,
-    /mtf.*import/i,
-    /mechtech.*format/i,
-  ],
+  mtfParsing: [/mtf.*file.*parsing/i, /mtf.*import/i, /mechtech.*format/i],
 } as const;
 
 /**
  * Flattened list of all known limitation patterns for efficient matching.
  */
-const ALL_PATTERNS: readonly RegExp[] = Object.values(KNOWN_LIMITATION_PATTERNS).flat();
+const ALL_PATTERNS: readonly RegExp[] = Object.values(
+  KNOWN_LIMITATION_PATTERNS,
+).flat();
 
 /**
  * Check if a violation corresponds to a known limitation.
- * 
+ *
  * Returns true if the violation matches any documented limitation pattern,
  * indicating it should be excluded from bug reports.
- * 
+ *
  * @param violation - The violation to check
  * @returns true if this is a known limitation, false if it's a potential bug
- * 
+ *
  * @example
  * ```typescript
  * const violation = {
@@ -156,7 +154,7 @@ const ALL_PATTERNS: readonly RegExp[] = Object.values(KNOWN_LIMITATION_PATTERNS)
  *   message: 'Physical attack not available',
  *   context: {}
  * };
- * 
+ *
  * if (isKnownLimitation(violation)) {
  *   // Don't report this - it's a documented limitation
  *   return;
@@ -168,18 +166,18 @@ export function isKnownLimitation(violation: IViolation): boolean {
   const invariant = violation.invariant.toLowerCase();
   const combinedText = `${message} ${invariant}`;
 
-  return ALL_PATTERNS.some(pattern => pattern.test(combinedText));
+  return ALL_PATTERNS.some((pattern) => pattern.test(combinedText));
 }
 
 /**
  * Get the limitation category for a violation.
- * 
+ *
  * Returns the category name if the violation matches a known limitation,
  * or null if it doesn't match any limitation.
- * 
+ *
  * @param violation - The violation to categorize
  * @returns Category name or null
- * 
+ *
  * @example
  * ```typescript
  * const category = getLimitationCategory(violation);
@@ -193,8 +191,10 @@ export function getLimitationCategory(violation: IViolation): string | null {
   const invariant = violation.invariant.toLowerCase();
   const combinedText = `${message} ${invariant}`;
 
-  for (const [category, patterns] of Object.entries(KNOWN_LIMITATION_PATTERNS)) {
-    if (patterns.some(pattern => pattern.test(combinedText))) {
+  for (const [category, patterns] of Object.entries(
+    KNOWN_LIMITATION_PATTERNS,
+  )) {
+    if (patterns.some((pattern) => pattern.test(combinedText))) {
       return category;
     }
   }
@@ -204,13 +204,13 @@ export function getLimitationCategory(violation: IViolation): string | null {
 
 /**
  * Get a human-readable explanation for why a violation is a known limitation.
- * 
+ *
  * Returns a brief explanation referencing the documentation, or null if the
  * violation is not a known limitation.
- * 
+ *
  * @param violation - The violation to explain
  * @returns Explanation string or null
- * 
+ *
  * @example
  * ```typescript
  * const explanation = getLimitationExplanation(violation);
@@ -224,17 +224,28 @@ export function getLimitationExplanation(violation: IViolation): string | null {
   if (!category) return null;
 
   const explanations: Record<string, string> = {
-    physicalAttacks: 'Physical attacks are not yet implemented (see known-limitations.md)',
-    ammoConsumption: 'Ammo consumption tracking is not enforced (see known-limitations.md)',
-    heatShutdown: 'Heat shutdown mechanics are partially implemented (see known-limitations.md)',
-    terrainMovement: 'Terrain movement costs use simplified rules (see known-limitations.md)',
-    pilotingChecks: 'Piloting skill checks are partially implemented (see known-limitations.md)',
-    criticalEffects: 'Critical hit effects are not fully enforced (see known-limitations.md)',
-    lineOfSight: 'Line of sight validation is not implemented (see known-limitations.md)',
-    specialAbilities: 'Special Pilot Abilities are not enforced (see known-limitations.md)',
-    vehicleAerospace: 'Vehicle and aerospace rules are not implemented (see known-limitations.md)',
-    campaignProgression: 'Campaign progression systems are stubbed (see known-limitations.md)',
-    mtfParsing: 'MTF file parsing is not implemented (see known-limitations.md)',
+    physicalAttacks:
+      'Physical attacks are not yet implemented (see known-limitations.md)',
+    ammoConsumption:
+      'Ammo consumption tracking is not enforced (see known-limitations.md)',
+    heatShutdown:
+      'Heat shutdown mechanics are partially implemented (see known-limitations.md)',
+    terrainMovement:
+      'Terrain movement costs use simplified rules (see known-limitations.md)',
+    pilotingChecks:
+      'Piloting skill checks are partially implemented (see known-limitations.md)',
+    criticalEffects:
+      'Critical hit effects are not fully enforced (see known-limitations.md)',
+    lineOfSight:
+      'Line of sight validation is not implemented (see known-limitations.md)',
+    specialAbilities:
+      'Special Pilot Abilities are not enforced (see known-limitations.md)',
+    vehicleAerospace:
+      'Vehicle and aerospace rules are not implemented (see known-limitations.md)',
+    campaignProgression:
+      'Campaign progression systems are stubbed (see known-limitations.md)',
+    mtfParsing:
+      'MTF file parsing is not implemented (see known-limitations.md)',
   };
 
   return explanations[category] || null;
@@ -242,42 +253,42 @@ export function getLimitationExplanation(violation: IViolation): string | null {
 
 /**
  * Filter a list of violations to exclude known limitations.
- * 
+ *
  * Returns only violations that are NOT known limitations, i.e., potential bugs
  * that should be reported.
- * 
+ *
  * @param violations - List of violations to filter
  * @returns Filtered list containing only potential bugs
- * 
+ *
  * @example
  * ```typescript
  * const allViolations = checkInvariants(gameState);
  * const actualBugs = filterKnownLimitations(allViolations);
- * 
+ *
  * if (actualBugs.length > 0) {
  *   reportBugs(actualBugs);
  * }
  * ```
  */
 export function filterKnownLimitations(
-  violations: readonly IViolation[]
+  violations: readonly IViolation[],
 ): readonly IViolation[] {
-  return violations.filter(v => !isKnownLimitation(v));
+  return violations.filter((v) => !isKnownLimitation(v));
 }
 
 /**
  * Partition violations into known limitations and potential bugs.
- * 
+ *
  * Returns an object with two arrays: violations that are known limitations,
  * and violations that are potential bugs.
- * 
+ *
  * @param violations - List of violations to partition
  * @returns Object with `knownLimitations` and `potentialBugs` arrays
- * 
+ *
  * @example
  * ```typescript
  * const { knownLimitations, potentialBugs } = partitionViolations(allViolations);
- * 
+ *
  * console.log(`Excluded ${knownLimitations.length} known limitations`);
  * console.log(`Found ${potentialBugs.length} potential bugs`);
  * ```

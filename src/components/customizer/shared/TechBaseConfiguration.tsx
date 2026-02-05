@@ -1,14 +1,14 @@
 /**
  * Tech Base Configuration Component
- * 
+ *
  * Combined panel showing component selections and tech base toggles.
  * Supports Inner Sphere, Clan, and Mixed Tech modes.
- * 
+ *
  * @spec Based on BattleTech TechManual mixed tech rules
  */
 
 import React from 'react';
-import { TechBase } from '@/types/enums/TechBase';
+
 import {
   TechBaseMode,
   TechBaseComponent,
@@ -16,6 +16,7 @@ import {
   TECH_BASE_COMPONENT_LABELS,
   TECH_BASE_COMPONENT_DESCRIPTIONS,
 } from '@/types/construction/TechBaseConfiguration';
+import { TechBase } from '@/types/enums/TechBase';
 
 // =============================================================================
 // Style Constants
@@ -26,7 +27,8 @@ const styles = {
   button: {
     base: 'px-2 py-1 text-xs font-medium transition-colors',
     baseLarge: 'px-4 py-2 text-sm font-medium transition-colors',
-    inactive: 'bg-surface-raised text-text-theme-secondary hover:bg-surface-base hover:text-text-theme-primary',
+    inactive:
+      'bg-surface-raised text-text-theme-secondary hover:bg-surface-base hover:text-text-theme-primary',
     disabled: 'opacity-50 cursor-not-allowed',
     enabled: 'cursor-pointer',
     borderLeft: 'border-l border-border-theme-strong',
@@ -41,9 +43,11 @@ const styles = {
 
   // Container styles
   container: {
-    panel: 'bg-surface-base rounded-lg border border-border-theme overflow-hidden',
+    panel:
+      'bg-surface-base rounded-lg border border-border-theme overflow-hidden',
     header: 'px-4 py-3 border-b border-border-theme bg-surface-base',
-    buttonGroup: 'inline-flex rounded-md overflow-hidden border border-border-theme-strong',
+    buttonGroup:
+      'inline-flex rounded-md overflow-hidden border border-border-theme-strong',
     rowEven: 'bg-surface-base',
     rowOdd: 'bg-surface-base/50',
   },
@@ -66,14 +70,14 @@ const styles = {
  * Current values for each component category
  */
 export interface IComponentValues {
-  chassis: string;      // e.g., "Standard", "Endo Steel"
-  gyro: string;         // e.g., "Standard", "XL", "Compact"
-  engine: string;       // e.g., "Standard Fusion 200", "XL 300"
-  heatsink: string;     // e.g., "Single", "Double"
-  targeting: string;    // e.g., "None", "Standard", "C3"
-  myomer: string;       // e.g., "Standard", "TSM", "Industrial"
-  movement: string;     // e.g., "None", "Jump Jets", "MASC"
-  armor: string;        // e.g., "Standard", "Ferro-Fibrous"
+  chassis: string; // e.g., "Standard", "Endo Steel"
+  gyro: string; // e.g., "Standard", "XL", "Compact"
+  engine: string; // e.g., "Standard Fusion 200", "XL 300"
+  heatsink: string; // e.g., "Single", "Double"
+  targeting: string; // e.g., "None", "Standard", "C3"
+  myomer: string; // e.g., "Standard", "TSM", "Industrial"
+  movement: string; // e.g., "None", "Jump Jets", "MASC"
+  armor: string; // e.g., "Standard", "Ferro-Fibrous"
 }
 
 /**
@@ -99,7 +103,9 @@ function getModeButtonClass(isActive: boolean, isDisabled: boolean): string {
     styles.button.baseLarge,
     isActive ? '' : styles.button.inactive,
     isDisabled ? styles.button.disabled : styles.button.enabled,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 }
 
 function getSegmentButtonClass(isActive: boolean, isDisabled: boolean): string {
@@ -107,7 +113,9 @@ function getSegmentButtonClass(isActive: boolean, isDisabled: boolean): string {
     styles.button.base,
     isActive ? '' : styles.button.inactive,
     isDisabled ? styles.button.disabled : styles.button.enabled,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 }
 
 // =============================================================================
@@ -144,10 +152,16 @@ interface ComponentRowProps {
 // Sub-Components
 // =============================================================================
 
-function TechBaseSegmentedButton({ value, onChange, disabled = false, size = 'normal' }: SegmentedButtonProps) {
+function TechBaseSegmentedButton({
+  value,
+  onChange,
+  disabled = false,
+  size = 'normal',
+}: SegmentedButtonProps) {
   const isIS = value === TechBase.INNER_SPHERE;
   const isClan = value === TechBase.CLAN;
-  const buttonClass = size === 'small' ? getSegmentButtonClass : getModeButtonClass;
+  const buttonClass =
+    size === 'small' ? getSegmentButtonClass : getModeButtonClass;
 
   return (
     <div className={styles.container.buttonGroup}>
@@ -171,12 +185,20 @@ function TechBaseSegmentedButton({ value, onChange, disabled = false, size = 'no
   );
 }
 
-function ComponentRow({ component, techBase, currentValue, onChange, disabled, isOdd }: ComponentRowProps) {
+function ComponentRow({
+  component,
+  techBase,
+  currentValue,
+  onChange,
+  disabled,
+  isOdd,
+}: ComponentRowProps) {
   const rowBg = isOdd ? styles.container.rowOdd : styles.container.rowEven;
   const opacity = disabled ? 'opacity-60' : '';
-  const valueClass = currentValue === 'None' || currentValue === 'Not Selected' 
-    ? styles.text.valueMuted 
-    : styles.text.value;
+  const valueClass =
+    currentValue === 'None' || currentValue === 'Not Selected'
+      ? styles.text.valueMuted
+      : styles.text.value;
 
   return (
     <div
@@ -187,12 +209,10 @@ function ComponentRow({ component, techBase, currentValue, onChange, disabled, i
       <div className={`${styles.text.label} w-24 flex-shrink-0`}>
         {TECH_BASE_COMPONENT_LABELS[component]}
       </div>
-      
+
       {/* Current Value */}
-      <div className={`${valueClass} flex-1 text-center`}>
-        {currentValue}
-      </div>
-      
+      <div className={`${valueClass} flex-1 text-center`}>{currentValue}</div>
+
       {/* Tech Base Toggle */}
       <div className="flex-shrink-0">
         <TechBaseSegmentedButton
@@ -211,8 +231,14 @@ function ComponentRow({ component, techBase, currentValue, onChange, disabled, i
 // =============================================================================
 
 const COMPONENT_ORDER: TechBaseComponent[] = [
-  TechBaseComponent.CHASSIS, TechBaseComponent.GYRO, TechBaseComponent.ENGINE, TechBaseComponent.HEATSINK,
-  TechBaseComponent.TARGETING, TechBaseComponent.MYOMER, TechBaseComponent.MOVEMENT, TechBaseComponent.ARMOR,
+  TechBaseComponent.CHASSIS,
+  TechBaseComponent.GYRO,
+  TechBaseComponent.ENGINE,
+  TechBaseComponent.HEATSINK,
+  TechBaseComponent.TARGETING,
+  TechBaseComponent.MYOMER,
+  TechBaseComponent.MOVEMENT,
+  TechBaseComponent.ARMOR,
 ];
 
 export function TechBaseConfiguration({
@@ -227,9 +253,12 @@ export function TechBaseConfiguration({
   const isMixed = mode === TechBaseMode.MIXED;
   const isIS = mode === TechBaseMode.INNER_SPHERE;
   const isClan = mode === TechBaseMode.CLAN;
-  
+
   // Merge with defaults
-  const values: IComponentValues = { ...DEFAULT_COMPONENT_VALUES, ...componentValues };
+  const values: IComponentValues = {
+    ...DEFAULT_COMPONENT_VALUES,
+    ...componentValues,
+  };
 
   return (
     <div className={`${styles.container.panel} ${className}`}>
@@ -238,9 +267,11 @@ export function TechBaseConfiguration({
         <div className="flex items-center justify-between">
           <div>
             <h3 className={styles.text.title}>Configuration</h3>
-            <p className={styles.text.subtitle}>Component settings and tech base</p>
+            <p className={styles.text.subtitle}>
+              Component settings and tech base
+            </p>
           </div>
-          
+
           {/* Mode Selector */}
           <div className={styles.container.buttonGroup}>
             <button
@@ -275,14 +306,14 @@ export function TechBaseConfiguration({
       </div>
 
       {/* Column Headers */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border-theme text-xs font-medium text-slate-500 uppercase tracking-wider">
+      <div className="border-border-theme flex items-center justify-between border-b px-4 py-2 text-xs font-medium tracking-wider text-slate-500 uppercase">
         <div className="w-24 flex-shrink-0">Component</div>
         <div className="flex-1 text-center">Selection</div>
-        <div className="w-[88px] text-center flex-shrink-0">Tech Base</div>
+        <div className="w-[88px] flex-shrink-0 text-center">Tech Base</div>
       </div>
 
       {/* Component Rows */}
-      <div className="divide-y divide-border-theme/50">
+      <div className="divide-border-theme/50 divide-y">
         {COMPONENT_ORDER.map((component, index) => (
           <ComponentRow
             key={component}

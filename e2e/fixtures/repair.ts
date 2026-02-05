@@ -41,10 +41,18 @@ export interface TestRepairItemOptions {
  */
 export async function initializeRepairStore(
   page: Page,
-  campaignId: string
+  campaignId: string,
 ): Promise<void> {
   await page.evaluate((cId) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { repair?: { getState: () => { initializeCampaign: (id: string) => void } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          repair?: {
+            getState: () => { initializeCampaign: (id: string) => void };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.repair) {
       console.warn('Repair store not exposed');
@@ -64,24 +72,36 @@ export async function initializeRepairStore(
  */
 export async function getRepairJobs(
   page: Page,
-  campaignId: string
-): Promise<Array<{
-  id: string;
-  unitId: string;
-  unitName: string;
-  status: string;
-  totalCost: number;
-  items: Array<{ id: string; selected: boolean }>;
-}>> {
+  campaignId: string,
+): Promise<
+  Array<{
+    id: string;
+    unitId: string;
+    unitName: string;
+    status: string;
+    totalCost: number;
+    items: Array<{ id: string; selected: boolean }>;
+  }>
+> {
   return page.evaluate((cId) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { repair?: { getState: () => { getJobs: (id: string) => Array<{
-      id: string;
-      unitId: string;
-      unitName: string;
-      status: string;
-      totalCost: number;
-      items: Array<{ id: string; selected: boolean }>;
-    }> } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          repair?: {
+            getState: () => {
+              getJobs: (id: string) => Array<{
+                id: string;
+                unitId: string;
+                unitName: string;
+                status: string;
+                totalCost: number;
+                items: Array<{ id: string; selected: boolean }>;
+              }>;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.repair) {
       return [];
@@ -102,7 +122,7 @@ export async function getRepairJobs(
 export async function getRepairJob(
   page: Page,
   campaignId: string,
-  jobId: string
+  jobId: string,
 ): Promise<{
   id: string;
   unitName: string;
@@ -110,21 +130,43 @@ export async function getRepairJob(
   totalCost: number;
   items: Array<{ id: string; selected: boolean; type: string }>;
 } | null> {
-  return page.evaluate(({ cId, jId }) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { repair?: { getState: () => { getJob: (cId: string, jId: string) => {
-      id: string;
-      unitName: string;
-      status: string;
-      totalCost: number;
-      items: Array<{ id: string; selected: boolean; type: string }>;
-    } | undefined } } } }).__ZUSTAND_STORES__;
+  return page.evaluate(
+    ({ cId, jId }) => {
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            repair?: {
+              getState: () => {
+                getJob: (
+                  cId: string,
+                  jId: string,
+                ) =>
+                  | {
+                      id: string;
+                      unitName: string;
+                      status: string;
+                      totalCost: number;
+                      items: Array<{
+                        id: string;
+                        selected: boolean;
+                        type: string;
+                      }>;
+                    }
+                  | undefined;
+              };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
 
-    if (!stores?.repair) {
-      return null;
-    }
+      if (!stores?.repair) {
+        return null;
+      }
 
-    return stores.repair.getState().getJob(cId, jId) || null;
-  }, { cId: campaignId, jId: jobId });
+      return stores.repair.getState().getJob(cId, jId) || null;
+    },
+    { cId: campaignId, jId: jobId },
+  );
 }
 
 /**
@@ -135,10 +177,18 @@ export async function getRepairJob(
  */
 export async function selectRepairJob(
   page: Page,
-  jobId: string | null
+  jobId: string | null,
 ): Promise<void> {
   await page.evaluate((jId) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { repair?: { getState: () => { selectJob: (id: string | null) => void } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          repair?: {
+            getState: () => { selectJob: (id: string | null) => void };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.repair) {
       return;
@@ -158,17 +208,28 @@ export async function selectRepairJob(
 export async function startRepairJob(
   page: Page,
   campaignId: string,
-  jobId: string
+  jobId: string,
 ): Promise<void> {
-  await page.evaluate(({ cId, jId }) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { repair?: { getState: () => { startJob: (cId: string, jId: string) => void } } } }).__ZUSTAND_STORES__;
+  await page.evaluate(
+    ({ cId, jId }) => {
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            repair?: {
+              getState: () => { startJob: (cId: string, jId: string) => void };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
 
-    if (!stores?.repair) {
-      return;
-    }
+      if (!stores?.repair) {
+        return;
+      }
 
-    stores.repair.getState().startJob(cId, jId);
-  }, { cId: campaignId, jId: jobId });
+      stores.repair.getState().startJob(cId, jId);
+    },
+    { cId: campaignId, jId: jobId },
+  );
 }
 
 /**
@@ -181,17 +242,28 @@ export async function startRepairJob(
 export async function cancelRepairJob(
   page: Page,
   campaignId: string,
-  jobId: string
+  jobId: string,
 ): Promise<void> {
-  await page.evaluate(({ cId, jId }) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { repair?: { getState: () => { cancelJob: (cId: string, jId: string) => void } } } }).__ZUSTAND_STORES__;
+  await page.evaluate(
+    ({ cId, jId }) => {
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            repair?: {
+              getState: () => { cancelJob: (cId: string, jId: string) => void };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
 
-    if (!stores?.repair) {
-      return;
-    }
+      if (!stores?.repair) {
+        return;
+      }
 
-    stores.repair.getState().cancelJob(cId, jId);
-  }, { cId: campaignId, jId: jobId });
+      stores.repair.getState().cancelJob(cId, jId);
+    },
+    { cId: campaignId, jId: jobId },
+  );
 }
 
 /**
@@ -206,17 +278,34 @@ export async function toggleRepairItem(
   page: Page,
   campaignId: string,
   jobId: string,
-  itemId: string
+  itemId: string,
 ): Promise<void> {
-  await page.evaluate(({ cId, jId, iId }) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { repair?: { getState: () => { toggleRepairItem: (cId: string, jId: string, iId: string) => void } } } }).__ZUSTAND_STORES__;
+  await page.evaluate(
+    ({ cId, jId, iId }) => {
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            repair?: {
+              getState: () => {
+                toggleRepairItem: (
+                  cId: string,
+                  jId: string,
+                  iId: string,
+                ) => void;
+              };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
 
-    if (!stores?.repair) {
-      return;
-    }
+      if (!stores?.repair) {
+        return;
+      }
 
-    stores.repair.getState().toggleRepairItem(cId, jId, iId);
-  }, { cId: campaignId, jId: jobId, iId: itemId });
+      stores.repair.getState().toggleRepairItem(cId, jId, iId);
+    },
+    { cId: campaignId, jId: jobId, iId: itemId },
+  );
 }
 
 /**
@@ -227,7 +316,13 @@ export async function toggleRepairItem(
  */
 export async function getSelectedJobId(page: Page): Promise<string | null> {
   return page.evaluate(() => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { repair?: { getState: () => { selectedJobId: string | null } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          repair?: { getState: () => { selectedJobId: string | null } };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.repair) {
       return null;

@@ -12,9 +12,9 @@
  * @module campaign/medical/alternateMedical
  */
 
-import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
-import { IPerson, IInjury } from '../../../types/campaign/Person';
 import { ICampaignOptions } from '../../../types/campaign/Campaign';
+import { IPerson, IInjury } from '../../../types/campaign/Person';
+import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
 
 export type RandomFn = () => number;
 
@@ -46,7 +46,7 @@ export function alternateMedicalCheck(
   injury: IInjury,
   doctor: IPerson | null,
   _options: ICampaignOptions,
-  random: RandomFn
+  random: RandomFn,
 ): IMedicalCheckResult {
   const modifiers: { name: string; value: number }[] = [];
 

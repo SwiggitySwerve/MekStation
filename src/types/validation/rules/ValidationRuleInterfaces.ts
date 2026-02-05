@@ -1,8 +1,8 @@
 /**
  * Validation Rule Interfaces
- * 
+ *
  * Defines the core validation rule system interfaces.
- * 
+ *
  * @spec openspec/specs/validation-rules-master/spec.md
  */
 
@@ -101,7 +101,7 @@ export interface IValidationRule {
   readonly category: ValidationCategory;
   readonly priority: number;
   readonly isEnabled: boolean;
-  
+
   validate(context: IValidationContext): IValidationRuleResult;
   canValidate(context: IValidationContext): boolean;
 }
@@ -138,8 +138,10 @@ export interface IValidationRuleRegistry {
  */
 export interface IValidationOrchestrator {
   validate(unit: unknown, options?: IValidationOptions): IValidationResult;
-  validateCategory(unit: unknown, category: ValidationCategory): IValidationResult;
+  validateCategory(
+    unit: unknown,
+    category: ValidationCategory,
+  ): IValidationResult;
   validateRule(unit: unknown, ruleId: string): IValidationRuleResult | null;
   getRegistry(): IValidationRuleRegistry;
 }
-

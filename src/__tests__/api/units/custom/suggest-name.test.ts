@@ -1,13 +1,15 @@
 /**
  * Tests for Suggest Clone Name API
- * 
+ *
  * POST /api/units/custom/suggest-name
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import { createMocks } from 'node-mocks-http';
+
 import handler from '@/pages/api/units/custom/suggest-name';
 
 // Response types for type-safe assertions
@@ -70,7 +72,9 @@ describe('POST /api/units/custom/suggest-name', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing required fields');
+    expect((res._getJSONData() as ErrorResponse).error).toContain(
+      'Missing required fields',
+    );
   });
 
   it('should return 400 if variant is missing', async () => {
@@ -82,7 +86,9 @@ describe('POST /api/units/custom/suggest-name', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing required fields');
+    expect((res._getJSONData() as ErrorResponse).error).toContain(
+      'Missing required fields',
+    );
   });
 
   it('should return name suggestion when original is available', async () => {

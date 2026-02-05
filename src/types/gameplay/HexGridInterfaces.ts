@@ -270,12 +270,12 @@ export function isUnitPosition(obj: unknown): obj is IUnitPosition {
  * Index corresponds to Facing enum value.
  */
 export const AXIAL_DIRECTION_DELTAS: readonly IHexCoordinate[] = [
-  { q: 0, r: -1 },  // North (0)
-  { q: 1, r: -1 },  // Northeast (1)
-  { q: 1, r: 0 },   // Southeast (2)
-  { q: 0, r: 1 },   // South (3)
-  { q: -1, r: 1 },  // Southwest (4)
-  { q: -1, r: 0 },  // Northwest (5)
+  { q: 0, r: -1 }, // North (0)
+  { q: 1, r: -1 }, // Northeast (1)
+  { q: 1, r: 0 }, // Southeast (2)
+  { q: 0, r: 1 }, // South (3)
+  { q: -1, r: 1 }, // Southwest (4)
+  { q: -1, r: 0 }, // Northwest (5)
 ] as const;
 
 /**
@@ -286,5 +286,9 @@ export const RANGE_BRACKET_DEFINITIONS = {
   [RangeBracket.Medium]: { min: 4, max: 6, modifier: 2 },
   [RangeBracket.Long]: { min: 7, max: 15, modifier: 4 },
   [RangeBracket.Extreme]: { min: 16, max: Infinity, modifier: 6 },
-  [RangeBracket.OutOfRange]: { min: Infinity, max: Infinity, modifier: Infinity },
+  [RangeBracket.OutOfRange]: {
+    min: Infinity,
+    max: Infinity,
+    modifier: Infinity,
+  },
 } as const;

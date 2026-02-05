@@ -8,11 +8,12 @@
  */
 
 import React from 'react';
-import { Button } from '@/components/ui/Button';
+
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { IPilotMechCardMechData } from '@/types/pilot/pilot-mech-card';
 import { calculateArmorPercentage } from '@/services/pilot-mech-card';
+import { IPilotMechCardMechData } from '@/types/pilot/pilot-mech-card';
 
 // =============================================================================
 // Types
@@ -43,7 +44,7 @@ function EmptyMechState({
 }): React.ReactElement {
   return (
     <div
-      className="border-2 border-dashed border-border-theme-subtle rounded-lg p-6 text-center hover:border-accent/50 transition-colors cursor-pointer"
+      className="border-border-theme-subtle hover:border-accent/50 cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors"
       onClick={onChangeMech}
       role="button"
       tabIndex={0}
@@ -55,7 +56,7 @@ function EmptyMechState({
     >
       <div className="text-text-theme-muted mb-2">
         <svg
-          className="w-12 h-12 mx-auto opacity-50"
+          className="mx-auto h-12 w-12 opacity-50"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -68,7 +69,7 @@ function EmptyMechState({
           />
         </svg>
       </div>
-      <p className="text-text-theme-secondary text-sm font-medium mb-2">
+      <p className="text-text-theme-secondary mb-2 text-sm font-medium">
         No Mech Assigned
       </p>
       <p className="text-text-theme-muted text-xs">
@@ -86,60 +87,66 @@ function MechDisplay({
 }: {
   mech: IPilotMechCardMechData;
 }): React.ReactElement {
-  const armorPercentage = calculateArmorPercentage(mech.totalArmor, mech.maxArmor);
-  
+  const armorPercentage = calculateArmorPercentage(
+    mech.totalArmor,
+    mech.maxArmor,
+  );
+
   // Determine tech base badge variant
   const techBadgeVariant = mech.techBase.toLowerCase().includes('clan')
     ? 'cyan'
-    : mech.techBase.toLowerCase() === 'is' || mech.techBase.toLowerCase().includes('inner')
-    ? 'amber'
-    : 'slate';
+    : mech.techBase.toLowerCase() === 'is' ||
+        mech.techBase.toLowerCase().includes('inner')
+      ? 'amber'
+      : 'slate';
 
   return (
     <Card variant="dark" className="overflow-hidden">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 mb-3">
+      <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h4 className="text-lg font-bold text-text-theme-primary truncate">
+          <h4 className="text-text-theme-primary truncate text-lg font-bold">
             {mech.name}
           </h4>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="mt-1 flex items-center gap-2">
             <Badge variant={techBadgeVariant} size="sm">
               {mech.techBase}
             </Badge>
-            <span className="text-sm text-text-theme-muted">
+            <span className="text-text-theme-muted text-sm">
               {mech.weightClass}
             </span>
           </div>
         </div>
-        <div className="text-right flex-shrink-0">
-          <div className="text-xs text-text-theme-muted uppercase tracking-wider">BV</div>
-          <div className="text-accent font-bold font-mono text-lg">
+        <div className="flex-shrink-0 text-right">
+          <div className="text-text-theme-muted text-xs tracking-wider uppercase">
+            BV
+          </div>
+          <div className="text-accent font-mono text-lg font-bold">
             {mech.battleValue.toLocaleString()}
           </div>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-3">
+      <div className="mb-3 grid grid-cols-2 gap-3">
         {/* Tonnage & Movement */}
-        <div className="bg-surface-base/30 rounded-lg p-2.5 border border-border-theme-subtle/30">
-          <div className="text-xs text-text-theme-muted mb-1.5">Movement</div>
+        <div className="bg-surface-base/30 border-border-theme-subtle/30 rounded-lg border p-2.5">
+          <div className="text-text-theme-muted mb-1.5 text-xs">Movement</div>
           <div className="flex items-center justify-between">
-            <span className="font-mono text-text-theme-primary font-semibold">
+            <span className="text-text-theme-primary font-mono font-semibold">
               {mech.tonnage}t
             </span>
-            <span className="font-mono text-text-theme-secondary text-sm">
+            <span className="text-text-theme-secondary font-mono text-sm">
               {mech.walkMP}/{mech.runMP}/{mech.jumpMP}
             </span>
           </div>
         </div>
 
         {/* Armor */}
-        <div className="bg-surface-base/30 rounded-lg p-2.5 border border-border-theme-subtle/30">
-          <div className="text-xs text-text-theme-muted mb-1.5">Armor</div>
+        <div className="bg-surface-base/30 border-border-theme-subtle/30 rounded-lg border p-2.5">
+          <div className="text-text-theme-muted mb-1.5 text-xs">Armor</div>
           <div className="flex items-center justify-between">
-            <span className="font-mono text-text-theme-primary font-semibold">
+            <span className="text-text-theme-primary font-mono font-semibold">
               {mech.totalArmor}
             </span>
             <span
@@ -147,8 +154,8 @@ function MechDisplay({
                 armorPercentage >= 90
                   ? 'text-emerald-400'
                   : armorPercentage >= 70
-                  ? 'text-amber-400'
-                  : 'text-rose-400'
+                    ? 'text-amber-400'
+                    : 'text-rose-400'
               }`}
             >
               {armorPercentage}%
@@ -173,7 +180,7 @@ export function MechSection({
   return (
     <div className={`space-y-3 ${className}`}>
       <div className="flex items-center justify-between">
-        <span className="text-xs text-text-theme-muted uppercase tracking-wider font-semibold">
+        <span className="text-text-theme-muted text-xs font-semibold tracking-wider uppercase">
           Assigned Mech
         </span>
         {showChangeMechButton && mech && onChangeMech && (

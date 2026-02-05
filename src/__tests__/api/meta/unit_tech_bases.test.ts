@@ -1,10 +1,13 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/meta/unit_tech_bases endpoint
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/meta/unit_tech_bases';
 import { ALL_TECH_BASES, TechBase } from '@/types/enums/TechBase';
+
 import { parseApiResponse } from '../../helpers';
 
 /**

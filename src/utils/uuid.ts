@@ -1,6 +1,6 @@
 /**
  * UUID Utilities
- * 
+ *
  * Provides consistent UUID v4 generation for unit identification.
  * UUIDs enable multi-user support and shareable unit URLs.
  */
@@ -35,4 +35,3 @@ export function generateUnitId(): string {
 export function isValidUnitId(id: string): boolean {
   return uuidValidate(id);
 }
-

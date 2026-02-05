@@ -8,8 +8,8 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 
 /**
  * Maps validation categories to the customizer tab that can resolve issues.
@@ -48,7 +48,9 @@ export const TAB_LABELS: Record<CustomizerTabId, string> = {
   preview: 'Preview',
 };
 
-export function getTabForCategory(category: ValidationCategory): CustomizerTabId {
+export function getTabForCategory(
+  category: ValidationCategory,
+): CustomizerTabId {
   return CATEGORY_TAB_MAP[category] ?? 'structure';
 }
 
@@ -62,7 +64,10 @@ export interface TabValidationCounts {
   infos: number;
 }
 
-export type ValidationCountsByTab = Record<CustomizerTabId, TabValidationCounts>;
+export type ValidationCountsByTab = Record<
+  CustomizerTabId,
+  TabValidationCounts
+>;
 
 export function createEmptyValidationCounts(): ValidationCountsByTab {
   return {

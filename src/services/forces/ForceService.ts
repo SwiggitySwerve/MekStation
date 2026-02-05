@@ -19,13 +19,14 @@ import {
   ForcePosition,
   canHaveSubForces,
 } from '@/types/force';
+import { PilotStatus } from '@/types/pilot';
+
+import { getPilotRepository } from '../pilots/PilotRepository';
 import {
   getForceRepository,
   ForceRepository,
   IForceOperationResult,
 } from './ForceRepository';
-import { getPilotRepository } from '../pilots/PilotRepository';
-import { PilotStatus } from '@/types/pilot';
 
 // =============================================================================
 // Service Interface
@@ -51,11 +52,17 @@ export interface IForceService {
   assignPilotAndUnit(
     assignmentId: string,
     pilotId: string,
-    unitId: string
+    unitId: string,
   ): IForceOperationResult;
   clearAssignment(assignmentId: string): IForceOperationResult;
-  swapAssignments(assignmentId1: string, assignmentId2: string): IForceOperationResult;
-  setAssignmentPosition(assignmentId: string, position: ForcePosition): IForceOperationResult;
+  swapAssignments(
+    assignmentId1: string,
+    assignmentId2: string,
+  ): IForceOperationResult;
+  setAssignmentPosition(
+    assignmentId: string,
+    position: ForcePosition,
+  ): IForceOperationResult;
   promoteToLead(assignmentId: string): IForceOperationResult;
 
   // Validation
@@ -229,7 +236,7 @@ export class ForceService implements IForceService {
     const force = this.findAssignmentForce(assignmentId);
     if (force) {
       const duplicateAssignment = force.assignments.find(
-        (a) => a.pilotId === pilotId && a.id !== assignmentId
+        (a) => a.pilotId === pilotId && a.id !== assignmentId,
       );
       if (duplicateAssignment) {
         return {
@@ -250,7 +257,7 @@ export class ForceService implements IForceService {
   assignPilotAndUnit(
     assignmentId: string,
     pilotId: string,
-    unitId: string
+    unitId: string,
   ): IForceOperationResult {
     // Validate pilot exists
     const pilotRepo = getPilotRepository();
@@ -275,7 +282,7 @@ export class ForceService implements IForceService {
     const force = this.findAssignmentForce(assignmentId);
     if (force) {
       const duplicateAssignment = force.assignments.find(
-        (a) => a.pilotId === pilotId && a.id !== assignmentId
+        (a) => a.pilotId === pilotId && a.id !== assignmentId,
       );
       if (duplicateAssignment) {
         return {
@@ -294,13 +301,16 @@ export class ForceService implements IForceService {
     return this.repository.clearAssignment(assignmentId);
   }
 
-  swapAssignments(assignmentId1: string, assignmentId2: string): IForceOperationResult {
+  swapAssignments(
+    assignmentId1: string,
+    assignmentId2: string,
+  ): IForceOperationResult {
     return this.repository.swapAssignments(assignmentId1, assignmentId2);
   }
 
   setAssignmentPosition(
     assignmentId: string,
-    position: ForcePosition
+    position: ForcePosition,
   ): IForceOperationResult {
     // Find the force containing this assignment
     const force = this.findAssignmentForce(assignmentId);
@@ -335,7 +345,7 @@ export class ForceService implements IForceService {
 
     // Find current lead and demote them
     const currentLead = force.assignments.find(
-      (a) => a.position === ForcePosition.Lead && a.id !== assignmentId
+      (a) => a.position === ForcePosition.Lead && a.id !== assignmentId,
     );
     if (currentLead) {
       const demoteResult = this.repository.updateAssignment(currentLead.id, {
@@ -373,11 +383,20 @@ export class ForceService implements IForceService {
         // Injured pilots can still be assigned (gameplay decision)
         return { available: true, reason: '' };
       case PilotStatus.MIA:
-        return { available: false, reason: 'Pilot is MIA and cannot be assigned' };
+        return {
+          available: false,
+          reason: 'Pilot is MIA and cannot be assigned',
+        };
       case PilotStatus.KIA:
-        return { available: false, reason: 'Pilot is KIA and cannot be assigned' };
+        return {
+          available: false,
+          reason: 'Pilot is KIA and cannot be assigned',
+        };
       case PilotStatus.Retired:
-        return { available: false, reason: 'Pilot is retired and cannot be assigned' };
+        return {
+          available: false,
+          reason: 'Pilot is retired and cannot be assigned',
+        };
       default:
         return { available: true, reason: '' };
     }
@@ -417,7 +436,7 @@ export class ForceService implements IForceService {
 
     // Check for empty slots
     const emptySlots = force.assignments.filter(
-      (a) => a.pilotId === null && a.unitId === null
+      (a) => a.pilotId === null && a.unitId === null,
     );
     if (emptySlots.length > 0) {
       warnings.push({
@@ -428,7 +447,7 @@ export class ForceService implements IForceService {
 
     // Check for pilots without mechs
     const pilotsWithoutMechs = force.assignments.filter(
-      (a) => a.pilotId !== null && a.unitId === null
+      (a) => a.pilotId !== null && a.unitId === null,
     );
     for (const assignment of pilotsWithoutMechs) {
       warnings.push({
@@ -441,7 +460,7 @@ export class ForceService implements IForceService {
 
     // Check for mechs without pilots
     const mechsWithoutPilots = force.assignments.filter(
-      (a) => a.pilotId === null && a.unitId !== null
+      (a) => a.pilotId === null && a.unitId !== null,
     );
     for (const assignment of mechsWithoutPilots) {
       warnings.push({
@@ -454,7 +473,7 @@ export class ForceService implements IForceService {
 
     // Check for no lead assigned
     const leadAssignment = force.assignments.find(
-      (a) => a.position === 'lead' && (a.pilotId !== null || a.unitId !== null)
+      (a) => a.position === 'lead' && (a.pilotId !== null || a.unitId !== null),
     );
     if (!leadAssignment) {
       warnings.push({

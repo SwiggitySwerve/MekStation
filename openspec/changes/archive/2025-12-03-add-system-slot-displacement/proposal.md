@@ -23,4 +23,3 @@ When changing system configurations (e.g., Standard Engine to XL Engine, Standar
   - `src/utils/construction/displacementUtils.ts` - New displacement detection utility
   - `src/stores/useUnitStore.ts` - Update `setEngineType` and `setGyroType` actions
   - `src/components/customizer/tabs/CriticalSlotsTab.tsx` - Update `buildLocationSlots()`
-

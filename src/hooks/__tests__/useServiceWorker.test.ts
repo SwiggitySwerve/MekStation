@@ -1,16 +1,19 @@
 import { renderHook, act } from '@testing-library/react';
+
 import { useServiceWorker } from '../useServiceWorker';
 
 // Minimal mock for service worker - set up before any imports
 const mockNavigator = {
   serviceWorker: {
-    register: jest.fn(() => Promise.resolve({
-      installing: null,
-      waiting: null,
-      active: null,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-    })),
+    register: jest.fn(() =>
+      Promise.resolve({
+        installing: null,
+        waiting: null,
+        active: null,
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+      }),
+    ),
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
     controller: null as ServiceWorker | null,
@@ -46,7 +49,7 @@ describe('useServiceWorker', () => {
       renderHook(() => useServiceWorker());
 
       expect(mockNavigator.serviceWorker.register).toHaveBeenCalledWith(
-        '/service-worker.js'
+        '/service-worker.js',
       );
     });
 
@@ -63,7 +66,7 @@ describe('useServiceWorker', () => {
 
       // Wait for registration to complete
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
       });
 
       // State properties
@@ -74,7 +77,10 @@ describe('useServiceWorker', () => {
       expect(result.current).toHaveProperty('registration', expect.anything());
 
       // Methods
-      expect(result.current).toHaveProperty('skipWaiting', expect.any(Function));
+      expect(result.current).toHaveProperty(
+        'skipWaiting',
+        expect.any(Function),
+      );
       expect(result.current).toHaveProperty('cacheUrls', expect.any(Function));
     });
 
@@ -109,7 +115,7 @@ describe('useServiceWorker', () => {
 
       expect(mockNavigator.serviceWorker.addEventListener).toHaveBeenCalledWith(
         'controllerchange',
-        expect.any(Function)
+        expect.any(Function),
       );
     });
   });
@@ -132,10 +138,12 @@ describe('useServiceWorker', () => {
     });
 
     it('should handle registration errors gracefully', () => {
-      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleError = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
       mockNavigator.serviceWorker.register = jest.fn(() =>
-        Promise.reject(new Error('Registration failed'))
+        Promise.reject(new Error('Registration failed')),
       );
 
       expect(() => {
@@ -152,10 +160,9 @@ describe('useServiceWorker', () => {
 
       unmount();
 
-      expect(mockNavigator.serviceWorker.removeEventListener).toHaveBeenCalledWith(
-        'controllerchange',
-        expect.any(Function)
-      );
+      expect(
+        mockNavigator.serviceWorker.removeEventListener,
+      ).toHaveBeenCalledWith('controllerchange', expect.any(Function));
     });
   });
 });

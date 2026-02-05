@@ -1,14 +1,15 @@
 /**
  * Weapon Utility Functions
- * 
+ *
  * Query and filter functions for weapons.
- * 
+ *
  * @spec openspec/specs/weapon-system/spec.md
  */
 
+import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
+
 import { TechBase } from '../../enums/TechBase';
 import { IWeapon, WeaponCategory } from './interfaces';
-import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
 
 /**
  * Get all standard weapons (excluding artillery and capital weapons)
@@ -17,9 +18,9 @@ import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService'
 export function getAllStandardWeapons(): IWeapon[] {
   const loader = getEquipmentLoader();
   if (loader.getIsLoaded()) {
-    return loader.getAllWeapons().filter(w => 
-      w.category !== WeaponCategory.ARTILLERY
-    );
+    return loader
+      .getAllWeapons()
+      .filter((w) => w.category !== WeaponCategory.ARTILLERY);
   }
   return [];
 }
@@ -46,28 +47,28 @@ export function getWeaponById(id: string): IWeapon | undefined {
  * Get weapons by category
  */
 export function getWeaponsByCategory(category: WeaponCategory): IWeapon[] {
-  return getAllStandardWeapons().filter(w => w.category === category);
+  return getAllStandardWeapons().filter((w) => w.category === category);
 }
 
 /**
  * Get weapons by tech base
  */
 export function getWeaponsByTechBase(techBase: TechBase): IWeapon[] {
-  return getAllStandardWeapons().filter(w => w.techBase === techBase);
+  return getAllStandardWeapons().filter((w) => w.techBase === techBase);
 }
 
 /**
  * Get weapons by sub-type
  */
 export function getWeaponsBySubType(subType: string): IWeapon[] {
-  return getAllStandardWeapons().filter(w => w.subType === subType);
+  return getAllStandardWeapons().filter((w) => w.subType === subType);
 }
 
 /**
  * Get weapons available by year
  */
 export function getWeaponsAvailableByYear(year: number): IWeapon[] {
-  return getAllStandardWeapons().filter(w => w.introductionYear <= year);
+  return getAllStandardWeapons().filter((w) => w.introductionYear <= year);
 }
 
 // ============================================================================
@@ -76,7 +77,7 @@ export function getWeaponsAvailableByYear(year: number): IWeapon[] {
 
 /**
  * Direct fire weapon categories
- * 
+ *
  * Per BattleTech TechManual:
  * - Energy weapons (lasers, PPCs, flamers) = DIRECT FIRE
  * - Ballistic weapons (autocannons, Gauss) = DIRECT FIRE
@@ -93,11 +94,11 @@ export const DIRECT_FIRE_CATEGORIES: readonly WeaponCategory[] = [
  * Direct fire weapons are those that benefit from Targeting Computers:
  * - Energy weapons (lasers, PPCs, flamers)
  * - Ballistic weapons (autocannons, Gauss rifles, machine guns)
- * 
+ *
  * Excluded (indirect fire):
  * - Missile weapons (LRMs, SRMs, MRMs, ATMs)
  * - Artillery weapons
- * 
+ *
  * @param category - The weapon category to check
  * @returns true if the category is direct fire
  */
@@ -108,7 +109,7 @@ export function isDirectFireCategory(category: WeaponCategory): boolean {
 /**
  * Check if a weapon is a direct fire weapon
  * Direct fire weapons benefit from Targeting Computers.
- * 
+ *
  * @param weapon - The weapon to check
  * @returns true if the weapon is direct fire (energy or ballistic)
  */
@@ -118,7 +119,7 @@ export function isDirectFireWeapon(weapon: IWeapon): boolean {
 
 /**
  * Check if a weapon ID corresponds to a direct fire weapon
- * 
+ *
  * @param weaponId - The weapon ID to check
  * @returns true if the weapon is direct fire, false if not found or indirect fire
  */
@@ -137,31 +138,35 @@ export function getDirectFireWeapons(): IWeapon[] {
 /**
  * Calculate total direct fire weapon tonnage from weapon IDs
  * Used for Targeting Computer weight calculations.
- * 
+ *
  * @param weaponIds - Array of weapon IDs to check
  * @returns Total weight of direct fire weapons in tons
  */
-export function calculateDirectFireWeaponTonnage(weaponIds: readonly string[]): number {
+export function calculateDirectFireWeaponTonnage(
+  weaponIds: readonly string[],
+): number {
   let totalTonnage = 0;
-  
+
   for (const weaponId of weaponIds) {
     const weapon = getWeaponById(weaponId);
     if (weapon && isDirectFireWeapon(weapon)) {
       totalTonnage += weapon.weight;
     }
   }
-  
+
   return totalTonnage;
 }
 
 /**
  * Calculate direct fire weapon tonnage from weapons array
  * Used for Targeting Computer weight calculations.
- * 
+ *
  * @param weapons - Array of weapons
  * @returns Total weight of direct fire weapons in tons
  */
-export function calculateDirectFireTonnageFromWeapons(weapons: readonly IWeapon[]): number {
+export function calculateDirectFireTonnageFromWeapons(
+  weapons: readonly IWeapon[],
+): number {
   return weapons
     .filter(isDirectFireWeapon)
     .reduce((sum, weapon) => sum + weapon.weight, 0);

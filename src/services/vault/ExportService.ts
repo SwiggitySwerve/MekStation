@@ -15,6 +15,7 @@ import type {
   IExportablePilot,
   IExportableForce,
 } from '@/types/vault';
+
 import { createBundle, serializeBundle } from './BundleService';
 
 export type { IExportableUnit, IExportablePilot, IExportableForce };
@@ -26,7 +27,7 @@ export type { IExportableUnit, IExportablePilot, IExportableForce };
 export async function exportUnit(
   unit: IExportableUnit,
   identity: IVaultIdentity,
-  options: IExportOptions = {}
+  options: IExportOptions = {},
 ): Promise<IExportResult> {
   return createBundle<IExportableUnit>('unit', [unit], identity, options);
 }
@@ -37,7 +38,7 @@ export async function exportUnit(
 export async function exportUnits(
   units: IExportableUnit[],
   identity: IVaultIdentity,
-  options: IExportOptions = {}
+  options: IExportOptions = {},
 ): Promise<IExportResult> {
   if (units.length === 0) {
     return {
@@ -56,7 +57,7 @@ export async function exportUnits(
 export async function exportPilot(
   pilot: IExportablePilot,
   identity: IVaultIdentity,
-  options: IExportOptions = {}
+  options: IExportOptions = {},
 ): Promise<IExportResult> {
   return createBundle<IExportablePilot>('pilot', [pilot], identity, options);
 }
@@ -67,7 +68,7 @@ export async function exportPilot(
 export async function exportPilots(
   pilots: IExportablePilot[],
   identity: IVaultIdentity,
-  options: IExportOptions = {}
+  options: IExportOptions = {},
 ): Promise<IExportResult> {
   if (pilots.length === 0) {
     return {
@@ -86,14 +87,19 @@ export async function exportPilots(
 export async function exportForce(
   force: IExportableForce,
   identity: IVaultIdentity,
-  options: IExportOptions = {}
+  options: IExportOptions = {},
 ): Promise<IExportResult> {
   // If includeNested is false, strip nested data
   const exportData = options.includeNested
     ? force
     : { ...force, pilots: undefined, units: undefined };
 
-  return createBundle<IExportableForce>('force', [exportData], identity, options);
+  return createBundle<IExportableForce>(
+    'force',
+    [exportData],
+    identity,
+    options,
+  );
 }
 
 /**
@@ -102,7 +108,7 @@ export async function exportForce(
 export async function exportForces(
   forces: IExportableForce[],
   identity: IVaultIdentity,
-  options: IExportOptions = {}
+  options: IExportOptions = {},
 ): Promise<IExportResult> {
   if (forces.length === 0) {
     return {
@@ -129,7 +135,7 @@ export async function exportContent<T>(
   contentType: ShareableContentType,
   items: T[],
   identity: IVaultIdentity,
-  options: IExportOptions = {}
+  options: IExportOptions = {},
 ): Promise<IExportResult> {
   if (items.length === 0) {
     return {
@@ -171,7 +177,7 @@ export function downloadBundle(result: IExportResult): void {
  * Copy bundle to clipboard as JSON
  */
 export async function copyBundleToClipboard(
-  result: IExportResult
+  result: IExportResult,
 ): Promise<void> {
   if (!result.success) {
     throw new Error(result.error.message || 'No bundle to copy');

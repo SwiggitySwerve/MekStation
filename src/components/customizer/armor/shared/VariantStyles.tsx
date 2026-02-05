@@ -6,7 +6,9 @@
  */
 
 import React from 'react';
+
 import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+
 import { ARMOR_STATUS } from './ArmorFills';
 
 /**
@@ -75,7 +77,8 @@ const NEON_OPERATOR_STYLE: VariantStyleConfig = {
   headerTextClass: 'text-lg font-semibold text-cyan-400',
   headerTextStyle: { textShadow: '0 0 10px rgba(34, 211, 238, 0.5)' },
 
-  buttonNormalClass: 'border border-cyan-500 text-cyan-400 hover:bg-cyan-500/20',
+  buttonNormalClass:
+    'border border-cyan-500 text-cyan-400 hover:bg-cyan-500/20',
   buttonOverClass: 'border border-red-500 text-red-400 hover:bg-red-500/20',
   buttonNormalStyle: { boxShadow: '0 0 10px rgba(34, 211, 238, 0.3)' },
   buttonOverStyle: { boxShadow: '0 0 10px rgba(239, 68, 68, 0.3)' },
@@ -83,7 +86,8 @@ const NEON_OPERATOR_STYLE: VariantStyleConfig = {
   legendDotClass: 'w-2.5 h-2.5 rounded-full',
   legendDotStyle: (color: string) => ({ boxShadow: `0 0 6px ${color}` }),
   legendTextClass: 'text-text-theme-secondary',
-  unallocatedTextClass: (isOver: boolean) => isOver ? 'text-red-400' : 'text-cyan-400',
+  unallocatedTextClass: (isOver: boolean) =>
+    isOver ? 'text-red-400' : 'text-cyan-400',
 
   instructionsClass: 'text-xs text-cyan-600/50 text-center mt-2',
   instructionsText: 'SELECT TARGET LOCATION',
@@ -100,25 +104,29 @@ const TACTICAL_HUD_STYLE: VariantStyleConfig = {
   containerBorder: 'border-cyan-900/30',
 
   headerTextClass: 'text-lg font-bold text-cyan-400 tracking-wider',
-  headerTextStyle: { 
+  headerTextStyle: {
     fontFamily: "'Courier New', monospace",
     textShadow: '0 0 8px rgba(34, 211, 238, 0.5)',
   },
 
-  buttonNormalClass: 'border border-cyan-600 text-cyan-400 hover:bg-cyan-600/20 font-mono',
-  buttonOverClass: 'border border-red-600 text-red-400 hover:bg-red-600/20 font-mono',
+  buttonNormalClass:
+    'border border-cyan-600 text-cyan-400 hover:bg-cyan-600/20 font-mono',
+  buttonOverClass:
+    'border border-red-600 text-red-400 hover:bg-red-600/20 font-mono',
   buttonNormalStyle: { textShadow: '0 0 4px rgba(34, 211, 238, 0.5)' },
   buttonOverStyle: { textShadow: '0 0 4px rgba(239, 68, 68, 0.5)' },
 
   legendDotClass: 'w-2 h-2',
-  legendDotStyle: (color: string) => ({ 
+  legendDotStyle: (color: string) => ({
     backgroundColor: color,
     boxShadow: `0 0 4px ${color}`,
   }),
   legendTextClass: 'text-cyan-600/70 font-mono text-[10px]',
-  unallocatedTextClass: (isOver: boolean) => isOver ? 'text-red-400 font-mono' : 'text-cyan-400 font-mono',
+  unallocatedTextClass: (isOver: boolean) =>
+    isOver ? 'text-red-400 font-mono' : 'text-cyan-400 font-mono',
 
-  instructionsClass: 'text-xs text-cyan-700/50 text-center mt-2 font-mono tracking-wider',
+  instructionsClass:
+    'text-xs text-cyan-700/50 text-center mt-2 font-mono tracking-wider',
   instructionsText: '[ SELECT LOCATION ]',
 
   showScanlines: true,
@@ -134,14 +142,17 @@ const PREMIUM_MATERIAL_STYLE: VariantStyleConfig = {
   headerTextClass: 'text-lg font-semibold text-slate-100',
   headerTextStyle: { textShadow: '0 1px 2px rgba(0,0,0,0.3)' },
 
-  buttonNormalClass: 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg',
-  buttonOverClass: 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white shadow-lg',
+  buttonNormalClass:
+    'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg',
+  buttonOverClass:
+    'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white shadow-lg',
   buttonNormalStyle: { boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)' },
   buttonOverStyle: { boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)' },
 
   legendDotClass: 'w-3 h-3 rounded-full shadow-sm',
   legendTextClass: 'text-slate-400',
-  unallocatedTextClass: (isOver: boolean) => isOver ? 'text-red-400' : 'text-amber-400',
+  unallocatedTextClass: (isOver: boolean) =>
+    isOver ? 'text-red-400' : 'text-amber-400',
 
   instructionsClass: 'text-xs text-slate-500 text-center mt-2',
   instructionsText: 'Select a location to adjust armor',
@@ -158,12 +169,15 @@ const MEGAMEK_STYLE: VariantStyleConfig = {
 
   headerTextClass: 'text-base font-bold text-gray-200',
 
-  buttonNormalClass: 'bg-gray-700 hover:bg-gray-600 text-gray-200 border border-gray-600',
-  buttonOverClass: 'bg-red-800 hover:bg-red-700 text-gray-200 border border-red-600',
+  buttonNormalClass:
+    'bg-gray-700 hover:bg-gray-600 text-gray-200 border border-gray-600',
+  buttonOverClass:
+    'bg-red-800 hover:bg-red-700 text-gray-200 border border-red-600',
 
   legendDotClass: 'w-3 h-3 border border-gray-600',
   legendTextClass: 'text-gray-400',
-  unallocatedTextClass: (isOver: boolean) => isOver ? 'text-red-400' : 'text-gray-300',
+  unallocatedTextClass: (isOver: boolean) =>
+    isOver ? 'text-red-400' : 'text-gray-300',
 
   instructionsClass: 'text-xs text-gray-500 text-center mt-2',
   instructionsText: 'Click location to edit',
@@ -174,7 +188,9 @@ const MEGAMEK_STYLE: VariantStyleConfig = {
 /**
  * Get style configuration for a given variant
  */
-export function getVariantStyle(variant: ArmorDiagramVariant): VariantStyleConfig {
+export function getVariantStyle(
+  variant: ArmorDiagramVariant,
+): VariantStyleConfig {
   switch (variant) {
     case 'clean-tech':
       return CLEAN_TECH_STYLE;
@@ -195,10 +211,10 @@ export function getVariantStyle(variant: ArmorDiagramVariant): VariantStyleConfi
  * Status color mappings for legend
  */
 export const LEGEND_COLORS = {
-  healthy: '#22c55e',   // green-500
-  moderate: '#f59e0b',  // amber-500
-  low: '#f97316',       // orange-500
-  critical: '#ef4444',  // red-500
+  healthy: '#22c55e', // green-500
+  moderate: '#f59e0b', // amber-500
+  low: '#f97316', // orange-500
+  critical: '#ef4444', // red-500
 };
 
 /**
@@ -214,10 +230,11 @@ export function VariantLegend({
   showUnallocated?: boolean;
 }): React.ReactElement {
   const style = getVariantStyle(variant);
-  const isNeonOrTactical = variant === 'neon-operator' || variant === 'tactical-hud';
+  const isNeonOrTactical =
+    variant === 'neon-operator' || variant === 'tactical-hud';
 
   return (
-    <div className="flex justify-center items-center gap-3 mt-4 text-xs">
+    <div className="mt-4 flex items-center justify-center gap-3 text-xs">
       {Object.entries(LEGEND_COLORS).map(([status, color]) => (
         <div key={status} className="flex items-center gap-1.5">
           <div
@@ -228,16 +245,19 @@ export function VariantLegend({
             }}
           />
           <span className={style.legendTextClass}>
-            {status === 'healthy' ? `${Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+` :
-             status === 'moderate' ? `${Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+` :
-             status === 'low' ? `${Math.round(ARMOR_STATUS.LOW.min * 100)}%+` :
-             `<${Math.round(ARMOR_STATUS.LOW.min * 100)}%`}
+            {status === 'healthy'
+              ? `${Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+`
+              : status === 'moderate'
+                ? `${Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+`
+                : status === 'low'
+                  ? `${Math.round(ARMOR_STATUS.LOW.min * 100)}%+`
+                  : `<${Math.round(ARMOR_STATUS.LOW.min * 100)}%`}
           </span>
         </div>
       ))}
       {showUnallocated && isNeonOrTactical && (
         <>
-          <div className="w-px h-3 bg-surface-raised" />
+          <div className="bg-surface-raised h-3 w-px" />
           <span className={style.unallocatedTextClass(unallocatedPoints < 0)}>
             UNALLOC: {unallocatedPoints}
           </span>

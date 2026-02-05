@@ -47,7 +47,7 @@ export interface SingletonFactory<T> {
  */
 export function createSingleton<T>(
   factory: () => T,
-  cleanup?: (instance: T) => void
+  cleanup?: (instance: T) => void,
 ): SingletonFactory<T> {
   let instance: T | null = null;
 

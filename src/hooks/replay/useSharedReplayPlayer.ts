@@ -8,8 +8,12 @@
  */
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+
 import { IGameEvent, IGameState, GameEventType } from '@/types/gameplay';
-import { deriveState, createInitialGameState } from '@/utils/gameplay/gameState';
+import {
+  deriveState,
+  createInitialGameState,
+} from '@/utils/gameplay/gameState';
 
 // =============================================================================
 // Types
@@ -110,7 +114,8 @@ export interface ISharedReplayActions {
 /**
  * Return type for useSharedReplayPlayer hook.
  */
-export type UseSharedReplayPlayerReturn = ISharedReplayState & ISharedReplayActions;
+export type UseSharedReplayPlayerReturn = ISharedReplayState &
+  ISharedReplayActions;
 
 /**
  * Options for useSharedReplayPlayer hook.
@@ -139,7 +144,9 @@ const DEFAULT_BASE_INTERVAL = 1000;
 /**
  * Available playback speeds.
  */
-export const PLAYBACK_SPEEDS: readonly PlaybackSpeed[] = [0.25, 0.5, 1, 2, 4, 8];
+export const PLAYBACK_SPEEDS: readonly PlaybackSpeed[] = [
+  0.25, 0.5, 1, 2, 4, 8,
+];
 
 // =============================================================================
 // Helper Functions
@@ -151,7 +158,7 @@ export const PLAYBACK_SPEEDS: readonly PlaybackSpeed[] = [0.25, 0.5, 1, 2, 4, 8]
 function createMarkers(
   events: readonly IGameEvent[],
   minSeq: number,
-  maxSeq: number
+  maxSeq: number,
 ): IEventMarker[] {
   if (events.length === 0) return [];
 
@@ -181,7 +188,10 @@ function formatEventLabel(event: IGameEvent): string {
 /**
  * Find index of event at or before a sequence.
  */
-function findIndexAtSequence(events: readonly IGameEvent[], sequence: number): number {
+function findIndexAtSequence(
+  events: readonly IGameEvent[],
+  sequence: number,
+): number {
   if (events.length === 0) return -1;
 
   // Binary search for efficiency with large event sets
@@ -207,7 +217,10 @@ function findIndexAtSequence(events: readonly IGameEvent[], sequence: number): n
 /**
  * Find the index of the first event in a given turn.
  */
-function findTurnStartIndex(events: readonly IGameEvent[], turn: number): number {
+function findTurnStartIndex(
+  events: readonly IGameEvent[],
+  turn: number,
+): number {
   return events.findIndex((e) => e.turn === turn);
 }
 
@@ -237,7 +250,7 @@ function findTurnStartIndex(events: readonly IGameEvent[], turn: number): number
  * ```
  */
 export function useSharedReplayPlayer(
-  options: IUseSharedReplayPlayerOptions
+  options: IUseSharedReplayPlayerOptions,
 ): UseSharedReplayPlayerReturn {
   const {
     gameId,
@@ -262,12 +275,12 @@ export function useSharedReplayPlayer(
   // Create markers
   const markers = useMemo(
     () => createMarkers(events, minSequence, maxSequence),
-    [events, minSequence, maxSequence]
+    [events, minSequence, maxSequence],
   );
 
   // State
   const [playbackState, setPlaybackState] = useState<PlaybackState>(
-    autoPlay ? 'playing' : 'stopped'
+    autoPlay ? 'playing' : 'stopped',
   );
   const [speed, setSpeedState] = useState<PlaybackSpeed>(1);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -285,7 +298,11 @@ export function useSharedReplayPlayer(
 
   // Current event
   const currentEvent = useMemo(() => {
-    if (events.length === 0 || currentIndex < 0 || currentIndex >= events.length) {
+    if (
+      events.length === 0 ||
+      currentIndex < 0 ||
+      currentIndex >= events.length
+    ) {
       return null;
     }
     return events[currentIndex];
@@ -396,7 +413,7 @@ export function useSharedReplayPlayer(
         setCurrentIndex(index);
       }
     },
-    [events]
+    [events],
   );
 
   const jumpToEvent = useCallback(
@@ -406,14 +423,14 @@ export function useSharedReplayPlayer(
         setCurrentIndex(index);
       }
     },
-    [events]
+    [events],
   );
 
   const jumpToIndex = useCallback(
     (index: number) => {
       setCurrentIndex(Math.max(0, Math.min(index, events.length - 1)));
     },
-    [events.length]
+    [events.length],
   );
 
   const jumpToTurn = useCallback(
@@ -423,7 +440,7 @@ export function useSharedReplayPlayer(
         setCurrentIndex(index);
       }
     },
-    [events]
+    [events],
   );
 
   const setSpeed = useCallback((newSpeed: PlaybackSpeed) => {
@@ -436,7 +453,7 @@ export function useSharedReplayPlayer(
       const newIndex = Math.round(clampedProgress * (events.length - 1));
       setCurrentIndex(Math.max(0, newIndex));
     },
-    [events.length]
+    [events.length],
   );
 
   return {
@@ -488,7 +505,9 @@ export function getNextSpeed(current: PlaybackSpeed): PlaybackSpeed {
  */
 export function getPrevSpeed(current: PlaybackSpeed): PlaybackSpeed {
   const index = PLAYBACK_SPEEDS.indexOf(current);
-  return PLAYBACK_SPEEDS[(index - 1 + PLAYBACK_SPEEDS.length) % PLAYBACK_SPEEDS.length];
+  return PLAYBACK_SPEEDS[
+    (index - 1 + PLAYBACK_SPEEDS.length) % PLAYBACK_SPEEDS.length
+  ];
 }
 
 /**
@@ -505,7 +524,7 @@ export function formatRemainingTime(
   currentIndex: number,
   totalEvents: number,
   baseInterval: number,
-  speed: PlaybackSpeed
+  speed: PlaybackSpeed,
 ): string {
   if (totalEvents === 0) return '0:00';
   const remainingEvents = totalEvents - currentIndex - 1;
@@ -522,7 +541,7 @@ export function formatRemainingTime(
 export function formatElapsedTime(
   currentIndex: number,
   baseInterval: number,
-  speed: PlaybackSpeed
+  speed: PlaybackSpeed,
 ): string {
   const totalMs = currentIndex * (baseInterval / speed);
   const totalSec = Math.floor(totalMs / 1000);

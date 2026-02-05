@@ -5,6 +5,7 @@
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react';
+
 import { useAsync } from '../useAsync';
 
 describe('useAsync', () => {
@@ -25,7 +26,7 @@ describe('useAsync', () => {
     it('should accept initial data', () => {
       const asyncFn = jest.fn().mockResolvedValue('new data');
       const { result } = renderHook(() =>
-        useAsync(asyncFn, { initialData: 'initial' })
+        useAsync(asyncFn, { initialData: 'initial' }),
       );
 
       expect(result.current.data).toBe('initial');
@@ -36,11 +37,11 @@ describe('useAsync', () => {
     it('should execute immediately when immediate is true', async () => {
       const asyncFn = jest.fn().mockResolvedValue('data');
       const { result } = renderHook(() =>
-        useAsync(asyncFn, { immediate: true })
+        useAsync(asyncFn, { immediate: true }),
       );
 
       expect(asyncFn).toHaveBeenCalled();
-      
+
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
       });
@@ -68,9 +69,9 @@ describe('useAsync', () => {
     });
 
     it('should pass arguments to the async function', async () => {
-      const asyncFn = jest.fn().mockImplementation((a: number, b: number) => 
-        Promise.resolve(a + b)
-      );
+      const asyncFn = jest
+        .fn()
+        .mockImplementation((a: number, b: number) => Promise.resolve(a + b));
       const { result } = renderHook(() => useAsync(asyncFn));
 
       await act(async () => {
@@ -82,7 +83,9 @@ describe('useAsync', () => {
     });
 
     it('should return the result from execute', async () => {
-      const asyncFn: () => Promise<string> = jest.fn().mockResolvedValue('result');
+      const asyncFn: () => Promise<string> = jest
+        .fn()
+        .mockResolvedValue('result');
       const { result } = renderHook(() => useAsync(asyncFn));
 
       let returnValue: string | undefined;
@@ -98,7 +101,10 @@ describe('useAsync', () => {
     it('should set loading during execution', async () => {
       let resolvePromise: (value: string) => void;
       const asyncFn = jest.fn().mockImplementation(
-        () => new Promise<string>((resolve) => { resolvePromise = resolve; })
+        () =>
+          new Promise<string>((resolve) => {
+            resolvePromise = resolve;
+          }),
       );
 
       const { result } = renderHook(() => useAsync(asyncFn));
@@ -143,9 +149,7 @@ describe('useAsync', () => {
     it('should call onSuccess callback', async () => {
       const onSuccess = jest.fn();
       const asyncFn = jest.fn().mockResolvedValue('data');
-      const { result } = renderHook(() =>
-        useAsync(asyncFn, { onSuccess })
-      );
+      const { result } = renderHook(() => useAsync(asyncFn, { onSuccess }));
 
       await act(async () => {
         await result.current.execute();
@@ -194,9 +198,7 @@ describe('useAsync', () => {
       const onError = jest.fn();
       const error = new Error('Failed');
       const asyncFn = jest.fn().mockRejectedValue(error);
-      const { result } = renderHook(() =>
-        useAsync(asyncFn, { onError })
-      );
+      const { result } = renderHook(() => useAsync(asyncFn, { onError }));
 
       await act(async () => {
         try {
@@ -210,10 +212,11 @@ describe('useAsync', () => {
     });
 
     it('should preserve data from previous success on error', async () => {
-      const asyncFn = jest.fn()
+      const asyncFn = jest
+        .fn()
         .mockResolvedValueOnce('data')
         .mockRejectedValueOnce(new Error('Failed'));
-      
+
       const { result } = renderHook(() => useAsync(asyncFn));
 
       // First call succeeds
@@ -260,7 +263,7 @@ describe('useAsync', () => {
     it('should reset to initial data if provided', async () => {
       const asyncFn = jest.fn().mockResolvedValue('new data');
       const { result } = renderHook(() =>
-        useAsync(asyncFn, { initialData: 'initial' })
+        useAsync(asyncFn, { initialData: 'initial' }),
       );
 
       await act(async () => {
@@ -279,10 +282,11 @@ describe('useAsync', () => {
 
   describe('retry', () => {
     it('should retry the last execution', async () => {
-      const asyncFn = jest.fn()
+      const asyncFn = jest
+        .fn()
         .mockRejectedValueOnce(new Error('First fail'))
         .mockResolvedValueOnce('success');
-      
+
       const { result } = renderHook(() => useAsync(asyncFn));
 
       // First call fails
@@ -324,11 +328,16 @@ describe('useAsync', () => {
   describe('cleanup on unmount', () => {
     it('should not update state after unmount', async () => {
       // Suppress console.error for this test since we're testing cleanup
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
       let resolvePromise: (value: string) => void;
       const asyncFn = jest.fn().mockImplementation(
-        () => new Promise<string>((resolve) => { resolvePromise = resolve; })
+        () =>
+          new Promise<string>((resolve) => {
+            resolvePromise = resolve;
+          }),
       );
 
       const { result, unmount } = renderHook(() => useAsync(asyncFn));
@@ -345,7 +354,7 @@ describe('useAsync', () => {
       await act(async () => {
         resolvePromise!('data');
         // Give time for any state updates to attempt
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
       });
 
       consoleSpy.mockRestore();

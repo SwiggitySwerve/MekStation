@@ -11,10 +11,13 @@
 ## Overview
 
 ### Purpose
+
 Provides framework for detecting game state violations through invariant checking. Defines 7 core invariants that must hold true throughout simulation execution.
 
 ### Scope
+
 **In Scope:**
+
 - Invariant checker framework (IInvariant, IViolation)
 - 7 core invariant checkers
 - Invariant runner orchestration
@@ -22,6 +25,7 @@ Provides framework for detecting game state violations through invariant checkin
 - Known limitation exclusions
 
 **Out of Scope:**
+
 - Fixing violations (detection only)
 - Blocking game progression on violations
 - UI for displaying violations
@@ -29,6 +33,7 @@ Provides framework for detecting game state violations through invariant checkin
 - Ammo tracking validation (not implemented)
 
 ### Key Concepts
+
 - **Invariant**: Property that must always be true in valid game state
 - **Violation**: Detected breach of an invariant with context
 - **Severity**: Critical (game-breaking) vs Warning (suspicious but legal)
@@ -47,12 +52,14 @@ The system SHALL provide extensible framework for invariant checking.
 **Priority**: Critical
 
 #### Scenario: Invariant interface
+
 **GIVEN** an invariant checker implementation
 **WHEN** calling check() with game state
 **THEN** result SHALL be array of violations (empty if none)
 **AND** each violation SHALL include invariant name, severity, message, context
 
 #### Scenario: Violation context
+
 **GIVEN** a detected violation
 **WHEN** creating IViolation object
 **THEN** context SHALL include turn number, phase, sequence number
@@ -68,6 +75,7 @@ The system SHALL detect when multiple units occupy same hex.
 **Priority**: Critical
 
 #### Scenario: Duplicate position detection
+
 **GIVEN** game state with two units at hex (5, 3)
 **WHEN** running checkUnitPositionUniqueness()
 **THEN** violation SHALL be detected
@@ -75,6 +83,7 @@ The system SHALL detect when multiple units occupy same hex.
 **AND** context SHALL include both unit IDs and coordinate
 
 #### Scenario: Valid positions
+
 **GIVEN** game state with all units at unique positions
 **WHEN** running checkUnitPositionUniqueness()
 **THEN** result SHALL be empty array (no violations)
@@ -88,6 +97,7 @@ The system SHALL detect negative heat values.
 **Priority**: Critical
 
 #### Scenario: Negative heat detection
+
 **GIVEN** a unit with heat = -5
 **WHEN** running checkHeatNonNegative()
 **THEN** violation SHALL be detected
@@ -95,6 +105,7 @@ The system SHALL detect negative heat values.
 **AND** context SHALL include unit ID and heat value
 
 #### Scenario: Valid heat
+
 **GIVEN** all units with heat >= 0
 **WHEN** running checkHeatNonNegative()
 **THEN** result SHALL be empty array
@@ -108,12 +119,14 @@ The system SHALL detect armor/structure values outside valid range.
 **Priority**: Critical
 
 #### Scenario: Negative armor detection
+
 **GIVEN** a unit with armor = -10 on CT
 **WHEN** running checkArmorBounds()
 **THEN** violation SHALL be detected
 **AND** severity SHALL be 'critical'
 
 #### Scenario: Armor exceeds maximum
+
 **GIVEN** a unit with armor > maximum for location
 **WHEN** running checkArmorBounds()
 **THEN** violation SHALL be detected
@@ -128,6 +141,7 @@ The system SHALL detect destroyed units returning to active status.
 **Priority**: Critical
 
 #### Scenario: Unit resurrection detection
+
 **GIVEN** a unit marked destroyed in turn 5
 **WHEN** same unit is active in turn 6
 **THEN** violation SHALL be detected
@@ -143,12 +157,14 @@ The system SHALL detect invalid phase transitions.
 **Priority**: High
 
 #### Scenario: Phase order validation
+
 **GIVEN** game state transitioning from Movement to Heat
 **WHEN** running checkPhaseTransitions()
 **THEN** violation SHALL be detected (skipped Attack phase)
 **AND** severity SHALL be 'critical'
 
 #### Scenario: Valid phase sequence
+
 **GIVEN** phases: Initiative → Movement → Attack → Heat → End
 **WHEN** running checkPhaseTransitions()
 **THEN** result SHALL be empty array
@@ -162,6 +178,7 @@ The system SHALL detect non-increasing event sequence numbers.
 **Priority**: High
 
 #### Scenario: Sequence number regression
+
 **GIVEN** events with sequences [1, 2, 3, 2, 4]
 **WHEN** running checkSequenceMonotonicity()
 **THEN** violation SHALL be detected at sequence 2 (after 3)
@@ -176,6 +193,7 @@ The system SHALL detect turn numbers that decrease.
 **Priority**: High
 
 #### Scenario: Turn regression detection
+
 **GIVEN** game state with turn 5 followed by turn 4
 **WHEN** running checkTurnNonDecreasing()
 **THEN** violation SHALL be detected
@@ -190,6 +208,7 @@ The system SHALL run all invariants and collect violations.
 **Priority**: Critical
 
 #### Scenario: Run all invariants
+
 **GIVEN** InvariantRunner with 7 registered invariants
 **WHEN** calling check(state)
 **THEN** all 7 invariants SHALL be executed
@@ -197,6 +216,7 @@ The system SHALL run all invariants and collect violations.
 **AND** known limitations SHALL be filtered out
 
 #### Scenario: Severity filtering
+
 **GIVEN** violations with mixed severities
 **WHEN** filtering by severity = 'critical'
 **THEN** only critical violations SHALL be returned
@@ -287,7 +307,7 @@ interface IInvariantRunner {
    */
   readonly filterBySeverity: (
     violations: IViolation[],
-    severity: 'critical' | 'warning'
+    severity: 'critical' | 'warning',
   ) => IViolation[];
 }
 ```
@@ -303,6 +323,7 @@ interface IInvariantRunner {
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
 const requiredInvariants = [
   'position-uniqueness',
@@ -311,7 +332,7 @@ const requiredInvariants = [
   'destroyed-stay-destroyed',
   'phase-transitions',
   'sequence-monotonicity',
-  'turn-non-decreasing'
+  'turn-non-decreasing',
 ];
 if (runner.invariants.length < 7) {
   // error - missing invariants
@@ -327,10 +348,12 @@ if (runner.invariants.length < 7) {
 ## Dependencies
 
 ### Depends On
+
 - **Core Infrastructure**: ISimulationContext
 - **Game State**: IGameState, GamePhase enums
 
 ### Used By
+
 - **Simulation Runner**: Calls InvariantRunner after each event
 - **Metrics Collector**: Records violations
 - **Snapshot Manager**: Includes violations in snapshots
@@ -342,21 +365,24 @@ if (runner.invariants.length < 7) {
 ### Example 1: Position Uniqueness Check
 
 **Input**:
+
 ```typescript
 const state: IGameState = {
   units: [
     { id: 'unit-1', position: { coord: { q: 5, r: 3 } } },
-    { id: 'unit-2', position: { coord: { q: 5, r: 3 } } } // duplicate!
-  ]
+    { id: 'unit-2', position: { coord: { q: 5, r: 3 } } }, // duplicate!
+  ],
 };
 ```
 
 **Processing**:
+
 ```typescript
 const violations = checkUnitPositionUniqueness(state);
 ```
 
 **Output**:
+
 ```typescript
 // violations = [{
 //   invariant: 'position-uniqueness',
@@ -369,6 +395,7 @@ const violations = checkUnitPositionUniqueness(state);
 ### Example 2: Invariant Runner
 
 **Input**:
+
 ```typescript
 const runner = new InvariantRunner();
 runner.register(positionUniqueness);
@@ -377,12 +404,14 @@ runner.register(heatNonNegative);
 ```
 
 **Processing**:
+
 ```typescript
 const violations = runner.check(state);
 const criticalOnly = runner.filterBySeverity(violations, 'critical');
 ```
 
 **Output**:
+
 ```typescript
 // violations = [/* all violations */]
 // criticalOnly = [/* only critical violations */]
@@ -393,10 +422,12 @@ const criticalOnly = runner.filterBySeverity(violations, 'critical');
 ## References
 
 ### Pattern References
+
 - **Game State**: `src/utils/gameplay/gameState.ts:deriveState()`
 - **Game Types**: `src/types/gameplay/GameSessionInterfaces.ts`
 
 ### Related Documentation
+
 - Core Infrastructure Specification
 - Simulation Runner Specification
 - Known Limitations Documentation
@@ -406,6 +437,7 @@ const criticalOnly = runner.filterBySeverity(violations, 'critical');
 ## Changelog
 
 ### Version 1.0 (2026-02-01)
+
 - Initial specification
 - Defined 7 core invariants
 - Defined IInvariant and IViolation interfaces

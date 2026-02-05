@@ -5,16 +5,6 @@
  */
 
 import {
-  createGameSession,
-  startGame,
-  rollInitiative,
-  advancePhase,
-  declareMovement,
-  lockMovement,
-  declareAttack,
-  lockAttack,
-} from '../gameSession';
-import {
   GamePhase,
   GameSide,
   GameEventType,
@@ -31,6 +21,17 @@ import {
   IGameEvent,
   WeaponCategory,
 } from '@/types/gameplay';
+
+import {
+  createGameSession,
+  startGame,
+  rollInitiative,
+  advancePhase,
+  declareMovement,
+  lockMovement,
+  declareAttack,
+  lockAttack,
+} from '../gameSession';
 
 // =============================================================================
 // Test Fixtures
@@ -62,7 +63,11 @@ function createTestUnit(overrides: Partial<IGameUnit> = {}): IGameUnit {
 function createTestUnits(): readonly IGameUnit[] {
   return [
     createTestUnit({ id: 'player-1', name: 'Atlas', side: GameSide.Player }),
-    createTestUnit({ id: 'opponent-1', name: 'Marauder', side: GameSide.Opponent }),
+    createTestUnit({
+      id: 'opponent-1',
+      name: 'Marauder',
+      side: GameSide.Opponent,
+    }),
   ];
 }
 
@@ -73,36 +78,64 @@ function createHeatPhaseSession(): IGameSession {
   session = startGame(session, GameSide.Player);
   session = rollInitiative(session);
   session = advancePhase(session); // Movement
-  
+
   // Declare and lock movement for both units (with heat generation)
   const from: IHexCoordinate = { q: 0, r: 0 };
   const to: IHexCoordinate = { q: 1, r: 0 };
-  session = declareMovement(session, 'player-1', from, to, Facing.North, MovementType.Walk, 1, 0);
+  session = declareMovement(
+    session,
+    'player-1',
+    from,
+    to,
+    Facing.North,
+    MovementType.Walk,
+    1,
+    0,
+  );
   session = lockMovement(session, 'player-1');
-  session = declareMovement(session, 'opponent-1', from, to, Facing.North, MovementType.Run, 2, 2);
+  session = declareMovement(
+    session,
+    'opponent-1',
+    from,
+    to,
+    Facing.North,
+    MovementType.Run,
+    2,
+    2,
+  );
   session = lockMovement(session, 'opponent-1');
-  
+
   session = advancePhase(session); // Weapon Attack
-  
+
   // Declare and lock attacks (weapons generate heat)
-  const weapons: IWeaponAttack[] = [{
-    weaponId: 'ppc-1',
-    weaponName: 'PPC',
-    damage: 10,
-    heat: 10,
-    category: WeaponCategory.ENERGY,
-    minRange: 3,
-    shortRange: 6,
-    mediumRange: 12,
-    longRange: 18,
-    isCluster: false,
-  }];
-  session = declareAttack(session, 'player-1', 'opponent-1', weapons, 10, RangeBracket.Medium, FiringArc.Front);
+  const weapons: IWeaponAttack[] = [
+    {
+      weaponId: 'ppc-1',
+      weaponName: 'PPC',
+      damage: 10,
+      heat: 10,
+      category: WeaponCategory.ENERGY,
+      minRange: 3,
+      shortRange: 6,
+      mediumRange: 12,
+      longRange: 18,
+      isCluster: false,
+    },
+  ];
+  session = declareAttack(
+    session,
+    'player-1',
+    'opponent-1',
+    weapons,
+    10,
+    RangeBracket.Medium,
+    FiringArc.Front,
+  );
   session = lockAttack(session, 'player-1');
   session = lockAttack(session, 'opponent-1');
-  
+
   session = advancePhase(session); // Heat phase
-  
+
   return session;
 }
 

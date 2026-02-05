@@ -1,18 +1,18 @@
 /**
  * Unit Name Validator Service
- * 
+ *
  * Validates unit names (Chassis + Variant) against canonical and custom units
  * to ensure uniqueness and prevent overwriting official units.
- * 
+ *
  * CRITICAL: Canonical units are NEVER overwritable. If a name matches a canonical
  * unit, the save is BLOCKED and the user must choose a different name.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
+import { IUnitIndexEntry } from '../common/types';
 import { canonicalUnitService } from './CanonicalUnitService';
 import { customUnitService } from './CustomUnitService';
-import { IUnitIndexEntry } from '../common/types';
 
 // =============================================================================
 // Types
@@ -58,7 +58,7 @@ export interface IUnitNameValidator {
   validateUnitName(
     chassis: string,
     variant: string,
-    excludeUnitId?: string
+    excludeUnitId?: string,
   ): Promise<INameValidationResult>;
 
   /**
@@ -67,7 +67,10 @@ export interface IUnitNameValidator {
    * @param variant - Base variant
    * @returns A unique variant name
    */
-  generateUniqueName(chassis: string, variant: string): Promise<IUnitNameComponents>;
+  generateUniqueName(
+    chassis: string,
+    variant: string,
+  ): Promise<IUnitNameComponents>;
 
   /**
    * Normalize a name for case-insensitive comparison
@@ -92,10 +95,7 @@ class UnitNameValidatorService implements IUnitNameValidator {
    * - Normalize multiple spaces to single space
    */
   normalizeForComparison(name: string): string {
-    return name
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, ' ');
+    return name.trim().toLowerCase().replace(/\s+/g, ' ');
   }
 
   /**
@@ -104,23 +104,23 @@ class UnitNameValidatorService implements IUnitNameValidator {
   buildFullName(chassis: string, variant: string): string {
     const trimmedChassis = chassis.trim();
     const trimmedVariant = variant.trim();
-    
+
     if (!trimmedVariant) {
       return trimmedChassis;
     }
-    
+
     return `${trimmedChassis} ${trimmedVariant}`;
   }
 
   /**
    * Validate unit name against canonical and custom units
-   * 
+   *
    * CRITICAL: Canonical conflicts are ALWAYS blocked.
    */
   async validateUnitName(
     chassis: string,
     variant: string,
-    excludeUnitId?: string
+    excludeUnitId?: string,
   ): Promise<INameValidationResult> {
     const trimmedChassis = chassis.trim();
     const trimmedVariant = variant.trim();
@@ -151,11 +151,14 @@ class UnitNameValidatorService implements IUnitNameValidator {
     const canonicalConflict = await this.checkCanonicalConflict(
       trimmedChassis,
       trimmedVariant,
-      normalizedName
+      normalizedName,
     );
 
     if (canonicalConflict) {
-      const suggested = await this.generateUniqueName(trimmedChassis, trimmedVariant);
+      const suggested = await this.generateUniqueName(
+        trimmedChassis,
+        trimmedVariant,
+      );
       return {
         isValid: false,
         isCanonicalConflict: true,
@@ -170,7 +173,7 @@ class UnitNameValidatorService implements IUnitNameValidator {
       trimmedChassis,
       trimmedVariant,
       normalizedName,
-      excludeUnitId
+      excludeUnitId,
     );
 
     if (customConflict) {
@@ -198,11 +201,11 @@ class UnitNameValidatorService implements IUnitNameValidator {
   private async checkCanonicalConflict(
     chassis: string,
     variant: string,
-    normalizedFullName: string
+    normalizedFullName: string,
   ): Promise<boolean> {
     try {
       const canonicalIndex = await canonicalUnitService.getIndex();
-      
+
       // Check for exact name match (case-insensitive)
       const conflict = canonicalIndex.find((entry) => {
         const entryFullName = this.buildFullName(entry.chassis, entry.variant);
@@ -226,17 +229,17 @@ class UnitNameValidatorService implements IUnitNameValidator {
     chassis: string,
     variant: string,
     normalizedFullName: string,
-    excludeUnitId?: string
+    excludeUnitId?: string,
   ): Promise<IUnitIndexEntry | null> {
     try {
       const customUnits = await customUnitService.list();
-      
+
       const conflict = customUnits.find((entry) => {
         // Skip the unit we're updating
         if (excludeUnitId && entry.id === excludeUnitId) {
           return false;
         }
-        
+
         const entryFullName = this.buildFullName(entry.chassis, entry.variant);
         const normalizedEntry = this.normalizeForComparison(entryFullName);
         return normalizedEntry === normalizedFullName;
@@ -255,23 +258,28 @@ class UnitNameValidatorService implements IUnitNameValidator {
    */
   async generateUniqueName(
     chassis: string,
-    variant: string
+    variant: string,
   ): Promise<IUnitNameComponents> {
     let suffix = 2;
     let newVariant = `${variant} (${suffix})`;
-    
+
     // Keep incrementing until we find a unique name
-    while (suffix < 100) { // Safety limit
+    while (suffix < 100) {
+      // Safety limit
       const result = await this.validateUnitName(chassis, newVariant);
-      
-      if (result.isValid && !result.isCanonicalConflict && !result.isCustomConflict) {
+
+      if (
+        result.isValid &&
+        !result.isCanonicalConflict &&
+        !result.isCustomConflict
+      ) {
         return { chassis, variant: newVariant };
       }
-      
+
       suffix++;
       newVariant = `${variant} (${suffix})`;
     }
-    
+
     // Fallback: use timestamp
     const timestamp = Date.now().toString(36);
     return { chassis, variant: `${variant}-${timestamp}` };
@@ -283,4 +291,3 @@ class UnitNameValidatorService implements IUnitNameValidator {
 // =============================================================================
 
 export const unitNameValidator = new UnitNameValidatorService();
-

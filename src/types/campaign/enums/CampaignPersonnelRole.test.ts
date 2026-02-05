@@ -3,7 +3,15 @@
  * Verifies 45 role values with category helpers
  */
 
-import { CampaignPersonnelRole, getRoleCategory, isCombatRole, isSupportRole, isCivilianRole, getRolesByCategory, ALL_CAMPAIGN_PERSONNEL_ROLES } from './CampaignPersonnelRole';
+import {
+  CampaignPersonnelRole,
+  getRoleCategory,
+  isCombatRole,
+  isSupportRole,
+  isCivilianRole,
+  getRolesByCategory,
+  ALL_CAMPAIGN_PERSONNEL_ROLES,
+} from './CampaignPersonnelRole';
 
 describe('CampaignPersonnelRole Enum Expansion', () => {
   describe('Enum Values Count', () => {

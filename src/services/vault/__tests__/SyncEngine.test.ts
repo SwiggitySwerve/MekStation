@@ -8,6 +8,13 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type {
+  IChangeLogEntry,
+  ISyncConflict,
+  ShareableContentType,
+  ChangeType,
+} from '@/types/vault';
+
 import {
   SyncEngine,
   getSyncEngine,
@@ -15,12 +22,6 @@ import {
   type ContentHashFn,
   type ContentDataFn,
 } from '../SyncEngine';
-import type {
-  IChangeLogEntry,
-  ISyncConflict,
-  ShareableContentType,
-  ChangeType,
-} from '@/types/vault';
 
 // =============================================================================
 // Mock Setup
@@ -50,7 +51,9 @@ const mockChangeLogRepository = {
 };
 
 jest.mock('../ChangeLogRepository', () => ({
-  ChangeLogRepository: jest.fn().mockImplementation(() => mockChangeLogRepository),
+  ChangeLogRepository: jest
+    .fn()
+    .mockImplementation(() => mockChangeLogRepository),
   getChangeLogRepository: jest.fn(() => mockChangeLogRepository),
 }));
 
@@ -59,7 +62,7 @@ jest.mock('../ChangeLogRepository', () => ({
 // =============================================================================
 
 const createMockChangeLogEntry = (
-  overrides: Partial<IChangeLogEntry> = {}
+  overrides: Partial<IChangeLogEntry> = {},
 ): IChangeLogEntry => ({
   id: `change-${Math.random().toString(36).slice(2, 11)}`,
   changeType: 'create',
@@ -75,7 +78,7 @@ const createMockChangeLogEntry = (
 });
 
 const _createMockSyncConflict = (
-  overrides: Partial<ISyncConflict> = {}
+  overrides: Partial<ISyncConflict> = {},
 ): ISyncConflict => ({
   id: 'conflict-test-123',
   contentType: 'unit',
@@ -131,11 +134,13 @@ describe('SyncEngine', () => {
 
   describe('setContentHashFn', () => {
     it('should set the content hash function', async () => {
-      const hashFn: ContentHashFn = jest.fn().mockResolvedValue('computed-hash');
+      const hashFn: ContentHashFn = jest
+        .fn()
+        .mockResolvedValue('computed-hash');
       syncEngine.setContentHashFn(hashFn);
 
       mockRecordChange.mockResolvedValue(
-        createMockChangeLogEntry({ contentHash: 'computed-hash' })
+        createMockChangeLogEntry({ contentHash: 'computed-hash' }),
       );
 
       await syncEngine.recordChange('create', 'unit', 'unit-123');
@@ -175,7 +180,9 @@ describe('SyncEngine', () => {
 
   describe('setContentDataFn', () => {
     it('should set the content data function', () => {
-      const dataFn: ContentDataFn = jest.fn().mockResolvedValue('{"data":"test"}');
+      const dataFn: ContentDataFn = jest
+        .fn()
+        .mockResolvedValue('{"data":"test"}');
       syncEngine.setContentDataFn(dataFn);
       // The function is stored - verified by internal behavior
       expect(true).toBe(true);
@@ -207,23 +214,31 @@ describe('SyncEngine', () => {
       });
       mockRecordChange.mockResolvedValue(mockEntry);
 
-      const result = await syncEngine.recordChange('create', 'unit', 'unit-123');
+      const result = await syncEngine.recordChange(
+        'create',
+        'unit',
+        'unit-123',
+      );
 
       expect(mockRecordChange).toHaveBeenCalledWith(
         'create',
         'unit',
         'unit-123',
         null,
-        null
+        null,
       );
       expect(result).toEqual(mockEntry);
     });
 
     it('should record a change with hash function', async () => {
-      const hashFn: ContentHashFn = jest.fn().mockResolvedValue('computed-hash');
+      const hashFn: ContentHashFn = jest
+        .fn()
+        .mockResolvedValue('computed-hash');
       syncEngine.setContentHashFn(hashFn);
 
-      const mockEntry = createMockChangeLogEntry({ contentHash: 'computed-hash' });
+      const mockEntry = createMockChangeLogEntry({
+        contentHash: 'computed-hash',
+      });
       mockRecordChange.mockResolvedValue(mockEntry);
 
       await syncEngine.recordChange('create', 'unit', 'unit-123');
@@ -233,7 +248,7 @@ describe('SyncEngine', () => {
         'unit',
         'unit-123',
         'computed-hash',
-        null
+        null,
       );
     });
 
@@ -247,7 +262,7 @@ describe('SyncEngine', () => {
         'create',
         'unit',
         'unit-123',
-        '{"name":"Test Unit"}'
+        '{"name":"Test Unit"}',
       );
 
       expect(mockRecordChange).toHaveBeenCalledWith(
@@ -255,7 +270,7 @@ describe('SyncEngine', () => {
         'unit',
         'unit-123',
         null,
-        '{"name":"Test Unit"}'
+        '{"name":"Test Unit"}',
       );
       expect(result.data).toBe('{"name":"Test Unit"}');
     });
@@ -271,13 +286,13 @@ describe('SyncEngine', () => {
 
       for (const contentType of contentTypes) {
         mockRecordChange.mockResolvedValue(
-          createMockChangeLogEntry({ contentType })
+          createMockChangeLogEntry({ contentType }),
         );
 
         const result = await syncEngine.recordChange(
           'create',
           contentType,
-          `${contentType}-123`
+          `${contentType}-123`,
         );
 
         expect(result.contentType).toBe(contentType);
@@ -289,10 +304,14 @@ describe('SyncEngine', () => {
 
       for (const changeType of changeTypes) {
         mockRecordChange.mockResolvedValue(
-          createMockChangeLogEntry({ changeType })
+          createMockChangeLogEntry({ changeType }),
         );
 
-        const result = await syncEngine.recordChange(changeType, 'unit', 'unit-123');
+        const result = await syncEngine.recordChange(
+          changeType,
+          'unit',
+          'unit-123',
+        );
 
         expect(result.changeType).toBe(changeType);
       }
@@ -303,7 +322,7 @@ describe('SyncEngine', () => {
       syncEngine.setContentHashFn(hashFn);
 
       mockRecordChange.mockResolvedValue(
-        createMockChangeLogEntry({ contentHash: null })
+        createMockChangeLogEntry({ contentHash: null }),
       );
 
       await syncEngine.recordChange('delete', 'unit', 'unit-123');
@@ -313,7 +332,7 @@ describe('SyncEngine', () => {
         'unit',
         'unit-123',
         null,
-        null
+        null,
       );
     });
   });
@@ -430,7 +449,10 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(null);
       mockRecordChange.mockResolvedValue(createMockChangeLogEntry());
 
-      const result = await syncEngine.applyRemoteChanges('PEER-123', remoteChanges);
+      const result = await syncEngine.applyRemoteChanges(
+        'PEER-123',
+        remoteChanges,
+      );
 
       expect(result.applied).toHaveLength(2);
       expect(result.conflicts).toHaveLength(0);
@@ -450,7 +472,9 @@ describe('SyncEngine', () => {
 
       mockGetLatestForItem.mockResolvedValue(localChange);
 
-      const result = await syncEngine.applyRemoteChanges('PEER-123', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('PEER-123', [
+        remoteChange,
+      ]);
 
       expect(result.skipped).toHaveLength(1);
       expect(result.applied).toHaveLength(0);
@@ -470,7 +494,9 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(localChange);
       mockRecordChange.mockResolvedValue(createMockChangeLogEntry());
 
-      const result = await syncEngine.applyRemoteChanges('PEER-123', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('PEER-123', [
+        remoteChange,
+      ]);
 
       expect(result.applied).toHaveLength(1);
     });
@@ -489,7 +515,9 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(localChange);
       mockRecordConflict.mockResolvedValue('conflict-new-123');
 
-      const result = await syncEngine.applyRemoteChanges('PEER-123', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('PEER-123', [
+        remoteChange,
+      ]);
 
       expect(result.conflicts).toHaveLength(1);
       expect(result.conflicts[0].id).toBe('conflict-new-123');
@@ -510,7 +538,9 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(localChange);
       mockRecordChange.mockResolvedValue(createMockChangeLogEntry());
 
-      const result = await syncEngine.applyRemoteChanges('PEER-123', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('PEER-123', [
+        remoteChange,
+      ]);
 
       expect(result.conflicts).toHaveLength(0);
       // Should apply since versions differ but content is same
@@ -518,9 +548,7 @@ describe('SyncEngine', () => {
     });
 
     it('should update sync state after applying changes', async () => {
-      const remoteChanges = [
-        createMockChangeLogEntry({ version: 10 }),
-      ];
+      const remoteChanges = [createMockChangeLogEntry({ version: 10 })];
       mockGetLatestForItem.mockResolvedValue(null);
       mockRecordChange.mockResolvedValue(createMockChangeLogEntry());
 
@@ -550,7 +578,10 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(null);
       mockRecordChange.mockResolvedValue(createMockChangeLogEntry());
 
-      const result = await syncEngine.applyRemoteChanges('PEER-123', remoteChanges);
+      const result = await syncEngine.applyRemoteChanges(
+        'PEER-123',
+        remoteChanges,
+      );
 
       expect(result.applied).toHaveLength(3);
     });
@@ -575,7 +606,9 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(localChange);
       mockRecordChange.mockResolvedValue(createMockChangeLogEntry());
 
-      const result = await syncEngine.applyRemoteChanges('PEER-123', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('PEER-123', [
+        remoteChange,
+      ]);
 
       expect(result.conflicts).toHaveLength(0);
     });
@@ -593,7 +626,9 @@ describe('SyncEngine', () => {
 
       mockGetLatestForItem.mockResolvedValue(localChange);
 
-      const result = await syncEngine.applyRemoteChanges('PEER-123', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('PEER-123', [
+        remoteChange,
+      ]);
 
       expect(result.conflicts).toHaveLength(0);
     });
@@ -612,7 +647,9 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(localChange);
       mockRecordConflict.mockResolvedValue('conflict-123');
 
-      const result = await syncEngine.applyRemoteChanges('PEER-123', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('PEER-123', [
+        remoteChange,
+      ]);
 
       expect(result.conflicts).toHaveLength(1);
     });
@@ -632,7 +669,9 @@ describe('SyncEngine', () => {
       mockRecordChange.mockResolvedValue(createMockChangeLogEntry());
 
       // With null hashes (null !== null is false), no conflict - remote is newer so applied
-      const result = await syncEngine.applyRemoteChanges('PEER-123', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('PEER-123', [
+        remoteChange,
+      ]);
 
       expect(result.conflicts).toHaveLength(0);
       expect(result.applied).toHaveLength(1);
@@ -653,7 +692,9 @@ describe('SyncEngine', () => {
       mockRecordConflict.mockResolvedValue('conflict-123');
 
       // Different hashes (null vs string), different versions, unsynced = conflict
-      const result = await syncEngine.applyRemoteChanges('PEER-123', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('PEER-123', [
+        remoteChange,
+      ]);
 
       expect(result.conflicts).toHaveLength(1);
     });
@@ -743,7 +784,10 @@ describe('SyncEngine', () => {
 
       const result = await syncEngine.resolveAcceptRemote('conflict-123');
 
-      expect(mockResolveConflict).toHaveBeenCalledWith('conflict-123', 'remote');
+      expect(mockResolveConflict).toHaveBeenCalledWith(
+        'conflict-123',
+        'remote',
+      );
       expect(result).toBe(true);
     });
 
@@ -766,7 +810,10 @@ describe('SyncEngine', () => {
 
       const result = await syncEngine.resolveFork('conflict-123');
 
-      expect(mockResolveConflict).toHaveBeenCalledWith('conflict-123', 'forked');
+      expect(mockResolveConflict).toHaveBeenCalledWith(
+        'conflict-123',
+        'forked',
+      );
       expect(result).toBe(true);
     });
 
@@ -919,7 +966,11 @@ describe('SyncEngine', () => {
       const states = syncEngine.getAllSyncStates();
 
       expect(states).toHaveLength(3);
-      expect(states.map((s) => s.peerId).sort()).toEqual(['PEER-1', 'PEER-2', 'PEER-3']);
+      expect(states.map((s) => s.peerId).sort()).toEqual([
+        'PEER-1',
+        'PEER-2',
+        'PEER-3',
+      ]);
     });
   });
 
@@ -965,14 +1016,17 @@ describe('SyncEngine', () => {
       });
       mockRecordChange.mockResolvedValue(mockEntry);
 
-      const result = await syncEngine.recordFolderChange('create', 'folder-123');
+      const result = await syncEngine.recordFolderChange(
+        'create',
+        'folder-123',
+      );
 
       expect(mockRecordChange).toHaveBeenCalledWith(
         'create',
         'folder',
         'folder-123',
         null,
-        null
+        null,
       );
       expect(result.contentType).toBe('folder');
     });
@@ -986,14 +1040,18 @@ describe('SyncEngine', () => {
       });
       mockRecordChange.mockResolvedValue(mockEntry);
 
-      const result = await syncEngine.recordFolderChange('update', 'folder-123', folderData);
+      const result = await syncEngine.recordFolderChange(
+        'update',
+        'folder-123',
+        folderData,
+      );
 
       expect(mockRecordChange).toHaveBeenCalledWith(
         'update',
         'folder',
         'folder-123',
         null,
-        folderData
+        folderData,
       );
       expect(result.data).toBe(folderData);
     });
@@ -1012,7 +1070,7 @@ describe('SyncEngine', () => {
         'folder',
         'folder-123',
         null,
-        null
+        null,
       );
     });
   });
@@ -1032,7 +1090,7 @@ describe('SyncEngine', () => {
       const result = await syncEngine.recordFolderItemAdded(
         'folder-123',
         'unit-456',
-        'unit'
+        'unit',
       );
 
       expect(mockRecordChange).toHaveBeenCalledWith(
@@ -1045,25 +1103,34 @@ describe('SyncEngine', () => {
           folderId: 'folder-123',
           itemId: 'unit-456',
           itemType: 'unit',
-        })
+        }),
       );
       expect(result.changeType).toBe('update');
     });
 
     it('should record addition for all item types', async () => {
-      const itemTypes: ShareableContentType[] = ['unit', 'pilot', 'force', 'encounter'];
+      const itemTypes: ShareableContentType[] = [
+        'unit',
+        'pilot',
+        'force',
+        'encounter',
+      ];
 
       for (const itemType of itemTypes) {
         mockRecordChange.mockResolvedValue(createMockChangeLogEntry());
 
-        await syncEngine.recordFolderItemAdded('folder-123', `${itemType}-1`, itemType);
+        await syncEngine.recordFolderItemAdded(
+          'folder-123',
+          `${itemType}-1`,
+          itemType,
+        );
 
         expect(mockRecordChange).toHaveBeenCalledWith(
           'update',
           'folder',
           'folder-123',
           null,
-          expect.stringContaining(`"itemType":"${itemType}"`)
+          expect.stringContaining(`"itemType":"${itemType}"`),
         );
       }
     });
@@ -1084,7 +1151,7 @@ describe('SyncEngine', () => {
       const result = await syncEngine.recordFolderItemRemoved(
         'folder-123',
         'pilot-789',
-        'pilot'
+        'pilot',
       );
 
       expect(mockRecordChange).toHaveBeenCalledWith(
@@ -1097,7 +1164,7 @@ describe('SyncEngine', () => {
           folderId: 'folder-123',
           itemId: 'pilot-789',
           itemType: 'pilot',
-        })
+        }),
       );
       expect(result.changeType).toBe('update');
     });
@@ -1211,7 +1278,7 @@ describe('SyncEngine', () => {
 
       const result = await syncEngine.getFolderChangesForPeer(
         'folder-123',
-        'PEER-456'
+        'PEER-456',
       );
 
       expect(mockGetChangesSince).toHaveBeenCalledWith(0, expect.any(Number));
@@ -1264,7 +1331,7 @@ describe('SyncEngine', () => {
       const result = await syncEngine.applyFolderChanges(
         'folder-123',
         'PEER-456',
-        [folderChange, unrelatedChange]
+        [folderChange, unrelatedChange],
       );
 
       expect(result.applied).toHaveLength(1);
@@ -1283,7 +1350,7 @@ describe('SyncEngine', () => {
       const result = await syncEngine.applyFolderChanges(
         'folder-123',
         'PEER-456',
-        [itemInFolder]
+        [itemInFolder],
       );
 
       expect(result.applied).toHaveLength(1);
@@ -1308,7 +1375,7 @@ describe('SyncEngine', () => {
       const result = await syncEngine.applyFolderChanges(
         'folder-123',
         'PEER-456',
-        [remoteChange]
+        [remoteChange],
       );
 
       expect(result.conflicts).toHaveLength(1);
@@ -1415,7 +1482,10 @@ describe('SyncEngine', () => {
   describe('getFolderSyncStatus', () => {
     it('should return pending outbound count and last sync time', async () => {
       const pendingChanges = [
-        createMockChangeLogEntry({ contentType: 'folder', itemId: 'folder-123' }),
+        createMockChangeLogEntry({
+          contentType: 'folder',
+          itemId: 'folder-123',
+        }),
         createMockChangeLogEntry({
           contentType: 'unit',
           data: JSON.stringify({ folderId: 'folder-123' }),
@@ -1423,7 +1493,10 @@ describe('SyncEngine', () => {
       ];
       mockGetChangesSince.mockResolvedValue(pendingChanges);
 
-      const result = await syncEngine.getFolderSyncStatus('folder-123', 'PEER-456');
+      const result = await syncEngine.getFolderSyncStatus(
+        'folder-123',
+        'PEER-456',
+      );
 
       expect(result.pendingOutbound).toBe(2);
       expect(result.lastSyncAt).toBeNull();
@@ -1438,7 +1511,10 @@ describe('SyncEngine', () => {
 
       mockGetChangesSince.mockResolvedValue([]);
 
-      const result = await syncEngine.getFolderSyncStatus('folder-123', 'PEER-456');
+      const result = await syncEngine.getFolderSyncStatus(
+        'folder-123',
+        'PEER-456',
+      );
 
       expect(result.lastSyncAt).not.toBeNull();
     });
@@ -1446,7 +1522,10 @@ describe('SyncEngine', () => {
     it('should return 0 pending when no changes for folder', async () => {
       mockGetChangesSince.mockResolvedValue([]);
 
-      const result = await syncEngine.getFolderSyncStatus('folder-123', 'PEER-456');
+      const result = await syncEngine.getFolderSyncStatus(
+        'folder-123',
+        'PEER-456',
+      );
 
       expect(result.pendingOutbound).toBe(0);
     });
@@ -1598,7 +1677,9 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(null);
       mockRecordChange.mockResolvedValue(remoteEntry);
 
-      const result = await syncEngine.applyRemoteChanges('PEER-A', [remoteEntry]);
+      const result = await syncEngine.applyRemoteChanges('PEER-A', [
+        remoteEntry,
+      ]);
       expect(result.applied).toHaveLength(1);
 
       // 5. Verify sync state
@@ -1622,7 +1703,9 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(localChange);
       mockRecordConflict.mockResolvedValue('conflict-123');
 
-      const applyResult = await syncEngine.applyRemoteChanges('PEER-B', [remoteChange]);
+      const applyResult = await syncEngine.applyRemoteChanges('PEER-B', [
+        remoteChange,
+      ]);
       expect(applyResult.conflicts).toHaveLength(1);
 
       // 2. List pending conflicts
@@ -1659,9 +1742,13 @@ describe('SyncEngine', () => {
           contentType: 'folder',
           itemId: folderId,
           changeType: 'create',
-        })
+        }),
       );
-      await syncEngine.recordFolderChange('create', folderId, '{"name":"Shared"}');
+      await syncEngine.recordFolderChange(
+        'create',
+        folderId,
+        '{"name":"Shared"}',
+      );
 
       // 2. Add items to folder
       await syncEngine.recordFolderItemAdded(folderId, 'unit-1', 'unit');
@@ -1679,7 +1766,10 @@ describe('SyncEngine', () => {
       });
       mockGetChangesSince.mockResolvedValue([folderChange, itemChange]);
 
-      const changes = await syncEngine.getFolderChangesForPeer(folderId, 'PEER-C');
+      const changes = await syncEngine.getFolderChangesForPeer(
+        folderId,
+        'PEER-C',
+      );
       expect(changes.length).toBeGreaterThan(0);
 
       // 4. Get folder sync status

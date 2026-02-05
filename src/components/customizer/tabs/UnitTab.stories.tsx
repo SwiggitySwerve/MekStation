@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { fn } from '@storybook/test';
+
 import { UnitTab } from './UnitTab';
 
 const meta: Meta<typeof UnitTab> = {
@@ -112,7 +114,7 @@ export const ClanUnit: Story = {
 
 export const AllStates: StoryObj = {
   render: () => (
-    <div className="flex bg-surface-base">
+    <div className="bg-surface-base flex">
       <UnitTab
         tab={{ id: '1', name: 'Inactive', isModified: false }}
         isActive={false}

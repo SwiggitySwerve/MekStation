@@ -7,10 +7,13 @@
  * @spec openspec/specs/omnimech-system/spec.md
  */
 
-import { EquipmentCategory } from '@/types/equipment';
 import { IMountedEquipmentInstance, UnitState } from '@/stores/unitState';
-import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
+import {
+  MechLocation,
+  LOCATION_SLOT_COUNTS,
+} from '@/types/construction/CriticalSlotAllocation';
 import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
+import { EquipmentCategory } from '@/types/equipment';
 // EngineType import reserved for future OmniMech engine compatibility checks
 import { calculateIntegralHeatSinks } from '@/utils/construction/engineCalculations';
 
@@ -106,7 +109,7 @@ export function isOmniFixedOnly(equipment: IMountedEquipmentInstance): boolean {
  */
 export function canPodMount(
   state: UnitState,
-  equipment: IMountedEquipmentInstance
+  equipment: IMountedEquipmentInstance,
 ): boolean {
   // Rule 1: Only applies to OmniMechs
   if (!state.isOmni) {
@@ -146,21 +149,25 @@ function isHeatSinkEquipment(equipment: IMountedEquipmentInstance): boolean {
  */
 function canPodMountHeatSink(
   state: UnitState,
-  heatSink: IMountedEquipmentInstance
+  heatSink: IMountedEquipmentInstance,
 ): boolean {
   // Calculate the minimum required fixed heat sinks
   // This is based on the engine's weight-free heat sink capacity
-  const integralHeatSinks = calculateIntegralHeatSinks(state.engineRating, state.engineType);
+  const integralHeatSinks = calculateIntegralHeatSinks(
+    state.engineRating,
+    state.engineType,
+  );
 
   // Get the base chassis heat sinks setting
   // If -1, use the integral heat sinks as default
-  const baseChassisHeatSinks = state.baseChassisHeatSinks >= 0
-    ? state.baseChassisHeatSinks
-    : integralHeatSinks;
+  const baseChassisHeatSinks =
+    state.baseChassisHeatSinks >= 0
+      ? state.baseChassisHeatSinks
+      : integralHeatSinks;
 
   // Count currently fixed (non-pod) heat sinks
-  const fixedHeatSinks = state.equipment.filter(eq =>
-    isHeatSinkEquipment(eq) && !eq.isOmniPodMounted
+  const fixedHeatSinks = state.equipment.filter(
+    (eq) => isHeatSinkEquipment(eq) && !eq.isOmniPodMounted,
   ).length;
 
   // Don't count the heat sink we're checking if it's already fixed
@@ -179,8 +186,10 @@ function canPodMountHeatSink(
  * @param state The current unit state
  * @returns Array of fixed equipment instances
  */
-export function getFixedEquipment(state: UnitState): IMountedEquipmentInstance[] {
-  return state.equipment.filter(eq => !eq.isOmniPodMounted);
+export function getFixedEquipment(
+  state: UnitState,
+): IMountedEquipmentInstance[] {
+  return state.equipment.filter((eq) => !eq.isOmniPodMounted);
 }
 
 /**
@@ -190,7 +199,7 @@ export function getFixedEquipment(state: UnitState): IMountedEquipmentInstance[]
  * @returns Array of pod-mounted equipment instances
  */
 export function getPodEquipment(state: UnitState): IMountedEquipmentInstance[] {
-  return state.equipment.filter(eq => eq.isOmniPodMounted);
+  return state.equipment.filter((eq) => eq.isOmniPodMounted);
 }
 
 /**
@@ -201,14 +210,17 @@ export function getPodEquipment(state: UnitState): IMountedEquipmentInstance[] {
  * @param location The location to calculate pod space for
  * @returns Number of available pod slots
  */
-export function calculatePodSpace(state: UnitState, location: MechLocation): number {
+export function calculatePodSpace(
+  state: UnitState,
+  location: MechLocation,
+): number {
   // Get total slots for location
   const totalSlots = LOCATION_SLOT_COUNTS[location] || 0;
 
   // Get fixed equipment in this location
   const fixedEquipment = getFixedEquipment(state);
   const fixedSlotsUsed = fixedEquipment
-    .filter(eq => eq.location === location)
+    .filter((eq) => eq.location === location)
     .reduce((total, eq) => total + eq.criticalSlots, 0);
 
   return Math.max(0, totalSlots - fixedSlotsUsed);
@@ -224,8 +236,9 @@ export function calculateTotalPodSpace(state: UnitState): number {
   // Get locations based on configuration
   const locations = getLocationsForConfiguration(state.configuration);
 
-  return locations.reduce((total, location) =>
-    total + calculatePodSpace(state, location), 0
+  return locations.reduce(
+    (total, location) => total + calculatePodSpace(state, location),
+    0,
   );
 }
 

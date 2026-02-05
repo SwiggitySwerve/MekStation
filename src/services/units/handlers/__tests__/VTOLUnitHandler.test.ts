@@ -6,13 +6,13 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2.8
  */
 
-import { VTOLUnitHandler, createVTOLHandler } from '../VTOLUnitHandler';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { GroundMotionType } from '../../../../types/unit/BaseUnitInterfaces';
 import { VTOLLocation } from '../../../../types/construction/UnitLocation';
-import { TurretType, IVTOL } from '../../../../types/unit/VehicleInterfaces';
 import { TechBase, WeightClass, RulesLevel } from '../../../../types/enums';
+import { IBlkDocument } from '../../../../types/formats/BlkFormat';
+import { GroundMotionType } from '../../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { TurretType, IVTOL } from '../../../../types/unit/VehicleInterfaces';
+import { VTOLUnitHandler, createVTOLHandler } from '../VTOLUnitHandler';
 
 // ============================================================================
 // Test Fixtures
@@ -22,7 +22,7 @@ import { TechBase, WeightClass, RulesLevel } from '../../../../types/enums';
  * Create a mock BLK document for VTOL testing
  */
 function createMockBlkDocument(
-  overrides: Partial<IBlkDocument> = {}
+  overrides: Partial<IBlkDocument> = {},
 ): IBlkDocument {
   return {
     blockVersion: 1,
@@ -383,7 +383,9 @@ describe('VTOLUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(false);
-      expect(result.error!.errors.some((e) => e.includes('at least 1 cruise MP'))).toBe(true);
+      expect(
+        result.error!.errors.some((e) => e.includes('at least 1 cruise MP')),
+      ).toBe(true);
     });
 
     it('should parse fast scout VTOL movement', () => {
@@ -602,7 +604,7 @@ describe('VTOLUnitHandler', () => {
 
       expect(result.success).toBe(true);
       const frontEquip = result.data?.unit?.equipment.filter(
-        (e) => e.location === VTOLLocation.FRONT
+        (e) => e.location === VTOLLocation.FRONT,
       );
       expect(frontEquip?.length).toBe(2);
     });
@@ -613,7 +615,7 @@ describe('VTOLUnitHandler', () => {
 
       expect(result.success).toBe(true);
       const turretEquip = result.data?.unit?.equipment.find(
-        (e) => e.name === 'Streak SRM 2'
+        (e) => e.name === 'Streak SRM 2',
       );
       expect(turretEquip?.isTurretMounted).toBe(true);
     });
@@ -623,7 +625,9 @@ describe('VTOLUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      const chinEquip = result.data?.unit?.equipment.find((e) => e.name === 'SRM 2');
+      const chinEquip = result.data?.unit?.equipment.find(
+        (e) => e.name === 'SRM 2',
+      );
       expect(chinEquip?.isTurretMounted).toBe(true);
     });
 
@@ -637,7 +641,7 @@ describe('VTOLUnitHandler', () => {
 
       expect(result.success).toBe(true);
       const frontEquip = result.data?.unit?.equipment.find(
-        (e) => e.name === 'Medium Laser'
+        (e) => e.name === 'Medium Laser',
       );
       expect(frontEquip?.isTurretMounted).toBe(false);
     });
@@ -668,10 +672,14 @@ describe('VTOLUnitHandler', () => {
 
       expect(result.success).toBe(true);
       expect(
-        result.data?.unit?.equipment.some((e) => e.location === VTOLLocation.LEFT)
+        result.data?.unit?.equipment.some(
+          (e) => e.location === VTOLLocation.LEFT,
+        ),
       ).toBe(true);
       expect(
-        result.data?.unit?.equipment.some((e) => e.location === VTOLLocation.RIGHT)
+        result.data?.unit?.equipment.some(
+          (e) => e.location === VTOLLocation.RIGHT,
+        ),
       ).toBe(true);
     });
   });
@@ -716,9 +724,9 @@ describe('VTOLUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(false);
-      expect(result.error!.errors.some((e) => e.includes('cannot exceed 30 tons'))).toBe(
-        true
-      );
+      expect(
+        result.error!.errors.some((e) => e.includes('cannot exceed 30 tons')),
+      ).toBe(true);
     });
 
     it('should pass parsing at exactly 30 tons', () => {
@@ -858,7 +866,7 @@ describe('VTOLUnitHandler', () => {
       const validateResult = handler.validate(invalidUnit);
       expect(validateResult.isValid).toBe(false);
       expect(
-        validateResult.errors.some((e) => e.includes('at least 1 ton'))
+        validateResult.errors.some((e) => e.includes('at least 1 ton')),
       ).toBe(true);
     });
 
@@ -875,7 +883,7 @@ describe('VTOLUnitHandler', () => {
       const validateResult = handler.validate(invalidUnit);
       expect(validateResult.isValid).toBe(false);
       expect(
-        validateResult.errors.some((e) => e.includes('cannot exceed 30 tons'))
+        validateResult.errors.some((e) => e.includes('cannot exceed 30 tons')),
       ).toBe(true);
     });
 
@@ -892,7 +900,7 @@ describe('VTOLUnitHandler', () => {
       const validateResult = handler.validate(invalidUnit);
       expect(validateResult.isValid).toBe(false);
       expect(
-        validateResult.errors.some((e) => e.includes('at least 1 cruise MP'))
+        validateResult.errors.some((e) => e.includes('at least 1 cruise MP')),
       ).toBe(true);
     });
 
@@ -910,7 +918,7 @@ describe('VTOLUnitHandler', () => {
       const validateResult = handler.validate(invalidUnit);
       expect(validateResult.isValid).toBe(false);
       expect(
-        validateResult.errors.some((e) => e.includes('exceeds maximum'))
+        validateResult.errors.some((e) => e.includes('exceeds maximum')),
       ).toBe(true);
     });
 
@@ -921,7 +929,7 @@ describe('VTOLUnitHandler', () => {
 
       const validateResult = handler.validate(parseResult.data!.unit);
       expect(
-        validateResult.warnings.some((w) => w.includes('rotor armor exceeds'))
+        validateResult.warnings.some((w) => w.includes('rotor armor exceeds')),
       ).toBe(true);
     });
 
@@ -934,7 +942,7 @@ describe('VTOLUnitHandler', () => {
 
       const validateResult = handler.validate(parseResult.data!.unit);
       expect(
-        validateResult.warnings.some((w) => w.includes('rotor armor'))
+        validateResult.warnings.some((w) => w.includes('rotor armor')),
       ).toBe(false);
     });
   });
@@ -1279,9 +1287,9 @@ describe('VTOLUnitHandler', () => {
 
       const result = handler.deserialize(serialized);
       expect(result.success).toBe(false);
-      expect(result.error!.errors.some((e) => e.includes('not yet implemented'))).toBe(
-        true
-      );
+      expect(
+        result.error!.errors.some((e) => e.includes('not yet implemented')),
+      ).toBe(true);
     });
   });
 

@@ -12,8 +12,8 @@
  * ```
  */
 
-import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
 
 // =============================================================================
 // Constants
@@ -121,7 +121,12 @@ export class LongGameDetector {
       battleState.maxTurn = event.turn;
 
       if (event.turn > threshold && !battleState.anomalyTriggered) {
-        const anomaly = this.createAnomaly(event, state, battleState, threshold);
+        const anomaly = this.createAnomaly(
+          event,
+          state,
+          battleState,
+          threshold,
+        );
         state.anomalies.push(anomaly);
         battleState.anomalyTriggered = true;
       }

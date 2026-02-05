@@ -5,8 +5,8 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
 import { GamePhase, GameSide, IToHitModifier } from './GameSessionInterfaces';
+import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
 
 // =============================================================================
 // Layout Types
@@ -282,7 +282,14 @@ export interface IFormattedEvent {
   /** Formatted text */
   readonly text: string;
   /** Icon/type indicator */
-  readonly icon: 'movement' | 'attack' | 'damage' | 'heat' | 'critical' | 'status' | 'phase';
+  readonly icon:
+    | 'movement'
+    | 'attack'
+    | 'damage'
+    | 'heat'
+    | 'critical'
+    | 'status'
+    | 'phase';
   /** Side that triggered event */
   readonly side?: GameSide;
   /** Related unit ID */
@@ -318,27 +325,60 @@ export interface IPhaseAction {
 /**
  * Get available actions for a phase.
  */
-export function getPhaseActions(phase: GamePhase, canUndo: boolean): IPhaseAction[] {
+export function getPhaseActions(
+  phase: GamePhase,
+  canUndo: boolean,
+): IPhaseAction[] {
   switch (phase) {
     case GamePhase.Movement:
       return [
-        { id: 'lock', label: 'Lock Movement', primary: true, enabled: true, shortcut: 'Enter' },
-        { id: 'undo', label: 'Undo', primary: false, enabled: canUndo, shortcut: 'Ctrl+Z' },
+        {
+          id: 'lock',
+          label: 'Lock Movement',
+          primary: true,
+          enabled: true,
+          shortcut: 'Enter',
+        },
+        {
+          id: 'undo',
+          label: 'Undo',
+          primary: false,
+          enabled: canUndo,
+          shortcut: 'Ctrl+Z',
+        },
         { id: 'skip', label: 'Skip', primary: false, enabled: true },
       ];
     case GamePhase.WeaponAttack:
       return [
-        { id: 'lock', label: 'Lock Attacks', primary: true, enabled: true, shortcut: 'Enter' },
+        {
+          id: 'lock',
+          label: 'Lock Attacks',
+          primary: true,
+          enabled: true,
+          shortcut: 'Enter',
+        },
         { id: 'clear', label: 'Clear All', primary: false, enabled: true },
         { id: 'skip', label: 'Skip Attacks', primary: false, enabled: true },
       ];
     case GamePhase.Heat:
       return [
-        { id: 'continue', label: 'Continue', primary: true, enabled: true, shortcut: 'Enter' },
+        {
+          id: 'continue',
+          label: 'Continue',
+          primary: true,
+          enabled: true,
+          shortcut: 'Enter',
+        },
       ];
     case GamePhase.End:
       return [
-        { id: 'next-turn', label: 'Next Turn', primary: true, enabled: true, shortcut: 'Enter' },
+        {
+          id: 'next-turn',
+          label: 'Next Turn',
+          primary: true,
+          enabled: true,
+          shortcut: 'Enter',
+        },
         { id: 'concede', label: 'Concede', primary: false, enabled: true },
       ];
     default:

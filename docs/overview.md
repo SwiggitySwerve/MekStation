@@ -18,17 +18,20 @@ MekStation is a comprehensive unit construction application that implements offi
 ## Recent Capabilities
 
 ### Record Sheet Export (December 2025)
+
 - SVG template rendering with MegaMek assets
 - Live preview (20%-300% zoom)
 - PDF export with full armor pip rendering
 
 ### Custom Unit Persistence (December 2025)
+
 - SQLite backend replacing IndexedDB
 - Version history with revert
 - Canonical protection and clone naming
 - JSON export for sharing
 
 ### Unit Metrics System (December 2025)
+
 - Battle Value 2.0 calculations
 - C-Bill cost formulas per TechManual
 - Rules level classification (Intro, Standard, Advanced, Experimental)
@@ -45,17 +48,17 @@ OpenSpec Specs → TypeScript Types → Services → Components
 
 ### Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | Next.js 16 |
-| UI | React 19 + Tailwind CSS 4 |
-| State | Zustand 5 |
-| Drag & Drop | react-dnd |
-| Search | MiniSearch |
-| Database | SQLite (better-sqlite3) |
-| PDF | jsPDF |
-| Testing | Jest + React Testing Library |
-| Language | TypeScript 5.8 |
+| Layer       | Technology                   |
+| ----------- | ---------------------------- |
+| Framework   | Next.js 16                   |
+| UI          | React 19 + Tailwind CSS 4    |
+| State       | Zustand 5                    |
+| Drag & Drop | react-dnd                    |
+| Search      | MiniSearch                   |
+| Database    | SQLite (better-sqlite3)      |
+| PDF         | jsPDF                        |
+| Testing     | Jest + React Testing Library |
+| Language    | TypeScript 5.8               |
 
 ### Project Structure (summary)
 
@@ -93,71 +96,71 @@ npx openspec list
 
 ### Specification Categories
 
-| Category | Examples |
-|----------|----------|
-| Foundation | Core entity types, enumerations, eras, weight classes |
-| Construction | Engine, gyro, armor, structure, heat sinks, movement |
-| Equipment | Weapons, ammunition, electronics, physical weapons |
-| Validation | Construction rules, validation patterns, data integrity |
-| UI Components | Critical slots, armor diagram, equipment browser |
-| Services | Unit services, equipment services, persistence, construction |
-| Data Models | Unit serialization, database schema |
+| Category      | Examples                                                     |
+| ------------- | ------------------------------------------------------------ |
+| Foundation    | Core entity types, enumerations, eras, weight classes        |
+| Construction  | Engine, gyro, armor, structure, heat sinks, movement         |
+| Equipment     | Weapons, ammunition, electronics, physical weapons           |
+| Validation    | Construction rules, validation patterns, data integrity      |
+| UI Components | Critical slots, armor diagram, equipment browser             |
+| Services      | Unit services, equipment services, persistence, construction |
+| Data Models   | Unit serialization, database schema                          |
 
 ## API Reference (summary)
 
 ### Units
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/units` | List units (filter + paginate) |
-| `GET /api/catalog` | Unit catalog with search |
-| `GET /api/custom-variants` | Custom unit variants |
-| `GET /api/custom-variants/[id]` | Specific variant |
-| `POST /api/custom-variants` | Save custom unit |
-| `PUT /api/custom-variants/[id]` | Update custom unit |
-| `DELETE /api/custom-variants/[id]` | Delete custom unit |
+| Endpoint                           | Description                    |
+| ---------------------------------- | ------------------------------ |
+| `GET /api/units`                   | List units (filter + paginate) |
+| `GET /api/catalog`                 | Unit catalog with search       |
+| `GET /api/custom-variants`         | Custom unit variants           |
+| `GET /api/custom-variants/[id]`    | Specific variant               |
+| `POST /api/custom-variants`        | Save custom unit               |
+| `PUT /api/custom-variants/[id]`    | Update custom unit             |
+| `DELETE /api/custom-variants/[id]` | Delete custom unit             |
 
 ### Equipment
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/equipment` | List equipment with filtering |
-| `GET /api/equipment/catalog` | Equipment catalog |
-| `GET /api/equipment/filters` | Available filter options |
+| Endpoint                     | Description                   |
+| ---------------------------- | ----------------------------- |
+| `GET /api/equipment`         | List equipment with filtering |
+| `GET /api/equipment/catalog` | Equipment catalog             |
+| `GET /api/equipment/filters` | Available filter options      |
 
 ### Metadata
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/meta/categories` | Unit categories |
-| `GET /api/meta/unit_eras` | Available eras |
-| `GET /api/meta/unit_tech_bases` | Tech base options |
-| `GET /api/meta/equipment_categories` | Equipment categories |
-| `GET /api/meta/unit_weight_classes` | Weight class definitions |
+| Endpoint                             | Description              |
+| ------------------------------------ | ------------------------ |
+| `GET /api/meta/categories`           | Unit categories          |
+| `GET /api/meta/unit_eras`            | Available eras           |
+| `GET /api/meta/unit_tech_bases`      | Tech base options        |
+| `GET /api/meta/equipment_categories` | Equipment categories     |
+| `GET /api/meta/unit_weight_classes`  | Weight class definitions |
 
 ## BattleTech Rules Quick Reference
 
-| Component | Formula |
-|-----------|---------|
-| Engine Rating | Walk MP × Tonnage |
-| Engine Weight | Lookup by rating + type modifier |
-| Gyro Weight | ceil(Engine Rating / 100) × type modifier |
-| Structure Weight | Tonnage × 0.10 (Standard) / × 0.05 (Endo Steel) |
-| Max Armor | Structure Points × 2 (Head = 9) |
-| Internal Heat Sinks | floor(Engine Rating / 25) |
-| Run MP | ceil(Walk MP × 1.5) |
-| Jump MP | ≤ Walk MP (standard jets) |
+| Component           | Formula                                         |
+| ------------------- | ----------------------------------------------- |
+| Engine Rating       | Walk MP × Tonnage                               |
+| Engine Weight       | Lookup by rating + type modifier                |
+| Gyro Weight         | ceil(Engine Rating / 100) × type modifier       |
+| Structure Weight    | Tonnage × 0.10 (Standard) / × 0.05 (Endo Steel) |
+| Max Armor           | Structure Points × 2 (Head = 9)                 |
+| Internal Heat Sinks | floor(Engine Rating / 25)                       |
+| Run MP              | ceil(Walk MP × 1.5)                             |
+| Jump MP             | ≤ Walk MP (standard jets)                       |
 
 ### Critical Slot Allocations
 
-| Location | Slots |
-|----------|-------|
-| Head | 6 |
-| Center Torso | 12 |
-| Side Torsos | 12 each |
-| Arms | 12 each |
-| Legs | 6 each |
-| **Total** | **78** |
+| Location     | Slots   |
+| ------------ | ------- |
+| Head         | 6       |
+| Center Torso | 12      |
+| Side Torsos  | 12 each |
+| Arms         | 12 each |
+| Legs         | 6 each  |
+| **Total**    | **78**  |
 
 ## Development Workflow
 
@@ -210,4 +213,3 @@ npm run generate:index    # Generate unit index with metrics
 - Non-commercial use for derived data per CC-BY-NC-SA-4.0 and MegaMek content policy.
 
 BattleTech trademarks are owned by their respective holders. This is an unofficial, fan-created tool.
-

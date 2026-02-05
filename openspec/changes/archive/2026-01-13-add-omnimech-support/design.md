@@ -10,12 +10,12 @@ This document captures the architectural decisions and detailed design for addin
 
 The fundamental distinction in OmniMech design:
 
-| Aspect | Fixed Equipment | Pod Equipment |
-|--------|-----------------|---------------|
-| Permanence | Cannot be removed | Swappable between configurations |
-| Examples | Engine, gyro, structure, base heat sinks | Weapons, ammo, additional heat sinks |
-| MTF Marker | No suffix | `(omnipod)` suffix |
-| Storage | Part of base chassis | Part of configuration variant |
+| Aspect     | Fixed Equipment                          | Pod Equipment                        |
+| ---------- | ---------------------------------------- | ------------------------------------ |
+| Permanence | Cannot be removed                        | Swappable between configurations     |
+| Examples   | Engine, gyro, structure, base heat sinks | Weapons, ammo, additional heat sinks |
+| MTF Marker | No suffix                                | `(omnipod)` suffix                   |
+| Storage    | Part of base chassis                     | Part of configuration variant        |
 
 ### Base Chassis Heat Sinks
 
@@ -61,9 +61,9 @@ interface UnitState {
   // Existing fields...
 
   // NEW: OmniMech-specific state
-  isOmni: boolean;                    // Already exists
-  baseChassisHeatSinks: number;       // NEW: Fixed heat sinks count
-  clanName: string;                   // NEW: Clan reporting name
+  isOmni: boolean; // Already exists
+  baseChassisHeatSinks: number; // NEW: Fixed heat sinks count
+  clanName: string; // NEW: Clan reporting name
 }
 ```
 
@@ -73,10 +73,10 @@ The existing `IOmniMech` interface needs implementation:
 
 ```typescript
 interface IOmniMech extends IBattleMech {
-  readonly baseConfiguration: string;           // e.g., "Prime", "A", "B"
-  readonly clanName: string;                    // e.g., "Timber Wolf" for Mad Cat
-  readonly baseChassisHeatSinks: number;        // Fixed heat sinks
-  readonly podSpace: Record<MechLocation, number>;  // Available pod slots per location
+  readonly baseConfiguration: string; // e.g., "Prime", "A", "B"
+  readonly clanName: string; // e.g., "Timber Wolf" for Mad Cat
+  readonly baseChassisHeatSinks: number; // Fixed heat sinks
+  readonly podSpace: Record<MechLocation, number>; // Available pod slots per location
   readonly fixedEquipment: readonly IMountedEquipment[];
   readonly podEquipment: readonly IMountedEquipment[];
 }
@@ -125,6 +125,7 @@ OmniMech:  Config:Biped Omnimech
 ### OmniMech Checkbox Behavior
 
 When toggled ON:
+
 1. Set `isOmni = true`
 2. Show base chassis heat sinks spinner
 3. Show reset chassis button
@@ -132,6 +133,7 @@ When toggled ON:
 5. Mark all non-structural equipment as pod-mounted by default
 
 When toggled OFF:
+
 1. Set `isOmni = false`
 2. Hide OmniMech-specific controls
 3. Clear `baseChassisHeatSinks`
@@ -147,6 +149,7 @@ When toggled OFF:
 ### Reset Chassis Button
 
 Removes all pod-mounted equipment from the unit:
+
 - Filters equipment by `isOmniPodMounted === true`
 - Removes each item from equipment list
 - Preserves fixed equipment, armor, structure
@@ -169,19 +172,19 @@ canPodMount(unit, equipment):
 
 ### Equipment Categories
 
-| Category | Can Pod Mount | Notes |
-|----------|---------------|-------|
-| Weapons | Yes | All weapons can be pod-mounted |
-| Ammo | Yes | Ammo bins can be pod-mounted |
-| Heat Sinks | Conditional | Subject to minimum fixed requirement |
-| Engine | No | Always fixed |
-| Gyro | No | Always fixed |
-| Cockpit | No | Always fixed |
-| Structure | No | Always fixed |
-| Armor | No | Always fixed |
-| CASE | Yes | Can be pod-mounted |
-| Targeting Computer | Yes | Can be pod-mounted |
-| MASC/TSM | Varies | Some enhancements are chassis-fixed |
+| Category           | Can Pod Mount | Notes                                |
+| ------------------ | ------------- | ------------------------------------ |
+| Weapons            | Yes           | All weapons can be pod-mounted       |
+| Ammo               | Yes           | Ammo bins can be pod-mounted         |
+| Heat Sinks         | Conditional   | Subject to minimum fixed requirement |
+| Engine             | No            | Always fixed                         |
+| Gyro               | No            | Always fixed                         |
+| Cockpit            | No            | Always fixed                         |
+| Structure          | No            | Always fixed                         |
+| Armor              | No            | Always fixed                         |
+| CASE               | Yes           | Can be pod-mounted                   |
+| Targeting Computer | Yes           | Can be pod-mounted                   |
+| MASC/TSM           | Varies        | Some enhancements are chassis-fixed  |
 
 ## Validation Rules
 

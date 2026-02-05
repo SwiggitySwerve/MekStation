@@ -299,9 +299,7 @@ describe('Skill Catalog', () => {
           ].includes(skill.id)
         ) {
           categories.add('technical');
-        } else if (
-          ['medicine', 'medtech', 'veterinary'].includes(skill.id)
-        ) {
+        } else if (['medicine', 'medtech', 'veterinary'].includes(skill.id)) {
           categories.add('medical');
         } else if (
           [
@@ -377,9 +375,7 @@ describe('Skill Catalog', () => {
       expect(gunnery.name).toBe('Gunnery');
       expect(gunnery.description).toBe('Ranged weapon accuracy');
       expect(gunnery.targetNumber).toBe(7);
-      expect(gunnery.costs).toEqual([
-        0, 8, 8, 12, 16, 24, 32, 48, 64, 80, 120,
-      ]);
+      expect(gunnery.costs).toEqual([0, 8, 8, 12, 16, 24, 32, 48, 64, 80, 120]);
       expect(gunnery.linkedAttribute).toBe('REF');
     });
 

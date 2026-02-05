@@ -1,8 +1,8 @@
 /**
  * Data Integrity Validation Utilities
- * 
+ *
  * Implements validation and repair for unit data.
- * 
+ *
  * @spec openspec/specs/data-integrity-validation/spec.md
  */
 
@@ -23,14 +23,16 @@ import {
  */
 export function checkEquipmentReferences(unitData: unknown): IIntegrityIssue[] {
   const issues: IIntegrityIssue[] = [];
-  
+
   if (!unitData || typeof unitData !== 'object') {
     return issues;
   }
 
   const data = unitData as Record<string, unknown>;
-  const equipment = data.equipment as Array<Record<string, unknown>> | undefined;
-  
+  const equipment = data.equipment as
+    | Array<Record<string, unknown>>
+    | undefined;
+
   if (!equipment || !Array.isArray(equipment)) {
     return issues;
   }
@@ -65,7 +67,7 @@ export function checkEquipmentReferences(unitData: unknown): IIntegrityIssue[] {
  */
 export function checkWeightConsistency(unitData: unknown): IIntegrityIssue[] {
   const issues: IIntegrityIssue[] = [];
-  
+
   if (!unitData || typeof unitData !== 'object') {
     return issues;
   }
@@ -94,14 +96,14 @@ export function checkWeightConsistency(unitData: unknown): IIntegrityIssue[] {
  */
 export function checkArmorConsistency(unitData: unknown): IIntegrityIssue[] {
   const issues: IIntegrityIssue[] = [];
-  
+
   if (!unitData || typeof unitData !== 'object') {
     return issues;
   }
 
   const data = unitData as Record<string, unknown>;
   const armor = data.armor as Record<string, unknown> | undefined;
-  
+
   if (!armor) {
     issues.push({
       severity: IntegritySeverity.ERROR,
@@ -148,7 +150,7 @@ export function checkArmorConsistency(unitData: unknown): IIntegrityIssue[] {
  */
 export function checkRequiredFields(unitData: unknown): IIntegrityIssue[] {
   const issues: IIntegrityIssue[] = [];
-  
+
   if (!unitData || typeof unitData !== 'object') {
     issues.push({
       severity: IntegritySeverity.ERROR,
@@ -161,8 +163,14 @@ export function checkRequiredFields(unitData: unknown): IIntegrityIssue[] {
 
   const data = unitData as Record<string, unknown>;
   const requiredFields = [
-    'chassis', 'model', 'unitType', 'tonnage', 
-    'engine', 'armor', 'techBase', 'rulesLevel'
+    'chassis',
+    'model',
+    'unitType',
+    'tonnage',
+    'engine',
+    'armor',
+    'techBase',
+    'rulesLevel',
   ];
 
   for (const field of requiredFields) {
@@ -183,7 +191,9 @@ export function checkRequiredFields(unitData: unknown): IIntegrityIssue[] {
 /**
  * Perform all integrity checks
  */
-export function validateDataIntegrity(unitData: unknown): IIntegrityCheckResult {
+export function validateDataIntegrity(
+  unitData: unknown,
+): IIntegrityCheckResult {
   const allIssues: IIntegrityIssue[] = [
     ...checkRequiredFields(unitData),
     ...checkEquipmentReferences(unitData),
@@ -191,8 +201,12 @@ export function validateDataIntegrity(unitData: unknown): IIntegrityCheckResult 
     ...checkArmorConsistency(unitData),
   ];
 
-  const errorCount = allIssues.filter(i => i.severity === IntegritySeverity.ERROR).length;
-  const warningCount = allIssues.filter(i => i.severity === IntegritySeverity.WARNING).length;
+  const errorCount = allIssues.filter(
+    (i) => i.severity === IntegritySeverity.ERROR,
+  ).length;
+  const warningCount = allIssues.filter(
+    (i) => i.severity === IntegritySeverity.WARNING,
+  ).length;
 
   return {
     isValid: errorCount === 0,
@@ -212,10 +226,13 @@ const REPAIR_OPERATIONS: IDataRepairOperation[] = [
     description: 'Set negative armor values to 0',
     repair(data: unknown): unknown {
       if (!data || typeof data !== 'object') return data;
-      
-      const cloned = JSON.parse(JSON.stringify(data)) as Record<string, unknown>;
+
+      const cloned = JSON.parse(JSON.stringify(data)) as Record<
+        string,
+        unknown
+      >;
       const armor = cloned.armor as Record<string, unknown> | undefined;
-      
+
       if (armor?.allocation && typeof armor.allocation === 'object') {
         const allocation = armor.allocation as Record<string, number>;
         for (const key of Object.keys(allocation)) {
@@ -224,7 +241,7 @@ const REPAIR_OPERATIONS: IDataRepairOperation[] = [
           }
         }
       }
-      
+
       return cloned;
     },
   },
@@ -236,11 +253,13 @@ const REPAIR_OPERATIONS: IDataRepairOperation[] = [
 export function createDataIntegrityValidator(): IDataIntegrityValidator {
   return {
     validate: validateDataIntegrity,
-    
+
     repair(data: unknown, options?: IRepairOptions): IDataRepairResult {
       const initialCheck = validateDataIntegrity(data);
-      const repairableIssues = initialCheck.issues.filter(i => i.canAutoRepair);
-      
+      const repairableIssues = initialCheck.issues.filter(
+        (i) => i.canAutoRepair,
+      );
+
       if (repairableIssues.length === 0) {
         const repairData: IDataRepairData = {
           repairedData: data,
@@ -253,9 +272,9 @@ export function createDataIntegrityValidator(): IDataIntegrityValidator {
 
       if (options?.dryRun) {
         const repairData: IDataRepairData = {
-          appliedRepairs: repairableIssues.map(i => i.code),
+          appliedRepairs: repairableIssues.map((i) => i.code),
           failedRepairs: [],
-          remainingIssues: initialCheck.issues.filter(i => !i.canAutoRepair),
+          remainingIssues: initialCheck.issues.filter((i) => !i.canAutoRepair),
         };
         return { success: true, data: repairData };
       }
@@ -269,7 +288,9 @@ export function createDataIntegrityValidator(): IDataIntegrityValidator {
           continue;
         }
 
-        const operation = REPAIR_OPERATIONS.find(op => op.issueCode === issue.code);
+        const operation = REPAIR_OPERATIONS.find(
+          (op) => op.issueCode === issue.code,
+        );
         if (operation) {
           try {
             repairedData = operation.repair(repairedData);
@@ -299,4 +320,3 @@ export function createDataIntegrityValidator(): IDataIntegrityValidator {
     },
   };
 }
-

@@ -1,3 +1,15 @@
+import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import type { IForce } from '@/types/campaign/Force';
+import type { IMission } from '@/types/campaign/Mission';
+import type { IPerson } from '@/types/campaign/Person';
+
+import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { Money } from '@/types/campaign/Money';
+
 import {
   BASE_MONTHLY_SALARY,
   ROLE_SALARY_MAPPING,
@@ -14,17 +26,6 @@ import {
   SalaryOptions,
   SalaryBreakdown,
 } from '../salaryService';
-
-import { Money } from '@/types/campaign/Money';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import type { IPerson } from '@/types/campaign/Person';
-import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
-import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
-import { CampaignType } from '@/types/campaign/CampaignType';
-import type { IForce } from '@/types/campaign/Force';
-import type { IMission } from '@/types/campaign/Mission';
-import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
 // =============================================================================
 // Test Fixtures
@@ -53,7 +54,16 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
@@ -62,24 +72,24 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
 }
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
-    return {
-      id: 'campaign-001',
-      name: 'Test Campaign',
-      currentDate: new Date('3025-06-15T00:00:00Z'),
-      factionId: 'mercenary',
-      personnel: new Map<string, IPerson>(),
-      forces: new Map<string, IForce>(),
-      rootForceId: 'force-root',
-      missions: new Map<string, IMission>(),
-      finances: { transactions: [], balance: new Money(1000000) },
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: createDefaultCampaignOptions(),
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
-      ...overrides,
-      campaignType: CampaignType.MERCENARY,
-    };
+  return {
+    id: 'campaign-001',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-06-15T00:00:00Z'),
+    factionId: 'mercenary',
+    personnel: new Map<string, IPerson>(),
+    forces: new Map<string, IForce>(),
+    rootForceId: 'force-root',
+    missions: new Map<string, IMission>(),
+    finances: { transactions: [], balance: new Money(1000000) },
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: createDefaultCampaignOptions(),
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    ...overrides,
+    campaignType: CampaignType.MERCENARY,
+  };
 }
 
 // =============================================================================
@@ -92,11 +102,15 @@ describe('BASE_MONTHLY_SALARY', () => {
   });
 
   it('has correct salary for AEROSPACE_PILOT', () => {
-    expect(BASE_MONTHLY_SALARY[CampaignPersonnelRole.AEROSPACE_PILOT]).toBe(1800);
+    expect(BASE_MONTHLY_SALARY[CampaignPersonnelRole.AEROSPACE_PILOT]).toBe(
+      1800,
+    );
   });
 
   it('has correct salary for VEHICLE_DRIVER', () => {
-    expect(BASE_MONTHLY_SALARY[CampaignPersonnelRole.VEHICLE_DRIVER]).toBe(1200);
+    expect(BASE_MONTHLY_SALARY[CampaignPersonnelRole.VEHICLE_DRIVER]).toBe(
+      1200,
+    );
   });
 
   it('has correct salary for TECH', () => {
@@ -172,25 +186,39 @@ describe('XP_SALARY_MULTIPLIER', () => {
 
 describe('ROLE_SALARY_MAPPING', () => {
   it('maps canonical roles to themselves', () => {
-    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.PILOT]).toBe(CampaignPersonnelRole.PILOT);
-    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.DOCTOR]).toBe(CampaignPersonnelRole.DOCTOR);
-    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.TECH]).toBe(CampaignPersonnelRole.TECH);
+    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.PILOT]).toBe(
+      CampaignPersonnelRole.PILOT,
+    );
+    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.DOCTOR]).toBe(
+      CampaignPersonnelRole.DOCTOR,
+    );
+    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.TECH]).toBe(
+      CampaignPersonnelRole.TECH,
+    );
   });
 
   it('maps LAM_PILOT to AEROSPACE_PILOT', () => {
-    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.LAM_PILOT]).toBe(CampaignPersonnelRole.AEROSPACE_PILOT);
+    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.LAM_PILOT]).toBe(
+      CampaignPersonnelRole.AEROSPACE_PILOT,
+    );
   });
 
   it('maps MEK_TECH to TECH', () => {
-    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.MEK_TECH]).toBe(CampaignPersonnelRole.TECH);
+    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.MEK_TECH]).toBe(
+      CampaignPersonnelRole.TECH,
+    );
   });
 
   it('maps ADMIN_COMMAND to ADMIN', () => {
-    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.ADMIN_COMMAND]).toBe(CampaignPersonnelRole.ADMIN);
+    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.ADMIN_COMMAND]).toBe(
+      CampaignPersonnelRole.ADMIN,
+    );
   });
 
   it('maps DEPENDENT to UNASSIGNED', () => {
-    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.DEPENDENT]).toBe(CampaignPersonnelRole.UNASSIGNED);
+    expect(ROLE_SALARY_MAPPING[CampaignPersonnelRole.DEPENDENT]).toBe(
+      CampaignPersonnelRole.UNASSIGNED,
+    );
   });
 
   it('covers all CampaignPersonnelRole values', () => {
@@ -362,7 +390,10 @@ describe('calculatePersonSalary', () => {
       secondaryRole: CampaignPersonnelRole.TECH,
       totalXpEarned: 500, // regular
     });
-    const options: SalaryOptions = { salaryMultiplier: 1.0, payForSecondaryRole: false };
+    const options: SalaryOptions = {
+      salaryMultiplier: 1.0,
+      payForSecondaryRole: false,
+    };
     const salary = calculatePersonSalary(person, options);
     expect(salary.amount).toBe(1500); // No secondary role bonus
   });
@@ -383,7 +414,10 @@ describe('calculatePersonSalary', () => {
       primaryRole: CampaignPersonnelRole.PILOT,
       totalXpEarned: 500, // regular
     });
-    const options: SalaryOptions = { salaryMultiplier: 1.5, payForSecondaryRole: true };
+    const options: SalaryOptions = {
+      salaryMultiplier: 1.5,
+      payForSecondaryRole: true,
+    };
     const salary = calculatePersonSalary(person, options);
     expect(salary.amount).toBe(2250); // 1500 × 1.0 × 1.5
   });
@@ -393,7 +427,10 @@ describe('calculatePersonSalary', () => {
       primaryRole: CampaignPersonnelRole.PILOT,
       totalXpEarned: 500, // regular
     });
-    const options: SalaryOptions = { salaryMultiplier: 0.5, payForSecondaryRole: true };
+    const options: SalaryOptions = {
+      salaryMultiplier: 0.5,
+      payForSecondaryRole: true,
+    };
     const salary = calculatePersonSalary(person, options);
     expect(salary.amount).toBe(750); // 1500 × 1.0 × 0.5
   });
@@ -404,7 +441,10 @@ describe('calculatePersonSalary', () => {
       secondaryRole: CampaignPersonnelRole.TECH,
       totalXpEarned: 500, // regular
     });
-    const options: SalaryOptions = { salaryMultiplier: 2.0, payForSecondaryRole: true };
+    const options: SalaryOptions = {
+      salaryMultiplier: 2.0,
+      payForSecondaryRole: true,
+    };
     const salary = calculatePersonSalary(person, options);
     // (1500 × 1.0 × 2.0) + (1000 × 0.5) = 3000 + 500 = 3500
     expect(salary.amount).toBe(3500);
@@ -424,7 +464,10 @@ describe('calculatePersonSalary', () => {
       primaryRole: CampaignPersonnelRole.PILOT,
       totalXpEarned: 4000, // elite (1.5x)
     });
-    const options: SalaryOptions = { salaryMultiplier: 2.0, payForSecondaryRole: true };
+    const options: SalaryOptions = {
+      salaryMultiplier: 2.0,
+      payForSecondaryRole: true,
+    };
     const salary = calculatePersonSalary(person, options);
     // 1500 × 1.5 × 2.0 = 4500
     expect(salary.amount).toBe(4500);
@@ -490,7 +533,10 @@ describe('createSalaryOptions', () => {
   });
 
   it('respects custom salaryMultiplier', () => {
-    const campaignOptions = { ...createDefaultCampaignOptions(), salaryMultiplier: 2.5 };
+    const campaignOptions = {
+      ...createDefaultCampaignOptions(),
+      salaryMultiplier: 2.5,
+    };
     const salaryOptions = createSalaryOptions(campaignOptions);
     expect(salaryOptions.salaryMultiplier).toBe(2.5);
   });
@@ -512,23 +558,32 @@ describe('calculateTotalMonthlySalary', () => {
   it('sums salaries for multiple personnel', () => {
     const personnel = new Map<string, IPerson>();
     // Pilot at regular = 1500
-    personnel.set('p1', createTestPerson({
-      id: 'p1',
-      primaryRole: CampaignPersonnelRole.PILOT,
-      totalXpEarned: 500,
-    }));
+    personnel.set(
+      'p1',
+      createTestPerson({
+        id: 'p1',
+        primaryRole: CampaignPersonnelRole.PILOT,
+        totalXpEarned: 500,
+      }),
+    );
     // Doctor at regular = 2000
-    personnel.set('p2', createTestPerson({
-      id: 'p2',
-      primaryRole: CampaignPersonnelRole.DOCTOR,
-      totalXpEarned: 500,
-    }));
+    personnel.set(
+      'p2',
+      createTestPerson({
+        id: 'p2',
+        primaryRole: CampaignPersonnelRole.DOCTOR,
+        totalXpEarned: 500,
+      }),
+    );
     // Tech at regular = 1000
-    personnel.set('p3', createTestPerson({
-      id: 'p3',
-      primaryRole: CampaignPersonnelRole.TECH,
-      totalXpEarned: 500,
-    }));
+    personnel.set(
+      'p3',
+      createTestPerson({
+        id: 'p3',
+        primaryRole: CampaignPersonnelRole.TECH,
+        totalXpEarned: 500,
+      }),
+    );
 
     const campaign = createTestCampaign({ personnel });
     const breakdown = calculateTotalMonthlySalary(campaign);
@@ -539,18 +594,24 @@ describe('calculateTotalMonthlySalary', () => {
 
   it('excludes KIA personnel from salary', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({
-      id: 'p1',
-      primaryRole: CampaignPersonnelRole.PILOT,
-      totalXpEarned: 500,
-      status: PersonnelStatus.ACTIVE,
-    }));
-    personnel.set('p2', createTestPerson({
-      id: 'p2',
-      primaryRole: CampaignPersonnelRole.PILOT,
-      totalXpEarned: 500,
-      status: PersonnelStatus.KIA,
-    }));
+    personnel.set(
+      'p1',
+      createTestPerson({
+        id: 'p1',
+        primaryRole: CampaignPersonnelRole.PILOT,
+        totalXpEarned: 500,
+        status: PersonnelStatus.ACTIVE,
+      }),
+    );
+    personnel.set(
+      'p2',
+      createTestPerson({
+        id: 'p2',
+        primaryRole: CampaignPersonnelRole.PILOT,
+        totalXpEarned: 500,
+        status: PersonnelStatus.KIA,
+      }),
+    );
 
     const campaign = createTestCampaign({ personnel });
     const breakdown = calculateTotalMonthlySalary(campaign);
@@ -561,12 +622,15 @@ describe('calculateTotalMonthlySalary', () => {
 
   it('excludes RETIRED personnel from salary', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({
-      id: 'p1',
-      primaryRole: CampaignPersonnelRole.PILOT,
-      totalXpEarned: 500,
-      status: PersonnelStatus.RETIRED,
-    }));
+    personnel.set(
+      'p1',
+      createTestPerson({
+        id: 'p1',
+        primaryRole: CampaignPersonnelRole.PILOT,
+        totalXpEarned: 500,
+        status: PersonnelStatus.RETIRED,
+      }),
+    );
 
     const campaign = createTestCampaign({ personnel });
     const breakdown = calculateTotalMonthlySalary(campaign);
@@ -578,23 +642,32 @@ describe('calculateTotalMonthlySalary', () => {
   it('categorizes salaries by role type', () => {
     const personnel = new Map<string, IPerson>();
     // Combat: Pilot = 1500
-    personnel.set('p1', createTestPerson({
-      id: 'p1',
-      primaryRole: CampaignPersonnelRole.PILOT,
-      totalXpEarned: 500,
-    }));
+    personnel.set(
+      'p1',
+      createTestPerson({
+        id: 'p1',
+        primaryRole: CampaignPersonnelRole.PILOT,
+        totalXpEarned: 500,
+      }),
+    );
     // Support: Doctor = 2000
-    personnel.set('p2', createTestPerson({
-      id: 'p2',
-      primaryRole: CampaignPersonnelRole.DOCTOR,
-      totalXpEarned: 500,
-    }));
+    personnel.set(
+      'p2',
+      createTestPerson({
+        id: 'p2',
+        primaryRole: CampaignPersonnelRole.DOCTOR,
+        totalXpEarned: 500,
+      }),
+    );
     // Civilian: DEPENDENT → UNASSIGNED = 400
-    personnel.set('p3', createTestPerson({
-      id: 'p3',
-      primaryRole: CampaignPersonnelRole.DEPENDENT,
-      totalXpEarned: 500,
-    }));
+    personnel.set(
+      'p3',
+      createTestPerson({
+        id: 'p3',
+        primaryRole: CampaignPersonnelRole.DEPENDENT,
+        totalXpEarned: 500,
+      }),
+    );
 
     const campaign = createTestCampaign({ personnel });
     const breakdown = calculateTotalMonthlySalary(campaign);
@@ -607,16 +680,22 @@ describe('calculateTotalMonthlySalary', () => {
 
   it('provides per-person salary entries', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({
-      id: 'p1',
-      primaryRole: CampaignPersonnelRole.PILOT,
-      totalXpEarned: 500,
-    }));
-    personnel.set('p2', createTestPerson({
-      id: 'p2',
-      primaryRole: CampaignPersonnelRole.DOCTOR,
-      totalXpEarned: 500,
-    }));
+    personnel.set(
+      'p1',
+      createTestPerson({
+        id: 'p1',
+        primaryRole: CampaignPersonnelRole.PILOT,
+        totalXpEarned: 500,
+      }),
+    );
+    personnel.set(
+      'p2',
+      createTestPerson({
+        id: 'p2',
+        primaryRole: CampaignPersonnelRole.DOCTOR,
+        totalXpEarned: 500,
+      }),
+    );
 
     const campaign = createTestCampaign({ personnel });
     const breakdown = calculateTotalMonthlySalary(campaign);
@@ -628,13 +707,19 @@ describe('calculateTotalMonthlySalary', () => {
 
   it('returns zero when payForSalaries is disabled', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({
-      id: 'p1',
-      primaryRole: CampaignPersonnelRole.PILOT,
-      totalXpEarned: 500,
-    }));
+    personnel.set(
+      'p1',
+      createTestPerson({
+        id: 'p1',
+        primaryRole: CampaignPersonnelRole.PILOT,
+        totalXpEarned: 500,
+      }),
+    );
 
-    const options = { ...createDefaultCampaignOptions(), payForSalaries: false };
+    const options = {
+      ...createDefaultCampaignOptions(),
+      payForSalaries: false,
+    };
     const campaign = createTestCampaign({ personnel, options });
     const breakdown = calculateTotalMonthlySalary(campaign);
 
@@ -644,13 +729,19 @@ describe('calculateTotalMonthlySalary', () => {
 
   it('applies salary multiplier from campaign options', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({
-      id: 'p1',
-      primaryRole: CampaignPersonnelRole.PILOT,
-      totalXpEarned: 500, // regular
-    }));
+    personnel.set(
+      'p1',
+      createTestPerson({
+        id: 'p1',
+        primaryRole: CampaignPersonnelRole.PILOT,
+        totalXpEarned: 500, // regular
+      }),
+    );
 
-    const options = { ...createDefaultCampaignOptions(), salaryMultiplier: 2.0 };
+    const options = {
+      ...createDefaultCampaignOptions(),
+      salaryMultiplier: 2.0,
+    };
     const campaign = createTestCampaign({ personnel, options });
     const breakdown = calculateTotalMonthlySalary(campaign);
 
@@ -659,12 +750,15 @@ describe('calculateTotalMonthlySalary', () => {
 
   it('includes secondary role salary in total', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({
-      id: 'p1',
-      primaryRole: CampaignPersonnelRole.PILOT,
-      secondaryRole: CampaignPersonnelRole.TECH,
-      totalXpEarned: 500,
-    }));
+    personnel.set(
+      'p1',
+      createTestPerson({
+        id: 'p1',
+        primaryRole: CampaignPersonnelRole.PILOT,
+        secondaryRole: CampaignPersonnelRole.TECH,
+        totalXpEarned: 500,
+      }),
+    );
 
     const campaign = createTestCampaign({ personnel });
     const breakdown = calculateTotalMonthlySalary(campaign);
@@ -676,17 +770,23 @@ describe('calculateTotalMonthlySalary', () => {
   it('handles mixed experience levels correctly', () => {
     const personnel = new Map<string, IPerson>();
     // Pilot at elite = 1500 × 1.5 = 2250
-    personnel.set('p1', createTestPerson({
-      id: 'p1',
-      primaryRole: CampaignPersonnelRole.PILOT,
-      totalXpEarned: 4000,
-    }));
+    personnel.set(
+      'p1',
+      createTestPerson({
+        id: 'p1',
+        primaryRole: CampaignPersonnelRole.PILOT,
+        totalXpEarned: 4000,
+      }),
+    );
     // Soldier at green = 1000 × 0.8 = 800
-    personnel.set('p2', createTestPerson({
-      id: 'p2',
-      primaryRole: CampaignPersonnelRole.SOLDIER,
-      totalXpEarned: 100,
-    }));
+    personnel.set(
+      'p2',
+      createTestPerson({
+        id: 'p2',
+        primaryRole: CampaignPersonnelRole.SOLDIER,
+        totalXpEarned: 100,
+      }),
+    );
 
     const campaign = createTestCampaign({ personnel });
     const breakdown = calculateTotalMonthlySalary(campaign);
@@ -720,7 +820,9 @@ describe('SPECIAL_MULTIPLIERS', () => {
 describe('XP_LEVEL_THRESHOLDS', () => {
   it('is sorted in descending order by minXp', () => {
     for (let i = 0; i < XP_LEVEL_THRESHOLDS.length - 1; i++) {
-      expect(XP_LEVEL_THRESHOLDS[i].minXp).toBeGreaterThan(XP_LEVEL_THRESHOLDS[i + 1].minXp);
+      expect(XP_LEVEL_THRESHOLDS[i].minXp).toBeGreaterThan(
+        XP_LEVEL_THRESHOLDS[i + 1].minXp,
+      );
     }
   });
 
@@ -729,7 +831,9 @@ describe('XP_LEVEL_THRESHOLDS', () => {
   });
 
   it('starts at 0 for ultra_green', () => {
-    const ultraGreen = XP_LEVEL_THRESHOLDS.find(t => t.level === 'ultra_green');
+    const ultraGreen = XP_LEVEL_THRESHOLDS.find(
+      (t) => t.level === 'ultra_green',
+    );
     expect(ultraGreen?.minXp).toBe(0);
   });
 });

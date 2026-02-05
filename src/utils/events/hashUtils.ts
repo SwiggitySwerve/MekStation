@@ -27,7 +27,7 @@ export function toCanonicalJson(obj: unknown): string {
             sorted[key] = record[key];
             return sorted;
           },
-          {} as Record<string, unknown>
+          {} as Record<string, unknown>,
         );
     }
     return value;
@@ -167,7 +167,9 @@ export interface IChainVerificationResult {
  * Verify the integrity of a chain of chunks.
  * Returns true if all previousHash links are valid.
  */
-export function verifyChainIntegrity(chunks: readonly IEventChunk[]): IChainVerificationResult {
+export function verifyChainIntegrity(
+  chunks: readonly IEventChunk[],
+): IChainVerificationResult {
   if (chunks.length === 0) {
     return { valid: true };
   }

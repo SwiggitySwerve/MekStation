@@ -4,6 +4,10 @@
  * Tests for type guard implementations for safe type narrowing.
  */
 
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { Era } from '@/types/temporal/Era';
+
 import {
   isEntity,
   isWeightedComponent,
@@ -20,9 +24,6 @@ import {
   assertWeightedComponent,
   assertTechBaseEntity,
 } from '../typeGuards';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { Era } from '@/types/temporal/Era';
 
 // =============================================================================
 // isEntity Tests
@@ -143,14 +144,18 @@ describe('isPlaceableComponent', () => {
 
 describe('isTechBaseEntity', () => {
   it('should return true for valid tech base entity', () => {
-    expect(isTechBaseEntity({
-      techBase: TechBase.INNER_SPHERE,
-      rulesLevel: RulesLevel.STANDARD,
-    })).toBe(true);
-    expect(isTechBaseEntity({
-      techBase: TechBase.CLAN,
-      rulesLevel: RulesLevel.ADVANCED,
-    })).toBe(true);
+    expect(
+      isTechBaseEntity({
+        techBase: TechBase.INNER_SPHERE,
+        rulesLevel: RulesLevel.STANDARD,
+      }),
+    ).toBe(true);
+    expect(
+      isTechBaseEntity({
+        techBase: TechBase.CLAN,
+        rulesLevel: RulesLevel.ADVANCED,
+      }),
+    ).toBe(true);
   });
 
   it('should return false for invalid values', () => {
@@ -160,17 +165,21 @@ describe('isTechBaseEntity', () => {
   });
 
   it('should return false for invalid tech base', () => {
-    expect(isTechBaseEntity({
-      techBase: 'Invalid',
-      rulesLevel: RulesLevel.STANDARD,
-    })).toBe(false);
+    expect(
+      isTechBaseEntity({
+        techBase: 'Invalid',
+        rulesLevel: RulesLevel.STANDARD,
+      }),
+    ).toBe(false);
   });
 
   it('should return false for invalid rules level', () => {
-    expect(isTechBaseEntity({
-      techBase: TechBase.INNER_SPHERE,
-      rulesLevel: 'Invalid',
-    })).toBe(false);
+    expect(
+      isTechBaseEntity({
+        techBase: TechBase.INNER_SPHERE,
+        rulesLevel: 'Invalid',
+      }),
+    ).toBe(false);
   });
 });
 
@@ -181,7 +190,9 @@ describe('isTechBaseEntity', () => {
 describe('isTemporalEntity', () => {
   it('should return true for valid temporal entity', () => {
     expect(isTemporalEntity({ introductionYear: 3025 })).toBe(true);
-    expect(isTemporalEntity({ introductionYear: 2750, extinctionYear: 2900 })).toBe(true);
+    expect(
+      isTemporalEntity({ introductionYear: 2750, extinctionYear: 2900 }),
+    ).toBe(true);
   });
 
   it('should return false for invalid values', () => {
@@ -200,15 +211,21 @@ describe('isTemporalEntity', () => {
   });
 
   it('should return false when extinction is before introduction', () => {
-    expect(isTemporalEntity({ introductionYear: 3025, extinctionYear: 3000 })).toBe(false);
+    expect(
+      isTemporalEntity({ introductionYear: 3025, extinctionYear: 3000 }),
+    ).toBe(false);
   });
 
   it('should return false for non-finite extinction year', () => {
-    expect(isTemporalEntity({ introductionYear: 3025, extinctionYear: Infinity })).toBe(false);
+    expect(
+      isTemporalEntity({ introductionYear: 3025, extinctionYear: Infinity }),
+    ).toBe(false);
   });
 
   it('should allow undefined extinction year', () => {
-    expect(isTemporalEntity({ introductionYear: 3025, extinctionYear: undefined })).toBe(true);
+    expect(
+      isTemporalEntity({ introductionYear: 3025, extinctionYear: undefined }),
+    ).toBe(true);
   });
 });
 
@@ -228,12 +245,18 @@ describe('isValuedComponent', () => {
   });
 
   it('should return false for negative values', () => {
-    expect(isValuedComponent({ costCBills: -100, battleValue: 50 })).toBe(false);
-    expect(isValuedComponent({ costCBills: 100, battleValue: -50 })).toBe(false);
+    expect(isValuedComponent({ costCBills: -100, battleValue: 50 })).toBe(
+      false,
+    );
+    expect(isValuedComponent({ costCBills: 100, battleValue: -50 })).toBe(
+      false,
+    );
   });
 
   it('should return false for wrong types', () => {
-    expect(isValuedComponent({ costCBills: '1000', battleValue: 50 })).toBe(false);
+    expect(isValuedComponent({ costCBills: '1000', battleValue: 50 })).toBe(
+      false,
+    );
   });
 });
 
@@ -246,7 +269,9 @@ describe('isDocumentedEntity', () => {
     expect(isDocumentedEntity({})).toBe(true);
     expect(isDocumentedEntity({ sourceBook: 'TechManual' })).toBe(true);
     expect(isDocumentedEntity({ pageReference: 123 })).toBe(true);
-    expect(isDocumentedEntity({ sourceBook: 'TRO', pageReference: 45 })).toBe(true);
+    expect(isDocumentedEntity({ sourceBook: 'TRO', pageReference: 45 })).toBe(
+      true,
+    );
   });
 
   it('should return false for invalid values', () => {
@@ -318,7 +343,9 @@ describe('assertEntity', () => {
   });
 
   it('should include context in error message', () => {
-    expect(() => assertEntity({}, 'MyContext')).toThrow('MyContext: Value is not a valid Entity');
+    expect(() => assertEntity({}, 'MyContext')).toThrow(
+      'MyContext: Value is not a valid Entity',
+    );
   });
 });
 
@@ -328,23 +355,31 @@ describe('assertWeightedComponent', () => {
   });
 
   it('should throw for invalid weighted component', () => {
-    expect(() => assertWeightedComponent({})).toThrow('Value is not a valid WeightedComponent');
+    expect(() => assertWeightedComponent({})).toThrow(
+      'Value is not a valid WeightedComponent',
+    );
   });
 
   it('should include context in error message', () => {
-    expect(() => assertWeightedComponent({}, 'Engine')).toThrow('Engine: Value is not a valid WeightedComponent');
+    expect(() => assertWeightedComponent({}, 'Engine')).toThrow(
+      'Engine: Value is not a valid WeightedComponent',
+    );
   });
 });
 
 describe('assertTechBaseEntity', () => {
   it('should not throw for valid tech base entity', () => {
-    expect(() => assertTechBaseEntity({
-      techBase: TechBase.INNER_SPHERE,
-      rulesLevel: RulesLevel.STANDARD,
-    })).not.toThrow();
+    expect(() =>
+      assertTechBaseEntity({
+        techBase: TechBase.INNER_SPHERE,
+        rulesLevel: RulesLevel.STANDARD,
+      }),
+    ).not.toThrow();
   });
 
   it('should throw for invalid tech base entity', () => {
-    expect(() => assertTechBaseEntity({})).toThrow('Value is not a valid TechBaseEntity');
+    expect(() => assertTechBaseEntity({})).toThrow(
+      'Value is not a valid TechBaseEntity',
+    );
   });
 });

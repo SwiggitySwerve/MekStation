@@ -12,19 +12,24 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { parseApiResponse, createMock, type PartialMock } from '@/__tests__/helpers';
 
+import { createMocks } from 'node-mocks-http';
+
+import {
+  parseApiResponse,
+  createMock,
+  type PartialMock,
+} from '@/__tests__/helpers';
+import folderByIdHandler from '@/pages/api/vault/folders/[id]';
+import foldersHandler from '@/pages/api/vault/folders/index';
 // Import API handlers
 import identityHandler from '@/pages/api/vault/identity/index';
 import unlockHandler from '@/pages/api/vault/identity/unlock';
-import foldersHandler from '@/pages/api/vault/folders/index';
-import folderByIdHandler from '@/pages/api/vault/folders/[id]';
 import shareIndexHandler from '@/pages/api/vault/share/index';
 import shareRedeemHandler from '@/pages/api/vault/share/redeem';
-import versionsHandler from '@/pages/api/vault/versions/index';
 import signHandler from '@/pages/api/vault/sign';
+import versionsHandler from '@/pages/api/vault/versions/index';
 
 // Mock services
 jest.mock('@/services/vault/IdentityService');
@@ -34,15 +39,24 @@ jest.mock('@/services/vault/ShareLinkService');
 jest.mock('@/services/vault/VersionHistoryService');
 
 import {
+  getIdentityRepository,
+  IdentityRepository,
+} from '@/services/vault/IdentityRepository';
+import {
   createIdentity,
   unlockIdentity,
   signMessage,
   getPublicIdentity,
 } from '@/services/vault/IdentityService';
-import { getIdentityRepository, IdentityRepository } from '@/services/vault/IdentityRepository';
+import {
+  getShareLinkService,
+  ShareLinkService,
+} from '@/services/vault/ShareLinkService';
 import { getVaultService, VaultService } from '@/services/vault/VaultService';
-import { getShareLinkService, ShareLinkService } from '@/services/vault/ShareLinkService';
-import { getVersionHistoryService, VersionHistoryService } from '@/services/vault/VersionHistoryService';
+import {
+  getVersionHistoryService,
+  VersionHistoryService,
+} from '@/services/vault/VersionHistoryService';
 
 // =============================================================================
 // Response Types
@@ -621,7 +635,9 @@ describe('Vault Identity Unlock API', () => {
 
     it('should reject incorrect password', async () => {
       mockRepository.getActive.mockResolvedValue(mockStoredIdentity);
-      (unlockIdentity as jest.Mock).mockRejectedValue(new Error('Decryption failed'));
+      (unlockIdentity as jest.Mock).mockRejectedValue(
+        new Error('Decryption failed'),
+      );
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
@@ -756,7 +772,9 @@ describe('Vault Folders API', () => {
       await foldersHandler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      expect(mockVaultService.getChildFolders).toHaveBeenCalledWith('folder-parent');
+      expect(mockVaultService.getChildFolders).toHaveBeenCalledWith(
+        'folder-parent',
+      );
     });
 
     it('should list shared folders when shared=true', async () => {
@@ -902,7 +920,9 @@ describe('Vault Folder By ID API', () => {
 
     it('should get folder with permissions when requested', async () => {
       const folderWithPermissions = { ...mockFolder, permissions: [] };
-      mockVaultService.getFolderWithPermissions.mockResolvedValue(folderWithPermissions);
+      mockVaultService.getFolderWithPermissions.mockResolvedValue(
+        folderWithPermissions,
+      );
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'GET',
@@ -912,7 +932,9 @@ describe('Vault Folder By ID API', () => {
       await folderByIdHandler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      expect(mockVaultService.getFolderWithPermissions).toHaveBeenCalledWith('folder-123');
+      expect(mockVaultService.getFolderWithPermissions).toHaveBeenCalledWith(
+        'folder-123',
+      );
     });
 
     it('should return 404 if folder not found', async () => {
@@ -961,7 +983,10 @@ describe('Vault Folder By ID API', () => {
       await folderByIdHandler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      expect(mockVaultService.renameFolder).toHaveBeenCalledWith('folder-123', 'Updated Name');
+      expect(mockVaultService.renameFolder).toHaveBeenCalledWith(
+        'folder-123',
+        'Updated Name',
+      );
     });
 
     it('should update folder description', async () => {
@@ -980,7 +1005,7 @@ describe('Vault Folder By ID API', () => {
       expect(res._getStatusCode()).toBe(200);
       expect(mockVaultService.setFolderDescription).toHaveBeenCalledWith(
         'folder-123',
-        'New description'
+        'New description',
       );
     });
 
@@ -1004,7 +1029,10 @@ describe('Vault Folder By ID API', () => {
       await folderByIdHandler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      expect(mockVaultService.moveFolder).toHaveBeenCalledWith('folder-123', 'parent-123');
+      expect(mockVaultService.moveFolder).toHaveBeenCalledWith(
+        'folder-123',
+        'parent-123',
+      );
     });
 
     it('should reject circular folder reference', async () => {
@@ -1183,7 +1211,11 @@ describe('Vault Share Links API', () => {
     it('should create category share link', async () => {
       const result = {
         success: true,
-        link: { ...mockShareLink, scopeType: 'category', scopeCategory: 'units' },
+        link: {
+          ...mockShareLink,
+          scopeType: 'category',
+          scopeCategory: 'units',
+        },
         url: 'https://example.com/share/token',
       };
       mockShareService.create.mockResolvedValue(result);
@@ -1225,7 +1257,7 @@ describe('Vault Share Links API', () => {
 
       expect(res._getStatusCode()).toBe(201);
       expect(mockShareService.create).toHaveBeenCalledWith(
-        expect.objectContaining({ expiresAt })
+        expect.objectContaining({ expiresAt }),
       );
     });
 
@@ -1251,7 +1283,7 @@ describe('Vault Share Links API', () => {
 
       expect(res._getStatusCode()).toBe(201);
       expect(mockShareService.create).toHaveBeenCalledWith(
-        expect.objectContaining({ maxUses: 5 })
+        expect.objectContaining({ maxUses: 5 }),
       );
     });
 
@@ -1371,7 +1403,8 @@ describe('Vault Share Links API', () => {
 
       expect(res._getStatusCode()).toBe(400);
       expect(JSON.parse(res._getData())).toEqual({
-        error: 'scopeCategory must be one of: units, pilots, forces, encounters',
+        error:
+          'scopeCategory must be one of: units, pilots, forces, encounters',
       });
     });
 
@@ -1471,14 +1504,17 @@ describe('Vault Share Redeem API', () => {
 
       expect(res._getStatusCode()).toBe(200);
       expect(mockShareService.redeemByUrl).toHaveBeenCalledWith(
-        'https://example.com/share/valid-token'
+        'https://example.com/share/valid-token',
       );
     });
 
     it('should return 404 for non-existent token', async () => {
       const result = {
         success: false,
-        error: { message: 'Share link not found', errorCode: 'NOT_FOUND' as const },
+        error: {
+          message: 'Share link not found',
+          errorCode: 'NOT_FOUND' as const,
+        },
       };
       mockShareService.redeem.mockResolvedValue(result);
 
@@ -1500,7 +1536,10 @@ describe('Vault Share Redeem API', () => {
     it('should return 410 for expired link', async () => {
       const result = {
         success: false,
-        error: { message: 'Share link has expired', errorCode: 'EXPIRED' as const },
+        error: {
+          message: 'Share link has expired',
+          errorCode: 'EXPIRED' as const,
+        },
       };
       mockShareService.redeem.mockResolvedValue(result);
 
@@ -1521,7 +1560,10 @@ describe('Vault Share Redeem API', () => {
     it('should return 410 for max uses reached', async () => {
       const result = {
         success: false,
-        error: { message: 'Share link has reached maximum uses', errorCode: 'MAX_USES' as const },
+        error: {
+          message: 'Share link has reached maximum uses',
+          errorCode: 'MAX_USES' as const,
+        },
       };
       mockShareService.redeem.mockResolvedValue(result);
 
@@ -1542,7 +1584,10 @@ describe('Vault Share Redeem API', () => {
     it('should return 410 for inactive link', async () => {
       const result = {
         success: false,
-        error: { message: 'Share link is inactive', errorCode: 'INACTIVE' as const },
+        error: {
+          message: 'Share link is inactive',
+          errorCode: 'INACTIVE' as const,
+        },
       };
       mockShareService.redeem.mockResolvedValue(result);
 
@@ -1666,7 +1711,11 @@ describe('Vault Versions API', () => {
 
       await versionsHandler(req, res);
 
-      expect(mockVersionService.getHistory).toHaveBeenCalledWith('item-123', 'unit', 10);
+      expect(mockVersionService.getHistory).toHaveBeenCalledWith(
+        'item-123',
+        'unit',
+        10,
+      );
     });
 
     it('should use default limit of 50', async () => {
@@ -1683,7 +1732,11 @@ describe('Vault Versions API', () => {
 
       await versionsHandler(req, res);
 
-      expect(mockVersionService.getHistory).toHaveBeenCalledWith('item-123', 'unit', 50);
+      expect(mockVersionService.getHistory).toHaveBeenCalledWith(
+        'item-123',
+        'unit',
+        50,
+      );
     });
 
     it('should reject missing itemId', async () => {
@@ -1876,13 +1929,15 @@ describe('Vault Sign API', () => {
       await signHandler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = getResponseData<SignBundleResponse & { 
-        bundle: { 
-          metadata: Record<string, unknown>; 
-          payload: unknown;
-          signature: string;
-        };
-      }>(res);
+      const data = getResponseData<
+        SignBundleResponse & {
+          bundle: {
+            metadata: Record<string, unknown>;
+            payload: unknown;
+            signature: string;
+          };
+        }
+      >(res);
       expect(data.success).toBe(true);
       expect(data.bundle).toBeDefined();
       expect(data.bundle.metadata).toBeDefined();
@@ -1905,11 +1960,13 @@ describe('Vault Sign API', () => {
 
       await signHandler(req, res);
 
-      const data = getResponseData<SignBundleResponse & { 
-        bundle: { 
-          metadata: Record<string, unknown>; 
-        };
-      }>(res);
+      const data = getResponseData<
+        SignBundleResponse & {
+          bundle: {
+            metadata: Record<string, unknown>;
+          };
+        }
+      >(res);
       expect(data.bundle.metadata.version).toBe('1.0.0');
       expect(data.bundle.metadata.contentType).toBe('pilot');
       expect(data.bundle.metadata.itemCount).toBe(1);
@@ -1992,7 +2049,9 @@ describe('Vault Sign API', () => {
 
     it('should return 401 for incorrect password', async () => {
       mockRepository.getActive.mockResolvedValue(mockStoredIdentity);
-      (unlockIdentity as jest.Mock).mockRejectedValue(new Error('Decryption failed'));
+      (unlockIdentity as jest.Mock).mockRejectedValue(
+        new Error('Decryption failed'),
+      );
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
@@ -2015,7 +2074,10 @@ describe('Vault Sign API', () => {
       mockRepository.getActive.mockResolvedValue(mockStoredIdentity);
 
       // Single item with name
-      const { req: req1, res: res1 } = createMocks<NextApiRequest, NextApiResponse>({
+      const { req: req1, res: res1 } = createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
         method: 'POST',
         body: {
           password: 'password',
@@ -2035,7 +2097,10 @@ describe('Vault Sign API', () => {
       (signMessage as jest.Mock).mockResolvedValue('mock-signature-base64');
       (getPublicIdentity as jest.Mock).mockReturnValue(mockPublicIdentity);
 
-      const { req: req2, res: res2 } = createMocks<NextApiRequest, NextApiResponse>({
+      const { req: req2, res: res2 } = createMocks<
+        NextApiRequest,
+        NextApiResponse
+      >({
         method: 'POST',
         body: {
           password: 'password',

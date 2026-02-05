@@ -12,6 +12,7 @@ import type {
   PermissionScopeType as _PermissionScopeType,
   ContentCategory as _ContentCategory,
 } from '@/types/vault';
+
 import {
   PermissionRepository,
   getPermissionRepository,
@@ -23,24 +24,27 @@ import {
 // =============================================================================
 
 // Create a mock in-memory database for testing
-const mockDatabaseTables = new Map<string, Map<string, Record<string, unknown>>>();
+const mockDatabaseTables = new Map<
+  string,
+  Map<string, Record<string, unknown>>
+>();
 
 const mockDatabase = {
   statements: new Map<string, { sql: string; params: unknown[] }>(),
   tables: mockDatabaseTables,
-  
+
   exec: jest.fn().mockImplementation((sql: string) => {
     // Initialize tables when exec is called (for CREATE TABLE statements)
     if (sql.includes('CREATE TABLE IF NOT EXISTS vault_permissions')) {
       mockDatabaseTables.set('vault_permissions', new Map());
     }
   }),
-  
+
   prepare: jest.fn().mockImplementation((sql: string) => {
     return {
       run: jest.fn().mockImplementation((...params: unknown[]) => {
         const table = mockDatabaseTables.get('vault_permissions')!;
-        
+
         if (sql.includes('INSERT INTO')) {
           // Handle INSERT
           const id = params[0] as string;
@@ -61,14 +65,14 @@ const mockDatabase = {
           const id = params[params.length - 1] as string;
           const existing = table.get(id);
           if (!existing) return { changes: 0 };
-          
+
           if (sql.includes('SET level')) {
             existing.level = params[0];
           } else if (sql.includes('SET expires_at')) {
             existing.expires_at = params[0];
           }
           return { changes: 1 };
-        } else           if (sql.includes('DELETE')) {
+        } else if (sql.includes('DELETE')) {
           // Handle DELETE
           if (sql.includes('WHERE id = ?')) {
             const id = params[0] as string;
@@ -114,11 +118,11 @@ const mockDatabase = {
         }
         return { changes: 0 };
       }),
-      
+
       get: jest.fn().mockImplementation((...params: unknown[]) => {
         const table = mockDatabaseTables.get('vault_permissions')!;
         const rows = Array.from(table.values()) as Record<string, unknown>[];
-        
+
         if (sql.includes('WHERE id = ?')) {
           return table.get(params[0] as string) || undefined;
         } else if (sql.includes("scope_type = 'item' AND scope_id = ?")) {
@@ -136,7 +140,9 @@ const mockDatabase = {
             }
           }
           return undefined;
-        } else if (sql.includes("scope_type = 'category' AND scope_category = ?")) {
+        } else if (
+          sql.includes("scope_type = 'category' AND scope_category = ?")
+        ) {
           const granteeId = params[0] as string;
           const category = params[1] as string;
           const now = params[2] as string;
@@ -167,16 +173,16 @@ const mockDatabase = {
         }
         return undefined;
       }),
-      
+
       all: jest.fn().mockImplementation((...params: unknown[]) => {
         const table = mockDatabaseTables.get('vault_permissions')!;
         const rows = Array.from(table.values()) as Record<string, unknown>[];
-        
+
         if (sql.includes('WHERE grantee_id = ?')) {
           return rows.filter((r) => r.grantee_id === params[0]);
         } else if (sql.includes('WHERE scope_type = ? AND scope_id = ?')) {
           return rows.filter(
-            (r) => r.scope_type === params[0] && r.scope_id === params[1]
+            (r) => r.scope_type === params[0] && r.scope_id === params[1],
           );
         } else if (sql.includes('WHERE scope_category = ?')) {
           return rows.filter((r) => r.scope_category === params[0]);
@@ -401,7 +407,9 @@ describe('PermissionRepository', () => {
       const grants = await repository.getByGrantee('ABCD-EFGH-JKLM-NPQR');
 
       expect(grants).toHaveLength(2);
-      expect(grants.every((g) => g.granteeId === 'ABCD-EFGH-JKLM-NPQR')).toBe(true);
+      expect(grants.every((g) => g.granteeId === 'ABCD-EFGH-JKLM-NPQR')).toBe(
+        true,
+      );
     });
 
     it('should return empty array for unknown grantee', async () => {
@@ -576,7 +584,7 @@ describe('PermissionRepository', () => {
       const level = await repository.checkPermission(
         'ABCD-EFGH-JKLM-NPQR',
         'item',
-        'unit-123'
+        'unit-123',
       );
 
       expect(level).toBe('read');
@@ -596,7 +604,7 @@ describe('PermissionRepository', () => {
         'ABCD-EFGH-JKLM-NPQR',
         'item',
         'unit-123',
-        'units'
+        'units',
       );
 
       expect(level).toBe('write');
@@ -615,7 +623,7 @@ describe('PermissionRepository', () => {
       const level = await repository.checkPermission(
         'ABCD-EFGH-JKLM-NPQR',
         'item',
-        'unit-123'
+        'unit-123',
       );
 
       expect(level).toBe('admin');
@@ -634,7 +642,7 @@ describe('PermissionRepository', () => {
       const level = await repository.checkPermission(
         'SOME-OTHER-USER',
         'item',
-        'unit-public'
+        'unit-public',
       );
 
       expect(level).toBe('read');
@@ -644,7 +652,7 @@ describe('PermissionRepository', () => {
       const level = await repository.checkPermission(
         'ABCD-EFGH-JKLM-NPQR',
         'item',
-        'unit-123'
+        'unit-123',
       );
 
       expect(level).toBeNull();
@@ -664,7 +672,7 @@ describe('PermissionRepository', () => {
       const level = await repository.checkPermission(
         'ABCD-EFGH-JKLM-NPQR',
         'item',
-        'unit-123'
+        'unit-123',
       );
 
       expect(level).toBeNull();
@@ -684,7 +692,7 @@ describe('PermissionRepository', () => {
       const level = await repository.checkPermission(
         'ABCD-EFGH-JKLM-NPQR',
         'item',
-        'unit-123'
+        'unit-123',
       );
 
       expect(level).toBe('read');
@@ -994,7 +1002,7 @@ describe('PermissionRepository', () => {
   describe('getPermissionRepository singleton', () => {
     it('should return the same instance', () => {
       resetPermissionRepository();
-      
+
       const instance1 = getPermissionRepository();
       const instance2 = getPermissionRepository();
 

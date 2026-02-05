@@ -6,6 +6,7 @@
  * @spec openspec/changes/add-awards-system/specs/awards/spec.md
  */
 import React, { useMemo } from 'react';
+
 import { useAwardStore } from '@/stores/useAwardStore';
 import {
   IAward,
@@ -66,7 +67,11 @@ interface MiniBadgeProps {
   onClick?: () => void;
 }
 
-function MiniBadge({ award, size, onClick }: MiniBadgeProps): React.ReactElement {
+function MiniBadge({
+  award,
+  size,
+  onClick,
+}: MiniBadgeProps): React.ReactElement {
   const config = sizeConfig[size];
   const rarityColor = getRarityColor(award.rarity);
   const rarityBg = getRarityBackground(award.rarity);
@@ -77,17 +82,7 @@ function MiniBadge({ award, size, onClick }: MiniBadgeProps): React.ReactElement
   return (
     <button
       onClick={onClick}
-      className={`
-        ${config.badge}
-        rounded-full border
-        flex items-center justify-center
-        font-bold uppercase
-        transition-all duration-200
-        ${rarityBg} ${rarityColor}
-        ${isLegendary ? 'border-amber-500/60' : 'border-transparent'}
-        hover:scale-110 hover:z-10
-        focus:outline-none focus:ring-2 focus:ring-accent/50
-      `}
+      className={` ${config.badge} flex items-center justify-center rounded-full border font-bold uppercase transition-all duration-200 ${rarityBg} ${rarityColor} ${isLegendary ? 'border-amber-500/60' : 'border-transparent'} focus:ring-accent/50 hover:z-10 hover:scale-110 focus:ring-2 focus:outline-none`}
       title={award.name}
     >
       {iconLetter}
@@ -131,7 +126,7 @@ export function AwardRibbon({
   if (pilotAwards.length === 0) {
     return (
       <div className={`flex items-center ${config.gap} ${className}`}>
-        <span className="text-xs text-text-theme-muted italic">No awards</span>
+        <span className="text-text-theme-muted text-xs italic">No awards</span>
       </div>
     );
   }
@@ -152,14 +147,7 @@ export function AwardRibbon({
       {overflowCount > 0 && (
         <button
           onClick={onOverflowClick}
-          className={`
-            ${config.overflow}
-            h-full py-0.5 rounded-full
-            bg-surface-raised/80 border border-border-theme-subtle
-            text-text-theme-muted hover:text-text-theme-secondary
-            transition-colors
-            focus:outline-none focus:ring-2 focus:ring-accent/50
-          `}
+          className={` ${config.overflow} bg-surface-raised/80 border-border-theme-subtle text-text-theme-muted hover:text-text-theme-secondary focus:ring-accent/50 h-full rounded-full border py-0.5 transition-colors focus:ring-2 focus:outline-none`}
         >
           +{overflowCount}
         </button>

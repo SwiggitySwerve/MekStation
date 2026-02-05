@@ -6,22 +6,33 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { useVaultImport } from '../useVaultImport';
+
+import type { IImportHandlers, IImportConflict } from '@/types/vault';
+
 import {
   importFromString,
   readBundleFromFile,
   validateBundleFile,
   previewBundle,
 } from '@/services/vault/ImportService';
-import type { IImportHandlers, IImportConflict } from '@/types/vault';
+
+import { useVaultImport } from '../useVaultImport';
 
 // Mock dependencies
 jest.mock('@/services/vault/ImportService');
 
-const mockImportFromString = importFromString as jest.MockedFunction<typeof importFromString>;
-const mockReadBundleFromFile = readBundleFromFile as jest.MockedFunction<typeof readBundleFromFile>;
-const mockValidateBundleFile = validateBundleFile as jest.MockedFunction<typeof validateBundleFile>;
-const mockPreviewBundle = previewBundle as jest.MockedFunction<typeof previewBundle>;
+const mockImportFromString = importFromString as jest.MockedFunction<
+  typeof importFromString
+>;
+const mockReadBundleFromFile = readBundleFromFile as jest.MockedFunction<
+  typeof readBundleFromFile
+>;
+const mockValidateBundleFile = validateBundleFile as jest.MockedFunction<
+  typeof validateBundleFile
+>;
+const mockPreviewBundle = previewBundle as jest.MockedFunction<
+  typeof previewBundle
+>;
 
 // Sample test data
 const createMockFile = (name: string, _size: number = 1000): File => {
@@ -40,7 +51,11 @@ const mockBundleContent = JSON.stringify({
     version: '1.0.0',
     contentType: 'unit',
     itemCount: 1,
-    author: { displayName: 'Test Author', publicKey: 'abc123', friendCode: 'TEST-1234' },
+    author: {
+      displayName: 'Test Author',
+      publicKey: 'abc123',
+      friendCode: 'TEST-1234',
+    },
     createdAt: '2024-01-01T00:00:00Z',
     appVersion: '0.1.0',
   },
@@ -59,7 +74,11 @@ describe('useVaultImport', () => {
         version: '1.0.0',
         contentType: 'unit',
         itemCount: 1,
-        author: { displayName: 'Test Author', publicKey: 'abc123', friendCode: 'TEST-1234' },
+        author: {
+          displayName: 'Test Author',
+          publicKey: 'abc123',
+          friendCode: 'TEST-1234',
+        },
         createdAt: '2024-01-01T00:00:00Z',
         appVersion: '0.1.0',
       },
@@ -307,7 +326,7 @@ describe('useVaultImport', () => {
       expect(mockImportFromString).toHaveBeenCalledWith(
         mockBundleContent,
         handlers,
-        { conflictResolution: 'ask' }
+        { conflictResolution: 'ask' },
       );
     });
 
@@ -351,14 +370,16 @@ describe('useVaultImport', () => {
     });
 
     it('should handle conflicts', async () => {
-      const conflicts: IImportConflict[] = [{
-        contentType: 'unit',
-        bundleItemId: 'unit-1',
-        bundleItemName: 'Test Unit',
-        existingItemId: 'existing-1',
-        existingItemName: 'Existing Unit',
-        resolution: 'skip',
-      }];
+      const conflicts: IImportConflict[] = [
+        {
+          contentType: 'unit',
+          bundleItemId: 'unit-1',
+          bundleItemName: 'Test Unit',
+          existingItemId: 'existing-1',
+          existingItemName: 'Existing Unit',
+          resolution: 'skip',
+        },
+      ];
       mockImportFromString.mockResolvedValue({
         success: true,
         data: {
@@ -442,7 +463,7 @@ describe('useVaultImport', () => {
       expect(mockImportFromString).toHaveBeenCalledWith(
         mockBundleContent,
         handlers,
-        { conflictResolution: 'ask' }
+        { conflictResolution: 'ask' },
       );
     });
 
@@ -488,14 +509,16 @@ describe('useVaultImport', () => {
     });
 
     it('should handle conflicts in string import', async () => {
-      const conflicts: IImportConflict[] = [{
-        contentType: 'unit',
-        bundleItemId: 'unit-1',
-        bundleItemName: 'Test Unit',
-        existingItemId: 'existing-1',
-        existingItemName: 'Existing Unit',
-        resolution: 'skip',
-      }];
+      const conflicts: IImportConflict[] = [
+        {
+          contentType: 'unit',
+          bundleItemId: 'unit-1',
+          bundleItemName: 'Test Unit',
+          existingItemId: 'existing-1',
+          existingItemName: 'Existing Unit',
+          resolution: 'skip',
+        },
+      ];
       mockImportFromString.mockResolvedValue({
         success: true,
         data: {
@@ -536,14 +559,16 @@ describe('useVaultImport', () => {
       const { result } = renderHook(() => useVaultImport());
       const file = createMockFile('test.mekbundle');
       const handlers = createMockHandlers();
-      const resolutions: IImportConflict[] = [{
-        contentType: 'unit',
-        bundleItemId: 'unit-1',
-        bundleItemName: 'Test Unit',
-        existingItemId: 'existing-1',
-        existingItemName: 'Existing Unit',
-        resolution: 'replace',
-      }];
+      const resolutions: IImportConflict[] = [
+        {
+          contentType: 'unit',
+          bundleItemId: 'unit-1',
+          bundleItemName: 'Test Unit',
+          existingItemId: 'existing-1',
+          existingItemName: 'Existing Unit',
+          resolution: 'replace',
+        },
+      ];
 
       await act(async () => {
         await result.current.selectFile(file);
@@ -556,7 +581,7 @@ describe('useVaultImport', () => {
       expect(mockImportFromString).toHaveBeenCalledWith(
         mockBundleContent,
         handlers,
-        { conflictResolution: 'ask', resolvedConflicts: resolutions }
+        { conflictResolution: 'ask', resolvedConflicts: resolutions },
       );
     });
   });

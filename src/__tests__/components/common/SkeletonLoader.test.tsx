@@ -2,8 +2,9 @@
  * Tests for SkeletonLoader components
  */
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
+
 import {
   SkeletonInput,
   SkeletonSelect,
@@ -154,7 +155,7 @@ describe('SkeletonFormSection', () => {
     render(
       <SkeletonFormSection title="Form Section">
         <div>Content</div>
-      </SkeletonFormSection>
+      </SkeletonFormSection>,
     );
 
     expect(screen.getByText('Form Section')).toBeInTheDocument();
@@ -164,7 +165,7 @@ describe('SkeletonFormSection', () => {
     render(
       <SkeletonFormSection title="Test">
         <div data-testid="child">Child content</div>
-      </SkeletonFormSection>
+      </SkeletonFormSection>,
     );
 
     expect(screen.getByTestId('child')).toBeInTheDocument();
@@ -175,7 +176,7 @@ describe('SkeletonFormSection', () => {
     const { container } = render(
       <SkeletonFormSection title="Test" className="custom-section">
         <div>Content</div>
-      </SkeletonFormSection>
+      </SkeletonFormSection>,
     );
 
     const section = container.firstChild as HTMLElement;
@@ -186,7 +187,7 @@ describe('SkeletonFormSection', () => {
     const { container } = render(
       <SkeletonFormSection title="Test">
         <div>Content</div>
-      </SkeletonFormSection>
+      </SkeletonFormSection>,
     );
 
     const section = container.firstChild as HTMLElement;
@@ -201,7 +202,7 @@ describe('SkeletonFormSection', () => {
         <SkeletonInput />
         <SkeletonSelect />
         <SkeletonButton />
-      </SkeletonFormSection>
+      </SkeletonFormSection>,
     );
 
     // All skeleton children should be present
@@ -218,10 +219,9 @@ describe('Skeleton animation', () => {
     const { container: c4 } = render(<SkeletonText />);
     const { container: c5 } = render(<SkeletonButton />);
 
-    expect((c1.firstChild as HTMLElement)).toHaveClass('animate-pulse');
-    expect((c2.firstChild as HTMLElement)).toHaveClass('animate-pulse');
-    expect((c4.firstChild as HTMLElement)).toHaveClass('animate-pulse');
-    expect((c5.firstChild as HTMLElement)).toHaveClass('animate-pulse');
+    expect(c1.firstChild as HTMLElement).toHaveClass('animate-pulse');
+    expect(c2.firstChild as HTMLElement).toHaveClass('animate-pulse');
+    expect(c4.firstChild as HTMLElement).toHaveClass('animate-pulse');
+    expect(c5.firstChild as HTMLElement).toHaveClass('animate-pulse');
   });
 });
-

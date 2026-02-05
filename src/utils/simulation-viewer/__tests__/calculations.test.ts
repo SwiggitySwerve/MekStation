@@ -1,4 +1,7 @@
-import { calculateBVAdvantage, calculateComparisonDelta } from '../calculations';
+import {
+  calculateBVAdvantage,
+  calculateComparisonDelta,
+} from '../calculations';
 
 describe('calculateBVAdvantage', () => {
   it('should calculate positive advantage', () => {

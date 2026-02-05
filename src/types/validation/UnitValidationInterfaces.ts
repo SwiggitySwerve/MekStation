@@ -8,8 +8,8 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { UnitType } from '../unit/BattleMechInterfaces';
 import { TechBase, RulesLevel, Era } from '../enums';
+import { UnitType } from '../unit/BattleMechInterfaces';
 import {
   ValidationCategory,
   IValidationOptions,
@@ -285,7 +285,9 @@ export interface IUnitValidationRuleDefinition {
   readonly applicableUnitTypes?: readonly UnitType[] | 'ALL';
   readonly overrides?: string;
   readonly extends?: string;
-  readonly validate: (context: IUnitValidationContext) => IUnitValidationRuleResult;
+  readonly validate: (
+    context: IUnitValidationContext,
+  ) => IUnitValidationRuleResult;
   readonly canValidate?: (context: IUnitValidationContext) => boolean;
 }
 
@@ -297,10 +299,16 @@ export interface IUnitValidationRegistry {
   registerUniversalRule(rule: IUnitValidationRuleDefinition): void;
 
   /** Register a category rule (applies to unit category) */
-  registerCategoryRule(category: UnitCategory, rule: IUnitValidationRuleDefinition): void;
+  registerCategoryRule(
+    category: UnitCategory,
+    rule: IUnitValidationRuleDefinition,
+  ): void;
 
   /** Register a unit-type-specific rule */
-  registerUnitTypeRule(unitType: UnitType, rule: IUnitValidationRuleDefinition): void;
+  registerUnitTypeRule(
+    unitType: UnitType,
+    rule: IUnitValidationRuleDefinition,
+  ): void;
 
   /** Unregister a rule by ID */
   unregister(ruleId: string): void;
@@ -338,16 +346,28 @@ export interface IUnitValidationRegistry {
  */
 export interface IUnitValidationOrchestrator {
   /** Validate a unit with full rule set */
-  validate(unit: IValidatableUnit, options?: IUnitValidationOptions): IUnitValidationResult;
+  validate(
+    unit: IValidatableUnit,
+    options?: IUnitValidationOptions,
+  ): IUnitValidationResult;
 
   /** Validate using only rules from a specific category */
-  validateCategory(unit: IValidatableUnit, category: ValidationCategory): IUnitValidationResult;
+  validateCategory(
+    unit: IValidatableUnit,
+    category: ValidationCategory,
+  ): IUnitValidationResult;
 
   /** Validate using only rules from a specific unit category */
-  validateUnitCategory(unit: IValidatableUnit, unitCategory: UnitCategory): IUnitValidationResult;
+  validateUnitCategory(
+    unit: IValidatableUnit,
+    unitCategory: UnitCategory,
+  ): IUnitValidationResult;
 
   /** Run a specific rule */
-  validateRule(unit: IValidatableUnit, ruleId: string): IUnitValidationRuleResult | null;
+  validateRule(
+    unit: IValidatableUnit,
+    ruleId: string,
+  ): IUnitValidationRuleResult | null;
 
   /** Get the registry */
   getRegistry(): IUnitValidationRegistry;
@@ -368,7 +388,7 @@ export function createUnitValidationError(
     actual?: string;
     suggestion?: string;
     details?: IValidationErrorDetails;
-  }
+  },
 ): IUnitValidationError {
   return {
     ruleId,
@@ -393,7 +413,7 @@ export function createUnitValidationRuleResult(
   errors: IUnitValidationError[],
   warnings: IUnitValidationError[],
   infos: IUnitValidationError[],
-  executionTime: number
+  executionTime: number,
 ): IUnitValidationRuleResult {
   return {
     ruleId,
@@ -412,7 +432,14 @@ export function createUnitValidationRuleResult(
 export function createPassingResult(
   ruleId: string,
   ruleName: string,
-  executionTime: number = 0
+  executionTime: number = 0,
 ): IUnitValidationRuleResult {
-  return createUnitValidationRuleResult(ruleId, ruleName, [], [], [], executionTime);
+  return createUnitValidationRuleResult(
+    ruleId,
+    ruleName,
+    [],
+    [],
+    [],
+    executionTime,
+  );
 }

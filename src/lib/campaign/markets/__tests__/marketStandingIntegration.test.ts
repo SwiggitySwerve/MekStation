@@ -1,3 +1,9 @@
+import type { ICampaign } from '@/types/campaign/Campaign';
+
+import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
+import { Money } from '@/types/campaign/Money';
+
 import {
   getUnitMarketRarityModifier,
   getRecruitmentTickets,
@@ -5,10 +11,6 @@ import {
   getContractPayMultiplier,
   getContractNegotiationModifier,
 } from '../marketStandingIntegration';
-import type { ICampaign } from '@/types/campaign/Campaign';
-import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
-import { CampaignType } from '@/types/campaign/CampaignType';
-import { Money } from '@/types/campaign/Money';
 
 describe('marketStandingIntegration', () => {
   const mockCampaign: ICampaign = {

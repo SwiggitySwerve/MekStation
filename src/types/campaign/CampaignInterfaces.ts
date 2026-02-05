@@ -400,7 +400,7 @@ export function calculateMissionXp(
   kills: number,
   victory: boolean,
   survivedCritical: boolean,
-  optionalObjectivesCompleted: number
+  optionalObjectivesCompleted: number,
 ): number {
   let xp = XP_REWARDS.MISSION_PARTICIPATION;
   xp += kills * XP_REWARDS.KILL;
@@ -425,7 +425,10 @@ export interface ICampaignTemplate {
   /** Template description */
   readonly description: string;
   /** Mission definitions */
-  readonly missions: readonly Omit<ICampaignMission, 'status' | 'rosterSnapshot' | 'outcome' | 'completedAt'>[];
+  readonly missions: readonly Omit<
+    ICampaignMission,
+    'status' | 'rosterSnapshot' | 'outcome' | 'completedAt'
+  >[];
   /** Starting resources */
   readonly startingResources: ICampaignResources;
   /** Difficulty recommendation */
@@ -441,7 +444,8 @@ export const CAMPAIGN_TEMPLATES: readonly ICampaignTemplate[] = [
   {
     id: 'three-mission-raid',
     name: 'Border Raid',
-    description: 'A quick three-mission campaign: Recon, Assault, and Extraction.',
+    description:
+      'A quick three-mission campaign: Recon, Assault, and Extraction.',
     missions: [
       {
         id: 'm1',
@@ -478,7 +482,8 @@ export const CAMPAIGN_TEMPLATES: readonly ICampaignTemplate[] = [
   {
     id: 'branching-contract',
     name: 'The Contract',
-    description: 'A branching campaign where choices matter. Victory in mission 2 leads to different mission 3.',
+    description:
+      'A branching campaign where choices matter. Victory in mission 2 leads to different mission 3.',
     missions: [
       {
         id: 'm1',
@@ -548,7 +553,9 @@ export interface ICampaignValidationResult {
 /**
  * Validate a campaign.
  */
-export function validateCampaign(campaign: ICampaign): ICampaignValidationResult {
+export function validateCampaign(
+  campaign: ICampaign,
+): ICampaignValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -576,13 +583,17 @@ export function validateCampaign(campaign: ICampaign): ICampaignValidationResult
     // Check prerequisites exist
     for (const prereq of mission.prerequisites) {
       if (!missionIds.has(prereq)) {
-        errors.push(`Mission "${mission.name}" references non-existent prerequisite: ${prereq}`);
+        errors.push(
+          `Mission "${mission.name}" references non-existent prerequisite: ${prereq}`,
+        );
       }
     }
     // Check branches exist
     for (const branch of mission.branches) {
       if (!missionIds.has(branch.targetMissionId)) {
-        errors.push(`Mission "${mission.name}" branches to non-existent mission: ${branch.targetMissionId}`);
+        errors.push(
+          `Mission "${mission.name}" branches to non-existent mission: ${branch.targetMissionId}`,
+        );
       }
     }
   }
@@ -594,13 +605,19 @@ export function validateCampaign(campaign: ICampaign): ICampaignValidationResult
   }
 
   // Warning: units without pilots
-  const assignedPilots = new Set(campaign.roster.units.map((u) => u.pilotId).filter(Boolean));
+  const assignedPilots = new Set(
+    campaign.roster.units.map((u) => u.pilotId).filter(Boolean),
+  );
   const totalPilots = campaign.roster.pilots.length;
   const operationalUnits = campaign.roster.units.filter(
-    (u) => u.status === CampaignUnitStatus.Operational || u.status === CampaignUnitStatus.Damaged
+    (u) =>
+      u.status === CampaignUnitStatus.Operational ||
+      u.status === CampaignUnitStatus.Damaged,
   ).length;
   if (operationalUnits > assignedPilots.size && totalPilots > 0) {
-    warnings.push(`${operationalUnits - assignedPilots.size} operational units have no assigned pilot`);
+    warnings.push(
+      `${operationalUnits - assignedPilots.size} operational units have no assigned pilot`,
+    );
   }
 
   return {
@@ -653,25 +670,35 @@ export function isCampaignMission(obj: unknown): obj is ICampaignMission {
 /**
  * Get available missions (unlocked and not completed).
  */
-export function getAvailableMissions(campaign: ICampaign): readonly ICampaignMission[] {
+export function getAvailableMissions(
+  campaign: ICampaign,
+): readonly ICampaignMission[] {
   return campaign.missions.filter(
-    (m) => m.status === CampaignMissionStatus.Available || m.status === CampaignMissionStatus.InProgress
+    (m) =>
+      m.status === CampaignMissionStatus.Available ||
+      m.status === CampaignMissionStatus.InProgress,
   );
 }
 
 /**
  * Get operational units from roster.
  */
-export function getOperationalUnits(roster: ICampaignRoster): readonly ICampaignUnitState[] {
+export function getOperationalUnits(
+  roster: ICampaignRoster,
+): readonly ICampaignUnitState[] {
   return roster.units.filter(
-    (u) => u.status === CampaignUnitStatus.Operational || u.status === CampaignUnitStatus.Damaged
+    (u) =>
+      u.status === CampaignUnitStatus.Operational ||
+      u.status === CampaignUnitStatus.Damaged,
   );
 }
 
 /**
  * Get available pilots from roster.
  */
-export function getAvailablePilots(roster: ICampaignRoster): readonly ICampaignPilotState[] {
+export function getAvailablePilots(
+  roster: ICampaignRoster,
+): readonly ICampaignPilotState[] {
   return roster.pilots.filter((p) => p.status === CampaignPilotStatus.Active);
 }
 

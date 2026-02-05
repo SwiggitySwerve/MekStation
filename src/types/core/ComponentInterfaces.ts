@@ -79,5 +79,3 @@ export interface IHeatSinkDef {
   readonly techBase?: TechBase | 'Both';
   readonly rulesLevel?: RulesLevel;
 }
-
-

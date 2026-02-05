@@ -1,8 +1,8 @@
 /**
  * Heat Management System Types
- * 
+ *
  * Defines heat tracking and management types.
- * 
+ *
  * @spec openspec/specs/heat-management-system/spec.md
  * @spec openspec/specs/heat-overflow-effects/spec.md
  */
@@ -41,7 +41,7 @@ export interface HeatScaleEffect {
 
 /**
  * Complete heat scale effects per BattleTech TechManual
- * 
+ *
  * Heat | Move | To-Hit | Shutdown | Ammo
  * -----|------|--------|----------|-----
  * 0-4  | 0    | 0      | -        | -
@@ -65,11 +65,41 @@ export const HEAT_SCALE_EFFECTS: readonly HeatScaleEffect[] = [
   { threshold: 18, movementPenalty: -4, toHitPenalty: 3 },
   { threshold: 20, movementPenalty: -5, toHitPenalty: 4, shutdownRoll: 8 },
   { threshold: 22, movementPenalty: -6, toHitPenalty: 4, shutdownRoll: 6 },
-  { threshold: 24, movementPenalty: -7, toHitPenalty: 4, shutdownRoll: 6, ammoExplosionRoll: 8 },
-  { threshold: 25, movementPenalty: -8, toHitPenalty: 4, shutdownRoll: 4, ammoExplosionRoll: 8 },
-  { threshold: 26, movementPenalty: -9, toHitPenalty: 4, shutdownRoll: 4, ammoExplosionRoll: 6 },
-  { threshold: 28, movementPenalty: -10, toHitPenalty: 4, shutdownRoll: 4, ammoExplosionRoll: 4 },
-  { threshold: 30, movementPenalty: -999, toHitPenalty: 0, shutdownRoll: 0, ammoExplosionRoll: 0 }, // Auto shutdown/explosion
+  {
+    threshold: 24,
+    movementPenalty: -7,
+    toHitPenalty: 4,
+    shutdownRoll: 6,
+    ammoExplosionRoll: 8,
+  },
+  {
+    threshold: 25,
+    movementPenalty: -8,
+    toHitPenalty: 4,
+    shutdownRoll: 4,
+    ammoExplosionRoll: 8,
+  },
+  {
+    threshold: 26,
+    movementPenalty: -9,
+    toHitPenalty: 4,
+    shutdownRoll: 4,
+    ammoExplosionRoll: 6,
+  },
+  {
+    threshold: 28,
+    movementPenalty: -10,
+    toHitPenalty: 4,
+    shutdownRoll: 4,
+    ammoExplosionRoll: 4,
+  },
+  {
+    threshold: 30,
+    movementPenalty: -999,
+    toHitPenalty: 0,
+    shutdownRoll: 0,
+    ammoExplosionRoll: 0,
+  }, // Auto shutdown/explosion
 ] as const;
 
 /**
@@ -178,7 +208,7 @@ export function calculateMovementHeat(
   walkMP: number,
   runMP: number,
   jumpMP: number,
-  movementMode: 'walk' | 'run' | 'jump'
+  movementMode: 'walk' | 'run' | 'jump',
 ): number {
   switch (movementMode) {
     case 'walk':
@@ -203,4 +233,3 @@ export interface HeatAnalysis {
   readonly turnsToOverheat: number; // -1 if never overheats
   readonly alphaStrikeHeat: number;
 }
-

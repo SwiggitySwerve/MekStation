@@ -14,16 +14,18 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
+
+import {
+  recordTransaction,
+  getBalance,
+  calculateDailyCosts,
+  processContractPayment,
+} from '@/lib/finances/FinanceService';
 import {
   ICampaign,
   createDefaultCampaignOptions,
 } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { IPerson, createInjury } from '@/types/campaign/Person';
-import { IForce } from '@/types/campaign/Force';
-import { IMission, IContract, createContract } from '@/types/campaign/Mission';
-import { Money } from '@/types/campaign/Money';
-import { IFinances } from '@/types/campaign/IFinances';
 import {
   PersonnelStatus,
   MissionStatus,
@@ -31,20 +33,23 @@ import {
   ForceRole,
   FormationLevel,
 } from '@/types/campaign/enums';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
+import { IForce } from '@/types/campaign/Force';
+import { IFinances } from '@/types/campaign/IFinances';
+import { IMission, IContract, createContract } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
+import { IPerson, createInjury } from '@/types/campaign/Person';
 
-import { generateContracts, acceptContract, calculateForceBV } from '../contractMarket';
+import {
+  generateContracts,
+  acceptContract,
+  calculateForceBV,
+} from '../contractMarket';
 import {
   advanceDay,
   DEFAULT_DAILY_SALARY,
   DEFAULT_DAILY_MAINTENANCE,
 } from '../dayAdvancement';
-import {
-  recordTransaction,
-  getBalance,
-  calculateDailyCosts,
-  processContractPayment,
-} from '@/lib/finances/FinanceService';
-import { TransactionType } from '@/types/campaign/enums/TransactionType';
 
 // =============================================================================
 // Test Fixtures (matching patterns from sibling test files)
@@ -68,7 +73,16 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
@@ -81,7 +95,7 @@ function createTestForce(
   name: string,
   parentForceId?: string,
   subForceIds: string[] = [],
-  unitIds: string[] = []
+  unitIds: string[] = [],
 ): IForce {
   return {
     id,
@@ -97,24 +111,24 @@ function createTestForce(
 }
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
-   return {
-      id: 'campaign-001',
-      name: 'Test Mercenary Company',
-      currentDate: new Date('3025-06-15T00:00:00Z'),
-      factionId: 'mercenary',
-      personnel: new Map<string, IPerson>(),
-      forces: new Map<string, IForce>(),
-      rootForceId: 'force-root',
-      missions: new Map<string, IMission>(),
-      finances: { transactions: [], balance: new Money(1000000) },
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: createDefaultCampaignOptions(),
-      campaignType: CampaignType.MERCENARY,
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
-      ...overrides,
-    };
+  return {
+    id: 'campaign-001',
+    name: 'Test Mercenary Company',
+    currentDate: new Date('3025-06-15T00:00:00Z'),
+    factionId: 'mercenary',
+    personnel: new Map<string, IPerson>(),
+    forces: new Map<string, IForce>(),
+    rootForceId: 'force-root',
+    missions: new Map<string, IMission>(),
+    finances: { transactions: [], balance: new Money(1000000) },
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: createDefaultCampaignOptions(),
+    campaignType: CampaignType.MERCENARY,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    ...overrides,
+  };
 }
 
 /**
@@ -191,8 +205,12 @@ describe('Campaign System Integration', () => {
       expect(campaign.personnel.get('cmd-001')!.isCommander).toBe(true);
       expect(campaign.personnel.get('cmd-001')!.pilotSkills.gunnery).toBe(3);
       expect(campaign.personnel.get('pilot-002')!.pilotSkills.piloting).toBe(5);
-      expect(campaign.personnel.get('tech-001')!.primaryRole).toBe(CampaignPersonnelRole.TECH);
-      expect(campaign.personnel.get('doc-001')!.primaryRole).toBe(CampaignPersonnelRole.DOCTOR);
+      expect(campaign.personnel.get('tech-001')!.primaryRole).toBe(
+        CampaignPersonnelRole.TECH,
+      );
+      expect(campaign.personnel.get('doc-001')!.primaryRole).toBe(
+        CampaignPersonnelRole.DOCTOR,
+      );
 
       // ---------------------------------------------------------------
       // 3. Create force hierarchy: Root → Battalion → Company → Lance
@@ -204,7 +222,7 @@ describe('Campaign System Integration', () => {
         'Test Mercenary Company',
         undefined,
         ['force-battalion'],
-        []
+        [],
       );
       forces.set(rootForce.id, rootForce);
 
@@ -213,7 +231,7 @@ describe('Campaign System Integration', () => {
         '1st Battalion',
         'force-root',
         ['force-alpha-co', 'force-bravo-co'],
-        []
+        [],
       );
       forces.set(battalion.id, battalion);
 
@@ -222,7 +240,7 @@ describe('Campaign System Integration', () => {
         'Alpha Company',
         'force-battalion',
         ['force-lance-1'],
-        []
+        [],
       );
       forces.set(alphaCo.id, alphaCo);
 
@@ -231,7 +249,7 @@ describe('Campaign System Integration', () => {
         'Bravo Company',
         'force-battalion',
         [],
-        ['unit-5', 'unit-6', 'unit-7', 'unit-8']
+        ['unit-5', 'unit-6', 'unit-7', 'unit-8'],
       );
       forces.set(bravoCo.id, bravoCo);
 
@@ -240,7 +258,7 @@ describe('Campaign System Integration', () => {
         'Alpha Lance',
         'force-alpha-co',
         [],
-        ['unit-1', 'unit-2', 'unit-3', 'unit-4']
+        ['unit-1', 'unit-2', 'unit-3', 'unit-4'],
       );
       forces.set(lance1.id, lance1);
 
@@ -264,7 +282,11 @@ describe('Campaign System Integration', () => {
       // ---------------------------------------------------------------
       // 4. Generate and accept contracts
       // ---------------------------------------------------------------
-      const availableContracts = generateContracts(campaignWithForces, 5, createSeededRandom(42));
+      const availableContracts = generateContracts(
+        campaignWithForces,
+        5,
+        createSeededRandom(42),
+      );
 
       expect(availableContracts.length).toBe(5);
       expect(availableContracts[0].type).toBe('contract');
@@ -272,19 +294,28 @@ describe('Campaign System Integration', () => {
       expect(availableContracts[0].employerId).toBeDefined();
       expect(availableContracts[0].targetId).toBeDefined();
       expect(availableContracts[0].paymentTerms).toBeDefined();
-      expect(availableContracts[0].paymentTerms.basePayment.amount).toBe(8000000); // 8000 BV × 1000
+      expect(availableContracts[0].paymentTerms.basePayment.amount).toBe(
+        8000000,
+      ); // 8000 BV × 1000
 
       // Employer and target must be different
-      expect(availableContracts[0].employerId).not.toBe(availableContracts[0].targetId);
+      expect(availableContracts[0].employerId).not.toBe(
+        availableContracts[0].targetId,
+      );
 
       // Accept first contract
       const selectedContract = availableContracts[0];
-      const activeCampaign = acceptContract(campaignWithForces, selectedContract);
+      const activeCampaign = acceptContract(
+        campaignWithForces,
+        selectedContract,
+      );
 
       expect(activeCampaign.missions.size).toBe(1);
       expect(activeCampaign.missions.has(selectedContract.id)).toBe(true);
 
-      const acceptedContract = activeCampaign.missions.get(selectedContract.id) as IContract;
+      const acceptedContract = activeCampaign.missions.get(
+        selectedContract.id,
+      ) as IContract;
       expect(acceptedContract.status).toBe(MissionStatus.ACTIVE);
       expect(acceptedContract.employerId).toBe(selectedContract.employerId);
 
@@ -293,14 +324,20 @@ describe('Campaign System Integration', () => {
       // ---------------------------------------------------------------
       const dayReport = advanceDay(activeCampaign);
 
-      expect(dayReport.date.getTime()).toBe(activeCampaign.currentDate.getTime());
+      expect(dayReport.date.getTime()).toBe(
+        activeCampaign.currentDate.getTime(),
+      );
       expect(dayReport.campaign.currentDate.getUTCDate()).toBe(16); // 15 → 16
       expect(dayReport.costs).toBeDefined();
       expect(dayReport.costs.personnelCount).toBe(4); // All 4 are active (not KIA/RETIRED/DESERTED)
       expect(dayReport.costs.salaries.amount).toBe(DEFAULT_DAILY_SALARY * 4);
       expect(dayReport.costs.unitCount).toBe(8);
-      expect(dayReport.costs.maintenance.amount).toBe(DEFAULT_DAILY_MAINTENANCE * 8);
-      expect(dayReport.costs.total.amount).toBe(DEFAULT_DAILY_SALARY * 4 + DEFAULT_DAILY_MAINTENANCE * 8);
+      expect(dayReport.costs.maintenance.amount).toBe(
+        DEFAULT_DAILY_MAINTENANCE * 8,
+      );
+      expect(dayReport.costs.total.amount).toBe(
+        DEFAULT_DAILY_SALARY * 4 + DEFAULT_DAILY_MAINTENANCE * 8,
+      );
 
       // ---------------------------------------------------------------
       // 6. Verify financial transactions recorded
@@ -308,9 +345,12 @@ describe('Campaign System Integration', () => {
       const finalFinances = dayReport.campaign.finances;
       expect(finalFinances.transactions.length).toBe(2); // salary + maintenance
       expect(finalFinances.transactions[0].description).toContain('salaries');
-      expect(finalFinances.transactions[1].description).toContain('maintenance');
+      expect(finalFinances.transactions[1].description).toContain(
+        'maintenance',
+      );
 
-      const expectedDeduction = DEFAULT_DAILY_SALARY * 4 + DEFAULT_DAILY_MAINTENANCE * 8;
+      const expectedDeduction =
+        DEFAULT_DAILY_SALARY * 4 + DEFAULT_DAILY_MAINTENANCE * 8;
       expect(finalFinances.balance.amount).toBe(1000000 - expectedDeduction);
     });
   });
@@ -344,7 +384,9 @@ describe('Campaign System Integration', () => {
       };
 
       expect(deserialized.personnel.size).toBe(1);
-      expect(deserialized.personnel.get(person.id)?.name).toBe('Persistent Person');
+      expect(deserialized.personnel.get(person.id)?.name).toBe(
+        'Persistent Person',
+      );
       expect(deserialized.currentDate).toBeInstanceOf(Date);
       expect(deserialized.currentDate.getUTCFullYear()).toBe(3025);
     });
@@ -383,8 +425,9 @@ describe('Campaign System Integration', () => {
 
       // Verify date advanced by 5 days
       const daysDiff = Math.floor(
-        (campaign.currentDate.getTime() - new Date('3025-06-15T00:00:00Z').getTime()) /
-          (1000 * 60 * 60 * 24)
+        (campaign.currentDate.getTime() -
+          new Date('3025-06-15T00:00:00Z').getTime()) /
+          (1000 * 60 * 60 * 24),
       );
       expect(daysDiff).toBe(5);
 
@@ -440,7 +483,13 @@ describe('Campaign System Integration', () => {
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, [], ['unit-1', 'unit-2', 'unit-3', 'unit-4'])
+        createTestForce(
+          'force-root',
+          'Root',
+          undefined,
+          [],
+          ['unit-1', 'unit-2', 'unit-3', 'unit-4'],
+        ),
       );
 
       const campaign = createTestCampaign({ forces });
@@ -460,7 +509,9 @@ describe('Campaign System Integration', () => {
       const updatedCampaign = acceptContract(campaign, contract);
 
       expect(updatedCampaign.missions.size).toBe(1);
-      const activeContract = updatedCampaign.missions.get(contract.id) as IContract;
+      const activeContract = updatedCampaign.missions.get(
+        contract.id,
+      ) as IContract;
       expect(activeContract.status).toBe(MissionStatus.ACTIVE);
 
       // Simulate contract completion by setting status to SUCCESS
@@ -470,7 +521,9 @@ describe('Campaign System Integration', () => {
       };
       updatedCampaign.missions.set(contract.id, completedContract);
 
-      const finalContract = updatedCampaign.missions.get(contract.id) as IContract;
+      const finalContract = updatedCampaign.missions.get(
+        contract.id,
+      ) as IContract;
       expect(finalContract.status).toBe(MissionStatus.SUCCESS);
     });
 
@@ -498,7 +551,9 @@ describe('Campaign System Integration', () => {
       expect(report.expiredContracts[0].contractId).toBe('contract-expired');
       expect(report.expiredContracts[0].newStatus).toBe(MissionStatus.SUCCESS);
 
-      const updatedContract = report.campaign.missions.get('contract-expired') as IContract;
+      const updatedContract = report.campaign.missions.get(
+        'contract-expired',
+      ) as IContract;
       expect(updatedContract.status).toBe(MissionStatus.SUCCESS);
     });
   });
@@ -510,42 +565,90 @@ describe('Campaign System Integration', () => {
       // Root → Battalion → 3 Companies → 3 Lances each (with 4 units per lance)
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Merc Company', undefined, ['force-bn'], [])
+        createTestForce(
+          'force-root',
+          'Merc Company',
+          undefined,
+          ['force-bn'],
+          [],
+        ),
       );
 
       forces.set(
         'force-bn',
-        createTestForce('force-bn', '1st Battalion', 'force-root', ['force-co-a', 'force-co-b', 'force-co-c'], [])
+        createTestForce(
+          'force-bn',
+          '1st Battalion',
+          'force-root',
+          ['force-co-a', 'force-co-b', 'force-co-c'],
+          [],
+        ),
       );
 
       // Alpha Company with 2 lances
       forces.set(
         'force-co-a',
-        createTestForce('force-co-a', 'Alpha Company', 'force-bn', ['force-lance-a1', 'force-lance-a2'], [])
+        createTestForce(
+          'force-co-a',
+          'Alpha Company',
+          'force-bn',
+          ['force-lance-a1', 'force-lance-a2'],
+          [],
+        ),
       );
       forces.set(
         'force-lance-a1',
-        createTestForce('force-lance-a1', 'Alpha Lance 1', 'force-co-a', [], ['u1', 'u2', 'u3', 'u4'])
+        createTestForce(
+          'force-lance-a1',
+          'Alpha Lance 1',
+          'force-co-a',
+          [],
+          ['u1', 'u2', 'u3', 'u4'],
+        ),
       );
       forces.set(
         'force-lance-a2',
-        createTestForce('force-lance-a2', 'Alpha Lance 2', 'force-co-a', [], ['u5', 'u6', 'u7', 'u8'])
+        createTestForce(
+          'force-lance-a2',
+          'Alpha Lance 2',
+          'force-co-a',
+          [],
+          ['u5', 'u6', 'u7', 'u8'],
+        ),
       );
 
       // Bravo Company with 1 lance
       forces.set(
         'force-co-b',
-        createTestForce('force-co-b', 'Bravo Company', 'force-bn', ['force-lance-b1'], [])
+        createTestForce(
+          'force-co-b',
+          'Bravo Company',
+          'force-bn',
+          ['force-lance-b1'],
+          [],
+        ),
       );
       forces.set(
         'force-lance-b1',
-        createTestForce('force-lance-b1', 'Bravo Lance 1', 'force-co-b', [], ['u9', 'u10', 'u11', 'u12'])
+        createTestForce(
+          'force-lance-b1',
+          'Bravo Lance 1',
+          'force-co-b',
+          [],
+          ['u9', 'u10', 'u11', 'u12'],
+        ),
       );
 
       // Charlie Company — direct units (no sub-lances)
       forces.set(
         'force-co-c',
-        createTestForce('force-co-c', 'Charlie Company', 'force-bn', [], ['u13', 'u14', 'u15', 'u16'])
+        createTestForce(
+          'force-co-c',
+          'Charlie Company',
+          'force-bn',
+          [],
+          ['u13', 'u14', 'u15', 'u16'],
+        ),
       );
 
       const campaign = createTestCampaign({ forces });
@@ -605,14 +708,29 @@ describe('Campaign System Integration', () => {
 
     it('should calculate daily costs using FinanceService', () => {
       const personnel = new Map<string, IPerson>();
-      personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
-      personnel.set('p2', createTestPerson({ id: 'p2', status: PersonnelStatus.WOUNDED }));
-      personnel.set('p3', createTestPerson({ id: 'p3', status: PersonnelStatus.KIA }));
+      personnel.set(
+        'p1',
+        createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+      );
+      personnel.set(
+        'p2',
+        createTestPerson({ id: 'p2', status: PersonnelStatus.WOUNDED }),
+      );
+      personnel.set(
+        'p3',
+        createTestPerson({ id: 'p3', status: PersonnelStatus.KIA }),
+      );
 
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, [], ['unit-1', 'unit-2'])
+        createTestForce(
+          'force-root',
+          'Root',
+          undefined,
+          [],
+          ['unit-1', 'unit-2'],
+        ),
       );
 
       const campaign = createTestCampaign({ personnel, forces });
@@ -626,7 +744,9 @@ describe('Campaign System Integration', () => {
       expect(costs.unitCount).toBe(2);
       expect(costs.maintenance.amount).toBe(DEFAULT_DAILY_MAINTENANCE * 2);
 
-      expect(costs.total.amount).toBe(DEFAULT_DAILY_SALARY * 2 + DEFAULT_DAILY_MAINTENANCE * 2);
+      expect(costs.total.amount).toBe(
+        DEFAULT_DAILY_SALARY * 2 + DEFAULT_DAILY_MAINTENANCE * 2,
+      );
     });
 
     it('should process contract payment on completion', () => {
@@ -648,7 +768,10 @@ describe('Campaign System Integration', () => {
       });
 
       const campaign = createTestCampaign();
-      const updatedFinances = processContractPayment(campaign, completedContract);
+      const updatedFinances = processContractPayment(
+        campaign,
+        completedContract,
+      );
 
       // Success payout = base + success + transport + support = 100k + 200k + 10k + 5k = 315k
       expect(updatedFinances.transactions.length).toBe(1);
@@ -678,7 +801,7 @@ describe('Campaign System Integration', () => {
           status: PersonnelStatus.WOUNDED,
           injuries: [injury],
           daysToWaitForHealing: 0,
-        })
+        }),
       );
       personnel.set(
         'p-active',
@@ -686,13 +809,13 @@ describe('Campaign System Integration', () => {
           id: 'p-active',
           name: 'Active Pilot',
           status: PersonnelStatus.ACTIVE,
-        })
+        }),
       );
 
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, [], ['unit-1'])
+        createTestForce('force-root', 'Root', undefined, [], ['unit-1']),
       );
 
       // Contract that expires on day 2 (3025-06-16)
@@ -716,16 +839,24 @@ describe('Campaign System Integration', () => {
 
       // Day 1: injury 2→1, contract still active, costs deducted
       let report = advanceDay(campaign);
-      expect(report.campaign.personnel.get('p-wounded')!.injuries[0].daysToHeal).toBe(1);
-      expect(report.campaign.personnel.get('p-wounded')!.status).toBe(PersonnelStatus.WOUNDED);
+      expect(
+        report.campaign.personnel.get('p-wounded')!.injuries[0].daysToHeal,
+      ).toBe(1);
+      expect(report.campaign.personnel.get('p-wounded')!.status).toBe(
+        PersonnelStatus.WOUNDED,
+      );
       expect(report.expiredContracts.length).toBe(0);
       expect(report.costs.personnelCount).toBe(2);
       campaign = report.campaign;
 
       // Day 2: injury heals (1→0), contract expires (endDate = 3025-06-16, current = 3025-06-16)
       report = advanceDay(campaign);
-      expect(report.campaign.personnel.get('p-wounded')!.injuries).toHaveLength(0);
-      expect(report.campaign.personnel.get('p-wounded')!.status).toBe(PersonnelStatus.ACTIVE);
+      expect(report.campaign.personnel.get('p-wounded')!.injuries).toHaveLength(
+        0,
+      );
+      expect(report.campaign.personnel.get('p-wounded')!.status).toBe(
+        PersonnelStatus.ACTIVE,
+      );
       expect(report.healedPersonnel.length).toBe(1);
       expect(report.healedPersonnel[0].returnedToActive).toBe(true);
       expect(report.expiredContracts.length).toBe(1);
@@ -768,7 +899,7 @@ describe('Campaign System Integration', () => {
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, [], ['unit-1'])
+        createTestForce('force-root', 'Root', undefined, [], ['unit-1']),
       );
 
       const campaign = createTestCampaign({
@@ -793,7 +924,7 @@ describe('Campaign System Integration', () => {
       const updated = acceptContract(campaign, contract);
 
       expect(() => acceptContract(updated, contract)).toThrow(
-        `Contract ${contract.id} already exists in campaign`
+        `Contract ${contract.id} already exists in campaign`,
       );
     });
 

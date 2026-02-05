@@ -6,9 +6,15 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { EventCategory, type IEventQueryFilters, type IEventContext } from '@/types/events';
+
 import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/Input';
+import {
+  EventCategory,
+  type IEventQueryFilters,
+  type IEventContext,
+} from '@/types/events';
+
 import { FilterChip, type FilterChipVariant } from './FilterChip';
 
 // =============================================================================
@@ -94,26 +100,62 @@ const EVENT_TYPES_BY_CATEGORY: Record<EventCategory, string[]> = {
 // =============================================================================
 
 const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-    <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    className="h-4 w-4"
+  >
+    <path
+      fillRule="evenodd"
+      d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
 const ClearIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-    <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z" clipRule="evenodd" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    className="h-4 w-4"
+  >
+    <path
+      fillRule="evenodd"
+      d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
 const ChevronDownIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-    <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    className="h-4 w-4"
+  >
+    <path
+      fillRule="evenodd"
+      d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
 const ChevronUpIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-    <path fillRule="evenodd" d="M14.78 11.78a.75.75 0 0 1-1.06 0L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06Z" clipRule="evenodd" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    className="h-4 w-4"
+  >
+    <path
+      fillRule="evenodd"
+      d="M14.78 11.78a.75.75 0 0 1-1.06 0L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06Z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
@@ -122,7 +164,9 @@ const ChevronUpIcon = () => (
 // =============================================================================
 
 function formatEventType(type: string): string {
-  const shortType = type.includes('.') ? type.split('.').slice(1).join('.') : type;
+  const shortType = type.includes('.')
+    ? type.split('.').slice(1).join('.')
+    : type;
   return shortType
     .replace(/[_-]/g, ' ')
     .replace(/\b\w/g, (c) => c.toUpperCase());
@@ -147,7 +191,9 @@ function getActiveFilters(filters: IEventQueryFilters): Array<{
     active.push({
       key: 'category',
       label: 'Category',
-      value: CATEGORY_OPTIONS.find(o => o.value === filters.category)?.label || filters.category,
+      value:
+        CATEGORY_OPTIONS.find((o) => o.value === filters.category)?.label ||
+        filters.category,
       variant: 'category',
       onRemove: () => ({ ...filters, category: undefined }),
     });
@@ -162,7 +208,7 @@ function getActiveFilters(filters: IEventQueryFilters): Array<{
         variant: 'type',
         onRemove: () => ({
           ...filters,
-          types: filters.types?.filter(t => t !== type),
+          types: filters.types?.filter((t) => t !== type),
         }),
       });
     });
@@ -253,7 +299,9 @@ export function QueryBuilder({
   className = '',
 }: QueryBuilderProps): React.ReactElement {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([...(filters.types || [])]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([
+    ...(filters.types || []),
+  ]);
 
   // Get available types based on selected category
   const availableTypes = useMemo(() => {
@@ -276,7 +324,7 @@ export function QueryBuilder({
       });
       setSelectedTypes([]);
     },
-    [filters, onChange]
+    [filters, onChange],
   );
 
   // Handle type toggle
@@ -291,7 +339,7 @@ export function QueryBuilder({
         types: newTypes.length > 0 ? newTypes : undefined,
       });
     },
-    [filters, onChange, selectedTypes]
+    [filters, onChange, selectedTypes],
   );
 
   // Handle context field changes
@@ -303,14 +351,15 @@ export function QueryBuilder({
       };
       // Clean up empty context
       const cleanContext = Object.fromEntries(
-        Object.entries(newContext).filter(([, v]) => v !== undefined)
+        Object.entries(newContext).filter(([, v]) => v !== undefined),
       ) as Partial<IEventContext>;
       onChange({
         ...filters,
-        context: Object.keys(cleanContext).length > 0 ? cleanContext : undefined,
+        context:
+          Object.keys(cleanContext).length > 0 ? cleanContext : undefined,
       });
     },
-    [filters, onChange]
+    [filters, onChange],
   );
 
   // Handle time range changes
@@ -340,7 +389,7 @@ export function QueryBuilder({
         },
       });
     },
-    [filters, onChange]
+    [filters, onChange],
   );
 
   // Handle sequence range changes
@@ -371,7 +420,7 @@ export function QueryBuilder({
         },
       });
     },
-    [filters, onChange]
+    [filters, onChange],
   );
 
   // Handle root events toggle
@@ -394,7 +443,7 @@ export function QueryBuilder({
       e.preventDefault();
       onSearch();
     },
-    [onSearch]
+    [onSearch],
   );
 
   // Get active filters for chips
@@ -408,13 +457,13 @@ export function QueryBuilder({
       // Sync selectedTypes state
       setSelectedTypes([...(newFilters.types || [])]);
     },
-    [onChange]
+    [onChange],
   );
 
   return (
     <form onSubmit={handleSearch} className={`space-y-4 ${className}`}>
       {/* Primary Filters Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {/* Category Select */}
         <Select
           label="Category"
@@ -445,23 +494,27 @@ export function QueryBuilder({
           <button
             type="button"
             onClick={handleRootEventsToggle}
-            className={`
-              w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg
-              border transition-all duration-200 text-sm font-medium
-              ${filters.rootEventsOnly
+            className={`flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-200 ${
+              filters.rootEventsOnly
                 ? 'bg-accent/20 border-accent text-accent'
                 : 'bg-surface-raised/50 border-border-theme text-text-theme-secondary hover:border-border-theme hover:text-text-theme-primary'
-              }
-            `}
+            } `}
           >
-            <span className={`
-              w-4 h-4 rounded border-2 flex items-center justify-center
-              transition-colors duration-200
-              ${filters.rootEventsOnly ? 'bg-accent border-accent' : 'border-border-theme'}
-            `}>
+            <span
+              className={`flex h-4 w-4 items-center justify-center rounded border-2 transition-colors duration-200 ${filters.rootEventsOnly ? 'bg-accent border-accent' : 'border-border-theme'} `}
+            >
               {filters.rootEventsOnly && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 text-surface-deep">
-                  <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="text-surface-deep h-3 w-3"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               )}
             </span>
@@ -473,10 +526,10 @@ export function QueryBuilder({
       {/* Event Types Multi-Select */}
       {availableTypes.length > 0 && (
         <div className="space-y-2">
-          <label className="block text-sm text-text-theme-secondary">
+          <label className="text-text-theme-secondary block text-sm">
             Event Types
           </label>
-          <div className="flex flex-wrap gap-2 p-3 bg-surface-raised/30 rounded-lg border border-border-theme-subtle">
+          <div className="bg-surface-raised/30 border-border-theme-subtle flex flex-wrap gap-2 rounded-lg border p-3">
             {availableTypes.map((type) => {
               const isSelected = selectedTypes.includes(type);
               return (
@@ -484,14 +537,11 @@ export function QueryBuilder({
                   key={type}
                   type="button"
                   onClick={() => handleTypeToggle(type)}
-                  className={`
-                    px-3 py-1.5 text-xs font-medium rounded-full border
-                    transition-all duration-150
-                    ${isSelected
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400'
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-150 ${
+                    isSelected
+                      ? 'border-cyan-500/50 bg-cyan-500/20 text-cyan-400'
                       : 'bg-surface-raised/50 border-border-theme-subtle text-text-theme-secondary hover:border-border-theme hover:text-text-theme-primary'
-                    }
-                  `}
+                  } `}
                 >
                   {formatEventType(type)}
                 </button>
@@ -502,29 +552,27 @@ export function QueryBuilder({
       )}
 
       {/* Advanced Filters (Collapsible) */}
-      <div className="border border-border-theme-subtle rounded-lg overflow-hidden">
+      <div className="border-border-theme-subtle overflow-hidden rounded-lg border">
         <button
           type="button"
           onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
-          className="
-            w-full flex items-center justify-between px-4 py-3
-            bg-surface-raised/30 text-text-theme-secondary
-            hover:text-text-theme-primary transition-colors duration-150
-          "
+          className="bg-surface-raised/30 text-text-theme-secondary hover:text-text-theme-primary flex w-full items-center justify-between px-4 py-3 transition-colors duration-150"
         >
           <span className="text-sm font-medium">Advanced Filters</span>
           {isAdvancedOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
         </button>
 
         {isAdvancedOpen && (
-          <div className="p-4 space-y-4 border-t border-border-theme-subtle bg-surface-base/20">
+          <div className="border-border-theme-subtle bg-surface-base/20 space-y-4 border-t p-4">
             {/* Context Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Input
                 label="Campaign ID"
                 placeholder="Enter campaign ID..."
                 value={filters.context?.campaignId || ''}
-                onChange={(e) => handleContextChange('campaignId', e.target.value)}
+                onChange={(e) =>
+                  handleContextChange('campaignId', e.target.value)
+                }
               />
               <Input
                 label="Game ID"
@@ -541,13 +589,15 @@ export function QueryBuilder({
             </div>
 
             {/* Sequence Range */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 type="number"
                 label="Sequence From"
                 placeholder="Start sequence..."
                 value={filters.sequenceRange?.from?.toString() || ''}
-                onChange={(e) => handleSequenceRangeChange('from', e.target.value)}
+                onChange={(e) =>
+                  handleSequenceRangeChange('from', e.target.value)
+                }
                 min={0}
               />
               <Input
@@ -555,7 +605,9 @@ export function QueryBuilder({
                 label="Sequence To"
                 placeholder="End sequence..."
                 value={filters.sequenceRange?.to?.toString() || ''}
-                onChange={(e) => handleSequenceRangeChange('to', e.target.value)}
+                onChange={(e) =>
+                  handleSequenceRangeChange('to', e.target.value)
+                }
                 min={0}
               />
             </div>
@@ -565,7 +617,12 @@ export function QueryBuilder({
               label="Caused By Event ID"
               placeholder="Filter by parent event ID..."
               value={filters.causedByEventId || ''}
-              onChange={(e) => onChange({ ...filters, causedByEventId: e.target.value || undefined })}
+              onChange={(e) =>
+                onChange({
+                  ...filters,
+                  causedByEventId: e.target.value || undefined,
+                })
+              }
             />
           </div>
         )}
@@ -573,8 +630,8 @@ export function QueryBuilder({
 
       {/* Active Filters Chips */}
       {activeFilters.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 p-3 bg-surface-raised/20 rounded-lg border border-border-theme-subtle/50">
-          <span className="text-xs text-text-theme-muted mr-1">Active:</span>
+        <div className="bg-surface-raised/20 border-border-theme-subtle/50 flex flex-wrap items-center gap-2 rounded-lg border p-3">
+          <span className="text-text-theme-muted mr-1 text-xs">Active:</span>
           {activeFilters.map((filter) => (
             <FilterChip
               key={filter.key}

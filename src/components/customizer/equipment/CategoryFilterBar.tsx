@@ -1,6 +1,8 @@
 import React from 'react';
+
 import { EquipmentCategory } from '@/types/equipment';
 import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
+
 import { CATEGORY_FILTERS, CATEGORY_LABELS } from './equipmentConstants';
 
 interface CategoryFilterBarProps {
@@ -30,9 +32,10 @@ export function CategoryFilterBar({
     <div className={`${containerClass} ${className}`}>
       {CATEGORY_FILTERS.map(({ category, label, icon }) => {
         const isActive = category === activeCategory;
-        const colors = category === 'ALL'
-          ? { bg: 'bg-accent', text: 'text-white', border: 'border-accent' }
-          : getCategoryColorsLegacy(category as EquipmentCategory);
+        const colors =
+          category === 'ALL'
+            ? { bg: 'bg-accent', text: 'text-white', border: 'border-accent' }
+            : getCategoryColorsLegacy(category as EquipmentCategory);
 
         const activeClass = isActive
           ? `${colors.bg} text-white ring-1 ring-white/20`
@@ -40,9 +43,11 @@ export function CategoryFilterBar({
             ? 'bg-surface-raised/60 text-text-theme-secondary hover:bg-surface-raised'
             : 'bg-surface-raised/60 text-text-theme-secondary';
 
-        const title = category === 'ALL'
-          ? 'All Categories'
-          : CATEGORY_LABELS[category as EquipmentCategory] || String(category);
+        const title =
+          category === 'ALL'
+            ? 'All Categories'
+            : CATEGORY_LABELS[category as EquipmentCategory] ||
+              String(category);
 
         return (
           <button
@@ -52,9 +57,7 @@ export function CategoryFilterBar({
             title={title}
           >
             <span className={compact ? 'text-base' : 'text-sm'}>{icon}</span>
-            {showLabels && (
-              <span className="hidden xs:inline">{label}</span>
-            )}
+            {showLabels && <span className="xs:inline hidden">{label}</span>}
           </button>
         );
       })}

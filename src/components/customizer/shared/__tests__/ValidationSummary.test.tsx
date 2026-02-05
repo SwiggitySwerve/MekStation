@@ -4,19 +4,26 @@
  * Tests rendering of validation errors, warnings, and info messages.
  */
 
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ValidationSummary } from '../ValidationSummary';
+import React from 'react';
+
 import { UnitValidationState } from '@/hooks/useUnitValidation';
-import { UnitValidationSeverity, UnitCategory } from '@/types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
+import {
+  UnitValidationSeverity,
+  UnitCategory,
+} from '@/types/validation/UnitValidationInterfaces';
+
+import { ValidationSummary } from '../ValidationSummary';
 
 // =============================================================================
 // Test Helpers
 // =============================================================================
 
-function createValidationState(overrides: Partial<UnitValidationState> = {}): UnitValidationState {
+function createValidationState(
+  overrides: Partial<UnitValidationState> = {},
+): UnitValidationState {
   return {
     status: 'valid',
     errorCount: 0,
@@ -34,11 +41,13 @@ function createValidationState(overrides: Partial<UnitValidationState> = {}): Un
 function createValidationResult(
   errors: Array<{ message: string; severity?: UnitValidationSeverity }> = [],
   warnings: Array<{ message: string }> = [],
-  infos: Array<{ message: string }> = []
+  infos: Array<{ message: string }> = [],
 ) {
   return {
     isValid: errors.length === 0,
-    hasCriticalErrors: errors.some(e => e.severity === UnitValidationSeverity.CRITICAL_ERROR),
+    hasCriticalErrors: errors.some(
+      (e) => e.severity === UnitValidationSeverity.CRITICAL_ERROR,
+    ),
     results: [
       {
         ruleId: 'TEST-001',
@@ -68,8 +77,12 @@ function createValidationResult(
         executionTime: 1,
       },
     ],
-    criticalErrorCount: errors.filter(e => e.severity === UnitValidationSeverity.CRITICAL_ERROR).length,
-    errorCount: errors.filter(e => e.severity !== UnitValidationSeverity.CRITICAL_ERROR).length,
+    criticalErrorCount: errors.filter(
+      (e) => e.severity === UnitValidationSeverity.CRITICAL_ERROR,
+    ).length,
+    errorCount: errors.filter(
+      (e) => e.severity !== UnitValidationSeverity.CRITICAL_ERROR,
+    ).length,
     warningCount: warnings.length,
     infoCount: infos.length,
     totalExecutionTime: 1,
@@ -125,9 +138,7 @@ describe('ValidationSummary', () => {
         status: 'error',
         isValid: false,
         errorCount: 1,
-        result: createValidationResult([
-          { message: 'Weight exceeds maximum' },
-        ]),
+        result: createValidationResult([{ message: 'Weight exceeds maximum' }]),
       });
 
       render(<ValidationSummary validation={validation} />);
@@ -148,10 +159,10 @@ describe('ValidationSummary', () => {
         status: 'warning',
         isValid: true,
         warningCount: 2,
-        result: createValidationResult([], [
-          { message: 'Warning 1' },
-          { message: 'Warning 2' },
-        ]),
+        result: createValidationResult(
+          [],
+          [{ message: 'Warning 1' }, { message: 'Warning 2' }],
+        ),
       });
 
       render(<ValidationSummary validation={validation} />);
@@ -165,16 +176,19 @@ describe('ValidationSummary', () => {
         status: 'warning',
         isValid: true,
         warningCount: 1,
-        result: createValidationResult([], [
-          { message: 'Consider adding more armor' },
-        ]),
+        result: createValidationResult(
+          [],
+          [{ message: 'Consider adding more armor' }],
+        ),
       });
 
       render(<ValidationSummary validation={validation} />);
 
       fireEvent.click(screen.getByRole('button'));
 
-      expect(screen.getByText('Consider adding more armor')).toBeInTheDocument();
+      expect(
+        screen.getByText('Consider adding more armor'),
+      ).toBeInTheDocument();
     });
   });
 
@@ -184,9 +198,11 @@ describe('ValidationSummary', () => {
         status: 'info',
         isValid: true,
         infoCount: 1,
-        result: createValidationResult([], [], [
-          { message: 'Optional improvement available' },
-        ]),
+        result: createValidationResult(
+          [],
+          [],
+          [{ message: 'Optional improvement available' }],
+        ),
       });
 
       render(<ValidationSummary validation={validation} />);
@@ -207,7 +223,7 @@ describe('ValidationSummary', () => {
         result: createValidationResult(
           [{ message: 'Critical error' }],
           [{ message: 'Warning 1' }, { message: 'Warning 2' }],
-          [{ message: 'Info message' }]
+          [{ message: 'Info message' }],
         ),
       });
 
@@ -226,7 +242,7 @@ describe('ValidationSummary', () => {
         warningCount: 1,
         result: createValidationResult(
           [{ message: 'This is an error' }],
-          [{ message: 'This is a warning' }]
+          [{ message: 'This is a warning' }],
         ),
       });
 
@@ -237,7 +253,10 @@ describe('ValidationSummary', () => {
       const errorElement = screen.getByText('This is an error');
       const warningElement = screen.getByText('This is a warning');
 
-      expect(errorElement.compareDocumentPosition(warningElement) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(
+        errorElement.compareDocumentPosition(warningElement) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
     });
   });
 
@@ -251,7 +270,9 @@ describe('ValidationSummary', () => {
         result: createValidationResult([{ message: 'Test error' }]),
       });
 
-      render(<ValidationSummary validation={validation} onNavigate={onNavigate} />);
+      render(
+        <ValidationSummary validation={validation} onNavigate={onNavigate} />,
+      );
 
       // Expand
       fireEvent.click(screen.getByRole('button'));

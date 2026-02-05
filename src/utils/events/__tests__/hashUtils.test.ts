@@ -3,6 +3,10 @@
  * @spec openspec/changes/add-unified-event-store/specs/event-store/spec.md
  */
 
+import { EventCategory, IBaseEvent, IEventChunk } from '@/types/events';
+
+import { createChunk } from '../chunkFactory';
+import { createEvent, resetSequence } from '../eventFactory';
 // Jest globals are available
 import {
   toCanonicalJson,
@@ -13,9 +17,6 @@ import {
   verifyChainIntegrity,
   verifyChunk,
 } from '../hashUtils';
-import { createChunk } from '../chunkFactory';
-import { createEvent, resetSequence } from '../eventFactory';
-import { EventCategory, IBaseEvent, IEventChunk } from '@/types/events';
 
 describe('toCanonicalJson', () => {
   it('should sort object keys alphabetically', () => {

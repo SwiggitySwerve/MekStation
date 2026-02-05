@@ -7,9 +7,11 @@
  */
 
 import { useState } from 'react';
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
+
 import { Button, Card } from '@/components/ui';
+import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { GamePhase } from '@/types/gameplay';
+
 import { QuickGameTimeline } from './QuickGameTimeline';
 
 // =============================================================================
@@ -35,22 +37,28 @@ interface UnitCardProps {
   onDestroy?: () => void;
 }
 
-function UnitCard({ unit, isPlayer, onDestroy }: UnitCardProps): React.ReactElement {
+function UnitCard({
+  unit,
+  isPlayer,
+  onDestroy,
+}: UnitCardProps): React.ReactElement {
   return (
     <div
-      className={`p-3 rounded-lg border ${
+      className={`rounded-lg border p-3 ${
         unit.isDestroyed
-          ? 'bg-red-900/30 border-red-700/50 opacity-60'
+          ? 'border-red-700/50 bg-red-900/30 opacity-60'
           : unit.isWithdrawn
-          ? 'bg-amber-900/30 border-amber-700/50 opacity-60'
-          : isPlayer
-          ? 'bg-cyan-900/20 border-cyan-700/50'
-          : 'bg-red-900/20 border-red-700/50'
+            ? 'border-amber-700/50 bg-amber-900/30 opacity-60'
+            : isPlayer
+              ? 'border-cyan-700/50 bg-cyan-900/20'
+              : 'border-red-700/50 bg-red-900/20'
       }`}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className={`font-medium text-sm ${unit.isDestroyed ? 'line-through' : ''}`}>
+          <p
+            className={`text-sm font-medium ${unit.isDestroyed ? 'line-through' : ''}`}
+          >
             {unit.name}
           </p>
           <p className="text-xs text-gray-500">
@@ -65,19 +73,19 @@ function UnitCard({ unit, isPlayer, onDestroy }: UnitCardProps): React.ReactElem
       </div>
 
       {/* Status indicators */}
-      <div className="flex items-center gap-2 mt-2">
+      <div className="mt-2 flex items-center gap-2">
         {unit.heat > 0 && (
-          <span className="text-xs px-1.5 py-0.5 bg-orange-900/50 text-orange-300 rounded">
+          <span className="rounded bg-orange-900/50 px-1.5 py-0.5 text-xs text-orange-300">
             Heat: {unit.heat}
           </span>
         )}
         {unit.isDestroyed && (
-          <span className="text-xs px-1.5 py-0.5 bg-red-900/50 text-red-300 rounded">
+          <span className="rounded bg-red-900/50 px-1.5 py-0.5 text-xs text-red-300">
             Destroyed
           </span>
         )}
         {unit.isWithdrawn && (
-          <span className="text-xs px-1.5 py-0.5 bg-amber-900/50 text-amber-300 rounded">
+          <span className="rounded bg-amber-900/50 px-1.5 py-0.5 text-xs text-amber-300">
             Withdrawn
           </span>
         )}
@@ -87,7 +95,7 @@ function UnitCard({ unit, isPlayer, onDestroy }: UnitCardProps): React.ReactElem
       {!unit.isDestroyed && !unit.isWithdrawn && onDestroy && (
         <button
           onClick={onDestroy}
-          className="mt-2 text-xs text-red-400 hover:text-red-300 underline"
+          className="mt-2 text-xs text-red-400 underline hover:text-red-300"
         >
           Mark Destroyed (Demo)
         </button>
@@ -116,15 +124,21 @@ function PhaseDisplay({ phase, turn }: PhaseDisplayProps): React.ReactElement {
   };
 
   return (
-    <div className="flex items-center gap-4 px-4 py-2 bg-gray-800 border-b border-gray-700">
+    <div className="flex items-center gap-4 border-b border-gray-700 bg-gray-800 px-4 py-2">
       <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500 uppercase tracking-wide">Turn</span>
+        <span className="text-xs tracking-wide text-gray-500 uppercase">
+          Turn
+        </span>
         <span className="text-lg font-bold text-cyan-400">{turn}</span>
       </div>
       <div className="h-6 w-px bg-gray-700" />
       <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500 uppercase tracking-wide">Phase</span>
-        <span className="text-sm font-medium text-white">{phaseLabels[phase]}</span>
+        <span className="text-xs tracking-wide text-gray-500 uppercase">
+          Phase
+        </span>
+        <span className="text-sm font-medium text-white">
+          {phaseLabels[phase]}
+        </span>
       </div>
     </div>
   );
@@ -140,16 +154,19 @@ export function QuickGamePlay(): React.ReactElement {
 
   if (!game) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <p className="text-gray-400">No game in progress</p>
       </div>
     );
   }
 
   // Count active units
-  const playerAlive = game.playerForce.units.filter((u) => !u.isDestroyed && !u.isWithdrawn).length;
+  const playerAlive = game.playerForce.units.filter(
+    (u) => !u.isDestroyed && !u.isWithdrawn,
+  ).length;
   const opponentAlive =
-    game.opponentForce?.units.filter((u) => !u.isDestroyed && !u.isWithdrawn).length ?? 0;
+    game.opponentForce?.units.filter((u) => !u.isDestroyed && !u.isWithdrawn)
+      .length ?? 0;
 
   const handleEndGame = (winner: 'player' | 'opponent' | 'draw') => {
     const reasons = {
@@ -169,13 +186,16 @@ export function QuickGamePlay(): React.ReactElement {
       {/* Main content */}
       <div className="p-4">
         {/* Info banner */}
-        <Card className="mb-4 bg-gradient-to-r from-cyan-900/20 to-purple-900/20 border-cyan-500/30">
+        <Card className="mb-4 border-cyan-500/30 bg-gradient-to-r from-cyan-900/20 to-purple-900/20">
           <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium text-white">{game.scenario?.template.name}</h3>
-                <p className="text-xs text-gray-400 mt-1">
-                  {game.scenario?.mapPreset.name} - {game.scenario?.mapPreset.biome}
+                <h3 className="font-medium text-white">
+                  {game.scenario?.template.name}
+                </h3>
+                <p className="mt-1 text-xs text-gray-400">
+                  {game.scenario?.mapPreset.name} -{' '}
+                  {game.scenario?.mapPreset.biome}
                 </p>
               </div>
               <div className="text-right">
@@ -191,10 +211,10 @@ export function QuickGamePlay(): React.ReactElement {
         </Card>
 
         {/* Notice about simplified interface */}
-        <Card className="mb-4 bg-amber-900/20 border-amber-700/50">
-          <div className="p-4 flex items-start gap-3">
+        <Card className="mb-4 border-amber-700/50 bg-amber-900/20">
+          <div className="flex items-start gap-3 p-4">
             <svg
-              className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5"
+              className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -207,27 +227,29 @@ export function QuickGamePlay(): React.ReactElement {
               />
             </svg>
             <div>
-              <p className="text-amber-300 text-sm font-medium">Simplified Game Interface</p>
-              <p className="text-amber-200/70 text-xs mt-1">
-                This is a demo interface. The full hex map and combat resolution system will be
-                integrated in a future update. For now, you can manually mark units as destroyed
-                and end the game.
+              <p className="text-sm font-medium text-amber-300">
+                Simplified Game Interface
+              </p>
+              <p className="mt-1 text-xs text-amber-200/70">
+                This is a demo interface. The full hex map and combat resolution
+                system will be integrated in a future update. For now, you can
+                manually mark units as destroyed and end the game.
               </p>
             </div>
           </div>
         </Card>
 
         {/* Forces grid */}
-        <div className="grid md:grid-cols-2 gap-4 mb-4">
+        <div className="mb-4 grid gap-4 md:grid-cols-2">
           {/* Player Force */}
           <Card>
-            <div className="p-3 border-b border-gray-700">
+            <div className="border-b border-gray-700 p-3">
               <h3 className="font-medium text-cyan-400">Your Force</h3>
               <p className="text-xs text-gray-500">
                 {playerAlive} of {game.playerForce.units.length} active
               </p>
             </div>
-            <div className="p-3 space-y-2">
+            <div className="space-y-2 p-3">
               {game.playerForce.units.map((unit) => (
                 <UnitCard key={unit.instanceId} unit={unit} isPlayer />
               ))}
@@ -236,13 +258,14 @@ export function QuickGamePlay(): React.ReactElement {
 
           {/* Opponent Force */}
           <Card>
-            <div className="p-3 border-b border-gray-700">
+            <div className="border-b border-gray-700 p-3">
               <h3 className="font-medium text-red-400">Enemy Force</h3>
               <p className="text-xs text-gray-500">
-                {opponentAlive} of {game.opponentForce?.units.length ?? 0} active
+                {opponentAlive} of {game.opponentForce?.units.length ?? 0}{' '}
+                active
               </p>
             </div>
-            <div className="p-3 space-y-2">
+            <div className="space-y-2 p-3">
               {game.opponentForce?.units.map((unit) => (
                 <UnitCard key={unit.instanceId} unit={unit} isPlayer={false} />
               ))}
@@ -252,9 +275,9 @@ export function QuickGamePlay(): React.ReactElement {
 
         {/* Game control */}
         <Card>
-          <div className="p-4 flex items-center justify-between">
+          <div className="flex items-center justify-between p-4">
             <div>
-              <p className="text-white font-medium">Game Control</p>
+              <p className="font-medium text-white">Game Control</p>
               <p className="text-xs text-gray-500">End the game manually</p>
             </div>
             <Button variant="secondary" onClick={() => setShowEndModal(true)}>
@@ -273,12 +296,12 @@ export function QuickGamePlay(): React.ReactElement {
 
       {/* End game modal */}
       {showEndModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <Card className="max-w-sm w-full mx-4">
-            <div className="p-4 border-b border-gray-700">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <Card className="mx-4 w-full max-w-sm">
+            <div className="border-b border-gray-700 p-4">
               <h3 className="font-medium text-white">End Game</h3>
             </div>
-            <div className="p-4 space-y-3">
+            <div className="space-y-3 p-4">
               <Button
                 variant="primary"
                 className="w-full"

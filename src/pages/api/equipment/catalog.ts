@@ -1,18 +1,19 @@
 /**
  * Equipment Catalog API
- * 
+ *
  * Get all equipment organized by category.
- * 
+ *
  * GET /api/equipment/catalog - Get all equipment
  * GET /api/equipment/catalog?type=weapons - Get only weapons
  * GET /api/equipment/catalog?type=ammunition - Get only ammunition
- * 
+ *
  * Response includes metadata about the data source:
  * - dataSource: 'json' | 'fallback' - indicates whether JSON files or hardcoded constants were used
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 
 interface ApiResponse {
@@ -45,7 +46,7 @@ function hasNameProperty(item: unknown): item is INamedEquipment {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse>
+  res: NextApiResponse<ApiResponse>,
 ): Promise<void> {
   if (req.method !== 'GET') {
     return res.status(405).json({
@@ -89,7 +90,6 @@ export default async function handler(
       count: data.length,
       dataSource: equipmentLookupService.getDataSource(),
     });
-
   } catch (error) {
     console.error('Equipment Catalog API error:', error);
     return res.status(500).json({

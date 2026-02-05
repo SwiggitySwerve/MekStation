@@ -8,6 +8,7 @@
  */
 
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -16,8 +17,11 @@ import {
   createUnitValidationError,
   createUnitValidationRuleResult,
 } from '../../../../types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
-import { isMechType, requiresGyro, requiresMinimumHeatSinks } from '../../../../utils/validation/UnitCategoryMapper';
+import {
+  isMechType,
+  requiresGyro,
+  requiresMinimumHeatSinks,
+} from '../../../../utils/validation/UnitCategoryMapper';
 
 /**
  * VAL-MECH-001: Engine Required
@@ -50,12 +54,19 @@ export const MechEngineRequired: IUnitValidationRuleDefinition = {
           {
             field: 'engineType',
             suggestion: 'Select an engine for the unit',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -68,7 +79,11 @@ export const MechGyroRequired: IUnitValidationRuleDefinition = {
   description: 'BattleMech, OmniMech, and IndustrialMech require a gyro',
   category: ValidationCategory.CONSTRUCTION,
   priority: 21,
-  applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH, UnitType.INDUSTRIALMECH],
+  applicableUnitTypes: [
+    UnitType.BATTLEMECH,
+    UnitType.OMNIMECH,
+    UnitType.INDUSTRIALMECH,
+  ],
 
   canValidate(context: IUnitValidationContext): boolean {
     return requiresGyro(context.unitType);
@@ -78,7 +93,11 @@ export const MechGyroRequired: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    if (isMechType(unit.unitType) && requiresGyro(unit.unitType) && !unit.gyroType) {
+    if (
+      isMechType(unit.unitType) &&
+      requiresGyro(unit.unitType) &&
+      !unit.gyroType
+    ) {
       errors.push(
         createUnitValidationError(
           this.id,
@@ -89,12 +108,19 @@ export const MechGyroRequired: IUnitValidationRuleDefinition = {
           {
             field: 'gyroType',
             suggestion: 'Select a gyro for the unit',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -129,12 +155,19 @@ export const MechCockpitRequired: IUnitValidationRuleDefinition = {
           {
             field: 'cockpitType',
             suggestion: 'Select a cockpit for the unit',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -169,12 +202,19 @@ export const MechStructureRequired: IUnitValidationRuleDefinition = {
           {
             field: 'internalStructureType',
             suggestion: 'Select internal structure type for the unit',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -214,13 +254,20 @@ export const MechMinimumHeatSinks: IUnitValidationRuleDefinition = {
               expected: `>= ${MINIMUM_HEAT_SINKS}`,
               actual: String(heatSinkCount),
               suggestion: `Add ${MINIMUM_HEAT_SINKS - heatSinkCount} more heat sinks`,
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, [], warnings, [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      [],
+      warnings,
+      [],
+      0,
+    );
   },
 };
 

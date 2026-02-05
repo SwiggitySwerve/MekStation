@@ -8,10 +8,11 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { getEncounterService } from '@/services/encounter/EncounterService';
-import { IEncounter, ICreateEncounterInput } from '@/types/encounter';
+
 import { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
+import { getEncounterService } from '@/services/encounter/EncounterService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { IEncounter, ICreateEncounterInput } from '@/types/encounter';
 
 // =============================================================================
 // Response Types
@@ -37,13 +38,14 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListResponse | CreateResponse | ErrorResponse>
+  res: NextApiResponse<ListResponse | CreateResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -56,7 +58,9 @@ export default async function handler(
       return handlePost(encounterService, req, res);
     default:
       res.setHeader('Allow', ['GET', 'POST']);
-      return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+      return res
+        .status(405)
+        .json({ error: `Method ${req.method} Not Allowed` });
   }
 }
 
@@ -65,7 +69,7 @@ export default async function handler(
  */
 function handleGet(
   encounterService: ReturnType<typeof getEncounterService>,
-  res: NextApiResponse<ListResponse | ErrorResponse>
+  res: NextApiResponse<ListResponse | ErrorResponse>,
 ) {
   try {
     const encounters = encounterService.getAllEncounters();
@@ -74,7 +78,8 @@ function handleGet(
       count: encounters.length,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to list encounters';
+    const message =
+      error instanceof Error ? error.message : 'Failed to list encounters';
     return res.status(500).json({ error: message });
   }
 }
@@ -85,7 +90,7 @@ function handleGet(
 function handlePost(
   encounterService: ReturnType<typeof getEncounterService>,
   req: NextApiRequest,
-  res: NextApiResponse<CreateResponse | ErrorResponse>
+  res: NextApiResponse<CreateResponse | ErrorResponse>,
 ) {
   try {
     const body = req.body as ICreateEncounterInput;
@@ -98,7 +103,9 @@ function handlePost(
 
     if (result.success && result.id) {
       const encounter = encounterService.getEncounter(result.id);
-      return res.status(201).json({ ...result, encounter: encounter || undefined });
+      return res
+        .status(201)
+        .json({ ...result, encounter: encounter || undefined });
     } else {
       return res.status(400).json({
         success: false,
@@ -107,7 +114,8 @@ function handlePost(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to create encounter';
+    const message =
+      error instanceof Error ? error.message : 'Failed to create encounter';
     return res.status(500).json({ error: message });
   }
 }

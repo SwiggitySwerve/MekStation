@@ -1,6 +1,6 @@
-import { ISurgeryResult } from './medicalTypes';
-import { IPerson, IInjury } from '../../../types/campaign/Person';
 import { ICampaignOptions } from '../../../types/campaign/Campaign';
+import { IPerson, IInjury } from '../../../types/campaign/Person';
+import { ISurgeryResult } from './medicalTypes';
 import { roll2d6, RandomFn } from './standardMedical';
 
 function getMedicineSkillValue(_doctor: IPerson): number {
@@ -12,7 +12,7 @@ export function performSurgery(
   injury: IInjury,
   surgeon: IPerson,
   options: ICampaignOptions,
-  random: RandomFn
+  random: RandomFn,
 ): ISurgeryResult {
   if (!injury.permanent) {
     throw new Error('Injury must be permanent to perform surgery');
@@ -60,7 +60,10 @@ export function performSurgery(
   };
 }
 
-export function installProsthetic(injury: IInjury, location: string): IInjury & { hasProsthetic: boolean; prostheticLocation: string } {
+export function installProsthetic(
+  injury: IInjury,
+  location: string,
+): IInjury & { hasProsthetic: boolean; prostheticLocation: string } {
   return {
     ...injury,
     hasProsthetic: true,

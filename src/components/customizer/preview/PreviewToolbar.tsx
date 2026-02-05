@@ -1,12 +1,13 @@
 /**
  * Preview Toolbar Component
- * 
+ *
  * Toolbar with Download PDF and Print buttons for the record sheet preview.
- * 
+ *
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
 import React, { useCallback, useState } from 'react';
+
 import { PaperSize } from '@/types/printing';
 
 // =============================================================================
@@ -32,7 +33,7 @@ interface PreviewToolbarProps {
 
 /**
  * Preview Toolbar Component
- * 
+ *
  * Provides export and print controls for the record sheet.
  */
 export function PreviewToolbar({
@@ -43,7 +44,7 @@ export function PreviewToolbar({
   className = '',
 }: PreviewToolbarProps): React.ReactElement {
   const [isExporting, setIsExporting] = useState(false);
-  
+
   const handleExportPDF = useCallback(async () => {
     setIsExporting(true);
     try {
@@ -61,12 +62,14 @@ export function PreviewToolbar({
       onPrint();
     } catch (error) {
       console.error('Error printing:', error);
-      alert('Failed to open print dialog. Please check popup blocker settings.');
+      alert(
+        'Failed to open print dialog. Please check popup blocker settings.',
+      );
     }
   }, [onPrint]);
 
   return (
-    <div 
+    <div
       className={`preview-toolbar ${className}`}
       style={{
         display: 'flex',
@@ -79,10 +82,10 @@ export function PreviewToolbar({
     >
       {/* Paper Size Select */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <label 
+        <label
           htmlFor="paper-size"
-          style={{ 
-            color: '#aaa', 
+          style={{
+            color: '#aaa',
             fontSize: '13px',
             fontWeight: 500,
           }}
@@ -103,7 +106,9 @@ export function PreviewToolbar({
             cursor: 'pointer',
           }}
         >
-          <option value={PaperSize.LETTER}>Letter (8.5&quot; × 11&quot;)</option>
+          <option value={PaperSize.LETTER}>
+            Letter (8.5&quot; × 11&quot;)
+          </option>
           <option value={PaperSize.A4}>A4 (210mm × 297mm)</option>
         </select>
       </div>
@@ -184,12 +189,12 @@ export function PreviewToolbar({
 
 function PrintIcon(): React.ReactElement {
   return (
-    <svg 
-      width="16" 
-      height="16" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -203,12 +208,12 @@ function PrintIcon(): React.ReactElement {
 
 function DownloadIcon(): React.ReactElement {
   return (
-    <svg 
-      width="16" 
-      height="16" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -219,4 +224,3 @@ function DownloadIcon(): React.ReactElement {
     </svg>
   );
 }
-

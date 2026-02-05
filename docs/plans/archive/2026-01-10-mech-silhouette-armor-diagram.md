@@ -9,6 +9,7 @@
 Redesign the armor diagram to be more "mech correct" with two user-selectable display modes: a schematic grid layout with proper anatomical connections, and a detailed SVG silhouette with layered visual elements.
 
 **Goals:**
+
 - Create anatomically accurate mech body part relationships
 - Provide detailed SVG silhouette that looks like a BattleMech
 - Support both modes via user preference in Settings
@@ -16,6 +17,7 @@ Redesign the armor diagram to be more "mech correct" with two user-selectable di
 - Work at partial size on desktop and full size on mobile
 
 **Design Decisions Made:**
+
 - Two modes: Schematic (grid) and Silhouette (SVG)
 - Layered SVG architecture for future extensibility
 - Combined front/rear display on torso locations
@@ -62,7 +64,7 @@ Add to existing UI Preferences in Settings:
 ```typescript
 interface UIPreferences {
   theme: 'light' | 'dark' | 'system';
-  armorDiagramMode: 'schematic' | 'silhouette';  // NEW
+  armorDiagramMode: 'schematic' | 'silhouette'; // NEW
 }
 ```
 
@@ -103,9 +105,9 @@ Current:                      Corrected:
 
 ```css
 grid-template-areas:
-  ".    .    head   .    ."
-  "la   lt   ct     rt   ra"
-  ".    ll   .      rl   ."
+  '.    .    head   .    .'
+  'la   lt   ct     rt   ra'
+  '.    ll   .      rl   .';
 ```
 
 Cards get visual connectors (thin lines or subtle shadows) showing structural relationships. Each location card remains expandable with existing +5/+10/Max controls.
@@ -113,6 +115,7 @@ Cards get visual connectors (thin lines or subtle shadows) showing structural re
 ### Mobile Layout
 
 Stack vertically but group by connection:
+
 1. Head
 2. Torsos (CT, LT, RT)
 3. Arms (LA, RA)
@@ -128,31 +131,35 @@ Subtle indentation shows hierarchy.
 
 Layers stack bottom to top:
 
-| Layer | Always Loaded | Purpose |
-|-------|---------------|---------|
-| 1. Base Hitbox | Yes | Invisible `<path>` regions for click detection |
-| 2. Armor Fill | Yes | Colored shapes showing armor status (green/amber/red) |
-| 3. Detail | Desktop: hover only, Mobile: always | Panel lines, cockpit, joints, vents |
-| 4. Interaction | Yes | CSS-driven glow/pulse on hover and selection |
+| Layer          | Always Loaded                       | Purpose                                               |
+| -------------- | ----------------------------------- | ----------------------------------------------------- |
+| 1. Base Hitbox | Yes                                 | Invisible `<path>` regions for click detection        |
+| 2. Armor Fill  | Yes                                 | Colored shapes showing armor status (green/amber/red) |
+| 3. Detail      | Desktop: hover only, Mobile: always | Panel lines, cockpit, joints, vents                   |
+| 4. Interaction | Yes                                 | CSS-driven glow/pulse on hover and selection          |
 
 ### Layer Responsibilities
 
 **Base Hitbox Layer:**
+
 - Defines clickable `<path>` regions for each location
 - Invisible but receives pointer events
 - Each path has `data-location="CENTER_TORSO"` attribute
 
 **Armor Fill Layer:**
+
 - Colored shapes matching hitbox paths
 - Shows armor status via color gradient
 - Updates reactively when armor values change
 
 **Detail Layer:**
+
 - Structural lines, cockpit glass, joints, vents
 - Pure decoration, no interactivity
 - Loaded on hover for desktop, always for mobile
 
 **Interaction Layer:**
+
 - CSS-driven visual feedback
 - Glow/pulse effects on hover and selection
 
@@ -199,24 +206,24 @@ Layers stack bottom to top:
 
 Each location is a single `<path>` element:
 
-| Location | Shape |
-|----------|-------|
-| Head | Rounded trapezoid with cockpit indent |
-| Center Torso | Tapered rectangle, widest at shoulders |
-| Side Torsos | Wedge shapes flanking CT |
-| Arms | Elongated shapes, angled 15° outward |
-| Legs | Two-segment (thigh/shin), separated by knee joint |
+| Location     | Shape                                             |
+| ------------ | ------------------------------------------------- |
+| Head         | Rounded trapezoid with cockpit indent             |
+| Center Torso | Tapered rectangle, widest at shoulders            |
+| Side Torsos  | Wedge shapes flanking CT                          |
+| Arms         | Elongated shapes, angled 15° outward              |
+| Legs         | Two-segment (thigh/shin), separated by knee joint |
 
 ### Detail Elements
 
-| Element | Location | Purpose |
-|---------|----------|---------|
-| Cockpit glass | Head | Reflective highlight |
-| Shoulder joints | LT/RT edge | Circular pivots |
-| Panel lines | All torsos | Horizontal segments |
-| Knee joints | Legs | Circular joints |
-| Foot pads | Leg bottoms | Ground contact |
-| Vent slats | Side torsos | 3-4 horizontal lines |
+| Element         | Location    | Purpose              |
+| --------------- | ----------- | -------------------- |
+| Cockpit glass   | Head        | Reflective highlight |
+| Shoulder joints | LT/RT edge  | Circular pivots      |
+| Panel lines     | All torsos  | Horizontal segments  |
+| Knee joints     | Legs        | Circular joints      |
+| Foot pads       | Leg bottoms | Ground contact       |
+| Vent slats      | Side torsos | 3-4 horizontal lines |
 
 ### SVG Viewbox
 
@@ -243,12 +250,12 @@ Schematic card:                 Silhouette region:
 
 ### Location Display Rules
 
-| Location | Display |
-|----------|---------|
-| Head | Single value (no rear) |
+| Location   | Display                                         |
+| ---------- | ----------------------------------------------- |
+| Head       | Single value (no rear)                          |
 | CT, LT, RT | Split: Front value on top, Rear value on bottom |
-| Arms | Single value (no rear) |
-| Legs | Single value (no rear) |
+| Arms       | Single value (no rear)                          |
+| Legs       | Single value (no rear)                          |
 
 ### Editing Flow
 
@@ -278,12 +285,12 @@ Torso regions have a subtle horizontal divider line. Top half = front, bottom ha
 
 ### Visual States
 
-| State | Schematic | Silhouette |
-|-------|-----------|------------|
-| Default | White card, subtle border | Filled region, panel lines visible |
-| Hover | Light blue background | Soft glow on region edges |
-| Selected | Blue border, expanded controls | Bright glow, controls panel opens |
-| Disabled | Grayed out, no pointer | Dimmed opacity, no pointer events |
+| State    | Schematic                      | Silhouette                         |
+| -------- | ------------------------------ | ---------------------------------- |
+| Default  | White card, subtle border      | Filled region, panel lines visible |
+| Hover    | Light blue background          | Soft glow on region edges          |
+| Selected | Blue border, expanded controls | Bright glow, controls panel opens  |
+| Disabled | Grayed out, no pointer         | Dimmed opacity, no pointer events  |
 
 ### Keyboard Navigation
 
@@ -372,6 +379,7 @@ All clickable regions minimum 44×44px, even on the silhouette.
 ## Implementation Phases
 
 ### Phase 1: Shared Infrastructure
+
 **Goal:** Extract shared controls and set up mode switching
 
 - Extract `ArmorControls.tsx` from existing location component
@@ -386,6 +394,7 @@ All clickable regions minimum 44×44px, even on the silhouette.
 ---
 
 ### Phase 2: Schematic Mode
+
 **Goal:** Anatomically correct grid layout
 
 - Create `SchematicDiagram.tsx` with corrected CSS grid
@@ -400,6 +409,7 @@ All clickable regions minimum 44×44px, even on the silhouette.
 ---
 
 ### Phase 3: Silhouette Base Layer
+
 **Goal:** Clickable mech outline
 
 - Create `BipedBase.tsx` with hitbox `<path>` elements
@@ -414,6 +424,7 @@ All clickable regions minimum 44×44px, even on the silhouette.
 ---
 
 ### Phase 4: Silhouette Fill Layer
+
 **Goal:** Armor status visualization
 
 - Create `BipedFill.tsx` with colored regions
@@ -427,6 +438,7 @@ All clickable regions minimum 44×44px, even on the silhouette.
 ---
 
 ### Phase 5: Silhouette Detail Layer
+
 **Goal:** Visual polish and immersion
 
 - Create `BipedDetail.tsx` with decorative elements
@@ -440,6 +452,7 @@ All clickable regions minimum 44×44px, even on the silhouette.
 ---
 
 ### Phase 6: Interaction Polish
+
 **Goal:** Refined user experience
 
 - Add hover glow effects
@@ -457,14 +470,14 @@ All clickable regions minimum 44×44px, even on the silhouette.
 
 The layered architecture supports future enhancements:
 
-| Future Feature | How It Fits |
-|----------------|-------------|
-| Quad chassis | Add `QuadBase.tsx`, `QuadFill.tsx`, `QuadDetail.tsx` |
-| LAM chassis | Add LAM-specific layer files |
-| Damage states | Add `BipedDamage.tsx` overlay layer |
+| Future Feature    | How It Fits                                          |
+| ----------------- | ---------------------------------------------------- |
+| Quad chassis      | Add `QuadBase.tsx`, `QuadFill.tsx`, `QuadDetail.tsx` |
+| LAM chassis       | Add LAM-specific layer files                         |
+| Damage states     | Add `BipedDamage.tsx` overlay layer                  |
 | Equipment markers | Add `BipedEquipment.tsx` layer showing weapon mounts |
-| Themes/skins | Swap detail layers for different visual styles |
-| Animation | Animate individual layers independently |
+| Themes/skins      | Swap detail layers for different visual styles       |
+| Animation         | Animate individual layers independently              |
 
 Each new capability adds layers without modifying the base hitbox system.
 
@@ -473,6 +486,7 @@ Each new capability adds layers without modifying the base hitbox system.
 ## Implementation Notes
 
 This design prioritizes:
+
 1. **Modularity** — Layered architecture allows independent iteration
 2. **Accessibility** — Keyboard and screen reader support from the start
 3. **Responsiveness** — Works at all sizes without separate codebases

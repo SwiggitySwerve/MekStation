@@ -8,7 +8,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { getSQLiteService } from '../persistence/SQLiteService';
+
 import {
   IPilot,
   IPilotCareer,
@@ -20,6 +20,8 @@ import {
   PilotStatus,
   DEFAULT_PILOT_SKILLS,
 } from '@/types/pilot';
+
+import { getSQLiteService } from '../persistence/SQLiteService';
 
 // =============================================================================
 // Database Row Types
@@ -109,10 +111,20 @@ export interface IPilotRepository {
   list(): readonly IPilot[];
   listByStatus(status: PilotStatus): readonly IPilot[];
   exists(id: string): boolean;
-  addAbility(pilotId: string, abilityId: string, gameId?: string): IPilotOperationResult;
+  addAbility(
+    pilotId: string,
+    abilityId: string,
+    gameId?: string,
+  ): IPilotOperationResult;
   removeAbility(pilotId: string, abilityId: string): IPilotOperationResult;
-  recordKill(pilotId: string, kill: Omit<IKillRecord, 'date'>): IPilotOperationResult;
-  recordMission(pilotId: string, mission: Omit<IMissionRecord, 'date'>): IPilotOperationResult;
+  recordKill(
+    pilotId: string,
+    kill: Omit<IKillRecord, 'date'>,
+  ): IPilotOperationResult;
+  recordMission(
+    pilotId: string,
+    mission: Omit<IMissionRecord, 'date'>,
+  ): IPilotOperationResult;
   addXp(pilotId: string, amount: number): IPilotOperationResult;
   spendXp(pilotId: string, amount: number): IPilotOperationResult;
 }
@@ -163,7 +175,7 @@ export class PilotRepository implements IPilotRepository {
         options.startingXp || 0,
         options.rank || null,
         now,
-        now
+        now,
       );
 
       // Add initial abilities if provided
@@ -297,7 +309,9 @@ export class PilotRepository implements IPilotRepository {
   getById(id: string): IPilot | null {
     const db = getSQLiteService().getDatabase();
 
-    const row = db.prepare('SELECT * FROM pilots WHERE id = ?').get(id) as PilotRow | undefined;
+    const row = db.prepare('SELECT * FROM pilots WHERE id = ?').get(id) as
+      | PilotRow
+      | undefined;
     if (!row) return null;
 
     return this.rowToPilot(row);
@@ -309,7 +323,9 @@ export class PilotRepository implements IPilotRepository {
   list(): readonly IPilot[] {
     const db = getSQLiteService().getDatabase();
 
-    const rows = db.prepare('SELECT * FROM pilots ORDER BY name').all() as PilotRow[];
+    const rows = db
+      .prepare('SELECT * FROM pilots ORDER BY name')
+      .all() as PilotRow[];
     return rows.map((row) => this.rowToPilot(row));
   }
 
@@ -337,7 +353,11 @@ export class PilotRepository implements IPilotRepository {
   /**
    * Add an ability to a pilot
    */
-  addAbility(pilotId: string, abilityId: string, gameId?: string): IPilotOperationResult {
+  addAbility(
+    pilotId: string,
+    abilityId: string,
+    gameId?: string,
+  ): IPilotOperationResult {
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
@@ -373,10 +393,9 @@ export class PilotRepository implements IPilotRepository {
     const db = getSQLiteService().getDatabase();
 
     try {
-      db.prepare('DELETE FROM pilot_abilities WHERE pilot_id = ? AND ability_id = ?').run(
-        pilotId,
-        abilityId
-      );
+      db.prepare(
+        'DELETE FROM pilot_abilities WHERE pilot_id = ? AND ability_id = ?',
+      ).run(pilotId, abilityId);
       return { success: true, id: pilotId };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -391,7 +410,10 @@ export class PilotRepository implements IPilotRepository {
   /**
    * Record a kill for a pilot
    */
-  recordKill(pilotId: string, kill: Omit<IKillRecord, 'date'>): IPilotOperationResult {
+  recordKill(
+    pilotId: string,
+    kill: Omit<IKillRecord, 'date'>,
+  ): IPilotOperationResult {
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
@@ -408,7 +430,15 @@ export class PilotRepository implements IPilotRepository {
       db.prepare(`
         INSERT INTO pilot_kills (id, pilot_id, target_id, target_name, weapon_used, kill_date, game_id)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).run(uuidv4(), pilotId, kill.targetId, kill.targetName, kill.weaponUsed, now, kill.gameId);
+      `).run(
+        uuidv4(),
+        pilotId,
+        kill.targetId,
+        kill.targetName,
+        kill.weaponUsed,
+        now,
+        kill.gameId,
+      );
 
       // Update total kills
       db.prepare(`
@@ -431,7 +461,7 @@ export class PilotRepository implements IPilotRepository {
    */
   recordMission(
     pilotId: string,
-    mission: Omit<IMissionRecord, 'date'>
+    mission: Omit<IMissionRecord, 'date'>,
   ): IPilotOperationResult {
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
@@ -457,7 +487,7 @@ export class PilotRepository implements IPilotRepository {
         now,
         mission.outcome,
         mission.xpEarned,
-        mission.kills
+        mission.kills,
       );
 
       // Update career stats
@@ -589,11 +619,15 @@ export class PilotRepository implements IPilotRepository {
     let career: IPilotCareer | undefined;
     if (row.type === PilotType.Persistent) {
       const killRows = db
-        .prepare('SELECT * FROM pilot_kills WHERE pilot_id = ? ORDER BY kill_date DESC')
+        .prepare(
+          'SELECT * FROM pilot_kills WHERE pilot_id = ? ORDER BY kill_date DESC',
+        )
         .all(row.id) as PilotKillRow[];
 
       const missionRows = db
-        .prepare('SELECT * FROM pilot_missions WHERE pilot_id = ? ORDER BY mission_date DESC')
+        .prepare(
+          'SELECT * FROM pilot_missions WHERE pilot_id = ? ORDER BY mission_date DESC',
+        )
         .all(row.id) as PilotMissionRow[];
 
       career = {

@@ -39,7 +39,7 @@ describe('gestureFeedback', () => {
         delete global.navigator.vibrate;
       }
       expect(isVibrationSupported()).toBe(false);
-      
+
       // Restore for other tests
       Object.defineProperty(global.navigator, 'vibrate', {
         value: jest.fn(),
@@ -210,9 +210,9 @@ describe('gestureFeedback', () => {
     it('should call callback and trigger feedback', () => {
       const callback = jest.fn();
       const wrapped = withFeedback(callback, { intensity: 'medium' });
-      
+
       wrapped('arg1', 'arg2');
-      
+
       expect(vibrateMock).toHaveBeenCalledWith(VIBRATION_PATTERNS.medium);
       expect(callback).toHaveBeenCalledWith('arg1', 'arg2');
     });

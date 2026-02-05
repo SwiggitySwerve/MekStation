@@ -1,3 +1,5 @@
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import {
   getSlotColors,
   getSlotColorClasses,
@@ -6,8 +8,6 @@ import {
   SystemComponentType,
   SLOT_COLORS,
 } from '@/utils/colors/slotColors';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 
 describe('slotColors', () => {
   describe('getSlotColors', () => {
@@ -62,40 +62,58 @@ describe('slotColors', () => {
   describe('classifySystemComponent', () => {
     describe('structure types', () => {
       it('should classify Endo Steel IS as structure', () => {
-        expect(classifySystemComponent(InternalStructureType.ENDO_STEEL_IS)).toBe('structure');
+        expect(
+          classifySystemComponent(InternalStructureType.ENDO_STEEL_IS),
+        ).toBe('structure');
       });
 
       it('should classify Endo Steel Clan as structure', () => {
-        expect(classifySystemComponent(InternalStructureType.ENDO_STEEL_CLAN)).toBe('structure');
+        expect(
+          classifySystemComponent(InternalStructureType.ENDO_STEEL_CLAN),
+        ).toBe('structure');
       });
 
       it('should classify Endo Composite as structure', () => {
-        expect(classifySystemComponent(InternalStructureType.ENDO_COMPOSITE)).toBe('structure');
+        expect(
+          classifySystemComponent(InternalStructureType.ENDO_COMPOSITE),
+        ).toBe('structure');
       });
 
       it('should classify names containing structure types as structure', () => {
         // Note: classifySystemComponent checks for exact matches or includes
         // So we need to use the actual enum values or names that include them
-        expect(classifySystemComponent(InternalStructureType.ENDO_STEEL_IS)).toBe('structure');
-        expect(classifySystemComponent(InternalStructureType.ENDO_STEEL_CLAN)).toBe('structure');
+        expect(
+          classifySystemComponent(InternalStructureType.ENDO_STEEL_IS),
+        ).toBe('structure');
+        expect(
+          classifySystemComponent(InternalStructureType.ENDO_STEEL_CLAN),
+        ).toBe('structure');
       });
     });
 
     describe('armor types', () => {
       it('should classify Ferro-Fibrous IS as armor', () => {
-        expect(classifySystemComponent(ArmorTypeEnum.FERRO_FIBROUS_IS)).toBe('armor');
+        expect(classifySystemComponent(ArmorTypeEnum.FERRO_FIBROUS_IS)).toBe(
+          'armor',
+        );
       });
 
       it('should classify Ferro-Fibrous Clan as armor', () => {
-        expect(classifySystemComponent(ArmorTypeEnum.FERRO_FIBROUS_CLAN)).toBe('armor');
+        expect(classifySystemComponent(ArmorTypeEnum.FERRO_FIBROUS_CLAN)).toBe(
+          'armor',
+        );
       });
 
       it('should classify Light Ferro as armor', () => {
-        expect(classifySystemComponent(ArmorTypeEnum.LIGHT_FERRO)).toBe('armor');
+        expect(classifySystemComponent(ArmorTypeEnum.LIGHT_FERRO)).toBe(
+          'armor',
+        );
       });
 
       it('should classify Heavy Ferro as armor', () => {
-        expect(classifySystemComponent(ArmorTypeEnum.HEAVY_FERRO)).toBe('armor');
+        expect(classifySystemComponent(ArmorTypeEnum.HEAVY_FERRO)).toBe(
+          'armor',
+        );
       });
 
       it('should classify Stealth Armor as armor', () => {
@@ -173,7 +191,9 @@ describe('slotColors', () => {
     describe('life support types', () => {
       it('should classify life support names', () => {
         expect(classifySystemComponent('Life Support')).toBe('lifesupport');
-        expect(classifySystemComponent('Life Support System')).toBe('lifesupport');
+        expect(classifySystemComponent('Life Support System')).toBe(
+          'lifesupport',
+        );
       });
     });
 
@@ -212,4 +232,3 @@ describe('slotColors', () => {
     });
   });
 });
-

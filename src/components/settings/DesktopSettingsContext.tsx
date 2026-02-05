@@ -1,16 +1,24 @@
 /**
  * Desktop Settings Context
- * 
+ *
  * Provides context for managing the desktop settings dialog state
  * and handling menu commands from the Electron main process.
- * 
+ *
  * Usage:
  * 1. Wrap your app with <DesktopSettingsProvider>
  * 2. Use useDesktopSettingsDialog() to get open/close functions
  * 3. The provider automatically handles menu commands
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from 'react';
+
 import { DesktopSettingsDialog } from './DesktopSettingsDialog';
 import { useElectron, MenuCommand, isElectron } from './useElectron';
 
@@ -27,7 +35,9 @@ interface DesktopSettingsContextType {
 }
 
 // Context
-const DesktopSettingsContext = createContext<DesktopSettingsContextType | null>(null);
+const DesktopSettingsContext = createContext<DesktopSettingsContextType | null>(
+  null,
+);
 
 // Provider props
 interface DesktopSettingsProviderProps {
@@ -36,11 +46,13 @@ interface DesktopSettingsProviderProps {
 
 /**
  * Desktop Settings Provider
- * 
+ *
  * Provides desktop settings context and renders the settings dialog.
  * Handles menu commands from the Electron main process.
  */
-export function DesktopSettingsProvider({ children }: DesktopSettingsProviderProps): React.ReactElement {
+export function DesktopSettingsProvider({
+  children,
+}: DesktopSettingsProviderProps): React.ReactElement {
   const api = useElectron();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -83,7 +95,7 @@ export function DesktopSettingsProvider({ children }: DesktopSettingsProviderPro
     isSettingsOpen,
     openSettings,
     closeSettings,
-    isDesktop: isElectron()
+    isDesktop: isElectron(),
   };
 
   return (
@@ -100,16 +112,16 @@ export function DesktopSettingsProvider({ children }: DesktopSettingsProviderPro
  */
 export function useDesktopSettingsDialog(): DesktopSettingsContextType {
   const context = useContext(DesktopSettingsContext);
-  
+
   if (!context) {
     // Return a safe fallback for non-provider usage
     return {
       isSettingsOpen: false,
       openSettings: () => {},
       closeSettings: () => {},
-      isDesktop: false
+      isDesktop: false,
     };
   }
-  
+
   return context;
 }

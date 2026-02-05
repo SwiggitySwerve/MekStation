@@ -8,12 +8,20 @@
  */
 
 import React, { useCallback, useMemo } from 'react';
+
 import { useVehicleStore } from '@/stores/useVehicleStore';
-import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
-import { VehicleLocation, VTOLLocation } from '@/types/construction/UnitLocation';
-import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { getTotalVehicleArmor } from '@/stores/vehicleState';
+import {
+  ArmorTypeEnum,
+  getArmorDefinition,
+} from '@/types/construction/ArmorType';
+import {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -33,7 +41,10 @@ const ARMOR_TYPE_OPTIONS: { value: ArmorTypeEnum; label: string }[] = [
 ];
 
 // Vehicle armor locations with labels
-const VEHICLE_LOCATIONS: { location: VehicleLocation | VTOLLocation; label: string }[] = [
+const VEHICLE_LOCATIONS: {
+  location: VehicleLocation | VTOLLocation;
+  label: string;
+}[] = [
   { location: VehicleLocation.FRONT, label: 'Front' },
   { location: VehicleLocation.LEFT, label: 'Left Side' },
   { location: VehicleLocation.RIGHT, label: 'Right Side' },
@@ -59,7 +70,10 @@ interface VehicleArmorTabProps {
 /**
  * Calculate armor points from tonnage
  */
-function calculateArmorPoints(tonnage: number, armorType: ArmorTypeEnum): number {
+function calculateArmorPoints(
+  tonnage: number,
+  armorType: ArmorTypeEnum,
+): number {
   const def = getArmorDefinition(armorType);
   const pointsPerTon = def?.pointsPerTon ?? 16;
   return Math.floor(tonnage * pointsPerTon);
@@ -73,7 +87,7 @@ function getMaxVehicleArmorForLocation(
   tonnage: number,
   location: VehicleLocation | VTOLLocation,
   hasTurret: boolean,
-  isVTOL: boolean
+  isVTOL: boolean,
 ): number {
   // Vehicle armor maximums are based on tonnage and location
   // These are simplified approximations - real values depend on internal structure
@@ -99,17 +113,51 @@ function getMaxVehicleArmorForLocation(
 /**
  * Get max total armor for a vehicle
  */
-function getMaxVehicleArmor(tonnage: number, hasTurret: boolean, isVTOL: boolean): number {
+function getMaxVehicleArmor(
+  tonnage: number,
+  hasTurret: boolean,
+  isVTOL: boolean,
+): number {
   let total = 0;
-  total += getMaxVehicleArmorForLocation(tonnage, VehicleLocation.FRONT, hasTurret, isVTOL);
-  total += getMaxVehicleArmorForLocation(tonnage, VehicleLocation.LEFT, hasTurret, isVTOL);
-  total += getMaxVehicleArmorForLocation(tonnage, VehicleLocation.RIGHT, hasTurret, isVTOL);
-  total += getMaxVehicleArmorForLocation(tonnage, VehicleLocation.REAR, hasTurret, isVTOL);
+  total += getMaxVehicleArmorForLocation(
+    tonnage,
+    VehicleLocation.FRONT,
+    hasTurret,
+    isVTOL,
+  );
+  total += getMaxVehicleArmorForLocation(
+    tonnage,
+    VehicleLocation.LEFT,
+    hasTurret,
+    isVTOL,
+  );
+  total += getMaxVehicleArmorForLocation(
+    tonnage,
+    VehicleLocation.RIGHT,
+    hasTurret,
+    isVTOL,
+  );
+  total += getMaxVehicleArmorForLocation(
+    tonnage,
+    VehicleLocation.REAR,
+    hasTurret,
+    isVTOL,
+  );
   if (hasTurret) {
-    total += getMaxVehicleArmorForLocation(tonnage, VehicleLocation.TURRET, hasTurret, isVTOL);
+    total += getMaxVehicleArmorForLocation(
+      tonnage,
+      VehicleLocation.TURRET,
+      hasTurret,
+      isVTOL,
+    );
   }
   if (isVTOL) {
-    total += getMaxVehicleArmorForLocation(tonnage, VTOLLocation.ROTOR, hasTurret, isVTOL);
+    total += getMaxVehicleArmorForLocation(
+      tonnage,
+      VTOLLocation.ROTOR,
+      hasTurret,
+      isVTOL,
+    );
   }
   return total;
 }
@@ -149,21 +197,21 @@ export function VehicleArmorTab({
   const pointsPerTon = armorDef?.pointsPerTon ?? 16;
   const availablePoints = useMemo(
     () => calculateArmorPoints(armorTonnage, armorType),
-    [armorTonnage, armorType]
+    [armorTonnage, armorType],
   );
   const allocatedPoints = useMemo(
     () => getTotalVehicleArmor(armorAllocation, hasTurret),
-    [armorAllocation, hasTurret]
+    [armorAllocation, hasTurret],
   );
   const maxTotalArmor = useMemo(
     () => getMaxVehicleArmor(tonnage, hasTurret, isVTOL),
-    [tonnage, hasTurret, isVTOL]
+    [tonnage, hasTurret, isVTOL],
   );
 
   // Calculate max useful tonnage
   const maxUsefulTonnage = useMemo(
     () => ceilToHalfTon(maxTotalArmor / pointsPerTon),
-    [maxTotalArmor, pointsPerTon]
+    [maxTotalArmor, pointsPerTon],
   );
 
   // Points status
@@ -175,7 +223,7 @@ export function VehicleArmorTab({
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       setArmorType(e.target.value as ArmorTypeEnum);
     },
-    [setArmorType]
+    [setArmorType],
   );
 
   const handleArmorTonnageChange = useCallback(
@@ -183,16 +231,21 @@ export function VehicleArmorTab({
       const clamped = Math.max(0, Math.min(maxUsefulTonnage, newTonnage));
       setArmorTonnage(clamped);
     },
-    [setArmorTonnage, maxUsefulTonnage]
+    [setArmorTonnage, maxUsefulTonnage],
   );
 
   const handleLocationArmorChange = useCallback(
     (location: VehicleLocation | VTOLLocation, points: number) => {
-      const max = getMaxVehicleArmorForLocation(tonnage, location, hasTurret, isVTOL);
+      const max = getMaxVehicleArmorForLocation(
+        tonnage,
+        location,
+        hasTurret,
+        isVTOL,
+      );
       const clamped = Math.max(0, Math.min(max, points));
       setLocationArmor(location, clamped);
     },
-    [setLocationArmor, tonnage, hasTurret, isVTOL]
+    [setLocationArmor, tonnage, hasTurret, isVTOL],
   );
 
   const handleMaximizeArmor = useCallback(() => {
@@ -204,7 +257,7 @@ export function VehicleArmorTab({
     const locs = [...VEHICLE_LOCATIONS];
     // Filter out turret if no turret
     const filtered = locs.filter(
-      (l) => l.location !== VehicleLocation.TURRET || hasTurret
+      (l) => l.location !== VehicleLocation.TURRET || hasTurret,
     );
     // Add rotor for VTOLs
     if (isVTOL) {
@@ -214,8 +267,11 @@ export function VehicleArmorTab({
   }, [hasTurret, isVTOL]);
 
   return (
-    <div className={`${cs.panel.main} ${className}`} data-testid="vehicle-armor-tab">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div
+      className={`${cs.panel.main} ${className}`}
+      data-testid="vehicle-armor-tab"
+    >
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Armor Configuration Section */}
         <section data-testid="vehicle-armor-config-section">
           <h3 className={cs.text.sectionTitle}>Armor Configuration</h3>
@@ -241,11 +297,13 @@ export function VehicleArmorTab({
           {/* Armor Tonnage */}
           <div className="mb-4">
             <label className={cs.text.label}>Armor Tonnage</label>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1 flex items-center gap-2">
               <input
                 type="number"
                 value={armorTonnage}
-                onChange={(e) => handleArmorTonnageChange(Number(e.target.value))}
+                onChange={(e) =>
+                  handleArmorTonnageChange(Number(e.target.value))
+                }
                 min={0}
                 max={maxUsefulTonnage}
                 step={0.5}
@@ -253,16 +311,23 @@ export function VehicleArmorTab({
                 className={`${cs.input.number} w-20`}
                 data-testid="vehicle-armor-tonnage-input"
               />
-              <span className={cs.text.secondary}>/ {maxUsefulTonnage} tons max</span>
+              <span className={cs.text.secondary}>
+                / {maxUsefulTonnage} tons max
+              </span>
             </div>
           </div>
 
           {/* Points Summary */}
-          <div className={`${cs.panel.summary} mb-4`} data-testid="vehicle-armor-summary">
+          <div
+            className={`${cs.panel.summary} mb-4`}
+            data-testid="vehicle-armor-summary"
+          >
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
                 <span className={cs.text.label}>Available Points:</span>
-                <span className={`${cs.text.value} ml-2`}>{availablePoints}</span>
+                <span className={`${cs.text.value} ml-2`}>
+                  {availablePoints}
+                </span>
               </div>
               <div>
                 <span className={cs.text.label}>Allocated:</span>
@@ -283,8 +348,8 @@ export function VehicleArmorTab({
                     unallocatedPoints < 0
                       ? cs.text.valueNegative
                       : unallocatedPoints > 0
-                      ? cs.text.valueWarning
-                      : cs.text.value
+                        ? cs.text.valueWarning
+                        : cs.text.value
                   }`}
                 >
                   {unallocatedPoints}
@@ -296,7 +361,7 @@ export function VehicleArmorTab({
               </div>
             </div>
             {wastedPoints > 0 && (
-              <p className="text-amber-400 text-xs mt-2">
+              <p className="mt-2 text-xs text-amber-400">
                 {wastedPoints} points wasted (exceeds maximum)
               </p>
             )}
@@ -339,7 +404,7 @@ export function VehicleArmorTab({
                 tonnage,
                 location,
                 hasTurret,
-                isVTOL
+                isVTOL,
               );
 
               return (
@@ -349,19 +414,25 @@ export function VehicleArmorTab({
                     type="range"
                     value={currentValue}
                     onChange={(e) =>
-                      handleLocationArmorChange(location, Number(e.target.value))
+                      handleLocationArmorChange(
+                        location,
+                        Number(e.target.value),
+                      )
                     }
                     min={0}
                     max={maxValue}
                     disabled={readOnly || maxValue === 0}
                     className="flex-1"
                   />
-                  <div className="flex items-center gap-1 w-20">
+                  <div className="flex w-20 items-center gap-1">
                     <input
                       type="number"
                       value={currentValue}
                       onChange={(e) =>
-                        handleLocationArmorChange(location, Number(e.target.value))
+                        handleLocationArmorChange(
+                          location,
+                          Number(e.target.value),
+                        )
                       }
                       min={0}
                       max={maxValue}
@@ -376,7 +447,7 @@ export function VehicleArmorTab({
           </div>
 
           {/* Simple Vehicle Diagram */}
-          <div className="mt-6 p-4 bg-surface-raised/30 rounded-lg">
+          <div className="bg-surface-raised/30 mt-6 rounded-lg p-4">
             <VehicleArmorDiagramSimple
               allocation={armorAllocation}
               hasTurret={hasTurret}
@@ -409,7 +480,7 @@ function VehicleArmorDiagramSimple({
   isVTOL,
 }: VehicleArmorDiagramSimpleProps): React.ReactElement {
   return (
-    <div className="text-center text-sm font-mono">
+    <div className="text-center font-mono text-sm">
       {/* Front */}
       <div className="mb-2">
         <span className="text-text-theme-secondary">FRONT</span>
@@ -419,7 +490,7 @@ function VehicleArmorDiagramSimple({
       </div>
 
       {/* Middle row: Left - Turret/Body - Right */}
-      <div className="flex justify-center items-center gap-8 mb-2">
+      <div className="mb-2 flex items-center justify-center gap-8">
         <div>
           <span className="text-text-theme-secondary">LEFT</span>
           <div className="text-lg font-bold text-cyan-400">
@@ -428,7 +499,7 @@ function VehicleArmorDiagramSimple({
         </div>
 
         {hasTurret && (
-          <div className="px-4 py-2 border border-border-theme rounded">
+          <div className="border-border-theme rounded border px-4 py-2">
             <span className="text-text-theme-secondary">TURRET</span>
             <div className="text-lg font-bold text-amber-400">
               {allocation[VehicleLocation.TURRET] ?? 0}
@@ -437,7 +508,7 @@ function VehicleArmorDiagramSimple({
         )}
 
         {isVTOL && (
-          <div className="px-4 py-2 border border-border-theme rounded">
+          <div className="border-border-theme rounded border px-4 py-2">
             <span className="text-text-theme-secondary">ROTOR</span>
             <div className="text-lg font-bold text-sky-400">
               {allocation[VTOLLocation.ROTOR] ?? 0}

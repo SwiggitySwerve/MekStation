@@ -1,9 +1,11 @@
 # Change: Financial System Expansion
 
 ## Why
+
 MekStation's current financial system uses flat daily costs (50 C-bills/person, 100 C-bills/unit), which lacks the economic depth and strategic pressure of MekHQ's comprehensive financial model. Without role-based salaries, loans, taxes, and price multipliers, campaigns lack realistic financial management and meaningful economic consequences.
 
 ## What Changes
+
 - Implement role-based salary system with XP multipliers (10 roles × 6 experience levels)
 - Add monthly cost processing (salaries, overhead, food/housing) via day pipeline
 - Implement loan system with standard amortization formula
@@ -16,6 +18,7 @@ MekStation's current financial system uses flat daily costs (50 C-bills/person, 
 - Create financial dashboard UI with salary breakdown and loan management
 
 ## Impact
+
 - Affected specs: `campaign-management` (MODIFIED), `day-progression` (MODIFIED), `financial-management` (ADDED)
 - Affected code:
   - `src/lib/finances/salaryService.ts` (NEW) - Role-based salary calculations

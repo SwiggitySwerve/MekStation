@@ -1,8 +1,8 @@
 /**
  * Database Schema Types
- * 
+ *
  * Defines database schema for equipment and unit templates.
- * 
+ *
  * @spec openspec/specs/database-schema/spec.md
  */
 
@@ -127,10 +127,16 @@ export interface IQueryResult<T> {
 export interface IEquipmentDatabase {
   getById(id: string): Promise<IEquipmentRecord | null>;
   getByIds(ids: string[]): Promise<IEquipmentRecord[]>;
-  query(filter: IEquipmentFilter, options?: IQueryOptions): Promise<IQueryResult<IEquipmentRecord>>;
+  query(
+    filter: IEquipmentFilter,
+    options?: IQueryOptions,
+  ): Promise<IQueryResult<IEquipmentRecord>>;
   getCategories(): Promise<string[]>;
   getByCategory(category: string): Promise<IEquipmentRecord[]>;
-  search(text: string, options?: IQueryOptions): Promise<IQueryResult<IEquipmentRecord>>;
+  search(
+    text: string,
+    options?: IQueryOptions,
+  ): Promise<IQueryResult<IEquipmentRecord>>;
 }
 
 /**
@@ -139,8 +145,14 @@ export interface IEquipmentDatabase {
 export interface IUnitDatabase {
   getById(id: string): Promise<IUnitTemplateRecord | null>;
   getByIds(ids: string[]): Promise<IUnitTemplateRecord[]>;
-  query(filter: IUnitFilter, options?: IQueryOptions): Promise<IQueryResult<IUnitTemplateRecord>>;
-  search(text: string, options?: IQueryOptions): Promise<IQueryResult<IUnitTemplateRecord>>;
+  query(
+    filter: IUnitFilter,
+    options?: IQueryOptions,
+  ): Promise<IQueryResult<IUnitTemplateRecord>>;
+  search(
+    text: string,
+    options?: IQueryOptions,
+  ): Promise<IQueryResult<IUnitTemplateRecord>>;
   save(unit: IUnitTemplateRecord): Promise<string>;
   delete(id: string): Promise<boolean>;
 }
@@ -164,4 +176,3 @@ export interface IDatabaseMigrationManager {
   migrate(targetVersion?: string): Promise<string[]>;
   rollback(steps?: number): Promise<string[]>;
 }
-

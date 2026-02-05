@@ -5,13 +5,19 @@
  * @spec openspec/changes/add-p2p-vault-sync/specs/vault-sync/spec.md
  */
 import React, { useState, useEffect } from 'react';
+
 import { ConnectionState, getRetryState } from '@/lib/p2p';
 
 // =============================================================================
 // Types
 // =============================================================================
 
-export type ConnectionQuality = 'excellent' | 'good' | 'fair' | 'poor' | 'disconnected';
+export type ConnectionQuality =
+  | 'excellent'
+  | 'good'
+  | 'fair'
+  | 'poor'
+  | 'disconnected';
 
 interface ConnectionQualityIndicatorProps {
   /** Current connection state */
@@ -39,7 +45,7 @@ interface QualityInfo {
 function assessQuality(
   connectionState: ConnectionState,
   peerCount: number,
-  retryAttempts: number
+  retryAttempts: number,
 ): QualityInfo {
   // Disconnected
   if (connectionState === ConnectionState.Disconnected) {
@@ -125,14 +131,11 @@ interface SignalBarsProps {
 
 function SignalBars({ bars, color }: SignalBarsProps): React.ReactElement {
   return (
-    <div className="flex items-end gap-0.5 h-4">
+    <div className="flex h-4 items-end gap-0.5">
       {[1, 2, 3, 4].map((level) => (
         <div
           key={level}
-          className={`
-            w-1 rounded-sm transition-colors
-            ${level <= bars ? color : 'bg-text-theme-muted/20'}
-          `}
+          className={`w-1 rounded-sm transition-colors ${level <= bars ? color : 'bg-text-theme-muted/20'} `}
           style={{ height: `${level * 25}%` }}
         />
       ))}
@@ -165,18 +168,18 @@ export function ConnectionQualityIndicator({
     setRetryState({ isRetrying: false, attempts: 0, maxAttempts: 5 });
   }, [connectionState]);
 
-  const qualityInfo = assessQuality(connectionState, peerCount, retryState.attempts);
+  const qualityInfo = assessQuality(
+    connectionState,
+    peerCount,
+    retryState.attempts,
+  );
 
   return (
     <div className={`relative ${className}`}>
       {/* Main indicator button */}
       <button
         onClick={() => showDetails && setIsExpanded(!isExpanded)}
-        className={`
-          flex items-center gap-2 px-2 py-1 rounded-md transition-colors
-          ${showDetails ? 'hover:bg-surface-raised/50 cursor-pointer' : 'cursor-default'}
-          ${isExpanded ? 'bg-surface-raised/50' : ''}
-        `}
+        className={`flex items-center gap-2 rounded-md px-2 py-1 transition-colors ${showDetails ? 'hover:bg-surface-raised/50 cursor-pointer' : 'cursor-default'} ${isExpanded ? 'bg-surface-raised/50' : ''} `}
         aria-label={`Connection quality: ${qualityInfo.label}`}
         aria-expanded={showDetails ? isExpanded : undefined}
       >
@@ -194,13 +197,11 @@ export function ConnectionQualityIndicator({
 
       {/* Details popover */}
       {showDetails && isExpanded && (
-        <div
-          className="absolute top-full right-0 mt-1 w-56 p-3 rounded-lg bg-surface-raised border border-border-theme-subtle shadow-lg z-50"
-        >
+        <div className="bg-surface-raised border-border-theme-subtle absolute top-full right-0 z-50 mt-1 w-56 rounded-lg border p-3 shadow-lg">
           <div className="space-y-3">
             {/* Status */}
             <div className="flex items-center justify-between">
-              <span className="text-xs text-text-theme-muted">Status</span>
+              <span className="text-text-theme-muted text-xs">Status</span>
               <span className={`text-xs font-medium ${qualityInfo.color}`}>
                 {qualityInfo.label}
               </span>
@@ -208,9 +209,11 @@ export function ConnectionQualityIndicator({
 
             {/* Quality bar */}
             <div className="space-y-1">
-              <span className="text-xs text-text-theme-muted">Signal Quality</span>
+              <span className="text-text-theme-muted text-xs">
+                Signal Quality
+              </span>
               <div className="flex items-center gap-2">
-                <div className="flex-1 h-1.5 rounded-full bg-surface-base overflow-hidden">
+                <div className="bg-surface-base h-1.5 flex-1 overflow-hidden rounded-full">
                   <div
                     className={`h-full rounded-full transition-all ${qualityInfo.bgColor}`}
                     style={{ width: `${(qualityInfo.bars / 4) * 100}%` }}
@@ -224,8 +227,8 @@ export function ConnectionQualityIndicator({
 
             {/* Peer count */}
             <div className="flex items-center justify-between">
-              <span className="text-xs text-text-theme-muted">Peers</span>
-              <span className="text-xs text-text-theme-primary">
+              <span className="text-text-theme-muted text-xs">Peers</span>
+              <span className="text-text-theme-primary text-xs">
                 {peerCount} connected
               </span>
             </div>
@@ -233,7 +236,7 @@ export function ConnectionQualityIndicator({
             {/* Retry info */}
             {retryState.isRetrying && (
               <div className="flex items-center justify-between">
-                <span className="text-xs text-text-theme-muted">Retry</span>
+                <span className="text-text-theme-muted text-xs">Retry</span>
                 <span className="text-xs text-amber-400">
                   {retryState.attempts}/{retryState.maxAttempts}
                 </span>
@@ -242,16 +245,16 @@ export function ConnectionQualityIndicator({
 
             {/* Connection type */}
             <div className="flex items-center justify-between">
-              <span className="text-xs text-text-theme-muted">Type</span>
-              <span className="text-xs text-text-theme-secondary">
+              <span className="text-text-theme-muted text-xs">Type</span>
+              <span className="text-text-theme-secondary text-xs">
                 WebRTC P2P
               </span>
             </div>
           </div>
 
           {/* Close hint */}
-          <div className="mt-3 pt-2 border-t border-border-theme-subtle/50">
-            <p className="text-[10px] text-text-theme-muted text-center">
+          <div className="border-border-theme-subtle/50 mt-3 border-t pt-2">
+            <p className="text-text-theme-muted text-center text-[10px]">
               Click outside to close
             </p>
           </div>

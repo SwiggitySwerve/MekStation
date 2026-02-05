@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { useState } from 'react';
-import { DialogTemplate } from './DialogTemplate';
+
 import { Button } from './Button';
+import { DialogTemplate } from './DialogTemplate';
 
 const meta: Meta<typeof DialogTemplate> = {
   title: 'UI/DialogTemplate',
@@ -55,7 +57,11 @@ function DialogWrapper({
       <Button variant="primary" onClick={() => setIsOpen(true)}>
         {buttonLabel}
       </Button>
-      <DialogTemplate {...dialogProps} isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <DialogTemplate
+        {...dialogProps}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      >
         {children}
       </DialogTemplate>
     </>
@@ -72,8 +78,13 @@ export const Default: Story = {
 
 export const WithSubtitle: Story = {
   render: () => (
-    <DialogWrapper title="Save Unit" subtitle="Enter a unique name for your custom unit">
-      <p className="text-slate-300">Dialog with a subtitle for additional context.</p>
+    <DialogWrapper
+      title="Save Unit"
+      subtitle="Enter a unique name for your custom unit"
+    >
+      <p className="text-slate-300">
+        Dialog with a subtitle for additional context.
+      </p>
     </DialogWrapper>
   ),
 };
@@ -103,7 +114,8 @@ export const WithFooter: Story = {
           }
         >
           <p className="text-slate-300">
-            Are you sure you want to delete this unit? This will remove all associated data.
+            Are you sure you want to delete this unit? This will remove all
+            associated data.
           </p>
         </DialogTemplate>
       </>
@@ -136,23 +148,23 @@ export const WithForm: Story = {
         >
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">
+              <label className="mb-1 block text-sm font-medium text-slate-300">
                 Chassis Name
               </label>
               <input
                 type="text"
                 placeholder="e.g., Atlas"
-                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">
+              <label className="mb-1 block text-sm font-medium text-slate-300">
                 Variant Designation
               </label>
               <input
                 type="text"
                 placeholder="e.g., AS7-D"
-                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
           </div>
@@ -206,31 +218,38 @@ export const PreventClose: Story = {
 
 export const LongContent: Story = {
   render: () => (
-    <DialogWrapper title="Terms and Conditions" subtitle="Please read carefully">
+    <DialogWrapper
+      title="Terms and Conditions"
+      subtitle="Please read carefully"
+    >
       <div className="space-y-4 text-slate-300">
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat.
         </p>
         <p>
-          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-          nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-          officia deserunt mollit anim id est laborum.
+          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+          proident, sunt in culpa qui officia deserunt mollit anim id est
+          laborum.
         </p>
         <p>
-          Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
-          laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
-          architecto beatae vitae dicta sunt explicabo.
+          Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+          accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae
+          ab illo inventore veritatis et quasi architecto beatae vitae dicta
+          sunt explicabo.
         </p>
         <p>
-          Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia
-          consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+          Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut
+          fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem
+          sequi nesciunt.
         </p>
         <p>
-          Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci
-          velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam
-          aliquam quaerat voluptatem.
+          Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet,
+          consectetur, adipisci velit, sed quia non numquam eius modi tempora
+          incidunt ut labore et dolore magnam aliquam quaerat voluptatem.
         </p>
       </div>
     </DialogWrapper>
@@ -250,7 +269,7 @@ export const CustomWidth: Story = {
           onClose={() => setIsOpen(false)}
           title="Wide Dialog"
           subtitle="This dialog uses a custom width class"
-          className="w-full max-w-3xl mx-4"
+          className="mx-4 w-full max-w-3xl"
           footer={
             <Button variant="primary" onClick={() => setIsOpen(false)}>
               Close
@@ -258,7 +277,8 @@ export const CustomWidth: Story = {
           }
         >
           <p className="text-slate-300">
-            This dialog has a wider max-width (max-w-3xl) for displaying more content.
+            This dialog has a wider max-width (max-w-3xl) for displaying more
+            content.
           </p>
         </DialogTemplate>
       </>
@@ -286,8 +306,8 @@ export const NoCloseButton: Story = {
           }
         >
           <p className="text-slate-300">
-            This dialog hides the close button to encourage users to take an action. They can
-            still close by clicking outside or pressing Escape.
+            This dialog hides the close button to encourage users to take an
+            action. They can still close by clicking outside or pressing Escape.
           </p>
         </DialogTemplate>
       </>

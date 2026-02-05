@@ -52,4 +52,3 @@
 - [x] 8.2 Verify auto toggles trigger at correct times
 - [x] 8.3 Ensure no regressions in existing click/drag placement
 - [x] 8.4 Test click-to-select flow for reassignment
-

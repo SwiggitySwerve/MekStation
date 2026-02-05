@@ -3,6 +3,7 @@
 ## Context
 
 MekStation has grown significantly with 50+ PRs merged in January 2026. The current E2E test suite covers:
+
 - Basic app routes and loading
 - Mobile navigation
 - PWA functionality
@@ -45,7 +46,7 @@ e2e/
     campaign.page.ts  # Campaign page interactions
     encounter.page.ts # Encounter page interactions
     customizer.page.ts# Customizer interactions
-  
+
   # Test files by domain
   campaign.spec.ts
   encounter.spec.ts
@@ -68,11 +69,13 @@ e2e/
 **Option C**: Create test data via API/store injection
 
 **Decision**: Hybrid approach
+
 - Use store injection for complex state (campaigns with missions, forces with units)
 - Use UI for simple creation flows (validates the creation UI works)
 - Avoid database seeding (tests should be independent)
 
 **Implementation**:
+
 ```typescript
 // e2e/fixtures/campaign.ts
 export async function createTestCampaign(page: Page): Promise<string> {
@@ -89,6 +92,7 @@ export async function createTestCampaign(page: Page): Promise<string> {
 ### Test Isolation
 
 Each test should:
+
 1. Start with clean state (clear stores)
 2. Create only the data it needs
 3. Clean up after itself (automatic with store reset)
@@ -153,20 +157,18 @@ Examples:
 
 ## Risks / Trade-offs
 
-| Risk | Mitigation |
-|------|------------|
-| Tests become slow | Use `@slow` tag, parallelize, optimize setup |
-| Flaky tests | Condition-based waits, retry on CI, investigate failures |
-| Maintenance burden | Page objects, shared helpers, clear naming |
-| Store injection breaks | Expose stores only in test builds, version the API |
+| Risk                   | Mitigation                                               |
+| ---------------------- | -------------------------------------------------------- |
+| Tests become slow      | Use `@slow` tag, parallelize, optimize setup             |
+| Flaky tests            | Condition-based waits, retry on CI, investigate failures |
+| Maintenance burden     | Page objects, shared helpers, clear naming               |
+| Store injection breaks | Expose stores only in test builds, version the API       |
 
 ## Open Questions
 
 1. Should we expose Zustand stores globally for test injection?
    - **Tentative**: Yes, behind `NEXT_PUBLIC_E2E_MODE` flag
-   
 2. How to handle features requiring multiple browser contexts (P2P)?
    - **Tentative**: Use Playwright's multi-page fixtures
-   
 3. Should we add visual regression for new components?
    - **Tentative**: Only for critical UI (armor diagram, hex grid)

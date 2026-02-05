@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+
 import { tap } from '../../utils/hapticFeedback';
 
 export type PipState = 'empty' | 'filled' | 'destroyed' | 'blown-off';
@@ -10,7 +11,12 @@ export interface ArmorPipProps {
   className?: string;
 }
 
-const PIP_STATE_ORDER: PipState[] = ['empty', 'filled', 'destroyed', 'blown-off'];
+const PIP_STATE_ORDER: PipState[] = [
+  'empty',
+  'filled',
+  'destroyed',
+  'blown-off',
+];
 
 export function ArmorPip({
   state,
@@ -34,7 +40,8 @@ export function ArmorPip({
 
     // Cycle to next state: empty → filled → destroyed → blown-off → empty
     const currentIndex = PIP_STATE_ORDER.indexOf(state);
-    const nextState = PIP_STATE_ORDER[(currentIndex + 1) % PIP_STATE_ORDER.length];
+    const nextState =
+      PIP_STATE_ORDER[(currentIndex + 1) % PIP_STATE_ORDER.length];
 
     setPreviousState(state);
     onToggle(nextState);
@@ -60,8 +67,18 @@ export function ArmorPip({
           bg: 'bg-red-500 dark:bg-red-600',
           border: 'border-2 border-red-600 dark:border-red-700',
           icon: (
-            <svg className="w-full h-full p-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="h-full w-full p-1 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={3}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           ),
         };
@@ -70,8 +87,18 @@ export function ArmorPip({
           bg: 'bg-orange-500 dark:bg-orange-600',
           border: 'border-2 border-orange-600 dark:border-orange-700',
           icon: (
-            <svg className="w-full h-full p-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="h-full w-full p-1 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           ),
         };
@@ -85,16 +112,11 @@ export function ArmorPip({
       type="button"
       onClick={handleClick}
       disabled={disabled}
-      className={`
-        armor-pip relative w-12 h-12 rounded-full transition-all duration-200
-        ${visual.bg} ${visual.border}
-        ${isAnimating ? 'scale-110' : 'scale-100'}
-        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 active:scale-95'}
-        ${className}
-      `.trim()}
+      className={`armor-pip relative h-12 w-12 rounded-full transition-all duration-200 ${visual.bg} ${visual.border} ${isAnimating ? 'scale-110' : 'scale-100'} ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:scale-105 active:scale-95'} ${className} `.trim()}
       style={{
         transform: isAnimating ? 'scale(1.1)' : 'scale(1)',
-        transition: 'transform 200ms ease-out, background-color 200ms, border-color 200ms',
+        transition:
+          'transform 200ms ease-out, background-color 200ms, border-color 200ms',
         minWidth: '48px',
         minHeight: '48px',
       }}
@@ -136,14 +158,16 @@ export function ArmorPipGroup({
   return (
     <div className={`armor-pip-group ${className}`.trim()}>
       {/* Location header with batch actions */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{location}</h3>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+          {location}
+        </h3>
         <div className="flex gap-1">
           <button
             type="button"
             onClick={fillAll}
             disabled={disabled}
-            className="px-2 py-1 text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-300 rounded min-h-[32px] min-w-[32px] transition-colors"
+            className="min-h-[32px] min-w-[32px] rounded bg-green-100 px-2 py-1 text-xs text-green-700 transition-colors hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
             aria-label={`Fill all armor pips in ${location}`}
           >
             Fill
@@ -152,7 +176,7 @@ export function ArmorPipGroup({
             type="button"
             onClick={clearAll}
             disabled={disabled}
-            className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded min-h-[32px] min-w-[32px] transition-colors"
+            className="min-h-[32px] min-w-[32px] rounded bg-gray-100 px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
             aria-label={`Clear all armor pips in ${location}`}
           >
             Clear
@@ -161,7 +185,7 @@ export function ArmorPipGroup({
             type="button"
             onClick={destroyAll}
             disabled={disabled}
-            className="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-300 rounded min-h-[32px] min-w-[32px] transition-colors"
+            className="min-h-[32px] min-w-[32px] rounded bg-red-100 px-2 py-1 text-xs text-red-700 transition-colors hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
             aria-label={`Destroy all armor pips in ${location}`}
           >
             Destroy

@@ -5,6 +5,10 @@
  * Tests all exported functions with high coverage.
  */
 
+import type { CombatLocation, IHexTerrain } from '@/types/gameplay';
+
+import { TerrainType } from '@/types/gameplay';
+
 import {
   applyDamageToLocation,
   applyDamageWithTransfer,
@@ -20,8 +24,6 @@ import {
   IUnitDamageState,
   STANDARD_STRUCTURE_TABLE,
 } from '../damage';
-import type { CombatLocation, IHexTerrain } from '@/types/gameplay';
-import { TerrainType } from '@/types/gameplay';
 import * as hitLocation from '../hitLocation';
 
 // =============================================================================
@@ -30,14 +32,17 @@ import * as hitLocation from '../hitLocation';
 
 // Mock roll2d6 for deterministic tests
 jest.mock('../hitLocation', () => {
-  const actual = jest.requireActual<typeof import('../hitLocation')>('../hitLocation');
+  const actual =
+    jest.requireActual<typeof import('../hitLocation')>('../hitLocation');
   return {
     ...actual,
     roll2d6: jest.fn(),
   };
 });
 
-const mockRoll2d6 = hitLocation.roll2d6 as jest.MockedFunction<typeof hitLocation.roll2d6>;
+const mockRoll2d6 = hitLocation.roll2d6 as jest.MockedFunction<
+  typeof hitLocation.roll2d6
+>;
 
 /**
  * Helper to create a mock dice roll result.
@@ -59,7 +64,9 @@ function createMockRoll(die1: number, die2: number) {
 /**
  * Create a test unit damage state with standard values for a 50-ton mech.
  */
-function createTestState(overrides: Partial<IUnitDamageState> = {}): IUnitDamageState {
+function createTestState(
+  overrides: Partial<IUnitDamageState> = {},
+): IUnitDamageState {
   return {
     armor: {
       head: 9,
@@ -145,7 +152,9 @@ function createMinimalStructure(): Record<CombatLocation, number> {
 // =============================================================================
 
 describe('STANDARD_STRUCTURE_TABLE', () => {
-  const expectedTonnages = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+  const expectedTonnages = [
+    20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
+  ];
 
   it('should have structure values for all standard tonnages', () => {
     for (const tonnage of expectedTonnages) {
@@ -166,16 +175,16 @@ describe('STANDARD_STRUCTURE_TABLE', () => {
 
   it('should have structure values that increase with tonnage', () => {
     expect(STANDARD_STRUCTURE_TABLE[20].centerTorso).toBeLessThan(
-      STANDARD_STRUCTURE_TABLE[100].centerTorso
+      STANDARD_STRUCTURE_TABLE[100].centerTorso,
     );
     expect(STANDARD_STRUCTURE_TABLE[20].sideTorso).toBeLessThan(
-      STANDARD_STRUCTURE_TABLE[100].sideTorso
+      STANDARD_STRUCTURE_TABLE[100].sideTorso,
     );
     expect(STANDARD_STRUCTURE_TABLE[20].arm).toBeLessThan(
-      STANDARD_STRUCTURE_TABLE[100].arm
+      STANDARD_STRUCTURE_TABLE[100].arm,
     );
     expect(STANDARD_STRUCTURE_TABLE[20].leg).toBeLessThan(
-      STANDARD_STRUCTURE_TABLE[100].leg
+      STANDARD_STRUCTURE_TABLE[100].leg,
     );
   });
 
@@ -222,7 +231,7 @@ describe('applyDamageToLocation', () => {
       const { state: newState, result } = applyDamageToLocation(
         state,
         'center_torso',
-        5
+        5,
       );
 
       expect(result.armorDamage).toBe(5);
@@ -250,7 +259,7 @@ describe('applyDamageToLocation', () => {
       const { state: newState, result } = applyDamageToLocation(
         state,
         'center_torso',
-        0
+        0,
       );
 
       expect(result.armorDamage).toBe(0);
@@ -292,7 +301,7 @@ describe('applyDamageToLocation', () => {
       const { state: newState, result } = applyDamageToLocation(
         state,
         'left_arm',
-        10
+        10,
       );
 
       expect(result.armorDamage).toBe(5);
@@ -326,7 +335,7 @@ describe('applyDamageToLocation', () => {
       const { state: newState, result } = applyDamageToLocation(
         state,
         'left_arm',
-        10
+        10,
       );
 
       expect(result.structureDamage).toBe(5);
@@ -477,7 +486,7 @@ describe('applyDamageToLocation', () => {
       const { state: newState, result } = applyDamageToLocation(
         state,
         'center_torso_rear',
-        5
+        5,
       );
 
       expect(result.armorDamage).toBe(5);
@@ -504,7 +513,7 @@ describe('applyDamageToLocation', () => {
       const { state: newState, result } = applyDamageToLocation(
         state,
         'right_torso_rear',
-        10
+        10,
       );
 
       expect(result.destroyed).toBe(true);
@@ -541,7 +550,11 @@ describe('applyDamageToLocation', () => {
 
     it('should return new state object', () => {
       const state = createTestState();
-      const { state: newState } = applyDamageToLocation(state, 'center_torso', 5);
+      const { state: newState } = applyDamageToLocation(
+        state,
+        'center_torso',
+        5,
+      );
 
       expect(newState).not.toBe(state);
       expect(newState.armor).not.toBe(state.armor);
@@ -565,7 +578,11 @@ describe('applyDamageWithTransfer', () => {
 
   it('should return empty results for zero damage', () => {
     const state = createTestState();
-    const { state: newState, results } = applyDamageWithTransfer(state, 'center_torso', 0);
+    const { state: newState, results } = applyDamageWithTransfer(
+      state,
+      'center_torso',
+      0,
+    );
 
     // Zero damage doesn't enter the loop, so no results
     expect(results.length).toBe(0);
@@ -583,7 +600,7 @@ describe('applyDamageWithTransfer', () => {
     const { state: newState, results } = applyDamageWithTransfer(
       state,
       'left_arm',
-      20
+      20,
     );
 
     expect(results.length).toBe(2);
@@ -846,7 +863,11 @@ describe('applyPilotDamage', () => {
     it('should add wounds to pilot', () => {
       mockRoll2d6.mockReturnValue(createMockRoll(6, 6)); // passes consciousness
       const state = createTestState();
-      const { state: newState, result } = applyPilotDamage(state, 2, 'head_hit');
+      const { state: newState, result } = applyPilotDamage(
+        state,
+        2,
+        'head_hit',
+      );
 
       expect(result.woundsInflicted).toBe(2);
       expect(result.totalWounds).toBe(2);
@@ -878,10 +899,18 @@ describe('applyPilotDamage', () => {
       const heatResult = applyPilotDamage(state, 1, 'heat').result;
       expect(heatResult.source).toBe('heat');
 
-      const physicalResult = applyPilotDamage(state, 1, 'physical_attack').result;
+      const physicalResult = applyPilotDamage(
+        state,
+        1,
+        'physical_attack',
+      ).result;
       expect(physicalResult.source).toBe('physical_attack');
 
-      const destructionResult = applyPilotDamage(state, 1, 'mech_destruction').result;
+      const destructionResult = applyPilotDamage(
+        state,
+        1,
+        'mech_destruction',
+      ).result;
       expect(destructionResult.source).toBe('mech_destruction');
     });
   });
@@ -907,7 +936,11 @@ describe('applyPilotDamage', () => {
       // Target = 3 + 1 wound = 4, roll 6+6=12 > 4
       mockRoll2d6.mockReturnValue(createMockRoll(6, 6));
       const state = createTestState();
-      const { state: newState, result } = applyPilotDamage(state, 1, 'head_hit');
+      const { state: newState, result } = applyPilotDamage(
+        state,
+        1,
+        'head_hit',
+      );
 
       expect(result.consciousnessTarget).toBe(4);
       expect(result.consciousnessRoll?.total).toBe(12);
@@ -919,7 +952,11 @@ describe('applyPilotDamage', () => {
       // Target = 3 + 3 wounds = 6, roll 3+2=5, not > 6
       mockRoll2d6.mockReturnValue(createMockRoll(3, 2));
       const state = createTestState({ pilotWounds: 2 });
-      const { state: newState, result } = applyPilotDamage(state, 1, 'head_hit');
+      const { state: newState, result } = applyPilotDamage(
+        state,
+        1,
+        'head_hit',
+      );
 
       expect(result.consciousnessTarget).toBe(6); // 3 + 3 total wounds
       expect(result.consciousnessRoll?.total).toBe(5);
@@ -931,7 +968,11 @@ describe('applyPilotDamage', () => {
       // Target = 3 + 2 wounds = 5, roll 2+3=5, not > 5
       mockRoll2d6.mockReturnValue(createMockRoll(2, 3));
       const state = createTestState({ pilotWounds: 1 });
-      const { state: newState, result } = applyPilotDamage(state, 1, 'head_hit');
+      const { state: newState, result } = applyPilotDamage(
+        state,
+        1,
+        'head_hit',
+      );
 
       expect(result.consciousnessTarget).toBe(5);
       expect(result.consciousnessRoll?.total).toBe(5);
@@ -951,7 +992,11 @@ describe('applyPilotDamage', () => {
   describe('pilot death', () => {
     it('should kill pilot at 6 wounds', () => {
       const state = createTestState({ pilotWounds: 5 });
-      const { state: newState, result } = applyPilotDamage(state, 1, 'head_hit');
+      const { state: newState, result } = applyPilotDamage(
+        state,
+        1,
+        'head_hit',
+      );
 
       expect(result.dead).toBe(true);
       expect(result.totalWounds).toBe(6);
@@ -963,7 +1008,11 @@ describe('applyPilotDamage', () => {
 
     it('should kill pilot when wounds exceed 6', () => {
       const state = createTestState({ pilotWounds: 3 });
-      const { state: newState, result } = applyPilotDamage(state, 5, 'ammo_explosion');
+      const { state: newState, result } = applyPilotDamage(
+        state,
+        5,
+        'ammo_explosion',
+      );
 
       expect(result.dead).toBe(true);
       expect(result.totalWounds).toBe(8);
@@ -1138,7 +1187,12 @@ describe('checkUnitDestruction', () => {
 
     it('should not destroy unit with side torsos and limbs destroyed', () => {
       const state = createTestState({
-        destroyedLocations: ['left_torso', 'right_torso', 'left_arm', 'right_arm'],
+        destroyedLocations: [
+          'left_torso',
+          'right_torso',
+          'left_arm',
+          'right_arm',
+        ],
       });
       const { destroyed } = checkUnitDestruction(state);
 
@@ -1195,7 +1249,11 @@ describe('resolveDamage', () => {
   describe('basic damage resolution', () => {
     it('should resolve armor damage correctly', () => {
       const state = createTestState();
-      const { state: newState, result } = resolveDamage(state, 'center_torso', 5);
+      const { state: newState, result } = resolveDamage(
+        state,
+        'center_torso',
+        5,
+      );
 
       expect(result.locationDamages.length).toBe(1);
       expect(result.locationDamages[0].armorDamage).toBe(5);
@@ -1346,7 +1404,10 @@ describe('createDamageState', () => {
     right_torso_rear: 0,
   };
 
-  const testRearArmorValues: Record<'center_torso' | 'left_torso' | 'right_torso', number> = {
+  const testRearArmorValues: Record<
+    'center_torso' | 'left_torso' | 'right_torso',
+    number
+  > = {
     center_torso: 8,
     left_torso: 6,
     right_torso: 6,
@@ -1427,7 +1488,9 @@ describe('createDamageState', () => {
   it('should set rear locations to share structure with front', () => {
     const state = createDamageState(50, testArmorValues, testRearArmorValues);
 
-    expect(state.structure.center_torso_rear).toBe(state.structure.center_torso);
+    expect(state.structure.center_torso_rear).toBe(
+      state.structure.center_torso,
+    );
     expect(state.structure.left_torso_rear).toBe(state.structure.left_torso);
     expect(state.structure.right_torso_rear).toBe(state.structure.right_torso);
   });
@@ -1440,12 +1503,20 @@ describe('createDamageState', () => {
   });
 
   it('should create state for all standard tonnages', () => {
-    const tonnages = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+    const tonnages = [
+      20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
+    ];
 
     for (const tonnage of tonnages) {
-      const state = createDamageState(tonnage, testArmorValues, testRearArmorValues);
+      const state = createDamageState(
+        tonnage,
+        testArmorValues,
+        testRearArmorValues,
+      );
       expect(state.structure.head).toBe(3);
-      expect(state.structure.center_torso).toBe(STANDARD_STRUCTURE_TABLE[tonnage].centerTorso);
+      expect(state.structure.center_torso).toBe(
+        STANDARD_STRUCTURE_TABLE[tonnage].centerTorso,
+      );
     }
   });
 });
@@ -1462,7 +1533,12 @@ describe('applyDamageWithTerrainEffects', () => {
   describe('null terrain (no terrain effects)', () => {
     it('should apply damage normally with null terrain', () => {
       const state = createTestState();
-      const { state: newState, result } = applyDamageWithTerrainEffects(state, 'center_torso', 10, null);
+      const { state: newState, result } = applyDamageWithTerrainEffects(
+        state,
+        'center_torso',
+        10,
+        null,
+      );
 
       expect(result.locationDamages[0].armorDamage).toBe(10);
       expect(result.locationDamages[0].structureDamage).toBe(0);
@@ -1479,7 +1555,12 @@ describe('applyDamageWithTerrainEffects', () => {
         features: [{ type: TerrainType.Clear, level: 0 }],
       };
 
-      const { state: newState, result } = applyDamageWithTerrainEffects(state, 'left_arm', 8, terrain);
+      const { state: newState, result } = applyDamageWithTerrainEffects(
+        state,
+        'left_arm',
+        8,
+        terrain,
+      );
 
       expect(result.locationDamages[0].armorDamage).toBe(8);
       expect(result.locationDamages[0].structureDamage).toBe(0);
@@ -1496,7 +1577,12 @@ describe('applyDamageWithTerrainEffects', () => {
         features: [{ type: TerrainType.Water, level: 1 }],
       };
 
-      const { state: newState, result } = applyDamageWithTerrainEffects(state, 'right_leg', 10, terrain);
+      const { state: newState, result } = applyDamageWithTerrainEffects(
+        state,
+        'right_leg',
+        10,
+        terrain,
+      );
 
       expect(result.locationDamages[0].armorDamage).toBe(10);
       expect(result.locationDamages[0].structureDamage).toBe(0);
@@ -1514,7 +1600,12 @@ describe('applyDamageWithTerrainEffects', () => {
         features: [{ type: TerrainType.Water, level: 1 }],
       };
 
-      const { result, terrainEffects } = applyDamageWithTerrainEffects(state, 'left_leg', 10, terrain);
+      const { result, terrainEffects } = applyDamageWithTerrainEffects(
+        state,
+        'left_leg',
+        10,
+        terrain,
+      );
 
       expect(result.locationDamages[0].destroyed).toBe(true);
       expect(terrainEffects).toBeUndefined();
@@ -1534,7 +1625,12 @@ describe('applyDamageWithTerrainEffects', () => {
         features: [{ type: TerrainType.Water, level: 2 }],
       };
 
-      const { result, terrainEffects } = applyDamageWithTerrainEffects(state, 'left_leg', 10, terrain);
+      const { result, terrainEffects } = applyDamageWithTerrainEffects(
+        state,
+        'left_leg',
+        10,
+        terrain,
+      );
 
       expect(result.locationDamages[0].destroyed).toBe(true);
       expect(terrainEffects?.drowningCheckTriggered).toBe(true);
@@ -1554,7 +1650,12 @@ describe('applyDamageWithTerrainEffects', () => {
         features: [{ type: TerrainType.Water, level: 3 }],
       };
 
-      const { result, terrainEffects } = applyDamageWithTerrainEffects(state, 'right_leg', 10, terrain);
+      const { result, terrainEffects } = applyDamageWithTerrainEffects(
+        state,
+        'right_leg',
+        10,
+        terrain,
+      );
 
       expect(result.locationDamages[0].destroyed).toBe(true);
       expect(terrainEffects?.drowningCheckTriggered).toBe(true);
@@ -1571,7 +1672,12 @@ describe('applyDamageWithTerrainEffects', () => {
         features: [{ type: TerrainType.Water, level: 2 }],
       };
 
-      const { result, terrainEffects } = applyDamageWithTerrainEffects(state, 'center_torso', 5, terrain);
+      const { result, terrainEffects } = applyDamageWithTerrainEffects(
+        state,
+        'center_torso',
+        5,
+        terrain,
+      );
 
       expect(result.locationDamages[0].armorDamage).toBe(5);
       expect(result.locationDamages[0].destroyed).toBe(false);
@@ -1590,7 +1696,12 @@ describe('applyDamageWithTerrainEffects', () => {
         features: [{ type: TerrainType.Water, level: 2 }],
       };
 
-      const { result, terrainEffects } = applyDamageWithTerrainEffects(state, 'left_leg', 5, terrain);
+      const { result, terrainEffects } = applyDamageWithTerrainEffects(
+        state,
+        'left_leg',
+        5,
+        terrain,
+      );
 
       expect(result.locationDamages[0].destroyed).toBe(true);
       expect(terrainEffects?.drowningCheckTriggered).toBe(true);
@@ -1611,7 +1722,12 @@ describe('applyDamageWithTerrainEffects', () => {
         ],
       };
 
-      const { result } = applyDamageWithTerrainEffects(state, 'right_arm', 7, terrain);
+      const { result } = applyDamageWithTerrainEffects(
+        state,
+        'right_arm',
+        7,
+        terrain,
+      );
 
       expect(result.locationDamages[0].armorDamage).toBe(7);
     });
@@ -1626,7 +1742,12 @@ describe('applyDamageWithTerrainEffects', () => {
         features: [{ type: TerrainType.Water, level: 2 }],
       };
 
-      const { result } = applyDamageWithTerrainEffects(state, 'head', 0, terrain);
+      const { result } = applyDamageWithTerrainEffects(
+        state,
+        'head',
+        0,
+        terrain,
+      );
 
       expect(result.locationDamages.length).toBe(0);
     });
@@ -1643,7 +1764,12 @@ describe('applyDamageWithTerrainEffects', () => {
         features: [{ type: TerrainType.Water, level: 2 }],
       };
 
-      const { result } = applyDamageWithTerrainEffects(state, 'head', 5, terrain);
+      const { result } = applyDamageWithTerrainEffects(
+        state,
+        'head',
+        5,
+        terrain,
+      );
 
       expect(result.unitDestroyed).toBe(true);
       expect(result.destructionCause).toBe('damage');
@@ -1839,7 +1965,11 @@ describe('Integration: Full damage scenarios', () => {
       },
     });
 
-    const { state: newState, results } = applyDamageWithTransfer(state, 'left_arm', 10);
+    const { state: newState, results } = applyDamageWithTransfer(
+      state,
+      'left_arm',
+      10,
+    );
 
     // Should destroy arm (1 structure) -> torso (1 structure) -> CT gets remaining
     expect(newState.destroyedLocations).toContain('left_arm');
@@ -1907,7 +2037,11 @@ describe('Integration: Full damage scenarios', () => {
   it('should handle rear armor damage correctly', () => {
     const state = createTestState();
 
-    const { state: newState, result } = resolveDamage(state, 'center_torso_rear', 10);
+    const { state: newState, result } = resolveDamage(
+      state,
+      'center_torso_rear',
+      10,
+    );
 
     expect(result.locationDamages[0].armorDamage).toBe(8); // All rear armor
     expect(result.locationDamages[0].structureDamage).toBe(2); // 2 structure damage

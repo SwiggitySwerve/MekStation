@@ -1,10 +1,10 @@
 /**
  * Equipment List Utilities
- * 
+ *
  * Functions for creating and managing equipment lists for BattleMech components.
  * These functions handle jump jets, internal structure, armor, heat sinks,
  * and movement enhancements.
- * 
+ *
  * All created equipment items are configuration-based (isRemovable: false)
  * and are managed through their respective configuration tabs, not the loadout tray.
  */

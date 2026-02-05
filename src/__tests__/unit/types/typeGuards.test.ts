@@ -1,11 +1,14 @@
 /**
  * Type Guards Tests
- * 
+ *
  * Tests for type guard functions and assertion utilities.
- * 
+ *
  * @spec openspec/specs/core-entity-types/spec.md
  */
 
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { Era } from '@/types/temporal/Era';
 import {
   isEntity,
   isWeightedComponent,
@@ -22,9 +25,6 @@ import {
   assertWeightedComponent,
   assertTechBaseEntity,
 } from '@/utils/typeGuards';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { Era } from '@/types/temporal/Era';
 
 describe('Type Guards', () => {
   // ============================================================================
@@ -123,7 +123,9 @@ describe('Type Guards', () => {
   describe('isPlaceableComponent', () => {
     it('should accept objects with both weight and criticalSlots', () => {
       expect(isPlaceableComponent({ weight: 1, criticalSlots: 2 })).toBe(true);
-      expect(isPlaceableComponent({ weight: 0.5, criticalSlots: 1 })).toBe(true);
+      expect(isPlaceableComponent({ weight: 0.5, criticalSlots: 1 })).toBe(
+        true,
+      );
     });
 
     it('should reject objects missing either property', () => {
@@ -132,8 +134,12 @@ describe('Type Guards', () => {
     });
 
     it('should reject objects with invalid values', () => {
-      expect(isPlaceableComponent({ weight: -1, criticalSlots: 2 })).toBe(false);
-      expect(isPlaceableComponent({ weight: 1, criticalSlots: -1 })).toBe(false);
+      expect(isPlaceableComponent({ weight: -1, criticalSlots: 2 })).toBe(
+        false,
+      );
+      expect(isPlaceableComponent({ weight: 1, criticalSlots: -1 })).toBe(
+        false,
+      );
     });
   });
 
@@ -144,7 +150,12 @@ describe('Type Guards', () => {
     describe('valid tech base entities', () => {
       // Per spec VAL-ENUM-004: TechBase is binary (IS or Clan only)
       it.each([
-        [{ techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.INTRODUCTORY }],
+        [
+          {
+            techBase: TechBase.INNER_SPHERE,
+            rulesLevel: RulesLevel.INTRODUCTORY,
+          },
+        ],
         [{ techBase: TechBase.CLAN, rulesLevel: RulesLevel.STANDARD }],
         [{ techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.ADVANCED }],
       ])('should accept %o', (value) => {
@@ -154,16 +165,30 @@ describe('Type Guards', () => {
 
     describe('invalid tech base entities', () => {
       it('should reject invalid tech base', () => {
-        expect(isTechBaseEntity({ techBase: 'INVALID', rulesLevel: RulesLevel.STANDARD })).toBe(false);
+        expect(
+          isTechBaseEntity({
+            techBase: 'INVALID',
+            rulesLevel: RulesLevel.STANDARD,
+          }),
+        ).toBe(false);
       });
 
       it('should reject invalid rules level', () => {
-        expect(isTechBaseEntity({ techBase: TechBase.INNER_SPHERE, rulesLevel: 'INVALID' })).toBe(false);
+        expect(
+          isTechBaseEntity({
+            techBase: TechBase.INNER_SPHERE,
+            rulesLevel: 'INVALID',
+          }),
+        ).toBe(false);
       });
 
       it('should reject missing properties', () => {
-        expect(isTechBaseEntity({ techBase: TechBase.INNER_SPHERE })).toBe(false);
-        expect(isTechBaseEntity({ rulesLevel: RulesLevel.STANDARD })).toBe(false);
+        expect(isTechBaseEntity({ techBase: TechBase.INNER_SPHERE })).toBe(
+          false,
+        );
+        expect(isTechBaseEntity({ rulesLevel: RulesLevel.STANDARD })).toBe(
+          false,
+        );
       });
     });
   });
@@ -178,11 +203,18 @@ describe('Type Guards', () => {
       });
 
       it('should accept object with both dates', () => {
-        expect(isTemporalEntity({ introductionYear: 2500, extinctionYear: 3050 })).toBe(true);
+        expect(
+          isTemporalEntity({ introductionYear: 2500, extinctionYear: 3050 }),
+        ).toBe(true);
       });
 
       it('should accept undefined extinctionYear', () => {
-        expect(isTemporalEntity({ introductionYear: 2500, extinctionYear: undefined })).toBe(true);
+        expect(
+          isTemporalEntity({
+            introductionYear: 2500,
+            extinctionYear: undefined,
+          }),
+        ).toBe(true);
       });
     });
 
@@ -194,11 +226,15 @@ describe('Type Guards', () => {
 
       it('should reject non-numeric years', () => {
         expect(isTemporalEntity({ introductionYear: '2500' })).toBe(false);
-        expect(isTemporalEntity({ introductionYear: 2500, extinctionYear: '3050' })).toBe(false);
+        expect(
+          isTemporalEntity({ introductionYear: 2500, extinctionYear: '3050' }),
+        ).toBe(false);
       });
 
       it('should reject extinction before introduction', () => {
-        expect(isTemporalEntity({ introductionYear: 3050, extinctionYear: 2500 })).toBe(false);
+        expect(
+          isTemporalEntity({ introductionYear: 3050, extinctionYear: 2500 }),
+        ).toBe(false);
       });
 
       it('should reject non-finite years', () => {
@@ -213,13 +249,19 @@ describe('Type Guards', () => {
   // ============================================================================
   describe('isValuedComponent', () => {
     it('should accept valid valued components', () => {
-      expect(isValuedComponent({ costCBills: 1000000, battleValue: 500 })).toBe(true);
+      expect(isValuedComponent({ costCBills: 1000000, battleValue: 500 })).toBe(
+        true,
+      );
       expect(isValuedComponent({ costCBills: 0, battleValue: 0 })).toBe(true);
     });
 
     it('should reject negative values', () => {
-      expect(isValuedComponent({ costCBills: -1000, battleValue: 500 })).toBe(false);
-      expect(isValuedComponent({ costCBills: 1000, battleValue: -500 })).toBe(false);
+      expect(isValuedComponent({ costCBills: -1000, battleValue: 500 })).toBe(
+        false,
+      );
+      expect(isValuedComponent({ costCBills: 1000, battleValue: -500 })).toBe(
+        false,
+      );
     });
 
     it('should reject missing properties', () => {
@@ -237,7 +279,9 @@ describe('Type Guards', () => {
     });
 
     it('should accept valid documented entities', () => {
-      expect(isDocumentedEntity({ sourceBook: 'TechManual', pageReference: 49 })).toBe(true);
+      expect(
+        isDocumentedEntity({ sourceBook: 'TechManual', pageReference: 49 }),
+      ).toBe(true);
       expect(isDocumentedEntity({ sourceBook: 'TechManual' })).toBe(true);
       expect(isDocumentedEntity({ pageReference: 49 })).toBe(true);
     });
@@ -296,7 +340,9 @@ describe('Type Guards', () => {
     });
 
     it('should include context in error message', () => {
-      expect(() => assertEntity({}, 'Engine')).toThrow('Engine: Value is not a valid Entity');
+      expect(() => assertEntity({}, 'Engine')).toThrow(
+        'Engine: Value is not a valid Entity',
+      );
     });
   });
 
@@ -312,15 +358,18 @@ describe('Type Guards', () => {
 
   describe('assertTechBaseEntity', () => {
     it('should not throw for valid tech base entity', () => {
-      expect(() => assertTechBaseEntity({
-        techBase: TechBase.INNER_SPHERE,
-        rulesLevel: RulesLevel.STANDARD,
-      })).not.toThrow();
+      expect(() =>
+        assertTechBaseEntity({
+          techBase: TechBase.INNER_SPHERE,
+          rulesLevel: RulesLevel.STANDARD,
+        }),
+      ).not.toThrow();
     });
 
     it('should throw for invalid tech base entity', () => {
-      expect(() => assertTechBaseEntity({})).toThrow('Value is not a valid TechBaseEntity');
+      expect(() => assertTechBaseEntity({})).toThrow(
+        'Value is not a valid TechBaseEntity',
+      );
     });
   });
 });
-

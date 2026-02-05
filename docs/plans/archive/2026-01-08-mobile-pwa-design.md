@@ -9,12 +9,14 @@
 MekStation requires mobile support and cross-platform capabilities. This design establishes a responsive, PWA-enabled architecture that maintains desktop functionality while optimizing for mobile devices.
 
 **Goals:**
+
 - Make all current features mobile-friendly
 - Enable PWA installation on mobile devices
 - Support full mobile range (320px-768px) with adaptive layouts
 - Achieve functional parity between desktop and mobile
 
 **Target Platforms:**
+
 - Primary: Responsive web (mobile browsers)
 - PWA: Installable on iOS Safari and Chrome Android
 - Future: Native apps (React Native) if warranted
@@ -27,6 +29,7 @@ MekStation requires mobile support and cross-platform capabilities. This design 
 
 **Current State (Desktop):**
 Three-panel layout visible simultaneously:
+
 - Left sidebar (navigation)
 - Center tabs (editor content)
 - Right equipment tray
@@ -41,6 +44,7 @@ Tablet (768px-1024px): Two-panel layout (sidebar + content, tray overlays)
 Mobile (<768px): Single-panel layout with navigation stack
 
 **Mobile Panel Navigation:**
+
 - Each panel becomes a full-screen view
 - Navigation stack with back/forward capability
 - Smooth transitions between panels
@@ -48,6 +52,7 @@ Mobile (<768px): Single-panel layout with navigation stack
 - State preserved when switching between panels
 
 **Example Mobile Flow:**
+
 1. User opens app → sees unit catalog (default panel)
 2. Taps unit → transitions to unit detail (pushes to stack)
 3. Taps "Edit" → transitions to editor tabs (pushes to stack)
@@ -55,6 +60,7 @@ Mobile (<768px): Single-panel layout with navigation stack
 5. Back button or swipe → returns to previous panel
 
 **Implementation:**
+
 - `PanelStack` component manages navigation state
 - `ResponsiveContainer` wraps each panel with mobile/desktop behavior
 - Panel transitions use React transition group or Framer Motion
@@ -66,12 +72,12 @@ Build mobile-first, then enhance for larger displays. This approach prevents awk
 
 **Breakpoint System:**
 
-| Breakpoint | Width | Target Devices |
-|------------|-------|----------------|
-| (base) | <640px | Phones (primary mobile target) |
-| `sm` | 640px+ | Large phones, small tablets landscape |
-| `md` | 768px+ | Tablets (iPad, etc.) |
-| `lg` | 1024px+ | Desktop, large tablets |
+| Breakpoint | Width   | Target Devices                        |
+| ---------- | ------- | ------------------------------------- |
+| (base)     | <640px  | Phones (primary mobile target)        |
+| `sm`       | 640px+  | Large phones, small tablets landscape |
+| `md`       | 768px+  | Tablets (iPad, etc.)                  |
+| `lg`       | 1024px+ | Desktop, large tablets                |
 
 Use Tailwind's responsive utilities exclusively. Custom breakpoints increase maintenance burden.
 
@@ -107,6 +113,7 @@ Use Tailwind's responsive utilities exclusively. Custom breakpoints increase mai
 **Desktop:** Retain react-dnd drag-and-drop.
 
 **Mobile:** Replace with two-step tap interaction:
+
 1. Tap equipment item → enters placement mode (shows highlight)
 2. Tap valid slot → assigns equipment
 3. Tap outside or cancel → aborts placement
@@ -120,6 +127,7 @@ Use Tailwind's responsive utilities exclusively. Custom breakpoints increase mai
 Replace SVG with **CSS Grid-based mech diagram** built from React components.
 
 **Location Component Structure:**
+
 - Location name label
 - Current/max armor display
 - Interactive point indicators (pips) or compact numeric display
@@ -130,12 +138,14 @@ Replace SVG with **CSS Grid-based mech diagram** built from React components.
 **Mobile Layout:** Stacks vertically (Head → Torso → Arms → Legs). Swipe or tap to switch front/rear views. Each location becomes horizontally expandable card.
 
 **Allocation Controls:**
+
 - Quick-add buttons: +5, +10, +20, Max
 - Fine-tune stepper controls: [-] [value] [+]
 - Auto-allocate dropdown (Front-weighted, Rear-weighted, Even)
 - Visual progress bars showing percentage of max armor
 
 **Why CSS Components:**
+
 - Naturally responsive
 - Easy animation with Tailwind
 - Better accessibility than Canvas
@@ -147,6 +157,7 @@ Replace SVG with **CSS Grid-based mech diagram** built from React components.
 **Desktop:** Keep side-by-side layout.
 
 **Mobile:** Implement master-detail pattern.
+
 - Full-screen catalog list
 - Transitions to detail view on selection (React Router or state-controlled view stack)
 - Filters move to collapsible drawer triggered by prominent button
@@ -155,6 +166,7 @@ Replace SVG with **CSS Grid-based mech diagram** built from React components.
 ### Shared Container Wrapper
 
 Create `ResponsiveContainer` component. Handles:
+
 - Safe-area insets for notched phones
 - Consistent padding/spacing across mobile viewports
 - Breakpoint-aware layout switching
@@ -168,6 +180,7 @@ Create `ResponsiveContainer` component. Handles:
 Detect input type and switch patterns automatically.
 
 **Desktop Features (Unchanged):**
+
 - Full react-dnd drag-and-drop
 - Hover states and tooltips
 - Keyboard navigation and shortcuts
@@ -176,12 +189,14 @@ Detect input type and switch patterns automatically.
 - Standard modal dialogs
 
 **Desktop Improvements:**
+
 - Responsive layout (graceful window resize)
 - Better keyboard focus indicators
 - Smoother CSS-based armor animations
 - Consistent touch targets (helps mouse users too)
 
 **Mobile Features:**
+
 - Two-step tap for equipment placement
 - Long-press context menus for secondary actions
 - Swipe gestures for tab navigation (left/right)
@@ -189,6 +204,7 @@ Detect input type and switch patterns automatically.
 - Modal sheets and drawers (bottom sheets, 80% screen height)
 
 **Detection Logic:**
+
 - Media queries: `@media (hover: hover)` checks for mouse
 - `useDeviceCapabilities` hook checks `'ontouchstart' in window`
 - Pointer type detection on interaction
@@ -201,6 +217,7 @@ Detect input type and switch patterns automatically.
 **Sticky Controls:** Primary actions (Save, Export) stay visible at bottom of viewport. Use `position: sticky` or fixed bottom bars.
 
 **Haptic Feedback:**
+
 - Equipment assigned: short pulse
 - Save complete: confirmation vibration
 - Invalid placement: error pulse
@@ -212,6 +229,7 @@ Detect input type and switch patterns automatically.
 ### Core Components
 
 **Web App Manifest** (`public/manifest.json`)
+
 - App name, icons, theme colors (match MekStation branding)
 - Display mode: `standalone` (hides browser chrome)
 - Orientation: `any` (support portrait and landscape)
@@ -219,6 +237,7 @@ Detect input type and switch patterns automatically.
 
 **Service Worker**
 Use `next-pwa` plugin for Next.js integration:
+
 - Cache critical assets (bundle, CSS, data files) on first load
 - Network-first strategy for API calls with offline fallback
 - Stale-while-revalidate for equipment catalogs
@@ -228,12 +247,14 @@ Use `next-pwa` plugin for Next.js integration:
 Add "Install App" button in header. Appears when PWA installable (`beforeinstallprompt` event). Mobile users can add to home screen.
 
 **Offline Capabilities**
+
 - Show offline indicator when network unavailable
 - Cache custom units locally (IndexedDB fallback alongside SQLite)
 - Queue save operations when offline, sync on reconnection
 - Allow viewing previously loaded units offline
 
 **App Updates**
+
 - Service worker auto-updates in background
 - Prompt user to refresh when new version available
 - Show in-app notification, not browser dialog
@@ -263,23 +284,25 @@ Add "Install App" button in header. Appears when PWA installable (`beforeinstall
 Extend existing Jest/RTL tests:
 
 ```typescript
-const viewports = ['mobile', 'tablet', 'desktop']
-viewports.forEach(viewport => {
+const viewports = ['mobile', 'tablet', 'desktop'];
+viewports.forEach((viewport) => {
   it(`renders armor diagram correctly on ${viewport}`, () => {
     // Test layout, interaction, visibility
-  })
-})
+  });
+});
 ```
 
 ### Manual Testing Checklist
 
 **Test Devices:**
+
 - iPhone SE (375px) — smallest practical target
 - iPhone 12/13 (390px) — common phone size
 - iPad (768px) — tablet breakpoint
 - Desktop (1920px) — existing experience
 
 **Test Scenarios:**
+
 - All editor tabs accessible and functional
 - Equipment assignment via tap-to-place
 - Armor allocation with mobile layout
@@ -300,11 +323,13 @@ viewports.forEach(viewport => {
 **Lighthouse:** Score ≥90 on PWA audit
 
 **Install Testing:**
+
 - iOS Safari (most strict requirements)
 - Chrome Android
 - Desktop browsers (Edge, Firefox, Chrome)
 
 **Offline Testing:**
+
 - Disconnect network
 - Verify cached assets load
 - Test offline indicators
@@ -334,6 +359,7 @@ viewports.forEach(viewport => {
 ## Implementation Phases
 
 ### Phase 1: PWA Foundation
+
 **Goal:** Installable app with responsive infrastructure
 
 - PWA manifest configuration (`public/manifest.json`)
@@ -348,6 +374,7 @@ viewports.forEach(viewport => {
 ---
 
 ### Phase 2: Layout Architecture
+
 **Goal:** Stackable panel system for mobile
 
 - `ResponsiveContainer` component with safe-area insets
@@ -362,6 +389,7 @@ viewports.forEach(viewport => {
 ---
 
 ### Phase 3: Touch Interactions
+
 **Goal:** Touch-first interaction patterns
 
 - `EquipmentAssignmentAdapter` with dual-mode (drag/tap)
@@ -377,6 +405,7 @@ viewports.forEach(viewport => {
 ---
 
 ### Phase 4: Component Redesigns
+
 **Goal:** Mobile-optimized critical components
 
 - **Armor Allocation:** CSS Grid-based mech diagram (replaces SVG)
@@ -396,6 +425,7 @@ viewports.forEach(viewport => {
 ---
 
 ### Phase 5: Digital Gameplay Sheet
+
 **Goal:** Interactive record sheet for gameplay
 
 - Clickable armor pips to mark damage
@@ -412,6 +442,7 @@ viewports.forEach(viewport => {
 ---
 
 ### Phase 6: Polish & Optimization
+
 **Goal:** Production-ready mobile experience
 
 - Performance optimization (bundle size, rendering, animations)
@@ -429,6 +460,7 @@ viewports.forEach(viewport => {
 ## Implementation Notes
 
 This design prioritizes:
+
 1. **Adaptive over separate** — Single codebase, adaptive patterns
 2. **Progressive enhancement** — Mobile-first, enhanced for desktop
 3. **Pragmatic patterns** — Proven mobile UX over innovation

@@ -36,12 +36,16 @@ export function Input({
   ...props
 }: InputProps): React.ReactElement {
   const inputId = id || props.name;
-  const baseClasses = 'w-full bg-surface-raised/50 border border-border-theme text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors';
+  const baseClasses =
+    'w-full bg-surface-raised/50 border border-border-theme text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors';
 
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="block text-sm text-text-theme-secondary mb-1">
+        <label
+          htmlFor={inputId}
+          className="text-text-theme-secondary mb-1 block text-sm"
+        >
           {label}
         </label>
       )}
@@ -50,9 +54,7 @@ export function Input({
         className={`${baseClasses} ${variantClasses[variant]} ${accentFocusClasses[accent]} ${error ? 'border-red-500' : ''} ${className}`}
         {...props}
       />
-      {error && (
-        <p className="mt-1 text-sm text-red-400">{error}</p>
-      )}
+      {error && <p className="mt-1 text-sm text-red-400">{error}</p>}
     </div>
   );
 }
@@ -75,12 +77,16 @@ export function Select({
   ...props
 }: SelectProps): React.ReactElement {
   const selectId = id || props.name;
-  const baseClasses = 'w-full bg-surface-raised/50 border border-border-theme rounded-lg px-4 py-2 text-text-theme-primary focus:outline-none transition-colors min-h-[44px]';
+  const baseClasses =
+    'w-full bg-surface-raised/50 border border-border-theme rounded-lg px-4 py-2 text-text-theme-primary focus:outline-none transition-colors min-h-[44px]';
 
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={selectId} className="block text-sm text-text-theme-secondary mb-1">
+        <label
+          htmlFor={selectId}
+          className="text-text-theme-secondary mb-1 block text-sm"
+        >
           {label}
         </label>
       )}
@@ -90,7 +96,7 @@ export function Select({
         {...props}
       >
         {placeholder && <option value="">{placeholder}</option>}
-        {options.map(opt => (
+        {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>
@@ -116,12 +122,16 @@ export function Textarea({
   ...props
 }: TextareaProps): React.ReactElement {
   const textareaId = id || props.name;
-  const baseClasses = 'w-full bg-surface-raised/50 border border-border-theme text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors rounded-lg px-4 py-2.5 resize-none min-h-[44px]';
+  const baseClasses =
+    'w-full bg-surface-raised/50 border border-border-theme text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors rounded-lg px-4 py-2.5 resize-none min-h-[44px]';
 
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={textareaId} className="block text-sm text-text-theme-secondary mb-1">
+        <label
+          htmlFor={textareaId}
+          className="text-text-theme-secondary mb-1 block text-sm"
+        >
           {label}
         </label>
       )}
@@ -130,9 +140,7 @@ export function Textarea({
         className={`${baseClasses} ${accentFocusClasses[accent]} ${error ? 'border-red-500' : ''} ${className}`}
         {...props}
       />
-      {error && (
-        <p className="mt-1 text-sm text-red-400">{error}</p>
-      )}
+      {error && <p className="mt-1 text-sm text-red-400">{error}</p>}
     </div>
   );
 }
@@ -149,25 +157,42 @@ export function SearchInput({
 }: SearchInputProps): React.ReactElement {
   return (
     <div className="relative">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-text-theme-secondary">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="text-text-theme-secondary h-5 w-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+          />
         </svg>
       </div>
-      <Input
-        type="text"
-        value={value}
-        className="pl-10 pr-10"
-        {...props}
-      />
+      <Input type="text" value={value} className="pr-10 pl-10" {...props} />
       {value && onClear && (
         <button
           type="button"
           onClick={onClear}
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-theme-secondary hover:text-text-theme-primary"
+          className="text-text-theme-secondary hover:text-text-theme-primary absolute inset-y-0 right-0 flex items-center pr-3"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="h-5 w-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       )}
@@ -176,4 +201,3 @@ export function SearchInput({
 }
 
 export default Input;
-

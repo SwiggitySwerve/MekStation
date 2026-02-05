@@ -7,22 +7,22 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { VehicleLocation } from '../../../types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
+import {
+  GroundMotionType,
+  IGroundMovement,
+} from '../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
+import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
 import {
   IVehicle,
   IVehicleMountedEquipment,
   ITurretConfiguration,
   TurretType,
 } from '../../../types/unit/VehicleInterfaces';
-import {
-  GroundMotionType,
-  IGroundMovement,
-} from '../../../types/unit/BaseUnitInterfaces';
-import { VehicleLocation } from '../../../types/construction/UnitLocation';
-import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
@@ -80,7 +80,9 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   /**
    * Parse vehicle-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<IVehicle> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<IVehicle> & {
     errors: string[];
     warnings: string[];
   } {
@@ -91,7 +93,9 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     const motionTypeStr = document.motionType?.toLowerCase() || 'tracked';
     const motionType = MOTION_TYPE_MAP[motionTypeStr];
     if (!motionType) {
-      warnings.push(`Unknown motion type: ${document.motionType}, defaulting to Tracked`);
+      warnings.push(
+        `Unknown motion type: ${document.motionType}, defaulting to Tracked`,
+      );
     }
 
     // Movement
@@ -121,7 +125,10 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
 
     // Parse raw tags for additional fields
     const rawTags = document.rawTags || {};
-    const hasEnvironmentalSealing = this.getBooleanFromRaw(rawTags, 'environmentalsealing');
+    const hasEnvironmentalSealing = this.getBooleanFromRaw(
+      rawTags,
+      'environmentalsealing',
+    );
     const hasFlotationHull = this.getBooleanFromRaw(rawTags, 'flotationhull');
     const isAmphibious = this.getBooleanFromRaw(rawTags, 'amphibious');
     const hasTrailerHitch = this.getBooleanFromRaw(rawTags, 'trailerhitch');
@@ -158,7 +165,9 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   /**
    * Parse armor values into location-keyed record
    */
-  private parseArmorByLocation(armor: readonly number[]): Record<VehicleLocation, number> {
+  private parseArmorByLocation(
+    armor: readonly number[],
+  ): Record<VehicleLocation, number> {
     const result: Record<VehicleLocation, number> = {
       [VehicleLocation.FRONT]: 0,
       [VehicleLocation.LEFT]: 0,
@@ -181,7 +190,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    * Parse turret configuration from document
    */
   private parseTurretConfiguration(
-    document: IBlkDocument
+    document: IBlkDocument,
   ): ITurretConfiguration | undefined {
     // Check if vehicle has a turret by looking for turret equipment
     const hasTurretEquipment =
@@ -219,11 +228,15 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly IVehicleMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly IVehicleMountedEquipment[] {
     const equipment: IVehicleMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const location = this.normalizeLocation(locationKey);
       const isTurretMounted = locationKey.toLowerCase().includes('turret');
 
@@ -280,7 +293,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    */
   private getBooleanFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): boolean {
     const value = rawTags[key];
     if (Array.isArray(value)) {
@@ -294,7 +307,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    */
   private getStringFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): string | undefined {
     const value = rawTags[key];
     if (Array.isArray(value)) {
@@ -308,7 +321,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<IVehicle>
+    typeSpecificFields: Partial<IVehicle>,
   ): IVehicle {
     // Determine weight class
     const weightClass = this.getWeightClass(commonFields.tonnage);
@@ -407,7 +420,9 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   /**
    * Serialize vehicle-specific fields
    */
-  protected serializeTypeSpecificFields(unit: IVehicle): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: IVehicle,
+  ): Partial<ISerializedUnit> {
     // Vehicle-specific serialization would go here
     // For now, return empty as full serialization is complex
     return {
@@ -455,7 +470,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     // Armor validation
     if (unit.totalArmorPoints > unit.maxArmorPoints) {
       errors.push(
-        `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`
+        `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,
       );
     }
 

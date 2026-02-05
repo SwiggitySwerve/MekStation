@@ -2,9 +2,10 @@
  * Simulation context that holds seeded random, config, and state
  */
 
+import { IGameState } from '@/types/gameplay/GameSessionInterfaces';
+
 import { SeededRandom } from './SeededRandom';
 import { ISimulationConfig } from './types';
-import { IGameState } from '@/types/gameplay/GameSessionInterfaces';
 
 export class SimulationContext {
   readonly random: SeededRandom;

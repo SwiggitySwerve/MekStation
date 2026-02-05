@@ -1,8 +1,11 @@
 # event-store Specification
 
 ## Purpose
+
 TBD - created by archiving change add-unified-event-store. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Base Event Structure
 
 The system SHALL define a base event structure that all domain events extend.
@@ -186,4 +189,3 @@ The system SHALL track cause-effect relationships between events.
 - **THEN** the causality chain is traversed
 - **AND** the originating damage_applied events are found
 - **AND** the full chain is: wound_received ← damage_applied ← attack_resolved
-

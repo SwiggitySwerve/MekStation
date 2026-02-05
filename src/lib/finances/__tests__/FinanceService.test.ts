@@ -14,6 +14,29 @@
  */
 
 import {
+  ICampaign,
+  createDefaultCampaignOptions,
+  ICampaignOptions,
+} from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
+import {
+  PersonnelStatus,
+  MissionStatus,
+  CampaignPersonnelRole,
+  ForceRole,
+  FormationLevel,
+} from '@/types/campaign/enums';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
+import { IForce } from '@/types/campaign/Force';
+import { IFinances } from '@/types/campaign/IFinances';
+import { IContract, createContract } from '@/types/campaign/Mission';
+import { IMission } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
+import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
+import { IPerson } from '@/types/campaign/Person';
+import { Transaction } from '@/types/campaign/Transaction';
+
+import {
   recordTransaction,
   getBalance,
   calculateDailyCosts,
@@ -22,25 +45,6 @@ import {
   DEFAULT_DAILY_MAINTENANCE,
   DailyCosts,
 } from '../FinanceService';
-
-import { IFinances } from '@/types/campaign/IFinances';
-import { Transaction } from '@/types/campaign/Transaction';
-import { TransactionType } from '@/types/campaign/enums/TransactionType';
-import { Money } from '@/types/campaign/Money';
-import { ICampaign, createDefaultCampaignOptions, ICampaignOptions } from '@/types/campaign/Campaign';
-import { CampaignType } from '@/types/campaign/CampaignType';
-import { IContract, createContract } from '@/types/campaign/Mission';
-import { IPerson } from '@/types/campaign/Person';
-import { IMission } from '@/types/campaign/Mission';
-import { IForce } from '@/types/campaign/Force';
-import {
-  PersonnelStatus,
-  MissionStatus,
-  CampaignPersonnelRole,
-  ForceRole,
-  FormationLevel,
-} from '@/types/campaign/enums';
-import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
 
 // =============================================================================
 // Test Fixtures
@@ -83,7 +87,16 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
@@ -95,7 +108,7 @@ function createTestForce(
   id: string,
   unitIds: string[] = [],
   subForceIds: string[] = [],
-  parentForceId?: string
+  parentForceId?: string,
 ): IForce {
   return {
     id,
@@ -111,24 +124,24 @@ function createTestForce(
 }
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
-    return {
-      id: 'campaign-001',
-      name: 'Test Campaign',
-      currentDate: new Date('3025-06-15T00:00:00Z'),
-      factionId: 'mercenary',
-      personnel: new Map<string, IPerson>(),
-      forces: new Map<string, IForce>(),
-      rootForceId: 'force-root',
-      missions: new Map<string, IMission>(),
-      finances: { transactions: [], balance: new Money(1000000) },
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: createDefaultCampaignOptions(),
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
-      ...overrides,
-      campaignType: CampaignType.MERCENARY,
-    };
+  return {
+    id: 'campaign-001',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-06-15T00:00:00Z'),
+    factionId: 'mercenary',
+    personnel: new Map<string, IPerson>(),
+    forces: new Map<string, IForce>(),
+    rootForceId: 'force-root',
+    missions: new Map<string, IMission>(),
+    finances: { transactions: [], balance: new Money(1000000) },
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: createDefaultCampaignOptions(),
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    ...overrides,
+    campaignType: CampaignType.MERCENARY,
+  };
 }
 
 function createTestContract(overrides?: Partial<IContract>): IContract {
@@ -139,14 +152,16 @@ function createTestContract(overrides?: Partial<IContract>): IContract {
     targetId: overrides?.targetId ?? 'liao',
     systemId: overrides?.systemId ?? 'new-avalon',
     status: overrides?.status ?? MissionStatus.SUCCESS,
-    paymentTerms: overrides?.paymentTerms ?? createPaymentTerms({
-      basePayment: new Money(500000),
-      successPayment: new Money(250000),
-      partialPayment: new Money(100000),
-      failurePayment: new Money(0),
-      transportPayment: new Money(50000),
-      supportPayment: new Money(25000),
-    }),
+    paymentTerms:
+      overrides?.paymentTerms ??
+      createPaymentTerms({
+        basePayment: new Money(500000),
+        successPayment: new Money(250000),
+        partialPayment: new Money(100000),
+        failurePayment: new Money(0),
+        transportPayment: new Money(50000),
+        supportPayment: new Money(25000),
+      }),
     salvageRights: overrides?.salvageRights ?? 'Integrated',
     commandRights: overrides?.commandRights ?? 'Independent',
   });
@@ -426,7 +441,7 @@ describe('getBalance', () => {
           id: `tx-${i}`,
           type: i % 2 === 0 ? TransactionType.Income : TransactionType.Expense,
           amount: new Money(100),
-        })
+        }),
       );
     }
 
@@ -474,8 +489,14 @@ describe('calculateDailyCosts', () => {
 
   it('should calculate salary for active personnel', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
-    personnel.set('p2', createTestPerson({ id: 'p2', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
+    personnel.set(
+      'p2',
+      createTestPerson({ id: 'p2', status: PersonnelStatus.ACTIVE }),
+    );
 
     const campaign = createTestCampaign({ personnel });
 
@@ -487,8 +508,14 @@ describe('calculateDailyCosts', () => {
 
   it('should exclude KIA personnel from salary', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
-    personnel.set('p2', createTestPerson({ id: 'p2', status: PersonnelStatus.KIA }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
+    personnel.set(
+      'p2',
+      createTestPerson({ id: 'p2', status: PersonnelStatus.KIA }),
+    );
 
     const campaign = createTestCampaign({ personnel });
 
@@ -500,7 +527,10 @@ describe('calculateDailyCosts', () => {
 
   it('should exclude RETIRED personnel from salary', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.RETIRED }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.RETIRED }),
+    );
 
     const campaign = createTestCampaign({ personnel });
 
@@ -512,7 +542,10 @@ describe('calculateDailyCosts', () => {
 
   it('should exclude DESERTED personnel from salary', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.DESERTED }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.DESERTED }),
+    );
 
     const campaign = createTestCampaign({ personnel });
 
@@ -524,7 +557,10 @@ describe('calculateDailyCosts', () => {
 
   it('should include WOUNDED personnel in salary', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.WOUNDED }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.WOUNDED }),
+    );
 
     const campaign = createTestCampaign({ personnel });
 
@@ -569,7 +605,11 @@ describe('calculateDailyCosts', () => {
 
   it('should calculate maintenance for units in forces', () => {
     const forces = new Map<string, IForce>();
-    const rootForce = createTestForce('force-root', ['unit-1', 'unit-2', 'unit-3']);
+    const rootForce = createTestForce('force-root', [
+      'unit-1',
+      'unit-2',
+      'unit-3',
+    ]);
     forces.set('force-root', rootForce);
 
     const campaign = createTestCampaign({ forces });
@@ -644,8 +684,17 @@ describe('calculateDailyCosts', () => {
 
   it('should count units in sub-forces', () => {
     const forces = new Map<string, IForce>();
-    const subForce = createTestForce('force-sub', ['unit-3', 'unit-4'], [], 'force-root');
-    const rootForce = createTestForce('force-root', ['unit-1', 'unit-2'], ['force-sub']);
+    const subForce = createTestForce(
+      'force-sub',
+      ['unit-3', 'unit-4'],
+      [],
+      'force-root',
+    );
+    const rootForce = createTestForce(
+      'force-root',
+      ['unit-1', 'unit-2'],
+      ['force-sub'],
+    );
     forces.set('force-root', rootForce);
     forces.set('force-sub', subForce);
 
@@ -837,7 +886,7 @@ describe('FinanceService integration', () => {
         id: 'tx-1',
         type: TransactionType.Income,
         amount: new Money(10000),
-      })
+      }),
     );
     finances = recordTransaction(
       finances,
@@ -845,7 +894,7 @@ describe('FinanceService integration', () => {
         id: 'tx-2',
         type: TransactionType.Expense,
         amount: new Money(3000),
-      })
+      }),
     );
 
     const computedBalance = getBalance(finances);
@@ -874,6 +923,8 @@ describe('FinanceService integration', () => {
     const contract = createTestContract({ status: MissionStatus.SUCCESS });
     const updatedFinances = processContractPayment(campaign, contract);
 
-    expect(updatedFinances.balance.amount).toBeGreaterThan(campaign.finances.balance.amount);
+    expect(updatedFinances.balance.amount).toBeGreaterThan(
+      campaign.finances.balance.amount,
+    );
   });
 });

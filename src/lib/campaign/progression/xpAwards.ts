@@ -17,8 +17,8 @@
  * @module campaign/progression/xpAwards
  */
 
-import type { IPerson } from '../../../types/campaign/Person';
 import type { ICampaignOptions } from '../../../types/campaign/Campaign';
+import type { IPerson } from '../../../types/campaign/Person';
 import type { IXPAwardEvent } from '../../../types/campaign/progression/progressionTypes';
 
 // =============================================================================
@@ -38,7 +38,7 @@ import type { IXPAwardEvent } from '../../../types/campaign/progression/progress
  */
 export function awardScenarioXP(
   person: IPerson,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): IXPAwardEvent {
   const amount = options.scenarioXP ?? 1;
   return {
@@ -77,7 +77,7 @@ export function awardScenarioXP(
 export function awardKillXP(
   person: IPerson,
   killCount: number,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): IXPAwardEvent | null {
   const threshold = options.killsForXP ?? 1;
   const award = options.killXPAward ?? 1;
@@ -122,7 +122,7 @@ export function awardKillXP(
 export function awardTaskXP(
   person: IPerson,
   taskCount: number,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): IXPAwardEvent | null {
   const threshold = options.nTasksXP ?? 1;
 
@@ -163,7 +163,7 @@ export function awardTaskXP(
 export function awardMissionXP(
   person: IPerson,
   outcome: 'fail' | 'success' | 'outstanding',
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): IXPAwardEvent {
   const amounts = {
     fail: options.missionFailXP ?? 1,
@@ -196,7 +196,7 @@ export function awardMissionXP(
  */
 export function awardVocationalXP(
   person: IPerson,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): IXPAwardEvent {
   const amount = options.vocationalXP ?? 1;
   return {
@@ -224,7 +224,7 @@ export function awardVocationalXP(
  */
 export function awardAdminXP(
   person: IPerson,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): IXPAwardEvent {
   const amount = options.adminXP ?? 0;
   return {
@@ -250,7 +250,7 @@ export function awardAdminXP(
  */
 export function awardEducationXP(
   person: IPerson,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): IXPAwardEvent | null {
   // @stub - Education system not implemented
   return null;
@@ -275,7 +275,7 @@ export function awardEducationXP(
 export function awardManualXP(
   person: IPerson,
   amount: number,
-  description: string
+  description: string,
 ): IXPAwardEvent {
   return {
     personId: person.id,

@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+
 import { Card, Badge } from '@/components/ui';
 import { IAssignment, ForcePosition } from '@/types/force';
 import { IPilot, IPilotSkills } from '@/types/pilot';
@@ -68,7 +69,7 @@ function getPositionLabel(position: ForcePosition): string {
 }
 
 function getPositionBadgeVariant(
-  position: ForcePosition
+  position: ForcePosition,
 ): 'amber' | 'cyan' | 'muted' | 'orange' | 'violet' {
   switch (position) {
     case ForcePosition.Commander:
@@ -131,13 +132,13 @@ export function AssignmentSlot({
     <Card
       variant={isSelected ? 'interactive' : 'default'}
       onClick={onClick}
-      className={`group transition-all ${isSelected ? 'ring-2 ring-accent' : ''} ${className}`}
+      className={`group transition-all ${isSelected ? 'ring-accent ring-2' : ''} ${className}`}
     >
       <div className="p-3">
         {/* Header: Slot number and position */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-mono text-text-theme-muted">
+            <span className="text-text-theme-muted font-mono text-sm">
               #{assignment.slot}
             </span>
             <Badge
@@ -152,11 +153,11 @@ export function AssignmentSlot({
           {!isEmpty && onClear && (
             <button
               onClick={handleClear}
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-surface-theme-elevated text-text-theme-muted hover:text-text-theme-secondary"
+              className="hover:bg-surface-theme-elevated text-text-theme-muted hover:text-text-theme-secondary rounded p-1 opacity-0 transition-opacity group-hover:opacity-100"
               title="Clear assignment"
             >
               <svg
-                className="w-4 h-4"
+                className="h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -174,7 +175,7 @@ export function AssignmentSlot({
 
         {/* Pilot Section */}
         <div className="mb-2">
-          <div className="text-xs text-text-theme-muted uppercase tracking-wide mb-1">
+          <div className="text-text-theme-muted mb-1 text-xs tracking-wide uppercase">
             Pilot
           </div>
           {hasPilot ? (
@@ -183,7 +184,7 @@ export function AssignmentSlot({
                 <span className="text-text-theme-primary font-medium">
                   {pilot.callsign || pilot.name}
                 </span>
-                <span className="ml-2 text-sm text-text-theme-secondary font-mono">
+                <span className="text-text-theme-secondary ml-2 font-mono text-sm">
                   ({formatSkills(pilot.skills)})
                 </span>
               </div>
@@ -191,7 +192,7 @@ export function AssignmentSlot({
           ) : (
             <button
               onClick={handleSelectPilot}
-              className="w-full py-2 px-3 rounded border-2 border-dashed border-border-theme-subtle hover:border-accent text-text-theme-muted hover:text-accent transition-colors text-sm"
+              className="border-border-theme-subtle hover:border-accent text-text-theme-muted hover:text-accent w-full rounded border-2 border-dashed px-3 py-2 text-sm transition-colors"
             >
               + Select Pilot
             </button>
@@ -200,7 +201,7 @@ export function AssignmentSlot({
 
         {/* Unit Section */}
         <div>
-          <div className="text-xs text-text-theme-muted uppercase tracking-wide mb-1">
+          <div className="text-text-theme-muted mb-1 text-xs tracking-wide uppercase">
             Unit
           </div>
           {hasUnit ? (
@@ -208,19 +209,19 @@ export function AssignmentSlot({
               <span className="text-text-theme-primary font-medium">
                 {unitName}
               </span>
-              <div className="flex items-center gap-2 text-sm text-text-theme-secondary">
+              <div className="text-text-theme-secondary flex items-center gap-2 text-sm">
                 {unitTonnage && (
                   <span className="font-mono">{unitTonnage}t</span>
                 )}
                 {unitBV && (
-                  <span className="font-mono text-accent">{unitBV} BV</span>
+                  <span className="text-accent font-mono">{unitBV} BV</span>
                 )}
               </div>
             </div>
           ) : (
             <button
               onClick={handleSelectUnit}
-              className="w-full py-2 px-3 rounded border-2 border-dashed border-border-theme-subtle hover:border-accent text-text-theme-muted hover:text-accent transition-colors text-sm"
+              className="border-border-theme-subtle hover:border-accent text-text-theme-muted hover:text-accent w-full rounded border-2 border-dashed px-3 py-2 text-sm transition-colors"
             >
               + Select Unit
             </button>
@@ -229,21 +230,15 @@ export function AssignmentSlot({
 
         {/* Status indicator */}
         {!isEmpty && (
-          <div className="mt-3 pt-2 border-t border-border-theme-subtle">
+          <div className="border-border-theme-subtle mt-3 border-t pt-2">
             <div className="flex items-center gap-1">
               <div
-                className={`w-2 h-2 rounded-full ${
-                  isComplete
-                    ? 'bg-green-500'
-                    : 'bg-amber-500'
+                className={`h-2 w-2 rounded-full ${
+                  isComplete ? 'bg-green-500' : 'bg-amber-500'
                 }`}
               />
-              <span className="text-xs text-text-theme-muted">
-                {isComplete
-                  ? 'Ready'
-                  : hasPilot
-                  ? 'Needs unit'
-                  : 'Needs pilot'}
+              <span className="text-text-theme-muted text-xs">
+                {isComplete ? 'Ready' : hasPilot ? 'Needs unit' : 'Needs pilot'}
               </span>
             </div>
           </div>
@@ -251,7 +246,7 @@ export function AssignmentSlot({
 
         {/* Notes */}
         {assignment.notes && (
-          <div className="mt-2 text-xs text-text-theme-muted italic">
+          <div className="text-text-theme-muted mt-2 text-xs italic">
             {assignment.notes}
           </div>
         )}

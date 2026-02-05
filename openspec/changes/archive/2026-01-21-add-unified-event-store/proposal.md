@@ -3,6 +3,7 @@
 ## Why
 
 MekStation needs full auditability across games, campaigns, pilots, and repairs. Users want to:
+
 - Replay any game turn-by-turn
 - View campaign history as a timeline
 - Track pilot careers across multiple campaigns

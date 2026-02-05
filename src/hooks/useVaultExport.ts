@@ -8,7 +8,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { useIdentityStore } from '@/stores/useIdentityStore';
+
 import type {
   IExportResult,
   IShareableBundle,
@@ -17,7 +17,9 @@ import type {
   IExportablePilot,
   IExportableForce,
 } from '@/types/vault';
+
 import { serializeBundle } from '@/services/vault/BundleService';
+import { useIdentityStore } from '@/stores/useIdentityStore';
 
 // =============================================================================
 // API Response Types
@@ -58,13 +60,22 @@ export interface UseVaultExportState {
 
 export interface UseVaultExportActions {
   /** Export units */
-  exportUnits: (units: IExportableUnit[], options: ExportOptions) => Promise<IExportResult>;
+  exportUnits: (
+    units: IExportableUnit[],
+    options: ExportOptions,
+  ) => Promise<IExportResult>;
 
   /** Export pilots */
-  exportPilots: (pilots: IExportablePilot[], options: ExportOptions) => Promise<IExportResult>;
+  exportPilots: (
+    pilots: IExportablePilot[],
+    options: ExportOptions,
+  ) => Promise<IExportResult>;
 
   /** Export forces */
-  exportForces: (forces: IExportableForce[], options: ExportOptions) => Promise<IExportResult>;
+  exportForces: (
+    forces: IExportableForce[],
+    options: ExportOptions,
+  ) => Promise<IExportResult>;
 
   /** Download the last export result as a file */
   downloadResult: () => void;
@@ -94,19 +105,24 @@ export function useVaultExport(): UseVaultExportState & UseVaultExportActions {
     async <T extends { id: string; name: string }>(
       contentType: ShareableContentType,
       items: T[],
-      options: ExportOptions
+      options: ExportOptions,
     ): Promise<IExportResult> => {
       if (!isUnlocked) {
         const err: IExportResult = {
           success: false,
-          error: { message: 'Identity not unlocked. Please unlock your vault first.' },
+          error: {
+            message: 'Identity not unlocked. Please unlock your vault first.',
+          },
         };
         setError(err.error.message);
         return err;
       }
 
       if (items.length === 0) {
-        const err: IExportResult = { success: false, error: { message: `No ${contentType}s to export` } };
+        const err: IExportResult = {
+          success: false,
+          error: { message: `No ${contentType}s to export` },
+        };
         setError(err.error.message);
         return err;
       }
@@ -151,7 +167,10 @@ export function useVaultExport(): UseVaultExportState & UseVaultExportActions {
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Export failed';
-        const exportResult: IExportResult = { success: false, error: { message } };
+        const exportResult: IExportResult = {
+          success: false,
+          error: { message },
+        };
         setError(message);
         setResult(exportResult);
         return exportResult;
@@ -159,25 +178,25 @@ export function useVaultExport(): UseVaultExportState & UseVaultExportActions {
         setExporting(false);
       }
     },
-    [isUnlocked]
+    [isUnlocked],
   );
 
   const handleExportUnits = useCallback(
     (units: IExportableUnit[], options: ExportOptions) =>
       exportContent('unit', units, options),
-    [exportContent]
+    [exportContent],
   );
 
   const handleExportPilots = useCallback(
     (pilots: IExportablePilot[], options: ExportOptions) =>
       exportContent('pilot', pilots, options),
-    [exportContent]
+    [exportContent],
   );
 
   const handleExportForces = useCallback(
     (forces: IExportableForce[], options: ExportOptions) =>
       exportContent('force', forces, options),
-    [exportContent]
+    [exportContent],
   );
 
   const handleDownload = useCallback(() => {

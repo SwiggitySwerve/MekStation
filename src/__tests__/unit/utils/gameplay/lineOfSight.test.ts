@@ -1,19 +1,24 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
+
+import {
+  IHexGrid,
+  IHex,
+  IHexCoordinate,
+} from '@/types/gameplay/HexGridInterfaces';
+import { TerrainType, ITerrainFeature } from '@/types/gameplay/TerrainTypes';
+import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
   calculateLOS,
   parseTerrainFeatures,
   getBlockingTerrain,
   ILOSResult,
 } from '@/utils/gameplay/lineOfSight';
-import { IHexGrid, IHex, IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
-import { TerrainType, ITerrainFeature } from '@/types/gameplay/TerrainTypes';
-import { coordToKey } from '@/utils/gameplay/hexMath';
 
 function createHex(
   q: number,
   r: number,
   terrain: string = TerrainType.Clear,
-  elevation: number = 0
+  elevation: number = 0,
 ): IHex {
   return {
     coord: { q, r },
@@ -226,7 +231,9 @@ describe('lineOfSight', () => {
 
     it('should return terrain type for blocking terrain', () => {
       const grid = createGrid([createHex(0, 0, TerrainType.HeavyWoods, 0)]);
-      expect(getBlockingTerrain({ q: 0, r: 0 }, grid)).toBe(TerrainType.HeavyWoods);
+      expect(getBlockingTerrain({ q: 0, r: 0 }, grid)).toBe(
+        TerrainType.HeavyWoods,
+      );
     });
 
     it('should return undefined for non-blocking terrain', () => {

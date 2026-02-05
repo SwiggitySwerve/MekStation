@@ -1,8 +1,11 @@
 # campaign-system Specification
 
 ## Purpose
+
 TBD - created by archiving change add-campaign-system. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Campaign Management
 
 The system SHALL provide campaign creation and management for multi-mission gameplay.
@@ -108,4 +111,3 @@ The system SHALL track and apply pilot experience progression.
 - **THEN** the pilot is marked deceased
 - **AND** their XP and progress are lost
 - **AND** a replacement pilot may be recruited
-

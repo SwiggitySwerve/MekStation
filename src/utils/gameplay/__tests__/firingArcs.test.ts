@@ -5,6 +5,13 @@
  */
 
 import {
+  Facing,
+  FiringArc,
+  IUnitPosition,
+  IHexCoordinate,
+} from '@/types/gameplay';
+
+import {
   determineArc,
   getArcHexes,
   getFrontArcDirections,
@@ -15,13 +22,14 @@ import {
   getArcHitModifier,
   targetsRearArmor,
 } from '../firingArcs';
-import { Facing, FiringArc, IUnitPosition, IHexCoordinate } from '@/types/gameplay';
 
 // =============================================================================
 // Test Fixtures
 // =============================================================================
 
-function createTestPosition(overrides: Partial<IUnitPosition> = {}): IUnitPosition {
+function createTestPosition(
+  overrides: Partial<IUnitPosition> = {},
+): IUnitPosition {
   return {
     unitId: 'unit-1',
     coord: { q: 0, r: 0 },
@@ -49,7 +57,10 @@ describe('determineArc', () => {
   });
 
   describe('front arc - facing North', () => {
-    const attacker = createTestPosition({ coord: { q: 0, r: 0 }, facing: Facing.North });
+    const attacker = createTestPosition({
+      coord: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
 
     it('should detect front arc for target directly ahead', () => {
       const result = determineArc(attacker, { q: 0, r: -1 }); // North
@@ -66,16 +77,23 @@ describe('determineArc', () => {
       // Adjacent hexes to the side are actually in side arcs per hex geometry
       const resultNE = determineArc(attacker, { q: 1, r: -1 }); // Northeast adjacent
       const resultNW = determineArc(attacker, { q: -1, r: 0 }); // Northwest adjacent
-      
+
       // These are on the boundary - could be front or side depending on exact arc implementation
       // The important thing is they're consistently classified
-      expect([FiringArc.Front, FiringArc.Right, FiringArc.Left]).toContain(resultNE.arc);
-      expect([FiringArc.Front, FiringArc.Right, FiringArc.Left]).toContain(resultNW.arc);
+      expect([FiringArc.Front, FiringArc.Right, FiringArc.Left]).toContain(
+        resultNE.arc,
+      );
+      expect([FiringArc.Front, FiringArc.Right, FiringArc.Left]).toContain(
+        resultNW.arc,
+      );
     });
   });
 
   describe('rear arc - facing North', () => {
-    const attacker = createTestPosition({ coord: { q: 0, r: 0 }, facing: Facing.North });
+    const attacker = createTestPosition({
+      coord: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
 
     it('should detect rear arc for target directly behind', () => {
       const result = determineArc(attacker, { q: 0, r: 1 }); // South
@@ -91,15 +109,22 @@ describe('determineArc', () => {
       // Adjacent hexes in southeast/southwest may be side arcs per hex geometry
       const resultSE = determineArc(attacker, { q: 1, r: 0 }); // Southeast adjacent
       const resultSW = determineArc(attacker, { q: -1, r: 1 }); // Southwest adjacent
-      
+
       // These are on the boundary - could be rear or side depending on exact arc implementation
-      expect([FiringArc.Rear, FiringArc.Right, FiringArc.Left]).toContain(resultSE.arc);
-      expect([FiringArc.Rear, FiringArc.Right, FiringArc.Left]).toContain(resultSW.arc);
+      expect([FiringArc.Rear, FiringArc.Right, FiringArc.Left]).toContain(
+        resultSE.arc,
+      );
+      expect([FiringArc.Rear, FiringArc.Right, FiringArc.Left]).toContain(
+        resultSW.arc,
+      );
     });
   });
 
   describe('side arcs - facing North', () => {
-    const attacker = createTestPosition({ coord: { q: 0, r: 0 }, facing: Facing.North });
+    const attacker = createTestPosition({
+      coord: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
 
     it('should detect side arcs for targets at 90 degrees', () => {
       // Due to hex geometry, the exact positions depend on the arc boundaries
@@ -109,13 +134,19 @@ describe('determineArc', () => {
 
       // At least one should be a side arc
       const sideArcs = [FiringArc.Left, FiringArc.Right];
-      expect(sideArcs.includes(rightSideResult.arc) || sideArcs.includes(leftSideResult.arc)).toBe(true);
+      expect(
+        sideArcs.includes(rightSideResult.arc) ||
+          sideArcs.includes(leftSideResult.arc),
+      ).toBe(true);
     });
   });
 
   describe('different facings', () => {
     it('should correctly determine arc for South facing', () => {
-      const attacker = createTestPosition({ coord: { q: 0, r: 0 }, facing: Facing.South });
+      const attacker = createTestPosition({
+        coord: { q: 0, r: 0 },
+        facing: Facing.South,
+      });
 
       const frontResult = determineArc(attacker, { q: 0, r: 1 }); // South = front
       const rearResult = determineArc(attacker, { q: 0, r: -1 }); // North = rear
@@ -125,7 +156,10 @@ describe('determineArc', () => {
     });
 
     it('should correctly determine arc for Southeast facing', () => {
-      const attacker = createTestPosition({ coord: { q: 0, r: 0 }, facing: Facing.Southeast });
+      const attacker = createTestPosition({
+        coord: { q: 0, r: 0 },
+        facing: Facing.Southeast,
+      });
 
       const frontResult = determineArc(attacker, { q: 1, r: 0 }); // Southeast = front
       expect(frontResult.arc).toBe(FiringArc.Front);
@@ -194,7 +228,7 @@ describe('getArcHexes', () => {
     const center: IHexCoordinate = { q: 5, r: 5 };
     const hexes = getArcHexes(center, Facing.North, FiringArc.Front, 2);
 
-    const containsCenter = hexes.some(h => h.q === 5 && h.r === 5);
+    const containsCenter = hexes.some((h) => h.q === 5 && h.r === 5);
     expect(containsCenter).toBe(false);
   });
 

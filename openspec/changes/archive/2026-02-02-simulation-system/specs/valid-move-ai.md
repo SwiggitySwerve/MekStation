@@ -11,10 +11,13 @@
 ## Overview
 
 ### Purpose
+
 Provides AI decision-making logic that generates valid moves and attacks for autonomous game simulation. Focuses on legality over intelligence - makes random valid choices rather than tactical decisions.
 
 ### Scope
+
 **In Scope:**
+
 - Movement decision logic (MoveAI)
 - Attack target selection (AttackAI)
 - Weapon selection for attacks
@@ -22,6 +25,7 @@ Provides AI decision-making logic that generates valid moves and attacks for aut
 - Bot behavior configuration
 
 **Out of Scope:**
+
 - Tactical intelligence (minimax, threat assessment)
 - Positioning heuristics
 - Physical attack implementation
@@ -29,6 +33,7 @@ Provides AI decision-making logic that generates valid moves and attacks for aut
 - Heat shutdown mechanics (not implemented)
 
 ### Key Concepts
+
 - **Valid Move**: Any movement action that complies with game rules (MP limits, terrain, facing)
 - **Valid Target**: Any enemy unit within weapon range and firing arc
 - **Bot Behavior**: Configuration controlling retreat thresholds and edge preferences
@@ -47,6 +52,7 @@ The system SHALL enumerate valid moves and select randomly from them.
 **Priority**: Critical
 
 #### Scenario: Valid move enumeration
+
 **GIVEN** a unit with 6 Walk MP on open terrain
 **WHEN** calling getValidMoves()
 **THEN** result SHALL include all hexes within 6 MP
@@ -54,6 +60,7 @@ The system SHALL enumerate valid moves and select randomly from them.
 **AND** result SHALL respect facing change costs
 
 #### Scenario: Random move selection
+
 **GIVEN** a list of 10 valid moves
 **WHEN** calling selectMove() with seeded random
 **THEN** selection SHALL be uniformly random
@@ -61,6 +68,7 @@ The system SHALL enumerate valid moves and select randomly from them.
 **AND** selection SHALL always be from valid moves list
 
 #### Scenario: No valid moves handling
+
 **GIVEN** a unit with no valid movement destinations
 **WHEN** calling getValidMoves()
 **THEN** result SHALL be empty array
@@ -76,6 +84,7 @@ The system SHALL identify valid targets and select randomly from them.
 **Priority**: Critical
 
 #### Scenario: Valid target enumeration
+
 **GIVEN** a unit with weapons of various ranges
 **WHEN** calling getValidTargets()
 **THEN** result SHALL include all enemy units in range of any weapon
@@ -84,6 +93,7 @@ The system SHALL identify valid targets and select randomly from them.
 **AND** result SHALL respect line of sight rules
 
 #### Scenario: Random target selection
+
 **GIVEN** a list of 3 valid targets
 **WHEN** calling selectTarget() with seeded random
 **THEN** selection SHALL be uniformly random
@@ -91,6 +101,7 @@ The system SHALL identify valid targets and select randomly from them.
 **AND** selection SHALL always be from valid targets list
 
 #### Scenario: No valid targets handling
+
 **GIVEN** a unit with no enemies in weapon range
 **WHEN** calling getValidTargets()
 **THEN** result SHALL be empty array
@@ -106,6 +117,7 @@ The system SHALL select all usable weapons for an attack.
 **Priority**: High
 
 #### Scenario: All weapons firing
+
 **GIVEN** a unit attacking a target in range
 **WHEN** calling selectWeapons()
 **THEN** result SHALL include all weapons that can hit target
@@ -114,6 +126,7 @@ The system SHALL select all usable weapons for an attack.
 **AND** result SHALL exclude weapons with toHit > 12 (impossible)
 
 #### Scenario: Weapon viability check
+
 **GIVEN** a weapon with toHit calculation
 **WHEN** determining if weapon is usable
 **THEN** weapon SHALL be excluded if toHit > 12
@@ -129,6 +142,7 @@ The system SHALL orchestrate movement and attack phases for one side.
 **Priority**: Critical
 
 #### Scenario: Movement phase execution
+
 **GIVEN** a bot player controlling 4 units
 **WHEN** executing movement phase
 **THEN** bot SHALL call MoveAI for each unit
@@ -136,6 +150,7 @@ The system SHALL orchestrate movement and attack phases for one side.
 **AND** bot SHALL handle units with no valid moves gracefully
 
 #### Scenario: Attack phase execution
+
 **GIVEN** a bot player controlling 4 units
 **WHEN** executing attack phase
 **THEN** bot SHALL call AttackAI for each unit
@@ -143,6 +158,7 @@ The system SHALL orchestrate movement and attack phases for one side.
 **AND** bot SHALL handle units with no valid targets gracefully
 
 #### Scenario: Phase ordering
+
 **GIVEN** a bot player executing a turn
 **WHEN** orchestrating phases
 **THEN** movement phase SHALL execute before attack phase
@@ -158,18 +174,21 @@ The system SHALL support configurable bot behavior parameters.
 **Priority**: Medium
 
 #### Scenario: Retreat threshold
+
 **GIVEN** a bot with retreatThreshold = 0.3
 **WHEN** a unit has health below 30%
 **THEN** bot SHOULD prefer moves toward retreat edge
 **AND** bot MAY still attack if targets available
 
 #### Scenario: Retreat edge selection
+
 **GIVEN** a bot with retreatEdge = 'north'
 **WHEN** selecting moves for damaged unit
 **THEN** bot SHOULD prefer hexes closer to north map edge
 **AND** bot SHALL still only select valid moves
 
 #### Scenario: No retreat behavior
+
 **GIVEN** a bot with retreatEdge = 'none'
 **WHEN** selecting moves for damaged unit
 **THEN** bot SHALL ignore health status
@@ -201,7 +220,13 @@ interface IBotBehavior {
    * 'none' disables retreat behavior.
    * @example "north"
    */
-  readonly retreatEdge: 'nearest' | 'north' | 'south' | 'east' | 'west' | 'none';
+  readonly retreatEdge:
+    | 'nearest'
+    | 'north'
+    | 'south'
+    | 'east'
+    | 'west'
+    | 'none';
 }
 
 /**
@@ -268,7 +293,10 @@ interface IAttackAI {
    * @param random Seeded random for deterministic selection
    * @returns Selected target or null if targets empty
    */
-  readonly selectTarget: (targets: IGameUnit[], random: ISeededRandom) => IGameUnit | null;
+  readonly selectTarget: (
+    targets: IGameUnit[],
+    random: ISeededRandom,
+  ) => IGameUnit | null;
 
   /**
    * Select weapons to fire at target.
@@ -280,7 +308,7 @@ interface IAttackAI {
   readonly selectWeapons: (
     attacker: IGameUnit,
     target: IGameUnit,
-    state: IGameState
+    state: IGameState,
   ) => IWeapon[];
 }
 
@@ -299,7 +327,10 @@ interface IBotPlayer {
    * @param state Current game state
    * @returns Movement event or null if no valid moves
    */
-  readonly planMovement: (unitId: string, state: IGameState) => IGameEvent | null;
+  readonly planMovement: (
+    unitId: string,
+    state: IGameState,
+  ) => IGameEvent | null;
 
   /**
    * Plan attacks for a unit.
@@ -313,14 +344,14 @@ interface IBotPlayer {
 
 ### Required Properties
 
-| Property | Type | Required | Description | Valid Values | Default |
-|----------|------|----------|-------------|--------------|---------|
-| `retreatThreshold` | `number` | Yes | Health % for retreat | 0.0-1.0 | 0.3 |
-| `retreatEdge` | `string` | Yes | Retreat direction | See enum | 'none' |
-| `unitId` | `string` | Yes | Unit identifier | Non-empty string | N/A |
-| `destination` | `IHexCoord` | Yes | Target hex | Valid coordinate | N/A |
-| `movementType` | `string` | Yes | Move type | walk/run/jump | 'walk' |
-| `facing` | `number` | Yes | Final facing | 0-5 | N/A |
+| Property           | Type        | Required | Description          | Valid Values     | Default |
+| ------------------ | ----------- | -------- | -------------------- | ---------------- | ------- |
+| `retreatThreshold` | `number`    | Yes      | Health % for retreat | 0.0-1.0          | 0.3     |
+| `retreatEdge`      | `string`    | Yes      | Retreat direction    | See enum         | 'none'  |
+| `unitId`           | `string`    | Yes      | Unit identifier      | Non-empty string | N/A     |
+| `destination`      | `IHexCoord` | Yes      | Target hex           | Valid coordinate | N/A     |
+| `movementType`     | `string`    | Yes      | Move type            | walk/run/jump    | 'walk'  |
+| `facing`           | `number`    | Yes      | Final facing         | 0-5              | N/A     |
 
 ### Type Constraints
 
@@ -341,10 +372,15 @@ interface IBotPlayer {
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
 // Use existing getValidDestinations() from movement.ts
-const validDests = getValidDestinations(unit.position.coord, unit.movement.walkMP, state.hexGrid);
-if (!validDests.some(dest => dest.equals(move.destination))) {
+const validDests = getValidDestinations(
+  unit.position.coord,
+  unit.movement.walkMP,
+  state.hexGrid,
+);
+if (!validDests.some((dest) => dest.equals(move.destination))) {
   // invalid move
 }
 ```
@@ -360,6 +396,7 @@ if (!validDests.some(dest => dest.equals(move.destination))) {
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
 // Target must be enemy, alive, and in range of at least one weapon
 if (target.owner === attacker.owner) {
@@ -384,6 +421,7 @@ if (!hasWeaponInRange(attacker, target, state)) {
 **Severity**: Warning
 
 **Condition**:
+
 ```typescript
 const toHit = calculateToHit(attacker, target, weapon, state);
 if (toHit > 12) {
@@ -400,16 +438,19 @@ if (toHit > 12) {
 ## Dependencies
 
 ### Depends On
+
 - **Core Infrastructure**: SeededRandom for deterministic selection
 - **Game Engine**: getValidDestinations(), calculateToHit()
 - **Game State**: IGameState, IGameUnit, IGameEvent interfaces
 
 ### Used By
+
 - **Simulation Runner**: Uses BotPlayer to execute turns
 - **Turn Loop**: Calls BotPlayer for each phase
 - **Integration Tests**: Validates AI generates legal moves
 
 ### Construction Sequence
+
 1. Create IBotBehavior configuration
 2. Create MoveAI instance
 3. Create AttackAI instance
@@ -422,17 +463,20 @@ if (toHit > 12) {
 ## Implementation Notes
 
 ### Performance Considerations
+
 - getValidMoves() may be expensive for high-MP units
 - Cache valid destinations if called multiple times per turn
 - selectWeapons() should filter early to avoid unnecessary toHit calculations
 
 ### Edge Cases
+
 - **No valid moves**: Return empty array, bot passes movement
 - **No valid targets**: Return empty array, bot skips attacks
 - **All weapons out of range**: Return empty array, no attack event
 - **Unit destroyed mid-turn**: Skip remaining phases for that unit
 
 ### Common Pitfalls
+
 - **Pitfall**: Using Math.random() instead of SeededRandom
   - **Solution**: Always pass SeededRandom instance to select methods
 - **Pitfall**: Modifying game state in AI logic
@@ -447,16 +491,20 @@ if (toHit > 12) {
 ### Example 1: Basic Movement Decision
 
 **Input**:
+
 ```typescript
 const unit: IGameUnit = {
   id: 'unit-1',
   position: { coord: { q: 0, r: 0 }, facing: 0 },
-  movement: { walkMP: 6, runMP: 9, jumpMP: 0 }
+  movement: { walkMP: 6, runMP: 9, jumpMP: 0 },
 };
-const state: IGameState = { /* current game state */ };
+const state: IGameState = {
+  /* current game state */
+};
 ```
 
 **Processing**:
+
 ```typescript
 const moveAI = new MoveAI();
 const validMoves = moveAI.getValidMoves(unit, state);
@@ -471,6 +519,7 @@ const selectedMove = moveAI.selectMove(validMoves, random);
 ```
 
 **Output**:
+
 ```typescript
 // selectedMove = { unitId: 'unit-1', destination: { q: 2, r: 1 }, movementType: 'walk', facing: 0 }
 ```
@@ -478,23 +527,23 @@ const selectedMove = moveAI.selectMove(validMoves, random);
 ### Example 2: Attack Target Selection
 
 **Input**:
+
 ```typescript
 const attacker: IGameUnit = {
   id: 'unit-1',
   owner: 'player',
-  weapons: [
-    { id: 'weapon-1', range: { short: 3, medium: 6, long: 9 } }
-  ]
+  weapons: [{ id: 'weapon-1', range: { short: 3, medium: 6, long: 9 } }],
 };
 const state: IGameState = {
   units: [
     { id: 'enemy-1', owner: 'opponent', position: { coord: { q: 3, r: 0 } } },
-    { id: 'enemy-2', owner: 'opponent', position: { coord: { q: 10, r: 0 } } } // out of range
-  ]
+    { id: 'enemy-2', owner: 'opponent', position: { coord: { q: 10, r: 0 } } }, // out of range
+  ],
 };
 ```
 
 **Processing**:
+
 ```typescript
 const attackAI = new AttackAI();
 const validTargets = attackAI.getValidTargets(attacker, state);
@@ -505,6 +554,7 @@ const selectedTarget = attackAI.selectTarget(validTargets, random);
 ```
 
 **Output**:
+
 ```typescript
 // selectedTarget = { id: 'enemy-1', owner: 'opponent', ... }
 ```
@@ -512,15 +562,17 @@ const selectedTarget = attackAI.selectTarget(validTargets, random);
 ### Example 3: Bot Player Orchestration
 
 **Input**:
+
 ```typescript
 const behavior: IBotBehavior = {
   retreatThreshold: 0.3,
-  retreatEdge: 'north'
+  retreatEdge: 'north',
 };
 const botPlayer = new BotPlayer(behavior, new MoveAI(), new AttackAI());
 ```
 
 **Processing**:
+
 ```typescript
 // Movement phase
 const moveEvent = botPlayer.planMovement('unit-1', state);
@@ -536,6 +588,7 @@ for (const event of attackEvents) {
 ```
 
 **Output**:
+
 ```typescript
 // moveEvent = { type: 'UNIT_MOVED', unitId: 'unit-1', destination: {...}, ... }
 // attackEvents = [
@@ -548,16 +601,19 @@ for (const event of attackEvents) {
 ## References
 
 ### Pattern References
+
 - **MekHQ BotForce**: `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\mission\BotForce.java`
 - **Existing Movement**: `src/utils/gameplay/movement.ts:getValidDestinations()`
 - **Existing ToHit**: `src/utils/gameplay/toHit.ts:calculateToHit()`
 
 ### API/Type References
+
 - **IGameUnit**: `src/types/gameplay/GameSessionInterfaces.ts`
 - **IHexCoord**: `src/types/gameplay/HexGridInterfaces.ts`
 - **IGameEvent**: `src/types/gameplay/GameSessionInterfaces.ts`
 
 ### Related Documentation
+
 - Core Infrastructure Specification (SeededRandom)
 - Simulation Runner Specification (BotPlayer usage)
 - Game Engine Documentation (movement, combat)
@@ -567,6 +623,7 @@ for (const event of attackEvents) {
 ## Changelog
 
 ### Version 1.0 (2026-02-01)
+
 - Initial specification
 - Defined MoveAI, AttackAI, BotPlayer interfaces
 - Defined IBotBehavior configuration

@@ -7,7 +7,9 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import type { IVersionSnapshot, ShareableContentType } from '@/types/vault';
+
 import { getVersionHistoryService } from '@/services/vault/VersionHistoryService';
 
 // =============================================================================
@@ -38,17 +40,21 @@ interface RollbackResponse {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<RollbackResponse>
+  res: NextApiResponse<RollbackResponse>,
 ): Promise<void> {
   if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, error: 'Method not allowed' });
+    return res
+      .status(405)
+      .json({ success: false, error: 'Method not allowed' });
   }
 
   try {
     const body = req.body as RollbackRequest | RollbackByIdRequest;
 
     if (!body.createdBy || typeof body.createdBy !== 'string') {
-      return res.status(400).json({ success: false, error: 'createdBy is required' });
+      return res
+        .status(400)
+        .json({ success: false, error: 'createdBy is required' });
     }
 
     const versionService = getVersionHistoryService();
@@ -57,7 +63,7 @@ export default async function handler(
     if ('versionId' in body) {
       const result = await versionService.rollbackToVersionById(
         body.versionId,
-        body.createdBy
+        body.createdBy,
       );
 
       if (!result.success) {
@@ -71,22 +77,28 @@ export default async function handler(
     const { itemId, contentType, version, createdBy } = body as RollbackRequest;
 
     if (!itemId || typeof itemId !== 'string') {
-      return res.status(400).json({ success: false, error: 'itemId is required' });
+      return res
+        .status(400)
+        .json({ success: false, error: 'itemId is required' });
     }
 
     if (!isValidContentType(contentType)) {
-      return res.status(400).json({ success: false, error: 'Invalid contentType' });
+      return res
+        .status(400)
+        .json({ success: false, error: 'Invalid contentType' });
     }
 
     if (typeof version !== 'number' || version < 1) {
-      return res.status(400).json({ success: false, error: 'Valid version number is required' });
+      return res
+        .status(400)
+        .json({ success: false, error: 'Valid version number is required' });
     }
 
     const result = await versionService.rollbackToVersion(
       itemId,
       contentType,
       version,
-      createdBy
+      createdBy,
     );
 
     if (!result.success) {

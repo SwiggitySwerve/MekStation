@@ -1,6 +1,6 @@
 /**
  * Unit tests for UnitValidationOrchestrator
- * 
+ *
  * Tests the validation orchestrator including rule execution,
  * result aggregation, options handling, and error handling.
  */
@@ -15,7 +15,11 @@ import {
   UnitValidationRegistry,
   resetUnitValidationRegistry,
 } from '@/services/validation/UnitValidationRegistry';
+import { Era } from '@/types/enums/Era';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   UnitCategory,
   IValidatableUnit,
@@ -24,17 +28,15 @@ import {
   createUnitValidationError,
   createUnitValidationRuleResult,
 } from '@/types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { Era } from '@/types/enums/Era';
 
 describe('UnitValidationOrchestrator', () => {
   let registry: UnitValidationRegistry;
   let orchestrator: UnitValidationOrchestrator;
 
   // Helper to create a mock unit
-  const createMockUnit = (overrides: Partial<IValidatableUnit> = {}): IValidatableUnit => ({
+  const createMockUnit = (
+    overrides: Partial<IValidatableUnit> = {},
+  ): IValidatableUnit => ({
     id: 'test-unit',
     name: 'Test Unit',
     unitType: UnitType.BATTLEMECH,
@@ -55,13 +57,14 @@ describe('UnitValidationOrchestrator', () => {
     description: `Description for ${id}`,
     category: ValidationCategory.CONSTRUCTION,
     priority: 50,
-    validate: () => createUnitValidationRuleResult(id, `Passing Rule ${id}`, [], [], [], 0),
+    validate: () =>
+      createUnitValidationRuleResult(id, `Passing Rule ${id}`, [], [], [], 0),
   });
 
   // Helper to create a failing rule with error
   const createFailingRule = (
     id: string,
-    severity: UnitValidationSeverity = UnitValidationSeverity.ERROR
+    severity: UnitValidationSeverity = UnitValidationSeverity.ERROR,
   ): IUnitValidationRuleDefinition => ({
     id,
     name: `Failing Rule ${id}`,
@@ -78,12 +81,12 @@ describe('UnitValidationOrchestrator', () => {
             `Failing Rule ${id}`,
             severity,
             ValidationCategory.CONSTRUCTION,
-            `Error from ${id}`
+            `Error from ${id}`,
           ),
         ],
         [],
         [],
-        0
+        0,
       );
     },
   });
@@ -106,11 +109,11 @@ describe('UnitValidationOrchestrator', () => {
             `Warning Rule ${id}`,
             UnitValidationSeverity.WARNING,
             ValidationCategory.CONSTRUCTION,
-            `Warning from ${id}`
+            `Warning from ${id}`,
           ),
         ],
         [],
-        0
+        0,
       );
     },
   });
@@ -172,10 +175,13 @@ describe('UnitValidationOrchestrator', () => {
 
     it('should track critical errors separately', () => {
       registry.registerUniversalRule(
-        createFailingRule('VAL-CRIT-001', UnitValidationSeverity.CRITICAL_ERROR)
+        createFailingRule(
+          'VAL-CRIT-001',
+          UnitValidationSeverity.CRITICAL_ERROR,
+        ),
       );
       registry.registerUniversalRule(
-        createFailingRule('VAL-ERR-001', UnitValidationSeverity.ERROR)
+        createFailingRule('VAL-ERR-001', UnitValidationSeverity.ERROR),
       );
 
       const unit = createMockUnit();
@@ -224,7 +230,9 @@ describe('UnitValidationOrchestrator', () => {
       registry.registerUniversalRule(createPassingRule('VAL-KEEP-001'));
 
       const unit = createMockUnit();
-      const result = orchestrator.validate(unit, { skipRules: ['VAL-SKIP-001'] });
+      const result = orchestrator.validate(unit, {
+        skipRules: ['VAL-SKIP-001'],
+      });
 
       expect(result.isValid).toBe(true);
       expect(result.results).toHaveLength(1);
@@ -245,7 +253,9 @@ describe('UnitValidationOrchestrator', () => {
       registry.registerUniversalRule(slotRule);
 
       const unit = createMockUnit();
-      const result = orchestrator.validate(unit, { categories: [ValidationCategory.WEIGHT] });
+      const result = orchestrator.validate(unit, {
+        categories: [ValidationCategory.WEIGHT],
+      });
 
       expect(result.results).toHaveLength(1);
       expect(result.results[0].ruleId).toBe('VAL-WEIGHT-001');
@@ -254,7 +264,9 @@ describe('UnitValidationOrchestrator', () => {
     it('should respect maxErrors option', () => {
       // Register 10 failing rules
       for (let i = 0; i < 10; i++) {
-        registry.registerUniversalRule(createFailingRule(`VAL-FAIL-${i}`, UnitValidationSeverity.ERROR));
+        registry.registerUniversalRule(
+          createFailingRule(`VAL-FAIL-${i}`, UnitValidationSeverity.ERROR),
+        );
       }
 
       const unit = createMockUnit();
@@ -281,7 +293,10 @@ describe('UnitValidationOrchestrator', () => {
       registry.registerUniversalRule(slotRule);
 
       const unit = createMockUnit();
-      const result = orchestrator.validateCategory(unit, ValidationCategory.WEIGHT);
+      const result = orchestrator.validateCategory(
+        unit,
+        ValidationCategory.WEIGHT,
+      );
 
       expect(result.results).toHaveLength(1);
       expect(result.errorCount).toBe(1);
@@ -341,18 +356,20 @@ describe('UnitValidationOrchestrator', () => {
 
       expect(result.isValid).toBe(false);
       expect(result.errorCount).toBe(1);
-      expect(result.results[0].errors[0].message).toContain('Rule execution failed');
+      expect(result.results[0].errors[0].message).toContain(
+        'Rule execution failed',
+      );
       expect(result.results[0].errors[0].message).toContain('Test error');
     });
   });
 
   describe('validateUnit convenience function', () => {
-it('should validate using the singleton orchestrator', () => {
+    it('should validate using the singleton orchestrator', () => {
       // Use the global registry (instantiated to verify no side effects)
       const _globalRegistry = new UnitValidationRegistry();
       // Note: validateUnit uses the singleton which has its own registry
       resetUnitValidationOrchestrator();
-      
+
       const unit = createMockUnit();
       const result = validateUnit(unit);
 

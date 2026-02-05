@@ -10,12 +10,9 @@
  * @module lib/campaign/contractMarket
  */
 
+import type { IContractClause } from '@/types/campaign/contracts/contractTypes';
+
 import { ICampaign } from '@/types/campaign/Campaign';
-import { IContract, createContract } from '@/types/campaign/Mission';
-import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
-import { Money } from '@/types/campaign/Money';
-import { getAllUnits } from '@/types/campaign/Force';
-import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import {
   AtBContractType,
   CONTRACT_TYPE_DEFINITIONS,
@@ -23,8 +20,16 @@ import {
   getContractTypesByGroup,
   getAvailableContractTypes,
 } from '@/types/campaign/contracts/contractTypes';
-import type { IContractClause } from '@/types/campaign/contracts/contractTypes';
-import { calculateContractLength, contractLengthToDays } from './contracts/contractLength';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { getAllUnits } from '@/types/campaign/Force';
+import { IContract, createContract } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
+import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
+
+import {
+  calculateContractLength,
+  contractLengthToDays,
+} from './contracts/contractLength';
 import { negotiateAllClauses } from './contracts/contractNegotiation';
 import {
   getContractPayMultiplier,
@@ -150,7 +155,10 @@ const defaultRandom: RandomFn = () => Math.random();
  * @param random - Random function (default: Math.random)
  * @returns Random element from the array
  */
-function pickRandom<T>(array: readonly T[], random: RandomFn = defaultRandom): T {
+function pickRandom<T>(
+  array: readonly T[],
+  random: RandomFn = defaultRandom,
+): T {
   const index = Math.floor(random() * array.length);
   return array[index];
 }
@@ -163,7 +171,11 @@ function pickRandom<T>(array: readonly T[], random: RandomFn = defaultRandom): T
  * @param random - Random function (default: Math.random)
  * @returns Random integer in range
  */
-function randomInt(min: number, max: number, random: RandomFn = defaultRandom): number {
+function randomInt(
+  min: number,
+  max: number,
+  random: RandomFn = defaultRandom,
+): number {
   return Math.floor(random() * (max - min + 1)) + min;
 }
 
@@ -217,7 +229,9 @@ export function generateContractName(type: string, employer: string): string {
  * @param random - Random function (default: Math.random)
  * @returns Duration in days (30-90)
  */
-export function generateRandomDuration(random: RandomFn = defaultRandom): number {
+export function generateRandomDuration(
+  random: RandomFn = defaultRandom,
+): number {
   return randomInt(DURATION_MIN_DAYS, DURATION_MAX_DAYS, random);
 }
 
@@ -227,7 +241,9 @@ export function generateRandomDuration(random: RandomFn = defaultRandom): number
  * @param random - Random function (default: Math.random)
  * @returns Salvage percentage (40-60)
  */
-export function generateRandomSalvagePercent(random: RandomFn = defaultRandom): number {
+export function generateRandomSalvagePercent(
+  random: RandomFn = defaultRandom,
+): number {
   return randomInt(SALVAGE_MIN_PERCENT, SALVAGE_MAX_PERCENT, random);
 }
 
@@ -258,7 +274,10 @@ export function randomEmployer(random: RandomFn = defaultRandom): string {
  * @param random - Random function (default: Math.random)
  * @returns Random target faction name (different from employer)
  */
-export function randomTarget(employer: string, random: RandomFn = defaultRandom): string {
+export function randomTarget(
+  employer: string,
+  random: RandomFn = defaultRandom,
+): string {
   const targets = EMPLOYER_FACTIONS.filter((f) => f !== employer);
   return pickRandom(targets, random);
 }
@@ -281,9 +300,14 @@ export function randomSystem(random: RandomFn = defaultRandom): string {
  * @param random - Random function (default: Math.random)
  * @returns Random AtB contract type
  */
-export function selectAtBContractType(random: RandomFn = defaultRandom): AtBContractType {
+export function selectAtBContractType(
+  random: RandomFn = defaultRandom,
+): AtBContractType {
   const groups = Object.keys(CONTRACT_GROUP_WEIGHTS) as ContractGroup[];
-  const totalWeight = Object.values(CONTRACT_GROUP_WEIGHTS).reduce((a, b) => a + b, 0);
+  const totalWeight = Object.values(CONTRACT_GROUP_WEIGHTS).reduce(
+    (a, b) => a + b,
+    0,
+  );
 
   let roll = random() * totalWeight;
   let selectedGroup: ContractGroup = 'garrison';
@@ -332,7 +356,7 @@ function generateContractId(): string {
 export function generateContracts(
   campaign: ICampaign,
   count: number = 5,
-  random: RandomFn = defaultRandom
+  random: RandomFn = defaultRandom,
 ): IContract[] {
   const contracts: IContract[] = [];
   const forceBV = calculateForceBV(campaign);
@@ -355,7 +379,9 @@ export function generateContracts(
     });
 
     const startDate = campaign.currentDate;
-    const endDate = new Date(startDate.getTime() + duration * 24 * 60 * 60 * 1000);
+    const endDate = new Date(
+      startDate.getTime() + duration * 24 * 60 * 60 * 1000,
+    );
 
     const contract = createContract({
       id: generateContractId(),
@@ -392,7 +418,7 @@ export function generateAtBContracts(
   count: number = 5,
   negotiatorSkill: number = 0,
   factionStandingMod: number = 0,
-  random: RandomFn = defaultRandom
+  random: RandomFn = defaultRandom,
 ): IContract[] {
   const contracts: IContract[] = [];
   const forceBV = calculateForceBV(campaign);
@@ -409,11 +435,17 @@ export function generateAtBContracts(
     const durationDays = contractLengthToDays(lengthMonths);
 
     // Negotiate clauses
-    const clauses = negotiateAllClauses(negotiatorSkill, factionStandingMod, random);
+    const clauses = negotiateAllClauses(
+      negotiatorSkill,
+      factionStandingMod,
+      random,
+    );
 
     // Ops tempo affects payment (higher tempo = higher risk = more pay)
     const opsMultiplier = typeDef.opsTempo.min;
-    const basePayment = new Money(Math.round(forceBV * CBILLS_PER_BV * opsMultiplier));
+    const basePayment = new Money(
+      Math.round(forceBV * CBILLS_PER_BV * opsMultiplier),
+    );
     const salvagePercent = generateRandomSalvagePercent(random);
 
     const paymentTerms = createPaymentTerms({
@@ -425,7 +457,9 @@ export function generateAtBContracts(
     });
 
     const startDate = campaign.currentDate;
-    const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+    const endDate = new Date(
+      startDate.getTime() + durationDays * 24 * 60 * 60 * 1000,
+    );
 
     const contract = createContract({
       id: generateContractId(),
@@ -466,7 +500,10 @@ export function generateAtBContracts(
  * const contracts = generateContracts(campaign);
  * const updatedCampaign = acceptContract(campaign, contracts[0]);
  */
-export function acceptContract(campaign: ICampaign, contract: IContract): ICampaign {
+export function acceptContract(
+  campaign: ICampaign,
+  contract: IContract,
+): ICampaign {
   if (campaign.missions.has(contract.id)) {
     throw new Error(`Contract ${contract.id} already exists in campaign`);
   }
@@ -504,7 +541,7 @@ export function acceptContract(campaign: ICampaign, contract: IContract): ICampa
 export function generateFollowupContract(
   campaign: ICampaign,
   completedContract: IContract,
-  random: RandomFn = defaultRandom
+  random: RandomFn = defaultRandom,
 ): IContract | null {
   // 50% chance to generate a followup
   if (random() >= 0.5) {
@@ -522,23 +559,28 @@ export function generateFollowupContract(
 
   if (completedContract.atbContractType) {
     // AtB contract: pick a different type from the same group
-    const completedDef = CONTRACT_TYPE_DEFINITIONS[completedContract.atbContractType];
+    const completedDef =
+      CONTRACT_TYPE_DEFINITIONS[completedContract.atbContractType];
     const groupTypes = getContractTypesByGroup(completedDef.group);
-    const otherTypes = groupTypes.filter((t) => t !== completedContract.atbContractType);
+    const otherTypes = groupTypes.filter(
+      (t) => t !== completedContract.atbContractType,
+    );
 
     if (otherTypes.length > 0) {
       atbType = pickRandom(otherTypes, random);
     } else {
       // Only one type in group, pick any different AtB type
       const allTypes = getAvailableContractTypes().filter(
-        (t) => t !== completedContract.atbContractType
+        (t) => t !== completedContract.atbContractType,
       );
       atbType = pickRandom(allTypes, random);
     }
     typeName = CONTRACT_TYPE_DEFINITIONS[atbType].name;
   } else {
     // Legacy contract: pick a different legacy type
-    const completedType = CONTRACT_TYPES.find((t) => completedContract.name.includes(t));
+    const completedType = CONTRACT_TYPES.find((t) =>
+      completedContract.name.includes(t),
+    );
     const otherTypes = CONTRACT_TYPES.filter((t) => t !== completedType);
     typeName = pickRandom(otherTypes, random);
   }
@@ -566,7 +608,9 @@ export function generateFollowupContract(
   }
 
   const startDate = campaign.currentDate;
-  const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+  const endDate = new Date(
+    startDate.getTime() + durationDays * 24 * 60 * 60 * 1000,
+  );
 
   const contract = createContract({
     id: generateContractId(),
@@ -604,17 +648,24 @@ export function generateFollowupContract(
 export function generateContractsWithStanding(
   campaign: ICampaign,
   count: number = 5,
-  random: RandomFn = defaultRandom
+  random: RandomFn = defaultRandom,
 ): IContract[] {
   const payMultiplier = getContractPayMultiplier(campaign);
   const negotiationMod = getContractNegotiationModifier(campaign);
 
   // Generate contracts with negotiation modifier passed through
-  const contracts = generateAtBContracts(campaign, count, 0, negotiationMod, random);
+  const contracts = generateAtBContracts(
+    campaign,
+    count,
+    0,
+    negotiationMod,
+    random,
+  );
 
   // Apply pay multiplier to base payment of each contract
   return contracts.map((contract) => {
-    const scaledBase = contract.paymentTerms.basePayment.multiply(payMultiplier);
+    const scaledBase =
+      contract.paymentTerms.basePayment.multiply(payMultiplier);
     const scaledTerms = createPaymentTerms({
       basePayment: scaledBase,
       successPayment: scaledBase.multiply(PAYMENT_MULTIPLIERS.success),

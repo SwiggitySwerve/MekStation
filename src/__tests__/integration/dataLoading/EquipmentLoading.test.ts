@@ -1,9 +1,9 @@
 /**
  * Equipment Loading Integration Tests
- * 
+ *
  * Tests that equipment data loads correctly from JSON files.
  * Validates file structure, content integrity, and service integration.
- * 
+ *
  * @spec openspec/specs/data-loading-architecture/spec.md
  * @spec openspec/specs/equipment-services/spec.md
  */
@@ -16,7 +16,6 @@ const OFFICIAL_PATH = path.join(DATA_PATH, 'official');
 const SCHEMA_PATH = path.join(DATA_PATH, '_schema');
 
 describe('Equipment Data Loading', () => {
-  
   // ============================================================================
   // Directory Structure
   // ============================================================================
@@ -53,7 +52,7 @@ describe('Equipment Data Loading', () => {
       'index.json',
     ];
 
-    expectedFiles.forEach(file => {
+    expectedFiles.forEach((file) => {
       it(`should have ${file}`, () => {
         const filePath = path.join(OFFICIAL_PATH, file);
         expect(fs.existsSync(filePath)).toBe(true);
@@ -80,7 +79,7 @@ describe('Equipment Data Loading', () => {
       'unit-schema.json',
     ];
 
-    expectedSchemas.forEach(schema => {
+    expectedSchemas.forEach((schema) => {
       it(`should have ${schema}`, () => {
         const schemaPath = path.join(SCHEMA_PATH, schema);
         expect(fs.existsSync(schemaPath)).toBe(true);
@@ -89,8 +88,11 @@ describe('Equipment Data Loading', () => {
       it(`${schema} should be valid JSON Schema`, () => {
         const schemaPath = path.join(SCHEMA_PATH, schema);
         const content = fs.readFileSync(schemaPath, 'utf-8');
-        const parsed = JSON.parse(content) as { $schema?: string; type?: string };
-        
+        const parsed = JSON.parse(content) as {
+          $schema?: string;
+          type?: string;
+        };
+
         // Basic JSON Schema requirements
         expect(parsed).toHaveProperty('$schema');
         expect(parsed).toHaveProperty('type');
@@ -104,7 +106,7 @@ describe('Equipment Data Loading', () => {
   describe('Weapon Data Validation', () => {
     const weaponFiles = ['energy.json', 'ballistic.json', 'missile.json'];
 
-    weaponFiles.forEach(file => {
+    weaponFiles.forEach((file) => {
       describe(file, () => {
         let fileData: { items: unknown[]; count: number };
         let weapons: unknown[];
@@ -151,14 +153,20 @@ describe('Equipment Data Loading', () => {
         });
 
         it('each weapon should have valid rulesLevel', () => {
-          const validRulesLevels = ['INTRODUCTORY', 'STANDARD', 'ADVANCED', 'EXPERIMENTAL', 'UNOFFICIAL'];
+          const validRulesLevels = [
+            'INTRODUCTORY',
+            'STANDARD',
+            'ADVANCED',
+            'EXPERIMENTAL',
+            'UNOFFICIAL',
+          ];
           for (const weapon of weapons as Record<string, unknown>[]) {
             expect(validRulesLevels).toContain(weapon.rulesLevel);
           }
         });
 
         it('each weapon ID should be unique', () => {
-          const ids = (weapons as Record<string, unknown>[]).map(w => w.id);
+          const ids = (weapons as Record<string, unknown>[]).map((w) => w.id);
           const uniqueIds = new Set(ids);
           expect(uniqueIds.size).toBe(ids.length);
         });
@@ -204,7 +212,7 @@ describe('Equipment Data Loading', () => {
     });
 
     it('each ammo ID should be unique', () => {
-      const ids = (ammunition as Record<string, unknown>[]).map(a => a.id);
+      const ids = (ammunition as Record<string, unknown>[]).map((a) => a.id);
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(ids.length);
     });
@@ -279,4 +287,3 @@ describe('Equipment Data Loading', () => {
     });
   });
 });
-

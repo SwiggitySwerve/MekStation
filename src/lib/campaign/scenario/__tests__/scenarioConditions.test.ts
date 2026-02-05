@@ -4,13 +4,13 @@
  * @module campaign/scenario/__tests__/scenarioConditions
  */
 
+import { type IScenarioConditions } from '../../../../types/campaign/scenario/scenarioTypes';
+import { type RandomFn } from '../battleChance';
 import {
   generateRandomConditions,
   getConditionEffects,
   type IConditionEffect,
 } from '../scenarioConditions';
-import { type IScenarioConditions } from '../../../../types/campaign/scenario/scenarioTypes';
-import { type RandomFn } from '../battleChance';
 
 describe('scenarioConditions', () => {
   // =========================================================================
@@ -31,7 +31,13 @@ describe('scenarioConditions', () => {
     });
 
     it('should generate valid light values', () => {
-      const validLights = ['daylight', 'dusk', 'full_moon', 'moonless', 'pitch_black'];
+      const validLights = [
+        'daylight',
+        'dusk',
+        'full_moon',
+        'moonless',
+        'pitch_black',
+      ];
       const mockRandom: RandomFn = () => 0.5;
       const conditions = generateRandomConditions(mockRandom);
 
@@ -71,7 +77,13 @@ describe('scenarioConditions', () => {
     });
 
     it('should generate valid atmosphere values', () => {
-      const validAtmospheres = ['standard', 'thin', 'dense', 'toxic', 'tainted'];
+      const validAtmospheres = [
+        'standard',
+        'thin',
+        'dense',
+        'toxic',
+        'tainted',
+      ];
       const mockRandom: RandomFn = () => 0.5;
       const conditions = generateRandomConditions(mockRandom);
 
@@ -95,10 +107,12 @@ describe('scenarioConditions', () => {
       let randomIndex = 0;
       const randomSequence1 = [0.1, 0.1, 0.1, 0.1, 0.1];
       const randomSequence2 = [0.9, 0.9, 0.9, 0.9, 0.9];
-      const mockRandom1: RandomFn = () => randomSequence1[randomIndex++ % randomSequence1.length];
+      const mockRandom1: RandomFn = () =>
+        randomSequence1[randomIndex++ % randomSequence1.length];
 
       randomIndex = 0;
-      const mockRandom2: RandomFn = () => randomSequence2[randomIndex++ % randomSequence2.length];
+      const mockRandom2: RandomFn = () =>
+        randomSequence2[randomIndex++ % randomSequence2.length];
 
       const conditions1 = generateRandomConditions(mockRandom1);
       const conditions2 = generateRandomConditions(mockRandom2);

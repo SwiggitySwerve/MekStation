@@ -202,9 +202,7 @@ export function heavy(): boolean {
  * }
  * ```
  */
-export function custom(
-  pattern: number | number[]
-): boolean {
+export function custom(pattern: number | number[]): boolean {
   if (!isVibrationSupported()) {
     return false;
   }

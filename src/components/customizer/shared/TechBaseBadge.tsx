@@ -1,15 +1,22 @@
 /**
  * Tech Base Badge Component
- * 
+ *
  * Displays tech base mode with appropriate color coding.
  * Supports IS, Clan, and Mixed tech display.
- * 
+ *
  * @spec openspec/specs/color-system/spec.md
  */
 
 import React from 'react';
-import { TechBaseMode, TECH_BASE_MODE_LABELS } from '@/types/construction/TechBaseConfiguration';
-import { getTechBaseModeColors, getTechBaseModeShortName } from '@/utils/colors/techBaseColors';
+
+import {
+  TechBaseMode,
+  TECH_BASE_MODE_LABELS,
+} from '@/types/construction/TechBaseConfiguration';
+import {
+  getTechBaseModeColors,
+  getTechBaseModeShortName,
+} from '@/utils/colors/techBaseColors';
 
 interface TechBaseBadgeProps {
   /** Tech base mode to display (IS/Clan/Mixed) */
@@ -30,12 +37,9 @@ export function TechBaseBadge({
 }: TechBaseBadgeProps): React.ReactElement {
   const colors = getTechBaseModeColors(techBaseMode);
   const badgeClass = `${colors.badge} px-2 py-0.5 rounded text-xs font-medium`;
-  const displayText = short ? getTechBaseModeShortName(techBaseMode) : TECH_BASE_MODE_LABELS[techBaseMode];
-  
-  return (
-    <span className={`${badgeClass} ${className}`}>
-      {displayText}
-    </span>
-  );
-}
+  const displayText = short
+    ? getTechBaseModeShortName(techBaseMode)
+    : TECH_BASE_MODE_LABELS[techBaseMode];
 
+  return <span className={`${badgeClass} ${className}`}>{displayText}</span>;
+}

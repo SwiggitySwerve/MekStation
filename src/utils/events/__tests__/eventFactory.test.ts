@@ -3,6 +3,8 @@
  * @spec openspec/changes/add-unified-event-store/specs/event-store/spec.md
  */
 
+import { EventCategory, isBaseEvent } from '@/types/events';
+
 // Jest globals are available
 import {
   createEventId,
@@ -18,7 +20,6 @@ import {
   createAwardEvent,
   createMetaEvent,
 } from '../eventFactory';
-import { EventCategory, isBaseEvent } from '@/types/events';
 
 describe('Event ID Generation', () => {
   it('should generate unique UUIDs', () => {
@@ -33,7 +34,8 @@ describe('Event ID Generation', () => {
 
   it('should generate valid UUID format', () => {
     const id = createEventId();
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     expect(id).toMatch(uuidRegex);
   });
 });
@@ -101,7 +103,10 @@ describe('createEvent', () => {
       causedBy: { eventId: 'mission-1', relationship: 'triggered' },
     });
 
-    expect(event.causedBy).toEqual({ eventId: 'mission-1', relationship: 'triggered' });
+    expect(event.causedBy).toEqual({
+      eventId: 'mission-1',
+      relationship: 'triggered',
+    });
   });
 
   it('should increment sequence for each event', () => {
@@ -129,7 +134,11 @@ describe('Category-specific event factories', () => {
 
   describe('createGameEvent', () => {
     it('should create a game event', () => {
-      const event = createGameEvent('movement_declared', { unitId: 'u1' }, 'game-1');
+      const event = createGameEvent(
+        'movement_declared',
+        { unitId: 'u1' },
+        'game-1',
+      );
 
       expect(event.category).toBe(EventCategory.Game);
       expect(event.type).toBe('movement_declared');
@@ -141,7 +150,7 @@ describe('Category-specific event factories', () => {
         'damage_applied',
         { amount: 10 },
         'game-1',
-        { unitId: 'u1' }
+        { unitId: 'u1' },
       );
 
       expect(event.context.gameId).toBe('game-1');
@@ -151,7 +160,12 @@ describe('Category-specific event factories', () => {
 
   describe('createCampaignEvent', () => {
     it('should create a campaign event', () => {
-      const event = createCampaignEvent('mission_completed', { victory: true }, 'camp-1', 'miss-1');
+      const event = createCampaignEvent(
+        'mission_completed',
+        { victory: true },
+        'camp-1',
+        'miss-1',
+      );
 
       expect(event.category).toBe(EventCategory.Campaign);
       expect(event.context.campaignId).toBe('camp-1');
@@ -161,7 +175,11 @@ describe('Category-specific event factories', () => {
 
   describe('createPilotEvent', () => {
     it('should create a pilot event', () => {
-      const event = createPilotEvent('skill_improved', { skill: 'gunnery' }, 'pilot-1');
+      const event = createPilotEvent(
+        'skill_improved',
+        { skill: 'gunnery' },
+        'pilot-1',
+      );
 
       expect(event.category).toBe(EventCategory.Pilot);
       expect(event.context.pilotId).toBe('pilot-1');
@@ -170,7 +188,11 @@ describe('Category-specific event factories', () => {
 
   describe('createRepairEvent', () => {
     it('should create a repair event', () => {
-      const event = createRepairEvent('armor_repaired', { location: 'CT' }, 'unit-1');
+      const event = createRepairEvent(
+        'armor_repaired',
+        { location: 'CT' },
+        'unit-1',
+      );
 
       expect(event.category).toBe(EventCategory.Repair);
       expect(event.context.unitId).toBe('unit-1');
@@ -179,7 +201,11 @@ describe('Category-specific event factories', () => {
 
   describe('createAwardEvent', () => {
     it('should create an award event', () => {
-      const event = createAwardEvent('medal_earned', { medal: 'bronze_star' }, 'pilot-1');
+      const event = createAwardEvent(
+        'medal_earned',
+        { medal: 'bronze_star' },
+        'pilot-1',
+      );
 
       expect(event.category).toBe(EventCategory.Award);
       expect(event.context.pilotId).toBe('pilot-1');

@@ -1,13 +1,13 @@
 /**
  * Gyro Type Definitions
- * 
+ *
  * Defines all standard BattleTech gyro types with their characteristics.
- * 
+ *
  * @spec openspec/specs/gyro-system/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 
 /**
  * Gyro type enumeration
@@ -87,6 +87,5 @@ export const GYRO_DEFINITIONS: readonly GyroDefinition[] = [
  * Get gyro definition by type
  */
 export function getGyroDefinition(type: GyroType): GyroDefinition | undefined {
-  return GYRO_DEFINITIONS.find(def => def.type === type);
+  return GYRO_DEFINITIONS.find((def) => def.type === type);
 }
-

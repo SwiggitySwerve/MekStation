@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ResetConfirmationDialog, DEFAULT_RESET_OPTIONS, ResetOption } from './ResetConfirmationDialog';
-import { useState } from 'react';
+
 import { fn } from '@storybook/test';
+import { useState } from 'react';
+
+import {
+  ResetConfirmationDialog,
+  DEFAULT_RESET_OPTIONS,
+  ResetOption,
+} from './ResetConfirmationDialog';
 
 const meta: Meta<typeof ResetConfirmationDialog> = {
   title: 'Customizer/Dialogs/ResetConfirmationDialog',
@@ -10,7 +16,8 @@ const meta: Meta<typeof ResetConfirmationDialog> = {
   parameters: {
     docs: {
       description: {
-        component: 'Multi-step confirmation dialog for reset operations with option selection, confirmation, and progress states.',
+        component:
+          'Multi-step confirmation dialog for reset operations with option selection, confirmation, and progress states.',
       },
     },
   },
@@ -29,7 +36,7 @@ function ResetDialogDemo({ options }: { options?: ResetOption[] }) {
     <div>
       <button
         onClick={() => setIsOpen(true)}
-        className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded"
+        className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-500"
       >
         Reset Configuration
       </button>
@@ -97,7 +104,7 @@ export const WithFailure: Story = {
       <div>
         <button
           onClick={() => setIsOpen(true)}
-          className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded"
+          className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-500"
         >
           Reset (Will Fail)
         </button>

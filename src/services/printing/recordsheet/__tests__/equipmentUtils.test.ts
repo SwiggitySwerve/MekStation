@@ -5,15 +5,16 @@
  * helper functions used in record sheet generation.
  */
 
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { WeaponCategory, IWeapon } from '@/types/equipment';
+
 import {
   getDamageCode,
   formatMissileDamage,
   lookupWeapon,
   isUnhittableEquipmentName,
 } from '../equipmentUtils';
-import { WeaponCategory, IWeapon } from '@/types/equipment';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
 
 /**
  * Helper to create a mock weapon for testing
@@ -209,8 +210,16 @@ describe('equipmentUtils', () => {
       createMockWeapon({ id: 'medium-laser', name: 'Medium Laser' }),
       createMockWeapon({ id: 'large-laser', name: 'Large Laser', damage: 8 }),
       createMockWeapon({ id: 'ppc', name: 'PPC', damage: 10 }),
-      createMockWeapon({ id: 'er-large-laser', name: 'ER Large Laser', damage: 10 }),
-      createMockWeapon({ id: 'lrm-20', name: 'LRM-20', category: WeaponCategory.MISSILE }),
+      createMockWeapon({
+        id: 'er-large-laser',
+        name: 'ER Large Laser',
+        damage: 10,
+      }),
+      createMockWeapon({
+        id: 'lrm-20',
+        name: 'LRM-20',
+        category: WeaponCategory.MISSILE,
+      }),
     ];
 
     describe('ID-based lookup', () => {
@@ -226,7 +235,11 @@ describe('equipmentUtils', () => {
       });
 
       it('should return undefined for non-existent ID', () => {
-        const result = lookupWeapon(mockWeapons, 'Medium Laser', 'nonexistent-id');
+        const result = lookupWeapon(
+          mockWeapons,
+          'Medium Laser',
+          'nonexistent-id',
+        );
         // Falls back to name lookup
         expect(result?.id).toBe('medium-laser');
       });
@@ -416,7 +429,9 @@ describe('equipmentUtils', () => {
 
     describe('Blue Shield', () => {
       it('should return true for "Blue Shield Particle Field Damper"', () => {
-        expect(isUnhittableEquipmentName('Blue Shield Particle Field Damper')).toBe(true);
+        expect(
+          isUnhittableEquipmentName('Blue Shield Particle Field Damper'),
+        ).toBe(true);
       });
 
       it('should return true for "Blue Shield"', () => {

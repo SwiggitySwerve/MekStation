@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
+
 import type {
   PermissionLevel,
   PermissionScopeType,
@@ -54,9 +55,13 @@ interface ShareLinkResult {
 // Helpers
 // =============================================================================
 
-function getExpiryDate(option: ExpiryOption, customDate?: string): string | null {
+function getExpiryDate(
+  option: ExpiryOption,
+  customDate?: string,
+): string | null {
   if (option === 'none') return null;
-  if (option === 'custom' && customDate) return new Date(customDate).toISOString();
+  if (option === 'custom' && customDate)
+    return new Date(customDate).toISOString();
 
   const now = new Date();
   switch (option) {
@@ -73,7 +78,10 @@ function getExpiryDate(option: ExpiryOption, customDate?: string): string | null
   }
 }
 
-function getMaxUses(option: MaxUsesOption, customValue?: number): number | null {
+function getMaxUses(
+  option: MaxUsesOption,
+  customValue?: number,
+): number | null {
   if (option === 'unlimited') return null;
   if (option === 'custom' && customValue !== undefined) return customValue;
   return parseInt(option, 10);
@@ -96,7 +104,8 @@ export function ShareDialog({
   const [level, setLevel] = useState<PermissionLevel>('read');
   const [expiryOption, setExpiryOption] = useState<ExpiryOption>('none');
   const [customExpiry, setCustomExpiry] = useState('');
-  const [maxUsesOption, setMaxUsesOption] = useState<MaxUsesOption>('unlimited');
+  const [maxUsesOption, setMaxUsesOption] =
+    useState<MaxUsesOption>('unlimited');
   const [customMaxUses, setCustomMaxUses] = useState<number>(25);
   const [label, setLabel] = useState('');
 
@@ -141,15 +150,21 @@ export function ShareDialog({
       });
 
       if (!response.ok) {
-        const errorData = (await response.json().catch(() => ({}))) as { error?: string };
-        throw new Error(errorData.error || `Failed to create share link (${response.status})`);
+        const errorData = (await response.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        throw new Error(
+          errorData.error || `Failed to create share link (${response.status})`,
+        );
       }
 
       const data = (await response.json()) as ShareLinkResult;
       setResult(data);
       onShareCreated?.(data.link, data.url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create share link');
+      setError(
+        err instanceof Error ? err.message : 'Failed to create share link',
+      );
     } finally {
       setCreating(false);
     }
@@ -200,31 +215,35 @@ export function ShareDialog({
   // Success state - show generated link
   if (result) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-          <h2 className="text-xl font-bold text-green-400 mb-4">Share Link Created</h2>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="mx-4 w-full max-w-md rounded-lg bg-gray-800 p-6">
+          <h2 className="mb-4 text-xl font-bold text-green-400">
+            Share Link Created
+          </h2>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Share Link</label>
+              <label className="mb-1 block text-sm text-gray-400">
+                Share Link
+              </label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   readOnly
                   value={result.url}
-                  className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white font-mono text-sm"
+                  className="flex-1 rounded border border-gray-600 bg-gray-700 px-3 py-2 font-mono text-sm text-white"
                 />
                 <button
                   onClick={handleCopy}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 whitespace-nowrap"
+                  className="rounded bg-blue-600 px-4 py-2 whitespace-nowrap text-white hover:bg-blue-500"
                 >
                   {copied ? 'Copied!' : 'Copy'}
                 </button>
               </div>
             </div>
 
-            <div className="bg-gray-700 rounded-lg p-4">
-              <h3 className="text-white font-medium mb-2">Link Settings</h3>
+            <div className="rounded-lg bg-gray-700 p-4">
+              <h3 className="mb-2 font-medium text-white">Link Settings</h3>
               <dl className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-gray-400">Permission:</dt>
@@ -256,13 +275,13 @@ export function ShareDialog({
             <div className="flex flex-col gap-3">
               <button
                 onClick={handleCreateAnother}
-                className="w-full px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+                className="w-full rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-500"
               >
                 Create Another Link
               </button>
               <button
                 onClick={handleClose}
-                className="w-full px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+                className="w-full rounded bg-gray-700 px-4 py-2 text-white hover:bg-gray-600"
               >
                 Close
               </button>
@@ -275,14 +294,12 @@ export function ShareDialog({
 
   // Main form
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-        <h2 className="text-xl font-bold text-white mb-4">
-          Share {itemName}
-        </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="mx-4 w-full max-w-md rounded-lg bg-gray-800 p-6">
+        <h2 className="mb-4 text-xl font-bold text-white">Share {itemName}</h2>
 
         {error && (
-          <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-2 rounded mb-4">
+          <div className="mb-4 rounded border border-red-500 bg-red-900/50 px-4 py-2 text-red-200">
             {error}
           </div>
         )}
@@ -290,29 +307,31 @@ export function ShareDialog({
         <div className="space-y-4">
           {/* Permission Level */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="mb-1 block text-sm text-gray-400">
               Permission Level
             </label>
             <select
               value={level}
               onChange={(e) => setLevel(e.target.value as PermissionLevel)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+              className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
             >
               <option value="read">Read - View and copy content</option>
               <option value="write">Write - View, copy, and edit</option>
-              <option value="admin">Admin - Full access including re-share</option>
+              <option value="admin">
+                Admin - Full access including re-share
+              </option>
             </select>
           </div>
 
           {/* Expiration */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="mb-1 block text-sm text-gray-400">
               Link Expiration
             </label>
             <select
               value={expiryOption}
               onChange={(e) => setExpiryOption(e.target.value as ExpiryOption)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+              className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
             >
               <option value="none">Never expires</option>
               <option value="1hour">1 hour</option>
@@ -326,20 +345,22 @@ export function ShareDialog({
                 type="datetime-local"
                 value={customExpiry}
                 onChange={(e) => setCustomExpiry(e.target.value)}
-                className="w-full mt-2 px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                className="mt-2 w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
               />
             )}
           </div>
 
           {/* Max Uses */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="mb-1 block text-sm text-gray-400">
               Maximum Uses
             </label>
             <select
               value={maxUsesOption}
-              onChange={(e) => setMaxUsesOption(e.target.value as MaxUsesOption)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+              onChange={(e) =>
+                setMaxUsesOption(e.target.value as MaxUsesOption)
+              }
+              className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
             >
               <option value="unlimited">Unlimited</option>
               <option value="1">1 use</option>
@@ -352,8 +373,10 @@ export function ShareDialog({
                 type="number"
                 min="1"
                 value={customMaxUses}
-                onChange={(e) => setCustomMaxUses(parseInt(e.target.value, 10) || 1)}
-                className="w-full mt-2 px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                onChange={(e) =>
+                  setCustomMaxUses(parseInt(e.target.value, 10) || 1)
+                }
+                className="mt-2 w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
                 placeholder="Enter max uses"
               />
             )}
@@ -361,7 +384,7 @@ export function ShareDialog({
 
           {/* Label */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="mb-1 block text-sm text-gray-400">
               Label (optional)
             </label>
             <input
@@ -369,23 +392,23 @@ export function ShareDialog({
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               placeholder="e.g., For Discord server"
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
+              className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-500"
             />
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6">
+        <div className="mt-6 flex justify-end gap-3">
           <button
             onClick={handleClose}
             disabled={creating}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 disabled:opacity-50"
+            className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-500 disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleCreate}
             disabled={creating || (expiryOption === 'custom' && !customExpiry)}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50"
+            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 disabled:opacity-50"
           >
             {creating ? 'Creating...' : 'Create Link'}
           </button>

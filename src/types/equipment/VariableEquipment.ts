@@ -1,33 +1,33 @@
 /**
  * Variable Equipment Formula Types
- * 
+ *
  * Data-driven formula definitions for equipment with variable properties
  * that depend on mech configuration.
- * 
+ *
  * Supports arithmetic operations and MIN/MAX/PLUS combinators.
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  */
 
 /**
  * Formula operation types
  */
-export type FormulaType = 
-  | 'FIXED'           // Constant value
-  | 'CEIL_DIVIDE'     // ceil(field / divisor)
-  | 'FLOOR_DIVIDE'    // floor(field / divisor)
-  | 'ROUND_DIVIDE'    // round(field / divisor) - nearest integer
-  | 'MULTIPLY'        // field × multiplier
-  | 'MULTIPLY_ROUND'  // field × multiplier, rounded to precision
-  | 'EQUALS_WEIGHT'   // = calculated weight (for slots that equal weight)
-  | 'EQUALS_FIELD'    // = context field directly
-  | 'MIN'             // minimum of sub-formulas
-  | 'MAX'             // maximum of sub-formulas
-  | 'PLUS';           // base formula + bonus (for physical weapon damage)
+export type FormulaType =
+  | 'FIXED' // Constant value
+  | 'CEIL_DIVIDE' // ceil(field / divisor)
+  | 'FLOOR_DIVIDE' // floor(field / divisor)
+  | 'ROUND_DIVIDE' // round(field / divisor) - nearest integer
+  | 'MULTIPLY' // field × multiplier
+  | 'MULTIPLY_ROUND' // field × multiplier, rounded to precision
+  | 'EQUALS_WEIGHT' // = calculated weight (for slots that equal weight)
+  | 'EQUALS_FIELD' // = context field directly
+  | 'MIN' // minimum of sub-formulas
+  | 'MAX' // maximum of sub-formulas
+  | 'PLUS'; // base formula + bonus (for physical weapon damage)
 
 /**
  * Formula definition
- * 
+ *
  * Each formula type uses specific fields:
  * - FIXED: value
  * - CEIL_DIVIDE, FLOOR_DIVIDE: field, divisor
@@ -39,28 +39,28 @@ export type FormulaType =
  */
 export interface IFormula {
   readonly type: FormulaType;
-  
+
   /** Context field name to read value from */
   readonly field?: string;
-  
+
   /** Constant value for FIXED type */
   readonly value?: number;
-  
+
   /** Divisor for CEIL_DIVIDE, FLOOR_DIVIDE */
   readonly divisor?: number;
-  
+
   /** Multiplier for MULTIPLY variants */
   readonly multiplier?: number;
-  
+
   /** Rounding precision (0.5, 1, etc.) for MULTIPLY_ROUND */
   readonly roundTo?: number;
-  
+
   /** Sub-formulas for MIN/MAX combinators */
   readonly formulas?: readonly IFormula[];
-  
+
   /** Base formula for PLUS combinator */
   readonly base?: IFormula;
-  
+
   /** Bonus value for PLUS combinator */
   readonly bonus?: number;
 }
@@ -71,16 +71,16 @@ export interface IFormula {
 export interface IVariableFormulas {
   /** Formula to calculate weight in tons */
   readonly weight: IFormula;
-  
+
   /** Formula to calculate critical slots */
   readonly criticalSlots: IFormula;
-  
+
   /** Formula to calculate C-Bill cost */
   readonly cost: IFormula;
-  
+
   /** Optional formula to calculate damage (for physical weapons) */
   readonly damage?: IFormula;
-  
+
   /** Context fields required for calculation */
   readonly requiredContext: readonly string[];
 }
@@ -137,7 +137,11 @@ export function multiply(field: string, multiplier: number): IFormula {
 /**
  * Create a MULTIPLY_ROUND formula: field × multiplier, rounded to precision
  */
-export function multiplyRound(field: string, multiplier: number, roundTo: number): IFormula {
+export function multiplyRound(
+  field: string,
+  multiplier: number,
+  roundTo: number,
+): IFormula {
   return { type: 'MULTIPLY_ROUND', field, multiplier, roundTo };
 }
 
@@ -239,7 +243,9 @@ export function validateFormula(formula: IFormula): string[] {
     case 'MIN':
     case 'MAX':
       if (!formula.formulas || formula.formulas.length === 0) {
-        errors.push(`${formula.type} formula requires at least one sub-formula`);
+        errors.push(
+          `${formula.type} formula requires at least one sub-formula`,
+        );
       } else {
         // Validate sub-formulas recursively
         for (const subFormula of formula.formulas) {
@@ -269,16 +275,22 @@ export function validateFormula(formula: IFormula): string[] {
 /**
  * Validate a complete variable formulas definition
  */
-export function validateVariableFormulas(formulas: IVariableFormulas): string[] {
+export function validateVariableFormulas(
+  formulas: IVariableFormulas,
+): string[] {
   const errors: string[] = [];
 
-  errors.push(...validateFormula(formulas.weight).map(e => `weight: ${e}`));
-  errors.push(...validateFormula(formulas.criticalSlots).map(e => `criticalSlots: ${e}`));
-  errors.push(...validateFormula(formulas.cost).map(e => `cost: ${e}`));
-  
+  errors.push(...validateFormula(formulas.weight).map((e) => `weight: ${e}`));
+  errors.push(
+    ...validateFormula(formulas.criticalSlots).map(
+      (e) => `criticalSlots: ${e}`,
+    ),
+  );
+  errors.push(...validateFormula(formulas.cost).map((e) => `cost: ${e}`));
+
   // Damage formula is optional (only for physical weapons)
   if (formulas.damage) {
-    errors.push(...validateFormula(formulas.damage).map(e => `damage: ${e}`));
+    errors.push(...validateFormula(formulas.damage).map((e) => `damage: ${e}`));
   }
 
   if (!formulas.requiredContext || !Array.isArray(formulas.requiredContext)) {

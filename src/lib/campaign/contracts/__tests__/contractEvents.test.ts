@@ -72,7 +72,9 @@ describe('BetrayalSubType enum', () => {
   it('should contain all expected betrayal sub-type values', () => {
     expect(BetrayalSubType.SUPPLY_CUTOFF).toBe('supply_cutoff');
     expect(BetrayalSubType.FALSE_INTEL).toBe('false_intel');
-    expect(BetrayalSubType.REDIRECT_REINFORCEMENTS).toBe('redirect_reinforcements');
+    expect(BetrayalSubType.REDIRECT_REINFORCEMENTS).toBe(
+      'redirect_reinforcements',
+    );
     expect(BetrayalSubType.POSITION_LEAKED).toBe('position_leaked');
     expect(BetrayalSubType.AMBUSH_SETUP).toBe('ambush_setup');
     expect(BetrayalSubType.CONTRACT_BREACH).toBe('contract_breach');
@@ -108,7 +110,7 @@ describe('checkMonthlyEvents', () => {
   it('should have valid event structure', () => {
     const random = fixedRandom(0.01);
     const events = checkMonthlyEvents(random);
-    
+
     for (const event of events) {
       expect(event).toHaveProperty('type');
       expect(Object.values(ContractEventType)).toContain(event.type);
@@ -129,10 +131,14 @@ describe('Event effects by type', () => {
   it('CIVIL_DISTURBANCE should have morale_change +1', () => {
     const random = fixedRandom(0.01);
     const events = checkMonthlyEvents(random);
-    const civilEvent = events.find(e => e.type === ContractEventType.CIVIL_DISTURBANCE);
-    
+    const civilEvent = events.find(
+      (e) => e.type === ContractEventType.CIVIL_DISTURBANCE,
+    );
+
     expect(civilEvent).toBeDefined();
-    const moraleEffect = civilEvent!.effects.find(e => e.type === 'morale_change');
+    const moraleEffect = civilEvent!.effects.find(
+      (e) => e.type === 'morale_change',
+    );
     expect(moraleEffect).toBeDefined();
     expect(moraleEffect).toEqual({ type: 'morale_change', value: 1 });
   });
@@ -140,10 +146,14 @@ describe('Event effects by type', () => {
   it('LOGISTICS_FAILURE should have parts_modifier -1', () => {
     const random = fixedRandom(0.01);
     const events = checkMonthlyEvents(random);
-    const logisticsEvent = events.find(e => e.type === ContractEventType.LOGISTICS_FAILURE);
-    
+    const logisticsEvent = events.find(
+      (e) => e.type === ContractEventType.LOGISTICS_FAILURE,
+    );
+
     expect(logisticsEvent).toBeDefined();
-    const partsEffect = logisticsEvent!.effects.find(e => e.type === 'parts_modifier');
+    const partsEffect = logisticsEvent!.effects.find(
+      (e) => e.type === 'parts_modifier',
+    );
     expect(partsEffect).toBeDefined();
     expect(partsEffect).toEqual({ type: 'parts_modifier', value: -1 });
   });
@@ -151,10 +161,14 @@ describe('Event effects by type', () => {
   it('REINFORCEMENTS should have morale_change -1', () => {
     const random = fixedRandom(0.01);
     const events = checkMonthlyEvents(random);
-    const reinforcementsEvent = events.find(e => e.type === ContractEventType.REINFORCEMENTS);
-    
+    const reinforcementsEvent = events.find(
+      (e) => e.type === ContractEventType.REINFORCEMENTS,
+    );
+
     expect(reinforcementsEvent).toBeDefined();
-    const moraleEffect = reinforcementsEvent!.effects.find(e => e.type === 'morale_change');
+    const moraleEffect = reinforcementsEvent!.effects.find(
+      (e) => e.type === 'morale_change',
+    );
     expect(moraleEffect).toBeDefined();
     expect(moraleEffect).toEqual({ type: 'morale_change', value: -1 });
   });
@@ -162,64 +176,103 @@ describe('Event effects by type', () => {
   it('BONUS_ROLL should have payment_modifier 1.1', () => {
     const random = fixedRandom(0.01);
     const events = checkMonthlyEvents(random);
-    const bonusEvent = events.find(e => e.type === ContractEventType.BONUS_ROLL);
-    
+    const bonusEvent = events.find(
+      (e) => e.type === ContractEventType.BONUS_ROLL,
+    );
+
     expect(bonusEvent).toBeDefined();
-    const paymentEffect = bonusEvent!.effects.find(e => e.type === 'payment_modifier');
+    const paymentEffect = bonusEvent!.effects.find(
+      (e) => e.type === 'payment_modifier',
+    );
     expect(paymentEffect).toBeDefined();
-    expect(paymentEffect).toEqual({ type: 'payment_modifier', multiplier: 1.1 });
+    expect(paymentEffect).toEqual({
+      type: 'payment_modifier',
+      multiplier: 1.1,
+    });
   });
 
   it('SPECIAL_SCENARIO should have scenario_trigger', () => {
     const random = fixedRandom(0.01);
     const events = checkMonthlyEvents(random);
-    const specialEvent = events.find(e => e.type === ContractEventType.SPECIAL_SCENARIO);
-    
+    const specialEvent = events.find(
+      (e) => e.type === ContractEventType.SPECIAL_SCENARIO,
+    );
+
     expect(specialEvent).toBeDefined();
-    const scenarioEffect = specialEvent!.effects.find(e => e.type === 'scenario_trigger');
+    const scenarioEffect = specialEvent!.effects.find(
+      (e) => e.type === 'scenario_trigger',
+    );
     expect(scenarioEffect).toBeDefined();
-    expect(scenarioEffect).toEqual({ type: 'scenario_trigger', scenarioType: 'special_mission' });
+    expect(scenarioEffect).toEqual({
+      type: 'scenario_trigger',
+      scenarioType: 'special_mission',
+    });
   });
 
   it('REBELLION should have both morale_change and scenario_trigger', () => {
     const random = fixedRandom(0.01);
     const events = checkMonthlyEvents(random);
-    const rebellionEvent = events.find(e => e.type === ContractEventType.REBELLION);
-    
+    const rebellionEvent = events.find(
+      (e) => e.type === ContractEventType.REBELLION,
+    );
+
     expect(rebellionEvent).toBeDefined();
     expect(rebellionEvent!.effects).toHaveLength(2);
-    
-    const moraleEffect = rebellionEvent!.effects.find(e => e.type === 'morale_change');
+
+    const moraleEffect = rebellionEvent!.effects.find(
+      (e) => e.type === 'morale_change',
+    );
     expect(moraleEffect).toEqual({ type: 'morale_change', value: 2 });
-    
-    const scenarioEffect = rebellionEvent!.effects.find(e => e.type === 'scenario_trigger');
-    expect(scenarioEffect).toEqual({ type: 'scenario_trigger', scenarioType: 'rebellion_battle' });
+
+    const scenarioEffect = rebellionEvent!.effects.find(
+      (e) => e.type === 'scenario_trigger',
+    );
+    expect(scenarioEffect).toEqual({
+      type: 'scenario_trigger',
+      scenarioType: 'rebellion_battle',
+    });
   });
 
   it('TREACHERY should have both morale_change and scenario_trigger', () => {
     const random = fixedRandom(0.01);
     const events = checkMonthlyEvents(random);
-    const treacheryEvent = events.find(e => e.type === ContractEventType.TREACHERY);
-    
+    const treacheryEvent = events.find(
+      (e) => e.type === ContractEventType.TREACHERY,
+    );
+
     expect(treacheryEvent).toBeDefined();
     expect(treacheryEvent!.effects).toHaveLength(2);
-    
-    const moraleEffect = treacheryEvent!.effects.find(e => e.type === 'morale_change');
+
+    const moraleEffect = treacheryEvent!.effects.find(
+      (e) => e.type === 'morale_change',
+    );
     expect(moraleEffect).toEqual({ type: 'morale_change', value: 1 });
-    
-    const scenarioEffect = treacheryEvent!.effects.find(e => e.type === 'scenario_trigger');
-    expect(scenarioEffect).toEqual({ type: 'scenario_trigger', scenarioType: 'ambush' });
+
+    const scenarioEffect = treacheryEvent!.effects.find(
+      (e) => e.type === 'scenario_trigger',
+    );
+    expect(scenarioEffect).toEqual({
+      type: 'scenario_trigger',
+      scenarioType: 'ambush',
+    });
   });
 
   it('BIG_BATTLE should have scenario_trigger with big_battle', () => {
     const random = fixedRandom(0.01);
     const events = checkMonthlyEvents(random);
-    const bigBattleEvent = events.find(e => e.type === ContractEventType.BIG_BATTLE);
-    
+    const bigBattleEvent = events.find(
+      (e) => e.type === ContractEventType.BIG_BATTLE,
+    );
+
     expect(bigBattleEvent).toBeDefined();
-    const scenarioEffect = bigBattleEvent!.effects.find(e => e.type === 'scenario_trigger');
+    const scenarioEffect = bigBattleEvent!.effects.find(
+      (e) => e.type === 'scenario_trigger',
+    );
     expect(scenarioEffect).toBeDefined();
-    expect(scenarioEffect).toEqual({ type: 'scenario_trigger', scenarioType: 'big_battle' });
+    expect(scenarioEffect).toEqual({
+      type: 'scenario_trigger',
+      scenarioType: 'big_battle',
+    });
   });
 });
 
@@ -231,11 +284,15 @@ describe('Betrayal events', () => {
   it('BETRAYAL should have betrayalSubType field set', () => {
     const random = fixedRandom(0.01);
     const events = checkMonthlyEvents(random);
-    const betrayalEvent = events.find(e => e.type === ContractEventType.BETRAYAL);
-    
+    const betrayalEvent = events.find(
+      (e) => e.type === ContractEventType.BETRAYAL,
+    );
+
     expect(betrayalEvent).toBeDefined();
     expect(betrayalEvent!.betrayalSubType).toBeDefined();
-    expect(Object.values(BetrayalSubType)).toContain(betrayalEvent!.betrayalSubType);
+    expect(Object.values(BetrayalSubType)).toContain(
+      betrayalEvent!.betrayalSubType,
+    );
   });
 
   it('SUPPLY_CUTOFF should have parts_modifier -2', () => {
@@ -243,10 +300,14 @@ describe('Betrayal events', () => {
     for (let seed = 0; seed < 5000; seed++) {
       const random = createSeededRandom(seed);
       const events = checkMonthlyEvents(random);
-      const betrayalEvent = events.find(e => e.type === ContractEventType.BETRAYAL);
-      
+      const betrayalEvent = events.find(
+        (e) => e.type === ContractEventType.BETRAYAL,
+      );
+
       if (betrayalEvent?.betrayalSubType === BetrayalSubType.SUPPLY_CUTOFF) {
-        const partsEffect = betrayalEvent.effects.find(e => e.type === 'parts_modifier');
+        const partsEffect = betrayalEvent.effects.find(
+          (e) => e.type === 'parts_modifier',
+        );
         expect(partsEffect).toEqual({ type: 'parts_modifier', value: -2 });
         found = true;
         break;
@@ -260,11 +321,18 @@ describe('Betrayal events', () => {
     for (let seed = 0; seed < 5000; seed++) {
       const random = createSeededRandom(seed);
       const events = checkMonthlyEvents(random);
-      const betrayalEvent = events.find(e => e.type === ContractEventType.BETRAYAL);
-      
+      const betrayalEvent = events.find(
+        (e) => e.type === ContractEventType.BETRAYAL,
+      );
+
       if (betrayalEvent?.betrayalSubType === BetrayalSubType.CONTRACT_BREACH) {
-        const paymentEffect = betrayalEvent.effects.find(e => e.type === 'payment_modifier');
-        expect(paymentEffect).toEqual({ type: 'payment_modifier', multiplier: 0.5 });
+        const paymentEffect = betrayalEvent.effects.find(
+          (e) => e.type === 'payment_modifier',
+        );
+        expect(paymentEffect).toEqual({
+          type: 'payment_modifier',
+          multiplier: 0.5,
+        });
         found = true;
         break;
       }
@@ -277,17 +345,26 @@ describe('Betrayal events', () => {
     for (let seed = 0; seed < 200; seed++) {
       const random = createSeededRandom(seed);
       const events = checkMonthlyEvents(random);
-      const betrayalEvent = events.find(e => e.type === ContractEventType.BETRAYAL);
-      
+      const betrayalEvent = events.find(
+        (e) => e.type === ContractEventType.BETRAYAL,
+      );
+
       if (betrayalEvent?.betrayalSubType === BetrayalSubType.POSITION_LEAKED) {
         expect(betrayalEvent.effects).toHaveLength(2);
-        
-        const scenarioEffect = betrayalEvent.effects.find(e => e.type === 'scenario_trigger');
-        expect(scenarioEffect).toEqual({ type: 'scenario_trigger', scenarioType: 'ambush' });
-        
-        const moraleEffect = betrayalEvent.effects.find(e => e.type === 'morale_change');
+
+        const scenarioEffect = betrayalEvent.effects.find(
+          (e) => e.type === 'scenario_trigger',
+        );
+        expect(scenarioEffect).toEqual({
+          type: 'scenario_trigger',
+          scenarioType: 'ambush',
+        });
+
+        const moraleEffect = betrayalEvent.effects.find(
+          (e) => e.type === 'morale_change',
+        );
         expect(moraleEffect).toEqual({ type: 'morale_change', value: 1 });
-        
+
         found = true;
         break;
       }
@@ -297,17 +374,19 @@ describe('Betrayal events', () => {
 
   it('should have 6 different betrayal sub-types with different effects', () => {
     const subTypesFound = new Set<BetrayalSubType>();
-    
+
     for (let seed = 0; seed < 1000; seed++) {
       const random = createSeededRandom(seed);
       const events = checkMonthlyEvents(random);
-      const betrayalEvent = events.find(e => e.type === ContractEventType.BETRAYAL);
-      
+      const betrayalEvent = events.find(
+        (e) => e.type === ContractEventType.BETRAYAL,
+      );
+
       if (betrayalEvent?.betrayalSubType) {
         subTypesFound.add(betrayalEvent.betrayalSubType);
       }
     }
-    
+
     expect(subTypesFound.size).toBe(6);
   });
 });

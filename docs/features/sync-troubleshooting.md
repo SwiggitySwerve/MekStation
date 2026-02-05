@@ -7,11 +7,13 @@ Common issues and solutions for P2P Vault Sync.
 ### "Connection failed" / Can't connect to room
 
 **Possible causes**:
+
 1. **Firewall blocking WebRTC**: Some corporate/school networks block peer-to-peer connections
 2. **Signaling server unavailable**: Public servers may be temporarily down
 3. **Invalid room code**: Typo in the room code
 
 **Solutions**:
+
 - Try a different network (mobile hotspot often works)
 - Verify the room code is correct (6 characters, no I/O/0/1)
 - Wait a moment and try again
@@ -20,10 +22,12 @@ Common issues and solutions for P2P Vault Sync.
 ### Peers can't see each other
 
 **Possible causes**:
+
 1. **Symmetric NAT**: Both peers behind restrictive NATs
 2. **Different signaling servers**: Rare configuration issue
 
 **Solutions**:
+
 - One peer should try a different network
 - Use a VPN to change network topology
 - Ensure both peers are using the same app version
@@ -31,11 +35,13 @@ Common issues and solutions for P2P Vault Sync.
 ### Connection drops frequently
 
 **Possible causes**:
+
 1. **Unstable network**: WiFi interference, mobile data switching
 2. **Browser throttling**: Inactive tabs may lose connections
 3. **Signaling server issues**: Temporary server problems
 
 **Solutions**:
+
 - Keep the app tab active/visible
 - Use a stable network connection
 - The app will auto-reconnect (up to 5 attempts)
@@ -45,11 +51,13 @@ Common issues and solutions for P2P Vault Sync.
 ### Changes not appearing on other peer
 
 **Possible causes**:
+
 1. **Sync disabled**: Item might not have sync enabled
 2. **Connection lost**: Peers may have disconnected
 3. **Timing**: CRDT sync can take 1-2 seconds
 
 **Solutions**:
+
 - Verify sync is enabled on the item (toggle should be on)
 - Check connection status indicator
 - Wait a few seconds for sync to complete
@@ -58,11 +66,13 @@ Common issues and solutions for P2P Vault Sync.
 ### Items duplicated or missing
 
 **Possible causes**:
+
 1. **Concurrent edits**: Both peers edited simultaneously
 2. **Offline edits**: Changes made while disconnected
 3. **Import vs sync**: Imported items don't sync
 
 **Solutions**:
+
 - CRDT handles most conflicts automatically
 - For conflicts, the most recent change wins
 - Delete duplicates manually if they appear
@@ -71,10 +81,12 @@ Common issues and solutions for P2P Vault Sync.
 ### Old data appearing after reconnect
 
 **Possible causes**:
+
 1. **IndexedDB cache**: Local offline data being replayed
 2. **Merge behavior**: CRDT merging old and new state
 
 **Solutions**:
+
 - This is usually correct behavior - data should merge
 - If incorrect, try leaving and rejoining the room
 - Clear browser data for a fresh start (loses offline cache)
@@ -84,11 +96,13 @@ Common issues and solutions for P2P Vault Sync.
 ### Sync is slow
 
 **Possible causes**:
+
 1. **Large items**: Very complex units/forces take longer
 2. **Many items**: Syncing hundreds of items simultaneously
 3. **Network latency**: Geographic distance between peers
 
 **Solutions**:
+
 - Disable sync on items you don't need to share
 - Start with fewer items and add gradually
 - Use a faster network connection
@@ -96,11 +110,13 @@ Common issues and solutions for P2P Vault Sync.
 ### Browser becomes unresponsive
 
 **Possible causes**:
+
 1. **Too many sync events**: Rapid changes overwhelming UI
 2. **Large data set**: Memory pressure from many items
 3. **IndexedDB operations**: Heavy persistence writes
 
 **Solutions**:
+
 - Reduce number of synced items
 - Close other browser tabs
 - Refresh the page if needed
@@ -112,6 +128,7 @@ Common issues and solutions for P2P Vault Sync.
 The system tried to reconnect 5 times and gave up.
 
 **Solutions**:
+
 - Check your network connection
 - Try manually rejoining the room
 - Create a new room if the old one seems stuck
@@ -121,6 +138,7 @@ The system tried to reconnect 5 times and gave up.
 Could not establish a new sync room.
 
 **Solutions**:
+
 - Check internet connection
 - Signaling servers may be down - wait and retry
 - Try refreshing the page
@@ -130,6 +148,7 @@ Could not establish a new sync room.
 The room code doesn't correspond to an active room.
 
 **Solutions**:
+
 - Verify the room code is correct
 - The room creator may have left - ask them to create a new room
 - Room codes are case-insensitive but check for typos
@@ -161,12 +180,14 @@ The room code doesn't correspond to an active room.
 ### Check connection state
 
 Open browser DevTools (F12) and look for console messages:
+
 - `[SyncProvider] Reconnect attempt X/5` - Connection retry
 - `[SyncProvider] Error in event listener` - Code error
 
 ### Clear sync data
 
 To reset everything:
+
 1. Leave the current room
 2. Clear browser data for the site
 3. Refresh and start fresh

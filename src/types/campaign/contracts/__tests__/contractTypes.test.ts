@@ -4,6 +4,8 @@
  * @module campaign/contracts/__tests__/contractTypes
  */
 
+import { CombatRole } from '@/types/campaign/scenario/scenarioTypes';
+
 import {
   AtBContractType,
   ContractClauseType,
@@ -16,7 +18,6 @@ import {
   isAtBContractType,
   isContractClauseType,
 } from '../contractTypes';
-import { CombatRole } from '@/types/campaign/scenario/scenarioTypes';
 
 describe('AtBContractType Enum', () => {
   it('should have exactly 19 contract types', () => {
@@ -99,7 +100,8 @@ describe('CONTRACT_TYPE_DEFINITIONS', () => {
   });
 
   it('should define all garrison types correctly', () => {
-    const garrisonDef = CONTRACT_TYPE_DEFINITIONS[AtBContractType.GARRISON_DUTY];
+    const garrisonDef =
+      CONTRACT_TYPE_DEFINITIONS[AtBContractType.GARRISON_DUTY];
     expect(garrisonDef.name).toBe('Garrison Duty');
     expect(garrisonDef.group).toBe('garrison');
     expect(garrisonDef.durationMonths).toBe(18);
@@ -116,7 +118,8 @@ describe('CONTRACT_TYPE_DEFINITIONS', () => {
   });
 
   it('should define security duty with 1.2 ops tempo', () => {
-    const securityDef = CONTRACT_TYPE_DEFINITIONS[AtBContractType.SECURITY_DUTY];
+    const securityDef =
+      CONTRACT_TYPE_DEFINITIONS[AtBContractType.SECURITY_DUTY];
     expect(securityDef.opsTempo.min).toBe(1.2);
     expect(securityDef.opsTempo.max).toBe(1.2);
     expect(securityDef.durationMonths).toBe(6);
@@ -320,7 +323,9 @@ describe('CLAUSE_LEVELS', () => {
       const levels = CLAUSE_LEVELS[clauseType];
       [0, 1, 2, 3].forEach((level) => {
         expect(levels[level as 0 | 1 | 2 | 3].description).toBeDefined();
-        expect(levels[level as 0 | 1 | 2 | 3].description.length).toBeGreaterThan(0);
+        expect(
+          levels[level as 0 | 1 | 2 | 3].description.length,
+        ).toBeGreaterThan(0);
       });
     });
   });

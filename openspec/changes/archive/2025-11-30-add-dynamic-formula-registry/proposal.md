@@ -10,6 +10,7 @@ The current EquipmentCalculatorService has hardcoded equipment IDs, switch state
 4. **Maintenance burden**: Formula changes require code deployments
 
 We need a data-driven approach where:
+
 - Variable equipment is discovered from formula definitions, not hardcoded
 - Built-in formulas are centrally defined as data, not code
 - Custom equipment formulas can be stored at runtime (IndexedDB)
@@ -40,6 +41,7 @@ We need a data-driven approach where:
 **Decision**: Use a unified formula registry with runtime layer
 
 **Rationale**:
+
 - Standard equipment formulas defined in code (type-safe, versioned)
 - Custom equipment formulas stored in IndexedDB (user-defined, exportable)
 - Custom formulas can override builtin (for variants)
@@ -47,8 +49,8 @@ We need a data-driven approach where:
 - Formula bug fixes apply to all builtin equipment automatically
 
 **Alternatives Considered**:
+
 - Option A (formulas embedded in equipment): Rejected - bloats saves, versioning nightmare
 - Option B (separate static registry): Rejected - no support for custom equipment
 - Option C (IVariableEquipment type): Rejected - type rigidity, collection confusion
 - Option D (hybrid marker + registry): Rejected - redundant, same sync issues
-

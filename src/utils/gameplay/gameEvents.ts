@@ -6,6 +6,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
+
 import {
   IGameEvent,
   IGameEventBase,
@@ -56,7 +57,7 @@ function createEventBase(
   type: GameEventType,
   turn: number,
   phase: GamePhase,
-  actorId?: string
+  actorId?: string,
 ): IGameEventBase {
   return {
     id: generateEventId(),
@@ -80,11 +81,17 @@ function createEventBase(
 export function createGameCreatedEvent(
   gameId: string,
   config: IGameConfig,
-  units: readonly IGameUnit[]
+  units: readonly IGameUnit[],
 ): IGameEvent {
   const payload: IGameCreatedPayload = { config, units };
   return {
-    ...createEventBase(gameId, 0, GameEventType.GameCreated, 0, GamePhase.Initiative),
+    ...createEventBase(
+      gameId,
+      0,
+      GameEventType.GameCreated,
+      0,
+      GamePhase.Initiative,
+    ),
     payload,
   };
 }
@@ -95,11 +102,17 @@ export function createGameCreatedEvent(
 export function createGameStartedEvent(
   gameId: string,
   sequence: number,
-  firstSide: GameSide
+  firstSide: GameSide,
 ): IGameEvent {
   const payload: IGameStartedPayload = { firstSide };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.GameStarted, 1, GamePhase.Initiative),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.GameStarted,
+      1,
+      GamePhase.Initiative,
+    ),
     payload,
   };
 }
@@ -113,7 +126,7 @@ export function createGameEndedEvent(
   turn: number,
   phase: GamePhase,
   winner: GameSide | 'draw',
-  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective'
+  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective',
 ): IGameEvent {
   const payload: IGameEndedPayload = { winner, reason };
   return {
@@ -134,11 +147,17 @@ export function createPhaseChangedEvent(
   sequence: number,
   turn: number,
   fromPhase: GamePhase,
-  toPhase: GamePhase
+  toPhase: GamePhase,
 ): IGameEvent {
   const payload: IPhaseChangedPayload = { fromPhase, toPhase };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.PhaseChanged, turn, toPhase),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.PhaseChanged,
+      turn,
+      toPhase,
+    ),
     payload,
   };
 }
@@ -157,7 +176,7 @@ export function createInitiativeRolledEvent(
   playerRoll: number,
   opponentRoll: number,
   winner: GameSide,
-  movesFirst: GameSide
+  movesFirst: GameSide,
 ): IGameEvent {
   const payload: IInitiativeRolledPayload = {
     playerRoll,
@@ -166,7 +185,13 @@ export function createInitiativeRolledEvent(
     movesFirst,
   };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.InitiativeRolled, turn, GamePhase.Initiative),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.InitiativeRolled,
+      turn,
+      GamePhase.Initiative,
+    ),
     payload,
   };
 }
@@ -188,7 +213,7 @@ export function createMovementDeclaredEvent(
   facing: Facing,
   movementType: MovementType,
   mpUsed: number,
-  heatGenerated: number
+  heatGenerated: number,
 ): IGameEvent {
   const payload: IMovementDeclaredPayload = {
     unitId,
@@ -200,7 +225,14 @@ export function createMovementDeclaredEvent(
     heatGenerated,
   };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.MovementDeclared, turn, GamePhase.Movement, unitId),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.MovementDeclared,
+      turn,
+      GamePhase.Movement,
+      unitId,
+    ),
     payload,
   };
 }
@@ -212,11 +244,18 @@ export function createMovementLockedEvent(
   gameId: string,
   sequence: number,
   turn: number,
-  unitId: string
+  unitId: string,
 ): IGameEvent {
   const payload: IMovementLockedPayload = { unitId };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.MovementLocked, turn, GamePhase.Movement, unitId),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.MovementLocked,
+      turn,
+      GamePhase.Movement,
+      unitId,
+    ),
     payload,
   };
 }
@@ -236,7 +275,7 @@ export function createAttackDeclaredEvent(
   targetId: string,
   weapons: readonly string[],
   toHitNumber: number,
-  modifiers: readonly IToHitModifier[]
+  modifiers: readonly IToHitModifier[],
 ): IGameEvent {
   const payload: IAttackDeclaredPayload = {
     attackerId,
@@ -246,7 +285,14 @@ export function createAttackDeclaredEvent(
     modifiers,
   };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.AttackDeclared, turn, GamePhase.WeaponAttack, attackerId),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.AttackDeclared,
+      turn,
+      GamePhase.WeaponAttack,
+      attackerId,
+    ),
     payload,
   };
 }
@@ -255,11 +301,18 @@ export function createAttackLockedEvent(
   gameId: string,
   sequence: number,
   turn: number,
-  unitId: string
+  unitId: string,
 ): IGameEvent {
   const payload: IAttackLockedPayload = { unitId };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.AttackLocked, turn, GamePhase.WeaponAttack, unitId),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.AttackLocked,
+      turn,
+      GamePhase.WeaponAttack,
+      unitId,
+    ),
     payload,
   };
 }
@@ -278,7 +331,7 @@ export function createAttackResolvedEvent(
   toHitNumber: number,
   hit: boolean,
   location?: string,
-  damage?: number
+  damage?: number,
 ): IGameEvent {
   const payload: IAttackResolvedPayload = {
     attackerId,
@@ -291,7 +344,14 @@ export function createAttackResolvedEvent(
     damage,
   };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.AttackResolved, turn, GamePhase.WeaponAttack, attackerId),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.AttackResolved,
+      turn,
+      GamePhase.WeaponAttack,
+      attackerId,
+    ),
     payload,
   };
 }
@@ -309,7 +369,7 @@ export function createDamageAppliedEvent(
   armorRemaining: number,
   structureRemaining: number,
   locationDestroyed: boolean,
-  criticals?: readonly string[]
+  criticals?: readonly string[],
 ): IGameEvent {
   const payload: IDamageAppliedPayload = {
     unitId,
@@ -321,7 +381,14 @@ export function createDamageAppliedEvent(
     criticals,
   };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.DamageApplied, turn, GamePhase.WeaponAttack, unitId),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.DamageApplied,
+      turn,
+      GamePhase.WeaponAttack,
+      unitId,
+    ),
     payload,
   };
 }
@@ -341,11 +408,18 @@ export function createHeatGeneratedEvent(
   unitId: string,
   amount: number,
   source: 'movement' | 'weapons' | 'dissipation' | 'external',
-  newTotal: number
+  newTotal: number,
 ): IGameEvent {
   const payload: IHeatPayload = { unitId, amount, source, newTotal };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.HeatGenerated, turn, phase, unitId),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.HeatGenerated,
+      turn,
+      phase,
+      unitId,
+    ),
     payload,
   };
 }
@@ -359,7 +433,7 @@ export function createHeatDissipatedEvent(
   turn: number,
   unitId: string,
   amount: number,
-  newTotal: number
+  newTotal: number,
 ): IGameEvent {
   const payload: IHeatPayload = {
     unitId,
@@ -368,7 +442,14 @@ export function createHeatDissipatedEvent(
     newTotal,
   };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.HeatDissipated, turn, GamePhase.Heat, unitId),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.HeatDissipated,
+      turn,
+      GamePhase.Heat,
+      unitId,
+    ),
     payload,
   };
 }
@@ -386,7 +467,7 @@ export function createPilotHitEvent(
   totalWounds: number,
   source: 'head_hit' | 'ammo_explosion' | 'mech_destruction',
   consciousnessCheckRequired: boolean,
-  consciousnessCheckPassed?: boolean
+  consciousnessCheckPassed?: boolean,
 ): IGameEvent {
   const payload: IPilotHitPayload = {
     unitId,
@@ -397,7 +478,14 @@ export function createPilotHitEvent(
     consciousnessCheckPassed,
   };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.PilotHit, turn, phase, unitId),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.PilotHit,
+      turn,
+      phase,
+      unitId,
+    ),
     payload,
   };
 }
@@ -411,11 +499,18 @@ export function createUnitDestroyedEvent(
   turn: number,
   phase: GamePhase,
   unitId: string,
-  cause: 'damage' | 'ammo_explosion' | 'pilot_death' | 'shutdown'
+  cause: 'damage' | 'ammo_explosion' | 'pilot_death' | 'shutdown',
 ): IGameEvent {
   const payload: IUnitDestroyedPayload = { unitId, cause };
   return {
-    ...createEventBase(gameId, sequence, GameEventType.UnitDestroyed, turn, phase, unitId),
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.UnitDestroyed,
+      turn,
+      phase,
+      unitId,
+    ),
     payload,
   };
 }

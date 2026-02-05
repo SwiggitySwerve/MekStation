@@ -1,10 +1,13 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/meta/unit_eras endpoint
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/meta/unit_eras';
 import { ALL_ERAS, Era } from '@/types/enums/Era';
+
 import { parseApiResponse } from '../../helpers';
 
 /**

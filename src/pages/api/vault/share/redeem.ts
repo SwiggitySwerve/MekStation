@@ -7,6 +7,7 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getShareLinkService } from '@/services/vault/ShareLinkService';
 
 // =============================================================================
@@ -20,7 +21,7 @@ interface RedeemShareLinkBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<void> {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -52,11 +53,15 @@ export default async function handler(
     if (!result.success) {
       // Map error codes to HTTP status codes
       const statusCode =
-        result.error.errorCode === 'NOT_FOUND' ? 404 :
-        result.error.errorCode === 'EXPIRED' ? 410 :
-        result.error.errorCode === 'MAX_USES' ? 410 :
-        result.error.errorCode === 'INACTIVE' ? 410 :
-        400;
+        result.error.errorCode === 'NOT_FOUND'
+          ? 404
+          : result.error.errorCode === 'EXPIRED'
+            ? 410
+            : result.error.errorCode === 'MAX_USES'
+              ? 410
+              : result.error.errorCode === 'INACTIVE'
+                ? 410
+                : 400;
 
       return res.status(statusCode).json({
         success: false,
@@ -73,7 +78,8 @@ export default async function handler(
   } catch (error) {
     console.error('Failed to redeem share link:', error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to redeem share link',
+      error:
+        error instanceof Error ? error.message : 'Failed to redeem share link',
     });
   }
 }

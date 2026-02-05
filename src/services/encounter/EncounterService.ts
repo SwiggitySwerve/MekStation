@@ -17,12 +17,13 @@ import {
   SCENARIO_TEMPLATES,
   ScenarioTemplateType,
 } from '@/types/encounter';
+
+import { getForceRepository } from '../forces/ForceRepository';
 import {
   getEncounterRepository,
   EncounterRepository,
   IEncounterOperationResult,
 } from './EncounterRepository';
-import { getForceRepository } from '../forces/ForceRepository';
 
 // =============================================================================
 // Service Interface
@@ -35,14 +36,26 @@ export interface IEncounterService {
   getAllEncounters(): readonly IEncounter[];
   getReadyEncounters(): readonly IEncounter[];
   getDraftEncounters(): readonly IEncounter[];
-  updateEncounter(id: string, input: IUpdateEncounterInput): IEncounterOperationResult;
+  updateEncounter(
+    id: string,
+    input: IUpdateEncounterInput,
+  ): IEncounterOperationResult;
   deleteEncounter(id: string): IEncounterOperationResult;
 
   // Configuration
-  setPlayerForce(encounterId: string, forceId: string): IEncounterOperationResult;
-  setOpponentForce(encounterId: string, forceId: string): IEncounterOperationResult;
+  setPlayerForce(
+    encounterId: string,
+    forceId: string,
+  ): IEncounterOperationResult;
+  setOpponentForce(
+    encounterId: string,
+    forceId: string,
+  ): IEncounterOperationResult;
   clearOpponentForce(encounterId: string): IEncounterOperationResult;
-  applyTemplate(encounterId: string, template: ScenarioTemplateType): IEncounterOperationResult;
+  applyTemplate(
+    encounterId: string,
+    template: ScenarioTemplateType,
+  ): IEncounterOperationResult;
 
   // Validation
   validateEncounter(id: string): IEncounterValidationResult;
@@ -91,7 +104,9 @@ export class EncounterService implements IEncounterService {
   }
 
   getAllEncounters(): readonly IEncounter[] {
-    return this.repository.getAllEncounters().map((e) => this.hydrateEncounter(e));
+    return this.repository
+      .getAllEncounters()
+      .map((e) => this.hydrateEncounter(e));
   }
 
   getReadyEncounters(): readonly IEncounter[] {
@@ -106,7 +121,10 @@ export class EncounterService implements IEncounterService {
       .map((e) => this.hydrateEncounter(e));
   }
 
-  updateEncounter(id: string, input: IUpdateEncounterInput): IEncounterOperationResult {
+  updateEncounter(
+    id: string,
+    input: IUpdateEncounterInput,
+  ): IEncounterOperationResult {
     return this.repository.updateEncounter(id, input);
   }
 
@@ -118,7 +136,10 @@ export class EncounterService implements IEncounterService {
   // Configuration
   // ===========================================================================
 
-  setPlayerForce(encounterId: string, forceId: string): IEncounterOperationResult {
+  setPlayerForce(
+    encounterId: string,
+    forceId: string,
+  ): IEncounterOperationResult {
     // Validate force exists
     const forceRepo = getForceRepository();
     const force = forceRepo.getForceById(forceId);
@@ -134,7 +155,10 @@ export class EncounterService implements IEncounterService {
     });
   }
 
-  setOpponentForce(encounterId: string, forceId: string): IEncounterOperationResult {
+  setOpponentForce(
+    encounterId: string,
+    forceId: string,
+  ): IEncounterOperationResult {
     // Validate force exists
     const forceRepo = getForceRepository();
     const force = forceRepo.getForceById(forceId);
@@ -157,7 +181,10 @@ export class EncounterService implements IEncounterService {
     });
   }
 
-  applyTemplate(encounterId: string, template: ScenarioTemplateType): IEncounterOperationResult {
+  applyTemplate(
+    encounterId: string,
+    template: ScenarioTemplateType,
+  ): IEncounterOperationResult {
     const templateDef = SCENARIO_TEMPLATES.find((t) => t.type === template);
     if (!templateDef) {
       return {

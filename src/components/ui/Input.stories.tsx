@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Input, Select, SearchInput } from './Input';
+
 import { useState } from 'react';
+
+import { Input, Select, SearchInput } from './Input';
 
 const meta: Meta<typeof Input> = {
   title: 'UI/Input',
@@ -82,7 +84,7 @@ export const LargeVariant: Story = {
 
 export const AccentColors: Story = {
   render: () => (
-    <div className="space-y-4 w-80">
+    <div className="w-80 space-y-4">
       <Input accent="amber" placeholder="Amber accent (default)" />
       <Input accent="cyan" placeholder="Cyan accent" />
       <Input accent="emerald" placeholder="Emerald accent" />
@@ -109,7 +111,7 @@ export const SelectDefault: Story = {
 
 export const SelectWithAccent: Story = {
   render: () => (
-    <div className="space-y-4 w-80">
+    <div className="w-80 space-y-4">
       <Select
         accent="cyan"
         label="Engine Type"
@@ -145,7 +147,7 @@ export const SearchInputDefault: Story = {
 
 export const AllInputTypes: Story = {
   render: () => (
-    <div className="space-y-6 w-96">
+    <div className="w-96 space-y-6">
       <Input label="Text Input" placeholder="Enter text..." />
       <Select
         label="Dropdown"

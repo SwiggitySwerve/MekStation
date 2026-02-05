@@ -7,9 +7,12 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import { createMocks } from 'node-mocks-http';
+
 import handler from '@/pages/api/vault/sign';
+
 import { parseApiResponse, parseErrorResponse } from '../../helpers';
 
 // =============================================================================
@@ -29,9 +32,12 @@ jest.mock('@/services/vault/IdentityRepository', () => ({
 }));
 
 jest.mock('@/services/vault/IdentityService', () => ({
-  unlockIdentity: (...args: unknown[]): Promise<unknown> => mockUnlockIdentity(...args),
-  signMessage: (...args: unknown[]): Promise<string> => mockSignMessage(...args),
-  getPublicIdentity: (...args: unknown[]): unknown => mockGetPublicIdentity(...args),
+  unlockIdentity: (...args: unknown[]): Promise<unknown> =>
+    mockUnlockIdentity(...args),
+  signMessage: (...args: unknown[]): Promise<string> =>
+    mockSignMessage(...args),
+  getPublicIdentity: (...args: unknown[]): unknown =>
+    mockGetPublicIdentity(...args),
 }));
 
 // =============================================================================
@@ -337,7 +343,7 @@ describe('/api/vault/sign', () => {
 
       expect(res._getStatusCode()).toBe(200);
       const data = parseApiResponse<{ bundle: { payload: string } }>(res);
-      
+
       const payload = JSON.parse(data.bundle.payload) as typeof mockUnits;
       expect(payload).toHaveLength(2);
       expect(payload[0].id).toBe('unit-1');
@@ -385,7 +391,7 @@ describe('/api/vault/sign', () => {
       const data = parseApiResponse<{
         bundle: { metadata: { description?: string; tags?: string[] } };
       }>(res);
-      
+
       expect(data.bundle.metadata.description).toBeUndefined();
       expect(data.bundle.metadata.tags).toBeUndefined();
     });

@@ -1,3 +1,4 @@
+import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
 import {
   IValidationRuleDefinition,
   IValidationRuleResult,
@@ -6,7 +7,6 @@ import {
   ValidationCategory,
   ValidationSeverity,
 } from '../../../types/validation/rules/ValidationRuleInterfaces';
-import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
 import { pass, fail, warn } from './validationHelpers';
 
 export const QuadVeeConversionEquipmentRule: IValidationRuleDefinition = {
@@ -24,7 +24,9 @@ export const QuadVeeConversionEquipmentRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const criticalSlots = unit.criticalSlots as Record<string, Array<string | null>> | undefined;
+    const criticalSlots = unit.criticalSlots as
+      | Record<string, Array<string | null>>
+      | undefined;
 
     if (!criticalSlots) {
       return warn(this.id, [
@@ -51,7 +53,7 @@ export const QuadVeeConversionEquipmentRule: IValidationRuleDefinition = {
     for (const loc of legLocations) {
       const slots = criticalSlots[loc];
       const hasConversion = slots?.some(
-        (s) => s && s.toLowerCase().includes('conversion')
+        (s) => s && s.toLowerCase().includes('conversion'),
       );
       if (!hasConversion) {
         missingLocations.push(loc);
@@ -91,7 +93,9 @@ export const QuadVeeTracksRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const criticalSlots = unit.criticalSlots as Record<string, Array<string | null>> | undefined;
+    const criticalSlots = unit.criticalSlots as
+      | Record<string, Array<string | null>>
+      | undefined;
 
     if (!criticalSlots) {
       return pass(this.id);
@@ -114,7 +118,9 @@ export const QuadVeeTracksRule: IValidationRuleDefinition = {
     }
 
     if (legsWithTracks.length > 0 && legsWithTracks.length < 4) {
-      const missingLegs = legLocations.filter((l) => !legsWithTracks.includes(l));
+      const missingLegs = legLocations.filter(
+        (l) => !legsWithTracks.includes(l),
+      );
       return fail(this.id, [
         {
           ruleId: this.id,
@@ -135,7 +141,8 @@ export const QuadVeeTracksRule: IValidationRuleDefinition = {
 export const QuadVeeTotalSlotsRule: IValidationRuleDefinition = {
   id: 'configuration.quadvee.total_slots',
   name: 'QuadVee Total Slots',
-  description: 'Validates that QuadVee mech critical slots do not exceed maximum',
+  description:
+    'Validates that QuadVee mech critical slots do not exceed maximum',
   category: ValidationCategory.SLOTS,
   priority: 10,
 
@@ -147,7 +154,9 @@ export const QuadVeeTotalSlotsRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const criticalSlots = unit.criticalSlots as Record<string, Array<unknown>> | undefined;
+    const criticalSlots = unit.criticalSlots as
+      | Record<string, Array<unknown>>
+      | undefined;
 
     if (!criticalSlots) {
       return pass(this.id);
@@ -196,7 +205,9 @@ export const QuadVeeLegArmorBalanceRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const armorAllocation = unit.armorAllocation as Record<string, number> | undefined;
+    const armorAllocation = unit.armorAllocation as
+      | Record<string, number>
+      | undefined;
 
     if (!armorAllocation) {
       return pass(this.id);
@@ -221,7 +232,8 @@ export const QuadVeeLegArmorBalanceRule: IValidationRuleDefinition = {
         category: this.category,
         message: `QuadVee leg armor varies significantly (${minArmor} to ${maxArmor})`,
         path: 'armorAllocation',
-        suggestion: 'Consider balancing leg armor - uneven armor affects vehicle mode stability',
+        suggestion:
+          'Consider balancing leg armor - uneven armor affects vehicle mode stability',
       });
     }
 
@@ -235,7 +247,9 @@ export const QuadVeeLegArmorBalanceRule: IValidationRuleDefinition = {
       2;
 
     if (avgFrontArmor > 0 && avgRearArmor > 0) {
-      const ratio = Math.min(avgFrontArmor, avgRearArmor) / Math.max(avgFrontArmor, avgRearArmor);
+      const ratio =
+        Math.min(avgFrontArmor, avgRearArmor) /
+        Math.max(avgFrontArmor, avgRearArmor);
       if (ratio < 0.5) {
         warnings.push({
           ruleId: this.id,
@@ -244,7 +258,8 @@ export const QuadVeeLegArmorBalanceRule: IValidationRuleDefinition = {
           category: this.category,
           message: 'Front and rear leg armor significantly unbalanced',
           path: 'armorAllocation',
-          suggestion: 'Balance front/rear armor for vehicle mode - both ends need protection',
+          suggestion:
+            'Balance front/rear armor for vehicle mode - both ends need protection',
         });
       }
     }

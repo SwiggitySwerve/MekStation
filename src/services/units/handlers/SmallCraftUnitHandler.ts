@@ -8,9 +8,9 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { SmallCraftLocation } from '../../../types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import {
   ISmallCraft,
   ISmallCraftMountedEquipment,
@@ -19,9 +19,9 @@ import {
   AerospaceMotionType,
   IAerospaceMovement,
 } from '../../../types/unit/BaseUnitInterfaces';
-import { SmallCraftLocation } from '../../../types/construction/UnitLocation';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
@@ -68,7 +68,9 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
   /**
    * Parse small craft-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<ISmallCraft> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<ISmallCraft> & {
     errors: string[];
     warnings: string[];
   } {
@@ -188,11 +190,15 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly ISmallCraftMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly ISmallCraftMountedEquipment[] {
     const equipment: ISmallCraftMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const location = this.normalizeLocation(locationKey);
 
       for (const item of items) {
@@ -221,7 +227,7 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<ISmallCraft>
+    typeSpecificFields: Partial<ISmallCraft>,
   ): ISmallCraft {
     const techBase = this.parseTechBase(commonFields.techBase);
     const rulesLevel = this.parseRulesLevel(commonFields.techBase);
@@ -299,7 +305,9 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
   /**
    * Serialize small craft-specific fields
    */
-  protected serializeTypeSpecificFields(unit: ISmallCraft): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: ISmallCraft,
+  ): Partial<ISerializedUnit> {
     return {
       configuration: String(unit.motionType),
       rulesLevel: String(unit.rulesLevel),
@@ -310,7 +318,9 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
    * Deserialize from standard format
    */
   deserialize(_serialized: ISerializedUnit): IUnitParseResult<ISmallCraft> {
-    return createFailureResult(['Small Craft deserialization not yet implemented']);
+    return createFailureResult([
+      'Small Craft deserialization not yet implemented',
+    ]);
   }
 
   /**
@@ -353,7 +363,7 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     const escapeCapacity = unit.escapePods * 7 + unit.lifeBoats * 6;
     if (escapeCapacity < totalPersonnel && totalPersonnel > 0) {
       warnings.push(
-        `Insufficient escape capacity (${escapeCapacity}) for personnel (${totalPersonnel})`
+        `Insufficient escape capacity (${escapeCapacity}) for personnel (${totalPersonnel})`,
       );
     }
 

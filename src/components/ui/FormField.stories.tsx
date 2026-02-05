@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FormField } from './FormField';
+
 import { cs } from '@/components/customizer/styles';
+
+import { FormField } from './FormField';
 
 const meta: Meta<typeof FormField> = {
   title: 'UI/FormField',
@@ -33,7 +35,7 @@ const meta: Meta<typeof FormField> = {
   },
   decorators: [
     (Story) => (
-      <div className="w-80 p-4 bg-surface-base rounded-lg">
+      <div className="bg-surface-base w-80 rounded-lg p-4">
         <Story />
       </div>
     ),
@@ -183,7 +185,11 @@ export const AllStates: Story = {
         />
       </FormField>
 
-      <FormField label="With Hint" htmlFor="state-hint" hint="Helpful guidance text">
+      <FormField
+        label="With Hint"
+        htmlFor="state-hint"
+        hint="Helpful guidance text"
+      >
         <input
           id="state-hint"
           type="text"

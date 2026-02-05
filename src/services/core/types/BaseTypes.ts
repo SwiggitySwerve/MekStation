@@ -1,9 +1,9 @@
 /**
  * Base Types for Services
- * 
+ *
  * Core interfaces and types used across all service implementations,
  * including both web services and desktop (Electron) services.
- * 
+ *
  * @module services/core/types
  */
 
@@ -13,7 +13,7 @@
 
 /**
  * Base interface for all services
- * 
+ *
  * Services implementing this interface must provide:
  * - initialize(): Setup and prepare the service
  * - cleanup(): Release resources and cleanup
@@ -38,11 +38,11 @@ export interface IService {
 
 /**
  * Result type for operations that can fail
- * 
+ *
  * This is a discriminated union type that represents either:
  * - A successful result with data
  * - A failed result with an error
- * 
+ *
  * @example
  * ```typescript
  * const result = await service.doSomething();
@@ -59,15 +59,15 @@ export type ResultType<T, E = string> =
 
 /**
  * Result class with static factory methods
- * 
+ *
  * Provides a fluent API for creating and working with Results
- * 
+ *
  * @example
  * ```typescript
  * // Creating results
  * const successResult = Result.success(data);
  * const errorResult = Result.error('Something went wrong');
- * 
+ *
  * // Using results
  * if (result.success) {
  *   doSomething(result.data);
@@ -95,7 +95,9 @@ export class Result {
    * Check if a result is successful
    * @param result The result to check
    */
-  static isSuccess<T, E>(result: ResultType<T, E>): result is { success: true; data: T } {
+  static isSuccess<T, E>(
+    result: ResultType<T, E>,
+  ): result is { success: true; data: T } {
     return result.success === true;
   }
 
@@ -103,7 +105,9 @@ export class Result {
    * Check if a result is an error
    * @param result The result to check
    */
-  static isError<T, E>(result: ResultType<T, E>): result is { success: false; error: E } {
+  static isError<T, E>(
+    result: ResultType<T, E>,
+  ): result is { success: false; error: E } {
     return result.success === false;
   }
 
@@ -138,7 +142,7 @@ export class Result {
    */
   static map<T, U, E>(
     result: ResultType<T, E>,
-    fn: (data: T) => U
+    fn: (data: T) => U,
   ): ResultType<U, E> {
     if (result.success) {
       return Result.success(fn(result.data));
@@ -153,7 +157,7 @@ export class Result {
    */
   static flatMap<T, U, E>(
     result: ResultType<T, E>,
-    fn: (data: T) => ResultType<U, E>
+    fn: (data: T) => ResultType<U, E>,
   ): ResultType<U, E> {
     if (result.success) {
       return fn(result.data);

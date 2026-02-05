@@ -6,6 +6,17 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
+
+import {
+  IUnitPosition,
+  MovementType,
+  Facing,
+  IHexGrid,
+  IHexCoordinate,
+} from '@/types/gameplay';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { createHexGrid, placeUnit } from '@/utils/gameplay/hexGrid';
+import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
   calculateRunMP,
   createMovementCapability,
@@ -18,26 +29,22 @@ import {
   findPath,
   getHexMovementCost,
 } from '@/utils/gameplay/movement';
-import { createHexGrid, placeUnit } from '@/utils/gameplay/hexGrid';
-import { IUnitPosition, MovementType, Facing, IHexGrid, IHexCoordinate } from '@/types/gameplay';
-import { TerrainType } from '@/types/gameplay/TerrainTypes';
-import { coordToKey } from '@/utils/gameplay/hexMath';
 
 function setHexTerrain(
   grid: IHexGrid,
   coord: IHexCoordinate,
   terrain: string,
-  elevation: number = 0
+  elevation: number = 0,
 ): IHexGrid {
   const key = coordToKey(coord);
   const existingHex = grid.hexes.get(key);
   if (!existingHex) {
     throw new Error(`Hex at ${key} does not exist in grid`);
   }
-  
+
   const newHexes = new Map(grid.hexes);
   newHexes.set(key, { ...existingHex, terrain, elevation });
-  
+
   return {
     ...grid,
     hexes: newHexes,
@@ -51,10 +58,10 @@ describe('movement', () => {
 
   describe('calculateRunMP()', () => {
     it('should calculate run MP as ceil(walk * 1.5)', () => {
-      expect(calculateRunMP(4)).toBe(6);  // 4 * 1.5 = 6
-      expect(calculateRunMP(5)).toBe(8);  // 5 * 1.5 = 7.5 -> 8
-      expect(calculateRunMP(6)).toBe(9);  // 6 * 1.5 = 9
-      expect(calculateRunMP(3)).toBe(5);  // 3 * 1.5 = 4.5 -> 5
+      expect(calculateRunMP(4)).toBe(6); // 4 * 1.5 = 6
+      expect(calculateRunMP(5)).toBe(8); // 5 * 1.5 = 7.5 -> 8
+      expect(calculateRunMP(6)).toBe(9); // 6 * 1.5 = 9
+      expect(calculateRunMP(3)).toBe(5); // 3 * 1.5 = 4.5 -> 5
     });
   });
 
@@ -75,7 +82,7 @@ describe('movement', () => {
   describe('getMaxMP()', () => {
     it('should return correct MP for movement type', () => {
       const cap = createMovementCapability(4, 4);
-      
+
       expect(getMaxMP(cap, MovementType.Stationary)).toBe(0);
       expect(getMaxMP(cap, MovementType.Walk)).toBe(4);
       expect(getMaxMP(cap, MovementType.Run)).toBe(6);
@@ -155,9 +162,9 @@ describe('movement', () => {
         { q: 2, r: 0 },
         Facing.North,
         MovementType.Walk,
-        capability
+        capability,
       );
-      
+
       expect(result.valid).toBe(true);
       expect(result.mpCost).toBe(2);
     });
@@ -169,9 +176,9 @@ describe('movement', () => {
         { q: 10, r: 0 },
         Facing.North,
         MovementType.Walk,
-        capability
+        capability,
       );
-      
+
       expect(result.valid).toBe(false);
       expect(result.error).toContain('outside map bounds');
     });
@@ -183,9 +190,9 @@ describe('movement', () => {
         { q: 5, r: 0 },
         Facing.North,
         MovementType.Walk,
-        capability
+        capability,
       );
-      
+
       expect(result.valid).toBe(false);
       expect(result.error).toContain('max range');
     });
@@ -198,9 +205,9 @@ describe('movement', () => {
         { q: 2, r: 0 },
         Facing.North,
         MovementType.Jump,
-        noJumpCap
+        noJumpCap,
       );
-      
+
       expect(result.valid).toBe(false);
       expect(result.error).toContain('cannot jump');
     });
@@ -213,9 +220,9 @@ describe('movement', () => {
         { q: 2, r: 0 },
         Facing.North,
         MovementType.Walk,
-        capability
+        capability,
       );
-      
+
       expect(result.valid).toBe(false);
       expect(result.error).toContain('occupied');
     });
@@ -240,14 +247,14 @@ describe('movement', () => {
         grid,
         position,
         MovementType.Walk,
-        capability
+        capability,
       );
 
       expect(destinations.length).toBeGreaterThan(0);
       // Should include hexes at distance 0, 1, and 2
-      expect(destinations.some(d => d.q === 0 && d.r === 0)).toBe(true); // Stay
-      expect(destinations.some(d => d.q === 1 && d.r === 0)).toBe(true); // Distance 1
-      expect(destinations.some(d => d.q === 2 && d.r === 0)).toBe(true); // Distance 2
+      expect(destinations.some((d) => d.q === 0 && d.r === 0)).toBe(true); // Stay
+      expect(destinations.some((d) => d.q === 1 && d.r === 0)).toBe(true); // Distance 1
+      expect(destinations.some((d) => d.q === 2 && d.r === 0)).toBe(true); // Distance 2
     });
 
     it('should return only current position for stationary', () => {
@@ -264,7 +271,7 @@ describe('movement', () => {
         grid,
         position,
         MovementType.Stationary,
-        capability
+        capability,
       );
 
       expect(destinations.length).toBe(1);
@@ -315,7 +322,10 @@ describe('movement', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
       grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 1);
-      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', { q: 0, r: 0 });
+      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', {
+        q: 0,
+        r: 0,
+      });
       expect(cost).toBe(2);
     });
 
@@ -323,7 +333,10 @@ describe('movement', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
       grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 2);
-      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', { q: 0, r: 0 });
+      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', {
+        q: 0,
+        r: 0,
+      });
       expect(cost).toBe(3);
     });
 
@@ -331,7 +344,10 @@ describe('movement', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
       grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 3);
-      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', { q: 0, r: 0 });
+      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', {
+        q: 0,
+        r: 0,
+      });
       expect(cost).toBe(Infinity);
     });
 
@@ -339,7 +355,10 @@ describe('movement', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 2);
       grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
-      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', { q: 0, r: 0 });
+      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', {
+        q: 0,
+        r: 0,
+      });
       expect(cost).toBe(1);
     });
 
@@ -347,7 +366,10 @@ describe('movement', () => {
       let grid = createHexGrid({ radius: 3 });
       grid = setHexTerrain(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
       grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.LightWoods, 1);
-      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', { q: 0, r: 0 });
+      const cost = getHexMovementCost(grid, { q: 1, r: 0 }, 'walk', {
+        q: 0,
+        r: 0,
+      });
       expect(cost).toBe(3);
     });
 
@@ -364,7 +386,9 @@ describe('movement', () => {
 
   describe('calculateAttackerMovementModifier()', () => {
     it('should return correct modifiers', () => {
-      expect(calculateAttackerMovementModifier(MovementType.Stationary)).toBe(0);
+      expect(calculateAttackerMovementModifier(MovementType.Stationary)).toBe(
+        0,
+      );
       expect(calculateAttackerMovementModifier(MovementType.Walk)).toBe(1);
       expect(calculateAttackerMovementModifier(MovementType.Run)).toBe(2);
       expect(calculateAttackerMovementModifier(MovementType.Jump)).toBe(3);
@@ -379,7 +403,7 @@ describe('movement', () => {
     it('should find path to adjacent hex', () => {
       const grid = createHexGrid({ radius: 3 });
       const path = findPath(grid, { q: 0, r: 0 }, { q: 1, r: 0 });
-      
+
       expect(path).not.toBeNull();
       expect(path?.length).toBe(2);
     });
@@ -387,7 +411,7 @@ describe('movement', () => {
     it('should return single hex for same start and end', () => {
       const grid = createHexGrid({ radius: 3 });
       const path = findPath(grid, { q: 0, r: 0 }, { q: 0, r: 0 });
-      
+
       expect(path).not.toBeNull();
       expect(path?.length).toBe(1);
     });
@@ -395,7 +419,7 @@ describe('movement', () => {
     it('should find longer paths', () => {
       const grid = createHexGrid({ radius: 5 });
       const path = findPath(grid, { q: 0, r: 0 }, { q: 3, r: 0 });
-      
+
       expect(path).not.toBeNull();
       expect(path!.length).toBe(4);
     });
@@ -403,7 +427,7 @@ describe('movement', () => {
     it('should return null for path outside grid', () => {
       const grid = createHexGrid({ radius: 2 });
       const path = findPath(grid, { q: 0, r: 0 }, { q: 10, r: 0 });
-      
+
       expect(path).toBeNull();
     });
   });

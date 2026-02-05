@@ -8,10 +8,11 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { getForceService } from '@/services/forces/ForceService';
-import { ForcePosition } from '@/types/force';
+
 import { IForceOperationResult } from '@/services/forces/ForceRepository';
+import { getForceService } from '@/services/forces/ForceService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { ForcePosition } from '@/types/force';
 
 // =============================================================================
 // Response Types
@@ -40,13 +41,14 @@ interface UpdateAssignmentBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<OperationResponse | ErrorResponse>
+  res: NextApiResponse<OperationResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -64,7 +66,9 @@ export default async function handler(
       return handleDelete(forceService, id, res);
     default:
       res.setHeader('Allow', ['PUT', 'DELETE']);
-      return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+      return res
+        .status(405)
+        .json({ error: `Method ${req.method} Not Allowed` });
   }
 }
 
@@ -75,7 +79,7 @@ function handlePut(
   forceService: ReturnType<typeof getForceService>,
   assignmentId: string,
   req: NextApiRequest,
-  res: NextApiResponse<OperationResponse | ErrorResponse>
+  res: NextApiResponse<OperationResponse | ErrorResponse>,
 ) {
   try {
     const body = req.body as UpdateAssignmentBody;
@@ -85,7 +89,7 @@ function handlePut(
       const result = forceService.assignPilotAndUnit(
         assignmentId,
         body.pilotId,
-        body.unitId
+        body.unitId,
       );
       if (result.success) {
         return res.status(200).json(result);
@@ -128,7 +132,10 @@ function handlePut(
 
     // Handle position update
     if (body.position !== undefined) {
-      const result = forceService.setAssignmentPosition(assignmentId, body.position);
+      const result = forceService.setAssignmentPosition(
+        assignmentId,
+        body.position,
+      );
       if (result.success) {
         return res.status(200).json(result);
       } else {
@@ -144,7 +151,8 @@ function handlePut(
       error: 'No update provided. Expected pilotId, unitId, or position',
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to update assignment';
+    const message =
+      error instanceof Error ? error.message : 'Failed to update assignment';
     return res.status(500).json({ error: message });
   }
 }
@@ -155,7 +163,7 @@ function handlePut(
 function handleDelete(
   forceService: ReturnType<typeof getForceService>,
   assignmentId: string,
-  res: NextApiResponse<OperationResponse | ErrorResponse>
+  res: NextApiResponse<OperationResponse | ErrorResponse>,
 ) {
   try {
     const result = forceService.clearAssignment(assignmentId);
@@ -170,7 +178,8 @@ function handleDelete(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to clear assignment';
+    const message =
+      error instanceof Error ? error.message : 'Failed to clear assignment';
     return res.status(500).json({ error: message });
   }
 }

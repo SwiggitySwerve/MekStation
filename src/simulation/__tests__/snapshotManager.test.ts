@@ -5,17 +5,21 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { SnapshotManager } from '../snapshot/SnapshotManager';
-import { ISimulationRunResult } from '../runner/types';
+
 import { ISimulationConfig } from '../core/types';
 import { IViolation } from '../invariants/types';
+import { ISimulationRunResult } from '../runner/types';
+import { SnapshotManager } from '../snapshot/SnapshotManager';
 import { ISnapshot } from '../snapshot/SnapshotManager';
 
 // Test directory
 const TEST_SNAPSHOT_DIR = 'src/simulation/__snapshots__/test';
 
 // Helper to create test result
-function createTestResult(seed: number, violations: IViolation[] = []): ISimulationRunResult {
+function createTestResult(
+  seed: number,
+  violations: IViolation[] = [],
+): ISimulationRunResult {
   return {
     seed,
     winner: 'player',
@@ -48,7 +52,7 @@ describe('SnapshotManager', () => {
   beforeEach(() => {
     // Use test directory
     manager = new SnapshotManager(TEST_SNAPSHOT_DIR);
-    
+
     // Clean test directory
     if (fs.existsSync(TEST_SNAPSHOT_DIR)) {
       fs.rmSync(TEST_SNAPSHOT_DIR, { recursive: true, force: true });
@@ -114,7 +118,7 @@ describe('SnapshotManager', () => {
       const filepath = manager.saveFailedScenario(result, config);
 
       const content = fs.readFileSync(filepath, 'utf-8');
-      
+
       // Check for indentation
       expect(content).toContain('  "seed"');
       expect(content).toContain('  "config"');
@@ -134,13 +138,13 @@ describe('SnapshotManager', () => {
       const config = createTestConfig();
 
       const filepath1 = manager.saveFailedScenario(result, config);
-      
+
       // Wait 1ms to ensure different timestamp
       const start = Date.now();
       while (Date.now() - start < 2) {
         // Busy wait
       }
-      
+
       const filepath2 = manager.saveFailedScenario(result, config);
 
       expect(filepath1).not.toBe(filepath2);
@@ -208,7 +212,11 @@ describe('SnapshotManager', () => {
       manager.saveFailedScenario(result, config);
 
       // Create non-JSON file
-      fs.writeFileSync(path.join(TEST_SNAPSHOT_DIR, 'readme.txt'), 'test', 'utf-8');
+      fs.writeFileSync(
+        path.join(TEST_SNAPSHOT_DIR, 'readme.txt'),
+        'test',
+        'utf-8',
+      );
 
       const snapshots = manager.listSnapshots();
 

@@ -12,7 +12,7 @@
 export async function renderToCanvasHighDPI(
   svgString: string,
   canvas: HTMLCanvasElement,
-  dpiMultiplier: number
+  dpiMultiplier: number,
 ): Promise<void> {
   const img = new Image();
 
@@ -53,7 +53,9 @@ export async function renderToCanvasHighDPI(
 
     img.onerror = () => reject(new Error('Failed to load SVG image'));
 
-    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const svgBlob = new Blob([svgString], {
+      type: 'image/svg+xml;charset=utf-8',
+    });
     img.src = URL.createObjectURL(svgBlob);
   });
 }

@@ -1,8 +1,8 @@
 /**
  * Equipment Services
- * 
+ *
  * Central export for equipment loading, registry, and name mapping services.
- * 
+ *
  * @module services/equipment
  */
 

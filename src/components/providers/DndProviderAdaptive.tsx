@@ -14,6 +14,7 @@
 import React, { useMemo } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+
 import { useDeviceType } from '@/hooks/useDeviceType';
 
 // NOTE: TouchBackend import - requires react-dnd-touch-backend package
@@ -54,7 +55,8 @@ export function DndProviderAdaptive({
   const { isTouch, hasMouse: _hasMouse } = useDeviceType();
 
   // Determine which backend to use
-  const useTouch = forceBackend === 'touch' || (forceBackend !== 'html5' && isTouch);
+  const useTouch =
+    forceBackend === 'touch' || (forceBackend !== 'html5' && isTouch);
 
   // Configure backend options
   const backendConfig = useMemo(() => {
@@ -74,7 +76,7 @@ export function DndProviderAdaptive({
       // Fallback to HTML5Backend until touch backend is installed
       console.warn(
         'DndProviderAdaptive: Touch device detected but react-dnd-touch-backend not installed. ' +
-          'Run: npm install react-dnd-touch-backend'
+          'Run: npm install react-dnd-touch-backend',
       );
       return {
         backend: HTML5Backend,
@@ -87,11 +89,13 @@ export function DndProviderAdaptive({
       backend: HTML5Backend,
       options: {},
     };
-   
   }, [useTouch]);
 
   return (
-    <DndProvider backend={backendConfig.backend} options={backendConfig.options}>
+    <DndProvider
+      backend={backendConfig.backend}
+      options={backendConfig.options}
+    >
       {children}
     </DndProvider>
   );

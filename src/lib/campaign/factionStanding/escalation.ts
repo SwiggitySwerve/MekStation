@@ -43,7 +43,9 @@ export enum CensureLevel {
  * @param standing The faction standing to check
  * @returns The next accolade level if eligible, null otherwise
  */
-export function checkAccoladeEscalation(standing: IFactionStanding): AccoladeLevel | null {
+export function checkAccoladeEscalation(
+  standing: IFactionStanding,
+): AccoladeLevel | null {
   // Accolades trigger at Level 5 threshold (+10)
   if (standing.regard < 10) {
     return null;
@@ -65,7 +67,9 @@ export function checkAccoladeEscalation(standing: IFactionStanding): AccoladeLev
  * @param standing The faction standing to check
  * @returns The next censure level if eligible, null otherwise
  */
-export function checkCensureEscalation(standing: IFactionStanding): CensureLevel | null {
+export function checkCensureEscalation(
+  standing: IFactionStanding,
+): CensureLevel | null {
   // Censures trigger at negative regard
   if (standing.regard >= 0) {
     return null;
@@ -90,7 +94,7 @@ export function checkCensureEscalation(standing: IFactionStanding): CensureLevel
  */
 export function applyAccolade(
   standing: IFactionStanding,
-  level: AccoladeLevel
+  level: AccoladeLevel,
 ): IFactionStanding {
   // Calculate new accolade level (increment by 1, capped at 5)
   const newAccoladeLevel = Math.min(standing.accoladeLevel + 1, 5);
@@ -111,7 +115,7 @@ export function applyAccolade(
  */
 export function applyCensure(
   standing: IFactionStanding,
-  level: CensureLevel
+  level: CensureLevel,
 ): IFactionStanding {
   // Calculate new censure level (increment by 1, capped at 5)
   const newCensureLevel = Math.min(standing.censureLevel + 1, 5);

@@ -6,14 +6,17 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
+import { IArmorAllocation } from '@/stores/unitState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { IArmorAllocation } from '@/stores/unitState';
 
 /**
  * Calculate total armor tonnage from allocation
  */
-export function calculateArmorTonnage(allocation: IArmorAllocation, armorType: ArmorTypeEnum): number {
+export function calculateArmorTonnage(
+  allocation: IArmorAllocation,
+  armorType: ArmorTypeEnum,
+): number {
   // Sum all armor points
   const totalPoints =
     allocation[MechLocation.HEAD] +

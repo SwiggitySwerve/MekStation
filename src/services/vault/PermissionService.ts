@@ -13,8 +13,12 @@ import type {
   PermissionScopeType,
   ContentCategory,
 } from '@/types/vault';
-import { getPermissionRepository, PermissionRepository } from './PermissionRepository';
+
 import { createSingleton } from '../core/createSingleton';
+import {
+  getPermissionRepository,
+  PermissionRepository,
+} from './PermissionRepository';
 
 // =============================================================================
 // Types
@@ -80,7 +84,9 @@ export class PermissionService {
   /**
    * Grant a permission to a grantee
    */
-  async grant(options: IGrantPermissionOptions): Promise<IPermissionOperationResult> {
+  async grant(
+    options: IGrantPermissionOptions,
+  ): Promise<IPermissionOperationResult> {
     try {
       // Validate inputs
       if (!options.granteeId) {
@@ -92,13 +98,22 @@ export class PermissionService {
       }
 
       // For item/folder scope, require scope ID
-      if ((options.scopeType === 'item' || options.scopeType === 'folder') && !options.scopeId) {
-        return { success: false, error: `Scope ID is required for ${options.scopeType} scope` };
+      if (
+        (options.scopeType === 'item' || options.scopeType === 'folder') &&
+        !options.scopeId
+      ) {
+        return {
+          success: false,
+          error: `Scope ID is required for ${options.scopeType} scope`,
+        };
       }
 
       // For category scope, require category
       if (options.scopeType === 'category' && !options.scopeCategory) {
-        return { success: false, error: 'Category is required for category scope' };
+        return {
+          success: false,
+          error: 'Category is required for category scope',
+        };
       }
 
       // Validate expiry date format
@@ -121,7 +136,8 @@ export class PermissionService {
 
       return { success: true, grant };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to grant permission';
+      const message =
+        error instanceof Error ? error.message : 'Failed to grant permission';
       return { success: false, error: message };
     }
   }
@@ -137,7 +153,8 @@ export class PermissionService {
       }
       return { success: true };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to revoke permission';
+      const message =
+        error instanceof Error ? error.message : 'Failed to revoke permission';
       return { success: false, error: message };
     }
   }
@@ -150,13 +167,13 @@ export class PermissionService {
     granteeId: string,
     scopeType: PermissionScopeType,
     scopeId: string | null,
-    category?: ContentCategory
+    category?: ContentCategory,
   ): Promise<IPermissionCheckResult> {
     const level = await this.repository.checkPermission(
       granteeId,
       scopeType,
       scopeId,
-      category
+      category,
     );
 
     if (level) {
@@ -181,10 +198,10 @@ export class PermissionService {
     action: 'read' | 'write' | 'admin',
     scopeType: PermissionScopeType,
     scopeId: string | null,
-    category?: ContentCategory
+    category?: ContentCategory,
   ): Promise<boolean> {
     const result = await this.check(granteeId, scopeType, scopeId, category);
-    
+
     if (!result.hasAccess || !result.level) {
       return false;
     }
@@ -214,7 +231,7 @@ export class PermissionService {
    */
   async getGrantsForItem(
     scopeType: PermissionScopeType,
-    scopeId: string
+    scopeId: string,
   ): Promise<IPermissionGrant[]> {
     return this.repository.getByItem(scopeType, scopeId);
   }
@@ -231,7 +248,7 @@ export class PermissionService {
    */
   async updateLevel(
     permissionId: string,
-    level: PermissionLevel
+    level: PermissionLevel,
   ): Promise<IPermissionOperationResult> {
     try {
       const updated = await this.repository.updateLevel(permissionId, level);
@@ -241,7 +258,8 @@ export class PermissionService {
       const grant = await this.repository.getById(permissionId);
       return { success: true, grant: grant || undefined };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to update permission';
+      const message =
+        error instanceof Error ? error.message : 'Failed to update permission';
       return { success: false, error: message };
     }
   }
@@ -251,17 +269,21 @@ export class PermissionService {
    */
   async updateExpiry(
     permissionId: string,
-    expiresAt: string | null
+    expiresAt: string | null,
   ): Promise<IPermissionOperationResult> {
     try {
-      const updated = await this.repository.updateExpiry(permissionId, expiresAt);
+      const updated = await this.repository.updateExpiry(
+        permissionId,
+        expiresAt,
+      );
       if (!updated) {
         return { success: false, error: 'Permission not found' };
       }
       const grant = await this.repository.getById(permissionId);
       return { success: true, grant: grant || undefined };
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to update expiry';
+      const message =
+        error instanceof Error ? error.message : 'Failed to update expiry';
       return { success: false, error: message };
     }
   }
@@ -278,7 +300,7 @@ export class PermissionService {
    */
   async revokeAllForItem(
     scopeType: PermissionScopeType,
-    scopeId: string
+    scopeId: string,
   ): Promise<number> {
     return this.repository.deleteByItem(scopeType, scopeId);
   }

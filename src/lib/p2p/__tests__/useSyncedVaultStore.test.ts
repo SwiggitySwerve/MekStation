@@ -4,15 +4,20 @@
  */
 
 import { act } from '@testing-library/react';
+
+import {
+  SyncState,
+  type ISyncableVaultItem,
+  type SyncableItemType,
+} from '../types';
 import { useSyncedVaultStore } from '../useSyncedVaultStore';
-import { SyncState, type ISyncableVaultItem, type SyncableItemType } from '../types';
 
 // =============================================================================
 // Test Helpers
 // =============================================================================
 
 function createTestItem(
-  overrides: Partial<ISyncableVaultItem> = {}
+  overrides: Partial<ISyncableVaultItem> = {},
 ): ISyncableVaultItem {
   return {
     id: `test-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -150,7 +155,9 @@ describe('useSyncedVaultStore - updateItem', () => {
 
     act(() => {
       useSyncedVaultStore.getState().addItem(item);
-      useSyncedVaultStore.getState().updateItem(item.id, { name: 'Updated Name' });
+      useSyncedVaultStore
+        .getState()
+        .updateItem(item.id, { name: 'Updated Name' });
     });
 
     const state = useSyncedVaultStore.getState();
@@ -164,13 +171,15 @@ describe('useSyncedVaultStore - updateItem', () => {
       useSyncedVaultStore.getState().addItem(item);
     });
 
-    const versionBefore = useSyncedVaultStore.getState().metadata[item.id].version;
+    const versionBefore =
+      useSyncedVaultStore.getState().metadata[item.id].version;
 
     act(() => {
       useSyncedVaultStore.getState().updateItem(item.id, { name: 'Updated' });
     });
 
-    const versionAfter = useSyncedVaultStore.getState().metadata[item.id].version;
+    const versionAfter =
+      useSyncedVaultStore.getState().metadata[item.id].version;
     expect(versionAfter).toBe(versionBefore + 1);
   });
 
@@ -331,11 +340,15 @@ describe('useSyncedVaultStore - getSyncState', () => {
       useSyncedVaultStore.getState().addItem(item);
     });
 
-    expect(useSyncedVaultStore.getState().getSyncState(item.id)).toBe(SyncState.Pending);
+    expect(useSyncedVaultStore.getState().getSyncState(item.id)).toBe(
+      SyncState.Pending,
+    );
   });
 
   it('should return Disabled for non-existent item', () => {
-    expect(useSyncedVaultStore.getState().getSyncState('non-existent')).toBe(SyncState.Disabled);
+    expect(useSyncedVaultStore.getState().getSyncState('non-existent')).toBe(
+      SyncState.Disabled,
+    );
   });
 });
 
@@ -399,7 +412,9 @@ describe('useSyncedVaultStore - Workflows', () => {
 
     // Modify imported item
     act(() => {
-      useSyncedVaultStore.getState().updateItem(importedId!, { name: 'My Modified Copy' });
+      useSyncedVaultStore
+        .getState()
+        .updateItem(importedId!, { name: 'My Modified Copy' });
     });
 
     const state = useSyncedVaultStore.getState();

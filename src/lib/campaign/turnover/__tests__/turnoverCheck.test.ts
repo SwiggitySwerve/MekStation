@@ -1,18 +1,22 @@
 import { describe, it, expect } from '@jest/globals';
-import type { IPerson } from '@/types/campaign/Person';
+
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
-import { CampaignType } from '@/types/campaign/CampaignType';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { Money } from '@/types/campaign/Money';
+import type { IPerson } from '@/types/campaign/Person';
+
 import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
+import { CampaignType } from '@/types/campaign/CampaignType';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { Money } from '@/types/campaign/Money';
+
+import type { RandomFn } from '../turnoverCheck';
+
 import {
   roll2d6,
   checkTurnover,
   runTurnoverChecks,
   getPersonMonthlySalary,
 } from '../turnoverCheck';
-import type { RandomFn } from '../turnoverCheck';
 
 function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
   return {
@@ -31,7 +35,16 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '3000-01-01T00:00:00Z',
     updatedAt: '3025-06-15T00:00:00Z',
@@ -61,22 +74,22 @@ function createTestOptions(): ICampaignOptions {
     payForRepairs: true,
     payForSalaries: true,
     payForAmmunition: true,
-     maintenanceCycleDays: 7,
-      useLoanSystem: true,
-      useTaxes: true,
-       taxRate: 10,
-       overheadPercent: 5,
-       useRoleBasedSalaries: false,
-       payForSecondaryRole: true,
-       maxLoanPercent: 50,
-       defaultLoanRate: 5,
-       taxFrequency: 'annually',
-       useFoodAndHousing: true,
-       clanPriceMultiplier: 2.0,
-       mixedTechPriceMultiplier: 1.5,
-       usedEquipmentMultiplier: 0.5,
-       damagedEquipmentMultiplier: 0.33,
-       useAutoResolve: false,
+    maintenanceCycleDays: 7,
+    useLoanSystem: true,
+    useTaxes: true,
+    taxRate: 10,
+    overheadPercent: 5,
+    useRoleBasedSalaries: false,
+    payForSecondaryRole: true,
+    maxLoanPercent: 50,
+    defaultLoanRate: 5,
+    taxFrequency: 'annually',
+    useFoodAndHousing: true,
+    clanPriceMultiplier: 2.0,
+    mixedTechPriceMultiplier: 1.5,
+    usedEquipmentMultiplier: 0.5,
+    damagedEquipmentMultiplier: 0.33,
+    useAutoResolve: false,
     autoResolveCasualtyRate: 1.0,
     allowPilotCapture: true,
     useRandomInjuries: true,
@@ -102,33 +115,33 @@ function createTestOptions(): ICampaignOptions {
     turnoverCheckFrequency: 'monthly',
     turnoverCommanderImmune: true,
     turnoverPayoutMultiplier: 12,
-     turnoverUseSkillModifiers: true,
-     turnoverUseAgeModifiers: true,
-     turnoverUseMissionStatusModifiers: true,
-     trackFactionStanding: true,
-     regardChangeMultiplier: 1.0,
-   };
+    turnoverUseSkillModifiers: true,
+    turnoverUseAgeModifiers: true,
+    turnoverUseMissionStatusModifiers: true,
+    trackFactionStanding: true,
+    regardChangeMultiplier: 1.0,
+  };
 }
 
 function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
-    return {
-      id: 'campaign-001',
-      name: 'Test Campaign',
-      currentDate: new Date('3025-06-15'),
-      factionId: 'mercenary',
-      personnel: new Map(),
-      forces: new Map(),
-      rootForceId: 'force-root',
-      missions: new Map(),
-      finances: { transactions: [], balance: new Money(0) },
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: createTestOptions(),
-      createdAt: '3020-01-01T00:00:00Z',
-      updatedAt: '3025-06-15T00:00:00Z',
-      ...overrides,
-      campaignType: CampaignType.MERCENARY,
-    };
+  return {
+    id: 'campaign-001',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-06-15'),
+    factionId: 'mercenary',
+    personnel: new Map(),
+    forces: new Map(),
+    rootForceId: 'force-root',
+    missions: new Map(),
+    finances: { transactions: [], balance: new Money(0) },
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: createTestOptions(),
+    createdAt: '3020-01-01T00:00:00Z',
+    updatedAt: '3025-06-15T00:00:00Z',
+    ...overrides,
+    campaignType: CampaignType.MERCENARY,
+  };
 }
 
 // Deterministic random that returns fixed values from a sequence
@@ -254,11 +267,51 @@ describe('checkTurnover', () => {
   it('should set departureType to deserted when roll < targetNumber - 4', () => {
     const person = createTestPerson({
       injuries: [
-        { id: 'i1', type: 'Broken Bone', location: 'Arm', severity: 3, daysToHeal: 0, permanent: true, acquired: new Date() },
-        { id: 'i2', type: 'Broken Bone', location: 'Leg', severity: 3, daysToHeal: 0, permanent: true, acquired: new Date() },
-        { id: 'i3', type: 'Broken Bone', location: 'Torso', severity: 3, daysToHeal: 0, permanent: true, acquired: new Date() },
-        { id: 'i4', type: 'Broken Bone', location: 'Head', severity: 3, daysToHeal: 0, permanent: true, acquired: new Date() },
-        { id: 'i5', type: 'Broken Bone', location: 'Back', severity: 3, daysToHeal: 0, permanent: true, acquired: new Date() },
+        {
+          id: 'i1',
+          type: 'Broken Bone',
+          location: 'Arm',
+          severity: 3,
+          daysToHeal: 0,
+          permanent: true,
+          acquired: new Date(),
+        },
+        {
+          id: 'i2',
+          type: 'Broken Bone',
+          location: 'Leg',
+          severity: 3,
+          daysToHeal: 0,
+          permanent: true,
+          acquired: new Date(),
+        },
+        {
+          id: 'i3',
+          type: 'Broken Bone',
+          location: 'Torso',
+          severity: 3,
+          daysToHeal: 0,
+          permanent: true,
+          acquired: new Date(),
+        },
+        {
+          id: 'i4',
+          type: 'Broken Bone',
+          location: 'Head',
+          severity: 3,
+          daysToHeal: 0,
+          permanent: true,
+          acquired: new Date(),
+        },
+        {
+          id: 'i5',
+          type: 'Broken Bone',
+          location: 'Back',
+          severity: 3,
+          daysToHeal: 0,
+          permanent: true,
+          acquired: new Date(),
+        },
       ],
     });
     const campaign = createTestCampaign();
@@ -273,7 +326,15 @@ describe('checkTurnover', () => {
   it('should set departureType to retired when roll < targetNumber but >= targetNumber - 4', () => {
     const person = createTestPerson({
       injuries: [
-        { id: 'i1', type: 'Broken Bone', location: 'Arm', severity: 3, daysToHeal: 0, permanent: true, acquired: new Date() },
+        {
+          id: 'i1',
+          type: 'Broken Bone',
+          location: 'Arm',
+          severity: 3,
+          daysToHeal: 0,
+          permanent: true,
+          acquired: new Date(),
+        },
       ],
     });
     const campaign = createTestCampaign();
@@ -342,11 +403,51 @@ describe('checkTurnover', () => {
   it('should return zero payout for deserters', () => {
     const person = createTestPerson({
       injuries: [
-        { id: 'i1', type: 'X', location: 'X', severity: 5, daysToHeal: 0, permanent: true, acquired: new Date() },
-        { id: 'i2', type: 'X', location: 'X', severity: 5, daysToHeal: 0, permanent: true, acquired: new Date() },
-        { id: 'i3', type: 'X', location: 'X', severity: 5, daysToHeal: 0, permanent: true, acquired: new Date() },
-        { id: 'i4', type: 'X', location: 'X', severity: 5, daysToHeal: 0, permanent: true, acquired: new Date() },
-        { id: 'i5', type: 'X', location: 'X', severity: 5, daysToHeal: 0, permanent: true, acquired: new Date() },
+        {
+          id: 'i1',
+          type: 'X',
+          location: 'X',
+          severity: 5,
+          daysToHeal: 0,
+          permanent: true,
+          acquired: new Date(),
+        },
+        {
+          id: 'i2',
+          type: 'X',
+          location: 'X',
+          severity: 5,
+          daysToHeal: 0,
+          permanent: true,
+          acquired: new Date(),
+        },
+        {
+          id: 'i3',
+          type: 'X',
+          location: 'X',
+          severity: 5,
+          daysToHeal: 0,
+          permanent: true,
+          acquired: new Date(),
+        },
+        {
+          id: 'i4',
+          type: 'X',
+          location: 'X',
+          severity: 5,
+          daysToHeal: 0,
+          permanent: true,
+          acquired: new Date(),
+        },
+        {
+          id: 'i5',
+          type: 'X',
+          location: 'X',
+          severity: 5,
+          daysToHeal: 0,
+          permanent: true,
+          acquired: new Date(),
+        },
       ],
     });
     const campaign = createTestCampaign();
@@ -363,16 +464,21 @@ describe('runTurnoverChecks', () => {
     const personnel = new Map<string, IPerson>();
     personnel.set('p1', createTestPerson({ id: 'p1', name: 'Alice' }));
     personnel.set('p2', createTestPerson({ id: 'p2', name: 'Bob' }));
-    personnel.set('p3', createTestPerson({
-      id: 'p3',
-      name: 'Charlie',
-      status: PersonnelStatus.RETIRED,
-    }));
+    personnel.set(
+      'p3',
+      createTestPerson({
+        id: 'p3',
+        name: 'Charlie',
+        status: PersonnelStatus.RETIRED,
+      }),
+    );
     const campaign = createTestCampaign({ personnel });
     const random = randomFor2d6(6, 6);
     const report = runTurnoverChecks(campaign, random);
     expect(report.results.length).toBe(3);
-    const activeResults = report.results.filter((r) => r.personId === 'p1' || r.personId === 'p2');
+    const activeResults = report.results.filter(
+      (r) => r.personId === 'p1' || r.personId === 'p2',
+    );
     activeResults.forEach((r) => expect(r.passed).toBe(true));
   });
 

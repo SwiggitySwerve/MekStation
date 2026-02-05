@@ -11,6 +11,7 @@
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IUnitMarketOffer } from '@/types/campaign/markets/marketTypes';
+
 import {
   UnitMarketRarity,
   UnitMarketType,
@@ -30,7 +31,10 @@ export type RandomFn = () => number;
 // =============================================================================
 
 /** Price modifier lookup table: 2d6 roll -> modifier value. */
-const PRICE_MODIFIER_TABLE: ReadonlyArray<{ maxRoll: number; modifier: number }> = [
+const PRICE_MODIFIER_TABLE: ReadonlyArray<{
+  maxRoll: number;
+  modifier: number;
+}> = [
   { maxRoll: 2, modifier: 3 },
   { maxRoll: 3, modifier: 2 },
   { maxRoll: 5, modifier: 1 },
@@ -47,13 +51,21 @@ const PRICE_MODIFIER_STEP = 5;
 const BASE_PRICE_PERCENT = 100;
 
 /** Sample units for simplified market generation. */
-const SAMPLE_UNITS: ReadonlyArray<{ id: string; name: string; baseCost: number }> = [
+const SAMPLE_UNITS: ReadonlyArray<{
+  id: string;
+  name: string;
+  baseCost: number;
+}> = [
   { id: 'unit-atlas-as7d', name: 'Atlas AS7-D', baseCost: 9626000 },
   { id: 'unit-marauder-mad3r', name: 'Marauder MAD-3R', baseCost: 5576000 },
   { id: 'unit-warhammer-whm6r', name: 'Warhammer WHM-6R', baseCost: 5364000 },
   { id: 'unit-wolverine-wvr6r', name: 'Wolverine WVR-6R', baseCost: 4040000 },
   { id: 'unit-griffin-grf1n', name: 'Griffin GRF-1N', baseCost: 3746000 },
-  { id: 'unit-shadow-hawk-shd2h', name: 'Shadow Hawk SHD-2H', baseCost: 3570000 },
+  {
+    id: 'unit-shadow-hawk-shd2h',
+    name: 'Shadow Hawk SHD-2H',
+    baseCost: 3570000,
+  },
   { id: 'unit-locust-lct1v', name: 'Locust LCT-1V', baseCost: 1512000 },
   { id: 'unit-commando-com2d', name: 'Commando COM-2D', baseCost: 1770000 },
   { id: 'unit-hunchback-hbk4g', name: 'Hunchback HBK-4G', baseCost: 3118000 },
@@ -70,7 +82,10 @@ const SAMPLE_UNITS: ReadonlyArray<{ id: string; name: string; baseCost: number }
  * Formula: max(0, d6roll + RARITY_VALUES[rarity] - 3)
  * where d6roll = floor(random() * 6) + 1
  */
-export function calculateItemCount(rarity: UnitMarketRarity, random: RandomFn): number {
+export function calculateItemCount(
+  rarity: UnitMarketRarity,
+  random: RandomFn,
+): number {
   const d6roll = Math.floor(random() * 6) + 1;
   return Math.max(0, d6roll + RARITY_VALUES[rarity] - 3);
 }
@@ -102,7 +117,10 @@ export function calculatePricePercent(random: RandomFn): number {
  *
  * BLACK_MARKET has a 50/50 chance of 'A' or 'F'. All others use the constant.
  */
-export function getMarketTypeQuality(marketType: UnitMarketType, random: RandomFn): string {
+export function getMarketTypeQuality(
+  marketType: UnitMarketType,
+  random: RandomFn,
+): string {
   if (marketType === UnitMarketType.BLACK_MARKET) {
     return random() < 0.5 ? 'A' : 'F';
   }
@@ -141,7 +159,10 @@ function pickRandom<T>(array: readonly T[], random: RandomFn): T {
  * item count and generates that many offers with random unit selection,
  * price calculation, and quality grade.
  */
-export function generateUnitOffers(campaign: ICampaign, random: RandomFn): IUnitMarketOffer[] {
+export function generateUnitOffers(
+  campaign: ICampaign,
+  random: RandomFn,
+): IUnitMarketOffer[] {
   const offers: IUnitMarketOffer[] = [];
   const expirationDate = getEndOfMonth(campaign.currentDate);
   const marketTypes = Object.values(UnitMarketType);
@@ -182,7 +203,7 @@ export function generateUnitOffers(campaign: ICampaign, random: RandomFn): IUnit
 export function purchaseUnit(
   _campaign: ICampaign,
   offerId: string,
-  unitMarketOffers: readonly IUnitMarketOffer[]
+  unitMarketOffers: readonly IUnitMarketOffer[],
 ): { success: boolean; reason?: string } {
   const offer = unitMarketOffers.find((o) => o.id === offerId);
   if (!offer) {

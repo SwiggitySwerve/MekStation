@@ -67,25 +67,25 @@ npx ts-node openspec/scripts/terminology-tool.ts validate --json
 
 ### Commands
 
-| Command | Description |
-|---------|-------------|
+| Command    | Description                                |
+| ---------- | ------------------------------------------ |
 | `validate` | Check for terminology violations (default) |
-| `fix` | Fix violations automatically |
-| `report` | Generate detailed report |
+| `fix`      | Fix violations automatically               |
+| `report`   | Generate detailed report                   |
 
 ### Options
 
-| Option | Description |
-|--------|-------------|
-| `--fix` | Apply fixes automatically (with validate command) |
-| `--dry-run` | Show what would be fixed without making changes |
-| `--json` | Output results as JSON |
-| `--changed-only` | Only check files changed in git |
-| `--source` | Include TypeScript source files |
-| `--specs-only` | Only check spec.md files |
-| `--strict` | Exit with error code on any violation |
-| `--verbose`, `-v` | Show detailed output |
-| `--config PATH` | Use custom config file |
+| Option            | Description                                       |
+| ----------------- | ------------------------------------------------- |
+| `--fix`           | Apply fixes automatically (with validate command) |
+| `--dry-run`       | Show what would be fixed without making changes   |
+| `--json`          | Output results as JSON                            |
+| `--changed-only`  | Only check files changed in git                   |
+| `--source`        | Include TypeScript source files                   |
+| `--specs-only`    | Only check spec.md files                          |
+| `--strict`        | Exit with error code on any violation             |
+| `--verbose`, `-v` | Show detailed output                              |
+| `--config PATH`   | Use custom config file                            |
 
 ---
 
@@ -118,17 +118,17 @@ All terminology rules are defined in a single configuration file that can be use
 
 ### Rule Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | string | Unique identifier for the rule |
-| `deprecated` | string | Human-readable deprecated term |
-| `canonical` | string | What should be used instead |
-| `severity` | `"error"` \| `"warning"` | How serious is the violation |
-| `pattern` | string | Regex pattern to match |
-| `flags` | string | Regex flags (e.g., "gi") |
-| `preserveCase` | boolean | Preserve original casing when fixing |
-| `skipContexts` | string[] | Skip in specific contexts |
-| `context` | string | Additional context for the rule |
+| Property       | Type                     | Description                          |
+| -------------- | ------------------------ | ------------------------------------ |
+| `id`           | string                   | Unique identifier for the rule       |
+| `deprecated`   | string                   | Human-readable deprecated term       |
+| `canonical`    | string                   | What should be used instead          |
+| `severity`     | `"error"` \| `"warning"` | How serious is the violation         |
+| `pattern`      | string                   | Regex pattern to match               |
+| `flags`        | string                   | Regex flags (e.g., "gi")             |
+| `preserveCase` | boolean                  | Preserve original casing when fixing |
+| `skipContexts` | string[]                 | Skip in specific contexts            |
+| `context`      | string                   | Additional context for the rule      |
 
 ### Skip Contexts
 
@@ -147,36 +147,36 @@ The tool intelligently skips violations in certain contexts:
 
 ### 1. Deprecated Terms
 
-| ❌ Deprecated | ✅ Canonical |
-|--------------|--------------|
-| "crit slots" | "critical slots" |
-| "component mass" | "component weight" |
-| "technology base" | "tech base" |
-| "Tournament" (rules level) | "Advanced" |
-| "internal heat sinks" | "engine-integrated heat sinks" |
-| "tech level" | "rules level" |
-| "gyroscope" | "gyro" |
-| "heatsink" | "heat sink" |
+| ❌ Deprecated              | ✅ Canonical                   |
+| -------------------------- | ------------------------------ |
+| "crit slots"               | "critical slots"               |
+| "component mass"           | "component weight"             |
+| "technology base"          | "tech base"                    |
+| "Tournament" (rules level) | "Advanced"                     |
+| "internal heat sinks"      | "engine-integrated heat sinks" |
+| "tech level"               | "rules level"                  |
+| "gyroscope"                | "gyro"                         |
+| "heatsink"                 | "heat sink"                    |
 
 ### 2. Property Naming
 
-| ❌ Incorrect | ✅ Correct |
-|-------------|------------|
-| `tons: number` | `weight: number` |
-| `mass: number` | `weight: number` |
+| ❌ Incorrect    | ✅ Correct              |
+| --------------- | ----------------------- |
+| `tons: number`  | `weight: number`        |
+| `mass: number`  | `weight: number`        |
 | `slots: number` | `criticalSlots: number` |
-| `introYear:` | `introductionYear:` |
-| `faction:` | `techBase:` |
+| `introYear:`    | `introductionYear:`     |
+| `faction:`      | `techBase:`             |
 
 ### 3. Capitalization
 
-| ❌ Incorrect | ✅ Correct |
-|-------------|------------|
-| "Battlemech" | "BattleMech" |
-| "Battle Mech" | "BattleMech" |
+| ❌ Incorrect   | ✅ Correct     |
+| -------------- | -------------- |
+| "Battlemech"   | "BattleMech"   |
+| "Battle Mech"  | "BattleMech"   |
 | "inner sphere" | "Inner Sphere" |
 | "centre torso" | "Center Torso" |
-| "armour" | "armor" |
+| "armour"       | "armor"        |
 
 ---
 
@@ -312,10 +312,10 @@ npx ts-node openspec/scripts/terminology-tool.ts validate openspec/specs/gyro-sy
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| `0` | No errors (warnings may exist) |
-| `1` | Errors found (with `--strict` flag) |
+| Code | Meaning                             |
+| ---- | ----------------------------------- |
+| `0`  | No errors (warnings may exist)      |
+| `1`  | Errors found (with `--strict` flag) |
 
 ---
 

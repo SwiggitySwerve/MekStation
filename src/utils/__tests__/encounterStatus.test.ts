@@ -3,12 +3,13 @@
  * @description Tests for encounter status utility functions
  */
 
+import { EncounterStatus } from '@/types/encounter';
+
 import {
   getStatusColor,
   getStatusLabel,
   StatusBadgeColor,
 } from '../encounterStatus';
-import { EncounterStatus } from '@/types/encounter';
 
 describe('encounterStatus', () => {
   describe('getStatusColor', () => {
@@ -40,8 +41,13 @@ describe('encounterStatus', () => {
     });
 
     it('returns valid StatusBadgeColor type for all statuses', () => {
-      const validColors: StatusBadgeColor[] = ['slate', 'success', 'warning', 'info'];
-      
+      const validColors: StatusBadgeColor[] = [
+        'slate',
+        'success',
+        'warning',
+        'info',
+      ];
+
       Object.values(EncounterStatus).forEach((status) => {
         const color = getStatusColor(status);
         expect(validColors).toContain(color);
@@ -124,17 +130,21 @@ describe('encounterStatus', () => {
 
       it('only Ready status differs between verbose and non-verbose', () => {
         // Check that only Ready has different verbose output
-        expect(getStatusLabel(EncounterStatus.Draft, false))
-          .toBe(getStatusLabel(EncounterStatus.Draft, true));
-        
-        expect(getStatusLabel(EncounterStatus.Ready, false))
-          .not.toBe(getStatusLabel(EncounterStatus.Ready, true));
-        
-        expect(getStatusLabel(EncounterStatus.Launched, false))
-          .toBe(getStatusLabel(EncounterStatus.Launched, true));
-        
-        expect(getStatusLabel(EncounterStatus.Completed, false))
-          .toBe(getStatusLabel(EncounterStatus.Completed, true));
+        expect(getStatusLabel(EncounterStatus.Draft, false)).toBe(
+          getStatusLabel(EncounterStatus.Draft, true),
+        );
+
+        expect(getStatusLabel(EncounterStatus.Ready, false)).not.toBe(
+          getStatusLabel(EncounterStatus.Ready, true),
+        );
+
+        expect(getStatusLabel(EncounterStatus.Launched, false)).toBe(
+          getStatusLabel(EncounterStatus.Launched, true),
+        );
+
+        expect(getStatusLabel(EncounterStatus.Completed, false)).toBe(
+          getStatusLabel(EncounterStatus.Completed, true),
+        );
       });
     });
 

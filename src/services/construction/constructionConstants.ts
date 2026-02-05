@@ -100,7 +100,11 @@ export const SUPPORT_VEHICLE_TONNAGE = { min: 1, max: 300, step: 1 } as const;
 export const AEROSPACE_TONNAGE = { min: 5, max: 100, step: 5 } as const;
 
 /** Conventional Fighter tonnage range (5-50) */
-export const CONVENTIONAL_FIGHTER_TONNAGE = { min: 5, max: 50, step: 5 } as const;
+export const CONVENTIONAL_FIGHTER_TONNAGE = {
+  min: 5,
+  max: 50,
+  step: 5,
+} as const;
 
 /** Small Craft tonnage range (100-200) */
 export const SMALL_CRAFT_TONNAGE = { min: 100, max: 200, step: 100 } as const;
@@ -109,13 +113,25 @@ export const SMALL_CRAFT_TONNAGE = { min: 100, max: 200, step: 100 } as const;
 export const DROPSHIP_TONNAGE = { min: 200, max: 100000, step: 100 } as const;
 
 /** JumpShip tonnage range (50,000-500,000) */
-export const JUMPSHIP_TONNAGE = { min: 50000, max: 500000, step: 1000 } as const;
+export const JUMPSHIP_TONNAGE = {
+  min: 50000,
+  max: 500000,
+  step: 1000,
+} as const;
 
 /** WarShip tonnage range (100,000-2,500,000) */
-export const WARSHIP_TONNAGE = { min: 100000, max: 2500000, step: 1000 } as const;
+export const WARSHIP_TONNAGE = {
+  min: 100000,
+  max: 2500000,
+  step: 1000,
+} as const;
 
 /** Space Station tonnage range (5,000-2,500,000) */
-export const SPACE_STATION_TONNAGE = { min: 5000, max: 2500000, step: 1000 } as const;
+export const SPACE_STATION_TONNAGE = {
+  min: 5000,
+  max: 2500000,
+  step: 1000,
+} as const;
 
 /** Infantry tonnage range (0-10) */
 export const INFANTRY_TONNAGE = { min: 0, max: 10, step: 0.5 } as const;

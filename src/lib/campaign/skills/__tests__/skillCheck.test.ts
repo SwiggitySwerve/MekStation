@@ -1,8 +1,10 @@
 import { describe, it, expect } from '@jest/globals';
+
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { IPerson } from '@/types/campaign/Person';
 import { ISkillType } from '@/types/campaign/skills';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+
 import {
   performSkillCheck,
   getEffectiveSkillTN,
@@ -82,13 +84,13 @@ describe('Skill Check Resolution', () => {
         skilledPerson,
         'gunnery',
         gunneryType,
-        []
+        [],
       );
       const unskilledTN = getEffectiveSkillTN(
         unskilledPerson,
         'gunnery',
         gunneryType,
-        []
+        [],
       );
 
       expect(skilledTN).toBeLessThan(unskilledTN);
@@ -99,7 +101,7 @@ describe('Skill Check Resolution', () => {
         unskilledPerson,
         'gunnery',
         gunneryType,
-        []
+        [],
       );
 
       // Base TN is 4, unskilled adds +4 = 8
@@ -111,7 +113,7 @@ describe('Skill Check Resolution', () => {
         skilledPerson,
         'gunnery',
         gunneryType,
-        []
+        [],
       );
 
       // TN = 4 - (level 4 + bonus 0 + DEX modifier 2) = 4 - 6 = -2
@@ -123,21 +125,21 @@ describe('Skill Check Resolution', () => {
         skilledPerson,
         'gunnery',
         gunneryType,
-        []
+        [],
       );
 
       const withPositiveModifier = getEffectiveSkillTN(
         skilledPerson,
         'gunnery',
         gunneryType,
-        [{ name: 'Called Shot', value: 2 }]
+        [{ name: 'Called Shot', value: 2 }],
       );
 
       const withNegativeModifier = getEffectiveSkillTN(
         skilledPerson,
         'gunnery',
         gunneryType,
-        [{ name: 'Injured', value: -2 }]
+        [{ name: 'Injured', value: -2 }],
       );
 
       expect(withPositiveModifier).toBe(baseTN + 2);
@@ -149,7 +151,7 @@ describe('Skill Check Resolution', () => {
         skilledPerson,
         'gunnery',
         gunneryType,
-        []
+        [],
       );
 
       const withMultipleModifiers = getEffectiveSkillTN(
@@ -160,7 +162,7 @@ describe('Skill Check Resolution', () => {
           { name: 'Called Shot', value: 2 },
           { name: 'Injured', value: -1 },
           { name: 'Darkness', value: 1 },
-        ]
+        ],
       );
 
       // 2 - 1 + 1 = 2
@@ -176,7 +178,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        random
+        random,
       );
 
       expect(result.success).toBe(true);
@@ -191,7 +193,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        random
+        random,
       );
 
       expect(result.success).toBe(false);
@@ -206,7 +208,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        random
+        random,
       );
 
       expect(result.criticalSuccess).toBe(true);
@@ -220,7 +222,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        random
+        random,
       );
 
       expect(result.criticalFailure).toBe(true);
@@ -234,7 +236,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        random
+        random,
       );
 
       expect(result.margin).toBe(10);
@@ -249,7 +251,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        random1
+        random1,
       );
 
       const result2 = performSkillCheck(
@@ -257,7 +259,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        random2
+        random2,
       );
 
       expect(result1.roll).toBe(result2.roll);
@@ -277,7 +279,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         modifiers,
-        random
+        random,
       );
 
       expect(result.modifiers).toEqual(modifiers);
@@ -290,10 +292,12 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        random
+        random,
       );
 
-      expect(Object.isFrozen(result.modifiers) || Array.isArray(result.modifiers)).toBe(true);
+      expect(
+        Object.isFrozen(result.modifiers) || Array.isArray(result.modifiers),
+      ).toBe(true);
     });
 
     it('GREEN: 2d6 roll range is 2-12', () => {
@@ -303,7 +307,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        minRandom
+        minRandom,
       );
       expect(minResult.roll).toBe(2);
 
@@ -313,7 +317,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        maxRandom
+        maxRandom,
       );
       expect(maxResult.roll).toBe(12);
     });
@@ -337,7 +341,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        random
+        random,
       );
 
       expect(result.margin).toBe(4);
@@ -351,7 +355,7 @@ describe('Skill Check Resolution', () => {
         'piloting-mech',
         pilotingType,
         [],
-        random
+        random,
       );
 
       expect(result.targetNumber).toBe(8);
@@ -367,7 +371,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [{ name: 'Test', value: 1 }],
-        random
+        random,
       );
 
       expect(result).toHaveProperty('roll');
@@ -386,7 +390,7 @@ describe('Skill Check Resolution', () => {
         'gunnery',
         gunneryType,
         [],
-        random
+        random,
       );
 
       expect(typeof result.roll).toBe('number');

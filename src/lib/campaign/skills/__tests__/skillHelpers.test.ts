@@ -1,7 +1,9 @@
 import { describe, it, expect } from '@jest/globals';
-import { IPerson } from '@/types/campaign/Person';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { IPerson } from '@/types/campaign/Person';
+
 import {
   getSkillDesirabilityModifier,
   getTechSkillValue,
@@ -82,7 +84,12 @@ describe('Skill Helper Functions', () => {
         skills: {
           gunnery: { level: 4, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
           piloting: { level: 5, bonus: 0, xpProgress: 0, typeId: 'piloting' },
-          'tech-mech': { level: 3, bonus: 0, xpProgress: 0, typeId: 'tech-mech' },
+          'tech-mech': {
+            level: 3,
+            bonus: 0,
+            xpProgress: 0,
+            typeId: 'tech-mech',
+          },
         },
       };
 
@@ -323,7 +330,12 @@ describe('Skill Helper Functions', () => {
         skills: {
           gunnery: { level: 4, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
           piloting: { level: 5, bonus: 0, xpProgress: 0, typeId: 'piloting' },
-          'small-arms': { level: 3, bonus: 0, xpProgress: 0, typeId: 'small-arms' },
+          'small-arms': {
+            level: 3,
+            bonus: 0,
+            xpProgress: 0,
+            typeId: 'small-arms',
+          },
         },
       };
 
@@ -394,8 +406,18 @@ describe('Skill Helper Functions', () => {
         skills: {
           gunnery: { level: 4, bonus: 0, xpProgress: 0, typeId: 'gunnery' },
           piloting: { level: 5, bonus: 0, xpProgress: 0, typeId: 'piloting' },
-          'tech-mech': { level: 3, bonus: 0, xpProgress: 0, typeId: 'tech-mech' },
-          administration: { level: 2, bonus: 0, xpProgress: 0, typeId: 'administration' },
+          'tech-mech': {
+            level: 3,
+            bonus: 0,
+            xpProgress: 0,
+            typeId: 'tech-mech',
+          },
+          administration: {
+            level: 2,
+            bonus: 0,
+            xpProgress: 0,
+            typeId: 'administration',
+          },
           medicine: { level: 1, bonus: 0, xpProgress: 0, typeId: 'medicine' },
         },
       };
@@ -403,7 +425,9 @@ describe('Skill Helper Functions', () => {
       expect(getSkillDesirabilityModifier(multiSkillPerson)).toBe(15);
       expect(hasSkill(multiSkillPerson, 'gunnery')).toBe(true);
       expect(getPersonSkillLevel(multiSkillPerson, 'piloting')).toBe(5);
-      expect(getPersonBestCombatSkill(multiSkillPerson)?.skillId).toBe('piloting');
+      expect(getPersonBestCombatSkill(multiSkillPerson)?.skillId).toBe(
+        'piloting',
+      );
     });
   });
 });

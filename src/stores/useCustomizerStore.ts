@@ -1,15 +1,16 @@
 /**
  * Customizer Store
- * 
+ *
  * Manages the active customizer state including:
  * - Currently selected equipment for placement
  * - Selection modes (click-to-assign vs drag-and-drop)
  * - UI preferences and settings
- * 
+ *
  * @spec openspec/specs/critical-slots-display/spec.md
  */
 
 import { create } from 'zustand';
+
 import { MechLocation } from '@/types/construction';
 
 /**
@@ -53,14 +54,14 @@ export interface CustomizerState {
   selectedEquipment: EquipmentSelection | null;
   selectedLocation: MechLocation | null;
   selectionMode: SelectionMode;
-  
+
   // Auto-mode settings
   autoModeSettings: AutoModeSettings;
-  
+
   // UI state
   equipmentTrayCollapsed: boolean;
   colorLegendExpanded: boolean;
-  
+
   // Actions
   selectEquipment: (equipment: EquipmentSelection | null) => void;
   selectLocation: (location: MechLocation | null) => void;
@@ -96,67 +97,79 @@ export const useCustomizerStore = create<CustomizerState>((set) => ({
   autoModeSettings: DEFAULT_AUTO_SETTINGS,
   equipmentTrayCollapsed: false,
   colorLegendExpanded: false,
-  
-  // Actions
-  selectEquipment: (equipment) => set({ 
-    selectedEquipment: equipment,
-    // Clear location selection when selecting new equipment
-    selectedLocation: equipment ? null : undefined,
-  }),
-  
-  selectLocation: (location) => set({ selectedLocation: location }),
-  
-  setSelectionMode: (mode) => set({ selectionMode: mode }),
-  
-  toggleAutoFillUnhittables: () => set((state) => ({
-    autoModeSettings: {
-      ...state.autoModeSettings,
-      autoFillUnhittables: !state.autoModeSettings.autoFillUnhittables,
-    },
-  })),
-  
-  toggleAutoCompact: () => set((state) => ({
-    autoModeSettings: {
-      ...state.autoModeSettings,
-      autoCompact: !state.autoModeSettings.autoCompact,
-      // Auto sort implies auto compact, so disable sort if compact is being disabled
-      autoSort: !state.autoModeSettings.autoCompact ? state.autoModeSettings.autoSort : false,
-    },
-  })),
-  
-  toggleAutoSort: () => set((state) => ({
-    autoModeSettings: {
-      ...state.autoModeSettings,
-      // Sort includes compact, so enable compact if sort is being enabled
-      autoCompact: !state.autoModeSettings.autoSort ? true : state.autoModeSettings.autoCompact,
-      autoSort: !state.autoModeSettings.autoSort,
-    },
-  })),
-  
-  toggleShowPlacementPreview: () => set((state) => ({
-    autoModeSettings: {
-      ...state.autoModeSettings,
-      showPlacementPreview: !state.autoModeSettings.showPlacementPreview,
-    },
-  })),
-  
-  toggleEquipmentTray: () => set((state) => ({
-    equipmentTrayCollapsed: !state.equipmentTrayCollapsed,
-  })),
-  
-  toggleColorLegend: () => set((state) => ({
-    colorLegendExpanded: !state.colorLegendExpanded,
-  })),
-  
-  clearSelection: () => set({
-    selectedEquipment: null,
-    selectedLocation: null,
-  }),
-  
-  resetSettings: () => set({
-    autoModeSettings: DEFAULT_AUTO_SETTINGS,
-    equipmentTrayCollapsed: false,
-    colorLegendExpanded: false,
-  }),
-}));
 
+  // Actions
+  selectEquipment: (equipment) =>
+    set({
+      selectedEquipment: equipment,
+      // Clear location selection when selecting new equipment
+      selectedLocation: equipment ? null : undefined,
+    }),
+
+  selectLocation: (location) => set({ selectedLocation: location }),
+
+  setSelectionMode: (mode) => set({ selectionMode: mode }),
+
+  toggleAutoFillUnhittables: () =>
+    set((state) => ({
+      autoModeSettings: {
+        ...state.autoModeSettings,
+        autoFillUnhittables: !state.autoModeSettings.autoFillUnhittables,
+      },
+    })),
+
+  toggleAutoCompact: () =>
+    set((state) => ({
+      autoModeSettings: {
+        ...state.autoModeSettings,
+        autoCompact: !state.autoModeSettings.autoCompact,
+        // Auto sort implies auto compact, so disable sort if compact is being disabled
+        autoSort: !state.autoModeSettings.autoCompact
+          ? state.autoModeSettings.autoSort
+          : false,
+      },
+    })),
+
+  toggleAutoSort: () =>
+    set((state) => ({
+      autoModeSettings: {
+        ...state.autoModeSettings,
+        // Sort includes compact, so enable compact if sort is being enabled
+        autoCompact: !state.autoModeSettings.autoSort
+          ? true
+          : state.autoModeSettings.autoCompact,
+        autoSort: !state.autoModeSettings.autoSort,
+      },
+    })),
+
+  toggleShowPlacementPreview: () =>
+    set((state) => ({
+      autoModeSettings: {
+        ...state.autoModeSettings,
+        showPlacementPreview: !state.autoModeSettings.showPlacementPreview,
+      },
+    })),
+
+  toggleEquipmentTray: () =>
+    set((state) => ({
+      equipmentTrayCollapsed: !state.equipmentTrayCollapsed,
+    })),
+
+  toggleColorLegend: () =>
+    set((state) => ({
+      colorLegendExpanded: !state.colorLegendExpanded,
+    })),
+
+  clearSelection: () =>
+    set({
+      selectedEquipment: null,
+      selectedLocation: null,
+    }),
+
+  resetSettings: () =>
+    set({
+      autoModeSettings: DEFAULT_AUTO_SETTINGS,
+      equipmentTrayCollapsed: false,
+      colorLegendExpanded: false,
+    }),
+}));

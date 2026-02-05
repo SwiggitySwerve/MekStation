@@ -91,8 +91,12 @@ export function SimpleStat({
   const styles = sizeClasses[size];
 
   return (
-    <div className={`flex flex-col items-center px-2 sm:px-3 py-0.5 sm:py-1 bg-surface-raised/50 rounded ${className}`}>
-      <span className={`${styles.label} font-medium text-text-theme-secondary uppercase tracking-wider`}>
+    <div
+      className={`bg-surface-raised/50 flex flex-col items-center rounded px-2 py-0.5 sm:px-3 sm:py-1 ${className}`}
+    >
+      <span
+        className={`${styles.label} text-text-theme-secondary font-medium tracking-wider uppercase`}
+      >
         {label}
       </span>
       <span className={`${styles.value} font-bold ${statusColors[status]}`}>
@@ -117,17 +121,23 @@ export function CapacityStat({
   const styles = sizeClasses[size];
 
   return (
-    <div className={`flex flex-col items-center px-2 sm:px-3 py-0.5 sm:py-1 bg-surface-raised/50 rounded ${className}`}>
-      <span className={`${styles.label} font-medium text-text-theme-secondary uppercase tracking-wider`}>
+    <div
+      className={`bg-surface-raised/50 flex flex-col items-center rounded px-2 py-0.5 sm:px-3 sm:py-1 ${className}`}
+    >
+      <span
+        className={`${styles.label} text-text-theme-secondary font-medium tracking-wider uppercase`}
+      >
         {label}
       </span>
       <div className="flex items-baseline gap-0.5">
         <span className={`${styles.value} font-bold ${statusColors[status]}`}>
-          {current}{unit}
+          {current}
+          {unit}
         </span>
         <span className={`${styles.divider} text-slate-500`}>/</span>
         <span className={`${styles.secondary} text-slate-500`}>
-          {max}{unit}
+          {max}
+          {unit}
         </span>
       </div>
     </div>
@@ -162,8 +172,8 @@ export function CompactStat({
   className = '',
 }: CompactStatProps): React.ReactElement {
   return (
-    <div className={`flex flex-col items-center px-1.5 min-w-0 ${className}`}>
-      <span className="text-[8px] text-text-theme-secondary uppercase tracking-wider truncate">
+    <div className={`flex min-w-0 flex-col items-center px-1.5 ${className}`}>
+      <span className="text-text-theme-secondary truncate text-[8px] tracking-wider uppercase">
         {label}
       </span>
       <div className="flex items-baseline gap-0.5">
@@ -205,7 +215,10 @@ export function getSlotsStatus(used: number, max: number): StatStatus {
 /**
  * Calculate heat status based on generated vs dissipation
  */
-export function getHeatStatus(generated: number, dissipation: number): StatStatus {
+export function getHeatStatus(
+  generated: number,
+  dissipation: number,
+): StatStatus {
   if (generated > dissipation) return 'error';
   if (generated === dissipation) return 'warning';
   return 'success';

@@ -27,4 +27,3 @@
 - [x] 4.1 Build succeeds with no TypeScript errors
 - [x] 4.2 EquipmentCalculatorService tests pass (60 tests)
 - [x] 4.3 builtinFormulas tests pass (verifying MASC/Supercharger formulas are correct)
-

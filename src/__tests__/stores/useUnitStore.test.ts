@@ -1,28 +1,36 @@
 /**
  * Unit Store Tests
- * 
+ *
  * Tests for the isolated unit store factory and state management.
- * 
+ *
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 
-import { createUnitStore, createNewUnitStore } from '@/stores/useUnitStore';
-import { 
+import {
   createDefaultUnitState,
   generateUnitId,
   CreateUnitOptions,
 } from '@/stores/unitState';
-import { TechBase } from '@/types/enums/TechBase';
-import { TechBaseMode, TechBaseComponent } from '@/types/construction/TechBaseConfiguration';
-import { MechConfiguration, LAMMode, QuadVeeMode } from '@/types/construction/MechConfigurationSystem';
+import { createUnitStore, createNewUnitStore } from '@/stores/useUnitStore';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { 
-  setupMockLocalStorage, 
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import {
+  MechConfiguration,
+  LAMMode,
+  QuadVeeMode,
+} from '@/types/construction/MechConfigurationSystem';
+import {
+  TechBaseMode,
+  TechBaseComponent,
+} from '@/types/construction/TechBaseConfiguration';
+import { TechBase } from '@/types/enums/TechBase';
+
+import {
+  setupMockLocalStorage,
   createTestStore,
   createISTestStore,
   createClanTestStore,
@@ -32,15 +40,15 @@ import {
 
 describe('Unit Store', () => {
   let mockStorage: ReturnType<typeof setupMockLocalStorage>;
-  
+
   beforeEach(() => {
     mockStorage = setupMockLocalStorage();
   });
-  
+
   afterEach(() => {
     mockStorage.cleanup();
   });
-  
+
   // ===========================================================================
   // generateUnitId Tests
   // ===========================================================================
@@ -48,18 +56,20 @@ describe('Unit Store', () => {
     it('should generate unique IDs', () => {
       const id1 = generateUnitId();
       const id2 = generateUnitId();
-      
+
       expect(id1).not.toBe(id2);
     });
-    
+
     it('should generate IDs with expected UUID format', () => {
       const id = generateUnitId();
-      
+
       // UUIDs are 36 characters: 8-4-4-4-12 format
-      expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+      expect(id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      );
     });
   });
-  
+
   // ===========================================================================
   // createDefaultUnitState Tests
   // ===========================================================================
@@ -71,15 +81,15 @@ describe('Unit Store', () => {
         techBase: TechBase.INNER_SPHERE,
         walkMP: 4,
       };
-      
+
       const state = createDefaultUnitState(options);
-      
+
       expect(state.name).toBe('Test Mech');
       expect(state.tonnage).toBe(75);
       expect(state.techBase).toBe(TechBase.INNER_SPHERE);
       expect(state.engineRating).toBe(300); // 75 * 4
     });
-    
+
     it('should use provided ID if given', () => {
       const options: CreateUnitOptions = {
         id: 'custom-id-123',
@@ -87,83 +97,88 @@ describe('Unit Store', () => {
         tonnage: 50,
         techBase: TechBase.INNER_SPHERE,
       };
-      
+
       const state = createDefaultUnitState(options);
-      
+
       expect(state.id).toBe('custom-id-123');
     });
-    
+
     it('should generate ID if not provided', () => {
       const options: CreateUnitOptions = {
         name: 'Test',
         tonnage: 50,
         techBase: TechBase.INNER_SPHERE,
       };
-      
+
       const state = createDefaultUnitState(options);
-      
+
       // UUIDs are 36 characters: 8-4-4-4-12 format (UUID v4)
-      expect(state.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+      expect(state.id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      );
     });
-    
+
     it('should set techBaseMode to inner_sphere for IS units', () => {
       const options: CreateUnitOptions = {
         name: 'Test',
         tonnage: 50,
         techBase: TechBase.INNER_SPHERE,
       };
-      
+
       const state = createDefaultUnitState(options);
-      
+
       expect(state.techBaseMode).toBe(TechBaseMode.INNER_SPHERE);
     });
-    
+
     it('should set techBaseMode to clan for Clan units', () => {
       const options: CreateUnitOptions = {
         name: 'Test',
         tonnage: 50,
         techBase: TechBase.CLAN,
       };
-      
+
       const state = createDefaultUnitState(options);
-      
+
       expect(state.techBaseMode).toBe(TechBaseMode.CLAN);
     });
-    
+
     it('should initialize componentTechBases matching unit tech base', () => {
       const isState = createDefaultUnitState({
         name: 'Test',
         tonnage: 50,
         techBase: TechBase.INNER_SPHERE,
       });
-      
+
       const clanState = createDefaultUnitState({
         name: 'Test',
         tonnage: 50,
         techBase: TechBase.CLAN,
       });
-      
-      expectAllComponentTechBases(isState.componentTechBases, TechBase.INNER_SPHERE);
+
+      expectAllComponentTechBases(
+        isState.componentTechBases,
+        TechBase.INNER_SPHERE,
+      );
       expectAllComponentTechBases(clanState.componentTechBases, TechBase.CLAN);
     });
-    
+
     it('should use default walkMP of 4 if not provided', () => {
       const state = createDefaultUnitState({
         name: 'Test',
         tonnage: 100,
         techBase: TechBase.INNER_SPHERE,
       });
-      
+
       expect(state.engineRating).toBe(400); // 100 * 4
     });
-    
+
     it('should set default component types', () => {
       const state = createDefaultUnitState({
         name: 'Test',
         tonnage: 50,
         techBase: TechBase.INNER_SPHERE,
       });
-      
+
       expect(state.engineType).toBe(EngineType.STANDARD);
       expect(state.gyroType).toBe(GyroType.STANDARD);
       expect(state.internalStructureType).toBe(InternalStructureType.STANDARD);
@@ -172,17 +187,17 @@ describe('Unit Store', () => {
       expect(state.heatSinkCount).toBe(10);
       expect(state.armorType).toBe(ArmorTypeEnum.STANDARD);
     });
-    
+
     it('should set isModified to true for new units', () => {
       const state = createDefaultUnitState({
         name: 'Test',
         tonnage: 50,
         techBase: TechBase.INNER_SPHERE,
       });
-      
+
       expect(state.isModified).toBe(true);
     });
-    
+
     it('should set creation timestamps', () => {
       const before = Date.now();
       const state = createDefaultUnitState({
@@ -191,13 +206,13 @@ describe('Unit Store', () => {
         techBase: TechBase.INNER_SPHERE,
       });
       const after = Date.now();
-      
+
       expect(state.createdAt).toBeGreaterThanOrEqual(before);
       expect(state.createdAt).toBeLessThanOrEqual(after);
       expect(state.lastModifiedAt).toBe(state.createdAt);
     });
   });
-  
+
   // ===========================================================================
   // createUnitStore Tests
   // ===========================================================================
@@ -208,19 +223,19 @@ describe('Unit Store', () => {
         tonnage: 75,
         techBase: TechBase.CLAN,
       });
-      
+
       const store = createUnitStore(initialState);
       const state = store.getState();
-      
+
       expect(state.name).toBe('Test Mech');
       expect(state.tonnage).toBe(75);
       expect(state.techBase).toBe(TechBase.CLAN);
     });
-    
+
     it('should include all action methods', () => {
       const store = createTestStore();
       const state = store.getState();
-      
+
       expect(typeof state.setName).toBe('function');
       expect(typeof state.setTechBaseMode).toBe('function');
       expect(typeof state.setComponentTechBase).toBe('function');
@@ -236,7 +251,7 @@ describe('Unit Store', () => {
       expect(typeof state.markModified).toBe('function');
     });
   });
-  
+
   // ===========================================================================
   // createNewUnitStore Tests
   // ===========================================================================
@@ -247,133 +262,151 @@ describe('Unit Store', () => {
         tonnage: 50,
         techBase: TechBase.INNER_SPHERE,
       });
-      
+
       const state = store.getState();
-      
+
       expect(state.name).toBe('New Unit');
       expect(state.tonnage).toBe(50);
       // UUIDs are 36 characters: 8-4-4-4-12 format (UUID v4)
-      expect(state.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+      expect(state.id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      );
     });
   });
-  
+
   // ===========================================================================
   // Name Actions Tests
   // ===========================================================================
   describe('setName()', () => {
     it('should update name', () => {
       const store = createTestStore({ name: 'Original' });
-      
+
       store.getState().setName('Updated');
-      
+
       expect(store.getState().name).toBe('Updated');
     });
-    
+
     it('should mark as modified', () => {
       const store = createTestStore();
       store.getState().markModified(false);
-      
+
       store.getState().setName('New Name');
-      
+
       expect(store.getState().isModified).toBe(true);
     });
-    
+
     it('should update lastModifiedAt', () => {
       const store = createTestStore();
-      
+
       // Wait a bit to ensure time difference
       const later = Date.now() + 1;
       jest.spyOn(Date, 'now').mockReturnValue(later);
-      
+
       store.getState().setName('New Name');
-      
+
       expect(store.getState().lastModifiedAt).toBe(later);
-      
+
       jest.restoreAllMocks();
     });
   });
-  
+
   // ===========================================================================
   // Tech Base Mode Actions Tests
   // ===========================================================================
   describe('setTechBaseMode()', () => {
     it('should update tech base mode', () => {
       const store = createISTestStore();
-      
+
       store.getState().setTechBaseMode(TechBaseMode.CLAN);
-      
+
       expectTechBaseMode(store, TechBaseMode.CLAN);
     });
-    
+
     it('should reset componentTechBases to Clan when switching to clan mode', () => {
       const store = createISTestStore();
-      
+
       store.getState().setTechBaseMode(TechBaseMode.CLAN);
-      
-      expectAllComponentTechBases(store.getState().componentTechBases, TechBase.CLAN);
+
+      expectAllComponentTechBases(
+        store.getState().componentTechBases,
+        TechBase.CLAN,
+      );
     });
-    
+
     it('should reset componentTechBases to IS when switching to inner_sphere mode', () => {
       const store = createClanTestStore();
-      
+
       store.getState().setTechBaseMode(TechBaseMode.INNER_SPHERE);
-      
-      expectAllComponentTechBases(store.getState().componentTechBases, TechBase.INNER_SPHERE);
+
+      expectAllComponentTechBases(
+        store.getState().componentTechBases,
+        TechBase.INNER_SPHERE,
+      );
     });
-    
+
     it('should preserve componentTechBases when switching to mixed mode', () => {
       const store = createISTestStore();
-      
+
       // Set a specific component to Clan
-      store.getState().setComponentTechBase(TechBaseComponent.ENGINE, TechBase.CLAN);
-      
+      store
+        .getState()
+        .setComponentTechBase(TechBaseComponent.ENGINE, TechBase.CLAN);
+
       // Switch to mixed mode
       store.getState().setTechBaseMode(TechBaseMode.MIXED);
-      
+
       // Engine should still be Clan
       expect(store.getState().componentTechBases.engine).toBe(TechBase.CLAN);
       // Others should still be IS
-      expect(store.getState().componentTechBases.chassis).toBe(TechBase.INNER_SPHERE);
+      expect(store.getState().componentTechBases.chassis).toBe(
+        TechBase.INNER_SPHERE,
+      );
     });
-    
+
     it('should mark as modified when changing tech base mode', () => {
       const store = createTestStore();
       store.getState().markModified(false);
-      
+
       store.getState().setTechBaseMode(TechBaseMode.CLAN);
-      
+
       expect(store.getState().isModified).toBe(true);
     });
   });
-  
+
   // ===========================================================================
   // Component Tech Base Actions Tests
   // ===========================================================================
   describe('setComponentTechBase()', () => {
     it('should update individual component tech base', () => {
       const store = createISTestStore();
-      
-      store.getState().setComponentTechBase(TechBaseComponent.ENGINE, TechBase.CLAN);
-      
+
+      store
+        .getState()
+        .setComponentTechBase(TechBaseComponent.ENGINE, TechBase.CLAN);
+
       expect(store.getState().componentTechBases.engine).toBe(TechBase.CLAN);
       // Other components remain unchanged
-      expect(store.getState().componentTechBases.chassis).toBe(TechBase.INNER_SPHERE);
+      expect(store.getState().componentTechBases.chassis).toBe(
+        TechBase.INNER_SPHERE,
+      );
     });
-    
+
     it('should mark as modified', () => {
       const store = createTestStore();
       store.getState().markModified(false);
-      
-      store.getState().setComponentTechBase(TechBaseComponent.ARMOR, TechBase.CLAN);
-      
+
+      store
+        .getState()
+        .setComponentTechBase(TechBaseComponent.ARMOR, TechBase.CLAN);
+
       expect(store.getState().isModified).toBe(true);
     });
   });
-  
+
   describe('setAllComponentTechBases()', () => {
     it('should replace all component tech bases', () => {
       const store = createISTestStore();
-      
+
       const newTechBases = {
         chassis: TechBase.CLAN,
         gyro: TechBase.CLAN,
@@ -384,143 +417,147 @@ describe('Unit Store', () => {
         movement: TechBase.CLAN,
         armor: TechBase.CLAN,
       };
-      
+
       store.getState().setAllComponentTechBases(newTechBases);
-      
+
       expect(store.getState().componentTechBases).toEqual(newTechBases);
     });
   });
-  
+
   // ===========================================================================
   // Engine Actions Tests
   // ===========================================================================
   describe('setEngineType()', () => {
     it('should update engine type', () => {
       const store = createISTestStore();
-      
+
       store.getState().setEngineType(EngineType.XL_IS);
-      
+
       expect(store.getState().engineType).toBe(EngineType.XL_IS);
     });
-    
+
     it('should mark as modified', () => {
       const store = createTestStore();
       store.getState().markModified(false);
-      
+
       store.getState().setEngineType(EngineType.LIGHT);
-      
+
       expect(store.getState().isModified).toBe(true);
     });
   });
-  
+
   describe('setEngineRating()', () => {
     it('should update engine rating', () => {
       const store = createTestStore({ tonnage: 50 });
-      
+
       store.getState().setEngineRating(250);
-      
+
       expect(store.getState().engineRating).toBe(250);
     });
   });
-  
+
   // ===========================================================================
   // Gyro Actions Tests
   // ===========================================================================
   describe('setGyroType()', () => {
     it('should update gyro type', () => {
       const store = createTestStore();
-      
+
       store.getState().setGyroType(GyroType.XL);
-      
+
       expect(store.getState().gyroType).toBe(GyroType.XL);
     });
   });
-  
+
   // ===========================================================================
   // Internal Structure Actions Tests
   // ===========================================================================
   describe('setInternalStructureType()', () => {
     it('should update internal structure type', () => {
       const store = createISTestStore();
-      
-      store.getState().setInternalStructureType(InternalStructureType.ENDO_STEEL_IS);
-      
-      expect(store.getState().internalStructureType).toBe(InternalStructureType.ENDO_STEEL_IS);
+
+      store
+        .getState()
+        .setInternalStructureType(InternalStructureType.ENDO_STEEL_IS);
+
+      expect(store.getState().internalStructureType).toBe(
+        InternalStructureType.ENDO_STEEL_IS,
+      );
     });
   });
-  
+
   // ===========================================================================
   // Cockpit Actions Tests
   // ===========================================================================
   describe('setCockpitType()', () => {
     it('should update cockpit type', () => {
       const store = createTestStore();
-      
+
       store.getState().setCockpitType(CockpitType.SMALL);
-      
+
       expect(store.getState().cockpitType).toBe(CockpitType.SMALL);
     });
   });
-  
+
   // ===========================================================================
   // Heat Sink Actions Tests
   // ===========================================================================
   describe('setHeatSinkType()', () => {
     it('should update heat sink type', () => {
       const store = createISTestStore();
-      
+
       store.getState().setHeatSinkType(HeatSinkType.DOUBLE_IS);
-      
+
       expect(store.getState().heatSinkType).toBe(HeatSinkType.DOUBLE_IS);
     });
   });
-  
+
   describe('setHeatSinkCount()', () => {
     it('should update heat sink count', () => {
       const store = createTestStore();
-      
+
       store.getState().setHeatSinkCount(15);
-      
+
       expect(store.getState().heatSinkCount).toBe(15);
     });
   });
-  
+
   // ===========================================================================
   // Armor Actions Tests
   // ===========================================================================
   describe('setArmorType()', () => {
     it('should update armor type', () => {
       const store = createISTestStore();
-      
+
       store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
-      
+
       expect(store.getState().armorType).toBe(ArmorTypeEnum.FERRO_FIBROUS_IS);
     });
 
     it('should cap armor tonnage when switching to more efficient armor type', () => {
       const store = createISTestStore({ tonnage: 75 });
       store.getState().setArmorTonnage(19.5);
-      
+
       store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
-      
+
       expect(store.getState().armorTonnage).toBeLessThan(19.5);
     });
 
     it('should not increase armor tonnage when switching armor types', () => {
       const store = createISTestStore({ tonnage: 75 });
       store.getState().setArmorTonnage(10);
-      
+
       store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
-      
+
       expect(store.getState().armorTonnage).toBe(10);
     });
 
     it('should cap tonnage to max useful for Heavy Ferro-Fibrous', () => {
       const store = createISTestStore({ tonnage: 75 });
       store.getState().setArmorTonnage(20);
-      
+
       store.getState().setArmorType(ArmorTypeEnum.HEAVY_FERRO);
-      
+
       expect(store.getState().armorTonnage).toBeLessThanOrEqual(13);
     });
 
@@ -528,9 +565,9 @@ describe('Unit Store', () => {
       const store = createISTestStore({ tonnage: 75 });
       store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
       store.getState().setArmorTonnage(18);
-      
+
       store.getState().setArmorType(ArmorTypeEnum.STANDARD);
-      
+
       expect(store.getState().armorTonnage).toBeLessThanOrEqual(19.5);
     });
 
@@ -538,40 +575,40 @@ describe('Unit Store', () => {
       const store = createISTestStore({ tonnage: 75 });
       store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
       store.getState().setArmorTonnage(5);
-      
+
       store.getState().setArmorType(ArmorTypeEnum.STANDARD);
-      
+
       expect(store.getState().armorTonnage).toBe(5);
     });
 
     it('should handle edge case of zero armor tonnage', () => {
       const store = createISTestStore({ tonnage: 50 });
       store.getState().setArmorTonnage(0);
-      
+
       store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
-      
+
       expect(store.getState().armorTonnage).toBe(0);
     });
 
     it('should cap correctly for light mechs', () => {
       const store = createISTestStore({ tonnage: 20 });
       store.getState().setArmorTonnage(10);
-      
+
       store.getState().setArmorType(ArmorTypeEnum.HEAVY_FERRO);
-      
+
       expect(store.getState().armorTonnage).toBeLessThanOrEqual(4);
     });
 
     it('should cap correctly for assault mechs', () => {
       const store = createISTestStore({ tonnage: 100 });
       store.getState().setArmorTonnage(25);
-      
+
       store.getState().setArmorType(ArmorTypeEnum.FERRO_FIBROUS_IS);
-      
+
       expect(store.getState().armorTonnage).toBeLessThanOrEqual(24);
     });
   });
-  
+
   // ===========================================================================
   // Metadata Actions Tests
   // ===========================================================================
@@ -579,97 +616,122 @@ describe('Unit Store', () => {
     it('should set isModified to true by default', () => {
       const store = createTestStore();
       store.setState({ isModified: false });
-      
+
       store.getState().markModified();
-      
+
       expect(store.getState().isModified).toBe(true);
     });
-    
+
     it('should set isModified to false when passed false', () => {
       const store = createTestStore();
-      
+
       store.getState().markModified(false);
-      
+
       expect(store.getState().isModified).toBe(false);
     });
-    
+
     it('should update lastModifiedAt', () => {
       const store = createTestStore();
-      
+
       const later = Date.now() + 1000;
       jest.spyOn(Date, 'now').mockReturnValue(later);
-      
+
       store.getState().markModified();
-      
+
       expect(store.getState().lastModifiedAt).toBe(later);
-      
+
       jest.restoreAllMocks();
     });
   });
-  
+
   // ===========================================================================
   // Tech Base Switching Scenarios
   // ===========================================================================
   describe('Tech Base Switching Scenarios', () => {
     it('should handle IS to Clan switch correctly', () => {
       const store = createISTestStore();
-      
+
       // Verify initial IS state
       expectTechBaseMode(store, TechBaseMode.INNER_SPHERE);
-      expectAllComponentTechBases(store.getState().componentTechBases, TechBase.INNER_SPHERE);
-      
+      expectAllComponentTechBases(
+        store.getState().componentTechBases,
+        TechBase.INNER_SPHERE,
+      );
+
       // Switch to Clan
       store.getState().setTechBaseMode(TechBaseMode.CLAN);
-      
+
       // Verify Clan state
       expectTechBaseMode(store, TechBaseMode.CLAN);
-      expectAllComponentTechBases(store.getState().componentTechBases, TechBase.CLAN);
+      expectAllComponentTechBases(
+        store.getState().componentTechBases,
+        TechBase.CLAN,
+      );
     });
-    
+
     it('should handle Clan to IS switch correctly', () => {
       const store = createClanTestStore();
-      
+
       // Verify initial Clan state
       expectTechBaseMode(store, TechBaseMode.CLAN);
-      expectAllComponentTechBases(store.getState().componentTechBases, TechBase.CLAN);
-      
+      expectAllComponentTechBases(
+        store.getState().componentTechBases,
+        TechBase.CLAN,
+      );
+
       // Switch to IS
       store.getState().setTechBaseMode(TechBaseMode.INNER_SPHERE);
-      
+
       // Verify IS state
       expectTechBaseMode(store, TechBaseMode.INNER_SPHERE);
-      expectAllComponentTechBases(store.getState().componentTechBases, TechBase.INNER_SPHERE);
+      expectAllComponentTechBases(
+        store.getState().componentTechBases,
+        TechBase.INNER_SPHERE,
+      );
     });
-    
+
     it('should handle IS to mixed mode correctly', () => {
       const store = createISTestStore();
-      
+
       // Set specific components before switching to mixed
-      store.getState().setComponentTechBase(TechBaseComponent.ENGINE, TechBase.CLAN);
-      store.getState().setComponentTechBase(TechBaseComponent.HEATSINK, TechBase.CLAN);
-      
+      store
+        .getState()
+        .setComponentTechBase(TechBaseComponent.ENGINE, TechBase.CLAN);
+      store
+        .getState()
+        .setComponentTechBase(TechBaseComponent.HEATSINK, TechBase.CLAN);
+
       // Switch to mixed
       store.getState().setTechBaseMode(TechBaseMode.MIXED);
-      
+
       // Verify preserved settings
       expect(store.getState().componentTechBases.engine).toBe(TechBase.CLAN);
       expect(store.getState().componentTechBases.heatsink).toBe(TechBase.CLAN);
-      expect(store.getState().componentTechBases.chassis).toBe(TechBase.INNER_SPHERE);
+      expect(store.getState().componentTechBases.chassis).toBe(
+        TechBase.INNER_SPHERE,
+      );
     });
-    
+
     it('should reset mixed settings when switching back to non-mixed', () => {
       const store = createISTestStore();
 
       // Switch to mixed and set varied tech bases
       store.getState().setTechBaseMode(TechBaseMode.MIXED);
-      store.getState().setComponentTechBase(TechBaseComponent.ENGINE, TechBase.CLAN);
-      store.getState().setComponentTechBase(TechBaseComponent.ARMOR, TechBase.CLAN);
+      store
+        .getState()
+        .setComponentTechBase(TechBaseComponent.ENGINE, TechBase.CLAN);
+      store
+        .getState()
+        .setComponentTechBase(TechBaseComponent.ARMOR, TechBase.CLAN);
 
       // Switch to Clan (non-mixed)
       store.getState().setTechBaseMode(TechBaseMode.CLAN);
 
       // All should be Clan now
-      expectAllComponentTechBases(store.getState().componentTechBases, TechBase.CLAN);
+      expectAllComponentTechBases(
+        store.getState().componentTechBases,
+        TechBase.CLAN,
+      );
     });
   });
 
@@ -830,4 +892,3 @@ describe('Unit Store', () => {
     });
   });
 });
-

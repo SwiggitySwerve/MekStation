@@ -8,6 +8,7 @@
  */
 
 import { useMemo } from 'react';
+
 import { useUnitStore } from '@/stores/useUnitStore';
 
 /**
@@ -51,6 +52,13 @@ export function useStructureValidation(): StructureValidationData {
       heatSinkCount,
       heatSinkType,
     }),
-    [engineType, gyroType, cockpitType, internalStructureType, heatSinkCount, heatSinkType]
+    [
+      engineType,
+      gyroType,
+      cockpitType,
+      internalStructureType,
+      heatSinkCount,
+      heatSinkType,
+    ],
   );
 }

@@ -1,9 +1,9 @@
 /**
  * Local Storage Service for MekStation Desktop App
- * 
+ *
  * Provides local file storage with compression, encryption, and caching
  * for the self-hosted MekStation application.
- * 
+ *
  * Features:
  * - JSON data storage with type safety
  * - Optional compression for large files
@@ -13,11 +13,11 @@
  * - Automatic cleanup and optimization
  */
 
+import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import * as crypto from 'crypto';
-import * as zlib from 'zlib';
 import { promisify } from 'util';
+import * as zlib from 'zlib';
 
 // Service interfaces
 import { IService, ResultType, Result } from '../../types/BaseTypes';
@@ -80,7 +80,7 @@ export class LocalStorageService implements IService {
       maxFileSize: config.maxFileSize || 5 * 1024 * 1024, // 5MB
       cacheTtl: config.cacheTtl || 300000, // 5 minutes
       cleanupInterval: config.cleanupInterval || 600000, // 10 minutes
-      encryptionKey: config.encryptionKey || this.generateEncryptionKey()
+      encryptionKey: config.encryptionKey || this.generateEncryptionKey(),
     };
   }
 
@@ -149,7 +149,9 @@ export class LocalStorageService implements IService {
 
       // Check file size
       if (buffer.length > this.config.maxFileSize) {
-        return Result.error(`Data too large: ${buffer.length} bytes (max: ${this.config.maxFileSize})`);
+        return Result.error(
+          `Data too large: ${buffer.length} bytes (max: ${this.config.maxFileSize})`,
+        );
       }
 
       // Process data (compress/encrypt)
@@ -173,7 +175,7 @@ export class LocalStorageService implements IService {
         checksum: this.calculateChecksum(buffer),
         createdAt: new Date(),
         updatedAt: new Date(),
-        accessedAt: new Date()
+        accessedAt: new Date(),
       };
 
       this.metadataCache.set(key, metadata);
@@ -183,7 +185,7 @@ export class LocalStorageService implements IService {
         data,
         metadata,
         cachedAt: new Date(),
-        ttl: this.config.cacheTtl
+        ttl: this.config.cacheTtl,
       });
 
       return Result.success(undefined);
@@ -210,7 +212,7 @@ export class LocalStorageService implements IService {
         if (metadata) {
           this.metadataCache.set(key, {
             ...metadata,
-            accessedAt: new Date()
+            accessedAt: new Date(),
           });
         }
         return Result.success(cached.data);
@@ -218,11 +220,11 @@ export class LocalStorageService implements IService {
 
       // Load from file
       const filePath = this.getFilePath(key);
-      
+
       try {
         const processedData = await fs.readFile(filePath);
         const buffer = await this.processData(processedData, false);
-        
+
         // Deserialize data
         const serialized = buffer.toString('utf8');
         const data = JSON.parse(serialized);
@@ -232,7 +234,7 @@ export class LocalStorageService implements IService {
         if (metadata) {
           this.metadataCache.set(key, {
             ...metadata,
-            accessedAt: new Date()
+            accessedAt: new Date(),
           });
         }
 
@@ -242,7 +244,7 @@ export class LocalStorageService implements IService {
             data,
             metadata,
             cachedAt: new Date(),
-            ttl: this.config.cacheTtl
+            ttl: this.config.cacheTtl,
           });
         }
 
@@ -270,14 +272,14 @@ export class LocalStorageService implements IService {
       }
 
       const filePath = this.getFilePath(key);
-      
+
       try {
         await fs.unlink(filePath);
-        
+
         // Remove from caches
         this.cache.delete(key);
         this.metadataCache.delete(key);
-        
+
         return Result.success(true);
       } catch (error) {
         if (this.isFileNotFoundError(error)) {
@@ -347,8 +349,10 @@ export class LocalStorageService implements IService {
 
       const entries = Array.from(this.metadataCache.values());
       const totalSize = entries.reduce((sum, meta) => sum + meta.size, 0);
-      const compressedEntries = entries.filter(meta => meta.compressed).length;
-      const encryptedEntries = entries.filter(meta => meta.encrypted).length;
+      const compressedEntries = entries.filter(
+        (meta) => meta.compressed,
+      ).length;
+      const encryptedEntries = entries.filter((meta) => meta.encrypted).length;
 
       const stats: IStorageStats = {
         totalEntries: entries.length,
@@ -356,7 +360,7 @@ export class LocalStorageService implements IService {
         compressedEntries,
         encryptedEntries,
         cacheSize: this.cache.size,
-        dataPath: this.config.dataPath
+        dataPath: this.config.dataPath,
       };
 
       return Result.success(stats);
@@ -403,7 +407,10 @@ export class LocalStorageService implements IService {
   /**
    * Process data (compress/decompress, encrypt/decrypt)
    */
-  private async processData(buffer: Buffer, isStoring: boolean): Promise<Buffer> {
+  private async processData(
+    buffer: Buffer,
+    isStoring: boolean,
+  ): Promise<Buffer> {
     let result = buffer;
 
     if (isStoring) {
@@ -440,7 +447,10 @@ export class LocalStorageService implements IService {
     }
 
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipher('aes-256-cbc', this.config.encryptionKey);
+    const cipher = crypto.createCipher(
+      'aes-256-cbc',
+      this.config.encryptionKey,
+    );
     const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
     return Buffer.concat([iv, encrypted]);
   }
@@ -455,7 +465,10 @@ export class LocalStorageService implements IService {
 
     const iv = buffer.slice(0, 16);
     const encrypted = buffer.slice(16);
-    const decipher = crypto.createDecipher('aes-256-cbc', this.config.encryptionKey);
+    const decipher = crypto.createDecipher(
+      'aes-256-cbc',
+      this.config.encryptionKey,
+    );
     return Buffer.concat([decipher.update(encrypted), decipher.final()]);
   }
 
@@ -507,10 +520,14 @@ export class LocalStorageService implements IService {
    */
   private async loadMetadata(): Promise<void> {
     try {
-      const metadataPath = path.join(this.config.dataPath, '.metadata', 'index.json');
+      const metadataPath = path.join(
+        this.config.dataPath,
+        '.metadata',
+        'index.json',
+      );
       const data = await fs.readFile(metadataPath, 'utf8');
       const metadata = JSON.parse(data);
-      
+
       for (const [key, meta] of Object.entries(metadata)) {
         this.metadataCache.set(key, meta as IStorageMetadata);
       }
@@ -525,7 +542,11 @@ export class LocalStorageService implements IService {
    */
   private async saveMetadata(): Promise<void> {
     try {
-      const metadataPath = path.join(this.config.dataPath, '.metadata', 'index.json');
+      const metadataPath = path.join(
+        this.config.dataPath,
+        '.metadata',
+        'index.json',
+      );
       const metadata = Object.fromEntries(this.metadataCache);
       await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
     } catch (error) {
@@ -537,9 +558,11 @@ export class LocalStorageService implements IService {
    * Type-safe error checking for file operations
    */
   private isFileNotFoundError(error: unknown): boolean {
-    return error instanceof Error && 
-           'code' in error && 
-           (error as NodeJS.ErrnoException).code === 'ENOENT';
+    return (
+      error instanceof Error &&
+      'code' in error &&
+      (error as NodeJS.ErrnoException).code === 'ENOENT'
+    );
   }
 }
 

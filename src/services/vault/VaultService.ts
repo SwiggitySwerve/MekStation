@@ -15,13 +15,14 @@ import type {
   ContentCategory,
   IPermissionGrant,
 } from '@/types/vault';
+
+import { createSingleton } from '../core/createSingleton';
+import { getContactRepository } from './ContactRepository';
+import { PermissionService, getPermissionService } from './PermissionService';
 import {
   VaultFolderRepository,
   getVaultFolderRepository,
 } from './VaultFolderRepository';
-import { PermissionService, getPermissionService } from './PermissionService';
-import { getContactRepository } from './ContactRepository';
-import { createSingleton } from '../core/createSingleton';
 
 // =============================================================================
 // Types
@@ -80,7 +81,7 @@ export class VaultService {
 
   constructor(
     folderRepo?: VaultFolderRepository,
-    permissionService?: PermissionService
+    permissionService?: PermissionService,
   ) {
     this.folderRepo = folderRepo ?? getVaultFolderRepository();
     this.permissionService = permissionService ?? getPermissionService();
@@ -98,7 +99,7 @@ export class VaultService {
     options?: {
       description?: string;
       parentId?: string;
-    }
+    },
   ): Promise<IVaultFolder> {
     return this.folderRepo.createFolder(name, options);
   }
@@ -143,7 +144,7 @@ export class VaultService {
    */
   async setFolderDescription(
     id: string,
-    description: string | null
+    description: string | null,
   ): Promise<boolean> {
     return this.folderRepo.updateFolderDescription(id, description);
   }
@@ -174,7 +175,7 @@ export class VaultService {
   async addItemToFolder(
     folderId: string,
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<boolean> {
     return this.folderRepo.addItemToFolder(folderId, itemId, itemType);
   }
@@ -185,7 +186,7 @@ export class VaultService {
   async removeItemFromFolder(
     folderId: string,
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<boolean> {
     return this.folderRepo.removeItemFromFolder(folderId, itemId, itemType);
   }
@@ -202,7 +203,7 @@ export class VaultService {
    */
   async getItemFolders(
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<IVaultFolder[]> {
     return this.folderRepo.getItemFolders(itemId, itemType);
   }
@@ -214,7 +215,7 @@ export class VaultService {
     itemId: string,
     itemType: ShareableContentType,
     fromFolderId: string,
-    toFolderId: string
+    toFolderId: string,
   ): Promise<boolean> {
     return this.folderRepo.moveItem(itemId, itemType, fromFolderId, toFolderId);
   }
@@ -224,7 +225,7 @@ export class VaultService {
    */
   async removeItemFromAllFolders(
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<number> {
     return this.folderRepo.removeItemFromAllFolders(itemId, itemType);
   }
@@ -239,7 +240,7 @@ export class VaultService {
   async shareFolderWithContact(
     folderId: string,
     contactFriendCode: string,
-    level: PermissionLevel
+    level: PermissionLevel,
   ): Promise<boolean> {
     // Mark folder as shared
     await this.folderRepo.setFolderShared(folderId, true);
@@ -270,7 +271,7 @@ export class VaultService {
     itemId: string,
     itemType: ShareableContentType,
     contactFriendCode: string,
-    level: PermissionLevel
+    level: PermissionLevel,
   ): Promise<boolean> {
     const contactRepo = getContactRepository();
     const contact = await contactRepo.getByFriendCode(contactFriendCode);
@@ -295,7 +296,7 @@ export class VaultService {
   async shareCategoryWithContact(
     category: ContentCategory,
     contactFriendCode: string,
-    level: PermissionLevel
+    level: PermissionLevel,
   ): Promise<boolean> {
     const contactRepo = getContactRepository();
     const contact = await contactRepo.getByFriendCode(contactFriendCode);
@@ -319,11 +320,10 @@ export class VaultService {
    */
   async unshareFolder(
     folderId: string,
-    contactFriendCode: string
+    contactFriendCode: string,
   ): Promise<boolean> {
-    const permissions = await this.permissionService.getGrantsForGrantee(
-      contactFriendCode
-    );
+    const permissions =
+      await this.permissionService.getGrantsForGrantee(contactFriendCode);
 
     for (const perm of permissions) {
       if (perm.scopeType === 'folder' && perm.scopeId === folderId) {
@@ -334,7 +334,7 @@ export class VaultService {
     // Check if folder is still shared with anyone
     const folderPerms = await this.permissionService.getGrantsForItem(
       'folder',
-      folderId
+      folderId,
     );
     if (folderPerms.length === 0) {
       await this.folderRepo.setFolderShared(folderId, false);
@@ -346,13 +346,15 @@ export class VaultService {
   /**
    * Get folder with permission info
    */
-  async getFolderWithPermissions(id: string): Promise<IFolderWithPermissions | null> {
+  async getFolderWithPermissions(
+    id: string,
+  ): Promise<IFolderWithPermissions | null> {
     const folder = await this.folderRepo.getFolderById(id);
     if (!folder) return null;
 
     const permissions = await this.permissionService.getGrantsForItem(
       'folder',
-      id
+      id,
     );
 
     return {
@@ -384,14 +386,18 @@ export class VaultService {
     contacts: Array<{
       friendCode: string;
       level: PermissionLevel;
-    }>
+    }>,
   ): Promise<{ success: number; failed: number }> {
     let success = 0;
     let failed = 0;
 
     for (const contact of contacts) {
       try {
-        await this.shareFolderWithContact(folderId, contact.friendCode, contact.level);
+        await this.shareFolderWithContact(
+          folderId,
+          contact.friendCode,
+          contact.level,
+        );
         success++;
       } catch {
         failed++;
@@ -410,7 +416,7 @@ export class VaultService {
       itemType: ShareableContentType;
     }>,
     contactFriendCode: string,
-    level: PermissionLevel
+    level: PermissionLevel,
   ): Promise<{ success: number; failed: number }> {
     let success = 0;
     let failed = 0;
@@ -421,7 +427,7 @@ export class VaultService {
           item.itemId,
           item.itemType,
           contactFriendCode,
-          level
+          level,
         );
         success++;
       } catch {
@@ -439,7 +445,7 @@ export class VaultService {
   async shareFolderContentsWithContact(
     folderId: string,
     contactFriendCode: string,
-    level: PermissionLevel
+    level: PermissionLevel,
   ): Promise<{ folderShared: boolean; itemsShared: number }> {
     // Share the folder itself
     await this.shareFolderWithContact(folderId, contactFriendCode, level);
@@ -454,7 +460,7 @@ export class VaultService {
           item.itemId,
           item.itemType,
           contactFriendCode,
-          level
+          level,
         );
         itemsShared++;
       } catch {
@@ -477,13 +483,17 @@ export class VaultService {
    */
   async updateContactPermissionLevel(
     contactFriendCode: string,
-    newLevel: PermissionLevel
+    newLevel: PermissionLevel,
   ): Promise<number> {
-    const permissions = await this.permissionService.getGrantsForGrantee(contactFriendCode);
+    const permissions =
+      await this.permissionService.getGrantsForGrantee(contactFriendCode);
     let updated = 0;
 
     for (const perm of permissions) {
-      const result = await this.permissionService.updateLevel(perm.id, newLevel);
+      const result = await this.permissionService.updateLevel(
+        perm.id,
+        newLevel,
+      );
       if (result.success) updated++;
     }
 
@@ -499,12 +509,12 @@ export class VaultService {
    */
   async canAccessFolder(
     folderId: string,
-    friendCode: string
+    friendCode: string,
   ): Promise<PermissionLevel | null> {
     const result = await this.permissionService.check(
       friendCode,
       'folder',
-      folderId
+      folderId,
     );
     return result.level;
   }
@@ -515,13 +525,13 @@ export class VaultService {
   async canAccessItem(
     itemId: string,
     itemType: ShareableContentType,
-    friendCode: string
+    friendCode: string,
   ): Promise<PermissionLevel | null> {
     // Check direct item permission
     const itemResult = await this.permissionService.check(
       friendCode,
       'item',
-      `${itemType}:${itemId}`
+      `${itemType}:${itemId}`,
     );
     if (itemResult.level) return itemResult.level;
 
@@ -544,7 +554,7 @@ export class VaultService {
       friendCode,
       'category',
       null,
-      categoryMap[itemType]
+      categoryMap[itemType],
     );
     return categoryResult.level;
   }
@@ -591,7 +601,7 @@ export class VaultService {
   async makePublic(
     itemId: string,
     itemType: ShareableContentType,
-    level: PermissionLevel = 'read'
+    level: PermissionLevel = 'read',
   ): Promise<boolean> {
     await this.permissionService.grant({
       granteeId: 'public',
@@ -608,7 +618,7 @@ export class VaultService {
    */
   async makeFolderPublic(
     folderId: string,
-    level: PermissionLevel = 'read'
+    level: PermissionLevel = 'read',
   ): Promise<boolean> {
     await this.folderRepo.setFolderShared(folderId, true);
     await this.permissionService.grant({
@@ -626,7 +636,7 @@ export class VaultService {
    */
   async makeCategoryPublic(
     category: ContentCategory,
-    level: PermissionLevel = 'read'
+    level: PermissionLevel = 'read',
   ): Promise<boolean> {
     await this.permissionService.grant({
       granteeId: 'public',
@@ -643,10 +653,13 @@ export class VaultService {
    */
   async removePublicAccess(
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<boolean> {
     const scopeId = `${itemType}:${itemId}`;
-    const grants = await this.permissionService.getGrantsForItem('item', scopeId);
+    const grants = await this.permissionService.getGrantsForItem(
+      'item',
+      scopeId,
+    );
 
     for (const grant of grants) {
       if (grant.granteeId === 'public') {
@@ -661,7 +674,10 @@ export class VaultService {
    * Remove public access from a folder
    */
   async removeFolderPublicAccess(folderId: string): Promise<boolean> {
-    const grants = await this.permissionService.getGrantsForItem('folder', folderId);
+    const grants = await this.permissionService.getGrantsForItem(
+      'folder',
+      folderId,
+    );
 
     for (const grant of grants) {
       if (grant.granteeId === 'public') {
@@ -670,7 +686,10 @@ export class VaultService {
     }
 
     // Check if folder is still shared with anyone (non-public)
-    const remaining = await this.permissionService.getGrantsForItem('folder', folderId);
+    const remaining = await this.permissionService.getGrantsForItem(
+      'folder',
+      folderId,
+    );
     if (remaining.length === 0) {
       await this.folderRepo.setFolderShared(folderId, false);
     }
@@ -683,12 +702,12 @@ export class VaultService {
    */
   async isPublic(
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<PermissionLevel | null> {
     const result = await this.permissionService.check(
       'public',
       'item',
-      `${itemType}:${itemId}`
+      `${itemType}:${itemId}`,
     );
     return result.level;
   }
@@ -700,7 +719,7 @@ export class VaultService {
     const result = await this.permissionService.check(
       'public',
       'folder',
-      folderId
+      folderId,
     );
     return result.level;
   }

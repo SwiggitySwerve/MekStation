@@ -1,13 +1,19 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+
 import { VersionHistoryDialog } from '@/components/customizer/dialogs/VersionHistoryDialog';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 
 // Mock ModalOverlay
 jest.mock('@/components/customizer/dialogs/ModalOverlay', () => ({
-  ModalOverlay: ({ children, isOpen }: { children: React.ReactNode; isOpen: boolean }) =>
-    isOpen ? <div data-testid="modal-overlay">{children}</div> : null,
+  ModalOverlay: ({
+    children,
+    isOpen,
+  }: {
+    children: React.ReactNode;
+    isOpen: boolean;
+  }) => (isOpen ? <div data-testid="modal-overlay">{children}</div> : null),
 }));
 
 // Mock CustomUnitApiService
@@ -37,49 +43,57 @@ describe('VersionHistoryDialog', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (customUnitApiService.getVersionHistory as jest.Mock).mockResolvedValue(mockVersions);
+    (customUnitApiService.getVersionHistory as jest.Mock).mockResolvedValue(
+      mockVersions,
+    );
     (customUnitApiService.getVersion as jest.Mock).mockResolvedValue({
       version: 1,
       data: { chassis: 'Atlas', variant: 'AS7-D' },
     });
-    (customUnitApiService.revert as jest.Mock).mockResolvedValue({ success: true });
+    (customUnitApiService.revert as jest.Mock).mockResolvedValue({
+      success: true,
+    });
   });
 
   it('should render when open', () => {
     render(<VersionHistoryDialog {...defaultProps} />);
-    
+
     expect(screen.getByTestId('modal-overlay')).toBeInTheDocument();
   });
 
   it('should not render when closed', () => {
     render(<VersionHistoryDialog {...defaultProps} isOpen={false} />);
-    
+
     expect(screen.queryByTestId('modal-overlay')).not.toBeInTheDocument();
   });
 
   it('should load version history when dialog opens', async () => {
     render(<VersionHistoryDialog {...defaultProps} />);
-    
+
     await waitFor(() => {
-      expect(customUnitApiService.getVersionHistory).toHaveBeenCalledWith('unit-1');
+      expect(customUnitApiService.getVersionHistory).toHaveBeenCalledWith(
+        'unit-1',
+      );
     });
   });
 
   it('should display loading state', () => {
     (customUnitApiService.getVersionHistory as jest.Mock).mockImplementation(
-      () => new Promise(() => {}) // Never resolves
+      () => new Promise(() => {}), // Never resolves
     );
-    
+
     render(<VersionHistoryDialog {...defaultProps} />);
-    
+
     expect(screen.getByText(/Loading/i)).toBeInTheDocument();
   });
 
   it('should display error when loading fails', async () => {
-    (customUnitApiService.getVersionHistory as jest.Mock).mockRejectedValue(new Error('Failed'));
-    
+    (customUnitApiService.getVersionHistory as jest.Mock).mockRejectedValue(
+      new Error('Failed'),
+    );
+
     render(<VersionHistoryDialog {...defaultProps} />);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/Failed to load/i)).toBeInTheDocument();
     });
@@ -88,17 +102,16 @@ describe('VersionHistoryDialog', () => {
   it('should call onClose when close button is clicked', async () => {
     const user = userEvent.setup();
     render(<VersionHistoryDialog {...defaultProps} />);
-    
+
     // Wait for loading to complete then click Close button
     await waitFor(() => {
       expect(customUnitApiService.getVersionHistory).toHaveBeenCalled();
     });
-    
+
     // Find and click the Close button by text
     const closeButton = await screen.findByRole('button', { name: /close/i });
     await user.click(closeButton);
-    
+
     expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
   });
 });
-

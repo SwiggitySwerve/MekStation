@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { fn } from '@storybook/test';
+
 import { VersionHistoryDialog } from './VersionHistoryDialog';
 
 const meta: Meta<typeof VersionHistoryDialog> = {

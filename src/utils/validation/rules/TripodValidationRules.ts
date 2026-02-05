@@ -1,3 +1,4 @@
+import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
 import {
   IValidationRuleDefinition,
   IValidationRuleResult,
@@ -6,7 +7,6 @@ import {
   ValidationCategory,
   ValidationSeverity,
 } from '../../../types/validation/rules/ValidationRuleInterfaces';
-import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
 import { pass, fail, warn } from './validationHelpers';
 
 export const TripodCenterLegRule: IValidationRuleDefinition = {
@@ -24,8 +24,12 @@ export const TripodCenterLegRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const armorAllocation = unit.armorAllocation as Record<string, number> | undefined;
-    const criticalSlots = unit.criticalSlots as Record<string, Array<unknown>> | undefined;
+    const armorAllocation = unit.armorAllocation as
+      | Record<string, number>
+      | undefined;
+    const criticalSlots = unit.criticalSlots as
+      | Record<string, Array<unknown>>
+      | undefined;
 
     const hasCenterLegArmor =
       armorAllocation && MechLocation.CENTER_LEG in armorAllocation;
@@ -65,7 +69,9 @@ export const TripodLegEquipmentRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const criticalSlots = unit.criticalSlots as Record<string, Array<string | null>> | undefined;
+    const criticalSlots = unit.criticalSlots as
+      | Record<string, Array<string | null>>
+      | undefined;
 
     if (!criticalSlots) {
       return pass(this.id);
@@ -90,7 +96,9 @@ export const TripodLegEquipmentRule: IValidationRuleDefinition = {
       }
 
       if (legsWithEquip.length > 0 && legsWithEquip.length < 3) {
-        const missingLegs = legLocations.filter((l) => !legsWithEquip.includes(l));
+        const missingLegs = legLocations.filter(
+          (l) => !legsWithEquip.includes(l),
+        );
         errors.push({
           ruleId: this.id,
           ruleName: this.name,
@@ -114,7 +122,8 @@ export const TripodLegEquipmentRule: IValidationRuleDefinition = {
 export const TripodTotalSlotsRule: IValidationRuleDefinition = {
   id: 'configuration.tripod.total_slots',
   name: 'Tripod Total Slots',
-  description: 'Validates that tripod mech critical slots do not exceed maximum',
+  description:
+    'Validates that tripod mech critical slots do not exceed maximum',
   category: ValidationCategory.SLOTS,
   priority: 10,
 
@@ -126,7 +135,9 @@ export const TripodTotalSlotsRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const criticalSlots = unit.criticalSlots as Record<string, Array<unknown>> | undefined;
+    const criticalSlots = unit.criticalSlots as
+      | Record<string, Array<unknown>>
+      | undefined;
 
     if (!criticalSlots) {
       return pass(this.id);
@@ -175,7 +186,9 @@ export const TripodLegArmorBalanceRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const armorAllocation = unit.armorAllocation as Record<string, number> | undefined;
+    const armorAllocation = unit.armorAllocation as
+      | Record<string, number>
+      | undefined;
 
     if (!armorAllocation) {
       return pass(this.id);
@@ -217,7 +230,8 @@ export const TripodLegArmorBalanceRule: IValidationRuleDefinition = {
         category: this.category,
         message: 'Center leg has significantly less armor than side legs',
         path: `armorAllocation.${MechLocation.CENTER_LEG}`,
-        suggestion: 'Center leg loss is critical for tripods - consider more armor',
+        suggestion:
+          'Center leg loss is critical for tripods - consider more armor',
       });
     }
 

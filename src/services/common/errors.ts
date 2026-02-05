@@ -1,6 +1,6 @@
 /**
  * Service Error Classes
- * 
+ *
  * Custom error types for service layer operations.
  */
 
@@ -11,7 +11,7 @@ export class ServiceError extends Error {
   constructor(
     message: string,
     public readonly code: string,
-    public readonly details?: Record<string, unknown>
+    public readonly details?: Record<string, unknown>,
   ) {
     super(message);
     this.name = 'ServiceError';
@@ -23,11 +23,10 @@ export class ServiceError extends Error {
  */
 export class NotFoundError extends ServiceError {
   constructor(entityType: string, id: string) {
-    super(
-      `${entityType} with id '${id}' not found`,
-      'NOT_FOUND',
-      { entityType, id }
-    );
+    super(`${entityType} with id '${id}' not found`, 'NOT_FOUND', {
+      entityType,
+      id,
+    });
     this.name = 'NotFoundError';
   }
 }
@@ -38,7 +37,7 @@ export class NotFoundError extends ServiceError {
 export class ValidationError extends ServiceError {
   constructor(
     message: string,
-    public readonly validationErrors: readonly string[]
+    public readonly validationErrors: readonly string[],
   ) {
     super(message, 'VALIDATION_ERROR', { validationErrors });
     this.name = 'ValidationError';
@@ -61,7 +60,7 @@ export class StorageError extends ServiceError {
 export class FileError extends ServiceError {
   constructor(
     message: string,
-    public readonly filename?: string
+    public readonly filename?: string,
   ) {
     super(message, 'FILE_ERROR', { filename });
     this.name = 'FileError';
@@ -84,4 +83,3 @@ export class ConfigurationError extends ServiceError {
 export function isServiceError(error: unknown): error is ServiceError {
   return error instanceof ServiceError;
 }
-

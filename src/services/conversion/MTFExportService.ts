@@ -7,7 +7,10 @@
  * @spec openspec/specs/serialization-formats/spec.md
  */
 
-import { ISerializedUnit, ISerializedFluff } from '@/types/unit/UnitSerialization';
+import {
+  ISerializedUnit,
+  ISerializedFluff,
+} from '@/types/unit/UnitSerialization';
 
 /**
  * Result of exporting to MTF format
@@ -102,21 +105,35 @@ export class MTFExportService {
       const lines: string[] = [];
 
       // License header (matches MegaMek)
-      lines.push('# MegaMek Data (C) 2025 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.');
-      lines.push('# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/');
+      lines.push(
+        '# MegaMek Data (C) 2025 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.',
+      );
+      lines.push(
+        '# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/',
+      );
       lines.push('#');
-      lines.push('# NOTICE: The MegaMek organization is a non-profit group of volunteers');
+      lines.push(
+        '# NOTICE: The MegaMek organization is a non-profit group of volunteers',
+      );
       lines.push('# creating free software for the BattleTech community.');
       lines.push('#');
-      lines.push('# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks');
+      lines.push(
+        '# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks',
+      );
       lines.push('# of The Topps Company, Inc. All Rights Reserved.');
       lines.push('#');
-      lines.push('# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of');
+      lines.push(
+        '# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of',
+      );
       lines.push('# InMediaRes Productions, LLC.');
       lines.push('#');
-      lines.push('# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under');
-      lines.push("# Microsoft's \"Game Content Usage Rules\"");
-      lines.push('# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or');
+      lines.push(
+        '# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under',
+      );
+      lines.push('# Microsoft\'s "Game Content Usage Rules"');
+      lines.push(
+        '# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or',
+      );
       lines.push('# affiliated with Microsoft.');
       lines.push('');
 
@@ -130,13 +147,19 @@ export class MTFExportService {
       }
 
       // Extended fields (if present)
-      const extendedUnit = unit as ISerializedUnit & { mulId?: number; role?: string; source?: string };
+      const extendedUnit = unit as ISerializedUnit & {
+        mulId?: number;
+        role?: string;
+        source?: string;
+      };
       if (extendedUnit.mulId) {
         lines.push(`mul id:${extendedUnit.mulId}`);
       }
 
       // Config includes "Omnimech" suffix for OmniMechs
-      lines.push(`Config:${this.formatConfig(unit.configuration, unit.isOmni)}`);
+      lines.push(
+        `Config:${this.formatConfig(unit.configuration, unit.isOmni)}`,
+      );
       lines.push(`techbase:${this.formatTechBase(unit.techBase)}`);
       lines.push(`era:${unit.year}`);
 
@@ -164,13 +187,17 @@ export class MTFExportService {
 
       // Structural components
       lines.push(`mass:${unit.tonnage}`);
-      lines.push(`engine:${unit.engine.rating} ${this.formatEngineType(unit.engine.type)}`);
+      lines.push(
+        `engine:${unit.engine.rating} ${this.formatEngineType(unit.engine.type)}`,
+      );
       lines.push(`structure:${this.formatStructureType(unit.structure.type)}`);
       lines.push('myomer:Standard');
       lines.push('');
 
       // Heat sinks and movement
-      lines.push(`heat sinks:${unit.heatSinks.count} ${this.formatHeatSinkType(unit.heatSinks.type)}`);
+      lines.push(
+        `heat sinks:${unit.heatSinks.count} ${this.formatHeatSinkType(unit.heatSinks.type)}`,
+      );
       // Base Chassis Heat Sinks (OmniMech-specific)
       if (unit.isOmni && unit.baseChassisHeatSinks !== undefined) {
         lines.push(`Base Chassis Heat Sinks:${unit.baseChassisHeatSinks}`);
@@ -390,7 +417,7 @@ export class MTFExportService {
   private writeArmorValues(
     lines: string[],
     allocation: Record<string, number | { front: number; rear: number }>,
-    configuration: string
+    configuration: string,
   ): void {
     const config = configuration.toUpperCase();
     // Handle variations like "Quad", "Quad Omnimech", "QuadVee"
@@ -463,7 +490,7 @@ export class MTFExportService {
       'er-medium-laser': 'ER Medium Laser',
       'er-small-laser': 'ER Small Laser',
       'er-large-laser': 'ER Large Laser',
-      'ppc': 'PPC',
+      ppc: 'PPC',
       'er-ppc': 'ER PPC',
       'lrm-5': 'LRM 5',
       'lrm-10': 'LRM 10',
@@ -477,11 +504,11 @@ export class MTFExportService {
       'ac-10': 'AC/10',
       'ac-20': 'AC/20',
       'machine-gun': 'Machine Gun',
-      'flamer': 'Flamer',
+      flamer: 'Flamer',
       'gauss-rifle': 'Gauss Rifle',
       // LAM Equipment
       'landing-gear': 'Landing Gear',
-      'avionics': 'Avionics',
+      avionics: 'Avionics',
     };
 
     if (nameMap[id]) {
@@ -522,7 +549,9 @@ export class MTFExportService {
       lines.push(`primaryfactory:${fluff.primaryFactory}`);
     }
     if (fluff.systemManufacturer) {
-      for (const [system, manufacturer] of Object.entries(fluff.systemManufacturer)) {
+      for (const [system, manufacturer] of Object.entries(
+        fluff.systemManufacturer,
+      )) {
         lines.push(`systemmanufacturer:${system}:${manufacturer}`);
       }
     }

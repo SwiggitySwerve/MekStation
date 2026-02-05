@@ -1,11 +1,14 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/catalog endpoint
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
+import type { IUnitMetadata } from '@/types/unit/BattleMechInterfaces';
+
 import handler from '@/pages/api/catalog';
 import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
-import type { IUnitMetadata } from '@/types/unit/BattleMechInterfaces';
 
 interface ApiResponse {
   success: boolean;
@@ -37,7 +40,10 @@ describe('/api/catalog', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(405);
-      const data = JSON.parse(res._getData() as string) as { success: boolean; error: string };
+      const data = JSON.parse(res._getData() as string) as {
+        success: boolean;
+        error: string;
+      };
       expect(data.success).toBe(false);
       expect(data.error).toContain('Method not allowed');
     });
@@ -57,7 +63,12 @@ describe('/api/catalog', () => {
     it('should return full unit index', async () => {
       const mockIndex = [
         { id: '1', name: 'Atlas AS7-D', chassis: 'Atlas', variant: 'AS7-D' },
-        { id: '2', name: 'Locust LCT-1V', chassis: 'Locust', variant: 'LCT-1V' },
+        {
+          id: '2',
+          name: 'Locust LCT-1V',
+          chassis: 'Locust',
+          variant: 'LCT-1V',
+        },
       ];
       mockGetIndex.mockResolvedValue(mockIndex);
 
@@ -69,7 +80,11 @@ describe('/api/catalog', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData() as string) as { success: boolean; data: unknown[]; count: number };
+      const data = JSON.parse(res._getData() as string) as {
+        success: boolean;
+        data: unknown[];
+        count: number;
+      };
       expect(data.success).toBe(true);
       expect(data.data).toEqual(mockIndex);
       expect(data.count).toBe(2);
@@ -80,8 +95,18 @@ describe('/api/catalog', () => {
     it('should filter by name', async () => {
       const mockIndex = [
         { id: '1', name: 'Atlas AS7-D', chassis: 'Atlas', variant: 'AS7-D' },
-        { id: '2', name: 'Locust LCT-1V', chassis: 'Locust', variant: 'LCT-1V' },
-        { id: '3', name: 'Marauder MAD-3R', chassis: 'Marauder', variant: 'MAD-3R' },
+        {
+          id: '2',
+          name: 'Locust LCT-1V',
+          chassis: 'Locust',
+          variant: 'LCT-1V',
+        },
+        {
+          id: '3',
+          name: 'Marauder MAD-3R',
+          chassis: 'Marauder',
+          variant: 'MAD-3R',
+        },
       ];
       mockGetIndex.mockResolvedValue(mockIndex);
 
@@ -119,7 +144,12 @@ describe('/api/catalog', () => {
       const mockIndex = [
         { id: '1', name: 'Atlas AS7-D', chassis: 'Atlas', variant: 'AS7-D' },
         { id: '2', name: 'Atlas AS7-K', chassis: 'Atlas', variant: 'AS7-K' },
-        { id: '3', name: 'Marauder MAD-3R', chassis: 'Marauder', variant: 'MAD-3R' },
+        {
+          id: '3',
+          name: 'Marauder MAD-3R',
+          chassis: 'Marauder',
+          variant: 'MAD-3R',
+        },
       ];
       mockGetIndex.mockResolvedValue(mockIndex);
 
@@ -137,7 +167,12 @@ describe('/api/catalog', () => {
     it('should search by variant', async () => {
       const mockIndex = [
         { id: '1', name: 'Atlas AS7-D', chassis: 'Atlas', variant: 'AS7-D' },
-        { id: '2', name: 'Marauder MAD-3R', chassis: 'Marauder', variant: 'MAD-3R' },
+        {
+          id: '2',
+          name: 'Marauder MAD-3R',
+          chassis: 'Marauder',
+          variant: 'MAD-3R',
+        },
       ];
       mockGetIndex.mockResolvedValue(mockIndex);
 
@@ -205,4 +240,3 @@ describe('/api/catalog', () => {
     });
   });
 });
-

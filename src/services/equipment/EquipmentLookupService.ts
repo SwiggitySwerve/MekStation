@@ -1,10 +1,10 @@
 /**
  * Equipment Lookup Service
- * 
+ *
  * Provides access to equipment definitions with filtering and search.
  * Uses JSON-based equipment loading as primary source with hardcoded
  * TypeScript constants as fallback during transition.
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  */
 
@@ -18,10 +18,14 @@ import {
   getAllWeapons as getAllWeaponsFallback,
   getAllAmmunition as getAllAmmunitionFallback,
 } from '@/types/equipment';
-import { IEquipmentQueryCriteria } from '../common/types';
-import { getEquipmentLoader, IEquipmentLoadResult } from './EquipmentLoaderService';
 import { MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 import { weaponCategoryToEquipmentCategory } from '@/utils/equipment/categoryRegistry';
+
+import { IEquipmentQueryCriteria } from '../common/types';
+import {
+  getEquipmentLoader,
+  IEquipmentLoadResult,
+} from './EquipmentLoaderService';
 
 /**
  * Equipment lookup service interface
@@ -30,22 +34,22 @@ export interface IEquipmentLookupService {
   // Initialization
   initialize(): Promise<void>;
   isInitialized(): boolean;
-  
+
   // Single-criterion lookups
   getById(id: string): IEquipmentItem | undefined;
   getByCategory(category: EquipmentCategory): IEquipmentItem[];
   getByTechBase(techBase: TechBase): IEquipmentItem[];
   getByEra(year: number): IEquipmentItem[];
   search(query: string): IEquipmentItem[];
-  
+
   // Combined filter query
   query(criteria: IEquipmentQueryCriteria): IEquipmentItem[];
-  
+
   // Bulk accessors
   getAllWeapons(): IWeapon[];
   getAllAmmunition(): IAmmunition[];
   getAllEquipment(): IEquipmentItem[];
-  
+
   // Source info
   getDataSource(): 'json' | 'fallback';
   getLoadResult(): IEquipmentLoadResult | null;
@@ -67,7 +71,7 @@ const AMS_WEAPON_IDS = ['ams', 'clan-ams', 'laser-ams', 'clan-laser-ams'];
 
 /**
  * Equipment Lookup Service implementation
- * 
+ *
  * Uses JSON-based EquipmentLoaderService as primary data source.
  * Falls back to hardcoded TypeScript constants if JSON loading fails.
  */
@@ -97,7 +101,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
   private async doInitialize(): Promise<void> {
     try {
       const loader = getEquipmentLoader();
-      
+
       // Only load if not already loaded
       if (!loader.getIsLoaded()) {
         this.loadResult = await loader.loadOfficialEquipment();
@@ -110,24 +114,29 @@ export class EquipmentLookupService implements IEquipmentLookupService {
           warnings: [],
         };
       }
-      
+
       // Use JSON source if we loaded a reasonable number of items
       // (fallback has ~200 items, JSON should have 700+)
       const minItemsForJson = 100;
-      this.useJsonSource = this.loadResult.success && this.loadResult.itemsLoaded >= minItemsForJson;
-      
+      this.useJsonSource =
+        this.loadResult.success &&
+        this.loadResult.itemsLoaded >= minItemsForJson;
+
       if (!this.useJsonSource) {
         console.warn(
           `[EquipmentLookupService] JSON loading failed or insufficient items (${this.loadResult.itemsLoaded}), using hardcoded fallback. ` +
-          `Errors: ${this.loadResult.errors.join(', ')}`
+            `Errors: ${this.loadResult.errors.join(', ')}`,
         );
       } else {
         console.log(
-          `[EquipmentLookupService] Loaded ${this.loadResult.itemsLoaded} equipment items from JSON`
+          `[EquipmentLookupService] Loaded ${this.loadResult.itemsLoaded} equipment items from JSON`,
         );
       }
     } catch (error) {
-      console.error('[EquipmentLookupService] Failed to initialize from JSON:', error);
+      console.error(
+        '[EquipmentLookupService] Failed to initialize from JSON:',
+        error,
+      );
       this.useJsonSource = false;
       this.loadResult = {
         success: false,
@@ -136,7 +145,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         warnings: [],
       };
     }
-    
+
     this.initialized = true;
     // Clear cache so next access rebuilds with correct source
     this.equipmentCache = null;
@@ -231,7 +240,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
       if (EXCLUDED_MISC_CATEGORIES.includes(misc.category)) {
         continue;
       }
-      
+
       items.push({
         id: misc.id,
         name: misc.name,
@@ -268,28 +277,28 @@ export class EquipmentLookupService implements IEquipmentLookupService {
    * Get equipment by unique identifier
    */
   getById(id: string): IEquipmentItem | undefined {
-    return this.getEquipment().find(e => e.id === id);
+    return this.getEquipment().find((e) => e.id === id);
   }
 
   /**
    * Get all equipment in a given category
    */
   getByCategory(category: EquipmentCategory): IEquipmentItem[] {
-    return this.getEquipment().filter(e => e.category === category);
+    return this.getEquipment().filter((e) => e.category === category);
   }
 
   /**
    * Get equipment compatible with a tech base
    */
   getByTechBase(techBase: TechBase): IEquipmentItem[] {
-    return this.getEquipment().filter(e => e.techBase === techBase);
+    return this.getEquipment().filter((e) => e.techBase === techBase);
   }
 
   /**
    * Get equipment available in a given year
    */
   getByEra(year: number): IEquipmentItem[] {
-    return this.getEquipment().filter(e => e.introductionYear <= year);
+    return this.getEquipment().filter((e) => e.introductionYear <= year);
   }
 
   /**
@@ -297,8 +306,8 @@ export class EquipmentLookupService implements IEquipmentLookupService {
    */
   search(queryStr: string): IEquipmentItem[] {
     const lowerQuery = queryStr.toLowerCase();
-    return this.getEquipment().filter(e => 
-      e.name.toLowerCase().includes(lowerQuery)
+    return this.getEquipment().filter((e) =>
+      e.name.toLowerCase().includes(lowerQuery),
     );
   }
 
@@ -310,38 +319,40 @@ export class EquipmentLookupService implements IEquipmentLookupService {
 
     // Filter by category
     if (criteria.category !== undefined) {
-      results = results.filter(e => e.category === criteria.category);
+      results = results.filter((e) => e.category === criteria.category);
     }
 
     // Filter by tech base
     if (criteria.techBase !== undefined) {
-      results = results.filter(e => e.techBase === criteria.techBase);
+      results = results.filter((e) => e.techBase === criteria.techBase);
     }
 
     // Filter by year (introduction year)
     if (criteria.year !== undefined) {
-      results = results.filter(e => e.introductionYear <= criteria.year!);
+      results = results.filter((e) => e.introductionYear <= criteria.year!);
     }
 
     // Filter by name query
     if (criteria.nameQuery !== undefined && criteria.nameQuery.length > 0) {
       const lowerQuery = criteria.nameQuery.toLowerCase();
-      results = results.filter(e => e.name.toLowerCase().includes(lowerQuery));
+      results = results.filter((e) =>
+        e.name.toLowerCase().includes(lowerQuery),
+      );
     }
 
     // Filter by rules level
     if (criteria.rulesLevel !== undefined) {
-      results = results.filter(e => e.rulesLevel === criteria.rulesLevel);
+      results = results.filter((e) => e.rulesLevel === criteria.rulesLevel);
     }
 
     // Filter by max weight
     if (criteria.maxWeight !== undefined) {
-      results = results.filter(e => e.weight <= criteria.maxWeight!);
+      results = results.filter((e) => e.weight <= criteria.maxWeight!);
     }
 
     // Filter by max slots
     if (criteria.maxSlots !== undefined) {
-      results = results.filter(e => e.criticalSlots <= criteria.maxSlots!);
+      results = results.filter((e) => e.criticalSlots <= criteria.maxSlots!);
     }
 
     return results;
@@ -400,4 +411,3 @@ export function _resetEquipmentLookupService(): void {
 // Legacy export for backward compatibility
 // @deprecated Use getEquipmentLookupService() instead
 export const equipmentLookupService = getEquipmentLookupService();
-

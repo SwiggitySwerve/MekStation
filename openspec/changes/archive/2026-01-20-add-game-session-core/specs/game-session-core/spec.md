@@ -7,6 +7,7 @@
 The system SHALL manage game sessions through defined lifecycle states.
 
 #### Scenario: Create game session
+
 - **GIVEN** game configuration (units, map, rules)
 - **WHEN** creating a new game session
 - **THEN** a unique game ID SHALL be assigned
@@ -14,6 +15,7 @@ The system SHALL manage game sessions through defined lifecycle states.
 - **AND** participating units SHALL be registered
 
 #### Scenario: Start game
+
 - **GIVEN** a game in "setup" state with valid configuration
 - **WHEN** starting the game
 - **THEN** state SHALL transition to "active"
@@ -21,6 +23,7 @@ The system SHALL manage game sessions through defined lifecycle states.
 - **AND** Initiative phase SHALL begin
 
 #### Scenario: End game
+
 - **GIVEN** an active game
 - **WHEN** victory conditions are met OR player concedes
 - **THEN** state SHALL transition to "completed"
@@ -32,6 +35,7 @@ The system SHALL manage game sessions through defined lifecycle states.
 The system SHALL use event sourcing for all game state management.
 
 #### Scenario: Event immutability
+
 - **GIVEN** a game event is created
 - **WHEN** the event is stored
 - **THEN** the event SHALL be immutable
@@ -39,12 +43,14 @@ The system SHALL use event sourcing for all game state management.
 - **AND** the event SHALL have a timestamp
 
 #### Scenario: State derivation
+
 - **GIVEN** a sequence of game events
 - **WHEN** computing current game state
 - **THEN** state SHALL be derived by replaying all events in order
 - **AND** the same events SHALL always produce the same state
 
 #### Scenario: Replay to specific point
+
 - **GIVEN** a game with N events
 - **WHEN** replaying to event M (where M < N)
 - **THEN** state SHALL reflect only events 1 through M
@@ -55,12 +61,14 @@ The system SHALL use event sourcing for all game state management.
 The system SHALL implement BattleTech turn structure with sequential phases.
 
 #### Scenario: Phase sequence
+
 - **GIVEN** a turn is in progress
 - **WHEN** phases execute
 - **THEN** phases SHALL execute in order: Initiative, Movement, Weapon Attack, Heat, End
 - **AND** Physical Attack phase MAY be skipped in introductory rules
 
 #### Scenario: Turn advancement
+
 - **GIVEN** End phase completes
 - **WHEN** checking game state
 - **THEN** turn counter SHALL increment
@@ -71,6 +79,7 @@ The system SHALL implement BattleTech turn structure with sequential phases.
 The system SHALL determine unit activation order during Initiative phase.
 
 #### Scenario: Initiative roll
+
 - **GIVEN** Initiative phase begins
 - **WHEN** determining order
 - **THEN** each side SHALL roll 2d6
@@ -78,6 +87,7 @@ The system SHALL determine unit activation order during Initiative phase.
 - **AND** ties result in re-roll
 
 #### Scenario: Initiative order
+
 - **GIVEN** initiative winner has chosen
 - **WHEN** Movement phase begins
 - **THEN** selected side moves first unit
@@ -88,6 +98,7 @@ The system SHALL determine unit activation order during Initiative phase.
 The system SHALL implement alternating unit activation for movement.
 
 #### Scenario: Alternating movement
+
 - **GIVEN** Movement phase is active
 - **WHEN** units move
 - **THEN** first side moves one unit, locks movement
@@ -95,6 +106,7 @@ The system SHALL implement alternating unit activation for movement.
 - **AND** alternation continues until all units moved
 
 #### Scenario: Movement lock
+
 - **GIVEN** a unit's movement is declared
 - **WHEN** player confirms movement
 - **THEN** movement SHALL be locked
@@ -102,6 +114,7 @@ The system SHALL implement alternating unit activation for movement.
 - **AND** opponent's turn begins
 
 #### Scenario: Phase completion
+
 - **GIVEN** all units have locked movement
 - **WHEN** checking phase state
 - **THEN** Movement phase SHALL end
@@ -112,18 +125,21 @@ The system SHALL implement alternating unit activation for movement.
 The system SHALL implement simultaneous attack declaration and resolution.
 
 #### Scenario: Attack declaration
+
 - **GIVEN** Weapon Attack phase is active
 - **WHEN** declaring attacks
 - **THEN** both sides declare all attacks secretly
 - **AND** attacks are not visible to opponent until reveal
 
 #### Scenario: Attack reveal
+
 - **GIVEN** both sides have locked their attacks
 - **WHEN** revealing attacks
 - **THEN** all attacks become visible simultaneously
 - **AND** resolution begins
 
 #### Scenario: Attack resolution order
+
 - **GIVEN** attacks are revealed
 - **WHEN** resolving attacks
 - **THEN** all attacks resolve simultaneously
@@ -135,6 +151,7 @@ The system SHALL implement simultaneous attack declaration and resolution.
 The system SHALL track heat accumulation and dissipation.
 
 #### Scenario: Heat calculation
+
 - **GIVEN** Heat phase begins
 - **WHEN** calculating heat
 - **THEN** heat generated from movement SHALL be added
@@ -142,6 +159,7 @@ The system SHALL track heat accumulation and dissipation.
 - **AND** heat dissipation from heat sinks SHALL be subtracted
 
 #### Scenario: Heat effects
+
 - **GIVEN** a unit's heat level after dissipation
 - **WHEN** applying heat effects
 - **THEN** heat 0-4: no effect
@@ -154,6 +172,7 @@ The system SHALL track heat accumulation and dissipation.
 The system SHALL perform cleanup and victory checking in End phase.
 
 #### Scenario: Status cleanup
+
 - **GIVEN** End phase begins
 - **WHEN** processing cleanup
 - **THEN** destroyed units SHALL be removed from active play
@@ -161,6 +180,7 @@ The system SHALL perform cleanup and victory checking in End phase.
 - **AND** temporary effects SHALL expire
 
 #### Scenario: Victory check
+
 - **GIVEN** End phase cleanup completes
 - **WHEN** checking victory conditions
 - **THEN** if one side has no active units, opponent wins
@@ -172,21 +192,25 @@ The system SHALL perform cleanup and victory checking in End phase.
 The system SHALL define event types for all game actions.
 
 #### Scenario: Game lifecycle events
+
 - **GIVEN** game lifecycle changes
 - **WHEN** creating events
 - **THEN** `game_started`, `game_ended`, `turn_started`, `phase_changed` types SHALL exist
 
 #### Scenario: Movement events
+
 - **GIVEN** movement occurs
 - **WHEN** creating events
 - **THEN** `movement_declared`, `movement_locked`, `facing_changed` types SHALL exist
 
 #### Scenario: Combat events
+
 - **GIVEN** combat occurs
 - **WHEN** creating events
 - **THEN** `attack_declared`, `attack_locked`, `attacks_revealed`, `attack_resolved`, `damage_applied` types SHALL exist
 
 #### Scenario: Status events
+
 - **GIVEN** unit status changes
 - **WHEN** creating events
 - **THEN** `heat_generated`, `heat_dissipated`, `pilot_hit`, `unit_destroyed` types SHALL exist

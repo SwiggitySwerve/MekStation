@@ -1,9 +1,9 @@
 #!/usr/bin/env ts-node
 /**
  * Add rulesLevel to existing index.json
- * 
+ *
  * Reads each unit file and adds rulesLevel to the index entries.
- * 
+ *
  * Usage:
  *   npx ts-node scripts/data-migration/add-rules-level-to-index.ts
  */
@@ -85,8 +85,7 @@ async function main(): Promise<void> {
   console.log(`Output: ${INDEX_PATH}`);
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });
-

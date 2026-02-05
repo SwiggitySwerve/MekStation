@@ -4,18 +4,20 @@
  * Tests for unit validation functions.
  */
 
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
+
 import {
   validateConvertedUnit,
   validateBatch,
   ConversionValidationSeverity,
 } from '../ConversionValidation';
 
-import { ISerializedUnit } from '@/types/unit/UnitSerialization';
-
 /**
  * Create a minimal valid unit for testing
  */
-function createValidUnit(overrides: Partial<ISerializedUnit> = {}): ISerializedUnit {
+function createValidUnit(
+  overrides: Partial<ISerializedUnit> = {},
+): ISerializedUnit {
   return {
     id: 'test-unit-1',
     chassis: 'Atlas',
@@ -74,7 +76,7 @@ describe('ConversionValidation', () => {
         const result = validateConvertedUnit(unit);
 
         expect(result.isValid).toBe(false);
-        expect(result.errors.some(e => e.code === 'MISSING_ID')).toBe(true);
+        expect(result.errors.some((e) => e.code === 'MISSING_ID')).toBe(true);
       });
 
       it('should report error for missing chassis', () => {
@@ -82,7 +84,9 @@ describe('ConversionValidation', () => {
         const result = validateConvertedUnit(unit);
 
         expect(result.isValid).toBe(false);
-        expect(result.errors.some(e => e.code === 'MISSING_CHASSIS')).toBe(true);
+        expect(result.errors.some((e) => e.code === 'MISSING_CHASSIS')).toBe(
+          true,
+        );
       });
 
       it('should report error for missing model', () => {
@@ -90,7 +94,9 @@ describe('ConversionValidation', () => {
         const result = validateConvertedUnit(unit);
 
         expect(result.isValid).toBe(false);
-        expect(result.errors.some(e => e.code === 'MISSING_MODEL')).toBe(true);
+        expect(result.errors.some((e) => e.code === 'MISSING_MODEL')).toBe(
+          true,
+        );
       });
 
       it('should report error for whitespace-only chassis', () => {
@@ -98,7 +104,9 @@ describe('ConversionValidation', () => {
         const result = validateConvertedUnit(unit);
 
         expect(result.isValid).toBe(false);
-        expect(result.errors.some(e => e.code === 'MISSING_CHASSIS')).toBe(true);
+        expect(result.errors.some((e) => e.code === 'MISSING_CHASSIS')).toBe(
+          true,
+        );
       });
     });
 
@@ -107,49 +115,76 @@ describe('ConversionValidation', () => {
         const unit = createValidUnit({ tonnage: 27 });
         const result = validateConvertedUnit(unit);
 
-        expect(result.warnings.some(w => w.code === 'INVALID_TONNAGE')).toBe(true);
+        expect(result.warnings.some((w) => w.code === 'INVALID_TONNAGE')).toBe(
+          true,
+        );
       });
 
       it('should not warn for standard tonnages', () => {
-        const tonnages = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+        const tonnages = [
+          20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
+        ];
         for (const tonnage of tonnages) {
           const unit = createValidUnit({ tonnage });
           const result = validateConvertedUnit(unit);
-          expect(result.warnings.filter(w => w.code === 'INVALID_TONNAGE').length).toBe(0);
+          expect(
+            result.warnings.filter((w) => w.code === 'INVALID_TONNAGE').length,
+          ).toBe(0);
         }
       });
     });
 
     describe('engine validation', () => {
       it('should report error for engine rating below minimum', () => {
-        const unit = createValidUnit({ engine: { type: 'STANDARD', rating: 5 } });
+        const unit = createValidUnit({
+          engine: { type: 'STANDARD', rating: 5 },
+        });
         const result = validateConvertedUnit(unit);
 
         expect(result.isValid).toBe(false);
-        expect(result.errors.some(e => e.code === 'INVALID_ENGINE_RATING')).toBe(true);
+        expect(
+          result.errors.some((e) => e.code === 'INVALID_ENGINE_RATING'),
+        ).toBe(true);
       });
 
       it('should report error for engine rating above maximum', () => {
-        const unit = createValidUnit({ engine: { type: 'STANDARD', rating: 600 } });
+        const unit = createValidUnit({
+          engine: { type: 'STANDARD', rating: 600 },
+        });
         const result = validateConvertedUnit(unit);
 
         expect(result.isValid).toBe(false);
-        expect(result.errors.some(e => e.code === 'INVALID_ENGINE_RATING')).toBe(true);
+        expect(
+          result.errors.some((e) => e.code === 'INVALID_ENGINE_RATING'),
+        ).toBe(true);
       });
 
       it('should report error for engine rating not multiple of 5', () => {
-        const unit = createValidUnit({ engine: { type: 'STANDARD', rating: 203 } });
+        const unit = createValidUnit({
+          engine: { type: 'STANDARD', rating: 203 },
+        });
         const result = validateConvertedUnit(unit);
 
         expect(result.isValid).toBe(false);
-        expect(result.errors.some(e => e.code === 'INVALID_ENGINE_RATING' && e.message.includes('multiple of 5'))).toBe(true);
+        expect(
+          result.errors.some(
+            (e) =>
+              e.code === 'INVALID_ENGINE_RATING' &&
+              e.message.includes('multiple of 5'),
+          ),
+        ).toBe(true);
       });
 
       it('should pass for valid engine rating', () => {
-        const unit = createValidUnit({ engine: { type: 'STANDARD', rating: 300 } });
+        const unit = createValidUnit({
+          engine: { type: 'STANDARD', rating: 300 },
+        });
         const result = validateConvertedUnit(unit);
 
-        expect(result.errors.filter(e => e.code === 'INVALID_ENGINE_RATING').length).toBe(0);
+        expect(
+          result.errors.filter((e) => e.code === 'INVALID_ENGINE_RATING')
+            .length,
+        ).toBe(0);
       });
     });
 
@@ -159,15 +194,19 @@ describe('ConversionValidation', () => {
         const result = validateConvertedUnit(unit);
 
         expect(result.isValid).toBe(false);
-        expect(result.errors.some(e => e.code === 'INVALID_WALK_MP')).toBe(true);
+        expect(result.errors.some((e) => e.code === 'INVALID_WALK_MP')).toBe(
+          true,
+        );
       });
 
-      it('should report info when walk MP doesn\'t match engine rating', () => {
+      it("should report info when walk MP doesn't match engine rating", () => {
         // Engine 300 on 100 ton = 3 walk MP, but we set walk to 4
         const unit = createValidUnit({ movement: { walk: 4, jump: 0 } });
         const result = validateConvertedUnit(unit);
 
-        expect(result.info.some(i => i.code === 'WALK_MP_MISMATCH')).toBe(true);
+        expect(result.info.some((i) => i.code === 'WALK_MP_MISMATCH')).toBe(
+          true,
+        );
       });
 
       it('should not report mismatch when walk MP matches engine rating', () => {
@@ -175,23 +214,34 @@ describe('ConversionValidation', () => {
         const unit = createValidUnit({ movement: { walk: 3, jump: 0 } });
         const result = validateConvertedUnit(unit);
 
-        expect(result.info.filter(i => i.code === 'WALK_MP_MISMATCH').length).toBe(0);
+        expect(
+          result.info.filter((i) => i.code === 'WALK_MP_MISMATCH').length,
+        ).toBe(0);
       });
     });
 
     describe('heat sink validation', () => {
       it('should warn for fewer than 10 heat sinks', () => {
-        const unit = createValidUnit({ heatSinks: { type: 'SINGLE', count: 8 } });
+        const unit = createValidUnit({
+          heatSinks: { type: 'SINGLE', count: 8 },
+        });
         const result = validateConvertedUnit(unit);
 
-        expect(result.warnings.some(w => w.code === 'INSUFFICIENT_HEAT_SINKS')).toBe(true);
+        expect(
+          result.warnings.some((w) => w.code === 'INSUFFICIENT_HEAT_SINKS'),
+        ).toBe(true);
       });
 
       it('should not warn for 10 or more heat sinks', () => {
-        const unit = createValidUnit({ heatSinks: { type: 'SINGLE', count: 10 } });
+        const unit = createValidUnit({
+          heatSinks: { type: 'SINGLE', count: 10 },
+        });
         const result = validateConvertedUnit(unit);
 
-        expect(result.warnings.filter(w => w.code === 'INSUFFICIENT_HEAT_SINKS').length).toBe(0);
+        expect(
+          result.warnings.filter((w) => w.code === 'INSUFFICIENT_HEAT_SINKS')
+            .length,
+        ).toBe(0);
       });
     });
 
@@ -214,7 +264,9 @@ describe('ConversionValidation', () => {
         });
         const result = validateConvertedUnit(unit);
 
-        expect(result.errors.some(e => e.code === 'HEAD_ARMOR_EXCEEDED')).toBe(true);
+        expect(
+          result.errors.some((e) => e.code === 'HEAD_ARMOR_EXCEEDED'),
+        ).toBe(true);
       });
 
       it('should warn for armor exceeding location maximum', () => {
@@ -236,7 +288,9 @@ describe('ConversionValidation', () => {
         });
         const result = validateConvertedUnit(unit);
 
-        expect(result.warnings.some(w => w.code === 'ARMOR_EXCEEDED')).toBe(true);
+        expect(result.warnings.some((w) => w.code === 'ARMOR_EXCEEDED')).toBe(
+          true,
+        );
       });
 
       it('should handle torso armor validation for front+rear values', () => {
@@ -246,7 +300,9 @@ describe('ConversionValidation', () => {
         const result = validateConvertedUnit(unit);
 
         // Valid unit should pass armor validation
-        expect(result.errors.filter(e => e.code === 'HEAD_ARMOR_EXCEEDED').length).toBe(0);
+        expect(
+          result.errors.filter((e) => e.code === 'HEAD_ARMOR_EXCEEDED').length,
+        ).toBe(0);
       });
     });
 
@@ -255,14 +311,18 @@ describe('ConversionValidation', () => {
         const unit = createValidUnit({ equipment: [] });
         const result = validateConvertedUnit(unit);
 
-        expect(result.warnings.some(w => w.code === 'NO_EQUIPMENT')).toBe(true);
+        expect(result.warnings.some((w) => w.code === 'NO_EQUIPMENT')).toBe(
+          true,
+        );
       });
 
       it('should not warn when equipment is present', () => {
         const unit = createValidUnit();
         const result = validateConvertedUnit(unit);
 
-        expect(result.warnings.filter(w => w.code === 'NO_EQUIPMENT').length).toBe(0);
+        expect(
+          result.warnings.filter((w) => w.code === 'NO_EQUIPMENT').length,
+        ).toBe(0);
       });
     });
 
@@ -271,7 +331,7 @@ describe('ConversionValidation', () => {
         const unit = createValidUnit({ id: '' });
         const result = validateConvertedUnit(unit);
 
-        const error = result.errors.find(e => e.code === 'MISSING_ID');
+        const error = result.errors.find((e) => e.code === 'MISSING_ID');
         expect(error?.severity).toBe(ConversionValidationSeverity.Error);
       });
 
@@ -279,7 +339,9 @@ describe('ConversionValidation', () => {
         const unit = createValidUnit({ tonnage: 27 });
         const result = validateConvertedUnit(unit);
 
-        const warning = result.warnings.find(w => w.code === 'INVALID_TONNAGE');
+        const warning = result.warnings.find(
+          (w) => w.code === 'INVALID_TONNAGE',
+        );
         expect(warning?.severity).toBe(ConversionValidationSeverity.Warning);
       });
 
@@ -287,7 +349,7 @@ describe('ConversionValidation', () => {
         const unit = createValidUnit({ movement: { walk: 4, jump: 0 } });
         const result = validateConvertedUnit(unit);
 
-        const info = result.info.find(i => i.code === 'WALK_MP_MISMATCH');
+        const info = result.info.find((i) => i.code === 'WALK_MP_MISMATCH');
         expect(info?.severity).toBe(ConversionValidationSeverity.Info);
       });
     });

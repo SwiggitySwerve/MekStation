@@ -2,29 +2,32 @@
  * Tests for BalancedGrid component
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
+
 import { BalancedGrid } from '@/components/common/BalancedGrid';
 
 // Mock ResizeObserver - uses global mock from jest.setup.js
 // Additional mock setup for tests that need to trigger resize callbacks
-const mockResizeObserverInstances: Array<{ callback: ResizeObserverCallback }> = [];
+const mockResizeObserverInstances: Array<{ callback: ResizeObserverCallback }> =
+  [];
 
 class MockResizeObserver implements ResizeObserver {
   callback: ResizeObserverCallback;
-  
+
   constructor(callback: ResizeObserverCallback) {
     this.callback = callback;
     mockResizeObserverInstances.push(this);
   }
-  
+
   observe = jest.fn();
   unobserve = jest.fn();
   disconnect = jest.fn();
 }
 
 // Assign with proper typing to avoid double assertion
-(global as { ResizeObserver: typeof ResizeObserver }).ResizeObserver = MockResizeObserver;
+(global as { ResizeObserver: typeof ResizeObserver }).ResizeObserver =
+  MockResizeObserver;
 
 // Mock requestAnimationFrame to execute callback immediately
 global.requestAnimationFrame = jest.fn((callback: FrameRequestCallback) => {
@@ -50,9 +53,9 @@ describe('BalancedGrid', () => {
           <div data-testid="item-1">Item 1</div>
           <div data-testid="item-2">Item 2</div>
           <div data-testid="item-3">Item 3</div>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       expect(screen.getByTestId('item-1')).toBeInTheDocument();
       expect(screen.getByTestId('item-2')).toBeInTheDocument();
       expect(screen.getByTestId('item-3')).toBeInTheDocument();
@@ -62,19 +65,24 @@ describe('BalancedGrid', () => {
       render(
         <BalancedGrid minItemWidth={60} gap={6} data-testid="my-grid">
           <div>Item</div>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       expect(screen.getByTestId('my-grid')).toBeInTheDocument();
     });
 
     it('should apply custom className', () => {
       render(
-        <BalancedGrid minItemWidth={60} gap={6} className="custom-class" data-testid="grid">
+        <BalancedGrid
+          minItemWidth={60}
+          gap={6}
+          className="custom-class"
+          data-testid="grid"
+        >
           <div>Item</div>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       expect(screen.getByTestId('grid')).toHaveClass('custom-class');
     });
 
@@ -82,9 +90,9 @@ describe('BalancedGrid', () => {
       render(
         <BalancedGrid minItemWidth={60} gap={6} data-testid="grid">
           <div>Item</div>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       const grid = screen.getByTestId('grid');
       expect(grid.style.display).toBe('grid');
     });
@@ -95,24 +103,26 @@ describe('BalancedGrid', () => {
       render(
         <BalancedGrid minItemWidth={60} gap={6} data-testid="grid">
           <div>Single</div>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       expect(screen.getByTestId('grid')).toBeInTheDocument();
       expect(screen.getByText('Single')).toBeInTheDocument();
     });
 
     it('should handle many children', () => {
       const items = Array.from({ length: 20 }, (_, i) => (
-        <div key={i} data-testid={`item-${i}`}>Item {i}</div>
+        <div key={i} data-testid={`item-${i}`}>
+          Item {i}
+        </div>
       ));
-      
+
       render(
         <BalancedGrid minItemWidth={60} gap={6}>
           {items}
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       expect(screen.getByTestId('item-0')).toBeInTheDocument();
       expect(screen.getByTestId('item-19')).toBeInTheDocument();
     });
@@ -125,9 +135,9 @@ describe('BalancedGrid', () => {
           {null}
           {undefined}
           <div data-testid="item-2">Item 2</div>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       expect(screen.getByTestId('item-1')).toBeInTheDocument();
       expect(screen.getByTestId('item-2')).toBeInTheDocument();
       expect(screen.queryByText('Hidden')).not.toBeInTheDocument();
@@ -138,7 +148,7 @@ describe('BalancedGrid', () => {
       // When condition is false, the expression evaluates to `false`
       // Children.toArray excludes false, so itemCount should be accurate
       const showOptional = false;
-      
+
       render(
         <BalancedGrid minItemWidth={75} gap={6} data-testid="grid">
           <div data-testid="stat-1">Stat 1</div>
@@ -147,9 +157,9 @@ describe('BalancedGrid', () => {
           {showOptional && <div data-testid="stat-optional">Optional</div>}
           <div data-testid="stat-4">Stat 4</div>
           <div data-testid="stat-5">Stat 5</div>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       // Should render exactly 5 items (not 6)
       expect(screen.getByTestId('stat-1')).toBeInTheDocument();
       expect(screen.getByTestId('stat-2')).toBeInTheDocument();
@@ -161,16 +171,16 @@ describe('BalancedGrid', () => {
 
     it('should include conditional children when condition is true', () => {
       const showOptional = true;
-      
+
       render(
         <BalancedGrid minItemWidth={75} gap={6} data-testid="grid">
           <div data-testid="stat-1">Stat 1</div>
           <div data-testid="stat-2">Stat 2</div>
           {showOptional && <div data-testid="stat-optional">Optional</div>}
           <div data-testid="stat-3">Stat 3</div>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       // Should render exactly 4 items including optional
       expect(screen.getByTestId('stat-1')).toBeInTheDocument();
       expect(screen.getByTestId('stat-2')).toBeInTheDocument();
@@ -180,7 +190,7 @@ describe('BalancedGrid', () => {
 
     it('should handle mixed conditional patterns', () => {
       const conditions = { a: true, b: false, c: true };
-      
+
       render(
         <BalancedGrid minItemWidth={60} gap={6} data-testid="grid">
           <div data-testid="always-1">Always 1</div>
@@ -190,9 +200,9 @@ describe('BalancedGrid', () => {
           <div data-testid="always-2">Always 2</div>
           {null}
           {undefined}
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       // Should render 4 items (2 always + 2 true conditions)
       expect(screen.getByTestId('always-1')).toBeInTheDocument();
       expect(screen.getByTestId('cond-a')).toBeInTheDocument();
@@ -207,9 +217,9 @@ describe('BalancedGrid', () => {
       render(
         <BalancedGrid minItemWidth={60} gap={10} data-testid="grid">
           <div>Item</div>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       const grid = screen.getByTestId('grid');
       expect(grid.style.gap).toBe('10px');
     });
@@ -218,9 +228,9 @@ describe('BalancedGrid', () => {
       render(
         <BalancedGrid minItemWidth={60} data-testid="grid">
           <div>Item</div>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       const grid = screen.getByTestId('grid');
       expect(grid.style.gap).toBe('4px');
     });
@@ -231,16 +241,16 @@ describe('BalancedGrid', () => {
       // Before ready state, should use fallback
       // Note: In practice, this is brief during SSR/hydration
       render(
-        <BalancedGrid 
-          minItemWidth={60} 
-          gap={6} 
+        <BalancedGrid
+          minItemWidth={60}
+          gap={6}
           fallbackColumns="repeat(4, 1fr)"
           data-testid="grid"
         >
           <div>Item</div>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       // After mount, grid should have grid-template-columns set
       const grid = screen.getByTestId('grid');
       expect(grid.style.gridTemplateColumns).toBeTruthy();
@@ -253,66 +263,94 @@ describe('BalancedGrid', () => {
         <BalancedGrid minItemWidth={60} gap={6} data-testid="grid">
           <button>Action 1</button>
           <button>Action 2</button>
-        </BalancedGrid>
+        </BalancedGrid>,
       );
-      
+
       // Children should be focusable
-      expect(screen.getByRole('button', { name: 'Action 1' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Action 2' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Action 1' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Action 2' }),
+      ).toBeInTheDocument();
     });
   });
 });
 
 describe('BalancedGrid integration with real content', () => {
   it('should work with typical filter button content', () => {
-    const categories = ['Energy', 'Ballistic', 'Missile', 'Artillery', 'Physical', 'Ammo', 'Other', 'All'];
-    
+    const categories = [
+      'Energy',
+      'Ballistic',
+      'Missile',
+      'Artillery',
+      'Physical',
+      'Ammo',
+      'Other',
+      'All',
+    ];
+
     render(
       <BalancedGrid minItemWidth={85} gap={4} data-testid="filter-grid">
-        {categories.map(cat => (
+        {categories.map((cat) => (
           <button key={cat} data-testid={`btn-${cat.toLowerCase()}`}>
             {cat}
           </button>
         ))}
-      </BalancedGrid>
+      </BalancedGrid>,
     );
-    
+
     const grid = screen.getByTestId('filter-grid');
     expect(grid).toBeInTheDocument();
-    
+
     // All buttons should be rendered
-    categories.forEach(cat => {
-      expect(screen.getByTestId(`btn-${cat.toLowerCase()}`)).toBeInTheDocument();
+    categories.forEach((cat) => {
+      expect(
+        screen.getByTestId(`btn-${cat.toLowerCase()}`),
+      ).toBeInTheDocument();
     });
   });
 
   it('should work with stat box content', () => {
-    const stats = ['Tonnage', 'Walk', 'Run', 'Jump', 'BV', 'Engine', 'Weight', 'Armor', 'Slots', 'Heat'];
-    
+    const stats = [
+      'Tonnage',
+      'Walk',
+      'Run',
+      'Jump',
+      'BV',
+      'Engine',
+      'Weight',
+      'Armor',
+      'Slots',
+      'Heat',
+    ];
+
     render(
       <BalancedGrid minItemWidth={75} gap={6} data-testid="stats-grid">
-        {stats.map(stat => (
+        {stats.map((stat) => (
           <div key={stat} data-testid={`stat-${stat.toLowerCase()}`}>
             <span>{stat}</span>
             <span>100</span>
           </div>
         ))}
-      </BalancedGrid>
+      </BalancedGrid>,
     );
-    
+
     const grid = screen.getByTestId('stats-grid');
     expect(grid).toBeInTheDocument();
-    
+
     // All stats should be rendered
-    stats.forEach(stat => {
-      expect(screen.getByTestId(`stat-${stat.toLowerCase()}`)).toBeInTheDocument();
+    stats.forEach((stat) => {
+      expect(
+        screen.getByTestId(`stat-${stat.toLowerCase()}`),
+      ).toBeInTheDocument();
     });
   });
 
   it('should handle UnitInfoBanner pattern with optional Run+ stat', () => {
     // This mirrors the actual UnitInfoBanner component structure
     const hasRunPlus = false; // Simulates when maxRunMP <= runMP
-    
+
     render(
       <BalancedGrid minItemWidth={75} gap={6} data-testid="unit-stats">
         <div data-testid="tonnage">Tonnage</div>
@@ -326,9 +364,9 @@ describe('BalancedGrid integration with real content', () => {
         <div data-testid="armor">Armor</div>
         <div data-testid="slots">Slots</div>
         <div data-testid="heat">Heat</div>
-      </BalancedGrid>
+      </BalancedGrid>,
     );
-    
+
     // Should have exactly 10 items (Run+ excluded)
     expect(screen.getByTestId('tonnage')).toBeInTheDocument();
     expect(screen.getByTestId('walk')).toBeInTheDocument();
@@ -345,7 +383,7 @@ describe('BalancedGrid integration with real content', () => {
 
   it('should handle UnitInfoBanner pattern with Run+ stat included', () => {
     const hasRunPlus = true; // Simulates when maxRunMP > runMP
-    
+
     render(
       <BalancedGrid minItemWidth={75} gap={6} data-testid="unit-stats">
         <div data-testid="tonnage">Tonnage</div>
@@ -359,9 +397,9 @@ describe('BalancedGrid integration with real content', () => {
         <div data-testid="armor">Armor</div>
         <div data-testid="slots">Slots</div>
         <div data-testid="heat">Heat</div>
-      </BalancedGrid>
+      </BalancedGrid>,
     );
-    
+
     // Should have exactly 11 items (Run+ included)
     expect(screen.getByTestId('tonnage')).toBeInTheDocument();
     expect(screen.getByTestId('walk')).toBeInTheDocument();

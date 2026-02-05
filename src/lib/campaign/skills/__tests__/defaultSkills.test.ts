@@ -1,6 +1,8 @@
 import { describe, it, expect } from '@jest/globals';
+
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { SkillExperienceLevel } from '@/types/campaign/skills/experienceLevels';
+
 import {
   DEFAULT_SKILLS_BY_ROLE,
   EXPERIENCE_SKILL_MODIFIER,
@@ -122,7 +124,7 @@ describe('Default Skills by Role and Experience Level', () => {
     it('RED: PILOT gets gunnery + piloting at default levels', () => {
       const skills = createDefaultSkills(
         CampaignPersonnelRole.PILOT,
-        SkillExperienceLevel.Regular
+        SkillExperienceLevel.Regular,
       );
 
       expect(skills.gunnery).toBeDefined();
@@ -141,7 +143,7 @@ describe('Default Skills by Role and Experience Level', () => {
     it('RED: TECH gets tech-mech and tech-general skills', () => {
       const skills = createDefaultSkills(
         CampaignPersonnelRole.TECH,
-        SkillExperienceLevel.Regular
+        SkillExperienceLevel.Regular,
       );
 
       expect(skills['tech-mech']).toBeDefined();
@@ -154,55 +156,51 @@ describe('Default Skills by Role and Experience Level', () => {
     it('RED: GREEN experience adds +1 to skill values', () => {
       const regularSkills = createDefaultSkills(
         CampaignPersonnelRole.PILOT,
-        SkillExperienceLevel.Regular
+        SkillExperienceLevel.Regular,
       );
       const greenSkills = createDefaultSkills(
         CampaignPersonnelRole.PILOT,
-        SkillExperienceLevel.Green
+        SkillExperienceLevel.Green,
       );
 
       expect(greenSkills.gunnery.level).toBe(regularSkills.gunnery.level + 1);
-      expect(greenSkills.piloting.level).toBe(
-        regularSkills.piloting.level + 1
-      );
+      expect(greenSkills.piloting.level).toBe(regularSkills.piloting.level + 1);
     });
 
     it('RED: ELITE experience subtracts -2 from skill values', () => {
       const regularSkills = createDefaultSkills(
         CampaignPersonnelRole.PILOT,
-        SkillExperienceLevel.Regular
+        SkillExperienceLevel.Regular,
       );
       const eliteSkills = createDefaultSkills(
         CampaignPersonnelRole.PILOT,
-        SkillExperienceLevel.Elite
+        SkillExperienceLevel.Elite,
       );
 
       expect(eliteSkills.gunnery.level).toBe(regularSkills.gunnery.level - 2);
-      expect(eliteSkills.piloting.level).toBe(
-        regularSkills.piloting.level - 2
-      );
+      expect(eliteSkills.piloting.level).toBe(regularSkills.piloting.level - 2);
     });
 
     it('RED: VETERAN experience subtracts -1 from skill values', () => {
       const regularSkills = createDefaultSkills(
         CampaignPersonnelRole.PILOT,
-        SkillExperienceLevel.Regular
+        SkillExperienceLevel.Regular,
       );
       const veteranSkills = createDefaultSkills(
         CampaignPersonnelRole.PILOT,
-        SkillExperienceLevel.Veteran
+        SkillExperienceLevel.Veteran,
       );
 
       expect(veteranSkills.gunnery.level).toBe(regularSkills.gunnery.level - 1);
       expect(veteranSkills.piloting.level).toBe(
-        regularSkills.piloting.level - 1
+        regularSkills.piloting.level - 1,
       );
     });
 
     it('GREEN: skill levels never go below 0', () => {
       const eliteSkills = createDefaultSkills(
         CampaignPersonnelRole.SOLDIER,
-        SkillExperienceLevel.Elite
+        SkillExperienceLevel.Elite,
       );
 
       for (const skill of Object.values(eliteSkills)) {
@@ -213,7 +211,7 @@ describe('Default Skills by Role and Experience Level', () => {
     it('GREEN: UNASSIGNED role returns empty skills', () => {
       const skills = createDefaultSkills(
         CampaignPersonnelRole.UNASSIGNED,
-        SkillExperienceLevel.Regular
+        SkillExperienceLevel.Regular,
       );
 
       expect(Object.keys(skills).length).toBe(0);
@@ -235,7 +233,7 @@ describe('Default Skills by Role and Experience Level', () => {
     it('GREEN: returned skills have correct structure', () => {
       const skills = createDefaultSkills(
         CampaignPersonnelRole.PILOT,
-        SkillExperienceLevel.Regular
+        SkillExperienceLevel.Regular,
       );
 
       for (const [skillId, skill] of Object.entries(skills)) {
@@ -250,34 +248,34 @@ describe('Default Skills by Role and Experience Level', () => {
     it('GREEN: GREEN pilot has higher skill levels than ELITE', () => {
       const greenSkills = createDefaultSkills(
         CampaignPersonnelRole.PILOT,
-        SkillExperienceLevel.Green
+        SkillExperienceLevel.Green,
       );
       const eliteSkills = createDefaultSkills(
         CampaignPersonnelRole.PILOT,
-        SkillExperienceLevel.Elite
+        SkillExperienceLevel.Elite,
       );
 
       expect(greenSkills.gunnery.level).toBeGreaterThan(
-        eliteSkills.gunnery.level
+        eliteSkills.gunnery.level,
       );
       expect(greenSkills.piloting.level).toBeGreaterThan(
-        eliteSkills.piloting.level
+        eliteSkills.piloting.level,
       );
     });
 
     it('GREEN: SUPPORT role with multiple skills applies modifier to all', () => {
       const regularSkills = createDefaultSkills(
         CampaignPersonnelRole.SUPPORT,
-        SkillExperienceLevel.Regular
+        SkillExperienceLevel.Regular,
       );
       const veteranSkills = createDefaultSkills(
         CampaignPersonnelRole.SUPPORT,
-        SkillExperienceLevel.Veteran
+        SkillExperienceLevel.Veteran,
       );
 
       expect(veteranSkills.astech.level).toBe(regularSkills.astech.level - 1);
       expect(veteranSkills.administration.level).toBe(
-        regularSkills.administration.level - 1
+        regularSkills.administration.level - 1,
       );
     });
   });
@@ -307,10 +305,22 @@ describe('Default Skills by Role and Experience Level', () => {
       ];
 
       for (const role of roles) {
-        const regularSkills = createDefaultSkills(role, SkillExperienceLevel.Regular);
-        const greenSkills = createDefaultSkills(role, SkillExperienceLevel.Green);
-        const veteranSkills = createDefaultSkills(role, SkillExperienceLevel.Veteran);
-        const eliteSkills = createDefaultSkills(role, SkillExperienceLevel.Elite);
+        const regularSkills = createDefaultSkills(
+          role,
+          SkillExperienceLevel.Regular,
+        );
+        const greenSkills = createDefaultSkills(
+          role,
+          SkillExperienceLevel.Green,
+        );
+        const veteranSkills = createDefaultSkills(
+          role,
+          SkillExperienceLevel.Veteran,
+        );
+        const eliteSkills = createDefaultSkills(
+          role,
+          SkillExperienceLevel.Elite,
+        );
 
         const skillIds = Object.keys(regularSkills);
 

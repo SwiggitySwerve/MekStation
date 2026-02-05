@@ -91,7 +91,12 @@ export const HEAVY_FOG: IBattleModifier = {
   effect: ModifierEffect.Neutral,
   applicability: {
     weight: 20,
-    biomes: [BiomeType.Swamp, BiomeType.Forest, BiomeType.Plains, BiomeType.Arctic],
+    biomes: [
+      BiomeType.Swamp,
+      BiomeType.Forest,
+      BiomeType.Plains,
+      BiomeType.Arctic,
+    ],
   },
   implementation: {
     type: 'terrain_effect',
@@ -213,7 +218,10 @@ export const MINEFIELD: IBattleModifier = {
   effect: ModifierEffect.Negative,
   applicability: {
     weight: 12,
-    scenarioTypes: [ScenarioObjectiveType.Capture, ScenarioObjectiveType.Breakthrough],
+    scenarioTypes: [
+      ScenarioObjectiveType.Capture,
+      ScenarioObjectiveType.Breakthrough,
+    ],
   },
   implementation: {
     type: 'equipment_effect',
@@ -349,7 +357,10 @@ export const INTEL_ADVANTAGE: IBattleModifier = {
   effect: ModifierEffect.Positive,
   applicability: {
     weight: 10,
-    scenarioTypes: [ScenarioObjectiveType.Capture, ScenarioObjectiveType.Destroy],
+    scenarioTypes: [
+      ScenarioObjectiveType.Capture,
+      ScenarioObjectiveType.Destroy,
+    ],
   },
   implementation: {
     type: 'force_modifier',
@@ -425,11 +436,15 @@ export const TIME_PRESSURE: IBattleModifier = {
 export const EXTENDED_ENGAGEMENT: IBattleModifier = {
   id: 'extended_engagement',
   name: 'Extended Engagement',
-  description: 'No time pressure allows for a longer engagement. Turn limit increased by 5 turns.',
+  description:
+    'No time pressure allows for a longer engagement. Turn limit increased by 5 turns.',
   effect: ModifierEffect.Positive,
   applicability: {
     weight: 8,
-    scenarioTypes: [ScenarioObjectiveType.Capture, ScenarioObjectiveType.Defend],
+    scenarioTypes: [
+      ScenarioObjectiveType.Capture,
+      ScenarioObjectiveType.Defend,
+    ],
     exclusiveWith: ['time_pressure'],
   },
   implementation: {
@@ -482,7 +497,9 @@ export function getModifierById(id: string): IBattleModifier | undefined {
 /**
  * Get modifiers by effect type.
  */
-export function getModifiersByEffect(effect: ModifierEffect): readonly IBattleModifier[] {
+export function getModifiersByEffect(
+  effect: ModifierEffect,
+): readonly IBattleModifier[] {
   return BATTLE_MODIFIERS.filter((m) => m.effect === effect);
 }
 
@@ -497,18 +514,22 @@ export function getModifiersByTag(tag: string): readonly IBattleModifier[] {
  * Get modifiers applicable to a scenario type.
  */
 export function getModifiersForScenarioType(
-  scenarioType: ScenarioObjectiveType
+  scenarioType: ScenarioObjectiveType,
 ): readonly IBattleModifier[] {
   return BATTLE_MODIFIERS.filter(
-    (m) => !m.applicability.scenarioTypes || m.applicability.scenarioTypes.includes(scenarioType)
+    (m) =>
+      !m.applicability.scenarioTypes ||
+      m.applicability.scenarioTypes.includes(scenarioType),
   );
 }
 
 /**
  * Get modifiers applicable to a biome.
  */
-export function getModifiersForBiome(biome: BiomeType): readonly IBattleModifier[] {
+export function getModifiersForBiome(
+  biome: BiomeType,
+): readonly IBattleModifier[] {
   return BATTLE_MODIFIERS.filter(
-    (m) => !m.applicability.biomes || m.applicability.biomes.includes(biome)
+    (m) => !m.applicability.biomes || m.applicability.biomes.includes(biome),
   );
 }

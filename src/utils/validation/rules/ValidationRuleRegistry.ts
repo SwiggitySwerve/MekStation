@@ -1,8 +1,8 @@
 /**
  * Validation Rule Registry
- * 
+ *
  * Manages registration and retrieval of validation rules.
- * 
+ *
  * @spec openspec/specs/validation-rules-master/spec.md
  */
 
@@ -31,11 +31,11 @@ function createRule(definition: IValidationRuleDefinition): IValidationRule {
     category: definition.category,
     priority: definition.priority ?? DEFAULT_PRIORITY,
     isEnabled: true,
-    
+
     validate(context: IValidationContext): IValidationRuleResult {
       return definition.validate(context);
     },
-    
+
     canValidate(context: IValidationContext): boolean {
       if (definition.canValidate) {
         return definition.canValidate(context);
@@ -55,7 +55,9 @@ export function createValidationRuleRegistry(): IValidationRuleRegistry {
   return {
     register(definition: IValidationRuleDefinition): void {
       if (rules.has(definition.id)) {
-        throw new Error(`Rule with ID '${definition.id}' is already registered`);
+        throw new Error(
+          `Rule with ID '${definition.id}' is already registered`,
+        );
       }
       rules.set(definition.id, createRule(definition));
       enabledState.set(definition.id, true);
@@ -79,15 +81,17 @@ export function createValidationRuleRegistry(): IValidationRuleRegistry {
 
     getAllRules(): readonly IValidationRule[] {
       return Array.from(rules.values())
-        .map(rule => ({
+        .map((rule) => ({
           ...rule,
           isEnabled: enabledState.get(rule.id) ?? true,
         }))
         .sort((a, b) => a.priority - b.priority);
     },
 
-    getRulesByCategory(category: ValidationCategory): readonly IValidationRule[] {
-      return this.getAllRules().filter(rule => rule.category === category);
+    getRulesByCategory(
+      category: ValidationCategory,
+    ): readonly IValidationRule[] {
+      return this.getAllRules().filter((rule) => rule.category === category);
     },
 
     enableRule(ruleId: string): void {
@@ -130,4 +134,3 @@ export function getDefaultValidationRuleRegistry(): IValidationRuleRegistry {
 export function resetDefaultValidationRuleRegistry(): void {
   defaultRegistry = null;
 }
-

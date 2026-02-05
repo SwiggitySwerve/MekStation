@@ -7,16 +7,19 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.3
  */
 
-import { UnitType } from '../../types/unit/BattleMechInterfaces';
+import { IBlkDocument } from '../../types/formats/BlkFormat';
 import { IBaseUnit } from '../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../types/unit/BattleMechInterfaces';
 import {
   IUnitTypeHandler,
   IUnitTypeRegistry,
   UnitCategory,
   getUnitCategory,
 } from '../../types/unit/UnitTypeHandler';
-import { IBlkDocument } from '../../types/formats/BlkFormat';
-import { createSingleton, type SingletonFactory } from '../core/createSingleton';
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 
 /**
  * Unit Type Registry Singleton
@@ -35,7 +38,7 @@ class UnitTypeRegistry implements IUnitTypeRegistry {
   register<T extends IBaseUnit>(handler: IUnitTypeHandler<T>): void {
     if (this.handlers.has(handler.unitType)) {
       console.warn(
-        `[UnitTypeRegistry] Replacing existing handler for ${handler.unitType}`
+        `[UnitTypeRegistry] Replacing existing handler for ${handler.unitType}`,
       );
     }
     this.handlers.set(handler.unitType, handler as IUnitTypeHandler);
@@ -140,7 +143,8 @@ class UnitTypeRegistry implements IUnitTypeRegistry {
   }
 }
 
-const unitTypeRegistryFactory: SingletonFactory<UnitTypeRegistry> = createSingleton((): UnitTypeRegistry => new UnitTypeRegistry());
+const unitTypeRegistryFactory: SingletonFactory<UnitTypeRegistry> =
+  createSingleton((): UnitTypeRegistry => new UnitTypeRegistry());
 
 /**
  * Get the singleton unit type registry instance
@@ -160,7 +164,7 @@ export function resetUnitTypeRegistry(): void {
  * Helper to register a handler
  */
 export function registerUnitTypeHandler<T extends IBaseUnit>(
-  handler: IUnitTypeHandler<T>
+  handler: IUnitTypeHandler<T>,
 ): void {
   getUnitTypeRegistry().register(handler);
 }
@@ -168,7 +172,9 @@ export function registerUnitTypeHandler<T extends IBaseUnit>(
 /**
  * Helper to get a handler
  */
-export function getUnitTypeHandler(unitType: UnitType): IUnitTypeHandler | undefined {
+export function getUnitTypeHandler(
+  unitType: UnitType,
+): IUnitTypeHandler | undefined {
   return getUnitTypeRegistry().getHandler(unitType);
 }
 

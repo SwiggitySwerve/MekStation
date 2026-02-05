@@ -1,9 +1,16 @@
 /**
  * Data Extractors
- * 
+ *
  * Functions to extract record sheet data from unit configurations.
  */
 
+import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import {
+  MechLocation,
+  LOCATION_SLOT_COUNTS,
+} from '@/types/construction/CriticalSlotAllocation';
+import { STRUCTURE_POINTS_TABLE } from '@/types/construction/InternalStructureType';
+import { WeaponCategory } from '@/types/equipment';
 import {
   IRecordSheetHeader,
   IRecordSheetMovement,
@@ -18,15 +25,22 @@ import {
   LOCATION_ABBREVIATIONS,
   LOCATION_NAMES,
 } from '@/types/printing';
-import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
-import { STRUCTURE_POINTS_TABLE } from '@/types/construction/InternalStructureType';
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
-import { WeaponCategory } from '@/types/equipment';
-import { IUnitConfig } from './types';
+
 import { COMBAT_EQUIPMENT } from './constants';
+import {
+  getFixedSlotContent,
+  getEngineSlots,
+  getGyroSlots,
+  formatEngineName,
+} from './criticalSlotUtils';
+import {
+  getDamageCode,
+  formatMissileDamage,
+  lookupWeapon,
+  isUnhittableEquipmentName,
+} from './equipmentUtils';
 import { getMechType, getCriticalLocationsForMechType } from './mechTypeUtils';
-import { getDamageCode, formatMissileDamage, lookupWeapon, isUnhittableEquipmentName } from './equipmentUtils';
-import { getFixedSlotContent, getEngineSlots, getGyroSlots, formatEngineName } from './criticalSlotUtils';
+import { IUnitConfig } from './types';
 
 /**
  * Extract header data
@@ -65,9 +79,10 @@ export function extractMovement(unit: IUnitConfig): IRecordSheetMovement {
  */
 export function extractArmor(unit: IUnitConfig): IRecordSheetArmor {
   const { armor, tonnage, configuration } = unit;
-  const structurePoints = STRUCTURE_POINTS_TABLE[tonnage] || STRUCTURE_POINTS_TABLE[50];
+  const structurePoints =
+    STRUCTURE_POINTS_TABLE[tonnage] || STRUCTURE_POINTS_TABLE[50];
   const mechType = getMechType(configuration);
-  
+
   // Common locations for all mech types
   const baseLocations: ILocationArmor[] = [
     {
@@ -104,7 +119,7 @@ export function extractArmor(unit: IUnitConfig): IRecordSheetArmor {
 
   // Add limb locations based on mech type
   let limbLocations: ILocationArmor[];
-  
+
   if (mechType === 'quad') {
     limbLocations = [
       {
@@ -213,9 +228,10 @@ export function extractArmor(unit: IUnitConfig): IRecordSheetArmor {
  * Extract structure data (configuration-aware)
  */
 export function extractStructure(unit: IUnitConfig): IRecordSheetStructure {
-  const structurePoints = STRUCTURE_POINTS_TABLE[unit.tonnage] || STRUCTURE_POINTS_TABLE[50];
+  const structurePoints =
+    STRUCTURE_POINTS_TABLE[unit.tonnage] || STRUCTURE_POINTS_TABLE[50];
   const mechType = getMechType(unit.configuration);
-  
+
   // Common locations for all mech types
   const baseLocations: ILocationStructure[] = [
     {
@@ -242,7 +258,7 @@ export function extractStructure(unit: IUnitConfig): IRecordSheetStructure {
 
   // Add limb locations based on mech type
   let limbLocations: ILocationStructure[];
-  
+
   if (mechType === 'quad') {
     limbLocations = [
       {
@@ -335,26 +351,30 @@ export function extractStructure(unit: IUnitConfig): IRecordSheetStructure {
  * Extract equipment data - weapons, ammo, and combat equipment for the inventory table
  * Looks up actual weapon stats from the equipment database
  */
-export function extractEquipment(unit: IUnitConfig): readonly IRecordSheetEquipment[] {
+export function extractEquipment(
+  unit: IUnitConfig,
+): readonly IRecordSheetEquipment[] {
   // Get all weapons from the database for lookups
   // Uses equipmentLookupService which provides fallback to hardcoded data if JSON not loaded
   const allWeapons = equipmentLookupService.getAllWeapons();
-  
+
   // Only include equipment that belongs in the Weapons & Equipment Inventory
   const combatEquipment = unit.equipment.filter((eq) => {
     // Include weapons
     if (eq.isWeapon) return true;
-    
+
     // Include ammunition
     if (eq.isAmmo) return true;
-    
+
     // Include items that have range data (combat-relevant)
-    if (eq.ranges && (eq.ranges.short || eq.ranges.medium || eq.ranges.long)) return true;
-    
+    if (eq.ranges && (eq.ranges.short || eq.ranges.medium || eq.ranges.long))
+      return true;
+
     // Include combat-relevant equipment
     const lowerName = eq.name.toLowerCase();
-    if (COMBAT_EQUIPMENT.some(ce => lowerName.includes(ce.toLowerCase()))) return true;
-    
+    if (COMBAT_EQUIPMENT.some((ce) => lowerName.includes(ce.toLowerCase())))
+      return true;
+
     // Exclude structural components, enhancements, movement equipment
     return false;
   });
@@ -362,23 +382,24 @@ export function extractEquipment(unit: IUnitConfig): readonly IRecordSheetEquipm
   return combatEquipment.map((eq) => {
     // Look up weapon data from database by name or id
     const weaponData = lookupWeapon(allWeapons, eq.name, eq.id);
-    
+
     if (weaponData) {
       // Get damage type code based on weapon category
       const damageCode = getDamageCode(weaponData.category);
-      
+
       // Format damage - missiles use "X/Msl" format
       const isMissile = weaponData.category === WeaponCategory.MISSILE;
-      const formattedDamage = isMissile 
+      const formattedDamage = isMissile
         ? formatMissileDamage(eq.name, weaponData.damage)
         : String(weaponData.damage);
-      
+
       // Use database values for damage, heat, and ranges
       return {
         id: eq.id,
         name: eq.name,
         location: eq.location,
-        locationAbbr: LOCATION_ABBREVIATIONS[eq.location as MechLocation] || eq.location,
+        locationAbbr:
+          LOCATION_ABBREVIATIONS[eq.location as MechLocation] || eq.location,
         heat: weaponData.heat,
         damage: formattedDamage,
         damageCode,
@@ -392,17 +413,20 @@ export function extractEquipment(unit: IUnitConfig): readonly IRecordSheetEquipm
         ammoCount: undefined,
       };
     }
-    
+
     // Check if this is combat equipment (non-weapon)
     const lowerName = eq.name.toLowerCase();
-    const isCombatEquipment = COMBAT_EQUIPMENT.some(ce => lowerName.includes(ce.toLowerCase()));
-    
+    const isCombatEquipment = COMBAT_EQUIPMENT.some((ce) =>
+      lowerName.includes(ce.toLowerCase()),
+    );
+
     if (isCombatEquipment) {
       return {
         id: eq.id,
         name: eq.name,
         location: eq.location,
-        locationAbbr: LOCATION_ABBREVIATIONS[eq.location as MechLocation] || eq.location,
+        locationAbbr:
+          LOCATION_ABBREVIATIONS[eq.location as MechLocation] || eq.location,
         heat: '-',
         damage: '-',
         damageCode: '[E]', // Equipment
@@ -417,13 +441,14 @@ export function extractEquipment(unit: IUnitConfig): readonly IRecordSheetEquipm
         ammoCount: undefined,
       };
     }
-    
+
     // Fallback for ammo or items not in weapon database
     return {
       id: eq.id,
       name: eq.name,
       location: eq.location,
-      locationAbbr: LOCATION_ABBREVIATIONS[eq.location as MechLocation] || eq.location,
+      locationAbbr:
+        LOCATION_ABBREVIATIONS[eq.location as MechLocation] || eq.location,
       heat: eq.heat || 0,
       damage: eq.damage || '-',
       minimum: eq.ranges?.minimum || 0,
@@ -445,7 +470,7 @@ export function extractHeatSinks(unit: IUnitConfig): IRecordSheetHeatSinks {
   const isDouble = unit.heatSinks.type.toLowerCase().includes('double');
   const capacity = unit.heatSinks.count * (isDouble ? 2 : 1);
   const integrated = Math.floor(unit.engine.rating / 25);
-  
+
   return {
     type: unit.heatSinks.type,
     count: unit.heatSinks.count,
@@ -459,9 +484,11 @@ export function extractHeatSinks(unit: IUnitConfig): IRecordSheetHeatSinks {
  * Extract critical slots data with fixed equipment (engine, gyro, actuators, etc.)
  * Configuration-aware: returns appropriate locations for biped, quad, tripod, etc.
  */
-export function extractCriticals(unit: IUnitConfig): readonly ILocationCriticals[] {
+export function extractCriticals(
+  unit: IUnitConfig,
+): readonly ILocationCriticals[] {
   const mechType = getMechType(unit.configuration);
-  
+
   // Get locations based on mech configuration
   const locations = getCriticalLocationsForMechType(mechType);
 
@@ -473,10 +500,10 @@ export function extractCriticals(unit: IUnitConfig): readonly ILocationCriticals
   return locations.map((loc) => {
     const slotCount = LOCATION_SLOT_COUNTS[loc];
     const userSlots = unit.criticalSlots?.[loc] || [];
-    
+
     // Start with empty slots array
     const slots: IRecordSheetCriticalSlot[] = [];
-    
+
     // Fill slots with fixed equipment first, then user equipment
     for (let i = 0; i < slotCount; i++) {
       let fixedContent = getFixedSlotContent(loc, i, engineSlots, gyroSlots);
@@ -484,7 +511,7 @@ export function extractCriticals(unit: IUnitConfig): readonly ILocationCriticals
         fixedContent = engineName;
       }
       const userSlot = userSlots[i];
-      
+
       if (fixedContent) {
         slots.push({
           slotNumber: i + 1,

@@ -6,17 +6,22 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { JumpShipUnitHandler, createJumpShipHandler } from '../JumpShipUnitHandler';
+import { CapitalShipLocation } from '../../../../types/construction/UnitLocation';
+import { TechBase, RulesLevel } from '../../../../types/enums';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { TechBase, RulesLevel } from '../../../../types/enums';
-import { CapitalShipLocation } from '../../../../types/construction/UnitLocation';
+import {
+  JumpShipUnitHandler,
+  createJumpShipHandler,
+} from '../JumpShipUnitHandler';
 
 // ============================================================================
 // Test Fixtures
 // ============================================================================
 
-function createMockBlkDocument(overrides: Partial<IBlkDocument> = {}): IBlkDocument {
+function createMockBlkDocument(
+  overrides: Partial<IBlkDocument> = {},
+): IBlkDocument {
   return {
     blockVersion: 1,
     version: 'MAM0',
@@ -227,7 +232,9 @@ describe('JumpShipUnitHandler', () => {
       const validateResult = handler.validate(unit);
 
       expect(validateResult.isValid).toBe(false);
-      expect(validateResult.errors.some((e) => e.includes('50,000'))).toBe(true);
+      expect(validateResult.errors.some((e) => e.includes('50,000'))).toBe(
+        true,
+      );
     });
 
     it('should error for tonnage over 500,000', () => {
@@ -239,7 +246,9 @@ describe('JumpShipUnitHandler', () => {
       const validateResult = handler.validate(unit);
 
       expect(validateResult.isValid).toBe(false);
-      expect(validateResult.errors.some((e) => e.includes('500,000'))).toBe(true);
+      expect(validateResult.errors.some((e) => e.includes('500,000'))).toBe(
+        true,
+      );
     });
 
     it('should warn for no docking collars', () => {
@@ -250,9 +259,14 @@ describe('JumpShipUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       // Manually set docking collars to 0 to test validation
-      const unitWithNoCollars = { ...parseResult.data!.unit, dockingCollars: 0 };
+      const unitWithNoCollars = {
+        ...parseResult.data!.unit,
+        dockingCollars: 0,
+      };
       const validateResult = handler.validate(unitWithNoCollars);
-      expect(validateResult.warnings.some((w) => w.includes('no docking collars'))).toBe(true);
+      expect(
+        validateResult.warnings.some((w) => w.includes('no docking collars')),
+      ).toBe(true);
     });
 
     it('should warn for no crew', () => {
@@ -261,7 +275,9 @@ describe('JumpShipUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const validateResult = handler.validate(parseResult.data!.unit);
-      expect(validateResult.warnings.some((w) => w.includes('no crew'))).toBe(true);
+      expect(validateResult.warnings.some((w) => w.includes('no crew'))).toBe(
+        true,
+      );
     });
 
     it('should info for lithium-fusion batteries', () => {
@@ -272,7 +288,9 @@ describe('JumpShipUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const validateResult = handler.validate(parseResult.data!.unit);
-      expect(validateResult.infos.some((i) => i.includes('Lithium-Fusion'))).toBe(true);
+      expect(
+        validateResult.infos.some((i) => i.includes('Lithium-Fusion')),
+      ).toBe(true);
     });
   });
 
@@ -360,7 +378,9 @@ describe('JumpShipUnitHandler', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error!.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
+      expect(
+        result.error!.errors.some((e) => e.includes('not yet implemented')),
+      ).toBe(true);
     });
   });
 });

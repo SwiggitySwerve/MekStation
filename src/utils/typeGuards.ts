@@ -1,21 +1,23 @@
 /**
  * Type Guards
- * 
+ *
  * Type guard implementations for safe type narrowing.
- * 
+ *
  * @spec openspec/specs/validation-patterns/spec.md
  */
 
-import { TechBase } from '../types/enums/TechBase';
 import { RulesLevel } from '../types/enums/RulesLevel';
+import { TechBase } from '../types/enums/TechBase';
 import { Era } from '../types/temporal/Era';
 
 /**
  * Check if value is a valid Entity
- * 
+ *
  * Entities have id and name properties.
  */
-export function isEntity(value: unknown): value is { id: string; name: string } {
+export function isEntity(
+  value: unknown,
+): value is { id: string; name: string } {
   return (
     typeof value === 'object' &&
     value !== null &&
@@ -28,10 +30,12 @@ export function isEntity(value: unknown): value is { id: string; name: string } 
 
 /**
  * Check if value is a valid WeightedComponent
- * 
+ *
  * WeightedComponents have a weight property >= 0.
  */
-export function isWeightedComponent(value: unknown): value is { weight: number } {
+export function isWeightedComponent(
+  value: unknown,
+): value is { weight: number } {
   return (
     typeof value === 'object' &&
     value !== null &&
@@ -44,10 +48,12 @@ export function isWeightedComponent(value: unknown): value is { weight: number }
 
 /**
  * Check if value is a valid SlottedComponent
- * 
+ *
  * SlottedComponents have criticalSlots as a non-negative integer.
  */
-export function isSlottedComponent(value: unknown): value is { criticalSlots: number } {
+export function isSlottedComponent(
+  value: unknown,
+): value is { criticalSlots: number } {
   return (
     typeof value === 'object' &&
     value !== null &&
@@ -60,25 +66,29 @@ export function isSlottedComponent(value: unknown): value is { criticalSlots: nu
 
 /**
  * Check if value is a valid PlaceableComponent
- * 
+ *
  * PlaceableComponents have both weight and criticalSlots.
  */
-export function isPlaceableComponent(value: unknown): value is { weight: number; criticalSlots: number } {
+export function isPlaceableComponent(
+  value: unknown,
+): value is { weight: number; criticalSlots: number } {
   return isWeightedComponent(value) && isSlottedComponent(value);
 }
 
 /**
  * Check if value is a valid TechBaseEntity
- * 
+ *
  * TechBaseEntities have techBase and rulesLevel properties.
  */
-export function isTechBaseEntity(value: unknown): value is { techBase: TechBase; rulesLevel: RulesLevel } {
+export function isTechBaseEntity(
+  value: unknown,
+): value is { techBase: TechBase; rulesLevel: RulesLevel } {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
-  
+
   const obj = value as { techBase?: unknown; rulesLevel?: unknown };
-  
+
   return (
     'techBase' in obj &&
     'rulesLevel' in obj &&
@@ -89,42 +99,52 @@ export function isTechBaseEntity(value: unknown): value is { techBase: TechBase;
 
 /**
  * Check if value is a valid TemporalEntity
- * 
+ *
  * TemporalEntities have introductionYear and optionally extinctionYear.
  */
-export function isTemporalEntity(value: unknown): value is { introductionYear: number; extinctionYear?: number } {
+export function isTemporalEntity(
+  value: unknown,
+): value is { introductionYear: number; extinctionYear?: number } {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
-  
+
   const obj = value as { introductionYear?: unknown; extinctionYear?: unknown };
-  
-  if (!('introductionYear' in obj) || typeof obj.introductionYear !== 'number') {
+
+  if (
+    !('introductionYear' in obj) ||
+    typeof obj.introductionYear !== 'number'
+  ) {
     return false;
   }
-  
+
   if (!Number.isFinite(obj.introductionYear)) {
     return false;
   }
-  
+
   if ('extinctionYear' in obj && obj.extinctionYear !== undefined) {
-    if (typeof obj.extinctionYear !== 'number' || !Number.isFinite(obj.extinctionYear)) {
+    if (
+      typeof obj.extinctionYear !== 'number' ||
+      !Number.isFinite(obj.extinctionYear)
+    ) {
       return false;
     }
     if (obj.extinctionYear < obj.introductionYear) {
       return false;
     }
   }
-  
+
   return true;
 }
 
 /**
  * Check if value is a valid ValuedComponent
- * 
+ *
  * ValuedComponents have cost and battleValue properties.
  */
-export function isValuedComponent(value: unknown): value is { costCBills: number; battleValue: number } {
+export function isValuedComponent(
+  value: unknown,
+): value is { costCBills: number; battleValue: number } {
   return (
     typeof value === 'object' &&
     value !== null &&
@@ -139,26 +159,35 @@ export function isValuedComponent(value: unknown): value is { costCBills: number
 
 /**
  * Check if value is a valid DocumentedEntity
- * 
+ *
  * DocumentedEntities have optional sourceBook and pageReference.
  */
-export function isDocumentedEntity(value: unknown): value is { sourceBook?: string; pageReference?: number } {
+export function isDocumentedEntity(
+  value: unknown,
+): value is { sourceBook?: string; pageReference?: number } {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
-  
+
   const obj = value as { sourceBook?: unknown; pageReference?: unknown };
-  
-  if ('sourceBook' in obj && obj.sourceBook !== undefined && typeof obj.sourceBook !== 'string') {
+
+  if (
+    'sourceBook' in obj &&
+    obj.sourceBook !== undefined &&
+    typeof obj.sourceBook !== 'string'
+  ) {
     return false;
   }
-  
+
   if ('pageReference' in obj && obj.pageReference !== undefined) {
-    if (typeof obj.pageReference !== 'number' || !Number.isInteger(obj.pageReference)) {
+    if (
+      typeof obj.pageReference !== 'number' ||
+      !Number.isInteger(obj.pageReference)
+    ) {
       return false;
     }
   }
-  
+
   return true;
 }
 
@@ -186,27 +215,41 @@ export function isValidEra(value: string): value is Era {
 /**
  * Assert that a value is an Entity, throwing if not
  */
-export function assertEntity(value: unknown, context?: string): asserts value is { id: string; name: string } {
+export function assertEntity(
+  value: unknown,
+  context?: string,
+): asserts value is { id: string; name: string } {
   if (!isEntity(value)) {
-    throw new Error(`${context ? context + ': ' : ''}Value is not a valid Entity`);
+    throw new Error(
+      `${context ? context + ': ' : ''}Value is not a valid Entity`,
+    );
   }
 }
 
 /**
  * Assert that a value is a WeightedComponent, throwing if not
  */
-export function assertWeightedComponent(value: unknown, context?: string): asserts value is { weight: number } {
+export function assertWeightedComponent(
+  value: unknown,
+  context?: string,
+): asserts value is { weight: number } {
   if (!isWeightedComponent(value)) {
-    throw new Error(`${context ? context + ': ' : ''}Value is not a valid WeightedComponent`);
+    throw new Error(
+      `${context ? context + ': ' : ''}Value is not a valid WeightedComponent`,
+    );
   }
 }
 
 /**
  * Assert that a value is a TechBaseEntity, throwing if not
  */
-export function assertTechBaseEntity(value: unknown, context?: string): asserts value is { techBase: TechBase; rulesLevel: RulesLevel } {
+export function assertTechBaseEntity(
+  value: unknown,
+  context?: string,
+): asserts value is { techBase: TechBase; rulesLevel: RulesLevel } {
   if (!isTechBaseEntity(value)) {
-    throw new Error(`${context ? context + ': ' : ''}Value is not a valid TechBaseEntity`);
+    throw new Error(
+      `${context ? context + ': ' : ''}Value is not a valid TechBaseEntity`,
+    );
   }
 }
-

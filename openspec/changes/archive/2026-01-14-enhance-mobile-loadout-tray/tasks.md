@@ -7,6 +7,7 @@ All tasks have been implemented and verified.
 ---
 
 ## Task 1: Mobile Status Bar Header ✅
+
 **Status**: Complete
 
 - [x] Create `MobileLoadoutHeader` component
@@ -18,6 +19,7 @@ All tasks have been implemented and verified.
 ---
 
 ## Task 2: Mobile Equipment Row Component ✅
+
 **Status**: Complete
 
 - [x] Create `MobileEquipmentRow` component
@@ -30,6 +32,7 @@ All tasks have been implemented and verified.
 ---
 
 ## Task 3: Equipment List with Sections ✅
+
 **Status**: Complete
 
 - [x] Create `MobileLoadoutList` component
@@ -42,6 +45,7 @@ All tasks have been implemented and verified.
 ---
 
 ## Task 4: Link Button for Unassigned Items ✅
+
 **Status**: Complete
 
 - [x] Add link icon (🔗) for unassigned equipment
@@ -54,6 +58,7 @@ All tasks have been implemented and verified.
 ---
 
 ## Task 5: Unlink Button for Allocated Items ✅
+
 **Status**: Complete
 
 - [x] Add breaking chain icon for allocated equipment
@@ -64,6 +69,7 @@ All tasks have been implemented and verified.
 ---
 
 ## Task 6: Remove Button with Confirmation ✅
+
 **Status**: Complete
 
 - [x] Add × icon for removable equipment
@@ -74,6 +80,7 @@ All tasks have been implemented and verified.
 ---
 
 ## Task 7: Exclusive Dropdown Behavior ✅
+
 **Status**: Complete
 
 - [x] Lift dropdown state to `MobileLoadoutList`
@@ -84,6 +91,7 @@ All tasks have been implemented and verified.
 ---
 
 ## Task 8: Touch Target Optimization ✅
+
 **Status**: Complete
 
 - [x] Increase action column width to 36px
@@ -94,6 +102,7 @@ All tasks have been implemented and verified.
 ---
 
 ## Task 9: Section Column Headers ✅
+
 **Status**: Complete
 
 - [x] Remove top-level header with scrollbar padding

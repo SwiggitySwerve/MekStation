@@ -13,6 +13,7 @@
  */
 
 import { act } from '@testing-library/react';
+
 import {
   useFilterStore,
   type IEncounterHistoryFilters,
@@ -235,7 +236,11 @@ describe('useFilterStore', () => {
 
     it('should support all outcome values', () => {
       const { setEncounterHistoryFilters } = useFilterStore.getState();
-      const outcomes: Array<'victory' | 'defeat' | 'draw'> = ['victory', 'defeat', 'draw'];
+      const outcomes: Array<'victory' | 'defeat' | 'draw'> = [
+        'victory',
+        'defeat',
+        'draw',
+      ];
 
       outcomes.forEach((outcome) => {
         act(() => {
@@ -249,7 +254,11 @@ describe('useFilterStore', () => {
 
     it('should support all sortBy values', () => {
       const { setEncounterHistoryFilters } = useFilterStore.getState();
-      const sortByValues: Array<'duration' | 'kills' | 'damage'> = ['duration', 'kills', 'damage'];
+      const sortByValues: Array<'duration' | 'kills' | 'damage'> = [
+        'duration',
+        'kills',
+        'damage',
+      ];
 
       sortByValues.forEach((sortBy) => {
         act(() => {
@@ -277,7 +286,11 @@ describe('useFilterStore', () => {
 
     it('should support all keyMomentTier values', () => {
       const { setEncounterHistoryFilters } = useFilterStore.getState();
-      const tiers: Array<'critical' | 'major' | 'minor'> = ['critical', 'major', 'minor'];
+      const tiers: Array<'critical' | 'major' | 'minor'> = [
+        'critical',
+        'major',
+        'minor',
+      ];
 
       tiers.forEach((tier) => {
         act(() => {
@@ -401,7 +414,11 @@ describe('useFilterStore', () => {
 
     it('should support all severity values', () => {
       const { setAnalysisBugsFilters } = useFilterStore.getState();
-      const severities: Array<'critical' | 'warning' | 'info'> = ['critical', 'warning', 'info'];
+      const severities: Array<'critical' | 'warning' | 'info'> = [
+        'critical',
+        'warning',
+        'info',
+      ];
 
       severities.forEach((severity) => {
         act(() => {
@@ -416,8 +433,18 @@ describe('useFilterStore', () => {
     it('should support all detector values', () => {
       const { setAnalysisBugsFilters } = useFilterStore.getState();
       const detectors: Array<
-        'heat-suicide' | 'passive-unit' | 'no-progress' | 'long-game' | 'state-cycle'
-      > = ['heat-suicide', 'passive-unit', 'no-progress', 'long-game', 'state-cycle'];
+        | 'heat-suicide'
+        | 'passive-unit'
+        | 'no-progress'
+        | 'long-game'
+        | 'state-cycle'
+      > = [
+        'heat-suicide',
+        'passive-unit',
+        'no-progress',
+        'long-game',
+        'state-cycle',
+      ];
 
       detectors.forEach((detector) => {
         act(() => {
@@ -502,8 +529,11 @@ describe('useFilterStore', () => {
     });
 
     it('should clear state when clearing all filters', () => {
-      const { setEncounterHistoryFilters, setAnalysisBugsFilters, clearAllFilters } =
-        useFilterStore.getState();
+      const {
+        setEncounterHistoryFilters,
+        setAnalysisBugsFilters,
+        clearAllFilters,
+      } = useFilterStore.getState();
 
       act(() => {
         setEncounterHistoryFilters(mockEHFilters);
@@ -638,19 +668,22 @@ describe('useFilterStore', () => {
     });
 
     it('should not trigger infinite loops on URL sync', () => {
-      const { setEncounterHistoryFilters, syncFromURL } = useFilterStore.getState();
+      const { setEncounterHistoryFilters, syncFromURL } =
+        useFilterStore.getState();
 
       act(() => {
         setEncounterHistoryFilters({ outcome: 'victory' });
       });
 
-      const initialCallCount = (window.history.replaceState as jest.Mock).mock.calls.length;
+      const initialCallCount = (window.history.replaceState as jest.Mock).mock
+        .calls.length;
 
       act(() => {
         syncFromURL();
       });
 
-      const finalCallCount = (window.history.replaceState as jest.Mock).mock.calls.length;
+      const finalCallCount = (window.history.replaceState as jest.Mock).mock
+        .calls.length;
       expect(finalCallCount).toBeLessThanOrEqual(initialCallCount + 1);
     });
   });
@@ -661,7 +694,8 @@ describe('useFilterStore', () => {
 
   describe('Clear All Filters', () => {
     it('should clear all encounter history filters', () => {
-      const { setEncounterHistoryFilters, clearAllFilters } = useFilterStore.getState();
+      const { setEncounterHistoryFilters, clearAllFilters } =
+        useFilterStore.getState();
 
       act(() => {
         setEncounterHistoryFilters(mockEHFilters);
@@ -673,7 +707,8 @@ describe('useFilterStore', () => {
     });
 
     it('should clear all analysis bugs filters', () => {
-      const { setAnalysisBugsFilters, clearAllFilters } = useFilterStore.getState();
+      const { setAnalysisBugsFilters, clearAllFilters } =
+        useFilterStore.getState();
 
       act(() => {
         setAnalysisBugsFilters(mockABFilters);
@@ -685,8 +720,11 @@ describe('useFilterStore', () => {
     });
 
     it('should clear both filter types simultaneously', () => {
-      const { setEncounterHistoryFilters, setAnalysisBugsFilters, clearAllFilters } =
-        useFilterStore.getState();
+      const {
+        setEncounterHistoryFilters,
+        setAnalysisBugsFilters,
+        clearAllFilters,
+      } = useFilterStore.getState();
 
       act(() => {
         setEncounterHistoryFilters(mockEHFilters);
@@ -700,8 +738,11 @@ describe('useFilterStore', () => {
     });
 
     it('should clear both filter types when clearAllFilters is called', () => {
-      const { setEncounterHistoryFilters, setAnalysisBugsFilters, clearAllFilters } =
-        useFilterStore.getState();
+      const {
+        setEncounterHistoryFilters,
+        setAnalysisBugsFilters,
+        clearAllFilters,
+      } = useFilterStore.getState();
 
       act(() => {
         setEncounterHistoryFilters(mockEHFilters);
@@ -722,8 +763,11 @@ describe('useFilterStore', () => {
     });
 
     it('should call syncToURL when clearing all filters', () => {
-      const { setEncounterHistoryFilters, setAnalysisBugsFilters, clearAllFilters } =
-        useFilterStore.getState();
+      const {
+        setEncounterHistoryFilters,
+        setAnalysisBugsFilters,
+        clearAllFilters,
+      } = useFilterStore.getState();
 
       act(() => {
         setEncounterHistoryFilters(mockEHFilters);
@@ -804,8 +848,11 @@ describe('useFilterStore', () => {
     });
 
     it('should preserve filter state across multiple operations', () => {
-      const { setEncounterHistoryFilters, setAnalysisBugsFilters, clearEncounterHistoryFilters } =
-        useFilterStore.getState();
+      const {
+        setEncounterHistoryFilters,
+        setAnalysisBugsFilters,
+        clearEncounterHistoryFilters,
+      } = useFilterStore.getState();
 
       act(() => {
         setEncounterHistoryFilters(mockEHFilters);

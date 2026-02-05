@@ -6,9 +6,14 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.4
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { BattleArmorLocation } from '../../../types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
+import {
+  SquadMotionType,
+  ISquadMovement,
+} from '../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import {
   IBattleArmor,
   IBattleArmorMountedEquipment,
@@ -16,10 +21,8 @@ import {
   BattleArmorWeightClass,
   ManipulatorType,
 } from '../../../types/unit/PersonnelInterfaces';
-import { SquadMotionType, ISquadMovement } from '../../../types/unit/BaseUnitInterfaces';
-import { BattleArmorLocation } from '../../../types/construction/UnitLocation';
+import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
@@ -32,7 +35,10 @@ import {
 /**
  * BA weight class thresholds (in kg per trooper)
  */
-const BA_WEIGHT_THRESHOLDS: Record<BattleArmorWeightClass, { min: number; max: number }> = {
+const BA_WEIGHT_THRESHOLDS: Record<
+  BattleArmorWeightClass,
+  { min: number; max: number }
+> = {
   [BattleArmorWeightClass.PA_L]: { min: 80, max: 400 },
   [BattleArmorWeightClass.LIGHT]: { min: 401, max: 750 },
   [BattleArmorWeightClass.MEDIUM]: { min: 751, max: 1000 },
@@ -73,7 +79,9 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
   /**
    * Parse BA-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<IBattleArmor> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<IBattleArmor> & {
     errors: string[];
     warnings: string[];
   } {
@@ -83,7 +91,9 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     // Chassis type
     const chassisStr = document.chassis?.toLowerCase() || 'biped';
     const chassisType =
-      chassisStr === 'quad' ? BattleArmorChassisType.QUAD : BattleArmorChassisType.BIPED;
+      chassisStr === 'quad'
+        ? BattleArmorChassisType.QUAD
+        : BattleArmorChassisType.BIPED;
 
     // Squad size
     const squadSize = document.trooperCount || 4;
@@ -109,8 +119,14 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     const movement: ISquadMovement = { groundMP, jumpMP, umuMP };
 
     // Manipulators
-    const leftManipulator = this.parseManipulator(document.rawTags, 'leftmanipulator');
-    const rightManipulator = this.parseManipulator(document.rawTags, 'rightmanipulator');
+    const leftManipulator = this.parseManipulator(
+      document.rawTags,
+      'leftmanipulator',
+    );
+    const rightManipulator = this.parseManipulator(
+      document.rawTags,
+      'rightmanipulator',
+    );
 
     // Armor
     const armorType = document.armorType || 0;
@@ -126,8 +142,14 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     const hasTurretMount = this.getBooleanFromRaw(rawTags, 'turretmount');
     const hasStealthSystem = this.getBooleanFromRaw(rawTags, 'stealth');
     const hasMimeticArmor = this.getBooleanFromRaw(rawTags, 'mimetic');
-    const hasFireResistantArmor = this.getBooleanFromRaw(rawTags, 'fireresistant');
-    const hasMechanicalJumpBoosters = this.getBooleanFromRaw(rawTags, 'mechanicaljumpboosters');
+    const hasFireResistantArmor = this.getBooleanFromRaw(
+      rawTags,
+      'fireresistant',
+    );
+    const hasMechanicalJumpBoosters = this.getBooleanFromRaw(
+      rawTags,
+      'mechanicaljumpboosters',
+    );
 
     // Capabilities (derived from weight class and equipment)
     const canSwarm = baWeightClass !== BattleArmorWeightClass.ASSAULT;
@@ -191,17 +213,19 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
    */
   private parseManipulator(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): ManipulatorType {
     const value = this.getStringFromRaw(rawTags, key)?.toLowerCase();
     if (!value) return ManipulatorType.NONE;
 
     if (value.includes('armored glove')) return ManipulatorType.ARMORED_GLOVE;
-    if (value.includes('heavy battle vibro')) return ManipulatorType.HEAVY_BATTLE_VIBRO;
+    if (value.includes('heavy battle vibro'))
+      return ManipulatorType.HEAVY_BATTLE_VIBRO;
     if (value.includes('heavy battle')) return ManipulatorType.HEAVY_BATTLE;
     if (value.includes('battle vibro')) return ManipulatorType.BATTLE_VIBRO;
     if (value.includes('battle')) return ManipulatorType.BATTLE;
-    if (value.includes('basic mine')) return ManipulatorType.BASIC_MINE_CLEARANCE;
+    if (value.includes('basic mine'))
+      return ManipulatorType.BASIC_MINE_CLEARANCE;
     if (value.includes('basic')) return ManipulatorType.BASIC;
     if (value.includes('cargo')) return ManipulatorType.CARGO_LIFTER;
     if (value.includes('drill')) return ManipulatorType.INDUSTRIAL_DRILL;
@@ -213,11 +237,15 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly IBattleArmorMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly IBattleArmorMountedEquipment[] {
     const equipment: IBattleArmorMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const location = this.normalizeLocation(locationKey);
       const isTurretMounted = locationKey.toLowerCase().includes('turret');
       const isAPMount = locationKey.toLowerCase().includes('ap');
@@ -264,7 +292,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
    */
   private getStringFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): string | undefined {
     const value = rawTags[key];
     if (Array.isArray(value)) return value[0];
@@ -276,7 +304,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
    */
   private getBooleanFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): boolean {
     const value = this.getStringFromRaw(rawTags, key);
     return value?.toLowerCase() === 'true' || value === '1';
@@ -287,7 +315,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
    */
   private getNumericFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): number {
     const value = this.getStringFromRaw(rawTags, key);
     return value ? parseInt(value, 10) : 0;
@@ -298,7 +326,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<IBattleArmor>
+    typeSpecificFields: Partial<IBattleArmor>,
   ): IBattleArmor {
     const techBase = this.parseTechBase(commonFields.techBase);
     const rulesLevel = this.parseRulesLevel(commonFields.techBase);
@@ -376,7 +404,9 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
   /**
    * Serialize BA-specific fields
    */
-  protected serializeTypeSpecificFields(unit: IBattleArmor): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: IBattleArmor,
+  ): Partial<ISerializedUnit> {
     return {
       configuration: unit.chassisType,
       rulesLevel: String(unit.rulesLevel),
@@ -387,7 +417,9 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
    * Deserialize from standard format
    */
   deserialize(_serialized: ISerializedUnit): IUnitParseResult<IBattleArmor> {
-    return createFailureResult(['Battle Armor deserialization not yet implemented']);
+    return createFailureResult([
+      'Battle Armor deserialization not yet implemented',
+    ]);
   }
 
   /**
@@ -409,9 +441,12 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
 
     // Weight per trooper validation
     const thresholds = BA_WEIGHT_THRESHOLDS[unit.baWeightClass];
-    if (unit.weightPerTrooper < thresholds.min || unit.weightPerTrooper > thresholds.max) {
+    if (
+      unit.weightPerTrooper < thresholds.min ||
+      unit.weightPerTrooper > thresholds.max
+    ) {
       warnings.push(
-        `Weight per trooper (${unit.weightPerTrooper}kg) doesn't match weight class ${unit.baWeightClass}`
+        `Weight per trooper (${unit.weightPerTrooper}kg) doesn't match weight class ${unit.baWeightClass}`,
       );
     }
 
@@ -429,7 +464,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     const maxArmor = this.getMaxArmorForClass(unit.baWeightClass);
     if (unit.armorPerTrooper > maxArmor) {
       errors.push(
-        `Armor per trooper (${unit.armorPerTrooper}) exceeds maximum (${maxArmor}) for ${unit.baWeightClass}`
+        `Armor per trooper (${unit.armorPerTrooper}) exceeds maximum (${maxArmor}) for ${unit.baWeightClass}`,
       );
     }
 

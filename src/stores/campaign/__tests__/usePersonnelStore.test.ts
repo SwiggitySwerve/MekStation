@@ -5,10 +5,11 @@
  * persistence, and Map serialization coverage.
  */
 
-import { createPersonnelStore } from '../usePersonnelStore';
-import { IPerson } from '@/types/campaign/Person';
 import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { IPerson } from '@/types/campaign/Person';
 import { createDefaultAttributes } from '@/types/campaign/Person';
+
+import { createPersonnelStore } from '../usePersonnelStore';
 
 // =============================================================================
 // Test Data Helpers
@@ -246,7 +247,9 @@ describe('usePersonnelStore', () => {
         const person = createTestPerson({ status: PersonnelStatus.ACTIVE });
         store.getState().addPerson(person);
 
-        store.getState().updatePerson(person.id, { status: PersonnelStatus.WOUNDED });
+        store
+          .getState()
+          .updatePerson(person.id, { status: PersonnelStatus.WOUNDED });
 
         const updated = store.getState().getPerson(person.id);
         expect(updated?.status).toBe(PersonnelStatus.WOUNDED);
@@ -326,7 +329,9 @@ describe('usePersonnelStore', () => {
         store.getState().addPerson(wounded);
         store.getState().addPerson(kia);
 
-        const activePersonnel = store.getState().getByStatus(PersonnelStatus.ACTIVE);
+        const activePersonnel = store
+          .getState()
+          .getByStatus(PersonnelStatus.ACTIVE);
         expect(activePersonnel).toHaveLength(2);
         expect(activePersonnel).toContainEqual(active1);
         expect(activePersonnel).toContainEqual(active2);
@@ -349,16 +354,24 @@ describe('usePersonnelStore', () => {
         store.getState().addPerson(wounded2);
         store.getState().addPerson(active);
 
-        const woundedPersonnel = store.getState().getByStatus(PersonnelStatus.WOUNDED);
+        const woundedPersonnel = store
+          .getState()
+          .getByStatus(PersonnelStatus.WOUNDED);
         expect(woundedPersonnel).toHaveLength(2);
       });
     });
 
     describe('getByRole', () => {
       it('should filter by primary role', () => {
-        const pilot1 = createTestPerson({ primaryRole: CampaignPersonnelRole.PILOT });
-        const pilot2 = createTestPerson({ primaryRole: CampaignPersonnelRole.PILOT });
-        const tech = createTestPerson({ primaryRole: CampaignPersonnelRole.TECH });
+        const pilot1 = createTestPerson({
+          primaryRole: CampaignPersonnelRole.PILOT,
+        });
+        const pilot2 = createTestPerson({
+          primaryRole: CampaignPersonnelRole.PILOT,
+        });
+        const tech = createTestPerson({
+          primaryRole: CampaignPersonnelRole.TECH,
+        });
 
         store.getState().addPerson(pilot1);
         store.getState().addPerson(pilot2);
@@ -406,10 +419,14 @@ describe('usePersonnelStore', () => {
       });
 
       it('should return empty array for no matches', () => {
-        const pilot = createTestPerson({ primaryRole: CampaignPersonnelRole.PILOT });
+        const pilot = createTestPerson({
+          primaryRole: CampaignPersonnelRole.PILOT,
+        });
         store.getState().addPerson(pilot);
 
-        const doctors = store.getState().getByRole(CampaignPersonnelRole.DOCTOR);
+        const doctors = store
+          .getState()
+          .getByRole(CampaignPersonnelRole.DOCTOR);
         expect(doctors).toEqual([]);
       });
     });
@@ -597,12 +614,17 @@ describe('usePersonnelStore', () => {
       store.getState().addPerson(person);
 
       const stored = localStorageMock.getItem('personnel-test-campaign');
-      const parsed = JSON.parse(stored!) as { state?: { personnel?: [string, IPerson][] } };
+      const parsed = JSON.parse(stored!) as {
+        state?: { personnel?: [string, IPerson][] };
+      };
 
       expect(parsed.state?.personnel).toBeDefined();
       expect(Array.isArray(parsed.state?.personnel)).toBe(true);
       expect(parsed.state?.personnel).toHaveLength(1);
-      expect(parsed.state?.personnel?.[0]).toEqual([person.id, expect.any(Object)]);
+      expect(parsed.state?.personnel?.[0]).toEqual([
+        person.id,
+        expect.any(Object),
+      ]);
     });
 
     it('should deserialize array to Map', () => {
@@ -614,7 +636,7 @@ describe('usePersonnelStore', () => {
 
       expect(newStore.getState().personnel).toBeInstanceOf(Map);
       expect(newStore.getState().personnel.size).toBe(1);
-      
+
       const retrieved = newStore.getState().getPerson(person.id);
       expect(retrieved).toBeDefined();
       expect(retrieved?.id).toBe(person.id);
@@ -634,10 +656,10 @@ describe('usePersonnelStore', () => {
       const newStore = createPersonnelStore('test-campaign');
 
       expect(newStore.getState().getAll()).toHaveLength(2);
-      
+
       const retrieved1 = newStore.getState().getPerson(person1.id);
       const retrieved2 = newStore.getState().getPerson(person2.id);
-      
+
       expect(retrieved1?.id).toBe(person1.id);
       expect(retrieved1?.name).toBe(person1.name);
       expect(retrieved2?.id).toBe(person2.id);
@@ -648,7 +670,9 @@ describe('usePersonnelStore', () => {
       store.getState().clear();
 
       const stored = localStorageMock.getItem('personnel-test-campaign');
-      const parsed = JSON.parse(stored!) as { state?: { personnel?: [string, IPerson][] } };
+      const parsed = JSON.parse(stored!) as {
+        state?: { personnel?: [string, IPerson][] };
+      };
       expect(parsed.state?.personnel).toEqual([]);
 
       // Create new store instance
@@ -694,7 +718,9 @@ describe('usePersonnelStore', () => {
   describe('Edge Cases', () => {
     it('should return empty array for queries on empty store', () => {
       expect(store.getState().getByStatus(PersonnelStatus.ACTIVE)).toEqual([]);
-      expect(store.getState().getByRole(CampaignPersonnelRole.PILOT)).toEqual([]);
+      expect(store.getState().getByRole(CampaignPersonnelRole.PILOT)).toEqual(
+        [],
+      );
       expect(store.getState().getByUnit('unit-1')).toEqual([]);
       expect(store.getState().getActive()).toEqual([]);
     });
@@ -705,7 +731,8 @@ describe('usePersonnelStore', () => {
       for (let i = 0; i < 1000; i++) {
         const person = createTestPerson({
           name: `Person ${i}`,
-          status: i % 2 === 0 ? PersonnelStatus.ACTIVE : PersonnelStatus.WOUNDED,
+          status:
+            i % 2 === 0 ? PersonnelStatus.ACTIVE : PersonnelStatus.WOUNDED,
         });
         store.getState().addPerson(person);
       }

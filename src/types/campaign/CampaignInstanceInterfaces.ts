@@ -13,6 +13,7 @@
  */
 
 import type { IPilotSkills, IPilotStatblock } from '../pilot/PilotInterfaces';
+
 import { CampaignUnitStatus, CampaignPilotStatus } from './CampaignInterfaces';
 
 // =============================================================================
@@ -295,7 +296,9 @@ export interface IAssignPilotToUnitInput {
 /**
  * Type guard for ICampaignUnitInstance.
  */
-export function isCampaignUnitInstance(obj: unknown): obj is ICampaignUnitInstance {
+export function isCampaignUnitInstance(
+  obj: unknown,
+): obj is ICampaignUnitInstance {
   if (typeof obj !== 'object' || obj === null) return false;
   const instance = obj as ICampaignUnitInstance;
   return (
@@ -312,7 +315,9 @@ export function isCampaignUnitInstance(obj: unknown): obj is ICampaignUnitInstan
 /**
  * Type guard for ICampaignPilotInstance.
  */
-export function isCampaignPilotInstance(obj: unknown): obj is ICampaignPilotInstance {
+export function isCampaignPilotInstance(
+  obj: unknown,
+): obj is ICampaignPilotInstance {
   if (typeof obj !== 'object' || obj === null) return false;
   const instance = obj as ICampaignPilotInstance;
   return (
@@ -378,7 +383,7 @@ export function createUnitInstance(
   unitName: string,
   unitChassis: string,
   unitVariant: string,
-  damageState: IUnitDamageState
+  damageState: IUnitDamageState,
 ): ICampaignUnitInstance {
   const now = new Date().toISOString();
   return {
@@ -409,7 +414,7 @@ export function createPilotInstanceFromVault(
   vaultPilotId: string,
   pilotName: string,
   pilotCallsign: string | undefined,
-  skills: IPilotSkills
+  skills: IPilotSkills,
 ): ICampaignPilotInstance {
   const now = new Date().toISOString();
   return {
@@ -438,7 +443,7 @@ export function createPilotInstanceFromVault(
 export function createPilotInstanceFromStatblock(
   id: string,
   campaignId: string,
-  statblock: IPilotStatblock
+  statblock: IPilotStatblock,
 ): ICampaignPilotInstance {
   const now = new Date().toISOString();
   return {
@@ -472,7 +477,9 @@ export function createPilotInstanceFromStatblock(
  * Calculate total damage percentage for a unit instance.
  * Returns 0-100 representing overall damage level.
  */
-export function calculateDamagePercentage(damageState: IUnitDamageState): number {
+export function calculateDamagePercentage(
+  damageState: IUnitDamageState,
+): number {
   if (damageState.locations.length === 0) return 0;
 
   let totalDamage = 0;
@@ -501,10 +508,12 @@ export function calculateDamagePercentage(damageState: IUnitDamageState): number
 /**
  * Determine unit status based on damage state.
  */
-export function determineUnitStatus(damageState: IUnitDamageState): CampaignUnitStatus {
+export function determineUnitStatus(
+  damageState: IUnitDamageState,
+): CampaignUnitStatus {
   // Check for destroyed (any location structure at 0)
   const hasDestroyedLocation = damageState.locations.some(
-    (loc) => loc.structureCurrent <= 0
+    (loc) => loc.structureCurrent <= 0,
   );
   if (hasDestroyedLocation) {
     return CampaignUnitStatus.Destroyed;

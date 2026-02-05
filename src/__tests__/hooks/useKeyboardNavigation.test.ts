@@ -1,13 +1,27 @@
 import { renderHook, act } from '@testing-library/react';
-import { useKeyboardNavigation, useTabKeyboardNavigation, useFocusOnSelect } from '@/hooks/useKeyboardNavigation';
+
+import {
+  useKeyboardNavigation,
+  useTabKeyboardNavigation,
+  useFocusOnSelect,
+} from '@/hooks/useKeyboardNavigation';
 
 /**
  * Create a mock KeyboardEvent for testing
  */
-function createMockKeyboardEvent(key: string, options?: { preventDefault?: jest.Mock }): KeyboardEvent {
-  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+function createMockKeyboardEvent(
+  key: string,
+  options?: { preventDefault?: jest.Mock },
+): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', {
+    key,
+    bubbles: true,
+    cancelable: true,
+  });
   if (options?.preventDefault) {
-    jest.spyOn(event, 'preventDefault').mockImplementation(options.preventDefault);
+    jest
+      .spyOn(event, 'preventDefault')
+      .mockImplementation(options.preventDefault);
   }
   return event;
 }
@@ -16,13 +30,20 @@ function createMockKeyboardEvent(key: string, options?: { preventDefault?: jest.
  * Create a mock React.KeyboardEvent for testing.
  * We create a plain object that satisfies the React.KeyboardEvent interface.
  */
-function createMockReactKeyboardEvent(key: string, options?: { preventDefault?: jest.Mock }): React.KeyboardEvent {
-  const nativeEvent = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
-  
+function createMockReactKeyboardEvent(
+  key: string,
+  options?: { preventDefault?: jest.Mock },
+): React.KeyboardEvent {
+  const nativeEvent = new KeyboardEvent('keydown', {
+    key,
+    bubbles: true,
+    cancelable: true,
+  });
+
   // Create a mock object that satisfies React.KeyboardEvent interface
   // Using a plain object avoids issues with read-only properties on native events
   const mockPreventDefault = options?.preventDefault ?? jest.fn();
-  
+
   // @ts-expect-error - Partial mock of KeyboardEvent for testing
   const reactEvent: React.KeyboardEvent = {
     // Native event properties
@@ -39,11 +60,11 @@ function createMockReactKeyboardEvent(key: string, options?: { preventDefault?: 
     location: nativeEvent.location,
     locale: '',
     getModifierState: (key: string) => nativeEvent.getModifierState(key),
-    
+
     // UIEvent properties
     detail: 0,
     view: null,
-    
+
     // Base event properties - using empty div as placeholder for event targets
     nativeEvent,
     currentTarget: document.createElement('div'),
@@ -55,13 +76,15 @@ function createMockReactKeyboardEvent(key: string, options?: { preventDefault?: 
     isTrusted: nativeEvent.isTrusted,
     timeStamp: nativeEvent.timeStamp,
     type: nativeEvent.type,
-    
+
     // React synthetic event methods
     preventDefault: mockPreventDefault,
     stopPropagation: jest.fn(),
     isDefaultPrevented: () => false,
     isPropagationStopped: () => false,
-    persist: () => { /* no-op for synthetic events */ },
+    persist: () => {
+      /* no-op for synthetic events */
+    },
   } as React.KeyboardEvent;
 
   return reactEvent;
@@ -78,7 +101,7 @@ describe('useKeyboardNavigation', () => {
         selectedItem: 'item2',
         onSelect: jest.fn(),
         getKey,
-      })
+      }),
     );
 
     expect(result.current.currentIndex).toBe(1);
@@ -91,7 +114,7 @@ describe('useKeyboardNavigation', () => {
         selectedItem: null,
         onSelect: jest.fn(),
         getKey,
-      })
+      }),
     );
 
     expect(result.current.currentIndex).toBe(-1);
@@ -105,7 +128,7 @@ describe('useKeyboardNavigation', () => {
         selectedItem: 'item2',
         onSelect,
         getKey,
-      })
+      }),
     );
 
     act(() => {
@@ -123,7 +146,7 @@ describe('useKeyboardNavigation', () => {
         selectedItem: 'item2',
         onSelect,
         getKey,
-      })
+      }),
     );
 
     act(() => {
@@ -141,7 +164,7 @@ describe('useKeyboardNavigation', () => {
         selectedItem: 'item3',
         onSelect,
         getKey,
-      })
+      }),
     );
 
     act(() => {
@@ -159,7 +182,7 @@ describe('useKeyboardNavigation', () => {
         selectedItem: 'item2',
         onSelect,
         getKey,
-      })
+      }),
     );
 
     act(() => {
@@ -178,7 +201,7 @@ describe('useKeyboardNavigation', () => {
         onSelect,
         getKey,
         wrap: true,
-      })
+      }),
     );
 
     act(() => {
@@ -197,7 +220,7 @@ describe('useKeyboardNavigation', () => {
         onSelect,
         getKey,
         wrap: false,
-      })
+      }),
     );
 
     act(() => {
@@ -216,7 +239,7 @@ describe('useKeyboardNavigation', () => {
         onSelect,
         getKey,
         columns: 3,
-      })
+      }),
     );
 
     act(() => {
@@ -235,7 +258,7 @@ describe('useKeyboardNavigation', () => {
         onSelect,
         getKey,
         horizontal: true,
-      })
+      }),
     );
 
     act(() => {
@@ -254,7 +277,7 @@ describe('useKeyboardNavigation', () => {
         onSelect,
         getKey,
         enabled: false,
-      })
+      }),
     );
 
     act(() => {
@@ -272,7 +295,7 @@ describe('useKeyboardNavigation', () => {
         selectedItem: 'item2',
         onSelect,
         getKey,
-      })
+      }),
     );
 
     const preventDefault = jest.fn();
@@ -295,7 +318,7 @@ describe('useKeyboardNavigation', () => {
         onSelect,
         onActivate,
         getKey,
-      })
+      }),
     );
 
     const preventDefault = jest.fn();
@@ -318,7 +341,7 @@ describe('useKeyboardNavigation', () => {
         onSelect,
         onActivate,
         getKey,
-      })
+      }),
     );
 
     const preventDefault = jest.fn();
@@ -342,7 +365,7 @@ describe('useTabKeyboardNavigation', () => {
 
   it('should navigate left', () => {
     const { result } = renderHook(() =>
-      useTabKeyboardNavigation(tabs, 'tab2', onTabChange)
+      useTabKeyboardNavigation(tabs, 'tab2', onTabChange),
     );
 
     const preventDefault = jest.fn();
@@ -357,11 +380,13 @@ describe('useTabKeyboardNavigation', () => {
 
   it('should navigate right', () => {
     const { result } = renderHook(() =>
-      useTabKeyboardNavigation(tabs, 'tab2', onTabChange)
+      useTabKeyboardNavigation(tabs, 'tab2', onTabChange),
     );
 
     const preventDefault = jest.fn();
-    const event = createMockReactKeyboardEvent('ArrowRight', { preventDefault });
+    const event = createMockReactKeyboardEvent('ArrowRight', {
+      preventDefault,
+    });
     act(() => {
       result.current(event);
     });
@@ -371,7 +396,7 @@ describe('useTabKeyboardNavigation', () => {
 
   it('should wrap to last tab when navigating left from first', () => {
     const { result } = renderHook(() =>
-      useTabKeyboardNavigation(tabs, 'tab1', onTabChange)
+      useTabKeyboardNavigation(tabs, 'tab1', onTabChange),
     );
 
     const preventDefault = jest.fn();
@@ -385,11 +410,13 @@ describe('useTabKeyboardNavigation', () => {
 
   it('should wrap to first tab when navigating right from last', () => {
     const { result } = renderHook(() =>
-      useTabKeyboardNavigation(tabs, 'tab3', onTabChange)
+      useTabKeyboardNavigation(tabs, 'tab3', onTabChange),
     );
 
     const preventDefault = jest.fn();
-    const event = createMockReactKeyboardEvent('ArrowRight', { preventDefault });
+    const event = createMockReactKeyboardEvent('ArrowRight', {
+      preventDefault,
+    });
     act(() => {
       result.current(event);
     });
@@ -399,7 +426,7 @@ describe('useTabKeyboardNavigation', () => {
 
   it('should navigate to first tab on Home', () => {
     const { result } = renderHook(() =>
-      useTabKeyboardNavigation(tabs, 'tab2', onTabChange)
+      useTabKeyboardNavigation(tabs, 'tab2', onTabChange),
     );
 
     const preventDefault = jest.fn();
@@ -413,7 +440,7 @@ describe('useTabKeyboardNavigation', () => {
 
   it('should navigate to last tab on End', () => {
     const { result } = renderHook(() =>
-      useTabKeyboardNavigation(tabs, 'tab2', onTabChange)
+      useTabKeyboardNavigation(tabs, 'tab2', onTabChange),
     );
 
     const preventDefault = jest.fn();
@@ -427,11 +454,13 @@ describe('useTabKeyboardNavigation', () => {
 
   it('should not navigate if active tab not found', () => {
     const { result } = renderHook(() =>
-      useTabKeyboardNavigation(tabs, 'nonexistent', onTabChange)
+      useTabKeyboardNavigation(tabs, 'nonexistent', onTabChange),
     );
 
     const preventDefault = jest.fn();
-    const event = createMockReactKeyboardEvent('ArrowRight', { preventDefault });
+    const event = createMockReactKeyboardEvent('ArrowRight', {
+      preventDefault,
+    });
     act(() => {
       result.current(event);
     });
@@ -447,7 +476,7 @@ describe('useFocusOnSelect', () => {
 
     const { rerender } = renderHook(
       ({ isSelected }) => useFocusOnSelect(ref, isSelected),
-      { initialProps: { isSelected: false } }
+      { initialProps: { isSelected: false } },
     );
 
     expect(focusSpy).not.toHaveBeenCalled();
@@ -460,10 +489,9 @@ describe('useFocusOnSelect', () => {
   it('should not focus if ref is null', () => {
     // @ts-expect-error - Testing null ref handling
     const ref: React.RefObject<HTMLElement> = { current: null };
-    
+
     expect(() => {
       renderHook(() => useFocusOnSelect(ref, true));
     }).not.toThrow();
   });
 });
-

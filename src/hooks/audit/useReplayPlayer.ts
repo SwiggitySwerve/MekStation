@@ -6,8 +6,9 @@
  */
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { IBaseEvent, EventCategory, ICheckpoint } from '@/types/events';
+
 import { EventStoreService, getEventStore } from '@/services/events';
+import { IBaseEvent, EventCategory, ICheckpoint } from '@/types/events';
 import {
   deriveStateWithCheckpoint,
   ReducerMap,
@@ -102,7 +103,8 @@ export interface IReplayActions {
 /**
  * Return type for useReplayPlayer hook.
  */
-export type UseReplayPlayerReturn<TState = unknown> = IReplayState<TState> & IReplayActions;
+export type UseReplayPlayerReturn<TState = unknown> = IReplayState<TState> &
+  IReplayActions;
 
 /**
  * Options for useReplayPlayer hook.
@@ -145,7 +147,7 @@ const PLAYBACK_SPEEDS: PlaybackSpeed[] = [0.25, 0.5, 1, 2, 4, 8];
 function createMarkers(
   events: readonly IBaseEvent[],
   minSeq: number,
-  maxSeq: number
+  maxSeq: number,
 ): IEventMarker[] {
   if (events.length === 0) return [];
 
@@ -166,7 +168,7 @@ function createMarkers(
  */
 function findIndexAtSequence(
   events: readonly IBaseEvent[],
-  sequence: number
+  sequence: number,
 ): number {
   if (events.length === 0) return -1;
 
@@ -231,7 +233,7 @@ function findIndexAtSequence(
  * ```
  */
 export function useReplayPlayer<TState>(
-  options: IUseReplayPlayerOptions<TState>
+  options: IUseReplayPlayerOptions<TState>,
 ): UseReplayPlayerReturn<TState> {
   const {
     gameId,
@@ -271,12 +273,12 @@ export function useReplayPlayer<TState>(
   // Create markers
   const markers = useMemo(
     () => createMarkers(events, minSequence, maxSequence),
-    [events, minSequence, maxSequence]
+    [events, minSequence, maxSequence],
   );
 
   // State
   const [playbackState, setPlaybackState] = useState<PlaybackState>(
-    autoPlay ? 'playing' : 'stopped'
+    autoPlay ? 'playing' : 'stopped',
   );
   const [speed, setSpeedState] = useState<PlaybackSpeed>(1);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -294,7 +296,11 @@ export function useReplayPlayer<TState>(
 
   // Current event
   const currentEvent = useMemo(() => {
-    if (events.length === 0 || currentIndex < 0 || currentIndex >= events.length) {
+    if (
+      events.length === 0 ||
+      currentIndex < 0 ||
+      currentIndex >= events.length
+    ) {
       return null;
     }
     return events[currentIndex];
@@ -317,9 +323,16 @@ export function useReplayPlayer<TState>(
       eventsUpTo,
       currentSequence,
       reducers,
-      initialState
+      initialState,
     );
-  }, [events, currentIndex, currentSequence, checkpoint, reducers, initialState]);
+  }, [
+    events,
+    currentIndex,
+    currentSequence,
+    checkpoint,
+    reducers,
+    initialState,
+  ]);
 
   // Progress (0-1)
   const progress = useMemo(() => {
@@ -395,7 +408,7 @@ export function useReplayPlayer<TState>(
         setCurrentIndex(index);
       }
     },
-    [events]
+    [events],
   );
 
   const jumpToEvent = useCallback(
@@ -405,14 +418,14 @@ export function useReplayPlayer<TState>(
         setCurrentIndex(index);
       }
     },
-    [events]
+    [events],
   );
 
   const jumpToIndex = useCallback(
     (index: number) => {
       setCurrentIndex(Math.max(0, Math.min(index, events.length - 1)));
     },
-    [events.length]
+    [events.length],
   );
 
   const setSpeed = useCallback((newSpeed: PlaybackSpeed) => {
@@ -425,7 +438,7 @@ export function useReplayPlayer<TState>(
       const newIndex = Math.round(clampedProgress * (events.length - 1));
       setCurrentIndex(newIndex);
     },
-    [events.length]
+    [events.length],
   );
 
   return {
@@ -477,7 +490,9 @@ export function getNextSpeed(current: PlaybackSpeed): PlaybackSpeed {
  */
 export function getPrevSpeed(current: PlaybackSpeed): PlaybackSpeed {
   const index = PLAYBACK_SPEEDS.indexOf(current);
-  return PLAYBACK_SPEEDS[(index - 1 + PLAYBACK_SPEEDS.length) % PLAYBACK_SPEEDS.length];
+  return PLAYBACK_SPEEDS[
+    (index - 1 + PLAYBACK_SPEEDS.length) % PLAYBACK_SPEEDS.length
+  ];
 }
 
 /**
@@ -493,7 +508,12 @@ export function formatSpeed(speed: PlaybackSpeed): string {
 /**
  * Format time for display (mm:ss).
  */
-export function formatTime(index: number, total: number, baseInterval: number, speed: PlaybackSpeed): string {
+export function formatTime(
+  index: number,
+  total: number,
+  baseInterval: number,
+  speed: PlaybackSpeed,
+): string {
   const totalMs = (total - index) * (baseInterval / speed);
   const totalSec = Math.floor(totalMs / 1000);
   const min = Math.floor(totalSec / 60);

@@ -6,8 +6,9 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import { ContactService } from '@/services/vault/ContactService';
 import type { IContact } from '@/types/vault';
+
+import { ContactService } from '@/services/vault/ContactService';
 
 // =============================================================================
 // Mock Repository
@@ -43,7 +44,7 @@ class MockContactRepository {
   async getByFriendCode(friendCode: string): Promise<IContact | null> {
     return (
       Array.from(this.contacts.values()).find(
-        (c) => c.friendCode.toUpperCase() === friendCode.toUpperCase()
+        (c) => c.friendCode.toUpperCase() === friendCode.toUpperCase(),
       ) || null
     );
   }
@@ -51,7 +52,7 @@ class MockContactRepository {
   async getByPublicKey(publicKey: string): Promise<IContact | null> {
     return (
       Array.from(this.contacts.values()).find(
-        (c) => c.publicKey === publicKey
+        (c) => c.publicKey === publicKey,
       ) || null
     );
   }
@@ -80,7 +81,7 @@ class MockContactRepository {
       (c) =>
         c.nickname?.toLowerCase().includes(q) ||
         c.displayName.toLowerCase().includes(q) ||
-        c.friendCode.toLowerCase().includes(q)
+        c.friendCode.toLowerCase().includes(q),
     );
   }
 
@@ -115,7 +116,7 @@ class MockContactRepository {
   async updateFromIdentity(
     id: string,
     displayName: string,
-    avatar: string | null
+    avatar: string | null,
   ): Promise<boolean> {
     const contact = this.contacts.get(id);
     if (!contact) return false;
@@ -302,7 +303,9 @@ describe('ContactService', () => {
     it('should find contact by friend code', async () => {
       await service.addContact({ friendCode: 'ABCD-EFGH-JKLM-NPQR' });
 
-      const contact = await service.getContactByFriendCode('ABCD-EFGH-JKLM-NPQR');
+      const contact = await service.getContactByFriendCode(
+        'ABCD-EFGH-JKLM-NPQR',
+      );
       expect(contact).not.toBeNull();
       expect(contact?.friendCode).toBe('ABCD-EFGH-JKLM-NPQR');
     });
@@ -310,12 +313,16 @@ describe('ContactService', () => {
     it('should be case-insensitive', async () => {
       await service.addContact({ friendCode: 'ABCD-EFGH-JKLM-NPQR' });
 
-      const contact = await service.getContactByFriendCode('abcd-efgh-jklm-npqr');
+      const contact = await service.getContactByFriendCode(
+        'abcd-efgh-jklm-npqr',
+      );
       expect(contact).not.toBeNull();
     });
 
     it('should return null for non-existent contact', async () => {
-      const contact = await service.getContactByFriendCode('XXXX-XXXX-XXXX-XXX2');
+      const contact = await service.getContactByFriendCode(
+        'XXXX-XXXX-XXXX-XXX2',
+      );
       expect(contact).toBeNull();
     });
   });
@@ -479,10 +486,14 @@ describe('ContactService', () => {
     it('should remove contact by friend code', async () => {
       await service.addContact({ friendCode: 'ABCD-EFGH-JKLM-NPQR' });
 
-      const removed = await service.removeContactByFriendCode('ABCD-EFGH-JKLM-NPQR');
+      const removed = await service.removeContactByFriendCode(
+        'ABCD-EFGH-JKLM-NPQR',
+      );
       expect(removed).toBe(true);
 
-      const contact = await service.getContactByFriendCode('ABCD-EFGH-JKLM-NPQR');
+      const contact = await service.getContactByFriendCode(
+        'ABCD-EFGH-JKLM-NPQR',
+      );
       expect(contact).toBeNull();
     });
   });

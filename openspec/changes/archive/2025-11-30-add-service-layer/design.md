@@ -3,6 +3,7 @@
 ## Context
 
 The MekStation needs a service layer to abstract data access and business logic from UI components. This enables:
+
 - Clear separation of concerns
 - Testable business logic
 - Consistent data access patterns
@@ -11,6 +12,7 @@ The MekStation needs a service layer to abstract data access and business logic 
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Provide singleton service instances via registry
 - Support lazy loading of unit data
 - Enable offline-first with IndexedDB
@@ -18,6 +20,7 @@ The MekStation needs a service layer to abstract data access and business logic 
 - Support both canonical (read-only) and custom (read-write) units
 
 **Non-Goals:**
+
 - Backend server implementation (client-side only for now)
 - Real-time sync between clients
 - Cloud storage integration (future phase)
@@ -58,6 +61,7 @@ export const services = {
 ### Decision: Canonical Units as Static JSON
 
 Canonical unit data is bundled as static JSON in `public/data/units/`:
+
 - Lightweight index loaded on startup (~500KB)
 - Full unit data lazy-loaded on demand
 - No database writes for canonical data
@@ -67,6 +71,7 @@ Canonical unit data is bundled as static JSON in `public/data/units/`:
 ### Decision: Custom Units in IndexedDB
 
 User-created variants stored in browser IndexedDB:
+
 - Database: `mekstation`
 - Stores: `custom-units`, `unit-metadata`
 - Full CRUD operations
@@ -76,6 +81,7 @@ User-created variants stored in browser IndexedDB:
 ### Decision: Wrap Existing Utilities
 
 Services wrap existing utility functions rather than reimplementing:
+
 - `EquipmentLookupService` wraps `src/types/equipment/` exports
 - `EquipmentCalculatorService` wraps `src/utils/equipment/EquipmentCalculator.ts`
 - `ValidationService` wraps `src/services/validation/` validators
@@ -84,11 +90,11 @@ Services wrap existing utility functions rather than reimplementing:
 
 ## Risks / Trade-offs
 
-| Risk | Mitigation |
-|------|------------|
-| IndexedDB browser limits | Warn users approaching storage limits |
-| Search performance with many units | Use MiniSearch for client-side full-text search |
-| Service initialization order | Registry ensures services created in dependency order |
+| Risk                               | Mitigation                                            |
+| ---------------------------------- | ----------------------------------------------------- |
+| IndexedDB browser limits           | Warn users approaching storage limits                 |
+| Search performance with many units | Use MiniSearch for client-side full-text search       |
+| Service initialization order       | Registry ensures services created in dependency order |
 
 ## Migration Plan
 
@@ -103,4 +109,3 @@ Services wrap existing utility functions rather than reimplementing:
 - Should we add LRU cache for frequently accessed units?
 - What's the maximum number of custom units we should support?
 - Should file export support MTF format in addition to JSON?
-

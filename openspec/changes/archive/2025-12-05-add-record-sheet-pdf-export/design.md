@@ -7,6 +7,7 @@ BattleTech tabletop gameplay requires printed record sheets showing unit stats, 
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Generate MegaMekLab-style record sheets usable for tabletop play
 - Provide live preview in the customizer as users edit units
 - Support PDF download and browser print
@@ -14,6 +15,7 @@ BattleTech tabletop gameplay requires printed record sheets showing unit stats, 
 - Use authentic MegaMek SVG templates for visual consistency
 
 **Non-Goals:**
+
 - Perfect pixel-for-pixel match with MegaMekLab output
 - Server-side PDF generation
 - Multi-unit batch printing (future enhancement)
@@ -24,16 +26,19 @@ BattleTech tabletop gameplay requires printed record sheets showing unit stats, 
 ### Decision: Use SVG Templates Only (Final Architecture)
 
 **Rationale:** Using MegaMek's original SVG templates provides:
+
 - Authentic MegaMekLab-style record sheets
 - Pre-positioned elements requiring minimal calculation
 - Consistent visual output across all platforms
 - Easy maintenance - template updates from MegaMek apply automatically
 
 **Architecture Evolution:**
+
 - Initial: Canvas-based rendering with multiple renderer classes
 - Final: Single SVG template renderer using MegaMek templates
 
 **Removed Components:**
+
 - ~~MechRecordSheetRenderer.ts~~ - Canvas renderer
 - ~~ArmorDiagramRenderer.ts~~ - Canvas armor pips
 - ~~EquipmentTableRenderer.ts~~ - Canvas equipment table
@@ -46,6 +51,7 @@ BattleTech tabletop gameplay requires printed record sheets showing unit stats, 
 ### Decision: High-DPI Rendering
 
 **Rationale:** Different DPI multipliers for different use cases:
+
 - **Preview**: 20x multiplier for crisp display at any zoom level
 - **PDF Export**: 20x multiplier for print-quality output
 
@@ -106,37 +112,37 @@ BattleTech tabletop gameplay requires printed record sheets showing unit stats, 
 
 The SVG template contains pre-defined elements for data injection:
 
-| Element ID | Content |
-|------------|---------|
-| `type` | Unit name (Chassis Model) |
-| `tonnage` | Tonnage value |
-| `techBase` | Tech base (Inner Sphere/Clan) |
-| `rulesLevel` | Rules level |
-| `mpWalk` | Walking MP |
-| `mpRun` | Running MP |
-| `mpJump` | Jumping MP |
-| `bv` | Battle Value |
-| `armorType` | Armor type name |
-| `structureType` | Structure type name |
-| `hsType` | Heat sink type |
-| `hsCount` | Heat sink count |
-| `textArmor_*` | Armor point values per location |
-| `textIS_*` | Internal structure values per location |
-| `crits_*` | Critical slot areas per location |
-| `canonArmorPips` | Container for armor pip SVGs |
-| `canonStructurePips` | Container for structure pip SVGs |
-| `inventory` | Equipment table area |
+| Element ID           | Content                                |
+| -------------------- | -------------------------------------- |
+| `type`               | Unit name (Chassis Model)              |
+| `tonnage`            | Tonnage value                          |
+| `techBase`           | Tech base (Inner Sphere/Clan)          |
+| `rulesLevel`         | Rules level                            |
+| `mpWalk`             | Walking MP                             |
+| `mpRun`              | Running MP                             |
+| `mpJump`             | Jumping MP                             |
+| `bv`                 | Battle Value                           |
+| `armorType`          | Armor type name                        |
+| `structureType`      | Structure type name                    |
+| `hsType`             | Heat sink type                         |
+| `hsCount`            | Heat sink count                        |
+| `textArmor_*`        | Armor point values per location        |
+| `textIS_*`           | Internal structure values per location |
+| `crits_*`            | Critical slot areas per location       |
+| `canonArmorPips`     | Container for armor pip SVGs           |
+| `canonStructurePips` | Container for structure pip SVGs       |
+| `inventory`          | Equipment table area                   |
 
 ## Zoom Controls
 
 The preview includes floating controls positioned bottom-right:
 
-| Button | Action |
-|--------|--------|
-| `+` | Zoom in 15% |
-| `-` | Zoom out 15% |
-| `↔` | Fit to container width |
-| `↕` | Fit to container height |
+| Button | Action                  |
+| ------ | ----------------------- |
+| `+`    | Zoom in 15%             |
+| `-`    | Zoom out 15%            |
+| `↔`    | Fit to container width  |
+| `↕`    | Fit to container height |
 
 Zoom range: 20% to 300%
 

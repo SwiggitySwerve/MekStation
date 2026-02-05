@@ -119,13 +119,13 @@ describe('CONSUMABLE_TN', () => {
 
   it('should be easier than regular parts for most ratings', () => {
     expect(CONSUMABLE_TN[AvailabilityRating.A]).toBeLessThan(
-      REGULAR_PART_TN[AvailabilityRating.A]
+      REGULAR_PART_TN[AvailabilityRating.A],
     );
     expect(CONSUMABLE_TN[AvailabilityRating.D]).toBeLessThan(
-      REGULAR_PART_TN[AvailabilityRating.D]
+      REGULAR_PART_TN[AvailabilityRating.D],
     );
     expect(CONSUMABLE_TN[AvailabilityRating.F]).toBeLessThan(
-      REGULAR_PART_TN[AvailabilityRating.F]
+      REGULAR_PART_TN[AvailabilityRating.F],
     );
   });
 });

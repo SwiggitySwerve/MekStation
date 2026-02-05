@@ -43,7 +43,8 @@ export function generateRoomCode(): string {
   } else {
     // Fallback to Math.random
     for (let i = 0; i < length; i++) {
-      code += ROOM_CODE_CHARS[Math.floor(Math.random() * ROOM_CODE_CHARS.length)];
+      code +=
+        ROOM_CODE_CHARS[Math.floor(Math.random() * ROOM_CODE_CHARS.length)];
     }
   }
 

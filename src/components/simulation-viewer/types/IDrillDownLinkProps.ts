@@ -13,7 +13,10 @@
  */
 export interface IDrillDownLinkProps {
   readonly label: string;
-  readonly targetTab: 'campaign-dashboard' | 'encounter-history' | 'analysis-bugs';
+  readonly targetTab:
+    | 'campaign-dashboard'
+    | 'encounter-history'
+    | 'analysis-bugs';
   readonly filter?: Record<string, unknown>;
   readonly icon?: string;
   readonly className?: string;

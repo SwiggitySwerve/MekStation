@@ -86,34 +86,38 @@ Units with errors:   0
 
 ### Issues Resolved
 
-| Issue | Root Cause | Fix | Units Fixed |
-|-------|-----------|-----|-------------|
-| SLOT_COUNT_MISMATCH | MTF pads to 12 slots | Added padding in MTFExportService | ~681 |
-| ENGINE_MISMATCH | Inconsistent formats | Added normalizeEngineString() | ~160 |
-| PARSE_ERROR (121) | Empty model field required | Only require chassis in parser | 121 |
-| ARMOR_MISMATCH (51) | Missing CL armor for tripods | Added `'CL armor': 'CENTER_LEG'` mapping | 11 tripods |
-| ARMOR_MISMATCH (40) | Patchwork armor format | Extract numeric value from `Type:Value` format | 5 units |
-| SLOT_COUNT_MISMATCH (11) | Missing CENTER_LEG location | Added `'Center Leg:': 'CENTER_LEG'` header | 11 tripods |
-| HEADER_MISMATCH (12) | Clanname used as model fallback | Preserve original empty model field | 12 Clan mechs |
+| Issue                    | Root Cause                      | Fix                                            | Units Fixed   |
+| ------------------------ | ------------------------------- | ---------------------------------------------- | ------------- |
+| SLOT_COUNT_MISMATCH      | MTF pads to 12 slots            | Added padding in MTFExportService              | ~681          |
+| ENGINE_MISMATCH          | Inconsistent formats            | Added normalizeEngineString()                  | ~160          |
+| PARSE_ERROR (121)        | Empty model field required      | Only require chassis in parser                 | 121           |
+| ARMOR_MISMATCH (51)      | Missing CL armor for tripods    | Added `'CL armor': 'CENTER_LEG'` mapping       | 11 tripods    |
+| ARMOR_MISMATCH (40)      | Patchwork armor format          | Extract numeric value from `Type:Value` format | 5 units       |
+| SLOT_COUNT_MISMATCH (11) | Missing CENTER_LEG location     | Added `'Center Leg:': 'CENTER_LEG'` header     | 11 tripods    |
+| HEADER_MISMATCH (12)     | Clanname used as model fallback | Preserve original empty model field            | 12 Clan mechs |
 
 ### Exotic Mech Support Added
 
 **Quad Mechs:**
+
 - Parser: Location headers `Front Left Leg:`, `Rear Left Leg:`, etc.
 - Parser: Armor fields `FLL armor`, `FRL armor`, `RLL armor`, `RRL armor`
 - Exporter: Correct location names and armor labels
 
 **Tripod Mechs:**
+
 - Parser: Location header `Center Leg:`
 - Parser: Armor field `CL armor`
 - Exporter: Correct location names and armor labels
 - Slot count: `CENTER_LEG: 6`
 
 **Patchwork Armor:**
+
 - Parser: Extracts numeric value from `ArmorType:Value` format
 - Validator: Normalizes armor values for comparison
 
 **Clan Dual-Names:**
+
 - Parser: Preserves empty model when `clanname:` is present
 - Exporter: Outputs empty `model:` with separate `clanname:` field
 

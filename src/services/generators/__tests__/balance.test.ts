@@ -5,12 +5,17 @@
  * @spec openspec/changes/add-scenario-generators/spec.md
  */
 
-
-import { Era } from '../../../types/temporal/Era';
-import { OpForSkillLevel, ScenarioObjectiveType } from '../../../types/scenario';
-import { OpForGeneratorService, getDefaultOpForConfig } from '../OpForGeneratorService';
-import { ScenarioGeneratorService } from '../ScenarioGeneratorService';
 import { Faction } from '../../../constants/scenario/rats';
+import {
+  OpForSkillLevel,
+  ScenarioObjectiveType,
+} from '../../../types/scenario';
+import { Era } from '../../../types/temporal/Era';
+import {
+  OpForGeneratorService,
+  getDefaultOpForConfig,
+} from '../OpForGeneratorService';
+import { ScenarioGeneratorService } from '../ScenarioGeneratorService';
 
 describe('Balance Testing', () => {
   const opForGenerator = new OpForGeneratorService();
@@ -18,21 +23,39 @@ describe('Balance Testing', () => {
 
   describe('OpFor BV Accuracy', () => {
     const testCases = [
-      { playerBV: 4000, description: 'Small lance (4000 BV)', maxDeviation: 0.25 },
-      { playerBV: 8000, description: 'Standard lance (8000 BV)', maxDeviation: 0.20 },
-      { playerBV: 12000, description: 'Reinforced lance (12000 BV)', maxDeviation: 0.20 },
+      {
+        playerBV: 4000,
+        description: 'Small lance (4000 BV)',
+        maxDeviation: 0.25,
+      },
+      {
+        playerBV: 8000,
+        description: 'Standard lance (8000 BV)',
+        maxDeviation: 0.2,
+      },
+      {
+        playerBV: 12000,
+        description: 'Reinforced lance (12000 BV)',
+        maxDeviation: 0.2,
+      },
     ];
 
     testCases.forEach(({ playerBV, description, maxDeviation }) => {
       it(`should generate OpFor within ${maxDeviation * 100}% of target for ${description}`, () => {
-        const config = getDefaultOpForConfig(playerBV, Faction.DRACONIS_COMBINE, Era.CLAN_INVASION);
+        const config = getDefaultOpForConfig(
+          playerBV,
+          Faction.DRACONIS_COMBINE,
+          Era.CLAN_INVASION,
+        );
         const result = opForGenerator.generate(config);
 
         const deviation = Math.abs(result.bvDeviation);
         expect(deviation).toBeLessThan(maxDeviation);
-        
+
         // Log for analysis
-        console.log(`${description}: Target ${playerBV}, Got ${result.totalBV} (${(result.bvDeviation * 100).toFixed(1)}% deviation)`);
+        console.log(
+          `${description}: Target ${playerBV}, Got ${result.totalBV} (${(result.bvDeviation * 100).toFixed(1)}% deviation)`,
+        );
       });
     });
 
@@ -40,7 +63,11 @@ describe('Balance Testing', () => {
       // For company-size forces, we relax deviation requirements
       // as the generator has unit count limits
       const config = {
-        ...getDefaultOpForConfig(24000, Faction.DRACONIS_COMBINE, Era.CLAN_INVASION),
+        ...getDefaultOpForConfig(
+          24000,
+          Faction.DRACONIS_COMBINE,
+          Era.CLAN_INVASION,
+        ),
         maxLanceSize: 16, // Allow larger force
       };
       const result = opForGenerator.generate(config);
@@ -52,21 +79,26 @@ describe('Balance Testing', () => {
 
     it('should consistently hit BV targets across multiple generations', () => {
       const playerBV = 10000;
-      const config = getDefaultOpForConfig(playerBV, Faction.PIRATES, Era.LATE_SUCCESSION_WARS);
-      
+      const config = getDefaultOpForConfig(
+        playerBV,
+        Faction.PIRATES,
+        Era.LATE_SUCCESSION_WARS,
+      );
+
       const deviations: number[] = [];
       for (let i = 0; i < 10; i++) {
         const result = opForGenerator.generate(config);
         deviations.push(result.bvDeviation);
       }
 
-      const avgDeviation = deviations.reduce((a, b) => a + b, 0) / deviations.length;
+      const avgDeviation =
+        deviations.reduce((a, b) => a + b, 0) / deviations.length;
       const maxDeviation = Math.max(...deviations.map(Math.abs));
 
       // Average deviation should be reasonable (within 15%)
       expect(Math.abs(avgDeviation)).toBeLessThan(0.15);
       // No single generation should be wildly off (within 30%)
-      expect(maxDeviation).toBeLessThan(0.30);
+      expect(maxDeviation).toBeLessThan(0.3);
     });
   });
 
@@ -79,7 +111,11 @@ describe('Balance Testing', () => {
 
       for (const difficulty of difficulties) {
         const config = {
-          ...getDefaultOpForConfig(playerBV, Faction.MERCENARY, Era.CLAN_INVASION),
+          ...getDefaultOpForConfig(
+            playerBV,
+            Faction.MERCENARY,
+            Era.CLAN_INVASION,
+          ),
           difficultyMultiplier: difficulty,
         };
         const result = opForGenerator.generate(config);
@@ -88,13 +124,13 @@ describe('Balance Testing', () => {
 
       // Higher difficulties should generally produce more BV
       // Due to randomness, we compare endpoints rather than each step
-      const easyBV = results.find(r => r.difficulty === 0.5)?.bv || 0;
-      const hardBV = results.find(r => r.difficulty === 1.5)?.bv || 0;
+      const easyBV = results.find((r) => r.difficulty === 0.5)?.bv || 0;
+      const hardBV = results.find((r) => r.difficulty === 1.5)?.bv || 0;
       expect(hardBV).toBeGreaterThan(easyBV);
 
       // The 2.0 difficulty should produce more than 1.0, but may be limited by unit count
-      const normalBV = results.find(r => r.difficulty === 1.0)?.bv || 0;
-      const extremeBV = results.find(r => r.difficulty === 2.0)?.bv || 0;
+      const normalBV = results.find((r) => r.difficulty === 1.0)?.bv || 0;
+      const extremeBV = results.find((r) => r.difficulty === 2.0)?.bv || 0;
       expect(extremeBV).toBeGreaterThan(normalBV * 0.8); // At least close to normal
     });
   });
@@ -103,16 +139,40 @@ describe('Balance Testing', () => {
     it('should assign correct base skills for each level', () => {
       const playerBV = 8000;
       const skillLevels = [
-        { level: OpForSkillLevel.Green, expectedGunnery: 5, expectedPiloting: 6 },
-        { level: OpForSkillLevel.Regular, expectedGunnery: 4, expectedPiloting: 5 },
-        { level: OpForSkillLevel.Veteran, expectedGunnery: 3, expectedPiloting: 4 },
-        { level: OpForSkillLevel.Elite, expectedGunnery: 2, expectedPiloting: 3 },
-        { level: OpForSkillLevel.Legendary, expectedGunnery: 1, expectedPiloting: 2 },
+        {
+          level: OpForSkillLevel.Green,
+          expectedGunnery: 5,
+          expectedPiloting: 6,
+        },
+        {
+          level: OpForSkillLevel.Regular,
+          expectedGunnery: 4,
+          expectedPiloting: 5,
+        },
+        {
+          level: OpForSkillLevel.Veteran,
+          expectedGunnery: 3,
+          expectedPiloting: 4,
+        },
+        {
+          level: OpForSkillLevel.Elite,
+          expectedGunnery: 2,
+          expectedPiloting: 3,
+        },
+        {
+          level: OpForSkillLevel.Legendary,
+          expectedGunnery: 1,
+          expectedPiloting: 2,
+        },
       ];
 
       for (const { level, expectedGunnery, expectedPiloting } of skillLevels) {
         const config = {
-          ...getDefaultOpForConfig(playerBV, Faction.CLAN_WOLF, Era.CLAN_INVASION),
+          ...getDefaultOpForConfig(
+            playerBV,
+            Faction.CLAN_WOLF,
+            Era.CLAN_INVASION,
+          ),
           skillLevel: level,
         };
         const result = opForGenerator.generate(config);
@@ -127,7 +187,11 @@ describe('Balance Testing', () => {
     it('should produce skill variance for Mixed skill level', () => {
       const playerBV = 20000; // Large force to get enough samples
       const config = {
-        ...getDefaultOpForConfig(playerBV, Faction.FEDERATED_SUNS, Era.CLAN_INVASION),
+        ...getDefaultOpForConfig(
+          playerBV,
+          Faction.FEDERATED_SUNS,
+          Era.CLAN_INVASION,
+        ),
         skillLevel: OpForSkillLevel.Mixed,
       };
 
@@ -135,7 +199,7 @@ describe('Balance Testing', () => {
       const allGunneries: number[] = [];
       for (let i = 0; i < 5; i++) {
         const result = opForGenerator.generate(config);
-        allGunneries.push(...result.units.map(u => u.pilot.gunnery));
+        allGunneries.push(...result.units.map((u) => u.pilot.gunnery));
       }
 
       // Should have some variance (not all the same skill)
@@ -154,7 +218,7 @@ describe('Balance Testing', () => {
       ScenarioObjectiveType.Breakthrough,
     ];
 
-    scenarioTypes.forEach(scenarioType => {
+    scenarioTypes.forEach((scenarioType) => {
       it(`should generate balanced scenario for ${scenarioType} type`, () => {
         const scenario = scenarioGenerator.generate({
           playerBV: 8000,
@@ -192,7 +256,11 @@ describe('Balance Testing', () => {
       ];
 
       for (const { bv, minUnits, maxUnits } of testCases) {
-        const config = getDefaultOpForConfig(bv, Faction.LYRAN_COMMONWEALTH, Era.LATE_SUCCESSION_WARS);
+        const config = getDefaultOpForConfig(
+          bv,
+          Faction.LYRAN_COMMONWEALTH,
+          Era.LATE_SUCCESSION_WARS,
+        );
         const result = opForGenerator.generate(config);
 
         expect(result.units.length).toBeGreaterThanOrEqual(minUnits);
@@ -201,7 +269,11 @@ describe('Balance Testing', () => {
     });
 
     it('should assign units to lances correctly', () => {
-      const config = getDefaultOpForConfig(16000, Faction.CLAN_JADE_FALCON, Era.CLAN_INVASION);
+      const config = getDefaultOpForConfig(
+        16000,
+        Faction.CLAN_JADE_FALCON,
+        Era.CLAN_INVASION,
+      );
       const result = opForGenerator.generate(config);
 
       // Check lance assignments
@@ -305,7 +377,11 @@ describe('Balance Testing', () => {
 
   describe('Edge Cases', () => {
     it('should handle minimum BV gracefully', () => {
-      const config = getDefaultOpForConfig(500, Faction.PIRATES, Era.LATE_SUCCESSION_WARS);
+      const config = getDefaultOpForConfig(
+        500,
+        Faction.PIRATES,
+        Era.LATE_SUCCESSION_WARS,
+      );
       const result = opForGenerator.generate(config);
 
       expect(result.units.length).toBeGreaterThanOrEqual(1);

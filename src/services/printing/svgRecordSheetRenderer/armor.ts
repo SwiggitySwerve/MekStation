@@ -4,6 +4,7 @@
  */
 
 import { IRecordSheetData } from '@/types/printing';
+
 import { ArmorPipLayout } from '../ArmorPipLayout';
 import {
   SVG_NS,
@@ -26,7 +27,7 @@ export async function fillArmorPips(
   svgDoc: Document,
   svgRoot: SVGSVGElement,
   armor: IRecordSheetData['armor'],
-  mechType?: string
+  mechType?: string,
 ): Promise<void> {
   // Fill armor text labels with armor point values
   armor.locations.forEach((loc) => {
@@ -56,10 +57,15 @@ export async function fillArmorPips(
       armorPipsGroup = svgDoc.getElementById(ELEMENT_IDS.ARMOR_PIPS);
     }
     if (!armorPipsGroup) {
-      console.warn('Could not find canonArmorPips or armorPips group in template');
+      console.warn(
+        'Could not find canonArmorPips or armorPips group in template',
+      );
       const rootGroup = svgDoc.createElementNS(SVG_NS, 'g');
       rootGroup.setAttribute('id', 'armor-pips-generated');
-      rootGroup.setAttribute('transform', 'matrix(0.975,0,0,0.975,-390.621,-44.241)');
+      rootGroup.setAttribute(
+        'transform',
+        'matrix(0.975,0,0,0.975,-390.621,-44.241)',
+      );
       svgRoot.appendChild(rootGroup);
       await loadAllArmorPips(svgDoc, rootGroup, armor);
       return;
@@ -78,7 +84,7 @@ export async function fillArmorPips(
 async function loadAllArmorPips(
   svgDoc: Document,
   parentGroup: Element,
-  armor: IRecordSheetData['armor']
+  armor: IRecordSheetData['armor'],
 ): Promise<void> {
   // Load pips for each armor location
   const pipPromises = armor.locations.map(async (loc) => {
@@ -90,24 +96,16 @@ async function loadAllArmorPips(
 
     // Load front armor pips
     if (loc.current > 0) {
-      await loadAndInsertPips(
-        svgDoc,
-        parentGroup,
-        pipName,
-        loc.current,
-        false
-      );
+      await loadAndInsertPips(svgDoc, parentGroup, pipName, loc.current, false);
     }
 
     // Load rear armor pips if applicable
-    if (loc.rear !== undefined && loc.rear > 0 && REAR_LOCATIONS.includes(loc.abbreviation)) {
-      await loadAndInsertPips(
-        svgDoc,
-        parentGroup,
-        pipName,
-        loc.rear,
-        true
-      );
+    if (
+      loc.rear !== undefined &&
+      loc.rear > 0 &&
+      REAR_LOCATIONS.includes(loc.abbreviation)
+    ) {
+      await loadAndInsertPips(svgDoc, parentGroup, pipName, loc.rear, true);
     }
   });
 
@@ -122,7 +120,7 @@ async function loadAndInsertPips(
   parentGroup: Element,
   locationName: string,
   pipCount: number,
-  isRear: boolean
+  isRear: boolean,
 ): Promise<void> {
   // Build the pip file path
   // Format: Armor_<Location>_<Count>_Humanoid.svg or Armor_<Location>_R_<Count>_Humanoid.svg
@@ -155,7 +153,7 @@ async function loadAndInsertPips(
     locationGroup.setAttribute('class', 'armor-pips');
 
     // Clone each path into our template
-    paths.forEach(path => {
+    paths.forEach((path) => {
       const clonedPath = svgDoc.importNode(path, true) as SVGPathElement;
       // Ensure the path styling is preserved
       if (!clonedPath.getAttribute('fill')) {
@@ -180,7 +178,7 @@ async function loadAndInsertPips(
 async function generateDynamicArmorPips(
   svgDoc: Document,
   armor: IRecordSheetData['armor'],
-  mechType: string
+  mechType: string,
 ): Promise<void> {
   // Get the pip group IDs based on mech type
   const pipGroupIds = getPipGroupIdsForMechType(mechType);
@@ -212,7 +210,11 @@ async function generateDynamicArmorPips(
 
   // Handle rear armor
   armor.locations.forEach((loc) => {
-    if (loc.rear !== undefined && loc.rear > 0 && REAR_LOCATIONS.includes(loc.abbreviation)) {
+    if (
+      loc.rear !== undefined &&
+      loc.rear > 0 &&
+      REAR_LOCATIONS.includes(loc.abbreviation)
+    ) {
       const rearGroupId = pipGroupIds[`${loc.abbreviation}R`];
       if (rearGroupId) {
         const pipArea = svgDoc.getElementById(rearGroupId);

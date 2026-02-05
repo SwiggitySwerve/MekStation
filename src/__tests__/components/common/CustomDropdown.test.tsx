@@ -2,8 +2,9 @@
  * Tests for CustomDropdown component
  */
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+
 import CustomDropdown from '@/components/common/CustomDropdown';
 
 describe('CustomDropdown', () => {
@@ -25,7 +26,9 @@ describe('CustomDropdown', () => {
     });
 
     it('should display placeholder when no value is selected', () => {
-      render(<CustomDropdown {...defaultProps} placeholder="Select an option" />);
+      render(
+        <CustomDropdown {...defaultProps} placeholder="Select an option" />,
+      );
 
       expect(screen.getByText('Select an option')).toBeInTheDocument();
     });
@@ -59,7 +62,7 @@ describe('CustomDropdown', () => {
         <div>
           <CustomDropdown {...defaultProps} />
           <div data-testid="outside">Outside</div>
-        </div>
+        </div>,
       );
 
       // Open dropdown
@@ -117,8 +120,10 @@ describe('CustomDropdown', () => {
       // The selected option should have a different style
       // Get option buttons (not the main dropdown button)
       const allButtons = screen.getAllByRole('button');
-      const optionButton = allButtons.find(btn => 
-        btn.textContent === 'Option 2' && btn !== screen.getAllByRole('button')[0]
+      const optionButton = allButtons.find(
+        (btn) =>
+          btn.textContent === 'Option 2' &&
+          btn !== screen.getAllByRole('button')[0],
       );
       expect(optionButton).toBeDefined();
       // The selected option should have blue background styling
@@ -180,4 +185,3 @@ describe('CustomDropdown', () => {
     });
   });
 });
-

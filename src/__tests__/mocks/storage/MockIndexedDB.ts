@@ -1,6 +1,6 @@
 /**
  * Mock IndexedDB
- * 
+ *
  * In-memory mock of IndexedDB for testing persistence services.
  */
 
@@ -28,7 +28,7 @@ class MockStore {
   }
 
   getAll(): Value[] {
-    return Array.from(this.data.values()).map(v => structuredClone(v));
+    return Array.from(this.data.values()).map((v) => structuredClone(v));
   }
 
   getAllKeys(): Key[] {
@@ -85,7 +85,10 @@ const databases: Map<string, MockDatabase> = new Map();
 /**
  * Create or get a mock database
  */
-export function getMockDatabase(name: string, version: number = 1): MockDatabase {
+export function getMockDatabase(
+  name: string,
+  version: number = 1,
+): MockDatabase {
   if (!databases.has(name)) {
     databases.set(name, new MockDatabase(name, version));
   }
@@ -121,7 +124,7 @@ export const mockIndexedDB = {
       Array.from(databases.entries()).map(([name, db]) => ({
         name,
         version: db.version,
-      }))
+      })),
     );
   },
 };
@@ -134,7 +137,7 @@ class MockOpenRequest {
   readonly version: number;
   result: MockDatabase | null = null;
   error: Error | null = null;
-  
+
   onsuccess: ((event: Event) => void) | null = null;
   onerror: ((event: Event) => void) | null = null;
   onupgradeneeded: ((event: Event) => void) | null = null;
@@ -148,11 +151,11 @@ class MockOpenRequest {
       try {
         const isNew = !databases.has(name);
         this.result = getMockDatabase(name, version);
-        
+
         if (isNew && this.onupgradeneeded) {
           this.onupgradeneeded(new Event('upgradeneeded'));
         }
-        
+
         if (this.onsuccess) {
           this.onsuccess(new Event('success'));
         }
@@ -172,7 +175,7 @@ class MockOpenRequest {
 class MockDeleteRequest {
   readonly name: string;
   error: Error | null = null;
-  
+
   onsuccess: ((event: Event) => void) | null = null;
   onerror: ((event: Event) => void) | null = null;
 
@@ -213,4 +216,3 @@ export function teardownMockIndexedDB(): void {
 }
 
 export { MockDatabase, MockStore };
-

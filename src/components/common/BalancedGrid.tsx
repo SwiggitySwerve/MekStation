@@ -1,9 +1,9 @@
 /**
  * BalancedGrid - Responsive grid that distributes items evenly across rows
- * 
+ *
  * When items wrap to multiple rows, ensures balanced distribution.
  * Example: 8 items → 4+4 (not 7+1), 11 items → 4+4+3 (not 8+3)
- * 
+ *
  * Usage:
  * <BalancedGrid minItemWidth={60} gap={6}>
  *   {items.map(item => <Item key={item.id} />)}
@@ -11,6 +11,7 @@
  */
 
 import React, { useRef, Children, ReactNode } from 'react';
+
 import { useBalancedGrid } from '@/hooks/useBalancedGrid';
 
 export interface BalancedGridProps {
@@ -41,32 +42,32 @@ export function BalancedGrid({
   'data-testid': testId,
 }: BalancedGridProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Count actual children for balanced calculation
   // Use toArray to exclude false/null/undefined from conditional renders like {condition && <Child />}
   const itemCount = Children.toArray(children).length;
-  
+
   const { columns, ready } = useBalancedGrid(containerRef, {
     minItemWidth,
     gap,
     itemCount,
   });
-  
+
   // Compute fallback - uses auto-fill with minmax if not provided
-  const fallback = fallbackColumns ?? `repeat(auto-fill, minmax(${minItemWidth}px, 1fr))`;
-  
+  const fallback =
+    fallbackColumns ?? `repeat(auto-fill, minmax(${minItemWidth}px, 1fr))`;
+
   const gridStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: ready && columns > 0 
-      ? `repeat(${columns}, 1fr)` 
-      : fallback,
+    gridTemplateColumns:
+      ready && columns > 0 ? `repeat(${columns}, 1fr)` : fallback,
     gap: `${gap}px`,
   };
 
   return (
-    <div 
-      ref={containerRef} 
-      style={gridStyle} 
+    <div
+      ref={containerRef}
+      style={gridStyle}
       className={className}
       data-testid={testId}
     >

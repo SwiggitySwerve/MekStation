@@ -1,9 +1,11 @@
 # Change: Turnover & Retention System
 
 ## Why
+
 MekStation needs personnel turnover mechanics to create campaign tension and meaningful consequences for management decisions. Without turnover, personnel never leave voluntarily, removing a key source of strategic challenge and realism from campaign gameplay.
 
 ## What Changes
+
 - Implement 19-modifier turnover check system matching MekHQ exactly
   - 9 real modifiers (using existing systems: skills, status, roles, injuries)
   - 10 stubbed modifiers (fatigue, loyalty, shares, morale, etc.) returning neutral (0)
@@ -14,6 +16,7 @@ MekStation needs personnel turnover mechanics to create campaign tension and mea
 - Payout calculation on departure (salary × configurable multiplier)
 
 ## Impact
+
 - Affected specs: `personnel-management` (MODIFIED), `day-progression` (MODIFIED), `turnover-retention` (ADDED)
 - Affected code:
   - `src/lib/campaign/turnover/` (NEW) - Core turnover logic

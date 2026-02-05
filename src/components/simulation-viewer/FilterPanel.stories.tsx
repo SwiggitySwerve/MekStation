@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FilterPanel } from './FilterPanel';
+
 import type { IFilterDefinition } from '@/components/simulation-viewer/types';
+
+import { FilterPanel } from './FilterPanel';
 
 const severityFilter: IFilterDefinition = {
   id: 'severity',
@@ -35,7 +37,13 @@ const mechFilter: IFilterDefinition = {
 const eraFilter: IFilterDefinition = {
   id: 'era',
   label: 'Era',
-  options: ['star-league', 'succession-wars', 'clan-invasion', 'jihad', 'dark-age'],
+  options: [
+    'star-league',
+    'succession-wars',
+    'clan-invasion',
+    'jihad',
+    'dark-age',
+  ],
   optionLabels: {
     'star-league': 'Star League',
     'succession-wars': 'Succession Wars',
@@ -161,7 +169,7 @@ export const DarkMode: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-gray-900 p-8 rounded-lg w-full max-w-sm">
+      <div className="dark w-full max-w-sm rounded-lg bg-gray-900 p-8">
         <Story />
       </div>
     ),

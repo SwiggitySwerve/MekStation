@@ -4,6 +4,8 @@ interface HeadProps {
   children: ReactNode;
 }
 
-export default function Head({ children }: HeadProps): React.ReactElement | null {
+export default function Head({
+  children,
+}: HeadProps): React.ReactElement | null {
   return null;
 }

@@ -24,14 +24,15 @@ export const TECH_MODIFIER: Record<PlanetaryRating, number> = {
   [PlanetaryRating.F]: 8,
 };
 
-export const INDUSTRY_MODIFIER: Record<PlanetaryRating, number | 'IMPOSSIBLE'> = {
-  [PlanetaryRating.A]: -3,
-  [PlanetaryRating.B]: -2,
-  [PlanetaryRating.C]: -1,
-  [PlanetaryRating.D]: 0,
-  [PlanetaryRating.E]: 1,
-  [PlanetaryRating.F]: 'IMPOSSIBLE',
-};
+export const INDUSTRY_MODIFIER: Record<PlanetaryRating, number | 'IMPOSSIBLE'> =
+  {
+    [PlanetaryRating.A]: -3,
+    [PlanetaryRating.B]: -2,
+    [PlanetaryRating.C]: -1,
+    [PlanetaryRating.D]: 0,
+    [PlanetaryRating.E]: 1,
+    [PlanetaryRating.F]: 'IMPOSSIBLE',
+  };
 
 export const OUTPUT_MODIFIER: Record<PlanetaryRating, number | 'IMPOSSIBLE'> = {
   [PlanetaryRating.A]: -3,
@@ -48,7 +49,9 @@ export const DEFAULT_RATINGS: IPlanetaryRatings = {
   output: PlanetaryRating.C,
 };
 
-export function getPlanetaryModifiers(ratings: IPlanetaryRatings): readonly IAcquisitionModifier[] {
+export function getPlanetaryModifiers(
+  ratings: IPlanetaryRatings,
+): readonly IAcquisitionModifier[] {
   const mods: IAcquisitionModifier[] = [];
 
   mods.push({ name: 'Tech', value: TECH_MODIFIER[ratings.tech] });

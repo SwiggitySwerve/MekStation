@@ -12,6 +12,7 @@
  */
 
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -20,7 +21,6 @@ import {
   createUnitValidationError,
   createUnitValidationRuleResult,
 } from '../../../../types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 import { isCombatMech } from '../../../../utils/validation/UnitCategoryMapper';
 import {
   BATTLEMECH_TONNAGE,
@@ -63,8 +63,8 @@ export const BattleMechTonnageRange: IUnitValidationRuleDefinition = {
               expected: `${min}-${max}`,
               actual: String(tonnage),
               suggestion: `Select a valid tonnage between ${min} and ${max} tons`,
-            }
-          )
+            },
+          ),
         );
       } else if (tonnage % step !== 0) {
         errors.push(
@@ -79,13 +79,20 @@ export const BattleMechTonnageRange: IUnitValidationRuleDefinition = {
               expected: `divisible by ${step}`,
               actual: String(tonnage),
               suggestion: `Round tonnage to nearest valid value (${Math.round(tonnage / step) * step})`,
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -120,7 +127,7 @@ export const BattleMechEngineRatingRange: IUnitValidationRuleDefinition = {
     const ratingMatch = engineType.match(/\d+/);
     if (ratingMatch) {
       const rating = parseInt(ratingMatch[0], 10);
-      
+
       if (rating < ENGINE_RATING_MIN || rating > ENGINE_RATING_MAX_BATTLEMECH) {
         errors.push(
           createUnitValidationError(
@@ -134,8 +141,8 @@ export const BattleMechEngineRatingRange: IUnitValidationRuleDefinition = {
               expected: `${ENGINE_RATING_MIN}-${ENGINE_RATING_MAX_BATTLEMECH}`,
               actual: String(rating),
               suggestion: `Select an engine with rating between ${ENGINE_RATING_MIN} and ${ENGINE_RATING_MAX_BATTLEMECH}`,
-            }
-          )
+            },
+          ),
         );
       } else if (rating % ENGINE_RATING_INCREMENT !== 0) {
         errors.push(
@@ -150,13 +157,20 @@ export const BattleMechEngineRatingRange: IUnitValidationRuleDefinition = {
               expected: `multiple of ${ENGINE_RATING_INCREMENT}`,
               actual: String(rating),
               suggestion: `Round engine rating to ${Math.round(rating / ENGINE_RATING_INCREMENT) * ENGINE_RATING_INCREMENT}`,
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -200,7 +214,14 @@ export const OmniMechPodSpace: IUnitValidationRuleDefinition = {
       // when pod space data is added to IValidatableUnit
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, [], warnings, [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      [],
+      warnings,
+      [],
+      0,
+    );
   },
 };
 
@@ -248,7 +269,8 @@ export const BattleMechMaximumWalkMP: IUnitValidationRuleDefinition = {
 export const BattleMechArmActuators: IUnitValidationRuleDefinition = {
   id: 'VAL-BM-007',
   name: 'Arm Actuator Requirements',
-  description: 'Arm actuators must follow hierarchy (shoulder → upper → lower → hand)',
+  description:
+    'Arm actuators must follow hierarchy (shoulder → upper → lower → hand)',
   category: ValidationCategory.CONSTRUCTION,
   priority: 16,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],

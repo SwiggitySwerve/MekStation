@@ -6,9 +6,13 @@
  * These tests focus on the mapping lookup and utility functions.
  */
 
-import { EquipmentNameResolver, equipmentNameResolver } from '../EquipmentNameResolver';
-import { TechBase } from '@/types/enums/TechBase';
 import * as EquipmentLoaderService from '@/services/equipment/EquipmentLoaderService';
+import { TechBase } from '@/types/enums/TechBase';
+
+import {
+  EquipmentNameResolver,
+  equipmentNameResolver,
+} from '../EquipmentNameResolver';
 
 // Mock the equipment loader
 jest.mock('@/services/equipment/EquipmentLoaderService', () => ({
@@ -281,13 +285,20 @@ describe('EquipmentNameResolver', () => {
     });
 
     it('should return not found for unresolvable equipment', () => {
-      const result = resolver.resolve('TotallyUnknownWeapon', 'Unknown Weapon XYZ');
+      const result = resolver.resolve(
+        'TotallyUnknownWeapon',
+        'Unknown Weapon XYZ',
+      );
       expect(result.found).toBe(false);
       expect(result.confidence).toBe('none');
     });
 
     it('should try tech-base specific lookup for Clan', () => {
-      const result = resolver.resolve('UnknownClanThing', 'SomeWeapon', TechBase.CLAN);
+      const result = resolver.resolve(
+        'UnknownClanThing',
+        'SomeWeapon',
+        TechBase.CLAN,
+      );
       // Won't find it, but should try the tech base path
       expect(result.found).toBe(false);
     });

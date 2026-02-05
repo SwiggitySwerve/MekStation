@@ -8,11 +8,12 @@
  */
 
 import { useMemo } from 'react';
-import { useUnitStore } from '@/stores/useUnitStore';
+
 import { getTotalAllocatedArmor } from '@/stores/unitState';
+import { useUnitStore } from '@/stores/useUnitStore';
+import { IArmorByLocation } from '@/types/validation/UnitValidationInterfaces';
 import { getMaxTotalArmor } from '@/utils/construction/armorCalculations';
 import { buildArmorByLocation } from '@/utils/validation/armorValidationUtils';
-import { IArmorByLocation } from '@/types/validation/UnitValidationInterfaces';
 
 /**
  * Armor validation data
@@ -40,13 +41,20 @@ export function useArmorValidation(): ArmorValidationData {
     const effectiveTonnage = tonnage || 20;
 
     // Calculate total armor points
-    const totalArmorPoints = getTotalAllocatedArmor(armorAllocation, configuration);
+    const totalArmorPoints = getTotalAllocatedArmor(
+      armorAllocation,
+      configuration,
+    );
 
     // Calculate max armor points
     const maxArmorPoints = getMaxTotalArmor(effectiveTonnage, configuration);
 
     // Build per-location armor data
-    const armorByLocation = buildArmorByLocation(armorAllocation, effectiveTonnage, configuration);
+    const armorByLocation = buildArmorByLocation(
+      armorAllocation,
+      effectiveTonnage,
+      configuration,
+    );
 
     return {
       totalArmorPoints,

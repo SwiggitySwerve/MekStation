@@ -7,6 +7,7 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getPilotService } from '@/services/pilots';
 
@@ -20,17 +21,20 @@ type Response = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Response>
+  res: NextApiResponse<Response>,
 ): Promise<void> {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ success: false, error: `Method ${req.method} Not Allowed` });
+    return res
+      .status(405)
+      .json({ success: false, error: `Method ${req.method} Not Allowed` });
   }
 
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ success: false, error: message });
   }
 
@@ -44,14 +48,17 @@ export default async function handler(
   // Get pilot before improvement to report XP cost
   const pilot = pilotService.getPilot(id);
   if (!pilot) {
-    return res.status(404).json({ success: false, error: `Pilot ${id} not found` });
+    return res
+      .status(404)
+      .json({ success: false, error: `Pilot ${id} not found` });
   }
 
   const { canImprove, cost } = pilotService.canImprovePiloting(pilot);
   if (!canImprove) {
-    const reason = cost === null 
-      ? 'Piloting is already at maximum (1)'
-      : `Insufficient XP. Need ${cost}, have ${pilot.career?.xp || 0}`;
+    const reason =
+      cost === null
+        ? 'Piloting is already at maximum (1)'
+        : `Insufficient XP. Need ${cost}, have ${pilot.career?.xp || 0}`;
     return res.status(400).json({ success: false, error: reason });
   }
 

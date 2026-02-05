@@ -3,33 +3,34 @@
  * Reusable badge/tag component for displaying status, categories, tech bases, etc.
  */
 import React from 'react';
+
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 
-type BadgeVariant = 
+type BadgeVariant =
   // Base colors
-  | 'blue' 
-  | 'emerald' 
-  | 'purple' 
-  | 'amber' 
-  | 'orange' 
-  | 'red' 
-  | 'cyan' 
-  | 'violet' 
-  | 'yellow' 
+  | 'blue'
+  | 'emerald'
+  | 'purple'
+  | 'amber'
+  | 'orange'
+  | 'red'
+  | 'cyan'
+  | 'violet'
+  | 'yellow'
   | 'slate'
   // Extended colors for weapon differentiation
-  | 'rose'      // Energy weapons
-  | 'sky'       // Missile weapons  
-  | 'fuchsia'   // Capital weapons
-  | 'teal'      // Alternative to cyan
-  | 'lime'      // Alternative green
-  | 'pink'      // Light rose for ammo
+  | 'rose' // Energy weapons
+  | 'sky' // Missile weapons
+  | 'fuchsia' // Capital weapons
+  | 'teal' // Alternative to cyan
+  | 'lime' // Alternative green
+  | 'pink' // Light rose for ammo
   // Light variants for ammunition (softer versions)
-  | 'orange-light'  // Ballistic ammo
-  | 'sky-light'     // Missile ammo
-  | 'violet-light'  // Artillery ammo
-  | 'rose-light'    // Energy-related ammo
+  | 'orange-light' // Ballistic ammo
+  | 'sky-light' // Missile ammo
+  | 'violet-light' // Artillery ammo
+  | 'rose-light' // Energy-related ammo
   // Semantic aliases
   | 'muted'
   | 'warning'
@@ -58,7 +59,8 @@ const variantClasses: Record<BadgeVariant, string> = {
   cyan: 'bg-cyan-600/20 text-cyan-400 border-cyan-600/30',
   violet: 'bg-violet-600/20 text-violet-400 border-violet-600/30',
   yellow: 'bg-yellow-600/20 text-yellow-400 border-yellow-600/30',
-  slate: 'bg-surface-raised/20 text-text-theme-secondary border-border-theme-subtle/30',
+  slate:
+    'bg-surface-raised/20 text-text-theme-secondary border-border-theme-subtle/30',
   // Extended colors for weapon differentiation
   rose: 'bg-rose-600/20 text-rose-400 border-rose-600/30',
   sky: 'bg-sky-600/20 text-sky-400 border-sky-600/30',
@@ -72,7 +74,8 @@ const variantClasses: Record<BadgeVariant, string> = {
   'violet-light': 'bg-violet-500/10 text-violet-300 border-violet-400/20',
   'rose-light': 'bg-rose-500/10 text-rose-300 border-rose-400/20',
   // Semantic aliases
-  muted: 'bg-surface-raised/50 text-text-theme-muted border-border-theme-subtle/30',
+  muted:
+    'bg-surface-raised/50 text-text-theme-muted border-border-theme-subtle/30',
   warning: 'bg-accent/20 text-accent border-accent/30',
   success: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/30',
   info: 'bg-blue-600/20 text-blue-400 border-blue-600/30',
@@ -92,7 +95,8 @@ export function Badge({
   className = '',
   'data-testid': testId,
 }: BadgeProps): React.ReactElement {
-  const baseClasses = 'font-medium border inline-flex items-center whitespace-nowrap';
+  const baseClasses =
+    'font-medium border inline-flex items-center whitespace-nowrap';
   const shapeClasses = pill ? 'rounded-full' : 'rounded';
 
   return (
@@ -106,7 +110,11 @@ export function Badge({
 }
 
 // Convenience exports for common badge types
-export function TechBaseBadge({ techBase }: { techBase: TechBase }): React.ReactElement {
+export function TechBaseBadge({
+  techBase,
+}: {
+  techBase: TechBase;
+}): React.ReactElement {
   const variant: BadgeVariant = techBase === TechBase.CLAN ? 'emerald' : 'blue';
   const label = techBase === TechBase.CLAN ? 'Clan' : 'IS';
 
@@ -117,24 +125,38 @@ export function TechBaseBadge({ techBase }: { techBase: TechBase }): React.React
   );
 }
 
-export function WeightClassBadge({ weightClass }: { weightClass: WeightClass }): React.ReactElement {
+export function WeightClassBadge({
+  weightClass,
+}: {
+  weightClass: WeightClass;
+}): React.ReactElement {
   const getVariant = (): BadgeVariant => {
     switch (weightClass) {
-      case WeightClass.LIGHT: return 'emerald';
-      case WeightClass.MEDIUM: return 'amber';
-      case WeightClass.HEAVY: return 'orange';
-      case WeightClass.ASSAULT: return 'red';
-      default: return 'slate';
+      case WeightClass.LIGHT:
+        return 'emerald';
+      case WeightClass.MEDIUM:
+        return 'amber';
+      case WeightClass.HEAVY:
+        return 'orange';
+      case WeightClass.ASSAULT:
+        return 'red';
+      default:
+        return 'slate';
     }
   };
 
   const getLabel = (): string => {
     switch (weightClass) {
-      case WeightClass.LIGHT: return 'Light';
-      case WeightClass.MEDIUM: return 'Medium';
-      case WeightClass.HEAVY: return 'Heavy';
-      case WeightClass.ASSAULT: return 'Assault';
-      default: return String(weightClass);
+      case WeightClass.LIGHT:
+        return 'Light';
+      case WeightClass.MEDIUM:
+        return 'Medium';
+      case WeightClass.HEAVY:
+        return 'Heavy';
+      case WeightClass.ASSAULT:
+        return 'Assault';
+      default:
+        return String(weightClass);
     }
   };
 
@@ -146,4 +168,3 @@ export function WeightClassBadge({ weightClass }: { weightClass: WeightClass }):
 }
 
 export default Badge;
-

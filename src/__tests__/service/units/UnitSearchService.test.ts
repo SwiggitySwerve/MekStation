@@ -1,6 +1,6 @@
-import { UnitSearchService } from '@/services/units/UnitSearchService';
 import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
+import { UnitSearchService } from '@/services/units/UnitSearchService';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 
@@ -13,7 +13,7 @@ jest.mock('minisearch', () => {
     discard: jest.fn(),
     search: jest.fn(),
   };
-  
+
   return {
     __esModule: true,
     default: jest.fn().mockImplementation(() => mockIndex),
@@ -73,7 +73,7 @@ describe('UnitSearchService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     service = new UnitSearchService();
-    
+
     mockSearchIndex = {
       addAll: jest.fn(),
       add: jest.fn(),
@@ -82,42 +82,46 @@ describe('UnitSearchService', () => {
       discard: jest.fn(),
       search: jest.fn().mockReturnValue([{ id: 'atlas-as7-d' }]),
     };
-    
+
     // @ts-expect-error - Mocking MiniSearch constructor for testing
     (MiniSearch as jest.Mock).mockReturnValue(mockSearchIndex);
-    (canonicalUnitService.getIndex as jest.Mock).mockResolvedValue([mockCanonicalUnit]);
-    (customUnitApiService.list as jest.Mock).mockResolvedValue([mockCustomUnit]);
+    (canonicalUnitService.getIndex as jest.Mock).mockResolvedValue([
+      mockCanonicalUnit,
+    ]);
+    (customUnitApiService.list as jest.Mock).mockResolvedValue([
+      mockCustomUnit,
+    ]);
   });
 
   describe('initialize()', () => {
     it('should create search index', async () => {
       await service.initialize();
-      
+
       expect(MiniSearch).toHaveBeenCalled();
     });
 
     it('should load canonical units', async () => {
       await service.initialize();
-      
+
       expect(canonicalUnitService.getIndex).toHaveBeenCalled();
     });
 
     it('should load custom units', async () => {
       await service.initialize();
-      
+
       expect(customUnitApiService.list).toHaveBeenCalled();
     });
 
     it('should add units to search index', async () => {
       await service.initialize();
-      
+
       expect(mockSearchIndex.addAll).toHaveBeenCalled();
     });
 
     it('should not reinitialize if already initialized', async () => {
       await service.initialize();
       await service.initialize();
-      
+
       expect(MiniSearch).toHaveBeenCalledTimes(1);
     });
   });
@@ -130,33 +134,36 @@ describe('UnitSearchService', () => {
     it('should return empty array if not initialized', () => {
       const uninitializedService = new UnitSearchService();
       const results = uninitializedService.search('Atlas');
-      
+
       expect(results).toEqual([]);
     });
 
     it('should search units by query', () => {
       service.search('Atlas');
-      
-      expect(mockSearchIndex.search).toHaveBeenCalledWith('Atlas', expect.any(Object));
+
+      expect(mockSearchIndex.search).toHaveBeenCalledWith(
+        'Atlas',
+        expect.any(Object),
+      );
     });
 
     it('should return matching units', () => {
       const results = service.search('Atlas');
-      
+
       expect(results.length).toBeGreaterThan(0);
     });
 
     it('should filter by tech base when provided', () => {
       // @ts-expect-error - Testing filter option that may not be in public interface
       service.search('Atlas', { techBase: TechBase.INNER_SPHERE });
-      
+
       expect(mockSearchIndex.search).toHaveBeenCalled();
     });
 
     it('should filter by weight class when provided', () => {
       // @ts-expect-error - Testing filter option that may not be in public interface
       service.search('Atlas', { weightClass: WeightClass.ASSAULT });
-      
+
       expect(mockSearchIndex.search).toHaveBeenCalled();
     });
 
@@ -167,7 +174,7 @@ describe('UnitSearchService', () => {
       ]);
 
       const results = service.search('Atlas', { limit: 1 });
-      
+
       expect(results).toHaveLength(1);
       expect(results[0]?.id).toBe('atlas-as7-d');
     });
@@ -206,7 +213,7 @@ describe('UnitSearchService', () => {
     it('should add unit to search index', () => {
       // @ts-expect-error - Partial mock of IUnitIndexEntry for testing
       service.addToIndex(mockCanonicalUnit);
-      
+
       expect(mockSearchIndex.add).toHaveBeenCalledWith(mockCanonicalUnit);
     });
 
@@ -234,7 +241,7 @@ describe('UnitSearchService', () => {
 
     it('should remove unit from search index', () => {
       service.removeFromIndex('atlas-as7-d');
-      
+
       expect(mockSearchIndex.discard).toHaveBeenCalled();
     });
 
@@ -248,7 +255,7 @@ describe('UnitSearchService', () => {
     it('should reload units and rebuild index', async () => {
       await service.initialize();
       await service.rebuildIndex();
-      
+
       expect(canonicalUnitService.getIndex).toHaveBeenCalledTimes(2);
       expect(customUnitApiService.list).toHaveBeenCalledTimes(2);
     });
@@ -263,9 +270,11 @@ describe('UnitSearchService', () => {
       await service.rebuildIndex();
 
       expect(mockSearchIndex.addAll).toHaveBeenCalledTimes(2);
-      const lastCall = mockSearchIndex.addAll.mock.calls.at(-1) as [Array<{ id: string }>] | undefined;
+      const lastCall = mockSearchIndex.addAll.mock.calls.at(-1) as
+        | [Array<{ id: string }>]
+        | undefined;
       const latestCallArgs = lastCall?.[0] ?? [];
-      const ids = latestCallArgs.map(entry => entry.id);
+      const ids = latestCallArgs.map((entry) => entry.id);
       expect(ids).toContain('new-id');
       expect(ids).not.toContain('custom-1');
     });

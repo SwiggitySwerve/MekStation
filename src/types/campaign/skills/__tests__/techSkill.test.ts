@@ -1,16 +1,36 @@
-import { TECH_SKILL_TYPE, getTechSkillValue, UNSKILLED_TECH_VALUE } from '../techSkill';
-import { SKILL_CATALOG, getSkillType } from '../../../../constants/campaign/skillCatalog';
-import { getSkillValue } from '../ISkill';
 import type { IPerson } from '@/types/campaign/Person';
-import type { ISkill } from '../ISkill';
-import type { IAttributes } from '../IAttributes';
+
+import { createDefaultSkills } from '@/lib/campaign/skills/defaultSkills';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { createDefaultSkills } from '@/lib/campaign/skills/defaultSkills';
+
+import type { IAttributes } from '../IAttributes';
+import type { ISkill } from '../ISkill';
+
+import {
+  SKILL_CATALOG,
+  getSkillType,
+} from '../../../../constants/campaign/skillCatalog';
 import { SkillExperienceLevel } from '../experienceLevels';
+import { getSkillValue } from '../ISkill';
+import {
+  TECH_SKILL_TYPE,
+  getTechSkillValue,
+  UNSKILLED_TECH_VALUE,
+} from '../techSkill';
 
 function makeAttributes(overrides: Partial<IAttributes> = {}): IAttributes {
-  return { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0, ...overrides };
+  return {
+    STR: 5,
+    BOD: 5,
+    REF: 5,
+    DEX: 5,
+    INT: 5,
+    WIL: 5,
+    CHA: 5,
+    Edge: 0,
+    ...overrides,
+  };
 }
 
 function makePerson(overrides: Partial<IPerson> = {}): IPerson {
@@ -61,7 +81,9 @@ describe('TECH_SKILL_TYPE', () => {
   });
 
   it('should have expected XP cost progression', () => {
-    expect(TECH_SKILL_TYPE.costs).toEqual([0, 4, 8, 12, 20, 30, 45, 60, 80, 100, 150]);
+    expect(TECH_SKILL_TYPE.costs).toEqual([
+      0, 4, 8, 12, 20, 30, 45, 60, 80, 100, 150,
+    ]);
   });
 
   it('should be registered in SKILL_CATALOG', () => {
@@ -78,7 +100,12 @@ describe('TECH_SKILL_TYPE', () => {
 
 describe('getTechSkillValue', () => {
   it('should return correct value for a skilled tech with level 5 and average DEX', () => {
-    const techSkill: ISkill = { level: 5, bonus: 0, xpProgress: 0, typeId: 'tech-general' };
+    const techSkill: ISkill = {
+      level: 5,
+      bonus: 0,
+      xpProgress: 0,
+      typeId: 'tech-general',
+    };
     const person = makePerson({
       skills: { 'tech-general': techSkill },
       attributes: makeAttributes({ DEX: 5 }),
@@ -88,7 +115,12 @@ describe('getTechSkillValue', () => {
   });
 
   it('should include DEX attribute modifier', () => {
-    const techSkill: ISkill = { level: 5, bonus: 0, xpProgress: 0, typeId: 'tech-general' };
+    const techSkill: ISkill = {
+      level: 5,
+      bonus: 0,
+      xpProgress: 0,
+      typeId: 'tech-general',
+    };
     const person = makePerson({
       skills: { 'tech-general': techSkill },
       attributes: makeAttributes({ DEX: 7 }),
@@ -98,7 +130,12 @@ describe('getTechSkillValue', () => {
   });
 
   it('should include skill bonus', () => {
-    const techSkill: ISkill = { level: 5, bonus: 1, xpProgress: 0, typeId: 'tech-general' };
+    const techSkill: ISkill = {
+      level: 5,
+      bonus: 1,
+      xpProgress: 0,
+      typeId: 'tech-general',
+    };
     const person = makePerson({
       skills: { 'tech-general': techSkill },
       attributes: makeAttributes({ DEX: 5 }),
@@ -127,21 +164,33 @@ describe('getTechSkillValue', () => {
 
 describe('TECH role default skills', () => {
   it('should include tech-general skill for TECH role', () => {
-    const skills = createDefaultSkills(CampaignPersonnelRole.TECH, SkillExperienceLevel.Regular);
+    const skills = createDefaultSkills(
+      CampaignPersonnelRole.TECH,
+      SkillExperienceLevel.Regular,
+    );
     expect(skills['tech-general']).toBeDefined();
     expect(skills['tech-general'].level).toBe(5);
   });
 
   it('should include tech-general skill for MEK_TECH role', () => {
-    const skills = createDefaultSkills(CampaignPersonnelRole.MEK_TECH, SkillExperienceLevel.Regular);
+    const skills = createDefaultSkills(
+      CampaignPersonnelRole.MEK_TECH,
+      SkillExperienceLevel.Regular,
+    );
     expect(skills['tech-general']).toBeDefined();
   });
 
   it('should adjust tech-general level by experience modifier', () => {
-    const greenSkills = createDefaultSkills(CampaignPersonnelRole.TECH, SkillExperienceLevel.Green);
+    const greenSkills = createDefaultSkills(
+      CampaignPersonnelRole.TECH,
+      SkillExperienceLevel.Green,
+    );
     expect(greenSkills['tech-general'].level).toBe(6);
 
-    const eliteSkills = createDefaultSkills(CampaignPersonnelRole.TECH, SkillExperienceLevel.Elite);
+    const eliteSkills = createDefaultSkills(
+      CampaignPersonnelRole.TECH,
+      SkillExperienceLevel.Elite,
+    );
     expect(eliteSkills['tech-general'].level).toBe(3);
   });
 });

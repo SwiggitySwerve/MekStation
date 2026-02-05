@@ -1,7 +1,8 @@
-import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { AmmoCounter } from '../AmmoCounter';
+import React from 'react';
+
 import { tap, error, success } from '../../../utils/hapticFeedback';
+import { AmmoCounter } from '../AmmoCounter';
 
 // Mock haptic feedback
 jest.mock('../../../utils/hapticFeedback');
@@ -66,7 +67,9 @@ describe('AmmoCounter', () => {
     });
 
     it('should apply custom className', () => {
-      const { container } = render(<AmmoCounter {...mockProps} className="custom-class" />);
+      const { container } = render(
+        <AmmoCounter {...mockProps} className="custom-class" />,
+      );
 
       expect(container.querySelector('.custom-class')).toBeInTheDocument();
     });
@@ -115,21 +118,27 @@ describe('AmmoCounter', () => {
     });
 
     it('should be green when ammo is normal', () => {
-      const { container } = render(<AmmoCounter {...mockProps} shotsRemaining={15} magazineSize={20} />);
+      const { container } = render(
+        <AmmoCounter {...mockProps} shotsRemaining={15} magazineSize={20} />,
+      );
 
       const progressbar = container.querySelector('[role="progressbar"]');
       expect(progressbar).toHaveClass('bg-green-500');
     });
 
     it('should be amber when ammo is low (≤25%)', () => {
-      const { container } = render(<AmmoCounter {...mockProps} shotsRemaining={5} magazineSize={20} />);
+      const { container } = render(
+        <AmmoCounter {...mockProps} shotsRemaining={5} magazineSize={20} />,
+      );
 
       const progressbar = container.querySelector('[role="progressbar"]');
       expect(progressbar).toHaveClass('bg-amber-500');
     });
 
     it('should be red when ammo is empty', () => {
-      const { container } = render(<AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />);
+      const { container } = render(
+        <AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />,
+      );
 
       const progressbar = container.querySelector('[role="progressbar"]');
       expect(progressbar).toHaveClass('bg-red-500');
@@ -138,13 +147,17 @@ describe('AmmoCounter', () => {
 
   describe('Empty Magazine', () => {
     it('should show EMPTY indicator when shots remaining is 0', () => {
-      render(<AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />);
+      render(
+        <AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />,
+      );
 
       expect(screen.getByText('EMPTY - RELOAD REQUIRED')).toBeInTheDocument();
     });
 
     it('should disable fire button when empty', () => {
-      render(<AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />);
+      render(
+        <AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />,
+      );
 
       const fireButton = screen.getByLabelText('Fire Large Laser');
       expect(fireButton).toHaveClass('cursor-not-allowed');
@@ -152,13 +165,17 @@ describe('AmmoCounter', () => {
     });
 
     it('should show "Empty - Reload Required" on fire button', () => {
-      render(<AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />);
+      render(
+        <AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />,
+      );
 
       expect(screen.getByText('Empty - Reload Required')).toBeInTheDocument();
     });
 
     it('should trigger haptic error when trying to fire while empty', () => {
-      render(<AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />);
+      render(
+        <AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />,
+      );
 
       const fireButton = screen.getByLabelText('Fire Large Laser');
 
@@ -170,7 +187,9 @@ describe('AmmoCounter', () => {
     });
 
     it('should make weapon unusable until reloaded', () => {
-      render(<AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />);
+      render(
+        <AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={20} />,
+      );
 
       const fireButton = screen.getByLabelText('Fire Large Laser');
       fireEvent.click(fireButton);
@@ -181,19 +200,25 @@ describe('AmmoCounter', () => {
 
   describe('Low Ammo Warning', () => {
     it('should show low ammo indicator at 25% or less', () => {
-      render(<AmmoCounter {...mockProps} shotsRemaining={5} magazineSize={20} />);
+      render(
+        <AmmoCounter {...mockProps} shotsRemaining={5} magazineSize={20} />,
+      );
 
       expect(screen.getByText('⚠️ LOW AMMO')).toBeInTheDocument();
     });
 
     it('should not show low ammo indicator above 25%', () => {
-      render(<AmmoCounter {...mockProps} shotsRemaining={6} magazineSize={20} />);
+      render(
+        <AmmoCounter {...mockProps} shotsRemaining={6} magazineSize={20} />,
+      );
 
       expect(screen.queryByText('⚠️ LOW AMMO')).not.toBeInTheDocument();
     });
 
     it('should use amber color for low ammo', () => {
-      const { container } = render(<AmmoCounter {...mockProps} shotsRemaining={5} magazineSize={20} />);
+      const { container } = render(
+        <AmmoCounter {...mockProps} shotsRemaining={5} magazineSize={20} />,
+      );
 
       const warning = container.querySelector('.border-amber-500');
       expect(warning).toBeInTheDocument();
@@ -228,14 +253,18 @@ describe('AmmoCounter', () => {
 
   describe('Reloading State', () => {
     it('should show reloading indicator when isReloading is true', () => {
-      render(<AmmoCounter {...mockProps} isReloading={true} shotsRemaining={0} />);
+      render(
+        <AmmoCounter {...mockProps} isReloading={true} shotsRemaining={0} />,
+      );
 
       // There are two "Reloading..." elements (button and indicator), so use getAllByText
       expect(screen.getAllByText('Reloading...')).toHaveLength(2);
     });
 
     it('should show reload progress bar', () => {
-      const { container } = render(<AmmoCounter {...mockProps} isReloading={true} shotsRemaining={0} />);
+      const { container } = render(
+        <AmmoCounter {...mockProps} isReloading={true} shotsRemaining={0} />,
+      );
 
       // The progress bar is nested inside the h-2 container
       const progressBar = container.querySelector('.h-2 .bg-blue-500');
@@ -243,7 +272,14 @@ describe('AmmoCounter', () => {
     });
 
     it('should display time remaining until reload completes', () => {
-      render(<AmmoCounter {...mockProps} isReloading={true} reloadTime={5} shotsRemaining={0} />);
+      render(
+        <AmmoCounter
+          {...mockProps}
+          isReloading={true}
+          reloadTime={5}
+          shotsRemaining={0}
+        />,
+      );
 
       expect(screen.getByText(/5s/)).toBeInTheDocument();
     });
@@ -272,7 +308,14 @@ describe('AmmoCounter', () => {
     it('should trigger haptic success when reload completes', () => {
       jest.useFakeTimers();
 
-      render(<AmmoCounter {...mockProps} isReloading={true} shotsRemaining={0} reloadTime={1} />);
+      render(
+        <AmmoCounter
+          {...mockProps}
+          isReloading={true}
+          shotsRemaining={0}
+          reloadTime={1}
+        />,
+      );
 
       // Fast forward through reload animation
       act(() => {
@@ -285,7 +328,14 @@ describe('AmmoCounter', () => {
     });
 
     it('should update reload progress over time', () => {
-      const { container } = render(<AmmoCounter {...mockProps} isReloading={true} shotsRemaining={0} reloadTime={3} />);
+      const { container } = render(
+        <AmmoCounter
+          {...mockProps}
+          isReloading={true}
+          shotsRemaining={0}
+          reloadTime={3}
+        />,
+      );
 
       // The progress bar is nested inside the h-2 container
       const progressBar = container.querySelector('.h-2 .bg-blue-500');
@@ -315,7 +365,9 @@ describe('AmmoCounter', () => {
     });
 
     it('should disable reload button when magazine is full', () => {
-      render(<AmmoCounter {...mockProps} shotsRemaining={20} magazineSize={20} />);
+      render(
+        <AmmoCounter {...mockProps} shotsRemaining={20} magazineSize={20} />,
+      );
 
       const reloadButton = screen.getByLabelText('Reload Large Laser');
       expect(reloadButton).toBeDisabled();
@@ -334,7 +386,10 @@ describe('AmmoCounter', () => {
       const { container } = render(<AmmoCounter {...mockProps} />);
 
       const progressbar = container.querySelector('[role="progressbar"]');
-      expect(progressbar).toHaveAttribute('aria-label', 'Large Laser: 10 of 20 shots remaining');
+      expect(progressbar).toHaveAttribute(
+        'aria-label',
+        'Large Laser: 10 of 20 shots remaining',
+      );
       expect(progressbar).toHaveAttribute('aria-valuemin', '0');
     });
 
@@ -368,14 +423,18 @@ describe('AmmoCounter', () => {
 
   describe('Edge Cases', () => {
     it('should handle zero magazine size', () => {
-      render(<AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={0} />);
+      render(
+        <AmmoCounter {...mockProps} shotsRemaining={0} magazineSize={0} />,
+      );
 
       const zeros = screen.getAllByText('0');
       expect(zeros).toHaveLength(2); // Both shots remaining and magazine size are 0
     });
 
     it('should handle magazine size of 1', () => {
-      render(<AmmoCounter {...mockProps} shotsRemaining={1} magazineSize={1} />);
+      render(
+        <AmmoCounter {...mockProps} shotsRemaining={1} magazineSize={1} />,
+      );
 
       // Magazine is full (100%), so no low ammo warning
       expect(screen.queryByText('⚠️ LOW AMMO')).not.toBeInTheDocument();
@@ -383,7 +442,9 @@ describe('AmmoCounter', () => {
     });
 
     it('should handle very large magazines', () => {
-      render(<AmmoCounter {...mockProps} shotsRemaining={100} magazineSize={200} />);
+      render(
+        <AmmoCounter {...mockProps} shotsRemaining={100} magazineSize={200} />,
+      );
 
       expect(screen.getByText('100')).toBeInTheDocument();
       expect(screen.getByText('200')).toBeInTheDocument();

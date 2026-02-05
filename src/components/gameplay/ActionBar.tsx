@@ -6,6 +6,7 @@
  */
 
 import React, { useCallback } from 'react';
+
 import { GamePhase, getPhaseActions, IPhaseAction } from '@/types/gameplay';
 
 // =============================================================================
@@ -37,16 +38,22 @@ interface ActionButtonProps {
   disabled: boolean;
 }
 
-function ActionButton({ action, onClick, disabled }: ActionButtonProps): React.ReactElement {
-  const baseClasses = 'px-4 py-2 min-h-[44px] rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
-  
+function ActionButton({
+  action,
+  onClick,
+  disabled,
+}: ActionButtonProps): React.ReactElement {
+  const baseClasses =
+    'px-4 py-2 min-h-[44px] rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
+
   const primaryClasses = action.primary
     ? 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'
     : 'bg-surface-raised hover:bg-surface-deep text-text-theme-primary focus:ring-border-theme';
-  
-  const disabledClasses = disabled || !action.enabled
-    ? 'opacity-50 cursor-not-allowed'
-    : 'cursor-pointer';
+
+  const disabledClasses =
+    disabled || !action.enabled
+      ? 'opacity-50 cursor-not-allowed'
+      : 'cursor-pointer';
 
   return (
     <button
@@ -54,7 +61,12 @@ function ActionButton({ action, onClick, disabled }: ActionButtonProps): React.R
       onClick={onClick}
       disabled={disabled || !action.enabled}
       className={`${baseClasses} ${primaryClasses} ${disabledClasses}`}
-      title={action.tooltip || (action.shortcut ? `${action.label} (${action.shortcut})` : action.label)}
+      title={
+        action.tooltip ||
+        (action.shortcut
+          ? `${action.label} (${action.shortcut})`
+          : action.label)
+      }
       data-testid={`action-btn-${action.id}`}
     >
       {action.label}
@@ -88,7 +100,7 @@ export function ActionBar({
         onAction(actionId);
       }
     },
-    [canAct, onAction]
+    [canAct, onAction],
   );
 
   // Handle keyboard shortcuts
@@ -125,30 +137,28 @@ export function ActionBar({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [actions, canAct, onAction]);
 
-   return (
-     <div
-       className={`bg-surface-base border-t border-border-theme px-4 py-3 flex items-center justify-between ${className}`}
-       role="toolbar"
-       aria-label="Game actions"
-       data-testid="action-bar"
-     >
-       <div className="flex items-center gap-2">
-         {actions.map((action) => (
-           <ActionButton
-             key={action.id}
-             action={action}
-             onClick={() => handleAction(action.id)}
-             disabled={!canAct}
-           />
-         ))}
-       </div>
-       {infoText && (
-         <div className="text-sm text-text-theme-secondary">
-           {infoText}
-         </div>
-       )}
-     </div>
-   );
+  return (
+    <div
+      className={`bg-surface-base border-border-theme flex items-center justify-between border-t px-4 py-3 ${className}`}
+      role="toolbar"
+      aria-label="Game actions"
+      data-testid="action-bar"
+    >
+      <div className="flex items-center gap-2">
+        {actions.map((action) => (
+          <ActionButton
+            key={action.id}
+            action={action}
+            onClick={() => handleAction(action.id)}
+            disabled={!canAct}
+          />
+        ))}
+      </div>
+      {infoText && (
+        <div className="text-text-theme-secondary text-sm">{infoText}</div>
+      )}
+    </div>
+  );
 }
 
 export default ActionBar;

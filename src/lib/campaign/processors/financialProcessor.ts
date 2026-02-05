@@ -1,9 +1,19 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ILoan } from '@/types/campaign/Loan';
-import { Money } from '@/types/campaign/Money';
 import type { Transaction } from '@/types/campaign/Transaction';
+
+import { makePayment, isLoanPaidOff } from '@/lib/finances/loanService';
+import { calculateTotalMonthlySalary } from '@/lib/finances/salaryService';
+import {
+  calculateTaxes,
+  calculateMonthlyOverhead,
+  calculateFoodAndHousing,
+} from '@/lib/finances/taxService';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { getAllUnits } from '@/types/campaign/Force';
+import { Money } from '@/types/campaign/Money';
+
+import { DEFAULT_DAILY_MAINTENANCE } from '../dayAdvancement';
 import {
   IDayProcessor,
   IDayProcessorResult,
@@ -12,10 +22,6 @@ import {
   getDayPipeline,
   isFirstOfMonth,
 } from '../dayPipeline';
-import { calculateTotalMonthlySalary } from '@/lib/finances/salaryService';
-import { calculateTaxes, calculateMonthlyOverhead, calculateFoodAndHousing } from '@/lib/finances/taxService';
-import { makePayment, isLoanPaidOff } from '@/lib/finances/loanService';
-import { DEFAULT_DAILY_MAINTENANCE } from '../dayAdvancement';
 
 interface FinancialStepResult {
   readonly events: IDayEvent[];
@@ -41,7 +47,10 @@ function createTransactionEvent(
   };
 }
 
-function processMonthlySalaries(campaign: ICampaign, date: Date): FinancialStepResult {
+function processMonthlySalaries(
+  campaign: ICampaign,
+  date: Date,
+): FinancialStepResult {
   const salaryBreakdown = calculateTotalMonthlySalary(campaign);
 
   if (salaryBreakdown.total.isZero()) {
@@ -67,7 +76,14 @@ function processMonthlySalaries(campaign: ICampaign, date: Date): FinancialStepR
   };
 
   return {
-    events: [createTransactionEvent(TransactionType.Salary, salaryBreakdown.total, tx.description, newBalance)],
+    events: [
+      createTransactionEvent(
+        TransactionType.Salary,
+        salaryBreakdown.total,
+        tx.description,
+        newBalance,
+      ),
+    ],
     campaign: updatedCampaign,
   };
 }
@@ -98,12 +114,22 @@ function processOverhead(campaign: ICampaign, date: Date): FinancialStepResult {
   };
 
   return {
-    events: [createTransactionEvent(TransactionType.Overhead, overhead, tx.description, newBalance)],
+    events: [
+      createTransactionEvent(
+        TransactionType.Overhead,
+        overhead,
+        tx.description,
+        newBalance,
+      ),
+    ],
     campaign: updatedCampaign,
   };
 }
 
-function processFoodAndHousing(campaign: ICampaign, date: Date): FinancialStepResult {
+function processFoodAndHousing(
+  campaign: ICampaign,
+  date: Date,
+): FinancialStepResult {
   const foodCost = calculateFoodAndHousing(campaign);
 
   if (foodCost.isZero()) {
@@ -129,12 +155,22 @@ function processFoodAndHousing(campaign: ICampaign, date: Date): FinancialStepRe
   };
 
   return {
-    events: [createTransactionEvent(TransactionType.FoodAndHousing, foodCost, tx.description, newBalance)],
+    events: [
+      createTransactionEvent(
+        TransactionType.FoodAndHousing,
+        foodCost,
+        tx.description,
+        newBalance,
+      ),
+    ],
     campaign: updatedCampaign,
   };
 }
 
-function processLoanPayments(campaign: ICampaign, date: Date): FinancialStepResult {
+function processLoanPayments(
+  campaign: ICampaign,
+  date: Date,
+): FinancialStepResult {
   const loans = campaign.finances.loans;
   if (!loans || loans.length === 0 || !campaign.options.useLoanSystem) {
     return { events: [], campaign };
@@ -152,7 +188,9 @@ function processLoanPayments(campaign: ICampaign, date: Date): FinancialStepResu
     }
 
     const paymentResult = makePayment(loan);
-    currentBalance = currentBalance.subtract(paymentResult.paymentBreakdown.totalPayment);
+    currentBalance = currentBalance.subtract(
+      paymentResult.paymentBreakdown.totalPayment,
+    );
 
     const tx: Transaction = {
       id: `tx-loan-${loan.id}-${date.toISOString()}`,
@@ -164,12 +202,14 @@ function processLoanPayments(campaign: ICampaign, date: Date): FinancialStepResu
 
     transactions.push(tx);
     updatedLoans.push(paymentResult.updatedLoan);
-    events.push(createTransactionEvent(
-      TransactionType.LoanPayment,
-      paymentResult.paymentBreakdown.totalPayment,
-      tx.description,
-      currentBalance,
-    ));
+    events.push(
+      createTransactionEvent(
+        TransactionType.LoanPayment,
+        paymentResult.paymentBreakdown.totalPayment,
+        tx.description,
+        currentBalance,
+      ),
+    );
   }
 
   const updatedCampaign: ICampaign = {
@@ -211,12 +251,22 @@ function processTaxes(campaign: ICampaign, date: Date): FinancialStepResult {
   };
 
   return {
-    events: [createTransactionEvent(TransactionType.Tax, taxAmount, tx.description, newBalance)],
+    events: [
+      createTransactionEvent(
+        TransactionType.Tax,
+        taxAmount,
+        tx.description,
+        newBalance,
+      ),
+    ],
     campaign: updatedCampaign,
   };
 }
 
-function processDailyMaintenance(campaign: ICampaign, date: Date): FinancialStepResult {
+function processDailyMaintenance(
+  campaign: ICampaign,
+  date: Date,
+): FinancialStepResult {
   const rootForce = campaign.forces.get(campaign.rootForceId);
   if (!rootForce) {
     return { events: [], campaign };
@@ -228,7 +278,9 @@ function processDailyMaintenance(campaign: ICampaign, date: Date): FinancialStep
     return { events: [], campaign };
   }
 
-  const dailyMaintenancePerUnit = new Money(DEFAULT_DAILY_MAINTENANCE * campaign.options.maintenanceCostMultiplier);
+  const dailyMaintenancePerUnit = new Money(
+    DEFAULT_DAILY_MAINTENANCE * campaign.options.maintenanceCostMultiplier,
+  );
   const totalMaintenance = dailyMaintenancePerUnit.multiply(unitCount);
 
   const newBalance = campaign.finances.balance.subtract(totalMaintenance);
@@ -250,7 +302,14 @@ function processDailyMaintenance(campaign: ICampaign, date: Date): FinancialStep
   };
 
   return {
-    events: [createTransactionEvent(TransactionType.Maintenance, totalMaintenance, tx.description, newBalance)],
+    events: [
+      createTransactionEvent(
+        TransactionType.Maintenance,
+        totalMaintenance,
+        tx.description,
+        newBalance,
+      ),
+    ],
     campaign: updatedCampaign,
   };
 }

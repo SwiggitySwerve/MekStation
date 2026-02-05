@@ -72,4 +72,3 @@
 - [x] 8.1 Update equipment service barrel exports
 - [x] 8.2 Verify TypeScript compilation
 - [x] 8.3 Update spec documentation
-

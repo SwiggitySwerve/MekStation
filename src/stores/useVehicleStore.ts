@@ -8,17 +8,25 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.1
  */
 
+import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { createContext, useContext } from 'react';
+
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
-import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { TurretType, ITurretConfiguration } from '@/types/unit/VehicleInterfaces';
-import { VehicleLocation, VTOLLocation } from '@/types/construction/UnitLocation';
-import { IEquipmentItem } from '@/types/equipment';
-import { generateUnitId } from '@/utils/uuid';
+import {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums/WeightClass';
+import { IEquipmentItem } from '@/types/equipment';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  TurretType,
+  ITurretConfiguration,
+} from '@/types/unit/VehicleInterfaces';
+import { generateUnitId } from '@/utils/uuid';
+
 import {
   VehicleState,
   VehicleStore,
@@ -61,7 +69,9 @@ function calculateFlankMP(cruiseMP: number): number {
 /**
  * Create an isolated Zustand store for a single vehicle
  */
-export function createVehicleStore(initialState: VehicleState): StoreApi<VehicleStore> {
+export function createVehicleStore(
+  initialState: VehicleState,
+): StoreApi<VehicleStore> {
   return create<VehicleStore>()(
     persist(
       (set, _get) => ({
@@ -143,7 +153,10 @@ export function createVehicleStore(initialState: VehicleState): StoreApi<Vehicle
             const wasVTOL = state.motionType === GroundMotionType.VTOL;
 
             let armorAllocation = state.armorAllocation;
-            let unitType: UnitType.VEHICLE | UnitType.VTOL | UnitType.SUPPORT_VEHICLE = state.unitType;
+            let unitType:
+              | UnitType.VEHICLE
+              | UnitType.VTOL
+              | UnitType.SUPPORT_VEHICLE = state.unitType;
 
             if (isVTOL && !wasVTOL) {
               // Switching to VTOL - add rotor armor
@@ -284,25 +297,39 @@ export function createVehicleStore(initialState: VehicleState): StoreApi<Vehicle
 
             // Distribution percentages (approximate TechManual guidelines)
             const frontPercent = 0.35;
-            const sidePercent = 0.20;
+            const sidePercent = 0.2;
             const rearPercent = 0.15;
-            const turretPercent = hasTurret ? 0.10 : 0;
+            const turretPercent = hasTurret ? 0.1 : 0;
             const rotorPercent = isVTOL ? 0.02 : 0;
 
             const normalizer =
-              frontPercent + sidePercent * 2 + rearPercent + turretPercent + rotorPercent;
+              frontPercent +
+              sidePercent * 2 +
+              rearPercent +
+              turretPercent +
+              rotorPercent;
 
             const newAllocation = {
-              [VehicleLocation.FRONT]: Math.floor((totalPoints * frontPercent) / normalizer),
-              [VehicleLocation.LEFT]: Math.floor((totalPoints * sidePercent) / normalizer),
-              [VehicleLocation.RIGHT]: Math.floor((totalPoints * sidePercent) / normalizer),
-              [VehicleLocation.REAR]: Math.floor((totalPoints * rearPercent) / normalizer),
+              [VehicleLocation.FRONT]: Math.floor(
+                (totalPoints * frontPercent) / normalizer,
+              ),
+              [VehicleLocation.LEFT]: Math.floor(
+                (totalPoints * sidePercent) / normalizer,
+              ),
+              [VehicleLocation.RIGHT]: Math.floor(
+                (totalPoints * sidePercent) / normalizer,
+              ),
+              [VehicleLocation.REAR]: Math.floor(
+                (totalPoints * rearPercent) / normalizer,
+              ),
               [VehicleLocation.TURRET]: hasTurret
                 ? Math.floor((totalPoints * turretPercent) / normalizer)
                 : 0,
               [VehicleLocation.BODY]: 0,
               ...(isVTOL && {
-                [VTOLLocation.ROTOR]: Math.floor((totalPoints * rotorPercent) / normalizer),
+                [VTOLLocation.ROTOR]: Math.floor(
+                  (totalPoints * rotorPercent) / normalizer,
+                ),
               }),
             };
 
@@ -372,7 +399,7 @@ export function createVehicleStore(initialState: VehicleState): StoreApi<Vehicle
             item,
             instanceId,
             location,
-            isTurretMounted ?? false
+            isTurretMounted ?? false,
           );
 
           set((state) => ({
@@ -391,7 +418,11 @@ export function createVehicleStore(initialState: VehicleState): StoreApi<Vehicle
             lastModifiedAt: Date.now(),
           })),
 
-        updateEquipmentLocation: (instanceId: string, location, isTurretMounted?) =>
+        updateEquipmentLocation: (
+          instanceId: string,
+          location,
+          isTurretMounted?,
+        ) =>
           set((state) => ({
             equipment: state.equipment.map((e) =>
               e.id === instanceId
@@ -400,7 +431,7 @@ export function createVehicleStore(initialState: VehicleState): StoreApi<Vehicle
                     location,
                     isTurretMounted: isTurretMounted ?? e.isTurretMounted,
                   }
-                : e
+                : e,
             ),
             isModified: true,
             lastModifiedAt: Date.now(),
@@ -409,16 +440,21 @@ export function createVehicleStore(initialState: VehicleState): StoreApi<Vehicle
         setEquipmentRearMounted: (instanceId: string, isRearMounted: boolean) =>
           set((state) => ({
             equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, isRearMounted } : e
+              e.id === instanceId ? { ...e, isRearMounted } : e,
             ),
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
 
-        linkAmmo: (weaponInstanceId: string, ammoInstanceId: string | undefined) =>
+        linkAmmo: (
+          weaponInstanceId: string,
+          ammoInstanceId: string | undefined,
+        ) =>
           set((state) => ({
             equipment: state.equipment.map((e) =>
-              e.id === weaponInstanceId ? { ...e, linkedAmmoId: ammoInstanceId } : e
+              e.id === weaponInstanceId
+                ? { ...e, linkedAmmoId: ammoInstanceId }
+                : e,
             ),
             isModified: true,
             lastModifiedAt: Date.now(),
@@ -478,15 +514,17 @@ export function createVehicleStore(initialState: VehicleState): StoreApi<Vehicle
           createdAt: state.createdAt,
           lastModifiedAt: state.lastModifiedAt,
         }),
-      }
-    )
+      },
+    ),
   );
 }
 
 /**
  * Create a new vehicle store from options
  */
-export function createNewVehicleStore(options: CreateVehicleOptions): StoreApi<VehicleStore> {
+export function createNewVehicleStore(
+  options: CreateVehicleOptions,
+): StoreApi<VehicleStore> {
   const initialState = createDefaultVehicleState(options);
   return createVehicleStore(initialState);
 }
@@ -498,7 +536,9 @@ export function createNewVehicleStore(options: CreateVehicleOptions): StoreApi<V
 /**
  * Context for providing the active vehicle's store
  */
-export const VehicleStoreContext = createContext<StoreApi<VehicleStore> | null>(null);
+export const VehicleStoreContext = createContext<StoreApi<VehicleStore> | null>(
+  null,
+);
 
 /**
  * Hook to access the vehicle store from context
@@ -513,7 +553,7 @@ export function useVehicleStore<T>(selector: (state: VehicleStore) => T): T {
   if (!store) {
     throw new Error(
       'useVehicleStore must be used within a VehicleStoreProvider. ' +
-        'Wrap your component tree with <VehicleStoreProvider>.'
+        'Wrap your component tree with <VehicleStoreProvider>.',
     );
   }
 
@@ -527,7 +567,9 @@ export function useVehicleStoreApi(): StoreApi<VehicleStore> {
   const store = useContext(VehicleStoreContext);
 
   if (!store) {
-    throw new Error('useVehicleStoreApi must be used within a VehicleStoreProvider.');
+    throw new Error(
+      'useVehicleStoreApi must be used within a VehicleStoreProvider.',
+    );
   }
 
   return store;

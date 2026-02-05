@@ -1,13 +1,15 @@
 /**
  * Tests for Unit Versions API
- * 
+ *
  * GET /api/units/custom/:id/versions
- * 
+ *
  * @spec openspec/specs/unit-versioning/spec.md
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import { createMocks } from 'node-mocks-http';
+
 import handler from '@/pages/api/units/custom/[id]/versions';
 
 // Response types for type-safe assertions
@@ -115,7 +117,9 @@ describe('GET /api/units/custom/:id/versions', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing unit ID');
+    expect((res._getJSONData() as ErrorResponse).error).toContain(
+      'Missing unit ID',
+    );
   });
 
   it('should return 404 if unit not found', async () => {
@@ -141,7 +145,7 @@ describe('GET /api/units/custom/:id/versions', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(200);
-    
+
     const data = res._getJSONData() as VersionHistoryResponse;
     expect(data.unitId).toBe('unit-1');
     expect(data.currentVersion).toBe(3);
@@ -160,7 +164,7 @@ describe('GET /api/units/custom/:id/versions', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(200);
-    
+
     const data = res._getJSONData() as VersionHistoryResponse;
     expect(data.versions).toEqual([]);
     expect(data.count).toBe(0);
@@ -207,7 +211,9 @@ describe('GET /api/units/custom/:id/versions', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(200);
-    expect((res._getJSONData() as VersionHistoryResponse).currentVersion).toBe(7);
+    expect((res._getJSONData() as VersionHistoryResponse).currentVersion).toBe(
+      7,
+    );
   });
 
   it('should handle non-string id', async () => {
@@ -219,6 +225,8 @@ describe('GET /api/units/custom/:id/versions', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing unit ID');
+    expect((res._getJSONData() as ErrorResponse).error).toContain(
+      'Missing unit ID',
+    );
   });
 });
