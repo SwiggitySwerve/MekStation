@@ -17,7 +17,10 @@ import {
   getGyroBVMultiplier,
   getEngineBVMultiplier,
 } from '../../types/validation/BattleValue';
-import { resolveEquipmentBV } from './equipmentBVResolver';
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from './equipmentBVResolver';
 
 // ============================================================================
 // EXPLOSIVE EQUIPMENT PENALTY CALCULATION
@@ -371,7 +374,7 @@ export interface OffensiveBVConfig {
     bv: number;
     rear?: boolean;
   }>;
-  ammo?: Array<{ id: string; bv: number }>;
+  ammo?: Array<{ id: string; bv: number; weaponType: string }>;
   tonnage: number;
   walkMP: number;
   runMP: number;
@@ -381,6 +384,7 @@ export interface OffensiveBVConfig {
 
 export interface OffensiveBVResult {
   weaponBV: number;
+  ammoBV: number;
   weightBonus: number;
   speedFactor: number;
   totalOffensiveBV: number;
@@ -395,6 +399,44 @@ export function calculateOffensiveSpeedFactor(
   const speedFactor =
     Math.round(Math.pow(1 + (mp - 5) / 10.0, 1.2) * 100.0) / 100.0;
   return speedFactor;
+}
+
+/**
+ * Calculate ammo BV with excessive ammo cap per weapon type.
+ *
+ * Per TechManual BV 2.0 / MegaMek BVCalculator.processAmmo() (lines 1030-1081):
+ * - Ammo grouped by weapon type, weapons grouped by normalized type
+ * - Per group: cappedBV = min(totalAmmoBV, totalWeaponBV)
+ * - Orphaned ammo (no matching weapon) = 0 BV
+ * - Uses base weapon BV (before rear penalty) for cap
+ */
+export function calculateAmmoBVWithExcessiveCap(
+  weapons: Array<{ id: string; bv: number }>,
+  ammo: Array<{ id: string; bv: number; weaponType: string }>,
+): number {
+  if (!ammo || ammo.length === 0) return 0;
+
+  // Weapon BV by normalized type (e.g., "ac20-1" → "ac-20")
+  const weaponBVByType: Record<string, number> = {};
+  for (const weapon of weapons) {
+    const weaponType = normalizeEquipmentId(weapon.id);
+    weaponBVByType[weaponType] = (weaponBVByType[weaponType] ?? 0) + weapon.bv;
+  }
+
+  // Ammo BV by weapon type
+  const ammoBVByType: Record<string, number> = {};
+  for (const a of ammo) {
+    ammoBVByType[a.weaponType] = (ammoBVByType[a.weaponType] ?? 0) + a.bv;
+  }
+
+  let totalAmmoBV = 0;
+  for (const ammoType of Object.keys(ammoBVByType)) {
+    const matchingWeaponBV = weaponBVByType[ammoType] ?? 0;
+    if (matchingWeaponBV === 0) continue; // Orphaned ammo → 0 BV
+    totalAmmoBV += Math.min(ammoBVByType[ammoType], matchingWeaponBV);
+  }
+
+  return totalAmmoBV;
 }
 
 export function calculateOffensiveBVWithHeatTracking(
@@ -439,12 +481,9 @@ export function calculateOffensiveBVWithHeatTracking(
     }
   }
 
-  let ammoBV = 0;
-  if (config.ammo) {
-    for (const ammo of config.ammo) {
-      ammoBV += ammo.bv;
-    }
-  }
+  const ammoBV = config.ammo
+    ? calculateAmmoBVWithExcessiveCap(config.weapons, config.ammo)
+    : 0;
 
   const weightBonus = config.tonnage;
   const speedFactor = calculateOffensiveSpeedFactor(
@@ -457,6 +496,7 @@ export function calculateOffensiveBVWithHeatTracking(
 
   return {
     weaponBV,
+    ammoBV,
     weightBonus,
     speedFactor,
     totalOffensiveBV,

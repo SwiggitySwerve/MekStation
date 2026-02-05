@@ -16,6 +16,7 @@ import {
   calculateOffensiveBVWithHeatTracking,
   calculateOffensiveSpeedFactor,
   calculateExplosivePenalties,
+  calculateAmmoBVWithExcessiveCap,
   type DefensiveBVConfig,
   type ExplosiveEquipmentEntry,
   type ExplosivePenaltyConfig,
@@ -1671,6 +1672,243 @@ describe('battleValueCalculations', () => {
         // defensiveFactor = 1 + 2/10 = 1.2 (TMM for 6 MP)
         // totalDefensiveBV = 432 * 1.2 = 518.4
         expect(result.totalDefensiveBV).toBeCloseTo(518.4, 1);
+      });
+    });
+  });
+
+  // ============================================================================
+  // AMMO BV WITH EXCESSIVE AMMO CAP
+  // ============================================================================
+
+  describe('calculateAmmoBVWithExcessiveCap()', () => {
+    describe('basic ammo BV summation', () => {
+      it('should return 0 when no ammo is provided', () => {
+        const weapons = [{ id: 'ac-20', bv: 178 }];
+        expect(calculateAmmoBVWithExcessiveCap(weapons, [])).toBe(0);
+      });
+
+      it('should return full ammo BV when below weapon cap', () => {
+        const weapons = [{ id: 'ac-20', bv: 178 }];
+        const ammo = [{ id: 'ac20-ammo-1', bv: 22, weaponType: 'ac-20' }];
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(22);
+      });
+
+      it('should sum multiple ammo tons of same type', () => {
+        const weapons = [{ id: 'ac-20', bv: 178 }];
+        const ammo = [
+          { id: 'ac20-ammo-1', bv: 22, weaponType: 'ac-20' },
+          { id: 'ac20-ammo-2', bv: 22, weaponType: 'ac-20' },
+        ];
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(44);
+      });
+    });
+
+    describe('excessive ammo cap', () => {
+      it('should cap ammo BV at weapon BV when ammo exceeds weapon', () => {
+        const weapons = [{ id: 'ac-20', bv: 178 }];
+        const ammo = [
+          { id: 'ac20-ammo-1', bv: 100, weaponType: 'ac-20' },
+          { id: 'ac20-ammo-2', bv: 100, weaponType: 'ac-20' },
+        ];
+        // Total ammo 200 > weapon 178 → capped at 178
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(178);
+      });
+
+      it('should cap per weapon type independently', () => {
+        const weapons = [
+          { id: 'ac-20', bv: 178 },
+          { id: 'lrm-20', bv: 181 },
+        ];
+        const ammo = [
+          { id: 'ac20-ammo-1', bv: 200, weaponType: 'ac-20' },
+          { id: 'lrm20-ammo-1', bv: 23, weaponType: 'lrm-20' },
+        ];
+        // AC/20 ammo 200 > 178 → capped at 178
+        // LRM-20 ammo 23 < 181 → full 23
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(178 + 23);
+      });
+
+      it('should sum weapon BV across multiple weapons of same type for cap', () => {
+        const weapons = [
+          { id: 'medium-laser-1', bv: 46 },
+          { id: 'machine-gun-1', bv: 5 },
+          { id: 'machine-gun-2', bv: 5 },
+        ];
+        const ammo = [{ id: 'mg-ammo-1', bv: 8, weaponType: 'machine-gun' }];
+        // Two MGs → weapon cap = 5 + 5 = 10; ammo 8 < 10 → full 8
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(8);
+      });
+
+      it('should cap ammo when exceeding combined weapon BV of same type', () => {
+        const weapons = [
+          { id: 'machine-gun-1', bv: 5 },
+          { id: 'machine-gun-2', bv: 5 },
+        ];
+        const ammo = [
+          { id: 'mg-ammo-1', bv: 7, weaponType: 'machine-gun' },
+          { id: 'mg-ammo-2', bv: 7, weaponType: 'machine-gun' },
+        ];
+        // Total ammo 14 > weapon 10 → capped at 10
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(10);
+      });
+    });
+
+    describe('orphaned ammo', () => {
+      it('should return 0 BV for ammo with no matching weapon', () => {
+        const weapons = [{ id: 'medium-laser-1', bv: 46 }];
+        const ammo = [{ id: 'ac20-ammo-1', bv: 22, weaponType: 'ac-20' }];
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(0);
+      });
+
+      it('should return 0 when no weapons are present', () => {
+        const ammo = [
+          { id: 'ac20-ammo-1', bv: 22, weaponType: 'ac-20' },
+          { id: 'lrm20-ammo-1', bv: 23, weaponType: 'lrm-20' },
+        ];
+        expect(calculateAmmoBVWithExcessiveCap([], ammo)).toBe(0);
+      });
+
+      it('should only count ammo with matching weapons, ignore orphaned', () => {
+        const weapons = [{ id: 'ac-20', bv: 178 }];
+        const ammo = [
+          { id: 'ac20-ammo-1', bv: 22, weaponType: 'ac-20' },
+          { id: 'lrm20-ammo-1', bv: 23, weaponType: 'lrm-20' },
+        ];
+        // AC/20 ammo matches → 22; LRM-20 ammo orphaned → 0
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(22);
+      });
+    });
+
+    describe('weapon ID normalization', () => {
+      it('should normalize instance-suffixed weapon IDs (ac20-1 → ac-20)', () => {
+        const weapons = [{ id: 'ac20-1', bv: 178 }];
+        const ammo = [{ id: 'ac20-ammo-1', bv: 22, weaponType: 'ac-20' }];
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(22);
+      });
+
+      it('should normalize LRM weapon IDs (lrm20-1 → lrm-20)', () => {
+        const weapons = [{ id: 'lrm20-1', bv: 181 }];
+        const ammo = [{ id: 'lrm20-ammo-1', bv: 23, weaponType: 'lrm-20' }];
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(23);
+      });
+
+      it('should normalize SRM weapon IDs (srm6-1 → srm-6)', () => {
+        const weapons = [{ id: 'srm6-1', bv: 59 }];
+        const ammo = [{ id: 'srm6-ammo-1', bv: 7, weaponType: 'srm-6' }];
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(7);
+      });
+
+      it('should normalize MG weapon IDs (machine-gun-1 → machine-gun)', () => {
+        const weapons = [
+          { id: 'machine-gun-1', bv: 5 },
+          { id: 'machine-gun-2', bv: 5 },
+        ];
+        const ammo = [{ id: 'mg-ammo-1', bv: 1, weaponType: 'machine-gun' }];
+        expect(calculateAmmoBVWithExcessiveCap(weapons, ammo)).toBe(1);
+      });
+    });
+
+    describe('integration with offensive BV', () => {
+      it('should include capped ammo BV in offensive BV total', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [{ id: 'ac-20', name: 'AC/20', heat: 7, bv: 178 }],
+          ammo: [{ id: 'ac20-ammo-1', bv: 22, weaponType: 'ac-20' }],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+        });
+
+        expect(result.ammoBV).toBe(22);
+        expect(result.weaponBV).toBe(178);
+        expect(result.weightBonus).toBe(50);
+      });
+
+      it('should return ammoBV field in offensive BV result', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            { id: 'medium-laser-1', name: 'Medium Laser', heat: 3, bv: 46 },
+          ],
+          tonnage: 20,
+          walkMP: 8,
+          runMP: 12,
+          jumpMP: 0,
+          heatDissipation: 10,
+        });
+
+        expect(result).toHaveProperty('ammoBV');
+        expect(result.ammoBV).toBe(0);
+      });
+
+      it('should cap excessive ammo in full offensive BV calculation', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [{ id: 'ac-20', name: 'AC/20', heat: 7, bv: 50 }],
+          ammo: [
+            { id: 'ac20-ammo-1', bv: 40, weaponType: 'ac-20' },
+            { id: 'ac20-ammo-2', bv: 40, weaponType: 'ac-20' },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+        });
+
+        // Ammo total 80 > weapon 50 → capped at 50
+        expect(result.ammoBV).toBe(50);
+      });
+
+      it('should not change canonical unit BV (Atlas AS7-D)', () => {
+        const atlas = CANONICAL_BV_UNITS.find((u) => u.id === 'atlas-as7-d')!;
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: atlas.weapons,
+          ammo: atlas.ammo,
+          tonnage: atlas.tonnage,
+          walkMP: atlas.walkMP,
+          runMP: atlas.runMP,
+          jumpMP: atlas.jumpMP,
+          heatDissipation: atlas.heatSinks.count,
+        });
+
+        // Atlas ammo: AC/20 (22), LRM-20 (23), SRM-6 (7) = 52
+        // All below weapon caps, so full ammo BV
+        expect(result.ammoBV).toBe(52);
+      });
+
+      it('should not change canonical unit BV (Locust LCT-1V)', () => {
+        const locust = CANONICAL_BV_UNITS.find(
+          (u) => u.id === 'locust-lct-1v',
+        )!;
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: locust.weapons,
+          ammo: locust.ammo,
+          tonnage: locust.tonnage,
+          walkMP: locust.walkMP,
+          runMP: locust.runMP,
+          jumpMP: locust.jumpMP,
+          heatDissipation: locust.heatSinks.count,
+        });
+
+        // Locust: MG ammo (1) < MG weapon BV (5+5=10) → full 1
+        expect(result.ammoBV).toBe(1);
+      });
+
+      it('should apply ammo BV before speed factor multiplication', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [{ id: 'ac-20', name: 'AC/20', heat: 7, bv: 178 }],
+          ammo: [{ id: 'ac20-ammo-1', bv: 22, weaponType: 'ac-20' }],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+        });
+
+        const speedFactor = result.speedFactor;
+        const expectedTotal =
+          (result.weaponBV + result.ammoBV + result.weightBonus) * speedFactor;
+        expect(result.totalOffensiveBV).toBeCloseTo(expectedTotal, 2);
       });
     });
   });
