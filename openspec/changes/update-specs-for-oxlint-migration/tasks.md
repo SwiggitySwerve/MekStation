@@ -22,8 +22,8 @@
 
 ## 4. Verification and Quality Checks
 
-- [ ] 4.1 Verify no ESLint references remain in specs (except in historical context or migration notes)
-- [ ] 4.2 Verify no Prettier references remain in specs (except in historical context or migration notes)
-- [ ] 4.3 Verify all new oxlint/oxfmt references are accurate and consistent
-- [ ] 4.4 Run markdown linting on all modified spec files
-- [ ] 4.5 Final review: Read through all changed specs to ensure clarity, accuracy, and completeness
+- [x] 4.1 Verify no ESLint references remain in specs (except in historical context or migration notes)
+- [x] 4.2 Verify no Prettier references remain in specs (except in historical context or migration notes)
+- [x] 4.3 Verify all new oxlint/oxfmt references are accurate and consistent
+- [x] 4.4 Run markdown linting on all modified spec files
+- [x] 4.5 Final review: Read through all changed specs to ensure clarity, accuracy, and completeness
