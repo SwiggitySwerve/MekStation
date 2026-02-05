@@ -13,3 +13,4 @@ openspec
 storybook-static
 playwright-report
 public/record-sheets
+next-env.d.ts
