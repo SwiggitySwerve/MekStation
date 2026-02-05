@@ -9,10 +9,10 @@
 
 ## 2. Modified Capabilities: Apply Delta Specs
 
-- [ ] 2.1 Apply delta spec to `openspec/specs/validation-patterns/spec.md`: Update "No Double Type Assertions" requirement to reference oxlint instead of ESLint
-- [ ] 2.2 Verify validation-patterns spec maintains all existing requirements and only updates linting tool references
-- [ ] 2.3 Apply delta spec to `openspec/specs/storybook-component-library/spec.md`: Update CI scenario to reference oxlint/oxfmt instead of ESLint/Prettier
-- [ ] 2.4 Verify storybook-component-library spec maintains all existing scenarios and only updates tooling references
+- [x] 2.1 Apply delta spec to `openspec/specs/validation-patterns/spec.md`: Update "No Double Type Assertions" requirement to reference oxlint instead of ESLint
+- [x] 2.2 Verify validation-patterns spec maintains all existing requirements and only updates linting tool references
+- [x] 2.3 Apply delta spec to `openspec/specs/storybook-component-library/spec.md`: Update CI scenario to reference oxlint/oxfmt instead of ESLint/Prettier
+- [x] 2.4 Verify storybook-component-library spec maintains all existing scenarios and only updates tooling references
 
 ## 3. Documentation Updates
 

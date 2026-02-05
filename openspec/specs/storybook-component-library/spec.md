@@ -145,9 +145,13 @@ The system SHALL provide decorators for components requiring React context.
 
 ---
 
-### Requirement: Storybook Build
+### Requirement: Static Storybook Build
 
 The system SHALL produce a static Storybook build for CI validation.
+
+**Priority**: High
+
+**Change Summary**: CI validation now includes oxlint and oxfmt checks in addition to Storybook build validation. The CI pipeline runs linting and formatting checks before building Storybook to catch issues early.
 
 #### Scenario: Static build succeeds
 
@@ -160,8 +164,13 @@ The system SHALL produce a static Storybook build for CI validation.
 
 - **GIVEN** a pull request is opened
 - **WHEN** CI runs the Storybook build step
-- **THEN** build failures block the PR
-- **AND** success is reported to the PR status checks
+- **THEN** oxlint validation runs via `npm run lint` before the build
+- **AND** oxfmt format checking runs via `npm run format:check` before the build
+- **AND** Storybook build runs via `npm run storybook:build`
+- **AND** build failures in any step block the PR
+- **AND** success in all steps is reported to the PR status checks
+
+**Note**: This scenario has been updated to reflect the current CI tooling stack. The CI pipeline now validates code quality with oxlint (50-100x faster than ESLint) and code formatting with oxfmt before building Storybook. This ensures that all code meets quality and formatting standards before component documentation is generated.
 
 ---
 

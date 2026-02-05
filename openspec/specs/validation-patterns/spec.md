@@ -50,12 +50,15 @@ The codebase SHALL NOT use double type assertions (`as unknown as T` or `as any 
 
 **Priority**: High
 
-#### Scenario: ESLint enforcement
+**Note**: Enforcement mechanism shifted from automated ESLint rule to manual code review and developer education. The `no-restricted-syntax` ESLint rule is not supported by oxlint, so this validation pattern now relies on code review processes rather than automated linting.
+
+#### Scenario: Code review enforcement
 
 - **GIVEN** any TypeScript file in the codebase
 - **WHEN** it contains `expression as unknown as Type` or `expression as any as Type`
-- **THEN** ESLint SHALL emit a warning with message explaining the violation
-- **AND** the warning SHALL suggest using type guards or conversion functions instead
+- **THEN** code reviewers SHALL flag the violation during PR review
+- **AND** reviewers SHALL suggest using type guards or conversion functions instead
+- **AND** the PR SHALL NOT be approved until the violation is resolved
 
 #### Scenario: Approved alternative - Type guards
 
