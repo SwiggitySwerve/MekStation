@@ -6,11 +6,13 @@
  * @spec openspec/specs/battle-value-system/spec.md
  */
 
+import { EngineType } from '../../types/construction/EngineType';
 import {
   getPilotSkillModifier,
   getArmorBVMultiplier,
   getStructureBVMultiplier,
   getGyroBVMultiplier,
+  getEngineBVMultiplier,
 } from '../../types/validation/BattleValue';
 import { resolveEquipmentBV } from './equipmentBVResolver';
 
@@ -84,6 +86,7 @@ export interface DefensiveBVConfig {
   armorType?: string;
   structureType?: string;
   gyroType?: string;
+  engineType?: EngineType;
   bar?: number;
   engineMultiplier?: number;
   defensiveEquipmentBV?: number;
@@ -108,7 +111,11 @@ export function calculateDefensiveBV(
   const gyroMultiplier = getGyroBVMultiplier(config.gyroType ?? 'standard');
 
   const bar = config.bar ?? 10;
-  const engineMultiplier = config.engineMultiplier ?? 1.0;
+  // Calculate engine multiplier from engineType if provided, otherwise use explicit value or default
+  const engineMultiplier =
+    config.engineType !== undefined
+      ? getEngineBVMultiplier(config.engineType)
+      : (config.engineMultiplier ?? 1.0);
   const defensiveEquipmentBV = config.defensiveEquipmentBV ?? 0;
   const explosivePenalties = config.explosivePenalties ?? 0;
 
@@ -308,6 +315,7 @@ export interface BVCalculationConfig {
   armorType?: string;
   structureType?: string;
   gyroType?: string;
+  engineType?: EngineType;
 }
 
 /**
@@ -344,6 +352,7 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     armorType: config.armorType,
     structureType: config.structureType,
     gyroType: config.gyroType,
+    engineType: config.engineType,
   });
 
   const weaponsWithBV = config.weapons.map((w) => {
@@ -409,6 +418,7 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     armorType: config.armorType,
     structureType: config.structureType,
     gyroType: config.gyroType,
+    engineType: config.engineType,
   });
 
   const weaponsWithBV = config.weapons.map((w) => {

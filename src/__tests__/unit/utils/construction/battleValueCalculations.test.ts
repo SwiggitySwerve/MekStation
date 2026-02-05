@@ -4,6 +4,7 @@ import {
   type ArmorPoints,
   type StructurePoints,
 } from '@/__tests__/fixtures/canonical-bv-units';
+import { EngineType } from '@/types/construction/EngineType';
 import {
   calculateTMM,
   calculateSpeedFactor,
@@ -718,6 +719,188 @@ describe('battleValueCalculations', () => {
 
         // 50 × 1.5 × 0.5 = 37.5
         expect(result.structureBV).toBe(37.5);
+      });
+    });
+
+    describe('engine BV multiplier for structure calculation', () => {
+      it('should apply standard fusion engine multiplier (1.0×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          engineType: EngineType.STANDARD,
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 1.0 = 75
+        expect(result.structureBV).toBe(75);
+      });
+
+      it('should apply XL (IS) engine multiplier (0.75×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          engineType: EngineType.XL_IS,
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 0.75 = 56.25
+        expect(result.structureBV).toBe(56.25);
+      });
+
+      it('should apply XL (Clan) engine multiplier (0.75×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          engineType: EngineType.XL_CLAN,
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 0.75 = 56.25
+        expect(result.structureBV).toBe(56.25);
+      });
+
+      it('should apply light engine multiplier (0.75×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          engineType: EngineType.LIGHT,
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 0.75 = 56.25
+        expect(result.structureBV).toBe(56.25);
+      });
+
+      it('should apply XXL engine multiplier (0.5×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          engineType: EngineType.XXL,
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 0.5 = 37.5
+        expect(result.structureBV).toBe(37.5);
+      });
+
+      it('should apply compact engine multiplier (1.0×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          engineType: EngineType.COMPACT,
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 1.0 = 75
+        expect(result.structureBV).toBe(75);
+      });
+
+      it('should apply ICE engine multiplier (1.0×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          engineType: EngineType.ICE,
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 1.0 = 75
+        expect(result.structureBV).toBe(75);
+      });
+
+      it('should apply fuel cell engine multiplier (1.0×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          engineType: EngineType.FUEL_CELL,
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 1.0 = 75
+        expect(result.structureBV).toBe(75);
+      });
+
+      it('should apply fission engine multiplier (1.0×)', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          engineType: EngineType.FISSION,
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 1.0 = 75
+        expect(result.structureBV).toBe(75);
+      });
+
+      it('should combine engine multiplier with structure type multiplier', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'reinforced',
+          gyroType: 'standard',
+          engineType: EngineType.XL_IS,
+        };
+        const result = calculateDefensiveBV(config);
+
+        // 50 × 1.5 × 2.0 (reinforced) × 0.75 (XL) = 112.5
+        expect(result.structureBV).toBe(112.5);
       });
     });
 

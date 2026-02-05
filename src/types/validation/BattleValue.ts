@@ -6,6 +6,8 @@
  * @spec openspec/specs/battle-value-system/spec.md
  */
 
+import { EngineType } from '../construction/EngineType';
+
 /**
  * Battle Value calculation version
  */
@@ -121,6 +123,24 @@ export const GYRO_BV_MULTIPLIERS: Record<string, number> = {
 };
 
 /**
+ * Engine type BV multipliers for structure calculation
+ * Per MegaMek Engine.getBVMultiplier()
+ * XL/XXL engines reduce structure BV because they're more fragile
+ * Formula: structureBV = totalStructure × 1.5 × structureMultiplier × engineMultiplier
+ */
+export const ENGINE_BV_MULTIPLIERS: Record<EngineType, number> = {
+  [EngineType.STANDARD]: 1.0,
+  [EngineType.XL_IS]: 0.75,
+  [EngineType.XL_CLAN]: 0.75,
+  [EngineType.LIGHT]: 0.75,
+  [EngineType.XXL]: 0.5,
+  [EngineType.COMPACT]: 1.0,
+  [EngineType.ICE]: 1.0,
+  [EngineType.FUEL_CELL]: 1.0,
+  [EngineType.FISSION]: 1.0,
+};
+
+/**
  * Pilot skill BV multiplier matrix
  * 9×9 matrix: gunnery (0-8) × piloting (0-8)
  * Per MegaMek BVCalculator.java:1265-1274
@@ -160,6 +180,14 @@ export function getStructureBVMultiplier(structureType: string): number {
  */
 export function getGyroBVMultiplier(gyroType: string): number {
   return GYRO_BV_MULTIPLIERS[gyroType.toLowerCase()] ?? 0.5;
+}
+
+/**
+ * Get engine BV multiplier by type
+ * Returns 1.0 (standard) if type not found
+ */
+export function getEngineBVMultiplier(engineType: EngineType): number {
+  return ENGINE_BV_MULTIPLIERS[engineType] ?? 1.0;
 }
 
 /**
