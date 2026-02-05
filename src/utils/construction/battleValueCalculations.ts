@@ -373,6 +373,12 @@ export interface OffensiveBVConfig {
     heat: number;
     bv: number;
     rear?: boolean;
+    /** Weapon is in an arm location with a functional AES (×1.25) */
+    hasAES?: boolean;
+    /** Linked Artemis fire control system type */
+    artemisType?: 'iv' | 'v';
+    /** Whether this is a direct-fire weapon (eligible for TC modifier) */
+    isDirectFire?: boolean;
   }>;
   ammo?: Array<{ id: string; bv: number; weaponType: string }>;
   tonnage: number;
@@ -380,6 +386,8 @@ export interface OffensiveBVConfig {
   runMP: number;
   jumpMP: number;
   heatDissipation: number;
+  /** Whether the unit has a functional Targeting Computer */
+  hasTargetingComputer?: boolean;
 }
 
 export interface OffensiveBVResult {
@@ -439,28 +447,93 @@ export function calculateAmmoBVWithExcessiveCap(
   return totalAmmoBV;
 }
 
+/**
+ * Apply weapon BV modifiers in MegaMek's exact order.
+ *
+ * Order: base BV → AES (×1.25) → rear (×0.5) → Artemis IV (×1.2) / V (×1.3) → TC (×1.25)
+ *
+ * @see BVCalculator.processWeapon() lines 789-894
+ */
+function applyWeaponBVModifiers(
+  weapon: {
+    bv: number;
+    rear?: boolean;
+    hasAES?: boolean;
+    artemisType?: 'iv' | 'v';
+    isDirectFire?: boolean;
+  },
+  hasTC: boolean,
+): number {
+  let modifiedBV = weapon.bv;
+
+  // 1. AES modifier (arm-mounted weapon with Actuator Enhancement System)
+  if (weapon.hasAES) {
+    modifiedBV *= 1.25;
+  }
+
+  // 2. Rear-mounted weapon penalty
+  if (weapon.rear) {
+    modifiedBV *= 0.5;
+  }
+
+  // 3. Artemis fire control system
+  if (weapon.artemisType === 'iv') {
+    modifiedBV *= 1.2;
+  } else if (weapon.artemisType === 'v') {
+    modifiedBV *= 1.3;
+  }
+
+  // 4. Targeting Computer (direct fire weapons only)
+  if (hasTC && weapon.isDirectFire) {
+    modifiedBV *= 1.25;
+  }
+
+  return modifiedBV;
+}
+
+/**
+ * MegaMek heatSorter: heatless weapons first, then BV descending, ties broken by heat ascending.
+ *
+ * @see HeatTrackingBVCalculator.java lines 133-146
+ */
+function heatSorter(
+  a: { bv: number; heat: number },
+  b: { bv: number; heat: number },
+): number {
+  // Heatless weapons always come first
+  if (a.heat === 0 && b.heat > 0) return -1;
+  if (a.heat > 0 && b.heat === 0) return 1;
+  if (a.heat === 0 && b.heat === 0) return 0;
+
+  // Both have heat: sort by BV descending, ties by heat ascending
+  if (a.bv === b.bv) {
+    return a.heat - b.heat;
+  }
+  return b.bv - a.bv;
+}
+
 export function calculateOffensiveBVWithHeatTracking(
   config: OffensiveBVConfig,
 ): OffensiveBVResult {
-  const weaponsWithRearPenalty = config.weapons.map((w) => ({
+  const hasTC = config.hasTargetingComputer ?? false;
+
+  // Apply all modifiers (AES → rear → Artemis → TC) to get modified BV for sorting
+  const weaponsWithModifiers = config.weapons.map((w) => ({
     ...w,
-    bv: w.rear ? w.bv * 0.5 : w.bv,
+    bv: applyWeaponBVModifiers(w, hasTC),
   }));
 
-  const sortedWeapons = [...weaponsWithRearPenalty].sort((a, b) => b.bv - a.bv);
+  // MegaMek heatSorter: heatless first → BV descending → heat ascending ties
+  const sortedWeapons = [...weaponsWithModifiers].sort(heatSorter);
 
-  // MegaMek heat efficiency formula: 6 + heatCapacity - moveHeat
-  // moveHeat = max(runningHeat, jumpHeat) where:
-  //   runningHeat = 2 (standard for all running mechs)
-  //   jumpHeat = max(3, jumpMP) for mechs with jump jets
+  // MegaMek heat efficiency: 6 + heatCapacity - moveHeat
   // See MekBVCalculator.heatEfficiency() lines 321-389
   const RUNNING_HEAT = 2;
   const jumpHeat = config.jumpMP > 0 ? Math.max(3, config.jumpMP) : 0;
   const moveHeat = Math.max(RUNNING_HEAT, jumpHeat);
   const heatEfficiency = 6 + config.heatDissipation - moveHeat;
 
-  // MegaMek tracks heat with a flag: the weapon that pushes cumulative heat
-  // past the threshold gets FULL BV; only subsequent weapons get halved.
+  // Weapon that crosses threshold gets FULL BV; only subsequent weapons get halved.
   // See HeatTrackingBVCalculator.processWeapons() lines 78-128
   let heatExceeded = heatEfficiency <= 0;
   let heatSum = 0;
@@ -491,7 +564,6 @@ export function calculateOffensiveBVWithHeatTracking(
     config.jumpMP,
   );
   const baseOffensive = weaponBV + ammoBV + weightBonus;
-  // No intermediate rounding — accumulated as float, rounded once at final BV sum
   const totalOffensiveBV = baseOffensive * speedFactor;
 
   return {
@@ -615,27 +687,19 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
 
   const weaponsWithBV = config.weapons.map((w) => {
     const resolved = resolveEquipmentBV(w.id);
-    let bv = resolved.battleValue;
-
-    if (w.rear) {
-      bv = bv * 0.5;
-    }
-
     const weaponId = w.id.toLowerCase();
-    if (
-      config.hasTargetingComputer &&
+    const isDirectFire =
       !weaponId.includes('lrm') &&
       !weaponId.includes('srm') &&
-      !weaponId.includes('mrm')
-    ) {
-      bv = bv * 1.25;
-    }
+      !weaponId.includes('mrm');
 
     return {
       id: w.id,
       name: weaponId,
       heat: resolved.heat,
-      bv,
+      bv: resolved.battleValue,
+      rear: w.rear,
+      isDirectFire,
     };
   });
 
@@ -646,6 +710,7 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     runMP: config.runMP,
     jumpMP: config.jumpMP,
     heatDissipation: config.heatSinkCapacity,
+    hasTargetingComputer: config.hasTargetingComputer,
   });
 
   return Math.round(
@@ -681,27 +746,19 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
 
   const weaponsWithBV = config.weapons.map((w) => {
     const resolved = resolveEquipmentBV(w.id);
-    let bv = resolved.battleValue;
-
-    if (w.rear) {
-      bv = bv * 0.5;
-    }
-
     const weaponId = w.id.toLowerCase();
-    if (
-      config.hasTargetingComputer &&
+    const isDirectFire =
       !weaponId.includes('lrm') &&
       !weaponId.includes('srm') &&
-      !weaponId.includes('mrm')
-    ) {
-      bv = bv * 1.25;
-    }
+      !weaponId.includes('mrm');
 
     return {
       id: w.id,
       name: weaponId,
       heat: resolved.heat,
-      bv,
+      bv: resolved.battleValue,
+      rear: w.rear,
+      isDirectFire,
     };
   });
 
@@ -712,6 +769,7 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     runMP: config.runMP,
     jumpMP: config.jumpMP,
     heatDissipation: config.heatSinkCapacity,
+    hasTargetingComputer: config.hasTargetingComputer,
   });
 
   return {

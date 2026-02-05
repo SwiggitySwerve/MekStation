@@ -1912,4 +1912,406 @@ describe('battleValueCalculations', () => {
       });
     });
   });
+
+  // ============================================================================
+  // WEAPON SORT ORDER (MegaMek heatSorter)
+  // ============================================================================
+
+  describe('weapon sort order (heatSorter)', () => {
+    it('should place heatless weapons before heat-generating weapons', () => {
+      // MG (heat 0, bv 5) should come before ML (heat 3, bv 46)
+      // even though ML has higher BV
+      const result = calculateOffensiveBVWithHeatTracking({
+        weapons: [
+          { id: 'medium-laser-1', name: 'Medium Laser', heat: 3, bv: 46 },
+          { id: 'machine-gun-1', name: 'Machine Gun', heat: 0, bv: 5 },
+        ],
+        tonnage: 20,
+        walkMP: 8,
+        runMP: 12,
+        jumpMP: 0,
+        heatDissipation: 10,
+      });
+
+      // Both weapons fit within heat efficiency, so total is unaffected by order
+      expect(result.weaponBV).toBe(51);
+    });
+
+    it('should sort heatless weapons first even when they affect heat penalty assignment', () => {
+      // Heat efficiency = 6 + 1 - 2 = 5 (very low)
+      // Weapons: MG (h0, bv5), ML (h3, bv46), ML (h3, bv46)
+      // Correct sort: MG(h0), ML(h3 → bv desc), ML(h3)
+      // MG: heatSum=0, not exceeded → 5, 0<5
+      // ML: heatSum=3, not exceeded → 46, 3<5
+      // ML: heatSum=6, not exceeded → 46, 6>=5 → exceeded
+      // Total = 5 + 46 + 46 = 97
+      // Without heatless-first: ML(46), ML(46), MG(5) → heatSum 3→6→6
+      // ML: heatSum=3, full 46; ML: heatSum=6, full 46 but 6>=5→exceeded; MG: exceeded→5*0.5=2.5
+      // Total = 46+46+2.5 = 94.5 (WRONG)
+      const result = calculateOffensiveBVWithHeatTracking({
+        weapons: [
+          { id: 'medium-laser-1', name: 'Medium Laser', heat: 3, bv: 46 },
+          { id: 'medium-laser-2', name: 'Medium Laser', heat: 3, bv: 46 },
+          { id: 'machine-gun-1', name: 'Machine Gun', heat: 0, bv: 5 },
+        ],
+        tonnage: 20,
+        walkMP: 8,
+        runMP: 12,
+        jumpMP: 0,
+        heatDissipation: 1,
+      });
+
+      expect(result.weaponBV).toBe(97);
+    });
+
+    it('should sort by BV descending for heat-generating weapons', () => {
+      const result = calculateOffensiveBVWithHeatTracking({
+        weapons: [
+          { id: 'small-laser-1', name: 'Small Laser', heat: 1, bv: 9 },
+          { id: 'ppc-1', name: 'PPC', heat: 10, bv: 176 },
+          { id: 'medium-laser-1', name: 'Medium Laser', heat: 3, bv: 46 },
+        ],
+        tonnage: 50,
+        walkMP: 5,
+        runMP: 8,
+        jumpMP: 0,
+        heatDissipation: 10,
+      });
+
+      // Heat efficiency = 6 + 10 - 2 = 14
+      // Sorted: PPC(176,h10), ML(46,h3), SL(9,h1)
+      // PPC: heatSum=10, full 176, 10<14
+      // ML: heatSum=13, full 46, 13<14
+      // SL: heatSum=14, full 9, 14>=14 → exceeded
+      // Total = 176 + 46 + 9 = 231
+      expect(result.weaponBV).toBe(231);
+    });
+
+    it('should break BV ties by heat ascending', () => {
+      // Two weapons with same BV but different heat
+      // Lower heat weapon should come first to minimize heat penalty impact
+      const result = calculateOffensiveBVWithHeatTracking({
+        weapons: [
+          { id: 'weapon-a', name: 'Weapon A', heat: 8, bv: 100 },
+          { id: 'weapon-b', name: 'Weapon B', heat: 3, bv: 100 },
+        ],
+        tonnage: 50,
+        walkMP: 5,
+        runMP: 8,
+        jumpMP: 0,
+        heatDissipation: 10,
+      });
+
+      // Heat efficiency = 14
+      // Sorted by heat ascending (same BV): B(h3), A(h8)
+      // B: heatSum=3, full 100, 3<14
+      // A: heatSum=11, full 100, 11<14
+      // Total = 200
+      expect(result.weaponBV).toBe(200);
+    });
+  });
+
+  // ============================================================================
+  // WEAPON BV MODIFIERS (MegaMek processWeapon order)
+  // ============================================================================
+
+  describe('weapon BV modifiers', () => {
+    describe('AES modifier (×1.25)', () => {
+      it('should apply AES modifier to arm-mounted weapon', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            { id: 'ppc-1', name: 'PPC', heat: 10, bv: 176, hasAES: true },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+        });
+
+        // 176 × 1.25 = 220
+        expect(result.weaponBV).toBe(220);
+      });
+
+      it('should not apply AES to weapons without the flag', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [{ id: 'ppc-1', name: 'PPC', heat: 10, bv: 176 }],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+        });
+
+        expect(result.weaponBV).toBe(176);
+      });
+    });
+
+    describe('rear modifier (×0.5)', () => {
+      it('should halve BV for rear-mounted weapons', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            {
+              id: 'medium-laser-1',
+              name: 'Medium Laser',
+              heat: 3,
+              bv: 46,
+              rear: true,
+            },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+        });
+
+        // 46 × 0.5 = 23
+        expect(result.weaponBV).toBe(23);
+      });
+    });
+
+    describe('Artemis IV modifier (×1.2)', () => {
+      it('should apply Artemis IV modifier to linked weapon', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            {
+              id: 'lrm-20',
+              name: 'LRM 20',
+              heat: 6,
+              bv: 181,
+              artemisType: 'iv' as const,
+            },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+        });
+
+        // 181 × 1.2 = 217.2
+        expect(result.weaponBV).toBeCloseTo(217.2, 1);
+      });
+    });
+
+    describe('Artemis V modifier (×1.3)', () => {
+      it('should apply Artemis V modifier to linked weapon', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            {
+              id: 'lrm-20',
+              name: 'LRM 20',
+              heat: 6,
+              bv: 181,
+              artemisType: 'v' as const,
+            },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+        });
+
+        // 181 × 1.3 = 235.3
+        expect(result.weaponBV).toBeCloseTo(235.3, 1);
+      });
+    });
+
+    describe('Targeting Computer modifier (×1.25 for direct fire)', () => {
+      it('should apply TC modifier to direct fire weapon', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            { id: 'ppc-1', name: 'PPC', heat: 10, bv: 176, isDirectFire: true },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+          hasTargetingComputer: true,
+        });
+
+        // 176 × 1.25 = 220
+        expect(result.weaponBV).toBe(220);
+      });
+
+      it('should NOT apply TC modifier to non-direct-fire weapons', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            {
+              id: 'lrm-20',
+              name: 'LRM 20',
+              heat: 6,
+              bv: 181,
+              isDirectFire: false,
+            },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+          hasTargetingComputer: true,
+        });
+
+        // No TC modifier for non-direct-fire
+        expect(result.weaponBV).toBe(181);
+      });
+
+      it('should NOT apply TC modifier when hasTargetingComputer is false', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            { id: 'ppc-1', name: 'PPC', heat: 10, bv: 176, isDirectFire: true },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+          hasTargetingComputer: false,
+        });
+
+        expect(result.weaponBV).toBe(176);
+      });
+    });
+
+    describe('modifier application order (MegaMek exact)', () => {
+      it('should apply modifiers in order: base → AES → rear → Artemis IV → TC', () => {
+        // base=100, AES→125, rear→62.5, ArtemisIV→75, TC→93.75
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            {
+              id: 'lrm-20',
+              name: 'LRM 20',
+              heat: 6,
+              bv: 100,
+              hasAES: true,
+              rear: true,
+              artemisType: 'iv' as const,
+              isDirectFire: true,
+            },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+          hasTargetingComputer: true,
+        });
+
+        // 100 × 1.25 (AES) × 0.5 (rear) × 1.2 (Artemis IV) × 1.25 (TC) = 93.75
+        expect(result.weaponBV).toBeCloseTo(93.75, 2);
+      });
+
+      it('should apply modifiers in order: base → AES → rear → Artemis V → TC', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            {
+              id: 'lrm-20',
+              name: 'LRM 20',
+              heat: 6,
+              bv: 100,
+              hasAES: true,
+              rear: true,
+              artemisType: 'v' as const,
+              isDirectFire: true,
+            },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+          hasTargetingComputer: true,
+        });
+
+        // 100 × 1.25 (AES) × 0.5 (rear) × 1.3 (Artemis V) × 1.25 (TC) = 101.5625
+        expect(result.weaponBV).toBeCloseTo(101.5625, 2);
+      });
+
+      it('should apply rear + TC correctly without AES or Artemis', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            {
+              id: 'ppc-1',
+              name: 'PPC',
+              heat: 10,
+              bv: 176,
+              rear: true,
+              isDirectFire: true,
+            },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 10,
+          hasTargetingComputer: true,
+        });
+
+        // 176 × 0.5 (rear) × 1.25 (TC) = 110
+        expect(result.weaponBV).toBe(110);
+      });
+
+      it('should apply heat halving AFTER all other modifiers', () => {
+        // Heat efficiency = 6 + 1 - 2 = 5 → almost all weapons will be heat-exceeded
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            { id: 'ppc-1', name: 'PPC', heat: 10, bv: 176, isDirectFire: true },
+            {
+              id: 'medium-laser-1',
+              name: 'ML',
+              heat: 3,
+              bv: 46,
+              isDirectFire: true,
+            },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 1,
+          hasTargetingComputer: true,
+        });
+
+        // Heat efficiency = 6 + 1 - 2 = 5
+        // PPC: BV = 176 × 1.25 (TC) = 220, heat=10
+        // ML: BV = 46 × 1.25 (TC) = 57.5, heat=3
+        // Sorted: PPC(220, h10), ML(57.5, h3)
+        // PPC: heatSum=10, not exceeded (flag was false) → full 220, 10>=5 → exceeded
+        // ML: heatSum=13, exceeded → 57.5 × 0.5 = 28.75
+        // Total = 220 + 28.75 = 248.75
+        expect(result.weaponBV).toBeCloseTo(248.75, 2);
+      });
+    });
+
+    describe('modifier interaction with sort order', () => {
+      it('should sort by MODIFIED BV (after all modifiers applied)', () => {
+        // Weapon A: base=200, rear → 100
+        // Weapon B: base=90
+        // After modifiers, A(100) > B(90), so A sorted first
+        const result = calculateOffensiveBVWithHeatTracking({
+          weapons: [
+            { id: 'weapon-b', name: 'B', heat: 5, bv: 90 },
+            { id: 'weapon-a', name: 'A', heat: 5, bv: 200, rear: true },
+          ],
+          tonnage: 50,
+          walkMP: 5,
+          runMP: 8,
+          jumpMP: 0,
+          heatDissipation: 5,
+        });
+
+        // Heat efficiency = 6 + 5 - 2 = 9
+        // After modifiers: A=100(rear), B=90
+        // Sorted: A(100, h5), B(90, h5)
+        // A: heatSum=5, not exceeded → 100, 5<9
+        // B: heatSum=10, not exceeded → 90, 10>=9 → exceeded
+        // Total = 100 + 90 = 190
+        expect(result.weaponBV).toBe(190);
+      });
+    });
+  });
 });
