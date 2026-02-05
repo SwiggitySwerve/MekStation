@@ -6,10 +6,11 @@
  */
 
 import { useEffect, useRef } from 'react';
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
-import { QuickGameStep, IQuickGameUnitRequest } from '@/types/quickgame';
+
 import { Button, Card, Select } from '@/components/ui';
 import { Faction, FACTION_NAMES } from '@/constants/scenario/rats';
+import { useQuickGameStore } from '@/stores/useQuickGameStore';
+import { QuickGameStep, IQuickGameUnitRequest } from '@/types/quickgame';
 import { BiomeType } from '@/types/scenario';
 
 // =============================================================================
@@ -17,7 +18,8 @@ import { BiomeType } from '@/types/scenario';
 // =============================================================================
 
 function UnitSelectionStep(): React.ReactElement {
-  const { game, addUnit, removeUnit, updateUnitSkills, nextStep } = useQuickGameStore();
+  const { game, addUnit, removeUnit, updateUnitSkills, nextStep } =
+    useQuickGameStore();
 
   // Demo unit data - in production would come from compendium/vault
   const demoUnits: IQuickGameUnitRequest[] = [
@@ -30,8 +32,26 @@ function UnitSelectionStep(): React.ReactElement {
       tonnage: 100,
       gunnery: 4,
       piloting: 5,
-      maxArmor: { head: 9, ct: 47, lt: 32, rt: 32, la: 34, ra: 34, ll: 41, rl: 41 },
-      maxStructure: { head: 3, ct: 31, lt: 21, rt: 21, la: 17, ra: 17, ll: 21, rl: 21 },
+      maxArmor: {
+        head: 9,
+        ct: 47,
+        lt: 32,
+        rt: 32,
+        la: 34,
+        ra: 34,
+        ll: 41,
+        rl: 41,
+      },
+      maxStructure: {
+        head: 3,
+        ct: 31,
+        lt: 21,
+        rt: 21,
+        la: 17,
+        ra: 17,
+        ll: 21,
+        rl: 21,
+      },
     },
     {
       sourceUnitId: 'marauder-mad-3r',
@@ -42,8 +62,26 @@ function UnitSelectionStep(): React.ReactElement {
       tonnage: 75,
       gunnery: 4,
       piloting: 5,
-      maxArmor: { head: 9, ct: 30, lt: 24, rt: 24, la: 24, ra: 24, ll: 25, rl: 25 },
-      maxStructure: { head: 3, ct: 23, lt: 16, rt: 16, la: 12, ra: 12, ll: 16, rl: 16 },
+      maxArmor: {
+        head: 9,
+        ct: 30,
+        lt: 24,
+        rt: 24,
+        la: 24,
+        ra: 24,
+        ll: 25,
+        rl: 25,
+      },
+      maxStructure: {
+        head: 3,
+        ct: 23,
+        lt: 16,
+        rt: 16,
+        la: 12,
+        ra: 12,
+        ll: 16,
+        rl: 16,
+      },
     },
     {
       sourceUnitId: 'wolverine-wvr-6r',
@@ -54,8 +92,26 @@ function UnitSelectionStep(): React.ReactElement {
       tonnage: 55,
       gunnery: 4,
       piloting: 5,
-      maxArmor: { head: 9, ct: 25, lt: 18, rt: 18, la: 16, ra: 16, ll: 22, rl: 22 },
-      maxStructure: { head: 3, ct: 18, lt: 13, rt: 13, la: 9, ra: 9, ll: 13, rl: 13 },
+      maxArmor: {
+        head: 9,
+        ct: 25,
+        lt: 18,
+        rt: 18,
+        la: 16,
+        ra: 16,
+        ll: 22,
+        rl: 22,
+      },
+      maxStructure: {
+        head: 3,
+        ct: 18,
+        lt: 13,
+        rt: 13,
+        la: 9,
+        ra: 9,
+        ll: 13,
+        rl: 13,
+      },
     },
     {
       sourceUnitId: 'locust-lcn-1v',
@@ -67,7 +123,16 @@ function UnitSelectionStep(): React.ReactElement {
       gunnery: 4,
       piloting: 5,
       maxArmor: { head: 4, ct: 8, lt: 6, rt: 6, la: 4, ra: 4, ll: 4, rl: 4 },
-      maxStructure: { head: 3, ct: 6, lt: 5, rt: 5, la: 3, ra: 3, ll: 4, rl: 4 },
+      maxStructure: {
+        head: 3,
+        ct: 6,
+        lt: 5,
+        rt: 5,
+        la: 3,
+        ra: 3,
+        ll: 4,
+        rl: 4,
+      },
     },
     {
       sourceUnitId: 'hunchback-hbk-4g',
@@ -78,8 +143,26 @@ function UnitSelectionStep(): React.ReactElement {
       tonnage: 50,
       gunnery: 4,
       piloting: 5,
-      maxArmor: { head: 9, ct: 26, lt: 18, rt: 18, la: 16, ra: 16, ll: 20, rl: 20 },
-      maxStructure: { head: 3, ct: 16, lt: 12, rt: 12, la: 8, ra: 8, ll: 12, rl: 12 },
+      maxArmor: {
+        head: 9,
+        ct: 26,
+        lt: 18,
+        rt: 18,
+        la: 16,
+        ra: 16,
+        ll: 20,
+        rl: 20,
+      },
+      maxStructure: {
+        head: 3,
+        ct: 16,
+        lt: 12,
+        rt: 12,
+        la: 8,
+        ra: 8,
+        ll: 12,
+        rl: 12,
+      },
     },
     {
       sourceUnitId: 'shadow-hawk-shd-2h',
@@ -90,8 +173,26 @@ function UnitSelectionStep(): React.ReactElement {
       tonnage: 55,
       gunnery: 4,
       piloting: 5,
-      maxArmor: { head: 9, ct: 23, lt: 18, rt: 18, la: 16, ra: 16, ll: 16, rl: 16 },
-      maxStructure: { head: 3, ct: 18, lt: 13, rt: 13, la: 9, ra: 9, ll: 13, rl: 13 },
+      maxArmor: {
+        head: 9,
+        ct: 23,
+        lt: 18,
+        rt: 18,
+        la: 16,
+        ra: 16,
+        ll: 16,
+        rl: 16,
+      },
+      maxStructure: {
+        head: 3,
+        ct: 18,
+        lt: 13,
+        rt: 13,
+        la: 9,
+        ra: 9,
+        ll: 13,
+        rl: 13,
+      },
     },
   ];
 
@@ -102,21 +203,27 @@ function UnitSelectionStep(): React.ReactElement {
   const playerUnits = game?.playerForce.units ?? [];
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="mx-auto max-w-4xl p-4">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-white mb-2">Select Your Units</h2>
-        <p className="text-gray-400 text-sm">
-          Add units to your force. The opponent will be generated to match your total Battle Value.
+        <h2 className="mb-2 text-xl font-semibold text-white">
+          Select Your Units
+        </h2>
+        <p className="text-sm text-gray-400">
+          Add units to your force. The opponent will be generated to match your
+          total Battle Value.
         </p>
       </div>
 
       {/* Current force */}
       <Card className="mb-6">
-        <div className="p-4 border-b border-gray-700">
+        <div className="border-b border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-white">Your Force</h3>
             <div className="text-sm text-gray-400">
-              <span className="text-cyan-400 font-medium">{game?.playerForce.totalBV.toLocaleString()}</span> BV
+              <span className="font-medium text-cyan-400">
+                {game?.playerForce.totalBV.toLocaleString()}
+              </span>{' '}
+              BV
               {' / '}
               <span>{game?.playerForce.totalTonnage}</span> tons
             </div>
@@ -125,7 +232,7 @@ function UnitSelectionStep(): React.ReactElement {
 
         <div className="p-4">
           {playerUnits.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
+            <p className="py-8 text-center text-gray-500">
               No units added yet. Add units from the list below.
             </p>
           ) : (
@@ -133,11 +240,11 @@ function UnitSelectionStep(): React.ReactElement {
               {playerUnits.map((unit) => (
                 <div
                   key={unit.instanceId}
-                  className="flex items-center justify-between p-3 bg-gray-800 rounded-lg"
+                  className="flex items-center justify-between rounded-lg bg-gray-800 p-3"
                 >
                   <div className="flex-1">
-                    <p className="text-white font-medium">{unit.name}</p>
-                    <div className="flex items-center gap-4 text-xs text-gray-400 mt-1">
+                    <p className="font-medium text-white">{unit.name}</p>
+                    <div className="mt-1 flex items-center gap-4 text-xs text-gray-400">
                       <span>{unit.tonnage}t</span>
                       <span>{unit.bv.toLocaleString()} BV</span>
                       <span>
@@ -152,7 +259,7 @@ function UnitSelectionStep(): React.ReactElement {
                         const [g, p] = e.target.value.split('/').map(Number);
                         updateUnitSkills(unit.instanceId, g, p);
                       }}
-                      className="bg-gray-700 text-gray-300 text-xs rounded px-2 py-1 border border-gray-600"
+                      className="rounded border border-gray-600 bg-gray-700 px-2 py-1 text-xs text-gray-300"
                     >
                       <option value="3/4">Elite (3/4)</option>
                       <option value="4/5">Regular (4/5)</option>
@@ -160,11 +267,21 @@ function UnitSelectionStep(): React.ReactElement {
                     </select>
                     <button
                       onClick={() => removeUnit(unit.instanceId)}
-                      className="text-red-400 hover:text-red-300 p-1"
+                      className="p-1 text-red-400 hover:text-red-300"
                       aria-label="Remove unit"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     </button>
                   </div>
@@ -177,29 +294,39 @@ function UnitSelectionStep(): React.ReactElement {
 
       {/* Add unit section */}
       <Card className="mb-6">
-        <div className="p-4 border-b border-gray-700">
+        <div className="border-b border-gray-700 p-4">
           <h3 className="font-medium text-white">Available Units</h3>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="mt-1 text-xs text-gray-500">
             Select units to add to your force (demo units shown)
           </p>
         </div>
 
-        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-2">
           {demoUnits.map((unit) => (
             <button
               key={unit.sourceUnitId}
               onClick={() => handleAddUnit(unit)}
-              className="flex items-center justify-between p-3 bg-gray-800 hover:bg-gray-750 rounded-lg text-left transition-colors border border-gray-700 hover:border-cyan-500/50"
+              className="hover:bg-gray-750 flex items-center justify-between rounded-lg border border-gray-700 bg-gray-800 p-3 text-left transition-colors hover:border-cyan-500/50"
             >
               <div>
-                <p className="text-white font-medium text-sm">{unit.name}</p>
-                <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
+                <p className="text-sm font-medium text-white">{unit.name}</p>
+                <div className="mt-1 flex items-center gap-3 text-xs text-gray-400">
                   <span>{unit.tonnage}t</span>
                   <span>{unit.bv.toLocaleString()} BV</span>
                 </div>
               </div>
-              <svg className="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <svg
+                className="h-5 w-5 text-cyan-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
             </button>
           ))}
@@ -226,8 +353,14 @@ function UnitSelectionStep(): React.ReactElement {
 // =============================================================================
 
 function ScenarioConfigStep(): React.ReactElement {
-  const { game, setScenarioConfig, generateScenario, previousStep, nextStep, isLoading } =
-    useQuickGameStore();
+  const {
+    game,
+    setScenarioConfig,
+    generateScenario,
+    previousStep,
+    nextStep,
+    isLoading,
+  } = useQuickGameStore();
   const wasLoadingRef = useRef(false);
 
   // Advance to next step after scenario generation completes
@@ -266,19 +399,21 @@ function ScenarioConfigStep(): React.ReactElement {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
+    <div className="mx-auto max-w-2xl p-4">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-white mb-2">Configure Scenario</h2>
-        <p className="text-gray-400 text-sm">
+        <h2 className="mb-2 text-xl font-semibold text-white">
+          Configure Scenario
+        </h2>
+        <p className="text-sm text-gray-400">
           Set the difficulty and parameters for your battle.
         </p>
       </div>
 
       <Card className="mb-6">
-        <div className="p-4 space-y-6">
+        <div className="space-y-6 p-4">
           {/* Difficulty */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-300">
               Difficulty
             </label>
             <div className="space-y-2">
@@ -288,13 +423,16 @@ function ScenarioConfigStep(): React.ReactElement {
                 max="2"
                 step="0.25"
                 value={config?.difficulty ?? 1.0}
-                onChange={(e) => setScenarioConfig({ difficulty: parseFloat(e.target.value) })}
+                onChange={(e) =>
+                  setScenarioConfig({ difficulty: parseFloat(e.target.value) })
+                }
                 className="w-full accent-cyan-500"
               />
               <div className="flex justify-between text-xs text-gray-500">
                 <span>Easy</span>
-                <span className="text-cyan-400 font-medium">
-                  {difficultyLabels[config?.difficulty ?? 1.0] ?? 'Normal'} ({((config?.difficulty ?? 1.0) * 100).toFixed(0)}% BV)
+                <span className="font-medium text-cyan-400">
+                  {difficultyLabels[config?.difficulty ?? 1.0] ?? 'Normal'} (
+                  {((config?.difficulty ?? 1.0) * 100).toFixed(0)}% BV)
                 </span>
                 <span>Hard</span>
               </div>
@@ -303,31 +441,35 @@ function ScenarioConfigStep(): React.ReactElement {
 
           {/* Enemy Faction */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-300">
               Enemy Faction
             </label>
             <Select
               value={config?.enemyFaction ?? Faction.PIRATES}
-              onChange={(e) => setScenarioConfig({ enemyFaction: e.target.value })}
+              onChange={(e) =>
+                setScenarioConfig({ enemyFaction: e.target.value })
+              }
               options={factionOptions}
             />
           </div>
 
           {/* Biome */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-300">
               Biome (optional)
             </label>
             <Select
               value={config?.biome ?? ''}
-              onChange={(e) => setScenarioConfig({ biome: e.target.value || undefined })}
+              onChange={(e) =>
+                setScenarioConfig({ biome: e.target.value || undefined })
+              }
               options={[{ value: '', label: 'Random' }, ...biomeOptions]}
             />
           </div>
 
           {/* Modifiers */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-300">
               Battle Modifiers
             </label>
             <div className="flex items-center gap-4">
@@ -337,10 +479,12 @@ function ScenarioConfigStep(): React.ReactElement {
                 max="4"
                 step="1"
                 value={config?.modifierCount ?? 2}
-                onChange={(e) => setScenarioConfig({ modifierCount: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setScenarioConfig({ modifierCount: parseInt(e.target.value) })
+                }
                 className="flex-1 accent-cyan-500"
               />
-              <span className="text-gray-400 text-sm w-8 text-right">
+              <span className="w-8 text-right text-sm text-gray-400">
                 {config?.modifierCount ?? 2}
               </span>
             </div>
@@ -352,7 +496,7 @@ function ScenarioConfigStep(): React.ReactElement {
               <label className="text-sm font-medium text-gray-300">
                 Allow Negative Modifiers
               </label>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="mt-0.5 text-xs text-gray-500">
                 Include modifiers that work against you
               </p>
             </div>
@@ -361,16 +505,22 @@ function ScenarioConfigStep(): React.ReactElement {
               aria-checked={config?.allowNegativeModifiers ?? true}
               onClick={() =>
                 setScenarioConfig({
-                  allowNegativeModifiers: !(config?.allowNegativeModifiers ?? true),
+                  allowNegativeModifiers: !(
+                    config?.allowNegativeModifiers ?? true
+                  ),
                 })
               }
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                config?.allowNegativeModifiers ?? true ? 'bg-cyan-500' : 'bg-gray-600'
+              className={`relative h-6 w-11 rounded-full transition-colors ${
+                (config?.allowNegativeModifiers ?? true)
+                  ? 'bg-cyan-500'
+                  : 'bg-gray-600'
               }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                  config?.allowNegativeModifiers ?? true ? 'translate-x-5' : ''
+                className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                  (config?.allowNegativeModifiers ?? true)
+                    ? 'translate-x-5'
+                    : ''
                 }`}
               />
             </button>
@@ -381,18 +531,26 @@ function ScenarioConfigStep(): React.ReactElement {
       {/* Force summary */}
       <Card className="mb-6 bg-gray-800/50">
         <div className="p-4">
-          <h3 className="text-sm font-medium text-gray-300 mb-2">Force Summary</h3>
+          <h3 className="mb-2 text-sm font-medium text-gray-300">
+            Force Summary
+          </h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-gray-500">Your Force</p>
               <p className="text-white">
-                {game?.playerForce.units.length} units, {game?.playerForce.totalBV.toLocaleString()} BV
+                {game?.playerForce.units.length} units,{' '}
+                {game?.playerForce.totalBV.toLocaleString()} BV
               </p>
             </div>
             <div>
               <p className="text-gray-500">Expected Opposition</p>
               <p className="text-white">
-                ~{Math.round((game?.playerForce.totalBV ?? 0) * (config?.difficulty ?? 1.0)).toLocaleString()} BV
+                ~
+                {Math.round(
+                  (game?.playerForce.totalBV ?? 0) *
+                    (config?.difficulty ?? 1.0),
+                ).toLocaleString()}{' '}
+                BV
               </p>
             </div>
           </div>
@@ -425,7 +583,9 @@ export function QuickGameSetup(): React.ReactElement {
   const { game } = useQuickGameStore();
 
   if (!game) {
-    return <div className="text-gray-400 text-center py-8">No game in progress</div>;
+    return (
+      <div className="py-8 text-center text-gray-400">No game in progress</div>
+    );
   }
 
   switch (game.step) {

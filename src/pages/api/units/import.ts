@@ -1,12 +1,13 @@
 /**
  * Unit Import API - Import Unit from JSON
- * 
+ *
  * POST /api/units/import - Import a unit from JSON file
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import {
@@ -22,17 +23,19 @@ const SUPPORTED_FORMAT_VERSIONS = ['1.0.0'];
 /**
  * Request body type - can be envelope or raw unit data
  */
-type ImportRequestBody = ISerializedUnitEnvelope | {
-  chassis: string;
-  variant?: string;
-  model?: string;
-  tonnage?: number;
-  techBase?: string;
-  era?: string;
-  rulesLevel?: string;
-  unitType?: string;
-  [key: string]: unknown;
-};
+type ImportRequestBody =
+  | ISerializedUnitEnvelope
+  | {
+      chassis: string;
+      variant?: string;
+      model?: string;
+      tonnage?: number;
+      techBase?: string;
+      era?: string;
+      rulesLevel?: string;
+      unitType?: string;
+      [key: string]: unknown;
+    };
 
 /**
  * Response types
@@ -46,13 +49,14 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ImportResponse | ErrorResponse>
+  res: NextApiResponse<ImportResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -72,11 +76,11 @@ export default async function handler(
   try {
     // Determine if this is an envelope or raw unit data
     let unitData: Record<string, unknown>;
-    
+
     if ('formatVersion' in body && 'unit' in body) {
       // This is an envelope
       const envelope = body as ISerializedUnitEnvelope;
-      
+
       // Validate format version
       if (!SUPPORTED_FORMAT_VERSIONS.includes(envelope.formatVersion)) {
         return res.status(400).json({
@@ -86,7 +90,7 @@ export default async function handler(
           },
         });
       }
-      
+
       unitData = envelope.unit;
     } else {
       // This is raw unit data
@@ -95,11 +99,11 @@ export default async function handler(
 
     // Validate required fields
     const validationErrors: string[] = [];
-    
+
     if (!unitData.chassis || typeof unitData.chassis !== 'string') {
       validationErrors.push('Missing or invalid field: chassis');
     }
-    
+
     // Accept either 'variant' or 'model' for compatibility
     const variant = (unitData.variant || unitData.model) as string | undefined;
     if (!variant) {
@@ -151,10 +155,10 @@ export default async function handler(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to import unit';
+    const message =
+      error instanceof Error ? error.message : 'Failed to import unit';
     return res.status(500).json({
       error: message,
     });
   }
 }
-

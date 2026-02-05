@@ -11,6 +11,7 @@ import {
   IHexGrid,
   IHexGridConfig,
 } from '@/types/gameplay';
+
 import { coordToKey, hexDistance, hexesInRange } from './hexMath';
 
 // =============================================================================
@@ -38,14 +39,14 @@ export function createHex(coord: IHexCoordinate): IHex {
 export function createHexGrid(config: IHexGridConfig): IHexGrid {
   const hexes = new Map<string, IHex>();
   const center: IHexCoordinate = { q: 0, r: 0 };
-  
+
   const allCoords = hexesInRange(center, config.radius);
-  
+
   for (const coord of allCoords) {
     const key = coordToKey(coord);
     hexes.set(key, createHex(coord));
   }
-  
+
   return {
     config,
     hexes,
@@ -59,7 +60,7 @@ export function createHexGrid(config: IHexGridConfig): IHexGrid {
  */
 export function createRectangularGrid(width: number, height: number): IHexGrid {
   const hexes = new Map<string, IHex>();
-  
+
   for (let r = 0; r < height; r++) {
     const rOffset = Math.floor(r / 2);
     for (let q = -rOffset; q < width - rOffset; q++) {
@@ -68,10 +69,10 @@ export function createRectangularGrid(width: number, height: number): IHexGrid {
       hexes.set(key, createHex(coord));
     }
   }
-  
+
   // Calculate equivalent radius for config
   const radius = Math.max(width, height);
-  
+
   return {
     config: { radius },
     hexes,
@@ -86,7 +87,10 @@ export function createRectangularGrid(width: number, height: number): IHexGrid {
  * Get a hex by coordinate.
  * Returns undefined if the coordinate is outside the grid.
  */
-export function getHex(grid: IHexGrid, coord: IHexCoordinate): IHex | undefined {
+export function getHex(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+): IHex | undefined {
   return grid.hexes.get(coordToKey(coord));
 }
 
@@ -108,7 +112,10 @@ export function isOccupied(grid: IHexGrid, coord: IHexCoordinate): boolean {
 /**
  * Get the occupant of a hex.
  */
-export function getOccupant(grid: IHexGrid, coord: IHexCoordinate): string | null {
+export function getOccupant(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+): string | null {
   const hex = getHex(grid, coord);
   return hex?.occupantId ?? null;
 }
@@ -119,7 +126,7 @@ export function getOccupant(grid: IHexGrid, coord: IHexCoordinate): string | nul
 export function getHexesInRange(
   grid: IHexGrid,
   center: IHexCoordinate,
-  range: number
+  range: number,
 ): readonly IHex[] {
   const coords = hexesInRange(center, range);
   return coords
@@ -132,10 +139,10 @@ export function getHexesInRange(
  */
 export function getNeighbors(
   grid: IHexGrid,
-  coord: IHexCoordinate
+  coord: IHexCoordinate,
 ): readonly IHex[] {
   return getHexesInRange(grid, coord, 1).filter(
-    (hex) => hexDistance(hex.coord, coord) === 1
+    (hex) => hexDistance(hex.coord, coord) === 1,
   );
 }
 
@@ -143,21 +150,27 @@ export function getNeighbors(
  * Get all empty (unoccupied) hexes in the grid.
  */
 export function getEmptyHexes(grid: IHexGrid): readonly IHex[] {
-  return Array.from(grid.hexes.values()).filter((hex) => hex.occupantId === null);
+  return Array.from(grid.hexes.values()).filter(
+    (hex) => hex.occupantId === null,
+  );
 }
 
 /**
  * Get all occupied hexes in the grid.
  */
 export function getOccupiedHexes(grid: IHexGrid): readonly IHex[] {
-  return Array.from(grid.hexes.values()).filter((hex) => hex.occupantId !== null);
+  return Array.from(grid.hexes.values()).filter(
+    (hex) => hex.occupantId !== null,
+  );
 }
 
 /**
  * Find the hex where a unit is located.
  */
 export function findUnitHex(grid: IHexGrid, unitId: string): IHex | undefined {
-  return Array.from(grid.hexes.values()).find((hex) => hex.occupantId === unitId);
+  return Array.from(grid.hexes.values()).find(
+    (hex) => hex.occupantId === unitId,
+  );
 }
 
 // =============================================================================
@@ -170,22 +183,24 @@ export function findUnitHex(grid: IHexGrid, unitId: string): IHex | undefined {
 export function placeUnit(
   grid: IHexGrid,
   coord: IHexCoordinate,
-  unitId: string
+  unitId: string,
 ): IHexGrid {
   const key = coordToKey(coord);
   const existingHex = grid.hexes.get(key);
-  
+
   if (!existingHex) {
     throw new Error(`Hex at ${key} does not exist in grid`);
   }
-  
+
   if (existingHex.occupantId !== null) {
-    throw new Error(`Hex at ${key} is already occupied by ${existingHex.occupantId}`);
+    throw new Error(
+      `Hex at ${key} is already occupied by ${existingHex.occupantId}`,
+    );
   }
-  
+
   const newHexes = new Map(grid.hexes);
   newHexes.set(key, { ...existingHex, occupantId: unitId });
-  
+
   return {
     ...grid,
     hexes: newHexes,
@@ -198,14 +213,14 @@ export function placeUnit(
 export function removeUnit(grid: IHexGrid, coord: IHexCoordinate): IHexGrid {
   const key = coordToKey(coord);
   const existingHex = grid.hexes.get(key);
-  
+
   if (!existingHex) {
     throw new Error(`Hex at ${key} does not exist in grid`);
   }
-  
+
   const newHexes = new Map(grid.hexes);
   newHexes.set(key, { ...existingHex, occupantId: null });
-  
+
   return {
     ...grid,
     hexes: newHexes,
@@ -218,35 +233,35 @@ export function removeUnit(grid: IHexGrid, coord: IHexCoordinate): IHexGrid {
 export function moveUnit(
   grid: IHexGrid,
   from: IHexCoordinate,
-  to: IHexCoordinate
+  to: IHexCoordinate,
 ): IHexGrid {
   const fromKey = coordToKey(from);
   const toKey = coordToKey(to);
-  
+
   const fromHex = grid.hexes.get(fromKey);
   const toHex = grid.hexes.get(toKey);
-  
+
   if (!fromHex) {
     throw new Error(`Source hex at ${fromKey} does not exist`);
   }
-  
+
   if (!toHex) {
     throw new Error(`Destination hex at ${toKey} does not exist`);
   }
-  
+
   if (fromHex.occupantId === null) {
     throw new Error(`Source hex at ${fromKey} is empty`);
   }
-  
+
   if (toHex.occupantId !== null) {
     throw new Error(`Destination hex at ${toKey} is already occupied`);
   }
-  
+
   const unitId = fromHex.occupantId;
   const newHexes = new Map(grid.hexes);
   newHexes.set(fromKey, { ...fromHex, occupantId: null });
   newHexes.set(toKey, { ...toHex, occupantId: unitId });
-  
+
   return {
     ...grid,
     hexes: newHexes,
@@ -259,18 +274,18 @@ export function moveUnit(
 export function setTerrain(
   grid: IHexGrid,
   coord: IHexCoordinate,
-  terrain: string
+  terrain: string,
 ): IHexGrid {
   const key = coordToKey(coord);
   const existingHex = grid.hexes.get(key);
-  
+
   if (!existingHex) {
     throw new Error(`Hex at ${key} does not exist in grid`);
   }
-  
+
   const newHexes = new Map(grid.hexes);
   newHexes.set(key, { ...existingHex, terrain });
-  
+
   return {
     ...grid,
     hexes: newHexes,
@@ -292,12 +307,16 @@ export function getHexCount(grid: IHexGrid): number {
  * Get the number of occupied hexes.
  */
 export function getOccupiedCount(grid: IHexGrid): number {
-  return Array.from(grid.hexes.values()).filter((hex) => hex.occupantId !== null).length;
+  return Array.from(grid.hexes.values()).filter(
+    (hex) => hex.occupantId !== null,
+  ).length;
 }
 
 /**
  * Get the number of empty hexes.
  */
 export function getEmptyCount(grid: IHexGrid): number {
-  return Array.from(grid.hexes.values()).filter((hex) => hex.occupantId === null).length;
+  return Array.from(grid.hexes.values()).filter(
+    (hex) => hex.occupantId === null,
+  ).length;
 }

@@ -1,8 +1,10 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ArmorPip, ArmorPipGroup } from '../ArmorPip';
+import React from 'react';
+
 import type { PipState } from '../ArmorPip';
+
 import { tap } from '../../../utils/hapticFeedback';
+import { ArmorPip, ArmorPipGroup } from '../ArmorPip';
 
 // Mock haptic feedback
 jest.mock('../../../utils/hapticFeedback');
@@ -50,7 +52,9 @@ describe('ArmorPip', () => {
     });
 
     it('should be 48x48px minimum (44x44px plus padding)', () => {
-      const { container } = render(<ArmorPip state="empty" onToggle={mockOnToggle} />);
+      const { container } = render(
+        <ArmorPip state="empty" onToggle={mockOnToggle} />,
+      );
 
       const pip = container.querySelector('.armor-pip');
       expect(pip).toHaveStyle({ minWidth: '48px', minHeight: '48px' });
@@ -58,7 +62,11 @@ describe('ArmorPip', () => {
 
     it('should apply custom className', () => {
       const { container } = render(
-        <ArmorPip state="empty" onToggle={mockOnToggle} className="custom-class" />
+        <ArmorPip
+          state="empty"
+          onToggle={mockOnToggle}
+          className="custom-class"
+        />,
       );
 
       expect(container.querySelector('.custom-class')).toBeInTheDocument();
@@ -131,7 +139,9 @@ describe('ArmorPip', () => {
 
   describe('Animations', () => {
     it('should have GPU-accelerated transitions', () => {
-      const { container } = render(<ArmorPip state="empty" onToggle={mockOnToggle} />);
+      const { container } = render(
+        <ArmorPip state="empty" onToggle={mockOnToggle} />,
+      );
 
       const pip = container.querySelector('.armor-pip');
       expect(pip).toHaveClass('transition-all');
@@ -139,7 +149,9 @@ describe('ArmorPip', () => {
     });
 
     it('should use transform for performance', () => {
-      const { container } = render(<ArmorPip state="empty" onToggle={mockOnToggle} />);
+      const { container } = render(
+        <ArmorPip state="empty" onToggle={mockOnToggle} />,
+      );
 
       const pip = container.querySelector('.armor-pip');
       expect(pip).toBeInstanceOf(HTMLElement);
@@ -150,31 +162,55 @@ describe('ArmorPip', () => {
 
   describe('Visual States', () => {
     it('should have distinct colors for each state', () => {
-      const { container: emptyContainer } = render(<ArmorPip state="empty" onToggle={mockOnToggle} />);
-      const { container: filledContainer } = render(<ArmorPip state="filled" onToggle={mockOnToggle} />);
-      const { container: destroyedContainer } = render(<ArmorPip state="destroyed" onToggle={mockOnToggle} />);
-      const { container: blownOffContainer } = render(<ArmorPip state="blown-off" onToggle={mockOnToggle} />);
+      const { container: emptyContainer } = render(
+        <ArmorPip state="empty" onToggle={mockOnToggle} />,
+      );
+      const { container: filledContainer } = render(
+        <ArmorPip state="filled" onToggle={mockOnToggle} />,
+      );
+      const { container: destroyedContainer } = render(
+        <ArmorPip state="destroyed" onToggle={mockOnToggle} />,
+      );
+      const { container: blownOffContainer } = render(
+        <ArmorPip state="blown-off" onToggle={mockOnToggle} />,
+      );
 
       expect(emptyContainer.querySelector('.bg-gray-200')).toBeInTheDocument();
-      expect(filledContainer.querySelector('.bg-green-500')).toBeInTheDocument();
-      expect(destroyedContainer.querySelector('.bg-red-500')).toBeInTheDocument();
-      expect(blownOffContainer.querySelector('.bg-orange-500')).toBeInTheDocument();
+      expect(
+        filledContainer.querySelector('.bg-green-500'),
+      ).toBeInTheDocument();
+      expect(
+        destroyedContainer.querySelector('.bg-red-500'),
+      ).toBeInTheDocument();
+      expect(
+        blownOffContainer.querySelector('.bg-orange-500'),
+      ).toBeInTheDocument();
     });
 
     it('should show X mark for destroyed state', () => {
-      const { container } = render(<ArmorPip state="destroyed" onToggle={mockOnToggle} />);
+      const { container } = render(
+        <ArmorPip state="destroyed" onToggle={mockOnToggle} />,
+      );
 
       const svg = container.querySelector('svg');
       expect(svg).toBeInTheDocument();
-      expect(svg?.querySelector('path')).toHaveAttribute('d', expect.stringContaining('M6 18L18 6M6 6l12 12'));
+      expect(svg?.querySelector('path')).toHaveAttribute(
+        'd',
+        expect.stringContaining('M6 18L18 6M6 6l12 12'),
+      );
     });
 
     it('should show circle mark for blown-off state', () => {
-      const { container } = render(<ArmorPip state="blown-off" onToggle={mockOnToggle} />);
+      const { container } = render(
+        <ArmorPip state="blown-off" onToggle={mockOnToggle} />,
+      );
 
       const svg = container.querySelector('svg');
       expect(svg).toBeInTheDocument();
-      expect(svg?.querySelector('path')).toHaveAttribute('d', expect.stringContaining('M15 12H9'));
+      expect(svg?.querySelector('path')).toHaveAttribute(
+        'd',
+        expect.stringContaining('M15 12H9'),
+      );
     });
   });
 
@@ -186,34 +222,44 @@ describe('ArmorPip', () => {
     });
 
     it('should update ARIA label on state change', () => {
-      const { rerender } = render(<ArmorPip state="empty" onToggle={mockOnToggle} />);
+      const { rerender } = render(
+        <ArmorPip state="empty" onToggle={mockOnToggle} />,
+      );
 
       expect(screen.getByLabelText('Armor pip: empty')).toBeInTheDocument();
 
       rerender(<ArmorPip state="filled" onToggle={mockOnToggle} />);
 
       expect(screen.getByLabelText('Armor pip: filled')).toBeInTheDocument();
-      expect(screen.queryByLabelText('Armor pip: empty')).not.toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Armor pip: empty'),
+      ).not.toBeInTheDocument();
     });
   });
 
   describe('Hover and Active States', () => {
     it('should scale up on hover when not disabled', () => {
-      const { container } = render(<ArmorPip state="empty" onToggle={mockOnToggle} />);
+      const { container } = render(
+        <ArmorPip state="empty" onToggle={mockOnToggle} />,
+      );
 
       const pip = container.querySelector('.armor-pip');
       expect(pip).toHaveClass('hover:scale-105');
     });
 
     it('should scale down on active', () => {
-      const { container } = render(<ArmorPip state="empty" onToggle={mockOnToggle} />);
+      const { container } = render(
+        <ArmorPip state="empty" onToggle={mockOnToggle} />,
+      );
 
       const pip = container.querySelector('.armor-pip');
       expect(pip).toHaveClass('active:scale-95');
     });
 
     it('should not have hover effects when disabled', () => {
-      const { container } = render(<ArmorPip state="empty" onToggle={mockOnToggle} disabled />);
+      const { container } = render(
+        <ArmorPip state="empty" onToggle={mockOnToggle} disabled />,
+      );
 
       const pip = container.querySelector('.armor-pip');
       expect(pip).toHaveClass('cursor-not-allowed');
@@ -232,20 +278,37 @@ describe('ArmorPipGroup', () => {
 
   describe('Rendering', () => {
     it('should display location name', () => {
-      render(<ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />);
+      render(
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
+      );
 
       expect(screen.getByText('Left Arm')).toBeInTheDocument();
     });
 
     it('should render all pips', () => {
-      render(<ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />);
+      render(
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
+      );
 
       expect(screen.getAllByLabelText(/Armor pip:/).length).toBe(4);
     });
 
     it('should apply custom className', () => {
       const { container } = render(
-        <ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} className="custom-class" />
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+          className="custom-class"
+        />,
       );
 
       expect(container.querySelector('.custom-class')).toBeInTheDocument();
@@ -254,25 +317,55 @@ describe('ArmorPipGroup', () => {
 
   describe('Batch Actions', () => {
     it('should have Fill All button', () => {
-      render(<ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />);
+      render(
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
+      );
 
-      expect(screen.getByLabelText('Fill all armor pips in Left Arm')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Fill all armor pips in Left Arm'),
+      ).toBeInTheDocument();
     });
 
     it('should have Clear All button', () => {
-      render(<ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />);
+      render(
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
+      );
 
-      expect(screen.getByLabelText('Clear all armor pips in Left Arm')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Clear all armor pips in Left Arm'),
+      ).toBeInTheDocument();
     });
 
     it('should have Destroy All button', () => {
-      render(<ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />);
+      render(
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
+      );
 
-      expect(screen.getByLabelText('Destroy all armor pips in Left Arm')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Destroy all armor pips in Left Arm'),
+      ).toBeInTheDocument();
     });
 
     it('should fill all pips when Fill is clicked', () => {
-      render(<ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />);
+      render(
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
+      );
 
       fireEvent.click(screen.getByLabelText('Fill all armor pips in Left Arm'));
 
@@ -284,9 +377,17 @@ describe('ArmorPipGroup', () => {
     });
 
     it('should clear all pips when Clear is clicked', () => {
-      render(<ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />);
+      render(
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
+      );
 
-      fireEvent.click(screen.getByLabelText('Clear all armor pips in Left Arm'));
+      fireEvent.click(
+        screen.getByLabelText('Clear all armor pips in Left Arm'),
+      );
 
       expect(mockOnPipChange).toHaveBeenCalledTimes(4);
       for (let i = 0; i < 4; i++) {
@@ -295,9 +396,17 @@ describe('ArmorPipGroup', () => {
     });
 
     it('should destroy all pips when Destroy is clicked', () => {
-      render(<ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />);
+      render(
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
+      );
 
-      fireEvent.click(screen.getByLabelText('Destroy all armor pips in Left Arm'));
+      fireEvent.click(
+        screen.getByLabelText('Destroy all armor pips in Left Arm'),
+      );
 
       expect(mockOnPipChange).toHaveBeenCalledTimes(4);
       for (let i = 0; i < 4; i++) {
@@ -307,12 +416,16 @@ describe('ArmorPipGroup', () => {
 
     it('should have 32x32px minimum on batch action buttons', () => {
       const { container } = render(
-        <ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
       );
 
       const buttons = container.querySelectorAll('button[type="button"]');
       const batchButtons = Array.from(buttons).filter((btn) =>
-        btn.textContent?.match(/^(Fill|Clear|Destroy)$/)
+        btn.textContent?.match(/^(Fill|Clear|Destroy)$/),
       );
 
       batchButtons.forEach((button) => {
@@ -324,7 +437,13 @@ describe('ArmorPipGroup', () => {
 
   describe('Individual Pip Changes', () => {
     it('should call onPipChange when individual pip is clicked', () => {
-      render(<ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />);
+      render(
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
+      );
 
       const pips = screen.getAllByLabelText(/Armor pip:/);
       fireEvent.click(pips[0]);
@@ -334,7 +453,12 @@ describe('ArmorPipGroup', () => {
 
     it('should disable all pips and batch actions when disabled prop is true', () => {
       render(
-        <ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} disabled />
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+          disabled
+        />,
       );
 
       const pips = screen.getAllByLabelText(/Armor pip:/);
@@ -342,7 +466,9 @@ describe('ArmorPipGroup', () => {
         expect(pip).toHaveAttribute('aria-disabled', 'true');
       });
 
-      const fillButton = screen.getByLabelText('Fill all armor pips in Left Arm');
+      const fillButton = screen.getByLabelText(
+        'Fill all armor pips in Left Arm',
+      );
       expect(fillButton).toBeDisabled();
     });
   });
@@ -350,7 +476,11 @@ describe('ArmorPipGroup', () => {
   describe('Layout', () => {
     it('should wrap pips in flex layout', () => {
       const { container } = render(
-        <ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
       );
 
       const wrapper = container.querySelector('.flex.flex-wrap.gap-2');
@@ -359,7 +489,11 @@ describe('ArmorPipGroup', () => {
 
     it('should display pips with gap', () => {
       const { container } = render(
-        <ArmorPipGroup location="Left Arm" pips={mockPips} onPipChange={mockOnPipChange} />
+        <ArmorPipGroup
+          location="Left Arm"
+          pips={mockPips}
+          onPipChange={mockOnPipChange}
+        />,
       );
 
       const wrapper = container.querySelector('.flex-wrap.gap-2');

@@ -12,12 +12,11 @@
  */
 
 import React, { useState } from 'react';
+
 import { MechLocation } from '@/types/construction';
+
 import { LocationArmorData } from '../ArmorDiagram';
-import {
-  getLocationLabel,
-  hasTorsoRear,
-} from '../shared/MechSilhouette';
+import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 import {
   GradientDefs,
   getArmorStatusColor,
@@ -27,8 +26,13 @@ import {
   SELECTED_COLOR,
   ARMOR_STATUS,
 } from '../shared/ArmorFills';
-import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
-import { useResolvedLayout, ResolvedPosition, MechConfigType, getLayoutIdForConfig } from '../shared/layout';
+import {
+  useResolvedLayout,
+  ResolvedPosition,
+  MechConfigType,
+  getLayoutIdForConfig,
+} from '../shared/layout';
+import { getLocationLabel, hasTorsoRear } from '../shared/MechSilhouette';
 
 interface ProgressRingProps {
   cx: number;
@@ -124,8 +128,10 @@ function NeonLocation({
   const expectedRearMax = showRear ? Math.round(frontMax * 0.25) : 1;
 
   // Fill percentages based on expected capacity
-  const frontPercent = expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
-  const rearPercent = expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
+  const frontPercent =
+    expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
+  const rearPercent =
+    expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
 
   // Status-based colors for front and rear independently
   const frontColor = isSelected
@@ -142,8 +148,8 @@ function NeonLocation({
   const fillOpacity = isHovered ? 0.4 : 0.25;
 
   // Layout calculations for stacked front/rear - 60/40 split for consistency
-  const frontSectionHeight = showRear ? pos.height * 0.60 : pos.height;
-  const rearSectionHeight = showRear ? pos.height * 0.40 : 0;
+  const frontSectionHeight = showRear ? pos.height * 0.6 : pos.height;
+  const rearSectionHeight = showRear ? pos.height * 0.4 : 0;
   const frontCenterY = pos.y + frontSectionHeight / 2;
   const rearCenterY = pos.y + frontSectionHeight + rearSectionHeight / 2;
   const dividerY = pos.y + frontSectionHeight;
@@ -152,7 +158,9 @@ function NeonLocation({
   const frontRingRadius = showRear
     ? Math.min(pos.width, frontSectionHeight) * 0.3
     : Math.min(pos.width, pos.height) * 0.35;
-  const rearRingRadius = showRear ? Math.min(pos.width, rearSectionHeight) * 0.35 : 0;
+  const rearRingRadius = showRear
+    ? Math.min(pos.width, rearSectionHeight) * 0.35
+    : 0;
 
   const center = pos.center;
 
@@ -199,7 +207,10 @@ function NeonLocation({
         strokeWidth={isSelected ? 2.5 : 1.5}
         className="transition-all duration-200"
         style={{
-          filter: isHovered || isSelected ? 'url(#armor-neon-glow)' : 'url(#armor-glow)',
+          filter:
+            isHovered || isSelected
+              ? 'url(#armor-neon-glow)'
+              : 'url(#armor-glow)',
         }}
       />
 
@@ -210,7 +221,7 @@ function NeonLocation({
             x={center.x}
             y={pos.y + 10}
             textAnchor="middle"
-            className="fill-white/70 font-medium pointer-events-none"
+            className="pointer-events-none fill-white/70 font-medium"
             style={{
               fontSize: '8px',
               textShadow: `0 0 3px ${frontColor}`,
@@ -232,7 +243,7 @@ function NeonLocation({
             x={center.x}
             y={frontCenterY + 8}
             textAnchor="middle"
-            className="fill-white font-bold pointer-events-none"
+            className="pointer-events-none fill-white font-bold"
             style={{
               fontSize: '14px',
               textShadow: `0 0 10px ${frontColor}`,
@@ -258,7 +269,7 @@ function NeonLocation({
             x={center.x}
             y={dividerY + 9}
             textAnchor="middle"
-            className="fill-white/70 font-medium pointer-events-none"
+            className="pointer-events-none fill-white/70 font-medium"
             style={{
               fontSize: '8px',
               textShadow: `0 0 3px ${rearColor}`,
@@ -280,7 +291,7 @@ function NeonLocation({
             x={center.x}
             y={rearCenterY + 5}
             textAnchor="middle"
-            className="fill-white font-bold pointer-events-none"
+            className="pointer-events-none fill-white font-bold"
             style={{
               fontSize: '12px',
               textShadow: `0 0 10px ${rearColor}`,
@@ -296,7 +307,7 @@ function NeonLocation({
             x={center.x}
             y={pos.y + (isHead ? 9 : 12)}
             textAnchor="middle"
-            className="fill-white/70 font-medium pointer-events-none"
+            className="pointer-events-none fill-white/70 font-medium"
             style={{
               fontSize: isHead ? '7px' : '9px',
               textShadow: `0 0 3px ${glowColor}`,
@@ -321,9 +332,9 @@ function NeonLocation({
             x={center.x}
             y={pos.y + (isHead ? pos.height / 2 + 4 : pos.height / 2 + 8)}
             textAnchor="middle"
-            className="fill-white font-bold pointer-events-none"
+            className="pointer-events-none fill-white font-bold"
             style={{
-              fontSize: isHead ? '12px' : (pos.width < 40 ? '12px' : '16px'),
+              fontSize: isHead ? '12px' : pos.width < 40 ? '12px' : '16px',
               textShadow: `0 0 10px ${glowColor}`,
             }}
           >
@@ -398,7 +409,9 @@ export function NeonOperatorDiagram({
   className = '',
   mechConfigType = 'biped',
 }: NeonOperatorDiagramProps): React.ReactElement {
-  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
+    null,
+  );
 
   // Get layout ID based on mech configuration type
   const layoutId = getLayoutIdForConfig(mechConfigType, 'battlemech');
@@ -406,7 +419,9 @@ export function NeonOperatorDiagram({
   // Use the layout engine to get resolved positions
   const { getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
 
-  const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
+  const getArmorData = (
+    location: MechLocation,
+  ): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
 
@@ -414,9 +429,11 @@ export function NeonOperatorDiagram({
   const locations = getLocationsForConfig(mechConfigType);
 
   return (
-    <div className={`bg-surface-deep rounded-lg border border-cyan-900/50 p-4 ${className}`}>
+    <div
+      className={`bg-surface-deep rounded-lg border border-cyan-900/50 p-4 ${className}`}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3
             className="text-lg font-semibold text-cyan-400"
@@ -432,7 +449,7 @@ export function NeonOperatorDiagram({
       <div className="relative">
         <svg
           viewBox={viewBox}
-          className="w-full max-w-[280px] mx-auto"
+          className="mx-auto w-full max-w-[280px]"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
@@ -451,7 +468,7 @@ export function NeonOperatorDiagram({
           {locations.map((loc) => {
             const position = getPosition(loc);
             if (!position) return null;
-            
+
             return (
               <NeonLocation
                 key={loc}
@@ -468,54 +485,77 @@ export function NeonOperatorDiagram({
           })}
 
           {/* Targeting reticle on hovered */}
-          {hoveredLocation && (() => {
-            const hoveredPos = getPosition(hoveredLocation);
-            if (!hoveredPos) return null;
-            return (
-              <g className="pointer-events-none">
-                <circle
-                  cx={hoveredPos.center.x}
-                  cy={hoveredPos.center.y}
-                  r={40}
-                  fill="none"
-                  stroke="rgba(34, 211, 238, 0.3)"
-                  strokeWidth="1"
-                  strokeDasharray="8 4"
-                  className="animate-spin"
-                  style={{ animationDuration: '8s' }}
-                />
-              </g>
-            );
-          })()}
+          {hoveredLocation &&
+            (() => {
+              const hoveredPos = getPosition(hoveredLocation);
+              if (!hoveredPos) return null;
+              return (
+                <g className="pointer-events-none">
+                  <circle
+                    cx={hoveredPos.center.x}
+                    cy={hoveredPos.center.y}
+                    r={40}
+                    fill="none"
+                    stroke="rgba(34, 211, 238, 0.3)"
+                    strokeWidth="1"
+                    strokeDasharray="8 4"
+                    className="animate-spin"
+                    style={{ animationDuration: '8s' }}
+                  />
+                </g>
+              );
+            })()}
         </svg>
       </div>
 
       {/* Legend */}
-      <div className="flex justify-center items-center gap-3 mt-4 text-xs">
+      <div className="mt-4 flex items-center justify-center gap-3 text-xs">
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-green-500" style={{ boxShadow: '0 0 6px #22c55e' }} />
-          <span className="text-text-theme-secondary">{Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+</span>
+          <div
+            className="h-2.5 w-2.5 rounded-full bg-green-500"
+            style={{ boxShadow: '0 0 6px #22c55e' }}
+          />
+          <span className="text-text-theme-secondary">
+            {Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-amber-500" style={{ boxShadow: '0 0 6px #f59e0b' }} />
-          <span className="text-text-theme-secondary">{Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+</span>
+          <div
+            className="h-2.5 w-2.5 rounded-full bg-amber-500"
+            style={{ boxShadow: '0 0 6px #f59e0b' }}
+          />
+          <span className="text-text-theme-secondary">
+            {Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-orange-500" style={{ boxShadow: '0 0 6px #f97316' }} />
-          <span className="text-text-theme-secondary">{Math.round(ARMOR_STATUS.LOW.min * 100)}%+</span>
+          <div
+            className="h-2.5 w-2.5 rounded-full bg-orange-500"
+            style={{ boxShadow: '0 0 6px #f97316' }}
+          />
+          <span className="text-text-theme-secondary">
+            {Math.round(ARMOR_STATUS.LOW.min * 100)}%+
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-red-500" style={{ boxShadow: '0 0 6px #ef4444' }} />
-          <span className="text-text-theme-secondary">&lt;{Math.round(ARMOR_STATUS.LOW.min * 100)}%</span>
+          <div
+            className="h-2.5 w-2.5 rounded-full bg-red-500"
+            style={{ boxShadow: '0 0 6px #ef4444' }}
+          />
+          <span className="text-text-theme-secondary">
+            &lt;{Math.round(ARMOR_STATUS.LOW.min * 100)}%
+          </span>
         </div>
-        <div className="w-px h-3 bg-surface-raised" />
-        <span className={`${unallocatedPoints < 0 ? 'text-red-400' : 'text-cyan-400'}`}>
+        <div className="bg-surface-raised h-3 w-px" />
+        <span
+          className={`${unallocatedPoints < 0 ? 'text-red-400' : 'text-cyan-400'}`}
+        >
           UNALLOC: {unallocatedPoints}
         </span>
       </div>
 
       {/* Instructions */}
-      <p className="text-xs text-cyan-500/70 text-center mt-2">
+      <p className="mt-2 text-center text-xs text-cyan-500/70">
         SELECT TARGET LOCATION
       </p>
     </div>

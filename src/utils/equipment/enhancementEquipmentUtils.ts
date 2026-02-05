@@ -1,23 +1,30 @@
 /**
  * Movement Enhancement Equipment Utilities
- * 
+ *
  * Functions for creating and managing MASC, Supercharger, and TSM equipment.
  * All created items are configuration-based (isRemovable: false).
  */
 
+import {
+  equipmentCalculatorService,
+  VARIABLE_EQUIPMENT,
+} from '@/services/equipment/EquipmentCalculatorService';
+import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
+import { IMountedEquipmentInstance } from '@/stores/unitState';
+import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
+import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
-import { IMountedEquipmentInstance } from '@/stores/unitState';
+import {
+  MiscEquipmentCategory,
+  IMiscEquipment,
+} from '@/types/equipment/MiscEquipmentTypes';
 import { generateUnitId } from '@/utils/uuid';
-import { MiscEquipmentCategory, IMiscEquipment } from '@/types/equipment/MiscEquipmentTypes';
-import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
-import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { equipmentCalculatorService, VARIABLE_EQUIPMENT } from '@/services/equipment/EquipmentCalculatorService';
+
 import { ENHANCEMENT_EQUIPMENT_IDS } from './equipmentConstants';
 
 const ENHANCEMENT_FALLBACKS: Record<string, IMiscEquipment> = {
-  'masc': {
+  masc: {
     id: 'masc',
     name: 'MASC',
     category: MiscEquipmentCategory.MOVEMENT,
@@ -43,7 +50,7 @@ const ENHANCEMENT_FALLBACKS: Record<string, IMiscEquipment> = {
     introductionYear: 2827,
     variableEquipmentId: 'masc-clan',
   },
-  'supercharger': {
+  supercharger: {
     id: 'supercharger',
     name: 'Supercharger',
     category: MiscEquipmentCategory.MOVEMENT,
@@ -56,7 +63,7 @@ const ENHANCEMENT_FALLBACKS: Record<string, IMiscEquipment> = {
     introductionYear: 3068,
     variableEquipmentId: 'supercharger',
   },
-  'tsm': {
+  tsm: {
     id: 'tsm',
     name: 'Triple Strength Myomer',
     category: MiscEquipmentCategory.MYOMER,
@@ -73,7 +80,7 @@ const ENHANCEMENT_FALLBACKS: Record<string, IMiscEquipment> = {
 
 export function getEnhancementEquipmentId(
   enhancementType: MovementEnhancementType,
-  techBase: TechBase
+  techBase: TechBase,
 ): string {
   switch (enhancementType) {
     case MovementEnhancementType.MASC:
@@ -89,16 +96,16 @@ export function getEnhancementEquipmentId(
 
 export function getEnhancementEquipment(
   enhancementType: MovementEnhancementType,
-  techBase: TechBase
+  techBase: TechBase,
 ): IMiscEquipment | undefined {
   const id = getEnhancementEquipmentId(enhancementType, techBase);
-  
+
   const loader = getEquipmentLoader();
   if (loader.getIsLoaded()) {
     const loaded = loader.getMiscEquipmentById(id);
     if (loaded) return loaded;
   }
-  
+
   return ENHANCEMENT_FALLBACKS[id];
 }
 
@@ -114,29 +121,43 @@ export function calculateEnhancementWeight(
   enhancementType: MovementEnhancementType,
   tonnage: number,
   techBase: TechBase,
-  engineWeight: number
+  engineWeight: number,
 ): number {
   if (enhancementType === MovementEnhancementType.MASC) {
-    const equipId = techBase === TechBase.CLAN ? VARIABLE_EQUIPMENT.MASC_CLAN : VARIABLE_EQUIPMENT.MASC_IS;
-    const result = equipmentCalculatorService.calculateProperties(equipId, { tonnage });
+    const equipId =
+      techBase === TechBase.CLAN
+        ? VARIABLE_EQUIPMENT.MASC_CLAN
+        : VARIABLE_EQUIPMENT.MASC_IS;
+    const result = equipmentCalculatorService.calculateProperties(equipId, {
+      tonnage,
+    });
     return result.weight;
   }
-  
+
   if (enhancementType === MovementEnhancementType.SUPERCHARGER) {
-    const result = equipmentCalculatorService.calculateProperties(VARIABLE_EQUIPMENT.SUPERCHARGER, { engineWeight });
+    const result = equipmentCalculatorService.calculateProperties(
+      VARIABLE_EQUIPMENT.SUPERCHARGER,
+      { engineWeight },
+    );
     return result.weight;
   }
-  
+
   if (enhancementType === MovementEnhancementType.TSM) {
-    const result = equipmentCalculatorService.calculateProperties(VARIABLE_EQUIPMENT.TSM, { tonnage });
+    const result = equipmentCalculatorService.calculateProperties(
+      VARIABLE_EQUIPMENT.TSM,
+      { tonnage },
+    );
     return result.weight;
   }
-  
+
   if (enhancementType === MovementEnhancementType.PARTIAL_WING) {
-    const result = equipmentCalculatorService.calculateProperties(VARIABLE_EQUIPMENT.PARTIAL_WING, { tonnage });
+    const result = equipmentCalculatorService.calculateProperties(
+      VARIABLE_EQUIPMENT.PARTIAL_WING,
+      { tonnage },
+    );
     return result.weight;
   }
-  
+
   return 0;
 }
 
@@ -152,28 +173,39 @@ export function calculateEnhancementSlots(
   enhancementType: MovementEnhancementType,
   tonnage: number,
   techBase: TechBase,
-  _engineWeight: number
+  _engineWeight: number,
 ): number {
   if (enhancementType === MovementEnhancementType.MASC) {
-    const equipId = techBase === TechBase.CLAN ? VARIABLE_EQUIPMENT.MASC_CLAN : VARIABLE_EQUIPMENT.MASC_IS;
-    const result = equipmentCalculatorService.calculateProperties(equipId, { tonnage });
+    const equipId =
+      techBase === TechBase.CLAN
+        ? VARIABLE_EQUIPMENT.MASC_CLAN
+        : VARIABLE_EQUIPMENT.MASC_IS;
+    const result = equipmentCalculatorService.calculateProperties(equipId, {
+      tonnage,
+    });
     return Math.ceil(result.criticalSlots);
   }
-  
+
   if (enhancementType === MovementEnhancementType.SUPERCHARGER) {
     return 1;
   }
-  
+
   if (enhancementType === MovementEnhancementType.TSM) {
-    const result = equipmentCalculatorService.calculateProperties(VARIABLE_EQUIPMENT.TSM, { tonnage });
+    const result = equipmentCalculatorService.calculateProperties(
+      VARIABLE_EQUIPMENT.TSM,
+      { tonnage },
+    );
     return result.criticalSlots;
   }
-  
+
   if (enhancementType === MovementEnhancementType.PARTIAL_WING) {
-    const result = equipmentCalculatorService.calculateProperties(VARIABLE_EQUIPMENT.PARTIAL_WING, { tonnage });
+    const result = equipmentCalculatorService.calculateProperties(
+      VARIABLE_EQUIPMENT.PARTIAL_WING,
+      { tonnage },
+    );
     return result.criticalSlots;
   }
-  
+
   return 0;
 }
 
@@ -181,20 +213,31 @@ export function createEnhancementEquipmentList(
   enhancementType: MovementEnhancementType | null,
   tonnage: number,
   techBase: TechBase,
-  engineWeight: number
+  engineWeight: number,
 ): IMountedEquipmentInstance[] {
   if (!enhancementType) return [];
-  
+
   const equip = getEnhancementEquipment(enhancementType, techBase);
   if (!equip) return [];
-  
-  const weight = calculateEnhancementWeight(enhancementType, tonnage, techBase, engineWeight);
-  const slots = calculateEnhancementSlots(enhancementType, tonnage, techBase, engineWeight);
-  
-  const category = equip.category === MiscEquipmentCategory.MYOMER
-    ? EquipmentCategory.MISC_EQUIPMENT
-    : EquipmentCategory.MOVEMENT;
-  
+
+  const weight = calculateEnhancementWeight(
+    enhancementType,
+    tonnage,
+    techBase,
+    engineWeight,
+  );
+  const slots = calculateEnhancementSlots(
+    enhancementType,
+    tonnage,
+    techBase,
+    engineWeight,
+  );
+
+  const category =
+    equip.category === MiscEquipmentCategory.MYOMER
+      ? EquipmentCategory.MISC_EQUIPMENT
+      : EquipmentCategory.MOVEMENT;
+
   // TSM creates individual slots distributed across locations
   if (enhancementType === MovementEnhancementType.TSM) {
     const result: IMountedEquipmentInstance[] = [];
@@ -220,26 +263,30 @@ export function createEnhancementEquipmentList(
   }
 
   // MASC and Supercharger are single items
-  return [{
-    instanceId: generateUnitId(),
-    equipmentId: equip.id,
-    name: equip.name,
-    category,
-    weight,
-    criticalSlots: slots,
-    heat: 0,
-    techBase: equip.techBase,
-    location: undefined,
-    slots: undefined,
-    isRearMounted: false,
-    linkedAmmoId: undefined,
-    isRemovable: false,
-    isOmniPodMounted: false,
-  }];
+  return [
+    {
+      instanceId: generateUnitId(),
+      equipmentId: equip.id,
+      name: equip.name,
+      category,
+      weight,
+      criticalSlots: slots,
+      heat: 0,
+      techBase: equip.techBase,
+      location: undefined,
+      slots: undefined,
+      isRearMounted: false,
+      linkedAmmoId: undefined,
+      isRemovable: false,
+      isOmniPodMounted: false,
+    },
+  ];
 }
 
 export function filterOutEnhancementEquipment(
-  equipment: readonly IMountedEquipmentInstance[]
+  equipment: readonly IMountedEquipmentInstance[],
 ): IMountedEquipmentInstance[] {
-  return equipment.filter(e => !ENHANCEMENT_EQUIPMENT_IDS.includes(e.equipmentId));
+  return equipment.filter(
+    (e) => !ENHANCEMENT_EQUIPMENT_IDS.includes(e.equipmentId),
+  );
 }

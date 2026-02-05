@@ -2,8 +2,9 @@
  * Tests for CategoryNavigation component
  */
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
+
 import CategoryNavigation from '@/components/common/CategoryNavigation';
 
 // Mock fetch
@@ -18,13 +19,15 @@ describe('CategoryNavigation', () => {
 
   describe('Loading state', () => {
     it('should show loading message initially', () => {
-      (global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
+      (global.fetch as jest.Mock).mockImplementation(
+        () => new Promise(() => {}),
+      );
 
       render(
         <CategoryNavigation
           selectedCategory={null}
           onSelectCategory={jest.fn()}
-        />
+        />,
       );
 
       expect(screen.getByText('Loading categories...')).toBeInTheDocument();
@@ -44,7 +47,7 @@ describe('CategoryNavigation', () => {
         <CategoryNavigation
           selectedCategory={null}
           onSelectCategory={jest.fn()}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -59,7 +62,7 @@ describe('CategoryNavigation', () => {
         <CategoryNavigation
           selectedCategory={null}
           onSelectCategory={jest.fn()}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -73,7 +76,7 @@ describe('CategoryNavigation', () => {
         <CategoryNavigation
           selectedCategory={null}
           onSelectCategory={onSelectCategory}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -91,7 +94,7 @@ describe('CategoryNavigation', () => {
         <CategoryNavigation
           selectedCategory="meks"
           onSelectCategory={onSelectCategory}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -108,7 +111,7 @@ describe('CategoryNavigation', () => {
         <CategoryNavigation
           selectedCategory="meks"
           onSelectCategory={jest.fn()}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -124,7 +127,7 @@ describe('CategoryNavigation', () => {
         <CategoryNavigation
           selectedCategory={null}
           onSelectCategory={jest.fn()}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -147,7 +150,7 @@ describe('CategoryNavigation', () => {
         <CategoryNavigation
           selectedCategory={null}
           onSelectCategory={jest.fn()}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -162,7 +165,7 @@ describe('CategoryNavigation', () => {
         <CategoryNavigation
           selectedCategory={null}
           onSelectCategory={jest.fn()}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -171,4 +174,3 @@ describe('CategoryNavigation', () => {
     });
   });
 });
-

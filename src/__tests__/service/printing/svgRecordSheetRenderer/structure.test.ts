@@ -7,7 +7,6 @@
  * structure pip SVGs for bipeds and generating dynamic pips for non-biped mechs.
  */
 
-import { fillStructurePips, generateStructurePipsForLocationFallback } from '@/services/printing/svgRecordSheetRenderer/structure';
 import {
   STRUCTURE_TEXT_IDS,
   STRUCTURE_PIP_GROUP_IDS,
@@ -17,6 +16,10 @@ import {
   PREMADE_PIP_TYPES,
   SVG_NS,
 } from '@/services/printing/svgRecordSheetRenderer/constants';
+import {
+  fillStructurePips,
+  generateStructurePipsForLocationFallback,
+} from '@/services/printing/svgRecordSheetRenderer/structure';
 import { IRecordSheetData, ILocationStructure } from '@/types/printing';
 
 // Mock the ArmorPipLayout module
@@ -43,11 +46,8 @@ import { setTextContent } from '@/services/printing/svgRecordSheetRenderer/templ
  * In test context with DOMParser creating SVG documents, the documentElement
  * is always an SVGSVGElement. The double assertion is necessary because
  * TypeScript's DOM types don't capture this relationship.
- *
- * eslint-disable-next-line no-restricted-syntax -- Acceptable in test code for DOM type conversion
  */
 function getSvgRoot(doc: Document): SVGSVGElement {
-  // eslint-disable-next-line no-restricted-syntax
   return doc.documentElement as unknown as SVGSVGElement;
 }
 
@@ -58,7 +58,7 @@ function getSvgRoot(doc: Document): SVGSVGElement {
  */
 const createMockSVGDocument = (
   additionalElements: string = '',
-  includeDefaultGroups: boolean = false
+  includeDefaultGroups: boolean = false,
 ): Document => {
   const parser = new DOMParser();
   const defaultGroups = includeDefaultGroups
@@ -69,7 +69,7 @@ const createMockSVGDocument = (
       ${defaultGroups}
       ${additionalElements}
     </svg>`,
-    'image/svg+xml'
+    'image/svg+xml',
   );
   return doc;
 };
@@ -77,7 +77,10 @@ const createMockSVGDocument = (
 /**
  * Creates mock SVG response for fetch
  */
-const createMockSVGResponse = (content: string, ok: boolean = true): Promise<Response> => {
+const createMockSVGResponse = (
+  content: string,
+  ok: boolean = true,
+): Promise<Response> => {
   return Promise.resolve({
     ok,
     text: () => Promise.resolve(content),
@@ -88,7 +91,7 @@ const createMockSVGResponse = (content: string, ok: boolean = true): Promise<Res
  * Creates mock structure data for testing
  */
 const createMockStructure = (
-  locations: Array<{ abbreviation: string; points: number }>
+  locations: Array<{ abbreviation: string; points: number }>,
 ): IRecordSheetData['structure'] => ({
   type: 'Standard',
   totalPoints: locations.reduce((sum, loc) => sum + loc.points, 0),
@@ -102,7 +105,9 @@ const createMockStructure = (
 /**
  * Creates standard biped structure data
  */
-const createBipedStructure = (tonnage: number = 50): IRecordSheetData['structure'] => {
+const createBipedStructure = (
+  tonnage: number = 50,
+): IRecordSheetData['structure'] => {
   // Standard IS points vary by tonnage, using simplified values for tests
   const isPoints: Record<string, number> = {
     HD: 3,
@@ -116,7 +121,10 @@ const createBipedStructure = (tonnage: number = 50): IRecordSheetData['structure
   };
 
   return createMockStructure(
-    Object.entries(isPoints).map(([abbreviation, points]) => ({ abbreviation, points }))
+    Object.entries(isPoints).map(([abbreviation, points]) => ({
+      abbreviation,
+      points,
+    })),
   );
 };
 
@@ -136,14 +144,13 @@ const createQuadStructure = (): IRecordSheetData['structure'] => {
   ]);
 };
 
-
-
 /**
  * Creates a mock pip SVG file content
  */
 const createMockPipSVG = (pipCount: number): string => {
-  const paths = Array.from({ length: pipCount }, (_, i) =>
-    `<path id="pip${i}" d="M0,0 L10,0" fill="none" stroke="#000"/>`
+  const paths = Array.from(
+    { length: pipCount },
+    (_, i) => `<path id="pip${i}" d="M0,0 L10,0" fill="none" stroke="#000"/>`,
   ).join('');
   return `<svg xmlns="http://www.w3.org/2000/svg">${paths}</svg>`;
 };
@@ -175,7 +182,9 @@ describe('structure.ts', () => {
         const structure = createBipedStructure(50);
 
         // Mock fetch to return valid pip SVGs
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(5)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(5)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'biped');
 
@@ -183,7 +192,11 @@ describe('structure.ts', () => {
         structure.locations.forEach((loc) => {
           const textId = STRUCTURE_TEXT_IDS[loc.abbreviation];
           if (textId) {
-            expect(setTextContent).toHaveBeenCalledWith(svgDoc, textId, `( ${loc.points} )`);
+            expect(setTextContent).toHaveBeenCalledWith(
+              svgDoc,
+              textId,
+              `( ${loc.points} )`,
+            );
           }
         });
       });
@@ -191,27 +204,43 @@ describe('structure.ts', () => {
       it('should format structure points with parentheses and spaces', async () => {
         const svgDoc = createMockSVGDocument();
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'CT', points: 31 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'CT', points: 31 },
+        ]);
 
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(5)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(5)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 100, 'biped');
 
-        expect(setTextContent).toHaveBeenCalledWith(svgDoc, 'textIS_CT', '( 31 )');
+        expect(setTextContent).toHaveBeenCalledWith(
+          svgDoc,
+          'textIS_CT',
+          '( 31 )',
+        );
       });
 
       it('should skip locations without structure text IDs', async () => {
         const svgDoc = createMockSVGDocument();
         const svgRoot = getSvgRoot(svgDoc);
         // HD doesn't have a text element in the template
-        const structure = createMockStructure([{ abbreviation: 'HD', points: 3 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'HD', points: 3 },
+        ]);
 
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(3)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(3)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'biped');
 
         // setTextContent should not be called for HD since STRUCTURE_TEXT_IDS['HD'] is undefined
-        expect(setTextContent).not.toHaveBeenCalledWith(svgDoc, expect.anything(), '( 3 )');
+        expect(setTextContent).not.toHaveBeenCalledWith(
+          svgDoc,
+          expect.anything(),
+          '( 3 )',
+        );
       });
     });
 
@@ -221,7 +250,9 @@ describe('structure.ts', () => {
         const svgRoot = getSvgRoot(svgDoc);
         const structure = createBipedStructure(50);
 
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(5)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(5)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'biped');
 
@@ -234,9 +265,13 @@ describe('structure.ts', () => {
       it('should default to biped when mechType is undefined', async () => {
         const svgDoc = createMockSVGDocument();
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'CT', points: 25 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'CT', points: 25 },
+        ]);
 
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(5)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(5)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, undefined);
 
@@ -248,9 +283,13 @@ describe('structure.ts', () => {
         // Create document with only structurePips (no canonStructurePips)
         const svgDoc = createMockSVGDocument(`<g id="structurePips"></g>`);
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'CT', points: 10 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'CT', points: 10 },
+        ]);
 
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(3)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(3)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'biped');
 
@@ -261,15 +300,21 @@ describe('structure.ts', () => {
         // New group should be created
         const newGroup = svgDoc.getElementById('structure-pips-loaded');
         expect(newGroup).not.toBeNull();
-        expect(newGroup?.getAttribute('transform')).toBe('matrix(0.971,0,0,0.971,-378.511,-376.966)');
+        expect(newGroup?.getAttribute('transform')).toBe(
+          'matrix(0.971,0,0,0.971,-378.511,-376.966)',
+        );
       });
 
       it('should reuse existing canonStructurePips group if present', async () => {
         const svgDoc = createMockSVGDocument(`<g id="canonStructurePips"></g>`);
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'CT', points: 10 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'CT', points: 10 },
+        ]);
 
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(3)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(3)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'biped');
 
@@ -286,20 +331,30 @@ describe('structure.ts', () => {
           { abbreviation: 'HD', points: 3 },
         ]);
 
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(5)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(5)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'biped');
 
-        expect(mockFetch).toHaveBeenCalledWith('/record-sheets/biped_pips/BipedIS50_CT.svg');
-        expect(mockFetch).toHaveBeenCalledWith('/record-sheets/biped_pips/BipedIS50_HD.svg');
+        expect(mockFetch).toHaveBeenCalledWith(
+          '/record-sheets/biped_pips/BipedIS50_CT.svg',
+        );
+        expect(mockFetch).toHaveBeenCalledWith(
+          '/record-sheets/biped_pips/BipedIS50_HD.svg',
+        );
       });
 
       it('should create location groups with correct IDs and classes', async () => {
         const svgDoc = createMockSVGDocument();
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'LT', points: 15 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'LT', points: 15 },
+        ]);
 
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(3)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(3)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'biped');
 
@@ -312,7 +367,9 @@ describe('structure.ts', () => {
       it('should clone paths with proper styling', async () => {
         const svgDoc = createMockSVGDocument();
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'RA', points: 10 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'RA', points: 10 },
+        ]);
 
         // Pip SVG with paths that need styling
         const pipSvg = `<svg xmlns="${SVG_NS}">
@@ -337,43 +394,51 @@ describe('structure.ts', () => {
       it('should handle missing pip file gracefully', async () => {
         const svgDoc = createMockSVGDocument();
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'CT', points: 25 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'CT', points: 25 },
+        ]);
 
         mockFetch.mockImplementation(() =>
           Promise.resolve({
             ok: false,
             text: () => Promise.resolve(''),
-          } as Response)
+          } as Response),
         );
 
         // Should not throw
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'biped');
 
         expect(consoleWarnSpy).toHaveBeenCalledWith(
-          expect.stringContaining('Structure pip file not found')
+          expect.stringContaining('Structure pip file not found'),
         );
       });
 
       it('should handle fetch error gracefully', async () => {
         const svgDoc = createMockSVGDocument();
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'CT', points: 25 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'CT', points: 25 },
+        ]);
 
-        mockFetch.mockImplementation(() => Promise.reject(new Error('Network error')));
+        mockFetch.mockImplementation(() =>
+          Promise.reject(new Error('Network error')),
+        );
 
         // Should not throw
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'biped');
 
         expect(consoleWarnSpy).toHaveBeenCalledWith(
           expect.stringContaining('Failed to load structure pip SVG'),
-          expect.any(Error)
+          expect.any(Error),
         );
       });
 
       it('should skip pip file with no paths', async () => {
         const svgDoc = createMockSVGDocument();
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'HD', points: 3 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'HD', points: 3 },
+        ]);
 
         const emptyPipSvg = `<svg xmlns="${SVG_NS}"></svg>`;
         mockFetch.mockImplementation(() => createMockSVGResponse(emptyPipSvg));
@@ -390,7 +455,9 @@ describe('structure.ts', () => {
         const svgRoot = getSvgRoot(svgDoc);
         const structure = createBipedStructure(50);
 
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(5)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(5)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'biped');
 
@@ -442,7 +509,7 @@ describe('structure.ts', () => {
             fill: '#FFFFFF',
             strokeWidth: 0.5,
             className: 'pip structure',
-          })
+          }),
         );
       });
 
@@ -451,7 +518,9 @@ describe('structure.ts', () => {
           <g id="isPipsCL"></g>
         `);
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'CL', points: 17 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'CL', points: 17 },
+        ]);
 
         await fillStructurePips(svgDoc, svgRoot, structure, 80, 'tripod');
 
@@ -459,14 +528,16 @@ describe('structure.ts', () => {
           svgDoc,
           expect.anything(),
           17,
-          expect.objectContaining({ className: 'pip structure' })
+          expect.objectContaining({ className: 'pip structure' }),
         );
       });
 
       it('should skip locations with zero points', async () => {
         const svgDoc = createMockSVGDocument(`<g id="isPipsFLL"></g>`);
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'FLL', points: 0 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'FLL', points: 0 },
+        ]);
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'quad');
 
@@ -477,24 +548,28 @@ describe('structure.ts', () => {
       it('should warn when pip area element is not found', async () => {
         const svgDoc = createMockSVGDocument(); // No pip groups
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'FLL', points: 17 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'FLL', points: 17 },
+        ]);
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'quad');
 
         expect(consoleWarnSpy).toHaveBeenCalledWith(
-          expect.stringContaining('Structure pip area not found')
+          expect.stringContaining('Structure pip area not found'),
         );
       });
 
       it('should warn when location has no group ID mapping', async () => {
         const svgDoc = createMockSVGDocument();
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'UNKNOWN', points: 10 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'UNKNOWN', points: 10 },
+        ]);
 
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'quad');
 
         expect(consoleWarnSpy).toHaveBeenCalledWith(
-          expect.stringContaining('No structure pip group ID for location')
+          expect.stringContaining('No structure pip group ID for location'),
         );
       });
 
@@ -518,7 +593,7 @@ describe('structure.ts', () => {
         // Since quadvee falls back to biped pip group IDs (which don't have FLL/FRL),
         // warnings should be logged but ArmorPipLayout won't be called
         expect(consoleWarnSpy).toHaveBeenCalledWith(
-          expect.stringContaining('No structure pip group ID for location')
+          expect.stringContaining('No structure pip group ID for location'),
         );
       });
     });
@@ -538,25 +613,37 @@ describe('structure.ts', () => {
       it('should handle very large tonnage values', async () => {
         const svgDoc = createMockSVGDocument();
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'CT', points: 62 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'CT', points: 62 },
+        ]);
 
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(10)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(10)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 100, 'biped');
 
-        expect(mockFetch).toHaveBeenCalledWith('/record-sheets/biped_pips/BipedIS100_CT.svg');
+        expect(mockFetch).toHaveBeenCalledWith(
+          '/record-sheets/biped_pips/BipedIS100_CT.svg',
+        );
       });
 
       it('should handle small tonnage values', async () => {
         const svgDoc = createMockSVGDocument();
         const svgRoot = getSvgRoot(svgDoc);
-        const structure = createMockStructure([{ abbreviation: 'CT', points: 8 }]);
+        const structure = createMockStructure([
+          { abbreviation: 'CT', points: 8 },
+        ]);
 
-        mockFetch.mockImplementation(() => createMockSVGResponse(createMockPipSVG(3)));
+        mockFetch.mockImplementation(() =>
+          createMockSVGResponse(createMockPipSVG(3)),
+        );
 
         await fillStructurePips(svgDoc, svgRoot, structure, 20, 'biped');
 
-        expect(mockFetch).toHaveBeenCalledWith('/record-sheets/biped_pips/BipedIS20_CT.svg');
+        expect(mockFetch).toHaveBeenCalledWith(
+          '/record-sheets/biped_pips/BipedIS20_CT.svg',
+        );
       });
     });
   });
@@ -589,7 +676,7 @@ describe('structure.ts', () => {
       generateStructurePipsForLocationFallback(svgDoc, parentGroup, location);
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Structure pip group not found')
+        expect.stringContaining('Structure pip group not found'),
       );
     });
 
@@ -619,12 +706,22 @@ describe('structure.ts', () => {
 
         if (pips) {
           // First 3 should be visible
-          expect((pips[0] as SVGElement).getAttribute('visibility')).toBe('visible');
-          expect((pips[1] as SVGElement).getAttribute('visibility')).toBe('visible');
-          expect((pips[2] as SVGElement).getAttribute('visibility')).toBe('visible');
+          expect((pips[0] as SVGElement).getAttribute('visibility')).toBe(
+            'visible',
+          );
+          expect((pips[1] as SVGElement).getAttribute('visibility')).toBe(
+            'visible',
+          );
+          expect((pips[2] as SVGElement).getAttribute('visibility')).toBe(
+            'visible',
+          );
           // Last 2 should be hidden
-          expect((pips[3] as SVGElement).getAttribute('visibility')).toBe('hidden');
-          expect((pips[4] as SVGElement).getAttribute('visibility')).toBe('hidden');
+          expect((pips[3] as SVGElement).getAttribute('visibility')).toBe(
+            'hidden',
+          );
+          expect((pips[4] as SVGElement).getAttribute('visibility')).toBe(
+            'hidden',
+          );
         }
       });
 
@@ -673,7 +770,9 @@ describe('structure.ts', () => {
 
         // Additional pips should be created (4 more)
         const pipGroup = svgDoc.getElementById('isPipsLL');
-        const allPips = pipGroup?.querySelectorAll('circle.pip.structure, path.pip.structure');
+        const allPips = pipGroup?.querySelectorAll(
+          'circle.pip.structure, path.pip.structure',
+        );
 
         // Should have generated additional pips
         expect(allPips?.length).toBeGreaterThanOrEqual(1);
@@ -696,7 +795,9 @@ describe('structure.ts', () => {
         const generatedGroup = pipGroup?.querySelector('g[id^="gen_is_pips_"]');
 
         expect(generatedGroup).not.toBeNull();
-        expect(generatedGroup?.getAttribute('class')).toBe('structure-pips-generated');
+        expect(generatedGroup?.getAttribute('class')).toBe(
+          'structure-pips-generated',
+        );
       });
 
       it('should create circles with correct attributes in grid', () => {
@@ -743,7 +844,9 @@ describe('structure.ts', () => {
 
         // Check that circles have varying y values (multiple rows)
         if (circles) {
-          const yValues = Array.from(circles).map((c) => parseFloat(c.getAttribute('cy') || '0'));
+          const yValues = Array.from(circles).map((c) =>
+            parseFloat(c.getAttribute('cy') || '0'),
+          );
           const uniqueY = new Set(yValues);
           expect(uniqueY.size).toBeGreaterThan(1);
         }
@@ -768,7 +871,9 @@ describe('structure.ts', () => {
 
         // Verify row distribution - with 3 cols, should have y values at 0 and 4.5
         if (circles) {
-          const yValues = Array.from(circles).map((c) => parseFloat(c.getAttribute('cy') || '0'));
+          const yValues = Array.from(circles).map((c) =>
+            parseFloat(c.getAttribute('cy') || '0'),
+          );
           const uniqueY = new Set(yValues.map((y) => Math.round(y * 10) / 10)); // Round to 1 decimal
           expect(uniqueY.size).toBe(2); // 2 rows
         }

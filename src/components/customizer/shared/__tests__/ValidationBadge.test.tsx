@@ -4,10 +4,12 @@
  * Tests rendering of validation status badges.
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { ValidationBadge } from '../ValidationBadge';
+import React from 'react';
+
 import { ValidationStatus } from '@/utils/colors/statusColors';
+
+import { ValidationBadge } from '../ValidationBadge';
 
 // =============================================================================
 // Tests
@@ -77,7 +79,7 @@ describe('ValidationBadge', () => {
   describe('styling', () => {
     it('should apply custom className', () => {
       const { container } = render(
-        <ValidationBadge status="valid" className="custom-class" />
+        <ValidationBadge status="valid" className="custom-class" />,
       );
 
       expect(container.firstChild).toHaveClass('custom-class');
@@ -122,7 +124,9 @@ describe('ValidationBadge', () => {
     statuses.forEach((status) => {
       it(`should render ${status} status without errors`, () => {
         expect(() => {
-          render(<ValidationBadge status={status} label={`Status: ${status}`} />);
+          render(
+            <ValidationBadge status={status} label={`Status: ${status}`} />,
+          );
         }).not.toThrow();
       });
     });

@@ -10,17 +10,19 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import type {
+  IBundleMetadata,
+  IShareableBundle,
+  ShareableContentType,
+} from '@/types/vault';
+
 import { getIdentityRepository } from '@/services/vault/IdentityRepository';
 import {
   unlockIdentity,
   signMessage,
   getPublicIdentity,
 } from '@/services/vault/IdentityService';
-import type {
-  IBundleMetadata,
-  IShareableBundle,
-  ShareableContentType,
-} from '@/types/vault';
 
 // =============================================================================
 // Request Body Types
@@ -45,7 +47,7 @@ const BUNDLE_VERSION = '1.0.0';
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<void> {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -54,20 +56,17 @@ export default async function handler(
 
   try {
     const body = req.body as SignRequestBody;
-    const {
-      password,
-      contentType,
-      items,
-      description,
-      tags,
-    } = body;
+    const { password, contentType, items, description, tags } = body;
 
     // Validate required fields
     if (!password || typeof password !== 'string') {
       return res.status(400).json({ error: 'Password is required' });
     }
 
-    if (typeof contentType !== 'string' || !['unit', 'pilot', 'force', 'encounter'].includes(contentType)) {
+    if (
+      typeof contentType !== 'string' ||
+      !['unit', 'pilot', 'force', 'encounter'].includes(contentType)
+    ) {
       return res.status(400).json({ error: 'Invalid content type' });
     }
 
@@ -126,7 +125,11 @@ export default async function handler(
     const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     let name: string;
     const firstItem = typedItems[0];
-    if (typedItems.length === 1 && firstItem?.name && typeof firstItem.name === 'string') {
+    if (
+      typedItems.length === 1 &&
+      firstItem?.name &&
+      typeof firstItem.name === 'string'
+    ) {
       name = firstItem.name
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')

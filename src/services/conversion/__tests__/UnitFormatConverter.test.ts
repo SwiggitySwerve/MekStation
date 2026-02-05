@@ -4,19 +4,21 @@
  * Tests for converting MegaMekLab format to internal format.
  */
 
+import { TechBase } from '@/types/enums/TechBase';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+
 import {
   UnitFormatConverter,
   unitFormatConverter,
   MegaMekLabUnit,
 } from '../UnitFormatConverter';
 
-import { TechBase } from '@/types/enums/TechBase';
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
-
 /**
  * Create a minimal valid MegaMekLab unit for testing
  */
-function createMegaMekLabUnit(overrides: Partial<MegaMekLabUnit> = {}): MegaMekLabUnit {
+function createMegaMekLabUnit(
+  overrides: Partial<MegaMekLabUnit> = {},
+): MegaMekLabUnit {
   return {
     chassis: 'Atlas',
     model: 'AS7-D',
@@ -55,16 +57,71 @@ function createMegaMekLabUnit(overrides: Partial<MegaMekLabUnit> = {}): MegaMekL
       ],
     },
     weapons_and_equipment: [
-      { item_name: 'AC/20', location: 'Right Torso', item_type: 'AC20', tech_base: 'IS' },
-      { item_name: 'LRM 20', location: 'Left Torso', item_type: 'LRM20', tech_base: 'IS' },
-      { item_name: 'Medium Laser', location: 'Left Arm', item_type: 'MediumLaser', tech_base: 'IS' },
-      { item_name: 'Medium Laser', location: 'Right Arm', item_type: 'MediumLaser', tech_base: 'IS' },
-      { item_name: 'SRM 6', location: 'Left Torso', item_type: 'SRM6', tech_base: 'IS' },
+      {
+        item_name: 'AC/20',
+        location: 'Right Torso',
+        item_type: 'AC20',
+        tech_base: 'IS',
+      },
+      {
+        item_name: 'LRM 20',
+        location: 'Left Torso',
+        item_type: 'LRM20',
+        tech_base: 'IS',
+      },
+      {
+        item_name: 'Medium Laser',
+        location: 'Left Arm',
+        item_type: 'MediumLaser',
+        tech_base: 'IS',
+      },
+      {
+        item_name: 'Medium Laser',
+        location: 'Right Arm',
+        item_type: 'MediumLaser',
+        tech_base: 'IS',
+      },
+      {
+        item_name: 'SRM 6',
+        location: 'Left Torso',
+        item_type: 'SRM6',
+        tech_base: 'IS',
+      },
     ],
     criticals: [
-      { location: 'Head', slots: ['Life Support', 'Sensors', 'Cockpit', 'Sensors', 'Life Support', '-Empty-'] },
-      { location: 'Left Leg', slots: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-'] },
-      { location: 'Right Leg', slots: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', '-Empty-', '-Empty-'] },
+      {
+        location: 'Head',
+        slots: [
+          'Life Support',
+          'Sensors',
+          'Cockpit',
+          'Sensors',
+          'Life Support',
+          '-Empty-',
+        ],
+      },
+      {
+        location: 'Left Leg',
+        slots: [
+          'Hip',
+          'Upper Leg Actuator',
+          'Lower Leg Actuator',
+          'Foot Actuator',
+          '-Empty-',
+          '-Empty-',
+        ],
+      },
+      {
+        location: 'Right Leg',
+        slots: [
+          'Hip',
+          'Upper Leg Actuator',
+          'Lower Leg Actuator',
+          'Foot Actuator',
+          '-Empty-',
+          '-Empty-',
+        ],
+      },
       { location: 'Left Arm', slots: Array<string>(12).fill('-Empty-') },
       { location: 'Right Arm', slots: Array<string>(12).fill('-Empty-') },
       { location: 'Left Torso', slots: Array<string>(12).fill('-Empty-') },
@@ -127,7 +184,9 @@ describe('UnitFormatConverter', () => {
       const isUnit = createMegaMekLabUnit({ tech_base: 'Inner Sphere' });
       const clanUnit = createMegaMekLabUnit({ tech_base: 'Clan' });
 
-      expect(converter.convert(isUnit).unit?.techBase).toBe(TechBase.INNER_SPHERE);
+      expect(converter.convert(isUnit).unit?.techBase).toBe(
+        TechBase.INNER_SPHERE,
+      );
       expect(converter.convert(clanUnit).unit?.techBase).toBe(TechBase.CLAN);
     });
 
@@ -154,8 +213,12 @@ describe('UnitFormatConverter', () => {
         engine: { type: 'XL Engine', rating: 300 },
       });
 
-      expect(converter.convert(standardEngine).unit?.engine.type).toBe('Standard Fusion');
-      expect(converter.convert(xlEngine).unit?.engine.type).toBe('XL Engine (IS)');
+      expect(converter.convert(standardEngine).unit?.engine.type).toBe(
+        'Standard Fusion',
+      );
+      expect(converter.convert(xlEngine).unit?.engine.type).toBe(
+        'XL Engine (IS)',
+      );
     });
 
     it('should convert engine rating', () => {
@@ -175,8 +238,12 @@ describe('UnitFormatConverter', () => {
         structure: { type: 'Endo Steel' },
       });
 
-      expect(converter.convert(standardStructure).unit?.structure.type).toBe('Standard');
-      expect(converter.convert(endoStructure).unit?.structure.type).toBe('Endo Steel (IS)');
+      expect(converter.convert(standardStructure).unit?.structure.type).toBe(
+        'Standard',
+      );
+      expect(converter.convert(endoStructure).unit?.structure.type).toBe(
+        'Endo Steel (IS)',
+      );
     });
 
     it('should convert armor type', () => {
@@ -188,8 +255,12 @@ describe('UnitFormatConverter', () => {
         },
       });
 
-      expect(converter.convert(standardArmor).unit?.armor.type).toBe('Standard');
-      expect(converter.convert(ferroArmor).unit?.armor.type).toBe('Ferro-Fibrous (IS)');
+      expect(converter.convert(standardArmor).unit?.armor.type).toBe(
+        'Standard',
+      );
+      expect(converter.convert(ferroArmor).unit?.armor.type).toBe(
+        'Ferro-Fibrous (IS)',
+      );
     });
 
     it('should convert armor allocation', () => {
@@ -197,8 +268,22 @@ describe('UnitFormatConverter', () => {
       const result = converter.convert(source);
 
       expect(result.unit?.armor.allocation.head).toBe(9);
-      expect((result.unit?.armor.allocation.centerTorso as { front: number; rear: number }).front).toBe(47);
-      expect((result.unit?.armor.allocation.centerTorso as { front: number; rear: number }).rear).toBe(14);
+      expect(
+        (
+          result.unit?.armor.allocation.centerTorso as {
+            front: number;
+            rear: number;
+          }
+        ).front,
+      ).toBe(47);
+      expect(
+        (
+          result.unit?.armor.allocation.centerTorso as {
+            front: number;
+            rear: number;
+          }
+        ).rear,
+      ).toBe(14);
     });
 
     it('should convert heat sinks', () => {
@@ -211,7 +296,9 @@ describe('UnitFormatConverter', () => {
 
       expect(converter.convert(singleHS).unit?.heatSinks.type).toBe('Single');
       expect(converter.convert(singleHS).unit?.heatSinks.count).toBe(15);
-      expect(converter.convert(doubleHS).unit?.heatSinks.type).toBe('Double (IS)');
+      expect(converter.convert(doubleHS).unit?.heatSinks.type).toBe(
+        'Double (IS)',
+      );
     });
 
     it('should convert movement', () => {
@@ -241,7 +328,12 @@ describe('UnitFormatConverter', () => {
     it('should detect movement enhancements', () => {
       const mascUnit = createMegaMekLabUnit({
         weapons_and_equipment: [
-          { item_name: 'MASC', location: 'Center Torso', item_type: 'ISMASC', tech_base: 'IS' },
+          {
+            item_name: 'MASC',
+            location: 'Center Torso',
+            item_type: 'ISMASC',
+            tech_base: 'IS',
+          },
         ],
       });
 
@@ -254,18 +346,32 @@ describe('UnitFormatConverter', () => {
       const standardJJ = createMegaMekLabUnit({
         jump_mp: '3',
         weapons_and_equipment: [
-          { item_name: 'Jump Jet', location: 'Left Leg', item_type: 'JumpJet', tech_base: 'IS' },
+          {
+            item_name: 'Jump Jet',
+            location: 'Left Leg',
+            item_type: 'JumpJet',
+            tech_base: 'IS',
+          },
         ],
       });
       const improvedJJ = createMegaMekLabUnit({
         jump_mp: '3',
         weapons_and_equipment: [
-          { item_name: 'Improved Jump Jet', location: 'Left Leg', item_type: 'ImprovedJumpJet', tech_base: 'IS' },
+          {
+            item_name: 'Improved Jump Jet',
+            location: 'Left Leg',
+            item_type: 'ImprovedJumpJet',
+            tech_base: 'IS',
+          },
         ],
       });
 
-      expect(converter.convert(standardJJ).unit?.movement.jumpJetType).toBe('Standard');
-      expect(converter.convert(improvedJJ).unit?.movement.jumpJetType).toBe('Improved');
+      expect(converter.convert(standardJJ).unit?.movement.jumpJetType).toBe(
+        'Standard',
+      );
+      expect(converter.convert(improvedJJ).unit?.movement.jumpJetType).toBe(
+        'Improved',
+      );
     });
 
     it('should convert equipment', () => {
@@ -278,39 +384,64 @@ describe('UnitFormatConverter', () => {
     it('should skip system components in equipment', () => {
       const source = createMegaMekLabUnit({
         weapons_and_equipment: [
-          { item_name: 'Life Support', location: 'Head', item_type: 'Life Support', tech_base: 'IS' },
-          { item_name: 'Medium Laser', location: 'Left Arm', item_type: 'MediumLaser', tech_base: 'IS' },
+          {
+            item_name: 'Life Support',
+            location: 'Head',
+            item_type: 'Life Support',
+            tech_base: 'IS',
+          },
+          {
+            item_name: 'Medium Laser',
+            location: 'Left Arm',
+            item_type: 'MediumLaser',
+            tech_base: 'IS',
+          },
         ],
       });
 
       const result = converter.convert(source);
 
       // Life Support should be skipped
-      expect(result.unit?.equipment.every(e => !e.id.includes('life'))).toBe(true);
+      expect(result.unit?.equipment.every((e) => !e.id.includes('life'))).toBe(
+        true,
+      );
     });
 
     it('should handle rear-facing equipment', () => {
       const source = createMegaMekLabUnit({
         weapons_and_equipment: [
-          { item_name: 'Medium Laser', location: 'Center Torso', item_type: 'MediumLaser', tech_base: 'IS', rear_facing: true },
+          {
+            item_name: 'Medium Laser',
+            location: 'Center Torso',
+            item_type: 'MediumLaser',
+            tech_base: 'IS',
+            rear_facing: true,
+          },
         ],
       });
 
       const result = converter.convert(source);
 
-      expect(result.unit?.equipment.some(e => e.isRearMounted)).toBe(true);
+      expect(result.unit?.equipment.some((e) => e.isRearMounted)).toBe(true);
     });
 
     it('should warn for unknown equipment', () => {
       const source = createMegaMekLabUnit({
         weapons_and_equipment: [
-          { item_name: 'Unknown Weapon', location: 'Left Arm', item_type: 'UnknownWeapon', tech_base: 'IS' },
+          {
+            item_name: 'Unknown Weapon',
+            location: 'Left Arm',
+            item_type: 'UnknownWeapon',
+            tech_base: 'IS',
+          },
         ],
       });
 
       const result = converter.convert(source);
 
-      expect(result.warnings.some(w => w.message.includes('Unknown equipment'))).toBe(true);
+      expect(
+        result.warnings.some((w) => w.message.includes('Unknown equipment')),
+      ).toBe(true);
     });
 
     it('should convert critical slots', () => {
@@ -329,7 +460,9 @@ describe('UnitFormatConverter', () => {
       const critSlots = result.unit?.criticalSlots;
       const slotArrays = Object.values(critSlots || {});
       // At least one location should have null slots (from -Empty-)
-      expect(slotArrays.some(slots => slots.some(s => s === null))).toBe(true);
+      expect(slotArrays.some((slots) => slots.some((s) => s === null))).toBe(
+        true,
+      );
     });
 
     it('should detect OmniMech from config', () => {
@@ -382,8 +515,12 @@ describe('UnitFormatConverter', () => {
 
       const result = converter.convert(source);
 
-      expect(result.unit?.fluff?.overview).toBe('The Atlas is a famous assault mech.');
-      expect(result.unit?.fluff?.capabilities).toBe('Heavy armor and firepower.');
+      expect(result.unit?.fluff?.overview).toBe(
+        'The Atlas is a famous assault mech.',
+      );
+      expect(result.unit?.fluff?.capabilities).toBe(
+        'Heavy armor and firepower.',
+      );
       expect(result.unit?.fluff?.history).toBe('Designed by General Kerensky.');
     });
 
@@ -411,7 +548,9 @@ describe('UnitFormatConverter', () => {
       const result = converter.convert(source);
 
       expect(result.unit?.fluff?.systemManufacturer?.engine).toBe('Vlar 300');
-      expect(result.unit?.fluff?.systemManufacturer?.armor).toBe('Durallex Heavy');
+      expect(result.unit?.fluff?.systemManufacturer?.armor).toBe(
+        'Durallex Heavy',
+      );
     });
 
     it('should return undefined fluff when no fluff data present', () => {
@@ -442,7 +581,11 @@ describe('UnitFormatConverter', () => {
       const units = [
         createMegaMekLabUnit({ chassis: 'Atlas', model: 'AS7-D' }),
         createMegaMekLabUnit({ chassis: 'Locust', model: 'LCT-1V', mass: 20 }),
-        createMegaMekLabUnit({ chassis: 'Marauder', model: 'MAD-3R', mass: 75 }),
+        createMegaMekLabUnit({
+          chassis: 'Marauder',
+          model: 'MAD-3R',
+          mass: 75,
+        }),
       ];
 
       const result = converter.convertBatch(units);

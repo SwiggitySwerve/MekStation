@@ -1,16 +1,12 @@
-import { useCampaignStore, CampaignViewMode, IMissionContext } from '@/stores/useCampaignStore';
+import { useCampaignStore, CampaignViewMode } from '@/stores/useCampaignStore';
 import {
-  CampaignStatus,
   CampaignMissionStatus,
-  CampaignUnitStatus,
-  CampaignPilotStatus,
   DEFAULT_CAMPAIGN_RESOURCES,
 } from '@/types/campaign';
-import { GameStatus, GamePhase } from '@/types/gameplay';
 
 function createTestCampaign() {
   const store = useCampaignStore.getState();
-  
+
   const campaignId = store.createCampaign({
     name: 'Test Campaign',
     description: 'Campaign for transition testing',
@@ -28,7 +24,7 @@ function createTestCampaign() {
   });
 
   store.selectCampaign(campaignId);
-  
+
   return campaignId;
 }
 
@@ -61,7 +57,7 @@ describe('Campaign to Tactical Transition', () => {
       const result = store.launchMission(mission.id);
 
       expect(result).toBe(true);
-      
+
       const updatedStore = useCampaignStore.getState();
       expect(updatedStore.viewMode).toBe('tactical');
       expect(updatedStore.activeGameSession).not.toBeNull();
@@ -75,10 +71,10 @@ describe('Campaign to Tactical Transition', () => {
       const mission = campaign.missions[0];
 
       store.launchMission(mission.id);
-      
+
       const updatedStore = useCampaignStore.getState();
       const context = updatedStore.activeMissionContext!;
-      
+
       expect(context.terrain).toBeDefined();
       expect(context.terrain.length).toBeGreaterThan(0);
     });
@@ -90,11 +86,11 @@ describe('Campaign to Tactical Transition', () => {
       const mission = campaign.missions[0];
 
       store.launchMission(mission.id);
-      
+
       const updatedStore = useCampaignStore.getState();
       const session = updatedStore.activeGameSession!;
-      
-      const playerUnits = session.units.filter(u => u.side === 'player');
+
+      const playerUnits = session.units.filter((u) => u.side === 'player');
       expect(playerUnits.length).toBeGreaterThan(0);
     });
 
@@ -105,18 +101,20 @@ describe('Campaign to Tactical Transition', () => {
       const mission = campaign.missions[0];
 
       store.launchMission(mission.id);
-      
+
       const updatedStore = useCampaignStore.getState();
       const updatedCampaign = updatedStore.getCampaign(campaignId)!;
-      const updatedMission = updatedCampaign.missions.find(m => m.id === mission.id)!;
-      
+      const updatedMission = updatedCampaign.missions.find(
+        (m) => m.id === mission.id,
+      )!;
+
       expect(updatedMission.status).toBe(CampaignMissionStatus.InProgress);
     });
 
     it('should fail to launch unavailable mission', () => {
       const campaignId = createTestCampaign();
       const store = useCampaignStore.getState();
-      
+
       store.addMission(campaignId, {
         name: 'Locked Mission',
         description: 'A locked mission',
@@ -126,7 +124,9 @@ describe('Campaign to Tactical Transition', () => {
       });
 
       const campaign = store.getCampaign(campaignId)!;
-      const lockedMission = campaign.missions.find(m => m.name === 'Locked Mission')!;
+      const lockedMission = campaign.missions.find(
+        (m) => m.name === 'Locked Mission',
+      )!;
 
       const result = store.launchMission(lockedMission.id);
 
@@ -137,9 +137,9 @@ describe('Campaign to Tactical Transition', () => {
     it('should fail without selected campaign', () => {
       useCampaignStore.setState({ selectedCampaignId: null });
       const store = useCampaignStore.getState();
-      
+
       const result = store.launchMission('any-mission');
-      
+
       expect(result).toBe(false);
       expect(useCampaignStore.getState().error).toBe('No campaign selected');
     });
@@ -157,7 +157,7 @@ describe('Campaign to Tactical Transition', () => {
       expect(store.viewMode).toBe('tactical');
 
       store.endMission('victory');
-      
+
       const finalStore = useCampaignStore.getState();
       expect(finalStore.viewMode).toBe('starmap');
       expect(finalStore.activeGameSession).toBeNull();
@@ -173,7 +173,7 @@ describe('Campaign to Tactical Transition', () => {
       store.launchMission(mission.id);
       store = useCampaignStore.getState();
       store.endMission('defeat');
-      
+
       const finalStore = useCampaignStore.getState();
       expect(finalStore.viewMode).toBe('starmap');
     });
@@ -187,7 +187,7 @@ describe('Campaign to Tactical Transition', () => {
       store.launchMission(mission.id);
       store = useCampaignStore.getState();
       store.endMission('withdraw');
-      
+
       const finalStore = useCampaignStore.getState();
       expect(finalStore.viewMode).toBe('starmap');
     });
@@ -201,11 +201,13 @@ describe('Campaign to Tactical Transition', () => {
       store.launchMission(mission.id);
       store = useCampaignStore.getState();
       store.endMission('victory');
-      
+
       const finalStore = useCampaignStore.getState();
       const updatedCampaign = finalStore.getCampaign(campaignId)!;
-      const updatedMission = updatedCampaign.missions.find(m => m.id === mission.id)!;
-      
+      const updatedMission = updatedCampaign.missions.find(
+        (m) => m.id === mission.id,
+      )!;
+
       expect(updatedMission.status).toBe(CampaignMissionStatus.Victory);
     });
 
@@ -218,11 +220,13 @@ describe('Campaign to Tactical Transition', () => {
       store.launchMission(mission.id);
       store = useCampaignStore.getState();
       store.endMission('defeat');
-      
+
       const finalStore = useCampaignStore.getState();
       const updatedCampaign = finalStore.getCampaign(campaignId)!;
-      const updatedMission = updatedCampaign.missions.find(m => m.id === mission.id)!;
-      
+      const updatedMission = updatedCampaign.missions.find(
+        (m) => m.id === mission.id,
+      )!;
+
       expect(updatedMission.status).toBe(CampaignMissionStatus.Defeat);
     });
 
@@ -233,12 +237,14 @@ describe('Campaign to Tactical Transition', () => {
         activeMissionContext: null,
         selectedCampaignId: 'test',
       });
-      
+
       const store = useCampaignStore.getState();
       const result = store.endMission('victory');
-      
+
       expect(result).toBe(false);
-      expect(useCampaignStore.getState().error).toBe('No active mission to end');
+      expect(useCampaignStore.getState().error).toBe(
+        'No active mission to end',
+      );
     });
   });
 
@@ -253,10 +259,10 @@ describe('Campaign to Tactical Transition', () => {
       store.launchMission(mission.id);
       store = useCampaignStore.getState();
       store.endMission('victory');
-      
+
       const finalStore = useCampaignStore.getState();
       const updatedCampaign = finalStore.getCampaign(campaignId)!;
-      
+
       expect(updatedCampaign.resources.cBills).toBeGreaterThan(initialCBills);
     });
 
@@ -270,10 +276,10 @@ describe('Campaign to Tactical Transition', () => {
       store.launchMission(mission.id);
       store = useCampaignStore.getState();
       store.endMission('defeat');
-      
+
       const finalStore = useCampaignStore.getState();
       const updatedCampaign = finalStore.getCampaign(campaignId)!;
-      
+
       expect(updatedCampaign.resources.cBills).toBeLessThan(initialCBills);
     });
 
@@ -286,10 +292,10 @@ describe('Campaign to Tactical Transition', () => {
       store.launchMission(mission.id);
       store = useCampaignStore.getState();
       store.endMission('victory');
-      
+
       const finalStore = useCampaignStore.getState();
       const updatedCampaign = finalStore.getCampaign(campaignId)!;
-      
+
       expect(updatedCampaign.progress.missionsCompleted).toBe(1);
       expect(updatedCampaign.progress.victories).toBe(1);
     });
@@ -303,10 +309,10 @@ describe('Campaign to Tactical Transition', () => {
       store.launchMission(mission.id);
       store = useCampaignStore.getState();
       store.endMission('defeat');
-      
+
       const finalStore = useCampaignStore.getState();
       const updatedCampaign = finalStore.getCampaign(campaignId)!;
-      
+
       expect(updatedCampaign.progress.missionsCompleted).toBe(1);
       expect(updatedCampaign.progress.defeats).toBe(1);
     });
@@ -316,14 +322,14 @@ describe('Campaign to Tactical Transition', () => {
     it('should return StarmapDisplay in starmap mode', () => {
       useCampaignStore.setState({ viewMode: 'starmap' as CampaignViewMode });
       const store = useCampaignStore.getState();
-      
+
       expect(store.getCurrentMapComponent()).toBe('StarmapDisplay');
     });
 
     it('should return HexMapDisplay in tactical mode', () => {
       useCampaignStore.setState({ viewMode: 'tactical' as CampaignViewMode });
       const store = useCampaignStore.getState();
-      
+
       expect(store.getCurrentMapComponent()).toBe('HexMapDisplay');
     });
   });

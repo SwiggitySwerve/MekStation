@@ -9,13 +9,12 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
+
 import {
   waitForTabManagerStoreReady,
   createMechUnit,
   closeTab,
 } from './fixtures/customizer';
-import { createTestCampaign } from './fixtures/campaign';
-import { createTestForce } from './fixtures/force';
 
 // =============================================================================
 // Test Configuration
@@ -29,26 +28,14 @@ async function waitForHydration(page: Page): Promise<void> {
   await page.waitForTimeout(500);
 }
 
-// Helper to wait for store ready
-async function waitForStoresReady(page: Page): Promise<void> {
-  await page.waitForFunction(
-    () => {
-      const win = window as unknown as { __ZUSTAND_STORES__?: Record<string, unknown> };
-      return (
-        win.__ZUSTAND_STORES__?.campaign !== undefined &&
-        win.__ZUSTAND_STORES__?.force !== undefined
-      );
-    },
-    { timeout: 10000 }
-  );
-}
-
 // =============================================================================
 // Customizer to Force Flow
 // =============================================================================
 
 test.describe('Customizer to Force Flow @integration', () => {
-  test('can create unit in customizer and navigate to forces', async ({ page }) => {
+  test('can create unit in customizer and navigate to forces', async ({
+    page,
+  }) => {
     // 1. Go to customizer and create a unit
     await page.goto('/customizer');
     await waitForHydration(page);
@@ -114,7 +101,9 @@ test.describe('Force to Encounter Flow @integration', () => {
     await waitForHydration(page);
 
     // Look for create force button
-    const createButton = page.locator('button:has-text("Create"), button:has-text("New Force"), a[href*="create"]');
+    const createButton = page.locator(
+      'button:has-text("Create"), button:has-text("New Force"), a[href*="create"]',
+    );
     const count = await createButton.count();
 
     // Create button should exist
@@ -166,7 +155,9 @@ test.describe('Game Session Flow @integration @game', () => {
     await expect(page).toHaveURL(/demo/);
 
     // Look for game controls
-    const gameControls = page.locator('[data-testid="action-bar"], [data-testid="phase-banner"], button');
+    const gameControls = page.locator(
+      '[data-testid="action-bar"], [data-testid="phase-banner"], button',
+    );
     const count = await gameControls.count();
 
     expect(count).toBeGreaterThan(0);
@@ -222,7 +213,7 @@ test.describe('Compendium Integration @integration @compendium', () => {
     // Direct navigation to equipment
     await page.goto('/compendium/equipment');
     await waitForHydration(page);
-    
+
     // Should be on equipment page
     await expect(page).toHaveURL(/equipment/);
   });
@@ -234,7 +225,7 @@ test.describe('Compendium Integration @integration @compendium', () => {
     // Rules link - direct navigation
     await page.goto('/compendium/rules');
     await waitForHydration(page);
-    
+
     // Should be on rules page
     await expect(page).toHaveURL(/rules/);
   });
@@ -279,11 +270,7 @@ test.describe('Navigation Integration @integration @navigation', () => {
     await waitForHydration(page);
 
     // Check key navigation paths exist
-    const navLinks = [
-      '/customizer',
-      '/gameplay',
-      '/compendium',
-    ];
+    const navLinks = ['/customizer', '/gameplay', '/compendium'];
 
     for (const path of navLinks) {
       await page.goto(path);
@@ -300,7 +287,9 @@ test.describe('Navigation Integration @integration @navigation', () => {
     await waitForHydration(page);
 
     // Look for breadcrumb
-    const breadcrumb = page.locator('[data-testid="breadcrumb"], nav[aria-label*="breadcrumb"], .breadcrumb');
+    const breadcrumb = page.locator(
+      '[data-testid="breadcrumb"], nav[aria-label*="breadcrumb"], .breadcrumb',
+    );
     const count = await breadcrumb.count();
 
     // Breadcrumbs may or may not exist
@@ -345,8 +334,14 @@ test.describe('Multi-Unit Workflow @integration', () => {
     await waitForHydration(page);
     await waitForTabManagerStoreReady(page);
 
-    const unit1 = await createMechUnit(page, { name: 'Switch Test 1', tonnage: 45 });
-    const unit2 = await createMechUnit(page, { name: 'Switch Test 2', tonnage: 85 });
+    const unit1 = await createMechUnit(page, {
+      name: 'Switch Test 1',
+      tonnage: 45,
+    });
+    const unit2 = await createMechUnit(page, {
+      name: 'Switch Test 2',
+      tonnage: 85,
+    });
 
     // Navigate to first unit
     await page.goto(`/customizer/${unit1}`);

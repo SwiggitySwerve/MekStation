@@ -1,6 +1,6 @@
 /**
  * Record Sheet Types
- * 
+ *
  * Internal type definitions for record sheet service.
  */
 
@@ -76,7 +76,10 @@ export interface IUnitConfig {
     ammoCount?: number;
     slots?: number[];
   }>;
-  criticalSlots?: Record<string, Array<{ content: string; isSystem?: boolean; equipmentId?: string } | null>>;
+  criticalSlots?: Record<
+    string,
+    Array<{ content: string; isSystem?: boolean; equipmentId?: string } | null>
+  >;
   battleValue?: number;
   cost?: number;
   enhancements?: string[];

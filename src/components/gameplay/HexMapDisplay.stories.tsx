@@ -1,6 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
+import {
+  TerrainType,
+  IHexTerrain,
+  Facing,
+  GameSide,
+  IUnitToken,
+  MovementType,
+} from '@/types/gameplay';
+
 import { HexMapDisplay } from './HexMapDisplay';
-import { TerrainType, IHexTerrain, Facing, GameSide, IUnitToken, MovementType } from '@/types/gameplay';
 
 const meta: Meta<typeof HexMapDisplay> = {
   title: 'Gameplay/HexMapDisplay',
@@ -22,24 +31,96 @@ export default meta;
 type Story = StoryObj<typeof HexMapDisplay>;
 
 const sampleTerrain: IHexTerrain[] = [
-  { coordinate: { q: 0, r: 0 }, elevation: 0, features: [{ type: TerrainType.Clear, level: 0 }] },
-  { coordinate: { q: 1, r: 0 }, elevation: 0, features: [{ type: TerrainType.LightWoods, level: 1 }] },
-  { coordinate: { q: 2, r: 0 }, elevation: 0, features: [{ type: TerrainType.HeavyWoods, level: 2 }] },
-  { coordinate: { q: -1, r: 0 }, elevation: 0, features: [{ type: TerrainType.Water, level: 1 }] },
-  { coordinate: { q: -2, r: 0 }, elevation: 0, features: [{ type: TerrainType.Water, level: 2 }] },
-  { coordinate: { q: -2, r: 1 }, elevation: 0, features: [{ type: TerrainType.Water, level: 3 }] },
-  { coordinate: { q: 0, r: 1 }, elevation: 0, features: [{ type: TerrainType.Rough, level: 1 }] },
-  { coordinate: { q: 1, r: 1 }, elevation: 0, features: [{ type: TerrainType.Rubble, level: 1 }] },
-  { coordinate: { q: 2, r: -1 }, elevation: 0, features: [{ type: TerrainType.Building, level: 1 }] },
-  { coordinate: { q: 0, r: -1 }, elevation: 0, features: [{ type: TerrainType.Pavement, level: 0 }] },
-  { coordinate: { q: 1, r: -1 }, elevation: 0, features: [{ type: TerrainType.Road, level: 0 }] },
-  { coordinate: { q: -1, r: 1 }, elevation: 0, features: [{ type: TerrainType.Sand, level: 0 }] },
-  { coordinate: { q: -1, r: -1 }, elevation: 0, features: [{ type: TerrainType.Mud, level: 0 }] },
-  { coordinate: { q: 2, r: 1 }, elevation: 0, features: [{ type: TerrainType.Snow, level: 0 }] },
-  { coordinate: { q: -2, r: -1 }, elevation: 0, features: [{ type: TerrainType.Ice, level: 0 }] },
-  { coordinate: { q: 0, r: 2 }, elevation: 0, features: [{ type: TerrainType.Swamp, level: 0 }] },
-  { coordinate: { q: 1, r: 2 }, elevation: 0, features: [{ type: TerrainType.Fire, level: 0 }] },
-  { coordinate: { q: -1, r: 2 }, elevation: 0, features: [{ type: TerrainType.Smoke, level: 0 }] },
+  {
+    coordinate: { q: 0, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.Clear, level: 0 }],
+  },
+  {
+    coordinate: { q: 1, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.LightWoods, level: 1 }],
+  },
+  {
+    coordinate: { q: 2, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.HeavyWoods, level: 2 }],
+  },
+  {
+    coordinate: { q: -1, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.Water, level: 1 }],
+  },
+  {
+    coordinate: { q: -2, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.Water, level: 2 }],
+  },
+  {
+    coordinate: { q: -2, r: 1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Water, level: 3 }],
+  },
+  {
+    coordinate: { q: 0, r: 1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Rough, level: 1 }],
+  },
+  {
+    coordinate: { q: 1, r: 1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Rubble, level: 1 }],
+  },
+  {
+    coordinate: { q: 2, r: -1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Building, level: 1 }],
+  },
+  {
+    coordinate: { q: 0, r: -1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Pavement, level: 0 }],
+  },
+  {
+    coordinate: { q: 1, r: -1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Road, level: 0 }],
+  },
+  {
+    coordinate: { q: -1, r: 1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Sand, level: 0 }],
+  },
+  {
+    coordinate: { q: -1, r: -1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Mud, level: 0 }],
+  },
+  {
+    coordinate: { q: 2, r: 1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Snow, level: 0 }],
+  },
+  {
+    coordinate: { q: -2, r: -1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Ice, level: 0 }],
+  },
+  {
+    coordinate: { q: 0, r: 2 },
+    elevation: 0,
+    features: [{ type: TerrainType.Swamp, level: 0 }],
+  },
+  {
+    coordinate: { q: 1, r: 2 },
+    elevation: 0,
+    features: [{ type: TerrainType.Fire, level: 0 }],
+  },
+  {
+    coordinate: { q: -1, r: 2 },
+    elevation: 0,
+    features: [{ type: TerrainType.Smoke, level: 0 }],
+  },
 ];
 
 const sampleToken: IUnitToken = {
@@ -79,12 +160,36 @@ export const WaterDepthGradient: Story = {
     tokens: [],
     selectedHex: null,
     hexTerrain: [
-      { coordinate: { q: 0, r: 0 }, elevation: 0, features: [{ type: TerrainType.Water, level: 0 }] },
-      { coordinate: { q: 1, r: 0 }, elevation: 0, features: [{ type: TerrainType.Water, level: 1 }] },
-      { coordinate: { q: -1, r: 0 }, elevation: 0, features: [{ type: TerrainType.Water, level: 2 }] },
-      { coordinate: { q: 0, r: 1 }, elevation: 0, features: [{ type: TerrainType.Water, level: 3 }] },
-      { coordinate: { q: 1, r: -1 }, elevation: 0, features: [{ type: TerrainType.Water, level: 4 }] },
-      { coordinate: { q: -1, r: 1 }, elevation: 0, features: [{ type: TerrainType.Water, level: 5 }] },
+      {
+        coordinate: { q: 0, r: 0 },
+        elevation: 0,
+        features: [{ type: TerrainType.Water, level: 0 }],
+      },
+      {
+        coordinate: { q: 1, r: 0 },
+        elevation: 0,
+        features: [{ type: TerrainType.Water, level: 1 }],
+      },
+      {
+        coordinate: { q: -1, r: 0 },
+        elevation: 0,
+        features: [{ type: TerrainType.Water, level: 2 }],
+      },
+      {
+        coordinate: { q: 0, r: 1 },
+        elevation: 0,
+        features: [{ type: TerrainType.Water, level: 3 }],
+      },
+      {
+        coordinate: { q: 1, r: -1 },
+        elevation: 0,
+        features: [{ type: TerrainType.Water, level: 4 }],
+      },
+      {
+        coordinate: { q: -1, r: 1 },
+        elevation: 0,
+        features: [{ type: TerrainType.Water, level: 5 }],
+      },
     ],
     showCoordinates: true,
   },
@@ -96,12 +201,36 @@ export const WoodsPatterns: Story = {
     tokens: [],
     selectedHex: null,
     hexTerrain: [
-      { coordinate: { q: 0, r: 0 }, elevation: 0, features: [{ type: TerrainType.LightWoods, level: 1 }] },
-      { coordinate: { q: 1, r: 0 }, elevation: 0, features: [{ type: TerrainType.LightWoods, level: 1 }] },
-      { coordinate: { q: -1, r: 0 }, elevation: 0, features: [{ type: TerrainType.LightWoods, level: 1 }] },
-      { coordinate: { q: 0, r: 1 }, elevation: 0, features: [{ type: TerrainType.HeavyWoods, level: 2 }] },
-      { coordinate: { q: 1, r: -1 }, elevation: 0, features: [{ type: TerrainType.HeavyWoods, level: 2 }] },
-      { coordinate: { q: -1, r: 1 }, elevation: 0, features: [{ type: TerrainType.HeavyWoods, level: 2 }] },
+      {
+        coordinate: { q: 0, r: 0 },
+        elevation: 0,
+        features: [{ type: TerrainType.LightWoods, level: 1 }],
+      },
+      {
+        coordinate: { q: 1, r: 0 },
+        elevation: 0,
+        features: [{ type: TerrainType.LightWoods, level: 1 }],
+      },
+      {
+        coordinate: { q: -1, r: 0 },
+        elevation: 0,
+        features: [{ type: TerrainType.LightWoods, level: 1 }],
+      },
+      {
+        coordinate: { q: 0, r: 1 },
+        elevation: 0,
+        features: [{ type: TerrainType.HeavyWoods, level: 2 }],
+      },
+      {
+        coordinate: { q: 1, r: -1 },
+        elevation: 0,
+        features: [{ type: TerrainType.HeavyWoods, level: 2 }],
+      },
+      {
+        coordinate: { q: -1, r: 1 },
+        elevation: 0,
+        features: [{ type: TerrainType.HeavyWoods, level: 2 }],
+      },
     ],
     showCoordinates: false,
   },
@@ -124,10 +253,30 @@ export const TerrainWithSelection: Story = {
     selectedHex: { q: 1, r: 0 },
     hexTerrain: sampleTerrain,
     movementRange: [
-      { hex: { q: 0, r: 1 }, mpCost: 2, reachable: true, movementType: MovementType.Walk },
-      { hex: { q: 1, r: 1 }, mpCost: 2, reachable: true, movementType: MovementType.Walk },
-      { hex: { q: 2, r: 0 }, mpCost: 3, reachable: true, movementType: MovementType.Walk },
-      { hex: { q: 2, r: -1 }, mpCost: 4, reachable: false, movementType: MovementType.Run },
+      {
+        hex: { q: 0, r: 1 },
+        mpCost: 2,
+        reachable: true,
+        movementType: MovementType.Walk,
+      },
+      {
+        hex: { q: 1, r: 1 },
+        mpCost: 2,
+        reachable: true,
+        movementType: MovementType.Walk,
+      },
+      {
+        hex: { q: 2, r: 0 },
+        mpCost: 3,
+        reachable: true,
+        movementType: MovementType.Walk,
+      },
+      {
+        hex: { q: 2, r: -1 },
+        mpCost: 4,
+        reachable: false,
+        movementType: MovementType.Run,
+      },
     ],
     showCoordinates: true,
   },
@@ -154,17 +303,61 @@ export const AllTerrainTypes: Story = {
 };
 
 const overlayTerrain: IHexTerrain[] = [
-  { coordinate: { q: 0, r: 0 }, elevation: 0, features: [{ type: TerrainType.Clear, level: 0 }] },
-  { coordinate: { q: 1, r: 0 }, elevation: 0, features: [{ type: TerrainType.LightWoods, level: 1 }] },
-  { coordinate: { q: 2, r: 0 }, elevation: 0, features: [{ type: TerrainType.HeavyWoods, level: 2 }] },
-  { coordinate: { q: -1, r: 0 }, elevation: 0, features: [{ type: TerrainType.Water, level: 1 }] },
-  { coordinate: { q: 0, r: 1 }, elevation: 0, features: [{ type: TerrainType.Rough, level: 1 }] },
-  { coordinate: { q: 1, r: 1 }, elevation: 0, features: [{ type: TerrainType.Building, level: 2 }] },
-  { coordinate: { q: -1, r: 1 }, elevation: 0, features: [{ type: TerrainType.Swamp, level: 1 }] },
-  { coordinate: { q: 0, r: -1 }, elevation: 0, features: [{ type: TerrainType.Pavement, level: 0 }] },
-  { coordinate: { q: 1, r: -1 }, elevation: 0, features: [{ type: TerrainType.Road, level: 0 }] },
-  { coordinate: { q: -1, r: -1 }, elevation: 0, features: [{ type: TerrainType.Rubble, level: 1 }] },
-  { coordinate: { q: 2, r: -1 }, elevation: 0, features: [{ type: TerrainType.Smoke, level: 1 }] },
+  {
+    coordinate: { q: 0, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.Clear, level: 0 }],
+  },
+  {
+    coordinate: { q: 1, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.LightWoods, level: 1 }],
+  },
+  {
+    coordinate: { q: 2, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.HeavyWoods, level: 2 }],
+  },
+  {
+    coordinate: { q: -1, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.Water, level: 1 }],
+  },
+  {
+    coordinate: { q: 0, r: 1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Rough, level: 1 }],
+  },
+  {
+    coordinate: { q: 1, r: 1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Building, level: 2 }],
+  },
+  {
+    coordinate: { q: -1, r: 1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Swamp, level: 1 }],
+  },
+  {
+    coordinate: { q: 0, r: -1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Pavement, level: 0 }],
+  },
+  {
+    coordinate: { q: 1, r: -1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Road, level: 0 }],
+  },
+  {
+    coordinate: { q: -1, r: -1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Rubble, level: 1 }],
+  },
+  {
+    coordinate: { q: 2, r: -1 },
+    elevation: 0,
+    features: [{ type: TerrainType.Smoke, level: 1 }],
+  },
 ];
 
 const overlayToken: IUnitToken = {
@@ -190,7 +383,8 @@ export const WithOverlays: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Use the overlay toggle buttons (MP, Shield, Eye) in the bottom-right corner to enable movement cost, cover level, and LOS overlays. The LOS overlay requires a selected unit to show line-of-sight lines.',
+        story:
+          'Use the overlay toggle buttons (MP, Shield, Eye) in the bottom-right corner to enable movement cost, cover level, and LOS overlays. The LOS overlay requires a selected unit to show line-of-sight lines.',
       },
     },
   },

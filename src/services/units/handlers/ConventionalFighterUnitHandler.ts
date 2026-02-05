@@ -7,9 +7,9 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { AerospaceLocation } from '../../../types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import {
   IConventionalFighter,
   IAerospaceMountedEquipment,
@@ -20,9 +20,9 @@ import {
   AerospaceMotionType,
   IAerospaceMovement,
 } from '../../../types/unit/BaseUnitInterfaces';
-import { AerospaceLocation } from '../../../types/construction/UnitLocation';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
@@ -82,7 +82,9 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
   /**
    * Parse conventional fighter-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<IConventionalFighter> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<IConventionalFighter> & {
     errors: string[];
     warnings: string[];
   } {
@@ -113,7 +115,8 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
 
     // Engine type (conventional uses non-fusion)
     const engineTypeCode = document.engineType || 0;
-    const conventionalEngineType = ENGINE_TYPE_MAP[engineTypeCode] || ConventionalFighterEngineType.ICE;
+    const conventionalEngineType =
+      ENGINE_TYPE_MAP[engineTypeCode] || ConventionalFighterEngineType.ICE;
     const engineType = engineTypeCode;
 
     // Armor
@@ -195,11 +198,15 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly IAerospaceMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly IAerospaceMountedEquipment[] {
     const equipment: IAerospaceMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const location = this.normalizeLocation(locationKey);
 
       for (const item of items) {
@@ -242,7 +249,7 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<IConventionalFighter>
+    typeSpecificFields: Partial<IConventionalFighter>,
   ): IConventionalFighter {
     const weightClass = this.getWeightClass(commonFields.tonnage);
     const techBase = this.parseTechBase(commonFields.techBase);
@@ -330,7 +337,9 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
   /**
    * Serialize conventional fighter-specific fields
    */
-  protected serializeTypeSpecificFields(unit: IConventionalFighter): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: IConventionalFighter,
+  ): Partial<ISerializedUnit> {
     return {
       configuration: `Conventional Fighter (${unit.conventionalEngineType})`,
       rulesLevel: String(unit.rulesLevel),
@@ -340,8 +349,12 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
   /**
    * Deserialize from standard format
    */
-  deserialize(_serialized: ISerializedUnit): IUnitParseResult<IConventionalFighter> {
-    return createFailureResult(['Conventional Fighter deserialization not yet implemented']);
+  deserialize(
+    _serialized: ISerializedUnit,
+  ): IUnitParseResult<IConventionalFighter> {
+    return createFailureResult([
+      'Conventional Fighter deserialization not yet implemented',
+    ]);
   }
 
   /**

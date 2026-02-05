@@ -7,16 +7,17 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import {
-  ChangeLogRepository,
-  getChangeLogRepository,
-  resetChangeLogRepository,
-} from '../ChangeLogRepository';
 import type {
   IStoredChangeLogEntry,
   ChangeType,
   ShareableContentType,
 } from '@/types/vault';
+
+import {
+  ChangeLogRepository,
+  getChangeLogRepository,
+  resetChangeLogRepository,
+} from '../ChangeLogRepository';
 
 // =============================================================================
 // Mock Setup
@@ -30,7 +31,7 @@ interface MockStatement {
 
 const createMockStatement = (
   returnValue?: unknown,
-  changes = 0
+  changes = 0,
 ): MockStatement => ({
   run: jest.fn().mockReturnValue({ changes }),
   get: jest.fn().mockReturnValue(returnValue),
@@ -64,7 +65,7 @@ Object.defineProperty(globalThis, 'crypto', {
 // =============================================================================
 
 const createMockStoredEntry = (
-  overrides: Partial<IStoredChangeLogEntry> = {}
+  overrides: Partial<IStoredChangeLogEntry> = {},
 ): IStoredChangeLogEntry => ({
   id: 'change-test-123',
   change_type: 'create',
@@ -79,19 +80,21 @@ const createMockStoredEntry = (
   ...overrides,
 });
 
-const createMockConflictRow = (overrides: Partial<{
-  id: string;
-  content_type: ShareableContentType | 'folder';
-  item_id: string;
-  item_name: string;
-  local_version: number;
-  local_hash: string;
-  remote_version: number;
-  remote_hash: string;
-  remote_peer_id: string;
-  detected_at: string;
-  resolution: 'pending' | 'local' | 'remote' | 'merged' | 'forked';
-}> = {}) => ({
+const createMockConflictRow = (
+  overrides: Partial<{
+    id: string;
+    content_type: ShareableContentType | 'folder';
+    item_id: string;
+    item_name: string;
+    local_version: number;
+    local_hash: string;
+    remote_version: number;
+    remote_hash: string;
+    remote_peer_id: string;
+    detected_at: string;
+    resolution: 'pending' | 'local' | 'remote' | 'merged' | 'forked';
+  }> = {},
+) => ({
   id: 'conflict-test-123',
   content_type: 'unit' as ShareableContentType | 'folder',
   item_id: 'unit-atlas-1',
@@ -133,10 +136,12 @@ describe('ChangeLogRepository', () => {
 
       expect(mockSQLiteService.initialize).toHaveBeenCalled();
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE TABLE IF NOT EXISTS vault_change_log')
+        expect.stringContaining('CREATE TABLE IF NOT EXISTS vault_change_log'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE TABLE IF NOT EXISTS vault_sync_conflicts')
+        expect.stringContaining(
+          'CREATE TABLE IF NOT EXISTS vault_sync_conflicts',
+        ),
       );
     });
 
@@ -144,16 +149,24 @@ describe('ChangeLogRepository', () => {
       await repository.initialize();
 
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_vault_change_log_item')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_vault_change_log_item',
+        ),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_vault_change_log_version')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_vault_change_log_version',
+        ),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_vault_change_log_synced')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_vault_change_log_synced',
+        ),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_vault_change_log_timestamp')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_vault_change_log_timestamp',
+        ),
       );
     });
 
@@ -161,10 +174,14 @@ describe('ChangeLogRepository', () => {
       await repository.initialize();
 
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_vault_sync_conflicts_item')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_vault_sync_conflicts_item',
+        ),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_vault_sync_conflicts_resolution')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_vault_sync_conflicts_resolution',
+        ),
       );
     });
 
@@ -204,7 +221,7 @@ describe('ChangeLogRepository', () => {
         'unit',
         'unit-123',
         'hash123',
-        '{"name":"Atlas"}'
+        '{"name":"Atlas"}',
       );
 
       expect(result.id).toBe(`change-${mockUUID}`);
@@ -237,7 +254,7 @@ describe('ChangeLogRepository', () => {
         'unit',
         'unit-123',
         'hash456',
-        '{"name":"Updated"}'
+        '{"name":"Updated"}',
       );
 
       expect(result.version).toBe(6);
@@ -250,7 +267,7 @@ describe('ChangeLogRepository', () => {
         'unit-123',
         'hash123',
         '{"name":"Atlas"}',
-        'PEER-1234'
+        'PEER-1234',
       );
 
       expect(result.synced).toBe(true);
@@ -263,7 +280,7 @@ describe('ChangeLogRepository', () => {
         'unit',
         'unit-123',
         null,
-        null
+        null,
       );
 
       expect(result.changeType).toBe('delete');
@@ -286,7 +303,7 @@ describe('ChangeLogRepository', () => {
           contentType,
           `${contentType}-123`,
           'hash',
-          '{}'
+          '{}',
         );
         expect(result.contentType).toBe(contentType);
       }
@@ -301,7 +318,7 @@ describe('ChangeLogRepository', () => {
           'unit',
           'unit-123',
           changeType === 'delete' ? null : 'hash',
-          changeType === 'delete' ? null : '{}'
+          changeType === 'delete' ? null : '{}',
         );
         expect(result.changeType).toBe(changeType);
       }
@@ -315,7 +332,7 @@ describe('ChangeLogRepository', () => {
         'unit',
         'unit-123',
         'hash',
-        '{}'
+        '{}',
       );
 
       const afterRecord = new Date().toISOString();
@@ -339,7 +356,7 @@ describe('ChangeLogRepository', () => {
       const result = await repository.getUnsynced();
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_change_log WHERE synced = 0 ORDER BY version ASC'
+        'SELECT * FROM vault_change_log WHERE synced = 0 ORDER BY version ASC',
       );
       expect(result).toHaveLength(2);
       expect(result.every((e) => !e.synced)).toBe(true);
@@ -384,7 +401,7 @@ describe('ChangeLogRepository', () => {
       const result = await repository.getChangesSince(5);
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_change_log WHERE version > ? ORDER BY version ASC LIMIT ?'
+        'SELECT * FROM vault_change_log WHERE version > ? ORDER BY version ASC LIMIT ?',
       );
       expect(mockStatement.all).toHaveBeenCalledWith(5, 100);
       expect(result).toHaveLength(2);
@@ -427,10 +444,10 @@ describe('ChangeLogRepository', () => {
       const result = await repository.getLatestForItem('unit-123', 'unit');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE item_id = ? AND content_type = ?')
+        expect.stringContaining('WHERE item_id = ? AND content_type = ?'),
       );
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('ORDER BY version DESC LIMIT 1')
+        expect.stringContaining('ORDER BY version DESC LIMIT 1'),
       );
       expect(mockStatement.get).toHaveBeenCalledWith('unit-123', 'unit');
       expect(result?.version).toBe(10);
@@ -468,7 +485,7 @@ describe('ChangeLogRepository', () => {
       const result = await repository.getCurrentVersion();
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT MAX(version) as max FROM vault_change_log'
+        'SELECT MAX(version) as max FROM vault_change_log',
       );
       expect(result).toBe(42);
     });
@@ -493,7 +510,7 @@ describe('ChangeLogRepository', () => {
       const result = await repository.markSynced(['c1', 'c2', 'c3']);
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_change_log SET synced = 1 WHERE id IN (?,?,?)'
+        'UPDATE vault_change_log SET synced = 1 WHERE id IN (?,?,?)',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('c1', 'c2', 'c3');
       expect(result).toBe(3);
@@ -504,7 +521,7 @@ describe('ChangeLogRepository', () => {
 
       expect(result).toBe(0);
       expect(mockDb.prepare).not.toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE')
+        expect.stringContaining('UPDATE'),
       );
     });
 
@@ -514,7 +531,7 @@ describe('ChangeLogRepository', () => {
       const result = await repository.markSynced(['c1']);
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_change_log SET synced = 1 WHERE id IN (?)'
+        'UPDATE vault_change_log SET synced = 1 WHERE id IN (?)',
       );
       expect(result).toBe(1);
     });
@@ -536,10 +553,10 @@ describe('ChangeLogRepository', () => {
       const result = await repository.getHistoryForItem('unit-123', 'unit');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE item_id = ? AND content_type = ?')
+        expect.stringContaining('WHERE item_id = ? AND content_type = ?'),
       );
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('ORDER BY version ASC')
+        expect.stringContaining('ORDER BY version ASC'),
       );
       expect(result).toHaveLength(3);
     });
@@ -564,10 +581,10 @@ describe('ChangeLogRepository', () => {
       const result = await repository.pruneOldChanges(1000);
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('DELETE FROM vault_change_log')
+        expect.stringContaining('DELETE FROM vault_change_log'),
       );
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE synced = 1')
+        expect.stringContaining('WHERE synced = 1'),
       );
       expect(mockStatement.run).toHaveBeenCalledWith(1000);
       expect(result).toBe(50);
@@ -613,7 +630,7 @@ describe('ChangeLogRepository', () => {
 
       expect(result).toBe(`conflict-${mockUUID}`);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO vault_sync_conflicts')
+        expect.stringContaining('INSERT INTO vault_sync_conflicts'),
       );
       expect(mockStatement.run).toHaveBeenCalledWith(
         `conflict-${mockUUID}`,
@@ -625,7 +642,7 @@ describe('ChangeLogRepository', () => {
         4,
         'remotehash',
         'PEER-456',
-        expect.any(String) // detectedAt
+        expect.any(String), // detectedAt
       );
     });
 
@@ -662,7 +679,7 @@ describe('ChangeLogRepository', () => {
       const result = await repository.getPendingConflicts();
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        "SELECT * FROM vault_sync_conflicts WHERE resolution = 'pending' ORDER BY detected_at DESC"
+        "SELECT * FROM vault_sync_conflicts WHERE resolution = 'pending' ORDER BY detected_at DESC",
       );
       expect(result).toHaveLength(2);
     });
@@ -707,7 +724,7 @@ describe('ChangeLogRepository', () => {
       const result = await repository.resolveConflict('conflict-123', 'local');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_sync_conflicts SET resolution = ? WHERE id = ?'
+        'UPDATE vault_sync_conflicts SET resolution = ? WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('local', 'conflict-123');
       expect(result).toBe(true);
@@ -858,7 +875,7 @@ describe('ChangeLogRepository', () => {
         'unit',
         'unit-123',
         'hash',
-        ''
+        '',
       );
 
       expect(result.data).toBe('');
@@ -883,7 +900,7 @@ describe('ChangeLogRepository', () => {
         'unit',
         'unit-123',
         'hash',
-        '{}'
+        '{}',
       );
 
       expect(result.version).toBe(1000000);
@@ -920,7 +937,7 @@ describe('ChangeLogRepository', () => {
         'unit',
         'unit-123',
         'hash',
-        unicodeData
+        unicodeData,
       );
 
       expect(result.data).toBe(unicodeData);

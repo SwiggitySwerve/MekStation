@@ -11,11 +11,18 @@
  * @module lib/campaign/processors/marketProcessors
  */
 
-import { IDayProcessor, IDayProcessorResult, DayPhase, IDayEvent, isFirstOfMonth } from '../dayPipeline';
-import { ICampaign } from '@/types/campaign/Campaign';
-import { generateUnitOffers } from '@/lib/campaign/markets/unitMarket';
-import { generatePersonnelForDay } from '@/lib/campaign/markets/personnelMarket';
 import { generateAtBContracts } from '@/lib/campaign/contractMarket';
+import { generatePersonnelForDay } from '@/lib/campaign/markets/personnelMarket';
+import { generateUnitOffers } from '@/lib/campaign/markets/unitMarket';
+import { ICampaign } from '@/types/campaign/Campaign';
+
+import {
+  IDayProcessor,
+  IDayProcessorResult,
+  DayPhase,
+  IDayEvent,
+  isFirstOfMonth,
+} from '../dayPipeline';
 
 // =============================================================================
 // Unit Market Processor

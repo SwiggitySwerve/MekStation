@@ -1,30 +1,44 @@
 /**
  * Equipment Loader Service
- * 
+ *
  * Provides runtime loading of equipment data from JSON files.
  * Supports both official equipment and custom user-defined equipment.
- * 
+ *
  * Handles both server-side (Node.js) and client-side (browser) environments.
- * 
+ *
  * @module services/equipment/EquipmentLoaderService
  */
 
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import {
-  EquipmentFlag,
-  EquipmentBehaviorFlag,
-} from '@/types/enums/EquipmentFlag';
-import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
-import { IAmmunition, AmmoCategory, AmmoVariant } from '@/types/equipment/AmmunitionTypes';
-import { IElectronics, ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';
-import { IMiscEquipment, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   parseTechBase as parseEnumTechBase,
   parseRulesLevel as parseEnumRulesLevel,
 } from '@/services/units/EnumParserRegistry';
-import { createSingleton, type SingletonFactory } from '../core/createSingleton';
+import {
+  EquipmentFlag,
+  EquipmentBehaviorFlag,
+} from '@/types/enums/EquipmentFlag';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import {
+  IAmmunition,
+  AmmoCategory,
+  AmmoVariant,
+} from '@/types/equipment/AmmunitionTypes';
+import {
+  IElectronics,
+  ElectronicsCategory,
+} from '@/types/equipment/ElectronicsTypes';
+import {
+  IMiscEquipment,
+  MiscEquipmentCategory,
+} from '@/types/equipment/MiscEquipmentTypes';
+import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 
 /**
  * Detect if we're running in a server (Node.js) environment
@@ -34,16 +48,19 @@ const isServer = typeof window === 'undefined';
 /**
  * Read a JSON file - handles both server-side (fs) and client-side (fetch) environments
  */
-async function readJsonFile<T>(filePath: string, basePath: string): Promise<T | null> {
+async function readJsonFile<T>(
+  filePath: string,
+  basePath: string,
+): Promise<T | null> {
   if (isServer) {
     // Server-side: use fs to read from public directory
     // This code only runs server-side and is not bundled for the client
     // Turbopack warning: This dynamic path is server-only and won't affect client bundle
     try {
       // Dynamic imports to avoid bundling in browser
-      const fs = await import('fs').then(m => m.promises);
+      const fs = await import('fs').then((m) => m.promises);
       const path = await import('path');
-      
+
       // Resolve path relative to public directory
       // Construct path explicitly to help with static analysis
       const publicDir = path.resolve(process.cwd(), 'public');
@@ -52,13 +69,18 @@ async function readJsonFile<T>(filePath: string, basePath: string): Promise<T | 
       const cleanFilePath = filePath.replace(/^\/+/, '');
       // Use explicit string construction for known file patterns
       // This helps Turbopack understand the file access pattern
-      const pathSegments = [publicDir, cleanBasePath, cleanFilePath].filter(Boolean);
+      const pathSegments = [publicDir, cleanBasePath, cleanFilePath].filter(
+        Boolean,
+      );
       const fullPath = path.resolve(...pathSegments);
-      
+
       const content = await fs.readFile(fullPath, 'utf-8');
       return JSON.parse(content) as T;
     } catch (error) {
-      console.warn(`[EquipmentLoaderService] Server-side read failed for ${filePath}:`, error);
+      console.warn(
+        `[EquipmentLoaderService] Server-side read failed for ${filePath}:`,
+        error,
+      );
       return null;
     }
   } else {
@@ -66,12 +88,17 @@ async function readJsonFile<T>(filePath: string, basePath: string): Promise<T | 
     try {
       const response = await fetch(`${basePath}/${filePath}`);
       if (response.ok) {
-        return await response.json() as T;
+        return (await response.json()) as T;
       }
-      console.warn(`[EquipmentLoaderService] Fetch failed for ${filePath}: ${response.status}`);
+      console.warn(
+        `[EquipmentLoaderService] Fetch failed for ${filePath}: ${response.status}`,
+      );
       return null;
     } catch (error) {
-      console.warn(`[EquipmentLoaderService] Fetch error for ${filePath}:`, error);
+      console.warn(
+        `[EquipmentLoaderService] Fetch error for ${filePath}:`,
+        error,
+      );
       return null;
     }
   }
@@ -385,55 +412,55 @@ function parseMiscEquipmentCategory(value: string): MiscEquipmentCategory {
 function parseUnitType(value: string): UnitType | undefined {
   // Handle both full enum name and shorthand
   const normalized = value.toUpperCase().replace(/-/g, '_').replace(/ /g, '_');
-  
+
   // Map of normalized strings to UnitType values
   const unitTypeMap: Record<string, UnitType> = {
     // Full names
-    'BATTLEMECH': UnitType.BATTLEMECH,
-    'OMNIMECH': UnitType.OMNIMECH,
-    'INDUSTRIALMECH': UnitType.INDUSTRIALMECH,
-    'PROTOMECH': UnitType.PROTOMECH,
-    'VEHICLE': UnitType.VEHICLE,
-    'VTOL': UnitType.VTOL,
-    'AEROSPACE': UnitType.AEROSPACE,
-    'CONVENTIONAL_FIGHTER': UnitType.CONVENTIONAL_FIGHTER,
-    'SMALL_CRAFT': UnitType.SMALL_CRAFT,
-    'DROPSHIP': UnitType.DROPSHIP,
-    'JUMPSHIP': UnitType.JUMPSHIP,
-    'WARSHIP': UnitType.WARSHIP,
-    'SPACE_STATION': UnitType.SPACE_STATION,
-    'INFANTRY': UnitType.INFANTRY,
-    'BATTLE_ARMOR': UnitType.BATTLE_ARMOR,
-    'SUPPORT_VEHICLE': UnitType.SUPPORT_VEHICLE,
+    BATTLEMECH: UnitType.BATTLEMECH,
+    OMNIMECH: UnitType.OMNIMECH,
+    INDUSTRIALMECH: UnitType.INDUSTRIALMECH,
+    PROTOMECH: UnitType.PROTOMECH,
+    VEHICLE: UnitType.VEHICLE,
+    VTOL: UnitType.VTOL,
+    AEROSPACE: UnitType.AEROSPACE,
+    CONVENTIONAL_FIGHTER: UnitType.CONVENTIONAL_FIGHTER,
+    SMALL_CRAFT: UnitType.SMALL_CRAFT,
+    DROPSHIP: UnitType.DROPSHIP,
+    JUMPSHIP: UnitType.JUMPSHIP,
+    WARSHIP: UnitType.WARSHIP,
+    SPACE_STATION: UnitType.SPACE_STATION,
+    INFANTRY: UnitType.INFANTRY,
+    BATTLE_ARMOR: UnitType.BATTLE_ARMOR,
+    SUPPORT_VEHICLE: UnitType.SUPPORT_VEHICLE,
     // Common shorthands
-    'MECH': UnitType.BATTLEMECH,
-    'MECH_EQUIPMENT': UnitType.BATTLEMECH,
-    'TANK': UnitType.VEHICLE,
-    'VEHICLE_EQUIPMENT': UnitType.VEHICLE,
-    'VTOL_EQUIPMENT': UnitType.VTOL,
-    'FIGHTER': UnitType.AEROSPACE,
-    'FIGHTER_EQUIPMENT': UnitType.AEROSPACE,
-    'ASF': UnitType.AEROSPACE,
-    'SUPPORT': UnitType.SUPPORT_VEHICLE,
-    'SUPPORT_VEHICLE_EQUIPMENT': UnitType.SUPPORT_VEHICLE,
-    'BA': UnitType.BATTLE_ARMOR,
-    'BA_EQUIPMENT': UnitType.BATTLE_ARMOR,
-    'INF': UnitType.INFANTRY,
-    'INF_EQUIPMENT': UnitType.INFANTRY,
-    'PROTO': UnitType.PROTOMECH,
-    'PROTO_EQUIPMENT': UnitType.PROTOMECH,
-    'SC': UnitType.SMALL_CRAFT,
-    'SC_EQUIPMENT': UnitType.SMALL_CRAFT,
-    'DS': UnitType.DROPSHIP,
-    'DS_EQUIPMENT': UnitType.DROPSHIP,
-    'JS': UnitType.JUMPSHIP,
-    'JS_EQUIPMENT': UnitType.JUMPSHIP,
-    'WS': UnitType.WARSHIP,
-    'WS_EQUIPMENT': UnitType.WARSHIP,
-    'SS': UnitType.SPACE_STATION,
-    'SS_EQUIPMENT': UnitType.SPACE_STATION,
+    MECH: UnitType.BATTLEMECH,
+    MECH_EQUIPMENT: UnitType.BATTLEMECH,
+    TANK: UnitType.VEHICLE,
+    VEHICLE_EQUIPMENT: UnitType.VEHICLE,
+    VTOL_EQUIPMENT: UnitType.VTOL,
+    FIGHTER: UnitType.AEROSPACE,
+    FIGHTER_EQUIPMENT: UnitType.AEROSPACE,
+    ASF: UnitType.AEROSPACE,
+    SUPPORT: UnitType.SUPPORT_VEHICLE,
+    SUPPORT_VEHICLE_EQUIPMENT: UnitType.SUPPORT_VEHICLE,
+    BA: UnitType.BATTLE_ARMOR,
+    BA_EQUIPMENT: UnitType.BATTLE_ARMOR,
+    INF: UnitType.INFANTRY,
+    INF_EQUIPMENT: UnitType.INFANTRY,
+    PROTO: UnitType.PROTOMECH,
+    PROTO_EQUIPMENT: UnitType.PROTOMECH,
+    SC: UnitType.SMALL_CRAFT,
+    SC_EQUIPMENT: UnitType.SMALL_CRAFT,
+    DS: UnitType.DROPSHIP,
+    DS_EQUIPMENT: UnitType.DROPSHIP,
+    JS: UnitType.JUMPSHIP,
+    JS_EQUIPMENT: UnitType.JUMPSHIP,
+    WS: UnitType.WARSHIP,
+    WS_EQUIPMENT: UnitType.WARSHIP,
+    SS: UnitType.SPACE_STATION,
+    SS_EQUIPMENT: UnitType.SPACE_STATION,
   };
-  
+
   return unitTypeMap[normalized];
 }
 
@@ -457,7 +484,7 @@ function parseBehaviorFlag(value: string): EquipmentBehaviorFlag | undefined {
  */
 function parseFlags(flags: string[] | undefined): EquipmentBehaviorFlag[] {
   if (!flags) return [];
-  
+
   const result: EquipmentBehaviorFlag[] = [];
   for (const flag of flags) {
     const behaviorFlag = parseBehaviorFlag(flag);
@@ -474,7 +501,7 @@ function parseFlags(flags: string[] | undefined): EquipmentBehaviorFlag[] {
  */
 function parseAllowedUnitTypes(types: string[] | undefined): UnitType[] {
   if (!types) return [];
-  
+
   const result: UnitType[] = [];
   for (const type of types) {
     const unitType = parseUnitType(type);
@@ -491,7 +518,7 @@ function parseAllowedUnitTypes(types: string[] | undefined): UnitType[] {
 function convertWeapon(raw: IRawWeaponData): IWeapon {
   const allowedUnitTypes = parseAllowedUnitTypes(raw.allowedUnitTypes);
   const flags = parseFlags(raw.flags);
-  
+
   return {
     id: raw.id,
     name: raw.name,
@@ -522,7 +549,7 @@ function convertWeapon(raw: IRawWeaponData): IWeapon {
 function convertAmmunition(raw: IRawAmmunitionData): IAmmunition {
   const allowedUnitTypes = parseAllowedUnitTypes(raw.allowedUnitTypes);
   const flags = parseFlags(raw.flags);
-  
+
   return {
     id: raw.id,
     name: raw.name,
@@ -538,8 +565,12 @@ function convertAmmunition(raw: IRawAmmunitionData): IAmmunition {
     battleValue: raw.battleValue,
     isExplosive: raw.isExplosive,
     introductionYear: raw.introductionYear,
-    ...(raw.damageModifier !== undefined && { damageModifier: raw.damageModifier }),
-    ...(raw.rangeModifier !== undefined && { rangeModifier: raw.rangeModifier }),
+    ...(raw.damageModifier !== undefined && {
+      damageModifier: raw.damageModifier,
+    }),
+    ...(raw.rangeModifier !== undefined && {
+      rangeModifier: raw.rangeModifier,
+    }),
     ...(raw.special && { special: raw.special }),
     ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
     ...(flags.length > 0 && { flags }),
@@ -552,7 +583,7 @@ function convertAmmunition(raw: IRawAmmunitionData): IAmmunition {
 function convertElectronics(raw: IRawElectronicsData): IElectronics {
   const allowedUnitTypes = parseAllowedUnitTypes(raw.allowedUnitTypes);
   const flags = parseFlags(raw.flags);
-  
+
   return {
     id: raw.id,
     name: raw.name,
@@ -565,7 +596,9 @@ function convertElectronics(raw: IRawElectronicsData): IElectronics {
     battleValue: raw.battleValue,
     introductionYear: raw.introductionYear,
     ...(raw.special && { special: raw.special }),
-    ...(raw.variableEquipmentId && { variableEquipmentId: raw.variableEquipmentId }),
+    ...(raw.variableEquipmentId && {
+      variableEquipmentId: raw.variableEquipmentId,
+    }),
     ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
     ...(flags.length > 0 && { flags }),
     ...(raw.allowedLocations && { allowedLocations: raw.allowedLocations }),
@@ -578,7 +611,7 @@ function convertElectronics(raw: IRawElectronicsData): IElectronics {
 function convertMiscEquipment(raw: IRawMiscEquipmentData): IMiscEquipment {
   const allowedUnitTypes = parseAllowedUnitTypes(raw.allowedUnitTypes);
   const flags = parseFlags(raw.flags);
-  
+
   return {
     id: raw.id,
     name: raw.name,
@@ -591,7 +624,9 @@ function convertMiscEquipment(raw: IRawMiscEquipmentData): IMiscEquipment {
     battleValue: raw.battleValue,
     introductionYear: raw.introductionYear,
     ...(raw.special && { special: raw.special }),
-    ...(raw.variableEquipmentId && { variableEquipmentId: raw.variableEquipmentId }),
+    ...(raw.variableEquipmentId && {
+      variableEquipmentId: raw.variableEquipmentId,
+    }),
     ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
     ...(flags.length > 0 && { flags }),
     ...(raw.allowedLocations && { allowedLocations: raw.allowedLocations }),
@@ -600,7 +635,7 @@ function convertMiscEquipment(raw: IRawMiscEquipmentData): IMiscEquipment {
 
 /**
  * Equipment Loader Service
- * 
+ *
  * Loads and caches equipment data from JSON files for runtime use.
  */
 export class EquipmentLoaderService {
@@ -608,40 +643,45 @@ export class EquipmentLoaderService {
   private ammunition: Map<string, IAmmunition> = new Map();
   private electronics: Map<string, IElectronics> = new Map();
   private miscEquipment: Map<string, IMiscEquipment> = new Map();
-  
+
   private isLoaded = false;
   private loadErrors: string[] = [];
-  
+
   constructor() {}
-  
+
   /**
    * Check if equipment is loaded
    */
   getIsLoaded(): boolean {
     return this.isLoaded;
   }
-  
+
   /**
    * Get any loading errors
    */
   getLoadErrors(): readonly string[] {
     return this.loadErrors;
   }
-  
+
   /**
    * Load all official equipment from JSON files
    * Works in both server-side (Node.js) and client-side (browser) environments
    */
-  async loadOfficialEquipment(basePath = '/data/equipment/official'): Promise<IEquipmentLoadResult> {
+  async loadOfficialEquipment(
+    basePath = '/data/equipment/official',
+  ): Promise<IEquipmentLoadResult> {
     const errors: string[] = [];
     const warnings: string[] = [];
     let itemsLoaded = 0;
-    
+
     try {
       // Load energy weapons
-      const energyData = await readJsonFile<IEquipmentFile<IRawWeaponData>>('weapons/energy.json', basePath);
+      const energyData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
+        'weapons/energy.json',
+        basePath,
+      );
       if (energyData) {
-        energyData.items.forEach(item => {
+        energyData.items.forEach((item) => {
           const weapon = convertWeapon(item);
           this.weapons.set(weapon.id, weapon);
           itemsLoaded++;
@@ -649,11 +689,14 @@ export class EquipmentLoaderService {
       } else {
         warnings.push('Failed to load energy weapons');
       }
-      
+
       // Load ballistic weapons
-      const ballisticData = await readJsonFile<IEquipmentFile<IRawWeaponData>>('weapons/ballistic.json', basePath);
+      const ballisticData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
+        'weapons/ballistic.json',
+        basePath,
+      );
       if (ballisticData) {
-        ballisticData.items.forEach(item => {
+        ballisticData.items.forEach((item) => {
           const weapon = convertWeapon(item);
           this.weapons.set(weapon.id, weapon);
           itemsLoaded++;
@@ -661,11 +704,14 @@ export class EquipmentLoaderService {
       } else {
         warnings.push('Failed to load ballistic weapons');
       }
-      
+
       // Load missile weapons
-      const missileData = await readJsonFile<IEquipmentFile<IRawWeaponData>>('weapons/missile.json', basePath);
+      const missileData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
+        'weapons/missile.json',
+        basePath,
+      );
       if (missileData) {
-        missileData.items.forEach(item => {
+        missileData.items.forEach((item) => {
           const weapon = convertWeapon(item);
           this.weapons.set(weapon.id, weapon);
           itemsLoaded++;
@@ -673,11 +719,14 @@ export class EquipmentLoaderService {
       } else {
         warnings.push('Failed to load missile weapons');
       }
-      
+
       // Load ammunition
-      const ammoData = await readJsonFile<IEquipmentFile<IRawAmmunitionData>>('ammunition.json', basePath);
+      const ammoData = await readJsonFile<IEquipmentFile<IRawAmmunitionData>>(
+        'ammunition.json',
+        basePath,
+      );
       if (ammoData) {
-        ammoData.items.forEach(item => {
+        ammoData.items.forEach((item) => {
           const ammo = convertAmmunition(item);
           this.ammunition.set(ammo.id, ammo);
           itemsLoaded++;
@@ -685,11 +734,13 @@ export class EquipmentLoaderService {
       } else {
         warnings.push('Failed to load ammunition');
       }
-      
+
       // Load electronics
-      const electronicsData = await readJsonFile<IEquipmentFile<IRawElectronicsData>>('electronics.json', basePath);
+      const electronicsData = await readJsonFile<
+        IEquipmentFile<IRawElectronicsData>
+      >('electronics.json', basePath);
       if (electronicsData) {
-        electronicsData.items.forEach(item => {
+        electronicsData.items.forEach((item) => {
           const electronics = convertElectronics(item);
           this.electronics.set(electronics.id, electronics);
           itemsLoaded++;
@@ -697,11 +748,13 @@ export class EquipmentLoaderService {
       } else {
         warnings.push('Failed to load electronics');
       }
-      
+
       // Load misc equipment
-      const miscData = await readJsonFile<IEquipmentFile<IRawMiscEquipmentData>>('miscellaneous.json', basePath);
+      const miscData = await readJsonFile<
+        IEquipmentFile<IRawMiscEquipmentData>
+      >('miscellaneous.json', basePath);
       if (miscData) {
-        miscData.items.forEach(item => {
+        miscData.items.forEach((item) => {
           const equipment = convertMiscEquipment(item);
           this.miscEquipment.set(equipment.id, equipment);
           itemsLoaded++;
@@ -709,10 +762,10 @@ export class EquipmentLoaderService {
       } else {
         warnings.push('Failed to load miscellaneous equipment');
       }
-      
+
       this.isLoaded = true;
       this.loadErrors = errors;
-      
+
       return {
         success: errors.length === 0,
         itemsLoaded,
@@ -729,55 +782,62 @@ export class EquipmentLoaderService {
       };
     }
   }
-  
+
   /**
    * Load custom equipment from a JSON file or object
    */
-  async loadCustomEquipment(source: string | File | object): Promise<IEquipmentLoadResult> {
+  async loadCustomEquipment(
+    source: string | File | object,
+  ): Promise<IEquipmentLoadResult> {
     const errors: string[] = [];
     const warnings: string[] = [];
     let itemsLoaded = 0;
-    
+
     try {
-      let data: IEquipmentFile<IRawWeaponData | IRawAmmunitionData | IRawElectronicsData | IRawMiscEquipmentData>;
-      
+      let data: IEquipmentFile<
+        | IRawWeaponData
+        | IRawAmmunitionData
+        | IRawElectronicsData
+        | IRawMiscEquipmentData
+      >;
+
       if (typeof source === 'string') {
         // Assume URL
         const response = await fetch(source);
         if (!response.ok) {
           throw new Error(`Failed to fetch: ${response.status}`);
         }
-        data = await response.json() as typeof data;
+        data = (await response.json()) as typeof data;
       } else if (source instanceof File) {
         const text = await source.text();
         data = JSON.parse(text) as typeof data;
       } else {
         data = source as IEquipmentFile<IRawWeaponData>;
       }
-      
+
       // Determine type from schema or first item
       const schemaPath = data.$schema || '';
-      
+
       if (schemaPath.includes('weapon')) {
-        (data.items as IRawWeaponData[]).forEach(item => {
+        (data.items as IRawWeaponData[]).forEach((item) => {
           const weapon = convertWeapon(item);
           this.weapons.set(weapon.id, weapon);
           itemsLoaded++;
         });
       } else if (schemaPath.includes('ammunition')) {
-        (data.items as IRawAmmunitionData[]).forEach(item => {
+        (data.items as IRawAmmunitionData[]).forEach((item) => {
           const ammo = convertAmmunition(item);
           this.ammunition.set(ammo.id, ammo);
           itemsLoaded++;
         });
       } else if (schemaPath.includes('electronics')) {
-        (data.items as IRawElectronicsData[]).forEach(item => {
+        (data.items as IRawElectronicsData[]).forEach((item) => {
           const electronics = convertElectronics(item);
           this.electronics.set(electronics.id, electronics);
           itemsLoaded++;
         });
       } else if (schemaPath.includes('misc-equipment')) {
-        (data.items as IRawMiscEquipmentData[]).forEach(item => {
+        (data.items as IRawMiscEquipmentData[]).forEach((item) => {
           const equipment = convertMiscEquipment(item);
           this.miscEquipment.set(equipment.id, equipment);
           itemsLoaded++;
@@ -785,7 +845,7 @@ export class EquipmentLoaderService {
       } else {
         warnings.push('Unknown equipment type, attempting to infer from data');
       }
-      
+
       return {
         success: errors.length === 0,
         itemsLoaded,
@@ -802,111 +862,122 @@ export class EquipmentLoaderService {
       };
     }
   }
-  
+
   /**
    * Get weapon by ID
    */
   getWeaponById(id: string): IWeapon | null {
     return this.weapons.get(id) || null;
   }
-  
+
   /**
    * Get ammunition by ID
    */
   getAmmunitionById(id: string): IAmmunition | null {
     return this.ammunition.get(id) || null;
   }
-  
+
   /**
    * Get electronics by ID
    */
   getElectronicsById(id: string): IElectronics | null {
     return this.electronics.get(id) || null;
   }
-  
+
   /**
    * Get misc equipment by ID
    */
   getMiscEquipmentById(id: string): IMiscEquipment | null {
     return this.miscEquipment.get(id) || null;
   }
-  
+
   /**
    * Get any equipment by ID (searches all categories)
    */
-  getById(id: string): IWeapon | IAmmunition | IElectronics | IMiscEquipment | null {
-    return this.weapons.get(id) ||
-           this.ammunition.get(id) ||
-           this.electronics.get(id) ||
-           this.miscEquipment.get(id) ||
-           null;
+  getById(
+    id: string,
+  ): IWeapon | IAmmunition | IElectronics | IMiscEquipment | null {
+    return (
+      this.weapons.get(id) ||
+      this.ammunition.get(id) ||
+      this.electronics.get(id) ||
+      this.miscEquipment.get(id) ||
+      null
+    );
   }
-  
+
   /**
    * Get all weapons
    */
   getAllWeapons(): IWeapon[] {
     return Array.from(this.weapons.values());
   }
-  
+
   /**
    * Get all ammunition
    */
   getAllAmmunition(): IAmmunition[] {
     return Array.from(this.ammunition.values());
   }
-  
+
   /**
    * Get all electronics
    */
   getAllElectronics(): IElectronics[] {
     return Array.from(this.electronics.values());
   }
-  
+
   /**
    * Get all misc equipment
    */
   getAllMiscEquipment(): IMiscEquipment[] {
     return Array.from(this.miscEquipment.values());
   }
-  
+
   /**
    * Search weapons by filter
    */
   searchWeapons(filter: IEquipmentFilter): IWeapon[] {
     let results = this.getAllWeapons();
-    
+
     if (filter.techBase) {
-      const techBases = Array.isArray(filter.techBase) ? filter.techBase : [filter.techBase];
+      const techBases = Array.isArray(filter.techBase)
+        ? filter.techBase
+        : [filter.techBase];
       // Per spec: Tech base is binary (IS or Clan), no MIXED
-      results = results.filter(w => techBases.includes(w.techBase));
+      results = results.filter((w) => techBases.includes(w.techBase));
     }
-    
+
     if (filter.rulesLevel) {
-      const levels = Array.isArray(filter.rulesLevel) ? filter.rulesLevel : [filter.rulesLevel];
-      results = results.filter(w => levels.includes(w.rulesLevel));
+      const levels = Array.isArray(filter.rulesLevel)
+        ? filter.rulesLevel
+        : [filter.rulesLevel];
+      results = results.filter((w) => levels.includes(w.rulesLevel));
     }
-    
+
     if (filter.maxYear !== undefined) {
-      results = results.filter(w => w.introductionYear <= filter.maxYear!);
+      results = results.filter((w) => w.introductionYear <= filter.maxYear!);
     }
-    
+
     if (filter.minYear !== undefined) {
-      results = results.filter(w => w.introductionYear >= filter.minYear!);
+      results = results.filter((w) => w.introductionYear >= filter.minYear!);
     }
-    
+
     if (filter.searchText) {
       const search = filter.searchText.toLowerCase();
-      results = results.filter(w => 
-        w.name.toLowerCase().includes(search) ||
-        w.id.toLowerCase().includes(search)
+      results = results.filter(
+        (w) =>
+          w.name.toLowerCase().includes(search) ||
+          w.id.toLowerCase().includes(search),
       );
     }
-    
+
     // Filter by unit type compatibility
     if (filter.unitType) {
-      const unitTypes = Array.isArray(filter.unitType) ? filter.unitType : [filter.unitType];
-      results = results.filter(w => {
+      const unitTypes = Array.isArray(filter.unitType)
+        ? filter.unitType
+        : [filter.unitType];
+      results = results.filter((w) => {
         // If weapon has no allowedUnitTypes, it defaults to mech/vehicle/aerospace
         const weaponUnitTypes = w.allowedUnitTypes ?? [
           UnitType.BATTLEMECH,
@@ -914,212 +985,233 @@ export class EquipmentLoaderService {
           UnitType.AEROSPACE,
         ];
         // Equipment is compatible if it supports at least one of the requested unit types
-        return unitTypes.some(ut => weaponUnitTypes.includes(ut));
+        return unitTypes.some((ut) => weaponUnitTypes.includes(ut));
       });
     }
-    
+
     // Filter to equipment that has ALL of the specified flags
     if (filter.hasFlags && filter.hasFlags.length > 0) {
-      results = results.filter(w => {
+      results = results.filter((w) => {
         const weaponFlags = w.flags ?? [];
-        return filter.hasFlags!.every(flag => weaponFlags.includes(flag));
+        return filter.hasFlags!.every((flag) => weaponFlags.includes(flag));
       });
     }
-    
+
     // Filter out equipment that has ANY of the specified flags
     if (filter.excludeFlags && filter.excludeFlags.length > 0) {
-      results = results.filter(w => {
+      results = results.filter((w) => {
         const weaponFlags = w.flags ?? [];
-        return !filter.excludeFlags!.some(flag => weaponFlags.includes(flag));
+        return !filter.excludeFlags!.some((flag) => weaponFlags.includes(flag));
       });
     }
-    
+
     return results;
   }
-  
+
   /**
    * Search ammunition by filter
    */
   searchAmmunition(filter: IEquipmentFilter): IAmmunition[] {
     let results = this.getAllAmmunition();
-    
+
     if (filter.techBase) {
-      const techBases = Array.isArray(filter.techBase) ? filter.techBase : [filter.techBase];
-      results = results.filter(a => techBases.includes(a.techBase));
+      const techBases = Array.isArray(filter.techBase)
+        ? filter.techBase
+        : [filter.techBase];
+      results = results.filter((a) => techBases.includes(a.techBase));
     }
-    
+
     if (filter.rulesLevel) {
-      const levels = Array.isArray(filter.rulesLevel) ? filter.rulesLevel : [filter.rulesLevel];
-      results = results.filter(a => levels.includes(a.rulesLevel));
+      const levels = Array.isArray(filter.rulesLevel)
+        ? filter.rulesLevel
+        : [filter.rulesLevel];
+      results = results.filter((a) => levels.includes(a.rulesLevel));
     }
-    
+
     if (filter.maxYear !== undefined) {
-      results = results.filter(a => a.introductionYear <= filter.maxYear!);
+      results = results.filter((a) => a.introductionYear <= filter.maxYear!);
     }
-    
+
     if (filter.minYear !== undefined) {
-      results = results.filter(a => a.introductionYear >= filter.minYear!);
+      results = results.filter((a) => a.introductionYear >= filter.minYear!);
     }
-    
+
     if (filter.searchText) {
       const search = filter.searchText.toLowerCase();
-      results = results.filter(a => 
-        a.name.toLowerCase().includes(search) ||
-        a.id.toLowerCase().includes(search)
+      results = results.filter(
+        (a) =>
+          a.name.toLowerCase().includes(search) ||
+          a.id.toLowerCase().includes(search),
       );
     }
-    
+
     if (filter.unitType) {
-      const unitTypes = Array.isArray(filter.unitType) ? filter.unitType : [filter.unitType];
-      results = results.filter(a => {
+      const unitTypes = Array.isArray(filter.unitType)
+        ? filter.unitType
+        : [filter.unitType];
+      results = results.filter((a) => {
         const ammoUnitTypes = a.allowedUnitTypes ?? [
           UnitType.BATTLEMECH,
           UnitType.VEHICLE,
           UnitType.AEROSPACE,
         ];
-        return unitTypes.some(ut => ammoUnitTypes.includes(ut));
+        return unitTypes.some((ut) => ammoUnitTypes.includes(ut));
       });
     }
-    
+
     if (filter.hasFlags && filter.hasFlags.length > 0) {
-      results = results.filter(a => {
+      results = results.filter((a) => {
         const ammoFlags = a.flags ?? [];
-        return filter.hasFlags!.every(flag => ammoFlags.includes(flag));
+        return filter.hasFlags!.every((flag) => ammoFlags.includes(flag));
       });
     }
-    
+
     if (filter.excludeFlags && filter.excludeFlags.length > 0) {
-      results = results.filter(a => {
+      results = results.filter((a) => {
         const ammoFlags = a.flags ?? [];
-        return !filter.excludeFlags!.some(flag => ammoFlags.includes(flag));
+        return !filter.excludeFlags!.some((flag) => ammoFlags.includes(flag));
       });
     }
-    
+
     return results;
   }
-  
+
   /**
    * Search electronics by filter
    */
   searchElectronics(filter: IEquipmentFilter): IElectronics[] {
     let results = this.getAllElectronics();
-    
+
     if (filter.techBase) {
-      const techBases = Array.isArray(filter.techBase) ? filter.techBase : [filter.techBase];
-      results = results.filter(e => techBases.includes(e.techBase));
+      const techBases = Array.isArray(filter.techBase)
+        ? filter.techBase
+        : [filter.techBase];
+      results = results.filter((e) => techBases.includes(e.techBase));
     }
-    
+
     if (filter.rulesLevel) {
-      const levels = Array.isArray(filter.rulesLevel) ? filter.rulesLevel : [filter.rulesLevel];
-      results = results.filter(e => levels.includes(e.rulesLevel));
+      const levels = Array.isArray(filter.rulesLevel)
+        ? filter.rulesLevel
+        : [filter.rulesLevel];
+      results = results.filter((e) => levels.includes(e.rulesLevel));
     }
-    
+
     if (filter.maxYear !== undefined) {
-      results = results.filter(e => e.introductionYear <= filter.maxYear!);
+      results = results.filter((e) => e.introductionYear <= filter.maxYear!);
     }
-    
+
     if (filter.minYear !== undefined) {
-      results = results.filter(e => e.introductionYear >= filter.minYear!);
+      results = results.filter((e) => e.introductionYear >= filter.minYear!);
     }
-    
+
     if (filter.searchText) {
       const search = filter.searchText.toLowerCase();
-      results = results.filter(e => 
-        e.name.toLowerCase().includes(search) ||
-        e.id.toLowerCase().includes(search)
+      results = results.filter(
+        (e) =>
+          e.name.toLowerCase().includes(search) ||
+          e.id.toLowerCase().includes(search),
       );
     }
-    
+
     if (filter.unitType) {
-      const unitTypes = Array.isArray(filter.unitType) ? filter.unitType : [filter.unitType];
-      results = results.filter(e => {
+      const unitTypes = Array.isArray(filter.unitType)
+        ? filter.unitType
+        : [filter.unitType];
+      results = results.filter((e) => {
         const elecUnitTypes = e.allowedUnitTypes ?? [
           UnitType.BATTLEMECH,
           UnitType.VEHICLE,
           UnitType.AEROSPACE,
         ];
-        return unitTypes.some(ut => elecUnitTypes.includes(ut));
+        return unitTypes.some((ut) => elecUnitTypes.includes(ut));
       });
     }
-    
+
     if (filter.hasFlags && filter.hasFlags.length > 0) {
-      results = results.filter(e => {
+      results = results.filter((e) => {
         const elecFlags = e.flags ?? [];
-        return filter.hasFlags!.every(flag => elecFlags.includes(flag));
+        return filter.hasFlags!.every((flag) => elecFlags.includes(flag));
       });
     }
-    
+
     if (filter.excludeFlags && filter.excludeFlags.length > 0) {
-      results = results.filter(e => {
+      results = results.filter((e) => {
         const elecFlags = e.flags ?? [];
-        return !filter.excludeFlags!.some(flag => elecFlags.includes(flag));
+        return !filter.excludeFlags!.some((flag) => elecFlags.includes(flag));
       });
     }
-    
+
     return results;
   }
-  
+
   /**
    * Search misc equipment by filter
    */
   searchMiscEquipment(filter: IEquipmentFilter): IMiscEquipment[] {
     let results = this.getAllMiscEquipment();
-    
+
     if (filter.techBase) {
-      const techBases = Array.isArray(filter.techBase) ? filter.techBase : [filter.techBase];
-      results = results.filter(m => techBases.includes(m.techBase));
+      const techBases = Array.isArray(filter.techBase)
+        ? filter.techBase
+        : [filter.techBase];
+      results = results.filter((m) => techBases.includes(m.techBase));
     }
-    
+
     if (filter.rulesLevel) {
-      const levels = Array.isArray(filter.rulesLevel) ? filter.rulesLevel : [filter.rulesLevel];
-      results = results.filter(m => levels.includes(m.rulesLevel));
+      const levels = Array.isArray(filter.rulesLevel)
+        ? filter.rulesLevel
+        : [filter.rulesLevel];
+      results = results.filter((m) => levels.includes(m.rulesLevel));
     }
-    
+
     if (filter.maxYear !== undefined) {
-      results = results.filter(m => m.introductionYear <= filter.maxYear!);
+      results = results.filter((m) => m.introductionYear <= filter.maxYear!);
     }
-    
+
     if (filter.minYear !== undefined) {
-      results = results.filter(m => m.introductionYear >= filter.minYear!);
+      results = results.filter((m) => m.introductionYear >= filter.minYear!);
     }
-    
+
     if (filter.searchText) {
       const search = filter.searchText.toLowerCase();
-      results = results.filter(m => 
-        m.name.toLowerCase().includes(search) ||
-        m.id.toLowerCase().includes(search)
+      results = results.filter(
+        (m) =>
+          m.name.toLowerCase().includes(search) ||
+          m.id.toLowerCase().includes(search),
       );
     }
-    
+
     if (filter.unitType) {
-      const unitTypes = Array.isArray(filter.unitType) ? filter.unitType : [filter.unitType];
-      results = results.filter(m => {
+      const unitTypes = Array.isArray(filter.unitType)
+        ? filter.unitType
+        : [filter.unitType];
+      results = results.filter((m) => {
         const miscUnitTypes = m.allowedUnitTypes ?? [
           UnitType.BATTLEMECH,
           UnitType.VEHICLE,
           UnitType.AEROSPACE,
         ];
-        return unitTypes.some(ut => miscUnitTypes.includes(ut));
+        return unitTypes.some((ut) => miscUnitTypes.includes(ut));
       });
     }
-    
+
     if (filter.hasFlags && filter.hasFlags.length > 0) {
-      results = results.filter(m => {
+      results = results.filter((m) => {
         const miscFlags = m.flags ?? [];
-        return filter.hasFlags!.every(flag => miscFlags.includes(flag));
+        return filter.hasFlags!.every((flag) => miscFlags.includes(flag));
       });
     }
-    
+
     if (filter.excludeFlags && filter.excludeFlags.length > 0) {
-      results = results.filter(m => {
+      results = results.filter((m) => {
         const miscFlags = m.flags ?? [];
-        return !filter.excludeFlags!.some(flag => miscFlags.includes(flag));
+        return !filter.excludeFlags!.some((flag) => miscFlags.includes(flag));
       });
     }
-    
+
     return results;
   }
-  
+
   /**
    * Search all equipment types by unit type
    * Convenience method to get all compatible equipment for a unit type
@@ -1138,15 +1230,19 @@ export class EquipmentLoaderService {
       miscEquipment: this.searchMiscEquipment(filter),
     };
   }
-  
+
   /**
    * Get total equipment count
    */
   getTotalCount(): number {
-    return this.weapons.size + this.ammunition.size + 
-           this.electronics.size + this.miscEquipment.size;
+    return (
+      this.weapons.size +
+      this.ammunition.size +
+      this.electronics.size +
+      this.miscEquipment.size
+    );
   }
-  
+
   /**
    * Clear all loaded equipment
    */
@@ -1160,7 +1256,8 @@ export class EquipmentLoaderService {
   }
 }
 
-const equipmentLoaderServiceFactory: SingletonFactory<EquipmentLoaderService> = createSingleton((): EquipmentLoaderService => new EquipmentLoaderService());
+const equipmentLoaderServiceFactory: SingletonFactory<EquipmentLoaderService> =
+  createSingleton((): EquipmentLoaderService => new EquipmentLoaderService());
 
 /**
  * Convenience function to get the loader instance
@@ -1175,4 +1272,3 @@ export function getEquipmentLoader(): EquipmentLoaderService {
 export function resetEquipmentLoader(): void {
   equipmentLoaderServiceFactory.reset();
 }
-

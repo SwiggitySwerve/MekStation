@@ -4,22 +4,22 @@
 
 MekStation is a BattleTech unit construction application currently limited to BattleMech support. The mm-data repository provides comprehensive unit data for all BattleTech unit types:
 
-| Unit Type | File Count | Format | Complexity |
-|-----------|------------|--------|------------|
-| Meks (BattleMechs) | 4,219 | MTF/BLK | High - Current focus |
-| Vehicles | 1,447 | BLK | Medium |
-| Battle Armor | 1,188 | BLK | Medium |
-| Infantry | 1,393 | BLK | Low |
-| Gun Emplacements | 1,035 | BLK | Low |
-| Fighters (Aerospace) | 503 | BLK | High |
-| Dropships | 209 | BLK | Very High |
-| Warships | 122 | BLK | Very High |
-| ProtoMechs | 86 | BLK | Medium |
-| Conventional Fighters | 69 | BLK | Medium |
-| Small Craft | 39 | BLK | High |
-| Space Stations | 33 | BLK | Very High |
-| JumpShips | 30 | BLK | Very High |
-| Handheld Weapons | 24 | BLK | Low |
+| Unit Type             | File Count | Format  | Complexity           |
+| --------------------- | ---------- | ------- | -------------------- |
+| Meks (BattleMechs)    | 4,219      | MTF/BLK | High - Current focus |
+| Vehicles              | 1,447      | BLK     | Medium               |
+| Battle Armor          | 1,188      | BLK     | Medium               |
+| Infantry              | 1,393      | BLK     | Low                  |
+| Gun Emplacements      | 1,035      | BLK     | Low                  |
+| Fighters (Aerospace)  | 503        | BLK     | High                 |
+| Dropships             | 209        | BLK     | Very High            |
+| Warships              | 122        | BLK     | Very High            |
+| ProtoMechs            | 86         | BLK     | Medium               |
+| Conventional Fighters | 69         | BLK     | Medium               |
+| Small Craft           | 39         | BLK     | High                 |
+| Space Stations        | 33         | BLK     | Very High            |
+| JumpShips             | 30         | BLK     | Very High            |
+| Handheld Weapons      | 24         | BLK     | Low                  |
 
 **Total: ~10,397 unit files**
 
@@ -47,10 +47,12 @@ MekStation is a BattleTech unit construction application currently limited to Ba
 **Why**: Enables type-safe handling while sharing common properties.
 
 **Alternatives Considered**:
+
 - Single mega-interface with optional fields (rejected: type safety)
 - Completely separate interfaces (rejected: code duplication)
 
 **Pattern** (following MegaMekLab's ITab approach):
+
 ```typescript
 // Base unit interface - all units share these
 interface IBaseUnit extends IEntity, ITechBaseEntity, ITemporalEntity {
@@ -105,7 +107,7 @@ interface IUnitTypeHandler<T extends IBaseUnit> {
 
 class UnitTypeRegistry {
   private handlers = new Map<UnitType, IUnitTypeHandler<any>>();
-  
+
   register<T extends IBaseUnit>(handler: IUnitTypeHandler<T>): void;
   getHandler(unitType: UnitType): IUnitTypeHandler<IBaseUnit>;
 }
@@ -136,14 +138,14 @@ interface IBlkParser {
 
 **What**: Unit-type-specific tab sets following MegaMekLab patterns.
 
-| Unit Type | Tabs |
-|-----------|------|
-| BattleMech | Overview, Structure, Armor, Equipment, CritSlots, Fluff, Preview |
-| Vehicle | Overview, Structure, Armor, Equipment, Turret, Fluff, Preview |
-| Aerospace | Overview, Structure, Armor, Equipment, Weapons, Fluff, Preview |
-| Battle Armor | Overview, Structure, Squad, Equipment, Fluff, Preview |
-| Infantry | Overview, Build, Fluff, Preview |
-| DropShip | Overview, Structure, Armor, Equipment, Bays, Crew, Fluff, Preview |
+| Unit Type    | Tabs                                                              |
+| ------------ | ----------------------------------------------------------------- |
+| BattleMech   | Overview, Structure, Armor, Equipment, CritSlots, Fluff, Preview  |
+| Vehicle      | Overview, Structure, Armor, Equipment, Turret, Fluff, Preview     |
+| Aerospace    | Overview, Structure, Armor, Equipment, Weapons, Fluff, Preview    |
+| Battle Armor | Overview, Structure, Squad, Equipment, Fluff, Preview             |
+| Infantry     | Overview, Build, Fluff, Preview                                   |
+| DropShip     | Overview, Structure, Armor, Equipment, Bays, Crew, Fluff, Preview |
 
 ### Decision 5: Diagram Component Architecture
 
@@ -159,11 +161,11 @@ interface IUnitDiagramProps<T extends IBaseUnit> {
 }
 
 // Unit-type-specific implementations
-BipedMechDiagram: React.FC<IUnitDiagramProps<IBattleMech>>
-QuadMechDiagram: React.FC<IUnitDiagramProps<IBattleMech>>
-VehicleDiagram: React.FC<IUnitDiagramProps<IVehicle>>
-AerospaceDiagram: React.FC<IUnitDiagramProps<IAerospace>>
-BattleArmorDiagram: React.FC<IUnitDiagramProps<IBattleArmor>>
+BipedMechDiagram: React.FC<IUnitDiagramProps<IBattleMech>>;
+QuadMechDiagram: React.FC<IUnitDiagramProps<IBattleMech>>;
+VehicleDiagram: React.FC<IUnitDiagramProps<IVehicle>>;
+AerospaceDiagram: React.FC<IUnitDiagramProps<IAerospace>>;
+BattleArmorDiagram: React.FC<IUnitDiagramProps<IBattleArmor>>;
 ```
 
 ## Unit Type Specifics
@@ -173,12 +175,14 @@ BattleArmorDiagram: React.FC<IUnitDiagramProps<IBattleArmor>>
 **Locations**: Front, Left, Right, Rear, Turret (optional), Rotor (VTOL)
 
 **Special Properties**:
+
 - `motionType`: Wheeled, Tracked, Hover, VTOL, Naval, etc.
 - `turretType`: None, Single, Dual, Chin
 - `engineType`: Fusion, ICE, Fuel Cell, etc.
 - `barRating`: Battle Armor Rating for support vehicles
 
 **Special Toggles** (from MegaMekLab):
+
 - Superheavy toggle (>100 tons)
 - Trailer hitch
 - Environmental sealing
@@ -189,6 +193,7 @@ BattleArmorDiagram: React.FC<IUnitDiagramProps<IBattleArmor>>
 **Locations**: Nose, Left Wing, Right Wing, Aft, Fuselage
 
 **Special Properties**:
+
 - `safeThrust`: Safe thrust rating
 - `maxThrust`: Maximum thrust
 - `fuel`: Fuel points
@@ -196,6 +201,7 @@ BattleArmorDiagram: React.FC<IUnitDiagramProps<IBattleArmor>>
 - `cockpitType`: Standard, Primitive, etc.
 
 **Special Toggles**:
+
 - Bomb bay
 - Reinforced cockpit
 - Ejection seat
@@ -203,12 +209,14 @@ BattleArmorDiagram: React.FC<IUnitDiagramProps<IBattleArmor>>
 ### Battle Armor
 
 **Special Properties**:
+
 - `chassisType`: Biped, Quad, etc.
 - `weightClass`: PA(L), Light, Medium, Heavy, Assault
 - `squadSize`: 4, 5, or 6
 - `manipulatorType`: None, Basic, Battle Claw, etc.
 
 **Special Toggles**:
+
 - Anti-personnel mount
 - Turret mount
 - Stealth system
@@ -217,6 +225,7 @@ BattleArmorDiagram: React.FC<IUnitDiagramProps<IBattleArmor>>
 ### Infantry
 
 **Special Properties**:
+
 - `squadSize`: Size of each squad
 - `squadCount`: Number of squads
 - `primaryWeapon`: Main weapon type
@@ -225,6 +234,7 @@ BattleArmorDiagram: React.FC<IUnitDiagramProps<IBattleArmor>>
 - `motionType`: Foot, Motorized, Jump, Mechanized, etc.
 
 **Special Toggles**:
+
 - Anti-mech training
 - Specializations
 - Augmentations
@@ -234,6 +244,7 @@ BattleArmorDiagram: React.FC<IUnitDiagramProps<IBattleArmor>>
 **Locations**: Head, Torso, Main Gun, Left Arm, Right Arm, Legs
 
 **Special Properties**:
+
 - Same general structure as mechs but simplified
 - No internal heat sinks (pilots feel heat)
 - Limited equipment options
@@ -243,6 +254,7 @@ BattleArmorDiagram: React.FC<IUnitDiagramProps<IBattleArmor>>
 **Locations**: Nose, FL/FR Arc, AL/AR Arc, Aft, Broadsides (WarShips)
 
 **Special Properties**:
+
 - `structuralIntegrity`: SI rating
 - `kfDrive`: K-F drive presence (JumpShips)
 - `gravDecks`: Gravity deck count (WarShips)
@@ -250,57 +262,65 @@ BattleArmorDiagram: React.FC<IUnitDiagramProps<IBattleArmor>>
 - `crew`: Crew complement
 
 **Special Toggles**:
+
 - Lithium-fusion battery
 - Compact K-F drive
 - HPG
 
 ## Risks / Trade-offs
 
-| Risk | Trade-off | Mitigation |
-|------|-----------|------------|
-| Large scope | Features vs. timeline | Phased approach |
-| MegaMekLab divergence | Innovation vs. compatibility | Document deviations |
-| UI complexity | Full features vs. simplicity | Progressive disclosure |
-| Bundle size | All units vs. lazy loading | Code splitting |
+| Risk                  | Trade-off                    | Mitigation             |
+| --------------------- | ---------------------------- | ---------------------- |
+| Large scope           | Features vs. timeline        | Phased approach        |
+| MegaMekLab divergence | Innovation vs. compatibility | Document deviations    |
+| UI complexity         | Full features vs. simplicity | Progressive disclosure |
+| Bundle size           | All units vs. lazy loading   | Code splitting         |
 
 ## Migration Plan
 
 ### Phase 1: Foundation (Weeks 1-2)
+
 1. Create base interfaces and unit type hierarchy
 2. Implement BLK parser
 3. Create unit type registry
 4. No breaking changes to existing mech flow
 
 ### Phase 2: Import Pipeline (Weeks 3-4)
+
 1. Extend UnitLoaderService
 2. Add validation rules per type
 3. Create component mappers
 4. Import all mm-data units to verify
 
 ### Phase 3: Vehicle Customizer (Weeks 5-6)
+
 1. Vehicle structure tab
 2. Vehicle armor diagram
 3. Vehicle equipment tab
 4. Vehicle preview/export
 
 ### Phase 4: Aerospace Customizer (Weeks 7-8)
+
 1. Aerospace structure tab
 2. Aerospace diagram (arcs)
 3. Aerospace equipment
 4. Aerospace preview/export
 
 ### Phase 5: Personnel Units (Weeks 9-10)
+
 1. Battle Armor customizer
 2. Infantry customizer (simplified)
 3. ProtoMech customizer
 
 ### Phase 6: Capital Ships (Optional, Weeks 11+)
+
 1. DropShip customizer
 2. JumpShip/WarShip (if demand)
 
 ## Rollback Strategy
 
 Each phase is independently deployable. If issues arise:
+
 1. Feature flag to disable new unit types
 2. Existing mech functionality unaffected
 3. Data stored separately per unit type

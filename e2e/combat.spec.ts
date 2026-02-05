@@ -13,9 +13,8 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
-import { GameSessionPage } from './pages/game.page';
+
 import {
-  waitForGameplayStoreReady,
   selectUnit,
   getUnitState,
   DEMO_UNITS,
@@ -24,6 +23,7 @@ import {
   DEMO_STRUCTURE,
   DEMO_WEAPONS,
 } from './fixtures/game';
+import { GameSessionPage } from './pages/game.page';
 
 // =============================================================================
 // Test Configuration
@@ -40,7 +40,7 @@ async function waitForStoreReady(page: Page): Promise<void> {
       };
       return win.__ZUSTAND_STORES__?.gameplay !== undefined;
     },
-    { timeout: 10000 }
+    { timeout: 10000 },
   );
 }
 
@@ -58,7 +58,7 @@ test.describe('Record Sheet Display @smoke @combat', () => {
     await sessionPage.waitForGameLoaded();
   });
 
-  test('shows no unit selected initially', async ({ page }) => {
+  test('shows no unit selected initially', async () => {
     // Initially no unit should be selected
     const noUnitVisible = await sessionPage.isNoUnitSelectedVisible();
     expect(noUnitVisible).toBe(true);
@@ -79,11 +79,15 @@ test.describe('Record Sheet Display @smoke @combat', () => {
     await page.waitForTimeout(200);
 
     // Check unit name - Atlas AS7-D
-    const unitName = await page.getByTestId('record-sheet-unit-name').textContent();
+    const unitName = await page
+      .getByTestId('record-sheet-unit-name')
+      .textContent();
     expect(unitName).toContain('Atlas');
 
     // Check designation
-    const designation = await page.getByTestId('record-sheet-designation').textContent();
+    const designation = await page
+      .getByTestId('record-sheet-designation')
+      .textContent();
     expect(designation).toBe('AS7-D');
   });
 
@@ -112,7 +116,9 @@ test.describe('Record Sheet Display @smoke @combat', () => {
     expect(pilotingText).toContain(String(DEMO_UNITS.PLAYER.piloting));
   });
 
-  test('displays pilot wounds correctly for player unit (0 wounds)', async ({ page }) => {
+  test('displays pilot wounds correctly for player unit (0 wounds)', async ({
+    page,
+  }) => {
     await selectUnit(page, DEMO_UNITS.PLAYER.id);
     await page.waitForTimeout(200);
 
@@ -120,16 +126,22 @@ test.describe('Record Sheet Display @smoke @combat', () => {
     await expect(page.getByTestId('pilot-wounds')).toBeVisible();
 
     // Player has 0 wounds - all wound indicators should be empty
-    const filledWounds = await page.locator('[data-testid^="pilot-wound-"][data-filled="true"]').count();
+    const filledWounds = await page
+      .locator('[data-testid^="pilot-wound-"][data-filled="true"]')
+      .count();
     expect(filledWounds).toBe(0);
   });
 
-  test('displays pilot wounds correctly for opponent unit (1 wound)', async ({ page }) => {
+  test('displays pilot wounds correctly for opponent unit (1 wound)', async ({
+    page,
+  }) => {
     await selectUnit(page, DEMO_UNITS.OPPONENT.id);
     await page.waitForTimeout(200);
 
     // Opponent has 1 wound
-    const filledWounds = await page.locator('[data-testid^="pilot-wound-"][data-filled="true"]').count();
+    const filledWounds = await page
+      .locator('[data-testid^="pilot-wound-"][data-filled="true"]')
+      .count();
     expect(filledWounds).toBe(1);
   });
 });
@@ -174,7 +186,9 @@ test.describe('Armor/Structure Display @combat', () => {
 
   test('displays correct center torso armor values', async ({ page }) => {
     // Check center torso armor (front)
-    const ctArmor = await page.getByTestId('location-armor-center_torso').textContent();
+    const ctArmor = await page
+      .getByTestId('location-armor-center_torso')
+      .textContent();
     const expectedCurrent = DEMO_ARMOR['unit-player-1'].center_torso;
     const expectedMax = DEMO_MAX_ARMOR['unit-player-1'].center_torso;
     expect(ctArmor).toBe(`${expectedCurrent}/${expectedMax}`);
@@ -182,7 +196,9 @@ test.describe('Armor/Structure Display @combat', () => {
 
   test('displays rear armor for torso locations', async ({ page }) => {
     // Check center torso rear armor
-    const ctRearArmor = await page.getByTestId('location-armor-center_torso_rear').textContent();
+    const ctRearArmor = await page
+      .getByTestId('location-armor-center_torso_rear')
+      .textContent();
     const expectedCurrent = DEMO_ARMOR['unit-player-1'].center_torso_rear;
     const expectedMax = DEMO_MAX_ARMOR['unit-player-1'].center_torso_rear;
     expect(ctRearArmor).toBe(`${expectedCurrent}/${expectedMax}`);
@@ -190,13 +206,17 @@ test.describe('Armor/Structure Display @combat', () => {
 
   test('displays structure values', async ({ page }) => {
     // Check center torso structure
-    const ctStructure = await page.getByTestId('location-structure-center_torso').textContent();
+    const ctStructure = await page
+      .getByTestId('location-structure-center_torso')
+      .textContent();
     const expected = DEMO_STRUCTURE['unit-player-1'].center_torso;
     expect(ctStructure).toBe(`${expected}/${expected}`); // Current equals max in demo
   });
 
   test('displays head armor values', async ({ page }) => {
-    const headArmor = await page.getByTestId('location-armor-head').textContent();
+    const headArmor = await page
+      .getByTestId('location-armor-head')
+      .textContent();
     const expectedCurrent = DEMO_ARMOR['unit-player-1'].head;
     const expectedMax = DEMO_MAX_ARMOR['unit-player-1'].head;
     expect(headArmor).toBe(`${expectedCurrent}/${expectedMax}`);
@@ -254,7 +274,9 @@ test.describe('Heat Display @combat', () => {
     await selectUnit(page, DEMO_UNITS.PLAYER.id);
     await page.waitForTimeout(200);
 
-    const dissipationText = await page.getByTestId('heat-dissipation').textContent();
+    const dissipationText = await page
+      .getByTestId('heat-dissipation')
+      .textContent();
     expect(dissipationText).toContain(String(DEMO_UNITS.PLAYER.heatSinks));
   });
 });
@@ -279,33 +301,45 @@ test.describe('Weapons Display @combat', () => {
     await expect(page.getByTestId('weapons-section')).toBeVisible();
   });
 
-  test('displays correct number of weapons for player unit', async ({ page }) => {
+  test('displays correct number of weapons for player unit', async ({
+    page,
+  }) => {
     // Player unit has 4 weapons
-    const weaponRows = await page.locator('[data-testid^="weapon-row-"]').count();
+    const weaponRows = await page
+      .locator('[data-testid^="weapon-row-"]')
+      .count();
     expect(weaponRows).toBe(DEMO_WEAPONS['unit-player-1'].length);
   });
 
   test('displays weapon name', async ({ page }) => {
     // Check first weapon (AC/20)
-    const weaponName = await page.getByTestId('weapon-name-weapon-1').textContent();
+    const weaponName = await page
+      .getByTestId('weapon-name-weapon-1')
+      .textContent();
     expect(weaponName).toBe('AC/20');
   });
 
   test('displays weapon heat', async ({ page }) => {
     // Check AC/20 heat (7)
-    const weaponHeat = await page.getByTestId('weapon-heat-weapon-1').textContent();
+    const weaponHeat = await page
+      .getByTestId('weapon-heat-weapon-1')
+      .textContent();
     expect(weaponHeat).toContain('7');
   });
 
   test('displays weapon damage', async ({ page }) => {
     // Check AC/20 damage (20)
-    const weaponDamage = await page.getByTestId('weapon-damage-weapon-1').textContent();
+    const weaponDamage = await page
+      .getByTestId('weapon-damage-weapon-1')
+      .textContent();
     expect(weaponDamage).toContain('20');
   });
 
   test('displays weapon ammo for ammo-using weapons', async ({ page }) => {
     // Check AC/20 ammo (10 rounds)
-    const weaponAmmo = await page.getByTestId('weapon-ammo-weapon-1').textContent();
+    const weaponAmmo = await page
+      .getByTestId('weapon-ammo-weapon-1')
+      .textContent();
     expect(weaponAmmo).toContain('10');
   });
 

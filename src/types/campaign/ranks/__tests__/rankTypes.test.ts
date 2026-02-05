@@ -1,9 +1,7 @@
 import {
   Profession,
   IRank,
-  IRankSystem,
   RANK_TIERS,
-  RankTier,
   getRankTier,
   isValidRankIndex,
   createEmptyRank,

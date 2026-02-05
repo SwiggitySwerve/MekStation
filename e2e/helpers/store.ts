@@ -33,7 +33,10 @@ const DEFAULT_TIMEOUT = 10000;
  */
 export async function isStoreExposed(page: Page): Promise<boolean> {
   return await page.evaluate(() => {
-    return typeof (window as Window & { __STORES__?: unknown }).__STORES__ !== 'undefined';
+    return (
+      typeof (window as Window & { __STORES__?: unknown }).__STORES__ !==
+      'undefined'
+    );
   });
 }
 
@@ -58,18 +61,24 @@ export async function isStoreExposed(page: Page): Promise<boolean> {
  * expect(state.units).toHaveLength(3);
  * ```
  */
-export async function getStoreState<T>(page: Page, storeName: string): Promise<T> {
+export async function getStoreState<T>(
+  page: Page,
+  storeName: string,
+): Promise<T> {
   const exposed = await isStoreExposed(page);
   if (!exposed) {
     throw new Error(
       'Stores are not exposed on window.__STORES__. ' +
-        'Make sure to expose stores in development/test mode.'
+        'Make sure to expose stores in development/test mode.',
     );
   }
 
-  return await page.evaluate((name) => {
-    const stores = (window as Window & { __STORES__?: Record<string, { getState: () => unknown }> })
-      .__STORES__;
+  return (await page.evaluate((name) => {
+    const stores = (
+      window as Window & {
+        __STORES__?: Record<string, { getState: () => unknown }>;
+      }
+    ).__STORES__;
     if (!stores) {
       throw new Error('window.__STORES__ is not defined');
     }
@@ -78,7 +87,7 @@ export async function getStoreState<T>(page: Page, storeName: string): Promise<T
       throw new Error(`Store "${name}" not found in window.__STORES__`);
     }
     return store.getState() as unknown;
-  }, storeName) as T;
+  }, storeName)) as T;
 }
 
 /**
@@ -98,19 +107,24 @@ export async function getStoreState<T>(page: Page, storeName: string): Promise<T
  * });
  * ```
  */
-export async function resetStores(page: Page, timeout = DEFAULT_TIMEOUT): Promise<void> {
+export async function resetStores(
+  page: Page,
+  timeout = DEFAULT_TIMEOUT,
+): Promise<void> {
   const exposed = await isStoreExposed(page);
   if (!exposed) {
     console.warn(
       'Stores are not exposed on window.__STORES__. Skipping reset. ' +
-        'Make sure to expose stores in development/test mode.'
+        'Make sure to expose stores in development/test mode.',
     );
     return;
   }
 
   await page.evaluate(() => {
     const stores = (
-      window as Window & { __STORES__?: Record<string, { getState: () => { reset?: () => void } }> }
+      window as Window & {
+        __STORES__?: Record<string, { getState: () => { reset?: () => void } }>;
+      }
     ).__STORES__;
     if (!stores) return;
 
@@ -150,20 +164,22 @@ export async function resetStores(page: Page, timeout = DEFAULT_TIMEOUT): Promis
 export async function setStoreValue(
   page: Page,
   storeName: string,
-  updates: Record<string, unknown>
+  updates: Record<string, unknown>,
 ): Promise<void> {
   const exposed = await isStoreExposed(page);
   if (!exposed) {
     throw new Error(
       'Stores are not exposed on window.__STORES__. ' +
-        'Make sure to expose stores in development/test mode.'
+        'Make sure to expose stores in development/test mode.',
     );
   }
 
   await page.evaluate(
     ({ name, values }) => {
       const stores = (
-        window as Window & { __STORES__?: Record<string, { setState: (s: unknown) => void }> }
+        window as Window & {
+          __STORES__?: Record<string, { setState: (s: unknown) => void }>;
+        }
       ).__STORES__;
       if (!stores) {
         throw new Error('window.__STORES__ is not defined');
@@ -174,7 +190,7 @@ export async function setStoreValue(
       }
       store.setState(values);
     },
-    { name: storeName, values: updates }
+    { name: storeName, values: updates },
   );
 }
 
@@ -199,11 +215,13 @@ export async function waitForStoreState<T>(
   page: Page,
   storeName: string,
   predicateString: string,
-  timeout = DEFAULT_TIMEOUT
+  timeout = DEFAULT_TIMEOUT,
 ): Promise<void> {
   await expect(async () => {
     const state = await getStoreState<T>(page, storeName);
-    const predicate = new Function('state', `return ${predicateString}`) as (state: T) => boolean;
+    const predicate = new Function('state', `return ${predicateString}`) as (
+      state: T,
+    ) => boolean;
     expect(predicate(state)).toBe(true);
   }).toPass({ timeout });
 }

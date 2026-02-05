@@ -1,9 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+
+import { ArmorDiagramProps } from '@/components/customizer/armor/ArmorDiagram';
 import { ArmorTab } from '@/components/customizer/tabs/ArmorTab';
 import { useUnitStore } from '@/stores/useUnitStore';
-import { ArmorDiagramProps } from '@/components/customizer/armor/ArmorDiagram';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 
@@ -41,38 +42,86 @@ jest.mock('@/hooks/useTechBaseSync', () => ({
 }));
 
 jest.mock('@/components/customizer/armor/ArmorDiagram', () => ({
-  ArmorDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
+  ArmorDiagram: ({
+    onLocationClick,
+  }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
     <div data-testid="armor-diagram">
-      <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
+      <button
+        onClick={(): void => {
+          (onLocationClick as (location: string) => void)('Head');
+        }}
+      >
+        Head
+      </button>
     </div>
   ),
 }));
 
 // Mock the variant diagrams used by ArmorTab
 jest.mock('@/components/customizer/armor/variants', () => ({
-  CleanTechDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
+  CleanTechDiagram: ({
+    onLocationClick,
+  }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
     <div data-testid="clean-tech-diagram">
-      <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
+      <button
+        onClick={(): void => {
+          (onLocationClick as (location: string) => void)('Head');
+        }}
+      >
+        Head
+      </button>
     </div>
   ),
-  NeonOperatorDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
+  NeonOperatorDiagram: ({
+    onLocationClick,
+  }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
     <div data-testid="neon-operator-diagram">
-      <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
+      <button
+        onClick={(): void => {
+          (onLocationClick as (location: string) => void)('Head');
+        }}
+      >
+        Head
+      </button>
     </div>
   ),
-  TacticalHUDDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
+  TacticalHUDDiagram: ({
+    onLocationClick,
+  }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
     <div data-testid="tactical-hud-diagram">
-      <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
+      <button
+        onClick={(): void => {
+          (onLocationClick as (location: string) => void)('Head');
+        }}
+      >
+        Head
+      </button>
     </div>
   ),
-  PremiumMaterialDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
+  PremiumMaterialDiagram: ({
+    onLocationClick,
+  }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
     <div data-testid="premium-material-diagram">
-      <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
+      <button
+        onClick={(): void => {
+          (onLocationClick as (location: string) => void)('Head');
+        }}
+      >
+        Head
+      </button>
     </div>
   ),
-  MegaMekDiagram: ({ onLocationClick }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
+  MegaMekDiagram: ({
+    onLocationClick,
+  }: Pick<ArmorDiagramProps, 'onLocationClick'>) => (
     <div data-testid="megamek-diagram">
-      <button onClick={(): void => { (onLocationClick as (location: string) => void)('Head'); }}>Head</button>
+      <button
+        onClick={(): void => {
+          (onLocationClick as (location: string) => void)('Head');
+        }}
+      >
+        Head
+      </button>
     </div>
   ),
 }));
@@ -101,8 +150,6 @@ jest.mock('@/components/customizer/armor/LocationArmorEditor', () => ({
     </div>
   ),
 }));
-
-
 
 describe('ArmorTab', () => {
   const mockStoreValues = {
@@ -133,23 +180,25 @@ describe('ArmorTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof mockStoreValues) => unknown) => {
-      if (typeof selector === 'function') {
-        return selector(mockStoreValues);
-      }
-      return undefined;
-    });
+    (useUnitStore as jest.Mock).mockImplementation(
+      (selector: (state: typeof mockStoreValues) => unknown) => {
+        if (typeof selector === 'function') {
+          return selector(mockStoreValues);
+        }
+        return undefined;
+      },
+    );
   });
 
   it('should render armor tab', () => {
     render(<ArmorTab />);
-    
+
     expect(screen.getByTestId('armor-diagram')).toBeInTheDocument();
   });
 
   it('should display armor type', () => {
     render(<ArmorTab />);
-    
+
     expect(screen.getByText(/Type:/i)).toBeInTheDocument();
   });
 
@@ -161,7 +210,7 @@ describe('ArmorTab', () => {
 
   it('should render armor configuration', () => {
     render(<ArmorTab />);
-    
+
     expect(screen.getByText(/Type:/i)).toBeInTheDocument();
     expect(screen.getByText(/Tonnage:/i)).toBeInTheDocument();
   });
@@ -169,22 +218,22 @@ describe('ArmorTab', () => {
   it('should display location editor when location is selected', async () => {
     const user = userEvent.setup();
     render(<ArmorTab />);
-    
+
     const headButton = screen.getByText('Head');
     await user.click(headButton);
-    
+
     expect(screen.getByTestId('location-armor-editor')).toBeInTheDocument();
   });
 
   it('should render armor diagram', () => {
     render(<ArmorTab />);
-    
+
     expect(screen.getByTestId('armor-diagram')).toBeInTheDocument();
   });
 
   it('should render in read-only mode', () => {
     render(<ArmorTab readOnly={true} />);
-    
+
     // The armor diagram should still be rendered in read-only mode
     expect(screen.getByTestId('armor-diagram')).toBeInTheDocument();
   });
@@ -217,12 +266,14 @@ describe('ArmorTab', () => {
         }, // Total: 88 points allocated (but only 80 available from tonnage)
       };
 
-      (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof storeWithPartialArmor) => unknown) => {
-        if (typeof selector === 'function') {
-          return selector(storeWithPartialArmor);
-        }
-        return undefined;
-      });
+      (useUnitStore as jest.Mock).mockImplementation(
+        (selector: (state: typeof storeWithPartialArmor) => unknown) => {
+          if (typeof selector === 'function') {
+            return selector(storeWithPartialArmor);
+          }
+          return undefined;
+        },
+      );
 
       render(<ArmorTab />);
 
@@ -250,12 +301,14 @@ describe('ArmorTab', () => {
         }, // Total: 169 points (maxed out)
       };
 
-      (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof storeWithExcessTonnage) => unknown) => {
-        if (typeof selector === 'function') {
-          return selector(storeWithExcessTonnage);
-        }
-        return undefined;
-      });
+      (useUnitStore as jest.Mock).mockImplementation(
+        (selector: (state: typeof storeWithExcessTonnage) => unknown) => {
+          if (typeof selector === 'function') {
+            return selector(storeWithExcessTonnage);
+          }
+          return undefined;
+        },
+      );
 
       render(<ArmorTab />);
 
@@ -284,12 +337,14 @@ describe('ArmorTab', () => {
         }, // Total: 169 points
       };
 
-      (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof storeWithWastedPoints) => unknown) => {
-        if (typeof selector === 'function') {
-          return selector(storeWithWastedPoints);
-        }
-        return undefined;
-      });
+      (useUnitStore as jest.Mock).mockImplementation(
+        (selector: (state: typeof storeWithWastedPoints) => unknown) => {
+          if (typeof selector === 'function') {
+            return selector(storeWithWastedPoints);
+          }
+          return undefined;
+        },
+      );
 
       render(<ArmorTab />);
 
@@ -319,17 +374,20 @@ describe('ArmorTab', () => {
         },
       };
 
-      (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof storeWithNoWaste) => unknown) => {
-        if (typeof selector === 'function') {
-          return selector(storeWithNoWaste);
-        }
-        return undefined;
-      });
+      (useUnitStore as jest.Mock).mockImplementation(
+        (selector: (state: typeof storeWithNoWaste) => unknown) => {
+          if (typeof selector === 'function') {
+            return selector(storeWithNoWaste);
+          }
+          return undefined;
+        },
+      );
 
       render(<ArmorTab />);
 
-      expect(screen.queryByText(/Wasted Armor Points/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/Wasted Armor Points/i),
+      ).not.toBeInTheDocument();
     });
   });
 });
-

@@ -1,9 +1,12 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/equipment/catalog endpoint
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/equipment/catalog';
+
 import { parseSuccessResponse, parseErrorResponse } from '../../helpers';
 
 // Mock the equipment lookup service
@@ -27,8 +30,8 @@ interface MockEquipmentLookupService {
 }
 
 // Import after mocking to get mock references
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { equipmentLookupService } = require('@/services/equipment/EquipmentLookupService') as {
+import * as EquipmentLookupServiceModule from '@/services/equipment/EquipmentLookupService';
+const { equipmentLookupService } = EquipmentLookupServiceModule as unknown as {
   equipmentLookupService: MockEquipmentLookupService;
 };
 
@@ -160,7 +163,9 @@ describe('/api/equipment/catalog', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = parseSuccessResponse<Array<{ id: string; name: string }>>(res);
+      const data = parseSuccessResponse<Array<{ id: string; name: string }>>(
+        res,
+      );
       expect(data.success).toBe(true);
       expect(data.data).toHaveLength(2);
       expect(data.data).toEqual([
@@ -185,15 +190,15 @@ describe('/api/equipment/catalog', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = parseSuccessResponse<Array<{ id: string; name: string }>>(res);
+      const data = parseSuccessResponse<Array<{ id: string; name: string }>>(
+        res,
+      );
       expect(data.data).toHaveLength(1);
       expect(data.data?.[0].name).toBe('Medium Laser');
     });
 
     it('should return empty array when no matches found', async () => {
-      const mockEquipment = [
-        { id: 'medium-laser', name: 'Medium Laser' },
-      ];
+      const mockEquipment = [{ id: 'medium-laser', name: 'Medium Laser' }];
       mockGetAllEquipment.mockReturnValue(mockEquipment);
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -245,7 +250,9 @@ describe('/api/equipment/catalog', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      const data = parseSuccessResponse<Array<{ id: string; name?: string }>>(res);
+      const data = parseSuccessResponse<Array<{ id: string; name?: string }>>(
+        res,
+      );
       expect(data.data).toHaveLength(1);
       expect(data.data?.[0].id).toBe('medium-laser');
     });

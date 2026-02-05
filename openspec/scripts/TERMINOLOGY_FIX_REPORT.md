@@ -16,13 +16,13 @@ All 124 initially identified terminology violations have been successfully fixed
 
 ✅ **All primary violations fixed (100% success rate)**
 
-| Category | Target | Actual | Status |
-|----------|--------|--------|--------|
-| "technology base" instances | 0 | 0 | ✅ PASS |
-| "complexity level" instances | 0 | 0 | ✅ PASS |
-| "Tournament" as rules level | 0 | 0 | ✅ PASS |
-| Property `slots:` in code | 0 | 0 | ✅ PASS |
-| Deprecated terms | 0 | 0 | ✅ PASS |
+| Category                     | Target | Actual | Status  |
+| ---------------------------- | ------ | ------ | ------- |
+| "technology base" instances  | 0      | 0      | ✅ PASS |
+| "complexity level" instances | 0      | 0      | ✅ PASS |
+| "Tournament" as rules level  | 0      | 0      | ✅ PASS |
+| Property `slots:` in code    | 0      | 0      | ✅ PASS |
+| Deprecated terms             | 0      | 0      | ✅ PASS |
 
 **Note**: 2 instances of "TOURNAMENT" remain in changelog entries documenting the fix itself - these are acceptable meta-references.
 
@@ -35,12 +35,14 @@ All 124 initially identified terminology violations have been successfully fixed
 **Pattern**: Case-insensitive replacement preserving capitalization
 
 **Instances Fixed**:
+
 - **"Technology base"** (capitalized): 47 instances
 - **"technology base"** (lowercase): 100 instances
 - **Section headings** "## Technology Base Variants": 21 instances
 - **Document title** "# Technology Base Variants Reference": 1 instance
 
 **Affected Files** (18 files):
+
 1. core-entity-types/spec.md - 9 instances
 2. core-enumerations/spec.md - 35 instances + 1 heading
 3. validation-patterns/spec.md - 26 instances + 1 heading
@@ -65,11 +67,13 @@ All 124 initially identified terminology violations have been successfully fixed
 **Pattern**: Case-insensitive replacement preserving capitalization
 
 **Instances Fixed**:
+
 - **"Complexity level"** (capitalized): 15 instances
 - **"complexity level"** (lowercase): 71 instances
 - **Section heading**: "### Requirement: Technology Base Core Enumerations" → "Tech Base Core Enumerations": 1 instance
 
 **Affected Files** (6 files):
+
 1. core-entity-types/spec.md - 1 instance
 2. core-enumerations/spec.md - 16 instances + 1 heading fix
 3. rules-level-system/spec.md - 39 instances
@@ -82,16 +86,19 @@ All 124 initially identified terminology violations have been successfully fixed
 **Context**: Rules level terminology only
 
 **Fixes Applied**:
+
 - "Tournament Legality" → "Advanced Rules Legality" (4 instances in headings/sections)
 - "VAL-RULES-002: Tournament Legality" → "VAL-RULES-002: Advanced Rules Legality" (1 instance)
 
 **Affected Files** (4 files):
+
 1. rules-level-system/spec.md - 1 instance ("### Validation: Tournament Legality")
 2. tech-base-integration/spec.md - 1 instance ("### Requirement: Tournament Legality Assessment")
 3. tech-base-rules-matrix/spec.md - 1 instance (table reference)
 4. validation-rules-master/spec.md - 1 instance ("VAL-RULES-002" heading)
 
 **Preserved Instances**:
+
 - "tournament-legal" (competitive play) - ✅ KEPT (correct usage)
 - "tournament legality" (competitive eligibility) - ✅ KEPT (correct usage)
 - "tournament play" (competitive context) - ✅ KEPT (correct usage)
@@ -101,6 +108,7 @@ All 124 initially identified terminology violations have been successfully fixed
 **File**: gyro-system/spec.md (lines 923, 930, 937, 944 - original validator report)
 
 **Fixes Applied**:
+
 ```typescript
 // BEFORE
 slots: 4,
@@ -114,14 +122,17 @@ criticalSlots: 4,
 ### 5. Other Deprecated Terms (6 instances)
 
 #### "Gyroscope" → "gyro"
+
 - **File**: tech-base-rules-matrix/spec.md
 - **Fix**: "Gyroscope specifications" → "Gyro specifications" (1 instance)
 
 #### "Additional Heat Sinks" → "External Heat Sinks"
+
 - **File**: validation-rules-master/spec.md (line 1538)
 - **Fix**: Construction tree label updated (1 instance)
 
 #### "Verify" → "Validate"
+
 - **File**: validation-rules-master/spec.md
 - **Fix**: "Verify era classification" → "Validate era classification" (1 instance)
 
@@ -131,43 +142,43 @@ criticalSlots: 4,
 
 ### Phase 1: Foundation (7 files)
 
-| File | Violations Fixed | Changes |
-|------|-----------------|---------|
-| core-entity-types/spec.md | 10 | "technology base" (9), "complexity level" (1) |
-| core-enumerations/spec.md | 51 | "technology base" (35), "complexity level" (16) |
-| era-temporal-system/spec.md | 0 | Section heading only |
-| physical-properties-system/spec.md | 0 | Section heading only |
-| rules-level-system/spec.md | 41 | "technology base" (1), "complexity level" (39), "Tournament Legality" (1) |
-| validation-patterns/spec.md | 26 | "technology base" (26) |
-| weight-class-system/spec.md | 1 | "technology base" (1) |
+| File                               | Violations Fixed | Changes                                                                   |
+| ---------------------------------- | ---------------- | ------------------------------------------------------------------------- |
+| core-entity-types/spec.md          | 10               | "technology base" (9), "complexity level" (1)                             |
+| core-enumerations/spec.md          | 51               | "technology base" (35), "complexity level" (16)                           |
+| era-temporal-system/spec.md        | 0                | Section heading only                                                      |
+| physical-properties-system/spec.md | 0                | Section heading only                                                      |
+| rules-level-system/spec.md         | 41               | "technology base" (1), "complexity level" (39), "Tournament Legality" (1) |
+| validation-patterns/spec.md        | 26               | "technology base" (26)                                                    |
+| weight-class-system/spec.md        | 1                | "technology base" (1)                                                     |
 
 **Subtotal**: 129 violations fixed
 
 ### Phase 2: Construction (13 files)
 
-| File | Violations Fixed | Changes |
-|------|-----------------|---------|
-| armor-system/spec.md | 2 | "technology base" (2) |
-| cockpit-system/spec.md | 3 | "technology base" (3) |
-| construction-rules-core/spec.md | 3 | "technology base" (3) |
-| critical-slot-allocation/spec.md | 0 | Section heading only |
-| engine-system/spec.md | 23 | "technology base" (1), "complexity level" (22) |
-| formula-registry/spec.md | 0 | No changes |
-| gyro-system/spec.md | 15 | "technology base" (14), `slots:` → `criticalSlots:` (1 fix = 4 instances) |
-| heat-sink-system/spec.md | 1 | "technology base" (1) |
-| internal-structure-system/spec.md | 1 | "technology base" (1) |
-| movement-system/spec.md | 1 | "technology base" (1) |
-| tech-base-integration/spec.md | 14 | "technology base" (13), "Tournament Legality" (1) |
-| tech-base-rules-matrix/spec.md | 78 | "technology base" (68), "complexity level" (8), "Tournament Legality" (1), "Gyroscope" (1) |
-| tech-base-variants-reference/spec.md | 30 | "technology base" (29), "complexity level" (1) |
+| File                                 | Violations Fixed | Changes                                                                                    |
+| ------------------------------------ | ---------------- | ------------------------------------------------------------------------------------------ |
+| armor-system/spec.md                 | 2                | "technology base" (2)                                                                      |
+| cockpit-system/spec.md               | 3                | "technology base" (3)                                                                      |
+| construction-rules-core/spec.md      | 3                | "technology base" (3)                                                                      |
+| critical-slot-allocation/spec.md     | 0                | Section heading only                                                                       |
+| engine-system/spec.md                | 23               | "technology base" (1), "complexity level" (22)                                             |
+| formula-registry/spec.md             | 0                | No changes                                                                                 |
+| gyro-system/spec.md                  | 15               | "technology base" (14), `slots:` → `criticalSlots:` (1 fix = 4 instances)                  |
+| heat-sink-system/spec.md             | 1                | "technology base" (1)                                                                      |
+| internal-structure-system/spec.md    | 1                | "technology base" (1)                                                                      |
+| movement-system/spec.md              | 1                | "technology base" (1)                                                                      |
+| tech-base-integration/spec.md        | 14               | "technology base" (13), "Tournament Legality" (1)                                          |
+| tech-base-rules-matrix/spec.md       | 78               | "technology base" (68), "complexity level" (8), "Tournament Legality" (1), "Gyroscope" (1) |
+| tech-base-variants-reference/spec.md | 30               | "technology base" (29), "complexity level" (1)                                             |
 
 **Subtotal**: 171 violations fixed
 
 ### Cross-cutting (1 file)
 
-| File | Violations Fixed | Changes |
-|------|-----------------|---------|
-| validation-rules-master/spec.md | 3 | "Tournament Legality" (1), "Additional Heat Sinks" (1), "Verify" (1) |
+| File                            | Violations Fixed | Changes                                                              |
+| ------------------------------- | ---------------- | -------------------------------------------------------------------- |
+| validation-rules-master/spec.md | 3                | "Tournament Legality" (1), "Additional Heat Sinks" (1), "Verify" (1) |
 
 **Subtotal**: 3 violations fixed
 
@@ -175,17 +186,17 @@ criticalSlots: 4,
 
 ## Violation Breakdown by Type
 
-| Violation Type | Count | Files Affected |
-|----------------|-------|----------------|
-| "technology base" (all cases) | 169 | 18 files |
-| "complexity level" (all cases) | 87 | 6 files |
-| "Tournament" (as rules level) | 8 | 4 files |
-| Property `slots:` in code | 1 (4 instances) | 1 file (gyro-system) |
-| "Gyroscope" → "gyro" | 1 | 1 file |
-| "Additional Heat Sinks" | 1 | 1 file |
-| "Verify" → "Validate" | 1 | 1 file |
-| Section headings | 22 | 21 files |
-| **TOTAL** | **325** | **21 files** |
+| Violation Type                 | Count           | Files Affected       |
+| ------------------------------ | --------------- | -------------------- |
+| "technology base" (all cases)  | 169             | 18 files             |
+| "complexity level" (all cases) | 87              | 6 files              |
+| "Tournament" (as rules level)  | 8               | 4 files              |
+| Property `slots:` in code      | 1 (4 instances) | 1 file (gyro-system) |
+| "Gyroscope" → "gyro"           | 1               | 1 file               |
+| "Additional Heat Sinks"        | 1               | 1 file               |
+| "Verify" → "Validate"          | 1               | 1 file               |
+| Section headings               | 22              | 21 files             |
+| **TOTAL**                      | **325**         | **21 files**         |
 
 ---
 
@@ -232,6 +243,7 @@ criticalSlots: 4,
 **Recommendation**: Update version numbers and add changelog entries:
 
 ### Major Changes (Consider 1.x → 1.x+1):
+
 - core-enumerations/spec.md (51 fixes)
 - rules-level-system/spec.md (41 fixes)
 - tech-base-rules-matrix/spec.md (78 fixes)
@@ -239,12 +251,14 @@ criticalSlots: 4,
 - tech-base-integration/spec.md (14 fixes)
 
 ### Minor Changes (Consider changelog entry only):
+
 - All other files with < 30 violations
 
 ### Suggested Changelog Entry (for all files):
 
 ```markdown
 ### Version X.Y (2025-11-28)
+
 - Fixed terminology to comply with TERMINOLOGY_GLOSSARY.md (automated cleanup)
   - Replaced "technology base" with "tech base" (N instances)
   - Replaced "complexity level" with "rules level" (N instances)
@@ -283,6 +297,7 @@ grep -r "^\s*slots:" --include="spec.md" . | wc -l
 ### Manual Spot Checks
 
 Verified critical fixes:
+
 - ✅ gyro-system/spec.md: All `criticalSlots: 4` properties correct (lines 923, 930, 937, 944)
 - ✅ validation-rules-master/spec.md: "External Heat Sinks" (line 1538)
 - ✅ validation-rules-master/spec.md: "Validate era classification" (line 441)
@@ -292,6 +307,7 @@ Verified critical fixes:
 ### Backup Files
 
 Backup files (`.bak`) created for all modified files:
+
 - Located in same directory as original
 - Can be restored with: `find . -name "*.bak" -exec sh -c 'mv "$1" "${1%.bak}"' _ {} \;`
 - Recommended: Review changes, then delete backups after verification
@@ -303,6 +319,7 @@ Backup files (`.bak`) created for all modified files:
 **None**. All changes are terminology standardization only. Semantic meaning preserved.
 
 ### Non-Breaking Confirmations:
+
 - ✅ No interface changes
 - ✅ No enum value changes
 - ✅ No function signature changes
@@ -314,6 +331,7 @@ Backup files (`.bak`) created for all modified files:
 ## Next Steps
 
 ### Immediate Actions
+
 1. ✅ **Completed**: Run automated terminology fix script
 2. ✅ **Completed**: Verify all 325 violations fixed
 3. 🔲 **Recommended**: Review changes in git diff
@@ -323,6 +341,7 @@ Backup files (`.bak`) created for all modified files:
 7. 🔲 **Recommended**: Commit changes with message: "fix: standardize terminology across all OpenSpec files"
 
 ### Optional Follow-up
+
 - Run terminology validator again to confirm 0 violations
 - Update CHANGELOG.md with global fix summary
 - Notify team of terminology standardization completion
@@ -354,13 +373,13 @@ All files with changes have `.bak` backups created.
 
 ## Success Metrics
 
-| Metric | Target | Achieved | Status |
-|--------|--------|----------|--------|
-| Primary violations fixed | 124 | 303 | ✅ Exceeded (245% of target) |
-| Files processed | 20 | 21 | ✅ Complete |
-| Errors introduced | 0 | 0 | ✅ Clean |
-| Breaking changes | 0 | 0 | ✅ Safe |
-| Terminology compliance | 100% | 100% | ✅ Full compliance |
+| Metric                   | Target | Achieved | Status                       |
+| ------------------------ | ------ | -------- | ---------------------------- |
+| Primary violations fixed | 124    | 303      | ✅ Exceeded (245% of target) |
+| Files processed          | 20     | 21       | ✅ Complete                  |
+| Errors introduced        | 0      | 0        | ✅ Clean                     |
+| Breaking changes         | 0      | 0        | ✅ Safe                      |
+| Terminology compliance   | 100%   | 100%     | ✅ Full compliance           |
 
 ---
 
@@ -371,6 +390,7 @@ All terminology violations have been successfully fixed across all OpenSpec spec
 **Status**: ✅ **COMPLETE** - Ready for review and commit
 
 **Recommendation**: Review changes, update versions/changelogs, and commit with message:
+
 ```
 fix: standardize terminology across all OpenSpec files
 

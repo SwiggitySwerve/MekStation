@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useMemo, useCallback } from 'react';
+
 import {
   GamePhase,
   GameSide,
@@ -109,7 +110,10 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
       text = `Turn ${event.turn} started`;
       break;
     case GameEventType.PhaseChanged: {
-      const payload = event.payload as { fromPhase: GamePhase; toPhase: GamePhase };
+      const payload = event.payload as {
+        fromPhase: GamePhase;
+        toPhase: GamePhase;
+      };
       text = `Phase: ${payload.toPhase.replace('_', ' ')}`;
       break;
     }
@@ -172,13 +176,21 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
       break;
     }
     case GameEventType.HeatGenerated: {
-      const payload = event.payload as { unitId: string; amount: number; newTotal: number };
+      const payload = event.payload as {
+        unitId: string;
+        amount: number;
+        newTotal: number;
+      };
       unitId = payload.unitId;
       text = `Heat +${payload.amount} (total: ${payload.newTotal})`;
       break;
     }
     case GameEventType.HeatDissipated: {
-      const payload = event.payload as { unitId: string; amount: number; newTotal: number };
+      const payload = event.payload as {
+        unitId: string;
+        amount: number;
+        newTotal: number;
+      };
       unitId = payload.unitId;
       text = `Heat dissipated: ${Math.abs(payload.amount)} (total: ${payload.newTotal})`;
       break;
@@ -196,13 +208,20 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
       break;
     }
     case GameEventType.PilotHit: {
-      const payload = event.payload as { unitId: string; wounds: number; totalWounds: number };
+      const payload = event.payload as {
+        unitId: string;
+        wounds: number;
+        totalWounds: number;
+      };
       unitId = payload.unitId;
       text = `Pilot hit: ${payload.wounds} wound(s) (${payload.totalWounds} total)`;
       break;
     }
     case GameEventType.GameEnded: {
-      const payload = event.payload as { winner: GameSide | 'draw'; reason: string };
+      const payload = event.payload as {
+        winner: GameSide | 'draw';
+        reason: string;
+      };
       text = `Game ended: ${payload.winner === 'draw' ? 'Draw' : `${payload.winner} wins`} (${payload.reason})`;
       break;
     }
@@ -227,7 +246,7 @@ function formatEvent(event: IGameEvent): IFormattedEvent {
  */
 function filterEvents(
   events: readonly IGameEvent[],
-  filter: IEventLogFilter
+  filter: IEventLogFilter,
 ): readonly IGameEvent[] {
   return events.filter((event) => {
     if (filter.turn !== undefined && event.turn !== filter.turn) {
@@ -240,7 +259,10 @@ function filterEvents(
     }
     if (filter.unitId) {
       const payload = event.payload as { unitId?: string; attackerId?: string };
-      if (payload.unitId !== filter.unitId && payload.attackerId !== filter.unitId) {
+      if (
+        payload.unitId !== filter.unitId &&
+        payload.attackerId !== filter.unitId
+      ) {
         return false;
       }
     }
@@ -260,8 +282,16 @@ function EventRow({ event }: EventRowProps): React.ReactElement {
   const iconColor = getIconColor(event.icon);
 
   return (
-    <div className="flex items-start gap-2 py-1 px-2 hover:bg-gray-50 text-sm" data-testid="event-row" data-event-id={event.id}>
-      <span className={`${iconColor} font-bold w-4`} data-testid="event-icon" data-icon-type={event.icon}>
+    <div
+      className="flex items-start gap-2 px-2 py-1 text-sm hover:bg-gray-50"
+      data-testid="event-row"
+      data-event-id={event.id}
+    >
+      <span
+        className={`${iconColor} w-4 font-bold`}
+        data-testid="event-icon"
+        data-icon-type={event.icon}
+      >
         {event.icon === 'movement' && '→'}
         {event.icon === 'attack' && '⚔'}
         {event.icon === 'damage' && '💥'}
@@ -270,8 +300,12 @@ function EventRow({ event }: EventRowProps): React.ReactElement {
         {event.icon === 'phase' && '◆'}
         {event.icon === 'status' && '•'}
       </span>
-      <span className="text-gray-500 text-xs w-8" data-testid="event-turn">T{event.turn}</span>
-      <span className="flex-1" data-testid="event-text">{event.text}</span>
+      <span className="w-8 text-xs text-gray-500" data-testid="event-turn">
+        T{event.turn}
+      </span>
+      <span className="flex-1" data-testid="event-text">
+        {event.text}
+      </span>
     </div>
   );
 }
@@ -310,15 +344,20 @@ export function EventLogDisplay({
   }, [events, filter]);
 
   return (
-    <div className={`bg-white border-t border-gray-300 ${className}`} data-testid="event-log">
+    <div
+      className={`border-t border-gray-300 bg-white ${className}`}
+      data-testid="event-log"
+    >
       {/* Header */}
       <button
         type="button"
         onClick={toggleCollapse}
-        className="w-full px-4 py-2 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
+        className="flex w-full items-center justify-between bg-gray-50 px-4 py-2 transition-colors hover:bg-gray-100"
         data-testid="event-log-toggle"
       >
-        <span className="font-medium text-sm" data-testid="event-log-count">Event Log ({events.length})</span>
+        <span className="text-sm font-medium" data-testid="event-log-count">
+          Event Log ({events.length})
+        </span>
         <span className="text-gray-500">{isCollapsed ? '▼' : '▲'}</span>
       </button>
 
@@ -330,7 +369,12 @@ export function EventLogDisplay({
           data-testid="event-log-content"
         >
           {formattedEvents.length === 0 ? (
-            <div className="p-4 text-center text-gray-500 text-sm" data-testid="event-log-empty">No events yet</div>
+            <div
+              className="p-4 text-center text-sm text-gray-500"
+              data-testid="event-log-empty"
+            >
+              No events yet
+            </div>
           ) : (
             formattedEvents.map((event) => (
               <EventRow key={event.id} event={event} />

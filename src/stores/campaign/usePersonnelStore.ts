@@ -8,11 +8,12 @@
  * Persists to IndexedDB via localStorage with Map serialization.
  */
 
-import { create } from 'zustand';
+import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
-import { IPerson } from '@/types/campaign/Person';
 import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { IPerson } from '@/types/campaign/Person';
 
 // =============================================================================
 // Store State
@@ -71,7 +72,9 @@ export type PersonnelStore = PersonnelState & PersonnelActions;
  * const addPerson = store.getState().addPerson;
  * addPerson(newPerson);
  */
-export function createPersonnelStore(campaignId: string) {
+export function createPersonnelStore(
+  campaignId: string,
+): StoreApi<PersonnelStore> {
   return create<PersonnelStore>()(
     persist(
       (set, get) => ({
@@ -121,19 +124,23 @@ export function createPersonnelStore(campaignId: string) {
         // =================================================================
 
         getByStatus: (status) =>
-          Array.from(get().personnel.values()).filter((p) => p.status === status),
+          Array.from(get().personnel.values()).filter(
+            (p) => p.status === status,
+          ),
 
         getByRole: (role) =>
           Array.from(get().personnel.values()).filter(
-            (p) => p.primaryRole === role || p.secondaryRole === role
+            (p) => p.primaryRole === role || p.secondaryRole === role,
           ),
 
         getByUnit: (unitId) =>
-          Array.from(get().personnel.values()).filter((p) => p.unitId === unitId),
+          Array.from(get().personnel.values()).filter(
+            (p) => p.unitId === unitId,
+          ),
 
         getActive: () =>
           Array.from(get().personnel.values()).filter(
-            (p) => p.status === PersonnelStatus.ACTIVE
+            (p) => p.status === PersonnelStatus.ACTIVE,
           ),
       }),
       {
@@ -145,13 +152,15 @@ export function createPersonnelStore(campaignId: string) {
         }),
         // Handle Map deserialization: Array of entries -> Map
         merge: (persisted: unknown, current) => {
-          const persistedData = persisted as { personnel?: [string, IPerson][] };
+          const persistedData = persisted as {
+            personnel?: [string, IPerson][];
+          };
           return {
             ...current,
             personnel: new Map(persistedData?.personnel || []),
           };
         },
-      }
-    )
+      },
+    ),
   );
 }

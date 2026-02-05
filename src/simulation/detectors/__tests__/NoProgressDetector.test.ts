@@ -9,7 +9,6 @@
  * - Edge cases and boundary conditions
  */
 
-import { NoProgressDetector, type BattleState } from '../NoProgressDetector';
 import {
   GameEventType,
   GamePhase,
@@ -18,6 +17,8 @@ import {
   type IDamageAppliedPayload,
   type IHeatPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+
+import { NoProgressDetector, type BattleState } from '../NoProgressDetector';
 
 // =============================================================================
 // Test Fixtures
@@ -126,7 +127,9 @@ const createDestroyedEvent = (
   },
 });
 
-const createBattleState = (units: Array<{ id: string; name: string; side: GameSide }>): BattleState => ({
+const createBattleState = (
+  units: Array<{ id: string; name: string; side: GameSide }>,
+): BattleState => ({
   units: units.map((u) => ({
     id: u.id,
     name: u.name,
@@ -579,21 +582,20 @@ describe('NoProgressDetector', () => {
 
       const anomalies = detector.detect(events, battleState, 5);
 
-       
       expect(anomalies[0]).toMatchObject({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.stringContaining('anom-no-progress'),
         type: 'no-progress',
         severity: 'warning',
         battleId: 'game-1',
         turn: 5,
         unitId: null,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
         message: expect.stringContaining('Battle state unchanged'),
         thresholdUsed: 5,
         actualValue: 5,
         configKey: 'noProgressThreshold',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
         timestamp: expect.any(Number),
       });
     });

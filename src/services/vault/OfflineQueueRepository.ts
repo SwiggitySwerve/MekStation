@@ -15,6 +15,7 @@ import type {
   IPeerQueueSummary,
   IQueueStats,
 } from '@/types/vault';
+
 import { getSQLiteService } from '@/services/persistence';
 
 // =============================================================================
@@ -88,7 +89,7 @@ export class OfflineQueueRepository {
     options?: {
       expiryMs?: number;
       priority?: number;
-    }
+    },
   ): Promise<IQueuedMessage> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -117,7 +118,7 @@ export class OfflineQueueRepository {
       null,
       'pending',
       priority,
-      sizeBytes
+      sizeBytes,
     );
 
     return {
@@ -140,7 +141,7 @@ export class OfflineQueueRepository {
    */
   async getPendingForPeer(
     peerId: string,
-    limit = 50
+    limit = 50,
   ): Promise<IQueuedMessage[]> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -150,7 +151,7 @@ export class OfflineQueueRepository {
         `SELECT * FROM offline_queue 
          WHERE target_peer_id = ? AND status = 'pending'
          ORDER BY priority DESC, queued_at ASC
-         LIMIT ?`
+         LIMIT ?`,
       )
       .all(peerId, limit) as IStoredQueuedMessage[];
 
@@ -169,7 +170,7 @@ export class OfflineQueueRepository {
         `SELECT * FROM offline_queue 
          WHERE status = 'pending'
          ORDER BY priority DESC, queued_at ASC
-         LIMIT ?`
+         LIMIT ?`,
       )
       .all(limit) as IStoredQueuedMessage[];
 
@@ -206,7 +207,7 @@ export class OfflineQueueRepository {
       .prepare(
         `UPDATE offline_queue 
          SET status = 'sending', attempts = attempts + 1, last_attempt_at = ?
-         WHERE id = ? AND status IN ('pending', 'failed')`
+         WHERE id = ? AND status IN ('pending', 'failed')`,
       )
       .run(now, id);
 
@@ -259,7 +260,7 @@ export class OfflineQueueRepository {
       .prepare(
         `UPDATE offline_queue 
          SET status = 'expired' 
-         WHERE status IN ('pending', 'failed') AND expires_at < ?`
+         WHERE status IN ('pending', 'failed') AND expires_at < ?`,
       )
       .run(now);
 
@@ -277,9 +278,7 @@ export class OfflineQueueRepository {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
-    const result = db
-      .prepare('DELETE FROM offline_queue WHERE id = ?')
-      .run(id);
+    const result = db.prepare('DELETE FROM offline_queue WHERE id = ?').run(id);
 
     return result.changes > 0;
   }
@@ -355,15 +354,19 @@ export class OfflineQueueRepository {
       .prepare(
         `SELECT COUNT(*) as count, SUM(size_bytes) as size, MIN(queued_at) as oldest
          FROM offline_queue 
-         WHERE target_peer_id = ? AND status = 'pending'`
+         WHERE target_peer_id = ? AND status = 'pending'`,
       )
-      .get(peerId) as { count: number; size: number | null; oldest: string | null };
+      .get(peerId) as {
+      count: number;
+      size: number | null;
+      oldest: string | null;
+    };
 
     const failed = db
       .prepare(
         `SELECT COUNT(*) as count 
          FROM offline_queue 
-         WHERE target_peer_id = ? AND status = 'failed'`
+         WHERE target_peer_id = ? AND status = 'failed'`,
       )
       .get(peerId) as { count: number };
 
@@ -371,7 +374,7 @@ export class OfflineQueueRepository {
       .prepare(
         `SELECT MAX(last_attempt_at) as last 
          FROM offline_queue 
-         WHERE target_peer_id = ? AND status = 'sent'`
+         WHERE target_peer_id = ? AND status = 'sent'`,
       )
       .get(peerId) as { last: string | null };
 
@@ -393,19 +396,23 @@ export class OfflineQueueRepository {
     const db = getSQLiteService().getDatabase();
 
     const total = db
-      .prepare('SELECT COUNT(*) as count, SUM(size_bytes) as size FROM offline_queue')
+      .prepare(
+        'SELECT COUNT(*) as count, SUM(size_bytes) as size FROM offline_queue',
+      )
       .get() as { count: number; size: number | null };
 
     const byStatus = db
       .prepare(
         `SELECT status, COUNT(*) as count 
          FROM offline_queue 
-         GROUP BY status`
+         GROUP BY status`,
       )
       .all() as Array<{ status: QueuedMessageStatus; count: number }>;
 
     const peers = db
-      .prepare('SELECT COUNT(DISTINCT target_peer_id) as count FROM offline_queue')
+      .prepare(
+        'SELECT COUNT(DISTINCT target_peer_id) as count FROM offline_queue',
+      )
       .get() as { count: number };
 
     const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000).toISOString();
@@ -413,7 +420,7 @@ export class OfflineQueueRepository {
       .prepare(
         `SELECT COUNT(*) as count 
          FROM offline_queue 
-         WHERE status = 'pending' AND expires_at < ?`
+         WHERE status = 'pending' AND expires_at < ?`,
       )
       .get(oneHourFromNow) as { count: number };
 

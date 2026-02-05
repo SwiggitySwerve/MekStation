@@ -6,7 +6,11 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { ParityValidationService, getParityValidationService } from '../ParityValidationService';
+
+import {
+  ParityValidationService,
+  getParityValidationService,
+} from '../ParityValidationService';
 import { DiscrepancyCategory } from '../types/ParityValidation';
 
 // Mock fs and path modules
@@ -28,8 +32,8 @@ jest.mock('../MTFExportService', () => ({
   MTFExportService: jest.fn(),
 }));
 
-import { getMTFParserService } from '../MTFParserService';
 import { getMTFExportService } from '../MTFExportService';
+import { getMTFParserService } from '../MTFParserService';
 
 const mockedFs = fs as jest.Mocked<typeof fs>;
 const mockedPath = path as jest.Mocked<typeof path>;
@@ -44,7 +48,9 @@ describe('ParityValidationService', () => {
 
     // Setup path mocks
     mockedPath.join.mockImplementation((...args) => args.join('/'));
-    mockedPath.dirname.mockImplementation((p) => p.split('/').slice(0, -1).join('/'));
+    mockedPath.dirname.mockImplementation((p) =>
+      p.split('/').slice(0, -1).join('/'),
+    );
     mockedPath.basename.mockImplementation((p) => p.split('/').pop() || '');
 
     // Setup parser mock
@@ -169,7 +175,11 @@ mass:100`;
 
       expect(result.status).toBe('ISSUES_FOUND');
       expect(result.issues.length).toBeGreaterThan(0);
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.HeaderMismatch)).toBe(true);
+      expect(
+        result.issues.some(
+          (i) => i.category === DiscrepancyCategory.HeaderMismatch,
+        ),
+      ).toBe(true);
     });
 
     it('should detect armor mismatches', () => {
@@ -196,7 +206,11 @@ LA armor:25`;
 
       const result = service.validateUnit(testMtfPath, testOutputDir);
 
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.ArmorMismatch)).toBe(true);
+      expect(
+        result.issues.some(
+          (i) => i.category === DiscrepancyCategory.ArmorMismatch,
+        ),
+      ).toBe(true);
     });
 
     it('should detect engine mismatches', () => {
@@ -223,7 +237,11 @@ engine:300 XL Engine`;
 
       const result = service.validateUnit(testMtfPath, testOutputDir);
 
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.EngineMismatch)).toBe(true);
+      expect(
+        result.issues.some(
+          (i) => i.category === DiscrepancyCategory.EngineMismatch,
+        ),
+      ).toBe(true);
     });
 
     it('should detect movement mismatches', () => {
@@ -252,7 +270,11 @@ jump mp:0`;
 
       const result = service.validateUnit(testMtfPath, testOutputDir);
 
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.MovementMismatch)).toBe(true);
+      expect(
+        result.issues.some(
+          (i) => i.category === DiscrepancyCategory.MovementMismatch,
+        ),
+      ).toBe(true);
     });
 
     it('should detect quirk mismatches', () => {
@@ -280,7 +302,11 @@ quirk:battle_fists_la`;
 
       const result = service.validateUnit(testMtfPath, testOutputDir);
 
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.QuirkMismatch)).toBe(true);
+      expect(
+        result.issues.some(
+          (i) => i.category === DiscrepancyCategory.QuirkMismatch,
+        ),
+      ).toBe(true);
     });
 
     it('should ignore comments in comparison', () => {
@@ -335,7 +361,9 @@ techbase:Mixed`;
       const result = service.validateUnit(testMtfPath, testOutputDir);
 
       // Techbase should be normalized, no mismatch for Mixed variants
-      expect(result.issues.filter(i => i.field === 'techbase').length).toBe(0);
+      expect(result.issues.filter((i) => i.field === 'techbase').length).toBe(
+        0,
+      );
     });
   });
 
@@ -393,7 +421,7 @@ techbase:Mixed`;
 
       await service.validateAll(
         { mmDataPath: '/mm-data', outputPath: '/output' },
-        progressCallback
+        progressCallback,
       );
 
       expect(progressCallback).toHaveBeenCalled();
@@ -559,7 +587,9 @@ techbase:Clan`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.filter(i => i.field === 'techbase').length).toBe(0);
+      expect(result.issues.filter((i) => i.field === 'techbase').length).toBe(
+        0,
+      );
     });
 
     it('should normalize Inner Sphere techbase', () => {
@@ -585,7 +615,9 @@ techbase:IS`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.filter(i => i.field === 'techbase').length).toBe(0);
+      expect(result.issues.filter((i) => i.field === 'techbase').length).toBe(
+        0,
+      );
     });
 
     it('should normalize Mixed (Clan Chassis) techbase', () => {
@@ -611,7 +643,9 @@ techbase:Mixed`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.filter(i => i.field === 'techbase').length).toBe(0);
+      expect(result.issues.filter((i) => i.field === 'techbase').length).toBe(
+        0,
+      );
     });
   });
 
@@ -648,7 +682,11 @@ Medium Laser`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.SlotCountMismatch)).toBe(true);
+      expect(
+        result.issues.some(
+          (i) => i.category === DiscrepancyCategory.SlotCountMismatch,
+        ),
+      ).toBe(true);
     });
 
     it('should detect missing actuator', () => {
@@ -685,7 +723,11 @@ Medium Laser`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.MissingActuator)).toBe(true);
+      expect(
+        result.issues.some(
+          (i) => i.category === DiscrepancyCategory.MissingActuator,
+        ),
+      ).toBe(true);
     });
 
     it('should detect extra actuator', () => {
@@ -720,7 +762,11 @@ Medium Laser`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.ExtraActuator)).toBe(true);
+      expect(
+        result.issues.some(
+          (i) => i.category === DiscrepancyCategory.ExtraActuator,
+        ),
+      ).toBe(true);
     });
 
     it('should detect actuator slot mismatch', () => {
@@ -752,7 +798,11 @@ Lower Arm Actuator`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.SlotMismatch)).toBe(true);
+      expect(
+        result.issues.some(
+          (i) => i.category === DiscrepancyCategory.SlotMismatch,
+        ),
+      ).toBe(true);
     });
 
     it('should detect non-actuator slot mismatch', () => {
@@ -784,10 +834,13 @@ Large Laser`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i =>
-        i.category === DiscrepancyCategory.SlotMismatch &&
-        i.expected === 'Medium Laser'
-      )).toBe(true);
+      expect(
+        result.issues.some(
+          (i) =>
+            i.category === DiscrepancyCategory.SlotMismatch &&
+            i.expected === 'Medium Laser',
+        ),
+      ).toBe(true);
     });
 
     it('should handle section break in critical slots', () => {
@@ -927,10 +980,13 @@ quirk:battle_fists_ra`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i =>
-        i.category === DiscrepancyCategory.QuirkMismatch &&
-        i.actual === 'battle_fists_ra'
-      )).toBe(true);
+      expect(
+        result.issues.some(
+          (i) =>
+            i.category === DiscrepancyCategory.QuirkMismatch &&
+            i.actual === 'battle_fists_ra',
+        ),
+      ).toBe(true);
     });
   });
 
@@ -1072,7 +1128,11 @@ engine:300 Fusion Engine`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.filter(i => i.category === DiscrepancyCategory.EngineMismatch).length).toBe(0);
+      expect(
+        result.issues.filter(
+          (i) => i.category === DiscrepancyCategory.EngineMismatch,
+        ).length,
+      ).toBe(0);
     });
 
     it('should normalize ICE engine variants', () => {
@@ -1098,7 +1158,11 @@ engine:100 ICE`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.filter(i => i.category === DiscrepancyCategory.EngineMismatch).length).toBe(0);
+      expect(
+        result.issues.filter(
+          (i) => i.category === DiscrepancyCategory.EngineMismatch,
+        ).length,
+      ).toBe(0);
     });
 
     it('should normalize Fuel Cell engine variants', () => {
@@ -1124,7 +1188,11 @@ engine:100 Fuel Cell`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.filter(i => i.category === DiscrepancyCategory.EngineMismatch).length).toBe(0);
+      expect(
+        result.issues.filter(
+          (i) => i.category === DiscrepancyCategory.EngineMismatch,
+        ).length,
+      ).toBe(0);
     });
   });
 
@@ -1163,7 +1231,11 @@ Heat Sink`;
       });
 
       const result = service.validateUnit('/test/meks/test.mtf', '/output');
-      expect(result.issues.some(i => i.category === DiscrepancyCategory.MissingActuator)).toBe(true);
+      expect(
+        result.issues.some(
+          (i) => i.category === DiscrepancyCategory.MissingActuator,
+        ),
+      ).toBe(true);
     });
   });
 });

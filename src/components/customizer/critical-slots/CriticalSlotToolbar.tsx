@@ -1,8 +1,8 @@
 /**
  * Critical Slot Toolbar Component
- * 
+ *
  * Toolbar with auto-mode toggles and manual actions.
- * 
+ *
  * @spec openspec/specs/critical-slots-display/spec.md
  */
 
@@ -38,27 +38,27 @@ export function CriticalSlotToolbar({
     <div className={`flex items-center justify-between px-3 py-2 ${className}`}>
       {/* Auto-mode toggles */}
       <div className="flex items-center gap-4">
-        <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-300">
           <input
             type="checkbox"
             checked={autoFillUnhittables}
             onChange={onAutoFillToggle}
-            className="w-4 h-4 rounded border-border-theme bg-surface-raised text-accent focus:ring-accent focus:ring-offset-surface-base"
+            className="border-border-theme bg-surface-raised text-accent focus:ring-accent focus:ring-offset-surface-base h-4 w-4 rounded"
           />
           <span>Auto Fill</span>
         </label>
-        
-        <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-300">
           <input
             type="checkbox"
             checked={showPlacementPreview}
             onChange={onPreviewToggle}
-            className="w-4 h-4 rounded border-border-theme bg-surface-raised text-accent focus:ring-accent focus:ring-offset-surface-base"
+            className="border-border-theme bg-surface-raised text-accent focus:ring-accent focus:ring-offset-surface-base h-4 w-4 rounded"
           />
           <span>Preview</span>
         </label>
       </div>
-      
+
       {/* Action buttons */}
       <div className="flex items-center gap-2">
         <ToolbarButton
@@ -94,19 +94,24 @@ interface ToolbarButtonProps {
   variant?: 'default' | 'danger';
 }
 
-function ToolbarButton({ label, title, onClick, variant = 'default' }: ToolbarButtonProps) {
-  const colorClasses = variant === 'danger'
-    ? 'text-red-400 hover:text-red-300 hover:bg-red-900/30'
-    : 'text-text-theme-secondary hover:text-white hover:bg-surface-raised';
-  
+function ToolbarButton({
+  label,
+  title,
+  onClick,
+  variant = 'default',
+}: ToolbarButtonProps) {
+  const colorClasses =
+    variant === 'danger'
+      ? 'text-red-400 hover:text-red-300 hover:bg-red-900/30'
+      : 'text-text-theme-secondary hover:text-white hover:bg-surface-raised';
+
   return (
     <button
       onClick={onClick}
       title={title}
-      className={`px-2 py-1 text-xs font-medium rounded transition-colors ${colorClasses}`}
+      className={`rounded px-2 py-1 text-xs font-medium transition-colors ${colorClasses}`}
     >
       {label}
     </button>
   );
 }
-

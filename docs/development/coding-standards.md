@@ -82,13 +82,13 @@ export const Component: React.FC<ComponentProps> = ({ unit, onEdit }) => {
 
 ### Naming Conventions
 
-| Type | Convention | Example |
-|------|-----------|---------|
-| Components | PascalCase | `UnitCard.tsx` |
-| Utilities | camelCase | `engineCalculations.ts` |
-| Types/Interfaces | PascalCase with I prefix | `IUnitConfiguration` |
-| Constants | UPPER_SNAKE_CASE | `MAX_TONNAGE` |
-| Hooks | camelCase with `use` prefix | `useUnitData.ts` |
+| Type             | Convention                  | Example                 |
+| ---------------- | --------------------------- | ----------------------- |
+| Components       | PascalCase                  | `UnitCard.tsx`          |
+| Utilities        | camelCase                   | `engineCalculations.ts` |
+| Types/Interfaces | PascalCase with I prefix    | `IUnitConfiguration`    |
+| Constants        | UPPER_SNAKE_CASE            | `MAX_TONNAGE`           |
+| Hooks            | camelCase with `use` prefix | `useUnitData.ts`        |
 
 ## Formatting
 
@@ -160,20 +160,21 @@ import { customizerStyles as cs } from '../styles';
 
 ### Available Style Modules
 
-| Module | Purpose | Example |
-|--------|---------|---------|
-| `cs.panel` | Content panels | `cs.panel.main`, `cs.panel.summary` |
-| `cs.text` | Typography | `cs.text.sectionTitle`, `cs.text.label` |
-| `cs.input` | Input fields | `cs.input.full`, `cs.input.compact` |
-| `cs.select` | Select dropdowns | `cs.select.full`, `cs.select.inline` |
-| `cs.button` | Buttons | `cs.button.stepper`, `cs.button.action` |
-| `cs.layout` | Layout utilities | `cs.layout.twoColumn`, `cs.layout.field` |
+| Module      | Purpose           | Example                                    |
+| ----------- | ----------------- | ------------------------------------------ |
+| `cs.panel`  | Content panels    | `cs.panel.main`, `cs.panel.summary`        |
+| `cs.text`   | Typography        | `cs.text.sectionTitle`, `cs.text.label`    |
+| `cs.input`  | Input fields      | `cs.input.full`, `cs.input.compact`        |
+| `cs.select` | Select dropdowns  | `cs.select.full`, `cs.select.inline`       |
+| `cs.button` | Buttons           | `cs.button.stepper`, `cs.button.action`    |
+| `cs.layout` | Layout utilities  | `cs.layout.twoColumn`, `cs.layout.field`   |
 | `cs.dialog` | Dialog components | `cs.dialog.header`, `cs.dialog.btnPrimary` |
-| `cs.filter` | Filter bars | `cs.filter.bar`, `cs.filter.select` |
+| `cs.filter` | Filter bars       | `cs.filter.bar`, `cs.filter.select`        |
 
 ### CSS Utilities in globals.css
 
 Global CSS utilities are defined in `src/styles/globals.css`. Use these for:
+
 - Page layouts: `.page-container`, `.card`, `.card-interactive`
 - Buttons: `.btn-primary`, `.btn-secondary`, `.btn-ghost`
 - Badges: `.badge-blue`, `.badge-amber`, `.badge-emerald`
@@ -184,6 +185,7 @@ Global CSS utilities are defined in `src/styles/globals.css`. Use these for:
 ### When to Create New Utilities
 
 Create new shared utilities when:
+
 1. A pattern repeats 3+ times across components
 2. The pattern is semantically meaningful (e.g., "dialog header")
 3. It aligns with the existing theme (slate colors, amber/blue accents)
@@ -198,4 +200,3 @@ Add TypeScript utilities to `src/components/customizer/styles.ts` and CSS utilit
 - [ ] Types imported from `@/types/core` or `@/types/enums`
 - [ ] Constants used instead of magic strings
 - [ ] Shared style utilities used instead of inline class blobs
-

@@ -1,13 +1,15 @@
 /**
  * Armor Location Component
- * 
+ *
  * Individual clickable location in the armor diagram.
- * 
+ *
  * @spec openspec/specs/armor-diagram/spec.md
  */
 
 import React from 'react';
+
 import { MechLocation } from '@/types/construction';
+
 import { LocationArmorData } from './ArmorDiagram';
 
 interface ArmorLocationProps {
@@ -43,7 +45,7 @@ interface ArmorLocationProps {
 function getLocationFill(
   locationType: 'head' | 'torso' | 'limb' | 'rear',
   isSelected: boolean,
-  isHovered: boolean
+  isHovered: boolean,
 ): string {
   if (isSelected) {
     return '#2563eb'; // blue-600
@@ -63,15 +65,24 @@ function getLocationFill(
  */
 function getLocationLabel(location: MechLocation): string {
   switch (location) {
-    case MechLocation.HEAD: return 'HD';
-    case MechLocation.CENTER_TORSO: return 'CT';
-    case MechLocation.LEFT_TORSO: return 'LT';
-    case MechLocation.RIGHT_TORSO: return 'RT';
-    case MechLocation.LEFT_ARM: return 'LA';
-    case MechLocation.RIGHT_ARM: return 'RA';
-    case MechLocation.LEFT_LEG: return 'LL';
-    case MechLocation.RIGHT_LEG: return 'RL';
-    default: return '';
+    case MechLocation.HEAD:
+      return 'HD';
+    case MechLocation.CENTER_TORSO:
+      return 'CT';
+    case MechLocation.LEFT_TORSO:
+      return 'LT';
+    case MechLocation.RIGHT_TORSO:
+      return 'RT';
+    case MechLocation.LEFT_ARM:
+      return 'LA';
+    case MechLocation.RIGHT_ARM:
+      return 'RA';
+    case MechLocation.LEFT_LEG:
+      return 'LL';
+    case MechLocation.RIGHT_LEG:
+      return 'RL';
+    default:
+      return '';
   }
 }
 
@@ -95,11 +106,11 @@ export function ArmorLocation({
   const label = getLocationLabel(location);
   const mainFill = getLocationFill(locationType, isSelected, isHovered);
   const rearFill = getLocationFill('rear', isSelected, isHovered);
-  
+
   const mainHeight = showRear ? height * 0.7 : height;
   const rearHeight = showRear ? height * 0.3 : 0;
   const rearY = y + mainHeight;
-  
+
   return (
     <g
       role="button"
@@ -131,7 +142,7 @@ export function ArmorLocation({
         strokeWidth={isSelected ? 2 : 1}
         className="transition-colors"
       />
-      
+
       {/* Main armor value */}
       <text
         x={x + width / 2}
@@ -142,7 +153,7 @@ export function ArmorLocation({
       >
         {data?.current ?? 0}
       </text>
-      
+
       {/* Location label */}
       <text
         x={x + width / 2}
@@ -153,7 +164,7 @@ export function ArmorLocation({
       >
         {label}
       </text>
-      
+
       {/* Rear section (for torso locations) */}
       {showRear && (
         <>
@@ -168,7 +179,7 @@ export function ArmorLocation({
             strokeWidth={isSelected ? 2 : 1}
             className="transition-colors"
           />
-          
+
           {/* Rear armor value */}
           <text
             x={x + width / 2}
@@ -179,7 +190,7 @@ export function ArmorLocation({
           >
             {data?.rear ?? 0}
           </text>
-          
+
           {/* Rear label */}
           <text
             x={x + width / 2}
@@ -195,4 +206,3 @@ export function ArmorLocation({
     </g>
   );
 }
-

@@ -14,8 +14,8 @@
  * @module lib/campaign/dayPipeline
  */
 
-import { ICampaign } from '@/types/campaign/Campaign';
 import { createSingleton } from '@/services/core/createSingleton';
+import { ICampaign } from '@/types/campaign/Campaign';
 
 // =============================================================================
 // Pipeline Phase Enum
@@ -176,7 +176,9 @@ export class DayPipelineRegistry {
    * @param processor - The processor to register
    */
   register(processor: IDayProcessor): void {
-    const existingIndex = this.processors.findIndex((p) => p.id === processor.id);
+    const existingIndex = this.processors.findIndex(
+      (p) => p.id === processor.id,
+    );
     if (existingIndex !== -1) {
       this.processors[existingIndex] = processor;
     } else {
@@ -242,7 +244,7 @@ export class DayPipelineRegistry {
         // Log error but continue pipeline — processor is skipped
         console.error(
           `[DayPipeline] Processor "${processor.id}" (${processor.displayName}) failed:`,
-          error
+          error,
         );
         processorsRun.push(processor.id);
       }

@@ -11,10 +11,13 @@
 ## Overview
 
 ### Purpose
+
 Provides foundational infrastructure for deterministic game simulation including seeded random number generation, weighted selection, and simulation configuration management.
 
 ### Scope
+
 **In Scope:**
+
 - Seeded PRNG (Mulberry32 algorithm)
 - Weighted random selection (adapted from MekHQ pattern)
 - Simulation configuration types
@@ -22,12 +25,14 @@ Provides foundational infrastructure for deterministic game simulation including
 - Simulation context management
 
 **Out of Scope:**
+
 - Game engine modifications
 - UI components
 - Browser-specific APIs
 - Network communication
 
 ### Key Concepts
+
 - **Seeded Random**: Deterministic pseudo-random number generator that produces identical sequences from the same seed
 - **Weighted Table**: Data structure for probability-based selection where items have different selection weights
 - **Simulation Context**: Container holding seed, configuration, and shared state for a simulation run
@@ -46,18 +51,21 @@ The system SHALL provide deterministic random number generation using the Mulber
 **Priority**: Critical
 
 #### Scenario: Deterministic sequence generation
+
 **GIVEN** a SeededRandom instance with seed 12345
 **WHEN** calling next() multiple times
 **THEN** the sequence SHALL be identical across all runs with same seed
 **AND** the sequence SHALL differ from sequences with different seeds
 
 #### Scenario: Integer range generation
+
 **GIVEN** a SeededRandom instance
 **WHEN** calling nextInt(1, 6) for dice roll
 **THEN** result SHALL be integer between 1 and 6 inclusive
 **AND** distribution SHALL be uniform over many calls
 
 #### Scenario: 2d6 dice roll
+
 **GIVEN** a SeededRandom instance
 **WHEN** calling roll2d6()
 **THEN** result SHALL be sum of two independent 1-6 rolls
@@ -73,18 +81,21 @@ The system SHALL support weighted random selection using WeightedTable pattern f
 **Priority**: Critical
 
 #### Scenario: Basic weighted selection
+
 **GIVEN** a WeightedTable with entries: (weight=3, value='A'), (weight=1, value='B')
 **WHEN** selecting with seeded random over 1000 iterations
 **THEN** 'A' SHALL be selected approximately 75% of the time
 **AND** 'B' SHALL be selected approximately 25% of the time
 
 #### Scenario: Roll modifier support
+
 **GIVEN** a WeightedTable with multiple entries
 **WHEN** selecting with rollMod parameter
 **THEN** selection SHALL bias toward higher-weight entries when rollMod > 0
 **AND** selection SHALL bias toward lower-weight entries when rollMod < 0
 
 #### Scenario: Empty table handling
+
 **GIVEN** an empty WeightedTable
 **WHEN** calling select()
 **THEN** result SHALL be null
@@ -99,6 +110,7 @@ The system SHALL define configuration interface for simulation parameters.
 **Priority**: High
 
 #### Scenario: Valid configuration
+
 **GIVEN** an ISimulationConfig with all required fields
 **WHEN** validating configuration
 **THEN** seed SHALL be non-negative integer
@@ -107,6 +119,7 @@ The system SHALL define configuration interface for simulation parameters.
 **AND** mapRadius SHALL be between 5 and 10 inclusive
 
 #### Scenario: Preset configuration
+
 **GIVEN** a preset name 'standard-lance'
 **WHEN** creating configuration from preset
 **THEN** configuration SHALL have preset-specific defaults
@@ -121,6 +134,7 @@ The system SHALL define result interface capturing simulation outcomes.
 **Priority**: High
 
 #### Scenario: Complete result capture
+
 **GIVEN** a completed simulation
 **WHEN** creating ISimulationResult
 **THEN** result SHALL include seed, config, winner, turns, duration
@@ -129,6 +143,7 @@ The system SHALL define result interface capturing simulation outcomes.
 **AND** result SHALL include all violations detected
 
 #### Scenario: Failed simulation result
+
 **GIVEN** a simulation that crashes or times out
 **WHEN** creating ISimulationResult
 **THEN** winner SHALL be null
@@ -315,13 +330,13 @@ interface ISimulationContext {
 
 ### Required Properties
 
-| Property | Type | Required | Description | Valid Values | Default |
-|----------|------|----------|-------------|--------------|---------|
-| `seed` | `number` | Yes | PRNG seed | Non-negative integer | N/A |
-| `turnLimit` | `number` | Yes | Max turns | Positive integer | 100 |
-| `unitCount` | `number` | Yes | Units per side | 1-4 | 4 |
-| `mapRadius` | `number` | Yes | Map radius | 5-10 | 8 |
-| `preset` | `string` | No | Preset name | See enum | undefined |
+| Property    | Type     | Required | Description    | Valid Values         | Default   |
+| ----------- | -------- | -------- | -------------- | -------------------- | --------- |
+| `seed`      | `number` | Yes      | PRNG seed      | Non-negative integer | N/A       |
+| `turnLimit` | `number` | Yes      | Max turns      | Positive integer     | 100       |
+| `unitCount` | `number` | Yes      | Units per side | 1-4                  | 4         |
+| `mapRadius` | `number` | Yes      | Map radius     | 5-10                 | 8         |
+| `preset`    | `string` | No       | Preset name    | See enum             | undefined |
 
 ### Type Constraints
 
@@ -338,14 +353,16 @@ interface ISimulationContext {
 ### Mulberry32 PRNG Algorithm
 
 **Formula**:
+
 ```typescript
-let t = state += 0x6D2B79F5;
-t = Math.imul(t ^ t >>> 15, t | 1);
-t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-return ((t ^ t >>> 14) >>> 0) / 4294967296;
+let t = (state += 0x6d2b79f5);
+t = Math.imul(t ^ (t >>> 15), t | 1);
+t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 ```
 
 **Where**:
+
 - `state` = internal PRNG state (32-bit integer)
 - `Math.imul` = 32-bit integer multiplication
 - `>>>` = unsigned right shift
@@ -353,6 +370,7 @@ return ((t ^ t >>> 14) >>> 0) / 4294967296;
 - `|` = bitwise OR
 
 **Example**:
+
 ```typescript
 Input: state = 12345
 Step 1: t = 12345 + 0x6D2B79F5 = 1835627322
@@ -361,10 +379,12 @@ Output: 0.123456789 (example value)
 ```
 
 **Special Cases**:
+
 - When state = 0: Algorithm still produces valid sequence
 - When state overflows: Wraps to 32-bit unsigned integer
 
 **Rounding Rules**:
+
 - Division by 4294967296 produces float in [0, 1)
 - No rounding needed for next()
 - nextInt() uses Math.floor for integer conversion
@@ -372,16 +392,19 @@ Output: 0.123456789 (example value)
 ### Weighted Selection Algorithm
 
 **Formula**:
+
 ```typescript
-roll = min(floor(random.next() * total + total * rollMod + 0.5), total - 1)
+roll = min(floor(random.next() * total + total * rollMod + 0.5), total - 1);
 ```
 
 **Where**:
+
 - `total` = sum of all weights
 - `random.next()` = random float [0, 1)
 - `rollMod` = modifier in range [-1, 1]
 
 **Example**:
+
 ```typescript
 Input: weights = [3, 1], total = 4, random.next() = 0.6, rollMod = 0
 Calculation: roll = floor(0.6 * 4 + 0 + 0.5) = floor(2.9) = 2
@@ -390,11 +413,13 @@ Output: Second entry selected
 ```
 
 **Special Cases**:
+
 - When rollMod = 1: Always selects last entry
 - When rollMod = -1: Always selects first entry
 - When total = 0: Return null
 
 **Rounding Rules**:
+
 - Use Math.floor for roll calculation
 - Clamp roll to [0, total - 1]
 
@@ -409,6 +434,7 @@ Output: Second entry selected
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
 if (seed < 0 || !Number.isInteger(seed)) {
   // invalid
@@ -428,6 +454,7 @@ if (seed < 0 || !Number.isInteger(seed)) {
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
 if (turnLimit <= 0 || !Number.isInteger(turnLimit)) {
   // invalid
@@ -447,6 +474,7 @@ if (turnLimit <= 0 || !Number.isInteger(turnLimit)) {
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
 if (unitCount < 1 || unitCount > 4 || !Number.isInteger(unitCount)) {
   // invalid
@@ -466,6 +494,7 @@ if (unitCount < 1 || unitCount > 4 || !Number.isInteger(unitCount)) {
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
 if (mapRadius < 5 || mapRadius > 10 || !Number.isInteger(mapRadius)) {
   // invalid
@@ -483,10 +512,12 @@ if (mapRadius < 5 || mapRadius > 10 || !Number.isInteger(mapRadius)) {
 ## Dependencies
 
 ### Depends On
+
 - **TypeScript**: Language features (interfaces, generics)
 - **Math.imul**: 32-bit integer multiplication (ES6+)
 
 ### Used By
+
 - **Valid Move AI**: Uses SeededRandom for move selection
 - **Scenario Generator**: Uses WeightedTable for force composition
 - **Simulation Runner**: Uses ISimulationConfig and ISimulationResult
@@ -494,6 +525,7 @@ if (mapRadius < 5 || mapRadius > 10 || !Number.isInteger(mapRadius)) {
 - **Snapshot Manager**: Uses ISimulationResult
 
 ### Construction Sequence
+
 1. Create SeededRandom with seed
 2. Create WeightedTable instances for scenario generation
 3. Create ISimulationConfig
@@ -506,18 +538,21 @@ if (mapRadius < 5 || mapRadius > 10 || !Number.isInteger(mapRadius)) {
 ## Implementation Notes
 
 ### Performance Considerations
+
 - Mulberry32 is fast (~10ns per call on modern hardware)
 - WeightedTable.select() is O(n) where n = entry count
 - Consider caching total weight if table is static
 - Avoid creating new SeededRandom instances mid-simulation
 
 ### Edge Cases
+
 - **Seed = 0**: Valid seed, produces deterministic sequence
 - **Empty WeightedTable**: select() returns null
 - **Single entry WeightedTable**: Always returns that entry
 - **Negative weights**: Not validated, may produce unexpected results
 
 ### Common Pitfalls
+
 - **Pitfall**: Using Math.random() instead of SeededRandom
   - **Solution**: Always pass SeededRandom instance explicitly
 - **Pitfall**: Modifying state outside SeededRandom class
@@ -532,22 +567,25 @@ if (mapRadius < 5 || mapRadius > 10 || !Number.isInteger(mapRadius)) {
 ### Example 1: Basic SeededRandom Usage
 
 **Input**:
+
 ```typescript
 const random = new SeededRandom(12345);
 ```
 
 **Processing**:
+
 ```typescript
 // Generate sequence of random numbers
 const values = [
-  random.next(),      // 0.123456789
-  random.next(),      // 0.987654321
+  random.next(), // 0.123456789
+  random.next(), // 0.987654321
   random.nextInt(1, 6), // 4
-  random.roll2d6()    // 7
+  random.roll2d6(), // 7
 ];
 ```
 
 **Output**:
+
 ```typescript
 // Same seed always produces same sequence
 const random2 = new SeededRandom(12345);
@@ -557,15 +595,17 @@ random2.next(); // 0.123456789 (identical to first call above)
 ### Example 2: WeightedTable for Unit Selection
 
 **Input**:
+
 ```typescript
 const unitTable = new WeightedTable<string>();
-unitTable.add(3, 'Light');   // 3/7 = 43% chance
-unitTable.add(2, 'Medium');  // 2/7 = 29% chance
-unitTable.add(1, 'Heavy');   // 1/7 = 14% chance
+unitTable.add(3, 'Light'); // 3/7 = 43% chance
+unitTable.add(2, 'Medium'); // 2/7 = 29% chance
+unitTable.add(1, 'Heavy'); // 1/7 = 14% chance
 unitTable.add(1, 'Assault'); // 1/7 = 14% chance
 ```
 
 **Processing**:
+
 ```typescript
 const random = new SeededRandom(54321);
 const selections = [];
@@ -575,6 +615,7 @@ for (let i = 0; i < 1000; i++) {
 ```
 
 **Output**:
+
 ```typescript
 // Distribution over 1000 selections:
 // Light: ~430 (43%)
@@ -586,17 +627,19 @@ for (let i = 0; i < 1000; i++) {
 ### Example 3: Simulation Configuration
 
 **Input**:
+
 ```typescript
 const config: ISimulationConfig = {
   seed: Date.now(),
   turnLimit: 100,
   unitCount: 4,
   mapRadius: 8,
-  preset: 'standard-lance'
+  preset: 'standard-lance',
 };
 ```
 
 **Processing**:
+
 ```typescript
 // Validate configuration
 function validateConfig(config: ISimulationConfig): string[] {
@@ -614,6 +657,7 @@ function validateConfig(config: ISimulationConfig): string[] {
 ```
 
 **Output**:
+
 ```typescript
 const errors = validateConfig(config);
 // errors = [] (valid configuration)
@@ -624,10 +668,12 @@ const errors = validateConfig(config);
 ## References
 
 ### External References
+
 - **Mulberry32 PRNG**: https://github.com/bryc/code/blob/master/jshash/PRNGs.md#mulberry32
 - **MekHQ WeightedTable**: `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\againstTheBot\WeightedTable.java`
 
 ### Related Documentation
+
 - Simulation Runner Specification (depends on this spec)
 - Scenario Generator Specification (depends on this spec)
 - Valid Move AI Specification (depends on this spec)
@@ -637,6 +683,7 @@ const errors = validateConfig(config);
 ## Changelog
 
 ### Version 1.0 (2026-02-01)
+
 - Initial specification
 - Defined SeededRandom interface and Mulberry32 algorithm
 - Defined WeightedTable interface and selection algorithm

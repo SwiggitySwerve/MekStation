@@ -9,6 +9,7 @@
  */
 
 import { MechLocation } from '@/types/construction';
+
 import {
   LayoutConstraint,
   MechLayoutConfig,
@@ -24,9 +25,7 @@ const HEAD: PartDefinition = {
   baseWidth: 70,
   baseHeight: 55,
   shape: 'path',
-  anchors: [
-    { id: 'neck', position: 'bottom', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'neck', position: 'bottom', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}
@@ -48,13 +47,33 @@ const CENTER_TORSO: PartDefinition = {
     { id: 'right_shoulder', position: 'top-right', offset: { x: -20, y: 10 } },
     // Three leg anchors in triangular arrangement
     // Left and right legs at bottom corners
-    { id: 'left_hip', position: 'bottom', edgePosition: { edge: 'bottom', at: 0.2 } },
-    { id: 'right_hip', position: 'bottom', edgePosition: { edge: 'bottom', at: 0.8 } },
+    {
+      id: 'left_hip',
+      position: 'bottom',
+      edgePosition: { edge: 'bottom', at: 0.2 },
+    },
+    {
+      id: 'right_hip',
+      position: 'bottom',
+      edgePosition: { edge: 'bottom', at: 0.8 },
+    },
     // Center leg at bottom center
-    { id: 'center_hip', position: 'bottom', edgePosition: { edge: 'bottom', at: 0.5 } },
+    {
+      id: 'center_hip',
+      position: 'bottom',
+      edgePosition: { edge: 'bottom', at: 0.5 },
+    },
     // Side anchors for side torsos
-    { id: 'left_side', position: 'left', edgePosition: { edge: 'left', at: 0 } },
-    { id: 'right_side', position: 'right', edgePosition: { edge: 'right', at: 0 } },
+    {
+      id: 'left_side',
+      position: 'left',
+      edgePosition: { edge: 'left', at: 0 },
+    },
+    {
+      id: 'right_side',
+      position: 'right',
+      edgePosition: { edge: 'right', at: 0 },
+    },
   ],
   pathTemplate: `
     M {x} {y}
@@ -72,7 +91,11 @@ const LEFT_TORSO: PartDefinition = {
   shape: 'path',
   anchors: [
     { id: 'inner', position: 'right', edgePosition: { edge: 'right', at: 0 } },
-    { id: 'arm_mount', position: 'left', edgePosition: { edge: 'left', at: 0.25 } },
+    {
+      id: 'arm_mount',
+      position: 'left',
+      edgePosition: { edge: 'left', at: 0.25 },
+    },
   ],
   pathTemplate: `
     M {x} {y}
@@ -90,7 +113,11 @@ const RIGHT_TORSO: PartDefinition = {
   shape: 'path',
   anchors: [
     { id: 'inner', position: 'left', edgePosition: { edge: 'left', at: 0 } },
-    { id: 'arm_mount', position: 'right', edgePosition: { edge: 'right', at: 0.25 } },
+    {
+      id: 'arm_mount',
+      position: 'right',
+      edgePosition: { edge: 'right', at: 0.25 },
+    },
   ],
   pathTemplate: `
     M {x} {y}
@@ -106,9 +133,7 @@ const LEFT_ARM: PartDefinition = {
   baseWidth: 28,
   baseHeight: 150,
   shape: 'path',
-  anchors: [
-    { id: 'shoulder', position: 'top-right', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'shoulder', position: 'top-right', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}
@@ -123,9 +148,7 @@ const RIGHT_ARM: PartDefinition = {
   baseWidth: 28,
   baseHeight: 150,
   shape: 'path',
-  anchors: [
-    { id: 'shoulder', position: 'top-left', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'shoulder', position: 'top-left', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}
@@ -140,9 +163,7 @@ const LEFT_LEG: PartDefinition = {
   baseWidth: 50,
   baseHeight: 140,
   shape: 'path',
-  anchors: [
-    { id: 'hip', position: 'top-right', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'hip', position: 'top-right', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}
@@ -157,9 +178,7 @@ const RIGHT_LEG: PartDefinition = {
   baseWidth: 50,
   baseHeight: 140,
   shape: 'path',
-  anchors: [
-    { id: 'hip', position: 'top-left', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'hip', position: 'top-left', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}
@@ -176,9 +195,7 @@ const CENTER_LEG: PartDefinition = {
   baseWidth: 55,
   baseHeight: 150,
   shape: 'path',
-  anchors: [
-    { id: 'hip', position: 'top', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'hip', position: 'top', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}
@@ -298,7 +315,7 @@ export const GEOMETRIC_TRIPOD_LAYOUT: MechLayoutConfig = {
   ],
   constraints: TRIPOD_CONSTRAINTS,
   padding: 10,
-  minGap: 2,  // Compact tripod layout allows tighter spacing
+  minGap: 2, // Compact tripod layout allows tighter spacing
   visualConnectors: false,
   scale: 1,
 };

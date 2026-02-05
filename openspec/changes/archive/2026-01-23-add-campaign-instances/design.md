@@ -3,6 +3,7 @@
 ## Context
 
 MekStation needs to distinguish between:
+
 1. **Vault Designs** - Templates/designs stored in the user's collection (unit customizations, pilot rosters)
 2. **Campaign Instances** - Living entities within a campaign that accumulate history
 
@@ -26,6 +27,7 @@ This mirrors how MekHQ handles units: the "hangar" contains unit templates, whil
 ### Decision: Instance Creation on Force Assignment
 
 When a unit is assigned to a campaign force, a `CampaignUnitInstance` is created that:
+
 - References the vault unit ID
 - Snapshots the vault unit version at assignment time
 - Initializes with "operational" status and no damage
@@ -40,8 +42,9 @@ Statblock pilots (quick NPCs without full pilot records) store their data inline
 
 ```typescript
 interface ICampaignPilotInstance {
-  vaultPilotId?: string;  // null for statblock pilots
-  statblockData?: {       // populated for statblock pilots
+  vaultPilotId?: string; // null for statblock pilots
+  statblockData?: {
+    // populated for statblock pilots
     name: string;
     gunnery: number;
     piloting: number;
@@ -69,6 +72,7 @@ interface IUnitDamageState {
 ### Decision: Events Still Track All Changes
 
 Even though current state is stored on the instance, all state changes emit events:
+
 - `unit_damage_applied`
 - `unit_repaired`
 - `unit_status_changed`
@@ -117,11 +121,11 @@ Even though current state is stored on the instance, all state changes emit even
 
 ## Risks / Trade-offs
 
-| Risk | Mitigation |
-|------|------------|
-| Denormalized state could drift from events | Add verification command to compare state vs replayed events |
-| Instance state size could grow large | Chunk completed mission data, only keep recent state in memory |
-| Version snapshot could become stale | Display warning if vault design has newer version, offer "upgrade" option |
+| Risk                                       | Mitigation                                                                |
+| ------------------------------------------ | ------------------------------------------------------------------------- |
+| Denormalized state could drift from events | Add verification command to compare state vs replayed events              |
+| Instance state size could grow large       | Chunk completed mission data, only keep recent state in memory            |
+| Version snapshot could become stale        | Display warning if vault design has newer version, offer "upgrade" option |
 
 ## Open Questions
 

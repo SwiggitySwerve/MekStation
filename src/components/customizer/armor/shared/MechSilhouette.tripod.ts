@@ -1,4 +1,5 @@
 import { MechLocation } from '@/types/construction';
+
 import { SilhouetteConfig } from './MechSilhouette.types';
 
 export const TRIPOD_SILHOUETTE: SilhouetteConfig = {

@@ -6,6 +6,7 @@
  */
 
 import { MechLocation } from '@/types/construction';
+
 import {
   AnchorPoint,
   AnchorPosition,
@@ -33,7 +34,7 @@ function calculateAnchorPosition(
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
 ): ResolvedAnchor {
   let ax: number;
   let ay: number;
@@ -117,9 +118,10 @@ function calculateAnchorPosition(
   const result: ResolvedAnchor = { x: ax, y: ay };
   if (anchor.facing) {
     // Convert relative facing to absolute direction
-    result.facing = anchor.facing === 'inward' || anchor.facing === 'outward'
-      ? 'right' // Will be computed based on part position relative to center
-      : anchor.facing;
+    result.facing =
+      anchor.facing === 'inward' || anchor.facing === 'outward'
+        ? 'right' // Will be computed based on part position relative to center
+        : anchor.facing;
   }
 
   return result;
@@ -136,7 +138,7 @@ function calculateEdges(
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
 ): Record<EdgeName, ResolvedEdge> {
   return {
     top: {
@@ -166,7 +168,7 @@ function calculateAllAnchors(
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
 ): Record<string, ResolvedAnchor> {
   const anchors: Record<string, ResolvedAnchor> = {};
 
@@ -190,7 +192,7 @@ function calculateAllAnchors(
         x,
         y,
         width,
-        height
+        height,
       );
     }
   }
@@ -210,7 +212,7 @@ function resolvePathTemplate(
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
 ): string {
   if (!template) {
     // Generate a simple rectangle path
@@ -246,14 +248,14 @@ interface PartState {
  */
 function getAnchorFromPart(
   state: PartState,
-  anchorId: string | undefined
+  anchorId: string | undefined,
 ): ResolvedAnchor | null {
   const anchors = calculateAllAnchors(
     state.part,
     state.x,
     state.y,
     state.width,
-    state.height
+    state.height,
   );
 
   if (anchorId) {
@@ -270,7 +272,7 @@ function getAnchorFromPart(
 function resolveConstraint(
   constraint: LayoutConstraint,
   states: Map<MechLocation, PartState>,
-  scale: number
+  scale: number,
 ): boolean {
   const sourceState = states.get(constraint.source.part);
   const targetState = states.get(constraint.target.part);
@@ -300,7 +302,7 @@ function resolveConstraint(
     case 'anchor-to-anchor': {
       // Position source so its anchor aligns with target anchor
       const sourceAnchorDef = sourceState.part.anchors.find(
-        (a) => a.id === constraint.source.anchor
+        (a) => a.id === constraint.source.anchor,
       );
 
       if (!sourceAnchorDef && constraint.source.anchor) {
@@ -320,7 +322,8 @@ function resolveConstraint(
 
     case 'align-horizontal': {
       // Align centers horizontally (same Y)
-      sourceState.y = targetState.y + targetState.height / 2 - sourceState.height / 2;
+      sourceState.y =
+        targetState.y + targetState.height / 2 - sourceState.height / 2;
       if (!sourceState.resolved) {
         sourceState.x = targetState.x + targetState.width + gap;
       }
@@ -330,7 +333,8 @@ function resolveConstraint(
 
     case 'align-vertical': {
       // Align centers vertically (same X)
-      sourceState.x = targetState.x + targetState.width / 2 - sourceState.width / 2;
+      sourceState.x =
+        targetState.x + targetState.width / 2 - sourceState.width / 2;
       if (!sourceState.resolved) {
         sourceState.y = targetState.y + targetState.height + gap;
       }
@@ -340,7 +344,8 @@ function resolveConstraint(
 
     case 'stack-vertical': {
       // Stack below target
-      sourceState.x = targetState.x + targetState.width / 2 - sourceState.width / 2;
+      sourceState.x =
+        targetState.x + targetState.width / 2 - sourceState.width / 2;
       sourceState.y = targetState.y + targetState.height + gap;
       sourceState.resolved = true;
       return true;
@@ -349,7 +354,8 @@ function resolveConstraint(
     case 'stack-horizontal': {
       // Stack to the right of target
       sourceState.x = targetState.x + targetState.width + gap;
-      sourceState.y = targetState.y + targetState.height / 2 - sourceState.height / 2;
+      sourceState.y =
+        targetState.y + targetState.height / 2 - sourceState.height / 2;
       sourceState.resolved = true;
       return true;
     }
@@ -374,7 +380,7 @@ function positionByAnchor(
   state: PartState,
   anchorPos: AnchorPosition,
   targetPoint: ResolvedAnchor,
-  gap: number
+  gap: number,
 ): void {
   switch (anchorPos) {
     case 'top':
@@ -407,7 +413,7 @@ function positionByAnchor(
  * Position a part by placing a specific anchor definition at a target point
  * Gap is applied to push the part AWAY from the target based on which edge the anchor is on:
  * - Anchor on right edge means part is left of target → push left (subtract from x)
- * - Anchor on left edge means part is right of target → push right (add to x)  
+ * - Anchor on left edge means part is right of target → push right (add to x)
  * - Anchor on bottom edge means part is above target → push up (subtract from y)
  * - Anchor on top edge means part is below target → push down (add to y)
  */
@@ -415,10 +421,16 @@ function positionByAnchorDef(
   state: PartState,
   anchorDef: AnchorPoint,
   targetPoint: ResolvedAnchor,
-  gap: number
+  gap: number,
 ): void {
   // Calculate where the anchor would be if part was at (0, 0)
-  const anchorAtOrigin = calculateAnchorPosition(anchorDef, 0, 0, state.width, state.height);
+  const anchorAtOrigin = calculateAnchorPosition(
+    anchorDef,
+    0,
+    0,
+    state.width,
+    state.height,
+  );
 
   // Position so anchor aligns with target
   state.x = targetPoint.x - anchorAtOrigin.x;
@@ -451,8 +463,16 @@ function positionByAnchorDef(
  */
 export function calculateViewBox(
   positions: Partial<Record<MechLocation, ResolvedPosition>>,
-  padding: number
-): { viewBox: string; width: number; height: number; minX: number; minY: number; maxX: number; maxY: number } {
+  padding: number,
+): {
+  viewBox: string;
+  width: number;
+  height: number;
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+} {
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
@@ -503,7 +523,7 @@ export function calculateViewBox(
  */
 function generateConnectors(
   config: MechLayoutConfig,
-  positions: Partial<Record<MechLocation, ResolvedPosition>>
+  positions: Partial<Record<MechLocation, ResolvedPosition>>,
 ): ConnectorPath[] {
   if (!config.visualConnectors) {
     return [];
@@ -551,7 +571,7 @@ function generateConnectors(
  */
 export function resolveLayout(
   config: MechLayoutConfig,
-  options: LayoutResolveOptions = {}
+  options: LayoutResolveOptions = {},
 ): ResolvedLayout {
   const scale = options.scale ?? config.scale ?? 1;
   const padding = options.padding ?? config.padding;
@@ -584,7 +604,7 @@ export function resolveLayout(
 
   // Sort constraints by priority
   const sortedConstraints = [...config.constraints].sort(
-    (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
+    (a, b) => (b.priority ?? 0) - (a.priority ?? 0),
   );
 
   // Iteratively resolve constraints
@@ -592,7 +612,11 @@ export function resolveLayout(
   let resolved = 0;
   let lastResolved = -1;
 
-  while (resolved < sortedConstraints.length && maxIterations > 0 && resolved !== lastResolved) {
+  while (
+    resolved < sortedConstraints.length &&
+    maxIterations > 0 &&
+    resolved !== lastResolved
+  ) {
     lastResolved = resolved;
     resolved = 0;
 
@@ -612,7 +636,7 @@ export function resolveLayout(
   for (const entry of stateEntries) {
     const location = entry[0];
     const state = entry[1];
-    
+
     if (!state.resolved) {
       if (options.debug) {
         console.warn(`Layout: Part ${location} was not resolved`);
@@ -625,15 +649,10 @@ export function resolveLayout(
       state.x,
       state.y,
       state.width,
-      state.height
+      state.height,
     );
 
-    const edges = calculateEdges(
-      state.x,
-      state.y,
-      state.width,
-      state.height
-    );
+    const edges = calculateEdges(state.x, state.y, state.width, state.height);
 
     positions[location] = {
       x: state.x,
@@ -645,7 +664,7 @@ export function resolveLayout(
         state.x,
         state.y,
         state.width,
-        state.height
+        state.height,
       ),
       anchors,
       edges,
@@ -685,7 +704,7 @@ export function resolveLayout(
  */
 export function getPosition(
   layout: ResolvedLayout,
-  location: MechLocation
+  location: MechLocation,
 ): ResolvedPosition | undefined {
   return layout.positions[location];
 }
@@ -696,7 +715,7 @@ export function getPosition(
 export function getAnchor(
   layout: ResolvedLayout,
   location: MechLocation,
-  anchorId: string
+  anchorId: string,
 ): ResolvedAnchor | undefined {
   const pos = layout.positions[location];
   return pos?.anchors[anchorId];

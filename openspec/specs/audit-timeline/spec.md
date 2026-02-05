@@ -1,8 +1,11 @@
 # audit-timeline Specification
 
 ## Purpose
+
 TBD - created by archiving change add-audit-timeline. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Timeline View
 
 The system SHALL display events in a chronological, filterable timeline.
@@ -204,4 +207,3 @@ The system SHALL support data export and integrity verification.
 - **WHEN** clicking "Verify Integrity"
 - **THEN** the hash chain is validated
 - **AND** result shows "Verified" or identifies broken links
-

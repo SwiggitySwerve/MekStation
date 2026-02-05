@@ -7,9 +7,12 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import { createMocks } from 'node-mocks-http';
+
 import handler from '@/pages/api/vault/identity/unlock';
+
 import { parseApiResponse, parseErrorResponse } from '../../helpers';
 
 // =============================================================================
@@ -27,7 +30,8 @@ jest.mock('@/services/vault/IdentityRepository', () => ({
 }));
 
 jest.mock('@/services/vault/IdentityService', () => ({
-  unlockIdentity: (...args: unknown[]): Promise<unknown> => mockUnlockIdentity(...args),
+  unlockIdentity: (...args: unknown[]): Promise<unknown> =>
+    mockUnlockIdentity(...args),
 }));
 
 // =============================================================================
@@ -127,7 +131,9 @@ describe('/api/vault/identity/unlock', () => {
       expect(data.publicIdentity).toBeDefined();
       expect(data.publicIdentity.displayName).toBe('TestUser');
       expect(data.publicIdentity.publicKey).toBe(mockStoredIdentity.publicKey);
-      expect(data.publicIdentity.friendCode).toBe(mockStoredIdentity.friendCode);
+      expect(data.publicIdentity.friendCode).toBe(
+        mockStoredIdentity.friendCode,
+      );
       expect(data.publicIdentity.avatar).toBe(mockStoredIdentity.avatar);
     });
 

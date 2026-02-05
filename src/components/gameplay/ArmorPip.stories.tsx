@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ArmorPip, ArmorPipGroup, PipState } from './ArmorPip';
+
 import { useState } from 'react';
+
+import { ArmorPip, ArmorPipGroup, PipState } from './ArmorPip';
 
 const meta: Meta<typeof ArmorPip> = {
   title: 'Gameplay/ArmorPip',
@@ -55,19 +57,19 @@ export const AllStates: StoryObj = {
     <div className="flex gap-4">
       <div className="text-center">
         <ArmorPip state="empty" onToggle={() => {}} />
-        <p className="text-xs text-text-theme-secondary mt-1">Empty</p>
+        <p className="text-text-theme-secondary mt-1 text-xs">Empty</p>
       </div>
       <div className="text-center">
         <ArmorPip state="filled" onToggle={() => {}} />
-        <p className="text-xs text-text-theme-secondary mt-1">Filled</p>
+        <p className="text-text-theme-secondary mt-1 text-xs">Filled</p>
       </div>
       <div className="text-center">
         <ArmorPip state="destroyed" onToggle={() => {}} />
-        <p className="text-xs text-text-theme-secondary mt-1">Destroyed</p>
+        <p className="text-text-theme-secondary mt-1 text-xs">Destroyed</p>
       </div>
       <div className="text-center">
         <ArmorPip state="blown-off" onToggle={() => {}} />
-        <p className="text-xs text-text-theme-secondary mt-1">Blown Off</p>
+        <p className="text-text-theme-secondary mt-1 text-xs">Blown Off</p>
       </div>
     </div>
   ),
@@ -78,10 +80,12 @@ const InteractivePipExample = () => {
   return (
     <div className="text-center">
       <ArmorPip state={state} onToggle={setState} />
-      <p className="text-sm text-text-theme-secondary mt-2">
+      <p className="text-text-theme-secondary mt-2 text-sm">
         State: <span className="text-accent">{state}</span>
       </p>
-      <p className="text-xs text-text-theme-muted mt-1">Click to cycle states</p>
+      <p className="text-text-theme-muted mt-1 text-xs">
+        Click to cycle states
+      </p>
     </div>
   );
 };
@@ -100,7 +104,7 @@ const InteractiveGroupExample = () => {
   };
 
   return (
-    <div className="w-80 bg-surface-base p-4 rounded-lg">
+    <div className="bg-surface-base w-80 rounded-lg p-4">
       <ArmorPipGroup
         location="Center Torso"
         pips={pips}

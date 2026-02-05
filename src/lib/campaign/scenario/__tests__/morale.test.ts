@@ -5,11 +5,15 @@
  */
 
 import {
+  AtBMoraleLevel,
+  MORALE_VALUES,
+} from '@/types/campaign/scenario/scenarioTypes';
+
+import {
   updateMorale,
   getMoraleLevelFromValue,
   getMoraleDisplayInfo,
 } from '../morale';
-import { AtBMoraleLevel, MORALE_VALUES } from '@/types/campaign/scenario/scenarioTypes';
 
 describe('updateMorale', () => {
   describe('victory outcome', () => {

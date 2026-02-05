@@ -1,5 +1,4 @@
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { isDead, isDepartedUnit } from './statusRules';
 
 export interface IStatusTransitionResult {
   readonly valid: boolean;
@@ -48,7 +47,7 @@ const DEPARTED_STATUSES = new Set([
 
 export function validateStatusTransition(
   from: PersonnelStatus,
-  to: PersonnelStatus
+  to: PersonnelStatus,
 ): IStatusTransitionResult {
   const fromIsDead = DEAD_STATUSES.has(from);
   const toIsDead = DEAD_STATUSES.has(to);
@@ -71,7 +70,7 @@ export function validateStatusTransition(
 
 export function getTransitionSideEffects(
   from: PersonnelStatus,
-  to: PersonnelStatus
+  to: PersonnelStatus,
 ): readonly IStatusTransitionEffect[] {
   const effects: IStatusTransitionEffect[] = [];
 

@@ -1,6 +1,7 @@
 ## Context
 
 The BattleTech editor needs persistent storage for custom units that works across deployment scenarios:
+
 1. **Electron desktop**: Single user, local storage
 2. **Self-hosted web**: Multi-user, server storage
 
@@ -9,6 +10,7 @@ Current IndexedDB approach only works in browsers and doesn't support multi-user
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Unified storage API that works in all deployment modes
 - Version history with ability to revert
 - Canonical unit protection (immutable)
@@ -16,6 +18,7 @@ Current IndexedDB approach only works in browsers and doesn't support multi-user
 - Simple, performant, robust solution
 
 **Non-Goals:**
+
 - Cloud sync or remote backup
 - Real-time collaboration
 - Complex branching/merging of unit versions
@@ -28,6 +31,7 @@ Current IndexedDB approach only works in browsers and doesn't support multi-user
 **Why**: Single-file database, no server process, ACID transactions, works in Node.js (Electron and server).
 
 **Alternatives considered**:
+
 - PostgreSQL: Overkill for single-user, requires separate server process
 - JSON files: No transactions, poor multi-user support, slower queries
 - IndexedDB: Browser-only, no Electron support without workarounds
@@ -44,6 +48,7 @@ Current IndexedDB approach only works in browsers and doesn't support multi-user
 **Why**: Simpler implementation, easier revert, storage is cheap for unit data (~10-50KB per unit).
 
 **Alternatives considered**:
+
 - Delta/diff storage: More complex, harder to debug, marginal storage savings
 
 ### Decision 4: Clone naming convention
@@ -92,26 +97,26 @@ CREATE INDEX idx_unit_versions_unit_id ON unit_versions(unit_id);
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/units/custom` | List all custom units (index only) |
-| GET | `/api/units/custom/:id` | Get full unit data |
-| POST | `/api/units/custom` | Create new custom unit |
-| PUT | `/api/units/custom/:id` | Save/update unit (increments version) |
-| DELETE | `/api/units/custom/:id` | Delete unit and all versions |
-| GET | `/api/units/custom/:id/versions` | List version history |
-| GET | `/api/units/custom/:id/versions/:version` | Get specific version |
-| POST | `/api/units/custom/:id/revert/:version` | Revert to specific version |
-| GET | `/api/units/custom/:id/export` | Export unit as JSON file |
-| POST | `/api/units/import` | Import unit from JSON file |
+| Method | Endpoint                                  | Description                           |
+| ------ | ----------------------------------------- | ------------------------------------- |
+| GET    | `/api/units/custom`                       | List all custom units (index only)    |
+| GET    | `/api/units/custom/:id`                   | Get full unit data                    |
+| POST   | `/api/units/custom`                       | Create new custom unit                |
+| PUT    | `/api/units/custom/:id`                   | Save/update unit (increments version) |
+| DELETE | `/api/units/custom/:id`                   | Delete unit and all versions          |
+| GET    | `/api/units/custom/:id/versions`          | List version history                  |
+| GET    | `/api/units/custom/:id/versions/:version` | Get specific version                  |
+| POST   | `/api/units/custom/:id/revert/:version`   | Revert to specific version            |
+| GET    | `/api/units/custom/:id/export`            | Export unit as JSON file              |
+| POST   | `/api/units/import`                       | Import unit from JSON file            |
 
 ## Risks / Trade-offs
 
-| Risk | Mitigation |
-|------|------------|
+| Risk                      | Mitigation                                                                |
+| ------------------------- | ------------------------------------------------------------------------- |
 | SQLite concurrency limits | WAL mode supports many readers + one writer; sufficient for expected load |
-| Database corruption | Regular backups, SQLite is very robust |
-| Migration complexity | Start fresh; existing IndexedDB data can be exported/imported |
+| Database corruption       | Regular backups, SQLite is very robust                                    |
+| Migration complexity      | Start fresh; existing IndexedDB data can be exported/imported             |
 
 ## Migration Plan
 
@@ -125,4 +130,3 @@ CREATE INDEX idx_unit_versions_unit_id ON unit_versions(unit_id);
 
 - Should we support user accounts/authentication for multi-user? (Deferred - can add later)
 - Should version history have a maximum limit? (Suggest: keep last 50 versions)
-

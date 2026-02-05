@@ -14,7 +14,7 @@ import { IMiscEquipment } from '@/types/equipment/MiscEquipmentTypes';
  */
 export function addMiscEquipmentAliases(
   equipment: IMiscEquipment,
-  nameToIdMap: Map<string, string>
+  nameToIdMap: Map<string, string>,
 ): void {
   const name = equipment.name;
 

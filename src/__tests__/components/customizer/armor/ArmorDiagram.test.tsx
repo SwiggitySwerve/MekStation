@@ -1,12 +1,19 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+
 import { ArmorDiagram } from '@/components/customizer/armor/ArmorDiagram';
 import { MechLocation } from '@/types/construction';
 
 // Mock ArmorLocation
 jest.mock('@/components/customizer/armor/ArmorLocation', () => ({
-  ArmorLocation: ({ location, onClick }: { location: MechLocation; onClick?: () => void }) => (
+  ArmorLocation: ({
+    location,
+    onClick,
+  }: {
+    location: MechLocation;
+    onClick?: () => void;
+  }) => (
     <div data-testid={`armor-location-${location}`} onClick={onClick}>
       {location}
     </div>
@@ -45,36 +52,45 @@ describe('ArmorDiagram', () => {
 
   it('should render armor diagram', () => {
     render(<ArmorDiagram {...defaultProps} />);
-    
+
     expect(screen.getByText('Armor Allocation')).toBeInTheDocument();
   });
 
   it('should render armor locations', () => {
     render(<ArmorDiagram {...defaultProps} />);
-    
+
     // MechLocation enum values are like "Head", "Center Torso" etc.
-    expect(screen.getByTestId(`armor-location-${MechLocation.HEAD}`)).toBeInTheDocument();
-    expect(screen.getByTestId(`armor-location-${MechLocation.CENTER_TORSO}`)).toBeInTheDocument();
+    expect(
+      screen.getByTestId(`armor-location-${MechLocation.HEAD}`),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId(`armor-location-${MechLocation.CENTER_TORSO}`),
+    ).toBeInTheDocument();
   });
 
   it('should call onLocationClick when location is clicked', async () => {
     const user = userEvent.setup();
     render(<ArmorDiagram {...defaultProps} />);
-    
-    const headLocation = screen.getByTestId(`armor-location-${MechLocation.HEAD}`);
+
+    const headLocation = screen.getByTestId(
+      `armor-location-${MechLocation.HEAD}`,
+    );
     await user.click(headLocation);
-    
-    expect(defaultProps.onLocationClick).toHaveBeenCalledWith(MechLocation.HEAD);
+
+    expect(defaultProps.onLocationClick).toHaveBeenCalledWith(
+      MechLocation.HEAD,
+    );
   });
 
   // Note: Auto-allocate button was moved to ArmorTab.tsx
   // These tests are no longer needed here
 
   it('should apply custom className', () => {
-    const { container } = render(<ArmorDiagram {...defaultProps} className="custom-class" />);
-    
+    const { container } = render(
+      <ArmorDiagram {...defaultProps} className="custom-class" />,
+    );
+
     const diagram = container.firstChild;
     expect(diagram).toHaveClass('custom-class');
   });
 });
-

@@ -3,7 +3,6 @@
 
 // Import Jest DOM matchers
 import '@testing-library/jest-dom';
-
 // Polyfill TextEncoder/TextDecoder for jsdom (used by P2PTransport)
 import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
@@ -14,7 +13,7 @@ if (typeof global.fetch === 'undefined') {
   // Mock fetch for tests - return empty arrays for equipment JSON files
   global.fetch = async (url) => {
     const urlStr = typeof url === 'string' ? url : url.toString();
-    
+
     // Return empty arrays for equipment JSON files
     if (urlStr.includes('.json')) {
       return {
@@ -22,7 +21,7 @@ if (typeof global.fetch === 'undefined') {
         json: async () => [],
       };
     }
-    
+
     throw new Error(`Unmocked fetch: ${urlStr}`);
   };
 }
@@ -60,7 +59,7 @@ jest.mock('next/image', () => ({
 // Mock matchMedia (not available in jsdom, used by responsive hooks)
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,

@@ -5,6 +5,15 @@
  */
 
 import {
+  IGameEvent,
+  GameEventType,
+  GamePhase,
+  GameSide,
+  Facing,
+  MovementType,
+} from '@/types/gameplay';
+
+import {
   isEventType,
   getGameCreatedPayload,
   getGameStartedPayload,
@@ -24,22 +33,12 @@ import {
   getLastEventOfType,
   getEventsForUnit,
 } from '../eventPayloads';
-import {
-  IGameEvent,
-  GameEventType,
-  GamePhase,
-  GameSide,
-  Facing,
-  MovementType,
-} from '@/types/gameplay';
 
 // =============================================================================
 // Test Fixtures
 // =============================================================================
 
-function createBaseEvent(
-  overrides: Partial<IGameEvent> = {}
-): IGameEvent {
+function createBaseEvent(overrides: Partial<IGameEvent> = {}): IGameEvent {
   return {
     id: 'event-1',
     gameId: 'game-1',
@@ -264,14 +263,32 @@ describe('isEventType', () => {
       { event: createGameStartedEvent(), type: GameEventType.GameStarted },
       { event: createGameEndedEvent(), type: GameEventType.GameEnded },
       { event: createPhaseChangedEvent(), type: GameEventType.PhaseChanged },
-      { event: createInitiativeRolledEvent(), type: GameEventType.InitiativeRolled },
-      { event: createMovementDeclaredEvent(), type: GameEventType.MovementDeclared },
-      { event: createMovementLockedEvent(), type: GameEventType.MovementLocked },
-      { event: createAttackDeclaredEvent(), type: GameEventType.AttackDeclared },
-      { event: createAttackResolvedEvent(), type: GameEventType.AttackResolved },
+      {
+        event: createInitiativeRolledEvent(),
+        type: GameEventType.InitiativeRolled,
+      },
+      {
+        event: createMovementDeclaredEvent(),
+        type: GameEventType.MovementDeclared,
+      },
+      {
+        event: createMovementLockedEvent(),
+        type: GameEventType.MovementLocked,
+      },
+      {
+        event: createAttackDeclaredEvent(),
+        type: GameEventType.AttackDeclared,
+      },
+      {
+        event: createAttackResolvedEvent(),
+        type: GameEventType.AttackResolved,
+      },
       { event: createDamageAppliedEvent(), type: GameEventType.DamageApplied },
       { event: createHeatGeneratedEvent(), type: GameEventType.HeatGenerated },
-      { event: createHeatDissipatedEvent(), type: GameEventType.HeatDissipated },
+      {
+        event: createHeatDissipatedEvent(),
+        type: GameEventType.HeatDissipated,
+      },
       { event: createPilotHitEvent(), type: GameEventType.PilotHit },
       { event: createUnitDestroyedEvent(), type: GameEventType.UnitDestroyed },
     ];
@@ -577,18 +594,29 @@ describe('filterEventsByType', () => {
   ];
 
   it('should filter events by type', () => {
-    const phaseChangedEvents = filterEventsByType(events, GameEventType.PhaseChanged);
+    const phaseChangedEvents = filterEventsByType(
+      events,
+      GameEventType.PhaseChanged,
+    );
     expect(phaseChangedEvents.length).toBe(2);
-    expect(phaseChangedEvents.every(e => e.type === GameEventType.PhaseChanged)).toBe(true);
+    expect(
+      phaseChangedEvents.every((e) => e.type === GameEventType.PhaseChanged),
+    ).toBe(true);
   });
 
   it('should return empty array if no events match', () => {
-    const unitDestroyedEvents = filterEventsByType(events, GameEventType.UnitDestroyed);
+    const unitDestroyedEvents = filterEventsByType(
+      events,
+      GameEventType.UnitDestroyed,
+    );
     expect(unitDestroyedEvents.length).toBe(0);
   });
 
   it('should return single event when only one matches', () => {
-    const gameCreatedEvents = filterEventsByType(events, GameEventType.GameCreated);
+    const gameCreatedEvents = filterEventsByType(
+      events,
+      GameEventType.GameCreated,
+    );
     expect(gameCreatedEvents.length).toBe(1);
   });
 
@@ -607,7 +635,10 @@ describe('getLastEventOfType', () => {
       { ...createMovementDeclaredEvent(), id: 'event-4', sequence: 4 },
     ];
 
-    const lastPhaseChange = getLastEventOfType(events, GameEventType.PhaseChanged);
+    const lastPhaseChange = getLastEventOfType(
+      events,
+      GameEventType.PhaseChanged,
+    );
     expect(lastPhaseChange).not.toBeNull();
     expect(lastPhaseChange?.id).toBe('event-3');
   });
@@ -623,9 +654,7 @@ describe('getLastEventOfType', () => {
   });
 
   it('should return the only event if there is one', () => {
-    const events: IGameEvent[] = [
-      createGameCreatedEvent(),
-    ];
+    const events: IGameEvent[] = [createGameCreatedEvent()];
 
     const result = getLastEventOfType(events, GameEventType.GameCreated);
     expect(result).not.toBeNull();

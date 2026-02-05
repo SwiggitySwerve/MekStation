@@ -1,13 +1,19 @@
 /**
  * File Service
- * 
+ *
  * Export and import JSON files for unit data.
- * 
+ *
  * @spec openspec/specs/persistence-services/spec.md
  */
 
 import { FileError } from '../common/errors';
-import { IImportResult, IValidationResult, validResult, invalidResult, ValidationSeverity } from '../common/types';
+import {
+  IImportResult,
+  IValidationResult,
+  validResult,
+  invalidResult,
+  ValidationSeverity,
+} from '../common/types';
 
 /**
  * File service interface
@@ -28,7 +34,11 @@ export class FileService implements IFileService {
    * Export a single unit as JSON file download
    */
   exportUnit(unit: unknown, filename?: string): void {
-    const unitObj = unit as { chassis?: string; variant?: string; model?: string };
+    const unitObj = unit as {
+      chassis?: string;
+      variant?: string;
+      model?: string;
+    };
     const defaultName = this.generateFilename(unitObj);
     const finalFilename = filename || defaultName;
 
@@ -56,7 +66,7 @@ export class FileService implements IFileService {
     try {
       const text = await this.readFileAsText(file);
       const parsed = this.parseJSON(text, file.name);
-      
+
       if (!parsed.success) {
         return {
           success: false,
@@ -70,7 +80,7 @@ export class FileService implements IFileService {
         return {
           success: false,
           filename: file.name,
-          errors: validation.errors.map(e => e.message),
+          errors: validation.errors.map((e) => e.message),
         };
       }
 
@@ -92,7 +102,7 @@ export class FileService implements IFileService {
    * Import multiple units from multiple files
    */
   async importBatch(files: File[]): Promise<IImportResult[]> {
-    return Promise.all(files.map(file => this.importUnit(file)));
+    return Promise.all(files.map((file) => this.importUnit(file)));
   }
 
   /**
@@ -102,41 +112,50 @@ export class FileService implements IFileService {
     try {
       // Check file extension
       if (!file.name.endsWith('.json')) {
-        return invalidResult([{
-          code: 'INVALID_EXTENSION',
-          message: 'File must have .json extension',
-          severity: ValidationSeverity.ERROR,
-        }]);
+        return invalidResult([
+          {
+            code: 'INVALID_EXTENSION',
+            message: 'File must have .json extension',
+            severity: ValidationSeverity.ERROR,
+          },
+        ]);
       }
 
       // Check file size (max 10MB)
       const MAX_SIZE = 10 * 1024 * 1024;
       if (file.size > MAX_SIZE) {
-        return invalidResult([{
-          code: 'FILE_TOO_LARGE',
-          message: 'File exceeds maximum size of 10MB',
-          severity: ValidationSeverity.ERROR,
-        }]);
+        return invalidResult([
+          {
+            code: 'FILE_TOO_LARGE',
+            message: 'File exceeds maximum size of 10MB',
+            severity: ValidationSeverity.ERROR,
+          },
+        ]);
       }
 
       const text = await this.readFileAsText(file);
       const parsed = this.parseJSON(text, file.name);
-      
+
       if (!parsed.success) {
-        return invalidResult([{
-          code: 'INVALID_JSON',
-          message: parsed.error,
-          severity: ValidationSeverity.ERROR,
-        }]);
+        return invalidResult([
+          {
+            code: 'INVALID_JSON',
+            message: parsed.error,
+            severity: ValidationSeverity.ERROR,
+          },
+        ]);
       }
 
       return this.validateUnitStructure(parsed.data);
     } catch (error) {
-      return invalidResult([{
-        code: 'READ_ERROR',
-        message: error instanceof Error ? error.message : 'Failed to read file',
-        severity: ValidationSeverity.ERROR,
-      }]);
+      return invalidResult([
+        {
+          code: 'READ_ERROR',
+          message:
+            error instanceof Error ? error.message : 'Failed to read file',
+          severity: ValidationSeverity.ERROR,
+        },
+      ]);
     }
   }
 
@@ -144,7 +163,11 @@ export class FileService implements IFileService {
   // PRIVATE HELPERS
   // ============================================================================
 
-  private generateFilename(unit: { chassis?: string; variant?: string; model?: string }): string {
+  private generateFilename(unit: {
+    chassis?: string;
+    variant?: string;
+    model?: string;
+  }): string {
     const chassis = unit.chassis || 'unknown';
     const variant = unit.variant || unit.model || 'variant';
     const safeChassis = chassis.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -167,12 +190,16 @@ export class FileService implements IFileService {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new FileError('Failed to read file', file.name));
+      reader.onerror = () =>
+        reject(new FileError('Failed to read file', file.name));
       reader.readAsText(file);
     });
   }
 
-  private parseJSON(text: string, filename: string): { success: true; data: unknown } | { success: false; error: string } {
+  private parseJSON(
+    text: string,
+    filename: string,
+  ): { success: true; data: unknown } | { success: false; error: string } {
     try {
       // JSON.parse returns any, but we treat it as unknown for type safety
       const data: unknown = JSON.parse(text);
@@ -183,7 +210,11 @@ export class FileService implements IFileService {
   }
 
   private validateUnitStructure(data: unknown): IValidationResult {
-    const errors: { code: string; message: string; severity: ValidationSeverity }[] = [];
+    const errors: {
+      code: string;
+      message: string;
+      severity: ValidationSeverity;
+    }[] = [];
 
     if (typeof data !== 'object' || data === null) {
       errors.push({
@@ -246,4 +277,3 @@ export function _resetFileService(): void {
 // Legacy export for backward compatibility
 // @deprecated Use getFileService() instead
 export const fileService = getFileService();
-

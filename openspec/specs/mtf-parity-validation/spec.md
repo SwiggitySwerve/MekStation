@@ -1,8 +1,11 @@
 # mtf-parity-validation Specification
 
 ## Purpose
+
 TBD - created by archiving change add-mtf-parity-validation. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: MTF Parsing from Raw Text
 
 The system SHALL parse raw MTF text files from mm-data into ISerializedUnit format.
@@ -12,6 +15,7 @@ The system SHALL parse raw MTF text files from mm-data into ISerializedUnit form
 **Priority**: Critical
 
 #### Scenario: Parse standard BattleMech MTF
+
 - **GIVEN** a valid MTF file from mm-data (e.g., `data/mekfiles/meks/3039u/Archer ARC-2R.mtf`)
 - **WHEN** parsing the file
 - **THEN** the system SHALL extract chassis, model, tonnage, era, and tech base
@@ -21,6 +25,7 @@ The system SHALL parse raw MTF text files from mm-data into ISerializedUnit form
 - **AND** the system SHALL extract critical slot assignments per location
 
 #### Scenario: Parse actuator configuration
+
 - **GIVEN** an MTF file with non-standard actuators
 - **WHEN** parsing the file
 - **THEN** the system SHALL detect missing Hand Actuator
@@ -38,6 +43,7 @@ The system SHALL serialize ISerializedUnit back to MTF text format matching Mega
 **Priority**: Critical
 
 #### Scenario: Serialize to MTF format
+
 - **GIVEN** a valid ISerializedUnit object
 - **WHEN** serializing to MTF format
 - **THEN** output SHALL include header fields (chassis, model, config, techbase, era)
@@ -48,6 +54,7 @@ The system SHALL serialize ISerializedUnit back to MTF text format matching Mega
 - **AND** output SHALL include critical slot sections per location
 
 #### Scenario: Match MegaMek naming conventions
+
 - **GIVEN** equipment in ISerializedUnit with canonical ID "medium-laser"
 - **WHEN** serializing to MTF format
 - **THEN** equipment name SHALL be "Medium Laser" in weapons section
@@ -64,6 +71,7 @@ The system SHALL validate unit data by round-trip comparison: parse MTF, seriali
 **Priority**: Critical
 
 #### Scenario: Validate single unit
+
 - **GIVEN** an MTF file path and output directory
 - **WHEN** running parity validation
 - **THEN** the system SHALL parse the MTF to ISerializedUnit
@@ -72,6 +80,7 @@ The system SHALL validate unit data by round-trip comparison: parse MTF, seriali
 - **AND** the system SHALL categorize any discrepancies found
 
 #### Scenario: Validate all BattleMechs
+
 - **GIVEN** a path to mm-data repository
 - **WHEN** running full parity validation
 - **THEN** the system SHALL discover all MTF files in `data/mekfiles/meks/`
@@ -89,24 +98,28 @@ The system SHALL categorize discrepancies by type for targeted remediation.
 **Priority**: High
 
 #### Scenario: Equipment discrepancy categories
+
 - **GIVEN** a discrepancy in equipment handling
 - **THEN** the system SHALL categorize as one of:
   - `UNKNOWN_EQUIPMENT` - Equipment ID not found in catalog
   - `EQUIPMENT_MISMATCH` - Equipment name differs between original and generated
 
 #### Scenario: Actuator discrepancy categories
+
 - **GIVEN** a discrepancy in actuator handling
 - **THEN** the system SHALL categorize as one of:
   - `MISSING_ACTUATOR` - Actuator in MTF not present in generated output
   - `EXTRA_ACTUATOR` - Actuator in generated output not present in MTF
 
 #### Scenario: Critical slot discrepancy categories
+
 - **GIVEN** a discrepancy in critical slot allocation
 - **THEN** the system SHALL categorize as one of:
   - `SLOT_MISMATCH` - Slot contents differ at specific index
   - `SLOT_COUNT_MISMATCH` - Number of filled slots differs
 
 #### Scenario: Structural discrepancy categories
+
 - **GIVEN** a discrepancy in structural components
 - **THEN** the system SHALL categorize as one of:
   - `ARMOR_MISMATCH` - Armor values differ
@@ -124,6 +137,7 @@ The system SHALL generate individual issue files for each unit with discrepancie
 **Priority**: High
 
 #### Scenario: Issue file structure
+
 - **GIVEN** a unit with discrepancies
 - **WHEN** generating reports
 - **THEN** the system SHALL create `issues/{unit-id}.json` containing:
@@ -135,6 +149,7 @@ The system SHALL generate individual issue files for each unit with discrepancie
   - `issues` - Array of categorized discrepancies
 
 #### Scenario: Issue entry structure
+
 - **GIVEN** a discrepancy in a unit
 - **THEN** each issue entry SHALL contain:
   - `category` - Discrepancy category
@@ -154,6 +169,7 @@ The system SHALL generate a manifest file indexing all validated units.
 **Priority**: Medium
 
 #### Scenario: Manifest structure
+
 - **GIVEN** completed validation run
 - **WHEN** generating manifest
 - **THEN** `manifest.json` SHALL contain:
@@ -172,6 +188,7 @@ The system SHALL output summary statistics to console during validation.
 **Priority**: Medium
 
 #### Scenario: Summary output
+
 - **WHEN** validation completes
 - **THEN** console SHALL display:
   - Total units validated
@@ -179,4 +196,3 @@ The system SHALL output summary statistics to console during validation.
   - Units with issues
   - Breakdown by issue category
   - Path to generated report files
-

@@ -1,5 +1,5 @@
-import { ISkillType } from './ISkillType';
 import { IAttributes, getAttributeModifier } from './IAttributes';
+import { ISkillType } from './ISkillType';
 
 /**
  * Represents a character's proficiency in a specific skill.
@@ -106,12 +106,12 @@ export interface ISkill {
 export function getSkillValue(
   skill: ISkill,
   skillType: ISkillType,
-  attributes: IAttributes
+  attributes: IAttributes,
 ): number {
   // Validate skill level
   if (skill.level < 0 || skill.level > 10) {
     throw new Error(
-      `Invalid skill level: ${skill.level}. Skill level must be between 0 and 10.`
+      `Invalid skill level: ${skill.level}. Skill level must be between 0 and 10.`,
     );
   }
 
@@ -121,7 +121,7 @@ export function getSkillValue(
   // Validate that the attribute exists and is a number
   if (typeof linkedAttributeValue !== 'number') {
     throw new Error(
-      `Invalid linked attribute: ${skillType.linkedAttribute}. Attribute not found or invalid.`
+      `Invalid linked attribute: ${skillType.linkedAttribute}. Attribute not found or invalid.`,
     );
   }
 

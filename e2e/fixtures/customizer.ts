@@ -66,10 +66,12 @@ export interface CreateVehicleOptions {
 export async function waitForTabManagerStoreReady(page: Page): Promise<void> {
   await page.waitForFunction(
     () => {
-      const win = window as unknown as { __ZUSTAND_STORES__?: { tabManager?: unknown } };
+      const win = window as unknown as {
+        __ZUSTAND_STORES__?: { tabManager?: unknown };
+      };
       return win.__ZUSTAND_STORES__?.tabManager !== undefined;
     },
-    { timeout: 10000 }
+    { timeout: 10000 },
   );
 }
 
@@ -82,45 +84,52 @@ export async function waitForTabManagerStoreReady(page: Page): Promise<void> {
  */
 export async function createMechUnit(
   page: Page,
-  options: CreateMechOptions = {}
+  options: CreateMechOptions = {},
 ): Promise<string> {
   const unitId = await page.evaluate((opts) => {
-    const stores = (window as unknown as {
-      __ZUSTAND_STORES__?: {
-        tabManager?: {
-          getState: () => {
-            createTab: (template: {
-              id: string;
-              name: string;
-              tonnage: number;
-              techBase: string;
-              walkMP: number;
-            }, customName?: string) => string;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          tabManager?: {
+            getState: () => {
+              createTab: (
+                template: {
+                  id: string;
+                  name: string;
+                  tonnage: number;
+                  techBase: string;
+                  walkMP: number;
+                },
+                customName?: string,
+              ) => string;
+            };
           };
         };
-      };
-      __UNIT_TEMPLATES__?: ReadonlyArray<{
-        id: string;
-        name: string;
-        tonnage: number;
-        techBase: string;
-        walkMP: number;
-      }>;
-    }).__ZUSTAND_STORES__;
+        __UNIT_TEMPLATES__?: ReadonlyArray<{
+          id: string;
+          name: string;
+          tonnage: number;
+          techBase: string;
+          walkMP: number;
+        }>;
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.tabManager) {
       throw new Error('Tab manager store not exposed');
     }
 
-    const templates = (window as unknown as {
-      __UNIT_TEMPLATES__?: ReadonlyArray<{
-        id: string;
-        name: string;
-        tonnage: number;
-        techBase: string;
-        walkMP: number;
-      }>;
-    }).__UNIT_TEMPLATES__;
+    const templates = (
+      window as unknown as {
+        __UNIT_TEMPLATES__?: ReadonlyArray<{
+          id: string;
+          name: string;
+          tonnage: number;
+          techBase: string;
+          walkMP: number;
+        }>;
+      }
+    ).__UNIT_TEMPLATES__;
 
     // Find a template matching the tonnage or use medium as default
     let template = templates?.find((t) => t.tonnage === opts.tonnage);
@@ -146,7 +155,10 @@ export async function createMechUnit(
     };
 
     const store = stores.tabManager.getState();
-    return store.createTab(finalTemplate, opts.name ?? `Test Mech ${Date.now()}`);
+    return store.createTab(
+      finalTemplate,
+      opts.name ?? `Test Mech ${Date.now()}`,
+    );
   }, options);
 
   return unitId;
@@ -161,47 +173,65 @@ export async function createMechUnit(
  */
 export async function createAerospaceUnit(
   page: Page,
-  options: CreateAerospaceOptions = {}
+  options: CreateAerospaceOptions = {},
 ): Promise<string> {
   const unitId = await page.evaluate((opts) => {
-    const stores = (window as unknown as {
-      __ZUSTAND_STORES__?: {
-        tabManager?: {
-          getState: () => {
-            addTab: (tabInfo: {
-              id: string;
-              name: string;
-              tonnage?: number;
-              techBase?: string;
-              unitType?: string;
-            }) => void;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          tabManager?: {
+            getState: () => {
+              addTab: (tabInfo: {
+                id: string;
+                name: string;
+                tonnage?: number;
+                techBase?: string;
+                unitType?: string;
+              }) => void;
+            };
           };
         };
-      };
-      __AEROSPACE_REGISTRY__?: {
-        createAndRegisterAerospace: (options: {
-          name: string;
-          tonnage: number;
-          techBase: string;
-          isConventional?: boolean;
-        }) => { getState: () => { id: string; name: string; tonnage: number; techBase: string } };
-      };
-    }).__ZUSTAND_STORES__;
+        __AEROSPACE_REGISTRY__?: {
+          createAndRegisterAerospace: (options: {
+            name: string;
+            tonnage: number;
+            techBase: string;
+            isConventional?: boolean;
+          }) => {
+            getState: () => {
+              id: string;
+              name: string;
+              tonnage: number;
+              techBase: string;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.tabManager) {
       throw new Error('Tab manager store not exposed');
     }
 
-    const aerospaceRegistry = (window as unknown as {
-      __AEROSPACE_REGISTRY__?: {
-        createAndRegisterAerospace: (options: {
-          name: string;
-          tonnage: number;
-          techBase: string;
-          isConventional?: boolean;
-        }) => { getState: () => { id: string; name: string; tonnage: number; techBase: string } };
-      };
-    }).__AEROSPACE_REGISTRY__;
+    const aerospaceRegistry = (
+      window as unknown as {
+        __AEROSPACE_REGISTRY__?: {
+          createAndRegisterAerospace: (options: {
+            name: string;
+            tonnage: number;
+            techBase: string;
+            isConventional?: boolean;
+          }) => {
+            getState: () => {
+              id: string;
+              name: string;
+              tonnage: number;
+              techBase: string;
+            };
+          };
+        };
+      }
+    ).__AEROSPACE_REGISTRY__;
 
     if (!aerospaceRegistry) {
       throw new Error('Aerospace registry not exposed');
@@ -237,15 +267,17 @@ export async function createAerospaceUnit(
  */
 export async function getActiveTabId(page: Page): Promise<string | null> {
   return page.evaluate(() => {
-    const stores = (window as unknown as {
-      __ZUSTAND_STORES__?: {
-        tabManager?: {
-          getState: () => {
-            activeTabId: string | null;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          tabManager?: {
+            getState: () => {
+              activeTabId: string | null;
+            };
           };
         };
-      };
-    }).__ZUSTAND_STORES__;
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.tabManager) {
       return null;
@@ -266,19 +298,21 @@ export async function getOpenTabs(page: Page): Promise<
   }>
 > {
   return page.evaluate(() => {
-    const stores = (window as unknown as {
-      __ZUSTAND_STORES__?: {
-        tabManager?: {
-          getState: () => {
-            tabs: Array<{
-              id: string;
-              name: string;
-              unitType: string;
-            }>;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          tabManager?: {
+            getState: () => {
+              tabs: Array<{
+                id: string;
+                name: string;
+                unitType: string;
+              }>;
+            };
           };
         };
-      };
-    }).__ZUSTAND_STORES__;
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.tabManager) {
       return [];
@@ -297,15 +331,17 @@ export async function getOpenTabs(page: Page): Promise<
  */
 export async function closeTab(page: Page, unitId: string): Promise<void> {
   await page.evaluate((id) => {
-    const stores = (window as unknown as {
-      __ZUSTAND_STORES__?: {
-        tabManager?: {
-          getState: () => {
-            closeTab: (id: string) => void;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          tabManager?: {
+            getState: () => {
+              closeTab: (id: string) => void;
+            };
           };
         };
-      };
-    }).__ZUSTAND_STORES__;
+      }
+    ).__ZUSTAND_STORES__;
 
     if (stores?.tabManager) {
       stores.tabManager.getState().closeTab(id);
@@ -318,15 +354,17 @@ export async function closeTab(page: Page, unitId: string): Promise<void> {
  */
 export async function selectTab(page: Page, unitId: string): Promise<void> {
   await page.evaluate((id) => {
-    const stores = (window as unknown as {
-      __ZUSTAND_STORES__?: {
-        tabManager?: {
-          getState: () => {
-            selectTab: (id: string) => void;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          tabManager?: {
+            getState: () => {
+              selectTab: (id: string) => void;
+            };
           };
         };
-      };
-    }).__ZUSTAND_STORES__;
+      }
+    ).__ZUSTAND_STORES__;
 
     if (stores?.tabManager) {
       stores.tabManager.getState().selectTab(id);
@@ -343,47 +381,67 @@ export async function selectTab(page: Page, unitId: string): Promise<void> {
  */
 export async function createVehicleUnit(
   page: Page,
-  options: CreateVehicleOptions = {}
+  options: CreateVehicleOptions = {},
 ): Promise<string> {
   const unitId = await page.evaluate((opts) => {
-    const stores = (window as unknown as {
-      __ZUSTAND_STORES__?: {
-        tabManager?: {
-          getState: () => {
-            addTab: (tabInfo: {
-              id: string;
-              name: string;
-              tonnage?: number;
-              techBase?: string;
-              unitType?: string;
-            }) => void;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          tabManager?: {
+            getState: () => {
+              addTab: (tabInfo: {
+                id: string;
+                name: string;
+                tonnage?: number;
+                techBase?: string;
+                unitType?: string;
+              }) => void;
+            };
           };
         };
-      };
-      __VEHICLE_REGISTRY__?: {
-        createAndRegisterVehicle: (options: {
-          name: string;
-          tonnage: number;
-          techBase: string;
-          motionType?: string;
-        }) => { getState: () => { id: string; name: string; tonnage: number; techBase: string; motionType: string } };
-      };
-    }).__ZUSTAND_STORES__;
+        __VEHICLE_REGISTRY__?: {
+          createAndRegisterVehicle: (options: {
+            name: string;
+            tonnage: number;
+            techBase: string;
+            motionType?: string;
+          }) => {
+            getState: () => {
+              id: string;
+              name: string;
+              tonnage: number;
+              techBase: string;
+              motionType: string;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.tabManager) {
       throw new Error('Tab manager store not exposed');
     }
 
-    const vehicleRegistry = (window as unknown as {
-      __VEHICLE_REGISTRY__?: {
-        createAndRegisterVehicle: (options: {
-          name: string;
-          tonnage: number;
-          techBase: string;
-          motionType?: string;
-        }) => { getState: () => { id: string; name: string; tonnage: number; techBase: string; motionType: string } };
-      };
-    }).__VEHICLE_REGISTRY__;
+    const vehicleRegistry = (
+      window as unknown as {
+        __VEHICLE_REGISTRY__?: {
+          createAndRegisterVehicle: (options: {
+            name: string;
+            tonnage: number;
+            techBase: string;
+            motionType?: string;
+          }) => {
+            getState: () => {
+              id: string;
+              name: string;
+              tonnage: number;
+              techBase: string;
+              motionType: string;
+            };
+          };
+        };
+      }
+    ).__VEHICLE_REGISTRY__;
 
     if (!vehicleRegistry) {
       throw new Error('Vehicle registry not exposed');
@@ -423,7 +481,7 @@ export async function createVehicleUnit(
  */
 export async function getVehicleState(
   page: Page,
-  unitId: string
+  unitId: string,
 ): Promise<{
   id: string;
   name: string;
@@ -436,25 +494,27 @@ export async function getVehicleState(
   engineRating: number;
 } | null> {
   return page.evaluate((id) => {
-    const registry = (window as unknown as {
-      __VEHICLE_REGISTRY__?: {
-        getVehicleStore: (id: string) =>
-          | {
-              getState: () => {
-                id: string;
-                name: string;
-                tonnage: number;
-                motionType: string;
-                cruiseMP: number;
-                flankMP: number;
-                armorTonnage: number;
-                engineType: string;
-                engineRating: number;
-              };
-            }
-          | undefined;
-      };
-    }).__VEHICLE_REGISTRY__;
+    const registry = (
+      window as unknown as {
+        __VEHICLE_REGISTRY__?: {
+          getVehicleStore: (id: string) =>
+            | {
+                getState: () => {
+                  id: string;
+                  name: string;
+                  tonnage: number;
+                  motionType: string;
+                  cruiseMP: number;
+                  flankMP: number;
+                  armorTonnage: number;
+                  engineType: string;
+                  engineRating: number;
+                };
+              }
+            | undefined;
+        };
+      }
+    ).__VEHICLE_REGISTRY__;
 
     if (!registry) {
       return null;
@@ -485,7 +545,7 @@ export async function getVehicleState(
  */
 export async function getAerospaceState(
   page: Page,
-  unitId: string
+  unitId: string,
 ): Promise<{
   id: string;
   name: string;
@@ -496,23 +556,25 @@ export async function getAerospaceState(
   heatSinks: number;
 } | null> {
   return page.evaluate((id) => {
-    const registry = (window as unknown as {
-      __AEROSPACE_REGISTRY__?: {
-        getAerospaceStore: (id: string) =>
-          | {
-              getState: () => {
-                id: string;
-                name: string;
-                tonnage: number;
-                safeThrust: number;
-                fuel: number;
-                armorTonnage: number;
-                heatSinks: number;
-              };
-            }
-          | undefined;
-      };
-    }).__AEROSPACE_REGISTRY__;
+    const registry = (
+      window as unknown as {
+        __AEROSPACE_REGISTRY__?: {
+          getAerospaceStore: (id: string) =>
+            | {
+                getState: () => {
+                  id: string;
+                  name: string;
+                  tonnage: number;
+                  safeThrust: number;
+                  fuel: number;
+                  armorTonnage: number;
+                  heatSinks: number;
+                };
+              }
+            | undefined;
+        };
+      }
+    ).__AEROSPACE_REGISTRY__;
 
     if (!registry) {
       return null;
@@ -550,7 +612,7 @@ export async function getAerospaceState(
  */
 export async function createOmniMechUnit(
   page: Page,
-  options: CreateOmniMechOptions = {}
+  options: CreateOmniMechOptions = {},
 ): Promise<string> {
   // First create a standard mech
   const unitId = await createMechUnit(page, {
@@ -563,18 +625,20 @@ export async function createOmniMechUnit(
   // Then convert it to OmniMech via store action
   await page.evaluate(
     ({ id, baseChassisHeatSinks }) => {
-      const registry = (window as unknown as {
-        __UNIT_REGISTRY__?: {
-          getUnitStore: (id: string) =>
-            | {
-                getState: () => {
-                  setIsOmni: (isOmni: boolean) => void;
-                  setBaseChassisHeatSinks: (count: number) => void;
-                };
-              }
-            | undefined;
-        };
-      }).__UNIT_REGISTRY__;
+      const registry = (
+        window as unknown as {
+          __UNIT_REGISTRY__?: {
+            getUnitStore: (id: string) =>
+              | {
+                  getState: () => {
+                    setIsOmni: (isOmni: boolean) => void;
+                    setBaseChassisHeatSinks: (count: number) => void;
+                  };
+                }
+              | undefined;
+          };
+        }
+      ).__UNIT_REGISTRY__;
 
       if (!registry) {
         throw new Error('Unit registry not exposed');
@@ -592,7 +656,7 @@ export async function createOmniMechUnit(
         state.setBaseChassisHeatSinks(baseChassisHeatSinks);
       }
     },
-    { id: unitId, baseChassisHeatSinks: options.baseChassisHeatSinks }
+    { id: unitId, baseChassisHeatSinks: options.baseChassisHeatSinks },
   );
 
   return unitId;
@@ -603,7 +667,7 @@ export async function createOmniMechUnit(
  */
 export async function getOmniMechState(
   page: Page,
-  unitId: string
+  unitId: string,
 ): Promise<{
   id: string;
   name: string;
@@ -615,22 +679,24 @@ export async function getOmniMechState(
   fixedCount: number;
 } | null> {
   return page.evaluate((id) => {
-    const registry = (window as unknown as {
-      __UNIT_REGISTRY__?: {
-        getUnitStore: (id: string) =>
-          | {
-              getState: () => {
-                id: string;
-                name: string;
-                tonnage: number;
-                isOmni: boolean;
-                baseChassisHeatSinks: number;
-                equipment: Array<{ isOmniPodMounted: boolean }>;
-              };
-            }
-          | undefined;
-      };
-    }).__UNIT_REGISTRY__;
+    const registry = (
+      window as unknown as {
+        __UNIT_REGISTRY__?: {
+          getUnitStore: (id: string) =>
+            | {
+                getState: () => {
+                  id: string;
+                  name: string;
+                  tonnage: number;
+                  isOmni: boolean;
+                  baseChassisHeatSinks: number;
+                  equipment: Array<{ isOmniPodMounted: boolean }>;
+                };
+              }
+            | undefined;
+        };
+      }
+    ).__UNIT_REGISTRY__;
 
     if (!registry) {
       return null;
@@ -642,8 +708,12 @@ export async function getOmniMechState(
     }
 
     const state = store.getState();
-    const podMountedCount = state.equipment.filter((eq) => eq.isOmniPodMounted).length;
-    const fixedCount = state.equipment.filter((eq) => !eq.isOmniPodMounted).length;
+    const podMountedCount = state.equipment.filter(
+      (eq) => eq.isOmniPodMounted,
+    ).length;
+    const fixedCount = state.equipment.filter(
+      (eq) => !eq.isOmniPodMounted,
+    ).length;
 
     return {
       id: state.id,
@@ -661,20 +731,26 @@ export async function getOmniMechState(
 /**
  * Sets whether a unit is an OmniMech
  */
-export async function setUnitIsOmni(page: Page, unitId: string, isOmni: boolean): Promise<void> {
+export async function setUnitIsOmni(
+  page: Page,
+  unitId: string,
+  isOmni: boolean,
+): Promise<void> {
   await page.evaluate(
     ({ id, isOmni }) => {
-      const registry = (window as unknown as {
-        __UNIT_REGISTRY__?: {
-          getUnitStore: (id: string) =>
-            | {
-                getState: () => {
-                  setIsOmni: (isOmni: boolean) => void;
-                };
-              }
-            | undefined;
-        };
-      }).__UNIT_REGISTRY__;
+      const registry = (
+        window as unknown as {
+          __UNIT_REGISTRY__?: {
+            getUnitStore: (id: string) =>
+              | {
+                  getState: () => {
+                    setIsOmni: (isOmni: boolean) => void;
+                  };
+                }
+              | undefined;
+          };
+        }
+      ).__UNIT_REGISTRY__;
 
       if (!registry) {
         throw new Error('Unit registry not exposed');
@@ -687,26 +763,31 @@ export async function setUnitIsOmni(page: Page, unitId: string, isOmni: boolean)
 
       store.getState().setIsOmni(isOmni);
     },
-    { id: unitId, isOmni }
+    { id: unitId, isOmni },
   );
 }
 
 /**
  * Resets an OmniMech chassis, removing all pod-mounted equipment
  */
-export async function resetOmniChassis(page: Page, unitId: string): Promise<void> {
+export async function resetOmniChassis(
+  page: Page,
+  unitId: string,
+): Promise<void> {
   await page.evaluate((id) => {
-    const registry = (window as unknown as {
-      __UNIT_REGISTRY__?: {
-        getUnitStore: (id: string) =>
-          | {
-              getState: () => {
-                resetChassis: () => void;
-              };
-            }
-          | undefined;
-      };
-    }).__UNIT_REGISTRY__;
+    const registry = (
+      window as unknown as {
+        __UNIT_REGISTRY__?: {
+          getUnitStore: (id: string) =>
+            | {
+                getState: () => {
+                  resetChassis: () => void;
+                };
+              }
+            | undefined;
+        };
+      }
+    ).__UNIT_REGISTRY__;
 
     if (!registry) {
       throw new Error('Unit registry not exposed');
@@ -727,21 +808,23 @@ export async function resetOmniChassis(page: Page, unitId: string): Promise<void
 export async function setBaseChassisHeatSinks(
   page: Page,
   unitId: string,
-  count: number
+  count: number,
 ): Promise<void> {
   await page.evaluate(
     ({ id, count }) => {
-      const registry = (window as unknown as {
-        __UNIT_REGISTRY__?: {
-          getUnitStore: (id: string) =>
-            | {
-                getState: () => {
-                  setBaseChassisHeatSinks: (count: number) => void;
-                };
-              }
-            | undefined;
-        };
-      }).__UNIT_REGISTRY__;
+      const registry = (
+        window as unknown as {
+          __UNIT_REGISTRY__?: {
+            getUnitStore: (id: string) =>
+              | {
+                  getState: () => {
+                    setBaseChassisHeatSinks: (count: number) => void;
+                  };
+                }
+              | undefined;
+          };
+        }
+      ).__UNIT_REGISTRY__;
 
       if (!registry) {
         throw new Error('Unit registry not exposed');
@@ -754,7 +837,7 @@ export async function setBaseChassisHeatSinks(
 
       store.getState().setBaseChassisHeatSinks(count);
     },
-    { id: unitId, count }
+    { id: unitId, count },
   );
 }
 
@@ -763,7 +846,7 @@ export async function setBaseChassisHeatSinks(
  */
 export async function getMechState(
   page: Page,
-  unitId: string
+  unitId: string,
 ): Promise<{
   id: string;
   name: string;
@@ -774,22 +857,24 @@ export async function getMechState(
   heatSinkCount: number;
 } | null> {
   return page.evaluate((id) => {
-    const registry = (window as unknown as {
-      __UNIT_REGISTRY__?: {
-        getUnitStore: (id: string) =>
-          | {
-              getState: () => {
-                id: string;
-                name: string;
-                tonnage: number;
-                isOmni: boolean;
-                engineRating: number;
-                heatSinkCount: number;
-              };
-            }
-          | undefined;
-      };
-    }).__UNIT_REGISTRY__;
+    const registry = (
+      window as unknown as {
+        __UNIT_REGISTRY__?: {
+          getUnitStore: (id: string) =>
+            | {
+                getState: () => {
+                  id: string;
+                  name: string;
+                  tonnage: number;
+                  isOmni: boolean;
+                  engineRating: number;
+                  heatSinkCount: number;
+                };
+              }
+            | undefined;
+        };
+      }
+    ).__UNIT_REGISTRY__;
 
     if (!registry) {
       return null;
@@ -822,7 +907,12 @@ export async function getMechState(
 /**
  * Mech configuration types
  */
-export type MechConfigurationType = 'Biped' | 'Quad' | 'Tripod' | 'LAM' | 'QuadVee';
+export type MechConfigurationType =
+  | 'Biped'
+  | 'Quad'
+  | 'Tripod'
+  | 'LAM'
+  | 'QuadVee';
 
 /**
  * LAM operating modes
@@ -852,7 +942,7 @@ export interface CreateExoticMechOptions {
  */
 export async function createQuadMech(
   page: Page,
-  options: Omit<CreateExoticMechOptions, 'configuration'> = {}
+  options: Omit<CreateExoticMechOptions, 'configuration'> = {},
 ): Promise<string> {
   return createExoticMech(page, { ...options, configuration: 'Quad' });
 }
@@ -863,7 +953,7 @@ export async function createQuadMech(
  */
 export async function createLAM(
   page: Page,
-  options: Omit<CreateExoticMechOptions, 'configuration'> = {}
+  options: Omit<CreateExoticMechOptions, 'configuration'> = {},
 ): Promise<string> {
   // LAMs are limited to 55 tons
   const tonnage = Math.min(options.tonnage ?? 50, 55);
@@ -875,7 +965,7 @@ export async function createLAM(
  */
 export async function createTripodMech(
   page: Page,
-  options: Omit<CreateExoticMechOptions, 'configuration'> = {}
+  options: Omit<CreateExoticMechOptions, 'configuration'> = {},
 ): Promise<string> {
   return createExoticMech(page, { ...options, configuration: 'Tripod' });
 }
@@ -885,7 +975,7 @@ export async function createTripodMech(
  */
 export async function createExoticMech(
   page: Page,
-  options: CreateExoticMechOptions
+  options: CreateExoticMechOptions,
 ): Promise<string> {
   // First create a standard mech
   const unitId = await createMechUnit(page, {
@@ -898,18 +988,20 @@ export async function createExoticMech(
   // Then set the configuration via store action
   await page.evaluate(
     ({ id, configuration, lamMode }) => {
-      const registry = (window as unknown as {
-        __UNIT_REGISTRY__?: {
-          getUnitStore: (id: string) =>
-            | {
-                getState: () => {
-                  setConfiguration: (config: string) => void;
-                  setLAMMode?: (mode: string) => void;
-                };
-              }
-            | undefined;
-        };
-      }).__UNIT_REGISTRY__;
+      const registry = (
+        window as unknown as {
+          __UNIT_REGISTRY__?: {
+            getUnitStore: (id: string) =>
+              | {
+                  getState: () => {
+                    setConfiguration: (config: string) => void;
+                    setLAMMode?: (mode: string) => void;
+                  };
+                }
+              | undefined;
+          };
+        }
+      ).__UNIT_REGISTRY__;
 
       if (!registry) {
         throw new Error('Unit registry not exposed');
@@ -928,7 +1020,11 @@ export async function createExoticMech(
         state.setLAMMode(lamMode);
       }
     },
-    { id: unitId, configuration: options.configuration, lamMode: options.lamMode }
+    {
+      id: unitId,
+      configuration: options.configuration,
+      lamMode: options.lamMode,
+    },
   );
 
   return unitId;
@@ -939,7 +1035,7 @@ export async function createExoticMech(
  */
 export async function getExoticMechState(
   page: Page,
-  unitId: string
+  unitId: string,
 ): Promise<{
   id: string;
   name: string;
@@ -950,23 +1046,25 @@ export async function getExoticMechState(
   armorAllocation: Record<string, number>;
 } | null> {
   return page.evaluate((id) => {
-    const registry = (window as unknown as {
-      __UNIT_REGISTRY__?: {
-        getUnitStore: (id: string) =>
-          | {
-              getState: () => {
-                id: string;
-                name: string;
-                tonnage: number;
-                configuration: string;
-                lamMode?: string;
-                quadVeeMode?: string;
-                armorAllocation: Record<string, number>;
-              };
-            }
-          | undefined;
-      };
-    }).__UNIT_REGISTRY__;
+    const registry = (
+      window as unknown as {
+        __UNIT_REGISTRY__?: {
+          getUnitStore: (id: string) =>
+            | {
+                getState: () => {
+                  id: string;
+                  name: string;
+                  tonnage: number;
+                  configuration: string;
+                  lamMode?: string;
+                  quadVeeMode?: string;
+                  armorAllocation: Record<string, number>;
+                };
+              }
+            | undefined;
+        };
+      }
+    ).__UNIT_REGISTRY__;
 
     if (!registry) {
       return null;
@@ -982,7 +1080,12 @@ export async function getExoticMechState(
       id: state.id,
       name: state.name,
       tonnage: state.tonnage,
-      configuration: state.configuration as 'Biped' | 'Quad' | 'Tripod' | 'LAM' | 'QuadVee',
+      configuration: state.configuration as
+        | 'Biped'
+        | 'Quad'
+        | 'Tripod'
+        | 'LAM'
+        | 'QuadVee',
       lamMode: state.lamMode as 'Mech' | 'AirMech' | 'Fighter' | undefined,
       quadVeeMode: state.quadVeeMode,
       armorAllocation: state.armorAllocation,
@@ -996,21 +1099,23 @@ export async function getExoticMechState(
 export async function setLAMMode(
   page: Page,
   unitId: string,
-  mode: LAMModeType
+  mode: LAMModeType,
 ): Promise<void> {
   await page.evaluate(
     ({ id, mode }) => {
-      const registry = (window as unknown as {
-        __UNIT_REGISTRY__?: {
-          getUnitStore: (id: string) =>
-            | {
-                getState: () => {
-                  setLAMMode: (mode: string) => void;
-                };
-              }
-            | undefined;
-        };
-      }).__UNIT_REGISTRY__;
+      const registry = (
+        window as unknown as {
+          __UNIT_REGISTRY__?: {
+            getUnitStore: (id: string) =>
+              | {
+                  getState: () => {
+                    setLAMMode: (mode: string) => void;
+                  };
+                }
+              | undefined;
+          };
+        }
+      ).__UNIT_REGISTRY__;
 
       if (!registry) {
         throw new Error('Unit registry not exposed');
@@ -1023,7 +1128,7 @@ export async function setLAMMode(
 
       store.getState().setLAMMode(mode);
     },
-    { id: unitId, mode }
+    { id: unitId, mode },
   );
 }
 
@@ -1031,21 +1136,60 @@ export async function setLAMMode(
  * Gets the locations available for a mech configuration
  * Uses MechLocation enum string values
  */
-export function getConfigurationLocations(configuration: MechConfigurationType): string[] {
+export function getConfigurationLocations(
+  configuration: MechConfigurationType,
+): string[] {
   const coreLocations = ['Head', 'Center Torso', 'Left Torso', 'Right Torso'];
-  
+
   switch (configuration) {
     case 'Biped':
-      return [...coreLocations, 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'];
+      return [
+        ...coreLocations,
+        'Left Arm',
+        'Right Arm',
+        'Left Leg',
+        'Right Leg',
+      ];
     case 'Quad':
-      return [...coreLocations, 'Front Left Leg', 'Front Right Leg', 'Rear Left Leg', 'Rear Right Leg'];
+      return [
+        ...coreLocations,
+        'Front Left Leg',
+        'Front Right Leg',
+        'Rear Left Leg',
+        'Rear Right Leg',
+      ];
     case 'Tripod':
-      return [...coreLocations, 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg', 'Center Leg'];
+      return [
+        ...coreLocations,
+        'Left Arm',
+        'Right Arm',
+        'Left Leg',
+        'Right Leg',
+        'Center Leg',
+      ];
     case 'LAM':
-      return [...coreLocations, 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'];
+      return [
+        ...coreLocations,
+        'Left Arm',
+        'Right Arm',
+        'Left Leg',
+        'Right Leg',
+      ];
     case 'QuadVee':
-      return [...coreLocations, 'Front Left Leg', 'Front Right Leg', 'Rear Left Leg', 'Rear Right Leg'];
+      return [
+        ...coreLocations,
+        'Front Left Leg',
+        'Front Right Leg',
+        'Rear Left Leg',
+        'Rear Right Leg',
+      ];
     default:
-      return [...coreLocations, 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'];
+      return [
+        ...coreLocations,
+        'Left Arm',
+        'Right Arm',
+        'Left Leg',
+        'Right Leg',
+      ];
   }
 }

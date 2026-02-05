@@ -1,3 +1,5 @@
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import {
   getRecommendedArmorDistribution,
   validateLocationArmor,
@@ -11,27 +13,25 @@ import {
   getExpectedArmorCapacity,
   getArmorFillPercent,
 } from '@/utils/construction/armorCalculations';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 describe('armorCalculations utilities', () => {
   describe('getRecommendedArmorDistribution()', () => {
     it('should return distribution percentages', () => {
       const distribution = getRecommendedArmorDistribution();
-      
+
       expect(distribution.head).toBe(0.05);
-      expect(distribution.centerTorso).toBe(0.20);
+      expect(distribution.centerTorso).toBe(0.2);
       expect(distribution.leftTorso).toBe(0.12);
       expect(distribution.rightTorso).toBe(0.12);
-      expect(distribution.leftArm).toBe(0.10);
-      expect(distribution.rightArm).toBe(0.10);
-      expect(distribution.leftLeg).toBe(0.10);
-      expect(distribution.rightLeg).toBe(0.10);
+      expect(distribution.leftArm).toBe(0.1);
+      expect(distribution.rightArm).toBe(0.1);
+      expect(distribution.leftLeg).toBe(0.1);
+      expect(distribution.rightLeg).toBe(0.1);
     });
 
     it('should include rear armor percentages', () => {
       const distribution = getRecommendedArmorDistribution();
-      
+
       expect(distribution.centerTorsoRear).toBe(0.05);
       expect(distribution.leftTorsoRear).toBe(0.03);
       expect(distribution.rightTorsoRear).toBe(0.03);
@@ -41,40 +41,42 @@ describe('armorCalculations utilities', () => {
   describe('validateLocationArmor()', () => {
     it('should validate correct armor values', () => {
       const result = validateLocationArmor(50, 'head', 9);
-      
+
       expect(result.isValid).toBe(true);
       expect(result.errors.length).toBe(0);
     });
 
     it('should reject armor exceeding max for head', () => {
       const result = validateLocationArmor(50, 'head', 10);
-      
+
       expect(result.isValid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
     });
 
     it('should validate torso front armor', () => {
       const result = validateLocationArmor(50, 'centerTorso', 20, 5);
-      
+
       expect(result.isValid).toBe(true);
     });
 
     it('should reject torso armor exceeding max', () => {
       const max = getMaxArmorForLocation(50, 'centerTorso');
       const result = validateLocationArmor(50, 'centerTorso', max + 1, 0);
-      
+
       expect(result.isValid).toBe(false);
     });
 
     it('should validate rear armor', () => {
       const result = validateLocationArmor(50, 'leftTorso', 12, 4);
-      
+
       expect(result.isValid).toBe(true);
     });
 
     it('should reject negative armor values', () => {
       expect(validateLocationArmor(50, 'head', -1).isValid).toBe(false);
-      expect(validateLocationArmor(50, 'centerTorso', 10, -1).isValid).toBe(false);
+      expect(validateLocationArmor(50, 'centerTorso', 10, -1).isValid).toBe(
+        false,
+      );
     });
 
     it('should reject rear armor for non-torso locations', () => {
@@ -99,7 +101,7 @@ describe('armorCalculations utilities', () => {
     it('should scale with tonnage', () => {
       const lightMax = getMaxArmorForLocation(20, 'centerTorso');
       const heavyMax = getMaxArmorForLocation(75, 'centerTorso');
-      
+
       expect(heavyMax).toBeGreaterThan(lightMax);
     });
   });
@@ -125,7 +127,7 @@ describe('armorCalculations utilities', () => {
     });
 
     it('should handle unknown armor type by defaulting to standard', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateArmorWeight(16, 'INVALID' as any)).toBe(1);
     });
   });
@@ -136,7 +138,7 @@ describe('armorCalculations utilities', () => {
     });
 
     it('should handle unknown armor type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateArmorPoints(1, 'INVALID' as any)).toBe(16);
     });
   });
@@ -147,26 +149,40 @@ describe('armorCalculations utilities', () => {
     });
 
     it('should return correct slots for special armor', () => {
-      expect(getArmorCriticalSlots(ArmorTypeEnum.FERRO_FIBROUS_IS)).toBeGreaterThan(0);
+      expect(
+        getArmorCriticalSlots(ArmorTypeEnum.FERRO_FIBROUS_IS),
+      ).toBeGreaterThan(0);
     });
   });
 
   describe('calculateOptimalArmorAllocation()', () => {
     it('should allocate armor for Biped', () => {
-      const result = calculateOptimalArmorAllocation(100, 50, MechConfiguration.BIPED);
+      const result = calculateOptimalArmorAllocation(
+        100,
+        50,
+        MechConfiguration.BIPED,
+      );
       expect(result.totalAllocated).toBeLessThanOrEqual(100);
       expect(result.head).toBeGreaterThan(0);
       expect(result.centerTorsoFront).toBeGreaterThan(0);
     });
 
     it('should allocate armor for Quad', () => {
-      const result = calculateOptimalArmorAllocation(100, 50, MechConfiguration.QUAD);
+      const result = calculateOptimalArmorAllocation(
+        100,
+        50,
+        MechConfiguration.QUAD,
+      );
       expect(result.totalAllocated).toBeLessThanOrEqual(100);
       expect(result.frontLeftLeg).toBeGreaterThan(0);
     });
 
     it('should allocate armor for Tripod', () => {
-      const result = calculateOptimalArmorAllocation(100, 50, MechConfiguration.TRIPOD);
+      const result = calculateOptimalArmorAllocation(
+        100,
+        50,
+        MechConfiguration.TRIPOD,
+      );
       expect(result.totalAllocated).toBeLessThanOrEqual(100);
       expect(result.centerLeg).toBeGreaterThan(0);
     });

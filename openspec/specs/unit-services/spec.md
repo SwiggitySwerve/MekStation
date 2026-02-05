@@ -3,7 +3,9 @@
 ## Purpose
 
 Provides services for loading, browsing, searching, and managing BattleMech units. Supports both canonical (official) units loaded from static JSON files and custom user-created units stored in IndexedDB. Includes unit factory service for converting serialized data to runtime objects.
+
 ## Requirements
+
 ### Requirement: Canonical Unit Index Loading
 
 The system SHALL load a lightweight unit index on application startup for search and browsing.
@@ -13,12 +15,14 @@ The system SHALL load a lightweight unit index on application startup for search
 **Priority**: Critical
 
 #### Scenario: Load index on startup
+
 - **GIVEN** the application is starting
 - **WHEN** CanonicalUnitService.getIndex() is called
 - **THEN** return array of UnitIndexEntry objects
 - **AND** each entry contains id, name, chassis, variant, tonnage, techBase, era, weightClass, unitType, filePath
 
 #### Scenario: Index is cached
+
 - **GIVEN** the index has been loaded once
 - **WHEN** getIndex() is called again
 - **THEN** return cached data without network request
@@ -34,6 +38,7 @@ The system SHALL lazy-load full unit data on demand by ID.
 **Priority**: Critical
 
 #### Scenario: Load single unit
+
 - **GIVEN** a valid unit ID exists in the index
 - **WHEN** CanonicalUnitService.getById(id) is called
 - **THEN** fetch the unit JSON from the file path
@@ -41,11 +46,13 @@ The system SHALL lazy-load full unit data on demand by ID.
 - **AND** return the complete IBattleMech object
 
 #### Scenario: Unit not found
+
 - **GIVEN** an invalid or unknown unit ID
 - **WHEN** getById(unknownId) is called
 - **THEN** return null
 
 #### Scenario: Load multiple units
+
 - **GIVEN** multiple valid unit IDs
 - **WHEN** getByIds([id1, id2, id3]) is called
 - **THEN** return array of IBattleMech objects in parallel
@@ -62,16 +69,19 @@ The system SHALL filter the unit index by criteria.
 **Priority**: High
 
 #### Scenario: Filter by tech base
+
 - **GIVEN** the unit index is loaded
 - **WHEN** query({ techBase: TechBase.CLAN }) is called
 - **THEN** return only units with Clan tech base
 
 #### Scenario: Filter by multiple criteria
+
 - **GIVEN** the unit index is loaded
 - **WHEN** query({ techBase: TechBase.INNER_SPHERE, weightClass: WeightClass.HEAVY }) is called
 - **THEN** return only Inner Sphere heavy mechs
 
 #### Scenario: Empty result
+
 - **GIVEN** no units match the criteria
 - **WHEN** query(impossible criteria) is called
 - **THEN** return empty array
@@ -87,6 +97,7 @@ The system SHALL provide create, read, update, and delete operations for custom 
 **Priority**: Critical
 
 #### Scenario: Create custom unit
+
 - **GIVEN** a valid IFullUnit object
 - **WHEN** CustomUnitService.create(unit) is called
 - **THEN** POST to /api/units/custom endpoint
@@ -94,12 +105,14 @@ The system SHALL provide create, read, update, and delete operations for custom 
 - **AND** unit is stored as version 1
 
 #### Scenario: Read custom unit
+
 - **GIVEN** a custom unit exists with ID "custom-123"
 - **WHEN** CustomUnitService.getById("custom-123") is called
 - **THEN** GET from /api/units/custom/custom-123
 - **AND** return the complete IFullUnit with version metadata
 
 #### Scenario: Update custom unit (save)
+
 - **GIVEN** a custom unit exists with ID "custom-123" at version 3
 - **WHEN** CustomUnitService.save("custom-123", modifiedUnit) is called
 - **THEN** PUT to /api/units/custom/custom-123
@@ -107,6 +120,7 @@ The system SHALL provide create, read, update, and delete operations for custom 
 - **AND** store previous version in history
 
 #### Scenario: Delete custom unit
+
 - **GIVEN** a custom unit exists with ID "custom-123"
 - **WHEN** CustomUnitService.delete("custom-123") is called
 - **THEN** DELETE /api/units/custom/custom-123
@@ -123,12 +137,14 @@ The system SHALL list all custom units as index entries.
 **Priority**: High
 
 #### Scenario: List all custom units
+
 - **GIVEN** the user has saved 5 custom units
 - **WHEN** CustomUnitService.list() is called
 - **THEN** GET /api/units/custom
 - **AND** return array of 5 UnitIndexEntry objects with version info
 
 #### Scenario: Empty custom units
+
 - **GIVEN** no custom units have been created
 - **WHEN** CustomUnitService.list() is called
 - **THEN** return empty array
@@ -144,6 +160,7 @@ The system SHALL initialize a full-text search index on startup.
 **Priority**: High
 
 #### Scenario: Initialize search
+
 - **GIVEN** the application is starting
 - **WHEN** UnitSearchService.initialize() is called
 - **THEN** build MiniSearch index from canonical units
@@ -160,16 +177,19 @@ The system SHALL search units by text query across name, chassis, and variant.
 **Priority**: High
 
 #### Scenario: Search by name
+
 - **GIVEN** the search index is initialized
 - **WHEN** search("Warhammer") is called
 - **THEN** return units with "Warhammer" in name or chassis
 
 #### Scenario: Fuzzy search
+
 - **GIVEN** the search index is initialized
 - **WHEN** search("Warhmmer") is called with typo
 - **THEN** return Warhammer units via fuzzy matching
 
 #### Scenario: No results
+
 - **GIVEN** the search index is initialized
 - **WHEN** search("xyznonexistent") is called
 - **THEN** return empty array
@@ -185,11 +205,13 @@ The system SHALL update the search index when custom units change.
 **Priority**: Medium
 
 #### Scenario: Add to index
+
 - **GIVEN** a new custom unit is created
 - **WHEN** addToIndex(unitEntry) is called
 - **THEN** the unit is immediately searchable
 
 #### Scenario: Remove from index
+
 - **GIVEN** a custom unit is deleted
 - **WHEN** removeFromIndex(id) is called
 - **THEN** the unit no longer appears in search results
@@ -205,12 +227,14 @@ The system SHALL convert ISerializedUnit data to runtime IBattleMech objects.
 **Priority**: Critical
 
 #### Scenario: Create from serialized data
+
 - **GIVEN** valid ISerializedUnit JSON data
 - **WHEN** UnitFactoryService.createFromSerialized(data) is called
 - **THEN** return IUnitFactoryResult with success=true and unit object
 - **AND** unit SHALL be a complete IBattleMech
 
 #### Scenario: Parse engine configuration
+
 - **GIVEN** serialized engine { type: "XL", rating: 300 }
 - **WHEN** converting to IBattleMech
 - **THEN** parse engine type string to EngineType enum
@@ -218,6 +242,7 @@ The system SHALL convert ISerializedUnit data to runtime IBattleMech objects.
 - **AND** populate IEngineConfiguration
 
 #### Scenario: Parse gyro configuration
+
 - **GIVEN** serialized gyro { type: "STANDARD" }
 - **WHEN** converting to IBattleMech
 - **THEN** parse gyro type string to GyroType enum
@@ -225,6 +250,7 @@ The system SHALL convert ISerializedUnit data to runtime IBattleMech objects.
 - **AND** populate IGyroConfiguration
 
 #### Scenario: Build armor allocation
+
 - **GIVEN** serialized armor with location values
 - **WHEN** converting to IBattleMech
 - **THEN** map string locations to MechLocation enum
@@ -232,6 +258,7 @@ The system SHALL convert ISerializedUnit data to runtime IBattleMech objects.
 - **AND** populate IArmorAllocation
 
 #### Scenario: Resolve equipment references
+
 - **GIVEN** serialized equipment array with IDs
 - **WHEN** converting to IBattleMech
 - **THEN** resolve each equipment ID via EquipmentRegistry
@@ -239,6 +266,7 @@ The system SHALL convert ISerializedUnit data to runtime IBattleMech objects.
 - **AND** log warnings for unresolved equipment
 
 #### Scenario: Build critical slots
+
 - **GIVEN** serialized critical slots per location
 - **WHEN** converting to IBattleMech
 - **THEN** map string locations to MechLocation enum
@@ -246,6 +274,7 @@ The system SHALL convert ISerializedUnit data to runtime IBattleMech objects.
 - **AND** maintain correct slot counts (6 for head/legs, 12 for arms/torsos)
 
 #### Scenario: Calculate derived values
+
 - **GIVEN** a complete ISerializedUnit
 - **WHEN** creating IBattleMech
 - **THEN** calculate total weight from components
@@ -253,6 +282,7 @@ The system SHALL convert ISerializedUnit data to runtime IBattleMech objects.
 - **AND** calculate structure points per location
 
 #### Scenario: Factory error handling
+
 - **GIVEN** invalid or incomplete serialized data
 - **WHEN** UnitFactoryService.createFromSerialized(data) is called
 - **THEN** return IUnitFactoryResult with success=false
@@ -270,6 +300,7 @@ The system SHALL organize canonical units by era with numbered prefixes.
 **Priority**: High
 
 #### Scenario: Era folder structure
+
 - **GIVEN** units are stored in `public/data/units/battlemechs/`
 - **WHEN** accessing the directory
 - **THEN** era folders SHALL have numbered prefixes:
@@ -282,6 +313,7 @@ The system SHALL organize canonical units by era with numbered prefixes.
   - `7-ilclan/`
 
 #### Scenario: Rules level sub-folders
+
 - **GIVEN** an era folder exists
 - **WHEN** accessing units within the era
 - **THEN** units SHALL be organized by rules level:
@@ -290,6 +322,7 @@ The system SHALL organize canonical units by era with numbered prefixes.
   - `experimental/` - Rules Level 3
 
 #### Scenario: Unit file naming
+
 - **GIVEN** a unit with chassis "Atlas" and model "AS7-D"
 - **WHEN** storing the unit file
 - **THEN** filename SHALL be `Atlas AS7-D.json`
@@ -306,11 +339,13 @@ The system SHALL maintain a master index of all canonical units.
 **Priority**: Critical
 
 #### Scenario: Master index location
+
 - **GIVEN** units are stored in `public/data/units/battlemechs/`
 - **WHEN** accessing the index
 - **THEN** index SHALL be at `public/data/units/battlemechs/index.json`
 
 #### Scenario: Index entry format
+
 - **GIVEN** a unit in the index
 - **THEN** entry SHALL contain:
   - `id` - Unique unit identifier (e.g., "atlas-as7-d")
@@ -323,6 +358,7 @@ The system SHALL maintain a master index of all canonical units.
   - `path` - Relative path to full JSON file
 
 #### Scenario: Index metadata
+
 - **GIVEN** the index.json file
 - **THEN** metadata SHALL include:
   - `version` - Format version string
@@ -340,6 +376,7 @@ The system SHALL import and validate pre-converted unit JSON data.
 **Priority**: High
 
 #### Scenario: Import from JSON
+
 - **GIVEN** valid ISerializedUnit JSON data
 - **WHEN** MTFImportService.importFromJSON(data) is called
 - **THEN** validate the data structure
@@ -347,6 +384,7 @@ The system SHALL import and validate pre-converted unit JSON data.
 - **AND** return IImportResult with success status
 
 #### Scenario: Validate unit data
+
 - **GIVEN** ISerializedUnit data
 - **WHEN** MTFImportService.validate(data) is called
 - **THEN** check required fields (id, chassis, model, tonnage)
@@ -354,6 +392,7 @@ The system SHALL import and validate pre-converted unit JSON data.
 - **AND** return IValidationResult with errors array
 
 #### Scenario: Resolve equipment
+
 - **GIVEN** unit with equipment IDs
 - **WHEN** MTFImportService.resolveEquipment(equipmentIds) is called
 - **THEN** look up each ID in EquipmentRegistry
@@ -370,12 +409,14 @@ The system SHALL prevent overwriting canonical (official) units.
 **Priority**: Critical
 
 #### Scenario: Save modified canonical unit
+
 - **GIVEN** user has loaded and modified canonical unit "Atlas AS7-D"
 - **WHEN** user attempts to save
 - **THEN** system SHALL reject save with original name
 - **AND** prompt for new name with suggested default
 
 #### Scenario: Generate clone name
+
 - **GIVEN** canonical unit "Atlas AS7-D" is being cloned
 - **WHEN** generating default clone name
 - **THEN** suggest "Atlas AS7-D-Custom-1"
@@ -383,6 +424,7 @@ The system SHALL prevent overwriting canonical (official) units.
 - **AND** continue incrementing until unique name found
 
 #### Scenario: Detect canonical vs custom
+
 - **GIVEN** a unit with ID
 - **WHEN** checking if unit is canonical
 - **THEN** return true if ID exists in canonical index
@@ -399,12 +441,14 @@ The system SHALL provide access to unit version history.
 **Priority**: High
 
 #### Scenario: List version history
+
 - **GIVEN** unit "custom-123" has 5 versions
 - **WHEN** CustomUnitService.getVersionHistory("custom-123") is called
 - **THEN** GET /api/units/custom/custom-123/versions
 - **AND** return array of version metadata (version number, saved timestamp, notes)
 
 #### Scenario: Get specific version
+
 - **GIVEN** unit "custom-123" has version 3 in history
 - **WHEN** CustomUnitService.getVersion("custom-123", 3) is called
 - **THEN** GET /api/units/custom/custom-123/versions/3
@@ -421,6 +465,7 @@ The system SHALL allow reverting a unit to a previous version.
 **Priority**: High
 
 #### Scenario: Revert to previous version
+
 - **GIVEN** unit "custom-123" is at version 5
 - **AND** version 3 exists in history
 - **WHEN** CustomUnitService.revert("custom-123", 3) is called
@@ -429,6 +474,7 @@ The system SHALL allow reverting a unit to a previous version.
 - **AND** current version becomes 6 (not 3)
 
 #### Scenario: Revert to non-existent version
+
 - **GIVEN** unit "custom-123" only has versions 1-5
 - **WHEN** CustomUnitService.revert("custom-123", 10) is called
 - **THEN** return error "Version 10 not found"
@@ -444,6 +490,7 @@ The system SHALL export custom units as JSON files.
 **Priority**: High
 
 #### Scenario: Export single unit
+
 - **GIVEN** a custom unit "custom-123"
 - **WHEN** CustomUnitService.export("custom-123") is called
 - **THEN** GET /api/units/custom/custom-123/export
@@ -451,6 +498,7 @@ The system SHALL export custom units as JSON files.
 - **AND** filename defaults to "{chassis}-{variant}.json"
 
 #### Scenario: Export envelope format
+
 - **GIVEN** unit is being exported
 - **THEN** envelope SHALL include:
   - formatVersion: schema version string
@@ -470,6 +518,7 @@ The system SHALL import units from JSON files.
 **Priority**: High
 
 #### Scenario: Import valid JSON
+
 - **GIVEN** a valid unit JSON file
 - **WHEN** CustomUnitService.import(file) is called
 - **THEN** POST /api/units/import with file content
@@ -478,6 +527,7 @@ The system SHALL import units from JSON files.
 - **AND** create new custom unit with version 1
 
 #### Scenario: Import with name conflict
+
 - **GIVEN** a JSON file with unit named "Atlas Custom-1"
 - **AND** a unit with that name already exists
 - **WHEN** importing the file
@@ -485,6 +535,7 @@ The system SHALL import units from JSON files.
 - **AND** suggest next available name "Atlas Custom-2"
 
 #### Scenario: Import invalid JSON
+
 - **GIVEN** an invalid or corrupted JSON file
 - **WHEN** CustomUnitService.import(file) is called
 - **THEN** return error with validation details
@@ -501,22 +552,24 @@ The system SHALL support keyboard shortcut for quick save.
 **Priority**: Medium
 
 #### Scenario: Save existing custom unit
+
 - **GIVEN** user is editing custom unit "custom-123"
 - **WHEN** user presses Ctrl+S
 - **THEN** save current state as new version
 - **AND** show brief save confirmation toast
 
 #### Scenario: Save modified canonical unit
+
 - **GIVEN** user is editing modified canonical unit
 - **WHEN** user presses Ctrl+S
 - **THEN** open Save As dialog with clone name suggestion
 - **AND** require user to confirm new name
 
 #### Scenario: Save new unsaved unit
+
 - **GIVEN** user has created new unit not yet saved
 - **WHEN** user presses Ctrl+S
 - **THEN** open Save dialog to enter chassis/variant name
 - **AND** create new custom unit on confirm
 
 ---
-

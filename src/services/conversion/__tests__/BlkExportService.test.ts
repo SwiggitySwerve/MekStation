@@ -7,22 +7,40 @@
  * @spec openspec/specs/serialization-formats/spec.md
  */
 
-import { BlkExportService, getBlkExportService } from '@/services/conversion/BlkExportService';
-import { VehicleState } from '@/stores/vehicleState';
+import {
+  BlkExportService,
+  getBlkExportService,
+} from '@/services/conversion/BlkExportService';
 import { AerospaceState } from '@/stores/aerospaceState';
 import { BattleArmorState } from '@/stores/battleArmorState';
 import { InfantryState } from '@/stores/infantryState';
 import { ProtoMechState } from '@/stores/protoMechState';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { VehicleLocation, VTOLLocation, AerospaceLocation, ProtoMechLocation } from '@/types/construction/UnitLocation';
-import { EngineType } from '@/types/construction/EngineType';
+import { VehicleState } from '@/stores/vehicleState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { GroundMotionType, SquadMotionType, AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { BattleArmorChassisType, BattleArmorWeightClass, InfantryArmorKit, ManipulatorType, InfantrySpecialization } from '@/types/unit/PersonnelInterfaces';
-import { TechBase } from '@/types/enums/TechBase';
+import { EngineType } from '@/types/construction/EngineType';
+import {
+  VehicleLocation,
+  VTOLLocation,
+  AerospaceLocation,
+  ProtoMechLocation,
+} from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { AerospaceCockpitType } from '@/types/unit/AerospaceInterfaces';
+import {
+  GroundMotionType,
+  SquadMotionType,
+  AerospaceMotionType,
+} from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  BattleArmorChassisType,
+  BattleArmorWeightClass,
+  InfantryArmorKit,
+  ManipulatorType,
+  InfantrySpecialization,
+} from '@/types/unit/PersonnelInterfaces';
 
 describe('BlkExportService', () => {
   let service: BlkExportService;
@@ -58,7 +76,9 @@ describe('BlkExportService', () => {
   // Helper: Create Mock Unit States
   // ============================================================================
 
-  const createMockVehicleState = (overrides?: Partial<VehicleState>): VehicleState => ({
+  const createMockVehicleState = (
+    overrides?: Partial<VehicleState>,
+  ): VehicleState => ({
     id: 'test-vehicle-1',
     name: 'Test Tank TST-1',
     chassis: 'Test Tank',
@@ -101,7 +121,9 @@ describe('BlkExportService', () => {
     ...overrides,
   });
 
-  const createMockVTOLState = (overrides?: Partial<VehicleState>): VehicleState => ({
+  const createMockVTOLState = (
+    overrides?: Partial<VehicleState>,
+  ): VehicleState => ({
     ...createMockVehicleState(),
     name: 'Test VTOL VTL-1',
     chassis: 'Test VTOL',
@@ -120,7 +142,9 @@ describe('BlkExportService', () => {
     ...overrides,
   });
 
-  const createMockAerospaceState = (overrides?: Partial<AerospaceState>): AerospaceState => ({
+  const createMockAerospaceState = (
+    overrides?: Partial<AerospaceState>,
+  ): AerospaceState => ({
     id: 'test-aero-1',
     name: 'Test Fighter TF-1',
     chassis: 'Test Fighter',
@@ -162,7 +186,9 @@ describe('BlkExportService', () => {
     ...overrides,
   });
 
-  const createMockBattleArmorState = (overrides?: Partial<BattleArmorState>): BattleArmorState => ({
+  const createMockBattleArmorState = (
+    overrides?: Partial<BattleArmorState>,
+  ): BattleArmorState => ({
     id: 'test-ba-1',
     name: 'Test Battle Armor TBA-1',
     chassis: 'Test Battle Armor',
@@ -199,7 +225,9 @@ describe('BlkExportService', () => {
     ...overrides,
   });
 
-  const createMockInfantryState = (overrides?: Partial<InfantryState>): InfantryState => ({
+  const createMockInfantryState = (
+    overrides?: Partial<InfantryState>,
+  ): InfantryState => ({
     id: 'test-inf-1',
     name: 'Test Infantry Platoon',
     chassis: 'Test Infantry',
@@ -232,7 +260,9 @@ describe('BlkExportService', () => {
     ...overrides,
   });
 
-  const createMockProtoMechState = (overrides?: Partial<ProtoMechState>): ProtoMechState => ({
+  const createMockProtoMechState = (
+    overrides?: Partial<ProtoMechState>,
+  ): ProtoMechState => ({
     id: 'test-proto-1',
     name: 'Test ProtoMech TP-1',
     chassis: 'Test ProtoMech',
@@ -300,7 +330,6 @@ describe('BlkExportService', () => {
     describe('error handling', () => {
       it('should handle export errors gracefully', () => {
         // Create a unit with data that might cause an error
-        // eslint-disable-next-line no-restricted-syntax -- Testing error handling with invalid input
         const badUnit = null as unknown as VehicleState;
         const result = service.export(badUnit);
 
@@ -428,7 +457,9 @@ describe('BlkExportService', () => {
     });
 
     it('should include motion type', () => {
-      const vehicle = createMockVehicleState({ motionType: GroundMotionType.HOVER });
+      const vehicle = createMockVehicleState({
+        motionType: GroundMotionType.HOVER,
+      });
       const result = service.export(vehicle);
 
       expect(result.content).toContain('<motion_type>');
@@ -496,7 +527,9 @@ describe('BlkExportService', () => {
     });
 
     it('should format armor tech code for IS', () => {
-      const vehicle = createMockVehicleState({ techBase: TechBase.INNER_SPHERE });
+      const vehicle = createMockVehicleState({
+        techBase: TechBase.INNER_SPHERE,
+      });
       const result = service.export(vehicle);
 
       expect(result.content).toContain('<armor_tech>');
@@ -572,8 +605,24 @@ describe('BlkExportService', () => {
     it('should write vehicle equipment by location', () => {
       const vehicle = createMockVehicleState({
         equipment: [
-          { id: '1', equipmentId: 'ppc', name: 'PPC', location: VehicleLocation.TURRET, isRearMounted: false, isTurretMounted: true, isSponsonMounted: false },
-          { id: '2', equipmentId: 'ml', name: 'Medium Laser', location: VehicleLocation.FRONT, isRearMounted: false, isTurretMounted: false, isSponsonMounted: false },
+          {
+            id: '1',
+            equipmentId: 'ppc',
+            name: 'PPC',
+            location: VehicleLocation.TURRET,
+            isRearMounted: false,
+            isTurretMounted: true,
+            isSponsonMounted: false,
+          },
+          {
+            id: '2',
+            equipmentId: 'ml',
+            name: 'Medium Laser',
+            location: VehicleLocation.FRONT,
+            isRearMounted: false,
+            isTurretMounted: false,
+            isSponsonMounted: false,
+          },
         ],
       });
       const result = service.export(vehicle);
@@ -690,8 +739,18 @@ describe('BlkExportService', () => {
     it('should write aerospace equipment by arc', () => {
       const aero = createMockAerospaceState({
         equipment: [
-          { id: '1', equipmentId: 'lpl', name: 'Large Pulse Laser', location: AerospaceLocation.NOSE },
-          { id: '2', equipmentId: 'mpl', name: 'Medium Pulse Laser', location: AerospaceLocation.LEFT_WING },
+          {
+            id: '1',
+            equipmentId: 'lpl',
+            name: 'Large Pulse Laser',
+            location: AerospaceLocation.NOSE,
+          },
+          {
+            id: '2',
+            equipmentId: 'mpl',
+            name: 'Medium Pulse Laser',
+            location: AerospaceLocation.LEFT_WING,
+          },
         ],
       });
       const result = service.export(aero);
@@ -725,7 +784,9 @@ describe('BlkExportService', () => {
     });
 
     it('should include chassis type', () => {
-      const ba = createMockBattleArmorState({ chassisType: BattleArmorChassisType.QUAD });
+      const ba = createMockBattleArmorState({
+        chassisType: BattleArmorChassisType.QUAD,
+      });
       const result = service.export(ba);
 
       expect(result.content).toContain('<chassis>');
@@ -759,7 +820,9 @@ describe('BlkExportService', () => {
     });
 
     it('should include motion type', () => {
-      const ba = createMockBattleArmorState({ motionType: SquadMotionType.VTOL });
+      const ba = createMockBattleArmorState({
+        motionType: SquadMotionType.VTOL,
+      });
       const result = service.export(ba);
 
       expect(result.content).toContain('<motion_type>');
@@ -790,7 +853,10 @@ describe('BlkExportService', () => {
     });
 
     it('should include armor type and points per trooper', () => {
-      const ba = createMockBattleArmorState({ armorType: 1, armorPerTrooper: 7 });
+      const ba = createMockBattleArmorState({
+        armorType: 1,
+        armorPerTrooper: 7,
+      });
       const result = service.export(ba);
 
       expect(result.content).toContain('<armor_type>');
@@ -802,7 +868,15 @@ describe('BlkExportService', () => {
     it('should write battle armor equipment', () => {
       const ba = createMockBattleArmorState({
         equipment: [
-          { id: '1', equipmentId: 'sml', name: 'Small Laser', location: 'Squad' as never, isAPMount: false, isTurretMounted: false, isModular: false },
+          {
+            id: '1',
+            equipmentId: 'sml',
+            name: 'Small Laser',
+            location: 'Squad' as never,
+            isAPMount: false,
+            isTurretMounted: false,
+            isModular: false,
+          },
         ],
       });
       const result = service.export(ba);
@@ -850,7 +924,9 @@ describe('BlkExportService', () => {
     });
 
     it('should include motion type', () => {
-      const inf = createMockInfantryState({ motionType: SquadMotionType.MOTORIZED });
+      const inf = createMockInfantryState({
+        motionType: SquadMotionType.MOTORIZED,
+      });
       const result = service.export(inf);
 
       expect(result.content).toContain('<motion_type>');
@@ -974,8 +1050,18 @@ describe('BlkExportService', () => {
     it('should write protomech equipment by location', () => {
       const proto = createMockProtoMechState({
         equipment: [
-          { id: '1', equipmentId: 'erllas', name: 'ER Large Laser', location: ProtoMechLocation.TORSO },
-          { id: '2', equipmentId: 'srm2', name: 'SRM 2', location: ProtoMechLocation.MAIN_GUN },
+          {
+            id: '1',
+            equipmentId: 'erllas',
+            name: 'ER Large Laser',
+            location: ProtoMechLocation.TORSO,
+          },
+          {
+            id: '2',
+            equipmentId: 'srm2',
+            name: 'SRM 2',
+            location: ProtoMechLocation.MAIN_GUN,
+          },
         ],
       });
       const result = service.export(proto);
@@ -1081,8 +1167,24 @@ describe('BlkExportService', () => {
           [VehicleLocation.BODY]: 0,
         },
         equipment: [
-          { id: '1', equipmentId: 'ac20', name: 'AC/20', location: VehicleLocation.TURRET, isRearMounted: false, isTurretMounted: true, isSponsonMounted: false },
-          { id: '2', equipmentId: 'ac20', name: 'AC/20', location: VehicleLocation.TURRET, isRearMounted: false, isTurretMounted: true, isSponsonMounted: false },
+          {
+            id: '1',
+            equipmentId: 'ac20',
+            name: 'AC/20',
+            location: VehicleLocation.TURRET,
+            isRearMounted: false,
+            isTurretMounted: true,
+            isSponsonMounted: false,
+          },
+          {
+            id: '2',
+            equipmentId: 'ac20',
+            name: 'AC/20',
+            location: VehicleLocation.TURRET,
+            isRearMounted: false,
+            isTurretMounted: true,
+            isSponsonMounted: false,
+          },
         ],
       });
 

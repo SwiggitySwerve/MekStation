@@ -8,6 +8,7 @@
  */
 
 import React from 'react';
+
 import { AwardCategory, AwardRarity } from '@/types/award/AwardInterfaces';
 
 // =============================================================================
@@ -27,7 +28,11 @@ type IconComponent = React.FC<IconProps>;
 // =============================================================================
 
 /** Swords icon - Combat, kills */
-export const SwordsIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const SwordsIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -48,7 +53,11 @@ export const SwordsIcon: IconComponent = ({ className = '', size = 24, strokeWid
 );
 
 /** Target icon - Precision, accuracy */
-export const TargetIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const TargetIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -67,7 +76,11 @@ export const TargetIcon: IconComponent = ({ className = '', size = 24, strokeWid
 );
 
 /** Shield icon - Defense, survival */
-export const ShieldIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const ShieldIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -84,7 +97,11 @@ export const ShieldIcon: IconComponent = ({ className = '', size = 24, strokeWid
 );
 
 /** Crown icon - Legendary, leadership */
-export const CrownIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const CrownIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -102,7 +119,11 @@ export const CrownIcon: IconComponent = ({ className = '', size = 24, strokeWidt
 );
 
 /** Star icon - Achievement, excellence */
-export const StarIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const StarIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -119,7 +140,11 @@ export const StarIcon: IconComponent = ({ className = '', size = 24, strokeWidth
 );
 
 /** Trophy icon - Victory, campaign */
-export const TrophyIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const TrophyIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -141,7 +166,11 @@ export const TrophyIcon: IconComponent = ({ className = '', size = 24, strokeWid
 );
 
 /** Medal icon - Service, achievement */
-export const MedalIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const MedalIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -159,7 +188,11 @@ export const MedalIcon: IconComponent = ({ className = '', size = 24, strokeWidt
 );
 
 /** Flame icon - Destruction, damage */
-export const FlameIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const FlameIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -176,7 +209,11 @@ export const FlameIcon: IconComponent = ({ className = '', size = 24, strokeWidt
 );
 
 /** Skull icon - Kills, death */
-export const SkullIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const SkullIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -199,7 +236,11 @@ export const SkullIcon: IconComponent = ({ className = '', size = 24, strokeWidt
 );
 
 /** Zap/Lightning icon - Power, speed */
-export const ZapIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const ZapIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -216,7 +257,11 @@ export const ZapIcon: IconComponent = ({ className = '', size = 24, strokeWidth 
 );
 
 /** Heart icon - Health, survival */
-export const HeartIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const HeartIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -233,7 +278,11 @@ export const HeartIcon: IconComponent = ({ className = '', size = 24, strokeWidt
 );
 
 /** Sparkles icon - Special, rare */
-export const SparklesIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const SparklesIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -252,7 +301,11 @@ export const SparklesIcon: IconComponent = ({ className = '', size = 24, strokeW
 );
 
 /** Flag icon - Campaign, territory */
-export const FlagIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const FlagIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -270,7 +323,11 @@ export const FlagIcon: IconComponent = ({ className = '', size = 24, strokeWidth
 );
 
 /** Clock icon - Time, service */
-export const ClockIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const ClockIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -288,7 +345,11 @@ export const ClockIcon: IconComponent = ({ className = '', size = 24, strokeWidt
 );
 
 /** Users icon - Team, group */
-export const UsersIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const UsersIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -308,7 +369,11 @@ export const UsersIcon: IconComponent = ({ className = '', size = 24, strokeWidt
 );
 
 /** Gem icon - Rare, precious */
-export const GemIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const GemIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}
@@ -328,7 +393,11 @@ export const GemIcon: IconComponent = ({ className = '', size = 24, strokeWidth 
 );
 
 /** Default Award icon */
-export const AwardIcon: IconComponent = ({ className = '', size = 24, strokeWidth = 2 }) => (
+export const AwardIcon: IconComponent = ({
+  className = '',
+  size = 24,
+  strokeWidth = 2,
+}) => (
   <svg
     className={className}
     width={size}

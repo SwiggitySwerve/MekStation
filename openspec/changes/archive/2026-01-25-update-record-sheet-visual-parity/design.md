@@ -7,12 +7,14 @@ The record sheet rendering system needs systematic validation and fixing. Each c
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Achieve pixel-accurate (or near-accurate) visual parity with MegaMekLab
 - Create reusable A-B comparison tooling for ongoing validation
 - Systematic component-by-component verification
 - Support all 5 mech configurations (Biped, Quad, QuadVee, LAM, Tripod)
 
 **Non-Goals:**
+
 - Implementing new features not in MegaMekLab
 - Changing the fundamental architecture
 - Supporting custom/non-standard templates
@@ -23,12 +25,14 @@ The record sheet rendering system needs systematic validation and fixing. Each c
 
 **What**: Create a side-by-side comparison view for development/testing.
 
-**Why**: 
+**Why**:
+
 - Visual comparison is the most reliable way to verify rendering accuracy
 - Enables rapid iteration - see changes immediately
 - Documents expected output for future regression testing
 
 **Implementation**:
+
 ```typescript
 // RecordSheetComparison.tsx
 interface ComparisonProps {
@@ -44,11 +48,13 @@ interface ComparisonProps {
 **What**: Store MegaMekLab-generated reference images in `test-fixtures/`.
 
 **Why**:
+
 - Provides ground truth for comparison
 - Enables automated visual regression testing (future)
 - Documents expected behavior
 
 **Format**:
+
 - PNG screenshots at 2x resolution for clarity
 - Organized by configuration: `reference/biped-50t.png`, `reference/quad-50t.png`, etc.
 - MTF files stored alongside for reproducibility
@@ -58,11 +64,13 @@ interface ComparisonProps {
 **What**: Test each rendering component in isolation before integration.
 
 **Why**:
+
 - Easier to identify and fix issues
 - Prevents cascading failures
 - Clear progress tracking
 
 **Components**:
+
 1. Template loading (SVG fetch and parse)
 2. Text field population (all ID-based text elements)
 3. Armor pip rendering (location-by-location)
@@ -75,6 +83,7 @@ interface ComparisonProps {
 **What**: Biped first, then Quad, QuadVee, LAM, Tripod.
 
 **Why**:
+
 - Biped is most common, highest priority
 - Biped uses pre-made pip SVGs (simpler to validate)
 - Quad/Tripod use dynamic pip generation (more complex)
@@ -82,12 +91,12 @@ interface ComparisonProps {
 
 ## Risks / Trade-offs
 
-| Risk | Mitigation |
-|------|------------|
+| Risk                                           | Mitigation                                        |
+| ---------------------------------------------- | ------------------------------------------------- |
 | MegaMekLab updates could invalidate references | Pin to specific MegaMekLab version for references |
-| Manual visual comparison is slow | Build overlay diff tooling to speed up |
-| Font differences between systems | Use web-safe fonts or embed fonts |
-| SVG rendering varies by browser | Test in Chrome, Firefox, Safari |
+| Manual visual comparison is slow               | Build overlay diff tooling to speed up            |
+| Font differences between systems               | Use web-safe fonts or embed fonts                 |
+| SVG rendering varies by browser                | Test in Chrome, Firefox, Safari                   |
 
 ## Technical Approach
 
@@ -109,6 +118,7 @@ RecordSheetComparisonPage
 ### Overlay Diff Mode
 
 When overlay is enabled:
+
 1. Render MekStation output to canvas A
 2. Load reference image to canvas B
 3. Blend with difference mode to highlight discrepancies

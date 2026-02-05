@@ -1,12 +1,16 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 import '@testing-library/jest-dom';
-import { DamageMatrix } from '../DamageMatrix';
-import { GameEventType, GamePhase, GameSide } from '@/types/gameplay';
 import type { IGameEvent } from '@/types/gameplay';
 import type { IQuickGameUnit } from '@/types/quickgame/QuickGameInterfaces';
 
-function createMockUnit(overrides: Partial<IQuickGameUnit> = {}): IQuickGameUnit {
+import { GameEventType, GamePhase, GameSide } from '@/types/gameplay';
+
+import { DamageMatrix } from '../DamageMatrix';
+
+function createMockUnit(
+  overrides: Partial<IQuickGameUnit> = {},
+): IQuickGameUnit {
   return {
     instanceId: 'unit-1',
     sourceUnitId: 'atlas-as7d',
@@ -32,7 +36,7 @@ function createDamageEvent(
   sourceUnitId: string | undefined,
   targetUnitId: string,
   damage: number,
-  eventId: string = `event-${Math.random()}`
+  eventId: string = `event-${Math.random()}`,
 ): IGameEvent {
   return {
     id: eventId,
@@ -76,7 +80,7 @@ describe('DamageMatrix', () => {
 
       expect(screen.getByText('No damage dealt')).toBeInTheDocument();
       expect(
-        screen.getByText('No combat damage was recorded in this battle.')
+        screen.getByText('No combat damage was recorded in this battle.'),
       ).toBeInTheDocument();
     });
 
@@ -122,7 +126,9 @@ describe('DamageMatrix', () => {
 
       const events = [createDamageEvent('unit-1', 'unit-2', 10, 'dmg-1')];
 
-      render(<DamageMatrix events={events} units={[longNameUnit, targetUnit]} />);
+      render(
+        <DamageMatrix events={events} units={[longNameUnit, targetUnit]} />,
+      );
 
       const header = screen.getByTitle('Battlemaster BLR-1G');
       expect(header).toBeInTheDocument();
@@ -266,7 +272,9 @@ describe('DamageMatrix', () => {
 
       const events = [createDamageEvent('unit-1', 'unit-2', 10, 'dmg-1')];
 
-      render(<DamageMatrix events={events} units={[longNameUnit, targetUnit]} />);
+      render(
+        <DamageMatrix events={events} units={[longNameUnit, targetUnit]} />,
+      );
 
       expect(screen.getByTitle('Battlemaster BLR-1G')).toBeInTheDocument();
       expect(screen.getByTitle('Atlas AS7-D')).toBeInTheDocument();

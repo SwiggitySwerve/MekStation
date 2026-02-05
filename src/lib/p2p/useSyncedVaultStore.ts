@@ -7,8 +7,10 @@
  * @spec openspec/changes/add-p2p-vault-sync/specs/vault-sync/spec.md
  */
 
-import { create } from 'zustand';
 import * as Y from 'yjs';
+import { create } from 'zustand';
+
+import { getYMap, getActiveRoom, onSyncEvent } from './SyncProvider';
 import {
   ISyncedVaultState,
   ISyncedVaultActions,
@@ -17,7 +19,6 @@ import {
   SyncState,
   SyncableItemType,
 } from './types';
-import { getYMap, getActiveRoom, onSyncEvent } from './SyncProvider';
 
 // =============================================================================
 // Store Type
@@ -284,9 +285,11 @@ export function useSyncedItems(): readonly ISyncableVaultItem[] {
 /**
  * Get items by type.
  */
-export function useSyncedItemsByType(type: SyncableItemType): readonly ISyncableVaultItem[] {
+export function useSyncedItemsByType(
+  type: SyncableItemType,
+): readonly ISyncableVaultItem[] {
   return useSyncedVaultStore((state) =>
-    Object.values(state.items).filter((item) => item.type === type)
+    Object.values(state.items).filter((item) => item.type === type),
   );
 }
 
@@ -322,5 +325,7 @@ export function useSyncedItem(id: string): ISyncableVaultItem | undefined {
  * Get sync state for an item.
  */
 export function useItemSyncState(id: string): SyncState {
-  return useSyncedVaultStore((state) => state.items[id]?.syncState ?? SyncState.Disabled);
+  return useSyncedVaultStore(
+    (state) => state.items[id]?.syncState ?? SyncState.Disabled,
+  );
 }

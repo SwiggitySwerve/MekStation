@@ -1,9 +1,10 @@
+import Link from 'next/link';
 /**
  * PageLayout Component
  * Consistent page layout wrapper with optional back navigation.
  */
 import React from 'react';
-import Link from 'next/link';
+
 import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 
 interface PageLayoutProps {
@@ -47,13 +48,25 @@ export function PageLayout({
     : 'min-h-screen bg-surface-deep';
 
   // Normalize backLink
-  const normalizedBackLink = typeof backLink === 'string' 
-    ? { href: backLink, label: backLabel }
-    : backLink;
+  const normalizedBackLink =
+    typeof backLink === 'string'
+      ? { href: backLink, label: backLabel }
+      : backLink;
 
   const BackIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mr-2">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+      className="mr-2 h-4 w-4"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+      />
     </svg>
   );
 
@@ -68,32 +81,40 @@ export function PageLayout({
         )}
 
         {/* Back navigation - only shown when no breadcrumbs, button if onBack provided, Link otherwise */}
-        {showBackLink && (
-          onBack ? (
+        {showBackLink &&
+          (onBack ? (
             <button
               onClick={onBack}
-              className="inline-flex items-center text-text-theme-secondary hover:text-accent transition-colors mb-6"
+              className="text-text-theme-secondary hover:text-accent mb-6 inline-flex items-center transition-colors"
             >
               <BackIcon />
               {normalizedBackLink?.label || backLabel}
             </button>
-          ) : normalizedBackLink && (
-            <Link
-              href={normalizedBackLink.href}
-              className="inline-flex items-center text-text-theme-secondary hover:text-accent transition-colors mb-6"
-            >
-              <BackIcon />
-              {normalizedBackLink.label}
-            </Link>
-          )
-        )}
+          ) : (
+            normalizedBackLink && (
+              <Link
+                href={normalizedBackLink.href}
+                className="text-text-theme-secondary hover:text-accent mb-6 inline-flex items-center transition-colors"
+              >
+                <BackIcon />
+                {normalizedBackLink.label}
+              </Link>
+            )
+          ))}
 
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-text-theme-primary mb-2" data-testid="page-title">{title}</h1>
-              {subtitle && <p className="text-text-theme-secondary">{subtitle}</p>}
+              <h1
+                className="text-text-theme-primary mb-2 text-3xl font-bold"
+                data-testid="page-title"
+              >
+                {title}
+              </h1>
+              {subtitle && (
+                <p className="text-text-theme-secondary">{subtitle}</p>
+              )}
             </div>
             {headerContent}
           </div>
@@ -106,11 +127,15 @@ export function PageLayout({
 }
 
 // Loading state component
-export function PageLoading({ message = 'Loading...' }: { message?: string }): React.ReactElement {
+export function PageLoading({
+  message = 'Loading...',
+}: {
+  message?: string;
+}): React.ReactElement {
   return (
-    <div className="min-h-screen bg-surface-deep flex items-center justify-center">
+    <div className="bg-surface-deep flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <div className="border-accent mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
         <p className="text-text-theme-secondary">{message}</p>
       </div>
     </div>
@@ -132,14 +157,14 @@ export function PageError({
   backLabel = 'Go Back',
 }: PageErrorProps): React.ReactElement {
   return (
-    <div className="min-h-screen bg-surface-deep flex items-center justify-center p-8">
-      <div className="bg-red-900/20 border border-red-600/30 rounded-xl p-8 max-w-md text-center">
-        <h2 className="text-xl font-semibold text-red-400 mb-2">{title}</h2>
+    <div className="bg-surface-deep flex min-h-screen items-center justify-center p-8">
+      <div className="max-w-md rounded-xl border border-red-600/30 bg-red-900/20 p-8 text-center">
+        <h2 className="mb-2 text-xl font-semibold text-red-400">{title}</h2>
         <p className="text-text-theme-secondary mb-6">{message}</p>
         {backLink && (
           <Link
             href={backLink}
-            className="inline-block bg-surface-raised hover:bg-border-theme text-text-theme-primary px-6 py-2 rounded-lg transition-colors"
+            className="bg-surface-raised hover:bg-border-theme text-text-theme-primary inline-block rounded-lg px-6 py-2 transition-colors"
           >
             {backLabel}
           </Link>
@@ -158,16 +183,24 @@ interface EmptyStateProps {
   'data-testid'?: string;
 }
 
-export function EmptyState({ icon, title, message, action, 'data-testid': testId }: EmptyStateProps): React.ReactElement {
+export function EmptyState({
+  icon,
+  title,
+  message,
+  action,
+  'data-testid': testId,
+}: EmptyStateProps): React.ReactElement {
   return (
-    <div className="bg-surface-raised/30 rounded-lg p-8 text-center text-text-theme-secondary border border-dashed border-border-theme" data-testid={testId}>
+    <div
+      className="bg-surface-raised/30 text-text-theme-secondary border-border-theme rounded-lg border border-dashed p-8 text-center"
+      data-testid={testId}
+    >
       {icon && <div className="mb-3">{icon}</div>}
       <p className="font-medium">{title}</p>
-      {message && <p className="text-sm mt-1">{message}</p>}
+      {message && <p className="mt-1 text-sm">{message}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
 }
 
 export default PageLayout;
-

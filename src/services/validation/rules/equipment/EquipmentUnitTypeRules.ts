@@ -7,6 +7,10 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
+import { isValidLocationForUnitType } from '../../../../types/construction/UnitLocation';
+import { EquipmentBehaviorFlag } from '../../../../types/enums/EquipmentFlag';
+import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -16,10 +20,6 @@ import {
   createUnitValidationRuleResult,
   createPassingResult,
 } from '../../../../types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { isValidLocationForUnitType } from '../../../../types/construction/UnitLocation';
-import { EquipmentBehaviorFlag } from '../../../../types/enums/EquipmentFlag';
 
 /**
  * Equipment item for validation purposes
@@ -60,7 +60,7 @@ const DEFAULT_ALLOWED_UNIT_TYPES: readonly UnitType[] = [
  */
 function isUnitTypeAllowed(
   unitType: UnitType,
-  allowedUnitTypes: readonly UnitType[] | undefined
+  allowedUnitTypes: readonly UnitType[] | undefined,
 ): boolean {
   const allowed = allowedUnitTypes ?? DEFAULT_ALLOWED_UNIT_TYPES;
   return allowed.includes(unitType);
@@ -82,12 +82,16 @@ export const EquipmentUnitTypeCompatibility: IUnitValidationRuleDefinition = {
   applicableUnitTypes: 'ALL',
 
   canValidate(context: IUnitValidationContext): boolean {
-    const unit = context.unit as { equipment?: readonly IValidatableEquipmentItem[] };
+    const unit = context.unit as {
+      equipment?: readonly IValidatableEquipmentItem[];
+    };
     return unit.equipment !== undefined && unit.equipment.length > 0;
   },
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
-    const unit = context.unit as { equipment?: readonly IValidatableEquipmentItem[] };
+    const unit = context.unit as {
+      equipment?: readonly IValidatableEquipmentItem[];
+    };
     const errors: ReturnType<typeof createUnitValidationError>[] = [];
 
     if (!unit.equipment) {
@@ -98,7 +102,8 @@ export const EquipmentUnitTypeCompatibility: IUnitValidationRuleDefinition = {
 
     for (const item of unit.equipment) {
       if (!isUnitTypeAllowed(unitType, item.allowedUnitTypes)) {
-        const allowedTypes = item.allowedUnitTypes?.join(', ') || 'standard units';
+        const allowedTypes =
+          item.allowedUnitTypes?.join(', ') || 'standard units';
         errors.push(
           createUnitValidationError(
             this.id,
@@ -116,13 +121,20 @@ export const EquipmentUnitTypeCompatibility: IUnitValidationRuleDefinition = {
                 location: item.location,
                 allowedUnitTypes: item.allowedUnitTypes,
               },
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -141,12 +153,16 @@ export const EquipmentLocationCompatibility: IUnitValidationRuleDefinition = {
   applicableUnitTypes: 'ALL',
 
   canValidate(context: IUnitValidationContext): boolean {
-    const unit = context.unit as { equipment?: readonly IValidatableEquipmentItem[] };
+    const unit = context.unit as {
+      equipment?: readonly IValidatableEquipmentItem[];
+    };
     return unit.equipment !== undefined && unit.equipment.length > 0;
   },
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
-    const unit = context.unit as { equipment?: readonly IValidatableEquipmentItem[] };
+    const unit = context.unit as {
+      equipment?: readonly IValidatableEquipmentItem[];
+    };
     const errors: ReturnType<typeof createUnitValidationError>[] = [];
 
     if (!unit.equipment) {
@@ -173,8 +189,8 @@ export const EquipmentLocationCompatibility: IUnitValidationRuleDefinition = {
               details: {
                 equipmentId: item.equipmentId,
               },
-            }
-          )
+            },
+          ),
         );
         continue;
       }
@@ -198,14 +214,21 @@ export const EquipmentLocationCompatibility: IUnitValidationRuleDefinition = {
                   equipmentId: item.equipmentId,
                   allowedLocations: item.allowedLocations,
                 },
-              }
-            )
+              },
+            ),
           );
         }
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -226,13 +249,16 @@ const TURRET_CAPABLE_UNIT_TYPES: readonly UnitType[] = [
 export const TurretMountingRequirements: IUnitValidationRuleDefinition = {
   id: 'VAL-EQUIP-UNIT-003',
   name: 'Turret Mounting Requirements',
-  description: 'Turret-mounted equipment requires a unit type with turret capability',
+  description:
+    'Turret-mounted equipment requires a unit type with turret capability',
   category: ValidationCategory.EQUIPMENT,
   priority: 102,
   applicableUnitTypes: 'ALL',
 
   canValidate(context: IUnitValidationContext): boolean {
-    const unit = context.unit as { equipment?: readonly IValidatableEquipmentItem[] };
+    const unit = context.unit as {
+      equipment?: readonly IValidatableEquipmentItem[];
+    };
     return unit.equipment !== undefined && unit.equipment.length > 0;
   },
 
@@ -274,8 +300,8 @@ export const TurretMountingRequirements: IUnitValidationRuleDefinition = {
                 equipmentId: item.equipmentId,
                 location: item.location,
               },
-            }
-          )
+            },
+          ),
         );
       }
 
@@ -296,13 +322,20 @@ export const TurretMountingRequirements: IUnitValidationRuleDefinition = {
               details: {
                 equipmentId: item.equipmentId,
               },
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -325,7 +358,10 @@ interface IEquipmentIncompatibility {
 const EQUIPMENT_INCOMPATIBILITIES: readonly IEquipmentIncompatibility[] = [
   {
     source: EquipmentBehaviorFlag.Masc,
-    incompatibleWith: [EquipmentBehaviorFlag.Tsm, EquipmentBehaviorFlag.IndustrialTsm],
+    incompatibleWith: [
+      EquipmentBehaviorFlag.Tsm,
+      EquipmentBehaviorFlag.IndustrialTsm,
+    ],
     reason: 'MASC cannot be combined with Triple Strength Myomer',
   },
   {
@@ -359,12 +395,16 @@ export const IncompatibleEquipmentCheck: IUnitValidationRuleDefinition = {
   applicableUnitTypes: 'ALL',
 
   canValidate(context: IUnitValidationContext): boolean {
-    const unit = context.unit as { equipment?: readonly IValidatableEquipmentItem[] };
+    const unit = context.unit as {
+      equipment?: readonly IValidatableEquipmentItem[];
+    };
     return unit.equipment !== undefined && unit.equipment.length > 1;
   },
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
-    const unit = context.unit as { equipment?: readonly IValidatableEquipmentItem[] };
+    const unit = context.unit as {
+      equipment?: readonly IValidatableEquipmentItem[];
+    };
     const errors: ReturnType<typeof createUnitValidationError>[] = [];
 
     if (!unit.equipment || unit.equipment.length < 2) {
@@ -391,7 +431,8 @@ export const IncompatibleEquipmentCheck: IUnitValidationRuleDefinition = {
     // Check for incompatibilities
     for (const incompatibility of EQUIPMENT_INCOMPATIBILITIES) {
       const hasSource =
-        equipmentIds.has(incompatibility.source) || equipmentFlags.has(incompatibility.source);
+        equipmentIds.has(incompatibility.source) ||
+        equipmentFlags.has(incompatibility.source);
 
       if (!hasSource) continue;
 
@@ -419,14 +460,21 @@ export const IncompatibleEquipmentCheck: IUnitValidationRuleDefinition = {
                   source: incompatibility.source,
                   incompatible: incompatible,
                 },
-              }
-            )
+              },
+            ),
           );
         }
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -452,7 +500,11 @@ interface IRequiredEquipment {
  */
 const REQUIRED_EQUIPMENT: readonly IRequiredEquipment[] = [
   {
-    unitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH, UnitType.INDUSTRIALMECH],
+    unitTypes: [
+      UnitType.BATTLEMECH,
+      UnitType.OMNIMECH,
+      UnitType.INDUSTRIALMECH,
+    ],
     requiredEquipment: EquipmentBehaviorFlag.HeatSink,
     minQuantity: 10,
     condition: 'Unless using an engine with 10+ integral heat sinks',
@@ -508,24 +560,32 @@ export const RequiredEquipmentCheck: IUnitValidationRuleDefinition = {
                 details: {
                   condition: requirement.condition,
                 },
-              }
-            )
+              },
+            ),
           );
         }
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, [], warnings, [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      [],
+      warnings,
+      [],
+      0,
+    );
   },
 };
 
 /**
  * All equipment unit type validation rules
  */
-export const EQUIPMENT_UNIT_TYPE_RULES: readonly IUnitValidationRuleDefinition[] = [
-  EquipmentUnitTypeCompatibility,
-  EquipmentLocationCompatibility,
-  TurretMountingRequirements,
-  IncompatibleEquipmentCheck,
-  RequiredEquipmentCheck,
-];
+export const EQUIPMENT_UNIT_TYPE_RULES: readonly IUnitValidationRuleDefinition[] =
+  [
+    EquipmentUnitTypeCompatibility,
+    EquipmentLocationCompatibility,
+    TurretMountingRequirements,
+    IncompatibleEquipmentCheck,
+    RequiredEquipmentCheck,
+  ];

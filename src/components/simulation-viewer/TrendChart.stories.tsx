@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+
+import React, { useState } from 'react';
+
 import { TrendChart } from './TrendChart';
 
 const meta: Meta<typeof TrendChart> = {
@@ -156,7 +158,7 @@ export const DarkMode: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-gray-900 p-8 rounded-lg max-w-2xl">
+      <div className="dark max-w-2xl rounded-lg bg-gray-900 p-8">
         <Story />
       </div>
     ),

@@ -1,8 +1,8 @@
 /**
  * Dialog Components
- * 
+ *
  * Modal dialogs for confirmations and actions.
- * 
+ *
  * @spec openspec/specs/confirmation-dialogs/spec.md
  */
 
@@ -14,4 +14,3 @@ export { OverwriteConfirmDialog } from './OverwriteConfirmDialog';
 export { UnitLoadDialog } from './UnitLoadDialog';
 export { VersionHistoryDialog } from './VersionHistoryDialog';
 export { ImportUnitDialog } from './ImportUnitDialog';
-

@@ -7,11 +7,13 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.2
  */
 
+import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { createContext, useContext } from 'react';
+
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { IInfantryFieldGun } from '@/types/unit/PersonnelInterfaces';
+
 import {
   InfantryState,
   InfantryStore,
@@ -30,7 +32,9 @@ export type { InfantryStore } from './infantryState';
 /**
  * Create an isolated Zustand store for a single Infantry platoon
  */
-export function createInfantryStore(initialState: InfantryState): StoreApi<InfantryStore> {
+export function createInfantryStore(
+  initialState: InfantryState,
+): StoreApi<InfantryStore> {
   return create<InfantryStore>()(
     persist(
       (set) => ({
@@ -220,7 +224,9 @@ export function createInfantryStore(initialState: InfantryState): StoreApi<Infan
 
         removeFieldGun: (equipmentId: string) =>
           set((state) => ({
-            fieldGuns: state.fieldGuns.filter((g) => g.equipmentId !== equipmentId),
+            fieldGuns: state.fieldGuns.filter(
+              (g) => g.equipmentId !== equipmentId,
+            ),
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
@@ -277,15 +283,17 @@ export function createInfantryStore(initialState: InfantryState): StoreApi<Infan
           createdAt: state.createdAt,
           lastModifiedAt: state.lastModifiedAt,
         }),
-      }
-    )
+      },
+    ),
   );
 }
 
 /**
  * Create a new Infantry store from options
  */
-export function createNewInfantryStore(options: CreateInfantryOptions): StoreApi<InfantryStore> {
+export function createNewInfantryStore(
+  options: CreateInfantryOptions,
+): StoreApi<InfantryStore> {
   const initialState = createDefaultInfantryState(options);
   return createInfantryStore(initialState);
 }
@@ -297,7 +305,8 @@ export function createNewInfantryStore(options: CreateInfantryOptions): StoreApi
 /**
  * Context for providing the active Infantry's store
  */
-export const InfantryStoreContext = createContext<StoreApi<InfantryStore> | null>(null);
+export const InfantryStoreContext =
+  createContext<StoreApi<InfantryStore> | null>(null);
 
 /**
  * Hook to access the Infantry store from context
@@ -308,7 +317,7 @@ export function useInfantryStore<T>(selector: (state: InfantryStore) => T): T {
   if (!store) {
     throw new Error(
       'useInfantryStore must be used within an InfantryStoreProvider. ' +
-        'Wrap your component tree with <InfantryStoreContext.Provider>.'
+        'Wrap your component tree with <InfantryStoreContext.Provider>.',
     );
   }
 
@@ -322,7 +331,9 @@ export function useInfantryStoreApi(): StoreApi<InfantryStore> {
   const store = useContext(InfantryStoreContext);
 
   if (!store) {
-    throw new Error('useInfantryStoreApi must be used within an InfantryStoreProvider.');
+    throw new Error(
+      'useInfantryStoreApi must be used within an InfantryStoreProvider.',
+    );
   }
 
   return store;

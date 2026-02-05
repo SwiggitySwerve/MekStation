@@ -32,11 +32,7 @@
     "typeRoots": ["./node_modules/@types", "./types"],
     "types": ["node"]
   },
-  "include": [
-    "electron/**/*",
-    "services/**/*",
-    "types/**/*"
-  ],
+  "include": ["electron/**/*", "services/**/*", "types/**/*"],
   "exclude": [
     "node_modules",
     "dist",

@@ -1,9 +1,11 @@
 # Change: Implement Phase 2 Construction Systems
 
 ## Why
+
 BattleMech construction requires precise rules for all structural components including engines, gyros, internal structure, armor, cockpits, heat sinks, and movement systems. Phase 2 implements the core construction rules from the BattleTech TechManual.
 
 ## What Changes
+
 - **ADDED** Engine System - 10 engine types with weight/slot formulas
 - **ADDED** Gyro System - 4 gyro types with placement rules
 - **ADDED** Heat Sink System - 5 heat sink types and engine integration
@@ -19,17 +21,20 @@ BattleMech construction requires precise rules for all structural components inc
 - **ADDED** Construction Rules Core - 12-step construction sequence
 
 ## Impact
+
 - **Affected specs**: Phase 3-5 equipment and validation systems
-- **Affected code**: 
+- **Affected code**:
   - `src/types/construction/` - Construction component types
   - `src/services/construction/` - Construction calculation services
   - `src/utils/constructionRules/` - Rule calculation utilities
   - `constants/BattleTechConstructionRules.ts` - Single source of truth
 
 ## Dependencies
+
 - Phase 1 Foundation (Core Entity Types, Enumerations, Physical Properties)
 
 ## Related Specifications
+
 - `openspec/specs/phase-2-construction/engine-system/spec.md`
 - `openspec/specs/phase-2-construction/gyro-system/spec.md`
 - `openspec/specs/phase-2-construction/heat-sink-system/spec.md`
@@ -43,4 +48,3 @@ BattleMech construction requires precise rules for all structural components inc
 - `openspec/specs/phase-2-construction/tech-base-variants-reference/spec.md`
 - `openspec/specs/phase-2-construction/formula-registry/spec.md`
 - `openspec/specs/phase-2-construction/construction-rules-core/spec.md`
-

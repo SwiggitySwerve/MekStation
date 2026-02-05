@@ -1,9 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { EquipmentDetail } from './EquipmentDetail';
-import { EquipmentCategory } from '@/types/equipment';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+
 import { fn } from '@storybook/test';
+
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
+
+import { EquipmentDetail } from './EquipmentDetail';
 
 const meta: Meta<typeof EquipmentDetail> = {
   title: 'Equipment/EquipmentDetail',
@@ -12,7 +15,8 @@ const meta: Meta<typeof EquipmentDetail> = {
   parameters: {
     docs: {
       description: {
-        component: 'Full-screen equipment detail panel with slide-in animation. Shows combat stats for weapons.',
+        component:
+          'Full-screen equipment detail panel with slide-in animation. Shows combat stats for weapons.',
       },
     },
     layout: 'fullscreen',
@@ -80,7 +84,8 @@ export const WeaponWithStats: Story = {
       range: '3/6/9',
       heat: 3,
     },
-    description: 'The Medium Laser is one of the most common weapons in the BattleMech arsenal. It offers an excellent balance of damage, heat, and weight.',
+    description:
+      'The Medium Laser is one of the most common weapons in the BattleMech arsenal. It offers an excellent balance of damage, heat, and weight.',
   },
 };
 
@@ -92,14 +97,16 @@ export const HeavyWeapon: Story = {
       range: '6/12/18',
       heat: 10,
     },
-    description: 'The Particle Projection Cannon is a powerful energy weapon that fires a concentrated beam of protons. It generates significant heat but deals devastating damage.',
+    description:
+      'The Particle Projection Cannon is a powerful energy weapon that fires a concentrated beam of protons. It generates significant heat but deals devastating damage.',
   },
 };
 
 export const NonWeaponEquipment: Story = {
   args: {
     item: jumpJet,
-    description: 'Standard jump jets allow a Mech to make short jumps, improving mobility on rough terrain and enabling attacks from unexpected angles.',
+    description:
+      'Standard jump jets allow a Mech to make short jumps, improving mobility on rough terrain and enabling attacks from unexpected angles.',
   },
 };
 

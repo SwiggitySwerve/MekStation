@@ -1,12 +1,14 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { KPICard } from '@/components/simulation-viewer/KPICard';
-import { TrendChart } from '@/components/simulation-viewer/TrendChart';
-import { DrillDownLink } from '@/components/simulation-viewer/DrillDownLink';
+
 import type {
   ICampaignDashboardMetrics,
   IFinancialDataPoint,
   IPerformerSummary,
 } from '@/types/simulation-viewer';
+
+import { DrillDownLink } from '@/components/simulation-viewer/DrillDownLink';
+import { KPICard } from '@/components/simulation-viewer/KPICard';
+import { TrendChart } from '@/components/simulation-viewer/TrendChart';
 import { FOCUS_RING_CLASSES, announce } from '@/utils/accessibility';
 
 type PerformerSortKey = 'kills' | 'xp' | 'missionsCompleted';
@@ -35,7 +37,10 @@ export interface ICampaignDashboardProps {
   /** Pre-computed dashboard metrics from campaign state */
   readonly metrics: ICampaignDashboardMetrics;
   /** Optional callback invoked when a drill-down link is activated */
-  readonly onDrillDown?: (target: string, context: Record<string, unknown>) => void;
+  readonly onDrillDown?: (
+    target: string,
+    context: Record<string, unknown>,
+  ) => void;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -55,8 +60,7 @@ const SEVERITY_CLASSES: Record<IDerivedWarning['severity'], string> = {
     'bg-red-50 dark:bg-red-950 border-red-300 dark:border-red-800 text-red-900 dark:text-red-200',
   warning:
     'bg-amber-50 dark:bg-amber-950 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200',
-  info:
-    'bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-800 text-blue-900 dark:text-blue-200',
+  info: 'bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-800 text-blue-900 dark:text-blue-200',
 };
 
 const SEVERITY_BADGE: Record<IDerivedWarning['severity'], string> = {
@@ -205,7 +209,8 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
   );
 
   const chartData = useMemo(
-    () => filteredFinancialData.map((pt) => ({ date: pt.date, value: pt.balance })),
+    () =>
+      filteredFinancialData.map((pt) => ({ date: pt.date, value: pt.balance })),
     [filteredFinancialData],
   );
 
@@ -238,19 +243,19 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
   /* ---- render ---- */
   return (
     <main
-      className="p-4 md:p-6 lg:p-8 min-h-screen bg-gray-50 dark:bg-gray-900"
+      className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 dark:bg-gray-900"
       data-testid="campaign-dashboard"
       data-campaign-id={campaignId}
     >
       <h1
-        className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6"
+        className="mb-6 text-2xl font-bold text-gray-900 md:text-3xl dark:text-gray-100"
         data-testid="dashboard-title"
       >
         Campaign Dashboard
       </h1>
 
       <div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
         data-testid="dashboard-grid"
       >
         {/* ── 1. ROSTER ─────────────────────────────────────────────── */}
@@ -360,7 +365,7 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
 
         {/* ── 3. FINANCIAL ──────────────────────────────────────────── */}
         <section
-          className="col-span-1 md:col-span-2 space-y-3"
+          className="col-span-1 space-y-3 md:col-span-2"
           aria-label="Financial overview"
           data-testid="financial-section"
         >
@@ -380,29 +385,26 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
             className="shadow-md"
           />
 
-          <div
-            className="flex flex-wrap gap-3"
-            data-testid="financial-summary"
-          >
+          <div className="flex flex-wrap gap-3" data-testid="financial-summary">
             <KPICard
               label="Balance"
               value={formatCompactNumber(latestFinancial?.balance ?? 0)}
               comparisonDirection="neutral"
-              className="flex-1 min-w-[120px]"
+              className="min-w-[120px] flex-1"
               data-testid="financial-balance"
             />
             <KPICard
               label="Income"
               value={formatCompactNumber(latestFinancial?.income ?? 0)}
               comparisonDirection="up"
-              className="flex-1 min-w-[120px]"
+              className="min-w-[120px] flex-1"
               data-testid="financial-income"
             />
             <KPICard
               label="Expenses"
               value={formatCompactNumber(latestFinancial?.expenses ?? 0)}
               comparisonDirection="down"
-              className="flex-1 min-w-[120px]"
+              className="min-w-[120px] flex-1"
               data-testid="financial-expenses"
             />
           </div>
@@ -458,11 +460,11 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
 
         {/* ── 5. TOP PERFORMERS ─────────────────────────────────────── */}
         <section
-          className="col-span-1 md:col-span-2 lg:col-span-3 space-y-3"
+          className="col-span-1 space-y-3 md:col-span-2 lg:col-span-3"
           aria-label="Top performers"
           data-testid="top-performers-section"
         >
-          <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h2
               className="text-lg font-semibold text-gray-800 dark:text-gray-200"
               data-testid="section-heading"
@@ -471,7 +473,7 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
             </h2>
 
             <div
-              className="flex gap-1 rounded-lg bg-gray-200 dark:bg-gray-700 p-1"
+              className="flex gap-1 rounded-lg bg-gray-200 p-1 dark:bg-gray-700"
               role="group"
               aria-label="Sort performers by"
               data-testid="performer-sort-controls"
@@ -485,7 +487,7 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
                     announce(`Sorted by ${opt.label}`);
                   }}
                   className={[
-                    `px-3 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md transition-colors ${FOCUS_RING_CLASSES}`,
+                    `min-h-[44px] rounded-md px-3 py-2 text-sm transition-colors md:min-h-0 md:py-1 ${FOCUS_RING_CLASSES}`,
                     performerSortKey === opt.key
                       ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm font-medium'
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200',
@@ -501,7 +503,7 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
 
           {sortedPerformers.length === 0 ? (
             <p
-              className="text-gray-500 dark:text-gray-400 text-sm italic"
+              className="text-sm text-gray-500 italic dark:text-gray-400"
               data-testid="performers-empty"
             >
               No performance data available yet.
@@ -525,7 +527,7 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
 
         {/* ── 6. WARNINGS ───────────────────────────────────────────── */}
         <section
-          className="col-span-1 md:col-span-2 lg:col-span-4 space-y-3"
+          className="col-span-1 space-y-3 md:col-span-2 lg:col-span-4"
           aria-label="Campaign warnings"
           data-testid="warnings-section"
         >
@@ -543,7 +545,7 @@ export const CampaignDashboard: React.FC<ICampaignDashboardProps> = ({
           </div>
           {activeWarnings.length === 0 ? (
             <p
-              className="text-gray-500 dark:text-gray-400 text-sm italic"
+              className="text-sm text-gray-500 italic dark:text-gray-400"
               data-testid="warnings-empty"
             >
               No active warnings — all systems nominal.
@@ -587,14 +589,14 @@ const PerformerCard: React.FC<{
     data-testid="performer-card"
   >
     <p
-      className="font-semibold text-gray-900 dark:text-gray-100 truncate"
+      className="truncate font-semibold text-gray-900 dark:text-gray-100"
       data-testid="performer-name"
       title={performer.name}
     >
       {performer.name}
     </p>
     <p
-      className="text-xs text-gray-500 dark:text-gray-400 mb-2"
+      className="mb-2 text-xs text-gray-500 dark:text-gray-400"
       data-testid="performer-rank"
     >
       {performer.rank}
@@ -698,7 +700,7 @@ const WarningItem: React.FC<{
       type="button"
       onClick={() => onDismiss(warning.id)}
       className={[
-        `ml-2 p-2 min-h-[44px] min-w-[44px] md:p-1 md:min-h-0 md:min-w-0 rounded hover:bg-black/10 dark:hover:bg-white/10 ${FOCUS_RING_CLASSES}`,
+        `ml-2 min-h-[44px] min-w-[44px] rounded p-2 hover:bg-black/10 md:min-h-0 md:min-w-0 md:p-1 dark:hover:bg-white/10 ${FOCUS_RING_CLASSES}`,
         'transition-colors text-current opacity-60 hover:opacity-100 flex items-center justify-center',
       ].join(' ')}
       aria-label={`Dismiss warning: ${warning.message}`}

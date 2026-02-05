@@ -1,14 +1,14 @@
 /**
  * Equipment Calculator Service Tests
- * 
+ *
  * Tests for variable equipment property calculations.
  * Uses mock FormulaRegistry and FormulaEvaluator.
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  */
 
-import { EquipmentCalculatorService } from '@/services/equipment/EquipmentCalculatorService';
 import { createMockFormulaRegistry } from '@/__tests__/mocks/services/MockFormulaRegistry';
+import { EquipmentCalculatorService } from '@/services/equipment/EquipmentCalculatorService';
 import { FormulaEvaluator } from '@/services/equipment/FormulaEvaluator';
 import { IFormulaRegistry } from '@/services/equipment/FormulaRegistry';
 
@@ -18,7 +18,10 @@ describe('EquipmentCalculatorService', () => {
 
   beforeEach(() => {
     mockRegistry = createMockFormulaRegistry();
-    service = new EquipmentCalculatorService(mockRegistry, new FormulaEvaluator());
+    service = new EquipmentCalculatorService(
+      mockRegistry,
+      new FormulaEvaluator(),
+    );
   });
 
   // ============================================================================
@@ -103,12 +106,13 @@ describe('EquipmentCalculatorService', () => {
       // Cost = weight × 10000
 
       it.each([
-        [4, 1, 1, 10000],    // 4 tons → 1 ton, 1 slot, 10000 C-Bills
-        [8, 2, 2, 20000],    // 8 tons → 2 tons, 2 slots, 20000 C-Bills
-        [12, 3, 3, 30000],   // 12 tons → 3 tons
-        [16, 4, 4, 40000],   // 16 tons → 4 tons
-        [5, 2, 2, 20000],    // 5 tons → ceil(5/4) = 2 tons
-      ])('%d ton weapons: %d ton, %d slots, %d cost', 
+        [4, 1, 1, 10000], // 4 tons → 1 ton, 1 slot, 10000 C-Bills
+        [8, 2, 2, 20000], // 8 tons → 2 tons, 2 slots, 20000 C-Bills
+        [12, 3, 3, 30000], // 12 tons → 3 tons
+        [16, 4, 4, 40000], // 16 tons → 4 tons
+        [5, 2, 2, 20000], // 5 tons → ceil(5/4) = 2 tons
+      ])(
+        '%d ton weapons: %d ton, %d slots, %d cost',
         (weapons, expectedWeight, expectedSlots, expectedCost) => {
           const result = service.calculateProperties('targeting-computer-is', {
             directFireWeaponTonnage: weapons,
@@ -117,17 +121,17 @@ describe('EquipmentCalculatorService', () => {
           expect(result.weight).toBe(expectedWeight);
           expect(result.criticalSlots).toBe(expectedSlots);
           expect(result.costCBills).toBe(expectedCost);
-        }
+        },
       );
     });
 
     describe('Clan Targeting Computer', () => {
       // Weight = ceil(directFireWeaponTonnage / 5)
       it.each([
-        [5, 1],   // ceil(5/5) = 1
-        [10, 2],  // ceil(10/5) = 2
-        [15, 3],  // ceil(15/5) = 3
-        [6, 2],   // ceil(6/5) = 2
+        [5, 1], // ceil(5/5) = 1
+        [10, 2], // ceil(10/5) = 2
+        [15, 3], // ceil(15/5) = 3
+        [6, 2], // ceil(6/5) = 2
       ])('%d ton weapons: %d ton TC', (weapons, expectedWeight) => {
         const result = service.calculateProperties('targeting-computer-clan', {
           directFireWeaponTonnage: weapons,
@@ -146,38 +150,34 @@ describe('EquipmentCalculatorService', () => {
       // Slots = weight
 
       it.each([
-        [20, 1],    // 20 / 20 = 1.0 → 1 ton
-        [50, 3],    // 50 / 20 = 2.5 → 3 tons (rounds up at .5)
-        [75, 4],    // 75 / 20 = 3.75 → 4 tons
-        [85, 4],    // 85 / 20 = 4.25 → 4 tons (rounds down)
-        [90, 5],    // 90 / 20 = 4.5 → 5 tons (rounds up at .5)
-        [100, 5],   // 100 / 20 = 5.0 → 5 tons
-      ])('%d ton mech: %d ton MASC', 
-        (tonnage, expectedWeight) => {
-          const result = service.calculateProperties('masc-is', {
-            tonnage,
-          });
-          expect(result.weight).toBe(expectedWeight);
-          expect(result.criticalSlots).toBe(expectedWeight); // Slots = weight
-        }
-      );
+        [20, 1], // 20 / 20 = 1.0 → 1 ton
+        [50, 3], // 50 / 20 = 2.5 → 3 tons (rounds up at .5)
+        [75, 4], // 75 / 20 = 3.75 → 4 tons
+        [85, 4], // 85 / 20 = 4.25 → 4 tons (rounds down)
+        [90, 5], // 90 / 20 = 4.5 → 5 tons (rounds up at .5)
+        [100, 5], // 100 / 20 = 5.0 → 5 tons
+      ])('%d ton mech: %d ton MASC', (tonnage, expectedWeight) => {
+        const result = service.calculateProperties('masc-is', {
+          tonnage,
+        });
+        expect(result.weight).toBe(expectedWeight);
+        expect(result.criticalSlots).toBe(expectedWeight); // Slots = weight
+      });
     });
 
     describe('Clan MASC', () => {
       // Weight = tonnage / 25, rounded to nearest whole ton
       it.each([
-        [25, 1],   // 25 / 25 = 1.0 → 1 ton
-        [50, 2],   // 50 / 25 = 2.0 → 2 tons
-        [75, 3],   // 75 / 25 = 3.0 → 3 tons
-        [100, 4],  // 100 / 25 = 4.0 → 4 tons
-      ])('%d ton mech: %d ton Clan MASC',
-        (tonnage, expectedWeight) => {
-          const result = service.calculateProperties('masc-clan', {
-            tonnage,
-          });
-          expect(result.weight).toBe(expectedWeight);
-        }
-      );
+        [25, 1], // 25 / 25 = 1.0 → 1 ton
+        [50, 2], // 50 / 25 = 2.0 → 2 tons
+        [75, 3], // 75 / 25 = 3.0 → 3 tons
+        [100, 4], // 100 / 25 = 4.0 → 4 tons
+      ])('%d ton mech: %d ton Clan MASC', (tonnage, expectedWeight) => {
+        const result = service.calculateProperties('masc-clan', {
+          tonnage,
+        });
+        expect(result.weight).toBe(expectedWeight);
+      });
 
       it('should weigh less than IS MASC for same tonnage', () => {
         const isResult = service.calculateProperties('masc-is', {
@@ -186,7 +186,7 @@ describe('EquipmentCalculatorService', () => {
         const clanResult = service.calculateProperties('masc-clan', {
           tonnage: 75,
         });
-        
+
         expect(clanResult.weight).toBeLessThan(isResult.weight);
       });
     });
@@ -200,26 +200,24 @@ describe('EquipmentCalculatorService', () => {
     // Slots = 1 (fixed)
 
     it.each([
-      [3, 0.5],     // 3 ton engine: 0.3 → ceil to 0.5
-      [5, 0.5],     // 5 ton engine: 0.5 → 0.5
-      [8, 1],       // 8 ton engine: 0.8 → ceil to 1
-      [10, 1],      // 10 ton engine: 1.0 → 1
-      [12, 1.5],    // 12 ton engine: 1.2 → ceil to 1.5
-      [15, 1.5],    // 15 ton engine: 1.5 → 1.5
-      [19, 2],      // 19 ton engine: 1.9 → ceil to 2
-      [25, 2.5],    // 25 ton engine: 2.5 → 2.5
-      [35, 3.5],    // 35 ton engine: 3.5 → 3.5
-      [45, 4.5],    // 45 ton engine: 4.5 → 4.5
-      [52, 5.5],    // 52 ton engine: 5.2 → ceil to 5.5
-    ])('%d ton engine: %s ton Supercharger', 
-      (engineWeight, expectedWeight) => {
-        const result = service.calculateProperties('supercharger', {
-          engineWeight,
-        });
-        expect(result.weight).toBe(expectedWeight);
-        expect(result.criticalSlots).toBe(1); // Always 1 slot
-      }
-    );
+      [3, 0.5], // 3 ton engine: 0.3 → ceil to 0.5
+      [5, 0.5], // 5 ton engine: 0.5 → 0.5
+      [8, 1], // 8 ton engine: 0.8 → ceil to 1
+      [10, 1], // 10 ton engine: 1.0 → 1
+      [12, 1.5], // 12 ton engine: 1.2 → ceil to 1.5
+      [15, 1.5], // 15 ton engine: 1.5 → 1.5
+      [19, 2], // 19 ton engine: 1.9 → ceil to 2
+      [25, 2.5], // 25 ton engine: 2.5 → 2.5
+      [35, 3.5], // 35 ton engine: 3.5 → 3.5
+      [45, 4.5], // 45 ton engine: 4.5 → 4.5
+      [52, 5.5], // 52 ton engine: 5.2 → ceil to 5.5
+    ])('%d ton engine: %s ton Supercharger', (engineWeight, expectedWeight) => {
+      const result = service.calculateProperties('supercharger', {
+        engineWeight,
+      });
+      expect(result.weight).toBe(expectedWeight);
+      expect(result.criticalSlots).toBe(1); // Always 1 slot
+    });
   });
 
   // ============================================================================
@@ -232,18 +230,19 @@ describe('EquipmentCalculatorService', () => {
       // Damage = ceil(tonnage / 5)
 
       it.each([
-        [20, 2, 2, 4],     // 20 tons: weight 2, slots 2, damage 4
-        [50, 4, 4, 10],    // 50 tons: weight 4, slots 4, damage 10
-        [75, 5, 5, 15],    // 75 tons: weight 5, slots 5, damage 15
-        [100, 7, 7, 20],   // 100 tons: weight 7, slots 7, damage 20
-      ])('%d ton mech: %d ton, %d slots, %d damage', 
+        [20, 2, 2, 4], // 20 tons: weight 2, slots 2, damage 4
+        [50, 4, 4, 10], // 50 tons: weight 4, slots 4, damage 10
+        [75, 5, 5, 15], // 75 tons: weight 5, slots 5, damage 15
+        [100, 7, 7, 20], // 100 tons: weight 7, slots 7, damage 20
+      ])(
+        '%d ton mech: %d ton, %d slots, %d damage',
         (tonnage, expectedWeight, expectedSlots, expectedDamage) => {
           const result = service.calculateProperties('hatchet', { tonnage });
 
           expect(result.weight).toBe(expectedWeight);
           expect(result.criticalSlots).toBe(expectedSlots);
           expect(result.damage).toBe(expectedDamage);
-        }
+        },
       );
     });
 
@@ -253,17 +252,18 @@ describe('EquipmentCalculatorService', () => {
       // Damage = floor(tonnage / 10) + 1
 
       it.each([
-        [50, 4, 4, 6],     // 50 tons: weight ceil(50/15)=4, slots 4, damage floor(50/10)+1=6
-        [75, 5, 5, 8],     // 75 tons: weight ceil(75/15)=5, slots 5, damage floor(75/10)+1=8
-        [100, 7, 7, 11],   // 100 tons: weight ceil(100/15)=7, slots 7, damage floor(100/10)+1=11
-      ])('%d ton mech: %d ton, %d slots, %d damage', 
+        [50, 4, 4, 6], // 50 tons: weight ceil(50/15)=4, slots 4, damage floor(50/10)+1=6
+        [75, 5, 5, 8], // 75 tons: weight ceil(75/15)=5, slots 5, damage floor(75/10)+1=8
+        [100, 7, 7, 11], // 100 tons: weight ceil(100/15)=7, slots 7, damage floor(100/10)+1=11
+      ])(
+        '%d ton mech: %d ton, %d slots, %d damage',
         (tonnage, expectedWeight, expectedSlots, expectedDamage) => {
           const result = service.calculateProperties('sword', { tonnage });
 
           expect(result.weight).toBe(expectedWeight);
           expect(result.criticalSlots).toBe(expectedSlots);
           expect(result.damage).toBe(expectedDamage);
-        }
+        },
       );
     });
   });
@@ -277,17 +277,20 @@ describe('EquipmentCalculatorService', () => {
     // Cost = engineWeight × 10000
 
     it.each([
-      [8.5, 1, 1, 85000],    // 8.5 × 0.1 = 0.85 → ceil to 1.0
-      [19, 2, 1, 190000],    // 19 × 0.1 = 1.9 → ceil to 2.0
-      [52.5, 5.5, 1, 525000],  // 52.5 × 0.1 = 5.25 → ceil to 5.5
-    ])('engine weight %d: %d ton, %d slot, %d cost', 
+      [8.5, 1, 1, 85000], // 8.5 × 0.1 = 0.85 → ceil to 1.0
+      [19, 2, 1, 190000], // 19 × 0.1 = 1.9 → ceil to 2.0
+      [52.5, 5.5, 1, 525000], // 52.5 × 0.1 = 5.25 → ceil to 5.5
+    ])(
+      'engine weight %d: %d ton, %d slot, %d cost',
       (engineWeight, expectedWeight, expectedSlots, expectedCost) => {
-        const result = service.calculateProperties('supercharger', { engineWeight });
+        const result = service.calculateProperties('supercharger', {
+          engineWeight,
+        });
 
         expect(result.weight).toBe(expectedWeight);
         expect(result.criticalSlots).toBe(expectedSlots);
         expect(result.costCBills).toBe(expectedCost);
-      }
+      },
     );
   });
 
@@ -296,28 +299,28 @@ describe('EquipmentCalculatorService', () => {
   // ============================================================================
   describe('Error Handling', () => {
     it('should throw for unknown equipment', () => {
-      expect(() => 
-        service.calculateProperties('unknown-equipment', {})
+      expect(() =>
+        service.calculateProperties('unknown-equipment', {}),
       ).toThrow('Unknown variable equipment');
     });
 
     it('should throw for missing required context', () => {
-      expect(() => 
-        service.calculateProperties('targeting-computer-is', {})
+      expect(() =>
+        service.calculateProperties('targeting-computer-is', {}),
       ).toThrow('Missing required context');
     });
 
     it('should throw for partial context (targeting computer)', () => {
       // Targeting computer requires directFireWeaponTonnage
-      expect(() => 
-        service.calculateProperties('targeting-computer-is', { tonnage: 75 })
+      expect(() =>
+        service.calculateProperties('targeting-computer-is', { tonnage: 75 }),
       ).toThrow('Missing required context');
     });
 
     it('should not throw for MASC with only tonnage', () => {
       // MASC now only requires tonnage (not engine rating)
-      expect(() => 
-        service.calculateProperties('masc-is', { tonnage: 75 })
+      expect(() =>
+        service.calculateProperties('masc-is', { tonnage: 75 }),
       ).not.toThrow();
     });
   });
@@ -334,7 +337,7 @@ describe('EquipmentCalculatorService', () => {
       expect(result).toHaveProperty('weight');
       expect(result).toHaveProperty('criticalSlots');
       expect(result).toHaveProperty('costCBills');
-      
+
       expect(typeof result.weight).toBe('number');
       expect(typeof result.criticalSlots).toBe('number');
       expect(typeof result.costCBills).toBe('number');
@@ -354,4 +357,3 @@ describe('EquipmentCalculatorService', () => {
     });
   });
 });
-

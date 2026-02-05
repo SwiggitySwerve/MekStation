@@ -7,10 +7,10 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.2
  */
 
-import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { TechBase } from '@/types/enums/TechBase';
 import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   InfantryArmorKit,
   InfantrySpecialization,
@@ -174,7 +174,10 @@ export interface InfantryStoreActions {
 
   // Weapon Actions
   setPrimaryWeapon: (weapon: string, equipmentId?: string) => void;
-  setSecondaryWeapon: (weapon: string | undefined, equipmentId?: string) => void;
+  setSecondaryWeapon: (
+    weapon: string | undefined,
+    equipmentId?: string,
+  ) => void;
   setSecondaryWeaponCount: (count: number) => void;
 
   // Protection Actions
@@ -222,7 +225,7 @@ export interface CreateInfantryOptions {
  * Create a default Infantry state
  */
 export function createDefaultInfantryState(
-  options: CreateInfantryOptions = {}
+  options: CreateInfantryOptions = {},
 ): InfantryState {
   const now = Date.now();
   const id = options.id ?? generateUUID();

@@ -1,14 +1,18 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+
 import { ValidationSummary } from '@/components/customizer/shared/ValidationSummary';
 import { UnitValidationState } from '@/hooks/useUnitValidation';
-import { UnitValidationSeverity, IUnitValidationResult } from '@/types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
+import {
+  UnitValidationSeverity,
+  IUnitValidationResult,
+} from '@/types/validation/UnitValidationInterfaces';
 import { UnitCategory } from '@/types/validation/UnitValidationInterfaces';
 
 const createMockValidationState = (
-  overrides: Partial<UnitValidationState> = {}
+  overrides: Partial<UnitValidationState> = {},
 ): UnitValidationState => ({
   status: 'valid',
   errorCount: 0,
@@ -23,11 +27,17 @@ const createMockValidationState = (
 });
 
 const createMockResult = (
-  errors: Array<{ message: string; category: ValidationCategory; severity?: UnitValidationSeverity }> = [],
-  warnings: Array<{ message: string; category: ValidationCategory }> = []
+  errors: Array<{
+    message: string;
+    category: ValidationCategory;
+    severity?: UnitValidationSeverity;
+  }> = [],
+  warnings: Array<{ message: string; category: ValidationCategory }> = [],
 ): IUnitValidationResult => ({
   isValid: errors.length === 0,
-  hasCriticalErrors: errors.some(e => e.severity === UnitValidationSeverity.CRITICAL_ERROR),
+  hasCriticalErrors: errors.some(
+    (e) => e.severity === UnitValidationSeverity.CRITICAL_ERROR,
+  ),
   results: [
     {
       ruleId: 'test-rule',
@@ -51,7 +61,9 @@ const createMockResult = (
       executionTime: 0,
     },
   ],
-  criticalErrorCount: errors.filter(e => e.severity === UnitValidationSeverity.CRITICAL_ERROR).length,
+  criticalErrorCount: errors.filter(
+    (e) => e.severity === UnitValidationSeverity.CRITICAL_ERROR,
+  ).length,
   errorCount: errors.length,
   warningCount: warnings.length,
   infoCount: 0,
@@ -67,7 +79,7 @@ describe('ValidationSummary', () => {
     it('should show green valid badge', () => {
       const validation = createMockValidationState({ isValid: true });
       render(<ValidationSummary validation={validation} />);
-      
+
       expect(screen.getByText('✓')).toBeInTheDocument();
       expect(screen.getByText('Valid')).toBeInTheDocument();
     });
@@ -85,9 +97,9 @@ describe('ValidationSummary', () => {
           { message: 'Error 3', category: ValidationCategory.SLOTS },
         ]),
       });
-      
+
       render(<ValidationSummary validation={validation} />);
-      
+
       expect(screen.getByText('❌')).toBeInTheDocument();
       expect(screen.getByText('3')).toBeInTheDocument();
     });
@@ -100,12 +112,12 @@ describe('ValidationSummary', () => {
           { message: 'Test error message', category: ValidationCategory.ARMOR },
         ]),
       });
-      
+
       render(<ValidationSummary validation={validation} />);
-      
+
       const button = screen.getByRole('button');
       fireEvent.click(button);
-      
+
       expect(screen.getByText('Validation Issues')).toBeInTheDocument();
       expect(screen.getByText('Test error message')).toBeInTheDocument();
     });
@@ -118,11 +130,11 @@ describe('ValidationSummary', () => {
           { message: 'Armor issue', category: ValidationCategory.ARMOR },
         ]),
       });
-      
+
       render(<ValidationSummary validation={validation} />);
-      
+
       fireEvent.click(screen.getByRole('button'));
-      
+
       expect(screen.getByText(/Go to Armor/)).toBeInTheDocument();
     });
   });
@@ -133,14 +145,17 @@ describe('ValidationSummary', () => {
         isValid: true,
         errorCount: 0,
         warningCount: 2,
-        result: createMockResult([], [
-          { message: 'Warning 1', category: ValidationCategory.ARMOR },
-          { message: 'Warning 2', category: ValidationCategory.EQUIPMENT },
-        ]),
+        result: createMockResult(
+          [],
+          [
+            { message: 'Warning 1', category: ValidationCategory.ARMOR },
+            { message: 'Warning 2', category: ValidationCategory.EQUIPMENT },
+          ],
+        ),
       });
-      
+
       render(<ValidationSummary validation={validation} />);
-      
+
       // Should show warning icon and count, not "Valid"
       expect(screen.getByText('⚠️')).toBeInTheDocument();
       expect(screen.getByText('2')).toBeInTheDocument();
@@ -152,16 +167,17 @@ describe('ValidationSummary', () => {
         isValid: true,
         errorCount: 0,
         warningCount: 1,
-        result: createMockResult([], [
-          { message: 'Warning message', category: ValidationCategory.ARMOR },
-        ]),
+        result: createMockResult(
+          [],
+          [{ message: 'Warning message', category: ValidationCategory.ARMOR }],
+        ),
       });
-      
+
       render(<ValidationSummary validation={validation} />);
-      
+
       const button = screen.getByRole('button');
       fireEvent.click(button);
-      
+
       expect(screen.getByText('Validation Issues')).toBeInTheDocument();
       expect(screen.getByText('Warning message')).toBeInTheDocument();
     });
@@ -177,14 +193,16 @@ describe('ValidationSummary', () => {
           { message: 'Armor error', category: ValidationCategory.ARMOR },
         ]),
       });
-      
-      render(<ValidationSummary validation={validation} onNavigate={onNavigate} />);
-      
+
+      render(
+        <ValidationSummary validation={validation} onNavigate={onNavigate} />,
+      );
+
       fireEvent.click(screen.getByRole('button'));
-      
+
       const errorItem = screen.getByText('Armor error').closest('button');
       fireEvent.click(errorItem!);
-      
+
       expect(onNavigate).toHaveBeenCalledWith('armor');
     });
 
@@ -197,15 +215,17 @@ describe('ValidationSummary', () => {
           { message: 'Armor error', category: ValidationCategory.ARMOR },
         ]),
       });
-      
-      render(<ValidationSummary validation={validation} onNavigate={onNavigate} />);
-      
+
+      render(
+        <ValidationSummary validation={validation} onNavigate={onNavigate} />,
+      );
+
       fireEvent.click(screen.getByRole('button'));
       expect(screen.getByText('Validation Issues')).toBeInTheDocument();
-      
+
       const errorItem = screen.getByText('Armor error').closest('button');
       fireEvent.click(errorItem!);
-      
+
       expect(screen.queryByText('Validation Issues')).not.toBeInTheDocument();
     });
   });
@@ -228,11 +248,11 @@ describe('ValidationSummary', () => {
           { message: 'Error 10', category: ValidationCategory.ARMOR },
         ]),
       });
-      
+
       render(<ValidationSummary validation={validation} maxItems={3} />);
-      
+
       fireEvent.click(screen.getByRole('button'));
-      
+
       expect(screen.getByText('Error 1')).toBeInTheDocument();
       expect(screen.getByText('Error 2')).toBeInTheDocument();
       expect(screen.getByText('Error 3')).toBeInTheDocument();
@@ -247,19 +267,33 @@ describe('ValidationSummary', () => {
         isValid: false,
         errorCount: 2,
         result: createMockResult([
-          { message: 'Regular error', category: ValidationCategory.ARMOR, severity: UnitValidationSeverity.ERROR },
-          { message: 'Critical error', category: ValidationCategory.WEIGHT, severity: UnitValidationSeverity.CRITICAL_ERROR },
+          {
+            message: 'Regular error',
+            category: ValidationCategory.ARMOR,
+            severity: UnitValidationSeverity.ERROR,
+          },
+          {
+            message: 'Critical error',
+            category: ValidationCategory.WEIGHT,
+            severity: UnitValidationSeverity.CRITICAL_ERROR,
+          },
         ]),
       });
-      
+
       render(<ValidationSummary validation={validation} />);
-      
+
       fireEvent.click(screen.getByRole('button'));
-      
-      const items = screen.getAllByRole('button').filter(b => b.textContent?.includes('error'));
-      const criticalIndex = items.findIndex(i => i.textContent?.includes('Critical'));
-      const regularIndex = items.findIndex(i => i.textContent?.includes('Regular'));
-      
+
+      const items = screen
+        .getAllByRole('button')
+        .filter((b) => b.textContent?.includes('error'));
+      const criticalIndex = items.findIndex((i) =>
+        i.textContent?.includes('Critical'),
+      );
+      const regularIndex = items.findIndex((i) =>
+        i.textContent?.includes('Regular'),
+      );
+
       expect(criticalIndex).toBeLessThan(regularIndex);
     });
   });

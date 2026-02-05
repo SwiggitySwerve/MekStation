@@ -5,14 +5,9 @@
  * aggregate results, and handle filtering options.
  */
 
-import {
-  UnitValidationOrchestrator,
-  getUnitValidationOrchestrator,
-  resetUnitValidationOrchestrator,
-  validateUnit,
-} from '../UnitValidationOrchestrator';
-import { UnitValidationRegistry, resetUnitValidationRegistry } from '../UnitValidationRegistry';
+import { TechBase, RulesLevel, Era } from '@/types/enums';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   UnitCategory,
   IValidatableUnit,
@@ -22,14 +17,25 @@ import {
   createUnitValidationRuleResult,
   createPassingResult,
 } from '@/types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
-import { TechBase, RulesLevel, Era } from '@/types/enums';
+
+import {
+  UnitValidationOrchestrator,
+  getUnitValidationOrchestrator,
+  resetUnitValidationOrchestrator,
+  validateUnit,
+} from '../UnitValidationOrchestrator';
+import {
+  UnitValidationRegistry,
+  resetUnitValidationRegistry,
+} from '../UnitValidationRegistry';
 
 // =============================================================================
 // Test Helpers
 // =============================================================================
 
-function createTestUnit(overrides: Partial<IValidatableUnit> = {}): IValidatableUnit {
+function createTestUnit(
+  overrides: Partial<IValidatableUnit> = {},
+): IValidatableUnit {
   return {
     id: 'test-unit-1',
     name: 'Test Mech',
@@ -45,7 +51,10 @@ function createTestUnit(overrides: Partial<IValidatableUnit> = {}): IValidatable
   };
 }
 
-function createPassingRule(id: string, category: ValidationCategory = ValidationCategory.WEIGHT): IUnitValidationRuleDefinition {
+function createPassingRule(
+  id: string,
+  category: ValidationCategory = ValidationCategory.WEIGHT,
+): IUnitValidationRuleDefinition {
   return {
     id,
     name: `Passing Rule ${id}`,
@@ -59,7 +68,7 @@ function createPassingRule(id: string, category: ValidationCategory = Validation
 function createFailingRule(
   id: string,
   severity: UnitValidationSeverity = UnitValidationSeverity.ERROR,
-  category: ValidationCategory = ValidationCategory.WEIGHT
+  category: ValidationCategory = ValidationCategory.WEIGHT,
 ): IUnitValidationRuleDefinition {
   return {
     id,
@@ -77,17 +86,20 @@ function createFailingRule(
             `Failing Rule ${id}`,
             severity,
             category,
-            `Validation failed for ${id}`
+            `Validation failed for ${id}`,
           ),
         ],
         [],
         [],
-        1
+        1,
       ),
   };
 }
 
-function createWarningRule(id: string, category: ValidationCategory = ValidationCategory.WEIGHT): IUnitValidationRuleDefinition {
+function createWarningRule(
+  id: string,
+  category: ValidationCategory = ValidationCategory.WEIGHT,
+): IUnitValidationRuleDefinition {
   return {
     id,
     name: `Warning Rule ${id}`,
@@ -105,11 +117,11 @@ function createWarningRule(id: string, category: ValidationCategory = Validation
             `Warning Rule ${id}`,
             UnitValidationSeverity.WARNING,
             category,
-            `Warning for ${id}`
+            `Warning for ${id}`,
           ),
         ],
         [],
-        1
+        1,
       ),
   };
 }
@@ -165,7 +177,7 @@ describe('UnitValidationOrchestrator', () => {
 
     it('should detect critical errors', () => {
       registry.registerUniversalRule(
-        createFailingRule('CRIT-001', UnitValidationSeverity.CRITICAL_ERROR)
+        createFailingRule('CRIT-001', UnitValidationSeverity.CRITICAL_ERROR),
       );
 
       const unit = createTestUnit();
@@ -214,14 +226,23 @@ describe('UnitValidationOrchestrator', () => {
   describe('rule filtering', () => {
     it('should filter rules by unit type', () => {
       registry.registerUniversalRule(createPassingRule('UNIV-001'));
-      registry.registerUnitTypeRule(UnitType.BATTLEMECH, createPassingRule('BM-001'));
-      registry.registerUnitTypeRule(UnitType.VEHICLE, createPassingRule('VEH-001'));
+      registry.registerUnitTypeRule(
+        UnitType.BATTLEMECH,
+        createPassingRule('BM-001'),
+      );
+      registry.registerUnitTypeRule(
+        UnitType.VEHICLE,
+        createPassingRule('VEH-001'),
+      );
 
       const mechUnit = createTestUnit({ unitType: UnitType.BATTLEMECH });
       const result = orchestrator.validate(mechUnit);
 
       // Should have universal + mech-specific rules, not vehicle rule
-      expect(result.results.map((r) => r.ruleId).sort()).toEqual(['BM-001', 'UNIV-001']);
+      expect(result.results.map((r) => r.ruleId).sort()).toEqual([
+        'BM-001',
+        'UNIV-001',
+      ]);
     });
 
     it('should skip rules by ID', () => {
@@ -233,20 +254,32 @@ describe('UnitValidationOrchestrator', () => {
       const result = orchestrator.validate(unit, { skipRules: ['SKIP-ME'] });
 
       expect(result.isValid).toBe(true);
-      expect(result.results.map((r) => r.ruleId).sort()).toEqual(['PASS-001', 'PASS-002']);
+      expect(result.results.map((r) => r.ruleId).sort()).toEqual([
+        'PASS-001',
+        'PASS-002',
+      ]);
     });
 
     it('should filter rules by validation category', () => {
-      registry.registerUniversalRule(createPassingRule('WEIGHT-001', ValidationCategory.WEIGHT));
-      registry.registerUniversalRule(createPassingRule('ARMOR-001', ValidationCategory.ARMOR));
-      registry.registerUniversalRule(createPassingRule('SLOTS-001', ValidationCategory.SLOTS));
+      registry.registerUniversalRule(
+        createPassingRule('WEIGHT-001', ValidationCategory.WEIGHT),
+      );
+      registry.registerUniversalRule(
+        createPassingRule('ARMOR-001', ValidationCategory.ARMOR),
+      );
+      registry.registerUniversalRule(
+        createPassingRule('SLOTS-001', ValidationCategory.SLOTS),
+      );
 
       const unit = createTestUnit();
       const result = orchestrator.validate(unit, {
         categories: [ValidationCategory.WEIGHT, ValidationCategory.ARMOR],
       });
 
-      expect(result.results.map((r) => r.ruleId).sort()).toEqual(['ARMOR-001', 'WEIGHT-001']);
+      expect(result.results.map((r) => r.ruleId).sort()).toEqual([
+        'ARMOR-001',
+        'WEIGHT-001',
+      ]);
     });
 
     it('should respect canValidate returning false', () => {
@@ -353,11 +386,22 @@ describe('UnitValidationOrchestrator', () => {
 
   describe('validateCategory', () => {
     it('should validate only rules from specified category', () => {
-      registry.registerUniversalRule(createPassingRule('WEIGHT-001', ValidationCategory.WEIGHT));
-      registry.registerUniversalRule(createFailingRule('ARMOR-001', UnitValidationSeverity.ERROR, ValidationCategory.ARMOR));
+      registry.registerUniversalRule(
+        createPassingRule('WEIGHT-001', ValidationCategory.WEIGHT),
+      );
+      registry.registerUniversalRule(
+        createFailingRule(
+          'ARMOR-001',
+          UnitValidationSeverity.ERROR,
+          ValidationCategory.ARMOR,
+        ),
+      );
 
       const unit = createTestUnit();
-      const result = orchestrator.validateCategory(unit, ValidationCategory.WEIGHT);
+      const result = orchestrator.validateCategory(
+        unit,
+        ValidationCategory.WEIGHT,
+      );
 
       expect(result.isValid).toBe(true);
       expect(result.results.length).toBe(1);
@@ -424,7 +468,9 @@ describe('UnitValidationOrchestrator', () => {
 
       expect(result.isValid).toBe(false);
       expect(result.errorCount).toBe(1);
-      expect(result.results[0].errors[0].message).toContain('Rule execution failed');
+      expect(result.results[0].errors[0].message).toContain(
+        'Rule execution failed',
+      );
     });
   });
 

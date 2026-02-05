@@ -36,7 +36,11 @@ export interface CategoryFilterConfig {
 export const CATEGORY_FILTERS: CategoryFilterConfig[] = [
   { category: 'ALL', label: 'All', icon: '∑' },
   { category: EquipmentCategory.ENERGY_WEAPON, label: 'Energy', icon: '⚡' },
-  { category: EquipmentCategory.BALLISTIC_WEAPON, label: 'Ballistic', icon: '🎯' },
+  {
+    category: EquipmentCategory.BALLISTIC_WEAPON,
+    label: 'Ballistic',
+    icon: '🎯',
+  },
   { category: EquipmentCategory.MISSILE_WEAPON, label: 'Missile', icon: '🚀' },
   { category: EquipmentCategory.AMMUNITION, label: 'Ammo', icon: '📦' },
   { category: EquipmentCategory.ELECTRONICS, label: 'Elec', icon: '📡' },
@@ -53,7 +57,7 @@ export const OTHER_CATEGORIES: EquipmentCategory[] = [
 ];
 
 export function groupByCategory<T extends { category: EquipmentCategory }>(
-  equipment: T[]
+  equipment: T[],
 ): Map<EquipmentCategory, T[]> {
   const groups = new Map<EquipmentCategory, T[]>();
   for (const item of equipment) {

@@ -4,14 +4,13 @@
  * @spec openspec/changes/add-scenario-generators/spec.md
  */
 
-
-import { Era } from '../../../types/temporal/Era';
+import { Faction } from '../../../constants/scenario/rats';
 import { BiomeType, ScenarioObjectiveType } from '../../../types/scenario';
+import { Era } from '../../../types/temporal/Era';
 import {
   ScenarioGeneratorService,
   scenarioGenerator,
 } from '../ScenarioGeneratorService';
-import { Faction } from '../../../constants/scenario/rats';
 
 describe('ScenarioGeneratorService', () => {
   let service: ScenarioGeneratorService;
@@ -180,7 +179,9 @@ describe('ScenarioGeneratorService', () => {
       });
 
       // Hard should have higher target BV
-      expect(hardResult.opFor.targetBV).toBeGreaterThan(easyResult.opFor.targetBV);
+      expect(hardResult.opFor.targetBV).toBeGreaterThan(
+        easyResult.opFor.targetBV,
+      );
     });
   });
 
@@ -190,7 +191,7 @@ describe('ScenarioGeneratorService', () => {
 
       expect(templates).toBeDefined();
       expect(templates.length).toBeGreaterThan(0);
-      
+
       // Check we have expected templates
       const ids = templates.map((t) => t.id);
       expect(ids).toContain('standup_fight');
@@ -232,7 +233,7 @@ describe('ScenarioGeneratorService', () => {
 
       expect(presets).toBeDefined();
       expect(presets.length).toBeGreaterThan(0);
-      
+
       for (const preset of presets) {
         expect(preset.biome).toBe(BiomeType.Urban);
       }
@@ -241,7 +242,7 @@ describe('ScenarioGeneratorService', () => {
     it('should return empty array for biome with no presets', () => {
       // Create a new service instance to test
       const presets = service.getMapPresetsForBiome(BiomeType.Plains);
-      
+
       // Plains has presets, so this should return some
       expect(presets.length).toBeGreaterThan(0);
     });

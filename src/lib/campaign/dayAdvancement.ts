@@ -14,18 +14,19 @@
  */
 
 import { ICampaign } from '@/types/campaign/Campaign';
-import { IPerson, IInjury } from '@/types/campaign/Person';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
+import { getAllUnits } from '@/types/campaign/Force';
 import { IContract, isContract, IMission } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
-import { getAllUnits } from '@/types/campaign/Force';
+import { IPerson, IInjury } from '@/types/campaign/Person';
 import { Transaction } from '@/types/campaign/Transaction';
-import { TransactionType } from '@/types/campaign/enums/TransactionType';
+
 import { IDayPipelineResult, IDayEvent } from './dayPipeline';
+import { getBestAvailableDoctor } from './medical/doctorCapacity';
 import { MedicalSystem } from './medical/medicalTypes';
 import { performMedicalCheck } from './medical/performMedicalCheck';
-import { getBestAvailableDoctor } from './medical/doctorCapacity';
 
 // =============================================================================
 // Constants
@@ -95,7 +96,12 @@ export interface TurnoverDepartureEvent {
   readonly roll: number;
   readonly targetNumber: number;
   readonly payoutAmount: number;
-  readonly modifiers: readonly { modifierId: string; displayName: string; value: number; isStub: boolean }[];
+  readonly modifiers: readonly {
+    modifierId: string;
+    displayName: string;
+    value: number;
+    isStub: boolean;
+  }[];
 }
 
 export interface DayReport {
@@ -128,7 +134,7 @@ export interface DayReport {
  */
 export function processHealing(
   personnel: Map<string, IPerson>,
-  campaign?: ICampaign
+  campaign?: ICampaign,
 ): {
   personnel: Map<string, IPerson>;
   events: HealedPersonEvent[];
@@ -137,7 +143,8 @@ export function processHealing(
   const events: HealedPersonEvent[] = [];
 
   // Get medical system from campaign options, default to STANDARD
-  const medicalSystem = campaign?.options.medicalSystem ?? MedicalSystem.STANDARD;
+  const medicalSystem =
+    campaign?.options.medicalSystem ?? MedicalSystem.STANDARD;
   const personnelArray = Array.from(personnel.values());
 
   Array.from(personnel.entries()).forEach(([id, person]) => {
@@ -159,11 +166,20 @@ export function processHealing(
       }
 
       // Get assigned doctor for this patient
-      const doctor = campaign ? getBestAvailableDoctor(person, personnelArray, campaign.options) : null;
+      const doctor = campaign
+        ? getBestAvailableDoctor(person, personnelArray, campaign.options)
+        : null;
 
       // Perform medical check using selected system
       const medicalResult = campaign
-        ? performMedicalCheck(medicalSystem, person, injury, doctor, campaign.options, Math.random)
+        ? performMedicalCheck(
+            medicalSystem,
+            person,
+            injury,
+            doctor,
+            campaign.options,
+            Math.random,
+          )
         : null;
 
       // Calculate healing days reduced
@@ -187,7 +203,8 @@ export function processHealing(
     // Check if person should return to active duty
     const hasHealableInjuries = updatedInjuries.some((i) => !i.permanent);
     const fullyHealed = !hasHealableInjuries && newDaysToWait === 0;
-    const returnedToActive = fullyHealed && person.status === PersonnelStatus.WOUNDED;
+    const returnedToActive =
+      fullyHealed && person.status === PersonnelStatus.WOUNDED;
 
     const updatedPerson: IPerson = {
       ...person,
@@ -226,9 +243,7 @@ export function processHealing(
  * @param campaign - The campaign to process
  * @returns Updated missions map and expiration events
  */
-export function processContracts(
-  campaign: ICampaign
-): {
+export function processContracts(campaign: ICampaign): {
   missions: Map<string, IMission>;
   events: ExpiredContractEvent[];
 } {
@@ -280,9 +295,7 @@ export function processContracts(
  * @param campaign - The campaign to process
  * @returns Updated finances and cost breakdown
  */
-export function processDailyCosts(
-  campaign: ICampaign
-): {
+export function processDailyCosts(campaign: ICampaign): {
   finances: { transactions: Transaction[]; balance: Money };
   costs: DailyCostBreakdown;
 } {
@@ -295,7 +308,7 @@ export function processDailyCosts(
     (p) =>
       p.status !== PersonnelStatus.KIA &&
       p.status !== PersonnelStatus.RETIRED &&
-      p.status !== PersonnelStatus.DESERTED
+      p.status !== PersonnelStatus.DESERTED,
   );
   const personnelCount = activePersonnel.length;
 
@@ -303,7 +316,7 @@ export function processDailyCosts(
   let salaries = Money.ZERO;
   if (options.payForSalaries && personnelCount > 0) {
     const dailySalaryPerPerson = new Money(
-      DEFAULT_DAILY_SALARY * options.salaryMultiplier
+      DEFAULT_DAILY_SALARY * options.salaryMultiplier,
     );
     salaries = dailySalaryPerPerson.multiply(personnelCount);
 
@@ -330,7 +343,7 @@ export function processDailyCosts(
   let maintenance = Money.ZERO;
   if (options.payForMaintenance && unitCount > 0) {
     const dailyMaintenancePerUnit = new Money(
-      DEFAULT_DAILY_MAINTENANCE * options.maintenanceCostMultiplier
+      DEFAULT_DAILY_MAINTENANCE * options.maintenanceCostMultiplier,
     );
     maintenance = dailyMaintenancePerUnit.multiply(unitCount);
 
@@ -452,12 +465,14 @@ export function advanceDays(campaign: ICampaign, count: number): DayReport[] {
 // =============================================================================
 
 // Helper to safely cast event data to specific types
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line @typescript-eslint/no-explicit-any
 function castEventData<T>(data: any): T {
   return data as T;
 }
 
-export function convertToLegacyDayReport(result: IDayPipelineResult): DayReport {
+export function convertToLegacyDayReport(
+  result: IDayPipelineResult,
+): DayReport {
   const healedPersonnel: HealedPersonEvent[] = result.events
     .filter((e: IDayEvent) => e.type === 'healing')
     .map((e: IDayEvent) => castEventData<HealedPersonEvent>(e.data));
@@ -466,7 +481,9 @@ export function convertToLegacyDayReport(result: IDayPipelineResult): DayReport 
     .filter((e: IDayEvent) => e.type === 'contract_expired')
     .map((e: IDayEvent) => castEventData<ExpiredContractEvent>(e.data));
 
-  const costEvent = result.events.find((e: IDayEvent) => e.type === 'daily_costs');
+  const costEvent = result.events.find(
+    (e: IDayEvent) => e.type === 'daily_costs',
+  );
   const costs: DailyCostBreakdown = costEvent?.data
     ? castEventData<DailyCostBreakdown>(costEvent.data)
     : {
@@ -488,7 +505,8 @@ export function convertToLegacyDayReport(result: IDayPipelineResult): DayReport 
         roll: data.roll as number,
         targetNumber: data.targetNumber as number,
         payoutAmount: data.payout as number,
-        modifiers: (data.modifiers as TurnoverDepartureEvent['modifiers']) ?? [],
+        modifiers:
+          (data.modifiers as TurnoverDepartureEvent['modifiers']) ?? [],
       };
     });
 
@@ -504,7 +522,7 @@ export function convertToLegacyDayReport(result: IDayPipelineResult): DayReport 
 
 export function advanceDayViaPipeline(
   campaign: ICampaign,
-  pipeline: { processDay(campaign: ICampaign): IDayPipelineResult }
+  pipeline: { processDay(campaign: ICampaign): IDayPipelineResult },
 ): DayReport {
   const result = pipeline.processDay(campaign);
   return convertToLegacyDayReport(result);

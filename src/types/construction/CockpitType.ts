@@ -1,13 +1,13 @@
 /**
  * Cockpit Type Definitions
- * 
+ *
  * Defines all standard BattleTech cockpit types.
- * 
+ *
  * @spec openspec/specs/cockpit-system/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 
 /**
  * Cockpit type enumeration
@@ -119,7 +119,8 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
 /**
  * Get cockpit definition by type
  */
-export function getCockpitDefinition(type: CockpitType): CockpitDefinition | undefined {
-  return COCKPIT_DEFINITIONS.find(def => def.type === type);
+export function getCockpitDefinition(
+  type: CockpitType,
+): CockpitDefinition | undefined {
+  return COCKPIT_DEFINITIONS.find((def) => def.type === type);
 }
-

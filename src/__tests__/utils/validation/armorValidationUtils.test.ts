@@ -4,6 +4,8 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import {
   buildArmorByLocation,
   getExpectedTorsoArmorMax,
@@ -12,8 +14,6 @@ import {
   REAR_ARMOR_RATIO,
   IArmorAllocationInput,
 } from '@/utils/validation/armorValidationUtils';
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
 /**
  * Create empty armor allocation (all zeros)
@@ -68,7 +68,11 @@ describe('Armor Validation Utilities', () => {
           [MechLocation.RIGHT_LEG]: 20,
         };
 
-        const result = buildArmorByLocation(allocation, 50, MechConfiguration.BIPED);
+        const result = buildArmorByLocation(
+          allocation,
+          50,
+          MechConfiguration.BIPED,
+        );
 
         // Check that all biped locations are present
         expect(result.head).toBeDefined();
@@ -99,7 +103,11 @@ describe('Armor Validation Utilities', () => {
           centerTorsoRear: 8,
         };
 
-        const result = buildArmorByLocation(allocation, 50, MechConfiguration.BIPED);
+        const result = buildArmorByLocation(
+          allocation,
+          50,
+          MechConfiguration.BIPED,
+        );
 
         expect(result.head.current).toBe(7);
         expect(result.centerTorso.current).toBe(25);
@@ -107,7 +115,11 @@ describe('Armor Validation Utilities', () => {
       });
 
       it('should use 75/25 split for torso max values', () => {
-        const result = buildArmorByLocation(emptyAllocation, 50, MechConfiguration.BIPED);
+        const result = buildArmorByLocation(
+          emptyAllocation,
+          50,
+          MechConfiguration.BIPED,
+        );
 
         // For a 50-ton mech, CT max is 32 (IS = 16, max armor = 32)
         // Front expected max = 32 * 0.75 = 24
@@ -117,12 +129,20 @@ describe('Armor Validation Utilities', () => {
       });
 
       it('should set head max to 9', () => {
-        const result = buildArmorByLocation(emptyAllocation, 100, MechConfiguration.BIPED);
+        const result = buildArmorByLocation(
+          emptyAllocation,
+          100,
+          MechConfiguration.BIPED,
+        );
         expect(result.head.max).toBe(9);
       });
 
       it('should include display names', () => {
-        const result = buildArmorByLocation(emptyAllocation, 50, MechConfiguration.BIPED);
+        const result = buildArmorByLocation(
+          emptyAllocation,
+          50,
+          MechConfiguration.BIPED,
+        );
 
         expect(result.head.displayName).toBe('Head');
         expect(result.centerTorso.displayName).toBe('Center Torso');
@@ -136,7 +156,11 @@ describe('Armor Validation Utilities', () => {
 
     describe('Quad configuration', () => {
       it('should build armor data for all quad locations', () => {
-        const result = buildArmorByLocation(emptyAllocation, 50, MechConfiguration.QUAD);
+        const result = buildArmorByLocation(
+          emptyAllocation,
+          50,
+          MechConfiguration.QUAD,
+        );
 
         // Check that quad leg locations are present
         expect(result.frontLeftLeg).toBeDefined();
@@ -164,7 +188,11 @@ describe('Armor Validation Utilities', () => {
           [MechLocation.REAR_RIGHT_LEG]: 13,
         };
 
-        const result = buildArmorByLocation(allocation, 50, MechConfiguration.QUAD);
+        const result = buildArmorByLocation(
+          allocation,
+          50,
+          MechConfiguration.QUAD,
+        );
 
         expect(result.frontLeftLeg.current).toBe(15);
         expect(result.frontRightLeg.current).toBe(16);
@@ -175,16 +203,30 @@ describe('Armor Validation Utilities', () => {
 
     describe('QuadVee configuration', () => {
       it('should use same locations as Quad', () => {
-        const quadResult = buildArmorByLocation(emptyAllocation, 50, MechConfiguration.QUAD);
-        const quadveeResult = buildArmorByLocation(emptyAllocation, 50, MechConfiguration.QUADVEE);
+        const quadResult = buildArmorByLocation(
+          emptyAllocation,
+          50,
+          MechConfiguration.QUAD,
+        );
+        const quadveeResult = buildArmorByLocation(
+          emptyAllocation,
+          50,
+          MechConfiguration.QUADVEE,
+        );
 
-        expect(Object.keys(quadResult).sort()).toEqual(Object.keys(quadveeResult).sort());
+        expect(Object.keys(quadResult).sort()).toEqual(
+          Object.keys(quadveeResult).sort(),
+        );
       });
     });
 
     describe('Tripod configuration', () => {
       it('should build armor data with center leg', () => {
-        const result = buildArmorByLocation(emptyAllocation, 50, MechConfiguration.TRIPOD);
+        const result = buildArmorByLocation(
+          emptyAllocation,
+          50,
+          MechConfiguration.TRIPOD,
+        );
 
         // Should have arms
         expect(result.leftArm).toBeDefined();
@@ -202,7 +244,11 @@ describe('Armor Validation Utilities', () => {
           [MechLocation.CENTER_LEG]: 18,
         };
 
-        const result = buildArmorByLocation(allocation, 50, MechConfiguration.TRIPOD);
+        const result = buildArmorByLocation(
+          allocation,
+          50,
+          MechConfiguration.TRIPOD,
+        );
 
         expect(result.centerLeg.current).toBe(18);
         expect(result.centerLeg.displayName).toBe('Center Leg');
@@ -224,7 +270,11 @@ describe('Armor Validation Utilities', () => {
 
     describe('Edge cases', () => {
       it('should handle zero armor allocation', () => {
-        const result = buildArmorByLocation(emptyAllocation, 50, MechConfiguration.BIPED);
+        const result = buildArmorByLocation(
+          emptyAllocation,
+          50,
+          MechConfiguration.BIPED,
+        );
 
         Object.values(result).forEach((entry) => {
           expect(entry.current).toBe(0);
@@ -233,11 +283,21 @@ describe('Armor Validation Utilities', () => {
       });
 
       it('should handle different tonnages', () => {
-        const result20 = buildArmorByLocation(emptyAllocation, 20, MechConfiguration.BIPED);
-        const result100 = buildArmorByLocation(emptyAllocation, 100, MechConfiguration.BIPED);
+        const result20 = buildArmorByLocation(
+          emptyAllocation,
+          20,
+          MechConfiguration.BIPED,
+        );
+        const result100 = buildArmorByLocation(
+          emptyAllocation,
+          100,
+          MechConfiguration.BIPED,
+        );
 
         // Heavier mechs should have higher armor capacity (except head)
-        expect(result100.centerTorso.max).toBeGreaterThan(result20.centerTorso.max);
+        expect(result100.centerTorso.max).toBeGreaterThan(
+          result20.centerTorso.max,
+        );
         expect(result100.leftArm.max).toBeGreaterThan(result20.leftArm.max);
 
         // Head is always max 9

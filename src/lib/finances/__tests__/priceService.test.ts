@@ -1,5 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
+
 import { Money } from '@/types/campaign/Money';
+
 import {
   TECH_PRICE_MULTIPLIER,
   CONDITION_MULTIPLIER,
@@ -123,7 +125,11 @@ describe('priceService', () => {
 
     it('should handle cancelled order condition', () => {
       const basePrice = new Money(10000);
-      const result = calculatePartPrice(basePrice, 'innerSphere', 'cancelledOrder');
+      const result = calculatePartPrice(
+        basePrice,
+        'innerSphere',
+        'cancelledOrder',
+      );
       expect(result.amount).toBe(5000);
     });
   });
@@ -158,7 +164,7 @@ describe('priceService', () => {
     });
 
     it('should handle decimal prices', () => {
-      const basePrice = new Money(100.50);
+      const basePrice = new Money(100.5);
       const result = calculateUnitPrice(basePrice, 'clan', 'damaged');
       expect(result.amount).toBeCloseTo(66.33, 2);
     });

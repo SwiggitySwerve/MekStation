@@ -7,9 +7,13 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.7
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
+import {
+  AerospaceMotionType,
+  IAerospaceMovement,
+} from '../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import {
   IWarShip,
   ICapitalMountedEquipment,
@@ -22,12 +26,8 @@ import {
   CapitalArc,
   KFDriveType,
 } from '../../../types/unit/CapitalShipInterfaces';
-import {
-  AerospaceMotionType,
-  IAerospaceMovement,
-} from '../../../types/unit/BaseUnitInterfaces';
+import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
@@ -100,7 +100,9 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
   /**
    * Parse WarShip-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<IWarShip> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<IWarShip> & {
     errors: string[];
     warnings: string[];
   } {
@@ -139,7 +141,8 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
     const jumpRange = 30; // Standard K-F jump range
 
     // Docking and gravity
-    const dockingHardpoints = this.getNumericFromRaw(rawTags, 'hardpoints') || 0;
+    const dockingHardpoints =
+      this.getNumericFromRaw(rawTags, 'hardpoints') || 0;
     const gravityDecks = this.parseGravityDecks(rawTags);
 
     // Parse armor by arc (includes broadsides)
@@ -227,8 +230,13 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
   /**
    * Parse K-F Drive type from raw tags
    */
-  private parseKFDriveType(rawTags: Record<string, string | string[]>): KFDriveType {
-    const driveType = this.getStringFromRaw(rawTags, 'kfdrivetype')?.toLowerCase();
+  private parseKFDriveType(
+    rawTags: Record<string, string | string[]>,
+  ): KFDriveType {
+    const driveType = this.getStringFromRaw(
+      rawTags,
+      'kfdrivetype',
+    )?.toLowerCase();
     if (driveType === 'compact') return KFDriveType.COMPACT;
     return KFDriveType.STANDARD;
   }
@@ -237,7 +245,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
    * Parse gravity decks from raw tags
    */
   private parseGravityDecks(
-    rawTags: Record<string, string | string[]>
+    rawTags: Record<string, string | string[]>,
   ): readonly IGravityDeck[] {
     const decks: IGravityDeck[] = [];
     const deckCount = this.getNumericFromRaw(rawTags, 'gravdecks') || 0;
@@ -256,7 +264,9 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
   /**
    * Parse crew configuration from document
    */
-  private parseCrewConfiguration(document: IBlkDocument): ICapitalCrewConfiguration {
+  private parseCrewConfiguration(
+    document: IBlkDocument,
+  ): ICapitalCrewConfiguration {
     return {
       crew: document.crew || 0,
       officers: document.officers || 0,
@@ -293,7 +303,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
    */
   private parseTransporterString(
     transporter: string,
-    bayNumber: number
+    bayNumber: number,
   ): ITransportBay | null {
     const lower = transporter.toLowerCase();
     const parts = lower.split(':');
@@ -349,11 +359,15 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly ICapitalMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly ICapitalMountedEquipment[] {
     const equipment: ICapitalMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const arc = this.normalizeArc(locationKey);
 
       for (const item of items) {
@@ -400,7 +414,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
    */
   private getStringFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): string | undefined {
     const value = rawTags[key];
     if (Array.isArray(value)) return value[0];
@@ -412,7 +426,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
    */
   private getBooleanFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): boolean | undefined {
     const value = this.getStringFromRaw(rawTags, key);
     if (value === undefined) return undefined;
@@ -424,7 +438,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
    */
   private getNumericFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): number {
     const value = this.getStringFromRaw(rawTags, key);
     return value ? parseInt(value, 10) : 0;
@@ -435,7 +449,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<IWarShip>
+    typeSpecificFields: Partial<IWarShip>,
   ): IWarShip {
     const techBase = this.parseTechBase(commonFields.techBase);
     const rulesLevel = this.parseRulesLevel(commonFields.techBase);
@@ -507,7 +521,9 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
   /**
    * Serialize WarShip-specific fields
    */
-  protected serializeTypeSpecificFields(unit: IWarShip): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: IWarShip,
+  ): Partial<ISerializedUnit> {
     return {
       configuration: 'Spheroid',
       rulesLevel: String(unit.rulesLevel),
@@ -535,7 +551,9 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
 
     // Tonnage validation (WarShips: 100,000+ tons typical)
     if (unit.tonnage < 50000) {
-      warnings.push('WarShip tonnage is unusually low (typical minimum 100,000 tons)');
+      warnings.push(
+        'WarShip tonnage is unusually low (typical minimum 100,000 tons)',
+      );
     }
     if (unit.tonnage > 2500000) {
       errors.push('WarShip tonnage cannot exceed 2,500,000 tons');

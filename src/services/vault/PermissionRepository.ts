@@ -7,13 +7,15 @@
  */
 
 import type {
-   IPermissionGrant,
-   IStoredPermission,
-   PermissionLevel,
-   PermissionScopeType,
-   ContentCategory,
- } from '@/types/vault';
+  IPermissionGrant,
+  IStoredPermission,
+  PermissionLevel,
+  PermissionScopeType,
+  ContentCategory,
+} from '@/types/vault';
+
 import { getSQLiteService } from '@/services/persistence';
+
 import { ICrudRepository } from '../core/ICrudRepository';
 
 // =============================================================================
@@ -70,7 +72,9 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
   /**
    * Create a new permission grant
    */
-  async create(grant: Omit<IPermissionGrant, 'id' | 'createdAt'>): Promise<IPermissionGrant> {
+  async create(
+    grant: Omit<IPermissionGrant, 'id' | 'createdAt'>,
+  ): Promise<IPermissionGrant> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -93,7 +97,7 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
       grant.level,
       grant.expiresAt,
       createdAt,
-      grant.granteeName || null
+      grant.granteeName || null,
     );
 
     return {
@@ -131,7 +135,9 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare('SELECT * FROM vault_permissions WHERE grantee_id = ? ORDER BY created_at DESC')
+      .prepare(
+        'SELECT * FROM vault_permissions WHERE grantee_id = ? ORDER BY created_at DESC',
+      )
       .all(granteeId) as IStoredPermission[];
 
     return rows.map((row) => this.rowToGrant(row));
@@ -140,12 +146,17 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
   /**
    * Get all permissions for a specific item
    */
-  async getByItem(scopeType: PermissionScopeType, scopeId: string): Promise<IPermissionGrant[]> {
+  async getByItem(
+    scopeType: PermissionScopeType,
+    scopeId: string,
+  ): Promise<IPermissionGrant[]> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare('SELECT * FROM vault_permissions WHERE scope_type = ? AND scope_id = ? ORDER BY created_at DESC')
+      .prepare(
+        'SELECT * FROM vault_permissions WHERE scope_type = ? AND scope_id = ? ORDER BY created_at DESC',
+      )
       .all(scopeType, scopeId) as IStoredPermission[];
 
     return rows.map((row) => this.rowToGrant(row));
@@ -159,7 +170,9 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare('SELECT * FROM vault_permissions WHERE scope_category = ? ORDER BY created_at DESC')
+      .prepare(
+        'SELECT * FROM vault_permissions WHERE scope_category = ? ORDER BY created_at DESC',
+      )
       .all(category) as IStoredPermission[];
 
     return rows.map((row) => this.rowToGrant(row));
@@ -187,7 +200,7 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
     granteeId: string,
     scopeType: PermissionScopeType,
     scopeId: string | null,
-    category?: ContentCategory
+    category?: ContentCategory,
   ): Promise<PermissionLevel | null> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -214,7 +227,9 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
           WHERE grantee_id = ? AND scope_type = 'category' AND scope_category = ?
           AND (expires_at IS NULL OR expires_at > ?)
         `)
-        .get(granteeId, category, now) as { level: PermissionLevel } | undefined;
+        .get(granteeId, category, now) as
+        | { level: PermissionLevel }
+        | undefined;
 
       if (categoryPerm) return categoryPerm.level;
     }
@@ -235,27 +250,27 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
       return this.checkPermission('public', scopeType, scopeId, category);
     }
 
-     return null;
-   }
+    return null;
+  }
 
-   /**
-    * Check if a permission exists (ICrudRepository optional method)
-    */
-   async exists(id: string): Promise<boolean> {
-     await this.initialize();
-     const db = getSQLiteService().getDatabase();
+  /**
+   * Check if a permission exists (ICrudRepository optional method)
+   */
+  async exists(id: string): Promise<boolean> {
+    await this.initialize();
+    const db = getSQLiteService().getDatabase();
 
-     const row = db
-       .prepare('SELECT 1 FROM vault_permissions WHERE id = ?')
-       .get(id);
+    const row = db
+      .prepare('SELECT 1 FROM vault_permissions WHERE id = ?')
+      .get(id);
 
-     return !!row;
-   }
+    return !!row;
+  }
 
-   /**
-    * Update permission level
-    */
-   async updateLevel(id: string, level: PermissionLevel): Promise<boolean> {
+  /**
+   * Update permission level
+   */
+  async updateLevel(id: string, level: PermissionLevel): Promise<boolean> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -266,73 +281,78 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
     return result.changes > 0;
   }
 
-   /**
-    * Update permission expiry
-    */
-   async updateExpiry(id: string, expiresAt: string | null): Promise<boolean> {
-     await this.initialize();
-     const db = getSQLiteService().getDatabase();
+  /**
+   * Update permission expiry
+   */
+  async updateExpiry(id: string, expiresAt: string | null): Promise<boolean> {
+    await this.initialize();
+    const db = getSQLiteService().getDatabase();
 
-     const result = db
-       .prepare('UPDATE vault_permissions SET expires_at = ? WHERE id = ?')
-       .run(expiresAt, id);
+    const result = db
+      .prepare('UPDATE vault_permissions SET expires_at = ? WHERE id = ?')
+      .run(expiresAt, id);
 
-     return result.changes > 0;
-   }
+    return result.changes > 0;
+  }
 
-   /**
-    * Update a permission (ICrudRepository interface method)
-    * Updates multiple fields of a permission at once
-    */
-   async update(id: string, data: Partial<IPermissionGrant>): Promise<IPermissionGrant> {
-     await this.initialize();
-     const db = getSQLiteService().getDatabase();
+  /**
+   * Update a permission (ICrudRepository interface method)
+   * Updates multiple fields of a permission at once
+   */
+  async update(
+    id: string,
+    data: Partial<IPermissionGrant>,
+  ): Promise<IPermissionGrant> {
+    await this.initialize();
+    const db = getSQLiteService().getDatabase();
 
-     // Get current permission
-     const current = await this.getById(id);
-     if (!current) {
-       throw new Error(`Permission with id ${id} not found`);
-     }
+    // Get current permission
+    const current = await this.getById(id);
+    if (!current) {
+      throw new Error(`Permission with id ${id} not found`);
+    }
 
-     // Build update statement dynamically based on provided fields
-     const updates: string[] = [];
-     const values: unknown[] = [];
+    // Build update statement dynamically based on provided fields
+    const updates: string[] = [];
+    const values: unknown[] = [];
 
-     if (data.level !== undefined) {
-       updates.push('level = ?');
-       values.push(data.level);
-     }
-     if (data.expiresAt !== undefined) {
-       updates.push('expires_at = ?');
-       values.push(data.expiresAt);
-     }
-     if (data.granteeName !== undefined) {
-       updates.push('grantee_name = ?');
-       values.push(data.granteeName || null);
-     }
+    if (data.level !== undefined) {
+      updates.push('level = ?');
+      values.push(data.level);
+    }
+    if (data.expiresAt !== undefined) {
+      updates.push('expires_at = ?');
+      values.push(data.expiresAt);
+    }
+    if (data.granteeName !== undefined) {
+      updates.push('grantee_name = ?');
+      values.push(data.granteeName || null);
+    }
 
-     // If no fields to update, return current permission
-     if (updates.length === 0) {
-       return current;
-     }
+    // If no fields to update, return current permission
+    if (updates.length === 0) {
+      return current;
+    }
 
-     // Execute update
-     values.push(id);
-     const stmt = db.prepare(`UPDATE vault_permissions SET ${updates.join(', ')} WHERE id = ?`);
-     stmt.run(...values);
+    // Execute update
+    values.push(id);
+    const stmt = db.prepare(
+      `UPDATE vault_permissions SET ${updates.join(', ')} WHERE id = ?`,
+    );
+    stmt.run(...values);
 
-     // Return updated permission
-     const updated = await this.getById(id);
-     if (!updated) {
-       throw new Error(`Failed to retrieve updated permission with id ${id}`);
-     }
-     return updated;
-   }
+    // Return updated permission
+    const updated = await this.getById(id);
+    if (!updated) {
+      throw new Error(`Failed to retrieve updated permission with id ${id}`);
+    }
+    return updated;
+  }
 
-   /**
-    * Delete a permission
-    */
-   async delete(id: string): Promise<boolean> {
+  /**
+   * Delete a permission
+   */
+  async delete(id: string): Promise<boolean> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -360,12 +380,17 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
   /**
    * Delete all permissions for an item
    */
-  async deleteByItem(scopeType: PermissionScopeType, scopeId: string): Promise<number> {
+  async deleteByItem(
+    scopeType: PermissionScopeType,
+    scopeId: string,
+  ): Promise<number> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const result = db
-      .prepare('DELETE FROM vault_permissions WHERE scope_type = ? AND scope_id = ?')
+      .prepare(
+        'DELETE FROM vault_permissions WHERE scope_type = ? AND scope_id = ?',
+      )
       .run(scopeType, scopeId);
 
     return result.changes;
@@ -380,7 +405,9 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
     const now = new Date().toISOString();
 
     const result = db
-      .prepare('DELETE FROM vault_permissions WHERE expires_at IS NOT NULL AND expires_at < ?')
+      .prepare(
+        'DELETE FROM vault_permissions WHERE expires_at IS NOT NULL AND expires_at < ?',
+      )
       .run(now);
 
     return result.changes;

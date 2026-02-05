@@ -1,13 +1,16 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/equipment endpoint
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/equipment';
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
-import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
+
 import { parseSuccessResponse, parseErrorResponse } from '../helpers';
 
 // Mock the equipment lookup service
@@ -136,7 +139,7 @@ describe('/api/equipment', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           category: EquipmentCategory.ENERGY_WEAPON,
-        })
+        }),
       );
     });
 
@@ -154,7 +157,7 @@ describe('/api/equipment', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           techBase: TechBase.CLAN,
-        })
+        }),
       );
     });
 
@@ -172,7 +175,7 @@ describe('/api/equipment', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           rulesLevel: RulesLevel.STANDARD,
-        })
+        }),
       );
     });
 
@@ -190,7 +193,7 @@ describe('/api/equipment', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           year: 3025,
-        })
+        }),
       );
     });
 
@@ -208,7 +211,7 @@ describe('/api/equipment', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           nameQuery: 'laser',
-        })
+        }),
       );
     });
 
@@ -226,7 +229,7 @@ describe('/api/equipment', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           maxWeight: 5.5,
-        })
+        }),
       );
     });
 
@@ -244,7 +247,7 @@ describe('/api/equipment', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           maxSlots: 3,
-        })
+        }),
       );
     });
 

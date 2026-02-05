@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Badge, TechBaseBadge, WeightClassBadge } from './Badge';
+
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
+
+import { Badge, TechBaseBadge, WeightClassBadge } from './Badge';
 
 const meta: Meta<typeof Badge> = {
   title: 'UI/Badge',
@@ -14,10 +16,30 @@ const meta: Meta<typeof Badge> = {
     variant: {
       control: 'select',
       options: [
-        'blue', 'emerald', 'purple', 'amber', 'orange', 'red', 'cyan', 'violet', 'yellow', 'slate',
-        'rose', 'sky', 'fuchsia', 'teal', 'lime', 'pink',
-        'orange-light', 'sky-light', 'violet-light', 'rose-light',
-        'muted', 'warning', 'success', 'info',
+        'blue',
+        'emerald',
+        'purple',
+        'amber',
+        'orange',
+        'red',
+        'cyan',
+        'violet',
+        'yellow',
+        'slate',
+        'rose',
+        'sky',
+        'fuchsia',
+        'teal',
+        'lime',
+        'pink',
+        'orange-light',
+        'sky-light',
+        'violet-light',
+        'rose-light',
+        'muted',
+        'warning',
+        'success',
+        'info',
       ],
     },
     size: {
@@ -133,9 +155,15 @@ export const SemanticVariants: StoryObj = {
 export const AllSizes: StoryObj = {
   render: () => (
     <div className="flex items-center gap-2">
-      <Badge size="sm" variant="cyan">Small</Badge>
-      <Badge size="md" variant="cyan">Medium</Badge>
-      <Badge size="lg" variant="cyan">Large</Badge>
+      <Badge size="sm" variant="cyan">
+        Small
+      </Badge>
+      <Badge size="md" variant="cyan">
+        Medium
+      </Badge>
+      <Badge size="lg" variant="cyan">
+        Large
+      </Badge>
     </div>
   ),
 };
@@ -164,7 +192,9 @@ export const WeaponTypeBadges: StoryObj = {
   render: () => (
     <div className="space-y-4">
       <div>
-        <p className="text-text-theme-secondary text-sm mb-2">Weapon Categories</p>
+        <p className="text-text-theme-secondary mb-2 text-sm">
+          Weapon Categories
+        </p>
         <div className="flex flex-wrap gap-2">
           <Badge variant="rose">Energy</Badge>
           <Badge variant="orange">Ballistic</Badge>
@@ -173,7 +203,7 @@ export const WeaponTypeBadges: StoryObj = {
         </div>
       </div>
       <div>
-        <p className="text-text-theme-secondary text-sm mb-2">Ammunition</p>
+        <p className="text-text-theme-secondary mb-2 text-sm">Ammunition</p>
         <div className="flex flex-wrap gap-2">
           <Badge variant="orange-light">AC/20 Ammo</Badge>
           <Badge variant="sky-light">LRM Ammo</Badge>

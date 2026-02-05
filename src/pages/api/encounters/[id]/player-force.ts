@@ -8,10 +8,11 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { getEncounterService } from '@/services/encounter/EncounterService';
-import { IEncounter } from '@/types/encounter';
+
 import { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
+import { getEncounterService } from '@/services/encounter/EncounterService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { IEncounter } from '@/types/encounter';
 
 // =============================================================================
 // Response Types
@@ -31,13 +32,14 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ForceResponse | ErrorResponse>
+  res: NextApiResponse<ForceResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -55,7 +57,9 @@ export default async function handler(
       return handleDelete(encounterService, id, res);
     default:
       res.setHeader('Allow', ['PUT', 'DELETE']);
-      return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+      return res
+        .status(405)
+        .json({ error: `Method ${req.method} Not Allowed` });
   }
 }
 
@@ -66,7 +70,7 @@ function handlePut(
   encounterService: ReturnType<typeof getEncounterService>,
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<ForceResponse | ErrorResponse>
+  res: NextApiResponse<ForceResponse | ErrorResponse>,
 ) {
   try {
     const { forceId } = req.body as { forceId?: string };
@@ -78,7 +82,9 @@ function handlePut(
 
     if (result.success) {
       const encounter = encounterService.getEncounter(id);
-      return res.status(200).json({ ...result, encounter: encounter || undefined });
+      return res
+        .status(200)
+        .json({ ...result, encounter: encounter || undefined });
     } else {
       return res.status(400).json({
         success: false,
@@ -87,7 +93,8 @@ function handlePut(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to set player force';
+    const message =
+      error instanceof Error ? error.message : 'Failed to set player force';
     return res.status(500).json({ error: message });
   }
 }
@@ -98,14 +105,18 @@ function handlePut(
 function handleDelete(
   encounterService: ReturnType<typeof getEncounterService>,
   id: string,
-  res: NextApiResponse<ForceResponse | ErrorResponse>
+  res: NextApiResponse<ForceResponse | ErrorResponse>,
 ) {
   try {
-    const result = encounterService.updateEncounter(id, { playerForceId: undefined });
+    const result = encounterService.updateEncounter(id, {
+      playerForceId: undefined,
+    });
 
     if (result.success) {
       const encounter = encounterService.getEncounter(id);
-      return res.status(200).json({ ...result, encounter: encounter || undefined });
+      return res
+        .status(200)
+        .json({ ...result, encounter: encounter || undefined });
     } else {
       return res.status(400).json({
         success: false,
@@ -114,7 +125,8 @@ function handleDelete(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to clear player force';
+    const message =
+      error instanceof Error ? error.message : 'Failed to clear player force';
     return res.status(500).json({ error: message });
   }
 }

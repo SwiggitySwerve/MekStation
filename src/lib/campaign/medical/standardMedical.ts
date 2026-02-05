@@ -10,9 +10,9 @@
  * @module campaign/medical/standardMedical
  */
 
-import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
-import { IPerson, IInjury } from '../../../types/campaign/Person';
 import { ICampaignOptions } from '../../../types/campaign/Campaign';
+import { IPerson, IInjury } from '../../../types/campaign/Person';
+import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
 
 /**
  * Random function type for injectable randomness (0-1)
@@ -48,7 +48,10 @@ function getMedicineSkillValue(_doctor: IPerson): number {
  * @param _options - Campaign options
  * @returns Shorthanded modifier (0 if not overloaded)
  */
-function getShorthandedModifier(_doctor: IPerson, _options: ICampaignOptions): number {
+function getShorthandedModifier(
+  _doctor: IPerson,
+  _options: ICampaignOptions,
+): number {
   // @stub Plan 7 - Replace with actual patient count lookup
   return 0;
 }
@@ -65,7 +68,7 @@ function getShorthandedModifier(_doctor: IPerson, _options: ICampaignOptions): n
 export function naturalHealing(
   patient: IPerson,
   injury: IInjury,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): IMedicalCheckResult {
   const modifiers = [
     { name: 'Natural Healing', value: 0 },
@@ -110,7 +113,7 @@ export function standardMedicalCheck(
   injury: IInjury,
   doctor: IPerson | null,
   options: ICampaignOptions,
-  random: RandomFn
+  random: RandomFn,
 ): IMedicalCheckResult {
   // No doctor: use natural healing
   if (!doctor) {

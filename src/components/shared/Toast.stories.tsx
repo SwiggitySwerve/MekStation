@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { useState, useEffect } from 'react';
+
 import { ToastProvider, useToast, ToastVariant } from './Toast';
 
 const meta: Meta = {
@@ -17,7 +19,7 @@ const meta: Meta = {
   decorators: [
     (Story) => (
       <ToastProvider>
-        <div className="p-8 min-h-[400px] bg-surface-deep">
+        <div className="bg-surface-deep min-h-[400px] p-8">
           <Story />
         </div>
       </ToastProvider>
@@ -28,20 +30,34 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj;
 
-function ToastDemo({ variant, message, duration }: { variant: ToastVariant; message: string; duration?: number }) {
+function ToastDemo({
+  variant,
+  message,
+  duration,
+}: {
+  variant: ToastVariant;
+  message: string;
+  duration?: number;
+}) {
   const { showToast } = useToast();
 
   return (
     <button
       onClick={() => showToast({ variant, message, duration })}
-      className="px-4 py-2 bg-surface-raised text-text-theme-primary rounded hover:bg-surface-base transition-colors"
+      className="bg-surface-raised text-text-theme-primary hover:bg-surface-base rounded px-4 py-2 transition-colors"
     >
       Show {variant} toast
     </button>
   );
 }
 
-function ToastWithAction({ variant, message }: { variant: ToastVariant; message: string }) {
+function ToastWithAction({
+  variant,
+  message,
+}: {
+  variant: ToastVariant;
+  message: string;
+}) {
   const { showToast } = useToast();
   const [undoCount, setUndoCount] = useState(0);
 
@@ -58,37 +74,61 @@ function ToastWithAction({ variant, message }: { variant: ToastVariant; message:
             },
           })
         }
-        className="px-4 py-2 bg-surface-raised text-text-theme-primary rounded hover:bg-surface-base transition-colors"
+        className="bg-surface-raised text-text-theme-primary hover:bg-surface-base rounded px-4 py-2 transition-colors"
       >
         Show toast with action
       </button>
       {undoCount > 0 && (
-        <p className="text-sm text-text-theme-secondary">Undo clicked {undoCount} time(s)</p>
+        <p className="text-text-theme-secondary text-sm">
+          Undo clicked {undoCount} time(s)
+        </p>
       )}
     </div>
   );
 }
 
 export const Success: Story = {
-  render: () => <ToastDemo variant="success" message="Mech configuration saved successfully!" />,
+  render: () => (
+    <ToastDemo
+      variant="success"
+      message="Mech configuration saved successfully!"
+    />
+  ),
 };
 
 export const Error: Story = {
-  render: () => <ToastDemo variant="error" message="Failed to save configuration. Please try again." />,
+  render: () => (
+    <ToastDemo
+      variant="error"
+      message="Failed to save configuration. Please try again."
+    />
+  ),
 };
 
 export const Warning: Story = {
-  render: () => <ToastDemo variant="warning" message="Armor allocation exceeds recommended limits." />,
+  render: () => (
+    <ToastDemo
+      variant="warning"
+      message="Armor allocation exceeds recommended limits."
+    />
+  ),
 };
 
 export const Info: Story = {
-  render: () => <ToastDemo variant="info" message="New equipment data available for download." />,
+  render: () => (
+    <ToastDemo
+      variant="info"
+      message="New equipment data available for download."
+    />
+  ),
 };
 
 export const AllVariants: Story = {
   render: () => (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-text-theme-primary">Click to show toast</h3>
+      <h3 className="text-text-theme-primary text-lg font-semibold">
+        Click to show toast
+      </h3>
       <div className="flex flex-wrap gap-4">
         <ToastDemo variant="success" message="Operation completed!" />
         <ToastDemo variant="error" message="Something went wrong!" />
@@ -101,17 +141,16 @@ export const AllVariants: Story = {
 
 export const WithActionButton: Story = {
   render: () => (
-    <ToastWithAction
-      variant="info"
-      message="Equipment removed from loadout"
-    />
+    <ToastWithAction variant="info" message="Equipment removed from loadout" />
   ),
 };
 
 export const CustomDuration: Story = {
   render: () => (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-text-theme-primary">Different durations</h3>
+      <h3 className="text-text-theme-primary text-lg font-semibold">
+        Different durations
+      </h3>
       <div className="flex flex-wrap gap-4">
         <ToastDemo variant="info" message="Quick toast (1s)" duration={1000} />
         <ToastDemo variant="info" message="Normal toast (3s)" duration={3000} />
@@ -143,17 +182,19 @@ export const MultipleToasts: Story = {
 
       return (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-text-theme-primary">Multiple toasts stack</h3>
+          <h3 className="text-text-theme-primary text-lg font-semibold">
+            Multiple toasts stack
+          </h3>
           <div className="flex gap-4">
             <button
               onClick={showMultiple}
-              className="px-4 py-2 bg-accent text-white rounded hover:bg-accent-hover transition-colors"
+              className="bg-accent hover:bg-accent-hover rounded px-4 py-2 text-white transition-colors"
             >
               Show 4 toasts
             </button>
             <button
               onClick={dismissAll}
-              className="px-4 py-2 bg-surface-raised text-text-theme-primary rounded hover:bg-surface-base transition-colors"
+              className="bg-surface-raised text-text-theme-primary hover:bg-surface-base rounded px-4 py-2 transition-colors"
             >
               Dismiss all
             </button>
@@ -205,7 +246,11 @@ export const RealWorldUsage: Story = {
           message: 'Atlas AS7-D configuration saved',
           action: {
             label: 'View',
-            onClick: () => showToast({ variant: 'info', message: 'Opening mech details...' }),
+            onClick: () =>
+              showToast({
+                variant: 'info',
+                message: 'Opening mech details...',
+              }),
           },
         });
       };
@@ -216,7 +261,8 @@ export const RealWorldUsage: Story = {
           message: 'Equipment "Medium Laser" removed',
           action: {
             label: 'Undo',
-            onClick: () => showToast({ variant: 'success', message: 'Equipment restored' }),
+            onClick: () =>
+              showToast({ variant: 'success', message: 'Equipment restored' }),
           },
         });
       };
@@ -231,24 +277,26 @@ export const RealWorldUsage: Story = {
 
       return (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-text-theme-primary">Mech Configurator Actions</h3>
+          <h3 className="text-text-theme-primary text-lg font-semibold">
+            Mech Configurator Actions
+          </h3>
           <div className="flex flex-wrap gap-4">
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors disabled:opacity-50"
+              className="rounded bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700 disabled:opacity-50"
             >
               {saving ? 'Saving...' : 'Save Configuration'}
             </button>
             <button
               onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              className="rounded bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
             >
               Remove Equipment
             </button>
             <button
               onClick={handleWarning}
-              className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors"
+              className="rounded bg-amber-600 px-4 py-2 text-white transition-colors hover:bg-amber-700"
             >
               Check Heat
             </button>

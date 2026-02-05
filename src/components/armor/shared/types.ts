@@ -83,4 +83,7 @@ export const LOCATION_SHORT_LABELS: Record<MechLocation, string> = {
 };
 
 // Re-export UI components from separate TSX file
-export { ArmorStatusLegend, ArmorDiagramInstructions } from './ArmorStatusLegend';
+export {
+  ArmorStatusLegend,
+  ArmorDiagramInstructions,
+} from './ArmorStatusLegend';

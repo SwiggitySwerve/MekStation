@@ -7,9 +7,10 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { getForceService } from '@/services/forces/ForceService';
+
 import { IForceOperationResult } from '@/services/forces/ForceRepository';
+import { getForceService } from '@/services/forces/ForceService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 // =============================================================================
 // Response Types
@@ -37,7 +38,7 @@ interface SwapBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SwapResponse | ErrorResponse>
+  res: NextApiResponse<SwapResponse | ErrorResponse>,
 ): Promise<void> {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -48,7 +49,8 @@ export default async function handler(
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -65,7 +67,7 @@ export default async function handler(
   try {
     const result = forceService.swapAssignments(
       body.assignmentId1,
-      body.assignmentId2
+      body.assignmentId2,
     );
 
     if (result.success) {
@@ -78,7 +80,8 @@ export default async function handler(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to swap assignments';
+    const message =
+      error instanceof Error ? error.message : 'Failed to swap assignments';
     return res.status(500).json({ error: message });
   }
 }

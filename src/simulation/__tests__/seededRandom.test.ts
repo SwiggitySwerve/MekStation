@@ -70,10 +70,10 @@ describe('SeededRandom', () => {
       const expectedPerBucket = iterations / 10;
       const tolerance = expectedPerBucket * 0.2;
 
-       buckets.forEach((count) => {
-         expect(count).toBeGreaterThan(expectedPerBucket - tolerance);
-         expect(count).toBeLessThan(expectedPerBucket + tolerance);
-       });
+      buckets.forEach((count) => {
+        expect(count).toBeGreaterThan(expectedPerBucket - tolerance);
+        expect(count).toBeLessThan(expectedPerBucket + tolerance);
+      });
     });
   });
 
@@ -138,8 +138,12 @@ describe('SeededRandom', () => {
       const rng1 = new SeededRandom(seed);
       const rng2 = new SeededRandom(seed);
 
-      const sequence1 = Array.from({ length: 50 }, () => rng1.nextRange(10, 20));
-      const sequence2 = Array.from({ length: 50 }, () => rng2.nextRange(10, 20));
+      const sequence1 = Array.from({ length: 50 }, () =>
+        rng1.nextRange(10, 20),
+      );
+      const sequence2 = Array.from({ length: 50 }, () =>
+        rng2.nextRange(10, 20),
+      );
 
       expect(sequence1).toEqual(sequence2);
     });

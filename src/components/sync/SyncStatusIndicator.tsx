@@ -6,6 +6,7 @@
  * @spec openspec/changes/add-p2p-vault-sync/specs/vault-sync/spec.md
  */
 import React from 'react';
+
 import { ConnectionState } from '@/lib/p2p';
 
 // =============================================================================
@@ -34,13 +35,19 @@ interface StatusConfig {
   showPulse: boolean;
 }
 
-function getStatusConfig(state: ConnectionState, peerCount: number): StatusConfig {
+function getStatusConfig(
+  state: ConnectionState,
+  peerCount: number,
+): StatusConfig {
   switch (state) {
     case ConnectionState.Connected:
       return {
         dotColor: 'bg-emerald-500',
         pulseColor: 'bg-emerald-400',
-        label: peerCount > 0 ? `${peerCount} peer${peerCount !== 1 ? 's' : ''}` : 'Connected',
+        label:
+          peerCount > 0
+            ? `${peerCount} peer${peerCount !== 1 ? 's' : ''}`
+            : 'Connected',
         showPulse: false,
       };
     case ConnectionState.Connecting:
@@ -86,35 +93,29 @@ export function SyncStatusIndicator({
       type="button"
       onClick={onClick}
       disabled={!isClickable}
-      className={`
-        inline-flex items-center gap-2 px-3 py-1.5 rounded-lg
-        bg-surface-base/50 border border-border-theme-subtle
-        transition-all duration-200
-        ${isClickable ? 'hover:bg-surface-raised hover:border-border-theme cursor-pointer' : 'cursor-default'}
-        ${className}
-      `}
+      className={`bg-surface-base/50 border-border-theme-subtle inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-all duration-200 ${isClickable ? 'hover:bg-surface-raised hover:border-border-theme cursor-pointer' : 'cursor-default'} ${className} `}
       aria-label={`Sync status: ${config.label}`}
     >
       {/* Status dot with optional pulse */}
       <span className="relative flex h-2.5 w-2.5">
         {config.showPulse && (
           <span
-            className={`absolute inline-flex h-full w-full rounded-full ${config.pulseColor} opacity-75 animate-ping`}
+            className={`absolute inline-flex h-full w-full rounded-full ${config.pulseColor} animate-ping opacity-75`}
           />
         )}
         <span
-          className={`relative inline-flex rounded-full h-2.5 w-2.5 ${config.dotColor}`}
+          className={`relative inline-flex h-2.5 w-2.5 rounded-full ${config.dotColor}`}
         />
       </span>
 
       {/* Status label */}
-      <span className="text-sm font-medium text-text-theme-secondary">
+      <span className="text-text-theme-secondary text-sm font-medium">
         {config.label}
       </span>
 
       {/* Connection icon */}
       <svg
-        className="w-4 h-4 text-text-theme-muted"
+        className="text-text-theme-muted h-4 w-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

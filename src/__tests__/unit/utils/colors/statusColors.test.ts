@@ -137,7 +137,11 @@ describe('statusColors', () => {
   });
 
   describe('getAllocationBadgeClasses', () => {
-    const statuses: AllocationStatus[] = ['allocated', 'unallocated', 'partial'];
+    const statuses: AllocationStatus[] = [
+      'allocated',
+      'unallocated',
+      'partial',
+    ];
 
     statuses.forEach((status) => {
       it(`should return classes for ${status} status`, () => {
@@ -198,51 +202,50 @@ describe('statusColors', () => {
   describe('getArmorLocationColorClass', () => {
     it('should return colors for head location', () => {
       expect(getArmorLocationColorClass('head', 'default')).toBe(
-        ARMOR_LOCATION_COLORS.head.default
+        ARMOR_LOCATION_COLORS.head.default,
       );
       expect(getArmorLocationColorClass('head', 'hover')).toBe(
-        ARMOR_LOCATION_COLORS.head.hover
+        ARMOR_LOCATION_COLORS.head.hover,
       );
       expect(getArmorLocationColorClass('head', 'selected')).toBe(
-        ARMOR_LOCATION_COLORS.head.selected
+        ARMOR_LOCATION_COLORS.head.selected,
       );
     });
 
     it('should return colors for torso location', () => {
       expect(getArmorLocationColorClass('torso', 'default')).toBe(
-        ARMOR_LOCATION_COLORS.torso.default
+        ARMOR_LOCATION_COLORS.torso.default,
       );
       expect(getArmorLocationColorClass('torso', 'hover')).toBe(
-        ARMOR_LOCATION_COLORS.torso.hover
+        ARMOR_LOCATION_COLORS.torso.hover,
       );
       expect(getArmorLocationColorClass('torso', 'selected')).toBe(
-        ARMOR_LOCATION_COLORS.torso.selected
+        ARMOR_LOCATION_COLORS.torso.selected,
       );
     });
 
     it('should return colors for rear location', () => {
       expect(getArmorLocationColorClass('rear', 'default')).toBe(
-        ARMOR_LOCATION_COLORS.rear.default
+        ARMOR_LOCATION_COLORS.rear.default,
       );
       expect(getArmorLocationColorClass('rear', 'hover')).toBe(
-        ARMOR_LOCATION_COLORS.rear.hover
+        ARMOR_LOCATION_COLORS.rear.hover,
       );
       expect(getArmorLocationColorClass('rear', 'selected')).toBe(
-        ARMOR_LOCATION_COLORS.rear.selected
+        ARMOR_LOCATION_COLORS.rear.selected,
       );
     });
 
     it('should return colors for limb location', () => {
       expect(getArmorLocationColorClass('limb', 'default')).toBe(
-        ARMOR_LOCATION_COLORS.limb.default
+        ARMOR_LOCATION_COLORS.limb.default,
       );
       expect(getArmorLocationColorClass('limb', 'hover')).toBe(
-        ARMOR_LOCATION_COLORS.limb.hover
+        ARMOR_LOCATION_COLORS.limb.hover,
       );
       expect(getArmorLocationColorClass('limb', 'selected')).toBe(
-        ARMOR_LOCATION_COLORS.limb.selected
+        ARMOR_LOCATION_COLORS.limb.selected,
       );
     });
   });
 });
-

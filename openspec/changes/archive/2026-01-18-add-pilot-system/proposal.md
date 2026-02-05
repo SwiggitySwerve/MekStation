@@ -32,10 +32,10 @@ Pilot
 
 ## Pilot Types
 
-| Type | Purpose | Persistence |
-|------|---------|-------------|
-| Persistent | Player characters, important NPCs | Full database storage |
-| Statblock | Quick NPCs, simulation testing | Inline definition, no storage |
+| Type       | Purpose                           | Persistence                   |
+| ---------- | --------------------------------- | ----------------------------- |
+| Persistent | Player characters, important NPCs | Full database storage         |
+| Statblock  | Quick NPCs, simulation testing    | Inline definition, no storage |
 
 ## Impact
 

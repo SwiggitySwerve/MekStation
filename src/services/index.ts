@@ -1,9 +1,9 @@
 /**
  * Service Layer Registry
- * 
+ *
  * Central access point for all application services.
  * Services are instantiated as singletons.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  * @spec openspec/specs/equipment-services/spec.md
  * @spec openspec/specs/construction-services/spec.md
@@ -41,12 +41,20 @@ export * from './game-resolution';
 // SERVICE REGISTRY
 // ============================================================================
 
-import { getIndexedDBService, getFileService } from './persistence';
-import { getEquipmentLoader, getEquipmentRegistry, getEquipmentNameMapper } from './equipment';
-import { getUnitFactory } from './units';
-import { getMechBuilderService, getValidationService, getCalculationService } from './construction';
+import {
+  getMechBuilderService,
+  getValidationService,
+  getCalculationService,
+} from './construction';
 import { getMTFImportService } from './conversion';
+import {
+  getEquipmentLoader,
+  getEquipmentRegistry,
+  getEquipmentNameMapper,
+} from './equipment';
+import { getIndexedDBService, getFileService } from './persistence';
 import { getPilotService, getPilotRepository } from './pilots';
+import { getUnitFactory } from './units';
 
 /**
  * Centralized service registry for singleton access
@@ -55,38 +63,62 @@ import { getPilotService, getPilotRepository } from './pilots';
 export const services = {
   // Persistence
   persistence: {
-    get db() { return getIndexedDBService(); },
-    get file() { return getFileService(); },
+    get db() {
+      return getIndexedDBService();
+    },
+    get file() {
+      return getFileService();
+    },
   },
 
   // Equipment
   equipment: {
-    get loader() { return getEquipmentLoader(); },
-    get registry() { return getEquipmentRegistry(); },
-    get nameMapper() { return getEquipmentNameMapper(); },
+    get loader() {
+      return getEquipmentLoader();
+    },
+    get registry() {
+      return getEquipmentRegistry();
+    },
+    get nameMapper() {
+      return getEquipmentNameMapper();
+    },
   },
 
   // Units
   units: {
-    get factory() { return getUnitFactory(); },
+    get factory() {
+      return getUnitFactory();
+    },
   },
 
   // Construction
   construction: {
-    get builder() { return getMechBuilderService(); },
-    get validation() { return getValidationService(); },
-    get calculation() { return getCalculationService(); },
+    get builder() {
+      return getMechBuilderService();
+    },
+    get validation() {
+      return getValidationService();
+    },
+    get calculation() {
+      return getCalculationService();
+    },
   },
 
   // Conversion
   conversion: {
-    get importer() { return getMTFImportService(); },
+    get importer() {
+      return getMTFImportService();
+    },
   },
 
   // Pilots
   pilots: {
-    get service() { return getPilotService(); },
-    get repository() { return getPilotRepository(); },
+    get service() {
+      return getPilotService();
+    },
+    get repository() {
+      return getPilotRepository();
+    },
   },
 } as const;
 
@@ -96,7 +128,7 @@ export const services = {
 export async function initializeServices(): Promise<void> {
   // Initialize IndexedDB
   await services.persistence.db.initialize();
-  
+
   // Initialize equipment registry
   await services.equipment.registry.initialize();
 }
@@ -107,4 +139,3 @@ export async function initializeServices(): Promise<void> {
 export function shutdownServices(): void {
   services.persistence.db.close();
 }
-

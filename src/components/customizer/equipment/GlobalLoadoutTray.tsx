@@ -1,26 +1,28 @@
 /**
  * Global Loadout Tray Component
- * 
+ *
  * Persistent sidebar showing unit's equipment in Allocated/Unallocated sections.
  * Supports equipment selection for critical slot assignment workflow.
  * Includes context menu for quick assignment to valid locations.
- * 
+ *
  * Responsive behavior:
  * - md (768-1024px): Compact width (180px) or collapsed (40px)
  * - lg (1024px+): Full width (240px)
- * 
+ *
  * @spec openspec/changes/unify-equipment-tab/specs/equipment-tray/spec.md
  * @spec openspec/specs/customizer-responsive-layout/spec.md
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+
+import { useEquipmentFiltering } from '@/hooks/useEquipmentFiltering';
+import { MechLocation } from '@/types/construction';
 import { EquipmentCategory } from '@/types/equipment';
 import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
-import { MechLocation } from '@/types/construction';
 import { getLocationShorthand } from '@/utils/locationUtils';
-import { CATEGORY_ORDER, CATEGORY_LABELS } from './equipmentConstants';
+
 import { CategoryFilterBar } from './CategoryFilterBar';
-import { useEquipmentFiltering } from '@/hooks/useEquipmentFiltering';
+import { CATEGORY_ORDER, CATEGORY_LABELS } from './equipmentConstants';
 
 // =============================================================================
 // Types
@@ -80,13 +82,11 @@ interface GlobalLoadoutTrayProps {
   className?: string;
 }
 
-
-
 // =============================================================================
 // Common Styles
 // =============================================================================
 
-/** 
+/**
  * Shared styles for consistent row heights, text sizes, padding, and gaps.
  * All row types use h-7 (28px) height with px-2 padding (except main header which uses px-3).
  */
@@ -98,7 +98,7 @@ const trayStyles = {
     /** Main tray header only */
     header: 'px-3',
   },
-  
+
   // Text sizes - single source of truth
   text: {
     /** Primary text (equipment names, section titles) */
@@ -108,27 +108,27 @@ const trayStyles = {
     /** Tertiary text (icons, small labels) */
     tertiary: 'text-[9px]',
   },
-  
+
   // Standard gap for row content
   gap: 'gap-1.5',
-  
+
   // Composed row styles - all use h-7 height
   /** Standard row height for all items */
   row: 'h-7 flex items-center',
   /** Equipment item row */
-  equipmentRow: 'px-2 h-7 flex items-center gap-1.5 transition-all group rounded-md border border-border-theme-subtle/30 my-0.5',
+  equipmentRow:
+    'px-2 h-7 flex items-center gap-1.5 transition-all group rounded-md border border-border-theme-subtle/30 my-0.5',
   /** Category header row */
   categoryRow: 'px-2 h-7 bg-surface-base/50 flex items-center gap-1.5',
   /** Section header row */
-  sectionRow: 'w-full h-7 flex items-center justify-between px-2 gap-1.5 hover:bg-surface-raised/50 transition-colors bg-surface-raised/30',
-  
+  sectionRow:
+    'w-full h-7 flex items-center justify-between px-2 gap-1.5 hover:bg-surface-raised/50 transition-colors bg-surface-raised/30',
+
   /** Category dot indicator */
   categoryDot: 'w-2 h-2 rounded-sm',
   /** Action button base */
   actionButton: 'opacity-0 group-hover:opacity-100 transition-opacity px-0.5',
 } as const;
-
-
 
 // =============================================================================
 // Context Menu Component
@@ -144,9 +144,17 @@ interface ContextMenuProps {
   onClose: () => void;
 }
 
-function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign, onClose }: ContextMenuProps) {
+function ContextMenu({
+  x,
+  y,
+  item,
+  availableLocations,
+  onQuickAssign,
+  onUnassign,
+  onClose,
+}: ContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
-  
+
   // Close on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -157,7 +165,7 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleEscape);
     return () => {
@@ -165,58 +173,75 @@ function ContextMenu({ x, y, item, availableLocations, onQuickAssign, onUnassign
       document.removeEventListener('keydown', handleEscape);
     };
   }, [onClose]);
-  
+
   const adjustedX = Math.min(x, window.innerWidth - 220);
   const adjustedY = Math.min(y, window.innerHeight - 300);
-  
-  const validLocations = availableLocations.filter(loc => loc.canFit);
-  
+
+  const validLocations = availableLocations.filter((loc) => loc.canFit);
+
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-surface-base border border-border-theme rounded-lg shadow-xl py-1 min-w-[200px]"
+      className="bg-surface-base border-border-theme fixed z-50 min-w-[200px] rounded-lg border py-1 shadow-xl"
       style={{ left: adjustedX, top: adjustedY }}
     >
       {/* Header */}
-      <div className={`${trayStyles.padding.header} py-1.5 border-b border-border-theme-subtle ${trayStyles.text.primary} text-text-theme-secondary`}>
-        {item.name} ({item.criticalSlots} slot {item.criticalSlots !== 1 ? 's' : ''})
+      <div
+        className={`${trayStyles.padding.header} border-border-theme-subtle border-b py-1.5 ${trayStyles.text.primary} text-text-theme-secondary`}
+      >
+        {item.name} ({item.criticalSlots} slot{' '}
+        {item.criticalSlots !== 1 ? 's' : ''})
       </div>
-      
+
       {/* Unassign option for all allocated items */}
       {item.isAllocated && (
         <>
           <button
-            onClick={() => { onUnassign(); onClose(); }}
+            onClick={() => {
+              onUnassign();
+              onClose();
+            }}
             className={`w-full text-left ${trayStyles.padding.header} py-1.5 ${trayStyles.text.primary} text-accent hover:bg-surface-raised transition-colors`}
           >
             Unassign from {item.location}
           </button>
-          <div className="border-t border-border-theme-subtle my-1" />
+          <div className="border-border-theme-subtle my-1 border-t" />
         </>
       )}
-      
+
       {/* Quick assign options */}
       {!item.isAllocated && validLocations.length > 0 && (
         <>
-          <div className={`${trayStyles.padding.header} py-1 ${trayStyles.text.secondary} text-slate-500 uppercase tracking-wider`}>
+          <div
+            className={`${trayStyles.padding.header} py-1 ${trayStyles.text.secondary} tracking-wider text-slate-500 uppercase`}
+          >
             Quick Assign
           </div>
-          {validLocations.map(loc => (
+          {validLocations.map((loc) => (
             <button
               key={loc.location}
-              onClick={() => { onQuickAssign(loc.location); onClose(); }}
-              className={`w-full text-left ${trayStyles.padding.header} py-1.5 ${trayStyles.text.primary} text-slate-200 hover:bg-surface-raised transition-colors flex justify-between items-center gap-3 whitespace-nowrap`}
+              onClick={() => {
+                onQuickAssign(loc.location);
+                onClose();
+              }}
+              className={`w-full text-left ${trayStyles.padding.header} py-1.5 ${trayStyles.text.primary} hover:bg-surface-raised flex items-center justify-between gap-3 whitespace-nowrap text-slate-200 transition-colors`}
             >
               <span className="flex-shrink-0">Add to {loc.label}</span>
-              <span className={`text-slate-500 ${trayStyles.text.secondary} flex-shrink-0`}>{loc.availableSlots} free</span>
+              <span
+                className={`text-slate-500 ${trayStyles.text.secondary} flex-shrink-0`}
+              >
+                {loc.availableSlots} free
+              </span>
             </button>
           ))}
         </>
       )}
-      
+
       {/* No valid locations message */}
       {!item.isAllocated && validLocations.length === 0 && (
-        <div className={`${trayStyles.padding.header} py-2 ${trayStyles.text.primary} text-slate-500 italic`}>
+        <div
+          className={`${trayStyles.padding.header} py-2 ${trayStyles.text.primary} text-slate-500 italic`}
+        >
           No locations with {item.criticalSlots} contiguous slots
         </div>
       )}
@@ -238,7 +263,15 @@ interface EquipmentItemProps {
   onUnassign?: () => void;
 }
 
-function EquipmentItem({ item, isSelected, isOmni = false, onSelect, onRemove, onContextMenu, onUnassign: _onUnassign }: EquipmentItemProps) {
+function EquipmentItem({
+  item,
+  isSelected,
+  isOmni = false,
+  onSelect,
+  onRemove,
+  onContextMenu,
+  onUnassign: _onUnassign,
+}: EquipmentItemProps) {
   const colors = getCategoryColorsLegacy(item.category);
   const [isDragging, setIsDragging] = useState(false);
   const [showConfirmRemove, setShowConfirmRemove] = useState(false);
@@ -259,7 +292,7 @@ function EquipmentItem({ item, isSelected, isOmni = false, onSelect, onRemove, o
   // Unallocated items can be dragged to critical slots
   // Fixed equipment on OmniMechs cannot be dragged
   const canDrag = !item.isAllocated && !isFixedOnOmni;
-  
+
   const handleDragStart = (e: React.DragEvent) => {
     if (!canDrag) {
       e.preventDefault();
@@ -271,7 +304,7 @@ function EquipmentItem({ item, isSelected, isOmni = false, onSelect, onRemove, o
     // Select the item when drag starts so assignable slots are highlighted
     onSelect();
   };
-  
+
   const handleDragEnd = () => {
     setIsDragging(false);
   };
@@ -296,7 +329,7 @@ function EquipmentItem({ item, isSelected, isOmni = false, onSelect, onRemove, o
       }, 3000);
     }
   };
-  
+
   // Compute display name with OmniMech postfix
   const displayName = isOmni
     ? `${item.name} ${item.isOmniPodMounted ? '(Pod)' : '(Fixed)'}`
@@ -315,51 +348,56 @@ function EquipmentItem({ item, isSelected, isOmni = false, onSelect, onRemove, o
       draggable={canDrag}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      className={`
-        ${trayStyles.equipmentRow}
-        ${colors.bg}
-        ${canDrag ? 'cursor-grab active:cursor-grabbing' : isFixedOnOmni ? 'cursor-not-allowed' : 'cursor-pointer'}
-        ${isDragging ? 'opacity-50' : isFixedOnOmni ? 'opacity-60' : ''}
-        ${isSelected
-          ? 'ring-1 ring-accent ring-inset brightness-110'
+      className={` ${trayStyles.equipmentRow} ${colors.bg} ${canDrag ? 'cursor-grab active:cursor-grabbing' : isFixedOnOmni ? 'cursor-not-allowed' : 'cursor-pointer'} ${isDragging ? 'opacity-50' : isFixedOnOmni ? 'opacity-60' : ''} ${
+        isSelected
+          ? 'ring-accent ring-1 brightness-110 ring-inset'
           : 'hover:brightness-110'
-        }
-      `}
+      } `}
       onClick={onSelect}
       onContextMenu={onContextMenu}
       title={tooltip}
     >
       <div className={`flex items-center ${trayStyles.gap} w-full`}>
         {/* Name with OmniMech postfix */}
-        <span className={`truncate flex-1 text-white ${trayStyles.text.primary} drop-shadow-sm`}>
+        <span
+          className={`flex-1 truncate text-white ${trayStyles.text.primary} drop-shadow-sm`}
+        >
           {displayName}
         </span>
         {/* Info inline */}
-        <span className={`text-white/50 ${trayStyles.text.secondary} whitespace-nowrap`}>
-          {item.weight}t | {item.criticalSlots} slot{item.criticalSlots !== 1 ? 's' : ''}
+        <span
+          className={`text-white/50 ${trayStyles.text.secondary} whitespace-nowrap`}
+        >
+          {item.weight}t | {item.criticalSlots} slot
+          {item.criticalSlots !== 1 ? 's' : ''}
           {item.isAllocated && item.location && (
-            <span className="text-white/80"> | {getLocationShorthand(item.location)}</span>
+            <span className="text-white/80">
+              {' '}
+              | {getLocationShorthand(item.location)}
+            </span>
           )}
         </span>
       </div>
-      
+
       {/* Delete zone - right side with confirmation */}
-      <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center border-l border-border-theme-subtle/30 ml-1">
+      <div className="border-border-theme-subtle/30 ml-1 flex h-7 w-7 flex-shrink-0 items-center justify-center border-l">
         {item.isRemovable ? (
           <button
             onClick={handleRemoveClick}
-            className={`w-full h-full flex items-center justify-center transition-all text-sm font-medium rounded-r-md
-              ${showConfirmRemove 
-                ? 'text-red-400 bg-red-900/50' 
-                : 'text-slate-400 hover:text-red-400 hover:bg-red-900/30'
-              }`}
-            title={showConfirmRemove ? 'Click again to confirm' : 'Remove from unit'}
+            className={`flex h-full w-full items-center justify-center rounded-r-md text-sm font-medium transition-all ${
+              showConfirmRemove
+                ? 'bg-red-900/50 text-red-400'
+                : 'text-slate-400 hover:bg-red-900/30 hover:text-red-400'
+            }`}
+            title={
+              showConfirmRemove ? 'Click again to confirm' : 'Remove from unit'
+            }
           >
             {showConfirmRemove ? '?' : '×'}
           </button>
         ) : (
-          <span 
-            className="text-white/30 text-[10px]" 
+          <span
+            className="text-[10px] text-white/30"
             title="Managed by configuration"
           >
             🔒
@@ -387,31 +425,31 @@ interface AllocationSectionProps {
   onDrop?: (equipmentId: string) => void;
 }
 
-function AllocationSection({ 
-  title, 
-  count, 
-  isExpanded, 
-  onToggle, 
-  children, 
+function AllocationSection({
+  title,
+  count,
+  isExpanded,
+  onToggle,
+  children,
   titleColor = 'text-text-theme-secondary',
   isDropZone = false,
   onDrop,
 }: AllocationSectionProps) {
   const [isDragOver, setIsDragOver] = useState(false);
-  
+
   const handleDragOver = (e: React.DragEvent) => {
     if (!isDropZone) return;
     e.preventDefault();
     setIsDragOver(true);
   };
-  
+
   const handleDragLeave = (e: React.DragEvent) => {
     // Only trigger if leaving the section, not child elements
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       setIsDragOver(false);
     }
   };
-  
+
   const handleDrop = (e: React.DragEvent) => {
     if (!isDropZone) return;
     e.preventDefault();
@@ -421,22 +459,29 @@ function AllocationSection({
       onDrop(equipmentId);
     }
   };
-  
+
   return (
     <div
-      className={`border-b border-border-theme transition-all ${isDragOver ? 'ring-2 ring-accent ring-inset bg-accent/20' : ''}`}
+      className={`border-border-theme border-b transition-all ${isDragOver ? 'ring-accent bg-accent/20 ring-2 ring-inset' : ''}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <button
-        onClick={onToggle}
-        className={trayStyles.sectionRow}
-      >
-        <span className={`${trayStyles.text.primary} font-medium ${titleColor}`}>{title}</span>
+      <button onClick={onToggle} className={trayStyles.sectionRow}>
+        <span
+          className={`${trayStyles.text.primary} font-medium ${titleColor}`}
+        >
+          {title}
+        </span>
         <span className={`flex items-center ${trayStyles.gap}`}>
-          <span className={`${trayStyles.text.secondary} text-text-theme-secondary`}>({count})</span>
-          <span className={`${trayStyles.text.tertiary} text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+          <span
+            className={`${trayStyles.text.secondary} text-text-theme-secondary`}
+          >
+            ({count})
+          </span>
+          <span
+            className={`${trayStyles.text.tertiary} text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+          >
             ▼
           </span>
         </span>
@@ -461,7 +506,16 @@ interface CategoryGroupProps {
   onContextMenu: (e: React.MouseEvent, item: LoadoutEquipmentItem) => void;
 }
 
-function CategoryGroup({ category, items, selectedId, isOmni = false, onSelect, onRemove, onUnassign, onContextMenu }: CategoryGroupProps) {
+function CategoryGroup({
+  category,
+  items,
+  selectedId,
+  isOmni = false,
+  onSelect,
+  onRemove,
+  onUnassign,
+  onContextMenu,
+}: CategoryGroupProps) {
   const colors = getCategoryColorsLegacy(category);
   const label = CATEGORY_LABELS[category] || category;
 
@@ -469,18 +523,28 @@ function CategoryGroup({ category, items, selectedId, isOmni = false, onSelect, 
     <div>
       <div className={trayStyles.categoryRow}>
         <span className={`${trayStyles.categoryDot} ${colors.bg}`} />
-        <span className={`${trayStyles.text.secondary} font-medium text-text-theme-secondary uppercase tracking-wide`}>{label}</span>
-        <span className={`${trayStyles.text.secondary} text-slate-500`}>({items.length})</span>
+        <span
+          className={`${trayStyles.text.secondary} text-text-theme-secondary font-medium tracking-wide uppercase`}
+        >
+          {label}
+        </span>
+        <span className={`${trayStyles.text.secondary} text-slate-500`}>
+          ({items.length})
+        </span>
       </div>
-      {items.map(item => (
+      {items.map((item) => (
         <EquipmentItem
           key={item.instanceId}
           isOmni={isOmni}
           item={item}
           isSelected={selectedId === item.instanceId}
-          onSelect={() => onSelect(selectedId === item.instanceId ? null : item.instanceId)}
+          onSelect={() =>
+            onSelect(selectedId === item.instanceId ? null : item.instanceId)
+          }
           onRemove={() => onRemove(item.instanceId)}
-          onUnassign={onUnassign ? () => onUnassign(item.instanceId) : undefined}
+          onUnassign={
+            onUnassign ? () => onUnassign(item.instanceId) : undefined
+          }
           onContextMenu={(e) => onContextMenu(e, item)}
         />
       ))}
@@ -509,14 +573,16 @@ export function GlobalLoadoutTray({
 }: GlobalLoadoutTrayProps): React.ReactElement {
   const [unallocatedExpanded, setUnallocatedExpanded] = useState(true);
   const [allocatedExpanded, setAllocatedExpanded] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<EquipmentCategory | 'ALL'>('ALL');
-  
+  const [activeCategory, setActiveCategory] = useState<
+    EquipmentCategory | 'ALL'
+  >('ALL');
+
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
     item: LoadoutEquipmentItem;
   } | null>(null);
-  
+
   const {
     filteredEquipment,
     unallocated,
@@ -524,129 +590,182 @@ export function GlobalLoadoutTray({
     unallocatedByCategory,
     allocatedByCategory,
   } = useEquipmentFiltering(equipment, activeCategory);
-  
+
   // Handle selection
-  const handleSelect = useCallback((id: string | null) => {
-    onSelectEquipment?.(id);
-  }, [onSelectEquipment]);
-  
+  const handleSelect = useCallback(
+    (id: string | null) => {
+      onSelectEquipment?.(id);
+    },
+    [onSelectEquipment],
+  );
+
   // Handle context menu
-  const handleContextMenu = useCallback((e: React.MouseEvent, item: LoadoutEquipmentItem) => {
-    e.preventDefault();
-    // Select the item when right-clicking
-    onSelectEquipment?.(item.instanceId);
-    setContextMenu({ x: e.clientX, y: e.clientY, item });
-  }, [onSelectEquipment]);
-  
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent, item: LoadoutEquipmentItem) => {
+      e.preventDefault();
+      // Select the item when right-clicking
+      onSelectEquipment?.(item.instanceId);
+      setContextMenu({ x: e.clientX, y: e.clientY, item });
+    },
+    [onSelectEquipment],
+  );
+
   // Handle quick assign from context menu
-  const handleQuickAssign = useCallback((location: MechLocation) => {
-    if (contextMenu) {
-      onQuickAssign?.(contextMenu.item.instanceId, location);
-      onSelectEquipment?.(null);
-    }
-  }, [contextMenu, onQuickAssign, onSelectEquipment]);
-  
+  const handleQuickAssign = useCallback(
+    (location: MechLocation) => {
+      if (contextMenu) {
+        onQuickAssign?.(contextMenu.item.instanceId, location);
+        onSelectEquipment?.(null);
+      }
+    },
+    [contextMenu, onQuickAssign, onSelectEquipment],
+  );
+
   // Handle unassign
-  const handleUnassign = useCallback((instanceId: string) => {
-    onUnassignEquipment?.(instanceId);
-  }, [onUnassignEquipment]);
-  
+  const handleUnassign = useCallback(
+    (instanceId: string) => {
+      onUnassignEquipment?.(instanceId);
+    },
+    [onUnassignEquipment],
+  );
+
   // Handle drop to unallocate (drag from slot to tray)
-  const handleDropToUnallocated = useCallback((equipmentId: string) => {
-    // Find the item being dropped
-    const item = equipment.find(e => e.instanceId === equipmentId);
-    if (item?.isAllocated) {
-      onUnassignEquipment?.(equipmentId);
-    }
-  }, [equipment, onUnassignEquipment]);
-  
+  const handleDropToUnallocated = useCallback(
+    (equipmentId: string) => {
+      // Find the item being dropped
+      const item = equipment.find((e) => e.instanceId === equipmentId);
+      if (item?.isAllocated) {
+        onUnassignEquipment?.(equipmentId);
+      }
+    },
+    [equipment, onUnassignEquipment],
+  );
+
   // Handle remove all (only removable items)
-  const removableCount = equipment.filter(e => e.isRemovable).length;
+  const removableCount = equipment.filter((e) => e.isRemovable).length;
   const handleRemoveAll = useCallback(() => {
     if (removableCount === 0) return;
-    if (window.confirm(`Remove all ${removableCount} removable equipment items?`)) {
+    if (
+      window.confirm(`Remove all ${removableCount} removable equipment items?`)
+    ) {
       onRemoveAllEquipment();
       onSelectEquipment?.(null);
     }
   }, [removableCount, onRemoveAllEquipment, onSelectEquipment]);
-  
+
   // Collapsed state
   if (!isExpanded) {
     return (
-      <div className={`bg-surface-base border-l border-border-theme-subtle flex flex-col items-center py-2 w-10 flex-shrink-0 ${className}`}>
+      <div
+        className={`bg-surface-base border-border-theme-subtle flex w-10 flex-shrink-0 flex-col items-center border-l py-2 ${className}`}
+      >
         <button
           onClick={onToggleExpand}
-          className="flex flex-col items-center gap-1 text-text-theme-secondary hover:text-white transition-colors p-2"
+          className="text-text-theme-secondary flex flex-col items-center gap-1 p-2 transition-colors hover:text-white"
           title="Expand loadout"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+            />
           </svg>
           {equipmentCount > 0 && (
-            <span className="bg-accent text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+            <span className="bg-accent min-w-[20px] rounded-full px-1.5 py-0.5 text-center text-xs text-white">
               {equipmentCount}
             </span>
           )}
-          <span className="text-xs [writing-mode:vertical-rl] rotate-180 mt-2">Loadout</span>
+          <span className="mt-2 rotate-180 text-xs [writing-mode:vertical-rl]">
+            Loadout
+          </span>
         </button>
       </div>
     );
   }
-  
+
   // Expanded state
   return (
     <>
-      <div className={`bg-surface-base border-l border-border-theme-subtle flex flex-col w-[180px] lg:w-[240px] flex-shrink-0 ${className}`}>
+      <div
+        className={`bg-surface-base border-border-theme-subtle flex w-[180px] flex-shrink-0 flex-col border-l lg:w-[240px] ${className}`}
+      >
         {/* Header */}
-        <div className="flex-shrink-0 border-b border-border-theme">
-          <div className={`flex items-center justify-between ${trayStyles.padding.header} py-2`}>
+        <div className="border-border-theme flex-shrink-0 border-b">
+          <div
+            className={`flex items-center justify-between ${trayStyles.padding.header} py-2`}
+          >
             <div className={`flex items-center ${trayStyles.gap}`}>
-              <h3 className={`font-semibold text-white ${trayStyles.text.primary}`}>Loadout</h3>
-              <span className={`bg-surface-raised text-text-theme-secondary ${trayStyles.text.secondary} rounded-full px-1.5 py-0.5`}>
+              <h3
+                className={`font-semibold text-white ${trayStyles.text.primary}`}
+              >
+                Loadout
+              </h3>
+              <span
+                className={`bg-surface-raised text-text-theme-secondary ${trayStyles.text.secondary} rounded-full px-1.5 py-0.5`}
+              >
                 {equipmentCount}
               </span>
             </div>
             <button
               onClick={onToggleExpand}
-              className="text-text-theme-secondary hover:text-white transition-colors p-1"
+              className="text-text-theme-secondary p-1 transition-colors hover:text-white"
               title="Collapse"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                />
               </svg>
             </button>
           </div>
-          
+
           {/* Category filter */}
           <CategoryFilterBar
             activeCategory={activeCategory}
             onSelectCategory={setActiveCategory}
             compact
           />
-          
+
           {/* Quick actions */}
           {removableCount > 0 && (
             <div className={`${trayStyles.padding.header} pb-2`}>
               <button
                 onClick={handleRemoveAll}
-                className={`w-full px-2 py-1 ${trayStyles.text.primary} bg-red-900/40 hover:bg-red-900/60 rounded text-red-300 transition-colors`}
+                className={`w-full px-2 py-1 ${trayStyles.text.primary} rounded bg-red-900/40 text-red-300 transition-colors hover:bg-red-900/60`}
               >
                 Remove All ({removableCount})
               </button>
             </div>
           )}
         </div>
-        
+
         {/* Equipment List */}
         <div className="flex-1 overflow-y-auto">
           {filteredEquipment.length === 0 ? (
             <div className="p-4 text-center text-slate-500">
-              <div className="text-2xl mb-2">⚙️</div>
+              <div className="mb-2 text-2xl">⚙️</div>
               <div className={trayStyles.text.primary}>
                 {equipment.length === 0 ? 'No equipment' : 'No items in filter'}
               </div>
               <div className={`${trayStyles.text.secondary} mt-1`}>
-                {equipment.length === 0 ? 'Add from Equipment tab' : 'Try another category'}
+                {equipment.length === 0
+                  ? 'Add from Equipment tab'
+                  : 'Try another category'}
               </div>
             </div>
           ) : (
@@ -662,11 +781,13 @@ export function GlobalLoadoutTray({
                 onDrop={handleDropToUnallocated}
               >
                 {unallocated.length === 0 ? (
-                  <div className={`${trayStyles.padding.row} py-1 text-center text-slate-500 ${trayStyles.text.tertiary}`}>
+                  <div
+                    className={`${trayStyles.padding.row} py-1 text-center text-slate-500 ${trayStyles.text.tertiary}`}
+                  >
                     Drag here to unassign
                   </div>
                 ) : (
-                  CATEGORY_ORDER.map(category => {
+                  CATEGORY_ORDER.map((category) => {
                     const items = unallocatedByCategory.get(category);
                     if (!items || items.length === 0) return null;
                     return (
@@ -684,7 +805,7 @@ export function GlobalLoadoutTray({
                   })
                 )}
               </AllocationSection>
-              
+
               {/* Allocated Section */}
               {allocated.length > 0 && (
                 <AllocationSection
@@ -694,7 +815,7 @@ export function GlobalLoadoutTray({
                   onToggle={() => setAllocatedExpanded(!allocatedExpanded)}
                   titleColor="text-green-400"
                 >
-                  {CATEGORY_ORDER.map(category => {
+                  {CATEGORY_ORDER.map((category) => {
                     const items = allocatedByCategory.get(category);
                     if (!items || items.length === 0) return null;
                     return (
@@ -716,20 +837,29 @@ export function GlobalLoadoutTray({
             </>
           )}
         </div>
-        
+
         {/* Selection info footer */}
         {selectedEquipmentId && (
-          <div className={`flex-shrink-0 ${trayStyles.padding.header} py-2 border-t border-border-theme bg-surface-raised/50`}>
-            <div className={`${trayStyles.text.secondary} text-text-theme-secondary`}>
+          <div
+            className={`flex-shrink-0 ${trayStyles.padding.header} border-border-theme bg-surface-raised/50 border-t py-2`}
+          >
+            <div
+              className={`${trayStyles.text.secondary} text-text-theme-secondary`}
+            >
               Selected for placement
             </div>
-            <div className={`${trayStyles.text.primary} text-accent font-medium truncate`}>
-              {equipment.find(e => e.instanceId === selectedEquipmentId)?.name}
+            <div
+              className={`${trayStyles.text.primary} text-accent truncate font-medium`}
+            >
+              {
+                equipment.find((e) => e.instanceId === selectedEquipmentId)
+                  ?.name
+              }
             </div>
           </div>
         )}
       </div>
-      
+
       {/* Context Menu Portal */}
       {contextMenu && (
         <ContextMenu

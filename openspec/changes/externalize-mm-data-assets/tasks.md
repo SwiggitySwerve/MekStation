@@ -100,6 +100,7 @@
 Before archiving this change, verify the following:
 
 ### 7.2 Desktop App (if applicable)
+
 ```bash
 # Build electron app
 npm run electron:build
@@ -109,10 +110,12 @@ npm run electron:build
 
 # Test offline: disconnect network, open app, load a unit, check Preview tab
 ```
+
 - [ ] Assets exist in bundled app
 - [ ] Record sheet preview works offline
 
 ### 7.3 Local mm-data Development
+
 ```bash
 # Clone mm-data as sibling (for developers who modify assets)
 cd ..
@@ -124,9 +127,11 @@ npm run dev
 
 # Verify: record sheet preview loads assets from local mm-data
 ```
+
 - [ ] Local mm-data assets take precedence over fetched
 
 ### 7.4 Fresh Clone
+
 ```bash
 # Simulate fresh clone
 rm -rf node_modules public/record-sheets
@@ -136,6 +141,7 @@ npm install
 # Run: npm run fetch:assets
 # Verify: assets downloaded to public/record-sheets/
 ```
+
 - [ ] Postinstall shows helpful message about assets
 - [ ] `npm run fetch:assets` downloads all required assets
 - [ ] Record sheet preview works after fetch
@@ -154,5 +160,3 @@ npm install
 - Assets verified accessible via jsDelivr CDN (524 files tested)
 - Integration tests added for comprehensive asset validation
 - Pre-existing bug: Record sheet canvas rendering not working (unrelated to asset externalization)
-
-

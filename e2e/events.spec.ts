@@ -41,9 +41,11 @@ test.describe('Event Timeline UI @events @audit', () => {
     await waitForHydration(page);
 
     // Look for audit/timeline link in nav or menu
-    const auditLink = page.locator('a[href*="audit"], a[href*="timeline"]').first();
+    const auditLink = page
+      .locator('a[href*="audit"], a[href*="timeline"]')
+      .first();
     const count = await auditLink.count();
-    
+
     // If link exists, it should be clickable
     if (count > 0) {
       await expect(auditLink).toBeVisible();
@@ -52,7 +54,7 @@ test.describe('Event Timeline UI @events @audit', () => {
 });
 
 // =============================================================================
-// Campaign Event Tests  
+// Campaign Event Tests
 // =============================================================================
 
 test.describe('Campaign Events @events @campaign', () => {
@@ -75,9 +77,13 @@ test.describe('Campaign Events @events @campaign', () => {
 
     // Create or navigate to a campaign
     // Look for audit/timeline tab
-    const auditTab = page.locator('[data-testid="audit-tab"], button:has-text("Audit"), button:has-text("Timeline"), button:has-text("Events")').first();
+    const auditTab = page
+      .locator(
+        '[data-testid="audit-tab"], button:has-text("Audit"), button:has-text("Timeline"), button:has-text("Events")',
+      )
+      .first();
     const count = await auditTab.count();
-    
+
     // Audit tab may or may not exist depending on page state
     expect(count).toBeGreaterThanOrEqual(0);
   });
@@ -125,7 +131,9 @@ test.describe('Event Log Display @events @gameplay', () => {
     await waitForHydration(page);
 
     // Look for event log component
-    const eventLog = page.locator('[data-testid="event-log"], [data-testid="game-log"]').first();
+    const eventLog = page
+      .locator('[data-testid="event-log"], [data-testid="game-log"]')
+      .first();
     const count = await eventLog.count();
 
     // Event log should exist in game view
@@ -139,7 +147,11 @@ test.describe('Event Log Display @events @gameplay', () => {
     await waitForHydration(page);
 
     // Look for event log toggle button
-    const toggleButton = page.locator('button:has-text("Log"), button:has-text("Events"), [data-testid="toggle-log"]').first();
+    const toggleButton = page
+      .locator(
+        'button:has-text("Log"), button:has-text("Events"), [data-testid="toggle-log"]',
+      )
+      .first();
     const count = await toggleButton.count();
 
     // Toggle may exist
@@ -157,7 +169,9 @@ test.describe('Event Filtering @events @audit', () => {
     await waitForHydration(page);
 
     // Look for filter elements
-    const filterControls = page.locator('[data-testid*="filter"], select, [role="combobox"]').first();
+    const filterControls = page
+      .locator('[data-testid*="filter"], select, [role="combobox"]')
+      .first();
     const count = await filterControls.count();
 
     // Filter controls may exist
@@ -169,7 +183,11 @@ test.describe('Event Filtering @events @audit', () => {
     await waitForHydration(page);
 
     // Look for search input
-    const searchInput = page.locator('input[type="search"], input[placeholder*="search" i], [data-testid="timeline-search"]').first();
+    const searchInput = page
+      .locator(
+        'input[type="search"], input[placeholder*="search" i], [data-testid="timeline-search"]',
+      )
+      .first();
     const count = await searchInput.count();
 
     // Search may exist
@@ -181,7 +199,11 @@ test.describe('Event Filtering @events @audit', () => {
     await waitForHydration(page);
 
     // Look for date picker
-    const datePicker = page.locator('input[type="date"], [data-testid="date-picker"], button:has-text("Date")').first();
+    const datePicker = page
+      .locator(
+        'input[type="date"], [data-testid="date-picker"], button:has-text("Date")',
+      )
+      .first();
     const count = await datePicker.count();
 
     // Date picker may exist
@@ -199,7 +221,11 @@ test.describe('Event Export @events @audit', () => {
     await waitForHydration(page);
 
     // Look for export button
-    const exportButton = page.locator('button:has-text("Export"), button:has-text("Download"), [data-testid="export-btn"]').first();
+    const exportButton = page
+      .locator(
+        'button:has-text("Export"), button:has-text("Download"), [data-testid="export-btn"]',
+      )
+      .first();
     const count = await exportButton.count();
 
     // Export button may exist

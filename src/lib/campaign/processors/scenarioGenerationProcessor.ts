@@ -17,9 +17,6 @@
  * @module campaign/processors/scenarioGenerationProcessor
  */
 
-import { ICampaign } from '@/types/campaign/Campaign';
-import { IContract, isContract } from '@/types/campaign/Mission';
-import { AtBMoraleLevel, type ICombatTeam, type IScenarioConditions } from '@/types/campaign/scenario/scenarioTypes';
 import {
   IDayEvent,
   IDayProcessor,
@@ -27,10 +24,20 @@ import {
   DayPhase,
   isMonday,
 } from '@/lib/campaign/dayPipeline';
-import { checkForBattle, type RandomFn } from '@/lib/campaign/scenario/battleChance';
-import { selectScenarioType } from '@/lib/campaign/scenario/scenarioTypeSelection';
+import {
+  checkForBattle,
+  type RandomFn,
+} from '@/lib/campaign/scenario/battleChance';
 import { calculateOpForBV } from '@/lib/campaign/scenario/opForGeneration';
 import { generateRandomConditions } from '@/lib/campaign/scenario/scenarioConditions';
+import { selectScenarioType } from '@/lib/campaign/scenario/scenarioTypeSelection';
+import { ICampaign } from '@/types/campaign/Campaign';
+import { IContract, isContract } from '@/types/campaign/Mission';
+import {
+  AtBMoraleLevel,
+  type ICombatTeam,
+  type IScenarioConditions,
+} from '@/types/campaign/scenario/scenarioTypes';
 
 // =============================================================================
 // Helper Functions
@@ -76,7 +83,7 @@ function getActiveContracts(campaign: ICampaign): readonly IContract[] {
  */
 function getCombatTeamsForContract(
   campaign: ICampaign,
-  _contract: IContract
+  _contract: IContract,
 ): readonly ICombatTeam[] {
   // For now, return all combat teams in the campaign
   // In a full implementation, contracts would have their own team assignments
@@ -115,7 +122,7 @@ function createScenarioEventData(
   opForBV: number,
   conditions: IScenarioConditions,
   contract: IContract,
-  team: ICombatTeam
+  team: ICombatTeam,
 ): Record<string, unknown> {
   return {
     scenarioType,
@@ -190,7 +197,7 @@ export const scenarioGenerationProcessor: IDayProcessor = {
           opForBV,
           conditions,
           contract,
-          team
+          team,
         );
 
         // Emit event
@@ -215,7 +222,9 @@ export const scenarioGenerationProcessor: IDayProcessor = {
  * @param random - Injectable random function
  * @returns A processor with the given random function
  */
-export function createScenarioGenerationProcessor(random: RandomFn): IDayProcessor {
+export function createScenarioGenerationProcessor(
+  random: RandomFn,
+): IDayProcessor {
   return {
     id: 'scenario-generation',
     phase: DayPhase.EVENTS,
@@ -265,7 +274,7 @@ export function createScenarioGenerationProcessor(random: RandomFn): IDayProcess
             opForBV,
             conditions,
             contract,
-            team
+            team,
           );
 
           // Emit event

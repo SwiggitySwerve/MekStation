@@ -177,7 +177,14 @@ describe('UnitCard.print.css', () => {
 
 describe('Print CSS import in globals', () => {
   it('should be imported in globals.css', () => {
-    const globalsPath = path.join(__dirname, '..', '..', '..', 'styles', 'globals.css');
+    const globalsPath = path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      'styles',
+      'globals.css',
+    );
     const globalsContent = fs.readFileSync(globalsPath, 'utf-8');
 
     expect(globalsContent).toContain('UnitCard.print.css');

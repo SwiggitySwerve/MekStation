@@ -1,10 +1,10 @@
 /**
  * EquipmentType - Top-level equipment type enumeration
- * 
+ *
  * Defines the primary categories of equipment that can be mounted on a unit.
  * This is distinct from sub-categories (WeaponCategory, AmmoCategory, etc.)
  * which provide finer-grained classification within each type.
- * 
+ *
  * @spec core-enumerations/spec.md
  */
 
@@ -14,13 +14,13 @@
 export enum EquipmentType {
   /** Weapons (energy, ballistic, missile, physical) */
   WEAPON = 'Weapon',
-  
+
   /** Ammunition for weapons that require it */
   AMMUNITION = 'Ammunition',
-  
+
   /** Electronic equipment (ECM, targeting, C3, etc.) */
   ELECTRONICS = 'Electronics',
-  
+
   /** Miscellaneous equipment (heat sinks, jump jets, MASC, etc.) */
   MISCELLANEOUS = 'Miscellaneous',
 }
@@ -39,7 +39,8 @@ export const ALL_EQUIPMENT_TYPES: readonly EquipmentType[] = Object.freeze([
  * Type guard to check if a value is a valid EquipmentType
  */
 export function isEquipmentType(value: unknown): value is EquipmentType {
-  return typeof value === 'string' && 
-    Object.values(EquipmentType).includes(value as EquipmentType);
+  return (
+    typeof value === 'string' &&
+    Object.values(EquipmentType).includes(value as EquipmentType)
+  );
 }
-

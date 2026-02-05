@@ -26,7 +26,7 @@ export const QUALITY_ORDER: readonly PartQuality[] = Object.freeze([
 ]);
 
 const QUALITY_INDEX = new Map<PartQuality, number>(
-  QUALITY_ORDER.map((q, i) => [q, i])
+  QUALITY_ORDER.map((q, i) => [q, i]),
 );
 
 export function degradeQuality(quality: PartQuality): PartQuality {
@@ -36,7 +36,9 @@ export function degradeQuality(quality: PartQuality): PartQuality {
 
 export function improveQuality(quality: PartQuality): PartQuality {
   const index = QUALITY_INDEX.get(quality)!;
-  return index === QUALITY_ORDER.length - 1 ? quality : QUALITY_ORDER[index + 1];
+  return index === QUALITY_ORDER.length - 1
+    ? quality
+    : QUALITY_ORDER[index + 1];
 }
 
 const QUALITY_DISPLAY_NAMES: Record<PartQuality, string> = {

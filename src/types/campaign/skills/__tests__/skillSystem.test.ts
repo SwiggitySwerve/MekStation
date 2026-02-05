@@ -1,6 +1,5 @@
 import {
   IAttributes,
-  getAttributeModifier,
   ISkillType,
   ISkill,
   getSkillValue,
@@ -230,7 +229,11 @@ describe('Skill System Integration', () => {
           typeId: 'gunnery',
         };
 
-        const skillValue = getSkillValue(skill, gunnerySkillType, defaultAttributes);
+        const skillValue = getSkillValue(
+          skill,
+          gunnerySkillType,
+          defaultAttributes,
+        );
         // 5 (level) + 1 (bonus) + 0 (DEX modifier: 5-5) = 6
         expect(skillValue).toBe(6);
       });
@@ -243,7 +246,11 @@ describe('Skill System Integration', () => {
           typeId: 'gunnery',
         };
 
-        const skillValue = getSkillValue(skill, gunnerySkillType, defaultAttributes);
+        const skillValue = getSkillValue(
+          skill,
+          gunnerySkillType,
+          defaultAttributes,
+        );
         // 5 (level) + 0 (bonus) + 0 (modifier) = 5
         expect(skillValue).toBe(5);
       });
@@ -256,7 +263,11 @@ describe('Skill System Integration', () => {
           typeId: 'gunnery',
         };
 
-        const skillValue = getSkillValue(skill, gunnerySkillType, defaultAttributes);
+        const skillValue = getSkillValue(
+          skill,
+          gunnerySkillType,
+          defaultAttributes,
+        );
         // 5 (level) + 3 (bonus) + 0 (modifier) = 8
         expect(skillValue).toBe(8);
       });
@@ -269,7 +280,11 @@ describe('Skill System Integration', () => {
           typeId: 'gunnery',
         };
 
-        const skillValue = getSkillValue(skill, gunnerySkillType, defaultAttributes);
+        const skillValue = getSkillValue(
+          skill,
+          gunnerySkillType,
+          defaultAttributes,
+        );
         // 5 (level) + (-2) (bonus) + 0 (modifier) = 3
         expect(skillValue).toBe(3);
       });
@@ -516,7 +531,11 @@ describe('Skill System Integration', () => {
           typeId: 'gunnery',
         };
 
-        const skillValue = getSkillValue(skill, gunnerySkillType, defaultAttributes);
+        const skillValue = getSkillValue(
+          skill,
+          gunnerySkillType,
+          defaultAttributes,
+        );
         // 0 (level) + 0 (bonus) + 0 (modifier) = 0
         expect(skillValue).toBe(0);
       });
@@ -529,7 +548,11 @@ describe('Skill System Integration', () => {
           typeId: 'gunnery',
         };
 
-        const skillValue = getSkillValue(skill, gunnerySkillType, defaultAttributes);
+        const skillValue = getSkillValue(
+          skill,
+          gunnerySkillType,
+          defaultAttributes,
+        );
         // 10 (level) + 0 (bonus) + 0 (modifier) = 10
         expect(skillValue).toBe(10);
       });
@@ -593,7 +616,7 @@ describe('Skill System Integration', () => {
         };
 
         expect(() =>
-          getSkillValue(skill, gunnerySkillType, defaultAttributes)
+          getSkillValue(skill, gunnerySkillType, defaultAttributes),
         ).toThrow('Invalid skill level: -1');
       });
 
@@ -606,7 +629,7 @@ describe('Skill System Integration', () => {
         };
 
         expect(() =>
-          getSkillValue(skill, gunnerySkillType, defaultAttributes)
+          getSkillValue(skill, gunnerySkillType, defaultAttributes),
         ).toThrow('Invalid skill level: 11');
       });
 
@@ -628,7 +651,7 @@ describe('Skill System Integration', () => {
         };
 
         expect(() =>
-          getSkillValue(skill, skillType, defaultAttributes)
+          getSkillValue(skill, skillType, defaultAttributes),
         ).toThrow('Invalid linked attribute');
       });
     });
@@ -724,13 +747,13 @@ describe('Skill System Integration', () => {
 
       it('should throw error for negative XP', () => {
         expect(() => getExperienceLevel(-1)).toThrow(
-          'Total XP cannot be negative'
+          'Total XP cannot be negative',
         );
       });
 
       it('should throw error for very negative XP', () => {
         expect(() => getExperienceLevel(-1000)).toThrow(
-          'Total XP cannot be negative'
+          'Total XP cannot be negative',
         );
       });
     });
@@ -787,7 +810,11 @@ describe('Skill System Integration', () => {
       };
 
       // Calculate skill value
-      const skillValue = getSkillValue(gunnerySkill, gunnerySkillType, attributes);
+      const skillValue = getSkillValue(
+        gunnerySkill,
+        gunnerySkillType,
+        attributes,
+      );
 
       // Verify: 5 (level) + 1 (bonus) + 2 (DEX modifier) = 8
       expect(skillValue).toBe(8);
@@ -843,8 +870,16 @@ describe('Skill System Integration', () => {
       };
 
       // Calculate both skill values
-      const gunneryValue = getSkillValue(gunnerySkill, gunnerySkillType, attributes);
-      const hackingValue = getSkillValue(hackingSkill, hackingSkillType, attributes);
+      const gunneryValue = getSkillValue(
+        gunnerySkill,
+        gunnerySkillType,
+        attributes,
+      );
+      const hackingValue = getSkillValue(
+        hackingSkill,
+        hackingSkillType,
+        attributes,
+      );
 
       // Gunnery: 4 (level) + 0 (bonus) + 2 (DEX: 7-5) = 6
       expect(gunneryValue).toBe(6);

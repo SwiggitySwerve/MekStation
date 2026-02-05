@@ -26,14 +26,14 @@ function ensureDir(dirPath) {
 
 function readYamlFile(filePath) {
   // `js-yaml` is already present via electron-updater.
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // oxlint-disable-next-line @typescript-eslint/no-var-requires
   const yaml = require('js-yaml');
   const content = fs.readFileSync(filePath, 'utf8');
   return yaml.load(content);
 }
 
 function writeYamlFile(filePath, data) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // oxlint-disable-next-line @typescript-eslint/no-var-requires
   const yaml = require('js-yaml');
   const content = yaml.dump(data, { lineWidth: -1, noRefs: true });
   ensureDir(path.dirname(filePath));
@@ -70,7 +70,10 @@ function rewriteUpdateInfoUrls(updateInfo, downloadBaseUrl) {
   }
 
   // legacy top-level path
-  if (typeof updateInfo.path === 'string' && !/^https?:\/\//i.test(updateInfo.path)) {
+  if (
+    typeof updateInfo.path === 'string' &&
+    !/^https?:\/\//i.test(updateInfo.path)
+  ) {
     updateInfo.path = toGithubDownloadUrl(downloadBaseUrl, updateInfo.path);
   }
 
@@ -78,7 +81,12 @@ function rewriteUpdateInfoUrls(updateInfo, downloadBaseUrl) {
   if (typeof updateInfo.packages === 'object' && updateInfo.packages !== null) {
     for (const key of Object.keys(updateInfo.packages)) {
       const pkg = updateInfo.packages[key];
-      if (typeof pkg === 'object' && pkg !== null && typeof pkg.path === 'string' && !/^https?:\/\//i.test(pkg.path)) {
+      if (
+        typeof pkg === 'object' &&
+        pkg !== null &&
+        typeof pkg.path === 'string' &&
+        !/^https?:\/\//i.test(pkg.path)
+      ) {
         pkg.path = toGithubDownloadUrl(downloadBaseUrl, pkg.path);
       }
     }
@@ -100,7 +108,8 @@ function classifyChannelFile(fileName) {
   if (fileName === 'builder-debug.yml') return null;
 
   // Linux: <channel>-linux(-<arch>)?.yml
-  const linuxMatch = /^(?<channel>.+)-linux(?<archSuffix>-[a-z0-9]+)?\.yml$/i.exec(fileName);
+  const linuxMatch =
+    /^(?<channel>.+)-linux(?<archSuffix>-[a-z0-9]+)?\.yml$/i.exec(fileName);
   if (linuxMatch?.groups?.channel) {
     return {
       platform: 'linux',
@@ -110,7 +119,9 @@ function classifyChannelFile(fileName) {
   }
 
   // macOS arch-specific: <channel>-mac-(x64|arm64).yml -> store as <channel>-mac.yml in arch dir
-  const macArchMatch = /^(?<channel>.+)-mac-(?<arch>x64|arm64)\.yml$/i.exec(fileName);
+  const macArchMatch = /^(?<channel>.+)-mac-(?<arch>x64|arm64)\.yml$/i.exec(
+    fileName,
+  );
   if (macArchMatch?.groups?.channel && macArchMatch?.groups?.arch) {
     const channel = macArchMatch.groups.channel;
     /** @type {MacArchKey} */
@@ -190,7 +201,8 @@ function prepareUpdateMetadata(opts) {
     const updateInfo = readYamlFile(srcPath);
     const rewritten = rewriteUpdateInfoUrls(updateInfo, downloadBaseUrl);
 
-    const isMacUniversalChannelFile = /-mac\.yml$/i.test(fileName) && !/-mac-(x64|arm64)\.yml$/i.test(fileName);
+    const isMacUniversalChannelFile =
+      /-mac\.yml$/i.test(fileName) && !/-mac-(x64|arm64)\.yml$/i.test(fileName);
     if (classification.platform === 'mac' && isMacUniversalChannelFile) {
       // Universal mac channel file case: also copy into arm64 directory.
       const destDirsList = [
@@ -199,14 +211,22 @@ function prepareUpdateMetadata(opts) {
       ];
 
       for (const destDirs of destDirsList) {
-        const destPath = path.join(outDir, ...destDirs, classification.destFileName);
+        const destPath = path.join(
+          outDir,
+          ...destDirs,
+          classification.destFileName,
+        );
         writeYamlFile(destPath, rewritten);
         writtenFiles.push(destPath);
       }
       continue;
     }
 
-    const destPath = path.join(outDir, ...classification.destDirs, classification.destFileName);
+    const destPath = path.join(
+      outDir,
+      ...classification.destDirs,
+      classification.destFileName,
+    );
     writeYamlFile(destPath, rewritten);
     writtenFiles.push(destPath);
   }
@@ -221,5 +241,3 @@ module.exports = {
   prepareUpdateMetadata,
   githubReleaseDownloadBaseUrl,
 };
-
-

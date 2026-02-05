@@ -83,17 +83,19 @@ src/simulation/
 ## Core Types
 
 ### Configuration
+
 ```typescript
 interface ISimulationConfig {
-  seed: number;              // PRNG seed for reproducibility
-  turnLimit: number;         // Max turns before timeout (default: 100)
-  unitCount: number;         // Units per side (1-4)
-  mapRadius: number;         // Hex map radius (5-10)
+  seed: number; // PRNG seed for reproducibility
+  turnLimit: number; // Max turns before timeout (default: 100)
+  unitCount: number; // Units per side (1-4)
+  mapRadius: number; // Hex map radius (5-10)
   preset?: 'light-skirmish' | 'standard-lance' | 'stress-test';
 }
 ```
 
 ### Results
+
 ```typescript
 interface ISimulationResult {
   seed: number;
@@ -101,7 +103,7 @@ interface ISimulationResult {
   winner: 'player' | 'opponent' | 'draw' | null;
   turns: number;
   durationMs: number;
-  events: IBaseEvent[];      // Full event history
+  events: IBaseEvent[]; // Full event history
   finalState: IGameState;
   violations: IViolation[];
   metrics: ISimulationMetrics;
@@ -109,6 +111,7 @@ interface ISimulationResult {
 ```
 
 ### Invariants
+
 ```typescript
 interface IInvariant {
   name: string;
@@ -131,9 +134,10 @@ interface IViolation {
 ```
 
 ### Bot Behavior
+
 ```typescript
 interface IBotBehavior {
-  retreatThreshold: number;  // 0-1, health percentage to retreat
+  retreatThreshold: number; // 0-1, health percentage to retreat
   retreatEdge: 'nearest' | 'north' | 'south' | 'east' | 'west' | 'none';
 }
 ```
@@ -151,10 +155,10 @@ class SeededRandom {
   }
 
   next(): number {
-    let t = this.state += 0x6D2B79F5;
-    t = Math.imul(t ^ t >>> 15, t | 1);
-    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    let t = (this.state += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   }
 
   // Utility methods
@@ -184,9 +188,9 @@ class WeightedTable<T> {
     const total = this.weights.reduce((a, b) => a + b, 0);
     let roll = Math.min(
       Math.floor(random.next() * total + total * rollMod + 0.5),
-      total - 1
+      total - 1,
     );
-    
+
     for (let i = 0; i < this.weights.length; i++) {
       if (roll < this.weights[i]) return this.values[i];
       roll -= this.weights[i];
@@ -203,8 +207,8 @@ class TurnLoop {
   async executeTurn(
     state: IGameState,
     botPlayer: BotPlayer,
-    invariants: InvariantRunner
-  ): Promise<{ events: IBaseEvent[], violations: IViolation[] }> {
+    invariants: InvariantRunner,
+  ): Promise<{ events: IBaseEvent[]; violations: IViolation[] }> {
     const events: IBaseEvent[] = [];
     const violations: IViolation[] = [];
 
@@ -261,14 +265,14 @@ class MoveAI {
     const destinations = getValidDestinations(
       unit.position.coord,
       unit.movement.walkMP,
-      state.hexGrid
+      state.hexGrid,
     );
 
-    return destinations.map(coord => ({
+    return destinations.map((coord) => ({
       unitId: unit.id,
       destination: coord,
       movementType: this.selectMovementType(unit, coord),
-      facing: this.selectFacing(coord)
+      facing: this.selectFacing(coord),
     }));
   }
 
@@ -291,12 +295,12 @@ class InvariantRunner {
     destroyedStayDestroyed,
     phaseTransitions,
     sequenceMonotonicity,
-    turnNonDecreasing
+    turnNonDecreasing,
   ];
 
   check(state: IGameState): IViolation[] {
     const violations: IViolation[] = [];
-    
+
     for (const invariant of this.invariants) {
       const result = invariant.check(state);
       violations.push(...result);
@@ -306,7 +310,7 @@ class InvariantRunner {
   }
 
   private filterKnownLimitations(violations: IViolation[]): IViolation[] {
-    return violations.filter(v => !isKnownLimitation(v));
+    return violations.filter((v) => !isKnownLimitation(v));
   }
 }
 ```
@@ -321,13 +325,13 @@ describe('Simulation System', () => {
   const simulationCount = parseInt(process.env.SIMULATION_COUNT || '10');
 
   test.each(
-    Array.from({ length: simulationCount }, (_, i) => ({ seed: i + 1 }))
+    Array.from({ length: simulationCount }, (_, i) => ({ seed: i + 1 })),
   )('simulation with seed $seed', async ({ seed }) => {
     const config: ISimulationConfig = {
       seed,
       turnLimit: 100,
       unitCount: 4,
-      mapRadius: 8
+      mapRadius: 8,
     };
 
     const runner = new SimulationRunner();
@@ -335,7 +339,9 @@ describe('Simulation System', () => {
 
     // Assertions
     expect(result.winner).not.toBeNull();
-    expect(result.violations.filter(v => v.severity === 'critical')).toHaveLength(0);
+    expect(
+      result.violations.filter((v) => v.severity === 'critical'),
+    ).toHaveLength(0);
     expect(result.turns).toBeLessThanOrEqual(config.turnLimit);
   });
 });
@@ -347,13 +353,13 @@ describe('Simulation System', () => {
 // Load failed scenario in replay UI
 function loadFailedScenario(snapshotPath: string) {
   const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf-8'));
-  
+
   // Use existing replay infrastructure
   const { events, config } = snapshot;
   return {
     gameId: `sim-${config.seed}`,
     events,
-    initialState: createInitialGameState(config)
+    initialState: createInitialGameState(config),
   };
 }
 ```
@@ -373,15 +379,12 @@ program
 const options = program.opts();
 const runner = new BatchRunner();
 
-const results = await runner.runBatch(
-  parseInt(options.count),
-  {
-    seed: parseInt(options.seed),
-    turnLimit: 100,
-    unitCount: 4,
-    mapRadius: 8
-  }
-);
+const results = await runner.runBatch(parseInt(options.count), {
+  seed: parseInt(options.seed),
+  turnLimit: 100,
+  unitCount: 4,
+  mapRadius: 8,
+});
 
 const report = reportGenerator.generate(results);
 reportGenerator.save(report, options.output);
@@ -393,18 +396,21 @@ console.log(`Pass rate: ${report.summary.passRate}%`);
 ## Performance Considerations
 
 ### Target Metrics
+
 - **Per Turn**: <100ms (including invariant checks)
 - **Per Game**: <10s (100 turns)
 - **Batch (1000)**: <10 minutes (600s)
 - **Memory**: <500MB for batch of 100
 
 ### Optimization Strategies
+
 1. **Checkpoint State**: Create snapshots every N turns to speed up replay
 2. **Lazy Invariants**: Only check invariants that could be violated by last event
 3. **Parallel Jest**: Let Jest run tests in parallel (`--maxWorkers`)
 4. **Event Batching**: Apply multiple events before checking invariants (risky)
 
 ### Profiling Plan
+
 ```bash
 # Profile single simulation
 node --prof scripts/run-simulation.js --count=1
@@ -419,12 +425,14 @@ node --prof-process isolate-*.log > profile.txt
 ## Error Handling
 
 ### Categories
+
 1. **Configuration Errors**: Invalid seed, out-of-range parameters
 2. **Generation Errors**: Failed to create valid scenario
 3. **Runtime Errors**: Crash during simulation
 4. **Assertion Errors**: Invariant violation detected
 
 ### Strategy
+
 ```typescript
 try {
   const result = runner.run(config);
@@ -444,22 +452,26 @@ try {
 ## Testing Strategy
 
 ### Unit Tests (Per Component)
+
 - Test each component in isolation with mocked dependencies
 - Use test factories for creating test data
 - Coverage target: 80%+
 
 ### Integration Tests
+
 - Test full pipeline: generate → run → collect → report
 - Use small scenarios (2v2) for speed
 - Verify reproducibility with same seed
 
 ### Statistical Validation
+
 - Run 1000+ simulations with balanced forces
 - Assert win rate within 40-60%
 - Assert violation rate <5%
 - Assert no systematic biases
 
 ### Regression Tests
+
 - Save known-good scenarios
 - Re-run after code changes
 - Assert outcomes match (deterministic)
@@ -471,6 +483,7 @@ None - this is an internal testing tool with no external inputs or network acces
 ## Future Enhancements
 
 ### Phase 2 (Not in Initial Scope)
+
 - Smart AI behaviors (aggressive, defensive, balanced)
 - Campaign-level simulation
 - Multi-game scenarios (back-to-back battles)
@@ -478,6 +491,7 @@ None - this is an internal testing tool with no external inputs or network acces
 - Machine learning from simulation data
 
 ### Phase 3 (Research)
+
 - Genetic algorithms for unit composition optimization
 - Reinforcement learning for AI training
 - Scenario difficulty calibration

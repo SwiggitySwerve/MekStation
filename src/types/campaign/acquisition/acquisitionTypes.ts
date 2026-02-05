@@ -74,7 +74,12 @@ export const CONSUMABLE_TN: Record<AvailabilityRating, number> = {
 /**
  * Status of an acquisition request through its lifecycle
  */
-export type AcquisitionStatus = 'pending' | 'rolling' | 'in_transit' | 'delivered' | 'failed';
+export type AcquisitionStatus =
+  | 'pending'
+  | 'rolling'
+  | 'in_transit'
+  | 'delivered'
+  | 'failed';
 
 /**
  * A request to acquire a specific part

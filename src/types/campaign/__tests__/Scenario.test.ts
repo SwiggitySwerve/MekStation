@@ -9,6 +9,7 @@
  * - Factory functions (5+ tests)
  */
 
+import { ScenarioStatus } from '../enums/ScenarioStatus';
 import {
   IScenario,
   IObjective,
@@ -29,7 +30,6 @@ import {
   createObjective,
   createScenario,
 } from '../Scenario';
-import { ScenarioStatus } from '../enums/ScenarioStatus';
 
 // =============================================================================
 // Test Fixtures
@@ -130,7 +130,9 @@ describe('Scenario System', () => {
       expect(scenario.objectives).toEqual([]);
       expect(scenario.terrainType).toBe('Urban');
       expect(scenario.mapSize).toEqual({ width: 30, height: 20 });
-      expect(scenario.opponentForceDescription).toBe('One lance of medium mechs');
+      expect(scenario.opponentForceDescription).toBe(
+        'One lance of medium mechs',
+      );
       expect(scenario.createdAt).toBe('2026-01-26T10:00:00Z');
       expect(scenario.updatedAt).toBe('2026-01-26T10:00:00Z');
     });
@@ -180,7 +182,14 @@ describe('Scenario System', () => {
     });
 
     it('should support various terrain types', () => {
-      const terrains = ['Urban', 'Forest', 'Desert', 'Plains', 'Mountain', 'Swamp'];
+      const terrains = [
+        'Urban',
+        'Forest',
+        'Desert',
+        'Plains',
+        'Mountain',
+        'Swamp',
+      ];
       terrains.forEach((terrain) => {
         const scenario = createTestScenario({ terrainType: terrain });
         expect(scenario.terrainType).toBe(terrain);
@@ -229,7 +238,9 @@ describe('Scenario System', () => {
       });
 
       it('should return true for Cancelled status', () => {
-        const scenario = createTestScenario({ status: ScenarioStatus.CANCELLED });
+        const scenario = createTestScenario({
+          status: ScenarioStatus.CANCELLED,
+        });
         expect(isScenarioComplete(scenario)).toBe(true);
       });
 
@@ -258,8 +269,16 @@ describe('Scenario System', () => {
       it('should return true when all required objectives are completed', () => {
         const scenario = createTestScenario({
           objectives: [
-            createTestObjective({ id: 'obj-1', required: true, completed: true }),
-            createTestObjective({ id: 'obj-2', required: true, completed: true }),
+            createTestObjective({
+              id: 'obj-1',
+              required: true,
+              completed: true,
+            }),
+            createTestObjective({
+              id: 'obj-2',
+              required: true,
+              completed: true,
+            }),
           ],
         });
         expect(isScenarioSuccess(scenario)).toBe(true);
@@ -268,8 +287,16 @@ describe('Scenario System', () => {
       it('should return false when some required objectives are incomplete', () => {
         const scenario = createTestScenario({
           objectives: [
-            createTestObjective({ id: 'obj-1', required: true, completed: true }),
-            createTestObjective({ id: 'obj-2', required: true, completed: false }),
+            createTestObjective({
+              id: 'obj-1',
+              required: true,
+              completed: true,
+            }),
+            createTestObjective({
+              id: 'obj-2',
+              required: true,
+              completed: false,
+            }),
           ],
         });
         expect(isScenarioSuccess(scenario)).toBe(false);
@@ -278,8 +305,16 @@ describe('Scenario System', () => {
       it('should ignore optional objectives', () => {
         const scenario = createTestScenario({
           objectives: [
-            createTestObjective({ id: 'obj-1', required: true, completed: true }),
-            createTestObjective({ id: 'obj-2', required: false, completed: false }),
+            createTestObjective({
+              id: 'obj-1',
+              required: true,
+              completed: true,
+            }),
+            createTestObjective({
+              id: 'obj-2',
+              required: false,
+              completed: false,
+            }),
           ],
         });
         expect(isScenarioSuccess(scenario)).toBe(true);
@@ -304,8 +339,16 @@ describe('Scenario System', () => {
       it('should return false when all required objectives are incomplete', () => {
         const scenario = createTestScenario({
           objectives: [
-            createTestObjective({ id: 'obj-1', required: true, completed: false }),
-            createTestObjective({ id: 'obj-2', required: true, completed: false }),
+            createTestObjective({
+              id: 'obj-1',
+              required: true,
+              completed: false,
+            }),
+            createTestObjective({
+              id: 'obj-2',
+              required: true,
+              completed: false,
+            }),
           ],
         });
         expect(isScenarioSuccess(scenario)).toBe(false);
@@ -328,9 +371,7 @@ describe('Scenario System', () => {
 
       it('should return empty array when no required objectives', () => {
         const scenario = createTestScenario({
-          objectives: [
-            createTestObjective({ id: 'obj-1', required: false }),
-          ],
+          objectives: [createTestObjective({ id: 'obj-1', required: false })],
         });
         expect(getRequiredObjectives(scenario)).toHaveLength(0);
       });
@@ -514,7 +555,7 @@ describe('Scenario System', () => {
             type: 'Destroy',
             completed: false,
             required: true,
-          })
+          }),
         ).toBe(false);
       });
     });
@@ -685,9 +726,21 @@ describe('Scenario System', () => {
         status: ScenarioStatus.CURRENT,
         deployedForceIds: ['force-alpha', 'force-bravo'],
         objectives: [
-          createTestObjective({ id: 'obj-1', required: true, completed: false }),
-          createTestObjective({ id: 'obj-2', required: true, completed: false }),
-          createTestObjective({ id: 'obj-3', required: false, completed: false }),
+          createTestObjective({
+            id: 'obj-1',
+            required: true,
+            completed: false,
+          }),
+          createTestObjective({
+            id: 'obj-2',
+            required: true,
+            completed: false,
+          }),
+          createTestObjective({
+            id: 'obj-3',
+            required: false,
+            completed: false,
+          }),
         ],
       });
 
@@ -707,7 +760,11 @@ describe('Scenario System', () => {
         objectives: [
           createTestObjective({ id: 'obj-1', required: true, completed: true }),
           createTestObjective({ id: 'obj-2', required: true, completed: true }),
-          createTestObjective({ id: 'obj-3', required: false, completed: false }),
+          createTestObjective({
+            id: 'obj-3',
+            required: false,
+            completed: false,
+          }),
         ],
       });
 
@@ -721,7 +778,11 @@ describe('Scenario System', () => {
         status: ScenarioStatus.VICTORY,
         objectives: [
           createTestObjective({ id: 'obj-1', required: true, completed: true }),
-          createTestObjective({ id: 'obj-2', required: false, completed: true }),
+          createTestObjective({
+            id: 'obj-2',
+            required: false,
+            completed: true,
+          }),
         ],
       });
 
@@ -734,8 +795,16 @@ describe('Scenario System', () => {
       const scenario = createTestScenario({
         status: ScenarioStatus.DEFEAT,
         objectives: [
-          createTestObjective({ id: 'obj-1', required: true, completed: false }),
-          createTestObjective({ id: 'obj-2', required: true, completed: false }),
+          createTestObjective({
+            id: 'obj-1',
+            required: true,
+            completed: false,
+          }),
+          createTestObjective({
+            id: 'obj-2',
+            required: true,
+            completed: false,
+          }),
         ],
       });
 

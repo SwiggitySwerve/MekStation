@@ -39,4 +39,3 @@ Following the fix of MASC/Supercharger calculations, the codebase needed organiz
   - `src/types/construction/MovementEnhancement.ts` (simplified)
 - No breaking changes to public API
 - All tests pass
-

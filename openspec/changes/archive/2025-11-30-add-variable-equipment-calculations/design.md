@@ -7,11 +7,13 @@ BattleTech construction rules require certain equipment properties to be calcula
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Provide accurate calculations for all variable equipment per TechManual rules
 - Create a standardized pattern for marking and calculating variable properties
 - Enable construction validation to account for variable equipment
 
 **Non-Goals:**
+
 - Changing the base equipment interface structure (maintain backwards compatibility)
 - Implementing Battle Value calculations (complex, separate scope)
 - UI changes for equipment selection
@@ -43,15 +45,15 @@ interface IVariableEquipmentContext {
 
 All formulas derived from official BattleTech TechManual:
 
-| Equipment | Weight Formula | Slots Formula | Source |
-|-----------|---------------|---------------|--------|
-| Targeting Computer (IS) | ceil(weaponTonnage / 4) | weight | TM p.149 |
-| Targeting Computer (Clan) | ceil(weaponTonnage / 5) | weight | TM p.149 |
-| MASC (IS) | ceil(engineRating / 20) | ceil(engineRating / 20) | TM p.230 |
-| MASC (Clan) | ceil(engineRating / 25) | ceil(engineRating / 25) | TM p.230 |
-| Supercharger | engineWeight / 10 | 1 | TM p.232 |
-| Partial Wing | tonnage × 0.05 | 3 per torso | TM p.234 |
-| TSM | 0 (replaces myomer) | 6 distributed | TM p.218 |
+| Equipment                 | Weight Formula          | Slots Formula           | Source   |
+| ------------------------- | ----------------------- | ----------------------- | -------- |
+| Targeting Computer (IS)   | ceil(weaponTonnage / 4) | weight                  | TM p.149 |
+| Targeting Computer (Clan) | ceil(weaponTonnage / 5) | weight                  | TM p.149 |
+| MASC (IS)                 | ceil(engineRating / 20) | ceil(engineRating / 20) | TM p.230 |
+| MASC (Clan)               | ceil(engineRating / 25) | ceil(engineRating / 25) | TM p.230 |
+| Supercharger              | engineWeight / 10       | 1                       | TM p.232 |
+| Partial Wing              | tonnage × 0.05          | 3 per torso             | TM p.234 |
+| TSM                       | 0 (replaces myomer)     | 6 distributed           | TM p.218 |
 
 ## Risks / Trade-offs
 
@@ -65,4 +67,3 @@ All formulas derived from official BattleTech TechManual:
 
 - Should Battle Value calculations be included? (Deferred - complex scope)
 - Should we support custom equipment with user-defined formulas? (Deferred - future feature)
-

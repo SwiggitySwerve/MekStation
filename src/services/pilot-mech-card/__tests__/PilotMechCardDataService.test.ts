@@ -2,6 +2,9 @@
  * Pilot-Mech Card Data Service Tests
  */
 
+import { PilotStatus, PilotType, IPilot } from '@/types/pilot';
+import { IPilotMechCardData } from '@/types/pilot/pilot-mech-card';
+
 import {
   calculateBaseToHit,
   calculateConsciousnessTarget,
@@ -15,8 +18,6 @@ import {
   BASE_CONSCIOUSNESS,
   MAX_WOUNDS,
 } from '../PilotMechCardDataService';
-import { PilotStatus, PilotType, IPilot } from '@/types/pilot';
-import { IPilotMechCardData } from '@/types/pilot/pilot-mech-card';
 
 // =============================================================================
 // Test Fixtures
@@ -58,7 +59,7 @@ function createMockPilot(overrides: Partial<IPilot> = {}): IPilot {
 }
 
 function createMockPilotMechCardData(
-  overrides: Partial<IPilotMechCardData> = {}
+  overrides: Partial<IPilotMechCardData> = {},
 ): IPilotMechCardData {
   return {
     pilotId: 'pilot-1',

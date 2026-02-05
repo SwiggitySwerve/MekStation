@@ -7,9 +7,10 @@
  * @spec openspec/changes/add-repair-system/specs/repair/spec.md
  */
 
+import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { v4 as uuidv4 } from 'uuid';
+
 import {
   IRepairJob,
   IRepairBay,
@@ -55,18 +56,26 @@ interface RepairStoreActions {
     campaignId: string,
     assessment: IDamageAssessment,
     armorType?: string,
-    structureType?: string
+    structureType?: string,
   ) => string;
   /** Get all jobs for a campaign */
   getJobs: (campaignId: string) => readonly IRepairJob[];
   /** Get a specific job */
   getJob: (campaignId: string, jobId: string) => IRepairJob | undefined;
   /** Update a repair job */
-  updateJob: (campaignId: string, jobId: string, updates: Partial<IRepairJob>) => boolean;
+  updateJob: (
+    campaignId: string,
+    jobId: string,
+    updates: Partial<IRepairJob>,
+  ) => boolean;
   /** Delete a repair job */
   deleteJob: (campaignId: string, jobId: string) => boolean;
   /** Select/deselect repair items in a job */
-  toggleRepairItem: (campaignId: string, jobId: string, itemId: string) => boolean;
+  toggleRepairItem: (
+    campaignId: string,
+    jobId: string,
+    itemId: string,
+  ) => boolean;
   /** Select all items in a job */
   selectAllItems: (campaignId: string, jobId: string) => boolean;
   /** Deselect all items in a job */
@@ -82,7 +91,11 @@ interface RepairStoreActions {
   /** Reorder jobs in queue */
   reorderJobs: (campaignId: string, jobIds: string[]) => boolean;
   /** Set job priority */
-  setJobPriority: (campaignId: string, jobId: string, priority: number) => boolean;
+  setJobPriority: (
+    campaignId: string,
+    jobId: string,
+    priority: number,
+  ) => boolean;
   /** Get pending jobs sorted by priority */
   getPendingJobs: (campaignId: string) => readonly IRepairJob[];
   /** Get active (in-progress) jobs */
@@ -92,16 +105,22 @@ interface RepairStoreActions {
   /** Get repair bay for a campaign */
   getRepairBay: (campaignId: string) => IRepairBay;
   /** Update repair bay config */
-  updateRepairBay: (campaignId: string, updates: Partial<IRepairBay>) => boolean;
+  updateRepairBay: (
+    campaignId: string,
+    updates: Partial<IRepairBay>,
+  ) => boolean;
   /** Process repair bay (advance time) */
-  advanceRepairs: (campaignId: string, hoursElapsed: number) => readonly string[];
+  advanceRepairs: (
+    campaignId: string,
+    hoursElapsed: number,
+  ) => readonly string[];
 
   // Field Repairs
   /** Apply field repair to a unit */
   applyFieldRepair: (
     campaignId: string,
     assessment: IDamageAssessment,
-    availableSupplies: number
+    availableSupplies: number,
   ) => IFieldRepairResult;
 
   // Salvage
@@ -114,7 +133,7 @@ interface RepairStoreActions {
     campaignId: string,
     jobId: string,
     itemId: string,
-    partId: string
+    partId: string,
   ) => boolean;
   /** Remove salvage part */
   removeSalvage: (campaignId: string, partId: string) => boolean;
@@ -125,7 +144,7 @@ interface RepairStoreActions {
     campaignId: string,
     jobId: string,
     availableCBills: number,
-    availableSupplies: number
+    availableSupplies: number,
   ) => IRepairJobValidationResult;
 
   // Selection
@@ -203,7 +222,7 @@ export const useRepairStore = create<RepairStore>()(
         campaignId: string,
         assessment: IDamageAssessment,
         armorType?: string,
-        structureType?: string
+        structureType?: string,
       ) => {
         get().initializeCampaign(campaignId);
 
@@ -212,7 +231,10 @@ export const useRepairStore = create<RepairStore>()(
         const now = new Date().toISOString();
 
         const existingJobs = get().jobsByCampaign[campaignId] ?? [];
-        const maxPriority = existingJobs.reduce((max, j) => Math.max(max, j.priority), 0);
+        const maxPriority = existingJobs.reduce(
+          (max, j) => Math.max(max, j.priority),
+          0,
+        );
 
         const job: IRepairJob = {
           id: jobId,
@@ -249,7 +271,11 @@ export const useRepairStore = create<RepairStore>()(
       },
 
       // Update job
-      updateJob: (campaignId: string, jobId: string, updates: Partial<IRepairJob>) => {
+      updateJob: (
+        campaignId: string,
+        jobId: string,
+        updates: Partial<IRepairJob>,
+      ) => {
         const jobs = get().jobsByCampaign[campaignId];
         if (!jobs) {
           set({ error: `Campaign not found: ${campaignId}` });
@@ -262,7 +288,10 @@ export const useRepairStore = create<RepairStore>()(
           return false;
         }
 
-        const updatedJob = recalculateJobTotals({ ...jobs[jobIndex], ...updates });
+        const updatedJob = recalculateJobTotals({
+          ...jobs[jobIndex],
+          ...updates,
+        });
         const updatedJobs = [...jobs];
         updatedJobs[jobIndex] = updatedJob;
 
@@ -286,7 +315,8 @@ export const useRepairStore = create<RepairStore>()(
             ...state.jobsByCampaign,
             [campaignId]: jobs.filter((j) => j.id !== jobId),
           },
-          selectedJobId: state.selectedJobId === jobId ? null : state.selectedJobId,
+          selectedJobId:
+            state.selectedJobId === jobId ? null : state.selectedJobId,
         }));
 
         return true;
@@ -298,7 +328,7 @@ export const useRepairStore = create<RepairStore>()(
         if (!job) return false;
 
         const updatedItems = job.items.map((item) =>
-          item.id === itemId ? { ...item, selected: !item.selected } : item
+          item.id === itemId ? { ...item, selected: !item.selected } : item,
         );
 
         return get().updateJob(campaignId, jobId, { items: updatedItems });
@@ -309,7 +339,10 @@ export const useRepairStore = create<RepairStore>()(
         const job = get().getJob(campaignId, jobId);
         if (!job) return false;
 
-        const updatedItems = job.items.map((item) => ({ ...item, selected: true }));
+        const updatedItems = job.items.map((item) => ({
+          ...item,
+          selected: true,
+        }));
         return get().updateJob(campaignId, jobId, { items: updatedItems });
       },
 
@@ -318,7 +351,10 @@ export const useRepairStore = create<RepairStore>()(
         const job = get().getJob(campaignId, jobId);
         if (!job) return false;
 
-        const updatedItems = job.items.map((item) => ({ ...item, selected: false }));
+        const updatedItems = job.items.map((item) => ({
+          ...item,
+          selected: false,
+        }));
         return get().updateJob(campaignId, jobId, { items: updatedItems });
       },
 
@@ -438,7 +474,9 @@ export const useRepairStore = create<RepairStore>()(
       // Get pending jobs
       getPendingJobs: (campaignId: string) => {
         const jobs = get().jobsByCampaign[campaignId] ?? [];
-        return sortJobsByPriority(jobs.filter((j) => j.status === RepairJobStatus.Pending));
+        return sortJobsByPriority(
+          jobs.filter((j) => j.status === RepairJobStatus.Pending),
+        );
       },
 
       // Get active jobs
@@ -475,7 +513,10 @@ export const useRepairStore = create<RepairStore>()(
           if (job.status !== RepairJobStatus.InProgress) return job;
 
           const adjustedHours = hoursElapsed * bay.efficiency;
-          const newTimeRemaining = Math.max(0, job.timeRemainingHours - adjustedHours);
+          const newTimeRemaining = Math.max(
+            0,
+            job.timeRemainingHours - adjustedHours,
+          );
 
           if (newTimeRemaining === 0) {
             completedJobIds.push(job.id);
@@ -502,7 +543,9 @@ export const useRepairStore = create<RepairStore>()(
             ...state.baysByCampaign,
             [campaignId]: {
               ...bay,
-              activeJobs: bay.activeJobs.filter((id) => !completedJobIds.includes(id)),
+              activeJobs: bay.activeJobs.filter(
+                (id) => !completedJobIds.includes(id),
+              ),
             },
           },
         }));
@@ -514,14 +557,16 @@ export const useRepairStore = create<RepairStore>()(
       applyFieldRepair: (
         campaignId: string,
         assessment: IDamageAssessment,
-        availableSupplies: number
+        availableSupplies: number,
       ) => {
         return calculateFieldRepair(assessment, availableSupplies);
       },
 
       // Get salvage
       getSalvage: (campaignId: string) => {
-        return get().salvageByCampaign[campaignId] ?? { parts: [], totalValue: 0 };
+        return (
+          get().salvageByCampaign[campaignId] ?? { parts: [], totalValue: 0 }
+        );
       },
 
       // Add salvage
@@ -530,7 +575,10 @@ export const useRepairStore = create<RepairStore>()(
         const inventory = get().getSalvage(campaignId);
 
         const newParts = [...inventory.parts, ...parts];
-        const totalValue = newParts.reduce((sum, p) => sum + p.estimatedValue, 0);
+        const totalValue = newParts.reduce(
+          (sum, p) => sum + p.estimatedValue,
+          0,
+        );
 
         set((state) => ({
           salvageByCampaign: {
@@ -547,7 +595,7 @@ export const useRepairStore = create<RepairStore>()(
         campaignId: string,
         jobId: string,
         itemId: string,
-        partId: string
+        partId: string,
       ) => {
         const job = get().getJob(campaignId, jobId);
         const inventory = get().getSalvage(campaignId);
@@ -568,7 +616,7 @@ export const useRepairStore = create<RepairStore>()(
 
         // Update item cost to 0 and remove from salvage
         const updatedItems = job.items.map((i) =>
-          i.id === itemId ? { ...i, cost: 0 } : i
+          i.id === itemId ? { ...i, cost: 0 } : i,
         );
 
         get().updateJob(campaignId, jobId, { items: updatedItems });
@@ -581,7 +629,10 @@ export const useRepairStore = create<RepairStore>()(
       removeSalvage: (campaignId: string, partId: string) => {
         const inventory = get().getSalvage(campaignId);
         const newParts = inventory.parts.filter((p) => p.id !== partId);
-        const totalValue = newParts.reduce((sum, p) => sum + p.estimatedValue, 0);
+        const totalValue = newParts.reduce(
+          (sum, p) => sum + p.estimatedValue,
+          0,
+        );
 
         set((state) => ({
           salvageByCampaign: {
@@ -598,7 +649,7 @@ export const useRepairStore = create<RepairStore>()(
         campaignId: string,
         jobId: string,
         availableCBills: number,
-        availableSupplies: number
+        availableSupplies: number,
       ) => {
         const job = get().getJob(campaignId, jobId);
         if (!job) {
@@ -639,6 +690,6 @@ export const useRepairStore = create<RepairStore>()(
         baysByCampaign: state.baysByCampaign,
         salvageByCampaign: state.salvageByCampaign,
       }),
-    }
-  )
+    },
+  ),
 );

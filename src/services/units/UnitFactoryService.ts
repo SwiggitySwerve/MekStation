@@ -1,12 +1,23 @@
 /**
  * Unit Factory Service
- * 
+ *
  * Converts ISerializedUnit to runtime IBattleMech objects.
  * Handles equipment resolution, validation, and derived value calculation.
- * 
+ *
  * @module services/units/UnitFactoryService
  */
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import {
+  GyroType,
+  HeatSinkType,
+  MechLocation,
+  IArmorAllocation,
+} from '@/types/construction';
 import {
   IBattleMech,
   IUnitMetadata,
@@ -20,18 +31,9 @@ import {
   ICriticalSlot,
   UnitType,
 } from '@/types/unit/BattleMechInterfaces';
-import {
-  ISerializedUnit,
-} from '@/types/unit/UnitSerialization';
-import {
-  GyroType,
-  HeatSinkType,
-  MechLocation,
-  IArmorAllocation,
-} from '@/types/construction';
-import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
-import { createSingleton, type SingletonFactory } from '@/services/core/createSingleton';
+
 import {
   parseEngineType,
   parseGyroType,
@@ -84,39 +86,48 @@ function getStructurePoints(location: MechLocation, tonnage: number): number {
     95: { HEAD: 3, CT: 30, TORSO: 20, ARM: 16, LEG: 20 },
     100: { HEAD: 3, CT: 31, TORSO: 21, ARM: 17, LEG: 21 },
   };
-  
+
   // Round tonnage to nearest 5
-  const roundedTonnage = Math.min(100, Math.max(20, Math.round(tonnage / 5) * 5));
+  const roundedTonnage = Math.min(
+    100,
+    Math.max(20, Math.round(tonnage / 5) * 5),
+  );
   const table = structureTable[roundedTonnage] || structureTable[100];
-  
+
   switch (location) {
-    case MechLocation.HEAD: return table.HEAD;
-    case MechLocation.CENTER_TORSO: return table.CT;
+    case MechLocation.HEAD:
+      return table.HEAD;
+    case MechLocation.CENTER_TORSO:
+      return table.CT;
     case MechLocation.LEFT_TORSO:
-    case MechLocation.RIGHT_TORSO: return table.TORSO;
+    case MechLocation.RIGHT_TORSO:
+      return table.TORSO;
     case MechLocation.LEFT_ARM:
-    case MechLocation.RIGHT_ARM: return table.ARM;
+    case MechLocation.RIGHT_ARM:
+      return table.ARM;
     case MechLocation.LEFT_LEG:
-    case MechLocation.RIGHT_LEG: return table.LEG;
-    default: return 0;
+    case MechLocation.RIGHT_LEG:
+      return table.LEG;
+    default:
+      return 0;
   }
 }
 
 /**
  * Unit Factory Service
- * 
+ *
  * Creates IBattleMech instances from serialized unit data.
  */
 export class UnitFactoryService {
   constructor() {}
-  
+
   /**
    * Create an IBattleMech from ISerializedUnit
    */
   createFromSerialized(data: ISerializedUnit): IUnitFactoryResult {
     const errors: string[] = [];
     const warnings: string[] = [];
-    
+
     try {
       // Parse enums
       const techBase = parseTechBase(data.techBase);
@@ -124,14 +135,14 @@ export class UnitFactoryService {
       const era = parseEra(data.era);
       const configuration = parseMechConfiguration(data.configuration);
       const weightClass = getWeightClass(data.tonnage);
-      
+
       // Extended data with optional fields (from our converter)
-      const extendedData = data as ISerializedUnit & { 
-        source?: string; 
-        role?: string; 
+      const extendedData = data as ISerializedUnit & {
+        source?: string;
+        role?: string;
         mulId?: number;
       };
-      
+
       // Build metadata
       const metadata: IUnitMetadata = {
         chassis: data.chassis,
@@ -145,27 +156,30 @@ export class UnitFactoryService {
         manufacturer: data.fluff?.manufacturer,
         primaryFactory: data.fluff?.primaryFactory,
       };
-      
+
       // Build engine configuration
       const engine: IEngineConfiguration = {
         type: parseEngineType(data.engine.type),
         rating: data.engine.rating,
         integralHeatSinks: Math.floor(data.engine.rating / 25),
       };
-      
+
       // Build gyro configuration
       const gyro: IGyroConfiguration = {
         type: parseGyroType(data.gyro.type),
-        weight: this.calculateGyroWeight(data.engine.rating, parseGyroType(data.gyro.type)),
+        weight: this.calculateGyroWeight(
+          data.engine.rating,
+          parseGyroType(data.gyro.type),
+        ),
       };
-      
+
       // Build structure configuration
       const structurePoints = this.buildStructurePoints(data.tonnage);
       const structure: IStructureConfiguration = {
         type: parseStructureType(data.structure.type),
         points: structurePoints,
       };
-      
+
       // Build heat sink configuration
       const heatSinks: IHeatSinkConfiguration = {
         type: parseHeatSinkType(data.heatSinks.type),
@@ -173,7 +187,7 @@ export class UnitFactoryService {
         integrated: engine.integralHeatSinks,
         external: Math.max(0, data.heatSinks.count - engine.integralHeatSinks),
       };
-      
+
       // Build movement configuration
       const movement: IMovementConfiguration = {
         walkMP: data.movement.walk,
@@ -181,24 +195,30 @@ export class UnitFactoryService {
         jumpMP: data.movement.jump,
         jumpJetType: data.movement.jumpJetType,
         hasMASC: data.movement.enhancements?.includes('MASC') || false,
-        hasSupercharger: data.movement.enhancements?.includes('Supercharger') || false,
+        hasSupercharger:
+          data.movement.enhancements?.includes('Supercharger') || false,
         hasTSM: data.movement.enhancements?.includes('TSM') || false,
       };
-      
+
       // Build armor allocation
       const armorAllocation = this.buildArmorAllocation(data.armor.allocation);
       const totalArmorPoints = this.calculateTotalArmor(armorAllocation);
-      
+
       // Build equipment list
       const equipment = this.buildEquipmentList(data.equipment);
-      
+
       // Build critical slots
       const criticalSlots = this.buildCriticalSlots(data.criticalSlots);
-      
+
       // Calculate totals
-      const totalWeight = this.calculateTotalWeight(data, engine, gyro, heatSinks);
+      const totalWeight = this.calculateTotalWeight(
+        data,
+        engine,
+        gyro,
+        heatSinks,
+      );
       const remainingTonnage = data.tonnage - totalWeight;
-      
+
       // Build the mech
       const mech: IBattleMech = {
         id: data.id,
@@ -231,7 +251,7 @@ export class UnitFactoryService {
         cost: 0, // Would need full cost calculation
         battleValue: 0, // Would need full BV calculation
       };
-      
+
       return {
         success: true,
         unit: mech,
@@ -248,11 +268,14 @@ export class UnitFactoryService {
       };
     }
   }
-  
+
   /**
    * Calculate gyro weight
    */
-  private calculateGyroWeight(engineRating: number, gyroType: GyroType): number {
+  private calculateGyroWeight(
+    engineRating: number,
+    gyroType: GyroType,
+  ): number {
     const baseWeight = Math.ceil(engineRating / 100);
     switch (gyroType) {
       case GyroType.XL:
@@ -265,37 +288,60 @@ export class UnitFactoryService {
         return baseWeight;
     }
   }
-  
+
   /**
    * Build structure points map
    */
-  private buildStructurePoints(tonnage: number): Partial<Record<MechLocation, number>> {
+  private buildStructurePoints(
+    tonnage: number,
+  ): Partial<Record<MechLocation, number>> {
     return {
       [MechLocation.HEAD]: getStructurePoints(MechLocation.HEAD, tonnage),
-      [MechLocation.CENTER_TORSO]: getStructurePoints(MechLocation.CENTER_TORSO, tonnage),
-      [MechLocation.LEFT_TORSO]: getStructurePoints(MechLocation.LEFT_TORSO, tonnage),
-      [MechLocation.RIGHT_TORSO]: getStructurePoints(MechLocation.RIGHT_TORSO, tonnage),
-      [MechLocation.LEFT_ARM]: getStructurePoints(MechLocation.LEFT_ARM, tonnage),
-      [MechLocation.RIGHT_ARM]: getStructurePoints(MechLocation.RIGHT_ARM, tonnage),
-      [MechLocation.LEFT_LEG]: getStructurePoints(MechLocation.LEFT_LEG, tonnage),
-      [MechLocation.RIGHT_LEG]: getStructurePoints(MechLocation.RIGHT_LEG, tonnage),
+      [MechLocation.CENTER_TORSO]: getStructurePoints(
+        MechLocation.CENTER_TORSO,
+        tonnage,
+      ),
+      [MechLocation.LEFT_TORSO]: getStructurePoints(
+        MechLocation.LEFT_TORSO,
+        tonnage,
+      ),
+      [MechLocation.RIGHT_TORSO]: getStructurePoints(
+        MechLocation.RIGHT_TORSO,
+        tonnage,
+      ),
+      [MechLocation.LEFT_ARM]: getStructurePoints(
+        MechLocation.LEFT_ARM,
+        tonnage,
+      ),
+      [MechLocation.RIGHT_ARM]: getStructurePoints(
+        MechLocation.RIGHT_ARM,
+        tonnage,
+      ),
+      [MechLocation.LEFT_LEG]: getStructurePoints(
+        MechLocation.LEFT_LEG,
+        tonnage,
+      ),
+      [MechLocation.RIGHT_LEG]: getStructurePoints(
+        MechLocation.RIGHT_LEG,
+        tonnage,
+      ),
     };
   }
-  
+
   /**
    * Convert UPPER_SNAKE_CASE location key to camelCase
    */
   private locationToCamelCase(location: string): string {
     // Map from serialized format to IArmorAllocation property names
     const mapping: Record<string, string> = {
-      'HEAD': 'head',
-      'CENTER_TORSO': 'centerTorso',
-      'LEFT_TORSO': 'leftTorso',
-      'RIGHT_TORSO': 'rightTorso',
-      'LEFT_ARM': 'leftArm',
-      'RIGHT_ARM': 'rightArm',
-      'LEFT_LEG': 'leftLeg',
-      'RIGHT_LEG': 'rightLeg',
+      HEAD: 'head',
+      CENTER_TORSO: 'centerTorso',
+      LEFT_TORSO: 'leftTorso',
+      RIGHT_TORSO: 'rightTorso',
+      LEFT_ARM: 'leftArm',
+      RIGHT_ARM: 'rightArm',
+      LEFT_LEG: 'leftLeg',
+      RIGHT_LEG: 'rightLeg',
     };
     return mapping[location] || location.toLowerCase();
   }
@@ -303,7 +349,9 @@ export class UnitFactoryService {
   /**
    * Build armor allocation from serialized data
    */
-  private buildArmorAllocation(allocation: Record<string, number | { front: number; rear: number }>): IArmorAllocation {
+  private buildArmorAllocation(
+    allocation: Record<string, number | { front: number; rear: number }>,
+  ): IArmorAllocation {
     // Initialize with zeros to satisfy the interface
     const result: IArmorAllocation = {
       head: 0,
@@ -318,10 +366,12 @@ export class UnitFactoryService {
       leftLeg: 0,
       rightLeg: 0,
     };
-    
+
     for (const [location, value] of Object.entries(allocation)) {
-      const camelKey = this.locationToCamelCase(location) as keyof IArmorAllocation;
-      
+      const camelKey = this.locationToCamelCase(
+        location,
+      ) as keyof IArmorAllocation;
+
       if (typeof value === 'number') {
         if (camelKey in result) {
           (result as Record<keyof IArmorAllocation, number>)[camelKey] = value;
@@ -329,19 +379,21 @@ export class UnitFactoryService {
       } else if (typeof value === 'object' && value !== null) {
         // Front armor
         if (camelKey in result) {
-          (result as Record<keyof IArmorAllocation, number>)[camelKey] = value.front;
+          (result as Record<keyof IArmorAllocation, number>)[camelKey] =
+            value.front;
         }
         // Rear armor (only for torso locations)
         const rearKey = `${camelKey}Rear` as keyof IArmorAllocation;
         if (rearKey in result) {
-          (result as Record<keyof IArmorAllocation, number>)[rearKey] = value.rear;
+          (result as Record<keyof IArmorAllocation, number>)[rearKey] =
+            value.rear;
         }
       }
     }
-    
+
     return result;
   }
-  
+
   /**
    * Calculate total armor points
    */
@@ -354,13 +406,21 @@ export class UnitFactoryService {
     }
     return total;
   }
-  
+
   /**
    * Build equipment list
    */
-  private buildEquipmentList(equipment: readonly { id: string; location: string; slots?: number[]; isRearMounted?: boolean; linkedAmmo?: string }[]): readonly IMountedEquipment[] {
+  private buildEquipmentList(
+    equipment: readonly {
+      id: string;
+      location: string;
+      slots?: number[];
+      isRearMounted?: boolean;
+      linkedAmmo?: string;
+    }[],
+  ): readonly IMountedEquipment[] {
     const registry = getEquipmentRegistry();
-    
+
     return equipment.map((item, index) => ({
       id: `${item.id}-${index}`,
       equipmentId: item.id,
@@ -372,56 +432,71 @@ export class UnitFactoryService {
       linkedAmmoId: item.linkedAmmo,
     }));
   }
-  
+
   /**
    * Build critical slots from serialized data
    */
-  private buildCriticalSlots(slots: Record<string, (string | null)[]>): readonly ICriticalSlotAssignment[] {
+  private buildCriticalSlots(
+    slots: Record<string, (string | null)[]>,
+  ): readonly ICriticalSlotAssignment[] {
     const assignments: ICriticalSlotAssignment[] = [];
-    
+
     for (const [locationStr, slotItems] of Object.entries(slots)) {
       const location = parseMechLocation(locationStr);
       const slotList: ICriticalSlot[] = slotItems.map((item, index) => ({
         index,
-        content: item ? {
-          type: this.determineSlotContentType(item),
-          name: item,
-          isHittable: !item.includes('Engine') && !item.includes('Gyro'),
-        } : null,
-        isFixed: item !== null && (
-          item.includes('Engine') ||
-          item.includes('Gyro') ||
-          item.includes('Cockpit') ||
-          item.includes('Life Support') ||
-          item.includes('Sensors') ||
-          item.includes('Actuator') ||
-          item.includes('Shoulder') ||
-          item.includes('Hip')
-        ),
+        content: item
+          ? {
+              type: this.determineSlotContentType(item),
+              name: item,
+              isHittable: !item.includes('Engine') && !item.includes('Gyro'),
+            }
+          : null,
+        isFixed:
+          item !== null &&
+          (item.includes('Engine') ||
+            item.includes('Gyro') ||
+            item.includes('Cockpit') ||
+            item.includes('Life Support') ||
+            item.includes('Sensors') ||
+            item.includes('Actuator') ||
+            item.includes('Shoulder') ||
+            item.includes('Hip')),
         isDestroyed: false,
       }));
-      
+
       assignments.push({ location, slots: slotList });
     }
-    
+
     return assignments;
   }
-  
+
   /**
    * Determine the type of content in a critical slot
    */
-  private determineSlotContentType(item: string): 'equipment' | 'actuator' | 'system' | 'structure' | 'armor' {
+  private determineSlotContentType(
+    item: string,
+  ): 'equipment' | 'actuator' | 'system' | 'structure' | 'armor' {
     const lower = item.toLowerCase();
-    if (lower.includes('actuator') || lower.includes('shoulder') || lower.includes('hip')) {
+    if (
+      lower.includes('actuator') ||
+      lower.includes('shoulder') ||
+      lower.includes('hip')
+    ) {
       return 'actuator';
     }
-    if (lower.includes('engine') || lower.includes('gyro') || lower.includes('cockpit') ||
-        lower.includes('life support') || lower.includes('sensors')) {
+    if (
+      lower.includes('engine') ||
+      lower.includes('gyro') ||
+      lower.includes('cockpit') ||
+      lower.includes('life support') ||
+      lower.includes('sensors')
+    ) {
       return 'system';
     }
     return 'equipment';
   }
-  
+
   /**
    * Calculate total weight (simplified)
    */
@@ -429,50 +504,57 @@ export class UnitFactoryService {
     data: ISerializedUnit,
     engine: IEngineConfiguration,
     gyro: IGyroConfiguration,
-    heatSinks: IHeatSinkConfiguration
+    heatSinks: IHeatSinkConfiguration,
   ): number {
     // This is a simplified calculation
     // A full implementation would use ConstructionRulesValidator
     let weight = 0;
-    
+
     // Structure (10% of tonnage for standard)
     weight += data.tonnage * 0.1;
-    
+
     // Engine weight (using proper TechManual calculation)
     const engineWeight = calculateEngineWeight(engine.rating, engine.type);
     weight += engineWeight;
-    
+
     // Gyro
     weight += gyro.weight;
-    
+
     // Cockpit (3 tons standard)
     weight += 3;
-    
+
     // Heat sinks (external only, 1 ton each for single)
-    weight += heatSinks.external * (heatSinks.type === HeatSinkType.SINGLE ? 1 : 1);
-    
+    weight +=
+      heatSinks.external * (heatSinks.type === HeatSinkType.SINGLE ? 1 : 1);
+
     // Armor (16 points per ton for standard)
     let totalArmor = 0;
     for (const val of Object.values(data.armor.allocation)) {
       if (typeof val === 'number') {
         totalArmor += val;
-      } else if (typeof val === 'object' && val !== null && 'front' in val && 'rear' in val) {
+      } else if (
+        typeof val === 'object' &&
+        val !== null &&
+        'front' in val &&
+        'rear' in val
+      ) {
         totalArmor += val.front + val.rear;
       }
     }
     weight += totalArmor / 16;
-    
+
     // Jump jets (weight varies by tonnage)
     if (data.movement.jump > 0) {
       const jjWeight = data.tonnage <= 55 ? 0.5 : data.tonnage <= 85 ? 1 : 2;
       weight += data.movement.jump * jjWeight;
     }
-    
+
     return Math.round(weight * 2) / 2; // Round to nearest half ton
   }
 }
 
-const unitFactoryServiceFactory: SingletonFactory<UnitFactoryService> = createSingleton((): UnitFactoryService => new UnitFactoryService());
+const unitFactoryServiceFactory: SingletonFactory<UnitFactoryService> =
+  createSingleton((): UnitFactoryService => new UnitFactoryService());
 
 /**
  * Convenience function to get the factory instance
@@ -487,4 +569,3 @@ export function getUnitFactory(): UnitFactoryService {
 export function resetUnitFactory(): void {
   unitFactoryServiceFactory.reset();
 }
-

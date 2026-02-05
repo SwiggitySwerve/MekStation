@@ -13,6 +13,7 @@
 ## Task 1: Add Armor Diagram Mode to Settings Store
 
 **Files:**
+
 - Modify: `src/stores/useAppSettingsStore.ts`
 
 **Step 1: Write the failing test**
@@ -110,6 +111,7 @@ git commit -m "feat(settings): add armorDiagramMode setting for schematic/silhou
 ## Task 2: Create Shared Types for Armor Diagram
 
 **Files:**
+
 - Create: `src/components/armor/shared/types.ts`
 
 **Step 1: Create the types file**
@@ -203,6 +205,7 @@ git commit -m "feat(armor): add shared types for armor diagram modes"
 ## Task 3: Create Schematic Location Component
 
 **Files:**
+
 - Create: `src/components/armor/schematic/SchematicLocation.tsx`
 - Create: `src/components/armor/schematic/__tests__/SchematicLocation.test.tsx`
 
@@ -389,6 +392,7 @@ git commit -m "feat(armor): add SchematicLocation component for grid-based diagr
 ## Task 4: Create Schematic Diagram Component
 
 **Files:**
+
 - Create: `src/components/armor/schematic/SchematicDiagram.tsx`
 - Create: `src/components/armor/schematic/__tests__/SchematicDiagram.test.tsx`
 
@@ -641,6 +645,7 @@ git commit -m "feat(armor): add SchematicDiagram with anatomically correct grid 
 ## Task 5: Create Index Exports for Schematic Module
 
 **Files:**
+
 - Create: `src/components/armor/schematic/index.ts`
 
 **Step 1: Create the index file**
@@ -663,6 +668,7 @@ git commit -m "chore(armor): add schematic module exports"
 ## Task 6: Create Armor Diagram Mode Switcher
 
 **Files:**
+
 - Create: `src/components/armor/ArmorDiagramModeSwitch.tsx`
 - Create: `src/components/armor/__tests__/ArmorDiagramModeSwitch.test.tsx`
 
@@ -773,6 +779,7 @@ git commit -m "feat(armor): add ArmorDiagramModeSwitch component"
 ## Task 7: Create Unified Armor Diagram Orchestrator
 
 **Files:**
+
 - Modify: `src/components/armor/ArmorDiagram.tsx`
 - Create: `src/components/armor/__tests__/ArmorDiagram.mode.test.tsx`
 
@@ -886,6 +893,7 @@ git commit -m "feat(armor): add mode switching to ArmorDiagram orchestrator"
 ## Task 8: Add Mode Picker to Armor Diagram Quick Settings
 
 **Files:**
+
 - Modify: `src/components/customizer/armor/ArmorDiagramQuickSettings.tsx`
 
 **Step 1: Read the existing file**
@@ -986,6 +994,7 @@ git commit -m "feat(armor): complete schematic/silhouette mode implementation
 ## Summary
 
 **Files Created:**
+
 - `src/stores/__tests__/useAppSettingsStore.armorMode.test.ts`
 - `src/components/armor/shared/types.ts`
 - `src/components/armor/schematic/SchematicLocation.tsx`
@@ -998,6 +1007,7 @@ git commit -m "feat(armor): complete schematic/silhouette mode implementation
 - `src/components/armor/__tests__/ArmorDiagram.mode.test.tsx`
 
 **Files Modified:**
+
 - `src/stores/useAppSettingsStore.ts` - Add `armorDiagramMode` setting
 - `src/components/armor/ArmorDiagram.tsx` - Add mode switching
 - `src/components/customizer/armor/ArmorDiagramQuickSettings.tsx` - Add mode picker

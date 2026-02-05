@@ -5,12 +5,13 @@
  * Tests CRUD operations, status management, and data integrity.
  */
 
+import fs from 'fs';
+import path from 'path';
+
 import {
-  EncounterRepository,
-  getEncounterRepository,
-  EncounterErrorCode,
-} from '../EncounterRepository';
-import { getSQLiteService, resetSQLiteService } from '@/services/persistence/SQLiteService';
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
 import {
   EncounterStatus,
   ScenarioTemplateType,
@@ -20,8 +21,12 @@ import {
   IVictoryCondition,
   IOpForConfig,
 } from '@/types/encounter';
-import fs from 'fs';
-import path from 'path';
+
+import {
+  EncounterRepository,
+  getEncounterRepository,
+  EncounterErrorCode,
+} from '../EncounterRepository';
 
 // Test database path
 const TEST_DB_PATH = './data/test-encounter-repository.db';
@@ -169,7 +174,9 @@ describe('EncounterRepository', () => {
       expect(encounter?.template).toBe(ScenarioTemplateType.Duel);
       expect(encounter?.mapConfig.radius).toBe(5);
       expect(encounter?.victoryConditions).toHaveLength(1);
-      expect(encounter?.victoryConditions[0].type).toBe(VictoryConditionType.DestroyAll);
+      expect(encounter?.victoryConditions[0].type).toBe(
+        VictoryConditionType.DestroyAll,
+      );
     });
 
     it('should use Skirmish template defaults correctly', () => {
@@ -294,7 +301,9 @@ describe('EncounterRepository', () => {
     it('should return empty array when no encounters match status', () => {
       repository.createEncounter({ name: 'Draft Encounter' });
 
-      const readyEncounters = repository.getEncountersByStatus(EncounterStatus.Ready);
+      const readyEncounters = repository.getEncountersByStatus(
+        EncounterStatus.Ready,
+      );
       expect(readyEncounters).toEqual([]);
     });
 
@@ -302,7 +311,9 @@ describe('EncounterRepository', () => {
       repository.createEncounter({ name: 'Draft 1' });
       repository.createEncounter({ name: 'Draft 2' });
 
-      const draftEncounters = repository.getEncountersByStatus(EncounterStatus.Draft);
+      const draftEncounters = repository.getEncountersByStatus(
+        EncounterStatus.Draft,
+      );
       expect(draftEncounters).toHaveLength(2);
     });
 
@@ -312,8 +323,12 @@ describe('EncounterRepository', () => {
       // Set status to Ready
       repository.setEncounterStatus(result.id!, EncounterStatus.Ready);
 
-      const draftEncounters = repository.getEncountersByStatus(EncounterStatus.Draft);
-      const readyEncounters = repository.getEncountersByStatus(EncounterStatus.Ready);
+      const draftEncounters = repository.getEncountersByStatus(
+        EncounterStatus.Draft,
+      );
+      const readyEncounters = repository.getEncountersByStatus(
+        EncounterStatus.Ready,
+      );
 
       expect(draftEncounters).toHaveLength(0);
       expect(readyEncounters).toHaveLength(1);
@@ -326,7 +341,9 @@ describe('EncounterRepository', () => {
   // ===========================================================================
   describe('updateEncounter', () => {
     it('should update encounter name', () => {
-      const createResult = repository.createEncounter({ name: 'Original Name' });
+      const createResult = repository.createEncounter({
+        name: 'Original Name',
+      });
       const updateResult = repository.updateEncounter(createResult.id!, {
         name: 'Updated Name',
       });
@@ -338,7 +355,9 @@ describe('EncounterRepository', () => {
     });
 
     it('should update encounter description', () => {
-      const createResult = repository.createEncounter({ name: 'Description Test' });
+      const createResult = repository.createEncounter({
+        name: 'Description Test',
+      });
       repository.updateEncounter(createResult.id!, {
         description: 'New Description',
       });
@@ -355,8 +374,10 @@ describe('EncounterRepository', () => {
 
       // Note: undefined is not handled as "clear" in the repository - only explicit null works
       // The repository only processes description if it's !== undefined
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-      repository.updateEncounter(createResult.id!, { description: null as any });
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+      repository.updateEncounter(createResult.id!, {
+        description: null as unknown as string | undefined,
+      });
 
       const encounter = repository.getEncounterById(createResult.id!);
       expect(encounter?.description).toBeUndefined();
@@ -374,7 +395,9 @@ describe('EncounterRepository', () => {
     });
 
     it('should update opponent force reference', () => {
-      const createResult = repository.createEncounter({ name: 'Opponent Force Test' });
+      const createResult = repository.createEncounter({
+        name: 'Opponent Force Test',
+      });
       repository.updateEncounter(createResult.id!, {
         opponentForceId: 'force-456',
       });
@@ -397,11 +420,15 @@ describe('EncounterRepository', () => {
       const encounter = repository.getEncounterById(createResult.id!);
       expect(encounter?.opForConfig).toBeDefined();
       expect(encounter?.opForConfig?.targetBV).toBe(5000);
-      expect(encounter?.opForConfig?.pilotSkillTemplate).toBe(PilotSkillTemplate.Regular);
+      expect(encounter?.opForConfig?.pilotSkillTemplate).toBe(
+        PilotSkillTemplate.Regular,
+      );
     });
 
     it('should merge partial map config updates', () => {
-      const createResult = repository.createEncounter({ name: 'Map Update Test' });
+      const createResult = repository.createEncounter({
+        name: 'Map Update Test',
+      });
 
       repository.updateEncounter(createResult.id!, {
         mapConfig: { radius: 10 },
@@ -425,7 +452,9 @@ describe('EncounterRepository', () => {
 
       const encounter = repository.getEncounterById(createResult.id!);
       expect(encounter?.victoryConditions).toHaveLength(2);
-      expect(encounter?.victoryConditions[0].type).toBe(VictoryConditionType.Cripple);
+      expect(encounter?.victoryConditions[0].type).toBe(
+        VictoryConditionType.Cripple,
+      );
       expect(encounter?.victoryConditions[0].threshold).toBe(60);
     });
 
@@ -440,7 +469,9 @@ describe('EncounterRepository', () => {
     });
 
     it('should update updatedAt timestamp', () => {
-      const createResult = repository.createEncounter({ name: 'Timestamp Update' });
+      const createResult = repository.createEncounter({
+        name: 'Timestamp Update',
+      });
       const originalEncounter = repository.getEncounterById(createResult.id!);
       const originalUpdatedAt = originalEncounter?.updatedAt;
 
@@ -454,7 +485,9 @@ describe('EncounterRepository', () => {
     });
 
     it('should return NOT_FOUND error for non-existent encounter', () => {
-      const result = repository.updateEncounter('non-existent-id', { name: 'New Name' });
+      const result = repository.updateEncounter('non-existent-id', {
+        name: 'New Name',
+      });
 
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe(EncounterErrorCode.NotFound);
@@ -462,10 +495,14 @@ describe('EncounterRepository', () => {
     });
 
     it('should return INVALID_STATUS error when updating Launched encounter', () => {
-      const createResult = repository.createEncounter({ name: 'Launched Test' });
+      const createResult = repository.createEncounter({
+        name: 'Launched Test',
+      });
       repository.setEncounterStatus(createResult.id!, EncounterStatus.Launched);
 
-      const result = repository.updateEncounter(createResult.id!, { name: 'New Name' });
+      const result = repository.updateEncounter(createResult.id!, {
+        name: 'New Name',
+      });
 
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe(EncounterErrorCode.InvalidStatus);
@@ -473,10 +510,17 @@ describe('EncounterRepository', () => {
     });
 
     it('should return INVALID_STATUS error when updating Completed encounter', () => {
-      const createResult = repository.createEncounter({ name: 'Completed Test' });
-      repository.setEncounterStatus(createResult.id!, EncounterStatus.Completed);
+      const createResult = repository.createEncounter({
+        name: 'Completed Test',
+      });
+      repository.setEncounterStatus(
+        createResult.id!,
+        EncounterStatus.Completed,
+      );
 
-      const result = repository.updateEncounter(createResult.id!, { name: 'New Name' });
+      const result = repository.updateEncounter(createResult.id!, {
+        name: 'New Name',
+      });
 
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe(EncounterErrorCode.InvalidStatus);
@@ -506,7 +550,9 @@ describe('EncounterRepository', () => {
     });
 
     it('should return INVALID_STATUS when deleting Launched encounter', () => {
-      const createResult = repository.createEncounter({ name: 'Launched Delete Test' });
+      const createResult = repository.createEncounter({
+        name: 'Launched Delete Test',
+      });
       repository.setEncounterStatus(createResult.id!, EncounterStatus.Launched);
 
       const result = repository.deleteEncounter(createResult.id!);
@@ -533,8 +579,13 @@ describe('EncounterRepository', () => {
     });
 
     it('should allow deleting Completed encounter', () => {
-      const createResult = repository.createEncounter({ name: 'Completed Delete' });
-      repository.setEncounterStatus(createResult.id!, EncounterStatus.Completed);
+      const createResult = repository.createEncounter({
+        name: 'Completed Delete',
+      });
+      repository.setEncounterStatus(
+        createResult.id!,
+        EncounterStatus.Completed,
+      );
 
       const result = repository.deleteEncounter(createResult.id!);
 
@@ -547,8 +598,13 @@ describe('EncounterRepository', () => {
   // ===========================================================================
   describe('setEncounterStatus', () => {
     it('should set status to Ready', () => {
-      const createResult = repository.createEncounter({ name: 'Status Ready Test' });
-      const result = repository.setEncounterStatus(createResult.id!, EncounterStatus.Ready);
+      const createResult = repository.createEncounter({
+        name: 'Status Ready Test',
+      });
+      const result = repository.setEncounterStatus(
+        createResult.id!,
+        EncounterStatus.Ready,
+      );
 
       expect(result.success).toBe(true);
 
@@ -557,7 +613,9 @@ describe('EncounterRepository', () => {
     });
 
     it('should set status to Launched', () => {
-      const createResult = repository.createEncounter({ name: 'Status Launched Test' });
+      const createResult = repository.createEncounter({
+        name: 'Status Launched Test',
+      });
       repository.setEncounterStatus(createResult.id!, EncounterStatus.Launched);
 
       const encounter = repository.getEncounterById(createResult.id!);
@@ -565,15 +623,22 @@ describe('EncounterRepository', () => {
     });
 
     it('should set status to Completed', () => {
-      const createResult = repository.createEncounter({ name: 'Status Completed Test' });
-      repository.setEncounterStatus(createResult.id!, EncounterStatus.Completed);
+      const createResult = repository.createEncounter({
+        name: 'Status Completed Test',
+      });
+      repository.setEncounterStatus(
+        createResult.id!,
+        EncounterStatus.Completed,
+      );
 
       const encounter = repository.getEncounterById(createResult.id!);
       expect(encounter?.status).toBe(EncounterStatus.Completed);
     });
 
     it('should update updatedAt when status changes', () => {
-      const createResult = repository.createEncounter({ name: 'Status Timestamp Test' });
+      const createResult = repository.createEncounter({
+        name: 'Status Timestamp Test',
+      });
       const originalEncounter = repository.getEncounterById(createResult.id!);
       const originalUpdatedAt = originalEncounter?.updatedAt;
 
@@ -586,8 +651,13 @@ describe('EncounterRepository', () => {
     });
 
     it('should return success with id for valid status change', () => {
-      const createResult = repository.createEncounter({ name: 'Status Return Test' });
-      const result = repository.setEncounterStatus(createResult.id!, EncounterStatus.Ready);
+      const createResult = repository.createEncounter({
+        name: 'Status Return Test',
+      });
+      const result = repository.setEncounterStatus(
+        createResult.id!,
+        EncounterStatus.Ready,
+      );
 
       expect(result.success).toBe(true);
       expect(result.id).toBe(createResult.id);
@@ -599,8 +669,13 @@ describe('EncounterRepository', () => {
   // ===========================================================================
   describe('linkGameSession', () => {
     it('should link game session and set status to Launched', () => {
-      const createResult = repository.createEncounter({ name: 'Link Session Test' });
-      const result = repository.linkGameSession(createResult.id!, 'game-session-123');
+      const createResult = repository.createEncounter({
+        name: 'Link Session Test',
+      });
+      const result = repository.linkGameSession(
+        createResult.id!,
+        'game-session-123',
+      );
 
       expect(result.success).toBe(true);
 
@@ -610,7 +685,9 @@ describe('EncounterRepository', () => {
     });
 
     it('should update updatedAt when linking session', () => {
-      const createResult = repository.createEncounter({ name: 'Link Timestamp Test' });
+      const createResult = repository.createEncounter({
+        name: 'Link Timestamp Test',
+      });
       const originalEncounter = repository.getEncounterById(createResult.id!);
       const originalUpdatedAt = originalEncounter?.updatedAt;
 
@@ -635,15 +712,21 @@ describe('EncounterRepository', () => {
   // ===========================================================================
   describe('status recalculation', () => {
     it('should remain Draft when only player force is set', () => {
-      const createResult = repository.createEncounter({ name: 'Recalc Test 1' });
-      repository.updateEncounter(createResult.id!, { playerForceId: 'force-1' });
+      const createResult = repository.createEncounter({
+        name: 'Recalc Test 1',
+      });
+      repository.updateEncounter(createResult.id!, {
+        playerForceId: 'force-1',
+      });
 
       const encounter = repository.getEncounterById(createResult.id!);
       expect(encounter?.status).toBe(EncounterStatus.Draft);
     });
 
     it('should remain Draft when player force and opponent force set but no victory conditions', () => {
-      const createResult = repository.createEncounter({ name: 'Recalc Test 2' });
+      const createResult = repository.createEncounter({
+        name: 'Recalc Test 2',
+      });
       repository.updateEncounter(createResult.id!, {
         playerForceId: 'force-1',
         opponentForceId: 'force-2',
@@ -655,7 +738,9 @@ describe('EncounterRepository', () => {
     });
 
     it('should become Ready when player force, opponent force, and victory conditions are set', () => {
-      const createResult = repository.createEncounter({ name: 'Recalc Test 3' });
+      const createResult = repository.createEncounter({
+        name: 'Recalc Test 3',
+      });
       repository.updateEncounter(createResult.id!, {
         playerForceId: 'force-1',
         opponentForceId: 'force-2',
@@ -667,10 +752,15 @@ describe('EncounterRepository', () => {
     });
 
     it('should become Ready when player force, OpFor config, and victory conditions are set', () => {
-      const createResult = repository.createEncounter({ name: 'Recalc Test 4' });
+      const createResult = repository.createEncounter({
+        name: 'Recalc Test 4',
+      });
       repository.updateEncounter(createResult.id!, {
         playerForceId: 'force-1',
-        opForConfig: { targetBV: 5000, pilotSkillTemplate: PilotSkillTemplate.Regular },
+        opForConfig: {
+          targetBV: 5000,
+          pilotSkillTemplate: PilotSkillTemplate.Regular,
+        },
         victoryConditions: [{ type: VictoryConditionType.DestroyAll }],
       });
 
@@ -679,11 +769,15 @@ describe('EncounterRepository', () => {
     });
 
     it('should not change Launched status during recalculation', () => {
-      const createResult = repository.createEncounter({ name: 'Recalc Launched Test' });
+      const createResult = repository.createEncounter({
+        name: 'Recalc Launched Test',
+      });
       repository.setEncounterStatus(createResult.id!, EncounterStatus.Launched);
 
       // This should not change status since we can't update launched encounters
-      const result = repository.updateEncounter(createResult.id!, { name: 'New Name' });
+      const result = repository.updateEncounter(createResult.id!, {
+        name: 'New Name',
+      });
 
       expect(result.success).toBe(false);
       const encounter = repository.getEncounterById(createResult.id!);
@@ -691,10 +785,17 @@ describe('EncounterRepository', () => {
     });
 
     it('should not change Completed status during recalculation', () => {
-      const createResult = repository.createEncounter({ name: 'Recalc Completed Test' });
-      repository.setEncounterStatus(createResult.id!, EncounterStatus.Completed);
+      const createResult = repository.createEncounter({
+        name: 'Recalc Completed Test',
+      });
+      repository.setEncounterStatus(
+        createResult.id!,
+        EncounterStatus.Completed,
+      );
 
-      const result = repository.updateEncounter(createResult.id!, { name: 'New Name' });
+      const result = repository.updateEncounter(createResult.id!, {
+        name: 'New Name',
+      });
 
       expect(result.success).toBe(false);
       const encounter = repository.getEncounterById(createResult.id!);
@@ -702,7 +803,9 @@ describe('EncounterRepository', () => {
     });
 
     it('should revert from Ready to Draft when victory conditions are cleared', () => {
-      const createResult = repository.createEncounter({ name: 'Recalc Revert Test' });
+      const createResult = repository.createEncounter({
+        name: 'Recalc Revert Test',
+      });
 
       // First make it Ready
       repository.updateEncounter(createResult.id!, {
@@ -727,7 +830,9 @@ describe('EncounterRepository', () => {
   // ===========================================================================
   describe('data serialization/deserialization', () => {
     it('should handle null optional fields correctly', () => {
-      const createResult = repository.createEncounter({ name: 'Null Fields Test' });
+      const createResult = repository.createEncounter({
+        name: 'Null Fields Test',
+      });
       const encounter = repository.getEncounterById(createResult.id!);
 
       // Description uses nullish coalescing so null becomes undefined
@@ -743,7 +848,9 @@ describe('EncounterRepository', () => {
     });
 
     it('should preserve complex nested objects through serialization', () => {
-      const createResult = repository.createEncounter({ name: 'Complex Data Test' });
+      const createResult = repository.createEncounter({
+        name: 'Complex Data Test',
+      });
       repository.updateEncounter(createResult.id!, {
         opForConfig: {
           targetBV: 8000,
@@ -756,7 +863,10 @@ describe('EncounterRepository', () => {
         victoryConditions: [
           { type: VictoryConditionType.Cripple, threshold: 75 },
           { type: VictoryConditionType.TurnLimit, turnLimit: 20 },
-          { type: VictoryConditionType.Custom, description: 'Hold the hill for 5 turns' },
+          {
+            type: VictoryConditionType.Custom,
+            description: 'Hold the hill for 5 turns',
+          },
         ],
         mapConfig: {
           radius: 10,
@@ -771,11 +881,16 @@ describe('EncounterRepository', () => {
       // Verify OpFor config
       expect(encounter?.opForConfig?.targetBV).toBe(8000);
       expect(encounter?.opForConfig?.targetBVPercent).toBe(110);
-      expect(encounter?.opForConfig?.unitTypes).toEqual(['BattleMech', 'OmniMech']);
+      expect(encounter?.opForConfig?.unitTypes).toEqual([
+        'BattleMech',
+        'OmniMech',
+      ]);
 
       // Verify victory conditions
       expect(encounter?.victoryConditions).toHaveLength(3);
-      expect(encounter?.victoryConditions[2].description).toBe('Hold the hill for 5 turns');
+      expect(encounter?.victoryConditions[2].description).toBe(
+        'Hold the hill for 5 turns',
+      );
 
       // Verify map config
       expect(encounter?.mapConfig.terrain).toBe(TerrainPreset.LightWoods);

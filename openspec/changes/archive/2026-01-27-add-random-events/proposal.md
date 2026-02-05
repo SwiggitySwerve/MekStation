@@ -5,6 +5,7 @@
 MekStation needs a dynamic random event system to simulate the unpredictable nature of mercenary operations. MekHQ includes prisoner events (51 types with severity), life events (births, coming-of-age, celebrations), contract special events (10 types), and historical events like Gray Monday (3132). These events add narrative depth, strategic challenges, and emergent gameplay moments that make campaigns feel alive.
 
 Without random events, campaigns become predictable and mechanical. Players miss out on:
+
 - Prisoner management challenges (escapes, riots, ransoms)
 - Personnel life milestones (coming-of-age, celebrations)
 - Contract complications (special events during missions)
@@ -25,10 +26,12 @@ Without random events, campaigns become predictable and mechanical. Players miss
 ## Impact
 
 ### Affected Specs
+
 - `random-events` (NEW) - Event types, probability engine, event definitions
 - `day-progression` (MODIFIED) - Random events processor registration
 
 ### Affected Code
+
 - `src/types/campaign/events/randomEventTypes.ts` - Event interfaces and enums
 - `src/lib/campaign/events/eventProbability.ts` - Probability and date helpers
 - `src/lib/campaign/events/prisonerEvents.ts` - ~30 prisoner event definitions
@@ -39,9 +42,11 @@ Without random events, campaigns become predictable and mechanical. Players miss
 - `src/types/campaign/Campaign.ts` - ICampaignOptions extended
 
 ### Breaking Changes
+
 None. All event options default to enabled (opt-out), and the system is purely additive.
 
 ### Migration Notes
+
 - New `useRandomEvents` on ICampaignOptions defaults to true (opt-out)
 - New `usePrisonerEvents`, `useLifeEvents`, `useContractEvents` default to true
 - New `simulateGrayMonday` defaults to false (opt-in for Dark Age campaigns)

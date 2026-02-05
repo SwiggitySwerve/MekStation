@@ -7,63 +7,65 @@
  * @module campaign/ranks/rankService
  */
 
+import type { IPerson } from '@/types/campaign/Person';
+import type { IRank } from '@/types/campaign/ranks/rankTypes';
+
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import {
   Profession,
   IRankSystem,
   isValidRankIndex,
 } from '@/types/campaign/ranks/rankTypes';
-import type { IRank } from '@/types/campaign/ranks/rankTypes';
-import type { IPerson } from '@/types/campaign/Person';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 
 // =============================================================================
 // Role → Profession Mapping
 // =============================================================================
 
-const ROLE_TO_PROFESSION: ReadonlyMap<CampaignPersonnelRole, Profession> = new Map([
-  // MekWarrior
-  [CampaignPersonnelRole.PILOT, Profession.MEKWARRIOR],
-  [CampaignPersonnelRole.LAM_PILOT, Profession.MEKWARRIOR],
-  [CampaignPersonnelRole.PROTOMEK_PILOT, Profession.MEKWARRIOR],
+const ROLE_TO_PROFESSION: ReadonlyMap<CampaignPersonnelRole, Profession> =
+  new Map([
+    // MekWarrior
+    [CampaignPersonnelRole.PILOT, Profession.MEKWARRIOR],
+    [CampaignPersonnelRole.LAM_PILOT, Profession.MEKWARRIOR],
+    [CampaignPersonnelRole.PROTOMEK_PILOT, Profession.MEKWARRIOR],
 
-  // Aerospace
-  [CampaignPersonnelRole.AEROSPACE_PILOT, Profession.AEROSPACE],
-  [CampaignPersonnelRole.CONVENTIONAL_AIRCRAFT_PILOT, Profession.AEROSPACE],
+    // Aerospace
+    [CampaignPersonnelRole.AEROSPACE_PILOT, Profession.AEROSPACE],
+    [CampaignPersonnelRole.CONVENTIONAL_AIRCRAFT_PILOT, Profession.AEROSPACE],
 
-  // Vehicle
-  [CampaignPersonnelRole.VEHICLE_DRIVER, Profession.VEHICLE],
-  [CampaignPersonnelRole.VEHICLE_CREW_VTOL, Profession.VEHICLE],
+    // Vehicle
+    [CampaignPersonnelRole.VEHICLE_DRIVER, Profession.VEHICLE],
+    [CampaignPersonnelRole.VEHICLE_CREW_VTOL, Profession.VEHICLE],
 
-  // Naval
-  [CampaignPersonnelRole.VEHICLE_CREW_NAVAL, Profession.NAVAL],
-  [CampaignPersonnelRole.VESSEL_PILOT, Profession.NAVAL],
-  [CampaignPersonnelRole.VESSEL_GUNNER, Profession.NAVAL],
-  [CampaignPersonnelRole.VESSEL_CREW, Profession.NAVAL],
-  [CampaignPersonnelRole.VESSEL_NAVIGATOR, Profession.NAVAL],
+    // Naval
+    [CampaignPersonnelRole.VEHICLE_CREW_NAVAL, Profession.NAVAL],
+    [CampaignPersonnelRole.VESSEL_PILOT, Profession.NAVAL],
+    [CampaignPersonnelRole.VESSEL_GUNNER, Profession.NAVAL],
+    [CampaignPersonnelRole.VESSEL_CREW, Profession.NAVAL],
+    [CampaignPersonnelRole.VESSEL_NAVIGATOR, Profession.NAVAL],
 
-  // Infantry
-  [CampaignPersonnelRole.BATTLE_ARMOUR, Profession.INFANTRY],
-  [CampaignPersonnelRole.SOLDIER, Profession.INFANTRY],
+    // Infantry
+    [CampaignPersonnelRole.BATTLE_ARMOUR, Profession.INFANTRY],
+    [CampaignPersonnelRole.SOLDIER, Profession.INFANTRY],
 
-  // Tech
-  [CampaignPersonnelRole.TECH, Profession.TECH],
-  [CampaignPersonnelRole.MEK_TECH, Profession.TECH],
-  [CampaignPersonnelRole.MECHANIC, Profession.TECH],
-  [CampaignPersonnelRole.AERO_TEK, Profession.TECH],
-  [CampaignPersonnelRole.BA_TECH, Profession.TECH],
-  [CampaignPersonnelRole.ASTECH, Profession.TECH],
+    // Tech
+    [CampaignPersonnelRole.TECH, Profession.TECH],
+    [CampaignPersonnelRole.MEK_TECH, Profession.TECH],
+    [CampaignPersonnelRole.MECHANIC, Profession.TECH],
+    [CampaignPersonnelRole.AERO_TEK, Profession.TECH],
+    [CampaignPersonnelRole.BA_TECH, Profession.TECH],
+    [CampaignPersonnelRole.ASTECH, Profession.TECH],
 
-  // Medical
-  [CampaignPersonnelRole.DOCTOR, Profession.MEDICAL],
-  [CampaignPersonnelRole.MEDIC, Profession.MEDICAL],
+    // Medical
+    [CampaignPersonnelRole.DOCTOR, Profession.MEDICAL],
+    [CampaignPersonnelRole.MEDIC, Profession.MEDICAL],
 
-  // Administrator
-  [CampaignPersonnelRole.ADMIN_COMMAND, Profession.ADMINISTRATOR],
-  [CampaignPersonnelRole.ADMIN_LOGISTICS, Profession.ADMINISTRATOR],
-  [CampaignPersonnelRole.ADMIN_TRANSPORT, Profession.ADMINISTRATOR],
-  [CampaignPersonnelRole.ADMIN_HR, Profession.ADMINISTRATOR],
-  [CampaignPersonnelRole.ADMIN, Profession.ADMINISTRATOR],
-]);
+    // Administrator
+    [CampaignPersonnelRole.ADMIN_COMMAND, Profession.ADMINISTRATOR],
+    [CampaignPersonnelRole.ADMIN_LOGISTICS, Profession.ADMINISTRATOR],
+    [CampaignPersonnelRole.ADMIN_TRANSPORT, Profession.ADMINISTRATOR],
+    [CampaignPersonnelRole.ADMIN_HR, Profession.ADMINISTRATOR],
+    [CampaignPersonnelRole.ADMIN, Profession.ADMINISTRATOR],
+  ]);
 
 /**
  * Maps a CampaignPersonnelRole to its corresponding Profession.
@@ -88,7 +90,10 @@ export function mapRoleToProfession(role: CampaignPersonnelRole): Profession {
  * Falls back to the MekWarrior name if the profession-specific name is not set,
  * then falls back to 'None' if no name is available at all.
  */
-function resolveRankName(rank: IRank | undefined, profession: Profession): string {
+function resolveRankName(
+  rank: IRank | undefined,
+  profession: Profession,
+): string {
   if (!rank) {
     return 'None';
   }
@@ -151,7 +156,10 @@ export function isOfficer(person: IPerson, rankSystem: IRankSystem): boolean {
  * @param rankSystem - The rank system defining the officer cutoff
  * @returns true if the rank index is at or above the officer cut
  */
-export function isOfficerByIndex(rankIndex: number, rankSystem: IRankSystem): boolean {
+export function isOfficerByIndex(
+  rankIndex: number,
+  rankSystem: IRankSystem,
+): boolean {
   return rankIndex >= rankSystem.officerCut;
 }
 
@@ -189,15 +197,27 @@ export function promoteToRank(
   rankSystem: IRankSystem,
 ): RankChangeResult {
   if (!isValidRankIndex(newRankIndex)) {
-    return { updatedPerson: person, valid: false, reason: 'Rank index out of range (0-50)' };
+    return {
+      updatedPerson: person,
+      valid: false,
+      reason: 'Rank index out of range (0-50)',
+    };
   }
 
   const currentRankIndex = person.rankIndex ?? 0;
   if (newRankIndex <= currentRankIndex) {
-    return { updatedPerson: person, valid: false, reason: 'New rank must be higher than current rank' };
+    return {
+      updatedPerson: person,
+      valid: false,
+      reason: 'New rank must be higher than current rank',
+    };
   }
 
-  const newRankName = getRankNameByIndex(newRankIndex, person.primaryRole, rankSystem);
+  const newRankName = getRankNameByIndex(
+    newRankIndex,
+    person.primaryRole,
+    rankSystem,
+  );
   const changeDate = new Date(currentDate);
 
   const updatedPerson: IPerson = {
@@ -235,15 +255,27 @@ export function demoteToRank(
   rankSystem: IRankSystem,
 ): RankChangeResult {
   if (!isValidRankIndex(newRankIndex)) {
-    return { updatedPerson: person, valid: false, reason: 'Rank index out of range (0-50)' };
+    return {
+      updatedPerson: person,
+      valid: false,
+      reason: 'Rank index out of range (0-50)',
+    };
   }
 
   const currentRankIndex = person.rankIndex ?? 0;
   if (newRankIndex >= currentRankIndex) {
-    return { updatedPerson: person, valid: false, reason: 'New rank must be lower than current rank' };
+    return {
+      updatedPerson: person,
+      valid: false,
+      reason: 'New rank must be lower than current rank',
+    };
   }
 
-  const newRankName = getRankNameByIndex(newRankIndex, person.primaryRole, rankSystem);
+  const newRankName = getRankNameByIndex(
+    newRankIndex,
+    person.primaryRole,
+    rankSystem,
+  );
   const changeDate = new Date(currentDate);
 
   const updatedPerson: IPerson = {
@@ -276,7 +308,10 @@ export interface TimeInRankResult {
  * @param currentDate - ISO date string for the current date
  * @returns An object with days, months, years, and a formatted display string
  */
-export function getTimeInRank(person: IPerson, currentDate: string): TimeInRankResult {
+export function getTimeInRank(
+  person: IPerson,
+  currentDate: string,
+): TimeInRankResult {
   const startDate = person.lastRankChangeDate ?? person.recruitmentDate;
   const endDate = new Date(currentDate);
   const start = new Date(startDate);
@@ -291,7 +326,9 @@ export function getTimeInRank(person: IPerson, currentDate: string): TimeInRankR
 
   if (days < 0) {
     months -= 1;
-    const prevMonth = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), 0));
+    const prevMonth = new Date(
+      Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), 0),
+    );
     days += prevMonth.getUTCDate();
   }
 

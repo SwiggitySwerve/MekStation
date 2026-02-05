@@ -6,15 +6,17 @@
  * @spec openspec/changes/add-awards-system/specs/awards/spec.md
  */
 import React, { useMemo, useState } from 'react';
+
 import { Card } from '@/components/ui';
-import { AwardBadge } from './AwardBadge';
-import { AwardDetailModal } from './AwardDetailModal';
 import {
   IAward,
   IPilotAward,
   AwardRarity,
   getRarityColor,
 } from '@/types/award';
+
+import { AwardBadge } from './AwardBadge';
+import { AwardDetailModal } from './AwardDetailModal';
 import { getAwardIcon, getRarityStrokeWidth } from './awardIcons';
 
 // =============================================================================
@@ -92,7 +94,11 @@ interface EarnedAwardCardProps {
   onClick?: (award: IAward) => void;
 }
 
-function EarnedAwardCard({ award, pilotName, onClick }: EarnedAwardCardProps): React.ReactElement {
+function EarnedAwardCard({
+  award,
+  pilotName,
+  onClick,
+}: EarnedAwardCardProps): React.ReactElement {
   const rarityColor = getRarityColor(award.rarity);
   const rarityGlow = getRarityGlowClass(award.rarity);
   const IconComponent = getAwardIcon(award.icon);
@@ -103,51 +109,32 @@ function EarnedAwardCard({ award, pilotName, onClick }: EarnedAwardCardProps): R
     <button
       type="button"
       onClick={() => onClick?.(award)}
-      className={`
-        w-full p-4 rounded-xl
-        bg-surface-raised border border-border-theme-subtle
-        hover:border-border-theme
-        transition-all duration-200
-        text-left
-        ${rarityGlow ? `shadow-lg ${rarityGlow}` : ''}
-        ${isLegendary ? 'ring-1 ring-amber-400/20' : ''}
-        ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}
-      `}
+      className={`bg-surface-raised border-border-theme-subtle hover:border-border-theme w-full rounded-xl border p-4 text-left transition-all duration-200 ${rarityGlow ? `shadow-lg ${rarityGlow}` : ''} ${isLegendary ? 'ring-1 ring-amber-400/20' : ''} ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''} `}
     >
       <div className="flex items-start gap-4">
         {/* Icon */}
         <div
-          className={`
-            flex-shrink-0 w-14 h-14 rounded-full
-            bg-surface-deep border-2 border-border-theme-subtle
-            flex items-center justify-center
-            ${rarityColor}
-          `}
+          className={`bg-surface-deep border-border-theme-subtle flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border-2 ${rarityColor} `}
         >
           <IconComponent size={28} strokeWidth={strokeWidth} />
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h4 className="text-base font-bold text-text-theme-primary truncate">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2">
+            <h4 className="text-text-theme-primary truncate text-base font-bold">
               {award.name}
             </h4>
             <span
-              className={`
-                text-xs font-medium uppercase tracking-wider
-                px-2 py-0.5 rounded
-                ${rarityColor}
-                bg-surface-deep
-              `}
+              className={`rounded px-2 py-0.5 text-xs font-medium tracking-wider uppercase ${rarityColor} bg-surface-deep`}
             >
               {RARITY_LABELS[award.rarity]}
             </span>
           </div>
-          <p className="text-xs text-text-theme-muted mb-1">
+          <p className="text-text-theme-muted mb-1 text-xs">
             Earned by {pilotName}
           </p>
-          <p className="text-sm text-text-theme-secondary line-clamp-2">
+          <p className="text-text-theme-secondary line-clamp-2 text-sm">
             {award.description}
           </p>
         </div>
@@ -163,35 +150,38 @@ interface ProgressBarProps {
   required: number;
 }
 
-function ProgressBar({ award, pilotName, current, required }: ProgressBarProps): React.ReactElement {
+function ProgressBar({
+  award,
+  pilotName,
+  current,
+  required,
+}: ProgressBarProps): React.ReactElement {
   const percentage = Math.min((current / required) * 100, 100);
   const rarityColor = getRarityColor(award.rarity);
 
   return (
-    <div className="p-3 rounded-lg bg-surface-deep/50 border border-border-theme-subtle">
-      <div className="flex items-center justify-between mb-2">
+    <div className="bg-surface-deep/50 border-border-theme-subtle rounded-lg border p-3">
+      <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-text-theme-secondary truncate">
+          <span className="text-text-theme-secondary truncate text-sm font-medium">
             {award.name}
           </span>
-          <span className="text-xs text-text-theme-muted">
-            ({pilotName})
-          </span>
+          <span className="text-text-theme-muted text-xs">({pilotName})</span>
         </div>
         <span className={`text-sm font-bold tabular-nums ${rarityColor}`}>
           {current}/{required}
         </span>
       </div>
-      <div className="h-2 bg-surface-base rounded-full overflow-hidden">
+      <div className="bg-surface-base h-2 overflow-hidden rounded-full">
         <div
-          className={`h-full transition-all duration-500 rounded-full ${
+          className={`h-full rounded-full transition-all duration-500 ${
             award.rarity === AwardRarity.Legendary
               ? 'bg-gradient-to-r from-amber-500 to-yellow-400'
               : award.rarity === AwardRarity.Rare
-              ? 'bg-gradient-to-r from-blue-500 to-cyan-400'
-              : award.rarity === AwardRarity.Uncommon
-              ? 'bg-gradient-to-r from-emerald-500 to-green-400'
-              : 'bg-gradient-to-r from-slate-500 to-slate-400'
+                ? 'bg-gradient-to-r from-blue-500 to-cyan-400'
+                : award.rarity === AwardRarity.Uncommon
+                  ? 'bg-gradient-to-r from-emerald-500 to-green-400'
+                  : 'bg-gradient-to-r from-slate-500 to-slate-400'
           }`}
           style={{ width: `${percentage}%` }}
         />
@@ -216,7 +206,7 @@ export function AwardSummary({
   // Sort earned awards by rarity (legendary first)
   const sortedEarnedAwards = useMemo(() => {
     return [...earnedAwards].sort(
-      (a, b) => RARITY_ORDER[a.award.rarity] - RARITY_ORDER[b.award.rarity]
+      (a, b) => RARITY_ORDER[a.award.rarity] - RARITY_ORDER[b.award.rarity],
     );
   }, [earnedAwards]);
 
@@ -231,10 +221,10 @@ export function AwardSummary({
 
   // Stats
   const legendaryCount = earnedAwards.filter(
-    (e) => e.award.rarity === AwardRarity.Legendary
+    (e) => e.award.rarity === AwardRarity.Legendary,
   ).length;
   const rareCount = earnedAwards.filter(
-    (e) => e.award.rarity === AwardRarity.Rare
+    (e) => e.award.rarity === AwardRarity.Rare,
   ).length;
 
   const handleAwardClick = (award: IAward) => {
@@ -257,9 +247,9 @@ export function AwardSummary({
   if (earnedAwards.length === 0 && progressUpdates.length === 0) {
     return (
       <Card className={`p-8 text-center ${className}`}>
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-raised/50 flex items-center justify-center">
+        <div className="bg-surface-raised/50 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
           <svg
-            className="w-8 h-8 text-text-theme-muted"
+            className="text-text-theme-muted h-8 w-8"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -272,7 +262,7 @@ export function AwardSummary({
             />
           </svg>
         </div>
-        <h3 className="text-lg font-semibold text-text-theme-primary mb-2">
+        <h3 className="text-text-theme-primary mb-2 text-lg font-semibold">
           No Awards This Game
         </h3>
         <p className="text-text-theme-secondary text-sm">
@@ -286,21 +276,22 @@ export function AwardSummary({
     <>
       <Card className={className}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-border-theme-subtle">
+        <div className="border-border-theme-subtle mb-6 flex items-center justify-between border-b pb-4">
           <div>
-            <h3 className="text-xl font-bold text-text-theme-primary">{title}</h3>
+            <h3 className="text-text-theme-primary text-xl font-bold">
+              {title}
+            </h3>
             {earnedAwards.length > 0 && (
-              <p className="text-sm text-text-theme-muted mt-1">
-                {earnedAwards.length} award{earnedAwards.length !== 1 ? 's' : ''} earned
+              <p className="text-text-theme-muted mt-1 text-sm">
+                {earnedAwards.length} award
+                {earnedAwards.length !== 1 ? 's' : ''} earned
                 {legendaryCount > 0 && (
-                  <span className="text-amber-400 ml-2">
+                  <span className="ml-2 text-amber-400">
                     {legendaryCount} Legendary!
                   </span>
                 )}
                 {rareCount > 0 && legendaryCount === 0 && (
-                  <span className="text-blue-400 ml-2">
-                    {rareCount} Rare
-                  </span>
+                  <span className="ml-2 text-blue-400">{rareCount} Rare</span>
                 )}
               </p>
             )}
@@ -326,7 +317,7 @@ export function AwardSummary({
         {/* Earned Awards Section */}
         {earnedAwards.length > 0 && (
           <div className="mb-6">
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-text-theme-muted mb-4">
+            <h4 className="text-text-theme-muted mb-4 text-sm font-semibold tracking-wider uppercase">
               Newly Earned
             </h4>
             <div className="space-y-3">
@@ -345,7 +336,7 @@ export function AwardSummary({
         {/* Progress Section */}
         {sortedProgress.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-text-theme-muted mb-4">
+            <h4 className="text-text-theme-muted mb-4 text-sm font-semibold tracking-wider uppercase">
               Progress Toward Awards
             </h4>
             <div className="space-y-2">
@@ -360,7 +351,7 @@ export function AwardSummary({
               ))}
             </div>
             {sortedProgress.length > 5 && (
-              <p className="text-xs text-text-theme-muted text-center mt-3">
+              <p className="text-text-theme-muted mt-3 text-center text-xs">
                 +{sortedProgress.length - 5} more awards in progress
               </p>
             )}

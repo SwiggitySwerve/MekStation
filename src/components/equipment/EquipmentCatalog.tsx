@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import { IEquipmentItem, EquipmentCategory } from '../../types/equipment';
 
 /**
@@ -37,30 +38,37 @@ export function EquipmentCatalog({
   };
 
   const filteredItems = items.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = filters.categories.length === 0 || filters.categories.includes(item.category);
+    const matchesSearch = item.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      filters.categories.length === 0 ||
+      filters.categories.includes(item.category);
     const matchesWeight =
-      item.weight >= filters.weightRange[0] && item.weight <= filters.weightRange[1];
+      item.weight >= filters.weightRange[0] &&
+      item.weight <= filters.weightRange[1];
     return matchesSearch && matchesCategory && matchesWeight;
   });
 
   return (
-    <div className={`equipment-catalog h-screen flex flex-col bg-white dark:bg-gray-900 ${className}`.trim()}>
+    <div
+      className={`equipment-catalog flex h-screen flex-col bg-white dark:bg-gray-900 ${className}`.trim()}
+    >
       {/* Sticky Search Bar */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <div className="p-safe pt-4 pb-2 px-4">
+      <div className="sticky top-0 z-10 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div className="p-safe px-4 pt-4 pb-2">
           <div className="flex gap-2">
-            <div className="flex-1 relative">
+            <div className="relative flex-1">
               <input
                 type="search"
                 value={searchQuery}
                 onChange={handleSearchChange}
                 placeholder="Search equipment..."
-                className="w-full px-4 py-3 pl-10 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md min-h-[44px]"
+                className="min-h-[44px] w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-3 pl-10 dark:border-gray-600 dark:bg-gray-800"
                 aria-label="Search equipment"
               />
               <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -77,11 +85,11 @@ export function EquipmentCatalog({
             <button
               type="button"
               onClick={() => setShowFilterDrawer(true)}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md min-h-[44px] min-w-[44px]"
+              className="min-h-[44px] min-w-[44px] rounded-md bg-gray-200 px-4 py-2 dark:bg-gray-700"
               aria-label="Open filters"
             >
               <svg
-                className="w-6 h-6"
+                className="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -112,11 +120,11 @@ export function EquipmentCatalog({
                 key={item.id}
                 type="button"
                 onClick={() => handleItemTap(item)}
-                className="w-full px-4 py-3 text-left min-h-[44px] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="min-h-[44px] w-full px-4 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate text-sm font-medium text-gray-900 dark:text-white">
                       {item.name}
                     </h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -124,7 +132,7 @@ export function EquipmentCatalog({
                     </p>
                   </div>
                   <svg
-                    className="w-5 h-5 text-gray-400 ml-2 flex-shrink-0"
+                    className="ml-2 h-5 w-5 flex-shrink-0 text-gray-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -179,29 +187,31 @@ function FilterDrawer({
 }): React.ReactElement {
   return (
     <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-50"
+      className="bg-opacity-50 fixed inset-0 z-50 bg-black"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="absolute bottom-0 left-0 right-0 h-[80%] bg-white dark:bg-gray-900 rounded-t-lg shadow-lg"
+        className="absolute right-0 bottom-0 left-0 h-[80%] rounded-t-lg bg-white shadow-lg dark:bg-gray-900"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label="Filter equipment"
       >
-        <div className="h-full flex flex-col">
+        <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Filters</h2>
+          <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Filters
+            </h2>
             <button
               type="button"
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full min-h-[44px] min-w-[44px]"
+              className="min-h-[44px] min-w-[44px] rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
               aria-label="Close filters"
             >
               <svg
-                className="w-6 h-6"
+                className="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -218,14 +228,17 @@ function FilterDrawer({
           </div>
 
           {/* Filters */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 space-y-4 overflow-y-auto p-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Equipment Category
               </label>
               <div className="space-y-2">
                 {FILTER_CATEGORIES.map((category) => (
-                  <label key={category} className="flex items-center gap-2 min-h-[44px]">
+                  <label
+                    key={category}
+                    className="flex min-h-[44px] items-center gap-2"
+                  >
                     <input
                       type="checkbox"
                       checked={filters.categories.includes(category)}
@@ -233,11 +246,16 @@ function FilterDrawer({
                         const newCategories = e.target.checked
                           ? [...filters.categories, category]
                           : filters.categories.filter((c) => c !== category);
-                        onFilterChange({ ...filters, categories: newCategories });
+                        onFilterChange({
+                          ...filters,
+                          categories: newCategories,
+                        });
                       }}
-                      className="w-5 h-5 rounded border-gray-300"
+                      className="h-5 w-5 rounded border-gray-300"
                     />
-                    <span className="text-sm text-gray-900 dark:text-white">{category}</span>
+                    <span className="text-sm text-gray-900 dark:text-white">
+                      {category}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -245,11 +263,11 @@ function FilterDrawer({
           </div>
 
           {/* Apply Button */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700 p-safe">
+          <div className="p-safe border-t border-gray-200 p-4 dark:border-gray-700">
             <button
               type="button"
               onClick={onClose}
-              className="w-full px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md font-medium min-h-[44px] transition-colors"
+              className="min-h-[44px] w-full rounded-md bg-blue-500 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-600"
             >
               Apply Filters
             </button>

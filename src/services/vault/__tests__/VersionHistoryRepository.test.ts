@@ -7,22 +7,20 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type { ShareableContentType } from '@/types/vault';
+
 import {
   VersionHistoryRepository,
   getVersionHistoryRepository,
   resetVersionHistoryRepository,
 } from '../VersionHistoryRepository';
-import type { ShareableContentType } from '@/types/vault';
 
 // =============================================================================
 // Mock Setup
 // =============================================================================
 
 // Mock statement results
-const createMockStatement = (
-  returnValue?: unknown,
-  changes = 0
-) => ({
+const createMockStatement = (returnValue?: unknown, changes = 0) => ({
   run: jest.fn().mockReturnValue({ changes }),
   get: jest.fn().mockReturnValue(returnValue),
   all: jest.fn().mockReturnValue(returnValue ?? []),
@@ -86,7 +84,7 @@ describe('VersionHistoryRepository', () => {
 
       expect(mockSQLiteService.initialize).toHaveBeenCalled();
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE TABLE IF NOT EXISTS version_history')
+        expect.stringContaining('CREATE TABLE IF NOT EXISTS version_history'),
       );
     });
 
@@ -94,13 +92,19 @@ describe('VersionHistoryRepository', () => {
       await repository.initialize();
 
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_version_history_item')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_version_history_item',
+        ),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_version_history_version')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_version_history_version',
+        ),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_version_history_created')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_version_history_created',
+        ),
       );
     });
 
@@ -142,7 +146,7 @@ describe('VersionHistoryRepository', () => {
         TEST_ITEM_ID,
         TEST_CONTENT,
         TEST_CONTENT_HASH,
-        TEST_CREATED_BY
+        TEST_CREATED_BY,
       );
 
       expect(result).toBeDefined();
@@ -154,7 +158,9 @@ describe('VersionHistoryRepository', () => {
       expect(result.contentHash).toBe(TEST_CONTENT_HASH);
       expect(result.createdBy).toBe(TEST_CREATED_BY);
       expect(result.message).toBeNull();
-      expect(result.sizeBytes).toBe(new TextEncoder().encode(TEST_CONTENT).length);
+      expect(result.sizeBytes).toBe(
+        new TextEncoder().encode(TEST_CONTENT).length,
+      );
     });
 
     it('should save version with optional message', async () => {
@@ -164,7 +170,7 @@ describe('VersionHistoryRepository', () => {
         TEST_CONTENT,
         TEST_CONTENT_HASH,
         TEST_CREATED_BY,
-        TEST_MESSAGE
+        TEST_MESSAGE,
       );
 
       expect(result.message).toBe(TEST_MESSAGE);
@@ -190,35 +196,40 @@ describe('VersionHistoryRepository', () => {
         TEST_ITEM_ID,
         TEST_CONTENT,
         TEST_CONTENT_HASH,
-        TEST_CREATED_BY
+        TEST_CREATED_BY,
       );
 
       expect(result.version).toBe(3);
     });
 
     it('should calculate size in bytes correctly for unicode content', async () => {
-      const unicodeContent = JSON.stringify({ name: '????????????', emoji: '????????????' });
-      
+      const unicodeContent = JSON.stringify({
+        name: '????????????',
+        emoji: '????????????',
+      });
+
       const result = await repository.saveVersion(
         TEST_CONTENT_TYPE,
         TEST_ITEM_ID,
         unicodeContent,
         'hash123',
-        TEST_CREATED_BY
+        TEST_CREATED_BY,
       );
 
-      expect(result.sizeBytes).toBe(new TextEncoder().encode(unicodeContent).length);
+      expect(result.sizeBytes).toBe(
+        new TextEncoder().encode(unicodeContent).length,
+      );
     });
 
     it('should set createdAt to current ISO timestamp', async () => {
       const beforeSave = new Date().toISOString();
-      
+
       const result = await repository.saveVersion(
         TEST_CONTENT_TYPE,
         TEST_ITEM_ID,
         TEST_CONTENT,
         TEST_CONTENT_HASH,
-        TEST_CREATED_BY
+        TEST_CREATED_BY,
       );
 
       const afterSave = new Date().toISOString();
@@ -274,7 +285,10 @@ describe('VersionHistoryRepository', () => {
 
       mockDb.prepare.mockReturnValue(createMockStatement(mockRows));
 
-      const versions = await repository.getVersions(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const versions = await repository.getVersions(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(versions).toHaveLength(3);
       expect(versions[0].version).toBe(3);
@@ -324,13 +338,20 @@ describe('VersionHistoryRepository', () => {
 
       await repository.getVersions(TEST_ITEM_ID, TEST_CONTENT_TYPE);
 
-      expect(stmt.all).toHaveBeenCalledWith(TEST_ITEM_ID, TEST_CONTENT_TYPE, 50);
+      expect(stmt.all).toHaveBeenCalledWith(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+        50,
+      );
     });
 
     it('should return empty array when no versions exist', async () => {
       mockDb.prepare.mockReturnValue(createMockStatement([]));
 
-      const versions = await repository.getVersions(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const versions = await repository.getVersions(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(versions).toEqual([]);
     });
@@ -351,7 +372,10 @@ describe('VersionHistoryRepository', () => {
 
       mockDb.prepare.mockReturnValue(createMockStatement([mockRow]));
 
-      const versions = await repository.getVersions(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const versions = await repository.getVersions(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(versions[0]).toEqual({
         id: 'ver-1',
@@ -390,7 +414,11 @@ describe('VersionHistoryRepository', () => {
       const stmt = createMockStatement(mockRow);
       mockDb.prepare.mockReturnValue(stmt);
 
-      const version = await repository.getVersion(TEST_ITEM_ID, TEST_CONTENT_TYPE, 2);
+      const version = await repository.getVersion(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+        2,
+      );
 
       expect(version).toBeDefined();
       expect(version?.version).toBe(2);
@@ -400,7 +428,11 @@ describe('VersionHistoryRepository', () => {
     it('should return null when version does not exist', async () => {
       mockDb.prepare.mockReturnValue(createMockStatement(undefined));
 
-      const version = await repository.getVersion(TEST_ITEM_ID, TEST_CONTENT_TYPE, 999);
+      const version = await repository.getVersion(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+        999,
+      );
 
       expect(version).toBeNull();
     });
@@ -427,7 +459,10 @@ describe('VersionHistoryRepository', () => {
 
       mockDb.prepare.mockReturnValue(createMockStatement(mockRow));
 
-      const latest = await repository.getLatestVersion(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const latest = await repository.getLatestVersion(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(latest).toBeDefined();
       expect(latest?.version).toBe(5);
@@ -437,7 +472,10 @@ describe('VersionHistoryRepository', () => {
     it('should return null when no versions exist', async () => {
       mockDb.prepare.mockReturnValue(createMockStatement(undefined));
 
-      const latest = await repository.getLatestVersion(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const latest = await repository.getLatestVersion(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(latest).toBeNull();
     });
@@ -488,15 +526,23 @@ describe('VersionHistoryRepository', () => {
     it('should return current max version number', async () => {
       mockDb.prepare.mockReturnValue(createMockStatement({ max_version: 7 }));
 
-      const versionNum = await repository.getCurrentVersionNumber(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const versionNum = await repository.getCurrentVersionNumber(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(versionNum).toBe(7);
     });
 
     it('should return 0 when no versions exist', async () => {
-      mockDb.prepare.mockReturnValue(createMockStatement({ max_version: null }));
+      mockDb.prepare.mockReturnValue(
+        createMockStatement({ max_version: null }),
+      );
 
-      const versionNum = await repository.getCurrentVersionNumber(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const versionNum = await repository.getCurrentVersionNumber(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(versionNum).toBe(0);
     });
@@ -510,7 +556,10 @@ describe('VersionHistoryRepository', () => {
     it('should return count of versions for item', async () => {
       mockDb.prepare.mockReturnValue(createMockStatement({ count: 12 }));
 
-      const count = await repository.getVersionCount(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const count = await repository.getVersionCount(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(count).toBe(12);
     });
@@ -518,7 +567,10 @@ describe('VersionHistoryRepository', () => {
     it('should return 0 when no versions exist', async () => {
       mockDb.prepare.mockReturnValue(createMockStatement({ count: 0 }));
 
-      const count = await repository.getVersionCount(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const count = await repository.getVersionCount(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(count).toBe(0);
     });
@@ -532,7 +584,10 @@ describe('VersionHistoryRepository', () => {
     it('should return total storage in bytes', async () => {
       mockDb.prepare.mockReturnValue(createMockStatement({ total: 15000 }));
 
-      const storage = await repository.getStorageUsed(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const storage = await repository.getStorageUsed(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(storage).toBe(15000);
     });
@@ -540,7 +595,10 @@ describe('VersionHistoryRepository', () => {
     it('should return 0 when no versions exist', async () => {
       mockDb.prepare.mockReturnValue(createMockStatement({ total: null }));
 
-      const storage = await repository.getStorageUsed(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const storage = await repository.getStorageUsed(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(storage).toBe(0);
     });
@@ -594,18 +652,33 @@ describe('VersionHistoryRepository', () => {
       const stmt = createMockStatement(mockRows);
       mockDb.prepare.mockReturnValue(stmt);
 
-      const versions = await repository.getVersionRange(TEST_ITEM_ID, TEST_CONTENT_TYPE, 3, 5);
+      const versions = await repository.getVersionRange(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+        3,
+        5,
+      );
 
       expect(versions).toHaveLength(3);
       expect(versions[0].version).toBe(3); // Ascending order
       expect(versions[2].version).toBe(5);
-      expect(stmt.all).toHaveBeenCalledWith(TEST_ITEM_ID, TEST_CONTENT_TYPE, 3, 5);
+      expect(stmt.all).toHaveBeenCalledWith(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+        3,
+        5,
+      );
     });
 
     it('should return empty array when no versions in range', async () => {
       mockDb.prepare.mockReturnValue(createMockStatement([]));
 
-      const versions = await repository.getVersionRange(TEST_ITEM_ID, TEST_CONTENT_TYPE, 100, 200);
+      const versions = await repository.getVersionRange(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+        100,
+        200,
+      );
 
       expect(versions).toEqual([]);
     });
@@ -641,7 +714,10 @@ describe('VersionHistoryRepository', () => {
     it('should return count of deleted versions', async () => {
       mockDb.prepare.mockReturnValue(createMockStatement(undefined, 5));
 
-      const count = await repository.deleteAllVersions(TEST_ITEM_ID, TEST_CONTENT_TYPE);
+      const count = await repository.deleteAllVersions(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+      );
 
       expect(count).toBe(5);
     });
@@ -649,7 +725,10 @@ describe('VersionHistoryRepository', () => {
     it('should return 0 when no versions to delete', async () => {
       mockDb.prepare.mockReturnValue(createMockStatement(undefined, 0));
 
-      const count = await repository.deleteAllVersions('no-such-item', TEST_CONTENT_TYPE);
+      const count = await repository.deleteAllVersions(
+        'no-such-item',
+        TEST_CONTENT_TYPE,
+      );
 
       expect(count).toBe(0);
     });
@@ -676,7 +755,11 @@ describe('VersionHistoryRepository', () => {
         return createMockStatement();
       });
 
-      const deleted = await repository.pruneOldVersions(TEST_ITEM_ID, TEST_CONTENT_TYPE, 3);
+      const deleted = await repository.pruneOldVersions(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+        3,
+      );
 
       expect(deleted).toBe(2);
     });
@@ -685,7 +768,11 @@ describe('VersionHistoryRepository', () => {
       // No cutoff row found (fewer versions than keepCount)
       mockDb.prepare.mockReturnValue(createMockStatement(undefined));
 
-      const deleted = await repository.pruneOldVersions(TEST_ITEM_ID, TEST_CONTENT_TYPE, 10);
+      const deleted = await repository.pruneOldVersions(
+        TEST_ITEM_ID,
+        TEST_CONTENT_TYPE,
+        10,
+      );
 
       expect(deleted).toBe(0);
     });
@@ -782,7 +869,7 @@ describe('VersionHistoryRepository', () => {
         TEST_ITEM_ID,
         '',
         'empty-hash',
-        TEST_CREATED_BY
+        TEST_CREATED_BY,
       );
 
       expect(result.content).toBe('');
@@ -810,7 +897,7 @@ describe('VersionHistoryRepository', () => {
         TEST_ITEM_ID,
         longContent,
         'long-hash',
-        TEST_CREATED_BY
+        TEST_CREATED_BY,
       );
 
       expect(result.sizeBytes).toBe(1000000);
@@ -823,11 +910,20 @@ describe('VersionHistoryRepository', () => {
 
       await repository.getVersions(specialItemId, TEST_CONTENT_TYPE);
 
-      expect(stmt.all).toHaveBeenCalledWith(specialItemId, TEST_CONTENT_TYPE, 50);
+      expect(stmt.all).toHaveBeenCalledWith(
+        specialItemId,
+        TEST_CONTENT_TYPE,
+        50,
+      );
     });
 
     it('should handle all shareable content types', async () => {
-      const contentTypes: ShareableContentType[] = ['unit', 'pilot', 'force', 'encounter'];
+      const contentTypes: ShareableContentType[] = [
+        'unit',
+        'pilot',
+        'force',
+        'encounter',
+      ];
       const stmt = createMockStatement([]);
       mockDb.prepare.mockReturnValue(stmt);
 

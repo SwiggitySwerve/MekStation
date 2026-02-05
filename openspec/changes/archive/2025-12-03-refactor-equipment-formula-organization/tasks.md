@@ -33,4 +33,3 @@
 - [x] 4.1 Build succeeds with no TypeScript errors
 - [x] 4.2 All equipment tests pass (391 tests)
 - [x] 4.3 Formula registry tests pass (79 tests)
-

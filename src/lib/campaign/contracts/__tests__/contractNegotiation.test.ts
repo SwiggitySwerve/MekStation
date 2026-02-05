@@ -1,3 +1,5 @@
+import { ContractClauseType } from '@/types/campaign/contracts/contractTypes';
+
 import {
   roll2d6,
   negotiateClause,
@@ -5,11 +7,6 @@ import {
   getClauseLevelName,
   getClauseLevelDescription,
 } from '../contractNegotiation';
-
-import {
-  ContractClauseType,
-  CLAUSE_LEVELS,
-} from '@/types/campaign/contracts/contractTypes';
 
 /** Returns a fixed value each time. Use for deterministic dice. */
 function fixedRandom(value: number) {
@@ -60,7 +57,7 @@ describe('contractNegotiation', () => {
         ContractClauseType.COMMAND,
         0,
         0,
-        fixedRandom(0)
+        fixedRandom(0),
       );
       expect(result.level).toBe(0);
       expect(result.type).toBe(ContractClauseType.COMMAND);
@@ -72,7 +69,7 @@ describe('contractNegotiation', () => {
         ContractClauseType.SALVAGE,
         0,
         0,
-        fixedRandom(0.333)
+        fixedRandom(0.333),
       );
       expect(result.level).toBe(1);
       expect(result.type).toBe(ContractClauseType.SALVAGE);
@@ -84,7 +81,7 @@ describe('contractNegotiation', () => {
         ContractClauseType.SUPPORT,
         0,
         0,
-        fixedRandom(0.666)
+        fixedRandom(0.666),
       );
       expect(result.level).toBe(2);
       expect(result.type).toBe(ContractClauseType.SUPPORT);
@@ -96,7 +93,7 @@ describe('contractNegotiation', () => {
         ContractClauseType.TRANSPORT,
         0,
         0,
-        fixedRandom(0.833)
+        fixedRandom(0.833),
       );
       expect(result.level).toBe(3);
       expect(result.type).toBe(ContractClauseType.TRANSPORT);
@@ -110,7 +107,7 @@ describe('contractNegotiation', () => {
         ContractClauseType.COMMAND,
         2,
         2,
-        fixedRandom(0.5)
+        fixedRandom(0.5),
       );
       expect(result.level).toBe(3);
     });
@@ -121,7 +118,7 @@ describe('contractNegotiation', () => {
         ContractClauseType.SALVAGE,
         0,
         -5,
-        fixedRandom(0.5)
+        fixedRandom(0.5),
       );
       expect(result.level).toBe(0);
     });
@@ -132,7 +129,7 @@ describe('contractNegotiation', () => {
         ContractClauseType.SUPPORT,
         0,
         -10,
-        fixedRandom(0)
+        fixedRandom(0),
       );
       expect(result.level).toBe(0);
     });
@@ -143,7 +140,7 @@ describe('contractNegotiation', () => {
         ContractClauseType.TRANSPORT,
         5,
         5,
-        fixedRandom(0.999)
+        fixedRandom(0.999),
       );
       expect(result.level).toBe(3);
     });
@@ -153,7 +150,7 @@ describe('contractNegotiation', () => {
         ContractClauseType.COMMAND,
         0,
         0,
-        fixedRandom(0.5)
+        fixedRandom(0.5),
       );
       expect(result.type).toBe(ContractClauseType.COMMAND);
     });

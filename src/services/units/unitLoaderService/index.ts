@@ -8,16 +8,10 @@
  */
 
 // Type definitions
-export type {
-  UnitSource,
-  IRawSerializedUnit,
-  ILoadUnitResult,
-} from './types';
+export type { UnitSource, IRawSerializedUnit, ILoadUnitResult } from './types';
 
 // Type guards
-export {
-  hasSerializedUnitStructure,
-} from './typeGuards';
+export { hasSerializedUnitStructure } from './typeGuards';
 
 // Component mappers
 export {
@@ -43,17 +37,10 @@ export {
 } from './equipmentResolution';
 
 // Equipment mapping
-export {
-  mapEquipment,
-} from './equipmentMapping';
+export { mapEquipment } from './equipmentMapping';
 
 // Armor calculations
-export {
-  calculateArmorTonnage,
-} from './armorCalculations';
+export { calculateArmorTonnage } from './armorCalculations';
 
 // Main service class
-export {
-  UnitLoaderService,
-  unitLoaderService,
-} from './unitLoader';
+export { UnitLoaderService, unitLoaderService } from './unitLoader';

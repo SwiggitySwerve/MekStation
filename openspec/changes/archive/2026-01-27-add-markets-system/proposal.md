@@ -5,6 +5,7 @@
 MekStation needs a comprehensive market system to simulate the mercenary economy. MekHQ includes three distinct markets: Unit Market (monthly refresh with 7 rarity levels and 6 market types), Personnel Market (daily refresh with experience-based expiration), and Contract Market (monthly refresh with negotiation). These markets are affected by faction standing and provide strategic resource acquisition choices.
 
 Without market systems, campaigns lack:
+
 - Unit acquisition beyond initial force creation
 - Personnel recruitment and roster expansion
 - Contract selection and negotiation
@@ -26,11 +27,13 @@ Without market systems, campaigns lack:
 ## Impact
 
 ### Affected Specs
+
 - `markets-system` (NEW) - Market types, generation logic, purchase/hire functions
 - `day-progression` (MODIFIED) - Market processors registration
 - `campaign-management` (MODIFIED) - Market options and offer storage
 
 ### Affected Code
+
 - `src/types/campaign/markets/marketTypes.ts` - Market enums and offer interfaces
 - `src/lib/campaign/markets/unitMarket.ts` - Unit market generation with rarity/quality
 - `src/lib/campaign/markets/personnelMarket.ts` - Personnel market with role-weighted generation
@@ -41,9 +44,11 @@ Without market systems, campaigns lack:
 - `src/types/campaign/Campaign.ts` - ICampaignOptions and ICampaign extended
 
 ### Breaking Changes
+
 None. All market options default to disabled (opt-in), and the system is purely additive.
 
 ### Migration Notes
+
 - New `unitMarketMethod` on ICampaignOptions defaults to 'none' (opt-in)
 - New `personnelMarketStyle` defaults to 'disabled' (opt-in)
 - New `contractMarketMethod` defaults to 'atb_monthly' (existing behavior)

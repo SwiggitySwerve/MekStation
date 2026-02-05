@@ -7,8 +7,10 @@
  */
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { IDiffEntry, DiffChangeType } from '@/hooks/audit';
+
 import { Badge } from '@/components/ui/Badge';
+import { IDiffEntry, DiffChangeType } from '@/hooks/audit';
+
 import { DiffHighlight } from './DiffHighlight';
 
 // =============================================================================
@@ -53,27 +55,31 @@ function ChevronIcon({ expanded }: { expanded: boolean }): React.ReactElement {
       viewBox="0 0 24 24"
       strokeWidth={2}
       stroke="currentColor"
-      className={`w-3.5 h-3.5 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
+      className={`h-3.5 w-3.5 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
     >
-      <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m8.25 4.5 7.5 7.5-7.5 7.5"
+      />
     </svg>
   );
 }
 
 function BranchIcon(): React.ReactElement {
   return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      fill="none" 
-      viewBox="0 0 24 24" 
-      strokeWidth={1.5} 
-      stroke="currentColor" 
-      className="w-3.5 h-3.5 text-text-theme-muted"
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className="text-text-theme-muted h-3.5 w-3.5"
     >
-      <path 
-        strokeLinecap="round" 
-        strokeLinejoin="round" 
-        d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" 
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"
       />
     </svg>
   );
@@ -122,11 +128,11 @@ function buildDiffTree(entries: IDiffEntry[]): DiffTreeNode {
 
     // Set entry at leaf
     current.entry = entry;
-    
+
     // Propagate change counts up the tree
     const pathSegments = entry.path.split(/[.[\]]+/).filter(Boolean);
     let walkCurrent = root;
-    
+
     for (const segment of pathSegments) {
       walkCurrent.changeCount++;
       walkCurrent.changeTypes.add(entry.changeType);
@@ -147,7 +153,7 @@ function groupByTopLevel(entries: IDiffEntry[]): Map<string, IDiffEntry[]> {
 
   for (const entry of entries) {
     if (entry.changeType === 'unchanged') continue;
-    
+
     const topLevel = entry.path.split(/[.[\]]/)[0] || 'root';
     if (!groups.has(topLevel)) {
       groups.set(topLevel, []);
@@ -161,22 +167,34 @@ function groupByTopLevel(entries: IDiffEntry[]): Map<string, IDiffEntry[]> {
 /**
  * Get badge variant for change type.
  */
-function getChangeTypeBadgeVariant(changeType: DiffChangeType): 'emerald' | 'red' | 'amber' | 'slate' {
+function getChangeTypeBadgeVariant(
+  changeType: DiffChangeType,
+): 'emerald' | 'red' | 'amber' | 'slate' {
   switch (changeType) {
-    case 'added': return 'emerald';
-    case 'removed': return 'red';
-    case 'modified': return 'amber';
-    default: return 'slate';
+    case 'added':
+      return 'emerald';
+    case 'removed':
+      return 'red';
+    case 'modified':
+      return 'amber';
+    default:
+      return 'slate';
   }
 }
 
 /**
  * Get summary badge variant for mixed changes.
  */
-function getMixedBadgeVariant(types: Set<DiffChangeType>): 'emerald' | 'red' | 'amber' | 'violet' {
+function getMixedBadgeVariant(
+  types: Set<DiffChangeType>,
+): 'emerald' | 'red' | 'amber' | 'violet' {
   if (types.size > 1) return 'violet';
   const type = Array.from(types)[0];
-  return getChangeTypeBadgeVariant(type) as 'emerald' | 'red' | 'amber' | 'violet';
+  return getChangeTypeBadgeVariant(type) as
+    | 'emerald'
+    | 'red'
+    | 'amber'
+    | 'violet';
 }
 
 // =============================================================================
@@ -189,13 +207,17 @@ interface TreeNodeProps {
   defaultExpanded: boolean;
 }
 
-function TreeNode({ node, depth, defaultExpanded }: TreeNodeProps): React.ReactElement {
+function TreeNode({
+  node,
+  depth,
+  defaultExpanded,
+}: TreeNodeProps): React.ReactElement {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const hasChildren = node.children.size > 0;
   const isLeaf = node.entry !== undefined;
 
   const toggleExpand = useCallback(() => {
-    setExpanded(prev => !prev);
+    setExpanded((prev) => !prev);
   }, []);
 
   // Indentation based on depth
@@ -205,12 +227,14 @@ function TreeNode({ node, depth, defaultExpanded }: TreeNodeProps): React.ReactE
   if (isLeaf && !hasChildren && node.entry) {
     const entry = node.entry;
     return (
-      <div 
-        className="flex items-center gap-2 py-1.5 hover:bg-surface-raised/30 transition-colors"
+      <div
+        className="hover:bg-surface-raised/30 flex items-center gap-2 py-1.5 transition-colors"
         style={indentStyle}
       >
         <span className="w-3.5" /> {/* Spacer for alignment */}
-        <span className="font-mono text-xs text-text-theme-secondary">{node.name}:</span>
+        <span className="text-text-theme-secondary font-mono text-xs">
+          {node.name}:
+        </span>
         <div className="flex items-center gap-2">
           {entry.changeType === 'modified' && entry.before !== undefined && (
             <>
@@ -218,9 +242,9 @@ function TreeNode({ node, depth, defaultExpanded }: TreeNodeProps): React.ReactE
               <span className="text-text-theme-muted">→</span>
             </>
           )}
-          <DiffHighlight 
-            value={entry.changeType === 'removed' ? entry.before : entry.after} 
-            changeType={entry.changeType} 
+          <DiffHighlight
+            value={entry.changeType === 'removed' ? entry.before : entry.after}
+            changeType={entry.changeType}
           />
         </div>
       </div>
@@ -233,22 +257,15 @@ function TreeNode({ node, depth, defaultExpanded }: TreeNodeProps): React.ReactE
       {/* Branch header */}
       <button
         onClick={toggleExpand}
-        className={`
-          w-full flex items-center gap-2 py-1.5 
-          hover:bg-surface-raised/30 transition-colors
-          text-left
-        `}
+        className={`hover:bg-surface-raised/30 flex w-full items-center gap-2 py-1.5 text-left transition-colors`}
         style={indentStyle}
       >
         <ChevronIcon expanded={expanded} />
         <BranchIcon />
-        <span className="font-mono text-sm text-text-theme-primary font-medium">
+        <span className="text-text-theme-primary font-mono text-sm font-medium">
           {node.name}
         </span>
-        <Badge 
-          variant={getMixedBadgeVariant(node.changeTypes)} 
-          size="sm"
-        >
+        <Badge variant={getMixedBadgeVariant(node.changeTypes)} size="sm">
           {node.changeCount} {node.changeCount === 1 ? 'change' : 'changes'}
         </Badge>
       </button>
@@ -257,10 +274,10 @@ function TreeNode({ node, depth, defaultExpanded }: TreeNodeProps): React.ReactE
       {expanded && (
         <div>
           {Array.from(node.children.values()).map((child) => (
-            <TreeNode 
-              key={child.fullPath} 
-              node={child} 
-              depth={depth + 1} 
+            <TreeNode
+              key={child.fullPath}
+              node={child}
+              depth={depth + 1}
               defaultExpanded={defaultExpanded}
             />
           ))}
@@ -275,14 +292,17 @@ interface GroupedViewProps {
   defaultExpanded: boolean;
 }
 
-function GroupedView({ groups, defaultExpanded }: GroupedViewProps): React.ReactElement {
+function GroupedView({
+  groups,
+  defaultExpanded,
+}: GroupedViewProps): React.ReactElement {
   return (
     <div className="space-y-2">
       {Array.from(groups.entries()).map(([groupName, entries]) => (
-        <GroupSection 
-          key={groupName} 
-          name={groupName} 
-          entries={entries} 
+        <GroupSection
+          key={groupName}
+          name={groupName}
+          entries={entries}
           defaultExpanded={defaultExpanded}
         />
       ))}
@@ -296,7 +316,11 @@ interface GroupSectionProps {
   defaultExpanded: boolean;
 }
 
-function GroupSection({ name, entries, defaultExpanded }: GroupSectionProps): React.ReactElement {
+function GroupSection({
+  name,
+  entries,
+  defaultExpanded,
+}: GroupSectionProps): React.ReactElement {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   const summary = useMemo(() => {
@@ -310,39 +334,41 @@ function GroupSection({ name, entries, defaultExpanded }: GroupSectionProps): Re
   }, [entries]);
 
   return (
-    <div className="border border-border-theme-subtle/50 rounded-lg overflow-hidden">
+    <div className="border-border-theme-subtle/50 overflow-hidden rounded-lg border">
       {/* Header */}
       <button
-        onClick={() => setExpanded(prev => !prev)}
-        className={`
-          w-full flex items-center justify-between gap-3 px-3 py-2
-          bg-surface-raised/50 hover:bg-surface-raised/70 transition-colors
-          text-left
-        `}
+        onClick={() => setExpanded((prev) => !prev)}
+        className={`bg-surface-raised/50 hover:bg-surface-raised/70 flex w-full items-center justify-between gap-3 px-3 py-2 text-left transition-colors`}
       >
         <div className="flex items-center gap-2">
           <ChevronIcon expanded={expanded} />
-          <span className="font-mono text-sm text-text-theme-primary font-semibold">
+          <span className="text-text-theme-primary font-mono text-sm font-semibold">
             {name}
           </span>
         </div>
-        
+
         <div className="flex items-center gap-1.5">
           {summary.added > 0 && (
-            <Badge variant="emerald" size="sm">+{summary.added}</Badge>
+            <Badge variant="emerald" size="sm">
+              +{summary.added}
+            </Badge>
           )}
           {summary.removed > 0 && (
-            <Badge variant="red" size="sm">-{summary.removed}</Badge>
+            <Badge variant="red" size="sm">
+              -{summary.removed}
+            </Badge>
           )}
           {summary.modified > 0 && (
-            <Badge variant="amber" size="sm">~{summary.modified}</Badge>
+            <Badge variant="amber" size="sm">
+              ~{summary.modified}
+            </Badge>
           )}
         </div>
       </button>
 
       {/* Entries */}
       {expanded && (
-        <div className="divide-y divide-border-theme-subtle/30">
+        <div className="divide-border-theme-subtle/30 divide-y">
           {entries.map((entry) => (
             <EntryRow key={entry.path} entry={entry} groupName={name} />
           ))}
@@ -359,21 +385,21 @@ interface EntryRowProps {
 
 function EntryRow({ entry, groupName }: EntryRowProps): React.ReactElement {
   // Get relative path (remove group prefix)
-  const relativePath = entry.path.startsWith(groupName) 
+  const relativePath = entry.path.startsWith(groupName)
     ? entry.path.slice(groupName.length).replace(/^[.[\]]/, '')
     : entry.path;
 
   return (
-    <div className="flex items-center justify-between gap-3 px-3 py-2 hover:bg-surface-base/30 transition-colors">
+    <div className="hover:bg-surface-base/30 flex items-center justify-between gap-3 px-3 py-2 transition-colors">
       {/* Path breadcrumb */}
-      <div className="flex items-center gap-1.5 min-w-0">
-        <code className="text-xs text-text-theme-muted font-mono truncate">
+      <div className="flex min-w-0 items-center gap-1.5">
+        <code className="text-text-theme-muted truncate font-mono text-xs">
           {relativePath || '(root)'}
         </code>
       </div>
 
       {/* Values */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center gap-2">
         {entry.changeType === 'modified' && entry.before !== undefined && (
           <>
             <DiffHighlight value={entry.before} changeType="removed" />
@@ -402,23 +428,39 @@ export function NestedDiff({
 }: NestedDiffProps): React.ReactElement {
   // Filter out unchanged entries
   const changedEntries = useMemo(
-    () => entries.filter(e => e.changeType !== 'unchanged'),
-    [entries]
+    () => entries.filter((e) => e.changeType !== 'unchanged'),
+    [entries],
   );
 
   // Build tree or groups
   const tree = useMemo(() => buildDiffTree(changedEntries), [changedEntries]);
-  const groups = useMemo(() => groupByTopLevel(changedEntries), [changedEntries]);
+  const groups = useMemo(
+    () => groupByTopLevel(changedEntries),
+    [changedEntries],
+  );
 
   // Empty state
   if (changedEntries.length === 0) {
     return (
-      <div className={`flex flex-col items-center justify-center py-8 text-text-theme-muted ${className}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-12 h-12 mb-3 opacity-50">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      <div
+        className={`text-text-theme-muted flex flex-col items-center justify-center py-8 ${className}`}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1}
+          stroke="currentColor"
+          className="mb-3 h-12 w-12 opacity-50"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          />
         </svg>
         <p className="text-sm font-medium">No Changes</p>
-        <p className="text-xs mt-1">States are identical</p>
+        <p className="mt-1 text-xs">States are identical</p>
       </div>
     );
   }
@@ -428,12 +470,12 @@ export function NestedDiff({
       {groupByPath ? (
         <GroupedView groups={groups} defaultExpanded={defaultExpanded} />
       ) : (
-        <div className="border border-border-theme-subtle/50 rounded-lg overflow-hidden">
+        <div className="border-border-theme-subtle/50 overflow-hidden rounded-lg border">
           {Array.from(tree.children.values()).map((child) => (
-            <TreeNode 
-              key={child.fullPath} 
-              node={child} 
-              depth={0} 
+            <TreeNode
+              key={child.fullPath}
+              node={child}
+              depth={0}
               defaultExpanded={defaultExpanded}
             />
           ))}

@@ -193,15 +193,23 @@ export function createDefaultAutoAwardConfig(): IAutoAwardConfig {
 /**
  * Type guard for AutoAwardCategory.
  */
-export function isAutoAwardCategory(value: unknown): value is AutoAwardCategory {
-  return typeof value === 'string' && Object.values(AutoAwardCategory).includes(value as AutoAwardCategory);
+export function isAutoAwardCategory(
+  value: unknown,
+): value is AutoAwardCategory {
+  return (
+    typeof value === 'string' &&
+    Object.values(AutoAwardCategory).includes(value as AutoAwardCategory)
+  );
 }
 
 /**
  * Type guard for AutoAwardTrigger.
  */
 export function isAutoAwardTrigger(value: unknown): value is AutoAwardTrigger {
-  return typeof value === 'string' && ALL_AUTO_AWARD_TRIGGERS.includes(value as AutoAwardTrigger);
+  return (
+    typeof value === 'string' &&
+    ALL_AUTO_AWARD_TRIGGERS.includes(value as AutoAwardTrigger)
+  );
 }
 
 /**
@@ -222,7 +230,9 @@ export function isAutoAwardConfig(value: unknown): value is IAutoAwardConfig {
 /**
  * Type guard for IAutoGrantCriteria.
  */
-export function isAutoGrantCriteria(value: unknown): value is IAutoGrantCriteria {
+export function isAutoGrantCriteria(
+  value: unknown,
+): value is IAutoGrantCriteria {
   if (typeof value !== 'object' || value === null) return false;
   const criteria = value as IAutoGrantCriteria;
   return (

@@ -7,10 +7,11 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { getForceService } from '@/services/forces/ForceService';
-import { IForce } from '@/types/force';
+
 import { IForceOperationResult } from '@/services/forces/ForceRepository';
+import { getForceService } from '@/services/forces/ForceService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { IForce } from '@/types/force';
 
 // =============================================================================
 // Response Types
@@ -39,7 +40,7 @@ interface CloneBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<CloneResponse | ErrorResponse>
+  res: NextApiResponse<CloneResponse | ErrorResponse>,
 ): Promise<void> {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -50,7 +51,8 @@ export default async function handler(
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -80,7 +82,8 @@ export default async function handler(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to clone force';
+    const message =
+      error instanceof Error ? error.message : 'Failed to clone force';
     return res.status(500).json({ error: message });
   }
 }

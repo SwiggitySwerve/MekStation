@@ -5,7 +5,10 @@ interface CategoryNavigationProps {
   onSelectCategory: (category: string | null) => void;
 }
 
-const CategoryNavigation: React.FC<CategoryNavigationProps> = ({ selectedCategory, onSelectCategory }) => {
+const CategoryNavigation: React.FC<CategoryNavigationProps> = ({
+  selectedCategory,
+  onSelectCategory,
+}) => {
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,11 +22,13 @@ const CategoryNavigation: React.FC<CategoryNavigationProps> = ({ selectedCategor
         if (!response.ok) {
           throw new Error(`Failed to fetch categories: ${response.statusText}`);
         }
-        const data = await response.json() as string[];
+        const data = (await response.json()) as string[];
         setCategories(data);
       } catch (err) {
         console.error(err);
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setError(
+          err instanceof Error ? err.message : 'An unknown error occurred',
+        );
       } finally {
         setIsLoading(false);
       }
@@ -41,15 +46,17 @@ const CategoryNavigation: React.FC<CategoryNavigationProps> = ({ selectedCategor
   }
 
   return (
-    <nav className="p-4 bg-gray-100 w-full md:w-64 h-full">
-      <h3 className="text-lg font-semibold mb-2">Unit Categories</h3>
+    <nav className="h-full w-full bg-gray-100 p-4 md:w-64">
+      <h3 className="mb-2 text-lg font-semibold">Unit Categories</h3>
       <ul>
         {/* Option to select all/clear filter */}
         <li key="all-categories" className="mb-1">
           <button
             onClick={() => onSelectCategory(null)}
-            className={`w-full text-left px-2 py-1 rounded ${
-              selectedCategory === null ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+            className={`w-full rounded px-2 py-1 text-left ${
+              selectedCategory === null
+                ? 'bg-blue-500 text-white'
+                : 'hover:bg-gray-200'
             }`}
           >
             All Units
@@ -59,8 +66,10 @@ const CategoryNavigation: React.FC<CategoryNavigationProps> = ({ selectedCategor
           <li key={category} className="mb-1">
             <button
               onClick={() => onSelectCategory(category)}
-              className={`w-full text-left px-2 py-1 rounded ${
-                selectedCategory === category ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'
+              className={`w-full rounded px-2 py-1 text-left ${
+                selectedCategory === category
+                  ? 'bg-blue-500 text-white'
+                  : 'hover:bg-gray-200'
               }`}
             >
               {category}

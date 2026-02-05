@@ -1,0 +1,2088 @@
+
+> mekstation-app@0.1.0 lint
+> oxlint
+
+
+  ! eslint(no-unused-vars): Identifier 'AccoladeLevel' is imported but never used.
+    ,-[src/lib/campaign/processors/__tests__/factionStandingProcessor.test.ts:9:10]
+  8 | import { DayPhase, _resetDayPipeline, getDayPipeline } from '../../dayPipeline';
+  9 | import { AccoladeLevel, CensureLevel } from '../../factionStanding/escalation';
+    :          ^^^^^^|^^^^^^
+    :                `-- 'AccoladeLevel' is imported here
+ 10 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'CensureLevel' is imported but never used.
+    ,-[src/lib/campaign/processors/__tests__/factionStandingProcessor.test.ts:9:25]
+  8 | import { DayPhase, _resetDayPipeline, getDayPipeline } from '../../dayPipeline';
+  9 | import { AccoladeLevel, CensureLevel } from '../../factionStanding/escalation';
+    :                         ^^^^^^|^^^^^
+    :                               `-- 'CensureLevel' is imported here
+ 10 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Function 'sumArmorPoints' is declared but never used.
+     ,-[src/__tests__/unit/utils/construction/battleValueCalculations.test.ts:123:16]
+ 122 |        */
+ 123 |       function sumArmorPoints(armor: ArmorPoints): number {
+     :                ^^^^^^^|^^^^^^
+     :                       `-- 'sumArmorPoints' is declared here
+ 124 |         return (
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Function 'sumStructurePoints' is declared but never used.
+     ,-[src/__tests__/unit/utils/construction/battleValueCalculations.test.ts:142:16]
+ 141 |        */
+ 142 |       function sumStructurePoints(structure: StructurePoints): number {
+     :                ^^^^^^^^^|^^^^^^^^
+     :                         `-- 'sumStructurePoints' is declared here
+ 143 |         return (
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Parameter 'level' is declared but never used. Unused parameters should start with a '_'.
+    ,-[src/lib/campaign/factionStanding/escalation.ts:97:3]
+ 96 |   standing: IFactionStanding,
+ 97 |   level: AccoladeLevel,
+    :   ^^|^^
+    :     `-- 'level' is declared here
+ 98 | ): IFactionStanding {
+    `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'level' is declared but never used. Unused parameters should start with a '_'.
+     ,-[src/lib/campaign/factionStanding/escalation.ts:118:3]
+ 117 |   standing: IFactionStanding,
+ 118 |   level: CensureLevel,
+     :   ^^|^^
+     :     `-- 'level' is declared here
+ 119 | ): IFactionStanding {
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Type 'IFactionStanding' is imported but never used.
+   ,-[src/lib/campaign/processors/factionStandingProcessor.ts:2:15]
+ 1 | import type { ICampaign } from '@/types/campaign/Campaign';
+ 2 | import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
+   :               ^^^^^^^^|^^^^^^^
+   :                       `-- 'IFactionStanding' is imported here
+ 3 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IUnitParseData' is imported but never used.
+    ,-[src/services/units/handlers/AbstractUnitTypeHandler.ts:21:3]
+ 20 |   IUnitParseResult,
+ 21 |   IUnitParseData,
+    :   ^^^^^^^|^^^^^^
+    :          `-- 'IUnitParseData' is imported here
+ 22 |   IUnitParseError,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IUnitParseError' is imported but never used.
+    ,-[src/services/units/handlers/AbstractUnitTypeHandler.ts:22:3]
+ 21 |   IUnitParseData,
+ 22 |   IUnitParseError,
+    :   ^^^^^^^|^^^^^^^
+    :          `-- 'IUnitParseError' is imported here
+ 23 |   IUnitSerializeResult,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'IContractClause' is imported but never used.
+    ,-[src/lib/campaign/contractMarket.ts:13:15]
+ 12 | 
+ 13 | import type { IContractClause } from '@/types/campaign/contracts/contractTypes';
+    :               ^^^^^^^|^^^^^^^
+    :                      `-- 'IContractClause' is imported here
+ 14 | 
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'clauses' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/lib/campaign/contractMarket.ts:438:11]
+ 437 |     // Negotiate clauses
+ 438 |     const clauses = negotiateAllClauses(
+     :           ^^^|^^^
+     :              `-- 'clauses' is declared here
+ 439 |       negotiatorSkill,
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'forceBV' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/lib/campaign/contractMarket.ts:554:9]
+ 553 |   const target = randomTarget(employer, random);
+ 554 |   const forceBV = calculateForceBV(campaign);
+     :         ^^^|^^^
+     :            `-- 'forceBV' is declared here
+ 555 | 
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'totalPerLocation' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/services/campaign/__tests__/CampaignInstanceStateService.test.ts:155:9]
+ 154 |   const structureMax = 20;
+ 155 |   const totalPerLocation = armorMax + structureMax;
+     :         ^^^^^^^^|^^^^^^^
+     :                 `-- 'totalPerLocation' is declared here
+ 156 |   const damageAmount = Math.floor((armorMax * damagePercentage) / 100);
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'updated' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/services/campaign/CampaignInstanceStateService.ts:632:11]
+ 631 | 
+ 632 |     const updated = await service.updatePilotInstance(instanceId, {
+     :           ^^^|^^^
+     :              `-- 'updated' is declared here
+ 633 |       killCount: newKillCount,
+     `----
+  help: Consider removing this declaration.
+
+  x typescript-eslint(no-explicit-any): Unexpected `any`. Specify a different type.
+     ,-[src/__tests__/unit/utils/construction/heatSinkCalculations.test.ts:114:22]
+ 113 |         15,
+ 114 |         'INVALID' as any,
+     :                      ^^^
+ 115 |         250,
+     `----
+  help: Use `unknown` instead, this will force you to explicitly, and safely, assert the type is correct.
+
+  ! eslint(no-unused-vars): Identifier 'beforeEach' is imported but never used.
+   ,-[src/lib/campaign/processors/__tests__/autoAwardsProcessor.test.ts:1:32]
+ 1 | import { describe, it, expect, beforeEach } from '@jest/globals';
+   :                                ^^^^^|^^^^
+   :                                     `-- 'beforeEach' is imported here
+ 2 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'RulesLevel' is imported but never used.
+    ,-[src/services/units/handlers/__tests__/JumpShipUnitHandler.test.ts:10:20]
+  9 | import { CapitalShipLocation } from '../../../../types/construction/UnitLocation';
+ 10 | import { TechBase, RulesLevel } from '../../../../types/enums';
+    :                    ^^^^^|^^^^
+    :                         `-- 'RulesLevel' is imported here
+ 11 | import { IBlkDocument } from '../../../../types/formats/BlkFormat';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'CLAUSE_LEVELS' is imported but never used.
+   ,-[src/lib/campaign/contracts/__tests__/contractNegotiation.test.ts:3:3]
+ 2 |   ContractClauseType,
+ 3 |   CLAUSE_LEVELS,
+   :   ^^^^^^|^^^^^^
+   :         `-- 'CLAUSE_LEVELS' is imported here
+ 4 | } from '@/types/campaign/contracts/contractTypes';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'FactionStandingEffects' is imported but never used.
+    ,-[src/lib/campaign/factionStanding/__tests__/standingEffects.test.ts:16:3]
+ 15 |   getAllEffects,
+ 16 |   FactionStandingEffects,
+    :   ^^^^^^^^^^^|^^^^^^^^^^
+    :              `-- 'FactionStandingEffects' is imported here
+ 17 | } from '../standingEffects';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'IScenarioTypeResult' is imported but never used.
+    ,-[src/lib/campaign/scenario/__tests__/scenarioTypeSelection.test.ts:27:8]
+ 26 |   selectScenarioType,
+ 27 |   type IScenarioTypeResult,
+    :        ^^^^^^^^^|^^^^^^^^^
+    :                 `-- 'IScenarioTypeResult' is imported here
+ 28 | } from '../scenarioTypeSelection';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'MORALE_VALUES' is imported but never used.
+    ,-[src/lib/campaign/scenario/scenarioTypeSelection.ts:15:3]
+ 14 |   AtBMoraleLevel,
+ 15 |   MORALE_VALUES,
+    :   ^^^^^^|^^^^^^
+    :         `-- 'MORALE_VALUES' is imported here
+ 16 | } from '@/types/campaign/scenario/scenarioTypes';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'ICampaignOptions' is imported but never used.
+   ,-[src/lib/campaign/processors/__tests__/turnoverProcessor.test.ts:3:26]
+ 2 | 
+ 3 | import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+   :                          ^^^^^^^^|^^^^^^^
+   :                                  `-- 'ICampaignOptions' is imported here
+ 4 | import type { TurnoverFrequency } from '@/types/campaign/Campaign';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'TurnoverCheckResult' is imported but never used.
+    ,-[src/lib/campaign/processors/__tests__/turnoverProcessor.test.ts:15:3]
+ 14 |   TurnoverReport,
+ 15 |   TurnoverCheckResult,
+    :   ^^^^^^^^^|^^^^^^^^^
+    :            `-- 'TurnoverCheckResult' is imported here
+ 16 | } from '../../turnover/turnoverCheck';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'CustomizerTabId' is imported but never used.
+   ,-[src/__tests__/components/customizer/tabs/MultiUnitTabs.test.tsx:7:10]
+ 6 | import { ToastProvider } from '@/components/shared/Toast';
+ 7 | import { CustomizerTabId, DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
+   :          ^^^^^^^|^^^^^^^
+   :                 `-- 'CustomizerTabId' is imported here
+ 8 | import {
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'IConditionEffect' is imported but never used.
+    ,-[src/lib/campaign/scenario/__tests__/scenarioConditions.test.ts:12:8]
+ 11 |   getConditionEffects,
+ 12 |   type IConditionEffect,
+    :        ^^^^^^^^|^^^^^^^
+    :                `-- 'IConditionEffect' is imported here
+ 13 | } from '../scenarioConditions';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Money' is imported but never used.
+   ,-[src/lib/campaign/processors/turnoverProcessor.ts:7:10]
+ 6 | import { TransactionType } from '@/types/campaign/enums/TransactionType';
+ 7 | import { Money } from '@/types/campaign/Money';
+   :          ^^|^^
+   :            `-- 'Money' is imported here
+ 8 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'TurnoverCheckResult' is imported but never used.
+    ,-[src/lib/campaign/processors/turnoverProcessor.ts:11:3]
+ 10 |   TurnoverReport,
+ 11 |   TurnoverCheckResult,
+    :   ^^^^^^^^^|^^^^^^^^^
+    :            `-- 'TurnoverCheckResult' is imported here
+ 12 | } from '../turnover/turnoverCheck';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Era' is imported but never used.
+    ,-[src/services/common/types.ts:10:10]
+  9 | 
+ 10 | import { Era } from '@/types/enums/Era';
+    :          ^|^
+    :           `-- 'Era' is imported here
+ 11 | import { RulesLevel } from '@/types/enums/RulesLevel';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'RulesLevel' is imported but never used.
+    ,-[src/services/common/types.ts:11:10]
+ 10 | import { Era } from '@/types/enums/Era';
+ 11 | import { RulesLevel } from '@/types/enums/RulesLevel';
+    :          ^^^^^|^^^^
+    :               `-- 'RulesLevel' is imported here
+ 12 | import { TechBase } from '@/types/enums/TechBase';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'TechBase' is imported but never used.
+    ,-[src/services/common/types.ts:12:10]
+ 11 | import { RulesLevel } from '@/types/enums/RulesLevel';
+ 12 | import { TechBase } from '@/types/enums/TechBase';
+    :          ^^^^|^^^
+    :              `-- 'TechBase' is imported here
+ 13 | import { WeightClass } from '@/types/enums/WeightClass';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'WeightClass' is imported but never used.
+    ,-[src/services/common/types.ts:13:10]
+ 12 | import { TechBase } from '@/types/enums/TechBase';
+ 13 | import { WeightClass } from '@/types/enums/WeightClass';
+    :          ^^^^^|^^^^^
+    :               `-- 'WeightClass' is imported here
+ 14 | import { EquipmentCategory } from '@/types/equipment';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'EquipmentCategory' is imported but never used.
+    ,-[src/services/common/types.ts:14:10]
+ 13 | import { WeightClass } from '@/types/enums/WeightClass';
+ 14 | import { EquipmentCategory } from '@/types/equipment';
+    :          ^^^^^^^^|^^^^^^^^
+    :                  `-- 'EquipmentCategory' is imported here
+ 15 | 
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IShoppingList' is imported but never used.
+    ,-[src/lib/campaign/acquisition/__tests__/shoppingList.test.ts:10:3]
+  9 |   IAcquisitionRequest,
+ 10 |   IShoppingList,
+    :   ^^^^^^|^^^^^^
+    :         `-- 'IShoppingList' is imported here
+ 11 |   AvailabilityRating,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'IContractEvent' is imported but never used.
+   ,-[src/lib/campaign/contracts/__tests__/contractEvents.test.ts:8:8]
+ 7 |   EVENT_CHECK_CHANCE,
+ 8 |   type IContractEvent,
+   :        ^^^^^^^|^^^^^^
+   :               `-- 'IContractEvent' is imported here
+ 9 |   type ContractEventEffect,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'ContractEventEffect' is imported but never used.
+    ,-[src/lib/campaign/contracts/__tests__/contractEvents.test.ts:9:8]
+  8 |   type IContractEvent,
+  9 |   type ContractEventEffect,
+    :        ^^^^^^^^^|^^^^^^^^^
+    :                 `-- 'ContractEventEffect' is imported here
+ 10 |   type RandomFn,
+    `----
+  help: Consider removing this import.
+
+  x typescript-eslint(no-explicit-any): Unexpected `any`. Specify a different type.
+     ,-[src/services/encounter/__tests__/EncounterRepository.test.ts:379:30]
+ 378 |       repository.updateEncounter(createResult.id!, {
+ 379 |         description: null as any,
+     :                              ^^^
+ 380 |       });
+     `----
+  help: Use `unknown` instead, this will force you to explicitly, and safely, assert the type is correct.
+
+  ! eslint(no-unused-vars): Type 'IOpForConfig' is imported but never used.
+    ,-[src/lib/campaign/scenario/__tests__/opForGeneration.test.ts:17:8]
+ 16 |   LANCE_SIZE,
+ 17 |   type IOpForConfig,
+    :        ^^^^^^|^^^^^
+    :              `-- 'IOpForConfig' is imported here
+ 18 |   type RandomFn,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'cyclingRandom' is declared but never used. Unused variables should start with a '_'.
+    ,-[src/lib/campaign/scenario/__tests__/opForGeneration.test.ts:44:7]
+ 43 |  */
+ 44 | const cyclingRandom = (values: number[]): RandomFn => {
+    :       ^^^^^^|^^^^^^
+    :             `-- 'cyclingRandom' is declared here
+ 45 |   let index = 0;
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Parameter 'random' is declared but never used. Unused parameters should start with a '_'.
+     ,-[src/lib/campaign/scenario/opForGeneration.ts:161:3]
+ 160 |   faction: string,
+ 161 |   random: RandomFn,
+     :   ^^^|^^
+     :      `-- 'random' is declared here
+ 162 | ): IOpForConfig {
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Variable 'options' is declared but never used. Unused variables should start with a '_'.
+    ,-[src/lib/campaign/medical/__tests__/advancedMedical.test.ts:74:13]
+ 73 |       const injury = createMockInjury('inj-1');
+ 74 |       const options = createMockOptions();
+    :             ^^^|^^^
+    :                `-- 'options' is declared here
+ 75 | 
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Type 'AutoAwardTrigger' is imported but never used.
+   ,-[src/types/campaign/awards/__tests__/autoAwardTypes.test.ts:2:3]
+ 1 | import type {
+ 2 |   AutoAwardTrigger,
+   :   ^^^^^^^^|^^^^^^^
+   :           `-- 'AutoAwardTrigger' is imported here
+ 3 |   IAutoAwardConfig,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'IAutoAwardConfig' is imported but never used.
+   ,-[src/types/campaign/awards/__tests__/autoAwardTypes.test.ts:3:3]
+ 2 |   AutoAwardTrigger,
+ 3 |   IAutoAwardConfig,
+   :   ^^^^^^^^|^^^^^^^
+   :           `-- 'IAutoAwardConfig' is imported here
+ 4 |   IAutoGrantCriteria,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'GamePhase' is imported but never used.
+    ,-[src/__tests__/unit/utils/gameplay/attackResolution.test.ts:15:3]
+ 14 |   IGameSession,
+ 15 |   GamePhase,
+    :   ^^^^|^^^^
+    :       `-- 'GamePhase' is imported here
+ 16 |   GameSide,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'CampaignPilotStatus' is imported but never used.
+   ,-[src/utils/events/__tests__/campaignInstanceEvents.test.ts:8:3]
+ 7 |   CampaignUnitStatus,
+ 8 |   CampaignPilotStatus,
+   :   ^^^^^^^^^|^^^^^^^^^
+   :            `-- 'CampaignPilotStatus' is imported here
+ 9 | } from '@/types/campaign/CampaignInterfaces';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ISkillType' is imported but never used.
+   ,-[src/types/campaign/skills/__tests__/skillCatalog.test.ts:8:10]
+ 7 | } from '../../../../constants/campaign/skillCatalog';
+ 8 | import { ISkillType } from '../ISkillType';
+   :          ^^^^^|^^^^
+   :               `-- 'ISkillType' is imported here
+ 9 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'skillId' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/types/campaign/skills/__tests__/skillCatalog.test.ts:115:19]
+ 114 |     it('should have valid costs array for every skill', () => {
+ 115 |       for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+     :                   ^^^|^^^
+     :                      `-- 'skillId' is declared here
+ 116 |         expect(skillType.costs).toBeDefined();
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'skillId' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/types/campaign/skills/__tests__/skillCatalog.test.ts:135:19]
+ 134 | 
+ 135 |       for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+     :                   ^^^|^^^
+     :                      `-- 'skillId' is declared here
+ 136 |         expect(validAttributes).toContain(skillType.linkedAttribute);
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'skillId' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/types/campaign/skills/__tests__/skillCatalog.test.ts:141:19]
+ 140 |     it('should have targetNumber of 7 for all skills', () => {
+ 141 |       for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+     :                   ^^^|^^^
+     :                      `-- 'skillId' is declared here
+ 142 |         expect(skillType.targetNumber).toBe(7);
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'skillId' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/types/campaign/skills/__tests__/skillCatalog.test.ts:147:19]
+ 146 |     it('should have non-empty name and description for every skill', () => {
+ 147 |       for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+     :                   ^^^|^^^
+     :                      `-- 'skillId' is declared here
+ 148 |         expect(skillType.name).toBeDefined();
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint-plugin-react-hooks(exhaustive-deps): React Hook useCallback has unnecessary dependency: unitId
+     ,-[src/components/customizer/preview/RecordSheetPreview.tsx:377:6]
+ 376 |         }
+ 377 | ,->   }, [
+ 378 | |       unitId,
+ 379 | |       name,
+ 380 | |       chassis,
+ 381 | |       model,
+ 382 | |       tonnage,
+ 383 | |       techBase,
+ 384 | |       rulesLevel,
+ 385 | |       year,
+ 386 | |       configuration,
+ 387 | |       engineType,
+ 388 | |       engineRating,
+ 389 | |       gyroType,
+ 390 | |       internalStructureType,
+ 391 | |       armorType,
+ 392 | |       armorAllocation,
+ 393 | |       heatSinkType,
+ 394 | |       heatSinkCount,
+ 395 | |       enhancement,
+ 396 | |       walkMP,
+ 397 | |       runMP,
+ 398 | |       jumpMP,
+ 399 | |       convertEquipment,
+ 400 | |       buildCriticalSlots,
+ 401 | |       paperSize,
+ 402 | |       battleValue,
+ 403 | |       cost,
+ 404 | `->   ]);
+ 405 |     
+     `----
+  help: Either include it or remove the dependency array.
+
+  ! eslint(no-unused-vars): Identifier 'GameEventType' is imported but never used.
+    ,-[src/types/gameplay/__tests__/DamageAttribution.test.ts:9:3]
+  8 |   IUnitDestroyedPayload,
+  9 |   GameEventType,
+    :   ^^^^^^|^^^^^^
+    :         `-- 'GameEventType' is imported here
+ 10 |   GamePhase,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'GamePhase' is imported but never used.
+    ,-[src/types/gameplay/__tests__/DamageAttribution.test.ts:10:3]
+  9 |   GameEventType,
+ 10 |   GamePhase,
+    :   ^^^^|^^^^
+    :       `-- 'GamePhase' is imported here
+ 11 |   GameStatus,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'GameStatus' is imported but never used.
+    ,-[src/types/gameplay/__tests__/DamageAttribution.test.ts:11:3]
+ 10 |   GamePhase,
+ 11 |   GameStatus,
+    :   ^^^^^|^^^^
+    :        `-- 'GameStatus' is imported here
+ 12 | } from '../GameSessionInterfaces';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'getAttributeModifier' is imported but never used.
+   ,-[src/types/campaign/skills/__tests__/skillSystem.test.ts:3:3]
+ 2 |   IAttributes,
+ 3 |   getAttributeModifier,
+   :   ^^^^^^^^^^|^^^^^^^^^
+   :             `-- 'getAttributeModifier' is imported here
+ 4 |   ISkillType,
+   `----
+  help: Consider removing this import.
+
+  ! typescript-eslint(explicit-module-boundary-types): Missing return type on function
+    ,-[src/stores/campaign/usePersonnelStore.ts:75:17]
+ 74 |  */
+ 75 | export function createPersonnelStore(campaignId: string) {
+    :                 ^^^^^^^^^^^^^^^^^^^^
+ 76 |   return create<PersonnelStore>()(
+    `----
+
+  ! eslint(no-unused-vars): Parameter 'person' is declared but never used. Unused parameters should start with a '_'.
+     ,-[src/lib/campaign/progression/xpAwards.ts:252:3]
+ 251 | export function awardEducationXP(
+ 252 |   person: IPerson,
+     :   ^^^|^^
+     :      `-- 'person' is declared here
+ 253 |   options: ICampaignOptions,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'options' is declared but never used. Unused parameters should start with a '_'.
+     ,-[src/lib/campaign/progression/xpAwards.ts:253:3]
+ 252 |   person: IPerson,
+ 253 |   options: ICampaignOptions,
+     :   ^^^|^^^
+     :      `-- 'options' is declared here
+ 254 | ): IXPAwardEvent | null {
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Identifier 'IRankSystem' is imported but never used.
+   ,-[src/types/campaign/ranks/__tests__/rankTypes.test.ts:4:3]
+ 3 |   IRank,
+ 4 |   IRankSystem,
+   :   ^^^^^|^^^^^
+   :        `-- 'IRankSystem' is imported here
+ 5 |   RANK_TIERS,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'RankTier' is imported but never used.
+   ,-[src/types/campaign/ranks/__tests__/rankTypes.test.ts:6:3]
+ 5 |   RANK_TIERS,
+ 6 |   RankTier,
+   :   ^^^^|^^^
+   :       `-- 'RankTier' is imported here
+ 7 |   getRankTier,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ITerrainProperties' is imported but never used.
+    ,-[src/__tests__/unit/types/gameplay/TerrainTypes.test.ts:10:3]
+  9 |   ITerrainFeature,
+ 10 |   ITerrainProperties,
+    :   ^^^^^^^^^|^^^^^^^^
+    :            `-- 'ITerrainProperties' is imported here
+ 11 |   IHexTerrain,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IMissionContext' is imported but never used.
+   ,-[src/__tests__/integration/campaignTransition.test.ts:4:3]
+ 3 |   CampaignViewMode,
+ 4 |   IMissionContext,
+   :   ^^^^^^^|^^^^^^^
+   :          `-- 'IMissionContext' is imported here
+ 5 | } from '@/stores/useCampaignStore';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'CampaignStatus' is imported but never used.
+   ,-[src/__tests__/integration/campaignTransition.test.ts:7:3]
+ 6 | import {
+ 7 |   CampaignStatus,
+   :   ^^^^^^^|^^^^^^
+   :          `-- 'CampaignStatus' is imported here
+ 8 |   CampaignMissionStatus,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'CampaignUnitStatus' is imported but never used.
+    ,-[src/__tests__/integration/campaignTransition.test.ts:9:3]
+  8 |   CampaignMissionStatus,
+  9 |   CampaignUnitStatus,
+    :   ^^^^^^^^^|^^^^^^^^
+    :            `-- 'CampaignUnitStatus' is imported here
+ 10 |   CampaignPilotStatus,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'CampaignPilotStatus' is imported but never used.
+    ,-[src/__tests__/integration/campaignTransition.test.ts:10:3]
+  9 |   CampaignUnitStatus,
+ 10 |   CampaignPilotStatus,
+    :   ^^^^^^^^^|^^^^^^^^^
+    :            `-- 'CampaignPilotStatus' is imported here
+ 11 |   DEFAULT_CAMPAIGN_RESOURCES,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'GameStatus' is imported but never used.
+    ,-[src/__tests__/integration/campaignTransition.test.ts:13:10]
+ 12 | } from '@/types/campaign';
+ 13 | import { GameStatus, GamePhase } from '@/types/gameplay';
+    :          ^^^^^|^^^^
+    :               `-- 'GameStatus' is imported here
+ 14 | 
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'GamePhase' is imported but never used.
+    ,-[src/__tests__/integration/campaignTransition.test.ts:13:22]
+ 12 | } from '@/types/campaign';
+ 13 | import { GameStatus, GamePhase } from '@/types/gameplay';
+    :                      ^^^^|^^^^
+    :                          `-- 'GamePhase' is imported here
+ 14 | 
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'getSkillValue' is imported but never used.
+    ,-[src/types/campaign/skills/__tests__/techSkill.test.ts:15:10]
+ 14 | import { SkillExperienceLevel } from '../experienceLevels';
+ 15 | import { getSkillValue } from '../ISkill';
+    :          ^^^^^^|^^^^^^
+    :                `-- 'getSkillValue' is imported here
+ 16 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'clearAllStores' is imported but never used.
+    ,-[src/__tests__/integration/tabSwitchingComplete.test.ts:23:3]
+ 22 | import {
+ 23 |   clearAllStores,
+    :   ^^^^^^^|^^^^^^
+    :          `-- 'clearAllStores' is imported here
+ 24 |   getUnitStore,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'UNIT_TEMPLATES' is imported but never used.
+    ,-[src/__tests__/integration/tabSwitchingComplete.test.ts:29:3]
+ 28 |   useTabManagerStore,
+ 29 |   UNIT_TEMPLATES,
+    :   ^^^^^^^|^^^^^^
+    :          `-- 'UNIT_TEMPLATES' is imported here
+ 30 | } from '@/stores/useTabManagerStore';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'setupMockLocalStorage' is imported but never used.
+    ,-[src/__tests__/integration/tabSwitchingComplete.test.ts:33:10]
+ 32 | 
+ 33 | import { setupMockLocalStorage } from '../helpers/storeTestHelpers';
+    :          ^^^^^^^^^^|^^^^^^^^^^
+    :                    `-- 'setupMockLocalStorage' is imported here
+ 34 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'expectSubTabsMatch' is imported but never used.
+    ,-[src/__tests__/integration/tabSwitchingComplete.test.ts:39:3]
+ 38 |   simulateSubTabNavigation,
+ 39 |   expectSubTabsMatch,
+    :   ^^^^^^^^^|^^^^^^^^
+    :            `-- 'expectSubTabsMatch' is imported here
+ 40 |   expectActiveTab,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'resetTabStores' is imported but never used.
+    ,-[src/__tests__/integration/tabSwitchingComplete.test.ts:44:3]
+ 43 |   COMMON_SUB_TABS,
+ 44 |   resetTabStores,
+    :   ^^^^^^^|^^^^^^
+    :          `-- 'resetTabStores' is imported here
+ 45 |   setupTabSwitchingTest,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'verifyUrlMatchesState' is imported but never used.
+    ,-[src/__tests__/integration/tabSwitchingComplete.test.ts:47:3]
+ 46 |   createMockRouter,
+ 47 |   verifyUrlMatchesState,
+    :   ^^^^^^^^^^|^^^^^^^^^^
+    :             `-- 'verifyUrlMatchesState' is imported here
+ 48 | } from '../helpers/tabSwitchingHelpers';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'GameEventType' is imported but never used.
+    ,-[src/utils/gameplay/__tests__/resolveHeatPhase.test.ts:10:3]
+  9 |   GameSide,
+ 10 |   GameEventType,
+    :   ^^^^^^|^^^^^^
+    :         `-- 'GameEventType' is imported here
+ 11 |   Facing,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IHeatPayload' is imported but never used.
+    ,-[src/utils/gameplay/__tests__/resolveHeatPhase.test.ts:20:3]
+ 19 |   IWeaponAttack,
+ 20 |   IHeatPayload,
+    :   ^^^^^^|^^^^^
+    :         `-- 'IHeatPayload' is imported here
+ 21 |   IGameEvent,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IGameEvent' is imported but never used.
+    ,-[src/utils/gameplay/__tests__/resolveHeatPhase.test.ts:21:3]
+ 20 |   IHeatPayload,
+ 21 |   IGameEvent,
+    :   ^^^^^|^^^^
+    :        `-- 'IGameEvent' is imported here
+ 22 |   WeaponCategory,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'RARITY_VALUES' is imported but never used.
+    ,-[src/lib/campaign/markets/__tests__/unitMarket.test.ts:22:3]
+ 21 |   UnitMarketType,
+ 22 |   RARITY_VALUES,
+    :   ^^^^^^|^^^^^^
+    :         `-- 'RARITY_VALUES' is imported here
+ 23 |   MARKET_TYPE_QUALITY,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'callCount' is assigned a value but never used. Unused variables should start with a '_'.
+     ,-[src/lib/campaign/markets/__tests__/unitMarket.test.ts:190:11]
+ 189 |       // Need d1+d2 in [6,8]. d1=3, d2=3 -> roll=6
+ 190 |       let callCount = 0;
+     :           ^^^^|^^^^
+     :               `-- 'callCount' is declared here
+ 191 |       const fixedRandom: RandomFn = () => {
+ 192 |         callCount++;
+     :         ^^^^|^^^^
+     :             `-- it was last assigned here
+ 193 |         return 0.4; // floor(0.4*6)+1 = 3
+     `----
+  help: Did you mean to use this variable?
+
+  ! eslint(no-unused-vars): Identifier 'ILOSResult' is imported but never used.
+    ,-[src/__tests__/unit/utils/gameplay/lineOfSight.test.ts:14:3]
+ 13 |   getBlockingTerrain,
+ 14 |   ILOSResult,
+    :   ^^^^^|^^^^
+    :        `-- 'ILOSResult' is imported here
+ 15 | } from '@/utils/gameplay/lineOfSight';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IDamageAppliedPayload' is imported but never used.
+    ,-[src/utils/gameplay/combatStatistics.ts:9:3]
+  8 |   GameEventType,
+  9 |   IDamageAppliedPayload,
+    :   ^^^^^^^^^^|^^^^^^^^^^
+    :             `-- 'IDamageAppliedPayload' is imported here
+ 10 |   IUnitDestroyedPayload,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IUnitDestroyedPayload' is imported but never used.
+    ,-[src/utils/gameplay/combatStatistics.ts:10:3]
+  9 |   IDamageAppliedPayload,
+ 10 |   IUnitDestroyedPayload,
+    :   ^^^^^^^^^^|^^^^^^^^^^
+    :             `-- 'IUnitDestroyedPayload' is imported here
+ 11 | } from '@/types/gameplay';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'SkillCheckResult' is imported but never used.
+    ,-[src/lib/campaign/skills/__tests__/skillCheck.test.ts:11:3]
+ 10 |   getEffectiveSkillTN,
+ 11 |   SkillCheckResult,
+    :   ^^^^^^^^|^^^^^^^
+    :           `-- 'SkillCheckResult' is imported here
+ 12 | } from '../skillCheck';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'MockLocalStorage' is imported but never used.
+    ,-[src/__tests__/helpers/tabSwitchingHelpers.ts:27:33]
+ 26 | 
+ 27 | import { setupMockLocalStorage, MockLocalStorage } from './storeTestHelpers';
+    :                                 ^^^^^^^^|^^^^^^^
+    :                                         `-- 'MockLocalStorage' is imported here
+ 28 | 
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ISkill' is imported but never used.
+    ,-[src/lib/campaign/skills/skillCheck.ts:12:10]
+ 11 | import { IPerson } from '@/types/campaign/Person';
+ 12 | import { ISkill, ISkillType, getSkillValue } from '@/types/campaign/skills';
+    :          ^^^|^^
+    :             `-- 'ISkill' is imported here
+ 13 | 
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'isDead' is imported but never used.
+   ,-[src/lib/campaign/personnel/statusTransitions.ts:3:10]
+ 2 | 
+ 3 | import { isDead, isDepartedUnit } from './statusRules';
+   :          ^^^|^^
+   :             `-- 'isDead' is imported here
+ 4 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'isDepartedUnit' is imported but never used.
+   ,-[src/lib/campaign/personnel/statusTransitions.ts:3:18]
+ 2 | 
+ 3 | import { isDead, isDepartedUnit } from './statusRules';
+   :                  ^^^^^^^|^^^^^^
+   :                         `-- 'isDepartedUnit' is imported here
+ 4 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IAttackLockedPayload' is imported but never used.
+    ,-[src/utils/gameplay/gameState.ts:26:3]
+ 25 |   IAttackDeclaredPayload,
+ 26 |   IAttackLockedPayload,
+    :   ^^^^^^^^^^|^^^^^^^^^
+    :             `-- 'IAttackLockedPayload' is imported here
+ 27 |   IDamageAppliedPayload,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IHeatPayload' is imported but never used.
+    ,-[src/utils/gameplay/gameSession.ts:31:3]
+ 30 |   IMovementDeclaredPayload,
+ 31 |   IHeatPayload,
+    :   ^^^^^^|^^^^^
+    :         `-- 'IHeatPayload' is imported here
+ 32 | } from '@/types/gameplay';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'resolveDamage' is imported but never used.
+    ,-[src/utils/gameplay/gameSession.ts:34:10]
+ 33 | 
+ 34 | import { resolveDamage, createDamageState, IUnitDamageState } from './damage';
+    :          ^^^^^^|^^^^^^
+    :                `-- 'resolveDamage' is imported here
+ 35 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'createDamageState' is imported but never used.
+    ,-[src/utils/gameplay/gameSession.ts:34:25]
+ 33 | 
+ 34 | import { resolveDamage, createDamageState, IUnitDamageState } from './damage';
+    :                         ^^^^^^^^|^^^^^^^^
+    :                                 `-- 'createDamageState' is imported here
+ 35 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IUnitDamageState' is imported but never used.
+    ,-[src/utils/gameplay/gameSession.ts:34:44]
+ 33 | 
+ 34 | import { resolveDamage, createDamageState, IUnitDamageState } from './damage';
+    :                                            ^^^^^^^^|^^^^^^^
+    :                                                    `-- 'IUnitDamageState' is imported here
+ 35 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'createDiceRoll' is imported but never used.
+    ,-[src/utils/gameplay/gameSession.ts:54:3]
+ 53 |   determineHitLocationFromRoll,
+ 54 |   createDiceRoll,
+    :   ^^^^^^^|^^^^^^
+    :          `-- 'createDiceRoll' is imported here
+ 55 | } from './hitLocation';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'firingArc' is declared but never used. Unused parameters should start with a '_'.
+     ,-[src/utils/gameplay/gameSession.ts:372:3]
+ 371 |   rangeBracket: RangeBracket,
+ 372 |   firingArc: FiringArc,
+     :   ^^^^|^^^^
+     :       `-- 'firingArc' is declared here
+ 373 | ): IGameSession {
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Identifier 'TerrainType' is imported but never used.
+    ,-[src/utils/gameplay/toHit.ts:17:3]
+ 16 | import {
+ 17 |   TerrainType,
+    :   ^^^^^|^^^^^
+    :        `-- 'TerrainType' is imported here
+ 18 |   TERRAIN_PROPERTIES,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'state1Units' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/simulation/__tests__/scenarioGenerator.test.ts:149:13]
+ 148 | 
+ 149 |       const state1Units = Object.values(
+     :             ^^^^^|^^^^^
+     :                  `-- 'state1Units' is declared here
+ 150 |         session1.currentState.units,
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'state2Units' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/simulation/__tests__/scenarioGenerator.test.ts:152:13]
+ 151 |       ) as IUnitGameState[];
+ 152 |       const state2Units = Object.values(
+     :             ^^^^^|^^^^^
+     :                  `-- 'state2Units' is declared here
+ 153 |         session2.currentState.units,
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'IGenerationOptions' is imported but never used.
+    ,-[src/simulation/generator/ScenarioGenerator.ts:27:3]
+ 26 |   DEFAULT_GENERATION_OPTIONS,
+ 27 |   IGenerationOptions,
+    :   ^^^^^^^^^|^^^^^^^^
+    :            `-- 'IGenerationOptions' is imported here
+ 28 | } from './types';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'options' is declared but never used. Unused variables should start with a '_'.
+    ,-[src/simulation/generator/ScenarioGenerator.ts:55:11]
+ 54 |   generate(config: ISimulationConfig, random: SeededRandom): IGameSession {
+ 55 |     const options = DEFAULT_GENERATION_OPTIONS;
+    :           ^^^|^^^
+    :              `-- 'options' is declared here
+ 56 |     const grid = this.generateMap(config.mapRadius, random);
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'GameEventType' is imported but never used.
+   ,-[src/simulation/__tests__/metricsCollector.test.ts:8:3]
+ 7 | import {
+ 8 |   GameEventType,
+   :   ^^^^^^|^^^^^^
+   :         `-- 'GameEventType' is imported here
+ 9 |   GamePhase,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'GamePhase' is imported but never used.
+    ,-[src/simulation/__tests__/metricsCollector.test.ts:9:3]
+  8 |   GameEventType,
+  9 |   GamePhase,
+    :   ^^^^|^^^^
+    :       `-- 'GamePhase' is imported here
+ 10 | } from '@/types/gameplay/GameSessionInterfaces';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IViolation' is imported but never used.
+    ,-[src/simulation/__tests__/metricsCollector.test.ts:13:10]
+ 12 | import { ISimulationResult } from '../core/types';
+ 13 | import { IViolation } from '../invariants/types';
+    :          ^^^^^|^^^^
+    :               `-- 'IViolation' is imported here
+ 14 | import { MetricsCollector } from '../metrics/MetricsCollector';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IFinances' is imported but never used.
+    ,-[src/lib/campaign/__tests__/dayAdvancement.test.ts:29:10]
+ 28 | import { IForce } from '@/types/campaign/Force';
+ 29 | import { IFinances } from '@/types/campaign/IFinances';
+    :          ^^^^|^^^^
+    :              `-- 'IFinances' is imported here
+ 30 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IContract' is imported but never used.
+    ,-[src/lib/campaign/__tests__/dayAdvancement.test.ts:32:3]
+ 31 |   IMission,
+ 32 |   IContract,
+    :   ^^^^|^^^^
+    :       `-- 'IContract' is imported here
+ 33 |   createContract,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'DayReport' is imported but never used.
+    ,-[src/lib/campaign/__tests__/dayAdvancement.test.ts:46:3]
+ 45 |   DEFAULT_DAILY_MAINTENANCE,
+ 46 |   DayReport,
+    :   ^^^^|^^^^
+    :       `-- 'DayReport' is imported here
+ 47 |   HealedPersonEvent,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'HealedPersonEvent' is imported but never used.
+    ,-[src/lib/campaign/__tests__/dayAdvancement.test.ts:47:3]
+ 46 |   DayReport,
+ 47 |   HealedPersonEvent,
+    :   ^^^^^^^^|^^^^^^^^
+    :           `-- 'HealedPersonEvent' is imported here
+ 48 |   ExpiredContractEvent,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ExpiredContractEvent' is imported but never used.
+    ,-[src/lib/campaign/__tests__/dayAdvancement.test.ts:48:3]
+ 47 |   HealedPersonEvent,
+ 48 |   ExpiredContractEvent,
+    :   ^^^^^^^^^^|^^^^^^^^^
+    :             `-- 'ExpiredContractEvent' is imported here
+ 49 |   DailyCostBreakdown,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'DailyCostBreakdown' is imported but never used.
+    ,-[src/lib/campaign/__tests__/dayAdvancement.test.ts:49:3]
+ 48 |   ExpiredContractEvent,
+ 49 |   DailyCostBreakdown,
+    :   ^^^^^^^^^|^^^^^^^^
+    :            `-- 'DailyCostBreakdown' is imported here
+ 50 | } from '../dayAdvancement';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'DailyCosts' is imported but never used.
+    ,-[src/lib/finances/__tests__/FinanceService.test.ts:46:3]
+ 45 |   DEFAULT_DAILY_MAINTENANCE,
+ 46 |   DailyCosts,
+    :   ^^^^^|^^^^
+    :        `-- 'DailyCosts' is imported here
+ 47 | } from '../FinanceService';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ContractOutcome' is imported but never used.
+    ,-[src/types/campaign/__tests__/PaymentTerms.test.ts:17:3]
+ 16 |   IPaymentTerms,
+ 17 |   ContractOutcome,
+    :   ^^^^^^^|^^^^^^^
+    :          `-- 'ContractOutcome' is imported here
+ 18 |   calculateTotalPayout,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'ICampaignOptions' is imported but never used.
+   ,-[src/lib/finances/__tests__/salaryService.test.ts:1:26]
+ 1 | import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+   :                          ^^^^^^^^|^^^^^^^
+   :                                  `-- 'ICampaignOptions' is imported here
+ 2 | import type { IForce } from '@/types/campaign/Force';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ForceRole' is imported but never used.
+   ,-[src/lib/finances/__tests__/salaryService.test.ts:8:10]
+ 7 | import { CampaignType } from '@/types/campaign/CampaignType';
+ 8 | import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+   :          ^^^^|^^^^
+   :              `-- 'ForceRole' is imported here
+ 9 | import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'FormationLevel' is imported but never used.
+   ,-[src/lib/finances/__tests__/salaryService.test.ts:8:21]
+ 7 | import { CampaignType } from '@/types/campaign/CampaignType';
+ 8 | import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+   :                     ^^^^^^^|^^^^^^
+   :                            `-- 'FormationLevel' is imported here
+ 9 | import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ExperienceLevel' is imported but never used.
+    ,-[src/lib/finances/__tests__/salaryService.test.ts:25:3]
+ 24 |   isEligibleForSalary,
+ 25 |   ExperienceLevel,
+    :   ^^^^^^^|^^^^^^^
+    :          `-- 'ExperienceLevel' is imported here
+ 26 |   SalaryOptions,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'SalaryBreakdown' is imported but never used.
+    ,-[src/lib/finances/__tests__/salaryService.test.ts:27:3]
+ 26 |   SalaryOptions,
+ 27 |   SalaryBreakdown,
+    :   ^^^^^^^|^^^^^^^
+    :          `-- 'SalaryBreakdown' is imported here
+ 28 | } from '../salaryService';
+    `----
+  help: Consider removing this import.
+
+  ! eslint-plugin-next(no-img-element): Using `<img>` could result in slower LCP and higher bandwidth.
+    ,-[src/components/common/icons/NavigationIcons.tsx:20:6]
+ 19 |   return (
+ 20 |     <img
+    :      ^|^
+    :       `-- Use `<Image />` from `next/image` instead.
+ 21 |       src="/mekstation-logo.png"
+    :           ^^^^^^^^^^^|^^^^^^^^^^
+    :                      `-- Use a static image import instead.
+ 22 |       alt="MekStation"
+    `----
+  help: Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images.
+  note: See https://nextjs.org/docs/messages/no-img-element
+
+  ! eslint(no-unused-vars): Identifier 'Badge' is imported but never used.
+    ,-[src/pages/gameplay/campaigns/[id]/personnel.tsx:11:40]
+ 10 | import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
+ 11 | import { PageLayout, Card, EmptyState, Badge } from '@/components/ui';
+    :                                        ^^|^^
+    :                                          `-- 'Badge' is imported here
+ 12 | import { getBaseSalary } from '@/lib/campaign/personnel/roleSalaries';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ALL_CAMPAIGN_PERSONNEL_ROLES' is imported but never used.
+    ,-[src/pages/gameplay/campaigns/[id]/personnel.tsx:18:3]
+ 17 |   getRolesByCategory,
+ 18 |   ALL_CAMPAIGN_PERSONNEL_ROLES,
+    :   ^^^^^^^^^^^^^^|^^^^^^^^^^^^^
+    :                 `-- 'ALL_CAMPAIGN_PERSONNEL_ROLES' is imported here
+ 19 | } from '@/types/campaign/enums/CampaignPersonnelRole';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'index' is declared but never used. Unused parameters should start with a '_'.
+     ,-[src/components/quickgame/QuickGameTimeline.tsx:104:33]
+ 103 |           <div className="divide-y divide-gray-700">
+ 104 |             {events.map((event, index) => (
+     :                                 ^^|^^
+     :                                   `-- 'index' is declared here
+ 105 |               <div
+     `----
+  help: Consider removing this parameter.
+
+  ! typescript-eslint(explicit-module-boundary-types): Missing return type on function
+     ,-[src/stores/useQuickGameStore.ts:444:14]
+ 443 |  */
+ 444 | export const selectPlayerForce = (state: QuickGameStore) =>
+     :              ^^^^^^^^^^^^^^^^^
+ 445 |   state.game?.playerForce ?? null;
+     `----
+
+  ! typescript-eslint(explicit-module-boundary-types): Missing return type on function
+     ,-[src/stores/useQuickGameStore.ts:450:14]
+ 449 |  */
+ 450 | export const selectOpponentForce = (state: QuickGameStore) =>
+     :              ^^^^^^^^^^^^^^^^^^^
+ 451 |   state.game?.opponentForce ?? null;
+     `----
+
+  ! typescript-eslint(explicit-module-boundary-types): Missing return type on function
+     ,-[src/stores/useQuickGameStore.ts:456:14]
+ 455 |  */
+ 456 | export const selectScenario = (state: QuickGameStore) =>
+     :              ^^^^^^^^^^^^^^
+ 457 |   state.game?.scenario ?? null;
+     `----
+
+  ! eslint(no-unused-vars): Variable 'unitId' is declared but never used. Unused variables should start with a '_'.
+    ,-[src/components/customizer/tabs/PreviewTab.tsx:62:9]
+ 61 |   // Get unit state from store
+ 62 |   const unitId = useUnitStore((s) => s.id);
+    :         ^^^|^^
+    :            `-- 'unitId' is declared here
+ 63 |   const name = useUnitStore((s) => s.name);
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'ForceRole' is imported but never used.
+    ,-[src/pages/gameplay/campaigns/[id]/forces.tsx:13:10]
+ 12 | import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+ 13 | import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+    :          ^^^^|^^^^
+    :              `-- 'ForceRole' is imported here
+ 14 | import { IForce } from '@/types/campaign/Force';
+    `----
+  help: Consider removing this import.
+
+  x typescript-eslint(no-require-imports): Expected "import" statement instead of "require" call
+    ,-[src/__tests__/api/equipment/catalog.test.ts:35:3]
+ 34 | const { equipmentLookupService } =
+ 35 |   require('@/services/equipment/EquipmentLookupService') as {
+    :   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 36 |     equipmentLookupService: MockEquipmentLookupService;
+    `----
+  help: Do not use CommonJS `require` calls
+
+  ! eslint(no-unused-vars): Identifier 'ArmorTypeEnum' is imported but never used.
+    ,-[src/__tests__/unit/stores/unitState.test.ts:10:10]
+  9 | } from '@/stores/unitState';
+ 10 | import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+    :          ^^^^^^|^^^^^^
+    :                `-- 'ArmorTypeEnum' is imported here
+ 11 | import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'calculateArmorPoints' is imported but never used.
+    ,-[src/__tests__/unit/stores/unitState.test.ts:16:3]
+ 15 |   getMaxTotalArmor,
+ 16 |   calculateArmorPoints,
+    :   ^^^^^^^^^^|^^^^^^^^^
+    :             `-- 'calculateArmorPoints' is imported here
+ 17 |   calculateOptimalArmorAllocation,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'expectedTargetPoints' is declared but never used. Unused variables should start with a '_'.
+    ,-[src/__tests__/unit/stores/unitState.test.ts:30:13]
+ 29 |       const maxArmor = getMaxTotalArmor(50, MechConfiguration.BIPED);
+ 30 |       const expectedTargetPoints = Math.floor(maxArmor * 0.7);
+    :             ^^^^^^^^^^|^^^^^^^^^
+    :                       `-- 'expectedTargetPoints' is declared here
+ 31 | 
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'GamePhase' is imported but never used.
+    ,-[src/simulation/__tests__/botPlayer.test.ts:11:3]
+ 10 |   MovementType,
+ 11 |   GamePhase,
+    :   ^^^^|^^^^
+    :       `-- 'GamePhase' is imported here
+ 12 |   GameEventType,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'AttackAI' is imported but never used.
+    ,-[src/simulation/__tests__/botPlayer.test.ts:15:10]
+ 14 | 
+ 15 | import { AttackAI } from '../ai/AttackAI';
+    :          ^^^^|^^^
+    :              `-- 'AttackAI' is imported here
+ 16 | import { BotPlayer } from '../ai/BotPlayer';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'MoveAI' is imported but never used.
+    ,-[src/simulation/__tests__/botPlayer.test.ts:17:10]
+ 16 | import { BotPlayer } from '../ai/BotPlayer';
+ 17 | import { MoveAI } from '../ai/MoveAI';
+    :          ^^^|^^
+    :             `-- 'MoveAI' is imported here
+ 18 | import { DEFAULT_BEHAVIOR, type IAIUnitState, type IWeapon } from '../ai/types';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'DEFAULT_BEHAVIOR' is imported but never used.
+    ,-[src/simulation/__tests__/botPlayer.test.ts:18:10]
+ 17 | import { MoveAI } from '../ai/MoveAI';
+ 18 | import { DEFAULT_BEHAVIOR, type IAIUnitState, type IWeapon } from '../ai/types';
+    :          ^^^^^^^^|^^^^^^^
+    :                  `-- 'DEFAULT_BEHAVIOR' is imported here
+ 19 | import { SeededRandom } from '../core/SeededRandom';
+    `----
+  help: Consider removing this import.
+
+  x typescript-eslint(no-explicit-any): Unexpected `any`. Specify a different type.
+     ,-[src/hooks/__tests__/useVaultExport.test.ts:159:46]
+ 158 |       .spyOn(document, 'createElement')
+ 159 |       .mockImplementation((tagName: string): any => {
+     :                                              ^^^
+ 160 |         if (tagName === 'a') {
+     `----
+  help: Use `unknown` instead, this will force you to explicitly, and safely, assert the type is correct.
+
+  ! eslint(no-unused-vars): Identifier 'AwardCategory' is imported but never used.
+    ,-[src/stores/__tests__/useAwardStore.test.ts:10:3]
+  9 | import {
+ 10 |   AwardCategory,
+    :   ^^^^^^|^^^^^^
+    :         `-- 'AwardCategory' is imported here
+ 11 |   AwardRarity,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'AwardRarity' is imported but never used.
+    ,-[src/stores/__tests__/useAwardStore.test.ts:11:3]
+ 10 |   AwardCategory,
+ 11 |   AwardRarity,
+    :   ^^^^^|^^^^^
+    :        `-- 'AwardRarity' is imported here
+ 12 |   CriteriaType,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IAward' is imported but never used.
+    ,-[src/stores/__tests__/useAwardStore.test.ts:13:3]
+ 12 |   CriteriaType,
+ 13 |   IAward,
+    :   ^^^|^^
+    :      `-- 'IAward' is imported here
+ 14 |   IAwardContext,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'createEmptyPilotStats' is imported but never used.
+    ,-[src/stores/__tests__/useAwardStore.test.ts:15:3]
+ 14 |   IAwardContext,
+ 15 |   createEmptyPilotStats,
+    :   ^^^^^^^^^^|^^^^^^^^^^
+    :             `-- 'createEmptyPilotStats' is imported here
+ 16 |   getAwardById,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'store' is declared but never used. Unused variables should start with a '_'.
+    ,-[src/stores/__tests__/useAwardStore.test.ts:42:9]
+ 41 | function resetStore() {
+ 42 |   const store = useAwardStore.getState();
+    :         ^^|^^
+    :           `-- 'store' is declared here
+ 43 |   // Clear all data
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'result' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/stores/__tests__/useAwardStore.test.ts:642:15]
+ 641 |     it('should evaluate all criteria types', () => {
+ 642 |       const { result } = renderHook(() => useAwardStore());
+     :               ^^^|^^
+     :                  `-- 'result' is declared here
+ 643 | 
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'PersonnelStatus' is imported but never used.
+    ,-[src/lib/combat/battleResultProcessing.ts:12:10]
+ 11 | import { ICampaign } from '@/types/campaign/Campaign';
+ 12 | import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+    :          ^^^^^^^|^^^^^^^
+    :                 `-- 'PersonnelStatus' is imported here
+ 13 | import { IScenario } from '@/types/campaign/Scenario';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'scenario' is declared but never used. Unused parameters should start with a '_'.
+    ,-[src/lib/combat/battleResultProcessing.ts:41:3]
+ 40 |   campaign: ICampaign,
+ 41 |   scenario: IScenario,
+    :   ^^^^|^^^
+    :       `-- 'scenario' is declared here
+ 42 |   result: ResolveScenarioResult,
+    `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'result' is declared but never used. Unused parameters should start with a '_'.
+    ,-[src/lib/combat/battleResultProcessing.ts:42:3]
+ 41 |   scenario: IScenario,
+ 42 |   result: ResolveScenarioResult,
+    :   ^^^|^^
+    :      `-- 'result' is declared here
+ 43 | ): ICampaign {
+    `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Identifier 'Input' is imported but never used.
+    ,-[src/pages/gameplay/campaigns/index.tsx:13:3]
+ 12 |   Card,
+ 13 |   Input,
+    :   ^^|^^
+    :     `-- 'Input' is imported here
+ 14 |   Button,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Badge' is imported but never used.
+    ,-[src/pages/gameplay/campaigns/index.tsx:16:3]
+ 15 |   EmptyState,
+ 16 |   Badge,
+    :   ^^|^^
+    :     `-- 'Badge' is imported here
+ 17 | } from '@/components/ui';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'parseApiResponse' is imported but never used.
+    ,-[src/__tests__/api/vault/vault.test.ts:20:3]
+ 19 | import {
+ 20 |   parseApiResponse,
+    :   ^^^^^^^^|^^^^^^^
+    :           `-- 'parseApiResponse' is imported here
+ 21 |   createMock,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'createMock' is imported but never used.
+    ,-[src/__tests__/api/vault/vault.test.ts:21:3]
+ 20 |   parseApiResponse,
+ 21 |   createMock,
+    :   ^^^^^|^^^^
+    :        `-- 'createMock' is imported here
+ 22 |   type PartialMock,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Type 'PartialMock' is imported but never used.
+    ,-[src/__tests__/api/vault/vault.test.ts:22:8]
+ 21 |   createMock,
+ 22 |   type PartialMock,
+    :        ^^^^^|^^^^^
+    :             `-- 'PartialMock' is imported here
+ 23 | } from '@/__tests__/helpers';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IdentityRepository' is imported but never used.
+    ,-[src/__tests__/api/vault/vault.test.ts:43:3]
+ 42 |   getIdentityRepository,
+ 43 |   IdentityRepository,
+    :   ^^^^^^^^^|^^^^^^^^
+    :            `-- 'IdentityRepository' is imported here
+ 44 | } from '@/services/vault/IdentityRepository';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ShareLinkService' is imported but never used.
+    ,-[src/__tests__/api/vault/vault.test.ts:53:3]
+ 52 |   getShareLinkService,
+ 53 |   ShareLinkService,
+    :   ^^^^^^^^|^^^^^^^
+    :           `-- 'ShareLinkService' is imported here
+ 54 | } from '@/services/vault/ShareLinkService';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'VaultService' is imported but never used.
+    ,-[src/__tests__/api/vault/vault.test.ts:55:27]
+ 54 | } from '@/services/vault/ShareLinkService';
+ 55 | import { getVaultService, VaultService } from '@/services/vault/VaultService';
+    :                           ^^^^^^|^^^^^
+    :                                 `-- 'VaultService' is imported here
+ 56 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'VersionHistoryService' is imported but never used.
+    ,-[src/__tests__/api/vault/vault.test.ts:58:3]
+ 57 |   getVersionHistoryService,
+ 58 |   VersionHistoryService,
+    :   ^^^^^^^^^^|^^^^^^^^^^
+    :             `-- 'VersionHistoryService' is imported here
+ 59 | } from '@/services/vault/VersionHistoryService';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Interface 'IdentityCheckResponse' is declared but never used.
+    ,-[src/__tests__/api/vault/vault.test.ts:65:11]
+ 64 | 
+ 65 | interface IdentityCheckResponse {
+    :           ^^^^^^^^^^|^^^^^^^^^^
+    :                     `-- 'IdentityCheckResponse' is declared here
+ 66 |   hasIdentity: boolean;
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Interface 'IdentityCreateResponse' is declared but never used.
+    ,-[src/__tests__/api/vault/vault.test.ts:75:11]
+ 74 | 
+ 75 | interface IdentityCreateResponse {
+    :           ^^^^^^^^^^^|^^^^^^^^^^
+    :                      `-- 'IdentityCreateResponse' is declared here
+ 76 |   success: boolean;
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Interface 'IdentityUpdateResponse' is declared but never used.
+    ,-[src/__tests__/api/vault/vault.test.ts:86:11]
+ 85 | 
+ 86 | interface IdentityUpdateResponse {
+    :           ^^^^^^^^^^^|^^^^^^^^^^
+    :                      `-- 'IdentityUpdateResponse' is declared here
+ 87 |   success: boolean;
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Interface 'FolderListResponse' is declared but never used.
+    ,-[src/__tests__/api/vault/vault.test.ts:91:11]
+ 90 | 
+ 91 | interface FolderListResponse {
+    :           ^^^^^^^^^|^^^^^^^^
+    :                    `-- 'FolderListResponse' is declared here
+ 92 |   folders: Array<{
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Interface 'FolderResponse' is declared but never used.
+     ,-[src/__tests__/api/vault/vault.test.ts:104:11]
+ 103 | 
+ 104 | interface FolderResponse {
+     :           ^^^^^^^|^^^^^^
+     :                  `-- 'FolderResponse' is declared here
+ 105 |   folder: {
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Interface 'FolderOperationResponse' is declared but never used.
+     ,-[src/__tests__/api/vault/vault.test.ts:116:11]
+ 115 | 
+ 116 | interface FolderOperationResponse {
+     :           ^^^^^^^^^^^|^^^^^^^^^^^
+     :                      `-- 'FolderOperationResponse' is declared here
+ 117 |   success: boolean;
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Interface 'ShareLinkListResponse' is declared but never used.
+     ,-[src/__tests__/api/vault/vault.test.ts:121:11]
+ 120 | 
+ 121 | interface ShareLinkListResponse {
+     :           ^^^^^^^^^^|^^^^^^^^^^
+     :                     `-- 'ShareLinkListResponse' is declared here
+ 122 |   links: Array<{
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Interface 'ShareLinkCreateResponse' is declared but never used.
+     ,-[src/__tests__/api/vault/vault.test.ts:138:11]
+ 137 | 
+ 138 | interface ShareLinkCreateResponse {
+     :           ^^^^^^^^^^^|^^^^^^^^^^^
+     :                      `-- 'ShareLinkCreateResponse' is declared here
+ 139 |   success: boolean;
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Interface 'ShareRedeemResponse' is declared but never used.
+     ,-[src/__tests__/api/vault/vault.test.ts:148:11]
+ 147 | 
+ 148 | interface ShareRedeemResponse {
+     :           ^^^^^^^^^|^^^^^^^^^
+     :                    `-- 'ShareRedeemResponse' is declared here
+ 149 |   success: boolean;
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Interface 'VersionHistoryResponse' is declared but never used.
+     ,-[src/__tests__/api/vault/vault.test.ts:158:11]
+ 157 | 
+ 158 | interface VersionHistoryResponse {
+     :           ^^^^^^^^^^^|^^^^^^^^^^
+     :                      `-- 'VersionHistoryResponse' is declared here
+ 159 |   versions: Array<{
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Interface 'SaveVersionResponse' is declared but never used.
+     ,-[src/__tests__/api/vault/vault.test.ts:173:11]
+ 172 | 
+ 173 | interface SaveVersionResponse {
+     :           ^^^^^^^^^|^^^^^^^^^
+     :                    `-- 'SaveVersionResponse' is declared here
+ 174 |   version: {
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'SkeletonFormSection' is imported but never used.
+    ,-[src/pages/gameplay/pilots/index.tsx:12:3]
+ 11 |   SkeletonInput,
+ 12 |   SkeletonFormSection,
+    :   ^^^^^^^^^|^^^^^^^^^
+    :            `-- 'SkeletonFormSection' is imported here
+ 13 | } from '@/components/common/SkeletonLoader';
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'IHex' is imported but never used.
+    ,-[src/utils/gameplay/lineOfSight.ts:10:3]
+  9 |   IHexCoordinate,
+ 10 |   IHex,
+    :   ^^|^
+    :     `-- 'IHex' is imported here
+ 11 |   IHexGrid,
+    `----
+  help: Consider removing this import.
+
+  x eslint-plugin-next(no-duplicate-head): Do not include multiple instances of `<Head/>`
+     ,-[src/pages/gameplay/games/[id].tsx:271:10]
+ 270 |       <>
+ 271 |         <Head>
+     :          ^^^^
+ 272 |           <title>Game Complete - MekStation</title>
+ 273 |         </Head>
+ 274 |         <CompletedGame
+ 275 |           gameId={session.id}
+ 276 |           winner={session.currentState.result.winner}
+ 277 |           reason={session.currentState.result.reason}
+ 278 |         />
+ 279 |       </>
+ 280 |     );
+ 281 |   }
+ 282 | 
+ 283 |   // Determine if it's player's turn
+ 284 |   const isPlayerTurn = session.currentState.firstMover === GameSide.Player;
+ 285 | 
+ 286 |   return (
+ 287 |     <>
+ 288 |       <Head>
+     :        ^^^^
+ 289 |         <title>Game Session - MekStation</title>
+     `----
+  help: Only use a single `<Head />` component in your custom document in `pages/_document.js`. See: https://nextjs.org/docs/messages/no-duplicate-head
+
+  x eslint-plugin-next(no-duplicate-head): Do not include multiple instances of `<Head/>`
+     ,-[src/pages/gameplay/quick/index.tsx:251:10]
+ 250 |       <>
+ 251 |         <Head>
+     :          ^^^^
+ 252 |           <title>Quick Game | MekStation</title>
+ 253 |         </Head>
+ 254 |         <WelcomeScreen onStart={handleStart} />
+ 255 |       </>
+ 256 |     );
+ 257 |   }
+ 258 | 
+ 259 |   // Route to appropriate view based on step
+ 260 |   const renderContent = () => {
+ 261 |     switch (game.step) {
+ 262 |       case QuickGameStep.SelectUnits:
+ 263 |       case QuickGameStep.ConfigureScenario:
+ 264 |         return <QuickGameSetup />;
+ 265 | 
+ 266 |       case QuickGameStep.Review:
+ 267 |         return <QuickGameReview />;
+ 268 | 
+ 269 |       case QuickGameStep.Playing:
+ 270 |         return <QuickGamePlay />;
+ 271 | 
+ 272 |       case QuickGameStep.Results:
+ 273 |         return <QuickGameResults />;
+ 274 | 
+ 275 |       default:
+ 276 |         return <QuickGameSetup />;
+ 277 |     }
+ 278 |   };
+ 279 | 
+ 280 |   return (
+ 281 |     <>
+ 282 |       <Head>
+     :        ^^^^
+ 283 |         <title>Quick Game | MekStation</title>
+     `----
+  help: Only use a single `<Head />` component in your custom document in `pages/_document.js`. See: https://nextjs.org/docs/messages/no-duplicate-head
+
+  ! eslint(no-unused-vars): Identifier 'expect' is imported but never used.
+    ,-[e2e/pages/compendium.page.ts:11:25]
+ 10 | 
+ 11 | import { Page, Locator, expect } from '@playwright/test';
+    :                         ^^^|^^
+    :                            `-- 'expect' is imported here
+ 12 | 
+    `----
+  help: Consider removing this import.
+
+  x eslint-plugin-next(no-duplicate-head): Do not include multiple instances of `<Head/>`
+     ,-[src/pages/share/[token].tsx:138:10]
+ 137 |       <>
+ 138 |         <Head>
+     :          ^^^^
+ 139 |           <title>Loading Share Link - MekStation</title>
+ 140 |         </Head>
+ 141 |         <PageLoading message="Validating share link..." />
+ 142 |       </>
+ 143 |     );
+ 144 |   }
+ 145 | 
+ 146 |   // Error states
+ 147 |   if (!result?.success) {
+ 148 |     const errorTitle =
+ 149 |       result?.errorCode === 'NOT_FOUND'
+ 150 |         ? 'Share Link Not Found'
+ 151 |         : result?.errorCode === 'EXPIRED'
+ 152 |           ? 'Share Link Expired'
+ 153 |           : result?.errorCode === 'MAX_USES'
+ 154 |             ? 'Share Link Used Up'
+ 155 |             : result?.errorCode === 'INACTIVE'
+ 156 |               ? 'Share Link Inactive'
+ 157 |               : 'Invalid Share Link';
+ 158 | 
+ 159 |     const errorMessage =
+ 160 |       result?.errorCode === 'NOT_FOUND'
+ 161 |         ? 'This share link does not exist or has been deleted.'
+ 162 |         : result?.errorCode === 'EXPIRED'
+ 163 |           ? 'This share link has expired and is no longer valid.'
+ 164 |           : result?.errorCode === 'MAX_USES'
+ 165 |             ? 'This share link has reached its maximum number of uses.'
+ 166 |             : result?.errorCode === 'INACTIVE'
+ 167 |               ? 'This share link has been deactivated by its owner.'
+ 168 |               : result?.error || 'There was a problem with this share link.';
+ 169 | 
+ 170 |     return (
+ 171 |       <>
+ 172 |         <Head>
+     :          ^^^^
+ 173 |           <title>{errorTitle} - MekStation</title>
+ 174 |         </Head>
+ 175 |         <PageLayout
+ 176 |           title={errorTitle}
+ 177 |           subtitle={errorMessage}
+ 178 |           backLink="/"
+ 179 |           backLabel="Go Home"
+ 180 |         >
+ 181 |           <Card variant="dark" className="mx-auto max-w-md p-8 text-center">
+ 182 |             <div className="mb-4 text-6xl">
+ 183 |               {result?.errorCode === 'NOT_FOUND'
+ 184 |                 ? '🔍'
+ 185 |                 : result?.errorCode === 'EXPIRED'
+ 186 |                   ? '⏰'
+ 187 |                   : result?.errorCode === 'MAX_USES'
+ 188 |                     ? '📊'
+ 189 |                     : result?.errorCode === 'INACTIVE'
+ 190 |                       ? '🔒'
+ 191 |                       : '⚠️'}
+ 192 |             </div>
+ 193 |             <h2 className="mb-2 text-xl font-bold text-white">{errorTitle}</h2>
+ 194 |             <p className="mb-6 text-gray-400">{errorMessage}</p>
+ 195 |             <div className="flex justify-center gap-3">
+ 196 |               <Button variant="secondary" onClick={handleTryAgain}>
+ 197 |                 Try Again
+ 198 |               </Button>
+ 199 |               <Button variant="primary" onClick={handleGoHome}>
+ 200 |                 Go Home
+ 201 |               </Button>
+ 202 |             </div>
+ 203 |           </Card>
+ 204 |         </PageLayout>
+ 205 |       </>
+ 206 |     );
+ 207 |   }
+ 208 | 
+ 209 |   // Success state - show link details
+ 210 |   const link = result.link!;
+ 211 | 
+ 212 |   return (
+ 213 |     <>
+ 214 |       <Head>
+     :        ^^^^
+ 215 |         <title>Share Link - MekStation</title>
+     `----
+  help: Only use a single `<Head />` component in your custom document in `pages/_document.js`. See: https://nextjs.org/docs/messages/no-duplicate-head
+
+  ! eslint(no-unused-vars): Variable 'count' is declared but never used. Unused variables should start with a '_'.
+    ,-[e2e/ui-components.spec.ts:44:11]
+ 43 |     );
+ 44 |     const count = await unitCards.count();
+    :           ^^|^^
+    :             `-- 'count' is declared here
+ 45 | 
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'count' is declared but never used. Unused variables should start with a '_'.
+     ,-[e2e/ui-components.spec.ts:100:11]
+  99 |       .first();
+ 100 |     const count = await armorDiagram.count();
+     :           ^^|^^
+     :             `-- 'count' is declared here
+ 101 | 
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'createTestCampaign' is imported but never used.
+    ,-[e2e/integration.spec.ts:13:10]
+ 12 | 
+ 13 | import { createTestCampaign } from './fixtures/campaign';
+    :          ^^^^^^^^^|^^^^^^^^
+    :                   `-- 'createTestCampaign' is imported here
+ 14 | import {
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'createTestForce' is imported but never used.
+    ,-[e2e/integration.spec.ts:19:10]
+ 18 | } from './fixtures/customizer';
+ 19 | import { createTestForce } from './fixtures/force';
+    :          ^^^^^^^|^^^^^^^
+    :                 `-- 'createTestForce' is imported here
+ 20 | 
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Function 'waitForStoresReady' is declared but never used.
+    ,-[e2e/integration.spec.ts:34:16]
+ 33 | // Helper to wait for store ready
+ 34 | async function waitForStoresReady(page: Page): Promise<void> {
+    :                ^^^^^^^^^|^^^^^^^^
+    :                         `-- 'waitForStoresReady' is declared here
+ 35 |   await page.waitForFunction(
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/exotic-mech.spec.ts:403:57]
+ 402 | 
+ 403 |   test('configuration locations are distinct', async ({ page }) => {
+     :                                                         ^^|^
+     :                                                           `-- 'page' is declared here
+ 404 |     const bipedLocations = getConfigurationLocations('Biped');
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Variable 'initialSubtitle' is declared but never used. Unused variables should start with a '_'.
+     ,-[e2e/compendium.spec.ts:144:11]
+ 143 |     // Get initial count (shown in subtitle)
+ 144 |     const initialSubtitle = await unitBrowser.getSubtitleText();
+     :           ^^^^^^^|^^^^^^^
+     :                  `-- 'initialSubtitle' is declared here
+ 145 | 
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'filteredSubtitle' is declared but never used. Unused variables should start with a '_'.
+     ,-[e2e/compendium.spec.ts:153:11]
+ 152 |     // The count should change (or stay same if no units match)
+ 153 |     const filteredSubtitle = await unitBrowser.getSubtitleText();
+     :           ^^^^^^^^|^^^^^^^
+     :                   `-- 'filteredSubtitle' is declared here
+ 154 |     // We can't guarantee results, but the search should work without errors
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'countBefore' is declared but never used. Unused variables should start with a '_'.
+     ,-[e2e/compendium.spec.ts:311:13]
+ 310 |       // Get count before filtering
+ 311 |       const countBefore = await equipmentBrowser.getDisplayedEquipmentCount();
+     :             ^^^^^|^^^^^
+     :                  `-- 'countBefore' is declared here
+ 312 | 
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/repair.spec.ts:229:53]
+ 228 | 
+ 229 |   test('status filter shows pending jobs', async ({ page }) => {
+     :                                                     ^^|^
+     :                                                       `-- 'page' is declared here
+ 230 |     // Click pending filter
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/repair.spec.ts:246:46]
+ 245 | 
+ 246 |   test('all filter shows all jobs', async ({ page }) => {
+     :                                              ^^|^
+     :                                                `-- 'page' is declared here
+ 247 |     // First apply a filter
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Variable 'customizer' is declared but never used. Unused variables should start with a '_'.
+     ,-[e2e/customizer.spec.ts:519:11]
+ 518 |     // The vehicle customizer should be visible
+ 519 |     const customizer = page.locator('[data-testid="vehicle-customizer"]');
+     :           ^^^^^|^^^^
+     :                `-- 'customizer' is declared here
+ 520 |     // It may or may not be visible depending on routing, but page should load
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/force.spec.ts:218:50]
+ 217 | 
+ 218 |   test('validates minimum name length', async ({ page }) => {
+     :                                                  ^^|^
+     :                                                    `-- 'page' is declared here
+ 219 |     await createPage.navigate();
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Variable 'detailPage' is assigned a value but never used. Unused variables should start with a '_'.
+     ,-[e2e/force.spec.ts:253:7]
+ 252 | test.describe('Force Detail Page @force', () => {
+ 253 |   let detailPage: ForceDetailPage;
+     :       ^^^^^|^^^^
+     :            `-- 'detailPage' is declared here
+ 254 |   let listPage: ForceListPage;
+ 255 |   let forceId: string | null;
+ 256 | 
+ 257 |   test.beforeEach(async ({ page }) => {
+ 258 |     detailPage = new ForceDetailPage(page);
+     :     ^^^^^|^^^^
+     :          `-- it was last assigned here
+ 259 |     listPage = new ForceListPage(page);
+     `----
+  help: Did you mean to use this variable?
+
+  ! eslint(no-unused-vars): Identifier 'waitForGameplayStoreReady' is imported but never used.
+    ,-[e2e/game.spec.ts:14:3]
+ 13 | import {
+ 14 |   waitForGameplayStoreReady,
+    :   ^^^^^^^^^^^^|^^^^^^^^^^^^
+    :               `-- 'waitForGameplayStoreReady' is imported here
+ 15 |   getGameSession,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/game.spec.ts:102:52]
+ 101 | 
+ 102 |   test('demo session loads successfully', async ({ page }) => {
+     :                                                    ^^|^
+     :                                                      `-- 'page' is declared here
+ 103 |     // Wait for game session to load
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/game.spec.ts:133:41]
+ 132 | 
+ 133 |   test('displays turn number', async ({ page }) => {
+     :                                         ^^|^
+     :                                           `-- 'page' is declared here
+ 134 |     await sessionPage.waitForGameLoaded();
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/game.spec.ts:153:40]
+ 152 | 
+ 153 |   test('displays action bar', async ({ page }) => {
+     :                                        ^^|^
+     :                                          `-- 'page' is declared here
+ 154 |     await sessionPage.waitForGameLoaded();
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/game.spec.ts:161:48]
+ 160 | 
+ 161 |   test('displays unit tokens on map', async ({ page }) => {
+     :                                                ^^|^
+     :                                                  `-- 'page' is declared here
+ 162 |     await sessionPage.waitForGameLoaded();
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/game.spec.ts:223:5]
+ 222 |   test('record sheet panel shows no unit selected initially', async ({
+ 223 |     page,
+     :     ^^|^
+     :       `-- 'page' is declared here
+ 224 |   }) => {
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/game.spec.ts:257:57]
+ 256 | 
+ 257 |   test('can click zoom buttons without error', async ({ page }) => {
+     :                                                         ^^|^
+     :                                                           `-- 'page' is declared here
+ 258 |     // Just verify they're clickable without errors
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/game.spec.ts:287:45]
+ 286 | 
+ 287 |   test('skip action is available', async ({ page }) => {
+     :                                             ^^|^
+     :                                               `-- 'page' is declared here
+ 288 |     const isVisible = await sessionPage.isActionVisible('skip');
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/game.spec.ts:292:69]
+ 291 | 
+ 292 |   test('clear action is available in weapon attack phase', async ({ page }) => {
+     :                                                                     ^^|^
+     :                                                                       `-- 'page' is declared here
+ 293 |     // Demo starts at weapon_attack phase, where 'clear' is available (not 'concede')
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+     ,-[e2e/game.spec.ts:435:5]
+ 434 |   test.skip('replay page shows controls when events exist', async ({
+ 435 |     page,
+     :     ^^|^
+     :       `-- 'page' is declared here
+ 436 |   }) => {
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Identifier 'waitForGameplayStoreReady' is imported but never used.
+    ,-[e2e/combat.spec.ts:18:3]
+ 17 | import {
+ 18 |   waitForGameplayStoreReady,
+    :   ^^^^^^^^^^^^|^^^^^^^^^^^^
+    :               `-- 'waitForGameplayStoreReady' is imported here
+ 19 |   selectUnit,
+    `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'page' is declared but never used. Unused parameters should start with a '_'.
+    ,-[e2e/combat.spec.ts:62:53]
+ 61 | 
+ 62 |   test('shows no unit selected initially', async ({ page }) => {
+    :                                                     ^^|^
+    :                                                       `-- 'page' is declared here
+ 63 |     // Initially no unit should be selected
+    `----
+  help: Consider removing this parameter.
+
+Found 186 warnings and 7 errors.
+Finished in 128ms on 1735 files with 63 rules using 16 threads.

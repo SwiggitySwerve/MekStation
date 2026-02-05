@@ -1,9 +1,9 @@
 /**
  * Settings Service for MekStation Desktop App
- * 
+ *
  * Manages all desktop application preferences with type-safe access,
  * default values, persistence, and change notifications.
- * 
+ *
  * Features:
  * - Type-safe settings access
  * - Default value merging
@@ -14,6 +14,7 @@
  */
 
 import { EventEmitter } from 'events';
+
 import {
   IService,
   ResultType,
@@ -23,7 +24,7 @@ import {
   UpdateChannel,
   DEFAULT_DESKTOP_SETTINGS,
   DESKTOP_SETTINGS_VERSION,
-  ISettingsChangeEvent
+  ISettingsChangeEvent,
 } from '../../types/BaseTypes';
 import { LocalStorageService } from './LocalStorageService';
 
@@ -41,7 +42,7 @@ interface ISettingsServiceConfig {
 
 /**
  * Settings service implementation
- * 
+ *
  * Provides centralized management of desktop application settings
  * with persistence, validation, and change notifications.
  */
@@ -67,18 +68,21 @@ export class SettingsService extends EventEmitter implements IService {
       console.log('🔧 Initializing SettingsService...');
 
       // Load saved settings
-      const result = await this.localStorage.get<Partial<IDesktopSettings>>(SETTINGS_STORAGE_KEY);
-      
+      const result =
+        await this.localStorage.get<Partial<IDesktopSettings>>(
+          SETTINGS_STORAGE_KEY,
+        );
+
       if (result.success && result.data) {
         // Migrate if needed
         const migrated = await this.migrateSettings(result.data);
-        
+
         // Merge with defaults (saved settings override defaults)
         this.settings = this.mergeWithDefaults(migrated);
       } else {
         // No saved settings, use defaults
         this.settings = { ...DEFAULT_DESKTOP_SETTINGS };
-        
+
         // Persist defaults
         await this.persistSettings();
       }
@@ -122,7 +126,7 @@ export class SettingsService extends EventEmitter implements IService {
    */
   async set<K extends keyof IDesktopSettings>(
     key: K,
-    value: IDesktopSettings[K]
+    value: IDesktopSettings[K],
   ): Promise<ResultType<void, string>> {
     try {
       // Validate the value
@@ -132,7 +136,7 @@ export class SettingsService extends EventEmitter implements IService {
       }
 
       const oldValue = this.settings[key];
-      
+
       // Skip if value hasn't changed
       if (JSON.stringify(oldValue) === JSON.stringify(value)) {
         return Result.success(undefined);
@@ -141,7 +145,7 @@ export class SettingsService extends EventEmitter implements IService {
       // Update in memory
       this.settings = {
         ...this.settings,
-        [key]: value
+        [key]: value,
       };
 
       // Persist to storage
@@ -150,7 +154,7 @@ export class SettingsService extends EventEmitter implements IService {
         // Rollback on save failure
         this.settings = {
           ...this.settings,
-          [key]: oldValue
+          [key]: oldValue,
         };
         return saveResult;
       }
@@ -159,7 +163,7 @@ export class SettingsService extends EventEmitter implements IService {
       const changeEvent: ISettingsChangeEvent = {
         key,
         oldValue,
-        newValue: value
+        newValue: value,
       };
       this.emit('change', changeEvent);
       this.emit(`change:${key}`, changeEvent);
@@ -175,17 +179,19 @@ export class SettingsService extends EventEmitter implements IService {
    * Update multiple settings at once
    */
   async setMultiple(
-    updates: Partial<IDesktopSettings>
+    updates: Partial<IDesktopSettings>,
   ): Promise<ResultType<void, string>> {
     try {
       // Validate all values first
       for (const [key, value] of Object.entries(updates)) {
         const validationResult = this.validateSetting(
           key as keyof IDesktopSettings,
-          value
+          value,
         );
         if (!validationResult.success) {
-          return Result.error(`Validation failed for ${key}: ${validationResult.error}`);
+          return Result.error(
+            `Validation failed for ${key}: ${validationResult.error}`,
+          );
         }
       }
 
@@ -196,12 +202,12 @@ export class SettingsService extends EventEmitter implements IService {
       for (const [key, value] of Object.entries(updates)) {
         const typedKey = key as keyof IDesktopSettings;
         const oldValue = this.settings[typedKey];
-        
+
         if (JSON.stringify(oldValue) !== JSON.stringify(value)) {
           changes.push({
             key: typedKey,
             oldValue,
-            newValue: value
+            newValue: value,
           });
         }
       }
@@ -209,7 +215,7 @@ export class SettingsService extends EventEmitter implements IService {
       // Update settings
       this.settings = {
         ...this.settings,
-        ...updates
+        ...updates,
       };
 
       // Persist to storage
@@ -239,7 +245,7 @@ export class SettingsService extends EventEmitter implements IService {
   async reset(): Promise<ResultType<void, string>> {
     try {
       const oldSettings = { ...this.settings };
-      
+
       // Reset to defaults
       this.settings = { ...DEFAULT_DESKTOP_SETTINGS };
 
@@ -254,7 +260,7 @@ export class SettingsService extends EventEmitter implements IService {
       // Emit reset event
       this.emit('reset', {
         oldSettings,
-        newSettings: this.settings
+        newSettings: this.settings,
       });
 
       return Result.success(undefined);
@@ -268,7 +274,7 @@ export class SettingsService extends EventEmitter implements IService {
    * Reset a specific setting to its default
    */
   async resetSetting<K extends keyof IDesktopSettings>(
-    key: K
+    key: K,
   ): Promise<ResultType<void, string>> {
     const defaultValue = DEFAULT_DESKTOP_SETTINGS[key];
     return this.set(key, defaultValue);
@@ -278,11 +284,13 @@ export class SettingsService extends EventEmitter implements IService {
    * Update window bounds
    * Convenience method for window state management
    */
-  async updateWindowBounds(bounds: Partial<IWindowBounds>): Promise<ResultType<void, string>> {
+  async updateWindowBounds(
+    bounds: Partial<IWindowBounds>,
+  ): Promise<ResultType<void, string>> {
     const currentBounds = this.settings.windowBounds;
     const newBounds: IWindowBounds = {
       ...currentBounds,
-      ...bounds
+      ...bounds,
     };
     return this.set('windowBounds', newBounds);
   }
@@ -292,7 +300,7 @@ export class SettingsService extends EventEmitter implements IService {
    */
   private validateSetting<K extends keyof IDesktopSettings>(
     key: K,
-    value: unknown
+    value: unknown,
   ): ResultType<void, string> {
     switch (key) {
       case 'version':
@@ -323,7 +331,9 @@ export class SettingsService extends EventEmitter implements IService {
 
       case 'backupIntervalMinutes':
         if (typeof value !== 'number' || value < 1 || value > 1440) {
-          return Result.error('Backup interval must be between 1 and 1440 minutes');
+          return Result.error(
+            'Backup interval must be between 1 and 1440 minutes',
+          );
         }
         break;
 
@@ -386,18 +396,20 @@ export class SettingsService extends EventEmitter implements IService {
    * Merge saved settings with defaults
    * Ensures all required properties exist
    */
-  private mergeWithDefaults(saved: Partial<IDesktopSettings>): IDesktopSettings {
+  private mergeWithDefaults(
+    saved: Partial<IDesktopSettings>,
+  ): IDesktopSettings {
     // Deep merge for nested objects like windowBounds
     const windowBounds: IWindowBounds = {
       ...DEFAULT_DESKTOP_SETTINGS.windowBounds,
-      ...(saved.windowBounds || {})
+      ...(saved.windowBounds || {}),
     };
 
     return {
       ...DEFAULT_DESKTOP_SETTINGS,
       ...saved,
       windowBounds,
-      version: DESKTOP_SETTINGS_VERSION
+      version: DESKTOP_SETTINGS_VERSION,
     };
   }
 
@@ -405,7 +417,7 @@ export class SettingsService extends EventEmitter implements IService {
    * Migrate settings from older versions
    */
   private async migrateSettings(
-    saved: Partial<IDesktopSettings>
+    saved: Partial<IDesktopSettings>,
   ): Promise<Partial<IDesktopSettings>> {
     const currentVersion = saved.version || 0;
 
@@ -413,7 +425,9 @@ export class SettingsService extends EventEmitter implements IService {
       return saved;
     }
 
-    console.log(`🔄 Migrating settings from v${currentVersion} to v${DESKTOP_SETTINGS_VERSION}`);
+    console.log(
+      `🔄 Migrating settings from v${currentVersion} to v${DESKTOP_SETTINGS_VERSION}`,
+    );
 
     let migrated = { ...saved };
 
@@ -422,7 +436,7 @@ export class SettingsService extends EventEmitter implements IService {
       // v1 adds version field and standardizes structure
       migrated = {
         ...migrated,
-        version: 1
+        version: 1,
       };
     }
 

@@ -8,8 +8,9 @@
  */
 
 import { useMemo } from 'react';
-import { useUnitStore } from '@/stores/useUnitStore';
+
 import { getTotalEquipmentWeight } from '@/stores/unitState';
+import { useUnitStore } from '@/stores/useUnitStore';
 import { calculateStructuralWeight } from '@/utils/validation/weightValidationUtils';
 
 /**

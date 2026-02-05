@@ -47,18 +47,21 @@ Build a TypeScript-based comparison pipeline that loads both mm-data `.blk` file
 ### Components
 
 **1. BlkUnitLoaderService** (NEW)
+
 - Parses mm-data `.blk` files into `IUnit` interface
 - Maps blk key-value format to TypeScript objects
 - Reuses enum mappings from `scripts/megameklab-conversion/enum_mappings.py`
 - Handles special cases: critical slots, equipment arrays, armor allocation
 
 **2. ParityValidator** (NEW)
+
 - Takes two `IUnit` objects and performs deep comparison
 - Compares all fields: identity, stats, armor, equipment, critical slots
 - Reports field-level discrepancies with severity ratings
 - Tolerates minor text variations (whitespace, capitalization)
 
 **3. ComparisonOrchestrator** (NEW)
+
 - Main entry point script (`scripts/parity/compare-mm-data.ts`)
 - Clones mm-data repository to temporary directory
 - Iterates through all MekStation JSON files
@@ -67,6 +70,7 @@ Build a TypeScript-based comparison pipeline that loads both mm-data `.blk` file
 - Generates comprehensive reports
 
 **4. ParityReporter** (NEW)
+
 - Generates three report formats: console (real-time), JSON (machine-readable), HTML (human-readable)
 - Creates summary dashboard with pass/warning/fail counts
 - Outputs actionable discrepancies grouped by root cause
@@ -77,55 +81,65 @@ Build a TypeScript-based comparison pipeline that loads both mm-data `.blk` file
 ### Data Points Compared
 
 **Identity & Classification**
+
 - `id`, `chassis`, `model`, `mulId`
 - `unitType`, `configuration`, `techBase`
 - `era`, `year`, `rulesLevel`
 
 **Core Statistics**
+
 - `tonnage`, `engine.rating`, `engine.type`
 - `gyro.type`, `structure.type`
 - `heatSinks.count`, `heatSinks.type`
 - `movement.walk`, `movement.run`, `movement.jump`
 
 **Armor & Structure**
+
 - `armor.type`
 - `armor.allocation` (point-by-point per location)
 
 **Equipment**
+
 - Array length match
 - Each item: `id`, `location`, `count`
 - Set-based comparison (order-independent)
 
 **Critical Slots**
+
 - Each location's slot array
 - Order-sensitive comparison
 - `null` (empty) slot alignment
 
 **Calculated Metrics**
+
 - Battle Value 2.0 (validates BV calculator)
 - C-Bill cost (validates cost formulas)
 
 ### Discrepancy Severity
 
 **🔴 CRITICAL** - Data integrity issues
+
 - Missing unit (mulId not found in mm-data)
 - Tonnage mismatch
 - Engine rating/type mismatch
 - Missing or extra equipment
 
 **🟡 WARNING** - Calculation or mapping issues
+
 - BV2 mismatch (indicates calculator problem)
 - Cost mismatch (indicates formula problem)
 - Armor points slightly off (rounding error)
 - Minor critical slot text differences
 
 **🟢 INFO** - Minor differences
+
 - Whitespace/capitalization in equipment names
 - Source field variations
 
 ## Report Output
 
 ### Console (Real-time)
+
 ```
 ✓ Comparing Atlas AS-7D (mulId: 1234)... PASS
 ⚠ Comparing Timber Wolf TBR-Prime (mulId: 5678)... 3 warnings
@@ -133,6 +147,7 @@ Build a TypeScript-based comparison pipeline that loads both mm-data `.blk` file
 ```
 
 ### JSON (Machine-readable)
+
 ```json
 {
   "summary": {
@@ -148,6 +163,7 @@ Build a TypeScript-based comparison pipeline that loads both mm-data `.blk` file
 ```
 
 ### HTML (Human-readable)
+
 - Executive summary dashboard
 - Filterable discrepancy table
 - Per-unit side-by-side comparison view
@@ -163,6 +179,7 @@ Non-blocking report generation on every push:
 4. Optional: Publish to GitHub Pages for historical tracking
 
 **Benefits**
+
 - Continuous visibility without blocking PRs
 - Historical parity tracking over time
 - Asynchronous developer review

@@ -1,12 +1,15 @@
 import { describe, it, expect } from '@jest/globals';
-import type { IPerson, IInjury } from '@/types/campaign/Person';
+
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { IPerson, IInjury } from '@/types/campaign/Person';
+
+import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
-import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
+
 import {
   getFounderModifier,
   getRecentPromotionModifier,
@@ -46,7 +49,16 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '3020-01-01T00:00:00Z',
     updatedAt: '3025-06-15T00:00:00Z',
@@ -55,27 +67,27 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
 }
 
 function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
-   return {
-      id: 'campaign-001',
-      name: 'Test Campaign',
-      currentDate: new Date('3025-06-15'),
-      factionId: 'mercenary',
-      personnel: new Map(),
-      forces: new Map(),
-      rootForceId: 'force-root',
-      missions: new Map(),
-      finances: { transactions: [], balance: new Money(0) },
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: {
+  return {
+    id: 'campaign-001',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-06-15'),
+    factionId: 'mercenary',
+    personnel: new Map(),
+    forces: new Map(),
+    rootForceId: 'force-root',
+    missions: new Map(),
+    finances: { transactions: [], balance: new Money(0) },
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: {
       healingRateMultiplier: 1.0,
       salaryMultiplier: 1.0,
       retirementAge: 65,
       healingWaitingPeriod: 1,
-       medicalSystem: MedicalSystem.STANDARD,
-       maxPatientsPerDoctor: 25,
-       doctorsUseAdministration: false,
-       xpPerMission: 1,
+      medicalSystem: MedicalSystem.STANDARD,
+      maxPatientsPerDoctor: 25,
+      doctorsUseAdministration: false,
+      xpPerMission: 1,
       xpPerKill: 1,
       xpCostMultiplier: 1.0,
       trackTimeInService: true,
@@ -88,22 +100,22 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
       payForRepairs: true,
       payForSalaries: true,
       payForAmmunition: true,
-       maintenanceCycleDays: 7,
-        useLoanSystem: true,
-        useTaxes: true,
-         taxRate: 10,
-         overheadPercent: 5,
-         useRoleBasedSalaries: false,
-         payForSecondaryRole: true,
-         maxLoanPercent: 50,
-         defaultLoanRate: 5,
-         taxFrequency: 'annually',
-         useFoodAndHousing: true,
-         clanPriceMultiplier: 2.0,
-         mixedTechPriceMultiplier: 1.5,
-         usedEquipmentMultiplier: 0.5,
-         damagedEquipmentMultiplier: 0.33,
-         useAutoResolve: false,
+      maintenanceCycleDays: 7,
+      useLoanSystem: true,
+      useTaxes: true,
+      taxRate: 10,
+      overheadPercent: 5,
+      useRoleBasedSalaries: false,
+      payForSecondaryRole: true,
+      maxLoanPercent: 50,
+      defaultLoanRate: 5,
+      taxFrequency: 'annually',
+      useFoodAndHousing: true,
+      clanPriceMultiplier: 2.0,
+      mixedTechPriceMultiplier: 1.5,
+      usedEquipmentMultiplier: 0.5,
+      damagedEquipmentMultiplier: 0.33,
+      useAutoResolve: false,
       autoResolveCasualtyRate: 1.0,
       allowPilotCapture: true,
       useRandomInjuries: true,
@@ -129,12 +141,12 @@ function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
       turnoverCheckFrequency: 'monthly',
       turnoverCommanderImmune: true,
       turnoverPayoutMultiplier: 12,
-       turnoverUseSkillModifiers: true,
-       turnoverUseAgeModifiers: true,
-       turnoverUseMissionStatusModifiers: true,
-       trackFactionStanding: true,
-       regardChangeMultiplier: 1.0,
-     },
+      turnoverUseSkillModifiers: true,
+      turnoverUseAgeModifiers: true,
+      turnoverUseMissionStatusModifiers: true,
+      trackFactionStanding: true,
+      regardChangeMultiplier: 1.0,
+    },
     createdAt: '3020-01-01T00:00:00Z',
     updatedAt: '3025-06-15T00:00:00Z',
     ...overrides,
@@ -190,7 +202,9 @@ describe('Turnover Personal Modifiers', () => {
 
   describe('getRecentPromotionModifier', () => {
     it('should return -1 when promoted within 6 months', () => {
-      const campaign = createTestCampaign({ currentDate: new Date('3025-06-15') });
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15'),
+      });
       const person = createTestPerson({
         lastRankChangeDate: new Date('3025-03-01'),
       });
@@ -198,7 +212,9 @@ describe('Turnover Personal Modifiers', () => {
     });
 
     it('should return 0 when promoted more than 6 months ago', () => {
-      const campaign = createTestCampaign({ currentDate: new Date('3025-06-15') });
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15'),
+      });
       const person = createTestPerson({
         lastRankChangeDate: new Date('3024-01-01'),
       });
@@ -212,7 +228,9 @@ describe('Turnover Personal Modifiers', () => {
     });
 
     it('should return -1 when promoted exactly 5 months ago', () => {
-      const campaign = createTestCampaign({ currentDate: new Date('3025-06-15') });
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15'),
+      });
       const person = createTestPerson({
         lastRankChangeDate: new Date('3025-01-15'),
       });
@@ -222,7 +240,9 @@ describe('Turnover Personal Modifiers', () => {
 
   describe('getAgeModifier', () => {
     it('should return -1 for age < 20 (young)', () => {
-      const campaign = createTestCampaign({ currentDate: new Date('3025-06-15') });
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15'),
+      });
       const person = createTestPerson({
         recruitmentDate: new Date('3010-01-01'),
       });
@@ -230,7 +250,9 @@ describe('Turnover Personal Modifiers', () => {
     });
 
     it('should return 0 for age 25 (normal)', () => {
-      const campaign = createTestCampaign({ currentDate: new Date('3025-06-15') });
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15'),
+      });
       const person = createTestPerson({
         recruitmentDate: new Date('3000-01-01'),
       });
@@ -238,7 +260,9 @@ describe('Turnover Personal Modifiers', () => {
     });
 
     it('should return +3 for age 50-54', () => {
-      const campaign = createTestCampaign({ currentDate: new Date('3025-06-15') });
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15'),
+      });
       const person = createTestPerson({
         recruitmentDate: new Date('2975-01-01'),
       });
@@ -246,7 +270,9 @@ describe('Turnover Personal Modifiers', () => {
     });
 
     it('should return +5 for age 55-59', () => {
-      const campaign = createTestCampaign({ currentDate: new Date('3025-06-15') });
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15'),
+      });
       const person = createTestPerson({
         recruitmentDate: new Date('2970-01-01'),
       });
@@ -254,7 +280,9 @@ describe('Turnover Personal Modifiers', () => {
     });
 
     it('should return +6 for age 60-64', () => {
-      const campaign = createTestCampaign({ currentDate: new Date('3025-06-15') });
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15'),
+      });
       const person = createTestPerson({
         recruitmentDate: new Date('2965-01-01'),
       });
@@ -262,7 +290,9 @@ describe('Turnover Personal Modifiers', () => {
     });
 
     it('should return +8 for age 65+', () => {
-      const campaign = createTestCampaign({ currentDate: new Date('3025-06-15') });
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15'),
+      });
       const person = createTestPerson({
         recruitmentDate: new Date('2960-01-01'),
       });
@@ -416,7 +446,10 @@ describe('Turnover Campaign Modifiers', () => {
         ...campaign.options,
         turnoverFixedTargetNumber: 5,
       };
-      const campaignWithTurnover = { ...campaign, options: optionsWithTurnover };
+      const campaignWithTurnover = {
+        ...campaign,
+        options: optionsWithTurnover,
+      };
       expect(getBaseTargetModifier(campaignWithTurnover as ICampaign)).toBe(5);
     });
   });

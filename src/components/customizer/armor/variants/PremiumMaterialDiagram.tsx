@@ -13,12 +13,11 @@
  */
 
 import React, { useState } from 'react';
+
 import { MechLocation } from '@/types/construction';
+
 import { LocationArmorData } from '../ArmorDiagram';
-import {
-  getLocationLabel,
-  hasTorsoRear,
-} from '../shared/MechSilhouette';
+import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
 import {
   GradientDefs,
   getArmorStatusColor,
@@ -28,8 +27,13 @@ import {
   lightenColor,
   ARMOR_STATUS,
 } from '../shared/ArmorFills';
-import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
-import { useResolvedLayout, ResolvedPosition, MechConfigType, getLayoutIdForConfig } from '../shared/layout';
+import {
+  useResolvedLayout,
+  ResolvedPosition,
+  MechConfigType,
+  getLayoutIdForConfig,
+} from '../shared/layout';
+import { getLocationLabel, hasTorsoRear } from '../shared/MechSilhouette';
 
 /**
  * Circular badge with number
@@ -182,8 +186,10 @@ function PremiumLocation({
   const expectedRearMax = showRear ? Math.round(frontMax * 0.25) : 1;
 
   // Fill percentages based on expected capacity
-  const frontPercent = expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
-  const rearPercent = expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
+  const frontPercent =
+    expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
+  const rearPercent =
+    expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
 
   // Status-based colors for front and rear independently
   const frontColor = isSelected
@@ -200,8 +206,8 @@ function PremiumLocation({
 
   // Layout for stacked front/rear
   // 60/40 split for consistency across all variants
-  const frontSectionHeight = showRear ? pos.height * 0.60 : pos.height;
-  const rearSectionHeight = showRear ? pos.height * 0.40 : 0;
+  const frontSectionHeight = showRear ? pos.height * 0.6 : pos.height;
+  const rearSectionHeight = showRear ? pos.height * 0.4 : 0;
   const dividerY = pos.y + frontSectionHeight;
 
   const center = pos.center;
@@ -302,7 +308,17 @@ function PremiumLocation({
           y={frontCenterY + (isHead ? 1 : 2)}
           value={front}
           color={frontColor}
-          size={isHead ? 14 : showRear ? (pos.width < 50 ? 18 : 22) : (pos.width < 50 ? 20 : 28)}
+          size={
+            isHead
+              ? 14
+              : showRear
+                ? pos.width < 50
+                  ? 18
+                  : 22
+                : pos.width < 50
+                  ? 20
+                  : 28
+          }
         />
 
         {/* Front dot indicators - hide for HEAD */}
@@ -313,7 +329,7 @@ function PremiumLocation({
             fillPercent={frontPercent}
             color={frontColor}
             dots={showRear ? 4 : 5}
-            dotSize={showRear ? 3 : (pos.width < 50 ? 3 : 4)}
+            dotSize={showRear ? 3 : pos.width < 50 ? 3 : 4}
           />
         )}
 
@@ -321,9 +337,24 @@ function PremiumLocation({
         {pos.width > 40 && !showRear && (
           <>
             <circle cx={pos.x + 8} cy={pos.y + 8} r={2} fill="#64748b" />
-            <circle cx={pos.x + pos.width - 8} cy={pos.y + 8} r={2} fill="#64748b" />
-            <circle cx={pos.x + 8} cy={pos.y + frontSectionHeight - 8} r={2} fill="#64748b" />
-            <circle cx={pos.x + pos.width - 8} cy={pos.y + frontSectionHeight - 8} r={2} fill="#64748b" />
+            <circle
+              cx={pos.x + pos.width - 8}
+              cy={pos.y + 8}
+              r={2}
+              fill="#64748b"
+            />
+            <circle
+              cx={pos.x + 8}
+              cy={pos.y + frontSectionHeight - 8}
+              r={2}
+              fill="#64748b"
+            />
+            <circle
+              cx={pos.x + pos.width - 8}
+              cy={pos.y + frontSectionHeight - 8}
+              r={2}
+              fill="#64748b"
+            />
           </>
         )}
       </g>
@@ -419,7 +450,7 @@ function PremiumLocation({
         height={pos.height}
         rx={8}
         fill="none"
-        stroke={isSelected ? '#60a5fa' : (isHovered ? '#64748b' : 'transparent')}
+        stroke={isSelected ? '#60a5fa' : isHovered ? '#64748b' : 'transparent'}
         strokeWidth={isSelected ? 2 : 1}
         className="transition-colors duration-150"
       />
@@ -489,7 +520,9 @@ export function PremiumMaterialDiagram({
   className = '',
   mechConfigType = 'biped',
 }: PremiumMaterialDiagramProps): React.ReactElement {
-  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
+    null,
+  );
 
   // Get layout ID based on mech configuration type
   const layoutId = getLayoutIdForConfig(mechConfigType, 'battlemech');
@@ -497,7 +530,9 @@ export function PremiumMaterialDiagram({
   // Use the layout engine to get resolved positions
   const { getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
 
-  const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
+  const getArmorData = (
+    location: MechLocation,
+  ): LocationArmorData | undefined => {
     return armorData.find((d) => d.location === location);
   };
 
@@ -513,7 +548,7 @@ export function PremiumMaterialDiagram({
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-semibold text-slate-200">
             Armor Configuration
@@ -526,7 +561,7 @@ export function PremiumMaterialDiagram({
       <div className="relative">
         <svg
           viewBox={viewBox}
-          className="w-full max-w-[280px] mx-auto"
+          className="mx-auto w-full max-w-[280px]"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
@@ -545,7 +580,7 @@ export function PremiumMaterialDiagram({
           {locations.map((loc) => {
             const position = getPosition(loc);
             if (!position) return null;
-            
+
             return (
               <PremiumLocation
                 key={loc}
@@ -564,27 +599,35 @@ export function PremiumMaterialDiagram({
       </div>
 
       {/* Legend */}
-      <div className="flex justify-center gap-4 mt-5">
+      <div className="mt-5 flex justify-center gap-4">
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-lg shadow-green-500/30" />
-          <span className="text-xs text-text-theme-secondary">{Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+</span>
+          <div className="h-2.5 w-2.5 rounded-full bg-green-500 shadow-lg shadow-green-500/30" />
+          <span className="text-text-theme-secondary text-xs">
+            {Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/30" />
-          <span className="text-xs text-text-theme-secondary">{Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+</span>
+          <div className="h-2.5 w-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/30" />
+          <span className="text-text-theme-secondary text-xs">
+            {Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/30" />
-          <span className="text-xs text-text-theme-secondary">{Math.round(ARMOR_STATUS.LOW.min * 100)}%+</span>
+          <div className="h-2.5 w-2.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/30" />
+          <span className="text-text-theme-secondary text-xs">
+            {Math.round(ARMOR_STATUS.LOW.min * 100)}%+
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-lg shadow-red-500/30" />
-          <span className="text-xs text-text-theme-secondary">&lt;{Math.round(ARMOR_STATUS.LOW.min * 100)}%</span>
+          <div className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-lg shadow-red-500/30" />
+          <span className="text-text-theme-secondary text-xs">
+            &lt;{Math.round(ARMOR_STATUS.LOW.min * 100)}%
+          </span>
         </div>
       </div>
 
       {/* Instructions */}
-      <p className="text-xs text-slate-500 text-center mt-3">
+      <p className="mt-3 text-center text-xs text-slate-500">
         Tap any plate to adjust armor values
       </p>
     </div>

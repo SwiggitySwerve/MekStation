@@ -4,6 +4,11 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import { CockpitType } from '@/types/construction/CockpitType';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import {
   calculateStructuralWeight,
   getEngineWeight,
@@ -16,11 +21,6 @@ import {
   getWeightOverflow,
   StructuralWeightParams,
 } from '@/utils/validation/weightValidationUtils';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
 
 describe('Weight Validation Utilities', () => {
   describe('calculateStructuralWeight', () => {

@@ -5,6 +5,13 @@
  */
 
 import {
+  IPilot,
+  PilotType,
+  PilotStatus,
+  IPilotSkills,
+} from '../../pilot/PilotInterfaces';
+import { PersonnelStatus, CampaignPersonnelRole } from '../enums';
+import {
   IPerson,
   IInjury,
   isAlive,
@@ -23,15 +30,15 @@ import {
   createDefaultAttributes,
   createInjury,
 } from '../Person';
-import { PersonnelStatus, CampaignPersonnelRole } from '../enums';
 import { IAttributes } from '../skills';
-import { IPilot, PilotType, PilotStatus, IPilotSkills } from '../../pilot/PilotInterfaces';
 
 // =============================================================================
 // Test Fixtures
 // =============================================================================
 
-const createTestAttributes = (overrides?: Partial<IAttributes>): IAttributes => ({
+const createTestAttributes = (
+  overrides?: Partial<IAttributes>,
+): IAttributes => ({
   STR: 5,
   BOD: 5,
   REF: 5,
@@ -43,7 +50,9 @@ const createTestAttributes = (overrides?: Partial<IAttributes>): IAttributes => 
   ...overrides,
 });
 
-const createTestPilotSkills = (overrides?: Partial<IPilotSkills>): IPilotSkills => ({
+const createTestPilotSkills = (
+  overrides?: Partial<IPilotSkills>,
+): IPilotSkills => ({
   gunnery: 4,
   piloting: 5,
   ...overrides,
@@ -137,7 +146,10 @@ describe('IInjury Interface', () => {
     });
 
     it('should track permanent injuries', () => {
-      const permanentInjury = createTestInjury({ permanent: true, daysToHeal: 0 });
+      const permanentInjury = createTestInjury({
+        permanent: true,
+        daysToHeal: 0,
+      });
 
       expect(permanentInjury.permanent).toBe(true);
       expect(permanentInjury.daysToHeal).toBe(0);
@@ -231,7 +243,9 @@ describe('IPerson Interface', () => {
 
       expect(person.affiliation).toBe('Lyran Commonwealth');
       expect(person.originPlanet).toBe('Tharkad');
-      expect(person.biography).toBe('A veteran MechWarrior from the Lyran Guards.');
+      expect(person.biography).toBe(
+        'A veteran MechWarrior from the Lyran Guards.',
+      );
       expect(person.portrait).toBe('portraits/john-smith.png');
     });
   });
@@ -274,7 +288,7 @@ describe('IPerson Interface', () => {
 
       // Get all keys
       const keys = Object.keys(person);
-      
+
       // Should be in the 40-50 range
       expect(keys.length).toBeGreaterThanOrEqual(30);
       expect(keys.length).toBeLessThanOrEqual(55);
@@ -482,64 +496,88 @@ describe('getTotalHealingDays', () => {
 
 describe('isCombatRole', () => {
   it('should return true for PILOT', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.PILOT });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.PILOT,
+    });
     expect(isCombatRole(person)).toBe(true);
   });
 
   it('should return true for AEROSPACE_PILOT', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.AEROSPACE_PILOT });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.AEROSPACE_PILOT,
+    });
     expect(isCombatRole(person)).toBe(true);
   });
 
   it('should return true for VEHICLE_DRIVER', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.VEHICLE_DRIVER });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.VEHICLE_DRIVER,
+    });
     expect(isCombatRole(person)).toBe(true);
   });
 
   it('should return true for SOLDIER', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.SOLDIER });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.SOLDIER,
+    });
     expect(isCombatRole(person)).toBe(true);
   });
 
   it('should return false for TECH', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.TECH });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.TECH,
+    });
     expect(isCombatRole(person)).toBe(false);
   });
 
   it('should return false for DOCTOR', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.DOCTOR });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.DOCTOR,
+    });
     expect(isCombatRole(person)).toBe(false);
   });
 });
 
 describe('isSupportRole', () => {
   it('should return true for TECH', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.TECH });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.TECH,
+    });
     expect(isSupportRole(person)).toBe(true);
   });
 
   it('should return true for DOCTOR', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.DOCTOR });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.DOCTOR,
+    });
     expect(isSupportRole(person)).toBe(true);
   });
 
   it('should return true for MEDIC', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.MEDIC });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.MEDIC,
+    });
     expect(isSupportRole(person)).toBe(true);
   });
 
   it('should return true for ADMIN', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.ADMIN });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.ADMIN,
+    });
     expect(isSupportRole(person)).toBe(true);
   });
 
   it('should return true for SUPPORT', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.SUPPORT });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.SUPPORT,
+    });
     expect(isSupportRole(person)).toBe(true);
   });
 
   it('should return false for PILOT', () => {
-    const person = createTestPerson({ primaryRole: CampaignPersonnelRole.PILOT });
+    const person = createTestPerson({
+      primaryRole: CampaignPersonnelRole.PILOT,
+    });
     expect(isSupportRole(person)).toBe(false);
   });
 });

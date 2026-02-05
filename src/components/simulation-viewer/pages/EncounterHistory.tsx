@@ -1,10 +1,18 @@
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { FilterPanel } from '@/components/simulation-viewer/FilterPanel';
-import { DrillDownLink } from '@/components/simulation-viewer/DrillDownLink';
-import { VirtualizedTimeline } from '@/components/simulation-viewer/VirtualizedTimeline';
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+} from 'react';
+
 import type { IFilterDefinition } from '@/components/simulation-viewer/types';
-import { useIsMobile } from '@/utils/responsive';
+
+import { DrillDownLink } from '@/components/simulation-viewer/DrillDownLink';
+import { FilterPanel } from '@/components/simulation-viewer/FilterPanel';
+import { VirtualizedTimeline } from '@/components/simulation-viewer/VirtualizedTimeline';
 import { FOCUS_RING_CLASSES, announce } from '@/utils/accessibility';
+import { useIsMobile } from '@/utils/responsive';
 
 /* ========================================================================== */
 /*  Types                                                                      */
@@ -26,7 +34,10 @@ export interface IEncounterHistoryProps {
   /** Callback when a battle is selected */
   readonly onSelectBattle?: (battleId: string) => void;
   /** Callback for drill-down navigation */
-  readonly onDrillDown?: (target: string, context: Record<string, unknown>) => void;
+  readonly onDrillDown?: (
+    target: string,
+    context: Record<string, unknown>,
+  ) => void;
 }
 
 /** Battle record within a campaign */
@@ -79,7 +90,13 @@ export interface IKeyMoment {
   readonly turn: number;
   readonly phase: string;
   readonly tier: 'critical' | 'major' | 'minor';
-  readonly type: 'kill' | 'cripple' | 'headshot' | 'ammo-explosion' | 'shutdown' | 'fall';
+  readonly type:
+    | 'kill'
+    | 'cripple'
+    | 'headshot'
+    | 'ammo-explosion'
+    | 'shutdown'
+    | 'fall';
   readonly description: string;
   readonly involvedUnits: string[];
 }
@@ -108,7 +125,8 @@ type ComparisonMode = 'campaign-average' | 'specific-battle';
 /* ========================================================================== */
 
 const OUTCOME_COLORS: Record<IBattle['outcome'], string> = {
-  victory: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200',
+  victory:
+    'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200',
   defeat: 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200',
   draw: 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200',
 };
@@ -120,8 +138,10 @@ const TIER_COLORS: Record<IKeyMoment['tier'], string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  operational: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300',
-  damaged: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300',
+  operational:
+    'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300',
+  damaged:
+    'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300',
   destroyed: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
 };
 
@@ -142,7 +162,14 @@ const TIER_FILTER_DEF: IFilterDefinition = {
 const TYPE_FILTER_DEF: IFilterDefinition = {
   id: 'type',
   label: 'Type',
-  options: ['kill', 'cripple', 'headshot', 'ammo-explosion', 'shutdown', 'fall'],
+  options: [
+    'kill',
+    'cripple',
+    'headshot',
+    'ammo-explosion',
+    'shutdown',
+    'fall',
+  ],
   optionLabels: {
     kill: 'Kill',
     cripple: 'Cripple',
@@ -175,7 +202,7 @@ export function formatDuration(seconds: number): string {
 /** Get the highest turn number from a battle's events. */
 function getMaxTurn(battle: IBattle): number {
   if (battle.events.length === 0) return 0;
-  return Math.max(...battle.events.map(e => e.turn));
+  return Math.max(...battle.events.map((e) => e.turn));
 }
 
 /** Tailwind class for damage cell heat-map intensity. */
@@ -190,8 +217,11 @@ function getDamageIntensityClass(damage: number, maxDamage: number): string {
 
 /** Resolve a unit ID to its display name from the battle's forces. */
 function resolveUnitName(battle: IBattle, unitId: string): string {
-  const allUnits = [...battle.forces.player.units, ...battle.forces.enemy.units];
-  return allUnits.find(u => u.id === unitId)?.name ?? unitId;
+  const allUnits = [
+    ...battle.forces.player.units,
+    ...battle.forces.enemy.units,
+  ];
+  return allUnits.find((u) => u.id === unitId)?.name ?? unitId;
 }
 
 /** Compute average metrics across all battles in the campaign. */
@@ -201,7 +231,8 @@ function computeCampaignAverage(battles: IBattle[]): {
   damage: number;
   unitsLost: number;
 } {
-  if (battles.length === 0) return { duration: 0, kills: 0, damage: 0, unitsLost: 0 };
+  if (battles.length === 0)
+    return { duration: 0, kills: 0, damage: 0, unitsLost: 0 };
   const totals = battles.reduce(
     (acc, b) => ({
       duration: acc.duration + b.duration,
@@ -244,22 +275,31 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedBattleId, setSelectedBattleId] = useState<string | null>(null);
-  const [outcomeFilter, setOutcomeFilter] = useState<Record<string, string[]>>({});
+  const [outcomeFilter, setOutcomeFilter] = useState<Record<string, string[]>>(
+    {},
+  );
   const [sortKey, setSortKey] = useState<SortKey>('duration');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
-  const [momentFilter, setMomentFilter] = useState<Record<string, string[]>>({});
+  const [momentFilter, setMomentFilter] = useState<Record<string, string[]>>(
+    {},
+  );
   const [currentTurn, setCurrentTurn] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
-  const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('campaign-average');
-  const [comparisonBattleId, setComparisonBattleId] = useState<string | null>(null);
-  const [expandedMissions, setExpandedMissions] = useState<Set<string>>(() => new Set());
+  const [comparisonMode, setComparisonMode] =
+    useState<ComparisonMode>('campaign-average');
+  const [comparisonBattleId, setComparisonBattleId] = useState<string | null>(
+    null,
+  );
+  const [expandedMissions, setExpandedMissions] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   const turnRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   /* ---- derived data ---- */
   const selectedBattle = useMemo(
-    () => battles.find(b => b.id === selectedBattleId) ?? null,
+    () => battles.find((b) => b.id === selectedBattleId) ?? null,
     [battles, selectedBattleId],
   );
 
@@ -272,14 +312,20 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
     let filtered = [...battles];
     const activeOutcomes = outcomeFilter.outcome ?? [];
     if (activeOutcomes.length > 0) {
-      filtered = filtered.filter(b => activeOutcomes.includes(b.outcome));
+      filtered = filtered.filter((b) => activeOutcomes.includes(b.outcome));
     }
     filtered.sort((a, b) => {
       let cmp = 0;
       switch (sortKey) {
-        case 'duration': cmp = a.duration - b.duration; break;
-        case 'kills': cmp = a.stats.totalKills - b.stats.totalKills; break;
-        case 'damage': cmp = a.stats.totalDamage - b.stats.totalDamage; break;
+        case 'duration':
+          cmp = a.duration - b.duration;
+          break;
+        case 'kills':
+          cmp = a.stats.totalKills - b.stats.totalKills;
+          break;
+        case 'damage':
+          cmp = a.stats.totalDamage - b.stats.totalDamage;
+          break;
       }
       return sortDirection === 'desc' ? -cmp : cmp;
     });
@@ -287,10 +333,16 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
   }, [battles, outcomeFilter, sortKey, sortDirection]);
 
   const filteredMissionGroups = useMemo(() => {
-    const groups = new Map<string, { missionName: string; battles: IBattle[] }>();
+    const groups = new Map<
+      string,
+      { missionName: string; battles: IBattle[] }
+    >();
     for (const battle of filteredAndSortedBattles) {
       if (!groups.has(battle.missionId)) {
-        groups.set(battle.missionId, { missionName: battle.missionName, battles: [] });
+        groups.set(battle.missionId, {
+          missionName: battle.missionName,
+          battles: [],
+        });
       }
       groups.get(battle.missionId)!.battles.push(battle);
     }
@@ -302,22 +354,23 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
     let moments = [...selectedBattle.keyMoments];
     const tiers = momentFilter.tier ?? [];
     if (tiers.length > 0) {
-      moments = moments.filter(m => tiers.includes(m.tier));
+      moments = moments.filter((m) => tiers.includes(m.tier));
     }
     const types = momentFilter.type ?? [];
     if (types.length > 0) {
-      moments = moments.filter(m => types.includes(m.type));
+      moments = moments.filter((m) => types.includes(m.type));
     }
     return moments;
   }, [selectedBattle, momentFilter]);
 
-
-
-  const campaignAverage = useMemo(() => computeCampaignAverage(battles), [battles]);
+  const campaignAverage = useMemo(
+    () => computeCampaignAverage(battles),
+    [battles],
+  );
 
   const comparisonTarget = useMemo(() => {
     if (comparisonMode === 'campaign-average') return campaignAverage;
-    const target = battles.find(b => b.id === comparisonBattleId);
+    const target = battles.find((b) => b.id === comparisonBattleId);
     if (!target) return null;
     return {
       duration: target.duration,
@@ -329,14 +382,17 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
 
   const maxDamage = useMemo(() => {
     if (!selectedBattle) return 0;
-    return Math.max(...selectedBattle.damageMatrix.cells.map(c => c.damage), 0);
+    return Math.max(
+      ...selectedBattle.damageMatrix.cells.map((c) => c.damage),
+      0,
+    );
   }, [selectedBattle]);
 
   /* ---- effects ---- */
 
   // Expand all missions when battles change
   useEffect(() => {
-    setExpandedMissions(new Set(battles.map(b => b.missionId)));
+    setExpandedMissions(new Set(battles.map((b) => b.missionId)));
   }, [battles]);
 
   // Reset turn state when selected battle changes
@@ -352,7 +408,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
     if (!isPlaying || maxTurn === 0) return;
     const ms = 1000 / speed;
     const id = setInterval(() => {
-      setCurrentTurn(prev => {
+      setCurrentTurn((prev) => {
         if (prev >= maxTurn) {
           setIsPlaying(false);
           return prev;
@@ -401,24 +457,29 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
 
   const handleStepForward = useCallback(() => {
     setIsPlaying(false);
-    setCurrentTurn(prev => Math.min(prev + 1, Math.max(maxTurn, 1)));
+    setCurrentTurn((prev) => Math.min(prev + 1, Math.max(maxTurn, 1)));
   }, [maxTurn]);
 
   const handleStepBack = useCallback(() => {
     setIsPlaying(false);
-    setCurrentTurn(prev => Math.max(prev - 1, 1));
+    setCurrentTurn((prev) => Math.max(prev - 1, 1));
   }, []);
 
-  const handleSpeedChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSpeed(Number(e.target.value));
-  }, []);
+  const handleSpeedChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setSpeed(Number(e.target.value));
+    },
+    [],
+  );
 
-    const handleSortKeyChange = useCallback(
+  const handleSortKeyChange = useCallback(
     (key: SortKey) => {
       if (key === sortKey) {
         const newDir = sortDirection === 'asc' ? 'desc' : 'asc';
         setSortDirection(newDir);
-        announce(`Sorted by ${key}, ${newDir === 'asc' ? 'ascending' : 'descending'}`);
+        announce(
+          `Sorted by ${key}, ${newDir === 'asc' ? 'ascending' : 'descending'}`,
+        );
       } else {
         setSortKey(key);
         setSortDirection('asc');
@@ -429,7 +490,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
   );
 
   const toggleMission = useCallback((missionId: string) => {
-    setExpandedMissions(prev => {
+    setExpandedMissions((prev) => {
       const next = new Set(prev);
       if (next.has(missionId)) next.delete(missionId);
       else next.add(missionId);
@@ -442,29 +503,35 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
     setIsPlaying(false);
   }, []);
 
-  const handleComparisonModeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setComparisonMode(e.target.value as ComparisonMode);
-  }, []);
+  const handleComparisonModeChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setComparisonMode(e.target.value as ComparisonMode);
+    },
+    [],
+  );
 
-  const handleComparisonBattleChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setComparisonBattleId(e.target.value || null);
-  }, []);
+  const handleComparisonBattleChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setComparisonBattleId(e.target.value || null);
+    },
+    [],
+  );
 
   /* ---- render ---- */
   return (
     <div
-      className="p-4 md:p-6 lg:p-8 min-h-screen bg-gray-50 dark:bg-gray-900"
+      className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 dark:bg-gray-900"
       data-testid="encounter-history"
       data-campaign-id={campaignId}
     >
       <h1
-        className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6"
+        className="mb-6 text-2xl font-bold text-gray-900 md:text-3xl dark:text-gray-100"
         data-testid="encounter-history-title"
       >
         Encounter History
       </h1>
 
-      <div className="flex flex-col lg:flex-row gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row">
         {/* ================================================================ */}
         {/*  Battle List Sidebar                                              */}
         {/* ================================================================ */}
@@ -472,7 +539,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
           <button
             type="button"
             onClick={() => setSidebarOpen((prev) => !prev)}
-            className={`flex items-center justify-between w-full px-4 py-3 min-h-[44px] bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 lg:hidden ${FOCUS_RING_CLASSES}`}
+            className={`flex min-h-[44px] w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 lg:hidden dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
             aria-expanded={sidebarOpen}
             data-testid="sidebar-toggle"
           >
@@ -495,18 +562,18 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
 
           {/* Sort controls */}
           <div
-            className="flex items-center gap-1 mb-4 rounded-lg bg-gray-200 dark:bg-gray-700 p-1"
+            className="mb-4 flex items-center gap-1 rounded-lg bg-gray-200 p-1 dark:bg-gray-700"
             role="group"
             aria-label="Sort battles by"
             data-testid="sort-controls"
           >
-            {SORT_OPTIONS.map(opt => (
+            {SORT_OPTIONS.map((opt) => (
               <button
                 key={opt.key}
                 type="button"
                 onClick={() => handleSortKeyChange(opt.key)}
                 className={[
-                  `px-3 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md transition-colors flex items-center gap-1 ${FOCUS_RING_CLASSES}`,
+                  `flex min-h-[44px] items-center gap-1 rounded-md px-3 py-2 text-sm transition-colors md:min-h-0 md:py-1 ${FOCUS_RING_CLASSES}`,
                   sortKey === opt.key
                     ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm font-medium'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200',
@@ -517,7 +584,9 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                 {opt.label}
                 {sortKey === opt.key && (
                   <span
-                    aria-label={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
+                    aria-label={
+                      sortDirection === 'asc' ? 'Ascending' : 'Descending'
+                    }
                     data-testid="sort-direction-indicator"
                   >
                     {sortDirection === 'asc' ? '↑' : '↓'}
@@ -530,77 +599,90 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
           {/* Battle list */}
           {filteredAndSortedBattles.length === 0 ? (
             <p
-              className="text-gray-500 dark:text-gray-400 text-sm italic text-center py-8"
+              className="py-8 text-center text-sm text-gray-500 italic dark:text-gray-400"
               data-testid="empty-battle-list"
             >
               No battles match the current filters.
             </p>
           ) : (
             <div className="space-y-3" data-testid="battle-list">
-              {Array.from(filteredMissionGroups.entries()).map(([missionId, group]) => (
-                <div
-                  key={missionId}
-                  className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
-                  data-testid={`mission-group-${missionId}`}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleMission(missionId)}
-                    className={`w-full flex items-center justify-between px-3 py-3 min-h-[44px] md:py-2 md:min-h-0 bg-gray-100 dark:bg-gray-800 text-sm font-semibold text-gray-700 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
-                    aria-expanded={expandedMissions.has(missionId)}
-                    aria-label={`${group.missionName} mission group, ${group.battles.length} battle${group.battles.length !== 1 ? 's' : ''}`}
-                    data-testid={`mission-group-header-${missionId}`}
+              {Array.from(filteredMissionGroups.entries()).map(
+                ([missionId, group]) => (
+                  <div
+                    key={missionId}
+                    className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
+                    data-testid={`mission-group-${missionId}`}
                   >
-                    <span>{group.missionName}</span>
-                    <span className="text-gray-400 dark:text-gray-500" aria-hidden="true">
-                      {expandedMissions.has(missionId) ? '▾' : '▸'}
-                    </span>
-                  </button>
-                  {expandedMissions.has(missionId) && (
-                    <div className="space-y-1 p-2">
-                      {group.battles.map(battle => (
-                        <button
-                          key={battle.id}
-                          type="button"
-                          onClick={() => handleSelectBattle(battle.id)}
-                          className={[
-                            `w-full text-left p-3 rounded-md transition-colors border ${FOCUS_RING_CLASSES}`,
-                            selectedBattleId === battle.id
-                              ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                              : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-800',
-                          ].join(' ')}
-                          aria-current={selectedBattleId === battle.id ? 'true' : undefined}
-                          aria-label={`Battle on ${new Date(battle.timestamp).toLocaleDateString()}, ${battle.outcome}, ${battle.stats.totalKills} kills`}
-                          data-testid={`battle-card-${battle.id}`}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(battle.timestamp).toLocaleDateString()}
-                            </span>
-                            <span
-                              className={`text-xs font-bold uppercase px-2 py-0.5 rounded ${OUTCOME_COLORS[battle.outcome]}`}
-                              data-testid={`battle-outcome-badge-${battle.id}`}
-                            >
-                              {battle.outcome}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
-                            <span data-testid={`battle-duration-${battle.id}`}>
-                              ⏱ {formatDuration(battle.duration)}
-                            </span>
-                            <span data-testid={`battle-kills-${battle.id}`}>
-                              ⚔ {battle.stats.totalKills} kills
-                            </span>
-                            <span data-testid={`battle-damage-${battle.id}`}>
-                              💥 {battle.stats.totalDamage} dmg
-                            </span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+                    <button
+                      type="button"
+                      onClick={() => toggleMission(missionId)}
+                      className={`flex min-h-[44px] w-full items-center justify-between bg-gray-100 px-3 py-3 text-sm font-semibold text-gray-700 md:min-h-0 md:py-2 dark:bg-gray-800 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
+                      aria-expanded={expandedMissions.has(missionId)}
+                      aria-label={`${group.missionName} mission group, ${group.battles.length} battle${group.battles.length !== 1 ? 's' : ''}`}
+                      data-testid={`mission-group-header-${missionId}`}
+                    >
+                      <span>{group.missionName}</span>
+                      <span
+                        className="text-gray-400 dark:text-gray-500"
+                        aria-hidden="true"
+                      >
+                        {expandedMissions.has(missionId) ? '▾' : '▸'}
+                      </span>
+                    </button>
+                    {expandedMissions.has(missionId) && (
+                      <div className="space-y-1 p-2">
+                        {group.battles.map((battle) => (
+                          <button
+                            key={battle.id}
+                            type="button"
+                            onClick={() => handleSelectBattle(battle.id)}
+                            className={[
+                              `w-full rounded-md border p-3 text-left transition-colors ${FOCUS_RING_CLASSES}`,
+                              selectedBattleId === battle.id
+                                ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                                : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-800',
+                            ].join(' ')}
+                            aria-current={
+                              selectedBattleId === battle.id
+                                ? 'true'
+                                : undefined
+                            }
+                            aria-label={`Battle on ${new Date(battle.timestamp).toLocaleDateString()}, ${battle.outcome}, ${battle.stats.totalKills} kills`}
+                            data-testid={`battle-card-${battle.id}`}
+                          >
+                            <div className="mb-1 flex items-center justify-between">
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {new Date(
+                                  battle.timestamp,
+                                ).toLocaleDateString()}
+                              </span>
+                              <span
+                                className={`rounded px-2 py-0.5 text-xs font-bold uppercase ${OUTCOME_COLORS[battle.outcome]}`}
+                                data-testid={`battle-outcome-badge-${battle.id}`}
+                              >
+                                {battle.outcome}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
+                              <span
+                                data-testid={`battle-duration-${battle.id}`}
+                              >
+                                ⏱ {formatDuration(battle.duration)}
+                              </span>
+                              <span data-testid={`battle-kills-${battle.id}`}>
+                                ⚔ {battle.stats.totalKills} kills
+                              </span>
+                              <span data-testid={`battle-damage-${battle.id}`}>
+                                💥 {battle.stats.totalDamage} dmg
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ),
+              )}
             </div>
           )}
         </aside>
@@ -615,7 +697,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
         >
           {!selectedBattle ? (
             <div
-              className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400 text-lg"
+              className="flex h-64 items-center justify-center text-lg text-gray-500 dark:text-gray-400"
               data-testid="no-battle-selected"
             >
               Select a battle to view details
@@ -625,24 +707,28 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
               {/* ── Forces ────────────────────────────────────────────── */}
               <section aria-label="Forces" data-testid="forces-section">
                 <h2
-                  className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3"
+                  className="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
                   data-testid="section-heading"
                 >
                   Forces
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div
-                    className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+                    className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
                     data-testid="player-force"
                   >
-                    <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2 uppercase tracking-wide">
+                    <h3 className="mb-2 text-sm font-semibold tracking-wide text-blue-700 uppercase dark:text-blue-300">
                       Player Force
                     </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2" data-testid="player-bv">
-                      BV: {selectedBattle.forces.player.totalBV.toLocaleString()}
+                    <p
+                      className="mb-2 text-xs text-gray-500 dark:text-gray-400"
+                      data-testid="player-bv"
+                    >
+                      BV:{' '}
+                      {selectedBattle.forces.player.totalBV.toLocaleString()}
                     </p>
                     <ul className="space-y-1">
-                      {selectedBattle.forces.player.units.map(unit => (
+                      {selectedBattle.forces.player.units.map((unit) => (
                         <li
                           key={unit.id}
                           className="flex items-center justify-between text-sm"
@@ -650,12 +736,12 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                         >
                           <span className="text-gray-800 dark:text-gray-200">
                             {unit.name}
-                            <span className="text-gray-500 dark:text-gray-400 ml-1 text-xs">
+                            <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">
                               ({unit.pilot})
                             </span>
                           </span>
                           <span
-                            className={`text-xs font-medium px-2 py-0.5 rounded ${STATUS_COLORS[unit.status]}`}
+                            className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[unit.status]}`}
                             data-testid={`unit-status-badge-${unit.id}`}
                           >
                             {unit.status}
@@ -665,17 +751,20 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                     </ul>
                   </div>
                   <div
-                    className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+                    className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
                     data-testid="enemy-force"
                   >
-                    <h3 className="text-sm font-semibold text-red-700 dark:text-red-300 mb-2 uppercase tracking-wide">
+                    <h3 className="mb-2 text-sm font-semibold tracking-wide text-red-700 uppercase dark:text-red-300">
                       Enemy Force
                     </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2" data-testid="enemy-bv">
+                    <p
+                      className="mb-2 text-xs text-gray-500 dark:text-gray-400"
+                      data-testid="enemy-bv"
+                    >
                       BV: {selectedBattle.forces.enemy.totalBV.toLocaleString()}
                     </p>
                     <ul className="space-y-1">
-                      {selectedBattle.forces.enemy.units.map(unit => (
+                      {selectedBattle.forces.enemy.units.map((unit) => (
                         <li
                           key={unit.id}
                           className="flex items-center justify-between text-sm"
@@ -683,12 +772,12 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                         >
                           <span className="text-gray-800 dark:text-gray-200">
                             {unit.name}
-                            <span className="text-gray-500 dark:text-gray-400 ml-1 text-xs">
+                            <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">
                               ({unit.pilot})
                             </span>
                           </span>
                           <span
-                            className={`text-xs font-medium px-2 py-0.5 rounded ${STATUS_COLORS[unit.status]}`}
+                            className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[unit.status]}`}
                             data-testid={`unit-status-badge-${unit.id}`}
                           >
                             {unit.status}
@@ -699,29 +788,34 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                   </div>
                 </div>
                 <div
-                  className={`mt-3 p-3 rounded-lg text-center font-semibold ${OUTCOME_COLORS[selectedBattle.outcome]}`}
+                  className={`mt-3 rounded-lg p-3 text-center font-semibold ${OUTCOME_COLORS[selectedBattle.outcome]}`}
                   data-testid="outcome-summary"
                 >
                   {selectedBattle.outcome === 'victory' && '🏆 Victory'}
                   {selectedBattle.outcome === 'defeat' && '💀 Defeat'}
                   {selectedBattle.outcome === 'draw' && '🤝 Draw'}
                   <span className="ml-3 text-sm font-normal">
-                    {selectedBattle.stats.totalKills} kills · {selectedBattle.stats.totalDamage} damage · {selectedBattle.stats.unitsLost} lost
+                    {selectedBattle.stats.totalKills} kills ·{' '}
+                    {selectedBattle.stats.totalDamage} damage ·{' '}
+                    {selectedBattle.stats.unitsLost} lost
                   </span>
                 </div>
               </section>
 
               {/* ── Damage Matrix ─────────────────────────────────────── */}
-              <section aria-label="Damage matrix" data-testid="damage-matrix-section">
+              <section
+                aria-label="Damage matrix"
+                data-testid="damage-matrix-section"
+              >
                 <h2
-                  className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3"
+                  className="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
                   data-testid="section-heading"
                 >
                   Damage Matrix
                 </h2>
                 {selectedBattle.damageMatrix.cells.length === 0 ? (
                   <p
-                    className="text-gray-500 dark:text-gray-400 text-sm italic"
+                    className="text-sm text-gray-500 italic dark:text-gray-400"
                     data-testid="empty-damage-matrix"
                   >
                     No damage exchanges recorded.
@@ -729,68 +823,80 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                 ) : (
                   <div className="overflow-x-auto">
                     <table
-                      className="border-collapse bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="border-collapse rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
                       data-testid="damage-matrix"
                     >
                       <thead>
                         <tr>
-                          <th className="p-2 text-xs text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                          <th className="border border-gray-200 p-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
                             Attacker ↓ / Target →
                           </th>
-                          {selectedBattle.damageMatrix.targets.map(targetId => (
-                            <th
-                              key={targetId}
-                              className="p-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
-                            >
-                              {resolveUnitName(selectedBattle, targetId)}
-                            </th>
-                          ))}
+                          {selectedBattle.damageMatrix.targets.map(
+                            (targetId) => (
+                              <th
+                                key={targetId}
+                                className="border border-gray-200 p-2 text-xs font-medium text-gray-700 dark:border-gray-700 dark:text-gray-300"
+                              >
+                                {resolveUnitName(selectedBattle, targetId)}
+                              </th>
+                            ),
+                          )}
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedBattle.damageMatrix.attackers.map(attackerId => (
-                          <tr key={attackerId}>
-                            <td className="p-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-                              {resolveUnitName(selectedBattle, attackerId)}
-                            </td>
-                            {selectedBattle.damageMatrix.targets.map(targetId => {
-                              const cell = selectedBattle.damageMatrix.cells.find(
-                                c => c.attackerId === attackerId && c.targetId === targetId,
-                              );
-                              const damage = cell?.damage ?? 0;
-                              return (
-                                <td
-                                  key={`${attackerId}-${targetId}`}
-                                  className={`p-2 text-center text-xs font-mono border border-gray-200 dark:border-gray-700 cursor-pointer hover:ring-2 hover:ring-blue-400 ${FOCUS_RING_CLASSES} ${getDamageIntensityClass(damage, maxDamage)}`}
-                                  title={`${damage} damage`}
-                                  aria-label={`${resolveUnitName(selectedBattle, attackerId)} dealt ${damage} damage to ${resolveUnitName(selectedBattle, targetId)}`}
-                                  onClick={() =>
-                                    handleDrillDown('encounter-history', {
-                                      attackerId,
-                                      targetId,
-                                      battleId: selectedBattle.id,
-                                    })
-                                  }
-                                  data-testid={`damage-cell-${attackerId}-${targetId}`}
-                                  role="button"
-                                  tabIndex={0}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                      e.preventDefault();
-                                      handleDrillDown('encounter-history', {
-                                        attackerId,
-                                        targetId,
-                                        battleId: selectedBattle.id,
-                                      });
-                                    }
-                                  }}
-                                >
-                                  {damage}
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        ))}
+                        {selectedBattle.damageMatrix.attackers.map(
+                          (attackerId) => (
+                            <tr key={attackerId}>
+                              <td className="border border-gray-200 p-2 text-xs font-medium text-gray-700 dark:border-gray-700 dark:text-gray-300">
+                                {resolveUnitName(selectedBattle, attackerId)}
+                              </td>
+                              {selectedBattle.damageMatrix.targets.map(
+                                (targetId) => {
+                                  const cell =
+                                    selectedBattle.damageMatrix.cells.find(
+                                      (c) =>
+                                        c.attackerId === attackerId &&
+                                        c.targetId === targetId,
+                                    );
+                                  const damage = cell?.damage ?? 0;
+                                  return (
+                                    <td
+                                      key={`${attackerId}-${targetId}`}
+                                      className={`cursor-pointer border border-gray-200 p-2 text-center font-mono text-xs hover:ring-2 hover:ring-blue-400 dark:border-gray-700 ${FOCUS_RING_CLASSES} ${getDamageIntensityClass(damage, maxDamage)}`}
+                                      title={`${damage} damage`}
+                                      aria-label={`${resolveUnitName(selectedBattle, attackerId)} dealt ${damage} damage to ${resolveUnitName(selectedBattle, targetId)}`}
+                                      onClick={() =>
+                                        handleDrillDown('encounter-history', {
+                                          attackerId,
+                                          targetId,
+                                          battleId: selectedBattle.id,
+                                        })
+                                      }
+                                      data-testid={`damage-cell-${attackerId}-${targetId}`}
+                                      role="button"
+                                      tabIndex={0}
+                                      onKeyDown={(e) => {
+                                        if (
+                                          e.key === 'Enter' ||
+                                          e.key === ' '
+                                        ) {
+                                          e.preventDefault();
+                                          handleDrillDown('encounter-history', {
+                                            attackerId,
+                                            targetId,
+                                            battleId: selectedBattle.id,
+                                          });
+                                        }
+                                      }}
+                                    >
+                                      {damage}
+                                    </td>
+                                  );
+                                },
+                              )}
+                            </tr>
+                          ),
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -798,9 +904,12 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
               </section>
 
               {/* ── Key Moments Timeline ──────────────────────────────── */}
-              <section aria-label="Key moments" data-testid="key-moments-section">
+              <section
+                aria-label="Key moments"
+                data-testid="key-moments-section"
+              >
                 <h2
-                  className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3"
+                  className="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
                   data-testid="section-heading"
                 >
                   Key Moments
@@ -814,7 +923,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                 </div>
                 {filteredKeyMoments.length === 0 ? (
                   <p
-                    className="text-gray-500 dark:text-gray-400 text-sm italic"
+                    className="text-sm text-gray-500 italic dark:text-gray-400"
                     data-testid="empty-key-moments"
                   >
                     No key moments match the current filters.
@@ -824,18 +933,18 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                     className="flex gap-3 overflow-x-auto pb-2"
                     data-testid="key-moments-timeline"
                   >
-                    {filteredKeyMoments.map(moment => (
+                    {filteredKeyMoments.map((moment) => (
                       <button
                         key={moment.id}
                         type="button"
                         onClick={() => handleKeyMomentClick(moment)}
-                        className={`flex-shrink-0 w-44 md:w-48 p-3 min-h-[44px] rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow text-left ${FOCUS_RING_CLASSES}`}
+                        className={`min-h-[44px] w-44 flex-shrink-0 rounded-lg border border-gray-200 bg-white p-3 text-left transition-shadow hover:shadow-md md:w-48 dark:border-gray-700 dark:bg-gray-800 ${FOCUS_RING_CLASSES}`}
                         aria-label={`${moment.tier} moment: ${moment.description}, turn ${moment.turn}`}
                         data-testid={`key-moment-${moment.id}`}
                       >
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="mb-1 flex items-center gap-2">
                           <span
-                            className={`text-xs font-bold uppercase px-2 py-0.5 rounded ${TIER_COLORS[moment.tier]}`}
+                            className={`rounded px-2 py-0.5 text-xs font-bold uppercase ${TIER_COLORS[moment.tier]}`}
                             data-testid={`key-moment-tier-badge-${moment.id}`}
                           >
                             {moment.tier}
@@ -847,7 +956,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                         <p className="text-sm text-gray-800 dark:text-gray-200">
                           {moment.description}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                           {moment.phase} · {moment.type}
                         </p>
                       </button>
@@ -857,22 +966,25 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
               </section>
 
               {/* ── Event Timeline with VCR ───────────────────────────── */}
-              <section aria-label="Event timeline" data-testid="event-timeline-section">
+              <section
+                aria-label="Event timeline"
+                data-testid="event-timeline-section"
+              >
                 <h2
-                  className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3"
+                  className="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
                   data-testid="section-heading"
                 >
                   Event Timeline
                 </h2>
                 <div
-                  className="flex flex-wrap items-center gap-2 mb-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                  className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800"
                   data-testid="vcr-controls"
                 >
                   <button
                     type="button"
                     onClick={handleStepBack}
                     disabled={currentTurn <= 1}
-                    className={`px-3 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed ${FOCUS_RING_CLASSES}`}
+                    className={`min-h-[44px] rounded-md bg-gray-100 px-3 py-2 text-sm text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50 md:min-h-0 md:py-1 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 ${FOCUS_RING_CLASSES}`}
                     aria-label="Step back"
                     data-testid="vcr-step-back"
                   >
@@ -882,7 +994,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                     type="button"
                     onClick={handlePlayPause}
                     disabled={maxTurn === 0}
-                    className={`px-4 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium ${FOCUS_RING_CLASSES}`}
+                    className={`min-h-[44px] rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 md:min-h-0 md:py-1 ${FOCUS_RING_CLASSES}`}
                     aria-label={isPlaying ? 'Pause' : 'Play'}
                     data-testid="vcr-play-pause"
                   >
@@ -892,7 +1004,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                     type="button"
                     onClick={handleStepForward}
                     disabled={currentTurn >= maxTurn}
-                    className={`px-3 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed ${FOCUS_RING_CLASSES}`}
+                    className={`min-h-[44px] rounded-md bg-gray-100 px-3 py-2 text-sm text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50 md:min-h-0 md:py-1 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 ${FOCUS_RING_CLASSES}`}
                     aria-label="Step forward"
                     data-testid="vcr-step-forward"
                   >
@@ -901,7 +1013,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                   <select
                     value={speed}
                     onChange={handleSpeedChange}
-                    className={`px-2 py-2 min-h-[44px] md:py-1 md:min-h-0 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
+                    className={`min-h-[44px] rounded-md border border-gray-300 bg-white px-2 py-2 text-sm text-gray-700 md:min-h-0 md:py-1 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
                     aria-label="Playback speed"
                     data-testid="vcr-speed-select"
                   >
@@ -910,7 +1022,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                     <option value={4}>4x</option>
                   </select>
                   <span
-                    className="text-sm text-gray-600 dark:text-gray-400 ml-auto"
+                    className="ml-auto text-sm text-gray-600 dark:text-gray-400"
                     aria-live="polite"
                     aria-atomic="true"
                     data-testid="vcr-turn-display"
@@ -921,7 +1033,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
 
                 {selectedBattle.events.length === 0 ? (
                   <p
-                    className="text-gray-500 dark:text-gray-400 text-sm italic"
+                    className="text-sm text-gray-500 italic dark:text-gray-400"
                     data-testid="empty-events"
                   >
                     No events recorded.
@@ -936,45 +1048,53 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                         setCurrentTurn(event.turn);
                         setIsPlaying(false);
                       }}
-                      resolveUnitName={(unitId) => resolveUnitName(selectedBattle, unitId)}
+                      resolveUnitName={(unitId) =>
+                        resolveUnitName(selectedBattle, unitId)
+                      }
                     />
                   </div>
                 )}
               </section>
 
               {/* ── Comparison View ───────────────────────────────────── */}
-              <section aria-label="Comparison view" data-testid="comparison-section">
+              <section
+                aria-label="Comparison view"
+                data-testid="comparison-section"
+              >
                 <h2
-                  className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3"
+                  className="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
                   data-testid="section-heading"
                 >
                   Comparison
                 </h2>
-                <div className="flex flex-wrap items-center gap-3 mb-4">
+                <div className="mb-4 flex flex-wrap items-center gap-3">
                   <select
                     value={comparisonMode}
                     onChange={handleComparisonModeChange}
-                    className={`px-3 py-2 min-h-[44px] md:py-1.5 md:min-h-0 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
+                    className={`min-h-[44px] rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 md:min-h-0 md:py-1.5 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
                     aria-label="Comparison mode"
                     data-testid="comparison-mode-toggle"
                   >
-                    <option value="campaign-average">vs Campaign Average</option>
+                    <option value="campaign-average">
+                      vs Campaign Average
+                    </option>
                     <option value="specific-battle">vs Specific Battle</option>
                   </select>
                   {comparisonMode === 'specific-battle' && (
                     <select
                       value={comparisonBattleId ?? ''}
                       onChange={handleComparisonBattleChange}
-                      className={`px-3 py-2 min-h-[44px] md:py-1.5 md:min-h-0 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
+                      className={`min-h-[44px] rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 md:min-h-0 md:py-1.5 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 ${FOCUS_RING_CLASSES}`}
                       aria-label="Select battle for comparison"
                       data-testid="comparison-battle-select"
                     >
                       <option value="">Select a battle</option>
                       {battles
-                        .filter(b => b.id !== selectedBattleId)
-                        .map(b => (
+                        .filter((b) => b.id !== selectedBattleId)
+                        .map((b) => (
                           <option key={b.id} value={b.id}>
-                            {b.missionName} — {new Date(b.timestamp).toLocaleDateString()}
+                            {b.missionName} —{' '}
+                            {new Date(b.timestamp).toLocaleDateString()}
                           </option>
                         ))}
                     </select>
@@ -983,40 +1103,46 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
 
                 {comparisonTarget ? (
                   <div
-                    className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-4"
+                    className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
                     data-testid="comparison-metrics"
                   >
-                    {([
-                      {
-                        key: 'duration',
-                        label: 'Duration',
-                        current: selectedBattle.duration,
-                        baseline: comparisonTarget.duration,
-                        fmt: (v: number) => formatDuration(Math.round(v)),
-                      },
-                      {
-                        key: 'kills',
-                        label: 'Kills',
-                        current: selectedBattle.stats.totalKills,
-                        baseline: comparisonTarget.kills,
-                        fmt: (v: number) => String(v),
-                      },
-                      {
-                        key: 'damage',
-                        label: 'Damage',
-                        current: selectedBattle.stats.totalDamage,
-                        baseline: comparisonTarget.damage,
-                        fmt: (v: number) => String(v),
-                      },
-                      {
-                        key: 'unitsLost',
-                        label: 'Units Lost',
-                        current: selectedBattle.stats.unitsLost,
-                        baseline: comparisonTarget.unitsLost,
-                        fmt: (v: number) => String(v),
-                      },
-                    ] as const).map(metric => {
-                      const maxVal = Math.max(metric.current, metric.baseline, 1);
+                    {(
+                      [
+                        {
+                          key: 'duration',
+                          label: 'Duration',
+                          current: selectedBattle.duration,
+                          baseline: comparisonTarget.duration,
+                          fmt: (v: number) => formatDuration(Math.round(v)),
+                        },
+                        {
+                          key: 'kills',
+                          label: 'Kills',
+                          current: selectedBattle.stats.totalKills,
+                          baseline: comparisonTarget.kills,
+                          fmt: (v: number) => String(v),
+                        },
+                        {
+                          key: 'damage',
+                          label: 'Damage',
+                          current: selectedBattle.stats.totalDamage,
+                          baseline: comparisonTarget.damage,
+                          fmt: (v: number) => String(v),
+                        },
+                        {
+                          key: 'unitsLost',
+                          label: 'Units Lost',
+                          current: selectedBattle.stats.unitsLost,
+                          baseline: comparisonTarget.unitsLost,
+                          fmt: (v: number) => String(v),
+                        },
+                      ] as const
+                    ).map((metric) => {
+                      const maxVal = Math.max(
+                        metric.current,
+                        metric.baseline,
+                        1,
+                      );
                       const currentFilled = Math.round(
                         (metric.current / maxVal) * BAR_SEGMENTS,
                       );
@@ -1024,61 +1150,71 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                         (metric.baseline / maxVal) * BAR_SEGMENTS,
                       );
                       return (
-                        <div key={metric.key} data-testid={`comparison-metric-${metric.key}`}>
-                          <div className="flex items-center justify-between mb-1">
+                        <div
+                          key={metric.key}
+                          data-testid={`comparison-metric-${metric.key}`}
+                        >
+                          <div className="mb-1 flex items-center justify-between">
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                               {metric.label}
                             </span>
                             <span className="text-sm text-gray-600 dark:text-gray-400">
-                              {metric.fmt(metric.current)} vs {metric.fmt(metric.baseline)}
+                              {metric.fmt(metric.current)} vs{' '}
+                              {metric.fmt(metric.baseline)}
                             </span>
                           </div>
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-blue-600 dark:text-blue-400 w-16">
+                              <span className="w-16 text-xs text-blue-600 dark:text-blue-400">
                                 Current
                               </span>
                               <div
                                 className="flex gap-0.5"
                                 data-testid={`comparison-bar-current-${metric.key}`}
                               >
-                                {Array.from({ length: BAR_SEGMENTS }, (_, i) => (
-                                  <div
-                                    key={i}
-                                    className={`h-3 w-1.5 rounded-sm ${
-                                      i < currentFilled
-                                        ? 'bg-blue-500 dark:bg-blue-400'
-                                        : 'bg-gray-200 dark:bg-gray-700'
-                                    }`}
-                                  />
-                                ))}
+                                {Array.from(
+                                  { length: BAR_SEGMENTS },
+                                  (_, i) => (
+                                    <div
+                                      key={i}
+                                      className={`h-3 w-1.5 rounded-sm ${
+                                        i < currentFilled
+                                          ? 'bg-blue-500 dark:bg-blue-400'
+                                          : 'bg-gray-200 dark:bg-gray-700'
+                                      }`}
+                                    />
+                                  ),
+                                )}
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-emerald-600 dark:text-emerald-400 w-16">
+                              <span className="w-16 text-xs text-emerald-600 dark:text-emerald-400">
                                 Baseline
                               </span>
                               <div
                                 className="flex gap-0.5"
                                 data-testid={`comparison-bar-baseline-${metric.key}`}
                               >
-                                {Array.from({ length: BAR_SEGMENTS }, (_, i) => (
-                                  <div
-                                    key={i}
-                                    className={`h-3 w-1.5 rounded-sm ${
-                                      i < baselineFilled
-                                        ? 'bg-emerald-500 dark:bg-emerald-400'
-                                        : 'bg-gray-200 dark:bg-gray-700'
-                                    }`}
-                                  />
-                                ))}
+                                {Array.from(
+                                  { length: BAR_SEGMENTS },
+                                  (_, i) => (
+                                    <div
+                                      key={i}
+                                      className={`h-3 w-1.5 rounded-sm ${
+                                        i < baselineFilled
+                                          ? 'bg-emerald-500 dark:bg-emerald-400'
+                                          : 'bg-gray-200 dark:bg-gray-700'
+                                      }`}
+                                    />
+                                  ),
+                                )}
                               </div>
                             </div>
                           </div>
                         </div>
                       );
                     })}
-                    <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <div className="border-t border-gray-200 pt-2 dark:border-gray-700">
                       <DrillDownLink
                         label="View Detailed Comparison"
                         targetTab="analysis-bugs"
@@ -1094,7 +1230,7 @@ export const EncounterHistory: React.FC<IEncounterHistoryProps> = ({
                   </div>
                 ) : (
                   <p
-                    className="text-gray-500 dark:text-gray-400 text-sm italic"
+                    className="text-sm text-gray-500 italic dark:text-gray-400"
                     data-testid="no-comparison-target"
                   >
                     Select a battle to compare against.

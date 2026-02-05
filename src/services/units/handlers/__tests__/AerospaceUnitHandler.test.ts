@@ -4,17 +4,21 @@
  * Tests for aerospace fighter BLK parsing and validation
  */
 
-import { AerospaceUnitHandler, createAerospaceHandler } from '../AerospaceUnitHandler';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
 import { AerospaceMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-
+import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import {
+  AerospaceUnitHandler,
+  createAerospaceHandler,
+} from '../AerospaceUnitHandler';
 
 // ============================================================================
 // Test Fixtures
 // ============================================================================
 
-function createMockBlkDocument(overrides: Partial<IBlkDocument> = {}): IBlkDocument {
+function createMockBlkDocument(
+  overrides: Partial<IBlkDocument> = {},
+): IBlkDocument {
   return {
     blockVersion: 1,
     version: 'MAM0',
@@ -192,7 +196,9 @@ describe('AerospaceUnitHandler', () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some(e => e.includes('heat sinks'))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('heat sinks'))).toBe(
+        true,
+      );
     });
 
     it('should warn about low fuel', () => {
@@ -201,7 +207,9 @@ describe('AerospaceUnitHandler', () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.warnings.some(w => w.toLowerCase().includes('fuel'))).toBe(true);
+      expect(
+        validation.warnings.some((w) => w.toLowerCase().includes('fuel')),
+      ).toBe(true);
     });
   });
 

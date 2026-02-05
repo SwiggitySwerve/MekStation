@@ -9,8 +9,9 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { getMTFParserService, MTFParserService } from './MTFParserService';
+
 import { getMTFExportService, MTFExportService } from './MTFExportService';
+import { getMTFParserService, MTFParserService } from './MTFParserService';
 import {
   DiscrepancyCategory,
   IDiscrepancy,
@@ -124,7 +125,7 @@ export class ParityValidationService {
    */
   async validateAll(
     options: IParityValidationOptions,
-    progressCallback?: (current: number, total: number, unit: string) => void
+    progressCallback?: (current: number, total: number, unit: string) => void,
   ): Promise<{
     results: IUnitValidationResult[];
     summary: IValidationSummary;
@@ -133,10 +134,15 @@ export class ParityValidationService {
     const mtfFiles = this.findMTFFiles(meksDir);
 
     // Apply filter if provided
-    const filteredFiles = options.unitFilter ? mtfFiles.filter(options.unitFilter) : mtfFiles;
+    const filteredFiles = options.unitFilter
+      ? mtfFiles.filter(options.unitFilter)
+      : mtfFiles;
 
     const results: IUnitValidationResult[] = [];
-    const issuesByCategory: Record<DiscrepancyCategory, number> = {} as Record<DiscrepancyCategory, number>;
+    const issuesByCategory: Record<DiscrepancyCategory, number> = {} as Record<
+      DiscrepancyCategory,
+      number
+    >;
 
     // Initialize category counts
     for (const category of Object.values(DiscrepancyCategory)) {
@@ -168,8 +174,10 @@ export class ParityValidationService {
       mmDataCommit,
       unitsValidated: results.length,
       unitsPassed: results.filter((r) => r.status === 'PASSED').length,
-      unitsWithIssues: results.filter((r) => r.status === 'ISSUES_FOUND').length,
-      unitsWithParseErrors: results.filter((r) => r.status === 'PARSE_ERROR').length,
+      unitsWithIssues: results.filter((r) => r.status === 'ISSUES_FOUND')
+        .length,
+      unitsWithParseErrors: results.filter((r) => r.status === 'PARSE_ERROR')
+        .length,
       issuesByCategory,
     };
 
@@ -224,37 +232,107 @@ export class ParityValidationService {
   /**
    * Compare original and generated content, categorize differences
    */
-  private compareAndCategorize(original: string[], generated: string[], issues: IDiscrepancy[]): void {
+  private compareAndCategorize(
+    original: string[],
+    generated: string[],
+    issues: IDiscrepancy[],
+  ): void {
     const originalMap = this.parseToMap(original);
     const generatedMap = this.parseToMap(generated);
 
     // Compare header fields
-    this.compareField('chassis', originalMap, generatedMap, issues, DiscrepancyCategory.HeaderMismatch);
-    this.compareField('model', originalMap, generatedMap, issues, DiscrepancyCategory.HeaderMismatch);
-    this.compareField('Config', originalMap, generatedMap, issues, DiscrepancyCategory.HeaderMismatch);
-    this.compareField('techbase', originalMap, generatedMap, issues, DiscrepancyCategory.HeaderMismatch);
+    this.compareField(
+      'chassis',
+      originalMap,
+      generatedMap,
+      issues,
+      DiscrepancyCategory.HeaderMismatch,
+    );
+    this.compareField(
+      'model',
+      originalMap,
+      generatedMap,
+      issues,
+      DiscrepancyCategory.HeaderMismatch,
+    );
+    this.compareField(
+      'Config',
+      originalMap,
+      generatedMap,
+      issues,
+      DiscrepancyCategory.HeaderMismatch,
+    );
+    this.compareField(
+      'techbase',
+      originalMap,
+      generatedMap,
+      issues,
+      DiscrepancyCategory.HeaderMismatch,
+    );
 
     // Compare structural fields
-    this.compareField('mass', originalMap, generatedMap, issues, DiscrepancyCategory.HeaderMismatch);
-    this.compareField('engine', originalMap, generatedMap, issues, DiscrepancyCategory.EngineMismatch);
+    this.compareField(
+      'mass',
+      originalMap,
+      generatedMap,
+      issues,
+      DiscrepancyCategory.HeaderMismatch,
+    );
+    this.compareField(
+      'engine',
+      originalMap,
+      generatedMap,
+      issues,
+      DiscrepancyCategory.EngineMismatch,
+    );
 
     // Compare movement
-    this.compareField('walk mp', originalMap, generatedMap, issues, DiscrepancyCategory.MovementMismatch);
-    this.compareField('jump mp', originalMap, generatedMap, issues, DiscrepancyCategory.MovementMismatch);
+    this.compareField(
+      'walk mp',
+      originalMap,
+      generatedMap,
+      issues,
+      DiscrepancyCategory.MovementMismatch,
+    );
+    this.compareField(
+      'jump mp',
+      originalMap,
+      generatedMap,
+      issues,
+      DiscrepancyCategory.MovementMismatch,
+    );
 
     // Compare armor values (biped, quad, and tripod configurations)
     const armorFields = [
       // Biped locations
-      'LA armor', 'RA armor', 'LT armor', 'RT armor', 'CT armor', 'HD armor', 'LL armor', 'RL armor',
+      'LA armor',
+      'RA armor',
+      'LT armor',
+      'RT armor',
+      'CT armor',
+      'HD armor',
+      'LL armor',
+      'RL armor',
       // Quad locations
-      'FLL armor', 'FRL armor', 'RLL armor', 'RRL armor',
+      'FLL armor',
+      'FRL armor',
+      'RLL armor',
+      'RRL armor',
       // Tripod locations
       'CL armor',
       // Rear torso armor (all configurations)
-      'RTL armor', 'RTR armor', 'RTC armor',
+      'RTL armor',
+      'RTR armor',
+      'RTC armor',
     ];
     for (const field of armorFields) {
-      this.compareField(field, originalMap, generatedMap, issues, DiscrepancyCategory.ArmorMismatch);
+      this.compareField(
+        field,
+        originalMap,
+        generatedMap,
+        issues,
+        DiscrepancyCategory.ArmorMismatch,
+      );
     }
 
     // Compare critical slots by location
@@ -288,7 +366,7 @@ export class ParityValidationService {
     original: Map<string, string>,
     generated: Map<string, string>,
     issues: IDiscrepancy[],
-    category: DiscrepancyCategory
+    category: DiscrepancyCategory,
   ): void {
     let originalValue = original.get(field.toLowerCase());
     let generatedValue = generated.get(field.toLowerCase());
@@ -317,9 +395,15 @@ export class ParityValidationService {
         field,
         expected: originalValue || '(missing)',
         actual: generatedValue || '(missing)',
-        suggestion: this.getSuggestion(category, field, originalValue, generatedValue),
+        suggestion: this.getSuggestion(
+          category,
+          field,
+          originalValue,
+          generatedValue,
+        ),
       });
-    }  }
+    }
+  }
 
   /**
    * Normalize engine string for comparison
@@ -352,7 +436,9 @@ export class ParityValidationService {
    * Normalize tech base string for comparison
    * Treats "Mixed", "Mixed (IS Chassis)", "Mixed (Clan Chassis)" as equivalent
    */
-  private normalizeTechBaseString(value: string | undefined): string | undefined {
+  private normalizeTechBaseString(
+    value: string | undefined,
+  ): string | undefined {
     if (!value) return value;
     const lower = value.toLowerCase();
     // Normalize all mixed variants to just "mixed"
@@ -379,7 +465,11 @@ export class ParityValidationService {
   /**
    * Compare critical slots between original and generated
    */
-  private compareCriticalSlots(original: string[], generated: string[], issues: IDiscrepancy[]): void {
+  private compareCriticalSlots(
+    original: string[],
+    generated: string[],
+    issues: IDiscrepancy[],
+  ): void {
     const originalSlots = this.extractCriticalSlots(original);
     const generatedSlots = this.extractCriticalSlots(generated);
 
@@ -507,7 +597,10 @@ export class ParityValidationService {
   private normalizeSlots(slots: string[]): string[] {
     // Find the last non-empty slot
     let lastNonEmpty = slots.length - 1;
-    while (lastNonEmpty >= 0 && (slots[lastNonEmpty] === '-Empty-' || slots[lastNonEmpty] === '')) {
+    while (
+      lastNonEmpty >= 0 &&
+      (slots[lastNonEmpty] === '-Empty-' || slots[lastNonEmpty] === '')
+    ) {
       lastNonEmpty--;
     }
     return slots.slice(0, lastNonEmpty + 1);
@@ -534,9 +627,17 @@ export class ParityValidationService {
   /**
    * Compare quirks between original and generated
    */
-  private compareQuirks(original: string[], generated: string[], issues: IDiscrepancy[]): void {
-    const origQuirks = original.filter((l) => l.startsWith('quirk:')).map((l) => l.substring(6));
-    const genQuirks = generated.filter((l) => l.startsWith('quirk:')).map((l) => l.substring(6));
+  private compareQuirks(
+    original: string[],
+    generated: string[],
+    issues: IDiscrepancy[],
+  ): void {
+    const origQuirks = original
+      .filter((l) => l.startsWith('quirk:'))
+      .map((l) => l.substring(6));
+    const genQuirks = generated
+      .filter((l) => l.startsWith('quirk:'))
+      .map((l) => l.substring(6));
 
     const origSet = new Set(origQuirks);
     const genSet = new Set(genQuirks);
@@ -571,7 +672,7 @@ export class ParityValidationService {
     category: DiscrepancyCategory,
     field: string,
     expected: string | undefined,
-    actual: string | undefined
+    actual: string | undefined,
   ): string {
     switch (category) {
       case DiscrepancyCategory.EngineMismatch:

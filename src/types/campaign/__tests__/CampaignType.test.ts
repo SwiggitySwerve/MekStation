@@ -31,11 +31,17 @@ describe('CampaignType', () => {
     });
 
     it('should have correct display names', () => {
-      expect(CAMPAIGN_TYPE_DISPLAY[CampaignType.MERCENARY]).toBe('Mercenary Company');
-      expect(CAMPAIGN_TYPE_DISPLAY[CampaignType.HOUSE_COMMAND]).toBe('House Command');
+      expect(CAMPAIGN_TYPE_DISPLAY[CampaignType.MERCENARY]).toBe(
+        'Mercenary Company',
+      );
+      expect(CAMPAIGN_TYPE_DISPLAY[CampaignType.HOUSE_COMMAND]).toBe(
+        'House Command',
+      );
       expect(CAMPAIGN_TYPE_DISPLAY[CampaignType.CLAN]).toBe('Clan Touman');
       expect(CAMPAIGN_TYPE_DISPLAY[CampaignType.PIRATE]).toBe('Pirate Band');
-      expect(CAMPAIGN_TYPE_DISPLAY[CampaignType.COMSTAR]).toBe('ComStar / Word of Blake');
+      expect(CAMPAIGN_TYPE_DISPLAY[CampaignType.COMSTAR]).toBe(
+        'ComStar / Word of Blake',
+      );
     });
   });
 

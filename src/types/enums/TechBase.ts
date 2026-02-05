@@ -1,10 +1,10 @@
 /**
  * TechBase - Technology base enumeration
  * Defines the technology base classification for components and equipment.
- * 
+ *
  * @spec openspec/specs/core-enumerations/spec.md
  * @spec openspec/specs/validation-rules-master/spec.md (VAL-ENUM-001, VAL-ENUM-004)
- * 
+ *
  * Per spec: Components MUST have binary tech base (Inner Sphere or Clan).
  * Mixed tech applies only to UNITS via TechBaseMode, not to components.
  */
@@ -17,7 +17,7 @@
 export enum TechBase {
   /** Inner Sphere technology */
   INNER_SPHERE = 'Inner Sphere',
-  
+
   /** Clan technology */
   CLAN = 'Clan',
 }
@@ -44,7 +44,7 @@ export function isValidTechBase(value: unknown): value is TechBase {
  */
 export function parseTechBase(value: string | undefined): TechBase {
   if (!value) return TechBase.INNER_SPHERE;
-  
+
   const normalized = value.toUpperCase().trim();
   switch (normalized) {
     case 'CLAN':
@@ -57,4 +57,3 @@ export function parseTechBase(value: string | undefined): TechBase {
       return TechBase.INNER_SPHERE;
   }
 }
-

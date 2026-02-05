@@ -5,9 +5,10 @@
  * persistence, and Map serialization coverage.
  */
 
-import { createForcesStore } from '../useForcesStore';
-import { IForce } from '@/types/campaign/Force';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+import { IForce } from '@/types/campaign/Force';
+
+import { createForcesStore } from '../useForcesStore';
 
 // =============================================================================
 // Test Data Helpers

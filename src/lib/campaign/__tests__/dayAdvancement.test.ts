@@ -12,13 +12,12 @@
  *   combined processing, multiple days
  */
 
-import { ICampaign, createDefaultCampaignOptions, ICampaignOptions } from '@/types/campaign/Campaign';
+import {
+  ICampaign,
+  createDefaultCampaignOptions,
+  ICampaignOptions,
+} from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { IPerson, IInjury, createInjury } from '@/types/campaign/Person';
-import { IMission, IContract, createContract, createMission } from '@/types/campaign/Mission';
-import { IForce } from '@/types/campaign/Force';
-import { Money } from '@/types/campaign/Money';
-import { IFinances } from '@/types/campaign/IFinances';
 import {
   PersonnelStatus,
   MissionStatus,
@@ -26,6 +25,14 @@ import {
   ForceRole,
   FormationLevel,
 } from '@/types/campaign/enums';
+import { IForce } from '@/types/campaign/Force';
+import {
+  IMission,
+  createContract,
+  createMission,
+} from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
+import { IPerson, IInjury, createInjury } from '@/types/campaign/Person';
 
 import {
   advanceDay,
@@ -34,10 +41,6 @@ import {
   processDailyCosts,
   DEFAULT_DAILY_SALARY,
   DEFAULT_DAILY_MAINTENANCE,
-  DayReport,
-  HealedPersonEvent,
-  ExpiredContractEvent,
-  DailyCostBreakdown,
 } from '../dayAdvancement';
 
 // =============================================================================
@@ -62,7 +65,16 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
@@ -87,7 +99,7 @@ function createTestForce(
   id: string,
   unitIds: string[] = [],
   subForceIds: string[] = [],
-  parentForceId?: string
+  parentForceId?: string,
 ): IForce {
   return {
     id,
@@ -103,24 +115,24 @@ function createTestForce(
 }
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
-    return {
-      id: 'campaign-001',
-      name: 'Test Campaign',
-      currentDate: new Date('3025-06-15T00:00:00Z'),
-      factionId: 'mercenary',
-      personnel: new Map<string, IPerson>(),
-      forces: new Map<string, IForce>(),
-      rootForceId: 'force-root',
-      missions: new Map<string, IMission>(),
-      finances: { transactions: [], balance: new Money(1000000) },
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: createDefaultCampaignOptions(),
-      campaignType: CampaignType.MERCENARY,
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
-      ...overrides,
-    };
+  return {
+    id: 'campaign-001',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-06-15T00:00:00Z'),
+    factionId: 'mercenary',
+    personnel: new Map<string, IPerson>(),
+    forces: new Map<string, IForce>(),
+    rootForceId: 'force-root',
+    missions: new Map<string, IMission>(),
+    finances: { transactions: [], balance: new Money(1000000) },
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: createDefaultCampaignOptions(),
+    campaignType: CampaignType.MERCENARY,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    ...overrides,
+  };
 }
 
 // =============================================================================
@@ -130,7 +142,10 @@ function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
 describe('processHealing', () => {
   it('should not modify non-wounded personnel', () => {
     const personnel = new Map<string, IPerson>();
-    const activePerson = createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE });
+    const activePerson = createTestPerson({
+      id: 'p1',
+      status: PersonnelStatus.ACTIVE,
+    });
     personnel.set('p1', activePerson);
 
     const result = processHealing(personnel);
@@ -332,7 +347,10 @@ describe('processHealing', () => {
     const personnel = new Map<string, IPerson>();
 
     // Active person - should not be modified
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
 
     // Wounded person with healing injury
     const injury = createTestInjury({ id: 'inj-1', daysToHeal: 1 });
@@ -343,11 +361,14 @@ describe('processHealing', () => {
         status: PersonnelStatus.WOUNDED,
         injuries: [injury],
         daysToWaitForHealing: 0,
-      })
+      }),
     );
 
     // KIA person - should not be modified
-    personnel.set('p3', createTestPerson({ id: 'p3', status: PersonnelStatus.KIA }));
+    personnel.set(
+      'p3',
+      createTestPerson({ id: 'p3', status: PersonnelStatus.KIA }),
+    );
 
     const result = processHealing(personnel);
 
@@ -465,7 +486,9 @@ describe('processContracts', () => {
 
     const result = processContracts(campaign);
 
-    expect(result.missions.get('contract-001')!.status).toBe(MissionStatus.ACTIVE);
+    expect(result.missions.get('contract-001')!.status).toBe(
+      MissionStatus.ACTIVE,
+    );
     expect(result.events).toHaveLength(0);
   });
 
@@ -488,7 +511,9 @@ describe('processContracts', () => {
 
     const result = processContracts(campaign);
 
-    expect(result.missions.get('contract-001')!.status).toBe(MissionStatus.SUCCESS);
+    expect(result.missions.get('contract-001')!.status).toBe(
+      MissionStatus.SUCCESS,
+    );
     expect(result.events).toHaveLength(1);
   });
 
@@ -509,7 +534,9 @@ describe('processContracts', () => {
 
     const result = processContracts(campaign);
 
-    expect(result.missions.get('mission-001')!.status).toBe(MissionStatus.ACTIVE);
+    expect(result.missions.get('mission-001')!.status).toBe(
+      MissionStatus.ACTIVE,
+    );
     expect(result.events).toHaveLength(0);
   });
 
@@ -532,7 +559,9 @@ describe('processContracts', () => {
 
     const result = processContracts(campaign);
 
-    expect(result.missions.get('contract-001')!.status).toBe(MissionStatus.PENDING);
+    expect(result.missions.get('contract-001')!.status).toBe(
+      MissionStatus.PENDING,
+    );
     expect(result.events).toHaveLength(0);
   });
 
@@ -555,7 +584,9 @@ describe('processContracts', () => {
 
     const result = processContracts(campaign);
 
-    expect(result.missions.get('contract-001')!.status).toBe(MissionStatus.ACTIVE);
+    expect(result.missions.get('contract-001')!.status).toBe(
+      MissionStatus.ACTIVE,
+    );
     expect(result.events).toHaveLength(0);
   });
 
@@ -572,7 +603,7 @@ describe('processContracts', () => {
         targetId: 'liao',
         status: MissionStatus.ACTIVE,
         endDate: '3025-01-01',
-      })
+      }),
     );
 
     // Active contract (not expired)
@@ -585,7 +616,7 @@ describe('processContracts', () => {
         targetId: 'kurita',
         status: MissionStatus.ACTIVE,
         endDate: '3025-12-31',
-      })
+      }),
     );
 
     // Already completed contract
@@ -598,7 +629,7 @@ describe('processContracts', () => {
         targetId: 'liao',
         status: MissionStatus.SUCCESS,
         endDate: '3025-01-01',
-      })
+      }),
     );
 
     const campaign = createTestCampaign({
@@ -631,8 +662,14 @@ describe('processContracts', () => {
 describe('processDailyCosts', () => {
   it('should calculate salary for active personnel', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
-    personnel.set('p2', createTestPerson({ id: 'p2', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
+    personnel.set(
+      'p2',
+      createTestPerson({ id: 'p2', status: PersonnelStatus.ACTIVE }),
+    );
 
     const campaign = createTestCampaign({ personnel });
     const result = processDailyCosts(campaign);
@@ -644,11 +681,26 @@ describe('processDailyCosts', () => {
 
   it('should exclude KIA, RETIRED, and DESERTED from salary', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
-    personnel.set('p2', createTestPerson({ id: 'p2', status: PersonnelStatus.KIA }));
-    personnel.set('p3', createTestPerson({ id: 'p3', status: PersonnelStatus.RETIRED }));
-    personnel.set('p4', createTestPerson({ id: 'p4', status: PersonnelStatus.DESERTED }));
-    personnel.set('p5', createTestPerson({ id: 'p5', status: PersonnelStatus.WOUNDED }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
+    personnel.set(
+      'p2',
+      createTestPerson({ id: 'p2', status: PersonnelStatus.KIA }),
+    );
+    personnel.set(
+      'p3',
+      createTestPerson({ id: 'p3', status: PersonnelStatus.RETIRED }),
+    );
+    personnel.set(
+      'p4',
+      createTestPerson({ id: 'p4', status: PersonnelStatus.DESERTED }),
+    );
+    personnel.set(
+      'p5',
+      createTestPerson({ id: 'p5', status: PersonnelStatus.WOUNDED }),
+    );
 
     const campaign = createTestCampaign({ personnel });
     const result = processDailyCosts(campaign);
@@ -660,7 +712,10 @@ describe('processDailyCosts', () => {
 
   it('should apply salary multiplier from options', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
 
     const options: ICampaignOptions = {
       ...createDefaultCampaignOptions(),
@@ -675,7 +730,10 @@ describe('processDailyCosts', () => {
 
   it('should skip salaries when payForSalaries is false', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
 
     const options: ICampaignOptions = {
       ...createDefaultCampaignOptions(),
@@ -690,7 +748,10 @@ describe('processDailyCosts', () => {
 
   it('should calculate maintenance for units', () => {
     const forces = new Map<string, IForce>();
-    forces.set('force-root', createTestForce('force-root', ['unit-1', 'unit-2', 'unit-3']));
+    forces.set(
+      'force-root',
+      createTestForce('force-root', ['unit-1', 'unit-2', 'unit-3']),
+    );
 
     const campaign = createTestCampaign({ forces });
     const result = processDailyCosts(campaign);
@@ -712,7 +773,9 @@ describe('processDailyCosts', () => {
     const campaign = createTestCampaign({ forces, options });
     const result = processDailyCosts(campaign);
 
-    expect(result.costs.maintenance.amount).toBe(DEFAULT_DAILY_MAINTENANCE * 1.5);
+    expect(result.costs.maintenance.amount).toBe(
+      DEFAULT_DAILY_MAINTENANCE * 1.5,
+    );
   });
 
   it('should skip maintenance when payForMaintenance is false', () => {
@@ -732,7 +795,10 @@ describe('processDailyCosts', () => {
 
   it('should deduct costs from balance', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
 
     const forces = new Map<string, IForce>();
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
@@ -751,7 +817,10 @@ describe('processDailyCosts', () => {
 
   it('should calculate total as sum of salaries and maintenance', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
 
     const forces = new Map<string, IForce>();
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
@@ -776,7 +845,10 @@ describe('processDailyCosts', () => {
 
   it('should add transactions to existing list', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
 
     const forces = new Map<string, IForce>();
     forces.set('force-root', createTestForce('force-root', ['unit-1']));
@@ -787,12 +859,17 @@ describe('processDailyCosts', () => {
     // Should have 2 transactions: salary + maintenance
     expect(result.finances.transactions).toHaveLength(2);
     expect(result.finances.transactions[0].description).toContain('salaries');
-    expect(result.finances.transactions[1].description).toContain('maintenance');
+    expect(result.finances.transactions[1].description).toContain(
+      'maintenance',
+    );
   });
 
   it('should allow balance to go negative', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
 
     const campaign = createTestCampaign({
       personnel,
@@ -846,11 +923,15 @@ describe('advanceDay', () => {
         status: PersonnelStatus.WOUNDED,
         injuries: [injury],
         daysToWaitForHealing: 0,
-      })
+      }),
     );
     personnel.set(
       'p2',
-      createTestPerson({ id: 'p2', name: 'Active Pilot', status: PersonnelStatus.ACTIVE })
+      createTestPerson({
+        id: 'p2',
+        name: 'Active Pilot',
+        status: PersonnelStatus.ACTIVE,
+      }),
     );
 
     const missions = new Map<string, IMission>();
@@ -863,7 +944,7 @@ describe('advanceDay', () => {
         targetId: 'liao',
         status: MissionStatus.ACTIVE,
         endDate: '3025-01-01',
-      })
+      }),
     );
 
     const forces = new Map<string, IForce>();
@@ -894,8 +975,12 @@ describe('advanceDay', () => {
     expect(report.costs.unitCount).toBe(1);
 
     // Campaign should be updated
-    expect(report.campaign.personnel.get('p1')!.status).toBe(PersonnelStatus.ACTIVE);
-    expect(report.campaign.missions.get('c1')!.status).toBe(MissionStatus.SUCCESS);
+    expect(report.campaign.personnel.get('p1')!.status).toBe(
+      PersonnelStatus.ACTIVE,
+    );
+    expect(report.campaign.missions.get('c1')!.status).toBe(
+      MissionStatus.SUCCESS,
+    );
   });
 
   it('should handle advancing multiple days sequentially', () => {
@@ -908,7 +993,7 @@ describe('advanceDay', () => {
         status: PersonnelStatus.WOUNDED,
         injuries: [injury],
         daysToWaitForHealing: 0,
-      })
+      }),
     );
 
     let campaign = createTestCampaign({
@@ -919,19 +1004,25 @@ describe('advanceDay', () => {
     // Day 1: injury goes from 3 -> 2
     let report = advanceDay(campaign);
     expect(report.campaign.personnel.get('p1')!.injuries[0].daysToHeal).toBe(2);
-    expect(report.campaign.personnel.get('p1')!.status).toBe(PersonnelStatus.WOUNDED);
+    expect(report.campaign.personnel.get('p1')!.status).toBe(
+      PersonnelStatus.WOUNDED,
+    );
     campaign = report.campaign;
 
     // Day 2: injury goes from 2 -> 1
     report = advanceDay(campaign);
     expect(report.campaign.personnel.get('p1')!.injuries[0].daysToHeal).toBe(1);
-    expect(report.campaign.personnel.get('p1')!.status).toBe(PersonnelStatus.WOUNDED);
+    expect(report.campaign.personnel.get('p1')!.status).toBe(
+      PersonnelStatus.WOUNDED,
+    );
     campaign = report.campaign;
 
     // Day 3: injury heals (1 -> 0), person returns to active
     report = advanceDay(campaign);
     expect(report.campaign.personnel.get('p1')!.injuries).toHaveLength(0);
-    expect(report.campaign.personnel.get('p1')!.status).toBe(PersonnelStatus.ACTIVE);
+    expect(report.campaign.personnel.get('p1')!.status).toBe(
+      PersonnelStatus.ACTIVE,
+    );
     expect(report.healedPersonnel).toHaveLength(1);
     expect(report.healedPersonnel[0].returnedToActive).toBe(true);
   });
@@ -996,7 +1087,10 @@ describe('advanceDay', () => {
 
   it('should accumulate transactions over multiple days', () => {
     const personnel = new Map<string, IPerson>();
-    personnel.set('p1', createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }));
+    personnel.set(
+      'p1',
+      createTestPerson({ id: 'p1', status: PersonnelStatus.ACTIVE }),
+    );
 
     let campaign = createTestCampaign({
       personnel,
@@ -1011,6 +1105,8 @@ describe('advanceDay', () => {
 
     // Should have 3 salary transactions
     expect(campaign.finances.transactions).toHaveLength(3);
-    expect(campaign.finances.balance.amount).toBe(100000 - DEFAULT_DAILY_SALARY * 3);
+    expect(campaign.finances.balance.amount).toBe(
+      100000 - DEFAULT_DAILY_SALARY * 3,
+    );
   });
 });

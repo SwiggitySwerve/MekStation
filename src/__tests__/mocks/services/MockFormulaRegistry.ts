@@ -1,17 +1,17 @@
 /**
  * Mock Formula Registry
- * 
+ *
  * Mock implementation of IFormulaRegistry for testing.
  */
 
 import { IFormulaRegistry } from '@/services/equipment/FormulaRegistry';
-import { 
-  IVariableFormulas, 
-  ceilDivide, 
+import {
+  IVariableFormulas,
+  ceilDivide,
   floorDivide,
   roundDivide,
-  equalsWeight, 
-  multiply, 
+  equalsWeight,
+  multiply,
   fixed,
   plus,
   multiplyRound,
@@ -22,54 +22,75 @@ import {
  * Uses proper IFormula structure matching variableEquipmentFormulas.ts
  */
 const TEST_FORMULAS: Map<string, IVariableFormulas> = new Map([
-  ['targeting-computer-is', {
-    weight: ceilDivide('directFireWeaponTonnage', 4),
-    criticalSlots: equalsWeight(),
-    cost: multiply('weight', 10000),
-    requiredContext: ['directFireWeaponTonnage'],
-  }],
-  ['targeting-computer-clan', {
-    weight: ceilDivide('directFireWeaponTonnage', 5),
-    criticalSlots: equalsWeight(),
-    cost: multiply('weight', 10000),
-    requiredContext: ['directFireWeaponTonnage'],
-  }],
-  ['masc-is', {
-    // MASC (IS): tonnage / 20, rounded to nearest whole ton
-    // Examples: 85t → 4 tons, 90t → 5 tons
-    weight: roundDivide('tonnage', 20),
-    criticalSlots: equalsWeight(),
-    cost: multiply('tonnage', 1000),
-    requiredContext: ['tonnage'],
-  }],
-  ['masc-clan', {
-    // MASC (Clan): tonnage / 25, rounded to nearest whole ton
-    weight: roundDivide('tonnage', 25),
-    criticalSlots: equalsWeight(),
-    cost: multiply('tonnage', 1000),
-    requiredContext: ['tonnage'],
-  }],
-  ['supercharger', {
-    // Weight = engineWeight × 10%, rounded up to nearest 0.5 ton
-    weight: multiplyRound('engineWeight', 0.1, 0.5),
-    criticalSlots: fixed(1),
-    cost: multiply('engineWeight', 10000),
-    requiredContext: ['engineWeight'],
-  }],
-  ['hatchet', {
-    weight: ceilDivide('tonnage', 15),
-    criticalSlots: equalsWeight(),
-    cost: multiply('weight', 5000),
-    damage: floorDivide('tonnage', 5),
-    requiredContext: ['tonnage'],
-  }],
-  ['sword', {
-    weight: ceilDivide('tonnage', 15),
-    criticalSlots: equalsWeight(),
-    cost: multiply('weight', 10000),
-    damage: plus(floorDivide('tonnage', 10), 1),
-    requiredContext: ['tonnage'],
-  }],
+  [
+    'targeting-computer-is',
+    {
+      weight: ceilDivide('directFireWeaponTonnage', 4),
+      criticalSlots: equalsWeight(),
+      cost: multiply('weight', 10000),
+      requiredContext: ['directFireWeaponTonnage'],
+    },
+  ],
+  [
+    'targeting-computer-clan',
+    {
+      weight: ceilDivide('directFireWeaponTonnage', 5),
+      criticalSlots: equalsWeight(),
+      cost: multiply('weight', 10000),
+      requiredContext: ['directFireWeaponTonnage'],
+    },
+  ],
+  [
+    'masc-is',
+    {
+      // MASC (IS): tonnage / 20, rounded to nearest whole ton
+      // Examples: 85t → 4 tons, 90t → 5 tons
+      weight: roundDivide('tonnage', 20),
+      criticalSlots: equalsWeight(),
+      cost: multiply('tonnage', 1000),
+      requiredContext: ['tonnage'],
+    },
+  ],
+  [
+    'masc-clan',
+    {
+      // MASC (Clan): tonnage / 25, rounded to nearest whole ton
+      weight: roundDivide('tonnage', 25),
+      criticalSlots: equalsWeight(),
+      cost: multiply('tonnage', 1000),
+      requiredContext: ['tonnage'],
+    },
+  ],
+  [
+    'supercharger',
+    {
+      // Weight = engineWeight × 10%, rounded up to nearest 0.5 ton
+      weight: multiplyRound('engineWeight', 0.1, 0.5),
+      criticalSlots: fixed(1),
+      cost: multiply('engineWeight', 10000),
+      requiredContext: ['engineWeight'],
+    },
+  ],
+  [
+    'hatchet',
+    {
+      weight: ceilDivide('tonnage', 15),
+      criticalSlots: equalsWeight(),
+      cost: multiply('weight', 5000),
+      damage: floorDivide('tonnage', 5),
+      requiredContext: ['tonnage'],
+    },
+  ],
+  [
+    'sword',
+    {
+      weight: ceilDivide('tonnage', 15),
+      criticalSlots: equalsWeight(),
+      cost: multiply('weight', 10000),
+      damage: plus(floorDivide('tonnage', 10), 1),
+      requiredContext: ['tonnage'],
+    },
+  ],
 ]);
 
 /**
@@ -97,7 +118,8 @@ export function createMockFormulaRegistry(): jest.Mocked<IFormulaRegistry> {
     }),
 
     getRequiredContext: jest.fn().mockImplementation((equipmentId: string) => {
-      const formulas = TEST_FORMULAS.get(equipmentId) || customFormulas.get(equipmentId);
+      const formulas =
+        TEST_FORMULAS.get(equipmentId) || customFormulas.get(equipmentId);
       return formulas?.requiredContext ?? [];
     }),
 
@@ -108,13 +130,19 @@ export function createMockFormulaRegistry(): jest.Mocked<IFormulaRegistry> {
       ];
     }),
 
-    registerCustomFormulas: jest.fn().mockImplementation(async (equipmentId: string, formulas: IVariableFormulas) => {
-      customFormulas.set(equipmentId, formulas);
-    }),
+    registerCustomFormulas: jest
+      .fn()
+      .mockImplementation(
+        async (equipmentId: string, formulas: IVariableFormulas) => {
+          customFormulas.set(equipmentId, formulas);
+        },
+      ),
 
-    unregisterCustomFormulas: jest.fn().mockImplementation(async (equipmentId: string) => {
-      customFormulas.delete(equipmentId);
-    }),
+    unregisterCustomFormulas: jest
+      .fn()
+      .mockImplementation(async (equipmentId: string) => {
+        customFormulas.delete(equipmentId);
+      }),
 
     getCustomFormulaIds: jest.fn().mockImplementation(() => {
       return Array.from(customFormulas.keys());
@@ -132,8 +160,12 @@ export function createFailingFormulaRegistry(): jest.Mocked<IFormulaRegistry> {
     isVariable: jest.fn().mockReturnValue(false),
     getRequiredContext: jest.fn().mockReturnValue([]),
     getAllVariableEquipmentIds: jest.fn().mockReturnValue([]),
-    registerCustomFormulas: jest.fn().mockRejectedValue(new Error('Cannot save')),
-    unregisterCustomFormulas: jest.fn().mockRejectedValue(new Error('Cannot delete')),
+    registerCustomFormulas: jest
+      .fn()
+      .mockRejectedValue(new Error('Cannot save')),
+    unregisterCustomFormulas: jest
+      .fn()
+      .mockRejectedValue(new Error('Cannot delete')),
     getCustomFormulaIds: jest.fn().mockReturnValue([]),
   };
 }
@@ -142,4 +174,3 @@ export function createFailingFormulaRegistry(): jest.Mocked<IFormulaRegistry> {
  * Export test formulas for direct access in tests
  */
 export { TEST_FORMULAS };
-

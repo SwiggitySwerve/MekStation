@@ -9,12 +9,14 @@ The system SHALL calculate the C-Bill cost of a mech using TechManual formulas.
 **Priority**: Medium
 
 #### Scenario: Calculate total cost
+
 - **GIVEN** a complete mech build
 - **WHEN** calculateCost(mech) is called
 - **THEN** return total C-Bill cost as integer
 - **AND** cost SHALL equal sum of all component costs plus base chassis cost
 
 #### Scenario: Calculate engine cost
+
 - **GIVEN** engine with rating and type
 - **WHEN** calculating engine cost
 - **THEN** cost = (rating^2) × 5000 × type_multiplier
@@ -28,6 +30,7 @@ The system SHALL calculate the C-Bill cost of a mech using TechManual formulas.
 - **AND** Fission multiplier = 0.75
 
 #### Scenario: Calculate gyro cost
+
 - **GIVEN** gyro with engine rating and type
 - **WHEN** calculating gyro cost
 - **THEN** cost = ceil(engineRating / 100) × 300000 × type_multiplier
@@ -37,6 +40,7 @@ The system SHALL calculate the C-Bill cost of a mech using TechManual formulas.
 - **AND** XL multiplier = 0.5
 
 #### Scenario: Calculate structure cost
+
 - **GIVEN** structure with tonnage and type
 - **WHEN** calculating structure cost
 - **THEN** cost = tonnage × cost_per_ton
@@ -48,6 +52,7 @@ The system SHALL calculate the C-Bill cost of a mech using TechManual formulas.
 - **AND** Industrial cost = 300 per ton
 
 #### Scenario: Calculate armor cost
+
 - **GIVEN** armor with total points and type
 - **WHEN** calculating armor cost
 - **THEN** cost = total_points × cost_per_point
@@ -60,6 +65,7 @@ The system SHALL calculate the C-Bill cost of a mech using TechManual formulas.
 - **AND** Reactive cost = 1875 per point
 
 #### Scenario: Calculate cockpit cost
+
 - **GIVEN** cockpit type
 - **WHEN** calculating cockpit cost
 - **THEN** Standard cockpit = 200000 C-Bills
@@ -68,13 +74,14 @@ The system SHALL calculate the C-Bill cost of a mech using TechManual formulas.
 - **AND** Torso-Mounted = 750000 C-Bills
 
 #### Scenario: Calculate heat sink cost
+
 - **GIVEN** heat sinks with count and type
 - **WHEN** calculating heat sink cost
 - **THEN** Single heat sink = 2000 C-Bills each
 - **AND** Double heat sink = 6000 C-Bills each
 
 #### Scenario: Calculate base chassis cost
+
 - **GIVEN** mech tonnage
 - **WHEN** calculating base chassis cost
 - **THEN** cost = tonnage × 10000 C-Bills
-

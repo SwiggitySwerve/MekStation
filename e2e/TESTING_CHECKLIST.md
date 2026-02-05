@@ -29,6 +29,7 @@ npm run test:e2e:ui
 ## Test Infrastructure
 
 ### Directory Structure
+
 ```
 e2e/
   fixtures/           # Test data factories
@@ -37,20 +38,20 @@ e2e/
     force.ts          # createTestForce(), etc.
     pilot.ts          # createTestPilot(), etc.
     index.ts          # Barrel export
-  
+
   helpers/            # Shared utilities
     navigation.ts     # navigateTo(), navigateToCampaigns(), etc.
     wait.ts           # waitForPageReady(), waitForListItems(), etc.
     store.ts          # resetStores(), getStoreState(), etc.
     index.ts          # Barrel export
-  
+
   pages/              # Page object models
     base.page.ts      # BasePage abstract class
     campaign.page.ts  # CampaignListPage, CampaignDetailPage, etc.
     encounter.page.ts # EncounterListPage, etc.
     force.page.ts     # ForceListPage, etc.
     index.ts          # Barrel export
-  
+
   # Test files
   app-routes.spec.ts
   campaign.spec.ts
@@ -76,6 +77,7 @@ const campaignId = await page.evaluate(() => {
 ## Test Coverage by System
 
 ### Core Application (Implemented)
+
 - [x] Homepage loads without errors
 - [x] No broken images
 - [x] Accessibility: interactive elements have accessible names
@@ -88,6 +90,7 @@ const campaignId = await page.evaluate(() => {
 - [x] Responsive layout adapts to viewport
 
 ### PWA Features (Implemented)
+
 - [x] PWA manifest present and valid
 - [x] Service worker support
 - [x] Theme color meta tag
@@ -96,6 +99,7 @@ const campaignId = await page.evaluate(() => {
 - [x] Offline page available
 
 ### Campaign System (Implemented - `campaign.spec.ts`)
+
 - [x] Navigate to campaigns list page (@smoke @campaign)
 - [x] Create new campaign (@smoke @campaign)
 - [x] View campaign detail page (@campaign)
@@ -108,6 +112,7 @@ const campaignId = await page.evaluate(() => {
 - [x] Empty state when no campaigns (@campaign)
 
 ### Encounter System (Implemented - `encounter.spec.ts`)
+
 - [x] Navigate to encounters list page (@smoke @encounter)
 - [x] Create new encounter (@smoke @encounter)
 - [x] View encounter detail page (@encounter)
@@ -118,6 +123,7 @@ const campaignId = await page.evaluate(() => {
 - [x] Clone existing encounter (@encounter - skipped, no store action)
 
 ### Force Management (Implemented - `force.spec.ts`)
+
 - [x] Navigate to forces list page (@smoke @force)
 - [x] Create empty force (@smoke @force)
 - [x] Add unit to force (@force)
@@ -128,6 +134,7 @@ const campaignId = await page.evaluate(() => {
 - [x] Delete force (@force)
 
 ### Pilot Management (Partial - `awards.spec.ts`, `integration.spec.ts`)
+
 - [x] Navigate to pilots list page (@smoke)
 - [x] Create pilot page navigation (@smoke)
 - [ ] View pilot detail page
@@ -138,6 +145,7 @@ const campaignId = await page.evaluate(() => {
 - [x] View pilot awards (store-level testing in awards.spec.ts)
 
 ### Game Session (Implemented - `game-session.spec.ts`, `ui-components.spec.ts`)
+
 - [x] Game page loads with hex grid (@smoke @game)
 - [x] Unit deployment phase (@game)
 - [x] Select unit (@game)
@@ -149,6 +157,7 @@ const campaignId = await page.evaluate(() => {
 - [x] Replay controls work (@game)
 
 ### Combat Resolution (Implemented - `combat.spec.ts` - 38 tests)
+
 - [x] Attack roll displays correctly (@combat)
 - [x] Hit location determination (@combat)
 - [x] Damage application to armor (@combat)
@@ -159,6 +168,7 @@ const campaignId = await page.evaluate(() => {
 - [x] Unit destruction state (@combat)
 
 ### Repair System (Implemented - `repair.spec.ts` - PR #146)
+
 - [x] Navigate to repair bay (@smoke)
 - [x] View damaged unit options
 - [x] Repair cost calculation
@@ -166,12 +176,14 @@ const campaignId = await page.evaluate(() => {
 - [x] Repair progress tracking
 
 ### Awards System (Implemented - `awards.spec.ts` - 13 tests)
+
 - [x] View pilot awards (store-level)
 - [x] Award unlock conditions display (auto-evaluation tests)
 - [x] Award progress tracking (stats tracking)
 - [x] Multiple awards display (independent pilot tracking)
 
 ### Customizer - Mech (Implemented - `omnimech.spec.ts`, `exotic-mech.spec.ts`)
+
 - [x] Load mech in customizer (@smoke @customizer)
 - [x] Change engine (@customizer)
 - [x] Adjust armor (@customizer)
@@ -185,18 +197,21 @@ const campaignId = await page.evaluate(() => {
 - [x] Tripod configuration (@customizer - exotic-mech.spec.ts)
 
 ### Customizer - Aerospace (Implemented - `aerospace.spec.ts` - PR #147)
+
 - [x] Load aerospace in customizer (@customizer)
 - [x] Configure aerospace armor (@customizer)
 - [x] Add aerospace weapons (@customizer)
 - [x] Save aerospace unit (@customizer)
 
 ### Customizer - Vehicle (Implemented - `vehicle.spec.ts` - PR #148)
+
 - [x] Load vehicle in customizer (@customizer)
 - [x] Configure vehicle armor (@customizer)
 - [x] Add vehicle weapons (@customizer)
 - [x] Save vehicle (@customizer)
 
 ### Compendium (Implemented - `compendium.spec.ts` - 71 tests)
+
 - [x] Navigate to compendium (@smoke @compendium)
 - [x] Browse units (@compendium)
 - [x] Search units (@compendium)
@@ -207,6 +222,7 @@ const campaignId = await page.evaluate(() => {
 - [x] View equipment detail (@compendium)
 
 ### P2P Sync (Implemented)
+
 - [x] Test page loads in mock mode
 - [x] Create room in mock mode
 - [x] Add items when connected
@@ -215,6 +231,7 @@ const campaignId = await page.evaluate(() => {
 - [x] Disconnect and reconnect
 
 ### Audit Timeline (Implemented - `audit-timeline.spec.ts`, `events.spec.ts`)
+
 - [x] Timeline page loads with filters
 - [x] Toggle advanced query builder
 - [x] Category filters clickable
@@ -227,6 +244,7 @@ const campaignId = await page.evaluate(() => {
 - [x] Export button exists
 
 ### UI Components (Implemented - `ui-components.spec.ts` - 18 tests)
+
 - [x] Unit card displays accurate data (compendium)
 - [x] PilotMechCard renders correctly (force pages)
 - [x] Armor diagram interaction (customizer)
@@ -237,6 +255,7 @@ const campaignId = await page.evaluate(() => {
 - [x] Tab manager in customizer
 
 ### Integration Flows (Implemented - `integration.spec.ts` - 18 tests)
+
 - [x] Full campaign flow (create → mission → combat → repair)
 - [x] Customizer to force flow (create unit → add to force)
 - [x] Force to encounter flow (create force → use in encounter)
@@ -251,6 +270,7 @@ const campaignId = await page.evaluate(() => {
 ## Manual Testing Checklist
 
 ### PWA Installation
+
 - [ ] Chrome/Edge: Install prompt appears in address bar (desktop)
 - [ ] Chrome Android: "Add to Home Screen" banner appears
 - [ ] Safari iOS: Can add to home screen via share menu
@@ -258,6 +278,7 @@ const campaignId = await page.evaluate(() => {
 - [ ] App icon appears correctly on home screen
 
 ### Offline Support
+
 1. Open DevTools → Application → Service Workers
    - [ ] Service worker is registered and activated
 2. Go to Network tab → Check "Offline"
@@ -267,6 +288,7 @@ const campaignId = await page.evaluate(() => {
    - [ ] App reconnects and works normally
 
 ### Mobile Touch Interactions
+
 1. Use Chrome DevTools device toolbar (Ctrl+Shift+M)
    - [ ] Select iPhone or Pixel device preset
 
@@ -282,6 +304,7 @@ const campaignId = await page.evaluate(() => {
    - [ ] No accidental taps on adjacent elements
 
 ### Performance
+
 - [ ] First Contentful Paint < 2s
 - [ ] Time to Interactive < 5s
 - [ ] No layout shifts after load
@@ -292,12 +315,12 @@ const campaignId = await page.evaluate(() => {
 
 ## Browser Compatibility
 
-| Browser | Desktop | Mobile |
-|---------|---------|--------|
-| Chrome  | ✅      | ✅     |
-| Firefox | ⚠️ (no SW) | ⚠️   |
-| Safari  | ⚠️      | ⚠️     |
-| Edge    | ✅      | ✅     |
+| Browser | Desktop    | Mobile |
+| ------- | ---------- | ------ |
+| Chrome  | ✅         | ✅     |
+| Firefox | ⚠️ (no SW) | ⚠️     |
+| Safari  | ⚠️         | ⚠️     |
+| Edge    | ✅         | ✅     |
 
 Note: Service workers may not work in all browsers during development.
 
@@ -306,16 +329,19 @@ Note: Service workers may not work in all browsers during development.
 ## CI/CD Configuration
 
 ### PR Checks (Fast)
+
 ```yaml
 - npx playwright test --project=smoke
 ```
 
 ### Merge to Main (Full)
+
 ```yaml
 - npx playwright test
 ```
 
 ### Nightly (Comprehensive)
+
 ```yaml
 - npx playwright test --grep @slow
 ```

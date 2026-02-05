@@ -1,8 +1,8 @@
 /**
  * CalculationService Unit Tests
- * 
+ *
  * Tests for Battle Value (BV), heat profile, and cost calculations.
- * 
+ *
  * Note: These tests focus on BV formula calculations without requiring
  * the equipment registry to be initialized. Equipment-dependent tests
  * are integration tests that require the full loader to be available.
@@ -10,13 +10,13 @@
 
 import { CalculationService } from '@/services/construction/CalculationService';
 import { IEditableMech } from '@/services/construction/MechBuilderService';
-import { TechBase } from '@/types/enums/TechBase';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { TechBase } from '@/types/enums/TechBase';
 import {
   calculateTMM,
   getDefensiveSpeedFactor,
@@ -32,7 +32,9 @@ describe('CalculationService', () => {
 
   describe('calculateBattleValue', () => {
     // Base mech configuration for a 75-ton mech (similar to Marauder C)
-    const createBaseMech = (overrides: Partial<IEditableMech> = {}): IEditableMech => ({
+    const createBaseMech = (
+      overrides: Partial<IEditableMech> = {},
+    ): IEditableMech => ({
       id: 'test-mech',
       chassis: 'Test',
       variant: 'T',
@@ -68,7 +70,7 @@ describe('CalculationService', () => {
     it('should calculate defensive BV from armor, structure, and gyro', () => {
       const mech = createBaseMech({ equipment: [] });
       const bv = service.calculateBattleValue(mech);
-      
+
       // Total armor: 214 points
       // Armor BV: 214 × 2.5 = 535
       // Structure BV: 114 × 1.5 = 171 (75-ton mech)
@@ -76,12 +78,12 @@ describe('CalculationService', () => {
       // Defensive base: 743.5
       // Defensive speed factor (TMM 2): 1.2
       // Defensive BV: 743.5 × 1.2 = 892.2
-      // 
+      //
       // Offensive BV (weight bonus only, no equipment registry):
       // Weight: 75
       // Offensive speed factor: 1.12
       // Offensive BV: 75 × 1.12 = 84
-      // 
+      //
       // Total: 892.2 + 84 = 976.2 → 976
       // But without equipment registry, only weight bonus is included: 892
       expect(bv).toBeGreaterThan(800); // Defensive BV from armor + structure + gyro
@@ -156,7 +158,7 @@ describe('CalculationService', () => {
       // Assault mech should have higher defensive BV due to more armor/structure/tonnage
       expect(bvAssault).toBeGreaterThan(bvLight);
     });
-    
+
     it('should include gyro BV based on tonnage', () => {
       // Compare two mechs with same armor but different tonnage
       const lightMech = createBaseMech({
@@ -211,10 +213,10 @@ describe('CalculationService', () => {
   describe('TMM and Speed Factor', () => {
     it('should calculate TMM correctly for various movement profiles', () => {
       // Test various movement profiles
-      expect(calculateTMM(2, 0)).toBe(0);  // 0-2 hexes = TMM 0
-      expect(calculateTMM(4, 0)).toBe(1);  // 3-4 hexes = TMM 1
-      expect(calculateTMM(6, 0)).toBe(2);  // 5-6 hexes = TMM 2
-      expect(calculateTMM(8, 0)).toBe(3);  // 7-9 hexes = TMM 3
+      expect(calculateTMM(2, 0)).toBe(0); // 0-2 hexes = TMM 0
+      expect(calculateTMM(4, 0)).toBe(1); // 3-4 hexes = TMM 1
+      expect(calculateTMM(6, 0)).toBe(2); // 5-6 hexes = TMM 2
+      expect(calculateTMM(8, 0)).toBe(3); // 7-9 hexes = TMM 3
       expect(calculateTMM(12, 0)).toBe(4); // 10-17 hexes = TMM 4
       expect(calculateTMM(20, 0)).toBe(5); // 18-24 hexes = TMM 5
       expect(calculateTMM(30, 0)).toBe(6); // 25+ hexes = TMM 6
@@ -224,21 +226,21 @@ describe('CalculationService', () => {
       // Jump 8 is better than run 6, so TMM should be based on jump
       expect(calculateTMM(6, 8)).toBe(3); // Jump 8 = TMM 3
     });
-    
+
     it('should return correct defensive speed factors', () => {
       // Defensive speed factors per MegaMekLab
-      expect(getDefensiveSpeedFactor(2, 0)).toBe(1.0);  // TMM 0
-      expect(getDefensiveSpeedFactor(4, 0)).toBe(1.1);  // TMM 1
-      expect(getDefensiveSpeedFactor(6, 0)).toBe(1.2);  // TMM 2
-      expect(getDefensiveSpeedFactor(8, 0)).toBe(1.3);  // TMM 3
+      expect(getDefensiveSpeedFactor(2, 0)).toBe(1.0); // TMM 0
+      expect(getDefensiveSpeedFactor(4, 0)).toBe(1.1); // TMM 1
+      expect(getDefensiveSpeedFactor(6, 0)).toBe(1.2); // TMM 2
+      expect(getDefensiveSpeedFactor(8, 0)).toBe(1.3); // TMM 3
     });
-    
+
     it('should return correct offensive speed factors', () => {
       // Offensive speed factors per MegaMekLab (slightly lower than defensive)
-      expect(getOffensiveSpeedFactor(2, 0)).toBe(1.0);   // TMM 0
-      expect(getOffensiveSpeedFactor(4, 0)).toBe(1.06);  // TMM 1
-      expect(getOffensiveSpeedFactor(6, 0)).toBe(1.12);  // TMM 2
-      expect(getOffensiveSpeedFactor(8, 0)).toBe(1.18);  // TMM 3
+      expect(getOffensiveSpeedFactor(2, 0)).toBe(1.0); // TMM 0
+      expect(getOffensiveSpeedFactor(4, 0)).toBe(1.06); // TMM 1
+      expect(getOffensiveSpeedFactor(6, 0)).toBe(1.12); // TMM 2
+      expect(getOffensiveSpeedFactor(8, 0)).toBe(1.18); // TMM 3
     });
   });
 
@@ -258,9 +260,17 @@ describe('CalculationService', () => {
         cockpitType: CockpitType.STANDARD,
         armorType: ArmorTypeEnum.STANDARD,
         armorAllocation: {
-          head: 0, centerTorso: 0, centerTorsoRear: 0,
-          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
-          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+          head: 0,
+          centerTorso: 0,
+          centerTorsoRear: 0,
+          leftTorso: 0,
+          leftTorsoRear: 0,
+          rightTorso: 0,
+          rightTorsoRear: 0,
+          leftArm: 0,
+          rightArm: 0,
+          leftLeg: 0,
+          rightLeg: 0,
         },
         heatSinkType: HeatSinkType.SINGLE,
         heatSinkCount: 10,
@@ -269,7 +279,7 @@ describe('CalculationService', () => {
       } as IEditableMech;
 
       const profile = service.calculateHeatProfile(mech);
-      
+
       // Single heat sinks: 10 × 1 = 10 dissipation
       expect(profile.heatDissipated).toBe(10);
     });
@@ -289,9 +299,17 @@ describe('CalculationService', () => {
         cockpitType: CockpitType.STANDARD,
         armorType: ArmorTypeEnum.STANDARD,
         armorAllocation: {
-          head: 0, centerTorso: 0, centerTorsoRear: 0,
-          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
-          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+          head: 0,
+          centerTorso: 0,
+          centerTorsoRear: 0,
+          leftTorso: 0,
+          leftTorsoRear: 0,
+          rightTorso: 0,
+          rightTorsoRear: 0,
+          leftArm: 0,
+          rightArm: 0,
+          leftLeg: 0,
+          rightLeg: 0,
         },
         heatSinkType: HeatSinkType.DOUBLE_IS,
         heatSinkCount: 10,
@@ -320,9 +338,17 @@ describe('CalculationService', () => {
         cockpitType: CockpitType.STANDARD,
         armorType: ArmorTypeEnum.STANDARD,
         armorAllocation: {
-          head: 0, centerTorso: 0, centerTorsoRear: 0,
-          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
-          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+          head: 0,
+          centerTorso: 0,
+          centerTorsoRear: 0,
+          leftTorso: 0,
+          leftTorsoRear: 0,
+          rightTorso: 0,
+          rightTorsoRear: 0,
+          leftArm: 0,
+          rightArm: 0,
+          leftLeg: 0,
+          rightLeg: 0,
         },
         heatSinkType: HeatSinkType.SINGLE,
         heatSinkCount: 10,
@@ -331,7 +357,7 @@ describe('CalculationService', () => {
       } as IEditableMech;
 
       const profile = service.calculateHeatProfile(mech);
-      
+
       expect(profile.heatGenerated).toBe(2);
       expect(profile.heatDissipated).toBe(10);
       expect(profile.netHeat).toBe(-8);
@@ -352,9 +378,17 @@ describe('CalculationService', () => {
         cockpitType: CockpitType.STANDARD,
         armorType: ArmorTypeEnum.STANDARD,
         armorAllocation: {
-          head: 0, centerTorso: 0, centerTorsoRear: 0,
-          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
-          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+          head: 0,
+          centerTorso: 0,
+          centerTorsoRear: 0,
+          leftTorso: 0,
+          leftTorsoRear: 0,
+          rightTorso: 0,
+          rightTorsoRear: 0,
+          leftArm: 0,
+          rightArm: 0,
+          leftLeg: 0,
+          rightLeg: 0,
         },
         heatSinkType: HeatSinkType.SINGLE,
         heatSinkCount: 10,
@@ -366,7 +400,7 @@ describe('CalculationService', () => {
       } as IEditableMech;
 
       const profile = service.calculateHeatProfile(mech);
-      
+
       expect(profile.heatGenerated).toBe(2);
     });
 
@@ -385,9 +419,17 @@ describe('CalculationService', () => {
         cockpitType: CockpitType.STANDARD,
         armorType: ArmorTypeEnum.STANDARD,
         armorAllocation: {
-          head: 0, centerTorso: 0, centerTorsoRear: 0,
-          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
-          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+          head: 0,
+          centerTorso: 0,
+          centerTorsoRear: 0,
+          leftTorso: 0,
+          leftTorsoRear: 0,
+          rightTorso: 0,
+          rightTorsoRear: 0,
+          leftArm: 0,
+          rightArm: 0,
+          leftLeg: 0,
+          rightLeg: 0,
         },
         heatSinkType: HeatSinkType.SINGLE,
         heatSinkCount: 10,
@@ -401,7 +443,7 @@ describe('CalculationService', () => {
       } as IEditableMech;
 
       const profile = service.calculateHeatProfile(mech);
-      
+
       expect(profile.heatGenerated).toBe(4);
     });
 
@@ -420,9 +462,17 @@ describe('CalculationService', () => {
         cockpitType: CockpitType.STANDARD,
         armorType: ArmorTypeEnum.STANDARD,
         armorAllocation: {
-          head: 0, centerTorso: 0, centerTorsoRear: 0,
-          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
-          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+          head: 0,
+          centerTorso: 0,
+          centerTorsoRear: 0,
+          leftTorso: 0,
+          leftTorsoRear: 0,
+          rightTorso: 0,
+          rightTorsoRear: 0,
+          leftArm: 0,
+          rightArm: 0,
+          leftLeg: 0,
+          rightLeg: 0,
         },
         heatSinkType: HeatSinkType.SINGLE,
         heatSinkCount: 10,
@@ -437,7 +487,7 @@ describe('CalculationService', () => {
       } as IEditableMech;
 
       const profile = service.calculateHeatProfile(mech);
-      
+
       expect(profile.heatGenerated).toBe(5);
       expect(profile.alphaStrikeHeat).toBe(0);
     });
@@ -457,9 +507,17 @@ describe('CalculationService', () => {
         cockpitType: CockpitType.STANDARD,
         armorType: ArmorTypeEnum.STANDARD,
         armorAllocation: {
-          head: 0, centerTorso: 0, centerTorsoRear: 0,
-          leftTorso: 0, leftTorsoRear: 0, rightTorso: 0, rightTorsoRear: 0,
-          leftArm: 0, rightArm: 0, leftLeg: 0, rightLeg: 0,
+          head: 0,
+          centerTorso: 0,
+          centerTorsoRear: 0,
+          leftTorso: 0,
+          leftTorsoRear: 0,
+          rightTorso: 0,
+          rightTorsoRear: 0,
+          leftArm: 0,
+          rightArm: 0,
+          leftLeg: 0,
+          rightLeg: 0,
         },
         heatSinkType: HeatSinkType.DOUBLE_IS,
         heatSinkCount: 12,
@@ -468,7 +526,7 @@ describe('CalculationService', () => {
       } as IEditableMech;
 
       const profile = service.calculateHeatProfile(mech);
-      
+
       expect(profile.alphaStrikeHeat).toBe(0);
       expect(profile.heatGenerated).toBe(2);
       expect(profile.heatDissipated).toBe(24);
@@ -479,14 +537,14 @@ describe('CalculationService', () => {
   describe('Marauder C BV Calculation (MegaMekLab Reference)', () => {
     /**
      * MegaMekLab BV Breakdown for Marauder C:
-     * 
+     *
      * Defensive BV:
      *   Armor: 184 × 2.5 = 460
      *   Structure: 114 × 1.5 = 171
      *   Gyro: 75 × 0.5 = 37.5
      *   Defensive Speed Factor (TMM 2): 1.2
      *   Defensive BV: (460 + 171 + 37.5) × 1.2 = 802.2
-     * 
+     *
      * Offensive BV:
      *   Heat Efficiency: 6 + 19 - 2 (Run) = 23 available for weapons
      *   Weapons (sorted by BV, with incremental heat tracking):
@@ -499,10 +557,10 @@ describe('CalculationService', () => {
      *   Weight Bonus: 75
      *   Offensive Speed Factor (TMM 2): 1.12
      *   Offensive BV: (721 + 15 + 75) × 1.12 = 908.32
-     * 
+     *
      * Total BV: 802.2 + 908.32 = 1710.52 → 1711
      */
-    
+
     const createMarauderC = (): IEditableMech => ({
       id: 'marauder-c',
       chassis: 'Marauder',
@@ -527,15 +585,23 @@ describe('CalculationService', () => {
         rightTorsoRear: 8,
         leftArm: 24,
         rightArm: 24,
-        leftLeg: 9,   // Reduced to match 184 total
-        rightLeg: 9,  // Reduced to match 184 total
+        leftLeg: 9, // Reduced to match 184 total
+        rightLeg: 9, // Reduced to match 184 total
       },
       heatSinkType: HeatSinkType.SINGLE,
       heatSinkCount: 19,
       equipment: [
-        { equipmentId: 'clan-large-pulse-laser', location: 'LEFT_ARM', slotIndex: 0 },
+        {
+          equipmentId: 'clan-large-pulse-laser',
+          location: 'LEFT_ARM',
+          slotIndex: 0,
+        },
         { equipmentId: 'medium-laser', location: 'LEFT_ARM', slotIndex: 2 },
-        { equipmentId: 'clan-large-pulse-laser', location: 'RIGHT_ARM', slotIndex: 0 },
+        {
+          equipmentId: 'clan-large-pulse-laser',
+          location: 'RIGHT_ARM',
+          slotIndex: 0,
+        },
         { equipmentId: 'medium-laser', location: 'RIGHT_ARM', slotIndex: 2 },
         { equipmentId: 'clan-uac-5', location: 'RIGHT_TORSO', slotIndex: 0 },
         { equipmentId: 'uac-5-ammo', location: 'LEFT_TORSO', slotIndex: 0 },
@@ -549,19 +615,19 @@ describe('CalculationService', () => {
         equipment: [], // No weapons/ammo
       };
       const bv = service.calculateBattleValue(mechNoEquipment);
-      
+
       // Defensive BV only (no weapons):
       // Armor: 184 × 2.5 = 460
       // Structure: 114 × 1.5 = 171
       // Gyro: 75 × 0.5 = 37.5
       // Defensive speed factor (TMM 2): 1.2
       // Defensive BV: 668.5 × 1.2 = 802.2
-      // 
+      //
       // Offensive BV (weight bonus only, no weapons):
       // Weight: 75
       // Offensive speed factor: 1.12
       // Offensive BV: 75 × 1.12 = 84
-      // 
+      //
       // Total: 802.2 + 84 = 886.2 → 886
       expect(bv).toBe(886);
     });
@@ -570,7 +636,7 @@ describe('CalculationService', () => {
       // Run 6 MP = TMM 2
       const tmm = calculateTMM(6, 0);
       expect(tmm).toBe(2);
-      
+
       // Defensive speed factor for TMM 2 should be 1.2
       const defensiveFactor = getDefensiveSpeedFactor(6, 0);
       expect(defensiveFactor).toBe(1.2);
@@ -585,7 +651,7 @@ describe('CalculationService', () => {
     it('should calculate heat dissipation correctly', () => {
       const mech = createMarauderC();
       const heatProfile = service.calculateHeatProfile(mech);
-      
+
       // 19 single heat sinks = 19 dissipation
       expect(heatProfile.heatDissipated).toBe(19);
     });
@@ -593,14 +659,19 @@ describe('CalculationService', () => {
     it('should verify armor points sum to 184', () => {
       const mech = createMarauderC();
       const a = mech.armorAllocation;
-      const totalArmor = 
+      const totalArmor =
         a.head +
-        a.centerTorso + a.centerTorsoRear +
-        a.leftTorso + a.leftTorsoRear +
-        a.rightTorso + a.rightTorsoRear +
-        a.leftArm + a.rightArm +
-        a.leftLeg + a.rightLeg;
-      
+        a.centerTorso +
+        a.centerTorsoRear +
+        a.leftTorso +
+        a.leftTorsoRear +
+        a.rightTorso +
+        a.rightTorsoRear +
+        a.leftArm +
+        a.rightArm +
+        a.leftLeg +
+        a.rightLeg;
+
       expect(totalArmor).toBe(184);
     });
   });
@@ -640,7 +711,7 @@ describe('CalculationService', () => {
       const gyroBV = 75 * 0.5;
       const base = armorBV + structureBV + gyroBV;
       const defensiveBV = base * 1.2;
-      
+
       expect(base).toBe(668.5);
       expect(defensiveBV).toBeCloseTo(802.2, 1);
     });

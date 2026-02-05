@@ -50,7 +50,13 @@ export interface IConditionEffect {
 /**
  * Light level options for scenario generation.
  */
-const LIGHT_LEVELS = ['daylight', 'dusk', 'full_moon', 'moonless', 'pitch_black'] as const;
+const LIGHT_LEVELS = [
+  'daylight',
+  'dusk',
+  'full_moon',
+  'moonless',
+  'pitch_black',
+] as const;
 
 /**
  * Weather options for scenario generation.
@@ -68,7 +74,13 @@ const WEATHER_TYPES = [
 /**
  * Atmosphere options for scenario generation.
  */
-const ATMOSPHERE_TYPES = ['standard', 'thin', 'dense', 'toxic', 'tainted'] as const;
+const ATMOSPHERE_TYPES = [
+  'standard',
+  'thin',
+  'dense',
+  'toxic',
+  'tainted',
+] as const;
 
 /**
  * Generate random scenario conditions.
@@ -90,7 +102,9 @@ const ATMOSPHERE_TYPES = ['standard', 'thin', 'dense', 'toxic', 'tainted'] as co
  * console.log(conditions.gravity); // 0.8
  * console.log(conditions.atmosphere); // 'toxic'
  */
-export function generateRandomConditions(random: RandomFn): IScenarioConditions {
+export function generateRandomConditions(
+  random: RandomFn,
+): IScenarioConditions {
   // Select light level (5 options)
   const lightIndex = Math.floor(random() * LIGHT_LEVELS.length);
   const light = LIGHT_LEVELS[lightIndex];
@@ -104,7 +118,7 @@ export function generateRandomConditions(random: RandomFn): IScenarioConditions 
   const gravity = random() * gravityRange + 0.2;
 
   // Generate temperature (-30 to +50 range)
-  const tempRange = 50 - (-30);
+  const tempRange = 50 - -30;
   const temperature = Math.floor(random() * tempRange - 30);
 
   // Select atmosphere (5 options)
@@ -149,7 +163,9 @@ export function generateRandomConditions(random: RandomFn): IScenarioConditions 
  * console.log(effects.description);
  * // "Low gravity restricts tanks. Toxic atmosphere restricts infantry and tanks. "
  */
-export function getConditionEffects(conditions: IScenarioConditions): IConditionEffect {
+export function getConditionEffects(
+  conditions: IScenarioConditions,
+): IConditionEffect {
   let noTanks = false;
   let noConvInfantry = false;
   const noBattleArmor = false;

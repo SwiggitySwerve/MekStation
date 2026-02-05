@@ -4,10 +4,8 @@
  */
 import Link from 'next/link';
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { TechBase } from '@/types/enums/TechBase';
-import { WeightClass } from '@/types/enums/WeightClass';
-import { RulesLevel, ALL_RULES_LEVELS } from '@/types/enums/RulesLevel';
-import { IUnitEntry } from '@/types/pages';
+
+import { CompendiumLayout } from '@/components/compendium';
 import {
   PageLoading,
   PageError,
@@ -19,7 +17,10 @@ import {
   TechBaseBadge,
   WeightClassBadge,
 } from '@/components/ui';
-import { CompendiumLayout } from '@/components/compendium';
+import { RulesLevel, ALL_RULES_LEVELS } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { WeightClass } from '@/types/enums/WeightClass';
+import { IUnitEntry } from '@/types/pages';
 
 interface FilterState {
   search: string;
@@ -34,7 +35,17 @@ interface FilterState {
   bvMax: string;
 }
 
-type SortColumn = 'chassis' | 'variant' | 'tonnage' | 'year' | 'weightClass' | 'techBase' | 'unitType' | 'rulesLevel' | 'cost' | 'bv';
+type SortColumn =
+  | 'chassis'
+  | 'variant'
+  | 'tonnage'
+  | 'year'
+  | 'weightClass'
+  | 'techBase'
+  | 'unitType'
+  | 'rulesLevel'
+  | 'cost'
+  | 'bv';
 type SortDirection = 'asc' | 'desc';
 
 interface SortState {
@@ -78,12 +89,12 @@ const TECH_BASE_OPTIONS = [
 
 const WEIGHT_CLASS_OPTIONS = [
   { value: '', label: 'All Classes' },
-  ...Object.values(WeightClass).map(wc => ({ value: wc, label: wc })),
+  ...Object.values(WeightClass).map((wc) => ({ value: wc, label: wc })),
 ];
 
 const RULES_LEVEL_OPTIONS = [
   { value: '', label: 'All Levels' },
-  ...ALL_RULES_LEVELS.map(rl => ({ value: rl, label: rl })),
+  ...ALL_RULES_LEVELS.map((rl) => ({ value: rl, label: rl })),
 ];
 
 export default function CanonicalUnitsListPage(): React.ReactElement {
@@ -115,8 +126,12 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
     async function fetchUnits() {
       try {
         const response = await fetch('/api/catalog');
-        const data = await response.json() as { success: boolean; data?: IUnitEntry[]; error?: string };
-        
+        const data = (await response.json()) as {
+          success: boolean;
+          data?: IUnitEntry[];
+          error?: string;
+        };
+
         if (data.success) {
           setUnits(data.data || []);
           setFilteredUnits(data.data || []);
@@ -140,39 +155,42 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
     // Text search
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
-      result = result.filter(unit =>
-        unit.name.toLowerCase().includes(searchLower) ||
-        unit.chassis.toLowerCase().includes(searchLower) ||
-        unit.variant.toLowerCase().includes(searchLower)
+      result = result.filter(
+        (unit) =>
+          unit.name.toLowerCase().includes(searchLower) ||
+          unit.chassis.toLowerCase().includes(searchLower) ||
+          unit.variant.toLowerCase().includes(searchLower),
       );
     }
 
     // Tech base filter
     if (filters.techBase) {
-      result = result.filter(unit => unit.techBase === filters.techBase);
+      result = result.filter((unit) => unit.techBase === filters.techBase);
     }
 
     // Weight class filter
     if (filters.weightClass) {
-      result = result.filter(unit => unit.weightClass === filters.weightClass);
+      result = result.filter(
+        (unit) => unit.weightClass === filters.weightClass,
+      );
     }
 
     // Rules level filter
     if (filters.rulesLevel) {
-      result = result.filter(unit => unit.rulesLevel === filters.rulesLevel);
+      result = result.filter((unit) => unit.rulesLevel === filters.rulesLevel);
     }
 
     // Year range filter
     if (filters.yearMin) {
       const minYear = parseInt(filters.yearMin, 10);
       if (!isNaN(minYear)) {
-        result = result.filter(unit => (unit.year ?? 0) >= minYear);
+        result = result.filter((unit) => (unit.year ?? 0) >= minYear);
       }
     }
     if (filters.yearMax) {
       const maxYear = parseInt(filters.yearMax, 10);
       if (!isNaN(maxYear)) {
-        result = result.filter(unit => (unit.year ?? 9999) <= maxYear);
+        result = result.filter((unit) => (unit.year ?? 9999) <= maxYear);
       }
     }
 
@@ -180,13 +198,13 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
     if (filters.tonnageMin) {
       const minTon = parseInt(filters.tonnageMin, 10);
       if (!isNaN(minTon)) {
-        result = result.filter(unit => unit.tonnage >= minTon);
+        result = result.filter((unit) => unit.tonnage >= minTon);
       }
     }
     if (filters.tonnageMax) {
       const maxTon = parseInt(filters.tonnageMax, 10);
       if (!isNaN(maxTon)) {
-        result = result.filter(unit => unit.tonnage <= maxTon);
+        result = result.filter((unit) => unit.tonnage <= maxTon);
       }
     }
 
@@ -194,13 +212,13 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
     if (filters.bvMin) {
       const minBV = parseInt(filters.bvMin, 10);
       if (!isNaN(minBV)) {
-        result = result.filter(unit => (unit.bv ?? 0) >= minBV);
+        result = result.filter((unit) => (unit.bv ?? 0) >= minBV);
       }
     }
     if (filters.bvMax) {
       const maxBV = parseInt(filters.bvMax, 10);
       if (!isNaN(maxBV)) {
-        result = result.filter(unit => (unit.bv ?? 99999) <= maxBV);
+        result = result.filter((unit) => (unit.bv ?? 99999) <= maxBV);
       }
     }
 
@@ -277,9 +295,10 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
 
   // Handle sort column click
   const handleSort = (column: SortColumn) => {
-    setSort(prev => ({
+    setSort((prev) => ({
       column,
-      direction: prev.column === column && prev.direction === 'asc' ? 'desc' : 'asc',
+      direction:
+        prev.column === column && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
     setCurrentPage(1);
   };
@@ -287,10 +306,13 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
   // Pagination
   const totalPages = Math.ceil(sortedUnits.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const displayedUnits = sortedUnits.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const displayedUnits = sortedUnits.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE,
+  );
 
   const handleFilterChange = (key: keyof FilterState, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const clearFilters = () => {
@@ -310,9 +332,12 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
 
   // Check if any advanced filters are active
   const hasAdvancedFilters = Boolean(
-    filters.yearMin || filters.yearMax ||
-    filters.tonnageMin || filters.tonnageMax ||
-    filters.bvMin || filters.bvMax
+    filters.yearMin ||
+    filters.yearMax ||
+    filters.tonnageMin ||
+    filters.tonnageMax ||
+    filters.bvMin ||
+    filters.bvMax,
   );
 
   if (loading) {
@@ -340,7 +365,7 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
       {/* Filters */}
       <Card className="mb-6">
         {/* Primary Filters Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
           <div className="lg:col-span-2">
             <Input
               type="text"
@@ -381,7 +406,11 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
               {showAdvancedFilters ? '▼' : '▶'} Filters
               {hasAdvancedFilters && ' •'}
             </Button>
-            <Button variant="secondary" onClick={clearFilters} className="text-xs px-3">
+            <Button
+              variant="secondary"
+              onClick={clearFilters}
+              className="px-3 text-xs"
+            >
               Clear
             </Button>
           </div>
@@ -389,11 +418,11 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
 
         {/* Advanced Filters Panel */}
         {showAdvancedFilters && (
-          <div className="mt-4 pt-4 border-t border-border-theme-subtle">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="border-border-theme-subtle mt-4 border-t pt-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {/* Year Range */}
               <div>
-                <label className="block text-xs text-text-theme-secondary mb-1.5 uppercase tracking-wide">
+                <label className="text-text-theme-secondary mb-1.5 block text-xs tracking-wide uppercase">
                   Design Year
                 </label>
                 <div className="flex items-center gap-2">
@@ -401,7 +430,9 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
                     type="number"
                     placeholder="Min"
                     value={filters.yearMin}
-                    onChange={(e) => handleFilterChange('yearMin', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange('yearMin', e.target.value)
+                    }
                     className="text-center text-sm"
                     min={2000}
                     max={3150}
@@ -411,7 +442,9 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
                     type="number"
                     placeholder="Max"
                     value={filters.yearMax}
-                    onChange={(e) => handleFilterChange('yearMax', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange('yearMax', e.target.value)
+                    }
                     className="text-center text-sm"
                     min={2000}
                     max={3150}
@@ -421,7 +454,7 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
 
               {/* Tonnage Range */}
               <div>
-                <label className="block text-xs text-text-theme-secondary mb-1.5 uppercase tracking-wide">
+                <label className="text-text-theme-secondary mb-1.5 block text-xs tracking-wide uppercase">
                   Tonnage
                 </label>
                 <div className="flex items-center gap-2">
@@ -429,7 +462,9 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
                     type="number"
                     placeholder="Min"
                     value={filters.tonnageMin}
-                    onChange={(e) => handleFilterChange('tonnageMin', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange('tonnageMin', e.target.value)
+                    }
                     className="text-center text-sm"
                     min={10}
                     max={200}
@@ -440,7 +475,9 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
                     type="number"
                     placeholder="Max"
                     value={filters.tonnageMax}
-                    onChange={(e) => handleFilterChange('tonnageMax', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange('tonnageMax', e.target.value)
+                    }
                     className="text-center text-sm"
                     min={10}
                     max={200}
@@ -451,7 +488,7 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
 
               {/* BV Range */}
               <div>
-                <label className="block text-xs text-text-theme-secondary mb-1.5 uppercase tracking-wide">
+                <label className="text-text-theme-secondary mb-1.5 block text-xs tracking-wide uppercase">
                   Battle Value
                 </label>
                 <div className="flex items-center gap-2">
@@ -459,7 +496,9 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
                     type="number"
                     placeholder="Min"
                     value={filters.bvMin}
-                    onChange={(e) => handleFilterChange('bvMin', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange('bvMin', e.target.value)
+                    }
                     className="text-center text-sm"
                     min={0}
                     max={5000}
@@ -470,7 +509,9 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
                     type="number"
                     placeholder="Max"
                     value={filters.bvMax}
-                    onChange={(e) => handleFilterChange('bvMax', e.target.value)}
+                    onChange={(e) =>
+                      handleFilterChange('bvMax', e.target.value)
+                    }
                     className="text-center text-sm"
                     min={0}
                     max={5000}
@@ -483,7 +524,7 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
         )}
 
         {/* Results Count */}
-        <div className="mt-4 flex items-center justify-between text-sm text-text-theme-secondary">
+        <div className="text-text-theme-secondary mt-4 flex items-center justify-between text-sm">
           <div>
             Showing {displayedUnits.length} of {filteredUnits.length} results
             {filteredUnits.length !== units.length && (
@@ -493,19 +534,19 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
             )}
           </div>
           {hasAdvancedFilters && (
-            <div className="text-xs text-accent/70">
+            <div className="text-accent/70 text-xs">
               Advanced filters active
             </div>
           )}
         </div>
       </Card>
 
-       {/* Units Table - Compact */}
-       <Card variant="dark" className="overflow-hidden pb-20">
-         <div className="overflow-x-auto">
+      {/* Units Table - Compact */}
+      <Card variant="dark" className="overflow-hidden pb-20">
+        <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px]">
             <thead className="bg-surface-base">
-              <tr className="text-left text-text-theme-secondary text-xs uppercase tracking-wide">
+              <tr className="text-text-theme-secondary text-left text-xs tracking-wide uppercase">
                 <SortableHeader
                   label="Chassis"
                   column="chassis"
@@ -586,10 +627,13 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
                 />
               </tr>
             </thead>
-            <tbody className="divide-y divide-border-theme-subtle/50">
+            <tbody className="divide-border-theme-subtle/50 divide-y">
               {displayedUnits.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-3 py-8 text-center text-text-theme-secondary">
+                  <td
+                    colSpan={10}
+                    className="text-text-theme-secondary px-3 py-8 text-center"
+                  >
                     No units found matching your filters
                   </td>
                 </tr>
@@ -600,19 +644,22 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
                     className="hover:bg-surface-raised/30 transition-colors"
                   >
                     <td className="px-3 py-2">
-                      <Link href={`/compendium/units/${unit.id}`} className="group">
-                        <span className="font-medium text-sm text-text-theme-primary group-hover:text-accent transition-colors whitespace-nowrap">
+                      <Link
+                        href={`/compendium/units/${unit.id}`}
+                        className="group"
+                      >
+                        <span className="text-text-theme-primary group-hover:text-accent text-sm font-medium whitespace-nowrap transition-colors">
                           {unit.chassis}
                         </span>
                       </Link>
                     </td>
-                    <td className="px-3 py-2 text-text-theme-primary/80 text-sm whitespace-nowrap">
+                    <td className="text-text-theme-primary/80 px-3 py-2 text-sm whitespace-nowrap">
                       {unit.variant}
                     </td>
-                    <td className="px-3 py-2 text-text-theme-primary/80 font-mono text-sm text-right">
+                    <td className="text-text-theme-primary/80 px-3 py-2 text-right font-mono text-sm">
                       {unit.tonnage} t
                     </td>
-                    <td className="px-3 py-2 text-text-theme-secondary font-mono text-sm text-right">
+                    <td className="text-text-theme-secondary px-3 py-2 text-right font-mono text-sm">
                       {unit.year ?? '—'}
                     </td>
                     <td className="px-3 py-2">
@@ -621,16 +668,20 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
                     <td className="px-3 py-2">
                       <TechBaseBadge techBase={unit.techBase} />
                     </td>
-                    <td className="px-3 py-2 text-text-theme-secondary text-sm whitespace-nowrap">
+                    <td className="text-text-theme-secondary px-3 py-2 text-sm whitespace-nowrap">
                       {unit.unitType === 'BattleMech' ? 'Mek' : unit.unitType}
                     </td>
-                    <td className="px-3 py-2 text-text-theme-secondary text-xs font-mono whitespace-nowrap">
-                      {RULES_LEVEL_LABELS[unit.rulesLevel ?? ''] ?? unit.rulesLevel ?? '—'}
+                    <td className="text-text-theme-secondary px-3 py-2 font-mono text-xs whitespace-nowrap">
+                      {RULES_LEVEL_LABELS[unit.rulesLevel ?? ''] ??
+                        unit.rulesLevel ??
+                        '—'}
                     </td>
-                    <td className="px-3 py-2 text-text-theme-primary/80 text-xs font-mono text-right whitespace-nowrap">
-                      {unit.cost ? `${(unit.cost / 1000000).toPrecision(3)}M` : '—'}
+                    <td className="text-text-theme-primary/80 px-3 py-2 text-right font-mono text-xs whitespace-nowrap">
+                      {unit.cost
+                        ? `${(unit.cost / 1000000).toPrecision(3)}M`
+                        : '—'}
                     </td>
-                    <td className="px-3 py-2 text-accent text-xs font-mono text-right whitespace-nowrap font-medium">
+                    <td className="text-accent px-3 py-2 text-right font-mono text-xs font-medium whitespace-nowrap">
                       {unit.bv?.toLocaleString() ?? '—'}
                     </td>
                   </tr>
@@ -643,7 +694,7 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center mt-6">
+        <div className="mt-6 flex justify-center">
           <PaginationButtons
             currentPage={currentPage}
             totalPages={totalPages}
@@ -678,10 +729,12 @@ function SortableHeader({
 
   return (
     <th
-      className={`px-3 py-2 font-medium cursor-pointer hover:text-text-theme-primary transition-colors select-none ${className}`}
+      className={`hover:text-text-theme-primary cursor-pointer px-3 py-2 font-medium transition-colors select-none ${className}`}
       onClick={() => onSort(column)}
     >
-      <span className={`flex items-center gap-1 ${isRightAligned ? 'justify-end' : ''}`}>
+      <span
+        className={`flex items-center gap-1 ${isRightAligned ? 'justify-end' : ''}`}
+      >
         {label}
         {isActive && (
           <span className="text-accent text-[10px]">

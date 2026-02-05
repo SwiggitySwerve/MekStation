@@ -1,14 +1,19 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
-import { CampaignType } from '@/types/campaign/CampaignType';
-import { IPerson } from '@/types/campaign/Person';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+
 import {
   AutoAwardCategory,
   createDefaultAutoAwardConfig,
 } from '@/types/campaign/awards/autoAwardTypes';
+import {
+  ICampaign,
+  createDefaultCampaignOptions,
+} from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
+import { IPerson } from '@/types/campaign/Person';
+
 import { processAutoAwards, getEligiblePersonnel } from '../autoAwardEngine';
 
 function createTestCampaign(overrides?: Partial<ICampaign>): ICampaign {
@@ -91,7 +96,10 @@ describe('autoAwardEngine', () => {
     });
 
     it('returns empty array when enableAutoAwards is false', () => {
-      const config = { ...createDefaultAutoAwardConfig(), enableAutoAwards: false };
+      const config = {
+        ...createDefaultAutoAwardConfig(),
+        enableAutoAwards: false,
+      };
       const campaignWithConfig = createTestCampaign({
         options: { ...campaign.options, autoAwardConfig: config },
       });
@@ -116,9 +124,11 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaign, 'manual');
 
-      const killEvents = events.filter(e => e.category === AutoAwardCategory.KILL);
+      const killEvents = events.filter(
+        (e) => e.category === AutoAwardCategory.KILL,
+      );
       expect(killEvents.length).toBeGreaterThan(0);
-      expect(killEvents.some(e => e.awardId === 'double-ace')).toBe(true);
+      expect(killEvents.some((e) => e.awardId === 'double-ace')).toBe(true);
     });
 
     it('does NOT grant kill award when kills below threshold', () => {
@@ -127,15 +137,20 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaign, 'manual');
 
-      const killEvents = events.filter(e => e.category === AutoAwardCategory.KILL);
-      expect(killEvents.some(e => e.awardId === 'double-ace')).toBe(false);
+      const killEvents = events.filter(
+        (e) => e.category === AutoAwardCategory.KILL,
+      );
+      expect(killEvents.some((e) => e.awardId === 'double-ace')).toBe(false);
     });
 
     it('only checks enabled categories', () => {
       const baseConfig = createDefaultAutoAwardConfig();
       const config = {
         ...baseConfig,
-        enabledCategories: { ...baseConfig.enabledCategories, [AutoAwardCategory.KILL]: false },
+        enabledCategories: {
+          ...baseConfig.enabledCategories,
+          [AutoAwardCategory.KILL]: false,
+        },
       };
       const campaignWithConfig = createTestCampaign({
         options: { ...campaign.options, autoAwardConfig: config },
@@ -146,7 +161,9 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaignWithConfig, 'manual');
 
-      const killEvents = events.filter(e => e.category === AutoAwardCategory.KILL);
+      const killEvents = events.filter(
+        (e) => e.category === AutoAwardCategory.KILL,
+      );
       expect(killEvents).toEqual([]);
     });
 
@@ -161,13 +178,18 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaignWithConfig, 'manual');
 
-      const killEvents = events.filter(e => e.category === AutoAwardCategory.KILL);
+      const killEvents = events.filter(
+        (e) => e.category === AutoAwardCategory.KILL,
+      );
       expect(killEvents.length).toBe(1);
       expect(killEvents[0].awardId).toBe('legend');
     });
 
     it('bestAwardOnly=false returns all qualifying awards', () => {
-      const config = { ...createDefaultAutoAwardConfig(), bestAwardOnly: false };
+      const config = {
+        ...createDefaultAutoAwardConfig(),
+        bestAwardOnly: false,
+      };
       const campaignWithConfig = createTestCampaign({
         options: { ...campaign.options, autoAwardConfig: config },
       });
@@ -177,10 +199,12 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaignWithConfig, 'manual');
 
-      const killEvents = events.filter(e => e.category === AutoAwardCategory.KILL);
+      const killEvents = events.filter(
+        (e) => e.category === AutoAwardCategory.KILL,
+      );
       expect(killEvents.length).toBeGreaterThan(1);
-      expect(killEvents.map(e => e.awardId)).toContain('first-blood');
-      expect(killEvents.map(e => e.awardId)).toContain('legend');
+      expect(killEvents.map((e) => e.awardId)).toContain('first-blood');
+      expect(killEvents.map((e) => e.awardId)).toContain('legend');
     });
 
     it('non-stackable awards NOT re-granted', () => {
@@ -197,7 +221,7 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaignWithConfig, 'manual');
 
-      const doubleAceEvents = events.filter(e => e.awardId === 'double-ace');
+      const doubleAceEvents = events.filter((e) => e.awardId === 'double-ace');
       expect(doubleAceEvents).toEqual([]);
     });
 
@@ -215,12 +239,17 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaignWithConfig, 'manual');
 
-      const killEvents = events.filter(e => e.category === AutoAwardCategory.KILL);
+      const killEvents = events.filter(
+        (e) => e.category === AutoAwardCategory.KILL,
+      );
       expect(killEvents.length).toBeGreaterThan(0);
     });
 
     it('dead personnel excluded when enablePosthumous=false', () => {
-      const config = { ...createDefaultAutoAwardConfig(), enablePosthumous: false };
+      const config = {
+        ...createDefaultAutoAwardConfig(),
+        enablePosthumous: false,
+      };
       const campaignWithConfig = createTestCampaign({
         options: { ...campaign.options, autoAwardConfig: config },
       });
@@ -237,7 +266,10 @@ describe('autoAwardEngine', () => {
     });
 
     it('dead personnel included when enablePosthumous=true', () => {
-      const config = { ...createDefaultAutoAwardConfig(), enablePosthumous: true };
+      const config = {
+        ...createDefaultAutoAwardConfig(),
+        enablePosthumous: true,
+      };
       const campaignWithConfig = createTestCampaign({
         options: { ...campaign.options, autoAwardConfig: config },
       });
@@ -279,8 +311,8 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaign, 'manual');
 
-      const person1Events = events.filter(e => e.personId === 'person-1');
-      const person2Events = events.filter(e => e.personId === 'person-2');
+      const person1Events = events.filter((e) => e.personId === 'person-1');
+      const person2Events = events.filter((e) => e.personId === 'person-2');
 
       expect(person1Events.length).toBeGreaterThan(0);
       expect(person2Events.length).toBeGreaterThan(0);
@@ -293,7 +325,7 @@ describe('autoAwardEngine', () => {
       const events = processAutoAwards(campaign, 'post_mission');
 
       expect(events.length).toBeGreaterThan(0);
-      expect(events.every(e => e.trigger === 'post_mission')).toBe(true);
+      expect(events.every((e) => e.trigger === 'post_mission')).toBe(true);
     });
 
     it('includes timestamp in grant events', () => {
@@ -303,8 +335,8 @@ describe('autoAwardEngine', () => {
       const events = processAutoAwards(campaign, 'manual');
 
       expect(events.length).toBeGreaterThan(0);
-      expect(events.every(e => typeof e.timestamp === 'string')).toBe(true);
-      expect(events.every(e => e.timestamp.length > 0)).toBe(true);
+      expect(events.every((e) => typeof e.timestamp === 'string')).toBe(true);
+      expect(events.every((e) => e.timestamp.length > 0)).toBe(true);
     });
 
     it('includes award name in grant events', () => {
@@ -314,8 +346,8 @@ describe('autoAwardEngine', () => {
       const events = processAutoAwards(campaign, 'manual');
 
       expect(events.length).toBeGreaterThan(0);
-      expect(events.every(e => typeof e.awardName === 'string')).toBe(true);
-      expect(events.every(e => e.awardName.length > 0)).toBe(true);
+      expect(events.every((e) => typeof e.awardName === 'string')).toBe(true);
+      expect(events.every((e) => e.awardName.length > 0)).toBe(true);
     });
 
     it('grants scenario awards for missions completed', () => {
@@ -324,7 +356,9 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaign, 'manual');
 
-      const scenarioEvents = events.filter(e => e.category === AutoAwardCategory.SCENARIO);
+      const scenarioEvents = events.filter(
+        (e) => e.category === AutoAwardCategory.SCENARIO,
+      );
       expect(scenarioEvents.length).toBeGreaterThan(0);
     });
 
@@ -336,7 +370,9 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaign, 'manual');
 
-      const timeEvents = events.filter(e => e.category === AutoAwardCategory.TIME);
+      const timeEvents = events.filter(
+        (e) => e.category === AutoAwardCategory.TIME,
+      );
       expect(timeEvents.length).toBeGreaterThan(0);
     });
 
@@ -376,7 +412,9 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaign, 'manual');
 
-      const injuryEvents = events.filter(e => e.category === AutoAwardCategory.INJURY);
+      const injuryEvents = events.filter(
+        (e) => e.category === AutoAwardCategory.INJURY,
+      );
       expect(injuryEvents.length).toBeGreaterThan(0);
     });
 
@@ -388,7 +426,9 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaign, 'manual');
 
-      const skillEvents = events.filter(e => e.category === AutoAwardCategory.SKILL);
+      const skillEvents = events.filter(
+        (e) => e.category === AutoAwardCategory.SKILL,
+      );
       expect(skillEvents.length).toBeGreaterThan(0);
     });
 
@@ -401,7 +441,9 @@ describe('autoAwardEngine', () => {
 
       const events = processAutoAwards(campaign, 'manual');
 
-      const rankEvents = events.filter(e => e.category === AutoAwardCategory.RANK);
+      const rankEvents = events.filter(
+        (e) => e.category === AutoAwardCategory.RANK,
+      );
       expect(rankEvents.length).toBeGreaterThan(0);
     });
 
@@ -413,9 +455,11 @@ describe('autoAwardEngine', () => {
       const monthlyEvents = processAutoAwards(campaign, 'monthly');
       const postMissionEvents = processAutoAwards(campaign, 'post_mission');
 
-      expect(manualEvents.every(e => e.trigger === 'manual')).toBe(true);
-      expect(monthlyEvents.every(e => e.trigger === 'monthly')).toBe(true);
-      expect(postMissionEvents.every(e => e.trigger === 'post_mission')).toBe(true);
+      expect(manualEvents.every((e) => e.trigger === 'manual')).toBe(true);
+      expect(monthlyEvents.every((e) => e.trigger === 'monthly')).toBe(true);
+      expect(postMissionEvents.every((e) => e.trigger === 'post_mission')).toBe(
+        true,
+      );
     });
 
     it('handles currentDate as Date object', () => {
@@ -428,7 +472,7 @@ describe('autoAwardEngine', () => {
       const events = processAutoAwards(campaignWithDate, 'manual');
 
       expect(events.length).toBeGreaterThan(0);
-      expect(events.every(e => typeof e.timestamp === 'string')).toBe(true);
+      expect(events.every((e) => typeof e.timestamp === 'string')).toBe(true);
     });
 
     it('handles currentDate as Date object', () => {
@@ -441,7 +485,7 @@ describe('autoAwardEngine', () => {
       const events = processAutoAwards(campaignWithDate, 'manual');
 
       expect(events.length).toBeGreaterThan(0);
-      expect(events.every(e => typeof e.timestamp === 'string')).toBe(true);
+      expect(events.every((e) => typeof e.timestamp === 'string')).toBe(true);
     });
 
     it('grants awards to support roles (they are not civilians)', () => {
@@ -452,9 +496,12 @@ describe('autoAwardEngine', () => {
       });
       testCampaign.personnel.set(person.id, person);
 
-      const eligible = getEligiblePersonnel(testCampaign, testCampaign.options.autoAwardConfig!);
+      const eligible = getEligiblePersonnel(
+        testCampaign,
+        testCampaign.options.autoAwardConfig!,
+      );
 
-      expect(eligible.map(p => p.id)).toContain(person.id);
+      expect(eligible.map((p) => p.id)).toContain(person.id);
     });
 
     it('grants awards to combat roles', () => {
@@ -504,9 +551,12 @@ describe('autoAwardEngine', () => {
       });
       testCampaign.personnel.set(person.id, person);
 
-      const eligible = getEligiblePersonnel(testCampaign, testCampaign.options.autoAwardConfig!);
+      const eligible = getEligiblePersonnel(
+        testCampaign,
+        testCampaign.options.autoAwardConfig!,
+      );
 
-      expect(eligible.map(p => p.id)).toContain(person.id);
+      expect(eligible.map((p) => p.id)).toContain(person.id);
     });
 
     it('grants awards to admin staff (they are not civilians)', () => {
@@ -517,15 +567,21 @@ describe('autoAwardEngine', () => {
       });
       testCampaign.personnel.set(person.id, person);
 
-      const eligible = getEligiblePersonnel(testCampaign, testCampaign.options.autoAwardConfig!);
+      const eligible = getEligiblePersonnel(
+        testCampaign,
+        testCampaign.options.autoAwardConfig!,
+      );
 
-      expect(eligible.map(p => p.id)).toContain(person.id);
+      expect(eligible.map((p) => p.id)).toContain(person.id);
     });
   });
 
   describe('getEligiblePersonnel', () => {
     it('filters correctly', () => {
-      const config = { ...createDefaultAutoAwardConfig(), enablePosthumous: false };
+      const config = {
+        ...createDefaultAutoAwardConfig(),
+        enablePosthumous: false,
+      };
 
       const activePilot = createTestPerson({
         id: 'active-pilot',
@@ -549,13 +605,16 @@ describe('autoAwardEngine', () => {
 
       const eligible = getEligiblePersonnel(campaign, config);
 
-      expect(eligible.map(p => p.id)).toContain('active-pilot');
-      expect(eligible.map(p => p.id)).not.toContain('civilian');
-      expect(eligible.map(p => p.id)).not.toContain('kia-pilot');
+      expect(eligible.map((p) => p.id)).toContain('active-pilot');
+      expect(eligible.map((p) => p.id)).not.toContain('civilian');
+      expect(eligible.map((p) => p.id)).not.toContain('kia-pilot');
     });
 
     it('includes dead personnel when enablePosthumous=true', () => {
-      const config = { ...createDefaultAutoAwardConfig(), enablePosthumous: true };
+      const config = {
+        ...createDefaultAutoAwardConfig(),
+        enablePosthumous: true,
+      };
 
       const kiaPilot = createTestPerson({
         id: 'kia-pilot',
@@ -567,11 +626,14 @@ describe('autoAwardEngine', () => {
 
       const eligible = getEligiblePersonnel(campaign, config);
 
-      expect(eligible.map(p => p.id)).toContain('kia-pilot');
+      expect(eligible.map((p) => p.id)).toContain('kia-pilot');
     });
 
     it('excludes dead personnel when enablePosthumous=false', () => {
-      const config = { ...createDefaultAutoAwardConfig(), enablePosthumous: false };
+      const config = {
+        ...createDefaultAutoAwardConfig(),
+        enablePosthumous: false,
+      };
 
       const kiaPilot = createTestPerson({
         id: 'kia-pilot',
@@ -583,7 +645,7 @@ describe('autoAwardEngine', () => {
 
       const eligible = getEligiblePersonnel(campaign, config);
 
-      expect(eligible.map(p => p.id)).not.toContain('kia-pilot');
+      expect(eligible.map((p) => p.id)).not.toContain('kia-pilot');
     });
 
     it('excludes all civilian roles', () => {

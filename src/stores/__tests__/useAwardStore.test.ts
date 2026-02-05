@@ -5,17 +5,15 @@
  */
 
 import { act, renderHook } from '@testing-library/react';
-import { useAwardStore } from '../useAwardStore';
+
 import {
-  AwardCategory,
-  AwardRarity,
   CriteriaType,
-  IAward,
   IAwardContext,
-  createEmptyPilotStats,
   getAwardById,
   AWARD_CATALOG,
 } from '@/types/award';
+
+import { useAwardStore } from '../useAwardStore';
 
 // =============================================================================
 // Test Utilities
@@ -24,7 +22,9 @@ import {
 const TEST_PILOT_ID = 'test-pilot-001';
 const TEST_PILOT_ID_2 = 'test-pilot-002';
 
-const createTestContext = (overrides: Partial<IAwardContext> = {}): IAwardContext => ({
+const createTestContext = (
+  overrides: Partial<IAwardContext> = {},
+): IAwardContext => ({
   campaignId: 'test-campaign',
   missionId: 'test-mission',
   gameId: 'test-game',
@@ -35,7 +35,6 @@ const createTestContext = (overrides: Partial<IAwardContext> = {}): IAwardContex
  * Reset store state between tests
  */
 function resetStore() {
-  const store = useAwardStore.getState();
   // Clear all data
   useAwardStore.setState({
     pilotStats: {},
@@ -131,8 +130,12 @@ describe('useAwardStore', () => {
         result.current.updateCombatStats(TEST_PILOT_ID_2, { totalKills: 10 });
       });
 
-      expect(result.current.getPilotStats(TEST_PILOT_ID).combat.totalKills).toBe(5);
-      expect(result.current.getPilotStats(TEST_PILOT_ID_2).combat.totalKills).toBe(10);
+      expect(
+        result.current.getPilotStats(TEST_PILOT_ID).combat.totalKills,
+      ).toBe(5);
+      expect(
+        result.current.getPilotStats(TEST_PILOT_ID_2).combat.totalKills,
+      ).toBe(10);
     });
   });
 
@@ -155,7 +158,9 @@ describe('useAwardStore', () => {
       });
 
       expect(granted!).toBe(true);
-      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(true);
+      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(
+        true,
+      );
     });
 
     it('should not grant the same non-repeatable award twice', () => {
@@ -214,7 +219,9 @@ describe('useAwardStore', () => {
         });
       });
 
-      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(true);
+      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(
+        true,
+      );
 
       let removed: boolean;
       act(() => {
@@ -222,7 +229,9 @@ describe('useAwardStore', () => {
       });
 
       expect(removed!).toBe(true);
-      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(false);
+      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(
+        false,
+      );
     });
 
     it('should return false when removing non-existent award', () => {
@@ -252,7 +261,10 @@ describe('useAwardStore', () => {
       const firstBlood = getAwardById('first-blood')!;
 
       // Before any kills
-      let checkResult = result.current.checkAwardCriteria(TEST_PILOT_ID, firstBlood);
+      let checkResult = result.current.checkAwardCriteria(
+        TEST_PILOT_ID,
+        firstBlood,
+      );
       expect(checkResult.earned).toBe(false);
       expect(checkResult.progress.current).toBe(0);
       expect(checkResult.progress.target).toBe(1);
@@ -262,7 +274,10 @@ describe('useAwardStore', () => {
         result.current.updateCombatStats(TEST_PILOT_ID, { totalKills: 1 });
       });
 
-      checkResult = result.current.checkAwardCriteria(TEST_PILOT_ID, firstBlood);
+      checkResult = result.current.checkAwardCriteria(
+        TEST_PILOT_ID,
+        firstBlood,
+      );
       expect(checkResult.earned).toBe(true);
       expect(checkResult.progress.percentage).toBe(100);
     });
@@ -286,11 +301,17 @@ describe('useAwardStore', () => {
       });
 
       // Should have earned: first-blood, warrior, ace, survivor, campaign-initiate, recruit
-      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(true);
+      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(
+        true,
+      );
       expect(result.current.hasPilotAward(TEST_PILOT_ID, 'warrior')).toBe(true);
       expect(result.current.hasPilotAward(TEST_PILOT_ID, 'ace')).toBe(true);
-      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'survivor')).toBe(true);
-      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'campaign-initiate')).toBe(true);
+      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'survivor')).toBe(
+        true,
+      );
+      expect(
+        result.current.hasPilotAward(TEST_PILOT_ID, 'campaign-initiate'),
+      ).toBe(true);
       expect(result.current.hasPilotAward(TEST_PILOT_ID, 'recruit')).toBe(true);
     });
 
@@ -307,8 +328,12 @@ describe('useAwardStore', () => {
         result.current.evaluateAwards(TEST_PILOT_ID, context);
       });
 
-      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(true);
-      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'warrior')).toBe(false);
+      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(
+        true,
+      );
+      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'warrior')).toBe(
+        false,
+      );
     });
   });
 
@@ -325,8 +350,12 @@ describe('useAwardStore', () => {
         result.current.recordKill(TEST_PILOT_ID, context);
       });
 
-      expect(result.current.getPilotStats(TEST_PILOT_ID).combat.totalKills).toBe(1);
-      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(true);
+      expect(
+        result.current.getPilotStats(TEST_PILOT_ID).combat.totalKills,
+      ).toBe(1);
+      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'first-blood')).toBe(
+        true,
+      );
     });
 
     it('should record damage', () => {
@@ -338,7 +367,9 @@ describe('useAwardStore', () => {
         result.current.recordDamage(TEST_PILOT_ID, 75, context);
       });
 
-      expect(result.current.getPilotStats(TEST_PILOT_ID).combat.totalDamageDealt).toBe(125);
+      expect(
+        result.current.getPilotStats(TEST_PILOT_ID).combat.totalDamageDealt,
+      ).toBe(125);
     });
 
     it('should record mission completion and track survival streak', () => {
@@ -389,7 +420,9 @@ describe('useAwardStore', () => {
       const stats = result.current.getPilotStats(TEST_PILOT_ID);
       expect(stats.career.campaignsCompleted).toBe(1);
       expect(stats.career.campaignsWon).toBe(1);
-      expect(result.current.hasPilotAward(TEST_PILOT_ID, 'campaign-victor')).toBe(true);
+      expect(
+        result.current.hasPilotAward(TEST_PILOT_ID, 'campaign-victor'),
+      ).toBe(true);
     });
 
     it('should record game completion', () => {
@@ -400,7 +433,9 @@ describe('useAwardStore', () => {
         result.current.recordGameComplete(TEST_PILOT_ID, context);
       });
 
-      expect(result.current.getPilotStats(TEST_PILOT_ID).career.gamesPlayed).toBe(1);
+      expect(
+        result.current.getPilotStats(TEST_PILOT_ID).career.gamesPlayed,
+      ).toBe(1);
       expect(result.current.hasPilotAward(TEST_PILOT_ID, 'recruit')).toBe(true);
     });
 
@@ -413,13 +448,17 @@ describe('useAwardStore', () => {
         result.current.recordMissionComplete(TEST_PILOT_ID, true, context);
       });
 
-      expect(result.current.getPilotStats(TEST_PILOT_ID).career.consecutiveSurvival).toBe(2);
+      expect(
+        result.current.getPilotStats(TEST_PILOT_ID).career.consecutiveSurvival,
+      ).toBe(2);
 
       act(() => {
         result.current.resetSurvivalStreak(TEST_PILOT_ID);
       });
 
-      expect(result.current.getPilotStats(TEST_PILOT_ID).career.consecutiveSurvival).toBe(0);
+      expect(
+        result.current.getPilotStats(TEST_PILOT_ID).career.consecutiveSurvival,
+      ).toBe(0);
     });
   });
 
@@ -528,7 +567,9 @@ describe('useAwardStore', () => {
         });
       });
 
-      expect(result.current.getPilotStats(TEST_PILOT_ID).combat.totalKills).toBe(5);
+      expect(
+        result.current.getPilotStats(TEST_PILOT_ID).combat.totalKills,
+      ).toBe(5);
       expect(result.current.getPilotAwards(TEST_PILOT_ID).length).toBe(1);
 
       // Reset
@@ -537,7 +578,9 @@ describe('useAwardStore', () => {
       });
 
       // Should have empty stats (recreated on access)
-      expect(result.current.getPilotStats(TEST_PILOT_ID).combat.totalKills).toBe(0);
+      expect(
+        result.current.getPilotStats(TEST_PILOT_ID).combat.totalKills,
+      ).toBe(0);
       expect(result.current.getPilotAwards(TEST_PILOT_ID).length).toBe(0);
     });
 
@@ -560,7 +603,9 @@ describe('useAwardStore', () => {
       });
 
       // Pilot 2 should be unaffected
-      expect(result.current.getPilotStats(TEST_PILOT_ID_2).combat.totalKills).toBe(10);
+      expect(
+        result.current.getPilotStats(TEST_PILOT_ID_2).combat.totalKills,
+      ).toBe(10);
       expect(result.current.getPilotAwards(TEST_PILOT_ID_2).length).toBe(1);
     });
   });
@@ -589,11 +634,11 @@ describe('useAwardStore', () => {
     });
 
     it('should evaluate all criteria types', () => {
-      const { result } = renderHook(() => useAwardStore());
+      renderHook(() => useAwardStore());
 
       // Test each criteria type has at least one award
       const criteriaTypes = new Set(AWARD_CATALOG.map((a) => a.criteria.type));
-      
+
       expect(criteriaTypes.has(CriteriaType.TotalKills)).toBe(true);
       expect(criteriaTypes.has(CriteriaType.MissionsCompleted)).toBe(true);
       expect(criteriaTypes.has(CriteriaType.CampaignsCompleted)).toBe(true);
@@ -667,17 +712,35 @@ describe('useAwardStore', () => {
 
         act(() => {
           // First 3 missions survived
-          result.current.recordMissionComplete(pilot, true, createTestContext({ missionId: 'm1' }));
-          result.current.recordMissionComplete(pilot, true, createTestContext({ missionId: 'm2' }));
-          result.current.recordMissionComplete(pilot, true, createTestContext({ missionId: 'm3' }));
+          result.current.recordMissionComplete(
+            pilot,
+            true,
+            createTestContext({ missionId: 'm1' }),
+          );
+          result.current.recordMissionComplete(
+            pilot,
+            true,
+            createTestContext({ missionId: 'm2' }),
+          );
+          result.current.recordMissionComplete(
+            pilot,
+            true,
+            createTestContext({ missionId: 'm3' }),
+          );
         });
 
-        expect(result.current.getPilotStats(pilot).career.consecutiveSurvival).toBe(3);
+        expect(
+          result.current.getPilotStats(pilot).career.consecutiveSurvival,
+        ).toBe(3);
 
         act(() => {
           // Pilot ejects - survival streak resets
           result.current.resetSurvivalStreak(pilot);
-          result.current.recordMissionComplete(pilot, false, createTestContext({ missionId: 'm4' }));
+          result.current.recordMissionComplete(
+            pilot,
+            false,
+            createTestContext({ missionId: 'm4' }),
+          );
         });
 
         const stats = result.current.getPilotStats(pilot);
@@ -694,7 +757,13 @@ describe('useAwardStore', () => {
         const campaignId = 'operation-revival';
         const pilot = 'campaign-veteran';
 
-        const missions = ['mission-1', 'mission-2', 'mission-3', 'mission-4', 'mission-5'];
+        const missions = [
+          'mission-1',
+          'mission-2',
+          'mission-3',
+          'mission-4',
+          'mission-5',
+        ];
 
         act(() => {
           // Simulate 5 missions with varying performance
@@ -721,7 +790,11 @@ describe('useAwardStore', () => {
           }
 
           // Campaign victory
-          result.current.recordCampaignComplete(pilot, true, createTestContext({ campaignId }));
+          result.current.recordCampaignComplete(
+            pilot,
+            true,
+            createTestContext({ campaignId }),
+          );
         });
 
         const stats = result.current.getPilotStats(pilot);
@@ -774,7 +847,7 @@ describe('useAwardStore', () => {
             result.current.recordCampaignComplete(
               pilot,
               true,
-              createTestContext({ campaignId })
+              createTestContext({ campaignId }),
             );
           }
         });
@@ -804,7 +877,9 @@ describe('useAwardStore', () => {
 
         // First Blood should only be granted once
         const awards = result.current.getPilotAwards(pilot);
-        const firstBloodAwards = awards.filter((a) => a.awardId === 'first-blood');
+        const firstBloodAwards = awards.filter(
+          (a) => a.awardId === 'first-blood',
+        );
         expect(firstBloodAwards.length).toBe(1);
         expect(firstBloodAwards[0].timesEarned).toBe(1);
       });
@@ -867,7 +942,11 @@ describe('useAwardStore', () => {
           for (let i = 0; i < 5; i++) {
             result.current.recordKill(pilot, createTestContext());
           }
-          result.current.recordMissionComplete(pilot, true, createTestContext());
+          result.current.recordMissionComplete(
+            pilot,
+            true,
+            createTestContext(),
+          );
         });
 
         const awardsBefore = result.current.getPilotAwards(pilot).length;

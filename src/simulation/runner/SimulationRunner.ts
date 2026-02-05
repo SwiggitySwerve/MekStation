@@ -1,20 +1,5 @@
-import { SeededRandom } from '../core/SeededRandom';
-import { ISimulationConfig } from '../core/types';
-import { InvariantRunner } from '../invariants/InvariantRunner';
-import { IViolation } from '../invariants/types';
-import { BotPlayer } from '../ai/BotPlayer';
-import type { IAIUnitState, IWeapon } from '../ai/types';
-import { ISimulationRunResult, IDetectorConfig } from './types';
-import { KeyMomentDetector } from '../detectors/KeyMomentDetector';
-import type { BattleState as KeyMomentBattleState } from '../detectors/KeyMomentDetector';
-import { HeatSuicideDetector } from '../detectors/HeatSuicideDetector';
-import { PassiveUnitDetector } from '../detectors/PassiveUnitDetector';
-import { NoProgressDetector } from '../detectors/NoProgressDetector';
-import { LongGameDetector } from '../detectors/LongGameDetector';
-import { StateCycleDetector } from '../detectors/StateCycleDetector';
-import type { BattleState as AnomalyBattleState } from '../detectors/HeatSuicideDetector';
-
 import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
+
 import {
   GamePhase,
   GameSide,
@@ -34,11 +19,28 @@ import {
   IMovementCapability,
 } from '@/types/gameplay';
 
+import type { IAIUnitState, IWeapon } from '../ai/types';
+import type { BattleState as AnomalyBattleState } from '../detectors/HeatSuicideDetector';
+import type { BattleState as KeyMomentBattleState } from '../detectors/KeyMomentDetector';
+
+import { BotPlayer } from '../ai/BotPlayer';
+import { SeededRandom } from '../core/SeededRandom';
+import { ISimulationConfig } from '../core/types';
+import { HeatSuicideDetector } from '../detectors/HeatSuicideDetector';
+import { KeyMomentDetector } from '../detectors/KeyMomentDetector';
+import { LongGameDetector } from '../detectors/LongGameDetector';
+import { NoProgressDetector } from '../detectors/NoProgressDetector';
+import { PassiveUnitDetector } from '../detectors/PassiveUnitDetector';
+import { StateCycleDetector } from '../detectors/StateCycleDetector';
+import { InvariantRunner } from '../invariants/InvariantRunner';
+import { IViolation } from '../invariants/types';
+import { ISimulationRunResult, IDetectorConfig } from './types';
+
 const MAX_TURNS = 10;
 
 function createMinimalGrid(radius: number): IHexGrid {
   const hexes = new Map<string, IHex>();
-  
+
   for (let q = -radius; q <= radius; q++) {
     for (let r = -radius; r <= radius; r++) {
       if (Math.abs(q + r) <= radius) {
@@ -52,7 +54,7 @@ function createMinimalGrid(radius: number): IHexGrid {
       }
     }
   }
-  
+
   return {
     config: { radius },
     hexes,
@@ -77,7 +79,7 @@ function createMinimalWeapon(id: string): IWeapon {
 function createMinimalUnitState(
   id: string,
   side: GameSide,
-  position: IHexCoordinate
+  position: IHexCoordinate,
 ): IUnitGameState {
   return {
     id,
@@ -152,7 +154,7 @@ export class SimulationRunner {
     readonly longGame: LongGameDetector;
     readonly stateCycle: StateCycleDetector;
   };
-  
+
   constructor(
     seed: number,
     invariantRunner?: InvariantRunner,
@@ -170,7 +172,7 @@ export class SimulationRunner {
       stateCycle: new StateCycleDetector(),
     };
   }
-  
+
   /**
    * Runs a single simulation with integrated anomaly and key-moment detection.
    *
@@ -184,67 +186,96 @@ export class SimulationRunner {
     const events: IGameEvent[] = [];
     let eventSequence = 0;
     const gameId = `sim-${config.seed}`;
-    
+
     const grid = createMinimalGrid(config.mapRadius);
     const state = this.createInitialState(config);
     const botPlayer = new BotPlayer(this.random);
-    
+
     let currentState = state;
     let turn = 1;
-    const turnLimit = config.turnLimit > 0 ? Math.min(config.turnLimit, MAX_TURNS) : MAX_TURNS;
+    const turnLimit =
+      config.turnLimit > 0 ? Math.min(config.turnLimit, MAX_TURNS) : MAX_TURNS;
     let haltedByCriticalAnomaly = false;
-    
+
     while (turn <= turnLimit) {
       currentState = { ...currentState, turn };
-      
-      currentState = this.runMovementPhase(currentState, botPlayer, grid, violations, events, eventSequence, gameId);
+
+      currentState = this.runMovementPhase(
+        currentState,
+        botPlayer,
+        grid,
+        violations,
+        events,
+        eventSequence,
+        gameId,
+      );
       eventSequence = events.length;
-      
-      currentState = this.runAttackPhase(currentState, botPlayer, violations, events, eventSequence, gameId);
+
+      currentState = this.runAttackPhase(
+        currentState,
+        botPlayer,
+        violations,
+        events,
+        eventSequence,
+        gameId,
+      );
       eventSequence = events.length;
-      
+
       if (this.isGameOver(currentState)) {
         break;
       }
-      
+
       currentState = { ...currentState, phase: GamePhase.End };
       violations.push(...this.invariantRunner.runAll(currentState));
-      
+
       // Emit TurnEnded event for detector consumption
-      events.push(this.createGameEvent(
-        gameId, events.length, GameEventType.TurnEnded,
-        turn, currentState.phase, { _type: 'turn_ended' as const },
-      ));
-      
+      events.push(
+        this.createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.TurnEnded,
+          turn,
+          currentState.phase,
+          { _type: 'turn_ended' as const },
+        ),
+      );
+
       // Per-turn critical anomaly check (StateCycleDetector only)
       if (this.detectorConfig.haltOnCritical) {
         const anomalyBattleState = this.buildAnomalyBattleState(currentState);
         const cycleAnomalies = this.anomalyDetectors.stateCycle.detect(
-          events, anomalyBattleState, this.detectorConfig.stateCycleLength,
+          events,
+          anomalyBattleState,
+          this.detectorConfig.stateCycleLength,
         );
-        const hasCritical = cycleAnomalies.some(a => a.severity === 'critical');
+        const hasCritical = cycleAnomalies.some(
+          (a) => a.severity === 'critical',
+        );
         if (hasCritical) {
           haltedByCriticalAnomaly = true;
           break;
         }
       }
-      
+
       turn++;
     }
-    
+
     const durationMs = Date.now() - startTime;
     const winner = this.determineWinner(currentState);
-    
+
     // Run all detectors on the complete event stream
     const keyMomentBattleState = this.buildKeyMomentBattleState(currentState);
     const anomalyBattleState = this.buildAnomalyBattleState(currentState);
-    
-    const keyMoments = this.keyMomentDetector.detect(events, keyMomentBattleState);
+
+    const keyMoments = this.keyMomentDetector.detect(
+      events,
+      keyMomentBattleState,
+    );
     const anomalies = this.runAllAnomalyDetectors(events, anomalyBattleState);
-    
+
     // Convert anomalies to violations for the violation log
     violations.push(...this.convertAnomaliesToViolations(anomalies));
-    
+
     return {
       seed: config.seed,
       winner,
@@ -257,7 +288,7 @@ export class SimulationRunner {
       haltedByCriticalAnomaly,
     };
   }
-  
+
   /**
    * Runs all five anomaly detectors on the complete event stream.
    */
@@ -267,21 +298,42 @@ export class SimulationRunner {
   ): IAnomaly[] {
     const cfg = this.detectorConfig;
     return [
-      ...this.anomalyDetectors.heatSuicide.detect(events, battleState, cfg.heatSuicideThreshold),
-      ...this.anomalyDetectors.passiveUnit.detect(events, battleState, cfg.passiveUnitTurns),
-      ...this.anomalyDetectors.noProgress.detect(events, battleState, cfg.noProgressTurns),
+      ...this.anomalyDetectors.heatSuicide.detect(
+        events,
+        battleState,
+        cfg.heatSuicideThreshold,
+      ),
+      ...this.anomalyDetectors.passiveUnit.detect(
+        events,
+        battleState,
+        cfg.passiveUnitTurns,
+      ),
+      ...this.anomalyDetectors.noProgress.detect(
+        events,
+        battleState,
+        cfg.noProgressTurns,
+      ),
       ...this.anomalyDetectors.longGame.detect(events, cfg.longGameTurns),
-      ...this.anomalyDetectors.stateCycle.detect(events, battleState, cfg.stateCycleLength),
+      ...this.anomalyDetectors.stateCycle.detect(
+        events,
+        battleState,
+        cfg.stateCycleLength,
+      ),
     ];
   }
-  
+
   /**
    * Converts anomalies to the IViolation format for the violation log.
    */
-  private convertAnomaliesToViolations(anomalies: readonly IAnomaly[]): IViolation[] {
-    return anomalies.map(anomaly => ({
+  private convertAnomaliesToViolations(
+    anomalies: readonly IAnomaly[],
+  ): IViolation[] {
+    return anomalies.map((anomaly) => ({
       invariant: `detector:${anomaly.type}`,
-      severity: anomaly.severity === 'critical' ? 'critical' as const : 'warning' as const,
+      severity:
+        anomaly.severity === 'critical'
+          ? ('critical' as const)
+          : ('warning' as const),
       message: anomaly.message,
       context: {
         anomalyId: anomaly.id,
@@ -292,12 +344,12 @@ export class SimulationRunner {
       },
     }));
   }
-  
+
   /**
    * Builds a BattleState suitable for the KeyMomentDetector from game state.
    */
   private buildKeyMomentBattleState(state: IGameState): KeyMomentBattleState {
-    const units = Object.values(state.units).map(unit => ({
+    const units = Object.values(state.units).map((unit) => ({
       id: unit.id,
       name: unit.id,
       side: unit.side,
@@ -308,19 +360,19 @@ export class SimulationRunner {
     }));
     return { units };
   }
-  
+
   /**
    * Builds a BattleState suitable for anomaly detectors from game state.
    */
   private buildAnomalyBattleState(state: IGameState): AnomalyBattleState {
-    const units = Object.values(state.units).map(unit => ({
+    const units = Object.values(state.units).map((unit) => ({
       id: unit.id,
       name: unit.id,
       side: unit.side,
     }));
     return { units };
   }
-  
+
   private createGameEvent(
     gameId: string,
     sequence: number,
@@ -342,7 +394,7 @@ export class SimulationRunner {
       ...(actorId !== undefined ? { actorId } : {}),
     };
   }
-  
+
   private runMovementPhase(
     state: IGameState,
     botPlayer: BotPlayer,
@@ -354,39 +406,48 @@ export class SimulationRunner {
   ): IGameState {
     let currentState = { ...state, phase: GamePhase.Movement };
     violations.push(...this.invariantRunner.runAll(currentState));
-    
+
     for (const unitId of Object.keys(currentState.units)) {
       const unit = currentState.units[unitId];
       if (unit.destroyed) continue;
-      
+
       const aiUnit = toAIUnitState(unit);
       const capability = createMovementCapability();
       const moveEvent = botPlayer.playMovementPhase(aiUnit, grid, capability);
-      
+
       if (moveEvent) {
-        currentState = this.applyMovementEvent(currentState, unitId, moveEvent.payload);
-        
-        events.push(this.createGameEvent(
-          gameId, events.length, GameEventType.MovementDeclared,
-          currentState.turn, GamePhase.Movement,
-          {
-            unitId,
-            from: unit.position,
-            to: moveEvent.payload.to,
-            facing: moveEvent.payload.facing as Facing,
-            movementType: moveEvent.payload.movementType,
-            mpUsed: moveEvent.payload.mpUsed,
-            heatGenerated: 0,
-          },
+        currentState = this.applyMovementEvent(
+          currentState,
           unitId,
-        ));
+          moveEvent.payload,
+        );
+
+        events.push(
+          this.createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.MovementDeclared,
+            currentState.turn,
+            GamePhase.Movement,
+            {
+              unitId,
+              from: unit.position,
+              to: moveEvent.payload.to,
+              facing: moveEvent.payload.facing as Facing,
+              movementType: moveEvent.payload.movementType,
+              mpUsed: moveEvent.payload.mpUsed,
+              heatGenerated: 0,
+            },
+            unitId,
+          ),
+        );
       }
     }
     violations.push(...this.invariantRunner.runAll(currentState));
-    
+
     return currentState;
   }
-  
+
   private runAttackPhase(
     state: IGameState,
     botPlayer: BotPlayer,
@@ -397,81 +458,102 @@ export class SimulationRunner {
   ): IGameState {
     let currentState = { ...state, phase: GamePhase.WeaponAttack };
     violations.push(...this.invariantRunner.runAll(currentState));
-    
+
     const allAIUnits = Object.values(currentState.units).map(toAIUnitState);
     for (const unitId of Object.keys(currentState.units)) {
       const unit = currentState.units[unitId];
       if (unit.destroyed) continue;
-      
+
       const aiUnit = toAIUnitState(unit);
       const enemyUnits = allAIUnits.filter(
-        u => !u.destroyed && currentState.units[u.unitId].side !== unit.side
+        (u) => !u.destroyed && currentState.units[u.unitId].side !== unit.side,
       );
-      
+
       const attackEvent = botPlayer.playAttackPhase(aiUnit, enemyUnits);
-      
+
       if (attackEvent) {
         const targetBefore = currentState.units[attackEvent.payload.targetId];
-        currentState = this.applySimpleDamage(currentState, attackEvent.payload.targetId);
+        currentState = this.applySimpleDamage(
+          currentState,
+          attackEvent.payload.targetId,
+        );
         const targetAfter = currentState.units[attackEvent.payload.targetId];
-        
+
         if (targetBefore && targetAfter) {
-          events.push(this.createGameEvent(
-            gameId, events.length, GameEventType.DamageApplied,
-            currentState.turn, GamePhase.WeaponAttack,
-            {
-              unitId: attackEvent.payload.targetId,
-              location: 'center_torso',
-              damage: 5,
-              armorRemaining: targetAfter.armor.center_torso ?? 0,
-              structureRemaining: targetAfter.structure.center_torso ?? 0,
-              locationDestroyed: false,
-              sourceUnitId: unitId,
-            },
-            unitId,
-          ));
-          
-          if (targetAfter.destroyed && !targetBefore.destroyed) {
-            events.push(this.createGameEvent(
-              gameId, events.length, GameEventType.UnitDestroyed,
-              currentState.turn, GamePhase.WeaponAttack,
+          events.push(
+            this.createGameEvent(
+              gameId,
+              events.length,
+              GameEventType.DamageApplied,
+              currentState.turn,
+              GamePhase.WeaponAttack,
               {
                 unitId: attackEvent.payload.targetId,
-                cause: 'damage' as const,
-                killerUnitId: unitId,
+                location: 'center_torso',
+                damage: 5,
+                armorRemaining: targetAfter.armor.center_torso ?? 0,
+                structureRemaining: targetAfter.structure.center_torso ?? 0,
+                locationDestroyed: false,
+                sourceUnitId: unitId,
               },
-            ));
+              unitId,
+            ),
+          );
+
+          if (targetAfter.destroyed && !targetBefore.destroyed) {
+            events.push(
+              this.createGameEvent(
+                gameId,
+                events.length,
+                GameEventType.UnitDestroyed,
+                currentState.turn,
+                GamePhase.WeaponAttack,
+                {
+                  unitId: attackEvent.payload.targetId,
+                  cause: 'damage' as const,
+                  killerUnitId: unitId,
+                },
+              ),
+            );
           }
         }
       }
     }
     violations.push(...this.invariantRunner.runAll(currentState));
-    
+
     return currentState;
   }
-  
+
   private createSideUnits(
     units: Record<string, IUnitGameState>,
     config: ISimulationConfig,
     side: GameSide,
-    rowPosition: number
+    rowPosition: number,
   ): void {
-    const count = side === GameSide.Player ? config.unitCount.player : config.unitCount.opponent;
+    const count =
+      side === GameSide.Player
+        ? config.unitCount.player
+        : config.unitCount.opponent;
     const prefix = side === GameSide.Player ? 'player' : 'opponent';
-    
+
     for (let i = 0; i < count; i++) {
       const id = `${prefix}-${i + 1}`;
       const position: IHexCoordinate = { q: i - 1, r: rowPosition };
       units[id] = createMinimalUnitState(id, side, position);
     }
   }
-  
+
   private createInitialState(config: ISimulationConfig): IGameState {
     const units: Record<string, IUnitGameState> = {};
-    
+
     this.createSideUnits(units, config, GameSide.Player, -config.mapRadius + 1);
-    this.createSideUnits(units, config, GameSide.Opponent, config.mapRadius - 1);
-    
+    this.createSideUnits(
+      units,
+      config,
+      GameSide.Opponent,
+      config.mapRadius - 1,
+    );
+
     return {
       gameId: `sim-${config.seed}`,
       status: GameStatus.Active,
@@ -482,15 +564,20 @@ export class SimulationRunner {
       turnEvents: [],
     };
   }
-  
+
   private applyMovementEvent(
     state: IGameState,
     unitId: string,
-    payload: { to: { q: number; r: number }; facing: number; movementType: MovementType; mpUsed: number }
+    payload: {
+      to: { q: number; r: number };
+      facing: number;
+      movementType: MovementType;
+      mpUsed: number;
+    },
   ): IGameState {
     const unit = state.units[unitId];
     if (!unit) return state;
-    
+
     const updatedUnit: IUnitGameState = {
       ...unit,
       position: payload.to,
@@ -498,7 +585,7 @@ export class SimulationRunner {
       movementThisTurn: payload.movementType,
       hexesMovedThisTurn: payload.mpUsed,
     };
-    
+
     return {
       ...state,
       units: {
@@ -507,26 +594,31 @@ export class SimulationRunner {
       },
     };
   }
-  
+
   private applySimpleDamage(state: IGameState, targetId: string): IGameState {
     const target = state.units[targetId];
     if (!target || target.destroyed) return state;
-    
+
     const SIMPLE_DAMAGE = 5;
     const newArmor = { ...target.armor };
     const ctArmor = newArmor.center_torso ?? 0;
     newArmor.center_torso = Math.max(0, ctArmor - SIMPLE_DAMAGE);
-    
-    const totalStructure = Object.values(target.structure).reduce((sum, v) => sum + v, 0);
-    const ctBreached = newArmor.center_torso === 0 && (target.structure.center_torso ?? 0) <= SIMPLE_DAMAGE;
+
+    const totalStructure = Object.values(target.structure).reduce(
+      (sum, v) => sum + v,
+      0,
+    );
+    const ctBreached =
+      newArmor.center_torso === 0 &&
+      (target.structure.center_torso ?? 0) <= SIMPLE_DAMAGE;
     const destroyed = totalStructure <= 0 || ctBreached;
-    
+
     const updatedUnit: IUnitGameState = {
       ...target,
       armor: newArmor,
       destroyed,
     };
-    
+
     return {
       ...state,
       units: {
@@ -535,25 +627,27 @@ export class SimulationRunner {
       },
     };
   }
-  
+
   private isGameOver(state: IGameState): boolean {
     const playerUnits = Object.values(state.units).filter(
-      u => u.side === GameSide.Player && !u.destroyed
+      (u) => u.side === GameSide.Player && !u.destroyed,
     );
     const opponentUnits = Object.values(state.units).filter(
-      u => u.side === GameSide.Opponent && !u.destroyed
+      (u) => u.side === GameSide.Opponent && !u.destroyed,
     );
     return playerUnits.length === 0 || opponentUnits.length === 0;
   }
-  
-  private determineWinner(state: IGameState): 'player' | 'opponent' | 'draw' | null {
+
+  private determineWinner(
+    state: IGameState,
+  ): 'player' | 'opponent' | 'draw' | null {
     const playerUnits = Object.values(state.units).filter(
-      u => u.side === GameSide.Player && !u.destroyed
+      (u) => u.side === GameSide.Player && !u.destroyed,
     );
     const opponentUnits = Object.values(state.units).filter(
-      u => u.side === GameSide.Opponent && !u.destroyed
+      (u) => u.side === GameSide.Opponent && !u.destroyed,
     );
-    
+
     if (playerUnits.length === 0 && opponentUnits.length === 0) return 'draw';
     if (playerUnits.length === 0) return 'opponent';
     if (opponentUnits.length === 0) return 'player';

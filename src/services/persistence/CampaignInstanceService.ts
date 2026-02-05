@@ -7,7 +7,6 @@
  * @spec openspec/changes/add-campaign-instances/specs/campaign-instances/spec.md
  */
 
-import { getIndexedDBService, STORES } from './IndexedDBService';
 import type {
   ICampaignUnitInstance,
   ICampaignPilotInstance,
@@ -16,14 +15,19 @@ import type {
   ICreatePilotInstanceFromStatblockInput,
   IUnitDamageState,
 } from '../../types/campaign/CampaignInstanceInterfaces';
+import type { IPilotSkills } from '../../types/pilot/PilotInterfaces';
+
 import {
   createUnitInstance,
   createPilotInstanceFromVault,
   createPilotInstanceFromStatblock,
   createEmptyDamageState,
 } from '../../types/campaign/CampaignInstanceInterfaces';
-import { CampaignUnitStatus, CampaignPilotStatus } from '../../types/campaign/CampaignInterfaces';
-import type { IPilotSkills } from '../../types/pilot/PilotInterfaces';
+import {
+  CampaignUnitStatus,
+  CampaignPilotStatus,
+} from '../../types/campaign/CampaignInterfaces';
+import { getIndexedDBService, STORES } from './IndexedDBService';
 
 // =============================================================================
 // Types
@@ -84,32 +88,53 @@ export interface IUpdatePilotInstanceInput {
  */
 export interface ICampaignInstanceService {
   // Unit Instances
-  createUnitInstance(input: ICreateUnitInstanceInput, unitData: {
-    version: number;
-    name: string;
-    chassis: string;
-    variant: string;
-    damageState?: IUnitDamageState;
-  }): Promise<ICampaignUnitInstance>;
+  createUnitInstance(
+    input: ICreateUnitInstanceInput,
+    unitData: {
+      version: number;
+      name: string;
+      chassis: string;
+      variant: string;
+      damageState?: IUnitDamageState;
+    },
+  ): Promise<ICampaignUnitInstance>;
   getUnitInstance(id: string): Promise<ICampaignUnitInstance | undefined>;
-  updateUnitInstance(id: string, updates: IUpdateUnitInstanceInput): Promise<ICampaignUnitInstance>;
+  updateUnitInstance(
+    id: string,
+    updates: IUpdateUnitInstanceInput,
+  ): Promise<ICampaignUnitInstance>;
   deleteUnitInstance(id: string): Promise<void>;
-  listUnitInstances(options?: IInstanceQueryOptions): Promise<ICampaignUnitInstance[]>;
+  listUnitInstances(
+    options?: IInstanceQueryOptions,
+  ): Promise<ICampaignUnitInstance[]>;
 
   // Pilot Instances
-  createPilotInstanceFromVault(input: ICreatePilotInstanceFromVaultInput, pilotData: {
-    name: string;
-    callsign?: string;
-    skills: IPilotSkills;
-  }): Promise<ICampaignPilotInstance>;
-  createPilotInstanceFromStatblock(input: ICreatePilotInstanceFromStatblockInput): Promise<ICampaignPilotInstance>;
+  createPilotInstanceFromVault(
+    input: ICreatePilotInstanceFromVaultInput,
+    pilotData: {
+      name: string;
+      callsign?: string;
+      skills: IPilotSkills;
+    },
+  ): Promise<ICampaignPilotInstance>;
+  createPilotInstanceFromStatblock(
+    input: ICreatePilotInstanceFromStatblockInput,
+  ): Promise<ICampaignPilotInstance>;
   getPilotInstance(id: string): Promise<ICampaignPilotInstance | undefined>;
-  updatePilotInstance(id: string, updates: IUpdatePilotInstanceInput): Promise<ICampaignPilotInstance>;
+  updatePilotInstance(
+    id: string,
+    updates: IUpdatePilotInstanceInput,
+  ): Promise<ICampaignPilotInstance>;
   deletePilotInstance(id: string): Promise<void>;
-  listPilotInstances(options?: IInstanceQueryOptions): Promise<ICampaignPilotInstance[]>;
+  listPilotInstances(
+    options?: IInstanceQueryOptions,
+  ): Promise<ICampaignPilotInstance[]>;
 
   // Assignments
-  assignPilotToUnit(pilotInstanceId: string, unitInstanceId: string): Promise<void>;
+  assignPilotToUnit(
+    pilotInstanceId: string,
+    unitInstanceId: string,
+  ): Promise<void>;
   unassignPilot(pilotInstanceId: string): Promise<void>;
 
   // Bulk Operations
@@ -154,7 +179,7 @@ export class CampaignInstanceService implements ICampaignInstanceService {
       chassis: string;
       variant: string;
       damageState?: IUnitDamageState;
-    }
+    },
   ): Promise<ICampaignUnitInstance> {
     await this.ensureInitialized();
 
@@ -169,7 +194,7 @@ export class CampaignInstanceService implements ICampaignInstanceService {
       unitData.name,
       unitData.chassis,
       unitData.variant,
-      damageState
+      damageState,
     );
 
     // Apply optional fields from input
@@ -183,23 +208,25 @@ export class CampaignInstanceService implements ICampaignInstanceService {
     await getIndexedDBService().put(
       STORES.CAMPAIGN_UNIT_INSTANCES,
       id,
-      fullInstance
+      fullInstance,
     );
 
     return fullInstance;
   }
 
-  async getUnitInstance(id: string): Promise<ICampaignUnitInstance | undefined> {
+  async getUnitInstance(
+    id: string,
+  ): Promise<ICampaignUnitInstance | undefined> {
     await this.ensureInitialized();
     return getIndexedDBService().get<ICampaignUnitInstance>(
       STORES.CAMPAIGN_UNIT_INSTANCES,
-      id
+      id,
     );
   }
 
   async updateUnitInstance(
     id: string,
-    updates: IUpdateUnitInstanceInput
+    updates: IUpdateUnitInstanceInput,
   ): Promise<ICampaignUnitInstance> {
     await this.ensureInitialized();
 
@@ -215,22 +242,23 @@ export class CampaignInstanceService implements ICampaignInstanceService {
       assignedPilotInstanceId:
         updates.assignedPilotInstanceId === null
           ? undefined
-          : updates.assignedPilotInstanceId ?? existing.assignedPilotInstanceId,
+          : (updates.assignedPilotInstanceId ??
+            existing.assignedPilotInstanceId),
       forceId:
         updates.forceId === null
           ? undefined
-          : updates.forceId ?? existing.forceId,
+          : (updates.forceId ?? existing.forceId),
       forceSlot:
         updates.forceSlot === null
           ? undefined
-          : updates.forceSlot ?? existing.forceSlot,
+          : (updates.forceSlot ?? existing.forceSlot),
       updatedAt: new Date().toISOString(),
     };
 
     await getIndexedDBService().put(
       STORES.CAMPAIGN_UNIT_INSTANCES,
       id,
-      updated
+      updated,
     );
 
     return updated;
@@ -249,12 +277,12 @@ export class CampaignInstanceService implements ICampaignInstanceService {
   }
 
   async listUnitInstances(
-    options: IInstanceQueryOptions = {}
+    options: IInstanceQueryOptions = {},
   ): Promise<ICampaignUnitInstance[]> {
     await this.ensureInitialized();
 
     const all = await getIndexedDBService().getAll<ICampaignUnitInstance>(
-      STORES.CAMPAIGN_UNIT_INSTANCES
+      STORES.CAMPAIGN_UNIT_INSTANCES,
     );
 
     return all.filter((instance) => {
@@ -289,7 +317,7 @@ export class CampaignInstanceService implements ICampaignInstanceService {
       name: string;
       callsign?: string;
       skills: IPilotSkills;
-    }
+    },
   ): Promise<ICampaignPilotInstance> {
     await this.ensureInitialized();
 
@@ -301,7 +329,7 @@ export class CampaignInstanceService implements ICampaignInstanceService {
       input.vaultPilotId,
       pilotData.name,
       pilotData.callsign,
-      pilotData.skills
+      pilotData.skills,
     );
 
     const fullInstance: ICampaignPilotInstance = {
@@ -312,14 +340,14 @@ export class CampaignInstanceService implements ICampaignInstanceService {
     await getIndexedDBService().put(
       STORES.CAMPAIGN_PILOT_INSTANCES,
       id,
-      fullInstance
+      fullInstance,
     );
 
     return fullInstance;
   }
 
   async createPilotInstanceFromStatblock(
-    input: ICreatePilotInstanceFromStatblockInput
+    input: ICreatePilotInstanceFromStatblockInput,
   ): Promise<ICampaignPilotInstance> {
     await this.ensureInitialized();
 
@@ -328,7 +356,7 @@ export class CampaignInstanceService implements ICampaignInstanceService {
     const instance = createPilotInstanceFromStatblock(
       id,
       input.campaignId,
-      input.statblock
+      input.statblock,
     );
 
     const fullInstance: ICampaignPilotInstance = {
@@ -339,23 +367,25 @@ export class CampaignInstanceService implements ICampaignInstanceService {
     await getIndexedDBService().put(
       STORES.CAMPAIGN_PILOT_INSTANCES,
       id,
-      fullInstance
+      fullInstance,
     );
 
     return fullInstance;
   }
 
-  async getPilotInstance(id: string): Promise<ICampaignPilotInstance | undefined> {
+  async getPilotInstance(
+    id: string,
+  ): Promise<ICampaignPilotInstance | undefined> {
     await this.ensureInitialized();
     return getIndexedDBService().get<ICampaignPilotInstance>(
       STORES.CAMPAIGN_PILOT_INSTANCES,
-      id
+      id,
     );
   }
 
   async updatePilotInstance(
     id: string,
-    updates: IUpdatePilotInstanceInput
+    updates: IUpdatePilotInstanceInput,
   ): Promise<ICampaignPilotInstance> {
     await this.ensureInitialized();
 
@@ -371,14 +401,14 @@ export class CampaignInstanceService implements ICampaignInstanceService {
       assignedUnitInstanceId:
         updates.assignedUnitInstanceId === null
           ? undefined
-          : updates.assignedUnitInstanceId ?? existing.assignedUnitInstanceId,
+          : (updates.assignedUnitInstanceId ?? existing.assignedUnitInstanceId),
       updatedAt: new Date().toISOString(),
     };
 
     await getIndexedDBService().put(
       STORES.CAMPAIGN_PILOT_INSTANCES,
       id,
-      updated
+      updated,
     );
 
     return updated;
@@ -392,7 +422,9 @@ export class CampaignInstanceService implements ICampaignInstanceService {
     if (instance?.assignedUnitInstanceId) {
       const unit = await this.getUnitInstance(instance.assignedUnitInstanceId);
       if (unit && unit.assignedPilotInstanceId === id) {
-        await this.updateUnitInstance(unit.id, { assignedPilotInstanceId: null });
+        await this.updateUnitInstance(unit.id, {
+          assignedPilotInstanceId: null,
+        });
       }
     }
 
@@ -400,12 +432,12 @@ export class CampaignInstanceService implements ICampaignInstanceService {
   }
 
   async listPilotInstances(
-    options: IInstanceQueryOptions = {}
+    options: IInstanceQueryOptions = {},
   ): Promise<ICampaignPilotInstance[]> {
     await this.ensureInitialized();
 
     const all = await getIndexedDBService().getAll<ICampaignPilotInstance>(
-      STORES.CAMPAIGN_PILOT_INSTANCES
+      STORES.CAMPAIGN_PILOT_INSTANCES,
     );
 
     return all.filter((instance) => {
@@ -434,7 +466,7 @@ export class CampaignInstanceService implements ICampaignInstanceService {
 
   async assignPilotToUnit(
     pilotInstanceId: string,
-    unitInstanceId: string
+    unitInstanceId: string,
   ): Promise<void> {
     await this.ensureInitialized();
 
@@ -449,14 +481,20 @@ export class CampaignInstanceService implements ICampaignInstanceService {
     }
 
     // Unassign current pilot from unit if any
-    if (unit.assignedPilotInstanceId && unit.assignedPilotInstanceId !== pilotInstanceId) {
+    if (
+      unit.assignedPilotInstanceId &&
+      unit.assignedPilotInstanceId !== pilotInstanceId
+    ) {
       await this.updatePilotInstance(unit.assignedPilotInstanceId, {
         assignedUnitInstanceId: null,
       });
     }
 
     // Unassign pilot from current unit if any
-    if (pilot.assignedUnitInstanceId && pilot.assignedUnitInstanceId !== unitInstanceId) {
+    if (
+      pilot.assignedUnitInstanceId &&
+      pilot.assignedUnitInstanceId !== unitInstanceId
+    ) {
       await this.updateUnitInstance(pilot.assignedUnitInstanceId, {
         assignedPilotInstanceId: null,
       });
@@ -503,12 +541,18 @@ export class CampaignInstanceService implements ICampaignInstanceService {
 
     // Delete all unit instances
     for (const unit of units) {
-      await getIndexedDBService().delete(STORES.CAMPAIGN_UNIT_INSTANCES, unit.id);
+      await getIndexedDBService().delete(
+        STORES.CAMPAIGN_UNIT_INSTANCES,
+        unit.id,
+      );
     }
 
     // Delete all pilot instances
     for (const pilot of pilots) {
-      await getIndexedDBService().delete(STORES.CAMPAIGN_PILOT_INSTANCES, pilot.id);
+      await getIndexedDBService().delete(
+        STORES.CAMPAIGN_PILOT_INSTANCES,
+        pilot.id,
+      );
     }
   }
 }

@@ -1,8 +1,8 @@
 /**
  * Critical Hit System Types
- * 
+ *
  * Defines critical hit tables, effects, and resolution.
- * 
+ *
  * @spec openspec/specs/critical-hit-system/spec.md
  */
 
@@ -127,8 +127,10 @@ export const CRITICAL_HIT_EFFECTS: readonly CriticalHitEffect[] = [
 /**
  * Get critical hit effect for component
  */
-export function getCriticalHitEffect(type: CriticalComponentType): CriticalHitEffect | undefined {
-  return CRITICAL_HIT_EFFECTS.find(e => e.componentType === type);
+export function getCriticalHitEffect(
+  type: CriticalComponentType,
+): CriticalHitEffect | undefined {
+  return CRITICAL_HIT_EFFECTS.find((e) => e.componentType === type);
 }
 
 /**
@@ -141,7 +143,9 @@ export function determineCriticals(roll: number): CriticalHitDetermination {
 /**
  * Get number of critical slots to check
  */
-export function getCriticalSlotCount(determination: CriticalHitDetermination): number {
+export function getCriticalSlotCount(
+  determination: CriticalHitDetermination,
+): number {
   switch (determination) {
     case CriticalHitDetermination.ONE_CRITICAL:
       return 1;
@@ -180,8 +184,10 @@ export const DAMAGE_TRANSFER_PATHS: readonly TransferPath[] = [
 /**
  * Get transfer destination for location
  */
-export function getTransferDestination(from: MechLocation): MechLocation | null {
-  const path = DAMAGE_TRANSFER_PATHS.find(p => p.from === from);
+export function getTransferDestination(
+  from: MechLocation,
+): MechLocation | null {
+  const path = DAMAGE_TRANSFER_PATHS.find((p) => p.from === from);
   return path?.to ?? null;
 }
 
@@ -189,7 +195,9 @@ export function getTransferDestination(from: MechLocation): MechLocation | null 
  * Check if location transfers damage (vs destroys mech)
  */
 export function doesLocationTransferDamage(location: MechLocation): boolean {
-  return location !== MechLocation.HEAD && location !== MechLocation.CENTER_TORSO;
+  return (
+    location !== MechLocation.HEAD && location !== MechLocation.CENTER_TORSO
+  );
 }
 
 /**
@@ -198,10 +206,9 @@ export function doesLocationTransferDamage(location: MechLocation): boolean {
 export function calculateAmmoExplosionDamage(
   ammoType: string,
   remainingShots: number,
-  damagePerShot: number
+  damagePerShot: number,
 ): number {
   // Missiles do damage per missile remaining
   // ACs do damage equal to damage × shots remaining
   return remainingShots * damagePerShot;
 }
-

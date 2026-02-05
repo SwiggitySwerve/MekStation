@@ -7,8 +7,9 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { unlockIdentity } from '@/services/vault/IdentityService';
+
 import { getIdentityRepository } from '@/services/vault/IdentityRepository';
+import { unlockIdentity } from '@/services/vault/IdentityService';
 
 // =============================================================================
 // Request Body Types
@@ -20,7 +21,7 @@ interface UnlockRequestBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<void> {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -68,7 +69,8 @@ export default async function handler(
   } catch (error) {
     console.error('Failed to unlock identity:', error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to unlock identity',
+      error:
+        error instanceof Error ? error.message : 'Failed to unlock identity',
     });
   }
 }

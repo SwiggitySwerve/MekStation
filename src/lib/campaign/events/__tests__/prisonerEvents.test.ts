@@ -1,7 +1,8 @@
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { createSeededRandom } from '@/lib/campaign/events/eventProbability';
 import type { IPerson } from '@/types/campaign/Person';
+
+import { createSeededRandom } from '@/lib/campaign/events/eventProbability';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import {
   RandomEventCategory,
   RandomEventSeverity,
@@ -9,6 +10,7 @@ import {
   MINOR_PRISONER_EVENTS,
   MAJOR_PRISONER_EVENTS,
 } from '@/types/campaign/events/randomEventTypes';
+
 import {
   MINOR_EVENT_DEFINITIONS,
   MAJOR_EVENT_DEFINITIONS,
@@ -24,7 +26,9 @@ import {
 // Test Helpers
 // =============================================================================
 
-function createMockPerson(overrides: Partial<IPerson> & { id: string; name: string }): IPerson {
+function createMockPerson(
+  overrides: Partial<IPerson> & { id: string; name: string },
+): IPerson {
   return {
     status: PersonnelStatus.ACTIVE,
     primaryRole: CampaignPersonnelRole.PILOT,
@@ -39,7 +43,16 @@ function createMockPerson(overrides: Partial<IPerson> & { id: string; name: stri
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '3025-01-01T00:00:00Z',
     updatedAt: '3025-01-01T00:00:00Z',
@@ -63,27 +76,90 @@ describe('countPrisoners', () => {
 
   it('returns 0 when no personnel are POW', () => {
     const personnel = new Map<string, IPerson>([
-      ['p1', createMockPerson({ id: 'p1', name: 'Alpha', status: PersonnelStatus.ACTIVE })],
-      ['p2', createMockPerson({ id: 'p2', name: 'Beta', status: PersonnelStatus.WOUNDED })],
+      [
+        'p1',
+        createMockPerson({
+          id: 'p1',
+          name: 'Alpha',
+          status: PersonnelStatus.ACTIVE,
+        }),
+      ],
+      [
+        'p2',
+        createMockPerson({
+          id: 'p2',
+          name: 'Beta',
+          status: PersonnelStatus.WOUNDED,
+        }),
+      ],
     ]);
     expect(countPrisoners(personnel)).toBe(0);
   });
 
   it('counts only POW personnel', () => {
     const personnel = new Map<string, IPerson>([
-      ['p1', createMockPerson({ id: 'p1', name: 'Alpha', status: PersonnelStatus.POW })],
-      ['p2', createMockPerson({ id: 'p2', name: 'Beta', status: PersonnelStatus.ACTIVE })],
-      ['p3', createMockPerson({ id: 'p3', name: 'Gamma', status: PersonnelStatus.POW })],
-      ['p4', createMockPerson({ id: 'p4', name: 'Delta', status: PersonnelStatus.KIA })],
+      [
+        'p1',
+        createMockPerson({
+          id: 'p1',
+          name: 'Alpha',
+          status: PersonnelStatus.POW,
+        }),
+      ],
+      [
+        'p2',
+        createMockPerson({
+          id: 'p2',
+          name: 'Beta',
+          status: PersonnelStatus.ACTIVE,
+        }),
+      ],
+      [
+        'p3',
+        createMockPerson({
+          id: 'p3',
+          name: 'Gamma',
+          status: PersonnelStatus.POW,
+        }),
+      ],
+      [
+        'p4',
+        createMockPerson({
+          id: 'p4',
+          name: 'Delta',
+          status: PersonnelStatus.KIA,
+        }),
+      ],
     ]);
     expect(countPrisoners(personnel)).toBe(2);
   });
 
   it('counts all POW when everyone is POW', () => {
     const personnel = new Map<string, IPerson>([
-      ['p1', createMockPerson({ id: 'p1', name: 'Alpha', status: PersonnelStatus.POW })],
-      ['p2', createMockPerson({ id: 'p2', name: 'Beta', status: PersonnelStatus.POW })],
-      ['p3', createMockPerson({ id: 'p3', name: 'Gamma', status: PersonnelStatus.POW })],
+      [
+        'p1',
+        createMockPerson({
+          id: 'p1',
+          name: 'Alpha',
+          status: PersonnelStatus.POW,
+        }),
+      ],
+      [
+        'p2',
+        createMockPerson({
+          id: 'p2',
+          name: 'Beta',
+          status: PersonnelStatus.POW,
+        }),
+      ],
+      [
+        'p3',
+        createMockPerson({
+          id: 'p3',
+          name: 'Gamma',
+          status: PersonnelStatus.POW,
+        }),
+      ],
     ]);
     expect(countPrisoners(personnel)).toBe(3);
   });
@@ -203,13 +279,17 @@ describe('MAJOR_EVENT_DEFINITIONS', () => {
   it('BREAKOUT has prisoner_escape effect', () => {
     const breakout = MAJOR_EVENT_DEFINITIONS.get(PrisonerEventType.BREAKOUT);
     expect(breakout).toBeDefined();
-    expect(breakout!.effects.some((e) => e.type === 'prisoner_escape')).toBe(true);
+    expect(breakout!.effects.some((e) => e.type === 'prisoner_escape')).toBe(
+      true,
+    );
   });
 
   it('RIOT has prisoner_casualty effect', () => {
     const riot = MAJOR_EVENT_DEFINITIONS.get(PrisonerEventType.RIOT);
     expect(riot).toBeDefined();
-    expect(riot!.effects.some((e) => e.type === 'prisoner_casualty')).toBe(true);
+    expect(riot!.effects.some((e) => e.type === 'prisoner_casualty')).toBe(
+      true,
+    );
   });
 });
 
@@ -401,7 +481,10 @@ describe('processPrisonerEvents', () => {
       const events = processPrisonerEvents(50, '3025-01-03', random);
       for (const event of events) {
         if (event.title !== 'Prisoner Ransom') {
-          expect([RandomEventSeverity.MINOR, RandomEventSeverity.MAJOR]).toContain(event.severity);
+          expect([
+            RandomEventSeverity.MINOR,
+            RandomEventSeverity.MAJOR,
+          ]).toContain(event.severity);
         }
       }
     }

@@ -6,8 +6,13 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type {
+  IVaultFolder,
+  IFolderItem,
+  ShareableContentType,
+} from '@/types/vault';
+
 import { VaultService } from '@/services/vault/VaultService';
-import type { IVaultFolder, IFolderItem, ShareableContentType } from '@/types/vault';
 
 // =============================================================================
 // Mock Folder Repository
@@ -20,7 +25,7 @@ class MockVaultFolderRepository {
 
   async createFolder(
     name: string,
-    options?: { description?: string; parentId?: string; isShared?: boolean }
+    options?: { description?: string; parentId?: string; isShared?: boolean },
   ): Promise<IVaultFolder> {
     const id = `folder-mock-${++this.idCounter}`;
     const now = new Date().toISOString();
@@ -49,7 +54,7 @@ class MockVaultFolderRepository {
 
   async getChildFolders(parentId: string): Promise<IVaultFolder[]> {
     return Array.from(this.folders.values()).filter(
-      (f) => f.parentId === parentId
+      (f) => f.parentId === parentId,
     );
   }
 
@@ -71,7 +76,7 @@ class MockVaultFolderRepository {
 
   async updateFolderDescription(
     id: string,
-    description: string | null
+    description: string | null,
   ): Promise<boolean> {
     const folder = this.folders.get(id);
     if (!folder) return false;
@@ -104,11 +109,11 @@ class MockVaultFolderRepository {
   async addItemToFolder(
     folderId: string,
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<boolean> {
     const items = this.folderItems.get(folderId) || [];
     const exists = items.some(
-      (i) => i.itemId === itemId && i.itemType === itemType
+      (i) => i.itemId === itemId && i.itemType === itemType,
     );
     if (!exists) {
       items.push({
@@ -127,11 +132,11 @@ class MockVaultFolderRepository {
   async removeItemFromFolder(
     folderId: string,
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<boolean> {
     const items = this.folderItems.get(folderId) || [];
     const newItems = items.filter(
-      (i) => !(i.itemId === itemId && i.itemType === itemType)
+      (i) => !(i.itemId === itemId && i.itemType === itemType),
     );
     this.folderItems.set(folderId, newItems);
     const folder = this.folders.get(folderId);
@@ -145,11 +150,15 @@ class MockVaultFolderRepository {
 
   async getItemFolders(
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<IVaultFolder[]> {
     const result: IVaultFolder[] = [];
     this.folderItems.forEach((items: IFolderItem[], folderId: string) => {
-      if (items.some((i: IFolderItem) => i.itemId === itemId && i.itemType === itemType)) {
+      if (
+        items.some(
+          (i: IFolderItem) => i.itemId === itemId && i.itemType === itemType,
+        )
+      ) {
         const folder = this.folders.get(folderId);
         if (folder) result.push(folder);
       }
@@ -161,7 +170,7 @@ class MockVaultFolderRepository {
     itemId: string,
     itemType: ShareableContentType,
     fromFolderId: string,
-    toFolderId: string
+    toFolderId: string,
   ): Promise<boolean> {
     await this.removeItemFromFolder(fromFolderId, itemId, itemType);
     return this.addItemToFolder(toFolderId, itemId, itemType);
@@ -169,12 +178,12 @@ class MockVaultFolderRepository {
 
   async removeItemFromAllFolders(
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<number> {
     let count = 0;
     this.folderItems.forEach((items: IFolderItem[], folderId: string) => {
       const newItems = items.filter(
-        (i: IFolderItem) => !(i.itemId === itemId && i.itemType === itemType)
+        (i: IFolderItem) => !(i.itemId === itemId && i.itemType === itemType),
       );
       if (newItems.length !== items.length) {
         this.folderItems.set(folderId, newItems);
@@ -240,7 +249,7 @@ class MockPermissionService {
     granteeId: string,
     scopeType: string,
     scopeId: string | null,
-    scopeCategory?: string | null
+    scopeCategory?: string | null,
   ): Promise<{ hasAccess: boolean; level: 'read' | 'write' | 'admin' | null }> {
     const perms = Array.from(this.permissions.values());
     for (const perm of perms) {
@@ -251,7 +260,10 @@ class MockPermissionService {
         if (perm.scopeType === scopeType && perm.scopeId === scopeId) {
           return { hasAccess: true, level: perm.level };
         }
-        if (perm.scopeType === 'category' && perm.scopeCategory === scopeCategory) {
+        if (
+          perm.scopeType === 'category' &&
+          perm.scopeCategory === scopeCategory
+        ) {
           return { hasAccess: true, level: perm.level };
         }
       }
@@ -261,13 +273,16 @@ class MockPermissionService {
 
   async getGrantsForGrantee(granteeId: string): Promise<MockPermission[]> {
     return Array.from(this.permissions.values()).filter(
-      (p) => p.granteeId === granteeId
+      (p) => p.granteeId === granteeId,
     );
   }
 
-  async getGrantsForItem(scopeType: string, scopeId: string): Promise<MockPermission[]> {
+  async getGrantsForItem(
+    scopeType: string,
+    scopeId: string,
+  ): Promise<MockPermission[]> {
     return Array.from(this.permissions.values()).filter(
-      (p) => p.scopeType === scopeType && p.scopeId === scopeId
+      (p) => p.scopeType === scopeType && p.scopeId === scopeId,
     );
   }
 
@@ -297,7 +312,7 @@ class MockPermissionService {
 
   async updateLevel(
     id: string,
-    newLevel: 'read' | 'write' | 'admin'
+    newLevel: 'read' | 'write' | 'admin',
   ): Promise<{ success: boolean }> {
     const perm = this.permissions.get(id);
     if (!perm) return { success: false };
@@ -351,7 +366,7 @@ describe('VaultService', () => {
     mockPermissionService = new MockPermissionService();
     service = new VaultService(
       mockFolderRepo as never,
-      mockPermissionService as never
+      mockPermissionService as never,
     );
   });
 
@@ -548,7 +563,9 @@ describe('VaultService', () => {
     it('should move folder to new parent', async () => {
       const parent1 = await service.createFolder('Parent 1');
       const parent2 = await service.createFolder('Parent 2');
-      const child = await service.createFolder('Child', { parentId: parent1.id });
+      const child = await service.createFolder('Child', {
+        parentId: parent1.id,
+      });
 
       await service.moveFolder(child.id, parent2.id);
 
@@ -558,7 +575,9 @@ describe('VaultService', () => {
 
     it('should move folder to root', async () => {
       const parent = await service.createFolder('Parent');
-      const child = await service.createFolder('Child', { parentId: parent.id });
+      const child = await service.createFolder('Child', {
+        parentId: parent.id,
+      });
 
       await service.moveFolder(child.id, null);
 
@@ -605,7 +624,7 @@ describe('VaultService', () => {
       const result = await service.shareFolderWithContact(
         folder.id,
         'PEER-1234-ABCD',
-        'read'
+        'read',
       );
 
       expect(result).toBe(true);
@@ -619,7 +638,7 @@ describe('VaultService', () => {
       const result = await service.shareFolderWithContact(
         folder.id,
         'UNKNOWN-CODE',
-        'read'
+        'read',
       );
 
       expect(result).toBe(true);
@@ -637,7 +656,7 @@ describe('VaultService', () => {
         'unit-123',
         'unit',
         'PEER-1234-ABCD',
-        'write'
+        'write',
       );
 
       expect(result).toBe(true);
@@ -654,7 +673,7 @@ describe('VaultService', () => {
       const result = await service.shareCategoryWithContact(
         'units',
         'PEER-1234-ABCD',
-        'read'
+        'read',
       );
 
       expect(result).toBe(true);
@@ -779,7 +798,7 @@ describe('VaultService', () => {
           { itemId: 'force-1', itemType: 'force' },
         ],
         'PEER-1234-ABCD',
-        'read'
+        'read',
       );
 
       expect(result.success).toBe(3);
@@ -794,7 +813,7 @@ describe('VaultService', () => {
       const result = await service.shareFolderContentsWithContact(
         folder.id,
         'PEER-1234-ABCD',
-        'read'
+        'read',
       );
 
       expect(result.folderShared).toBe(true);
@@ -840,7 +859,7 @@ describe('VaultService', () => {
 
       const updated = await service.updateContactPermissionLevel(
         'PEER-1234-ABCD',
-        'write'
+        'write',
       );
 
       expect(updated).toBe(2);
@@ -891,7 +910,7 @@ describe('VaultService', () => {
       const level = await service.canAccessItem(
         'unit-123',
         'unit',
-        'PEER-1234-ABCD'
+        'PEER-1234-ABCD',
       );
 
       expect(level).toBe('write');
@@ -911,7 +930,7 @@ describe('VaultService', () => {
       const level = await service.canAccessItem(
         'unit-123',
         'unit',
-        'PEER-1234-ABCD'
+        'PEER-1234-ABCD',
       );
 
       expect(level).toBe('admin');
@@ -930,7 +949,7 @@ describe('VaultService', () => {
       const level = await service.canAccessItem(
         'unit-123',
         'unit',
-        'PEER-1234-ABCD'
+        'PEER-1234-ABCD',
       );
 
       expect(level).toBe('read');
@@ -1122,7 +1141,7 @@ describe('VaultService', () => {
 
       const perms = await mockPermissionService.getGrantsForItem(
         'folder',
-        folder.id
+        folder.id,
       );
       expect(perms).toHaveLength(0);
     });

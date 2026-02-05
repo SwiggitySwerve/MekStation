@@ -332,7 +332,9 @@ export interface IExportableForce {
 
 export type ExistsChecker = (id: string) => Promise<boolean>;
 
-export type NameChecker = (name: string) => Promise<{ id: string; name: string } | null>;
+export type NameChecker = (
+  name: string,
+) => Promise<{ id: string; name: string } | null>;
 
 export type ItemSaver<T> = (item: T, source: IImportSource) => Promise<string>;
 
@@ -560,7 +562,10 @@ export interface IShareLinkError {
 /**
  * Result of redeeming a share link - discriminated union via ResultType
  */
-export type IShareLinkRedeemResult = ResultType<IShareLinkData, IShareLinkError>;
+export type IShareLinkRedeemResult = ResultType<
+  IShareLinkData,
+  IShareLinkError
+>;
 
 // =============================================================================
 // Contact Types (Phase 3)
@@ -1102,7 +1107,7 @@ export interface IVersionDiff {
 
   /**
    * Additions (new fields/values in the new version)
-   * 
+   *
    * Note: Intentionally typed as Record<string, unknown> because:
    * - Represents arbitrary JSON diff data
    * - Field names and types vary by content type and specific changes
@@ -1112,7 +1117,7 @@ export interface IVersionDiff {
 
   /**
    * Deletions (removed fields/values from the old version)
-   * 
+   *
    * Note: Intentionally typed as Record<string, unknown> because:
    * - Represents arbitrary JSON diff data
    * - Field names and types vary by content type and specific changes
@@ -1157,7 +1162,12 @@ export interface IVersionHistorySummary {
 /**
  * Status of a queued message
  */
-export type QueuedMessageStatus = 'pending' | 'sending' | 'sent' | 'failed' | 'expired';
+export type QueuedMessageStatus =
+  | 'pending'
+  | 'sending'
+  | 'sent'
+  | 'failed'
+  | 'expired';
 
 /**
  * A queued message waiting for delivery to an offline peer

@@ -1,14 +1,17 @@
 /**
  * MTF Import Service Tests
- * 
+ *
  * Tests for importing and validating unit data from JSON.
- * 
+ *
  * @spec openspec/specs/data-loading-architecture/spec.md
  */
 
-import { MTFImportService, getMTFImportService } from '@/services/conversion/MTFImportService';
-import { ISerializedUnit } from '@/types/unit/UnitSerialization';
+import {
+  MTFImportService,
+  getMTFImportService,
+} from '@/services/conversion/MTFImportService';
 import { TechBase } from '@/types/enums/TechBase';
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
 describe('MTFImportService', () => {
   let service: MTFImportService;
@@ -40,9 +43,11 @@ describe('MTFImportService', () => {
   describe('import()', () => {
     it('should return error for raw MTF parsing', () => {
       const result = service.import('some mtf content');
-      
+
       expect(result.success).toBe(false);
-      expect(result.error!.errors).toContain('Direct MTF parsing not implemented. Use importFromJSON for pre-converted JSON.');
+      expect(result.error!.errors).toContain(
+        'Direct MTF parsing not implemented. Use importFromJSON for pre-converted JSON.',
+      );
     });
   });
 
@@ -52,9 +57,11 @@ describe('MTFImportService', () => {
   describe('validate()', () => {
     it('should return error for raw MTF validation', () => {
       const result = service.validate('some mtf content');
-      
+
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Direct MTF validation not implemented. Use validateJSON for JSON data.');
+      expect(result.errors).toContain(
+        'Direct MTF validation not implemented. Use validateJSON for JSON data.',
+      );
     });
   });
 
@@ -216,13 +223,20 @@ describe('MTFImportService', () => {
         { id: 'lrm-20', location: 'LT' },
       ],
       criticalSlots: {
-        HEAD: ['Life Support', 'Sensors', 'Cockpit', 'null', 'Sensors', 'Life Support'],
+        HEAD: [
+          'Life Support',
+          'Sensors',
+          'Cockpit',
+          'null',
+          'Sensors',
+          'Life Support',
+        ],
       },
     };
 
     it('should import valid unit successfully', () => {
       const result = service.importFromJSON(validUnit);
-      
+
       expect(result.success).toBe(true);
       expect(result.data!.unitId).toBe('atlas-as7-d');
     });
@@ -232,17 +246,17 @@ describe('MTFImportService', () => {
       const { id: _removed, ...unitWithoutId } = validUnit;
       void _removed;
       const invalidUnit: Partial<ISerializedUnit> = unitWithoutId;
-      
+
       const result = service.importFromJSON(invalidUnit as ISerializedUnit);
-      
+
       expect(result.error!.errors).toContain('Missing required field: id');
     });
 
     it('should validate all required fields', () => {
       const emptyUnit = {} as ISerializedUnit;
-      
+
       const result = service.importFromJSON(emptyUnit);
-      
+
       expect(result.error!.errors.length).toBeGreaterThan(0);
       expect(result.error!.errors).toContain('Missing required field: id');
       expect(result.error!.errors).toContain('Missing required field: chassis');
@@ -255,9 +269,11 @@ describe('MTFImportService', () => {
       const { id: _removed, ...unitWithoutId } = validUnit;
       void _removed;
       const invalidUnit: Partial<ISerializedUnit> = unitWithoutId;
-      
-      const result = service.importFromJSON(invalidUnit as ISerializedUnit, { strictMode: true });
-      
+
+      const result = service.importFromJSON(invalidUnit as ISerializedUnit, {
+        strictMode: true,
+      });
+
       expect(result.success).toBe(false);
     });
 
@@ -272,10 +288,16 @@ describe('MTFImportService', () => {
         },
       };
 
-      const result = service.importFromJSON(unitWithBadArmor, { validateArmor: true });
-      
+      const result = service.importFromJSON(unitWithBadArmor, {
+        validateArmor: true,
+      });
+
       // In non-strict mode, armor errors become warnings
-      expect(result.data!.warnings.some((w: string) => w.includes('Head armor exceeds maximum'))).toBe(true);
+      expect(
+        result.data!.warnings.some((w: string) =>
+          w.includes('Head armor exceeds maximum'),
+        ),
+      ).toBe(true);
     });
 
     it('should validate critical slots', () => {
@@ -286,14 +308,20 @@ describe('MTFImportService', () => {
         },
       };
 
-      const result = service.importFromJSON(unitWithBadSlots, { validateCriticalSlots: true });
-      
-      expect(result.data!.warnings.some((w: string) => w.includes('HEAD has'))).toBe(true);
+      const result = service.importFromJSON(unitWithBadSlots, {
+        validateCriticalSlots: true,
+      });
+
+      expect(
+        result.data!.warnings.some((w: string) => w.includes('HEAD has')),
+      ).toBe(true);
     });
 
     it('should skip equipment validation when disabled', () => {
-      const result = service.importFromJSON(validUnit, { validateEquipment: false });
-      
+      const result = service.importFromJSON(validUnit, {
+        validateEquipment: false,
+      });
+
       expect(result.success).toBe(true);
     });
 
@@ -305,7 +333,7 @@ describe('MTFImportService', () => {
       };
 
       const result = service.importFromJSON(badUnit as ISerializedUnit);
-      
+
       expect(result.success).toBe(false);
     });
   });
@@ -316,21 +344,23 @@ describe('MTFImportService', () => {
   describe('resolveEquipment()', () => {
     it('should resolve known equipment IDs', () => {
       const result = service.resolveEquipment(['medium-laser', 'ac-20']);
-      
+
       // The actual resolution depends on the equipment registry
       expect(result.resolved).toBeDefined();
       expect(result.unresolved).toBeDefined();
     });
 
     it('should track unresolved IDs', () => {
-      const result = service.resolveEquipment(['completely-fake-equipment-12345']);
-      
+      const result = service.resolveEquipment([
+        'completely-fake-equipment-12345',
+      ]);
+
       expect(result.unresolved).toContain('completely-fake-equipment-12345');
     });
 
     it('should handle empty array', () => {
       const result = service.resolveEquipment([]);
-      
+
       expect(result.resolved.size).toBe(0);
       expect(result.unresolved).toHaveLength(0);
     });
@@ -341,12 +371,13 @@ describe('MTFImportService', () => {
   // ============================================================================
   describe('loadFromUrl()', () => {
     it('should handle fetch errors gracefully', async () => {
-      const result = await service.loadFromUrl('http://invalid-url-that-does-not-exist.invalid/unit.json');
-      
+      const result = await service.loadFromUrl(
+        'http://invalid-url-that-does-not-exist.invalid/unit.json',
+      );
+
       expect(result.success).toBe(false);
       expect(result.error!.errors.length).toBeGreaterThan(0);
       expect(result.error!.unitId ?? null).toBeNull();
     });
   });
 });
-

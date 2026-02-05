@@ -8,10 +8,15 @@
  * - Reduce motion accessibility support
  */
 
-import React from 'react';
 import { render, act } from '@testing-library/react';
+import React from 'react';
+
 import { GlobalStyleProvider } from '@/components/GlobalStyleProvider';
-import { useAppSettingsStore, ACCENT_COLOR_CSS, FONT_SIZE_CSS } from '@/stores/useAppSettingsStore';
+import {
+  useAppSettingsStore,
+  ACCENT_COLOR_CSS,
+  FONT_SIZE_CSS,
+} from '@/stores/useAppSettingsStore';
 
 // Reset store before each test
 beforeEach(() => {
@@ -33,7 +38,7 @@ describe('GlobalStyleProvider', () => {
       render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(document.body.classList.contains('theme-default')).toBe(true);
@@ -47,7 +52,7 @@ describe('GlobalStyleProvider', () => {
       render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(document.body.classList.contains('theme-neon')).toBe(true);
@@ -62,7 +67,7 @@ describe('GlobalStyleProvider', () => {
       render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(document.body.classList.contains('theme-tactical')).toBe(true);
@@ -76,7 +81,7 @@ describe('GlobalStyleProvider', () => {
       render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(document.body.classList.contains('theme-minimal')).toBe(true);
@@ -90,7 +95,7 @@ describe('GlobalStyleProvider', () => {
       const { rerender } = render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(document.body.classList.contains('theme-neon')).toBe(true);
@@ -102,7 +107,7 @@ describe('GlobalStyleProvider', () => {
       rerender(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(document.body.classList.contains('theme-tactical')).toBe(true);
@@ -115,20 +120,26 @@ describe('GlobalStyleProvider', () => {
       render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       const root = document.documentElement;
-      expect(root.style.getPropertyValue('--accent-primary')).toBe(ACCENT_COLOR_CSS.amber.primary);
-      expect(root.style.getPropertyValue('--accent-hover')).toBe(ACCENT_COLOR_CSS.amber.hover);
-      expect(root.style.getPropertyValue('--accent-muted')).toBe(ACCENT_COLOR_CSS.amber.muted);
+      expect(root.style.getPropertyValue('--accent-primary')).toBe(
+        ACCENT_COLOR_CSS.amber.primary,
+      );
+      expect(root.style.getPropertyValue('--accent-hover')).toBe(
+        ACCENT_COLOR_CSS.amber.hover,
+      );
+      expect(root.style.getPropertyValue('--accent-muted')).toBe(
+        ACCENT_COLOR_CSS.amber.muted,
+      );
     });
 
     it('should update accent variables when accent color changes', () => {
       const { rerender } = render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       act(() => {
@@ -138,16 +149,27 @@ describe('GlobalStyleProvider', () => {
       rerender(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       const root = document.documentElement;
-      expect(root.style.getPropertyValue('--accent-primary')).toBe(ACCENT_COLOR_CSS.cyan.primary);
-      expect(root.style.getPropertyValue('--accent-hover')).toBe(ACCENT_COLOR_CSS.cyan.hover);
+      expect(root.style.getPropertyValue('--accent-primary')).toBe(
+        ACCENT_COLOR_CSS.cyan.primary,
+      );
+      expect(root.style.getPropertyValue('--accent-hover')).toBe(
+        ACCENT_COLOR_CSS.cyan.hover,
+      );
     });
 
     it('should support all accent colors', () => {
-      const accentColors = ['amber', 'cyan', 'emerald', 'rose', 'violet', 'blue'] as const;
+      const accentColors = [
+        'amber',
+        'cyan',
+        'emerald',
+        'rose',
+        'violet',
+        'blue',
+      ] as const;
 
       accentColors.forEach((color) => {
         act(() => {
@@ -157,11 +179,13 @@ describe('GlobalStyleProvider', () => {
         render(
           <GlobalStyleProvider>
             <div>Test</div>
-          </GlobalStyleProvider>
+          </GlobalStyleProvider>,
         );
 
         const root = document.documentElement;
-        expect(root.style.getPropertyValue('--accent-primary')).toBe(ACCENT_COLOR_CSS[color].primary);
+        expect(root.style.getPropertyValue('--accent-primary')).toBe(
+          ACCENT_COLOR_CSS[color].primary,
+        );
       });
     });
   });
@@ -171,18 +195,20 @@ describe('GlobalStyleProvider', () => {
       render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       const root = document.documentElement;
-      expect(root.style.getPropertyValue('--font-size-base')).toBe(FONT_SIZE_CSS.medium);
+      expect(root.style.getPropertyValue('--font-size-base')).toBe(
+        FONT_SIZE_CSS.medium,
+      );
     });
 
     it('should update font size variable when changed', () => {
       const { rerender } = render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       act(() => {
@@ -192,11 +218,13 @@ describe('GlobalStyleProvider', () => {
       rerender(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       const root = document.documentElement;
-      expect(root.style.getPropertyValue('--font-size-base')).toBe(FONT_SIZE_CSS.large);
+      expect(root.style.getPropertyValue('--font-size-base')).toBe(
+        FONT_SIZE_CSS.large,
+      );
     });
   });
 
@@ -215,7 +243,7 @@ describe('GlobalStyleProvider', () => {
       render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       // Should show draft theme (neon) not saved theme (default)
@@ -231,11 +259,13 @@ describe('GlobalStyleProvider', () => {
       render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       const root = document.documentElement;
-      expect(root.style.getPropertyValue('--accent-primary')).toBe(ACCENT_COLOR_CSS.violet.primary);
+      expect(root.style.getPropertyValue('--accent-primary')).toBe(
+        ACCENT_COLOR_CSS.violet.primary,
+      );
     });
 
     it('should revert to saved values when draft is cleared', () => {
@@ -253,7 +283,7 @@ describe('GlobalStyleProvider', () => {
       const { rerender } = render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(document.body.classList.contains('theme-neon')).toBe(true);
@@ -266,7 +296,7 @@ describe('GlobalStyleProvider', () => {
       rerender(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       // Should now show saved theme
@@ -280,7 +310,7 @@ describe('GlobalStyleProvider', () => {
       render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(document.body.classList.contains('reduce-motion')).toBe(false);
@@ -294,7 +324,7 @@ describe('GlobalStyleProvider', () => {
       render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(document.body.classList.contains('reduce-motion')).toBe(true);
@@ -308,7 +338,7 @@ describe('GlobalStyleProvider', () => {
       const { rerender } = render(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(document.body.classList.contains('reduce-motion')).toBe(true);
@@ -320,7 +350,7 @@ describe('GlobalStyleProvider', () => {
       rerender(
         <GlobalStyleProvider>
           <div>Test</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(document.body.classList.contains('reduce-motion')).toBe(false);
@@ -332,7 +362,7 @@ describe('GlobalStyleProvider', () => {
       const { getByText } = render(
         <GlobalStyleProvider>
           <div>Child Content</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(getByText('Child Content')).toBeInTheDocument();
@@ -343,7 +373,7 @@ describe('GlobalStyleProvider', () => {
         <GlobalStyleProvider>
           <div>First Child</div>
           <div>Second Child</div>
-        </GlobalStyleProvider>
+        </GlobalStyleProvider>,
       );
 
       expect(getByText('First Child')).toBeInTheDocument();

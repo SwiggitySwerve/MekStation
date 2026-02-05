@@ -13,6 +13,7 @@
 ## Design Summary
 
 ### Layout
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Silhouette Aesthetic                                   │
@@ -29,6 +30,7 @@
 ```
 
 ### Behavior
+
 - Left list shows all variants with mini-preview thumbnails in each variant's actual style
 - Clicking a variant updates the large preview immediately (live preview)
 - Changes NOT persisted until "Save" clicked
@@ -40,6 +42,7 @@
 ## Task 1: Add Draft State for Customizer Preferences
 
 **Files:**
+
 - Modify: `src/stores/useAppSettingsStore.ts`
 - Modify: `src/__tests__/stores/useAppSettingsStore.test.ts`
 
@@ -165,6 +168,7 @@ npm test -- --testPathPattern="useAppSettingsStore" --watchAll=false
 ## Task 2: Create VariantThumbnail Component
 
 **Files:**
+
 - Create: `src/components/customizer/armor/VariantThumbnail.tsx`
 
 ### Step 1: Create the component
@@ -298,6 +302,7 @@ Add export to appropriate index file if one exists.
 ## Task 3: Create ArmorDiagramSettings Component
 
 **Files:**
+
 - Create: `src/components/customizer/armor/ArmorDiagramSettings.tsx`
 
 ### Step 1: Create the split-panel component
@@ -414,6 +419,7 @@ Add export to the armor components index if applicable.
 ## Task 4: Update Settings Page
 
 **Files:**
+
 - Modify: `src/pages/settings.tsx`
 
 ### Step 1: Import the new component
@@ -432,7 +438,7 @@ const revertCustomizer = useAppSettingsStore((s) => s.revertCustomizer);
 useEffect(() => {
   const handleRouteChange = () => {
     revertAppearance();
-    revertCustomizer();  // Add this
+    revertCustomizer(); // Add this
   };
 
   router.events.on('routeChangeStart', handleRouteChange);
@@ -466,19 +472,24 @@ Remove the old ArmorDiagramGridPreview usage.
 ## Task 5: Update Components to Use Effective Getters
 
 **Files:**
+
 - Modify: `src/components/customizer/armor/ArmorTab.tsx`
 - Modify: `src/components/customizer/armor/ArmorDiagramQuickSettings.tsx`
 
 ### Step 1: Update ArmorTab
 
 Change from:
+
 ```typescript
 const armorDiagramVariant = useAppSettingsStore((s) => s.armorDiagramVariant);
 ```
 
 To:
+
 ```typescript
-const getEffectiveArmorDiagramVariant = useAppSettingsStore((s) => s.getEffectiveArmorDiagramVariant);
+const getEffectiveArmorDiagramVariant = useAppSettingsStore(
+  (s) => s.getEffectiveArmorDiagramVariant,
+);
 const armorDiagramVariant = getEffectiveArmorDiagramVariant();
 ```
 
@@ -493,6 +504,7 @@ Also update the setter to use `setDraftArmorDiagramVariant` instead of `setArmor
 ## Task 6: Write Tests and Verify
 
 **Files:**
+
 - Modify: `src/__tests__/stores/useAppSettingsStore.test.ts`
 
 ### Step 1: Add customizer draft tests
@@ -560,7 +572,9 @@ describe('Customizer draft/save system', () => {
       result.current.setDraftArmorDiagramVariant('tactical-hud');
     });
 
-    expect(result.current.getEffectiveArmorDiagramVariant()).toBe('tactical-hud');
+    expect(result.current.getEffectiveArmorDiagramVariant()).toBe(
+      'tactical-hud',
+    );
   });
 });
 ```
@@ -582,6 +596,7 @@ npm run build
 ## Summary
 
 This implementation:
+
 1. Adds draft/save pattern for customizer settings (consistent with appearance)
 2. Creates split-panel UI with list + large preview
 3. Shows variant thumbnails with each variant's actual style

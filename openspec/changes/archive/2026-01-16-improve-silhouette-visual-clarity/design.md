@@ -31,14 +31,14 @@ The armor diagram customizer provides 6 visual style variants. Users select thei
 
 **Decision**: Add variant-specific decorative elements to thumbnails that reflect each style's key visual trait.
 
-| Variant | Decorative Element |
-|---------|-------------------|
-| Standard | Horizontal divider line (front/rear split) |
-| Glow Effects | Already has neon glow and dashed inner rect |
-| LED Display | Already has blue bar segments |
-| Metallic | Add circular badge element |
-| MegaMek | Add shadow offset layer |
-| MegaMek Classic | Add small pip dots (3-4 circles) |
+| Variant         | Decorative Element                          |
+| --------------- | ------------------------------------------- |
+| Standard        | Horizontal divider line (front/rear split)  |
+| Glow Effects    | Already has neon glow and dashed inner rect |
+| LED Display     | Already has blue bar segments               |
+| Metallic        | Add circular badge element                  |
+| MegaMek         | Add shadow offset layer                     |
+| MegaMek Classic | Add small pip dots (3-4 circles)            |
 
 **Rationale**: Users can recognize the style from the thumbnail without needing to read the label.
 
@@ -93,6 +93,7 @@ Capacity text (e.g., "/ 32"): >= 9px
 **Decision**: All variants use DiagramHeader component with ArmorDiagramQuickSettings.
 
 **Current state**:
+
 - Standard, MegaMek, MegaMek Classic: DiagramHeader without QuickSettings
 - Glow Effects, LED Display, Premium: Custom headers with QuickSettings
 
@@ -100,11 +101,11 @@ Capacity text (e.g., "/ 32"): >= 9px
 
 ## Risks / Trade-offs
 
-| Risk | Mitigation |
-|------|------------|
-| MegaMek color change may surprise users | Color is more authentic to record sheet style |
-| Layout changes affect visual balance | Test thoroughly; 60/40 is close to most current values |
-| Font size increases may crowd small locations | Test with minimum and maximum armor values |
+| Risk                                          | Mitigation                                             |
+| --------------------------------------------- | ------------------------------------------------------ |
+| MegaMek color change may surprise users       | Color is more authentic to record sheet style          |
+| Layout changes affect visual balance          | Test thoroughly; 60/40 is close to most current values |
+| Font size increases may crowd small locations | Test with minimum and maximum armor values             |
 
 ## Migration Plan
 
@@ -144,7 +145,8 @@ Architecture:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Rationale**: 
+**Rationale**:
+
 - Eliminates viewBox mismatches by auto-calculating from resolved positions
 - Easy repositioning: change one constraint, all connected parts adjust
 - Same code handles all mech configurations (Biped, Quad, Tripod, LAM, QuadVee)
@@ -158,18 +160,19 @@ Architecture:
 // Edge definitions for each part
 interface EdgeDefinition {
   edge: 'top' | 'bottom' | 'left' | 'right';
-  allowConnections?: boolean;     // Whether connections are allowed
-  connectionZones?: Array<[number, number]>;  // Valid zones (0-1 range)
-  offset?: number;                // Visual offset from bounding box
+  allowConnections?: boolean; // Whether connections are allowed
+  connectionZones?: Array<[number, number]>; // Valid zones (0-1 range)
+  offset?: number; // Visual offset from bounding box
 }
 
 // Anchors can be positioned along edges
 interface AnchorPoint {
-  id: string;                     // e.g., 'shoulder', 'hip', 'neck'
-  position: AnchorPosition;       // Simple positioning
-  edgePosition?: {                // Edge-relative positioning (more precise)
+  id: string; // e.g., 'shoulder', 'hip', 'neck'
+  position: AnchorPosition; // Simple positioning
+  edgePosition?: {
+    // Edge-relative positioning (more precise)
     edge: 'top' | 'bottom' | 'left' | 'right';
-    at: number;                   // 0-1 position along edge
+    at: number; // 0-1 position along edge
   };
   offset?: { x: number; y: number };
   facing?: 'up' | 'down' | 'left' | 'right' | 'inward' | 'outward';
@@ -178,8 +181,8 @@ interface AnchorPoint {
 // Connection alignment - anchors don't need to share coordinates
 interface ConnectionAlignment {
   mode: 'match' | 'adjacent' | 'offset';
-  offset?: { x: number; y: number };  // For 'offset' mode
-  sourceEdge?: EdgeName;              // For 'adjacent' mode
+  offset?: { x: number; y: number }; // For 'offset' mode
+  sourceEdge?: EdgeName; // For 'adjacent' mode
   targetEdge?: EdgeName;
 }
 
@@ -188,16 +191,17 @@ interface PartDefinition {
   baseWidth: number;
   baseHeight: number;
   anchors: AnchorPoint[];
-  edges?: EdgeDefinition[];       // Edge connection rules
+  edges?: EdgeDefinition[]; // Edge connection rules
   shape: 'rect' | 'polygon' | 'path';
-  pathTemplate?: string;          // SVG path with placeholders
-  orientation?: PartOrientation;  // Rotation/flip
+  pathTemplate?: string; // SVG path with placeholders
+  orientation?: PartOrientation; // Rotation/flip
   isRoot?: boolean;
-  mirrorable?: boolean;           // Can be mirrored for left/right
+  mirrorable?: boolean; // Can be mirrored for left/right
 }
 ```
 
-**Rationale**: 
+**Rationale**:
+
 - Anchors provide semantic connection points that are more maintainable than absolute coordinates
 - Edge-relative positioning allows precise control (e.g., "30% along the top edge")
 - Connection alignment modes support parts that connect with gaps or offsets between them
@@ -207,15 +211,15 @@ interface PartDefinition {
 
 **Decision**: Support multiple constraint types for flexible layouts.
 
-| Constraint Type | Purpose |
-|-----------------|---------|
-| `anchor-to-anchor` | Connect specific anchors between parts |
-| `align-horizontal` | Align part centers horizontally |
-| `align-vertical` | Align part centers vertically |
-| `stack-vertical` | Stack parts vertically with gap |
-| `stack-horizontal` | Stack parts horizontally with gap |
-| `gap` | Maintain gap between part edges |
-| `contain` | One part contains another (for nested layouts) |
+| Constraint Type    | Purpose                                        |
+| ------------------ | ---------------------------------------------- |
+| `anchor-to-anchor` | Connect specific anchors between parts         |
+| `align-horizontal` | Align part centers horizontally                |
+| `align-vertical`   | Align part centers vertically                  |
+| `stack-vertical`   | Stack parts vertically with gap                |
+| `stack-horizontal` | Stack parts horizontally with gap              |
+| `gap`              | Maintain gap between part edges                |
+| `contain`          | One part contains another (for nested layouts) |
 
 **Edge-to-Edge Constraints**: For more precise positioning, parts can define edge-to-edge connections:
 
@@ -223,11 +227,11 @@ interface PartDefinition {
 interface EdgeConstraint {
   source: MechLocation;
   sourceEdge: EdgeName;
-  sourceAt: number;      // Position along source edge (0-1)
+  sourceAt: number; // Position along source edge (0-1)
   target: MechLocation;
   targetEdge: EdgeName;
-  targetAt: number;      // Position along target edge (0-1)
-  gap?: number;          // Gap between edges (can be negative)
+  targetAt: number; // Position along target edge (0-1)
+  gap?: number; // Gap between edges (can be negative)
 }
 ```
 
@@ -262,7 +266,8 @@ URL patterns:
 - /settings#reset         → Reset section
 ```
 
-**Rationale**: 
+**Rationale**:
+
 - Quick navigation tags provide direct access to specific sections
 - URL hash enables bookmarking and sharing specific settings
 - Collapsible sections reduce visual clutter
@@ -272,14 +277,14 @@ URL patterns:
 
 **Decision**: Rename variants for clarity and remove deprecated variant.
 
-| Old Name | New Name | Rationale |
-|----------|----------|-----------|
-| Clean Tech | Standard | More intuitive |
-| Glow Effects | Glow | Shorter, clearer |
-| LED Display | HUD | More recognizable |
+| Old Name         | New Name  | Rationale                            |
+| ---------------- | --------- | ------------------------------------ |
+| Clean Tech       | Standard  | More intuitive                       |
+| Glow Effects     | Glow      | Shorter, clearer                     |
+| LED Display      | HUD       | More recognizable                    |
 | Premium Material | Chromatic | Describes the metallic/chrome effect |
-| MegaMek | MegaMek | No change - brand recognition |
-| MegaMek Classic | (REMOVED) | Redundant with MegaMek |
+| MegaMek          | MegaMek   | No change - brand recognition        |
+| MegaMek Classic  | (REMOVED) | Redundant with MegaMek               |
 
 **Rationale**: Simpler names are easier to understand and remember.
 

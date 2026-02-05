@@ -8,9 +8,10 @@
  */
 
 import React from 'react';
+
 import { Badge } from '@/components/ui/Badge';
-import { IPilotMechCardData } from '@/types/pilot/pilot-mech-card';
 import { formatSkills } from '@/services/pilot-mech-card';
+import { IPilotMechCardData } from '@/types/pilot/pilot-mech-card';
 
 // =============================================================================
 // Types
@@ -45,20 +46,20 @@ function WoundTracker({ wounds }: { wounds: number }): React.ReactElement {
     pips.push(
       <div
         key={i}
-        className={`w-4 h-4 rounded-full border-2 transition-colors ${
+        className={`h-4 w-4 rounded-full border-2 transition-colors ${
           isWounded
-            ? 'bg-rose-500 border-rose-400'
-            : 'bg-transparent border-border-theme-subtle'
+            ? 'border-rose-400 bg-rose-500'
+            : 'border-border-theme-subtle bg-transparent'
         }`}
         title={isWounded ? `Wound ${i + 1}` : 'No wound'}
-      />
+      />,
     );
   }
 
   return (
     <div className="flex items-center gap-1.5">
       {pips}
-      <span className="ml-2 text-sm text-text-theme-muted font-mono">
+      <span className="text-text-theme-muted ml-2 font-mono text-sm">
         {wounds}/{maxWounds}
       </span>
     </div>
@@ -86,19 +87,19 @@ function CareerStats({
       {missions !== undefined && (
         <div className="flex items-center gap-1">
           <span className="text-text-theme-muted">Missions:</span>
-          <span className="font-mono text-text-theme-primary">{missions}</span>
+          <span className="text-text-theme-primary font-mono">{missions}</span>
         </div>
       )}
       {kills !== undefined && (
         <div className="flex items-center gap-1">
           <span className="text-text-theme-muted">Kills:</span>
-          <span className="font-mono text-text-theme-primary">{kills}</span>
+          <span className="text-text-theme-primary font-mono">{kills}</span>
         </div>
       )}
       {xp !== undefined && (
         <div className="flex items-center gap-1">
           <span className="text-text-theme-muted">XP:</span>
-          <span className="font-mono text-accent">{xp}</span>
+          <span className="text-accent font-mono">{xp}</span>
         </div>
       )}
     </div>
@@ -120,24 +121,29 @@ function EffectiveStats({
   consciousnessTarget: number;
 }): React.ReactElement {
   return (
-    <div className="bg-surface-base/50 rounded-lg p-3 border border-border-theme-subtle/50">
-      <h4 className="text-xs font-semibold text-text-theme-muted uppercase tracking-wider mb-2">
+    <div className="bg-surface-base/50 border-border-theme-subtle/50 rounded-lg border p-3">
+      <h4 className="text-text-theme-muted mb-2 text-xs font-semibold tracking-wider uppercase">
         Combat Stats
       </h4>
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-sm">
           <span className="text-text-theme-secondary">Base To-Hit</span>
-          <span className="font-mono text-text-theme-primary">
-            4 + {gunnery} = <span className="text-accent font-semibold">{baseToHit}</span>
+          <span className="text-text-theme-primary font-mono">
+            4 + {gunnery} ={' '}
+            <span className="text-accent font-semibold">{baseToHit}</span>
           </span>
         </div>
         <div className="flex items-center justify-between text-sm">
           <span className="text-text-theme-secondary">Consciousness</span>
-          <span className="font-mono text-text-theme-primary">
+          <span className="text-text-theme-primary font-mono">
             3 + {wounds} ={' '}
             <span
               className={`font-semibold ${
-                wounds > 3 ? 'text-rose-400' : wounds > 0 ? 'text-amber-400' : 'text-emerald-400'
+                wounds > 3
+                  ? 'text-rose-400'
+                  : wounds > 0
+                    ? 'text-amber-400'
+                    : 'text-emerald-400'
               }`}
             >
               {consciousnessTarget}+
@@ -160,12 +166,12 @@ export function PilotSection({
   showEffectiveStats = true,
   className = '',
 }: PilotSectionProps): React.ReactElement {
-  const { 
-    pilotName, 
-    callsign, 
-    affiliation, 
-    rank, 
-    gunnery, 
+  const {
+    pilotName,
+    callsign,
+    affiliation,
+    rank,
+    gunnery,
     piloting,
     wounds,
     status,
@@ -196,8 +202,8 @@ export function PilotSection({
     <div className={`space-y-4 ${className}`}>
       {/* Header: Name and Callsign */}
       <div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <h3 className="text-xl font-bold text-text-theme-primary">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-text-theme-primary text-xl font-bold">
             {callsign ? `"${callsign}"` : pilotName}
           </h3>
           <Badge variant={getStatusVariant()} size="sm">
@@ -205,24 +211,26 @@ export function PilotSection({
           </Badge>
         </div>
         {callsign && (
-          <p className="text-sm text-text-theme-secondary mt-0.5">
+          <p className="text-text-theme-secondary mt-0.5 text-sm">
             {pilotName}
           </p>
         )}
-        <div className="flex items-center gap-2 mt-1 text-sm text-text-theme-muted">
+        <div className="text-text-theme-muted mt-1 flex items-center gap-2 text-sm">
           {rank && <span>{rank}</span>}
-          {rank && affiliation && <span className="text-border-theme-subtle">-</span>}
+          {rank && affiliation && (
+            <span className="text-border-theme-subtle">-</span>
+          )}
           {affiliation && <span>{affiliation}</span>}
         </div>
       </div>
 
       {/* Skills Display */}
       <div className="flex items-center gap-4">
-        <div className="bg-surface-base/50 rounded-lg px-4 py-2 border border-border-theme-subtle/50">
-          <span className="text-xs text-text-theme-muted uppercase tracking-wider block mb-1">
+        <div className="bg-surface-base/50 border-border-theme-subtle/50 rounded-lg border px-4 py-2">
+          <span className="text-text-theme-muted mb-1 block text-xs tracking-wider uppercase">
             Gunnery / Piloting
           </span>
-          <span className="text-2xl font-bold font-mono text-text-theme-primary">
+          <span className="text-text-theme-primary font-mono text-2xl font-bold">
             {formatSkills(gunnery, piloting)}
           </span>
         </div>
@@ -230,7 +238,7 @@ export function PilotSection({
 
       {/* Wounds Tracker */}
       <div>
-        <span className="text-xs text-text-theme-muted uppercase tracking-wider block mb-2">
+        <span className="text-text-theme-muted mb-2 block text-xs tracking-wider uppercase">
           Wounds
         </span>
         <WoundTracker wounds={wounds} />
@@ -254,13 +262,15 @@ export function PilotSection({
       {/* Abilities */}
       {showAbilities && abilities.length > 0 && (
         <div>
-          <span className="text-xs text-text-theme-muted uppercase tracking-wider block mb-2">
+          <span className="text-text-theme-muted mb-2 block text-xs tracking-wider uppercase">
             Abilities
           </span>
           <div className="flex flex-wrap gap-2">
             {abilities.map((ability) => (
               <Badge key={ability} variant="violet" size="md">
-                {ability.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                {ability
+                  .replace(/-/g, ' ')
+                  .replace(/\b\w/g, (c) => c.toUpperCase())}
               </Badge>
             ))}
           </div>

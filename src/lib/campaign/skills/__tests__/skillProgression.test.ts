@@ -1,8 +1,13 @@
 import { describe, it, expect } from '@jest/globals';
-import { IPerson } from '@/types/campaign/Person';
-import { ICampaignOptions, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+
+import {
+  ICampaignOptions,
+  createDefaultCampaignOptions,
+} from '@/types/campaign/Campaign';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { IPerson } from '@/types/campaign/Person';
+
 import {
   getSkillImprovementCost,
   canImproveSkill,
@@ -60,7 +65,12 @@ describe('Skill Progression and XP Costs', () => {
 
   describe('getSkillImprovementCost', () => {
     it('RED: gunnery level 3→4 costs 16 XP', () => {
-      const cost = getSkillImprovementCost('gunnery', 3, basePerson, defaultOptions);
+      const cost = getSkillImprovementCost(
+        'gunnery',
+        3,
+        basePerson,
+        defaultOptions,
+      );
       expect(cost).toBe(16);
     });
 
@@ -73,8 +83,18 @@ describe('Skill Progression and XP Costs', () => {
         },
       };
 
-      const baseCost = getSkillImprovementCost('piloting', 3, basePerson, defaultOptions);
-      const reducedCost = getSkillImprovementCost('piloting', 3, highDexPerson, defaultOptions);
+      const baseCost = getSkillImprovementCost(
+        'piloting',
+        3,
+        basePerson,
+        defaultOptions,
+      );
+      const reducedCost = getSkillImprovementCost(
+        'piloting',
+        3,
+        highDexPerson,
+        defaultOptions,
+      );
 
       expect(reducedCost).toBeLessThan(baseCost);
     });
@@ -88,8 +108,18 @@ describe('Skill Progression and XP Costs', () => {
         },
       };
 
-      const baseCost = getSkillImprovementCost('piloting', 3, basePerson, defaultOptions);
-      const increasedCost = getSkillImprovementCost('piloting', 3, lowDexPerson, defaultOptions);
+      const baseCost = getSkillImprovementCost(
+        'piloting',
+        3,
+        basePerson,
+        defaultOptions,
+      );
+      const increasedCost = getSkillImprovementCost(
+        'piloting',
+        3,
+        lowDexPerson,
+        defaultOptions,
+      );
 
       expect(increasedCost).toBeGreaterThan(baseCost);
     });
@@ -100,14 +130,29 @@ describe('Skill Progression and XP Costs', () => {
         xpCostMultiplier: 2.0,
       };
 
-      const normalCost = getSkillImprovementCost('gunnery', 3, basePerson, defaultOptions);
-      const doubleCost = getSkillImprovementCost('gunnery', 3, basePerson, doubleOptions);
+      const normalCost = getSkillImprovementCost(
+        'gunnery',
+        3,
+        basePerson,
+        defaultOptions,
+      );
+      const doubleCost = getSkillImprovementCost(
+        'gunnery',
+        3,
+        basePerson,
+        doubleOptions,
+      );
 
       expect(doubleCost).toBe(normalCost * 2);
     });
 
     it('RED: unknown skill returns Infinity', () => {
-      const cost = getSkillImprovementCost('unknown-skill', 3, basePerson, defaultOptions);
+      const cost = getSkillImprovementCost(
+        'unknown-skill',
+        3,
+        basePerson,
+        defaultOptions,
+      );
       expect(cost).toBe(Infinity);
     });
 
@@ -124,7 +169,12 @@ describe('Skill Progression and XP Costs', () => {
         },
       };
 
-      const cost = getSkillImprovementCost('gunnery', 10, maxLevelPerson, defaultOptions);
+      const cost = getSkillImprovementCost(
+        'gunnery',
+        10,
+        maxLevelPerson,
+        defaultOptions,
+      );
       expect(cost).toBe(Infinity);
     });
   });
@@ -163,14 +213,23 @@ describe('Skill Progression and XP Costs', () => {
     });
 
     it('RED: cannot improve non-existent skill', () => {
-      const result = canImproveSkill(basePerson, 'unknown-skill', defaultOptions);
+      const result = canImproveSkill(
+        basePerson,
+        'unknown-skill',
+        defaultOptions,
+      );
       expect(result).toBe(false);
     });
   });
 
   describe('improveSkill', () => {
     it('RED: improveSkill deducts XP and increments level', () => {
-      const cost = getSkillImprovementCost('gunnery', 3, basePerson, defaultOptions);
+      const cost = getSkillImprovementCost(
+        'gunnery',
+        3,
+        basePerson,
+        defaultOptions,
+      );
       const newPerson = improveSkill(basePerson, 'gunnery', defaultOptions);
 
       expect(newPerson.skills.gunnery.level).toBe(4);
@@ -179,9 +238,9 @@ describe('Skill Progression and XP Costs', () => {
     });
 
     it('RED: improveSkill throws if skill not found', () => {
-      expect(() => improveSkill(basePerson, 'unknown-skill', defaultOptions)).toThrow(
-        /Skill unknown-skill not found/
-      );
+      expect(() =>
+        improveSkill(basePerson, 'unknown-skill', defaultOptions),
+      ).toThrow(/Skill unknown-skill not found/);
     });
 
     it('RED: improveSkill throws if at max level', () => {
@@ -197,9 +256,9 @@ describe('Skill Progression and XP Costs', () => {
         },
       };
 
-      expect(() => improveSkill(maxLevelPerson, 'gunnery', defaultOptions)).toThrow(
-        /already at maximum level/
-      );
+      expect(() =>
+        improveSkill(maxLevelPerson, 'gunnery', defaultOptions),
+      ).toThrow(/already at maximum level/);
     });
 
     it('RED: improveSkill throws if insufficient XP', () => {
@@ -209,7 +268,7 @@ describe('Skill Progression and XP Costs', () => {
       };
 
       expect(() => improveSkill(poorPerson, 'gunnery', defaultOptions)).toThrow(
-        /Insufficient XP/
+        /Insufficient XP/,
       );
     });
 
@@ -256,23 +315,23 @@ describe('Skill Progression and XP Costs', () => {
 
     it('GREEN: addSkill throws if skill already exists', () => {
       expect(() => addSkill(basePerson, 'gunnery', 1)).toThrow(
-        /already exists/
+        /already exists/,
       );
     });
 
     it('GREEN: addSkill throws if invalid initial level', () => {
       expect(() => addSkill(basePerson, 'small-arms', -1)).toThrow(
-        /Invalid initial skill level/
+        /Invalid initial skill level/,
       );
 
       expect(() => addSkill(basePerson, 'small-arms', 11)).toThrow(
-        /Invalid initial skill level/
+        /Invalid initial skill level/,
       );
     });
 
     it('GREEN: addSkill throws if unknown skill', () => {
       expect(() => addSkill(basePerson, 'unknown-skill', 1)).toThrow(
-        /Unknown skill/
+        /Unknown skill/,
       );
     });
 
@@ -309,12 +368,22 @@ describe('Skill Progression and XP Costs', () => {
     it('GREEN: multiple improvements work correctly', () => {
       let person = basePerson;
 
-      const cost1 = getSkillImprovementCost('gunnery', 3, person, defaultOptions);
+      const cost1 = getSkillImprovementCost(
+        'gunnery',
+        3,
+        person,
+        defaultOptions,
+      );
       person = improveSkill(person, 'gunnery', defaultOptions);
       expect(person.skills.gunnery.level).toBe(4);
       expect(person.xp).toBe(basePerson.xp - cost1);
 
-      const cost2 = getSkillImprovementCost('gunnery', 4, person, defaultOptions);
+      const cost2 = getSkillImprovementCost(
+        'gunnery',
+        4,
+        person,
+        defaultOptions,
+      );
       person = improveSkill(person, 'gunnery', defaultOptions);
       expect(person.skills.gunnery.level).toBe(5);
       expect(person.xp).toBe(basePerson.xp - cost1 - cost2);
@@ -329,16 +398,26 @@ describe('Skill Progression and XP Costs', () => {
         },
       };
 
-      const cost1 = getSkillImprovementCost('piloting', 2, highDexPerson, defaultOptions);
+      const cost1 = getSkillImprovementCost(
+        'piloting',
+        2,
+        highDexPerson,
+        defaultOptions,
+      );
       const newPerson = improveSkill(highDexPerson, 'piloting', defaultOptions);
 
-      const cost2 = getSkillImprovementCost('piloting', 3, newPerson, defaultOptions);
+      const cost2 = getSkillImprovementCost(
+        'piloting',
+        3,
+        newPerson,
+        defaultOptions,
+      );
 
       expect(cost1).toBeLessThan(
-        getSkillImprovementCost('piloting', 2, basePerson, defaultOptions)
+        getSkillImprovementCost('piloting', 2, basePerson, defaultOptions),
       );
       expect(cost2).toBeLessThan(
-        getSkillImprovementCost('piloting', 3, basePerson, defaultOptions)
+        getSkillImprovementCost('piloting', 3, basePerson, defaultOptions),
       );
     });
   });

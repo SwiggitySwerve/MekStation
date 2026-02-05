@@ -10,6 +10,11 @@
  * - Cumulative modifier application
  */
 
+import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
+import { ICampaignOptions } from '@/types/campaign/Campaign';
+import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { IPerson } from '@/types/campaign/Person';
+
 import {
   AGING_MILESTONES,
   getMilestoneForAge,
@@ -19,10 +24,6 @@ import {
   processAging,
   applyAgingModifiers,
 } from '../aging';
-import { IPerson } from '@/types/campaign/Person';
-import { ICampaignOptions } from '@/types/campaign/Campaign';
-import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
-import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
 
 // =============================================================================
 // Test Fixtures
@@ -71,7 +72,9 @@ function createTestPerson(overrides?: Partial<IPerson>): IPerson {
 /**
  * Creates campaign options with aging enabled
  */
-function createTestOptions(overrides?: Partial<ICampaignOptions>): ICampaignOptions {
+function createTestOptions(
+  overrides?: Partial<ICampaignOptions>,
+): ICampaignOptions {
   return {
     // Personnel
     healingRateMultiplier: 1.0,
@@ -416,9 +419,7 @@ describe('processAging', () => {
 
     // Age 31 is in 31-40 milestone, age 30 was in 25-30
     // Should apply modifiers
-    expect(result.updatedPerson.attributes.STR).not.toBe(
-      person.attributes.STR
-    );
+    expect(result.updatedPerson.attributes.STR).not.toBe(person.attributes.STR);
     expect(result.events).toHaveLength(1);
     expect(result.events[0].type).toBe('aging');
     expect(result.events[0].age).toBe(31);

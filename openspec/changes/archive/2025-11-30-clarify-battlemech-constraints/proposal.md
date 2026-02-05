@@ -38,4 +38,3 @@ The current `engine-system` spec states engine ratings must be between 10-500, b
 
 - TechManual pp. 46-51 (Engine construction)
 - BattleMech Manual (tonnage classes)
-

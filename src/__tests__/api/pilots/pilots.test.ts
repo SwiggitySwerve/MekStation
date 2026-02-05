@@ -1,28 +1,29 @@
 /**
  * Pilots API Routes - Comprehensive Tests
- * 
+ *
  * Tests all pilot API endpoints:
  * - GET/POST /api/pilots - List and create pilots
  * - GET/PUT/DELETE /api/pilots/[id] - Individual pilot operations
  * - POST /api/pilots/[id]/improve-gunnery - Skill improvement
  * - POST /api/pilots/[id]/improve-piloting - Skill improvement
  * - POST /api/pilots/[id]/purchase-ability - Special abilities
- * 
+ *
  * @spec openspec/changes/add-pilot-system/specs/pilot-system/spec.md
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import indexHandler from '@/pages/api/pilots/index';
+
 import idHandler from '@/pages/api/pilots/[id]';
 import improveGunneryHandler from '@/pages/api/pilots/[id]/improve-gunnery';
 import improvePilotingHandler from '@/pages/api/pilots/[id]/improve-piloting';
 import purchaseAbilityHandler from '@/pages/api/pilots/[id]/purchase-ability';
+import indexHandler from '@/pages/api/pilots/index';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getPilotService, getPilotRepository } from '@/services/pilots';
-import { 
-  IPilot, 
-  PilotType, 
-  PilotStatus, 
+import {
+  IPilot,
+  PilotType,
+  PilotStatus,
   PilotExperienceLevel,
   ICreatePilotOptions,
   getAbility,
@@ -36,7 +37,8 @@ import {
 jest.mock('@/services/persistence/SQLiteService');
 jest.mock('@/services/pilots');
 jest.mock('@/types/pilot', () => {
-  const actual = jest.requireActual<typeof import('@/types/pilot')>('@/types/pilot');
+  const actual =
+    jest.requireActual<typeof import('@/types/pilot')>('@/types/pilot');
   return {
     ...actual,
     getAbility: jest.fn(),
@@ -77,7 +79,11 @@ const mockPilotRepository = {
 // Test Helpers
 // =============================================================================
 
-function createMockRequest(method: string, body?: unknown, query?: unknown): NextApiRequest {
+function createMockRequest(
+  method: string,
+  body?: unknown,
+  query?: unknown,
+): NextApiRequest {
   return {
     method,
     body,
@@ -165,7 +171,9 @@ describe('GET /api/pilots - List pilots', () => {
   });
 
   it('should list only active pilots when status=active', async () => {
-    const mockPilots = [createMockPilot({ id: 'pilot-1', status: PilotStatus.Active })];
+    const mockPilots = [
+      createMockPilot({ id: 'pilot-1', status: PilotStatus.Active }),
+    ];
 
     mockPilotService.listActivePilots.mockReturnValue(mockPilots);
 
@@ -208,7 +216,9 @@ describe('GET /api/pilots - List pilots', () => {
     await indexHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Database connection failed' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Database connection failed',
+    });
   });
 
   it('should handle service errors', async () => {
@@ -296,7 +306,7 @@ describe('POST /api/pilots - Create pilot', () => {
 
     expect(mockPilotService.createFromTemplate).toHaveBeenCalledWith(
       PilotExperienceLevel.Veteran,
-      identity
+      identity,
     );
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({
@@ -425,7 +435,9 @@ describe('POST /api/pilots - Create pilot', () => {
 
     expect(res.status).toHaveBeenCalledWith(405);
     expect(res.setHeader).toHaveBeenCalledWith('Allow', ['GET', 'POST']);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Method PATCH Not Allowed' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Method PATCH Not Allowed',
+    });
   });
 });
 
@@ -462,11 +474,15 @@ describe('GET /api/pilots/[id] - Get pilot', () => {
     await idHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Pilot non-existent not found' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Pilot non-existent not found',
+    });
   });
 
   it('should reject invalid ID type', async () => {
-    const req = createMockRequest('GET', undefined, { id: ['invalid', 'array'] });
+    const req = createMockRequest('GET', undefined, {
+      id: ['invalid', 'array'],
+    });
     const res = createMockResponse();
 
     await idHandler(req, res);
@@ -503,7 +519,10 @@ describe('PUT /api/pilots/[id] - Update pilot', () => {
 
     await idHandler(req, res);
 
-    expect(mockPilotService.updatePilot).toHaveBeenCalledWith('pilot-1', updates);
+    expect(mockPilotService.updatePilot).toHaveBeenCalledWith(
+      'pilot-1',
+      updates,
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -520,7 +539,9 @@ describe('PUT /api/pilots/[id] - Update pilot', () => {
     };
 
     mockPilotService.updatePilot.mockReturnValue({ success: true });
-    mockPilotService.getPilot.mockReturnValue(createMockPilot({ name: 'Updated Name' }));
+    mockPilotService.getPilot.mockReturnValue(
+      createMockPilot({ name: 'Updated Name' }),
+    );
 
     const req = createMockRequest('PUT', body, { id: 'pilot-1' });
     const res = createMockResponse();
@@ -540,7 +561,11 @@ describe('PUT /api/pilots/[id] - Update pilot', () => {
       errorCode: 'NOT_FOUND',
     });
 
-    const req = createMockRequest('PUT', { name: 'New Name' }, { id: 'pilot-1' });
+    const req = createMockRequest(
+      'PUT',
+      { name: 'New Name' },
+      { id: 'pilot-1' },
+    );
     const res = createMockResponse();
 
     await idHandler(req, res);
@@ -604,7 +629,11 @@ describe('DELETE /api/pilots/[id] - Delete pilot', () => {
     await idHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(405);
-    expect(res.setHeader).toHaveBeenCalledWith('Allow', ['GET', 'PUT', 'DELETE']);
+    expect(res.setHeader).toHaveBeenCalledWith('Allow', [
+      'GET',
+      'PUT',
+      'DELETE',
+    ]);
   });
 });
 
@@ -637,8 +666,13 @@ describe('POST /api/pilots/[id]/improve-gunnery - Improve gunnery skill', () => 
       },
     });
 
-    mockPilotService.getPilot.mockReturnValueOnce(pilot).mockReturnValueOnce(improvedPilot);
-    mockPilotService.canImproveGunnery.mockReturnValue({ canImprove: true, cost: 200 });
+    mockPilotService.getPilot
+      .mockReturnValueOnce(pilot)
+      .mockReturnValueOnce(improvedPilot);
+    mockPilotService.canImproveGunnery.mockReturnValue({
+      canImprove: true,
+      cost: 200,
+    });
     mockPilotService.improveGunnery.mockReturnValue({ success: true });
 
     const req = createMockRequest('POST', {}, { id: 'pilot-1' });
@@ -663,7 +697,10 @@ describe('POST /api/pilots/[id]/improve-gunnery - Improve gunnery skill', () => 
     });
 
     mockPilotService.getPilot.mockReturnValue(pilot);
-    mockPilotService.canImproveGunnery.mockReturnValue({ canImprove: false, cost: null });
+    mockPilotService.canImproveGunnery.mockReturnValue({
+      canImprove: false,
+      cost: null,
+    });
 
     const req = createMockRequest('POST', {}, { id: 'pilot-1' });
     const res = createMockResponse();
@@ -685,7 +722,10 @@ describe('POST /api/pilots/[id]/improve-gunnery - Improve gunnery skill', () => 
     });
 
     mockPilotService.getPilot.mockReturnValue(pilot);
-    mockPilotService.canImproveGunnery.mockReturnValue({ canImprove: false, cost: 200 });
+    mockPilotService.canImproveGunnery.mockReturnValue({
+      canImprove: false,
+      cost: 200,
+    });
 
     const req = createMockRequest('POST', {}, { id: 'pilot-1' });
     const res = createMockResponse();
@@ -755,8 +795,13 @@ describe('POST /api/pilots/[id]/improve-piloting - Improve piloting skill', () =
       },
     });
 
-    mockPilotService.getPilot.mockReturnValueOnce(pilot).mockReturnValueOnce(improvedPilot);
-    mockPilotService.canImprovePiloting.mockReturnValue({ canImprove: true, cost: 150 });
+    mockPilotService.getPilot
+      .mockReturnValueOnce(pilot)
+      .mockReturnValueOnce(improvedPilot);
+    mockPilotService.canImprovePiloting.mockReturnValue({
+      canImprove: true,
+      cost: 150,
+    });
     mockPilotService.improvePiloting.mockReturnValue({ success: true });
 
     const req = createMockRequest('POST', {}, { id: 'pilot-1' });
@@ -781,7 +826,10 @@ describe('POST /api/pilots/[id]/improve-piloting - Improve piloting skill', () =
     });
 
     mockPilotService.getPilot.mockReturnValue(pilot);
-    mockPilotService.canImprovePiloting.mockReturnValue({ canImprove: false, cost: null });
+    mockPilotService.canImprovePiloting.mockReturnValue({
+      canImprove: false,
+      cost: null,
+    });
 
     const req = createMockRequest('POST', {}, { id: 'pilot-1' });
     const res = createMockResponse();
@@ -803,7 +851,10 @@ describe('POST /api/pilots/[id]/improve-piloting - Improve piloting skill', () =
     });
 
     mockPilotService.getPilot.mockReturnValue(pilot);
-    mockPilotService.canImprovePiloting.mockReturnValue({ canImprove: false, cost: 75 });
+    mockPilotService.canImprovePiloting.mockReturnValue({
+      canImprove: false,
+      cost: 75,
+    });
 
     const req = createMockRequest('POST', {}, { id: 'pilot-1' });
     const res = createMockResponse();
@@ -824,7 +875,10 @@ describe('POST /api/pilots/[id]/improve-piloting - Improve piloting skill', () =
     });
 
     mockPilotService.getPilot.mockReturnValue(pilot);
-    mockPilotService.canImprovePiloting.mockReturnValue({ canImprove: true, cost: 75 });
+    mockPilotService.canImprovePiloting.mockReturnValue({
+      canImprove: true,
+      cost: 75,
+    });
     mockPilotService.improvePiloting.mockReturnValue({
       success: false,
       error: 'Update failed',
@@ -871,19 +925,32 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
       career: { ...createMockPilot().career!, xp: 25 }, // 100 - 75
     });
 
-    mockPilotService.getPilot.mockReturnValueOnce(pilot).mockReturnValueOnce(updatedPilot);
-    mockGetAbility.mockReturnValue({ id: 'marksman', name: 'Marksman', xpCost: 75 });
+    mockPilotService.getPilot
+      .mockReturnValueOnce(pilot)
+      .mockReturnValueOnce(updatedPilot);
+    mockGetAbility.mockReturnValue({
+      id: 'marksman',
+      name: 'Marksman',
+      xpCost: 75,
+    });
     mockMeetsPrerequisites.mockReturnValue({ meets: true, missing: [] });
     mockPilotRepository.spendXp.mockReturnValue({ success: true });
     mockPilotRepository.addAbility.mockReturnValue({ success: true });
 
-    const req = createMockRequest('POST', { abilityId: 'marksman' }, { id: 'pilot-1' });
+    const req = createMockRequest(
+      'POST',
+      { abilityId: 'marksman' },
+      { id: 'pilot-1' },
+    );
     const res = createMockResponse();
 
     await purchaseAbilityHandler(req, res);
 
     expect(mockPilotRepository.spendXp).toHaveBeenCalledWith('pilot-1', 75);
-    expect(mockPilotRepository.addAbility).toHaveBeenCalledWith('pilot-1', 'marksman');
+    expect(mockPilotRepository.addAbility).toHaveBeenCalledWith(
+      'pilot-1',
+      'marksman',
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -911,7 +978,11 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
     mockPilotService.getPilot.mockReturnValue(pilot);
     mockGetAbility.mockReturnValue(undefined); // Unknown ability
 
-    const req = createMockRequest('POST', { abilityId: 'unknown-ability' }, { id: 'pilot-1' });
+    const req = createMockRequest(
+      'POST',
+      { abilityId: 'unknown-ability' },
+      { id: 'pilot-1' },
+    );
     const res = createMockResponse();
 
     await purchaseAbilityHandler(req, res);
@@ -932,9 +1003,17 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
     });
 
     mockPilotService.getPilot.mockReturnValue(pilot);
-    mockGetAbility.mockReturnValue({ id: 'marksman', name: 'Marksman', xpCost: 75 });
+    mockGetAbility.mockReturnValue({
+      id: 'marksman',
+      name: 'Marksman',
+      xpCost: 75,
+    });
 
-    const req = createMockRequest('POST', { abilityId: 'marksman' }, { id: 'pilot-1' });
+    const req = createMockRequest(
+      'POST',
+      { abilityId: 'marksman' },
+      { id: 'pilot-1' },
+    );
     const res = createMockResponse();
 
     await purchaseAbilityHandler(req, res);
@@ -955,10 +1034,21 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
     });
 
     mockPilotService.getPilot.mockReturnValue(pilot);
-    mockGetAbility.mockReturnValue({ id: 'sniper', name: 'Sniper', xpCost: 100 });
-    mockMeetsPrerequisites.mockReturnValue({ meets: false, missing: ['weapon-specialist', 'marksman'] });
+    mockGetAbility.mockReturnValue({
+      id: 'sniper',
+      name: 'Sniper',
+      xpCost: 100,
+    });
+    mockMeetsPrerequisites.mockReturnValue({
+      meets: false,
+      missing: ['weapon-specialist', 'marksman'],
+    });
 
-    const req = createMockRequest('POST', { abilityId: 'sniper' }, { id: 'pilot-1' });
+    const req = createMockRequest(
+      'POST',
+      { abilityId: 'sniper' },
+      { id: 'pilot-1' },
+    );
     const res = createMockResponse();
 
     await purchaseAbilityHandler(req, res);
@@ -968,7 +1058,7 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
       expect.objectContaining({
         success: false,
         error: expect.stringContaining('Prerequisites not met') as string,
-      })
+      }),
     );
   });
 
@@ -981,10 +1071,21 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
     });
 
     mockPilotService.getPilot.mockReturnValue(pilot);
-    mockGetAbility.mockReturnValue({ id: 'weapon-specialist', name: 'Weapon Specialist', xpCost: 50 });
-    mockMeetsPrerequisites.mockReturnValue({ meets: false, missing: ['Gunnery 4 or better'] });
+    mockGetAbility.mockReturnValue({
+      id: 'weapon-specialist',
+      name: 'Weapon Specialist',
+      xpCost: 50,
+    });
+    mockMeetsPrerequisites.mockReturnValue({
+      meets: false,
+      missing: ['Gunnery 4 or better'],
+    });
 
-    const req = createMockRequest('POST', { abilityId: 'weapon-specialist' }, { id: 'pilot-1' });
+    const req = createMockRequest(
+      'POST',
+      { abilityId: 'weapon-specialist' },
+      { id: 'pilot-1' },
+    );
     const res = createMockResponse();
 
     await purchaseAbilityHandler(req, res);
@@ -994,7 +1095,7 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
       expect.objectContaining({
         success: false,
         error: expect.stringContaining('Prerequisites not met') as string,
-      })
+      }),
     );
   });
 
@@ -1007,10 +1108,18 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
     });
 
     mockPilotService.getPilot.mockReturnValue(pilot);
-    mockGetAbility.mockReturnValue({ id: 'weapon-specialist', name: 'Weapon Specialist', xpCost: 50 });
+    mockGetAbility.mockReturnValue({
+      id: 'weapon-specialist',
+      name: 'Weapon Specialist',
+      xpCost: 50,
+    });
     mockMeetsPrerequisites.mockReturnValue({ meets: true, missing: [] });
 
-    const req = createMockRequest('POST', { abilityId: 'weapon-specialist' }, { id: 'pilot-1' });
+    const req = createMockRequest(
+      'POST',
+      { abilityId: 'weapon-specialist' },
+      { id: 'pilot-1' },
+    );
     const res = createMockResponse();
 
     await purchaseAbilityHandler(req, res);
@@ -1031,7 +1140,11 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
     });
 
     mockPilotService.getPilot.mockReturnValue(pilot);
-    mockGetAbility.mockReturnValue({ id: 'weapon-specialist', name: 'Weapon Specialist', xpCost: 50 });
+    mockGetAbility.mockReturnValue({
+      id: 'weapon-specialist',
+      name: 'Weapon Specialist',
+      xpCost: 50,
+    });
     mockMeetsPrerequisites.mockReturnValue({ meets: true, missing: [] });
     mockPilotRepository.spendXp.mockReturnValue({ success: true });
     mockPilotRepository.addAbility.mockReturnValue({
@@ -1039,7 +1152,11 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
       error: 'Database error',
     });
 
-    const req = createMockRequest('POST', { abilityId: 'weapon-specialist' }, { id: 'pilot-1' });
+    const req = createMockRequest(
+      'POST',
+      { abilityId: 'weapon-specialist' },
+      { id: 'pilot-1' },
+    );
     const res = createMockResponse();
 
     await purchaseAbilityHandler(req, res);
@@ -1061,14 +1178,22 @@ describe('POST /api/pilots/[id]/purchase-ability - Purchase special ability', ()
     });
 
     mockPilotService.getPilot.mockReturnValue(pilot);
-    mockGetAbility.mockReturnValue({ id: 'weapon-specialist', name: 'Weapon Specialist', xpCost: 50 });
+    mockGetAbility.mockReturnValue({
+      id: 'weapon-specialist',
+      name: 'Weapon Specialist',
+      xpCost: 50,
+    });
     mockMeetsPrerequisites.mockReturnValue({ meets: true, missing: [] });
     mockPilotRepository.spendXp.mockReturnValue({
       success: false,
       error: 'Failed to deduct XP',
     });
 
-    const req = createMockRequest('POST', { abilityId: 'weapon-specialist' }, { id: 'pilot-1' });
+    const req = createMockRequest(
+      'POST',
+      { abilityId: 'weapon-specialist' },
+      { id: 'pilot-1' },
+    );
     const res = createMockResponse();
 
     await purchaseAbilityHandler(req, res);

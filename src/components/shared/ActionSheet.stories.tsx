@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { useState } from 'react';
+
 import { ActionSheet, ActionSheetItem } from './ActionSheet';
 
 const meta: Meta<typeof ActionSheet> = {
@@ -17,7 +19,7 @@ const meta: Meta<typeof ActionSheet> = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <div className="min-h-[600px] bg-surface-deep flex items-center justify-center">
+      <div className="bg-surface-deep flex min-h-[600px] items-center justify-center">
         <Story />
       </div>
     ),
@@ -52,10 +54,10 @@ function ActionSheetDemo({
   }));
 
   return (
-    <div className="text-center space-y-4">
+    <div className="space-y-4 text-center">
       <button
         onClick={() => setIsOpen(true)}
-        className="px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors"
+        className="bg-accent hover:bg-accent-hover rounded-lg px-6 py-3 text-white transition-colors"
       >
         Open Action Sheet
       </button>
@@ -82,9 +84,22 @@ export const Default: Story = {
     <ActionSheetDemo
       title="Equipment Actions"
       actions={[
-        { id: 'assign', label: 'Assign to Location', onSelect: () => console.log('Assign') },
-        { id: 'details', label: 'View Details', onSelect: () => console.log('Details') },
-        { id: 'remove', label: 'Remove from Loadout', danger: true, onSelect: () => console.log('Remove') },
+        {
+          id: 'assign',
+          label: 'Assign to Location',
+          onSelect: () => console.log('Assign'),
+        },
+        {
+          id: 'details',
+          label: 'View Details',
+          onSelect: () => console.log('Details'),
+        },
+        {
+          id: 'remove',
+          label: 'Remove from Loadout',
+          danger: true,
+          onSelect: () => console.log('Remove'),
+        },
       ]}
     />
   ),
@@ -109,11 +124,32 @@ export const WithIcons: Story = {
     <ActionSheetDemo
       title="Mech Actions"
       actions={[
-        { id: 'save', label: 'Save Configuration', icon: '💾', onSelect: () => {} },
-        { id: 'export', label: 'Export to File', icon: '📤', onSelect: () => {} },
+        {
+          id: 'save',
+          label: 'Save Configuration',
+          icon: '💾',
+          onSelect: () => {},
+        },
+        {
+          id: 'export',
+          label: 'Export to File',
+          icon: '📤',
+          onSelect: () => {},
+        },
         { id: 'share', label: 'Share Link', icon: '🔗', onSelect: () => {} },
-        { id: 'duplicate', label: 'Duplicate Mech', icon: '📋', onSelect: () => {} },
-        { id: 'delete', label: 'Delete Mech', icon: '🗑️', danger: true, onSelect: () => {} },
+        {
+          id: 'duplicate',
+          label: 'Duplicate Mech',
+          icon: '📋',
+          onSelect: () => {},
+        },
+        {
+          id: 'delete',
+          label: 'Delete Mech',
+          icon: '🗑️',
+          danger: true,
+          onSelect: () => {},
+        },
       ]}
     />
   ),
@@ -127,7 +163,13 @@ export const DisabledActions: Story = {
         { id: 'add', label: 'Add Equipment', onSelect: () => {} },
         { id: 'clear', label: 'Clear All', onSelect: () => {}, disabled: true },
         { id: 'lock', label: 'Lock Location', onSelect: () => {} },
-        { id: 'remove', label: 'Remove Location', danger: true, disabled: true, onSelect: () => {} },
+        {
+          id: 'remove',
+          label: 'Remove Location',
+          danger: true,
+          disabled: true,
+          onSelect: () => {},
+        },
       ]}
     />
   ),
@@ -139,7 +181,12 @@ export const DangerOnly: Story = {
       title="Delete Configuration?"
       subtitle="This action cannot be undone."
       actions={[
-        { id: 'delete', label: 'Delete Forever', danger: true, onSelect: () => {} },
+        {
+          id: 'delete',
+          label: 'Delete Forever',
+          danger: true,
+          onSelect: () => {},
+        },
       ]}
       cancelLabel="Keep Configuration"
     />
@@ -184,7 +231,12 @@ export const ManyActions: Story = {
         { id: 'max', label: 'Maximum All', onSelect: () => {} },
         { id: 'clear', label: 'Clear All Armor', onSelect: () => {} },
         { id: 'restore', label: 'Restore Default', onSelect: () => {} },
-        { id: 'reset', label: 'Reset to Zero', danger: true, onSelect: () => {} },
+        {
+          id: 'reset',
+          label: 'Reset to Zero',
+          danger: true,
+          onSelect: () => {},
+        },
       ]}
     />
   ),
@@ -197,7 +249,12 @@ export const CustomCancelLabel: Story = {
       subtitle="You have unsaved changes to this mech."
       actions={[
         { id: 'save', label: 'Save and Continue', onSelect: () => {} },
-        { id: 'discard', label: 'Discard Changes', danger: true, onSelect: () => {} },
+        {
+          id: 'discard',
+          label: 'Discard Changes',
+          danger: true,
+          onSelect: () => {},
+        },
       ]}
       cancelLabel="Go Back"
     />
@@ -210,12 +267,43 @@ export const EquipmentContextMenu: Story = {
       title="PPC"
       subtitle="10 tons • 3 critical slots • 10 heat"
       actions={[
-        { id: 'la', label: 'Assign to Left Arm', icon: '💪', onSelect: () => {} },
-        { id: 'ra', label: 'Assign to Right Arm', icon: '💪', onSelect: () => {} },
-        { id: 'lt', label: 'Assign to Left Torso', icon: '🫁', onSelect: () => {} },
-        { id: 'rt', label: 'Assign to Right Torso', icon: '🫁', onSelect: () => {} },
-        { id: 'details', label: 'View Details', icon: 'ℹ️', onSelect: () => {} },
-        { id: 'remove', label: 'Remove', icon: '🗑️', danger: true, onSelect: () => {} },
+        {
+          id: 'la',
+          label: 'Assign to Left Arm',
+          icon: '💪',
+          onSelect: () => {},
+        },
+        {
+          id: 'ra',
+          label: 'Assign to Right Arm',
+          icon: '💪',
+          onSelect: () => {},
+        },
+        {
+          id: 'lt',
+          label: 'Assign to Left Torso',
+          icon: '🫁',
+          onSelect: () => {},
+        },
+        {
+          id: 'rt',
+          label: 'Assign to Right Torso',
+          icon: '🫁',
+          onSelect: () => {},
+        },
+        {
+          id: 'details',
+          label: 'View Details',
+          icon: 'ℹ️',
+          onSelect: () => {},
+        },
+        {
+          id: 'remove',
+          label: 'Remove',
+          icon: '🗑️',
+          danger: true,
+          onSelect: () => {},
+        },
       ]}
     />
   ),

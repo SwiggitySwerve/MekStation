@@ -19,7 +19,8 @@ describe('generateUUID', () => {
   it('should generate a valid UUID v4 format', () => {
     const uuid = generateUUID();
     // UUID v4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
-    const uuidV4Pattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidV4Pattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     expect(uuid).toMatch(uuidV4Pattern);
   });
 
@@ -54,7 +55,9 @@ describe('isValidUUID', () => {
     expect(isValidUUID('')).toBe(false);
     expect(isValidUUID('not-a-uuid')).toBe(false);
     expect(isValidUUID('550e8400-e29b-41d4-a716')).toBe(false);
-    expect(isValidUUID('550e8400-e29b-41d4-a716-446655440000-extra')).toBe(false);
+    expect(isValidUUID('550e8400-e29b-41d4-a716-446655440000-extra')).toBe(
+      false,
+    );
   });
 
   it('should return false for UUIDs with invalid characters', () => {
@@ -70,7 +73,8 @@ describe('isValidUUID', () => {
 describe('generateUnitId', () => {
   it('should generate a valid UUID v4 format', () => {
     const unitId = generateUnitId();
-    const uuidV4Pattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidV4Pattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     expect(unitId).toMatch(uuidV4Pattern);
   });
 

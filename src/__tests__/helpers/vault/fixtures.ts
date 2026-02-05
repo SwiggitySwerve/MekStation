@@ -251,7 +251,7 @@ export const mockVersionSnapshot2: IVersionSnapshot = {
 };
 
 export function createVersionSnapshot(
-  overrides: Partial<IVersionSnapshot> = {}
+  overrides: Partial<IVersionSnapshot> = {},
 ): IVersionSnapshot {
   const content = overrides.content ?? mockUnitContent;
   return {
@@ -365,7 +365,7 @@ export const mockExpiredQueuedMessage: IQueuedMessage = {
 };
 
 export function createQueuedMessage(
-  overrides: Partial<IQueuedMessage> = {}
+  overrides: Partial<IQueuedMessage> = {},
 ): IQueuedMessage {
   const now = new Date();
   const expires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
@@ -394,7 +394,7 @@ export function createQueuedMessage(
  * Create a mock folder with optional overrides
  */
 export function createFolder(
-  overrides: Partial<IVaultFolder> = {}
+  overrides: Partial<IVaultFolder> = {},
 ): IVaultFolder {
   const now = new Date().toISOString();
   return {
@@ -435,7 +435,7 @@ export function createContact(overrides: Partial<IContact> = {}): IContact {
  * Create a mock permission grant with optional overrides
  */
 export function createPermission(
-  overrides: Partial<IPermissionGrant> = {}
+  overrides: Partial<IPermissionGrant> = {},
 ): IPermissionGrant {
   return {
     id: `perm-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -454,11 +454,12 @@ export function createPermission(
  * Create a mock share link with optional overrides
  */
 export function createShareLink(
-  overrides: Partial<IShareLink> = {}
+  overrides: Partial<IShareLink> = {},
 ): IShareLink {
   return {
     id: `link-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-    token: Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
+    token:
+      Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
     scopeType: 'item',
     scopeId: 'unit-test',
     scopeCategory: null,
@@ -476,7 +477,7 @@ export function createShareLink(
  * Create a mock change log entry with optional overrides
  */
 export function createChangeLogEntry(
-  overrides: Partial<IChangeLogEntry> = {}
+  overrides: Partial<IChangeLogEntry> = {},
 ): IChangeLogEntry {
   return {
     id: `change-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -527,7 +528,7 @@ export function generateFolderHierarchy(): IVaultFolder[] {
  */
 export function generateVersionHistory(
   itemId: string,
-  count: number
+  count: number,
 ): IVersionSnapshot[] {
   const versions: IVersionSnapshot[] = [];
   const baseTime = new Date('2025-01-01T00:00:00.000Z').getTime();
@@ -560,7 +561,7 @@ export function generateVersionHistory(
  */
 export function generateQueueMessages(
   peerCount: number,
-  messagesPerPeer: number
+  messagesPerPeer: number,
 ): IQueuedMessage[] {
   const messages: IQueuedMessage[] = [];
 
@@ -573,7 +574,7 @@ export function generateQueueMessages(
           targetPeerId: peerId,
           status: m % 3 === 0 ? 'failed' : 'pending',
           priority: m % 5,
-        })
+        }),
       );
     }
   }

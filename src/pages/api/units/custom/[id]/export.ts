@@ -1,12 +1,13 @@
 /**
  * Unit Export API - Export Unit as JSON
- * 
+ *
  * GET /api/units/custom/:id/export - Export a custom unit as JSON file
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import { ISerializedUnitEnvelope } from '@/types/persistence/UnitPersistence';
@@ -28,13 +29,14 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ExportResponse | ErrorResponse>
+  res: NextApiResponse<ExportResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -72,17 +74,22 @@ export default async function handler(
 
     // If download query param is set, send as file download
     if (download === 'true') {
-      const filename = `${unit.chassis}-${unit.variant}.json`
-        .replace(/[^a-zA-Z0-9\-_.]/g, '-');
-      
+      const filename = `${unit.chassis}-${unit.variant}.json`.replace(
+        /[^a-zA-Z0-9\-_.]/g,
+        '-',
+      );
+
       res.setHeader('Content-Type', 'application/json');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${filename}"`,
+      );
     }
 
     return res.status(200).json(envelope);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to export unit';
+    const message =
+      error instanceof Error ? error.message : 'Failed to export unit';
     return res.status(500).json({ error: message });
   }
 }
-

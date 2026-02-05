@@ -2,16 +2,17 @@
  * Tests for JSON report generator
  */
 
-import { ReportGenerator } from '../reporting/ReportGenerator';
-import { ISimulationReport } from '../reporting/types';
-import { ISimulationMetrics, IAggregateMetrics } from '../metrics/types';
-import { ISimulationConfig } from '../core/types';
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { ISimulationConfig } from '../core/types';
+import { ISimulationMetrics, IAggregateMetrics } from '../metrics/types';
+import { ReportGenerator } from '../reporting/ReportGenerator';
+import { ISimulationReport } from '../reporting/types';
+
 describe('ReportGenerator', () => {
   let generator: ReportGenerator;
-  
+
   beforeEach(() => {
     generator = new ReportGenerator();
   });
@@ -46,7 +47,9 @@ describe('ReportGenerator', () => {
       const report = generator.generate(metrics, aggregate, config);
 
       expect(report).toBeDefined();
-      expect(report.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+      expect(report.timestamp).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+      );
       expect(report.config).toEqual(config);
       expect(report.summary.total).toBe(0);
       expect(report.summary.passed).toBe(0);
@@ -83,7 +86,10 @@ describe('ReportGenerator', () => {
               invariant: 'checkUnitPositionUniqueness',
               severity: 'critical',
               message: 'Multiple units at position (5,5)',
-              context: { position: { q: 5, r: 5 }, unitIds: ['unit1', 'unit2'] },
+              context: {
+                position: { q: 5, r: 5 },
+                unitIds: ['unit1', 'unit2'],
+              },
             },
           ],
           playerUnitsStart: 4,
@@ -165,7 +171,14 @@ describe('ReportGenerator', () => {
           winner: 'opponent',
           turns: 15,
           durationMs: 1500,
-          violations: [{ invariant: 'test', severity: 'critical', message: 'test', context: {} }],
+          violations: [
+            {
+              invariant: 'test',
+              severity: 'critical',
+              message: 'test',
+              context: {},
+            },
+          ],
           playerUnitsStart: 4,
           playerUnitsEnd: 0,
           opponentUnitsStart: 4,
@@ -178,7 +191,14 @@ describe('ReportGenerator', () => {
           winner: 'player',
           turns: 12,
           durationMs: 1200,
-          violations: [{ invariant: 'test', severity: 'warning', message: 'test', context: {} }],
+          violations: [
+            {
+              invariant: 'test',
+              severity: 'warning',
+              message: 'test',
+              context: {},
+            },
+          ],
           playerUnitsStart: 4,
           playerUnitsEnd: 4,
           opponentUnitsStart: 4,
@@ -241,7 +261,14 @@ describe('ReportGenerator', () => {
           winner: 'player',
           turns: 10,
           durationMs: 1000,
-          violations: [{ invariant: 'test', severity: 'critical', message: 'test', context: {} }],
+          violations: [
+            {
+              invariant: 'test',
+              severity: 'critical',
+              message: 'test',
+              context: {},
+            },
+          ],
           playerUnitsStart: 4,
           playerUnitsEnd: 3,
           opponentUnitsStart: 4,
@@ -267,7 +294,14 @@ describe('ReportGenerator', () => {
           winner: 'player',
           turns: 12,
           durationMs: 1200,
-          violations: [{ invariant: 'test', severity: 'warning', message: 'test', context: {} }],
+          violations: [
+            {
+              invariant: 'test',
+              severity: 'warning',
+              message: 'test',
+              context: {},
+            },
+          ],
           playerUnitsStart: 4,
           playerUnitsEnd: 4,
           opponentUnitsStart: 4,
@@ -571,11 +605,11 @@ describe('ReportGenerator', () => {
       generator.save(report, filePath);
 
       const content = fs.readFileSync(filePath, 'utf-8');
-      
+
       // Check for indentation (pretty-printed)
       expect(content).toContain('  "timestamp"');
       expect(content).toContain('  "summary"');
-      
+
       // Verify it's valid JSON
       const parsed = JSON.parse(content) as ISimulationReport;
       expect(parsed.timestamp).toBe(report.timestamp);
@@ -697,7 +731,12 @@ describe('ReportGenerator', () => {
       };
 
       const filePath = path.join(testOutputDir, 'combined-report.json');
-      const returnedPath = generator.saveTo(metrics, aggregate, config, filePath);
+      const returnedPath = generator.saveTo(
+        metrics,
+        aggregate,
+        config,
+        filePath,
+      );
 
       expect(returnedPath).toBe(filePath);
       expect(fs.existsSync(filePath)).toBe(true);
@@ -738,7 +777,9 @@ describe('ReportGenerator', () => {
       const report = generator.generate(metrics, aggregate, config);
 
       // ISO 8601 format: YYYY-MM-DDTHH:mm:ss.sssZ
-      expect(report.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+      expect(report.timestamp).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+      );
     });
   });
 });

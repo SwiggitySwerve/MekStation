@@ -69,7 +69,8 @@ export const BASE_ASSAULT_TEMPLATE: IScenarioTemplate = {
     {
       id: 'capture_objective',
       name: 'Base Captured',
-      description: 'Capture the enemy base by moving a unit into the objective hex.',
+      description:
+        'Capture the enemy base by moving a unit into the objective hex.',
       primary: true,
       objectiveCount: 1,
       victoryPoints: 100,
@@ -131,7 +132,8 @@ export const DEFENSIVE_HOLD_TEMPLATE: IScenarioTemplate = {
     {
       id: 'survive_turns',
       name: 'Position Held',
-      description: 'Maintain at least one unit in the objective zone for 10 turns.',
+      description:
+        'Maintain at least one unit in the objective zone for 10 turns.',
       primary: true,
       turnCount: 10,
       minimumSurvivors: 1,
@@ -192,7 +194,8 @@ export const CONVOY_ESCORT_TEMPLATE: IScenarioTemplate = {
     {
       id: 'escort_units',
       name: 'Convoy Protected',
-      description: 'At least 50% of convoy vehicles must exit the far map edge.',
+      description:
+        'At least 50% of convoy vehicles must exit the far map edge.',
       primary: true,
       requiredUnits: 0,
       requiredPercent: 50,
@@ -231,7 +234,8 @@ export const CONVOY_ESCORT_TEMPLATE: IScenarioTemplate = {
     {
       id: 'convoy_movement',
       name: 'Convoy Movement',
-      description: 'Convoy vehicles must move towards the exit each turn if possible.',
+      description:
+        'Convoy vehicles must move towards the exit each turn if possible.',
       optional: false,
       effects: { forcedMovement: true, exitEdge: 'north' },
     },
@@ -302,7 +306,8 @@ export const RECON_TEMPLATE: IScenarioTemplate = {
     {
       id: 'sensor_scan',
       name: 'Sensor Scan',
-      description: 'Units can scan objectives by ending movement adjacent to them.',
+      description:
+        'Units can scan objectives by ending movement adjacent to them.',
       optional: false,
       effects: { scanRange: 1 },
     },
@@ -408,7 +413,9 @@ export const SCENARIO_TEMPLATES: readonly IScenarioTemplate[] = [
 /**
  * Get a scenario template by ID.
  */
-export function getScenarioTemplateById(id: string): IScenarioTemplate | undefined {
+export function getScenarioTemplateById(
+  id: string,
+): IScenarioTemplate | undefined {
   return SCENARIO_TEMPLATES.find((t) => t.id === id);
 }
 
@@ -416,7 +423,7 @@ export function getScenarioTemplateById(id: string): IScenarioTemplate | undefin
  * Get scenario templates by objective type.
  */
 export function getScenarioTemplatesByObjective(
-  objectiveType: ScenarioObjectiveType
+  objectiveType: ScenarioObjectiveType,
 ): readonly IScenarioTemplate[] {
   return SCENARIO_TEMPLATES.filter((t) => t.objectiveType === objectiveType);
 }
@@ -424,6 +431,8 @@ export function getScenarioTemplatesByObjective(
 /**
  * Get scenario templates by tag.
  */
-export function getScenarioTemplatesByTag(tag: string): readonly IScenarioTemplate[] {
+export function getScenarioTemplatesByTag(
+  tag: string,
+): readonly IScenarioTemplate[] {
   return SCENARIO_TEMPLATES.filter((t) => t.tags.includes(tag));
 }

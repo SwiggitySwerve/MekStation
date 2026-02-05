@@ -1,9 +1,9 @@
-import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
-import { IPerson, IInjury } from '../../../types/campaign/Person';
 import { ICampaignOptions } from '../../../types/campaign/Campaign';
-import { standardMedicalCheck, RandomFn } from './standardMedical';
+import { IPerson, IInjury } from '../../../types/campaign/Person';
 import { advancedMedicalCheck } from './advancedMedical';
 import { alternateMedicalCheck } from './alternateMedical';
+import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
+import { standardMedicalCheck, RandomFn } from './standardMedical';
 
 export function performMedicalCheck(
   system: MedicalSystem,
@@ -11,7 +11,7 @@ export function performMedicalCheck(
   injury: IInjury,
   doctor: IPerson | null,
   options: ICampaignOptions,
-  random: RandomFn
+  random: RandomFn,
 ): IMedicalCheckResult {
   switch (system) {
     case MedicalSystem.STANDARD:

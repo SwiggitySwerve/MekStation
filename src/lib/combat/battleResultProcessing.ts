@@ -10,8 +10,8 @@
 
 import { ICampaign } from '@/types/campaign/Campaign';
 import { IScenario } from '@/types/campaign/Scenario';
+
 import { ResolveScenarioResult } from './acar';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 
 /**
  * Processes a scenario combat result and applies it to the campaign state.
@@ -37,8 +37,8 @@ import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
  */
 export function processScenarioResult(
   campaign: ICampaign,
-  scenario: IScenario,
-  result: ResolveScenarioResult
+  _scenario: IScenario,
+  _result: ResolveScenarioResult,
 ): ICampaign {
   // TODO: Apply unit damage
   // TODO: Apply personnel casualties

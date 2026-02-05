@@ -13,7 +13,11 @@ import {
   ISequenceRange,
 } from '@/types/events';
 import { createChunk, createCheckpoint } from '@/utils/events/chunkFactory';
-import { verifyChainIntegrity, verifyChunk, IChainVerificationResult } from '@/utils/events/hashUtils';
+import {
+  verifyChainIntegrity,
+  verifyChunk,
+  IChainVerificationResult,
+} from '@/utils/events/hashUtils';
 
 // =============================================================================
 // Chunk Manager Service
@@ -137,14 +141,20 @@ export class ChunkManagerService {
   /**
    * Load a checkpoint by ID.
    */
-  loadCheckpoint<TState>(checkpointId: string): ICheckpoint<TState> | undefined {
-    return this.checkpoints.get(checkpointId) as ICheckpoint<TState> | undefined;
+  loadCheckpoint<TState>(
+    checkpointId: string,
+  ): ICheckpoint<TState> | undefined {
+    return this.checkpoints.get(checkpointId) as
+      | ICheckpoint<TState>
+      | undefined;
   }
 
   /**
    * Get the latest checkpoint for a campaign.
    */
-  getLatestCheckpoint<TState>(campaignId: string): ICheckpoint<TState> | undefined {
+  getLatestCheckpoint<TState>(
+    campaignId: string,
+  ): ICheckpoint<TState> | undefined {
     const manifest = this.manifests.get(campaignId);
     if (!manifest?.latestCheckpointId) return undefined;
     return this.loadCheckpoint(manifest.latestCheckpointId);
@@ -155,7 +165,7 @@ export class ChunkManagerService {
    */
   findCheckpointBefore<TState>(
     campaignId: string,
-    sequence: number
+    sequence: number,
   ): ICheckpoint<TState> | undefined {
     // Get all checkpoints for campaign
     const campaignCheckpoints = Array.from(this.checkpoints.values())
@@ -262,7 +272,7 @@ export class ChunkManagerService {
    */
   getEventsFromChunks(
     campaignId: string,
-    range?: ISequenceRange
+    range?: ISequenceRange,
   ): readonly IBaseEvent[] {
     const chunks = this.getChunksForCampaign(campaignId);
     const events: IBaseEvent[] = [];
@@ -278,8 +288,8 @@ export class ChunkManagerService {
       if (range) {
         events.push(
           ...chunk.events.filter(
-            (e) => e.sequence >= range.from && e.sequence <= range.to
-          )
+            (e) => e.sequence >= range.from && e.sequence <= range.to,
+          ),
         );
       } else {
         events.push(...chunk.events);

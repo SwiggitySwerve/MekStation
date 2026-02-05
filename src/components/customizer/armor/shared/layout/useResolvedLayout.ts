@@ -6,16 +6,10 @@
  */
 
 import { useMemo } from 'react';
+
 import { MechLocation } from '@/types/construction';
+
 import { resolveLayout } from './LayoutEngine';
-import { validateLayout } from './LayoutValidator';
-import {
-  LayoutResolveOptions,
-  MechLayoutConfig,
-  ResolvedLayout,
-  ResolvedPosition,
-  ValidationResult,
-} from './LayoutTypes';
 import {
   GEOMETRIC_BIPED_LAYOUT,
   REALISTIC_BIPED_LAYOUT,
@@ -35,6 +29,14 @@ import {
   BATTLEMECH_QUADVEE_LAYOUT,
   getQuadVeeLayout,
 } from './layouts';
+import {
+  LayoutResolveOptions,
+  MechLayoutConfig,
+  ResolvedLayout,
+  ResolvedPosition,
+  ValidationResult,
+} from './LayoutTypes';
+import { validateLayout } from './LayoutValidator';
 
 // ============================================================================
 // Layout Registry
@@ -119,13 +121,18 @@ export function getMechConfigTypes(): MechConfigType[] {
  */
 export function getLayoutIdForConfig(
   configType: MechConfigType,
-  style: 'geometric' | 'battlemech' | 'realistic' | 'megamek' = 'geometric'
+  style: 'geometric' | 'battlemech' | 'realistic' | 'megamek' = 'geometric',
 ): string {
   // Map style to prefix
-  const stylePrefix = style === 'realistic' ? 'realistic' : 
-                      style === 'megamek' ? 'megamek' : 
-                      style === 'battlemech' ? 'battlemech' : 'geometric';
-  
+  const stylePrefix =
+    style === 'realistic'
+      ? 'realistic'
+      : style === 'megamek'
+        ? 'megamek'
+        : style === 'battlemech'
+          ? 'battlemech'
+          : 'geometric';
+
   return `${stylePrefix}-${configType}`;
 }
 
@@ -172,12 +179,14 @@ export interface UseResolvedLayoutResult {
  */
 export function useResolvedLayout(
   layoutId: string,
-  options: LayoutResolveOptions = {}
+  options: LayoutResolveOptions = {},
 ): UseResolvedLayoutResult {
   const config = useMemo(() => {
     const cfg = getLayoutConfig(layoutId);
     if (!cfg) {
-      console.warn(`Layout '${layoutId}' not found, falling back to geometric-biped`);
+      console.warn(
+        `Layout '${layoutId}' not found, falling back to geometric-biped`,
+      );
       return GEOMETRIC_BIPED_LAYOUT;
     }
     return cfg;
@@ -225,7 +234,7 @@ export function useLayoutViewBox(layoutId: string): string {
  */
 export function useLayoutPosition(
   layoutId: string,
-  location: MechLocation
+  location: MechLocation,
 ): ResolvedPosition | undefined {
   const { getPosition } = useResolvedLayout(layoutId);
   return getPosition(location);
@@ -249,7 +258,7 @@ export function useLayoutExists(layoutId: string): boolean {
  */
 export function resolveLayoutById(
   layoutId: string,
-  options: LayoutResolveOptions = {}
+  options: LayoutResolveOptions = {},
 ): ResolvedLayout | null {
   const config = getLayoutConfig(layoutId);
   if (!config) {

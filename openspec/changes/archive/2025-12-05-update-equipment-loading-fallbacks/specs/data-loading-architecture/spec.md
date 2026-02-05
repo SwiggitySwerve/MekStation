@@ -9,6 +9,7 @@ The system SHALL load equipment JSON files in both server-side (Node.js) and cli
 **Priority**: Critical
 
 #### Scenario: Server-side loading
+
 - **GIVEN** the application is running in a Node.js environment (SSR/API routes)
 - **WHEN** loading equipment JSON files
 - **THEN** system SHALL use dynamic import of `fs/promises` module
@@ -16,6 +17,7 @@ The system SHALL load equipment JSON files in both server-side (Node.js) and cli
 - **AND** system SHALL NOT use `fetch` (unavailable for local files in Node.js)
 
 #### Scenario: Client-side loading
+
 - **GIVEN** the application is running in a browser environment
 - **WHEN** loading equipment JSON files
 - **THEN** system SHALL use `fetch` API
@@ -23,6 +25,7 @@ The system SHALL load equipment JSON files in both server-side (Node.js) and cli
 - **AND** system SHALL handle network errors gracefully
 
 #### Scenario: Environment detection
+
 - **GIVEN** the equipment loader is initializing
 - **WHEN** determining the runtime environment
 - **THEN** system SHALL check `typeof window === 'undefined'`
@@ -40,6 +43,7 @@ The system SHALL provide fallback equipment definitions for critical constructio
 **Priority**: Critical
 
 #### Scenario: Critical equipment fallbacks
+
 - **GIVEN** the JSON equipment loader has not completed initialization
 - **WHEN** equipment utilities request critical equipment definitions
 - **THEN** system SHALL provide hardcoded fallback definitions for:
@@ -49,6 +53,7 @@ The system SHALL provide fallback equipment definitions for critical constructio
   - Movement enhancements (MASC IS, MASC Clan, TSM, Supercharger)
 
 #### Scenario: Fallback lookup order
+
 - **GIVEN** equipment is requested by ID
 - **WHEN** resolving the equipment definition
 - **THEN** system SHALL first attempt JSON loader lookup
@@ -56,6 +61,7 @@ The system SHALL provide fallback equipment definitions for critical constructio
 - **AND** fallback SHALL contain all required fields (id, name, weight, criticalSlots, etc.)
 
 #### Scenario: Fallback completeness
+
 - **GIVEN** a fallback equipment definition exists
 - **WHEN** the fallback is used
 - **THEN** definition SHALL include:

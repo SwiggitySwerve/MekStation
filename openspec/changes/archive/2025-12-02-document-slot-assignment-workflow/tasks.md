@@ -19,6 +19,7 @@
 - [x] Cross-reference with existing equipment-placement spec
 
 ## Notes
+
 - This is documentation-only, no code changes
 - Codifies existing implemented behavior
 - Archived on 2025-12-02

@@ -5,6 +5,11 @@
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react';
+
+import { EventStoreService } from '@/services/events';
+import { EventCategory, IBaseEvent } from '@/types/events';
+import { ReducerMap } from '@/utils/events/stateDerivation';
+
 import {
   useReplayPlayer,
   PLAYBACK_SPEEDS,
@@ -13,9 +18,6 @@ import {
   formatSpeed,
   formatTime,
 } from '../useReplayPlayer';
-import { EventStoreService } from '@/services/events';
-import { EventCategory, IBaseEvent } from '@/types/events';
-import { ReducerMap } from '@/utils/events/stateDerivation';
 
 // =============================================================================
 // Test Types
@@ -35,7 +37,7 @@ const initialState: TestState = { turn: 0, score: 0 };
 function createMockEvent(
   sequence: number,
   type: string,
-  payload: unknown = {}
+  payload: unknown = {},
 ): IBaseEvent {
   return {
     id: `event-${sequence}`,
@@ -91,7 +93,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       expect(result.current.playbackState).toBe('stopped');
@@ -114,7 +116,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       expect(result.current.totalEvents).toBe(3);
@@ -133,7 +135,7 @@ describe('useReplayPlayer', () => {
           reducers: testReducers,
           eventStore,
           autoPlay: true,
-        })
+        }),
       );
 
       expect(result.current.playbackState).toBe('playing');
@@ -154,7 +156,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -181,7 +183,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -210,7 +212,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -243,7 +245,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       // Step backward at start
@@ -276,7 +278,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -300,7 +302,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -325,7 +327,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -351,7 +353,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       // At index 0 (first event applied)
@@ -378,7 +380,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       act(() => {
@@ -408,7 +410,7 @@ describe('useReplayPlayer', () => {
           initialState,
           reducers: testReducers,
           eventStore,
-        })
+        }),
       );
 
       expect(result.current.markers.length).toBe(3);
@@ -433,7 +435,7 @@ describe('useReplayPlayer', () => {
           reducers: testReducers,
           eventStore,
           baseInterval: 100,
-        })
+        }),
       );
 
       act(() => {
@@ -468,7 +470,7 @@ describe('useReplayPlayer', () => {
           eventStore,
           baseInterval: 100,
           onComplete,
-        })
+        }),
       );
 
       // Start at last event

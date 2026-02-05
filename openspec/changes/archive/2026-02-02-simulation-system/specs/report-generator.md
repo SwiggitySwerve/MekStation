@@ -11,10 +11,13 @@
 ## Overview
 
 ### Purpose
+
 Generates comprehensive JSON reports with simulation results, aggregate metrics, and violation details for analysis and documentation.
 
 ### Scope
+
 **In Scope:**
+
 - JSON report schema (ISimulationReport)
 - ReportGenerator class
 - File output to simulation-reports/
@@ -22,6 +25,7 @@ Generates comprehensive JSON reports with simulation results, aggregate metrics,
 - Timestamp and metadata
 
 **Out of Scope:**
+
 - HTML report generation
 - Visualization/charts
 - Database storage
@@ -38,6 +42,7 @@ The system SHALL generate reports with complete simulation data.
 **Priority**: High
 
 #### Scenario: Generate complete report
+
 **GIVEN** completed batch of 100 simulations
 **WHEN** calling generate()
 **THEN** report SHALL include timestamp, config, summary, metrics, violations, performance, failedSeeds
@@ -77,7 +82,7 @@ interface ISimulationReport {
 interface IReportGenerator {
   readonly generate: (
     metrics: MetricsCollector,
-    config: ISimulationConfig
+    config: ISimulationConfig,
   ) => ISimulationReport;
 
   readonly save: (report: ISimulationReport, path: string) => void;
@@ -116,4 +121,5 @@ generator.save(report, 'simulation-reports/report-2026-02-01T23-00-00.json');
 ## Changelog
 
 ### Version 1.0 (2026-02-01)
+
 - Initial specification

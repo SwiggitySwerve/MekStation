@@ -1,4 +1,5 @@
 ## 1. Implementation
+
 - [x] 1.1 Add category filter configuration (CATEGORY_FILTERS, OTHER_CATEGORIES arrays)
 - [x] 1.2 Create CategoryFilterBar component with icon-based buttons
 - [x] 1.3 Add activeCategory state to GlobalLoadoutTray
@@ -8,6 +9,7 @@
 - [x] 1.7 Add flex-shrink-0 and gap-3 to context menu rows
 
 ## 2. Testing
+
 - [x] 2.1 Add tests for category filter button rendering
 - [x] 2.2 Add tests for showing all equipment by default
 - [x] 2.3 Add tests for filtering by specific categories

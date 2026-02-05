@@ -9,6 +9,7 @@
  */
 
 import { MechLocation } from '@/types/construction';
+
 import {
   LayoutConstraint,
   MechLayoutConfig,
@@ -24,9 +25,7 @@ const HEAD: PartDefinition = {
   baseWidth: 70,
   baseHeight: 55,
   shape: 'path',
-  anchors: [
-    { id: 'neck', position: 'bottom', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'neck', position: 'bottom', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {cx} {y}
     L {x2} {y}
@@ -50,11 +49,27 @@ const CENTER_TORSO: PartDefinition = {
     { id: 'right_shoulder', position: 'top-right', offset: { x: -20, y: 10 } },
     // Hip anchors use edge-relative positioning for consistent leg spread
     // Position at 25% and 75% along the bottom edge to spread legs apart
-    { id: 'left_hip', position: 'bottom', edgePosition: { edge: 'bottom', at: 0.25 } },
-    { id: 'right_hip', position: 'bottom', edgePosition: { edge: 'bottom', at: 0.75 } },
+    {
+      id: 'left_hip',
+      position: 'bottom',
+      edgePosition: { edge: 'bottom', at: 0.25 },
+    },
+    {
+      id: 'right_hip',
+      position: 'bottom',
+      edgePosition: { edge: 'bottom', at: 0.75 },
+    },
     // Side anchors at TOP of edges so side torsos align their tops with center torso
-    { id: 'left_side', position: 'left', edgePosition: { edge: 'left', at: 0 } },
-    { id: 'right_side', position: 'right', edgePosition: { edge: 'right', at: 0 } },
+    {
+      id: 'left_side',
+      position: 'left',
+      edgePosition: { edge: 'left', at: 0 },
+    },
+    {
+      id: 'right_side',
+      position: 'right',
+      edgePosition: { edge: 'right', at: 0 },
+    },
   ],
   pathTemplate: `
     M {x} {y}
@@ -74,7 +89,11 @@ const LEFT_TORSO: PartDefinition = {
     // Inner anchor at TOP-RIGHT to align side torso top with center torso top
     { id: 'inner', position: 'right', edgePosition: { edge: 'right', at: 0 } },
     // Arm mount at 25% down from top of torso
-    { id: 'arm_mount', position: 'left', edgePosition: { edge: 'left', at: 0.25 } },
+    {
+      id: 'arm_mount',
+      position: 'left',
+      edgePosition: { edge: 'left', at: 0.25 },
+    },
   ],
   pathTemplate: `
     M {x} {y}
@@ -94,7 +113,11 @@ const RIGHT_TORSO: PartDefinition = {
     // Inner anchor at TOP-LEFT to align side torso top with center torso top
     { id: 'inner', position: 'left', edgePosition: { edge: 'left', at: 0 } },
     // Arm mount at 25% down from top of torso
-    { id: 'arm_mount', position: 'right', edgePosition: { edge: 'right', at: 0.25 } },
+    {
+      id: 'arm_mount',
+      position: 'right',
+      edgePosition: { edge: 'right', at: 0.25 },
+    },
   ],
   pathTemplate: `
     M {x} {y}
@@ -361,7 +384,7 @@ export const BATTLEMECH_BIPED_LAYOUT: MechLayoutConfig = {
   ],
   constraints: BIPED_CONSTRAINTS,
   padding: 10,
-  minGap: 2,  // Compact layout allows tighter spacing
+  minGap: 2, // Compact layout allows tighter spacing
   visualConnectors: false,
   scale: 1,
 };

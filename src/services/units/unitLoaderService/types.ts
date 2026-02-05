@@ -15,10 +15,10 @@ export type UnitSource = 'canonical' | 'custom';
 
 /**
  * Serialized unit JSON format (from canonical JSON files)
- * 
+ *
  * This is the lenient version used for importing from external sources.
  * It has optional fields and an index signature for flexible import handling.
- * 
+ *
  * For the strict canonical version with required fields, see ISerializedUnit in src/types/unit/UnitSerialization.ts
  */
 export interface IRawSerializedUnit {
@@ -46,7 +46,10 @@ export interface IRawSerializedUnit {
   };
   readonly armor?: {
     readonly type: string;
-    readonly allocation?: Record<string, number | { front: number; rear: number }>;
+    readonly allocation?: Record<
+      string,
+      number | { front: number; rear: number }
+    >;
   };
   readonly heatSinks?: {
     readonly type: string;
@@ -65,7 +68,9 @@ export interface IRawSerializedUnit {
    * Optional critical slot grid from import sources (e.g., MegaMek).
    * Used as a hint for tech-base variant resolution (Clan vs Inner Sphere) in mixed-tech units.
    */
-  readonly criticalSlots?: Readonly<Record<string, ReadonlyArray<string | null>>>;
+  readonly criticalSlots?: Readonly<
+    Record<string, ReadonlyArray<string | null>>
+  >;
   readonly mulId?: number;
   /** Whether this unit is an OmniMech */
   readonly isOmni?: boolean;

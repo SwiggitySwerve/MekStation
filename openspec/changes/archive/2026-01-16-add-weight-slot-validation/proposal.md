@@ -7,6 +7,7 @@
 ## Why
 
 The validation system was missing critical overflow checks:
+
 1. Weight overflow - no error when unit exceeded max tonnage
 2. Slot overflow - no error when location exceeded slot capacity
 3. Armor thresholds - validation showed warnings when UI showed green (threshold mismatch)

@@ -1,5 +1,7 @@
 import type { Page as _Page } from '@playwright/test';
+
 import { expect as _expect } from '@playwright/test';
+
 import { BasePage } from './base.page';
 
 // Re-export to silence unused warnings (types kept for documentation)
@@ -70,7 +72,9 @@ export class GameSessionPage extends BasePage {
    */
   async waitForGameLoaded(): Promise<void> {
     // Wait for loading to disappear and game content to appear
-    await this.page.waitForSelector('[data-testid="game-session"]', { timeout: 15000 });
+    await this.page.waitForSelector('[data-testid="game-session"]', {
+      timeout: 15000,
+    });
   }
 
   /**
@@ -222,7 +226,9 @@ export class GameReplayPage extends BasePage {
    * Wait for replay page to load.
    */
   async waitForReplayLoaded(): Promise<void> {
-    await this.page.waitForSelector('[data-testid="replay-page"]', { timeout: 15000 });
+    await this.page.waitForSelector('[data-testid="replay-page"]', {
+      timeout: 15000,
+    });
   }
 
   /**

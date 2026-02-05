@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 /**
  * Campaign Missions Page
  * View and manage contracts and missions.
@@ -5,18 +6,13 @@
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
  */
 import { useState } from 'react';
-import { useRouter } from 'next/router';
-import {
-  PageLayout,
-  Card,
-  EmptyState,
-  Badge,
-} from '@/components/ui';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
-import { IMission, IContract } from '@/types/campaign/Mission';
-import { MissionStatus } from '@/types/campaign/enums';
-import { isContract } from '@/types/campaign/Mission';
+
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
+import { PageLayout, Card, EmptyState, Badge } from '@/components/ui';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { MissionStatus } from '@/types/campaign/enums';
+import { IMission, IContract } from '@/types/campaign/Mission';
+import { isContract } from '@/types/campaign/Mission';
 
 // =============================================================================
 // Mission Card Component
@@ -43,24 +39,22 @@ function MissionCard({ mission }: MissionCardProps): React.ReactElement {
     }
   };
 
-  const contract = isContract(mission) ? mission as IContract : null;
+  const contract = isContract(mission) ? (mission as IContract) : null;
 
   return (
     <Card className="p-4">
-      <div className="flex items-start justify-between mb-3">
+      <div className="mb-3 flex items-start justify-between">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-text-theme-primary text-lg">
+          <div className="mb-1 flex items-center gap-2">
+            <h3 className="text-text-theme-primary text-lg font-semibold">
               {mission.name}
             </h3>
             {contract && (
-              <Badge className="bg-accent/20 text-accent">
-                Contract
-              </Badge>
+              <Badge className="bg-accent/20 text-accent">Contract</Badge>
             )}
           </div>
           {mission.description && (
-            <p className="text-sm text-text-theme-secondary">
+            <p className="text-text-theme-secondary text-sm">
               {mission.description}
             </p>
           )}
@@ -90,25 +84,26 @@ function MissionCard({ mission }: MissionCardProps): React.ReactElement {
             <div>
               <p className="text-text-theme-secondary">Salvage Rights</p>
               <p className="text-text-theme-primary">
-                {contract.salvageRights} ({contract.paymentTerms.salvagePercent}%)
+                {contract.salvageRights} ({contract.paymentTerms.salvagePercent}
+                %)
               </p>
             </div>
           </>
         )}
-        
+
         {mission.systemId && (
           <div>
             <p className="text-text-theme-secondary">System</p>
             <p className="text-text-theme-primary">{mission.systemId}</p>
           </div>
         )}
-        
+
         <div>
           <p className="text-text-theme-secondary">Scenarios</p>
           <p className="text-text-theme-primary">
             {mission.scenarioIds.length}
             {mission.scenarioIds.length > 0 && (
-              <span className="text-xs text-text-theme-muted ml-1">
+              <span className="text-text-theme-muted ml-1 text-xs">
                 (deployment available)
               </span>
             )}
@@ -117,7 +112,7 @@ function MissionCard({ mission }: MissionCardProps): React.ReactElement {
       </div>
 
       {contract && (contract.startDate || contract.endDate) && (
-        <div className="mt-3 pt-3 border-t border-border-theme grid grid-cols-2 gap-3 text-sm">
+        <div className="border-border-theme mt-3 grid grid-cols-2 gap-3 border-t pt-3 text-sm">
           {contract.startDate && (
             <div>
               <p className="text-text-theme-secondary">Start Date</p>
@@ -175,7 +170,7 @@ export default function MissionsPage(): React.ReactElement {
         maxWidth="wide"
       >
         <div className="animate-pulse">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {[1, 2, 3, 4].map((i) => (
               <Card key={i} className="h-48">
                 <div className="h-full" />
@@ -197,9 +192,9 @@ export default function MissionsPage(): React.ReactElement {
       >
         <EmptyState
           icon={
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
+            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
               <svg
-                className="w-8 h-8 text-text-theme-muted"
+                className="text-text-theme-muted h-8 w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -222,9 +217,10 @@ export default function MissionsPage(): React.ReactElement {
 
   // Convert Map to array and filter
   const allMissions = Array.from(campaign.missions.values());
-  const filteredMissions = filter === 'all' 
-    ? allMissions 
-    : allMissions.filter(m => m.status === filter);
+  const filteredMissions =
+    filter === 'all'
+      ? allMissions
+      : allMissions.filter((m) => m.status === filter);
 
   return (
     <PageLayout
@@ -239,10 +235,10 @@ export default function MissionsPage(): React.ReactElement {
       {/* Filter Tabs */}
       {allMissions.length > 0 && (
         <Card className="mb-6">
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded transition-colors ${
+              className={`rounded px-4 py-2 transition-colors ${
                 filter === 'all'
                   ? 'bg-accent text-white'
                   : 'bg-surface-raised text-text-theme-secondary hover:bg-surface-deep'
@@ -252,33 +248,48 @@ export default function MissionsPage(): React.ReactElement {
             </button>
             <button
               onClick={() => setFilter(MissionStatus.PENDING)}
-              className={`px-4 py-2 rounded transition-colors ${
+              className={`rounded px-4 py-2 transition-colors ${
                 filter === MissionStatus.PENDING
                   ? 'bg-accent text-white'
                   : 'bg-surface-raised text-text-theme-secondary hover:bg-surface-deep'
               }`}
             >
-              Pending ({allMissions.filter(m => m.status === MissionStatus.PENDING).length})
+              Pending (
+              {
+                allMissions.filter((m) => m.status === MissionStatus.PENDING)
+                  .length
+              }
+              )
             </button>
             <button
               onClick={() => setFilter(MissionStatus.ACTIVE)}
-              className={`px-4 py-2 rounded transition-colors ${
+              className={`rounded px-4 py-2 transition-colors ${
                 filter === MissionStatus.ACTIVE
                   ? 'bg-accent text-white'
                   : 'bg-surface-raised text-text-theme-secondary hover:bg-surface-deep'
               }`}
             >
-              Active ({allMissions.filter(m => m.status === MissionStatus.ACTIVE).length})
+              Active (
+              {
+                allMissions.filter((m) => m.status === MissionStatus.ACTIVE)
+                  .length
+              }
+              )
             </button>
             <button
               onClick={() => setFilter(MissionStatus.SUCCESS)}
-              className={`px-4 py-2 rounded transition-colors ${
+              className={`rounded px-4 py-2 transition-colors ${
                 filter === MissionStatus.SUCCESS
                   ? 'bg-accent text-white'
                   : 'bg-surface-raised text-text-theme-secondary hover:bg-surface-deep'
               }`}
             >
-              Completed ({allMissions.filter(m => m.status === MissionStatus.SUCCESS).length})
+              Completed (
+              {
+                allMissions.filter((m) => m.status === MissionStatus.SUCCESS)
+                  .length
+              }
+              )
             </button>
           </div>
         </Card>
@@ -288,9 +299,9 @@ export default function MissionsPage(): React.ReactElement {
       {filteredMissions.length === 0 ? (
         <EmptyState
           icon={
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
+            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
               <svg
-                className="w-8 h-8 text-text-theme-muted"
+                className="text-text-theme-muted h-8 w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -312,7 +323,7 @@ export default function MissionsPage(): React.ReactElement {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {filteredMissions.map((mission) => (
             <MissionCard key={mission.id} mission={mission} />
           ))}

@@ -5,6 +5,7 @@
 MekStation currently has 5 basic contract types (Garrison, Recon, Raid, Extraction, Escort). MekHQ provides 19 AtB contract types with type-specific rules including variable lengths, operations tempo multipliers, combat role assignments, and parts availability modifiers. This expansion adds strategic depth to contract selection and integrates with scenario generation, acquisition systems, and faction standing.
 
 Without expanded contract types, campaigns lack:
+
 - Contract variety and strategic choice
 - Type-specific gameplay mechanics (ops tempo, parts availability)
 - Integration with combat roles (Plan 11)
@@ -26,10 +27,12 @@ Without expanded contract types, campaigns lack:
 ## Impact
 
 ### Affected Specs
+
 - `contract-types` (NEW) - 19 contract type definitions and mechanics
 - `mission-contracts` (MODIFIED) - Contract interface and market generation
 
 ### Affected Code
+
 - `src/types/campaign/contracts/contractTypes.ts` - 19 type enum and definitions
 - `src/lib/campaign/contracts/contractLength.ts` - Variable length calculation
 - `src/lib/campaign/contracts/contractNegotiation.ts` - 4-clause negotiation
@@ -38,9 +41,11 @@ Without expanded contract types, campaigns lack:
 - `src/types/campaign/Contract.ts` - IContract interface extended
 
 ### Breaking Changes
+
 None. Existing 5 contract types map to AtB equivalents. New fields are optional for backward compatibility.
 
 ### Migration Notes
+
 - Existing contracts continue to work (5 types map to AtB types)
 - New `atbContractType` field optional on IContract
 - Ops tempo defaults to 1.0 for legacy contracts

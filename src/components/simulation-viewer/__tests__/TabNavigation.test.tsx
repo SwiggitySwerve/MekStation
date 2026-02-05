@@ -1,5 +1,6 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+
 import { TabNavigation } from '../TabNavigation';
 
 const defaultProps = {
@@ -65,15 +66,23 @@ describe('TabNavigation', () => {
     it('active tab changes when activeTab prop changes', () => {
       const { rerender } = render(<TabNavigation {...defaultProps} />);
 
-      expect(screen.getByTestId('tab-campaign-dashboard')).toHaveClass('text-blue-600');
-      expect(screen.getByTestId('tab-encounter-history')).toHaveClass('text-gray-600');
+      expect(screen.getByTestId('tab-campaign-dashboard')).toHaveClass(
+        'text-blue-600',
+      );
+      expect(screen.getByTestId('tab-encounter-history')).toHaveClass(
+        'text-gray-600',
+      );
 
       rerender(
         <TabNavigation {...defaultProps} activeTab="encounter-history" />,
       );
 
-      expect(screen.getByTestId('tab-campaign-dashboard')).toHaveClass('text-gray-600');
-      expect(screen.getByTestId('tab-encounter-history')).toHaveClass('text-blue-600');
+      expect(screen.getByTestId('tab-campaign-dashboard')).toHaveClass(
+        'text-gray-600',
+      );
+      expect(screen.getByTestId('tab-encounter-history')).toHaveClass(
+        'text-blue-600',
+      );
     });
 
     it('hover class on inactive tabs', () => {
@@ -207,17 +216,35 @@ describe('TabNavigation', () => {
     it('each tab has role=tab', () => {
       render(<TabNavigation {...defaultProps} />);
 
-      expect(screen.getByTestId('tab-campaign-dashboard')).toHaveAttribute('role', 'tab');
-      expect(screen.getByTestId('tab-encounter-history')).toHaveAttribute('role', 'tab');
-      expect(screen.getByTestId('tab-analysis-bugs')).toHaveAttribute('role', 'tab');
+      expect(screen.getByTestId('tab-campaign-dashboard')).toHaveAttribute(
+        'role',
+        'tab',
+      );
+      expect(screen.getByTestId('tab-encounter-history')).toHaveAttribute(
+        'role',
+        'tab',
+      );
+      expect(screen.getByTestId('tab-analysis-bugs')).toHaveAttribute(
+        'role',
+        'tab',
+      );
     });
 
     it('active tab has tabIndex=0, inactive have tabIndex=-1', () => {
       render(<TabNavigation {...defaultProps} />);
 
-      expect(screen.getByTestId('tab-campaign-dashboard')).toHaveAttribute('tabindex', '0');
-      expect(screen.getByTestId('tab-encounter-history')).toHaveAttribute('tabindex', '-1');
-      expect(screen.getByTestId('tab-analysis-bugs')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('tab-campaign-dashboard')).toHaveAttribute(
+        'tabindex',
+        '0',
+      );
+      expect(screen.getByTestId('tab-encounter-history')).toHaveAttribute(
+        'tabindex',
+        '-1',
+      );
+      expect(screen.getByTestId('tab-analysis-bugs')).toHaveAttribute(
+        'tabindex',
+        '-1',
+      );
     });
 
     it('tabs have aria-controls pointing to panel ids', () => {
@@ -263,13 +290,17 @@ describe('TabNavigation', () => {
     it('container has dark mode border class', () => {
       render(<TabNavigation {...defaultProps} />);
 
-      expect(screen.getByTestId('tab-navigation')).toHaveClass('dark:border-gray-700');
+      expect(screen.getByTestId('tab-navigation')).toHaveClass(
+        'dark:border-gray-700',
+      );
     });
 
     it('active tab has dark mode background', () => {
       render(<TabNavigation {...defaultProps} />);
 
-      expect(screen.getByTestId('tab-campaign-dashboard')).toHaveClass('dark:bg-gray-800');
+      expect(screen.getByTestId('tab-campaign-dashboard')).toHaveClass(
+        'dark:bg-gray-800',
+      );
     });
 
     it('inactive tab has dark mode classes', () => {

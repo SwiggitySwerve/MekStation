@@ -7,20 +7,23 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.1
  */
 
-import { TechBase } from '@/types/enums/TechBase';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { EngineType } from '@/types/construction/EngineType';
+import {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { IEquipmentItem } from '@/types/equipment';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   TurretType,
   ITurretConfiguration,
   IVehicleMountedEquipment,
 } from '@/types/unit/VehicleInterfaces';
-import { VehicleLocation, VTOLLocation } from '@/types/construction/UnitLocation';
-import { EngineType } from '@/types/construction/EngineType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -85,7 +88,7 @@ export function createEmptyVTOLArmorAllocation(): IVTOLArmorAllocation {
  */
 export function getTotalVehicleArmor(
   allocation: IVehicleArmorAllocation,
-  hasTurret: boolean = false
+  hasTurret: boolean = false,
 ): number {
   let total =
     (allocation[VehicleLocation.FRONT] || 0) +
@@ -116,7 +119,7 @@ export function createVehicleMountedEquipment(
   item: IEquipmentItem,
   instanceId: string,
   location?: VehicleLocation | VTOLLocation,
-  isTurretMounted: boolean = false
+  isTurretMounted: boolean = false,
 ): IVehicleMountedEquipment {
   return {
     id: instanceId,
@@ -177,7 +180,10 @@ export interface VehicleState {
   // =========================================================================
 
   /** Unit type (Vehicle, VTOL, or Support Vehicle) */
-  readonly unitType: UnitType.VEHICLE | UnitType.VTOL | UnitType.SUPPORT_VEHICLE;
+  readonly unitType:
+    | UnitType.VEHICLE
+    | UnitType.VTOL
+    | UnitType.SUPPORT_VEHICLE;
 
   /** Motion type (Wheeled, Tracked, Hover, VTOL, etc.) */
   motionType: GroundMotionType;
@@ -300,7 +306,10 @@ export interface VehicleActions {
   // Armor
   setArmorType: (type: ArmorTypeEnum) => void;
   setArmorTonnage: (tonnage: number) => void;
-  setLocationArmor: (location: VehicleLocation | VTOLLocation, points: number) => void;
+  setLocationArmor: (
+    location: VehicleLocation | VTOLLocation,
+    points: number,
+  ) => void;
   autoAllocateArmor: () => void;
   clearAllArmor: () => void;
 
@@ -312,11 +321,22 @@ export interface VehicleActions {
   setIsTrailer: (value: boolean) => void;
 
   // Equipment
-  addEquipment: (item: IEquipmentItem, location?: VehicleLocation | VTOLLocation, isTurretMounted?: boolean) => string;
+  addEquipment: (
+    item: IEquipmentItem,
+    location?: VehicleLocation | VTOLLocation,
+    isTurretMounted?: boolean,
+  ) => string;
   removeEquipment: (instanceId: string) => void;
-  updateEquipmentLocation: (instanceId: string, location: VehicleLocation | VTOLLocation, isTurretMounted?: boolean) => void;
+  updateEquipmentLocation: (
+    instanceId: string,
+    location: VehicleLocation | VTOLLocation,
+    isTurretMounted?: boolean,
+  ) => void;
   setEquipmentRearMounted: (instanceId: string, isRearMounted: boolean) => void;
-  linkAmmo: (weaponInstanceId: string, ammoInstanceId: string | undefined) => void;
+  linkAmmo: (
+    weaponInstanceId: string,
+    ammoInstanceId: string | undefined,
+  ) => void;
   clearAllEquipment: () => void;
 
   // Metadata
@@ -365,7 +385,9 @@ function getVehicleWeightClass(tonnage: number): WeightClass {
 /**
  * Create default vehicle state
  */
-export function createDefaultVehicleState(options: CreateVehicleOptions): VehicleState {
+export function createDefaultVehicleState(
+  options: CreateVehicleOptions,
+): VehicleState {
   const id = options.id ?? generateVehicleId();
   const now = Date.now();
   const motionType = options.motionType ?? GroundMotionType.TRACKED;
@@ -381,7 +403,8 @@ export function createDefaultVehicleState(options: CreateVehicleOptions): Vehicl
   const defaultModel = nameParts.slice(1).join(' ') || '';
 
   // Determine if VTOL
-  const isVTOL = unitType === UnitType.VTOL || motionType === GroundMotionType.VTOL;
+  const isVTOL =
+    unitType === UnitType.VTOL || motionType === GroundMotionType.VTOL;
 
   return {
     // Identity

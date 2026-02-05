@@ -6,9 +6,9 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
-import { UnitType } from './BattleMechInterfaces';
-import { IAerospaceUnit, AerospaceMotionType } from './BaseUnitInterfaces';
 import { AerospaceLocation } from '../construction/UnitLocation';
+import { IAerospaceUnit, AerospaceMotionType } from './BaseUnitInterfaces';
+import { UnitType } from './BattleMechInterfaces';
 
 // ============================================================================
 // Aerospace Equipment
@@ -205,13 +205,17 @@ export function isAerospace(unit: { unitType: UnitType }): unit is IAerospace {
 /**
  * Check if unit is a conventional fighter
  */
-export function isConventionalFighter(unit: { unitType: UnitType }): unit is IConventionalFighter {
+export function isConventionalFighter(unit: {
+  unitType: UnitType;
+}): unit is IConventionalFighter {
   return unit.unitType === UnitType.CONVENTIONAL_FIGHTER;
 }
 
 /**
  * Check if unit is a small craft
  */
-export function isSmallCraft(unit: { unitType: UnitType }): unit is ISmallCraft {
+export function isSmallCraft(unit: {
+  unitType: UnitType;
+}): unit is ISmallCraft {
   return unit.unitType === UnitType.SMALL_CRAFT;
 }

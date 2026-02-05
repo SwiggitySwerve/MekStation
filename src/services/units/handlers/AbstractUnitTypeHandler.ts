@@ -8,15 +8,16 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.3.4
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import {
+  IBlkDocument,
+  BLK_UNIT_TYPE_MAP,
+} from '../../../types/formats/BlkFormat';
 import { IBaseUnit } from '../../../types/unit/BaseUnitInterfaces';
-import { IBlkDocument, BLK_UNIT_TYPE_MAP } from '../../../types/formats/BlkFormat';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import {
   IUnitTypeHandler,
   IUnitParseResult,
-  IUnitParseData,
-  IUnitParseError,
   IUnitSerializeResult,
   IUnitValidateResult,
   UnitCategory,
@@ -35,9 +36,9 @@ import {
  *
  * @template T The specific unit interface this handler works with
  */
-export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit>
-  implements IUnitTypeHandler<T>
-{
+export abstract class AbstractUnitTypeHandler<
+  T extends IBaseUnit = IBaseUnit,
+> implements IUnitTypeHandler<T> {
   /** Unit type this handler supports */
   abstract readonly unitType: UnitType;
 
@@ -64,7 +65,7 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit>
    * @returns Partial unit object with parsed fields
    */
   protected abstract parseTypeSpecificFields(
-    document: IBlkDocument
+    document: IBlkDocument,
   ): Partial<T> & { errors: string[]; warnings: string[] };
 
   /**
@@ -72,7 +73,9 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit>
    * @param unit The unit to serialize
    * @returns Partial serialized object
    */
-  protected abstract serializeTypeSpecificFields(unit: T): Partial<ISerializedUnit>;
+  protected abstract serializeTypeSpecificFields(
+    unit: T,
+  ): Partial<ISerializedUnit>;
 
   /**
    * Validate unit-type-specific rules
@@ -233,7 +236,7 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit>
    */
   protected abstract combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<T>
+    typeSpecificFields: Partial<T>,
   ): T;
 
   // ============================================================================
@@ -342,7 +345,7 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit>
     // Check total weight doesn't exceed tonnage
     if (unit.totalWeight > unit.tonnage) {
       errors.push(
-        `Total weight (${unit.totalWeight.toFixed(2)}t) exceeds tonnage (${unit.tonnage}t)`
+        `Total weight (${unit.totalWeight.toFixed(2)}t) exceeds tonnage (${unit.tonnage}t)`,
       );
     }
 
@@ -432,7 +435,7 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit>
  */
 export function createSuccessResult<T extends IBaseUnit>(
   unit: T,
-  warnings: string[] = []
+  warnings: string[] = [],
 ): IUnitParseResult<T> {
   return {
     success: true,
@@ -442,7 +445,7 @@ export function createSuccessResult<T extends IBaseUnit>(
 
 export function createFailureResult<T extends IBaseUnit>(
   errors: string[],
-  warnings: string[] = []
+  warnings: string[] = [],
 ): IUnitParseResult<T> {
   return {
     success: false,
@@ -456,7 +459,7 @@ export function createFailureResult<T extends IBaseUnit>(
 export function parseNumericField(
   tags: Record<string, string[]>,
   field: string,
-  defaultValue: number = 0
+  defaultValue: number = 0,
 ): number {
   const value = tags[field]?.[0];
   if (!value) return defaultValue;
@@ -470,7 +473,7 @@ export function parseNumericField(
 export function parseIntField(
   tags: Record<string, string[]>,
   field: string,
-  defaultValue: number = 0
+  defaultValue: number = 0,
 ): number {
   const value = tags[field]?.[0];
   if (!value) return defaultValue;
@@ -484,7 +487,7 @@ export function parseIntField(
 export function parseBooleanField(
   tags: Record<string, string[]>,
   field: string,
-  defaultValue: boolean = false
+  defaultValue: boolean = false,
 ): boolean {
   const value = tags[field]?.[0];
   if (!value) return defaultValue;
@@ -496,7 +499,7 @@ export function parseBooleanField(
  */
 export function parseArrayField(
   tags: Record<string, string[]>,
-  field: string
+  field: string,
 ): readonly string[] {
   return tags[field] || [];
 }

@@ -1,34 +1,45 @@
 /**
  * Unit Equipment Validation Integration Tests
- * 
+ *
  * Validates that all canonical units can have their equipment properly resolved
  * and their configurations validated against BattleTech construction rules.
- * 
+ *
  * This test programmatically loads all mech units and verifies:
  * - Equipment IDs can be resolved by the EquipmentRegistry
  * - Unit configurations are valid
  * - Critical slot assignments are correct
  * - Tech base compatibility
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  * @spec openspec/specs/construction-services/spec.md
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { EquipmentRegistry, getEquipmentRegistry, IEquipmentLookupResult } from '@/services/equipment/EquipmentRegistry';
-import { EquipmentLoaderService, getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
-import { TechBase } from '@/types/enums/TechBase';
+
+import {
+  EquipmentLoaderService,
+  getEquipmentLoader,
+} from '@/services/equipment/EquipmentLoaderService';
+import {
+  EquipmentRegistry,
+  getEquipmentRegistry,
+  IEquipmentLookupResult,
+} from '@/services/equipment/EquipmentRegistry';
 import { RulesLevel } from '@/types/enums/RulesLevel';
-import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
+import { TechBase } from '@/types/enums/TechBase';
 import { AmmoCategory, AmmoVariant } from '@/types/equipment/AmmunitionTypes';
 import { ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';
 import { MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
+import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
 
 // Paths - using path.join to resolve paths correctly in different environments
 const PROJECT_ROOT = path.join(__dirname, '../../../../');
 const UNITS_PATH = path.join(PROJECT_ROOT, 'public/data/units/battlemechs');
-const EQUIPMENT_PATH = path.join(PROJECT_ROOT, 'public/data/equipment/official');
+const EQUIPMENT_PATH = path.join(
+  PROJECT_ROOT,
+  'public/data/equipment/official',
+);
 const INDEX_PATH = path.join(UNITS_PATH, 'index.json');
 
 /**
@@ -46,7 +57,7 @@ interface TestableLoaderMaps {
  * Helper to access private map properties for testing.
  */
 function getLoaderMaps(svc: EquipmentLoaderService): TestableLoaderMaps {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const internal: Record<string, unknown> = Object(svc);
   return {
     weapons: internal['weapons'] as Map<string, unknown>,
@@ -63,10 +74,14 @@ function getLoaderMaps(svc: EquipmentLoaderService): TestableLoaderMaps {
  */
 function parseTechBase(value: string): TechBase {
   switch (value) {
-    case 'INNER_SPHERE': return TechBase.INNER_SPHERE;
-    case 'CLAN': return TechBase.CLAN;
-    case 'BOTH': return TechBase.INNER_SPHERE; // Default BOTH to IS
-    default: return TechBase.INNER_SPHERE;
+    case 'INNER_SPHERE':
+      return TechBase.INNER_SPHERE;
+    case 'CLAN':
+      return TechBase.CLAN;
+    case 'BOTH':
+      return TechBase.INNER_SPHERE; // Default BOTH to IS
+    default:
+      return TechBase.INNER_SPHERE;
   }
 }
 
@@ -76,12 +91,18 @@ function parseTechBase(value: string): TechBase {
  */
 function parseRulesLevel(value: string): RulesLevel {
   switch (value) {
-    case 'INTRODUCTORY': return RulesLevel.INTRODUCTORY;
-    case 'STANDARD': return RulesLevel.STANDARD;
-    case 'ADVANCED': return RulesLevel.ADVANCED;
-    case 'EXPERIMENTAL': return RulesLevel.EXPERIMENTAL;
-    case 'UNOFFICIAL': return RulesLevel.EXPERIMENTAL; // Map UNOFFICIAL to EXPERIMENTAL
-    default: return RulesLevel.STANDARD;
+    case 'INTRODUCTORY':
+      return RulesLevel.INTRODUCTORY;
+    case 'STANDARD':
+      return RulesLevel.STANDARD;
+    case 'ADVANCED':
+      return RulesLevel.ADVANCED;
+    case 'EXPERIMENTAL':
+      return RulesLevel.EXPERIMENTAL;
+    case 'UNOFFICIAL':
+      return RulesLevel.EXPERIMENTAL; // Map UNOFFICIAL to EXPERIMENTAL
+    default:
+      return RulesLevel.STANDARD;
   }
 }
 
@@ -90,12 +111,18 @@ function parseRulesLevel(value: string): RulesLevel {
  */
 function parseWeaponCategory(value: string): WeaponCategory {
   switch (value) {
-    case 'Energy': return WeaponCategory.ENERGY;
-    case 'Ballistic': return WeaponCategory.BALLISTIC;
-    case 'Missile': return WeaponCategory.MISSILE;
-    case 'Physical': return WeaponCategory.PHYSICAL;
-    case 'Artillery': return WeaponCategory.ARTILLERY;
-    default: return WeaponCategory.ENERGY;
+    case 'Energy':
+      return WeaponCategory.ENERGY;
+    case 'Ballistic':
+      return WeaponCategory.BALLISTIC;
+    case 'Missile':
+      return WeaponCategory.MISSILE;
+    case 'Physical':
+      return WeaponCategory.PHYSICAL;
+    case 'Artillery':
+      return WeaponCategory.ARTILLERY;
+    default:
+      return WeaponCategory.ENERGY;
   }
 }
 
@@ -104,17 +131,28 @@ function parseWeaponCategory(value: string): WeaponCategory {
  */
 function parseAmmoCategory(value: string): AmmoCategory {
   switch (value) {
-    case 'Autocannon': return AmmoCategory.AUTOCANNON;
-    case 'Gauss': return AmmoCategory.GAUSS;
-    case 'Machine Gun': return AmmoCategory.MACHINE_GUN;
-    case 'LRM': return AmmoCategory.LRM;
-    case 'SRM': return AmmoCategory.SRM;
-    case 'MRM': return AmmoCategory.MRM;
-    case 'ATM': return AmmoCategory.ATM;
-    case 'NARC': return AmmoCategory.NARC;
-    case 'Artillery': return AmmoCategory.ARTILLERY;
-    case 'AMS': return AmmoCategory.AMS;
-    default: return AmmoCategory.AUTOCANNON;
+    case 'Autocannon':
+      return AmmoCategory.AUTOCANNON;
+    case 'Gauss':
+      return AmmoCategory.GAUSS;
+    case 'Machine Gun':
+      return AmmoCategory.MACHINE_GUN;
+    case 'LRM':
+      return AmmoCategory.LRM;
+    case 'SRM':
+      return AmmoCategory.SRM;
+    case 'MRM':
+      return AmmoCategory.MRM;
+    case 'ATM':
+      return AmmoCategory.ATM;
+    case 'NARC':
+      return AmmoCategory.NARC;
+    case 'Artillery':
+      return AmmoCategory.ARTILLERY;
+    case 'AMS':
+      return AmmoCategory.AMS;
+    default:
+      return AmmoCategory.AUTOCANNON;
   }
 }
 
@@ -123,13 +161,13 @@ function parseAmmoCategory(value: string): AmmoCategory {
  */
 function parseAmmoVariant(value: string): AmmoVariant {
   const variants: Record<string, AmmoVariant> = {
-    'Standard': AmmoVariant.STANDARD,
+    Standard: AmmoVariant.STANDARD,
     'Armor-Piercing': AmmoVariant.ARMOR_PIERCING,
-    'Cluster': AmmoVariant.CLUSTER,
-    'Precision': AmmoVariant.PRECISION,
-    'Flechette': AmmoVariant.FLECHETTE,
-    'Inferno': AmmoVariant.INFERNO,
-    'Fragmentation': AmmoVariant.FRAGMENTATION,
+    Cluster: AmmoVariant.CLUSTER,
+    Precision: AmmoVariant.PRECISION,
+    Flechette: AmmoVariant.FLECHETTE,
+    Inferno: AmmoVariant.INFERNO,
+    Fragmentation: AmmoVariant.FRAGMENTATION,
   };
   return variants[value] || AmmoVariant.STANDARD;
 }
@@ -139,13 +177,20 @@ function parseAmmoVariant(value: string): AmmoVariant {
  */
 function parseElectronicsCategory(value: string): ElectronicsCategory {
   switch (value) {
-    case 'Targeting': return ElectronicsCategory.TARGETING;
-    case 'ECM': return ElectronicsCategory.ECM;
-    case 'Active Probe': return ElectronicsCategory.ACTIVE_PROBE;
-    case 'C3 System': return ElectronicsCategory.C3;
-    case 'TAG': return ElectronicsCategory.TAG;
-    case 'Communications': return ElectronicsCategory.COMMUNICATIONS;
-    default: return ElectronicsCategory.TARGETING;
+    case 'Targeting':
+      return ElectronicsCategory.TARGETING;
+    case 'ECM':
+      return ElectronicsCategory.ECM;
+    case 'Active Probe':
+      return ElectronicsCategory.ACTIVE_PROBE;
+    case 'C3 System':
+      return ElectronicsCategory.C3;
+    case 'TAG':
+      return ElectronicsCategory.TAG;
+    case 'Communications':
+      return ElectronicsCategory.COMMUNICATIONS;
+    default:
+      return ElectronicsCategory.TARGETING;
   }
 }
 
@@ -154,13 +199,20 @@ function parseElectronicsCategory(value: string): ElectronicsCategory {
  */
 function parseMiscEquipmentCategory(value: string): MiscEquipmentCategory {
   switch (value) {
-    case 'Heat Sink': return MiscEquipmentCategory.HEAT_SINK;
-    case 'Jump Jet': return MiscEquipmentCategory.JUMP_JET;
-    case 'Movement Enhancement': return MiscEquipmentCategory.MOVEMENT;
-    case 'Defensive': return MiscEquipmentCategory.DEFENSIVE;
-    case 'Myomer': return MiscEquipmentCategory.MYOMER;
-    case 'Industrial': return MiscEquipmentCategory.INDUSTRIAL;
-    default: return MiscEquipmentCategory.HEAT_SINK;
+    case 'Heat Sink':
+      return MiscEquipmentCategory.HEAT_SINK;
+    case 'Jump Jet':
+      return MiscEquipmentCategory.JUMP_JET;
+    case 'Movement Enhancement':
+      return MiscEquipmentCategory.MOVEMENT;
+    case 'Defensive':
+      return MiscEquipmentCategory.DEFENSIVE;
+    case 'Myomer':
+      return MiscEquipmentCategory.MYOMER;
+    case 'Industrial':
+      return MiscEquipmentCategory.INDUSTRIAL;
+    default:
+      return MiscEquipmentCategory.HEAT_SINK;
   }
 }
 
@@ -168,12 +220,19 @@ function parseMiscEquipmentCategory(value: string): MiscEquipmentCategory {
  * Load equipment data directly from filesystem for tests
  * This bypasses the web-based loader which doesn't work in Node.js tests
  */
-async function loadEquipmentFromFilesystem(loaderService: EquipmentLoaderService): Promise<number> {
+async function loadEquipmentFromFilesystem(
+  loaderService: EquipmentLoaderService,
+): Promise<number> {
   let itemsLoaded = 0;
   const maps = getLoaderMaps(loaderService);
-  
+
   // Load weapons
-  const weaponFiles = ['weapons/energy.json', 'weapons/ballistic.json', 'weapons/missile.json', 'weapons/physical.json'];
+  const weaponFiles = [
+    'weapons/energy.json',
+    'weapons/ballistic.json',
+    'weapons/missile.json',
+    'weapons/physical.json',
+  ];
   for (const file of weaponFiles) {
     const filePath = path.join(EQUIPMENT_PATH, file);
     if (fs.existsSync(filePath)) {
@@ -205,7 +264,7 @@ async function loadEquipmentFromFilesystem(loaderService: EquipmentLoaderService
       }
     }
   }
-  
+
   // Load ammunition
   const ammoPath = path.join(EQUIPMENT_PATH, 'ammunition.json');
   if (fs.existsSync(ammoPath)) {
@@ -233,7 +292,7 @@ async function loadEquipmentFromFilesystem(loaderService: EquipmentLoaderService
       }
     }
   }
-  
+
   // Load electronics
   const electronicsPath = path.join(EQUIPMENT_PATH, 'electronics.json');
   if (fs.existsSync(electronicsPath)) {
@@ -257,7 +316,7 @@ async function loadEquipmentFromFilesystem(loaderService: EquipmentLoaderService
       }
     }
   }
-  
+
   // Load misc equipment
   const miscPath = path.join(EQUIPMENT_PATH, 'miscellaneous.json');
   if (fs.existsSync(miscPath)) {
@@ -281,12 +340,12 @@ async function loadEquipmentFromFilesystem(loaderService: EquipmentLoaderService
       }
     }
   }
-  
+
   // Mark as loaded
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const internal: Record<string, unknown> = Object(loaderService);
   internal['isLoaded'] = true;
-  
+
   return itemsLoaded;
 }
 
@@ -436,21 +495,21 @@ describe('Unit Equipment Validation', () => {
   let loader: EquipmentLoaderService;
   let unitIndex: UnitIndex | null = null;
   let equipmentLoadCount = 0;
-  
+
   beforeAll(async () => {
     // Initialize equipment loader
     loader = getEquipmentLoader();
     loader.clear(); // Clear any existing data
-    
+
     // Load equipment directly from filesystem (bypasses web loader issues in Node.js)
     equipmentLoadCount = await loadEquipmentFromFilesystem(loader);
     console.log(`Loaded ${equipmentLoadCount} equipment items from filesystem`);
-    
+
     // Initialize equipment registry
     registry = getEquipmentRegistry();
     registry.reset(); // Clear any existing data
     await registry.initialize();
-    
+
     // Load unit index
     if (fs.existsSync(INDEX_PATH)) {
       const content = fs.readFileSync(INDEX_PATH, 'utf-8');
@@ -473,29 +532,44 @@ describe('Unit Equipment Validation', () => {
     it('should have equipment loaded', () => {
       const stats = registry.getStats();
       console.log('Equipment Registry Stats:', JSON.stringify(stats, null, 2));
-      
+
       // Debug: Check specific equipment IDs that should exist
-      const testIds = ['medium-laser', 'lrm-20', 'er-large-laser', 'streak-srm-6'];
+      const testIds = [
+        'medium-laser',
+        'lrm-20',
+        'er-large-laser',
+        'streak-srm-6',
+      ];
       console.log('\nDirect equipment lookups:');
       for (const id of testIds) {
         const result = registry.lookup(id);
-        console.log(`  ${id}: ${result.found ? 'FOUND' : 'NOT FOUND'}${result.found ? ` -> ${result.equipment?.name}` : ''}`);
+        console.log(
+          `  ${id}: ${result.found ? 'FOUND' : 'NOT FOUND'}${result.found ? ` -> ${result.equipment?.name}` : ''}`,
+        );
       }
-      
+
       // Check loader directly
       console.log('\nLoader direct getById:');
       for (const id of testIds) {
         const eq = loader.getById(id);
-        console.log(`  ${id}: ${eq ? 'FOUND' : 'NOT FOUND'}${eq ? ` -> ${eq.name}` : ''}`);
+        console.log(
+          `  ${id}: ${eq ? 'FOUND' : 'NOT FOUND'}${eq ? ` -> ${eq.name}` : ''}`,
+        );
       }
-      
+
       // Show sample weapons from loader
       const weapons = loader.getAllWeapons();
       console.log(`\nTotal weapons loaded: ${weapons.length}`);
       if (weapons.length > 0) {
-        console.log('Sample weapon IDs:', weapons.slice(0, 5).map(w => w.id).join(', '));
+        console.log(
+          'Sample weapon IDs:',
+          weapons
+            .slice(0, 5)
+            .map((w) => w.id)
+            .join(', '),
+        );
       }
-      
+
       expect(stats.totalItems).toBeGreaterThan(0);
       expect(stats.weapons).toBeGreaterThan(0);
       expect(stats.ammunition).toBeGreaterThan(0);
@@ -512,9 +586,18 @@ describe('Unit Equipment Validation', () => {
   // ============================================================================
   describe('Sample Unit Equipment Resolution', () => {
     const sampleUnits = [
-      { path: '4-clan-invasion/standard/Black Hawk-KU BHKU-OR.json', name: 'Black Hawk-KU BHKU-OR' },
-      { path: '1-age-of-war/standard/Archer ARC-2R.json', name: 'Archer ARC-2R' },
-      { path: '3-succession-wars/standard/Locust LCT-1V.json', name: 'Locust LCT-1V' },
+      {
+        path: '4-clan-invasion/standard/Black Hawk-KU BHKU-OR.json',
+        name: 'Black Hawk-KU BHKU-OR',
+      },
+      {
+        path: '1-age-of-war/standard/Archer ARC-2R.json',
+        name: 'Archer ARC-2R',
+      },
+      {
+        path: '3-succession-wars/standard/Locust LCT-1V.json',
+        name: 'Locust LCT-1V',
+      },
     ];
 
     sampleUnits.forEach(({ path: unitPath, name }) => {
@@ -533,8 +616,12 @@ describe('Unit Equipment Validation', () => {
           return;
         }
 
-        const results: { id: string; resolved: boolean; result: IEquipmentLookupResult }[] = [];
-        
+        const results: {
+          id: string;
+          resolved: boolean;
+          result: IEquipmentLookupResult;
+        }[] = [];
+
         for (const eq of unit.equipment) {
           const result = registry.lookup(eq.id);
           results.push({
@@ -544,21 +631,28 @@ describe('Unit Equipment Validation', () => {
           });
         }
 
-        const failed = results.filter(r => !r.resolved);
-        
+        const failed = results.filter((r) => !r.resolved);
+
         if (failed.length > 0) {
           console.log(`\n${name} - Failed equipment lookups:`);
-          failed.forEach(f => {
+          failed.forEach((f) => {
             console.log(`  - ${f.id}`);
             if (f.result.alternateIds && f.result.alternateIds.length > 0) {
-              console.log(`    Suggestions: ${f.result.alternateIds.join(', ')}`);
+              console.log(
+                `    Suggestions: ${f.result.alternateIds.join(', ')}`,
+              );
             }
           });
         }
 
         // Log success rate
-        const successRate = ((results.length - failed.length) / results.length * 100).toFixed(1);
-        console.log(`${name}: ${results.length - failed.length}/${results.length} equipment resolved (${successRate}%)`);
+        const successRate = (
+          ((results.length - failed.length) / results.length) *
+          100
+        ).toFixed(1);
+        console.log(
+          `${name}: ${results.length - failed.length}/${results.length} equipment resolved (${successRate}%)`,
+        );
 
         // Expect at least some equipment to resolve (allow some failures for now)
         expect(results.length - failed.length).toBeGreaterThan(0);
@@ -579,7 +673,7 @@ describe('Unit Equipment Validation', () => {
       // Sample a subset for faster testing (first 50 units)
       const sampleSize = 50;
       const sampleUnits = unitIndex.units.slice(0, sampleSize);
-      
+
       const summary: ValidationSummary = {
         totalUnits: 0,
         unitsWithIssues: 0,
@@ -595,7 +689,7 @@ describe('Unit Equipment Validation', () => {
 
       for (const indexEntry of sampleUnits) {
         const fullPath = path.join(UNITS_PATH, indexEntry.path);
-        
+
         if (!fs.existsSync(fullPath)) {
           continue;
         }
@@ -619,10 +713,14 @@ describe('Unit Equipment Validation', () => {
 
           // Track unique unresolved IDs
           for (const issue of result.issues) {
-            if (issue.issue === 'NOT_FOUND' && !summary.uniqueUnresolvedIds.includes(issue.equipmentId)) {
+            if (
+              issue.issue === 'NOT_FOUND' &&
+              !summary.uniqueUnresolvedIds.includes(issue.equipmentId)
+            ) {
               summary.uniqueUnresolvedIds.push(issue.equipmentId);
             }
-            summary.issuesByType[issue.issue] = (summary.issuesByType[issue.issue] || 0) + 1;
+            summary.issuesByType[issue.issue] =
+              (summary.issuesByType[issue.issue] || 0) + 1;
           }
         } catch (error) {
           console.error(`Error processing ${indexEntry.path}:`, error);
@@ -634,12 +732,22 @@ describe('Unit Equipment Validation', () => {
       console.log(`Units Validated: ${summary.totalUnits}`);
       console.log(`Units with Issues: ${summary.unitsWithIssues}`);
       console.log(`Total Equipment: ${summary.totalEquipment}`);
-      console.log(`Resolved: ${summary.resolvedEquipment} (${(summary.resolvedEquipment / summary.totalEquipment * 100).toFixed(1)}%)`);
-      console.log(`Failed: ${summary.failedEquipment} (${(summary.failedEquipment / summary.totalEquipment * 100).toFixed(1)}%)`);
-      console.log(`\nUnique Unresolved IDs (${summary.uniqueUnresolvedIds.length}):`);
-      summary.uniqueUnresolvedIds.slice(0, 20).forEach(id => console.log(`  - ${id}`));
+      console.log(
+        `Resolved: ${summary.resolvedEquipment} (${((summary.resolvedEquipment / summary.totalEquipment) * 100).toFixed(1)}%)`,
+      );
+      console.log(
+        `Failed: ${summary.failedEquipment} (${((summary.failedEquipment / summary.totalEquipment) * 100).toFixed(1)}%)`,
+      );
+      console.log(
+        `\nUnique Unresolved IDs (${summary.uniqueUnresolvedIds.length}):`,
+      );
+      summary.uniqueUnresolvedIds
+        .slice(0, 20)
+        .forEach((id) => console.log(`  - ${id}`));
       if (summary.uniqueUnresolvedIds.length > 20) {
-        console.log(`  ... and ${summary.uniqueUnresolvedIds.length - 20} more`);
+        console.log(
+          `  ... and ${summary.uniqueUnresolvedIds.length - 20} more`,
+        );
       }
 
       // Expect reasonable success rate (at least 50% for now)
@@ -666,7 +774,7 @@ describe('Unit Equipment Validation', () => {
 
       for (const indexEntry of unitIndex.units) {
         const fullPath = path.join(UNITS_PATH, indexEntry.path);
-        
+
         if (!fs.existsSync(fullPath)) {
           continue;
         }
@@ -693,14 +801,26 @@ describe('Unit Equipment Validation', () => {
       }
 
       // Calculate statistics
-      const totalEquipment = allResults.reduce((sum, r) => sum + r.equipmentCount, 0);
-      const resolvedEquipment = allResults.reduce((sum, r) => sum + r.resolvedCount, 0);
-      const failedEquipment = allResults.reduce((sum, r) => sum + r.failedCount, 0);
-      const unitsWithIssues = allResults.filter(r => r.issues.length > 0).length;
+      const totalEquipment = allResults.reduce(
+        (sum, r) => sum + r.equipmentCount,
+        0,
+      );
+      const resolvedEquipment = allResults.reduce(
+        (sum, r) => sum + r.resolvedCount,
+        0,
+      );
+      const failedEquipment = allResults.reduce(
+        (sum, r) => sum + r.failedCount,
+        0,
+      );
+      const unitsWithIssues = allResults.filter(
+        (r) => r.issues.length > 0,
+      ).length;
 
       // Sort unresolved IDs by frequency
-      const sortedUnresolved = Array.from(allUnresolvedIds.entries())
-        .sort((a, b) => b[1] - a[1]);
+      const sortedUnresolved = Array.from(allUnresolvedIds.entries()).sort(
+        (a, b) => b[1] - a[1],
+      );
 
       // Output report
       console.log('\n' + '='.repeat(60));
@@ -710,21 +830,33 @@ describe('Unit Equipment Validation', () => {
       console.log(`Units with Issues: ${unitsWithIssues}`);
       console.log(`\nEquipment Statistics:`);
       console.log(`  Total Equipment Items: ${totalEquipment}`);
-      console.log(`  Successfully Resolved: ${resolvedEquipment} (${(resolvedEquipment / totalEquipment * 100).toFixed(2)}%)`);
-      console.log(`  Failed to Resolve: ${failedEquipment} (${(failedEquipment / totalEquipment * 100).toFixed(2)}%)`);
-      
+      console.log(
+        `  Successfully Resolved: ${resolvedEquipment} (${((resolvedEquipment / totalEquipment) * 100).toFixed(2)}%)`,
+      );
+      console.log(
+        `  Failed to Resolve: ${failedEquipment} (${((failedEquipment / totalEquipment) * 100).toFixed(2)}%)`,
+      );
+
       console.log(`\nTop 30 Unresolved Equipment IDs:`);
       sortedUnresolved.slice(0, 30).forEach(([id, count], idx) => {
         // Try to find suggestions
         const suggestions = registry.lookup(id).alternateIds || [];
-        const suggestionStr = suggestions.length > 0 ? ` → Maybe: ${suggestions.slice(0, 2).join(', ')}` : '';
-        console.log(`  ${idx + 1}. ${id} (${count} occurrences)${suggestionStr}`);
+        const suggestionStr =
+          suggestions.length > 0
+            ? ` → Maybe: ${suggestions.slice(0, 2).join(', ')}`
+            : '';
+        console.log(
+          `  ${idx + 1}. ${id} (${count} occurrences)${suggestionStr}`,
+        );
       });
 
       console.log('\n' + '='.repeat(60));
 
       // Write detailed report to file
-      const reportPath = path.join(__dirname, '../../../../equipment-validation-report.json');
+      const reportPath = path.join(
+        __dirname,
+        '../../../../equipment-validation-report.json',
+      );
       const report = {
         generatedAt: new Date().toISOString(),
         summary: {
@@ -733,7 +865,8 @@ describe('Unit Equipment Validation', () => {
           totalEquipment,
           resolvedEquipment,
           failedEquipment,
-          resolutionRate: (resolvedEquipment / totalEquipment * 100).toFixed(2) + '%',
+          resolutionRate:
+            ((resolvedEquipment / totalEquipment) * 100).toFixed(2) + '%',
         },
         unresolvedEquipmentIds: sortedUnresolved.map(([id, count]) => ({
           id,
@@ -741,14 +874,14 @@ describe('Unit Equipment Validation', () => {
           suggestions: registry.lookup(id).alternateIds || [],
         })),
         unitsWithMostIssues: allResults
-          .filter(r => r.failedCount > 0)
+          .filter((r) => r.failedCount > 0)
           .sort((a, b) => b.failedCount - a.failedCount)
           .slice(0, 50)
-          .map(r => ({
+          .map((r) => ({
             unit: r.unitName,
             failed: r.failedCount,
             total: r.equipmentCount,
-            issues: r.issues.map(i => i.equipmentId),
+            issues: r.issues.map((i) => i.equipmentId),
           })),
       };
 
@@ -769,7 +902,10 @@ describe('Unit Equipment Validation', () => {
 // Helper Functions
 // ============================================================================
 
-function validateUnitEquipment(unit: UnitData, registry: EquipmentRegistry): UnitValidationResult {
+function validateUnitEquipment(
+  unit: UnitData,
+  registry: EquipmentRegistry,
+): UnitValidationResult {
   const result: UnitValidationResult = {
     unitId: unit.id,
     unitName: `${unit.chassis} ${unit.model}`,
@@ -791,7 +927,7 @@ function validateUnitEquipment(unit: UnitData, registry: EquipmentRegistry): Uni
 
     if (lookupResult.found) {
       result.resolvedCount++;
-      
+
       // Check if it was resolved via alias (ID changed)
       if (lookupResult.equipment && lookupResult.equipment.id !== eq.id) {
         result.aliasResolvedCount++;
@@ -819,4 +955,3 @@ function validateUnitEquipment(unit: UnitData, registry: EquipmentRegistry): Uni
 
   return result;
 }
-

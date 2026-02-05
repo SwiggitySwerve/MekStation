@@ -7,6 +7,7 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getPilotService, getPilotRepository } from '@/services/pilots';
 import { getAbility, meetsPrerequisites } from '@/types/pilot';
@@ -25,17 +26,20 @@ type Response = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Response>
+  res: NextApiResponse<Response>,
 ): Promise<void> {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ success: false, error: `Method ${req.method} Not Allowed` });
+    return res
+      .status(405)
+      .json({ success: false, error: `Method ${req.method} Not Allowed` });
   }
 
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ success: false, error: message });
   }
 
@@ -46,7 +50,9 @@ export default async function handler(
 
   const body = req.body as RequestBody;
   if (!body.abilityId) {
-    return res.status(400).json({ success: false, error: 'Missing abilityId in request body' });
+    return res
+      .status(400)
+      .json({ success: false, error: 'Missing abilityId in request body' });
   }
 
   const pilotService = getPilotService();
@@ -55,19 +61,28 @@ export default async function handler(
   // Get pilot
   const pilot = pilotService.getPilot(id);
   if (!pilot) {
-    return res.status(404).json({ success: false, error: `Pilot ${id} not found` });
+    return res
+      .status(404)
+      .json({ success: false, error: `Pilot ${id} not found` });
   }
 
   // Get ability
   const ability = getAbility(body.abilityId);
   if (!ability) {
-    return res.status(400).json({ success: false, error: `Unknown ability: ${body.abilityId}` });
+    return res
+      .status(400)
+      .json({ success: false, error: `Unknown ability: ${body.abilityId}` });
   }
 
   // Check if already owned
-  const alreadyOwned = pilot.abilities.some((a) => a.abilityId === body.abilityId);
+  const alreadyOwned = pilot.abilities.some(
+    (a) => a.abilityId === body.abilityId,
+  );
   if (alreadyOwned) {
-    return res.status(400).json({ success: false, error: `Pilot already has ability: ${ability.name}` });
+    return res.status(400).json({
+      success: false,
+      error: `Pilot already has ability: ${ability.name}`,
+    });
   }
 
   // Check prerequisites
@@ -76,7 +91,7 @@ export default async function handler(
     body.abilityId,
     pilot.skills.gunnery,
     pilot.skills.piloting,
-    ownedAbilityIds
+    ownedAbilityIds,
   );
 
   if (!prereqCheck.meets) {

@@ -2,12 +2,13 @@
  * Tests for Combat Statistics Projection Functions
  */
 
+import { IGameEvent, GameEventType, GamePhase } from '@/types/gameplay';
+
 import {
   projectDamageMatrix,
   projectKillCredits,
   projectUnitPerformance,
 } from '../combatStatistics';
-import { IGameEvent, GameEventType, GamePhase } from '@/types/gameplay';
 
 // =============================================================================
 // Test Helpers
@@ -18,7 +19,7 @@ function createDamageEvent(
   turn: number,
   unitId: string,
   damage: number,
-  sourceUnitId?: string
+  sourceUnitId?: string,
 ): IGameEvent {
   return {
     id: `event-${sequence}`,
@@ -44,7 +45,7 @@ function createKillEvent(
   sequence: number,
   turn: number,
   unitId: string,
-  killerUnitId?: string
+  killerUnitId?: string,
 ): IGameEvent {
   return {
     id: `event-${sequence}`,

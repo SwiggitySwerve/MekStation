@@ -1,15 +1,17 @@
-import React from 'react';
 import { render, screen, fireEvent, within, act } from '@testing-library/react';
-import {
-  AnalysisBugs,
-  formatTimestamp,
-} from '@/components/simulation-viewer/pages/AnalysisBugs';
+import React from 'react';
+
 import type {
   IAnalysisBugsProps,
   IInvariant,
   IPageAnomaly,
   IViolation,
   IThresholds,
+} from '@/components/simulation-viewer/pages/AnalysisBugs';
+
+import {
+  AnalysisBugs,
+  formatTimestamp,
 } from '@/components/simulation-viewer/pages/AnalysisBugs';
 
 /* ---- Mock VirtualizedViolationLog ---- */
@@ -20,28 +22,49 @@ jest.mock('@/components/simulation-viewer/VirtualizedViolationLog', () => ({
     violations,
     onViewBattle,
   }: {
-    violations: readonly { id: string; type: string; severity: string; message: string; battleId: string; timestamp: string }[];
+    violations: readonly {
+      id: string;
+      type: string;
+      severity: string;
+      message: string;
+      battleId: string;
+      timestamp: string;
+    }[];
     onViewBattle?: (battleId: string) => void;
   }) => {
     const fmt = (iso: string): string => {
       try {
         const d = new Date(iso);
         if (isNaN(d.getTime())) return iso;
-        return d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      } catch { return iso; }
+        return d.toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      } catch {
+        return iso;
+      }
     };
 
     if (violations.length === 0) {
       return (
         <div data-testid="virtualized-violation-log">
-          <p data-testid="violation-empty">No violations match the current filters.</p>
+          <p data-testid="violation-empty">
+            No violations match the current filters.
+          </p>
         </div>
       );
     }
     return (
       <div data-testid="virtualized-violation-log">
         {violations.map((v) => (
-          <div key={v.id} data-testid="violation-row" data-severity={v.severity}>
+          <div
+            key={v.id}
+            data-testid="violation-row"
+            data-severity={v.severity}
+          >
             <span data-testid="violation-timestamp">{fmt(v.timestamp)}</span>
             <span data-testid="violation-type">{v.type}</span>
             <span data-testid="violation-severity-badge">{v.severity}</span>
@@ -63,18 +86,102 @@ jest.mock('@/components/simulation-viewer/VirtualizedViolationLog', () => ({
 }));
 
 const mockInvariants: IInvariant[] = [
-  { id: 'inv1', name: 'Unit HP never negative', description: 'Ensures unit HP is always >= 0', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
-  { id: 'inv2', name: 'Armor never exceeds max', description: 'Ensures armor points <= max armor', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
-  { id: 'inv3', name: 'Heat never exceeds capacity', description: 'Ensures heat <= heat capacity', status: 'fail', lastChecked: '2025-01-15T14:30:00Z', failureCount: 3 },
-  { id: 'inv4', name: 'Ammo never negative', description: 'Ensures ammo count >= 0', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
-  { id: 'inv5', name: 'Movement never exceeds max', description: 'Ensures movement points <= max MP', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
-  { id: 'inv6', name: 'Weapon range valid', description: 'Ensures weapon ranges are within spec', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
-  { id: 'inv7', name: 'Pilot skill in valid range', description: 'Ensures pilot skills 0-8', status: 'fail', lastChecked: '2025-01-15T14:30:00Z', failureCount: 1 },
-  { id: 'inv8', name: 'BV calculation matches formula', description: 'Validates BV2.0 formula output', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
-  { id: 'inv9', name: 'Turn order consistent', description: 'Phase initiative order preserved', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
-  { id: 'inv10', name: 'Phase sequence valid', description: 'Phase transitions follow protocol', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
-  { id: 'inv11', name: 'Unit status transitions valid', description: 'No invalid state transitions', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
-  { id: 'inv12', name: 'Damage totals match individual hits', description: 'Sum of hits equals total damage', status: 'fail', lastChecked: '2025-01-15T14:30:00Z', failureCount: 5 },
+  {
+    id: 'inv1',
+    name: 'Unit HP never negative',
+    description: 'Ensures unit HP is always >= 0',
+    status: 'pass',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 0,
+  },
+  {
+    id: 'inv2',
+    name: 'Armor never exceeds max',
+    description: 'Ensures armor points <= max armor',
+    status: 'pass',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 0,
+  },
+  {
+    id: 'inv3',
+    name: 'Heat never exceeds capacity',
+    description: 'Ensures heat <= heat capacity',
+    status: 'fail',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 3,
+  },
+  {
+    id: 'inv4',
+    name: 'Ammo never negative',
+    description: 'Ensures ammo count >= 0',
+    status: 'pass',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 0,
+  },
+  {
+    id: 'inv5',
+    name: 'Movement never exceeds max',
+    description: 'Ensures movement points <= max MP',
+    status: 'pass',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 0,
+  },
+  {
+    id: 'inv6',
+    name: 'Weapon range valid',
+    description: 'Ensures weapon ranges are within spec',
+    status: 'pass',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 0,
+  },
+  {
+    id: 'inv7',
+    name: 'Pilot skill in valid range',
+    description: 'Ensures pilot skills 0-8',
+    status: 'fail',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 1,
+  },
+  {
+    id: 'inv8',
+    name: 'BV calculation matches formula',
+    description: 'Validates BV2.0 formula output',
+    status: 'pass',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 0,
+  },
+  {
+    id: 'inv9',
+    name: 'Turn order consistent',
+    description: 'Phase initiative order preserved',
+    status: 'pass',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 0,
+  },
+  {
+    id: 'inv10',
+    name: 'Phase sequence valid',
+    description: 'Phase transitions follow protocol',
+    status: 'pass',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 0,
+  },
+  {
+    id: 'inv11',
+    name: 'Unit status transitions valid',
+    description: 'No invalid state transitions',
+    status: 'pass',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 0,
+  },
+  {
+    id: 'inv12',
+    name: 'Damage totals match individual hits',
+    description: 'Sum of hits equals total damage',
+    status: 'fail',
+    lastChecked: '2025-01-15T14:30:00Z',
+    failureCount: 5,
+  },
 ];
 
 const mockAnomalies: IPageAnomaly[] = [
@@ -136,11 +243,46 @@ const mockAnomalies: IPageAnomaly[] = [
 ];
 
 const mockViolations: IViolation[] = [
-  { id: 'v1', type: 'heat-suicide', severity: 'critical', message: 'Unit overheated to shutdown', battleId: 'b1', timestamp: '2025-01-15T14:30:00Z' },
-  { id: 'v2', type: 'passive-unit', severity: 'warning', message: 'Unit passive for 5 turns', battleId: 'b2', timestamp: '2025-01-15T14:35:00Z' },
-  { id: 'v3', type: 'no-progress', severity: 'warning', message: 'No progress for 5 turns', battleId: 'b1', timestamp: '2025-01-15T14:40:00Z' },
-  { id: 'v4', type: 'long-game', severity: 'info', message: 'Battle exceeded 50 turns', battleId: 'b3', timestamp: '2025-01-15T14:45:00Z' },
-  { id: 'v5', type: 'state-cycle', severity: 'critical', message: 'State cycle detected', battleId: 'b1', timestamp: '2025-01-15T14:50:00Z' },
+  {
+    id: 'v1',
+    type: 'heat-suicide',
+    severity: 'critical',
+    message: 'Unit overheated to shutdown',
+    battleId: 'b1',
+    timestamp: '2025-01-15T14:30:00Z',
+  },
+  {
+    id: 'v2',
+    type: 'passive-unit',
+    severity: 'warning',
+    message: 'Unit passive for 5 turns',
+    battleId: 'b2',
+    timestamp: '2025-01-15T14:35:00Z',
+  },
+  {
+    id: 'v3',
+    type: 'no-progress',
+    severity: 'warning',
+    message: 'No progress for 5 turns',
+    battleId: 'b1',
+    timestamp: '2025-01-15T14:40:00Z',
+  },
+  {
+    id: 'v4',
+    type: 'long-game',
+    severity: 'info',
+    message: 'Battle exceeded 50 turns',
+    battleId: 'b3',
+    timestamp: '2025-01-15T14:45:00Z',
+  },
+  {
+    id: 'v5',
+    type: 'state-cycle',
+    severity: 'critical',
+    message: 'State cycle detected',
+    battleId: 'b1',
+    timestamp: '2025-01-15T14:50:00Z',
+  },
 ];
 
 const mockThresholds: IThresholds = {
@@ -171,8 +313,18 @@ function renderPage(overrides: Partial<IAnalysisBugsProps> = {}) {
 }
 
 function generateViolations(count: number): IViolation[] {
-  const severities: Array<'critical' | 'warning' | 'info'> = ['critical', 'warning', 'info'];
-  const types = ['heat-suicide', 'passive-unit', 'no-progress', 'long-game', 'state-cycle'];
+  const severities: Array<'critical' | 'warning' | 'info'> = [
+    'critical',
+    'warning',
+    'info',
+  ];
+  const types = [
+    'heat-suicide',
+    'passive-unit',
+    'no-progress',
+    'long-game',
+    'state-cycle',
+  ];
   return Array.from({ length: count }, (_, i) => ({
     id: `v-gen-${i}`,
     type: types[i % types.length],
@@ -207,7 +359,9 @@ describe('AnalysisBugs', () => {
 
     it('renders the page title', () => {
       renderPage();
-      expect(screen.getByTestId('page-title')).toHaveTextContent('Analysis & Bugs');
+      expect(screen.getByTestId('page-title')).toHaveTextContent(
+        'Analysis & Bugs',
+      );
     });
 
     it('renders invariant status section', () => {
@@ -232,10 +386,14 @@ describe('AnalysisBugs', () => {
 
     it('renders all four section headings', () => {
       renderPage();
-      expect(screen.getByTestId('invariant-heading')).toHaveTextContent('Invariant Status');
+      expect(screen.getByTestId('invariant-heading')).toHaveTextContent(
+        'Invariant Status',
+      );
       expect(screen.getByTestId('anomaly-heading')).toBeInTheDocument();
       expect(screen.getByTestId('violation-heading')).toBeInTheDocument();
-      expect(screen.getByTestId('threshold-heading')).toHaveTextContent('Threshold Configuration');
+      expect(screen.getByTestId('threshold-heading')).toHaveTextContent(
+        'Threshold Configuration',
+      );
     });
 
     it('renders invariant grid', () => {
@@ -245,25 +403,37 @@ describe('AnalysisBugs', () => {
 
     it('renders anomaly scroll container', () => {
       renderPage();
-      expect(screen.getByTestId('anomaly-scroll-container')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('anomaly-scroll-container'),
+      ).toBeInTheDocument();
     });
 
     it('renders violation log', () => {
       renderPage();
-      expect(screen.getByTestId('virtualized-violation-log')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('virtualized-violation-log'),
+      ).toBeInTheDocument();
     });
 
     it('renders filter panel in violation section', () => {
       renderPage();
       const violationSection = screen.getByTestId('violation-section');
-      expect(within(violationSection).getByTestId('filter-panel')).toBeInTheDocument();
+      expect(
+        within(violationSection).getByTestId('filter-panel'),
+      ).toBeInTheDocument();
     });
 
     it('renders with empty data', () => {
       renderPage({ invariants: [], anomalies: [], violations: [] });
-      expect(screen.getByTestId('invariant-empty')).toHaveTextContent('No invariants configured');
-      expect(screen.getByTestId('anomaly-empty')).toHaveTextContent('No anomalies detected');
-      expect(screen.getByTestId('violation-empty')).toHaveTextContent('No violations');
+      expect(screen.getByTestId('invariant-empty')).toHaveTextContent(
+        'No invariants configured',
+      );
+      expect(screen.getByTestId('anomaly-empty')).toHaveTextContent(
+        'No anomalies detected',
+      );
+      expect(screen.getByTestId('violation-empty')).toHaveTextContent(
+        'No violations',
+      );
     });
 
     it('renders empty invariant message', () => {
@@ -272,7 +442,10 @@ describe('AnalysisBugs', () => {
     });
 
     it('renders empty anomaly message when all dismissed and toggle off', () => {
-      const allDismissed = mockAnomalies.map((a) => ({ ...a, dismissed: true }));
+      const allDismissed = mockAnomalies.map((a) => ({
+        ...a,
+        dismissed: true,
+      }));
       renderPage({ anomalies: allDismissed });
       expect(screen.getByTestId('anomaly-empty')).toBeInTheDocument();
     });
@@ -291,7 +464,9 @@ describe('AnalysisBugs', () => {
     it('pass status shows pass badge', () => {
       renderPage();
       const cards = screen.getAllByTestId('invariant-card');
-      const passCard = cards.find((c) => c.getAttribute('data-status') === 'pass');
+      const passCard = cards.find(
+        (c) => c.getAttribute('data-status') === 'pass',
+      );
       expect(passCard).toBeDefined();
       const badge = within(passCard!).getByTestId('invariant-status-badge');
       expect(badge).toHaveTextContent('pass');
@@ -300,7 +475,9 @@ describe('AnalysisBugs', () => {
     it('fail status shows fail badge', () => {
       renderPage();
       const cards = screen.getAllByTestId('invariant-card');
-      const failCard = cards.find((c) => c.getAttribute('data-status') === 'fail');
+      const failCard = cards.find(
+        (c) => c.getAttribute('data-status') === 'fail',
+      );
       expect(failCard).toBeDefined();
       const badge = within(failCard!).getByTestId('invariant-status-badge');
       expect(badge).toHaveTextContent('fail');
@@ -309,7 +486,9 @@ describe('AnalysisBugs', () => {
     it('pass badge has green styling', () => {
       renderPage();
       const cards = screen.getAllByTestId('invariant-card');
-      const passCard = cards.find((c) => c.getAttribute('data-status') === 'pass');
+      const passCard = cards.find(
+        (c) => c.getAttribute('data-status') === 'pass',
+      );
       const badge = within(passCard!).getByTestId('invariant-status-badge');
       expect(badge.className).toContain('bg-emerald');
     });
@@ -317,7 +496,9 @@ describe('AnalysisBugs', () => {
     it('fail badge has red styling', () => {
       renderPage();
       const cards = screen.getAllByTestId('invariant-card');
-      const failCard = cards.find((c) => c.getAttribute('data-status') === 'fail');
+      const failCard = cards.find(
+        (c) => c.getAttribute('data-status') === 'fail',
+      );
       const badge = within(failCard!).getByTestId('invariant-status-badge');
       expect(badge.className).toContain('bg-red');
     });
@@ -326,13 +507,17 @@ describe('AnalysisBugs', () => {
       renderPage();
       const failureCounts = screen.getAllByTestId('invariant-failure-count');
       expect(failureCounts.length).toBeGreaterThan(0);
-      const fiveFailures = failureCounts.find((el) => el.textContent?.includes('5'));
+      const fiveFailures = failureCounts.find((el) =>
+        el.textContent?.includes('5'),
+      );
       expect(fiveFailures).toBeDefined();
     });
 
     it('failure count is hidden when zero', () => {
       renderPage({ invariants: [mockInvariants[0]] });
-      expect(screen.queryByTestId('invariant-failure-count')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('invariant-failure-count'),
+      ).not.toBeInTheDocument();
     });
 
     it('last checked timestamp is formatted', () => {
@@ -373,7 +558,9 @@ describe('AnalysisBugs', () => {
       renderPage();
       const nonDismissed = mockAnomalies.filter((a) => !a.dismissed);
       nonDismissed.forEach((a) => {
-        expect(screen.getByTestId(`anomaly-card-wrapper-${a.id}`)).toBeInTheDocument();
+        expect(
+          screen.getByTestId(`anomaly-card-wrapper-${a.id}`),
+        ).toBeInTheDocument();
       });
     });
 
@@ -450,7 +637,10 @@ describe('AnalysisBugs', () => {
     });
 
     it('does not show toggle when no dismissed anomalies', () => {
-      const noDismissed = mockAnomalies.map((a) => ({ ...a, dismissed: false }));
+      const noDismissed = mockAnomalies.map((a) => ({
+        ...a,
+        dismissed: false,
+      }));
       renderPage({ anomalies: noDismissed });
       expect(screen.queryByTestId('toggle-dismissed')).not.toBeInTheDocument();
     });
@@ -463,7 +653,9 @@ describe('AnalysisBugs', () => {
 
     it('does not render cards when anomalies are empty', () => {
       renderPage({ anomalies: [] });
-      expect(screen.queryByTestId('anomaly-alert-card')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('anomaly-alert-card'),
+      ).not.toBeInTheDocument();
     });
 
     it('renders anomaly cards from all 5 detector types', () => {
@@ -493,7 +685,9 @@ describe('AnalysisBugs', () => {
     it('filters by severity — critical only', () => {
       renderPage();
       const severitySection = screen.getByTestId('filter-section-severity');
-      const criticalCheckbox = within(severitySection).getByTestId('checkbox-severity-critical');
+      const criticalCheckbox = within(severitySection).getByTestId(
+        'checkbox-severity-critical',
+      );
       fireEvent.click(criticalCheckbox);
       const rows = screen.getAllByTestId('violation-row');
       rows.forEach((row) => {
@@ -504,7 +698,9 @@ describe('AnalysisBugs', () => {
     it('filters by severity — warning only', () => {
       renderPage();
       const severitySection = screen.getByTestId('filter-section-severity');
-      const warningCheckbox = within(severitySection).getByTestId('checkbox-severity-warning');
+      const warningCheckbox = within(severitySection).getByTestId(
+        'checkbox-severity-warning',
+      );
       fireEvent.click(warningCheckbox);
       const rows = screen.getAllByTestId('violation-row');
       rows.forEach((row) => {
@@ -528,7 +724,9 @@ describe('AnalysisBugs', () => {
       fireEvent.click(typeCheckbox);
       const rows = screen.getAllByTestId('violation-row');
       rows.forEach((row) => {
-        expect(within(row).getByTestId('violation-type')).toHaveTextContent('heat-suicide');
+        expect(within(row).getByTestId('violation-type')).toHaveTextContent(
+          'heat-suicide',
+        );
       });
     });
 
@@ -538,7 +736,9 @@ describe('AnalysisBugs', () => {
       fireEvent.click(battleCheckbox);
       const rows = screen.getAllByTestId('violation-row');
       rows.forEach((row) => {
-        expect(within(row).getByTestId('violation-battle')).toHaveTextContent('b2');
+        expect(within(row).getByTestId('violation-battle')).toHaveTextContent(
+          'b2',
+        );
       });
     });
 
@@ -549,7 +749,9 @@ describe('AnalysisBugs', () => {
       const rows = screen.getAllByTestId('violation-row');
       rows.forEach((row) => {
         expect(row.getAttribute('data-severity')).toBe('critical');
-        expect(within(row).getByTestId('violation-battle')).toHaveTextContent('b1');
+        expect(within(row).getByTestId('violation-battle')).toHaveTextContent(
+          'b1',
+        );
       });
     });
 
@@ -590,27 +792,49 @@ describe('AnalysisBugs', () => {
   describe('Threshold Configuration', () => {
     it('renders all 5 threshold sliders', () => {
       renderPage();
-      expect(screen.getByTestId('threshold-slider-heatSuicide')).toBeInTheDocument();
-      expect(screen.getByTestId('threshold-slider-passiveUnit')).toBeInTheDocument();
-      expect(screen.getByTestId('threshold-slider-noProgress')).toBeInTheDocument();
-      expect(screen.getByTestId('threshold-slider-longGame')).toBeInTheDocument();
-      expect(screen.getByTestId('threshold-slider-stateCycle')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('threshold-slider-heatSuicide'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('threshold-slider-passiveUnit'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('threshold-slider-noProgress'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('threshold-slider-longGame'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('threshold-slider-stateCycle'),
+      ).toBeInTheDocument();
     });
 
     it('sliders render with correct initial values', () => {
       renderPage();
-      expect(screen.getByTestId('threshold-value-heatSuicide')).toHaveTextContent('80');
-      expect(screen.getByTestId('threshold-value-passiveUnit')).toHaveTextContent('60');
-      expect(screen.getByTestId('threshold-value-noProgress')).toHaveTextContent('70');
-      expect(screen.getByTestId('threshold-value-longGame')).toHaveTextContent('90');
-      expect(screen.getByTestId('threshold-value-stateCycle')).toHaveTextContent('75');
+      expect(
+        screen.getByTestId('threshold-value-heatSuicide'),
+      ).toHaveTextContent('80');
+      expect(
+        screen.getByTestId('threshold-value-passiveUnit'),
+      ).toHaveTextContent('60');
+      expect(
+        screen.getByTestId('threshold-value-noProgress'),
+      ).toHaveTextContent('70');
+      expect(screen.getByTestId('threshold-value-longGame')).toHaveTextContent(
+        '90',
+      );
+      expect(
+        screen.getByTestId('threshold-value-stateCycle'),
+      ).toHaveTextContent('75');
     });
 
     it('slider change updates displayed value', () => {
       renderPage();
       const slider = screen.getByTestId('threshold-input-heatSuicide');
       fireEvent.change(slider, { target: { value: '50' } });
-      expect(screen.getByTestId('threshold-value-heatSuicide')).toHaveTextContent('50');
+      expect(
+        screen.getByTestId('threshold-value-heatSuicide'),
+      ).toHaveTextContent('50');
     });
 
     it('save button calls onThresholdChange for all detectors', () => {
@@ -629,17 +853,27 @@ describe('AnalysisBugs', () => {
       renderPage();
       const slider = screen.getByTestId('threshold-input-heatSuicide');
       fireEvent.change(slider, { target: { value: '10' } });
-      expect(screen.getByTestId('threshold-value-heatSuicide')).toHaveTextContent('10');
+      expect(
+        screen.getByTestId('threshold-value-heatSuicide'),
+      ).toHaveTextContent('10');
       fireEvent.click(screen.getByTestId('threshold-reset'));
-      expect(screen.getByTestId('threshold-value-heatSuicide')).toHaveTextContent('80');
+      expect(
+        screen.getByTestId('threshold-value-heatSuicide'),
+      ).toHaveTextContent('80');
     });
 
     it('auto-snapshot toggles render', () => {
       renderPage();
       expect(screen.getByTestId('auto-snapshot-config')).toBeInTheDocument();
-      expect(screen.getByTestId('toggle-auto-snapshot-critical')).toBeInTheDocument();
-      expect(screen.getByTestId('toggle-auto-snapshot-warning')).toBeInTheDocument();
-      expect(screen.getByTestId('toggle-auto-snapshot-info')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('toggle-auto-snapshot-critical'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('toggle-auto-snapshot-warning'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('toggle-auto-snapshot-info'),
+      ).toBeInTheDocument();
     });
 
     it('auto-snapshot critical toggle is on by default', () => {
@@ -809,13 +1043,18 @@ describe('AnalysisBugs', () => {
     it('displays invariant description in card', () => {
       renderPage();
       const descriptions = screen.getAllByTestId('invariant-description');
-      expect(descriptions[0]).toHaveTextContent('Ensures unit HP is always >= 0');
+      expect(descriptions[0]).toHaveTextContent(
+        'Ensures unit HP is always >= 0',
+      );
     });
 
     it('invariant card has correct aria-label', () => {
       renderPage();
       const cards = screen.getAllByTestId('invariant-card');
-      expect(cards[0]).toHaveAttribute('aria-label', 'Unit HP never negative: pass');
+      expect(cards[0]).toHaveAttribute(
+        'aria-label',
+        'Unit HP never negative: pass',
+      );
     });
 
     it('violation row displays formatted timestamp', () => {

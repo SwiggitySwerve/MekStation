@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 /**
  * Encounters List Page
  * Browse, search, and manage encounter configurations.
@@ -5,7 +6,7 @@
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/router';
+
 import {
   PageLayout,
   PageLoading,
@@ -16,7 +17,11 @@ import {
   Badge,
 } from '@/components/ui';
 import { useEncounterStore } from '@/stores/useEncounterStore';
-import { IEncounter, EncounterStatus, SCENARIO_TEMPLATES } from '@/types/encounter';
+import {
+  IEncounter,
+  EncounterStatus,
+  SCENARIO_TEMPLATES,
+} from '@/types/encounter';
 import { getStatusColor, getStatusLabel } from '@/utils/encounterStatus';
 
 // =============================================================================
@@ -28,63 +33,74 @@ interface EncounterCardProps {
   onClick: () => void;
 }
 
-function EncounterCard({ encounter, onClick }: EncounterCardProps): React.ReactElement {
+function EncounterCard({
+  encounter,
+  onClick,
+}: EncounterCardProps): React.ReactElement {
   const template = encounter.template
     ? SCENARIO_TEMPLATES.find((t) => t.type === encounter.template)
     : null;
 
   return (
     <Card
-      className="cursor-pointer hover:border-accent/50 transition-all"
+      className="hover:border-accent/50 cursor-pointer transition-all"
       onClick={onClick}
       data-testid={`encounter-card-${encounter.id}`}
     >
-      <div className="flex justify-between items-start mb-3">
-        <h3 className="font-medium text-text-theme-primary truncate" data-testid="encounter-name">{encounter.name}</h3>
-        <Badge variant={getStatusColor(encounter.status)} data-testid="encounter-status">
+      <div className="mb-3 flex items-start justify-between">
+        <h3
+          className="text-text-theme-primary truncate font-medium"
+          data-testid="encounter-name"
+        >
+          {encounter.name}
+        </h3>
+        <Badge
+          variant={getStatusColor(encounter.status)}
+          data-testid="encounter-status"
+        >
           {getStatusLabel(encounter.status)}
         </Badge>
       </div>
 
       {encounter.description && (
-        <p className="text-sm text-text-theme-secondary mb-3 line-clamp-2">
+        <p className="text-text-theme-secondary mb-3 line-clamp-2 text-sm">
           {encounter.description}
         </p>
       )}
 
       {template && (
-        <div className="text-xs text-text-theme-muted mb-3">
+        <div className="text-text-theme-muted mb-3 text-xs">
           Template: {template.name}
         </div>
       )}
 
       <div className="flex flex-wrap gap-2 text-xs">
         {encounter.playerForce ? (
-          <span className="px-2 py-1 rounded bg-surface-raised text-text-theme-secondary">
+          <span className="bg-surface-raised text-text-theme-secondary rounded px-2 py-1">
             Player: {encounter.playerForce.forceName || 'Set'}
           </span>
         ) : (
-          <span className="px-2 py-1 rounded bg-yellow-900/20 text-yellow-400">
+          <span className="rounded bg-yellow-900/20 px-2 py-1 text-yellow-400">
             No Player Force
           </span>
         )}
 
         {encounter.opponentForce ? (
-          <span className="px-2 py-1 rounded bg-surface-raised text-text-theme-secondary">
+          <span className="bg-surface-raised text-text-theme-secondary rounded px-2 py-1">
             Opponent: {encounter.opponentForce.forceName || 'Set'}
           </span>
         ) : encounter.opForConfig ? (
-          <span className="px-2 py-1 rounded bg-surface-raised text-text-theme-secondary">
+          <span className="bg-surface-raised text-text-theme-secondary rounded px-2 py-1">
             OpFor: Generated
           </span>
         ) : (
-          <span className="px-2 py-1 rounded bg-yellow-900/20 text-yellow-400">
+          <span className="rounded bg-yellow-900/20 px-2 py-1 text-yellow-400">
             No Opponent
           </span>
         )}
       </div>
 
-      <div className="mt-3 pt-3 border-t border-border-theme-subtle text-xs text-text-theme-muted">
+      <div className="border-border-theme-subtle text-text-theme-muted mt-3 border-t pt-3 text-xs">
         Updated: {new Date(encounter.updatedAt).toLocaleDateString()}
       </div>
     </Card>
@@ -126,7 +142,7 @@ export default function EncountersListPage(): React.ReactElement {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchQuery(e.target.value);
     },
-    [setSearchQuery]
+    [setSearchQuery],
   );
 
   // Navigate to create page
@@ -140,7 +156,7 @@ export default function EncountersListPage(): React.ReactElement {
       selectEncounter(encounter.id);
       router.push(`/gameplay/encounters/${encounter.id}`);
     },
-    [router, selectEncounter]
+    [router, selectEncounter],
   );
 
   if (!isInitialized || isLoading) {
@@ -159,7 +175,7 @@ export default function EncountersListPage(): React.ReactElement {
           data-testid="create-encounter-btn"
           leftIcon={
             <svg
-              className="w-4 h-4"
+              className="h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -179,7 +195,7 @@ export default function EncountersListPage(): React.ReactElement {
     >
       {/* Filters */}
       <Card className="mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row">
           {/* Search */}
           <div className="flex-1">
             <Input
@@ -194,24 +210,31 @@ export default function EncountersListPage(): React.ReactElement {
 
           {/* Status Filter */}
           <div className="flex gap-2" data-testid="status-filter">
-            {(['all', EncounterStatus.Draft, EncounterStatus.Ready, EncounterStatus.Launched] as const).map(
-              (status) => (
-                <Button
-                  key={status}
-                  variant={statusFilter === status ? 'primary' : 'secondary'}
-                  size="sm"
-                  onClick={() => setStatusFilter(status)}
-                  data-testid={`status-option-${status}`}
-                >
-                  {status === 'all' ? 'All' : getStatusLabel(status as EncounterStatus)}
-                </Button>
-              )
-            )}
+            {(
+              [
+                'all',
+                EncounterStatus.Draft,
+                EncounterStatus.Ready,
+                EncounterStatus.Launched,
+              ] as const
+            ).map((status) => (
+              <Button
+                key={status}
+                variant={statusFilter === status ? 'primary' : 'secondary'}
+                size="sm"
+                onClick={() => setStatusFilter(status)}
+                data-testid={`status-option-${status}`}
+              >
+                {status === 'all'
+                  ? 'All'
+                  : getStatusLabel(status as EncounterStatus)}
+              </Button>
+            ))}
           </div>
         </div>
 
         {/* Results count */}
-        <div className="mt-4 text-sm text-text-theme-secondary">
+        <div className="text-text-theme-secondary mt-4 text-sm">
           Showing {filteredEncounters.length} encounter
           {filteredEncounters.length !== 1 ? 's' : ''}
           {(searchQuery || statusFilter !== 'all') && (
@@ -222,7 +245,7 @@ export default function EncountersListPage(): React.ReactElement {
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 p-4 rounded-lg bg-red-900/20 border border-red-600/30">
+        <div className="mb-6 rounded-lg border border-red-600/30 bg-red-900/20 p-4">
           <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
@@ -232,9 +255,9 @@ export default function EncountersListPage(): React.ReactElement {
         <EmptyState
           data-testid="encounters-empty-state"
           icon={
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
+            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
               <svg
-                className="w-8 h-8 text-text-theme-muted"
+                className="text-text-theme-muted h-8 w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -248,7 +271,11 @@ export default function EncountersListPage(): React.ReactElement {
               </svg>
             </div>
           }
-          title={searchQuery || statusFilter !== 'all' ? 'No encounters match your filters' : 'No encounters yet'}
+          title={
+            searchQuery || statusFilter !== 'all'
+              ? 'No encounters match your filters'
+              : 'No encounters yet'
+          }
           message={
             searchQuery || statusFilter !== 'all'
               ? 'Try adjusting your search or filters'
@@ -263,7 +290,7 @@ export default function EncountersListPage(): React.ReactElement {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
+        <div className="grid grid-cols-1 gap-4 pb-20 md:grid-cols-2 lg:grid-cols-3">
           {filteredEncounters.map((encounter) => (
             <EncounterCard
               key={encounter.id}

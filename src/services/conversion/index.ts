@@ -37,10 +37,7 @@ export {
 
 export * from './types/ParityValidation';
 
-export {
-  BlkParserService,
-  getBlkParserService,
-} from './BlkParserService';
+export { BlkParserService, getBlkParserService } from './BlkParserService';
 
 export {
   BlkExportService,

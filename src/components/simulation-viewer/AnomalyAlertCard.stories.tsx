@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AnomalyAlertCard } from './AnomalyAlertCard';
+
 import type { IAnomaly } from '@/types/simulation-viewer';
+
+import { AnomalyAlertCard } from './AnomalyAlertCard';
 
 const meta: Meta<typeof AnomalyAlertCard> = {
   title: 'Simulation/AnomalyAlertCard',
@@ -21,7 +23,8 @@ const criticalAnomaly: IAnomaly = {
   battleId: 'battle-100',
   turn: 5,
   unitId: 'unit-001',
-  message: 'Negative armor value detected on Atlas AS7-D left torso (-3 points)',
+  message:
+    'Negative armor value detected on Atlas AS7-D left torso (-3 points)',
   snapshot: { armor: { leftTorso: -3 } },
   timestamp: Date.now(),
 };
@@ -58,7 +61,8 @@ const infoAnomaly: IAnomaly = {
   battleId: 'battle-400',
   turn: null,
   unitId: null,
-  message: 'Game exceeded 50 turns without resolution — possible stalemate detected',
+  message:
+    'Game exceeded 50 turns without resolution — possible stalemate detected',
   timestamp: Date.now(),
 };
 
@@ -74,7 +78,13 @@ export const Critical: Story = {
     anomaly: criticalAnomaly,
     ...actionHandlers,
   },
-  decorators: [(Story) => <div className="max-w-xl"><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div className="max-w-xl">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export const WarningWithThresholdConfig: Story = {
@@ -82,7 +92,13 @@ export const WarningWithThresholdConfig: Story = {
     anomaly: warningWithConfig,
     ...actionHandlers,
   },
-  decorators: [(Story) => <div className="max-w-xl"><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div className="max-w-xl">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export const WarningWithoutConfigKey: Story = {
@@ -90,7 +106,13 @@ export const WarningWithoutConfigKey: Story = {
     anomaly: warningNoConfig,
     ...actionHandlers,
   },
-  decorators: [(Story) => <div className="max-w-xl"><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div className="max-w-xl">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export const Info: Story = {
@@ -99,7 +121,13 @@ export const Info: Story = {
     onViewBattle: actionHandlers.onViewBattle,
     onDismiss: actionHandlers.onDismiss,
   },
-  decorators: [(Story) => <div className="max-w-xl"><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div className="max-w-xl">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export const DarkModeCritical: Story = {
@@ -109,7 +137,7 @@ export const DarkModeCritical: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-gray-900 p-8 rounded-lg max-w-xl">
+      <div className="dark max-w-xl rounded-lg bg-gray-900 p-8">
         <Story />
       </div>
     ),
@@ -123,7 +151,7 @@ export const DarkModeWarning: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-gray-900 p-8 rounded-lg max-w-xl">
+      <div className="dark max-w-xl rounded-lg bg-gray-900 p-8">
         <Story />
       </div>
     ),
@@ -138,7 +166,7 @@ export const DarkModeInfo: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-gray-900 p-8 rounded-lg max-w-xl">
+      <div className="dark max-w-xl rounded-lg bg-gray-900 p-8">
         <Story />
       </div>
     ),
@@ -150,17 +178,25 @@ export const AllSeverities: StoryObj = {
     <div className="max-w-xl space-y-4">
       <AnomalyAlertCard anomaly={criticalAnomaly} {...actionHandlers} />
       <AnomalyAlertCard anomaly={warningWithConfig} {...actionHandlers} />
-      <AnomalyAlertCard anomaly={infoAnomaly} onViewBattle={actionHandlers.onViewBattle} onDismiss={actionHandlers.onDismiss} />
+      <AnomalyAlertCard
+        anomaly={infoAnomaly}
+        onViewBattle={actionHandlers.onViewBattle}
+        onDismiss={actionHandlers.onDismiss}
+      />
     </div>
   ),
 };
 
 export const AllSeveritiesDark: StoryObj = {
   render: () => (
-    <div className="dark bg-gray-900 p-8 rounded-lg max-w-xl space-y-4">
+    <div className="dark max-w-xl space-y-4 rounded-lg bg-gray-900 p-8">
       <AnomalyAlertCard anomaly={criticalAnomaly} {...actionHandlers} />
       <AnomalyAlertCard anomaly={warningWithConfig} {...actionHandlers} />
-      <AnomalyAlertCard anomaly={infoAnomaly} onViewBattle={actionHandlers.onViewBattle} onDismiss={actionHandlers.onDismiss} />
+      <AnomalyAlertCard
+        anomaly={infoAnomaly}
+        onViewBattle={actionHandlers.onViewBattle}
+        onDismiss={actionHandlers.onDismiss}
+      />
     </div>
   ),
 };

@@ -328,7 +328,9 @@ export interface IEncounterValidationResult {
 /**
  * Validate an encounter is ready to launch.
  */
-export function validateEncounter(encounter: IEncounter): IEncounterValidationResult {
+export function validateEncounter(
+  encounter: IEncounter,
+): IEncounterValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -348,23 +350,36 @@ export function validateEncounter(encounter: IEncounter): IEncounterValidationRe
   }
 
   // Required: at least one victory condition
-  if (!encounter.victoryConditions || encounter.victoryConditions.length === 0) {
+  if (
+    !encounter.victoryConditions ||
+    encounter.victoryConditions.length === 0
+  ) {
     errors.push('At least one victory condition is required');
   }
 
   // Validate victory conditions
   for (const vc of encounter.victoryConditions) {
-    if (vc.type === VictoryConditionType.TurnLimit && (!vc.turnLimit || vc.turnLimit <= 0)) {
-      errors.push('Turn limit victory condition requires a positive turn limit');
+    if (
+      vc.type === VictoryConditionType.TurnLimit &&
+      (!vc.turnLimit || vc.turnLimit <= 0)
+    ) {
+      errors.push(
+        'Turn limit victory condition requires a positive turn limit',
+      );
     }
   }
 
   // Warnings
   if (encounter.playerForce && encounter.opponentForce) {
-    const bvDiff = Math.abs(encounter.playerForce.totalBV - encounter.opponentForce.totalBV);
-    const avgBV = (encounter.playerForce.totalBV + encounter.opponentForce.totalBV) / 2;
+    const bvDiff = Math.abs(
+      encounter.playerForce.totalBV - encounter.opponentForce.totalBV,
+    );
+    const avgBV =
+      (encounter.playerForce.totalBV + encounter.opponentForce.totalBV) / 2;
     if (bvDiff / avgBV > 0.3) {
-      warnings.push('Force BV difference is greater than 30% - battle may be unbalanced');
+      warnings.push(
+        'Force BV difference is greater than 30% - battle may be unbalanced',
+      );
     }
   }
 

@@ -1,13 +1,15 @@
 /**
  * Tests for Unit Export API
- * 
+ *
  * GET /api/units/custom/:id/export
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import { createMocks } from 'node-mocks-http';
+
 import handler from '@/pages/api/units/custom/[id]/export';
 
 // Response types for type-safe assertions
@@ -74,7 +76,9 @@ describe('GET /api/units/custom/:id/export', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(405);
-    expect(res._getJSONData() as ErrorResponse).toEqual({ error: 'Method POST Not Allowed' });
+    expect(res._getJSONData() as ErrorResponse).toEqual({
+      error: 'Method POST Not Allowed',
+    });
   });
 
   it('should return 400 if id is missing', async () => {
@@ -86,7 +90,9 @@ describe('GET /api/units/custom/:id/export', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(400);
-    expect((res._getJSONData() as ErrorResponse).error).toContain('Missing unit ID');
+    expect((res._getJSONData() as ErrorResponse).error).toContain(
+      'Missing unit ID',
+    );
   });
 
   it('should return 404 if unit not found', async () => {
@@ -112,7 +118,7 @@ describe('GET /api/units/custom/:id/export', () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(200);
-    
+
     const data = res._getJSONData() as ExportEnvelope;
     expect(data.formatVersion).toBeDefined();
     expect(data.savedAt).toBeDefined();
@@ -200,7 +206,11 @@ describe('GET /api/units/custom/:id/export', () => {
     const afterCall = new Date().toISOString();
 
     const data = res._getJSONData() as ExportEnvelope;
-    expect(new Date(data.savedAt).getTime()).toBeGreaterThanOrEqual(new Date(beforeCall).getTime());
-    expect(new Date(data.savedAt).getTime()).toBeLessThanOrEqual(new Date(afterCall).getTime());
+    expect(new Date(data.savedAt).getTime()).toBeGreaterThanOrEqual(
+      new Date(beforeCall).getTime(),
+    );
+    expect(new Date(data.savedAt).getTime()).toBeLessThanOrEqual(
+      new Date(afterCall).getTime(),
+    );
   });
 });

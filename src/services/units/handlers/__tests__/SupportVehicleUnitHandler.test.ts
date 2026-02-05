@@ -6,16 +6,16 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
+import { VehicleLocation } from '../../../../types/construction/UnitLocation';
+import { TechBase, RulesLevel, WeightClass } from '../../../../types/enums';
+import { IBlkDocument } from '../../../../types/formats/BlkFormat';
+import { GroundMotionType } from '../../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { SupportVehicleSizeClass } from '../../../../types/unit/VehicleInterfaces';
 import {
   SupportVehicleUnitHandler,
   createSupportVehicleHandler,
 } from '../SupportVehicleUnitHandler';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { GroundMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-import { VehicleLocation } from '../../../../types/construction/UnitLocation';
-import { SupportVehicleSizeClass } from '../../../../types/unit/VehicleInterfaces';
-import { TechBase, RulesLevel, WeightClass } from '../../../../types/enums';
 
 // ============================================================================
 // Test Fixtures
@@ -24,7 +24,9 @@ import { TechBase, RulesLevel, WeightClass } from '../../../../types/enums';
 /**
  * Create a mock BLK document for support vehicle testing
  */
-function createMockBlkDocument(overrides: Partial<IBlkDocument> = {}): IBlkDocument {
+function createMockBlkDocument(
+  overrides: Partial<IBlkDocument> = {},
+): IBlkDocument {
   return {
     blockVersion: 1,
     version: 'MAM0',
@@ -478,7 +480,9 @@ describe('SupportVehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(false);
-      expect(result.error!.errors.some((e) => e.toLowerCase().includes('tonnage'))).toBe(true);
+      expect(
+        result.error!.errors.some((e) => e.toLowerCase().includes('tonnage')),
+      ).toBe(true);
     });
 
     it('should fail parsing with negative tonnage', () => {
@@ -812,7 +816,9 @@ describe('SupportVehicleUnitHandler', () => {
       expect(result.success).toBe(true);
       expect(result.data?.unit?.equipment.length).toBe(1);
       expect(result.data?.unit?.equipment[0].name).toBe('Cargo (5 tons)');
-      expect(result.data?.unit?.equipment[0].location).toBe(VehicleLocation.BODY);
+      expect(result.data?.unit?.equipment[0].location).toBe(
+        VehicleLocation.BODY,
+      );
     });
 
     it('should parse equipment from multiple locations', () => {
@@ -823,12 +829,12 @@ describe('SupportVehicleUnitHandler', () => {
       expect(result.data?.unit?.equipment.length).toBe(4);
 
       const frontEquip = result.data?.unit?.equipment.find(
-        (e) => e.location === VehicleLocation.FRONT
+        (e) => e.location === VehicleLocation.FRONT,
       );
       expect(frontEquip?.name).toBe('Bulldozer Blade');
 
       const turretEquip = result.data?.unit?.equipment.find(
-        (e) => e.location === VehicleLocation.TURRET
+        (e) => e.location === VehicleLocation.TURRET,
       );
       expect(turretEquip?.name).toBe('Crane Arm');
       expect(turretEquip?.isTurretMounted).toBe(true);
@@ -1218,7 +1224,9 @@ describe('SupportVehicleUnitHandler', () => {
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(
-        validation.errors.some((e) => e.includes('Large support vehicles cannot exceed 300 tons'))
+        validation.errors.some((e) =>
+          e.includes('Large support vehicles cannot exceed 300 tons'),
+        ),
       ).toBe(true);
     });
   });
@@ -1233,7 +1241,9 @@ describe('SupportVehicleUnitHandler', () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.some((e) => e.includes('BAR rating'))).toBe(false);
+      expect(validation.errors.some((e) => e.includes('BAR rating'))).toBe(
+        false,
+      );
     });
 
     it('should pass validation for BAR rating of 10', () => {
@@ -1244,7 +1254,9 @@ describe('SupportVehicleUnitHandler', () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.some((e) => e.includes('BAR rating'))).toBe(false);
+      expect(validation.errors.some((e) => e.includes('BAR rating'))).toBe(
+        false,
+      );
     });
 
     it('should default BAR rating of 0 to 5 (parser behavior)', () => {
@@ -1274,7 +1286,9 @@ describe('SupportVehicleUnitHandler', () => {
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(
-        validation.errors.some((e) => e.includes('BAR rating must be between 1 and 10'))
+        validation.errors.some((e) =>
+          e.includes('BAR rating must be between 1 and 10'),
+        ),
       ).toBe(true);
     });
 
@@ -1288,7 +1302,9 @@ describe('SupportVehicleUnitHandler', () => {
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
       expect(
-        validation.errors.some((e) => e.includes('BAR rating must be between 1 and 10'))
+        validation.errors.some((e) =>
+          e.includes('BAR rating must be between 1 and 10'),
+        ),
       ).toBe(true);
     });
   });
@@ -1304,7 +1320,9 @@ describe('SupportVehicleUnitHandler', () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.errors.some((e) => e.includes('exceeds maximum'))).toBe(false);
+      expect(validation.errors.some((e) => e.includes('exceeds maximum'))).toBe(
+        false,
+      );
     });
 
     it('should fail validation when armor exceeds maximum', () => {
@@ -1318,7 +1336,9 @@ describe('SupportVehicleUnitHandler', () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some((e) => e.includes('exceeds maximum'))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('exceeds maximum'))).toBe(
+        true,
+      );
     });
   });
 
@@ -1331,7 +1351,9 @@ describe('SupportVehicleUnitHandler', () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.infos.some((i) => i.includes('10 tons of cargo capacity'))).toBe(true);
+      expect(
+        validation.infos.some((i) => i.includes('10 tons of cargo capacity')),
+      ).toBe(true);
     });
 
     it('should not include cargo info when cargo is 0', () => {
@@ -1342,7 +1364,9 @@ describe('SupportVehicleUnitHandler', () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.infos.some((i) => i.includes('cargo capacity'))).toBe(false);
+      expect(validation.infos.some((i) => i.includes('cargo capacity'))).toBe(
+        false,
+      );
     });
   });
 
@@ -1376,7 +1400,11 @@ describe('SupportVehicleUnitHandler', () => {
     });
 
     it('should include structural weight', () => {
-      const doc = createMockBlkDocument({ tonnage: 50, cruiseMP: 0, armor: [] });
+      const doc = createMockBlkDocument({
+        tonnage: 50,
+        cruiseMP: 0,
+        armor: [],
+      });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
@@ -1480,8 +1508,16 @@ describe('SupportVehicleUnitHandler', () => {
     });
 
     it('should include chassis cost based on tonnage', () => {
-      const lightDoc = createMockBlkDocument({ tonnage: 10, cruiseMP: 0, armor: [] });
-      const heavyDoc = createMockBlkDocument({ tonnage: 50, cruiseMP: 0, armor: [] });
+      const lightDoc = createMockBlkDocument({
+        tonnage: 10,
+        cruiseMP: 0,
+        armor: [],
+      });
+      const heavyDoc = createMockBlkDocument({
+        tonnage: 50,
+        cruiseMP: 0,
+        armor: [],
+      });
 
       const lightResult = handler.parse(lightDoc);
       const heavyResult = handler.parse(heavyDoc);
@@ -1493,8 +1529,16 @@ describe('SupportVehicleUnitHandler', () => {
     });
 
     it('should include engine cost for mobile vehicles', () => {
-      const stationaryDoc = createMockBlkDocument({ tonnage: 20, cruiseMP: 0, armor: [] });
-      const mobileDoc = createMockBlkDocument({ tonnage: 20, cruiseMP: 4, armor: [] });
+      const stationaryDoc = createMockBlkDocument({
+        tonnage: 20,
+        cruiseMP: 0,
+        armor: [],
+      });
+      const mobileDoc = createMockBlkDocument({
+        tonnage: 20,
+        cruiseMP: 4,
+        armor: [],
+      });
 
       const stationaryResult = handler.parse(stationaryDoc);
       const mobileResult = handler.parse(mobileDoc);
@@ -1506,7 +1550,11 @@ describe('SupportVehicleUnitHandler', () => {
     });
 
     it('should include armor cost', () => {
-      const noArmorDoc = createMockBlkDocument({ tonnage: 20, cruiseMP: 0, armor: [] });
+      const noArmorDoc = createMockBlkDocument({
+        tonnage: 20,
+        cruiseMP: 0,
+        armor: [],
+      });
       const armoredDoc = createMockBlkDocument({
         tonnage: 20,
         cruiseMP: 0,
@@ -1583,7 +1631,9 @@ describe('SupportVehicleUnitHandler', () => {
       const parseResult = handler.parse(doc);
 
       const serializeResult = handler.serialize(parseResult.data!.unit);
-      expect(serializeResult.data?.serialized?.unitType).toBe(UnitType.SUPPORT_VEHICLE);
+      expect(serializeResult.data?.serialized?.unitType).toBe(
+        UnitType.SUPPORT_VEHICLE,
+      );
     });
 
     it('should include tonnage in serialized output', () => {
@@ -1599,7 +1649,9 @@ describe('SupportVehicleUnitHandler', () => {
       const parseResult = handler.parse(smallDoc);
 
       const serializeResult = handler.serialize(parseResult.data!.unit);
-      expect(serializeResult.data?.serialized?.configuration).toContain('Small');
+      expect(serializeResult.data?.serialized?.configuration).toContain(
+        'Small',
+      );
     });
   });
 
@@ -1609,7 +1661,9 @@ describe('SupportVehicleUnitHandler', () => {
       const parseResult = handler.parse(doc);
 
       const serializeResult = handler.serialize(parseResult.data!.unit);
-      expect(serializeResult.data?.serialized?.configuration).toBe('Support Vehicle (Large)');
+      expect(serializeResult.data?.serialized?.configuration).toBe(
+        'Support Vehicle (Large)',
+      );
     });
 
     it('should include rules level in serialized output', () => {

@@ -8,7 +8,10 @@
 /**
  * Calculate net heat (generated - dissipation)
  */
-export function calculateHeatNet(heatGenerated: number, heatDissipation: number): number {
+export function calculateHeatNet(
+  heatGenerated: number,
+  heatDissipation: number,
+): number {
   return heatGenerated - heatDissipation;
 }
 
@@ -87,7 +90,10 @@ export interface HeatDisplay {
  *
  * <span className={heat.className}>{heat.display}</span>
  */
-export function getHeatDisplay(heatGenerated: number, heatDissipation: number): HeatDisplay {
+export function getHeatDisplay(
+  heatGenerated: number,
+  heatDissipation: number,
+): HeatDisplay {
   const net = calculateHeatNet(heatGenerated, heatDissipation);
   const variant = getHeatVariant(net);
 

@@ -3,7 +3,7 @@
  */
 
 import { act, renderHook } from '@testing-library/react';
-import { useRepairStore } from '../useRepairStore';
+
 import {
   RepairJobStatus,
   RepairType,
@@ -12,12 +12,14 @@ import {
   ILocationDamage,
 } from '@/types/repair';
 
+import { useRepairStore } from '../useRepairStore';
+
 // =============================================================================
 // Test Helpers
 // =============================================================================
 
 function createTestLocationDamage(
-  overrides: Partial<ILocationDamage> = {}
+  overrides: Partial<ILocationDamage> = {},
 ): ILocationDamage {
   return {
     location: UnitLocation.CenterTorso,
@@ -32,7 +34,7 @@ function createTestLocationDamage(
 }
 
 function createTestAssessment(
-  overrides: Partial<IDamageAssessment> = {}
+  overrides: Partial<IDamageAssessment> = {},
 ): IDamageAssessment {
   return {
     unitId: 'unit-1',
@@ -151,7 +153,9 @@ describe('useRepairStore', () => {
       const job = result.current.getJob(campaignId, jobId);
       expect(job?.items.length).toBeGreaterThan(0);
       expect(job?.items.some((i) => i.type === RepairType.Armor)).toBe(true);
-      expect(job?.items.some((i) => i.type === RepairType.Structure)).toBe(true);
+      expect(job?.items.some((i) => i.type === RepairType.Structure)).toBe(
+        true,
+      );
     });
 
     it('should calculate total cost and time', () => {
@@ -176,8 +180,14 @@ describe('useRepairStore', () => {
       let job1Id = '';
       let job2Id = '';
       act(() => {
-        job1Id = result.current.createRepairJob(campaignId, createTestAssessment({ unitId: 'u1' }));
-        job2Id = result.current.createRepairJob(campaignId, createTestAssessment({ unitId: 'u2' }));
+        job1Id = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment({ unitId: 'u1' }),
+        );
+        job2Id = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment({ unitId: 'u2' }),
+        );
       });
 
       const job1 = result.current.getJob(campaignId, job1Id);
@@ -192,8 +202,14 @@ describe('useRepairStore', () => {
       const campaignId = 'test-campaign';
 
       act(() => {
-        result.current.createRepairJob(campaignId, createTestAssessment({ unitId: 'u1' }));
-        result.current.createRepairJob(campaignId, createTestAssessment({ unitId: 'u2' }));
+        result.current.createRepairJob(
+          campaignId,
+          createTestAssessment({ unitId: 'u1' }),
+        );
+        result.current.createRepairJob(
+          campaignId,
+          createTestAssessment({ unitId: 'u2' }),
+        );
       });
 
       const jobs = result.current.getJobs(campaignId);
@@ -214,7 +230,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
       });
 
       act(() => {
@@ -230,7 +249,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
         result.current.selectJob(jobId);
       });
 
@@ -251,7 +273,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
       });
 
       const job = result.current.getJob(campaignId, jobId);
@@ -272,7 +297,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
       });
 
       const job = result.current.getJob(campaignId, jobId);
@@ -299,7 +327,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
       });
 
       act(() => {
@@ -317,7 +348,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
         result.current.startJob(campaignId, jobId);
       });
 
@@ -336,7 +370,10 @@ describe('useRepairStore', () => {
         const bay = result.current.getRepairBay(campaignId);
         for (let i = 0; i < bay.capacity + 1; i++) {
           jobIds.push(
-            result.current.createRepairJob(campaignId, createTestAssessment({ unitId: `u${i}` }))
+            result.current.createRepairJob(
+              campaignId,
+              createTestAssessment({ unitId: `u${i}` }),
+            ),
           );
         }
       });
@@ -352,7 +389,10 @@ describe('useRepairStore', () => {
       // Try to start one more
       let success = false;
       act(() => {
-        success = result.current.startJob(campaignId, jobIds[jobIds.length - 1]);
+        success = result.current.startJob(
+          campaignId,
+          jobIds[jobIds.length - 1],
+        );
       });
 
       expect(success).toBe(false);
@@ -365,7 +405,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
         result.current.startJob(campaignId, jobId);
       });
 
@@ -386,7 +429,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
         result.current.startJob(campaignId, jobId);
         result.current.completeJob(campaignId, jobId);
       });
@@ -403,7 +449,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
         result.current.startJob(campaignId, jobId);
         result.current.completeJob(campaignId, jobId);
       });
@@ -420,7 +469,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
         result.current.cancelJob(campaignId, jobId);
       });
 
@@ -436,7 +488,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
         result.current.setJobPriority(campaignId, jobId, 10);
       });
 
@@ -454,9 +509,18 @@ describe('useRepairStore', () => {
       let job2Id = '';
       let job3Id = '';
       act(() => {
-        _job1Id = result.current.createRepairJob(campaignId, createTestAssessment({ unitId: 'u1' }));
-        job2Id = result.current.createRepairJob(campaignId, createTestAssessment({ unitId: 'u2' }));
-        job3Id = result.current.createRepairJob(campaignId, createTestAssessment({ unitId: 'u3' }));
+        _job1Id = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment({ unitId: 'u1' }),
+        );
+        job2Id = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment({ unitId: 'u2' }),
+        );
+        job3Id = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment({ unitId: 'u3' }),
+        );
         result.current.setJobPriority(campaignId, job3Id, 0); // Highest priority
         result.current.startJob(campaignId, job2Id); // Not pending
       });
@@ -478,17 +542,22 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
         result.current.startJob(campaignId, jobId);
       });
 
-      const originalTime = result.current.getJob(campaignId, jobId)?.timeRemainingHours ?? 0;
+      const originalTime =
+        result.current.getJob(campaignId, jobId)?.timeRemainingHours ?? 0;
 
       act(() => {
         result.current.advanceRepairs(campaignId, 1);
       });
 
-      const newTime = result.current.getJob(campaignId, jobId)?.timeRemainingHours ?? 0;
+      const newTime =
+        result.current.getJob(campaignId, jobId)?.timeRemainingHours ?? 0;
       expect(newTime).toBeLessThan(originalTime);
     });
 
@@ -498,11 +567,15 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
         result.current.startJob(campaignId, jobId);
       });
 
-      const totalTime = result.current.getJob(campaignId, jobId)?.totalTimeHours ?? 0;
+      const totalTime =
+        result.current.getJob(campaignId, jobId)?.totalTimeHours ?? 0;
 
       let completedIds: readonly string[] = [];
       act(() => {
@@ -510,7 +583,9 @@ describe('useRepairStore', () => {
       });
 
       expect(completedIds).toContain(jobId);
-      expect(result.current.getJob(campaignId, jobId)?.status).toBe(RepairJobStatus.Completed);
+      expect(result.current.getJob(campaignId, jobId)?.status).toBe(
+        RepairJobStatus.Completed,
+      );
     });
 
     it('should respect bay efficiency', () => {
@@ -524,17 +599,22 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
         result.current.startJob(campaignId, jobId);
       });
 
-      const originalTime = result.current.getJob(campaignId, jobId)?.timeRemainingHours ?? 0;
+      const originalTime =
+        result.current.getJob(campaignId, jobId)?.timeRemainingHours ?? 0;
 
       act(() => {
         result.current.advanceRepairs(campaignId, 2);
       });
 
-      const newTime = result.current.getJob(campaignId, jobId)?.timeRemainingHours ?? 0;
+      const newTime =
+        result.current.getJob(campaignId, jobId)?.timeRemainingHours ?? 0;
       // With 0.5 efficiency, 2 hours should only reduce by 1 hour
       expect(originalTime - newTime).toBe(1);
     });
@@ -556,7 +636,11 @@ describe('useRepairStore', () => {
 
       let repairResult: ReturnType<typeof result.current.applyFieldRepair>;
       act(() => {
-        repairResult = result.current.applyFieldRepair(campaignId, assessment, 100);
+        repairResult = result.current.applyFieldRepair(
+          campaignId,
+          assessment,
+          100,
+        );
       });
 
       expect(repairResult!.totalArmorRestored).toBeGreaterThan(0);
@@ -628,10 +712,18 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
       });
 
-      const validation = result.current.validateJob(campaignId, jobId, 100000, 100);
+      const validation = result.current.validateJob(
+        campaignId,
+        jobId,
+        100000,
+        100,
+      );
       expect(validation.valid).toBe(true);
       expect(validation.canAfford).toBe(true);
     });
@@ -642,7 +734,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
       });
 
       const validation = result.current.validateJob(campaignId, jobId, 0, 0);
@@ -653,7 +748,12 @@ describe('useRepairStore', () => {
 
     it('should return error for non-existent job', () => {
       const { result } = renderHook(() => useRepairStore());
-      const validation = result.current.validateJob('campaign', 'nonexistent', 100000, 100);
+      const validation = result.current.validateJob(
+        'campaign',
+        'nonexistent',
+        100000,
+        100,
+      );
       expect(validation.valid).toBe(false);
       expect(validation.errors).toContain('Job not found: nonexistent');
     });
@@ -693,7 +793,10 @@ describe('useRepairStore', () => {
 
       let jobId = '';
       act(() => {
-        jobId = result.current.createRepairJob(campaignId, createTestAssessment());
+        jobId = result.current.createRepairJob(
+          campaignId,
+          createTestAssessment(),
+        );
         result.current.selectJob(jobId);
       });
 

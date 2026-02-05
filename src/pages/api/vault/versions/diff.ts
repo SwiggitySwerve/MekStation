@@ -7,7 +7,9 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import type { IVersionDiff, ShareableContentType } from '@/types/vault';
+
 import { getVersionHistoryService } from '@/services/vault/VersionHistoryService';
 
 // =============================================================================
@@ -28,7 +30,7 @@ interface ErrorResponse {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<DiffResponse | ErrorResponse>
+  res: NextApiResponse<DiffResponse | ErrorResponse>,
 ): Promise<void> {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -49,11 +51,15 @@ export default async function handler(
     const toVersion = typeof to === 'string' ? parseInt(to, 10) : NaN;
 
     if (isNaN(fromVersion) || isNaN(toVersion)) {
-      return res.status(400).json({ error: 'from and to version numbers are required' });
+      return res
+        .status(400)
+        .json({ error: 'from and to version numbers are required' });
     }
 
     if (fromVersion === toVersion) {
-      return res.status(400).json({ error: 'from and to versions must be different' });
+      return res
+        .status(400)
+        .json({ error: 'from and to versions must be different' });
     }
 
     const versionService = getVersionHistoryService();
@@ -61,7 +67,7 @@ export default async function handler(
       itemId,
       contentType,
       fromVersion,
-      toVersion
+      toVersion,
     );
 
     if (!diff) {

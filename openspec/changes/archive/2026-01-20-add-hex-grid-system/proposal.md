@@ -34,12 +34,12 @@ UnitPosition
 
 ## Key Calculations
 
-| Calculation | Formula |
-|-------------|---------|
-| Distance | `max(abs(q1-q2), abs(r1-r2), abs(q1-q2+r1-r2))` |
-| Neighbors | 6 adjacent hexes |
-| Front arc | 3 hexes in facing direction |
-| Rear arc | 3 hexes behind facing |
+| Calculation | Formula                                         |
+| ----------- | ----------------------------------------------- |
+| Distance    | `max(abs(q1-q2), abs(r1-r2), abs(q1-q2+r1-r2))` |
+| Neighbors   | 6 adjacent hexes                                |
+| Front arc   | 3 hexes in facing direction                     |
+| Rear arc    | 3 hexes behind facing                           |
 
 ## Impact
 

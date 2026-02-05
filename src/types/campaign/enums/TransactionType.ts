@@ -82,7 +82,9 @@ export const ALL_TRANSACTION_TYPES: readonly TransactionType[] = Object.freeze([
 /**
  * Check if a value is a valid TransactionType
  */
-export function isValidTransactionType(value: unknown): value is TransactionType {
+export function isValidTransactionType(
+  value: unknown,
+): value is TransactionType {
   return Object.values(TransactionType).includes(value as TransactionType);
 }
 

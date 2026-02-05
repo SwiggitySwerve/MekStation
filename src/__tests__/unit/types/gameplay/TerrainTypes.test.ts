@@ -7,7 +7,6 @@ import {
   TerrainType,
   CoverLevel,
   ITerrainFeature,
-  ITerrainProperties,
   IHexTerrain,
   TERRAIN_PROPERTIES,
 } from '../../../../types/gameplay/TerrainTypes';
@@ -468,9 +467,11 @@ describe('TerrainTypes', () => {
     it('should have valid cover level for each terrain', () => {
       Object.values(TerrainType).forEach((type) => {
         const props = TERRAIN_PROPERTIES[type];
-        expect([CoverLevel.None, CoverLevel.Partial, CoverLevel.Full]).toContain(
-          props.coverLevel
-        );
+        expect([
+          CoverLevel.None,
+          CoverLevel.Partial,
+          CoverLevel.Full,
+        ]).toContain(props.coverLevel);
       });
     });
   });

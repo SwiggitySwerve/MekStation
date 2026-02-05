@@ -4,9 +4,9 @@
  * Tests for special ability acquisition, veterancy rolls, and purchase mechanics.
  */
 
-import { IPerson } from '../../../../types/campaign/Person';
-import { PersonnelStatus } from '../../../../types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '../../../../types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '../../../../types/campaign/enums/PersonnelStatus';
+import { IPerson } from '../../../../types/campaign/Person';
 import {
   SPA_CATALOG,
   rollVeterancySPA,

@@ -14,7 +14,6 @@ import {
   calculateOpForBV,
   calculateForceComposition,
   LANCE_SIZE,
-  type IOpForConfig,
   type RandomFn,
 } from '../opForGeneration';
 
@@ -29,23 +28,10 @@ import {
  * @param value - The value to return (0-1 range)
  * @returns RandomFn that always returns the specified value
  */
-const seededRandom = (value: number): RandomFn => () => value;
-
-/**
- * Create a random function that cycles through values.
- * Used for testing multiple random calls.
- *
- * @param values - Array of values to cycle through
- * @returns RandomFn that returns next value on each call
- */
-const cyclingRandom = (values: number[]): RandomFn => {
-  let index = 0;
-  return () => {
-    const value = values[index % values.length];
-    index++;
-    return value;
-  };
-};
+const seededRandom =
+  (value: number): RandomFn =>
+  () =>
+    value;
 
 // =============================================================================
 // LANCE_SIZE Constants Tests
@@ -99,10 +85,16 @@ describe('calculateOpForBV', () => {
       testCases.forEach(({ randomValue, expectedPct }) => {
         const playerBV = 100;
         const difficulty = 1.0;
-        const result = calculateOpForBV(playerBV, difficulty, seededRandom(randomValue));
+        const result = calculateOpForBV(
+          playerBV,
+          difficulty,
+          seededRandom(randomValue),
+        );
 
         // Expected: 100 * 1.0 * (expectedPct / 100) = expectedPct
-        const expected = Math.round(playerBV * difficulty * (expectedPct / 100));
+        const expected = Math.round(
+          playerBV * difficulty * (expectedPct / 100),
+        );
         expect(result).toBe(expected);
       });
     });
@@ -119,7 +111,11 @@ describe('calculateOpForBV', () => {
     it('should produce 120% maximum variation (random 7/8)', () => {
       const playerBV = 100;
       const difficulty = 1.0;
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(7 / 8));
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(7 / 8),
+      );
 
       // 100 * 1.0 * 1.20 = 120
       expect(result).toBe(120);
@@ -128,7 +124,11 @@ describe('calculateOpForBV', () => {
     it('should produce 100% with middle variation (random 3/8)', () => {
       const playerBV = 100;
       const difficulty = 1.0;
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(3 / 8));
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(3 / 8),
+      );
 
       // 100 * 1.0 * 1.00 = 100
       expect(result).toBe(100);
@@ -139,7 +139,11 @@ describe('calculateOpForBV', () => {
     it('should apply 0.5 easy difficulty', () => {
       const playerBV = 100;
       const difficulty = 0.5;
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(3 / 8)); // 100% variation
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(3 / 8),
+      ); // 100% variation
 
       // 100 * 0.5 * 1.0 = 50
       expect(result).toBe(50);
@@ -148,7 +152,11 @@ describe('calculateOpForBV', () => {
     it('should apply 1.0 normal difficulty', () => {
       const playerBV = 100;
       const difficulty = 1.0;
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(3 / 8)); // 100% variation
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(3 / 8),
+      ); // 100% variation
 
       // 100 * 1.0 * 1.0 = 100
       expect(result).toBe(100);
@@ -157,7 +165,11 @@ describe('calculateOpForBV', () => {
     it('should apply 2.0 hard difficulty', () => {
       const playerBV = 100;
       const difficulty = 2.0;
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(3 / 8)); // 100% variation
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(3 / 8),
+      ); // 100% variation
 
       // 100 * 2.0 * 1.0 = 200
       expect(result).toBe(200);
@@ -166,7 +178,11 @@ describe('calculateOpForBV', () => {
     it('should combine difficulty and variation correctly', () => {
       const playerBV = 100;
       const difficulty = 1.5;
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(4 / 8)); // 105% variation
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(4 / 8),
+      ); // 105% variation
 
       // 100 * 1.5 * 1.05 = 157.5 → 158 (rounded)
       expect(result).toBe(158);
@@ -177,7 +193,11 @@ describe('calculateOpForBV', () => {
     it('should round to whole number', () => {
       const playerBV = 100;
       const difficulty = 1.5;
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(4 / 8)); // 105% variation
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(4 / 8),
+      ); // 105% variation
 
       // 100 * 1.5 * 1.05 = 157.5 → 158
       expect(Number.isInteger(result)).toBe(true);
@@ -189,7 +209,11 @@ describe('calculateOpForBV', () => {
       const difficulty = 1.0;
       // Need to find a combination that produces X.5
       // 100 * 1.0 * 1.005 = 100.5 → 101
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(3.5 / 8));
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(3.5 / 8),
+      );
 
       expect(Number.isInteger(result)).toBe(true);
     });
@@ -201,8 +225,16 @@ describe('calculateOpForBV', () => {
       const difficulty = 1.0;
       const seed = 0.5;
 
-      const result1 = calculateOpForBV(playerBV, difficulty, seededRandom(seed));
-      const result2 = calculateOpForBV(playerBV, difficulty, seededRandom(seed));
+      const result1 = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(seed),
+      );
+      const result2 = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(seed),
+      );
 
       expect(result1).toBe(result2);
     });
@@ -212,7 +244,11 @@ describe('calculateOpForBV', () => {
       const difficulty = 1.0;
 
       const result1 = calculateOpForBV(playerBV, difficulty, seededRandom(0));
-      const result2 = calculateOpForBV(playerBV, difficulty, seededRandom(7 / 8));
+      const result2 = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(7 / 8),
+      );
 
       expect(result1).not.toBe(result2);
     });
@@ -222,7 +258,11 @@ describe('calculateOpForBV', () => {
     it('should handle zero player BV', () => {
       const playerBV = 0;
       const difficulty = 1.0;
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(3 / 8));
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(3 / 8),
+      );
 
       expect(result).toBe(0);
     });
@@ -230,7 +270,11 @@ describe('calculateOpForBV', () => {
     it('should handle very large player BV', () => {
       const playerBV = 10000;
       const difficulty = 1.0;
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(3 / 8));
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(3 / 8),
+      );
 
       expect(result).toBe(10000);
       expect(Number.isInteger(result)).toBe(true);
@@ -239,7 +283,11 @@ describe('calculateOpForBV', () => {
     it('should handle very small difficulty', () => {
       const playerBV = 100;
       const difficulty = 0.1;
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(3 / 8));
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(3 / 8),
+      );
 
       expect(result).toBe(10);
     });
@@ -247,7 +295,11 @@ describe('calculateOpForBV', () => {
     it('should handle very large difficulty', () => {
       const playerBV = 100;
       const difficulty = 3.0;
-      const result = calculateOpForBV(playerBV, difficulty, seededRandom(3 / 8));
+      const result = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(3 / 8),
+      );
 
       expect(result).toBe(300);
     });
@@ -257,7 +309,11 @@ describe('calculateOpForBV', () => {
       const difficulty = 1.0;
 
       const result1 = calculateOpForBV(playerBV, difficulty, seededRandom(0.0));
-      const result2 = calculateOpForBV(playerBV, difficulty, seededRandom(0.999));
+      const result2 = calculateOpForBV(
+        playerBV,
+        difficulty,
+        seededRandom(0.999),
+      );
 
       expect(Number.isInteger(result1)).toBe(true);
       expect(Number.isInteger(result2)).toBe(true);
@@ -274,7 +330,11 @@ describe('calculateForceComposition', () => {
     it('should return IOpForConfig with all required fields', () => {
       const targetBV = 100;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       expect(result).toHaveProperty('targetBV');
       expect(result).toHaveProperty('unitCount');
@@ -285,7 +345,11 @@ describe('calculateForceComposition', () => {
     it('should have targetBV matching input', () => {
       const targetBV = 250;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       expect(result.targetBV).toBe(targetBV);
     });
@@ -293,7 +357,11 @@ describe('calculateForceComposition', () => {
     it('should have unitCount as positive integer', () => {
       const targetBV = 100;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       expect(Number.isInteger(result.unitCount)).toBe(true);
       expect(result.unitCount).toBeGreaterThan(0);
@@ -302,7 +370,11 @@ describe('calculateForceComposition', () => {
     it('should have valid weightClass', () => {
       const targetBV = 100;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       const validClasses = ['light', 'medium', 'heavy', 'assault', 'mixed'];
       expect(validClasses).toContain(result.weightClass);
@@ -311,7 +383,11 @@ describe('calculateForceComposition', () => {
     it('should have quality as string', () => {
       const targetBV = 100;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       expect(typeof result.quality).toBe('string');
       expect(result.quality.length).toBeGreaterThan(0);
@@ -322,7 +398,11 @@ describe('calculateForceComposition', () => {
     it('should use IS lance size (4) for IS faction', () => {
       const targetBV = 100;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       expect(result.unitCount).toBe(LANCE_SIZE.IS);
     });
@@ -330,7 +410,11 @@ describe('calculateForceComposition', () => {
     it('should use Clan star size (5) for Clan faction', () => {
       const targetBV = 100;
       const faction = 'Clan';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       expect(result.unitCount).toBe(LANCE_SIZE.CLAN);
     });
@@ -338,7 +422,11 @@ describe('calculateForceComposition', () => {
     it('should use ComStar level II size (6) for ComStar faction', () => {
       const targetBV = 100;
       const faction = 'ComStar';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       expect(result.unitCount).toBe(LANCE_SIZE.COMSTAR);
     });
@@ -346,7 +434,11 @@ describe('calculateForceComposition', () => {
     it('should default to IS lance size for unknown faction', () => {
       const targetBV = 100;
       const faction = 'Unknown';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       expect(result.unitCount).toBe(LANCE_SIZE.IS);
     });
@@ -354,9 +446,21 @@ describe('calculateForceComposition', () => {
     it('should be case-insensitive for faction names', () => {
       const targetBV = 100;
 
-      const resultIS = calculateForceComposition(targetBV, 'is', seededRandom(0.5));
-      const resultClan = calculateForceComposition(targetBV, 'clan', seededRandom(0.5));
-      const resultComStar = calculateForceComposition(targetBV, 'comstar', seededRandom(0.5));
+      const resultIS = calculateForceComposition(
+        targetBV,
+        'is',
+        seededRandom(0.5),
+      );
+      const resultClan = calculateForceComposition(
+        targetBV,
+        'clan',
+        seededRandom(0.5),
+      );
+      const resultComStar = calculateForceComposition(
+        targetBV,
+        'comstar',
+        seededRandom(0.5),
+      );
 
       expect(resultIS.unitCount).toBe(LANCE_SIZE.IS);
       expect(resultClan.unitCount).toBe(LANCE_SIZE.CLAN);
@@ -368,7 +472,11 @@ describe('calculateForceComposition', () => {
     it('should have quality as A-F rating', () => {
       const targetBV = 100;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       const validQualities = ['A', 'B', 'C', 'D', 'E', 'F'];
       expect(validQualities).toContain(result.quality);
@@ -377,7 +485,11 @@ describe('calculateForceComposition', () => {
     it('should default to C quality', () => {
       const targetBV = 100;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       // Default should be C (regular)
       expect(result.quality).toBe('C');
@@ -388,7 +500,11 @@ describe('calculateForceComposition', () => {
     it('should have weight class as one of valid types', () => {
       const targetBV = 100;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       const validClasses = ['light', 'medium', 'heavy', 'assault', 'mixed'];
       expect(validClasses).toContain(result.weightClass);
@@ -397,7 +513,11 @@ describe('calculateForceComposition', () => {
     it('should default to mixed weight class', () => {
       const targetBV = 100;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       expect(result.weightClass).toBe('mixed');
     });
@@ -409,8 +529,16 @@ describe('calculateForceComposition', () => {
       const faction = 'IS';
       const seed = 0.5;
 
-      const result1 = calculateForceComposition(targetBV, faction, seededRandom(seed));
-      const result2 = calculateForceComposition(targetBV, faction, seededRandom(seed));
+      const result1 = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(seed),
+      );
+      const result2 = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(seed),
+      );
 
       expect(result1).toEqual(result2);
     });
@@ -420,7 +548,11 @@ describe('calculateForceComposition', () => {
       const factions = ['IS', 'Clan', 'ComStar'];
 
       factions.forEach((faction) => {
-        const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+        const result = calculateForceComposition(
+          targetBV,
+          faction,
+          seededRandom(0.5),
+        );
         expect(result).toHaveProperty('targetBV');
         expect(result).toHaveProperty('unitCount');
         expect(result).toHaveProperty('weightClass');
@@ -433,7 +565,11 @@ describe('calculateForceComposition', () => {
     it('should handle zero target BV', () => {
       const targetBV = 0;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       expect(result.targetBV).toBe(0);
       expect(result.unitCount).toBe(LANCE_SIZE.IS);
@@ -442,7 +578,11 @@ describe('calculateForceComposition', () => {
     it('should handle very large target BV', () => {
       const targetBV = 100000;
       const faction = 'IS';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       expect(result.targetBV).toBe(100000);
       expect(result.unitCount).toBe(LANCE_SIZE.IS);
@@ -451,7 +591,11 @@ describe('calculateForceComposition', () => {
     it('should handle empty faction string', () => {
       const targetBV = 100;
       const faction = '';
-      const result = calculateForceComposition(targetBV, faction, seededRandom(0.5));
+      const result = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.5),
+      );
 
       // Should default to IS
       expect(result.unitCount).toBe(LANCE_SIZE.IS);
@@ -461,8 +605,16 @@ describe('calculateForceComposition', () => {
       const targetBV = 100;
       const faction = 'IS';
 
-      const result1 = calculateForceComposition(targetBV, faction, seededRandom(0.0));
-      const result2 = calculateForceComposition(targetBV, faction, seededRandom(0.999));
+      const result1 = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.0),
+      );
+      const result2 = calculateForceComposition(
+        targetBV,
+        faction,
+        seededRandom(0.999),
+      );
 
       expect(result1).toHaveProperty('targetBV');
       expect(result2).toHaveProperty('targetBV');
@@ -481,7 +633,11 @@ describe('OpFor Generation Integration', () => {
     const faction = 'IS';
 
     const opForBV = calculateOpForBV(playerBV, difficulty, seededRandom(3 / 8));
-    const composition = calculateForceComposition(opForBV, faction, seededRandom(0.5));
+    const composition = calculateForceComposition(
+      opForBV,
+      faction,
+      seededRandom(0.5),
+    );
 
     expect(opForBV).toBe(100);
     expect(composition.targetBV).toBe(100);
@@ -494,7 +650,11 @@ describe('OpFor Generation Integration', () => {
     const faction = 'Clan';
 
     const opForBV = calculateOpForBV(playerBV, difficulty, seededRandom(5 / 8)); // 110% variation
-    const composition = calculateForceComposition(opForBV, faction, seededRandom(0.5));
+    const composition = calculateForceComposition(
+      opForBV,
+      faction,
+      seededRandom(0.5),
+    );
 
     // 200 * 1.5 * 1.10 = 330
     expect(opForBV).toBe(330);
@@ -508,7 +668,11 @@ describe('OpFor Generation Integration', () => {
     const faction = 'ComStar';
 
     const opForBV = calculateOpForBV(playerBV, difficulty, seededRandom(1 / 8)); // 90% variation
-    const composition = calculateForceComposition(opForBV, faction, seededRandom(0.5));
+    const composition = calculateForceComposition(
+      opForBV,
+      faction,
+      seededRandom(0.5),
+    );
 
     // 150 * 0.75 * 0.90 = 101.25 → 101
     expect(opForBV).toBe(101);

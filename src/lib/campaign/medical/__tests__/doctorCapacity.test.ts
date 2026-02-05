@@ -1,3 +1,9 @@
+import type { ICampaignOptions } from '../../../../types/campaign/Campaign';
+import type { IPerson } from '../../../../types/campaign/Person';
+
+import { createDefaultCampaignOptions } from '../../../../types/campaign/Campaign';
+import { CampaignPersonnelRole } from '../../../../types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '../../../../types/campaign/enums/PersonnelStatus';
 import {
   getDoctorCapacity,
   getAssignedPatientCount,
@@ -5,11 +11,6 @@ import {
   getOverloadPenalty,
   getBestAvailableDoctor,
 } from '../doctorCapacity';
-import type { IPerson } from '../../../../types/campaign/Person';
-import type { ICampaignOptions } from '../../../../types/campaign/Campaign';
-import { createDefaultCampaignOptions } from '../../../../types/campaign/Campaign';
-import { PersonnelStatus } from '../../../../types/campaign/enums/PersonnelStatus';
-import { CampaignPersonnelRole } from '../../../../types/campaign/enums/CampaignPersonnelRole';
 
 /**
  * Helper to create a test person (doctor or patient)
@@ -174,8 +175,14 @@ describe('Doctor Capacity Management', () => {
         primaryRole: CampaignPersonnelRole.DOCTOR,
       });
       const personnel: IPerson[] = [
-        createTestPerson({ id: 'patient-001', primaryRole: CampaignPersonnelRole.PILOT }),
-        createTestPerson({ id: 'patient-002', primaryRole: CampaignPersonnelRole.PILOT }),
+        createTestPerson({
+          id: 'patient-001',
+          primaryRole: CampaignPersonnelRole.PILOT,
+        }),
+        createTestPerson({
+          id: 'patient-002',
+          primaryRole: CampaignPersonnelRole.PILOT,
+        }),
       ];
 
       const count = getAssignedPatientCount(doctor, personnel);
@@ -304,7 +311,7 @@ describe('Doctor Capacity Management', () => {
             },
           ],
           daysToWaitForHealing: 3,
-        })
+        }),
       );
       const options = { ...defaultOptions, maxPatientsPerDoctor: 25 };
 
@@ -335,7 +342,7 @@ describe('Doctor Capacity Management', () => {
             },
           ],
           daysToWaitForHealing: 3,
-        })
+        }),
       );
       const options = { ...defaultOptions, maxPatientsPerDoctor: 25 };
 
@@ -368,7 +375,7 @@ describe('Doctor Capacity Management', () => {
             },
           ],
           daysToWaitForHealing: 3,
-        })
+        }),
       );
       const options = { ...defaultOptions, maxPatientsPerDoctor: 25 };
 
@@ -399,7 +406,7 @@ describe('Doctor Capacity Management', () => {
             },
           ],
           daysToWaitForHealing: 3,
-        })
+        }),
       );
       const options = { ...defaultOptions, maxPatientsPerDoctor: 25 };
 
@@ -430,7 +437,7 @@ describe('Doctor Capacity Management', () => {
             },
           ],
           daysToWaitForHealing: 3,
-        })
+        }),
       );
       const options = { ...defaultOptions, maxPatientsPerDoctor: 25 };
 
@@ -492,7 +499,7 @@ describe('Doctor Capacity Management', () => {
               },
             ],
             daysToWaitForHealing: 3,
-          })
+          }),
         ),
         ...Array.from({ length: 3 }, (_, i) =>
           createTestPerson({
@@ -511,7 +518,7 @@ describe('Doctor Capacity Management', () => {
               },
             ],
             daysToWaitForHealing: 3,
-          })
+          }),
         ),
       ];
       const options = { ...defaultOptions, maxPatientsPerDoctor: 25 };
@@ -549,7 +556,7 @@ describe('Doctor Capacity Management', () => {
               },
             ],
             daysToWaitForHealing: 3,
-          })
+          }),
         ),
       ];
       const options = { ...defaultOptions, maxPatientsPerDoctor: 25 };
@@ -592,7 +599,7 @@ describe('Doctor Capacity Management', () => {
               },
             ],
             daysToWaitForHealing: 3,
-          })
+          }),
         ),
         ...Array.from({ length: 10 }, (_, i) =>
           createTestPerson({
@@ -611,7 +618,7 @@ describe('Doctor Capacity Management', () => {
               },
             ],
             daysToWaitForHealing: 3,
-          })
+          }),
         ),
       ];
       const options = { ...defaultOptions, maxPatientsPerDoctor: 25 };

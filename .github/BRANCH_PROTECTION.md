@@ -7,17 +7,20 @@ This repository requires all changes to the `main` branch to go through Pull Req
 ### Using GitHub CLI (Recommended)
 
 **Prerequisites:**
+
 - Install [GitHub CLI](https://cli.github.com/)
 - Authenticate: `gh auth login`
 
 **Run the setup script:**
 
 **On Linux/macOS:**
+
 ```bash
 bash .github/scripts/setup-branch-protection.sh
 ```
 
 **On Windows (PowerShell):**
+
 ```powershell
 .\.github\scripts\setup-branch-protection.ps1
 ```

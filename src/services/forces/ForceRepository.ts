@@ -8,7 +8,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { getSQLiteService } from '../persistence/SQLiteService';
+
 import {
   IForce,
   IAssignment,
@@ -21,6 +21,8 @@ import {
   ForcePosition,
   getDefaultSlotCount,
 } from '@/types/force';
+
+import { getSQLiteService } from '../persistence/SQLiteService';
 
 // =============================================================================
 // Database Row Types
@@ -80,8 +82,14 @@ export interface IForceRepository {
   getAllForces(): readonly IForce[];
   getRootForces(): readonly IForce[];
   getChildForces(parentId: string): readonly IForce[];
-  updateAssignment(assignmentId: string, request: IUpdateAssignmentRequest): IForceOperationResult;
-  swapAssignments(assignmentId1: string, assignmentId2: string): IForceOperationResult;
+  updateAssignment(
+    assignmentId: string,
+    request: IUpdateAssignmentRequest,
+  ): IForceOperationResult;
+  swapAssignments(
+    assignmentId1: string,
+    assignmentId2: string,
+  ): IForceOperationResult;
   clearAssignment(assignmentId: string): IForceOperationResult;
 }
 
@@ -132,9 +140,15 @@ export class ForceRepository implements IForceRepository {
     `);
 
     // Create indexes
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_forces_parent ON forces(parent_id)`);
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_assignments_force ON force_assignments(force_id)`);
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_assignments_pilot ON force_assignments(pilot_id)`);
+    db.exec(
+      `CREATE INDEX IF NOT EXISTS idx_forces_parent ON forces(parent_id)`,
+    );
+    db.exec(
+      `CREATE INDEX IF NOT EXISTS idx_assignments_force ON force_assignments(force_id)`,
+    );
+    db.exec(
+      `CREATE INDEX IF NOT EXISTS idx_assignments_pilot ON force_assignments(pilot_id)`,
+    );
 
     this.initialized = true;
   }
@@ -169,7 +183,7 @@ export class ForceRepository implements IForceRepository {
         request.parentId ?? null,
         request.description ?? null,
         now,
-        now
+        now,
       );
 
       // Create empty assignments for the force type
@@ -182,7 +196,15 @@ export class ForceRepository implements IForceRepository {
       for (let slot = 1; slot <= slotCount; slot++) {
         const assignmentId = `assign-${uuidv4()}`;
         const position = slot === 1 ? ForcePosition.Lead : ForcePosition.Member;
-        insertAssignment.run(assignmentId, id, null, null, position, slot, null);
+        insertAssignment.run(
+          assignmentId,
+          id,
+          null,
+          null,
+          position,
+          slot,
+          null,
+        );
       }
 
       return { success: true, id };
@@ -203,7 +225,9 @@ export class ForceRepository implements IForceRepository {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
-    const row = db.prepare('SELECT * FROM forces WHERE id = ?').get(id) as ForceRow | undefined;
+    const row = db.prepare('SELECT * FROM forces WHERE id = ?').get(id) as
+      | ForceRow
+      | undefined;
 
     if (!row) {
       return null;
@@ -219,7 +243,9 @@ export class ForceRepository implements IForceRepository {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
-    const rows = db.prepare('SELECT * FROM forces ORDER BY created_at DESC').all() as ForceRow[];
+    const rows = db
+      .prepare('SELECT * FROM forces ORDER BY created_at DESC')
+      .all() as ForceRow[];
 
     return rows.map((row) => this.hydrateForce(row));
   }
@@ -283,7 +309,10 @@ export class ForceRepository implements IForceRepository {
       }
       if (request.parentId !== undefined) {
         // Check for circular hierarchy
-        if (request.parentId !== null && this.wouldCreateCycle(id, request.parentId)) {
+        if (
+          request.parentId !== null &&
+          this.wouldCreateCycle(id, request.parentId)
+        ) {
           return {
             success: false,
             error: 'Cannot set parent: would create circular hierarchy',
@@ -300,7 +329,9 @@ export class ForceRepository implements IForceRepository {
 
       params.push(id);
 
-      db.prepare(`UPDATE forces SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+      db.prepare(`UPDATE forces SET ${updates.join(', ')} WHERE id = ?`).run(
+        ...params,
+      );
 
       return { success: true, id };
     } catch (error) {
@@ -323,7 +354,9 @@ export class ForceRepository implements IForceRepository {
 
     try {
       // Set children's parent to null
-      db.prepare('UPDATE forces SET parent_id = NULL WHERE parent_id = ?').run(id);
+      db.prepare('UPDATE forces SET parent_id = NULL WHERE parent_id = ?').run(
+        id,
+      );
 
       // Delete assignments (cascade should handle this, but be explicit)
       db.prepare('DELETE FROM force_assignments WHERE force_id = ?').run(id);
@@ -352,7 +385,9 @@ export class ForceRepository implements IForceRepository {
   private getAssignments(forceId: string): IAssignment[] {
     const db = getSQLiteService().getDatabase();
     const rows = db
-      .prepare('SELECT * FROM force_assignments WHERE force_id = ? ORDER BY slot')
+      .prepare(
+        'SELECT * FROM force_assignments WHERE force_id = ? ORDER BY slot',
+      )
       .all(forceId) as AssignmentRow[];
 
     return rows.map(this.rowToAssignment);
@@ -363,7 +398,7 @@ export class ForceRepository implements IForceRepository {
    */
   updateAssignment(
     assignmentId: string,
-    request: IUpdateAssignmentRequest
+    request: IUpdateAssignmentRequest,
   ): IForceOperationResult {
     this.initialize();
 
@@ -400,9 +435,9 @@ export class ForceRepository implements IForceRepository {
 
       params.push(assignmentId);
 
-      db.prepare(`UPDATE force_assignments SET ${updates.join(', ')} WHERE id = ?`).run(
-        ...params
-      );
+      db.prepare(
+        `UPDATE force_assignments SET ${updates.join(', ')} WHERE id = ?`,
+      ).run(...params);
 
       return { success: true, id: assignmentId };
     } catch (error) {
@@ -418,7 +453,10 @@ export class ForceRepository implements IForceRepository {
   /**
    * Swap two assignments within a force.
    */
-  swapAssignments(assignmentId1: string, assignmentId2: string): IForceOperationResult {
+  swapAssignments(
+    assignmentId1: string,
+    assignmentId2: string,
+  ): IForceOperationResult {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
@@ -442,7 +480,7 @@ export class ForceRepository implements IForceRepository {
 
       // Swap pilot and unit IDs
       const update = db.prepare(
-        'UPDATE force_assignments SET pilot_id = ?, unit_id = ? WHERE id = ?'
+        'UPDATE force_assignments SET pilot_id = ?, unit_id = ? WHERE id = ?',
       );
       update.run(a2.pilot_id, a2.unit_id, a1.id);
       update.run(a1.pilot_id, a1.unit_id, a2.id);
@@ -468,7 +506,7 @@ export class ForceRepository implements IForceRepository {
 
     try {
       db.prepare(
-        'UPDATE force_assignments SET pilot_id = NULL, unit_id = NULL WHERE id = ?'
+        'UPDATE force_assignments SET pilot_id = NULL, unit_id = NULL WHERE id = ?',
       ).run(assignmentId);
 
       return { success: true, id: assignmentId };
@@ -497,9 +535,9 @@ export class ForceRepository implements IForceRepository {
       if (currentId === forceId) {
         return true;
       }
-      const parent = db.prepare('SELECT parent_id FROM forces WHERE id = ?').get(currentId) as
-        | { parent_id: string | null }
-        | undefined;
+      const parent = db
+        .prepare('SELECT parent_id FROM forces WHERE id = ?')
+        .get(currentId) as { parent_id: string | null } | undefined;
       currentId = parent?.parent_id ?? null;
     }
 
@@ -544,7 +582,7 @@ export class ForceRepository implements IForceRepository {
     const assignedPilots = assignments.filter((a) => a.pilotId !== null).length;
     const assignedUnits = assignments.filter((a) => a.unitId !== null).length;
     const emptySlots = assignments.filter(
-      (a) => a.pilotId === null && a.unitId === null
+      (a) => a.pilotId === null && a.unitId === null,
     ).length;
 
     return {

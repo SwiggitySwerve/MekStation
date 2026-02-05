@@ -7,6 +7,8 @@
  * - Complete acquisition roll with success/failure
  */
 
+import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
+
 import {
   calculateAcquisitionTN,
   roll2d6,
@@ -14,7 +16,6 @@ import {
   type IAcquisitionModifier,
   type RandomFn,
 } from '../acquisitionRoll';
-import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 
 /**
  * Helper to create a seeded random function for deterministic 2d6 rolls
@@ -154,7 +155,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       false,
       [],
-      random
+      random,
     );
     expect(result.success).toBe(true);
     expect(result.roll).toBe(9);
@@ -168,7 +169,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       false,
       [],
-      random
+      random,
     );
     expect(result.success).toBe(false);
     expect(result.roll).toBe(5);
@@ -182,7 +183,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       false,
       [],
-      random
+      random,
     );
     expect(result.margin).toBe(1); // 9 - 8 = 1
   });
@@ -194,7 +195,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       false,
       [],
-      random
+      random,
     );
     expect(result.margin).toBe(-3); // 5 - 8 = -3
   });
@@ -206,7 +207,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       false,
       [],
-      random
+      random,
     );
     expect(result.requestId).toBe('req-12345');
   });
@@ -222,7 +223,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       false,
       modifiers,
-      random
+      random,
     );
     expect(result.modifiers).toEqual(modifiers);
   });
@@ -237,7 +238,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       false,
       modifiers,
-      random
+      random,
     );
     expect(result.targetNumber).toBe(6); // 8 + (-2) = 6
     expect(result.success).toBe(true); // 7 >= 6
@@ -250,7 +251,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       true, // consumable
       [],
-      random
+      random,
     );
     expect(result.targetNumber).toBe(6); // D consumable = 6
     expect(result.success).toBe(true); // 6 >= 6
@@ -263,7 +264,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       false,
       [],
-      random
+      random,
     );
     expect(result.transitDays).toBe(0);
   });
@@ -275,7 +276,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       false,
       [],
-      random
+      random,
     );
     expect(result.success).toBe(true);
     expect(result.margin).toBe(0);
@@ -288,7 +289,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       false,
       [],
-      random
+      random,
     );
     expect(result.success).toBe(false);
     expect(result.margin).toBe(-1);
@@ -306,7 +307,7 @@ describe('performAcquisitionRoll', () => {
       AvailabilityRating.D,
       false,
       modifiers,
-      random
+      random,
     );
     // TN = 8 + (-2) + 3 + (-1) = 8
     expect(result.targetNumber).toBe(8);

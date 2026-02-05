@@ -17,12 +17,14 @@ Provides access to BattleMech and other unit data through three specialized serv
 ### Scope
 
 **In Scope:**
+
 - Loading and caching canonical unit data from static JSON
 - CRUD operations for custom user-created units
 - Full-text search across all units
 - Unit filtering by criteria (tech base, era, weight class)
 
 **Out of Scope:**
+
 - Unit construction logic (see construction-services)
 - Unit validation (see construction-services)
 - File import/export (see persistence-services)
@@ -47,12 +49,14 @@ The system SHALL load a lightweight unit index on application startup for search
 **Priority**: Critical
 
 #### Scenario: Load index on startup
+
 - **GIVEN** the application is starting
 - **WHEN** CanonicalUnitService.getIndex() is called
 - **THEN** return array of UnitIndexEntry objects
 - **AND** each entry contains id, name, chassis, variant, tonnage, techBase, era, weightClass, unitType, filePath
 
 #### Scenario: Index is cached
+
 - **GIVEN** the index has been loaded once
 - **WHEN** getIndex() is called again
 - **THEN** return cached data without network request
@@ -68,17 +72,20 @@ The system SHALL lazy-load full unit data on demand by ID.
 **Priority**: Critical
 
 #### Scenario: Load single unit
+
 - **GIVEN** a valid unit ID exists in the index
 - **WHEN** CanonicalUnitService.getById(id) is called
 - **THEN** fetch the unit JSON from the file path
 - **AND** return the complete IFullUnit object
 
 #### Scenario: Unit not found
+
 - **GIVEN** an invalid or unknown unit ID
 - **WHEN** getById(unknownId) is called
 - **THEN** return null
 
 #### Scenario: Load multiple units
+
 - **GIVEN** multiple valid unit IDs
 - **WHEN** getByIds([id1, id2, id3]) is called
 - **THEN** return array of IFullUnit objects in parallel
@@ -95,16 +102,19 @@ The system SHALL filter the unit index by criteria.
 **Priority**: High
 
 #### Scenario: Filter by tech base
+
 - **GIVEN** the unit index is loaded
 - **WHEN** query({ techBase: TechBase.CLAN }) is called
 - **THEN** return only units with Clan tech base
 
 #### Scenario: Filter by multiple criteria
+
 - **GIVEN** the unit index is loaded
 - **WHEN** query({ techBase: TechBase.INNER_SPHERE, weightClass: WeightClass.HEAVY }) is called
 - **THEN** return only Inner Sphere heavy mechs
 
 #### Scenario: Empty result
+
 - **GIVEN** no units match the criteria
 - **WHEN** query(impossible criteria) is called
 - **THEN** return empty array
@@ -120,22 +130,26 @@ The system SHALL provide create, read, update, and delete operations for custom 
 **Priority**: Critical
 
 #### Scenario: Create custom unit
+
 - **GIVEN** a valid IFullUnit object
 - **WHEN** CustomUnitService.create(unit) is called
 - **THEN** store the unit in IndexedDB
 - **AND** return the generated unique ID
 
 #### Scenario: Read custom unit
+
 - **GIVEN** a custom unit exists with ID "custom-123"
 - **WHEN** getById("custom-123") is called
 - **THEN** return the complete IFullUnit from storage
 
 #### Scenario: Update custom unit
+
 - **GIVEN** a custom unit exists with ID "custom-123"
 - **WHEN** update("custom-123", modifiedUnit) is called
 - **THEN** replace the stored unit with the new data
 
 #### Scenario: Delete custom unit
+
 - **GIVEN** a custom unit exists with ID "custom-123"
 - **WHEN** delete("custom-123") is called
 - **THEN** remove the unit from storage
@@ -152,11 +166,13 @@ The system SHALL list all custom units as index entries.
 **Priority**: High
 
 #### Scenario: List all custom units
+
 - **GIVEN** the user has saved 5 custom units
 - **WHEN** CustomUnitService.list() is called
 - **THEN** return array of 5 UnitIndexEntry objects
 
 #### Scenario: Empty custom units
+
 - **GIVEN** no custom units have been created
 - **WHEN** list() is called
 - **THEN** return empty array
@@ -172,6 +188,7 @@ The system SHALL initialize a full-text search index on startup.
 **Priority**: High
 
 #### Scenario: Initialize search
+
 - **GIVEN** the application is starting
 - **WHEN** UnitSearchService.initialize() is called
 - **THEN** build MiniSearch index from canonical units
@@ -188,16 +205,19 @@ The system SHALL search units by text query across name, chassis, and variant.
 **Priority**: High
 
 #### Scenario: Search by name
+
 - **GIVEN** the search index is initialized
 - **WHEN** search("Warhammer") is called
 - **THEN** return units with "Warhammer" in name or chassis
 
 #### Scenario: Fuzzy search
+
 - **GIVEN** the search index is initialized
 - **WHEN** search("Warhmmer") is called with typo
 - **THEN** return Warhammer units via fuzzy matching
 
 #### Scenario: No results
+
 - **GIVEN** the search index is initialized
 - **WHEN** search("xyznonexistent") is called
 - **THEN** return empty array
@@ -213,11 +233,13 @@ The system SHALL update the search index when custom units change.
 **Priority**: Medium
 
 #### Scenario: Add to index
+
 - **GIVEN** a new custom unit is created
 - **WHEN** addToIndex(unitEntry) is called
 - **THEN** the unit is immediately searchable
 
 #### Scenario: Remove from index
+
 - **GIVEN** a custom unit is deleted
 - **WHEN** removeFromIndex(id) is called
 - **THEN** the unit no longer appears in search results
@@ -241,7 +263,13 @@ interface UnitIndexEntry {
   readonly techBase: TechBase;
   readonly era: Era;
   readonly weightClass: WeightClass;
-  readonly unitType: 'BattleMech' | 'Vehicle' | 'Infantry' | 'ProtoMech' | 'BattleArmor' | 'Aerospace';
+  readonly unitType:
+    | 'BattleMech'
+    | 'Vehicle'
+    | 'Infantry'
+    | 'ProtoMech'
+    | 'BattleArmor'
+    | 'Aerospace';
   readonly filePath: string;
 }
 
@@ -305,11 +333,13 @@ interface IUnitSearchService {
 ## Dependencies
 
 ### Depends On
+
 - **core-entity-types**: Base interfaces (IEntity, ITechBaseEntity)
 - **database-schema**: IFullUnit definition
 - **persistence-services**: IndexedDBService for custom unit storage
 
 ### Used By
+
 - **construction-services**: Loads units for editing
 - **UI components**: Browse and search units
 
@@ -318,11 +348,13 @@ interface IUnitSearchService {
 ## Implementation Notes
 
 ### Performance Considerations
+
 - Index should be under 500KB for fast initial load
 - Use LRU cache for recently accessed full unit data
 - MiniSearch provides efficient client-side search
 
 ### Edge Cases
+
 - Handle missing filePath gracefully (corrupted index)
 - Custom unit IDs must not collide with canonical IDs (use "custom-" prefix)
 
@@ -331,6 +363,6 @@ interface IUnitSearchService {
 ## References
 
 ### Related Documentation
+
 - `docs/architecture/SERVICE_LAYER_PLAN.md`
 - `src/types/unit/DatabaseSchema.ts`
-

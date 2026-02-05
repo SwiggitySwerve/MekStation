@@ -1,11 +1,15 @@
 /**
  * Data Integrity Validator Tests
- * 
+ *
  * Tests for validating and repairing unit data integrity.
- * 
+ *
  * @spec openspec/specs/data-integrity-validation/spec.md
  */
 
+import {
+  IntegritySeverity,
+  IntegrityIssueCodes,
+} from '@/types/unit/DataIntegrity';
 import {
   checkEquipmentReferences,
   checkWeightConsistency,
@@ -14,7 +18,6 @@ import {
   validateDataIntegrity,
   createDataIntegrityValidator,
 } from '@/utils/serialization/DataIntegrityValidator';
-import { IntegritySeverity, IntegrityIssueCodes } from '@/types/unit/DataIntegrity';
 
 describe('DataIntegrityValidator', () => {
   // ============================================================================
@@ -51,7 +54,7 @@ describe('DataIntegrityValidator', () => {
         ],
       };
       const issues = checkEquipmentReferences(data);
-      
+
       expect(issues).toHaveLength(1);
       expect(issues[0].code).toBe(IntegrityIssueCodes.EQUIPMENT_NOT_FOUND);
       expect(issues[0].severity).toBe(IntegritySeverity.ERROR);
@@ -64,7 +67,7 @@ describe('DataIntegrityValidator', () => {
         ],
       };
       const issues = checkEquipmentReferences(data);
-      
+
       expect(issues).toHaveLength(1);
       expect(issues[0].code).toBe(IntegrityIssueCodes.INVALID_LOCATION);
     });
@@ -78,7 +81,7 @@ describe('DataIntegrityValidator', () => {
         ],
       };
       const issues = checkEquipmentReferences(data);
-      
+
       expect(issues).toHaveLength(2);
     });
   });
@@ -108,7 +111,7 @@ describe('DataIntegrityValidator', () => {
     it('should detect weight exceeding tonnage', () => {
       const data = { tonnage: 50, totalWeight: 52 };
       const issues = checkWeightConsistency(data);
-      
+
       expect(issues).toHaveLength(1);
       expect(issues[0].code).toBe(IntegrityIssueCodes.WEIGHT_MISMATCH);
       expect(issues[0].severity).toBe(IntegritySeverity.ERROR);
@@ -127,7 +130,7 @@ describe('DataIntegrityValidator', () => {
 
     it('should detect missing armor configuration', () => {
       const issues = checkArmorConsistency({});
-      
+
       expect(issues).toHaveLength(1);
       expect(issues[0].code).toBe(IntegrityIssueCodes.MISSING_REQUIRED_FIELD);
       expect(issues[0].path).toBe('armor');
@@ -136,7 +139,7 @@ describe('DataIntegrityValidator', () => {
     it('should detect missing armor allocation', () => {
       const data = { armor: {} };
       const issues = checkArmorConsistency(data);
-      
+
       expect(issues).toHaveLength(1);
       expect(issues[0].code).toBe(IntegrityIssueCodes.MISSING_REQUIRED_FIELD);
       expect(issues[0].path).toBe('armor.allocation');
@@ -165,7 +168,7 @@ describe('DataIntegrityValidator', () => {
         },
       };
       const issues = checkArmorConsistency(data);
-      
+
       expect(issues).toHaveLength(1);
       expect(issues[0].code).toBe(IntegrityIssueCodes.ARMOR_EXCEEDS_MAX);
       expect(issues[0].canAutoRepair).toBe(true);
@@ -182,7 +185,7 @@ describe('DataIntegrityValidator', () => {
         },
       };
       const issues = checkArmorConsistency(data);
-      
+
       expect(issues).toHaveLength(2);
     });
   });
@@ -193,14 +196,14 @@ describe('DataIntegrityValidator', () => {
   describe('checkRequiredFields()', () => {
     it('should detect non-object data', () => {
       const issues = checkRequiredFields(null);
-      
+
       expect(issues).toHaveLength(1);
       expect(issues[0].message).toContain('not an object');
     });
 
     it('should detect missing required fields', () => {
       const issues = checkRequiredFields({});
-      
+
       // Should have issues for: chassis, model, unitType, tonnage, engine, armor, techBase, rulesLevel
       expect(issues.length).toBeGreaterThanOrEqual(8);
     });
@@ -217,7 +220,7 @@ describe('DataIntegrityValidator', () => {
         rulesLevel: 'Standard',
       };
       const issues = checkRequiredFields(data);
-      
+
       expect(issues).toHaveLength(0);
     });
 
@@ -233,8 +236,8 @@ describe('DataIntegrityValidator', () => {
         rulesLevel: 'Standard',
       };
       const issues = checkRequiredFields(data);
-      
-      expect(issues.some(i => i.path === 'model')).toBe(true);
+
+      expect(issues.some((i) => i.path === 'model')).toBe(true);
     });
   });
 
@@ -255,9 +258,9 @@ describe('DataIntegrityValidator', () => {
         rulesLevel: 'Standard',
         equipment: [{ id: 'medium-laser', location: 'RA' }],
       };
-      
+
       const result = validateDataIntegrity(data);
-      
+
       expect(result.isValid).toBe(true);
       expect(result.errorCount).toBe(0);
     });
@@ -268,16 +271,16 @@ describe('DataIntegrityValidator', () => {
         equipment: [{ location: 'RA' }], // missing id
         armor: { allocation: { head: -5 } }, // negative armor
       };
-      
+
       const result = validateDataIntegrity(data);
-      
+
       expect(result.isValid).toBe(false);
       expect(result.issues.length).toBeGreaterThan(0);
     });
 
     it('should include timestamp', () => {
       const result = validateDataIntegrity({});
-      
+
       expect(result.checkedAt).toBeDefined();
       expect(() => new Date(result.checkedAt)).not.toThrow();
     });
@@ -293,9 +296,9 @@ describe('DataIntegrityValidator', () => {
         techBase: 'Inner Sphere',
         rulesLevel: 'Standard',
       };
-      
+
       const result = validateDataIntegrity(data);
-      
+
       expect(result.errorCount).toBeGreaterThan(0);
       expect(typeof result.warningCount).toBe('number');
     });
@@ -307,21 +310,21 @@ describe('DataIntegrityValidator', () => {
   describe('createDataIntegrityValidator()', () => {
     it('should create validator with validate method', () => {
       const validator = createDataIntegrityValidator();
-      
+
       expect(validator.validate).toBeDefined();
       expect(typeof validator.validate).toBe('function');
     });
 
     it('should create validator with repair method', () => {
       const validator = createDataIntegrityValidator();
-      
+
       expect(validator.repair).toBeDefined();
       expect(typeof validator.repair).toBe('function');
     });
 
     it('should create validator with getAvailableRepairs method', () => {
       const validator = createDataIntegrityValidator();
-      
+
       expect(validator.getAvailableRepairs).toBeDefined();
       expect(Array.isArray(validator.getAvailableRepairs())).toBe(true);
     });
@@ -343,9 +346,9 @@ describe('DataIntegrityValidator', () => {
         techBase: 'Inner Sphere',
         rulesLevel: 'Standard',
       };
-      
+
       const result = validator.repair(data);
-      
+
       expect(result.success).toBe(true);
       expect(result.data!.appliedRepairs).toHaveLength(0);
     });
@@ -362,12 +365,14 @@ describe('DataIntegrityValidator', () => {
         techBase: 'Inner Sphere',
         rulesLevel: 'Standard',
       };
-      
+
       const result = validator.repair(data);
-      
-      expect(result.data!.appliedRepairs).toContain(IntegrityIssueCodes.ARMOR_EXCEEDS_MAX);
+
+      expect(result.data!.appliedRepairs).toContain(
+        IntegrityIssueCodes.ARMOR_EXCEEDS_MAX,
+      );
       expect(result.data!.repairedData).toBeDefined();
-      
+
       const repaired = result.data!.repairedData as Record<string, unknown>;
       const armor = repaired.armor as Record<string, unknown>;
       const allocation = armor.allocation as Record<string, number>;
@@ -386,10 +391,12 @@ describe('DataIntegrityValidator', () => {
         techBase: 'Inner Sphere',
         rulesLevel: 'Standard',
       };
-      
+
       const result = validator.repair(data, { dryRun: true });
-      
-      expect(result.data!.appliedRepairs).toContain(IntegrityIssueCodes.ARMOR_EXCEEDS_MAX);
+
+      expect(result.data!.appliedRepairs).toContain(
+        IntegrityIssueCodes.ARMOR_EXCEEDS_MAX,
+      );
       // In dry run, repairedData should not be set
       expect(result.data!.repairedData).toBeUndefined();
     });
@@ -406,15 +413,17 @@ describe('DataIntegrityValidator', () => {
         techBase: 'Inner Sphere',
         rulesLevel: 'Standard',
       };
-      
+
       // Only repair specific codes (not the armor one)
-      const result = validator.repair(data, { 
-        repairCodes: ['SOME_OTHER_CODE'] 
+      const result = validator.repair(data, {
+        repairCodes: ['SOME_OTHER_CODE'],
       });
-      
+
       // Should not have applied the armor repair
       const repairData = result.success ? result.data : result.error;
-      expect(repairData.appliedRepairs).not.toContain(IntegrityIssueCodes.ARMOR_EXCEEDS_MAX);
+      expect(repairData.appliedRepairs).not.toContain(
+        IntegrityIssueCodes.ARMOR_EXCEEDS_MAX,
+      );
     });
 
     it('should track remaining issues after repair', () => {
@@ -423,9 +432,9 @@ describe('DataIntegrityValidator', () => {
         // Missing required fields - not repairable
         armor: { allocation: { head: 9, leftArm: -5 } }, // negative armor - repairable
       };
-      
+
       const result = validator.repair(data);
-      
+
       const repairData = result.success ? result.data : result.error;
       expect(repairData.remainingIssues.length).toBeGreaterThan(0);
     });
@@ -438,14 +447,14 @@ describe('DataIntegrityValidator', () => {
     it('should return available repair operations', () => {
       const validator = createDataIntegrityValidator();
       const repairs = validator.getAvailableRepairs();
-      
+
       expect(repairs.length).toBeGreaterThan(0);
     });
 
     it('should return operations with required properties', () => {
       const validator = createDataIntegrityValidator();
       const repairs = validator.getAvailableRepairs();
-      
+
       for (const repair of repairs) {
         expect(repair.issueCode).toBeDefined();
         expect(repair.description).toBeDefined();
@@ -456,9 +465,12 @@ describe('DataIntegrityValidator', () => {
     it('should include armor repair operation', () => {
       const validator = createDataIntegrityValidator();
       const repairs = validator.getAvailableRepairs();
-      
-      expect(repairs.some(r => r.issueCode === IntegrityIssueCodes.ARMOR_EXCEEDS_MAX)).toBe(true);
+
+      expect(
+        repairs.some(
+          (r) => r.issueCode === IntegrityIssueCodes.ARMOR_EXCEEDS_MAX,
+        ),
+      ).toBe(true);
     });
   });
 });
-

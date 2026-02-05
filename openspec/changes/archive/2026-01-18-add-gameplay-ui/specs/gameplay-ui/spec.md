@@ -7,6 +7,7 @@
 The system SHALL provide a split view layout for gameplay.
 
 #### Scenario: Default layout
+
 - **GIVEN** gameplay page loads
 - **WHEN** displaying game session
 - **THEN** hex map SHALL be displayed on one side
@@ -15,12 +16,14 @@ The system SHALL provide a split view layout for gameplay.
 - **AND** action bar SHALL be visible at bottom
 
 #### Scenario: Panel resizing
+
 - **GIVEN** split view layout
 - **WHEN** user drags divider
 - **THEN** panels SHALL resize proportionally
 - **AND** minimum panel sizes SHALL be enforced
 
 #### Scenario: Contextual emphasis
+
 - **GIVEN** phase changes
 - **WHEN** entering Movement phase
 - **THEN** map panel SHALL be emphasized (larger)
@@ -33,6 +36,7 @@ The system SHALL provide a split view layout for gameplay.
 The system SHALL render an interactive hex map.
 
 #### Scenario: Grid rendering
+
 - **GIVEN** game session with map configuration
 - **WHEN** rendering hex map
 - **THEN** hex grid SHALL be drawn with correct dimensions
@@ -40,6 +44,7 @@ The system SHALL render an interactive hex map.
 - **AND** grid lines SHALL be visible
 
 #### Scenario: Unit tokens
+
 - **GIVEN** units on the map
 - **WHEN** rendering units
 - **THEN** each unit SHALL have a token at its hex
@@ -48,6 +53,7 @@ The system SHALL render an interactive hex map.
 - **AND** token color indicates side (player/opponent)
 
 #### Scenario: Pan and zoom
+
 - **GIVEN** hex map display
 - **WHEN** user interacts
 - **THEN** drag SHALL pan the view
@@ -59,6 +65,7 @@ The system SHALL render an interactive hex map.
 The system SHALL preview movement before confirmation.
 
 #### Scenario: Movement destination selection
+
 - **GIVEN** Movement phase, unit selected
 - **WHEN** user hovers over hex
 - **THEN** if valid destination, hex SHALL highlight
@@ -66,6 +73,7 @@ The system SHALL preview movement before confirmation.
 - **AND** MP cost SHALL be displayed
 
 #### Scenario: Movement preview panel
+
 - **GIVEN** movement destination selected
 - **WHEN** displaying preview
 - **THEN** MP used vs available SHALL be shown
@@ -74,6 +82,7 @@ The system SHALL preview movement before confirmation.
 - **AND** any to-hit penalty SHALL be shown
 
 #### Scenario: Facing selection
+
 - **GIVEN** destination hex selected
 - **WHEN** choosing facing
 - **THEN** 6 facing options SHALL be available
@@ -84,6 +93,7 @@ The system SHALL preview movement before confirmation.
 The system SHALL preview attacks with full modifier breakdown.
 
 #### Scenario: Target selection
+
 - **GIVEN** Weapon Attack phase
 - **WHEN** clicking enemy unit
 - **THEN** unit SHALL be selected as target
@@ -91,6 +101,7 @@ The system SHALL preview attacks with full modifier breakdown.
 - **AND** arc (front/side/rear) SHALL be indicated
 
 #### Scenario: Weapon selection
+
 - **GIVEN** target selected
 - **WHEN** selecting weapons
 - **THEN** available weapons listed with checkboxes
@@ -98,6 +109,7 @@ The system SHALL preview attacks with full modifier breakdown.
 - **AND** weapons without ammo shown disabled
 
 #### Scenario: To-hit breakdown
+
 - **GIVEN** weapon and target selected
 - **WHEN** showing to-hit preview
 - **THEN** base to-hit (gunnery) SHALL be shown
@@ -106,6 +118,7 @@ The system SHALL preview attacks with full modifier breakdown.
 - **AND** hit probability percentage SHALL be shown
 
 #### Scenario: Damage and heat preview
+
 - **GIVEN** attacks queued
 - **WHEN** showing attack summary
 - **THEN** potential damage per weapon SHALL be shown
@@ -118,6 +131,7 @@ The system SHALL preview attacks with full modifier breakdown.
 The system SHALL display unit status in record sheet format.
 
 #### Scenario: Armor diagram
+
 - **GIVEN** unit selected
 - **WHEN** displaying record sheet
 - **THEN** armor diagram SHALL show all locations
@@ -126,6 +140,7 @@ The system SHALL display unit status in record sheet format.
 - **AND** destroyed locations SHALL be marked
 
 #### Scenario: Heat scale
+
 - **GIVEN** unit with heat tracking
 - **WHEN** displaying heat
 - **THEN** heat scale SHALL show current heat
@@ -133,6 +148,7 @@ The system SHALL display unit status in record sheet format.
 - **AND** current effects (if any) SHALL be highlighted
 
 #### Scenario: Weapon status
+
 - **GIVEN** unit with weapons
 - **WHEN** displaying weapons
 - **THEN** all weapons SHALL be listed
@@ -145,6 +161,7 @@ The system SHALL display unit status in record sheet format.
 The system SHALL display a chronological event log.
 
 #### Scenario: Event display
+
 - **GIVEN** game in progress
 - **WHEN** events occur
 - **THEN** events SHALL appear in log
@@ -152,6 +169,7 @@ The system SHALL display a chronological event log.
 - **AND** newest events SHALL appear at top (or bottom, configurable)
 
 #### Scenario: Event filtering
+
 - **GIVEN** event log displayed
 - **WHEN** filtering events
 - **THEN** filter by event type SHALL be available
@@ -159,6 +177,7 @@ The system SHALL display a chronological event log.
 - **AND** filter by turn SHALL be available
 
 #### Scenario: Log collapse
+
 - **GIVEN** event log panel
 - **WHEN** user collapses log
 - **THEN** log SHALL minimize to header only
@@ -169,6 +188,7 @@ The system SHALL display a chronological event log.
 The system SHALL provide phase-appropriate action controls.
 
 #### Scenario: Movement phase controls
+
 - **GIVEN** Movement phase active
 - **WHEN** displaying controls
 - **THEN** "Lock Movement" button SHALL be available
@@ -176,6 +196,7 @@ The system SHALL provide phase-appropriate action controls.
 - **AND** "Skip" button to pass without moving
 
 #### Scenario: Attack phase controls
+
 - **GIVEN** Weapon Attack phase active
 - **WHEN** displaying controls
 - **THEN** "Lock Attacks" button SHALL be available
@@ -183,6 +204,7 @@ The system SHALL provide phase-appropriate action controls.
 - **AND** "Clear All" to remove all queued attacks
 
 #### Scenario: Phase transition
+
 - **GIVEN** phase ends
 - **WHEN** transitioning to next phase
 - **THEN** UI SHALL update for new phase
@@ -194,6 +216,7 @@ The system SHALL provide phase-appropriate action controls.
 The system SHALL provide controls for replay mode.
 
 #### Scenario: Replay navigation
+
 - **GIVEN** replay mode active
 - **WHEN** using controls
 - **THEN** scrubber to select turn/event SHALL be available
@@ -201,6 +224,7 @@ The system SHALL provide controls for replay mode.
 - **AND** step forward/back buttons SHALL be available
 
 #### Scenario: Replay state display
+
 - **GIVEN** replay at specific point
 - **WHEN** displaying state
 - **THEN** map SHALL show unit positions at that point

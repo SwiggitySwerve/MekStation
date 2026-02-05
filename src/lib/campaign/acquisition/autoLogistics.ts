@@ -14,8 +14,8 @@
  * - Skip parts already in shopping list
  */
 
-import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IAcquisitionRequest } from '@/types/campaign/acquisition/acquisitionTypes';
+import type { ICampaign } from '@/types/campaign/Campaign';
 
 /**
  * Scans units for needed parts and generates acquisition requests.
@@ -39,12 +39,12 @@ export function scanForNeededParts(
   options?: {
     stockTargetPercent?: number;
     skipQueuedParts?: boolean;
-  }
+  },
 ): IAcquisitionRequest[] {
   // Stub: Return empty array until Plan 3 provides parts data
-   
+
   void campaign;
-   
+
   void options;
   return [];
 }

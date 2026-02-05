@@ -1,19 +1,28 @@
 /**
  * Equipment Registry
- * 
+ *
  * Provides fast lookup for equipment by ID, name, or category.
  * Acts as a centralized cache for all loaded equipment.
- * 
+ *
  * @module services/equipment/EquipmentRegistry
  */
 
 import { EquipmentType } from '@/types/enums/EquipmentType';
-import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { IAmmunition, AmmoCategory } from '@/types/equipment/AmmunitionTypes';
-import { IElectronics, ElectronicsCategory } from '@/types/equipment/ElectronicsTypes';
-import { IMiscEquipment, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
-import { EquipmentLoaderService, getEquipmentLoader } from './EquipmentLoaderService';
-import { createSingleton, type SingletonFactory } from '../core/createSingleton';
+import {
+  IElectronics,
+  ElectronicsCategory,
+} from '@/types/equipment/ElectronicsTypes';
+import {
+  IMiscEquipment,
+  MiscEquipmentCategory,
+} from '@/types/equipment/MiscEquipmentTypes';
+import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
+
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import {
   addCommonWeaponAliases,
   addAmmunitionAliases,
@@ -21,20 +30,28 @@ import {
   parseLegacyMegaMekId,
   addMiscEquipmentAliases,
 } from './aliases';
+import {
+  EquipmentLoaderService,
+  getEquipmentLoader,
+} from './EquipmentLoaderService';
 
 /**
  * Generic equipment type union
  */
-export type AnyEquipment = IWeapon | IAmmunition | IElectronics | IMiscEquipment;
+export type AnyEquipment =
+  | IWeapon
+  | IAmmunition
+  | IElectronics
+  | IMiscEquipment;
 
 /**
  * Equipment category union - combines top-level types with sub-categories
  */
-export type EquipmentCategoryType = 
-  | WeaponCategory 
-  | AmmoCategory 
-  | ElectronicsCategory 
-  | MiscEquipmentCategory 
+export type EquipmentCategoryType =
+  | WeaponCategory
+  | AmmoCategory
+  | ElectronicsCategory
+  | MiscEquipmentCategory
   | EquipmentType;
 
 /**
@@ -62,23 +79,23 @@ export interface IEquipmentLookupResult {
 
 /**
  * Equipment Registry
- * 
+ *
  * Central registry for all equipment lookups with name aliasing support.
  */
 export class EquipmentRegistry {
   // Name to ID mappings (for MTF name resolution)
   private nameToIdMap: Map<string, string> = new Map();
-  
+
   // ID to equipment type mapping
   private idToTypeMap: Map<string, EquipmentCategoryType> = new Map();
-  
+
   private loader: EquipmentLoaderService;
   private isInitialized = false;
-  
+
   constructor() {
     this.loader = getEquipmentLoader();
   }
-  
+
   /**
    * Initialize the registry with loaded equipment
    */
@@ -86,71 +103,85 @@ export class EquipmentRegistry {
     if (this.isInitialized) {
       return;
     }
-    
+
     // Ensure equipment is loaded
     if (!this.loader.getIsLoaded()) {
       await this.loader.loadOfficialEquipment();
     }
-    
+
     // Build name-to-ID mappings for all equipment
     this.buildNameMappings();
-    
+
     this.isInitialized = true;
   }
-  
+
   /**
    * Build name-to-ID mappings for fast lookups
    */
   private buildNameMappings(): void {
     this.nameToIdMap.clear();
     this.idToTypeMap.clear();
-    
+
     // Map weapons
-    this.loader.getAllWeapons().forEach(weapon => {
+    this.loader.getAllWeapons().forEach((weapon) => {
       this.registerEquipment(weapon.id, weapon.name, EquipmentType.WEAPON);
-      addCommonWeaponAliases(weapon.id, weapon.name, weapon, this.nameToIdMap, this.normalizeName.bind(this));
+      addCommonWeaponAliases(
+        weapon.id,
+        weapon.name,
+        weapon,
+        this.nameToIdMap,
+        this.normalizeName.bind(this),
+      );
     });
-    
+
     // Map ammunition
-    this.loader.getAllAmmunition().forEach(ammo => {
+    this.loader.getAllAmmunition().forEach((ammo) => {
       this.registerEquipment(ammo.id, ammo.name, EquipmentType.AMMUNITION);
       addAmmunitionAliases(ammo, this.nameToIdMap);
     });
-    
+
     // Map electronics
-    this.loader.getAllElectronics().forEach(electronics => {
-      this.registerEquipment(electronics.id, electronics.name, EquipmentType.ELECTRONICS);
+    this.loader.getAllElectronics().forEach((electronics) => {
+      this.registerEquipment(
+        electronics.id,
+        electronics.name,
+        EquipmentType.ELECTRONICS,
+      );
     });
-    
+
     // Map misc equipment
-    this.loader.getAllMiscEquipment().forEach(equipment => {
-      this.registerEquipment(equipment.id, equipment.name, EquipmentType.MISCELLANEOUS);
+    this.loader.getAllMiscEquipment().forEach((equipment) => {
+      this.registerEquipment(
+        equipment.id,
+        equipment.name,
+        EquipmentType.MISCELLANEOUS,
+      );
       addMiscEquipmentAliases(equipment, this.nameToIdMap);
     });
-    
+
     // Add static alias mappings for known variants
     addStaticAliasMappings(this.nameToIdMap);
   }
-  
 
-  
   /**
    * Register an equipment item
    */
-  private registerEquipment(id: string, name: string, category: EquipmentCategoryType): void {
+  private registerEquipment(
+    id: string,
+    name: string,
+    category: EquipmentCategoryType,
+  ): void {
     // Map by ID
     this.idToTypeMap.set(id, category);
-    
+
     // Map by name (normalized)
     const normalizedName = this.normalizeName(name);
     this.nameToIdMap.set(normalizedName, id);
-    
+
     // Also map original name
     this.nameToIdMap.set(name, id);
   }
-  
 
-  
   /**
    * Normalize a name for lookup
    */
@@ -160,9 +191,7 @@ export class EquipmentRegistry {
       .replace(/[^a-z0-9]/g, '')
       .trim();
   }
-  
 
-  
   /**
    * Look up equipment by ID or name
    */
@@ -176,7 +205,7 @@ export class EquipmentRegistry {
         category: this.idToTypeMap.get(idOrName) || null,
       };
     }
-    
+
     // Try name lookup
     const id = this.nameToIdMap.get(idOrName);
     if (id) {
@@ -189,7 +218,7 @@ export class EquipmentRegistry {
         };
       }
     }
-    
+
     // Try normalized name lookup
     const normalizedId = this.nameToIdMap.get(this.normalizeName(idOrName));
     if (normalizedId) {
@@ -202,7 +231,7 @@ export class EquipmentRegistry {
         };
       }
     }
-    
+
     // Try legacy MegaMek ID parsing
     const legacyId = parseLegacyMegaMekId(idOrName);
     if (legacyId) {
@@ -215,7 +244,7 @@ export class EquipmentRegistry {
           category: this.idToTypeMap.get(legacyId) || null,
         };
       }
-      
+
       // Try name map lookup with parsed ID
       const mappedId = this.nameToIdMap.get(legacyId);
       if (mappedId) {
@@ -229,7 +258,7 @@ export class EquipmentRegistry {
         }
       }
     }
-    
+
     // Not found - suggest alternatives
     return {
       found: false,
@@ -238,55 +267,58 @@ export class EquipmentRegistry {
       alternateIds: this.findSimilar(idOrName),
     };
   }
-  
+
   /**
    * Find similar equipment IDs for a given name
    */
   private findSimilar(name: string): string[] {
     const normalized = this.normalizeName(name);
     const similar: string[] = [];
-    
+
     // Simple substring matching
     for (const [mappedName, id] of Array.from(this.nameToIdMap.entries())) {
       const normalizedMapped = this.normalizeName(mappedName);
-      if (normalizedMapped.includes(normalized) || normalized.includes(normalizedMapped)) {
+      if (
+        normalizedMapped.includes(normalized) ||
+        normalized.includes(normalizedMapped)
+      ) {
         if (!similar.includes(id)) {
           similar.push(id);
         }
       }
     }
-    
+
     return similar.slice(0, 5); // Return top 5 suggestions
   }
-  
+
   /**
    * Get equipment by ID (type-safe version)
    */
   getWeapon(id: string): IWeapon | null {
     return this.loader.getWeaponById(id);
   }
-  
+
   /**
    * Get ammunition by ID
    */
   getAmmunition(id: string): IAmmunition | null {
     return this.loader.getAmmunitionById(id);
   }
-  
+
   /**
    * Get electronics by ID
    */
   getElectronics(id: string): IElectronics | null {
     return this.loader.getElectronicsById(id);
   }
-  
+
   /**
    * Get misc equipment by ID
    */
   getMiscEquipment(id: string): IMiscEquipment | null {
     return this.loader.getMiscEquipmentById(id);
   }
-  
+
   /**
    * Resolve an MTF equipment name to a canonical ID
    */
@@ -294,7 +326,7 @@ export class EquipmentRegistry {
     const result = this.lookup(mtfName);
     return result.found && result.equipment ? result.equipment.id : null;
   }
-  
+
   /**
    * Get registry statistics
    */
@@ -303,19 +335,24 @@ export class EquipmentRegistry {
     const ammunition = this.loader.getAllAmmunition();
     const electronics = this.loader.getAllElectronics();
     const miscellaneous = this.loader.getAllMiscEquipment();
-    
+
     const byTechBase: Record<string, number> = {};
     const byRulesLevel: Record<string, number> = {};
-    
-    const allEquipment = [...weapons, ...ammunition, ...electronics, ...miscellaneous];
-    
-    allEquipment.forEach(eq => {
+
+    const allEquipment = [
+      ...weapons,
+      ...ammunition,
+      ...electronics,
+      ...miscellaneous,
+    ];
+
+    allEquipment.forEach((eq) => {
       const tb = eq.techBase.toString();
       const rl = eq.rulesLevel.toString();
       byTechBase[tb] = (byTechBase[tb] || 0) + 1;
       byRulesLevel[rl] = (byRulesLevel[rl] || 0) + 1;
     });
-    
+
     return {
       totalItems: allEquipment.length,
       weapons: weapons.length,
@@ -326,14 +363,14 @@ export class EquipmentRegistry {
       byRulesLevel,
     };
   }
-  
+
   /**
    * Check if registry is initialized
    */
   isReady(): boolean {
     return this.isInitialized;
   }
-  
+
   /**
    * Reset the registry (for testing)
    */
@@ -344,7 +381,8 @@ export class EquipmentRegistry {
   }
 }
 
-const equipmentRegistryFactory: SingletonFactory<EquipmentRegistry> = createSingleton((): EquipmentRegistry => new EquipmentRegistry());
+const equipmentRegistryFactory: SingletonFactory<EquipmentRegistry> =
+  createSingleton((): EquipmentRegistry => new EquipmentRegistry());
 
 /**
  * Convenience function to get the registry instance
@@ -359,4 +397,3 @@ export function getEquipmentRegistry(): EquipmentRegistry {
 export function resetEquipmentRegistry(): void {
   equipmentRegistryFactory.reset();
 }
-

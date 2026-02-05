@@ -41,33 +41,44 @@ const UNIT_TYPE_TO_CATEGORY: ReadonlyMap<UnitType, UnitCategory> = new Map([
 /**
  * Mapping of categories to their unit types
  */
-const CATEGORY_TO_UNIT_TYPES: ReadonlyMap<UnitCategory, readonly UnitType[]> = new Map([
-  [
-    UnitCategory.MECH,
-    [UnitType.BATTLEMECH, UnitType.OMNIMECH, UnitType.INDUSTRIALMECH, UnitType.PROTOMECH],
-  ],
-  [UnitCategory.VEHICLE, [UnitType.VEHICLE, UnitType.VTOL, UnitType.SUPPORT_VEHICLE]],
-  [
-    UnitCategory.AEROSPACE,
+const CATEGORY_TO_UNIT_TYPES: ReadonlyMap<UnitCategory, readonly UnitType[]> =
+  new Map([
     [
-      UnitType.AEROSPACE,
-      UnitType.CONVENTIONAL_FIGHTER,
-      UnitType.SMALL_CRAFT,
-      UnitType.DROPSHIP,
-      UnitType.JUMPSHIP,
-      UnitType.WARSHIP,
-      UnitType.SPACE_STATION,
+      UnitCategory.MECH,
+      [
+        UnitType.BATTLEMECH,
+        UnitType.OMNIMECH,
+        UnitType.INDUSTRIALMECH,
+        UnitType.PROTOMECH,
+      ],
     ],
-  ],
-  [UnitCategory.PERSONNEL, [UnitType.INFANTRY, UnitType.BATTLE_ARMOR]],
-]);
+    [
+      UnitCategory.VEHICLE,
+      [UnitType.VEHICLE, UnitType.VTOL, UnitType.SUPPORT_VEHICLE],
+    ],
+    [
+      UnitCategory.AEROSPACE,
+      [
+        UnitType.AEROSPACE,
+        UnitType.CONVENTIONAL_FIGHTER,
+        UnitType.SMALL_CRAFT,
+        UnitType.DROPSHIP,
+        UnitType.JUMPSHIP,
+        UnitType.WARSHIP,
+        UnitType.SPACE_STATION,
+      ],
+    ],
+    [UnitCategory.PERSONNEL, [UnitType.INFANTRY, UnitType.BATTLE_ARMOR]],
+  ]);
 
 /**
  * Get the category for a unit type
  * @param unitType - The unit type to categorize
  * @returns The unit category, or undefined for unknown types
  */
-export function getCategoryForUnitType(unitType: UnitType): UnitCategory | undefined {
+export function getCategoryForUnitType(
+  unitType: UnitType,
+): UnitCategory | undefined {
   return UNIT_TYPE_TO_CATEGORY.get(unitType);
 }
 
@@ -76,7 +87,9 @@ export function getCategoryForUnitType(unitType: UnitType): UnitCategory | undef
  * @param category - The unit category
  * @returns Array of unit types in the category
  */
-export function getUnitTypesInCategory(category: UnitCategory): readonly UnitType[] {
+export function getUnitTypesInCategory(
+  category: UnitCategory,
+): readonly UnitType[] {
   return CATEGORY_TO_UNIT_TYPES.get(category) ?? [];
 }
 
@@ -86,7 +99,10 @@ export function getUnitTypesInCategory(category: UnitCategory): readonly UnitTyp
  * @param category - The category to check against
  * @returns True if the unit type is in the category
  */
-export function isUnitTypeInCategory(unitType: UnitType, category: UnitCategory): boolean {
+export function isUnitTypeInCategory(
+  unitType: UnitType,
+  category: UnitCategory,
+): boolean {
   return getCategoryForUnitType(unitType) === category;
 }
 
@@ -147,7 +163,12 @@ export function requiresMinimumHeatSinks(unitType: UnitType): boolean {
  * Get all unit categories
  */
 export function getAllCategories(): readonly UnitCategory[] {
-  return [UnitCategory.MECH, UnitCategory.VEHICLE, UnitCategory.AEROSPACE, UnitCategory.PERSONNEL];
+  return [
+    UnitCategory.MECH,
+    UnitCategory.VEHICLE,
+    UnitCategory.AEROSPACE,
+    UnitCategory.PERSONNEL,
+  ];
 }
 
 /**
@@ -161,5 +182,7 @@ export function getAllUnitTypes(): readonly UnitType[] {
  * Check if a value is a valid UnitType
  */
 export function isValidUnitType(value: unknown): value is UnitType {
-  return typeof value === 'string' && UNIT_TYPE_TO_CATEGORY.has(value as UnitType);
+  return (
+    typeof value === 'string' && UNIT_TYPE_TO_CATEGORY.has(value as UnitType)
+  );
 }

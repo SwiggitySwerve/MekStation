@@ -1,23 +1,28 @@
 /**
  * BattleMech Unit Interfaces
- * 
+ *
  * Defines the complete BattleMech unit model with all component references.
- * 
+ *
  * @spec openspec/specs/unit-entity-model/spec.md
  */
 
-import { IEntity, ITechBaseEntity, ITemporalEntity, IValuedComponent } from '../core';
-import { RulesLevel, Era, WeightClass } from '../enums';
-import { 
-  EngineType, 
-  GyroType, 
-  InternalStructureType, 
-  HeatSinkType, 
+import {
+  EngineType,
+  GyroType,
+  InternalStructureType,
+  HeatSinkType,
   ArmorTypeEnum,
   CockpitType,
   MechLocation,
   IArmorAllocation,
 } from '../construction';
+import {
+  IEntity,
+  ITechBaseEntity,
+  ITemporalEntity,
+  IValuedComponent,
+} from '../core';
+import { RulesLevel, Era, WeightClass } from '../enums';
 
 /**
  * Unit type enumeration
@@ -162,41 +167,42 @@ export interface ICriticalSlotContent {
 /**
  * Complete BattleMech interface
  */
-export interface IBattleMech extends IEntity, ITechBaseEntity, ITemporalEntity, IValuedComponent {
+export interface IBattleMech
+  extends IEntity, ITechBaseEntity, ITemporalEntity, IValuedComponent {
   readonly unitType: UnitType;
   readonly configuration: MechConfiguration;
   readonly tonnage: number;
   readonly weightClass: WeightClass;
-  
+
   // Metadata
   readonly metadata: IUnitMetadata;
-  
+
   // Structural components
   readonly engine: IEngineConfiguration;
   readonly gyro: IGyroConfiguration;
   readonly cockpitType: CockpitType;
   readonly structure: IStructureConfiguration;
-  
+
   // Armor
   readonly armorType: ArmorTypeEnum;
   readonly armorAllocation: IArmorAllocation;
   readonly totalArmorPoints: number;
-  
+
   // Heat management
   readonly heatSinks: IHeatSinkConfiguration;
-  
+
   // Movement
   readonly movement: IMovementConfiguration;
-  
+
   // Equipment
   readonly equipment: readonly IMountedEquipment[];
-  
+
   // Critical slots
   readonly criticalSlots: readonly ICriticalSlotAssignment[];
-  
+
   // Quirks (optional)
   readonly quirks?: readonly string[];
-  
+
   // Calculated values
   readonly totalWeight: number;
   readonly remainingTonnage: number;
@@ -215,7 +221,10 @@ export interface IBattleMechBuilder {
   setGyro(type: GyroType): IBattleMechBuilder;
   setCockpit(type: CockpitType): IBattleMechBuilder;
   setStructure(type: InternalStructureType): IBattleMechBuilder;
-  setArmor(type: ArmorTypeEnum, allocation: IArmorAllocation): IBattleMechBuilder;
+  setArmor(
+    type: ArmorTypeEnum,
+    allocation: IArmorAllocation,
+  ): IBattleMechBuilder;
   setHeatSinks(type: HeatSinkType, count: number): IBattleMechBuilder;
   setMovement(walk: number, jump?: number): IBattleMechBuilder;
   addEquipment(equipmentId: string, location: MechLocation): IBattleMechBuilder;
@@ -244,4 +253,3 @@ export interface IOmniMech extends IBattleMech {
   /** Equipment mounted in pods (can be swapped between configurations) */
   readonly podEquipment: readonly IMountedEquipment[];
 }
-

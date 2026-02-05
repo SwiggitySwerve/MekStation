@@ -9,7 +9,10 @@
 export { DiffHighlight, type DiffHighlightProps } from './DiffHighlight';
 
 // Checkpoint selection
-export { CheckpointSelector, type CheckpointSelectorProps } from './CheckpointSelector';
+export {
+  CheckpointSelector,
+  type CheckpointSelectorProps,
+} from './CheckpointSelector';
 
 // Nested tree diff view
 export { NestedDiff, type NestedDiffProps } from './NestedDiff';

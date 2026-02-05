@@ -1,9 +1,9 @@
-const nextJest = require('next/jest')
+const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files
   dir: './',
-})
+});
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
@@ -31,7 +31,7 @@ const customJestConfig = {
       statements: 45,
       branches: 35,
       functions: 40,
-      lines: 45
+      lines: 45,
     },
   },
   // Report formats: text, lcov (for CI), html (for browsing)
@@ -46,14 +46,14 @@ const customJestConfig = {
     '<rootDir>/e2e/',
     '/e2e/',
     'e2e/',
-  ],  // Transform ES modules that Jest can't handle
+  ], // Transform ES modules that Jest can't handle
   transformIgnorePatterns: [
     'node_modules/(?!(react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend|react-window)/)',
   ],
   transform: {
-    '^.+\\.(ts|tsx|js|jsx)$': ['babel-jest', { presets: ['next/babel'] }]
+    '^.+\\.(ts|tsx|js|jsx)$': ['babel-jest', { presets: ['next/babel'] }],
   },
-}
+};
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
-module.exports = createJestConfig(customJestConfig)
+module.exports = createJestConfig(customJestConfig);

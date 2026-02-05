@@ -41,26 +41,36 @@ export interface TestCampaignOptions {
  */
 export async function createTestCampaign(
   page: Page,
-  options: TestCampaignOptions = {}
+  options: TestCampaignOptions = {},
 ): Promise<string> {
   const campaignId = await page.evaluate((opts) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { campaign?: { getState: () => { createCampaign: (input: {
-      name: string;
-      description?: string;
-      unitIds: string[];
-      pilotIds: string[];
-      resources?: {
-        cBills?: number;
-        supplies?: number;
-        morale?: number;
-        salvageParts?: number;
-      };
-      difficultyModifier?: number;
-    }) => string } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: {
+            getState: () => {
+              createCampaign: (input: {
+                name: string;
+                description?: string;
+                unitIds: string[];
+                pilotIds: string[];
+                resources?: {
+                  cBills?: number;
+                  supplies?: number;
+                  morale?: number;
+                  salvageParts?: number;
+                };
+                difficultyModifier?: number;
+              }) => string;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.campaign) {
       throw new Error(
-        'Campaign store not exposed. Ensure window.__ZUSTAND_STORES__.campaign is set in your app for E2E testing.'
+        'Campaign store not exposed. Ensure window.__ZUSTAND_STORES__.campaign is set in your app for E2E testing.',
       );
     }
 
@@ -96,7 +106,7 @@ export async function createCampaignWithRoster(
   page: Page,
   name: string,
   pilotIds: string[],
-  unitIds: string[]
+  unitIds: string[],
 ): Promise<string> {
   return createTestCampaign(page, {
     name,
@@ -128,7 +138,7 @@ export async function createMinimalCampaign(page: Page): Promise<string> {
  */
 export async function getCampaign(
   page: Page,
-  campaignId: string
+  campaignId: string,
 ): Promise<{
   id: string;
   name: string;
@@ -136,12 +146,22 @@ export async function getCampaign(
   description?: string;
 } | null> {
   return page.evaluate((id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { campaign?: { getState: () => { campaigns: Array<{
-      id: string;
-      name: string;
-      status: string;
-      description?: string;
-    }> } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: {
+            getState: () => {
+              campaigns: Array<{
+                id: string;
+                name: string;
+                status: string;
+                description?: string;
+              }>;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.campaign) {
       throw new Error('Campaign store not exposed');
@@ -160,10 +180,18 @@ export async function getCampaign(
  */
 export async function deleteCampaign(
   page: Page,
-  campaignId: string
+  campaignId: string,
 ): Promise<void> {
   await page.evaluate((id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { campaign?: { getState: () => { deleteCampaign: (id: string) => void } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: {
+            getState: () => { deleteCampaign: (id: string) => void };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.campaign) {
       throw new Error('Campaign store not exposed');

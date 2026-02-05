@@ -1,4 +1,9 @@
-import { IRank, IRankSystem, Profession, createRanks } from '@/types/campaign/ranks/rankTypes';
+import {
+  IRank,
+  IRankSystem,
+  Profession,
+  createRanks,
+} from '@/types/campaign/ranks/rankTypes';
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -243,13 +248,15 @@ export const RANK_SYSTEM_GENERIC_HOUSE: IRankSystem = createRankSystem(
 // Lookup helpers
 // ---------------------------------------------------------------------------
 
-export const BUILT_IN_RANK_SYSTEMS: Record<string, IRankSystem> = Object.freeze({
-  [RANK_SYSTEM_MERCENARY.code]: RANK_SYSTEM_MERCENARY,
-  [RANK_SYSTEM_SLDF.code]: RANK_SYSTEM_SLDF,
-  [RANK_SYSTEM_CLAN.code]: RANK_SYSTEM_CLAN,
-  [RANK_SYSTEM_COMSTAR.code]: RANK_SYSTEM_COMSTAR,
-  [RANK_SYSTEM_GENERIC_HOUSE.code]: RANK_SYSTEM_GENERIC_HOUSE,
-});
+export const BUILT_IN_RANK_SYSTEMS: Record<string, IRankSystem> = Object.freeze(
+  {
+    [RANK_SYSTEM_MERCENARY.code]: RANK_SYSTEM_MERCENARY,
+    [RANK_SYSTEM_SLDF.code]: RANK_SYSTEM_SLDF,
+    [RANK_SYSTEM_CLAN.code]: RANK_SYSTEM_CLAN,
+    [RANK_SYSTEM_COMSTAR.code]: RANK_SYSTEM_COMSTAR,
+    [RANK_SYSTEM_GENERIC_HOUSE.code]: RANK_SYSTEM_GENERIC_HOUSE,
+  },
+);
 
 export function getRankSystem(code: string): IRankSystem | undefined {
   return BUILT_IN_RANK_SYSTEMS[code];

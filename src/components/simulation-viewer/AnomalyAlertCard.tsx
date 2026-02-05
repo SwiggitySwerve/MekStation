@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from 'react';
+
 import type { IAnomalyAlertCardProps } from '@/components/simulation-viewer/types';
+
 import { FOCUS_RING_CLASSES, announce } from '@/utils/accessibility';
 
 const SEVERITY_STYLES = {
@@ -9,7 +11,8 @@ const SEVERITY_STYLES = {
     title: 'text-red-900 dark:text-red-100',
     message: 'text-red-700 dark:text-red-300',
     context: 'text-red-600 dark:text-red-400',
-    button: 'text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/40',
+    button:
+      'text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/40',
     icon: '🔴',
   },
   warning: {
@@ -18,7 +21,8 @@ const SEVERITY_STYLES = {
     title: 'text-orange-900 dark:text-orange-100',
     message: 'text-orange-700 dark:text-orange-300',
     context: 'text-orange-600 dark:text-orange-400',
-    button: 'text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900/40',
+    button:
+      'text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900/40',
     icon: '⚠️',
   },
   info: {
@@ -27,7 +31,8 @@ const SEVERITY_STYLES = {
     title: 'text-blue-900 dark:text-blue-100',
     message: 'text-blue-700 dark:text-blue-300',
     context: 'text-blue-600 dark:text-blue-400',
-    button: 'text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40',
+    button:
+      'text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40',
     icon: 'ℹ️',
   },
 } as const;
@@ -86,11 +91,15 @@ export const AnomalyAlertCard: React.FC<IAnomalyAlertCardProps> = ({
       data-testid="anomaly-alert-card"
     >
       <div className="flex items-start gap-3">
-        <span className="text-2xl flex-shrink-0" data-testid="anomaly-icon" aria-hidden="true">
+        <span
+          className="flex-shrink-0 text-2xl"
+          data-testid="anomaly-icon"
+          aria-hidden="true"
+        >
           {styles.icon}
         </span>
 
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <h3
             className={`text-lg font-semibold ${styles.title}`}
             data-testid="anomaly-title"
@@ -99,21 +108,24 @@ export const AnomalyAlertCard: React.FC<IAnomalyAlertCardProps> = ({
           </h3>
 
           <p
-            className={`text-sm mt-1 ${styles.message}`}
+            className={`mt-1 text-sm ${styles.message}`}
             data-testid="anomaly-message"
           >
             {anomaly.message}
           </p>
 
           <p
-            className={`text-xs mt-1 ${styles.context}`}
+            className={`mt-1 text-xs ${styles.context}`}
             data-testid="anomaly-context"
           >
             Battle: {anomaly.battleId}
             {anomaly.turn !== null && ` · Turn ${anomaly.turn}`}
           </p>
 
-          <div className="flex flex-wrap gap-2 mt-3" data-testid="anomaly-actions">
+          <div
+            className="mt-3 flex flex-wrap gap-2"
+            data-testid="anomaly-actions"
+          >
             {showViewSnapshot && (
               <ActionButton
                 label="View Snapshot"
@@ -158,7 +170,11 @@ interface ActionButtonProps {
   buttonClass: string;
 }
 
-const ActionButton: React.FC<ActionButtonProps> = ({ label, onClick, buttonClass }) => {
+const ActionButton: React.FC<ActionButtonProps> = ({
+  label,
+  onClick,
+  buttonClass,
+}) => {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -169,7 +185,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({ label, onClick, buttonClass
   return (
     <button
       type="button"
-      className={`text-sm px-4 py-2 min-h-[44px] md:min-h-0 rounded-md transition-colors ${FOCUS_RING_CLASSES} ${buttonClass}`}
+      className={`min-h-[44px] rounded-md px-4 py-2 text-sm transition-colors md:min-h-0 ${FOCUS_RING_CLASSES} ${buttonClass}`}
       onClick={onClick}
       onKeyDown={handleKeyDown}
       data-testid={`action-${label.toLowerCase().replace(/\s+/g, '-')}`}

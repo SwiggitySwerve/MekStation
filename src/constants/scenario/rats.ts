@@ -8,8 +8,8 @@
  * @spec openspec/changes/add-scenario-generators/spec.md
  */
 
-import { Era } from '../../types/temporal/Era';
 import { UnitTypeCategory } from '../../types/scenario';
+import { Era } from '../../types/temporal/Era';
 
 // =============================================================================
 // RAT Entry Interfaces
@@ -115,20 +115,108 @@ const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
   era: Era.LATE_SUCCESSION_WARS,
   entries: [
     // Assault
-    { chassis: 'Atlas', variant: 'AS7-D', designation: 'Atlas AS7-D', bv: 1897, tonnage: 100, unitType: UnitTypeCategory.BattleMech, weight: 15 },
-    { chassis: 'Banshee', variant: 'BNC-3E', designation: 'Banshee BNC-3E', bv: 1114, tonnage: 95, unitType: UnitTypeCategory.BattleMech, weight: 12 },
-    { chassis: 'Zeus', variant: 'ZEU-6S', designation: 'Zeus ZEU-6S', bv: 1348, tonnage: 80, unitType: UnitTypeCategory.BattleMech, weight: 18 },
+    {
+      chassis: 'Atlas',
+      variant: 'AS7-D',
+      designation: 'Atlas AS7-D',
+      bv: 1897,
+      tonnage: 100,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
+    {
+      chassis: 'Banshee',
+      variant: 'BNC-3E',
+      designation: 'Banshee BNC-3E',
+      bv: 1114,
+      tonnage: 95,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 12,
+    },
+    {
+      chassis: 'Zeus',
+      variant: 'ZEU-6S',
+      designation: 'Zeus ZEU-6S',
+      bv: 1348,
+      tonnage: 80,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 18,
+    },
     // Heavy
-    { chassis: 'Commando', variant: 'COM-2D', designation: 'Commando COM-2D', bv: 558, tonnage: 25, unitType: UnitTypeCategory.BattleMech, weight: 10 },
-    { chassis: 'Griffin', variant: 'GRF-1N', designation: 'Griffin GRF-1N', bv: 1272, tonnage: 55, unitType: UnitTypeCategory.BattleMech, weight: 20 },
-    { chassis: 'Hunchback', variant: 'HBK-4G', designation: 'Hunchback HBK-4G', bv: 1067, tonnage: 50, unitType: UnitTypeCategory.BattleMech, weight: 18 },
-    { chassis: 'Orion', variant: 'ON1-K', designation: 'Orion ON1-K', bv: 1429, tonnage: 75, unitType: UnitTypeCategory.BattleMech, weight: 15 },
+    {
+      chassis: 'Commando',
+      variant: 'COM-2D',
+      designation: 'Commando COM-2D',
+      bv: 558,
+      tonnage: 25,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 10,
+    },
+    {
+      chassis: 'Griffin',
+      variant: 'GRF-1N',
+      designation: 'Griffin GRF-1N',
+      bv: 1272,
+      tonnage: 55,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 20,
+    },
+    {
+      chassis: 'Hunchback',
+      variant: 'HBK-4G',
+      designation: 'Hunchback HBK-4G',
+      bv: 1067,
+      tonnage: 50,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 18,
+    },
+    {
+      chassis: 'Orion',
+      variant: 'ON1-K',
+      designation: 'Orion ON1-K',
+      bv: 1429,
+      tonnage: 75,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
     // Medium
-    { chassis: 'Wolverine', variant: 'WVR-6R', designation: 'Wolverine WVR-6R', bv: 1101, tonnage: 55, unitType: UnitTypeCategory.BattleMech, weight: 18 },
-    { chassis: 'Enforcer', variant: 'ENF-4R', designation: 'Enforcer ENF-4R', bv: 1031, tonnage: 50, unitType: UnitTypeCategory.BattleMech, weight: 15 },
+    {
+      chassis: 'Wolverine',
+      variant: 'WVR-6R',
+      designation: 'Wolverine WVR-6R',
+      bv: 1101,
+      tonnage: 55,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 18,
+    },
+    {
+      chassis: 'Enforcer',
+      variant: 'ENF-4R',
+      designation: 'Enforcer ENF-4R',
+      bv: 1031,
+      tonnage: 50,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
     // Light
-    { chassis: 'Commando', variant: 'COM-2D', designation: 'Commando COM-2D', bv: 558, tonnage: 25, unitType: UnitTypeCategory.BattleMech, weight: 12 },
-    { chassis: 'Jenner', variant: 'JR7-D', designation: 'Jenner JR7-D', bv: 875, tonnage: 35, unitType: UnitTypeCategory.BattleMech, weight: 10 },
+    {
+      chassis: 'Commando',
+      variant: 'COM-2D',
+      designation: 'Commando COM-2D',
+      bv: 558,
+      tonnage: 25,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 12,
+    },
+    {
+      chassis: 'Jenner',
+      variant: 'JR7-D',
+      designation: 'Jenner JR7-D',
+      bv: 875,
+      tonnage: 35,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 10,
+    },
   ],
   totalWeight: 163,
 };
@@ -143,18 +231,90 @@ const DC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
   era: Era.LATE_SUCCESSION_WARS,
   entries: [
     // Assault
-    { chassis: 'Atlas', variant: 'AS7-D', designation: 'Atlas AS7-D', bv: 1897, tonnage: 100, unitType: UnitTypeCategory.BattleMech, weight: 10 },
-    { chassis: 'Stalker', variant: 'STK-3F', designation: 'Stalker STK-3F', bv: 1559, tonnage: 85, unitType: UnitTypeCategory.BattleMech, weight: 12 },
+    {
+      chassis: 'Atlas',
+      variant: 'AS7-D',
+      designation: 'Atlas AS7-D',
+      bv: 1897,
+      tonnage: 100,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 10,
+    },
+    {
+      chassis: 'Stalker',
+      variant: 'STK-3F',
+      designation: 'Stalker STK-3F',
+      bv: 1559,
+      tonnage: 85,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 12,
+    },
     // Heavy
-    { chassis: 'Dragon', variant: 'DRG-1N', designation: 'Dragon DRG-1N', bv: 1125, tonnage: 60, unitType: UnitTypeCategory.BattleMech, weight: 25 },
-    { chassis: 'Quickdraw', variant: 'QKD-4G', designation: 'Quickdraw QKD-4G', bv: 1192, tonnage: 60, unitType: UnitTypeCategory.BattleMech, weight: 15 },
-    { chassis: 'Grand Dragon', variant: 'DRG-1G', designation: 'Grand Dragon DRG-1G', bv: 1305, tonnage: 60, unitType: UnitTypeCategory.BattleMech, weight: 18 },
+    {
+      chassis: 'Dragon',
+      variant: 'DRG-1N',
+      designation: 'Dragon DRG-1N',
+      bv: 1125,
+      tonnage: 60,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 25,
+    },
+    {
+      chassis: 'Quickdraw',
+      variant: 'QKD-4G',
+      designation: 'Quickdraw QKD-4G',
+      bv: 1192,
+      tonnage: 60,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
+    {
+      chassis: 'Grand Dragon',
+      variant: 'DRG-1G',
+      designation: 'Grand Dragon DRG-1G',
+      bv: 1305,
+      tonnage: 60,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 18,
+    },
     // Medium
-    { chassis: 'Panther', variant: 'PNT-9R', designation: 'Panther PNT-9R', bv: 769, tonnage: 35, unitType: UnitTypeCategory.BattleMech, weight: 20 },
-    { chassis: 'Jenner', variant: 'JR7-D', designation: 'Jenner JR7-D', bv: 875, tonnage: 35, unitType: UnitTypeCategory.BattleMech, weight: 22 },
+    {
+      chassis: 'Panther',
+      variant: 'PNT-9R',
+      designation: 'Panther PNT-9R',
+      bv: 769,
+      tonnage: 35,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 20,
+    },
+    {
+      chassis: 'Jenner',
+      variant: 'JR7-D',
+      designation: 'Jenner JR7-D',
+      bv: 875,
+      tonnage: 35,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 22,
+    },
     // Light
-    { chassis: 'Locust', variant: 'LCT-1V', designation: 'Locust LCT-1V', bv: 432, tonnage: 20, unitType: UnitTypeCategory.BattleMech, weight: 15 },
-    { chassis: 'Wasp', variant: 'WSP-1A', designation: 'Wasp WSP-1A', bv: 384, tonnage: 20, unitType: UnitTypeCategory.BattleMech, weight: 12 },
+    {
+      chassis: 'Locust',
+      variant: 'LCT-1V',
+      designation: 'Locust LCT-1V',
+      bv: 432,
+      tonnage: 20,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
+    {
+      chassis: 'Wasp',
+      variant: 'WSP-1A',
+      designation: 'Wasp WSP-1A',
+      bv: 384,
+      tonnage: 20,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 12,
+    },
   ],
   totalWeight: 149,
 };
@@ -173,17 +333,81 @@ const CW_CLAN_INVASION_RAT: IRandomAssignmentTable = {
   era: Era.CLAN_INVASION,
   entries: [
     // Assault
-    { chassis: 'Dire Wolf', variant: 'Prime', designation: 'Dire Wolf Prime', bv: 2871, tonnage: 100, unitType: UnitTypeCategory.BattleMech, weight: 8 },
-    { chassis: 'Gargoyle', variant: 'Prime', designation: 'Gargoyle Prime', bv: 1682, tonnage: 80, unitType: UnitTypeCategory.BattleMech, weight: 12 },
+    {
+      chassis: 'Dire Wolf',
+      variant: 'Prime',
+      designation: 'Dire Wolf Prime',
+      bv: 2871,
+      tonnage: 100,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 8,
+    },
+    {
+      chassis: 'Gargoyle',
+      variant: 'Prime',
+      designation: 'Gargoyle Prime',
+      bv: 1682,
+      tonnage: 80,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 12,
+    },
     // Heavy
-    { chassis: 'Timber Wolf', variant: 'Prime', designation: 'Timber Wolf Prime', bv: 2737, tonnage: 75, unitType: UnitTypeCategory.BattleMech, weight: 20 },
-    { chassis: 'Hellbringer', variant: 'Prime', designation: 'Hellbringer Prime', bv: 2414, tonnage: 65, unitType: UnitTypeCategory.BattleMech, weight: 15 },
+    {
+      chassis: 'Timber Wolf',
+      variant: 'Prime',
+      designation: 'Timber Wolf Prime',
+      bv: 2737,
+      tonnage: 75,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 20,
+    },
+    {
+      chassis: 'Hellbringer',
+      variant: 'Prime',
+      designation: 'Hellbringer Prime',
+      bv: 2414,
+      tonnage: 65,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
     // Medium
-    { chassis: 'Stormcrow', variant: 'Prime', designation: 'Stormcrow Prime', bv: 2031, tonnage: 55, unitType: UnitTypeCategory.BattleMech, weight: 18 },
-    { chassis: 'Nova', variant: 'Prime', designation: 'Nova Prime', bv: 1841, tonnage: 50, unitType: UnitTypeCategory.BattleMech, weight: 15 },
+    {
+      chassis: 'Stormcrow',
+      variant: 'Prime',
+      designation: 'Stormcrow Prime',
+      bv: 2031,
+      tonnage: 55,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 18,
+    },
+    {
+      chassis: 'Nova',
+      variant: 'Prime',
+      designation: 'Nova Prime',
+      bv: 1841,
+      tonnage: 50,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
     // Light
-    { chassis: 'Kit Fox', variant: 'Prime', designation: 'Kit Fox Prime', bv: 1085, tonnage: 30, unitType: UnitTypeCategory.BattleMech, weight: 14 },
-    { chassis: 'Mist Lynx', variant: 'Prime', designation: 'Mist Lynx Prime', bv: 888, tonnage: 25, unitType: UnitTypeCategory.BattleMech, weight: 12 },
+    {
+      chassis: 'Kit Fox',
+      variant: 'Prime',
+      designation: 'Kit Fox Prime',
+      bv: 1085,
+      tonnage: 30,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 14,
+    },
+    {
+      chassis: 'Mist Lynx',
+      variant: 'Prime',
+      designation: 'Mist Lynx Prime',
+      bv: 888,
+      tonnage: 25,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 12,
+    },
   ],
   totalWeight: 114,
 };
@@ -198,18 +422,90 @@ const FS_CLAN_INVASION_RAT: IRandomAssignmentTable = {
   era: Era.CLAN_INVASION,
   entries: [
     // Assault
-    { chassis: 'Victor', variant: 'VTR-9B', designation: 'Victor VTR-9B', bv: 1296, tonnage: 80, unitType: UnitTypeCategory.BattleMech, weight: 15 },
-    { chassis: 'Battlemaster', variant: 'BLR-1G', designation: 'Battlemaster BLR-1G', bv: 1519, tonnage: 85, unitType: UnitTypeCategory.BattleMech, weight: 12 },
+    {
+      chassis: 'Victor',
+      variant: 'VTR-9B',
+      designation: 'Victor VTR-9B',
+      bv: 1296,
+      tonnage: 80,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
+    {
+      chassis: 'Battlemaster',
+      variant: 'BLR-1G',
+      designation: 'Battlemaster BLR-1G',
+      bv: 1519,
+      tonnage: 85,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 12,
+    },
     // Heavy
-    { chassis: 'JagerMech', variant: 'JM6-S', designation: 'JagerMech JM6-S', bv: 930, tonnage: 65, unitType: UnitTypeCategory.BattleMech, weight: 18 },
-    { chassis: 'Axman', variant: 'AXM-1N', designation: 'Axman AXM-1N', bv: 1075, tonnage: 65, unitType: UnitTypeCategory.BattleMech, weight: 15 },
-    { chassis: 'Hatchetman', variant: 'HCT-3F', designation: 'Hatchetman HCT-3F', bv: 851, tonnage: 45, unitType: UnitTypeCategory.BattleMech, weight: 12 },
+    {
+      chassis: 'JagerMech',
+      variant: 'JM6-S',
+      designation: 'JagerMech JM6-S',
+      bv: 930,
+      tonnage: 65,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 18,
+    },
+    {
+      chassis: 'Axman',
+      variant: 'AXM-1N',
+      designation: 'Axman AXM-1N',
+      bv: 1075,
+      tonnage: 65,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
+    {
+      chassis: 'Hatchetman',
+      variant: 'HCT-3F',
+      designation: 'Hatchetman HCT-3F',
+      bv: 851,
+      tonnage: 45,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 12,
+    },
     // Medium
-    { chassis: 'Centurion', variant: 'CN9-A', designation: 'Centurion CN9-A', bv: 945, tonnage: 50, unitType: UnitTypeCategory.BattleMech, weight: 20 },
-    { chassis: 'Wolfhound', variant: 'WLF-1', designation: 'Wolfhound WLF-1', bv: 954, tonnage: 35, unitType: UnitTypeCategory.BattleMech, weight: 18 },
+    {
+      chassis: 'Centurion',
+      variant: 'CN9-A',
+      designation: 'Centurion CN9-A',
+      bv: 945,
+      tonnage: 50,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 20,
+    },
+    {
+      chassis: 'Wolfhound',
+      variant: 'WLF-1',
+      designation: 'Wolfhound WLF-1',
+      bv: 954,
+      tonnage: 35,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 18,
+    },
     // Light
-    { chassis: 'Valkyrie', variant: 'VLK-QA', designation: 'Valkyrie VLK-QA', bv: 723, tonnage: 30, unitType: UnitTypeCategory.BattleMech, weight: 16 },
-    { chassis: 'Mongoose', variant: 'MON-67', designation: 'Mongoose MON-67', bv: 568, tonnage: 25, unitType: UnitTypeCategory.BattleMech, weight: 12 },
+    {
+      chassis: 'Valkyrie',
+      variant: 'VLK-QA',
+      designation: 'Valkyrie VLK-QA',
+      bv: 723,
+      tonnage: 30,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 16,
+    },
+    {
+      chassis: 'Mongoose',
+      variant: 'MON-67',
+      designation: 'Mongoose MON-67',
+      bv: 568,
+      tonnage: 25,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 12,
+    },
   ],
   totalWeight: 138,
 };
@@ -228,19 +524,99 @@ const PIRATES_GENERIC_RAT: IRandomAssignmentTable = {
   era: Era.LATE_SUCCESSION_WARS, // Used as template for all eras
   entries: [
     // Assault
-    { chassis: 'Awesome', variant: 'AWS-8Q', designation: 'Awesome AWS-8Q', bv: 1605, tonnage: 80, unitType: UnitTypeCategory.BattleMech, weight: 8 },
+    {
+      chassis: 'Awesome',
+      variant: 'AWS-8Q',
+      designation: 'Awesome AWS-8Q',
+      bv: 1605,
+      tonnage: 80,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 8,
+    },
     // Heavy
-    { chassis: 'Marauder', variant: 'MAD-3R', designation: 'Marauder MAD-3R', bv: 1220, tonnage: 75, unitType: UnitTypeCategory.BattleMech, weight: 15 },
-    { chassis: 'Warhammer', variant: 'WHM-6R', designation: 'Warhammer WHM-6R', bv: 1299, tonnage: 70, unitType: UnitTypeCategory.BattleMech, weight: 15 },
-    { chassis: 'Thunderbolt', variant: 'TDR-5S', designation: 'Thunderbolt TDR-5S', bv: 1335, tonnage: 65, unitType: UnitTypeCategory.BattleMech, weight: 12 },
+    {
+      chassis: 'Marauder',
+      variant: 'MAD-3R',
+      designation: 'Marauder MAD-3R',
+      bv: 1220,
+      tonnage: 75,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
+    {
+      chassis: 'Warhammer',
+      variant: 'WHM-6R',
+      designation: 'Warhammer WHM-6R',
+      bv: 1299,
+      tonnage: 70,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
+    {
+      chassis: 'Thunderbolt',
+      variant: 'TDR-5S',
+      designation: 'Thunderbolt TDR-5S',
+      bv: 1335,
+      tonnage: 65,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 12,
+    },
     // Medium
-    { chassis: 'Wolverine', variant: 'WVR-6R', designation: 'Wolverine WVR-6R', bv: 1101, tonnage: 55, unitType: UnitTypeCategory.BattleMech, weight: 18 },
-    { chassis: 'Shadow Hawk', variant: 'SHD-2H', designation: 'Shadow Hawk SHD-2H', bv: 1064, tonnage: 55, unitType: UnitTypeCategory.BattleMech, weight: 18 },
-    { chassis: 'Phoenix Hawk', variant: 'PXH-1', designation: 'Phoenix Hawk PXH-1', bv: 1041, tonnage: 45, unitType: UnitTypeCategory.BattleMech, weight: 15 },
+    {
+      chassis: 'Wolverine',
+      variant: 'WVR-6R',
+      designation: 'Wolverine WVR-6R',
+      bv: 1101,
+      tonnage: 55,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 18,
+    },
+    {
+      chassis: 'Shadow Hawk',
+      variant: 'SHD-2H',
+      designation: 'Shadow Hawk SHD-2H',
+      bv: 1064,
+      tonnage: 55,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 18,
+    },
+    {
+      chassis: 'Phoenix Hawk',
+      variant: 'PXH-1',
+      designation: 'Phoenix Hawk PXH-1',
+      bv: 1041,
+      tonnage: 45,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
     // Light
-    { chassis: 'Stinger', variant: 'STG-3R', designation: 'Stinger STG-3R', bv: 359, tonnage: 20, unitType: UnitTypeCategory.BattleMech, weight: 18 },
-    { chassis: 'Wasp', variant: 'WSP-1A', designation: 'Wasp WSP-1A', bv: 384, tonnage: 20, unitType: UnitTypeCategory.BattleMech, weight: 18 },
-    { chassis: 'Locust', variant: 'LCT-1V', designation: 'Locust LCT-1V', bv: 432, tonnage: 20, unitType: UnitTypeCategory.BattleMech, weight: 15 },
+    {
+      chassis: 'Stinger',
+      variant: 'STG-3R',
+      designation: 'Stinger STG-3R',
+      bv: 359,
+      tonnage: 20,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 18,
+    },
+    {
+      chassis: 'Wasp',
+      variant: 'WSP-1A',
+      designation: 'Wasp WSP-1A',
+      bv: 384,
+      tonnage: 20,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 18,
+    },
+    {
+      chassis: 'Locust',
+      variant: 'LCT-1V',
+      designation: 'Locust LCT-1V',
+      bv: 432,
+      tonnage: 20,
+      unitType: UnitTypeCategory.BattleMech,
+      weight: 15,
+    },
   ],
   totalWeight: 152,
 };
@@ -278,18 +654,18 @@ registerRAT(PIRATES_GENERIC_RAT);
 export function getRAT(faction: string, era: Era): IRandomAssignmentTable {
   const key = `${faction}:${era}`;
   const rat = RAT_REGISTRY.get(key);
-  
+
   if (rat) {
     return rat;
   }
-  
+
   // Try same faction, different era (closest match)
   for (const entry of Array.from(RAT_REGISTRY.entries())) {
     if (entry[0].startsWith(`${faction}:`)) {
       return entry[1];
     }
   }
-  
+
   // Fallback to pirates table
   return PIRATES_GENERIC_RAT;
 }
@@ -328,7 +704,7 @@ export function getAvailableErasForFaction(faction: string): readonly Era[] {
 export function selectUnitFromRAT(
   rat: IRandomAssignmentTable,
   unitTypeFilter?: UnitTypeCategory,
-  randomFn: () => number = Math.random
+  randomFn: () => number = Math.random,
 ): IRATEntry {
   // Filter entries if type specified
   const entries = unitTypeFilter
@@ -372,7 +748,7 @@ export function selectUnitsFromRAT(
     maxUnits?: number;
     bvTolerance?: number; // Percentage tolerance (default 10%)
     randomFn?: () => number; // Optional random function for seeded PRNG
-  } = {}
+  } = {},
 ): readonly IRATEntry[] {
   const {
     unitTypeFilter,
@@ -392,19 +768,24 @@ export function selectUnitsFromRAT(
     const remainingBV = targetBV - currentBV;
 
     // Filter to units that fit within remaining budget (with some tolerance)
-    const availableEntries = (unitTypeFilter
-      ? rat.entries.filter((e) => e.unitType === unitTypeFilter)
-      : rat.entries
+    const availableEntries = (
+      unitTypeFilter
+        ? rat.entries.filter((e) => e.unitType === unitTypeFilter)
+        : rat.entries
     ).filter((e) => e.bv <= remainingBV * 1.2); // Allow slight overage
 
     if (availableEntries.length === 0) break;
 
     const unit = selectUnitFromRAT(
-      { ...rat, entries: availableEntries, totalWeight: availableEntries.reduce((s, e) => s + e.weight, 0) },
+      {
+        ...rat,
+        entries: availableEntries,
+        totalWeight: availableEntries.reduce((s, e) => s + e.weight, 0),
+      },
       unitTypeFilter,
-      randomFn
+      randomFn,
     );
-    
+
     selected.push(unit);
     currentBV += unit.bv;
 

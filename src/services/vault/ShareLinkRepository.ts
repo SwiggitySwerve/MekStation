@@ -14,6 +14,7 @@ import type {
   PermissionScopeType,
   ContentCategory,
 } from '@/types/vault';
+
 import { getSQLiteService } from '@/services/persistence';
 
 // =============================================================================
@@ -77,7 +78,7 @@ export class ShareLinkRepository {
   private generateToken(): string {
     const bytes = new Uint8Array(TOKEN_LENGTH);
     crypto.getRandomValues(bytes);
-    
+
     // Convert to base64url (URL-safe base64 without padding)
     // In Node.js environment
     if (typeof Buffer !== 'undefined') {
@@ -87,7 +88,7 @@ export class ShareLinkRepository {
         .replace(/\//g, '_')
         .replace(/=/g, '');
     }
-    
+
     // In browser environment
     let binary = '';
     for (let i = 0; i < bytes.length; i++) {
@@ -106,7 +107,7 @@ export class ShareLinkRepository {
     scopeType: PermissionScopeType,
     scopeId: string | null,
     scopeCategory: ContentCategory | null,
-    options: IShareLinkOptions
+    options: IShareLinkOptions,
   ): Promise<IShareLink> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -132,7 +133,7 @@ export class ShareLinkRepository {
       options.expiresAt || null,
       options.maxUses || null,
       createdAt,
-      options.label || null
+      options.label || null,
     );
 
     return {
@@ -182,12 +183,17 @@ export class ShareLinkRepository {
   /**
    * Get all share links for an item
    */
-  async getByItem(scopeType: PermissionScopeType, scopeId: string): Promise<IShareLink[]> {
+  async getByItem(
+    scopeType: PermissionScopeType,
+    scopeId: string,
+  ): Promise<IShareLink[]> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare('SELECT * FROM vault_share_links WHERE scope_type = ? AND scope_id = ? ORDER BY created_at DESC')
+      .prepare(
+        'SELECT * FROM vault_share_links WHERE scope_type = ? AND scope_id = ? ORDER BY created_at DESC',
+      )
       .all(scopeType, scopeId) as IStoredShareLink[];
 
     return rows.map((row) => this.rowToLink(row));
@@ -201,7 +207,9 @@ export class ShareLinkRepository {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare('SELECT * FROM vault_share_links WHERE is_active = 1 ORDER BY created_at DESC')
+      .prepare(
+        'SELECT * FROM vault_share_links WHERE is_active = 1 ORDER BY created_at DESC',
+      )
       .all() as IStoredShareLink[];
 
     return rows.map((row) => this.rowToLink(row));
@@ -232,37 +240,69 @@ export class ShareLinkRepository {
 
     // Atomic update with all validation conditions
     // This prevents race conditions where two requests could both pass maxUses check
-    const result = db.prepare(`
+    const result = db
+      .prepare(`
       UPDATE vault_share_links 
       SET use_count = use_count + 1 
       WHERE token = ? 
         AND is_active = 1
         AND (expires_at IS NULL OR expires_at > ?)
         AND (max_uses IS NULL OR use_count < max_uses)
-    `).run(token, now);
+    `)
+      .run(token, now);
 
     if (result.changes === 0) {
       // Update failed - fetch link to determine specific error
       const link = await this.getByToken(token);
-      
+
       if (!link) {
-        return { success: false, error: { message: 'Share link not found', errorCode: 'NOT_FOUND' as const } };
+        return {
+          success: false,
+          error: {
+            message: 'Share link not found',
+            errorCode: 'NOT_FOUND' as const,
+          },
+        };
       }
 
       if (!link.isActive) {
-        return { success: false, error: { message: 'Share link is inactive', errorCode: 'INACTIVE' as const } };
+        return {
+          success: false,
+          error: {
+            message: 'Share link is inactive',
+            errorCode: 'INACTIVE' as const,
+          },
+        };
       }
 
       if (link.expiresAt && new Date() > new Date(link.expiresAt)) {
-        return { success: false, error: { message: 'Share link has expired', errorCode: 'EXPIRED' as const } };
+        return {
+          success: false,
+          error: {
+            message: 'Share link has expired',
+            errorCode: 'EXPIRED' as const,
+          },
+        };
       }
 
       if (link.maxUses !== null && link.useCount >= link.maxUses) {
-        return { success: false, error: { message: 'Share link has reached maximum uses', errorCode: 'MAX_USES' as const } };
+        return {
+          success: false,
+          error: {
+            message: 'Share link has reached maximum uses',
+            errorCode: 'MAX_USES' as const,
+          },
+        };
       }
 
       // Shouldn't reach here, but handle gracefully
-      return { success: false, error: { message: 'Share link validation failed', errorCode: 'INVALID' as const } };
+      return {
+        success: false,
+        error: {
+          message: 'Share link validation failed',
+          errorCode: 'INVALID' as const,
+        },
+      };
     }
 
     // Return updated link
@@ -357,12 +397,17 @@ export class ShareLinkRepository {
   /**
    * Delete all share links for an item
    */
-  async deleteByItem(scopeType: PermissionScopeType, scopeId: string): Promise<number> {
+  async deleteByItem(
+    scopeType: PermissionScopeType,
+    scopeId: string,
+  ): Promise<number> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const result = db
-      .prepare('DELETE FROM vault_share_links WHERE scope_type = ? AND scope_id = ?')
+      .prepare(
+        'DELETE FROM vault_share_links WHERE scope_type = ? AND scope_id = ?',
+      )
       .run(scopeType, scopeId);
 
     return result.changes;
@@ -377,7 +422,9 @@ export class ShareLinkRepository {
     const now = new Date().toISOString();
 
     const result = db
-      .prepare('DELETE FROM vault_share_links WHERE expires_at IS NOT NULL AND expires_at < ?')
+      .prepare(
+        'DELETE FROM vault_share_links WHERE expires_at IS NOT NULL AND expires_at < ?',
+      )
       .run(now);
 
     return result.changes;

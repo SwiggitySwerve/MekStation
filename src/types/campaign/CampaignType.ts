@@ -32,11 +32,16 @@ export const CAMPAIGN_TYPE_DISPLAY: Record<CampaignType, string> = {
 };
 
 export const CAMPAIGN_TYPE_DESCRIPTIONS: Record<CampaignType, string> = {
-  [CampaignType.MERCENARY]: 'Manage a mercenary company. Full financial pressure, contract negotiation, and reputation mechanics.',
-  [CampaignType.HOUSE_COMMAND]: 'Command a Great House military unit. Regular salary, fixed contracts, equipment supplied.',
-  [CampaignType.CLAN]: 'Lead a Clan touman. Trial-based advancement, strict honor codes, Clan equipment.',
-  [CampaignType.PIRATE]: 'Run a pirate band. High risk, salvage-focused economy, outlaw mechanics.',
-  [CampaignType.COMSTAR]: 'Operate as ComStar or WoB. HPG access, unique equipment, information warfare.',
+  [CampaignType.MERCENARY]:
+    'Manage a mercenary company. Full financial pressure, contract negotiation, and reputation mechanics.',
+  [CampaignType.HOUSE_COMMAND]:
+    'Command a Great House military unit. Regular salary, fixed contracts, equipment supplied.',
+  [CampaignType.CLAN]:
+    'Lead a Clan touman. Trial-based advancement, strict honor codes, Clan equipment.',
+  [CampaignType.PIRATE]:
+    'Run a pirate band. High risk, salvage-focused economy, outlaw mechanics.',
+  [CampaignType.COMSTAR]:
+    'Operate as ComStar or WoB. HPG access, unique equipment, information warfare.',
 };
 
 // =============================================================================
@@ -50,5 +55,8 @@ export const CAMPAIGN_TYPE_DESCRIPTIONS: Record<CampaignType, string> = {
  * @returns true if the value is a valid CampaignType
  */
 export function isCampaignType(value: unknown): value is CampaignType {
-  return typeof value === 'string' && Object.values(CampaignType).includes(value as CampaignType);
+  return (
+    typeof value === 'string' &&
+    Object.values(CampaignType).includes(value as CampaignType)
+  );
 }

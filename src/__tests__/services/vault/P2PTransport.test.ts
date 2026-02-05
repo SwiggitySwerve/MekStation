@@ -10,6 +10,8 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type { IChangeLogEntry, P2PConnectionState } from '@/types/vault';
+
 import {
   P2PTransport,
   getP2PTransport,
@@ -26,7 +28,6 @@ import {
   PROTOCOL_VERSION,
   SUPPORTED_FEATURES,
 } from '@/services/vault/P2PTransport';
-import type { IChangeLogEntry, P2PConnectionState } from '@/types/vault';
 
 // =============================================================================
 // Test Data
@@ -36,7 +37,9 @@ const TEST_MY_ID = 'my-peer-id-123';
 const TEST_PEER_ID = 'other-peer-456';
 const TEST_PUBLIC_KEY = 'test-public-key-abc123';
 
-const createMockChange = (overrides: Partial<IChangeLogEntry> = {}): IChangeLogEntry => ({
+const createMockChange = (
+  overrides: Partial<IChangeLogEntry> = {},
+): IChangeLogEntry => ({
   id: `change-${Math.random().toString(36).slice(2)}`,
   changeType: 'update',
   contentType: 'unit',
@@ -155,23 +158,34 @@ describe('P2PTransport', () => {
       const connections = transport.getAllConnections();
 
       expect(connections).toHaveLength(2);
-      expect(connections.map((c) => c.peerId).sort()).toEqual(['peer-1', 'peer-2']);
+      expect(connections.map((c) => c.peerId).sort()).toEqual([
+        'peer-1',
+        'peer-2',
+      ]);
     });
 
     it('should notify on connection state changes', async () => {
-      const stateChanges: Array<{ peerId: string; state: P2PConnectionState }> = [];
+      const stateChanges: Array<{ peerId: string; state: P2PConnectionState }> =
+        [];
       transport.onConnectionStateChange((peerId, state) => {
         stateChanges.push({ peerId, state });
       });
 
       await transport.connect(TEST_PEER_ID);
 
-      expect(stateChanges).toContainEqual({ peerId: TEST_PEER_ID, state: 'connecting' });
-      expect(stateChanges).toContainEqual({ peerId: TEST_PEER_ID, state: 'connected' });
+      expect(stateChanges).toContainEqual({
+        peerId: TEST_PEER_ID,
+        state: 'connecting',
+      });
+      expect(stateChanges).toContainEqual({
+        peerId: TEST_PEER_ID,
+        state: 'connected',
+      });
     });
 
     it('should notify on disconnect', async () => {
-      const stateChanges: Array<{ peerId: string; state: P2PConnectionState }> = [];
+      const stateChanges: Array<{ peerId: string; state: P2PConnectionState }> =
+        [];
       transport.onConnectionStateChange((peerId, state) => {
         stateChanges.push({ peerId, state });
       });
@@ -179,7 +193,10 @@ describe('P2PTransport', () => {
       await transport.connect(TEST_PEER_ID);
       transport.disconnect(TEST_PEER_ID);
 
-      expect(stateChanges).toContainEqual({ peerId: TEST_PEER_ID, state: 'disconnected' });
+      expect(stateChanges).toContainEqual({
+        peerId: TEST_PEER_ID,
+        state: 'disconnected',
+      });
     });
   });
 
@@ -239,7 +256,12 @@ describe('P2PTransport', () => {
       });
 
       await transport.connect(TEST_PEER_ID);
-      const handshake = createHandshake(TEST_PEER_ID, TEST_PUBLIC_KEY, 'Test User', 0);
+      const handshake = createHandshake(
+        TEST_PEER_ID,
+        TEST_PUBLIC_KEY,
+        'Test User',
+        0,
+      );
       await transport.handleMessage(TEST_PEER_ID, JSON.stringify(handshake));
 
       expect(receivedMessages).toHaveLength(1);
@@ -297,7 +319,7 @@ describe('P2PTransport', () => {
 
       // Should not throw
       await expect(
-        transport.handleMessage(TEST_PEER_ID, 'not valid json')
+        transport.handleMessage(TEST_PEER_ID, 'not valid json'),
       ).resolves.not.toThrow();
     });
   });
@@ -314,7 +336,7 @@ describe('P2PTransport', () => {
       // handleMessage processes ping internally and attempts to send pong
       // Since this is a simulated transport, we just verify it doesn't throw
       await expect(
-        transport.handleMessage(TEST_PEER_ID, JSON.stringify(ping))
+        transport.handleMessage(TEST_PEER_ID, JSON.stringify(ping)),
       ).resolves.not.toThrow();
     });
 
@@ -329,12 +351,15 @@ describe('P2PTransport', () => {
       // Process a pong message - use a timestamp from 50ms ago
       const pingTimestamp = Date.now() - 50;
       const pong = createPong(TEST_PEER_ID, pingTimestamp);
-      
+
       // Debug: verify pong structure
       expect(pong.type).toBe('pong');
-      const pongPayload = pong.payload as { pingTimestamp: number; pongTimestamp: number };
+      const pongPayload = pong.payload as {
+        pingTimestamp: number;
+        pongTimestamp: number;
+      };
       expect(pongPayload.pingTimestamp).toBe(pingTimestamp);
-      
+
       // The pong handler should update RTT
       await transport.handleMessage(TEST_PEER_ID, JSON.stringify(pong));
 
@@ -358,7 +383,12 @@ describe('Message Builders', () => {
 
   describe('createHandshake', () => {
     it('should create a valid handshake message', () => {
-      const message = createHandshake(SENDER_ID, TEST_PUBLIC_KEY, 'Test User', 5);
+      const message = createHandshake(
+        SENDER_ID,
+        TEST_PUBLIC_KEY,
+        'Test User',
+        5,
+      );
 
       expect(message.type).toBe('handshake');
       expect(message.senderId).toBe(SENDER_ID);
@@ -382,7 +412,12 @@ describe('Message Builders', () => {
 
   describe('createHandshakeAck', () => {
     it('should create a valid handshake acknowledgment', () => {
-      const message = createHandshakeAck(SENDER_ID, TEST_PUBLIC_KEY, 'Receiver', 10);
+      const message = createHandshakeAck(
+        SENDER_ID,
+        TEST_PUBLIC_KEY,
+        'Receiver',
+        10,
+      );
 
       expect(message.type).toBe('handshake_ack');
       expect(message.senderId).toBe(SENDER_ID);
@@ -510,7 +545,11 @@ describe('Message Builders', () => {
 
   describe('createError', () => {
     it('should create a valid error message', () => {
-      const message = createError(SENDER_ID, 'SYNC_FAILED', 'Sync operation failed');
+      const message = createError(
+        SENDER_ID,
+        'SYNC_FAILED',
+        'Sync operation failed',
+      );
 
       expect(message.type).toBe('error');
 

@@ -7,10 +7,19 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import {
+  MechLocation,
+  LOCATION_SLOT_COUNTS,
+} from '@/types/construction/CriticalSlotAllocation';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
-import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
-import { ISlotsByLocation, ISlotLocationEntry } from '@/types/validation/UnitValidationInterfaces';
-import { getLocationsForConfiguration as getLocationsFromRegistry, BIPED_LOCATIONS } from '@/utils/mech/mechLocationRegistry';
+import {
+  ISlotsByLocation,
+  ISlotLocationEntry,
+} from '@/types/validation/UnitValidationInterfaces';
+import {
+  getLocationsForConfiguration as getLocationsFromRegistry,
+  BIPED_LOCATIONS,
+} from '@/utils/mech/mechLocationRegistry';
 
 /**
  * Minimal equipment instance interface for slot calculation
@@ -56,7 +65,9 @@ export const LOCATION_DISPLAY_NAMES: Record<MechLocation, string> = {
  * @param configuration - Mech configuration type
  * @returns Array of MechLocation values applicable to the configuration
  */
-export function getLocationsForConfiguration(configuration?: MechConfiguration): MechLocation[] {
+export function getLocationsForConfiguration(
+  configuration?: MechConfiguration,
+): MechLocation[] {
   if (!configuration) {
     return BIPED_LOCATIONS;
   }
@@ -72,7 +83,7 @@ export function getLocationsForConfiguration(configuration?: MechConfiguration):
  */
 export function buildSlotsByLocation(
   equipment: readonly IEquipmentSlotInfo[],
-  configuration?: MechConfiguration
+  configuration?: MechConfiguration,
 ): ISlotsByLocation {
   const slotsByLocation: ISlotsByLocation = {};
 
@@ -125,7 +136,11 @@ export function getLocationDisplayName(location: MechLocation): string {
  * @param displayName - Display name for the location
  * @returns Slot location entry
  */
-export function createSlotLocationEntry(used: number, max: number, displayName: string): ISlotLocationEntry {
+export function createSlotLocationEntry(
+  used: number,
+  max: number,
+  displayName: string,
+): ISlotLocationEntry {
   return { used, max, displayName };
 }
 
@@ -136,7 +151,10 @@ export function createSlotLocationEntry(used: number, max: number, displayName: 
  * @returns Total slots used
  */
 export function getTotalSlotsUsed(slotsByLocation: ISlotsByLocation): number {
-  return Object.values(slotsByLocation).reduce((total, entry) => total + entry.used, 0);
+  return Object.values(slotsByLocation).reduce(
+    (total, entry) => total + entry.used,
+    0,
+  );
 }
 
 /**
@@ -145,8 +163,13 @@ export function getTotalSlotsUsed(slotsByLocation: ISlotsByLocation): number {
  * @param slotsByLocation - Per-location slot usage data
  * @returns Total slots available
  */
-export function getTotalSlotsAvailable(slotsByLocation: ISlotsByLocation): number {
-  return Object.values(slotsByLocation).reduce((total, entry) => total + entry.max, 0);
+export function getTotalSlotsAvailable(
+  slotsByLocation: ISlotsByLocation,
+): number {
+  return Object.values(slotsByLocation).reduce(
+    (total, entry) => total + entry.max,
+    0,
+  );
 }
 
 /**
@@ -155,7 +178,9 @@ export function getTotalSlotsAvailable(slotsByLocation: ISlotsByLocation): numbe
  * @param slotsByLocation - Per-location slot usage data
  * @returns Array of locations that are over capacity
  */
-export function getOverflowLocations(slotsByLocation: ISlotsByLocation): string[] {
+export function getOverflowLocations(
+  slotsByLocation: ISlotsByLocation,
+): string[] {
   return Object.entries(slotsByLocation)
     .filter(([_, entry]) => entry.used > entry.max)
     .map(([location, entry]) => entry.displayName || location);

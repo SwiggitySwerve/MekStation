@@ -1,22 +1,25 @@
 /**
  * Calculation Service
- * 
+ *
  * Computes derived values for mech builds.
- * 
+ *
  * @spec openspec/specs/construction-services/spec.md
  */
 
-import { IEditableMech } from './MechBuilderService';
-import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
-import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { getDefensiveSpeedFactor, getOffensiveSpeedFactor } from '@/types/validation/BattleValue';
+import {
+  getDefensiveSpeedFactor,
+  getOffensiveSpeedFactor,
+} from '@/types/validation/BattleValue';
+import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+
 import {
   COCKPIT_COST_STANDARD,
   COCKPIT_COST_SMALL,
@@ -40,6 +43,7 @@ import {
   ENGINE_INTEGRAL_HEAT_SINK_DIVISOR,
   MECH_CONSTRUCTION_MULTIPLIER,
 } from './constructionConstants';
+import { IEditableMech } from './MechBuilderService';
 
 // =============================================================================
 // TYPE-SAFE HELPER FUNCTIONS
@@ -50,7 +54,10 @@ import {
  * Check if a heat sink type is a double heat sink variant
  */
 function isDoubleHeatSink(heatSinkType: HeatSinkType | string): boolean {
-  if (heatSinkType === HeatSinkType.DOUBLE_IS || heatSinkType === HeatSinkType.DOUBLE_CLAN) {
+  if (
+    heatSinkType === HeatSinkType.DOUBLE_IS ||
+    heatSinkType === HeatSinkType.DOUBLE_CLAN
+  ) {
     return true;
   }
   if (typeof heatSinkType === 'string') {
@@ -63,14 +70,16 @@ function isDoubleHeatSink(heatSinkType: HeatSinkType | string): boolean {
  * Get engine cost multiplier based on engine type
  */
 function getEngineCostMultiplier(engineType: EngineType | string): number {
-  const typeStr = typeof engineType === 'string' ? engineType.toLowerCase() : engineType;
-  
+  const typeStr =
+    typeof engineType === 'string' ? engineType.toLowerCase() : engineType;
+
   // Check enum values first
-  if (engineType === EngineType.XL_IS || engineType === EngineType.XL_CLAN) return 2.0;
+  if (engineType === EngineType.XL_IS || engineType === EngineType.XL_CLAN)
+    return 2.0;
   if (engineType === EngineType.LIGHT) return 1.5;
   if (engineType === EngineType.XXL) return 3.0;
   if (engineType === EngineType.COMPACT) return 1.5;
-  
+
   // Check legacy string values
   if (typeof typeStr === 'string') {
     if (typeStr.includes('xxl')) return 3.0;
@@ -78,7 +87,7 @@ function getEngineCostMultiplier(engineType: EngineType | string): number {
     if (typeStr.includes('light')) return 1.5;
     if (typeStr.includes('compact')) return 1.5;
   }
-  
+
   return 1.0;
 }
 
@@ -90,7 +99,7 @@ function getGyroCostMultiplier(gyroType: GyroType | string): number {
   if (gyroType === GyroType.XL) return 2.0;
   if (gyroType === GyroType.COMPACT) return 4.0;
   if (gyroType === GyroType.HEAVY_DUTY) return 0.5;
-  
+
   // Check legacy string values
   if (typeof gyroType === 'string') {
     const typeStr = gyroType.toLowerCase();
@@ -98,7 +107,7 @@ function getGyroCostMultiplier(gyroType: GyroType | string): number {
     if (typeStr.includes('compact')) return 4.0;
     if (typeStr.includes('heavy')) return 0.5;
   }
-  
+
   return 1.0;
 }
 
@@ -107,29 +116,37 @@ function getGyroCostMultiplier(gyroType: GyroType | string): number {
  */
 function getCockpitCost(cockpitType: CockpitType | string): number {
   if (cockpitType === CockpitType.SMALL) return COCKPIT_COST_SMALL;
-  if (cockpitType === CockpitType.COMMAND_CONSOLE) return COCKPIT_COST_COMMAND_CONSOLE;
-  
+  if (cockpitType === CockpitType.COMMAND_CONSOLE)
+    return COCKPIT_COST_COMMAND_CONSOLE;
+
   if (typeof cockpitType === 'string') {
     const typeStr = cockpitType.toLowerCase();
     if (typeStr.includes('small')) return COCKPIT_COST_SMALL;
     if (typeStr.includes('command')) return COCKPIT_COST_COMMAND_CONSOLE;
   }
-  
+
   return COCKPIT_COST_STANDARD;
 }
 
 /**
  * Get structure cost multiplier based on structure type
  */
-function getStructureCostMultiplier(structureType: InternalStructureType | string): number {
-  if (structureType === InternalStructureType.ENDO_STEEL_IS || 
-      structureType === InternalStructureType.ENDO_STEEL_CLAN) return STRUCTURE_COST_MULTIPLIER_ENDO_STEEL;
-  if (structureType === InternalStructureType.ENDO_COMPOSITE) return STRUCTURE_COST_MULTIPLIER_ENDO_COMPOSITE;
-  
+function getStructureCostMultiplier(
+  structureType: InternalStructureType | string,
+): number {
+  if (
+    structureType === InternalStructureType.ENDO_STEEL_IS ||
+    structureType === InternalStructureType.ENDO_STEEL_CLAN
+  )
+    return STRUCTURE_COST_MULTIPLIER_ENDO_STEEL;
+  if (structureType === InternalStructureType.ENDO_COMPOSITE)
+    return STRUCTURE_COST_MULTIPLIER_ENDO_COMPOSITE;
+
   if (typeof structureType === 'string') {
-    if (structureType.toLowerCase().includes('endo')) return STRUCTURE_COST_MULTIPLIER_ENDO_STEEL;
+    if (structureType.toLowerCase().includes('endo'))
+      return STRUCTURE_COST_MULTIPLIER_ENDO_STEEL;
   }
-  
+
   return STRUCTURE_COST_MULTIPLIER_STANDARD;
 }
 
@@ -137,14 +154,19 @@ function getStructureCostMultiplier(structureType: InternalStructureType | strin
  * Get armor cost multiplier based on armor type
  */
 function getArmorCostMultiplier(armorType: ArmorTypeEnum | string): number {
-  if (armorType === ArmorTypeEnum.FERRO_FIBROUS_IS || 
-      armorType === ArmorTypeEnum.FERRO_FIBROUS_CLAN ||
-      armorType === ArmorTypeEnum.LIGHT_FERRO ||
-      armorType === ArmorTypeEnum.HEAVY_FERRO) return ARMOR_COST_MULTIPLIER_FERRO_FIBROUS;
+  if (
+    armorType === ArmorTypeEnum.FERRO_FIBROUS_IS ||
+    armorType === ArmorTypeEnum.FERRO_FIBROUS_CLAN ||
+    armorType === ArmorTypeEnum.LIGHT_FERRO ||
+    armorType === ArmorTypeEnum.HEAVY_FERRO
+  )
+    return ARMOR_COST_MULTIPLIER_FERRO_FIBROUS;
   if (armorType === ArmorTypeEnum.STEALTH) return ARMOR_COST_MULTIPLIER_STEALTH;
-  if (armorType === ArmorTypeEnum.REACTIVE) return ARMOR_COST_MULTIPLIER_REACTIVE;
-  if (armorType === ArmorTypeEnum.REFLECTIVE) return ARMOR_COST_MULTIPLIER_REFLECTIVE;
-  
+  if (armorType === ArmorTypeEnum.REACTIVE)
+    return ARMOR_COST_MULTIPLIER_REACTIVE;
+  if (armorType === ArmorTypeEnum.REFLECTIVE)
+    return ARMOR_COST_MULTIPLIER_REFLECTIVE;
+
   if (typeof armorType === 'string') {
     const typeStr = armorType.toLowerCase();
     if (typeStr.includes('ferro')) return ARMOR_COST_MULTIPLIER_FERRO_FIBROUS;
@@ -152,7 +174,7 @@ function getArmorCostMultiplier(armorType: ArmorTypeEnum | string): number {
     if (typeStr.includes('reactive')) return ARMOR_COST_MULTIPLIER_REACTIVE;
     if (typeStr.includes('reflective')) return ARMOR_COST_MULTIPLIER_REFLECTIVE;
   }
-  
+
   return ARMOR_COST_MULTIPLIER_STANDARD;
 }
 
@@ -204,7 +226,6 @@ export interface ICalculationService {
  * Calculation Service implementation
  */
 export class CalculationService implements ICalculationService {
-
   /**
    * Calculate all totals for a mech
    */
@@ -231,100 +252,121 @@ export class CalculationService implements ICalculationService {
 
   /**
    * Calculate Battle Value using MegaMekLab BV2 formula
-   * 
+   *
    * Formula:
    *   Defensive BV = (armor + structure + gyro) × defensiveSpeedFactor
    *   Offensive BV = (incrementalWeaponsBV + ammoBV + tonnage) × offensiveSpeedFactor
    *   Total BV = round(Defensive BV + Offensive BV)
-   * 
+   *
    * @spec openspec/specs/battle-value-system/spec.md
    */
   calculateBattleValue(mech: IEditableMech): number {
     const movement = this.calculateMovement(mech);
-    
+
     // 1. Calculate Defensive BV (includes gyro and defensive speed factor)
     const defensiveBV = this.calculateDefensiveBV(mech, movement);
-    
+
     // 2. Calculate Offensive BV (includes incremental heat penalties, weight bonus, and offensive speed factor)
     const offensiveBV = this.calculateOffensiveBV(mech, movement);
-    
+
     // 3. Final BV is simply the sum (speed factors already applied separately)
     const finalBV = defensiveBV + offensiveBV;
-    
+
     return Math.round(finalBV);
   }
 
   /**
    * Calculate defensive BV from armor, structure, and gyro
    * Per MegaMekLab BV2: (armor + structure + gyro) × defensiveSpeedFactor
-   * 
+   *
    * @spec openspec/specs/battle-value-system/spec.md
    */
-  private calculateDefensiveBV(mech: IEditableMech, movement: IMovementProfile): number {
+  private calculateDefensiveBV(
+    mech: IEditableMech,
+    movement: IMovementProfile,
+  ): number {
     // Armor BV = total armor points × 2.5
     const totalArmorPoints = this.calculateTotalArmorPoints(mech);
     const armorBV = totalArmorPoints * 2.5;
-    
+
     // Structure BV = total structure points × 1.5
     const totalStructurePoints = this.calculateTotalStructurePoints(mech);
     const structureBV = totalStructurePoints * 1.5;
-    
+
     // Gyro BV = tonnage × 0.5 (per MegaMekLab)
     const gyroBV = mech.tonnage * 0.5;
-    
+
     // Base defensive BV before speed factor
     const baseDefensiveBV = armorBV + structureBV + gyroBV;
-    
+
     // Apply defensive speed factor (TMM-based)
-    const defensiveSpeedFactor = getDefensiveSpeedFactor(movement.runMP, movement.jumpMP);
+    const defensiveSpeedFactor = getDefensiveSpeedFactor(
+      movement.runMP,
+      movement.jumpMP,
+    );
     const finalDefensiveBV = baseDefensiveBV * defensiveSpeedFactor;
-    
+
     return finalDefensiveBV;
   }
 
   /**
    * Calculate offensive BV using incremental heat tracking
    * Per MegaMekLab BV2: (incrementalWeaponsBV + ammoBV + tonnage) × offensiveSpeedFactor
-   * 
+   *
    * Weapons are added incrementally with cumulative heat tracking.
    * Weapons that cause the mech to exceed heat dissipation receive 50% BV penalty.
-   * 
+   *
    * @spec openspec/specs/battle-value-system/spec.md
    */
-  private calculateOffensiveBV(mech: IEditableMech, movement: IMovementProfile): number {
+  private calculateOffensiveBV(
+    mech: IEditableMech,
+    movement: IMovementProfile,
+  ): number {
     const registry = getEquipmentRegistry();
-    
+
     if (!registry.isReady()) {
       registry.initialize().catch(() => {
         // Initialization error handled silently - will retry on next call
       });
       return 0;
     }
-    
-    const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType) ? HEAT_SINK_CAPACITY_DOUBLE : HEAT_SINK_CAPACITY_SINGLE;
+
+    const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType)
+      ? HEAT_SINK_CAPACITY_DOUBLE
+      : HEAT_SINK_CAPACITY_SINGLE;
     const heatDissipation = mech.heatSinkCount * heatSinkCapacity;
-    
+
     // Running heat: 2 heat for running movement
     const RUNNING_HEAT = 2;
     let cumulativeHeat = RUNNING_HEAT;
-    
+
     // Separate weapons/ammo from equipment
-    const weaponsWithBV: Array<{ id: string; bv: number; heat: number; isAmmo: boolean }> = [];
+    const weaponsWithBV: Array<{
+      id: string;
+      bv: number;
+      heat: number;
+      isAmmo: boolean;
+    }> = [];
     let ammoBV = 0;
-    
+
     for (const slot of mech.equipment) {
       const result = registry.lookup(slot.equipmentId);
       if (!result.found || !result.equipment) continue;
-      
-      const equipment = result.equipment as { battleValue?: number; heat?: number; category?: string };
+
+      const equipment = result.equipment as {
+        battleValue?: number;
+        heat?: number;
+        category?: string;
+      };
       const bv = equipment.battleValue ?? 0;
       const heat = equipment.heat ?? 0;
       const category = equipment.category ?? '';
-      
+
       // Check if this is ammunition
-      const isAmmo = category.toLowerCase().includes('ammun') || 
-                     slot.equipmentId.toLowerCase().includes('ammo');
-      
+      const isAmmo =
+        category.toLowerCase().includes('ammun') ||
+        slot.equipmentId.toLowerCase().includes('ammo');
+
       if (isAmmo) {
         // Ammo BV is added directly, no heat penalty
         ammoBV += bv;
@@ -333,17 +375,17 @@ export class CalculationService implements ICalculationService {
         weaponsWithBV.push({ id: slot.equipmentId, bv, heat, isAmmo: false });
       }
     }
-    
+
     // Sort weapons by BV descending (per MegaMekLab - highest BV weapons first)
     weaponsWithBV.sort((a, b) => b.bv - a.bv);
-    
+
     // Calculate weapon BV with incremental heat penalties
     let weaponsBV = 0;
-    
+
     for (const weapon of weaponsWithBV) {
       // Add this weapon's heat to cumulative heat
       cumulativeHeat += weapon.heat;
-      
+
       // Check if we're now over dissipation threshold
       if (cumulativeHeat <= heatDissipation) {
         // Within dissipation: full BV
@@ -353,17 +395,20 @@ export class CalculationService implements ICalculationService {
         weaponsBV += weapon.bv * 0.5;
       }
     }
-    
+
     // Weight bonus: add tonnage
     const weightBonus = mech.tonnage;
-    
+
     // Base offensive BV before speed factor
     const baseOffensiveBV = weaponsBV + ammoBV + weightBonus;
-    
+
     // Apply offensive speed factor (slightly lower than defensive)
-    const offensiveSpeedFactor = getOffensiveSpeedFactor(movement.runMP, movement.jumpMP);
+    const offensiveSpeedFactor = getOffensiveSpeedFactor(
+      movement.runMP,
+      movement.jumpMP,
+    );
     const finalOffensiveBV = baseOffensiveBV * offensiveSpeedFactor;
-    
+
     return finalOffensiveBV;
   }
 
@@ -371,14 +416,22 @@ export class CalculationService implements ICalculationService {
    * Calculate total structure points for the mech
    */
   private calculateTotalStructurePoints(mech: IEditableMech): number {
-    const locations = ['head', 'centerTorso', 'leftTorso', 'rightTorso',
-                       'leftArm', 'rightArm', 'leftLeg', 'rightLeg'];
+    const locations = [
+      'head',
+      'centerTorso',
+      'leftTorso',
+      'rightTorso',
+      'leftArm',
+      'rightArm',
+      'leftLeg',
+      'rightLeg',
+    ];
     let total = 0;
-    
+
     for (const location of locations) {
       total += getStructurePoints(mech.tonnage, location);
     }
-    
+
     return total;
   }
 
@@ -387,15 +440,23 @@ export class CalculationService implements ICalculationService {
    * Total Cost = (Structure + Engine + Gyro + Cockpit + Armor + Equipment) × Tech Multiplier
    */
   calculateCost(mech: IEditableMech): number {
-    const structureCost = mech.tonnage * STRUCTURE_COST_BASE * getStructureCostMultiplier(mech.structureType);
-    const engineCost = (mech.engineRating * ENGINE_COST_BASE) * getEngineCostMultiplier(mech.engineType);
-    const gyroCost = (mech.engineRating * GYRO_COST_BASE) * getGyroCostMultiplier(mech.gyroType);
-    
+    const structureCost =
+      mech.tonnage *
+      STRUCTURE_COST_BASE *
+      getStructureCostMultiplier(mech.structureType);
+    const engineCost =
+      mech.engineRating *
+      ENGINE_COST_BASE *
+      getEngineCostMultiplier(mech.engineType);
+    const gyroCost =
+      mech.engineRating * GYRO_COST_BASE * getGyroCostMultiplier(mech.gyroType);
+
     const cockpitCost = getCockpitCost(mech.cockpitType);
-    
+
     const armorWeight = this.calculateArmorWeight(mech);
-    const armorCost = armorWeight * ARMOR_COST_BASE * getArmorCostMultiplier(mech.armorType);
-    
+    const armorCost =
+      armorWeight * ARMOR_COST_BASE * getArmorCostMultiplier(mech.armorType);
+
     const registry = getEquipmentRegistry();
     let equipmentCost = 0;
     for (const slot of mech.equipment) {
@@ -404,24 +465,39 @@ export class CalculationService implements ICalculationService {
         equipmentCost += (result.equipment as { cost: number }).cost;
       }
     }
-    
-    const integralHeatSinks = Math.floor(mech.engineRating / ENGINE_INTEGRAL_HEAT_SINK_DIVISOR);
-    const externalHeatSinks = Math.max(0, mech.heatSinkCount - integralHeatSinks);
-    const heatSinkCostPer = isDoubleHeatSink(mech.heatSinkType) ? HEAT_SINK_COST_DOUBLE : HEAT_SINK_COST_SINGLE;
+
+    const integralHeatSinks = Math.floor(
+      mech.engineRating / ENGINE_INTEGRAL_HEAT_SINK_DIVISOR,
+    );
+    const externalHeatSinks = Math.max(
+      0,
+      mech.heatSinkCount - integralHeatSinks,
+    );
+    const heatSinkCostPer = isDoubleHeatSink(mech.heatSinkType)
+      ? HEAT_SINK_COST_DOUBLE
+      : HEAT_SINK_COST_SINGLE;
     const heatSinkCost = externalHeatSinks * heatSinkCostPer;
-    
-    const baseCost = structureCost + engineCost + gyroCost + cockpitCost + 
-                     armorCost + equipmentCost + heatSinkCost;
-    
+
+    const baseCost =
+      structureCost +
+      engineCost +
+      gyroCost +
+      cockpitCost +
+      armorCost +
+      equipmentCost +
+      heatSinkCost;
+
     return Math.round(baseCost * MECH_CONSTRUCTION_MULTIPLIER);
   }
 
   calculateHeatProfile(mech: IEditableMech): IHeatProfile {
-    const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType) ? HEAT_SINK_CAPACITY_DOUBLE : HEAT_SINK_CAPACITY_SINGLE;
+    const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType)
+      ? HEAT_SINK_CAPACITY_DOUBLE
+      : HEAT_SINK_CAPACITY_SINGLE;
     const heatDissipated = mech.heatSinkCount * heatSinkCapacity;
 
     const registry = getEquipmentRegistry();
-    
+
     if (!registry.isReady()) {
       registry.initialize().catch(() => {});
       return {
@@ -431,9 +507,9 @@ export class CalculationService implements ICalculationService {
         alphaStrikeHeat: 0,
       };
     }
-    
+
     let weaponHeat = 0;
-    
+
     for (const slot of mech.equipment) {
       const result = registry.lookup(slot.equipmentId);
       if (result.found && result.equipment && 'heat' in result.equipment) {
@@ -442,10 +518,20 @@ export class CalculationService implements ICalculationService {
       }
     }
 
-    const jumpJetIds = ['jump-jet', 'jump-jet-light', 'jump-jet-medium', 'jump-jet-heavy', 
-                        'improved-jump-jet', 'improved-jump-jet-light', 'improved-jump-jet-medium', 'improved-jump-jet-heavy'];
-    const jumpMP = mech.equipment.filter(eq => 
-      jumpJetIds.some(id => eq.equipmentId.toLowerCase().includes(id.toLowerCase()))
+    const jumpJetIds = [
+      'jump-jet',
+      'jump-jet-light',
+      'jump-jet-medium',
+      'jump-jet-heavy',
+      'improved-jump-jet',
+      'improved-jump-jet-light',
+      'improved-jump-jet-medium',
+      'improved-jump-jet-heavy',
+    ];
+    const jumpMP = mech.equipment.filter((eq) =>
+      jumpJetIds.some((id) =>
+        eq.equipmentId.toLowerCase().includes(id.toLowerCase()),
+      ),
     ).length;
 
     const runningHeat = 2;
@@ -471,10 +557,20 @@ export class CalculationService implements ICalculationService {
     const runMP = Math.floor(walkMP * 1.5); // Per TechManual: floor(walk * 1.5)
 
     // Calculate jump MP from jump jet count
-    const jumpJetIds = ['jump-jet', 'jump-jet-light', 'jump-jet-medium', 'jump-jet-heavy', 
-                        'improved-jump-jet', 'improved-jump-jet-light', 'improved-jump-jet-medium', 'improved-jump-jet-heavy'];
-    const jumpMP = mech.equipment.filter(eq => 
-      jumpJetIds.some(id => eq.equipmentId.toLowerCase().includes(id.toLowerCase()))
+    const jumpJetIds = [
+      'jump-jet',
+      'jump-jet-light',
+      'jump-jet-medium',
+      'jump-jet-heavy',
+      'improved-jump-jet',
+      'improved-jump-jet-light',
+      'improved-jump-jet-medium',
+      'improved-jump-jet-heavy',
+    ];
+    const jumpMP = mech.equipment.filter((eq) =>
+      jumpJetIds.some((id) =>
+        eq.equipmentId.toLowerCase().includes(id.toLowerCase()),
+      ),
     ).length;
 
     return {
@@ -488,7 +584,9 @@ export class CalculationService implements ICalculationService {
   // HELPER METHODS
   // ============================================================================
 
-  private calculateComponentWeights(mech: IEditableMech): Record<string, number> {
+  private calculateComponentWeights(
+    mech: IEditableMech,
+  ): Record<string, number> {
     return {
       structure: mech.tonnage * 0.1, // 10% for standard
       engine: this.getEngineWeight(mech.engineRating, mech.engineType),
@@ -541,18 +639,23 @@ export class CalculationService implements ICalculationService {
 
   private calculateArmorWeight(mech: IEditableMech): number {
     const totalPoints = this.calculateTotalArmorPoints(mech);
-    return Math.ceil(totalPoints / 16 * 2) / 2;
+    return Math.ceil((totalPoints / 16) * 2) / 2;
   }
 
   private calculateTotalArmorPoints(mech: IEditableMech): number {
     const a = mech.armorAllocation;
     return (
       a.head +
-      a.centerTorso + a.centerTorsoRear +
-      a.leftTorso + a.leftTorsoRear +
-      a.rightTorso + a.rightTorsoRear +
-      a.leftArm + a.rightArm +
-      a.leftLeg + a.rightLeg
+      a.centerTorso +
+      a.centerTorsoRear +
+      a.leftTorso +
+      a.leftTorsoRear +
+      a.rightTorso +
+      a.rightTorsoRear +
+      a.leftArm +
+      a.rightArm +
+      a.leftLeg +
+      a.rightLeg
     );
   }
 
@@ -561,10 +664,18 @@ export class CalculationService implements ICalculationService {
    * Per TechManual: max armor = 2 × structure points (head = 9)
    */
   private calculateMaxArmorPoints(tonnage: number): number {
-    const locations = ['head', 'centerTorso', 'leftTorso', 'rightTorso', 
-                       'leftArm', 'rightArm', 'leftLeg', 'rightLeg'];
+    const locations = [
+      'head',
+      'centerTorso',
+      'leftTorso',
+      'rightTorso',
+      'leftArm',
+      'rightArm',
+      'leftLeg',
+      'rightLeg',
+    ];
     let maxArmor = 0;
-    
+
     for (const location of locations) {
       if (location === 'head') {
         maxArmor += 9; // Head max is always 9
@@ -573,7 +684,7 @@ export class CalculationService implements ICalculationService {
         maxArmor += structure * 2;
       }
     }
-    
+
     return maxArmor;
   }
 }
@@ -603,4 +714,3 @@ export function _resetCalculationService(): void {
 // Legacy export for backward compatibility
 // @deprecated Use getCalculationService() instead
 export const calculationService = getCalculationService();
-

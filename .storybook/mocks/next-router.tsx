@@ -12,29 +12,41 @@ const RouterContext = createContext<RouterContextValue>({
   asPath: '/',
 });
 
-export function setMockRouterPathname(pathname: string, query: Record<string, string> = {}) {
-  (globalThis as Record<string, unknown>).__STORYBOOK_ROUTER_PATHNAME__ = pathname;
+export function setMockRouterPathname(
+  pathname: string,
+  query: Record<string, string> = {},
+) {
+  (globalThis as Record<string, unknown>).__STORYBOOK_ROUTER_PATHNAME__ =
+    pathname;
   (globalThis as Record<string, unknown>).__STORYBOOK_ROUTER_QUERY__ = query;
 }
 
 function getPathname(): string {
-  return ((globalThis as Record<string, unknown>).__STORYBOOK_ROUTER_PATHNAME__ as string) || '/';
+  return (
+    ((globalThis as Record<string, unknown>)
+      .__STORYBOOK_ROUTER_PATHNAME__ as string) || '/'
+  );
 }
 
 function getQuery(): Record<string, string> {
-  return ((globalThis as Record<string, unknown>).__STORYBOOK_ROUTER_QUERY__ as Record<string, string>) || {};
+  return (
+    ((globalThis as Record<string, unknown>)
+      .__STORYBOOK_ROUTER_QUERY__ as Record<string, string>) || {}
+  );
 }
 
 export function useRouter() {
   const pathname = getPathname();
   const query = getQuery();
-  
+
   return {
     pathname,
     query,
-    asPath: pathname + (Object.keys(query).length > 0 
-      ? '?' + new URLSearchParams(query).toString() 
-      : ''),
+    asPath:
+      pathname +
+      (Object.keys(query).length > 0
+        ? '?' + new URLSearchParams(query).toString()
+        : ''),
     push: (url: string) => {
       console.log('[Storybook Router] push:', url);
       return Promise.resolve(true);

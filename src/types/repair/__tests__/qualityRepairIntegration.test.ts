@@ -6,6 +6,7 @@ import {
   DEFAULT_UNIT_QUALITY,
   SALVAGE_STARTING_QUALITY,
 } from '@/types/campaign/quality';
+
 import {
   calculateQualityAdjustedRepairCost,
   calculateRepairTargetNumber,
@@ -85,19 +86,28 @@ describe('Quality Repair Cost Multiplier', () => {
 describe('calculateQualityAdjustedRepairCost', () => {
   it('RED: quality D returns base cost unchanged', () => {
     const baseCost = 1000;
-    const adjusted = calculateQualityAdjustedRepairCost(baseCost, PartQuality.D);
+    const adjusted = calculateQualityAdjustedRepairCost(
+      baseCost,
+      PartQuality.D,
+    );
     expect(adjusted).toBe(1000);
   });
 
   it('RED: quality A increases cost by 1.5x', () => {
     const baseCost = 1000;
-    const adjusted = calculateQualityAdjustedRepairCost(baseCost, PartQuality.A);
+    const adjusted = calculateQualityAdjustedRepairCost(
+      baseCost,
+      PartQuality.A,
+    );
     expect(adjusted).toBe(1500);
   });
 
   it('RED: quality F decreases cost to 0.8x', () => {
     const baseCost = 1000;
-    const adjusted = calculateQualityAdjustedRepairCost(baseCost, PartQuality.F);
+    const adjusted = calculateQualityAdjustedRepairCost(
+      baseCost,
+      PartQuality.F,
+    );
     expect(adjusted).toBe(800);
   });
 
@@ -109,15 +119,24 @@ describe('calculateQualityAdjustedRepairCost', () => {
 
   it('GREEN: result is always rounded up to integer', () => {
     const baseCost = 333;
-    const adjusted = calculateQualityAdjustedRepairCost(baseCost, PartQuality.C);
+    const adjusted = calculateQualityAdjustedRepairCost(
+      baseCost,
+      PartQuality.C,
+    );
     expect(Number.isInteger(adjusted)).toBe(true);
     expect(adjusted).toBe(Math.ceil(333 * 1.1));
   });
 
   it('GREEN: works with real armor repair cost', () => {
     const armorCost = calculateArmorRepairCost(10, 'standard');
-    const adjustedA = calculateQualityAdjustedRepairCost(armorCost, PartQuality.A);
-    const adjustedF = calculateQualityAdjustedRepairCost(armorCost, PartQuality.F);
+    const adjustedA = calculateQualityAdjustedRepairCost(
+      armorCost,
+      PartQuality.A,
+    );
+    const adjustedF = calculateQualityAdjustedRepairCost(
+      armorCost,
+      PartQuality.F,
+    );
     expect(adjustedA).toBeGreaterThan(armorCost);
     expect(adjustedF).toBeLessThan(armorCost);
   });

@@ -1,5 +1,6 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
+
 import { StructureTab } from '@/components/customizer/tabs/StructureTab';
 import { useUnitStore } from '@/stores/useUnitStore';
 
@@ -74,35 +75,37 @@ describe('StructureTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useUnitStore as jest.Mock).mockImplementation((selector: (state: typeof mockStoreValues) => unknown) => {
-      if (typeof selector === 'function') {
-        return selector(mockStoreValues);
-      }
-      return undefined;
-    });
+    (useUnitStore as jest.Mock).mockImplementation(
+      (selector: (state: typeof mockStoreValues) => unknown) => {
+        if (typeof selector === 'function') {
+          return selector(mockStoreValues);
+        }
+        return undefined;
+      },
+    );
   });
 
   it('should render structure tab', () => {
     render(<StructureTab />);
-    
+
     expect(screen.getByText(/Tonnage/i)).toBeInTheDocument();
   });
 
   it('should display unit tonnage', () => {
     render(<StructureTab />);
-    
+
     expect(screen.getByDisplayValue('50')).toBeInTheDocument();
   });
 
   it('should display movement stats', () => {
     render(<StructureTab />);
-    
+
     expect(screen.getByDisplayValue('5')).toBeInTheDocument();
   });
 
   it('should disable inputs in read-only mode', () => {
     render(<StructureTab readOnly={true} />);
-    
+
     // In read-only mode, inputs should be disabled
     const tonnageInput = screen.getByDisplayValue('50');
     expect(tonnageInput).toBeDisabled();
@@ -110,9 +113,8 @@ describe('StructureTab', () => {
 
   it('should apply custom className', () => {
     const { container } = render(<StructureTab className="custom-class" />);
-    
+
     const tab = container.firstChild;
     expect(tab).toHaveClass('custom-class');
   });
 });
-

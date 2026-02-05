@@ -26,7 +26,7 @@ export const VARIANT_NAMES: Record<ArmorDiagramVariant, string> = {
   'neon-operator': 'Glow',
   'tactical-hud': 'HUD',
   'premium-material': 'Chromatic',
-  'megamek': 'MegaMek',
+  megamek: 'MegaMek',
 };
 
 /**
@@ -37,7 +37,7 @@ export const VARIANT_DESCRIPTIONS: Record<ArmorDiagramVariant, string> = {
   'neon-operator': 'Sci-fi aesthetic with neon lighting',
   'tactical-hud': 'Military-style LED readouts',
   'premium-material': 'Chrome textures with 3D depth',
-  'megamek': 'Authentic record sheet style',
+  megamek: 'Authentic record sheet style',
 };
 
 /**

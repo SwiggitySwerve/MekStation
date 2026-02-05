@@ -8,9 +8,10 @@
  */
 
 import { useMemo } from 'react';
+
 import { useUnitStore } from '@/stores/useUnitStore';
-import { buildSlotsByLocation } from '@/utils/validation/slotValidationUtils';
 import { ISlotsByLocation } from '@/types/validation/UnitValidationInterfaces';
+import { buildSlotsByLocation } from '@/utils/validation/slotValidationUtils';
 
 /**
  * Equipment validation data

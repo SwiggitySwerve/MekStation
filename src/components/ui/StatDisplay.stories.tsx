@@ -1,5 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { StatRow, StatList, StatCard, StatGrid, SimpleStatCard } from './StatDisplay';
+
+import {
+  StatRow,
+  StatList,
+  StatCard,
+  StatGrid,
+  SimpleStatCard,
+} from './StatDisplay';
 
 const meta: Meta<typeof StatRow> = {
   title: 'UI/StatDisplay',
@@ -86,7 +93,7 @@ export const StatCardExample: StoryObj = {
 
 export const StatCardVariants: StoryObj = {
   render: () => (
-    <div className="grid grid-cols-2 gap-4 max-w-2xl">
+    <div className="grid max-w-2xl grid-cols-2 gap-4">
       <StatCard title="Weapons" variant="rose">
         <StatList>
           <StatRow label="PPC" value="2" />

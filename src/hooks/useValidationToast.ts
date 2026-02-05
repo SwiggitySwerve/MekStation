@@ -8,11 +8,18 @@
  */
 
 import { useEffect, useRef } from 'react';
-import { UnitValidationState } from '@/hooks/useUnitValidation';
+
 import { useToast } from '@/components/shared/Toast';
-import { IUnitValidationError, UnitValidationSeverity } from '@/types/validation/UnitValidationInterfaces';
-import { getTabForCategory, getTabLabel } from '@/utils/validation/validationNavigation';
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
+import { UnitValidationState } from '@/hooks/useUnitValidation';
+import {
+  IUnitValidationError,
+  UnitValidationSeverity,
+} from '@/types/validation/UnitValidationInterfaces';
+import {
+  getTabForCategory,
+  getTabLabel,
+} from '@/utils/validation/validationNavigation';
 
 interface UseValidationToastOptions {
   onNavigate?: (tabId: CustomizerTabId) => void;
@@ -21,7 +28,7 @@ interface UseValidationToastOptions {
 
 export function useValidationToast(
   validation: UnitValidationState,
-  options: UseValidationToastOptions = {}
+  options: UseValidationToastOptions = {},
 ): void {
   const { onNavigate, enabled = true } = options;
   const { showToast } = useToast();
@@ -45,51 +52,69 @@ export function useValidationToast(
     const prevErrorCount = prevErrorCountRef.current;
 
     if (currentCriticalCount > prevCriticalCount) {
-      const newCriticalError = findFirstErrorBySeverity(validation.result, UnitValidationSeverity.CRITICAL_ERROR);
+      const newCriticalError = findFirstErrorBySeverity(
+        validation.result,
+        UnitValidationSeverity.CRITICAL_ERROR,
+      );
       if (newCriticalError) {
         const tabId = getTabForCategory(newCriticalError.category);
         const tabLabel = getTabLabel(tabId);
-        
+
         showToast({
           message: newCriticalError.message,
           variant: 'error',
           duration: 6000,
-          action: onNavigate ? {
-            label: `Go to ${tabLabel}`,
-            onClick: () => onNavigate(tabId),
-          } : undefined,
+          action: onNavigate
+            ? {
+                label: `Go to ${tabLabel}`,
+                onClick: () => onNavigate(tabId),
+              }
+            : undefined,
         });
       }
-    }
-    else if (currentErrorCount > prevErrorCount && currentCriticalCount === prevCriticalCount) {
-      const newError = findFirstErrorBySeverity(validation.result, UnitValidationSeverity.ERROR);
+    } else if (
+      currentErrorCount > prevErrorCount &&
+      currentCriticalCount === prevCriticalCount
+    ) {
+      const newError = findFirstErrorBySeverity(
+        validation.result,
+        UnitValidationSeverity.ERROR,
+      );
       if (newError) {
         const tabId = getTabForCategory(newError.category);
         const tabLabel = getTabLabel(tabId);
-        
+
         showToast({
           message: newError.message,
           variant: 'warning',
           duration: 4000,
-          action: onNavigate ? {
-            label: `Go to ${tabLabel}`,
-            onClick: () => onNavigate(tabId),
-          } : undefined,
+          action: onNavigate
+            ? {
+                label: `Go to ${tabLabel}`,
+                onClick: () => onNavigate(tabId),
+              }
+            : undefined,
         });
       }
     }
 
     prevCriticalCountRef.current = currentCriticalCount;
     prevErrorCountRef.current = currentErrorCount;
-  }, [validation.result, validation.errorCount, enabled, showToast, onNavigate]);
+  }, [
+    validation.result,
+    validation.errorCount,
+    enabled,
+    showToast,
+    onNavigate,
+  ]);
 }
 
 function findFirstErrorBySeverity(
   result: UnitValidationState['result'],
-  targetSeverity: UnitValidationSeverity
+  targetSeverity: UnitValidationSeverity,
 ): IUnitValidationError | null {
   if (!result) return null;
-  
+
   for (const ruleResult of result.results) {
     for (const error of ruleResult.errors) {
       if (error.severity === targetSeverity) {

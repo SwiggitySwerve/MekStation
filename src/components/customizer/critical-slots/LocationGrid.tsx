@@ -1,31 +1,42 @@
 /**
  * Location Grid Component
- * 
+ *
  * Grid of critical slots for a single location.
  * Matches MegaMekLab's visual style with full location names.
- * 
+ *
  * @spec openspec/specs/critical-slots-display/spec.md
  */
 
 import React from 'react';
-import { SlotRow } from './SlotRow';
+
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';
+
 import { LocationData, SlotContent } from './CriticalSlotsDisplay';
+import { SlotRow } from './SlotRow';
 
 /**
  * Get full location name
  */
 function getLocationLabel(location: MechLocation): string {
   switch (location) {
-    case MechLocation.HEAD: return 'Head';
-    case MechLocation.CENTER_TORSO: return 'Center Torso';
-    case MechLocation.LEFT_TORSO: return 'Left Torso';
-    case MechLocation.RIGHT_TORSO: return 'Right Torso';
-    case MechLocation.LEFT_ARM: return 'Left Arm';
-    case MechLocation.RIGHT_ARM: return 'Right Arm';
-    case MechLocation.LEFT_LEG: return 'Left Leg';
-    case MechLocation.RIGHT_LEG: return 'Right Leg';
-    default: return '';
+    case MechLocation.HEAD:
+      return 'Head';
+    case MechLocation.CENTER_TORSO:
+      return 'Center Torso';
+    case MechLocation.LEFT_TORSO:
+      return 'Left Torso';
+    case MechLocation.RIGHT_TORSO:
+      return 'Right Torso';
+    case MechLocation.LEFT_ARM:
+      return 'Left Arm';
+    case MechLocation.RIGHT_ARM:
+      return 'Right Arm';
+    case MechLocation.LEFT_LEG:
+      return 'Left Leg';
+    case MechLocation.RIGHT_LEG:
+      return 'Right Leg';
+    default:
+      return '';
   }
 }
 
@@ -72,26 +83,24 @@ export function LocationGrid({
 }: LocationGridProps): React.ReactElement {
   const slotCount = LOCATION_SLOT_COUNTS[location];
   const label = getLocationLabel(location);
-  
+
   // Create slot data for all slots
   const slots: SlotContent[] = Array.from({ length: slotCount }, (_, i) => {
     const existing = data?.slots.find((s) => s.index === i);
     return existing || { index: i, type: 'empty' as const };
   });
-  
+
   return (
     <div
-      className={`
-        bg-surface-deep border border-border-theme
-        w-full max-w-xs sm:w-32 md:w-36
-        ${className}
-      `}
+      className={`bg-surface-deep border-border-theme w-full max-w-xs border sm:w-32 md:w-36 ${className} `}
     >
       {/* Location header */}
-      <div className="px-1 sm:px-2 py-1 sm:py-1.5 border-b border-border-theme bg-surface-base text-center">
-        <span className="text-xs sm:text-sm font-medium text-slate-200 truncate block">{label}</span>
+      <div className="border-border-theme bg-surface-base border-b px-1 py-1 text-center sm:px-2 sm:py-1.5">
+        <span className="block truncate text-xs font-medium text-slate-200 sm:text-sm">
+          {label}
+        </span>
       </div>
-      
+
       {/* Slots */}
       <div className="p-0.5">
         {slots.map((slot) => (
@@ -99,7 +108,11 @@ export function LocationGrid({
             key={slot.index}
             slot={slot}
             isAssignable={assignableSlots.includes(slot.index)}
-            isSelected={!!(selectedEquipmentId && slot.equipmentId === selectedEquipmentId)}
+            isSelected={
+              !!(
+                selectedEquipmentId && slot.equipmentId === selectedEquipmentId
+              )
+            }
             compact={compact}
             isOmni={isOmni}
             onClick={() => onSlotClick(slot.index)}

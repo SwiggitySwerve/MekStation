@@ -10,6 +10,7 @@
  */
 
 import React from 'react';
+
 import { IPilotMechCardData } from '@/types/pilot/pilot-mech-card';
 
 // =============================================================================
@@ -55,70 +56,90 @@ export function EffectiveStatsSection({
   data,
   className = '',
 }: EffectiveStatsSectionProps): React.ReactElement {
-  const { gunnery, piloting, wounds, baseToHit, consciousnessTarget, abilities } = data;
+  const {
+    gunnery,
+    piloting,
+    wounds,
+    baseToHit,
+    consciousnessTarget,
+    abilities,
+  } = data;
 
   // Check for abilities that might modify combat stats
   // These would be resolved from ability definitions in a full implementation
   const hasRelevantAbilities = abilities.some((a) =>
-    ['marksman', 'iron-will', 'melee-specialist', 'dodge'].includes(a.toLowerCase())
+    ['marksman', 'iron-will', 'melee-specialist', 'dodge'].includes(
+      a.toLowerCase(),
+    ),
   );
 
   return (
-    <div className={`bg-surface-base/40 rounded-lg border border-border-theme-subtle/50 ${className}`}>
-      <div className="px-4 py-3 border-b border-border-theme-subtle/30">
-        <h4 className="text-sm font-semibold text-text-theme-primary uppercase tracking-wider flex items-center gap-2">
-          <span className="w-1 h-4 bg-amber-500 rounded-full" />
+    <div
+      className={`bg-surface-base/40 border-border-theme-subtle/50 rounded-lg border ${className}`}
+    >
+      <div className="border-border-theme-subtle/30 border-b px-4 py-3">
+        <h4 className="text-text-theme-primary flex items-center gap-2 text-sm font-semibold tracking-wider uppercase">
+          <span className="h-4 w-1 rounded-full bg-amber-500" />
           Effective Combat Stats
         </h4>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="space-y-4 p-4">
         {/* Base To-Hit */}
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-text-theme-secondary">Base To-Hit Number</span>
-            <span className={`text-lg font-bold font-mono ${getToHitColor(baseToHit)}`}>
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-text-theme-secondary text-sm">
+              Base To-Hit Number
+            </span>
+            <span
+              className={`font-mono text-lg font-bold ${getToHitColor(baseToHit)}`}
+            >
               {baseToHit}+
             </span>
           </div>
-          <div className="text-xs text-text-theme-muted font-mono">
+          <div className="text-text-theme-muted font-mono text-xs">
             4 (base) + {gunnery} (gunnery) = {baseToHit}
           </div>
-          <div className="mt-2 text-xs text-text-theme-muted">
-            <span className="text-text-theme-secondary">Note:</span> Additional modifiers from range,
-            movement, terrain, etc. are added during combat.
+          <div className="text-text-theme-muted mt-2 text-xs">
+            <span className="text-text-theme-secondary">Note:</span> Additional
+            modifiers from range, movement, terrain, etc. are added during
+            combat.
           </div>
         </div>
 
         {/* Divider */}
-        <div className="border-t border-border-theme-subtle/30" />
+        <div className="border-border-theme-subtle/30 border-t" />
 
         {/* Consciousness Roll */}
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-text-theme-secondary">Consciousness Target</span>
-            <span className={`text-lg font-bold font-mono ${getConsciousnessColor(consciousnessTarget)}`}>
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-text-theme-secondary text-sm">
+              Consciousness Target
+            </span>
+            <span
+              className={`font-mono text-lg font-bold ${getConsciousnessColor(consciousnessTarget)}`}
+            >
               {consciousnessTarget}+
             </span>
           </div>
-          <div className="text-xs text-text-theme-muted font-mono">
+          <div className="text-text-theme-muted font-mono text-xs">
             3 (base) + {wounds} (wounds) = {consciousnessTarget}
           </div>
           {wounds > 0 && (
             <div className="mt-2">
               <div className="flex items-center gap-1">
                 {wounds >= 4 && (
-                  <span className="text-xs text-rose-400 font-medium">
+                  <span className="text-xs font-medium text-rose-400">
                     Critical! Roll required each turn.
                   </span>
                 )}
                 {wounds >= 2 && wounds < 4 && (
-                  <span className="text-xs text-amber-400 font-medium">
+                  <span className="text-xs font-medium text-amber-400">
                     Moderate wounds affecting consciousness.
                   </span>
                 )}
                 {wounds < 2 && (
-                  <span className="text-xs text-text-theme-muted">
+                  <span className="text-text-theme-muted text-xs">
                     Minor wounds.
                   </span>
                 )}
@@ -128,27 +149,31 @@ export function EffectiveStatsSection({
         </div>
 
         {/* Piloting Skill Reference */}
-        <div className="border-t border-border-theme-subtle/30 pt-4">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-text-theme-secondary">Piloting Skill</span>
-            <span className="text-lg font-bold font-mono text-text-theme-primary">
+        <div className="border-border-theme-subtle/30 border-t pt-4">
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-text-theme-secondary text-sm">
+              Piloting Skill
+            </span>
+            <span className="text-text-theme-primary font-mono text-lg font-bold">
               {piloting}
             </span>
           </div>
-          <div className="text-xs text-text-theme-muted">
-            Used for PSRs (Piloting Skill Rolls) to avoid falls and maintain balance.
+          <div className="text-text-theme-muted text-xs">
+            Used for PSRs (Piloting Skill Rolls) to avoid falls and maintain
+            balance.
           </div>
         </div>
 
         {/* Ability Modifiers Hint */}
         {hasRelevantAbilities && (
           <>
-            <div className="border-t border-border-theme-subtle/30 pt-4">
-              <div className="text-sm text-text-theme-secondary mb-2">
+            <div className="border-border-theme-subtle/30 border-t pt-4">
+              <div className="text-text-theme-secondary mb-2 text-sm">
                 Active Ability Modifiers
               </div>
-              <div className="text-xs text-text-theme-muted italic">
-                Ability effects are applied contextually during gameplay based on conditions.
+              <div className="text-text-theme-muted text-xs italic">
+                Ability effects are applied contextually during gameplay based
+                on conditions.
               </div>
             </div>
           </>

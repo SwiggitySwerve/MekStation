@@ -15,6 +15,9 @@ import {
   MovementType,
   Facing,
 } from '@/types/gameplay';
+import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
+
+import { isInBounds, isOccupied, getHex } from './hexGrid';
 import {
   hexDistance,
   hexEquals,
@@ -22,8 +25,6 @@ import {
   hexLine,
   coordToKey,
 } from './hexMath';
-import { isInBounds, isOccupied, getHex } from './hexGrid';
-import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
 
 // =============================================================================
 // Types
@@ -32,7 +33,14 @@ import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
 /**
  * Extended movement type including vehicle movement modes.
  */
-export type UnitMovementType = 'walk' | 'run' | 'jump' | 'tracked' | 'wheeled' | 'hover' | 'vtol';
+export type UnitMovementType =
+  | 'walk'
+  | 'run'
+  | 'jump'
+  | 'tracked'
+  | 'wheeled'
+  | 'hover'
+  | 'vtol';
 
 // =============================================================================
 // Movement Point Calculations
@@ -51,7 +59,7 @@ export function calculateRunMP(walkMP: number): number {
  */
 export function createMovementCapability(
   walkMP: number,
-  jumpMP: number = 0
+  jumpMP: number = 0,
 ): IMovementCapability {
   return {
     walkMP,
@@ -65,7 +73,7 @@ export function createMovementCapability(
  */
 export function getMaxMP(
   capability: IMovementCapability,
-  movementType: MovementType
+  movementType: MovementType,
 ): number {
   switch (movementType) {
     case MovementType.Stationary:
@@ -93,7 +101,7 @@ export function getHexMovementCost(
   grid: IHexGrid,
   coord: IHexCoordinate,
   movementType: UnitMovementType = 'walk',
-  fromCoord?: IHexCoordinate
+  fromCoord?: IHexCoordinate,
 ): number {
   const hex = getHex(grid, coord);
   if (!hex) return Infinity;
@@ -127,8 +135,11 @@ export function getHexMovementCost(
       const elevationChange = hex.elevation - fromHex.elevation;
       if (elevationChange > 0) {
         elevationCost = elevationChange;
-        
-        if (elevationChange > 2 && (movementType === 'walk' || movementType === 'run')) {
+
+        if (
+          elevationChange > 2 &&
+          (movementType === 'walk' || movementType === 'run')
+        ) {
           return Infinity;
         }
       }
@@ -144,7 +155,7 @@ export function getHexMovementCost(
  */
 export function estimateMovementCost(
   from: IHexCoordinate,
-  to: IHexCoordinate
+  to: IHexCoordinate,
 ): number {
   return hexDistance(from, to);
 }
@@ -158,7 +169,7 @@ export function estimateMovementCost(
  */
 export function calculateMovementHeat(
   movementType: MovementType,
-  hexesMoved: number
+  hexesMoved: number,
 ): number {
   switch (movementType) {
     case MovementType.Stationary:
@@ -183,20 +194,20 @@ export function calculateMovementHeat(
  */
 export function calculateTMM(
   movementType: MovementType,
-  hexesMoved: number
+  hexesMoved: number,
 ): number {
   if (movementType === MovementType.Stationary) {
     return 0;
   }
-  
+
   // TMM = hexes moved / 5 (rounded up), minimum 1 if moved
   let tmm = Math.max(1, Math.ceil(hexesMoved / 5));
-  
+
   // Jumping adds +1 additional TMM
   if (movementType === MovementType.Jump) {
     tmm += 1;
   }
-  
+
   return tmm;
 }
 
@@ -213,7 +224,7 @@ export function validateMovement(
   destination: IHexCoordinate,
   newFacing: Facing,
   movementType: MovementType,
-  capability: IMovementCapability
+  capability: IMovementCapability,
 ): IMovementValidation {
   // Check destination is in bounds
   if (!isInBounds(grid, destination)) {
@@ -224,9 +235,12 @@ export function validateMovement(
       heatGenerated: 0,
     };
   }
-  
+
   // Check destination is not occupied (unless staying in place)
-  if (!hexEquals(position.coord, destination) && isOccupied(grid, destination)) {
+  if (
+    !hexEquals(position.coord, destination) &&
+    isOccupied(grid, destination)
+  ) {
     return {
       valid: false,
       error: 'Destination hex is occupied',
@@ -234,10 +248,10 @@ export function validateMovement(
       heatGenerated: 0,
     };
   }
-  
+
   // Calculate distance
   const distance = hexDistance(position.coord, destination);
-  
+
   // Check movement type is possible
   if (movementType === MovementType.Jump && capability.jumpMP === 0) {
     return {
@@ -247,10 +261,10 @@ export function validateMovement(
       heatGenerated: 0,
     };
   }
-  
+
   // Get max MP for movement type
   const maxMP = getMaxMP(capability, movementType);
-  
+
   // Check range
   if (distance > maxMP) {
     return {
@@ -260,7 +274,7 @@ export function validateMovement(
       heatGenerated: 0,
     };
   }
-  
+
   // For non-jumping movement, check path is clear
   if (movementType !== MovementType.Jump && distance > 0) {
     const path = hexLine(position.coord, destination);
@@ -284,9 +298,9 @@ export function validateMovement(
       }
     }
   }
-  
+
   const heatGenerated = calculateMovementHeat(movementType, distance);
-  
+
   return {
     valid: true,
     mpCost: distance,
@@ -300,7 +314,7 @@ export function validateMovement(
  */
 export function canStand(
   position: IUnitPosition,
-  capability: IMovementCapability
+  capability: IMovementCapability,
 ): boolean {
   return position.prone && capability.walkMP > 0;
 }
@@ -323,15 +337,15 @@ export function getValidDestinations(
   grid: IHexGrid,
   position: IUnitPosition,
   movementType: MovementType,
-  capability: IMovementCapability
+  capability: IMovementCapability,
 ): readonly IHexCoordinate[] {
   const maxMP = getMaxMP(capability, movementType);
   if (maxMP === 0) {
     return [position.coord]; // Can only stay in place
   }
-  
+
   const destinations: IHexCoordinate[] = [];
-  
+
   // Check all hexes within MP range
   for (let dq = -maxMP; dq <= maxMP; dq++) {
     for (let dr = -maxMP; dr <= maxMP; dr++) {
@@ -339,22 +353,22 @@ export function getValidDestinations(
         q: position.coord.q + dq,
         r: position.coord.r + dr,
       };
-      
+
       const validation = validateMovement(
         grid,
         position,
         dest,
         position.facing, // Facing doesn't affect destination validity
         movementType,
-        capability
+        capability,
       );
-      
+
       if (validation.valid) {
         destinations.push(dest);
       }
     }
   }
-  
+
   return destinations;
 }
 
@@ -371,7 +385,7 @@ export function createMovementRecord(
   end: IHexCoordinate,
   endFacing: Facing,
   movementType: MovementType,
-  path: readonly IHexCoordinate[]
+  path: readonly IHexCoordinate[],
 ): IMovementRecord {
   return {
     unitId,
@@ -393,7 +407,7 @@ export function createMovementRecord(
  * Calculate attacker movement modifier for to-hit rolls.
  */
 export function calculateAttackerMovementModifier(
-  movementType: MovementType
+  movementType: MovementType,
 ): number {
   switch (movementType) {
     case MovementType.Stationary:
@@ -421,12 +435,12 @@ export function findPath(
   grid: IHexGrid,
   start: IHexCoordinate,
   end: IHexCoordinate,
-  maxCost: number = Infinity
+  maxCost: number = Infinity,
 ): readonly IHexCoordinate[] | null {
   if (hexEquals(start, end)) {
     return [start];
   }
-  
+
   // A* implementation with proper parent tracking
   interface Node {
     coord: IHexCoordinate;
@@ -434,10 +448,10 @@ export function findPath(
     f: number;
     parent: string | null;
   }
-  
+
   const openSet = new Map<string, Node>();
   const closedSet = new Map<string, Node>();
-  
+
   const startKey = coordToKey(start);
   openSet.set(startKey, {
     coord: start,
@@ -445,12 +459,12 @@ export function findPath(
     f: hexDistance(start, end),
     parent: null,
   });
-  
+
   while (openSet.size > 0) {
     // Find node with lowest f score
     let currentKey: string | null = null;
     let lowestF = Infinity;
-    
+
     for (const entry of Array.from(openSet.entries())) {
       const [key, node] = entry;
       if (node.f < lowestF) {
@@ -458,52 +472,52 @@ export function findPath(
         currentKey = key;
       }
     }
-    
+
     if (currentKey === null) break;
-    
+
     const current = openSet.get(currentKey)!;
     openSet.delete(currentKey);
     closedSet.set(currentKey, current);
-    
+
     // Check if we reached the goal
     if (hexEquals(current.coord, end)) {
       // Reconstruct path by following parent chain
       const path: IHexCoordinate[] = [];
       let nodeKey: string | null = currentKey;
-      
+
       while (nodeKey !== null) {
         const node = closedSet.get(nodeKey);
         if (!node) break;
         path.unshift(node.coord);
         nodeKey = node.parent;
       }
-      
+
       return path;
     }
-    
+
     // Check neighbors
     const neighbors = hexNeighbors(current.coord);
-    
+
     for (const neighbor of neighbors) {
       const neighborKey = coordToKey(neighbor);
-      
+
       // Skip if already evaluated
       if (closedSet.has(neighborKey)) continue;
-      
+
       // Skip if not in bounds
       if (!isInBounds(grid, neighbor)) continue;
-      
+
       // Skip if occupied (unless it's the destination)
       if (!hexEquals(neighbor, end) && isOccupied(grid, neighbor)) continue;
-      
+
       const moveCost = getHexMovementCost(grid, neighbor);
       const tentativeG = current.g + moveCost;
-      
+
       // Skip if over max cost
       if (tentativeG > maxCost) continue;
-      
+
       const existingNode = openSet.get(neighborKey);
-      
+
       if (!existingNode || tentativeG < existingNode.g) {
         openSet.set(neighborKey, {
           coord: neighbor,
@@ -514,7 +528,7 @@ export function findPath(
       }
     }
   }
-  
+
   // No path found
   return null;
 }

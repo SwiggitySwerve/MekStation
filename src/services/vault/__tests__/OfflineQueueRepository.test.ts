@@ -7,16 +7,17 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import {
-  OfflineQueueRepository,
-  getOfflineQueueRepository,
-  resetOfflineQueueRepository,
-} from '../OfflineQueueRepository';
 import type {
   IStoredQueuedMessage,
   QueuedMessageStatus,
   P2PMessageType,
 } from '@/types/vault';
+
+import {
+  OfflineQueueRepository,
+  getOfflineQueueRepository,
+  resetOfflineQueueRepository,
+} from '../OfflineQueueRepository';
 
 // =============================================================================
 // Mock Setup
@@ -30,7 +31,7 @@ interface MockStatement {
 
 const createMockStatement = (
   returnValue?: unknown,
-  changes = 0
+  changes = 0,
 ): MockStatement => ({
   run: jest.fn().mockReturnValue({ changes }),
   get: jest.fn().mockReturnValue(returnValue),
@@ -64,7 +65,7 @@ Object.defineProperty(globalThis, 'crypto', {
 // =============================================================================
 
 const createMockStoredMessage = (
-  overrides: Partial<IStoredQueuedMessage> = {}
+  overrides: Partial<IStoredQueuedMessage> = {},
 ): IStoredQueuedMessage => ({
   id: 'msg-test-123',
   target_peer_id: 'PEER-ABCD-1234',
@@ -107,7 +108,7 @@ describe('OfflineQueueRepository', () => {
 
       expect(mockSQLiteService.initialize).toHaveBeenCalled();
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE TABLE IF NOT EXISTS offline_queue')
+        expect.stringContaining('CREATE TABLE IF NOT EXISTS offline_queue'),
       );
     });
 
@@ -115,37 +116,37 @@ describe('OfflineQueueRepository', () => {
       await repository.initialize();
 
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('id TEXT PRIMARY KEY')
+        expect.stringContaining('id TEXT PRIMARY KEY'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('target_peer_id TEXT NOT NULL')
+        expect.stringContaining('target_peer_id TEXT NOT NULL'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('message_type TEXT NOT NULL')
+        expect.stringContaining('message_type TEXT NOT NULL'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('payload TEXT NOT NULL')
+        expect.stringContaining('payload TEXT NOT NULL'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('queued_at TEXT NOT NULL')
+        expect.stringContaining('queued_at TEXT NOT NULL'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('expires_at TEXT NOT NULL')
+        expect.stringContaining('expires_at TEXT NOT NULL'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('attempts INTEGER NOT NULL DEFAULT 0')
+        expect.stringContaining('attempts INTEGER NOT NULL DEFAULT 0'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('last_attempt_at TEXT')
+        expect.stringContaining('last_attempt_at TEXT'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining("status TEXT NOT NULL DEFAULT 'pending'")
+        expect.stringContaining("status TEXT NOT NULL DEFAULT 'pending'"),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('priority INTEGER NOT NULL DEFAULT 0')
+        expect.stringContaining('priority INTEGER NOT NULL DEFAULT 0'),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('size_bytes INTEGER NOT NULL')
+        expect.stringContaining('size_bytes INTEGER NOT NULL'),
       );
     });
 
@@ -153,16 +154,24 @@ describe('OfflineQueueRepository', () => {
       await repository.initialize();
 
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_offline_queue_peer')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_offline_queue_peer',
+        ),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_offline_queue_status')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_offline_queue_status',
+        ),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_offline_queue_expires')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_offline_queue_expires',
+        ),
       );
       expect(mockDb.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_offline_queue_priority')
+        expect.stringContaining(
+          'CREATE INDEX IF NOT EXISTS idx_offline_queue_priority',
+        ),
       );
     });
 
@@ -185,7 +194,7 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.enqueue(
         'PEER-1234',
         'change',
-        '{"data":"test"}'
+        '{"data":"test"}',
       );
 
       expect(result.id).toBe(`msg-${mockUUID}`);
@@ -196,55 +205,53 @@ describe('OfflineQueueRepository', () => {
       expect(result.lastAttemptAt).toBeNull();
       expect(result.status).toBe('pending');
       expect(result.priority).toBe(0);
-      expect(result.sizeBytes).toBe(new TextEncoder().encode('{"data":"test"}').length);
+      expect(result.sizeBytes).toBe(
+        new TextEncoder().encode('{"data":"test"}').length,
+      );
     });
 
     it('should enqueue with custom expiry time', async () => {
       const customExpiryMs = 24 * 60 * 60 * 1000; // 1 day
 
-      const result = await repository.enqueue(
-        'PEER-1234',
-        'change',
-        '{}',
-        { expiryMs: customExpiryMs }
-      );
+      const result = await repository.enqueue('PEER-1234', 'change', '{}', {
+        expiryMs: customExpiryMs,
+      });
 
       // Verify expiresAt is approximately 1 day from now
       const queuedAt = new Date(result.queuedAt).getTime();
       const expiresAt = new Date(result.expiresAt).getTime();
       const diff = expiresAt - queuedAt;
-      
+
       expect(diff).toBeCloseTo(customExpiryMs, -3); // Allow 1 second tolerance
     });
 
     it('should enqueue with custom priority', async () => {
-      const result = await repository.enqueue(
-        'PEER-1234',
-        'change',
-        '{}',
-        { priority: 10 }
-      );
+      const result = await repository.enqueue('PEER-1234', 'change', '{}', {
+        priority: 10,
+      });
 
       expect(result.priority).toBe(10);
     });
 
     it('should calculate size in bytes correctly for unicode', async () => {
       const unicodePayload = '{"name":"?????????","emoji":"????????????"}';
-      
+
       const result = await repository.enqueue(
         'PEER-1234',
         'change',
-        unicodePayload
+        unicodePayload,
       );
 
-      expect(result.sizeBytes).toBe(new TextEncoder().encode(unicodePayload).length);
+      expect(result.sizeBytes).toBe(
+        new TextEncoder().encode(unicodePayload).length,
+      );
     });
 
     it('should insert message into database', async () => {
       await repository.enqueue('PEER-1234', 'sync_request', '{"from":0}');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO offline_queue')
+        expect.stringContaining('INSERT INTO offline_queue'),
       );
       expect(mockStatement.run).toHaveBeenCalledWith(
         `msg-${mockUUID}`,
@@ -257,7 +264,7 @@ describe('OfflineQueueRepository', () => {
         null, // lastAttemptAt
         'pending', // status
         0, // priority
-        expect.any(Number) // sizeBytes
+        expect.any(Number), // sizeBytes
       );
     });
 
@@ -296,10 +303,12 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.getPendingForPeer('PEER-1234');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining("WHERE target_peer_id = ? AND status = 'pending'")
+        expect.stringContaining(
+          "WHERE target_peer_id = ? AND status = 'pending'",
+        ),
       );
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('ORDER BY priority DESC, queued_at ASC')
+        expect.stringContaining('ORDER BY priority DESC, queued_at ASC'),
       );
       expect(mockStatement.all).toHaveBeenCalledWith('PEER-1234', 50);
       expect(result).toHaveLength(2);
@@ -345,7 +354,7 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.getAllPending();
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining("WHERE status = 'pending'")
+        expect.stringContaining("WHERE status = 'pending'"),
       );
       expect(mockStatement.all).toHaveBeenCalledWith(100);
       expect(result).toHaveLength(2);
@@ -372,7 +381,7 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.getById('msg-test-123');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM offline_queue WHERE id = ?'
+        'SELECT * FROM offline_queue WHERE id = ?',
       );
       expect(mockStatement.get).toHaveBeenCalledWith('msg-test-123');
       expect(result?.id).toBe('msg-test-123');
@@ -398,10 +407,14 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.markSending('msg-123');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining("SET status = 'sending', attempts = attempts + 1")
+        expect.stringContaining(
+          "SET status = 'sending', attempts = attempts + 1",
+        ),
       );
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining("WHERE id = ? AND status IN ('pending', 'failed')")
+        expect.stringContaining(
+          "WHERE id = ? AND status IN ('pending', 'failed')",
+        ),
       );
       expect(result).toBe(true);
     });
@@ -413,7 +426,7 @@ describe('OfflineQueueRepository', () => {
 
       expect(mockStatement.run).toHaveBeenCalledWith(
         expect.any(String), // current ISO timestamp
-        'msg-123'
+        'msg-123',
       );
     });
 
@@ -437,7 +450,7 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.markSent('msg-123');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        "UPDATE offline_queue SET status = 'sent' WHERE id = ?"
+        "UPDATE offline_queue SET status = 'sent' WHERE id = ?",
       );
       expect(mockStatement.run).toHaveBeenCalledWith('msg-123');
       expect(result).toBe(true);
@@ -459,7 +472,7 @@ describe('OfflineQueueRepository', () => {
   describe('markFailed', () => {
     it('should set status to pending when under max attempts', async () => {
       const messageWithFewAttempts = createMockStoredMessage({ attempts: 2 });
-      
+
       // First call: getById
       mockDb.prepare.mockImplementation((sql: string) => {
         if (sql.includes('SELECT')) {
@@ -483,7 +496,7 @@ describe('OfflineQueueRepository', () => {
 
     it('should set status to failed when max attempts exceeded', async () => {
       const messageAtMaxAttempts = createMockStoredMessage({ attempts: 5 });
-      
+
       mockDb.prepare.mockImplementation((sql: string) => {
         if (sql.includes('SELECT')) {
           return {
@@ -503,7 +516,7 @@ describe('OfflineQueueRepository', () => {
 
       // Verify the final status update was called
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE offline_queue SET status = ? WHERE id = ?'
+        'UPDATE offline_queue SET status = ? WHERE id = ?',
       );
     });
 
@@ -531,10 +544,12 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.markExpired();
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining("SET status = 'expired'")
+        expect.stringContaining("SET status = 'expired'"),
       );
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        expect.stringContaining("WHERE status IN ('pending', 'failed') AND expires_at < ?")
+        expect.stringContaining(
+          "WHERE status IN ('pending', 'failed') AND expires_at < ?",
+        ),
       );
       expect(result).toBe(5);
     });
@@ -559,7 +574,7 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.delete('msg-123');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'DELETE FROM offline_queue WHERE id = ?'
+        'DELETE FROM offline_queue WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('msg-123');
       expect(result).toBe(true);
@@ -581,7 +596,7 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.deleteSent();
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        "DELETE FROM offline_queue WHERE status = 'sent'"
+        "DELETE FROM offline_queue WHERE status = 'sent'",
       );
       expect(result).toBe(10);
     });
@@ -602,7 +617,7 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.deleteExpired();
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        "DELETE FROM offline_queue WHERE status = 'expired'"
+        "DELETE FROM offline_queue WHERE status = 'expired'",
       );
       expect(result).toBe(7);
     });
@@ -615,7 +630,7 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.deleteForPeer('PEER-1234');
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'DELETE FROM offline_queue WHERE target_peer_id = ?'
+        'DELETE FROM offline_queue WHERE target_peer_id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('PEER-1234');
       expect(result).toBe(15);
@@ -638,7 +653,7 @@ describe('OfflineQueueRepository', () => {
       const result = await repository.deleteOlderThan(cutoffDate);
 
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'DELETE FROM offline_queue WHERE queued_at < ?'
+        'DELETE FROM offline_queue WHERE queued_at < ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith(cutoffDate);
       expect(result).toBe(20);
@@ -672,7 +687,9 @@ describe('OfflineQueueRepository', () => {
         }
         if (sql.includes("status = 'sent'")) {
           return {
-            get: jest.fn().mockReturnValue({ last: '2024-01-10T12:00:00.000Z' }),
+            get: jest
+              .fn()
+              .mockReturnValue({ last: '2024-01-10T12:00:00.000Z' }),
             run: jest.fn(),
             all: jest.fn(),
           };
@@ -692,7 +709,9 @@ describe('OfflineQueueRepository', () => {
 
     it('should handle peer with no messages', async () => {
       mockDb.prepare.mockImplementation(() => ({
-        get: jest.fn().mockReturnValue({ count: 0, size: null, oldest: null, last: null }),
+        get: jest
+          .fn()
+          .mockReturnValue({ count: 0, size: null, oldest: null, last: null }),
         run: jest.fn(),
         all: jest.fn(),
       }));
@@ -866,9 +885,15 @@ describe('OfflineQueueRepository', () => {
     it('should handle very large payload', async () => {
       const largePayload = '{"data":"' + 'x'.repeat(100000) + '"}';
 
-      const result = await repository.enqueue('PEER-1234', 'change', largePayload);
+      const result = await repository.enqueue(
+        'PEER-1234',
+        'change',
+        largePayload,
+      );
 
-      expect(result.sizeBytes).toBe(new TextEncoder().encode(largePayload).length);
+      expect(result.sizeBytes).toBe(
+        new TextEncoder().encode(largePayload).length,
+      );
     });
 
     it('should handle empty payload', async () => {
@@ -879,37 +904,37 @@ describe('OfflineQueueRepository', () => {
     });
 
     it('should handle high priority values', async () => {
-      const result = await repository.enqueue(
-        'PEER-1234',
-        'change',
-        '{}',
-        { priority: 999999 }
-      );
+      const result = await repository.enqueue('PEER-1234', 'change', '{}', {
+        priority: 999999,
+      });
 
       expect(result.priority).toBe(999999);
     });
 
     it('should handle negative priority values', async () => {
-      const result = await repository.enqueue(
-        'PEER-1234',
-        'change',
-        '{}',
-        { priority: -10 }
-      );
+      const result = await repository.enqueue('PEER-1234', 'change', '{}', {
+        priority: -10,
+      });
 
       expect(result.priority).toBe(-10);
     });
 
     it('should handle special characters in peer ID', async () => {
       const specialPeerId = 'PEER-!@#$%^&*()_+-=';
-      
+
       const result = await repository.enqueue(specialPeerId, 'ping', '{}');
 
       expect(result.targetPeerId).toBe(specialPeerId);
     });
 
     it('should handle all queue statuses', async () => {
-      const statuses: QueuedMessageStatus[] = ['pending', 'sending', 'sent', 'failed', 'expired'];
+      const statuses: QueuedMessageStatus[] = [
+        'pending',
+        'sending',
+        'sent',
+        'failed',
+        'expired',
+      ];
 
       for (const status of statuses) {
         const storedMessage = createMockStoredMessage({ status });

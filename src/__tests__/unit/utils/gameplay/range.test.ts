@@ -6,6 +6,8 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
+
+import { RangeBracket } from '@/types/gameplay';
 import {
   getRangeBracket,
   getRangeModifier,
@@ -20,7 +22,6 @@ import {
   getCoordinatesInRange,
   IWeaponRangeProfile,
 } from '@/utils/gameplay/range';
-import { RangeBracket } from '@/types/gameplay';
 
 describe('range', () => {
   // =========================================================================
@@ -66,7 +67,7 @@ describe('range', () => {
   describe('calculateRange()', () => {
     it('should calculate complete range information', () => {
       const result = calculateRange({ q: 0, r: 0 }, { q: 5, r: 0 });
-      
+
       expect(result.distance).toBe(5);
       expect(result.bracket).toBe(RangeBracket.Medium);
       expect(result.modifier).toBe(2);
@@ -104,21 +105,29 @@ describe('range', () => {
 
   describe('getWeaponRangeBracket()', () => {
     it('should use weapon-specific ranges', () => {
-      expect(getWeaponRangeBracket(3, mediumLaserRange)).toBe(RangeBracket.Short);
-      expect(getWeaponRangeBracket(4, mediumLaserRange)).toBe(RangeBracket.Medium);
-      expect(getWeaponRangeBracket(7, mediumLaserRange)).toBe(RangeBracket.Long);
+      expect(getWeaponRangeBracket(3, mediumLaserRange)).toBe(
+        RangeBracket.Short,
+      );
+      expect(getWeaponRangeBracket(4, mediumLaserRange)).toBe(
+        RangeBracket.Medium,
+      );
+      expect(getWeaponRangeBracket(7, mediumLaserRange)).toBe(
+        RangeBracket.Long,
+      );
     });
 
     it('should return OutOfRange for weapons without extreme', () => {
-      expect(getWeaponRangeBracket(10, mediumLaserRange)).toBe(RangeBracket.OutOfRange);
+      expect(getWeaponRangeBracket(10, mediumLaserRange)).toBe(
+        RangeBracket.OutOfRange,
+      );
     });
   });
 
   describe('getWeaponRangeModifier()', () => {
     it('should return standard modifiers for valid ranges', () => {
-      expect(getWeaponRangeModifier(2, mediumLaserRange)).toBe(0);  // Short
-      expect(getWeaponRangeModifier(5, mediumLaserRange)).toBe(2);  // Medium
-      expect(getWeaponRangeModifier(8, mediumLaserRange)).toBe(4);  // Long
+      expect(getWeaponRangeModifier(2, mediumLaserRange)).toBe(0); // Short
+      expect(getWeaponRangeModifier(5, mediumLaserRange)).toBe(2); // Medium
+      expect(getWeaponRangeModifier(8, mediumLaserRange)).toBe(4); // Long
     });
 
     it('should return Infinity for out of range', () => {
@@ -152,9 +161,9 @@ describe('range', () => {
       const result = calculateWeaponRange(
         { q: 0, r: 0 },
         { q: 5, r: 0 },
-        mediumLaserRange
+        mediumLaserRange,
       );
-      
+
       expect(result.distance).toBe(5);
       expect(result.bracket).toBe(RangeBracket.Medium);
       expect(result.modifier).toBe(2);
@@ -166,9 +175,9 @@ describe('range', () => {
       const result = calculateWeaponRange(
         { q: 0, r: 0 },
         { q: 3, r: 0 },
-        lrmRange
+        lrmRange,
       );
-      
+
       expect(result.minimumRangePenalty).toBe(4);
     });
   });
@@ -216,7 +225,7 @@ describe('range', () => {
 
     it('should include center hex', () => {
       const coords = getCoordinatesInRange({ q: 0, r: 0 }, 1);
-      expect(coords.some(c => c.q === 0 && c.r === 0)).toBe(true);
+      expect(coords.some((c) => c.q === 0 && c.r === 0)).toBe(true);
     });
   });
 });

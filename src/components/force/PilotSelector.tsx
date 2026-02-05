@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+
 import { ModalOverlay } from '@/components/customizer/dialogs/ModalOverlay';
 import { Card, Badge, Button, Input } from '@/components/ui';
 import { IPilot, PilotStatus, getSkillLabel } from '@/types/pilot';
@@ -36,7 +37,7 @@ export interface PilotSelectorProps {
 // =============================================================================
 
 function getStatusBadgeVariant(
-  status: PilotStatus
+  status: PilotStatus,
 ): 'emerald' | 'amber' | 'cyan' | 'red' | 'muted' {
   switch (status) {
     case PilotStatus.Active:
@@ -73,8 +74,7 @@ function getStatusLabel(status: PilotStatus): string {
 
 function isAvailableForAssignment(pilot: IPilot): boolean {
   return (
-    pilot.status === PilotStatus.Active ||
-    pilot.status === PilotStatus.Injured
+    pilot.status === PilotStatus.Active || pilot.status === PilotStatus.Injured
   );
 }
 
@@ -146,9 +146,9 @@ export function PilotSelector({
 
   return (
     <ModalOverlay isOpen={isOpen} onClose={onClose}>
-      <div className="p-6 space-y-4 max-h-[60vh] flex flex-col">
+      <div className="flex max-h-[60vh] flex-col space-y-4 p-6">
         {/* Title */}
-        <h2 className="text-xl font-semibold text-text-theme-primary">
+        <h2 className="text-text-theme-primary text-xl font-semibold">
           {title}
         </h2>
 
@@ -162,21 +162,21 @@ export function PilotSelector({
               className="w-full"
             />
           </div>
-          <label className="flex items-center gap-2 text-sm text-text-theme-secondary cursor-pointer">
+          <label className="text-text-theme-secondary flex cursor-pointer items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={showUnavailable}
               onChange={(e) => setShowUnavailable(e.target.checked)}
-              className="rounded border-border-theme-subtle"
+              className="border-border-theme-subtle rounded"
             />
             Show unavailable
           </label>
         </div>
 
         {/* Pilot list */}
-        <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+        <div className="flex-1 space-y-2 overflow-y-auto pr-2">
           {filteredPilots.length === 0 ? (
-            <div className="text-center py-8 text-text-theme-muted">
+            <div className="text-text-theme-muted py-8 text-center">
               No pilots found
             </div>
           ) : (
@@ -197,11 +197,11 @@ export function PilotSelector({
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-text-theme-primary">
+                        <span className="text-text-theme-primary font-medium">
                           {pilot.callsign || pilot.name}
                         </span>
                         {pilot.callsign && (
-                          <span className="text-sm text-text-theme-secondary">
+                          <span className="text-text-theme-secondary text-sm">
                             ({pilot.name})
                           </span>
                         )}
@@ -218,17 +218,17 @@ export function PilotSelector({
                         )}
                       </div>
                       {pilot.affiliation && (
-                        <div className="text-sm text-text-theme-muted mt-1">
+                        <div className="text-text-theme-muted mt-1 text-sm">
                           {pilot.affiliation}
                         </div>
                       )}
                     </div>
 
                     <div className="text-right">
-                      <div className="font-mono text-lg text-accent">
+                      <div className="text-accent font-mono text-lg">
                         {pilot.skills.gunnery}/{pilot.skills.piloting}
                       </div>
-                      <div className="text-xs text-text-theme-muted">
+                      <div className="text-text-theme-muted text-xs">
                         {getSkillLabel(pilot.skills.gunnery)}
                       </div>
                     </div>
@@ -240,7 +240,7 @@ export function PilotSelector({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end pt-4 border-t border-border-theme-subtle">
+        <div className="border-border-theme-subtle flex justify-end border-t pt-4">
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>

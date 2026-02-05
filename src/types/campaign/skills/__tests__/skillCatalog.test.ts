@@ -5,7 +5,6 @@ import {
   getAllSkillTypes,
   SKILL_CATEGORIES,
 } from '../../../../constants/campaign/skillCatalog';
-import { ISkillType } from '../ISkillType';
 
 describe('Skill Catalog', () => {
   describe('SKILL_CATALOG Structure', () => {
@@ -112,7 +111,7 @@ describe('Skill Catalog', () => {
 
   describe('Skill Type Validation', () => {
     it('should have valid costs array for every skill', () => {
-      for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+      for (const [_skillId, skillType] of Object.entries(SKILL_CATALOG)) {
         expect(skillType.costs).toBeDefined();
         expect(Array.isArray(skillType.costs)).toBe(true);
         expect(skillType.costs).toHaveLength(11);
@@ -132,19 +131,19 @@ describe('Skill Catalog', () => {
         'Edge',
       ];
 
-      for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+      for (const [_skillId, skillType] of Object.entries(SKILL_CATALOG)) {
         expect(validAttributes).toContain(skillType.linkedAttribute);
       }
     });
 
     it('should have targetNumber of 7 for all skills', () => {
-      for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+      for (const [_skillId, skillType] of Object.entries(SKILL_CATALOG)) {
         expect(skillType.targetNumber).toBe(7);
       }
     });
 
     it('should have non-empty name and description for every skill', () => {
-      for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+      for (const [_skillId, skillType] of Object.entries(SKILL_CATALOG)) {
         expect(skillType.name).toBeDefined();
         expect(skillType.name.length).toBeGreaterThan(0);
         expect(skillType.description).toBeDefined();
@@ -299,9 +298,7 @@ describe('Skill Catalog', () => {
           ].includes(skill.id)
         ) {
           categories.add('technical');
-        } else if (
-          ['medicine', 'medtech', 'veterinary'].includes(skill.id)
-        ) {
+        } else if (['medicine', 'medtech', 'veterinary'].includes(skill.id)) {
           categories.add('medical');
         } else if (
           [
@@ -377,9 +374,7 @@ describe('Skill Catalog', () => {
       expect(gunnery.name).toBe('Gunnery');
       expect(gunnery.description).toBe('Ranged weapon accuracy');
       expect(gunnery.targetNumber).toBe(7);
-      expect(gunnery.costs).toEqual([
-        0, 8, 8, 12, 16, 24, 32, 48, 64, 80, 120,
-      ]);
+      expect(gunnery.costs).toEqual([0, 8, 8, 12, 16, 24, 32, 48, 64, 80, 120]);
       expect(gunnery.linkedAttribute).toBe('REF');
     });
 

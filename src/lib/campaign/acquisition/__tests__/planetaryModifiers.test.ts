@@ -22,7 +22,14 @@ import {
 describe('PlanetaryRating enum', () => {
   it('should have all 6 ratings', () => {
     expect(Object.values(PlanetaryRating)).toHaveLength(6);
-    expect(Object.values(PlanetaryRating)).toEqual(['A', 'B', 'C', 'D', 'E', 'F']);
+    expect(Object.values(PlanetaryRating)).toEqual([
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F',
+    ]);
   });
 });
 

@@ -9,9 +9,10 @@
  * - Close (zoom > 0.7): Dots (12px) + all labels + faction indicators
  */
 
+import type Konva from 'konva';
+
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { Stage, Layer, Circle, Text, Ring, Group } from 'react-konva';
-import type Konva from 'konva';
 
 export interface IStarSystem {
   id: string;
@@ -59,9 +60,12 @@ function getLODLevel(zoom: number): LODLevel {
 
 function getDotSize(lod: LODLevel): number {
   switch (lod) {
-    case 'far': return DOT_SIZES.FAR;
-    case 'medium': return DOT_SIZES.MEDIUM;
-    case 'close': return DOT_SIZES.CLOSE;
+    case 'far':
+      return DOT_SIZES.FAR;
+    case 'medium':
+      return DOT_SIZES.MEDIUM;
+    case 'close':
+      return DOT_SIZES.CLOSE;
   }
 }
 
@@ -103,7 +107,8 @@ const StarSystemNode = React.memo(function StarSystemNode({
   const hoverScale = isHovered ? 1.3 : 1;
   const displaySize = baseSize * hoverScale;
   const factionColor = getFactionColor(system.faction);
-  const showLabel = lod === 'close' || (lod === 'medium' && isMajorSystem(system));
+  const showLabel =
+    lod === 'close' || (lod === 'medium' && isMajorSystem(system));
   const showFactionIndicator = lod === 'close';
 
   return (
@@ -125,11 +130,7 @@ const StarSystemNode = React.memo(function StarSystemNode({
       )}
 
       {isHovered && !isSelected && (
-        <Circle
-          radius={displaySize + 8}
-          fill={factionColor}
-          opacity={0.2}
-        />
+        <Circle radius={displaySize + 8} fill={factionColor} opacity={0.2} />
       )}
 
       <Circle
@@ -226,9 +227,10 @@ export function StarmapDisplay({
       if (!pointer) return;
 
       const direction = e.evt.deltaY > 0 ? -1 : 1;
-      const newScale = direction > 0 
-        ? Math.min(MAX_ZOOM, oldScale * ZOOM_STEP) 
-        : Math.max(MIN_ZOOM, oldScale / ZOOM_STEP);
+      const newScale =
+        direction > 0
+          ? Math.min(MAX_ZOOM, oldScale * ZOOM_STEP)
+          : Math.max(MIN_ZOOM, oldScale / ZOOM_STEP);
 
       const mousePointTo = {
         x: (pointer.x - position.x) / oldScale,
@@ -243,7 +245,7 @@ export function StarmapDisplay({
       setZoom(newScale);
       setPosition(newPos);
     },
-    [zoom, position]
+    [zoom, position],
   );
 
   const handleDragEnd = useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
@@ -252,7 +254,7 @@ export function StarmapDisplay({
 
   const handleSystemClick = useCallback(
     (id: string) => onSystemClick?.(id),
-    [onSystemClick]
+    [onSystemClick],
   );
 
   const handleSystemHover = useCallback(
@@ -260,7 +262,7 @@ export function StarmapDisplay({
       setHoveredSystem(id);
       onSystemHover?.(id);
     },
-    [onSystemHover]
+    [onSystemHover],
   );
 
   const handleZoomIn = useCallback(() => {
@@ -310,11 +312,14 @@ export function StarmapDisplay({
         </Layer>
       </Stage>
 
-      <div className="absolute bottom-4 right-4 flex flex-col gap-1" data-testid="zoom-controls">
+      <div
+        className="absolute right-4 bottom-4 flex flex-col gap-1"
+        data-testid="zoom-controls"
+      >
         <button
           type="button"
           onClick={handleZoomIn}
-          className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded shadow-lg transition-colors"
+          className="rounded bg-slate-800 p-2 text-white shadow-lg transition-colors hover:bg-slate-700"
           title="Zoom in"
           data-testid="zoom-in-btn"
         >
@@ -323,7 +328,7 @@ export function StarmapDisplay({
         <button
           type="button"
           onClick={handleZoomOut}
-          className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded shadow-lg transition-colors"
+          className="rounded bg-slate-800 p-2 text-white shadow-lg transition-colors hover:bg-slate-700"
           title="Zoom out"
           data-testid="zoom-out-btn"
         >
@@ -332,7 +337,7 @@ export function StarmapDisplay({
         <button
           type="button"
           onClick={handleResetView}
-          className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded shadow-lg transition-colors"
+          className="rounded bg-slate-800 p-2 text-white shadow-lg transition-colors hover:bg-slate-700"
           title="Reset view"
           data-testid="reset-view-btn"
         >
@@ -340,22 +345,24 @@ export function StarmapDisplay({
         </button>
       </div>
 
-      <div className="absolute top-4 left-4 bg-slate-800/80 text-slate-300 text-xs px-2 py-1 rounded">
+      <div className="absolute top-4 left-4 rounded bg-slate-800/80 px-2 py-1 text-xs text-slate-300">
         Zoom: {(zoom * 100).toFixed(0)}% | LOD: {lod}
       </div>
 
-      <div className="absolute bottom-4 left-4 bg-slate-800/90 text-slate-300 text-xs p-3 rounded shadow-lg">
-        <div className="font-semibold mb-2 text-slate-200">Factions</div>
+      <div className="absolute bottom-4 left-4 rounded bg-slate-800/90 p-3 text-xs text-slate-300 shadow-lg">
+        <div className="mb-2 font-semibold text-slate-200">Factions</div>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-          {Object.entries(FACTION_COLORS).slice(0, 6).map(([faction, color]) => (
-            <div key={faction} className="flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: color }}
-              />
-              <span>{faction}</span>
-            </div>
-          ))}
+          {Object.entries(FACTION_COLORS)
+            .slice(0, 6)
+            .map(([faction, color]) => (
+              <div key={faction} className="flex items-center gap-2">
+                <div
+                  className="h-3 w-3 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+                <span>{faction}</span>
+              </div>
+            ))}
         </div>
       </div>
     </div>

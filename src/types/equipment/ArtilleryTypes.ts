@@ -1,13 +1,13 @@
 /**
  * Artillery & Capital Weapon Type Definitions
- * 
+ *
  * Defines artillery, capital, and support weapons.
- * 
+ *
  * @spec openspec/specs/weapon-system/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 import { WeaponCategory, IWeapon } from './weapons';
 
 /**
@@ -381,6 +381,5 @@ export const CAPITAL_WEAPONS: readonly IWeapon[] = [
  * Get artillery weapon by ID
  */
 export function getArtilleryById(id: string): IWeapon | undefined {
-  return [...ARTILLERY_WEAPONS, ...CAPITAL_WEAPONS].find(w => w.id === id);
+  return [...ARTILLERY_WEAPONS, ...CAPITAL_WEAPONS].find((w) => w.id === id);
 }
-

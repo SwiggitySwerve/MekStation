@@ -3,12 +3,6 @@
   "compilerOptions": {
     "types": ["node", "jest"]
   },
-  "include": [
-    "services/**/*",
-    "types/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["services/**/*", "types/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

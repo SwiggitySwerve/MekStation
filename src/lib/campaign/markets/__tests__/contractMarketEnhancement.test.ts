@@ -1,16 +1,17 @@
-import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import type { ICampaign } from '@/types/campaign/Campaign';
+
+import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { IContract } from '@/types/campaign/Mission';
-import { Money } from '@/types/campaign/Money';
-import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
-import { IFinances } from '@/types/campaign/IFinances';
-import { IForce } from '@/types/campaign/Force';
-import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import {
   AtBContractType,
   CONTRACT_TYPE_DEFINITIONS,
 } from '@/types/campaign/contracts/contractTypes';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { IForce } from '@/types/campaign/Force';
+import { IFinances } from '@/types/campaign/IFinances';
+import { IContract } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
 
 import {
   generateFollowupContract,
@@ -38,7 +39,7 @@ function createTestForce(
   name: string,
   parentForceId?: string,
   subForceIds: string[] = [],
-  unitIds: string[] = []
+  unitIds: string[] = [],
 ): IForce {
   return {
     id,
@@ -56,7 +57,10 @@ function createTestForce(
 function createMockCampaign(unitCount: number = 4): ICampaign {
   const unitIds = Array.from({ length: unitCount }, (_, i) => `unit-${i + 1}`);
   const forces = new Map<string, IForce>();
-  forces.set('force-root', createTestForce('force-root', 'Root', undefined, [], unitIds));
+  forces.set(
+    'force-root',
+    createTestForce('force-root', 'Root', undefined, [], unitIds),
+  );
 
   return {
     id: 'test',
@@ -105,7 +109,7 @@ function createCompletedContract(overrides?: Partial<IContract>): IContract {
 }
 
 function createCompletedAtBContract(
-  atbType: AtBContractType = AtBContractType.GARRISON_DUTY
+  atbType: AtBContractType = AtBContractType.GARRISON_DUTY,
 ): IContract {
   const typeDef = CONTRACT_TYPE_DEFINITIONS[atbType];
   return createCompletedContract({
@@ -184,7 +188,10 @@ describe('Contract Market Enhancements', () => {
       const alwaysLow: RandomFn = () => 0.1;
       const result = generateFollowupContract(campaign, completed, alwaysLow);
       expect(result).not.toBeNull();
-      expect(result!.paymentTerms.basePayment.amount).toBeCloseTo(baseAmount * 1.1, 0);
+      expect(result!.paymentTerms.basePayment.amount).toBeCloseTo(
+        baseAmount * 1.1,
+        0,
+      );
     });
 
     it('should produce ~50% followup rate with seeded random over many trials', () => {
@@ -206,7 +213,9 @@ describe('Contract Market Enhancements', () => {
 
     it('should generate followup for AtB contract with different type from same group', () => {
       const campaign = createMockCampaign();
-      const completed = createCompletedAtBContract(AtBContractType.GARRISON_DUTY);
+      const completed = createCompletedAtBContract(
+        AtBContractType.GARRISON_DUTY,
+      );
       const alwaysLow: RandomFn = () => 0.1;
       const result = generateFollowupContract(campaign, completed, alwaysLow);
       expect(result).not.toBeNull();
@@ -215,7 +224,8 @@ describe('Contract Market Enhancements', () => {
 
       // Should be from garrison group
       const resultDef = CONTRACT_TYPE_DEFINITIONS[result!.atbContractType!];
-      const completedDef = CONTRACT_TYPE_DEFINITIONS[AtBContractType.GARRISON_DUTY];
+      const completedDef =
+        CONTRACT_TYPE_DEFINITIONS[AtBContractType.GARRISON_DUTY];
       expect(resultDef.group).toBe(completedDef.group);
     });
 
@@ -255,19 +265,31 @@ describe('Contract Market Enhancements', () => {
   describe('generateContractsWithStanding', () => {
     it('should generate the requested number of contracts', () => {
       const campaign = createMockCampaign();
-      const contracts = generateContractsWithStanding(campaign, 3, createSeededRandom(42));
+      const contracts = generateContractsWithStanding(
+        campaign,
+        3,
+        createSeededRandom(42),
+      );
       expect(contracts).toHaveLength(3);
     });
 
     it('should default to 5 contracts', () => {
       const campaign = createMockCampaign();
-      const contracts = generateContractsWithStanding(campaign, undefined, createSeededRandom(42));
+      const contracts = generateContractsWithStanding(
+        campaign,
+        undefined,
+        createSeededRandom(42),
+      );
       expect(contracts).toHaveLength(5);
     });
 
     it('should generate contracts with AtB types', () => {
       const campaign = createMockCampaign();
-      const contracts = generateContractsWithStanding(campaign, 5, createSeededRandom(42));
+      const contracts = generateContractsWithStanding(
+        campaign,
+        5,
+        createSeededRandom(42),
+      );
       contracts.forEach((c) => {
         expect(c.atbContractType).toBeDefined();
         expect(Object.values(AtBContractType)).toContain(c.atbContractType);
@@ -276,7 +298,11 @@ describe('Contract Market Enhancements', () => {
 
     it('should generate contracts with valid structure', () => {
       const campaign = createMockCampaign();
-      const contracts = generateContractsWithStanding(campaign, 3, createSeededRandom(99));
+      const contracts = generateContractsWithStanding(
+        campaign,
+        3,
+        createSeededRandom(99),
+      );
       contracts.forEach((c) => {
         expect(c.type).toBe('contract');
         expect(c.status).toBe(MissionStatus.PENDING);
@@ -300,21 +326,31 @@ describe('Contract Market Enhancements', () => {
       for (let i = 0; i < 3; i++) {
         expect(withStanding[i].paymentTerms.basePayment.amount).toBeCloseTo(
           withoutStanding[i].paymentTerms.basePayment.amount,
-          0
+          0,
         );
       }
     });
 
     it('should produce deterministic results with seeded random', () => {
       const campaign = createMockCampaign();
-      const contracts1 = generateContractsWithStanding(campaign, 3, createSeededRandom(77));
-      const contracts2 = generateContractsWithStanding(campaign, 3, createSeededRandom(77));
+      const contracts1 = generateContractsWithStanding(
+        campaign,
+        3,
+        createSeededRandom(77),
+      );
+      const contracts2 = generateContractsWithStanding(
+        campaign,
+        3,
+        createSeededRandom(77),
+      );
 
       for (let i = 0; i < 3; i++) {
         expect(contracts1[i].employerId).toBe(contracts2[i].employerId);
         expect(contracts1[i].targetId).toBe(contracts2[i].targetId);
         expect(contracts1[i].systemId).toBe(contracts2[i].systemId);
-        expect(contracts1[i].atbContractType).toBe(contracts2[i].atbContractType);
+        expect(contracts1[i].atbContractType).toBe(
+          contracts2[i].atbContractType,
+        );
       }
     });
   });
@@ -334,7 +370,13 @@ describe('Contract Market Enhancements', () => {
 
     it('generateAtBContracts produces valid contracts', () => {
       const campaign = createMockCampaign();
-      const contracts = generateAtBContracts(campaign, 3, 0, 0, createSeededRandom(42));
+      const contracts = generateAtBContracts(
+        campaign,
+        3,
+        0,
+        0,
+        createSeededRandom(42),
+      );
       expect(contracts).toHaveLength(3);
       contracts.forEach((c) => {
         expect(c.type).toBe('contract');

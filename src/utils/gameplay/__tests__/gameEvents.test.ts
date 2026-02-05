@@ -7,6 +7,17 @@
  */
 
 import {
+  GameEventType,
+  GamePhase,
+  GameSide,
+  IGameConfig,
+  IGameUnit,
+  Facing,
+  MovementType,
+  IToHitModifier,
+} from '@/types/gameplay';
+
+import {
   generateEventId,
   createGameCreatedEvent,
   createGameStartedEvent,
@@ -27,17 +38,6 @@ import {
   serializeEvents,
   deserializeEvents,
 } from '../gameEvents';
-
-import {
-  GameEventType,
-  GamePhase,
-  GameSide,
-  IGameConfig,
-  IGameUnit,
-  Facing,
-  MovementType,
-  IToHitModifier,
-} from '@/types/gameplay';
 
 // =============================================================================
 // Test Fixtures
@@ -90,7 +90,8 @@ describe('generateEventId', () => {
   it('should generate UUID-format string', () => {
     const id = generateEventId();
     // UUID v4 format: 8-4-4-4-12 hex characters
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     expect(id).toMatch(uuidRegex);
   });
 });
@@ -124,7 +125,10 @@ describe('Lifecycle Event Factories', () => {
       ];
 
       const event = createGameCreatedEvent('game-1', config, units);
-      const payload = event.payload as { config: IGameConfig; units: readonly IGameUnit[] };
+      const payload = event.payload as {
+        config: IGameConfig;
+        units: readonly IGameUnit[];
+      };
 
       expect(payload.config).toBe(config);
       expect(payload.units).toBe(units);
@@ -166,7 +170,7 @@ describe('Lifecycle Event Factories', () => {
         10,
         GamePhase.End,
         GameSide.Player,
-        'destruction'
+        'destruction',
       );
 
       expect(event.type).toBe(GameEventType.GameEnded);
@@ -183,7 +187,7 @@ describe('Lifecycle Event Factories', () => {
         5,
         GamePhase.End,
         GameSide.Opponent,
-        'concede'
+        'concede',
       );
       const payload = event.payload as {
         winner: GameSide | 'draw';
@@ -201,16 +205,24 @@ describe('Lifecycle Event Factories', () => {
         20,
         GamePhase.End,
         'draw',
-        'turn_limit'
+        'turn_limit',
       );
-      const payload = event.payload as { winner: GameSide | 'draw'; reason: string };
+      const payload = event.payload as {
+        winner: GameSide | 'draw';
+        reason: string;
+      };
 
       expect(payload.winner).toBe('draw');
       expect(payload.reason).toBe('turn_limit');
     });
 
     it('should support all end reasons', () => {
-      const reasons = ['destruction', 'concede', 'turn_limit', 'objective'] as const;
+      const reasons = [
+        'destruction',
+        'concede',
+        'turn_limit',
+        'objective',
+      ] as const;
 
       for (const reason of reasons) {
         const event = createGameEndedEvent(
@@ -219,7 +231,7 @@ describe('Lifecycle Event Factories', () => {
           1,
           GamePhase.End,
           GameSide.Player,
-          reason
+          reason,
         );
         const payload = event.payload as { reason: string };
         expect(payload.reason).toBe(reason);
@@ -240,7 +252,7 @@ describe('Turn/Phase Event Factories', () => {
         5,
         2,
         GamePhase.Initiative,
-        GamePhase.Movement
+        GamePhase.Movement,
       );
 
       expect(event.type).toBe(GameEventType.PhaseChanged);
@@ -256,9 +268,12 @@ describe('Turn/Phase Event Factories', () => {
         10,
         3,
         GamePhase.Movement,
-        GamePhase.WeaponAttack
+        GamePhase.WeaponAttack,
       );
-      const payload = event.payload as { fromPhase: GamePhase; toPhase: GamePhase };
+      const payload = event.payload as {
+        fromPhase: GamePhase;
+        toPhase: GamePhase;
+      };
 
       expect(payload.fromPhase).toBe(GamePhase.Movement);
       expect(payload.toPhase).toBe(GamePhase.WeaponAttack);
@@ -275,8 +290,17 @@ describe('Turn/Phase Event Factories', () => {
       ];
 
       for (let i = 0; i < phases.length - 1; i++) {
-        const event = createPhaseChangedEvent('game-1', i, 1, phases[i], phases[i + 1]);
-        const payload = event.payload as { fromPhase: GamePhase; toPhase: GamePhase };
+        const event = createPhaseChangedEvent(
+          'game-1',
+          i,
+          1,
+          phases[i],
+          phases[i + 1],
+        );
+        const payload = event.payload as {
+          fromPhase: GamePhase;
+          toPhase: GamePhase;
+        };
 
         expect(payload.fromPhase).toBe(phases[i]);
         expect(payload.toPhase).toBe(phases[i + 1]);
@@ -299,7 +323,7 @@ describe('Initiative Event Factories', () => {
         8,
         5,
         GameSide.Player,
-        GameSide.Opponent
+        GameSide.Opponent,
       );
 
       expect(event.type).toBe(GameEventType.InitiativeRolled);
@@ -317,7 +341,7 @@ describe('Initiative Event Factories', () => {
         10,
         7,
         GameSide.Player,
-        GameSide.Player
+        GameSide.Player,
       );
       const payload = event.payload as {
         playerRoll: number;
@@ -340,7 +364,7 @@ describe('Initiative Event Factories', () => {
         5,
         9,
         GameSide.Opponent,
-        GameSide.Player
+        GameSide.Player,
       );
       const payload = event.payload as {
         winner: GameSide;
@@ -360,9 +384,12 @@ describe('Initiative Event Factories', () => {
         2,
         12,
         GameSide.Opponent,
-        GameSide.Player
+        GameSide.Player,
       );
-      const minPayload = minEvent.payload as { playerRoll: number; opponentRoll: number };
+      const minPayload = minEvent.payload as {
+        playerRoll: number;
+        opponentRoll: number;
+      };
       expect(minPayload.playerRoll).toBe(2);
       expect(minPayload.opponentRoll).toBe(12);
 
@@ -374,9 +401,12 @@ describe('Initiative Event Factories', () => {
         12,
         2,
         GameSide.Player,
-        GameSide.Opponent
+        GameSide.Opponent,
       );
-      const maxPayload = maxEvent.payload as { playerRoll: number; opponentRoll: number };
+      const maxPayload = maxEvent.payload as {
+        playerRoll: number;
+        opponentRoll: number;
+      };
       expect(maxPayload.playerRoll).toBe(12);
       expect(maxPayload.opponentRoll).toBe(2);
     });
@@ -400,7 +430,7 @@ describe('Movement Event Factories', () => {
         Facing.Northeast,
         MovementType.Walk,
         4,
-        0
+        0,
       );
 
       expect(event.type).toBe(GameEventType.MovementDeclared);
@@ -425,7 +455,7 @@ describe('Movement Event Factories', () => {
         Facing.South,
         MovementType.Run,
         8,
-        2
+        2,
       );
       const payload = event.payload as {
         unitId: string;
@@ -457,7 +487,7 @@ describe('Movement Event Factories', () => {
         Facing.Northwest,
         MovementType.Jump,
         5,
-        5
+        5,
       );
       const payload = event.payload as {
         movementType: MovementType;
@@ -480,7 +510,7 @@ describe('Movement Event Factories', () => {
         Facing.North,
         MovementType.Stationary,
         0,
-        0
+        0,
       );
       const payload = event.payload as {
         from: { q: number; r: number };
@@ -534,7 +564,7 @@ describe('Combat Event Factories', () => {
         'unit-2',
         ['medium_laser_1', 'medium_laser_2'],
         7,
-        modifiers
+        modifiers,
       );
 
       expect(event.type).toBe(GameEventType.AttackDeclared);
@@ -556,7 +586,7 @@ describe('Combat Event Factories', () => {
         'target-1',
         ['ppc', 'ac10'],
         9,
-        modifiers
+        modifiers,
       );
       const payload = event.payload as {
         attackerId: string;
@@ -582,7 +612,7 @@ describe('Combat Event Factories', () => {
         'unit-2',
         ['gauss_rifle'],
         5,
-        []
+        [],
       );
       const payload = event.payload as { weapons: readonly string[] };
 
@@ -604,7 +634,7 @@ describe('Combat Event Factories', () => {
         7,
         true,
         'center_torso',
-        5
+        5,
       );
 
       expect(event.type).toBe(GameEventType.AttackResolved);
@@ -627,7 +657,7 @@ describe('Combat Event Factories', () => {
         7,
         true,
         'left_arm',
-        10
+        10,
       );
       const payload = event.payload as {
         attackerId: string;
@@ -662,7 +692,7 @@ describe('Combat Event Factories', () => {
         8,
         false,
         undefined,
-        undefined
+        undefined,
       );
       const payload = event.payload as {
         hit: boolean;
@@ -688,7 +718,7 @@ describe('Combat Event Factories', () => {
         15,
         20,
         false,
-        undefined
+        undefined,
       );
 
       expect(event.type).toBe(GameEventType.DamageApplied);
@@ -710,7 +740,7 @@ describe('Combat Event Factories', () => {
         5,
         12,
         false,
-        ['ammo_srm6']
+        ['ammo_srm6'],
       );
       const payload = event.payload as {
         unitId: string;
@@ -742,7 +772,7 @@ describe('Combat Event Factories', () => {
         0,
         0,
         true,
-        ['hand_actuator', 'medium_laser']
+        ['hand_actuator', 'medium_laser'],
       );
       const payload = event.payload as {
         locationDestroyed: boolean;
@@ -768,9 +798,11 @@ describe('Combat Event Factories', () => {
         4,
         3,
         false,
-        undefined
+        undefined,
       );
-      const payload = event.payload as { criticals: readonly string[] | undefined };
+      const payload = event.payload as {
+        criticals: readonly string[] | undefined;
+      };
 
       expect(payload.criticals).toBeUndefined();
     });
@@ -792,7 +824,7 @@ describe('Status Event Factories', () => {
         'unit-1',
         10,
         'weapons',
-        15
+        15,
       );
 
       expect(event.type).toBe(GameEventType.HeatGenerated);
@@ -812,7 +844,7 @@ describe('Status Event Factories', () => {
         'mech-1',
         4,
         'movement',
-        8
+        8,
       );
       const payload = event.payload as {
         unitId: string;
@@ -828,7 +860,12 @@ describe('Status Event Factories', () => {
     });
 
     it('should handle all heat sources', () => {
-      const sources = ['movement', 'weapons', 'dissipation', 'external'] as const;
+      const sources = [
+        'movement',
+        'weapons',
+        'dissipation',
+        'external',
+      ] as const;
 
       for (const source of sources) {
         const event = createHeatGeneratedEvent(
@@ -839,7 +876,7 @@ describe('Status Event Factories', () => {
           'unit-1',
           5,
           source,
-          10
+          10,
         );
         const payload = event.payload as { source: string };
         expect(payload.source).toBe(source);
@@ -893,7 +930,7 @@ describe('Status Event Factories', () => {
         2,
         'head_hit',
         true,
-        true
+        true,
       );
 
       expect(event.type).toBe(GameEventType.PilotHit);
@@ -915,7 +952,7 @@ describe('Status Event Factories', () => {
         4,
         'ammo_explosion',
         true,
-        false
+        false,
       );
       const payload = event.payload as {
         unitId: string;
@@ -935,7 +972,11 @@ describe('Status Event Factories', () => {
     });
 
     it('should handle all pilot damage sources', () => {
-      const sources = ['head_hit', 'ammo_explosion', 'mech_destruction'] as const;
+      const sources = [
+        'head_hit',
+        'ammo_explosion',
+        'mech_destruction',
+      ] as const;
 
       for (const source of sources) {
         const event = createPilotHitEvent(
@@ -948,7 +989,7 @@ describe('Status Event Factories', () => {
           1,
           source,
           false,
-          undefined
+          undefined,
         );
         const payload = event.payload as { source: string };
         expect(payload.source).toBe(source);
@@ -966,7 +1007,7 @@ describe('Status Event Factories', () => {
         1,
         'head_hit',
         false,
-        undefined
+        undefined,
       );
       const payload = event.payload as {
         consciousnessCheckRequired: boolean;
@@ -986,7 +1027,7 @@ describe('Status Event Factories', () => {
         7,
         GamePhase.WeaponAttack,
         'unit-2',
-        'damage'
+        'damage',
       );
 
       expect(event.type).toBe(GameEventType.UnitDestroyed);
@@ -1004,7 +1045,7 @@ describe('Status Event Factories', () => {
         7,
         GamePhase.Heat,
         'mech-destroyed',
-        'shutdown'
+        'shutdown',
       );
       const payload = event.payload as {
         unitId: string;
@@ -1016,10 +1057,22 @@ describe('Status Event Factories', () => {
     });
 
     it('should handle all destruction causes', () => {
-      const causes = ['damage', 'ammo_explosion', 'pilot_death', 'shutdown'] as const;
+      const causes = [
+        'damage',
+        'ammo_explosion',
+        'pilot_death',
+        'shutdown',
+      ] as const;
 
       for (const cause of causes) {
-        const event = createUnitDestroyedEvent('game-1', 1, 1, GamePhase.End, 'unit-1', cause);
+        const event = createUnitDestroyedEvent(
+          'game-1',
+          1,
+          1,
+          GamePhase.End,
+          'unit-1',
+          cause,
+        );
         const payload = event.payload as { cause: string };
         expect(payload.cause).toBe(cause);
       }
@@ -1085,7 +1138,7 @@ describe('Event Serialization', () => {
         'target',
         ['weapon1', 'weapon2'],
         7,
-        modifiers
+        modifiers,
       );
       const json = serializeEvent(original);
 
@@ -1125,9 +1178,17 @@ describe('Event Serialization', () => {
   describe('deserializeEvents', () => {
     it('should deserialize JSON array string to events', () => {
       const original = [
-        createGameCreatedEvent('game-1', createTestConfig(), [createTestUnit()]),
+        createGameCreatedEvent('game-1', createTestConfig(), [
+          createTestUnit(),
+        ]),
         createGameStartedEvent('game-1', 1, GameSide.Player),
-        createPhaseChangedEvent('game-1', 2, 1, GamePhase.Initiative, GamePhase.Movement),
+        createPhaseChangedEvent(
+          'game-1',
+          2,
+          1,
+          GamePhase.Initiative,
+          GamePhase.Movement,
+        ),
       ];
       const json = serializeEvents(original);
 
@@ -1149,9 +1210,19 @@ describe('Event Serialization', () => {
   describe('round-trip serialization', () => {
     it('should maintain event integrity through serialize/deserialize', () => {
       const events = [
-        createGameCreatedEvent('game-1', createTestConfig(), [createTestUnit()]),
+        createGameCreatedEvent('game-1', createTestConfig(), [
+          createTestUnit(),
+        ]),
         createGameStartedEvent('game-1', 1, GameSide.Player),
-        createInitiativeRolledEvent('game-1', 2, 1, 7, 5, GameSide.Player, GameSide.Opponent),
+        createInitiativeRolledEvent(
+          'game-1',
+          2,
+          1,
+          7,
+          5,
+          GameSide.Player,
+          GameSide.Opponent,
+        ),
         createMovementDeclaredEvent(
           'game-1',
           3,
@@ -1162,7 +1233,7 @@ describe('Event Serialization', () => {
           Facing.North,
           MovementType.Walk,
           4,
-          0
+          0,
         ),
         createAttackDeclaredEvent(
           'game-1',
@@ -1172,13 +1243,58 @@ describe('Event Serialization', () => {
           'unit-2',
           ['laser'],
           6,
-          createTestModifiers()
+          createTestModifiers(),
         ),
-        createDamageAppliedEvent('game-1', 5, 1, 'unit-2', 'ct', 5, 10, 15, false, undefined),
-        createHeatGeneratedEvent('game-1', 6, 1, GamePhase.Heat, 'unit-1', 5, 'weapons', 10),
-        createPilotHitEvent('game-1', 7, 1, GamePhase.WeaponAttack, 'unit-2', 1, 1, 'head_hit', false, undefined),
-        createUnitDestroyedEvent('game-1', 8, 1, GamePhase.End, 'unit-2', 'damage'),
-        createGameEndedEvent('game-1', 9, 1, GamePhase.End, GameSide.Player, 'destruction'),
+        createDamageAppliedEvent(
+          'game-1',
+          5,
+          1,
+          'unit-2',
+          'ct',
+          5,
+          10,
+          15,
+          false,
+          undefined,
+        ),
+        createHeatGeneratedEvent(
+          'game-1',
+          6,
+          1,
+          GamePhase.Heat,
+          'unit-1',
+          5,
+          'weapons',
+          10,
+        ),
+        createPilotHitEvent(
+          'game-1',
+          7,
+          1,
+          GamePhase.WeaponAttack,
+          'unit-2',
+          1,
+          1,
+          'head_hit',
+          false,
+          undefined,
+        ),
+        createUnitDestroyedEvent(
+          'game-1',
+          8,
+          1,
+          GamePhase.End,
+          'unit-2',
+          'damage',
+        ),
+        createGameEndedEvent(
+          'game-1',
+          9,
+          1,
+          GamePhase.End,
+          GameSide.Player,
+          'destruction',
+        ),
       ];
 
       const json = serializeEvents(events);
@@ -1189,7 +1305,9 @@ describe('Event Serialization', () => {
         expect(restored[i].type).toBe(events[i].type);
         expect(restored[i].gameId).toBe(events[i].gameId);
         expect(restored[i].sequence).toBe(events[i].sequence);
-        expect(JSON.stringify(restored[i].payload)).toBe(JSON.stringify(events[i].payload));
+        expect(JSON.stringify(restored[i].payload)).toBe(
+          JSON.stringify(events[i].payload),
+        );
       }
     });
   });

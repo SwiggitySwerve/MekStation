@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { TabValidationCounts } from '@/utils/validation/validationNavigation';
 
 interface ValidationTabBadgeProps {
@@ -21,7 +22,7 @@ export function ValidationTabBadge({
   if (errors > 0) {
     return (
       <span
-        className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full bg-red-500 text-white ${className}`}
+        className={`inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ${className}`}
         aria-label={`${errors} error${errors !== 1 ? 's' : ''}`}
       >
         {errors > 99 ? '99+' : errors}
@@ -32,7 +33,7 @@ export function ValidationTabBadge({
   if (warnings > 0) {
     return (
       <span
-        className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full bg-amber-500 text-black ${className}`}
+        className={`inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-bold text-black ${className}`}
         aria-label={`${warnings} warning${warnings !== 1 ? 's' : ''}`}
       >
         {warnings > 99 ? '99+' : warnings}
@@ -62,13 +63,13 @@ export function ValidationTabBadgeCompact({
     <span className={`inline-flex items-center gap-0.5 ${className}`}>
       {errorCount > 0 && (
         <span
-          className="inline-flex items-center justify-center w-2 h-2 rounded-full bg-red-500"
+          className="inline-flex h-2 w-2 items-center justify-center rounded-full bg-red-500"
           aria-label={`${errorCount} error${errorCount !== 1 ? 's' : ''}`}
         />
       )}
       {warningCount > 0 && errorCount === 0 && (
         <span
-          className="inline-flex items-center justify-center w-2 h-2 rounded-full bg-amber-500"
+          className="inline-flex h-2 w-2 items-center justify-center rounded-full bg-amber-500"
           aria-label={`${warningCount} warning${warningCount !== 1 ? 's' : ''}`}
         />
       )}

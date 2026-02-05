@@ -17,7 +17,7 @@ Mobile users need consistent, easily accessible navigation across all pages. The
 
 ## Impact
 
-- **Affected specs**: 
+- **Affected specs**:
   - `app-navigation` (NEW) - Global navigation sidebar and mobile header
   - `mobile-loadout-tray` - Menu button integration in bottom tray
 - **Affected code**:

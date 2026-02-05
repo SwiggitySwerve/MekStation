@@ -1,17 +1,11 @@
 /**
  * Common Service Types
- * 
+ *
  * Shared types used across all service domains.
- * 
+ *
  * @spec openspec/specs/persistence-services/spec.md
  * @spec openspec/specs/unit-services/spec.md
  */
-
-import { TechBase } from '@/types/enums/TechBase';
-import { Era } from '@/types/enums/Era';
-import { WeightClass } from '@/types/enums/WeightClass';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { EquipmentCategory } from '@/types/equipment';
 
 // ============================================================================
 // RESULT TYPES (re-exported from core)
@@ -67,9 +61,9 @@ export function validResult(): IValidationResult {
 export function invalidResult(errors: IValidationError[]): IValidationResult {
   return {
     isValid: false,
-    errors: errors.filter(e => e.severity === ValidationSeverity.ERROR),
-    warnings: errors.filter(e => e.severity === ValidationSeverity.WARNING),
-    info: errors.filter(e => e.severity === ValidationSeverity.INFO),
+    errors: errors.filter((e) => e.severity === ValidationSeverity.ERROR),
+    warnings: errors.filter((e) => e.severity === ValidationSeverity.WARNING),
+    info: errors.filter((e) => e.severity === ValidationSeverity.INFO),
   };
 }
 
@@ -82,14 +76,22 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 export { UnitType };
 
 // Re-export unit index and query types from canonical location
-export type { IUnitIndexEntry, IUnitQueryCriteria, ISearchOptions } from '@/types/unit/UnitIndex';
+export type {
+  IUnitIndexEntry,
+  IUnitQueryCriteria,
+  ISearchOptions,
+} from '@/types/unit/UnitIndex';
 
 // ============================================================================
 // EQUIPMENT TYPES
 // ============================================================================
 
 // Re-export equipment query and calculation types from canonical location
-export type { IEquipmentQueryCriteria, IVariableEquipmentContext, ICalculatedEquipmentProperties } from '@/types/equipment/EquipmentQuery';
+export type {
+  IEquipmentQueryCriteria,
+  IVariableEquipmentContext,
+  ICalculatedEquipmentProperties,
+} from '@/types/equipment/EquipmentQuery';
 
 // ============================================================================
 // IMPORT/EXPORT TYPES
@@ -119,4 +121,3 @@ export interface IPaginatedResult<T> {
   readonly pageSize: number;
   readonly totalPages: number;
 }
-

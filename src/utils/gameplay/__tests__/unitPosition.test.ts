@@ -4,6 +4,8 @@
  * Tests for unit position management utilities.
  */
 
+import { Facing, IHexCoordinate, IUnitPosition } from '@/types/gameplay';
+
 import {
   createUnitPosition,
   setPositionCoord,
@@ -27,13 +29,14 @@ import {
   getAllPositions,
   getAllUnitIds,
 } from '../unitPosition';
-import { Facing, IHexCoordinate, IUnitPosition } from '@/types/gameplay';
 
 // =============================================================================
 // Test Fixtures
 // =============================================================================
 
-function createTestPosition(overrides: Partial<IUnitPosition> = {}): IUnitPosition {
+function createTestPosition(
+  overrides: Partial<IUnitPosition> = {},
+): IUnitPosition {
   return {
     unitId: 'unit-1',
     coord: { q: 0, r: 0 },
@@ -58,19 +61,33 @@ describe('createUnitPosition', () => {
   });
 
   it('should create a position with custom facing', () => {
-    const position = createUnitPosition('unit-1', { q: 0, r: 0 }, Facing.Southeast);
+    const position = createUnitPosition(
+      'unit-1',
+      { q: 0, r: 0 },
+      Facing.Southeast,
+    );
 
     expect(position.facing).toBe(Facing.Southeast);
   });
 
   it('should create a position with prone status', () => {
-    const position = createUnitPosition('unit-1', { q: 0, r: 0 }, Facing.North, true);
+    const position = createUnitPosition(
+      'unit-1',
+      { q: 0, r: 0 },
+      Facing.North,
+      true,
+    );
 
     expect(position.prone).toBe(true);
   });
 
   it('should create a position with all custom values', () => {
-    const position = createUnitPosition('mech-alpha', { q: -2, r: 4 }, Facing.Southwest, true);
+    const position = createUnitPosition(
+      'mech-alpha',
+      { q: -2, r: 4 },
+      Facing.Southwest,
+      true,
+    );
 
     expect(position.unitId).toBe('mech-alpha');
     expect(position.coord).toEqual({ q: -2, r: 4 });
@@ -190,14 +207,20 @@ describe('rotateFacingCounterClockwise', () => {
   it('should rotate one step counter-clockwise by default', () => {
     expect(rotateFacingCounterClockwise(Facing.North)).toBe(Facing.Northwest);
     expect(rotateFacingCounterClockwise(Facing.Northeast)).toBe(Facing.North);
-    expect(rotateFacingCounterClockwise(Facing.Southeast)).toBe(Facing.Northeast);
+    expect(rotateFacingCounterClockwise(Facing.Southeast)).toBe(
+      Facing.Northeast,
+    );
     expect(rotateFacingCounterClockwise(Facing.South)).toBe(Facing.Southeast);
     expect(rotateFacingCounterClockwise(Facing.Southwest)).toBe(Facing.South);
-    expect(rotateFacingCounterClockwise(Facing.Northwest)).toBe(Facing.Southwest);
+    expect(rotateFacingCounterClockwise(Facing.Northwest)).toBe(
+      Facing.Southwest,
+    );
   });
 
   it('should rotate multiple steps counter-clockwise', () => {
-    expect(rotateFacingCounterClockwise(Facing.North, 2)).toBe(Facing.Southwest);
+    expect(rotateFacingCounterClockwise(Facing.North, 2)).toBe(
+      Facing.Southwest,
+    );
     expect(rotateFacingCounterClockwise(Facing.North, 3)).toBe(Facing.South);
   });
 
@@ -206,7 +229,9 @@ describe('rotateFacingCounterClockwise', () => {
   });
 
   it('should handle more than 6 steps', () => {
-    expect(rotateFacingCounterClockwise(Facing.North, 7)).toBe(Facing.Northwest);
+    expect(rotateFacingCounterClockwise(Facing.North, 7)).toBe(
+      Facing.Northwest,
+    );
   });
 });
 
@@ -253,7 +278,7 @@ describe('getFacingDifference', () => {
     for (let f1 = 0; f1 < 6; f1++) {
       for (let f2 = 0; f2 < 6; f2++) {
         expect(getFacingDifference(f1 as Facing, f2 as Facing)).toBe(
-          getFacingDifference(f2 as Facing, f1 as Facing)
+          getFacingDifference(f2 as Facing, f1 as Facing),
         );
       }
     }
@@ -313,8 +338,16 @@ describe('isSameHex', () => {
   });
 
   it('should ignore facing and prone status', () => {
-    const a = createTestPosition({ coord: { q: 5, r: 5 }, facing: Facing.North, prone: false });
-    const b = createTestPosition({ coord: { q: 5, r: 5 }, facing: Facing.South, prone: true });
+    const a = createTestPosition({
+      coord: { q: 5, r: 5 },
+      facing: Facing.North,
+      prone: false,
+    });
+    const b = createTestPosition({
+      coord: { q: 5, r: 5 },
+      facing: Facing.South,
+      prone: true,
+    });
 
     expect(isSameHex(a, b)).toBe(true);
   });
@@ -383,8 +416,14 @@ describe('setUnitPosition', () => {
 
   it('should update existing position', () => {
     const map = createPositionMap();
-    const position1 = createTestPosition({ unitId: 'unit-1', coord: { q: 0, r: 0 } });
-    const position2 = createTestPosition({ unitId: 'unit-1', coord: { q: 5, r: 5 } });
+    const position1 = createTestPosition({
+      unitId: 'unit-1',
+      coord: { q: 0, r: 0 },
+    });
+    const position2 = createTestPosition({
+      unitId: 'unit-1',
+      coord: { q: 5, r: 5 },
+    });
 
     const map1 = setUnitPosition(map, position1);
     const map2 = setUnitPosition(map1, position2);
@@ -433,7 +472,10 @@ describe('removeUnitPosition', () => {
 describe('findUnitAtCoord', () => {
   it('should find unit at specified coordinate', () => {
     let map = createPositionMap();
-    const position = createTestPosition({ unitId: 'unit-1', coord: { q: 3, r: -2 } });
+    const position = createTestPosition({
+      unitId: 'unit-1',
+      coord: { q: 3, r: -2 },
+    });
     map = setUnitPosition(map, position);
 
     const found = findUnitAtCoord(map, { q: 3, r: -2 });
@@ -458,8 +500,14 @@ describe('findUnitAtCoord', () => {
   it('should find first unit if multiple at same coord (edge case)', () => {
     // Note: In practice, shouldn't have multiple units at same coord
     let map = createPositionMap();
-    map = setUnitPosition(map, createTestPosition({ unitId: 'unit-1', coord: { q: 0, r: 0 } }));
-    map = setUnitPosition(map, createTestPosition({ unitId: 'unit-2', coord: { q: 0, r: 0 } }));
+    map = setUnitPosition(
+      map,
+      createTestPosition({ unitId: 'unit-1', coord: { q: 0, r: 0 } }),
+    );
+    map = setUnitPosition(
+      map,
+      createTestPosition({ unitId: 'unit-2', coord: { q: 0, r: 0 } }),
+    );
 
     const found = findUnitAtCoord(map, { q: 0, r: 0 });
     expect(['unit-1', 'unit-2']).toContain(found?.unitId);
@@ -483,7 +531,7 @@ describe('getAllPositions', () => {
     const positions = getAllPositions(map);
     expect(positions.length).toBe(3);
 
-    const unitIds = positions.map(p => p.unitId);
+    const unitIds = positions.map((p) => p.unitId);
     expect(unitIds).toContain('unit-1');
     expect(unitIds).toContain('unit-2');
     expect(unitIds).toContain('unit-3');

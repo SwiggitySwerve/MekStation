@@ -1,6 +1,7 @@
 # Implementation Tasks
 
 ## 1. Core Turnover System
+
 - [ ] 1.1 Implement 19 turnover modifier functions
   - Create `src/lib/campaign/turnover/modifiers/` directory
   - Implement 9 real modifiers (founder, age, injury, officer, mission status, service contract, skill desirability, recent promotion, base target)
@@ -63,6 +64,7 @@
   - Acceptance: Manual verification in dev server, turnover events display correctly
 
 ## 2. Testing
+
 - [ ] 2.1 Write comprehensive tests
   - Test each modifier function with exact MekHQ values
   - Test core check with deterministic random
@@ -73,6 +75,7 @@
   - Acceptance: 100% test pass rate, TDD approach maintained
 
 ## 3. Documentation
+
 - [ ] 3.1 Update documentation
   - Document turnover system in campaign guide
   - Document stub modifiers and future expansion

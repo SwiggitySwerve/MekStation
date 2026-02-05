@@ -3,6 +3,7 @@
 ## Context
 
 MekStation is a BattleTech unit construction app. This design extends it to support gameplay tracking with an architecture that enables:
+
 - Solo play (single player controls all units)
 - Future multiplayer (synchronized game state)
 - Audit trails (event sourcing for replay/undo)
@@ -27,19 +28,22 @@ MekStation is a BattleTech unit construction app. This design extends it to supp
 
 **What**: Game state is never stored directly. Instead, all actions are stored as immutable events, and current state is computed by replaying events.
 
-**Why**: 
+**Why**:
+
 - Natural audit log (events ARE the log)
 - Replay by replaying events to any point
 - Undo by replaying to earlier state and branching
 - Multiplayer sync by exchanging events
 
 **Alternatives Considered**:
+
 - Snapshot-based state: Simpler but loses history
 - Hybrid (events + periodic snapshots): Added complexity, consider for Phase 4 if performance requires
 
 ### Decision 2: Unit Card Model
 
 **What**: A Unit Card combines three layers:
+
 1. **Mech Build** (static, from construction)
 2. **Pilot** (persistent across games)
 3. **Game State** (current session only)
@@ -131,11 +135,11 @@ game_events
 
 ## Risks / Trade-offs
 
-| Risk | Mitigation |
-|------|------------|
-| Event replay gets slow with long games | Add snapshots at turn boundaries (Phase 4) |
-| Complex state derivation | Start simple, add complexity incrementally |
-| Multiplayer sync conflicts | Design events to be commutative where possible |
+| Risk                                   | Mitigation                                     |
+| -------------------------------------- | ---------------------------------------------- |
+| Event replay gets slow with long games | Add snapshots at turn boundaries (Phase 4)     |
+| Complex state derivation               | Start simple, add complexity incrementally     |
+| Multiplayer sync conflicts             | Design events to be commutative where possible |
 
 ## Open Questions
 

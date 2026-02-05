@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AmmoCounter } from './AmmoCounter';
+
 import { useState } from 'react';
+
+import { AmmoCounter } from './AmmoCounter';
 
 const meta: Meta<typeof AmmoCounter> = {
   title: 'Gameplay/AmmoCounter',

@@ -1,6 +1,8 @@
-import type { ISkillType } from './ISkillType';
-import { getSkillValue } from './ISkill';
 import type { IPerson } from '@/types/campaign/Person';
+
+import type { ISkillType } from './ISkillType';
+
+import { getSkillValue } from './ISkill';
 
 export const UNSKILLED_TECH_VALUE = 10;
 

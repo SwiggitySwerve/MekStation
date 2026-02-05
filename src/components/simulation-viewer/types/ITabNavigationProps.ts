@@ -10,7 +10,10 @@
  * };
  */
 export interface ITabNavigationProps {
-  readonly activeTab: 'campaign-dashboard' | 'encounter-history' | 'analysis-bugs';
+  readonly activeTab:
+    | 'campaign-dashboard'
+    | 'encounter-history'
+    | 'analysis-bugs';
   readonly onTabChange: (tab: string) => void;
   readonly className?: string;
 }

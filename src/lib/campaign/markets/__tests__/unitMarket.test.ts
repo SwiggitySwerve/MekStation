@@ -10,16 +10,18 @@
  * - purchaseUnit: offer validation and purchase
  */
 
-import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import {
+  ICampaign,
+  createDefaultCampaignOptions,
+} from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { IFinances } from '@/types/campaign/IFinances';
-import { Money } from '@/types/campaign/Money';
 import {
   UnitMarketRarity,
   UnitMarketType,
-  RARITY_VALUES,
   MARKET_TYPE_QUALITY,
 } from '@/types/campaign/markets/marketTypes';
+import { Money } from '@/types/campaign/Money';
 
 import {
   calculateItemCount,
@@ -43,7 +45,9 @@ function createSeededRandom(seed: number): RandomFn {
   };
 }
 
-function createTestCampaign(dateStr: string = '3025-06-15T00:00:00Z'): ICampaign {
+function createTestCampaign(
+  dateStr: string = '3025-06-15T00:00:00Z',
+): ICampaign {
   return {
     id: 'campaign-001',
     name: 'Test Campaign',
@@ -128,8 +132,9 @@ describe('Unit Market', () => {
     it('should produce deterministic results with same seed', () => {
       const r1 = createSeededRandom(42);
       const r2 = createSeededRandom(42);
-      expect(calculateItemCount(UnitMarketRarity.COMMON, r1))
-        .toBe(calculateItemCount(UnitMarketRarity.COMMON, r2));
+      expect(calculateItemCount(UnitMarketRarity.COMMON, r1)).toBe(
+        calculateItemCount(UnitMarketRarity.COMMON, r2),
+      );
     });
 
     it('should use correct formula: max(0, d6 + rarityValue - 3)', () => {
@@ -140,7 +145,9 @@ describe('Unit Market', () => {
       // d6=1, MYTHIC(-1): 1+(-1)-3=-3 -> max(0,-3)=0
       expect(calculateItemCount(UnitMarketRarity.MYTHIC, alwaysMin)).toBe(0);
       // d6=1, UBIQUITOUS(10): 1+10-3=8
-      expect(calculateItemCount(UnitMarketRarity.UBIQUITOUS, alwaysMin)).toBe(8);
+      expect(calculateItemCount(UnitMarketRarity.UBIQUITOUS, alwaysMin)).toBe(
+        8,
+      );
     });
   });
 
@@ -179,9 +186,7 @@ describe('Unit Market', () => {
 
     it('should return 100 for middle rolls (6-8)', () => {
       // Need d1+d2 in [6,8]. d1=3, d2=3 -> roll=6
-      let callCount = 0;
       const fixedRandom: RandomFn = () => {
-        callCount++;
         return 0.4; // floor(0.4*6)+1 = 3
       };
       // d1=3, d2=3, roll=6, modifier=0, price=100
@@ -229,7 +234,12 @@ describe('Unit Market', () => {
     it('should return "A" or "F" for BLACK_MARKET', () => {
       const results = new Set<string>();
       for (let seed = 0; seed < 100; seed++) {
-        results.add(getMarketTypeQuality(UnitMarketType.BLACK_MARKET, createSeededRandom(seed)));
+        results.add(
+          getMarketTypeQuality(
+            UnitMarketType.BLACK_MARKET,
+            createSeededRandom(seed),
+          ),
+        );
       }
       expect(results.size).toBe(2);
       expect(results.has('A')).toBe(true);
@@ -238,21 +248,27 @@ describe('Unit Market', () => {
 
     it('should return "A" for BLACK_MARKET when random < 0.5', () => {
       const lowRandom: RandomFn = () => 0.3;
-      expect(getMarketTypeQuality(UnitMarketType.BLACK_MARKET, lowRandom)).toBe('A');
+      expect(getMarketTypeQuality(UnitMarketType.BLACK_MARKET, lowRandom)).toBe(
+        'A',
+      );
     });
 
     it('should return "F" for BLACK_MARKET when random >= 0.5', () => {
       const highRandom: RandomFn = () => 0.7;
-      expect(getMarketTypeQuality(UnitMarketType.BLACK_MARKET, highRandom)).toBe('F');
+      expect(
+        getMarketTypeQuality(UnitMarketType.BLACK_MARKET, highRandom),
+      ).toBe('F');
     });
 
     it('should match MARKET_TYPE_QUALITY for non-BLACK_MARKET types', () => {
       const nonBlackMarketTypes = Object.values(UnitMarketType).filter(
-        (t) => t !== UnitMarketType.BLACK_MARKET
+        (t) => t !== UnitMarketType.BLACK_MARKET,
       );
       for (const marketType of nonBlackMarketTypes) {
         const random = createSeededRandom(42);
-        expect(getMarketTypeQuality(marketType, random)).toBe(MARKET_TYPE_QUALITY[marketType]);
+        expect(getMarketTypeQuality(marketType, random)).toBe(
+          MARKET_TYPE_QUALITY[marketType],
+        );
       }
     });
   });

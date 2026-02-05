@@ -3,6 +3,7 @@
 ## Context
 
 MekStation users need to share custom content (units, pilots, forces) with each other. Requirements:
+
 - Decentralized: no mandatory central server
 - Each instance acts as its own "file server"
 - Granular permissions: read/write per person per item
@@ -28,17 +29,20 @@ MekStation users need to share custom content (units, pilots, forces) with each 
 **What**: Each MekStation instance generates an Ed25519 keypair on first launch. This keypair is the user's identity.
 
 **Why**:
+
 - No central authority needed to issue identities
 - Signatures prove authorship/authenticity
 - Friend codes derived from public key are verifiable
 
 **Format**:
+
 ```
 Public Key: 32 bytes (Ed25519)
 Friend Code: MEKS-XXXX-XXXX-XXXX (base32 encoded, checksum)
 ```
 
 **Key Storage**:
+
 - Desktop: Encrypted file in app data directory
 - Web: IndexedDB with Web Crypto API
 - Optional: Hardware key support (future)
@@ -48,6 +52,7 @@ Friend Code: MEKS-XXXX-XXXX-XXXX (base32 encoded, checksum)
 **What**: Shared content is packaged as signed JSON bundles.
 
 **Format**:
+
 ```json
 {
   "version": "1.0",
@@ -63,6 +68,7 @@ Friend Code: MEKS-XXXX-XXXX-XXXX (base32 encoded, checksum)
 ```
 
 **Why**:
+
 - JSON is human-readable, debuggable
 - Signature proves authenticity and prevents tampering
 - Self-contained: no external dependencies to import
@@ -86,11 +92,13 @@ Vault (root)
 ```
 
 **Permission inheritance**:
+
 - Item inherits from parent folder if no explicit permission
 - Explicit permission overrides inherited
 - "Deny" overrides "Allow" at same level
 
 **Why**:
+
 - Familiar model (file system permissions)
 - Scales from single-item to whole-vault sharing
 - Flexible enough for all use cases
@@ -100,6 +108,7 @@ Vault (root)
 **What**: Log-based sync with vector clocks.
 
 **How it works**:
+
 1. Each vault maintains a change log (append-only)
 2. Each change has a vector clock (per-device timestamps)
 3. On connect, peers exchange log summaries
@@ -107,11 +116,13 @@ Vault (root)
 5. Conflicts detected via vector clock comparison
 
 **Conflict resolution**:
+
 - Concurrent edits to same item → conflict
 - Resolution options: keep mine, keep theirs, keep both (fork)
 - User can manually merge if needed
 
 **Why**:
+
 - Works offline (changes queue locally)
 - Efficient sync (only transfer deltas)
 - Deterministic conflict detection
@@ -121,14 +132,15 @@ Vault (root)
 
 **What**: Multiple transport options, selected based on availability.
 
-| Transport | When Used | Characteristics |
-|-----------|-----------|-----------------|
-| Direct P2P (WebRTC) | Both peers online, NAT permits | Lowest latency, no relay |
-| Relay-assisted P2P | NAT traversal needed | Uses TURN relay for media |
-| Relay store-forward | Peer offline | Relay queues messages |
-| Manual file | No connectivity | Export/import files |
+| Transport           | When Used                      | Characteristics           |
+| ------------------- | ------------------------------ | ------------------------- |
+| Direct P2P (WebRTC) | Both peers online, NAT permits | Lowest latency, no relay  |
+| Relay-assisted P2P  | NAT traversal needed           | Uses TURN relay for media |
+| Relay store-forward | Peer offline                   | Relay queues messages     |
+| Manual file         | No connectivity                | Export/import files       |
 
 **Connection flow**:
+
 ```
 1. Try direct WebRTC connection
 2. If fails, use relay for signaling
@@ -137,6 +149,7 @@ Vault (root)
 ```
 
 **Why**:
+
 - Graceful degradation
 - Works in restrictive networks
 - Self-hostable relay for privacy
@@ -228,22 +241,22 @@ CREATE TABLE peer_sync_state (
 interface IVaultService {
   // Identity
   getIdentity(): Promise<IIdentity>;
-  
+
   // Content management
   listSharedItems(category?: string): Promise<ISharedItem[]>;
   createFolder(name: string, parent?: string): Promise<IFolder>;
   moveToFolder(itemId: string, folderId: string): Promise<void>;
-  
+
   // Permissions
   grantPermission(grant: IPermissionGrant): Promise<void>;
   revokePermission(grantId: string): Promise<void>;
   getPermissions(itemId: string): Promise<IPermission[]>;
   checkPermission(peerId: string, itemId: string): Promise<PermissionLevel>;
-  
+
   // Sharing
   generateShareLink(scope: IScope, options: ILinkOptions): Promise<string>;
   revokeShareLink(linkId: string): Promise<void>;
-  
+
   // Export/Import
   exportBundle(items: string[]): Promise<IBundle>;
   importBundle(bundle: IBundle): Promise<IImportResult>;
@@ -258,12 +271,12 @@ interface ISyncService {
   connectToPeer(friendCode: string): Promise<IConnection>;
   disconnect(peerId: string): Promise<void>;
   getConnectionStatus(peerId: string): ConnectionStatus;
-  
+
   // Sync operations
   syncWithPeer(peerId: string): Promise<ISyncResult>;
   getChangesSince(clock: VectorClock): Promise<IChange[]>;
   applyChanges(changes: IChange[]): Promise<IApplyResult>;
-  
+
   // Conflict resolution
   getConflicts(): Promise<IConflict[]>;
   resolveConflict(conflictId: string, resolution: Resolution): Promise<void>;
@@ -274,14 +287,14 @@ interface ISyncService {
 
 ### Threat Model
 
-| Threat | Mitigation |
-|--------|------------|
-| Impersonation | Verify signatures against known public keys |
-| Tampering | All bundles are signed; reject invalid signatures |
-| Replay attacks | Include timestamps; reject old bundles |
-| Key theft | Encrypt private key at rest; optional passphrase |
+| Threat          | Mitigation                                          |
+| --------------- | --------------------------------------------------- |
+| Impersonation   | Verify signatures against known public keys         |
+| Tampering       | All bundles are signed; reject invalid signatures   |
+| Replay attacks  | Include timestamps; reject old bundles              |
+| Key theft       | Encrypt private key at rest; optional passphrase    |
 | Malicious relay | Relay never sees decrypted content (E2E encryption) |
-| Spam/abuse | Rate limiting; trust levels; blocking |
+| Spam/abuse      | Rate limiting; trust levels; blocking               |
 
 ### Privacy
 
@@ -292,11 +305,13 @@ interface ISyncService {
 ## Migration Plan
 
 ### Phase 1 → Phase 2
+
 - Identity system from Phase 1 used for link signing
 - Export format extended with link metadata
 - No breaking changes
 
 ### Phase 2 → Phase 3
+
 - Contacts build on identity system
 - Permissions extend link permissions
 - Sync uses same bundle format

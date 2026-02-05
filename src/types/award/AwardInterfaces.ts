@@ -354,7 +354,10 @@ export function createEmptyPilotStats(): IPilotStats {
 /**
  * Calculate progress percentage.
  */
-export function calculateProgress(current: number, target: number): IAwardProgress {
+export function calculateProgress(
+  current: number,
+  target: number,
+): IAwardProgress {
   const percentage = Math.min(100, Math.round((current / target) * 100));
   return { current, target, percentage };
 }

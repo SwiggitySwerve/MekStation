@@ -1,19 +1,28 @@
 import { describe, it, expect } from '@jest/globals';
-import type { IPerson } from '@/types/campaign/Person';
+
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ILoan } from '@/types/campaign/Loan';
+import type { IPerson } from '@/types/campaign/Person';
+
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { Money } from '@/types/campaign/Money';
-import { DayPhase, IDayEvent } from '../../dayPipeline';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
-import type { ILoan } from '@/types/campaign/Loan';
-import { financialProcessor } from '../financialProcessor';
-import { dailyCostsProcessor } from '../dailyCostsProcessor';
+import { Money } from '@/types/campaign/Money';
 
-function filterByTransactionType(events: readonly IDayEvent[], txType: TransactionType): readonly IDayEvent[] {
-  return events.filter((e: IDayEvent) => e.type === 'transaction' && e.data?.transactionType === txType);
+import { DayPhase, IDayEvent } from '../../dayPipeline';
+import { dailyCostsProcessor } from '../dailyCostsProcessor';
+import { financialProcessor } from '../financialProcessor';
+
+function filterByTransactionType(
+  events: readonly IDayEvent[],
+  txType: TransactionType,
+): readonly IDayEvent[] {
+  return events.filter(
+    (e: IDayEvent) =>
+      e.type === 'transaction' && e.data?.transactionType === txType,
+  );
 }
 
 // =============================================================================
@@ -37,7 +46,16 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '3000-01-01T00:00:00Z',
     updatedAt: '3025-06-15T00:00:00Z',
@@ -46,33 +64,33 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
 }
 
 function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
-    const defaultOptions = createDefaultCampaignOptions();
-    return {
-      id: 'campaign-001',
-      name: 'Test Campaign',
-      currentDate: new Date('3025-01-01T00:00:00Z'),
-      factionId: 'mercenary',
-      personnel: new Map<string, IPerson>(),
-      forces: new Map(),
-      rootForceId: 'force-root',
-      missions: new Map(),
-      finances: { transactions: [], balance: new Money(1000000) },
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: {
-        ...defaultOptions,
-        useRoleBasedSalaries: true,
-        payForSalaries: true,
-        useTaxes: true,
-        taxRate: 10,
-        overheadPercent: 5,
-        startingFunds: 500000,
-      },
-      campaignType: CampaignType.MERCENARY,
-      createdAt: '3020-01-01T00:00:00Z',
-      updatedAt: '3025-06-15T00:00:00Z',
-      ...overrides,
-    };
+  const defaultOptions = createDefaultCampaignOptions();
+  return {
+    id: 'campaign-001',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-01-01T00:00:00Z'),
+    factionId: 'mercenary',
+    personnel: new Map<string, IPerson>(),
+    forces: new Map(),
+    rootForceId: 'force-root',
+    missions: new Map(),
+    finances: { transactions: [], balance: new Money(1000000) },
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: {
+      ...defaultOptions,
+      useRoleBasedSalaries: true,
+      payForSalaries: true,
+      useTaxes: true,
+      taxRate: 10,
+      overheadPercent: 5,
+      startingFunds: 500000,
+    },
+    campaignType: CampaignType.MERCENARY,
+    createdAt: '3020-01-01T00:00:00Z',
+    updatedAt: '3025-06-15T00:00:00Z',
+    ...overrides,
+  };
 }
 
 function createTestLoan(overrides: Partial<ILoan> = {}): ILoan {
@@ -111,12 +129,15 @@ describe('financialProcessor - monthly salary', () => {
   it('should process salaries on 1st of month', () => {
     const personnel = new Map<string, IPerson>();
     personnel.set('p1', createTestPerson({ id: 'p1', totalXpEarned: 500 }));
-    personnel.set('p2', createTestPerson({
-      id: 'p2',
-      name: 'Test Tech',
-      primaryRole: CampaignPersonnelRole.TECH,
-      totalXpEarned: 500,
-    }));
+    personnel.set(
+      'p2',
+      createTestPerson({
+        id: 'p2',
+        name: 'Test Tech',
+        primaryRole: CampaignPersonnelRole.TECH,
+        totalXpEarned: 500,
+      }),
+    );
 
     const campaign = createTestCampaign({
       currentDate: new Date('3025-01-01T00:00:00Z'),
@@ -126,9 +147,14 @@ describe('financialProcessor - monthly salary', () => {
     const firstOfMonth = new Date('3025-01-01T00:00:00Z');
     const result = financialProcessor.process(campaign, firstOfMonth);
 
-    const salaryEvents = filterByTransactionType(result.events, TransactionType.Salary);
+    const salaryEvents = filterByTransactionType(
+      result.events,
+      TransactionType.Salary,
+    );
     expect(salaryEvents.length).toBe(1);
-    expect(result.campaign.finances.balance.amount).toBeLessThan(campaign.finances.balance.amount);
+    expect(result.campaign.finances.balance.amount).toBeLessThan(
+      campaign.finances.balance.amount,
+    );
   });
 
   it('should NOT process salaries on non-1st days', () => {
@@ -140,7 +166,10 @@ describe('financialProcessor - monthly salary', () => {
     const secondOfMonth = new Date('3025-01-02T00:00:00Z');
     const result = financialProcessor.process(campaign, secondOfMonth);
 
-    const salaryEvents = filterByTransactionType(result.events, TransactionType.Salary);
+    const salaryEvents = filterByTransactionType(
+      result.events,
+      TransactionType.Salary,
+    );
     expect(salaryEvents.length).toBe(0);
   });
 
@@ -153,7 +182,10 @@ describe('financialProcessor - monthly salary', () => {
     const fifteenth = new Date('3025-01-15T00:00:00Z');
     const result = financialProcessor.process(campaign, fifteenth);
 
-    const salaryEvents = filterByTransactionType(result.events, TransactionType.Salary);
+    const salaryEvents = filterByTransactionType(
+      result.events,
+      TransactionType.Salary,
+    );
     expect(salaryEvents.length).toBe(0);
   });
 
@@ -166,7 +198,10 @@ describe('financialProcessor - monthly salary', () => {
     const thirtyFirst = new Date('3025-01-31T00:00:00Z');
     const result = financialProcessor.process(campaign, thirtyFirst);
 
-    const salaryEvents = filterByTransactionType(result.events, TransactionType.Salary);
+    const salaryEvents = filterByTransactionType(
+      result.events,
+      TransactionType.Salary,
+    );
     expect(salaryEvents.length).toBe(0);
   });
 });
@@ -196,7 +231,10 @@ describe('financialProcessor - monthly overhead', () => {
     const firstOfMonth = new Date('3025-01-01T00:00:00Z');
     const result = financialProcessor.process(campaign, firstOfMonth);
 
-    const overheadEvents = filterByTransactionType(result.events, TransactionType.Overhead);
+    const overheadEvents = filterByTransactionType(
+      result.events,
+      TransactionType.Overhead,
+    );
     expect(overheadEvents.length).toBe(1);
 
     // Salary = 1500, overhead = 5% of 1500 = 75
@@ -218,7 +256,10 @@ describe('financialProcessor - food and housing', () => {
     const firstOfMonth = new Date('3025-01-01T00:00:00Z');
     const result = financialProcessor.process(campaign, firstOfMonth);
 
-    const foodEvents = filterByTransactionType(result.events, TransactionType.FoodAndHousing);
+    const foodEvents = filterByTransactionType(
+      result.events,
+      TransactionType.FoodAndHousing,
+    );
     expect(foodEvents.length).toBe(1);
   });
 });
@@ -248,9 +289,14 @@ describe('financialProcessor - loan payments', () => {
     const firstOfMonth = new Date('3025-01-01T00:00:00Z');
     const result = financialProcessor.process(campaign, firstOfMonth);
 
-    const loanEvents = filterByTransactionType(result.events, TransactionType.LoanPayment);
+    const loanEvents = filterByTransactionType(
+      result.events,
+      TransactionType.LoanPayment,
+    );
     expect(loanEvents.length).toBe(1);
-    expect(result.campaign.finances.balance.amount).toBeLessThan(campaign.finances.balance.amount);
+    expect(result.campaign.finances.balance.amount).toBeLessThan(
+      campaign.finances.balance.amount,
+    );
   });
 
   it('should update loan after payment', () => {
@@ -301,7 +347,10 @@ describe('financialProcessor - loan payments', () => {
     const firstOfMonth = new Date('3025-01-01T00:00:00Z');
     const result = financialProcessor.process(campaign, firstOfMonth);
 
-    const loanEvents = filterByTransactionType(result.events, TransactionType.LoanPayment);
+    const loanEvents = filterByTransactionType(
+      result.events,
+      TransactionType.LoanPayment,
+    );
     expect(loanEvents.length).toBe(0);
   });
 });
@@ -322,7 +371,10 @@ describe('financialProcessor - taxes', () => {
     const firstOfMonth = new Date('3025-01-01T00:00:00Z');
     const result = financialProcessor.process(campaign, firstOfMonth);
 
-    const taxEvents = filterByTransactionType(result.events, TransactionType.Tax);
+    const taxEvents = filterByTransactionType(
+      result.events,
+      TransactionType.Tax,
+    );
     expect(taxEvents.length).toBe(1);
     // Profit = 1,000,000 - 500,000 = 500,000. Tax = 10% = 50,000
     expect(taxEvents[0].data?.amount).toBe(50000);
@@ -342,7 +394,10 @@ describe('financialProcessor - taxes', () => {
     const firstOfMonth = new Date('3025-01-01T00:00:00Z');
     const result = financialProcessor.process(campaign, firstOfMonth);
 
-    const taxEvents = filterByTransactionType(result.events, TransactionType.Tax);
+    const taxEvents = filterByTransactionType(
+      result.events,
+      TransactionType.Tax,
+    );
     expect(taxEvents.length).toBe(0);
   });
 });
@@ -382,7 +437,10 @@ describe('financialProcessor - daily maintenance', () => {
     const midMonth = new Date('3025-01-15T00:00:00Z');
     const result = financialProcessor.process(campaign, midMonth);
 
-    const maintenanceEvents = filterByTransactionType(result.events, TransactionType.Maintenance);
+    const maintenanceEvents = filterByTransactionType(
+      result.events,
+      TransactionType.Maintenance,
+    );
     expect(maintenanceEvents.length).toBe(1);
   });
 
@@ -414,7 +472,10 @@ describe('financialProcessor - daily maintenance', () => {
     const midMonth = new Date('3025-01-15T00:00:00Z');
     const result = financialProcessor.process(campaign, midMonth);
 
-    const maintenanceEvents = filterByTransactionType(result.events, TransactionType.Maintenance);
+    const maintenanceEvents = filterByTransactionType(
+      result.events,
+      TransactionType.Maintenance,
+    );
     expect(maintenanceEvents.length).toBe(0);
   });
 });
@@ -446,7 +507,10 @@ describe('financialProcessor - negative balance', () => {
     // Balance should go negative but processing should complete
     expect(result.campaign.finances.balance.isNegative()).toBe(true);
     // Should still have salary event
-    const salaryEvents = filterByTransactionType(result.events, TransactionType.Salary);
+    const salaryEvents = filterByTransactionType(
+      result.events,
+      TransactionType.Salary,
+    );
     expect(salaryEvents.length).toBe(1);
   });
 });

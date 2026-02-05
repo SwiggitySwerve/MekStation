@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+
 import { IBattleMech } from '../types/unit/BattleMechInterfaces';
 
 /**
@@ -115,7 +116,7 @@ const DEFAULT_VERSION = '1.0.0';
  * ```
  */
 export function useGameStatePersistence(
-  options: UseGameStatePersistenceOptions
+  options: UseGameStatePersistenceOptions,
 ): UseGameStatePersistenceReturn {
   const {
     storageKey,
@@ -161,7 +162,7 @@ export function useGameStatePersistence(
           storedTimestamp > lastSavedTimestampRef.current
         ) {
           throw new Error(
-            'Save conflict: Local storage has newer data than current state'
+            'Save conflict: Local storage has newer data than current state',
           );
         }
       }
@@ -185,9 +186,7 @@ export function useGameStatePersistence(
       lastSavedTimestampRef.current = Date.now();
     } catch (err) {
       const error =
-        err instanceof Error
-          ? err
-          : new Error('Failed to save game state');
+        err instanceof Error ? err : new Error('Failed to save game state');
       setError(error);
       throw error;
     } finally {
@@ -224,9 +223,7 @@ export function useGameStatePersistence(
       lastSavedTimestampRef.current = parsed.metadata.timestamp;
     } catch (err) {
       const error =
-        err instanceof Error
-          ? err
-          : new Error('Failed to load game state');
+        err instanceof Error ? err : new Error('Failed to load game state');
       setError(error);
       throw error;
     }
@@ -247,13 +244,10 @@ export function useGameStatePersistence(
   /**
    * Update game state and trigger autosave (if enabled)
    */
-  const setStateWithAutosave = useCallback(
-    (newState: GameState) => {
-      setState(newState);
-      setHasUnsavedChanges(true);
-    },
-    []
-  );
+  const setStateWithAutosave = useCallback((newState: GameState) => {
+    setState(newState);
+    setHasUnsavedChanges(true);
+  }, []);
 
   // Debounced autosave after state changes
   useEffect(() => {
@@ -278,7 +272,7 @@ export function useGameStatePersistence(
         clearTimeout(debounceTimerRef.current);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [hasUnsavedChanges, enableAutosave, autosaveDebounce]);
 
   // Periodic autosave
@@ -304,7 +298,7 @@ export function useGameStatePersistence(
         clearInterval(autosaveTimerRef.current);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [hasUnsavedChanges, enableAutosave, autosaveInterval]);
 
   // Load saved state on mount
@@ -320,7 +314,8 @@ export function useGameStatePersistence(
 
     const handleBeforeUnload = (e: BeforeUnloadEvent): string => {
       e.preventDefault();
-      const message = 'You have unsaved changes. Are you sure you want to leave?';
+      const message =
+        'You have unsaved changes. Are you sure you want to leave?';
       e.returnValue = message;
       return message;
     };

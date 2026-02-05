@@ -1,9 +1,10 @@
 /**
  * Tests for Engine Calculations
- * 
+ *
  * @spec openspec/specs/engine-system/spec.md
  */
 
+import { EngineType } from '@/types/construction/EngineType';
 import {
   validateEngineRating,
   getBaseEngineWeight,
@@ -18,7 +19,6 @@ import {
   isFusionEngine,
   getAllValidEngineRatings,
 } from '@/utils/construction/engineCalculations';
-import { EngineType } from '@/types/construction/EngineType';
 
 describe('Engine Calculations', () => {
   describe('validateEngineRating', () => {
@@ -31,25 +31,25 @@ describe('Engine Calculations', () => {
     it('should fail for ratings below minimum', () => {
       const result = validateEngineRating(5);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('10'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('10'))).toBe(true);
     });
 
     it('should fail for ratings above maximum', () => {
       const result = validateEngineRating(505);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('500'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('500'))).toBe(true);
     });
 
     it('should fail for non-multiples of 5', () => {
       const result = validateEngineRating(103);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('multiple'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('multiple'))).toBe(true);
     });
 
     it('should fail for non-integers', () => {
       const result = validateEngineRating(100.5);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('integer'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('integer'))).toBe(true);
     });
 
     it('should pass for boundary values', () => {
@@ -97,7 +97,9 @@ describe('Engine Calculations', () => {
       const standardWeight = calculateEngineWeight(200, EngineType.STANDARD);
       const lightWeight = calculateEngineWeight(200, EngineType.LIGHT);
       expect(lightWeight).toBeLessThan(standardWeight);
-      expect(lightWeight).toBeGreaterThan(calculateEngineWeight(200, EngineType.XL_IS));
+      expect(lightWeight).toBeGreaterThan(
+        calculateEngineWeight(200, EngineType.XL_IS),
+      );
     });
 
     it('should handle compact engine', () => {
@@ -110,10 +112,10 @@ describe('Engine Calculations', () => {
     it('should calculate rating from tonnage and walk MP', () => {
       // 50 ton mech, walk MP 4 = 200 rating
       expect(calculateEngineRating(50, 4)).toBe(200);
-      
+
       // 75 ton mech, walk MP 3 = 225 rating
       expect(calculateEngineRating(75, 3)).toBe(225);
-      
+
       // 100 ton mech, walk MP 3 = 300 rating
       expect(calculateEngineRating(100, 3)).toBe(300);
     });
@@ -121,7 +123,7 @@ describe('Engine Calculations', () => {
     it('should round to nearest 5', () => {
       // 55 tons, walk MP 3 = 165, which is already multiple of 5
       expect(calculateEngineRating(55, 3)).toBe(165);
-      
+
       // 52 tons, walk MP 3 = 156, rounds to 155
       expect(calculateEngineRating(52, 3)).toBe(155);
     });
@@ -183,10 +185,10 @@ describe('Engine Calculations', () => {
     it('should calculate total slots including side torsos', () => {
       // Standard fusion: CT only
       const fusionSlots = getTotalEngineSlots(200, EngineType.STANDARD);
-      
+
       // XL: CT + both side torsos
       const xlSlots = getTotalEngineSlots(200, EngineType.XL_IS);
-      
+
       expect(xlSlots).toBeGreaterThan(fusionSlots);
     });
 
@@ -194,8 +196,8 @@ describe('Engine Calculations', () => {
       const ctSlots = getEngineCTSlots(200, EngineType.XL_IS);
       const stSlots = getEngineSideTorsoSlots(EngineType.XL_IS);
       const totalSlots = getTotalEngineSlots(200, EngineType.XL_IS);
-      
-      expect(totalSlots).toBe(ctSlots + (stSlots * 2));
+
+      expect(totalSlots).toBe(ctSlots + stSlots * 2);
     });
   });
 
@@ -203,7 +205,7 @@ describe('Engine Calculations', () => {
     it('should calculate integral heat sinks from rating', () => {
       // 250 rating = floor(250/25) = 10 integral heat sinks
       expect(calculateIntegralHeatSinks(250, EngineType.STANDARD)).toBe(10);
-      
+
       // 300 rating = floor(300/25) = 12 integral heat sinks
       expect(calculateIntegralHeatSinks(300, EngineType.STANDARD)).toBe(12);
     });
@@ -217,7 +219,7 @@ describe('Engine Calculations', () => {
     it('should floor the result', () => {
       // 175 / 25 = 7
       expect(calculateIntegralHeatSinks(175, EngineType.STANDARD)).toBe(7);
-      
+
       // 195/25 = 7.8 -> 7
       expect(calculateIntegralHeatSinks(195, EngineType.STANDARD)).toBe(7);
     });

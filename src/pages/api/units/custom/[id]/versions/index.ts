@@ -1,12 +1,13 @@
 /**
  * Unit Versions API - List Versions
- * 
+ *
  * GET /api/units/custom/:id/versions - List version history for a unit
- * 
+ *
  * @spec openspec/specs/unit-versioning/spec.md
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import { getVersionRepository } from '@/services/units/VersionRepository';
@@ -28,13 +29,14 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<VersionsResponse | ErrorResponse>
+  res: NextApiResponse<VersionsResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -69,8 +71,8 @@ export default async function handler(
       count: versions.length,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to get versions';
+    const message =
+      error instanceof Error ? error.message : 'Failed to get versions';
     return res.status(500).json({ error: message });
   }
 }
-

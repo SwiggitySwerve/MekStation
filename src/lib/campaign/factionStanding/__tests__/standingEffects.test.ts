@@ -1,4 +1,5 @@
 import { FactionStandingLevel } from '@/types/campaign/factionStanding/IFactionStanding';
+
 import {
   getNegotiationModifier,
   getResupplyWeightModifier,
@@ -12,7 +13,6 @@ import {
   getStartSupportPointsModifier,
   getPeriodicSupportPointsModifier,
   getAllEffects,
-  FactionStandingEffects,
 } from '../standingEffects';
 
 describe('Faction Standing Effects', () => {
@@ -32,7 +32,9 @@ describe('Faction Standing Effects', () => {
     it('should have correct values for all levels', () => {
       const expected = [-4, -3, -2, -1, 0, 1, 2, 3, 4];
       for (let i = 0; i <= 8; i++) {
-        expect(getNegotiationModifier(i as FactionStandingLevel)).toBe(expected[i]);
+        expect(getNegotiationModifier(i as FactionStandingLevel)).toBe(
+          expected[i],
+        );
       }
     });
   });
@@ -53,7 +55,9 @@ describe('Faction Standing Effects', () => {
     it('should have correct values for all levels', () => {
       const expected = [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
       for (let i = 0; i <= 8; i++) {
-        expect(getResupplyWeightModifier(i as FactionStandingLevel)).toBe(expected[i]);
+        expect(getResupplyWeightModifier(i as FactionStandingLevel)).toBe(
+          expected[i],
+        );
       }
     });
   });
@@ -190,20 +194,26 @@ describe('Faction Standing Effects', () => {
     });
 
     it('should return 0.75 at Level 8', () => {
-      expect(getBarracksCostMultiplier(FactionStandingLevel.LEVEL_8)).toBe(0.75);
+      expect(getBarracksCostMultiplier(FactionStandingLevel.LEVEL_8)).toBe(
+        0.75,
+      );
     });
 
     it('should have correct values for all levels', () => {
       const expected = [3.0, 2.5, 2.0, 1.5, 1.0, 0.9, 0.85, 0.8, 0.75];
       for (let i = 0; i <= 8; i++) {
-        expect(getBarracksCostMultiplier(i as FactionStandingLevel)).toBe(expected[i]);
+        expect(getBarracksCostMultiplier(i as FactionStandingLevel)).toBe(
+          expected[i],
+        );
       }
     });
   });
 
   describe('getUnitMarketRarityModifier', () => {
     it('should return -2 at Level 0', () => {
-      expect(getUnitMarketRarityModifier(FactionStandingLevel.LEVEL_0)).toBe(-2);
+      expect(getUnitMarketRarityModifier(FactionStandingLevel.LEVEL_0)).toBe(
+        -2,
+      );
     });
 
     it('should return 0 at Level 4 (neutral)', () => {
@@ -217,7 +227,9 @@ describe('Faction Standing Effects', () => {
     it('should have correct values for all levels', () => {
       const expected = [-2, -1, -1, 0, 0, 1, 2, 2, 3];
       for (let i = 0; i <= 8; i++) {
-        expect(getUnitMarketRarityModifier(i as FactionStandingLevel)).toBe(expected[i]);
+        expect(getUnitMarketRarityModifier(i as FactionStandingLevel)).toBe(
+          expected[i],
+        );
       }
     });
   });
@@ -238,49 +250,67 @@ describe('Faction Standing Effects', () => {
     it('should have correct values for all levels', () => {
       const expected = [0.6, 0.7, 0.8, 0.9, 1.0, 1.05, 1.1, 1.15, 1.2];
       for (let i = 0; i <= 8; i++) {
-        expect(getContractPayMultiplier(i as FactionStandingLevel)).toBe(expected[i]);
+        expect(getContractPayMultiplier(i as FactionStandingLevel)).toBe(
+          expected[i],
+        );
       }
     });
   });
 
   describe('getStartSupportPointsModifier', () => {
     it('should return -3 at Level 0', () => {
-      expect(getStartSupportPointsModifier(FactionStandingLevel.LEVEL_0)).toBe(-3);
+      expect(getStartSupportPointsModifier(FactionStandingLevel.LEVEL_0)).toBe(
+        -3,
+      );
     });
 
     it('should return 0 at Level 4 (neutral)', () => {
-      expect(getStartSupportPointsModifier(FactionStandingLevel.LEVEL_4)).toBe(0);
+      expect(getStartSupportPointsModifier(FactionStandingLevel.LEVEL_4)).toBe(
+        0,
+      );
     });
 
     it('should return +3 at Level 8', () => {
-      expect(getStartSupportPointsModifier(FactionStandingLevel.LEVEL_8)).toBe(3);
+      expect(getStartSupportPointsModifier(FactionStandingLevel.LEVEL_8)).toBe(
+        3,
+      );
     });
 
     it('should have correct values for all levels', () => {
       const expected = [-3, -2, -1, -1, 0, 1, 2, 2, 3];
       for (let i = 0; i <= 8; i++) {
-        expect(getStartSupportPointsModifier(i as FactionStandingLevel)).toBe(expected[i]);
+        expect(getStartSupportPointsModifier(i as FactionStandingLevel)).toBe(
+          expected[i],
+        );
       }
     });
   });
 
   describe('getPeriodicSupportPointsModifier', () => {
     it('should return -4 at Level 0', () => {
-      expect(getPeriodicSupportPointsModifier(FactionStandingLevel.LEVEL_0)).toBe(-4);
+      expect(
+        getPeriodicSupportPointsModifier(FactionStandingLevel.LEVEL_0),
+      ).toBe(-4);
     });
 
     it('should return 0 at Level 4 (neutral)', () => {
-      expect(getPeriodicSupportPointsModifier(FactionStandingLevel.LEVEL_4)).toBe(0);
+      expect(
+        getPeriodicSupportPointsModifier(FactionStandingLevel.LEVEL_4),
+      ).toBe(0);
     });
 
     it('should return +3 at Level 8', () => {
-      expect(getPeriodicSupportPointsModifier(FactionStandingLevel.LEVEL_8)).toBe(3);
+      expect(
+        getPeriodicSupportPointsModifier(FactionStandingLevel.LEVEL_8),
+      ).toBe(3);
     });
 
     it('should have correct values for all levels', () => {
       const expected = [-4, -3, -2, -1, 0, 1, 2, 2, 3];
       for (let i = 0; i <= 8; i++) {
-        expect(getPeriodicSupportPointsModifier(i as FactionStandingLevel)).toBe(expected[i]);
+        expect(
+          getPeriodicSupportPointsModifier(i as FactionStandingLevel),
+        ).toBe(expected[i]);
       }
     });
   });
@@ -373,10 +403,16 @@ describe('Faction Standing Effects', () => {
         expect(effects.batchallDisabled).toBe(isBatchallDisabled(level));
         expect(effects.recruitment).toEqual(getRecruitmentModifier(level));
         expect(effects.barracksCost).toBe(getBarracksCostMultiplier(level));
-        expect(effects.unitMarketRarity).toBe(getUnitMarketRarityModifier(level));
+        expect(effects.unitMarketRarity).toBe(
+          getUnitMarketRarityModifier(level),
+        );
         expect(effects.contractPay).toBe(getContractPayMultiplier(level));
-        expect(effects.startSupportPoints).toBe(getStartSupportPointsModifier(level));
-        expect(effects.periodicSupportPoints).toBe(getPeriodicSupportPointsModifier(level));
+        expect(effects.startSupportPoints).toBe(
+          getStartSupportPointsModifier(level),
+        );
+        expect(effects.periodicSupportPoints).toBe(
+          getPeriodicSupportPointsModifier(level),
+        );
       }
     });
   });

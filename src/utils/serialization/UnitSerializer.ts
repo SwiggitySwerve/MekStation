@@ -1,11 +1,12 @@
 /**
  * Unit Serialization Utilities
- * 
+ *
  * Implements JSON save/load for unit data.
- * 
+ *
  * @spec openspec/specs/serialization-formats/spec.md
  */
 
+import { IBattleMech } from '../../types/unit/BattleMechInterfaces';
 import {
   ISerializedUnitEnvelope,
   ISerializedUnit,
@@ -14,7 +15,6 @@ import {
   IUnitSerializer,
   CURRENT_FORMAT_VERSION,
 } from '../../types/unit/UnitSerialization';
-import { IBattleMech } from '../../types/unit/BattleMechInterfaces';
 
 /**
  * Type for parsed JSON data from validateSerializedFormat
@@ -95,19 +95,22 @@ export function serializeUnit(unit: IBattleMech): ISerializationResult {
           ...(unit.movement.hasTSM ? ['TSM'] : []),
         ],
       },
-      equipment: unit.equipment.map(eq => ({
+      equipment: unit.equipment.map((eq) => ({
         id: eq.equipmentId,
         location: eq.location,
         slots: eq.slots,
         isRearMounted: eq.isRearMounted || undefined,
         linkedAmmo: eq.linkedAmmoId,
       })),
-      criticalSlots: unit.criticalSlots.reduce((acc, cs) => {
-        acc[cs.location] = cs.slots.map(slot => 
-          slot.content ? slot.content.name : null
-        );
-        return acc;
-      }, {} as Record<string, (string | null)[]>),
+      criticalSlots: unit.criticalSlots.reduce(
+        (acc, cs) => {
+          acc[cs.location] = cs.slots.map((slot) =>
+            slot.content ? slot.content.name : null,
+          );
+          return acc;
+        },
+        {} as Record<string, (string | null)[]>,
+      ),
       quirks: unit.quirks ? [...unit.quirks] : undefined,
     };
 
@@ -130,7 +133,9 @@ export function serializeUnit(unit: IBattleMech): ISerializationResult {
     return {
       success: false,
       error: {
-        errors: [`Serialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
+        errors: [
+          `Serialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        ],
         warnings: [],
       },
     };
@@ -140,7 +145,10 @@ export function serializeUnit(unit: IBattleMech): ISerializationResult {
 /**
  * Validate JSON format before deserialization
  */
-export function validateSerializedFormat(data: string): { isValid: boolean; errors: string[] } {
+export function validateSerializedFormat(data: string): {
+  isValid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   try {
@@ -163,7 +171,9 @@ export function validateSerializedFormat(data: string): { isValid: boolean; erro
       if (!unit.armor) errors.push('Missing unit.armor');
     }
   } catch (e) {
-    errors.push(`Invalid JSON: ${e instanceof Error ? e.message : 'Parse error'}`);
+    errors.push(
+      `Invalid JSON: ${e instanceof Error ? e.message : 'Parse error'}`,
+    );
   }
 
   return {
@@ -178,7 +188,9 @@ export function validateSerializedFormat(data: string): { isValid: boolean; erro
 export function getSerializedFormatVersion(data: string): string | null {
   try {
     const parsed = JSON.parse(data) as IParsedSerializedData;
-    return typeof parsed.formatVersion === 'string' ? parsed.formatVersion : null;
+    return typeof parsed.formatVersion === 'string'
+      ? parsed.formatVersion
+      : null;
   } catch {
     return null;
   }
@@ -190,7 +202,7 @@ export function getSerializedFormatVersion(data: string): string | null {
 export function isFormatVersionSupported(version: string): boolean {
   const [major] = version.split('.').map(Number);
   const [currentMajor] = CURRENT_FORMAT_VERSION.split('.').map(Number);
-  
+
   // Support same major version
   return major === currentMajor;
 }
@@ -201,7 +213,7 @@ export function isFormatVersionSupported(version: string): boolean {
 export function createUnitSerializer(): IUnitSerializer {
   return {
     serialize: serializeUnit,
-    
+
     deserialize(data: string): IDeserializationResult {
       const validation = validateSerializedFormat(data);
       if (!validation.isValid) {
@@ -215,7 +227,11 @@ export function createUnitSerializer(): IUnitSerializer {
       if (version && !isFormatVersionSupported(version)) {
         return {
           success: false,
-          error: { errors: [`Unsupported format version: ${version}`], warnings: [], migrations: [] },
+          error: {
+            errors: [`Unsupported format version: ${version}`],
+            warnings: [],
+            migrations: [],
+          },
         };
       }
 
@@ -223,7 +239,11 @@ export function createUnitSerializer(): IUnitSerializer {
       // This is a stub that would need the full implementation
       return {
         success: false,
-        error: { errors: ['Deserialization not yet implemented'], warnings: [], migrations: [] },
+        error: {
+          errors: ['Deserialization not yet implemented'],
+          warnings: [],
+          migrations: [],
+        },
       };
     },
 
@@ -231,4 +251,3 @@ export function createUnitSerializer(): IUnitSerializer {
     getFormatVersion: getSerializedFormatVersion,
   };
 }
-

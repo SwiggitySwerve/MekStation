@@ -1,24 +1,28 @@
 /**
  * Mech Builder Service
- * 
+ *
  * Core mech construction and modification logic.
- * 
+ *
  * @spec openspec/specs/construction-services/spec.md
  */
 
-import { TechBase } from '@/types/enums/TechBase';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType, STRUCTURE_POINTS_TABLE } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import {
+  InternalStructureType,
+  STRUCTURE_POINTS_TABLE,
+} from '@/types/construction/InternalStructureType';
+import { TechBase } from '@/types/enums/TechBase';
+
 import { ValidationError } from '../common/errors';
 import { IFullUnit } from '../units/CanonicalUnitService';
 
 /**
  * Editable mech representation
- * 
+ *
  * Uses concrete enum types for type safety instead of strings.
  */
 export interface IEditableMech {
@@ -27,28 +31,28 @@ export interface IEditableMech {
   readonly variant: string;
   readonly tonnage: number;
   readonly techBase: TechBase;
-  
+
   // Engine
   readonly engineType: EngineType | string;
   readonly engineRating: number;
   readonly walkMP: number;
-  
+
   // Structure
   readonly structureType: InternalStructureType | string;
   readonly gyroType: GyroType | string;
   readonly cockpitType: CockpitType | string;
-  
+
   // Armor
   readonly armorType: ArmorTypeEnum | string;
   readonly armorAllocation: IArmorAllocation;
-  
+
   // Heat Sinks
   readonly heatSinkType: HeatSinkType | string;
   readonly heatSinkCount: number;
-  
+
   // Equipment
   readonly equipment: readonly IEquipmentSlot[];
-  
+
   // Metadata
   readonly isDirty: boolean;
 }
@@ -105,9 +109,20 @@ export interface IMechBuilderService {
   createEmpty(tonnage: number, techBase: TechBase): IEditableMech;
   createFromUnit(unit: IFullUnit): IEditableMech;
   applyChanges(mech: IEditableMech, changes: IMechChanges): IEditableMech;
-  setEngine(mech: IEditableMech, engineType: string, walkMP?: number): IEditableMech;
-  setArmor(mech: IEditableMech, allocation: Partial<IArmorAllocation>): IEditableMech;
-  addEquipment(mech: IEditableMech, equipmentId: string, location: string): IEditableMech;
+  setEngine(
+    mech: IEditableMech,
+    engineType: string,
+    walkMP?: number,
+  ): IEditableMech;
+  setArmor(
+    mech: IEditableMech,
+    allocation: Partial<IArmorAllocation>,
+  ): IEditableMech;
+  addEquipment(
+    mech: IEditableMech,
+    equipmentId: string,
+    location: string,
+  ): IEditableMech;
   removeEquipment(mech: IEditableMech, slotIndex: number): IEditableMech;
 }
 
@@ -132,17 +147,15 @@ const EMPTY_ARMOR: IArmorAllocation = {
  * Mech Builder Service implementation
  */
 export class MechBuilderService implements IMechBuilderService {
-  
   /**
    * Create an empty mech shell with specified tonnage and tech base
    */
   createEmpty(tonnage: number, techBase: TechBase): IEditableMech {
     // Validate tonnage
     if (tonnage < 20 || tonnage > 100 || tonnage % 5 !== 0) {
-      throw new ValidationError(
-        `Invalid tonnage: ${tonnage}`,
-        ['Tonnage must be between 20 and 100, in increments of 5']
-      );
+      throw new ValidationError(`Invalid tonnage: ${tonnage}`, [
+        'Tonnage must be between 20 and 100, in increments of 5',
+      ]);
     }
 
     // Calculate default walk MP (3) and engine rating
@@ -163,7 +176,10 @@ export class MechBuilderService implements IMechBuilderService {
       cockpitType: CockpitType.STANDARD,
       armorType: ArmorTypeEnum.STANDARD,
       armorAllocation: { ...EMPTY_ARMOR },
-      heatSinkType: techBase === TechBase.CLAN ? HeatSinkType.DOUBLE_CLAN : HeatSinkType.SINGLE,
+      heatSinkType:
+        techBase === TechBase.CLAN
+          ? HeatSinkType.DOUBLE_CLAN
+          : HeatSinkType.SINGLE,
       heatSinkCount: 10,
       equipment: [],
       isDirty: false,
@@ -177,10 +193,10 @@ export class MechBuilderService implements IMechBuilderService {
     // Extract or default values from unit
     const tonnage = typeof unit.tonnage === 'number' ? unit.tonnage : 50;
     const techBase = (unit.techBase as TechBase) || TechBase.INNER_SPHERE;
-    
+
     // Start with empty mech of same tonnage/tech base
     const base = this.createEmpty(tonnage, techBase);
-    
+
     return {
       ...base,
       id: unit.id,
@@ -208,14 +224,17 @@ export class MechBuilderService implements IMechBuilderService {
       const walkMP = changes.walkMP ?? result.walkMP;
       const engineType = changes.engineType ?? result.engineType;
       const engineRating = walkMP * result.tonnage;
-      
+
       result = { ...result, engineType, walkMP, engineRating };
     }
 
     if (changes.armorAllocation !== undefined) {
       result = {
         ...result,
-        armorAllocation: { ...result.armorAllocation, ...changes.armorAllocation },
+        armorAllocation: {
+          ...result.armorAllocation,
+          ...changes.armorAllocation,
+        },
       };
     }
 
@@ -230,7 +249,11 @@ export class MechBuilderService implements IMechBuilderService {
    * Set engine type and optionally walk MP
    * Engine rating is calculated: rating = walkMP × tonnage
    */
-  setEngine(mech: IEditableMech, engineType: string, walkMP?: number): IEditableMech {
+  setEngine(
+    mech: IEditableMech,
+    engineType: string,
+    walkMP?: number,
+  ): IEditableMech {
     const newWalkMP = walkMP ?? mech.walkMP;
     const engineRating = newWalkMP * mech.tonnage;
 
@@ -238,14 +261,18 @@ export class MechBuilderService implements IMechBuilderService {
     if (engineRating > 400) {
       throw new ValidationError(
         `Engine rating ${engineRating} exceeds maximum 400`,
-        [`Walk MP ${newWalkMP} on ${mech.tonnage}-ton mech would require rating ${engineRating}`]
+        [
+          `Walk MP ${newWalkMP} on ${mech.tonnage}-ton mech would require rating ${engineRating}`,
+        ],
       );
     }
 
     if (engineRating < 10) {
       throw new ValidationError(
         `Engine rating ${engineRating} below minimum 10`,
-        [`Walk MP ${newWalkMP} on ${mech.tonnage}-ton mech would require rating ${engineRating}`]
+        [
+          `Walk MP ${newWalkMP} on ${mech.tonnage}-ton mech would require rating ${engineRating}`,
+        ],
       );
     }
 
@@ -261,7 +288,10 @@ export class MechBuilderService implements IMechBuilderService {
   /**
    * Set armor allocation with validation
    */
-  setArmor(mech: IEditableMech, allocation: Partial<IArmorAllocation>): IEditableMech {
+  setArmor(
+    mech: IEditableMech,
+    allocation: Partial<IArmorAllocation>,
+  ): IEditableMech {
     // Validate each location's armor value
     const errors: string[] = [];
 
@@ -273,7 +303,7 @@ export class MechBuilderService implements IMechBuilderService {
         location: string,
         locationKey: keyof typeof structureTable,
         value: number | undefined,
-        maxOverride?: number
+        maxOverride?: number,
       ) => {
         if (value === undefined) return;
         const max = maxOverride ?? structureTable[locationKey] * 2;
@@ -287,11 +317,23 @@ export class MechBuilderService implements IMechBuilderService {
       // Head has a fixed maximum of 9 for standard armor
       validateLocation('Head', 'head', allocation.head, 9);
       validateLocation('Center Torso', 'centerTorso', allocation.centerTorso);
-      validateLocation('Center Torso (Rear)', 'centerTorso', allocation.centerTorsoRear);
+      validateLocation(
+        'Center Torso (Rear)',
+        'centerTorso',
+        allocation.centerTorsoRear,
+      );
       validateLocation('Left Torso', 'sideTorso', allocation.leftTorso);
-      validateLocation('Left Torso (Rear)', 'sideTorso', allocation.leftTorsoRear);
+      validateLocation(
+        'Left Torso (Rear)',
+        'sideTorso',
+        allocation.leftTorsoRear,
+      );
       validateLocation('Right Torso', 'sideTorso', allocation.rightTorso);
-      validateLocation('Right Torso (Rear)', 'sideTorso', allocation.rightTorsoRear);
+      validateLocation(
+        'Right Torso (Rear)',
+        'sideTorso',
+        allocation.rightTorsoRear,
+      );
       validateLocation('Left Arm', 'arm', allocation.leftArm);
       validateLocation('Right Arm', 'arm', allocation.rightArm);
       validateLocation('Left Leg', 'leg', allocation.leftLeg);
@@ -312,9 +354,15 @@ export class MechBuilderService implements IMechBuilderService {
   /**
    * Add equipment to a location
    */
-  addEquipment(mech: IEditableMech, equipmentId: string, location: string): IEditableMech {
+  addEquipment(
+    mech: IEditableMech,
+    equipmentId: string,
+    location: string,
+  ): IEditableMech {
     // Find next available slot index
-    const locationEquipment = mech.equipment.filter(e => e.location === location);
+    const locationEquipment = mech.equipment.filter(
+      (e) => e.location === location,
+    );
     const nextSlot = locationEquipment.length;
 
     const newSlot: IEquipmentSlot = {
@@ -335,7 +383,7 @@ export class MechBuilderService implements IMechBuilderService {
    */
   removeEquipment(mech: IEditableMech, slotIndex: number): IEditableMech {
     const equipment = mech.equipment.filter((_, i) => i !== slotIndex);
-    
+
     return {
       ...mech,
       equipment,
@@ -369,4 +417,3 @@ export function _resetMechBuilderService(): void {
 // Legacy export for backward compatibility
 // @deprecated Use getMechBuilderService() instead
 export const mechBuilderService = getMechBuilderService();
-

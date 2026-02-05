@@ -1,19 +1,37 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/units/import endpoint
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/units/import';
-import { getSQLiteService, SQLiteService } from '@/services/persistence/SQLiteService';
-import { getUnitRepository, UnitRepository } from '@/services/units/UnitRepository';
-import { parseErrorResponse, parseImportResponse, parseApiResponse, createMock } from '../../helpers';
+import {
+  getSQLiteService,
+  SQLiteService,
+} from '@/services/persistence/SQLiteService';
+import {
+  getUnitRepository,
+  UnitRepository,
+} from '@/services/units/UnitRepository';
+
+import {
+  parseErrorResponse,
+  parseImportResponse,
+  parseApiResponse,
+  createMock,
+} from '../../helpers';
 
 // Mock dependencies
 jest.mock('@/services/persistence/SQLiteService');
 jest.mock('@/services/units/UnitRepository');
 
-const mockSQLiteService = getSQLiteService as jest.MockedFunction<typeof getSQLiteService>;
-const mockGetUnitRepository = getUnitRepository as jest.MockedFunction<typeof getUnitRepository>;
+const mockSQLiteService = getSQLiteService as jest.MockedFunction<
+  typeof getSQLiteService
+>;
+const mockGetUnitRepository = getUnitRepository as jest.MockedFunction<
+  typeof getUnitRepository
+>;
 
 /**
  * Extended import response with suggested name
@@ -32,21 +50,25 @@ describe('/api/units/import', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     mockUnitRepository = {
       nameExists: jest.fn(),
       suggestCloneName: jest.fn(),
       create: jest.fn(),
     };
-    
-    mockSQLiteService.mockReturnValue(createMock<SQLiteService>({
-      initialize: jest.fn(),
-      getDatabase: jest.fn(),
-      close: jest.fn(),
-      isInitialized: jest.fn().mockReturnValue(true),
-    }));
-    
-    mockGetUnitRepository.mockReturnValue(createMock<UnitRepository>(mockUnitRepository));
+
+    mockSQLiteService.mockReturnValue(
+      createMock<SQLiteService>({
+        initialize: jest.fn(),
+        getDatabase: jest.fn(),
+        close: jest.fn(),
+        isInitialized: jest.fn().mockReturnValue(true),
+      }),
+    );
+
+    mockGetUnitRepository.mockReturnValue(
+      createMock<UnitRepository>(mockUnitRepository),
+    );
   });
 
   describe('Method validation', () => {
@@ -92,7 +114,9 @@ describe('/api/units/import', () => {
       expect(res._getStatusCode()).toBe(400);
       const data = parseImportResponse(res);
       expect(data.success).toBe(false);
-      expect(data.error?.validationErrors).toContain('Missing or invalid field: chassis');
+      expect(data.error?.validationErrors).toContain(
+        'Missing or invalid field: chassis',
+      );
     });
 
     it('should reject missing variant and model', async () => {
@@ -107,7 +131,9 @@ describe('/api/units/import', () => {
 
       expect(res._getStatusCode()).toBe(400);
       const data = parseImportResponse(res);
-      expect(data.error?.validationErrors).toContain('Missing field: variant or model');
+      expect(data.error?.validationErrors).toContain(
+        'Missing field: variant or model',
+      );
     });
 
     it('should accept variant field', async () => {
@@ -182,7 +208,7 @@ describe('/api/units/import', () => {
         expect.objectContaining({
           chassis: 'Atlas',
           variant: 'AS7-D',
-        })
+        }),
       );
     });
 
@@ -263,7 +289,7 @@ describe('/api/units/import', () => {
           chassis: 'Atlas',
           variant: 'AS7-D',
           notes: 'Imported from JSON file',
-        })
+        }),
       );
     });
 
@@ -294,14 +320,16 @@ describe('/api/units/import', () => {
 
   describe('Error handling', () => {
     it('should handle database initialization errors', async () => {
-      mockSQLiteService.mockReturnValue(createMock<SQLiteService>({
-        initialize: jest.fn(() => {
-          throw new Error('Database init failed');
+      mockSQLiteService.mockReturnValue(
+        createMock<SQLiteService>({
+          initialize: jest.fn(() => {
+            throw new Error('Database init failed');
+          }),
+          getDatabase: jest.fn(),
+          close: jest.fn(),
+          isInitialized: jest.fn().mockReturnValue(false),
         }),
-        getDatabase: jest.fn(),
-        close: jest.fn(),
-        isInitialized: jest.fn().mockReturnValue(false),
-      }));
+      );
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',

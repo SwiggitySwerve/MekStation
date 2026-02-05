@@ -21,30 +21,30 @@ Users need to share custom units, pilots, and forces with other MekStation users
 
 ## Shareable Content
 
-| Content Type | Source | Notes |
-|--------------|--------|-------|
-| Custom Units | Unit construction system | Modified/custom mech builds |
-| Pilots | `add-pilot-system` | Persistent pilot characters |
-| Forces | `add-force-management` | Pilot+mech assignments, hierarchy |
-| Encounters | `add-encounter-system` | Scenario configurations |
-| Shared Folders | New | Grouped content for bulk sharing |
+| Content Type   | Source                   | Notes                             |
+| -------------- | ------------------------ | --------------------------------- |
+| Custom Units   | Unit construction system | Modified/custom mech builds       |
+| Pilots         | `add-pilot-system`       | Persistent pilot characters       |
+| Forces         | `add-force-management`   | Pilot+mech assignments, hierarchy |
+| Encounters     | `add-encounter-system`   | Scenario configurations           |
+| Shared Folders | New                      | Grouped content for bulk sharing  |
 
 ## Sharing Modes
 
-| Mode | Connectivity | Use Case |
-|------|--------------|----------|
-| File Export/Import | None (manual) | Backup, forum sharing, offline |
-| Link Sharing | One-time fetch | Quick share via Discord/email |
-| P2P Sync | Both online | Real-time collaboration |
-| Relay-Assisted | Via relay server | NAT traversal, offline queuing |
+| Mode               | Connectivity     | Use Case                       |
+| ------------------ | ---------------- | ------------------------------ |
+| File Export/Import | None (manual)    | Backup, forum sharing, offline |
+| Link Sharing       | One-time fetch   | Quick share via Discord/email  |
+| P2P Sync           | Both online      | Real-time collaboration        |
+| Relay-Assisted     | Via relay server | NAT traversal, offline queuing |
 
 ## Permission Levels
 
 | Level | View | Copy/Fork | Edit | Re-share |
-|-------|------|-----------|------|----------|
-| Read | ✓ | ✓ | ✗ | ✗ |
-| Write | ✓ | ✓ | ✓ | ✗ |
-| Admin | ✓ | ✓ | ✓ | ✓ |
+| ----- | ---- | --------- | ---- | -------- |
+| Read  | ✓    | ✓         | ✗    | ✗        |
+| Write | ✓    | ✓         | ✓    | ✗        |
+| Admin | ✓    | ✓         | ✓    | ✓        |
 
 ## Impact
 
@@ -57,8 +57,8 @@ Users need to share custom units, pilots, and forces with other MekStation users
 
 ## Phased Implementation
 
-| Phase | Scope | Dependencies |
-|-------|-------|--------------|
-| 1 | File-based export/import with signatures | None |
-| 2 | Link-based sharing with relay | Phase 1 |
-| 3 | P2P sync with identity/permissions | Phase 2 |
+| Phase | Scope                                    | Dependencies |
+| ----- | ---------------------------------------- | ------------ |
+| 1     | File-based export/import with signatures | None         |
+| 2     | Link-based sharing with relay            | Phase 1      |
+| 3     | P2P sync with identity/permissions       | Phase 2      |

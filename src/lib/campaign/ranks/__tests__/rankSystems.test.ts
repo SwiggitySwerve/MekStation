@@ -1,4 +1,3 @@
-import { Profession } from '@/types/campaign/ranks/rankTypes';
 import {
   RANK_SYSTEM_MERCENARY,
   RANK_SYSTEM_SLDF,
@@ -9,6 +8,7 @@ import {
   getRankSystem,
   getDefaultRankSystem,
 } from '@/lib/campaign/ranks/rankSystems';
+import { Profession } from '@/types/campaign/ranks/rankTypes';
 
 const ALL_SYSTEMS = [
   RANK_SYSTEM_MERCENARY,
@@ -180,7 +180,9 @@ describe('rankSystems', () => {
     });
 
     it('rank 25 is Senior Warrant Officer', () => {
-      expect(sys.ranks[25].names[Profession.MEKWARRIOR]).toBe('Senior Warrant Officer');
+      expect(sys.ranks[25].names[Profession.MEKWARRIOR]).toBe(
+        'Senior Warrant Officer',
+      );
       expect(sys.ranks[25].payMultiplier).toBe(1.35);
     });
 
@@ -239,7 +241,9 @@ describe('rankSystems', () => {
     });
 
     it('has fewer populated ranks than Mercenary', () => {
-      const clanPopulated = sys.ranks.filter((r) => Object.keys(r.names).length > 0).length;
+      const clanPopulated = sys.ranks.filter(
+        (r) => Object.keys(r.names).length > 0,
+      ).length;
       const mercPopulated = RANK_SYSTEM_MERCENARY.ranks.filter(
         (r) => Object.keys(r.names).length > 0,
       ).length;
@@ -268,7 +272,9 @@ describe('rankSystems', () => {
     });
 
     it('rank 31 is Precentor Martial (first officer)', () => {
-      expect(sys.ranks[31].names[Profession.MEKWARRIOR]).toBe('Precentor Martial');
+      expect(sys.ranks[31].names[Profession.MEKWARRIOR]).toBe(
+        'Precentor Martial',
+      );
       expect(sys.ranks[31].officer).toBe(true);
     });
 
@@ -278,10 +284,14 @@ describe('rankSystems', () => {
     });
 
     it('is the most sparse system (fewest populated ranks)', () => {
-      const comstarPopulated = sys.ranks.filter((r) => Object.keys(r.names).length > 0).length;
+      const comstarPopulated = sys.ranks.filter(
+        (r) => Object.keys(r.names).length > 0,
+      ).length;
       for (const other of ALL_SYSTEMS) {
         if (other.code === 'COMSTAR') continue;
-        const otherPopulated = other.ranks.filter((r) => Object.keys(r.names).length > 0).length;
+        const otherPopulated = other.ranks.filter(
+          (r) => Object.keys(r.names).length > 0,
+        ).length;
         expect(comstarPopulated).toBeLessThanOrEqual(otherPopulated);
       }
     });
@@ -308,7 +318,9 @@ describe('rankSystems', () => {
     });
 
     it("rank 50 is Archon's Champion with pay 3.0", () => {
-      expect(sys.ranks[50].names[Profession.MEKWARRIOR]).toBe("Archon's Champion");
+      expect(sys.ranks[50].names[Profession.MEKWARRIOR]).toBe(
+        "Archon's Champion",
+      );
       expect(sys.ranks[50].payMultiplier).toBe(3.0);
     });
 

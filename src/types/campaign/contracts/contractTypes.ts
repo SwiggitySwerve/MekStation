@@ -418,7 +418,8 @@ export const CLAUSE_LEVELS: Record<
     },
     1: {
       name: 'House',
-      description: 'Employer provides strategic direction, unit handles tactics',
+      description:
+        'Employer provides strategic direction, unit handles tactics',
     },
     2: {
       name: 'Liaison',
@@ -479,11 +480,13 @@ export const CLAUSE_LEVELS: Record<
     },
     2: {
       name: 'Partial',
-      description: 'Employer provides transport for personnel and light equipment',
+      description:
+        'Employer provides transport for personnel and light equipment',
     },
     3: {
       name: 'Full',
-      description: 'Employer provides full transport for all personnel and equipment',
+      description:
+        'Employer provides full transport for all personnel and equipment',
     },
   },
 };
@@ -519,9 +522,11 @@ export function isAtBContractType(value: unknown): value is AtBContractType {
  * }
  */
 export function isContractClauseType(
-  value: unknown
+  value: unknown,
 ): value is ContractClauseType {
-  return Object.values(ContractClauseType).includes(value as ContractClauseType);
+  return Object.values(ContractClauseType).includes(
+    value as ContractClauseType,
+  );
 }
 
 // =============================================================================
@@ -538,7 +543,9 @@ export function isContractClauseType(
  * const garrisonTypes = getContractTypesByGroup('garrison');
  * // Returns: [GARRISON_DUTY, CADRE_DUTY, SECURITY_DUTY, RIOT_DUTY, RETAINER]
  */
-export function getContractTypesByGroup(group: ContractGroup): AtBContractType[] {
+export function getContractTypesByGroup(
+  group: ContractGroup,
+): AtBContractType[] {
   return Object.entries(CONTRACT_TYPE_DEFINITIONS)
     .filter(([_, def]) => def.group === group)
     .map(([type]) => type as AtBContractType);
@@ -554,9 +561,10 @@ export function getContractTypesByGroup(group: ContractGroup): AtBContractType[]
  * const tempo = getOpsTempo(AtBContractType.GARRISON_DUTY);
  * // Returns: { min: 1.0, max: 1.0 }
  */
-export function getOpsTempo(
-  contractType: AtBContractType
-): { min: number; max: number } {
+export function getOpsTempo(contractType: AtBContractType): {
+  min: number;
+  max: number;
+} {
   const def = CONTRACT_TYPE_DEFINITIONS[contractType];
   return def.opsTempo;
 }

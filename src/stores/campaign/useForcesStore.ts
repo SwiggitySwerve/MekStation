@@ -10,6 +10,7 @@
 
 import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { IForce } from '@/types/campaign/Force';
 
@@ -117,12 +118,12 @@ export function createForcesStore(campaignId: string): StoreApi<ForcesStore> {
 
         getSubForces: (parentId) =>
           Array.from(get().forces.values()).filter(
-            (f) => f.parentForceId === parentId
+            (f) => f.parentForceId === parentId,
           ),
 
         getRootForce: () =>
           Array.from(get().forces.values()).find(
-            (f) => f.parentForceId === undefined
+            (f) => f.parentForceId === undefined,
           ),
       }),
       {
@@ -140,7 +141,7 @@ export function createForcesStore(campaignId: string): StoreApi<ForcesStore> {
             forces: new Map(persistedData?.forces || []),
           };
         },
-      }
-    )
+      },
+    ),
   );
 }

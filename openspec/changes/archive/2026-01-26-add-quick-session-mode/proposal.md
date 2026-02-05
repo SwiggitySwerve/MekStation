@@ -3,6 +3,7 @@
 ## Why
 
 Not all games need campaign persistence. Users should be able to:
+
 - Play a quick skirmish without setting up a campaign
 - Test unit designs in combat scenarios
 - Play one-off multiplayer battles

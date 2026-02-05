@@ -1,3 +1,6 @@
+import type { IUnitMarketOffer, IPersonnelMarketOffer } from '../marketTypes';
+
+import { CampaignPersonnelRole } from '../../enums/CampaignPersonnelRole';
 import {
   UnitMarketRarity,
   UnitMarketType,
@@ -10,8 +13,6 @@ import {
   isPersonnelMarketStyle,
   isMarketExperienceLevel,
 } from '../marketTypes';
-import type { IUnitMarketOffer, IPersonnelMarketOffer } from '../marketTypes';
-import { CampaignPersonnelRole } from '../../enums/CampaignPersonnelRole';
 
 describe('UnitMarketRarity', () => {
   it('should have 7 values', () => {
@@ -50,7 +51,9 @@ describe('UnitMarketRarity', () => {
       UnitMarketRarity.UBIQUITOUS,
     ];
     for (let i = 0; i < ordered.length - 1; i++) {
-      expect(RARITY_VALUES[ordered[i]]).toBeLessThan(RARITY_VALUES[ordered[i + 1]]);
+      expect(RARITY_VALUES[ordered[i]]).toBeLessThan(
+        RARITY_VALUES[ordered[i + 1]],
+      );
     }
   });
 });

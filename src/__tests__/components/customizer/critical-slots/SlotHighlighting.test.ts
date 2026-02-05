@@ -1,10 +1,10 @@
 /**
  * Slot Highlighting Tests
- * 
+ *
  * Tests for critical slot highlighting behavior when equipment is selected.
  * Ensures slots are only highlighted when equipment is actively selected
  * and the slot is a valid placement target.
- * 
+ *
  * @spec openspec/specs/critical-slots-display/spec.md
  * @spec openspec/specs/critical-slot-allocation/spec.md
  */
@@ -27,19 +27,19 @@ interface SlotState {
  */
 function getSlotStyleClasses(state: SlotState): string {
   const { type, isAssignable, isDragOver } = state;
-  
+
   // Drag over state has highest priority
   if (isDragOver) {
-    return type === 'empty' 
+    return type === 'empty'
       ? 'bg-green-800 border-green-400 text-green-200 scale-[1.02]'
       : 'bg-red-900/70 border-red-400 text-red-200';
   }
-  
+
   // Assignable empty slots show green highlight
   if (isAssignable && type === 'empty') {
     return 'bg-green-900/60 border-green-500 text-green-300';
   }
-  
+
   // Default content classes (simulated)
   if (type === 'empty') {
     return 'bg-slate-800 border-slate-600 text-slate-500';
@@ -50,7 +50,7 @@ function getSlotStyleClasses(state: SlotState): string {
   if (type === 'equipment') {
     return 'bg-red-700 border-red-500 text-red-100';
   }
-  
+
   return 'bg-slate-700 border-slate-600 text-slate-300';
 }
 
@@ -89,19 +89,19 @@ interface SelectedEquipment {
  */
 function getAssignableSlots(
   slots: EquipmentSlot[],
-  selectedEquipment: SelectedEquipment | null
+  selectedEquipment: SelectedEquipment | null,
 ): number[] {
   if (!selectedEquipment) {
     return [];
   }
-  
+
   const emptySlots = slots
-    .filter(s => s.type === 'empty')
-    .map(s => s.index);
-  
+    .filter((s) => s.type === 'empty')
+    .map((s) => s.index);
+
   const slotsNeeded = selectedEquipment.criticalSlots;
   const assignable: number[] = [];
-  
+
   // Find all valid starting positions for contiguous slots
   for (let i = 0; i <= emptySlots.length - slotsNeeded; i++) {
     let contiguous = true;
@@ -115,7 +115,7 @@ function getAssignableSlots(
       assignable.push(emptySlots[i]);
     }
   }
-  
+
   return assignable;
 }
 
@@ -134,7 +134,7 @@ describe('Slot Highlighting', () => {
         { index: 1, type: 'empty' },
         { index: 2, type: 'empty' },
       ];
-      
+
       const assignable = getAssignableSlots(slots, null);
       expect(assignable).toEqual([]);
     });
@@ -145,7 +145,7 @@ describe('Slot Highlighting', () => {
         isAssignable: false,
         isDragOver: false,
       };
-      
+
       const classes = getSlotStyleClasses(state);
       expect(isDefaultGray(classes)).toBe(true);
       expect(isHighlighted(classes)).toBe(false);
@@ -162,13 +162,13 @@ describe('Slot Highlighting', () => {
         MechLocation.LEFT_LEG,
         MechLocation.RIGHT_LEG,
       ];
-      
-      locations.forEach(_location => {
+
+      locations.forEach((_location) => {
         const slots: EquipmentSlot[] = Array.from({ length: 12 }, (_, i) => ({
           index: i,
           type: 'empty',
         }));
-        
+
         const assignable = getAssignableSlots(slots, null);
         expect(assignable).toEqual([]);
       });
@@ -191,7 +191,7 @@ describe('Slot Highlighting', () => {
         index: i,
         type: 'empty',
       }));
-      
+
       const assignable = getAssignableSlots(slots, mockEquipment);
       expect(assignable).toEqual([0, 1, 2, 3, 4, 5]);
     });
@@ -202,7 +202,7 @@ describe('Slot Highlighting', () => {
         isAssignable: true,
         isDragOver: false,
       };
-      
+
       const classes = getSlotStyleClasses(state);
       expect(isHighlighted(classes)).toBe(true);
       expect(isDefaultGray(classes)).toBe(false);
@@ -214,7 +214,7 @@ describe('Slot Highlighting', () => {
         index: i,
         type: 'empty',
       }));
-      
+
       const assignable = getAssignableSlots(slots, mockEquipment);
       expect(assignable).toEqual([]);
     });
@@ -225,7 +225,7 @@ describe('Slot Highlighting', () => {
         isAssignable: false,
         isDragOver: false,
       };
-      
+
       const classes = getSlotStyleClasses(state);
       expect(isHighlighted(classes)).toBe(false);
     });
@@ -236,7 +236,7 @@ describe('Slot Highlighting', () => {
         isAssignable: false,
         isDragOver: false,
       };
-      
+
       const classes = getSlotStyleClasses(state);
       expect(isHighlighted(classes)).toBe(false);
     });
@@ -266,7 +266,7 @@ describe('Slot Highlighting', () => {
         { index: 3, type: 'empty' },
         { index: 4, type: 'empty' },
       ];
-      
+
       const assignable = getAssignableSlots(slots, smallEquipment);
       expect(assignable).toEqual([1, 3, 4]);
     });
@@ -282,7 +282,7 @@ describe('Slot Highlighting', () => {
         { index: 6, type: 'empty' },
         { index: 7, type: 'empty' },
       ];
-      
+
       const assignable = getAssignableSlots(slots, mediumEquipment);
       // Can start at index 2 (slots 2,3,4 are contiguous empty)
       // Cannot start at index 6 (only 2 contiguous empty slots)
@@ -297,7 +297,7 @@ describe('Slot Highlighting', () => {
         { index: 3, type: 'empty' },
         { index: 4, type: 'empty' },
       ];
-      
+
       const assignable = getAssignableSlots(slots, mediumEquipment);
       // Only positions 2-4 have 3 contiguous empty slots
       expect(assignable).toEqual([2]);
@@ -314,7 +314,7 @@ describe('Slot Highlighting', () => {
         isAssignable: true,
         isDragOver: true,
       };
-      
+
       const classes = getSlotStyleClasses(state);
       expect(classes).toContain('bg-green-800');
       expect(classes).toContain('scale-[1.02]');
@@ -326,7 +326,7 @@ describe('Slot Highlighting', () => {
         isAssignable: false,
         isDragOver: true,
       };
-      
+
       const classes = getSlotStyleClasses(state);
       expect(classes).toContain('bg-red-900');
     });
@@ -337,7 +337,7 @@ describe('Slot Highlighting', () => {
         isAssignable: true,
         isDragOver: true,
       };
-      
+
       const classes = getSlotStyleClasses(state);
       // Drag-over should use bg-green-800, not bg-green-900/60
       expect(classes).toContain('bg-green-800');
@@ -356,7 +356,7 @@ describe('Slot Highlighting', () => {
         equipmentId: 'test',
         criticalSlots: 1,
       };
-      
+
       const assignable = getAssignableSlots(slots, equipment);
       expect(assignable).toEqual([]);
     });
@@ -371,7 +371,7 @@ describe('Slot Highlighting', () => {
         equipmentId: 'test',
         criticalSlots: 10,
       };
-      
+
       const assignable = getAssignableSlots(slots, equipment);
       expect(assignable).toEqual([]);
     });
@@ -386,7 +386,7 @@ describe('Slot Highlighting', () => {
         equipmentId: 'test',
         criticalSlots: 1,
       };
-      
+
       const assignable = getAssignableSlots(slots, equipment);
       expect(assignable).toEqual([]);
     });
@@ -400,7 +400,10 @@ describe('Slot Highlighting', () => {
      * Tests the isSelected calculation: slot.equipmentId === selectedEquipmentId
      * When both are undefined, this would incorrectly return true!
      */
-    function isSlotSelected(slotEquipmentId: string | undefined, selectedEquipmentId: string | undefined): boolean {
+    function isSlotSelected(
+      slotEquipmentId: string | undefined,
+      selectedEquipmentId: string | undefined,
+    ): boolean {
       // CORRECT implementation: require selectedEquipmentId to be truthy
       return !!(selectedEquipmentId && slotEquipmentId === selectedEquipmentId);
     }
@@ -433,7 +436,10 @@ describe('Slot Highlighting', () => {
       // This is the key invariant: no selection = no highlighting
       const testCases = [
         // All empty
-        Array.from({ length: 12 }, (_, i) => ({ index: i, type: 'empty' as const })),
+        Array.from({ length: 12 }, (_, i) => ({
+          index: i,
+          type: 'empty' as const,
+        })),
         // Mixed
         [
           { index: 0, type: 'system' as const },
@@ -441,24 +447,29 @@ describe('Slot Highlighting', () => {
           { index: 2, type: 'equipment' as const },
         ],
         // All system
-        Array.from({ length: 6 }, (_, i) => ({ index: i, type: 'system' as const })),
+        Array.from({ length: 6 }, (_, i) => ({
+          index: i,
+          type: 'system' as const,
+        })),
       ];
-      
+
       testCases.forEach((slots, _caseIndex) => {
         const assignable = getAssignableSlots(slots, null);
         expect(assignable).toEqual([]);
-        
+
         // Verify each empty slot would get gray styling
-        slots.filter(s => s.type === 'empty').forEach(slot => {
-          const state: SlotState = {
-            type: 'empty',
-            isAssignable: assignable.includes(slot.index),
-            isDragOver: false,
-          };
-          const classes = getSlotStyleClasses(state);
-          expect(isDefaultGray(classes)).toBe(true);
-          expect(isHighlighted(classes)).toBe(false);
-        });
+        slots
+          .filter((s) => s.type === 'empty')
+          .forEach((slot) => {
+            const state: SlotState = {
+              type: 'empty',
+              isAssignable: assignable.includes(slot.index),
+              isDragOver: false,
+            };
+            const classes = getSlotStyleClasses(state);
+            expect(isDefaultGray(classes)).toBe(true);
+            expect(isHighlighted(classes)).toBe(false);
+          });
       });
     });
 
@@ -467,21 +478,20 @@ describe('Slot Highlighting', () => {
         index: i,
         type: 'empty',
       }));
-      
+
       const equipment: SelectedEquipment = {
         instanceId: 'test',
         equipmentId: 'test',
         criticalSlots: 3,
       };
-      
+
       // With selection: should have assignable slots
       const withSelection = getAssignableSlots(slots, equipment);
       expect(withSelection.length).toBeGreaterThan(0);
-      
+
       // Without selection: should have NO assignable slots
       const withoutSelection = getAssignableSlots(slots, null);
       expect(withoutSelection).toEqual([]);
     });
   });
 });
-

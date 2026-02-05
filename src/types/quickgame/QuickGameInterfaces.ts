@@ -5,8 +5,8 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
-import { IGeneratedScenario } from '../scenario';
 import { GameStatus, GamePhase, IGameEvent } from '../gameplay';
+import { IGeneratedScenario } from '../scenario';
 
 // =============================================================================
 // Enums
@@ -203,7 +203,11 @@ export interface IQuickGameActions {
   /** Remove unit from player force */
   removeUnit: (instanceId: string) => void;
   /** Update unit skills */
-  updateUnitSkills: (instanceId: string, gunnery: number, piloting: number) => void;
+  updateUnitSkills: (
+    instanceId: string,
+    gunnery: number,
+    piloting: number,
+  ) => void;
   /** Set scenario configuration */
   setScenarioConfig: (config: Partial<IQuickGameScenarioConfig>) => void;
   /** Generate scenario and opponent force */
@@ -269,7 +273,9 @@ export function createQuickGameInstance(): IQuickGameInstance {
 /**
  * Create a quick game unit from a unit request.
  */
-export function createQuickGameUnit(request: IQuickGameUnitRequest): IQuickGameUnit {
+export function createQuickGameUnit(
+  request: IQuickGameUnitRequest,
+): IQuickGameUnit {
   return {
     instanceId: `unit-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
     sourceUnitId: request.sourceUnitId,
@@ -303,7 +309,7 @@ export function calculateForceTotals(units: readonly IQuickGameUnit[]): {
       totalBV: acc.totalBV + unit.bv,
       totalTonnage: acc.totalTonnage + unit.tonnage,
     }),
-    { totalBV: 0, totalTonnage: 0 }
+    { totalBV: 0, totalTonnage: 0 },
   );
 }
 

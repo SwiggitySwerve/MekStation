@@ -77,27 +77,37 @@ export const PILOT_SKILL_PRESETS = {
  */
 export async function createTestPilot(
   page: Page,
-  options: TestPilotOptions = {}
+  options: TestPilotOptions = {},
 ): Promise<string | null> {
   const pilotId = await page.evaluate(async (opts) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { pilot?: { getState: () => { createPilot: (options: {
-      identity: {
-        name: string;
-        callsign?: string;
-        affiliation?: string;
-        portrait?: string;
-        background?: string;
-      };
-      type: string;
-      skills: { gunnery: number; piloting: number };
-      abilityIds?: string[];
-      startingXp?: number;
-      rank?: string;
-    }) => Promise<string | null> } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          pilot?: {
+            getState: () => {
+              createPilot: (options: {
+                identity: {
+                  name: string;
+                  callsign?: string;
+                  affiliation?: string;
+                  portrait?: string;
+                  background?: string;
+                };
+                type: string;
+                skills: { gunnery: number; piloting: number };
+                abilityIds?: string[];
+                startingXp?: number;
+                rank?: string;
+              }) => Promise<string | null>;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.pilot) {
       throw new Error(
-        'Pilot store not exposed. Ensure window.__ZUSTAND_STORES__.pilot is set in your app for E2E testing.'
+        'Pilot store not exposed. Ensure window.__ZUSTAND_STORES__.pilot is set in your app for E2E testing.',
       );
     }
 
@@ -133,7 +143,7 @@ export async function createTestPilot(
  */
 export async function createGreenPilot(
   page: Page,
-  name?: string
+  name?: string,
 ): Promise<string | null> {
   return createTestPilot(page, {
     name: name || `Green Pilot ${Date.now()}`,
@@ -150,7 +160,7 @@ export async function createGreenPilot(
  */
 export async function createRegularPilot(
   page: Page,
-  name?: string
+  name?: string,
 ): Promise<string | null> {
   return createTestPilot(page, {
     name: name || `Regular Pilot ${Date.now()}`,
@@ -167,7 +177,7 @@ export async function createRegularPilot(
  */
 export async function createVeteranPilot(
   page: Page,
-  name?: string
+  name?: string,
 ): Promise<string | null> {
   return createTestPilot(page, {
     name: name || `Veteran Pilot ${Date.now()}`,
@@ -184,7 +194,7 @@ export async function createVeteranPilot(
  */
 export async function createElitePilot(
   page: Page,
-  name?: string
+  name?: string,
 ): Promise<string | null> {
   return createTestPilot(page, {
     name: name || `Elite Pilot ${Date.now()}`,
@@ -203,7 +213,7 @@ export async function createElitePilot(
 export async function createMultiplePilots(
   page: Page,
   count: number,
-  baseOptions: TestPilotOptions = {}
+  baseOptions: TestPilotOptions = {},
 ): Promise<string[]> {
   const pilotIds: string[] = [];
 
@@ -231,7 +241,7 @@ export async function createMultiplePilots(
  */
 export async function createLancePilots(
   page: Page,
-  lanceName: string = 'Alpha'
+  lanceName: string = 'Alpha',
 ): Promise<string[]> {
   const pilots: string[] = [];
 
@@ -282,7 +292,7 @@ export async function createLancePilots(
  */
 export async function getPilot(
   page: Page,
-  pilotId: string
+  pilotId: string,
 ): Promise<{
   id: string;
   name: string;
@@ -292,14 +302,27 @@ export async function getPilot(
   skills: { gunnery: number; piloting: number };
 } | null> {
   return page.evaluate((id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { pilot?: { getState: () => { pilots: Map<string, {
-      id: string;
-      name: string;
-      callsign?: string;
-      type: string;
-      status: string;
-      skills: { gunnery: number; piloting: number };
-    }> } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          pilot?: {
+            getState: () => {
+              pilots: Map<
+                string,
+                {
+                  id: string;
+                  name: string;
+                  callsign?: string;
+                  type: string;
+                  status: string;
+                  skills: { gunnery: number; piloting: number };
+                }
+              >;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.pilot) {
       throw new Error('Pilot store not exposed');
@@ -318,7 +341,15 @@ export async function getPilot(
  */
 export async function deletePilot(page: Page, pilotId: string): Promise<void> {
   await page.evaluate(async (id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { pilot?: { getState: () => { deletePilot: (id: string) => Promise<void> } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          pilot?: {
+            getState: () => { deletePilot: (id: string) => Promise<void> };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.pilot) {
       throw new Error('Pilot store not exposed');

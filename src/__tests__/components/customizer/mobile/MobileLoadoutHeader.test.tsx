@@ -1,10 +1,16 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MobileLoadoutHeader, MobileLoadoutStats } from '@/components/customizer/mobile/MobileLoadoutHeader';
+import React from 'react';
+
+import {
+  MobileLoadoutHeader,
+  MobileLoadoutStats,
+} from '@/components/customizer/mobile/MobileLoadoutHeader';
 
 describe('MobileLoadoutHeader', () => {
-  const createStats = (overrides?: Partial<MobileLoadoutStats>): MobileLoadoutStats => ({
+  const createStats = (
+    overrides?: Partial<MobileLoadoutStats>,
+  ): MobileLoadoutStats => ({
     weightUsed: 45,
     weightMax: 75,
     slotsUsed: 42,
@@ -55,21 +61,27 @@ describe('MobileLoadoutHeader', () => {
   describe('Overage Indicators', () => {
     it('should show red for weight overage', () => {
       const stats = createStats({ weightUsed: 80, weightMax: 75 });
-      const { container } = render(<MobileLoadoutHeader {...defaultProps} stats={stats} />);
+      const { container } = render(
+        <MobileLoadoutHeader {...defaultProps} stats={stats} />,
+      );
       const weightValue = container.querySelector('.text-red-400');
       expect(weightValue).toBeInTheDocument();
     });
 
     it('should show red for slot overage', () => {
       const stats = createStats({ slotsUsed: 85, slotsMax: 78 });
-      const { container } = render(<MobileLoadoutHeader {...defaultProps} stats={stats} />);
+      const { container } = render(
+        <MobileLoadoutHeader {...defaultProps} stats={stats} />,
+      );
       const slotValue = container.querySelector('.text-red-400');
       expect(slotValue).toBeInTheDocument();
     });
 
     it('should show red for heat overage', () => {
       const stats = createStats({ heatGenerated: 25, heatDissipation: 20 });
-      const { container } = render(<MobileLoadoutHeader {...defaultProps} stats={stats} />);
+      const { container } = render(
+        <MobileLoadoutHeader {...defaultProps} stats={stats} />,
+      );
       const heatValue = container.querySelector('.text-red-400');
       expect(heatValue).toBeInTheDocument();
     });
@@ -92,10 +104,10 @@ describe('MobileLoadoutHeader', () => {
     it('should call onToggle when clicked', async () => {
       const user = userEvent.setup();
       render(<MobileLoadoutHeader {...defaultProps} />);
-      
+
       const header = screen.getByRole('button');
       await user.click(header);
-      
+
       expect(defaultProps.onToggle).toHaveBeenCalled();
     });
 
@@ -105,7 +117,9 @@ describe('MobileLoadoutHeader', () => {
     });
 
     it('should rotate indicator when expanded', () => {
-      const { container } = render(<MobileLoadoutHeader {...defaultProps} isExpanded={true} />);
+      const { container } = render(
+        <MobileLoadoutHeader {...defaultProps} isExpanded={true} />,
+      );
       const indicator = container.querySelector('.rotate-180');
       expect(indicator).toBeInTheDocument();
     });

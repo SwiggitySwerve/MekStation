@@ -5,6 +5,13 @@
  */
 
 import {
+  FiringArc,
+  IWeaponAttack,
+  CombatLocation,
+  WeaponCategory,
+} from '@/types/gameplay';
+
+import {
   CLUSTER_HIT_TABLE,
   CLUSTER_SIZES,
   getNearestClusterSize,
@@ -19,13 +26,14 @@ import {
   groupClusterHitsByLocation,
   formatClusterResult,
 } from '../clusterWeapons';
-import { FiringArc, IWeaponAttack, CombatLocation, WeaponCategory } from '@/types/gameplay';
 
 // =============================================================================
 // Test Fixtures
 // =============================================================================
 
-function createClusterWeapon(overrides: Partial<IWeaponAttack> = {}): IWeaponAttack {
+function createClusterWeapon(
+  overrides: Partial<IWeaponAttack> = {},
+): IWeaponAttack {
   return {
     weaponId: 'lrm-10',
     weaponName: 'LRM-10',
@@ -79,8 +87,12 @@ describe('CLUSTER_HIT_TABLE', () => {
 
   it('should have increasing hits for higher rolls', () => {
     // For any cluster size, roll 12 should give max hits
-    expect(CLUSTER_HIT_TABLE[12][10]).toBeGreaterThanOrEqual(CLUSTER_HIT_TABLE[2][10]);
-    expect(CLUSTER_HIT_TABLE[12][20]).toBeGreaterThanOrEqual(CLUSTER_HIT_TABLE[2][20]);
+    expect(CLUSTER_HIT_TABLE[12][10]).toBeGreaterThanOrEqual(
+      CLUSTER_HIT_TABLE[2][10],
+    );
+    expect(CLUSTER_HIT_TABLE[12][20]).toBeGreaterThanOrEqual(
+      CLUSTER_HIT_TABLE[2][20],
+    );
   });
 
   it('should have correct maximum hits for cluster size 20', () => {
@@ -253,7 +265,7 @@ describe('resolveClusterAttack', () => {
     const weapon = createNonClusterWeapon();
 
     expect(() => resolveClusterAttack(weapon, FiringArc.Front)).toThrow(
-      'is not a cluster weapon'
+      'is not a cluster weapon',
     );
   });
 
@@ -355,7 +367,7 @@ describe('resolveStreakAttack', () => {
     const weapon = createClusterWeapon({ clusterSize: undefined });
 
     expect(() => resolveStreakAttack(weapon, FiringArc.Front)).toThrow(
-      'has no cluster size'
+      'has no cluster size',
     );
   });
 
@@ -398,9 +410,21 @@ describe('resolveStreakAttack', () => {
 describe('groupClusterHitsByLocation', () => {
   it('should group hits by location', () => {
     const hits = [
-      { location: 'center_torso' as CombatLocation, roll: { dice: [3, 4], total: 7, isSnakeEyes: false, isBoxcars: false }, damage: 1 },
-      { location: 'center_torso' as CombatLocation, roll: { dice: [3, 4], total: 7, isSnakeEyes: false, isBoxcars: false }, damage: 1 },
-      { location: 'left_arm' as CombatLocation, roll: { dice: [1, 2], total: 3, isSnakeEyes: false, isBoxcars: false }, damage: 1 },
+      {
+        location: 'center_torso' as CombatLocation,
+        roll: { dice: [3, 4], total: 7, isSnakeEyes: false, isBoxcars: false },
+        damage: 1,
+      },
+      {
+        location: 'center_torso' as CombatLocation,
+        roll: { dice: [3, 4], total: 7, isSnakeEyes: false, isBoxcars: false },
+        damage: 1,
+      },
+      {
+        location: 'left_arm' as CombatLocation,
+        roll: { dice: [1, 2], total: 3, isSnakeEyes: false, isBoxcars: false },
+        damage: 1,
+      },
     ];
 
     const grouped = groupClusterHitsByLocation(hits);
@@ -416,9 +440,21 @@ describe('groupClusterHitsByLocation', () => {
 
   it('should calculate total damage per location', () => {
     const hits = [
-      { location: 'right_leg' as CombatLocation, roll: { dice: [2, 3], total: 5, isSnakeEyes: false, isBoxcars: false }, damage: 2 },
-      { location: 'right_leg' as CombatLocation, roll: { dice: [2, 3], total: 5, isSnakeEyes: false, isBoxcars: false }, damage: 2 },
-      { location: 'right_leg' as CombatLocation, roll: { dice: [2, 3], total: 5, isSnakeEyes: false, isBoxcars: false }, damage: 2 },
+      {
+        location: 'right_leg' as CombatLocation,
+        roll: { dice: [2, 3], total: 5, isSnakeEyes: false, isBoxcars: false },
+        damage: 2,
+      },
+      {
+        location: 'right_leg' as CombatLocation,
+        roll: { dice: [2, 3], total: 5, isSnakeEyes: false, isBoxcars: false },
+        damage: 2,
+      },
+      {
+        location: 'right_leg' as CombatLocation,
+        roll: { dice: [2, 3], total: 5, isSnakeEyes: false, isBoxcars: false },
+        damage: 2,
+      },
     ];
 
     const grouped = groupClusterHitsByLocation(hits);
@@ -440,17 +476,76 @@ describe('formatClusterResult', () => {
     // Mock a cluster result
     const result = {
       weapon,
-      clusterRoll: { dice: [4, 3], total: 7, isSnakeEyes: false, isBoxcars: false },
+      clusterRoll: {
+        dice: [4, 3],
+        total: 7,
+        isSnakeEyes: false,
+        isBoxcars: false,
+      },
       hitsScored: 6,
       damagePerHit: 1,
       totalDamage: 6,
       hitDistribution: [
-        { location: 'center_torso' as CombatLocation, roll: { dice: [3, 4], total: 7, isSnakeEyes: false, isBoxcars: false }, damage: 1 },
-        { location: 'center_torso' as CombatLocation, roll: { dice: [3, 4], total: 7, isSnakeEyes: false, isBoxcars: false }, damage: 1 },
-        { location: 'left_arm' as CombatLocation, roll: { dice: [1, 2], total: 3, isSnakeEyes: false, isBoxcars: false }, damage: 1 },
-        { location: 'left_arm' as CombatLocation, roll: { dice: [1, 3], total: 4, isSnakeEyes: false, isBoxcars: false }, damage: 1 },
-        { location: 'right_leg' as CombatLocation, roll: { dice: [2, 3], total: 5, isSnakeEyes: false, isBoxcars: false }, damage: 1 },
-        { location: 'head' as CombatLocation, roll: { dice: [6, 6], total: 12, isSnakeEyes: false, isBoxcars: true }, damage: 1 },
+        {
+          location: 'center_torso' as CombatLocation,
+          roll: {
+            dice: [3, 4],
+            total: 7,
+            isSnakeEyes: false,
+            isBoxcars: false,
+          },
+          damage: 1,
+        },
+        {
+          location: 'center_torso' as CombatLocation,
+          roll: {
+            dice: [3, 4],
+            total: 7,
+            isSnakeEyes: false,
+            isBoxcars: false,
+          },
+          damage: 1,
+        },
+        {
+          location: 'left_arm' as CombatLocation,
+          roll: {
+            dice: [1, 2],
+            total: 3,
+            isSnakeEyes: false,
+            isBoxcars: false,
+          },
+          damage: 1,
+        },
+        {
+          location: 'left_arm' as CombatLocation,
+          roll: {
+            dice: [1, 3],
+            total: 4,
+            isSnakeEyes: false,
+            isBoxcars: false,
+          },
+          damage: 1,
+        },
+        {
+          location: 'right_leg' as CombatLocation,
+          roll: {
+            dice: [2, 3],
+            total: 5,
+            isSnakeEyes: false,
+            isBoxcars: false,
+          },
+          damage: 1,
+        },
+        {
+          location: 'head' as CombatLocation,
+          roll: {
+            dice: [6, 6],
+            total: 12,
+            isSnakeEyes: false,
+            isBoxcars: true,
+          },
+          damage: 1,
+        },
       ],
     };
 
@@ -467,14 +562,46 @@ describe('formatClusterResult', () => {
     const weapon = createClusterWeapon();
     const result = {
       weapon,
-      clusterRoll: { dice: [5, 5], total: 10, isSnakeEyes: false, isBoxcars: false },
+      clusterRoll: {
+        dice: [5, 5],
+        total: 10,
+        isSnakeEyes: false,
+        isBoxcars: false,
+      },
       hitsScored: 3,
       damagePerHit: 1,
       totalDamage: 3,
       hitDistribution: [
-        { location: 'head' as CombatLocation, roll: { dice: [6, 6], total: 12, isSnakeEyes: false, isBoxcars: true }, damage: 1 },
-        { location: 'left_torso' as CombatLocation, roll: { dice: [4, 4], total: 8, isSnakeEyes: false, isBoxcars: false }, damage: 1 },
-        { location: 'right_arm' as CombatLocation, roll: { dice: [2, 1], total: 3, isSnakeEyes: false, isBoxcars: false }, damage: 1 },
+        {
+          location: 'head' as CombatLocation,
+          roll: {
+            dice: [6, 6],
+            total: 12,
+            isSnakeEyes: false,
+            isBoxcars: true,
+          },
+          damage: 1,
+        },
+        {
+          location: 'left_torso' as CombatLocation,
+          roll: {
+            dice: [4, 4],
+            total: 8,
+            isSnakeEyes: false,
+            isBoxcars: false,
+          },
+          damage: 1,
+        },
+        {
+          location: 'right_arm' as CombatLocation,
+          roll: {
+            dice: [2, 1],
+            total: 3,
+            isSnakeEyes: false,
+            isBoxcars: false,
+          },
+          damage: 1,
+        },
       ],
     };
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Extract Missing Equipment Script
- * 
+ *
  * Compares equipment names from mm-data .blk files with existing
  * equipment in megamek-web JSON files to identify missing items.
  */
@@ -10,14 +10,26 @@ const fs = require('fs');
 const path = require('path');
 
 // Read extracted equipment names from mm-data
-const mmDataNamesPath = path.join(__dirname, '..', 'mm-data-equipment-names.txt');
-const mmDataNames = fs.readFileSync(mmDataNamesPath, 'utf8')
+const mmDataNamesPath = path.join(
+  __dirname,
+  '..',
+  'mm-data-equipment-names.txt',
+);
+const mmDataNames = fs
+  .readFileSync(mmDataNamesPath, 'utf8')
   .split('\n')
-  .map(line => line.trim())
-  .filter(line => line.length > 0);
+  .map((line) => line.trim())
+  .filter((line) => line.length > 0);
 
 // Read existing equipment from JSON files
-const equipmentDir = path.join(__dirname, '..', 'public', 'data', 'equipment', 'official');
+const equipmentDir = path.join(
+  __dirname,
+  '..',
+  'public',
+  'data',
+  'equipment',
+  'official',
+);
 
 function loadEquipmentFile(filename) {
   try {
@@ -49,7 +61,7 @@ function normalizeName(name) {
 }
 
 function addEquipment(items) {
-  items.forEach(item => {
+  items.forEach((item) => {
     // Add ID
     existingEquipment.add(normalizeName(item.id));
     // Add name
@@ -61,7 +73,7 @@ function addEquipment(items) {
       item.name.replace(/[^a-z0-9]/gi, ''),
       item.name.toLowerCase(),
     ];
-    nameVariations.forEach(v => {
+    nameVariations.forEach((v) => {
       existingEquipment.add(normalizeName(v));
     });
   });
@@ -82,93 +94,156 @@ const missingEquipment = {
     ballistic: [],
     missile: [],
     physical: [],
-    unknown: []
+    unknown: [],
   },
   electronics: [],
   miscellaneous: [],
   ammunition: [],
-  unknown: []
+  unknown: [],
 };
 
 // Keywords for categorization
-const energyKeywords = ['laser', 'ppc', 'flamer', 'plasma', 'particle', 'pulse'];
-const ballisticKeywords = ['ac/', 'autocannon', 'gauss', 'rifle', 'machine gun', 'mg', 'lbx', 'uac', 'rac', 'lac', 'hvac', 'hag'];
-const missileKeywords = ['lrm', 'srm', 'mrm', 'atm', 'narc', 'streak', 'artemis', 'torpedo', 'thunderbolt', 'mml'];
-const electronicsKeywords = ['ecm', 'probe', 'tag', 'c3', 'targeting', 'computer', 'sensor', 'imager', 'communications'];
-const miscKeywords = ['heat sink', 'jump jet', 'masc', 'tsm', 'supercharger', 'armor', 'chassis', 'stealth', 'shield'];
+const energyKeywords = [
+  'laser',
+  'ppc',
+  'flamer',
+  'plasma',
+  'particle',
+  'pulse',
+];
+const ballisticKeywords = [
+  'ac/',
+  'autocannon',
+  'gauss',
+  'rifle',
+  'machine gun',
+  'mg',
+  'lbx',
+  'uac',
+  'rac',
+  'lac',
+  'hvac',
+  'hag',
+];
+const missileKeywords = [
+  'lrm',
+  'srm',
+  'mrm',
+  'atm',
+  'narc',
+  'streak',
+  'artemis',
+  'torpedo',
+  'thunderbolt',
+  'mml',
+];
+const electronicsKeywords = [
+  'ecm',
+  'probe',
+  'tag',
+  'c3',
+  'targeting',
+  'computer',
+  'sensor',
+  'imager',
+  'communications',
+];
+const miscKeywords = [
+  'heat sink',
+  'jump jet',
+  'masc',
+  'tsm',
+  'supercharger',
+  'armor',
+  'chassis',
+  'stealth',
+  'shield',
+];
 const ammoKeywords = ['ammo', 'ammunition'];
 
 function categorizeEquipment(name) {
   const lowerName = name.toLowerCase();
-  
+
   // Check for ammo first
-  if (ammoKeywords.some(kw => lowerName.includes(kw))) {
+  if (ammoKeywords.some((kw) => lowerName.includes(kw))) {
     return 'ammunition';
   }
-  
+
   // Check electronics
-  if (electronicsKeywords.some(kw => lowerName.includes(kw))) {
+  if (electronicsKeywords.some((kw) => lowerName.includes(kw))) {
     return 'electronics';
   }
-  
+
   // Check misc
-  if (miscKeywords.some(kw => lowerName.includes(kw))) {
+  if (miscKeywords.some((kw) => lowerName.includes(kw))) {
     return 'miscellaneous';
   }
-  
+
   // Check weapon types
-  if (energyKeywords.some(kw => lowerName.includes(kw))) {
-    if (lowerName.includes('laser') || lowerName.includes('ppc') || lowerName.includes('flamer') || lowerName.includes('plasma')) {
+  if (energyKeywords.some((kw) => lowerName.includes(kw))) {
+    if (
+      lowerName.includes('laser') ||
+      lowerName.includes('ppc') ||
+      lowerName.includes('flamer') ||
+      lowerName.includes('plasma')
+    ) {
       return 'weapons.energy';
     }
   }
-  
-  if (ballisticKeywords.some(kw => lowerName.includes(kw))) {
+
+  if (ballisticKeywords.some((kw) => lowerName.includes(kw))) {
     return 'weapons.ballistic';
   }
-  
-  if (missileKeywords.some(kw => lowerName.includes(kw))) {
+
+  if (missileKeywords.some((kw) => lowerName.includes(kw))) {
     return 'weapons.missile';
   }
-  
+
   // Check for physical weapons (melee, etc.)
-  if (lowerName.includes('hatchet') || lowerName.includes('sword') || lowerName.includes('claw') || lowerName.includes('mace')) {
+  if (
+    lowerName.includes('hatchet') ||
+    lowerName.includes('sword') ||
+    lowerName.includes('claw') ||
+    lowerName.includes('mace')
+  ) {
     return 'weapons.physical';
   }
-  
+
   return 'unknown';
 }
 
 // Compare and find missing equipment
-mmDataNames.forEach(name => {
+mmDataNames.forEach((name) => {
   const normalized = normalizeName(name);
-  
+
   // Check if this equipment exists
   let found = false;
-  
+
   // Direct match
   if (existingEquipment.has(normalized)) {
     found = true;
   }
-  
+
   // Check partial matches (for variations like "AC10" vs "AC/10")
   const nameParts = normalized.match(/(\d+|[a-z]+)/g) || [];
   if (nameParts.length > 0) {
-    const partialMatch = Array.from(existingEquipment).some(existing => {
+    const partialMatch = Array.from(existingEquipment).some((existing) => {
       const existingParts = existing.match(/(\d+|[a-z]+)/g) || [];
       // Check if significant parts match
-      return nameParts.length > 0 && 
-             nameParts.every(part => existingParts.includes(part)) &&
-             existingParts.length === nameParts.length;
+      return (
+        nameParts.length > 0 &&
+        nameParts.every((part) => existingParts.includes(part)) &&
+        existingParts.length === nameParts.length
+      );
     });
     if (partialMatch) {
       found = true;
     }
   }
-  
+
   if (!found) {
     const category = categorizeEquipment(name);
-    
+
     if (category.startsWith('weapons.')) {
       const subCategory = category.split('.')[1];
       missingEquipment.weapons[subCategory].push(name);
@@ -201,11 +276,11 @@ const categories = [
 ];
 
 let totalMissing = 0;
-categories.forEach(cat => {
+categories.forEach((cat) => {
   if (cat.items.length > 0) {
     console.log(`\n${cat.name} (${cat.items.length} items):`);
     console.log('-'.repeat(80));
-    cat.items.slice(0, 50).forEach(item => {
+    cat.items.slice(0, 50).forEach((item) => {
       console.log(`  - ${item}`);
     });
     if (cat.items.length > 50) {
@@ -229,11 +304,11 @@ const report = {
     if (cat.items.length > 0) {
       acc[cat.name] = {
         count: cat.items.length,
-        items: cat.items
+        items: cat.items,
       };
     }
     return acc;
-  }, {})
+  }, {}),
 };
 
 fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));

@@ -6,21 +6,16 @@
  */
 
 import { useState, useCallback } from 'react';
-import {
-  PageLayout,
-  Card,
-} from '@/components/ui';
-import { useEventTimeline } from '@/hooks/audit';
+
+import { QueryBuilder, ExportButton } from '@/components/audit/query';
 import {
   EventTimeline,
   TimelineFilters,
   TimelineSearch,
   TimelineDatePicker,
 } from '@/components/audit/timeline';
-import {
-  QueryBuilder,
-  ExportButton,
-} from '@/components/audit/query';
+import { PageLayout, Card } from '@/components/ui';
+import { useEventTimeline } from '@/hooks/audit';
 import { IBaseEvent, EventCategory } from '@/types/events';
 
 // =============================================================================
@@ -57,28 +52,28 @@ export default function AuditTimelinePage(): React.ReactElement {
     (searchQuery: string) => {
       setFilters({ ...filters, searchQuery: searchQuery || undefined });
     },
-    [filters, setFilters]
+    [filters, setFilters],
   );
 
   const handleTimeRangeChange = useCallback(
     (timeRange: { from: string; to: string } | undefined) => {
       setFilters({ ...filters, timeRange });
     },
-    [filters, setFilters]
+    [filters, setFilters],
   );
 
   const handleCategoryChange = useCallback(
     (category: EventCategory | undefined) => {
       setFilters({ ...filters, category });
     },
-    [filters, setFilters]
+    [filters, setFilters],
   );
 
   const handleRootEventsToggle = useCallback(
     (rootEventsOnly: boolean) => {
       setFilters({ ...filters, rootEventsOnly: rootEventsOnly || undefined });
     },
-    [filters, setFilters]
+    [filters, setFilters],
   );
 
   return (
@@ -92,11 +87,11 @@ export default function AuditTimelinePage(): React.ReactElement {
           <button
             onClick={refresh}
             disabled={isLoading}
-            className="p-2 rounded-lg bg-surface-raised border border-border-theme-subtle hover:border-border-theme transition-colors disabled:opacity-50"
+            className="bg-surface-raised border-border-theme-subtle hover:border-border-theme rounded-lg border p-2 transition-colors disabled:opacity-50"
             aria-label="Refresh timeline"
           >
             <svg
-              className={`w-5 h-5 text-text-theme-secondary ${isLoading ? 'animate-spin' : ''}`}
+              className={`text-text-theme-secondary h-5 w-5 ${isLoading ? 'animate-spin' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -117,7 +112,7 @@ export default function AuditTimelinePage(): React.ReactElement {
         <div className="space-y-4">
           {/* Primary Filters Row */}
           <div className="flex flex-wrap items-start gap-4">
-            <div className="flex-1 min-w-[200px]">
+            <div className="min-w-[200px] flex-1">
               <TimelineSearch
                 value={filters.searchQuery || ''}
                 onChange={handleSearchChange}
@@ -130,14 +125,19 @@ export default function AuditTimelinePage(): React.ReactElement {
             />
             <button
               onClick={() => setShowAdvancedQuery(!showAdvancedQuery)}
-              className={`px-3 py-2 rounded-lg border transition-colors ${
+              className={`rounded-lg border px-3 py-2 transition-colors ${
                 showAdvancedQuery
                   ? 'bg-accent/20 border-accent text-accent'
                   : 'bg-surface-raised border-border-theme-subtle text-text-theme-secondary hover:border-border-theme'
               }`}
             >
               <span className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -164,7 +164,7 @@ export default function AuditTimelinePage(): React.ReactElement {
 
           {/* Advanced Query Builder */}
           {showAdvancedQuery && (
-            <div className="pt-4 border-t border-border-theme-subtle">
+            <div className="border-border-theme-subtle border-t pt-4">
               <QueryBuilder
                 filters={{
                   category: filters.category,
@@ -194,11 +194,11 @@ export default function AuditTimelinePage(): React.ReactElement {
             filters.searchQuery ||
             filters.timeRange ||
             filters.rootEventsOnly) && (
-            <div className="flex items-center gap-2 pt-2 border-t border-border-theme-subtle">
-              <span className="text-sm text-text-theme-muted">Active:</span>
+            <div className="border-border-theme-subtle flex items-center gap-2 border-t pt-2">
+              <span className="text-text-theme-muted text-sm">Active:</span>
               <button
                 onClick={reset}
-                className="text-sm text-accent hover:text-accent/80 transition-colors"
+                className="text-accent hover:text-accent/80 text-sm transition-colors"
               >
                 Clear all filters
               </button>
@@ -211,7 +211,12 @@ export default function AuditTimelinePage(): React.ReactElement {
       {error && (
         <Card className="mb-6 border-red-500/50 bg-red-500/10">
           <div className="flex items-center gap-3 text-red-400">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -225,11 +230,15 @@ export default function AuditTimelinePage(): React.ReactElement {
       )}
 
       {/* Results Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="text-text-theme-secondary">
           {isLoading ? (
             <span className="flex items-center gap-2">
-              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <svg
+                className="h-4 w-4 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
                 <circle
                   className="opacity-25"
                   cx="12"
@@ -248,7 +257,10 @@ export default function AuditTimelinePage(): React.ReactElement {
             </span>
           ) : (
             <span>
-              <span className="font-medium text-text-theme-primary">{pagination.total}</span> events
+              <span className="text-text-theme-primary font-medium">
+                {pagination.total}
+              </span>{' '}
+              events
               {pagination.total !== allEvents.length && (
                 <span className="text-text-theme-muted">
                   {' '}
@@ -261,7 +273,7 @@ export default function AuditTimelinePage(): React.ReactElement {
       </div>
 
       {/* Timeline */}
-      <Card className="p-0 overflow-hidden">
+      <Card className="overflow-hidden p-0">
         <EventTimeline
           events={allEvents}
           onEventClick={handleEventClick}
@@ -276,7 +288,7 @@ export default function AuditTimelinePage(): React.ReactElement {
       {/* Selected Event Details */}
       {selectedEventId && (
         <Card className="mt-6">
-          <h3 className="text-lg font-semibold text-text-theme-primary mb-4">
+          <h3 className="text-text-theme-primary mb-4 text-lg font-semibold">
             Event Details
           </h3>
           {(() => {
@@ -287,35 +299,51 @@ export default function AuditTimelinePage(): React.ReactElement {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-text-theme-muted">ID:</span>{' '}
-                    <code className="text-text-theme-secondary">{event.id}</code>
+                    <code className="text-text-theme-secondary">
+                      {event.id}
+                    </code>
                   </div>
                   <div>
                     <span className="text-text-theme-muted">Sequence:</span>{' '}
-                    <span className="text-text-theme-primary font-medium">{event.sequence}</span>
+                    <span className="text-text-theme-primary font-medium">
+                      {event.sequence}
+                    </span>
                   </div>
                   <div>
                     <span className="text-text-theme-muted">Category:</span>{' '}
-                    <span className="text-text-theme-primary">{event.category}</span>
+                    <span className="text-text-theme-primary">
+                      {event.category}
+                    </span>
                   </div>
                   <div>
                     <span className="text-text-theme-muted">Type:</span>{' '}
-                    <span className="text-text-theme-primary">{event.type}</span>
+                    <span className="text-text-theme-primary">
+                      {event.type}
+                    </span>
                   </div>
                   <div className="col-span-2">
                     <span className="text-text-theme-muted">Timestamp:</span>{' '}
-                    <span className="text-text-theme-secondary">{event.timestamp}</span>
+                    <span className="text-text-theme-secondary">
+                      {event.timestamp}
+                    </span>
                   </div>
                 </div>
                 {event.causedBy && (
-                  <div className="pt-3 border-t border-border-theme-subtle">
+                  <div className="border-border-theme-subtle border-t pt-3">
                     <span className="text-text-theme-muted">Caused by:</span>{' '}
-                    <code className="text-cyan-400">{event.causedBy.eventId}</code>{' '}
-                    <span className="text-text-theme-muted">({event.causedBy.relationship})</span>
+                    <code className="text-cyan-400">
+                      {event.causedBy.eventId}
+                    </code>{' '}
+                    <span className="text-text-theme-muted">
+                      ({event.causedBy.relationship})
+                    </span>
                   </div>
                 )}
-                <div className="pt-3 border-t border-border-theme-subtle">
-                  <span className="text-text-theme-muted block mb-2">Payload:</span>
-                  <pre className="text-xs bg-surface-base/50 p-3 rounded-lg overflow-x-auto">
+                <div className="border-border-theme-subtle border-t pt-3">
+                  <span className="text-text-theme-muted mb-2 block">
+                    Payload:
+                  </span>
+                  <pre className="bg-surface-base/50 overflow-x-auto rounded-lg p-3 text-xs">
                     {JSON.stringify(event.payload, null, 2)}
                   </pre>
                 </div>

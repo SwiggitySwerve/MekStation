@@ -1,21 +1,22 @@
 /**
  * Equipment Calculations Hook
- * 
+ *
  * Computes total weight, critical slots, and heat for mounted equipment.
  * Handles variable equipment calculations through EquipmentCalculatorService.
- * 
+ *
  * @spec openspec/specs/equipment-tray/spec.md
  */
 
 import { useMemo } from 'react';
-import { 
-  IMountedEquipmentInstance, 
-  getTotalEquipmentWeight, 
+
+import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
+import {
+  IMountedEquipmentInstance,
+  getTotalEquipmentWeight,
   getTotalEquipmentSlots,
   getEquipmentByCategory,
 } from '@/stores/unitState';
 import { EquipmentCategory } from '@/types/equipment';
-import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
 
 // =============================================================================
 // Types
@@ -74,7 +75,10 @@ function createEmptyCategorySummary(): ICategorySummary {
 /**
  * Initialize empty category summaries for all categories
  */
-function createEmptyCategorySummaries(): Record<EquipmentCategory, ICategorySummary> {
+function createEmptyCategorySummaries(): Record<
+  EquipmentCategory,
+  ICategorySummary
+> {
   const result = {} as Record<EquipmentCategory, ICategorySummary>;
   for (const category of Object.values(EquipmentCategory)) {
     result[category] = createEmptyCategorySummary();
@@ -88,45 +92,49 @@ function createEmptyCategorySummaries(): Record<EquipmentCategory, ICategorySumm
 
 /**
  * Hook for calculating equipment totals
- * 
+ *
  * Provides total weight, slots, heat, and per-category breakdowns
  * for all equipment mounted on the unit.
- * 
+ *
  * Uses the equipment registry to look up heat values when item.heat is 0.
  * This handles the case where equipment was loaded before the registry was ready.
- * 
+ *
  * @param equipment - Array of mounted equipment instances
  * @returns Complete equipment calculations
- * 
+ *
  * @example
  * const equipment = useUnitStore((s) => s.equipment);
  * const calculations = useEquipmentCalculations(equipment);
  * console.log(`Total weight: ${calculations.totalWeight}t`);
  */
 export function useEquipmentCalculations(
-  equipment: readonly IMountedEquipmentInstance[]
+  equipment: readonly IMountedEquipmentInstance[],
 ): EquipmentCalculations {
   // Track registry readiness to recalculate when it becomes available
   const { isReady: _registryReady } = useEquipmentRegistry();
-  
+
   return useMemo(() => {
     // Separate allocated and unallocated equipment
-    const allocatedEquipment = equipment.filter(e => e.location !== undefined);
-    const unallocatedEquipment = equipment.filter(e => e.location === undefined);
-    
+    const allocatedEquipment = equipment.filter(
+      (e) => e.location !== undefined,
+    );
+    const unallocatedEquipment = equipment.filter(
+      (e) => e.location === undefined,
+    );
+
     // Calculate totals
     const totalWeight = getTotalEquipmentWeight(equipment);
     const totalSlots = getTotalEquipmentSlots(equipment);
-    
+
     // Calculate heat - use item.heat if available, otherwise it should already be populated
     // from the registry during loading
     const totalHeat = equipment.reduce((total, item) => total + item.heat, 0);
     const itemCount = equipment.length;
-    
+
     // Calculate per-category summaries
     const byCategory = createEmptyCategorySummaries();
     const groupedByCategory = getEquipmentByCategory(equipment);
-    
+
     for (const [category, items] of Object.entries(groupedByCategory)) {
       const categoryKey = category as EquipmentCategory;
       byCategory[categoryKey] = {
@@ -136,7 +144,7 @@ export function useEquipmentCalculations(
         heat: items.reduce((sum, item) => sum + item.heat, 0),
       };
     }
-    
+
     return {
       totalWeight,
       totalSlots,
@@ -153,7 +161,7 @@ export function useEquipmentCalculations(
 
 /**
  * Hook for calculating remaining capacity
- * 
+ *
  * @param tonnage - Unit's total tonnage
  * @param usedStructuralWeight - Weight used by structural components
  * @param equipment - Array of mounted equipment instances
@@ -162,24 +170,26 @@ export function useEquipmentCalculations(
 export function useRemainingCapacity(
   tonnage: number,
   usedStructuralWeight: number,
-  equipment: readonly IMountedEquipmentInstance[]
+  equipment: readonly IMountedEquipmentInstance[],
 ): { remainingWeight: number; remainingSlots: number } {
   return useMemo(() => {
     const equipmentWeight = getTotalEquipmentWeight(equipment);
     const equipmentSlots = getTotalEquipmentSlots(equipment);
-    
+
     // Total available slots is 78 minus actuators and fixed systems
     // For simplicity, using approximate available slots
     const totalAvailableSlots = 78;
     const systemSlots = 16; // Approximate for actuators
     const availableEquipmentSlots = totalAvailableSlots - systemSlots;
-    
+
     return {
-      remainingWeight: Math.max(0, tonnage - usedStructuralWeight - equipmentWeight),
+      remainingWeight: Math.max(
+        0,
+        tonnage - usedStructuralWeight - equipmentWeight,
+      ),
       remainingSlots: Math.max(0, availableEquipmentSlots - equipmentSlots),
     };
   }, [tonnage, usedStructuralWeight, equipment]);
 }
 
 export default useEquipmentCalculations;
-

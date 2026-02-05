@@ -8,7 +8,9 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import type { IVaultFolder } from '@/types/vault';
+
 import { getVaultService } from '@/services/vault/VaultService';
 
 // =============================================================================
@@ -40,7 +42,9 @@ interface ErrorResponse {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListFoldersResponse | CreateFolderResponse | ErrorResponse>
+  res: NextApiResponse<
+    ListFoldersResponse | CreateFolderResponse | ErrorResponse
+  >,
 ): Promise<void> {
   try {
     const vaultService = getVaultService();
@@ -68,7 +72,7 @@ export default async function handler(
 async function handleList(
   req: NextApiRequest,
   res: NextApiResponse<ListFoldersResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { parentId, shared } = req.query;
 
@@ -93,7 +97,7 @@ async function handleList(
 async function handleCreate(
   req: NextApiRequest,
   res: NextApiResponse<CreateFolderResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { name, description, parentId } = req.body as CreateFolderRequest;
 
@@ -106,7 +110,9 @@ async function handleCreate(
   }
 
   if (name.length > 100) {
-    return res.status(400).json({ error: 'Folder name cannot exceed 100 characters' });
+    return res
+      .status(400)
+      .json({ error: 'Folder name cannot exceed 100 characters' });
   }
 
   // Validate parent exists if provided

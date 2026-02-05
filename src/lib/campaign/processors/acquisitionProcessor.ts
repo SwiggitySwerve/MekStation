@@ -1,4 +1,19 @@
+import type {
+  IAcquisitionRequest,
+  IShoppingList,
+} from '@/types/campaign/acquisition/acquisitionTypes';
 import type { ICampaign } from '@/types/campaign/Campaign';
+
+import {
+  performAcquisitionRoll,
+  type RandomFn,
+} from '../acquisition/acquisitionRoll';
+import { calculateDeliveryTime } from '../acquisition/deliveryTime';
+import {
+  getPendingRequests,
+  getInTransitRequests,
+  updateRequest,
+} from '../acquisition/shoppingList';
 import {
   IDayProcessor,
   IDayProcessorResult,
@@ -6,19 +21,6 @@ import {
   IDayEvent,
   getDayPipeline,
 } from '../dayPipeline';
-import {
-  performAcquisitionRoll,
-  type RandomFn,
-} from '../acquisition/acquisitionRoll';
-import {
-  calculateDeliveryTime,
-} from '../acquisition/deliveryTime';
-import {
-  getPendingRequests,
-  getInTransitRequests,
-  updateRequest,
-} from '../acquisition/shoppingList';
-import type { IAcquisitionRequest, IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
 
 export const processorId = 'acquisition';
 
@@ -81,8 +83,14 @@ function processPendingAcquisitions(
     );
 
     if (result.success) {
-      const deliveryDays = calculateDeliveryTime(request.availability, 'month', random);
-      const deliveryDate = new Date(currentDate.getTime() + deliveryDays * 24 * 60 * 60 * 1000);
+      const deliveryDays = calculateDeliveryTime(
+        request.availability,
+        'month',
+        random,
+      );
+      const deliveryDate = new Date(
+        currentDate.getTime() + deliveryDays * 24 * 60 * 60 * 1000,
+      );
 
       updatedList = updateRequest(updatedList, request.id, {
         status: 'in_transit',
@@ -92,7 +100,13 @@ function processPendingAcquisitions(
         lastAttemptDate: currentDate.toISOString(),
       });
 
-      events.push(createAcquisitionEvent('acquisition_success', request, deliveryDate.toISOString()));
+      events.push(
+        createAcquisitionEvent(
+          'acquisition_success',
+          request,
+          deliveryDate.toISOString(),
+        ),
+      );
     } else {
       updatedList = updateRequest(updatedList, request.id, {
         status: 'failed',
@@ -124,7 +138,9 @@ function processDeliveries(
         status: 'delivered',
       });
 
-      events.push(createAcquisitionEvent('delivery', request, request.deliveryDate));
+      events.push(
+        createAcquisitionEvent('delivery', request, request.deliveryDate),
+      );
     }
   }
 
@@ -132,26 +148,38 @@ function processDeliveries(
 }
 
 export const acquisitionProcessor: IDayProcessor & {
-  process(campaign: ICampaign, date: Date, random?: RandomFn): IDayProcessorResult;
+  process(
+    campaign: ICampaign,
+    date: Date,
+    random?: RandomFn,
+  ): IDayProcessorResult;
 } = {
   id: processorId,
   phase: DayPhase.EVENTS,
   displayName: 'Acquisition',
 
-  process(campaign: ICampaign, date: Date, random: RandomFn = Math.random): IDayProcessorResult {
+  process(
+    campaign: ICampaign,
+    date: Date,
+    random: RandomFn = Math.random,
+  ): IDayProcessorResult {
     if (!campaign.options.useAcquisitionSystem) {
       return { events: [], campaign };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const shoppingList = (campaign as any).shoppingList;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (!shoppingList || !shoppingList.items || shoppingList.items.length === 0) {
+    // oxlint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (
+      !shoppingList ||
+      !shoppingList.items ||
+      shoppingList.items.length === 0
+    ) {
       return { events: [], campaign };
     }
 
     const allEvents: IDayEvent[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
     let updatedList = shoppingList;
 
     const pendingResult = processPendingAcquisitions(updatedList, date, random);
@@ -162,12 +190,12 @@ export const acquisitionProcessor: IDayProcessor & {
     updatedList = deliveryResult.updatedList;
     allEvents.push(...deliveryResult.events);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const updatedCampaign: ICampaign & { shoppingList: IShoppingList } = {
       ...campaign,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
       shoppingList: updatedList,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     return { events: allEvents, campaign: updatedCampaign as ICampaign };

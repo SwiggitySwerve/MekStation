@@ -9,25 +9,25 @@
 export enum ScenarioStatus {
   /** Scenario currently active */
   CURRENT = 'Current',
-  
+
   /** Scenario resulted in player victory */
   VICTORY = 'Victory',
-  
+
   /** Scenario resulted in player defeat */
   DEFEAT = 'Defeat',
-  
+
   /** Scenario resulted in draw */
   DRAW = 'Draw',
-  
+
   /** Scenario pending start */
   PENDING = 'Pending',
-  
+
   /** Scenario cancelled */
   CANCELLED = 'Cancelled',
-  
+
   /** Scenario paused */
   PAUSED = 'Paused',
-  
+
   /** Scenario completed with mixed results */
   MIXED = 'Mixed Results',
 }

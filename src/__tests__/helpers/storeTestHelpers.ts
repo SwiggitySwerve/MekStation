@@ -1,27 +1,32 @@
 /**
  * Store Test Helpers
- * 
+ *
  * Utilities for testing Zustand stores, including localStorage mocking
  * and test factory functions.
  */
 
 import { StoreApi } from 'zustand';
-import { TechBase } from '@/types/enums/TechBase';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+
 import {
   UnitState,
   UnitStore,
   CreateUnitOptions,
   createDefaultUnitState,
 } from '@/stores/unitState';
-import { createUnitStore } from '@/stores/useUnitStore';
-import { IComponentTechBases, TechBaseMode, createDefaultComponentTechBases } from '@/types/construction/TechBaseConfiguration';
 import { IComponentSelections } from '@/stores/useMultiUnitStore';
+import { createUnitStore } from '@/stores/useUnitStore';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import {
+  IComponentTechBases,
+  TechBaseMode,
+  createDefaultComponentTechBases,
+} from '@/types/construction/TechBaseConfiguration';
+import { TechBase } from '@/types/enums/TechBase';
 
 // =============================================================================
 // LocalStorage Mock
@@ -32,39 +37,39 @@ import { IComponentSelections } from '@/stores/useMultiUnitStore';
  */
 export class MockLocalStorage implements Storage {
   private store: Record<string, string> = {};
-  
+
   get length(): number {
     return Object.keys(this.store).length;
   }
-  
+
   clear(): void {
     this.store = {};
   }
-  
+
   getItem(key: string): string | null {
     return this.store[key] ?? null;
   }
-  
+
   key(index: number): string | null {
     const keys = Object.keys(this.store);
     return keys[index] ?? null;
   }
-  
+
   removeItem(key: string): void {
     delete this.store[key];
   }
-  
+
   setItem(key: string, value: string): void {
     this.store[key] = value;
   }
-  
+
   /**
    * Get all stored keys (for testing)
    */
   getAllKeys(): string[] {
     return Object.keys(this.store);
   }
-  
+
   /**
    * Get raw store (for testing)
    */
@@ -77,20 +82,20 @@ export class MockLocalStorage implements Storage {
  * Setup mock localStorage for tests
  * Returns cleanup function
  */
-export function setupMockLocalStorage(): { 
-  mockStorage: MockLocalStorage; 
+export function setupMockLocalStorage(): {
+  mockStorage: MockLocalStorage;
   cleanup: () => void;
   originalLocalStorage: Storage;
 } {
   const mockStorage = new MockLocalStorage();
   const originalLocalStorage = global.localStorage;
-  
+
   Object.defineProperty(global, 'localStorage', {
     value: mockStorage,
     configurable: true,
     writable: true,
   });
-  
+
   return {
     mockStorage,
     originalLocalStorage,
@@ -122,7 +127,7 @@ export const DEFAULT_TEST_UNIT_OPTIONS: CreateUnitOptions = {
  * Create test unit options with overrides
  */
 export function createTestUnitOptions(
-  overrides: Partial<CreateUnitOptions> = {}
+  overrides: Partial<CreateUnitOptions> = {},
 ): CreateUnitOptions {
   return {
     ...DEFAULT_TEST_UNIT_OPTIONS,
@@ -134,21 +139,33 @@ export function createTestUnitOptions(
  * Create a test unit state with overrides
  */
 export function createTestUnitState(
-  overrides: Partial<CreateUnitOptions & Partial<UnitState>> = {}
+  overrides: Partial<CreateUnitOptions & Partial<UnitState>> = {},
 ): UnitState {
   const options = createTestUnitOptions(overrides);
   const defaultState = createDefaultUnitState(options);
-  
+
   // Apply any direct state overrides
   return {
     ...defaultState,
-    ...(overrides.engineType !== undefined && { engineType: overrides.engineType }),
+    ...(overrides.engineType !== undefined && {
+      engineType: overrides.engineType,
+    }),
     ...(overrides.gyroType !== undefined && { gyroType: overrides.gyroType }),
-    ...(overrides.internalStructureType !== undefined && { internalStructureType: overrides.internalStructureType }),
-    ...(overrides.cockpitType !== undefined && { cockpitType: overrides.cockpitType }),
-    ...(overrides.heatSinkType !== undefined && { heatSinkType: overrides.heatSinkType }),
-    ...(overrides.heatSinkCount !== undefined && { heatSinkCount: overrides.heatSinkCount }),
-    ...(overrides.armorType !== undefined && { armorType: overrides.armorType }),
+    ...(overrides.internalStructureType !== undefined && {
+      internalStructureType: overrides.internalStructureType,
+    }),
+    ...(overrides.cockpitType !== undefined && {
+      cockpitType: overrides.cockpitType,
+    }),
+    ...(overrides.heatSinkType !== undefined && {
+      heatSinkType: overrides.heatSinkType,
+    }),
+    ...(overrides.heatSinkCount !== undefined && {
+      heatSinkCount: overrides.heatSinkCount,
+    }),
+    ...(overrides.armorType !== undefined && {
+      armorType: overrides.armorType,
+    }),
   } as UnitState;
 }
 
@@ -156,7 +173,7 @@ export function createTestUnitState(
  * Create a test store with optional overrides
  */
 export function createTestStore(
-  overrides: Partial<CreateUnitOptions & Partial<UnitState>> = {}
+  overrides: Partial<CreateUnitOptions & Partial<UnitState>> = {},
 ): StoreApi<UnitStore> {
   const state = createTestUnitState(overrides);
   return createUnitStore(state);
@@ -166,7 +183,7 @@ export function createTestStore(
  * Create an Inner Sphere test store
  */
 export function createISTestStore(
-  overrides: Partial<CreateUnitOptions & Partial<UnitState>> = {}
+  overrides: Partial<CreateUnitOptions & Partial<UnitState>> = {},
 ): StoreApi<UnitStore> {
   return createTestStore({
     techBase: TechBase.INNER_SPHERE,
@@ -178,7 +195,7 @@ export function createISTestStore(
  * Create a Clan test store
  */
 export function createClanTestStore(
-  overrides: Partial<CreateUnitOptions & Partial<UnitState>> = {}
+  overrides: Partial<CreateUnitOptions & Partial<UnitState>> = {},
 ): StoreApi<UnitStore> {
   return createTestStore({
     techBase: TechBase.CLAN,
@@ -227,7 +244,9 @@ export function createMixedComponentTechBases(): IComponentTechBases {
 /**
  * Create default IS component selections
  */
-export function createISComponentSelections(tonnage: number = 50): IComponentSelections {
+export function createISComponentSelections(
+  tonnage: number = 50,
+): IComponentSelections {
   return {
     engineType: EngineType.STANDARD,
     engineRating: tonnage * 4, // Walk 4
@@ -243,7 +262,9 @@ export function createISComponentSelections(tonnage: number = 50): IComponentSel
 /**
  * Create IS component selections with XL engine
  */
-export function createISXLComponentSelections(tonnage: number = 50): IComponentSelections {
+export function createISXLComponentSelections(
+  tonnage: number = 50,
+): IComponentSelections {
   return {
     ...createISComponentSelections(tonnage),
     engineType: EngineType.XL_IS,
@@ -256,7 +277,9 @@ export function createISXLComponentSelections(tonnage: number = 50): IComponentS
 /**
  * Create Clan component selections
  */
-export function createClanComponentSelections(tonnage: number = 50): IComponentSelections {
+export function createClanComponentSelections(
+  tonnage: number = 50,
+): IComponentSelections {
   return {
     engineType: EngineType.XL_CLAN,
     engineRating: tonnage * 4, // Walk 4
@@ -278,7 +301,7 @@ export function createClanComponentSelections(tonnage: number = 50): IComponentS
  */
 export function expectAllComponentTechBases(
   componentTechBases: IComponentTechBases,
-  expectedTechBase: TechBase
+  expectedTechBase: TechBase,
 ): void {
   expect(componentTechBases.chassis).toBe(expectedTechBase);
   expect(componentTechBases.gyro).toBe(expectedTechBase);
@@ -295,7 +318,7 @@ export function expectAllComponentTechBases(
  */
 export function expectTechBaseMode(
   store: StoreApi<UnitStore>,
-  expectedMode: TechBaseMode
+  expectedMode: TechBaseMode,
 ): void {
   expect(store.getState().techBaseMode).toBe(expectedMode);
 }
@@ -316,11 +339,11 @@ export async function clearStoreRegistry(): Promise<void> {
 /**
  * Reset all test state
  */
-export async function resetTestState(mockStorage?: MockLocalStorage): Promise<void> {
+export async function resetTestState(
+  mockStorage?: MockLocalStorage,
+): Promise<void> {
   if (mockStorage) {
     mockStorage.clear();
   }
   await clearStoreRegistry();
 }
-
-

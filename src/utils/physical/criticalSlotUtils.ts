@@ -1,16 +1,16 @@
 /**
  * Critical Slot Utilities
- * 
+ *
  * Utilities for working with critical slots per BattleTech rules.
- * 
+ *
  * @spec openspec/specs/physical-properties-system/spec.md
  */
 
 /**
  * Validate that a critical slot count is valid
- * 
+ *
  * Critical slots must be a non-negative integer.
- * 
+ *
  * @param slots - Slot count to validate
  * @returns True if slot count is valid
  */
@@ -28,12 +28,15 @@ export interface CriticalSlotsValidationResult {
 
 /**
  * Validate critical slot properties
- * 
+ *
  * @param slots - Slot count to validate
  * @param context - Optional context for error messages
  * @returns Validation result
  */
-export function validateCriticalSlots(slots: number, context?: string): CriticalSlotsValidationResult {
+export function validateCriticalSlots(
+  slots: number,
+  context?: string,
+): CriticalSlotsValidationResult {
   const errors: string[] = [];
   const prefix = context ? `${context}: ` : '';
 
@@ -66,7 +69,7 @@ export const LOCATION_SLOT_CAPACITY = {
 /**
  * Total slots available on a standard mech (78 total)
  */
-export const TOTAL_MECH_SLOTS = 
+export const TOTAL_MECH_SLOTS =
   LOCATION_SLOT_CAPACITY.HEAD +
   LOCATION_SLOT_CAPACITY.CENTER_TORSO +
   LOCATION_SLOT_CAPACITY.LEFT_TORSO +
@@ -78,7 +81,7 @@ export const TOTAL_MECH_SLOTS =
 
 /**
  * Get slot capacity for a location
- * 
+ *
  * @param location - Location name
  * @returns Slot capacity or undefined if not found
  */
@@ -89,16 +92,21 @@ export function getLocationSlotCapacity(location: string): number | undefined {
 
 /**
  * Check if slot allocation fits within capacity
- * 
+ *
  * @param allocated - Number of slots already allocated
  * @param required - Number of additional slots needed
  * @param capacity - Total slot capacity
  * @returns True if allocation fits
  */
-export function canAllocateSlots(allocated: number, required: number, capacity: number): boolean {
-  return isValidCriticalSlots(allocated) && 
-         isValidCriticalSlots(required) && 
-         isValidCriticalSlots(capacity) && 
-         (allocated + required) <= capacity;
+export function canAllocateSlots(
+  allocated: number,
+  required: number,
+  capacity: number,
+): boolean {
+  return (
+    isValidCriticalSlots(allocated) &&
+    isValidCriticalSlots(required) &&
+    isValidCriticalSlots(capacity) &&
+    allocated + required <= capacity
+  );
 }
-

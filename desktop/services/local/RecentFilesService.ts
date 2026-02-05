@@ -1,9 +1,9 @@
 /**
  * Recent Files Service for MekStation Desktop App
- * 
+ *
  * Maintains a persistent list of recently opened units with relevant metadata
  * for quick access from menus and the application UI.
- * 
+ *
  * Features:
  * - LRU (Least Recently Used) eviction
  * - Configurable maximum entries
@@ -13,13 +13,14 @@
  */
 
 import { EventEmitter } from 'events';
+
 import {
   IService,
   ResultType,
   Result,
   IRecentFile,
   UnitType,
-  IRecentFilesUpdateEvent
+  IRecentFilesUpdateEvent,
 } from '../../types/BaseTypes';
 import { LocalStorageService } from './LocalStorageService';
 
@@ -55,7 +56,7 @@ interface IAddRecentFileParams {
 
 /**
  * Recent files service implementation
- * 
+ *
  * Manages the list of recently opened units with automatic
  * LRU eviction and persistence.
  */
@@ -81,14 +82,16 @@ export class RecentFilesService extends EventEmitter implements IService {
       console.log('🔧 Initializing RecentFilesService...');
 
       // Load saved recent files
-      const result = await this.localStorage.get<IRecentFile[]>(RECENT_FILES_STORAGE_KEY);
-      
+      const result = await this.localStorage.get<IRecentFile[]>(
+        RECENT_FILES_STORAGE_KEY,
+      );
+
       if (result.success && result.data && Array.isArray(result.data)) {
         this.recentFiles = result.data;
-        
+
         // Validate and cleanup invalid entries
         await this.cleanupInvalidEntries();
-        
+
         // Enforce max limit
         if (this.recentFiles.length > this.maxRecentFiles) {
           this.recentFiles = this.recentFiles.slice(0, this.maxRecentFiles);
@@ -99,7 +102,9 @@ export class RecentFilesService extends EventEmitter implements IService {
       }
 
       this.initialized = true;
-      console.log(`✅ RecentFilesService initialized with ${this.recentFiles.length} entries`);
+      console.log(
+        `✅ RecentFilesService initialized with ${this.recentFiles.length} entries`,
+      );
     } catch (error) {
       console.error('❌ Failed to initialize RecentFilesService:', error);
       this.recentFiles = [];
@@ -156,7 +161,9 @@ export class RecentFilesService extends EventEmitter implements IService {
   async add(params: IAddRecentFileParams): Promise<ResultType<void, string>> {
     try {
       // Remove existing entry with same ID (will be re-added at top)
-      const existingIndex = this.recentFiles.findIndex(f => f.id === params.id);
+      const existingIndex = this.recentFiles.findIndex(
+        (f) => f.id === params.id,
+      );
       if (existingIndex !== -1) {
         this.recentFiles.splice(existingIndex, 1);
       }
@@ -169,7 +176,7 @@ export class RecentFilesService extends EventEmitter implements IService {
         lastOpened: new Date().toISOString(),
         unitType: params.unitType,
         tonnage: params.tonnage,
-        variant: params.variant
+        variant: params.variant,
       };
 
       // Add to beginning (most recent)
@@ -198,15 +205,15 @@ export class RecentFilesService extends EventEmitter implements IService {
    */
   async remove(id: string): Promise<ResultType<boolean, string>> {
     try {
-      const index = this.recentFiles.findIndex(f => f.id === id);
-      
+      const index = this.recentFiles.findIndex((f) => f.id === id);
+
       if (index === -1) {
         return Result.success(false);
       }
 
       this.recentFiles.splice(index, 1);
       await this.persistRecentFiles();
-      
+
       this.emitUpdate('remove', this.recentFiles);
 
       return Result.success(true);
@@ -223,7 +230,7 @@ export class RecentFilesService extends EventEmitter implements IService {
     try {
       this.recentFiles = [];
       await this.persistRecentFiles();
-      
+
       this.emitUpdate('clear', []);
 
       return Result.success(undefined);
@@ -237,7 +244,7 @@ export class RecentFilesService extends EventEmitter implements IService {
    * Get a specific recent file by ID
    */
   get(id: string): IRecentFile | undefined {
-    return this.recentFiles.find(f => f.id === id);
+    return this.recentFiles.find((f) => f.id === id);
   }
 
   /**
@@ -251,7 +258,7 @@ export class RecentFilesService extends EventEmitter implements IService {
    * Check if a file exists in recent files
    */
   has(id: string): boolean {
-    return this.recentFiles.some(f => f.id === id);
+    return this.recentFiles.some((f) => f.id === id);
   }
 
   /**
@@ -259,8 +266,8 @@ export class RecentFilesService extends EventEmitter implements IService {
    * Removes it from the list
    */
   async markInvalid(id: string): Promise<ResultType<void, string>> {
-    return this.remove(id).then(result => 
-      result.success ? Result.success(undefined) : Result.error(result.error)
+    return this.remove(id).then((result) =>
+      result.success ? Result.success(undefined) : Result.error(result.error),
     );
   }
 
@@ -307,10 +314,13 @@ export class RecentFilesService extends EventEmitter implements IService {
   /**
    * Emit an update event
    */
-  private emitUpdate(action: 'add' | 'remove' | 'clear', files: readonly IRecentFile[]): void {
+  private emitUpdate(
+    action: 'add' | 'remove' | 'clear',
+    files: readonly IRecentFile[],
+  ): void {
     const event: IRecentFilesUpdateEvent = {
       action,
-      files
+      files,
     };
     this.emit('update', event);
   }

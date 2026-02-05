@@ -1,5 +1,9 @@
 import { getCampaignRankSystem } from '@/lib/campaign/ranks/campaignRankIntegration';
-import { RANK_SYSTEM_MERCENARY, RANK_SYSTEM_CLAN, RANK_SYSTEM_SLDF } from '@/lib/campaign/ranks/rankSystems';
+import {
+  RANK_SYSTEM_MERCENARY,
+  RANK_SYSTEM_CLAN,
+  RANK_SYSTEM_SLDF,
+} from '@/lib/campaign/ranks/rankSystems';
 import { createCampaign } from '@/types/campaign/Campaign';
 
 describe('getCampaignRankSystem', () => {

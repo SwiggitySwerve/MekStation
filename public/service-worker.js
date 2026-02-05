@@ -16,7 +16,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(STATIC_ASSETS);
-    })
+    }),
   );
   self.skipWaiting();
 });
@@ -28,15 +28,13 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames
           .filter((cacheName) => {
-            return (
-              cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE
-            );
+            return cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE;
           })
           .map((cacheName) => {
             return caches.delete(cacheName);
-          })
+          }),
       );
-    })
+    }),
   );
   self.clients.claim();
 });
@@ -68,19 +66,13 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Strategy 2: Network First for HTML documents and API calls
-  if (
-    request.destination === 'document' ||
-    request.mode === 'navigate'
-  ) {
+  if (request.destination === 'document' || request.mode === 'navigate') {
     event.respondWith(networkFirst(request));
     return;
   }
 
   // Strategy 3: Stale While Revalidate for JavaScript and CSS
-  if (
-    request.destination === 'script' ||
-    request.destination === 'style'
-  ) {
+  if (request.destination === 'script' || request.destination === 'style') {
     event.respondWith(staleWhileRevalidate(request));
     return;
   }
@@ -177,7 +169,7 @@ self.addEventListener('message', (event) => {
     event.waitUntil(
       caches.open(CACHE_NAME).then((cache) => {
         return cache.addAll(event.data.urls);
-      })
+      }),
     );
   }
 });

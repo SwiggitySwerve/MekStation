@@ -7,13 +7,15 @@
  */
 
 import type {
-   IVaultFolder,
-   IStoredVaultFolder,
-   IFolderItem,
-   IStoredFolderItem,
-   ShareableContentType,
- } from '@/types/vault';
+  IVaultFolder,
+  IStoredVaultFolder,
+  IFolderItem,
+  IStoredFolderItem,
+  ShareableContentType,
+} from '@/types/vault';
+
 import { getSQLiteService } from '@/services/persistence';
+
 import { ICrudRepository } from '../core/ICrudRepository';
 
 // =============================================================================
@@ -86,7 +88,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       description?: string;
       parentId?: string;
       isShared?: boolean;
-    }
+    },
   ): Promise<IVaultFolder> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -108,7 +110,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       now,
       now,
       0,
-      options?.isShared ? 1 : 0
+      options?.isShared ? 1 : 0,
     );
 
     return {
@@ -145,7 +147,9 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare('SELECT * FROM vault_folders WHERE parent_id IS NULL ORDER BY name')
+      .prepare(
+        'SELECT * FROM vault_folders WHERE parent_id IS NULL ORDER BY name',
+      )
       .all() as IStoredVaultFolder[];
 
     return rows.map((row) => this.rowToFolder(row));
@@ -213,14 +217,16 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
    */
   async updateFolderDescription(
     id: string,
-    description: string | null
+    description: string | null,
   ): Promise<boolean> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
     const result = db
-      .prepare('UPDATE vault_folders SET description = ?, updated_at = ? WHERE id = ?')
+      .prepare(
+        'UPDATE vault_folders SET description = ?, updated_at = ? WHERE id = ?',
+      )
       .run(description, now, id);
 
     return result.changes > 0;
@@ -248,7 +254,9 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
     }
 
     const result = db
-      .prepare('UPDATE vault_folders SET parent_id = ?, updated_at = ? WHERE id = ?')
+      .prepare(
+        'UPDATE vault_folders SET parent_id = ?, updated_at = ? WHERE id = ?',
+      )
       .run(newParentId, now, id);
 
     return result.changes > 0;
@@ -263,123 +271,129 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
     const now = new Date().toISOString();
 
     const result = db
-      .prepare('UPDATE vault_folders SET is_shared = ?, updated_at = ? WHERE id = ?')
+      .prepare(
+        'UPDATE vault_folders SET is_shared = ?, updated_at = ? WHERE id = ?',
+      )
       .run(isShared ? 1 : 0, now, id);
 
     return result.changes > 0;
   }
 
-   /**
-    * Delete a folder (and all its items assignments)
-    */
-   async deleteFolder(id: string): Promise<boolean> {
-     await this.initialize();
-     const db = getSQLiteService().getDatabase();
+  /**
+   * Delete a folder (and all its items assignments)
+   */
+  async deleteFolder(id: string): Promise<boolean> {
+    await this.initialize();
+    const db = getSQLiteService().getDatabase();
 
-     // Move child folders to parent
-     const folder = await this.getFolderById(id);
-     if (folder) {
-       db.prepare('UPDATE vault_folders SET parent_id = ? WHERE parent_id = ?')
-         .run(folder.parentId, id);
-     }
+    // Move child folders to parent
+    const folder = await this.getFolderById(id);
+    if (folder) {
+      db.prepare(
+        'UPDATE vault_folders SET parent_id = ? WHERE parent_id = ?',
+      ).run(folder.parentId, id);
+    }
 
-     const result = db.prepare('DELETE FROM vault_folders WHERE id = ?').run(id);
+    const result = db.prepare('DELETE FROM vault_folders WHERE id = ?').run(id);
 
-     return result.changes > 0;
-   }
+    return result.changes > 0;
+  }
 
-   // ===========================================================================
-   // ICrudRepository Interface Methods
-   // ===========================================================================
+  // ===========================================================================
+  // ICrudRepository Interface Methods
+  // ===========================================================================
 
-   /**
-    * Create a new folder (ICrudRepository interface method)
-    * Wraps createFolder with standard CRUD signature
-    */
-   async create(data: Partial<IVaultFolder>): Promise<IVaultFolder> {
-     if (!data.name) {
-       throw new Error('Folder name is required');
-     }
-     return this.createFolder(data.name, {
-       description: data.description ?? undefined,
-       parentId: data.parentId ?? undefined,
-       isShared: data.isShared ?? undefined,
-     });
-   }
+  /**
+   * Create a new folder (ICrudRepository interface method)
+   * Wraps createFolder with standard CRUD signature
+   */
+  async create(data: Partial<IVaultFolder>): Promise<IVaultFolder> {
+    if (!data.name) {
+      throw new Error('Folder name is required');
+    }
+    return this.createFolder(data.name, {
+      description: data.description ?? undefined,
+      parentId: data.parentId ?? undefined,
+      isShared: data.isShared ?? undefined,
+    });
+  }
 
-   /**
-    * Get folder by ID (ICrudRepository interface method)
-    * Wraps getFolderById with standard CRUD signature
-    */
-   async getById(id: string): Promise<IVaultFolder | null> {
-     return this.getFolderById(id);
-   }
+  /**
+   * Get folder by ID (ICrudRepository interface method)
+   * Wraps getFolderById with standard CRUD signature
+   */
+  async getById(id: string): Promise<IVaultFolder | null> {
+    return this.getFolderById(id);
+  }
 
-   /**
-    * Get all folders (ICrudRepository interface method)
-    * Wraps getAllFolders with standard CRUD signature
-    */
-   async getAll(): Promise<IVaultFolder[]> {
-     return this.getAllFolders();
-   }
+  /**
+   * Get all folders (ICrudRepository interface method)
+   * Wraps getAllFolders with standard CRUD signature
+   */
+  async getAll(): Promise<IVaultFolder[]> {
+    return this.getAllFolders();
+  }
 
-   /**
-    * Update a folder (ICrudRepository interface method)
-    * Updates multiple fields of a folder at once
-    */
-   async update(id: string, data: Partial<IVaultFolder>): Promise<IVaultFolder> {
-     const current = await this.getFolderById(id);
-     if (!current) {
-       throw new Error(`Folder with id ${id} not found`);
-     }
+  /**
+   * Update a folder (ICrudRepository interface method)
+   * Updates multiple fields of a folder at once
+   */
+  async update(id: string, data: Partial<IVaultFolder>): Promise<IVaultFolder> {
+    const current = await this.getFolderById(id);
+    if (!current) {
+      throw new Error(`Folder with id ${id} not found`);
+    }
 
-     // Apply updates
-     if (data.name !== undefined && data.name !== current.name) {
-       await this.updateFolderName(id, data.name);
-     }
-     if (data.description !== undefined && data.description !== current.description) {
-       await this.updateFolderDescription(id, data.description);
-     }
-     if (data.parentId !== undefined && data.parentId !== current.parentId) {
-       await this.moveFolder(id, data.parentId);
-     }
-     if (data.isShared !== undefined && data.isShared !== current.isShared) {
-       await this.setFolderShared(id, data.isShared);
-     }
+    // Apply updates
+    if (data.name !== undefined && data.name !== current.name) {
+      await this.updateFolderName(id, data.name);
+    }
+    if (
+      data.description !== undefined &&
+      data.description !== current.description
+    ) {
+      await this.updateFolderDescription(id, data.description);
+    }
+    if (data.parentId !== undefined && data.parentId !== current.parentId) {
+      await this.moveFolder(id, data.parentId);
+    }
+    if (data.isShared !== undefined && data.isShared !== current.isShared) {
+      await this.setFolderShared(id, data.isShared);
+    }
 
-     // Return updated folder
-     const updated = await this.getFolderById(id);
-     if (!updated) {
-       throw new Error(`Failed to retrieve updated folder with id ${id}`);
-     }
-     return updated;
-   }
+    // Return updated folder
+    const updated = await this.getFolderById(id);
+    if (!updated) {
+      throw new Error(`Failed to retrieve updated folder with id ${id}`);
+    }
+    return updated;
+  }
 
-   /**
-    * Delete a folder (ICrudRepository interface method)
-    * Wraps deleteFolder with standard CRUD signature
-    */
-   async delete(id: string): Promise<boolean> {
-     return this.deleteFolder(id);
-   }
+  /**
+   * Delete a folder (ICrudRepository interface method)
+   * Wraps deleteFolder with standard CRUD signature
+   */
+  async delete(id: string): Promise<boolean> {
+    return this.deleteFolder(id);
+  }
 
-   /**
-    * Count total folders (ICrudRepository optional method)
-    */
-   async count(): Promise<number> {
-     await this.initialize();
-     const db = getSQLiteService().getDatabase();
+  /**
+   * Count total folders (ICrudRepository optional method)
+   */
+  async count(): Promise<number> {
+    await this.initialize();
+    const db = getSQLiteService().getDatabase();
 
-     const row = db
-       .prepare('SELECT COUNT(*) as count FROM vault_folders')
-       .get() as { count: number };
+    const row = db
+      .prepare('SELECT COUNT(*) as count FROM vault_folders')
+      .get() as { count: number };
 
-     return row.count;
-   }
+    return row.count;
+  }
 
-   // ===========================================================================
-   // Folder Items
-   // ===========================================================================
+  // ===========================================================================
+  // Folder Items
+  // ===========================================================================
 
   /**
    * Add item to folder
@@ -387,7 +401,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
   async addItemToFolder(
     folderId: string,
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<boolean> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -414,14 +428,14 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
   async removeItemFromFolder(
     folderId: string,
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<boolean> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const result = db
       .prepare(
-        'DELETE FROM vault_folder_items WHERE folder_id = ? AND item_id = ? AND item_type = ?'
+        'DELETE FROM vault_folder_items WHERE folder_id = ? AND item_id = ? AND item_type = ?',
       )
       .run(folderId, itemId, itemType);
 
@@ -440,7 +454,9 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare('SELECT * FROM vault_folder_items WHERE folder_id = ? ORDER BY assigned_at DESC')
+      .prepare(
+        'SELECT * FROM vault_folder_items WHERE folder_id = ? ORDER BY assigned_at DESC',
+      )
       .all(folderId) as IStoredFolderItem[];
 
     return rows.map((row) => this.rowToFolderItem(row));
@@ -451,7 +467,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
    */
   async getItemFolders(
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<IVaultFolder[]> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -474,14 +490,14 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
   async isItemInFolder(
     folderId: string,
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<boolean> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
     const row = db
       .prepare(
-        'SELECT 1 FROM vault_folder_items WHERE folder_id = ? AND item_id = ? AND item_type = ?'
+        'SELECT 1 FROM vault_folder_items WHERE folder_id = ? AND item_id = ? AND item_type = ?',
       )
       .get(folderId, itemId, itemType);
 
@@ -495,7 +511,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
     itemId: string,
     itemType: ShareableContentType,
     fromFolderId: string,
-    toFolderId: string
+    toFolderId: string,
   ): Promise<boolean> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -522,7 +538,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
    */
   async removeItemFromAllFolders(
     itemId: string,
-    itemType: ShareableContentType
+    itemType: ShareableContentType,
   ): Promise<number> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -531,7 +547,9 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
     const folders = await this.getItemFolders(itemId, itemType);
 
     const result = db
-      .prepare('DELETE FROM vault_folder_items WHERE item_id = ? AND item_type = ?')
+      .prepare(
+        'DELETE FROM vault_folder_items WHERE item_id = ? AND item_type = ?',
+      )
       .run(itemId, itemType);
 
     // Update item counts

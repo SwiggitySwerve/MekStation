@@ -1,9 +1,11 @@
 # Change: Faction Standing System
 
 ## Why
+
 MekStation lacks faction relationship tracking, removing a key strategic layer from campaign gameplay. Without faction standing, player actions have no diplomatic consequences, contracts have no reputation impact, and there's no incentive to maintain good relationships with employers. MekHQ's faction standing system creates meaningful long-term consequences through a 9-level regard system with 11 gameplay effects.
 
 ## What Changes
+
 - Implement per-faction regard tracking system with 9 standing levels (Outlawed to Honored)
 - Add regard range from -60 to +60 with exact MekHQ thresholds
 - Implement 11 gameplay effect modifiers (negotiation, contract pay, recruitment, barracks cost, unit market, support points, command circuit access, outlaw status, batchall, resupply weight)
@@ -16,6 +18,7 @@ MekStation lacks faction relationship tracking, removing a key strategic layer f
 - Create faction standing UI with regard bars and effect displays
 
 ## Impact
+
 - Affected specs: `campaign-management` (MODIFIED), `faction-standing` (ADDED)
 - Affected code:
   - `src/types/campaign/factionStanding/` (NEW) - Standing types, levels, effects

@@ -1,22 +1,40 @@
 /**
  * Tech Base Validation Utilities
- * 
+ *
  * Abstracted validation system for component selections based on tech base.
  * Uses a registry pattern to make it easy to add new component types.
- * 
+ *
  * @spec openspec/specs/component-configuration/spec.md
  * @spec openspec/specs/tech-base-integration/spec.md
  */
 
-import { TechBase } from '@/types/enums/TechBase';
-import { TechBaseComponent, IComponentTechBases } from '@/types/construction/TechBaseConfiguration';
-import { EngineType, ENGINE_DEFINITIONS } from '@/types/construction/EngineType';
-import { GyroType, GYRO_DEFINITIONS } from '@/types/construction/GyroType';
-import { InternalStructureType, INTERNAL_STRUCTURE_DEFINITIONS } from '@/types/construction/InternalStructureType';
-import { CockpitType, COCKPIT_DEFINITIONS } from '@/types/construction/CockpitType';
-import { HeatSinkType, HEAT_SINK_DEFINITIONS } from '@/types/construction/HeatSinkType';
-import { ArmorTypeEnum, ARMOR_DEFINITIONS } from '@/types/construction/ArmorType';
 import { ISelectionMemory } from '@/stores/unitState';
+import {
+  ArmorTypeEnum,
+  ARMOR_DEFINITIONS,
+} from '@/types/construction/ArmorType';
+import {
+  CockpitType,
+  COCKPIT_DEFINITIONS,
+} from '@/types/construction/CockpitType';
+import {
+  EngineType,
+  ENGINE_DEFINITIONS,
+} from '@/types/construction/EngineType';
+import { GyroType, GYRO_DEFINITIONS } from '@/types/construction/GyroType';
+import {
+  HeatSinkType,
+  HEAT_SINK_DEFINITIONS,
+} from '@/types/construction/HeatSinkType';
+import {
+  InternalStructureType,
+  INTERNAL_STRUCTURE_DEFINITIONS,
+} from '@/types/construction/InternalStructureType';
+import {
+  TechBaseComponent,
+  IComponentTechBases,
+} from '@/types/construction/TechBaseConfiguration';
+import { TechBase } from '@/types/enums/TechBase';
 
 // =============================================================================
 // Component Selections Interface
@@ -55,12 +73,14 @@ interface ComponentValidator<T> {
  */
 function createValidator<T>(
   filterFn: (techBase: TechBase) => T[],
-  fallbackDefault: T
+  fallbackDefault: T,
 ): ComponentValidator<T> {
   return {
     getValidTypes: filterFn,
-    isValid: (value: T, techBase: TechBase) => filterFn(techBase).includes(value),
-    getDefault: (techBase: TechBase) => filterFn(techBase)[0] ?? fallbackDefault,
+    isValid: (value: T, techBase: TechBase) =>
+      filterFn(techBase).includes(value),
+    getDefault: (techBase: TechBase) =>
+      filterFn(techBase)[0] ?? fallbackDefault,
     fallbackDefault,
   };
 }
@@ -76,20 +96,22 @@ function createValidator<T>(
  * - XL (Clan): Clan only
  */
 function filterEngineTypes(techBase: TechBase): EngineType[] {
-  return ENGINE_DEFINITIONS.filter(engine => {
+  return ENGINE_DEFINITIONS.filter((engine) => {
     // Available to both tech bases
     if (engine.type === EngineType.STANDARD) return true;
     if (engine.type === EngineType.COMPACT) return true;
     if (engine.type === EngineType.XXL) return true;
-    
+
     // Tech-base-specific
-    if (engine.type === EngineType.XL_IS) return techBase === TechBase.INNER_SPHERE;
+    if (engine.type === EngineType.XL_IS)
+      return techBase === TechBase.INNER_SPHERE;
     if (engine.type === EngineType.XL_CLAN) return techBase === TechBase.CLAN;
-    if (engine.type === EngineType.LIGHT) return techBase === TechBase.INNER_SPHERE;
-    
+    if (engine.type === EngineType.LIGHT)
+      return techBase === TechBase.INNER_SPHERE;
+
     // Non-fusion engines (IS only)
     return techBase === TechBase.INNER_SPHERE;
-  }).map(e => e.type);
+  }).map((e) => e.type);
 }
 
 /**
@@ -97,7 +119,7 @@ function filterEngineTypes(techBase: TechBase): EngineType[] {
  * - All gyro types available to both tech bases
  */
 function filterGyroTypes(_techBase: TechBase): GyroType[] {
-  return GYRO_DEFINITIONS.map(g => g.type);
+  return GYRO_DEFINITIONS.map((g) => g.type);
 }
 
 /**
@@ -107,13 +129,15 @@ function filterGyroTypes(_techBase: TechBase): GyroType[] {
  * - Endo Steel (Clan): Clan only
  */
 function filterStructureTypes(techBase: TechBase): InternalStructureType[] {
-  return INTERNAL_STRUCTURE_DEFINITIONS.filter(structure => {
+  return INTERNAL_STRUCTURE_DEFINITIONS.filter((structure) => {
     if (structure.type === InternalStructureType.STANDARD) return true;
-    if (structure.type === InternalStructureType.ENDO_STEEL_IS) return techBase === TechBase.INNER_SPHERE;
-    if (structure.type === InternalStructureType.ENDO_STEEL_CLAN) return techBase === TechBase.CLAN;
+    if (structure.type === InternalStructureType.ENDO_STEEL_IS)
+      return techBase === TechBase.INNER_SPHERE;
+    if (structure.type === InternalStructureType.ENDO_STEEL_CLAN)
+      return techBase === TechBase.CLAN;
     // Other experimental types are IS-only
     return techBase === TechBase.INNER_SPHERE;
-  }).map(s => s.type);
+  }).map((s) => s.type);
 }
 
 /**
@@ -121,7 +145,7 @@ function filterStructureTypes(techBase: TechBase): InternalStructureType[] {
  * - All cockpit types available to both tech bases
  */
 function filterCockpitTypes(_techBase: TechBase): CockpitType[] {
-  return COCKPIT_DEFINITIONS.map(c => c.type);
+  return COCKPIT_DEFINITIONS.map((c) => c.type);
 }
 
 /**
@@ -131,14 +155,16 @@ function filterCockpitTypes(_techBase: TechBase): CockpitType[] {
  * - Double (Clan), Laser: Clan only
  */
 function filterHeatSinkTypes(techBase: TechBase): HeatSinkType[] {
-  return HEAT_SINK_DEFINITIONS.filter(hs => {
+  return HEAT_SINK_DEFINITIONS.filter((hs) => {
     if (hs.type === HeatSinkType.SINGLE) return true;
-    if (hs.type === HeatSinkType.DOUBLE_IS) return techBase === TechBase.INNER_SPHERE;
+    if (hs.type === HeatSinkType.DOUBLE_IS)
+      return techBase === TechBase.INNER_SPHERE;
     if (hs.type === HeatSinkType.DOUBLE_CLAN) return techBase === TechBase.CLAN;
-    if (hs.type === HeatSinkType.COMPACT) return techBase === TechBase.INNER_SPHERE;
+    if (hs.type === HeatSinkType.COMPACT)
+      return techBase === TechBase.INNER_SPHERE;
     if (hs.type === HeatSinkType.LASER) return techBase === TechBase.CLAN;
     return false;
-  }).map(h => h.type);
+  }).map((h) => h.type);
 }
 
 /**
@@ -148,13 +174,15 @@ function filterHeatSinkTypes(techBase: TechBase): HeatSinkType[] {
  * - Ferro-Fibrous (Clan): Clan only
  */
 function filterArmorTypes(techBase: TechBase): ArmorTypeEnum[] {
-  return ARMOR_DEFINITIONS.filter(armor => {
+  return ARMOR_DEFINITIONS.filter((armor) => {
     if (armor.type === ArmorTypeEnum.STANDARD) return true;
-    if (armor.type === ArmorTypeEnum.FERRO_FIBROUS_IS) return techBase === TechBase.INNER_SPHERE;
-    if (armor.type === ArmorTypeEnum.FERRO_FIBROUS_CLAN) return techBase === TechBase.CLAN;
+    if (armor.type === ArmorTypeEnum.FERRO_FIBROUS_IS)
+      return techBase === TechBase.INNER_SPHERE;
+    if (armor.type === ArmorTypeEnum.FERRO_FIBROUS_CLAN)
+      return techBase === TechBase.CLAN;
     // Other experimental types are typically IS-only
     return techBase === TechBase.INNER_SPHERE;
-  }).map(a => a.type);
+  }).map((a) => a.type);
 }
 
 // =============================================================================
@@ -168,7 +196,10 @@ function filterArmorTypes(techBase: TechBase): ArmorTypeEnum[] {
 export const COMPONENT_VALIDATORS = {
   engine: createValidator(filterEngineTypes, EngineType.STANDARD),
   gyro: createValidator(filterGyroTypes, GyroType.STANDARD),
-  structure: createValidator(filterStructureTypes, InternalStructureType.STANDARD),
+  structure: createValidator(
+    filterStructureTypes,
+    InternalStructureType.STANDARD,
+  ),
   cockpit: createValidator(filterCockpitTypes, CockpitType.STANDARD),
   heatSink: createValidator(filterHeatSinkTypes, HeatSinkType.SINGLE),
   armor: createValidator(filterArmorTypes, ArmorTypeEnum.STANDARD),
@@ -193,11 +224,13 @@ export const isGyroTypeValid = COMPONENT_VALIDATORS.gyro.isValid;
 export const getDefaultGyroType = COMPONENT_VALIDATORS.gyro.getDefault;
 
 /** Get valid structure types for a tech base */
-export const getValidStructureTypes = COMPONENT_VALIDATORS.structure.getValidTypes;
+export const getValidStructureTypes =
+  COMPONENT_VALIDATORS.structure.getValidTypes;
 /** Check if structure type is valid for a tech base */
 export const isStructureTypeValid = COMPONENT_VALIDATORS.structure.isValid;
 /** Get default structure type for a tech base */
-export const getDefaultStructureType = COMPONENT_VALIDATORS.structure.getDefault;
+export const getDefaultStructureType =
+  COMPONENT_VALIDATORS.structure.getDefault;
 
 /** Get valid cockpit types for a tech base */
 export const getValidCockpitTypes = COMPONENT_VALIDATORS.cockpit.getValidTypes;
@@ -207,7 +240,8 @@ export const isCockpitTypeValid = COMPONENT_VALIDATORS.cockpit.isValid;
 export const getDefaultCockpitType = COMPONENT_VALIDATORS.cockpit.getDefault;
 
 /** Get valid heat sink types for a tech base */
-export const getValidHeatSinkTypes = COMPONENT_VALIDATORS.heatSink.getValidTypes;
+export const getValidHeatSinkTypes =
+  COMPONENT_VALIDATORS.heatSink.getValidTypes;
 /** Check if heat sink type is valid for a tech base */
 export const isHeatSinkTypeValid = COMPONENT_VALIDATORS.heatSink.isValid;
 /** Get default heat sink type for a tech base */
@@ -228,7 +262,10 @@ export const getDefaultArmorType = COMPONENT_VALIDATORS.armor.getDefault;
  * Maps TechBaseComponent to the component selections it affects
  * This defines the relationship between tech base toggles and actual selections
  */
-const COMPONENT_AFFECTED_SELECTIONS: Record<TechBaseComponent, Array<keyof ComponentSelections>> = {
+const COMPONENT_AFFECTED_SELECTIONS: Record<
+  TechBaseComponent,
+  Array<keyof ComponentSelections>
+> = {
   engine: ['engineType'],
   gyro: ['gyroType'],
   chassis: ['internalStructureType', 'cockpitType'], // Chassis affects both structure and cockpit
@@ -250,52 +287,87 @@ const COMPONENT_AFFECTED_SELECTIONS: Record<TechBaseComponent, Array<keyof Compo
 export function getValidatedSelectionUpdates(
   component: TechBaseComponent,
   newTechBase: TechBase,
-  currentSelections: ComponentSelections
+  currentSelections: ComponentSelections,
 ): Partial<ComponentSelections> {
   const updates: Partial<ComponentSelections> = {};
   const affectedSelections = COMPONENT_AFFECTED_SELECTIONS[component];
-  
+
   // Skip if component doesn't affect any selections
   if (!affectedSelections || affectedSelections.length === 0) {
     return updates;
   }
-  
+
   // Validate each affected selection
   for (const selectionKey of affectedSelections) {
     switch (selectionKey) {
       case 'engineType':
-        if (!COMPONENT_VALIDATORS.engine.isValid(currentSelections.engineType, newTechBase)) {
-          updates.engineType = COMPONENT_VALIDATORS.engine.getDefault(newTechBase);
+        if (
+          !COMPONENT_VALIDATORS.engine.isValid(
+            currentSelections.engineType,
+            newTechBase,
+          )
+        ) {
+          updates.engineType =
+            COMPONENT_VALIDATORS.engine.getDefault(newTechBase);
         }
         break;
       case 'gyroType':
-        if (!COMPONENT_VALIDATORS.gyro.isValid(currentSelections.gyroType, newTechBase)) {
+        if (
+          !COMPONENT_VALIDATORS.gyro.isValid(
+            currentSelections.gyroType,
+            newTechBase,
+          )
+        ) {
           updates.gyroType = COMPONENT_VALIDATORS.gyro.getDefault(newTechBase);
         }
         break;
       case 'internalStructureType':
-        if (!COMPONENT_VALIDATORS.structure.isValid(currentSelections.internalStructureType, newTechBase)) {
-          updates.internalStructureType = COMPONENT_VALIDATORS.structure.getDefault(newTechBase);
+        if (
+          !COMPONENT_VALIDATORS.structure.isValid(
+            currentSelections.internalStructureType,
+            newTechBase,
+          )
+        ) {
+          updates.internalStructureType =
+            COMPONENT_VALIDATORS.structure.getDefault(newTechBase);
         }
         break;
       case 'cockpitType':
-        if (!COMPONENT_VALIDATORS.cockpit.isValid(currentSelections.cockpitType, newTechBase)) {
-          updates.cockpitType = COMPONENT_VALIDATORS.cockpit.getDefault(newTechBase);
+        if (
+          !COMPONENT_VALIDATORS.cockpit.isValid(
+            currentSelections.cockpitType,
+            newTechBase,
+          )
+        ) {
+          updates.cockpitType =
+            COMPONENT_VALIDATORS.cockpit.getDefault(newTechBase);
         }
         break;
       case 'heatSinkType':
-        if (!COMPONENT_VALIDATORS.heatSink.isValid(currentSelections.heatSinkType, newTechBase)) {
-          updates.heatSinkType = COMPONENT_VALIDATORS.heatSink.getDefault(newTechBase);
+        if (
+          !COMPONENT_VALIDATORS.heatSink.isValid(
+            currentSelections.heatSinkType,
+            newTechBase,
+          )
+        ) {
+          updates.heatSinkType =
+            COMPONENT_VALIDATORS.heatSink.getDefault(newTechBase);
         }
         break;
       case 'armorType':
-        if (!COMPONENT_VALIDATORS.armor.isValid(currentSelections.armorType, newTechBase)) {
-          updates.armorType = COMPONENT_VALIDATORS.armor.getDefault(newTechBase);
+        if (
+          !COMPONENT_VALIDATORS.armor.isValid(
+            currentSelections.armorType,
+            newTechBase,
+          )
+        ) {
+          updates.armorType =
+            COMPONENT_VALIDATORS.armor.getDefault(newTechBase);
         }
         break;
     }
   }
-  
+
   return updates;
 }
 
@@ -303,7 +375,7 @@ export function getValidatedSelectionUpdates(
 
 /**
  * Get a selection value, trying memory first then falling back to default.
- * 
+ *
  * @param validator - The component validator
  * @param currentValue - Current selection value
  * @param techBase - Target tech base to validate against
@@ -314,25 +386,25 @@ function getValueWithMemory<T>(
   validator: ComponentValidator<T>,
   currentValue: T,
   techBase: TechBase,
-  memoryValue?: T
+  memoryValue?: T,
 ): T {
   // First, try to restore from memory if available and valid
   if (memoryValue !== undefined && validator.isValid(memoryValue, techBase)) {
     return memoryValue;
   }
-  
+
   // Otherwise, keep current if valid
   if (validator.isValid(currentValue, techBase)) {
     return currentValue;
   }
-  
+
   // Fall back to default
   return validator.getDefault(techBase);
 }
 
 /**
  * Get selection updates for a component tech base change, using memory for restoration.
- * 
+ *
  * @param component - The component whose tech base is changing
  * @param newTechBase - The new tech base to validate against and look up in memory
  * @param currentSelections - Current component selections
@@ -342,15 +414,15 @@ export function getSelectionWithMemory(
   component: TechBaseComponent,
   newTechBase: TechBase,
   currentSelections: ComponentSelections,
-  memory: ISelectionMemory
+  memory: ISelectionMemory,
 ): Partial<ComponentSelections> {
   const updates: Partial<ComponentSelections> = {};
   const affectedSelections = COMPONENT_AFFECTED_SELECTIONS[component];
-  
+
   if (!affectedSelections || affectedSelections.length === 0) {
     return updates;
   }
-  
+
   for (const selectionKey of affectedSelections) {
     switch (selectionKey) {
       case 'engineType': {
@@ -359,7 +431,7 @@ export function getSelectionWithMemory(
           COMPONENT_VALIDATORS.engine,
           currentSelections.engineType,
           newTechBase,
-          memoryValue
+          memoryValue,
         );
         if (newValue !== currentSelections.engineType) {
           updates.engineType = newValue;
@@ -372,7 +444,7 @@ export function getSelectionWithMemory(
           COMPONENT_VALIDATORS.gyro,
           currentSelections.gyroType,
           newTechBase,
-          memoryValue
+          memoryValue,
         );
         if (newValue !== currentSelections.gyroType) {
           updates.gyroType = newValue;
@@ -385,7 +457,7 @@ export function getSelectionWithMemory(
           COMPONENT_VALIDATORS.structure,
           currentSelections.internalStructureType,
           newTechBase,
-          memoryValue
+          memoryValue,
         );
         if (newValue !== currentSelections.internalStructureType) {
           updates.internalStructureType = newValue;
@@ -398,7 +470,7 @@ export function getSelectionWithMemory(
           COMPONENT_VALIDATORS.cockpit,
           currentSelections.cockpitType,
           newTechBase,
-          memoryValue
+          memoryValue,
         );
         if (newValue !== currentSelections.cockpitType) {
           updates.cockpitType = newValue;
@@ -411,7 +483,7 @@ export function getSelectionWithMemory(
           COMPONENT_VALIDATORS.heatSink,
           currentSelections.heatSinkType,
           newTechBase,
-          memoryValue
+          memoryValue,
         );
         if (newValue !== currentSelections.heatSinkType) {
           updates.heatSinkType = newValue;
@@ -424,7 +496,7 @@ export function getSelectionWithMemory(
           COMPONENT_VALIDATORS.armor,
           currentSelections.armorType,
           newTechBase,
-          memoryValue
+          memoryValue,
         );
         if (newValue !== currentSelections.armorType) {
           updates.armorType = newValue;
@@ -433,14 +505,14 @@ export function getSelectionWithMemory(
       }
     }
   }
-  
+
   return updates;
 }
 
 /**
  * Get all validated selections for a complete tech base configuration change.
  * Used when switching between IS/Clan modes.
- * 
+ *
  * @param componentTechBases - The new tech base configuration
  * @param currentSelections - Current component selections
  * @param memory - Optional selection memory for restoration
@@ -450,10 +522,11 @@ export function getFullyValidatedSelections(
   componentTechBases: IComponentTechBases,
   currentSelections: ComponentSelections,
   memory?: ISelectionMemory,
-  memoryTechBase?: TechBase
+  memoryTechBase?: TechBase,
 ): ComponentSelections {
-  const { engine, gyro, structure, cockpit, heatSink, armor } = COMPONENT_VALIDATORS;
-  
+  const { engine, gyro, structure, cockpit, heatSink, armor } =
+    COMPONENT_VALIDATORS;
+
   // If memory is provided, try to restore from it
   if (memory && memoryTechBase) {
     return {
@@ -461,59 +534,74 @@ export function getFullyValidatedSelections(
         engine,
         currentSelections.engineType,
         componentTechBases.engine,
-        memory.engine[memoryTechBase]
+        memory.engine[memoryTechBase],
       ),
       gyroType: getValueWithMemory(
         gyro,
         currentSelections.gyroType,
         componentTechBases.gyro,
-        memory.gyro[memoryTechBase]
+        memory.gyro[memoryTechBase],
       ),
       internalStructureType: getValueWithMemory(
         structure,
         currentSelections.internalStructureType,
         componentTechBases.chassis,
-        memory.structure[memoryTechBase]
+        memory.structure[memoryTechBase],
       ),
       cockpitType: getValueWithMemory(
         cockpit,
         currentSelections.cockpitType,
         componentTechBases.chassis,
-        memory.cockpit[memoryTechBase]
+        memory.cockpit[memoryTechBase],
       ),
       heatSinkType: getValueWithMemory(
         heatSink,
         currentSelections.heatSinkType,
         componentTechBases.heatsink,
-        memory.heatSink[memoryTechBase]
+        memory.heatSink[memoryTechBase],
       ),
       armorType: getValueWithMemory(
         armor,
         currentSelections.armorType,
         componentTechBases.armor,
-        memory.armor[memoryTechBase]
+        memory.armor[memoryTechBase],
       ),
     };
   }
-  
+
   // No memory - just validate current selections
   return {
-    engineType: engine.isValid(currentSelections.engineType, componentTechBases.engine)
+    engineType: engine.isValid(
+      currentSelections.engineType,
+      componentTechBases.engine,
+    )
       ? currentSelections.engineType
       : engine.getDefault(componentTechBases.engine),
     gyroType: gyro.isValid(currentSelections.gyroType, componentTechBases.gyro)
       ? currentSelections.gyroType
       : gyro.getDefault(componentTechBases.gyro),
-    internalStructureType: structure.isValid(currentSelections.internalStructureType, componentTechBases.chassis)
+    internalStructureType: structure.isValid(
+      currentSelections.internalStructureType,
+      componentTechBases.chassis,
+    )
       ? currentSelections.internalStructureType
       : structure.getDefault(componentTechBases.chassis),
-    cockpitType: cockpit.isValid(currentSelections.cockpitType, componentTechBases.chassis)
+    cockpitType: cockpit.isValid(
+      currentSelections.cockpitType,
+      componentTechBases.chassis,
+    )
       ? currentSelections.cockpitType
       : cockpit.getDefault(componentTechBases.chassis),
-    heatSinkType: heatSink.isValid(currentSelections.heatSinkType, componentTechBases.heatsink)
+    heatSinkType: heatSink.isValid(
+      currentSelections.heatSinkType,
+      componentTechBases.heatsink,
+    )
       ? currentSelections.heatSinkType
       : heatSink.getDefault(componentTechBases.heatsink),
-    armorType: armor.isValid(currentSelections.armorType, componentTechBases.armor)
+    armorType: armor.isValid(
+      currentSelections.armorType,
+      componentTechBases.armor,
+    )
       ? currentSelections.armorType
       : armor.getDefault(componentTechBases.armor),
   };

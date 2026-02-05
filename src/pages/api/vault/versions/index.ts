@@ -8,7 +8,13 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { IVersionSnapshot, IVersionHistorySummary, ShareableContentType } from '@/types/vault';
+
+import type {
+  IVersionSnapshot,
+  IVersionHistorySummary,
+  ShareableContentType,
+} from '@/types/vault';
+
 import { getVersionHistoryService } from '@/services/vault/VersionHistoryService';
 
 // =============================================================================
@@ -43,7 +49,9 @@ interface ErrorResponse {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListVersionsResponse | CreateVersionResponse | ErrorResponse>
+  res: NextApiResponse<
+    ListVersionsResponse | CreateVersionResponse | ErrorResponse
+  >,
 ): Promise<void> {
   try {
     const versionService = getVersionHistoryService();
@@ -71,7 +79,7 @@ export default async function handler(
 async function handleList(
   req: NextApiRequest,
   res: NextApiResponse<ListVersionsResponse | ErrorResponse>,
-  versionService: ReturnType<typeof getVersionHistoryService>
+  versionService: ReturnType<typeof getVersionHistoryService>,
 ) {
   const { itemId, contentType, limit } = req.query;
 
@@ -85,7 +93,11 @@ async function handleList(
 
   const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : 50;
 
-  const versions = await versionService.getHistory(itemId, contentType, limitNum);
+  const versions = await versionService.getHistory(
+    itemId,
+    contentType,
+    limitNum,
+  );
   const summary = await versionService.getHistorySummary(itemId, contentType);
 
   return res.status(200).json({ versions, summary });
@@ -94,9 +106,10 @@ async function handleList(
 async function handleCreate(
   req: NextApiRequest,
   res: NextApiResponse<CreateVersionResponse | ErrorResponse>,
-  versionService: ReturnType<typeof getVersionHistoryService>
+  versionService: ReturnType<typeof getVersionHistoryService>,
 ) {
-  const { contentType, itemId, content, createdBy, message } = req.body as CreateVersionRequest;
+  const { contentType, itemId, content, createdBy, message } =
+    req.body as CreateVersionRequest;
 
   if (!isValidContentType(contentType)) {
     return res.status(400).json({ error: 'Invalid contentType' });
@@ -119,7 +132,7 @@ async function handleCreate(
     itemId,
     content,
     createdBy,
-    { message, skipIfUnchanged: true }
+    { message, skipIfUnchanged: true },
   );
 
   if (!version) {

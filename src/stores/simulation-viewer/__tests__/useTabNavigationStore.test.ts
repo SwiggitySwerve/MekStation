@@ -8,9 +8,10 @@
  * - Edge cases and error handling
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access */
+/* oxlint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access */
 
 import { renderHook, act } from '@testing-library/react';
+
 import {
   useTabNavigationStore,
   useInitTabFromURL,
@@ -115,7 +116,7 @@ describe('useTabNavigationStore', () => {
       expect(window.history.pushState).toHaveBeenCalledWith(
         {},
         '',
-        expect.stringContaining('tab=encounter-history')
+        expect.stringContaining('tab=encounter-history'),
       );
     });
 
@@ -128,7 +129,9 @@ describe('useTabNavigationStore', () => {
       });
 
       const state = useTabNavigationStore.getState();
-      expect(state.history.filter((t) => t === 'encounter-history').length).toBe(2);
+      expect(
+        state.history.filter((t) => t === 'encounter-history').length,
+      ).toBe(2);
     });
 
     it('should handle all valid tab types', () => {
@@ -266,7 +269,8 @@ describe('useTabNavigationStore', () => {
     });
 
     it('should update correctly after goBack', () => {
-      const { setActiveTab, goBack, canGoBack } = useTabNavigationStore.getState();
+      const { setActiveTab, goBack, canGoBack } =
+        useTabNavigationStore.getState();
 
       act(() => {
         setActiveTab('encounter-history');
@@ -326,7 +330,8 @@ describe('useTabNavigationStore', () => {
     });
 
     it('should reset canGoBack to false', () => {
-      const { setActiveTab, reset, canGoBack } = useTabNavigationStore.getState();
+      const { setActiveTab, reset, canGoBack } =
+        useTabNavigationStore.getState();
 
       act(() => {
         setActiveTab('encounter-history');
@@ -354,8 +359,9 @@ describe('useTabNavigationStore', () => {
         setActiveTab('encounter-history');
       });
 
-      const callArgs = (window.history.pushState as jest.Mock).mock.calls[0] as unknown[];
-      expect((callArgs[2] as string)).toContain('tab=encounter-history');
+      const callArgs = (window.history.pushState as jest.Mock).mock
+        .calls[0] as unknown[];
+      expect(callArgs[2] as string).toContain('tab=encounter-history');
     });
 
     it('should update URL for each tab change', () => {
@@ -369,11 +375,11 @@ describe('useTabNavigationStore', () => {
       expect(window.history.pushState).toHaveBeenCalledTimes(2);
     });
 
-  it('should preserve existing query parameters', () => {
-    (window as any).location = {
-      href: 'http://localhost:3000/simulation-viewer?foo=bar',
-      search: '?foo=bar',
-    };
+    it('should preserve existing query parameters', () => {
+      (window as any).location = {
+        href: 'http://localhost:3000/simulation-viewer?foo=bar',
+        search: '?foo=bar',
+      };
 
       jest.clearAllMocks();
       window.history.pushState = jest.fn();
@@ -384,15 +390,16 @@ describe('useTabNavigationStore', () => {
         setActiveTab('encounter-history');
       });
 
-      const callArgs = (window.history.pushState as jest.Mock).mock.calls[0] as unknown[];
+      const callArgs = (window.history.pushState as jest.Mock).mock
+        .calls[0] as unknown[];
       expect(callArgs[2]).toContain('tab=encounter-history');
     });
 
-  it('should replace existing tab parameter', () => {
-    (window as any).location = {
-      href: 'http://localhost:3000/simulation-viewer?tab=old-tab',
-      search: '?tab=old-tab',
-    };
+    it('should replace existing tab parameter', () => {
+      (window as any).location = {
+        href: 'http://localhost:3000/simulation-viewer?tab=old-tab',
+        search: '?tab=old-tab',
+      };
 
       jest.clearAllMocks();
       window.history.pushState = jest.fn();
@@ -403,7 +410,8 @@ describe('useTabNavigationStore', () => {
         setActiveTab('encounter-history');
       });
 
-      const callArgs = (window.history.pushState as jest.Mock).mock.calls[0] as unknown[];
+      const callArgs = (window.history.pushState as jest.Mock).mock
+        .calls[0] as unknown[];
       expect(callArgs[2]).toContain('tab=encounter-history');
     });
 
@@ -423,11 +431,11 @@ describe('useTabNavigationStore', () => {
       global.window = originalWindow;
     });
 
-  it('should use correct URL format', () => {
-    (window as any).location = {
-      href: 'http://localhost:3000/simulation-viewer',
-      search: '',
-    };
+    it('should use correct URL format', () => {
+      (window as any).location = {
+        href: 'http://localhost:3000/simulation-viewer',
+        search: '',
+      };
 
       jest.clearAllMocks();
       window.history.pushState = jest.fn();
@@ -438,7 +446,8 @@ describe('useTabNavigationStore', () => {
         setActiveTab('analysis-bugs');
       });
 
-      const callArgs = (window.history.pushState as jest.Mock).mock.calls[0] as unknown[];
+      const callArgs = (window.history.pushState as jest.Mock).mock
+        .calls[0] as unknown[];
       const url = callArgs[2];
 
       expect(url).toContain('tab=analysis-bugs');
@@ -503,7 +512,11 @@ describe('useTabNavigationStore', () => {
       const tabParam = searchParams.get('tab');
 
       expect(tabParam).toBe('encounter-history');
-      expect(['campaign-dashboard', 'encounter-history', 'analysis-bugs'].includes(tabParam as SimulationViewerTab)).toBe(true);
+      expect(
+        ['campaign-dashboard', 'encounter-history', 'analysis-bugs'].includes(
+          tabParam as SimulationViewerTab,
+        ),
+      ).toBe(true);
     });
 
     it('should handle missing tab parameter gracefully', () => {
@@ -522,9 +535,9 @@ describe('useTabNavigationStore', () => {
     it('should set up event listener', () => {
       renderHook(() => useSyncTabWithURL());
 
-      const listeners = ((window.addEventListener as jest.Mock).mock.calls as unknown[][]).filter(
-        (call) => (call[0] as string) === 'popstate'
-      );
+      const listeners = (
+        (window.addEventListener as jest.Mock).mock.calls as unknown[][]
+      ).filter((call) => (call[0] as string) === 'popstate');
 
       expect(listeners.length).toBeGreaterThan(0);
     });
@@ -534,9 +547,9 @@ describe('useTabNavigationStore', () => {
 
       unmount();
 
-      const removeListenerCalls = ((window.removeEventListener as jest.Mock).mock.calls as unknown[][]).filter(
-        (call) => (call[0] as string) === 'popstate'
-      );
+      const removeListenerCalls = (
+        (window.removeEventListener as jest.Mock).mock.calls as unknown[][]
+      ).filter((call) => (call[0] as string) === 'popstate');
 
       expect(removeListenerCalls.length).toBeGreaterThan(0);
     });
@@ -572,7 +585,11 @@ describe('useTabNavigationStore', () => {
       const tabParam = params.get('tab');
 
       expect(tabParam).toBe('encounter-history');
-      expect(['campaign-dashboard', 'encounter-history', 'analysis-bugs'].includes(tabParam as SimulationViewerTab)).toBe(true);
+      expect(
+        ['campaign-dashboard', 'encounter-history', 'analysis-bugs'].includes(
+          tabParam as SimulationViewerTab,
+        ),
+      ).toBe(true);
     });
 
     it('should handle popstate event with invalid tab', () => {
@@ -580,7 +597,11 @@ describe('useTabNavigationStore', () => {
       const tabParam = params.get('tab');
 
       expect(tabParam).toBe('invalid');
-      expect(['campaign-dashboard', 'encounter-history', 'analysis-bugs'].includes(tabParam as SimulationViewerTab)).toBe(false);
+      expect(
+        ['campaign-dashboard', 'encounter-history', 'analysis-bugs'].includes(
+          tabParam as SimulationViewerTab,
+        ),
+      ).toBe(false);
     });
 
     it('should handle popstate event without tab parameter', () => {
@@ -624,7 +645,10 @@ describe('useTabNavigationStore', () => {
 
       const state = useTabNavigationStore.getState();
       expect(state.activeTab).toBe('encounter-history');
-      expect(state.history).toEqual(['campaign-dashboard', 'encounter-history']);
+      expect(state.history).toEqual([
+        'campaign-dashboard',
+        'encounter-history',
+      ]);
     });
 
     it('should handle goBack at boundary', () => {
@@ -681,14 +705,20 @@ describe('useTabNavigationStore', () => {
       });
 
       const state = useTabNavigationStore.getState();
-      expect(state.history.every((tab) => ['campaign-dashboard', 'encounter-history', 'analysis-bugs'].includes(tab))).toBe(true);
+      expect(
+        state.history.every((tab) =>
+          ['campaign-dashboard', 'encounter-history', 'analysis-bugs'].includes(
+            tab,
+          ),
+        ),
+      ).toBe(true);
     });
 
-  it('should handle hook initialization with valid location', () => {
-    (window as any).location = {
-      href: 'http://localhost:3000/simulation-viewer?tab=encounter-history',
-      search: '?tab=encounter-history',
-    };
+    it('should handle hook initialization with valid location', () => {
+      (window as any).location = {
+        href: 'http://localhost:3000/simulation-viewer?tab=encounter-history',
+        search: '?tab=encounter-history',
+      };
 
       const { rerender } = renderHook(() => useInitTabFromURL());
       expect(() => rerender()).not.toThrow();

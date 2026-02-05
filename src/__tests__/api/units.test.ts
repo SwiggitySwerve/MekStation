@@ -1,13 +1,16 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/units endpoint
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/units';
 import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
-import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/enums/Era';
+import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
+
 import { parseSuccessResponse, parseErrorResponse } from '../helpers';
 
 // Mock the canonical unit service
@@ -137,7 +140,7 @@ describe('/api/units', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           techBase: TechBase.CLAN,
-        })
+        }),
       );
     });
 
@@ -155,7 +158,7 @@ describe('/api/units', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           era: Era.LATE_SUCCESSION_WARS,
-        })
+        }),
       );
     });
 
@@ -173,7 +176,7 @@ describe('/api/units', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           weightClass: WeightClass.ASSAULT,
-        })
+        }),
       );
     });
 
@@ -191,7 +194,7 @@ describe('/api/units', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           unitType: 'BattleMech',
-        })
+        }),
       );
     });
 
@@ -209,7 +212,7 @@ describe('/api/units', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           minTonnage: 50,
-        })
+        }),
       );
     });
 
@@ -227,7 +230,7 @@ describe('/api/units', () => {
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           maxTonnage: 75,
-        })
+        }),
       );
     });
 

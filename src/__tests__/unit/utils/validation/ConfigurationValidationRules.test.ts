@@ -8,6 +8,8 @@
  * - Location validity checks
  */
 
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { IValidationContext } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   QuadNoArmsRule,
   QuadLegCountRule,
@@ -34,11 +36,11 @@ import {
   getConfigurationValidationRules,
   registerConfigurationRules,
 } from '@/utils/validation/rules/ConfigurationValidationRules';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { IValidationContext } from '@/types/validation/rules/ValidationRuleInterfaces';
 
 describe('ConfigurationValidationRules', () => {
-  const createContext = (unit: Record<string, unknown>): IValidationContext => ({
+  const createContext = (
+    unit: Record<string, unknown>,
+  ): IValidationContext => ({
     unit,
     options: {},
     cache: new Map(),
@@ -121,13 +123,13 @@ describe('ConfigurationValidationRules', () => {
     it('should only apply to quad mechs', () => {
       expect(
         QuadLegCountRule.canValidate?.(
-          createContext({ configuration: 'Biped' })
-        )
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
       expect(
         QuadLegCountRule.canValidate?.(
-          createContext({ configuration: 'Quad' })
-        )
+          createContext({ configuration: 'Quad' }),
+        ),
       ).toBe(true);
     });
   });
@@ -149,8 +151,8 @@ describe('ConfigurationValidationRules', () => {
     it('should only apply to quad mechs', () => {
       expect(
         QuadTotalSlotsRule.canValidate?.(
-          createContext({ configuration: 'Biped' })
-        )
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
     });
   });
@@ -191,8 +193,8 @@ describe('ConfigurationValidationRules', () => {
     it('should only apply to quad mechs', () => {
       expect(
         QuadLegArmorBalanceRule.canValidate?.(
-          createContext({ configuration: 'Biped' })
-        )
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
     });
   });
@@ -228,13 +230,13 @@ describe('ConfigurationValidationRules', () => {
     it('should only apply to non-quad mechs', () => {
       expect(
         BipedNoQuadLegsRule.canValidate?.(
-          createContext({ configuration: 'Quad' })
-        )
+          createContext({ configuration: 'Quad' }),
+        ),
       ).toBe(false);
       expect(
         BipedNoQuadLegsRule.canValidate?.(
-          createContext({ configuration: 'Biped' })
-        )
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(true);
     });
   });
@@ -328,10 +330,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to LAM mechs', () => {
       expect(
-        LAMMaxTonnageRule.canValidate?.(createContext({ configuration: 'Biped' }))
+        LAMMaxTonnageRule.canValidate?.(
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
       expect(
-        LAMMaxTonnageRule.canValidate?.(createContext({ configuration: 'LAM' }))
+        LAMMaxTonnageRule.canValidate?.(
+          createContext({ configuration: 'LAM' }),
+        ),
       ).toBe(true);
     });
   });
@@ -370,10 +376,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to LAM mechs', () => {
       expect(
-        LAMEngineTypeRule.canValidate?.(createContext({ configuration: 'Biped' }))
+        LAMEngineTypeRule.canValidate?.(
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
       expect(
-        LAMEngineTypeRule.canValidate?.(createContext({ configuration: 'LAM' }))
+        LAMEngineTypeRule.canValidate?.(
+          createContext({ configuration: 'LAM' }),
+        ),
       ).toBe(true);
     });
   });
@@ -416,10 +426,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to LAM mechs', () => {
       expect(
-        LAMStructureArmorRule.canValidate?.(createContext({ configuration: 'Biped' }))
+        LAMStructureArmorRule.canValidate?.(
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
       expect(
-        LAMStructureArmorRule.canValidate?.(createContext({ configuration: 'LAM' }))
+        LAMStructureArmorRule.canValidate?.(
+          createContext({ configuration: 'LAM' }),
+        ),
       ).toBe(true);
     });
   });
@@ -456,10 +470,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to LAM mechs', () => {
       expect(
-        LAMLandingGearRule.canValidate?.(createContext({ configuration: 'Biped' }))
+        LAMLandingGearRule.canValidate?.(
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
       expect(
-        LAMLandingGearRule.canValidate?.(createContext({ configuration: 'LAM' }))
+        LAMLandingGearRule.canValidate?.(
+          createContext({ configuration: 'LAM' }),
+        ),
       ).toBe(true);
     });
   });
@@ -469,7 +487,12 @@ describe('ConfigurationValidationRules', () => {
       const context = createContext({
         configuration: 'LAM',
         criticalSlots: {
-          [MechLocation.HEAD]: ['Life Support', 'Sensors', 'Cockpit', 'Avionics'],
+          [MechLocation.HEAD]: [
+            'Life Support',
+            'Sensors',
+            'Cockpit',
+            'Avionics',
+          ],
           [MechLocation.LEFT_TORSO]: ['Avionics', null, null],
           [MechLocation.RIGHT_TORSO]: ['Avionics', null, null],
         },
@@ -496,10 +519,12 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to LAM mechs', () => {
       expect(
-        LAMAvionicsRule.canValidate?.(createContext({ configuration: 'Biped' }))
+        LAMAvionicsRule.canValidate?.(
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
       expect(
-        LAMAvionicsRule.canValidate?.(createContext({ configuration: 'LAM' }))
+        LAMAvionicsRule.canValidate?.(createContext({ configuration: 'LAM' })),
       ).toBe(true);
     });
   });
@@ -527,7 +552,12 @@ describe('ConfigurationValidationRules', () => {
       const context = createContext({
         configuration: 'Tripod',
         criticalSlots: {
-          [MechLocation.CENTER_LEG]: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator'],
+          [MechLocation.CENTER_LEG]: [
+            'Hip',
+            'Upper Leg Actuator',
+            'Lower Leg Actuator',
+            'Foot Actuator',
+          ],
         },
       });
 
@@ -555,10 +585,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to tripod mechs', () => {
       expect(
-        TripodCenterLegRule.canValidate?.(createContext({ configuration: 'Biped' }))
+        TripodCenterLegRule.canValidate?.(
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
       expect(
-        TripodCenterLegRule.canValidate?.(createContext({ configuration: 'Tripod' }))
+        TripodCenterLegRule.canValidate?.(
+          createContext({ configuration: 'Tripod' }),
+        ),
       ).toBe(true);
     });
   });
@@ -625,10 +659,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to tripod mechs', () => {
       expect(
-        TripodLegEquipmentRule.canValidate?.(createContext({ configuration: 'Biped' }))
+        TripodLegEquipmentRule.canValidate?.(
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
       expect(
-        TripodLegEquipmentRule.canValidate?.(createContext({ configuration: 'Tripod' }))
+        TripodLegEquipmentRule.canValidate?.(
+          createContext({ configuration: 'Tripod' }),
+        ),
       ).toBe(true);
     });
   });
@@ -638,8 +676,22 @@ describe('ConfigurationValidationRules', () => {
       const context = createContext({
         configuration: 'Tripod',
         criticalSlots: {
-          [MechLocation.HEAD]: ['Life Support', 'Sensors', null, null, null, null],
-          [MechLocation.CENTER_TORSO]: ['Engine', 'Engine', null, null, null, null],
+          [MechLocation.HEAD]: [
+            'Life Support',
+            'Sensors',
+            null,
+            null,
+            null,
+            null,
+          ],
+          [MechLocation.CENTER_TORSO]: [
+            'Engine',
+            'Engine',
+            null,
+            null,
+            null,
+            null,
+          ],
         },
       });
 
@@ -649,10 +701,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to tripod mechs', () => {
       expect(
-        TripodTotalSlotsRule.canValidate?.(createContext({ configuration: 'Biped' }))
+        TripodTotalSlotsRule.canValidate?.(
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
       expect(
-        TripodTotalSlotsRule.canValidate?.(createContext({ configuration: 'Tripod' }))
+        TripodTotalSlotsRule.canValidate?.(
+          createContext({ configuration: 'Tripod' }),
+        ),
       ).toBe(true);
     });
   });
@@ -701,15 +757,21 @@ describe('ConfigurationValidationRules', () => {
 
       const result = TripodLegArmorBalanceRule.validate(context);
       expect(result.passed).toBe(true);
-      expect(result.warnings.some(w => w.message.includes('Center leg'))).toBe(true);
+      expect(
+        result.warnings.some((w) => w.message.includes('Center leg')),
+      ).toBe(true);
     });
 
     it('should only apply to tripod mechs', () => {
       expect(
-        TripodLegArmorBalanceRule.canValidate?.(createContext({ configuration: 'Biped' }))
+        TripodLegArmorBalanceRule.canValidate?.(
+          createContext({ configuration: 'Biped' }),
+        ),
       ).toBe(false);
       expect(
-        TripodLegArmorBalanceRule.canValidate?.(createContext({ configuration: 'Tripod' }))
+        TripodLegArmorBalanceRule.canValidate?.(
+          createContext({ configuration: 'Tripod' }),
+        ),
       ).toBe(true);
     });
   });
@@ -763,10 +825,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to quadvee mechs', () => {
       expect(
-        QuadVeeConversionEquipmentRule.canValidate?.(createContext({ configuration: 'Quad' }))
+        QuadVeeConversionEquipmentRule.canValidate?.(
+          createContext({ configuration: 'Quad' }),
+        ),
       ).toBe(false);
       expect(
-        QuadVeeConversionEquipmentRule.canValidate?.(createContext({ configuration: 'QuadVee' }))
+        QuadVeeConversionEquipmentRule.canValidate?.(
+          createContext({ configuration: 'QuadVee' }),
+        ),
       ).toBe(true);
     });
   });
@@ -820,10 +886,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to quadvee mechs', () => {
       expect(
-        QuadVeeTracksRule.canValidate?.(createContext({ configuration: 'Quad' }))
+        QuadVeeTracksRule.canValidate?.(
+          createContext({ configuration: 'Quad' }),
+        ),
       ).toBe(false);
       expect(
-        QuadVeeTracksRule.canValidate?.(createContext({ configuration: 'QuadVee' }))
+        QuadVeeTracksRule.canValidate?.(
+          createContext({ configuration: 'QuadVee' }),
+        ),
       ).toBe(true);
     });
   });
@@ -833,8 +903,22 @@ describe('ConfigurationValidationRules', () => {
       const context = createContext({
         configuration: 'QuadVee',
         criticalSlots: {
-          [MechLocation.HEAD]: ['Life Support', 'Sensors', null, null, null, null],
-          [MechLocation.CENTER_TORSO]: ['Engine', 'Engine', null, null, null, null],
+          [MechLocation.HEAD]: [
+            'Life Support',
+            'Sensors',
+            null,
+            null,
+            null,
+            null,
+          ],
+          [MechLocation.CENTER_TORSO]: [
+            'Engine',
+            'Engine',
+            null,
+            null,
+            null,
+            null,
+          ],
         },
       });
 
@@ -844,10 +928,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to quadvee mechs', () => {
       expect(
-        QuadVeeTotalSlotsRule.canValidate?.(createContext({ configuration: 'Quad' }))
+        QuadVeeTotalSlotsRule.canValidate?.(
+          createContext({ configuration: 'Quad' }),
+        ),
       ).toBe(false);
       expect(
-        QuadVeeTotalSlotsRule.canValidate?.(createContext({ configuration: 'QuadVee' }))
+        QuadVeeTotalSlotsRule.canValidate?.(
+          createContext({ configuration: 'QuadVee' }),
+        ),
       ).toBe(true);
     });
   });
@@ -899,15 +987,21 @@ describe('ConfigurationValidationRules', () => {
 
       const result = QuadVeeLegArmorBalanceRule.validate(context);
       expect(result.passed).toBe(true);
-      expect(result.warnings.some(w => w.message.includes('Front and rear'))).toBe(true);
+      expect(
+        result.warnings.some((w) => w.message.includes('Front and rear')),
+      ).toBe(true);
     });
 
     it('should only apply to quadvee mechs', () => {
       expect(
-        QuadVeeLegArmorBalanceRule.canValidate?.(createContext({ configuration: 'Quad' }))
+        QuadVeeLegArmorBalanceRule.canValidate?.(
+          createContext({ configuration: 'Quad' }),
+        ),
       ).toBe(false);
       expect(
-        QuadVeeLegArmorBalanceRule.canValidate?.(createContext({ configuration: 'QuadVee' }))
+        QuadVeeLegArmorBalanceRule.canValidate?.(
+          createContext({ configuration: 'QuadVee' }),
+        ),
       ).toBe(true);
     });
   });
@@ -975,10 +1069,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to OmniMechs', () => {
       expect(
-        OmniMechBaseHeatSinksRule.canValidate?.(createContext({ isOmni: false }))
+        OmniMechBaseHeatSinksRule.canValidate?.(
+          createContext({ isOmni: false }),
+        ),
       ).toBe(false);
       expect(
-        OmniMechBaseHeatSinksRule.canValidate?.(createContext({ isOmni: true }))
+        OmniMechBaseHeatSinksRule.canValidate?.(
+          createContext({ isOmni: true }),
+        ),
       ).toBe(true);
     });
   });
@@ -1037,10 +1135,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to OmniMechs', () => {
       expect(
-        OmniMechBaseHeatSinksValidRule.canValidate?.(createContext({ isOmni: false }))
+        OmniMechBaseHeatSinksValidRule.canValidate?.(
+          createContext({ isOmni: false }),
+        ),
       ).toBe(false);
       expect(
-        OmniMechBaseHeatSinksValidRule.canValidate?.(createContext({ isOmni: true }))
+        OmniMechBaseHeatSinksValidRule.canValidate?.(
+          createContext({ isOmni: true }),
+        ),
       ).toBe(true);
     });
   });
@@ -1069,8 +1171,16 @@ describe('ConfigurationValidationRules', () => {
       const context = createContext({
         isOmni: true,
         equipment: [
-          { name: 'Medium Laser', location: 'Left Arm', isOmniPodMounted: true },
-          { name: 'ER Large Laser', location: 'Right Torso', isOmniPodMounted: false },
+          {
+            name: 'Medium Laser',
+            location: 'Left Arm',
+            isOmniPodMounted: true,
+          },
+          {
+            name: 'ER Large Laser',
+            location: 'Right Torso',
+            isOmniPodMounted: false,
+          },
         ],
       });
 
@@ -1083,7 +1193,7 @@ describe('ConfigurationValidationRules', () => {
       const context = createContext({
         isOmni: true,
         equipment: [
-          { name: 'Medium Laser', location: 'Left Arm' },  // No isOmniPodMounted = fixed
+          { name: 'Medium Laser', location: 'Left Arm' }, // No isOmniPodMounted = fixed
           { name: 'ER Large Laser', location: 'Right Torso' },
         ],
       });
@@ -1097,8 +1207,16 @@ describe('ConfigurationValidationRules', () => {
       const context = createContext({
         isOmni: true,
         equipment: [
-          { name: 'Medium Laser', location: 'Left Arm', isOmniPodMounted: true },
-          { name: 'ER Large Laser', location: 'Right Torso', isOmniPodMounted: true },
+          {
+            name: 'Medium Laser',
+            location: 'Left Arm',
+            isOmniPodMounted: true,
+          },
+          {
+            name: 'ER Large Laser',
+            location: 'Right Torso',
+            isOmniPodMounted: true,
+          },
         ],
       });
 
@@ -1110,10 +1228,14 @@ describe('ConfigurationValidationRules', () => {
 
     it('should only apply to OmniMechs', () => {
       expect(
-        OmniMechFixedEquipmentRule.canValidate?.(createContext({ isOmni: false }))
+        OmniMechFixedEquipmentRule.canValidate?.(
+          createContext({ isOmni: false }),
+        ),
       ).toBe(false);
       expect(
-        OmniMechFixedEquipmentRule.canValidate?.(createContext({ isOmni: true }))
+        OmniMechFixedEquipmentRule.canValidate?.(
+          createContext({ isOmni: true }),
+        ),
       ).toBe(true);
     });
   });
@@ -1128,23 +1250,47 @@ describe('ConfigurationValidationRules', () => {
       // LAM rules
       expect(rules.map((r) => r.id)).toContain('configuration.lam.max_tonnage');
       expect(rules.map((r) => r.id)).toContain('configuration.lam.engine_type');
-      expect(rules.map((r) => r.id)).toContain('configuration.lam.structure_armor');
-      expect(rules.map((r) => r.id)).toContain('configuration.lam.landing_gear');
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.lam.structure_armor',
+      );
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.lam.landing_gear',
+      );
       expect(rules.map((r) => r.id)).toContain('configuration.lam.avionics');
       // Tripod rules
-      expect(rules.map((r) => r.id)).toContain('configuration.tripod.center_leg');
-      expect(rules.map((r) => r.id)).toContain('configuration.tripod.leg_equipment');
-      expect(rules.map((r) => r.id)).toContain('configuration.tripod.total_slots');
-      expect(rules.map((r) => r.id)).toContain('configuration.tripod.leg_armor_balance');
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.tripod.center_leg',
+      );
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.tripod.leg_equipment',
+      );
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.tripod.total_slots',
+      );
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.tripod.leg_armor_balance',
+      );
       // QuadVee rules
-      expect(rules.map((r) => r.id)).toContain('configuration.quadvee.conversion_equipment');
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.quadvee.conversion_equipment',
+      );
       expect(rules.map((r) => r.id)).toContain('configuration.quadvee.tracks');
-      expect(rules.map((r) => r.id)).toContain('configuration.quadvee.total_slots');
-      expect(rules.map((r) => r.id)).toContain('configuration.quadvee.leg_armor_balance');
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.quadvee.total_slots',
+      );
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.quadvee.leg_armor_balance',
+      );
       // OmniMech rules
-      expect(rules.map((r) => r.id)).toContain('configuration.omnimech.base_heat_sinks');
-      expect(rules.map((r) => r.id)).toContain('configuration.omnimech.base_heat_sinks_valid');
-      expect(rules.map((r) => r.id)).toContain('configuration.omnimech.fixed_equipment');
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.omnimech.base_heat_sinks',
+      );
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.omnimech.base_heat_sinks_valid',
+      );
+      expect(rules.map((r) => r.id)).toContain(
+        'configuration.omnimech.fixed_equipment',
+      );
     });
   });
 
@@ -1164,9 +1310,15 @@ describe('ConfigurationValidationRules', () => {
       expect(registeredRules).toContain('configuration.quad.no_arms');
       expect(registeredRules).toContain('configuration.lam.max_tonnage');
       expect(registeredRules).toContain('configuration.tripod.center_leg');
-      expect(registeredRules).toContain('configuration.quadvee.conversion_equipment');
-      expect(registeredRules).toContain('configuration.omnimech.base_heat_sinks');
-      expect(registeredRules).toContain('configuration.omnimech.fixed_equipment');
+      expect(registeredRules).toContain(
+        'configuration.quadvee.conversion_equipment',
+      );
+      expect(registeredRules).toContain(
+        'configuration.omnimech.base_heat_sinks',
+      );
+      expect(registeredRules).toContain(
+        'configuration.omnimech.fixed_equipment',
+      );
     });
   });
 
@@ -1219,14 +1371,14 @@ describe('ConfigurationValidationRules', () => {
         const context = createContext({
           configuration: 'Quad',
           criticalSlots: {
-            [MechLocation.HEAD]: Array(6).fill('Equipment'),            // 6
-            [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'),   // 12
-            [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'),     // 12
-            [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'),    // 12
-            [MechLocation.FRONT_LEFT_LEG]: Array(6).fill('Equipment'),  // 6
+            [MechLocation.HEAD]: Array(6).fill('Equipment'), // 6
+            [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'), // 12
+            [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'), // 12
+            [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'), // 12
+            [MechLocation.FRONT_LEFT_LEG]: Array(6).fill('Equipment'), // 6
             [MechLocation.FRONT_RIGHT_LEG]: Array(6).fill('Equipment'), // 6
-            [MechLocation.REAR_LEFT_LEG]: Array(6).fill('Equipment'),   // 6
-            [MechLocation.REAR_RIGHT_LEG]: Array(7).fill('Equipment'),  // 7 (1 over) = 67 total
+            [MechLocation.REAR_LEFT_LEG]: Array(6).fill('Equipment'), // 6
+            [MechLocation.REAR_RIGHT_LEG]: Array(7).fill('Equipment'), // 7 (1 over) = 67 total
           },
         });
 
@@ -1392,15 +1544,15 @@ describe('ConfigurationValidationRules', () => {
         const context = createContext({
           configuration: 'Tripod',
           criticalSlots: {
-            [MechLocation.HEAD]: Array(6).fill('Equipment'),          // 6
+            [MechLocation.HEAD]: Array(6).fill('Equipment'), // 6
             [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'), // 12
-            [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'),   // 12
-            [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'),  // 12
-            [MechLocation.LEFT_ARM]: Array(12).fill('Equipment'),     // 12
-            [MechLocation.RIGHT_ARM]: Array(12).fill('Equipment'),    // 12
-            [MechLocation.LEFT_LEG]: Array(6).fill('Equipment'),      // 6
-            [MechLocation.RIGHT_LEG]: Array(6).fill('Equipment'),     // 6
-            [MechLocation.CENTER_LEG]: Array(7).fill('Equipment'),    // 7 (1 over) = 85 total
+            [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'), // 12
+            [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'), // 12
+            [MechLocation.LEFT_ARM]: Array(12).fill('Equipment'), // 12
+            [MechLocation.RIGHT_ARM]: Array(12).fill('Equipment'), // 12
+            [MechLocation.LEFT_LEG]: Array(6).fill('Equipment'), // 6
+            [MechLocation.RIGHT_LEG]: Array(6).fill('Equipment'), // 6
+            [MechLocation.CENTER_LEG]: Array(7).fill('Equipment'), // 7 (1 over) = 85 total
           },
         });
 
@@ -1483,14 +1635,14 @@ describe('ConfigurationValidationRules', () => {
         const context = createContext({
           configuration: 'QuadVee',
           criticalSlots: {
-            [MechLocation.HEAD]: Array(6).fill('Equipment'),              // 6
-            [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'),     // 12
-            [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'),       // 12
-            [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'),      // 12
-            [MechLocation.FRONT_LEFT_LEG]: Array(6).fill('Equipment'),    // 6
-            [MechLocation.FRONT_RIGHT_LEG]: Array(6).fill('Equipment'),   // 6
-            [MechLocation.REAR_LEFT_LEG]: Array(6).fill('Equipment'),     // 6
-            [MechLocation.REAR_RIGHT_LEG]: Array(7).fill('Equipment'),    // 7 (1 over) = 67 total
+            [MechLocation.HEAD]: Array(6).fill('Equipment'), // 6
+            [MechLocation.CENTER_TORSO]: Array(12).fill('Equipment'), // 12
+            [MechLocation.LEFT_TORSO]: Array(12).fill('Equipment'), // 12
+            [MechLocation.RIGHT_TORSO]: Array(12).fill('Equipment'), // 12
+            [MechLocation.FRONT_LEFT_LEG]: Array(6).fill('Equipment'), // 6
+            [MechLocation.FRONT_RIGHT_LEG]: Array(6).fill('Equipment'), // 6
+            [MechLocation.REAR_LEFT_LEG]: Array(6).fill('Equipment'), // 6
+            [MechLocation.REAR_RIGHT_LEG]: Array(7).fill('Equipment'), // 7 (1 over) = 67 total
           },
         });
 

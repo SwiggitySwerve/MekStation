@@ -1,8 +1,11 @@
 # campaign-instances Specification
 
 ## Purpose
+
 TBD - created by archiving change add-campaign-instances. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Campaign Unit Instance
 
 The system SHALL create campaign unit instances when units are assigned to campaign forces.
@@ -138,4 +141,3 @@ The system SHALL emit events for all instance state changes.
 - **WHEN** the destruction occurs
 - **THEN** a `unit_destroyed` or `pilot_deceased` event is emitted
 - **AND** the instance status is updated but the instance is NOT deleted
-

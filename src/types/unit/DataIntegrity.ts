@@ -1,8 +1,8 @@
 /**
  * Data Integrity Types
- * 
+ *
  * Defines validation and integrity checking for unit data.
- * 
+ *
  * @spec openspec/specs/data-integrity-validation/spec.md
  */
 
@@ -90,7 +90,7 @@ export interface IDataRepairData {
 
 /**
  * Data repair result
- * 
+ *
  * Uses ResultType discriminated union. Success means all errors were resolved;
  * failure means some issues remain. Both paths carry full repair data.
  */
@@ -120,23 +120,22 @@ export const IntegrityIssueCodes = {
   AMMO_NOT_FOUND: 'REF002',
   INVALID_LOCATION: 'REF003',
   INVALID_SLOT_INDEX: 'REF004',
-  
+
   // Data consistency
   WEIGHT_MISMATCH: 'CON001',
   SLOT_OVERFLOW: 'CON002',
   ARMOR_EXCEEDS_MAX: 'CON003',
   MOVEMENT_MISMATCH: 'CON004',
   HEAT_SINK_MISMATCH: 'CON005',
-  
+
   // Format issues
   MISSING_REQUIRED_FIELD: 'FMT001',
   INVALID_FIELD_TYPE: 'FMT002',
   UNKNOWN_ENUM_VALUE: 'FMT003',
   DEPRECATED_FORMAT: 'FMT004',
-  
+
   // Version compatibility
   UNSUPPORTED_VERSION: 'VER001',
   MIGRATION_REQUIRED: 'VER002',
   BREAKING_CHANGE: 'VER003',
 } as const;
-

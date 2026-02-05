@@ -1,7 +1,12 @@
-import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import React from 'react';
+
+import type {
+  IFilterPanelProps,
+  IFilterDefinition,
+} from '@/components/simulation-viewer/types';
+
 import { FilterPanel } from '../FilterPanel';
-import type { IFilterPanelProps, IFilterDefinition } from '@/components/simulation-viewer/types';
 
 const severityFilter: IFilterDefinition = {
   id: 'severity',
@@ -87,10 +92,16 @@ describe('FilterPanel', () => {
     it('renders checkboxes for each option', () => {
       render(<FilterPanel {...defaultProps} />);
 
-      expect(screen.getByTestId('checkbox-severity-critical')).toBeInTheDocument();
-      expect(screen.getByTestId('checkbox-severity-warning')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('checkbox-severity-critical'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('checkbox-severity-warning'),
+      ).toBeInTheDocument();
       expect(screen.getByTestId('checkbox-severity-info')).toBeInTheDocument();
-      expect(screen.getByTestId('checkbox-type-heat-suicide')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('checkbox-type-heat-suicide'),
+      ).toBeInTheDocument();
     });
 
     it('renders option as raw value when optionLabels not provided', () => {
@@ -123,22 +134,32 @@ describe('FilterPanel', () => {
     it('shows active filter count in header', () => {
       render(<FilterPanel {...activeProps} />);
 
-      expect(screen.getByTestId('active-filter-count')).toHaveTextContent('(3)');
+      expect(screen.getByTestId('active-filter-count')).toHaveTextContent(
+        '(3)',
+      );
     });
 
     it('does not show active count when no filters active', () => {
       render(<FilterPanel {...defaultProps} />);
 
-      expect(screen.queryByTestId('active-filter-count')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('active-filter-count'),
+      ).not.toBeInTheDocument();
     });
 
     it('renders active filter badges', () => {
       render(<FilterPanel {...activeProps} />);
 
       expect(screen.getByTestId('active-badges')).toBeInTheDocument();
-      expect(screen.getByTestId('badge-severity-critical')).toHaveTextContent('Critical');
-      expect(screen.getByTestId('badge-severity-warning')).toHaveTextContent('Warning');
-      expect(screen.getByTestId('badge-type-heat-suicide')).toHaveTextContent('Heat Suicide');
+      expect(screen.getByTestId('badge-severity-critical')).toHaveTextContent(
+        'Critical',
+      );
+      expect(screen.getByTestId('badge-severity-warning')).toHaveTextContent(
+        'Warning',
+      );
+      expect(screen.getByTestId('badge-type-heat-suicide')).toHaveTextContent(
+        'Heat Suicide',
+      );
     });
 
     it('does not render badges container when no active filters', () => {
@@ -181,7 +202,7 @@ describe('FilterPanel', () => {
           {...defaultProps}
           activeFilters={{ severity: ['critical', 'warning'] }}
           onFilterChange={onFilterChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId('checkbox-severity-critical'));
@@ -196,7 +217,7 @@ describe('FilterPanel', () => {
           {...defaultProps}
           activeFilters={{ severity: ['critical'] }}
           onFilterChange={onFilterChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId('checkbox-severity-critical'));
@@ -211,7 +232,7 @@ describe('FilterPanel', () => {
           {...defaultProps}
           activeFilters={{ severity: ['critical'] }}
           onFilterChange={onFilterChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId('checkbox-severity-warning'));
@@ -228,7 +249,7 @@ describe('FilterPanel', () => {
           {...defaultProps}
           activeFilters={{ severity: ['critical'], type: ['heat-suicide'] }}
           onFilterChange={onFilterChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId('checkbox-severity-warning'));
@@ -243,12 +264,7 @@ describe('FilterPanel', () => {
   describe('Badge Close', () => {
     it('removes filter when badge close button is clicked', () => {
       const onFilterChange = jest.fn();
-      render(
-        <FilterPanel
-          {...activeProps}
-          onFilterChange={onFilterChange}
-        />
-      );
+      render(<FilterPanel {...activeProps} onFilterChange={onFilterChange} />);
 
       fireEvent.click(screen.getByTestId('badge-close-severity-critical'));
 
@@ -265,7 +281,7 @@ describe('FilterPanel', () => {
           {...defaultProps}
           activeFilters={{ severity: ['critical'] }}
           onFilterChange={onFilterChange}
-        />
+        />,
       );
 
       fireEvent.click(screen.getByTestId('badge-close-severity-critical'));
@@ -301,7 +317,7 @@ describe('FilterPanel', () => {
 
       expect(screen.getByTestId('clear-all-button')).toHaveAttribute(
         'aria-label',
-        'Clear all filters'
+        'Clear all filters',
       );
     });
   });
@@ -310,7 +326,9 @@ describe('FilterPanel', () => {
     it('does not render search input when enableSearch is false', () => {
       render(<FilterPanel {...defaultProps} />);
 
-      expect(screen.queryByTestId('filter-search-input')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('filter-search-input'),
+      ).not.toBeInTheDocument();
     });
 
     it('renders search input when enableSearch is true', () => {
@@ -332,7 +350,7 @@ describe('FilterPanel', () => {
           {...defaultProps}
           enableSearch
           onSearchChange={onSearchChange}
-        />
+        />,
       );
 
       fireEvent.change(screen.getByTestId('filter-search-input'), {
@@ -355,7 +373,7 @@ describe('FilterPanel', () => {
           {...defaultProps}
           enableSearch
           onSearchChange={onSearchChange}
-        />
+        />,
       );
 
       fireEvent.change(screen.getByTestId('filter-search-input'), {
@@ -391,7 +409,7 @@ describe('FilterPanel', () => {
           {...defaultProps}
           enableSearch={false}
           onSearchChange={onSearchChange}
-        />
+        />,
       );
 
       act(() => {
@@ -406,7 +424,7 @@ describe('FilterPanel', () => {
 
       expect(screen.getByTestId('filter-search-input')).toHaveAttribute(
         'aria-label',
-        'Search filters'
+        'Search filters',
       );
     });
   });
@@ -441,21 +459,20 @@ describe('FilterPanel', () => {
 
       expect(screen.getByTestId('filter-summary-severity')).toHaveAttribute(
         'aria-label',
-        'Severity filter section'
+        'Severity filter section',
       );
       expect(screen.getByTestId('filter-summary-type')).toHaveAttribute(
         'aria-label',
-        'Anomaly Type filter section'
+        'Anomaly Type filter section',
       );
     });
 
     it('badge close buttons have accessible aria-label', () => {
       render(<FilterPanel {...activeProps} />);
 
-      expect(screen.getByTestId('badge-close-severity-critical')).toHaveAttribute(
-        'aria-label',
-        'Remove Critical filter'
-      );
+      expect(
+        screen.getByTestId('badge-close-severity-critical'),
+      ).toHaveAttribute('aria-label', 'Remove Critical filter');
     });
   });
 
@@ -463,13 +480,17 @@ describe('FilterPanel', () => {
     it('has dark mode background class on container', () => {
       render(<FilterPanel {...defaultProps} />);
 
-      expect(screen.getByTestId('filter-panel')).toHaveClass('dark:bg-gray-800');
+      expect(screen.getByTestId('filter-panel')).toHaveClass(
+        'dark:bg-gray-800',
+      );
     });
 
     it('has dark mode border class on container', () => {
       render(<FilterPanel {...defaultProps} />);
 
-      expect(screen.getByTestId('filter-panel')).toHaveClass('dark:border-gray-700');
+      expect(screen.getByTestId('filter-panel')).toHaveClass(
+        'dark:border-gray-700',
+      );
     });
 
     it('has dark mode text classes on header', () => {
@@ -499,7 +520,9 @@ describe('FilterPanel', () => {
     it('has dark mode classes on Clear All button', () => {
       render(<FilterPanel {...activeProps} />);
 
-      expect(screen.getByTestId('clear-all-button')).toHaveClass('dark:text-red-400');
+      expect(screen.getByTestId('clear-all-button')).toHaveClass(
+        'dark:text-red-400',
+      );
     });
   });
 
@@ -535,7 +558,7 @@ describe('FilterPanel', () => {
       render(<FilterPanel {...defaultProps} filters={[]} />);
 
       expect(screen.getByTestId('empty-filters-message')).toHaveTextContent(
-        'No filters available'
+        'No filters available',
       );
     });
 
@@ -543,7 +566,9 @@ describe('FilterPanel', () => {
       render(<FilterPanel {...defaultProps} filters={[severityFilter]} />);
 
       expect(screen.getByTestId('filter-section-severity')).toBeInTheDocument();
-      expect(screen.queryByTestId('filter-section-type')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('filter-section-type'),
+      ).not.toBeInTheDocument();
     });
 
     it('handles activeFilters with keys not matching any filter definition', () => {
@@ -551,7 +576,7 @@ describe('FilterPanel', () => {
         <FilterPanel
           {...defaultProps}
           activeFilters={{ unknown: ['value'] }}
-        />
+        />,
       );
 
       expect(screen.getByTestId('filter-panel')).toBeInTheDocument();
@@ -572,13 +597,13 @@ describe('FilterPanel', () => {
 
     it('syncs local search when searchQuery prop changes', () => {
       const { rerender } = render(
-        <FilterPanel {...defaultProps} enableSearch searchQuery="initial" />
+        <FilterPanel {...defaultProps} enableSearch searchQuery="initial" />,
       );
 
       expect(screen.getByTestId('filter-search-input')).toHaveValue('initial');
 
       rerender(
-        <FilterPanel {...defaultProps} enableSearch searchQuery="updated" />
+        <FilterPanel {...defaultProps} enableSearch searchQuery="updated" />,
       );
 
       expect(screen.getByTestId('filter-search-input')).toHaveValue('updated');

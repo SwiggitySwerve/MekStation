@@ -7,6 +7,7 @@
 The system SHALL define encounter entities for game setup configuration.
 
 #### Scenario: Encounter properties
+
 - **GIVEN** an encounter entity
 - **WHEN** accessing properties
 - **THEN** encounter MUST have: id, name, status
@@ -14,6 +15,7 @@ The system SHALL define encounter entities for game setup configuration.
 - **AND** encounter MUST have: mapConfiguration, victoryConditions
 
 #### Scenario: Encounter status
+
 - **GIVEN** an encounter
 - **WHEN** checking status
 - **THEN** status SHALL be one of: draft, ready, launched, completed
@@ -27,12 +29,14 @@ The system SHALL define encounter entities for game setup configuration.
 The system SHALL support both explicit forces and generated opponents.
 
 #### Scenario: Explicit force selection
+
 - **GIVEN** encounter setup
 - **WHEN** selecting forces
 - **THEN** user MAY select saved force for player side
 - **AND** user MAY select saved force for opponent side
 
 #### Scenario: OpFor generation config
+
 - **GIVEN** encounter setup without explicit opponent force
 - **WHEN** configuring OpFor
 - **THEN** user SHALL specify target BV (absolute or percentage of player)
@@ -40,6 +44,7 @@ The system SHALL support both explicit forces and generated opponents.
 - **AND** user SHALL select pilot skill template
 
 #### Scenario: OpFor generation
+
 - **GIVEN** OpFor config with target BV
 - **WHEN** generating opponent force
 - **THEN** system SHALL select units to approximate target BV
@@ -51,18 +56,21 @@ The system SHALL support both explicit forces and generated opponents.
 The system SHALL configure map parameters for encounters.
 
 #### Scenario: Map size
+
 - **GIVEN** encounter setup
 - **WHEN** configuring map
 - **THEN** user SHALL specify map dimensions (hex radius or width/height)
 - **AND** default size appropriate for unit count
 
 #### Scenario: Terrain preset (future)
+
 - **GIVEN** encounter setup
 - **WHEN** configuring terrain
 - **THEN** user MAY select terrain preset (clear, urban, forest, etc.)
 - **AND** MVP: clear terrain only
 
 #### Scenario: Deployment zones
+
 - **GIVEN** encounter setup
 - **WHEN** configuring deployment
 - **THEN** player deployment zone SHALL be defined
@@ -74,6 +82,7 @@ The system SHALL configure map parameters for encounters.
 The system SHALL define configurable victory conditions.
 
 #### Scenario: Standard victory conditions
+
 - **GIVEN** encounter setup
 - **WHEN** selecting victory conditions
 - **THEN** "Destroy All" (eliminate all enemy units) SHALL be available
@@ -81,12 +90,14 @@ The system SHALL define configurable victory conditions.
 - **AND** "Retreat" (force enemy to flee map) SHALL be available
 
 #### Scenario: Turn limit
+
 - **GIVEN** encounter with turn limit
 - **WHEN** turn limit reached
 - **THEN** victory determined by remaining BV
 - **AND** side with higher remaining BV wins
 
 #### Scenario: Custom conditions (future)
+
 - **GIVEN** advanced encounter setup
 - **WHEN** defining custom conditions
 - **THEN** objective-based conditions MAY be created
@@ -97,6 +108,7 @@ The system SHALL define configurable victory conditions.
 The system SHALL create game sessions from encounters.
 
 #### Scenario: Validation before launch
+
 - **GIVEN** encounter in draft status
 - **WHEN** attempting to launch
 - **THEN** system SHALL validate all required fields
@@ -104,6 +116,7 @@ The system SHALL create game sessions from encounters.
 - **AND** if validation passes, transition to ready status
 
 #### Scenario: Launch encounter
+
 - **GIVEN** encounter in ready status
 - **WHEN** launching
 - **THEN** game session SHALL be created
@@ -112,6 +125,7 @@ The system SHALL create game sessions from encounters.
 - **AND** encounter status transitions to launched
 
 #### Scenario: Resume launched encounter
+
 - **GIVEN** encounter in launched status
 - **WHEN** accessing encounter
 - **THEN** link to active game session SHALL be provided
@@ -122,6 +136,7 @@ The system SHALL create game sessions from encounters.
 The system SHALL provide reusable scenario templates.
 
 #### Scenario: Built-in templates
+
 - **GIVEN** new encounter creation
 - **WHEN** selecting template
 - **THEN** "Duel" (1v1) template SHALL be available
@@ -129,12 +144,14 @@ The system SHALL provide reusable scenario templates.
 - **AND** "Custom" (blank) template SHALL be available
 
 #### Scenario: Template application
+
 - **GIVEN** selected template
 - **WHEN** applying to encounter
 - **THEN** template defaults SHALL populate encounter fields
 - **AND** user MAY override any template values
 
 #### Scenario: Save as template (future)
+
 - **GIVEN** configured encounter
 - **WHEN** saving as template
 - **THEN** encounter configuration SHALL be saved as reusable template

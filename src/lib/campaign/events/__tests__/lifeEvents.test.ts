@@ -1,9 +1,18 @@
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import type { IPerson } from '@/types/campaign/Person';
-import { RandomEventCategory, RandomEventSeverity, LifeEventType } from '@/types/campaign/events/randomEventTypes';
+
 import { createSeededRandom } from '@/lib/campaign/events/eventProbability';
-import { processLifeEvents, CALENDAR_CELEBRATIONS, _resetLifeEventCounter } from '@/lib/campaign/events/lifeEvents';
+import {
+  processLifeEvents,
+  CALENDAR_CELEBRATIONS,
+  _resetLifeEventCounter,
+} from '@/lib/campaign/events/lifeEvents';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import {
+  RandomEventCategory,
+  RandomEventSeverity,
+  LifeEventType,
+} from '@/types/campaign/events/randomEventTypes';
 
 const createMockPerson = (overrides: Partial<IPerson> = {}): IPerson => ({
   id: 'test-1',
@@ -20,7 +29,16 @@ const createMockPerson = (overrides: Partial<IPerson> = {}): IPerson => ({
   injuries: [],
   daysToWaitForHealing: 0,
   skills: {},
-  attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+  attributes: {
+    STR: 5,
+    BOD: 5,
+    REF: 5,
+    DEX: 5,
+    INT: 5,
+    WIL: 5,
+    CHA: 5,
+    Edge: 0,
+  },
   pilotSkills: { gunnery: 4, piloting: 5 },
   missionsCompleted: 0,
   totalKills: 0,
@@ -40,28 +58,36 @@ describe('lifeEvents', () => {
     });
 
     it('should have New Years Day on Jan 1', () => {
-      const newYears = CALENDAR_CELEBRATIONS.find((c) => c.eventType === LifeEventType.NEW_YEARS);
+      const newYears = CALENDAR_CELEBRATIONS.find(
+        (c) => c.eventType === LifeEventType.NEW_YEARS,
+      );
       expect(newYears).toBeDefined();
       expect(newYears?.month).toBe(1);
       expect(newYears?.day).toBe(1);
     });
 
     it('should have Commanders Day on Mar 15', () => {
-      const commandersDay = CALENDAR_CELEBRATIONS.find((c) => c.eventType === LifeEventType.COMMANDERS_DAY);
+      const commandersDay = CALENDAR_CELEBRATIONS.find(
+        (c) => c.eventType === LifeEventType.COMMANDERS_DAY,
+      );
       expect(commandersDay).toBeDefined();
       expect(commandersDay?.month).toBe(3);
       expect(commandersDay?.day).toBe(15);
     });
 
     it('should have Freedom Day on Jul 4', () => {
-      const freedomDay = CALENDAR_CELEBRATIONS.find((c) => c.eventType === LifeEventType.FREEDOM_DAY);
+      const freedomDay = CALENDAR_CELEBRATIONS.find(
+        (c) => c.eventType === LifeEventType.FREEDOM_DAY,
+      );
       expect(freedomDay).toBeDefined();
       expect(freedomDay?.month).toBe(7);
       expect(freedomDay?.day).toBe(4);
     });
 
     it('should have Winter Holiday on Dec 25', () => {
-      const winterHoliday = CALENDAR_CELEBRATIONS.find((c) => c.eventType === LifeEventType.WINTER_HOLIDAY);
+      const winterHoliday = CALENDAR_CELEBRATIONS.find(
+        (c) => c.eventType === LifeEventType.WINTER_HOLIDAY,
+      );
       expect(winterHoliday).toBeDefined();
       expect(winterHoliday?.month).toBe(12);
       expect(winterHoliday?.day).toBe(25);
@@ -198,7 +224,7 @@ describe('lifeEvents', () => {
           type: 'xp_award',
           personId: 'person-1',
           amount: 5,
-        })
+        }),
       );
     });
 
@@ -218,7 +244,7 @@ describe('lifeEvents', () => {
           type: 'notification',
           message: 'Frank has come of age',
           severity: 'positive',
-        })
+        }),
       );
     });
   });
@@ -257,7 +283,9 @@ describe('lifeEvents', () => {
       const random = createSeededRandom(42);
       const events = processLifeEvents(personnel, '3025-01-01', random);
 
-      const comingOfAgeEvents = events.filter((e) => e.title === 'Coming of Age');
+      const comingOfAgeEvents = events.filter(
+        (e) => e.title === 'Coming of Age',
+      );
       expect(comingOfAgeEvents.length).toBe(1);
       expect(comingOfAgeEvents[0].description).toContain('Henry');
     });

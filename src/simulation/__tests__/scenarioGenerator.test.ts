@@ -1,3 +1,12 @@
+import {
+  isGameSession,
+  GamePhase,
+  GameStatus,
+  GameSide,
+  IUnitGameState,
+  IGameUnit,
+} from '@/types/gameplay';
+
 import { SeededRandom } from '../core/SeededRandom';
 import { ISimulationConfig } from '../core/types';
 import {
@@ -6,7 +15,6 @@ import {
   createDefaultUnitWeights,
   createDefaultTerrainWeights,
 } from '../generator';
-import { isGameSession, GamePhase, GameStatus, GameSide, IUnitGameState, IGameUnit } from '@/types/gameplay';
 
 describe('ScenarioGenerator', () => {
   let generator: ScenarioGenerator;
@@ -15,7 +23,7 @@ describe('ScenarioGenerator', () => {
   beforeEach(() => {
     generator = new ScenarioGenerator(
       createDefaultUnitWeights(),
-      createDefaultTerrainWeights()
+      createDefaultTerrainWeights(),
     );
     config = {
       seed: 12345,
@@ -42,7 +50,9 @@ describe('ScenarioGenerator', () => {
       const random = new SeededRandom(config.seed);
       const session = generator.generate(config, random);
 
-      const playerUnits = session.units.filter((u: IGameUnit) => u.side === GameSide.Player);
+      const playerUnits = session.units.filter(
+        (u: IGameUnit) => u.side === GameSide.Player,
+      );
       expect(playerUnits.length).toBe(config.unitCount.player);
     });
 
@@ -50,7 +60,9 @@ describe('ScenarioGenerator', () => {
       const random = new SeededRandom(config.seed);
       const session = generator.generate(config, random);
 
-      const opponentUnits = session.units.filter((u: IGameUnit) => u.side === GameSide.Opponent);
+      const opponentUnits = session.units.filter(
+        (u: IGameUnit) => u.side === GameSide.Opponent,
+      );
       expect(opponentUnits.length).toBe(config.unitCount.opponent);
     });
 
@@ -118,8 +130,12 @@ describe('ScenarioGenerator', () => {
       const state1 = session1.currentState;
       const state2 = session2.currentState;
       for (const unitId of Object.keys(state1.units)) {
-        expect(state1.units[unitId].position).toEqual(state2.units[unitId].position);
-        expect(state1.units[unitId].facing).toEqual(state2.units[unitId].facing);
+        expect(state1.units[unitId].position).toEqual(
+          state2.units[unitId].position,
+        );
+        expect(state1.units[unitId].facing).toEqual(
+          state2.units[unitId].facing,
+        );
       }
     });
 
@@ -130,23 +146,28 @@ describe('ScenarioGenerator', () => {
       const session1 = generator.generate(config, random1);
       const session2 = generator.generate(config, random2);
 
-      const state1Units = Object.values(session1.currentState.units) as IUnitGameState[];
-      const state2Units = Object.values(session2.currentState.units) as IUnitGameState[];
+      const _state1Units = Object.values(
+        session1.currentState.units,
+      ) as IUnitGameState[];
+      const _state2Units = Object.values(
+        session2.currentState.units,
+      ) as IUnitGameState[];
 
-       const state1 = session1.currentState;
-       const state2 = session2.currentState;
-       let _hasDifference = false;
-       for (const unitId of Object.keys(state1.units)) {
-         if (state2.units[unitId]) {
-           if (
-             state1.units[unitId].position.q !== state2.units[unitId].position.q ||
-             state1.units[unitId].position.r !== state2.units[unitId].position.r
-           ) {
-             _hasDifference = true;
-             break;
-           }
-         }
-       }
+      const state1 = session1.currentState;
+      const state2 = session2.currentState;
+      let _hasDifference = false;
+      for (const unitId of Object.keys(state1.units)) {
+        if (state2.units[unitId]) {
+          if (
+            state1.units[unitId].position.q !==
+              state2.units[unitId].position.q ||
+            state1.units[unitId].position.r !== state2.units[unitId].position.r
+          ) {
+            _hasDifference = true;
+            break;
+          }
+        }
+      }
 
       expect(session1.units.length).toBe(session2.units.length);
     });
@@ -271,7 +292,9 @@ describe('ScenarioGenerator', () => {
       const random = new SeededRandom(config.seed);
       const session = generator.generate(config, random);
 
-      const allUnits = Object.values(session.currentState.units) as IUnitGameState[];
+      const allUnits = Object.values(
+        session.currentState.units,
+      ) as IUnitGameState[];
       const playerUnits = allUnits.filter((u) => u.side === GameSide.Player);
 
       const rValues = playerUnits.map((u) => u.position.r);
@@ -285,14 +308,20 @@ describe('ScenarioGenerator', () => {
       const random = new SeededRandom(config.seed);
       const session = generator.generate(config, random);
 
-      const allUnits = Object.values(session.currentState.units) as IUnitGameState[];
+      const allUnits = Object.values(
+        session.currentState.units,
+      ) as IUnitGameState[];
       const playerUnits = allUnits.filter((u) => u.side === GameSide.Player);
-      const opponentUnits = allUnits.filter((u) => u.side === GameSide.Opponent);
+      const opponentUnits = allUnits.filter(
+        (u) => u.side === GameSide.Opponent,
+      );
 
       const avgPlayerR =
-        playerUnits.reduce((sum, u) => sum + u.position.r, 0) / playerUnits.length;
+        playerUnits.reduce((sum, u) => sum + u.position.r, 0) /
+        playerUnits.length;
       const avgOpponentR =
-        opponentUnits.reduce((sum, u) => sum + u.position.r, 0) / opponentUnits.length;
+        opponentUnits.reduce((sum, u) => sum + u.position.r, 0) /
+        opponentUnits.length;
 
       expect(avgPlayerR * avgOpponentR).toBeLessThan(0);
     });
@@ -344,7 +373,9 @@ describe('ScenarioGenerator', () => {
       const random = new SeededRandom(config.seed);
       const session = generator.generate(config, random);
 
-      expect([GameStatus.Setup, GameStatus.Active]).toContain(session.currentState.status);
+      expect([GameStatus.Setup, GameStatus.Active]).toContain(
+        session.currentState.status,
+      );
     });
 
     it('should initialize all units as not destroyed', () => {

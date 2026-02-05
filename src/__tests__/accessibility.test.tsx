@@ -1,12 +1,16 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { KPICard } from '@/components/simulation-viewer/KPICard';
-import { TrendChart } from '@/components/simulation-viewer/TrendChart';
+import React from 'react';
+
+import type { IFilterDefinition } from '@/components/simulation-viewer/types';
+import type { IAnomaly } from '@/types/simulation-viewer';
+
 import { AnomalyAlertCard } from '@/components/simulation-viewer/AnomalyAlertCard';
-import { TabNavigation } from '@/components/simulation-viewer/TabNavigation';
 import { DrillDownLink } from '@/components/simulation-viewer/DrillDownLink';
 import { FilterPanel } from '@/components/simulation-viewer/FilterPanel';
+import { KPICard } from '@/components/simulation-viewer/KPICard';
+import { TabNavigation } from '@/components/simulation-viewer/TabNavigation';
+import { TrendChart } from '@/components/simulation-viewer/TrendChart';
 import {
   announce,
   trapFocus,
@@ -16,8 +20,6 @@ import {
   FOCUS_RING_INSET_CLASSES,
   SR_ONLY_CLASSES,
 } from '@/utils/accessibility';
-import type { IAnomaly } from '@/types/simulation-viewer';
-import type { IFilterDefinition } from '@/components/simulation-viewer/types';
 
 expect.extend(toHaveNoViolations);
 
@@ -132,9 +134,7 @@ describe('Accessibility Tests', () => {
 
   describe('AnomalyAlertCard', () => {
     it('should have no axe violations', async () => {
-      const { container } = render(
-        <AnomalyAlertCard anomaly={mockAnomaly} />,
-      );
+      const { container } = render(<AnomalyAlertCard anomaly={mockAnomaly} />);
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
@@ -170,9 +170,7 @@ describe('Accessibility Tests', () => {
     it('action buttons should be keyboard accessible', () => {
       jest.useFakeTimers();
       const onDismiss = jest.fn();
-      render(
-        <AnomalyAlertCard anomaly={mockAnomaly} onDismiss={onDismiss} />,
-      );
+      render(<AnomalyAlertCard anomaly={mockAnomaly} onDismiss={onDismiss} />);
       const dismissButton = screen.getByText('Dismiss');
 
       fireEvent.keyDown(dismissButton, { key: 'Enter' });
@@ -186,7 +184,10 @@ describe('Accessibility Tests', () => {
     it('should have no axe violations', async () => {
       const { container } = render(
         <>
-          <TabNavigation activeTab="campaign-dashboard" onTabChange={() => {}} />
+          <TabNavigation
+            activeTab="campaign-dashboard"
+            onTabChange={() => {}}
+          />
           <div id="panel-campaign-dashboard" role="tabpanel" />
           <div id="panel-encounter-history" role="tabpanel" hidden />
           <div id="panel-analysis-bugs" role="tabpanel" hidden />
@@ -265,8 +266,14 @@ describe('Accessibility Tests', () => {
         <TabNavigation activeTab="campaign-dashboard" onTabChange={() => {}} />,
       );
       const tabs = screen.getAllByRole('tab');
-      expect(tabs[0]).toHaveAttribute('aria-controls', 'panel-campaign-dashboard');
-      expect(tabs[1]).toHaveAttribute('aria-controls', 'panel-encounter-history');
+      expect(tabs[0]).toHaveAttribute(
+        'aria-controls',
+        'panel-campaign-dashboard',
+      );
+      expect(tabs[1]).toHaveAttribute(
+        'aria-controls',
+        'panel-encounter-history',
+      );
       expect(tabs[2]).toHaveAttribute('aria-controls', 'panel-analysis-bugs');
     });
   });

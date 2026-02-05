@@ -1,15 +1,15 @@
 /**
  * SQLite Database Service
- * 
+ *
  * Provides SQLite database initialization and connection management.
  * Supports both Electron desktop and self-hosted web deployments.
- * 
+ *
  * @spec openspec/specs/persistence-services/spec.md
  */
 
 import Database from 'better-sqlite3';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 
 /**
  * Database configuration
@@ -271,7 +271,7 @@ export class SQLiteService implements ISQLiteService {
 
     // Enable WAL mode for better concurrency
     this.db.pragma('journal_mode = WAL');
-    
+
     // Enable foreign keys
     this.db.pragma('foreign_keys = ON');
 
@@ -340,23 +340,30 @@ export class SQLiteService implements ISQLiteService {
 
     try {
       // Check if migrations table exists
-      const tableExists = this.db.prepare(`
+      const tableExists = this.db
+        .prepare(`
         SELECT name FROM sqlite_master 
         WHERE type='table' AND name='migrations'
-      `).get();
+      `)
+        .get();
 
       if (!tableExists) {
         return 0;
       }
 
       // Get max version
-      const result = this.db.prepare(`
+      const result = this.db
+        .prepare(`
         SELECT MAX(version) as version FROM migrations
-      `).get() as { version: number | null } | undefined;
+      `)
+        .get() as { version: number | null } | undefined;
 
       return result?.version ?? 0;
     } catch (error) {
-      console.error('[SQLiteService] Failed to get current migration version:', error);
+      console.error(
+        '[SQLiteService] Failed to get current migration version:',
+        error,
+      );
       return 0;
     }
   }
@@ -375,15 +382,19 @@ export class SQLiteService implements ISQLiteService {
     // Record migration after tables are created
     try {
       // Check if this migration is already recorded
-      const existing = this.db.prepare(`
+      const existing = this.db
+        .prepare(`
         SELECT 1 FROM migrations WHERE version = ?
-      `).get(migration.version);
+      `)
+        .get(migration.version);
 
       if (!existing) {
-        this.db.prepare(`
+        this.db
+          .prepare(`
           INSERT INTO migrations (version, name, applied_at)
           VALUES (?, ?, ?)
-        `).run(migration.version, migration.name, new Date().toISOString());
+        `)
+          .run(migration.version, migration.name, new Date().toISOString());
       }
     } catch (err) {
       console.warn(`Could not record migration ${migration.version}:`, err);
@@ -399,7 +410,9 @@ let sqliteServiceInstance: SQLiteService | null = null;
 /**
  * Get or create the SQLite service singleton
  */
-export function getSQLiteService(config?: Partial<IDatabaseConfig>): SQLiteService {
+export function getSQLiteService(
+  config?: Partial<IDatabaseConfig>,
+): SQLiteService {
   if (!sqliteServiceInstance) {
     sqliteServiceInstance = new SQLiteService(config);
   }
@@ -417,4 +430,3 @@ export function resetSQLiteService(): void {
 }
 
 export { DEFAULT_CONFIG as DATABASE_CONFIG };
-

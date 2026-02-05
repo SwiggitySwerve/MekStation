@@ -6,6 +6,11 @@
  */
 
 import {
+  IAcquisitionRequest,
+  AvailabilityRating,
+} from '@/types/campaign/acquisition/acquisitionTypes';
+
+import {
   createShoppingList,
   addRequest,
   removeRequest,
@@ -15,11 +20,12 @@ import {
   getInTransitRequests,
   getDeliveredRequests,
 } from '../shoppingList';
-import { IAcquisitionRequest, IShoppingList, AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 
 describe('Shopping List Queue Management', () => {
   // Helper to create test requests
-  const createTestRequest = (overrides?: Partial<IAcquisitionRequest>): IAcquisitionRequest => ({
+  const createTestRequest = (
+    overrides?: Partial<IAcquisitionRequest>,
+  ): IAcquisitionRequest => ({
     id: 'req-1',
     partId: 'part-1',
     partName: 'Test Part',
@@ -163,7 +169,11 @@ describe('Shopping List Queue Management', () => {
     });
 
     it('should update multiple fields', () => {
-      const req1 = createTestRequest({ id: 'req-1', attempts: 0, status: 'pending' });
+      const req1 = createTestRequest({
+        id: 'req-1',
+        attempts: 0,
+        status: 'pending',
+      });
       let list = createShoppingList();
       list = addRequest(list, req1);
 
@@ -183,7 +193,9 @@ describe('Shopping List Queue Management', () => {
       let list = createShoppingList();
       list = addRequest(list, req1);
 
-      const updated = updateRequest(list, 'nonexistent', { status: 'in_transit' });
+      const updated = updateRequest(list, 'nonexistent', {
+        status: 'in_transit',
+      });
 
       expect(updated.items[0].status).toBe('pending');
     });

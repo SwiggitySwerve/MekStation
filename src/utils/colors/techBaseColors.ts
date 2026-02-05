@@ -1,16 +1,16 @@
 /**
  * Tech Base Color System
- * 
+ *
  * Colors to distinguish Inner Sphere and Clan technology.
  * Per spec: TechBase is binary (INNER_SPHERE or CLAN only).
  * Mixed tech is a unit-level mode, not a component tech base value.
- * 
+ *
  * @spec openspec/specs/color-system/spec.md
  * @spec openspec/specs/validation-rules-master/spec.md (VAL-ENUM-001, VAL-ENUM-004)
  */
 
-import { TechBase } from '@/types/enums/TechBase';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import { TechBase } from '@/types/enums/TechBase';
 
 /**
  * Tech base color definitions
@@ -25,7 +25,7 @@ export interface TechBaseColorDefinition {
 
 /**
  * Component tech base colors (binary: IS or Clan only)
- * 
+ *
  * - Inner Sphere: blue (text-blue-400)
  * - Clan: green (text-green-400)
  */
@@ -50,7 +50,10 @@ export const TECH_BASE_COLORS: Record<TechBase, TechBaseColorDefinition> = {
  * Unit-level tech base mode colors (for mixed tech display)
  * Note: This is for UI display of unit modes, not component tech base
  */
-export const TECH_BASE_MODE_COLORS: Record<TechBaseMode, TechBaseColorDefinition> = {
+export const TECH_BASE_MODE_COLORS: Record<
+  TechBaseMode,
+  TechBaseColorDefinition
+> = {
   inner_sphere: TECH_BASE_COLORS[TechBase.INNER_SPHERE],
   clan: TECH_BASE_COLORS[TechBase.CLAN],
   mixed: {
@@ -83,7 +86,9 @@ export function getTechBaseColors(techBase: TechBase): TechBaseColorDefinition {
 /**
  * Get colors for a unit-level tech base mode
  */
-export function getTechBaseModeColors(mode: TechBaseMode): TechBaseColorDefinition {
+export function getTechBaseModeColors(
+  mode: TechBaseMode,
+): TechBaseColorDefinition {
   return TECH_BASE_MODE_COLORS[mode] || DEFAULT_TECH_COLORS;
 }
 
@@ -124,4 +129,3 @@ export function getTechBaseModeShortName(mode: TechBaseMode): string {
       return String(mode);
   }
 }
-

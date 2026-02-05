@@ -6,11 +6,17 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { WarShipUnitHandler, createWarShipHandler } from '../WarShipUnitHandler';
+import { TechBase, RulesLevel } from '../../../../types/enums';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { TechBase, RulesLevel } from '../../../../types/enums';
-import { CapitalArc, KFDriveType } from '../../../../types/unit/CapitalShipInterfaces';
+import {
+  CapitalArc,
+  KFDriveType,
+} from '../../../../types/unit/CapitalShipInterfaces';
+import {
+  WarShipUnitHandler,
+  createWarShipHandler,
+} from '../WarShipUnitHandler';
 
 // ============================================================================
 // Test Fixtures
@@ -19,7 +25,9 @@ import { CapitalArc, KFDriveType } from '../../../../types/unit/CapitalShipInter
 /**
  * Create a mock BLK document for WarShip testing
  */
-function createMockBlkDocument(overrides: Partial<IBlkDocument> = {}): IBlkDocument {
+function createMockBlkDocument(
+  overrides: Partial<IBlkDocument> = {},
+): IBlkDocument {
   return {
     blockVersion: 1,
     version: 'MAM0',
@@ -213,7 +221,9 @@ describe('WarShipUnitHandler', () => {
 
       expect(result.success).toBe(true);
       expect(result.data?.unit?.gravityDecks.length).toBe(3);
-      expect(result.data?.unit?.gravityDecks.some((d) => d.size === 'Large')).toBe(true);
+      expect(
+        result.data?.unit?.gravityDecks.some((d) => d.size === 'Large'),
+      ).toBe(true);
     });
 
     it('should parse docking hardpoints', () => {
@@ -250,7 +260,9 @@ describe('WarShipUnitHandler', () => {
       expect(result.success).toBe(true);
       expect(result.data?.unit?.equipment.length).toBeGreaterThan(0);
 
-      const noseWeapon = result.data?.unit?.equipment.find((e) => e.arc === CapitalArc.NOSE);
+      const noseWeapon = result.data?.unit?.equipment.find(
+        (e) => e.arc === CapitalArc.NOSE,
+      );
       expect(noseWeapon).toBeDefined();
     });
 
@@ -260,7 +272,7 @@ describe('WarShipUnitHandler', () => {
 
       expect(result.success).toBe(true);
       const capitalWeapon = result.data?.unit?.equipment.find((e) =>
-        e.name.toLowerCase().includes('naval')
+        e.name.toLowerCase().includes('naval'),
       );
       expect(capitalWeapon?.isCapital).toBe(true);
     });
@@ -306,7 +318,9 @@ describe('WarShipUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const validateResult = handler.validate(parseResult.data!.unit);
-      expect(validateResult.warnings.some((w) => w.includes('unusually low'))).toBe(true);
+      expect(
+        validateResult.warnings.some((w) => w.includes('unusually low')),
+      ).toBe(true);
     });
 
     it('should error for excessive tonnage', () => {
@@ -316,7 +330,9 @@ describe('WarShipUnitHandler', () => {
 
       const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(false);
-      expect(validateResult.errors.some((e) => e.includes('2,500,000'))).toBe(true);
+      expect(validateResult.errors.some((e) => e.includes('2,500,000'))).toBe(
+        true,
+      );
     });
 
     it('should error for zero safe thrust', () => {
@@ -326,7 +342,9 @@ describe('WarShipUnitHandler', () => {
 
       const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(false);
-      expect(validateResult.errors.some((e) => e.includes('thrust'))).toBe(true);
+      expect(validateResult.errors.some((e) => e.includes('thrust'))).toBe(
+        true,
+      );
     });
 
     it('should error for zero structural integrity', () => {
@@ -345,7 +363,9 @@ describe('WarShipUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const validateResult = handler.validate(parseResult.data!.unit);
-      expect(validateResult.warnings.some((w) => w.includes('small crew'))).toBe(true);
+      expect(
+        validateResult.warnings.some((w) => w.includes('small crew')),
+      ).toBe(true);
     });
 
     it('should warn for no gravity decks', () => {
@@ -356,7 +376,9 @@ describe('WarShipUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const validateResult = handler.validate(parseResult.data!.unit);
-      expect(validateResult.warnings.some((w) => w.includes('gravity decks'))).toBe(true);
+      expect(
+        validateResult.warnings.some((w) => w.includes('gravity decks')),
+      ).toBe(true);
     });
   });
 
@@ -472,7 +494,9 @@ describe('WarShipUnitHandler', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error!.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
+      expect(
+        result.error!.errors.some((e) => e.includes('not yet implemented')),
+      ).toBe(true);
     });
   });
 });

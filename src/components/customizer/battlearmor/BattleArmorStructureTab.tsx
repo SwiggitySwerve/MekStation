@@ -7,14 +7,16 @@
  */
 
 import React, { useCallback } from 'react';
+
 import { useBattleArmorStore } from '@/stores/useBattleArmorStore';
+import { TechBase } from '@/types/enums/TechBase';
+import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
   BattleArmorChassisType,
   BattleArmorWeightClass,
   ManipulatorType,
 } from '@/types/unit/PersonnelInterfaces';
-import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { TechBase } from '@/types/enums/TechBase';
+
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -77,14 +79,14 @@ export function BattleArmorStructureTab({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!readOnly) setChassis(e.target.value);
     },
-    [setChassis, readOnly]
+    [setChassis, readOnly],
   );
 
   const handleModelChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!readOnly) setModel(e.target.value);
     },
-    [setModel, readOnly]
+    [setModel, readOnly],
   );
 
   return (
@@ -92,7 +94,7 @@ export function BattleArmorStructureTab({
       {/* Identity Section */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Identity</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className={cs.text.label}>Chassis Name</label>
             <input
@@ -117,7 +119,9 @@ export function BattleArmorStructureTab({
             <label className={cs.text.label}>Tech Base</label>
             <select
               value={techBase}
-              onChange={(e) => !readOnly && setTechBase(e.target.value as TechBase)}
+              onChange={(e) =>
+                !readOnly && setTechBase(e.target.value as TechBase)
+              }
               disabled={readOnly}
               className={cs.select.full}
             >
@@ -131,17 +135,22 @@ export function BattleArmorStructureTab({
       {/* Chassis Configuration */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Chassis Configuration</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label className={cs.text.label}>Chassis Type</label>
             <select
               value={chassisType}
-              onChange={(e) => !readOnly && setChassisType(e.target.value as BattleArmorChassisType)}
+              onChange={(e) =>
+                !readOnly &&
+                setChassisType(e.target.value as BattleArmorChassisType)
+              }
               disabled={readOnly}
               className={cs.select.full}
             >
               {CHASSIS_TYPE_OPTIONS.map((type) => (
-                <option key={type} value={type}>{type}</option>
+                <option key={type} value={type}>
+                  {type}
+                </option>
               ))}
             </select>
           </div>
@@ -149,12 +158,17 @@ export function BattleArmorStructureTab({
             <label className={cs.text.label}>Weight Class</label>
             <select
               value={weightClass}
-              onChange={(e) => !readOnly && setWeightClass(e.target.value as BattleArmorWeightClass)}
+              onChange={(e) =>
+                !readOnly &&
+                setWeightClass(e.target.value as BattleArmorWeightClass)
+              }
               disabled={readOnly}
               className={cs.select.full}
             >
               {WEIGHT_CLASS_OPTIONS.map((wc) => (
-                <option key={wc} value={wc}>{wc}</option>
+                <option key={wc} value={wc}>
+                  {wc}
+                </option>
               ))}
             </select>
           </div>
@@ -163,7 +177,9 @@ export function BattleArmorStructureTab({
             <input
               type="number"
               value={weightPerTrooper}
-              onChange={(e) => !readOnly && setWeightPerTrooper(Number(e.target.value))}
+              onChange={(e) =>
+                !readOnly && setWeightPerTrooper(Number(e.target.value))
+              }
               disabled={readOnly}
               min={400}
               max={2000}
@@ -177,17 +193,21 @@ export function BattleArmorStructureTab({
       {/* Movement */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Movement</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label className={cs.text.label}>Motion Type</label>
             <select
               value={motionType}
-              onChange={(e) => !readOnly && setMotionType(e.target.value as SquadMotionType)}
+              onChange={(e) =>
+                !readOnly && setMotionType(e.target.value as SquadMotionType)
+              }
               disabled={readOnly}
               className={cs.select.full}
             >
               {MOTION_TYPE_OPTIONS.map((type) => (
-                <option key={type} value={type}>{type}</option>
+                <option key={type} value={type}>
+                  {type}
+                </option>
               ))}
             </select>
           </div>
@@ -221,17 +241,22 @@ export function BattleArmorStructureTab({
       {/* Manipulators */}
       <div className={cs.panel.main}>
         <h3 className={cs.text.sectionTitle}>Manipulators</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className={cs.text.label}>Left Manipulator</label>
             <select
               value={leftManipulator}
-              onChange={(e) => !readOnly && setLeftManipulator(e.target.value as ManipulatorType)}
+              onChange={(e) =>
+                !readOnly &&
+                setLeftManipulator(e.target.value as ManipulatorType)
+              }
               disabled={readOnly}
               className={cs.select.full}
             >
               {MANIPULATOR_OPTIONS.map((type) => (
-                <option key={type} value={type}>{type}</option>
+                <option key={type} value={type}>
+                  {type}
+                </option>
               ))}
             </select>
           </div>
@@ -239,12 +264,17 @@ export function BattleArmorStructureTab({
             <label className={cs.text.label}>Right Manipulator</label>
             <select
               value={rightManipulator}
-              onChange={(e) => !readOnly && setRightManipulator(e.target.value as ManipulatorType)}
+              onChange={(e) =>
+                !readOnly &&
+                setRightManipulator(e.target.value as ManipulatorType)
+              }
               disabled={readOnly}
               className={cs.select.full}
             >
               {MANIPULATOR_OPTIONS.map((type) => (
-                <option key={type} value={type}>{type}</option>
+                <option key={type} value={type}>
+                  {type}
+                </option>
               ))}
             </select>
           </div>

@@ -38,10 +38,22 @@ export { useCustomizerSettingsStore } from './useCustomizerSettingsStore';
 export { useAccessibilityStore } from './useAccessibilityStore';
 export { useUIBehaviorStore } from './useUIBehaviorStore';
 
-// Import focused stores for combined store
-import { useAppearanceStore, type AccentColor, type FontSize, type AnimationLevel, type UITheme, type AppearanceSettings } from './useAppearanceStore';
-import { useCustomizerSettingsStore, type ArmorDiagramMode, type ArmorDiagramVariant, type CustomizerSettings } from './useCustomizerSettingsStore';
 import { useAccessibilityStore } from './useAccessibilityStore';
+// Import focused stores for combined store
+import {
+  useAppearanceStore,
+  type AccentColor,
+  type FontSize,
+  type AnimationLevel,
+  type UITheme,
+  type AppearanceSettings,
+} from './useAppearanceStore';
+import {
+  useCustomizerSettingsStore,
+  type ArmorDiagramMode,
+  type ArmorDiagramVariant,
+  type CustomizerSettings,
+} from './useCustomizerSettingsStore';
 import { useUIBehaviorStore } from './useUIBehaviorStore';
 
 /**
@@ -126,15 +138,39 @@ export interface AppSettingsState {
 
 /** Keys that are action functions, not state */
 type ActionKeys =
-  | 'setAccentColor' | 'setFontSize' | 'setAnimationLevel' | 'setCompactMode' | 'setUITheme'
-  | 'setDraftAccentColor' | 'setDraftFontSize' | 'setDraftAnimationLevel' | 'setDraftCompactMode' | 'setDraftUITheme'
-  | 'saveUITheme' | 'saveOtherAppearance' | 'revertAppearance' | 'initDraftAppearance'
-  | 'getEffectiveAccentColor' | 'getEffectiveUITheme' | 'getEffectiveFontSize'
-  | 'setDraftArmorDiagramMode' | 'setDraftArmorDiagramVariant'
-  | 'saveCustomizer' | 'revertCustomizer' | 'initDraftCustomizer'
-  | 'getEffectiveArmorDiagramMode' | 'getEffectiveArmorDiagramVariant'
-  | 'setArmorDiagramMode' | 'setArmorDiagramVariant' | 'setShowArmorDiagramSelector' | 'setSidebarDefaultCollapsed'
-  | 'setConfirmOnClose' | 'setShowTooltips' | 'setHighContrast' | 'setReduceMotion' | 'resetToDefaults';
+  | 'setAccentColor'
+  | 'setFontSize'
+  | 'setAnimationLevel'
+  | 'setCompactMode'
+  | 'setUITheme'
+  | 'setDraftAccentColor'
+  | 'setDraftFontSize'
+  | 'setDraftAnimationLevel'
+  | 'setDraftCompactMode'
+  | 'setDraftUITheme'
+  | 'saveUITheme'
+  | 'saveOtherAppearance'
+  | 'revertAppearance'
+  | 'initDraftAppearance'
+  | 'getEffectiveAccentColor'
+  | 'getEffectiveUITheme'
+  | 'getEffectiveFontSize'
+  | 'setDraftArmorDiagramMode'
+  | 'setDraftArmorDiagramVariant'
+  | 'saveCustomizer'
+  | 'revertCustomizer'
+  | 'initDraftCustomizer'
+  | 'getEffectiveArmorDiagramMode'
+  | 'getEffectiveArmorDiagramVariant'
+  | 'setArmorDiagramMode'
+  | 'setArmorDiagramVariant'
+  | 'setShowArmorDiagramSelector'
+  | 'setSidebarDefaultCollapsed'
+  | 'setConfirmOnClose'
+  | 'setShowTooltips'
+  | 'setHighContrast'
+  | 'setReduceMotion'
+  | 'resetToDefaults';
 
 const DEFAULT_SETTINGS: Omit<AppSettingsState, ActionKeys> = {
   // Appearance
@@ -170,10 +206,10 @@ const DEFAULT_SETTINGS: Omit<AppSettingsState, ActionKeys> = {
 
 /**
  * Combined app settings store for backward compatibility.
- * 
+ *
  * This store delegates to focused stores internally while maintaining
  * the same external API. For new code, prefer using the focused stores directly.
- * 
+ *
  * @deprecated Use focused stores (useAppearanceStore, useCustomizerSettingsStore, etc.) for new code
  */
 export const useAppSettingsStore = create<AppSettingsState>()(
@@ -364,17 +400,22 @@ export const useAppSettingsStore = create<AppSettingsState>()(
         set((state) => ({
           draftCustomizer: {
             armorDiagramMode: mode,
-            armorDiagramVariant: state.draftCustomizer?.armorDiagramVariant ?? state.armorDiagramVariant,
+            armorDiagramVariant:
+              state.draftCustomizer?.armorDiagramVariant ??
+              state.armorDiagramVariant,
           },
           hasUnsavedCustomizer: true,
         }));
       },
 
       setDraftArmorDiagramVariant: (variant) => {
-        useCustomizerSettingsStore.getState().setDraftArmorDiagramVariant(variant);
+        useCustomizerSettingsStore
+          .getState()
+          .setDraftArmorDiagramVariant(variant);
         set((state) => ({
           draftCustomizer: {
-            armorDiagramMode: state.draftCustomizer?.armorDiagramMode ?? state.armorDiagramMode,
+            armorDiagramMode:
+              state.draftCustomizer?.armorDiagramMode ?? state.armorDiagramMode,
             armorDiagramVariant: variant,
           },
           hasUnsavedCustomizer: true,
@@ -417,11 +458,15 @@ export const useAppSettingsStore = create<AppSettingsState>()(
 
       // Getters for effective customizer (draft if exists, otherwise saved)
       getEffectiveArmorDiagramMode: () => {
-        return useCustomizerSettingsStore.getState().getEffectiveArmorDiagramMode();
+        return useCustomizerSettingsStore
+          .getState()
+          .getEffectiveArmorDiagramMode();
       },
 
       getEffectiveArmorDiagramVariant: () => {
-        return useCustomizerSettingsStore.getState().getEffectiveArmorDiagramVariant();
+        return useCustomizerSettingsStore
+          .getState()
+          .getEffectiveArmorDiagramVariant();
       },
 
       // Other settings (immediately persisted)
@@ -491,6 +536,6 @@ export const useAppSettingsStore = create<AppSettingsState>()(
         highContrast: state.highContrast,
         reduceMotion: state.reduceMotion,
       }),
-    }
-  )
+    },
+  ),
 );

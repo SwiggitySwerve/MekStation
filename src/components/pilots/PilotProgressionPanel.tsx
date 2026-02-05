@@ -1,13 +1,14 @@
 /**
  * Pilot Progression Panel
- * 
+ *
  * Displays pilot XP, skills, and upgrade options.
  * Allows skill advancement and opens ability purchase modal.
- * 
+ *
  * @spec openspec/changes/add-pilot-system/specs/pilot-system/spec.md
  */
 
 import React, { useState, useMemo } from 'react';
+
 import { Button, Badge, Card } from '@/components/ui';
 import { usePilotStore } from '@/stores/usePilotStore';
 import {
@@ -18,6 +19,7 @@ import {
   getAbility,
   MIN_SKILL_VALUE,
 } from '@/types/pilot';
+
 import { AbilityPurchaseModal } from './AbilityPurchaseModal';
 
 // =============================================================================
@@ -55,7 +57,7 @@ function SkillUpgradeRow({
   const skillLabel = getSkillLabel(currentValue);
   const canAfford = xpCost !== null && availableXp >= xpCost;
   const isMaxed = currentValue <= MIN_SKILL_VALUE;
-  
+
   // Color based on skill level
   const getSkillColor = (value: number): string => {
     if (value <= 2) return 'text-emerald-400';
@@ -64,8 +66,10 @@ function SkillUpgradeRow({
     if (value <= 5) return 'text-orange-400';
     return 'text-red-400';
   };
-  
-  const getBadgeVariant = (value: number): 'emerald' | 'cyan' | 'amber' | 'orange' | 'red' => {
+
+  const getBadgeVariant = (
+    value: number,
+  ): 'emerald' | 'cyan' | 'amber' | 'orange' | 'red' => {
     if (value <= 2) return 'emerald';
     if (value <= 3) return 'cyan';
     if (value <= 4) return 'amber';
@@ -74,24 +78,29 @@ function SkillUpgradeRow({
   };
 
   return (
-    <div className="flex items-center justify-between p-4 bg-surface-raised/30 rounded-lg border border-border-theme-subtle/50 group hover:border-border-theme/50 transition-all">
+    <div className="bg-surface-raised/30 border-border-theme-subtle/50 group hover:border-border-theme/50 flex items-center justify-between rounded-lg border p-4 transition-all">
       {/* Skill Info */}
       <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-lg bg-surface-deep/80 flex items-center justify-center border border-border-theme-subtle">
-          <span className={`text-2xl font-bold tabular-nums ${getSkillColor(currentValue)}`}>
+        <div className="bg-surface-deep/80 border-border-theme-subtle flex h-14 w-14 items-center justify-center rounded-lg border">
+          <span
+            className={`text-2xl font-bold tabular-nums ${getSkillColor(currentValue)}`}
+          >
             {currentValue}
           </span>
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-text-theme-primary font-semibold">{label}</span>
+            <span className="text-text-theme-primary font-semibold">
+              {label}
+            </span>
             <Badge variant={getBadgeVariant(currentValue)} size="sm">
               {skillLabel}
             </Badge>
           </div>
           {!isMaxed && xpCost !== null && (
-            <p className="text-xs text-text-theme-secondary mt-1">
-              Upgrade cost: <span className="text-accent font-medium">{xpCost} XP</span>
+            <p className="text-text-theme-secondary mt-1 text-xs">
+              Upgrade cost:{' '}
+              <span className="text-accent font-medium">{xpCost} XP</span>
               {currentValue > 1 && (
                 <span className="text-text-theme-muted ml-2">
                   ({currentValue} &rarr; {currentValue - 1})
@@ -100,16 +109,20 @@ function SkillUpgradeRow({
             </p>
           )}
           {isMaxed && (
-            <p className="text-xs text-emerald-400 mt-1 flex items-center gap-1">
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            <p className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
+              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
               </svg>
               Maximum level reached
             </p>
           )}
         </div>
       </div>
-      
+
       {/* Upgrade Button */}
       <Button
         variant={canAfford ? 'primary' : 'secondary'}
@@ -118,9 +131,20 @@ function SkillUpgradeRow({
         onClick={onUpgrade}
         isLoading={isUpgrading}
         leftIcon={
-          !isUpgrading && !isMaxed && (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          !isUpgrading &&
+          !isMaxed && (
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 10l7-7m0 0l7 7m-7-7v18"
+              />
             </svg>
           )
         }
@@ -136,17 +160,20 @@ interface OwnedAbilityCardProps {
   acquiredDate: string;
 }
 
-function OwnedAbilityCard({ abilityId, acquiredDate }: OwnedAbilityCardProps): React.ReactElement {
+function OwnedAbilityCard({
+  abilityId,
+  acquiredDate,
+}: OwnedAbilityCardProps): React.ReactElement {
   const ability = getAbility(abilityId);
-  
+
   if (!ability) {
     return (
-      <div className="p-3 bg-surface-raised/20 rounded-lg border border-border-theme-subtle/30 text-text-theme-muted text-sm">
+      <div className="bg-surface-raised/20 border-border-theme-subtle/30 text-text-theme-muted rounded-lg border p-3 text-sm">
         Unknown ability: {abilityId}
       </div>
     );
   }
-  
+
   const formattedDate = new Date(acquiredDate).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -154,26 +181,34 @@ function OwnedAbilityCard({ abilityId, acquiredDate }: OwnedAbilityCardProps): R
   });
 
   return (
-    <div className="p-4 bg-gradient-to-br from-surface-raised/40 to-surface-raised/20 rounded-lg border border-accent/20 hover:border-accent/40 transition-all group">
+    <div className="from-surface-raised/40 to-surface-raised/20 border-accent/20 hover:border-accent/40 group rounded-lg border bg-gradient-to-br p-4 transition-all">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <h4 className="text-text-theme-primary font-semibold group-hover:text-accent transition-colors">
+        <div className="min-w-0 flex-1">
+          <h4 className="text-text-theme-primary group-hover:text-accent font-semibold transition-colors">
             {ability.name}
           </h4>
-          <p className="text-xs text-text-theme-secondary mt-1 line-clamp-2">
+          <p className="text-text-theme-secondary mt-1 line-clamp-2 text-xs">
             {ability.description}
           </p>
         </div>
         <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-            <svg className="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          <div className="bg-accent/20 flex h-8 w-8 items-center justify-center rounded-full">
+            <svg
+              className="text-accent h-4 w-4"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
             </svg>
           </div>
         </div>
       </div>
-      <div className="mt-2 pt-2 border-t border-border-theme-subtle/30">
-        <span className="text-xs text-text-theme-muted">
+      <div className="border-border-theme-subtle/30 mt-2 border-t pt-2">
+        <span className="text-text-theme-muted text-xs">
           Acquired {formattedDate}
         </span>
       </div>
@@ -193,16 +228,19 @@ export function PilotProgressionPanel({
   const [isUpgradingGunnery, setIsUpgradingGunnery] = useState(false);
   const [isUpgradingPiloting, setIsUpgradingPiloting] = useState(false);
   const [isAbilityModalOpen, setIsAbilityModalOpen] = useState(false);
-  
+
   // Calculate XP and costs
   const availableXp = pilot.career?.xp ?? 0;
   const totalXpEarned = pilot.career?.totalXpEarned ?? 0;
   const gunneryCost = getGunneryImprovementCost(pilot.skills.gunnery);
   const pilotingCost = getPilotingImprovementCost(pilot.skills.piloting);
-  
+
   // Owned abilities
-  const ownedAbilities = useMemo(() => pilot.abilities || [], [pilot.abilities]);
-  
+  const ownedAbilities = useMemo(
+    () => pilot.abilities || [],
+    [pilot.abilities],
+  );
+
   // Handlers
   const handleUpgradeGunnery = async () => {
     setIsUpgradingGunnery(true);
@@ -212,7 +250,7 @@ export function PilotProgressionPanel({
       onUpdate?.();
     }
   };
-  
+
   const handleUpgradePiloting = async () => {
     setIsUpgradingPiloting(true);
     const success = await improvePiloting(pilot.id);
@@ -221,7 +259,7 @@ export function PilotProgressionPanel({
       onUpdate?.();
     }
   };
-  
+
   const handleAbilityPurchased = () => {
     onUpdate?.();
   };
@@ -232,50 +270,67 @@ export function PilotProgressionPanel({
       <Card variant="accent-left" accentColor="amber" className="p-5">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-text-theme-primary flex items-center gap-2">
-              <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <h3 className="text-text-theme-primary flex items-center gap-2 text-lg font-semibold">
+              <svg
+                className="text-accent h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
               </svg>
               Experience Points
             </h3>
-            <p className="text-sm text-text-theme-secondary mt-1">
+            <p className="text-text-theme-secondary mt-1 text-sm">
               Use XP to improve skills and unlock abilities
             </p>
           </div>
           <div className="text-right">
-            <div className="text-4xl font-bold text-accent tabular-nums">
+            <div className="text-accent text-4xl font-bold tabular-nums">
               {availableXp}
             </div>
-            <div className="text-xs text-text-theme-muted mt-1">
+            <div className="text-text-theme-muted mt-1 text-xs">
               {totalXpEarned} total earned
             </div>
           </div>
         </div>
-        
+
         {/* XP Progress Bar */}
-        <div className="mt-4 pt-4 border-t border-border-theme-subtle/30">
-          <div className="flex justify-between text-xs text-text-theme-secondary mb-2">
+        <div className="border-border-theme-subtle/30 mt-4 border-t pt-4">
+          <div className="text-text-theme-secondary mb-2 flex justify-between text-xs">
             <span>Available</span>
             <span>Spent: {totalXpEarned - availableXp} XP</span>
           </div>
-          <div className="h-2 bg-surface-deep rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-accent to-amber-500 transition-all duration-500"
-              style={{ width: totalXpEarned > 0 ? `${(availableXp / totalXpEarned) * 100}%` : '0%' }}
+          <div className="bg-surface-deep h-2 overflow-hidden rounded-full">
+            <div
+              className="from-accent h-full bg-gradient-to-r to-amber-500 transition-all duration-500"
+              style={{
+                width:
+                  totalXpEarned > 0
+                    ? `${(availableXp / totalXpEarned) * 100}%`
+                    : '0%',
+              }}
             />
           </div>
         </div>
       </Card>
-      
+
       {/* Skills Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-text-theme-primary">Combat Skills</h3>
+          <h3 className="text-text-theme-primary text-lg font-semibold">
+            Combat Skills
+          </h3>
           <Badge variant="slate" size="sm">
             {pilot.skills.gunnery}/{pilot.skills.piloting}
           </Badge>
         </div>
-        
+
         <div className="space-y-3">
           <SkillUpgradeRow
             label="Gunnery"
@@ -285,7 +340,7 @@ export function PilotProgressionPanel({
             onUpgrade={handleUpgradeGunnery}
             isUpgrading={isUpgradingGunnery}
           />
-          
+
           <SkillUpgradeRow
             label="Piloting"
             currentValue={pilot.skills.piloting}
@@ -296,34 +351,58 @@ export function PilotProgressionPanel({
           />
         </div>
       </div>
-      
+
       {/* Abilities Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-text-theme-primary">Special Abilities</h3>
+          <h3 className="text-text-theme-primary text-lg font-semibold">
+            Special Abilities
+          </h3>
           <Button
             variant="primary"
             size="sm"
             onClick={() => setIsAbilityModalOpen(true)}
             leftIcon={
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
             }
           >
             Browse Abilities
           </Button>
         </div>
-        
+
         {ownedAbilities.length === 0 ? (
-          <div className="p-8 text-center bg-surface-raised/20 rounded-lg border border-dashed border-border-theme-subtle">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-surface-raised/50 flex items-center justify-center">
-              <svg className="w-6 h-6 text-text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          <div className="bg-surface-raised/20 border-border-theme-subtle rounded-lg border border-dashed p-8 text-center">
+            <div className="bg-surface-raised/50 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
+              <svg
+                className="text-text-theme-muted h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                />
               </svg>
             </div>
-            <p className="text-text-theme-secondary text-sm">No abilities unlocked yet</p>
-            <p className="text-text-theme-muted text-xs mt-1">
+            <p className="text-text-theme-secondary text-sm">
+              No abilities unlocked yet
+            </p>
+            <p className="text-text-theme-muted mt-1 text-xs">
               Spend XP to learn new combat abilities
             </p>
           </div>
@@ -339,14 +418,14 @@ export function PilotProgressionPanel({
           </div>
         )}
       </div>
-      
+
       {/* Error Display */}
       {error && (
-        <div className="p-4 rounded-lg bg-red-900/20 border border-red-600/30">
+        <div className="rounded-lg border border-red-600/30 bg-red-900/20 p-4">
           <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
-      
+
       {/* Ability Purchase Modal */}
       <AbilityPurchaseModal
         isOpen={isAbilityModalOpen}

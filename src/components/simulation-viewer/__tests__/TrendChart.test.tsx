@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { TrendChart } from '../TrendChart';
+import React from 'react';
+
 import type { ITrendChartProps } from '@/components/simulation-viewer/types';
+
+import { TrendChart } from '../TrendChart';
 
 const sampleData = [
   { date: '2026-01-20', value: 100 },
@@ -100,7 +102,9 @@ describe('TrendChart', () => {
 
     it('shows simulation hint in empty state', () => {
       render(<TrendChart data={[]} />);
-      expect(screen.getByText('Data will appear after first simulation')).toBeInTheDocument();
+      expect(
+        screen.getByText('Data will appear after first simulation'),
+      ).toBeInTheDocument();
     });
 
     it('does not render SVG in empty state', () => {
@@ -139,7 +143,9 @@ describe('TrendChart', () => {
           timeRangeOptions={['7d', '30d', '90d']}
         />,
       );
-      const options = screen.getByTestId('time-range-select').querySelectorAll('option');
+      const options = screen
+        .getByTestId('time-range-select')
+        .querySelectorAll('option');
       expect(options).toHaveLength(3);
     });
 
@@ -245,7 +251,9 @@ describe('TrendChart', () => {
 
     it('has dark mode border class on time range select', () => {
       render(<TrendChart {...defaultProps} />);
-      expect(screen.getByTestId('time-range-select')).toHaveClass('dark:border-gray-600');
+      expect(screen.getByTestId('time-range-select')).toHaveClass(
+        'dark:border-gray-600',
+      );
     });
 
     it('empty state has dark mode text classes', () => {

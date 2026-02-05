@@ -18,7 +18,8 @@ export interface IPresetDefinition {
 export const PRESET_CASUAL: IPresetDefinition = {
   id: CampaignPreset.CASUAL,
   name: 'Casual',
-  description: 'Relaxed gameplay with fewer systems. Focus on combat and story without financial or turnover pressure.',
+  description:
+    'Relaxed gameplay with fewer systems. Focus on combat and story without financial or turnover pressure.',
   icon: '☕',
   overrides: {
     useTurnover: false,
@@ -34,7 +35,8 @@ export const PRESET_CASUAL: IPresetDefinition = {
 export const PRESET_STANDARD: IPresetDefinition = {
   id: CampaignPreset.STANDARD,
   name: 'Standard',
-  description: 'Balanced gameplay with core systems enabled. Good starting point for most campaigns.',
+  description:
+    'Balanced gameplay with core systems enabled. Good starting point for most campaigns.',
   icon: '⚔️',
   overrides: {
     useTurnover: true,
@@ -50,7 +52,8 @@ export const PRESET_STANDARD: IPresetDefinition = {
 export const PRESET_FULL: IPresetDefinition = {
   id: CampaignPreset.FULL,
   name: 'Full',
-  description: 'All systems enabled for maximum realism. Taxes, acquisition, food & housing, and full turnover.',
+  description:
+    'All systems enabled for maximum realism. Taxes, acquisition, food & housing, and full turnover.',
   icon: '🏰',
   overrides: {
     useTurnover: true,

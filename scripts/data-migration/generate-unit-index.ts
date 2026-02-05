@@ -1,18 +1,18 @@
 #!/usr/bin/env ts-node
 /**
  * Unit Index Generation Script
- * 
+ *
  * Generates a search index from converted unit files.
  * Can be run standalone or after conversion to update the index.
- * 
+ *
  * Usage:
  *   npx ts-node scripts/data-migration/generate-unit-index.ts [options]
- * 
+ *
  * Options:
  *   --source <path>   Source directory (default: public/data/units)
  *   --output <path>   Output file (default: public/data/units/index.json)
  *   --verbose         Show detailed output
- * 
+ *
  * @spec unit-json.plan.md
  */
 
@@ -81,7 +81,7 @@ interface IndexEntry {
 function parseArgs(): IndexConfig {
   const config = { ...DEFAULT_CONFIG };
   const args = process.argv.slice(2);
-  
+
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
       case '--source':
@@ -98,7 +98,7 @@ function parseArgs(): IndexConfig {
         process.exit(0);
     }
   }
-  
+
   return config;
 }
 
@@ -125,22 +125,22 @@ function log(config: IndexConfig, message: string): void {
 
 function findJsonFiles(dir: string, files: string[] = []): string[] {
   if (!fs.existsSync(dir)) return files;
-  
+
   const entries = fs.readdirSync(dir, { withFileTypes: true });
-  
+
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       findJsonFiles(fullPath, files);
     } else if (
-      entry.isFile() && 
-      entry.name.endsWith('.json') && 
+      entry.isFile() &&
+      entry.name.endsWith('.json') &&
       entry.name !== 'index.json'
     ) {
       files.push(fullPath);
     }
   }
-  
+
   return files;
 }
 
@@ -159,36 +159,37 @@ function getWeightClass(tonnage: number): string {
 
 async function main(): Promise<void> {
   const config = parseArgs();
-  
+
   console.log('========================================');
   console.log('Unit Index Generation Script');
   console.log('========================================');
   console.log(`Source: ${config.sourceDir}`);
   console.log(`Output: ${config.outputFile}`);
   console.log('');
-  
+
   if (!fs.existsSync(config.sourceDir)) {
     console.error(`Source directory not found: ${config.sourceDir}`);
     process.exit(1);
   }
-  
+
   const jsonFiles = findJsonFiles(config.sourceDir);
   console.log(`Found ${jsonFiles.length} unit files\n`);
-  
+
   const indexEntries: IndexEntry[] = [];
   let errors = 0;
-  
+
   for (const filePath of jsonFiles) {
     try {
       log(config, `Processing: ${path.basename(filePath)}`);
-      
+
       const content = fs.readFileSync(filePath, 'utf-8');
       const unit: ConvertedUnit = JSON.parse(content);
-      
+
       // Calculate relative path from source dir
-      const relativePath = path.relative(config.sourceDir, filePath)
+      const relativePath = path
+        .relative(config.sourceDir, filePath)
         .replace(/\\/g, '/');
-      
+
       const entry: IndexEntry = {
         id: unit.id,
         name: `${unit.chassis} ${unit.model}`,
@@ -202,30 +203,29 @@ async function main(): Promise<void> {
         rulesLevel: unit.rulesLevel,
         filePath: relativePath,
       };
-      
+
       indexEntries.push(entry);
-      
     } catch (error) {
       errors++;
       console.error(`Error processing ${filePath}: ${error}`);
     }
   }
-  
+
   // Sort by chassis, then model
   indexEntries.sort((a, b) => {
     const chassisCompare = a.chassis.localeCompare(b.chassis);
     if (chassisCompare !== 0) return chassisCompare;
     return a.variant.localeCompare(b.variant);
   });
-  
+
   // Write index file
   const outputDir = path.dirname(config.outputFile);
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
-  
+
   fs.writeFileSync(config.outputFile, JSON.stringify(indexEntries, null, 2));
-  
+
   // Print summary
   console.log('========================================');
   console.log('Index Generation Complete');
@@ -233,43 +233,43 @@ async function main(): Promise<void> {
   console.log(`Units indexed: ${indexEntries.length}`);
   console.log(`Errors: ${errors}`);
   console.log(`Output: ${config.outputFile}`);
-  
+
   // Print stats by weight class
   const byWeightClass: Record<string, number> = {};
   for (const entry of indexEntries) {
-    byWeightClass[entry.weightClass] = (byWeightClass[entry.weightClass] || 0) + 1;
+    byWeightClass[entry.weightClass] =
+      (byWeightClass[entry.weightClass] || 0) + 1;
   }
-  
+
   console.log('\nBy Weight Class:');
   for (const [weightClass, count] of Object.entries(byWeightClass)) {
     console.log(`  ${weightClass}: ${count}`);
   }
-  
+
   // Print stats by tech base
   const byTechBase: Record<string, number> = {};
   for (const entry of indexEntries) {
     byTechBase[entry.techBase] = (byTechBase[entry.techBase] || 0) + 1;
   }
-  
+
   console.log('\nBy Tech Base:');
   for (const [techBase, count] of Object.entries(byTechBase)) {
     console.log(`  ${techBase}: ${count}`);
   }
-  
+
   // Print stats by era
   const byEra: Record<string, number> = {};
   for (const entry of indexEntries) {
     byEra[entry.era] = (byEra[entry.era] || 0) + 1;
   }
-  
+
   console.log('\nBy Era:');
   for (const [era, count] of Object.entries(byEra)) {
     console.log(`  ${era}: ${count}`);
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });
-

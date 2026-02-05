@@ -1,12 +1,15 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/custom-variants/[variantId] endpoint
- * 
+ *
  * NOTE: This endpoint is DEPRECATED and returns 410 (Gone) for all requests.
  * New code should use /api/units/custom/[id] endpoints instead.
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/custom-variants/[variantId]';
+
 import { parseDeprecatedResponse, parseApiResponse } from '../../helpers';
 
 /**

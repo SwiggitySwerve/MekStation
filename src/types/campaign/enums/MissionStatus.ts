@@ -9,25 +9,25 @@
 export enum MissionStatus {
   /** Mission currently active/in progress */
   ACTIVE = 'Active',
-  
+
   /** Mission completed successfully */
   SUCCESS = 'Success',
-  
+
   /** Mission partially completed */
   PARTIAL = 'Partial Success',
-  
+
   /** Mission failed */
   FAILED = 'Failed',
-  
+
   /** Mission resulted in unit breach/rout */
   BREACH = 'Breach',
-  
+
   /** Mission cancelled */
   CANCELLED = 'Cancelled',
-  
+
   /** Mission pending start */
   PENDING = 'Pending',
-  
+
   /** Mission aborted */
   ABORTED = 'Aborted',
 }

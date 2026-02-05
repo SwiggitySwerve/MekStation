@@ -8,6 +8,7 @@
  */
 
 import { create } from 'zustand';
+
 import {
   IEncounter,
   ICreateEncounterInput,
@@ -66,7 +67,10 @@ interface EncounterStoreActions {
   /** Create a new encounter */
   createEncounter: (input: ICreateEncounterInput) => Promise<string | null>;
   /** Update an encounter */
-  updateEncounter: (id: string, input: IUpdateEncounterInput) => Promise<boolean>;
+  updateEncounter: (
+    id: string,
+    input: IUpdateEncounterInput,
+  ) => Promise<boolean>;
   /** Delete an encounter */
   deleteEncounter: (id: string) => Promise<boolean>;
   /** Select an encounter */
@@ -80,7 +84,10 @@ interface EncounterStoreActions {
   /** Clear opponent force */
   clearOpponentForce: (encounterId: string) => Promise<boolean>;
   /** Apply a template */
-  applyTemplate: (encounterId: string, template: ScenarioTemplateType) => Promise<boolean>;
+  applyTemplate: (
+    encounterId: string,
+    template: ScenarioTemplateType,
+  ) => Promise<boolean>;
   /** Validate an encounter */
   validateEncounter: (id: string) => Promise<IEncounterValidationResult | null>;
   /** Launch an encounter */
@@ -145,7 +152,10 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
       });
       const data = (await response.json()) as EncounterResponse;
       if (!data.success || !data.id) {
-        set({ error: data.error ?? 'Failed to create encounter', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to create encounter',
+          isLoading: false,
+        });
         return null;
       }
       await get().loadEncounters();
@@ -168,7 +178,10 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
       });
       const data = (await response.json()) as EncounterResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to update encounter', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to update encounter',
+          isLoading: false,
+        });
         return false;
       }
       await get().loadEncounters();
@@ -189,7 +202,10 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
       });
       const data = (await response.json()) as EncounterResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to delete encounter', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to delete encounter',
+          isLoading: false,
+        });
         return false;
       }
       if (get().selectedEncounterId === id) {
@@ -220,14 +236,20 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
   setPlayerForce: async (encounterId: string, forceId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`/api/encounters/${encounterId}/player-force`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ forceId }),
-      });
+      const response = await fetch(
+        `/api/encounters/${encounterId}/player-force`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forceId }),
+        },
+      );
       const data = (await response.json()) as EncounterResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to set player force', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to set player force',
+          isLoading: false,
+        });
         return false;
       }
       await get().loadEncounters();
@@ -243,14 +265,20 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
   setOpponentForce: async (encounterId: string, forceId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`/api/encounters/${encounterId}/opponent-force`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ forceId }),
-      });
+      const response = await fetch(
+        `/api/encounters/${encounterId}/opponent-force`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forceId }),
+        },
+      );
       const data = (await response.json()) as EncounterResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to set opponent force', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to set opponent force',
+          isLoading: false,
+        });
         return false;
       }
       await get().loadEncounters();
@@ -266,12 +294,18 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
   clearOpponentForce: async (encounterId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`/api/encounters/${encounterId}/opponent-force`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `/api/encounters/${encounterId}/opponent-force`,
+        {
+          method: 'DELETE',
+        },
+      );
       const data = (await response.json()) as EncounterResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to clear opponent force', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to clear opponent force',
+          isLoading: false,
+        });
         return false;
       }
       await get().loadEncounters();
@@ -284,7 +318,10 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
   },
 
   // Apply template
-  applyTemplate: async (encounterId: string, template: ScenarioTemplateType) => {
+  applyTemplate: async (
+    encounterId: string,
+    template: ScenarioTemplateType,
+  ) => {
     set({ isLoading: true, error: null });
     try {
       const response = await fetch(`/api/encounters/${encounterId}/template`, {
@@ -294,7 +331,10 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
       });
       const data = (await response.json()) as EncounterResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to apply template', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to apply template',
+          isLoading: false,
+        });
         return false;
       }
       await get().loadEncounters();
@@ -332,7 +372,10 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
       });
       const data = (await response.json()) as EncounterResponse;
       if (!data.success) {
-        set({ error: data.error ?? 'Failed to launch encounter', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to launch encounter',
+          isLoading: false,
+        });
         return false;
       }
       await get().loadEncounters();
@@ -355,7 +398,10 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
       });
       const data = (await response.json()) as EncounterResponse;
       if (!data.success || !data.id) {
-        set({ error: data.error ?? 'Failed to clone encounter', isLoading: false });
+        set({
+          error: data.error ?? 'Failed to clone encounter',
+          isLoading: false,
+        });
         return null;
       }
       await get().loadEncounters();
@@ -395,7 +441,7 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
           e.name.toLowerCase().includes(lowerQuery) ||
           e.description?.toLowerCase().includes(lowerQuery) ||
           e.playerForce?.forceName.toLowerCase().includes(lowerQuery) ||
-          e.opponentForce?.forceName.toLowerCase().includes(lowerQuery)
+          e.opponentForce?.forceName.toLowerCase().includes(lowerQuery),
       );
     }
 

@@ -42,12 +42,13 @@ export const useAccessibilityStore = create<AccessibilityState>()(
       setHighContrast: (enabled) => set({ highContrast: enabled }),
       setReduceMotion: (enabled) => set({ reduceMotion: enabled }),
 
-      resetToDefaults: () => set({
-        ...DEFAULT_ACCESSIBILITY,
-      }),
+      resetToDefaults: () =>
+        set({
+          ...DEFAULT_ACCESSIBILITY,
+        }),
     }),
     {
       name: 'mekstation-accessibility',
-    }
-  )
+    },
+  ),
 );

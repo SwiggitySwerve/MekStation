@@ -5,17 +5,20 @@
  * Only active when NEXT_PUBLIC_E2E_MODE=true
  */
 
-import { useCampaignStore } from '@/stores/useCampaignStore';
-import { useForceStore } from '@/stores/useForceStore';
-import { usePilotStore } from '@/stores/usePilotStore';
-import { useEncounterStore } from '@/stores/useEncounterStore';
-import { useGameplayStore } from '@/stores/useGameplayStore';
-import { useRepairStore } from '@/stores/useRepairStore';
-import { useAwardStore } from '@/stores/useAwardStore';
-import { useTabManagerStore, UNIT_TEMPLATES } from '@/stores/useTabManagerStore';
 import * as aerospaceRegistry from '@/stores/aerospaceStoreRegistry';
-import * as vehicleRegistry from '@/stores/vehicleStoreRegistry';
 import * as unitRegistry from '@/stores/unitStoreRegistry';
+import { useAwardStore } from '@/stores/useAwardStore';
+import { useCampaignStore } from '@/stores/useCampaignStore';
+import { useEncounterStore } from '@/stores/useEncounterStore';
+import { useForceStore } from '@/stores/useForceStore';
+import { useGameplayStore } from '@/stores/useGameplayStore';
+import { usePilotStore } from '@/stores/usePilotStore';
+import { useRepairStore } from '@/stores/useRepairStore';
+import {
+  useTabManagerStore,
+  UNIT_TEMPLATES,
+} from '@/stores/useTabManagerStore';
+import * as vehicleRegistry from '@/stores/vehicleStoreRegistry';
 
 declare global {
   interface Window {

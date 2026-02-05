@@ -7,16 +7,13 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
-import {
-  PageLayout,
-  PageLoading,
-  Card,
-  Button,
-} from '@/components/ui';
+import { useRouter } from 'next/router';
+import { useEffect, useState, useCallback } from 'react';
+
 import type { IShareLink } from '@/types/vault';
+
+import { PageLayout, PageLoading, Card, Button } from '@/components/ui';
 
 // =============================================================================
 // Types
@@ -113,7 +110,8 @@ export default function ShareLinkPage(): React.JSX.Element {
       } catch (err) {
         setResult({
           success: false,
-          error: err instanceof Error ? err.message : 'Failed to redeem share link',
+          error:
+            err instanceof Error ? err.message : 'Failed to redeem share link',
         });
       } finally {
         setLoading(false);
@@ -137,9 +135,6 @@ export default function ShareLinkPage(): React.JSX.Element {
   if (loading || !token) {
     return (
       <>
-        <Head>
-          <title>Loading Share Link - MekStation</title>
-        </Head>
         <PageLoading message="Validating share link..." />
       </>
     );
@@ -147,46 +142,50 @@ export default function ShareLinkPage(): React.JSX.Element {
 
   // Error states
   if (!result?.success) {
-    const errorTitle = result?.errorCode === 'NOT_FOUND'
-      ? 'Share Link Not Found'
-      : result?.errorCode === 'EXPIRED'
-      ? 'Share Link Expired'
-      : result?.errorCode === 'MAX_USES'
-      ? 'Share Link Used Up'
-      : result?.errorCode === 'INACTIVE'
-      ? 'Share Link Inactive'
-      : 'Invalid Share Link';
+    const errorTitle =
+      result?.errorCode === 'NOT_FOUND'
+        ? 'Share Link Not Found'
+        : result?.errorCode === 'EXPIRED'
+          ? 'Share Link Expired'
+          : result?.errorCode === 'MAX_USES'
+            ? 'Share Link Used Up'
+            : result?.errorCode === 'INACTIVE'
+              ? 'Share Link Inactive'
+              : 'Invalid Share Link';
 
-    const errorMessage = result?.errorCode === 'NOT_FOUND'
-      ? 'This share link does not exist or has been deleted.'
-      : result?.errorCode === 'EXPIRED'
-      ? 'This share link has expired and is no longer valid.'
-      : result?.errorCode === 'MAX_USES'
-      ? 'This share link has reached its maximum number of uses.'
-      : result?.errorCode === 'INACTIVE'
-      ? 'This share link has been deactivated by its owner.'
-      : result?.error || 'There was a problem with this share link.';
+    const errorMessage =
+      result?.errorCode === 'NOT_FOUND'
+        ? 'This share link does not exist or has been deleted.'
+        : result?.errorCode === 'EXPIRED'
+          ? 'This share link has expired and is no longer valid.'
+          : result?.errorCode === 'MAX_USES'
+            ? 'This share link has reached its maximum number of uses.'
+            : result?.errorCode === 'INACTIVE'
+              ? 'This share link has been deactivated by its owner.'
+              : result?.error || 'There was a problem with this share link.';
 
     return (
       <>
-        <Head>
-          <title>{errorTitle} - MekStation</title>
-        </Head>
         <PageLayout
           title={errorTitle}
           subtitle={errorMessage}
           backLink="/"
           backLabel="Go Home"
         >
-          <Card variant="dark" className="max-w-md mx-auto text-center p-8">
-            <div className="text-6xl mb-4">
-              {result?.errorCode === 'NOT_FOUND' ? '🔍' : 
-               result?.errorCode === 'EXPIRED' ? '⏰' :
-               result?.errorCode === 'MAX_USES' ? '📊' :
-               result?.errorCode === 'INACTIVE' ? '🔒' : '⚠️'}
+          <Card variant="dark" className="mx-auto max-w-md p-8 text-center">
+            <div className="mb-4 text-6xl">
+              {result?.errorCode === 'NOT_FOUND'
+                ? '🔍'
+                : result?.errorCode === 'EXPIRED'
+                  ? '⏰'
+                  : result?.errorCode === 'MAX_USES'
+                    ? '📊'
+                    : result?.errorCode === 'INACTIVE'
+                      ? '🔒'
+                      : '⚠️'}
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">{errorTitle}</h2>
-            <p className="text-gray-400 mb-6">{errorMessage}</p>
+            <h2 className="mb-2 text-xl font-bold text-white">{errorTitle}</h2>
+            <p className="mb-6 text-gray-400">{errorMessage}</p>
             <div className="flex justify-center gap-3">
               <Button variant="secondary" onClick={handleTryAgain}>
                 Try Again
@@ -215,41 +214,44 @@ export default function ShareLinkPage(): React.JSX.Element {
         backLink="/"
         backLabel="Go Home"
       >
-        <Card variant="dark" className="max-w-md mx-auto p-6">
-          <div className="text-center mb-6">
-            <div className="text-4xl mb-2">✅</div>
+        <Card variant="dark" className="mx-auto max-w-md p-6">
+          <div className="mb-6 text-center">
+            <div className="mb-2 text-4xl">✅</div>
             <h2 className="text-xl font-bold text-green-400">Access Granted</h2>
           </div>
 
           <div className="space-y-4">
-            <div className="flex justify-between items-center py-2 border-b border-gray-700">
+            <div className="flex items-center justify-between border-b border-gray-700 py-2">
               <span className="text-gray-400">Scope</span>
               <span className="text-white">{formatScope(link)}</span>
             </div>
 
-            <div className="flex justify-between items-center py-2 border-b border-gray-700">
+            <div className="flex items-center justify-between border-b border-gray-700 py-2">
               <span className="text-gray-400">Permission</span>
-              <span className={`px-2 py-1 rounded text-xs font-medium text-white ${getLevelColor(link.level)}`}>
+              <span
+                className={`rounded px-2 py-1 text-xs font-medium text-white ${getLevelColor(link.level)}`}
+              >
                 {formatLevel(link.level)}
               </span>
             </div>
 
             {link.label && (
-              <div className="flex justify-between items-center py-2 border-b border-gray-700">
+              <div className="flex items-center justify-between border-b border-gray-700 py-2">
                 <span className="text-gray-400">Label</span>
                 <span className="text-white">{link.label}</span>
               </div>
             )}
 
-            <div className="flex justify-between items-center py-2 border-b border-gray-700">
+            <div className="flex items-center justify-between border-b border-gray-700 py-2">
               <span className="text-gray-400">Uses</span>
               <span className="text-white">
-                {link.useCount}{link.maxUses ? ` / ${link.maxUses}` : ''}
+                {link.useCount}
+                {link.maxUses ? ` / ${link.maxUses}` : ''}
               </span>
             </div>
 
             {link.expiresAt && (
-              <div className="flex justify-between items-center py-2 border-b border-gray-700">
+              <div className="flex items-center justify-between border-b border-gray-700 py-2">
                 <span className="text-gray-400">Expires</span>
                 <span className="text-white">
                   {new Date(link.expiresAt).toLocaleDateString()}
@@ -258,10 +260,14 @@ export default function ShareLinkPage(): React.JSX.Element {
             )}
           </div>
 
-          <div className="mt-6 p-4 bg-gray-900 rounded-lg">
-            <p className="text-sm text-gray-400 text-center">
-              You now have <span className="text-white font-medium">{formatLevel(link.level)}</span> access
-              to the shared content. The content should be available in your vault.
+          <div className="mt-6 rounded-lg bg-gray-900 p-4">
+            <p className="text-center text-sm text-gray-400">
+              You now have{' '}
+              <span className="font-medium text-white">
+                {formatLevel(link.level)}
+              </span>{' '}
+              access to the shared content. The content should be available in
+              your vault.
             </p>
           </div>
 

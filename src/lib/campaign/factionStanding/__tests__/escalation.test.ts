@@ -1,4 +1,8 @@
 import {
+  IFactionStanding,
+  FactionStandingLevel,
+} from '../../../../types/campaign/factionStanding/IFactionStanding';
+import {
   AccoladeLevel,
   CensureLevel,
   checkAccoladeEscalation,
@@ -6,10 +10,11 @@ import {
   applyAccolade,
   applyCensure,
 } from '../escalation';
-import { IFactionStanding, FactionStandingLevel } from '../../../../types/campaign/factionStanding/IFactionStanding';
 
 describe('Accolade/Censure Escalation', () => {
-  const createStanding = (overrides: Partial<IFactionStanding> = {}): IFactionStanding => ({
+  const createStanding = (
+    overrides: Partial<IFactionStanding> = {},
+  ): IFactionStanding => ({
     factionId: 'test-faction',
     regard: 0,
     level: FactionStandingLevel.LEVEL_4,
@@ -27,12 +32,16 @@ describe('Accolade/Censure Escalation', () => {
 
     it('should return TAKING_NOTICE when regard >= +10 and accoladeLevel is NONE', () => {
       const standing = createStanding({ regard: 10, accoladeLevel: 0 });
-      expect(checkAccoladeEscalation(standing)).toBe(AccoladeLevel.TAKING_NOTICE);
+      expect(checkAccoladeEscalation(standing)).toBe(
+        AccoladeLevel.TAKING_NOTICE,
+      );
     });
 
     it('should return PRESS_RECOGNITION when regard >= +10 and accoladeLevel is TAKING_NOTICE', () => {
       const standing = createStanding({ regard: 10, accoladeLevel: 1 });
-      expect(checkAccoladeEscalation(standing)).toBe(AccoladeLevel.PRESS_RECOGNITION);
+      expect(checkAccoladeEscalation(standing)).toBe(
+        AccoladeLevel.PRESS_RECOGNITION,
+      );
     });
 
     it('should return CASH_BONUS when regard >= +10 and accoladeLevel is PRESS_RECOGNITION', () => {
@@ -69,7 +78,9 @@ describe('Accolade/Censure Escalation', () => {
 
     it('should return FORMAL_WARNING when regard < 0 and censureLevel is NONE', () => {
       const standing = createStanding({ regard: -1, censureLevel: 0 });
-      expect(checkCensureEscalation(standing)).toBe(CensureLevel.FORMAL_WARNING);
+      expect(checkCensureEscalation(standing)).toBe(
+        CensureLevel.FORMAL_WARNING,
+      );
     });
 
     it('should return NEWS_ARTICLE when regard < 0 and censureLevel is FORMAL_WARNING', () => {
@@ -79,12 +90,16 @@ describe('Accolade/Censure Escalation', () => {
 
     it('should return COMMANDER_RETIREMENT when regard < 0 and censureLevel is NEWS_ARTICLE', () => {
       const standing = createStanding({ regard: -1, censureLevel: 2 });
-      expect(checkCensureEscalation(standing)).toBe(CensureLevel.COMMANDER_RETIREMENT);
+      expect(checkCensureEscalation(standing)).toBe(
+        CensureLevel.COMMANDER_RETIREMENT,
+      );
     });
 
     it('should return LEADERSHIP_REPLACEMENT when regard < 0 and censureLevel is COMMANDER_RETIREMENT', () => {
       const standing = createStanding({ regard: -1, censureLevel: 3 });
-      expect(checkCensureEscalation(standing)).toBe(CensureLevel.LEADERSHIP_REPLACEMENT);
+      expect(checkCensureEscalation(standing)).toBe(
+        CensureLevel.LEADERSHIP_REPLACEMENT,
+      );
     });
 
     it('should return DISBAND when regard < 0 and censureLevel is LEADERSHIP_REPLACEMENT', () => {
@@ -148,7 +163,11 @@ describe('Accolade/Censure Escalation', () => {
     });
 
     it('should preserve other properties', () => {
-      const standing = createStanding({ regard: 15, factionId: 'test-faction', accoladeLevel: 0 });
+      const standing = createStanding({
+        regard: 15,
+        factionId: 'test-faction',
+        accoladeLevel: 0,
+      });
       const updated = applyAccolade(standing, AccoladeLevel.TAKING_NOTICE);
       expect(updated.regard).toBe(15);
       expect(updated.factionId).toBe('test-faction');
@@ -176,7 +195,10 @@ describe('Accolade/Censure Escalation', () => {
 
     it('should increment censureLevel from COMMANDER_RETIREMENT to LEADERSHIP_REPLACEMENT', () => {
       const standing = createStanding({ censureLevel: 3 });
-      const updated = applyCensure(standing, CensureLevel.LEADERSHIP_REPLACEMENT);
+      const updated = applyCensure(
+        standing,
+        CensureLevel.LEADERSHIP_REPLACEMENT,
+      );
       expect(updated.censureLevel).toBe(4);
     });
 
@@ -200,7 +222,11 @@ describe('Accolade/Censure Escalation', () => {
     });
 
     it('should preserve other properties', () => {
-      const standing = createStanding({ regard: -15, factionId: 'test-faction', censureLevel: 0 });
+      const standing = createStanding({
+        regard: -15,
+        factionId: 'test-faction',
+        censureLevel: 0,
+      });
       const updated = applyCensure(standing, CensureLevel.FORMAL_WARNING);
       expect(updated.regard).toBe(-15);
       expect(updated.factionId).toBe('test-faction');

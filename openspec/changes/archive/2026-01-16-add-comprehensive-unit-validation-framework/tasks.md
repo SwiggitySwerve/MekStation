@@ -93,12 +93,12 @@
 - [x] 7.1 Analyze existing `validation-rules-master` 89 rules
 - [x] 7.2 Create `src/services/validation/rules/battlemech/` directory
 - [x] 7.3 Migrate BattleMech-specific rules from ValidationService:
-  - Weight validation rules (VAL-WEIGHT-*)
-  - Slot validation rules (VAL-SLOT-*)
-  - Structural validation rules (VAL-STRUCT-*)
-  - Component requirement rules (VAL-COMP-*)
-  - Construction sequence rules (VAL-SEQ-*)
-  - Placement validation rules (VAL-PLACE-*)
+  - Weight validation rules (VAL-WEIGHT-\*)
+  - Slot validation rules (VAL-SLOT-\*)
+  - Structural validation rules (VAL-STRUCT-\*)
+  - Component requirement rules (VAL-COMP-\*)
+  - Construction sequence rules (VAL-SEQ-\*)
+  - Placement validation rules (VAL-PLACE-\*)
 - [x] 7.4 Register BattleMech rules as unit-type-specific layer
 - [x] 7.5 Mark appropriate rules as overriding/extending category rules
 
@@ -113,8 +113,8 @@
 
 - [ ] 9.1 Unit tests for UnitValidationRegistry
 - [ ] 9.2 Unit tests for UnitValidationOrchestrator
-- [ ] 9.3 Unit tests for all universal rules (VAL-UNIV-*)
-- [ ] 9.4 Unit tests for mech category rules (VAL-MECH-*)
+- [ ] 9.3 Unit tests for all universal rules (VAL-UNIV-\*)
+- [ ] 9.4 Unit tests for mech category rules (VAL-MECH-\*)
 - [ ] 9.5 Unit tests for rule inheritance (override/extend)
 - [ ] 9.6 Integration tests for BattleMech validation (regression)
 - [ ] 9.7 Integration tests for Vehicle validation (new)

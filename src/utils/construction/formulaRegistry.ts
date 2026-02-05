@@ -1,9 +1,9 @@
 /**
  * Formula Registry
- * 
+ *
  * Centralized registry for all BattleTech construction formulas.
  * Each formula references its source in the TechManual.
- * 
+ *
  * @spec openspec/specs/formula-registry/spec.md
  */
 
@@ -324,21 +324,28 @@ export function getFormula(id: string): FormulaDefinition | undefined {
     ...HEAT_SINK_FORMULAS,
     ...ARMOR_FORMULAS,
   ];
-  
-  return allFormulas.find(f => f.id === id);
+
+  return allFormulas.find((f) => f.id === id);
 }
 
 /**
  * Get all formulas by category
  */
-export function getFormulasByCategory(category: 'weight' | 'movement' | 'slots' | 'heat_sinks' | 'armor'): readonly FormulaDefinition[] {
+export function getFormulasByCategory(
+  category: 'weight' | 'movement' | 'slots' | 'heat_sinks' | 'armor',
+): readonly FormulaDefinition[] {
   switch (category) {
-    case 'weight': return WEIGHT_FORMULAS;
-    case 'movement': return MOVEMENT_FORMULAS;
-    case 'slots': return SLOT_FORMULAS;
-    case 'heat_sinks': return HEAT_SINK_FORMULAS;
-    case 'armor': return ARMOR_FORMULAS;
-    default: return [];
+    case 'weight':
+      return WEIGHT_FORMULAS;
+    case 'movement':
+      return MOVEMENT_FORMULAS;
+    case 'slots':
+      return SLOT_FORMULAS;
+    case 'heat_sinks':
+      return HEAT_SINK_FORMULAS;
+    case 'armor':
+      return ARMOR_FORMULAS;
+    default:
+      return [];
   }
 }
-

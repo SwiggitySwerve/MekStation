@@ -1,5 +1,5 @@
-import { AutoAwardCategory } from '@/types/campaign/awards/autoAwardTypes';
 import { IAward } from '@/types/award/AwardInterfaces';
+import { AutoAwardCategory } from '@/types/campaign/awards/autoAwardTypes';
 import { IPerson } from '@/types/campaign/Person';
 
 // =============================================================================
@@ -14,36 +14,60 @@ export interface ICheckerContext {
 // Helper Functions
 // =============================================================================
 
-function getAwardsForCategory(awards: readonly IAward[], category: AutoAwardCategory): IAward[] {
-  return awards.filter(a => a.autoGrantCriteria?.category === category);
+function getAwardsForCategory(
+  awards: readonly IAward[],
+  category: AutoAwardCategory,
+): IAward[] {
+  return awards.filter((a) => a.autoGrantCriteria?.category === category);
 }
 
 // =============================================================================
 // Category Checkers
 // =============================================================================
 
-export function checkKillAwards(person: IPerson, awards: readonly IAward[]): IAward[] {
-  return getAwardsForCategory(awards, AutoAwardCategory.KILL)
-    .filter(award => person.totalKills >= award.autoGrantCriteria!.threshold);
+export function checkKillAwards(
+  person: IPerson,
+  awards: readonly IAward[],
+): IAward[] {
+  return getAwardsForCategory(awards, AutoAwardCategory.KILL).filter(
+    (award) => person.totalKills >= award.autoGrantCriteria!.threshold,
+  );
 }
 
-export function checkScenarioAwards(person: IPerson, awards: readonly IAward[]): IAward[] {
-  return getAwardsForCategory(awards, AutoAwardCategory.SCENARIO)
-    .filter(award => person.missionsCompleted >= award.autoGrantCriteria!.threshold);
+export function checkScenarioAwards(
+  person: IPerson,
+  awards: readonly IAward[],
+): IAward[] {
+  return getAwardsForCategory(awards, AutoAwardCategory.SCENARIO).filter(
+    (award) => person.missionsCompleted >= award.autoGrantCriteria!.threshold,
+  );
 }
 
-export function checkTimeAwards(person: IPerson, awards: readonly IAward[], context: ICheckerContext): IAward[] {
-  const recruitDate = person.recruitmentDate instanceof Date ? person.recruitmentDate : new Date(person.recruitmentDate);
+export function checkTimeAwards(
+  person: IPerson,
+  awards: readonly IAward[],
+  context: ICheckerContext,
+): IAward[] {
+  const recruitDate =
+    person.recruitmentDate instanceof Date
+      ? person.recruitmentDate
+      : new Date(person.recruitmentDate);
   const currentDate = new Date(context.currentDate);
-  const yearsOfService = (currentDate.getTime() - recruitDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+  const yearsOfService =
+    (currentDate.getTime() - recruitDate.getTime()) /
+    (365.25 * 24 * 60 * 60 * 1000);
 
-  return getAwardsForCategory(awards, AutoAwardCategory.TIME)
-    .filter(award => yearsOfService >= award.autoGrantCriteria!.threshold);
+  return getAwardsForCategory(awards, AutoAwardCategory.TIME).filter(
+    (award) => yearsOfService >= award.autoGrantCriteria!.threshold,
+  );
 }
 
-export function checkSkillAwards(person: IPerson, awards: readonly IAward[]): IAward[] {
-  return getAwardsForCategory(awards, AutoAwardCategory.SKILL)
-    .filter(award => {
+export function checkSkillAwards(
+  person: IPerson,
+  awards: readonly IAward[],
+): IAward[] {
+  return getAwardsForCategory(awards, AutoAwardCategory.SKILL).filter(
+    (award) => {
       const criteria = award.autoGrantCriteria!;
       const skillId = criteria.skillId;
 
@@ -53,13 +77,20 @@ export function checkSkillAwards(person: IPerson, awards: readonly IAward[]): IA
       if (skillId === 'piloting') {
         return person.pilotSkills.piloting <= criteria.threshold;
       }
-      return Math.min(person.pilotSkills.gunnery, person.pilotSkills.piloting) <= criteria.threshold;
-    });
+      return (
+        Math.min(person.pilotSkills.gunnery, person.pilotSkills.piloting) <=
+        criteria.threshold
+      );
+    },
+  );
 }
 
-export function checkRankAwards(person: IPerson, awards: readonly IAward[]): IAward[] {
-  return getAwardsForCategory(awards, AutoAwardCategory.RANK)
-    .filter(award => {
+export function checkRankAwards(
+  person: IPerson,
+  awards: readonly IAward[],
+): IAward[] {
+  return getAwardsForCategory(awards, AutoAwardCategory.RANK).filter(
+    (award) => {
       const criteria = award.autoGrantCriteria!;
       const rankLevel = person.rankLevel ?? 0;
       const mode = criteria.rankMode ?? 'inclusive';
@@ -67,59 +98,97 @@ export function checkRankAwards(person: IPerson, awards: readonly IAward[]): IAw
       if (mode === 'promotion') return rankLevel === criteria.threshold;
       if (mode === 'exclusive') return rankLevel > criteria.threshold;
       return rankLevel >= criteria.threshold;
-    });
+    },
+  );
 }
 
-export function checkInjuryAwards(person: IPerson, awards: readonly IAward[]): IAward[] {
-  return getAwardsForCategory(awards, AutoAwardCategory.INJURY)
-    .filter(award => person.injuries.length >= award.autoGrantCriteria!.threshold);
+export function checkInjuryAwards(
+  person: IPerson,
+  awards: readonly IAward[],
+): IAward[] {
+  return getAwardsForCategory(awards, AutoAwardCategory.INJURY).filter(
+    (award) => person.injuries.length >= award.autoGrantCriteria!.threshold,
+  );
 }
 
 // =============================================================================
 // Stubbed Categories
 // =============================================================================
 
-export function checkContractAwards(_person: IPerson, _awards: readonly IAward[]): IAward[] {
+export function checkContractAwards(
+  _person: IPerson,
+  _awards: readonly IAward[],
+): IAward[] {
   return [];
 }
 
-export function checkFactionHunterAwards(_person: IPerson, _awards: readonly IAward[]): IAward[] {
+export function checkFactionHunterAwards(
+  _person: IPerson,
+  _awards: readonly IAward[],
+): IAward[] {
   return [];
 }
 
-export function checkTheatreOfWarAwards(_person: IPerson, _awards: readonly IAward[]): IAward[] {
+export function checkTheatreOfWarAwards(
+  _person: IPerson,
+  _awards: readonly IAward[],
+): IAward[] {
   return [];
 }
 
-export function checkTrainingAwards(_person: IPerson, _awards: readonly IAward[]): IAward[] {
+export function checkTrainingAwards(
+  _person: IPerson,
+  _awards: readonly IAward[],
+): IAward[] {
   return [];
 }
 
-export function checkScenarioKillAwards(_person: IPerson, _awards: readonly IAward[]): IAward[] {
+export function checkScenarioKillAwards(
+  _person: IPerson,
+  _awards: readonly IAward[],
+): IAward[] {
   return [];
 }
 
-export function checkMiscAwards(_person: IPerson, _awards: readonly IAward[]): IAward[] {
+export function checkMiscAwards(
+  _person: IPerson,
+  _awards: readonly IAward[],
+): IAward[] {
   return [];
 }
 
-export function checkCombatAwards(_person: IPerson, _awards: readonly IAward[]): IAward[] {
+export function checkCombatAwards(
+  _person: IPerson,
+  _awards: readonly IAward[],
+): IAward[] {
   return [];
 }
 
-export function checkSurvivalAwards(_person: IPerson, _awards: readonly IAward[]): IAward[] {
+export function checkSurvivalAwards(
+  _person: IPerson,
+  _awards: readonly IAward[],
+): IAward[] {
   return [];
 }
 
-export function checkServiceAwards(_person: IPerson, _awards: readonly IAward[]): IAward[] {
+export function checkServiceAwards(
+  _person: IPerson,
+  _awards: readonly IAward[],
+): IAward[] {
   return [];
 }
 
-export function checkCampaignAwards(_person: IPerson, _awards: readonly IAward[]): IAward[] {
+export function checkCampaignAwards(
+  _person: IPerson,
+  _awards: readonly IAward[],
+): IAward[] {
   return [];
 }
 
-export function checkSpecialAwards(_person: IPerson, _awards: readonly IAward[]): IAward[] {
+export function checkSpecialAwards(
+  _person: IPerson,
+  _awards: readonly IAward[],
+): IAward[] {
   return [];
 }
 
@@ -131,7 +200,7 @@ export function checkAwardsForCategory(
   category: AutoAwardCategory,
   person: IPerson,
   awards: readonly IAward[],
-  context: ICheckerContext
+  context: ICheckerContext,
 ): IAward[] {
   switch (category) {
     case AutoAwardCategory.KILL:

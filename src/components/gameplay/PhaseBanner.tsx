@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+
 import { GamePhase, GameSide } from '@/types/gameplay';
 
 // =============================================================================
@@ -95,15 +96,19 @@ export function PhaseBanner({
 
   return (
     <div
-      className={`${phaseColor} text-white px-4 py-2 flex items-center justify-between ${className}`}
+      className={`${phaseColor} flex items-center justify-between px-4 py-2 text-white ${className}`}
       role="banner"
       aria-live="polite"
       data-testid="phase-banner"
     >
       <div className="flex items-center gap-4">
-        <span className="font-bold text-lg" data-testid="phase-name">{getPhaseDisplayName(phase)}</span>
+        <span className="text-lg font-bold" data-testid="phase-name">
+          {getPhaseDisplayName(phase)}
+        </span>
         <span className="text-sm opacity-90">-</span>
-        <span className="text-sm font-medium" data-testid="turn-indicator">{turnText}</span>
+        <span className="text-sm font-medium" data-testid="turn-indicator">
+          {turnText}
+        </span>
         {statusText && (
           <>
             <span className="text-sm opacity-90">-</span>
@@ -113,7 +118,12 @@ export function PhaseBanner({
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm opacity-75">Turn</span>
-        <span className="font-bold text-xl bg-black/20 px-3 py-1 rounded" data-testid="turn-number">{turn}</span>
+        <span
+          className="rounded bg-black/20 px-3 py-1 text-xl font-bold"
+          data-testid="turn-number"
+        >
+          {turn}
+        </span>
       </div>
     </div>
   );

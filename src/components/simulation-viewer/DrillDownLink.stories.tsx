@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { DrillDownLink } from './DrillDownLink';
 
 const meta: Meta<typeof DrillDownLink> = {
@@ -15,7 +16,13 @@ const meta: Meta<typeof DrillDownLink> = {
     },
     icon: {
       control: 'select',
-      options: ['arrow-right', 'external-link', 'chevron-right', 'filter', 'search'],
+      options: [
+        'arrow-right',
+        'external-link',
+        'chevron-right',
+        'filter',
+        'search',
+      ],
     },
   },
 };
@@ -24,7 +31,9 @@ export default meta;
 type Story = StoryObj<typeof DrillDownLink>;
 
 const handleClick = (tab: string, filter?: Record<string, unknown>) =>
-  alert(`Navigate to: ${tab}${filter ? ` with filter: ${JSON.stringify(filter)}` : ''}`);
+  alert(
+    `Navigate to: ${tab}${filter ? ` with filter: ${JSON.stringify(filter)}` : ''}`,
+  );
 
 export const Default: Story = {
   args: {
@@ -81,7 +90,7 @@ export const DarkMode: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-gray-900 p-8 rounded-lg">
+      <div className="dark rounded-lg bg-gray-900 p-8">
         <Story />
       </div>
     ),
@@ -91,13 +100,47 @@ export const DarkMode: Story = {
 export const AllIcons: StoryObj = {
   render: () => (
     <div className="flex flex-col gap-4">
-      <DrillDownLink label="Arrow Right" targetTab="analysis-bugs" icon="arrow-right" onClick={handleClick} />
-      <DrillDownLink label="External Link" targetTab="encounter-history" icon="external-link" onClick={handleClick} />
-      <DrillDownLink label="Chevron Right" targetTab="campaign-dashboard" icon="chevron-right" onClick={handleClick} />
-      <DrillDownLink label="Filter" targetTab="analysis-bugs" icon="filter" onClick={handleClick} />
-      <DrillDownLink label="Search" targetTab="encounter-history" icon="search" onClick={handleClick} />
-      <DrillDownLink label="Custom Icon ★" targetTab="campaign-dashboard" icon="★" onClick={handleClick} />
-      <DrillDownLink label="No Icon" targetTab="campaign-dashboard" onClick={handleClick} />
+      <DrillDownLink
+        label="Arrow Right"
+        targetTab="analysis-bugs"
+        icon="arrow-right"
+        onClick={handleClick}
+      />
+      <DrillDownLink
+        label="External Link"
+        targetTab="encounter-history"
+        icon="external-link"
+        onClick={handleClick}
+      />
+      <DrillDownLink
+        label="Chevron Right"
+        targetTab="campaign-dashboard"
+        icon="chevron-right"
+        onClick={handleClick}
+      />
+      <DrillDownLink
+        label="Filter"
+        targetTab="analysis-bugs"
+        icon="filter"
+        onClick={handleClick}
+      />
+      <DrillDownLink
+        label="Search"
+        targetTab="encounter-history"
+        icon="search"
+        onClick={handleClick}
+      />
+      <DrillDownLink
+        label="Custom Icon ★"
+        targetTab="campaign-dashboard"
+        icon="★"
+        onClick={handleClick}
+      />
+      <DrillDownLink
+        label="No Icon"
+        targetTab="campaign-dashboard"
+        onClick={handleClick}
+      />
     </div>
   ),
 };

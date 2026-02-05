@@ -9,6 +9,7 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getPilotService, IPilotOperationResult } from '@/services/pilots';
 import { IPilot } from '@/types/pilot';
@@ -38,13 +39,16 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<GetResponse | UpdateResponse | DeleteResponse | ErrorResponse>
+  res: NextApiResponse<
+    GetResponse | UpdateResponse | DeleteResponse | ErrorResponse
+  >,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -64,7 +68,9 @@ export default async function handler(
       return handleDelete(pilotService, id, res);
     default:
       res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
-      return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+      return res
+        .status(405)
+        .json({ error: `Method ${req.method} Not Allowed` });
   }
 }
 
@@ -74,7 +80,7 @@ export default async function handler(
 function handleGet(
   pilotService: ReturnType<typeof getPilotService>,
   id: string,
-  res: NextApiResponse<GetResponse | ErrorResponse>
+  res: NextApiResponse<GetResponse | ErrorResponse>,
 ) {
   try {
     const pilot = pilotService.getPilot(id);
@@ -85,7 +91,8 @@ function handleGet(
 
     return res.status(200).json({ pilot });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to get pilot';
+    const message =
+      error instanceof Error ? error.message : 'Failed to get pilot';
     return res.status(500).json({ error: message });
   }
 }
@@ -97,18 +104,13 @@ function handlePut(
   pilotService: ReturnType<typeof getPilotService>,
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<UpdateResponse | ErrorResponse>
+  res: NextApiResponse<UpdateResponse | ErrorResponse>,
 ) {
   try {
     const body = req.body as Partial<IPilot>;
 
     // Don't allow changing ID, type, or createdAt - extract only mutable fields
-    const {
-      id: _id,
-      type: _type,
-      createdAt: _createdAt,
-      ...updates
-    } = body;
+    const { id: _id, type: _type, createdAt: _createdAt, ...updates } = body;
 
     const result = pilotService.updatePilot(id, updates);
 
@@ -123,7 +125,8 @@ function handlePut(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to update pilot';
+    const message =
+      error instanceof Error ? error.message : 'Failed to update pilot';
     return res.status(500).json({ error: message });
   }
 }
@@ -134,7 +137,7 @@ function handlePut(
 function handleDelete(
   pilotService: ReturnType<typeof getPilotService>,
   id: string,
-  res: NextApiResponse<DeleteResponse | ErrorResponse>
+  res: NextApiResponse<DeleteResponse | ErrorResponse>,
 ) {
   try {
     const result = pilotService.deletePilot(id);
@@ -149,7 +152,8 @@ function handleDelete(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to delete pilot';
+    const message =
+      error instanceof Error ? error.message : 'Failed to delete pilot';
     return res.status(500).json({ error: message });
   }
 }

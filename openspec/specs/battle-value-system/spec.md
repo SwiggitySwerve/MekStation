@@ -1,13 +1,17 @@
 # battle-value-system Specification
 
 ## Purpose
+
 Defines how Battle Value (BV) is calculated for BattleMech units following BV2 rules from the TechManual.
+
 ## Requirements
+
 ### Requirement: Defensive Battle Value
 
 The system SHALL calculate defensive BV from armor, structure, gyro, and defensive speed factor.
 
 #### Scenario: Defensive BV calculation
+
 - **WHEN** calculating defensive BV
 - **THEN** armor BV SHALL be calculated as total armor points × 2.5 × armor type multiplier
 - **AND** structure BV SHALL be calculated as total structure points × 1.5 × structure type multiplier
@@ -18,6 +22,7 @@ The system SHALL calculate defensive BV from armor, structure, gyro, and defensi
 - **AND** final defensive BV SHALL equal base × defensive speed factor
 
 #### Scenario: Gyro BV contribution
+
 - **WHEN** calculating gyro BV
 - **THEN** gyro BV SHALL equal mech tonnage × gyro multiplier
 - **AND** gyro multiplier SHALL be 0.5 for Standard, XL, and Compact gyros
@@ -26,6 +31,7 @@ The system SHALL calculate defensive BV from armor, structure, gyro, and defensi
 - **AND** a 75-ton mech with Heavy-Duty gyro SHALL contribute 75 gyro BV (75 × 1.0)
 
 #### Scenario: Armor type BV multipliers
+
 - **WHEN** calculating armor BV
 - **THEN** Hardened armor SHALL use multiplier 2.0
 - **AND** Reactive, Reflective, and Ballistic-Reinforced armor SHALL use multiplier 1.5
@@ -34,12 +40,14 @@ The system SHALL calculate defensive BV from armor, structure, gyro, and defensi
 - **AND** Standard and all other armor types SHALL use multiplier 1.0
 
 #### Scenario: Structure type BV multipliers
+
 - **WHEN** calculating structure BV
 - **THEN** Industrial and Composite structure SHALL use multiplier 0.5
 - **AND** Reinforced structure SHALL use multiplier 2.0
 - **AND** Standard and all other structure types SHALL use multiplier 1.0
 
 #### Scenario: Explosive equipment penalty
+
 - **WHEN** calculating defensive BV
 - **AND** unit has explosive equipment without CASE II protection
 - **THEN** each critical slot of explosive equipment SHALL subtract from defensive BV
@@ -53,6 +61,7 @@ The system SHALL calculate defensive BV from armor, structure, gyro, and defensi
 - **AND** B-Pods and M-Pods SHALL subtract 1 per slot
 
 #### Scenario: Defensive speed factor calculation
+
 - **WHEN** calculating defensive speed factor
 - **THEN** maximum TMM SHALL be determined from run MP, jump MP, and UMU MP
 - **AND** defensive factor SHALL equal 1 + (maxTMM / 10.0)
@@ -65,6 +74,7 @@ The system SHALL calculate defensive BV from armor, structure, gyro, and defensi
 The system SHALL calculate offensive BV using incremental weapon heat tracking.
 
 #### Scenario: Offensive BV calculation
+
 - **WHEN** calculating offensive BV
 - **THEN** front/rear weapon switching SHALL be determined first
 - **AND** weapons SHALL be sorted by BV in descending order
@@ -76,22 +86,26 @@ The system SHALL calculate offensive BV using incremental weapon heat tracking.
 - **AND** offensive speed factor SHALL be applied to total
 
 #### Scenario: Running heat contribution
+
 - **WHEN** calculating heat pool for offensive BV
 - **THEN** running heat of 2 SHALL be added before weapon heat
 - **AND** this represents the heat cost of running movement
 
 #### Scenario: Weapon heat penalty application
+
 - **WHEN** adding a weapon to offensive BV
 - **AND** cumulative heat (running + weapons so far) exceeds dissipation
 - **THEN** the weapon BV SHALL be multiplied by 0.5
 - **AND** subsequent weapons also exceeding dissipation SHALL receive 50% penalty
 
 #### Scenario: Weight bonus
+
 - **WHEN** calculating offensive BV
 - **THEN** mech tonnage SHALL be added as weight bonus
 - **AND** a 75-ton mech SHALL add 75 to offensive BV
 
 #### Scenario: Front/rear weapon switching
+
 - **WHEN** calculating offensive BV
 - **THEN** front weapon BV SHALL be calculated first
 - **AND** rear weapon BV SHALL be calculated second
@@ -100,6 +114,7 @@ The system SHALL calculate offensive BV using incremental weapon heat tracking.
 - **AND** this ensures higher BV weapons are always counted at full value
 
 #### Scenario: Heat tracking algorithm
+
 - **WHEN** calculating offensive BV with heat tracking
 - **THEN** weapons SHALL be sorted by BV descending (heatless weapons first)
 - **AND** running heat of 2 SHALL be added to heat pool initially
@@ -110,6 +125,7 @@ The system SHALL calculate offensive BV using incremental weapon heat tracking.
 - **AND** this process continues for all weapons
 
 #### Scenario: Offensive speed factor calculation
+
 - **WHEN** calculating offensive speed factor
 - **THEN** movement points SHALL be determined from run MP or jump MP
 - **AND** speed factor SHALL equal round(pow(1 + ((mp - 5) / 10.0), 1.2) × 100.0) / 100.0
@@ -122,6 +138,7 @@ The system SHALL calculate offensive BV using incremental weapon heat tracking.
 Movement capability SHALL modify defensive and offensive BV using separate TMM-based speed factors.
 
 #### Scenario: Speed factor from TMM
+
 - **WHEN** calculating speed factor for BV2
 - **THEN** TMM SHALL be calculated from the higher of run MP or jump MP
 - **AND** speed factor SHALL be looked up from TMM-based table
@@ -130,18 +147,21 @@ Movement capability SHALL modify defensive and offensive BV using separate TMM-b
 - **AND** factor increases by 0.1 per TMM level
 
 #### Scenario: Defensive speed factor
+
 - **WHEN** calculating defensive speed factor
 - **THEN** TMM SHALL be calculated from run MP and jump MP
 - **AND** speed factor SHALL be looked up from TMM-based table
 - **AND** TMM 2 SHALL give defensive factor 1.2
 
 #### Scenario: Offensive speed factor
+
 - **WHEN** calculating offensive speed factor
 - **THEN** a modified speed factor SHALL be used
 - **AND** TMM 2 SHALL give offensive factor 1.12
 - **AND** offensive factor SHALL be slightly lower than defensive factor
 
 #### Scenario: TMM calculation from movement
+
 - **WHEN** calculating Target Movement Modifier
 - **THEN** effective MP SHALL be the higher of run MP or jump MP
 - **AND** 0-2 MP SHALL give TMM 0
@@ -157,6 +177,7 @@ Movement capability SHALL modify defensive and offensive BV using separate TMM-b
 The system SHALL adjust final BV based on pilot gunnery and piloting skills using a 9×9 multiplier matrix.
 
 #### Scenario: Pilot skill multiplier matrix
+
 - **WHEN** applying pilot skill adjustment to BV
 - **THEN** multiplier SHALL be looked up from gunnery (row) and piloting (column)
 - **AND** the 9×9 matrix SHALL be:
@@ -177,11 +198,12 @@ The system SHALL adjust final BV based on pilot gunnery and piloting skills usin
 - **AND** gunnery 8 / piloting 8 SHALL give multiplier 0.64
 
 ### Requirement: Registry Initialization Check
+
 BV calculation SHALL handle uninitialized equipment registry gracefully.
 
 #### Scenario: Registry not ready
+
 - **WHEN** equipment registry is not initialized
 - **THEN** offensive BV SHALL return 0
 - **AND** registry initialization SHALL be triggered asynchronously
 - **AND** calculation SHALL be retried when registry becomes ready
-

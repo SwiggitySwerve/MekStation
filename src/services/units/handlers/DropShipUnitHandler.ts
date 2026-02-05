@@ -7,9 +7,13 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.7
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
+import {
+  AerospaceMotionType,
+  IAerospaceMovement,
+} from '../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import {
   IDropShip,
   ICapitalMountedEquipment,
@@ -21,12 +25,8 @@ import {
   QuartersType,
   CapitalArc,
 } from '../../../types/unit/CapitalShipInterfaces';
-import {
-  AerospaceMotionType,
-  IAerospaceMovement,
-} from '../../../types/unit/BaseUnitInterfaces';
+import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
@@ -89,7 +89,9 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
   /**
    * Parse DropShip-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<IDropShip> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<IDropShip> & {
     errors: string[];
     warnings: string[];
   } {
@@ -136,7 +138,8 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
 
     // Docking collar
     const rawTags = document.rawTags || {};
-    const hasDockingCollar = this.getBooleanFromRaw(rawTags, 'dockingcollar') ?? true;
+    const hasDockingCollar =
+      this.getBooleanFromRaw(rawTags, 'dockingcollar') ?? true;
 
     // Crew configuration
     const crewConfiguration = this.parseCrewConfiguration(document);
@@ -204,7 +207,9 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
   /**
    * Parse crew configuration from document
    */
-  private parseCrewConfiguration(document: IBlkDocument): ICapitalCrewConfiguration {
+  private parseCrewConfiguration(
+    document: IBlkDocument,
+  ): ICapitalCrewConfiguration {
     return {
       crew: document.crew || 0,
       officers: document.officers || 0,
@@ -242,7 +247,7 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
    */
   private parseTransporterString(
     transporter: string,
-    bayNumber: number
+    bayNumber: number,
   ): ITransportBay | null {
     const lower = transporter.toLowerCase();
     const parts = lower.split(':');
@@ -297,11 +302,15 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly ICapitalMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly ICapitalMountedEquipment[] {
     const equipment: ICapitalMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const arc = this.normalizeArc(locationKey);
 
       for (const item of items) {
@@ -348,7 +357,7 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
    */
   private getBooleanFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): boolean | undefined {
     const value = rawTags[key];
     if (value === undefined) return undefined;
@@ -363,7 +372,7 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<IDropShip>
+    typeSpecificFields: Partial<IDropShip>,
   ): IDropShip {
     const techBase = this.parseTechBase(commonFields.techBase);
     const rulesLevel = this.parseRulesLevel(commonFields.techBase);
@@ -444,7 +453,9 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
   /**
    * Serialize DropShip-specific fields
    */
-  protected serializeTypeSpecificFields(unit: IDropShip): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: IDropShip,
+  ): Partial<ISerializedUnit> {
     return {
       configuration: unit.motionType,
       rulesLevel: String(unit.rulesLevel),
@@ -455,7 +466,9 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
    * Deserialize from standard format
    */
   deserialize(_serialized: ISerializedUnit): IUnitParseResult<IDropShip> {
-    return createFailureResult(['DropShip deserialization not yet implemented']);
+    return createFailureResult([
+      'DropShip deserialization not yet implemented',
+    ]);
   }
 
   /**
@@ -501,7 +514,7 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
     const escapeCapacity = unit.escapePods * 7 + unit.lifeBoats * 6;
     if (escapeCapacity < totalPersonnel) {
       warnings.push(
-        `Insufficient escape capacity (${escapeCapacity}) for personnel (${totalPersonnel})`
+        `Insufficient escape capacity (${escapeCapacity}) for personnel (${totalPersonnel})`,
       );
     }
 

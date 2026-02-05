@@ -47,7 +47,9 @@ export function isMixed(techBaseName: string): boolean {
  * @param techBaseName - The tech base name (e.g., "Inner Sphere", "Clan", "Mixed")
  * @returns Badge variant: 'cyan' for Clan, 'amber' for IS, 'slate' for others
  */
-export function getTechBaseBadgeVariant(techBaseName: string): TechBaseBadgeVariant {
+export function getTechBaseBadgeVariant(
+  techBaseName: string,
+): TechBaseBadgeVariant {
   if (isClan(techBaseName)) return 'cyan';
   if (isInnerSphere(techBaseName)) return 'amber';
   return 'slate';

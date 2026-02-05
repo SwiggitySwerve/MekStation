@@ -5,11 +5,11 @@ const fs = require('fs');
 
 async function supportSystemsAnalysis() {
   const dbPath = path.join(__dirname, 'data/battletech_dev.sqlite');
-  
+
   try {
     const db = await open({
       filename: dbPath,
-      driver: sqlite3.Database
+      driver: sqlite3.Database,
     });
 
     console.log('🔧 Support Systems Analysis - Phase 2, Step 5\n');
@@ -25,69 +25,69 @@ async function supportSystemsAnalysis() {
 
     // Support systems analysis categories
     const supportSystems = {
-      'EngineSystems': {
-        'StandardEngines': [],
-        'XLEngines': [],
-        'LightEngines': [],
-        'CompactEngines': [],
-        'EngineShielding': [],
-        'FuelSystems': []
+      EngineSystems: {
+        StandardEngines: [],
+        XLEngines: [],
+        LightEngines: [],
+        CompactEngines: [],
+        EngineShielding: [],
+        FuelSystems: [],
       },
-      'HeatManagement': {
-        'StandardHeatSinks': [],
-        'DoubleHeatSinks': [],
-        'HeatSinkIntegration': [],
-        'CoolingSystems': [],
-        'HeatDissipation': []
+      HeatManagement: {
+        StandardHeatSinks: [],
+        DoubleHeatSinks: [],
+        HeatSinkIntegration: [],
+        CoolingSystems: [],
+        HeatDissipation: [],
       },
-      'LifeSupportCockpit': {
-        'StandardCockpit': [],
-        'SmallCockpit': [],
-        'TorsoCockpit': [],
-        'CommandConsole': [],
-        'LifeSupport': [],
-        'EjectionSeat': []
+      LifeSupportCockpit: {
+        StandardCockpit: [],
+        SmallCockpit: [],
+        TorsoCockpit: [],
+        CommandConsole: [],
+        LifeSupport: [],
+        EjectionSeat: [],
       },
-      'CommunicationSystems': {
-        'C3Computer': [],
-        'C3iComputer': [],
-        'NavalC3': [],
-        'AdvancedComm': []
+      CommunicationSystems: {
+        C3Computer: [],
+        C3iComputer: [],
+        NavalC3: [],
+        AdvancedComm: [],
       },
-      'CoreSystems': {
-        'Actuators': [],
-        'Sensors': [],
-        'GyroSystems': [],
-        'PowerSystems': []
-      }
+      CoreSystems: {
+        Actuators: [],
+        Sensors: [],
+        GyroSystems: [],
+        PowerSystems: [],
+      },
     };
 
     // Tech base variant analysis for support systems
     const supportTechBaseVariants = {
-      'ISVariants': [],
-      'ClanVariants': [],
-      'MixedClassification': [],
-      'MissingISVariant': [],
-      'MissingClanVariant': [],
-      'NeedsSeparation': []
+      ISVariants: [],
+      ClanVariants: [],
+      MixedClassification: [],
+      MissingISVariant: [],
+      MissingClanVariant: [],
+      NeedsSeparation: [],
     };
 
     // Critical support systems for construction rules
     const criticalSupportSystems = {
-      'XLEngines': [],
-      'DoubleHeatSinks': [],
-      'EngineCriticals': [],
-      'CockpitSystems': [],
-      'GyroSystems': [],
-      'ActuatorSystems': []
+      XLEngines: [],
+      DoubleHeatSinks: [],
+      EngineCriticals: [],
+      CockpitSystems: [],
+      GyroSystems: [],
+      ActuatorSystems: [],
     };
 
     // Construction rule modifiers
     const constructionModifiers = {
-      'WeightModifiers': [],
-      'SlotModifiers': [],
-      'HeatModifiers': [],
-      'CostModifiers': []
+      WeightModifiers: [],
+      SlotModifiers: [],
+      HeatModifiers: [],
+      CostModifiers: [],
     };
 
     // Process each equipment item for support systems
@@ -101,14 +101,18 @@ async function supportSystemsAnalysis() {
       }
 
       // Categorize support system
-      const category = categorizeSupportSystem(equipment.name, equipment.type, equipment.internal_id);
+      const category = categorizeSupportSystem(
+        equipment.name,
+        equipment.type,
+        equipment.internal_id,
+      );
       if (category.main && category.sub) {
         supportSystems[category.main][category.sub].push({
           internal_id: equipment.internal_id,
           name: equipment.name,
           type: equipment.type,
           tech_base: equipment.tech_base,
-          data: parsedData
+          data: parsedData,
         });
       }
 
@@ -121,7 +125,7 @@ async function supportSystemsAnalysis() {
           current_tech_base: equipment.tech_base,
           recommendation: techAnalysis.recommendation,
           base_system: techAnalysis.baseSystem,
-          variant_needed: techAnalysis.variantNeeded
+          variant_needed: techAnalysis.variantNeeded,
         });
       }
 
@@ -135,17 +139,17 @@ async function supportSystemsAnalysis() {
           critical_reason: criticalCheck.reason,
           construction_impact: criticalCheck.impact,
           slots_required: criticalCheck.slots,
-          weight_impact: criticalCheck.weight
+          weight_impact: criticalCheck.weight,
         });
       }
 
       // Check for construction rule modifiers
       const modifierCheck = checkConstructionModifiers(equipment, parsedData);
-      modifierCheck.forEach(modifier => {
+      modifierCheck.forEach((modifier) => {
         constructionModifiers[modifier.type].push({
           equipment: equipment.name,
           tech_base: equipment.tech_base,
-          modifier: modifier
+          modifier: modifier,
         });
       });
     }
@@ -153,15 +157,20 @@ async function supportSystemsAnalysis() {
     // Generate detailed reports
     console.log('🔧 SUPPORT SYSTEMS CATEGORIZATION ANALYSIS');
     console.log('============================================');
-    
-    for (const [mainCategory, subCategories] of Object.entries(supportSystems)) {
-      const totalInCategory = Object.values(subCategories).reduce((sum, items) => sum + items.length, 0);
+
+    for (const [mainCategory, subCategories] of Object.entries(
+      supportSystems,
+    )) {
+      const totalInCategory = Object.values(subCategories).reduce(
+        (sum, items) => sum + items.length,
+        0,
+      );
       if (totalInCategory > 0) {
         console.log(`\n${mainCategory}: ${totalInCategory} systems`);
         for (const [subCategory, systems] of Object.entries(subCategories)) {
           if (systems.length > 0) {
             console.log(`  ${subCategory}: ${systems.length} systems`);
-            systems.slice(0, 5).forEach(system => {
+            systems.slice(0, 5).forEach((system) => {
               console.log(`    - ${system.name} (${system.tech_base})`);
             });
             if (systems.length > 5) {
@@ -174,16 +183,24 @@ async function supportSystemsAnalysis() {
 
     console.log('\n🎯 SUPPORT SYSTEMS TECH BASE ANALYSIS');
     console.log('======================================');
-    
-    for (const [classification, systems] of Object.entries(supportTechBaseVariants)) {
+
+    for (const [classification, systems] of Object.entries(
+      supportTechBaseVariants,
+    )) {
       if (systems.length > 0) {
         console.log(`\n${classification}: ${systems.length} systems`);
-        systems.slice(0, 8).forEach(system => {
+        systems.slice(0, 8).forEach((system) => {
           if (system.base_system && system.variant_needed) {
-            console.log(`  - ${system.name} (${system.current_tech_base}) -> ${system.recommendation}`);
-            console.log(`    Base: ${system.base_system}, Need: ${system.variant_needed}`);
+            console.log(
+              `  - ${system.name} (${system.current_tech_base}) -> ${system.recommendation}`,
+            );
+            console.log(
+              `    Base: ${system.base_system}, Need: ${system.variant_needed}`,
+            );
           } else {
-            console.log(`  - ${system.name} (${system.current_tech_base}) -> ${system.recommendation}`);
+            console.log(
+              `  - ${system.name} (${system.current_tech_base}) -> ${system.recommendation}`,
+            );
           }
         });
         if (systems.length > 8) {
@@ -194,33 +211,38 @@ async function supportSystemsAnalysis() {
 
     console.log('\n⚠️ CRITICAL SUPPORT SYSTEMS FOR CONSTRUCTION RULES');
     console.log('===================================================');
-    
+
     for (const [category, systems] of Object.entries(criticalSupportSystems)) {
       if (systems.length > 0) {
         console.log(`\n${category}: ${systems.length} systems`);
-        systems.forEach(system => {
+        systems.forEach((system) => {
           console.log(`  - ${system.name} (${system.tech_base})`);
           console.log(`    Reason: ${system.critical_reason}`);
           console.log(`    Impact: ${system.construction_impact}`);
-          if (system.slots_required) console.log(`    Slots: ${system.slots_required}`);
-          if (system.weight_impact) console.log(`    Weight: ${system.weight_impact}`);
+          if (system.slots_required)
+            console.log(`    Slots: ${system.slots_required}`);
+          if (system.weight_impact)
+            console.log(`    Weight: ${system.weight_impact}`);
         });
       }
     }
 
     // Create IS vs Clan comparison for critical support systems
-    const criticalSupportComparison = createCriticalSupportComparison(criticalSupportSystems, supportTechBaseVariants);
-    
+    const criticalSupportComparison = createCriticalSupportComparison(
+      criticalSupportSystems,
+      supportTechBaseVariants,
+    );
+
     console.log('\n📊 IS vs CLAN CRITICAL SUPPORT SYSTEMS COMPARISON');
     console.log('=================================================');
-    
-    criticalSupportComparison.forEach(comparison => {
+
+    criticalSupportComparison.forEach((comparison) => {
       console.log(`\n${comparison.systemType}:`);
       console.log(`  IS Version: ${comparison.isVersion || 'Missing'}`);
       console.log(`  Clan Version: ${comparison.clanVersion || 'Missing'}`);
       if (comparison.differences.length > 0) {
         console.log(`  Critical Differences:`);
-        comparison.differences.forEach(diff => {
+        comparison.differences.forEach((diff) => {
           console.log(`    - ${diff}`);
         });
       }
@@ -228,12 +250,16 @@ async function supportSystemsAnalysis() {
 
     console.log('\n🔧 CONSTRUCTION RULE MODIFIERS ANALYSIS');
     console.log('========================================');
-    
-    for (const [modifierType, modifiers] of Object.entries(constructionModifiers)) {
+
+    for (const [modifierType, modifiers] of Object.entries(
+      constructionModifiers,
+    )) {
       if (modifiers.length > 0) {
         console.log(`\n${modifierType}: ${modifiers.length} modifiers`);
-        modifiers.slice(0, 5).forEach(modifier => {
-          console.log(`  - ${modifier.equipment} (${modifier.tech_base}): ${modifier.modifier.description}`);
+        modifiers.slice(0, 5).forEach((modifier) => {
+          console.log(
+            `  - ${modifier.equipment} (${modifier.tech_base}): ${modifier.modifier.description}`,
+          );
         });
         if (modifiers.length > 5) {
           console.log(`  ... and ${modifiers.length - 5} more modifiers`);
@@ -244,31 +270,53 @@ async function supportSystemsAnalysis() {
     // Save detailed analysis results
     const analysisResults = {
       summary: {
-        total_support_systems: Object.values(supportSystems).reduce((sum, cat) => 
-          sum + Object.values(cat).reduce((subSum, arr) => subSum + arr.length, 0), 0),
-        engine_systems: Object.values(supportSystems.EngineSystems).reduce((sum, arr) => sum + arr.length, 0),
-        heat_management: Object.values(supportSystems.HeatManagement).reduce((sum, arr) => sum + arr.length, 0),
-        life_support_cockpit: Object.values(supportSystems.LifeSupportCockpit).reduce((sum, arr) => sum + arr.length, 0),
-        communication_systems: Object.values(supportSystems.CommunicationSystems).reduce((sum, arr) => sum + arr.length, 0),
-        critical_systems_count: Object.values(criticalSupportSystems).reduce((sum, arr) => sum + arr.length, 0),
-        tech_base_issues: supportTechBaseVariants.NeedsSeparation.length + 
-                         supportTechBaseVariants.MissingISVariant.length + 
-                         supportTechBaseVariants.MissingClanVariant.length
+        total_support_systems: Object.values(supportSystems).reduce(
+          (sum, cat) =>
+            sum +
+            Object.values(cat).reduce((subSum, arr) => subSum + arr.length, 0),
+          0,
+        ),
+        engine_systems: Object.values(supportSystems.EngineSystems).reduce(
+          (sum, arr) => sum + arr.length,
+          0,
+        ),
+        heat_management: Object.values(supportSystems.HeatManagement).reduce(
+          (sum, arr) => sum + arr.length,
+          0,
+        ),
+        life_support_cockpit: Object.values(
+          supportSystems.LifeSupportCockpit,
+        ).reduce((sum, arr) => sum + arr.length, 0),
+        communication_systems: Object.values(
+          supportSystems.CommunicationSystems,
+        ).reduce((sum, arr) => sum + arr.length, 0),
+        critical_systems_count: Object.values(criticalSupportSystems).reduce(
+          (sum, arr) => sum + arr.length,
+          0,
+        ),
+        tech_base_issues:
+          supportTechBaseVariants.NeedsSeparation.length +
+          supportTechBaseVariants.MissingISVariant.length +
+          supportTechBaseVariants.MissingClanVariant.length,
       },
       support_systems: supportSystems,
       tech_base_variants: supportTechBaseVariants,
       critical_systems: criticalSupportSystems,
       construction_modifiers: constructionModifiers,
       critical_comparison: criticalSupportComparison,
-      analysis_date: new Date().toISOString()
+      analysis_date: new Date().toISOString(),
     };
 
-    fs.writeFileSync('data/support_systems_analysis_results.json', JSON.stringify(analysisResults, null, 2));
-    console.log('\n💾 Support systems analysis results saved to support_systems_analysis_results.json');
+    fs.writeFileSync(
+      'data/support_systems_analysis_results.json',
+      JSON.stringify(analysisResults, null, 2),
+    );
+    console.log(
+      '\n💾 Support systems analysis results saved to support_systems_analysis_results.json',
+    );
 
     await db.close();
     console.log('\n✅ Support systems analysis complete!');
-    
   } catch (error) {
     console.error('❌ Error during support systems analysis:', error);
   }
@@ -280,7 +328,11 @@ function categorizeSupportSystem(name, type, internal_id) {
   const idLower = internal_id.toLowerCase();
 
   // Engine Systems
-  if (nameLower.includes('xl engine') || nameLower.includes('extra-light engine') || nameLower.includes('extra light engine')) {
+  if (
+    nameLower.includes('xl engine') ||
+    nameLower.includes('extra-light engine') ||
+    nameLower.includes('extra light engine')
+  ) {
     return { main: 'EngineSystems', sub: 'XLEngines' };
   }
   if (nameLower.includes('light engine')) {
@@ -308,7 +360,10 @@ function categorizeSupportSystem(name, type, internal_id) {
   if (nameLower.includes('small cockpit')) {
     return { main: 'LifeSupportCockpit', sub: 'SmallCockpit' };
   }
-  if (nameLower.includes('torso cockpit') || nameLower.includes('torso-mounted cockpit')) {
+  if (
+    nameLower.includes('torso cockpit') ||
+    nameLower.includes('torso-mounted cockpit')
+  ) {
     return { main: 'LifeSupportCockpit', sub: 'TorsoCockpit' };
   }
   if (nameLower.includes('command console')) {
@@ -320,7 +375,10 @@ function categorizeSupportSystem(name, type, internal_id) {
   if (nameLower.includes('life support')) {
     return { main: 'LifeSupportCockpit', sub: 'LifeSupport' };
   }
-  if (nameLower.includes('ejection seat') || nameLower.includes('ejector seat')) {
+  if (
+    nameLower.includes('ejection seat') ||
+    nameLower.includes('ejector seat')
+  ) {
     return { main: 'LifeSupportCockpit', sub: 'EjectionSeat' };
   }
 
@@ -336,11 +394,21 @@ function categorizeSupportSystem(name, type, internal_id) {
   }
 
   // Core Systems
-  if (nameLower.includes('actuator') || nameLower.includes('hip') || nameLower.includes('leg') || 
-      nameLower.includes('foot') || nameLower.includes('shoulder') || nameLower.includes('arm')) {
+  if (
+    nameLower.includes('actuator') ||
+    nameLower.includes('hip') ||
+    nameLower.includes('leg') ||
+    nameLower.includes('foot') ||
+    nameLower.includes('shoulder') ||
+    nameLower.includes('arm')
+  ) {
     return { main: 'CoreSystems', sub: 'Actuators' };
   }
-  if (nameLower.includes('sensors') && !nameLower.includes('remote') && !nameLower.includes('active')) {
+  if (
+    nameLower.includes('sensors') &&
+    !nameLower.includes('remote') &&
+    !nameLower.includes('active')
+  ) {
     return { main: 'CoreSystems', sub: 'Sensors' };
   }
   if (nameLower.includes('gyro')) {
@@ -355,9 +423,16 @@ function analyzeSupportSystemTechBase(equipment, parsedData) {
   const techBase = equipment.tech_base;
 
   // Check if this is a support system
-  if (!nameLower.includes('engine') && !nameLower.includes('heat sink') && !nameLower.includes('cockpit') &&
-      !nameLower.includes('c3') && !nameLower.includes('gyro') && !nameLower.includes('actuator') &&
-      !nameLower.includes('sensors') && !nameLower.includes('life support')) {
+  if (
+    !nameLower.includes('engine') &&
+    !nameLower.includes('heat sink') &&
+    !nameLower.includes('cockpit') &&
+    !nameLower.includes('c3') &&
+    !nameLower.includes('gyro') &&
+    !nameLower.includes('actuator') &&
+    !nameLower.includes('sensors') &&
+    !nameLower.includes('life support')
+  ) {
     return { classification: 'NotSupportSystem' };
   }
 
@@ -367,10 +442,20 @@ function analyzeSupportSystemTechBase(equipment, parsedData) {
 
   if (nameLower.includes('xl engine')) {
     baseSystem = 'XL Engine';
-    variantNeeded = techBase === 'IS' ? 'Clan XL Engine' : techBase === 'Clan' ? 'IS XL Engine' : 'Both variants';
+    variantNeeded =
+      techBase === 'IS'
+        ? 'Clan XL Engine'
+        : techBase === 'Clan'
+          ? 'IS XL Engine'
+          : 'Both variants';
   } else if (nameLower.includes('double heat sink')) {
     baseSystem = 'Double Heat Sink';
-    variantNeeded = techBase === 'IS' ? 'Clan Double Heat Sink' : techBase === 'Clan' ? 'IS Double Heat Sink' : 'Both variants';
+    variantNeeded =
+      techBase === 'IS'
+        ? 'Clan Double Heat Sink'
+        : techBase === 'Clan'
+          ? 'IS Double Heat Sink'
+          : 'Both variants';
   } else if (nameLower.includes('light engine')) {
     baseSystem = 'Light Engine';
     variantNeeded = 'IS only technology';
@@ -386,23 +471,28 @@ function analyzeSupportSystemTechBase(equipment, parsedData) {
         classification: 'NeedsSeparation',
         recommendation: 'Separate into IS and Clan variants',
         baseSystem,
-        variantNeeded
+        variantNeeded,
       };
     }
     return {
       classification: 'MixedClassification',
       recommendation: 'Review mixed tech classification',
       baseSystem: 'Unknown',
-      variantNeeded: 'Needs analysis'
+      variantNeeded: 'Needs analysis',
     };
   }
 
-  if (techBase === 'IS' && baseSystem && baseSystem !== 'Light Engine' && baseSystem !== 'C3 Computer') {
+  if (
+    techBase === 'IS' &&
+    baseSystem &&
+    baseSystem !== 'Light Engine' &&
+    baseSystem !== 'C3 Computer'
+  ) {
     return {
       classification: 'MissingClanVariant',
       recommendation: 'Create Clan variant',
       baseSystem,
-      variantNeeded
+      variantNeeded,
     };
   }
 
@@ -411,7 +501,7 @@ function analyzeSupportSystemTechBase(equipment, parsedData) {
       classification: 'MissingISVariant',
       recommendation: 'Create IS variant',
       baseSystem,
-      variantNeeded
+      variantNeeded,
     };
   }
 
@@ -420,7 +510,7 @@ function analyzeSupportSystemTechBase(equipment, parsedData) {
       classification: 'ISVariants',
       recommendation: 'Properly classified IS system',
       baseSystem: baseSystem || equipment.name,
-      variantNeeded: 'None'
+      variantNeeded: 'None',
     };
   }
 
@@ -429,7 +519,7 @@ function analyzeSupportSystemTechBase(equipment, parsedData) {
       classification: 'ClanVariants',
       recommendation: 'Properly classified Clan system',
       baseSystem: baseSystem || equipment.name,
-      variantNeeded: 'None'
+      variantNeeded: 'None',
     };
   }
 
@@ -437,7 +527,7 @@ function analyzeSupportSystemTechBase(equipment, parsedData) {
     classification: 'ISVariants',
     recommendation: 'Default IS classification',
     baseSystem: equipment.name,
-    variantNeeded: 'None'
+    variantNeeded: 'None',
   };
 }
 
@@ -445,14 +535,24 @@ function checkCriticalSupportSystem(equipment, parsedData) {
   const nameLower = equipment.name.toLowerCase();
 
   // XL Engines - Critical for construction rules
-  if (nameLower.includes('xl engine') || nameLower.includes('extra-light engine') || nameLower.includes('extra light engine')) {
+  if (
+    nameLower.includes('xl engine') ||
+    nameLower.includes('extra-light engine') ||
+    nameLower.includes('extra light engine')
+  ) {
     return {
       isCritical: true,
       category: 'XLEngines',
       reason: 'Critical slot differences between IS and Clan XL engines',
-      impact: 'IS XL engines use 6 slots (3 each side torso), Clan use 4 slots (2 each side torso)',
-      slots: equipment.tech_base === 'IS' ? '6 slots (3+3)' : equipment.tech_base === 'Clan' ? '4 slots (2+2)' : 'Varies',
-      weight: '50% of standard fusion engine weight'
+      impact:
+        'IS XL engines use 6 slots (3 each side torso), Clan use 4 slots (2 each side torso)',
+      slots:
+        equipment.tech_base === 'IS'
+          ? '6 slots (3+3)'
+          : equipment.tech_base === 'Clan'
+            ? '4 slots (2+2)'
+            : 'Varies',
+      weight: '50% of standard fusion engine weight',
     };
   }
 
@@ -462,21 +562,31 @@ function checkCriticalSupportSystem(equipment, parsedData) {
       isCritical: true,
       category: 'DoubleHeatSinks',
       reason: 'Critical slot differences between IS and Clan DHS',
-      impact: 'IS DHS use 3 slots outside engine, Clan DHS use 2 slots outside engine',
-      slots: equipment.tech_base === 'IS' ? '3 slots outside engine' : equipment.tech_base === 'Clan' ? '2 slots outside engine' : 'Varies',
-      weight: '1 ton each'
+      impact:
+        'IS DHS use 3 slots outside engine, Clan DHS use 2 slots outside engine',
+      slots:
+        equipment.tech_base === 'IS'
+          ? '3 slots outside engine'
+          : equipment.tech_base === 'Clan'
+            ? '2 slots outside engine'
+            : 'Varies',
+      weight: '1 ton each',
     };
   }
 
   // Engine Criticals - General engine components
-  if (nameLower.includes('engine') && !nameLower.includes('xl') && !nameLower.includes('targeting')) {
+  if (
+    nameLower.includes('engine') &&
+    !nameLower.includes('xl') &&
+    !nameLower.includes('targeting')
+  ) {
     return {
       isCritical: true,
       category: 'EngineCriticals',
       reason: 'Engine critical hits and integration',
       impact: 'Standard fusion engines have critical slots in center torso',
       slots: 'Center torso slots',
-      weight: 'Varies by engine rating'
+      weight: 'Varies by engine rating',
     };
   }
 
@@ -486,9 +596,18 @@ function checkCriticalSupportSystem(equipment, parsedData) {
       isCritical: true,
       category: 'CockpitSystems',
       reason: 'Pilot protection and command systems',
-      impact: 'Standard cockpit uses 1 slot in head, variants use different slot counts',
-      slots: nameLower.includes('small') ? '1 slot' : nameLower.includes('torso') ? '4 slots' : '1 slot',
-      weight: nameLower.includes('small') ? '2 tons' : nameLower.includes('torso') ? '4 tons' : '3 tons'
+      impact:
+        'Standard cockpit uses 1 slot in head, variants use different slot counts',
+      slots: nameLower.includes('small')
+        ? '1 slot'
+        : nameLower.includes('torso')
+          ? '4 slots'
+          : '1 slot',
+      weight: nameLower.includes('small')
+        ? '2 tons'
+        : nameLower.includes('torso')
+          ? '4 tons'
+          : '3 tons',
     };
   }
 
@@ -500,19 +619,25 @@ function checkCriticalSupportSystem(equipment, parsedData) {
       reason: 'Essential for mech balance and movement',
       impact: 'Standard gyro uses 4 slots in center torso',
       slots: '4 slots in center torso',
-      weight: 'Engine rating / 100 tons (rounded up)'
+      weight: 'Engine rating / 100 tons (rounded up)',
     };
   }
 
   // Actuator Systems - Critical for limb function
-  if (nameLower.includes('actuator') || nameLower.includes('hip') || nameLower.includes('leg') || nameLower.includes('foot')) {
+  if (
+    nameLower.includes('actuator') ||
+    nameLower.includes('hip') ||
+    nameLower.includes('leg') ||
+    nameLower.includes('foot')
+  ) {
     return {
       isCritical: true,
       category: 'ActuatorSystems',
       reason: 'Essential for limb movement and weapon mounting',
-      impact: 'Actuators are required for limb function and determine weapon restrictions',
+      impact:
+        'Actuators are required for limb function and determine weapon restrictions',
       slots: '1 slot each in appropriate limb',
-      weight: '0 tons (included in structure)'
+      weight: '0 tons (included in structure)',
     };
   }
 
@@ -529,7 +654,7 @@ function checkConstructionModifiers(equipment, parsedData) {
       type: 'WeightModifiers',
       description: '50% weight reduction from standard fusion engine',
       modifier_value: 0.5,
-      applies_to: 'engine_weight'
+      applies_to: 'engine_weight',
     });
   }
 
@@ -539,7 +664,7 @@ function checkConstructionModifiers(equipment, parsedData) {
       type: 'HeatModifiers',
       description: 'Dissipates 2 heat points instead of 1',
       modifier_value: 2.0,
-      applies_to: 'heat_dissipation'
+      applies_to: 'heat_dissipation',
     });
   }
 
@@ -549,7 +674,7 @@ function checkConstructionModifiers(equipment, parsedData) {
       type: 'SlotModifiers',
       description: 'Uses 1 slot instead of standard cockpit',
       modifier_value: 1,
-      applies_to: 'head_slots'
+      applies_to: 'head_slots',
     });
   }
 
@@ -558,7 +683,7 @@ function checkConstructionModifiers(equipment, parsedData) {
       type: 'SlotModifiers',
       description: 'Uses 4 slots in center torso instead of 1 in head',
       modifier_value: 4,
-      applies_to: 'center_torso_slots'
+      applies_to: 'center_torso_slots',
     });
   }
 
@@ -567,17 +692,30 @@ function checkConstructionModifiers(equipment, parsedData) {
 
 function createCriticalSupportComparison(criticalSystems, techBaseVariants) {
   const criticalSystemTypes = [
-    'XL Engine', 'Double Heat Sink', 'Standard Engine', 'Standard Heat Sink',
-    'Standard Cockpit', 'Small Cockpit', 'Torso Cockpit', 'Gyro',
-    'C3 Computer', 'C3i Computer'
+    'XL Engine',
+    'Double Heat Sink',
+    'Standard Engine',
+    'Standard Heat Sink',
+    'Standard Cockpit',
+    'Small Cockpit',
+    'Torso Cockpit',
+    'Gyro',
+    'C3 Computer',
+    'C3i Computer',
   ];
 
   const comparison = [];
 
-  criticalSystemTypes.forEach(systemType => {
-    const isVariant = techBaseVariants.ISVariants.find(s => s.name.toLowerCase().includes(systemType.toLowerCase()));
-    const clanVariant = techBaseVariants.ClanVariants.find(s => s.name.toLowerCase().includes(systemType.toLowerCase()));
-    const mixed = techBaseVariants.NeedsSeparation.find(s => s.base_system === systemType);
+  criticalSystemTypes.forEach((systemType) => {
+    const isVariant = techBaseVariants.ISVariants.find((s) =>
+      s.name.toLowerCase().includes(systemType.toLowerCase()),
+    );
+    const clanVariant = techBaseVariants.ClanVariants.find((s) =>
+      s.name.toLowerCase().includes(systemType.toLowerCase()),
+    );
+    const mixed = techBaseVariants.NeedsSeparation.find(
+      (s) => s.base_system === systemType,
+    );
 
     const differences = [];
 
@@ -588,7 +726,9 @@ function createCriticalSupportComparison(criticalSystems, techBaseVariants) {
       differences.push('Both: 50% weight of standard fusion engine');
     } else if (systemType === 'Double Heat Sink') {
       differences.push('IS Double Heat Sink: 3 critical slots outside engine');
-      differences.push('Clan Double Heat Sink: 2 critical slots outside engine');
+      differences.push(
+        'Clan Double Heat Sink: 2 critical slots outside engine',
+      );
       differences.push('Both: Dissipate 2 heat points, 1 ton weight');
     } else if (systemType === 'Standard Cockpit') {
       differences.push('Same for both tech bases: 1 slot in head, 3 tons');
@@ -602,7 +742,7 @@ function createCriticalSupportComparison(criticalSystems, techBaseVariants) {
       isVersion: isVariant?.name,
       clanVersion: clanVariant?.name,
       mixedItem: mixed?.name,
-      differences
+      differences,
     });
   });
 

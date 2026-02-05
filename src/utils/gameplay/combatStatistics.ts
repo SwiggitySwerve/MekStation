@@ -3,13 +3,12 @@
  * Aggregate combat statistics from game events.
  */
 
+import { IGameEvent, GameEventType } from '@/types/gameplay';
+
 import {
-  IGameEvent,
-  GameEventType,
-  IDamageAppliedPayload,
-  IUnitDestroyedPayload,
-} from '@/types/gameplay';
-import { getDamageAppliedPayload, getUnitDestroyedPayload } from './eventPayloads';
+  getDamageAppliedPayload,
+  getUnitDestroyedPayload,
+} from './eventPayloads';
 
 export interface IDamageMatrix {
   readonly matrix: ReadonlyMap<string, ReadonlyMap<string, number>>;
@@ -31,7 +30,9 @@ export interface IUnitPerformance {
   readonly survived: boolean;
 }
 
-export function projectDamageMatrix(events: readonly IGameEvent[]): IDamageMatrix {
+export function projectDamageMatrix(
+  events: readonly IGameEvent[],
+): IDamageMatrix {
   const matrix = new Map<string, Map<string, number>>();
   const totalDealt = new Map<string, number>();
   const totalReceived = new Map<string, number>();
@@ -58,14 +59,16 @@ export function projectDamageMatrix(events: readonly IGameEvent[]): IDamageMatri
 
   return {
     matrix: new Map(
-      Array.from(matrix.entries()).map(([key, value]) => [key, new Map(value)])
+      Array.from(matrix.entries()).map(([key, value]) => [key, new Map(value)]),
     ),
     totalDealt: new Map(totalDealt),
     totalReceived: new Map(totalReceived),
   };
 }
 
-export function projectKillCredits(events: readonly IGameEvent[]): readonly IKillCredit[] {
+export function projectKillCredits(
+  events: readonly IGameEvent[],
+): readonly IKillCredit[] {
   const credits: IKillCredit[] = [];
 
   for (const event of events) {
@@ -86,7 +89,7 @@ export function projectKillCredits(events: readonly IGameEvent[]): readonly IKil
 
 export function projectUnitPerformance(
   events: readonly IGameEvent[],
-  unitId: string
+  unitId: string,
 ): IUnitPerformance {
   let damageDealt = 0;
   let damageReceived = 0;

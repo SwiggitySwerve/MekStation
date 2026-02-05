@@ -3,12 +3,6 @@
  */
 
 import {
-  calculateGameOutcome,
-  isGameEnded,
-  determineWinner,
-  IOutcomeCalculationInput,
-} from '../GameOutcomeCalculator';
-import {
   IGameState,
   IGameConfig,
   GameStatus,
@@ -20,6 +14,13 @@ import {
   MovementType,
 } from '@/types/gameplay';
 
+import {
+  calculateGameOutcome,
+  isGameEnded,
+  determineWinner,
+  IOutcomeCalculationInput,
+} from '../GameOutcomeCalculator';
+
 // =============================================================================
 // Test Helpers
 // =============================================================================
@@ -27,7 +28,7 @@ import {
 function createMockUnit(
   id: string,
   side: GameSide,
-  destroyed: boolean = false
+  destroyed: boolean = false,
 ): IUnitGameState {
   return {
     id,
@@ -52,7 +53,7 @@ function createMockUnit(
 function createMockState(
   playerUnits: Array<{ id: string; destroyed: boolean }>,
   opponentUnits: Array<{ id: string; destroyed: boolean }>,
-  turn: number = 1
+  turn: number = 1,
 ): IGameState {
   const units: Record<string, IUnitGameState> = {};
 
@@ -85,7 +86,7 @@ function createMockConfig(turnLimit: number = 0): IGameConfig {
 
 function createMockInput(
   state: IGameState,
-  config: IGameConfig
+  config: IGameConfig,
 ): IOutcomeCalculationInput {
   return {
     state,
@@ -105,7 +106,7 @@ describe('GameOutcomeCalculator', () => {
     it('should detect player victory by elimination', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
-        [{ id: 'o1', destroyed: true }]
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
       const input = createMockInput(state, config);
@@ -122,7 +123,7 @@ describe('GameOutcomeCalculator', () => {
     it('should detect opponent victory by elimination', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: true }],
-        [{ id: 'o1', destroyed: false }]
+        [{ id: 'o1', destroyed: false }],
       );
       const config = createMockConfig();
       const input = createMockInput(state, config);
@@ -138,7 +139,7 @@ describe('GameOutcomeCalculator', () => {
     it('should detect draw by mutual destruction', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: true }],
-        [{ id: 'o1', destroyed: true }]
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
       const input = createMockInput(state, config);
@@ -156,7 +157,7 @@ describe('GameOutcomeCalculator', () => {
           { id: 'p2', destroyed: false },
         ],
         [{ id: 'o1', destroyed: false }],
-        10
+        10,
       );
       const config = createMockConfig(10);
       const input = createMockInput(state, config);
@@ -176,7 +177,7 @@ describe('GameOutcomeCalculator', () => {
           { id: 'o1', destroyed: false },
           { id: 'o2', destroyed: false },
         ],
-        10
+        10,
       );
       const config = createMockConfig(10);
       const input = createMockInput(state, config);
@@ -191,7 +192,7 @@ describe('GameOutcomeCalculator', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
         [{ id: 'o1', destroyed: false }],
-        10
+        10,
       );
       const config = createMockConfig(10);
       const input = createMockInput(state, config);
@@ -205,7 +206,7 @@ describe('GameOutcomeCalculator', () => {
     it('should calculate duration correctly', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
-        [{ id: 'o1', destroyed: true }]
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
       const input: IOutcomeCalculationInput = {
@@ -231,7 +232,7 @@ describe('GameOutcomeCalculator', () => {
         [
           { id: 'o1', destroyed: true },
           { id: 'o2', destroyed: true },
-        ]
+        ],
       );
       const config = createMockConfig();
       const input = createMockInput(state, config);
@@ -249,7 +250,7 @@ describe('GameOutcomeCalculator', () => {
     it('should return true when player is eliminated', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: true }],
-        [{ id: 'o1', destroyed: false }]
+        [{ id: 'o1', destroyed: false }],
       );
       const config = createMockConfig();
 
@@ -259,7 +260,7 @@ describe('GameOutcomeCalculator', () => {
     it('should return true when opponent is eliminated', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
-        [{ id: 'o1', destroyed: true }]
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
 
@@ -270,7 +271,7 @@ describe('GameOutcomeCalculator', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
         [{ id: 'o1', destroyed: false }],
-        11 // Turn 11
+        11, // Turn 11
       );
       const config = createMockConfig(10);
 
@@ -281,7 +282,7 @@ describe('GameOutcomeCalculator', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
         [{ id: 'o1', destroyed: false }],
-        5
+        5,
       );
       const config = createMockConfig(10);
 
@@ -292,7 +293,7 @@ describe('GameOutcomeCalculator', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
         [{ id: 'o1', destroyed: false }],
-        100
+        100,
       );
       const config = createMockConfig(0);
 
@@ -304,7 +305,7 @@ describe('GameOutcomeCalculator', () => {
     it('should return player when opponent eliminated', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
-        [{ id: 'o1', destroyed: true }]
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
 
@@ -314,7 +315,7 @@ describe('GameOutcomeCalculator', () => {
     it('should return opponent when player eliminated', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: true }],
-        [{ id: 'o1', destroyed: false }]
+        [{ id: 'o1', destroyed: false }],
       );
       const config = createMockConfig();
 
@@ -324,7 +325,7 @@ describe('GameOutcomeCalculator', () => {
     it('should return draw when both eliminated', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: true }],
-        [{ id: 'o1', destroyed: true }]
+        [{ id: 'o1', destroyed: true }],
       );
       const config = createMockConfig();
 
@@ -335,7 +336,7 @@ describe('GameOutcomeCalculator', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
         [{ id: 'o1', destroyed: false }],
-        5
+        5,
       );
       const config = createMockConfig(10);
 

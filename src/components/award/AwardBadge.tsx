@@ -5,12 +5,14 @@
  * @spec openspec/changes/add-awards-system/specs/awards/spec.md
  */
 import React from 'react';
+
 import {
   IAward,
   AwardRarity,
   getRarityColor,
   getRarityBackground,
 } from '@/types/award';
+
 import { getAwardIcon, getRarityStrokeWidth } from './awardIcons';
 
 // =============================================================================
@@ -115,33 +117,18 @@ export function AwardBadge({
 
   return (
     <div
-      className={`
-        flex flex-col items-center ${config.gap}
-        ${isClickable ? 'cursor-pointer group' : ''}
-        ${className}
-      `}
+      className={`flex flex-col items-center ${config.gap} ${isClickable ? 'group cursor-pointer' : ''} ${className} `}
       onClick={isClickable ? () => onClick(award) : undefined}
     >
       {/* Icon Circle */}
       <div
-        className={`
-          ${config.icon}
-          rounded-full border-2
-          flex items-center justify-center
-          font-bold uppercase tracking-wide
-          transition-all duration-300
-          ${rarityBg} ${rarityBorder}
-          ${earned ? rarityColor : 'text-text-theme-muted opacity-40'}
-          ${earned && rarityGlow ? `shadow-lg ${rarityGlow}` : ''}
-          ${isClickable ? 'group-hover:scale-110' : ''}
-          ${isLegendary && earned ? 'ring-1 ring-amber-400/30 ring-offset-1 ring-offset-surface-base' : ''}
-        `}
+        className={` ${config.icon} flex items-center justify-center rounded-full border-2 font-bold tracking-wide uppercase transition-all duration-300 ${rarityBg} ${rarityBorder} ${earned ? rarityColor : 'text-text-theme-muted opacity-40'} ${earned && rarityGlow ? `shadow-lg ${rarityGlow}` : ''} ${isClickable ? 'group-hover:scale-110' : ''} ${isLegendary && earned ? 'ring-offset-surface-base ring-1 ring-amber-400/30 ring-offset-1' : ''} `}
       >
         {earned ? (
           <IconComponent size={iconSize} strokeWidth={strokeWidth} />
         ) : (
           <svg
-            className="w-1/2 h-1/2 opacity-50"
+            className="h-1/2 w-1/2 opacity-50"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -159,11 +146,7 @@ export function AwardBadge({
       {/* Award Name */}
       {showName && (
         <span
-          className={`
-            ${config.name} font-medium text-center leading-tight
-            ${earned ? 'text-text-theme-secondary' : 'text-text-theme-muted opacity-60'}
-            ${isClickable ? 'group-hover:text-text-theme-primary transition-colors' : ''}
-          `}
+          className={` ${config.name} text-center leading-tight font-medium ${earned ? 'text-text-theme-secondary' : 'text-text-theme-muted opacity-60'} ${isClickable ? 'group-hover:text-text-theme-primary transition-colors' : ''} `}
         >
           {earned ? award.name : '???'}
         </span>

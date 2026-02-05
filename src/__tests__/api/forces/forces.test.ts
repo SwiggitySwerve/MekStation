@@ -1,6 +1,6 @@
 /**
  * Comprehensive tests for Forces API routes
- * 
+ *
  * Tests all endpoints:
  * - /api/forces (index.ts)
  * - /api/forces/[id] ([id].ts)
@@ -10,18 +10,27 @@
  * - /api/forces/assignments/swap (assignments/swap.ts)
  */
 
-import { createMocks } from 'node-mocks-http';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import indexHandler from '@/pages/api/forces/index';
+
+import { createMocks } from 'node-mocks-http';
+
+import {
+  parseApiResponse,
+  parseErrorResponse,
+  createMock,
+} from '@/__tests__/helpers';
 import idHandler from '@/pages/api/forces/[id]';
 import cloneHandler from '@/pages/api/forces/[id]/clone';
 import validateHandler from '@/pages/api/forces/[id]/validate';
 import assignmentHandler from '@/pages/api/forces/assignments/[id]';
 import swapHandler from '@/pages/api/forces/assignments/swap';
-import { getSQLiteService, SQLiteService } from '@/services/persistence/SQLiteService';
+import indexHandler from '@/pages/api/forces/index';
 import { getForceService, ForceService } from '@/services/forces/ForceService';
+import {
+  getSQLiteService,
+  SQLiteService,
+} from '@/services/persistence/SQLiteService';
 import { ForceType, ForceStatus, ForcePosition, IForce } from '@/types/force';
-import { parseApiResponse, parseErrorResponse, createMock } from '@/__tests__/helpers';
 
 // =============================================================================
 // Response Types for Type-Safe Testing
@@ -78,8 +87,12 @@ interface AssignmentResponse {
 jest.mock('@/services/persistence/SQLiteService');
 jest.mock('@/services/forces/ForceService');
 
-const mockSQLiteService = getSQLiteService as jest.MockedFunction<typeof getSQLiteService>;
-const mockGetForceService = getForceService as jest.MockedFunction<typeof getForceService>;
+const mockSQLiteService = getSQLiteService as jest.MockedFunction<
+  typeof getSQLiteService
+>;
+const mockGetForceService = getForceService as jest.MockedFunction<
+  typeof getForceService
+>;
 
 // =============================================================================
 // Test Data
@@ -172,10 +185,12 @@ describe('Forces API Routes', () => {
         getDatabase: jest.fn(),
         close: jest.fn(),
         isInitialized: jest.fn().mockReturnValue(true),
-      })
+      }),
     );
 
-    mockGetForceService.mockReturnValue(createMock<ForceService>(mockForceService));
+    mockGetForceService.mockReturnValue(
+      createMock<ForceService>(mockForceService),
+    );
   });
 
   // ===========================================================================
@@ -184,7 +199,10 @@ describe('Forces API Routes', () => {
 
   describe('GET /api/forces', () => {
     it('should list all forces', async () => {
-      const forces = [mockForce, { ...mockForce, id: 'force-2', name: 'Bravo Lance' }];
+      const forces = [
+        mockForce,
+        { ...mockForce, id: 'force-2', name: 'Bravo Lance' },
+      ];
       mockForceService.getAllForces.mockReturnValue(forces);
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -635,11 +653,13 @@ describe('Forces API Routes', () => {
     it('should return validation errors', async () => {
       const invalidValidation = {
         isValid: false,
-        errors: [
-          { code: 'EMPTY_SLOT', message: 'Slot 2 is empty', slot: 2 },
-        ],
+        errors: [{ code: 'EMPTY_SLOT', message: 'Slot 2 is empty', slot: 2 }],
         warnings: [
-          { code: 'LOW_BV', message: 'Low battle value', assignmentId: 'assign-1' },
+          {
+            code: 'LOW_BV',
+            message: 'Low battle value',
+            assignmentId: 'assign-1',
+          },
         ],
       };
 
@@ -724,7 +744,10 @@ describe('Forces API Routes', () => {
       expect(res._getStatusCode()).toBe(200);
       const data = parseApiResponse<AssignmentResponse>(res);
       expect(data.success).toBe(true);
-      expect(mockForceService.assignPilot).toHaveBeenCalledWith('assign-1', 'pilot-2');
+      expect(mockForceService.assignPilot).toHaveBeenCalledWith(
+        'assign-1',
+        'pilot-2',
+      );
     });
 
     it('should assign unit only', async () => {
@@ -743,7 +766,10 @@ describe('Forces API Routes', () => {
       expect(res._getStatusCode()).toBe(200);
       const data = parseApiResponse<AssignmentResponse>(res);
       expect(data.success).toBe(true);
-      expect(mockForceService.assignUnit).toHaveBeenCalledWith('assign-1', 'unit-2');
+      expect(mockForceService.assignUnit).toHaveBeenCalledWith(
+        'assign-1',
+        'unit-2',
+      );
     });
 
     it('should assign pilot and unit together', async () => {
@@ -765,7 +791,7 @@ describe('Forces API Routes', () => {
       expect(mockForceService.assignPilotAndUnit).toHaveBeenCalledWith(
         'assign-1',
         'pilot-2',
-        'unit-2'
+        'unit-2',
       );
     });
 
@@ -787,7 +813,7 @@ describe('Forces API Routes', () => {
       expect(data.success).toBe(true);
       expect(mockForceService.setAssignmentPosition).toHaveBeenCalledWith(
         'assign-1',
-        ForcePosition.Scout
+        ForcePosition.Scout,
       );
     });
 
@@ -917,7 +943,10 @@ describe('Forces API Routes', () => {
       expect(res._getStatusCode()).toBe(200);
       const data = parseApiResponse<AssignmentResponse>(res);
       expect(data.success).toBe(true);
-      expect(mockForceService.swapAssignments).toHaveBeenCalledWith('assign-1', 'assign-2');
+      expect(mockForceService.swapAssignments).toHaveBeenCalledWith(
+        'assign-1',
+        'assign-2',
+      );
     });
 
     it('should reject missing assignmentId1', async () => {
@@ -1016,7 +1045,7 @@ describe('Forces API Routes', () => {
           getDatabase: jest.fn(),
           close: jest.fn(),
           isInitialized: jest.fn().mockReturnValue(false),
-        })
+        }),
       );
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -1039,7 +1068,7 @@ describe('Forces API Routes', () => {
           getDatabase: jest.fn(),
           close: jest.fn(),
           isInitialized: jest.fn().mockReturnValue(false),
-        })
+        }),
       );
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({

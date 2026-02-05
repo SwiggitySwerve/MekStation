@@ -6,6 +6,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
+
 import {
   IBaseEvent,
   ICreateEventParams,
@@ -96,7 +97,7 @@ export function createGameEvent<T>(
   payload: T,
   gameId: string,
   additionalContext?: Partial<IEventContext>,
-  causedBy?: ICausedBy
+  causedBy?: ICausedBy,
 ): IBaseEvent<T> {
   return createEvent({
     category: EventCategory.Game,
@@ -116,7 +117,7 @@ export function createCampaignEvent<T>(
   campaignId: string,
   missionId?: string,
   additionalContext?: Partial<IEventContext>,
-  causedBy?: ICausedBy
+  causedBy?: ICausedBy,
 ): IBaseEvent<T> {
   return createEvent({
     category: EventCategory.Campaign,
@@ -135,7 +136,7 @@ export function createPilotEvent<T>(
   payload: T,
   pilotId: string,
   additionalContext?: Partial<IEventContext>,
-  causedBy?: ICausedBy
+  causedBy?: ICausedBy,
 ): IBaseEvent<T> {
   return createEvent({
     category: EventCategory.Pilot,
@@ -154,7 +155,7 @@ export function createRepairEvent<T>(
   payload: T,
   unitId: string,
   additionalContext?: Partial<IEventContext>,
-  causedBy?: ICausedBy
+  causedBy?: ICausedBy,
 ): IBaseEvent<T> {
   return createEvent({
     category: EventCategory.Repair,
@@ -173,7 +174,7 @@ export function createAwardEvent<T>(
   payload: T,
   pilotId: string,
   additionalContext?: Partial<IEventContext>,
-  causedBy?: ICausedBy
+  causedBy?: ICausedBy,
 ): IBaseEvent<T> {
   return createEvent({
     category: EventCategory.Award,
@@ -191,7 +192,7 @@ export function createMetaEvent<T>(
   type: string,
   payload: T,
   context?: Partial<IEventContext>,
-  causedBy?: ICausedBy
+  causedBy?: ICausedBy,
 ): IBaseEvent<T> {
   return createEvent({
     category: EventCategory.Meta,

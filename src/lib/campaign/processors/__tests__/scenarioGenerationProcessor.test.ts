@@ -10,14 +10,26 @@
  * - Deterministic random behavior
  */
 
-import { scenarioGenerationProcessor, createScenarioGenerationProcessor } from '../scenarioGenerationProcessor';
-import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
-import { CampaignType } from '@/types/campaign/CampaignType';
-import { IContract } from '@/types/campaign/Mission';
-import { CombatRole, AtBMoraleLevel, type ICombatTeam, type IScenarioConditions } from '@/types/campaign/scenario/scenarioTypes';
 import { DayPhase } from '@/lib/campaign/dayPipeline';
+import {
+  ICampaign,
+  createDefaultCampaignOptions,
+} from '@/types/campaign/Campaign';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { IContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
+import {
+  CombatRole,
+  AtBMoraleLevel,
+  type ICombatTeam,
+  type IScenarioConditions,
+} from '@/types/campaign/scenario/scenarioTypes';
+
+import {
+  scenarioGenerationProcessor,
+  createScenarioGenerationProcessor,
+} from '../scenarioGenerationProcessor';
 
 // =============================================================================
 // Test Helpers
@@ -118,7 +130,9 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should have display name', () => {
-      expect(scenarioGenerationProcessor.displayName).toBe('Scenario Generation (AtB)');
+      expect(scenarioGenerationProcessor.displayName).toBe(
+        'Scenario Generation (AtB)',
+      );
     });
 
     it('should have process method', () => {
@@ -132,7 +146,10 @@ describe('scenarioGenerationProcessor', () => {
         currentDate: new Date('2025-01-27'), // Tuesday
         options: { ...createMockCampaign().options, useAtBScenarios: true },
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.events).toHaveLength(0);
     });
 
@@ -141,7 +158,10 @@ describe('scenarioGenerationProcessor', () => {
         currentDate: new Date('2025-01-28'), // Wednesday
         options: { ...createMockCampaign().options, useAtBScenarios: true },
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.events).toHaveLength(0);
     });
 
@@ -150,7 +170,10 @@ describe('scenarioGenerationProcessor', () => {
         currentDate: new Date('2025-01-25'), // Sunday
         options: { ...createMockCampaign().options, useAtBScenarios: true },
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.events).toHaveLength(0);
     });
 
@@ -161,7 +184,10 @@ describe('scenarioGenerationProcessor', () => {
         combatTeams: [createMockTeam()],
         missions: new Map([['contract-001', createMockContract()]]),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.campaign).toBeDefined();
     });
   });
@@ -174,18 +200,27 @@ describe('scenarioGenerationProcessor', () => {
         combatTeams: [createMockTeam()],
         missions: new Map([['contract-001', createMockContract()]]),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.events).toHaveLength(0);
     });
 
     it('should not process when useAtBScenarios is undefined', () => {
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'), // Monday
-        options: { ...createMockCampaign().options, useAtBScenarios: undefined },
+        options: {
+          ...createMockCampaign().options,
+          useAtBScenarios: undefined,
+        },
         combatTeams: [createMockTeam()],
         missions: new Map([['contract-001', createMockContract()]]),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.events).toHaveLength(0);
     });
 
@@ -196,7 +231,10 @@ describe('scenarioGenerationProcessor', () => {
         combatTeams: [createMockTeam()],
         missions: new Map([['contract-001', createMockContract()]]),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.campaign).toBeDefined();
     });
   });
@@ -216,7 +254,10 @@ describe('scenarioGenerationProcessor', () => {
           ],
         ]),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.events).toHaveLength(0);
     });
 
@@ -234,7 +275,10 @@ describe('scenarioGenerationProcessor', () => {
           ],
         ]),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.campaign).toBeDefined();
     });
 
@@ -252,7 +296,10 @@ describe('scenarioGenerationProcessor', () => {
           ],
         ]),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.campaign).toBeDefined();
     });
 
@@ -280,14 +327,19 @@ describe('scenarioGenerationProcessor', () => {
           ],
         ]),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.events).toHaveLength(0);
     });
   });
 
   describe('battle chance integration', () => {
     it('should emit event when battle occurs', () => {
-      const processor = createScenarioGenerationProcessor(createCyclingRandom(0.3, 0.5, 0.5, 0.5, 0.5));
+      const processor = createScenarioGenerationProcessor(
+        createCyclingRandom(0.3, 0.5, 0.5, 0.5, 0.5),
+      );
       const baseOptions = createDefaultCampaignOptions();
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
@@ -301,7 +353,9 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should not emit event when battle does not occur', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.99));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.99),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -313,7 +367,9 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should handle Patrol role (60% chance)', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.5));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.5),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -325,7 +381,9 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should handle Frontline role (20% chance)', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.15));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.15),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -337,7 +395,9 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should never generate battle for Auxiliary role', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.05));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.05),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -349,7 +409,9 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should never generate battle for Reserve role', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.05));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.05),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -363,7 +425,9 @@ describe('scenarioGenerationProcessor', () => {
 
   describe('scenario type selection', () => {
     it('should include scenarioType in event data', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -376,7 +440,9 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should include isAttacker in event data', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -391,10 +457,16 @@ describe('scenarioGenerationProcessor', () => {
 
   describe('OpFor BV calculation', () => {
     it('should include opForBV in event data', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
-        options: { ...createMockCampaign().options, useAtBScenarios: true, difficultyMultiplier: 1.0 },
+        options: {
+          ...createMockCampaign().options,
+          useAtBScenarios: true,
+          difficultyMultiplier: 1.0,
+        },
         combatTeams: [createMockTeam({ battleChance: 40 })],
         missions: new Map([['contract-001', createMockContract()]]),
       });
@@ -405,19 +477,31 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should apply difficulty multiplier to OpFor BV', () => {
-      const processor1 = createScenarioGenerationProcessor(createConstantRandom(0.3));
-      const processor2 = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor1 = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
+      const processor2 = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
 
       const campaign1 = createMockCampaign({
         currentDate: new Date('2025-01-27'),
-        options: { ...createMockCampaign().options, useAtBScenarios: true, difficultyMultiplier: 1.0 },
+        options: {
+          ...createMockCampaign().options,
+          useAtBScenarios: true,
+          difficultyMultiplier: 1.0,
+        },
         combatTeams: [createMockTeam({ battleChance: 40 })],
         missions: new Map([['contract-001', createMockContract()]]),
       });
 
       const campaign2 = createMockCampaign({
         currentDate: new Date('2025-01-27'),
-        options: { ...createMockCampaign().options, useAtBScenarios: true, difficultyMultiplier: 2.0 },
+        options: {
+          ...createMockCampaign().options,
+          useAtBScenarios: true,
+          difficultyMultiplier: 2.0,
+        },
         combatTeams: [createMockTeam({ battleChance: 40 })],
         missions: new Map([['contract-001', createMockContract()]]),
       });
@@ -435,7 +519,9 @@ describe('scenarioGenerationProcessor', () => {
 
   describe('scenario conditions', () => {
     it('should include conditions in event data', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -448,7 +534,9 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should include light level in conditions', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -457,12 +545,15 @@ describe('scenarioGenerationProcessor', () => {
       });
       const result = processor.process(campaign, campaign.currentDate);
       expect(result.events.length).toBeGreaterThan(0);
-      const conditions = result.events[0].data?.conditions as IScenarioConditions;
+      const conditions = result.events[0].data
+        ?.conditions as IScenarioConditions;
       expect(conditions?.light).toBeDefined();
     });
 
     it('should include weather in conditions', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -471,14 +562,17 @@ describe('scenarioGenerationProcessor', () => {
       });
       const result = processor.process(campaign, campaign.currentDate);
       expect(result.events.length).toBeGreaterThan(0);
-      const conditions = result.events[0].data?.conditions as IScenarioConditions;
+      const conditions = result.events[0].data
+        ?.conditions as IScenarioConditions;
       expect(conditions?.weather).toBeDefined();
     });
   });
 
   describe('multiple teams and contracts', () => {
     it('should process multiple teams in one contract', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -493,14 +587,22 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should process multiple contracts', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
         combatTeams: [createMockTeam()],
         missions: new Map([
-          ['contract-001', createMockContract({ id: 'contract-001', name: 'Contract 1' })],
-          ['contract-002', createMockContract({ id: 'contract-002', name: 'Contract 2' })],
+          [
+            'contract-001',
+            createMockContract({ id: 'contract-001', name: 'Contract 1' }),
+          ],
+          [
+            'contract-002',
+            createMockContract({ id: 'contract-002', name: 'Contract 2' }),
+          ],
         ]),
       });
       const result = processor.process(campaign, campaign.currentDate);
@@ -514,7 +616,10 @@ describe('scenarioGenerationProcessor', () => {
         combatTeams: [],
         missions: new Map([['contract-001', createMockContract()]]),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.events).toHaveLength(0);
     });
 
@@ -525,14 +630,19 @@ describe('scenarioGenerationProcessor', () => {
         combatTeams: [createMockTeam()],
         missions: new Map(),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.events).toHaveLength(0);
     });
   });
 
   describe('morale level integration', () => {
     it('should use contract morale level in scenario type selection', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -552,7 +662,9 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should default to STALEMATE when morale is undefined', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -573,7 +685,9 @@ describe('scenarioGenerationProcessor', () => {
 
   describe('event structure', () => {
     it('should emit event with correct type', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -586,7 +700,9 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should emit event with description', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -600,7 +716,9 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should emit event with info severity', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
@@ -613,12 +731,16 @@ describe('scenarioGenerationProcessor', () => {
     });
 
     it('should include teamId and contractId in event data', () => {
-      const processor = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
         options: { ...createMockCampaign().options, useAtBScenarios: true },
         combatTeams: [createMockTeam({ forceId: 'force-test' })],
-        missions: new Map([['contract-test', createMockContract({ id: 'contract-test' })]]),
+        missions: new Map([
+          ['contract-test', createMockContract({ id: 'contract-test' })],
+        ]),
       });
       const result = processor.process(campaign, campaign.currentDate);
       expect(result.events.length).toBeGreaterThan(0);
@@ -629,8 +751,12 @@ describe('scenarioGenerationProcessor', () => {
 
   describe('deterministic behavior', () => {
     it('should produce same results with same random seed', () => {
-      const processor1 = createScenarioGenerationProcessor(createConstantRandom(0.3));
-      const processor2 = createScenarioGenerationProcessor(createConstantRandom(0.3));
+      const processor1 = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
+      const processor2 = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
 
       const campaign1 = createMockCampaign({
         currentDate: new Date('2025-01-27'),
@@ -651,14 +777,22 @@ describe('scenarioGenerationProcessor', () => {
 
       expect(result1.events.length).toBe(result2.events.length);
       if (result1.events.length > 0 && result2.events.length > 0) {
-        expect(result1.events[0].data?.scenarioType).toBe(result2.events[0].data?.scenarioType);
-        expect(result1.events[0].data?.opForBV).toBe(result2.events[0].data?.opForBV);
+        expect(result1.events[0].data?.scenarioType).toBe(
+          result2.events[0].data?.scenarioType,
+        );
+        expect(result1.events[0].data?.opForBV).toBe(
+          result2.events[0].data?.opForBV,
+        );
       }
     });
 
     it('should produce different results with different random seeds', () => {
-      const processor1 = createScenarioGenerationProcessor(createConstantRandom(0.3));
-      const processor2 = createScenarioGenerationProcessor(createConstantRandom(0.99));
+      const processor1 = createScenarioGenerationProcessor(
+        createConstantRandom(0.3),
+      );
+      const processor2 = createScenarioGenerationProcessor(
+        createConstantRandom(0.99),
+      );
 
       const campaign1 = createMockCampaign({
         currentDate: new Date('2025-01-27'),
@@ -689,7 +823,10 @@ describe('scenarioGenerationProcessor', () => {
         combatTeams: [createMockTeam()],
         missions: new Map([['contract-001', createMockContract()]]),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.campaign).toEqual(campaign);
     });
 
@@ -700,7 +837,10 @@ describe('scenarioGenerationProcessor', () => {
         combatTeams: [createMockTeam()],
         missions: new Map([['contract-001', createMockContract()]]),
       });
-      const result = scenarioGenerationProcessor.process(campaign, campaign.currentDate);
+      const result = scenarioGenerationProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
       expect(result.campaign).toBeDefined();
       expect(result.campaign.id).toBe(campaign.id);
     });

@@ -77,7 +77,10 @@ export const QUADVEE_LOCATIONS: MechLocation[] = QUAD_LOCATIONS;
  * Registry mapping mech configurations to their location sets.
  * To add a new configuration type, simply add a new entry to this registry.
  */
-export const MECH_LOCATIONS_BY_CONFIG: Record<MechConfiguration, MechLocation[]> = {
+export const MECH_LOCATIONS_BY_CONFIG: Record<
+  MechConfiguration,
+  MechLocation[]
+> = {
   [MechConfiguration.BIPED]: BIPED_LOCATIONS,
   [MechConfiguration.QUAD]: QUAD_LOCATIONS,
   [MechConfiguration.TRIPOD]: TRIPOD_LOCATIONS,
@@ -92,7 +95,9 @@ export const MECH_LOCATIONS_BY_CONFIG: Record<MechConfiguration, MechLocation[]>
  * @param config - The mech configuration
  * @returns Array of MechLocation values for the configuration
  */
-export function getLocationsForConfiguration(config: MechConfiguration): MechLocation[] {
+export function getLocationsForConfiguration(
+  config: MechConfiguration,
+): MechLocation[] {
   return MECH_LOCATIONS_BY_CONFIG[config] ?? BIPED_LOCATIONS;
 }
 
@@ -103,19 +108,22 @@ export function getLocationsForConfiguration(config: MechConfiguration): MechLoc
  * @param configString - The configuration as a string (e.g., 'Biped', 'Quad', 'quad')
  * @returns Array of MechLocation values for the configuration
  */
-export function getLocationsForConfigurationString(configString: string): MechLocation[] {
+export function getLocationsForConfigurationString(
+  configString: string,
+): MechLocation[] {
   // Normalize the string to match enum values
-  const normalized = configString.charAt(0).toUpperCase() + configString.slice(1).toLowerCase();
-  
+  const normalized =
+    configString.charAt(0).toUpperCase() + configString.slice(1).toLowerCase();
+
   // Map common variations
   const configMap: Record<string, MechConfiguration> = {
-    'Biped': MechConfiguration.BIPED,
-    'Quad': MechConfiguration.QUAD,
-    'Tripod': MechConfiguration.TRIPOD,
-    'Lam': MechConfiguration.LAM,
-    'Quadvee': MechConfiguration.QUADVEE,
+    Biped: MechConfiguration.BIPED,
+    Quad: MechConfiguration.QUAD,
+    Tripod: MechConfiguration.TRIPOD,
+    Lam: MechConfiguration.LAM,
+    Quadvee: MechConfiguration.QUADVEE,
   };
-  
+
   const config = configMap[normalized];
   return config ? getLocationsForConfiguration(config) : BIPED_LOCATIONS;
 }
@@ -129,12 +137,12 @@ export function getLocationsForConfigurationString(configString: string): MechLo
  */
 export function getLocationsForMechType(mechType: string): MechLocation[] {
   const typeMap: Record<string, MechLocation[]> = {
-    'biped': BIPED_LOCATIONS,
-    'quad': QUAD_LOCATIONS,
-    'tripod': TRIPOD_LOCATIONS,
-    'lam': LAM_LOCATIONS,
-    'quadvee': QUADVEE_LOCATIONS,
+    biped: BIPED_LOCATIONS,
+    quad: QUAD_LOCATIONS,
+    tripod: TRIPOD_LOCATIONS,
+    lam: LAM_LOCATIONS,
+    quadvee: QUADVEE_LOCATIONS,
   };
-  
+
   return typeMap[mechType.toLowerCase()] ?? BIPED_LOCATIONS;
 }

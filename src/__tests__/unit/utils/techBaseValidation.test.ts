@@ -1,3 +1,15 @@
+import { createEmptySelectionMemory } from '@/stores/unitState';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import {
+  TechBaseComponent,
+  createDefaultComponentTechBases,
+} from '@/types/construction/TechBaseConfiguration';
+import { TechBase } from '@/types/enums/TechBase';
 import {
   getValidatedSelectionUpdates,
   getValidEngineTypes,
@@ -6,21 +18,11 @@ import {
   isHeatSinkTypeValid,
   ComponentSelections,
 } from '@/utils/techBaseValidation';
-import { TechBase } from '@/types/enums/TechBase';
-import {
-  TechBaseComponent,
-  createDefaultComponentTechBases,
-} from '@/types/construction/TechBaseConfiguration';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { createEmptySelectionMemory } from '@/stores/unitState';
 
 describe('techBaseValidation', () => {
-  const createSelections = (overrides?: Partial<ComponentSelections>): ComponentSelections => ({
+  const createSelections = (
+    overrides?: Partial<ComponentSelections>,
+  ): ComponentSelections => ({
     engineType: EngineType.STANDARD,
     gyroType: GyroType.STANDARD,
     internalStructureType: InternalStructureType.STANDARD,
@@ -36,9 +38,9 @@ describe('techBaseValidation', () => {
       const updates = getValidatedSelectionUpdates(
         TechBaseComponent.ENGINE,
         TechBase.INNER_SPHERE,
-        selections
+        selections,
       );
-      
+
       expect(Object.keys(updates).length).toBe(0);
     });
 
@@ -49,9 +51,9 @@ describe('techBaseValidation', () => {
       const updates = getValidatedSelectionUpdates(
         TechBaseComponent.ENGINE,
         TechBase.INNER_SPHERE,
-        selections
+        selections,
       );
-      
+
       // Should update to valid IS engine
       expect(updates.engineType).toBeDefined();
     });
@@ -61,9 +63,9 @@ describe('techBaseValidation', () => {
       const updates = getValidatedSelectionUpdates(
         TechBaseComponent.GYRO,
         TechBase.INNER_SPHERE,
-        selections
+        selections,
       );
-      
+
       expect(updates).toBeDefined();
     });
 
@@ -74,9 +76,9 @@ describe('techBaseValidation', () => {
       const updates = getValidatedSelectionUpdates(
         TechBaseComponent.CHASSIS,
         TechBase.INNER_SPHERE,
-        selections
+        selections,
       );
-      
+
       expect(updates).toBeDefined();
     });
 
@@ -87,9 +89,9 @@ describe('techBaseValidation', () => {
       const updates = getValidatedSelectionUpdates(
         TechBaseComponent.HEATSINK,
         TechBase.INNER_SPHERE,
-        selections
+        selections,
       );
-      
+
       expect(updates).toBeDefined();
     });
 
@@ -98,9 +100,9 @@ describe('techBaseValidation', () => {
       const updates = getValidatedSelectionUpdates(
         TechBaseComponent.ARMOR,
         TechBase.INNER_SPHERE,
-        selections
+        selections,
       );
-      
+
       expect(updates).toBeDefined();
     });
 
@@ -108,7 +110,7 @@ describe('techBaseValidation', () => {
       const updates = getValidatedSelectionUpdates(
         TechBaseComponent.TARGETING,
         TechBase.CLAN,
-        createSelections()
+        createSelections(),
       );
 
       expect(updates).toEqual({});
@@ -140,8 +142,12 @@ describe('techBaseValidation', () => {
     });
 
     it('should enforce heat sink tech base restrictions', () => {
-      expect(isHeatSinkTypeValid(HeatSinkType.DOUBLE_CLAN, TechBase.CLAN)).toBe(true);
-      expect(isHeatSinkTypeValid(HeatSinkType.DOUBLE_CLAN, TechBase.INNER_SPHERE)).toBe(false);
+      expect(isHeatSinkTypeValid(HeatSinkType.DOUBLE_CLAN, TechBase.CLAN)).toBe(
+        true,
+      );
+      expect(
+        isHeatSinkTypeValid(HeatSinkType.DOUBLE_CLAN, TechBase.INNER_SPHERE),
+      ).toBe(false);
     });
   });
 
@@ -155,7 +161,7 @@ describe('techBaseValidation', () => {
         TechBaseComponent.ENGINE,
         TechBase.CLAN,
         createSelections({ engineType: EngineType.XL_IS }),
-        memory
+        memory,
       );
 
       expect(updates.engineType).toBe(EngineType.XL_CLAN);
@@ -171,10 +177,12 @@ describe('techBaseValidation', () => {
         createSelections({
           internalStructureType: InternalStructureType.ENDO_STEEL_IS,
         }),
-        memory
+        memory,
       );
 
-      expect(updates.internalStructureType).toBe(InternalStructureType.STANDARD);
+      expect(updates.internalStructureType).toBe(
+        InternalStructureType.STANDARD,
+      );
     });
   });
 
@@ -189,7 +197,7 @@ describe('techBaseValidation', () => {
           internalStructureType: InternalStructureType.ENDO_STEEL_IS,
           heatSinkType: HeatSinkType.DOUBLE_IS,
           armorType: ArmorTypeEnum.FERRO_FIBROUS_IS,
-        })
+        }),
       );
 
       expect(result.engineType).toBe(EngineType.STANDARD);
@@ -212,16 +220,17 @@ describe('techBaseValidation', () => {
         componentTechBases,
         createSelections(),
         memory,
-        TechBase.CLAN
+        TechBase.CLAN,
       );
 
       expect(result.engineType).toBe(EngineType.XL_CLAN);
       expect(result.gyroType).toBe(GyroType.XL);
-      expect(result.internalStructureType).toBe(InternalStructureType.ENDO_STEEL_CLAN);
+      expect(result.internalStructureType).toBe(
+        InternalStructureType.ENDO_STEEL_CLAN,
+      );
       expect(result.cockpitType).toBe(CockpitType.SMALL);
       expect(result.heatSinkType).toBe(HeatSinkType.DOUBLE_CLAN);
       expect(result.armorType).toBe(ArmorTypeEnum.FERRO_FIBROUS_CLAN);
     });
   });
 });
-

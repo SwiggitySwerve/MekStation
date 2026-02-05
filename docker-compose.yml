@@ -1,5 +1,5 @@
 # MekStation - Docker Compose Configuration
-# 
+#
 # Usage:
 #   Development:  docker-compose up dev
 #   Production:   docker-compose up app
@@ -21,7 +21,7 @@ services:
     container_name: mekstation
     restart: unless-stopped
     ports:
-      - "${PORT:-3000}:3000"
+      - '${PORT:-3000}:3000'
     environment:
       - NODE_ENV=production
       - DATABASE_PATH=/app/data/mekstation.db
@@ -31,15 +31,23 @@ services:
       # Optional: Mount custom unit files
       # - ./custom-units:/app/public/data/units/custom:ro
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:3000/api/health',
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.mekstation.rule=Host(`mekstation.localhost`)"
-      - "traefik.http.services.mekstation.loadbalancer.server.port=3000"
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.mekstation.rule=Host(`mekstation.localhost`)'
+      - 'traefik.http.services.mekstation.loadbalancer.server.port=3000'
 
   # ==========================================================================
   # Development Server with Hot Reload
@@ -50,7 +58,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: mekstation-dev
     ports:
-      - "${DEV_PORT:-3000}:3000"
+      - '${DEV_PORT:-3000}:3000'
     environment:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true

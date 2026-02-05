@@ -4,6 +4,7 @@
  */
 
 import { IRecordSheetEquipment } from '@/types/printing';
+
 import { SVG_NS, ELEMENT_IDS } from './constants';
 
 /**
@@ -11,7 +12,7 @@ import { SVG_NS, ELEMENT_IDS } from './constants';
  */
 export function renderEquipmentTable(
   svgDoc: Document,
-  equipment: readonly IRecordSheetEquipment[]
+  equipment: readonly IRecordSheetEquipment[],
 ): void {
   const inventoryArea = svgDoc.getElementById(ELEMENT_IDS.INVENTORY);
   if (!inventoryArea) return;
@@ -23,7 +24,10 @@ export function renderEquipmentTable(
 
   const group = svgDoc.createElementNS(SVG_NS, 'g');
   group.setAttribute('id', 'equipment-rows');
-  group.setAttribute('style', 'font-family: Eurostile, Arial, sans-serif; font-size: 7px;');
+  group.setAttribute(
+    'style',
+    'font-family: Eurostile, Arial, sans-serif; font-size: 7px;',
+  );
 
   const rowHeight = 9;
   const headerY = y + 10;
@@ -34,10 +38,10 @@ export function renderEquipmentTable(
   const cols = {
     qty: x + 2,
     name: x + 12,
-    loc: x + 80,      // Shortened name column
+    loc: x + 80, // Shortened name column
     heat: x + 95,
-    dmg: x + 108,     // More space for damage + code
-    min: x + 158,     // Pushed range columns right
+    dmg: x + 108, // More space for damage + code
+    min: x + 158, // Pushed range columns right
     sht: x + 172,
     med: x + 186,
     lng: x + 200,
@@ -55,7 +59,7 @@ export function renderEquipmentTable(
     { text: 'Lng', x: cols.lng },
   ];
 
-  headers.forEach(h => {
+  headers.forEach((h) => {
     const text = createEquipmentText(svgDoc, h.x, headerY, h.text, true);
     group.appendChild(text);
   });
@@ -64,15 +68,28 @@ export function renderEquipmentTable(
   displayEquipment.forEach((eq, index) => {
     const rowY = startY + index * rowHeight;
 
-    const qty = createEquipmentText(svgDoc, cols.qty, rowY, String(eq.quantity || 1), false);
+    const qty = createEquipmentText(
+      svgDoc,
+      cols.qty,
+      rowY,
+      String(eq.quantity || 1),
+      false,
+    );
     group.appendChild(qty);
 
     // Truncate long names to fit in narrower column
-    const name = eq.name.length > 16 ? eq.name.substring(0, 14) + '..' : eq.name;
+    const name =
+      eq.name.length > 16 ? eq.name.substring(0, 14) + '..' : eq.name;
     const nameEl = createEquipmentText(svgDoc, cols.name, rowY, name, false);
     group.appendChild(nameEl);
 
-    const loc = createEquipmentText(svgDoc, cols.loc, rowY, eq.locationAbbr, false);
+    const loc = createEquipmentText(
+      svgDoc,
+      cols.loc,
+      rowY,
+      eq.locationAbbr,
+      false,
+    );
     group.appendChild(loc);
 
     if (eq.isWeapon || eq.isEquipment) {
@@ -89,18 +106,43 @@ export function renderEquipmentTable(
       group.appendChild(dmg);
 
       // Range columns - show '-' for 0 minimum
-      const minStr = eq.minimum === 0 || eq.minimum === '-' ? '-' : String(eq.minimum);
+      const minStr =
+        eq.minimum === 0 || eq.minimum === '-' ? '-' : String(eq.minimum);
       const min = createEquipmentText(svgDoc, cols.min, rowY, minStr, false);
       group.appendChild(min);
 
-      const sht = createEquipmentText(svgDoc, cols.sht, rowY, String(eq.short || '-'), false);
-      const med = createEquipmentText(svgDoc, cols.med, rowY, String(eq.medium || '-'), false);
-      const lng = createEquipmentText(svgDoc, cols.lng, rowY, String(eq.long || '-'), false);
+      const sht = createEquipmentText(
+        svgDoc,
+        cols.sht,
+        rowY,
+        String(eq.short || '-'),
+        false,
+      );
+      const med = createEquipmentText(
+        svgDoc,
+        cols.med,
+        rowY,
+        String(eq.medium || '-'),
+        false,
+      );
+      const lng = createEquipmentText(
+        svgDoc,
+        cols.lng,
+        rowY,
+        String(eq.long || '-'),
+        false,
+      );
       group.appendChild(sht);
       group.appendChild(med);
       group.appendChild(lng);
     } else if (eq.isAmmo) {
-      const ammoInfo = createEquipmentText(svgDoc, cols.dmg, rowY, eq.ammoCount ? `(${eq.ammoCount})` : '-', false);
+      const ammoInfo = createEquipmentText(
+        svgDoc,
+        cols.dmg,
+        rowY,
+        eq.ammoCount ? `(${eq.ammoCount})` : '-',
+        false,
+      );
       group.appendChild(ammoInfo);
     }
   });
@@ -119,7 +161,7 @@ function createEquipmentText(
   x: number,
   y: number,
   content: string,
-  isHeader: boolean
+  isHeader: boolean,
 ): SVGTextElement {
   const text = svgDoc.createElementNS(SVG_NS, 'text');
   text.setAttribute('x', String(x));

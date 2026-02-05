@@ -1,21 +1,22 @@
 /**
  * Vertical Slot Chip Component
- * 
+ *
  * A rotated version of SlotRow for displaying unassigned equipment.
  * Width EXACTLY matches SlotRow height at each breakpoint.
  * Scales up on larger screens just like SlotRow does.
- * 
+ *
  * SlotRow sizing:
  * - Mobile: px-1 py-0.5 text-[10px] → height ~22px
  * - sm+: px-2 py-1 text-sm → height ~30px
- * 
+ *
  * @spec openspec/specs/critical-slots-display/spec.md
  */
 
 import React, { memo } from 'react';
-import { 
-  classifyEquipment, 
-  getEquipmentColors 
+
+import {
+  classifyEquipment,
+  getEquipmentColors,
 } from '@/utils/colors/equipmentColors';
 import { abbreviateEquipmentName } from '@/utils/equipmentNameAbbreviations';
 
@@ -49,20 +50,12 @@ export const VerticalSlotChip = memo(function VerticalSlotChip({
       type="button"
       onClick={onClick}
       title={`${name} (${criticalSlots} slots)`} // Full name in tooltip
-      className={`
-        flex items-center justify-center flex-shrink-0 overflow-hidden
-        border border-border-theme-subtle rounded-sm
-        cursor-pointer active:scale-95 transition-all
-        ${colors.bg} ${colors.border} ${colors.text}
-        ${isSelected ? 'ring-2 ring-accent' : ''}
-        w-[22px] sm:w-[30px]
-        h-[80px] sm:h-[100px]
-      `}
+      className={`border-border-theme-subtle flex flex-shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-sm border transition-all active:scale-95 ${colors.bg} ${colors.border} ${colors.text} ${isSelected ? 'ring-accent ring-2' : ''} h-[80px] w-[22px] sm:h-[100px] sm:w-[30px]`}
     >
       {/* Rotated text - scales with breakpoint like SlotRow, never wraps */}
-      <span 
-        className="text-[10px] sm:text-sm whitespace-nowrap"
-        style={{ 
+      <span
+        className="text-[10px] whitespace-nowrap sm:text-sm"
+        style={{
           writingMode: 'vertical-rl',
           textOrientation: 'mixed',
           transform: 'rotate(180deg)',

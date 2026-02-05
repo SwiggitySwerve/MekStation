@@ -129,7 +129,9 @@ export class AerospaceCustomizerPage extends CustomizerPage {
    * @param tonnage - Tonnage value (5-100)
    */
   async setTonnage(tonnage: number): Promise<void> {
-    await this.getByTestId('aerospace-tonnage-select').selectOption(String(tonnage));
+    await this.getByTestId('aerospace-tonnage-select').selectOption(
+      String(tonnage),
+    );
   }
 
   /**
@@ -185,7 +187,9 @@ export class AerospaceCustomizerPage extends CustomizerPage {
    * @param engineType - Engine type value
    */
   async setEngineType(engineType: string): Promise<void> {
-    await this.getByTestId('aerospace-engine-type-select').selectOption(engineType);
+    await this.getByTestId('aerospace-engine-type-select').selectOption(
+      engineType,
+    );
   }
 
   /**
@@ -266,7 +270,9 @@ export class AerospaceCustomizerPage extends CustomizerPage {
    * @param armorType - Armor type value
    */
   async setArmorType(armorType: string): Promise<void> {
-    await this.getByTestId('aerospace-armor-type-select').selectOption(armorType);
+    await this.getByTestId('aerospace-armor-type-select').selectOption(
+      armorType,
+    );
   }
 
   /**
@@ -283,7 +289,9 @@ export class AerospaceCustomizerPage extends CustomizerPage {
    * @param tonnage - Armor tonnage
    */
   async setArmorTonnage(tonnage: number): Promise<void> {
-    await this.getByTestId('aerospace-armor-tonnage-input').fill(String(tonnage));
+    await this.getByTestId('aerospace-armor-tonnage-input').fill(
+      String(tonnage),
+    );
   }
 
   /**
@@ -406,6 +414,8 @@ export class AerospaceCustomizerPage extends CustomizerPage {
    * @param arc - Arc value
    */
   async setEquipmentArc(equipmentId: string, arc: string): Promise<void> {
-    await this.getByTestId(`aerospace-equipment-arc-${equipmentId}`).selectOption(arc);
+    await this.getByTestId(
+      `aerospace-equipment-arc-${equipmentId}`,
+    ).selectOption(arc);
   }
 }

@@ -1,11 +1,11 @@
 /**
  * Equipment API
- * 
+ *
  * Query and retrieve equipment data.
- * 
+ *
  * GET /api/equipment - List/query equipment
  * GET /api/equipment?id=<id> - Get single equipment by ID
- * 
+ *
  * Query Parameters:
  * - id: Get specific equipment by ID
  * - category: Filter by category (ENERGY_WEAPON, BALLISTIC_WEAPON, etc.)
@@ -15,14 +15,15 @@
  * - rulesLevel: Filter by rules level
  * - maxWeight: Maximum weight in tons
  * - maxSlots: Maximum critical slots
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+
 import { IEquipmentQueryCriteria } from '@/services/common/types';
-import { TechBase } from '@/types/enums/TechBase';
+import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 
 interface ApiResponse {
@@ -71,7 +72,7 @@ function parseFloatOrUndefined(value: string): number | undefined {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse>
+  res: NextApiResponse<ApiResponse>,
 ): Promise<void> {
   if (req.method !== 'GET') {
     return res.status(405).json({
@@ -81,21 +82,21 @@ export default async function handler(
   }
 
   try {
-    const { 
-      id, 
-      category, 
-      techBase, 
-      year, 
-      search, 
+    const {
+      id,
+      category,
+      techBase,
+      year,
+      search,
       rulesLevel,
       maxWeight,
-      maxSlots 
+      maxSlots,
     } = req.query;
 
     // Get single equipment by ID
     if (id && typeof id === 'string') {
       const equipment = equipmentLookupService.getById(id);
-      
+
       if (!equipment) {
         return res.status(404).json({
           success: false,
@@ -111,13 +112,20 @@ export default async function handler(
 
     // Build query criteria from query parameters using type-safe spread
     const criteria: IEquipmentQueryCriteria = {
-      ...(typeof category === 'string' && isValidEquipmentCategory(category) && { category }),
-      ...(typeof techBase === 'string' && isValidTechBase(techBase) && { techBase }),
+      ...(typeof category === 'string' &&
+        isValidEquipmentCategory(category) && { category }),
+      ...(typeof techBase === 'string' &&
+        isValidTechBase(techBase) && { techBase }),
       ...(typeof year === 'string' && { year: parseIntOrUndefined(year) }),
       ...(typeof search === 'string' && { nameQuery: search }),
-      ...(typeof rulesLevel === 'string' && isValidRulesLevel(rulesLevel) && { rulesLevel }),
-      ...(typeof maxWeight === 'string' && { maxWeight: parseFloatOrUndefined(maxWeight) }),
-      ...(typeof maxSlots === 'string' && { maxSlots: parseIntOrUndefined(maxSlots) }),
+      ...(typeof rulesLevel === 'string' &&
+        isValidRulesLevel(rulesLevel) && { rulesLevel }),
+      ...(typeof maxWeight === 'string' && {
+        maxWeight: parseFloatOrUndefined(maxWeight),
+      }),
+      ...(typeof maxSlots === 'string' && {
+        maxSlots: parseIntOrUndefined(maxSlots),
+      }),
     };
 
     // Query equipment
@@ -128,7 +136,6 @@ export default async function handler(
       data: equipment,
       count: equipment.length,
     });
-
   } catch (error) {
     console.error('Equipment API error:', error);
     return res.status(500).json({

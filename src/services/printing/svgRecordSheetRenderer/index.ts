@@ -6,10 +6,7 @@
  */
 
 // Main renderer class
-export {
-  SVGRecordSheetRenderer,
-  createSVGRenderer,
-} from './renderer';
+export { SVGRecordSheetRenderer, createSVGRenderer } from './renderer';
 
 // Constants
 export * from './constants';

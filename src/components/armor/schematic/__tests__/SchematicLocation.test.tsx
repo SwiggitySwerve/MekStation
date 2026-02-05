@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { SchematicLocation } from '../SchematicLocation';
+import React from 'react';
+
 import { MechLocation } from '@/types/construction';
+
+import { SchematicLocation } from '../SchematicLocation';
 
 describe('SchematicLocation', () => {
   const defaultProps = {
@@ -36,25 +38,38 @@ describe('SchematicLocation', () => {
   });
 
   it('should not render rear for non-torso locations', () => {
-    render(<SchematicLocation {...defaultProps} location={MechLocation.HEAD} rear={undefined} />);
+    render(
+      <SchematicLocation
+        {...defaultProps}
+        location={MechLocation.HEAD}
+        rear={undefined}
+      />,
+    );
     expect(screen.queryByText('Rear')).not.toBeInTheDocument();
   });
 
   it('should call onClick when clicked', () => {
     render(<SchematicLocation {...defaultProps} />);
     fireEvent.click(screen.getByRole('button'));
-    expect(defaultProps.onClick).toHaveBeenCalledWith(MechLocation.CENTER_TORSO);
+    expect(defaultProps.onClick).toHaveBeenCalledWith(
+      MechLocation.CENTER_TORSO,
+    );
   });
 
   it('should show selected state', () => {
-    const { container } = render(<SchematicLocation {...defaultProps} isSelected={true} />);
+    const { container } = render(
+      <SchematicLocation {...defaultProps} isSelected={true} />,
+    );
     expect(container.querySelector('.ring-2')).toBeInTheDocument();
   });
 
   it('should have proper ARIA attributes', () => {
     render(<SchematicLocation {...defaultProps} />);
     const button = screen.getByRole('button');
-    expect(button).toHaveAttribute('aria-label', expect.stringContaining('Center Torso'));
+    expect(button).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Center Torso'),
+    );
     expect(button).toHaveAttribute('aria-pressed', 'false');
   });
 });

@@ -176,7 +176,7 @@ export function getPressedStyles(config?: {
  * ```
  */
 export function getPressedClass(
-  variant: keyof typeof PRESSED_CLASSES = 'default'
+  variant: keyof typeof PRESSED_CLASSES = 'default',
 ): string {
   return PRESSED_CLASSES[variant];
 }
@@ -293,7 +293,7 @@ export function triggerFeedback(config: TouchFeedbackConfig = {}): void {
  */
 export function withFeedback<T extends unknown[]>(
   callback: (...args: T) => void,
-  config: TouchFeedbackConfig = {}
+  config: TouchFeedbackConfig = {},
 ): (...args: T) => void {
   return (...args: T) => {
     triggerFeedback(config);
@@ -305,8 +305,4 @@ export function withFeedback<T extends unknown[]>(
 // Exports
 // =============================================================================
 
-export {
-  PRESSED_CLASSES,
-  DEFAULT_SCALE_FACTOR,
-  VIBRATION_PATTERNS,
-};
+export { PRESSED_CLASSES, DEFAULT_SCALE_FACTOR, VIBRATION_PATTERNS };

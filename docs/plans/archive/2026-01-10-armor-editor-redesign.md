@@ -31,6 +31,7 @@ Front:  [35]    Rear: [12]
 ```
 
 Problems:
+
 - Two sliders is confusing
 - Split slider only works after setting total
 - Mental model unclear
@@ -141,8 +142,8 @@ All 4 variants will use a consistent stacked front/rear layout for torso locatio
 Add to `src/components/customizer/armor/shared/ArmorFills.tsx`:
 
 ```typescript
-export const FRONT_ARMOR_COLOR = '#f59e0b';  // amber-500
-export const REAR_ARMOR_COLOR = '#0ea5e9';   // sky-500
+export const FRONT_ARMOR_COLOR = '#f59e0b'; // amber-500
+export const REAR_ARMOR_COLOR = '#0ea5e9'; // sky-500
 ```
 
 ---
@@ -168,6 +169,7 @@ src/components/customizer/armor/
 ### Unit Tests
 
 **LocationArmorEditor.test.tsx:**
+
 - Front slider changes only front value
 - Rear slider changes only rear value
 - Each slider caps at `maxArmor - otherValue`
@@ -175,6 +177,7 @@ src/components/customizer/armor/
 - Total display shows combined value
 
 **Variant Tests (all 4):**
+
 - Torso locations render both front and rear sections
 - Correct colors applied (amber front, sky rear)
 - Non-torso locations unchanged (single section)

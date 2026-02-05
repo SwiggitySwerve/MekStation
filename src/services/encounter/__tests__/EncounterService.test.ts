@@ -19,8 +19,9 @@ import {
   PilotSkillTemplate,
   SCENARIO_TEMPLATES,
 } from '@/types/encounter';
-import { IEncounterOperationResult } from '../EncounterRepository';
 import { IForce, ForceType, ForceStatus } from '@/types/force';
+
+import { IEncounterOperationResult } from '../EncounterRepository';
 
 // =============================================================================
 // Mock Data Storage
@@ -55,37 +56,41 @@ jest.mock('../../forces/ForceRepository', () => ({
 
 jest.mock('../EncounterRepository', () => ({
   getEncounterRepository: () => ({
-    createEncounter: jest.fn((input: ICreateEncounterInput): IEncounterOperationResult => {
-      const id = `encounter-${++mockIdCounter}`;
-      const now = new Date().toISOString();
+    createEncounter: jest.fn(
+      (input: ICreateEncounterInput): IEncounterOperationResult => {
+        const id = `encounter-${++mockIdCounter}`;
+        const now = new Date().toISOString();
 
-      // Get template defaults if specified
-      let mapConfig = DEFAULT_MAP_CONFIG;
-      let victoryConditions: readonly IVictoryCondition[] = [];
+        // Get template defaults if specified
+        let mapConfig = DEFAULT_MAP_CONFIG;
+        let victoryConditions: readonly IVictoryCondition[] = [];
 
-      if (input.template) {
-        const template = SCENARIO_TEMPLATES.find((t) => t.type === input.template);
-        if (template) {
-          mapConfig = template.defaultMapConfig;
-          victoryConditions = template.defaultVictoryConditions;
+        if (input.template) {
+          const template = SCENARIO_TEMPLATES.find(
+            (t) => t.type === input.template,
+          );
+          if (template) {
+            mapConfig = template.defaultMapConfig;
+            victoryConditions = template.defaultVictoryConditions;
+          }
         }
-      }
 
-      const encounter: IEncounter = {
-        id,
-        name: input.name,
-        description: input.description,
-        status: EncounterStatus.Draft,
-        template: input.template,
-        mapConfig,
-        victoryConditions,
-        optionalRules: [],
-        createdAt: now,
-        updatedAt: now,
-      };
-      mockEncounters.set(id, encounter);
-      return { success: true, id };
-    }),
+        const encounter: IEncounter = {
+          id,
+          name: input.name,
+          description: input.description,
+          status: EncounterStatus.Draft,
+          template: input.template,
+          mapConfig,
+          victoryConditions,
+          optionalRules: [],
+          createdAt: now,
+          updatedAt: now,
+        };
+        mockEncounters.set(id, encounter);
+        return { success: true, id };
+      },
+    ),
     getEncounterById: (id: string) => mockEncounters.get(id) ?? null,
     getAllEncounters: () => Array.from(mockEncounters.values()),
     getEncountersByStatus: (status: EncounterStatus) =>
@@ -112,7 +117,12 @@ jest.mock('../EncounterRepository', () => ({
         let opponentForce = encounter.opponentForce;
         if ('opponentForceId' in input) {
           opponentForce = input.opponentForceId
-            ? { forceId: input.opponentForceId, forceName: '', totalBV: 0, unitCount: 0 }
+            ? {
+                forceId: input.opponentForceId,
+                forceName: '',
+                totalBV: 0,
+                unitCount: 0,
+              }
             : undefined;
         }
 
@@ -125,18 +135,28 @@ jest.mock('../EncounterRepository', () => ({
         const updated: IEncounter = {
           ...encounter,
           name: input.name ?? encounter.name,
-          description: input.description !== undefined ? input.description : encounter.description,
-          playerForce: input.playerForceId !== undefined
-            ? input.playerForceId
-              ? { forceId: input.playerForceId, forceName: '', totalBV: 0, unitCount: 0 }
-              : undefined
-            : encounter.playerForce,
+          description:
+            input.description !== undefined
+              ? input.description
+              : encounter.description,
+          playerForce:
+            input.playerForceId !== undefined
+              ? input.playerForceId
+                ? {
+                    forceId: input.playerForceId,
+                    forceName: '',
+                    totalBV: 0,
+                    unitCount: 0,
+                  }
+                : undefined
+              : encounter.playerForce,
           opponentForce,
           opForConfig,
           mapConfig: input.mapConfig
             ? { ...encounter.mapConfig, ...input.mapConfig }
             : encounter.mapConfig,
-          victoryConditions: input.victoryConditions ?? encounter.victoryConditions,
+          victoryConditions:
+            input.victoryConditions ?? encounter.victoryConditions,
           optionalRules: input.optionalRules ?? encounter.optionalRules,
           updatedAt: new Date().toISOString(),
         };
@@ -154,7 +174,7 @@ jest.mock('../EncounterRepository', () => ({
         });
 
         return { success: true, id };
-      }
+      },
     ),
     deleteEncounter: jest.fn((id: string): IEncounterOperationResult => {
       const encounter = mockEncounters.get(id);
@@ -168,7 +188,10 @@ jest.mock('../EncounterRepository', () => ({
       return { success: true };
     }),
     linkGameSession: jest.fn(
-      (encounterId: string, gameSessionId: string): IEncounterOperationResult => {
+      (
+        encounterId: string,
+        gameSessionId: string,
+      ): IEncounterOperationResult => {
         const encounter = mockEncounters.get(encounterId);
         if (!encounter) {
           return { success: false, error: 'Encounter not found' };
@@ -180,7 +203,7 @@ jest.mock('../EncounterRepository', () => ({
           updatedAt: new Date().toISOString(),
         });
         return { success: true, id: encounterId };
-      }
+      },
     ),
   }),
 }));
@@ -196,7 +219,7 @@ function createMockForce(
   id: string,
   name: string,
   totalBV: number = 5000,
-  assignedUnits: number = 4
+  assignedUnits: number = 4,
 ): IForce {
   const force: IForce = {
     id,
@@ -279,7 +302,9 @@ describe('EncounterService', () => {
       expect(encounter?.template).toBe(ScenarioTemplateType.Duel);
       expect(encounter?.mapConfig.radius).toBe(5); // Duel template uses radius 5
       expect(encounter?.victoryConditions).toHaveLength(1);
-      expect(encounter?.victoryConditions[0].type).toBe(VictoryConditionType.DestroyAll);
+      expect(encounter?.victoryConditions[0].type).toBe(
+        VictoryConditionType.DestroyAll,
+      );
     });
 
     it('should reject empty encounter name', () => {
@@ -396,7 +421,12 @@ describe('EncounterService', () => {
       });
 
       it('should hydrate player force with current force data', () => {
-        const force = createMockForce('force-hydrate', 'Hydrate Lance', 6000, 4);
+        const force = createMockForce(
+          'force-hydrate',
+          'Hydrate Lance',
+          6000,
+          4,
+        );
         const createResult = service.createEncounter({ name: 'Test' });
         service.setPlayerForce(createResult.id!, force.id);
 
@@ -423,7 +453,10 @@ describe('EncounterService', () => {
       it('should reject non-existent force', () => {
         const createResult = service.createEncounter({ name: 'Test' });
 
-        const result = service.setOpponentForce(createResult.id!, 'non-existent');
+        const result = service.setOpponentForce(
+          createResult.id!,
+          'non-existent',
+        );
 
         expect(result.success).toBe(false);
         expect(result.error).toBe('Force not found');
@@ -469,19 +502,27 @@ describe('EncounterService', () => {
       it('should apply duel template', () => {
         const createResult = service.createEncounter({ name: 'Test' });
 
-        const result = service.applyTemplate(createResult.id!, ScenarioTemplateType.Duel);
+        const result = service.applyTemplate(
+          createResult.id!,
+          ScenarioTemplateType.Duel,
+        );
 
         expect(result.success).toBe(true);
         const encounter = service.getEncounter(createResult.id!);
         expect(encounter?.mapConfig.radius).toBe(5);
         expect(encounter?.victoryConditions).toHaveLength(1);
-        expect(encounter?.victoryConditions[0].type).toBe(VictoryConditionType.DestroyAll);
+        expect(encounter?.victoryConditions[0].type).toBe(
+          VictoryConditionType.DestroyAll,
+        );
       });
 
       it('should apply skirmish template', () => {
         const createResult = service.createEncounter({ name: 'Test' });
 
-        const result = service.applyTemplate(createResult.id!, ScenarioTemplateType.Skirmish);
+        const result = service.applyTemplate(
+          createResult.id!,
+          ScenarioTemplateType.Skirmish,
+        );
 
         expect(result.success).toBe(true);
         const encounter = service.getEncounter(createResult.id!);
@@ -492,7 +533,10 @@ describe('EncounterService', () => {
       it('should apply battle template', () => {
         const createResult = service.createEncounter({ name: 'Test' });
 
-        const result = service.applyTemplate(createResult.id!, ScenarioTemplateType.Battle);
+        const result = service.applyTemplate(
+          createResult.id!,
+          ScenarioTemplateType.Battle,
+        );
 
         expect(result.success).toBe(true);
         const encounter = service.getEncounter(createResult.id!);
@@ -502,7 +546,10 @@ describe('EncounterService', () => {
       it('should reject unknown template', () => {
         const createResult = service.createEncounter({ name: 'Test' });
 
-        const result = service.applyTemplate(createResult.id!, 'unknown' as ScenarioTemplateType);
+        const result = service.applyTemplate(
+          createResult.id!,
+          'unknown' as ScenarioTemplateType,
+        );
 
         expect(result.success).toBe(false);
         expect(result.error).toContain('Unknown template');
@@ -532,7 +579,9 @@ describe('EncounterService', () => {
       const validation = service.validateEncounter(createResult.id!);
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors).toContain('Opponent force or OpFor configuration is required');
+      expect(validation.errors).toContain(
+        'Opponent force or OpFor configuration is required',
+      );
     });
 
     it('should return invalid for encounter without victory conditions', () => {
@@ -548,7 +597,9 @@ describe('EncounterService', () => {
       const validation = service.validateEncounter(createResult.id!);
 
       expect(validation.valid).toBe(false);
-      expect(validation.errors).toContain('At least one victory condition is required');
+      expect(validation.errors).toContain(
+        'At least one victory condition is required',
+      );
     });
 
     it('should return valid for complete encounter', () => {
@@ -587,7 +638,9 @@ describe('EncounterService', () => {
       const validation = service.validateEncounter(createResult.id!);
 
       expect(validation.warnings.length).toBeGreaterThan(0);
-      expect(validation.warnings.some((w) => w.includes('unbalanced'))).toBe(true);
+      expect(validation.warnings.some((w) => w.includes('unbalanced'))).toBe(
+        true,
+      );
     });
 
     describe('canLaunch', () => {
@@ -605,7 +658,9 @@ describe('EncounterService', () => {
       });
 
       it('should return false for invalid encounter', () => {
-        const createResult = service.createEncounter({ name: 'Not Launchable' });
+        const createResult = service.createEncounter({
+          name: 'Not Launchable',
+        });
 
         expect(service.canLaunch(createResult.id!)).toBe(false);
       });
@@ -753,7 +808,10 @@ describe('EncounterService', () => {
         optionalRules: ['forced_withdrawal'],
       });
 
-      const cloneResult = service.cloneEncounter(createResult.id!, 'Cloned Config');
+      const cloneResult = service.cloneEncounter(
+        createResult.id!,
+        'Cloned Config',
+      );
 
       const cloned = service.getEncounter(cloneResult.id!);
       expect(cloned?.playerForce?.forceId).toBe(playerForce.id);
@@ -774,10 +832,15 @@ describe('EncounterService', () => {
         },
       });
 
-      const cloneResult = service.cloneEncounter(createResult.id!, 'Cloned OpFor');
+      const cloneResult = service.cloneEncounter(
+        createResult.id!,
+        'Cloned OpFor',
+      );
 
       const cloned = service.getEncounter(cloneResult.id!);
-      expect(cloned?.opForConfig?.pilotSkillTemplate).toBe(PilotSkillTemplate.Regular);
+      expect(cloned?.opForConfig?.pilotSkillTemplate).toBe(
+        PilotSkillTemplate.Regular,
+      );
       expect(cloned?.opForConfig?.targetBVPercent).toBe(100);
     });
 
@@ -795,11 +858,16 @@ describe('EncounterService', () => {
       const original = service.getEncounter(createResult.id!);
       expect(original?.status).toBe(EncounterStatus.Ready);
 
-      const cloneResult = service.cloneEncounter(createResult.id!, 'Cloned Ready');
+      const cloneResult = service.cloneEncounter(
+        createResult.id!,
+        'Cloned Ready',
+      );
 
       const cloned = service.getEncounter(cloneResult.id!);
       // Clone status depends on whether config is copied - may become ready
-      expect([EncounterStatus.Draft, EncounterStatus.Ready]).toContain(cloned?.status);
+      expect([EncounterStatus.Draft, EncounterStatus.Ready]).toContain(
+        cloned?.status,
+      );
     });
   });
 
@@ -809,7 +877,12 @@ describe('EncounterService', () => {
 
   describe('Force Hydration', () => {
     it('should hydrate player force with current data', () => {
-      const force = createMockForce('force-hydrate-1', 'Hydrated Player', 7500, 3);
+      const force = createMockForce(
+        'force-hydrate-1',
+        'Hydrated Player',
+        7500,
+        3,
+      );
       const createResult = service.createEncounter({ name: 'Hydration Test' });
       service.setPlayerForce(createResult.id!, force.id);
 
@@ -821,7 +894,12 @@ describe('EncounterService', () => {
     });
 
     it('should hydrate opponent force with current data', () => {
-      const force = createMockForce('force-hydrate-2', 'Hydrated Opponent', 8000, 4);
+      const force = createMockForce(
+        'force-hydrate-2',
+        'Hydrated Opponent',
+        8000,
+        4,
+      );
       const createResult = service.createEncounter({ name: 'Hydration Test' });
       service.setOpponentForce(createResult.id!, force.id);
 
@@ -834,7 +912,9 @@ describe('EncounterService', () => {
 
     it('should handle deleted force gracefully', () => {
       const force = createMockForce('force-deleted', 'Deleted Force');
-      const createResult = service.createEncounter({ name: 'Deleted Force Test' });
+      const createResult = service.createEncounter({
+        name: 'Deleted Force Test',
+      });
       service.setPlayerForce(createResult.id!, force.id);
 
       // Delete the force

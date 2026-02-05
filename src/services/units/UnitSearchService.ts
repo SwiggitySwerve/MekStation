@@ -1,12 +1,13 @@
 /**
  * Unit Search Service
- * 
+ *
  * MiniSearch-powered full-text search across all units.
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
 import MiniSearch from 'minisearch';
+
 import { IUnitIndexEntry, ISearchOptions } from '../common/types';
 import { canonicalUnitService } from './CanonicalUnitService';
 import { customUnitApiService } from './CustomUnitApiService';
@@ -41,7 +42,18 @@ export class UnitSearchService implements IUnitSearchService {
     // Create MiniSearch instance
     this.searchIndex = new MiniSearch<IUnitIndexEntry>({
       fields: ['name', 'chassis', 'variant'],
-      storeFields: ['id', 'name', 'chassis', 'variant', 'tonnage', 'techBase', 'era', 'weightClass', 'unitType', 'filePath'],
+      storeFields: [
+        'id',
+        'name',
+        'chassis',
+        'variant',
+        'tonnage',
+        'techBase',
+        'era',
+        'weightClass',
+        'unitType',
+        'filePath',
+      ],
       searchOptions: {
         boost: { name: 2, chassis: 1.5 },
         fuzzy: 0.2,
@@ -94,10 +106,10 @@ export class UnitSearchService implements IUnitSearchService {
     };
 
     const results = this.searchIndex.search(query, searchOptions);
-    
-    let units = results.map(result => this.allUnits.get(result.id)).filter(
-      (unit): unit is IUnitIndexEntry => unit !== undefined
-    );
+
+    let units = results
+      .map((result) => this.allUnits.get(result.id))
+      .filter((unit): unit is IUnitIndexEntry => unit !== undefined);
 
     if (options?.limit !== undefined) {
       units = units.slice(0, options.limit);
@@ -148,4 +160,3 @@ export class UnitSearchService implements IUnitSearchService {
 
 // Singleton instance
 export const unitSearchService = new UnitSearchService();
-

@@ -21,7 +21,7 @@ export class WeightedTable<T> {
     const rawRoll = Math.floor(random() * total);
     const modifiedRoll = Math.min(
       rawRoll + Math.floor(total * rollMod + 0.5),
-      total - 1
+      total - 1,
     );
 
     let roll = Math.max(0, modifiedRoll);

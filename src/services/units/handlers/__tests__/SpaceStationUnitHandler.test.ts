@@ -6,21 +6,23 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
+import { CapitalShipLocation } from '../../../../types/construction/UnitLocation';
+import { TechBase, RulesLevel } from '../../../../types/enums';
+import { IBlkDocument } from '../../../../types/formats/BlkFormat';
+import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
 import {
   SpaceStationUnitHandler,
   createSpaceStationHandler,
   SpaceStationType,
 } from '../SpaceStationUnitHandler';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { TechBase, RulesLevel } from '../../../../types/enums';
-import { CapitalShipLocation } from '../../../../types/construction/UnitLocation';
 
 // ============================================================================
 // Test Fixtures
 // ============================================================================
 
-function createMockBlkDocument(overrides: Partial<IBlkDocument> = {}): IBlkDocument {
+function createMockBlkDocument(
+  overrides: Partial<IBlkDocument> = {},
+): IBlkDocument {
   return {
     blockVersion: 1,
     version: 'MAM0',
@@ -120,7 +122,9 @@ describe('SpaceStationUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.stationType).toBe(SpaceStationType.RECHARGE_STATION);
+      expect(result.data?.unit?.stationType).toBe(
+        SpaceStationType.RECHARGE_STATION,
+      );
     });
 
     it('should parse station type - shipyard', () => {
@@ -268,9 +272,15 @@ describe('SpaceStationUnitHandler', () => {
       const standardDoc = createMockBlkDocument({ type: 'IS Level 2' });
       const advancedDoc = createMockBlkDocument({ type: 'IS Level 3' });
 
-      expect(handler.parse(introDoc).data?.unit?.rulesLevel).toBe(RulesLevel.INTRODUCTORY);
-      expect(handler.parse(standardDoc).data?.unit?.rulesLevel).toBe(RulesLevel.STANDARD);
-      expect(handler.parse(advancedDoc).data?.unit?.rulesLevel).toBe(RulesLevel.ADVANCED);
+      expect(handler.parse(introDoc).data?.unit?.rulesLevel).toBe(
+        RulesLevel.INTRODUCTORY,
+      );
+      expect(handler.parse(standardDoc).data?.unit?.rulesLevel).toBe(
+        RulesLevel.STANDARD,
+      );
+      expect(handler.parse(advancedDoc).data?.unit?.rulesLevel).toBe(
+        RulesLevel.ADVANCED,
+      );
     });
   });
 
@@ -300,7 +310,9 @@ describe('SpaceStationUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const validateResult = handler.validate(parseResult.data!.unit);
-      expect(validateResult.warnings.some((w) => w.includes('no crew'))).toBe(true);
+      expect(validateResult.warnings.some((w) => w.includes('no crew'))).toBe(
+        true,
+      );
     });
 
     it('should warn for insufficient escape capacity', () => {
@@ -315,7 +327,9 @@ describe('SpaceStationUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const validateResult = handler.validate(parseResult.data!.unit);
-      expect(validateResult.warnings.some((w) => w.includes('escape capacity'))).toBe(true);
+      expect(
+        validateResult.warnings.some((w) => w.includes('escape capacity')),
+      ).toBe(true);
     });
 
     it('should include station type info', () => {
@@ -324,7 +338,9 @@ describe('SpaceStationUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const validateResult = handler.validate(parseResult.data!.unit);
-      expect(validateResult.infos.some((i) => i.includes('Station type'))).toBe(true);
+      expect(validateResult.infos.some((i) => i.includes('Station type'))).toBe(
+        true,
+      );
     });
 
     it('should include HPG info when present', () => {
@@ -344,7 +360,9 @@ describe('SpaceStationUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const validateResult = handler.validate(parseResult.data!.unit);
-      expect(validateResult.infos.some((i) => i.includes('K-F drive'))).toBe(true);
+      expect(validateResult.infos.some((i) => i.includes('K-F drive'))).toBe(
+        true,
+      );
     });
   });
 
@@ -420,7 +438,9 @@ describe('SpaceStationUnitHandler', () => {
       const serializeResult = handler.serialize(parseResult.data!.unit);
       expect(serializeResult.success).toBe(true);
       expect(serializeResult.data?.serialized?.chassis).toBe('Olympus');
-      expect(serializeResult.data?.serialized?.configuration).toContain('Space Station');
+      expect(serializeResult.data?.serialized?.configuration).toContain(
+        'Space Station',
+      );
     });
   });
 
@@ -449,7 +469,9 @@ describe('SpaceStationUnitHandler', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error!.errors.some((e) => e.includes('not yet implemented'))).toBe(true);
+      expect(
+        result.error!.errors.some((e) => e.includes('not yet implemented')),
+      ).toBe(true);
     });
   });
 });

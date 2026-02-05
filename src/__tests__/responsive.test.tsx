@@ -1,6 +1,23 @@
-import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react';
+import React from 'react';
+
+import type { IKPICardProps } from '@/components/simulation-viewer/types';
+import type { ITrendChartProps } from '@/components/simulation-viewer/types';
+import type { IAnomalyAlertCardProps } from '@/components/simulation-viewer/types';
+import type { ITabNavigationProps } from '@/components/simulation-viewer/types';
+import type {
+  IFilterPanelProps,
+  IFilterDefinition,
+} from '@/components/simulation-viewer/types';
+import type { IAnomaly } from '@/types/simulation-viewer';
+
+import { AnomalyAlertCard } from '@/components/simulation-viewer/AnomalyAlertCard';
+import { DrillDownLink } from '@/components/simulation-viewer/DrillDownLink';
+import { FilterPanel } from '@/components/simulation-viewer/FilterPanel';
+import { KPICard } from '@/components/simulation-viewer/KPICard';
+import { TabNavigation } from '@/components/simulation-viewer/TabNavigation';
+import { TrendChart } from '@/components/simulation-viewer/TrendChart';
 import {
   useMediaQuery,
   useIsMobile,
@@ -11,18 +28,6 @@ import {
   MIN_TOUCH_TARGET,
   TOUCH_TARGET_CLASSES,
 } from '@/utils/responsive';
-import { KPICard } from '@/components/simulation-viewer/KPICard';
-import { TrendChart } from '@/components/simulation-viewer/TrendChart';
-import { AnomalyAlertCard } from '@/components/simulation-viewer/AnomalyAlertCard';
-import { TabNavigation } from '@/components/simulation-viewer/TabNavigation';
-import { DrillDownLink } from '@/components/simulation-viewer/DrillDownLink';
-import { FilterPanel } from '@/components/simulation-viewer/FilterPanel';
-import type { IKPICardProps } from '@/components/simulation-viewer/types';
-import type { ITrendChartProps } from '@/components/simulation-viewer/types';
-import type { IAnomalyAlertCardProps } from '@/components/simulation-viewer/types';
-import type { ITabNavigationProps } from '@/components/simulation-viewer/types';
-import type { IFilterPanelProps, IFilterDefinition } from '@/components/simulation-viewer/types';
-import type { IAnomaly } from '@/types/simulation-viewer';
 
 type MediaQueryChangeListener = (event: { matches: boolean }) => void;
 
@@ -33,13 +38,17 @@ function createMatchMediaMock(defaultMatches: boolean) {
     matches: defaultMatches,
     media: query,
     onchange: null,
-    addEventListener: jest.fn((_event: string, listener: MediaQueryChangeListener) => {
-      listeners.push(listener);
-    }),
-    removeEventListener: jest.fn((_event: string, listener: MediaQueryChangeListener) => {
-      const index = listeners.indexOf(listener);
-      if (index > -1) listeners.splice(index, 1);
-    }),
+    addEventListener: jest.fn(
+      (_event: string, listener: MediaQueryChangeListener) => {
+        listeners.push(listener);
+      },
+    ),
+    removeEventListener: jest.fn(
+      (_event: string, listener: MediaQueryChangeListener) => {
+        const index = listeners.indexOf(listener);
+        if (index > -1) listeners.splice(index, 1);
+      },
+    ),
     addListener: jest.fn(),
     removeListener: jest.fn(),
     dispatchEvent: jest.fn(),
@@ -64,7 +73,8 @@ function setViewport(width: number) {
 
     let matches = false;
     if (maxMatch && minMatch) {
-      matches = width <= parseInt(maxMatch[1]) && width >= parseInt(minMatch[1]);
+      matches =
+        width <= parseInt(maxMatch[1]) && width >= parseInt(minMatch[1]);
     } else if (maxMatch) {
       matches = width <= parseInt(maxMatch[1]);
     } else if (minMatch) {
@@ -220,7 +230,10 @@ describe('Responsive Utilities', () => {
 
       const { unmount } = renderHook(() => useMediaQuery('(min-width: 768px)'));
       unmount();
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('change', expect.any(Function));
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        'change',
+        expect.any(Function),
+      );
     });
   });
 
@@ -560,7 +573,7 @@ describe('Visual Regression: Breakpoint Classes', () => {
   it('KPICard renders responsive grid parent (1 col mobile, 2 tablet, 4 desktop)', () => {
     render(
       <div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
         data-testid="kpi-grid"
       >
         <KPICard label="A" value={1} />
@@ -577,7 +590,7 @@ describe('Visual Regression: Breakpoint Classes', () => {
 
   it('sidebar+main layout has correct responsive classes', () => {
     render(
-      <div className="flex flex-col lg:flex-row gap-4" data-testid="layout">
+      <div className="flex flex-col gap-4 lg:flex-row" data-testid="layout">
         <aside className="w-full lg:w-64" data-testid="sidebar">
           Sidebar
         </aside>
@@ -598,7 +611,7 @@ describe('Visual Regression: Breakpoint Classes', () => {
   it('analysis grid has responsive column layout', () => {
     render(
       <div
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        className="grid grid-cols-1 gap-4 md:grid-cols-2"
         data-testid="analysis-grid"
       >
         <div>A</div>

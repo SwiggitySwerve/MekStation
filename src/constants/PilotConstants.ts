@@ -106,7 +106,9 @@ export function getGunneryImprovementCost(currentLevel: number): number | null {
  * Get XP cost to improve piloting from current level.
  * @returns XP cost, or null if cannot improve
  */
-export function getPilotingImprovementCost(currentLevel: number): number | null {
+export function getPilotingImprovementCost(
+  currentLevel: number,
+): number | null {
   if (currentLevel <= MIN_SKILL_VALUE) return null;
   return PILOTING_IMPROVEMENT_COSTS[currentLevel] ?? null;
 }
@@ -217,11 +219,15 @@ export function validatePilotSkills(skills: IPilotSkills): string[] {
   const errors: string[] = [];
 
   if (!isValidSkillValue(skills.gunnery)) {
-    errors.push(`Gunnery must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`);
+    errors.push(
+      `Gunnery must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`,
+    );
   }
 
   if (!isValidSkillValue(skills.piloting)) {
-    errors.push(`Piloting must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`);
+    errors.push(
+      `Piloting must be between ${MIN_SKILL_VALUE} and ${MAX_SKILL_VALUE}`,
+    );
   }
 
   return errors;

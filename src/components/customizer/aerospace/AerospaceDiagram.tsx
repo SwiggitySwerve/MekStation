@@ -8,6 +8,7 @@
  */
 
 import React, { useMemo } from 'react';
+
 import { useAerospaceStore } from '@/stores/useAerospaceStore';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 
@@ -30,12 +31,16 @@ interface ArmorArcProps {
 // Helper Components
 // =============================================================================
 
-function ArmorArc({ label, value, maxValue }: ArmorArcProps): React.ReactElement {
+function ArmorArc({
+  label,
+  value,
+  maxValue,
+}: ArmorArcProps): React.ReactElement {
   const fillPercent = maxValue && maxValue > 0 ? (value / maxValue) * 100 : 0;
 
   return (
     <div className="flex flex-col items-center">
-      <span className="text-[10px] text-text-theme-secondary uppercase tracking-wide">
+      <span className="text-text-theme-secondary text-[10px] tracking-wide uppercase">
         {label}
       </span>
       <span
@@ -43,12 +48,12 @@ function ArmorArc({ label, value, maxValue }: ArmorArcProps): React.ReactElement
           value === 0
             ? 'text-text-theme-secondary/50'
             : fillPercent > 75
-            ? 'text-cyan-400'
-            : fillPercent > 50
-            ? 'text-green-400'
-            : fillPercent > 25
-            ? 'text-amber-400'
-            : 'text-red-400'
+              ? 'text-cyan-400'
+              : fillPercent > 50
+                ? 'text-green-400'
+                : fillPercent > 25
+                  ? 'text-amber-400'
+                  : 'text-red-400'
         }`}
       >
         {value}
@@ -86,13 +91,21 @@ export function AerospaceDiagram({
       <div className={`text-center ${className}`}>
         <div className="inline-grid grid-cols-3 gap-2 text-xs">
           <div />
-          <div className="text-cyan-400 font-mono">{armorAllocation[AerospaceLocation.NOSE] ?? 0}</div>
+          <div className="font-mono text-cyan-400">
+            {armorAllocation[AerospaceLocation.NOSE] ?? 0}
+          </div>
           <div />
-          <div className="text-cyan-400 font-mono">{armorAllocation[AerospaceLocation.LEFT_WING] ?? 0}</div>
+          <div className="font-mono text-cyan-400">
+            {armorAllocation[AerospaceLocation.LEFT_WING] ?? 0}
+          </div>
           <div className="text-text-theme-secondary/50">-</div>
-          <div className="text-cyan-400 font-mono">{armorAllocation[AerospaceLocation.RIGHT_WING] ?? 0}</div>
+          <div className="font-mono text-cyan-400">
+            {armorAllocation[AerospaceLocation.RIGHT_WING] ?? 0}
+          </div>
           <div />
-          <div className="text-cyan-400 font-mono">{armorAllocation[AerospaceLocation.AFT] ?? 0}</div>
+          <div className="font-mono text-cyan-400">
+            {armorAllocation[AerospaceLocation.AFT] ?? 0}
+          </div>
           <div />
         </div>
       </div>
@@ -102,16 +115,16 @@ export function AerospaceDiagram({
   return (
     <div className={`flex flex-col items-center ${className}`}>
       {/* Header */}
-      <div className="text-xs text-text-theme-secondary mb-2">
+      <div className="text-text-theme-secondary mb-2 text-xs">
         Aerospace Fighter • {safeThrust}/{maxThrust} Thrust
       </div>
 
       {/* Main Diagram */}
-      <div className="relative w-full max-w-xs aspect-square">
+      <div className="relative aspect-square w-full max-w-xs">
         {/* Fighter Body SVG */}
         <svg
           viewBox="0 0 200 200"
-          className="w-full h-full"
+          className="h-full w-full"
           fill="none"
           stroke="currentColor"
         >
@@ -141,7 +154,7 @@ export function AerospaceDiagram({
             cx="100"
             cy="40"
             r="8"
-            className="stroke-cyan-500 fill-cyan-900/30"
+            className="fill-cyan-900/30 stroke-cyan-500"
             strokeWidth="2"
           />
 
@@ -151,7 +164,7 @@ export function AerospaceDiagram({
             cy="175"
             rx="6"
             ry="4"
-            className="stroke-amber-500 fill-amber-900/30"
+            className="fill-amber-900/30 stroke-amber-500"
             strokeWidth="1"
           />
           <ellipse
@@ -159,7 +172,7 @@ export function AerospaceDiagram({
             cy="175"
             rx="6"
             ry="4"
-            className="stroke-amber-500 fill-amber-900/30"
+            className="fill-amber-900/30 stroke-amber-500"
             strokeWidth="1"
           />
         </svg>
@@ -174,14 +187,14 @@ export function AerospaceDiagram({
           />
 
           {/* Wings Row */}
-          <div className="flex items-center justify-between w-full px-2">
+          <div className="flex w-full items-center justify-between px-2">
             <ArmorArc
               label="L.Wing"
               value={armorAllocation[AerospaceLocation.LEFT_WING] ?? 0}
               maxValue={maxArmor.wing}
             />
             <div className="text-center">
-              <span className="text-[10px] text-text-theme-secondary">SI</span>
+              <span className="text-text-theme-secondary text-[10px]">SI</span>
               <div className="text-sm font-bold text-white">
                 {Math.ceil(tonnage / 10)}
               </div>
@@ -203,13 +216,13 @@ export function AerospaceDiagram({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 mt-2 text-[10px] text-text-theme-secondary">
+      <div className="text-text-theme-secondary mt-2 flex items-center gap-4 text-[10px]">
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-cyan-400" />
+          <span className="h-2 w-2 rounded-full bg-cyan-400" />
           Armor
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-amber-400" />
+          <span className="h-2 w-2 rounded-full bg-amber-400" />
           Engines
         </span>
       </div>

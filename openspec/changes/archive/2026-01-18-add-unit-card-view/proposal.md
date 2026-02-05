@@ -45,11 +45,11 @@ Users need a quick reference view of unit capabilities without navigating throug
 
 ## Card Variants
 
-| Variant | Use Case | Content |
-|---------|----------|---------|
-| Compact | List views, search results | Name, tonnage, BV, movement only |
-| Standard | Browsing, comparing | Full card as shown above |
-| Expanded | Detail view | All above + equipment list, quirks, notes |
+| Variant  | Use Case                   | Content                                   |
+| -------- | -------------------------- | ----------------------------------------- |
+| Compact  | List views, search results | Name, tonnage, BV, movement only          |
+| Standard | Browsing, comparing        | Full card as shown above                  |
+| Expanded | Detail view                | All above + equipment list, quirks, notes |
 
 ## Impact
 

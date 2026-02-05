@@ -8,11 +8,7 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
-import {
-  EncounterListPage,
-  EncounterDetailPage,
-  EncounterCreatePage,
-} from './pages/encounter.page';
+
 import {
   createTestEncounter,
   createSkirmishEncounter,
@@ -21,10 +17,12 @@ import {
   deleteEncounter,
   launchEncounter,
 } from './fixtures/encounter';
+import { createTestForce, deleteForce } from './fixtures/force';
 import {
-  createTestForce,
-  deleteForce,
-} from './fixtures/force';
+  EncounterListPage,
+  EncounterDetailPage,
+  EncounterCreatePage,
+} from './pages/encounter.page';
 
 // =============================================================================
 // Test Configuration
@@ -36,10 +34,12 @@ test.setTimeout(30000);
 async function waitForStoreReady(page: Page): Promise<void> {
   await page.waitForFunction(
     () => {
-      const win = window as unknown as { __ZUSTAND_STORES__?: { encounter?: unknown } };
+      const win = window as unknown as {
+        __ZUSTAND_STORES__?: { encounter?: unknown };
+      };
       return win.__ZUSTAND_STORES__?.encounter !== undefined;
     },
-    { timeout: 10000 }
+    { timeout: 10000 },
   );
 }
 
@@ -59,24 +59,32 @@ test.describe('Encounter List Page @smoke @encounter', () => {
   test('navigates to encounters list page', async ({ page }) => {
     // Page should load with title
     await expect(page).toHaveURL(/\/gameplay\/encounters$/);
-    await expect(page.getByRole('heading', { name: /encounters/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /encounters/i }),
+    ).toBeVisible();
   });
 
   test('shows encounters or empty state correctly', async ({ page }) => {
     // Note: This test verifies UI consistency - either cards OR empty state should show
     // We can't guarantee empty state in parallel test runs
     const cardCount = await listPage.getCardCount();
-    
+
     if (cardCount === 0) {
       // When there are no encounters, empty state should be visible
       const emptyVisible = await listPage.isEmptyStateVisible();
-      const showingZero = await page.getByText(/Showing 0 encounter/i).isVisible();
+      const showingZero = await page
+        .getByText(/Showing 0 encounter/i)
+        .isVisible();
       expect(emptyVisible || showingZero).toBe(true);
     } else {
       // When encounters exist, cards should be visible and count should match
-      await expect(page.locator('[data-testid^="encounter-card-"]').first()).toBeVisible();
+      await expect(
+        page.locator('[data-testid^="encounter-card-"]').first(),
+      ).toBeVisible();
       // Verify the count display matches
-      await expect(page.getByText(new RegExp(`Showing ${cardCount} encounter`))).toBeVisible();
+      await expect(
+        page.getByText(new RegExp(`Showing ${cardCount} encounter`)),
+      ).toBeVisible();
     }
   });
 
@@ -96,7 +104,10 @@ test.describe('Encounter List Page @smoke @encounter', () => {
     await listPage.navigate();
 
     // Wait for encounter cards to appear
-    await page.locator('[data-testid^="encounter-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="encounter-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
 
     // Encounter should appear in list
     const names = await listPage.getEncounterNames();
@@ -117,7 +128,10 @@ test.describe('Encounter List Page @smoke @encounter', () => {
     await listPage.navigate();
 
     // Wait for encounter cards to appear
-    await page.locator('[data-testid^="encounter-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="encounter-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
 
     // Search for "Alpha"
     await listPage.searchEncounters('Alpha');
@@ -136,10 +150,15 @@ test.describe('Encounter List Page @smoke @encounter', () => {
 
   test('status filter buttons work', async ({ page }) => {
     // Create an encounter (will be in Draft status by default)
-    const id = await createTestEncounter(page, { name: 'Filter Test Encounter' });
+    const id = await createTestEncounter(page, {
+      name: 'Filter Test Encounter',
+    });
 
     await listPage.navigate();
-    await page.locator('[data-testid^="encounter-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="encounter-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
 
     // Click Draft filter
     await page.getByTestId('status-option-draft').click();
@@ -150,10 +169,10 @@ test.describe('Encounter List Page @smoke @encounter', () => {
 
     // Click Ready filter - encounter should disappear (it's in Draft)
     await page.getByTestId('status-option-ready').click();
-    
+
     // Wait for UI to update
     await page.waitForTimeout(300);
-    
+
     const namesAfterFilter = await listPage.getEncounterNames();
     expect(namesAfterFilter).not.toContain('Filter Test Encounter');
 
@@ -187,7 +206,7 @@ test.describe('Encounter Creation @smoke @encounter', () => {
 
     // Fill name
     await createPage.fillName('Simple E2E Encounter');
-    
+
     // Submit
     await createPage.submit();
 
@@ -201,16 +220,16 @@ test.describe('Encounter Creation @smoke @encounter', () => {
     // Fill name
     await createPage.fillName('Skirmish Test Encounter');
     await createPage.fillDescription('Testing template selection');
-    
+
     // Select skirmish template
     await page.getByTestId('template-skirmish').click();
-    
+
     // Submit
     await createPage.submit();
 
     // Should redirect to encounter detail
     await expect(page).toHaveURL(/\/gameplay\/encounters\/[^/]+$/);
-    
+
     // Template should be applied (check for template indicator)
     await expect(page.getByTestId('encounter-template')).toBeVisible();
   });
@@ -223,10 +242,12 @@ test.describe('Encounter Creation @smoke @encounter', () => {
 
     // Should stay on create page (validation prevents navigation)
     await expect(page).toHaveURL(/\/gameplay\/encounters\/create$/);
-    
+
     // Check for error message or that we're still on the page
     const hasError = await createPage.hasFieldError('name');
-    const stillOnCreatePage = await page.getByText(/Encounter Name/i).isVisible();
+    const stillOnCreatePage = await page
+      .getByText(/Encounter Name/i)
+      .isVisible();
     expect(hasError || stillOnCreatePage).toBe(true);
   });
 
@@ -254,7 +275,7 @@ test.describe('Encounter Detail Page @encounter', () => {
   test.beforeEach(async ({ page }) => {
     _detailPage = new EncounterDetailPage(page);
     listPage = new EncounterListPage(page);
-    
+
     // Navigate to list first to ensure store is initialized
     await listPage.navigate();
     await waitForStoreReady(page);
@@ -264,7 +285,10 @@ test.describe('Encounter Detail Page @encounter', () => {
 
     // Refresh list and wait for card to appear
     await listPage.navigate();
-    await page.locator('[data-testid^="encounter-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="encounter-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
   });
 
   test.afterEach(async ({ page }) => {
@@ -281,13 +305,17 @@ test.describe('Encounter Detail Page @encounter', () => {
   test('displays encounter details via list click', async ({ page }) => {
     // Navigate to detail by clicking on encounter card in list
     await listPage.clickEncounterCard(encounterId!);
-    
+
     // Wait for navigation to detail page
-    await expect(page).toHaveURL(new RegExp(`/gameplay/encounters/${encounterId}`));
-    
+    await expect(page).toHaveURL(
+      new RegExp(`/gameplay/encounters/${encounterId}`),
+    );
+
     // Wait for page to finish loading (forces card appears when loaded)
-    await expect(page.getByTestId('forces-card')).toBeVisible({ timeout: 15000 });
-    
+    await expect(page.getByTestId('forces-card')).toBeVisible({
+      timeout: 15000,
+    });
+
     // Should show battle settings card
     await expect(page.getByTestId('battle-settings-card')).toBeVisible();
   });
@@ -299,13 +327,13 @@ test.describe('Encounter Detail Page @encounter', () => {
 
     // Map config section should be visible
     await expect(page.getByTestId('map-config-section')).toBeVisible();
-    
+
     // Should show map size
     await expect(page.getByTestId('map-size')).toBeVisible();
-    
+
     // Should show terrain
     await expect(page.getByTestId('map-terrain')).toBeVisible();
-    
+
     // Should show deployment zones
     await expect(page.getByTestId('deployment-zones')).toBeVisible();
   });
@@ -326,7 +354,7 @@ test.describe('Encounter Detail Page @encounter', () => {
 
     // New encounter should have empty player force
     await expect(page.getByTestId('player-force-empty')).toBeVisible();
-    
+
     // Should show link to select force
     await expect(page.getByTestId('select-player-force-link')).toBeVisible();
   });
@@ -338,7 +366,7 @@ test.describe('Encounter Detail Page @encounter', () => {
 
     // New encounter should have empty opponent force
     await expect(page.getByTestId('opponent-force-empty')).toBeVisible();
-    
+
     // Should show link to select force
     await expect(page.getByTestId('select-opponent-force-link')).toBeVisible();
   });
@@ -367,7 +395,10 @@ test.describe('Encounter Deletion @encounter', () => {
 
     // Wait for encounter card to appear
     await listPage.navigate();
-    await page.locator('[data-testid^="encounter-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="encounter-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
     await listPage.clickEncounterCard(encounterId!);
     await page.waitForLoadState('networkidle');
 
@@ -397,7 +428,10 @@ test.describe('Encounter Deletion @encounter', () => {
 
     // Wait for encounter card to appear
     await listPage.navigate();
-    await page.locator('[data-testid^="encounter-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="encounter-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
     await listPage.clickEncounterCard(encounterId!);
     await page.waitForLoadState('networkidle');
 
@@ -441,7 +475,10 @@ test.describe('Encounter Validation @encounter', () => {
 
     // Refresh list
     await listPage.navigate();
-    await page.locator('[data-testid^="encounter-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="encounter-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
   });
 
   test.afterEach(async ({ page }) => {
@@ -454,7 +491,9 @@ test.describe('Encounter Validation @encounter', () => {
     }
   });
 
-  test('launch button is disabled without forces configured', async ({ page }) => {
+  test('launch button is disabled without forces configured', async ({
+    page,
+  }) => {
     // Navigate to detail
     await listPage.clickEncounterCard(encounterId!);
     await page.waitForLoadState('networkidle');
@@ -528,7 +567,7 @@ test.describe('Encounter Launch @encounter', () => {
       page,
       'Launch Test Encounter',
       playerForceId!,
-      opponentForceId!
+      opponentForceId!,
     );
 
     expect(encounterId).not.toBeNull();
@@ -545,19 +584,22 @@ test.describe('Encounter Launch @encounter', () => {
       page,
       'Ready to Launch Encounter',
       playerForceId!,
-      opponentForceId!
+      opponentForceId!,
     );
 
     // Navigate to encounter detail
     await listPage.navigate();
-    await page.locator('[data-testid^="encounter-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="encounter-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
     await listPage.clickEncounterCard(encounterId!);
     await page.waitForLoadState('networkidle');
 
     // Launch button should be enabled (forces are configured)
     const launchBtn = page.getByTestId('launch-encounter-btn');
     await expect(launchBtn).toBeVisible();
-    
+
     // Note: Button may still be disabled if forces don't have actual units assigned
     // The validation requires forces with actual unit assignments
     // For this test, we verify the encounter was created successfully with forces
@@ -569,7 +611,7 @@ test.describe('Encounter Launch @encounter', () => {
       page,
       'Store Launch Test',
       playerForceId!,
-      opponentForceId!
+      opponentForceId!,
     );
 
     // Try to launch via store
@@ -577,7 +619,7 @@ test.describe('Encounter Launch @encounter', () => {
     // but it tests that the launch action is available
     try {
       await launchEncounter(page, encounterId!);
-      
+
       // If launch succeeded, verify status changed
       const encounter = await getEncounter(page, encounterId!);
       // Status should be 'launched' or similar

@@ -1,6 +1,7 @@
 # Implementation Tasks: Random Events System
 
 ## 1. Foundation - Event Types and Probability
+
 - [ ] 1.1 Define RandomEventCategory enum (PRISONER, LIFE, CONTRACT, HISTORICAL)
 - [ ] 1.2 Define RandomEventSeverity enum (MINOR, MAJOR, CRITICAL)
 - [ ] 1.3 Define IRandomEvent interface extending IBaseEvent
@@ -11,6 +12,7 @@
 - [ ] 1.8 Implement date helpers (isMonday, isFirstOfMonth, isBirthday, isSpecificDate)
 
 ## 2. Prisoner Events
+
 - [ ] 2.1 Define IPrisonerCapacity interface
 - [ ] 2.2 Implement calculatePrisonerCapacity (conventional infantry=5, BA=20)
 - [ ] 2.3 Define MINOR_PRISONER_EVENTS constant (~20 minor events)
@@ -20,6 +22,7 @@
 - [ ] 2.7 Implement 20% major event chance
 
 ## 3. Life Events
+
 - [ ] 3.1 Define ICalendarCelebration interface
 - [ ] 3.2 Define CALENDAR_CELEBRATIONS constant (4 celebrations)
 - [ ] 3.3 Implement processLifeEvents (daily check for celebrations)
@@ -27,6 +30,7 @@
 - [ ] 3.5 Implement XP award for coming-of-age
 
 ## 4. Gray Monday Historical Event
+
 - [ ] 4.1 Define Gray Monday date constants (3132.08.03-12)
 - [ ] 4.2 Implement processGrayMonday (bankruptcy on day 7)
 - [ ] 4.3 Implement 99% balance debit effect
@@ -34,6 +38,7 @@
 - [ ] 4.5 Gate behind simulateGrayMonday option
 
 ## 5. Random Events Day Processor
+
 - [ ] 5.1 Create randomEventsProcessor with id='random-events'
 - [ ] 5.2 Implement daily routing (life events, Gray Monday)
 - [ ] 5.3 Implement weekly routing (prisoner events on Monday)
@@ -43,11 +48,13 @@
 - [ ] 5.7 Apply event effects to campaign state
 
 ## 6. Contract Events Integration
+
 - [ ] 6.1 Define contract event types (reference Plan 12)
 - [ ] 6.2 Implement processContractRandomEvents stub
 - [ ] 6.3 Document Plan 12 dependency
 
 ## 7. Event Log UI
+
 - [ ] 7.1 Create RandomEventsPanel component (event log)
 - [ ] 7.2 Implement chronological event display
 - [ ] 7.3 Implement category filtering (prisoner, life, contract, historical)
@@ -58,6 +65,7 @@
 - [ ] 7.8 Add Gray Monday toggle to campaign settings
 
 ## 8. Testing
+
 - [ ] 8.1 Test probability engine (deterministic with seeded random)
 - [ ] 8.2 Test prisoner events (capacity, overflow, ransom)
 - [ ] 8.3 Test life events (celebrations, coming-of-age)
@@ -67,6 +75,7 @@
 - [ ] 8.7 Test UI components (event log, filtering, toasts)
 
 ## 9. Documentation
+
 - [ ] 9.1 Update day-progression spec with random events processor
 - [ ] 9.2 Document prisoner capacity calculation
 - [ ] 9.3 Document event probability formulas

@@ -7,10 +7,11 @@
  * @module campaign/Person
  */
 
-import { PersonnelStatus, CampaignPersonnelRole } from './enums';
-import { IAttributes, ISkill } from './skills';
 import type { IPilot, IPilotSkills } from '../pilot/PilotInterfaces';
 import type { IPersonTraits } from './progression/progressionTypes';
+
+import { PersonnelStatus, CampaignPersonnelRole } from './enums';
+import { IAttributes, ISkill } from './skills';
 
 // =============================================================================
 // Injury Interface
@@ -308,21 +309,21 @@ export interface IPerson extends IPersonIdentity, IPersonBackground {
   /** Secondary role (optional) */
   readonly secondaryRole?: CampaignPersonnelRole;
 
-   // =========================================================================
-   // Career (from IPersonCareer)
-   // =========================================================================
+  // =========================================================================
+  // Career (from IPersonCareer)
+  // =========================================================================
 
-   /** Current rank title */
-   readonly rank: string;
+  /** Current rank title */
+  readonly rank: string;
 
-   /** Rank level (numeric for sorting) */
-   readonly rankLevel?: number;
+  /** Rank level (numeric for sorting) */
+  readonly rankLevel?: number;
 
-   /** Numeric rank index (0-50) in the rank system */
-   readonly rankIndex?: number;
+  /** Numeric rank index (0-50) in the rank system */
+  readonly rankIndex?: number;
 
-   /** Date joined the campaign/unit */
-   readonly recruitmentDate: Date;
+  /** Date joined the campaign/unit */
+  readonly recruitmentDate: Date;
 
   /** Date of death (if deceased) */
   readonly deathDate?: Date;
@@ -421,34 +422,34 @@ export interface IPerson extends IPersonIdentity, IPersonBackground {
   /** ID of assigned force/lance */
   readonly forceId?: string;
 
-    // =========================================================================
-    // Traits and Abilities
-    // =========================================================================
+  // =========================================================================
+  // Traits and Abilities
+  // =========================================================================
 
-    /** Trait flags that modify skill costs and other progression mechanics */
-    readonly traits?: IPersonTraits;
+  /** Trait flags that modify skill costs and other progression mechanics */
+  readonly traits?: IPersonTraits;
 
-    /** Special abilities (SPA IDs) acquired through progression */
-    readonly specialAbilities?: readonly string[];
+  /** Special abilities (SPA IDs) acquired through progression */
+  readonly specialAbilities?: readonly string[];
 
-   // =========================================================================
-   // Flags
-   // =========================================================================
+  // =========================================================================
+  // Flags
+  // =========================================================================
 
-   /** Whether this person is a founder of the unit (+1 share) */
-   readonly isFounder?: boolean;
+  /** Whether this person is a founder of the unit (+1 share) */
+  readonly isFounder?: boolean;
 
-   /** Whether this person is the commander */
-   readonly isCommander?: boolean;
+  /** Whether this person is the commander */
+  readonly isCommander?: boolean;
 
-   /** Whether this person is second in command */
-   readonly isSecondInCommand?: boolean;
+  /** Whether this person is second in command */
+  readonly isSecondInCommand?: boolean;
 
-   /** Whether this person is immortal (cannot die) */
-   readonly isImmortal?: boolean;
+  /** Whether this person is immortal (cannot die) */
+  readonly isImmortal?: boolean;
 
-   /** Whether this person is a Clan character */
-   readonly isClan?: boolean;
+  /** Whether this person is a Clan character */
+  readonly isClan?: boolean;
 }
 
 // =============================================================================
@@ -467,8 +468,7 @@ export interface IPerson extends IPersonIdentity, IPersonBackground {
  */
 export function isAlive(person: IPerson): boolean {
   return (
-    person.status !== PersonnelStatus.KIA &&
-    person.deathDate === undefined
+    person.status !== PersonnelStatus.KIA && person.deathDate === undefined
   );
 }
 
@@ -565,7 +565,7 @@ export function getTotalHealingDays(person: IPerson): number {
   const maxInjuryDays = Math.max(
     ...person.injuries
       .filter((injury) => !injury.permanent)
-      .map((injury) => injury.daysToHeal)
+      .map((injury) => injury.daysToHeal),
   );
 
   return Math.max(person.daysToWaitForHealing, maxInjuryDays || 0);
@@ -645,7 +645,7 @@ export function pilotToPerson(
     rank: string;
     recruitmentDate: Date;
     attributes: IAttributes;
-  }>
+  }>,
 ): IPerson {
   // Map pilot status to personnel status
   const status = PILOT_STATUS_MAP[pilot.status] ?? PersonnelStatus.ACTIVE;

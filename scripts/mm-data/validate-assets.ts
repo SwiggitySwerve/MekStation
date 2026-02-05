@@ -1,17 +1,17 @@
 #!/usr/bin/env tsx
 /**
  * Validate that all required mm-data assets exist.
- * 
+ *
  * This script checks if all assets defined in config/mm-data-assets.json
  * are present in public/record-sheets/. Used for build validation.
- * 
+ *
  * Usage:
  *   npx tsx scripts/mm-data/validate-assets.ts [--strict] [--quiet]
- * 
+ *
  * Options:
  *   --strict   Exit with code 1 if any assets are missing
  *   --quiet    Only show summary and errors
- * 
+ *
  * Exit codes:
  *   0 - All assets present (or --strict not specified)
  *   1 - Assets missing and --strict specified
@@ -71,9 +71,9 @@ function expandPattern(pattern: string): string[] {
   const listMatch = pattern.match(/\{([^}]+)\}/);
   if (listMatch) {
     const [full, items] = listMatch;
-    return items.split(',').flatMap(item => 
-      expandPattern(pattern.replace(full, item.trim()))
-    );
+    return items
+      .split(',')
+      .flatMap((item) => expandPattern(pattern.replace(full, item.trim())));
   }
 
   return [pattern];
@@ -82,7 +82,7 @@ function expandPattern(pattern: string): string[] {
 // Get all expected asset paths from config
 function getExpectedAssets(config: AssetConfig): string[] {
   const paths: string[] = [];
-  
+
   for (const [dir, patterns] of Object.entries(config.patterns)) {
     for (const pattern of patterns) {
       const expanded = expandPattern(pattern);
@@ -91,7 +91,7 @@ function getExpectedAssets(config: AssetConfig): string[] {
       }
     }
   }
-  
+
   return paths;
 }
 
@@ -151,10 +151,15 @@ function main(): void {
   console.log(`Assets present:   ${result.present}`);
   console.log(`Assets missing:   ${result.missing.length}`);
 
-  if (result.manifestVersion && result.manifestVersion !== result.configVersion) {
+  if (
+    result.manifestVersion &&
+    result.manifestVersion !== result.configVersion
+  ) {
     console.log('');
     console.warn('⚠ Warning: Version mismatch between config and manifest');
-    console.warn(`  Config expects ${result.configVersion}, manifest has ${result.manifestVersion}`);
+    console.warn(
+      `  Config expects ${result.configVersion}, manifest has ${result.manifestVersion}`,
+    );
     console.warn('  Run "npm run fetch:assets --force" to update assets');
   }
 
@@ -178,7 +183,9 @@ function main(): void {
       console.log('');
       console.warn('⚠ Warning: Some assets are missing');
       console.warn('  Run "npm run fetch:assets" to download required assets');
-      console.warn('  Use --strict flag to fail the build when assets are missing');
+      console.warn(
+        '  Use --strict flag to fail the build when assets are missing',
+      );
     }
   } else {
     console.log('');
@@ -188,7 +195,8 @@ function main(): void {
   // Summary for CI
   console.log('');
   console.log('='.repeat(60));
-  const status = result.missing.length === 0 ? 'PASSED' : (STRICT ? 'FAILED' : 'WARNING');
+  const status =
+    result.missing.length === 0 ? 'PASSED' : STRICT ? 'FAILED' : 'WARNING';
   console.log(`Validation: ${status}`);
   console.log('='.repeat(60));
 }

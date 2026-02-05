@@ -1,3 +1,9 @@
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import {
   calculateEngineCost,
   calculateGyroCost,
@@ -10,12 +16,6 @@ import {
   ENGINE_COST_MULTIPLIERS,
   GYRO_COST_MULTIPLIERS,
 } from '@/utils/construction/costCalculations';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
 
 describe('costCalculations', () => {
   describe('calculateEngineCost()', () => {
@@ -29,7 +29,7 @@ describe('costCalculations', () => {
     it('should apply XL multiplier', () => {
       const standardCost = calculateEngineCost(250, EngineType.STANDARD);
       const xlCost = calculateEngineCost(250, EngineType.XL_IS);
-      
+
       expect(xlCost).toBeGreaterThan(standardCost);
       expect(xlCost).toBeCloseTo(standardCost * 2, -5);
     });
@@ -37,7 +37,7 @@ describe('costCalculations', () => {
     it('should handle different ratings', () => {
       const cost200 = calculateEngineCost(200, EngineType.STANDARD);
       const cost300 = calculateEngineCost(300, EngineType.STANDARD);
-      
+
       expect(cost300).toBeGreaterThan(cost200);
     });
   });
@@ -53,7 +53,7 @@ describe('costCalculations', () => {
     it('should apply compact multiplier', () => {
       const standardCost = calculateGyroCost(250, GyroType.STANDARD);
       const compactCost = calculateGyroCost(250, GyroType.COMPACT);
-      
+
       expect(compactCost).toBeGreaterThan(standardCost);
     });
   });
@@ -66,9 +66,15 @@ describe('costCalculations', () => {
     });
 
     it('should apply Endo Steel multiplier', () => {
-      const standardCost = calculateStructureCost(5, InternalStructureType.STANDARD);
-      const endoCost = calculateStructureCost(5, InternalStructureType.ENDO_STEEL_IS);
-      
+      const standardCost = calculateStructureCost(
+        5,
+        InternalStructureType.STANDARD,
+      );
+      const endoCost = calculateStructureCost(
+        5,
+        InternalStructureType.ENDO_STEEL_IS,
+      );
+
       expect(endoCost).toBeGreaterThan(standardCost);
     });
   });
@@ -139,7 +145,7 @@ describe('costCalculations', () => {
           breakdown.armor +
           breakdown.cockpit +
           breakdown.heatSinks +
-          breakdown.equipment
+          breakdown.equipment,
       );
     });
   });
@@ -156,4 +162,3 @@ describe('costCalculations', () => {
     });
   });
 });
-

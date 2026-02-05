@@ -9,7 +9,7 @@ describe('FileService', () => {
 
   beforeEach(() => {
     service = new FileService();
-    
+
     // Mock DOM APIs
     mockClick = jest.fn();
     // Create mock anchor with minimal properties needed for testing
@@ -19,12 +19,21 @@ describe('FileService', () => {
       click: mockClick,
     };
     const mockAnchorElement = mockAnchor as HTMLAnchorElement;
-    
-    // @ts-expect-error - Mocking createElement for test purposes
-    mockCreateElement = jest.spyOn(document, 'createElement').mockReturnValue(mockAnchorElement);
-    jest.spyOn(document.body, 'appendChild').mockImplementation(() => mockAnchorElement);
-    jest.spyOn(document.body, 'removeChild').mockImplementation(() => mockAnchorElement);
-    
+
+    mockCreateElement = jest
+      .spyOn(document, 'createElement')
+      .mockReturnValue(
+        mockAnchorElement as unknown as ReturnType<
+          typeof document.createElement
+        >,
+      );
+    jest
+      .spyOn(document.body, 'appendChild')
+      .mockImplementation(() => mockAnchorElement);
+    jest
+      .spyOn(document.body, 'removeChild')
+      .mockImplementation(() => mockAnchorElement);
+
     // Mock URL methods
     const urlMock = {
       createObjectURL: jest.fn().mockReturnValue('blob:mock-url'),
@@ -62,7 +71,9 @@ describe('FileService', () => {
 
       service.exportUnit(unit, customFilename);
 
-      const anchor = mockCreateElement.mock.results[0].value as { download: string };
+      const anchor = mockCreateElement.mock.results[0].value as {
+        download: string;
+      };
       expect(anchor.download).toBe(customFilename);
     });
 
@@ -75,7 +86,10 @@ describe('FileService', () => {
 
       service.exportUnit(unit);
 
-      const anchor = mockCreateElement.mock.results[0].value as { download: string; href: string };
+      const anchor = mockCreateElement.mock.results[0].value as {
+        download: string;
+        href: string;
+      };
       expect(anchor.download).toMatch(/^atlas-as7-d-variant\.json$/);
     });
 
@@ -84,7 +98,10 @@ describe('FileService', () => {
 
       service.exportUnit(unit);
 
-      const anchor = mockCreateElement.mock.results[0].value as { download: string; href: string };
+      const anchor = mockCreateElement.mock.results[0].value as {
+        download: string;
+        href: string;
+      };
       expect(anchor.download).toMatch(/^unknown-variant\.json$/);
     });
   });
@@ -107,7 +124,10 @@ describe('FileService', () => {
 
       await service.exportBatch(units);
 
-      const anchor = mockCreateElement.mock.results[0].value as { download: string; href: string };
+      const anchor = mockCreateElement.mock.results[0].value as {
+        download: string;
+        href: string;
+      };
       expect(anchor.download).toBe('units-export.json');
     });
 
@@ -117,7 +137,10 @@ describe('FileService', () => {
 
       await service.exportBatch(units, customFilename);
 
-      const anchor = mockCreateElement.mock.results[0].value as { download: string; href: string };
+      const anchor = mockCreateElement.mock.results[0].value as {
+        download: string;
+        href: string;
+      };
       expect(anchor.download).toBe(customFilename);
     });
   });
@@ -130,7 +153,9 @@ describe('FileService', () => {
         variant: 'AS7-D',
         tonnage: 100,
       };
-      const file = new File([JSON.stringify(unitData)], 'atlas.json', { type: 'application/json' });
+      const file = new File([JSON.stringify(unitData)], 'atlas.json', {
+        type: 'application/json',
+      });
 
       const result = await service.importUnit(file);
 
@@ -141,7 +166,9 @@ describe('FileService', () => {
     });
 
     it('should reject invalid JSON', async () => {
-      const file = new File(['invalid json'], 'test.json', { type: 'application/json' });
+      const file = new File(['invalid json'], 'test.json', {
+        type: 'application/json',
+      });
 
       const result = await service.importUnit(file);
 
@@ -151,7 +178,9 @@ describe('FileService', () => {
 
     it('should reject unit without id or chassis', async () => {
       const unitData = { tonnage: 100 };
-      const file = new File([JSON.stringify(unitData)], 'test.json', { type: 'application/json' });
+      const file = new File([JSON.stringify(unitData)], 'test.json', {
+        type: 'application/json',
+      });
 
       const result = await service.importUnit(file);
 
@@ -164,7 +193,9 @@ describe('FileService', () => {
         id: 'unit-1',
         tonnage: '100', // string instead of number
       };
-      const file = new File([JSON.stringify(unitData)], 'test.json', { type: 'application/json' });
+      const file = new File([JSON.stringify(unitData)], 'test.json', {
+        type: 'application/json',
+      });
 
       const result = await service.importUnit(file);
 
@@ -174,14 +205,16 @@ describe('FileService', () => {
 
     it('should handle file read errors', async () => {
       const file = new File([''], 'test.json', { type: 'application/json' });
-      
+
       // Mock FileReader to fail using a class definition
       const originalFileReader = global.FileReader;
       class MockFileReaderError {
         onerror: ((err: ProgressEvent<FileReader>) => void) | null = null;
         readAsText(): void {
           setTimeout(() => {
-            const event = new ProgressEvent('error') as ProgressEvent<FileReader>;
+            const event = new ProgressEvent(
+              'error',
+            ) as ProgressEvent<FileReader>;
             this.onerror?.(event);
           }, 0);
         }
@@ -202,10 +235,14 @@ describe('FileService', () => {
     it('should import multiple files', async () => {
       const unit1 = { id: '1', chassis: 'Atlas', variant: 'AS7-D' };
       const unit2 = { id: '2', chassis: 'Marauder', variant: 'MAD-3R' };
-      
+
       const files = [
-        new File([JSON.stringify(unit1)], 'atlas.json', { type: 'application/json' }),
-        new File([JSON.stringify(unit2)], 'marauder.json', { type: 'application/json' }),
+        new File([JSON.stringify(unit1)], 'atlas.json', {
+          type: 'application/json',
+        }),
+        new File([JSON.stringify(unit2)], 'marauder.json', {
+          type: 'application/json',
+        }),
       ];
 
       const results = await service.importBatch(files);
@@ -218,10 +255,14 @@ describe('FileService', () => {
     it('should handle mixed success and failure', async () => {
       const validUnit = { id: '1', chassis: 'Atlas', variant: 'AS7-D' };
       const invalidUnit = { tonnage: 100 }; // missing id/chassis
-      
+
       const files = [
-        new File([JSON.stringify(validUnit)], 'valid.json', { type: 'application/json' }),
-        new File([JSON.stringify(invalidUnit)], 'invalid.json', { type: 'application/json' }),
+        new File([JSON.stringify(validUnit)], 'valid.json', {
+          type: 'application/json',
+        }),
+        new File([JSON.stringify(invalidUnit)], 'invalid.json', {
+          type: 'application/json',
+        }),
       ];
 
       const results = await service.importBatch(files);
@@ -240,7 +281,9 @@ describe('FileService', () => {
         variant: 'AS7-D',
         tonnage: 100,
       };
-      const file = new File([JSON.stringify(unitData)], 'atlas.json', { type: 'application/json' });
+      const file = new File([JSON.stringify(unitData)], 'atlas.json', {
+        type: 'application/json',
+      });
 
       const result = await service.validateFile(file);
 
@@ -258,13 +301,15 @@ describe('FileService', () => {
         expect.objectContaining({
           code: 'INVALID_EXTENSION',
           message: 'File must have .json extension',
-        })
+        }),
       );
     });
 
     it('should reject files that are too large', async () => {
       const largeContent = 'x'.repeat(11 * 1024 * 1024); // 11MB
-      const file = new File([largeContent], 'large.json', { type: 'application/json' });
+      const file = new File([largeContent], 'large.json', {
+        type: 'application/json',
+      });
 
       const result = await service.validateFile(file);
 
@@ -273,12 +318,14 @@ describe('FileService', () => {
         expect.objectContaining({
           code: 'FILE_TOO_LARGE',
           message: 'File exceeds maximum size of 10MB',
-        })
+        }),
       );
     });
 
     it('should reject invalid JSON', async () => {
-      const file = new File(['invalid json'], 'test.json', { type: 'application/json' });
+      const file = new File(['invalid json'], 'test.json', {
+        type: 'application/json',
+      });
 
       const result = await service.validateFile(file);
 
@@ -286,12 +333,14 @@ describe('FileService', () => {
       expect(result.errors).toContainEqual(
         expect.objectContaining({
           code: 'INVALID_JSON',
-        })
+        }),
       );
     });
 
     it('should reject non-object JSON', async () => {
-      const file = new File(['"string"'], 'test.json', { type: 'application/json' });
+      const file = new File(['"string"'], 'test.json', {
+        type: 'application/json',
+      });
 
       const result = await service.validateFile(file);
 
@@ -300,12 +349,14 @@ describe('FileService', () => {
         expect.objectContaining({
           code: 'INVALID_STRUCTURE',
           message: 'File must contain a JSON object',
-        })
+        }),
       );
     });
 
     it('should reject null JSON', async () => {
-      const file = new File(['null'], 'test.json', { type: 'application/json' });
+      const file = new File(['null'], 'test.json', {
+        type: 'application/json',
+      });
 
       const result = await service.validateFile(file);
 
@@ -313,20 +364,22 @@ describe('FileService', () => {
       expect(result.errors).toContainEqual(
         expect.objectContaining({
           code: 'INVALID_STRUCTURE',
-        })
+        }),
       );
     });
 
     it('should handle file read errors', async () => {
       const file = new File([''], 'test.json', { type: 'application/json' });
-      
+
       // Mock FileReader to fail using a class definition
       const originalFileReader = global.FileReader;
       class MockFileReaderValidateError {
         onerror: ((err: ProgressEvent<FileReader>) => void) | null = null;
         readAsText(): void {
           setTimeout(() => {
-            const event = new ProgressEvent('error') as ProgressEvent<FileReader>;
+            const event = new ProgressEvent(
+              'error',
+            ) as ProgressEvent<FileReader>;
             this.onerror?.(event);
           }, 0);
         }
@@ -340,11 +393,10 @@ describe('FileService', () => {
       expect(result.errors).toContainEqual(
         expect.objectContaining({
           code: 'READ_ERROR',
-        })
+        }),
       );
 
       global.FileReader = originalFileReader;
     });
   });
 });
-

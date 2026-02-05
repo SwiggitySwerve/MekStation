@@ -36,6 +36,7 @@ Additionally, a critical bug existed where `useCampaignStore.advanceDay()` only 
 ## Architecture
 
 Future campaign systems register processors like:
+
 ```typescript
 import { getDayPipeline, DayPhase } from '@/lib/campaign/dayPipeline';
 
@@ -51,6 +52,7 @@ getDayPipeline().register({
 ```
 
 The pipeline orchestrates all registered processors:
+
 1. Sort by phase (ascending)
 2. Execute each processor in order
 3. Chain campaign state between processors

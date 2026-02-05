@@ -4,15 +4,14 @@
  * @spec openspec/changes/add-scenario-generators/spec.md
  */
 
-
-import { Era } from '../../../types/temporal/Era';
+import { Faction } from '../../../constants/scenario/rats';
 import { OpForSkillLevel, UnitTypeCategory } from '../../../types/scenario';
+import { Era } from '../../../types/temporal/Era';
 import {
   OpForGeneratorService,
   opForGenerator,
   getDefaultOpForConfig,
 } from '../OpForGeneratorService';
-import { Faction } from '../../../constants/scenario/rats';
 
 describe('OpForGeneratorService', () => {
   let service: OpForGeneratorService;
@@ -23,7 +22,11 @@ describe('OpForGeneratorService', () => {
 
   describe('generate', () => {
     it('should generate an OpFor with correct structure', () => {
-      const config = getDefaultOpForConfig(5000, Faction.DRACONIS_COMBINE, Era.LATE_SUCCESSION_WARS);
+      const config = getDefaultOpForConfig(
+        5000,
+        Faction.DRACONIS_COMBINE,
+        Era.LATE_SUCCESSION_WARS,
+      );
       const result = service.generate(config);
 
       expect(result).toBeDefined();
@@ -37,7 +40,11 @@ describe('OpForGeneratorService', () => {
     });
 
     it('should generate units near the target BV', () => {
-      const config = getDefaultOpForConfig(6000, Faction.LYRAN_COMMONWEALTH, Era.LATE_SUCCESSION_WARS);
+      const config = getDefaultOpForConfig(
+        6000,
+        Faction.LYRAN_COMMONWEALTH,
+        Era.LATE_SUCCESSION_WARS,
+      );
       const result = service.generate(config);
 
       // Should be within 20% of target
@@ -120,7 +127,7 @@ describe('OpForGeneratorService', () => {
       // With enough units, we should see some variance
       const gunneries = result.units.map((u) => u.pilot.gunnery);
       const unique = new Set(gunneries);
-      
+
       // Should have at least some variance with 15000 BV worth of units
       // (might not always trigger if we get unlucky, but usually will)
       expect(unique.size).toBeGreaterThanOrEqual(1);
@@ -179,7 +186,7 @@ describe('OpForGeneratorService', () => {
       const config = getDefaultOpForConfig(
         5000,
         Faction.CLAN_WOLF,
-        Era.CLAN_INVASION
+        Era.CLAN_INVASION,
       );
 
       expect(config.faction).toBe(Faction.CLAN_WOLF);

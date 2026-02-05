@@ -7,8 +7,9 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+
 import { getForceService } from '@/services/forces/ForceService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IForceValidation } from '@/types/force';
 
 // =============================================================================
@@ -29,7 +30,7 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ValidateResponse | ErrorResponse>
+  res: NextApiResponse<ValidateResponse | ErrorResponse>,
 ): Promise<void> {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
@@ -40,7 +41,8 @@ export default async function handler(
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -55,7 +57,8 @@ export default async function handler(
     const validation = forceService.validateForce(id);
     return res.status(200).json({ validation });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to validate force';
+    const message =
+      error instanceof Error ? error.message : 'Failed to validate force';
     return res.status(500).json({ error: message });
   }
 }

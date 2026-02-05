@@ -1,3 +1,4 @@
+import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
 import {
   IValidationRuleDefinition,
   IValidationRuleResult,
@@ -6,7 +7,6 @@ import {
   ValidationCategory,
   ValidationSeverity,
 } from '../../../types/validation/rules/ValidationRuleInterfaces';
-import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
 import { pass, fail, warn } from './validationHelpers';
 
 export const LAMMaxTonnageRule: IValidationRuleDefinition = {
@@ -49,7 +49,8 @@ export const LAMMaxTonnageRule: IValidationRuleDefinition = {
 export const LAMEngineTypeRule: IValidationRuleDefinition = {
   id: 'configuration.lam.engine_type',
   name: 'LAM Engine Type',
-  description: 'LAMs can only use standard Fusion engines (no XL, Light, Compact)',
+  description:
+    'LAMs can only use standard Fusion engines (no XL, Light, Compact)',
   category: ValidationCategory.CONSTRUCTION,
   priority: 5,
 
@@ -68,7 +69,15 @@ export const LAMEngineTypeRule: IValidationRuleDefinition = {
     }
 
     const engineType = (engine.type as string)?.toLowerCase() ?? '';
-    const prohibitedEngines = ['xl', 'light', 'compact', 'xxl', 'ice', 'fuel_cell', 'fission'];
+    const prohibitedEngines = [
+      'xl',
+      'light',
+      'compact',
+      'xxl',
+      'ice',
+      'fuel_cell',
+      'fission',
+    ];
 
     for (const prohibited of prohibitedEngines) {
       if (engineType.includes(prohibited)) {
@@ -130,7 +139,13 @@ export const LAMStructureArmorRule: IValidationRuleDefinition = {
 
     if (armor) {
       const armorType = (armor.type as string)?.toLowerCase() ?? '';
-      const prohibitedArmor = ['ferro', 'stealth', 'reactive', 'reflective', 'hardened'];
+      const prohibitedArmor = [
+        'ferro',
+        'stealth',
+        'reactive',
+        'reflective',
+        'hardened',
+      ];
 
       for (const prohibited of prohibitedArmor) {
         if (armorType.includes(prohibited)) {
@@ -173,7 +188,9 @@ export const LAMLandingGearRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const criticalSlots = unit.criticalSlots as Record<string, Array<string | null>> | undefined;
+    const criticalSlots = unit.criticalSlots as
+      | Record<string, Array<string | null>>
+      | undefined;
 
     if (!criticalSlots) {
       return warn(this.id, [
@@ -203,7 +220,7 @@ export const LAMLandingGearRule: IValidationRuleDefinition = {
       }
 
       const hasLandingGear = slots.some(
-        (s) => s && s.toLowerCase().includes('landing gear')
+        (s) => s && s.toLowerCase().includes('landing gear'),
       );
       if (!hasLandingGear) {
         missingLocations.push(loc);
@@ -243,7 +260,9 @@ export const LAMAvionicsRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const criticalSlots = unit.criticalSlots as Record<string, Array<string | null>> | undefined;
+    const criticalSlots = unit.criticalSlots as
+      | Record<string, Array<string | null>>
+      | undefined;
 
     if (!criticalSlots) {
       return warn(this.id, [
@@ -273,7 +292,7 @@ export const LAMAvionicsRule: IValidationRuleDefinition = {
       }
 
       const hasAvionics = slots.some(
-        (s) => s && s.toLowerCase().includes('avionics')
+        (s) => s && s.toLowerCase().includes('avionics'),
       );
       if (!hasAvionics) {
         missingLocations.push(loc);

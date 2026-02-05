@@ -16,26 +16,28 @@ if (typeof structuredClone === 'undefined') {
 
 import 'fake-indexeddb/auto';
 import { IDBFactory } from 'fake-indexeddb';
-import {
-  CampaignInstanceStateService,
-  _resetCampaignInstanceStateService,
-} from '../CampaignInstanceStateService';
-import {
-  CampaignInstanceService,
-  _resetCampaignInstanceService,
-} from '../../persistence/CampaignInstanceService';
-import { _resetIndexedDBService } from '../../persistence/IndexedDBService';
+
+import type {
+  IUnitDamageState,
+  ILocationDamageState,
+} from '../../../types/campaign/CampaignInstanceInterfaces';
+
+import { createEmptyDamageState } from '../../../types/campaign/CampaignInstanceInterfaces';
 import {
   CampaignUnitStatus,
   CampaignPilotStatus,
   XP_REWARDS,
   SKILL_IMPROVEMENT_COSTS,
 } from '../../../types/campaign/CampaignInterfaces';
-import type {
-  IUnitDamageState,
-  ILocationDamageState,
-} from '../../../types/campaign/CampaignInstanceInterfaces';
-import { createEmptyDamageState } from '../../../types/campaign/CampaignInstanceInterfaces';
+import {
+  CampaignInstanceService,
+  _resetCampaignInstanceService,
+} from '../../persistence/CampaignInstanceService';
+import { _resetIndexedDBService } from '../../persistence/IndexedDBService';
+import {
+  CampaignInstanceStateService,
+  _resetCampaignInstanceStateService,
+} from '../CampaignInstanceStateService';
 
 // Reset singletons and IndexedDB before each test
 beforeEach(() => {
@@ -60,7 +62,7 @@ async function createTestUnit(
     campaignId: string;
     vaultUnitId: string;
     name: string;
-  }> = {}
+  }> = {},
 ) {
   return persistenceService.createUnitInstance(
     {
@@ -72,7 +74,7 @@ async function createTestUnit(
       name: overrides.name ?? 'Test Atlas AS7-D',
       chassis: 'Atlas',
       variant: 'AS7-D',
-    }
+    },
   );
 }
 
@@ -85,7 +87,7 @@ async function createTestPilot(
     startingXP: number;
     gunnery: number;
     piloting: number;
-  }> = {}
+  }> = {},
 ) {
   const pilot = await persistenceService.createPilotInstanceFromVault(
     {
@@ -98,7 +100,7 @@ async function createTestPilot(
         gunnery: overrides.gunnery ?? 4,
         piloting: overrides.piloting ?? 5,
       },
-    }
+    },
   );
 
   // If startingXP is specified, update the pilot instance
@@ -112,7 +114,7 @@ async function createTestPilot(
 }
 
 function createTestLocationDamage(
-  overrides: Partial<ILocationDamageState> = {}
+  overrides: Partial<ILocationDamageState> = {},
 ): ILocationDamageState {
   return {
     location: 'center_torso',
@@ -126,7 +128,7 @@ function createTestLocationDamage(
 }
 
 function createTestDamageState(
-  overrides: Partial<IUnitDamageState> = {}
+  overrides: Partial<IUnitDamageState> = {},
 ): IUnitDamageState {
   return {
     locations: [
@@ -150,7 +152,7 @@ function createDamagedState(damagePercentage: number): IUnitDamageState {
   // Using a simplified calculation based on center torso
   const armorMax = 40;
   const structureMax = 20;
-  const totalPerLocation = armorMax + structureMax;
+  const _totalPerLocation = armorMax + structureMax;
   const damageAmount = Math.floor((armorMax * damagePercentage) / 100);
   const armorCurrent = Math.max(0, armorMax - damageAmount);
 
@@ -233,18 +235,22 @@ describe('CampaignInstanceStateService - Unit Damage', () => {
 
     it('should throw for non-existent unit', async () => {
       await expect(
-        stateService.applyDamage('non-existent', createDamagedState(10))
+        stateService.applyDamage('non-existent', createDamagedState(10)),
       ).rejects.toThrow('Unit instance not found');
     });
 
     it('should include damage source in event', async () => {
       const unit = await createTestUnit(persistenceService);
 
-      const result = await stateService.applyDamage(unit.id, createDamagedState(20), {
-        damageSource: 'AC/20 Hit',
-        attackerUnitId: 'enemy-1',
-        gameId: 'game-123',
-      });
+      const result = await stateService.applyDamage(
+        unit.id,
+        createDamagedState(20),
+        {
+          damageSource: 'AC/20 Hit',
+          attackerUnitId: 'enemy-1',
+          gameId: 'game-123',
+        },
+      );
 
       expect(result.eventId).toBeTruthy();
       // Event was emitted with the damage source
@@ -291,7 +297,7 @@ describe('CampaignInstanceStateService - Unit Repair', () => {
         unit.id,
         ['Armor: Head', 'Armor: CT Front'],
         50000,
-        7
+        7,
       );
 
       expect(result.status).toBe(CampaignUnitStatus.Repairing);
@@ -304,13 +310,13 @@ describe('CampaignInstanceStateService - Unit Repair', () => {
       await stateService.applyDamage(unit.id, createDestroyedState());
 
       await expect(
-        stateService.startRepair(unit.id, ['Armor'], 10000, 5)
+        stateService.startRepair(unit.id, ['Armor'], 10000, 5),
       ).rejects.toThrow('Cannot repair a destroyed unit');
     });
 
     it('should throw for non-existent unit', async () => {
       await expect(
-        stateService.startRepair('non-existent', ['Armor'], 10000, 5)
+        stateService.startRepair('non-existent', ['Armor'], 10000, 5),
       ).rejects.toThrow('Unit instance not found');
     });
   });
@@ -325,7 +331,7 @@ describe('CampaignInstanceStateService - Unit Repair', () => {
         unit.id,
         45000,
         6,
-        createEmptyDamageState()
+        createEmptyDamageState(),
       );
 
       expect(result.status).toBe(CampaignUnitStatus.Operational);
@@ -337,13 +343,23 @@ describe('CampaignInstanceStateService - Unit Repair', () => {
       const unit = await createTestUnit(persistenceService);
 
       await expect(
-        stateService.completeRepair(unit.id, 10000, 5, createEmptyDamageState())
+        stateService.completeRepair(
+          unit.id,
+          10000,
+          5,
+          createEmptyDamageState(),
+        ),
       ).rejects.toThrow('Unit is not currently being repaired');
     });
 
     it('should throw for non-existent unit', async () => {
       await expect(
-        stateService.completeRepair('non-existent', 10000, 5, createEmptyDamageState())
+        stateService.completeRepair(
+          'non-existent',
+          10000,
+          5,
+          createEmptyDamageState(),
+        ),
       ).rejects.toThrow('Unit instance not found');
     });
   });
@@ -366,7 +382,11 @@ describe('CampaignInstanceStateService - Pilot XP', () => {
     it('should award XP to pilot', async () => {
       const pilot = await createTestPilot(persistenceService);
 
-      const result = await stateService.awardXP(pilot.id, 5, 'mission_participation');
+      const result = await stateService.awardXP(
+        pilot.id,
+        5,
+        'mission_participation',
+      );
 
       expect(result.currentXP).toBe(5);
       expect(result.campaignXPEarned).toBe(5);
@@ -384,7 +404,7 @@ describe('CampaignInstanceStateService - Pilot XP', () => {
 
     it('should throw for non-existent pilot', async () => {
       await expect(
-        stateService.awardXP('non-existent', 5, 'mission_participation')
+        stateService.awardXP('non-existent', 5, 'mission_participation'),
       ).rejects.toThrow('Pilot instance not found');
     });
   });
@@ -419,7 +439,11 @@ describe('CampaignInstanceStateService - Pilot Wounds', () => {
     it('should change status to Critical at 4+ wounds', async () => {
       const pilot = await createTestPilot(persistenceService);
 
-      const result = await stateService.applyWounds(pilot.id, 4, 'Cockpit damage');
+      const result = await stateService.applyWounds(
+        pilot.id,
+        4,
+        'Cockpit damage',
+      );
 
       expect(result.totalWounds).toBe(4);
       expect(result.instance.status).toBe(CampaignPilotStatus.Critical);
@@ -428,7 +452,11 @@ describe('CampaignInstanceStateService - Pilot Wounds', () => {
     it('should mark pilot as KIA at 6+ wounds', async () => {
       const pilot = await createTestPilot(persistenceService);
 
-      const result = await stateService.applyWounds(pilot.id, 6, 'Ammo explosion');
+      const result = await stateService.applyWounds(
+        pilot.id,
+        6,
+        'Ammo explosion',
+      );
 
       expect(result.totalWounds).toBe(6);
       expect(result.deceased).toBe(true);
@@ -468,7 +496,7 @@ describe('CampaignInstanceStateService - Pilot Wounds', () => {
 
     it('should throw for non-existent pilot', async () => {
       await expect(
-        stateService.applyWounds('non-existent', 2, 'Test')
+        stateService.applyWounds('non-existent', 2, 'Test'),
       ).rejects.toThrow('Pilot instance not found');
     });
   });
@@ -491,7 +519,11 @@ describe('CampaignInstanceStateService - Kill Recording', () => {
     it('should record kill and increment kill count', async () => {
       const pilot = await createTestPilot(persistenceService);
 
-      const result = await stateService.recordKill(pilot.id, 'Enemy Atlas', 'AC/20');
+      const result = await stateService.recordKill(
+        pilot.id,
+        'Enemy Atlas',
+        'AC/20',
+      );
 
       expect(result.killCount).toBe(1);
     });
@@ -499,7 +531,11 @@ describe('CampaignInstanceStateService - Kill Recording', () => {
     it('should award XP for kill', async () => {
       const pilot = await createTestPilot(persistenceService);
 
-      const result = await stateService.recordKill(pilot.id, 'Enemy Hunchback', 'Medium Laser');
+      const result = await stateService.recordKill(
+        pilot.id,
+        'Enemy Hunchback',
+        'Medium Laser',
+      );
 
       expect(result.currentXP).toBe(XP_REWARDS.KILL);
     });
@@ -509,7 +545,11 @@ describe('CampaignInstanceStateService - Kill Recording', () => {
 
       await stateService.recordKill(pilot.id, 'Enemy 1', 'Weapon A');
       await stateService.recordKill(pilot.id, 'Enemy 2', 'Weapon B');
-      const result = await stateService.recordKill(pilot.id, 'Enemy 3', 'Weapon C');
+      const result = await stateService.recordKill(
+        pilot.id,
+        'Enemy 3',
+        'Weapon C',
+      );
 
       expect(result.killCount).toBe(3);
       expect(result.currentXP).toBe(XP_REWARDS.KILL * 3);
@@ -517,7 +557,7 @@ describe('CampaignInstanceStateService - Kill Recording', () => {
 
     it('should throw for non-existent pilot', async () => {
       await expect(
-        stateService.recordKill('non-existent', 'Enemy', 'Weapon')
+        stateService.recordKill('non-existent', 'Enemy', 'Weapon'),
       ).rejects.toThrow('Pilot instance not found');
     });
   });
@@ -546,7 +586,9 @@ describe('CampaignInstanceStateService - Skill Improvement', () => {
       const result = await stateService.improveSkill(pilot.id, 'gunnery');
 
       expect(result.currentSkills.gunnery).toBe(3);
-      expect(result.currentXP).toBe(20 - SKILL_IMPROVEMENT_COSTS.GUNNERY_IMPROVEMENT);
+      expect(result.currentXP).toBe(
+        20 - SKILL_IMPROVEMENT_COSTS.GUNNERY_IMPROVEMENT,
+      );
     });
 
     it('should improve piloting skill and deduct XP', async () => {
@@ -558,7 +600,9 @@ describe('CampaignInstanceStateService - Skill Improvement', () => {
       const result = await stateService.improveSkill(pilot.id, 'piloting');
 
       expect(result.currentSkills.piloting).toBe(4);
-      expect(result.currentXP).toBe(20 - SKILL_IMPROVEMENT_COSTS.PILOTING_IMPROVEMENT);
+      expect(result.currentXP).toBe(
+        20 - SKILL_IMPROVEMENT_COSTS.PILOTING_IMPROVEMENT,
+      );
     });
 
     it('should throw when skill is already at minimum', async () => {
@@ -567,8 +611,10 @@ describe('CampaignInstanceStateService - Skill Improvement', () => {
         startingXP: 100,
       });
 
-      await expect(stateService.improveSkill(pilot.id, 'gunnery')).rejects.toThrow(
-        `gunnery is already at maximum (${SKILL_IMPROVEMENT_COSTS.MIN_SKILL})`
+      await expect(
+        stateService.improveSkill(pilot.id, 'gunnery'),
+      ).rejects.toThrow(
+        `gunnery is already at maximum (${SKILL_IMPROVEMENT_COSTS.MIN_SKILL})`,
       );
     });
 
@@ -578,15 +624,15 @@ describe('CampaignInstanceStateService - Skill Improvement', () => {
         startingXP: 5,
       });
 
-      await expect(stateService.improveSkill(pilot.id, 'gunnery')).rejects.toThrow(
-        'Not enough XP'
-      );
+      await expect(
+        stateService.improveSkill(pilot.id, 'gunnery'),
+      ).rejects.toThrow('Not enough XP');
     });
 
     it('should throw for non-existent pilot', async () => {
-      await expect(stateService.improveSkill('non-existent', 'gunnery')).rejects.toThrow(
-        'Pilot instance not found'
-      );
+      await expect(
+        stateService.improveSkill('non-existent', 'gunnery'),
+      ).rejects.toThrow('Pilot instance not found');
     });
   });
 });
@@ -613,7 +659,7 @@ describe('CampaignInstanceStateService - Mission Completion', () => {
         'mission-1',
         'Recon Mission',
         'draw',
-        0
+        0,
       );
 
       expect(result.instance.missionsParticipated).toBe(1);
@@ -629,11 +675,11 @@ describe('CampaignInstanceStateService - Mission Completion', () => {
         'mission-1',
         'Assault Mission',
         'victory',
-        0
+        0,
       );
 
       expect(result.xpEarned).toBe(
-        XP_REWARDS.MISSION_PARTICIPATION + XP_REWARDS.VICTORY_BONUS
+        XP_REWARDS.MISSION_PARTICIPATION + XP_REWARDS.VICTORY_BONUS,
       );
     });
 
@@ -646,11 +692,11 @@ describe('CampaignInstanceStateService - Mission Completion', () => {
         'Defense Mission',
         'draw',
         0,
-        { survivedCritical: true }
+        { survivedCritical: true },
       );
 
       expect(result.xpEarned).toBe(
-        XP_REWARDS.MISSION_PARTICIPATION + XP_REWARDS.SURVIVAL_BONUS
+        XP_REWARDS.MISSION_PARTICIPATION + XP_REWARDS.SURVIVAL_BONUS,
       );
     });
 
@@ -663,11 +709,11 @@ describe('CampaignInstanceStateService - Mission Completion', () => {
         'Complex Mission',
         'draw',
         0,
-        { optionalObjectivesCompleted: 3 }
+        { optionalObjectivesCompleted: 3 },
       );
 
       expect(result.xpEarned).toBe(
-        XP_REWARDS.MISSION_PARTICIPATION + 3 * XP_REWARDS.OPTIONAL_OBJECTIVE
+        XP_REWARDS.MISSION_PARTICIPATION + 3 * XP_REWARDS.OPTIONAL_OBJECTIVE,
       );
     });
 
@@ -680,7 +726,7 @@ describe('CampaignInstanceStateService - Mission Completion', () => {
         'Epic Mission',
         'victory',
         2,
-        { survivedCritical: true, optionalObjectivesCompleted: 2 }
+        { survivedCritical: true, optionalObjectivesCompleted: 2 },
       );
 
       // Note: Kill XP is awarded separately via recordKill, not in completeMission
@@ -696,14 +742,26 @@ describe('CampaignInstanceStateService - Mission Completion', () => {
     it('should increment mission count across multiple missions', async () => {
       const pilot = await createTestPilot(persistenceService);
 
-      await stateService.completeMission(pilot.id, 'm1', 'Mission 1', 'draw', 0);
-      await stateService.completeMission(pilot.id, 'm2', 'Mission 2', 'draw', 0);
+      await stateService.completeMission(
+        pilot.id,
+        'm1',
+        'Mission 1',
+        'draw',
+        0,
+      );
+      await stateService.completeMission(
+        pilot.id,
+        'm2',
+        'Mission 2',
+        'draw',
+        0,
+      );
       const result = await stateService.completeMission(
         pilot.id,
         'm3',
         'Mission 3',
         'draw',
-        0
+        0,
       );
 
       expect(result.instance.missionsParticipated).toBe(3);
@@ -711,7 +769,13 @@ describe('CampaignInstanceStateService - Mission Completion', () => {
 
     it('should throw for non-existent pilot', async () => {
       await expect(
-        stateService.completeMission('non-existent', 'm1', 'Mission', 'draw', 0)
+        stateService.completeMission(
+          'non-existent',
+          'm1',
+          'Mission',
+          'draw',
+          0,
+        ),
       ).rejects.toThrow('Pilot instance not found');
     });
   });
@@ -759,7 +823,9 @@ describe('CampaignInstanceStateService - Assignments', () => {
       expect(result.unit.assignedPilotInstanceId).toBe(pilot2.id);
 
       // First pilot should be unassigned (via persistence service check)
-      const updatedPilot1 = await persistenceService.getPilotInstance(pilot1.id);
+      const updatedPilot1 = await persistenceService.getPilotInstance(
+        pilot1.id,
+      );
       expect(updatedPilot1?.assignedUnitInstanceId).toBeUndefined();
     });
 
@@ -767,7 +833,7 @@ describe('CampaignInstanceStateService - Assignments', () => {
       const unit = await createTestUnit(persistenceService);
 
       await expect(
-        stateService.assignPilotToUnit('non-existent', unit.id)
+        stateService.assignPilotToUnit('non-existent', unit.id),
       ).rejects.toThrow('Pilot instance not found');
     });
 
@@ -775,7 +841,7 @@ describe('CampaignInstanceStateService - Assignments', () => {
       const pilot = await createTestPilot(persistenceService);
 
       await expect(
-        stateService.assignPilotToUnit(pilot.id, 'non-existent')
+        stateService.assignPilotToUnit(pilot.id, 'non-existent'),
       ).rejects.toThrow('Unit instance not found');
     });
   });
@@ -808,7 +874,10 @@ describe('CampaignInstanceStateService - Assignments', () => {
       const unit = await createTestUnit(persistenceService);
 
       await stateService.assignPilotToUnit(pilot.id, unit.id);
-      const result = await stateService.unassignPilot(pilot.id, 'pilot_wounded');
+      const result = await stateService.unassignPilot(
+        pilot.id,
+        'pilot_wounded',
+      );
 
       expect(result.assignedUnitInstanceId).toBeUndefined();
       // Event was emitted with the reason
@@ -816,7 +885,7 @@ describe('CampaignInstanceStateService - Assignments', () => {
 
     it('should throw for non-existent pilot', async () => {
       await expect(stateService.unassignPilot('non-existent')).rejects.toThrow(
-        'Pilot instance not found'
+        'Pilot instance not found',
       );
     });
   });
@@ -839,10 +908,14 @@ describe('CampaignInstanceStateService - Event Chains', () => {
     const unit = await createTestUnit(persistenceService);
 
     // Apply fatal damage
-    const result = await stateService.applyDamage(unit.id, createDestroyedState(), {
-      damageSource: 'PPC Direct Hit',
-      gameId: 'game-1',
-    });
+    const result = await stateService.applyDamage(
+      unit.id,
+      createDestroyedState(),
+      {
+        damageSource: 'PPC Direct Hit',
+        gameId: 'game-1',
+      },
+    );
 
     // Verify the chain happened
     expect(result.destroyed).toBe(true);
@@ -854,9 +927,14 @@ describe('CampaignInstanceStateService - Event Chains', () => {
   it('should create connected events for wounds -> status change -> death', async () => {
     const pilot = await createTestPilot(persistenceService);
 
-    const result = await stateService.applyWounds(pilot.id, 6, 'Ammo Explosion', {
-      gameId: 'game-1',
-    });
+    const result = await stateService.applyWounds(
+      pilot.id,
+      6,
+      'Ammo Explosion',
+      {
+        gameId: 'game-1',
+      },
+    );
 
     expect(result.deceased).toBe(true);
     expect(result.statusChanged).toBe(true);
@@ -867,9 +945,14 @@ describe('CampaignInstanceStateService - Event Chains', () => {
   it('should create connected events for kill -> XP award', async () => {
     const pilot = await createTestPilot(persistenceService);
 
-    const result = await stateService.recordKill(pilot.id, 'Enemy Atlas', 'Gauss Rifle', {
-      gameId: 'game-1',
-    });
+    const result = await stateService.recordKill(
+      pilot.id,
+      'Enemy Atlas',
+      'Gauss Rifle',
+      {
+        gameId: 'game-1',
+      },
+    );
 
     expect(result.killCount).toBe(1);
     expect(result.currentXP).toBe(XP_REWARDS.KILL);
@@ -885,7 +968,7 @@ describe('CampaignInstanceStateService - Event Chains', () => {
       'Final Battle',
       'victory',
       3,
-      { survivedCritical: true, optionalObjectivesCompleted: 2 }
+      { survivedCritical: true, optionalObjectivesCompleted: 2 },
     );
 
     expect(result.eventIds.length).toBeGreaterThan(0);

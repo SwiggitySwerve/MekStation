@@ -5,6 +5,7 @@
 Users have difficulty distinguishing between armor diagram variants in the settings UI. Thumbnails are nearly identical, layout proportions vary inconsistently across variants, and some variants have typography and accessibility issues that reduce usability.
 
 Additionally, the current architecture has fundamental maintainability issues:
+
 - Each silhouette config manually specifies absolute x/y/width/height for every location
 - When viewBox changes or parts are repositioned, other components break (e.g., HUD arms clipping)
 - No concept of connection points between parts or relative positioning
@@ -41,6 +42,7 @@ Additionally, the current architecture has fundamental maintainability issues:
 The layout engine uses a declarative format for defining mech part positions:
 
 #### Part Definition Structure
+
 ```typescript
 {
   id: MechLocation,           // e.g., MechLocation.CENTER_TORSO
@@ -54,12 +56,15 @@ The layout engine uses a declarative format for defining mech part positions:
 ```
 
 #### Anchor Point Positioning
+
 Anchors define where parts connect. Each anchor has:
+
 - **`position`**: Predefined location (`'top'`, `'bottom'`, `'left'`, `'right'`, `'top-left'`, `'top-right'`, `'bottom-left'`, `'bottom-right'`, `'center'`)
 - **`edgePosition`**: Precise edge-relative position as `{ edge: EdgeName, at: number }` where `at` is 0-1 (0 = start, 0.5 = center, 1 = end)
 - **`offset`**: Fine-tuning offset `{ x: number, y: number }`
 
 Example anchor placements:
+
 ```typescript
 // Center of top edge
 { id: 'neck', position: 'top', offset: { x: 0, y: 0 } }
@@ -75,7 +80,9 @@ Example anchor placements:
 ```
 
 #### Constraint Definitions
+
 Constraints connect parts via their anchors:
+
 ```typescript
 {
   id: 'left-arm-to-torso',
@@ -88,15 +95,16 @@ Constraints connect parts via their anchors:
 ```
 
 #### Mech Configuration Layouts
+
 Each mech configuration has specific part arrangements:
 
-| Config | Parts | Layout Strategy |
-|--------|-------|-----------------|
-| **Biped** | HEAD, CT, LT, RT, LA, RA, LL, RL | Arms on outer sides of torsos (25% down), legs at bottom of CT |
-| **Quad** | HEAD, CT, LT, RT, FLL, FRL, RLL, RRL | Front legs at CT bottom, rear legs on outer torsos (75% down) |
-| **QuadVee** | Same as Quad | Similar to Quad with transformation-ready proportions |
-| **Tripod** | HEAD, CT, LT, RT, LA, RA, LL, RL, CL | Center leg at CT bottom center, side legs offset |
-| **LAM** | HEAD, CT, LT, RT, LA, RA, LL, RL, LW, RW | Biped plus wing mounts on outer torsos |
+| Config      | Parts                                    | Layout Strategy                                                |
+| ----------- | ---------------------------------------- | -------------------------------------------------------------- |
+| **Biped**   | HEAD, CT, LT, RT, LA, RA, LL, RL         | Arms on outer sides of torsos (25% down), legs at bottom of CT |
+| **Quad**    | HEAD, CT, LT, RT, FLL, FRL, RLL, RRL     | Front legs at CT bottom, rear legs on outer torsos (75% down)  |
+| **QuadVee** | Same as Quad                             | Similar to Quad with transformation-ready proportions          |
+| **Tripod**  | HEAD, CT, LT, RT, LA, RA, LL, RL, CL     | Center leg at CT bottom center, side legs offset               |
+| **LAM**     | HEAD, CT, LT, RT, LA, RA, LL, RL, LW, RW | Biped plus wing mounts on outer torsos                         |
 
 ## Impact
 
@@ -125,6 +133,7 @@ Each mech configuration has specific part arrangements:
 ## Success Criteria
 
 ### Visual Clarity
+
 - Each thumbnail is visually distinct at 40x60px size
 - All variants use consistent 60/40 front/rear split for torso locations
 - No font size below 9px for labels or 12px for values
@@ -133,6 +142,7 @@ Each mech configuration has specific part arrangements:
 - All text passes WCAG AA contrast requirements (4.5:1)
 
 ### Layout Engine
+
 - Layout engine produces equivalent output to current hardcoded silhouettes
 - ViewBox is automatically calculated from resolved positions (no more manual viewBox mismatches)
 - Layout validation catches overlaps and gaps at design time

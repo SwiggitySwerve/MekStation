@@ -6,13 +6,15 @@
  */
 
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { useQuickGameStore } from '../useQuickGameStore';
+
+import { GameStatus, GamePhase, GameEventType } from '@/types/gameplay';
 import {
   QuickGameStep,
   IQuickGameUnitRequest,
   createQuickGameInstance,
 } from '@/types/quickgame';
-import { GameStatus, GamePhase, GameEventType } from '@/types/gameplay';
+
+import { useQuickGameStore } from '../useQuickGameStore';
 
 // Mock sessionStorage
 const mockSessionStorage = (() => {
@@ -110,7 +112,9 @@ describe('useQuickGameStore', () => {
       });
 
       expect(result.current.game?.playerForce.units).toHaveLength(1);
-      expect(result.current.game?.playerForce.units[0].name).toBe('Atlas AS7-D');
+      expect(result.current.game?.playerForce.units[0].name).toBe(
+        'Atlas AS7-D',
+      );
       expect(result.current.game?.playerForce.units[0].bv).toBe(1897);
       expect(result.current.game?.playerForce.totalBV).toBe(1897);
       expect(result.current.game?.playerForce.totalTonnage).toBe(100);
@@ -177,55 +181,57 @@ describe('useQuickGameStore', () => {
     });
   });
 
-   describe('Scenario Configuration', () => {
-     it('should update scenario config', () => {
-       const { result } = renderHook(() => useQuickGameStore());
+  describe('Scenario Configuration', () => {
+    it('should update scenario config', () => {
+      const { result } = renderHook(() => useQuickGameStore());
 
-       act(() => {
-         result.current.startNewGame();
-         result.current.setScenarioConfig({ difficulty: 1.5 });
-       });
-
-       expect(result.current.game?.scenarioConfig.difficulty).toBe(1.5);
-     });
-
-     it('should merge config updates', () => {
-       const { result } = renderHook(() => useQuickGameStore());
-
-       act(() => {
-         result.current.startNewGame();
-         result.current.setScenarioConfig({ difficulty: 1.5 });
-         result.current.setScenarioConfig({ modifierCount: 3 });
-       });
-
-       expect(result.current.game?.scenarioConfig.difficulty).toBe(1.5);
-       expect(result.current.game?.scenarioConfig.modifierCount).toBe(3);
-     });
-
-      it('should generate scenario with OpFor', async () => {
-        const { result } = renderHook(() => useQuickGameStore());
-
-        act(() => {
-          result.current.startNewGame();
-          result.current.addUnit(sampleUnit);
-        });
-
-        act(() => {
-          result.current.generateScenario();
-        });
-
-        // Wait for async scenario generation to complete
-        await waitFor(() => {
-          expect(result.current.isLoading).toBe(false);
-        });
-
-        expect(result.current.game?.scenario).not.toBeNull();
-        expect(result.current.game?.opponentForce).not.toBeNull();
-        expect(result.current.game?.opponentForce?.units.length).toBeGreaterThan(0);
-        expect(result.current.isLoading).toBe(false);
-        expect(result.current.error).toBeNull();
+      act(() => {
+        result.current.startNewGame();
+        result.current.setScenarioConfig({ difficulty: 1.5 });
       });
-   });
+
+      expect(result.current.game?.scenarioConfig.difficulty).toBe(1.5);
+    });
+
+    it('should merge config updates', () => {
+      const { result } = renderHook(() => useQuickGameStore());
+
+      act(() => {
+        result.current.startNewGame();
+        result.current.setScenarioConfig({ difficulty: 1.5 });
+        result.current.setScenarioConfig({ modifierCount: 3 });
+      });
+
+      expect(result.current.game?.scenarioConfig.difficulty).toBe(1.5);
+      expect(result.current.game?.scenarioConfig.modifierCount).toBe(3);
+    });
+
+    it('should generate scenario with OpFor', async () => {
+      const { result } = renderHook(() => useQuickGameStore());
+
+      act(() => {
+        result.current.startNewGame();
+        result.current.addUnit(sampleUnit);
+      });
+
+      act(() => {
+        result.current.generateScenario();
+      });
+
+      // Wait for async scenario generation to complete
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(result.current.game?.scenario).not.toBeNull();
+      expect(result.current.game?.opponentForce).not.toBeNull();
+      expect(result.current.game?.opponentForce?.units.length).toBeGreaterThan(
+        0,
+      );
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.error).toBeNull();
+    });
+  });
 
   describe('Step Navigation', () => {
     it('should advance to next step', () => {

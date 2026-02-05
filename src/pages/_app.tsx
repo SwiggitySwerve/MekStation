@@ -1,18 +1,20 @@
-import type { AppProps } from 'next/app'
-import { useState, useEffect } from 'react'
-import '../styles/globals.css'
-import Layout from '../components/common/Layout'
-import TopBar from '../components/common/TopBar'
-import { ErrorBoundary } from '../components/common/ErrorBoundary'
-import { InstallPrompt } from '../components/pwa/InstallPrompt'
-import { useServiceWorker } from '../hooks/useServiceWorker'
-import { useOfflineIndicator } from '../hooks/useOfflineIndicator'
-import { GlobalStyleProvider } from '../components/GlobalStyleProvider'
-import { ToastProvider } from '../components/shared/Toast'
-import { exposeStoresForE2E } from '../lib/e2e/storeExposure'
+import type { AppProps } from 'next/app';
+
+import { useState, useEffect } from 'react';
+
+import '../styles/globals.css';
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
+import Layout from '../components/common/Layout';
+import TopBar from '../components/common/TopBar';
+import { GlobalStyleProvider } from '../components/GlobalStyleProvider';
+import { InstallPrompt } from '../components/pwa/InstallPrompt';
+import { ToastProvider } from '../components/shared/Toast';
+import { useOfflineIndicator } from '../hooks/useOfflineIndicator';
+import { useServiceWorker } from '../hooks/useServiceWorker';
+import { exposeStoresForE2E } from '../lib/e2e/storeExposure';
 // Import only browser-safe services directly to avoid Node.js-only SQLite
-import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry'
-import { indexedDBService } from '../services/persistence/IndexedDBService'
+import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry';
+import { indexedDBService } from '../services/persistence/IndexedDBService';
 
 /**
  * Initialize browser-safe services
@@ -30,7 +32,15 @@ async function initializeBrowserServices(): Promise<void> {
 /**
  * App content wrapper that uses hooks requiring ToastProvider
  */
-function AppContent({ Component, pageProps, servicesReady }: { Component: AppProps['Component']; pageProps: Record<string, unknown>; servicesReady: boolean }): React.ReactElement {
+function AppContent({
+  Component,
+  pageProps,
+  servicesReady,
+}: {
+  Component: AppProps['Component'];
+  pageProps: Record<string, unknown>;
+  servicesReady: boolean;
+}): React.ReactElement {
   // Initialize offline indicator
   useOfflineIndicator();
 
@@ -40,7 +50,10 @@ function AppContent({ Component, pageProps, servicesReady }: { Component: AppPro
   return (
     <ErrorBoundary componentName="App">
       <Layout topBarComponent={<TopBar />}>
-        <Component {...(pageProps as AppProps['pageProps'])} servicesReady={servicesReady} />
+        <Component
+          {...(pageProps as AppProps['pageProps'])}
+          servicesReady={servicesReady}
+        />
 
         {/* PWA Install Prompt */}
         {sw.isSupported && <InstallPrompt />}
@@ -49,8 +62,11 @@ function AppContent({ Component, pageProps, servicesReady }: { Component: AppPro
   );
 }
 
-export default function App({ Component, pageProps }: AppProps): React.ReactElement {
-  const [servicesReady, setServicesReady] = useState(false)
+export default function App({
+  Component,
+  pageProps,
+}: AppProps): React.ReactElement {
+  const [servicesReady, setServicesReady] = useState(false);
 
   // Initialize browser services on app mount
   useEffect(() => {
@@ -69,8 +85,12 @@ export default function App({ Component, pageProps }: AppProps): React.ReactElem
   return (
     <GlobalStyleProvider>
       <ToastProvider>
-        <AppContent Component={Component} pageProps={pageProps as Record<string, unknown>} servicesReady={servicesReady} />
+        <AppContent
+          Component={Component}
+          pageProps={pageProps as Record<string, unknown>}
+          servicesReady={servicesReady}
+        />
       </ToastProvider>
     </GlobalStyleProvider>
-  )
+  );
 }

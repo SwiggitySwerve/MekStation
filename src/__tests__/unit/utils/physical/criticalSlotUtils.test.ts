@@ -82,7 +82,7 @@ describe('criticalSlotUtils', () => {
     });
 
     it('should have TOTAL_MECH_SLOTS equal to sum', () => {
-      const sum = 
+      const sum =
         LOCATION_SLOT_CAPACITY.HEAD +
         LOCATION_SLOT_CAPACITY.CENTER_TORSO +
         LOCATION_SLOT_CAPACITY.LEFT_TORSO +
@@ -91,7 +91,7 @@ describe('criticalSlotUtils', () => {
         LOCATION_SLOT_CAPACITY.RIGHT_ARM +
         LOCATION_SLOT_CAPACITY.LEFT_LEG +
         LOCATION_SLOT_CAPACITY.RIGHT_LEG;
-      
+
       expect(TOTAL_MECH_SLOTS).toBe(sum);
     });
   });

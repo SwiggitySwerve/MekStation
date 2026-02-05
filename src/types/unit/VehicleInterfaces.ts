@@ -6,9 +6,9 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
-import { UnitType } from './BattleMechInterfaces';
-import { IGroundUnit, GroundMotionType } from './BaseUnitInterfaces';
 import { VehicleLocation, VTOLLocation } from '../construction/UnitLocation';
+import { IGroundUnit, GroundMotionType } from './BaseUnitInterfaces';
+import { UnitType } from './BattleMechInterfaces';
 
 // ============================================================================
 // Turret Configuration
@@ -215,6 +215,8 @@ export function isVTOL(unit: { unitType: UnitType }): unit is IVTOL {
 /**
  * Check if unit is a support vehicle
  */
-export function isSupportVehicle(unit: { unitType: UnitType }): unit is ISupportVehicle {
+export function isSupportVehicle(unit: {
+  unitType: UnitType;
+}): unit is ISupportVehicle {
   return unit.unitType === UnitType.SUPPORT_VEHICLE;
 }

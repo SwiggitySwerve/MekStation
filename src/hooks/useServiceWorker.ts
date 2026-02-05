@@ -33,7 +33,10 @@ export function useServiceWorker(): ServiceWorkerReturn {
       window.location.reload();
     };
 
-    navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
+    navigator.serviceWorker.addEventListener(
+      'controllerchange',
+      handleControllerChange,
+    );
 
     // Register service worker
     navigator.serviceWorker
@@ -59,7 +62,10 @@ export function useServiceWorker(): ServiceWorkerReturn {
 
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              if (
+                newWorker.state === 'installed' &&
+                navigator.serviceWorker.controller
+              ) {
                 setState((prev) => ({
                   ...prev,
                   isWaiting: true,
@@ -82,7 +88,10 @@ export function useServiceWorker(): ServiceWorkerReturn {
     }
 
     return () => {
-      navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+      navigator.serviceWorker.removeEventListener(
+        'controllerchange',
+        handleControllerChange,
+      );
     };
   }, [state.isSupported]);
 
@@ -98,14 +107,17 @@ export function useServiceWorker(): ServiceWorkerReturn {
   /**
    * Manually trigger cache update for specific URLs
    */
-  const cacheUrls = useCallback((urls: string[]) => {
-    if (state.registration && state.registration.active) {
-      state.registration.active.postMessage({
-        type: 'CACHE_URLS',
-        urls,
-      });
-    }
-  }, [state.registration]);
+  const cacheUrls = useCallback(
+    (urls: string[]) => {
+      if (state.registration && state.registration.active) {
+        state.registration.active.postMessage({
+          type: 'CACHE_URLS',
+          urls,
+        });
+      }
+    },
+    [state.registration],
+  );
 
   return {
     ...state,

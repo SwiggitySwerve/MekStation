@@ -1,12 +1,12 @@
 /**
  * Contract Events System
- * 
+ *
  * Implements monthly contract event checking for AtB campaigns.
  * Events are checked once per month during active contracts and
  * can affect morale, parts availability, scenario generation, and payments.
  *
  * Based on MekHQ's AtBContract event checking.
- * 
+ *
  * @module campaign/contracts/contractEvents
  */
 
@@ -111,14 +111,18 @@ function createEventByType(
     case ContractEventType.BONUS_ROLL:
       return {
         type,
-        description: 'Employer provides a bonus payment for excellent performance',
+        description:
+          'Employer provides a bonus payment for excellent performance',
         effects: [{ type: 'payment_modifier', multiplier: 1.1 }],
       };
     case ContractEventType.SPECIAL_SCENARIO:
       return {
         type,
-        description: 'Intelligence reports an opportunity for a special operation',
-        effects: [{ type: 'scenario_trigger', scenarioType: 'special_mission' }],
+        description:
+          'Intelligence reports an opportunity for a special operation',
+        effects: [
+          { type: 'scenario_trigger', scenarioType: 'special_mission' },
+        ],
       };
     case ContractEventType.CIVIL_DISTURBANCE:
       return {
@@ -129,7 +133,8 @@ function createEventByType(
     case ContractEventType.REBELLION:
       return {
         type,
-        description: 'A full-scale rebellion breaks out, complicating operations',
+        description:
+          'A full-scale rebellion breaks out, complicating operations',
         effects: [
           { type: 'morale_change', value: 2 },
           { type: 'scenario_trigger', scenarioType: 'rebellion_battle' },
@@ -187,17 +192,47 @@ function createBetrayalEvent(subType: BetrayalSubType): IContractEvent {
 
   switch (subType) {
     case BetrayalSubType.SUPPLY_CUTOFF:
-      return { ...baseEvent, description: 'Employer has cut off supply shipments', effects: [{ type: 'parts_modifier', value: -2 }] };
+      return {
+        ...baseEvent,
+        description: 'Employer has cut off supply shipments',
+        effects: [{ type: 'parts_modifier', value: -2 }],
+      };
     case BetrayalSubType.FALSE_INTEL:
-      return { ...baseEvent, description: 'Employer provided false intelligence', effects: [{ type: 'scenario_trigger', scenarioType: 'ambush' }] };
+      return {
+        ...baseEvent,
+        description: 'Employer provided false intelligence',
+        effects: [{ type: 'scenario_trigger', scenarioType: 'ambush' }],
+      };
     case BetrayalSubType.REDIRECT_REINFORCEMENTS:
-      return { ...baseEvent, description: 'Employer redirected promised reinforcements', effects: [{ type: 'morale_change', value: 1 }] };
+      return {
+        ...baseEvent,
+        description: 'Employer redirected promised reinforcements',
+        effects: [{ type: 'morale_change', value: 1 }],
+      };
     case BetrayalSubType.POSITION_LEAKED:
-      return { ...baseEvent, description: 'Your position has been leaked to the enemy', effects: [{ type: 'scenario_trigger', scenarioType: 'ambush' }, { type: 'morale_change', value: 1 }] };
+      return {
+        ...baseEvent,
+        description: 'Your position has been leaked to the enemy',
+        effects: [
+          { type: 'scenario_trigger', scenarioType: 'ambush' },
+          { type: 'morale_change', value: 1 },
+        ],
+      };
     case BetrayalSubType.AMBUSH_SETUP:
-      return { ...baseEvent, description: 'Employer set up an ambush against your forces', effects: [{ type: 'scenario_trigger', scenarioType: 'ambush' }, { type: 'morale_change', value: 2 }] };
+      return {
+        ...baseEvent,
+        description: 'Employer set up an ambush against your forces',
+        effects: [
+          { type: 'scenario_trigger', scenarioType: 'ambush' },
+          { type: 'morale_change', value: 2 },
+        ],
+      };
     case BetrayalSubType.CONTRACT_BREACH:
-      return { ...baseEvent, description: 'Employer has breached the contract terms', effects: [{ type: 'payment_modifier', multiplier: 0.5 }] };
+      return {
+        ...baseEvent,
+        description: 'Employer has breached the contract terms',
+        effects: [{ type: 'payment_modifier', multiplier: 0.5 }],
+      };
   }
 }
 
@@ -212,7 +247,7 @@ export const EVENT_CHECK_CHANCE = 0.05;
  * Check for monthly contract events.
  * Each event type has a 5% chance of occurring per month.
  * Multiple events can occur in the same month.
- * 
+ *
  * @param random - Injectable random function
  * @returns Array of events that occurred (may be empty)
  */

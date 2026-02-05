@@ -572,7 +572,8 @@ describe('knownLimitations', () => {
         },
       ];
 
-      const { knownLimitations, potentialBugs } = partitionViolations(violations);
+      const { knownLimitations, potentialBugs } =
+        partitionViolations(violations);
 
       expect(knownLimitations).toHaveLength(2);
       expect(potentialBugs).toHaveLength(2);
@@ -607,7 +608,8 @@ describe('knownLimitations', () => {
         },
       ];
 
-      const { knownLimitations, potentialBugs } = partitionViolations(violations);
+      const { knownLimitations, potentialBugs } =
+        partitionViolations(violations);
 
       expect(knownLimitations).toHaveLength(2);
       expect(potentialBugs).toHaveLength(0);
@@ -629,7 +631,8 @@ describe('knownLimitations', () => {
         },
       ];
 
-      const { knownLimitations, potentialBugs } = partitionViolations(violations);
+      const { knownLimitations, potentialBugs } =
+        partitionViolations(violations);
 
       expect(knownLimitations).toHaveLength(0);
       expect(potentialBugs).toHaveLength(2);

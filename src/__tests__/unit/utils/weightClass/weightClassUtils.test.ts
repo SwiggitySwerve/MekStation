@@ -1,6 +1,6 @@
 /**
  * Tests for Weight Class Utilities
- * 
+ *
  * @spec openspec/specs/weight-class-system/spec.md
  */
 
@@ -27,8 +27,12 @@ describe('Weight Class Utilities', () => {
     });
 
     it('should cover full tonnage range', () => {
-      const minTonnage = Math.min(...WEIGHT_CLASS_RANGES.map(r => r.minTonnage));
-      const maxTonnage = Math.max(...WEIGHT_CLASS_RANGES.map(r => r.maxTonnage));
+      const minTonnage = Math.min(
+        ...WEIGHT_CLASS_RANGES.map((r) => r.minTonnage),
+      );
+      const maxTonnage = Math.max(
+        ...WEIGHT_CLASS_RANGES.map((r) => r.maxTonnage),
+      );
       expect(minTonnage).toBeLessThanOrEqual(20);
       expect(maxTonnage).toBeGreaterThanOrEqual(100);
     });
@@ -106,7 +110,9 @@ describe('Weight Class Utilities', () => {
   // ============================================================================
   describe('isValidMechTonnage', () => {
     it('should accept valid tonnages in 5-ton increments', () => {
-      const validTonnages = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+      const validTonnages = [
+        20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
+      ];
       for (const tonnage of validTonnages) {
         expect(isValidMechTonnage(tonnage)).toBe(true);
       }
@@ -156,22 +162,42 @@ describe('Weight Class Utilities', () => {
   // ============================================================================
   describe('compareWeightClasses', () => {
     it('should return negative when first is lighter', () => {
-      expect(compareWeightClasses(WeightClass.LIGHT, WeightClass.MEDIUM)).toBeLessThan(0);
-      expect(compareWeightClasses(WeightClass.MEDIUM, WeightClass.HEAVY)).toBeLessThan(0);
-      expect(compareWeightClasses(WeightClass.HEAVY, WeightClass.ASSAULT)).toBeLessThan(0);
+      expect(
+        compareWeightClasses(WeightClass.LIGHT, WeightClass.MEDIUM),
+      ).toBeLessThan(0);
+      expect(
+        compareWeightClasses(WeightClass.MEDIUM, WeightClass.HEAVY),
+      ).toBeLessThan(0);
+      expect(
+        compareWeightClasses(WeightClass.HEAVY, WeightClass.ASSAULT),
+      ).toBeLessThan(0);
     });
 
     it('should return positive when first is heavier', () => {
-      expect(compareWeightClasses(WeightClass.ASSAULT, WeightClass.HEAVY)).toBeGreaterThan(0);
-      expect(compareWeightClasses(WeightClass.HEAVY, WeightClass.MEDIUM)).toBeGreaterThan(0);
-      expect(compareWeightClasses(WeightClass.MEDIUM, WeightClass.LIGHT)).toBeGreaterThan(0);
+      expect(
+        compareWeightClasses(WeightClass.ASSAULT, WeightClass.HEAVY),
+      ).toBeGreaterThan(0);
+      expect(
+        compareWeightClasses(WeightClass.HEAVY, WeightClass.MEDIUM),
+      ).toBeGreaterThan(0);
+      expect(
+        compareWeightClasses(WeightClass.MEDIUM, WeightClass.LIGHT),
+      ).toBeGreaterThan(0);
     });
 
     it('should return 0 when equal', () => {
-      expect(compareWeightClasses(WeightClass.LIGHT, WeightClass.LIGHT)).toBe(0);
-      expect(compareWeightClasses(WeightClass.MEDIUM, WeightClass.MEDIUM)).toBe(0);
-      expect(compareWeightClasses(WeightClass.HEAVY, WeightClass.HEAVY)).toBe(0);
-      expect(compareWeightClasses(WeightClass.ASSAULT, WeightClass.ASSAULT)).toBe(0);
+      expect(compareWeightClasses(WeightClass.LIGHT, WeightClass.LIGHT)).toBe(
+        0,
+      );
+      expect(compareWeightClasses(WeightClass.MEDIUM, WeightClass.MEDIUM)).toBe(
+        0,
+      );
+      expect(compareWeightClasses(WeightClass.HEAVY, WeightClass.HEAVY)).toBe(
+        0,
+      );
+      expect(
+        compareWeightClasses(WeightClass.ASSAULT, WeightClass.ASSAULT),
+      ).toBe(0);
     });
   });
 
@@ -220,19 +246,21 @@ describe('Weight Class Utilities', () => {
     it('should error for tonnage below 20', () => {
       const result = validateTonnage(15);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('at least 20'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('at least 20'))).toBe(true);
     });
 
     it('should error for tonnage above 100', () => {
       const result = validateTonnage(105);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('at most 100'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('at most 100'))).toBe(true);
     });
 
     it('should error for non-5-ton increments', () => {
       const result = validateTonnage(52);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('5-ton increments'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('5-ton increments'))).toBe(
+        true,
+      );
     });
 
     it('should still return weight class even when invalid', () => {
@@ -241,4 +269,3 @@ describe('Weight Class Utilities', () => {
     });
   });
 });
-

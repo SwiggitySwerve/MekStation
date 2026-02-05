@@ -1,8 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ArmorDiagram, LocationArmorData } from './ArmorDiagram';
-import { MechLocation } from '@/types/construction';
-import { useState } from 'react';
+
 import { fn } from '@storybook/test';
+import { useState } from 'react';
+
+import { MechLocation } from '@/types/construction';
+
+import { ArmorDiagram, LocationArmorData } from './ArmorDiagram';
 
 const meta: Meta<typeof ArmorDiagram> = {
   title: 'Customizer/Armor/ArmorDiagram',
@@ -25,9 +28,27 @@ type Story = StoryObj<typeof ArmorDiagram>;
 
 const mockArmorData: LocationArmorData[] = [
   { location: MechLocation.HEAD, current: 9, maximum: 9 },
-  { location: MechLocation.CENTER_TORSO, current: 31, maximum: 47, rear: 14, rearMaximum: 14 },
-  { location: MechLocation.LEFT_TORSO, current: 22, maximum: 32, rear: 10, rearMaximum: 10 },
-  { location: MechLocation.RIGHT_TORSO, current: 22, maximum: 32, rear: 10, rearMaximum: 10 },
+  {
+    location: MechLocation.CENTER_TORSO,
+    current: 31,
+    maximum: 47,
+    rear: 14,
+    rearMaximum: 14,
+  },
+  {
+    location: MechLocation.LEFT_TORSO,
+    current: 22,
+    maximum: 32,
+    rear: 10,
+    rearMaximum: 10,
+  },
+  {
+    location: MechLocation.RIGHT_TORSO,
+    current: 22,
+    maximum: 32,
+    rear: 10,
+    rearMaximum: 10,
+  },
   { location: MechLocation.LEFT_ARM, current: 17, maximum: 34 },
   { location: MechLocation.RIGHT_ARM, current: 17, maximum: 34 },
   { location: MechLocation.LEFT_LEG, current: 26, maximum: 42 },
@@ -36,9 +57,27 @@ const mockArmorData: LocationArmorData[] = [
 
 const partialArmorData: LocationArmorData[] = [
   { location: MechLocation.HEAD, current: 5, maximum: 9 },
-  { location: MechLocation.CENTER_TORSO, current: 20, maximum: 47, rear: 5, rearMaximum: 14 },
-  { location: MechLocation.LEFT_TORSO, current: 15, maximum: 32, rear: 0, rearMaximum: 10 },
-  { location: MechLocation.RIGHT_TORSO, current: 15, maximum: 32, rear: 0, rearMaximum: 10 },
+  {
+    location: MechLocation.CENTER_TORSO,
+    current: 20,
+    maximum: 47,
+    rear: 5,
+    rearMaximum: 14,
+  },
+  {
+    location: MechLocation.LEFT_TORSO,
+    current: 15,
+    maximum: 32,
+    rear: 0,
+    rearMaximum: 10,
+  },
+  {
+    location: MechLocation.RIGHT_TORSO,
+    current: 15,
+    maximum: 32,
+    rear: 0,
+    rearMaximum: 10,
+  },
   { location: MechLocation.LEFT_ARM, current: 10, maximum: 34 },
   { location: MechLocation.RIGHT_ARM, current: 10, maximum: 34 },
   { location: MechLocation.LEFT_LEG, current: 20, maximum: 42 },
@@ -79,7 +118,8 @@ export const OverAllocated: Story = {
 
 export const Interactive: Story = {
   render: () => {
-    const [selectedLocation, setSelectedLocation] = useState<MechLocation | null>(null);
+    const [selectedLocation, setSelectedLocation] =
+      useState<MechLocation | null>(null);
     const [armorData, setArmorData] = useState(partialArmorData);
     const [unallocatedPoints, setUnallocatedPoints] = useState(85);
 
@@ -92,7 +132,7 @@ export const Interactive: Story = {
           onLocationClick={setSelectedLocation}
         />
         {selectedLocation && (
-          <div className="mt-4 p-4 bg-surface-base rounded border border-border-theme">
+          <div className="bg-surface-base border-border-theme mt-4 rounded border p-4">
             <p className="text-white">Selected: {selectedLocation}</p>
           </div>
         )}

@@ -4,6 +4,7 @@
  */
 
 import type { IIdentifiable } from '@/types/core';
+
 import { Money } from './Money';
 
 /**
@@ -11,7 +12,6 @@ import { Money } from './Money';
  * Represents a loan with principal, interest rate, and amortization schedule
  */
 export interface ILoan extends IIdentifiable {
-
   /** Principal amount borrowed */
   readonly principal: Money;
 

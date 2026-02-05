@@ -1,15 +1,16 @@
-import { ICampaign } from '@/types/campaign/Campaign';
-import { IPerson } from '@/types/campaign/Person';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { isCivilianRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { getAutoGrantableAwards } from '@/types/award/AwardCatalog';
+import { IAward } from '@/types/award/AwardInterfaces';
 import {
   AutoAwardCategory,
   AutoAwardTrigger,
   IAutoAwardConfig,
   IAwardGrantEvent,
 } from '@/types/campaign/awards/autoAwardTypes';
-import { IAward } from '@/types/award/AwardInterfaces';
-import { getAutoGrantableAwards } from '@/types/award/AwardCatalog';
+import { ICampaign } from '@/types/campaign/Campaign';
+import { isCivilianRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { IPerson } from '@/types/campaign/Person';
+
 import { checkAwardsForCategory, ICheckerContext } from './categoryCheckers';
 
 // Dead statuses for posthumous check
@@ -47,17 +48,22 @@ function getBestAward(awards: IAward[]): IAward | undefined {
   });
 }
 
-export function getEligiblePersonnel(campaign: ICampaign, config: IAutoAwardConfig): IPerson[] {
-  return Array.from(campaign.personnel.values()).filter(p => {
+export function getEligiblePersonnel(
+  campaign: ICampaign,
+  config: IAutoAwardConfig,
+): IPerson[] {
+  return Array.from(campaign.personnel.values()).filter((p) => {
     if (isDead(p.status)) return config.enablePosthumous;
-    return p.status === PersonnelStatus.ACTIVE && !isCivilianRole(p.primaryRole);
+    return (
+      p.status === PersonnelStatus.ACTIVE && !isCivilianRole(p.primaryRole)
+    );
   });
 }
 
 export function processAutoAwards(
   campaign: ICampaign,
   trigger: AutoAwardTrigger,
-  _context?: { missionId?: string; scenarioId?: string }
+  _context?: { missionId?: string; scenarioId?: string },
 ): IAwardGrantEvent[] {
   const config = campaign.options.autoAwardConfig;
   if (!config?.enableAutoAwards) return [];
@@ -65,9 +71,10 @@ export function processAutoAwards(
   const allAwards = getAutoGrantableAwards();
   const events: IAwardGrantEvent[] = [];
   const checkerContext: ICheckerContext = {
-    currentDate: campaign.currentDate instanceof Date
-      ? campaign.currentDate.toISOString()
-      : String(campaign.currentDate),
+    currentDate:
+      campaign.currentDate instanceof Date
+        ? campaign.currentDate.toISOString()
+        : String(campaign.currentDate),
   };
 
   for (const person of getEligiblePersonnel(campaign, config)) {
@@ -75,26 +82,28 @@ export function processAutoAwards(
       if (!config.enabledCategories[category]) continue;
 
       const categoryAwards = allAwards.filter(
-        a => a.autoGrantCriteria?.category === category
+        (a) => a.autoGrantCriteria?.category === category,
       );
 
       const qualifying = checkAwardsForCategory(
         category,
         person,
         categoryAwards,
-        checkerContext
+        checkerContext,
       );
 
       // Filter out already-earned non-stackable awards
-      const newAwards = qualifying.filter(award =>
-        award.autoGrantCriteria?.stackable || !personHasAward(person, award.id)
+      const newAwards = qualifying.filter(
+        (award) =>
+          award.autoGrantCriteria?.stackable ||
+          !personHasAward(person, award.id),
       );
 
       if (newAwards.length === 0) continue;
 
       // Best award only: keep highest threshold per category
       const toGrant = config.bestAwardOnly
-        ? [getBestAward(newAwards)].filter(Boolean) as IAward[]
+        ? ([getBestAward(newAwards)].filter(Boolean) as IAward[])
         : newAwards;
 
       for (const award of toGrant) {

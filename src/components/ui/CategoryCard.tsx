@@ -1,10 +1,10 @@
+import Link from 'next/link';
 /**
  * CategoryCard Component
  * Navigation card with colored left border accent, inspired by COMP/CON.
  * Used for category navigation grids (e.g., Compendium, Equipment categories).
  */
 import React from 'react';
-import Link from 'next/link';
 
 export type AccentColor = 'amber' | 'cyan' | 'emerald' | 'rose' | 'violet';
 
@@ -23,12 +23,15 @@ interface CategoryCardProps {
   onClick?: () => void;
 }
 
-const accentClasses: Record<AccentColor, {
-  border: string;
-  borderHover: string;
-  icon: string;
-  iconBg: string;
-}> = {
+const accentClasses: Record<
+  AccentColor,
+  {
+    border: string;
+    borderHover: string;
+    icon: string;
+    iconBg: string;
+  }
+> = {
   amber: {
     border: 'border-l-amber-500/60',
     borderHover: 'hover:border-l-amber-400',
@@ -73,26 +76,20 @@ export function CategoryCard({
 
   const cardContent = (
     <div
-      className={`
-        flex items-center gap-4 p-4
-        bg-surface-base/40 border border-border-theme-subtle/50 border-l-4 ${colors.border}
-        rounded-lg transition-all duration-200
-        hover:bg-surface-base/60 hover:border-border-theme ${colors.borderHover}
-        cursor-pointer group
-      `}
+      className={`bg-surface-base/40 border-border-theme-subtle/50 flex items-center gap-4 border border-l-4 p-4 ${colors.border} hover:bg-surface-base/60 hover:border-border-theme rounded-lg transition-all duration-200 ${colors.borderHover} group cursor-pointer`}
     >
       {/* Icon container */}
-      <div className={`p-2.5 rounded-lg ${colors.iconBg} ${colors.icon}`}>
+      <div className={`rounded-lg p-2.5 ${colors.iconBg} ${colors.icon}`}>
         {icon}
       </div>
 
       {/* Text content */}
-      <div className="flex-1 min-w-0">
-        <h3 className="text-category-label text-text-theme-primary group-hover:text-amber-50 transition-colors">
+      <div className="min-w-0 flex-1">
+        <h3 className="text-category-label text-text-theme-primary transition-colors group-hover:text-amber-50">
           {title}
         </h3>
         {subtitle && (
-          <p className="text-xs text-text-theme-secondary mt-0.5 truncate">
+          <p className="text-text-theme-secondary mt-0.5 truncate text-xs">
             {subtitle}
           </p>
         )}
@@ -106,7 +103,7 @@ export function CategoryCard({
           viewBox="0 0 24 24"
           strokeWidth={2}
           stroke="currentColor"
-          className="w-4 h-4"
+          className="h-4 w-4"
         >
           <path
             strokeLinecap="round"
@@ -135,4 +132,3 @@ export function CategoryCard({
 }
 
 export default CategoryCard;
-

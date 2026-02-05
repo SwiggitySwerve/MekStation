@@ -12,15 +12,19 @@
  */
 
 import {
+  CombatRole,
+  AtBMoraleLevel,
+  AtBScenarioType,
+} from '@/types/campaign/scenario/scenarioTypes';
+
+import { type RandomFn } from '../battleChance';
+import {
   selectManeuverScenario,
   selectPatrolScenario,
   selectFrontlineScenario,
   selectTrainingScenario,
   selectScenarioType,
-  type IScenarioTypeResult,
 } from '../scenarioTypeSelection';
-import { CombatRole, AtBMoraleLevel, AtBScenarioType } from '@/types/campaign/scenario/scenarioTypes';
-import { type RandomFn } from '../battleChance';
 
 // =============================================================================
 // Test Helpers
@@ -33,7 +37,10 @@ import { type RandomFn } from '../battleChance';
  * @param value - The value to return (0-1 range)
  * @returns RandomFn that always returns the specified value
  */
-const seededRandom = (value: number): RandomFn => () => value;
+const seededRandom =
+  (value: number): RandomFn =>
+  () =>
+    value;
 
 // =============================================================================
 // selectManeuverScenario Tests (d40 table)
@@ -111,19 +118,25 @@ describe('selectManeuverScenario', () => {
   describe('Roll 25-32: chase or hold_the_line (player attacker)', () => {
     it('should return chase or hold_the_line with isAttacker=true for roll 25', () => {
       const result = selectManeuverScenario(25);
-      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(result.scenarioType);
+      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(
+        result.scenarioType,
+      );
       expect(result.isAttacker).toBe(true);
     });
 
     it('should return chase or hold_the_line with isAttacker=true for roll 28', () => {
       const result = selectManeuverScenario(28);
-      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(result.scenarioType);
+      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(
+        result.scenarioType,
+      );
       expect(result.isAttacker).toBe(true);
     });
 
     it('should return chase or hold_the_line with isAttacker=true for roll 32', () => {
       const result = selectManeuverScenario(32);
-      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(result.scenarioType);
+      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(
+        result.scenarioType,
+      );
       expect(result.isAttacker).toBe(true);
     });
   });
@@ -185,19 +198,25 @@ describe('selectPatrolScenario', () => {
   describe('Roll 2-10: chase or hide_and_seek (player attacker)', () => {
     it('should return chase or hide_and_seek with isAttacker=true for roll 2', () => {
       const result = selectPatrolScenario(2);
-      expect([AtBScenarioType.CHASE, AtBScenarioType.HIDE_AND_SEEK]).toContain(result.scenarioType);
+      expect([AtBScenarioType.CHASE, AtBScenarioType.HIDE_AND_SEEK]).toContain(
+        result.scenarioType,
+      );
       expect(result.isAttacker).toBe(true);
     });
 
     it('should return chase or hide_and_seek with isAttacker=true for roll 6', () => {
       const result = selectPatrolScenario(6);
-      expect([AtBScenarioType.CHASE, AtBScenarioType.HIDE_AND_SEEK]).toContain(result.scenarioType);
+      expect([AtBScenarioType.CHASE, AtBScenarioType.HIDE_AND_SEEK]).toContain(
+        result.scenarioType,
+      );
       expect(result.isAttacker).toBe(true);
     });
 
     it('should return chase or hide_and_seek with isAttacker=true for roll 10', () => {
       const result = selectPatrolScenario(10);
-      expect([AtBScenarioType.CHASE, AtBScenarioType.HIDE_AND_SEEK]).toContain(result.scenarioType);
+      expect([AtBScenarioType.CHASE, AtBScenarioType.HIDE_AND_SEEK]).toContain(
+        result.scenarioType,
+      );
       expect(result.isAttacker).toBe(true);
     });
   });
@@ -489,13 +508,17 @@ describe('selectTrainingScenario', () => {
   describe('Roll 6-7: chase or breakthrough (player attacker)', () => {
     it('should return chase or breakthrough with isAttacker=true for roll 6', () => {
       const result = selectTrainingScenario(6);
-      expect([AtBScenarioType.CHASE, AtBScenarioType.BREAKTHROUGH]).toContain(result.scenarioType);
+      expect([AtBScenarioType.CHASE, AtBScenarioType.BREAKTHROUGH]).toContain(
+        result.scenarioType,
+      );
       expect(result.isAttacker).toBe(true);
     });
 
     it('should return chase or breakthrough with isAttacker=true for roll 7', () => {
       const result = selectTrainingScenario(7);
-      expect([AtBScenarioType.CHASE, AtBScenarioType.BREAKTHROUGH]).toContain(result.scenarioType);
+      expect([AtBScenarioType.CHASE, AtBScenarioType.BREAKTHROUGH]).toContain(
+        result.scenarioType,
+      );
       expect(result.isAttacker).toBe(true);
     });
   });
@@ -517,7 +540,9 @@ describe('selectTrainingScenario', () => {
   describe('Roll 10: chase or hold_the_line (player attacker)', () => {
     it('should return chase or hold_the_line with isAttacker=true for roll 10', () => {
       const result = selectTrainingScenario(10);
-      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(result.scenarioType);
+      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(
+        result.scenarioType,
+      );
       expect(result.isAttacker).toBe(true);
     });
   });
@@ -525,13 +550,17 @@ describe('selectTrainingScenario', () => {
   describe('Roll 11+: clamp to last entry', () => {
     it('should clamp to chase or hold_the_line for roll 11', () => {
       const result = selectTrainingScenario(11);
-      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(result.scenarioType);
+      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(
+        result.scenarioType,
+      );
       expect(result.isAttacker).toBe(true);
     });
 
     it('should clamp to chase or hold_the_line for roll 100', () => {
       const result = selectTrainingScenario(100);
-      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(result.scenarioType);
+      expect([AtBScenarioType.CHASE, AtBScenarioType.HOLD_THE_LINE]).toContain(
+        result.scenarioType,
+      );
       expect(result.isAttacker).toBe(true);
     });
   });
@@ -544,25 +573,41 @@ describe('selectTrainingScenario', () => {
 describe('selectScenarioType', () => {
   describe('Maneuver role routing', () => {
     it('should route to selectManeuverScenario for MANEUVER role', () => {
-      const result = selectScenarioType(CombatRole.MANEUVER, AtBMoraleLevel.STALEMATE, seededRandom(0.5));
+      const result = selectScenarioType(
+        CombatRole.MANEUVER,
+        AtBMoraleLevel.STALEMATE,
+        seededRandom(0.5),
+      );
       expect(result.scenarioType).toBeDefined();
       expect([true, false]).toContain(result.isAttacker);
     });
 
     it('should apply morale modifier to roll for MANEUVER role', () => {
       // STALEMATE = 0 modifier, so roll should be unmodified
-      const result1 = selectScenarioType(CombatRole.MANEUVER, AtBMoraleLevel.STALEMATE, seededRandom(0.5));
+      const result1 = selectScenarioType(
+        CombatRole.MANEUVER,
+        AtBMoraleLevel.STALEMATE,
+        seededRandom(0.5),
+      );
       expect(result1.scenarioType).toBeDefined();
 
       // OVERWHELMING = -14 modifier, so roll should be reduced
-      const result2 = selectScenarioType(CombatRole.MANEUVER, AtBMoraleLevel.OVERWHELMING, seededRandom(0.5));
+      const result2 = selectScenarioType(
+        CombatRole.MANEUVER,
+        AtBMoraleLevel.OVERWHELMING,
+        seededRandom(0.5),
+      );
       expect(result2.scenarioType).toBeDefined();
     });
   });
 
   describe('Patrol role routing', () => {
     it('should route to selectPatrolScenario for PATROL role', () => {
-      const result = selectScenarioType(CombatRole.PATROL, AtBMoraleLevel.STALEMATE, seededRandom(0.5));
+      const result = selectScenarioType(
+        CombatRole.PATROL,
+        AtBMoraleLevel.STALEMATE,
+        seededRandom(0.5),
+      );
       expect(result.scenarioType).toBeDefined();
       expect([true, false]).toContain(result.isAttacker);
     });
@@ -570,7 +615,11 @@ describe('selectScenarioType', () => {
 
   describe('Frontline role routing', () => {
     it('should route to selectFrontlineScenario for FRONTLINE role', () => {
-      const result = selectScenarioType(CombatRole.FRONTLINE, AtBMoraleLevel.STALEMATE, seededRandom(0.5));
+      const result = selectScenarioType(
+        CombatRole.FRONTLINE,
+        AtBMoraleLevel.STALEMATE,
+        seededRandom(0.5),
+      );
       expect(result.scenarioType).toBeDefined();
       expect([true, false]).toContain(result.isAttacker);
     });
@@ -578,7 +627,11 @@ describe('selectScenarioType', () => {
 
   describe('Training role routing', () => {
     it('should route to selectTrainingScenario for TRAINING role', () => {
-      const result = selectScenarioType(CombatRole.TRAINING, AtBMoraleLevel.STALEMATE, seededRandom(0.5));
+      const result = selectScenarioType(
+        CombatRole.TRAINING,
+        AtBMoraleLevel.STALEMATE,
+        seededRandom(0.5),
+      );
       expect(result.scenarioType).toBeDefined();
       expect([true, false]).toContain(result.isAttacker);
     });
@@ -586,7 +639,11 @@ describe('selectScenarioType', () => {
 
   describe('Cadre role routing', () => {
     it('should route to selectTrainingScenario for CADRE role (same table)', () => {
-      const result = selectScenarioType(CombatRole.CADRE, AtBMoraleLevel.STALEMATE, seededRandom(0.5));
+      const result = selectScenarioType(
+        CombatRole.CADRE,
+        AtBMoraleLevel.STALEMATE,
+        seededRandom(0.5),
+      );
       expect(result.scenarioType).toBeDefined();
       expect([true, false]).toContain(result.isAttacker);
     });
@@ -594,18 +651,30 @@ describe('selectScenarioType', () => {
 
   describe('Morale modifier integration', () => {
     it('should apply ROUTED morale modifier (+16)', () => {
-      const result = selectScenarioType(CombatRole.MANEUVER, AtBMoraleLevel.ROUTED, seededRandom(0.5));
+      const result = selectScenarioType(
+        CombatRole.MANEUVER,
+        AtBMoraleLevel.ROUTED,
+        seededRandom(0.5),
+      );
       expect(result.scenarioType).toBeDefined();
     });
 
     it('should apply OVERWHELMING morale modifier (-14)', () => {
-      const result = selectScenarioType(CombatRole.MANEUVER, AtBMoraleLevel.OVERWHELMING, seededRandom(0.5));
+      const result = selectScenarioType(
+        CombatRole.MANEUVER,
+        AtBMoraleLevel.OVERWHELMING,
+        seededRandom(0.5),
+      );
       expect(result.scenarioType).toBeDefined();
     });
 
     it('should clamp modified roll to minimum 1', () => {
       // With OVERWHELMING morale (-14) and low random, roll should clamp to 1
-      const result = selectScenarioType(CombatRole.MANEUVER, AtBMoraleLevel.OVERWHELMING, seededRandom(0.01));
+      const result = selectScenarioType(
+        CombatRole.MANEUVER,
+        AtBMoraleLevel.OVERWHELMING,
+        seededRandom(0.01),
+      );
       expect(result.scenarioType).toBeDefined();
     });
   });
@@ -613,7 +682,12 @@ describe('selectScenarioType', () => {
   describe('All morale levels', () => {
     it('should work with all 7 morale levels', () => {
       const moraleValues = Object.values(AtBMoraleLevel);
-      const roles = [CombatRole.MANEUVER, CombatRole.PATROL, CombatRole.FRONTLINE, CombatRole.TRAINING];
+      const roles = [
+        CombatRole.MANEUVER,
+        CombatRole.PATROL,
+        CombatRole.FRONTLINE,
+        CombatRole.TRAINING,
+      ];
 
       moraleValues.forEach((morale) => {
         roles.forEach((role) => {
@@ -627,20 +701,34 @@ describe('selectScenarioType', () => {
 
   describe('Edge cases', () => {
     it('should handle random value of 0.0', () => {
-      const result = selectScenarioType(CombatRole.MANEUVER, AtBMoraleLevel.STALEMATE, seededRandom(0.0));
+      const result = selectScenarioType(
+        CombatRole.MANEUVER,
+        AtBMoraleLevel.STALEMATE,
+        seededRandom(0.0),
+      );
       expect(result.scenarioType).toBeDefined();
       expect(typeof result.isAttacker).toBe('boolean');
     });
 
     it('should handle random value of 0.99', () => {
-      const result = selectScenarioType(CombatRole.MANEUVER, AtBMoraleLevel.STALEMATE, seededRandom(0.99));
+      const result = selectScenarioType(
+        CombatRole.MANEUVER,
+        AtBMoraleLevel.STALEMATE,
+        seededRandom(0.99),
+      );
       expect(result.scenarioType).toBeDefined();
       expect(typeof result.isAttacker).toBe('boolean');
     });
 
     it('should return readonly IScenarioTypeResult', () => {
-      const result = selectScenarioType(CombatRole.MANEUVER, AtBMoraleLevel.STALEMATE, seededRandom(0.5));
-      expect(Object.isFrozen(result) || !Object.isExtensible(result)).toBe(true);
+      const result = selectScenarioType(
+        CombatRole.MANEUVER,
+        AtBMoraleLevel.STALEMATE,
+        seededRandom(0.5),
+      );
+      expect(Object.isFrozen(result) || !Object.isExtensible(result)).toBe(
+        true,
+      );
     });
   });
 });

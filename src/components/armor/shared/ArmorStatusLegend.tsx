@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+
 import { ARMOR_STATUS } from '@/components/customizer/armor/shared/ArmorFills';
 
 export interface ArmorStatusLegendProps {
@@ -24,21 +25,21 @@ export function ArmorStatusLegend({
   const lowPct = Math.round(ARMOR_STATUS.LOW.min * 100);
 
   return (
-    <div className={`flex justify-center gap-3 mt-4 text-xs ${className}`}>
+    <div className={`mt-4 flex justify-center gap-3 text-xs ${className}`}>
       <div className="flex items-center gap-1.5">
-        <div className="w-3 h-3 rounded bg-green-500" />
+        <div className="h-3 w-3 rounded bg-green-500" />
         <span className="text-text-theme-secondary">{healthyPct}%+</span>
       </div>
       <div className="flex items-center gap-1.5">
-        <div className="w-3 h-3 rounded bg-amber-500" />
+        <div className="h-3 w-3 rounded bg-amber-500" />
         <span className="text-text-theme-secondary">{moderatePct}%+</span>
       </div>
       <div className="flex items-center gap-1.5">
-        <div className="w-3 h-3 rounded bg-orange-500" />
+        <div className="h-3 w-3 rounded bg-orange-500" />
         <span className="text-text-theme-secondary">{lowPct}%+</span>
       </div>
       <div className="flex items-center gap-1.5">
-        <div className="w-3 h-3 rounded bg-red-500" />
+        <div className="h-3 w-3 rounded bg-red-500" />
         <span className="text-text-theme-secondary">&lt;{lowPct}%</span>
       </div>
     </div>
@@ -56,7 +57,9 @@ export function ArmorDiagramInstructions({
   text?: string;
 }): React.ReactElement {
   return (
-    <p className={`text-xs text-text-theme-secondary text-center mt-2 ${className}`}>
+    <p
+      className={`text-text-theme-secondary mt-2 text-center text-xs ${className}`}
+    >
       {text}
     </p>
   );

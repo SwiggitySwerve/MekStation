@@ -1,11 +1,12 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 import '@testing-library/jest-dom';
-import { QuickGameResults } from '../QuickGameResults';
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { GameStatus, GamePhase, GameEventType } from '@/types/gameplay';
 import { QuickGameStep } from '@/types/quickgame/QuickGameInterfaces';
+
+import { QuickGameResults } from '../QuickGameResults';
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -164,7 +165,7 @@ describe('QuickGameResults', () => {
   describe('Tab Navigation', () => {
     it('renders all four tabs', () => {
       render(<QuickGameResults />);
-      
+
       expect(screen.getByRole('tab', { name: 'Summary' })).toBeInTheDocument();
       expect(screen.getByRole('tab', { name: 'Units' })).toBeInTheDocument();
       expect(screen.getByRole('tab', { name: 'Damage' })).toBeInTheDocument();
@@ -173,7 +174,7 @@ describe('QuickGameResults', () => {
 
     it('starts with Summary tab selected', () => {
       render(<QuickGameResults />);
-      
+
       const summaryTab = screen.getByRole('tab', { name: 'Summary' });
       expect(summaryTab).toHaveAttribute('aria-selected', 'true');
     });
@@ -181,17 +182,20 @@ describe('QuickGameResults', () => {
     it('switches to Units tab when clicked', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
-      
+
       const unitsTab = screen.getByRole('tab', { name: 'Units' });
       await user.click(unitsTab);
-      
+
       expect(unitsTab).toHaveAttribute('aria-selected', 'true');
-      expect(screen.getByRole('tab', { name: 'Summary' })).toHaveAttribute('aria-selected', 'false');
+      expect(screen.getByRole('tab', { name: 'Summary' })).toHaveAttribute(
+        'aria-selected',
+        'false',
+      );
     });
 
     it('has correct ARIA attributes for tabs', () => {
       render(<QuickGameResults />);
-      
+
       const summaryTab = screen.getByRole('tab', { name: 'Summary' });
       expect(summaryTab).toHaveAttribute('aria-controls', 'tabpanel-summary');
       expect(summaryTab).toHaveAttribute('id', 'tab-summary');
@@ -207,12 +211,12 @@ describe('QuickGameResults', () => {
     it('navigates to next tab with ArrowRight', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
-      
+
       const summaryTab = screen.getByRole('tab', { name: 'Summary' });
       summaryTab.focus();
-      
+
       await user.keyboard('{ArrowRight}');
-      
+
       const unitsTab = screen.getByRole('tab', { name: 'Units' });
       expect(unitsTab).toHaveAttribute('aria-selected', 'true');
     });
@@ -220,12 +224,12 @@ describe('QuickGameResults', () => {
     it('navigates to previous tab with ArrowLeft', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
-      
+
       const unitsTab = screen.getByRole('tab', { name: 'Units' });
       await user.click(unitsTab);
-      
+
       await user.keyboard('{ArrowLeft}');
-      
+
       const summaryTab = screen.getByRole('tab', { name: 'Summary' });
       expect(summaryTab).toHaveAttribute('aria-selected', 'true');
     });
@@ -233,12 +237,12 @@ describe('QuickGameResults', () => {
     it('wraps from last to first tab with ArrowRight', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
-      
+
       const timelineTab = screen.getByRole('tab', { name: 'Timeline' });
       await user.click(timelineTab);
-      
+
       await user.keyboard('{ArrowRight}');
-      
+
       const summaryTab = screen.getByRole('tab', { name: 'Summary' });
       expect(summaryTab).toHaveAttribute('aria-selected', 'true');
     });
@@ -260,9 +264,9 @@ describe('QuickGameResults', () => {
     it('shows all units from both forces', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
-      
+
       await user.click(screen.getByRole('tab', { name: 'Units' }));
-      
+
       expect(screen.getByText('Atlas AS7-D')).toBeInTheDocument();
       expect(screen.getByText('Centurion CN9-A')).toBeInTheDocument();
       expect(screen.getByText('Hunchback HBK-4G')).toBeInTheDocument();
@@ -271,9 +275,9 @@ describe('QuickGameResults', () => {
     it('shows unit status - Destroyed in red', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
-      
+
       await user.click(screen.getByRole('tab', { name: 'Units' }));
-      
+
       const destroyedStatus = screen.getAllByText('Destroyed');
       expect(destroyedStatus.length).toBeGreaterThan(0);
     });
@@ -281,18 +285,18 @@ describe('QuickGameResults', () => {
     it('shows unit status - Survived in green', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
-      
+
       await user.click(screen.getByRole('tab', { name: 'Units' }));
-      
+
       expect(screen.getByText('Survived')).toBeInTheDocument();
     });
 
     it('shows pilot names when available', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
-      
+
       await user.click(screen.getByRole('tab', { name: 'Units' }));
-      
+
       expect(screen.getByText('John Smith')).toBeInTheDocument();
       expect(screen.getByText('Jane Doe')).toBeInTheDocument();
     });
@@ -302,9 +306,9 @@ describe('QuickGameResults', () => {
     it('shows empty state when no damage events', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
-      
+
       await user.click(screen.getByRole('tab', { name: 'Damage' }));
-      
+
       expect(screen.getByText('No damage dealt')).toBeInTheDocument();
     });
   });
@@ -313,9 +317,9 @@ describe('QuickGameResults', () => {
     it('shows events in timeline', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
-      
+
       await user.click(screen.getByRole('tab', { name: 'Timeline' }));
-      
+
       expect(screen.getByText('Game Started')).toBeInTheDocument();
       expect(screen.getByText('Unit Destroyed')).toBeInTheDocument();
       expect(screen.getByText('Game Ended')).toBeInTheDocument();
@@ -324,9 +328,9 @@ describe('QuickGameResults', () => {
     it('shows turn numbers for events', async () => {
       const user = userEvent.setup();
       render(<QuickGameResults />);
-      
+
       await user.click(screen.getByRole('tab', { name: 'Timeline' }));
-      
+
       expect(screen.getByText('Turn 1')).toBeInTheDocument();
       expect(screen.getByText('Turn 3')).toBeInTheDocument();
       expect(screen.getByText('Turn 5')).toBeInTheDocument();
@@ -348,7 +352,7 @@ describe('QuickGameResults', () => {
   describe('Action Buttons', () => {
     it('renders play again buttons', () => {
       render(<QuickGameResults />);
-      
+
       expect(screen.getByTestId('play-again-same-btn')).toBeInTheDocument();
       expect(screen.getByTestId('play-again-new-btn')).toBeInTheDocument();
       expect(screen.getByTestId('exit-btn')).toBeInTheDocument();
@@ -358,10 +362,12 @@ describe('QuickGameResults', () => {
   describe('No Game State', () => {
     it('shows message when no game available', () => {
       useQuickGameStore.setState({ game: null });
-      
+
       render(<QuickGameResults />);
-      
-      expect(screen.getByText('No game results to display.')).toBeInTheDocument();
+
+      expect(
+        screen.getByText('No game results to display.'),
+      ).toBeInTheDocument();
     });
   });
 });

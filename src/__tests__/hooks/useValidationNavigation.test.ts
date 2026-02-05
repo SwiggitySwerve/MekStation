@@ -4,18 +4,19 @@
  */
 
 import { renderHook } from '@testing-library/react';
-import { useValidationNavigation } from '@/hooks/useValidationNavigation';
+
 import { UnitValidationState } from '@/hooks/useUnitValidation';
+import { useValidationNavigation } from '@/hooks/useValidationNavigation';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   UnitValidationSeverity,
   UnitCategory,
 } from '@/types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 function createMockError(
   category: ValidationCategory,
-  severity: UnitValidationSeverity = UnitValidationSeverity.ERROR
+  severity: UnitValidationSeverity = UnitValidationSeverity.ERROR,
 ) {
   return {
     ruleId: 'TEST-001',
@@ -28,20 +29,27 @@ function createMockError(
 
 function createMockValidationState(
   ruleResults: Array<{
-    errors?: Array<{ category: ValidationCategory; severity?: UnitValidationSeverity }>;
+    errors?: Array<{
+      category: ValidationCategory;
+      severity?: UnitValidationSeverity;
+    }>;
     warnings?: Array<{ category: ValidationCategory }>;
     infos?: Array<{ category: ValidationCategory }>;
-  }>
+  }>,
 ): UnitValidationState {
   const results = ruleResults.map((r, i) => ({
     ruleId: `RULE-${i}`,
     ruleName: `Rule ${i}`,
     passed: (r.errors?.length ?? 0) === 0,
     errors: (r.errors ?? []).map((e) =>
-      createMockError(e.category, e.severity ?? UnitValidationSeverity.ERROR)
+      createMockError(e.category, e.severity ?? UnitValidationSeverity.ERROR),
     ),
-    warnings: (r.warnings ?? []).map((w) => createMockError(w.category, UnitValidationSeverity.WARNING)),
-    infos: (r.infos ?? []).map((inf) => createMockError(inf.category, UnitValidationSeverity.INFO)),
+    warnings: (r.warnings ?? []).map((w) =>
+      createMockError(w.category, UnitValidationSeverity.WARNING),
+    ),
+    infos: (r.infos ?? []).map((inf) =>
+      createMockError(inf.category, UnitValidationSeverity.INFO),
+    ),
     executionTime: 1,
   }));
 
@@ -89,12 +97,30 @@ const emptyValidation: UnitValidationState = {
 describe('useValidationNavigation', () => {
   describe('errorsByTab', () => {
     it('should return empty counts when validation result is null', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
 
-      expect(result.current.errorsByTab.structure).toEqual({ errors: 0, warnings: 0, infos: 0 });
-      expect(result.current.errorsByTab.armor).toEqual({ errors: 0, warnings: 0, infos: 0 });
-      expect(result.current.errorsByTab.equipment).toEqual({ errors: 0, warnings: 0, infos: 0 });
-      expect(result.current.errorsByTab.criticals).toEqual({ errors: 0, warnings: 0, infos: 0 });
+      expect(result.current.errorsByTab.structure).toEqual({
+        errors: 0,
+        warnings: 0,
+        infos: 0,
+      });
+      expect(result.current.errorsByTab.armor).toEqual({
+        errors: 0,
+        warnings: 0,
+        infos: 0,
+      });
+      expect(result.current.errorsByTab.equipment).toEqual({
+        errors: 0,
+        warnings: 0,
+        infos: 0,
+      });
+      expect(result.current.errorsByTab.criticals).toEqual({
+        errors: 0,
+        warnings: 0,
+        infos: 0,
+      });
     });
 
     it('should count errors by tab based on category', () => {
@@ -116,7 +142,10 @@ describe('useValidationNavigation', () => {
       const validation = createMockValidationState([
         {
           errors: [
-            { category: ValidationCategory.WEIGHT, severity: UnitValidationSeverity.CRITICAL_ERROR },
+            {
+              category: ValidationCategory.WEIGHT,
+              severity: UnitValidationSeverity.CRITICAL_ERROR,
+            },
           ],
         },
       ]);
@@ -192,7 +221,10 @@ describe('useValidationNavigation', () => {
       const validation = createMockValidationState([
         {
           errors: [{ category: ValidationCategory.ARMOR }],
-          warnings: [{ category: ValidationCategory.ARMOR }, { category: ValidationCategory.ARMOR }],
+          warnings: [
+            { category: ValidationCategory.ARMOR },
+            { category: ValidationCategory.ARMOR },
+          ],
         },
       ]);
 
@@ -220,28 +252,36 @@ describe('useValidationNavigation', () => {
 
   describe('getTargetTabForError', () => {
     it('should return correct tab for WEIGHT category', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
       const error = createMockError(ValidationCategory.WEIGHT);
 
       expect(result.current.getTargetTabForError(error)).toBe('structure');
     });
 
     it('should return correct tab for ARMOR category', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
       const error = createMockError(ValidationCategory.ARMOR);
 
       expect(result.current.getTargetTabForError(error)).toBe('armor');
     });
 
     it('should return correct tab for SLOTS category', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
       const error = createMockError(ValidationCategory.SLOTS);
 
       expect(result.current.getTargetTabForError(error)).toBe('criticals');
     });
 
     it('should return correct tab for EQUIPMENT category', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
       const error = createMockError(ValidationCategory.EQUIPMENT);
 
       expect(result.current.getTargetTabForError(error)).toBe('equipment');
@@ -250,28 +290,36 @@ describe('useValidationNavigation', () => {
 
   describe('getTargetTabLabel', () => {
     it('should return human-readable label for structure tab', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
       const error = createMockError(ValidationCategory.WEIGHT);
 
       expect(result.current.getTargetTabLabel(error)).toBe('Structure');
     });
 
     it('should return human-readable label for armor tab', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
       const error = createMockError(ValidationCategory.ARMOR);
 
       expect(result.current.getTargetTabLabel(error)).toBe('Armor');
     });
 
     it('should return human-readable label for criticals tab', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
       const error = createMockError(ValidationCategory.SLOTS);
 
       expect(result.current.getTargetTabLabel(error)).toBe('Critical Slots');
     });
 
     it('should return human-readable label for equipment tab', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
       const error = createMockError(ValidationCategory.EQUIPMENT);
 
       expect(result.current.getTargetTabLabel(error)).toBe('Equipment');
@@ -280,7 +328,9 @@ describe('useValidationNavigation', () => {
 
   describe('navigateToError', () => {
     it('should call onTabChange with correct tab', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
       const error = createMockError(ValidationCategory.ARMOR);
       const onTabChange = jest.fn();
 
@@ -290,7 +340,9 @@ describe('useValidationNavigation', () => {
     });
 
     it('should navigate to structure for WEIGHT errors', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
       const error = createMockError(ValidationCategory.WEIGHT);
       const onTabChange = jest.fn();
 
@@ -300,7 +352,9 @@ describe('useValidationNavigation', () => {
     });
 
     it('should navigate to criticals for SLOTS errors', () => {
-      const { result } = renderHook(() => useValidationNavigation(emptyValidation));
+      const { result } = renderHook(() =>
+        useValidationNavigation(emptyValidation),
+      );
       const error = createMockError(ValidationCategory.SLOTS);
       const onTabChange = jest.fn();
 

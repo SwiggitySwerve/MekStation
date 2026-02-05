@@ -1,35 +1,31 @@
 /**
  * Armor Tab Component
- * 
+ *
  * Configuration of armor type, tonnage, and per-location allocation.
  * Uses tonnage-first workflow where user sets armor tonnage, then
  * distributes available points to locations.
- * 
+ *
  * @spec openspec/specs/armor-system/spec.md
  * @spec openspec/specs/armor-diagram/spec.md
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { useUnitStore } from '@/stores/useUnitStore';
-import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
-import { useTechBaseSync } from '@/hooks/useTechBaseSync';
-import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { MechConfiguration, getLocationsForConfig, hasRearArmor } from '@/types/construction/MechConfigurationSystem';
-import { LocationArmorData } from '../armor/ArmorDiagram';
-import { LocationArmorEditor } from '../armor/LocationArmorEditor';
+
 import { SchematicDiagram } from '@/components/armor/schematic';
+import { useTechBaseSync } from '@/hooks/useTechBaseSync';
+import { getTotalAllocatedArmor } from '@/stores/unitState';
+import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
+import { useUnitStore } from '@/stores/useUnitStore';
 import {
-  CleanTechDiagram,
-  NeonOperatorDiagram,
-  TacticalHUDDiagram,
-  PremiumMaterialDiagram,
-  MegaMekDiagram,
-} from '../armor/variants';
-import { QuadArmorDiagram } from '../armor/variants/QuadArmorDiagram';
-import { TripodArmorDiagram } from '../armor/variants/TripodArmorDiagram';
-import { LAMArmorDiagram } from '../armor/variants/LAMArmorDiagram';
-import { QuadVeeArmorDiagram } from '../armor/variants/QuadVeeArmorDiagram';
+  ArmorTypeEnum,
+  getArmorDefinition,
+} from '@/types/construction/ArmorType';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import {
+  MechConfiguration,
+  getLocationsForConfig,
+  hasRearArmor,
+} from '@/types/construction/MechConfigurationSystem';
 import {
   calculateArmorPoints,
   getMaxArmorForLocation,
@@ -37,7 +33,20 @@ import {
   getArmorCriticalSlots,
 } from '@/utils/construction/armorCalculations';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
-import { getTotalAllocatedArmor } from '@/stores/unitState';
+
+import { LocationArmorData } from '../armor/ArmorDiagram';
+import { LocationArmorEditor } from '../armor/LocationArmorEditor';
+import {
+  CleanTechDiagram,
+  NeonOperatorDiagram,
+  TacticalHUDDiagram,
+  PremiumMaterialDiagram,
+  MegaMekDiagram,
+} from '../armor/variants';
+import { LAMArmorDiagram } from '../armor/variants/LAMArmorDiagram';
+import { QuadArmorDiagram } from '../armor/variants/QuadArmorDiagram';
+import { QuadVeeArmorDiagram } from '../armor/variants/QuadVeeArmorDiagram';
+import { TripodArmorDiagram } from '../armor/variants/TripodArmorDiagram';
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -57,7 +66,7 @@ interface ArmorTabProps {
 
 /**
  * Armor configuration tab
- * 
+ *
  * Uses useUnitStore() to access the current unit's state.
  */
 export function ArmorTab({
@@ -65,8 +74,12 @@ export function ArmorTab({
   className = '',
 }: ArmorTabProps): React.ReactElement {
   // Get app settings - subscribe to computed values for reactivity
-  const armorDiagramMode = useAppSettingsStore((s) => s.getEffectiveArmorDiagramMode());
-  const armorDiagramVariant = useAppSettingsStore((s) => s.getEffectiveArmorDiagramVariant());
+  const armorDiagramMode = useAppSettingsStore((s) =>
+    s.getEffectiveArmorDiagramMode(),
+  );
+  const armorDiagramVariant = useAppSettingsStore((s) =>
+    s.getEffectiveArmorDiagramVariant(),
+  );
 
   // Get unit state from context
   const tonnage = useUnitStore((s) => s.tonnage);
@@ -75,51 +88,60 @@ export function ArmorTab({
   const armorType = useUnitStore((s) => s.armorType);
   const armorTonnage = useUnitStore((s) => s.armorTonnage);
   const armorAllocation = useUnitStore((s) => s.armorAllocation);
-  
+
   // Get actions from context
   const setArmorType = useUnitStore((s) => s.setArmorType);
   const setArmorTonnage = useUnitStore((s) => s.setArmorTonnage);
   const setLocationArmor = useUnitStore((s) => s.setLocationArmor);
   const autoAllocateArmor = useUnitStore((s) => s.autoAllocateArmor);
   const maximizeArmor = useUnitStore((s) => s.maximizeArmor);
-  
+
   // Get filtered armor options based on tech base
   const { filteredOptions } = useTechBaseSync(componentTechBases);
-  
+
   // Selected location for editing
-  const [selectedLocation, setSelectedLocation] = useState<MechLocation | null>(null);
-  
+  const [selectedLocation, setSelectedLocation] = useState<MechLocation | null>(
+    null,
+  );
+
   // Calculate derived values
   const armorDef = useMemo(() => getArmorDefinition(armorType), [armorType]);
   const pointsPerTon = armorDef?.pointsPerTon ?? 16;
   const availablePoints = useMemo(
     () => calculateArmorPoints(armorTonnage, armorType),
-    [armorTonnage, armorType]
+    [armorTonnage, armorType],
   );
   const allocatedPoints = useMemo(
     () => getTotalAllocatedArmor(armorAllocation, configuration),
-    [armorAllocation, configuration]
+    [armorAllocation, configuration],
   );
-  const maxTotalArmor = useMemo(() => getMaxTotalArmor(tonnage, configuration), [tonnage, configuration]);
-  const armorSlots = useMemo(() => getArmorCriticalSlots(armorType), [armorType]);
-  
+  const maxTotalArmor = useMemo(
+    () => getMaxTotalArmor(tonnage, configuration),
+    [tonnage, configuration],
+  );
+  const armorSlots = useMemo(
+    () => getArmorCriticalSlots(armorType),
+    [armorType],
+  );
+
   // Calculate max useful tonnage (ceiling to half-ton of max points / points per ton)
   const maxUsefulTonnage = useMemo(
     () => ceilToHalfTon(maxTotalArmor / pointsPerTon),
-    [maxTotalArmor, pointsPerTon]
+    [maxTotalArmor, pointsPerTon],
   );
-  
+
   // Calculate unallocated and wasted points
   const unallocatedPoints = availablePoints - allocatedPoints;
   const wastedPoints = Math.max(0, availablePoints - maxTotalArmor);
-  
+
   // Points delta for Auto-Allocate button:
   // - Negative when allocated > available (need to remove points)
   // - Positive when can allocate more (capped at max armor remaining)
-  const pointsDelta = unallocatedPoints < 0
-    ? unallocatedPoints // Show negative as-is (over-allocated)
-    : Math.min(unallocatedPoints, maxTotalArmor - allocatedPoints); // Cap at max allocatable
-  
+  const pointsDelta =
+    unallocatedPoints < 0
+      ? unallocatedPoints // Show negative as-is (over-allocated)
+      : Math.min(unallocatedPoints, maxTotalArmor - allocatedPoints); // Cap at max allocatable
+
   // Convert allocation to diagram format
   // For torso locations, maximum represents the total max for front+rear combined
   // rearMaximum represents how much of the total max can still go to rear
@@ -160,49 +182,60 @@ export function ArmorTab({
       };
     });
   }, [tonnage, configuration, armorAllocation]);
-  
+
   // Get selected location data
   const selectedLocationData = useMemo(() => {
     if (!selectedLocation) return null;
-    return armorData.find(d => d.location === selectedLocation) ?? null;
+    return armorData.find((d) => d.location === selectedLocation) ?? null;
   }, [selectedLocation, armorData]);
-  
+
   // Handlers
-  const handleArmorTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setArmorType(e.target.value as ArmorTypeEnum);
-  }, [setArmorType]);
-  
-  const handleArmorTonnageChange = useCallback((newTonnage: number) => {
-    // Clamp between 0 and max useful tonnage
-    setArmorTonnage(Math.max(0, Math.min(newTonnage, maxUsefulTonnage)));
-  }, [setArmorTonnage, maxUsefulTonnage]);
-  
+  const handleArmorTypeChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setArmorType(e.target.value as ArmorTypeEnum);
+    },
+    [setArmorType],
+  );
+
+  const handleArmorTonnageChange = useCallback(
+    (newTonnage: number) => {
+      // Clamp between 0 and max useful tonnage
+      setArmorTonnage(Math.max(0, Math.min(newTonnage, maxUsefulTonnage)));
+    },
+    [setArmorTonnage, maxUsefulTonnage],
+  );
+
   const handleLocationClick = useCallback((location: MechLocation) => {
-    setSelectedLocation(prev => prev === location ? null : location);
+    setSelectedLocation((prev) => (prev === location ? null : location));
   }, []);
-  
-  const handleLocationArmorChange = useCallback((front: number, rear?: number) => {
-    if (!selectedLocation) return;
-    setLocationArmor(selectedLocation, front, rear);
-  }, [selectedLocation, setLocationArmor]);
-  
+
+  const handleLocationArmorChange = useCallback(
+    (front: number, rear?: number) => {
+      if (!selectedLocation) return;
+      setLocationArmor(selectedLocation, front, rear);
+    },
+    [selectedLocation, setLocationArmor],
+  );
+
   const handleAutoAllocate = useCallback(() => {
     autoAllocateArmor();
   }, [autoAllocateArmor]);
-  
+
   const handleMaximize = useCallback(() => {
     maximizeArmor();
   }, [maximizeArmor]);
-  
+
   return (
     <div className={`${cs.layout.tabContent} ${className}`}>
       {/* Compact Summary Bar - responsive */}
       <div className={cs.panel.summary}>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-6">
-          <div className="flex items-center gap-3 sm:gap-6 text-sm overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <div className="flex items-center gap-3 overflow-x-auto pb-1 text-sm sm:gap-6 sm:pb-0">
             <div className={`${cs.layout.statRow} flex-shrink-0`}>
               <span className={cs.text.label}>Type:</span>
-              <span className={cs.text.value}>{armorDef?.name ?? 'Standard'}</span>
+              <span className={cs.text.value}>
+                {armorDef?.name ?? 'Standard'}
+              </span>
             </div>
             <div className={`${cs.layout.statRow} flex-shrink-0`}>
               <span className={cs.text.label}>Pts/Ton:</span>
@@ -213,14 +246,18 @@ export function ArmorTab({
               <span className={cs.text.value}>{armorSlots}</span>
             </div>
           </div>
-          <div className="flex items-center gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 sm:border-l border-border-theme-subtle sm:pl-4">
+          <div className="border-border-theme-subtle flex items-center gap-4 border-t pt-2 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-4">
             <div className={cs.layout.statRow}>
               <span className={`text-sm ${cs.text.label}`}>Tonnage:</span>
-              <span className="text-lg font-bold text-accent">{armorTonnage}t</span>
+              <span className="text-accent text-lg font-bold">
+                {armorTonnage}t
+              </span>
             </div>
             <div className={cs.layout.statRow}>
               <span className={`text-sm ${cs.text.label}`}>Points:</span>
-              <span className={`text-lg font-bold ${allocatedPoints > maxTotalArmor ? 'text-red-400' : 'text-green-400'}`}>
+              <span
+                className={`text-lg font-bold ${allocatedPoints > maxTotalArmor ? 'text-red-400' : 'text-green-400'}`}
+              >
                 {allocatedPoints} / {maxTotalArmor}
               </span>
             </div>
@@ -230,7 +267,6 @@ export function ArmorTab({
 
       {/* Two-column layout */}
       <div className={cs.layout.twoColumn}>
-        
         {/* LEFT: Location Editor (when selected) + Armor Configuration */}
         <div className="space-y-4">
           {/* Location Editor - shown at top when a location is selected */}
@@ -244,11 +280,11 @@ export function ArmorTab({
               onClose={() => setSelectedLocation(null)}
             />
           )}
-          
+
           {/* Armor Configuration */}
           <div className={cs.panel.main}>
             <h3 className={cs.text.sectionTitle}>Armor Configuration</h3>
-            
+
             <div className="space-y-4">
               {/* Armor Type */}
               <div className={cs.layout.field}>
@@ -256,7 +292,7 @@ export function ArmorTab({
                   <label className={cs.text.label}>Armor Type</label>
                   <span className={cs.text.secondary}>{armorSlots} slots</span>
                 </div>
-                <select 
+                <select
                   className={cs.select.compact}
                   disabled={readOnly}
                   value={armorType}
@@ -269,7 +305,7 @@ export function ArmorTab({
                   ))}
                 </select>
               </div>
-              
+
               {/* Armor Tonnage */}
               <div className={cs.layout.field}>
                 <label className={cs.text.label}>Armor Tonnage</label>
@@ -284,7 +320,9 @@ export function ArmorTab({
                   <input
                     type="number"
                     value={armorTonnage}
-                    onChange={(e) => handleArmorTonnageChange(parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleArmorTonnageChange(parseFloat(e.target.value) || 0)
+                    }
                     disabled={readOnly}
                     min={0}
                     step={0.5}
@@ -299,9 +337,9 @@ export function ArmorTab({
                   </button>
                 </div>
               </div>
-              
+
               {/* Quick Actions */}
-              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <button
                   onClick={handleMaximize}
                   disabled={readOnly || armorTonnage >= maxUsefulTonnage}
@@ -313,22 +351,27 @@ export function ArmorTab({
                   onClick={handleAutoAllocate}
                   disabled={readOnly}
                   className={`${cs.button.actionFull} ${
-                    unallocatedPoints < 0 
-                      ? 'bg-red-600 hover:bg-red-500' 
-                      : unallocatedPoints > 0 
-                        ? 'bg-amber-600 hover:bg-amber-500' 
+                    unallocatedPoints < 0
+                      ? 'bg-red-600 hover:bg-red-500'
+                      : unallocatedPoints > 0
+                        ? 'bg-amber-600 hover:bg-amber-500'
                         : 'bg-green-600 hover:bg-green-500'
                   }`}
                 >
-                  Auto Allocate ({pointsDelta > 0 ? '+' : ''}{pointsDelta} pts)
+                  Auto Allocate ({pointsDelta > 0 ? '+' : ''}
+                  {pointsDelta} pts)
                 </button>
               </div>
-              
+
               {/* Summary Stats */}
               <div className={`${cs.layout.divider} space-y-2`}>
                 <div className={`${cs.layout.rowBetween} text-sm`}>
-                  <span className={cs.text.label}>Unallocated Armor Points</span>
-                  <span className={`font-medium ${unallocatedPoints < 0 ? 'text-red-400' : unallocatedPoints > 0 ? 'text-accent' : 'text-green-400'}`}>
+                  <span className={cs.text.label}>
+                    Unallocated Armor Points
+                  </span>
+                  <span
+                    className={`font-medium ${unallocatedPoints < 0 ? 'text-red-400' : unallocatedPoints > 0 ? 'text-accent' : 'text-green-400'}`}
+                  >
                     {unallocatedPoints}
                   </span>
                 </div>
@@ -341,8 +384,12 @@ export function ArmorTab({
                   <span className={cs.text.value}>{availablePoints}</span>
                 </div>
                 <div className={`${cs.layout.rowBetween} text-sm`}>
-                  <span className={cs.text.label}>Maximum Possible Armor Points</span>
-                  <span className="font-medium text-slate-300">{maxTotalArmor}</span>
+                  <span className={cs.text.label}>
+                    Maximum Possible Armor Points
+                  </span>
+                  <span className="font-medium text-slate-300">
+                    {maxTotalArmor}
+                  </span>
                 </div>
                 {wastedPoints > 0 && (
                   <div className={`${cs.layout.rowBetween} text-sm`}>
@@ -350,9 +397,13 @@ export function ArmorTab({
                     <span className={cs.text.valueWarning}>{wastedPoints}</span>
                   </div>
                 )}
-                <div className={`${cs.layout.rowBetween} text-sm pt-2 border-t border-border-theme`}>
+                <div
+                  className={`${cs.layout.rowBetween} border-border-theme border-t pt-2 text-sm`}
+                >
                   <span className={cs.text.label}>Points Per Ton</span>
-                  <span className="font-medium text-slate-300">{pointsPerTon.toFixed(2)}</span>
+                  <span className="font-medium text-slate-300">
+                    {pointsPerTon.toFixed(2)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -418,46 +469,51 @@ export function ArmorTab({
               )}
 
               {/* Silhouette Mode - render based on variant */}
-              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'clean-tech' && (
-                <CleanTechDiagram
-                  armorData={armorData}
-                  selectedLocation={selectedLocation}
-                  unallocatedPoints={pointsDelta}
-                  onLocationClick={handleLocationClick}
-                />
-              )}
-              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'neon-operator' && (
-                <NeonOperatorDiagram
-                  armorData={armorData}
-                  selectedLocation={selectedLocation}
-                  unallocatedPoints={pointsDelta}
-                  onLocationClick={handleLocationClick}
-                />
-              )}
-              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'tactical-hud' && (
-                <TacticalHUDDiagram
-                  armorData={armorData}
-                  selectedLocation={selectedLocation}
-                  unallocatedPoints={pointsDelta}
-                  onLocationClick={handleLocationClick}
-                />
-              )}
-              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'premium-material' && (
-                <PremiumMaterialDiagram
-                  armorData={armorData}
-                  selectedLocation={selectedLocation}
-                  unallocatedPoints={pointsDelta}
-                  onLocationClick={handleLocationClick}
-                />
-              )}
-              {armorDiagramMode === 'silhouette' && armorDiagramVariant === 'megamek' && (
-                <MegaMekDiagram
-                  armorData={armorData}
-                  selectedLocation={selectedLocation}
-                  unallocatedPoints={pointsDelta}
-                  onLocationClick={handleLocationClick}
-                />
-              )}
+              {armorDiagramMode === 'silhouette' &&
+                armorDiagramVariant === 'clean-tech' && (
+                  <CleanTechDiagram
+                    armorData={armorData}
+                    selectedLocation={selectedLocation}
+                    unallocatedPoints={pointsDelta}
+                    onLocationClick={handleLocationClick}
+                  />
+                )}
+              {armorDiagramMode === 'silhouette' &&
+                armorDiagramVariant === 'neon-operator' && (
+                  <NeonOperatorDiagram
+                    armorData={armorData}
+                    selectedLocation={selectedLocation}
+                    unallocatedPoints={pointsDelta}
+                    onLocationClick={handleLocationClick}
+                  />
+                )}
+              {armorDiagramMode === 'silhouette' &&
+                armorDiagramVariant === 'tactical-hud' && (
+                  <TacticalHUDDiagram
+                    armorData={armorData}
+                    selectedLocation={selectedLocation}
+                    unallocatedPoints={pointsDelta}
+                    onLocationClick={handleLocationClick}
+                  />
+                )}
+              {armorDiagramMode === 'silhouette' &&
+                armorDiagramVariant === 'premium-material' && (
+                  <PremiumMaterialDiagram
+                    armorData={armorData}
+                    selectedLocation={selectedLocation}
+                    unallocatedPoints={pointsDelta}
+                    onLocationClick={handleLocationClick}
+                  />
+                )}
+              {armorDiagramMode === 'silhouette' &&
+                armorDiagramVariant === 'megamek' && (
+                  <MegaMekDiagram
+                    armorData={armorData}
+                    selectedLocation={selectedLocation}
+                    unallocatedPoints={pointsDelta}
+                    onLocationClick={handleLocationClick}
+                  />
+                )}
             </>
           )}
         </div>
@@ -465,4 +521,3 @@ export function ArmorTab({
     </div>
   );
 }
-

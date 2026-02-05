@@ -9,12 +9,14 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import type {
   ShareableContentType,
   ContentCategory,
   PermissionLevel,
   IPermissionGrant,
 } from '@/types/vault';
+
 import { getVaultService } from '@/services/vault/VaultService';
 
 // =============================================================================
@@ -56,7 +58,7 @@ interface ErrorResponse {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | ListResponse | ErrorResponse>
+  res: NextApiResponse<SuccessResponse | ListResponse | ErrorResponse>,
 ): Promise<void> {
   try {
     const vaultService = getVaultService();
@@ -85,7 +87,7 @@ export default async function handler(
 
 async function handleList(
   res: NextApiResponse<ListResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const items = await vaultService.getPublicItems();
 
@@ -98,7 +100,7 @@ async function handleList(
 async function handleMakePublic(
   req: NextApiRequest,
   res: NextApiResponse<SuccessResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const body = req.body as MakePublicRequest;
   const level = body.level ?? 'read';
@@ -110,7 +112,9 @@ async function handleMakePublic(
   switch (body.type) {
     case 'item':
       if (!body.itemId || !body.itemType) {
-        return res.status(400).json({ error: 'itemId and itemType are required' });
+        return res
+          .status(400)
+          .json({ error: 'itemId and itemType are required' });
       }
       if (!isValidContentType(body.itemType)) {
         return res.status(400).json({ error: 'Invalid item type' });
@@ -145,14 +149,16 @@ async function handleMakePublic(
 async function handleRemovePublic(
   req: NextApiRequest,
   res: NextApiResponse<SuccessResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const body = req.body as RemovePublicRequest;
 
   switch (body.type) {
     case 'item':
       if (!body.itemId || !body.itemType) {
-        return res.status(400).json({ error: 'itemId and itemType are required' });
+        return res
+          .status(400)
+          .json({ error: 'itemId and itemType are required' });
       }
       if (!isValidContentType(body.itemType)) {
         return res.status(400).json({ error: 'Invalid item type' });
@@ -183,7 +189,9 @@ function isValidContentType(type: unknown): type is ShareableContentType {
 }
 
 function isValidCategory(category: unknown): category is ContentCategory {
-  return ['units', 'pilots', 'forces', 'encounters'].includes(category as string);
+  return ['units', 'pilots', 'forces', 'encounters'].includes(
+    category as string,
+  );
 }
 
 function isValidPermissionLevel(level: unknown): level is PermissionLevel {

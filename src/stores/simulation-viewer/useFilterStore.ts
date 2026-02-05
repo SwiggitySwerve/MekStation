@@ -41,7 +41,12 @@ export interface IAnalysisBugsFilters {
   /** Bug severity filter */
   severity?: 'critical' | 'warning' | 'info';
   /** Bug detector type filter */
-  detector?: 'heat-suicide' | 'passive-unit' | 'no-progress' | 'long-game' | 'state-cycle';
+  detector?:
+    | 'heat-suicide'
+    | 'passive-unit'
+    | 'no-progress'
+    | 'long-game'
+    | 'state-cycle';
   /** Battle ID filter */
   battleId?: string;
   /** Show dismissed bugs */
@@ -66,7 +71,9 @@ interface IFilterActions {
    * Set Encounter History filters (merges with existing)
    * @param filters - Partial filters to merge
    */
-  setEncounterHistoryFilters: (filters: Partial<IEncounterHistoryFilters>) => void;
+  setEncounterHistoryFilters: (
+    filters: Partial<IEncounterHistoryFilters>,
+  ) => void;
 
   /**
    * Set Analysis & Bugs filters (merges with existing)
@@ -127,7 +134,9 @@ export const useFilterStore = create<IFilterStore>()(
       /**
        * Set Encounter History filters
        */
-      setEncounterHistoryFilters: (filters: Partial<IEncounterHistoryFilters>) => {
+      setEncounterHistoryFilters: (
+        filters: Partial<IEncounterHistoryFilters>,
+      ) => {
         set((state) => ({
           ...state,
           encounterHistory: { ...state.encounterHistory, ...filters },
@@ -191,16 +200,25 @@ export const useFilterStore = create<IFilterStore>()(
         // Encounter History filters
         const ehFilters: Partial<IEncounterHistoryFilters> = {};
         if (params.has('eh_outcome')) {
-          ehFilters.outcome = params.get('eh_outcome') as 'victory' | 'defeat' | 'draw';
+          ehFilters.outcome = params.get('eh_outcome') as
+            | 'victory'
+            | 'defeat'
+            | 'draw';
         }
         if (params.has('eh_sortBy')) {
-          ehFilters.sortBy = params.get('eh_sortBy') as 'duration' | 'kills' | 'damage';
+          ehFilters.sortBy = params.get('eh_sortBy') as
+            | 'duration'
+            | 'kills'
+            | 'damage';
         }
         if (params.has('eh_sortOrder')) {
           ehFilters.sortOrder = params.get('eh_sortOrder') as 'asc' | 'desc';
         }
         if (params.has('eh_kmTier')) {
-          ehFilters.keyMomentTier = params.get('eh_kmTier') as 'critical' | 'major' | 'minor';
+          ehFilters.keyMomentTier = params.get('eh_kmTier') as
+            | 'critical'
+            | 'major'
+            | 'minor';
         }
         if (params.has('eh_kmType')) {
           ehFilters.keyMomentType = params.get('eh_kmType') as string;
@@ -209,7 +227,10 @@ export const useFilterStore = create<IFilterStore>()(
         // Analysis & Bugs filters
         const abFilters: Partial<IAnalysisBugsFilters> = {};
         if (params.has('ab_severity')) {
-          abFilters.severity = params.get('ab_severity') as 'critical' | 'warning' | 'info';
+          abFilters.severity = params.get('ab_severity') as
+            | 'critical'
+            | 'warning'
+            | 'info';
         }
         if (params.has('ab_detector')) {
           abFilters.detector = params.get('ab_detector') as
@@ -229,7 +250,10 @@ export const useFilterStore = create<IFilterStore>()(
         set((state) => {
           const newState = { ...state };
           if (Object.keys(ehFilters).length > 0) {
-            newState.encounterHistory = { ...state.encounterHistory, ...ehFilters };
+            newState.encounterHistory = {
+              ...state.encounterHistory,
+              ...ehFilters,
+            };
           }
           if (Object.keys(abFilters).length > 0) {
             newState.analysisBugs = { ...state.analysisBugs, ...abFilters };
@@ -274,6 +298,6 @@ export const useFilterStore = create<IFilterStore>()(
     {
       name: 'simulation-viewer-filters',
       version: 1,
-    }
-  )
+    },
+  ),
 );

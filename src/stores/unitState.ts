@@ -1,32 +1,33 @@
 /**
  * Unit State Interface
- * 
+ *
  * Defines the complete state for a single unit.
  * This is the shape of data stored in each isolated unit store.
- * 
+ *
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
-import { LAMMode, QuadVeeMode } from '@/types/construction/MechConfigurationSystem';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import {
+  LAMMode,
+  QuadVeeMode,
+} from '@/types/construction/MechConfigurationSystem';
+import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import {
   TechBaseMode,
   IComponentTechBases,
   createDefaultComponentTechBases,
 } from '@/types/construction/TechBaseConfiguration';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
-import { generateUnitId as generateUUID } from '@/utils/uuid';
-import { JumpJetType } from '@/utils/construction/movementCalculations';
+import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   getMaxTotalArmor,
   calculateArmorWeight,
@@ -34,6 +35,8 @@ import {
   calculateOptimalArmorAllocation,
   ArmorAllocationResult,
 } from '@/utils/construction/armorCalculations';
+import { JumpJetType } from '@/utils/construction/movementCalculations';
+import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
 // Armor Allocation Types
@@ -47,7 +50,7 @@ import {
 export interface IArmorAllocation {
   /** Index signature allowing any MechLocation key */
   [key: string]: number;
-  
+
   // === Universal locations (all configurations) ===
   /** Head armor points */
   [MechLocation.HEAD]: number;
@@ -63,23 +66,23 @@ export interface IArmorAllocation {
   [MechLocation.RIGHT_TORSO]: number;
   /** Right Torso rear armor points */
   rightTorsoRear: number;
-  
+
   // === Biped/Tripod/LAM arm locations ===
   /** Left Arm armor points */
   [MechLocation.LEFT_ARM]: number;
   /** Right Arm armor points */
   [MechLocation.RIGHT_ARM]: number;
-  
+
   // === Biped/Tripod/LAM leg locations ===
   /** Left Leg armor points */
   [MechLocation.LEFT_LEG]: number;
   /** Right Leg armor points */
   [MechLocation.RIGHT_LEG]: number;
-  
+
   // === Tripod-specific location ===
   /** Center Leg armor points (Tripod only) */
   [MechLocation.CENTER_LEG]: number;
-  
+
   // === Quad/QuadVee-specific locations ===
   /** Front Left Leg armor points (Quad/QuadVee only) */
   [MechLocation.FRONT_LEFT_LEG]: number;
@@ -124,7 +127,9 @@ export function createEmptyArmorAllocation(): IArmorAllocation {
  * Convert ArmorAllocationResult from calculation utility to IArmorAllocation format
  * Maps the flat result structure to the keyed interface used in unit state
  */
-export function armorResultToAllocation(result: ArmorAllocationResult): IArmorAllocation {
+export function armorResultToAllocation(
+  result: ArmorAllocationResult,
+): IArmorAllocation {
   return {
     // Universal locations
     [MechLocation.HEAD]: result.head,
@@ -155,7 +160,7 @@ export function armorResultToAllocation(result: ArmorAllocationResult): IArmorAl
  */
 export function getTotalAllocatedArmor(
   allocation: IArmorAllocation,
-  configuration?: MechConfiguration
+  configuration?: MechConfiguration,
 ): number {
   // Core torso armor (always included)
   let total =
@@ -168,7 +173,10 @@ export function getTotalAllocatedArmor(
     (allocation.rightTorsoRear || 0);
 
   // Add limb armor based on configuration
-  if (configuration === MechConfiguration.QUAD || configuration === MechConfiguration.QUADVEE) {
+  if (
+    configuration === MechConfiguration.QUAD ||
+    configuration === MechConfiguration.QUADVEE
+  ) {
     // Quad mechs have 4 legs, no arms
     total +=
       (allocation[MechLocation.FRONT_LEFT_LEG] || 0) +
@@ -297,7 +305,7 @@ export function createMountedEquipment(
   item: IEquipmentItem,
   instanceId: string,
   isRemovable: boolean = true,
-  isOmniPodMounted: boolean = false
+  isOmniPodMounted: boolean = false,
 ): IMountedEquipmentInstance {
   return {
     instanceId,
@@ -320,14 +328,18 @@ export function createMountedEquipment(
 /**
  * Calculate total equipment weight
  */
-export function getTotalEquipmentWeight(equipment: readonly IMountedEquipmentInstance[]): number {
+export function getTotalEquipmentWeight(
+  equipment: readonly IMountedEquipmentInstance[],
+): number {
   return equipment.reduce((total, item) => total + item.weight, 0);
 }
 
 /**
  * Calculate total equipment critical slots
  */
-export function getTotalEquipmentSlots(equipment: readonly IMountedEquipmentInstance[]): number {
+export function getTotalEquipmentSlots(
+  equipment: readonly IMountedEquipmentInstance[],
+): number {
   return equipment.reduce((total, item) => total + item.criticalSlots, 0);
 }
 
@@ -335,20 +347,20 @@ export function getTotalEquipmentSlots(equipment: readonly IMountedEquipmentInst
  * Get equipment count by category
  */
 export function getEquipmentByCategory(
-  equipment: readonly IMountedEquipmentInstance[]
+  equipment: readonly IMountedEquipmentInstance[],
 ): Record<EquipmentCategory, IMountedEquipmentInstance[]> {
   const result = {} as Record<EquipmentCategory, IMountedEquipmentInstance[]>;
-  
+
   // Initialize all categories with empty arrays
   for (const category of Object.values(EquipmentCategory)) {
     result[category] = [];
   }
-  
+
   // Group equipment by category
   for (const item of equipment) {
     result[item.category].push(item);
   }
-  
+
   return result;
 }
 
@@ -358,7 +370,7 @@ export function getEquipmentByCategory(
 
 /**
  * Complete state for a single unit
- * 
+ *
  * This interface contains ALL configuration data for one unit.
  * Each unit has its own isolated store containing this state.
  */
@@ -366,44 +378,44 @@ export interface UnitState {
   // =========================================================================
   // Identity (MegaMekLab format)
   // =========================================================================
-  
+
   /** Unique unit identifier */
   readonly id: string;
-  
+
   /** Display name (derived from chassis + model, kept for compatibility) */
   name: string;
-  
+
   /** Base chassis name (e.g., "Atlas", "Timber Wolf") */
   chassis: string;
-  
+
   /** Clan name / alternate designation (optional, e.g., "Mad Cat" for Timber Wolf) */
   clanName: string;
-  
+
   /** Model/variant designation (e.g., "AS7-D", "Prime") */
   model: string;
-  
+
   /** Master Unit List ID (-1 for custom units, can include hyphens) */
   mulId: string;
-  
+
   /** Introduction year */
   year: number;
-  
+
   /** Rules level for filtering available equipment */
   rulesLevel: RulesLevel;
-  
+
   /** Unit tonnage (editable) */
   tonnage: number;
-  
+
   /** Base tech base for the unit */
   readonly techBase: TechBase;
-  
+
   // =========================================================================
   // Configuration
   // =========================================================================
-  
+
   /** Unit type (BattleMech, Vehicle, etc.) */
   readonly unitType: UnitType;
-  
+
   /** Mech configuration (Biped, Quad, etc.) */
   configuration: MechConfiguration;
 
@@ -426,73 +438,73 @@ export interface UnitState {
 
   /** Tech base mode: inner_sphere, clan, or mixed */
   techBaseMode: TechBaseMode;
-  
+
   /** Per-component tech base settings (used when techBaseMode is 'mixed') */
   componentTechBases: IComponentTechBases;
-  
+
   /** Memory of component selections per tech base for restoration */
   selectionMemory: ISelectionMemory;
-  
+
   // =========================================================================
   // Component Selections
   // =========================================================================
-  
+
   /** Engine type */
   engineType: EngineType;
-  
+
   /** Engine rating */
   engineRating: number;
-  
+
   /** Gyro type */
   gyroType: GyroType;
-  
+
   /** Internal structure type */
   internalStructureType: InternalStructureType;
-  
+
   /** Cockpit type */
   cockpitType: CockpitType;
-  
+
   /** Heat sink type */
   heatSinkType: HeatSinkType;
-  
+
   /** Number of heat sinks */
   heatSinkCount: number;
-  
+
   /** Armor type */
   armorType: ArmorTypeEnum;
-  
+
   /** Armor tonnage allocated (user-set) */
   armorTonnage: number;
-  
+
   /** Per-location armor allocation */
   armorAllocation: IArmorAllocation;
-  
+
   /** Movement enhancement (MASC, TSM, etc.) or null for none */
   enhancement: MovementEnhancementType | null;
-  
+
   /** Jump movement points (number of jump jets) */
   jumpMP: number;
-  
+
   /** Type of jump jets installed */
   jumpJetType: JumpJetType;
-  
+
   // =========================================================================
   // Equipment
   // =========================================================================
-  
+
   /** Mounted equipment on the unit */
   equipment: readonly IMountedEquipmentInstance[];
-  
+
   // =========================================================================
   // Metadata
   // =========================================================================
-  
+
   /** Has unsaved changes */
   isModified: boolean;
-  
+
   /** Creation timestamp */
   readonly createdAt: number;
-  
+
   /** Last modified timestamp */
   lastModifiedAt: number;
 }
@@ -510,10 +522,10 @@ export interface UnitActions {
   setChassis: (chassis: string) => void;
   setClanName: (clanName: string) => void;
   setModel: (model: string) => void;
-setMulId: (mulId: string) => void;
+  setMulId: (mulId: string) => void;
   setYear: (year: number) => void;
   setRulesLevel: (rulesLevel: RulesLevel) => void;
-  
+
   // Chassis
   setTonnage: (tonnage: number) => void;
   setConfiguration: (configuration: MechConfiguration) => void;
@@ -535,9 +547,12 @@ setMulId: (mulId: string) => void;
 
   // Tech base
   setTechBaseMode: (mode: TechBaseMode) => void;
-  setComponentTechBase: (component: keyof IComponentTechBases, techBase: TechBase) => void;
+  setComponentTechBase: (
+    component: keyof IComponentTechBases,
+    techBase: TechBase,
+  ) => void;
   setAllComponentTechBases: (techBases: IComponentTechBases) => void;
-  
+
   // Components
   setEngineType: (type: EngineType) => void;
   setEngineRating: (rating: number) => void;
@@ -550,24 +565,41 @@ setMulId: (mulId: string) => void;
   setEnhancement: (enhancement: MovementEnhancementType | null) => void;
   setJumpMP: (jumpMP: number) => void;
   setJumpJetType: (type: JumpJetType) => void;
-  
+
   // Armor allocation
   setArmorTonnage: (tonnage: number) => void;
-  setLocationArmor: (location: MechLocation, front: number, rear?: number) => void;
+  setLocationArmor: (
+    location: MechLocation,
+    front: number,
+    rear?: number,
+  ) => void;
   autoAllocateArmor: () => void;
   maximizeArmor: () => void;
   clearAllArmor: () => void;
-  
+
   // Equipment
   addEquipment: (item: IEquipmentItem) => string;
   removeEquipment: (instanceId: string) => void;
-  updateEquipmentLocation: (instanceId: string, location: MechLocation, slots: readonly number[]) => void;
-  bulkUpdateEquipmentLocations: (updates: ReadonlyArray<{ instanceId: string; location: MechLocation; slots: readonly number[] }>) => void;
+  updateEquipmentLocation: (
+    instanceId: string,
+    location: MechLocation,
+    slots: readonly number[],
+  ) => void;
+  bulkUpdateEquipmentLocations: (
+    updates: ReadonlyArray<{
+      instanceId: string;
+      location: MechLocation;
+      slots: readonly number[];
+    }>,
+  ) => void;
   clearEquipmentLocation: (instanceId: string) => void;
   setEquipmentRearMounted: (instanceId: string, isRearMounted: boolean) => void;
-  linkAmmo: (weaponInstanceId: string, ammoInstanceId: string | undefined) => void;
+  linkAmmo: (
+    weaponInstanceId: string,
+    ammoInstanceId: string | undefined,
+  ) => void;
   clearAllEquipment: () => void;
-  
+
   // Metadata
   markModified: (modified?: boolean) => void;
 }
@@ -603,7 +635,7 @@ export function generateUnitId(): string {
 /**
  * Default armor percentage for new units (70% of max)
  */
-const DEFAULT_ARMOR_PERCENTAGE = 0.70;
+const DEFAULT_ARMOR_PERCENTAGE = 0.7;
 
 /**
  * Create default unit state
@@ -613,22 +645,37 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
   const now = Date.now();
   const walkMP = options.walkMP ?? 4;
   const engineRating = options.tonnage * walkMP;
-  const techBaseMode: TechBaseMode = options.techBase === TechBase.CLAN ? TechBaseMode.CLAN : TechBaseMode.INNER_SPHERE;
-  
+  const techBaseMode: TechBaseMode =
+    options.techBase === TechBase.CLAN
+      ? TechBaseMode.CLAN
+      : TechBaseMode.INNER_SPHERE;
+
   // Parse name into chassis and model if possible
   const nameParts = options.name.split(' ');
   const defaultChassis = nameParts[0] || 'New Mech';
   const defaultModel = nameParts.slice(1).join(' ') || '';
-  
+
   // Calculate default armor (70% of max, optimally allocated)
   const configuration = MechConfiguration.BIPED; // Default configuration
   const maxArmorPoints = getMaxTotalArmor(options.tonnage, configuration);
-  const targetArmorPoints = Math.floor(maxArmorPoints * DEFAULT_ARMOR_PERCENTAGE);
-  const armorTonnage = calculateArmorWeight(targetArmorPoints, ArmorTypeEnum.STANDARD);
-  const actualArmorPoints = calculateArmorPoints(armorTonnage, ArmorTypeEnum.STANDARD);
-  const allocationResult = calculateOptimalArmorAllocation(actualArmorPoints, options.tonnage, configuration);
+  const targetArmorPoints = Math.floor(
+    maxArmorPoints * DEFAULT_ARMOR_PERCENTAGE,
+  );
+  const armorTonnage = calculateArmorWeight(
+    targetArmorPoints,
+    ArmorTypeEnum.STANDARD,
+  );
+  const actualArmorPoints = calculateArmorPoints(
+    armorTonnage,
+    ArmorTypeEnum.STANDARD,
+  );
+  const allocationResult = calculateOptimalArmorAllocation(
+    actualArmorPoints,
+    options.tonnage,
+    configuration,
+  );
   const armorAllocation = armorResultToAllocation(allocationResult);
-  
+
   return {
     // Identity (MegaMekLab format)
     id,
@@ -641,7 +688,7 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
     rulesLevel: RulesLevel.STANDARD,
     tonnage: options.tonnage,
     techBase: options.techBase,
-    
+
     // Configuration
     unitType: UnitType.BATTLEMECH,
     configuration,
@@ -652,7 +699,7 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
     techBaseMode,
     componentTechBases: createDefaultComponentTechBases(options.techBase),
     selectionMemory: createEmptySelectionMemory(),
-    
+
     // Components
     engineType: EngineType.STANDARD,
     engineRating,
@@ -667,14 +714,13 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
     enhancement: null,
     jumpMP: 0,
     jumpJetType: JumpJetType.STANDARD,
-    
+
     // Equipment
     equipment: [],
-    
+
     // Metadata
     isModified: true,
     createdAt: now,
     lastModifiedAt: now,
   };
 }
-

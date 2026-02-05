@@ -8,8 +8,13 @@
  * @module campaign/scenario/battleChance
  */
 
-import { CombatRole, AtBMoraleLevel, MORALE_VALUES, type ICombatTeam } from '@/types/campaign/scenario/scenarioTypes';
 import { type IContract } from '@/types/campaign/Mission';
+import {
+  CombatRole,
+  AtBMoraleLevel,
+  MORALE_VALUES,
+  type ICombatTeam,
+} from '@/types/campaign/scenario/scenarioTypes';
 
 // =============================================================================
 // Random Function Type
@@ -115,7 +120,7 @@ export function calculateBattleTypeMod(moraleLevel: AtBMoraleLevel): number {
 export function checkForBattle(
   team: ICombatTeam,
   contract: IContract,
-  random: RandomFn
+  random: RandomFn,
 ): boolean {
   // Auxiliary and Reserve roles never have battles
   if (team.role === CombatRole.AUXILIARY || team.role === CombatRole.RESERVE) {

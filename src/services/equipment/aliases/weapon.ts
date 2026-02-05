@@ -18,7 +18,7 @@ export function addCommonWeaponAliases(
   name: string,
   weapon: IWeapon,
   nameToIdMap: Map<string, string>,
-  normalizeName: (name: string) => string
+  normalizeName: (name: string) => string,
 ): void {
   // Add aliases for common naming variations
 
@@ -55,7 +55,12 @@ export function addCommonWeaponAliases(
 
   // Add slug-style ID aliases for common weapon patterns
   // This handles unit JSON files that use legacy IDs like 'ultra-ac-5' instead of 'uac-5'
-  addWeaponSlugAliases(id, name, weapon.techBase === TechBase.CLAN, nameToIdMap);
+  addWeaponSlugAliases(
+    id,
+    name,
+    weapon.techBase === TechBase.CLAN,
+    nameToIdMap,
+  );
 }
 
 /**
@@ -66,7 +71,7 @@ export function addWeaponSlugAliases(
   id: string,
   name: string,
   isClan: boolean,
-  nameToIdMap: Map<string, string>
+  nameToIdMap: Map<string, string>,
 ): void {
   const prefix = isClan ? 'clan-' : '';
 

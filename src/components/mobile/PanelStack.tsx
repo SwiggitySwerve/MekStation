@@ -1,6 +1,7 @@
 import React, { ReactNode, useRef, useEffect, useState } from 'react';
-import { useNavigationStore } from '../../stores/useNavigationStore';
+
 import { useDeviceType } from '../../hooks/useDeviceType';
+import { useNavigationStore } from '../../stores/useNavigationStore';
 
 interface PanelProps {
   id: string;
@@ -97,7 +98,7 @@ function PanelInternal({
     <div
       ref={panelRef}
       data-panel-id={id}
-      className="fixed inset-0 w-full h-full bg-white dark:bg-gray-900"
+      className="fixed inset-0 h-full w-full bg-white dark:bg-gray-900"
       style={{
         transform,
         zIndex,
@@ -144,14 +145,16 @@ export function PanelStack({
   const { isMobile } = useDeviceType();
   const { currentPanel, history, currentIndex } = useNavigationStore();
   const [direction, setDirection] = useState<'forward' | 'backward' | null>(
-    null
+    null,
   );
   const previousIndexRef = useRef<number>(currentIndex);
 
   // Detect navigation direction
   useEffect(() => {
     if (currentIndex !== previousIndexRef.current) {
-      setDirection(currentIndex > previousIndexRef.current ? 'forward' : 'backward');
+      setDirection(
+        currentIndex > previousIndexRef.current ? 'forward' : 'backward',
+      );
       previousIndexRef.current = currentIndex;
 
       // Clear direction after transition
@@ -171,7 +174,7 @@ export function PanelStack({
   const panelChildren = React.Children.toArray(children).filter(
     (child): child is React.ReactElement<PanelProps> => {
       return React.isValidElement(child) && child.type === Panel;
-    }
+    },
   );
 
   // Create map of panel IDs to elements

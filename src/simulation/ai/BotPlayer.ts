@@ -1,10 +1,17 @@
-import { MoveAI } from './MoveAI';
-import { AttackAI } from './AttackAI';
-import type { IBotBehavior, IAIUnitState, IMove } from './types';
-import { DEFAULT_BEHAVIOR } from './types';
-import type { SeededRandom } from '../core/SeededRandom';
-import type { IHexGrid, IMovementCapability, IUnitPosition } from '@/types/gameplay';
+import type {
+  IHexGrid,
+  IMovementCapability,
+  IUnitPosition,
+} from '@/types/gameplay';
+
 import { GameEventType, MovementType } from '@/types/gameplay';
+
+import type { SeededRandom } from '../core/SeededRandom';
+import type { IBotBehavior, IAIUnitState, IMove } from './types';
+
+import { AttackAI } from './AttackAI';
+import { MoveAI } from './MoveAI';
+import { DEFAULT_BEHAVIOR } from './types';
 
 export interface IMovementEvent {
   type: GameEventType.MovementDeclared;
@@ -44,7 +51,7 @@ export class BotPlayer {
   playMovementPhase(
     unit: IAIUnitState,
     grid: IHexGrid,
-    capability: IMovementCapability
+    capability: IMovementCapability,
   ): IMovementEvent | null {
     if (unit.destroyed) {
       return null;
@@ -58,17 +65,27 @@ export class BotPlayer {
     };
 
     const movementType = this.selectMovementType(capability);
-    const moves = this.moveAI.getValidMoves(grid, position, movementType, capability);
+    const moves = this.moveAI.getValidMoves(
+      grid,
+      position,
+      movementType,
+      capability,
+    );
 
     const nonStationaryMoves = moves.filter(
-      (m: IMove) => m.destination.q !== unit.position.q || m.destination.r !== unit.position.r
+      (m: IMove) =>
+        m.destination.q !== unit.position.q ||
+        m.destination.r !== unit.position.r,
     );
 
     if (nonStationaryMoves.length === 0) {
       return null;
     }
 
-    const selectedMove = this.moveAI.selectMove(nonStationaryMoves, this.random);
+    const selectedMove = this.moveAI.selectMove(
+      nonStationaryMoves,
+      this.random,
+    );
     if (!selectedMove) {
       return null;
     }
@@ -89,7 +106,7 @@ export class BotPlayer {
 
   playAttackPhase(
     attacker: IAIUnitState,
-    allUnits: readonly IAIUnitState[]
+    allUnits: readonly IAIUnitState[],
   ): IAttackEvent | null {
     if (attacker.destroyed) {
       return null;
@@ -115,7 +132,7 @@ export class BotPlayer {
       payload: {
         attackerId: attacker.unitId,
         targetId: target.unitId,
-        weapons: weapons.map(w => w.id),
+        weapons: weapons.map((w) => w.id),
       },
     };
   }

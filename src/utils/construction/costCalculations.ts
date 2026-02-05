@@ -1,18 +1,18 @@
 /**
  * C-Bill Cost Calculation Utilities
- * 
+ *
  * Implements TechManual cost formulas for BattleMech construction.
- * 
+ *
  * @spec openspec/specs/construction-services/spec.md
  */
 
+import { ArmorTypeEnum } from '../../types/construction/ArmorType';
+import { CockpitType } from '../../types/construction/CockpitType';
 import { EngineType } from '../../types/construction/EngineType';
 import { GyroType } from '../../types/construction/GyroType';
-import { InternalStructureType } from '../../types/construction/InternalStructureType';
-import { CockpitType } from '../../types/construction/CockpitType';
 import { HeatSinkType } from '../../types/construction/HeatSinkType';
+import { InternalStructureType } from '../../types/construction/InternalStructureType';
 import { calculateArmorCost } from './armorCalculations';
-import { ArmorTypeEnum } from '../../types/construction/ArmorType';
 
 // ============================================================================
 // COST MULTIPLIERS (from TechManual)
@@ -101,7 +101,10 @@ export function calculateEngineCost(rating: number, type: EngineType): number {
  * Calculate gyro cost
  * Formula: ceil(engineRating / 100) × 300000 × type_multiplier
  */
-export function calculateGyroCost(engineRating: number, type: GyroType): number {
+export function calculateGyroCost(
+  engineRating: number,
+  type: GyroType,
+): number {
   const multiplier = GYRO_COST_MULTIPLIERS[type] ?? 1.0;
   const gyroTonnage = Math.ceil(engineRating / 100);
   return Math.round(gyroTonnage * 300000 * multiplier);
@@ -111,7 +114,10 @@ export function calculateGyroCost(engineRating: number, type: GyroType): number 
  * Calculate internal structure cost
  * Formula: tonnage × cost_per_ton
  */
-export function calculateStructureCost(tonnage: number, type: InternalStructureType): number {
+export function calculateStructureCost(
+  tonnage: number,
+  type: InternalStructureType,
+): number {
   const costPerTon = STRUCTURE_COST_PER_TON[type] ?? 400;
   return Math.round(tonnage * costPerTon);
 }
@@ -130,7 +136,10 @@ export function calculateCockpitCost(type: CockpitType): number {
  * Calculate heat sink cost (external heat sinks only)
  * Integral heat sinks in the engine are free
  */
-export function calculateHeatSinkCost(externalCount: number, type: HeatSinkType): number {
+export function calculateHeatSinkCost(
+  externalCount: number,
+  type: HeatSinkType,
+): number {
   const costEach = HEAT_SINK_COSTS[type] ?? 2000;
   return externalCount * costEach;
 }
@@ -167,12 +176,27 @@ export function calculateTotalCost(config: UnitCostConfig): number {
   const chassis = calculateChassisCost(config.tonnage);
   const engine = calculateEngineCost(config.engineRating, config.engineType);
   const gyro = calculateGyroCost(config.engineRating, config.gyroType);
-  const structure = calculateStructureCost(config.tonnage, config.structureType);
+  const structure = calculateStructureCost(
+    config.tonnage,
+    config.structureType,
+  );
   const armor = calculateArmorCost(config.totalArmorPoints, config.armorType);
   const cockpit = calculateCockpitCost(config.cockpitType);
-  const heatSinks = calculateHeatSinkCost(config.externalHeatSinks, config.heatSinkType);
-  
-  return chassis + engine + gyro + structure + armor + cockpit + heatSinks + config.equipmentCost;
+  const heatSinks = calculateHeatSinkCost(
+    config.externalHeatSinks,
+    config.heatSinkType,
+  );
+
+  return (
+    chassis +
+    engine +
+    gyro +
+    structure +
+    armor +
+    cockpit +
+    heatSinks +
+    config.equipmentCost
+  );
 }
 
 /**
@@ -197,11 +221,17 @@ export function getCostBreakdown(config: UnitCostConfig): CostBreakdown {
   const chassis = calculateChassisCost(config.tonnage);
   const engine = calculateEngineCost(config.engineRating, config.engineType);
   const gyro = calculateGyroCost(config.engineRating, config.gyroType);
-  const structure = calculateStructureCost(config.tonnage, config.structureType);
+  const structure = calculateStructureCost(
+    config.tonnage,
+    config.structureType,
+  );
   const armor = calculateArmorCost(config.totalArmorPoints, config.armorType);
   const cockpit = calculateCockpitCost(config.cockpitType);
-  const heatSinks = calculateHeatSinkCost(config.externalHeatSinks, config.heatSinkType);
-  
+  const heatSinks = calculateHeatSinkCost(
+    config.externalHeatSinks,
+    config.heatSinkType,
+  );
+
   return {
     chassis,
     engine,
@@ -211,7 +241,14 @@ export function getCostBreakdown(config: UnitCostConfig): CostBreakdown {
     cockpit,
     heatSinks,
     equipment: config.equipmentCost,
-    total: chassis + engine + gyro + structure + armor + cockpit + heatSinks + config.equipmentCost,
+    total:
+      chassis +
+      engine +
+      gyro +
+      structure +
+      armor +
+      cockpit +
+      heatSinks +
+      config.equipmentCost,
   };
 }
-

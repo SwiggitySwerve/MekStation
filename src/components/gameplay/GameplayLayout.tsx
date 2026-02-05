@@ -5,7 +5,14 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+} from 'react';
+
 import {
   GamePhase,
   GameSide,
@@ -17,10 +24,11 @@ import {
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
 } from '@/types/gameplay';
-import { PhaseBanner } from './PhaseBanner';
+
 import { ActionBar } from './ActionBar';
 import { EventLogDisplay } from './EventLogDisplay';
 import { HexMapDisplay } from './HexMapDisplay';
+import { PhaseBanner } from './PhaseBanner';
 import { RecordSheetDisplay } from './RecordSheetDisplay';
 
 // =============================================================================
@@ -68,7 +76,7 @@ function unitStateToToken(
   state: IUnitGameState,
   unitInfo: { name: string; side: GameSide },
   isSelected: boolean,
-  isValidTarget: boolean
+  isValidTarget: boolean,
 ): IUnitToken {
   // Generate a short designation from the unit name
   const designation = unitInfo.name
@@ -136,7 +144,10 @@ export function GameplayLayout({
   // Build tokens for map display
   const tokens = useMemo(() => {
     return Object.entries(currentState.units).map(([unitId, state]) => {
-      const unitInfo = unitInfoLookup[unitId] || { name: 'Unknown', side: GameSide.Player };
+      const unitInfo = unitInfoLookup[unitId] || {
+        name: 'Unknown',
+        side: GameSide.Player,
+      };
       const isSelected = unitId === selectedUnitId;
       // In attack phase, opponent units are valid targets
       const isValidTarget =
@@ -144,13 +155,23 @@ export function GameplayLayout({
         unitInfo.side === GameSide.Opponent &&
         !state.destroyed;
 
-      return unitStateToToken(unitId, state, unitInfo, isSelected, isValidTarget);
+      return unitStateToToken(
+        unitId,
+        state,
+        unitInfo,
+        isSelected,
+        isValidTarget,
+      );
     });
   }, [currentState, unitInfoLookup, selectedUnitId]);
 
   // Selected unit data
-  const selectedUnit = selectedUnitId ? currentState.units[selectedUnitId] : null;
-  const selectedUnitInfo = selectedUnitId ? unitInfoLookup[selectedUnitId] : null;
+  const selectedUnit = selectedUnitId
+    ? currentState.units[selectedUnitId]
+    : null;
+  const selectedUnitInfo = selectedUnitId
+    ? unitInfoLookup[selectedUnitId]
+    : null;
   const selectedUnitFromSession = selectedUnitId
     ? units.find((u) => u.id === selectedUnitId)
     : null;
@@ -167,7 +188,7 @@ export function GameplayLayout({
 
       setLayout((prev) => ({ ...prev, mapPanelWidth: clamped }));
     },
-    [isDragging]
+    [isDragging],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -190,7 +211,7 @@ export function GameplayLayout({
     (unitId: string) => {
       onUnitSelect(unitId === selectedUnitId ? null : unitId);
     },
-    [selectedUnitId, onUnitSelect]
+    [selectedUnitId, onUnitSelect],
   );
 
   // Handle hex click
@@ -198,11 +219,14 @@ export function GameplayLayout({
     (hex: { q: number; r: number }) => {
       onHexClick?.(hex);
     },
-    [onHexClick]
+    [onHexClick],
   );
 
   return (
-    <div className={`flex flex-col h-full bg-gray-100 ${className}`} data-testid="gameplay-layout">
+    <div
+      className={`flex h-full flex-col bg-gray-100 ${className}`}
+      data-testid="gameplay-layout"
+    >
       {/* Phase Banner */}
       <PhaseBanner
         phase={currentState.phase}
@@ -212,7 +236,11 @@ export function GameplayLayout({
       />
 
       {/* Main Content Area */}
-      <div ref={containerRef} className="flex-1 flex overflow-hidden" data-testid="gameplay-main-content">
+      <div
+        ref={containerRef}
+        className="flex flex-1 overflow-hidden"
+        data-testid="gameplay-main-content"
+      >
         {/* Map Panel */}
         <div
           className="relative"
@@ -231,7 +259,7 @@ export function GameplayLayout({
 
         {/* Resize Handle */}
         <div
-          className="w-1 bg-gray-300 cursor-col-resize hover:bg-blue-400 transition-colors"
+          className="w-1 cursor-col-resize bg-gray-300 transition-colors hover:bg-blue-400"
           onMouseDown={() => setIsDragging(true)}
         />
 
@@ -256,7 +284,10 @@ export function GameplayLayout({
               className="h-full"
             />
           ) : (
-            <div className="h-full flex items-center justify-center text-gray-500" data-testid="no-unit-selected">
+            <div
+              className="flex h-full items-center justify-center text-gray-500"
+              data-testid="no-unit-selected"
+            >
               <p>Select a unit to view details</p>
             </div>
           )}

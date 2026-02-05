@@ -4,6 +4,7 @@
  */
 
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+
 import {
   isAbsent,
   isSalaryEligible,
@@ -281,11 +282,15 @@ describe('Status Behavioral Rules', () => {
     });
 
     it('should return POSITIVE for STUDENT_GRADUATED', () => {
-      expect(getNotificationSeverity(PersonnelStatus.STUDENT_GRADUATED)).toBe('POSITIVE');
+      expect(getNotificationSeverity(PersonnelStatus.STUDENT_GRADUATED)).toBe(
+        'POSITIVE',
+      );
     });
 
     it('should return POSITIVE for CAMP_FOLLOWER', () => {
-      expect(getNotificationSeverity(PersonnelStatus.CAMP_FOLLOWER)).toBe('POSITIVE');
+      expect(getNotificationSeverity(PersonnelStatus.CAMP_FOLLOWER)).toBe(
+        'POSITIVE',
+      );
     });
 
     it('should return NEUTRAL for RETIRED', () => {
@@ -297,7 +302,9 @@ describe('Status Behavioral Rules', () => {
     });
 
     it('should return NEUTRAL for ON_MATERNITY_LEAVE', () => {
-      expect(getNotificationSeverity(PersonnelStatus.ON_MATERNITY_LEAVE)).toBe('NEUTRAL');
+      expect(getNotificationSeverity(PersonnelStatus.ON_MATERNITY_LEAVE)).toBe(
+        'NEUTRAL',
+      );
     });
 
     it('should return NEUTRAL for RESIGNED', () => {
@@ -309,15 +316,21 @@ describe('Status Behavioral Rules', () => {
     });
 
     it('should return NEUTRAL for CONTRACT_ENDED', () => {
-      expect(getNotificationSeverity(PersonnelStatus.CONTRACT_ENDED)).toBe('NEUTRAL');
+      expect(getNotificationSeverity(PersonnelStatus.CONTRACT_ENDED)).toBe(
+        'NEUTRAL',
+      );
     });
 
     it('should return NEUTRAL for DEPENDENT', () => {
-      expect(getNotificationSeverity(PersonnelStatus.DEPENDENT)).toBe('NEUTRAL');
+      expect(getNotificationSeverity(PersonnelStatus.DEPENDENT)).toBe(
+        'NEUTRAL',
+      );
     });
 
     it('should return NEUTRAL for BACKGROUND_CHARACTER', () => {
-      expect(getNotificationSeverity(PersonnelStatus.BACKGROUND_CHARACTER)).toBe('NEUTRAL');
+      expect(
+        getNotificationSeverity(PersonnelStatus.BACKGROUND_CHARACTER),
+      ).toBe('NEUTRAL');
     });
 
     it('should return WARNING for MIA', () => {
@@ -353,11 +366,15 @@ describe('Status Behavioral Rules', () => {
     });
 
     it('should return WARNING for RETIRED_FROM_WOUNDS', () => {
-      expect(getNotificationSeverity(PersonnelStatus.RETIRED_FROM_WOUNDS)).toBe('WARNING');
+      expect(getNotificationSeverity(PersonnelStatus.RETIRED_FROM_WOUNDS)).toBe(
+        'WARNING',
+      );
     });
 
     it('should return WARNING for MEDICAL_RETIREMENT', () => {
-      expect(getNotificationSeverity(PersonnelStatus.MEDICAL_RETIREMENT)).toBe('WARNING');
+      expect(getNotificationSeverity(PersonnelStatus.MEDICAL_RETIREMENT)).toBe(
+        'WARNING',
+      );
     });
 
     it('should return NEGATIVE for KIA', () => {
@@ -388,7 +405,9 @@ describe('Status Behavioral Rules', () => {
     });
 
     it('should return NEGATIVE for DEFECTED', () => {
-      expect(getNotificationSeverity(PersonnelStatus.DEFECTED)).toBe('NEGATIVE');
+      expect(getNotificationSeverity(PersonnelStatus.DEFECTED)).toBe(
+        'NEGATIVE',
+      );
     });
   });
 });

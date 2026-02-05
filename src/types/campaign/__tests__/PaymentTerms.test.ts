@@ -11,9 +11,9 @@
  * - createDefaultPaymentTerms / createPaymentTerms factories
  */
 
+import { Money } from '../Money';
 import {
   IPaymentTerms,
-  ContractOutcome,
   calculateTotalPayout,
   calculateSalvageShare,
   calculateMaxPayout,
@@ -25,7 +25,6 @@ import {
   createDefaultPaymentTerms,
   createPaymentTerms,
 } from '../PaymentTerms';
-import { Money } from '../Money';
 
 // =============================================================================
 // Test Fixtures
@@ -554,7 +553,9 @@ describe('PaymentTerms System', () => {
       expect(calculateTotalPayout(terms, 'failure').amount).toBe(2600000);
 
       // Salvage on 5M: 40% = 2000000
-      expect(calculateSalvageShare(terms, new Money(5000000)).amount).toBe(2000000);
+      expect(calculateSalvageShare(terms, new Money(5000000)).amount).toBe(
+        2000000,
+      );
 
       // Has salvage, transport, support
       expect(hasSalvageRights(terms)).toBe(true);

@@ -8,19 +8,19 @@
  */
 
 import { getUnitTypeRegistry } from '../UnitTypeRegistry';
+import { createAerospaceHandler } from './AerospaceUnitHandler';
+import { createBattleArmorHandler } from './BattleArmorUnitHandler';
+import { createConventionalFighterHandler } from './ConventionalFighterUnitHandler';
+import { createDropShipHandler } from './DropShipUnitHandler';
+import { createInfantryHandler } from './InfantryUnitHandler';
+import { createJumpShipHandler } from './JumpShipUnitHandler';
+import { createProtoMechHandler } from './ProtoMechUnitHandler';
+import { createSmallCraftHandler } from './SmallCraftUnitHandler';
+import { createSpaceStationHandler } from './SpaceStationUnitHandler';
+import { createSupportVehicleHandler } from './SupportVehicleUnitHandler';
 import { createVehicleHandler } from './VehicleUnitHandler';
 import { createVTOLHandler } from './VTOLUnitHandler';
-import { createSupportVehicleHandler } from './SupportVehicleUnitHandler';
-import { createAerospaceHandler } from './AerospaceUnitHandler';
-import { createConventionalFighterHandler } from './ConventionalFighterUnitHandler';
-import { createSmallCraftHandler } from './SmallCraftUnitHandler';
-import { createBattleArmorHandler } from './BattleArmorUnitHandler';
-import { createInfantryHandler } from './InfantryUnitHandler';
-import { createProtoMechHandler } from './ProtoMechUnitHandler';
-import { createDropShipHandler } from './DropShipUnitHandler';
 import { createWarShipHandler } from './WarShipUnitHandler';
-import { createJumpShipHandler } from './JumpShipUnitHandler';
-import { createSpaceStationHandler } from './SpaceStationUnitHandler';
 
 /**
  * Track initialization state
@@ -65,7 +65,7 @@ export function initializeUnitTypeHandlers(): void {
   isInitialized = true;
 
   console.log(
-    `[initializeHandlers] Registered ${registry.getRegisteredTypes().length} unit type handlers`
+    `[initializeHandlers] Registered ${registry.getRegisteredTypes().length} unit type handlers`,
   );
 }
 

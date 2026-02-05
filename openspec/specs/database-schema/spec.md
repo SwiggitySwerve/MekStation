@@ -15,18 +15,21 @@ The system SHALL store official equipment and units in static JSON files.
 **Priority**: Critical
 
 #### Scenario: Equipment file location
+
 - **GIVEN** official equipment data
 - **WHEN** determining storage location
 - **THEN** equipment SHALL be stored in `public/data/equipment/official/`
 - **AND** equipment SHALL be organized by category (weapons, ammunition, electronics, miscellaneous)
 
 #### Scenario: Unit file location
+
 - **GIVEN** official unit data
 - **WHEN** determining storage location
 - **THEN** units SHALL be stored in `public/data/units/battlemechs/`
 - **AND** units SHALL be organized by era and rules level
 
 #### Scenario: Static data is read-only
+
 - **GIVEN** official data loaded from static files
 - **WHEN** user attempts to modify
 - **THEN** modifications SHALL NOT affect the original files
@@ -43,24 +46,28 @@ The system SHALL store user-created data in IndexedDB.
 **Priority**: Critical
 
 #### Scenario: IndexedDB database
+
 - **GIVEN** the application needs custom data storage
 - **WHEN** initializing persistence
 - **THEN** create database named "mekstation"
 - **AND** database version SHALL be incremented for schema changes
 
 #### Scenario: Custom units store
+
 - **GIVEN** IndexedDB is initialized
 - **THEN** "custom-units" object store SHALL exist
 - **AND** store SHALL use unit ID as key
 - **AND** store SHALL contain serialized ISerializedUnit data
 
 #### Scenario: Custom equipment store
+
 - **GIVEN** IndexedDB is initialized
 - **THEN** "custom-equipment" object store SHALL exist
 - **AND** store SHALL use equipment ID as key
 - **AND** store SHALL support weapons, ammunition, and misc equipment
 
 #### Scenario: Custom formulas store
+
 - **GIVEN** IndexedDB is initialized
 - **THEN** "custom-formulas" object store SHALL exist
 - **AND** store SHALL contain variable equipment formulas
@@ -77,6 +84,7 @@ The system SHALL define equipment record structure.
 **Priority**: Critical
 
 #### Scenario: Common equipment fields
+
 - **GIVEN** any equipment record
 - **THEN** it MUST contain:
   - `id` - Unique identifier string
@@ -91,6 +99,7 @@ The system SHALL define equipment record structure.
   - `introductionYear` - Year of introduction
 
 #### Scenario: Weapon-specific fields
+
 - **GIVEN** a weapon equipment record
 - **THEN** it MUST additionally contain:
   - `damage` - Damage value or damage object
@@ -98,6 +107,7 @@ The system SHALL define equipment record structure.
   - `ranges` - Object with minimum, short, medium, long ranges
 
 #### Scenario: Ammunition-specific fields
+
 - **GIVEN** an ammunition equipment record
 - **THEN** it MUST additionally contain:
   - `compatibleWeaponIds` - Array of weapon IDs this ammo works with
@@ -114,6 +124,7 @@ The system SHALL define unit record structure matching ISerializedUnit.
 **Priority**: Critical
 
 #### Scenario: Unit identity fields
+
 - **GIVEN** a unit record
 - **THEN** it MUST contain:
   - `id` - Unique identifier
@@ -123,6 +134,7 @@ The system SHALL define unit record structure matching ISerializedUnit.
   - `tonnage` - Weight in tons
 
 #### Scenario: Unit classification fields
+
 - **GIVEN** a unit record
 - **THEN** it MUST contain:
   - `techBase` - tech base
@@ -131,6 +143,7 @@ The system SHALL define unit record structure matching ISerializedUnit.
   - `year` - Introduction year
 
 #### Scenario: Unit structural components
+
 - **GIVEN** a unit record
 - **THEN** it MUST contain:
   - `engine` - Engine configuration
@@ -141,6 +154,7 @@ The system SHALL define unit record structure matching ISerializedUnit.
   - `movement` - Movement capabilities
 
 #### Scenario: Unit equipment and slots
+
 - **GIVEN** a unit record
 - **THEN** it MUST contain:
   - `equipment` - Array of mounted equipment
@@ -157,6 +171,7 @@ The system SHALL maintain index files for fast catalog browsing.
 **Priority**: High
 
 #### Scenario: Equipment index
+
 - **GIVEN** equipment files are loaded
 - **THEN** `public/data/equipment/official/index.json` SHALL contain:
   - List of all equipment categories
@@ -164,6 +179,7 @@ The system SHALL maintain index files for fast catalog browsing.
   - File paths for each category
 
 #### Scenario: Unit index
+
 - **GIVEN** unit files exist
 - **THEN** `public/data/units/battlemechs/index.json` SHALL contain:
   - Metadata (version, generatedAt, totalUnits)
@@ -181,11 +197,13 @@ The system SHALL provide JSON Schema files for validation.
 **Priority**: Medium
 
 #### Scenario: Schema file location
+
 - **GIVEN** validation schemas are needed
 - **WHEN** accessing schemas
 - **THEN** schemas SHALL be in `public/data/equipment/_schema/`
 
 #### Scenario: Available schemas
+
 - **GIVEN** the schema directory
 - **THEN** it SHALL contain:
   - `weapon-schema.json` - For weapon validation
@@ -206,6 +224,7 @@ The system SHALL provide efficient query capabilities.
 **Priority**: High
 
 #### Scenario: Equipment query
+
 - **WHEN** querying equipment
 - **THEN** support filtering by:
   - Category (Energy, Ballistic, Missile, etc.)
@@ -215,6 +234,7 @@ The system SHALL provide efficient query capabilities.
   - Name search
 
 #### Scenario: Unit query
+
 - **WHEN** querying units
 - **THEN** support filtering by:
   - Tech base
@@ -225,6 +245,7 @@ The system SHALL provide efficient query capabilities.
   - Name/chassis search
 
 #### Scenario: Combined data sources
+
 - **WHEN** querying equipment or units
 - **THEN** results SHALL include both official (static) and custom (IndexedDB) data
 - **AND** custom items MAY override official items with same ID
@@ -240,6 +261,7 @@ The system SHALL handle data migration between versions.
 **Priority**: Medium
 
 #### Scenario: IndexedDB version upgrade
+
 - **GIVEN** a newer IndexedDB schema version
 - **WHEN** opening the database
 - **THEN** run migration for each version increment
@@ -247,6 +269,7 @@ The system SHALL handle data migration between versions.
 - **AND** log migration actions
 
 #### Scenario: Static file format changes
+
 - **GIVEN** static file format changes between versions
 - **WHEN** loading data
 - **THEN** detect format version from metadata

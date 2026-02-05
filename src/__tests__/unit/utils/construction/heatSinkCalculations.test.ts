@@ -1,3 +1,5 @@
+import { EngineType } from '@/types/construction/EngineType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import {
   calculateHeatDissipation,
   calculateExternalHeatSinks,
@@ -7,8 +9,6 @@ import {
   calculateHeatSinkWeight,
   getHeatSinkSummary,
 } from '@/utils/construction/heatSinkCalculations';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { EngineType } from '@/types/construction/EngineType';
 
 describe('heatSinkCalculations', () => {
   describe('calculateHeatDissipation()', () => {
@@ -23,7 +23,7 @@ describe('heatSinkCalculations', () => {
     });
 
     it('should handle unknown heat sink type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateHeatDissipation('INVALID' as any, 10)).toBe(10);
     });
   });
@@ -65,7 +65,7 @@ describe('heatSinkCalculations', () => {
     });
 
     it('should handle unknown heat sink type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateExternalHeatSinkWeight(5, 'INVALID' as any)).toBe(5);
     });
   });
@@ -77,42 +77,67 @@ describe('heatSinkCalculations', () => {
     });
 
     it('should handle unknown heat sink type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateExternalHeatSinkSlots(5, 'INVALID' as any)).toBe(5);
     });
   });
 
   describe('validateHeatSinks()', () => {
     it('should validate correct heat sink count', () => {
-      const result = validateHeatSinks(15, HeatSinkType.SINGLE, 250, EngineType.STANDARD);
-      
+      const result = validateHeatSinks(
+        15,
+        HeatSinkType.SINGLE,
+        250,
+        EngineType.STANDARD,
+      );
+
       expect(result.isValid).toBe(true);
       expect(result.errors.length).toBe(0);
     });
 
     it('should reject below minimum', () => {
-      const result = validateHeatSinks(5, HeatSinkType.SINGLE, 250, EngineType.STANDARD);
-      
+      const result = validateHeatSinks(
+        5,
+        HeatSinkType.SINGLE,
+        250,
+        EngineType.STANDARD,
+      );
+
       expect(result.isValid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
     });
 
     it('should reject unknown heat sink type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
-      const result = validateHeatSinks(15, 'INVALID' as any, 250, EngineType.STANDARD);
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      const result = validateHeatSinks(
+        15,
+        'INVALID' as unknown as HeatSinkType,
+        250,
+        EngineType.STANDARD,
+      );
       expect(result.isValid).toBe(false);
       expect(result.errors[0]).toContain('Unknown heat sink type');
     });
 
     it('should issue warning for large number of external sinks', () => {
-      const result = validateHeatSinks(40, HeatSinkType.SINGLE, 250, EngineType.STANDARD);
+      const result = validateHeatSinks(
+        40,
+        HeatSinkType.SINGLE,
+        250,
+        EngineType.STANDARD,
+      );
       expect(result.warnings.length).toBeGreaterThan(0);
     });
   });
 
   describe('getHeatSinkSummary()', () => {
     it('should return a summary', () => {
-      const summary = getHeatSinkSummary(15, HeatSinkType.SINGLE, 250, EngineType.STANDARD);
+      const summary = getHeatSinkSummary(
+        15,
+        HeatSinkType.SINGLE,
+        250,
+        EngineType.STANDARD,
+      );
       expect(summary.integrated).toBe(10);
       expect(summary.external).toBe(5);
       expect(summary.weight).toBe(5);

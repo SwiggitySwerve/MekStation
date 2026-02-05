@@ -2,10 +2,10 @@
 
 /**
  * Bundle Size Measurement Script
- * 
+ *
  * Measures and compares bundle sizes before and after refactoring
  * Validates performance improvements from the large file breakdown
- * 
+ *
  * Phase 3: Day 14 - Update Build System
  */
 
@@ -22,7 +22,7 @@ class BundleSizeMeasurement {
       totalSize: 0,
       chunkSizes: {},
       loadTime: 0,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -31,25 +31,24 @@ class BundleSizeMeasurement {
    */
   async analyze() {
     console.log('🔍 Starting Bundle Size Analysis...');
-    
+
     try {
       // Clean previous build
       this.cleanBuild();
-      
+
       // Build with analysis
       const buildMetrics = this.buildWithMetrics();
-      
+
       // Analyze chunks
       const chunkAnalysis = this.analyzeChunks();
-      
+
       // Calculate improvements
       const improvements = this.calculateImprovements(chunkAnalysis);
-      
+
       // Generate report
       this.generateReport(buildMetrics, chunkAnalysis, improvements);
-      
+
       console.log('✅ Bundle analysis complete!');
-      
     } catch (error) {
       console.error('❌ Bundle analysis failed:', error.message);
       process.exit(1);
@@ -61,7 +60,7 @@ class BundleSizeMeasurement {
    */
   cleanBuild() {
     console.log('🧹 Cleaning previous build...');
-    
+
     if (fs.existsSync(this.buildDir)) {
       execSync(`rm -rf ${this.buildDir}`, { stdio: 'inherit' });
     }
@@ -72,25 +71,24 @@ class BundleSizeMeasurement {
    */
   buildWithMetrics() {
     console.log('🏗️ Building with metrics...');
-    
+
     const startTime = Date.now();
-    
+
     try {
       // Build for production
-      execSync('npm run build', { 
+      execSync('npm run build', {
         stdio: 'pipe',
-        env: { ...process.env, ANALYZE: 'false' }
+        env: { ...process.env, ANALYZE: 'false' },
       });
-      
+
       const buildTime = Date.now() - startTime;
-      
+
       console.log(`  ✓ Build completed in ${buildTime}ms`);
-      
+
       return {
         buildTime,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-      
     } catch (error) {
       throw new Error(`Build failed: ${error.message}`);
     }
@@ -101,11 +99,11 @@ class BundleSizeMeasurement {
    */
   analyzeChunks() {
     console.log('📊 Analyzing chunks...');
-    
+
     const staticDir = path.join(this.buildDir, 'static', 'chunks');
     const appDir = path.join(this.buildDir, 'static', 'chunks', 'app');
     const pagesDir = path.join(this.buildDir, 'static', 'chunks', 'pages');
-    
+
     const analysis = {
       chunks: {},
       totalSize: 0,
@@ -115,8 +113,8 @@ class BundleSizeMeasurement {
         components: 0,
         utils: 0,
         vendor: 0,
-        main: 0
-      }
+        main: 0,
+      },
     };
 
     // Analyze static chunks
@@ -145,25 +143,25 @@ class BundleSizeMeasurement {
    */
   analyzeDirectory(dir, analysis, category) {
     const files = fs.readdirSync(dir, { withFileTypes: true });
-    
-    files.forEach(file => {
+
+    files.forEach((file) => {
       if (file.isFile() && file.name.endsWith('.js')) {
         const filePath = path.join(dir, file.name);
         const stats = fs.statSync(filePath);
         const size = stats.size;
-        
+
         analysis.chunks[file.name] = {
           size,
           category,
-          path: filePath
+          path: filePath,
         };
-        
+
         analysis.totalSize += size;
-        
+
         // Categorize by content
         this.categorizeChunk(file.name, size, analysis.categories);
       }
-      
+
       if (file.isDirectory()) {
         this.analyzeDirectory(path.join(dir, file.name), analysis, category);
       }
@@ -175,7 +173,7 @@ class BundleSizeMeasurement {
    */
   categorizeChunk(filename, size, categories) {
     const name = filename.toLowerCase();
-    
+
     if (name.includes('equipment') || name.includes('weapon')) {
       categories.equipment += size;
     } else if (name.includes('service')) {
@@ -204,27 +202,28 @@ class BundleSizeMeasurement {
         components: current.categories.components * 1.8, // Components were larger
         utils: current.categories.utils * 1.5,
         vendor: current.categories.vendor, // Vendor unchanged
-        main: current.categories.main * 2.5 // Main was much larger
-      }
+        main: current.categories.main * 2.5, // Main was much larger
+      },
     };
 
     const improvements = {
       totalSizeReduction: baseline.totalSize - current.totalSize,
-      totalSizeReductionPercent: ((baseline.totalSize - current.totalSize) / baseline.totalSize) * 100,
-      categoryImprovements: {}
+      totalSizeReductionPercent:
+        ((baseline.totalSize - current.totalSize) / baseline.totalSize) * 100,
+      categoryImprovements: {},
     };
 
-    Object.keys(baseline.categories).forEach(category => {
+    Object.keys(baseline.categories).forEach((category) => {
       const before = baseline.categories[category];
       const after = current.categories[category];
       const reduction = before - after;
       const reductionPercent = before > 0 ? (reduction / before) * 100 : 0;
-      
+
       improvements.categoryImprovements[category] = {
         before,
         after,
         reduction,
-        reductionPercent
+        reductionPercent,
       };
     });
 
@@ -237,40 +236,53 @@ class BundleSizeMeasurement {
   generateReport(buildMetrics, chunkAnalysis, improvements) {
     console.log('\n📈 Performance Report');
     console.log('='.repeat(50));
-    
+
     // Build metrics
     console.log(`Build Time: ${buildMetrics.buildTime}ms`);
-    console.log(`Total Bundle Size: ${this.formatBytes(chunkAnalysis.totalSize)}`);
+    console.log(
+      `Total Bundle Size: ${this.formatBytes(chunkAnalysis.totalSize)}`,
+    );
     console.log(`Total Chunks: ${Object.keys(chunkAnalysis.chunks).length}`);
-    
+
     // Size improvements
     console.log('\n🎯 Size Improvements');
     console.log('-'.repeat(30));
-    console.log(`Total Reduction: ${this.formatBytes(improvements.totalSizeReduction)} (${improvements.totalSizeReductionPercent.toFixed(1)}%)`);
-    
+    console.log(
+      `Total Reduction: ${this.formatBytes(improvements.totalSizeReduction)} (${improvements.totalSizeReductionPercent.toFixed(1)}%)`,
+    );
+
     // Category breakdown
     console.log('\n📊 Category Breakdown');
     console.log('-'.repeat(30));
-    Object.entries(improvements.categoryImprovements).forEach(([category, data]) => {
-      console.log(`${category.padEnd(12)}: ${this.formatBytes(data.after).padStart(8)} (${data.reductionPercent.toFixed(1)}% reduction)`);
-    });
-    
+    Object.entries(improvements.categoryImprovements).forEach(
+      ([category, data]) => {
+        console.log(
+          `${category.padEnd(12)}: ${this.formatBytes(data.after).padStart(8)} (${data.reductionPercent.toFixed(1)}% reduction)`,
+        );
+      },
+    );
+
     // Largest chunks
     console.log('\n🔍 Largest Chunks');
     console.log('-'.repeat(30));
     const sortedChunks = Object.entries(chunkAnalysis.chunks)
-      .sort(([,a], [,b]) => b.size - a.size)
+      .sort(([, a], [, b]) => b.size - a.size)
       .slice(0, 10);
-      
+
     sortedChunks.forEach(([name, data]) => {
-      console.log(`${name.padEnd(40)}: ${this.formatBytes(data.size).padStart(8)}`);
+      console.log(
+        `${name.padEnd(40)}: ${this.formatBytes(data.size).padStart(8)}`,
+      );
     });
 
     // Tree-shaking effectiveness
     console.log('\n🌳 Tree-shaking Analysis');
     console.log('-'.repeat(30));
-    const equipmentEfficiency = this.calculateTreeShakingEfficiency(chunkAnalysis);
-    console.log(`Equipment Data Efficiency: ${equipmentEfficiency.toFixed(1)}%`);
+    const equipmentEfficiency =
+      this.calculateTreeShakingEfficiency(chunkAnalysis);
+    console.log(
+      `Equipment Data Efficiency: ${equipmentEfficiency.toFixed(1)}%`,
+    );
     console.log('Equipment files are now optimally split for tree-shaking');
 
     // Save detailed report
@@ -283,8 +295,11 @@ class BundleSizeMeasurement {
         totalSizeReduction: improvements.totalSizeReduction,
         totalSizeReductionPercent: improvements.totalSizeReductionPercent,
         equipmentTreeShakingEfficiency: equipmentEfficiency,
-        recommendedActions: this.getRecommendations(chunkAnalysis, improvements)
-      }
+        recommendedActions: this.getRecommendations(
+          chunkAnalysis,
+          improvements,
+        ),
+      },
     };
 
     fs.writeFileSync(this.resultsFile, JSON.stringify(detailedReport, null, 2));
@@ -295,14 +310,17 @@ class BundleSizeMeasurement {
    * Calculate tree-shaking effectiveness for equipment data
    */
   calculateTreeShakingEfficiency(analysis) {
-    const equipmentChunks = Object.entries(analysis.chunks)
-      .filter(([name]) => name.includes('equipment') || name.includes('weapon'));
-    
+    const equipmentChunks = Object.entries(analysis.chunks).filter(
+      ([name]) => name.includes('equipment') || name.includes('weapon'),
+    );
+
     if (equipmentChunks.length === 0) return 100;
-    
-    const averageSize = equipmentChunks.reduce((sum, [, data]) => sum + data.size, 0) / equipmentChunks.length;
+
+    const averageSize =
+      equipmentChunks.reduce((sum, [, data]) => sum + data.size, 0) /
+      equipmentChunks.length;
     const maxExpectedSize = 50 * 1024; // 50KB expected max for equipment chunks
-    
+
     return Math.min(100, (maxExpectedSize / averageSize) * 100);
   }
 
@@ -311,23 +329,27 @@ class BundleSizeMeasurement {
    */
   getRecommendations(analysis, improvements) {
     const recommendations = [];
-    
+
     if (analysis.categories.vendor > analysis.totalSize * 0.5) {
-      recommendations.push('Consider vendor chunk splitting for better caching');
+      recommendations.push(
+        'Consider vendor chunk splitting for better caching',
+      );
     }
-    
+
     if (analysis.categories.main > 200 * 1024) {
       recommendations.push('Main chunk could be further optimized');
     }
-    
+
     if (improvements.categoryImprovements.equipment.reductionPercent < 50) {
-      recommendations.push('Equipment data could benefit from further splitting');
+      recommendations.push(
+        'Equipment data could benefit from further splitting',
+      );
     }
-    
+
     if (Object.keys(analysis.chunks).length < 10) {
       recommendations.push('Consider more aggressive code splitting');
     }
-    
+
     return recommendations;
   }
 
@@ -336,11 +358,11 @@ class BundleSizeMeasurement {
    */
   formatBytes(bytes) {
     if (bytes === 0) return '0 B';
-    
+
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   }
 }

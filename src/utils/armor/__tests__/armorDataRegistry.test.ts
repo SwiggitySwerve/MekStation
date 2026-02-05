@@ -3,6 +3,9 @@
  * @description Tests for armor data registry utility functions and constants
  */
 
+import { MechConfigType } from '@/components/customizer/armor/shared/layout/useResolvedLayout';
+import { MechLocation } from '@/types/construction';
+
 import {
   ARMOR_DATA_REGISTRY,
   getSampleArmorData,
@@ -12,8 +15,6 @@ import {
   SAMPLE_LAM_ARMOR_DATA,
   SAMPLE_QUADVEE_ARMOR_DATA,
 } from '../armorDataRegistry';
-import { MechLocation } from '@/types/construction';
-import { MechConfigType } from '@/components/customizer/armor/shared/layout/useResolvedLayout';
 
 describe('armorDataRegistry', () => {
   describe('ARMOR_DATA_REGISTRY', () => {
@@ -43,7 +44,13 @@ describe('armorDataRegistry', () => {
     });
 
     it('contains all five MechConfigType values', () => {
-      const configTypes: MechConfigType[] = ['biped', 'quad', 'tripod', 'lam', 'quadvee'];
+      const configTypes: MechConfigType[] = [
+        'biped',
+        'quad',
+        'tripod',
+        'lam',
+        'quadvee',
+      ];
       configTypes.forEach((configType) => {
         expect(ARMOR_DATA_REGISTRY).toHaveProperty(configType);
       });
@@ -92,7 +99,13 @@ describe('armorDataRegistry', () => {
     });
 
     it('returns an array for all valid config types', () => {
-      const configTypes: MechConfigType[] = ['biped', 'quad', 'tripod', 'lam', 'quadvee'];
+      const configTypes: MechConfigType[] = [
+        'biped',
+        'quad',
+        'tripod',
+        'lam',
+        'quadvee',
+      ];
       configTypes.forEach((configType) => {
         const result = getSampleArmorData(configType);
         expect(Array.isArray(result)).toBe(true);
@@ -107,12 +120,16 @@ describe('armorDataRegistry', () => {
     });
 
     it('includes HEAD location', () => {
-      const head = SAMPLE_BIPED_ARMOR_DATA.find((d) => d.location === MechLocation.HEAD);
+      const head = SAMPLE_BIPED_ARMOR_DATA.find(
+        (d) => d.location === MechLocation.HEAD,
+      );
       expect(head).toBeDefined();
     });
 
     it('includes CENTER_TORSO location with rear armor', () => {
-      const ct = SAMPLE_BIPED_ARMOR_DATA.find((d) => d.location === MechLocation.CENTER_TORSO);
+      const ct = SAMPLE_BIPED_ARMOR_DATA.find(
+        (d) => d.location === MechLocation.CENTER_TORSO,
+      );
       expect(ct).toBeDefined();
       expect(ct?.rear).toBeDefined();
       expect(ct?.rearMaximum).toBeDefined();
@@ -200,7 +217,7 @@ describe('armorDataRegistry', () => {
 
     it('includes CENTER_LEG location', () => {
       const centerLeg = SAMPLE_TRIPOD_ARMOR_DATA.find(
-        (d) => d.location === MechLocation.CENTER_LEG
+        (d) => d.location === MechLocation.CENTER_LEG,
       );
       expect(centerLeg).toBeDefined();
     });

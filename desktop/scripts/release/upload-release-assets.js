@@ -51,7 +51,8 @@ function main() {
   const desktopDir = path.join(projectRoot, 'desktop');
 
   const tag = getArg('--tag');
-  const releaseDir = getArg('--release-dir') || path.join(desktopDir, 'release');
+  const releaseDir =
+    getArg('--release-dir') || path.join(desktopDir, 'release');
   const owner = getArg('--owner') || 'SwiggitySwerve';
   const repo = getArg('--repo') || 'MekStation';
   const shouldCreate = hasFlag('--create') || !hasFlag('--no-create');
@@ -73,7 +74,9 @@ function main() {
   try {
     execFileSync('gh', ['--version'], { stdio: 'ignore' });
   } catch {
-    console.error('GitHub CLI not found on PATH: install `gh` and authenticate (`gh auth login`).');
+    console.error(
+      'GitHub CLI not found on PATH: install `gh` and authenticate (`gh auth login`).',
+    );
     process.exit(1);
   }
 
@@ -90,11 +93,15 @@ function main() {
     .map((name) => path.join(releaseDir, name));
 
   if (files.length === 0) {
-    console.error(`No uploadable assets found in ${releaseDir} (after filtering out .yml/.blockmap)`);
+    console.error(
+      `No uploadable assets found in ${releaseDir} (after filtering out .yml/.blockmap)`,
+    );
     process.exit(1);
   }
 
-  console.log(`[upload-release-assets] Found ${files.length} asset(s) to upload`);
+  console.log(
+    `[upload-release-assets] Found ${files.length} asset(s) to upload`,
+  );
 
   if (dryRun) {
     for (const f of files) console.log(`- ${f}`);
@@ -106,17 +113,30 @@ function main() {
   // Create release if missing (optional)
   let releaseExists = true;
   try {
-    execFileSync('gh', ['release', 'view', tag, ...repoFlag], { stdio: 'ignore' });
+    execFileSync('gh', ['release', 'view', tag, ...repoFlag], {
+      stdio: 'ignore',
+    });
   } catch {
     releaseExists = false;
   }
 
   if (!releaseExists) {
     if (!shouldCreate) {
-      console.error(`Release ${tag} does not exist (use --create to create it).`);
+      console.error(
+        `Release ${tag} does not exist (use --create to create it).`,
+      );
       process.exit(1);
     }
-    const createArgs = ['release', 'create', tag, ...repoFlag, '--title', tag, '--notes', ''];
+    const createArgs = [
+      'release',
+      'create',
+      tag,
+      ...repoFlag,
+      '--title',
+      tag,
+      '--notes',
+      '',
+    ];
     if (isDraft) createArgs.push('--draft');
     if (isPrerelease) createArgs.push('--prerelease');
     execGh(createArgs);
@@ -129,5 +149,3 @@ function main() {
 }
 
 main();
-
-

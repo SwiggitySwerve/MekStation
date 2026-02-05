@@ -67,28 +67,28 @@ export enum GameEventType {
   GameCreated = 'game_created',
   GameStarted = 'game_started',
   GameEnded = 'game_ended',
-  
+
   // Turn/Phase events
   TurnStarted = 'turn_started',
   TurnEnded = 'turn_ended',
   PhaseChanged = 'phase_changed',
-  
+
   // Initiative events
   InitiativeRolled = 'initiative_rolled',
   InitiativeOrderSet = 'initiative_order_set',
-  
+
   // Movement events
   MovementDeclared = 'movement_declared',
   MovementLocked = 'movement_locked',
   FacingChanged = 'facing_changed',
-  
+
   // Combat events
   AttackDeclared = 'attack_declared',
   AttackLocked = 'attack_locked',
   AttacksRevealed = 'attacks_revealed',
   AttackResolved = 'attack_resolved',
   DamageApplied = 'damage_applied',
-  
+
   // Status events
   HeatGenerated = 'heat_generated',
   HeatDissipated = 'heat_dissipated',

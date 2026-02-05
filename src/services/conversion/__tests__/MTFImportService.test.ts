@@ -4,8 +4,9 @@
  * Tests for MTF import and validation service.
  */
 
-import { MTFImportService, getMTFImportService } from '../MTFImportService';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
+
+import { MTFImportService, getMTFImportService } from '../MTFImportService';
 
 // Mock dependencies
 jest.mock('@/services/equipment/EquipmentRegistry', () => ({
@@ -38,7 +39,9 @@ jest.mock('@/services/equipment/EquipmentNameMapper', () => ({
 /**
  * Create a valid serialized unit for testing
  */
-function createValidSerializedUnit(overrides: Partial<ISerializedUnit> = {}): ISerializedUnit {
+function createValidSerializedUnit(
+  overrides: Partial<ISerializedUnit> = {},
+): ISerializedUnit {
   return {
     id: 'test-unit-1',
     chassis: 'Atlas',
@@ -75,7 +78,14 @@ function createValidSerializedUnit(overrides: Partial<ISerializedUnit> = {}): IS
       { id: 'medium-laser', location: 'LEFT_ARM' },
     ],
     criticalSlots: {
-      HEAD: ['Life Support', 'Sensors', 'Cockpit', 'Sensors', 'Life Support', null] as (string | null)[],
+      HEAD: [
+        'Life Support',
+        'Sensors',
+        'Cockpit',
+        'Sensors',
+        'Life Support',
+        null,
+      ] as (string | null)[],
       CENTER_TORSO: Array<string | null>(12).fill(null),
       LEFT_TORSO: Array<string | null>(12).fill(null),
       RIGHT_TORSO: Array<string | null>(12).fill(null),
@@ -138,7 +148,9 @@ describe('MTFImportService', () => {
       const unit = createValidSerializedUnit({ id: undefinedId });
       const result = service.importFromJSON(unit);
 
-      expect(result.error!.errors.some((e: string) => e.includes('id'))).toBe(true);
+      expect(result.error!.errors.some((e: string) => e.includes('id'))).toBe(
+        true,
+      );
     });
 
     it('should report all missing required fields', () => {
@@ -149,16 +161,20 @@ describe('MTFImportService', () => {
       const result = service.importFromJSON(unit);
 
       expect(result.error!.errors.length).toBeGreaterThan(1);
-      expect(result.error!.errors.some((e: string) => e.includes('chassis'))).toBe(true);
-      expect(result.error!.errors.some((e: string) => e.includes('model'))).toBe(true);
-      expect(result.error!.errors.some((e: string) => e.includes('tonnage'))).toBe(true);
+      expect(
+        result.error!.errors.some((e: string) => e.includes('chassis')),
+      ).toBe(true);
+      expect(
+        result.error!.errors.some((e: string) => e.includes('model')),
+      ).toBe(true);
+      expect(
+        result.error!.errors.some((e: string) => e.includes('tonnage')),
+      ).toBe(true);
     });
 
     it('should validate equipment references', () => {
       const unit = createValidSerializedUnit({
-        equipment: [
-          { id: 'unknown-weapon', location: 'LEFT_ARM' },
-        ],
+        equipment: [{ id: 'unknown-weapon', location: 'LEFT_ARM' }],
       });
 
       const result = service.importFromJSON(unit);
@@ -168,9 +184,7 @@ describe('MTFImportService', () => {
 
     it('should not validate equipment when disabled', () => {
       const unit = createValidSerializedUnit({
-        equipment: [
-          { id: 'unknown-weapon', location: 'LEFT_ARM' },
-        ],
+        equipment: [{ id: 'unknown-weapon', location: 'LEFT_ARM' }],
       });
 
       const result = service.importFromJSON(unit, { validateEquipment: false });
@@ -190,7 +204,9 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit);
 
-      expect(result.data!.warnings.some((w: string) => w.includes('Head'))).toBe(true);
+      expect(
+        result.data!.warnings.some((w: string) => w.includes('Head')),
+      ).toBe(true);
     });
 
     it('should not validate armor when disabled', () => {
@@ -205,7 +221,9 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit, { validateArmor: false });
 
-      expect(result.data!.warnings.filter((w: string) => w.includes('Head')).length).toBe(0);
+      expect(
+        result.data!.warnings.filter((w: string) => w.includes('Head')).length,
+      ).toBe(0);
     });
 
     it('should validate critical slot counts', () => {
@@ -217,7 +235,11 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit);
 
-      expect(result.data!.warnings.some((w: string) => w.includes('HEAD') && w.includes('slots'))).toBe(true);
+      expect(
+        result.data!.warnings.some(
+          (w: string) => w.includes('HEAD') && w.includes('slots'),
+        ),
+      ).toBe(true);
     });
 
     it('should not validate critical slots when disabled', () => {
@@ -227,9 +249,15 @@ describe('MTFImportService', () => {
         },
       });
 
-      const result = service.importFromJSON(unit, { validateCriticalSlots: false });
+      const result = service.importFromJSON(unit, {
+        validateCriticalSlots: false,
+      });
 
-      expect(result.data!.warnings.filter((w: string) => w.includes('HEAD') && w.includes('slots')).length).toBe(0);
+      expect(
+        result.data!.warnings.filter(
+          (w: string) => w.includes('HEAD') && w.includes('slots'),
+        ).length,
+      ).toBe(0);
     });
 
     it('should fail in strict mode with required field errors', () => {
@@ -248,7 +276,9 @@ describe('MTFImportService', () => {
 
       const result = service.importFromJSON(unit, { strictMode: true });
 
-      expect(result.error!.errors.some((e: string) => e.includes('Head'))).toBe(true);
+      expect(result.error!.errors.some((e: string) => e.includes('Head'))).toBe(
+        true,
+      );
     });
 
     it('should handle malformed data gracefully', () => {
@@ -281,7 +311,9 @@ describe('MTFImportService', () => {
       const result = service.validateJSON(data);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('id') && e.includes('string'))).toBe(true);
+      expect(
+        result.errors.some((e) => e.includes('id') && e.includes('string')),
+      ).toBe(true);
     });
 
     it('should check required number fields', () => {
@@ -289,7 +321,11 @@ describe('MTFImportService', () => {
       const result = service.validateJSON(data);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('tonnage') && e.includes('number'))).toBe(true);
+      expect(
+        result.errors.some(
+          (e) => e.includes('tonnage') && e.includes('number'),
+        ),
+      ).toBe(true);
     });
 
     it('should check required object fields', () => {
@@ -297,15 +333,24 @@ describe('MTFImportService', () => {
       const result = service.validateJSON(data);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('engine') && e.includes('object'))).toBe(true);
+      expect(
+        result.errors.some((e) => e.includes('engine') && e.includes('object')),
+      ).toBe(true);
     });
 
     it('should check equipment array', () => {
-      const data = { ...createValidSerializedUnit(), equipment: 'not an array' };
+      const data = {
+        ...createValidSerializedUnit(),
+        equipment: 'not an array',
+      };
       const result = service.validateJSON(data);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('equipment') && e.includes('array'))).toBe(true);
+      expect(
+        result.errors.some(
+          (e) => e.includes('equipment') && e.includes('array'),
+        ),
+      ).toBe(true);
     });
   });
 

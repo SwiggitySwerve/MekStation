@@ -1,21 +1,30 @@
 /**
  * Unit Format Converter Service
- * 
+ *
  * Converts MegaMekLab JSON format to the internal typed format.
- * 
+ *
  * @spec unit-json.plan.md
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { TechBase } from '@/types/enums/TechBase';
-import { GyroType } from '@/types/construction/GyroType';
+
 import { CockpitType } from '@/types/construction/CockpitType';
+import { GyroType } from '@/types/construction/GyroType';
+import { TechBase } from '@/types/enums/TechBase';
 // IBattleMech import removed - using ISerializedUnit for conversion
 import {
   ISerializedUnit,
   ISerializedFluff,
 } from '@/types/unit/UnitSerialization';
 
+import { equipmentNameResolver } from './EquipmentNameResolver';
+import {
+  parseLocation,
+  convertArmorLocations,
+  parseCriticalSlots,
+  SourceArmorLocation,
+  SourceCriticalEntry,
+} from './LocationMappings';
 import {
   mapTechBase,
   mapRulesLevel,
@@ -28,18 +37,6 @@ import {
   mapMechConfiguration,
   isOmniMechConfig,
 } from './ValueMappings';
-
-import {
-  parseLocation,
-  convertArmorLocations,
-  parseCriticalSlots,
-  SourceArmorLocation,
-  SourceCriticalEntry,
-} from './LocationMappings';
-
-import {
-  equipmentNameResolver,
-} from './EquipmentNameResolver';
 
 // ============================================================================
 // SOURCE DATA TYPES
@@ -59,52 +56,52 @@ export interface MegaMekLabUnit {
   rules_level: string | number;
   role?: string;
   mass: number;
-  
+
   engine: {
     type: string;
     rating: number;
     manufacturer?: string;
   };
-  
+
   structure: {
     type: string;
     manufacturer?: string | null;
   };
-  
+
   myomer?: {
     type: string;
     manufacturer?: string | null;
   };
-  
+
   heat_sinks: {
     type: string;
     count: number;
   };
-  
+
   walk_mp: string | number;
   jump_mp: string | number;
-  
+
   armor: {
     type: string;
     manufacturer?: string;
     locations: SourceArmorLocation[];
     total_armor_points?: number;
   };
-  
+
   weapons_and_equipment: MegaMekLabEquipmentItem[];
   criticals: SourceCriticalEntry[];
-  
+
   quirks?: string[];
   manufacturers?: MegaMekLabManufacturer[];
   system_manufacturers?: MegaMekLabSystemManufacturer[];
   fluff_text?: MegaMekLabFluff;
-  
+
   // OmniMech specific
   is_omnimech?: boolean;
   omnimech_base_chassis?: string;
   omnimech_configuration?: string;
   base_chassis_heat_sinks?: string | number;
-  
+
   // Clan alternate name
   clanname?: string;
 }
@@ -188,23 +185,23 @@ export interface BatchConversionResult {
 
 /**
  * Unit Format Converter
- * 
+ *
  * Converts MegaMekLab JSON format to internal serialized format.
  */
 export class UnitFormatConverter {
   private warnings: ConversionWarning[] = [];
   private errors: string[] = [];
-  
+
   /**
    * Convert a MegaMekLab unit to serialized format
    */
   convert(source: MegaMekLabUnit): ConversionResult {
     this.warnings = [];
     this.errors = [];
-    
+
     try {
       const unit = this.convertUnit(source);
-      
+
       return {
         success: true,
         unit,
@@ -216,11 +213,14 @@ export class UnitFormatConverter {
         success: false,
         unit: null,
         warnings: this.warnings,
-        errors: [...this.errors, error instanceof Error ? error.message : String(error)],
+        errors: [
+          ...this.errors,
+          error instanceof Error ? error.message : String(error),
+        ],
       };
     }
   }
-  
+
   /**
    * Convert a batch of units
    */
@@ -228,18 +228,18 @@ export class UnitFormatConverter {
     const results: ConversionResult[] = [];
     let successful = 0;
     let failed = 0;
-    
+
     for (const source of sources) {
       const result = this.convert(source);
       results.push(result);
-      
+
       if (result.success) {
         successful++;
       } else {
         failed++;
       }
     }
-    
+
     return {
       total: sources.length,
       successful,
@@ -247,55 +247,63 @@ export class UnitFormatConverter {
       results,
     };
   }
-  
+
   /**
    * Main conversion logic
    */
   private convertUnit(source: MegaMekLabUnit): ISerializedUnit {
     // Generate unique ID
     const id = this.generateUnitId(source);
-    
+
     // Convert tech base
     const techBase = mapTechBase(source.tech_base);
-    
+
     // Convert era and year
     const era = mapEra(source.era);
     const year = extractYear(source.era);
-    
+
     // Convert rules level
     const rulesLevel = mapRulesLevel(source.rules_level);
-    
+
     // Convert configuration
     const configuration = mapMechConfiguration(source.config);
-    const isOmni = isOmniMechConfig(source.config) || source.is_omnimech === true;
-    
+    const isOmni =
+      isOmniMechConfig(source.config) || source.is_omnimech === true;
+
     // Convert engine
     const engine = this.convertEngine(source.engine, techBase);
-    
+
     // Convert gyro (defaults to standard - source doesn't always specify)
     const gyro = this.convertGyro(source, techBase);
-    
+
     // Convert structure
     const structure = this.convertStructure(source.structure, techBase);
-    
+
     // Convert armor
     const armor = this.convertArmor(source.armor, techBase);
-    
+
     // Convert heat sinks
-    const heatSinks = this.convertHeatSinks(source.heat_sinks, source.engine.rating, techBase);
-    
+    const heatSinks = this.convertHeatSinks(
+      source.heat_sinks,
+      source.engine.rating,
+      techBase,
+    );
+
     // Convert movement
     const movement = this.convertMovement(source);
-    
+
     // Convert equipment
-    const equipment = this.convertEquipment(source.weapons_and_equipment, techBase);
-    
+    const equipment = this.convertEquipment(
+      source.weapons_and_equipment,
+      techBase,
+    );
+
     // Convert critical slots
     const criticalSlots = this.convertCriticals(source.criticals);
-    
+
     // Convert fluff
     const fluff = this.convertFluff(source);
-    
+
     return {
       id,
       chassis: source.chassis,
@@ -321,7 +329,7 @@ export class UnitFormatConverter {
       fluff,
     };
   }
-  
+
   /**
    * Generate a unique ID for the unit
    */
@@ -330,42 +338,45 @@ export class UnitFormatConverter {
     if (source.mul_id) {
       return `mul-${source.mul_id}`;
     }
-    
+
     // Generate from chassis and model
     const sanitized = `${source.chassis}-${source.model}`
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
-    
+
     return sanitized || uuidv4();
   }
-  
+
   /**
    * Convert engine data
    */
   private convertEngine(
     source: { type: string; rating: number; manufacturer?: string },
-    techBase: TechBase
+    techBase: TechBase,
   ): { type: string; rating: number } {
     const engineType = mapEngineType(source.type, techBase);
-    
+
     return {
       type: engineType,
       rating: source.rating,
     };
   }
-  
+
   /**
    * Convert gyro data
    */
-  private convertGyro(_source: MegaMekLabUnit, _techBase: TechBase): { type: string } {
+  private convertGyro(
+    _source: MegaMekLabUnit,
+    _techBase: TechBase,
+  ): { type: string } {
     // MegaMekLab doesn't usually include gyro type in exported JSON
     // We default to standard, but could infer from criticals
     return {
       type: GyroType.STANDARD,
     };
   }
-  
+
   /**
    * Convert cockpit data
    */
@@ -373,33 +384,44 @@ export class UnitFormatConverter {
     // MegaMekLab doesn't usually include cockpit type in exported JSON
     return CockpitType.STANDARD;
   }
-  
+
   /**
    * Convert structure data
    */
   private convertStructure(
     source: { type: string; manufacturer?: string | null },
-    techBase: TechBase
+    techBase: TechBase,
   ): { type: string } {
     const structureType = mapStructureType(source.type, techBase);
-    
+
     return {
       type: structureType,
     };
   }
-  
+
   /**
    * Convert armor data
    */
   private convertArmor(
-    source: { type: string; manufacturer?: string; locations: SourceArmorLocation[]; total_armor_points?: number },
-    techBase: TechBase
-  ): { type: string; allocation: Record<string, number | { front: number; rear: number }> } {
+    source: {
+      type: string;
+      manufacturer?: string;
+      locations: SourceArmorLocation[];
+      total_armor_points?: number;
+    },
+    techBase: TechBase,
+  ): {
+    type: string;
+    allocation: Record<string, number | { front: number; rear: number }>;
+  } {
     const armorType = mapArmorType(source.type, techBase);
     const allocation = convertArmorLocations(source.locations);
-    
+
     // Convert IArmorAllocation to serialized format
-    const serializedAllocation: Record<string, number | { front: number; rear: number }> = {
+    const serializedAllocation: Record<
+      string,
+      number | { front: number; rear: number }
+    > = {
       head: allocation.head,
       centerTorso: {
         front: allocation.centerTorso,
@@ -418,29 +440,29 @@ export class UnitFormatConverter {
       leftLeg: allocation.leftLeg,
       rightLeg: allocation.rightLeg,
     };
-    
+
     return {
       type: armorType,
       allocation: serializedAllocation,
     };
   }
-  
+
   /**
    * Convert heat sinks data
    */
   private convertHeatSinks(
     source: { type: string; count: number },
     engineRating: number,
-    techBase: TechBase
+    techBase: TechBase,
   ): { type: string; count: number } {
     const heatSinkType = mapHeatSinkType(source.type, techBase);
-    
+
     return {
       type: heatSinkType,
       count: source.count,
     };
   }
-  
+
   /**
    * Convert movement data
    */
@@ -450,14 +472,16 @@ export class UnitFormatConverter {
     jumpJetType?: string;
     enhancements?: string[];
   } {
-    const walkMP = typeof source.walk_mp === 'string' 
-      ? parseInt(source.walk_mp, 10) 
-      : source.walk_mp;
-    
-    const jumpMP = typeof source.jump_mp === 'string'
-      ? parseInt(source.jump_mp, 10)
-      : source.jump_mp;
-    
+    const walkMP =
+      typeof source.walk_mp === 'string'
+        ? parseInt(source.walk_mp, 10)
+        : source.walk_mp;
+
+    const jumpMP =
+      typeof source.jump_mp === 'string'
+        ? parseInt(source.jump_mp, 10)
+        : source.jump_mp;
+
     // Detect movement enhancements from equipment
     const enhancements: string[] = [];
     for (const item of source.weapons_and_equipment) {
@@ -472,7 +496,7 @@ export class UnitFormatConverter {
         enhancements.push('Supercharger');
       }
     }
-    
+
     // Detect jump jet type from equipment
     let jumpJetType: string | undefined;
     for (const item of source.weapons_and_equipment) {
@@ -484,7 +508,7 @@ export class UnitFormatConverter {
         jumpJetType = 'Standard';
       }
     }
-    
+
     return {
       walk: walkMP || 0,
       jump: jumpMP || 0,
@@ -492,13 +516,13 @@ export class UnitFormatConverter {
       enhancements: enhancements.length > 0 ? enhancements : undefined,
     };
   }
-  
+
   /**
    * Convert equipment items
    */
   private convertEquipment(
     items: MegaMekLabEquipmentItem[],
-    unitTechBase: TechBase
+    unitTechBase: TechBase,
   ): Array<{
     id: string;
     location: string;
@@ -513,35 +537,38 @@ export class UnitFormatConverter {
       isRearMounted?: boolean;
       linkedAmmo?: string;
     }> = [];
-    
+
     for (const item of items) {
       // Skip system components (they're handled separately)
       if (equipmentNameResolver.isSystemComponent(item.item_type)) {
         continue;
       }
-      
+
       // Resolve equipment ID
-      const itemTechBase = item.tech_base === 'Clan' ? TechBase.CLAN : 
-                          item.tech_base === 'IS' ? TechBase.INNER_SPHERE : 
-                          unitTechBase;
-      
+      const itemTechBase =
+        item.tech_base === 'Clan'
+          ? TechBase.CLAN
+          : item.tech_base === 'IS'
+            ? TechBase.INNER_SPHERE
+            : unitTechBase;
+
       const resolution = equipmentNameResolver.resolve(
         item.item_type,
         item.item_name,
-        itemTechBase
+        itemTechBase,
       );
-      
+
       // Parse location
       const parsedLocation = parseLocation(item.location);
       const locationStr = parsedLocation?.location || item.location;
-      
+
       if (!resolution.found) {
         this.warnings.push({
           field: 'equipment',
           message: `Unknown equipment: ${item.item_name} (type: ${item.item_type})`,
           sourceValue: item,
         });
-        
+
         // Still include it with a generated ID
         result.push({
           id: this.generateEquipmentId(item.item_type, item.item_name),
@@ -556,46 +583,52 @@ export class UnitFormatConverter {
         });
       }
     }
-    
+
     return result;
   }
-  
+
   /**
    * Generate an equipment ID for unrecognized equipment
    */
   private generateEquipmentId(itemType: string, _itemName: string): string {
     return `unknown-${itemType.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   }
-  
+
   /**
    * Convert critical slots
    */
-  private convertCriticals(entries: SourceCriticalEntry[]): { [location: string]: (string | null)[] } {
+  private convertCriticals(entries: SourceCriticalEntry[]): {
+    [location: string]: (string | null)[];
+  } {
     const parsed = parseCriticalSlots(entries);
     const result: { [location: string]: (string | null)[] } = {};
-    
+
     for (const entry of parsed) {
-      const slots = entry.slots.map(slot => {
+      const slots = entry.slots.map((slot) => {
         if (slot === '-Empty-' || slot === 'Empty' || slot === '') {
           return null;
         }
         return slot;
       });
-      
+
       result[entry.location] = slots;
     }
-    
+
     return result;
   }
-  
+
   /**
    * Convert fluff/flavor text
    */
   private convertFluff(source: MegaMekLabUnit): ISerializedFluff | undefined {
-    if (!source.fluff_text && !source.manufacturers && !source.system_manufacturers) {
+    if (
+      !source.fluff_text &&
+      !source.manufacturers &&
+      !source.system_manufacturers
+    ) {
       return undefined;
     }
-    
+
     // Build fluff object - use Partial to allow building incrementally
     const fluff: Partial<{
       overview?: string;
@@ -608,14 +641,17 @@ export class UnitFormatConverter {
       primaryFactory?: string;
       systemManufacturer?: Record<string, string>;
     }> = {};
-    
+
     if (source.fluff_text) {
-      if (source.fluff_text.overview) fluff.overview = source.fluff_text.overview;
-      if (source.fluff_text.capabilities) fluff.capabilities = source.fluff_text.capabilities;
+      if (source.fluff_text.overview)
+        fluff.overview = source.fluff_text.overview;
+      if (source.fluff_text.capabilities)
+        fluff.capabilities = source.fluff_text.capabilities;
       if (source.fluff_text.history) fluff.history = source.fluff_text.history;
-      if (source.fluff_text.deployment) fluff.deployment = source.fluff_text.deployment;
+      if (source.fluff_text.deployment)
+        fluff.deployment = source.fluff_text.deployment;
     }
-    
+
     // Extract primary manufacturer
     if (source.manufacturers && source.manufacturers.length > 0) {
       fluff.manufacturer = source.manufacturers[0].name;
@@ -623,7 +659,7 @@ export class UnitFormatConverter {
         fluff.primaryFactory = source.manufacturers[0].location;
       }
     }
-    
+
     // Extract system manufacturers
     if (source.system_manufacturers && source.system_manufacturers.length > 0) {
       const systemMfrs: Record<string, string> = {};
@@ -632,11 +668,12 @@ export class UnitFormatConverter {
       }
       fluff.systemManufacturer = systemMfrs;
     }
-    
-    return Object.keys(fluff).length > 0 ? (fluff as ISerializedFluff) : undefined;
+
+    return Object.keys(fluff).length > 0
+      ? (fluff as ISerializedFluff)
+      : undefined;
   }
 }
 
 // Singleton instance
 export const unitFormatConverter = new UnitFormatConverter();
-

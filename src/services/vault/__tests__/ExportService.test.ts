@@ -23,7 +23,8 @@ const mockSerializeBundle = jest.fn();
 
 jest.mock('../BundleService', () => ({
   createBundle: (...args: unknown[]): unknown => mockCreateBundle(...args),
-  serializeBundle: (...args: unknown[]): string => mockSerializeBundle(...args) as string,
+  serializeBundle: (...args: unknown[]): string =>
+    mockSerializeBundle(...args) as string,
 }));
 
 // Import after mocking
@@ -152,7 +153,9 @@ describe('ExportService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockCreateBundle.mockResolvedValue(mockSuccessResult);
-    mockSerializeBundle.mockReturnValue(JSON.stringify(mockSuccessResult.data.bundle));
+    mockSerializeBundle.mockReturnValue(
+      JSON.stringify(mockSuccessResult.data.bundle),
+    );
   });
 
   // ===========================================================================
@@ -168,7 +171,7 @@ describe('ExportService', () => {
           'unit',
           [mockUnit],
           mockIdentity,
-          {}
+          {},
         );
         expect(result).toEqual(mockSuccessResult);
       });
@@ -185,7 +188,7 @@ describe('ExportService', () => {
           'unit',
           [mockUnit],
           mockIdentity,
-          options
+          options,
         );
       });
     });
@@ -199,7 +202,10 @@ describe('ExportService', () => {
             ...mockSuccessResult.data,
             bundle: {
               ...mockSuccessResult.data.bundle,
-              metadata: { ...mockSuccessResult.data.bundle.metadata, itemCount: 2 },
+              metadata: {
+                ...mockSuccessResult.data.bundle.metadata,
+                itemCount: 2,
+              },
             },
           },
         });
@@ -210,7 +216,7 @@ describe('ExportService', () => {
           'unit',
           units,
           mockIdentity,
-          {}
+          {},
         );
         expect(result.success).toBe(true);
       });
@@ -233,7 +239,7 @@ describe('ExportService', () => {
           'unit',
           units,
           mockIdentity,
-          options
+          options,
         );
       });
     });
@@ -252,7 +258,10 @@ describe('ExportService', () => {
             ...mockSuccessResult.data,
             bundle: {
               ...mockSuccessResult.data.bundle,
-              metadata: { ...mockSuccessResult.data.bundle.metadata, contentType: 'pilot' },
+              metadata: {
+                ...mockSuccessResult.data.bundle.metadata,
+                contentType: 'pilot',
+              },
             },
           },
         });
@@ -263,7 +272,7 @@ describe('ExportService', () => {
           'pilot',
           [mockPilot],
           mockIdentity,
-          {}
+          {},
         );
         expect(result.success).toBe(true);
       });
@@ -277,7 +286,7 @@ describe('ExportService', () => {
           'pilot',
           [mockPilot],
           mockIdentity,
-          options
+          options,
         );
       });
     });
@@ -292,7 +301,7 @@ describe('ExportService', () => {
           'pilot',
           pilots,
           mockIdentity,
-          {}
+          {},
         );
       });
 
@@ -319,7 +328,10 @@ describe('ExportService', () => {
             ...mockSuccessResult.data,
             bundle: {
               ...mockSuccessResult.data.bundle,
-              metadata: { ...mockSuccessResult.data.bundle.metadata, contentType: 'force' },
+              metadata: {
+                ...mockSuccessResult.data.bundle.metadata,
+                contentType: 'force',
+              },
             },
           },
         });
@@ -330,7 +342,7 @@ describe('ExportService', () => {
           'force',
           expect.arrayContaining([expect.objectContaining({ id: 'force-1' })]),
           mockIdentity,
-          {}
+          {},
         );
         expect(result.success).toBe(true);
       });
@@ -344,7 +356,7 @@ describe('ExportService', () => {
           'force',
           [mockForce],
           mockIdentity,
-          options
+          options,
         );
       });
 
@@ -355,13 +367,15 @@ describe('ExportService', () => {
 
         expect(mockCreateBundle).toHaveBeenCalledWith(
           'force',
-          [expect.objectContaining({
-            id: 'force-1',
-            pilots: undefined,
-            units: undefined,
-          })],
+          [
+            expect.objectContaining({
+              id: 'force-1',
+              pilots: undefined,
+              units: undefined,
+            }),
+          ],
           mockIdentity,
-          options
+          options,
         );
       });
     });
@@ -376,7 +390,7 @@ describe('ExportService', () => {
           'force',
           expect.any(Array),
           mockIdentity,
-          {}
+          {},
         );
       });
 
@@ -418,7 +432,7 @@ describe('ExportService', () => {
           'unit',
           [mockUnit],
           mockIdentity,
-          {}
+          {},
         );
       });
 
@@ -438,7 +452,7 @@ describe('ExportService', () => {
           'encounter',
           [encounter],
           mockIdentity,
-          {}
+          {},
         );
       });
 
@@ -451,7 +465,7 @@ describe('ExportService', () => {
           'unit',
           [mockUnit],
           mockIdentity,
-          options
+          options,
         );
       });
     });
@@ -491,8 +505,12 @@ describe('ExportService', () => {
         URL.revokeObjectURL = jest.fn();
 
         // Mock body methods
-        document.body.appendChild = jest.fn().mockImplementation(<T extends Node>(node: T): T => node);
-        document.body.removeChild = jest.fn().mockImplementation(<T extends Node>(node: T): T => node);
+        document.body.appendChild = jest
+          .fn()
+          .mockImplementation(<T extends Node>(node: T): T => node);
+        document.body.removeChild = jest
+          .fn()
+          .mockImplementation(<T extends Node>(node: T): T => node);
       });
 
       afterEach(() => {
@@ -507,7 +525,9 @@ describe('ExportService', () => {
       it('should trigger file download', () => {
         downloadBundle(mockSuccessResult);
 
-        expect(mockSerializeBundle).toHaveBeenCalledWith(mockSuccessResult.data.bundle);
+        expect(mockSerializeBundle).toHaveBeenCalledWith(
+          mockSuccessResult.data.bundle,
+        );
         expect(URL.createObjectURL).toHaveBeenCalled();
         expect(mockAnchor.click).toHaveBeenCalled();
         expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:test-url');
@@ -570,7 +590,9 @@ describe('ExportService', () => {
 
         await copyBundleToClipboard(mockSuccessResult);
 
-        expect(mockSerializeBundle).toHaveBeenCalledWith(mockSuccessResult.data.bundle);
+        expect(mockSerializeBundle).toHaveBeenCalledWith(
+          mockSuccessResult.data.bundle,
+        );
         expect(mockWriteText).toHaveBeenCalledWith(serialized);
       });
 
@@ -581,7 +603,7 @@ describe('ExportService', () => {
         };
 
         await expect(copyBundleToClipboard(failedResult)).rejects.toThrow(
-          'Export failed'
+          'Export failed',
         );
       });
     });
@@ -610,7 +632,7 @@ describe('ExportService', () => {
       mockCreateBundle.mockRejectedValue(new Error('Network error'));
 
       await expect(exportUnit(mockUnit, mockIdentity)).rejects.toThrow(
-        'Network error'
+        'Network error',
       );
     });
   });

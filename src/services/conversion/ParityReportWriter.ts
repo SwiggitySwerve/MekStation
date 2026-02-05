@@ -8,13 +8,14 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+
 import {
   IUnitValidationResult,
   IValidationSummary,
   IValidationManifest,
   IManifestEntry,
   IUnitIssueReport,
-  } from './types/ParityValidation';
+} from './types/ParityValidation';
 
 /**
  * Parity Report Writer
@@ -37,7 +38,7 @@ export class ParityReportWriter {
   writeReports(
     results: IUnitValidationResult[],
     summary: IValidationSummary,
-    outputDir: string
+    outputDir: string,
   ): void {
     // Ensure output directories exist
     const issuesDir = path.join(outputDir, 'issues');
@@ -60,7 +61,10 @@ export class ParityReportWriter {
   /**
    * Write per-unit issue file
    */
-  private writeUnitIssueFile(result: IUnitValidationResult, issuesDir: string): void {
+  private writeUnitIssueFile(
+    result: IUnitValidationResult,
+    issuesDir: string,
+  ): void {
     const report: IUnitIssueReport = {
       id: result.id,
       chassis: result.chassis,
@@ -80,7 +84,7 @@ export class ParityReportWriter {
   private writeManifest(
     results: IUnitValidationResult[],
     summary: IValidationSummary,
-    outputDir: string
+    outputDir: string,
   ): void {
     const entries: IManifestEntry[] = results.map((result) => ({
       id: result.id,
@@ -88,7 +92,8 @@ export class ParityReportWriter {
       model: result.model,
       mtfPath: result.mtfPath,
       status: result.status,
-      primaryIssueCategory: result.issues.length > 0 ? result.issues[0].category : undefined,
+      primaryIssueCategory:
+        result.issues.length > 0 ? result.issues[0].category : undefined,
       issueCount: result.issues.length,
     }));
 
@@ -115,7 +120,10 @@ export class ParityReportWriter {
    * Print console summary
    */
   printConsoleSummary(summary: IValidationSummary, outputDir: string): void {
-    const passRate = ((summary.unitsPassed / summary.unitsValidated) * 100).toFixed(1);
+    const passRate = (
+      (summary.unitsPassed / summary.unitsValidated) *
+      100
+    ).toFixed(1);
 
     console.log('');
     console.log('═══════════════════════════════════════════════════════════');
@@ -131,7 +139,9 @@ export class ParityReportWriter {
 
     console.log('  Summary:');
     console.log(`    Units validated:     ${summary.unitsValidated}`);
-    console.log(`    Units passed:        ${summary.unitsPassed} (${passRate}%)`);
+    console.log(
+      `    Units passed:        ${summary.unitsPassed} (${passRate}%)`,
+    );
     console.log(`    Units with issues:   ${summary.unitsWithIssues}`);
     console.log(`    Units with errors:   ${summary.unitsWithParseErrors}`);
     console.log('');
@@ -162,12 +172,19 @@ export class ParityReportWriter {
   /**
    * Print progress during validation
    */
-  printProgress(current: number, total: number, unit: string, verbose: boolean): void {
+  printProgress(
+    current: number,
+    total: number,
+    unit: string,
+    verbose: boolean,
+  ): void {
     if (verbose) {
       console.log(`[${current + 1}/${total}] ${path.basename(unit)}`);
     } else if (current % 100 === 0 || current === total - 1) {
       const percent = ((current / total) * 100).toFixed(0);
-      process.stdout.write(`\r  Processing: ${current + 1}/${total} (${percent}%)`);
+      process.stdout.write(
+        `\r  Processing: ${current + 1}/${total} (${percent}%)`,
+      );
     }
   }
 }

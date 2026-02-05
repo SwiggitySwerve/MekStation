@@ -9,8 +9,13 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import type { IVaultFolder } from '@/types/vault';
-import { getVaultService, IFolderWithPermissions } from '@/services/vault/VaultService';
+
+import {
+  getVaultService,
+  IFolderWithPermissions,
+} from '@/services/vault/VaultService';
 
 // =============================================================================
 // Types
@@ -40,7 +45,7 @@ interface ErrorResponse {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<FolderResponse | DeleteResponse | ErrorResponse>
+  res: NextApiResponse<FolderResponse | DeleteResponse | ErrorResponse>,
 ): Promise<void> {
   const { id } = req.query;
 
@@ -77,7 +82,7 @@ async function handleGet(
   id: string,
   req: NextApiRequest,
   res: NextApiResponse<FolderResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { includePermissions } = req.query;
 
@@ -100,7 +105,7 @@ async function handleUpdate(
   id: string,
   req: NextApiRequest,
   res: NextApiResponse<FolderResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { name, description, parentId } = req.body as UpdateFolderRequest;
 
@@ -116,7 +121,9 @@ async function handleUpdate(
       return res.status(400).json({ error: 'Folder name cannot be empty' });
     }
     if (name.length > 100) {
-      return res.status(400).json({ error: 'Folder name cannot exceed 100 characters' });
+      return res
+        .status(400)
+        .json({ error: 'Folder name cannot exceed 100 characters' });
     }
     await vaultService.renameFolder(id, name.trim());
   }
@@ -137,7 +144,9 @@ async function handleUpdate(
     }
     const moved = await vaultService.moveFolder(id, parentId);
     if (!moved) {
-      return res.status(400).json({ error: 'Cannot move folder (circular reference detected)' });
+      return res
+        .status(400)
+        .json({ error: 'Cannot move folder (circular reference detected)' });
     }
   }
 
@@ -149,7 +158,7 @@ async function handleUpdate(
 async function handleDelete(
   id: string,
   res: NextApiResponse<DeleteResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const folder = await vaultService.getFolder(id);
   if (!folder) {

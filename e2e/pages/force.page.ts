@@ -1,5 +1,7 @@
 import type { Page as _Page } from '@playwright/test';
+
 import { expect as _expect } from '@playwright/test';
+
 import { BasePage } from './base.page';
 
 // Re-export to silence unused warnings (types kept for documentation)
@@ -241,7 +243,9 @@ export class ForceCreatePage extends BasePage {
    * @param description - The force description
    */
   async fillDescription(description: string): Promise<void> {
-    await this.page.locator('[data-testid="force-description-input"]').fill(description);
+    await this.page
+      .locator('[data-testid="force-description-input"]')
+      .fill(description);
   }
 
   /**
@@ -280,7 +284,11 @@ export class ForceCreatePage extends BasePage {
    * @param forceType - The force type (defaults to 'lance')
    * @param affiliation - Optional affiliation
    */
-  async createForce(name: string, forceType: string = 'lance', affiliation?: string): Promise<void> {
+  async createForce(
+    name: string,
+    forceType: string = 'lance',
+    affiliation?: string,
+  ): Promise<void> {
     await this.fillName(name);
     await this.selectForceType(forceType);
     if (affiliation) {

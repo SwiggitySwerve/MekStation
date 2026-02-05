@@ -3,14 +3,32 @@
  * Tests for PageLayout Components
  */
 
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { PageLayout, PageLoading, PageError, EmptyState } from '@/components/ui/PageLayout';
+import React from 'react';
+
+import {
+  PageLayout,
+  PageLoading,
+  PageError,
+  EmptyState,
+} from '@/components/ui/PageLayout';
 
 // Mock next/link
 jest.mock('next/link', () => {
-  return function MockLink({ children, href, className }: { children: React.ReactNode; href: string; className?: string }) {
-    return <a href={href} className={className}>{children}</a>;
+  return function MockLink({
+    children,
+    href,
+    className,
+  }: {
+    children: React.ReactNode;
+    href: string;
+    className?: string;
+  }) {
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    );
   };
 });
 
@@ -18,14 +36,16 @@ describe('PageLayout Components', () => {
   describe('PageLayout', () => {
     it('should render title', () => {
       render(<PageLayout title="Test Page">Content</PageLayout>);
-      expect(screen.getByRole('heading', { name: 'Test Page' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: 'Test Page' }),
+      ).toBeInTheDocument();
     });
 
     it('should render subtitle', () => {
       render(
         <PageLayout title="Test" subtitle="This is a subtitle">
           Content
-        </PageLayout>
+        </PageLayout>,
       );
       expect(screen.getByText('This is a subtitle')).toBeInTheDocument();
     });
@@ -36,27 +56,35 @@ describe('PageLayout Components', () => {
     });
 
     it('should apply default max width', () => {
-      const { container } = render(<PageLayout title="Test">Content</PageLayout>);
+      const { container } = render(
+        <PageLayout title="Test">Content</PageLayout>,
+      );
       expect(container.querySelector('.max-w-7xl')).toBeInTheDocument();
     });
 
     it('should apply narrow max width', () => {
       const { container } = render(
-        <PageLayout title="Test" maxWidth="narrow">Content</PageLayout>
+        <PageLayout title="Test" maxWidth="narrow">
+          Content
+        </PageLayout>,
       );
       expect(container.querySelector('.max-w-5xl')).toBeInTheDocument();
     });
 
     it('should apply wide max width', () => {
       const { container } = render(
-        <PageLayout title="Test" maxWidth="wide">Content</PageLayout>
+        <PageLayout title="Test" maxWidth="wide">
+          Content
+        </PageLayout>,
       );
       expect(container.querySelector('.max-w-screen-2xl')).toBeInTheDocument();
     });
 
     it('should apply full max width', () => {
       const { container } = render(
-        <PageLayout title="Test" maxWidth="full">Content</PageLayout>
+        <PageLayout title="Test" maxWidth="full">
+          Content
+        </PageLayout>,
       );
       expect(container.querySelector('.max-w-full')).toBeInTheDocument();
     });
@@ -65,7 +93,7 @@ describe('PageLayout Components', () => {
       render(
         <PageLayout title="Test" backLink="/previous" backLabel="Go Back">
           Content
-        </PageLayout>
+        </PageLayout>,
       );
       const link = screen.getByRole('link', { name: /Go Back/i });
       expect(link).toHaveAttribute('href', '/previous');
@@ -75,7 +103,7 @@ describe('PageLayout Components', () => {
       render(
         <PageLayout title="Test" backLink={{ href: '/home', label: 'Home' }}>
           Content
-        </PageLayout>
+        </PageLayout>,
       );
       const link = screen.getByRole('link', { name: /Home/i });
       expect(link).toHaveAttribute('href', '/home');
@@ -86,9 +114,9 @@ describe('PageLayout Components', () => {
       render(
         <PageLayout title="Test" onBack={handleBack} backLabel="Cancel">
           Content
-        </PageLayout>
+        </PageLayout>,
       );
-      
+
       const button = screen.getByRole('button', { name: /Cancel/i });
       fireEvent.click(button);
       expect(handleBack).toHaveBeenCalledTimes(1);
@@ -96,26 +124,30 @@ describe('PageLayout Components', () => {
 
     it('should render header content', () => {
       render(
-        <PageLayout 
-          title="Test" 
+        <PageLayout
+          title="Test"
           headerContent={<button data-testid="header-btn">Action</button>}
         >
           Content
-        </PageLayout>
+        </PageLayout>,
       );
       expect(screen.getByTestId('header-btn')).toBeInTheDocument();
     });
 
     it('should apply gradient background when gradient=true', () => {
       const { container } = render(
-        <PageLayout title="Test" gradient>Content</PageLayout>
+        <PageLayout title="Test" gradient>
+          Content
+        </PageLayout>,
       );
       expect(container.firstChild).toHaveClass('bg-gradient-to-br');
     });
 
     it('should not apply gradient when gradient=false', () => {
       const { container } = render(
-        <PageLayout title="Test" gradient={false}>Content</PageLayout>
+        <PageLayout title="Test" gradient={false}>
+          Content
+        </PageLayout>,
       );
       expect(container.firstChild).not.toHaveClass('bg-gradient-to-br');
     });
@@ -180,7 +212,9 @@ describe('PageLayout Components', () => {
     it('should have error styling', () => {
       const { container } = render(<PageError message="Error" />);
       expect(container.querySelector('.bg-red-900\\/20')).toBeInTheDocument();
-      expect(container.querySelector('.border-red-600\\/30')).toBeInTheDocument();
+      expect(
+        container.querySelector('.border-red-600\\/30'),
+      ).toBeInTheDocument();
     });
   });
 
@@ -197,20 +231,17 @@ describe('PageLayout Components', () => {
 
     it('should render icon', () => {
       render(
-        <EmptyState 
-          title="Empty" 
-          icon={<span data-testid="icon">📭</span>}
-        />
+        <EmptyState title="Empty" icon={<span data-testid="icon">📭</span>} />,
       );
       expect(screen.getByTestId('icon')).toBeInTheDocument();
     });
 
     it('should render action', () => {
       render(
-        <EmptyState 
-          title="Empty" 
+        <EmptyState
+          title="Empty"
           action={<button data-testid="action-btn">Add Item</button>}
-        />
+        />,
       );
       expect(screen.getByTestId('action-btn')).toBeInTheDocument();
     });
@@ -223,4 +254,3 @@ describe('PageLayout Components', () => {
     });
   });
 });
-

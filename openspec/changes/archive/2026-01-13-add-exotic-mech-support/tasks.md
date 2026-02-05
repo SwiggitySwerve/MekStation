@@ -4,15 +4,16 @@
 
 **Status: 95/95 tasks complete (100%)**
 
-| Phase | Complete | Total | % |
-|-------|----------|-------|---|
-| 1. Foundation + Quad | 31/31 | 31 | 100% |
-| 2. LAM Support | 20/20 | 20 | 100% |
-| 3. Tripod Support | 12/12 | 12 | 100% |
-| 4. QuadVee Support | 13/13 | 13 | 100% |
-| 5. Integration Testing | 9/9 | 9 | 100% |
+| Phase                  | Complete | Total | %    |
+| ---------------------- | -------- | ----- | ---- |
+| 1. Foundation + Quad   | 31/31    | 31    | 100% |
+| 2. LAM Support         | 20/20    | 20    | 100% |
+| 3. Tripod Support      | 12/12    | 12    | 100% |
+| 4. QuadVee Support     | 13/13    | 13    | 100% |
+| 5. Integration Testing | 9/9      | 9     | 100% |
 
 **All tasks complete!**
+
 - MTF parser tests for all exotic configurations added
 - Integration tests for all exotic configurations added
 - Visual regression tests marked N/A (no Storybook infrastructure exists)
@@ -22,6 +23,7 @@
 ## Phase 1: Foundation + Quad Support
 
 ### 1.1 Configuration Registry Foundation
+
 - [x] 1.1.1 Create `MechConfigurationDefinition` interface in `src/types/construction/`
   - Implemented as `IMechConfigurationDefinition` in `MechConfigurationSystem.ts`
 - [x] 1.1.2 Create `LocationDefinition` interface with slot counts, max armor calculations
@@ -36,6 +38,7 @@
   - Comprehensive tests in `MechConfigurationSystem.test.ts`
 
 ### 1.2 MechLocation Enum Expansion
+
 - [x] 1.2.1 Add quad locations to MechLocation enum (FRONT_LEFT_LEG, FRONT_RIGHT_LEG, REAR_LEFT_LEG, REAR_RIGHT_LEG)
 - [x] 1.2.2 Add `getLocationsForConfig(config)` helper function
 - [x] 1.2.3 Add `getLocationDisplayName(location, config)` helper (e.g., "Front Left Leg" vs "Left Arm")
@@ -44,6 +47,7 @@
 - [x] 1.2.5 Add unit tests for location helpers
 
 ### 1.3 Quad Configuration Definition
+
 - [x] 1.3.1 Create quad configuration definition (8 locations, all with leg actuators)
   - Implemented as `QUAD_CONFIGURATION` constant
 - [x] 1.3.2 Define quad actuator layout (Hip, Upper Leg, Lower Leg, Foot × 4)
@@ -54,6 +58,7 @@
 - [x] 1.3.5 Add unit tests for quad configuration
 
 ### 1.4 MTF Parser Updates for Quad
+
 - [x] 1.4.1 Add configuration-specific location header mappings to parser
 - [x] 1.4.2 Add quad armor label mappings (FLL, FRL, RLL, RRL)
 - [x] 1.4.3 Update parser to read Config: line before location parsing
@@ -62,6 +67,7 @@
   - Validated via parity validation: 100% pass rate on all quad mechs in mm-data
 
 ### 1.5 Quad Armor Diagram
+
 - [x] 1.5.1 Create QuadArmorDiagram SVG component with 4-legged silhouette
   - Implemented in `armor/variants/QuadArmorDiagram.tsx`
 - [x] 1.5.2 Implement location regions for Head, CT, LT, RT, FLL, FRL, RLL, RRL
@@ -76,6 +82,7 @@
   - N/A: No Storybook infrastructure exists; visual testing uses Playwright E2E tests in e2e/visual-regression.spec.ts
 
 ### 1.6 Quad Validation Rules
+
 - [x] 1.6.1 Add `appliesTo` field to validation rule interface
   - Implemented via `canValidate(context)` method on each rule
 - [x] 1.6.2 Create quad-no-hand-actuators rule
@@ -92,6 +99,7 @@
 ## Phase 2: LAM Support
 
 ### 2.1 LAM Mode System
+
 - [x] 2.1.1 Create LAMMode enum (MECH, AIRMECH, FIGHTER)
   - Implemented in MechConfigurationSystem.ts
 - [x] 2.1.2 Create LAMModeDefinition interface with movement type, weapon restrictions
@@ -111,6 +119,7 @@
   - Tests modification tracking and timestamps
 
 ### 2.2 LAM Configuration Definition
+
 - [x] 2.2.1 Create LAM configuration definition (biped locations + special equipment)
   - Implemented as LAM_CONFIGURATION in MechConfigurationSystem.ts
 - [x] 2.2.2 Define required LAM equipment (Landing Gear × 3, Avionics × 3)
@@ -123,6 +132,7 @@
   - Tests in MechConfigurationSystem.test.ts and ConfigurationValidationRules.test.ts
 
 ### 2.3 MTF Parser Updates for LAM
+
 - [x] 2.3.1 Add LAM config detection in parser
 - [x] 2.3.2 Parse Landing Gear and Avionics as fixed equipment
 - [x] 2.3.3 Add LAM MTF export with correct equipment placement
@@ -130,6 +140,7 @@
   - Tests in MTFParserService.test.ts covering LAM configuration parsing
 
 ### 2.4 LAM Armor Diagram
+
 - [x] 2.4.1 Create LAMArmorDiagram component with mode toggle
   - Implemented in armor/variants/LAMArmorDiagram.tsx
 - [x] 2.4.2 Implement Mech mode view (biped silhouette)
@@ -142,6 +153,7 @@
   - N/A: No Storybook infrastructure exists; visual testing uses Playwright E2E tests
 
 ### 2.5 LAM Validation Rules
+
 - [x] 2.5.1 Create LAM-avionics-required rule
   - Implemented as LAMAvionicsRule in ConfigurationValidationRules.ts
 - [x] 2.5.2 Create LAM-landing-gear-required rule
@@ -154,6 +166,7 @@
 ## Phase 3: Tripod Support
 
 ### 3.1 Tripod Configuration
+
 - [x] 3.1.1 Add CENTER_LEG to MechLocation enum
 - [x] 3.1.2 Create tripod configuration definition (9 locations)
   - Implemented as TRIPOD_CONFIGURATION in MechConfigurationSystem.ts
@@ -165,6 +178,7 @@
   - Tests in MechConfigurationSystem.test.ts and ConfigurationValidationRules.test.ts
 
 ### 3.2 MTF Parser Updates for Tripod
+
 - [x] 3.2.1 Add tripod location header mapping (Center Leg:)
 - [x] 3.2.2 Add tripod armor label mapping (CL armor)
 - [x] 3.2.3 Add tripod MTF export support
@@ -172,6 +186,7 @@
   - Validated via parity validation: 100% pass rate on all tripod mechs in mm-data
 
 ### 3.3 Tripod Armor Diagram
+
 - [x] 3.3.1 Create TripodArmorDiagram SVG component
   - Implemented in armor/variants/TripodArmorDiagram.tsx
 - [x] 3.3.2 Implement 9 location regions (8 biped + center leg)
@@ -182,6 +197,7 @@
   - N/A: No Storybook infrastructure exists; visual testing uses Playwright E2E tests
 
 ### 3.4 Tripod Validation Rules
+
 - [x] 3.4.1 Create tripod-center-leg-equipment rule (tracks, talons use all 3 legs)
   - Implemented as TripodCenterLegRule and TripodLegEquipmentRule
 - [x] 3.4.2 Add validation tests for tripod mechs
@@ -190,6 +206,7 @@
 ## Phase 4: QuadVee Support
 
 ### 4.1 QuadVee Configuration
+
 - [x] 4.1.1 Create QuadVeeMode enum (MECH, VEHICLE)
   - Implemented in MechConfigurationSystem.ts
 - [x] 4.1.2 Create QuadVee configuration definition (extends Quad)
@@ -202,6 +219,7 @@
   - Tests in MechConfigurationSystem.test.ts and ConfigurationValidationRules.test.ts
 
 ### 4.2 MTF Parser Updates for QuadVee
+
 - [x] 4.2.1 Add QuadVee config detection
   - Uses same quad location parsing
 - [x] 4.2.2 Add QuadVee MTF export support
@@ -210,6 +228,7 @@
   - Tests in MTFParserService.test.ts covering QuadVee configuration parsing
 
 ### 4.3 QuadVee Armor Diagram
+
 - [x] 4.3.1 Create QuadVeeArmorDiagram with mode toggle
   - Implemented in armor/variants/QuadVeeArmorDiagram.tsx
 - [x] 4.3.2 Implement quad silhouette for mech mode
@@ -220,6 +239,7 @@
   - N/A: No Storybook infrastructure exists; visual testing uses Playwright E2E tests
 
 ### 4.4 QuadVee Validation Rules
+
 - [x] 4.4.1 Create QuadVee-specific validation rules
   - QuadVeeConversionEquipmentRule, QuadVeeTracksRule, QuadVeeTotalSlotsRule, QuadVeeLegArmorBalanceRule
 - [x] 4.4.2 Add validation tests for QuadVee mechs
@@ -228,6 +248,7 @@
 ## Phase 5: Integration Testing
 
 ### 5.1 End-to-End Testing
+
 - [x] 5.1.1 Test importing quad mech from MegaMekLab JSON
   - Tests in ExoticMechConfigurations.test.ts - Phase 5: Round-Trip Export/Import
 - [x] 5.1.2 Test round-trip MTF export/import for quad
@@ -242,6 +263,7 @@
   - Tests in ExoticMechConfigurations.test.ts - 5.1.6 QuadVee Round-Trip
 
 ### 5.2 Migration Verification
+
 - [x] 5.2.1 Verify existing biped units load correctly
   - Tests in ExoticMechConfigurations.test.ts - 5.2.1 Existing Biped Units
 - [x] 5.2.2 Verify no regression in biped functionality

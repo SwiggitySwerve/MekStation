@@ -1,38 +1,45 @@
 /**
  * Equipment Calculator Service
- * 
+ *
  * Calculates variable equipment properties using the formula registry.
  * Supports both built-in and custom equipment formulas.
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  */
 
-import { IVariableEquipmentContext, ICalculatedEquipmentProperties } from '../common/types';
 import { ValidationError } from '../common/errors';
+import {
+  IVariableEquipmentContext,
+  ICalculatedEquipmentProperties,
+} from '../common/types';
+import {
+  formulaEvaluator,
+  IFormulaEvaluator,
+  FormulaContext,
+} from './FormulaEvaluator';
 import { formulaRegistry, IFormulaRegistry } from './FormulaRegistry';
-import { formulaEvaluator, IFormulaEvaluator, FormulaContext } from './FormulaEvaluator';
 
 /**
  * Equipment calculator service interface
  */
 export interface IEquipmentCalculatorService {
   initialize(): Promise<void>;
-  
+
   calculateProperties(
     equipmentId: string,
-    context: IVariableEquipmentContext
+    context: IVariableEquipmentContext,
   ): ICalculatedEquipmentProperties;
-  
+
   isVariable(equipmentId: string): boolean;
-  
+
   getRequiredContext(equipmentId: string): readonly string[];
-  
+
   getAllVariableEquipmentIds(): string[];
 }
 
 /**
  * Equipment Calculator Service implementation
- * 
+ *
  * Uses FormulaRegistry for formula definitions and FormulaEvaluator for evaluation.
  */
 export class EquipmentCalculatorService implements IEquipmentCalculatorService {
@@ -41,7 +48,7 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
 
   constructor(
     registry: IFormulaRegistry = formulaRegistry,
-    evaluator: IFormulaEvaluator = formulaEvaluator
+    evaluator: IFormulaEvaluator = formulaEvaluator,
   ) {
     this.registry = registry;
     this.evaluator = evaluator;
@@ -59,33 +66,34 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
    */
   calculateProperties(
     equipmentId: string,
-    context: IVariableEquipmentContext
+    context: IVariableEquipmentContext,
   ): ICalculatedEquipmentProperties {
     // Get formulas from registry
     const formulas = this.registry.getFormulas(equipmentId);
-    
+
     if (!formulas) {
-      throw new ValidationError(
-        `Unknown variable equipment: ${equipmentId}`,
-        [`Equipment ID '${equipmentId}' has no formula definition`]
-      );
+      throw new ValidationError(`Unknown variable equipment: ${equipmentId}`, [
+        `Equipment ID '${equipmentId}' has no formula definition`,
+      ]);
     }
 
     // Validate required context
     const formulaContext = this.buildFormulaContext(context);
     const required = formulas.requiredContext;
-    const missing = required.filter(field => formulaContext[field] === undefined);
-    
+    const missing = required.filter(
+      (field) => formulaContext[field] === undefined,
+    );
+
     if (missing.length > 0) {
       throw new ValidationError(
         `Missing required context for ${equipmentId}`,
-        missing.map(f => `Missing: ${f}`)
+        missing.map((f) => `Missing: ${f}`),
       );
     }
 
     // Calculate weight first (may be needed by other formulas)
     const weight = this.evaluator.evaluate(formulas.weight, formulaContext);
-    
+
     // Add calculated weight to context for EQUALS_WEIGHT formulas
     const contextWithWeight: FormulaContext = {
       ...formulaContext,
@@ -93,11 +101,17 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
     };
 
     // Calculate slots and cost
-    const criticalSlots = this.evaluator.evaluate(formulas.criticalSlots, contextWithWeight);
-    const costCBills = this.evaluator.evaluate(formulas.cost, contextWithWeight);
+    const criticalSlots = this.evaluator.evaluate(
+      formulas.criticalSlots,
+      contextWithWeight,
+    );
+    const costCBills = this.evaluator.evaluate(
+      formulas.cost,
+      contextWithWeight,
+    );
 
     // Calculate damage if formula exists (physical weapons)
-    const damage = formulas.damage 
+    const damage = formulas.damage
       ? this.evaluator.evaluate(formulas.damage, contextWithWeight)
       : undefined;
 
@@ -137,7 +151,9 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
   /**
    * Build formula context from variable equipment context
    */
-  private buildFormulaContext(context: IVariableEquipmentContext): FormulaContext {
+  private buildFormulaContext(
+    context: IVariableEquipmentContext,
+  ): FormulaContext {
     const formulaContext: FormulaContext = {};
 
     // Map all defined properties to formula context
@@ -155,9 +171,10 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
     }
     if (context.techBase !== undefined) {
       // Convert TechBase enum to string for formula context
-      formulaContext.techBase = typeof context.techBase === 'string' 
-        ? 0 // Default numeric value
-        : context.techBase;
+      formulaContext.techBase =
+        typeof context.techBase === 'string'
+          ? 0 // Default numeric value
+          : context.techBase;
     }
 
     return formulaContext;
@@ -203,7 +220,7 @@ export const VARIABLE_EQUIPMENT = {
   SUPERCHARGER: 'supercharger',
   PARTIAL_WING: 'partial-wing',
   TSM: 'tsm',
-  
+
   // Physical weapons
   HATCHET: 'hatchet',
   SWORD: 'sword',

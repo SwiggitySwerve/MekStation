@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { action } from '@storybook/addon-actions';
+
 import { AdvanceDayButton, BlockingAction } from './AdvanceDayButton';
 
 const meta = {
@@ -30,7 +32,7 @@ const meta = {
       description: 'Called when advancing day (no blockers)',
     },
     onBlockerClick: {
-      action: 'onBlockerClick', 
+      action: 'onBlockerClick',
       description: 'Called when clicking a blocked button',
     },
   },
@@ -47,7 +49,8 @@ export const Ready: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Ready state with pulsing green button. Click to advance the day.',
+        story:
+          'Ready state with pulsing green button. Click to advance the day.',
       },
     },
   },
@@ -55,9 +58,7 @@ export const Ready: Story = {
 
 export const BlockedSingle: Story = {
   args: {
-    blockers: [
-      { type: 'assign_pilots', message: 'Assign Pilots', count: 3 },
-    ],
+    blockers: [{ type: 'assign_pilots', message: 'Assign Pilots', count: 3 }],
     onBlockerClick: action('Navigate to blocker'),
   },
   parameters: {
@@ -81,7 +82,8 @@ export const BlockedMultiple: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Multiple blocking actions. Hover to see tooltip with all blockers.',
+        story:
+          'Multiple blocking actions. Hover to see tooltip with all blockers.',
       },
     },
   },
@@ -103,9 +105,7 @@ export const Disabled: Story = {
 export const DisabledWithBlockers: Story = {
   args: {
     disabled: true,
-    blockers: [
-      { type: 'assign_pilots', message: 'Assign Pilots', count: 1 },
-    ],
+    blockers: [{ type: 'assign_pilots', message: 'Assign Pilots', count: 1 }],
   },
   parameters: {
     docs: {
@@ -126,10 +126,10 @@ const blockerExamples: BlockingAction[] = [
 export const AllBlockerTypes: Story = {
   render: () => (
     <div className="space-y-6">
-      <div className="text-slate-400 text-sm font-medium mb-4">
+      <div className="mb-4 text-sm font-medium text-slate-400">
         Different blocker types and their display
       </div>
-      <div className="flex flex-col gap-4 items-center">
+      <div className="flex flex-col items-center gap-4">
         {blockerExamples.map((blocker) => (
           <AdvanceDayButton
             key={blocker.type}
@@ -153,20 +153,28 @@ export const AllStates: Story = {
   render: () => (
     <div className="space-y-8">
       <div>
-        <div className="text-slate-400 text-sm font-medium mb-3">Ready State</div>
+        <div className="mb-3 text-sm font-medium text-slate-400">
+          Ready State
+        </div>
         <AdvanceDayButton onAdvance={action('Day advanced!')} />
       </div>
-      
+
       <div>
-        <div className="text-slate-400 text-sm font-medium mb-3">Blocked State (Single)</div>
+        <div className="mb-3 text-sm font-medium text-slate-400">
+          Blocked State (Single)
+        </div>
         <AdvanceDayButton
-          blockers={[{ type: 'assign_pilots', message: 'Assign Pilots', count: 3 }]}
+          blockers={[
+            { type: 'assign_pilots', message: 'Assign Pilots', count: 3 },
+          ]}
           onBlockerClick={action('Navigate to blocker')}
         />
       </div>
-      
+
       <div>
-        <div className="text-slate-400 text-sm font-medium mb-3">Blocked State (Multiple - hover me)</div>
+        <div className="mb-3 text-sm font-medium text-slate-400">
+          Blocked State (Multiple - hover me)
+        </div>
         <AdvanceDayButton
           blockers={[
             { type: 'assign_pilots', message: 'Assign Pilots', count: 2 },
@@ -176,9 +184,11 @@ export const AllStates: Story = {
           onBlockerClick={action('Navigate to blocker')}
         />
       </div>
-      
+
       <div>
-        <div className="text-slate-400 text-sm font-medium mb-3">Disabled State</div>
+        <div className="mb-3 text-sm font-medium text-slate-400">
+          Disabled State
+        </div>
         <AdvanceDayButton disabled />
       </div>
     </div>
@@ -214,16 +224,17 @@ export const Interactive: Story = {
 
     return (
       <div className="space-y-6 text-center">
-        <div className="text-slate-400 text-sm">
-          Click the button to resolve blockers. When all are resolved, you can advance.
+        <div className="text-sm text-slate-400">
+          Click the button to resolve blockers. When all are resolved, you can
+          advance.
         </div>
         <AdvanceDayButton
           blockers={blockers}
           onAdvance={handleAdvance}
           onBlockerClick={handleBlockerClick}
         />
-        <div className="text-slate-500 text-xs">
-          {blockers.length > 0 
+        <div className="text-xs text-slate-500">
+          {blockers.length > 0
             ? `${blockers.length} blocker(s) remaining`
             : 'Ready to advance!'}
         </div>
@@ -233,7 +244,8 @@ export const Interactive: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Interactive demo: click to resolve blockers, then advance the day.',
+        story:
+          'Interactive demo: click to resolve blockers, then advance the day.',
       },
     },
   },

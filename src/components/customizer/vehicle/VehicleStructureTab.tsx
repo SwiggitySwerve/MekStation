@@ -8,10 +8,12 @@
  */
 
 import React, { useCallback } from 'react';
+
 import { useVehicleStore } from '@/stores/useVehicleStore';
+import { EngineType } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
-import { EngineType } from '@/types/construction/EngineType';
+
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -26,7 +28,11 @@ const VEHICLE_TONNAGE = {
   superheavyMin: 101,
 };
 
-const MOTION_TYPE_OPTIONS: { value: GroundMotionType; label: string; maxTonnage: number }[] = [
+const MOTION_TYPE_OPTIONS: {
+  value: GroundMotionType;
+  label: string;
+  maxTonnage: number;
+}[] = [
   { value: GroundMotionType.TRACKED, label: 'Tracked', maxTonnage: 200 },
   { value: GroundMotionType.WHEELED, label: 'Wheeled', maxTonnage: 80 },
   { value: GroundMotionType.HOVER, label: 'Hover', maxTonnage: 50 },
@@ -92,7 +98,9 @@ export function VehicleStructureTab({
   const isSuperheavy = useVehicleStore((s) => s.isSuperheavy);
 
   // Special features
-  const hasEnvironmentalSealing = useVehicleStore((s) => s.hasEnvironmentalSealing);
+  const hasEnvironmentalSealing = useVehicleStore(
+    (s) => s.hasEnvironmentalSealing,
+  );
   const hasFlotationHull = useVehicleStore((s) => s.hasFlotationHull);
   const isAmphibious = useVehicleStore((s) => s.isAmphibious);
   const hasTrailerHitch = useVehicleStore((s) => s.hasTrailerHitch);
@@ -105,7 +113,9 @@ export function VehicleStructureTab({
   const setCruiseMP = useVehicleStore((s) => s.setCruiseMP);
   const setTurretType = useVehicleStore((s) => s.setTurretType);
   const setIsOmni = useVehicleStore((s) => s.setIsOmni);
-  const setEnvironmentalSealing = useVehicleStore((s) => s.setEnvironmentalSealing);
+  const setEnvironmentalSealing = useVehicleStore(
+    (s) => s.setEnvironmentalSealing,
+  );
   const setFlotationHull = useVehicleStore((s) => s.setFlotationHull);
   const setAmphibious = useVehicleStore((s) => s.setAmphibious);
   const setTrailerHitch = useVehicleStore((s) => s.setTrailerHitch);
@@ -122,7 +132,7 @@ export function VehicleStructureTab({
       const clamped = Math.max(VEHICLE_TONNAGE.min, Math.min(max, newTonnage));
       setTonnage(clamped);
     },
-    [setTonnage, maxTonnageForMotion]
+    [setTonnage, maxTonnageForMotion],
   );
 
   const handleMotionTypeChange = useCallback(
@@ -131,19 +141,21 @@ export function VehicleStructureTab({
       setMotionType(newMotionType);
 
       // Clamp tonnage if needed for new motion type
-      const maxTonnage = MOTION_TYPE_OPTIONS.find((m) => m.value === newMotionType)?.maxTonnage ?? 200;
+      const maxTonnage =
+        MOTION_TYPE_OPTIONS.find((m) => m.value === newMotionType)
+          ?.maxTonnage ?? 200;
       if (tonnage > maxTonnage) {
         setTonnage(maxTonnage);
       }
     },
-    [setMotionType, setTonnage, tonnage]
+    [setMotionType, setTonnage, tonnage],
   );
 
   const handleEngineTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       setEngineType(e.target.value as EngineType);
     },
-    [setEngineType]
+    [setEngineType],
   );
 
   const handleCruiseMPChange = useCallback(
@@ -151,25 +163,30 @@ export function VehicleStructureTab({
       const clamped = Math.max(1, Math.min(20, newCruiseMP));
       setCruiseMP(clamped);
     },
-    [setCruiseMP]
+    [setCruiseMP],
   );
 
   const handleTurretTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       setTurretType(e.target.value as TurretType);
     },
-    [setTurretType]
+    [setTurretType],
   );
 
   // Filter turret options based on motion type
   const availableTurretOptions =
     motionType === GroundMotionType.VTOL
-      ? TURRET_TYPE_OPTIONS.filter((t) => t.value === TurretType.NONE || t.value === TurretType.CHIN)
+      ? TURRET_TYPE_OPTIONS.filter(
+          (t) => t.value === TurretType.NONE || t.value === TurretType.CHIN,
+        )
       : TURRET_TYPE_OPTIONS.filter((t) => t.value !== TurretType.CHIN);
 
   return (
-    <div className={`${cs.panel.main} ${className}`} data-testid="vehicle-structure-tab">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div
+      className={`${cs.panel.main} ${className}`}
+      data-testid="vehicle-structure-tab"
+    >
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Chassis Section */}
         <section data-testid="vehicle-chassis-section">
           <h3 className={cs.text.sectionTitle}>Chassis</h3>
@@ -177,7 +194,7 @@ export function VehicleStructureTab({
           {/* Tonnage */}
           <div className="mb-4">
             <label className={cs.text.label}>Tonnage</label>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1 flex items-center gap-2">
               <input
                 type="number"
                 value={tonnage}
@@ -192,7 +209,9 @@ export function VehicleStructureTab({
               <span className={cs.text.secondary}>tons</span>
             </div>
             {isSuperheavy && (
-              <p className="text-amber-400 text-xs mt-1">Superheavy vehicle (&gt;100 tons)</p>
+              <p className="mt-1 text-xs text-amber-400">
+                Superheavy vehicle (&gt;100 tons)
+              </p>
             )}
           </div>
 
@@ -233,13 +252,13 @@ export function VehicleStructureTab({
 
           {/* OmniVehicle Toggle */}
           <div className="mb-4">
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={isOmni}
                 onChange={(e) => setIsOmni(e.target.checked)}
                 disabled={readOnly}
-                className="rounded border-border-theme bg-surface-raised"
+                className="border-border-theme bg-surface-raised rounded"
               />
               <span className={cs.text.label}>OmniVehicle</span>
             </label>
@@ -266,19 +285,26 @@ export function VehicleStructureTab({
                 </option>
               ))}
             </select>
-            {isTrailer && <p className={cs.text.secondary}>Trailers have no engine</p>}
+            {isTrailer && (
+              <p className={cs.text.secondary}>Trailers have no engine</p>
+            )}
           </div>
 
           {/* Engine Rating (read-only, derived) */}
           <div className="mb-4">
             <label className={cs.text.label}>Engine Rating</label>
-            <div className={`${cs.text.value} mt-1`} data-testid="vehicle-engine-rating">{engineRating}</div>
+            <div
+              className={`${cs.text.value} mt-1`}
+              data-testid="vehicle-engine-rating"
+            >
+              {engineRating}
+            </div>
           </div>
 
           {/* Cruise MP */}
           <div className="mb-4">
             <label className={cs.text.label}>Cruise MP</label>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1 flex items-center gap-2">
               <input
                 type="number"
                 value={cruiseMP}
@@ -297,7 +323,12 @@ export function VehicleStructureTab({
           {/* Flank MP (read-only, derived) */}
           <div className="mb-4">
             <label className={cs.text.label}>Flank MP</label>
-            <div className={`${cs.text.value} mt-1`} data-testid="vehicle-flank-mp">{flankMP}</div>
+            <div
+              className={`${cs.text.value} mt-1`}
+              data-testid="vehicle-flank-mp"
+            >
+              {flankMP}
+            </div>
           </div>
         </section>
 
@@ -306,57 +337,57 @@ export function VehicleStructureTab({
           <h3 className={cs.text.sectionTitle}>Special Features</h3>
 
           <div className="space-y-3">
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={hasEnvironmentalSealing}
                 onChange={(e) => setEnvironmentalSealing(e.target.checked)}
                 disabled={readOnly}
-                className="rounded border-border-theme bg-surface-raised"
+                className="border-border-theme bg-surface-raised rounded"
               />
               <span className={cs.text.label}>Environmental Sealing</span>
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={hasFlotationHull}
                 onChange={(e) => setFlotationHull(e.target.checked)}
                 disabled={readOnly}
-                className="rounded border-border-theme bg-surface-raised"
+                className="border-border-theme bg-surface-raised rounded"
               />
               <span className={cs.text.label}>Flotation Hull</span>
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={isAmphibious}
                 onChange={(e) => setAmphibious(e.target.checked)}
                 disabled={readOnly}
-                className="rounded border-border-theme bg-surface-raised"
+                className="border-border-theme bg-surface-raised rounded"
               />
               <span className={cs.text.label}>Amphibious</span>
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={hasTrailerHitch}
                 onChange={(e) => setTrailerHitch(e.target.checked)}
                 disabled={readOnly}
-                className="rounded border-border-theme bg-surface-raised"
+                className="border-border-theme bg-surface-raised rounded"
               />
               <span className={cs.text.label}>Trailer Hitch</span>
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={isTrailer}
                 onChange={(e) => setIsTrailer(e.target.checked)}
                 disabled={readOnly}
-                className="rounded border-border-theme bg-surface-raised"
+                className="border-border-theme bg-surface-raised rounded"
               />
               <span className={cs.text.label}>Is Trailer (no engine)</span>
             </label>

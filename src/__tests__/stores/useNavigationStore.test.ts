@@ -1,5 +1,9 @@
 import { renderHook, act } from '@testing-library/react';
-import { useNavigationStore, useMobileSidebarStore } from '../../stores/useNavigationStore';
+
+import {
+  useNavigationStore,
+  useMobileSidebarStore,
+} from '../../stores/useNavigationStore';
 
 // =============================================================================
 // Mobile Sidebar Store Tests
@@ -222,7 +226,10 @@ describe('useNavigationStore', () => {
       const { result } = renderHook(() => useNavigationStore());
 
       act(() => {
-        result.current.pushPanel('unit-detail', { unitId: '123', scrollPos: 100 });
+        result.current.pushPanel('unit-detail', {
+          unitId: '123',
+          scrollPos: 100,
+        });
       });
 
       expect(result.current.history[1].state).toEqual({
@@ -626,9 +633,9 @@ describe('useNavigationStore', () => {
       expect(result.current.history).toHaveLength(4);
       // First entry is catalog, rest are editor
       expect(result.current.history[0].id).toBe('catalog');
-      expect(result.current.history.slice(1).every((entry) => entry.id === 'editor')).toBe(
-        true
-      );
+      expect(
+        result.current.history.slice(1).every((entry) => entry.id === 'editor'),
+      ).toBe(true);
     });
 
     it('should handle rapid back/forward calls', () => {

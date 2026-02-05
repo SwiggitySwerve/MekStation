@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ViewModeToggle, ViewMode } from './ViewModeToggle';
+
 import { useState } from 'react';
+
+import { ViewModeToggle, ViewMode } from './ViewModeToggle';
 
 const meta: Meta<typeof ViewModeToggle> = {
   title: 'UI/ViewModeToggle',

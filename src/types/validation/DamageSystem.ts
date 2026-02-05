@@ -1,8 +1,8 @@
 /**
  * Damage System Types
- * 
+ *
  * Defines damage types, hit locations, and damage resolution.
- * 
+ *
  * @spec openspec/specs/damage-system/spec.md
  */
 
@@ -87,7 +87,7 @@ export const REAR_HIT_LOCATION_TABLE: Record<number, MechLocation> = {
  * Per TechManual p.109
  */
 export const LEFT_SIDE_HIT_LOCATION_TABLE: Record<number, MechLocation> = {
-  2: MechLocation.LEFT_TORSO,   // LT (Through Armor Critical)
+  2: MechLocation.LEFT_TORSO, // LT (Through Armor Critical)
   3: MechLocation.LEFT_LEG,
   4: MechLocation.LEFT_ARM,
   5: MechLocation.LEFT_ARM,
@@ -106,7 +106,7 @@ export const LEFT_SIDE_HIT_LOCATION_TABLE: Record<number, MechLocation> = {
  * Per TechManual p.109
  */
 export const RIGHT_SIDE_HIT_LOCATION_TABLE: Record<number, MechLocation> = {
-  2: MechLocation.RIGHT_TORSO,  // RT (Through Armor Critical)
+  2: MechLocation.RIGHT_TORSO, // RT (Through Armor Critical)
   3: MechLocation.RIGHT_LEG,
   4: MechLocation.RIGHT_ARM,
   5: MechLocation.RIGHT_ARM,
@@ -205,7 +205,9 @@ export interface DamageHit {
 /**
  * Get the appropriate hit location table for an attack direction
  */
-export function getHitLocationTable(table: HitLocationTable): Record<number, MechLocation> {
+export function getHitLocationTable(
+  table: HitLocationTable,
+): Record<number, MechLocation> {
   switch (table) {
     case HitLocationTable.MECH_FRONT:
       return FRONT_HIT_LOCATION_TABLE;
@@ -226,28 +228,30 @@ export function getHitLocationTable(table: HitLocationTable): Record<number, Mec
 
 /**
  * Get hit location from roll
- * 
+ *
  * @param roll - 2d6 roll for standard tables, 1d6 for punch/kick
  * @param table - Which hit location table to use based on attack direction
  */
 export function getHitLocation(
   roll: number,
-  table: HitLocationTable
+  table: HitLocationTable,
 ): HitLocationResult {
   const locationTable = getHitLocationTable(table);
   const location = locationTable[roll] ?? MechLocation.CENTER_TORSO;
-  
+
   // Determine if this is a rear hit
   const isRear = table === HitLocationTable.MECH_REAR;
-  
+
   // Through Armor Critical (TAC) on roll of 2 for 2d6 tables
   // Punch/Kick use 1d6 so roll of 2 is not special
-  const isPunchOrKick = table === HitLocationTable.MECH_PUNCH || table === HitLocationTable.MECH_KICK;
+  const isPunchOrKick =
+    table === HitLocationTable.MECH_PUNCH ||
+    table === HitLocationTable.MECH_KICK;
   const isTACCandidate = !isPunchOrKick && roll === 2;
-  
+
   // Head hit on 12 is always critical candidate
   const isHeadHit = roll === 12 && !isPunchOrKick;
-  
+
   return {
     roll,
     location,
@@ -258,28 +262,29 @@ export function getHitLocation(
 
 /**
  * Determine attack direction based on attacker and target facing
- * 
+ *
  * @param attackerHex - Attacker's hex position
- * @param targetHex - Target's hex position  
+ * @param targetHex - Target's hex position
  * @param targetFacing - Target's facing direction (0-5)
  * @returns The appropriate hit location table
  */
 export function determineAttackDirection(
   attackerHex: { x: number; y: number },
   targetHex: { x: number; y: number },
-  targetFacing: number
+  targetFacing: number,
 ): HitLocationTable {
   // Calculate relative direction from target to attacker
   const dx = attackerHex.x - targetHex.x;
   const dy = attackerHex.y - targetHex.y;
-  
+
   // Convert to hex direction (0-5, where 0 is "north")
   // This is simplified - full hex geometry is more complex
-  const attackDirection = Math.round(Math.atan2(dy, dx) * 3 / Math.PI + 3) % 6;
-  
+  const attackDirection =
+    Math.round((Math.atan2(dy, dx) * 3) / Math.PI + 3) % 6;
+
   // Calculate relative direction from target's perspective
   const relativeDirection = (attackDirection - targetFacing + 6) % 6;
-  
+
   // Map relative direction to attack arc
   // 0 = directly ahead, 3 = directly behind
   // 1,5 = front-side, 2,4 = rear-side
@@ -305,16 +310,17 @@ export function determineAttackDirection(
 export function getClusterHits(roll: number, missileCount: number): number {
   const row = CLUSTER_HIT_TABLE[roll];
   if (!row) return 0;
-  
+
   // Find closest missile count in table
-  const validCounts = Object.keys(row).map(Number).sort((a, b) => a - b);
+  const validCounts = Object.keys(row)
+    .map(Number)
+    .sort((a, b) => a - b);
   let count = validCounts[0];
-  
+
   for (const c of validCounts) {
     if (c <= missileCount) count = c;
     else break;
   }
-  
+
   return row[count] ?? 0;
 }
-

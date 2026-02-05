@@ -15,7 +15,7 @@ import { IAmmunition } from '@/types/equipment/AmmunitionTypes';
  */
 export function addAmmunitionAliases(
   ammo: IAmmunition,
-  nameToIdMap: Map<string, string>
+  nameToIdMap: Map<string, string>,
 ): void {
   const name = ammo.name;
   const id = ammo.id;
@@ -24,10 +24,16 @@ export function addAmmunitionAliases(
   // Handle "IS Ammo" and "Clan Ammo" prefixes
   if (ammo.techBase === TechBase.INNER_SPHERE) {
     nameToIdMap.set(`IS ${name}`, id);
-    nameToIdMap.set(`IS Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`, id);
+    nameToIdMap.set(
+      `IS Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`,
+      id,
+    );
   } else if (isClan) {
     nameToIdMap.set(`Clan ${name}`, id);
-    nameToIdMap.set(`Clan Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`, id);
+    nameToIdMap.set(
+      `Clan Ammo ${name.replace(' Ammo', '').replace('Ammo ', '')}`,
+      id,
+    );
   }
 
   // Handle various ammo naming patterns from MTF files
@@ -46,7 +52,7 @@ export function addAmmunitionAliases(
 export function addAmmunitionSlugAliases(
   id: string,
   isClan: boolean,
-  nameToIdMap: Map<string, string>
+  nameToIdMap: Map<string, string>,
 ): void {
   const prefix = isClan ? 'clan-' : '';
 

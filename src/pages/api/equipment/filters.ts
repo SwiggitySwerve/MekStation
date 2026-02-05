@@ -1,15 +1,16 @@
 /**
  * Equipment Filters API
- * 
+ *
  * Returns available filter options for the equipment browser.
- * 
+ *
  * GET /api/equipment/filters - Get all available filter values
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { TechBase } from '@/types/enums/TechBase';
+
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 
 interface FilterOptions {
@@ -30,13 +31,13 @@ interface ApiResponse {
 function formatLabel(value: string): string {
   return value
     .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 }
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse>
+  res: NextApiResponse<ApiResponse>,
 ): Promise<void> {
   if (req.method !== 'GET') {
     return res.status(405).json({
@@ -47,15 +48,15 @@ export default async function handler(
 
   try {
     const filters: FilterOptions = {
-      categories: Object.values(EquipmentCategory).map(value => ({
+      categories: Object.values(EquipmentCategory).map((value) => ({
         value,
         label: formatLabel(value),
       })),
-      techBases: Object.values(TechBase).map(value => ({
+      techBases: Object.values(TechBase).map((value) => ({
         value,
         label: formatLabel(value),
       })),
-      rulesLevels: Object.values(RulesLevel).map(value => ({
+      rulesLevels: Object.values(RulesLevel).map((value) => ({
         value,
         label: formatLabel(value),
       })),
@@ -65,7 +66,6 @@ export default async function handler(
       success: true,
       data: filters,
     });
-
   } catch (error) {
     console.error('Equipment Filters API error:', error);
     return res.status(500).json({

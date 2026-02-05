@@ -1,4 +1,8 @@
-import type { IHexTerrain, ITerrainFeature } from '@/types/gameplay/TerrainTypes';
+import type {
+  IHexTerrain,
+  ITerrainFeature,
+} from '@/types/gameplay/TerrainTypes';
+
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 export interface ParsedBoard {
@@ -8,7 +12,8 @@ export interface ParsedBoard {
 }
 
 const TERRAIN_MAP: Record<string, (level: number) => TerrainType | null> = {
-  woods: (level) => (level === 1 ? TerrainType.LightWoods : TerrainType.HeavyWoods),
+  woods: (level) =>
+    level === 1 ? TerrainType.LightWoods : TerrainType.HeavyWoods,
   water: () => TerrainType.Water,
   rough: () => TerrainType.Rough,
   rubble: () => TerrainType.Rubble,
@@ -22,7 +27,10 @@ const TERRAIN_MAP: Record<string, (level: number) => TerrainType | null> = {
   swamp: () => TerrainType.Swamp,
 };
 
-function convertOffsetToAxial(col: number, row: number): { q: number; r: number } {
+function convertOffsetToAxial(
+  col: number,
+  row: number,
+): { q: number; r: number } {
   const q = col - 1;
   const r = row - 1 - Math.floor((col - 1) / 2);
   return { q, r };
@@ -134,7 +142,9 @@ export function parseMegaMekBoard(content: string): ParsedBoard {
       const { features, buildingCF } = parseTerrainString(terrainStr);
 
       if (buildingCF !== undefined) {
-        const buildingFeature = features.find((f) => f.type === TerrainType.Building);
+        const buildingFeature = features.find(
+          (f) => f.type === TerrainType.Building,
+        );
         if (buildingFeature) {
           const index = features.indexOf(buildingFeature);
           features[index] = {

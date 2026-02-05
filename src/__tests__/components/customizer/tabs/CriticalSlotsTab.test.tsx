@@ -1,8 +1,9 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
+
 import { CriticalSlotsTab } from '@/components/customizer/tabs/CriticalSlotsTab';
-import { useUnitStore } from '@/stores/useUnitStore';
 import { useCustomizerStore } from '@/stores/useCustomizerStore';
+import { useUnitStore } from '@/stores/useUnitStore';
 
 // Mock dependencies
 jest.mock('@/stores/useUnitStore', () => ({
@@ -18,8 +19,12 @@ jest.mock('@/components/customizer/critical-slots/LocationGrid', () => ({
 }));
 
 describe('CriticalSlotsTab', () => {
-  const mockUseUnitStore = useUnitStore as jest.MockedFunction<typeof useUnitStore>;
-  const mockUseCustomizerStore = useCustomizerStore as jest.MockedFunction<typeof useCustomizerStore>;
+  const mockUseUnitStore = useUnitStore as jest.MockedFunction<
+    typeof useUnitStore
+  >;
+  const mockUseCustomizerStore = useCustomizerStore as jest.MockedFunction<
+    typeof useCustomizerStore
+  >;
   const mockStoreValues = {
     tonnage: 50,
     engineType: 'Standard Fusion',
@@ -45,13 +50,17 @@ describe('CriticalSlotsTab', () => {
     jest.clearAllMocks();
     mockUseUnitStore.mockImplementation((selector: unknown): unknown => {
       if (typeof selector === 'function') {
-        return (selector as (state: typeof mockStoreValues) => unknown)(mockStoreValues);
+        return (selector as (state: typeof mockStoreValues) => unknown)(
+          mockStoreValues,
+        );
       }
       return undefined;
     });
     mockUseCustomizerStore.mockImplementation((selector: unknown): unknown => {
       if (typeof selector === 'function') {
-        return (selector as (state: typeof mockCustomizerStore) => unknown)(mockCustomizerStore);
+        return (selector as (state: typeof mockCustomizerStore) => unknown)(
+          mockCustomizerStore,
+        );
       }
       return undefined;
     });
@@ -59,16 +68,15 @@ describe('CriticalSlotsTab', () => {
 
   it('should render critical slots tab', () => {
     render(<CriticalSlotsTab />);
-    
+
     // The tab renders LocationGrid components for each location
     expect(screen.getAllByTestId('location-grid').length).toBeGreaterThan(0);
   });
 
   it('should apply custom className', () => {
     const { container } = render(<CriticalSlotsTab className="custom-class" />);
-    
+
     const tab = container.firstChild;
     expect(tab).toHaveClass('custom-class');
   });
 });
-

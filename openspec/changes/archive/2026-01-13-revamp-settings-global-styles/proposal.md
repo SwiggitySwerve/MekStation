@@ -3,6 +3,7 @@
 ## Why
 
 The settings page has two key issues:
+
 1. **Toggle components are visually broken** - alignment/sizing math is incorrect, knob doesn't fit properly in track, and styling doesn't match the app's dark slate aesthetic
 2. **Global styles don't apply** - changing accent color, UI theme, or font size in settings has no effect because nothing connects the store values to actual CSS
 

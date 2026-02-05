@@ -182,7 +182,7 @@ describe('Money', () => {
     });
 
     it('should multiply decimal amount', () => {
-      const m = new Money(25.50);
+      const m = new Money(25.5);
       const result = m.multiply(2);
       expect(result.amount).toBe(51);
     });
@@ -330,7 +330,7 @@ describe('Money', () => {
     });
 
     it('should handle decimal amounts', () => {
-      const m1 = new Money(100.50);
+      const m1 = new Money(100.5);
       const m2 = new Money(100.49);
       expect(m1.compareTo(m2)).toBe(1);
     });
@@ -350,8 +350,8 @@ describe('Money', () => {
     });
 
     it('should handle decimal equality', () => {
-      const m1 = new Money(100.50);
-      const m2 = new Money(100.50);
+      const m1 = new Money(100.5);
+      const m2 = new Money(100.5);
       expect(m1.equals(m2)).toBe(true);
     });
 
@@ -518,8 +518,8 @@ describe('Money', () => {
 
   describe('toJSON', () => {
     it('should return amount as number', () => {
-      const m = new Money(100.50);
-      expect(m.toJSON()).toBe(100.50);
+      const m = new Money(100.5);
+      expect(m.toJSON()).toBe(100.5);
     });
 
     it('should serialize correctly', () => {
@@ -549,7 +549,7 @@ describe('Money', () => {
     it('should handle large transaction sequences', () => {
       let balance = new Money(1000);
       for (let i = 0; i < 100; i++) {
-        balance = balance.add(new Money(10.50));
+        balance = balance.add(new Money(10.5));
       }
       expect(balance.amount).toBe(2050);
     });

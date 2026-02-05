@@ -5,6 +5,7 @@
  * engine, motive system, turret capacity, VTOL rotor, and tonnage validation.
  */
 
+import { TechBase, RulesLevel, Era } from '@/types/enums';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   IValidatableUnit,
@@ -12,7 +13,7 @@ import {
   UnitCategory,
   UnitValidationSeverity,
 } from '@/types/validation/UnitValidationInterfaces';
-import { TechBase, RulesLevel, Era } from '@/types/enums';
+
 import {
   VehicleEngineRequired,
   VehicleMotiveSystemRequired,
@@ -36,7 +37,9 @@ interface IVehicleTestUnit extends IValidatableUnit {
   };
 }
 
-function createVehicleUnit(overrides: Partial<IVehicleTestUnit> = {}): IVehicleTestUnit {
+function createVehicleUnit(
+  overrides: Partial<IVehicleTestUnit> = {},
+): IVehicleTestUnit {
   return {
     id: 'test-vehicle-1',
     name: 'Test Vehicle',
@@ -54,7 +57,9 @@ function createVehicleUnit(overrides: Partial<IVehicleTestUnit> = {}): IVehicleT
   };
 }
 
-function createVTOLUnit(overrides: Partial<IVehicleTestUnit> = {}): IVehicleTestUnit {
+function createVTOLUnit(
+  overrides: Partial<IVehicleTestUnit> = {},
+): IVehicleTestUnit {
   return {
     id: 'test-vtol-1',
     name: 'Test VTOL',
@@ -73,7 +78,9 @@ function createVTOLUnit(overrides: Partial<IVehicleTestUnit> = {}): IVehicleTest
   };
 }
 
-function createSupportVehicleUnit(overrides: Partial<IVehicleTestUnit> = {}): IVehicleTestUnit {
+function createSupportVehicleUnit(
+  overrides: Partial<IVehicleTestUnit> = {},
+): IVehicleTestUnit {
   return {
     id: 'test-support-vehicle-1',
     name: 'Test Support Vehicle',
@@ -93,7 +100,7 @@ function createSupportVehicleUnit(overrides: Partial<IVehicleTestUnit> = {}): IV
 
 function createTestContext(
   unit: IValidatableUnit,
-  category: UnitCategory = UnitCategory.VEHICLE
+  category: UnitCategory = UnitCategory.VEHICLE,
 ): IUnitValidationContext {
   return {
     unit,
@@ -143,14 +150,22 @@ describe('Vehicle Category Rules', () => {
       expect(VehicleEngineRequired.id).toBe('VAL-VEH-001');
       expect(VehicleEngineRequired.name).toBe('Engine Required');
       expect(VehicleEngineRequired.priority).toBe(30);
-      expect(VehicleEngineRequired.applicableUnitTypes).toContain(UnitType.VEHICLE);
-      expect(VehicleEngineRequired.applicableUnitTypes).toContain(UnitType.VTOL);
-      expect(VehicleEngineRequired.applicableUnitTypes).toContain(UnitType.SUPPORT_VEHICLE);
+      expect(VehicleEngineRequired.applicableUnitTypes).toContain(
+        UnitType.VEHICLE,
+      );
+      expect(VehicleEngineRequired.applicableUnitTypes).toContain(
+        UnitType.VTOL,
+      );
+      expect(VehicleEngineRequired.applicableUnitTypes).toContain(
+        UnitType.SUPPORT_VEHICLE,
+      );
     });
 
     describe('with Vehicle unit', () => {
       it('should pass when engine is present', () => {
-        const unit = createVehicleUnit({ engine: { type: 'Fusion', rating: 200 } });
+        const unit = createVehicleUnit({
+          engine: { type: 'Fusion', rating: 200 },
+        });
         const context = createTestContext(unit);
         const result = VehicleEngineRequired.validate(context);
 
@@ -165,7 +180,9 @@ describe('Vehicle Category Rules', () => {
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
-        expect(result.errors[0].severity).toBe(UnitValidationSeverity.CRITICAL_ERROR);
+        expect(result.errors[0].severity).toBe(
+          UnitValidationSeverity.CRITICAL_ERROR,
+        );
         expect(result.errors[0].field).toBe('engine');
         expect(result.errors[0].suggestion).toContain('Select an engine');
       });
@@ -173,7 +190,9 @@ describe('Vehicle Category Rules', () => {
 
     describe('with VTOL unit', () => {
       it('should pass when engine is present', () => {
-        const unit = createVTOLUnit({ engine: { type: 'Fusion', rating: 100 } });
+        const unit = createVTOLUnit({
+          engine: { type: 'Fusion', rating: 100 },
+        });
         const context = createTestContext(unit);
         const result = VehicleEngineRequired.validate(context);
 
@@ -188,13 +207,17 @@ describe('Vehicle Category Rules', () => {
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
-        expect(result.errors[0].severity).toBe(UnitValidationSeverity.CRITICAL_ERROR);
+        expect(result.errors[0].severity).toBe(
+          UnitValidationSeverity.CRITICAL_ERROR,
+        );
       });
     });
 
     describe('with Support Vehicle unit', () => {
       it('should pass when engine is present', () => {
-        const unit = createSupportVehicleUnit({ engine: { type: 'ICE', rating: 150 } });
+        const unit = createSupportVehicleUnit({
+          engine: { type: 'ICE', rating: 150 },
+        });
         const context = createTestContext(unit);
         const result = VehicleEngineRequired.validate(context);
 
@@ -272,7 +295,9 @@ describe('Vehicle Category Rules', () => {
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
-        expect(result.errors[0].severity).toBe(UnitValidationSeverity.CRITICAL_ERROR);
+        expect(result.errors[0].severity).toBe(
+          UnitValidationSeverity.CRITICAL_ERROR,
+        );
         expect(result.errors[0].field).toBe('motiveSystem');
         expect(result.errors[0].suggestion).toContain('Wheeled');
         expect(result.errors[0].suggestion).toContain('Tracked');
@@ -300,7 +325,9 @@ describe('Vehicle Category Rules', () => {
 
     describe('with Support Vehicle unit', () => {
       it('should pass when motive system is present', () => {
-        const unit = createSupportVehicleUnit({ motiveSystem: { type: 'Naval' } });
+        const unit = createSupportVehicleUnit({
+          motiveSystem: { type: 'Naval' },
+        });
         const context = createTestContext(unit);
         const result = VehicleMotiveSystemRequired.validate(context);
 
@@ -327,15 +354,23 @@ describe('Vehicle Category Rules', () => {
       expect(VehicleTurretCapacity.id).toBe('VAL-VEH-003');
       expect(VehicleTurretCapacity.name).toBe('Turret Capacity Limits');
       expect(VehicleTurretCapacity.priority).toBe(32);
-      expect(VehicleTurretCapacity.applicableUnitTypes).toContain(UnitType.VEHICLE);
-      expect(VehicleTurretCapacity.applicableUnitTypes).toContain(UnitType.SUPPORT_VEHICLE);
+      expect(VehicleTurretCapacity.applicableUnitTypes).toContain(
+        UnitType.VEHICLE,
+      );
+      expect(VehicleTurretCapacity.applicableUnitTypes).toContain(
+        UnitType.SUPPORT_VEHICLE,
+      );
       // VTOLs should not be in applicableUnitTypes for turret capacity
-      expect(VehicleTurretCapacity.applicableUnitTypes).not.toContain(UnitType.VTOL);
+      expect(VehicleTurretCapacity.applicableUnitTypes).not.toContain(
+        UnitType.VTOL,
+      );
     });
 
     describe('canValidate', () => {
       it('should return true when turret is present', () => {
-        const unit = createVehicleUnit({ turret: { capacity: 10, usedWeight: 5 } });
+        const unit = createVehicleUnit({
+          turret: { capacity: 10, usedWeight: 5 },
+        });
         const context = createTestContext(unit);
         const result = VehicleTurretCapacity.canValidate!(context);
 
@@ -364,7 +399,9 @@ describe('Vehicle Category Rules', () => {
 
     describe('validate', () => {
       it('should pass when turret weight is within capacity', () => {
-        const unit = createVehicleUnit({ turret: { capacity: 10, usedWeight: 5 } });
+        const unit = createVehicleUnit({
+          turret: { capacity: 10, usedWeight: 5 },
+        });
         const context = createTestContext(unit);
         const result = VehicleTurretCapacity.validate(context);
 
@@ -373,7 +410,9 @@ describe('Vehicle Category Rules', () => {
       });
 
       it('should pass when turret weight equals capacity', () => {
-        const unit = createVehicleUnit({ turret: { capacity: 10, usedWeight: 10 } });
+        const unit = createVehicleUnit({
+          turret: { capacity: 10, usedWeight: 10 },
+        });
         const context = createTestContext(unit);
         const result = VehicleTurretCapacity.validate(context);
 
@@ -382,7 +421,9 @@ describe('Vehicle Category Rules', () => {
       });
 
       it('should fail when turret weight exceeds capacity', () => {
-        const unit = createVehicleUnit({ turret: { capacity: 10, usedWeight: 15 } });
+        const unit = createVehicleUnit({
+          turret: { capacity: 10, usedWeight: 15 },
+        });
         const context = createTestContext(unit);
         const result = VehicleTurretCapacity.validate(context);
 
@@ -396,7 +437,9 @@ describe('Vehicle Category Rules', () => {
       });
 
       it('should calculate correct overflow amount', () => {
-        const unit = createVehicleUnit({ turret: { capacity: 8.5, usedWeight: 12.75 } });
+        const unit = createVehicleUnit({
+          turret: { capacity: 8.5, usedWeight: 12.75 },
+        });
         const context = createTestContext(unit);
         const result = VehicleTurretCapacity.validate(context);
 
@@ -414,7 +457,9 @@ describe('Vehicle Category Rules', () => {
       });
 
       it('should work with Support Vehicle', () => {
-        const unit = createSupportVehicleUnit({ turret: { capacity: 20, usedWeight: 25 } });
+        const unit = createSupportVehicleUnit({
+          turret: { capacity: 20, usedWeight: 25 },
+        });
         const context = createTestContext(unit);
         const result = VehicleTurretCapacity.validate(context);
 
@@ -453,7 +498,9 @@ describe('Vehicle Category Rules', () => {
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
-        expect(result.errors[0].severity).toBe(UnitValidationSeverity.CRITICAL_ERROR);
+        expect(result.errors[0].severity).toBe(
+          UnitValidationSeverity.CRITICAL_ERROR,
+        );
         expect(result.errors[0].message).toContain('rotor system');
         expect(result.errors[0].field).toBe('rotor');
         expect(result.errors[0].suggestion).toContain('Add a rotor system');
@@ -491,9 +538,13 @@ describe('Vehicle Category Rules', () => {
       expect(VehicleTonnageRange.id).toBe('VAL-VEH-005');
       expect(VehicleTonnageRange.name).toBe('Vehicle Tonnage Range');
       expect(VehicleTonnageRange.priority).toBe(34);
-      expect(VehicleTonnageRange.applicableUnitTypes).toContain(UnitType.VEHICLE);
+      expect(VehicleTonnageRange.applicableUnitTypes).toContain(
+        UnitType.VEHICLE,
+      );
       expect(VehicleTonnageRange.applicableUnitTypes).toContain(UnitType.VTOL);
-      expect(VehicleTonnageRange.applicableUnitTypes).toContain(UnitType.SUPPORT_VEHICLE);
+      expect(VehicleTonnageRange.applicableUnitTypes).toContain(
+        UnitType.SUPPORT_VEHICLE,
+      );
     });
 
     describe('Vehicle tonnage (1-100 tons)', () => {
@@ -530,7 +581,9 @@ describe('Vehicle Category Rules', () => {
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
-        expect(result.errors[0].severity).toBe(UnitValidationSeverity.CRITICAL_ERROR);
+        expect(result.errors[0].severity).toBe(
+          UnitValidationSeverity.CRITICAL_ERROR,
+        );
         expect(result.errors[0].message).toContain('1-100');
         expect(result.errors[0].expected).toBe('1-100');
         expect(result.errors[0].actual).toBe('0');

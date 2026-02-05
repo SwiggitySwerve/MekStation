@@ -6,7 +6,9 @@
  * @spec openspec/changes/add-awards-system/specs/awards/spec.md
  */
 import React, { useMemo } from 'react';
+
 import { Card } from '@/components/ui';
+import { useAwardStore } from '@/stores/useAwardStore';
 import {
   IAward,
   AwardRarity,
@@ -14,8 +16,8 @@ import {
   AWARD_CATALOG,
   getRarityColor,
 } from '@/types/award';
+
 import { getAwardIcon, getRarityStrokeWidth } from './awardIcons';
-import { useAwardStore } from '@/stores/useAwardStore';
 
 // =============================================================================
 // Types
@@ -75,7 +77,10 @@ interface ProgressItemProps {
   compact?: boolean;
 }
 
-function ProgressItem({ progressInfo, compact = false }: ProgressItemProps): React.ReactElement {
+function ProgressItem({
+  progressInfo,
+  compact = false,
+}: ProgressItemProps): React.ReactElement {
   const { award, current, required, percentage } = progressInfo;
   const rarityColor = getRarityColor(award.rarity);
   const progressBarColor = getProgressBarColor(award.rarity);
@@ -85,22 +90,24 @@ function ProgressItem({ progressInfo, compact = false }: ProgressItemProps): Rea
 
   if (compact) {
     return (
-      <div className="flex items-center gap-3 p-2 rounded-lg bg-surface-deep/30">
-        <div className={`w-8 h-8 rounded-full bg-surface-deep flex items-center justify-center ${rarityColor}`}>
+      <div className="bg-surface-deep/30 flex items-center gap-3 rounded-lg p-2">
+        <div
+          className={`bg-surface-deep flex h-8 w-8 items-center justify-center rounded-full ${rarityColor}`}
+        >
           <IconComponent size={16} strokeWidth={strokeWidth} />
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-medium text-text-theme-secondary truncate">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-text-theme-secondary truncate text-xs font-medium">
               {award.name}
             </span>
             <span className={`text-xs font-bold tabular-nums ${rarityColor}`}>
               {current}/{required}
             </span>
           </div>
-          <div className="h-1.5 bg-surface-base rounded-full overflow-hidden">
+          <div className="bg-surface-base h-1.5 overflow-hidden rounded-full">
             <div
-              className={`h-full transition-all duration-500 rounded-full ${progressBarColor}`}
+              className={`h-full rounded-full transition-all duration-500 ${progressBarColor}`}
               style={{ width: `${percentage}%` }}
             />
           </div>
@@ -110,24 +117,19 @@ function ProgressItem({ progressInfo, compact = false }: ProgressItemProps): Rea
   }
 
   return (
-    <div className="p-4 rounded-xl bg-surface-raised border border-border-theme-subtle">
+    <div className="bg-surface-raised border-border-theme-subtle rounded-xl border p-4">
       <div className="flex items-start gap-4">
         {/* Icon */}
         <div
-          className={`
-            flex-shrink-0 w-12 h-12 rounded-full
-            bg-surface-deep border-2 border-border-theme-subtle
-            flex items-center justify-center
-            ${rarityColor}
-          `}
+          className={`bg-surface-deep border-border-theme-subtle flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-2 ${rarityColor} `}
         >
           <IconComponent size={24} strokeWidth={strokeWidth} />
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1">
-            <h4 className="text-sm font-bold text-text-theme-primary truncate">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center justify-between">
+            <h4 className="text-text-theme-primary truncate text-sm font-bold">
               {award.name}
             </h4>
             <span className={`text-sm font-bold tabular-nums ${rarityColor}`}>
@@ -136,22 +138,26 @@ function ProgressItem({ progressInfo, compact = false }: ProgressItemProps): Rea
           </div>
 
           {/* Progress bar */}
-          <div className="h-2 bg-surface-deep rounded-full overflow-hidden mb-2">
+          <div className="bg-surface-deep mb-2 h-2 overflow-hidden rounded-full">
             <div
-              className={`h-full transition-all duration-500 rounded-full ${progressBarColor}`}
+              className={`h-full rounded-full transition-all duration-500 ${progressBarColor}`}
               style={{ width: `${percentage}%` }}
             />
           </div>
 
           {/* Description */}
-          <p className="text-xs text-text-theme-muted line-clamp-1">
+          <p className="text-text-theme-muted line-clamp-1 text-xs">
             {award.criteria.description}
           </p>
 
           {/* Near completion indicator */}
           {isNearComplete && (
             <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-400">
-              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                className="h-3.5 w-3.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path
                   fillRule="evenodd"
                   d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
@@ -271,9 +277,9 @@ export function AwardProgress({
   if (progressList.length === 0) {
     return (
       <Card className={`p-6 text-center ${className}`}>
-        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-surface-raised/50 flex items-center justify-center">
+        <div className="bg-surface-raised/50 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
           <svg
-            className="w-6 h-6 text-text-theme-muted"
+            className="text-text-theme-muted h-6 w-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -286,8 +292,10 @@ export function AwardProgress({
             />
           </svg>
         </div>
-        <p className="text-sm text-text-theme-muted">
-          {stats ? 'No award progress to show' : 'Play games to track award progress'}
+        <p className="text-text-theme-muted text-sm">
+          {stats
+            ? 'No award progress to show'
+            : 'Play games to track award progress'}
         </p>
       </Card>
     );
@@ -296,9 +304,11 @@ export function AwardProgress({
   return (
     <Card className={className}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-border-theme-subtle">
-        <h3 className="text-lg font-bold text-text-theme-primary">Award Progress</h3>
-        <span className="text-xs text-text-theme-muted">
+      <div className="border-border-theme-subtle mb-4 flex items-center justify-between border-b pb-3">
+        <h3 className="text-text-theme-primary text-lg font-bold">
+          Award Progress
+        </h3>
+        <span className="text-text-theme-muted text-xs">
           {progressList.length} in progress
         </span>
       </div>

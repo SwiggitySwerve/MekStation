@@ -1,13 +1,13 @@
 /**
  * Armor Type Definitions
- * 
+ *
  * Defines all standard BattleTech armor types.
- * 
+ *
  * @spec openspec/specs/armor-system/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 
 /**
  * Armor type enumeration
@@ -152,7 +152,8 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
 /**
  * Get armor definition by type
  */
-export function getArmorDefinition(type: ArmorTypeEnum): ArmorDefinition | undefined {
-  return ARMOR_DEFINITIONS.find(def => def.type === type);
+export function getArmorDefinition(
+  type: ArmorTypeEnum,
+): ArmorDefinition | undefined {
+  return ARMOR_DEFINITIONS.find((def) => def.type === type);
 }
-

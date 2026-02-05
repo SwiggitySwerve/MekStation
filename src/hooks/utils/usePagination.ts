@@ -79,8 +79,14 @@ export interface UsePaginationResult {
  * const pageItems = items.slice(startIndex, endIndex);
  * ```
  */
-export function usePagination(options: UsePaginationOptions): UsePaginationResult {
-  const { total: initialTotal, initialPage = 1, initialPageSize = 10 } = options;
+export function usePagination(
+  options: UsePaginationOptions,
+): UsePaginationResult {
+  const {
+    total: initialTotal,
+    initialPage = 1,
+    initialPageSize = 10,
+  } = options;
 
   const [page, setPage] = useState(initialPage);
   const [pageSize, setPageSizeState] = useState(initialPageSize);
@@ -115,7 +121,7 @@ export function usePagination(options: UsePaginationOptions): UsePaginationResul
       const clampedPage = Math.max(1, Math.min(targetPage, maxPage));
       setPage(clampedPage);
     },
-    [totalPages]
+    [totalPages],
   );
 
   const nextPage = useCallback(() => {

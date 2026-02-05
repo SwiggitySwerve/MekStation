@@ -7,13 +7,14 @@
  * @module campaign/contracts/__tests__/contractLength
  */
 
+import { AtBContractType } from '@/types/campaign/contracts/contractTypes';
+
 import {
   calculateContractLength,
   contractLengthToDays,
   getContractLengthRange,
   type RandomFn,
 } from '../contractLength';
-import { AtBContractType } from '@/types/campaign/contracts/contractTypes';
 
 /**
  * Create a seeded random number generator for deterministic testing.
@@ -135,10 +136,10 @@ describe('contractLength', () => {
       it('should produce consistent results with same random seed', () => {
         const allTypes = Object.values(AtBContractType);
         const results1 = allTypes.map((type) =>
-          calculateContractLength(type, createSeededRandom(123))
+          calculateContractLength(type, createSeededRandom(123)),
         );
         const results2 = allTypes.map((type) =>
-          calculateContractLength(type, createSeededRandom(123))
+          calculateContractLength(type, createSeededRandom(123)),
         );
 
         expect(results1).toEqual(results2);

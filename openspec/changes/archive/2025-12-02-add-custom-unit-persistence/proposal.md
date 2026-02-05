@@ -3,6 +3,7 @@
 ## Why
 
 The current IndexedDB-based storage is browser-specific and unsuitable for multi-platform deployment. Users need robust save/load functionality with version history that works across:
+
 - Electron desktop application (single-user)
 - Self-hosted multi-user web application
 
@@ -20,7 +21,7 @@ Additionally, canonical (official) units must remain immutable while allowing us
 
 ## Impact
 
-- **Affected specs**: 
+- **Affected specs**:
   - `persistence-services` - Major rewrite from IndexedDB to SQLite
   - `unit-services` - CustomUnitService API changes
   - NEW: `unit-versioning` - Version history capability
@@ -35,4 +36,3 @@ Additionally, canonical (official) units must remain immutable while allowing us
 - **Dependencies**:
   - `better-sqlite3` - SQLite driver for Node.js
   - Prisma ORM (optional, for type-safe queries)
-

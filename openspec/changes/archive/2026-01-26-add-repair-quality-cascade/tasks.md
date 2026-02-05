@@ -1,6 +1,7 @@
 # Implementation Tasks
 
 ## 1. Core Quality System
+
 - [ ] 1.1 Define quality types and enum
   - Create `src/types/campaign/quality/PartQuality.ts`
   - Define PartQuality enum (A=worst to F=best)
@@ -53,6 +54,7 @@
   - Acceptance: Quality visible on units, maintenance reports show in day report
 
 ## 2. Testing
+
 - [ ] 2.1 Write comprehensive tests
   - Test quality enum and helper functions
   - Test maintenance check with various scenarios
@@ -63,6 +65,7 @@
   - Acceptance: 100% test pass rate, TDD approach maintained
 
 ## 3. Documentation
+
 - [ ] 3.1 Update documentation
   - Document quality system in campaign guide
   - Document maintenance check mechanics

@@ -7,11 +7,14 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { getMaxArmorForLocation } from '@/utils/construction/armorCalculations';
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { IArmorByLocation, IArmorLocationEntry } from '@/types/validation/UnitValidationInterfaces';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+import {
+  IArmorByLocation,
+  IArmorLocationEntry,
+} from '@/types/validation/UnitValidationInterfaces';
 import { ARMOR_RATIOS } from '@/utils/armor/armorRatios';
+import { getMaxArmorForLocation } from '@/utils/construction/armorCalculations';
 
 /**
  * Armor allocation interface (per-location armor points)
@@ -38,7 +41,7 @@ function addLocation(
   displayName: string,
   locationKey: MechLocation | string,
   current: number,
-  tonnage: number
+  tonnage: number,
 ): void {
   const max = getMaxArmorForLocation(tonnage, locationKey as string);
   armorByLocation[key] = { current, max, displayName };
@@ -54,7 +57,7 @@ function addFrontTorsoLocation(
   displayName: string,
   torsoLocationKey: string,
   current: number,
-  tonnage: number
+  tonnage: number,
 ): void {
   const totalTorsoMax = getMaxArmorForLocation(tonnage, torsoLocationKey);
   const expectedFrontMax = Math.round(totalTorsoMax * FRONT_ARMOR_RATIO);
@@ -71,7 +74,7 @@ function addRearTorsoLocation(
   displayName: string,
   torsoLocationKey: string,
   current: number,
-  tonnage: number
+  tonnage: number,
 ): void {
   const totalTorsoMax = getMaxArmorForLocation(tonnage, torsoLocationKey);
   const expectedRearMax = Math.round(totalTorsoMax * REAR_ARMOR_RATIO);
@@ -90,19 +93,26 @@ function addRearTorsoLocation(
 export function buildArmorByLocation(
   allocation: IArmorAllocationInput,
   tonnage: number,
-  configuration?: MechConfiguration
+  configuration?: MechConfiguration,
 ): IArmorByLocation {
   const armorByLocation: IArmorByLocation = {};
 
   // Universal locations (all configurations have these)
-  addLocation(armorByLocation, 'head', 'Head', 'head', allocation[MechLocation.HEAD] || 0, tonnage);
+  addLocation(
+    armorByLocation,
+    'head',
+    'Head',
+    'head',
+    allocation[MechLocation.HEAD] || 0,
+    tonnage,
+  );
   addFrontTorsoLocation(
     armorByLocation,
     'centerTorso',
     'Center Torso',
     'centerTorso',
     allocation[MechLocation.CENTER_TORSO] || 0,
-    tonnage
+    tonnage,
   );
   addRearTorsoLocation(
     armorByLocation,
@@ -110,7 +120,7 @@ export function buildArmorByLocation(
     'Center Torso (Rear)',
     'centerTorso',
     allocation.centerTorsoRear || 0,
-    tonnage
+    tonnage,
   );
   addFrontTorsoLocation(
     armorByLocation,
@@ -118,7 +128,7 @@ export function buildArmorByLocation(
     'Left Torso',
     'leftTorso',
     allocation[MechLocation.LEFT_TORSO] || 0,
-    tonnage
+    tonnage,
   );
   addRearTorsoLocation(
     armorByLocation,
@@ -126,7 +136,7 @@ export function buildArmorByLocation(
     'Left Torso (Rear)',
     'leftTorso',
     allocation.leftTorsoRear || 0,
-    tonnage
+    tonnage,
   );
   addFrontTorsoLocation(
     armorByLocation,
@@ -134,7 +144,7 @@ export function buildArmorByLocation(
     'Right Torso',
     'rightTorso',
     allocation[MechLocation.RIGHT_TORSO] || 0,
-    tonnage
+    tonnage,
   );
   addRearTorsoLocation(
     armorByLocation,
@@ -142,11 +152,14 @@ export function buildArmorByLocation(
     'Right Torso (Rear)',
     'rightTorso',
     allocation.rightTorsoRear || 0,
-    tonnage
+    tonnage,
   );
 
   // Configuration-specific limb locations
-  if (configuration === MechConfiguration.QUAD || configuration === MechConfiguration.QUADVEE) {
+  if (
+    configuration === MechConfiguration.QUAD ||
+    configuration === MechConfiguration.QUADVEE
+  ) {
     // Quad mechs have 4 legs, no arms
     addLocation(
       armorByLocation,
@@ -154,7 +167,7 @@ export function buildArmorByLocation(
       'Front Left Leg',
       MechLocation.FRONT_LEFT_LEG,
       allocation[MechLocation.FRONT_LEFT_LEG] || 0,
-      tonnage
+      tonnage,
     );
     addLocation(
       armorByLocation,
@@ -162,7 +175,7 @@ export function buildArmorByLocation(
       'Front Right Leg',
       MechLocation.FRONT_RIGHT_LEG,
       allocation[MechLocation.FRONT_RIGHT_LEG] || 0,
-      tonnage
+      tonnage,
     );
     addLocation(
       armorByLocation,
@@ -170,7 +183,7 @@ export function buildArmorByLocation(
       'Rear Left Leg',
       MechLocation.REAR_LEFT_LEG,
       allocation[MechLocation.REAR_LEFT_LEG] || 0,
-      tonnage
+      tonnage,
     );
     addLocation(
       armorByLocation,
@@ -178,28 +191,84 @@ export function buildArmorByLocation(
       'Rear Right Leg',
       MechLocation.REAR_RIGHT_LEG,
       allocation[MechLocation.REAR_RIGHT_LEG] || 0,
-      tonnage
+      tonnage,
     );
   } else if (configuration === MechConfiguration.TRIPOD) {
     // Tripod has arms + 3 legs (including center leg)
-    addLocation(armorByLocation, 'leftArm', 'Left Arm', 'leftArm', allocation[MechLocation.LEFT_ARM] || 0, tonnage);
-    addLocation(armorByLocation, 'rightArm', 'Right Arm', 'rightArm', allocation[MechLocation.RIGHT_ARM] || 0, tonnage);
-    addLocation(armorByLocation, 'leftLeg', 'Left Leg', 'leftLeg', allocation[MechLocation.LEFT_LEG] || 0, tonnage);
-    addLocation(armorByLocation, 'rightLeg', 'Right Leg', 'rightLeg', allocation[MechLocation.RIGHT_LEG] || 0, tonnage);
+    addLocation(
+      armorByLocation,
+      'leftArm',
+      'Left Arm',
+      'leftArm',
+      allocation[MechLocation.LEFT_ARM] || 0,
+      tonnage,
+    );
+    addLocation(
+      armorByLocation,
+      'rightArm',
+      'Right Arm',
+      'rightArm',
+      allocation[MechLocation.RIGHT_ARM] || 0,
+      tonnage,
+    );
+    addLocation(
+      armorByLocation,
+      'leftLeg',
+      'Left Leg',
+      'leftLeg',
+      allocation[MechLocation.LEFT_LEG] || 0,
+      tonnage,
+    );
+    addLocation(
+      armorByLocation,
+      'rightLeg',
+      'Right Leg',
+      'rightLeg',
+      allocation[MechLocation.RIGHT_LEG] || 0,
+      tonnage,
+    );
     addLocation(
       armorByLocation,
       'centerLeg',
       'Center Leg',
       MechLocation.CENTER_LEG,
       allocation[MechLocation.CENTER_LEG] || 0,
-      tonnage
+      tonnage,
     );
   } else {
     // Biped/LAM/default: standard arms + legs
-    addLocation(armorByLocation, 'leftArm', 'Left Arm', 'leftArm', allocation[MechLocation.LEFT_ARM] || 0, tonnage);
-    addLocation(armorByLocation, 'rightArm', 'Right Arm', 'rightArm', allocation[MechLocation.RIGHT_ARM] || 0, tonnage);
-    addLocation(armorByLocation, 'leftLeg', 'Left Leg', 'leftLeg', allocation[MechLocation.LEFT_LEG] || 0, tonnage);
-    addLocation(armorByLocation, 'rightLeg', 'Right Leg', 'rightLeg', allocation[MechLocation.RIGHT_LEG] || 0, tonnage);
+    addLocation(
+      armorByLocation,
+      'leftArm',
+      'Left Arm',
+      'leftArm',
+      allocation[MechLocation.LEFT_ARM] || 0,
+      tonnage,
+    );
+    addLocation(
+      armorByLocation,
+      'rightArm',
+      'Right Arm',
+      'rightArm',
+      allocation[MechLocation.RIGHT_ARM] || 0,
+      tonnage,
+    );
+    addLocation(
+      armorByLocation,
+      'leftLeg',
+      'Left Leg',
+      'leftLeg',
+      allocation[MechLocation.LEFT_LEG] || 0,
+      tonnage,
+    );
+    addLocation(
+      armorByLocation,
+      'rightLeg',
+      'Right Leg',
+      'rightLeg',
+      allocation[MechLocation.RIGHT_LEG] || 0,
+      tonnage,
+    );
   }
 
   return armorByLocation;
@@ -214,9 +283,15 @@ export function buildArmorByLocation(
  * @param isFront - Whether this is the front (true) or rear (false) location
  * @returns Expected max armor for that side
  */
-export function getExpectedTorsoArmorMax(tonnage: number, torsoLocationKey: string, isFront: boolean): number {
+export function getExpectedTorsoArmorMax(
+  tonnage: number,
+  torsoLocationKey: string,
+  isFront: boolean,
+): number {
   const totalTorsoMax = getMaxArmorForLocation(tonnage, torsoLocationKey);
-  return isFront ? Math.round(totalTorsoMax * FRONT_ARMOR_RATIO) : Math.round(totalTorsoMax * REAR_ARMOR_RATIO);
+  return isFront
+    ? Math.round(totalTorsoMax * FRONT_ARMOR_RATIO)
+    : Math.round(totalTorsoMax * REAR_ARMOR_RATIO);
 }
 
 /**
@@ -227,6 +302,10 @@ export function getExpectedTorsoArmorMax(tonnage: number, torsoLocationKey: stri
  * @param displayName - Display name for the location
  * @returns Armor location entry
  */
-export function createArmorLocationEntry(current: number, max: number, displayName: string): IArmorLocationEntry {
+export function createArmorLocationEntry(
+  current: number,
+  max: number,
+  displayName: string,
+): IArmorLocationEntry {
   return { current, max, displayName };
 }

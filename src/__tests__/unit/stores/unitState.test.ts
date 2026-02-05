@@ -7,15 +7,13 @@ import {
   getTotalAllocatedArmor,
   armorResultToAllocation,
 } from '@/stores/unitState';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import {
   getMaxTotalArmor,
-  calculateArmorPoints,
   calculateOptimalArmorAllocation,
 } from '@/utils/construction/armorCalculations';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 
 describe('unitState', () => {
   describe('createDefaultUnitState()', () => {
@@ -27,17 +25,20 @@ describe('unitState', () => {
       });
 
       const maxArmor = getMaxTotalArmor(50, MechConfiguration.BIPED);
-      const expectedTargetPoints = Math.floor(maxArmor * 0.70);
-      
+      const _expectedTargetPoints = Math.floor(maxArmor * 0.7);
+
       expect(unit.armorTonnage).toBeGreaterThan(0);
-      
+
       // Verify armor is allocated
-      const totalAllocated = getTotalAllocatedArmor(unit.armorAllocation, MechConfiguration.BIPED);
+      const totalAllocated = getTotalAllocatedArmor(
+        unit.armorAllocation,
+        MechConfiguration.BIPED,
+      );
       expect(totalAllocated).toBeGreaterThan(0);
-      
+
       // Should be approximately 70% of max armor (60-75% range accounts for rounding)
       const allocatedRatio = totalAllocated / maxArmor;
-      expect(allocatedRatio).toBeGreaterThanOrEqual(0.60);
+      expect(allocatedRatio).toBeGreaterThanOrEqual(0.6);
       expect(allocatedRatio).toBeLessThanOrEqual(0.75);
     });
 
@@ -50,7 +51,9 @@ describe('unitState', () => {
 
       // All biped locations should have some armor
       expect(unit.armorAllocation[MechLocation.HEAD]).toBeGreaterThan(0);
-      expect(unit.armorAllocation[MechLocation.CENTER_TORSO]).toBeGreaterThan(0);
+      expect(unit.armorAllocation[MechLocation.CENTER_TORSO]).toBeGreaterThan(
+        0,
+      );
       expect(unit.armorAllocation.centerTorsoRear).toBeGreaterThan(0);
       expect(unit.armorAllocation[MechLocation.LEFT_TORSO]).toBeGreaterThan(0);
       expect(unit.armorAllocation.leftTorsoRear).toBeGreaterThan(0);
@@ -77,11 +80,17 @@ describe('unitState', () => {
 
       // Light mech should have less armor than assault
       expect(lightMech.armorTonnage).toBeLessThan(assaultMech.armorTonnage);
-      
+
       // Both should have armor allocated
-      const lightTotal = getTotalAllocatedArmor(lightMech.armorAllocation, MechConfiguration.BIPED);
-      const assaultTotal = getTotalAllocatedArmor(assaultMech.armorAllocation, MechConfiguration.BIPED);
-      
+      const lightTotal = getTotalAllocatedArmor(
+        lightMech.armorAllocation,
+        MechConfiguration.BIPED,
+      );
+      const assaultTotal = getTotalAllocatedArmor(
+        assaultMech.armorAllocation,
+        MechConfiguration.BIPED,
+      );
+
       expect(lightTotal).toBeGreaterThan(0);
       expect(assaultTotal).toBeGreaterThan(0);
       expect(assaultTotal).toBeGreaterThan(lightTotal);
@@ -90,11 +99,17 @@ describe('unitState', () => {
 
   describe('armorResultToAllocation()', () => {
     it('should convert ArmorAllocationResult to IArmorAllocation', () => {
-      const result = calculateOptimalArmorAllocation(100, 50, MechConfiguration.BIPED);
+      const result = calculateOptimalArmorAllocation(
+        100,
+        50,
+        MechConfiguration.BIPED,
+      );
       const allocation = armorResultToAllocation(result);
 
       expect(allocation[MechLocation.HEAD]).toBe(result.head);
-      expect(allocation[MechLocation.CENTER_TORSO]).toBe(result.centerTorsoFront);
+      expect(allocation[MechLocation.CENTER_TORSO]).toBe(
+        result.centerTorsoFront,
+      );
       expect(allocation.centerTorsoRear).toBe(result.centerTorsoRear);
       expect(allocation[MechLocation.LEFT_TORSO]).toBe(result.leftTorsoFront);
       expect(allocation.leftTorsoRear).toBe(result.leftTorsoRear);

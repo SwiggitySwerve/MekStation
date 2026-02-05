@@ -44,7 +44,9 @@ export const BIPED_LOCATION_VALUES: BipedLocation[] = [
 /**
  * Check if a location is a biped location
  */
-export function isBipedLocation(location: MechLocation): location is BipedLocation {
+export function isBipedLocation(
+  location: MechLocation,
+): location is BipedLocation {
   return BIPED_LOCATION_VALUES.includes(location as BipedLocation);
 }
 
@@ -191,9 +193,24 @@ export interface IMechConfigurationDefinition {
  * Standard arm actuators (biped/tripod/LAM)
  */
 export const ARM_ACTUATORS: readonly IActuatorSlot[] = [
-  { type: ActuatorType.SHOULDER, slotIndex: 0, required: true, removable: false },
-  { type: ActuatorType.UPPER_ARM, slotIndex: 1, required: true, removable: false },
-  { type: ActuatorType.LOWER_ARM, slotIndex: 2, required: false, removable: true },
+  {
+    type: ActuatorType.SHOULDER,
+    slotIndex: 0,
+    required: true,
+    removable: false,
+  },
+  {
+    type: ActuatorType.UPPER_ARM,
+    slotIndex: 1,
+    required: true,
+    removable: false,
+  },
+  {
+    type: ActuatorType.LOWER_ARM,
+    slotIndex: 2,
+    required: false,
+    removable: true,
+  },
   { type: ActuatorType.HAND, slotIndex: 3, required: false, removable: true },
 ];
 
@@ -202,8 +219,18 @@ export const ARM_ACTUATORS: readonly IActuatorSlot[] = [
  */
 export const LEG_ACTUATORS: readonly IActuatorSlot[] = [
   { type: ActuatorType.HIP, slotIndex: 0, required: true, removable: false },
-  { type: ActuatorType.UPPER_LEG, slotIndex: 1, required: true, removable: false },
-  { type: ActuatorType.LOWER_LEG, slotIndex: 2, required: true, removable: false },
+  {
+    type: ActuatorType.UPPER_LEG,
+    slotIndex: 1,
+    required: true,
+    removable: false,
+  },
+  {
+    type: ActuatorType.LOWER_LEG,
+    slotIndex: 2,
+    required: true,
+    removable: false,
+  },
   { type: ActuatorType.FOOT, slotIndex: 3, required: true, removable: false },
 ];
 
@@ -263,16 +290,18 @@ export const LAM_FIGHTER_LOCATIONS: MechLocation[] = [
 
 /**
  * Get locations for a specific configuration
- * 
+ *
  * Note: This function delegates to the centralized mechLocationRegistry
  * but maintains special handling for QuadVee -> Quad mapping.
  */
-export function getLocationsForConfig(config: MechConfiguration): MechLocation[] {
+export function getLocationsForConfig(
+  config: MechConfiguration,
+): MechLocation[] {
   // QuadVee uses same locations as Quad
   if (config === MechConfiguration.QUADVEE) {
     return QUAD_LOCATIONS;
   }
-  
+
   // Use registry for all other configurations
   const locationMap: Record<MechConfiguration, MechLocation[]> = {
     [MechConfiguration.BIPED]: BIPED_LOCATIONS,
@@ -281,14 +310,17 @@ export function getLocationsForConfig(config: MechConfiguration): MechLocation[]
     [MechConfiguration.LAM]: BIPED_LOCATIONS, // LAM uses biped locations
     [MechConfiguration.QUADVEE]: QUAD_LOCATIONS,
   };
-  
+
   return locationMap[config] ?? BIPED_LOCATIONS;
 }
 
 /**
  * Check if a location is valid for a configuration
  */
-export function isValidLocationForConfig(location: MechLocation, config: MechConfiguration): boolean {
+export function isValidLocationForConfig(
+  location: MechLocation,
+  config: MechConfiguration,
+): boolean {
   const validLocations = getLocationsForConfig(config);
   return validLocations.includes(location);
 }
@@ -306,26 +338,27 @@ export function getLocationDisplayName(location: MechLocation): string {
  * Includes all configurations: biped, quad, tripod, and LAM fighter mode.
  * Use this as the single source of truth for location abbreviations.
  */
-export const LOCATION_ABBREVIATION_MAP: Readonly<Record<MechLocation, string>> = {
-  [MechLocation.HEAD]: 'HD',
-  [MechLocation.CENTER_TORSO]: 'CT',
-  [MechLocation.LEFT_TORSO]: 'LT',
-  [MechLocation.RIGHT_TORSO]: 'RT',
-  [MechLocation.LEFT_ARM]: 'LA',
-  [MechLocation.RIGHT_ARM]: 'RA',
-  [MechLocation.LEFT_LEG]: 'LL',
-  [MechLocation.RIGHT_LEG]: 'RL',
-  [MechLocation.CENTER_LEG]: 'CL',
-  [MechLocation.FRONT_LEFT_LEG]: 'FLL',
-  [MechLocation.FRONT_RIGHT_LEG]: 'FRL',
-  [MechLocation.REAR_LEFT_LEG]: 'RLL',
-  [MechLocation.REAR_RIGHT_LEG]: 'RRL',
-  [MechLocation.NOSE]: 'NOS',
-  [MechLocation.LEFT_WING]: 'LW',
-  [MechLocation.RIGHT_WING]: 'RW',
-  [MechLocation.AFT]: 'AFT',
-  [MechLocation.FUSELAGE]: 'FUS',
-};
+export const LOCATION_ABBREVIATION_MAP: Readonly<Record<MechLocation, string>> =
+  {
+    [MechLocation.HEAD]: 'HD',
+    [MechLocation.CENTER_TORSO]: 'CT',
+    [MechLocation.LEFT_TORSO]: 'LT',
+    [MechLocation.RIGHT_TORSO]: 'RT',
+    [MechLocation.LEFT_ARM]: 'LA',
+    [MechLocation.RIGHT_ARM]: 'RA',
+    [MechLocation.LEFT_LEG]: 'LL',
+    [MechLocation.RIGHT_LEG]: 'RL',
+    [MechLocation.CENTER_LEG]: 'CL',
+    [MechLocation.FRONT_LEFT_LEG]: 'FLL',
+    [MechLocation.FRONT_RIGHT_LEG]: 'FRL',
+    [MechLocation.REAR_LEFT_LEG]: 'RLL',
+    [MechLocation.REAR_RIGHT_LEG]: 'RRL',
+    [MechLocation.NOSE]: 'NOS',
+    [MechLocation.LEFT_WING]: 'LW',
+    [MechLocation.RIGHT_WING]: 'RW',
+    [MechLocation.AFT]: 'AFT',
+    [MechLocation.FUSELAGE]: 'FUS',
+  };
 
 /**
  * Get the short abbreviation for a location (used in MTF format)
@@ -337,14 +370,23 @@ export function getLocationAbbreviation(location: MechLocation): string {
 /**
  * Get critical slot count for a location based on configuration
  */
-export function getLocationSlotCount(location: MechLocation, _config: MechConfiguration): number {
+export function getLocationSlotCount(
+  location: MechLocation,
+  _config: MechConfiguration,
+): number {
   // Head always has 6 slots
   if (location === MechLocation.HEAD) {
     return 6;
   }
 
   // Torsos always have 12 slots
-  if ([MechLocation.CENTER_TORSO, MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO].includes(location)) {
+  if (
+    [
+      MechLocation.CENTER_TORSO,
+      MechLocation.LEFT_TORSO,
+      MechLocation.RIGHT_TORSO,
+    ].includes(location)
+  ) {
     return 12;
   }
 
@@ -354,13 +396,25 @@ export function getLocationSlotCount(location: MechLocation, _config: MechConfig
   }
 
   // Biped/Tripod legs have 6 slots
-  if ([MechLocation.LEFT_LEG, MechLocation.RIGHT_LEG, MechLocation.CENTER_LEG].includes(location)) {
+  if (
+    [
+      MechLocation.LEFT_LEG,
+      MechLocation.RIGHT_LEG,
+      MechLocation.CENTER_LEG,
+    ].includes(location)
+  ) {
     return 6;
   }
 
   // Quad legs have 6 slots (same as biped legs - 4 actuators + 2 empty)
-  if ([MechLocation.FRONT_LEFT_LEG, MechLocation.FRONT_RIGHT_LEG,
-       MechLocation.REAR_LEFT_LEG, MechLocation.REAR_RIGHT_LEG].includes(location)) {
+  if (
+    [
+      MechLocation.FRONT_LEFT_LEG,
+      MechLocation.FRONT_RIGHT_LEG,
+      MechLocation.REAR_LEFT_LEG,
+      MechLocation.REAR_RIGHT_LEG,
+    ].includes(location)
+  ) {
     return 6;
   }
 
@@ -405,17 +459,26 @@ export function hasRearArmor(location: MechLocation): boolean {
  */
 export function getActuatorsForLocation(
   location: MechLocation,
-  config: MechConfiguration
+  config: MechConfiguration,
 ): readonly IActuatorSlot[] {
   // Head, torsos have no actuators
-  if ([MechLocation.HEAD, MechLocation.CENTER_TORSO,
-       MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO].includes(location)) {
+  if (
+    [
+      MechLocation.HEAD,
+      MechLocation.CENTER_TORSO,
+      MechLocation.LEFT_TORSO,
+      MechLocation.RIGHT_TORSO,
+    ].includes(location)
+  ) {
     return [];
   }
 
   // Arms use arm actuators (biped, tripod, LAM only)
   if (isArmLocation(location)) {
-    if (config === MechConfiguration.QUAD || config === MechConfiguration.QUADVEE) {
+    if (
+      config === MechConfiguration.QUAD ||
+      config === MechConfiguration.QUADVEE
+    ) {
       return []; // Quads don't have arms
     }
     return ARM_ACTUATORS;
@@ -447,7 +510,7 @@ function createLocationDef(
     actuators?: readonly IActuatorSlot[];
     transfersTo?: MechLocation;
     maxArmorMultiplier?: number;
-  } = {}
+  } = {},
 ): ILocationDefinition {
   return {
     id,
@@ -470,14 +533,40 @@ export const BIPED_CONFIGURATION: IMechConfigurationDefinition = {
   displayName: 'Biped',
   description: 'Standard two-legged BattleMech with arms',
   locations: [
-    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, { maxArmorMultiplier: 3 }),
-    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, { hasRearArmor: true }),
-    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, { hasRearArmor: true, transfersTo: MechLocation.CENTER_TORSO }),
-    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, { hasRearArmor: true, transfersTo: MechLocation.CENTER_TORSO }),
-    createLocationDef(MechLocation.LEFT_ARM, 'Left Arm', 'LA', 12, { isLimb: true, actuators: ARM_ACTUATORS, transfersTo: MechLocation.LEFT_TORSO }),
-    createLocationDef(MechLocation.RIGHT_ARM, 'Right Arm', 'RA', 12, { isLimb: true, actuators: ARM_ACTUATORS, transfersTo: MechLocation.RIGHT_TORSO }),
-    createLocationDef(MechLocation.LEFT_LEG, 'Left Leg', 'LL', 6, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.LEFT_TORSO }),
-    createLocationDef(MechLocation.RIGHT_LEG, 'Right Leg', 'RL', 6, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.RIGHT_TORSO }),
+    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, {
+      maxArmorMultiplier: 3,
+    }),
+    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, {
+      hasRearArmor: true,
+    }),
+    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, {
+      hasRearArmor: true,
+      transfersTo: MechLocation.CENTER_TORSO,
+    }),
+    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, {
+      hasRearArmor: true,
+      transfersTo: MechLocation.CENTER_TORSO,
+    }),
+    createLocationDef(MechLocation.LEFT_ARM, 'Left Arm', 'LA', 12, {
+      isLimb: true,
+      actuators: ARM_ACTUATORS,
+      transfersTo: MechLocation.LEFT_TORSO,
+    }),
+    createLocationDef(MechLocation.RIGHT_ARM, 'Right Arm', 'RA', 12, {
+      isLimb: true,
+      actuators: ARM_ACTUATORS,
+      transfersTo: MechLocation.RIGHT_TORSO,
+    }),
+    createLocationDef(MechLocation.LEFT_LEG, 'Left Leg', 'LL', 6, {
+      isLimb: true,
+      actuators: LEG_ACTUATORS,
+      transfersTo: MechLocation.LEFT_TORSO,
+    }),
+    createLocationDef(MechLocation.RIGHT_LEG, 'Right Leg', 'RL', 6, {
+      isLimb: true,
+      actuators: LEG_ACTUATORS,
+      transfersTo: MechLocation.RIGHT_TORSO,
+    }),
   ],
   mountingRules: [],
   prohibitedEquipment: [],
@@ -493,14 +582,58 @@ export const QUAD_CONFIGURATION: IMechConfigurationDefinition = {
   displayName: 'Quad',
   description: 'Four-legged BattleMech without arms',
   locations: [
-    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, { maxArmorMultiplier: 3 }),
-    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, { hasRearArmor: true }),
-    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, { hasRearArmor: true, transfersTo: MechLocation.CENTER_TORSO }),
-    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, { hasRearArmor: true, transfersTo: MechLocation.CENTER_TORSO }),
-    createLocationDef(MechLocation.FRONT_LEFT_LEG, 'Front Left Leg', 'FLL', 12, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.LEFT_TORSO }),
-    createLocationDef(MechLocation.FRONT_RIGHT_LEG, 'Front Right Leg', 'FRL', 12, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.RIGHT_TORSO }),
-    createLocationDef(MechLocation.REAR_LEFT_LEG, 'Rear Left Leg', 'RLL', 12, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.LEFT_TORSO }),
-    createLocationDef(MechLocation.REAR_RIGHT_LEG, 'Rear Right Leg', 'RRL', 12, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.RIGHT_TORSO }),
+    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, {
+      maxArmorMultiplier: 3,
+    }),
+    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, {
+      hasRearArmor: true,
+    }),
+    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, {
+      hasRearArmor: true,
+      transfersTo: MechLocation.CENTER_TORSO,
+    }),
+    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, {
+      hasRearArmor: true,
+      transfersTo: MechLocation.CENTER_TORSO,
+    }),
+    createLocationDef(
+      MechLocation.FRONT_LEFT_LEG,
+      'Front Left Leg',
+      'FLL',
+      12,
+      {
+        isLimb: true,
+        actuators: LEG_ACTUATORS,
+        transfersTo: MechLocation.LEFT_TORSO,
+      },
+    ),
+    createLocationDef(
+      MechLocation.FRONT_RIGHT_LEG,
+      'Front Right Leg',
+      'FRL',
+      12,
+      {
+        isLimb: true,
+        actuators: LEG_ACTUATORS,
+        transfersTo: MechLocation.RIGHT_TORSO,
+      },
+    ),
+    createLocationDef(MechLocation.REAR_LEFT_LEG, 'Rear Left Leg', 'RLL', 12, {
+      isLimb: true,
+      actuators: LEG_ACTUATORS,
+      transfersTo: MechLocation.LEFT_TORSO,
+    }),
+    createLocationDef(
+      MechLocation.REAR_RIGHT_LEG,
+      'Rear Right Leg',
+      'RRL',
+      12,
+      {
+        isLimb: true,
+        actuators: LEG_ACTUATORS,
+        transfersTo: MechLocation.RIGHT_TORSO,
+      },
+    ),
   ],
   mountingRules: [],
   prohibitedEquipment: [],
@@ -516,15 +649,45 @@ export const TRIPOD_CONFIGURATION: IMechConfigurationDefinition = {
   displayName: 'Tripod',
   description: 'Three-legged BattleMech with arms and center leg',
   locations: [
-    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, { maxArmorMultiplier: 3 }),
-    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, { hasRearArmor: true }),
-    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, { hasRearArmor: true, transfersTo: MechLocation.CENTER_TORSO }),
-    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, { hasRearArmor: true, transfersTo: MechLocation.CENTER_TORSO }),
-    createLocationDef(MechLocation.LEFT_ARM, 'Left Arm', 'LA', 12, { isLimb: true, actuators: ARM_ACTUATORS, transfersTo: MechLocation.LEFT_TORSO }),
-    createLocationDef(MechLocation.RIGHT_ARM, 'Right Arm', 'RA', 12, { isLimb: true, actuators: ARM_ACTUATORS, transfersTo: MechLocation.RIGHT_TORSO }),
-    createLocationDef(MechLocation.LEFT_LEG, 'Left Leg', 'LL', 6, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.LEFT_TORSO }),
-    createLocationDef(MechLocation.RIGHT_LEG, 'Right Leg', 'RL', 6, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.RIGHT_TORSO }),
-    createLocationDef(MechLocation.CENTER_LEG, 'Center Leg', 'CL', 6, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.CENTER_TORSO }),
+    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, {
+      maxArmorMultiplier: 3,
+    }),
+    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, {
+      hasRearArmor: true,
+    }),
+    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, {
+      hasRearArmor: true,
+      transfersTo: MechLocation.CENTER_TORSO,
+    }),
+    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, {
+      hasRearArmor: true,
+      transfersTo: MechLocation.CENTER_TORSO,
+    }),
+    createLocationDef(MechLocation.LEFT_ARM, 'Left Arm', 'LA', 12, {
+      isLimb: true,
+      actuators: ARM_ACTUATORS,
+      transfersTo: MechLocation.LEFT_TORSO,
+    }),
+    createLocationDef(MechLocation.RIGHT_ARM, 'Right Arm', 'RA', 12, {
+      isLimb: true,
+      actuators: ARM_ACTUATORS,
+      transfersTo: MechLocation.RIGHT_TORSO,
+    }),
+    createLocationDef(MechLocation.LEFT_LEG, 'Left Leg', 'LL', 6, {
+      isLimb: true,
+      actuators: LEG_ACTUATORS,
+      transfersTo: MechLocation.LEFT_TORSO,
+    }),
+    createLocationDef(MechLocation.RIGHT_LEG, 'Right Leg', 'RL', 6, {
+      isLimb: true,
+      actuators: LEG_ACTUATORS,
+      transfersTo: MechLocation.RIGHT_TORSO,
+    }),
+    createLocationDef(MechLocation.CENTER_LEG, 'Center Leg', 'CL', 6, {
+      isLimb: true,
+      actuators: LEG_ACTUATORS,
+      transfersTo: MechLocation.CENTER_TORSO,
+    }),
   ],
   mountingRules: [],
   prohibitedEquipment: [],
@@ -542,13 +705,21 @@ export const LAM_EQUIPMENT = {
     id: 'landing-gear',
     name: 'Landing Gear',
     slots: 1,
-    locations: [MechLocation.CENTER_TORSO, MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO],
+    locations: [
+      MechLocation.CENTER_TORSO,
+      MechLocation.LEFT_TORSO,
+      MechLocation.RIGHT_TORSO,
+    ],
   },
   AVIONICS: {
     id: 'avionics',
     name: 'Avionics',
     slots: 1,
-    locations: [MechLocation.HEAD, MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO],
+    locations: [
+      MechLocation.HEAD,
+      MechLocation.LEFT_TORSO,
+      MechLocation.RIGHT_TORSO,
+    ],
   },
 } as const;
 
@@ -561,14 +732,40 @@ export const LAM_CONFIGURATION: IMechConfigurationDefinition = {
   displayName: 'Land-Air Mech',
   description: 'Transformable BattleMech capable of flight (max 55 tons)',
   locations: [
-    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, { maxArmorMultiplier: 3 }),
-    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, { hasRearArmor: true }),
-    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, { hasRearArmor: true, transfersTo: MechLocation.CENTER_TORSO }),
-    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, { hasRearArmor: true, transfersTo: MechLocation.CENTER_TORSO }),
-    createLocationDef(MechLocation.LEFT_ARM, 'Left Arm', 'LA', 12, { isLimb: true, actuators: ARM_ACTUATORS, transfersTo: MechLocation.LEFT_TORSO }),
-    createLocationDef(MechLocation.RIGHT_ARM, 'Right Arm', 'RA', 12, { isLimb: true, actuators: ARM_ACTUATORS, transfersTo: MechLocation.RIGHT_TORSO }),
-    createLocationDef(MechLocation.LEFT_LEG, 'Left Leg', 'LL', 6, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.LEFT_TORSO }),
-    createLocationDef(MechLocation.RIGHT_LEG, 'Right Leg', 'RL', 6, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.RIGHT_TORSO }),
+    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, {
+      maxArmorMultiplier: 3,
+    }),
+    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, {
+      hasRearArmor: true,
+    }),
+    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, {
+      hasRearArmor: true,
+      transfersTo: MechLocation.CENTER_TORSO,
+    }),
+    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, {
+      hasRearArmor: true,
+      transfersTo: MechLocation.CENTER_TORSO,
+    }),
+    createLocationDef(MechLocation.LEFT_ARM, 'Left Arm', 'LA', 12, {
+      isLimb: true,
+      actuators: ARM_ACTUATORS,
+      transfersTo: MechLocation.LEFT_TORSO,
+    }),
+    createLocationDef(MechLocation.RIGHT_ARM, 'Right Arm', 'RA', 12, {
+      isLimb: true,
+      actuators: ARM_ACTUATORS,
+      transfersTo: MechLocation.RIGHT_TORSO,
+    }),
+    createLocationDef(MechLocation.LEFT_LEG, 'Left Leg', 'LL', 6, {
+      isLimb: true,
+      actuators: LEG_ACTUATORS,
+      transfersTo: MechLocation.LEFT_TORSO,
+    }),
+    createLocationDef(MechLocation.RIGHT_LEG, 'Right Leg', 'RL', 6, {
+      isLimb: true,
+      actuators: LEG_ACTUATORS,
+      transfersTo: MechLocation.RIGHT_TORSO,
+    }),
   ],
   mountingRules: [],
   prohibitedEquipment: [
@@ -625,9 +822,15 @@ export const LAM_CONFIGURATION: IMechConfigurationDefinition = {
   ],
   requiredEquipment: [
     // Landing Gear: 1 slot each in CT, LT, RT
-    { equipmentId: LAM_EQUIPMENT.LANDING_GEAR.id, locations: LAM_EQUIPMENT.LANDING_GEAR.locations },
+    {
+      equipmentId: LAM_EQUIPMENT.LANDING_GEAR.id,
+      locations: LAM_EQUIPMENT.LANDING_GEAR.locations,
+    },
     // Avionics: 1 slot each in HD, LT, RT
-    { equipmentId: LAM_EQUIPMENT.AVIONICS.id, locations: LAM_EQUIPMENT.AVIONICS.locations },
+    {
+      equipmentId: LAM_EQUIPMENT.AVIONICS.id,
+      locations: LAM_EQUIPMENT.AVIONICS.locations,
+    },
   ],
   diagramComponentName: 'LAMArmorDiagram',
 };
@@ -669,20 +872,67 @@ export const QUADVEE_CONFIGURATION: IMechConfigurationDefinition = {
   displayName: 'QuadVee',
   description: 'Transformable quad mech capable of vehicle mode',
   locations: [
-    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, { maxArmorMultiplier: 3 }),
-    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, { hasRearArmor: true }),
-    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, { hasRearArmor: true, transfersTo: MechLocation.CENTER_TORSO }),
-    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, { hasRearArmor: true, transfersTo: MechLocation.CENTER_TORSO }),
-    createLocationDef(MechLocation.FRONT_LEFT_LEG, 'Front Left Leg', 'FLL', 12, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.LEFT_TORSO }),
-    createLocationDef(MechLocation.FRONT_RIGHT_LEG, 'Front Right Leg', 'FRL', 12, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.RIGHT_TORSO }),
-    createLocationDef(MechLocation.REAR_LEFT_LEG, 'Rear Left Leg', 'RLL', 12, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.LEFT_TORSO }),
-    createLocationDef(MechLocation.REAR_RIGHT_LEG, 'Rear Right Leg', 'RRL', 12, { isLimb: true, actuators: LEG_ACTUATORS, transfersTo: MechLocation.RIGHT_TORSO }),
+    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, {
+      maxArmorMultiplier: 3,
+    }),
+    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, {
+      hasRearArmor: true,
+    }),
+    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, {
+      hasRearArmor: true,
+      transfersTo: MechLocation.CENTER_TORSO,
+    }),
+    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, {
+      hasRearArmor: true,
+      transfersTo: MechLocation.CENTER_TORSO,
+    }),
+    createLocationDef(
+      MechLocation.FRONT_LEFT_LEG,
+      'Front Left Leg',
+      'FLL',
+      12,
+      {
+        isLimb: true,
+        actuators: LEG_ACTUATORS,
+        transfersTo: MechLocation.LEFT_TORSO,
+      },
+    ),
+    createLocationDef(
+      MechLocation.FRONT_RIGHT_LEG,
+      'Front Right Leg',
+      'FRL',
+      12,
+      {
+        isLimb: true,
+        actuators: LEG_ACTUATORS,
+        transfersTo: MechLocation.RIGHT_TORSO,
+      },
+    ),
+    createLocationDef(MechLocation.REAR_LEFT_LEG, 'Rear Left Leg', 'RLL', 12, {
+      isLimb: true,
+      actuators: LEG_ACTUATORS,
+      transfersTo: MechLocation.LEFT_TORSO,
+    }),
+    createLocationDef(
+      MechLocation.REAR_RIGHT_LEG,
+      'Rear Right Leg',
+      'RRL',
+      12,
+      {
+        isLimb: true,
+        actuators: LEG_ACTUATORS,
+        transfersTo: MechLocation.RIGHT_TORSO,
+      },
+    ),
   ],
   mountingRules: [],
   prohibitedEquipment: [],
   baseMovementModifier: 0,
   requiredEquipment: [
-    { equipmentId: QUADVEE_EQUIPMENT.CONVERSION_EQUIPMENT.id, locations: QUADVEE_EQUIPMENT.CONVERSION_EQUIPMENT.locations },
+    {
+      equipmentId: QUADVEE_EQUIPMENT.CONVERSION_EQUIPMENT.id,
+      locations: QUADVEE_EQUIPMENT.CONVERSION_EQUIPMENT.locations,
+    },
   ],
   diagramComponentName: 'QuadVeeArmorDiagram',
 };
@@ -695,7 +945,10 @@ export const QUADVEE_CONFIGURATION: IMechConfigurationDefinition = {
  * Registry of all mech configuration definitions
  */
 class MechConfigurationRegistry {
-  private readonly configurations: Map<MechConfiguration, IMechConfigurationDefinition>;
+  private readonly configurations: Map<
+    MechConfiguration,
+    IMechConfigurationDefinition
+  >;
 
   constructor() {
     this.configurations = new Map([
@@ -729,29 +982,38 @@ class MechConfigurationRegistry {
   /**
    * Get location definitions for a configuration
    */
-  getLocationDefinitions(type: MechConfiguration): readonly ILocationDefinition[] {
+  getLocationDefinitions(
+    type: MechConfiguration,
+  ): readonly ILocationDefinition[] {
     return this.getConfiguration(type).locations;
   }
 
   /**
    * Get a specific location definition
    */
-  getLocationDefinition(type: MechConfiguration, location: MechLocation): ILocationDefinition | undefined {
-    return this.getConfiguration(type).locations.find(loc => loc.id === location);
+  getLocationDefinition(
+    type: MechConfiguration,
+    location: MechLocation,
+  ): ILocationDefinition | undefined {
+    return this.getConfiguration(type).locations.find(
+      (loc) => loc.id === location,
+    );
   }
 
   /**
    * Check if a configuration supports a specific location
    */
   hasLocation(type: MechConfiguration, location: MechLocation): boolean {
-    return this.getConfiguration(type).locations.some(loc => loc.id === location);
+    return this.getConfiguration(type).locations.some(
+      (loc) => loc.id === location,
+    );
   }
 
   /**
    * Get all valid locations for a configuration
    */
   getValidLocations(type: MechConfiguration): MechLocation[] {
-    return this.getConfiguration(type).locations.map(loc => loc.id);
+    return this.getConfiguration(type).locations.map((loc) => loc.id);
   }
 
   /**
@@ -765,7 +1027,9 @@ class MechConfigurationRegistry {
    * Check if configuration is a quad type (Quad or QuadVee)
    */
   isQuadConfiguration(type: MechConfiguration): boolean {
-    return type === MechConfiguration.QUAD || type === MechConfiguration.QUADVEE;
+    return (
+      type === MechConfiguration.QUAD || type === MechConfiguration.QUADVEE
+    );
   }
 
   /**
@@ -792,15 +1056,20 @@ class MechConfigurationRegistry {
   /**
    * Get mode definition by mode value
    */
-  getModeDefinition(type: MechConfiguration, mode: LAMMode): ILAMModeDefinition | undefined {
+  getModeDefinition(
+    type: MechConfiguration,
+    mode: LAMMode,
+  ): ILAMModeDefinition | undefined {
     const modes = this.getModes(type);
-    return modes?.find(m => m.mode === mode);
+    return modes?.find((m) => m.mode === mode);
   }
 
   /**
    * Get fighter mode armor location mapping for LAM
    */
-  getFighterArmorMapping(type: MechConfiguration): Readonly<Record<MechLocation, MechLocation>> | undefined {
+  getFighterArmorMapping(
+    type: MechConfiguration,
+  ): Readonly<Record<MechLocation, MechLocation>> | undefined {
     const fighterMode = this.getModeDefinition(type, LAMMode.FIGHTER);
     return fighterMode?.armorLocationMapping;
   }
@@ -822,14 +1091,18 @@ class MechConfigurationRegistry {
   /**
    * Get QuadVee mode definition by mode value
    */
-  getQuadVeeModeDefinition(mode: QuadVeeMode): IQuadVeeModeDefinition | undefined {
-    return QUADVEE_MODES.find(m => m.mode === mode);
+  getQuadVeeModeDefinition(
+    mode: QuadVeeMode,
+  ): IQuadVeeModeDefinition | undefined {
+    return QUADVEE_MODES.find((m) => m.mode === mode);
   }
 
   /**
    * Get required equipment for a configuration
    */
-  getRequiredEquipment(type: MechConfiguration): readonly { equipmentId: string; locations: readonly MechLocation[] }[] {
+  getRequiredEquipment(
+    type: MechConfiguration,
+  ): readonly { equipmentId: string; locations: readonly MechLocation[] }[] {
     return this.getConfiguration(type).requiredEquipment ?? [];
   }
 

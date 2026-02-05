@@ -56,7 +56,7 @@ describe('calculateAdjustedBV', () => {
     it('should round to nearest integer', () => {
       // 1000 × 1.32 = 1320 (exact)
       expect(calculateAdjustedBV(1000, 3, 4)).toBe(1320);
-      
+
       // 1111 × 1.32 = 1466.52 -> rounds to 1467
       expect(calculateAdjustedBV(1111, 3, 4)).toBe(1467);
     });

@@ -39,14 +39,14 @@ export function ArmorLocation({
 
   return (
     <section
-      className={`armor-location bg-white dark:bg-gray-800 rounded-lg shadow-md ${className}`.trim()}
+      className={`armor-location rounded-lg bg-white shadow-md dark:bg-gray-800 ${className}`.trim()}
       aria-label={`${location} armor allocation`}
     >
       {/* Location Header - Always Visible */}
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-4 py-3 flex items-center justify-between text-left"
+        className="flex w-full items-center justify-between px-4 py-3 text-left"
         aria-expanded={isExpanded}
         aria-controls={`${location.toLowerCase()}-details`}
       >
@@ -54,8 +54,8 @@ export function ArmorLocation({
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {location}
           </h3>
-          <div className="flex items-center gap-2 mt-1">
-            <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="mt-1 flex items-center gap-2">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
               <div
                 className={`h-full ${progressColor} transition-all duration-200`}
                 style={{ width: `${percentage}%` }}
@@ -66,13 +66,13 @@ export function ArmorLocation({
                 aria-label={`${location} armor: ${currentArmor} of ${maxArmor}`}
               />
             </div>
-            <span className="text-sm text-gray-600 dark:text-gray-400 tabular-nums">
+            <span className="text-sm text-gray-600 tabular-nums dark:text-gray-400">
               {currentArmor} / {maxArmor}
             </span>
           </div>
         </div>
         <svg
-          className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
+          className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
             isExpanded ? 'rotate-180' : ''
           }`}
           fill="none"
@@ -80,7 +80,12 @@ export function ArmorLocation({
           stroke="currentColor"
           aria-hidden="true"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
 
@@ -88,14 +93,14 @@ export function ArmorLocation({
       {isExpanded && (
         <div
           id={`${location.toLowerCase()}-details`}
-          className="px-4 pb-4 border-t border-gray-200 dark:border-gray-700"
+          className="border-t border-gray-200 px-4 pb-4 dark:border-gray-700"
         >
           {/* Quick Add Buttons */}
           <div className="mt-4 grid grid-cols-4 gap-2">
             <button
               type="button"
               onClick={() => handleQuickAdd(5)}
-              className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium transition-colors min-h-[44px]"
+              className="min-h-[44px] rounded-md bg-blue-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
               aria-label={`Add 5 armor to ${location}`}
               disabled={currentArmor >= maxArmor}
             >
@@ -104,7 +109,7 @@ export function ArmorLocation({
             <button
               type="button"
               onClick={() => handleQuickAdd(10)}
-              className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium transition-colors min-h-[44px]"
+              className="min-h-[44px] rounded-md bg-blue-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
               aria-label={`Add 10 armor to ${location}`}
               disabled={currentArmor >= maxArmor}
             >
@@ -113,7 +118,7 @@ export function ArmorLocation({
             <button
               type="button"
               onClick={() => handleQuickAdd(20)}
-              className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium transition-colors min-h-[44px]"
+              className="min-h-[44px] rounded-md bg-blue-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
               aria-label={`Add 20 armor to ${location}`}
               disabled={currentArmor >= maxArmor}
             >
@@ -122,7 +127,7 @@ export function ArmorLocation({
             <button
               type="button"
               onClick={() => onArmorChange(maxArmor)}
-              className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm font-medium transition-colors min-h-[44px]"
+              className="min-h-[44px] rounded-md bg-green-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600"
               aria-label={`Maximize ${location} armor`}
               disabled={currentArmor >= maxArmor}
             >
@@ -135,12 +140,12 @@ export function ArmorLocation({
             <button
               type="button"
               onClick={handleDecrement}
-              className="p-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-gray-200 p-2 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
               aria-label={`Remove 1 armor from ${location}`}
               disabled={currentArmor <= 0}
             >
               <svg
-                className="w-6 h-6"
+                className="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -155,19 +160,19 @@ export function ArmorLocation({
               </svg>
             </button>
             <div className="w-20 text-center">
-              <span className="text-2xl font-bold text-gray-900 dark:text-white tabular-nums">
+              <span className="text-2xl font-bold text-gray-900 tabular-nums dark:text-white">
                 {currentArmor}
               </span>
             </div>
             <button
               type="button"
               onClick={handleIncrement}
-              className="p-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-gray-200 p-2 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
               aria-label={`Add 1 armor to ${location}`}
               disabled={currentArmor >= maxArmor}
             >
               <svg
-                className="w-6 h-6"
+                className="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

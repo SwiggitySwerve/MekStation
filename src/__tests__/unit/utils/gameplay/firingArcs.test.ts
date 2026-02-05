@@ -6,6 +6,8 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
+
+import { IUnitPosition, Facing, FiringArc } from '@/types/gameplay';
 import {
   determineArc,
   getFrontArcDirections,
@@ -15,7 +17,6 @@ import {
   canFireFromArc,
   targetsRearArmor,
 } from '@/utils/gameplay/firingArcs';
-import { IUnitPosition, Facing, FiringArc } from '@/types/gameplay';
 
 describe('firingArcs', () => {
   // =========================================================================
@@ -53,7 +54,7 @@ describe('firingArcs', () => {
     it('should correctly identify arcs for different facings', () => {
       // Test facing east (Southeast)
       const position = createPosition(Facing.Southeast);
-      
+
       // Target to the east (in front)
       const frontResult = determineArc(position, { q: 1, r: 0 });
       expect(frontResult.arc).toBe(FiringArc.Front);

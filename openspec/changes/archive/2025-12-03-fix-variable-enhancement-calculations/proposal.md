@@ -12,13 +12,14 @@ The implementation of MASC and Supercharger weight/slot calculations does not ma
 
 ### Current vs Correct Calculations
 
-| Equipment | Current (Wrong) | Correct (Per Spec) |
-|-----------|-----------------|-------------------|
-| MASC (IS) | `ceil(tonnage / 20)` | `ceil(engineRating / 20)` |
-| MASC (Clan) | `ceil(tonnage / 25)` | `ceil(engineRating / 25)` |
+| Equipment    | Current (Wrong)            | Correct (Per Spec)                |
+| ------------ | -------------------------- | --------------------------------- |
+| MASC (IS)    | `ceil(tonnage / 20)`       | `ceil(engineRating / 20)`         |
+| MASC (Clan)  | `ceil(tonnage / 25)`       | `ceil(engineRating / 25)`         |
 | Supercharger | `ceil(tonnage / 10) * 0.5` | `ceil(engineWeight / 10)` to 0.5t |
 
 **Example**: 75-ton mech with 300 engine rating
+
 - MASC (IS) Current: ceil(75/20) = **4 tons** (wrong)
 - MASC (IS) Correct: ceil(300/20) = **15 tons** (correct)
 
@@ -30,4 +31,3 @@ The implementation of MASC and Supercharger weight/slot calculations does not ma
   - `src/types/construction/MovementEnhancement.ts` - Deprecated calculations
 - No breaking changes to public API
 - Existing unit designs with MASC/Supercharger will recalculate correctly on load
-

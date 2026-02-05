@@ -181,7 +181,7 @@ export const SPA_CATALOG: Record<string, ISpecialAbility> = {
  */
 export function rollVeterancySPA(
   person: IPerson,
-  random: RandomFn
+  random: RandomFn,
 ): ISpecialAbility | null {
   // Check if already rolled
   if (person.traits?.hasGainedVeterancySPA) {
@@ -190,10 +190,7 @@ export function rollVeterancySPA(
 
   // Filter eligible SPAs: not origin-only, not flaw, not already held
   const eligible = Object.values(SPA_CATALOG).filter(
-    (spa) =>
-      !spa.isOriginOnly &&
-      !spa.isFlaw &&
-      !personHasSPA(person, spa.id)
+    (spa) => !spa.isOriginOnly && !spa.isFlaw && !personHasSPA(person, spa.id),
   );
 
   if (eligible.length === 0) {
@@ -206,7 +203,7 @@ export function rollVeterancySPA(
   // Select pool based on flaw roll
   const pool = isFlaw
     ? Object.values(SPA_CATALOG).filter(
-        (spa) => spa.isFlaw && !personHasSPA(person, spa.id)
+        (spa) => spa.isFlaw && !personHasSPA(person, spa.id),
       )
     : eligible;
 
@@ -234,7 +231,7 @@ export function rollVeterancySPA(
  */
 export function rollComingOfAgeSPA(
   _person: IPerson,
-  _random: RandomFn
+  _random: RandomFn,
 ): ISpecialAbility | null {
   // @stub - Coming-of-age SPA system not implemented
   return null;
@@ -269,7 +266,7 @@ export function rollComingOfAgeSPA(
  */
 export function purchaseSPA(
   person: IPerson,
-  spaId: string
+  spaId: string,
 ): IPurchaseSPAResult {
   // Check if SPA exists
   const spa = SPA_CATALOG[spaId];

@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 /**
  * MekStation - Icon Generator Script
- * 
+ *
  * Generates placeholder icons for development/testing.
  * For production, replace these with actual designed icons.
- * 
+ *
  * Required icon sizes:
  * - macOS: icon.icns (multiple sizes bundled)
  * - Windows: icon.ico (256x256, 128x128, 64x64, 48x48, 32x32, 16x16)
  * - Linux: PNG files (512, 256, 128, 64, 48, 32, 16)
  * - Tray: 16x16, 32x32 PNG
- * 
+ *
  * Usage:
  *   node scripts/generate-icons.js
  *   npm run icons:generate
- * 
+ *
  * Note: This creates simple SVG placeholder icons.
  * Use tools like png2icons, electron-icon-builder, or icon-gen
  * to convert a source PNG to all required formats.
@@ -113,7 +113,7 @@ function generateTrayIcon(size) {
 
 // Generate main icon at various sizes
 const sizes = [16, 32, 48, 64, 128, 256, 512, 1024];
-sizes.forEach(size => {
+sizes.forEach((size) => {
   const svg = generateSvgIcon(size);
   fs.writeFileSync(path.join(ICONS_DIR, `icon-${size}.svg`), svg);
   console.log(`Generated: icon-${size}.svg`);

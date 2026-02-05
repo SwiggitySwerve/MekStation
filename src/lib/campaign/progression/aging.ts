@@ -8,9 +8,9 @@
  * @module campaign/progression/aging
  */
 
-import { IAgingMilestone } from '@/types/campaign/progression/progressionTypes';
-import { IPerson } from '@/types/campaign/Person';
 import { ICampaignOptions } from '@/types/campaign/Campaign';
+import { IPerson } from '@/types/campaign/Person';
+import { IAgingMilestone } from '@/types/campaign/progression/progressionTypes';
 
 // =============================================================================
 // Aging Milestones
@@ -229,7 +229,7 @@ export interface IAgingEvent {
  */
 export function getMilestoneForAge(age: number): IAgingMilestone {
   const milestone = AGING_MILESTONES.find(
-    (m) => age >= m.minAge && age <= m.maxAge
+    (m) => age >= m.minAge && age <= m.maxAge,
   );
 
   if (!milestone) {
@@ -254,7 +254,7 @@ export function getMilestoneForAge(age: number): IAgingMilestone {
  */
 export function getAgingAttributeModifier(
   age: number,
-  attribute: string
+  attribute: string,
 ): number {
   let totalModifier = 0;
 
@@ -286,7 +286,7 @@ export function getAgingAttributeModifier(
  */
 export function calculateAge(
   birthDate: string | Date,
-  currentDate: string | Date
+  currentDate: string | Date,
 ): number {
   const birth = typeof birthDate === 'string' ? new Date(birthDate) : birthDate;
   const current =
@@ -325,7 +325,7 @@ export function calculateAge(
  */
 export function isBirthday(
   birthDate: string | Date,
-  currentDate: string | Date
+  currentDate: string | Date,
 ): boolean {
   const birth = typeof birthDate === 'string' ? new Date(birthDate) : birthDate;
   const current =
@@ -353,7 +353,7 @@ export function isBirthday(
  */
 export function applyAgingModifiers(
   person: IPerson,
-  milestone: IAgingMilestone
+  milestone: IAgingMilestone,
 ): IPerson {
   // Calculate age from milestone
   const age = milestone.minAge;
@@ -415,7 +415,7 @@ export function applyAgingModifiers(
 export function processAging(
   person: IPerson,
   currentDate: string | Date,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): { updatedPerson: IPerson; events: IAgingEvent[] } {
   // Skip if aging effects are disabled
   if (!options.useAgingEffects) {

@@ -1,8 +1,8 @@
 /**
  * Location Mappings Tests
- * 
+ *
  * Tests for location name normalization and armor/critical slot parsing.
- * 
+ *
  * @spec openspec/specs/critical-slot-allocation/spec.md
  */
 
@@ -106,8 +106,12 @@ describe('LocationMappings', () => {
 
     it('should use fuzzy matching for partial names', () => {
       expect(parseLocation('head something')?.location).toBe(MechLocation.HEAD);
-      expect(parseLocation('center torso area')?.location).toBe(MechLocation.CENTER_TORSO);
-      expect(parseLocation('my left arm')?.location).toBe(MechLocation.LEFT_ARM);
+      expect(parseLocation('center torso area')?.location).toBe(
+        MechLocation.CENTER_TORSO,
+      );
+      expect(parseLocation('my left arm')?.location).toBe(
+        MechLocation.LEFT_ARM,
+      );
     });
 
     it('should return undefined for invalid locations', () => {
@@ -241,7 +245,17 @@ describe('LocationMappings', () => {
   describe('parseCriticalSlots()', () => {
     it('should parse properly separated location entries', () => {
       const entries: SourceCriticalEntry[] = [
-        { location: 'Head', slots: ['Life Support', 'Sensors', 'Cockpit', 'null', 'Sensors', 'Life Support'] },
+        {
+          location: 'Head',
+          slots: [
+            'Life Support',
+            'Sensors',
+            'Cockpit',
+            'null',
+            'Sensors',
+            'Life Support',
+          ],
+        },
         { location: 'Left Arm', slots: Array<string>(12).fill('-Empty-') },
         { location: 'Right Arm', slots: Array<string>(12).fill('-Empty-') },
         { location: 'Left Torso', slots: Array<string>(12).fill('-Empty-') },
@@ -254,7 +268,9 @@ describe('LocationMappings', () => {
       const result = parseCriticalSlots(entries);
 
       expect(result.length).toBe(8);
-      expect(result.find(r => r.location === MechLocation.HEAD)?.slots.length).toBe(6);
+      expect(
+        result.find((r) => r.location === MechLocation.HEAD)?.slots.length,
+      ).toBe(6);
     });
 
     it('should handle combined format (all slots in one entry)', () => {
@@ -289,8 +305,12 @@ describe('LocationMappings', () => {
       const result = parseCriticalSlots(entries);
 
       expect(result.length).toBe(8);
-      expect(result.find(r => r.location === MechLocation.HEAD)?.slots.length).toBe(6);
-      expect(result.find(r => r.location === MechLocation.LEFT_ARM)?.slots.length).toBe(12);
+      expect(
+        result.find((r) => r.location === MechLocation.HEAD)?.slots.length,
+      ).toBe(6);
+      expect(
+        result.find((r) => r.location === MechLocation.LEFT_ARM)?.slots.length,
+      ).toBe(12);
     });
 
     it('should trim slots to actual capacity', () => {
@@ -300,7 +320,9 @@ describe('LocationMappings', () => {
 
       const result = parseCriticalSlots(entries);
 
-      expect(result.find(r => r.location === MechLocation.HEAD)?.slots.length).toBe(6);
+      expect(
+        result.find((r) => r.location === MechLocation.HEAD)?.slots.length,
+      ).toBe(6);
     });
 
     it('should handle empty entries', () => {
@@ -364,4 +386,3 @@ describe('LocationMappings', () => {
     });
   });
 });
-

@@ -9,7 +9,6 @@
  * - Edge cases and boundary conditions
  */
 
-import { StateCycleDetector, type BattleState } from '../StateCycleDetector';
 import {
   GameEventType,
   GamePhase,
@@ -18,6 +17,8 @@ import {
   type IDamageAppliedPayload,
   type IHeatPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+
+import { StateCycleDetector, type BattleState } from '../StateCycleDetector';
 
 // =============================================================================
 // Test Fixtures
@@ -126,7 +127,9 @@ const createDestroyedEvent = (
   },
 });
 
-const createBattleState = (units: Array<{ id: string; name: string; side: GameSide }>): BattleState => ({
+const createBattleState = (
+  units: Array<{ id: string; name: string; side: GameSide }>,
+): BattleState => ({
   units: units.map((u) => ({
     id: u.id,
     name: u.name,
@@ -702,7 +705,9 @@ describe('StateCycleDetector', () => {
       const anomalies = detector.detect(events, battleState, 3);
 
       expect(anomalies[0].snapshot?.armor).toBeDefined();
-      expect((anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-1']).toEqual({
+      expect(
+        (anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-1'],
+      ).toEqual({
         center_torso: 20,
       });
     });
@@ -722,7 +727,9 @@ describe('StateCycleDetector', () => {
       const anomalies = detector.detect(events, battleState, 3);
 
       expect(anomalies[0].snapshot?.structure).toBeDefined();
-      expect((anomalies[0].snapshot?.structure as Record<string, unknown>)['unit-1']).toEqual({
+      expect(
+        (anomalies[0].snapshot?.structure as Record<string, unknown>)['unit-1'],
+      ).toEqual({
         center_torso: 15,
       });
     });
@@ -743,7 +750,9 @@ describe('StateCycleDetector', () => {
       const anomalies = detector.detect(events, battleState, 3);
 
       expect(anomalies[0].snapshot?.heat).toBeDefined();
-      expect((anomalies[0].snapshot?.heat as Record<string, unknown>)['unit-1']).toBe(25);
+      expect(
+        (anomalies[0].snapshot?.heat as Record<string, unknown>)['unit-1'],
+      ).toBe(25);
     });
 
     it('includes turn number in snapshot', () => {
@@ -804,9 +813,15 @@ describe('StateCycleDetector', () => {
       const anomalies = detector.detect(events, battleState, 3);
 
       expect(anomalies).toHaveLength(1);
-      expect((anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-1']).toHaveProperty('center_torso');
-      expect((anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-1']).toHaveProperty('left_torso');
-      expect((anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-1']).toHaveProperty('right_torso');
+      expect(
+        (anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-1'],
+      ).toHaveProperty('center_torso');
+      expect(
+        (anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-1'],
+      ).toHaveProperty('left_torso');
+      expect(
+        (anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-1'],
+      ).toHaveProperty('right_torso');
     });
 
     it('handles threshold of 1', () => {
@@ -842,8 +857,12 @@ describe('StateCycleDetector', () => {
       const anomalies = detector.detect(events, battleState, 3);
 
       expect(anomalies).toHaveLength(1);
-      expect((anomalies[0].snapshot?.heat as Record<string, unknown>)['unit-1']).toBe(20);
-      expect((anomalies[0].snapshot?.heat as Record<string, unknown>)['unit-2']).toBe(10);
+      expect(
+        (anomalies[0].snapshot?.heat as Record<string, unknown>)['unit-1'],
+      ).toBe(20);
+      expect(
+        (anomalies[0].snapshot?.heat as Record<string, unknown>)['unit-2'],
+      ).toBe(10);
     });
 
     it('handles very long cycle detection', () => {
@@ -880,7 +899,6 @@ describe('StateCycleDetector', () => {
         gameId: 'game-1',
         sequence: 1,
         timestamp: new Date().toISOString(),
-        // eslint-disable-next-line no-restricted-syntax
         type: 999 as unknown as GameEventType,
         turn: 1,
         phase: GamePhase.End,
@@ -906,7 +924,15 @@ describe('StateCycleDetector', () => {
       ]);
 
       const events: IGameEvent[] = [
-        createDamageEvent('game-1', 1, 'unit-unknown', 'center_torso', 20, 15, 1),
+        createDamageEvent(
+          'game-1',
+          1,
+          'unit-unknown',
+          'center_torso',
+          20,
+          15,
+          1,
+        ),
         createTurnEndedEvent('game-1', 1, 2),
         createTurnEndedEvent('game-1', 2, 3),
         createTurnEndedEvent('game-1', 3, 4),
@@ -945,10 +971,14 @@ describe('StateCycleDetector', () => {
       const anomalies = detector.detect(events, battleState, 3);
 
       expect(anomalies).toHaveLength(1);
-      expect((anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-1']).toEqual({
+      expect(
+        (anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-1'],
+      ).toEqual({
         center_torso: 20,
       });
-      expect((anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-2']).toEqual({
+      expect(
+        (anomalies[0].snapshot?.armor as Record<string, unknown>)['unit-2'],
+      ).toEqual({
         left_arm: 10,
       });
     });

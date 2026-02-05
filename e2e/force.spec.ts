@@ -8,11 +8,7 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
-import {
-  ForceListPage,
-  ForceDetailPage,
-  ForceCreatePage,
-} from './pages/force.page';
+
 import {
   createTestForce,
   createTestLance,
@@ -20,6 +16,11 @@ import {
   deleteForce,
   cloneForce,
 } from './fixtures/force';
+import {
+  ForceListPage,
+  ForceDetailPage,
+  ForceCreatePage,
+} from './pages/force.page';
 
 // =============================================================================
 // Test Configuration
@@ -31,10 +32,12 @@ test.setTimeout(30000);
 async function waitForStoreReady(page: Page): Promise<void> {
   await page.waitForFunction(
     () => {
-      const win = window as unknown as { __ZUSTAND_STORES__?: { force?: unknown } };
+      const win = window as unknown as {
+        __ZUSTAND_STORES__?: { force?: unknown };
+      };
       return win.__ZUSTAND_STORES__?.force !== undefined;
     },
-    { timeout: 10000 }
+    { timeout: 10000 },
   );
 }
 
@@ -54,14 +57,16 @@ test.describe('Force List Page @smoke @force', () => {
   test('navigates to forces list page', async ({ page }) => {
     // Page should load with title
     await expect(page).toHaveURL(/\/gameplay\/forces$/);
-    await expect(page.getByRole('heading', { name: /force roster/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /force roster/i }),
+    ).toBeVisible();
   });
 
   test('shows forces or empty state correctly', async ({ page }) => {
     // Note: This test verifies UI consistency - either cards OR empty state should show
     // We can't guarantee empty state in parallel test runs
     const cardCount = await listPage.getCardCount();
-    
+
     if (cardCount === 0) {
       // When there are no forces, empty state should be visible
       const emptyVisible = await listPage.isEmptyStateVisible();
@@ -69,9 +74,13 @@ test.describe('Force List Page @smoke @force', () => {
       expect(emptyVisible || showingZero).toBe(true);
     } else {
       // When forces exist, cards should be visible and count should match
-      await expect(page.locator('[data-testid^="force-card-"]').first()).toBeVisible();
+      await expect(
+        page.locator('[data-testid^="force-card-"]').first(),
+      ).toBeVisible();
       // Verify the count display matches
-      await expect(page.getByText(new RegExp(`Showing ${cardCount} force`))).toBeVisible();
+      await expect(
+        page.getByText(new RegExp(`Showing ${cardCount} force`)),
+      ).toBeVisible();
     }
   });
 
@@ -88,7 +97,10 @@ test.describe('Force List Page @smoke @force', () => {
     await listPage.navigate();
 
     // Wait for force cards to appear
-    await page.locator('[data-testid^="force-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="force-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
 
     // Force should appear in list - check the card exists
     const forceCard = page.getByTestId(`force-card-${forceId}`);
@@ -109,7 +121,10 @@ test.describe('Force List Page @smoke @force', () => {
     await listPage.navigate();
 
     // Wait for force cards to appear
-    await page.locator('[data-testid^="force-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="force-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
 
     // Search for "Alpha"
     await listPage.searchForces('Alpha');
@@ -117,7 +132,7 @@ test.describe('Force List Page @smoke @force', () => {
     // Should only show Alpha forces
     const cardCount = await listPage.getCardCount();
     expect(cardCount).toBeGreaterThanOrEqual(2);
-    
+
     // Beta Star should not be visible
     const betaCard = page.getByTestId(`force-card-${id2}`);
     await expect(betaCard).not.toBeVisible();
@@ -154,10 +169,10 @@ test.describe('Force Creation @smoke @force', () => {
 
     // Fill name (minimum 2 characters required)
     await createPage.fillName('Test Lance');
-    
+
     // Lance should be selected by default
     await expect(page.getByTestId('force-type-lance')).toBeVisible();
-    
+
     // Submit
     await createPage.submit();
 
@@ -170,13 +185,13 @@ test.describe('Force Creation @smoke @force', () => {
 
     // Fill name
     await createPage.fillName('Test Star');
-    
+
     // Select star type
     await createPage.selectForceType('star');
-    
+
     // Fill affiliation
     await createPage.fillAffiliation('Clan Wolf');
-    
+
     // Submit
     await createPage.submit();
 
@@ -189,10 +204,10 @@ test.describe('Force Creation @smoke @force', () => {
 
     // Fill name
     await createPage.fillName('Test Company');
-    
+
     // Select company type (12 slots)
     await createPage.selectForceType('company');
-    
+
     // Submit
     await createPage.submit();
 
@@ -200,19 +215,19 @@ test.describe('Force Creation @smoke @force', () => {
     await expect(page).toHaveURL(/\/gameplay\/forces\/[^/]+$/);
   });
 
-  test('validates minimum name length', async ({ page }) => {
+  test('validates minimum name length', async () => {
     await createPage.navigate();
 
     // Fill single character name (too short)
     await createPage.fillName('X');
-    
+
     // Submit button should be disabled (name < 2 chars)
     const isEnabled = await createPage.isSubmitEnabled();
     expect(isEnabled).toBe(false);
-    
+
     // Add another character
     await createPage.fillName('XY');
-    
+
     // Now submit should be enabled
     const isEnabledAfter = await createPage.isSubmitEnabled();
     expect(isEnabledAfter).toBe(true);
@@ -235,14 +250,12 @@ test.describe('Force Creation @smoke @force', () => {
 // =============================================================================
 
 test.describe('Force Detail Page @force', () => {
-  let detailPage: ForceDetailPage;
   let listPage: ForceListPage;
   let forceId: string | null;
 
   test.beforeEach(async ({ page }) => {
-    detailPage = new ForceDetailPage(page);
     listPage = new ForceListPage(page);
-    
+
     // Navigate to list first to ensure store is initialized
     await listPage.navigate();
     await waitForStoreReady(page);
@@ -252,7 +265,10 @@ test.describe('Force Detail Page @force', () => {
 
     // Refresh list and wait for card to appear
     await listPage.navigate();
-    await page.locator('[data-testid^="force-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="force-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
   });
 
   test.afterEach(async ({ page }) => {
@@ -269,13 +285,13 @@ test.describe('Force Detail Page @force', () => {
   test('displays force details via list click', async ({ page }) => {
     // Navigate to detail by clicking on force card in list
     await listPage.clickForceCard(forceId!);
-    
+
     // Wait for navigation to detail page
     await expect(page).toHaveURL(new RegExp(`/gameplay/forces/${forceId}`));
-    
+
     // Wait for page to finish loading
     await page.waitForLoadState('networkidle');
-    
+
     // Should show edit and delete buttons
     await expect(page.getByTestId('edit-force-btn')).toBeVisible();
     await expect(page.getByTestId('delete-force-btn')).toBeVisible();
@@ -287,8 +303,10 @@ test.describe('Force Detail Page @force', () => {
     await page.waitForLoadState('networkidle');
 
     // Page title should include force name (use the page-title testid)
-    await expect(page.getByTestId('page-title')).toContainText('Detail Test Lance');
-    
+    await expect(page.getByTestId('page-title')).toContainText(
+      'Detail Test Lance',
+    );
+
     // Should show Lance type badge
     await expect(page.getByText(/Lance/i).first()).toBeVisible();
   });
@@ -317,7 +335,10 @@ test.describe('Force Deletion @force', () => {
 
     // Wait for force card to appear
     await listPage.navigate();
-    await page.locator('[data-testid^="force-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="force-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
     await listPage.clickForceCard(forceId!);
     await page.waitForLoadState('networkidle');
 
@@ -347,7 +368,10 @@ test.describe('Force Deletion @force', () => {
 
     // Wait for force card to appear
     await listPage.navigate();
-    await page.locator('[data-testid^="force-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="force-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
     await listPage.clickForceCard(forceId!);
     await page.waitForLoadState('networkidle');
 
@@ -381,7 +405,7 @@ test.describe('Force Edit @force', () => {
   test.beforeEach(async ({ page }) => {
     detailPage = new ForceDetailPage(page);
     listPage = new ForceListPage(page);
-    
+
     await listPage.navigate();
     await waitForStoreReady(page);
 
@@ -392,7 +416,10 @@ test.describe('Force Edit @force', () => {
     });
 
     await listPage.navigate();
-    await page.locator('[data-testid^="force-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="force-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
   });
 
   test.afterEach(async ({ page }) => {
@@ -451,12 +478,12 @@ test.describe('Force Type Variations @force', () => {
     await createPage.fillName('ComStar Level II');
     await createPage.selectForceType('level_ii');
     await createPage.fillAffiliation('ComStar');
-    
+
     await createPage.submit();
 
     // Should redirect to force detail
     await expect(page).toHaveURL(/\/gameplay\/forces\/[^/]+$/);
-    
+
     // Extract force ID from URL for cleanup
     const url = page.url();
     const match = url.match(/\/gameplay\/forces\/([^/]+)$/);
@@ -471,12 +498,12 @@ test.describe('Force Type Variations @force', () => {
     await createPage.fillName('Wolf Binary');
     await createPage.selectForceType('binary');
     await createPage.fillAffiliation('Clan Wolf');
-    
+
     await createPage.submit();
 
     // Should redirect to force detail
     await expect(page).toHaveURL(/\/gameplay\/forces\/[^/]+$/);
-    
+
     // Extract force ID from URL for cleanup
     const url = page.url();
     const match = url.match(/\/gameplay\/forces\/([^/]+)$/);
@@ -491,12 +518,12 @@ test.describe('Force Type Variations @force', () => {
     await createPage.fillName('Custom Merc Unit');
     await createPage.selectForceType('custom');
     await createPage.fillAffiliation('Mercenary');
-    
+
     await createPage.submit();
 
     // Should redirect to force detail
     await expect(page).toHaveURL(/\/gameplay\/forces\/[^/]+$/);
-    
+
     // Extract force ID from URL for cleanup
     const url = page.url();
     const match = url.match(/\/gameplay\/forces\/([^/]+)$/);
@@ -519,14 +546,14 @@ test.describe('Force Clone @force', () => {
     listPage = new ForceListPage(page);
     await listPage.navigate();
     await waitForStoreReady(page);
-    
+
     // Create a force to clone
     originalForceId = await createTestForce(page, {
       name: 'Original Force',
       forceType: 'lance',
       affiliation: 'House Davion',
     });
-    
+
     clonedForceId = null;
   });
 
@@ -581,10 +608,15 @@ test.describe('Force Clone @force', () => {
 
     // Refresh the list
     await listPage.navigate();
-    await page.locator('[data-testid^="force-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="force-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
 
     // Both forces should be visible
-    await expect(page.getByTestId(`force-card-${originalForceId}`)).toBeVisible();
+    await expect(
+      page.getByTestId(`force-card-${originalForceId}`),
+    ).toBeVisible();
     await expect(page.getByTestId(`force-card-${clonedForceId}`)).toBeVisible();
   });
 

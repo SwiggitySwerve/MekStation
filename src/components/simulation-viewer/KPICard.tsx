@@ -1,5 +1,7 @@
 import React, { memo } from 'react';
+
 import type { IKPICardProps } from '@/components/simulation-viewer/types';
+
 import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 const Sparkline = ({
@@ -58,83 +60,80 @@ const DIRECTION_CONFIG = {
   },
 } as const;
 
-export const KPICard = memo<IKPICardProps>(({
-  label,
-  value,
-  comparison,
-  comparisonDirection = 'neutral',
-  trend,
-  onClick,
-  className = '',
-}) => {
-  const isClickable = typeof onClick === 'function';
-  const dirConfig = DIRECTION_CONFIG[comparisonDirection];
+export const KPICard = memo<IKPICardProps>(
+  ({
+    label,
+    value,
+    comparison,
+    comparisonDirection = 'neutral',
+    trend,
+    onClick,
+    className = '',
+  }) => {
+    const isClickable = typeof onClick === 'function';
+    const dirConfig = DIRECTION_CONFIG[comparisonDirection];
 
-  const cardClasses = [
-    'bg-white dark:bg-gray-800',
-    'rounded-lg',
-    'shadow-md hover:shadow-lg',
-    'transition-shadow duration-200',
-    'p-4 md:p-6',
-    isClickable ? 'cursor-pointer min-h-[44px]' : 'cursor-default',
-    isClickable ? FOCUS_RING_CLASSES : '',
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
+    const cardClasses = [
+      'bg-white dark:bg-gray-800',
+      'rounded-lg',
+      'shadow-md hover:shadow-lg',
+      'transition-shadow duration-200',
+      'p-4 md:p-6',
+      isClickable ? 'cursor-pointer min-h-[44px]' : 'cursor-default',
+      isClickable ? FOCUS_RING_CLASSES : '',
+      className,
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
-      e.preventDefault();
-      onClick?.();
-    }
-  };
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        onClick?.();
+      }
+    };
 
-  return (
-    <div
-      className={cardClasses}
-      onClick={isClickable ? onClick : undefined}
-      onKeyDown={isClickable ? handleKeyDown : undefined}
-      role={isClickable ? 'button' : undefined}
-      tabIndex={isClickable ? 0 : undefined}
-      aria-label={isClickable ? `${label}: ${value}` : undefined}
-      data-testid="kpi-card"
-    >
-      <p
-        className="text-sm text-gray-600 dark:text-gray-400 uppercase tracking-wide"
-        data-testid="kpi-label"
+    return (
+      <div
+        className={cardClasses}
+        onClick={isClickable ? onClick : undefined}
+        onKeyDown={isClickable ? handleKeyDown : undefined}
+        role={isClickable ? 'button' : undefined}
+        tabIndex={isClickable ? 0 : undefined}
+        aria-label={isClickable ? `${label}: ${value}` : undefined}
+        data-testid="kpi-card"
       >
-        {label}
-      </p>
-
-      <p
-        className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1"
-        data-testid="kpi-value"
-      >
-        {value}
-      </p>
-
-      {comparison && (
         <p
-          className={`text-sm ${dirConfig.color} mt-1`}
-          data-testid="kpi-comparison"
+          className="text-sm tracking-wide text-gray-600 uppercase dark:text-gray-400"
+          data-testid="kpi-label"
         >
-          <span aria-hidden="true">{dirConfig.arrow}</span> {comparison}
+          {label}
         </p>
-      )}
 
-      {trend && trend.length > 0 && (
-        <div className="mt-2 h-8 md:h-10" data-testid="kpi-trend">
-          <Sparkline
-            data={trend}
-            color={dirConfig.strokeColor}
-            height={40}
-          />
-        </div>
-      )}
-    </div>
-  );
-});
+        <p
+          className="mt-1 text-2xl font-bold text-gray-900 md:text-3xl dark:text-gray-100"
+          data-testid="kpi-value"
+        >
+          {value}
+        </p>
+
+        {comparison && (
+          <p
+            className={`text-sm ${dirConfig.color} mt-1`}
+            data-testid="kpi-comparison"
+          >
+            <span aria-hidden="true">{dirConfig.arrow}</span> {comparison}
+          </p>
+        )}
+
+        {trend && trend.length > 0 && (
+          <div className="mt-2 h-8 md:h-10" data-testid="kpi-trend">
+            <Sparkline data={trend} color={dirConfig.strokeColor} height={40} />
+          </div>
+        )}
+      </div>
+    );
+  },
+);
 
 KPICard.displayName = 'KPICard';
-

@@ -4,6 +4,7 @@
  */
 
 import { IGameState } from '@/types/gameplay';
+
 import { IInvariant, IViolation, ViolationSeverity } from './types';
 
 export class InvariantRunner {
@@ -26,8 +27,8 @@ export class InvariantRunner {
 
   filterBySeverity(
     violations: readonly IViolation[],
-    severity: ViolationSeverity
+    severity: ViolationSeverity,
   ): readonly IViolation[] {
-    return violations.filter(v => v.severity === severity);
+    return violations.filter((v) => v.severity === severity);
   }
 }

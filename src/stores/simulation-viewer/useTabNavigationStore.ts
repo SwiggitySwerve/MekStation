@@ -16,7 +16,10 @@ import { create } from 'zustand';
 /**
  * Valid tab identifiers for the Simulation Viewer
  */
-export type SimulationViewerTab = 'campaign-dashboard' | 'encounter-history' | 'analysis-bugs';
+export type SimulationViewerTab =
+  | 'campaign-dashboard'
+  | 'encounter-history'
+  | 'analysis-bugs';
 
 /**
  * Tab navigation state
@@ -71,72 +74,81 @@ const initialState: ITabNavigationState = {
 /**
  * Valid tab values for validation
  */
-const VALID_TABS: SimulationViewerTab[] = ['campaign-dashboard', 'encounter-history', 'analysis-bugs'];
+const VALID_TABS: SimulationViewerTab[] = [
+  'campaign-dashboard',
+  'encounter-history',
+  'analysis-bugs',
+];
 
 /**
  * Check if a value is a valid tab
  */
 function isValidTab(value: unknown): value is SimulationViewerTab {
-  return typeof value === 'string' && VALID_TABS.includes(value as SimulationViewerTab);
+  return (
+    typeof value === 'string' &&
+    VALID_TABS.includes(value as SimulationViewerTab)
+  );
 }
 
 /**
  * Create the tab navigation store with Zustand
  */
-export const useTabNavigationStore = create<ITabNavigationStore>((set, get) => ({
-  ...initialState,
+export const useTabNavigationStore = create<ITabNavigationStore>(
+  (set, get) => ({
+    ...initialState,
 
-  /**
-   * Set active tab and update URL
-   */
-  setActiveTab: (tab: SimulationViewerTab) => {
-    set((state) => ({
-      activeTab: tab,
-      history: [...state.history, tab],
-    }));
-
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.set('tab', tab);
-      window.history.pushState({}, '', url.toString());
-    }
-  },
-
-  /**
-   * Navigate to previous tab
-   */
-  goBack: () => {
-    const { history } = get();
-    if (history.length > 1) {
-      const newHistory = history.slice(0, -1);
-      set({
-        history: newHistory,
-        activeTab: newHistory[newHistory.length - 1],
-      });
+    /**
+     * Set active tab and update URL
+     */
+    setActiveTab: (tab: SimulationViewerTab) => {
+      set((state) => ({
+        activeTab: tab,
+        history: [...state.history, tab],
+      }));
 
       if (typeof window !== 'undefined') {
-        window.history.back();
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tab);
+        window.history.pushState({}, '', url.toString());
       }
-    }
-  },
+    },
 
-  /**
-   * Check if back navigation is available
-   */
-  canGoBack: () => {
-    return get().history.length > 1;
-  },
+    /**
+     * Navigate to previous tab
+     */
+    goBack: () => {
+      const { history } = get();
+      if (history.length > 1) {
+        const newHistory = history.slice(0, -1);
+        set({
+          history: newHistory,
+          activeTab: newHistory[newHistory.length - 1],
+        });
 
-  /**
-   * Reset to initial state
-   */
-  reset: () => {
-    set({
-      activeTab: initialState.activeTab,
-      history: [...initialState.history],
-    });
-  },
-}));
+        if (typeof window !== 'undefined') {
+          window.history.back();
+        }
+      }
+    },
+
+    /**
+     * Check if back navigation is available
+     */
+    canGoBack: () => {
+      return get().history.length > 1;
+    },
+
+    /**
+     * Reset to initial state
+     */
+    reset: () => {
+      set({
+        activeTab: initialState.activeTab,
+        history: [...initialState.history],
+      });
+    },
+  }),
+);
 
 /**
  * Hook to initialize tab from URL on mount

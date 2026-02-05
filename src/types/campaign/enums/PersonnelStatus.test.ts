@@ -3,7 +3,11 @@
  * Verifies 37 status values with proper grouping and severity mapping
  */
 
-import { PersonnelStatus, STATUS_SEVERITY, ALL_PERSONNEL_STATUSES } from './PersonnelStatus';
+import {
+  PersonnelStatus,
+  STATUS_SEVERITY,
+  ALL_PERSONNEL_STATUSES,
+} from './PersonnelStatus';
 
 describe('PersonnelStatus Enum Expansion', () => {
   describe('Enum Values Count', () => {
@@ -201,7 +205,7 @@ describe('PersonnelStatus Enum Expansion', () => {
       allStatuses.forEach((status) => {
         expect(STATUS_SEVERITY[status]).toBeDefined();
         expect(['positive', 'neutral', 'warning', 'negative']).toContain(
-          STATUS_SEVERITY[status]
+          STATUS_SEVERITY[status],
         );
       });
     });

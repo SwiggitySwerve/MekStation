@@ -11,7 +11,9 @@
  */
 
 import type { IContact, IStoredContact } from '@/types/vault';
+
 import { getSQLiteService } from '@/services/persistence';
+
 import { ICrudRepository } from '../core/ICrudRepository';
 
 // =============================================================================
@@ -87,7 +89,7 @@ export class ContactRepository implements ICrudRepository<IContact> {
       addedAt,
       contact.lastSeenAt,
       contact.isTrusted ? 1 : 0,
-      contact.notes
+      contact.notes,
     );
 
     return {
@@ -154,7 +156,9 @@ export class ContactRepository implements ICrudRepository<IContact> {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare('SELECT * FROM vault_contacts ORDER BY COALESCE(nickname, display_name)')
+      .prepare(
+        'SELECT * FROM vault_contacts ORDER BY COALESCE(nickname, display_name)',
+      )
       .all() as IStoredContact[];
 
     return rows.map((row) => this.rowToContact(row));
@@ -168,7 +172,9 @@ export class ContactRepository implements ICrudRepository<IContact> {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
-      .prepare('SELECT * FROM vault_contacts WHERE is_trusted = 1 ORDER BY COALESCE(nickname, display_name)')
+      .prepare(
+        'SELECT * FROM vault_contacts WHERE is_trusted = 1 ORDER BY COALESCE(nickname, display_name)',
+      )
       .all() as IStoredContact[];
 
     return rows.map((row) => this.rowToContact(row));
@@ -249,89 +255,93 @@ export class ContactRepository implements ICrudRepository<IContact> {
     return result.changes > 0;
   }
 
-   /**
-    * Update contact's display info from their identity
-    */
-   async updateFromIdentity(
-     id: string,
-     displayName: string,
-     avatar: string | null
-   ): Promise<boolean> {
-     await this.initialize();
-     const db = getSQLiteService().getDatabase();
+  /**
+   * Update contact's display info from their identity
+   */
+  async updateFromIdentity(
+    id: string,
+    displayName: string,
+    avatar: string | null,
+  ): Promise<boolean> {
+    await this.initialize();
+    const db = getSQLiteService().getDatabase();
 
-     const result = db
-       .prepare('UPDATE vault_contacts SET display_name = ?, avatar = ? WHERE id = ?')
-       .run(displayName, avatar, id);
+    const result = db
+      .prepare(
+        'UPDATE vault_contacts SET display_name = ?, avatar = ? WHERE id = ?',
+      )
+      .run(displayName, avatar, id);
 
-     return result.changes > 0;
-   }
+    return result.changes > 0;
+  }
 
-   /**
-    * Update a contact (ICrudRepository interface method)
-    * Updates multiple fields of a contact at once
-    */
-   async update(id: string, data: Partial<IContact>): Promise<IContact> {
-     await this.initialize();
-     const db = getSQLiteService().getDatabase();
+  /**
+   * Update a contact (ICrudRepository interface method)
+   * Updates multiple fields of a contact at once
+   */
+  async update(id: string, data: Partial<IContact>): Promise<IContact> {
+    await this.initialize();
+    const db = getSQLiteService().getDatabase();
 
-     // Get current contact
-     const current = await this.getById(id);
-     if (!current) {
-       throw new Error(`Contact with id ${id} not found`);
-     }
+    // Get current contact
+    const current = await this.getById(id);
+    if (!current) {
+      throw new Error(`Contact with id ${id} not found`);
+    }
 
-     // Build update statement dynamically based on provided fields
-     const updates: string[] = [];
-     const values: unknown[] = [];
+    // Build update statement dynamically based on provided fields
+    const updates: string[] = [];
+    const values: unknown[] = [];
 
-     if (data.nickname !== undefined) {
-       updates.push('nickname = ?');
-       values.push(data.nickname);
-     }
-     if (data.displayName !== undefined) {
-       updates.push('display_name = ?');
-       values.push(data.displayName);
-     }
-     if (data.avatar !== undefined) {
-       updates.push('avatar = ?');
-       values.push(data.avatar);
-     }
-     if (data.isTrusted !== undefined) {
-       updates.push('is_trusted = ?');
-       values.push(data.isTrusted ? 1 : 0);
-     }
-     if (data.notes !== undefined) {
-       updates.push('notes = ?');
-       values.push(data.notes);
-     }
-     if (data.lastSeenAt !== undefined) {
-       updates.push('last_seen_at = ?');
-       values.push(data.lastSeenAt);
-     }
+    if (data.nickname !== undefined) {
+      updates.push('nickname = ?');
+      values.push(data.nickname);
+    }
+    if (data.displayName !== undefined) {
+      updates.push('display_name = ?');
+      values.push(data.displayName);
+    }
+    if (data.avatar !== undefined) {
+      updates.push('avatar = ?');
+      values.push(data.avatar);
+    }
+    if (data.isTrusted !== undefined) {
+      updates.push('is_trusted = ?');
+      values.push(data.isTrusted ? 1 : 0);
+    }
+    if (data.notes !== undefined) {
+      updates.push('notes = ?');
+      values.push(data.notes);
+    }
+    if (data.lastSeenAt !== undefined) {
+      updates.push('last_seen_at = ?');
+      values.push(data.lastSeenAt);
+    }
 
-     // If no fields to update, return current contact
-     if (updates.length === 0) {
-       return current;
-     }
+    // If no fields to update, return current contact
+    if (updates.length === 0) {
+      return current;
+    }
 
-     // Execute update
-     values.push(id);
-     const stmt = db.prepare(`UPDATE vault_contacts SET ${updates.join(', ')} WHERE id = ?`);
-     stmt.run(...values);
+    // Execute update
+    values.push(id);
+    const stmt = db.prepare(
+      `UPDATE vault_contacts SET ${updates.join(', ')} WHERE id = ?`,
+    );
+    stmt.run(...values);
 
-     // Return updated contact
-     const updated = await this.getById(id);
-     if (!updated) {
-       throw new Error(`Failed to retrieve updated contact with id ${id}`);
-     }
-     return updated;
-   }
+    // Return updated contact
+    const updated = await this.getById(id);
+    if (!updated) {
+      throw new Error(`Failed to retrieve updated contact with id ${id}`);
+    }
+    return updated;
+  }
 
-   /**
-    * Delete a contact
-    */
-   async delete(id: string): Promise<boolean> {
+  /**
+   * Delete a contact
+   */
+  async delete(id: string): Promise<boolean> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 

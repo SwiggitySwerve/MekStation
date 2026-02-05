@@ -1,12 +1,13 @@
 /**
  * Record Sheet Service
- * 
+ *
  * Orchestrates record sheet generation, preview rendering, and PDF export.
- * 
+ *
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
 import { jsPDF } from 'jspdf';
+
 import {
   IRecordSheetData,
   PaperSize,
@@ -14,10 +15,8 @@ import {
   PDF_DPI_MULTIPLIER,
   IPDFExportOptions,
 } from '@/types/printing';
-import { SVGRecordSheetRenderer } from './svgRecordSheetRenderer';
+
 import { SVG_TEMPLATES, SVG_TEMPLATES_A4 } from './recordsheet/constants';
-import { IUnitConfig } from './recordsheet/types';
-import { getMechType } from './recordsheet/mechTypeUtils';
 import {
   extractHeader,
   extractMovement,
@@ -27,6 +26,9 @@ import {
   extractHeatSinks,
   extractCriticals,
 } from './recordsheet/dataExtractors';
+import { getMechType } from './recordsheet/mechTypeUtils';
+import { IUnitConfig } from './recordsheet/types';
+import { SVGRecordSheetRenderer } from './svgRecordSheetRenderer';
 
 export type { IUnitConfig };
 
@@ -71,28 +73,41 @@ export class RecordSheetService {
   async renderPreview(
     canvas: HTMLCanvasElement,
     data: IRecordSheetData,
-    paperSize: PaperSize = PaperSize.LETTER
+    paperSize: PaperSize = PaperSize.LETTER,
   ): Promise<void> {
-    const templates = paperSize === PaperSize.A4 ? SVG_TEMPLATES_A4 : SVG_TEMPLATES;
+    const templates =
+      paperSize === PaperSize.A4 ? SVG_TEMPLATES_A4 : SVG_TEMPLATES;
     const templatePath = templates[data.mechType] || templates.biped;
-    
+
     const renderer = new SVGRecordSheetRenderer();
     await renderer.loadTemplate(templatePath);
     renderer.fillTemplate(data);
     await renderer.fillArmorPips(data.armor, data.mechType);
-    await renderer.fillStructurePips(data.structure, data.header.tonnage, data.mechType);
+    await renderer.fillStructurePips(
+      data.structure,
+      data.header.tonnage,
+      data.mechType,
+    );
     await renderer.renderToCanvas(canvas);
   }
 
-  async getSVGString(data: IRecordSheetData, paperSize: PaperSize = PaperSize.LETTER): Promise<string> {
-    const templates = paperSize === PaperSize.A4 ? SVG_TEMPLATES_A4 : SVG_TEMPLATES;
+  async getSVGString(
+    data: IRecordSheetData,
+    paperSize: PaperSize = PaperSize.LETTER,
+  ): Promise<string> {
+    const templates =
+      paperSize === PaperSize.A4 ? SVG_TEMPLATES_A4 : SVG_TEMPLATES;
     const templatePath = templates[data.mechType] || templates.biped;
-    
+
     const renderer = new SVGRecordSheetRenderer();
     await renderer.loadTemplate(templatePath);
     renderer.fillTemplate(data);
     await renderer.fillArmorPips(data.armor, data.mechType);
-    await renderer.fillStructurePips(data.structure, data.header.tonnage, data.mechType);
+    await renderer.fillStructurePips(
+      data.structure,
+      data.header.tonnage,
+      data.mechType,
+    );
     return renderer.getSVGString();
   }
 
@@ -102,7 +117,10 @@ export class RecordSheetService {
    */
   async exportPDF(
     data: IRecordSheetData,
-    options: IPDFExportOptions = { paperSize: PaperSize.LETTER, includePilotData: false }
+    options: IPDFExportOptions = {
+      paperSize: PaperSize.LETTER,
+      includePilotData: false,
+    },
   ): Promise<void> {
     const { paperSize, filename } = options;
     const { width, height } = PAPER_DIMENSIONS[paperSize];
@@ -113,14 +131,19 @@ export class RecordSheetService {
     canvas.width = scaledWidth;
     canvas.height = scaledHeight;
 
-    const templates = paperSize === PaperSize.A4 ? SVG_TEMPLATES_A4 : SVG_TEMPLATES;
+    const templates =
+      paperSize === PaperSize.A4 ? SVG_TEMPLATES_A4 : SVG_TEMPLATES;
     const templatePath = templates[data.mechType] || templates.biped;
 
     const renderer = new SVGRecordSheetRenderer();
     await renderer.loadTemplate(templatePath);
     renderer.fillTemplate(data);
     await renderer.fillArmorPips(data.armor, data.mechType);
-    await renderer.fillStructurePips(data.structure, data.header.tonnage, data.mechType);
+    await renderer.fillStructurePips(
+      data.structure,
+      data.header.tonnage,
+      data.mechType,
+    );
     await renderer.renderToCanvasHighDPI(canvas, PDF_DPI_MULTIPLIER);
 
     const pdf = new jsPDF({
@@ -132,7 +155,9 @@ export class RecordSheetService {
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
     pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
 
-    const pdfFilename = filename || `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, '-');
+    const pdfFilename =
+      filename ||
+      `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, '-');
     pdf.save(pdfFilename);
   }
 
@@ -141,10 +166,12 @@ export class RecordSheetService {
    */
   print(canvas: HTMLCanvasElement): void {
     const dataUrl = canvas.toDataURL('image/png');
-    
+
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      throw new Error('Could not open print window. Check popup blocker settings.');
+      throw new Error(
+        'Could not open print window. Check popup blocker settings.',
+      );
     }
 
     const windowDoc = (printWindow as { document?: Document }).document;

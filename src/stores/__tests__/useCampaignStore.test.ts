@@ -3,13 +3,15 @@
  */
 
 import { act, renderHook } from '@testing-library/react';
-import { useCampaignStore } from '../useCampaignStore';
+
 import {
   CampaignStatus,
   CampaignMissionStatus,
   CampaignUnitStatus,
   CAMPAIGN_TEMPLATES,
 } from '@/types/campaign';
+
+import { useCampaignStore } from '../useCampaignStore';
 
 // Reset store before each test
 beforeEach(() => {
@@ -114,11 +116,14 @@ describe('useCampaignStore', () => {
 
       let campaignId: string | null = null;
       act(() => {
-        campaignId = result.current.createCampaignFromTemplate('invalid-template', {
-          name: 'Test',
-          unitIds: [],
-          pilotIds: [],
-        });
+        campaignId = result.current.createCampaignFromTemplate(
+          'invalid-template',
+          {
+            name: 'Test',
+            unitIds: [],
+            pilotIds: [],
+          },
+        );
       });
 
       expect(campaignId).toBeNull();
@@ -176,7 +181,9 @@ describe('useCampaignStore', () => {
 
       let success = true;
       act(() => {
-        success = result.current.updateCampaign('nonexistent', { name: 'Test' });
+        success = result.current.updateCampaign('nonexistent', {
+          name: 'Test',
+        });
       });
 
       expect(success).toBe(false);
@@ -335,7 +342,9 @@ describe('useCampaignStore', () => {
       });
 
       const campaign = result.current.getCampaign(campaignId);
-      expect(campaign?.missions[0].status).toBe(CampaignMissionStatus.Available);
+      expect(campaign?.missions[0].status).toBe(
+        CampaignMissionStatus.Available,
+      );
     });
 
     it('should set subsequent missions with prerequisites as locked', () => {
@@ -445,13 +454,17 @@ describe('useCampaignStore', () => {
         });
       });
 
-      expect(result.current.getCampaign(campaignId)?.status).toBe(CampaignStatus.Setup);
+      expect(result.current.getCampaign(campaignId)?.status).toBe(
+        CampaignStatus.Setup,
+      );
 
       act(() => {
         result.current.startMission(campaignId, missionId!);
       });
 
-      expect(result.current.getCampaign(campaignId)?.status).toBe(CampaignStatus.Active);
+      expect(result.current.getCampaign(campaignId)?.status).toBe(
+        CampaignStatus.Active,
+      );
     });
 
     it('should fail for locked mission', () => {
@@ -553,7 +566,8 @@ describe('useCampaignStore', () => {
         result.current.startMission(campaignId, missionId!);
       });
 
-      const pilotXpBefore = result.current.getCampaign(campaignId)?.roster.pilots[0].xp ?? 0;
+      const pilotXpBefore =
+        result.current.getCampaign(campaignId)?.roster.pilots[0].xp ?? 0;
 
       act(() => {
         result.current.recordMissionOutcome(campaignId, {
@@ -573,7 +587,8 @@ describe('useCampaignStore', () => {
         });
       });
 
-      const pilotXpAfter = result.current.getCampaign(campaignId)?.roster.pilots[0].xp ?? 0;
+      const pilotXpAfter =
+        result.current.getCampaign(campaignId)?.roster.pilots[0].xp ?? 0;
       expect(pilotXpAfter).toBeGreaterThan(pilotXpBefore);
     });
 
@@ -615,7 +630,9 @@ describe('useCampaignStore', () => {
         });
       });
 
-      expect(result.current.getCampaign(campaignId)?.status).toBe(CampaignStatus.Victory);
+      expect(result.current.getCampaign(campaignId)?.status).toBe(
+        CampaignStatus.Victory,
+      );
     });
   });
 
@@ -727,13 +744,15 @@ describe('useCampaignStore', () => {
         });
       });
 
-      const xpBefore = result.current.getCampaign(campaignId)?.roster.pilots[0].xp ?? 0;
+      const xpBefore =
+        result.current.getCampaign(campaignId)?.roster.pilots[0].xp ?? 0;
 
       act(() => {
         result.current.awardXp(campaignId, 'p1', 5);
       });
 
-      const xpAfter = result.current.getCampaign(campaignId)?.roster.pilots[0].xp ?? 0;
+      const xpAfter =
+        result.current.getCampaign(campaignId)?.roster.pilots[0].xp ?? 0;
       expect(xpAfter).toBe(xpBefore + 5);
     });
   });
@@ -747,8 +766,16 @@ describe('useCampaignStore', () => {
       const { result } = renderHook(() => useCampaignStore());
 
       act(() => {
-        const id1 = result.current.createCampaign({ name: 'Active', unitIds: [], pilotIds: [] });
-        const id2 = result.current.createCampaign({ name: 'Victory', unitIds: [], pilotIds: [] });
+        const id1 = result.current.createCampaign({
+          name: 'Active',
+          unitIds: [],
+          pilotIds: [],
+        });
+        const id2 = result.current.createCampaign({
+          name: 'Victory',
+          unitIds: [],
+          pilotIds: [],
+        });
         result.current.setCampaignStatus(id1, CampaignStatus.Active);
         result.current.setCampaignStatus(id2, CampaignStatus.Victory);
       });
@@ -758,15 +785,25 @@ describe('useCampaignStore', () => {
       });
 
       const filtered = result.current.getFilteredCampaigns();
-      expect(filtered.every((c) => c.status === CampaignStatus.Active)).toBe(true);
+      expect(filtered.every((c) => c.status === CampaignStatus.Active)).toBe(
+        true,
+      );
     });
 
     it('should filter by search query', () => {
       const { result } = renderHook(() => useCampaignStore());
 
       act(() => {
-        result.current.createCampaign({ name: 'Alpha Campaign', unitIds: [], pilotIds: [] });
-        result.current.createCampaign({ name: 'Beta Campaign', unitIds: [], pilotIds: [] });
+        result.current.createCampaign({
+          name: 'Alpha Campaign',
+          unitIds: [],
+          pilotIds: [],
+        });
+        result.current.createCampaign({
+          name: 'Beta Campaign',
+          unitIds: [],
+          pilotIds: [],
+        });
         result.current.setSearchQuery('alpha');
       });
 
@@ -799,7 +836,11 @@ describe('useCampaignStore', () => {
         });
       });
 
-      let validation: ReturnType<typeof result.current.validateCampaign> = { valid: false, errors: [], warnings: [] };
+      let validation: ReturnType<typeof result.current.validateCampaign> = {
+        valid: false,
+        errors: [],
+        warnings: [],
+      };
       act(() => {
         validation = result.current.validateCampaign(campaignId);
       });
@@ -810,7 +851,11 @@ describe('useCampaignStore', () => {
     it('should return error for non-existent campaign', () => {
       const { result } = renderHook(() => useCampaignStore());
 
-      let validation: ReturnType<typeof result.current.validateCampaign> = { valid: true, errors: [], warnings: [] };
+      let validation: ReturnType<typeof result.current.validateCampaign> = {
+        valid: true,
+        errors: [],
+        warnings: [],
+      };
       act(() => {
         validation = result.current.validateCampaign('nonexistent');
       });

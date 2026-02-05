@@ -7,7 +7,14 @@
  * @see @/services/equipment/EquipmentRegistry for implementation
  */
 
-import { IArmorDef, IStructureDef, IEngineDef, IGyroDef, ICockpitDef, IHeatSinkDef } from './ComponentInterfaces';
+import {
+  IArmorDef,
+  IStructureDef,
+  IEngineDef,
+  IGyroDef,
+  ICockpitDef,
+  IHeatSinkDef,
+} from './ComponentInterfaces';
 
 export interface IComponentDatabase {
   getArmorTypes(): IArmorDef[];
@@ -25,5 +32,3 @@ export const ENGINE_TYPES: IEngineDef[] = [];
 export const GYRO_TYPES: IGyroDef[] = [];
 export const COCKPIT_TYPES: ICockpitDef[] = [];
 export const HEAT_SINK_TYPES: IHeatSinkDef[] = [];
-
-

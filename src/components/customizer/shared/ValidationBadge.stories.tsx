@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { ValidationBadge } from './ValidationBadge';
 
 const meta: Meta<typeof ValidationBadge> = {
@@ -8,7 +9,8 @@ const meta: Meta<typeof ValidationBadge> = {
   parameters: {
     docs: {
       description: {
-        component: 'Displays validation status with appropriate color coding and icons.',
+        component:
+          'Displays validation status with appropriate color coding and icons.',
       },
     },
   },
@@ -69,7 +71,7 @@ export const NoIcon: Story = {
 
 export const AllStatuses: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-2 p-4 bg-slate-900 rounded">
+    <div className="flex flex-wrap gap-2 rounded bg-slate-900 p-4">
       <ValidationBadge status="valid" label="Valid" />
       <ValidationBadge status="warning" label="Warning" />
       <ValidationBadge status="error" label="Error" />
@@ -80,21 +82,21 @@ export const AllStatuses: Story = {
 
 export const UnitValidation: Story = {
   render: () => (
-    <div className="space-y-2 p-4 bg-slate-900 rounded">
+    <div className="space-y-2 rounded bg-slate-900 p-4">
       <div className="flex items-center gap-2">
-        <span className="text-slate-400 text-sm w-32">Structure:</span>
+        <span className="w-32 text-sm text-slate-400">Structure:</span>
         <ValidationBadge status="valid" label="Valid" />
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-slate-400 text-sm w-32">Armor:</span>
+        <span className="w-32 text-sm text-slate-400">Armor:</span>
         <ValidationBadge status="warning" label="Incomplete" />
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-slate-400 text-sm w-32">Equipment:</span>
+        <span className="w-32 text-sm text-slate-400">Equipment:</span>
         <ValidationBadge status="error" label="Over Tonnage" />
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-slate-400 text-sm w-32">Critical Slots:</span>
+        <span className="w-32 text-sm text-slate-400">Critical Slots:</span>
         <ValidationBadge status="info" label="2 Empty" />
       </div>
     </div>

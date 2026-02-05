@@ -136,6 +136,7 @@
 ## Implementation Notes
 
 ### Identity Fields in UnitState
+
 - `chassis: string` - Base chassis name (e.g., "Atlas", "Timber Wolf")
 - `clanName: string` - Alternate designation (optional, e.g., "Mad Cat" for Timber Wolf)
 - `model: string` - Variant designation (e.g., "AS7-D", "Prime")
@@ -144,13 +145,16 @@
 - `rulesLevel: RulesLevel` - Uses existing enum from `@/types/enums/RulesLevel`
 
 ### Overview Tab Layout
+
 Two-column grid on large screens:
+
 - **Left column (Basic Information)**: Chassis, Clan Name, Model stacked vertically, then MUL ID/Year/Tech Level in 3-column row
 - **Right column (Chassis)**: Tonnage with +/- buttons, Motive Type dropdown
 
 ### Tab Name Synchronization
+
 When Chassis or Model changes in OverviewTab:
+
 1. setChassis/setModel updates unit store (also updates derived `name` field)
 2. updateTabName helper calls renameTab from TabManagerStore
 3. TabBar re-renders with updated name from unit store
-

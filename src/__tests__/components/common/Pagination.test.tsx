@@ -2,8 +2,9 @@
  * Tests for Pagination component
  */
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+
 import Pagination from '@/components/common/Pagination';
 
 describe('Pagination', () => {
@@ -21,7 +22,9 @@ describe('Pagination', () => {
     it('should render pagination controls', () => {
       render(<Pagination {...defaultProps} />);
 
-      expect(screen.getByRole('button', { name: /Previous/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Previous/i }),
+      ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Next/i })).toBeInTheDocument();
       expect(screen.getByText('Page 1 of 10')).toBeInTheDocument();
     });
@@ -36,7 +39,13 @@ describe('Pagination', () => {
   describe('Navigation', () => {
     it('should call onPageChange with next page when Next is clicked', () => {
       const onPageChange = jest.fn();
-      render(<Pagination {...defaultProps} onPageChange={onPageChange} currentPage={3} />);
+      render(
+        <Pagination
+          {...defaultProps}
+          onPageChange={onPageChange}
+          currentPage={3}
+        />,
+      );
 
       fireEvent.click(screen.getByRole('button', { name: /Next/i }));
 
@@ -45,7 +54,13 @@ describe('Pagination', () => {
 
     it('should call onPageChange with previous page when Previous is clicked', () => {
       const onPageChange = jest.fn();
-      render(<Pagination {...defaultProps} onPageChange={onPageChange} currentPage={3} />);
+      render(
+        <Pagination
+          {...defaultProps}
+          onPageChange={onPageChange}
+          currentPage={3}
+        />,
+      );
 
       fireEvent.click(screen.getByRole('button', { name: /Previous/i }));
 
@@ -54,7 +69,13 @@ describe('Pagination', () => {
 
     it('should not call onPageChange when clicking Previous on first page', () => {
       const onPageChange = jest.fn();
-      render(<Pagination {...defaultProps} onPageChange={onPageChange} currentPage={1} />);
+      render(
+        <Pagination
+          {...defaultProps}
+          onPageChange={onPageChange}
+          currentPage={1}
+        />,
+      );
 
       fireEvent.click(screen.getByRole('button', { name: /Previous/i }));
 
@@ -63,7 +84,14 @@ describe('Pagination', () => {
 
     it('should not call onPageChange when clicking Next on last page', () => {
       const onPageChange = jest.fn();
-      render(<Pagination {...defaultProps} onPageChange={onPageChange} currentPage={10} totalPages={10} />);
+      render(
+        <Pagination
+          {...defaultProps}
+          onPageChange={onPageChange}
+          currentPage={10}
+          totalPages={10}
+        />,
+      );
 
       fireEvent.click(screen.getByRole('button', { name: /Next/i }));
 
@@ -87,7 +115,9 @@ describe('Pagination', () => {
     it('should enable both buttons on middle page', () => {
       render(<Pagination {...defaultProps} currentPage={5} />);
 
-      expect(screen.getByRole('button', { name: /Previous/i })).not.toBeDisabled();
+      expect(
+        screen.getByRole('button', { name: /Previous/i }),
+      ).not.toBeDisabled();
       expect(screen.getByRole('button', { name: /Next/i })).not.toBeDisabled();
     });
   });
@@ -111,9 +141,10 @@ describe('Pagination', () => {
     it('should handle two pages on last page', () => {
       render(<Pagination {...defaultProps} currentPage={2} totalPages={2} />);
 
-      expect(screen.getByRole('button', { name: /Previous/i })).not.toBeDisabled();
+      expect(
+        screen.getByRole('button', { name: /Previous/i }),
+      ).not.toBeDisabled();
       expect(screen.getByRole('button', { name: /Next/i })).toBeDisabled();
     });
   });
 });
-

@@ -1,3 +1,6 @@
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { Era } from '@/types/temporal/Era';
 import {
   isEntity,
   isWeightedComponent,
@@ -14,9 +17,6 @@ import {
   assertWeightedComponent,
   assertTechBaseEntity,
 } from '@/utils/typeGuards';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { Era } from '@/types/temporal/Era';
 
 describe('typeGuards', () => {
   describe('isEntity()', () => {
@@ -101,24 +101,30 @@ describe('typeGuards', () => {
 
   describe('isTechBaseEntity()', () => {
     it('should return true for valid tech base entity', () => {
-      expect(isTechBaseEntity({
-        techBase: TechBase.INNER_SPHERE,
-        rulesLevel: RulesLevel.STANDARD,
-      })).toBe(true);
+      expect(
+        isTechBaseEntity({
+          techBase: TechBase.INNER_SPHERE,
+          rulesLevel: RulesLevel.STANDARD,
+        }),
+      ).toBe(true);
     });
 
     it('should return false for invalid tech base', () => {
-      expect(isTechBaseEntity({
-        techBase: 'Invalid' as TechBase,
-        rulesLevel: RulesLevel.STANDARD,
-      })).toBe(false);
+      expect(
+        isTechBaseEntity({
+          techBase: 'Invalid' as TechBase,
+          rulesLevel: RulesLevel.STANDARD,
+        }),
+      ).toBe(false);
     });
 
     it('should return false for invalid rules level', () => {
-      expect(isTechBaseEntity({
-        techBase: TechBase.INNER_SPHERE,
-        rulesLevel: 'Invalid' as RulesLevel,
-      })).toBe(false);
+      expect(
+        isTechBaseEntity({
+          techBase: TechBase.INNER_SPHERE,
+          rulesLevel: 'Invalid' as RulesLevel,
+        }),
+      ).toBe(false);
     });
 
     it('should return false for null', () => {
@@ -132,10 +138,12 @@ describe('typeGuards', () => {
     });
 
     it('should return true with extinction year', () => {
-      expect(isTemporalEntity({
-        introductionYear: 2750,
-        extinctionYear: 2800,
-      })).toBe(true);
+      expect(
+        isTemporalEntity({
+          introductionYear: 2750,
+          extinctionYear: 2800,
+        }),
+      ).toBe(true);
     });
 
     it('should return false for invalid introduction year', () => {
@@ -143,10 +151,12 @@ describe('typeGuards', () => {
     });
 
     it('should return false for extinction before introduction', () => {
-      expect(isTemporalEntity({
-        introductionYear: 2800,
-        extinctionYear: 2750,
-      })).toBe(false);
+      expect(
+        isTemporalEntity({
+          introductionYear: 2800,
+          extinctionYear: 2750,
+        }),
+      ).toBe(false);
     });
 
     it('should return false for null', () => {
@@ -156,17 +166,21 @@ describe('typeGuards', () => {
 
   describe('isValuedComponent()', () => {
     it('should return true for valid valued component', () => {
-      expect(isValuedComponent({
-        costCBills: 1000,
-        battleValue: 500,
-      })).toBe(true);
+      expect(
+        isValuedComponent({
+          costCBills: 1000,
+          battleValue: 500,
+        }),
+      ).toBe(true);
     });
 
     it('should return false for negative cost', () => {
-      expect(isValuedComponent({
-        costCBills: -1,
-        battleValue: 500,
-      })).toBe(false);
+      expect(
+        isValuedComponent({
+          costCBills: -1,
+          battleValue: 500,
+        }),
+      ).toBe(false);
     });
 
     it('should return false for null', () => {
@@ -176,10 +190,12 @@ describe('typeGuards', () => {
 
   describe('isDocumentedEntity()', () => {
     it('should return true for valid documented entity', () => {
-      expect(isDocumentedEntity({
-        sourceBook: 'TechManual',
-        pageReference: 100,
-      })).toBe(true);
+      expect(
+        isDocumentedEntity({
+          sourceBook: 'TechManual',
+          pageReference: 100,
+        }),
+      ).toBe(true);
     });
 
     it('should return true with only sourceBook', () => {
@@ -256,10 +272,12 @@ describe('typeGuards', () => {
 
   describe('assertTechBaseEntity()', () => {
     it('should not throw for valid entity', () => {
-      expect(() => assertTechBaseEntity({
-        techBase: TechBase.INNER_SPHERE,
-        rulesLevel: RulesLevel.STANDARD,
-      })).not.toThrow();
+      expect(() =>
+        assertTechBaseEntity({
+          techBase: TechBase.INNER_SPHERE,
+          rulesLevel: RulesLevel.STANDARD,
+        }),
+      ).not.toThrow();
     });
 
     it('should throw for invalid entity', () => {
@@ -267,4 +285,3 @@ describe('typeGuards', () => {
     });
   });
 });
-

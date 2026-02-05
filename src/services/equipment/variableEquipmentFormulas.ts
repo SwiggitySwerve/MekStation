@@ -1,20 +1,20 @@
 /**
  * Variable Equipment Formulas
- * 
+ *
  * Data-driven formula definitions for BattleTech equipment with variable
  * weight, slots, cost, or damage based on mech properties.
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  */
 
-import { 
-  IVariableFormulas, 
-  fixed, 
-  ceilDivide, 
+import {
+  IVariableFormulas,
+  fixed,
+  ceilDivide,
   floorDivide,
   roundDivide,
-  multiply, 
-  multiplyRound, 
+  multiply,
+  multiplyRound,
   equalsWeight,
   plus,
 } from '@/types/equipment/VariableEquipment';
@@ -23,12 +23,13 @@ import {
  * Variable equipment formulas
  * Maps equipment ID to formula definitions
  */
-export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormulas>> = {
-  
+export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<
+  Record<string, IVariableFormulas>
+> = {
   // ============================================================================
   // TARGETING COMPUTERS
   // ============================================================================
-  
+
   /**
    * Targeting Computer (Inner Sphere)
    * Weight: ceil(directFireWeaponTonnage / 4)
@@ -58,13 +59,13 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
   // ============================================================================
   // MASC
   // ============================================================================
-  
+
   /**
    * MASC (Inner Sphere)
    * Weight: tonnage / 20, rounded to nearest whole ton
    * Slots: = weight
    * Cost: tonnage × 1,000
-   * 
+   *
    * Examples: 85t → 4 tons (4.25 rounds to 4), 90t → 5 tons (4.5 rounds to 5)
    */
   'masc-is': {
@@ -79,7 +80,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
    * Weight: tonnage / 25, rounded to nearest whole ton
    * Slots: = weight
    * Cost: tonnage × 1,000
-   * 
+   *
    * Examples: 75t → 3 tons, 100t → 4 tons
    */
   'masc-clan': {
@@ -92,7 +93,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
   // ============================================================================
   // SUPERCHARGER
   // ============================================================================
-  
+
   /**
    * Supercharger
    * Weight: engineWeight × 10%, rounded up to nearest 0.5 ton
@@ -100,7 +101,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
    * Slots: 1
    * Cost: engineWeight × 10,000
    */
-  'supercharger': {
+  supercharger: {
     weight: multiplyRound('engineWeight', 0.1, 0.5),
     criticalSlots: fixed(1),
     cost: multiply('engineWeight', 10000),
@@ -110,7 +111,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
   // ============================================================================
   // PARTIAL WING
   // ============================================================================
-  
+
   /**
    * Partial Wing
    * Weight: tonnage × 0.05 rounded to 0.5 tons
@@ -127,14 +128,14 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
   // ============================================================================
   // TRIPLE STRENGTH MYOMER (TSM)
   // ============================================================================
-  
+
   /**
    * Triple Strength Myomer
    * Weight: 0 (replaces standard myomer)
    * Slots: 6 (distributed across torso/legs)
    * Cost: tonnage × 16,000
    */
-  'tsm': {
+  tsm: {
     weight: fixed(0),
     criticalSlots: fixed(6),
     cost: multiply('tonnage', 16000),
@@ -152,7 +153,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
    * Cost: weight × 5,000
    * Damage: floor(tonnage / 5)
    */
-  'hatchet': {
+  hatchet: {
     weight: ceilDivide('tonnage', 15),
     criticalSlots: equalsWeight(),
     cost: multiply('weight', 5000),
@@ -167,7 +168,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
    * Cost: weight × 10,000
    * Damage: floor(tonnage / 10) + 1
    */
-  'sword': {
+  sword: {
     weight: ceilDivide('tonnage', 15),
     criticalSlots: equalsWeight(),
     cost: multiply('weight', 10000),
@@ -182,7 +183,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
    * Cost: weight × 7,500
    * Damage: floor(tonnage / 4)
    */
-  'mace': {
+  mace: {
     weight: ceilDivide('tonnage', 10),
     criticalSlots: equalsWeight(),
     cost: multiply('weight', 7500),
@@ -197,7 +198,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
    * Cost: weight × 6,000
    * Damage: floor(tonnage / 7)
    */
-  'claws': {
+  claws: {
     weight: ceilDivide('tonnage', 15),
     criticalSlots: equalsWeight(),
     cost: multiply('weight', 6000),
@@ -212,7 +213,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
    * Cost: weight × 15,000
    * Damage: floor(tonnage / 5) + 1
    */
-  'lance': {
+  lance: {
     weight: ceilDivide('tonnage', 20),
     criticalSlots: equalsWeight(),
     cost: multiply('weight', 15000),
@@ -227,7 +228,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
    * Cost: weight × 6,000
    * Damage: floor(tonnage / 7)
    */
-  'talons': {
+  talons: {
     weight: ceilDivide('tonnage', 15),
     criticalSlots: equalsWeight(),
     cost: multiply('weight', 6000),
@@ -257,7 +258,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
    * Cost: weight × 11,000
    * Damage: floor(tonnage / 4) + 2
    */
-  'flail': {
+  flail: {
     weight: ceilDivide('tonnage', 5),
     criticalSlots: equalsWeight(),
     cost: multiply('weight', 11000),
@@ -279,7 +280,6 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<Record<string, IVariableFormu
     damage: plus(floorDivide('tonnage', 5), 3),
     requiredContext: ['tonnage'],
   },
-
 } as const;
 
 /**
@@ -299,7 +299,8 @@ export function hasVariableEquipmentFormulas(equipmentId: string): boolean {
 /**
  * Get variable formulas for an equipment ID
  */
-export function getVariableEquipmentFormulas(equipmentId: string): IVariableFormulas | undefined {
+export function getVariableEquipmentFormulas(
+  equipmentId: string,
+): IVariableFormulas | undefined {
   return VARIABLE_EQUIPMENT_FORMULAS[equipmentId];
 }
-

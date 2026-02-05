@@ -20,6 +20,7 @@ MekStation was limited to unit construction without campaign gameplay. Users nee
 ## Impact
 
 ### Affected Specs
+
 - **campaign-system** (MODIFIED) - Expanded from 4 to 40+ requirements
 - **campaign-management** (NEW) - Campaign entity and stores
 - **personnel-management** (NEW) - Personnel with skills/attributes
@@ -31,6 +32,7 @@ MekStation was limited to unit construction without campaign gameplay. Users nee
 - **campaign-ui** (NEW) - UI pages and navigation
 
 ### Affected Code
+
 - **Created**: ~50 new files
   - `src/types/campaign/` - 20+ type files
   - `src/stores/campaign/` - 4 stores with tests
@@ -44,17 +46,20 @@ MekStation was limited to unit construction without campaign gameplay. Users nee
   - Updated campaign list page from stub to backend types
 
 ### Code Statistics
+
 - **Backend**: ~5,000 lines
 - **UI**: ~1,200 lines
 - **Tests**: ~3,000 lines (800+ tests passing)
 - **Total**: ~9,200 lines of production-ready code
 
 ### Breaking Changes
+
 None. This is a new feature addition that doesn't affect existing functionality.
 
 ## Implementation Status
 
 **COMPLETED**: All 20 implementation tasks across 7 phases
+
 - Phase 1: Campaign Domain Types (3/3 tasks)
 - Phase 2: Personnel System (2/2 tasks)
 - Phase 3: Campaign Core (3/3 tasks)
@@ -64,6 +69,7 @@ None. This is a new feature addition that doesn't affect existing functionality.
 - Phase 7: Campaign UI (5/5 tasks)
 
 ### Quality Metrics
+
 - ✅ 800+ backend tests passing
 - ✅ Zero TypeScript errors
 - ✅ All builds passing
@@ -74,6 +80,7 @@ None. This is a new feature addition that doesn't affect existing functionality.
 ## User Features Delivered
 
 Users can now:
+
 1. View campaigns with real-time stats (personnel, forces, missions, balance)
 2. Advance day (triggers healing, daily costs, contract processing)
 3. View personnel roster with roles, skills, and status
@@ -97,6 +104,7 @@ Users can now:
 ## Documentation
 
 Complete implementation documentation in `.sisyphus/notepads/mekhq-campaign-system/`:
+
 - `FINAL_ACHIEVEMENT.md` - Complete status and metrics
 - `learnings.md` - Patterns, discoveries, and best practices
 - `issues.md` - Blockers and resolutions

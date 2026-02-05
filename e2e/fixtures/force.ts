@@ -71,20 +71,30 @@ export interface TestAssignment {
  */
 export async function createTestForce(
   page: Page,
-  options: TestForceOptions = {}
+  options: TestForceOptions = {},
 ): Promise<string | null> {
   const forceId = await page.evaluate(async (opts) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { createForce: (request: {
-      name: string;
-      forceType: string;
-      affiliation?: string;
-      parentId?: string;
-      description?: string;
-    }) => Promise<string | null> } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          force?: {
+            getState: () => {
+              createForce: (request: {
+                name: string;
+                forceType: string;
+                affiliation?: string;
+                parentId?: string;
+                description?: string;
+              }) => Promise<string | null>;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.force) {
       throw new Error(
-        'Force store not exposed. Ensure window.__ZUSTAND_STORES__.force is set in your app for E2E testing.'
+        'Force store not exposed. Ensure window.__ZUSTAND_STORES__.force is set in your app for E2E testing.',
       );
     }
 
@@ -112,7 +122,7 @@ export async function createTestForce(
 export async function createTestLance(
   page: Page,
   name?: string,
-  affiliation?: string
+  affiliation?: string,
 ): Promise<string | null> {
   return createTestForce(page, {
     name: name || `Test Lance ${Date.now()}`,
@@ -132,7 +142,7 @@ export async function createTestLance(
 export async function createTestStar(
   page: Page,
   name?: string,
-  affiliation?: string
+  affiliation?: string,
 ): Promise<string | null> {
   return createTestForce(page, {
     name: name || `Test Star ${Date.now()}`,
@@ -152,7 +162,11 @@ export async function createTestStar(
 export async function createTestCompany(
   page: Page,
   companyName: string,
-  lanceNames: [string, string, string] = ['Alpha Lance', 'Beta Lance', 'Gamma Lance']
+  lanceNames: [string, string, string] = [
+    'Alpha Lance',
+    'Beta Lance',
+    'Gamma Lance',
+  ],
 ): Promise<{ companyId: string | null; lanceIds: (string | null)[] }> {
   const companyId = await createTestForce(page, {
     name: companyName,
@@ -186,7 +200,7 @@ export async function createTestCompany(
  */
 export async function getForce(
   page: Page,
-  forceId: string
+  forceId: string,
 ): Promise<{
   id: string;
   name: string;
@@ -195,13 +209,23 @@ export async function getForce(
   affiliation?: string;
 } | null> {
   return page.evaluate((id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { forces: Array<{
-      id: string;
-      name: string;
-      forceType: string;
-      status: string;
-      affiliation?: string;
-    }> } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          force?: {
+            getState: () => {
+              forces: Array<{
+                id: string;
+                name: string;
+                forceType: string;
+                status: string;
+                affiliation?: string;
+              }>;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.force) {
       throw new Error('Force store not exposed');
@@ -227,21 +251,35 @@ export async function assignPilotAndUnit(
   page: Page,
   assignmentId: string,
   pilotId: string,
-  unitId: string
+  unitId: string,
 ): Promise<boolean> {
   return page.evaluate(
     async ({ assignmentId, pilotId, unitId }) => {
-      const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { 
-        assignPilotAndUnit: (assignmentId: string, pilotId: string, unitId: string) => Promise<boolean>;
-      } } } }).__ZUSTAND_STORES__;
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            force?: {
+              getState: () => {
+                assignPilotAndUnit: (
+                  assignmentId: string,
+                  pilotId: string,
+                  unitId: string,
+                ) => Promise<boolean>;
+              };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
 
       if (!stores?.force) {
         throw new Error('Force store not exposed');
       }
 
-      return stores.force.getState().assignPilotAndUnit(assignmentId, pilotId, unitId);
+      return stores.force
+        .getState()
+        .assignPilotAndUnit(assignmentId, pilotId, unitId);
     },
-    { assignmentId, pilotId, unitId }
+    { assignmentId, pilotId, unitId },
   );
 }
 
@@ -254,12 +292,20 @@ export async function assignPilotAndUnit(
  */
 export async function clearAssignment(
   page: Page,
-  assignmentId: string
+  assignmentId: string,
 ): Promise<boolean> {
   return page.evaluate(async (id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { 
-      clearAssignment: (id: string) => Promise<boolean>;
-    } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          force?: {
+            getState: () => {
+              clearAssignment: (id: string) => Promise<boolean>;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.force) {
       throw new Error('Force store not exposed');
@@ -280,13 +326,24 @@ export async function clearAssignment(
 export async function cloneForce(
   page: Page,
   forceId: string,
-  newName: string
+  newName: string,
 ): Promise<string | null> {
   return page.evaluate(
     async ({ forceId, newName }) => {
-      const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { 
-        cloneForce: (id: string, newName: string) => Promise<string | null>;
-      } } } }).__ZUSTAND_STORES__;
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            force?: {
+              getState: () => {
+                cloneForce: (
+                  id: string,
+                  newName: string,
+                ) => Promise<string | null>;
+              };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
 
       if (!stores?.force) {
         throw new Error('Force store not exposed');
@@ -294,7 +351,7 @@ export async function cloneForce(
 
       return stores.force.getState().cloneForce(forceId, newName);
     },
-    { forceId, newName }
+    { forceId, newName },
   );
 }
 
@@ -306,7 +363,15 @@ export async function cloneForce(
  */
 export async function deleteForce(page: Page, forceId: string): Promise<void> {
   await page.evaluate(async (id) => {
-    const stores = (window as unknown as { __ZUSTAND_STORES__?: { force?: { getState: () => { deleteForce: (id: string) => Promise<void> } } } }).__ZUSTAND_STORES__;
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          force?: {
+            getState: () => { deleteForce: (id: string) => Promise<void> };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
 
     if (!stores?.force) {
       throw new Error('Force store not exposed');

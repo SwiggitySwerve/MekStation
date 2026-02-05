@@ -1,8 +1,8 @@
 /**
  * Modal Overlay Component
- * 
+ *
  * Reusable modal overlay with backdrop and centering.
- * 
+ *
  * @spec openspec/specs/confirmation-dialogs/spec.md
  */
 
@@ -32,7 +32,7 @@ export function ModalOverlay({
   className = '',
 }: ModalOverlayProps): React.ReactElement | null {
   const modalRef = useRef<HTMLDivElement>(null);
-  
+
   // Handle escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -40,31 +40,31 @@ export function ModalOverlay({
         onClose();
       }
     };
-    
+
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
       // Prevent body scroll
       document.body.style.overflow = 'hidden';
     }
-    
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
   }, [isOpen, onClose, preventClose]);
-  
+
   // Focus trap
   useEffect(() => {
     if (isOpen && modalRef.current) {
       const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
-      
+
       const handleTabKey = (e: KeyboardEvent) => {
         if (e.key !== 'Tab') return;
-        
+
         if (e.shiftKey && document.activeElement === firstElement) {
           e.preventDefault();
           lastElement?.focus();
@@ -73,32 +73,32 @@ export function ModalOverlay({
           firstElement?.focus();
         }
       };
-      
+
       document.addEventListener('keydown', handleTabKey);
       firstElement?.focus();
-      
+
       return () => {
         document.removeEventListener('keydown', handleTabKey);
       };
     }
   }, [isOpen]);
-  
+
   if (!isOpen) return null;
-  
+
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget && !preventClose) {
       onClose();
     }
   };
-  
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 sm:p-6"
       onClick={handleOverlayClick}
     >
       <div
         ref={modalRef}
-        className={`bg-surface-base rounded-lg border border-border-theme shadow-xl w-full max-h-[90vh] overflow-auto ${className}`}
+        className={`bg-surface-base border-border-theme max-h-[90vh] w-full overflow-auto rounded-lg border shadow-xl ${className}`}
         role="dialog"
         aria-modal="true"
       >
@@ -107,4 +107,3 @@ export function ModalOverlay({
     </div>
   );
 }
-

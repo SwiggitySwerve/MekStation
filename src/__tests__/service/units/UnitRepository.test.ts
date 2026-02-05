@@ -1,24 +1,25 @@
 /**
  * Unit Repository Tests
- * 
+ *
  * Tests for the SQLite-based unit repository.
  */
 
-// Jest is the testing framework used in this project
-import { 
-  UnitRepository, 
-  getUnitRepository, 
-  resetUnitRepository 
-} from '@/services/units/UnitRepository';
-import { 
-  getSQLiteService, 
-  resetSQLiteService 
-} from '@/services/persistence/SQLiteService';
-import { TechBase } from '@/types/enums/TechBase';
-import { Era } from '@/types/enums/Era';
-import { RulesLevel } from '@/types/enums/RulesLevel';
 import fs from 'fs';
 import path from 'path';
+
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
+// Jest is the testing framework used in this project
+import {
+  UnitRepository,
+  getUnitRepository,
+  resetUnitRepository,
+} from '@/services/units/UnitRepository';
+import { Era } from '@/types/enums/Era';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 
 // Test database path
 const TEST_DB_PATH = './data/test-mekstation.db';
@@ -147,7 +148,12 @@ describe('UnitRepository', () => {
 
       // Update unit
       const updateResult = repository.update(createResult.data.id, {
-        data: { chassis: 'Marauder', variant: 'MAD-3R-Test', tonnage: 75, armor: 200 },
+        data: {
+          chassis: 'Marauder',
+          variant: 'MAD-3R-Test',
+          tonnage: 75,
+          armor: 200,
+        },
       });
 
       expect(updateResult.success).toBe(true);
@@ -214,8 +220,8 @@ describe('UnitRepository', () => {
       const units = repository.list();
 
       expect(units.length).toBe(2);
-      expect(units.some(u => u.chassis === 'Atlas')).toBe(true);
-      expect(units.some(u => u.chassis === 'Hunchback')).toBe(true);
+      expect(units.some((u) => u.chassis === 'Atlas')).toBe(true);
+      expect(units.some((u) => u.chassis === 'Hunchback')).toBe(true);
     });
   });
 
@@ -261,4 +267,3 @@ describe('UnitRepository', () => {
     });
   });
 });
-

@@ -1,11 +1,11 @@
 /**
  * Missile Weapon Definitions
- * 
+ *
  * Type definitions for LRMs, SRMs, Streak, MRMs, ATMs, MMLs, and NARC systems.
- * 
+ *
  * NOTE: Actual weapon data is now loaded from JSON files at runtime.
  * This file only contains type exports and empty arrays for backwards compatibility.
- * 
+ *
  * @spec openspec/specs/weapon-system/spec.md
  */
 

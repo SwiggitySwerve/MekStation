@@ -10,15 +10,18 @@
 ## Context
 
 ### Background
+
 [Why does this design exist? What problem does it solve?]
 
 ### Constraints
+
 - **Technical**: [Technical limitations]
 - **BattleTech Rules**: [Rule constraints from official sources]
 - **Performance**: [Performance requirements]
 - **Compatibility**: [What must remain compatible]
 
 ### Stakeholders
+
 - **Users**: [How users interact with this]
 - **Developers**: [How developers use this]
 - **BattleTech Compliance**: [Canon accuracy requirements]
@@ -28,11 +31,13 @@
 ## Goals & Non-Goals
 
 ### Goals
+
 1. [Primary goal]
 2. [Secondary goal]
 3. [Tertiary goal]
 
 ### Non-Goals
+
 1. [What this design explicitly does NOT do]
 2. [Out of scope items]
 
@@ -47,21 +52,27 @@
 **Options Considered**:
 
 #### Option A: [Name]
+
 **Pros**:
+
 - [Advantage]
 - [Advantage]
 
 **Cons**:
+
 - [Disadvantage]
 - [Disadvantage]
 
 **Complexity**: Low | Medium | High
 
 #### Option B: [Name]
+
 **Pros**:
+
 - [Advantage]
 
 **Cons**:
+
 - [Disadvantage]
 
 **Complexity**: Low | Medium | High
@@ -70,16 +81,19 @@
 
 **Rationale**:
 [Detailed explanation of why this option was chosen. Include:]
+
 - [Key reason 1]
 - [Key reason 2]
 - [Trade-offs accepted]
 
 **Implications**:
+
 - [What this decision means for the codebase]
 - [What this decision means for users]
 - [What this decision means for future development]
 
 ### Decision 2: [Decision Title]
+
 [...]
 
 ---
@@ -141,38 +155,47 @@ IEntity
 ## Implementation Strategy
 
 ### Phase 1: Core Types
+
 **Goal**: Establish foundational types
 
 **Tasks**:
+
 1. [ ] Define base interfaces
 2. [ ] Implement type guards
 3. [ ] Create validation utilities
 
 **Success Criteria**:
+
 - All types compile without errors
 - Type guards have 100% test coverage
 
 ### Phase 2: Business Logic
+
 **Goal**: Implement calculation and validation logic
 
 **Tasks**:
+
 1. [ ] Implement calculation formulas
 2. [ ] Implement validation rules
 3. [ ] Add error handling
 
 **Success Criteria**:
+
 - All calculations match BattleTech rules
 - All validations pass test suite
 
 ### Phase 3: Integration
+
 **Goal**: Connect to UI and services
 
 **Tasks**:
+
 1. [ ] Create service interfaces
 2. [ ] Implement UI adapters
 3. [ ] Add state management
 
 **Success Criteria**:
+
 - UI displays correct values
 - User actions trigger correct updates
 
@@ -199,8 +222,8 @@ interface I[ServiceName] {
 
 ### Public Methods
 
-| Method | Parameters | Returns | Description | Throws |
-|--------|------------|---------|-------------|--------|
+| Method    | Parameters    | Returns      | Description | Throws    |
+| --------- | ------------- | ------------ | ----------- | --------- |
 | `method1` | `param: Type` | `ReturnType` | Description | ErrorType |
 
 ### Usage Example
@@ -370,7 +393,7 @@ return Result.success(result);
 enum ErrorType {
   VALIDATION_ERROR = 'validation_error',
   CALCULATION_ERROR = 'calculation_error',
-  CONFIGURATION_ERROR = 'configuration_error'
+  CONFIGURATION_ERROR = 'configuration_error',
 }
 
 interface SubsystemError {
@@ -383,9 +406,9 @@ interface SubsystemError {
 
 ### Error Scenarios
 
-| Scenario | Error Type | User Message | Recovery |
-|----------|------------|--------------|----------|
-| [Scenario] | Type | "Message" | [How to recover] |
+| Scenario   | Error Type | User Message | Recovery         |
+| ---------- | ---------- | ------------ | ---------------- |
+| [Scenario] | Type       | "Message"    | [How to recover] |
 
 ---
 
@@ -396,6 +419,7 @@ interface SubsystemError {
 **Coverage Target**: 95%
 
 **Critical Paths**:
+
 1. [Formula calculation with valid inputs]
 2. [Formula calculation with edge case inputs]
 3. [Validation with invalid data]
@@ -404,6 +428,7 @@ interface SubsystemError {
 ### Integration Tests
 
 **Scenarios**:
+
 1. [End-to-end workflow]
 2. [Cross-subsystem interaction]
 
@@ -413,14 +438,22 @@ interface SubsystemError {
 const testCases = [
   {
     name: 'Standard case',
-    input: { /* ... */ },
-    expected: { /* ... */ }
+    input: {
+      /* ... */
+    },
+    expected: {
+      /* ... */
+    },
   },
   {
     name: 'Edge case',
-    input: { /* ... */ },
-    expected: { /* ... */ }
-  }
+    input: {
+      /* ... */
+    },
+    expected: {
+      /* ... */
+    },
+  },
 ];
 ```
 
@@ -430,20 +463,23 @@ const testCases = [
 
 ### Optimization Targets
 
-| Operation | Target | Current | Strategy |
-|-----------|--------|---------|----------|
-| [Calculation] | <10ms | ?ms | [Caching/memoization] |
+| Operation     | Target | Current | Strategy              |
+| ------------- | ------ | ------- | --------------------- |
+| [Calculation] | <10ms  | ?ms     | [Caching/memoization] |
 
 ### Caching Strategy
 
 **What to cache**:
+
 - [Expensive calculation result]
 - [Frequently accessed data]
 
 **Cache invalidation**:
+
 - When [condition]: Invalidate [cache key]
 
 **Cache size limits**:
+
 - [Limit and eviction strategy]
 
 ---
@@ -453,29 +489,33 @@ const testCases = [
 ### From Current Implementation
 
 **Phase 1**: Preparation
+
 1. [ ] Create new types alongside old
 2. [ ] Write conversion utilities
 3. [ ] Add tests for conversions
 
 **Phase 2**: Gradual Migration
+
 1. [ ] Migrate [service 1]
 2. [ ] Migrate [service 2]
 3. [ ] Migrate UI components
 
 **Phase 3**: Cleanup
+
 1. [ ] Remove old types
 2. [ ] Remove conversion utilities
 3. [ ] Update documentation
 
 ### Breaking Changes
 
-| Change | Impact | Migration Path |
-|--------|--------|----------------|
+| Change   | Impact              | Migration Path   |
+| -------- | ------------------- | ---------------- |
 | [Change] | [Who/what affected] | [How to migrate] |
 
 ### Rollback Plan
 
 If migration fails:
+
 1. [Rollback step 1]
 2. [Rollback step 2]
 
@@ -484,10 +524,12 @@ If migration fails:
 ## Security Considerations
 
 ### Input Validation
+
 - [What inputs must be sanitized]
 - [Validation rules]
 
 ### Data Integrity
+
 - [How to ensure data consistency]
 - [Checksum/validation approach]
 
@@ -496,9 +538,11 @@ If migration fails:
 ## Accessibility Considerations
 
 ### Screen Reader Support
+
 - [Labels and ARIA attributes]
 
 ### Keyboard Navigation
+
 - [Tab order and shortcuts]
 
 ---
@@ -518,10 +562,12 @@ If migration fails:
 ## Future Enhancements
 
 ### Planned Features
+
 1. [Feature 1] - [Timeframe]
 2. [Feature 2] - [Timeframe]
 
 ### Possible Extensions
+
 - [Extension idea]
 - [Extension idea]
 
@@ -530,10 +576,12 @@ If migration fails:
 ## References
 
 ### Code References
+
 - Implementation: `src/path/to/implementation.ts`
 - Tests: `src/__tests__/path/to/test.ts`
 
 ### External Resources
+
 - [Resource name]: [URL]
 
 ---
@@ -541,7 +589,9 @@ If migration fails:
 ## Changelog
 
 ### Version 1.0 (YYYY-MM-DD)
+
 - Initial design document
 
 ### Version 1.1 (YYYY-MM-DD)
+
 - [Change description]

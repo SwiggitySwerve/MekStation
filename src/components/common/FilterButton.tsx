@@ -87,7 +87,8 @@ export function FilterButton({
   const baseStyles = 'px-1.5 py-0.5 text-[10px] rounded transition-all';
 
   // Inactive styles (same for all variants)
-  const inactiveStyles = 'bg-surface-raised/60 text-text-theme-secondary hover:text-white hover:bg-surface-raised';
+  const inactiveStyles =
+    'bg-surface-raised/60 text-text-theme-secondary hover:text-white hover:bg-surface-raised';
 
   // Active styles by variant
   const getActiveStyles = (): string => {
@@ -118,12 +119,7 @@ export function FilterButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`
-        ${baseStyles}
-        ${isActive ? activeStyles : inactiveStyles}
-        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-        ${className}
-      `}
+      className={` ${baseStyles} ${isActive ? activeStyles : inactiveStyles} ${disabled ? 'cursor-not-allowed opacity-50' : ''} ${className} `}
       title={title}
     >
       {children}

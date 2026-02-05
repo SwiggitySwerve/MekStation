@@ -7,8 +7,11 @@
  * @spec openspec/changes/add-campaign-instances/specs/campaign-instances/spec.md
  */
 
-import type { CampaignUnitStatus, CampaignPilotStatus } from '../campaign/CampaignInterfaces';
 import type { IUnitDamageState } from '../campaign/CampaignInstanceInterfaces';
+import type {
+  CampaignUnitStatus,
+  CampaignPilotStatus,
+} from '../campaign/CampaignInterfaces';
 import type { IPilotSkills } from '../pilot/PilotInterfaces';
 
 // =============================================================================
@@ -212,7 +215,13 @@ export interface IPilotInstanceXPGainedPayload {
   /** Total XP after gain */
   readonly totalXP: number;
   /** Source of XP */
-  readonly source: 'mission_participation' | 'kill' | 'victory' | 'objective' | 'survival' | 'other';
+  readonly source:
+    | 'mission_participation'
+    | 'kill'
+    | 'victory'
+    | 'objective'
+    | 'survival'
+    | 'other';
   /** Additional details */
   readonly details?: string;
 }

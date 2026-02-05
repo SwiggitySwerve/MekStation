@@ -11,11 +11,8 @@
  */
 
 import { test, expect } from '@playwright/test';
-import {
-  CompendiumPage,
-  UnitBrowserPage,
-  EquipmentBrowserPage,
-} from './pages';
+
+import { CompendiumPage, UnitBrowserPage, EquipmentBrowserPage } from './pages';
 
 // ============================================================================
 // Compendium Hub Tests
@@ -27,11 +24,15 @@ test.describe('Compendium Hub @smoke @compendium', () => {
     await compendiumPage.goto();
 
     // Verify page title
-    await expect(page.getByRole('heading', { name: /compendium/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /compendium/i }).first(),
+    ).toBeVisible();
 
     // Verify main sections exist
     await expect(page.getByTestId('compendium-units-section')).toBeVisible();
-    await expect(page.getByTestId('compendium-equipment-section')).toBeVisible();
+    await expect(
+      page.getByTestId('compendium-equipment-section'),
+    ).toBeVisible();
     await expect(page.getByTestId('compendium-rules-section')).toBeVisible();
   });
 
@@ -39,10 +40,14 @@ test.describe('Compendium Hub @smoke @compendium', () => {
     // Navigate directly to compendium (main nav may not have link)
     await page.goto('/compendium');
 
-    await expect(page.getByRole('heading', { name: /compendium/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /compendium/i }).first(),
+    ).toBeVisible();
     // Verify all main sections are present
     await expect(page.getByTestId('compendium-units-section')).toBeVisible();
-    await expect(page.getByTestId('compendium-equipment-section')).toBeVisible();
+    await expect(
+      page.getByTestId('compendium-equipment-section'),
+    ).toBeVisible();
     await expect(page.getByTestId('compendium-rules-section')).toBeVisible();
   });
 
@@ -53,17 +58,23 @@ test.describe('Compendium Hub @smoke @compendium', () => {
 
     // Verify we're on the units page
     await expect(page).toHaveURL(/\/compendium\/units/);
-    await expect(page.getByRole('heading', { name: /unit database/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /unit database/i }).first(),
+    ).toBeVisible();
   });
 
-  test('equipment catalog card navigates to equipment page', async ({ page }) => {
+  test('equipment catalog card navigates to equipment page', async ({
+    page,
+  }) => {
     // Navigate directly to equipment page
     await page.goto('/compendium/equipment', { timeout: 30000 });
     await page.waitForLoadState('domcontentloaded');
 
     // Verify we're on the equipment page
     await expect(page).toHaveURL(/\/compendium\/equipment/);
-    await expect(page.getByRole('heading', { name: /equipment catalog/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /equipment catalog/i }).first(),
+    ).toBeVisible();
   });
 
   test('quick reference card is visible', async ({ page }) => {
@@ -84,7 +95,9 @@ test.describe('Compendium Hub @smoke @compendium', () => {
     await compendiumPage.search('armor');
 
     // Armor section should be visible
-    await expect(page.getByText('Armor types and maximum allocations')).toBeVisible();
+    await expect(
+      page.getByText('Armor types and maximum allocations'),
+    ).toBeVisible();
 
     // Clear search
     await compendiumPage.search('');
@@ -115,7 +128,9 @@ test.describe('Unit Browser @compendium', () => {
     await unitBrowser.goto();
 
     // Verify page title
-    await expect(page.getByRole('heading', { name: /unit database/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /unit database/i }).first(),
+    ).toBeVisible();
 
     // Verify search input exists
     await expect(unitBrowser.searchInput).toBeVisible();
@@ -126,7 +141,7 @@ test.describe('Unit Browser @compendium', () => {
     await unitBrowser.goto();
 
     // Get initial count (shown in subtitle)
-    const initialSubtitle = await unitBrowser.getSubtitleText();
+    const _initialSubtitle = await unitBrowser.getSubtitleText();
 
     // Search for something specific
     await unitBrowser.search('atlas');
@@ -135,7 +150,7 @@ test.describe('Unit Browser @compendium', () => {
     await page.waitForTimeout(500);
 
     // The count should change (or stay same if no units match)
-    const filteredSubtitle = await unitBrowser.getSubtitleText();
+    const _filteredSubtitle = await unitBrowser.getSubtitleText();
     // We can't guarantee results, but the search should work without errors
   });
 
@@ -179,7 +194,9 @@ test.describe('Unit Browser @compendium', () => {
     if (hasUnits === 0) {
       // Empty state should be visible
       await expect(page.getByText(/no units yet/i)).toBeVisible();
-      await expect(page.getByRole('link', { name: /create unit/i })).toBeVisible();
+      await expect(
+        page.getByRole('link', { name: /create unit/i }),
+      ).toBeVisible();
     } else {
       // Units should be displayed
       expect(hasUnits).toBeGreaterThan(0);
@@ -214,7 +231,9 @@ test.describe('Equipment Browser @compendium', () => {
     await equipmentBrowser.goto();
 
     // Verify page title
-    await expect(page.getByRole('heading', { name: /equipment catalog/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /equipment catalog/i }).first(),
+    ).toBeVisible();
 
     // Verify search input exists
     await expect(equipmentBrowser.searchInput).toBeVisible();
@@ -289,7 +308,7 @@ test.describe('Equipment Browser @compendium', () => {
     const categorySelect = page.getByLabel(/filter by category/i);
     if (await categorySelect.isVisible()) {
       // Get count before filtering
-      const countBefore = await equipmentBrowser.getDisplayedEquipmentCount();
+      const _countBefore = await equipmentBrowser.getDisplayedEquipmentCount();
 
       // Filter by Energy Weapon (if option exists)
       try {
@@ -318,7 +337,9 @@ test.describe('Equipment Browser @compendium', () => {
     await page.waitForTimeout(500);
 
     // Empty state should be visible, or count should be 0
-    const emptyStateVisible = await page.getByText(/no equipment found/i).isVisible();
+    const emptyStateVisible = await page
+      .getByText(/no equipment found/i)
+      .isVisible();
     const displayCount = await equipmentBrowser.getDisplayedEquipmentCount();
 
     // Either empty state is shown or no items are displayed
@@ -366,16 +387,20 @@ test.describe('Rules Reference @compendium', () => {
       await page.waitForLoadState('networkidle');
 
       // Page should load without errors - use first() to avoid strict mode
-      await expect(page.locator('main').first()).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('main').first()).toBeVisible({
+        timeout: 10000,
+      });
 
       // Wait for router to fully hydrate and content to appear
       // The page shows "Loading..." then transitions to content
       await page.waitForTimeout(1000);
 
       // Check for successful page load indicators
-      const hasRuleContent = await page.locator('article').count() > 0;
+      const hasRuleContent = (await page.locator('article').count()) > 0;
       const hasHeading = await page.getByRole('heading').first().isVisible();
-      const hasNotFound = await page.getByText('Rule Section Not Found').isVisible();
+      const hasNotFound = await page
+        .getByText('Rule Section Not Found')
+        .isVisible();
 
       // Either rule content, a heading, or a proper "not found" page
       expect(hasRuleContent || hasHeading || hasNotFound).toBeTruthy();
@@ -407,7 +432,9 @@ test.describe('Breadcrumb Navigation @compendium', () => {
     await page.goto('/compendium/units', { timeout: 30000 });
     await page.waitForLoadState('domcontentloaded');
     await expect(page).toHaveURL(/\/compendium\/units/);
-    await expect(page.getByRole('heading', { name: /unit database/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /unit database/i }).first(),
+    ).toBeVisible();
   });
 
   test('equipment page is accessible', async ({ page }) => {
@@ -415,7 +442,9 @@ test.describe('Breadcrumb Navigation @compendium', () => {
     await page.goto('/compendium/equipment', { timeout: 30000 });
     await page.waitForLoadState('domcontentloaded');
     await expect(page).toHaveURL(/\/compendium\/equipment/);
-    await expect(page.getByRole('heading', { name: /equipment catalog/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /equipment catalog/i }).first(),
+    ).toBeVisible();
   });
 });
 
@@ -430,15 +459,21 @@ test.describe('Compendium Responsive @compendium', () => {
 
     // Mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
-    await expect(page.getByRole('heading', { name: /compendium/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /compendium/i }).first(),
+    ).toBeVisible();
 
     // Tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
-    await expect(page.getByRole('heading', { name: /compendium/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /compendium/i }).first(),
+    ).toBeVisible();
 
     // Desktop viewport
     await page.setViewportSize({ width: 1280, height: 800 });
-    await expect(page.getByRole('heading', { name: /compendium/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /compendium/i }).first(),
+    ).toBeVisible();
   });
 
   test('equipment browser is responsive', async ({ page }) => {
@@ -447,7 +482,9 @@ test.describe('Compendium Responsive @compendium', () => {
 
     // Mobile viewport - filters might be collapsible
     await page.setViewportSize({ width: 375, height: 667 });
-    await expect(page.getByRole('heading', { name: /equipment catalog/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /equipment catalog/i }).first(),
+    ).toBeVisible();
 
     // Filter button should be visible
     await expect(equipmentBrowser.filterButton).toBeVisible();

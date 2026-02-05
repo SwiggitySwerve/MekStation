@@ -12,6 +12,7 @@ import {
   FiringArc,
   IArcResult,
 } from '@/types/gameplay';
+
 import { hexAngle, facingToAngle, hexEquals } from './hexMath';
 
 // =============================================================================
@@ -26,8 +27,8 @@ import { hexAngle, facingToAngle, hexEquals } from './hexMath';
  * Rear arc: +120 to +240 (120 degrees behind)
  */
 const ARC_HALF_WIDTHS = {
-  front: 60,  // +/- 60 degrees from center
-  side: 30,   // Additional 30 degrees for each side
+  front: 60, // +/- 60 degrees from center
+  side: 30, // Additional 30 degrees for each side
 };
 
 // =============================================================================
@@ -36,14 +37,14 @@ const ARC_HALF_WIDTHS = {
 
 /**
  * Determine which arc a target is in relative to the attacker.
- * 
+ *
  * @param attacker Attacker's position with facing
  * @param target Target's coordinate
  * @returns The firing arc the target is in
  */
 export function determineArc(
   attacker: IUnitPosition,
-  target: IHexCoordinate
+  target: IHexCoordinate,
 ): IArcResult {
   // Same hex is always front arc
   if (hexEquals(attacker.coord, target)) {
@@ -55,20 +56,20 @@ export function determineArc(
 
   // Calculate absolute angle from attacker to target
   const absoluteAngle = hexAngle(attacker.coord, target);
-  
+
   // Get the attacker's facing angle
   const facingAngle = facingToAngle(attacker.facing);
-  
+
   // Calculate relative angle (target angle relative to facing)
   let relativeAngle = absoluteAngle - facingAngle;
-  
+
   // Normalize to -180 to +180
   while (relativeAngle > 180) relativeAngle -= 360;
   while (relativeAngle < -180) relativeAngle += 360;
-  
+
   // Determine arc based on relative angle
   const absRelative = Math.abs(relativeAngle);
-  
+
   let arc: FiringArc;
   if (absRelative <= ARC_HALF_WIDTHS.front) {
     arc = FiringArc.Front;
@@ -79,7 +80,7 @@ export function determineArc(
   } else {
     arc = FiringArc.Left;
   }
-  
+
   return {
     arc,
     angle: absoluteAngle,
@@ -94,7 +95,7 @@ export function getArcHexes(
   center: IHexCoordinate,
   facing: Facing,
   arc: FiringArc,
-  maxRange: number
+  maxRange: number,
 ): readonly IHexCoordinate[] {
   const position: IUnitPosition = {
     unitId: 'temp',
@@ -104,22 +105,22 @@ export function getArcHexes(
   };
 
   const results: IHexCoordinate[] = [];
-  
+
   // Check all hexes in range
   for (let q = -maxRange; q <= maxRange; q++) {
     for (let r = -maxRange; r <= maxRange; r++) {
       const target: IHexCoordinate = { q: center.q + q, r: center.r + r };
-      
+
       // Skip center hex
       if (q === 0 && r === 0) continue;
-      
+
       const arcResult = determineArc(position, target);
       if (arcResult.arc === arc) {
         results.push(target);
       }
     }
   }
-  
+
   return results;
 }
 
@@ -165,34 +166,34 @@ export function getRightArcDirection(facing: Facing): Facing {
 
 /**
  * Check if a weapon can fire at a target based on its mounting arc.
- * 
+ *
  * @param weaponArc The arc the weapon is mounted in
  * @param targetArc The arc the target is in
  * @returns Whether the weapon can fire at the target
  */
 export function canFireFromArc(
   weaponArc: FiringArc,
-  targetArc: FiringArc
+  targetArc: FiringArc,
 ): boolean {
   // Front weapons can fire into front arc
   if (weaponArc === FiringArc.Front) {
     return targetArc === FiringArc.Front;
   }
-  
+
   // Rear weapons can fire into rear arc
   if (weaponArc === FiringArc.Rear) {
     return targetArc === FiringArc.Rear;
   }
-  
+
   // Side weapons can fire into their respective side arc
   if (weaponArc === FiringArc.Left) {
     return targetArc === FiringArc.Left;
   }
-  
+
   if (weaponArc === FiringArc.Right) {
     return targetArc === FiringArc.Right;
   }
-  
+
   return false;
 }
 

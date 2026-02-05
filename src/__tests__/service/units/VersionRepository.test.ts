@@ -1,25 +1,26 @@
 /**
  * Version Repository Tests
- * 
+ *
  * Tests for the SQLite-based version repository.
  */
 
-// Jest is the testing framework used in this project
-import { 
-  VersionRepository, 
-  getVersionRepository, 
-  resetVersionRepository 
-} from '@/services/units/VersionRepository';
-import { 
-  getUnitRepository, 
-  resetUnitRepository 
-} from '@/services/units/UnitRepository';
-import { 
-  getSQLiteService, 
-  resetSQLiteService 
-} from '@/services/persistence/SQLiteService';
 import fs from 'fs';
 import path from 'path';
+
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
+import {
+  getUnitRepository,
+  resetUnitRepository,
+} from '@/services/units/UnitRepository';
+// Jest is the testing framework used in this project
+import {
+  VersionRepository,
+  getVersionRepository,
+  resetVersionRepository,
+} from '@/services/units/VersionRepository';
 
 // Test database path
 const TEST_DB_PATH = './data/test-versions.db';
@@ -71,7 +72,9 @@ describe('VersionRepository', () => {
       data: { chassis: 'TestMech', tonnage: 50 },
     });
     if (!result.success) {
-      throw new Error(`Failed to create test unit: ${result.error.message ?? 'Unknown error'}`);
+      throw new Error(
+        `Failed to create test unit: ${result.error.message ?? 'Unknown error'}`,
+      );
     }
     return result.data.id;
   }
@@ -192,4 +195,3 @@ describe('VersionRepository', () => {
     });
   });
 });
-

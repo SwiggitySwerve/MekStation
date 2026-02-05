@@ -1,4 +1,5 @@
 ## 1. Implementation
+
 - [x] 1.1 Add MovementEnhancementType import to unitState
 - [x] 1.2 Add isOmni, enhancement fields to UnitState interface
 - [x] 1.3 Make tonnage and configuration editable
@@ -10,4 +11,3 @@
 - [x] 1.9 Add Enhancement dropdown with MASC/TSM mutual exclusion
 - [x] 1.10 Reorganize to three-column layout
 - [x] 1.11 Verify build compiles successfully
-

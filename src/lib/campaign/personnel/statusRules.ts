@@ -47,7 +47,11 @@ const DEPARTED_STATUSES = new Set([
   PersonnelStatus.CONTRACT_ENDED,
 ]);
 
-export type NotificationSeverity = 'POSITIVE' | 'NEUTRAL' | 'WARNING' | 'NEGATIVE';
+export type NotificationSeverity =
+  | 'POSITIVE'
+  | 'NEUTRAL'
+  | 'WARNING'
+  | 'NEGATIVE';
 
 export function isAbsent(status: PersonnelStatus): boolean {
   return ABSENT_STATUSES.has(status);
@@ -66,10 +70,15 @@ export function isDepartedUnit(status: PersonnelStatus): boolean {
 }
 
 export function isActiveFlexible(status: PersonnelStatus): boolean {
-  return status === PersonnelStatus.ACTIVE || status === PersonnelStatus.CAMP_FOLLOWER;
+  return (
+    status === PersonnelStatus.ACTIVE ||
+    status === PersonnelStatus.CAMP_FOLLOWER
+  );
 }
 
-export function getNotificationSeverity(status: PersonnelStatus): NotificationSeverity {
+export function getNotificationSeverity(
+  status: PersonnelStatus,
+): NotificationSeverity {
   if (isDead(status)) {
     return 'NEGATIVE';
   }

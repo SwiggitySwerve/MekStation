@@ -9,8 +9,9 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createIdentity } from '@/services/vault/IdentityService';
+
 import { getIdentityRepository } from '@/services/vault/IdentityRepository';
+import { createIdentity } from '@/services/vault/IdentityService';
 
 // =============================================================================
 // Request Body Types
@@ -28,7 +29,7 @@ interface UpdateIdentityBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<void> {
   const repository = getIdentityRepository();
 
@@ -51,7 +52,7 @@ export default async function handler(
 async function handleGet(
   _req: NextApiRequest,
   res: NextApiResponse,
-  repository: ReturnType<typeof getIdentityRepository>
+  repository: ReturnType<typeof getIdentityRepository>,
 ) {
   try {
     const hasIdentity = await repository.hasIdentity();
@@ -83,7 +84,8 @@ async function handleGet(
   } catch (error) {
     console.error('Failed to check identity:', error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to check identity',
+      error:
+        error instanceof Error ? error.message : 'Failed to check identity',
     });
   }
 }
@@ -94,7 +96,7 @@ async function handleGet(
 async function handlePost(
   req: NextApiRequest,
   res: NextApiResponse,
-  repository: ReturnType<typeof getIdentityRepository>
+  repository: ReturnType<typeof getIdentityRepository>,
 ) {
   try {
     const body = req.body as CreateIdentityBody;
@@ -110,7 +112,9 @@ async function handlePost(
     }
 
     if (trimmedName.length > 100) {
-      return res.status(400).json({ error: 'Display name too long (max 100 characters)' });
+      return res
+        .status(400)
+        .json({ error: 'Display name too long (max 100 characters)' });
     }
 
     if (!password || typeof password !== 'string') {
@@ -152,7 +156,8 @@ async function handlePost(
   } catch (error) {
     console.error('Failed to create identity:', error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to create identity',
+      error:
+        error instanceof Error ? error.message : 'Failed to create identity',
     });
   }
 }
@@ -163,7 +168,7 @@ async function handlePost(
 async function handlePatch(
   req: NextApiRequest,
   res: NextApiResponse,
-  repository: ReturnType<typeof getIdentityRepository>
+  repository: ReturnType<typeof getIdentityRepository>,
 ) {
   try {
     const body = req.body as UpdateIdentityBody;
@@ -182,7 +187,9 @@ async function handlePatch(
       }
       const trimmedName = displayName.trim();
       if (trimmedName.length > 100) {
-        return res.status(400).json({ error: 'Display name too long (max 100 characters)' });
+        return res
+          .status(400)
+          .json({ error: 'Display name too long (max 100 characters)' });
       }
       updates.displayName = trimmedName;
     }
@@ -197,7 +204,8 @@ async function handlePatch(
   } catch (error) {
     console.error('Failed to update identity:', error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to update identity',
+      error:
+        error instanceof Error ? error.message : 'Failed to update identity',
     });
   }
 }

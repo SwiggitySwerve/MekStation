@@ -4,8 +4,8 @@
  * Tests parsing of BLK files for various unit types.
  */
 
-import { BlkParserService } from '../BlkParserService';
 import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { BlkParserService } from '../BlkParserService';
 
 describe('BlkParserService', () => {
   const parser = BlkParserService.getInstance();
@@ -70,7 +70,9 @@ TR:3025
       if (!result.success) return;
       expect(result.data.document.name).toBe('Air Car');
       expect(result.data.document.unitType).toBe('SupportTank');
-      expect(result.data.document.mappedUnitType).toBe(UnitType.SUPPORT_VEHICLE);
+      expect(result.data.document.mappedUnitType).toBe(
+        UnitType.SUPPORT_VEHICLE,
+      );
       expect(result.data.document.tonnage).toBe(40);
       expect(result.data.document.cruiseMP).toBe(11);
       expect(result.data.document.armor).toEqual([8, 8, 8, 8]);
@@ -161,8 +163,12 @@ biped
       expect(result.data.document.weightClass).toBe(1);
 
       expect(result.data.document.equipmentByLocation['Squad']).toBeDefined();
-      expect(result.data.document.equipmentByLocation['Squad']).toContain('BADavidLightGaussRifle:RA');
-      expect(result.data.document.equipmentByLocation['Squad']).toContain('BABasicManipulator:LA');
+      expect(result.data.document.equipmentByLocation['Squad']).toContain(
+        'BADavidLightGaussRifle:RA',
+      );
+      expect(result.data.document.equipmentByLocation['Squad']).toContain(
+        'BABasicManipulator:LA',
+      );
     });
 
     it('should parse an Aerospace fighter BLK file', () => {
@@ -254,9 +260,15 @@ obsolete
       expect(result.data.document.fuel).toBe(240);
       expect(result.data.document.armor).toEqual([12, 9, 9, 7]);
 
-      expect(result.data.document.equipmentByLocation['Nose']).toEqual(['Autocannon/2']);
-      expect(result.data.document.equipmentByLocation['Left Wing']).toEqual(['LRM 10']);
-      expect(result.data.document.equipmentByLocation['Fuselage']).toContain('IS Ammo AC/2');
+      expect(result.data.document.equipmentByLocation['Nose']).toEqual([
+        'Autocannon/2',
+      ]);
+      expect(result.data.document.equipmentByLocation['Left Wing']).toEqual([
+        'LRM 10',
+      ]);
+      expect(result.data.document.equipmentByLocation['Fuselage']).toContain(
+        'IS Ammo AC/2',
+      );
 
       expect(result.data.document.quirks).toContain('atmo_instability');
       expect(result.data.document.quirks).toContain('obsolete');
@@ -358,10 +370,14 @@ PPC
       expect(result.data.document.marines).toBe(42);
       expect(result.data.document.escapePod).toBe(4);
 
-      expect(result.data.document.transporters).toContain('smallcraftbay:2.0:2:1');
+      expect(result.data.document.transporters).toContain(
+        'smallcraftbay:2.0:2:1',
+      );
       expect(result.data.document.transporters).toContain('cargobay:75.0:1:6');
 
-      expect(result.data.document.equipmentByLocation['Nose']).toContain('(B) PPC');
+      expect(result.data.document.equipmentByLocation['Nose']).toContain(
+        '(B) PPC',
+      );
     });
 
     it('should parse an Infantry BLK file', () => {
@@ -482,7 +498,11 @@ Test Unit
 
       expect(result.success).toBe(false);
       if (result.success) return;
-      expect(result.error.errors.some((e: string) => e.includes('Unknown unit type'))).toBe(true);
+      expect(
+        result.error.errors.some((e: string) =>
+          e.includes('Unknown unit type'),
+        ),
+      ).toBe(true);
     });
   });
 });

@@ -1,4 +1,8 @@
-import { formatCurrency, formatDuration, formatPercentage } from '../formatting';
+import {
+  formatCurrency,
+  formatDuration,
+  formatPercentage,
+} from '../formatting';
 
 describe('formatCurrency', () => {
   it('should format large amounts with commas', () => {

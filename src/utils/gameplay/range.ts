@@ -11,6 +11,7 @@ import {
   RangeBracket,
   RANGE_BRACKET_DEFINITIONS,
 } from '@/types/gameplay';
+
 import { hexDistance } from './hexMath';
 
 // =============================================================================
@@ -45,12 +46,12 @@ export function getRangeModifier(bracket: RangeBracket): number {
  */
 export function calculateRange(
   from: IHexCoordinate,
-  to: IHexCoordinate
+  to: IHexCoordinate,
 ): IRangeResult {
   const distance = hexDistance(from, to);
   const bracket = getRangeBracket(distance);
   const modifier = getRangeModifier(bracket);
-  
+
   return {
     distance,
     bracket,
@@ -83,7 +84,7 @@ export interface IWeaponRangeProfile {
  */
 export function isInWeaponRange(
   distance: number,
-  rangeProfile: IWeaponRangeProfile
+  rangeProfile: IWeaponRangeProfile,
 ): boolean {
   const maxRange = rangeProfile.extreme ?? rangeProfile.long;
   return distance <= maxRange;
@@ -95,7 +96,7 @@ export function isInWeaponRange(
  */
 export function getWeaponRangeBracket(
   distance: number,
-  rangeProfile: IWeaponRangeProfile
+  rangeProfile: IWeaponRangeProfile,
 ): RangeBracket {
   if (distance <= rangeProfile.short) {
     return RangeBracket.Short;
@@ -118,14 +119,14 @@ export function getWeaponRangeBracket(
  */
 export function getWeaponRangeModifier(
   distance: number,
-  rangeProfile: IWeaponRangeProfile
+  rangeProfile: IWeaponRangeProfile,
 ): number {
   const bracket = getWeaponRangeBracket(distance, rangeProfile);
-  
+
   if (bracket === RangeBracket.OutOfRange) {
     return Infinity; // Cannot fire
   }
-  
+
   return getRangeModifier(bracket);
 }
 
@@ -135,14 +136,14 @@ export function getWeaponRangeModifier(
  */
 export function getMinimumRangePenalty(
   distance: number,
-  rangeProfile: IWeaponRangeProfile
+  rangeProfile: IWeaponRangeProfile,
 ): number {
   const minRange = rangeProfile.minimum ?? 0;
-  
+
   if (minRange === 0 || distance > minRange) {
     return 0;
   }
-  
+
   // Penalty is (minimum range - distance + 1)
   // e.g., min range 6, at range 3 = +4 penalty
   return minRange - distance + 1;
@@ -154,14 +155,15 @@ export function getMinimumRangePenalty(
 export function calculateWeaponRange(
   from: IHexCoordinate,
   to: IHexCoordinate,
-  rangeProfile: IWeaponRangeProfile
+  rangeProfile: IWeaponRangeProfile,
 ): IRangeResult & { minimumRangePenalty: number; inRange: boolean } {
   const distance = hexDistance(from, to);
   const bracket = getWeaponRangeBracket(distance, rangeProfile);
-  const modifier = bracket === RangeBracket.OutOfRange ? Infinity : getRangeModifier(bracket);
+  const modifier =
+    bracket === RangeBracket.OutOfRange ? Infinity : getRangeModifier(bracket);
   const minimumRangePenalty = getMinimumRangePenalty(distance, rangeProfile);
   const inRange = bracket !== RangeBracket.OutOfRange;
-  
+
   return {
     distance,
     bracket,
@@ -181,7 +183,7 @@ export function calculateWeaponRange(
  */
 export function hasLineOfSight(
   _from: IHexCoordinate,
-  _to: IHexCoordinate
+  _to: IHexCoordinate,
 ): boolean {
   // Basic implementation - always true (no terrain blocking)
   // In the future, this would check for intervening terrain
@@ -213,24 +215,28 @@ export function isAdjacent(a: IHexCoordinate, b: IHexCoordinate): boolean {
  */
 export function getCoordinatesAtRange(
   center: IHexCoordinate,
-  range: number
+  range: number,
 ): readonly IHexCoordinate[] {
   if (range === 0) {
     return [center];
   }
-  
+
   const results: IHexCoordinate[] = [];
-  
+
   // Walk around the ring at the specified range
   for (let q = -range; q <= range; q++) {
-    for (let r = Math.max(-range, -q - range); r <= Math.min(range, -q + range); r++) {
+    for (
+      let r = Math.max(-range, -q - range);
+      r <= Math.min(range, -q + range);
+      r++
+    ) {
       const coord: IHexCoordinate = { q: center.q + q, r: center.r + r };
       if (hexDistance(center, coord) === range) {
         results.push(coord);
       }
     }
   }
-  
+
   return results;
 }
 
@@ -239,15 +245,19 @@ export function getCoordinatesAtRange(
  */
 export function getCoordinatesInRange(
   center: IHexCoordinate,
-  maxRange: number
+  maxRange: number,
 ): readonly IHexCoordinate[] {
   const results: IHexCoordinate[] = [];
-  
+
   for (let q = -maxRange; q <= maxRange; q++) {
-    for (let r = Math.max(-maxRange, -q - maxRange); r <= Math.min(maxRange, -q + maxRange); r++) {
+    for (
+      let r = Math.max(-maxRange, -q - maxRange);
+      r <= Math.min(maxRange, -q + maxRange);
+      r++
+    ) {
       results.push({ q: center.q + q, r: center.r + r });
     }
   }
-  
+
   return results;
 }

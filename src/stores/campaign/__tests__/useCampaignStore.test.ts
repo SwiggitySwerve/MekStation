@@ -5,14 +5,7 @@
  * sub-store composition, persistence, and day advancement coverage.
  */
 
-import {
-  createCampaignStore,
-  useCampaignStore,
-  resetCampaignStore,
-} from '../useCampaignStore';
 import { ICampaignOptions } from '@/types/campaign/Campaign';
-import { IPerson, createDefaultAttributes } from '@/types/campaign/Person';
-import { IForce } from '@/types/campaign/Force';
 import { IMission } from '@/types/campaign/Campaign';
 import {
   PersonnelStatus,
@@ -21,6 +14,14 @@ import {
   FormationLevel,
   MissionStatus,
 } from '@/types/campaign/enums';
+import { IForce } from '@/types/campaign/Force';
+import { IPerson, createDefaultAttributes } from '@/types/campaign/Person';
+
+import {
+  createCampaignStore,
+  useCampaignStore,
+  resetCampaignStore,
+} from '../useCampaignStore';
 
 // =============================================================================
 // Test Data Helpers
@@ -184,7 +185,9 @@ describe('useCampaignStore', () => {
 
   describe('createCampaign', () => {
     it('should create campaign with name and factionId', () => {
-      const campaignId = store.getState().createCampaign("Wolf's Dragoons", 'mercenary');
+      const campaignId = store
+        .getState()
+        .createCampaign("Wolf's Dragoons", 'mercenary');
 
       expect(campaignId).toBeDefined();
       expect(campaignId).toMatch(/^campaign-\d+-[a-z0-9]+$/);
@@ -249,8 +252,12 @@ describe('useCampaignStore', () => {
 
       const campaign = store.getState().getCampaign();
       expect(campaign?.currentDate).toBeInstanceOf(Date);
-      expect(campaign?.currentDate.getTime()).toBeGreaterThanOrEqual(before.getTime());
-      expect(campaign?.currentDate.getTime()).toBeLessThanOrEqual(after.getTime());
+      expect(campaign?.currentDate.getTime()).toBeGreaterThanOrEqual(
+        before.getTime(),
+      );
+      expect(campaign?.currentDate.getTime()).toBeLessThanOrEqual(
+        after.getTime(),
+      );
     });
 
     it('should initialize empty finances', () => {
@@ -283,7 +290,9 @@ describe('useCampaignStore', () => {
 
     it('should load saved campaign', () => {
       // Create and save a campaign
-      const campaignId = store.getState().createCampaign('Saved Campaign', 'mercenary');
+      const campaignId = store
+        .getState()
+        .createCampaign('Saved Campaign', 'mercenary');
       store.getState().saveCampaign();
 
       // Create new store and load
@@ -298,12 +307,14 @@ describe('useCampaignStore', () => {
 
     it('should restore sub-stores on load', () => {
       // Create campaign and add data to sub-stores
-      const campaignId = store.getState().createCampaign('Test Campaign', 'mercenary');
-      
+      const campaignId = store
+        .getState()
+        .createCampaign('Test Campaign', 'mercenary');
+
       const personnelStore = store.getState().getPersonnelStore();
       const person = createTestPerson({ name: 'Test Pilot' });
       personnelStore?.getState().addPerson(person);
-      
+
       store.getState().saveCampaign();
 
       // Create new store and load
@@ -324,13 +335,15 @@ describe('useCampaignStore', () => {
     });
 
     it('should restore campaign date correctly', () => {
-      const campaignId = store.getState().createCampaign('Test Campaign', 'mercenary');
-      
+      const campaignId = store
+        .getState()
+        .createCampaign('Test Campaign', 'mercenary');
+
       // Advance a few days
       store.getState().advanceDay();
       store.getState().advanceDay();
       store.getState().advanceDay();
-      
+
       const originalDate = store.getState().getCampaign()?.currentDate;
       store.getState().saveCampaign();
 
@@ -354,7 +367,9 @@ describe('useCampaignStore', () => {
     });
 
     it('should persist campaign to storage', () => {
-      const campaignId = store.getState().createCampaign('Test Campaign', 'mercenary');
+      const campaignId = store
+        .getState()
+        .createCampaign('Test Campaign', 'mercenary');
       store.getState().saveCampaign();
 
       const stored = localStorageMock.getItem(`campaign-${campaignId}`);
@@ -400,7 +415,9 @@ describe('useCampaignStore', () => {
 
     it('should increment date by 1 day', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
-      const originalDate = new Date(store.getState().getCampaign()!.currentDate);
+      const originalDate = new Date(
+        store.getState().getCampaign()!.currentDate,
+      );
 
       store.getState().advanceDay();
 
@@ -411,12 +428,12 @@ describe('useCampaignStore', () => {
 
     it('should handle month rollover', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
-      
+
       // Set date to end of month - need to advance from creation date
       // Create a campaign with a specific date by advancing to Jan 31
       const campaign = store.getState().getCampaign()!;
       const jan31 = new Date('2025-01-31T12:00:00Z');
-      
+
       // Directly update the campaign state
       store.setState({
         ...store.getState(),
@@ -432,11 +449,11 @@ describe('useCampaignStore', () => {
 
     it('should handle year rollover', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
-      
+
       // Set date to end of year
       const campaign = store.getState().getCampaign()!;
       const dec31 = new Date('2025-12-31T12:00:00Z');
-      
+
       // Directly update the campaign state
       store.setState({
         ...store.getState(),
@@ -452,8 +469,10 @@ describe('useCampaignStore', () => {
     });
 
     it('should auto-save after advancement', () => {
-      const campaignId = store.getState().createCampaign('Test Campaign', 'mercenary');
-      
+      const campaignId = store
+        .getState()
+        .createCampaign('Test Campaign', 'mercenary');
+
       // Clear storage to verify save happens
       localStorageMock.clear();
 
@@ -476,7 +495,9 @@ describe('useCampaignStore', () => {
 
     it('should advance multiple days correctly', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
-      const originalDate = new Date(store.getState().getCampaign()!.currentDate);
+      const originalDate = new Date(
+        store.getState().getCampaign()!.currentDate,
+      );
 
       // Advance 10 days
       for (let i = 0; i < 10; i++) {
@@ -502,7 +523,7 @@ describe('useCampaignStore', () => {
 
     it('should return campaign after creation', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
-      
+
       const campaign = store.getState().getCampaign();
       expect(campaign).not.toBeNull();
       expect(campaign?.name).toBe('Test Campaign');
@@ -516,7 +537,9 @@ describe('useCampaignStore', () => {
   describe('updateCampaign', () => {
     it('should do nothing if no campaign', () => {
       // Should not throw
-      expect(() => store.getState().updateCampaign({ name: 'New Name' })).not.toThrow();
+      expect(() =>
+        store.getState().updateCampaign({ name: 'New Name' }),
+      ).not.toThrow();
     });
 
     it('should update campaign name', () => {
@@ -530,19 +553,23 @@ describe('useCampaignStore', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
       store.getState().updateCampaign({ description: 'A test campaign' });
 
-      expect(store.getState().getCampaign()?.description).toBe('A test campaign');
+      expect(store.getState().getCampaign()?.description).toBe(
+        'A test campaign',
+      );
     });
 
     it('should update campaign options', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
-      
+
       const newOptions: ICampaignOptions = {
         ...store.getState().getCampaign()!.options,
         salaryMultiplier: 2.0,
       };
       store.getState().updateCampaign({ options: newOptions });
 
-      expect(store.getState().getCampaign()?.options.salaryMultiplier).toBe(2.0);
+      expect(store.getState().getCampaign()?.options.salaryMultiplier).toBe(
+        2.0,
+      );
     });
 
     it('should update updatedAt timestamp', async () => {
@@ -602,7 +629,9 @@ describe('useCampaignStore', () => {
       const person = createTestPerson({ name: 'New Pilot' });
       personnelStore?.getState().addPerson(person);
 
-      expect(personnelStore?.getState().getPerson(person.id)?.name).toBe('New Pilot');
+      expect(personnelStore?.getState().getPerson(person.id)?.name).toBe(
+        'New Pilot',
+      );
     });
 
     it('should allow adding forces via sub-store', () => {
@@ -612,7 +641,9 @@ describe('useCampaignStore', () => {
       const force = createTestForce({ name: 'Alpha Lance' });
       forcesStore?.getState().addForce(force);
 
-      expect(forcesStore?.getState().getForce(force.id)?.name).toBe('Alpha Lance');
+      expect(forcesStore?.getState().getForce(force.id)?.name).toBe(
+        'Alpha Lance',
+      );
     });
 
     it('should allow adding missions via sub-store', () => {
@@ -622,7 +653,9 @@ describe('useCampaignStore', () => {
       const mission = createTestMission({ name: 'Raid Mission' });
       missionsStore?.getState().addMission(mission);
 
-      expect(missionsStore?.getState().getMission(mission.id)?.name).toBe('Raid Mission');
+      expect(missionsStore?.getState().getMission(mission.id)?.name).toBe(
+        'Raid Mission',
+      );
     });
 
     it('should sync sub-store data on save', () => {
@@ -657,33 +690,43 @@ describe('useCampaignStore', () => {
 
   describe('Persistence', () => {
     it('should persist campaign to localStorage', () => {
-      const campaignId = store.getState().createCampaign('Test Campaign', 'mercenary');
+      const campaignId = store
+        .getState()
+        .createCampaign('Test Campaign', 'mercenary');
       store.getState().saveCampaign();
 
       const stored = localStorageMock.getItem(`campaign-${campaignId}`);
       expect(stored).toBeTruthy();
-      
+
       const parsed = JSON.parse(stored!) as { state: Record<string, unknown> };
       expect(parsed.state).toBeDefined();
     });
 
     it('should serialize dates correctly', () => {
-      const campaignId = store.getState().createCampaign('Test Campaign', 'mercenary');
+      const campaignId = store
+        .getState()
+        .createCampaign('Test Campaign', 'mercenary');
       store.getState().saveCampaign();
 
       const stored = localStorageMock.getItem(`campaign-${campaignId}`);
-      const parsed = JSON.parse(stored!) as { state: { currentDate: string; createdAt: string } };
+      const parsed = JSON.parse(stored!) as {
+        state: { currentDate: string; createdAt: string };
+      };
 
       expect(parsed.state.currentDate).toMatch(/^\d{4}-\d{2}-\d{2}T/);
       expect(parsed.state.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     });
 
     it('should serialize finances correctly', () => {
-      const campaignId = store.getState().createCampaign('Test Campaign', 'mercenary');
+      const campaignId = store
+        .getState()
+        .createCampaign('Test Campaign', 'mercenary');
       store.getState().saveCampaign();
 
       const stored = localStorageMock.getItem(`campaign-${campaignId}`);
-      const parsed = JSON.parse(stored!) as { state: { finances: { balance: number; transactions: unknown[] } } };
+      const parsed = JSON.parse(stored!) as {
+        state: { finances: { balance: number; transactions: unknown[] } };
+      };
 
       expect(parsed.state.finances).toBeDefined();
       expect(parsed.state.finances.balance).toBe(0);
@@ -691,7 +734,9 @@ describe('useCampaignStore', () => {
     });
 
     it('should deserialize dates correctly on load', () => {
-      const campaignId = store.getState().createCampaign('Test Campaign', 'mercenary');
+      const campaignId = store
+        .getState()
+        .createCampaign('Test Campaign', 'mercenary');
       store.getState().saveCampaign();
 
       const newStore = createCampaignStore();
@@ -709,7 +754,9 @@ describe('useCampaignStore', () => {
       personnelStore?.getState().addPerson(person);
 
       // Check personnel store has its own storage
-      const personnelStored = localStorageMock.getItem(`personnel-${store.getState().getCampaign()?.id}`);
+      const personnelStored = localStorageMock.getItem(
+        `personnel-${store.getState().getCampaign()?.id}`,
+      );
       expect(personnelStored).toBeTruthy();
     });
   });
@@ -727,7 +774,9 @@ describe('useCampaignStore', () => {
     });
 
     it('should handle special characters in campaign name', () => {
-      store.getState().createCampaign("Wolf's Dragoons - Alpha Company", 'mercenary');
+      store
+        .getState()
+        .createCampaign("Wolf's Dragoons - Alpha Company", 'mercenary');
 
       const campaign = store.getState().getCampaign();
       expect(campaign?.name).toBe("Wolf's Dragoons - Alpha Company");
@@ -735,7 +784,9 @@ describe('useCampaignStore', () => {
 
     it('should handle rapid day advancement', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
-      const originalDate = new Date(store.getState().getCampaign()!.currentDate);
+      const originalDate = new Date(
+        store.getState().getCampaign()!.currentDate,
+      );
 
       // Advance 100 days rapidly
       for (let i = 0; i < 100; i++) {
@@ -762,7 +813,7 @@ describe('useCampaignStore', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
 
       const personnelStore = store.getState().getPersonnelStore();
-      
+
       // Add 100 personnel
       for (let i = 0; i < 100; i++) {
         const person = createTestPerson({ name: `Person ${i}` });
@@ -783,7 +834,9 @@ describe('useCampaignStore', () => {
   describe('Integration', () => {
     it('should support full campaign lifecycle', () => {
       // Create campaign
-      const campaignId = store.getState().createCampaign("Wolf's Dragoons", 'mercenary');
+      const campaignId = store
+        .getState()
+        .createCampaign("Wolf's Dragoons", 'mercenary');
       expect(campaignId).toBeDefined();
 
       // Add personnel
@@ -818,8 +871,10 @@ describe('useCampaignStore', () => {
 
     it('should support save and reload cycle', () => {
       // Create and populate campaign
-      const campaignId = store.getState().createCampaign('Test Campaign', 'mercenary');
-      
+      const campaignId = store
+        .getState()
+        .createCampaign('Test Campaign', 'mercenary');
+
       const personnelStore = store.getState().getPersonnelStore();
       const pilot = createTestPerson({ name: 'Test Pilot' });
       personnelStore?.getState().addPerson(pilot);
@@ -832,7 +887,7 @@ describe('useCampaignStore', () => {
       const loaded = newStore.getState().loadCampaign(campaignId);
 
       expect(loaded).toBe(true);
-      
+
       const campaign = newStore.getState().getCampaign();
       expect(campaign?.name).toBe('Test Campaign');
     });

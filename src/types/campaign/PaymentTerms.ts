@@ -88,7 +88,7 @@ export type ContractOutcome = 'success' | 'partial' | 'failure';
  */
 export function calculateTotalPayout(
   terms: IPaymentTerms,
-  outcome: ContractOutcome
+  outcome: ContractOutcome,
 ): Money {
   let outcomePayment: Money;
 
@@ -123,7 +123,7 @@ export function calculateTotalPayout(
  */
 export function calculateSalvageShare(
   terms: IPaymentTerms,
-  totalSalvageValue: Money
+  totalSalvageValue: Money,
 ): Money {
   return totalSalvageValue.multiply(terms.salvagePercent / 100);
 }
@@ -255,7 +255,7 @@ export function createDefaultPaymentTerms(): IPaymentTerms {
  * });
  */
 export function createPaymentTerms(
-  params: Partial<IPaymentTerms> = {}
+  params: Partial<IPaymentTerms> = {},
 ): IPaymentTerms {
   const defaults = createDefaultPaymentTerms();
   return {

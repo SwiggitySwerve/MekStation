@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
+
+import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
 import { MechLocation } from '@/types/construction';
 import {
   LAMMode,
   LAM_CONFIGURATION,
   configurationRegistry,
 } from '@/types/construction/MechConfigurationSystem';
-import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+
 import { LocationArmorData } from '../ArmorDiagram';
+import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+import { GradientDefs } from '../shared/ArmorFills';
 import {
   REALISTIC_SILHOUETTE,
   FIGHTER_SILHOUETTE,
@@ -15,15 +19,13 @@ import {
   getLocationCenter,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
-import { GradientDefs } from '../shared/ArmorFills';
-import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+import { VariantLocation } from '../shared/VariantLocationRenderer';
 import {
   getVariantStyle,
   VariantLegend,
   VariantSVGDecorations,
   TargetingReticle,
 } from '../shared/VariantStyles';
-import { VariantLocation } from '../shared/VariantLocationRenderer';
 
 export interface LAMArmorDiagramProps {
   armorData: LocationArmorData[];
@@ -54,10 +56,10 @@ const FIGHTER_LOCATIONS: MechLocation[] = [
 ];
 
 function calculateFighterArmor(
-  mechArmorData: LocationArmorData[]
+  mechArmorData: LocationArmorData[],
 ): LocationArmorData[] {
   const armorMapping = configurationRegistry.getFighterArmorMapping(
-    LAM_CONFIGURATION.id
+    LAM_CONFIGURATION.id,
   );
 
   if (!armorMapping) {
@@ -109,7 +111,9 @@ export function LAMArmorDiagram({
   className = '',
   variant = 'clean-tech',
 }: LAMArmorDiagramProps): React.ReactElement {
-  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(null);
+  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
+    null,
+  );
   const [currentMode, setCurrentMode] = useState<LAMMode>(LAMMode.MECH);
   const style = getVariantStyle(variant);
 
@@ -120,18 +124,24 @@ export function LAMArmorDiagram({
     ? calculateFighterArmor(armorData)
     : armorData;
 
-  const getArmorData = (location: MechLocation): LocationArmorData | undefined => {
+  const getArmorData = (
+    location: MechLocation,
+  ): LocationArmorData | undefined => {
     return displayArmorData.find((d) => d.location === location);
   };
 
   const silhouette = isFighterMode ? FIGHTER_SILHOUETTE : REALISTIC_SILHOUETTE;
   const labels = isFighterMode ? FIGHTER_LOCATION_LABELS : LOCATION_LABELS;
 
-  const hoveredPos = hoveredLocation ? silhouette.locations[hoveredLocation] : null;
+  const hoveredPos = hoveredLocation
+    ? silhouette.locations[hoveredLocation]
+    : null;
 
   return (
-    <div className={`${style.containerBg} rounded-lg border ${style.containerBorder} p-4 ${className}`}>
-      <div className="flex items-center justify-between mb-4">
+    <div
+      className={`${style.containerBg} rounded-lg border ${style.containerBorder} p-4 ${className}`}
+    >
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className={style.headerTextClass} style={style.headerTextStyle}>
             LAM Armor Allocation
@@ -140,26 +150,28 @@ export function LAMArmorDiagram({
         </div>
       </div>
 
-      <div className="flex justify-center mb-4">
-        <div className="inline-flex rounded-lg bg-surface-subtle p-1">
-          {([LAMMode.MECH, LAMMode.AIRMECH, LAMMode.FIGHTER] as LAMMode[]).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setCurrentMode(mode)}
-              className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-                currentMode === mode
-                  ? 'bg-accent text-white'
-                  : 'text-text-theme-secondary hover:text-white'
-              }`}
-            >
-              {mode}
-            </button>
-          ))}
+      <div className="mb-4 flex justify-center">
+        <div className="bg-surface-subtle inline-flex rounded-lg p-1">
+          {([LAMMode.MECH, LAMMode.AIRMECH, LAMMode.FIGHTER] as LAMMode[]).map(
+            (mode) => (
+              <button
+                key={mode}
+                onClick={() => setCurrentMode(mode)}
+                className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+                  currentMode === mode
+                    ? 'bg-accent text-white'
+                    : 'text-text-theme-secondary hover:text-white'
+                }`}
+              >
+                {mode}
+              </button>
+            ),
+          )}
         </div>
       </div>
 
       {isFighterMode && (
-        <div className="text-center text-xs text-text-theme-secondary mb-3">
+        <div className="text-text-theme-secondary mb-3 text-center text-xs">
           Fighter mode armor is calculated from Mech mode allocation
         </div>
       )}
@@ -167,7 +179,7 @@ export function LAMArmorDiagram({
       <div className="relative">
         <svg
           viewBox={silhouette.viewBox}
-          className="w-full max-w-[300px] mx-auto"
+          className="mx-auto w-full max-w-[300px]"
           style={{ height: 'auto' }}
         >
           <GradientDefs />
@@ -215,9 +227,9 @@ export function LAMArmorDiagram({
 
       <VariantLegend variant={variant} unallocatedPoints={unallocatedPoints} />
 
-      <div className="mt-3 pt-3 border-t border-border-theme-subtle">
+      <div className="border-border-theme-subtle mt-3 border-t pt-3">
         {isFighterMode ? (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-text-theme-secondary">
+          <div className="text-text-theme-secondary grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
             <div>NOS = Nose</div>
             <div>FUS = Fuselage</div>
             <div>LW = Left Wing</div>
@@ -225,7 +237,7 @@ export function LAMArmorDiagram({
             <div>AFT = Aft</div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-text-theme-secondary">
+          <div className="text-text-theme-secondary grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
             <div>HD = Head</div>
             <div>CT = Center Torso</div>
             <div>LT/RT = Left/Right Torso</div>

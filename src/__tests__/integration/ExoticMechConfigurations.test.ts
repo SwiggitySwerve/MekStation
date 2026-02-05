@@ -10,7 +10,6 @@
  * @spec openspec/specs/mech-configuration-system/spec.md
  */
 
-import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import {
   MechConfiguration,
@@ -20,6 +19,8 @@ import {
   BIPED_LOCATIONS,
   getLocationsForConfig,
 } from '@/types/construction/MechConfigurationSystem';
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
+import { IValidationContext } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   getConfigurationValidationRules,
   QuadNoArmsRule,
@@ -28,13 +29,14 @@ import {
   TripodCenterLegRule,
   QuadVeeConversionEquipmentRule,
 } from '@/utils/validation/rules/ConfigurationValidationRules';
-import { IValidationContext } from '@/types/validation/rules/ValidationRuleInterfaces';
 
 // ============================================================================
 // Test Helpers
 // ============================================================================
 
-const createValidationContext = (unit: ISerializedUnit): IValidationContext => ({
+const createValidationContext = (
+  unit: ISerializedUnit,
+): IValidationContext => ({
   unit: unit as unknown,
   options: {},
   cache: new Map(),
@@ -45,7 +47,7 @@ const createValidationContext = (unit: ISerializedUnit): IValidationContext => (
  */
 function createMinimalUnit(
   configuration: string,
-  overrides?: Partial<ISerializedUnit>
+  overrides?: Partial<ISerializedUnit>,
 ): ISerializedUnit {
   const base: ISerializedUnit = {
     id: `test-${configuration.toLowerCase()}-1`,
@@ -94,14 +96,73 @@ function createQuadMech(overrides?: Partial<ISerializedUnit>): ISerializedUnit {
       },
     },
     criticalSlots: {
-      HEAD: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+      HEAD: [
+        'Life Support',
+        'Sensors',
+        'Cockpit',
+        null,
+        'Sensors',
+        'Life Support',
+      ],
       CENTER_TORSO: Array<string | null>(12).fill(null),
       LEFT_TORSO: Array<string | null>(12).fill(null),
       RIGHT_TORSO: Array<string | null>(12).fill(null),
-      FRONT_LEFT_LEG: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', null, null, null, null, null, null, null, null],
-      FRONT_RIGHT_LEG: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', null, null, null, null, null, null, null, null],
-      REAR_LEFT_LEG: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', null, null, null, null, null, null, null, null],
-      REAR_RIGHT_LEG: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', null, null, null, null, null, null, null, null],
+      FRONT_LEFT_LEG: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      FRONT_RIGHT_LEG: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      REAR_LEFT_LEG: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      REAR_RIGHT_LEG: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
     },
     ...overrides,
   });
@@ -127,14 +188,100 @@ function createLAMMech(overrides?: Partial<ISerializedUnit>): ISerializedUnit {
       },
     },
     criticalSlots: {
-      HEAD: ['Life Support', 'Sensors', 'Cockpit', 'Avionics', 'Sensors', 'Life Support'],
-      CENTER_TORSO: ['Fusion Engine', 'Fusion Engine', 'Fusion Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Fusion Engine', 'Fusion Engine', 'Fusion Engine', 'Landing Gear', null],
-      LEFT_TORSO: ['Landing Gear', 'Avionics', null, null, null, null, null, null, null, null, null, null],
-      RIGHT_TORSO: ['Landing Gear', 'Avionics', null, null, null, null, null, null, null, null, null, null],
-      LEFT_ARM: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', null, null, null, null, null, null, null, null],
-      RIGHT_ARM: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', null, null, null, null, null, null, null, null],
-      LEFT_LEG: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', null, null],
-      RIGHT_LEG: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', null, null],
+      HEAD: [
+        'Life Support',
+        'Sensors',
+        'Cockpit',
+        'Avionics',
+        'Sensors',
+        'Life Support',
+      ],
+      CENTER_TORSO: [
+        'Fusion Engine',
+        'Fusion Engine',
+        'Fusion Engine',
+        'Gyro',
+        'Gyro',
+        'Gyro',
+        'Gyro',
+        'Fusion Engine',
+        'Fusion Engine',
+        'Fusion Engine',
+        'Landing Gear',
+        null,
+      ],
+      LEFT_TORSO: [
+        'Landing Gear',
+        'Avionics',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      RIGHT_TORSO: [
+        'Landing Gear',
+        'Avionics',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      LEFT_ARM: [
+        'Shoulder',
+        'Upper Arm Actuator',
+        'Lower Arm Actuator',
+        'Hand Actuator',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      RIGHT_ARM: [
+        'Shoulder',
+        'Upper Arm Actuator',
+        'Lower Arm Actuator',
+        'Hand Actuator',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      LEFT_LEG: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        null,
+        null,
+      ],
+      RIGHT_LEG: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        null,
+        null,
+      ],
     },
     ...overrides,
   });
@@ -143,7 +290,9 @@ function createLAMMech(overrides?: Partial<ISerializedUnit>): ISerializedUnit {
 /**
  * Create a Tripod mech unit
  */
-function createTripodMech(overrides?: Partial<ISerializedUnit>): ISerializedUnit {
+function createTripodMech(
+  overrides?: Partial<ISerializedUnit>,
+): ISerializedUnit {
   return createMinimalUnit('TRIPOD', {
     tonnage: 100, // Tripods are typically superheavy
     armor: {
@@ -173,15 +322,69 @@ function createTripodMech(overrides?: Partial<ISerializedUnit>): ISerializedUnit
       [MechLocation.CENTER_LEG]: 24,
     },
     criticalSlots: {
-      [MechLocation.HEAD]: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+      [MechLocation.HEAD]: [
+        'Life Support',
+        'Sensors',
+        'Cockpit',
+        null,
+        'Sensors',
+        'Life Support',
+      ],
       [MechLocation.CENTER_TORSO]: Array(12).fill(null),
       [MechLocation.LEFT_TORSO]: Array(12).fill(null),
       [MechLocation.RIGHT_TORSO]: Array(12).fill(null),
-      [MechLocation.LEFT_ARM]: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', null, null, null, null, null, null, null, null],
-      [MechLocation.RIGHT_ARM]: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', null, null, null, null, null, null, null, null],
-      [MechLocation.LEFT_LEG]: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', null, null],
-      [MechLocation.RIGHT_LEG]: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', null, null],
-      [MechLocation.CENTER_LEG]: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', null, null],
+      [MechLocation.LEFT_ARM]: [
+        'Shoulder',
+        'Upper Arm Actuator',
+        'Lower Arm Actuator',
+        'Hand Actuator',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      [MechLocation.RIGHT_ARM]: [
+        'Shoulder',
+        'Upper Arm Actuator',
+        'Lower Arm Actuator',
+        'Hand Actuator',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      [MechLocation.LEFT_LEG]: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        null,
+        null,
+      ],
+      [MechLocation.RIGHT_LEG]: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        null,
+        null,
+      ],
+      [MechLocation.CENTER_LEG]: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        null,
+        null,
+      ],
     },
     ...overrides,
   } as Partial<ISerializedUnit>);
@@ -190,7 +393,9 @@ function createTripodMech(overrides?: Partial<ISerializedUnit>): ISerializedUnit
 /**
  * Create a QuadVee mech unit
  */
-function createQuadVeeMech(overrides?: Partial<ISerializedUnit>): ISerializedUnit {
+function createQuadVeeMech(
+  overrides?: Partial<ISerializedUnit>,
+): ISerializedUnit {
   return createMinimalUnit('QUADVEE', {
     armor: {
       type: 'STANDARD',
@@ -206,14 +411,73 @@ function createQuadVeeMech(overrides?: Partial<ISerializedUnit>): ISerializedUni
       },
     },
     criticalSlots: {
-      [MechLocation.HEAD]: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+      [MechLocation.HEAD]: [
+        'Life Support',
+        'Sensors',
+        'Cockpit',
+        null,
+        'Sensors',
+        'Life Support',
+      ],
       [MechLocation.CENTER_TORSO]: Array(12).fill(null),
       [MechLocation.LEFT_TORSO]: Array(12).fill(null),
       [MechLocation.RIGHT_TORSO]: Array(12).fill(null),
-      [MechLocation.FRONT_LEFT_LEG]: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', 'Conversion Equipment', 'Tracks', null, null, null, null, null, null],
-      [MechLocation.FRONT_RIGHT_LEG]: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', 'Conversion Equipment', 'Tracks', null, null, null, null, null, null],
-      [MechLocation.REAR_LEFT_LEG]: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', 'Conversion Equipment', 'Tracks', null, null, null, null, null, null],
-      [MechLocation.REAR_RIGHT_LEG]: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', 'Conversion Equipment', 'Tracks', null, null, null, null, null, null],
+      [MechLocation.FRONT_LEFT_LEG]: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        'Conversion Equipment',
+        'Tracks',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      [MechLocation.FRONT_RIGHT_LEG]: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        'Conversion Equipment',
+        'Tracks',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      [MechLocation.REAR_LEFT_LEG]: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        'Conversion Equipment',
+        'Tracks',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      [MechLocation.REAR_RIGHT_LEG]: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        'Conversion Equipment',
+        'Tracks',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
     },
     ...overrides,
   });
@@ -226,14 +490,18 @@ function createQuadVeeMech(overrides?: Partial<ISerializedUnit>): ISerializedUni
 describe('Configuration Registry Integration', () => {
   describe('getConfiguration', () => {
     it('should return valid definition for QUAD', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.QUAD);
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.QUAD,
+      );
       expect(config.id).toBe(MechConfiguration.QUAD);
       expect(config.displayName).toBe('Quad');
       expect(config.locations).toHaveLength(8);
     });
 
     it('should return valid definition for LAM', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.LAM);
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.LAM,
+      );
       expect(config.id).toBe(MechConfiguration.LAM);
       expect(config.displayName).toBe('Land-Air Mech');
       expect(config.locations).toHaveLength(8);
@@ -242,14 +510,18 @@ describe('Configuration Registry Integration', () => {
     });
 
     it('should return valid definition for TRIPOD', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.TRIPOD);
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.TRIPOD,
+      );
       expect(config.id).toBe(MechConfiguration.TRIPOD);
       expect(config.displayName).toBe('Tripod');
       expect(config.locations).toHaveLength(9); // 8 + center leg
     });
 
     it('should return valid definition for QUADVEE', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.QUADVEE);
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.QUADVEE,
+      );
       expect(config.id).toBe(MechConfiguration.QUADVEE);
       expect(config.displayName).toBe('QuadVee');
       expect(config.locations).toHaveLength(8);
@@ -259,37 +531,61 @@ describe('Configuration Registry Integration', () => {
 
   describe('isQuadConfiguration', () => {
     it('should return true for QUAD', () => {
-      expect(configurationRegistry.isQuadConfiguration(MechConfiguration.QUAD)).toBe(true);
+      expect(
+        configurationRegistry.isQuadConfiguration(MechConfiguration.QUAD),
+      ).toBe(true);
     });
 
     it('should return true for QUADVEE', () => {
-      expect(configurationRegistry.isQuadConfiguration(MechConfiguration.QUADVEE)).toBe(true);
+      expect(
+        configurationRegistry.isQuadConfiguration(MechConfiguration.QUADVEE),
+      ).toBe(true);
     });
 
     it('should return false for BIPED', () => {
-      expect(configurationRegistry.isQuadConfiguration(MechConfiguration.BIPED)).toBe(false);
+      expect(
+        configurationRegistry.isQuadConfiguration(MechConfiguration.BIPED),
+      ).toBe(false);
     });
 
     it('should return false for LAM', () => {
-      expect(configurationRegistry.isQuadConfiguration(MechConfiguration.LAM)).toBe(false);
+      expect(
+        configurationRegistry.isQuadConfiguration(MechConfiguration.LAM),
+      ).toBe(false);
     });
   });
 
   describe('isTransformingConfiguration', () => {
     it('should return true for LAM', () => {
-      expect(configurationRegistry.isTransformingConfiguration(MechConfiguration.LAM)).toBe(true);
+      expect(
+        configurationRegistry.isTransformingConfiguration(
+          MechConfiguration.LAM,
+        ),
+      ).toBe(true);
     });
 
     it('should return true for QUADVEE', () => {
-      expect(configurationRegistry.isTransformingConfiguration(MechConfiguration.QUADVEE)).toBe(true);
+      expect(
+        configurationRegistry.isTransformingConfiguration(
+          MechConfiguration.QUADVEE,
+        ),
+      ).toBe(true);
     });
 
     it('should return false for BIPED', () => {
-      expect(configurationRegistry.isTransformingConfiguration(MechConfiguration.BIPED)).toBe(false);
+      expect(
+        configurationRegistry.isTransformingConfiguration(
+          MechConfiguration.BIPED,
+        ),
+      ).toBe(false);
     });
 
     it('should return false for QUAD', () => {
-      expect(configurationRegistry.isTransformingConfiguration(MechConfiguration.QUAD)).toBe(false);
+      expect(
+        configurationRegistry.isTransformingConfiguration(
+          MechConfiguration.QUAD,
+        ),
+      ).toBe(false);
     });
   });
 });
@@ -350,7 +646,7 @@ describe('Configuration Validation Rules Integration', () => {
 
     it('should include rules for all exotic configurations', () => {
       const rules = getConfigurationValidationRules();
-      const ruleIds = rules.map(r => r.id);
+      const ruleIds = rules.map((r) => r.id);
 
       // Quad rules
       expect(ruleIds).toContain('configuration.quad.no_arms');
@@ -435,7 +731,7 @@ describe('Configuration Validation Rules Integration', () => {
           [MechLocation.RIGHT_LEG]: ['Hip', 'Upper Leg Actuator'],
           // Missing CENTER_LEG
         },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
       const context = createValidationContext(unit);
 
@@ -456,14 +752,73 @@ describe('Configuration Validation Rules Integration', () => {
     it('should fail when quadvee missing conversion equipment', () => {
       const unit = createQuadVeeMech({
         criticalSlots: {
-          [MechLocation.HEAD]: ['Life Support', 'Sensors', 'Cockpit', null, 'Sensors', 'Life Support'],
+          [MechLocation.HEAD]: [
+            'Life Support',
+            'Sensors',
+            'Cockpit',
+            null,
+            'Sensors',
+            'Life Support',
+          ],
           [MechLocation.CENTER_TORSO]: Array(12).fill(null),
           [MechLocation.LEFT_TORSO]: Array(12).fill(null),
           [MechLocation.RIGHT_TORSO]: Array(12).fill(null),
-          [MechLocation.FRONT_LEFT_LEG]: ['Hip', 'Upper Leg Actuator', null, null, null, null, null, null, null, null, null, null],
-          [MechLocation.FRONT_RIGHT_LEG]: ['Hip', 'Upper Leg Actuator', null, null, null, null, null, null, null, null, null, null],
-          [MechLocation.REAR_LEFT_LEG]: ['Hip', 'Upper Leg Actuator', null, null, null, null, null, null, null, null, null, null],
-          [MechLocation.REAR_RIGHT_LEG]: ['Hip', 'Upper Leg Actuator', null, null, null, null, null, null, null, null, null, null],
+          [MechLocation.FRONT_LEFT_LEG]: [
+            'Hip',
+            'Upper Leg Actuator',
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+          ],
+          [MechLocation.FRONT_RIGHT_LEG]: [
+            'Hip',
+            'Upper Leg Actuator',
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+          ],
+          [MechLocation.REAR_LEFT_LEG]: [
+            'Hip',
+            'Upper Leg Actuator',
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+          ],
+          [MechLocation.REAR_RIGHT_LEG]: [
+            'Hip',
+            'Upper Leg Actuator',
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+          ],
         },
       });
       const context = createValidationContext(unit);
@@ -488,7 +843,7 @@ describe('Transformable Configuration Modes', () => {
 
     it('should have Mech, AirMech, and Fighter modes', () => {
       const modes = configurationRegistry.getModes(MechConfiguration.LAM);
-      const modeValues = modes?.map(m => m.mode);
+      const modeValues = modes?.map((m) => m.mode);
 
       expect(modeValues).toContain(LAMMode.MECH);
       expect(modeValues).toContain(LAMMode.AIRMECH);
@@ -496,7 +851,9 @@ describe('Transformable Configuration Modes', () => {
     });
 
     it('should provide fighter armor location mapping', () => {
-      const mapping = configurationRegistry.getFighterArmorMapping(MechConfiguration.LAM);
+      const mapping = configurationRegistry.getFighterArmorMapping(
+        MechConfiguration.LAM,
+      );
       expect(mapping).toBeDefined();
       expect(mapping?.[MechLocation.HEAD]).toBe(MechLocation.NOSE);
       expect(mapping?.[MechLocation.CENTER_TORSO]).toBe(MechLocation.FUSELAGE);
@@ -511,15 +868,19 @@ describe('Transformable Configuration Modes', () => {
 
     it('should have Mech and Vehicle modes', () => {
       const modes = configurationRegistry.getQuadVeeModes();
-      const modeValues = modes.map(m => m.mode);
+      const modeValues = modes.map((m) => m.mode);
 
       expect(modeValues).toContain(QuadVeeMode.MECH);
       expect(modeValues).toContain(QuadVeeMode.VEHICLE);
     });
 
     it('should provide mode definitions with movement types', () => {
-      const mechMode = configurationRegistry.getQuadVeeModeDefinition(QuadVeeMode.MECH);
-      const vehicleMode = configurationRegistry.getQuadVeeModeDefinition(QuadVeeMode.VEHICLE);
+      const mechMode = configurationRegistry.getQuadVeeModeDefinition(
+        QuadVeeMode.MECH,
+      );
+      const vehicleMode = configurationRegistry.getQuadVeeModeDefinition(
+        QuadVeeMode.VEHICLE,
+      );
 
       expect(mechMode?.movementType).toBe('ground');
       expect(vehicleMode?.movementType).toBe('tracked');
@@ -534,17 +895,25 @@ describe('Transformable Configuration Modes', () => {
 describe('Required Equipment', () => {
   describe('LAM Required Equipment', () => {
     it('should require landing gear and avionics', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.LAM);
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.LAM,
+      );
       const required = config.requiredEquipment;
 
       expect(required).toBeDefined();
-      expect(required?.some(e => e.equipmentId === 'landing-gear')).toBe(true);
-      expect(required?.some(e => e.equipmentId === 'avionics')).toBe(true);
+      expect(required?.some((e) => e.equipmentId === 'landing-gear')).toBe(
+        true,
+      );
+      expect(required?.some((e) => e.equipmentId === 'avionics')).toBe(true);
     });
 
     it('should specify correct locations for landing gear', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.LAM);
-      const landingGear = config.requiredEquipment?.find(e => e.equipmentId === 'landing-gear');
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.LAM,
+      );
+      const landingGear = config.requiredEquipment?.find(
+        (e) => e.equipmentId === 'landing-gear',
+      );
 
       expect(landingGear?.locations).toContain(MechLocation.CENTER_TORSO);
       expect(landingGear?.locations).toContain(MechLocation.LEFT_TORSO);
@@ -554,16 +923,24 @@ describe('Required Equipment', () => {
 
   describe('QuadVee Required Equipment', () => {
     it('should require conversion equipment', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.QUADVEE);
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.QUADVEE,
+      );
       const required = config.requiredEquipment;
 
       expect(required).toBeDefined();
-      expect(required?.some(e => e.equipmentId === 'conversion-equipment')).toBe(true);
+      expect(
+        required?.some((e) => e.equipmentId === 'conversion-equipment'),
+      ).toBe(true);
     });
 
     it('should specify conversion equipment in all legs', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.QUADVEE);
-      const conversion = config.requiredEquipment?.find(e => e.equipmentId === 'conversion-equipment');
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.QUADVEE,
+      );
+      const conversion = config.requiredEquipment?.find(
+        (e) => e.equipmentId === 'conversion-equipment',
+      );
 
       expect(conversion?.locations).toContain(MechLocation.FRONT_LEFT_LEG);
       expect(conversion?.locations).toContain(MechLocation.FRONT_RIGHT_LEG);
@@ -579,27 +956,37 @@ describe('Required Equipment', () => {
 
 describe('Diagram Component Names', () => {
   it('should return QuadArmorDiagram for QUAD', () => {
-    const name = configurationRegistry.getDiagramComponentName(MechConfiguration.QUAD);
+    const name = configurationRegistry.getDiagramComponentName(
+      MechConfiguration.QUAD,
+    );
     expect(name).toBe('QuadArmorDiagram');
   });
 
   it('should return LAMArmorDiagram for LAM', () => {
-    const name = configurationRegistry.getDiagramComponentName(MechConfiguration.LAM);
+    const name = configurationRegistry.getDiagramComponentName(
+      MechConfiguration.LAM,
+    );
     expect(name).toBe('LAMArmorDiagram');
   });
 
   it('should return TripodArmorDiagram for TRIPOD', () => {
-    const name = configurationRegistry.getDiagramComponentName(MechConfiguration.TRIPOD);
+    const name = configurationRegistry.getDiagramComponentName(
+      MechConfiguration.TRIPOD,
+    );
     expect(name).toBe('TripodArmorDiagram');
   });
 
   it('should return QuadVeeArmorDiagram for QUADVEE', () => {
-    const name = configurationRegistry.getDiagramComponentName(MechConfiguration.QUADVEE);
+    const name = configurationRegistry.getDiagramComponentName(
+      MechConfiguration.QUADVEE,
+    );
     expect(name).toBe('QuadVeeArmorDiagram');
   });
 
   it('should return BipedArmorDiagram for BIPED', () => {
-    const name = configurationRegistry.getDiagramComponentName(MechConfiguration.BIPED);
+    const name = configurationRegistry.getDiagramComponentName(
+      MechConfiguration.BIPED,
+    );
     expect(name).toBe('BipedArmorDiagram');
   });
 });
@@ -611,7 +998,9 @@ describe('Diagram Component Names', () => {
 describe('Prohibited Equipment', () => {
   describe('LAM Prohibited Equipment', () => {
     it('should prohibit advanced armor and structure types', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.LAM);
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.LAM,
+      );
       const prohibited = config.prohibitedEquipment;
 
       expect(prohibited).toContain('endo-steel');
@@ -622,17 +1011,23 @@ describe('Prohibited Equipment', () => {
 
   describe('Other Configurations', () => {
     it('should not prohibit equipment for QUAD', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.QUAD);
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.QUAD,
+      );
       expect(config.prohibitedEquipment).toHaveLength(0);
     });
 
     it('should not prohibit equipment for TRIPOD', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.TRIPOD);
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.TRIPOD,
+      );
       expect(config.prohibitedEquipment).toHaveLength(0);
     });
 
     it('should not prohibit equipment for QUADVEE', () => {
-      const config = configurationRegistry.getConfiguration(MechConfiguration.QUADVEE);
+      const config = configurationRegistry.getConfiguration(
+        MechConfiguration.QUADVEE,
+      );
       expect(config.prohibitedEquipment).toHaveLength(0);
     });
   });
@@ -644,22 +1039,30 @@ describe('Prohibited Equipment', () => {
 
 describe('Configuration Max Tonnage', () => {
   it('should return 55 for LAM', () => {
-    const maxTonnage = configurationRegistry.getMaxTonnage(MechConfiguration.LAM);
+    const maxTonnage = configurationRegistry.getMaxTonnage(
+      MechConfiguration.LAM,
+    );
     expect(maxTonnage).toBe(55);
   });
 
   it('should return undefined for QUAD (no limit)', () => {
-    const maxTonnage = configurationRegistry.getMaxTonnage(MechConfiguration.QUAD);
+    const maxTonnage = configurationRegistry.getMaxTonnage(
+      MechConfiguration.QUAD,
+    );
     expect(maxTonnage).toBeUndefined();
   });
 
   it('should return undefined for TRIPOD (no limit)', () => {
-    const maxTonnage = configurationRegistry.getMaxTonnage(MechConfiguration.TRIPOD);
+    const maxTonnage = configurationRegistry.getMaxTonnage(
+      MechConfiguration.TRIPOD,
+    );
     expect(maxTonnage).toBeUndefined();
   });
 
   it('should return undefined for QUADVEE (no limit)', () => {
-    const maxTonnage = configurationRegistry.getMaxTonnage(MechConfiguration.QUADVEE);
+    const maxTonnage = configurationRegistry.getMaxTonnage(
+      MechConfiguration.QUADVEE,
+    );
     expect(maxTonnage).toBeUndefined();
   });
 });
@@ -681,7 +1084,9 @@ describe('Biped Configuration Regression', () => {
   });
 
   it('should return valid biped configuration', () => {
-    const config = configurationRegistry.getConfiguration(MechConfiguration.BIPED);
+    const config = configurationRegistry.getConfiguration(
+      MechConfiguration.BIPED,
+    );
     expect(config.id).toBe(MechConfiguration.BIPED);
     expect(config.displayName).toBe('Biped');
     expect(config.locations).toHaveLength(8);
@@ -735,10 +1140,18 @@ describe('Phase 5: End-to-End Integration Tests', () => {
         const deserializedArmor = deserialized.armor.allocation;
 
         expect(deserializedArmor.HEAD).toBe(originalArmor.HEAD);
-        expect(deserializedArmor.FRONT_LEFT_LEG).toBe(originalArmor.FRONT_LEFT_LEG);
-        expect(deserializedArmor.FRONT_RIGHT_LEG).toBe(originalArmor.FRONT_RIGHT_LEG);
-        expect(deserializedArmor.REAR_LEFT_LEG).toBe(originalArmor.REAR_LEFT_LEG);
-        expect(deserializedArmor.REAR_RIGHT_LEG).toBe(originalArmor.REAR_RIGHT_LEG);
+        expect(deserializedArmor.FRONT_LEFT_LEG).toBe(
+          originalArmor.FRONT_LEFT_LEG,
+        );
+        expect(deserializedArmor.FRONT_RIGHT_LEG).toBe(
+          originalArmor.FRONT_RIGHT_LEG,
+        );
+        expect(deserializedArmor.REAR_LEFT_LEG).toBe(
+          originalArmor.REAR_LEFT_LEG,
+        );
+        expect(deserializedArmor.REAR_RIGHT_LEG).toBe(
+          originalArmor.REAR_RIGHT_LEG,
+        );
       });
     });
 
@@ -751,7 +1164,9 @@ describe('Phase 5: End-to-End Integration Tests', () => {
         expect(deserialized.configuration).toBe('LAM');
         expect(deserialized.tonnage).toBe(55);
         expect(deserialized.criticalSlots.HEAD).toContain('Avionics');
-        expect(deserialized.criticalSlots.CENTER_TORSO).toContain('Landing Gear');
+        expect(deserialized.criticalSlots.CENTER_TORSO).toContain(
+          'Landing Gear',
+        );
       });
 
       it('should preserve LAM required equipment locations', () => {
@@ -760,7 +1175,9 @@ describe('Phase 5: End-to-End Integration Tests', () => {
         const deserialized = JSON.parse(serialized) as ISerializedUnit;
 
         expect(deserialized.criticalSlots.LEFT_TORSO).toContain('Landing Gear');
-        expect(deserialized.criticalSlots.RIGHT_TORSO).toContain('Landing Gear');
+        expect(deserialized.criticalSlots.RIGHT_TORSO).toContain(
+          'Landing Gear',
+        );
         expect(deserialized.criticalSlots.LEFT_TORSO).toContain('Avionics');
         expect(deserialized.criticalSlots.RIGHT_TORSO).toContain('Avionics');
       });
@@ -778,13 +1195,19 @@ describe('Phase 5: End-to-End Integration Tests', () => {
       });
 
       it('should have fighter armor mapping available', () => {
-        const mapping = configurationRegistry.getFighterArmorMapping(MechConfiguration.LAM);
+        const mapping = configurationRegistry.getFighterArmorMapping(
+          MechConfiguration.LAM,
+        );
 
         expect(mapping).toBeDefined();
         expect(mapping?.[MechLocation.HEAD]).toBe(MechLocation.NOSE);
-        expect(mapping?.[MechLocation.CENTER_TORSO]).toBe(MechLocation.FUSELAGE);
+        expect(mapping?.[MechLocation.CENTER_TORSO]).toBe(
+          MechLocation.FUSELAGE,
+        );
         expect(mapping?.[MechLocation.LEFT_TORSO]).toBe(MechLocation.LEFT_WING);
-        expect(mapping?.[MechLocation.RIGHT_TORSO]).toBe(MechLocation.RIGHT_WING);
+        expect(mapping?.[MechLocation.RIGHT_TORSO]).toBe(
+          MechLocation.RIGHT_WING,
+        );
       });
     });
 
@@ -795,7 +1218,9 @@ describe('Phase 5: End-to-End Integration Tests', () => {
         const deserialized = JSON.parse(serialized) as ISerializedUnit;
 
         expect(deserialized.configuration).toBe('TRIPOD');
-        expect(deserialized.criticalSlots[MechLocation.CENTER_LEG]).toBeDefined();
+        expect(
+          deserialized.criticalSlots[MechLocation.CENTER_LEG],
+        ).toBeDefined();
       });
 
       it('should preserve center leg armor allocation', () => {
@@ -808,7 +1233,8 @@ describe('Phase 5: End-to-End Integration Tests', () => {
 
       it('should maintain tripod critical slot integrity', () => {
         const tripodUnit = createTripodMech();
-        const centerLegSlots = tripodUnit.criticalSlots[MechLocation.CENTER_LEG];
+        const centerLegSlots =
+          tripodUnit.criticalSlots[MechLocation.CENTER_LEG];
 
         expect(centerLegSlots).toBeDefined();
         expect(centerLegSlots?.[0]).toBe('Hip');
@@ -823,8 +1249,12 @@ describe('Phase 5: End-to-End Integration Tests', () => {
         const deserialized = JSON.parse(serialized) as ISerializedUnit;
 
         expect(deserialized.configuration).toBe('QUADVEE');
-        expect(deserialized.criticalSlots[MechLocation.FRONT_LEFT_LEG]).toContain('Conversion Equipment');
-        expect(deserialized.criticalSlots[MechLocation.FRONT_LEFT_LEG]).toContain('Tracks');
+        expect(
+          deserialized.criticalSlots[MechLocation.FRONT_LEFT_LEG],
+        ).toContain('Conversion Equipment');
+        expect(
+          deserialized.criticalSlots[MechLocation.FRONT_LEFT_LEG],
+        ).toContain('Tracks');
       });
 
       it('should preserve QuadVee conversion equipment in all legs', () => {
@@ -837,7 +1267,9 @@ describe('Phase 5: End-to-End Integration Tests', () => {
         ];
 
         for (const leg of legs) {
-          expect(quadVeeUnit.criticalSlots[leg]).toContain('Conversion Equipment');
+          expect(quadVeeUnit.criticalSlots[leg]).toContain(
+            'Conversion Equipment',
+          );
           expect(quadVeeUnit.criticalSlots[leg]).toContain('Tracks');
         }
       });
@@ -881,7 +1313,9 @@ describe('Phase 5: End-to-End Integration Tests', () => {
         expect(QuadNoArmsRule.canValidate?.(context)).toBe(false);
         expect(LAMMaxTonnageRule.canValidate?.(context)).toBe(false);
         expect(TripodCenterLegRule.canValidate?.(context)).toBe(false);
-        expect(QuadVeeConversionEquipmentRule.canValidate?.(context)).toBe(false);
+        expect(QuadVeeConversionEquipmentRule.canValidate?.(context)).toBe(
+          false,
+        );
       });
 
       it('should allow arm equipment on biped', () => {
@@ -907,7 +1341,7 @@ describe('Phase 5: End-to-End Integration Tests', () => {
 
       it('should have rules for all exotic configurations', () => {
         const rules = getConfigurationValidationRules();
-        const ruleIds = rules.map(r => r.id);
+        const ruleIds = rules.map((r) => r.id);
 
         expect(ruleIds).toContain('configuration.quad.no_arms');
         expect(ruleIds).toContain('configuration.quad.leg_count');
@@ -949,7 +1383,8 @@ describe('Phase 5: End-to-End Integration Tests', () => {
         const quadVeeUnit = createQuadVeeMech();
         const context = createValidationContext(quadVeeUnit);
 
-        const conversionResult = QuadVeeConversionEquipmentRule.validate(context);
+        const conversionResult =
+          QuadVeeConversionEquipmentRule.validate(context);
 
         expect(conversionResult.passed).toBe(true);
       });

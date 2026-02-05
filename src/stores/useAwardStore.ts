@@ -7,9 +7,10 @@
  * @spec openspec/changes/add-awards-system/specs/awards/spec.md
  */
 
+import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { v4 as uuidv4 } from 'uuid';
+
 import {
   IAward,
   IPilotAward,
@@ -50,12 +51,12 @@ interface AwardStoreActions {
   /** Update combat stats */
   updateCombatStats: (
     pilotId: string,
-    updates: Partial<IPilotStats['combat']>
+    updates: Partial<IPilotStats['combat']>,
   ) => void;
   /** Update career stats */
   updateCareerStats: (
     pilotId: string,
-    updates: Partial<IPilotStats['career']>
+    updates: Partial<IPilotStats['career']>,
   ) => void;
 
   /** Get awards for a pilot */
@@ -68,16 +69,15 @@ interface AwardStoreActions {
   removeAward: (pilotId: string, awardId: string) => boolean;
 
   /** Check all awards for a pilot and grant any earned */
-  evaluateAwards: (pilotId: string, context: IAwardContext) => IAwardCheckResult[];
+  evaluateAwards: (
+    pilotId: string,
+    context: IAwardContext,
+  ) => IAwardCheckResult[];
   /** Check a specific award criteria */
   checkAwardCriteria: (pilotId: string, award: IAward) => IAwardCheckResult;
 
   /** Add a notification */
-  addNotification: (
-    award: IAward,
-    pilotId: string,
-    pilotName: string
-  ) => void;
+  addNotification: (award: IAward, pilotId: string, pilotName: string) => void;
   /** Dismiss a notification */
   dismissNotification: (notificationId: string) => void;
   /** Clear all notifications */
@@ -88,18 +88,22 @@ interface AwardStoreActions {
   /** Record a kill for a pilot */
   recordKill: (pilotId: string, context: IAwardContext) => void;
   /** Record damage dealt */
-  recordDamage: (pilotId: string, damage: number, context: IAwardContext) => void;
+  recordDamage: (
+    pilotId: string,
+    damage: number,
+    context: IAwardContext,
+  ) => void;
   /** Record mission completion */
   recordMissionComplete: (
     pilotId: string,
     survived: boolean,
-    context: IAwardContext
+    context: IAwardContext,
   ) => void;
   /** Record campaign completion */
   recordCampaignComplete: (
     pilotId: string,
     won: boolean,
-    context: IAwardContext
+    context: IAwardContext,
   ) => void;
   /** Record game completion */
   recordGameComplete: (pilotId: string, context: IAwardContext) => void;
@@ -108,7 +112,7 @@ interface AwardStoreActions {
     pilotId: string,
     eventType: string,
     data: Record<string, unknown>,
-    context: IAwardContext
+    context: IAwardContext,
   ) => void;
 
   /** Reset survival streak (on ejection/death) */
@@ -126,7 +130,10 @@ type AwardStore = AwardStoreState & AwardStoreActions;
 // Helper Functions
 // =============================================================================
 
-function getCriteriaValue(stats: IPilotStats, criteriaType: CriteriaType): number {
+function getCriteriaValue(
+  stats: IPilotStats,
+  criteriaType: CriteriaType,
+): number {
   switch (criteriaType) {
     case CriteriaType.TotalKills:
       return stats.combat.totalKills;
@@ -193,7 +200,7 @@ export const useAwardStore = create<AwardStore>()(
       // Update combat stats
       updateCombatStats: (
         pilotId: string,
-        updates: Partial<IPilotStats['combat']>
+        updates: Partial<IPilotStats['combat']>,
       ) => {
         const current = get().getPilotStats(pilotId);
         set((state) => ({
@@ -211,7 +218,7 @@ export const useAwardStore = create<AwardStore>()(
       // Update career stats
       updateCareerStats: (
         pilotId: string,
-        updates: Partial<IPilotStats['career']>
+        updates: Partial<IPilotStats['career']>,
       ) => {
         const current = get().getPilotStats(pilotId);
         set((state) => ({
@@ -262,7 +269,7 @@ export const useAwardStore = create<AwardStore>()(
           const updatedAwards = existingAwards.map((a) =>
             a.awardId === awardId
               ? { ...a, timesEarned: a.timesEarned + 1, earnedAt: now }
-              : a
+              : a,
           );
           set((state) => ({
             pilotAwards: { ...state.pilotAwards, [pilotId]: updatedAwards },
@@ -289,7 +296,9 @@ export const useAwardStore = create<AwardStore>()(
       // Remove an award from a pilot
       removeAward: (pilotId: string, awardId: string) => {
         const existingAwards = get().getPilotAwards(pilotId);
-        const updatedAwards = existingAwards.filter((a) => a.awardId !== awardId);
+        const updatedAwards = existingAwards.filter(
+          (a) => a.awardId !== awardId,
+        );
 
         if (updatedAwards.length === existingAwards.length) {
           return false; // Award not found
@@ -332,11 +341,7 @@ export const useAwardStore = create<AwardStore>()(
       },
 
       // Add a notification
-      addNotification: (
-        award: IAward,
-        pilotId: string,
-        pilotName: string
-      ) => {
+      addNotification: (award: IAward, pilotId: string, pilotName: string) => {
         const notification: IAwardNotification = {
           id: uuidv4(),
           award,
@@ -355,7 +360,7 @@ export const useAwardStore = create<AwardStore>()(
       dismissNotification: (notificationId: string) => {
         set((state) => ({
           notifications: state.notifications.map((n) =>
-            n.id === notificationId ? { ...n, dismissed: true } : n
+            n.id === notificationId ? { ...n, dismissed: true } : n,
           ),
         }));
       },
@@ -384,7 +389,11 @@ export const useAwardStore = create<AwardStore>()(
       },
 
       // Record damage dealt
-      recordDamage: (pilotId: string, damage: number, context: IAwardContext) => {
+      recordDamage: (
+        pilotId: string,
+        damage: number,
+        context: IAwardContext,
+      ) => {
         const stats = get().getPilotStats(pilotId);
 
         get().updateCombatStats(pilotId, {
@@ -398,7 +407,7 @@ export const useAwardStore = create<AwardStore>()(
       recordMissionComplete: (
         pilotId: string,
         survived: boolean,
-        context: IAwardContext
+        context: IAwardContext,
       ) => {
         const stats = get().getPilotStats(pilotId);
         const newMissionsCompleted = stats.career.missionsCompleted + 1;
@@ -409,7 +418,10 @@ export const useAwardStore = create<AwardStore>()(
             missionsCompleted: newMissionsCompleted,
             missionsSurvived: stats.career.missionsSurvived + 1,
             consecutiveSurvival: newStreak,
-            bestSurvivalStreak: Math.max(newStreak, stats.career.bestSurvivalStreak),
+            bestSurvivalStreak: Math.max(
+              newStreak,
+              stats.career.bestSurvivalStreak,
+            ),
           });
         } else {
           get().updateCareerStats(pilotId, {
@@ -425,13 +437,15 @@ export const useAwardStore = create<AwardStore>()(
       recordCampaignComplete: (
         pilotId: string,
         won: boolean,
-        context: IAwardContext
+        context: IAwardContext,
       ) => {
         const stats = get().getPilotStats(pilotId);
 
         get().updateCareerStats(pilotId, {
           campaignsCompleted: stats.career.campaignsCompleted + 1,
-          campaignsWon: won ? stats.career.campaignsWon + 1 : stats.career.campaignsWon,
+          campaignsWon: won
+            ? stats.career.campaignsWon + 1
+            : stats.career.campaignsWon,
         });
 
         get().evaluateAwards(pilotId, context);
@@ -453,13 +467,13 @@ export const useAwardStore = create<AwardStore>()(
         pilotId: string,
         eventType: string,
         data: Record<string, unknown>,
-        context: IAwardContext
+        context: IAwardContext,
       ) => {
         // For specific events, we need to check awards that match this event type
         const matchingAwards = AWARD_CATALOG.filter(
           (award) =>
             award.criteria.type === CriteriaType.SpecificEvent &&
-            award.criteria.conditions?.eventType === eventType
+            award.criteria.conditions?.eventType === eventType,
         );
 
         for (const award of matchingAwards) {
@@ -472,7 +486,10 @@ export const useAwardStore = create<AwardStore>()(
               for (const [key, value] of Object.entries(conditions)) {
                 if (key !== 'eventType' && data[key] !== value) {
                   // For numeric comparisons
-                  if (typeof value === 'number' && typeof data[key] === 'number') {
+                  if (
+                    typeof value === 'number' &&
+                    typeof data[key] === 'number'
+                  ) {
                     if (data[key] < value) {
                       conditionsMet = false;
                       break;
@@ -507,8 +524,10 @@ export const useAwardStore = create<AwardStore>()(
       // Reset all data for a pilot
       resetPilotData: (pilotId: string) => {
         set((state) => {
-          const { [pilotId]: _removedStats, ...remainingStats } = state.pilotStats;
-          const { [pilotId]: _removedAwards, ...remainingAwards } = state.pilotAwards;
+          const { [pilotId]: _removedStats, ...remainingStats } =
+            state.pilotStats;
+          const { [pilotId]: _removedAwards, ...remainingAwards } =
+            state.pilotAwards;
           return {
             pilotStats: remainingStats,
             pilotAwards: remainingAwards,
@@ -523,6 +542,6 @@ export const useAwardStore = create<AwardStore>()(
         pilotStats: state.pilotStats,
         pilotAwards: state.pilotAwards,
       }),
-    }
-  )
+    },
+  ),
 );

@@ -73,18 +73,24 @@ jest.mock('../ForceRepository', () => ({
     }),
     getForceById: (id: string) => mockForces.get(id) ?? null,
     getAllForces: () => Array.from(mockForces.values()),
-    getRootForces: () => Array.from(mockForces.values()).filter((f) => !f.parentId),
+    getRootForces: () =>
+      Array.from(mockForces.values()).filter((f) => !f.parentId),
     getChildForces: (parentId: string) =>
       Array.from(mockForces.values()).filter((f) => f.parentId === parentId),
     updateForce: jest.fn((id: string, request: Partial<IForce>) => {
       const force = mockForces.get(id);
       if (!force) return { success: false, error: 'Force not found' };
-      const updated = { ...force, ...request, updatedAt: new Date().toISOString() };
+      const updated = {
+        ...force,
+        ...request,
+        updatedAt: new Date().toISOString(),
+      };
       mockForces.set(id, updated);
       return { success: true, id };
     }),
     deleteForce: jest.fn((id: string) => {
-      if (!mockForces.has(id)) return { success: false, error: 'Force not found' };
+      if (!mockForces.has(id))
+        return { success: false, error: 'Force not found' };
       mockForces.delete(id);
       return { success: true };
     }),
@@ -93,7 +99,7 @@ jest.mock('../ForceRepository', () => ({
         const forces = Array.from(mockForces.values());
         for (const force of forces) {
           const assignmentIndex = force.assignments.findIndex(
-            (a: IAssignment) => a.id === assignmentId
+            (a: IAssignment) => a.id === assignmentId,
           );
           if (assignmentIndex !== -1) {
             const assignments = [...force.assignments];
@@ -110,13 +116,13 @@ jest.mock('../ForceRepository', () => ({
           }
         }
         return { success: false, error: 'Assignment not found' };
-      }
+      },
     ),
     clearAssignment: jest.fn((assignmentId: string) => {
       const forces = Array.from(mockForces.values());
       for (const force of forces) {
         const assignmentIndex = force.assignments.findIndex(
-          (a: IAssignment) => a.id === assignmentId
+          (a: IAssignment) => a.id === assignmentId,
         );
         if (assignmentIndex !== -1) {
           const assignments = [...force.assignments];
@@ -143,8 +149,12 @@ jest.mock('../ForceRepository', () => ({
 
       const forces = Array.from(mockForces.values());
       for (const force of forces) {
-        const found1 = force.assignments.find((a: IAssignment) => a.id === assignmentId1);
-        const found2 = force.assignments.find((a: IAssignment) => a.id === assignmentId2);
+        const found1 = force.assignments.find(
+          (a: IAssignment) => a.id === assignmentId1,
+        );
+        const found2 = force.assignments.find(
+          (a: IAssignment) => a.id === assignmentId2,
+        );
         if (found1) {
           a1 = found1;
           force1 = force;
@@ -168,21 +178,45 @@ jest.mock('../ForceRepository', () => ({
       // If same force, update both at once
       if (force1.id === force2.id) {
         const assignments = [...force1.assignments];
-        const idx1 = assignments.findIndex((a: IAssignment) => a.id === assignmentId1);
-        const idx2 = assignments.findIndex((a: IAssignment) => a.id === assignmentId2);
-        assignments[idx1] = { ...assignments[idx1], pilotId: a2PilotId, unitId: a2UnitId };
-        assignments[idx2] = { ...assignments[idx2], pilotId: a1PilotId, unitId: a1UnitId };
+        const idx1 = assignments.findIndex(
+          (a: IAssignment) => a.id === assignmentId1,
+        );
+        const idx2 = assignments.findIndex(
+          (a: IAssignment) => a.id === assignmentId2,
+        );
+        assignments[idx1] = {
+          ...assignments[idx1],
+          pilotId: a2PilotId,
+          unitId: a2UnitId,
+        };
+        assignments[idx2] = {
+          ...assignments[idx2],
+          pilotId: a1PilotId,
+          unitId: a1UnitId,
+        };
         mockForces.set(force1.id, { ...force1, assignments });
       } else {
         // Different forces
         const assignments1 = [...force1.assignments];
-        const idx1 = assignments1.findIndex((a: IAssignment) => a.id === assignmentId1);
-        assignments1[idx1] = { ...assignments1[idx1], pilotId: a2PilotId, unitId: a2UnitId };
+        const idx1 = assignments1.findIndex(
+          (a: IAssignment) => a.id === assignmentId1,
+        );
+        assignments1[idx1] = {
+          ...assignments1[idx1],
+          pilotId: a2PilotId,
+          unitId: a2UnitId,
+        };
         mockForces.set(force1.id, { ...force1, assignments: assignments1 });
 
         const assignments2 = [...force2.assignments];
-        const idx2 = assignments2.findIndex((a: IAssignment) => a.id === assignmentId2);
-        assignments2[idx2] = { ...assignments2[idx2], pilotId: a1PilotId, unitId: a1UnitId };
+        const idx2 = assignments2.findIndex(
+          (a: IAssignment) => a.id === assignmentId2,
+        );
+        assignments2[idx2] = {
+          ...assignments2[idx2],
+          pilotId: a1PilotId,
+          unitId: a1UnitId,
+        };
         mockForces.set(force2.id, { ...force2, assignments: assignments2 });
       }
 
@@ -201,7 +235,7 @@ import { ForceService } from '../ForceService';
 function createMockPilot(
   id: string,
   name: string,
-  status: PilotStatus = PilotStatus.Active
+  status: PilotStatus = PilotStatus.Active,
 ): IPilot {
   const pilot: IPilot = {
     id,
@@ -349,7 +383,11 @@ describe('ForceService', () => {
     });
 
     it('should reject assigning MIA pilot', () => {
-      const pilot = createMockPilot('pilot-mia', 'Missing Pilot', PilotStatus.MIA);
+      const pilot = createMockPilot(
+        'pilot-mia',
+        'Missing Pilot',
+        PilotStatus.MIA,
+      );
       const forceResult = service.createForce({
         name: 'Alpha',
         forceType: ForceType.Lance,
@@ -367,7 +405,7 @@ describe('ForceService', () => {
       const pilot = createMockPilot(
         'pilot-retired',
         'Retired Pilot',
-        PilotStatus.Retired
+        PilotStatus.Retired,
       );
       const forceResult = service.createForce({
         name: 'Alpha',
@@ -386,7 +424,7 @@ describe('ForceService', () => {
       const pilot = createMockPilot(
         'pilot-injured',
         'Injured Pilot',
-        PilotStatus.Injured
+        PilotStatus.Injured,
       );
       const forceResult = service.createForce({
         name: 'Alpha',
@@ -453,7 +491,7 @@ describe('ForceService', () => {
       const result = service.assignPilotAndUnit(
         assignmentId,
         pilot.id,
-        'unit-atlas'
+        'unit-atlas',
       );
 
       expect(result.success).toBe(true);
@@ -526,7 +564,7 @@ describe('ForceService', () => {
 
       const result = service.setAssignmentPosition(
         assignmentId,
-        ForcePosition.Scout
+        ForcePosition.Scout,
       );
 
       expect(result.success).toBe(true);
@@ -568,7 +606,9 @@ describe('ForceService', () => {
       const validation = service.validateForce(forceResult.id!);
 
       expect(validation.isValid).toBe(true); // Empty slots are warnings, not errors
-      expect(validation.warnings.some((w) => w.code === 'EMPTY_SLOTS')).toBe(true);
+      expect(validation.warnings.some((w) => w.code === 'EMPTY_SLOTS')).toBe(
+        true,
+      );
     });
 
     it('should warn about pilot without mech', () => {
@@ -583,7 +623,7 @@ describe('ForceService', () => {
       const validation = service.validateForce(forceResult.id!);
 
       expect(validation.warnings.some((w) => w.code === 'PILOT_NO_MECH')).toBe(
-        true
+        true,
       );
     });
 
@@ -598,7 +638,7 @@ describe('ForceService', () => {
       const validation = service.validateForce(forceResult.id!);
 
       expect(validation.warnings.some((w) => w.code === 'MECH_NO_PILOT')).toBe(
-        true
+        true,
       );
     });
 
@@ -619,7 +659,7 @@ describe('ForceService', () => {
 
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some((e) => e.code === 'FORCE_NOT_FOUND')).toBe(
-        true
+        true,
       );
     });
   });
@@ -636,7 +676,11 @@ describe('ForceService', () => {
         forceType: ForceType.Lance,
       });
       const force = service.getForce(forceResult.id!);
-      service.assignPilotAndUnit(force!.assignments[0].id, pilot.id, 'unit-atlas');
+      service.assignPilotAndUnit(
+        force!.assignments[0].id,
+        pilot.id,
+        'unit-atlas',
+      );
 
       const cloneResult = service.cloneForce(forceResult.id!, 'Clone');
 

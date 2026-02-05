@@ -5,6 +5,7 @@
  */
 
 import { MechLocation } from '@/types/construction';
+
 import {
   BoundingBox,
   MechLayoutConfig,
@@ -34,7 +35,11 @@ function toBoundingBox(pos: ResolvedPosition): BoundingBox {
 /**
  * Check if two bounding boxes overlap
  */
-function boxesOverlap(a: BoundingBox, b: BoundingBox, tolerance: number = 0): boolean {
+function boxesOverlap(
+  a: BoundingBox,
+  b: BoundingBox,
+  tolerance: number = 0,
+): boolean {
   return !(
     a.x + a.width <= b.x + tolerance ||
     b.x + b.width <= a.x + tolerance ||
@@ -51,12 +56,12 @@ function calculateGap(a: BoundingBox, b: BoundingBox): number {
   // Calculate distances between edges
   const horizontalGap = Math.max(
     a.x - (b.x + b.width), // a is to the right of b
-    b.x - (a.x + a.width) // b is to the right of a
+    b.x - (a.x + a.width), // b is to the right of a
   );
 
   const verticalGap = Math.max(
     a.y - (b.y + b.height), // a is below b
-    b.y - (a.y + a.height) // b is below a
+    b.y - (a.y + a.height), // b is below a
   );
 
   // If either gap is positive, they don't overlap
@@ -82,12 +87,12 @@ function calculateGap(a: BoundingBox, b: BoundingBox): number {
 function arePartsConnected(
   config: MechLayoutConfig,
   part1: MechLocation,
-  part2: MechLocation
+  part2: MechLocation,
 ): boolean {
   return config.constraints.some(
     (c) =>
       (c.source.part === part1 && c.target.part === part2) ||
-      (c.source.part === part2 && c.target.part === part1)
+      (c.source.part === part2 && c.target.part === part1),
   );
 }
 
@@ -100,10 +105,12 @@ function arePartsConnected(
  */
 function checkOverlaps(
   layout: ResolvedLayout,
-  config: MechLayoutConfig
+  config: MechLayoutConfig,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
-  const positions = Object.entries(layout.positions) as Array<[MechLocation, ResolvedPosition]>;
+  const positions = Object.entries(layout.positions) as Array<
+    [MechLocation, ResolvedPosition]
+  >;
 
   for (let i = 0; i < positions.length; i++) {
     for (let j = i + 1; j < positions.length; j++) {
@@ -124,7 +131,7 @@ function checkOverlaps(
           (c) =>
             c.type === 'contain' &&
             ((c.source.part === loc1 && c.target.part === loc2) ||
-              (c.source.part === loc2 && c.target.part === loc1))
+              (c.source.part === loc2 && c.target.part === loc1)),
         );
 
         if (!isContained) {
@@ -146,10 +153,12 @@ function checkOverlaps(
  */
 function checkGapViolations(
   layout: ResolvedLayout,
-  config: MechLayoutConfig
+  config: MechLayoutConfig,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
-  const positions = Object.entries(layout.positions) as Array<[MechLocation, ResolvedPosition]>;
+  const positions = Object.entries(layout.positions) as Array<
+    [MechLocation, ResolvedPosition]
+  >;
 
   for (let i = 0; i < positions.length; i++) {
     for (let j = i + 1; j < positions.length; j++) {
@@ -194,7 +203,7 @@ const SYMMETRIC_PAIRS: Array<[MechLocation, MechLocation]> = [
  */
 function checkSymmetricPartOverlaps(
   layout: ResolvedLayout,
-  config: MechLayoutConfig
+  config: MechLayoutConfig,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
   const minSymmetricGap = config.minGap || 5;
@@ -234,10 +243,12 @@ function checkSymmetricPartOverlaps(
  */
 function checkMissingParts(
   layout: ResolvedLayout,
-  config: MechLayoutConfig
+  config: MechLayoutConfig,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
-  const resolvedParts = new Set(Object.keys(layout.positions) as MechLocation[]);
+  const resolvedParts = new Set(
+    Object.keys(layout.positions) as MechLocation[],
+  );
 
   for (const constraint of config.constraints) {
     if (!resolvedParts.has(constraint.source.part)) {
@@ -267,7 +278,7 @@ function checkMissingParts(
  */
 function checkMissingAnchors(
   layout: ResolvedLayout,
-  config: MechLayoutConfig
+  config: MechLayoutConfig,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
@@ -309,10 +320,12 @@ function checkMissingAnchors(
  */
 function checkTightGaps(
   layout: ResolvedLayout,
-  config: MechLayoutConfig
+  config: MechLayoutConfig,
 ): ValidationWarning[] {
   const warnings: ValidationWarning[] = [];
-  const positions = Object.entries(layout.positions) as Array<[MechLocation, ResolvedPosition]>;
+  const positions = Object.entries(layout.positions) as Array<
+    [MechLocation, ResolvedPosition]
+  >;
   const tightGapThreshold = config.minGap * 1.5;
 
   for (let i = 0; i < positions.length; i++) {
@@ -345,7 +358,7 @@ function checkTightGaps(
  */
 function checkLargeGaps(
   layout: ResolvedLayout,
-  config: MechLayoutConfig
+  config: MechLayoutConfig,
 ): ValidationWarning[] {
   const warnings: ValidationWarning[] = [];
   const largeGapThreshold = config.minGap * 5;
@@ -369,7 +382,7 @@ function checkLargeGaps(
 
     const distance = Math.sqrt(
       Math.pow(sourceAnchor.x - targetAnchor.x, 2) +
-      Math.pow(sourceAnchor.y - targetAnchor.y, 2)
+        Math.pow(sourceAnchor.y - targetAnchor.y, 2),
     );
 
     const expectedGap = constraint.gap ?? 0;
@@ -390,7 +403,7 @@ function checkLargeGaps(
  */
 function checkUnusedAnchors(
   layout: ResolvedLayout,
-  config: MechLayoutConfig
+  config: MechLayoutConfig,
 ): ValidationWarning[] {
   const warnings: ValidationWarning[] = [];
   const usedAnchors = new Set<string>();
@@ -435,7 +448,7 @@ function checkUnusedAnchors(
  */
 export function validateLayout(
   layout: ResolvedLayout,
-  config: MechLayoutConfig
+  config: MechLayoutConfig,
 ): ValidationResult {
   const errors: ValidationError[] = [
     ...checkMissingParts(layout, config),
@@ -463,7 +476,7 @@ export function validateLayout(
  */
 export function isLayoutValid(
   layout: ResolvedLayout,
-  config: MechLayoutConfig
+  config: MechLayoutConfig,
 ): boolean {
   return validateLayout(layout, config).valid;
 }

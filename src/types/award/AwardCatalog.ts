@@ -7,8 +7,13 @@
  * @spec openspec/changes/add-awards-system/specs/awards/spec.md
  */
 
-import { IAward, AwardRarity, AwardCategory, CriteriaType } from './AwardInterfaces';
 import { AutoAwardCategory } from '../campaign/awards/autoAwardTypes';
+import {
+  IAward,
+  AwardRarity,
+  AwardCategory,
+  CriteriaType,
+} from './AwardInterfaces';
 
 // =============================================================================
 // Combat Awards
@@ -29,7 +34,12 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 100,
-    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 1, thresholdType: 'kills', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.KILL,
+      threshold: 1,
+      thresholdType: 'kills',
+      stackable: false,
+    },
   },
   {
     id: 'warrior',
@@ -45,12 +55,18 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 110,
-    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 3, thresholdType: 'kills', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.KILL,
+      threshold: 3,
+      thresholdType: 'kills',
+      stackable: false,
+    },
   },
   {
     id: 'ace',
     name: 'Ace',
-    description: 'Achieve the legendary status of an Ace with 5 confirmed kills.',
+    description:
+      'Achieve the legendary status of an Ace with 5 confirmed kills.',
     category: AwardCategory.Combat,
     rarity: AwardRarity.Uncommon,
     icon: 'award-ace',
@@ -61,12 +77,18 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 120,
-    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 5, thresholdType: 'kills', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.KILL,
+      threshold: 5,
+      thresholdType: 'kills',
+      stackable: false,
+    },
   },
   {
     id: 'double-ace',
     name: 'Double Ace',
-    description: 'A pilot of exceptional skill, having destroyed 10 enemy units.',
+    description:
+      'A pilot of exceptional skill, having destroyed 10 enemy units.',
     category: AwardCategory.Combat,
     rarity: AwardRarity.Rare,
     icon: 'award-double-ace',
@@ -77,7 +99,12 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 130,
-    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 10, thresholdType: 'kills', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.KILL,
+      threshold: 10,
+      thresholdType: 'kills',
+      stackable: false,
+    },
   },
   {
     id: 'triple-ace',
@@ -93,12 +120,18 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 140,
-    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 15, thresholdType: 'kills', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.KILL,
+      threshold: 15,
+      thresholdType: 'kills',
+      stackable: false,
+    },
   },
   {
     id: 'legend',
     name: 'Legend',
-    description: 'Join the ranks of legendary MechWarriors with 25 confirmed kills.',
+    description:
+      'Join the ranks of legendary MechWarriors with 25 confirmed kills.',
     category: AwardCategory.Combat,
     rarity: AwardRarity.Legendary,
     icon: 'award-legend',
@@ -109,12 +142,18 @@ const COMBAT_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 150,
-    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 25, thresholdType: 'kills', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.KILL,
+      threshold: 25,
+      thresholdType: 'kills',
+      stackable: false,
+    },
   },
   {
     id: 'marksman',
     name: 'Marksman',
-    description: 'Score a critical headshot or cockpit hit, instantly eliminating the target.',
+    description:
+      'Score a critical headshot or cockpit hit, instantly eliminating the target.',
     category: AwardCategory.Combat,
     rarity: AwardRarity.Uncommon,
     icon: 'award-marksman',
@@ -130,7 +169,8 @@ const COMBAT_AWARDS: readonly IAward[] = [
   {
     id: 'sharpshooter',
     name: 'Sharpshooter',
-    description: 'Your precision is legendary. Score 5 critical hits in your career.',
+    description:
+      'Your precision is legendary. Score 5 critical hits in your career.',
     category: AwardCategory.Combat,
     rarity: AwardRarity.Rare,
     icon: 'award-sharpshooter',
@@ -228,7 +268,8 @@ const SURVIVAL_AWARDS: readonly IAward[] = [
   {
     id: 'iron-will',
     name: 'Iron Will',
-    description: 'Survive 10 consecutive missions. Your determination is unbreakable.',
+    description:
+      'Survive 10 consecutive missions. Your determination is unbreakable.',
     category: AwardCategory.Survival,
     rarity: AwardRarity.Rare,
     icon: 'award-iron-will',
@@ -258,7 +299,8 @@ const SURVIVAL_AWARDS: readonly IAward[] = [
   {
     id: 'phoenix',
     name: 'Phoenix',
-    description: 'Return to combat after ejecting, proving that you cannot be kept down.',
+    description:
+      'Return to combat after ejecting, proving that you cannot be kept down.',
     category: AwardCategory.Survival,
     rarity: AwardRarity.Uncommon,
     icon: 'award-phoenix',
@@ -274,7 +316,8 @@ const SURVIVAL_AWARDS: readonly IAward[] = [
   {
     id: 'lucky-star',
     name: 'Lucky Star',
-    description: 'Survive a mission with your mech at 10% or less internal structure.',
+    description:
+      'Survive a mission with your mech at 10% or less internal structure.',
     category: AwardCategory.Survival,
     rarity: AwardRarity.Rare,
     icon: 'award-lucky-star',
@@ -309,7 +352,12 @@ const CAMPAIGN_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 400,
-    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 1, thresholdType: 'missions', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SCENARIO,
+      threshold: 1,
+      thresholdType: 'missions',
+      stackable: false,
+    },
   },
   {
     id: 'campaign-veteran',
@@ -325,7 +373,12 @@ const CAMPAIGN_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 410,
-    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 10, thresholdType: 'missions', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SCENARIO,
+      threshold: 10,
+      thresholdType: 'missions',
+      stackable: false,
+    },
   },
   {
     id: 'campaign-elite',
@@ -341,7 +394,12 @@ const CAMPAIGN_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 420,
-    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 25, thresholdType: 'missions', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SCENARIO,
+      threshold: 25,
+      thresholdType: 'missions',
+      stackable: false,
+    },
   },
   {
     id: 'campaign-victor',
@@ -499,7 +557,8 @@ const SPECIAL_AWARDS: readonly IAward[] = [
   {
     id: 'david-vs-goliath',
     name: 'David vs Goliath',
-    description: 'Destroy a unit with significantly higher tonnage than your own.',
+    description:
+      'Destroy a unit with significantly higher tonnage than your own.',
     category: AwardCategory.Special,
     rarity: AwardRarity.Rare,
     icon: 'award-david-goliath',
@@ -571,7 +630,8 @@ const AUTO_KILL_AWARDS: readonly IAward[] = [
   {
     id: 'destroyer',
     name: 'Destroyer',
-    description: 'Eliminate 50 enemy units. A force of destruction on the battlefield.',
+    description:
+      'Eliminate 50 enemy units. A force of destruction on the battlefield.',
     category: AwardCategory.Combat,
     rarity: AwardRarity.Legendary,
     icon: 'award-destroyer',
@@ -582,12 +642,18 @@ const AUTO_KILL_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 160,
-    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 50, thresholdType: 'kills', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.KILL,
+      threshold: 50,
+      thresholdType: 'kills',
+      stackable: false,
+    },
   },
   {
     id: 'centurion-kills',
     name: 'Centurion of War',
-    description: 'A century of confirmed kills. Your name echoes across the battlefields.',
+    description:
+      'A century of confirmed kills. Your name echoes across the battlefields.',
     category: AwardCategory.Combat,
     rarity: AwardRarity.Legendary,
     icon: 'award-centurion-kills',
@@ -598,12 +664,18 @@ const AUTO_KILL_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 170,
-    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 100, thresholdType: 'kills', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.KILL,
+      threshold: 100,
+      thresholdType: 'kills',
+      stackable: false,
+    },
   },
   {
     id: 'warlord',
     name: 'Warlord',
-    description: '250 confirmed kills. Few warriors in history have matched this feat.',
+    description:
+      '250 confirmed kills. Few warriors in history have matched this feat.',
     category: AwardCategory.Combat,
     rarity: AwardRarity.Legendary,
     icon: 'award-warlord',
@@ -614,7 +686,12 @@ const AUTO_KILL_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 180,
-    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 250, thresholdType: 'kills', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.KILL,
+      threshold: 250,
+      thresholdType: 'kills',
+      stackable: false,
+    },
   },
   {
     id: 'extinction-event',
@@ -630,7 +707,12 @@ const AUTO_KILL_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 190,
-    autoGrantCriteria: { category: AutoAwardCategory.KILL, threshold: 500, thresholdType: 'kills', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.KILL,
+      threshold: 500,
+      thresholdType: 'kills',
+      stackable: false,
+    },
   },
 ];
 
@@ -653,7 +735,12 @@ const AUTO_SCENARIO_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 405,
-    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 5, thresholdType: 'missions', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SCENARIO,
+      threshold: 5,
+      thresholdType: 'missions',
+      stackable: false,
+    },
   },
   {
     id: 'campaign-legend',
@@ -669,7 +756,12 @@ const AUTO_SCENARIO_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 460,
-    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 50, thresholdType: 'missions', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SCENARIO,
+      threshold: 50,
+      thresholdType: 'missions',
+      stackable: false,
+    },
   },
   {
     id: 'centurion-missions',
@@ -685,7 +777,12 @@ const AUTO_SCENARIO_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 470,
-    autoGrantCriteria: { category: AutoAwardCategory.SCENARIO, threshold: 100, thresholdType: 'missions', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SCENARIO,
+      threshold: 100,
+      thresholdType: 'missions',
+      stackable: false,
+    },
   },
 ];
 
@@ -708,7 +805,12 @@ const AUTO_TIME_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 550,
-    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 1, thresholdType: 'years', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.TIME,
+      threshold: 1,
+      thresholdType: 'years',
+      stackable: false,
+    },
   },
   {
     id: 'two-year-service',
@@ -724,7 +826,12 @@ const AUTO_TIME_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 560,
-    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 2, thresholdType: 'years', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.TIME,
+      threshold: 2,
+      thresholdType: 'years',
+      stackable: false,
+    },
   },
   {
     id: 'five-year-service',
@@ -740,7 +847,12 @@ const AUTO_TIME_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 570,
-    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 5, thresholdType: 'years', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.TIME,
+      threshold: 5,
+      thresholdType: 'years',
+      stackable: false,
+    },
   },
   {
     id: 'ten-year-service',
@@ -756,7 +868,12 @@ const AUTO_TIME_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 580,
-    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 10, thresholdType: 'years', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.TIME,
+      threshold: 10,
+      thresholdType: 'years',
+      stackable: false,
+    },
   },
   {
     id: 'twenty-year-service',
@@ -772,7 +889,12 @@ const AUTO_TIME_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 590,
-    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 20, thresholdType: 'years', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.TIME,
+      threshold: 20,
+      thresholdType: 'years',
+      stackable: false,
+    },
   },
   {
     id: 'thirty-year-service',
@@ -788,7 +910,12 @@ const AUTO_TIME_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 595,
-    autoGrantCriteria: { category: AutoAwardCategory.TIME, threshold: 30, thresholdType: 'years', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.TIME,
+      threshold: 30,
+      thresholdType: 'years',
+      stackable: false,
+    },
   },
 ];
 
@@ -812,7 +939,12 @@ const AUTO_INJURY_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 360,
-    autoGrantCriteria: { category: AutoAwardCategory.INJURY, threshold: 1, thresholdType: 'injuries', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.INJURY,
+      threshold: 1,
+      thresholdType: 'injuries',
+      stackable: false,
+    },
   },
   {
     id: 'battle-scarred',
@@ -829,7 +961,12 @@ const AUTO_INJURY_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 370,
-    autoGrantCriteria: { category: AutoAwardCategory.INJURY, threshold: 3, thresholdType: 'injuries', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.INJURY,
+      threshold: 3,
+      thresholdType: 'injuries',
+      stackable: false,
+    },
   },
   {
     id: 'iron-constitution',
@@ -846,7 +983,12 @@ const AUTO_INJURY_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 380,
-    autoGrantCriteria: { category: AutoAwardCategory.INJURY, threshold: 5, thresholdType: 'injuries', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.INJURY,
+      threshold: 5,
+      thresholdType: 'injuries',
+      stackable: false,
+    },
   },
   {
     id: 'unkillable',
@@ -863,7 +1005,12 @@ const AUTO_INJURY_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 390,
-    autoGrantCriteria: { category: AutoAwardCategory.INJURY, threshold: 10, thresholdType: 'injuries', stackable: false },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.INJURY,
+      threshold: 10,
+      thresholdType: 'injuries',
+      stackable: false,
+    },
   },
 ];
 
@@ -887,7 +1034,13 @@ const AUTO_RANK_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 700,
-    autoGrantCriteria: { category: AutoAwardCategory.RANK, threshold: 3, thresholdType: 'rank_level', stackable: false, rankMode: 'inclusive' },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.RANK,
+      threshold: 3,
+      thresholdType: 'rank_level',
+      stackable: false,
+      rankMode: 'inclusive',
+    },
   },
   {
     id: 'senior-officer',
@@ -904,7 +1057,13 @@ const AUTO_RANK_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 710,
-    autoGrantCriteria: { category: AutoAwardCategory.RANK, threshold: 6, thresholdType: 'rank_level', stackable: false, rankMode: 'inclusive' },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.RANK,
+      threshold: 6,
+      thresholdType: 'rank_level',
+      stackable: false,
+      rankMode: 'inclusive',
+    },
   },
   {
     id: 'command-rank',
@@ -921,7 +1080,13 @@ const AUTO_RANK_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 720,
-    autoGrantCriteria: { category: AutoAwardCategory.RANK, threshold: 9, thresholdType: 'rank_level', stackable: false, rankMode: 'inclusive' },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.RANK,
+      threshold: 9,
+      thresholdType: 'rank_level',
+      stackable: false,
+      rankMode: 'inclusive',
+    },
   },
 ];
 
@@ -945,7 +1110,13 @@ const AUTO_SKILL_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 250,
-    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 3, thresholdType: 'skill_level', stackable: false, skillId: 'gunnery' },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SKILL,
+      threshold: 3,
+      thresholdType: 'skill_level',
+      stackable: false,
+      skillId: 'gunnery',
+    },
   },
   {
     id: 'master-marksman',
@@ -962,7 +1133,13 @@ const AUTO_SKILL_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 260,
-    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 2, thresholdType: 'skill_level', stackable: false, skillId: 'gunnery' },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SKILL,
+      threshold: 2,
+      thresholdType: 'skill_level',
+      stackable: false,
+      skillId: 'gunnery',
+    },
   },
   {
     id: 'elite-marksman',
@@ -979,7 +1156,13 @@ const AUTO_SKILL_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 270,
-    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 0, thresholdType: 'skill_level', stackable: false, skillId: 'gunnery' },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SKILL,
+      threshold: 0,
+      thresholdType: 'skill_level',
+      stackable: false,
+      skillId: 'gunnery',
+    },
   },
   {
     id: 'expert-pilot',
@@ -996,7 +1179,13 @@ const AUTO_SKILL_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 280,
-    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 3, thresholdType: 'skill_level', stackable: false, skillId: 'piloting' },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SKILL,
+      threshold: 3,
+      thresholdType: 'skill_level',
+      stackable: false,
+      skillId: 'piloting',
+    },
   },
   {
     id: 'master-pilot',
@@ -1013,7 +1202,13 @@ const AUTO_SKILL_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 290,
-    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 2, thresholdType: 'skill_level', stackable: false, skillId: 'piloting' },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SKILL,
+      threshold: 2,
+      thresholdType: 'skill_level',
+      stackable: false,
+      skillId: 'piloting',
+    },
   },
   {
     id: 'elite-pilot',
@@ -1030,7 +1225,13 @@ const AUTO_SKILL_AWARDS: readonly IAward[] = [
     },
     repeatable: false,
     sortOrder: 295,
-    autoGrantCriteria: { category: AutoAwardCategory.SKILL, threshold: 0, thresholdType: 'skill_level', stackable: false, skillId: 'piloting' },
+    autoGrantCriteria: {
+      category: AutoAwardCategory.SKILL,
+      threshold: 0,
+      thresholdType: 'skill_level',
+      stackable: false,
+      skillId: 'piloting',
+    },
   },
 ];
 
@@ -1069,7 +1270,9 @@ export function getAwardById(id: string): IAward | undefined {
 /**
  * Get all awards in a category.
  */
-export function getAwardsByCategory(category: AwardCategory): readonly IAward[] {
+export function getAwardsByCategory(
+  category: AwardCategory,
+): readonly IAward[] {
   return AWARD_CATALOG.filter((award) => award.category === category);
 }
 
@@ -1098,5 +1301,5 @@ export function getSortedAwards(awards: readonly IAward[]): readonly IAward[] {
  * Get all awards that have auto-grant criteria.
  */
 export function getAutoGrantableAwards(): readonly IAward[] {
-  return AWARD_CATALOG.filter(award => award.autoGrantCriteria !== undefined);
+  return AWARD_CATALOG.filter((award) => award.autoGrantCriteria !== undefined);
 }

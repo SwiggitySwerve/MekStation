@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+
 import { debounce } from '@/utils/debounce';
 
 /**
@@ -82,10 +83,9 @@ export function useDebounce<T>(value: T, delay: number = 300): T {
  * }
  * ```
  */
-export function useDebouncedCallback<T extends (...args: Parameters<T>) => ReturnType<T>>(
-  callback: T,
-  delay: number = 300
-): T & { cancel: () => void } {
+export function useDebouncedCallback<
+  T extends (...args: Parameters<T>) => ReturnType<T>,
+>(callback: T, delay: number = 300): T & { cancel: () => void } {
   const callbackRef = useRef(callback);
 
   // Update ref when callback changes (but don't recreate debounced function)
@@ -97,7 +97,7 @@ export function useDebouncedCallback<T extends (...args: Parameters<T>) => Retur
   const debouncedCallback = useRef(
     debounce((...args: Parameters<T>) => {
       callbackRef.current(...args);
-    }, delay)
+    }, delay),
   );
 
   // Update delay if it changes

@@ -1,10 +1,19 @@
+import { useRouter } from 'next/router';
 /**
  * Pilot Detail Page
  * Displays comprehensive information about a single pilot with
  * progression, career stats, event history, and management options.
  */
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/router';
+
+import { EventTimeline, TimelineFilters } from '@/components/audit/timeline';
+import { AwardGrid } from '@/components/award';
+import {
+  SkeletonText,
+  SkeletonFormSection,
+} from '@/components/common/SkeletonLoader';
+import { PilotProgressionPanel } from '@/components/pilots';
+import { useToast } from '@/components/shared/Toast';
 import {
   PageLayout,
   PageError,
@@ -15,14 +24,9 @@ import {
   StatRow,
   StatList,
 } from '@/components/ui';
-import {
-  SkeletonText,
-  SkeletonFormSection,
-} from '@/components/common/SkeletonLoader';
-import { PilotProgressionPanel } from '@/components/pilots';
-import { AwardGrid } from '@/components/award';
+import { usePilotTimeline } from '@/hooks/audit';
 import { usePilotStore, usePilotById } from '@/stores/usePilotStore';
-import { useToast } from '@/components/shared/Toast';
+import { IBaseEvent, EventCategory } from '@/types/events';
 import {
   IPilot,
   PilotStatus,
@@ -30,9 +34,6 @@ import {
   getPilotRating,
   getSkillLabel,
 } from '@/types/pilot';
-import { usePilotTimeline } from '@/hooks/audit';
-import { EventTimeline, TimelineFilters } from '@/components/audit/timeline';
-import { IBaseEvent, EventCategory } from '@/types/events';
 
 // =============================================================================
 // Tab Types
@@ -49,8 +50,14 @@ interface StatusBadgeProps {
   size?: 'sm' | 'md';
 }
 
-function StatusBadge({ status, size = 'md' }: StatusBadgeProps): React.ReactElement {
-  const variants: Record<PilotStatus, { variant: 'emerald' | 'amber' | 'orange' | 'red' | 'slate'; label: string }> = {
+function StatusBadge({
+  status,
+  size = 'md',
+}: StatusBadgeProps): React.ReactElement {
+  const variants: Record<
+    PilotStatus,
+    { variant: 'emerald' | 'amber' | 'orange' | 'red' | 'slate'; label: string }
+  > = {
     [PilotStatus.Active]: { variant: 'emerald', label: 'Active' },
     [PilotStatus.Injured]: { variant: 'orange', label: 'Injured' },
     [PilotStatus.MIA]: { variant: 'amber', label: 'MIA' },
@@ -58,9 +65,16 @@ function StatusBadge({ status, size = 'md' }: StatusBadgeProps): React.ReactElem
     [PilotStatus.Retired]: { variant: 'slate', label: 'Retired' },
   };
 
-  const { variant, label } = variants[status] || { variant: 'slate', label: status };
+  const { variant, label } = variants[status] || {
+    variant: 'slate',
+    label: status,
+  };
 
-  return <Badge variant={variant} size={size}>{label}</Badge>;
+  return (
+    <Badge variant={variant} size={size}>
+      {label}
+    </Badge>
+  );
 }
 
 interface DeleteConfirmModalProps {
@@ -89,30 +103,36 @@ function DeleteConfirmModal({
       />
 
       {/* Modal */}
-      <div className="relative bg-surface-base border border-border-theme rounded-xl p-6 max-w-md w-full shadow-2xl">
+      <div className="bg-surface-base border-border-theme relative w-full max-w-md rounded-xl border p-6 shadow-2xl">
         <div className="text-center">
           {/* Warning Icon */}
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-900/30 flex items-center justify-center">
-            <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-900/30">
+            <svg
+              className="h-8 w-8 text-red-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
           </div>
 
-          <h3 className="text-xl font-bold text-text-theme-primary mb-2">
+          <h3 className="text-text-theme-primary mb-2 text-xl font-bold">
             Delete Pilot?
           </h3>
           <p className="text-text-theme-secondary mb-6">
             Are you sure you want to permanently delete{' '}
-            <span className="text-accent font-semibold">{pilotName}</span>?
-            This action cannot be undone.
+            <span className="text-accent font-semibold">{pilotName}</span>? This
+            action cannot be undone.
           </p>
 
           <div className="flex items-center justify-center gap-3">
-            <Button
-              variant="ghost"
-              onClick={onCancel}
-              disabled={isDeleting}
-            >
+            <Button variant="ghost" onClick={onCancel} disabled={isDeleting}>
               Cancel
             </Button>
             <Button
@@ -133,7 +153,11 @@ function DeleteConfirmModal({
 interface EditIdentityModalProps {
   pilot: IPilot;
   isOpen: boolean;
-  onSave: (updates: { name: string; callsign?: string; affiliation?: string }) => void;
+  onSave: (updates: {
+    name: string;
+    callsign?: string;
+    affiliation?: string;
+  }) => void;
   onCancel: () => void;
   isSaving: boolean;
 }
@@ -178,21 +202,21 @@ function EditIdentityModal({
       />
 
       {/* Modal */}
-      <div className="relative bg-surface-base border border-border-theme rounded-xl p-6 max-w-md w-full shadow-2xl">
-        <h3 className="text-xl font-bold text-text-theme-primary mb-4">
+      <div className="bg-surface-base border-border-theme relative w-full max-w-md rounded-xl border p-6 shadow-2xl">
+        <h3 className="text-text-theme-primary mb-4 text-xl font-bold">
           Edit Pilot Identity
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text-theme-secondary mb-1.5">
+            <label className="text-text-theme-secondary mb-1.5 block text-sm font-medium">
               Name *
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2.5 bg-surface-raised border border-border-theme-subtle rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30"
+              className="bg-surface-raised border-border-theme-subtle text-text-theme-primary placeholder-text-theme-muted focus:border-accent focus:ring-accent/30 w-full rounded-lg border px-4 py-2.5 focus:ring-1 focus:outline-none"
               placeholder="Pilot name"
               required
               autoFocus
@@ -200,27 +224,27 @@ function EditIdentityModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-theme-secondary mb-1.5">
+            <label className="text-text-theme-secondary mb-1.5 block text-sm font-medium">
               Callsign
             </label>
             <input
               type="text"
               value={callsign}
               onChange={(e) => setCallsign(e.target.value)}
-              className="w-full px-4 py-2.5 bg-surface-raised border border-border-theme-subtle rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30"
+              className="bg-surface-raised border-border-theme-subtle text-text-theme-primary placeholder-text-theme-muted focus:border-accent focus:ring-accent/30 w-full rounded-lg border px-4 py-2.5 focus:ring-1 focus:outline-none"
               placeholder="Optional callsign"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-theme-secondary mb-1.5">
+            <label className="text-text-theme-secondary mb-1.5 block text-sm font-medium">
               Affiliation
             </label>
             <input
               type="text"
               value={affiliation}
               onChange={(e) => setAffiliation(e.target.value)}
-              className="w-full px-4 py-2.5 bg-surface-raised border border-border-theme-subtle rounded-lg text-text-theme-primary placeholder-text-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30"
+              className="bg-surface-raised border-border-theme-subtle text-text-theme-primary placeholder-text-theme-muted focus:border-accent focus:ring-accent/30 w-full rounded-lg border px-4 py-2.5 focus:ring-1 focus:outline-none"
               placeholder="Faction or house"
             />
           </div>
@@ -258,9 +282,14 @@ interface PilotCareerTabProps {
   pilotName: string;
 }
 
-function PilotCareerTab({ pilotId, pilotName }: PilotCareerTabProps): React.ReactElement {
+function PilotCareerTab({
+  pilotId,
+  pilotName,
+}: PilotCareerTabProps): React.ReactElement {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<EventCategory | undefined>(undefined);
+  const [categoryFilter, setCategoryFilter] = useState<
+    EventCategory | undefined
+  >(undefined);
   const [rootEventsOnly, setRootEventsOnly] = useState(false);
 
   const {
@@ -281,34 +310,42 @@ function PilotCareerTab({ pilotId, pilotName }: PilotCareerTabProps): React.Reac
     setSelectedEventId((prev) => (prev === event.id ? null : event.id));
   }, []);
 
-  const handleCategoryChange = useCallback((category: EventCategory | undefined) => {
-    setCategoryFilter(category);
-    setFilters({ ...filters, category });
-  }, [filters, setFilters]);
+  const handleCategoryChange = useCallback(
+    (category: EventCategory | undefined) => {
+      setCategoryFilter(category);
+      setFilters({ ...filters, category });
+    },
+    [filters, setFilters],
+  );
 
-  const handleRootEventsToggle = useCallback((rootOnly: boolean) => {
-    setRootEventsOnly(rootOnly);
-    setFilters({ ...filters, rootEventsOnly: rootOnly || undefined });
-  }, [filters, setFilters]);
+  const handleRootEventsToggle = useCallback(
+    (rootOnly: boolean) => {
+      setRootEventsOnly(rootOnly);
+      setFilters({ ...filters, rootEventsOnly: rootOnly || undefined });
+    },
+    [filters, setFilters],
+  );
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-text-theme-primary">Career History</h2>
-          <p className="text-sm text-text-theme-secondary">
+          <h2 className="text-text-theme-primary text-lg font-semibold">
+            Career History
+          </h2>
+          <p className="text-text-theme-secondary text-sm">
             Event timeline for {pilotName}
           </p>
         </div>
         <button
           onClick={refresh}
           disabled={isLoading}
-          className="p-2 rounded-lg bg-surface-raised border border-border-theme-subtle hover:border-border-theme transition-colors disabled:opacity-50"
+          className="bg-surface-raised border-border-theme-subtle hover:border-border-theme rounded-lg border p-2 transition-colors disabled:opacity-50"
           aria-label="Refresh timeline"
         >
           <svg
-            className={`w-5 h-5 text-text-theme-secondary ${isLoading ? 'animate-spin' : ''}`}
+            className={`text-text-theme-secondary h-5 w-5 ${isLoading ? 'animate-spin' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -340,8 +377,13 @@ function PilotCareerTab({ pilotId, pilotName }: PilotCareerTabProps): React.Reac
       {/* Error State */}
       {error && (
         <Card className="border-red-500/50 bg-red-500/10">
-          <div className="flex items-center gap-3 text-red-400 p-4">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center gap-3 p-4 text-red-400">
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -358,7 +400,11 @@ function PilotCareerTab({ pilotId, pilotName }: PilotCareerTabProps): React.Reac
       <div className="text-text-theme-secondary text-sm">
         {isLoading ? (
           <span className="flex items-center gap-2">
-            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <svg
+              className="h-4 w-4 animate-spin"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
               <circle
                 className="opacity-25"
                 cx="12"
@@ -377,7 +423,10 @@ function PilotCareerTab({ pilotId, pilotName }: PilotCareerTabProps): React.Reac
           </span>
         ) : (
           <span>
-            <span className="font-medium text-text-theme-primary">{pagination.total}</span> events
+            <span className="text-text-theme-primary font-medium">
+              {pagination.total}
+            </span>{' '}
+            events
           </span>
         )}
       </div>
@@ -385,23 +434,34 @@ function PilotCareerTab({ pilotId, pilotName }: PilotCareerTabProps): React.Reac
       {/* Empty State */}
       {!isLoading && allEvents.length === 0 && (
         <Card className="p-8 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-raised/50 flex items-center justify-center">
-            <svg className="w-8 h-8 text-text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <div className="bg-surface-raised/50 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+            <svg
+              className="text-text-theme-muted h-8 w-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-text-theme-primary mb-2">
+          <h3 className="text-text-theme-primary mb-2 text-lg font-semibold">
             No Events Yet
           </h3>
-          <p className="text-text-theme-secondary text-sm max-w-md mx-auto">
-            This pilot has no recorded events. Events will appear here as they participate in missions and games.
+          <p className="text-text-theme-secondary mx-auto max-w-md text-sm">
+            This pilot has no recorded events. Events will appear here as they
+            participate in missions and games.
           </p>
         </Card>
       )}
 
       {/* Timeline */}
       {allEvents.length > 0 && (
-        <Card className="p-0 overflow-hidden">
+        <Card className="overflow-hidden p-0">
           <EventTimeline
             events={allEvents as IBaseEvent[]}
             onEventClick={handleEventClick}
@@ -417,7 +477,7 @@ function PilotCareerTab({ pilotId, pilotName }: PilotCareerTabProps): React.Reac
       {/* Selected Event Details */}
       {selectedEventId && (
         <Card>
-          <h3 className="text-lg font-semibold text-text-theme-primary mb-4">
+          <h3 className="text-text-theme-primary mb-4 text-lg font-semibold">
             Event Details
           </h3>
           {(() => {
@@ -428,35 +488,51 @@ function PilotCareerTab({ pilotId, pilotName }: PilotCareerTabProps): React.Reac
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-text-theme-muted">ID:</span>{' '}
-                    <code className="text-text-theme-secondary">{event.id}</code>
+                    <code className="text-text-theme-secondary">
+                      {event.id}
+                    </code>
                   </div>
                   <div>
                     <span className="text-text-theme-muted">Sequence:</span>{' '}
-                    <span className="text-text-theme-primary font-medium">{event.sequence}</span>
+                    <span className="text-text-theme-primary font-medium">
+                      {event.sequence}
+                    </span>
                   </div>
                   <div>
                     <span className="text-text-theme-muted">Category:</span>{' '}
-                    <span className="text-text-theme-primary">{event.category}</span>
+                    <span className="text-text-theme-primary">
+                      {event.category}
+                    </span>
                   </div>
                   <div>
                     <span className="text-text-theme-muted">Type:</span>{' '}
-                    <span className="text-text-theme-primary">{event.type}</span>
+                    <span className="text-text-theme-primary">
+                      {event.type}
+                    </span>
                   </div>
                   <div className="col-span-2">
                     <span className="text-text-theme-muted">Timestamp:</span>{' '}
-                    <span className="text-text-theme-secondary">{event.timestamp}</span>
+                    <span className="text-text-theme-secondary">
+                      {event.timestamp}
+                    </span>
                   </div>
                 </div>
                 {event.causedBy && (
-                  <div className="pt-3 border-t border-border-theme-subtle">
+                  <div className="border-border-theme-subtle border-t pt-3">
                     <span className="text-text-theme-muted">Caused by:</span>{' '}
-                    <code className="text-cyan-400">{event.causedBy.eventId}</code>{' '}
-                    <span className="text-text-theme-muted">({event.causedBy.relationship})</span>
+                    <code className="text-cyan-400">
+                      {event.causedBy.eventId}
+                    </code>{' '}
+                    <span className="text-text-theme-muted">
+                      ({event.causedBy.relationship})
+                    </span>
                   </div>
                 )}
-                <div className="pt-3 border-t border-border-theme-subtle">
-                  <span className="text-text-theme-muted block mb-2">Payload:</span>
-                  <pre className="text-xs bg-surface-base/50 p-3 rounded-lg overflow-x-auto">
+                <div className="border-border-theme-subtle border-t pt-3">
+                  <span className="text-text-theme-muted mb-2 block">
+                    Payload:
+                  </span>
+                  <pre className="bg-surface-base/50 overflow-x-auto rounded-lg p-3 text-xs">
                     {JSON.stringify(event.payload, null, 2)}
                   </pre>
                 </div>
@@ -479,7 +555,8 @@ export default function PilotDetailPage(): React.ReactElement {
   const pilotId = typeof id === 'string' ? id : null;
   const { showToast } = useToast();
 
-  const { loadPilots, updatePilot, deletePilot, isLoading, error } = usePilotStore();
+  const { loadPilots, updatePilot, deletePilot, isLoading, error } =
+    usePilotStore();
   const pilot = usePilotById(pilotId);
 
   const [isInitialized, setIsInitialized] = useState(false);
@@ -487,10 +564,10 @@ export default function PilotDetailPage(): React.ReactElement {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   // Tab state - default to overview, can be set via query param
   const [activeTab, setActiveTab] = useState<PilotTab>('overview');
-  
+
   // Sync tab from query param
   useEffect(() => {
     if (queryTab === 'career') {
@@ -501,14 +578,18 @@ export default function PilotDetailPage(): React.ReactElement {
   }, [queryTab]);
 
   // Update URL when tab changes
-  const handleTabChange = useCallback((tab: PilotTab) => {
-    setActiveTab(tab);
-    // Update URL without full navigation
-    const url = tab === 'overview' 
-      ? `/gameplay/pilots/${pilotId}` 
-      : `/gameplay/pilots/${pilotId}?tab=${tab}`;
-    router.replace(url, undefined, { shallow: true });
-  }, [pilotId, router]);
+  const handleTabChange = useCallback(
+    (tab: PilotTab) => {
+      setActiveTab(tab);
+      // Update URL without full navigation
+      const url =
+        tab === 'overview'
+          ? `/gameplay/pilots/${pilotId}`
+          : `/gameplay/pilots/${pilotId}?tab=${tab}`;
+      router.replace(url, undefined, { shallow: true });
+    },
+    [pilotId, router],
+  );
 
   // Load pilots on mount
   useEffect(() => {
@@ -537,27 +618,45 @@ export default function PilotDetailPage(): React.ReactElement {
   }, [pilotId, deletePilot, router, showToast]);
 
   // Handle identity edit
-  const handleSaveIdentity = useCallback(async (updates: { name: string; callsign?: string; affiliation?: string }) => {
-    if (!pilotId) return;
+  const handleSaveIdentity = useCallback(
+    async (updates: {
+      name: string;
+      callsign?: string;
+      affiliation?: string;
+    }) => {
+      if (!pilotId) return;
 
-    setIsSaving(true);
-    const success = await updatePilot(pilotId, updates);
-    setIsSaving(false);
+      setIsSaving(true);
+      const success = await updatePilot(pilotId, updates);
+      setIsSaving(false);
 
-    if (success) {
-      showToast({ message: 'Pilot details updated', variant: 'success' });
-      setIsEditModalOpen(false);
-    } else {
-      showToast({ message: 'Failed to update pilot', variant: 'error' });
-    }
-  }, [pilotId, updatePilot, showToast]);
+      if (success) {
+        showToast({ message: 'Pilot details updated', variant: 'success' });
+        setIsEditModalOpen(false);
+      } else {
+        showToast({ message: 'Failed to update pilot', variant: 'error' });
+      }
+    },
+    [pilotId, updatePilot, showToast],
+  );
 
   // Career stats for display
   const careerStats = useMemo(() => {
     if (!pilot?.career) return null;
-    const { missionsCompleted, victories, defeats, draws, totalKills } = pilot.career;
-    const winRate = missionsCompleted > 0 ? Math.round((victories / missionsCompleted) * 100) : 0;
-    return { missionsCompleted, victories, defeats, draws, totalKills, winRate };
+    const { missionsCompleted, victories, defeats, draws, totalKills } =
+      pilot.career;
+    const winRate =
+      missionsCompleted > 0
+        ? Math.round((victories / missionsCompleted) * 100)
+        : 0;
+    return {
+      missionsCompleted,
+      victories,
+      defeats,
+      draws,
+      totalKills,
+      winRate,
+    };
   }, [pilot?.career]);
 
   if (!isInitialized || isLoading) {
@@ -567,15 +666,15 @@ export default function PilotDetailPage(): React.ReactElement {
         backLink="/gameplay/pilots"
         backLabel="Back to Roster"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-1">
             <SkeletonFormSection title="Pilot Identity">
               <div className="flex items-start gap-4">
-                <div className="w-20 h-20 rounded-xl bg-surface-raised/50 animate-pulse" />
+                <div className="bg-surface-raised/50 h-20 w-20 animate-pulse rounded-xl" />
                 <div className="flex-1 space-y-2">
                   <SkeletonText width="w-32" />
                   <SkeletonText width="w-24" />
-                  <div className="flex gap-2 mt-3">
+                  <div className="mt-3 flex gap-2">
                     <SkeletonText width="w-16" />
                     <SkeletonText width="w-20" />
                   </div>
@@ -585,11 +684,11 @@ export default function PilotDetailPage(): React.ReactElement {
 
             <SkeletonFormSection title="Combat Skills">
               <div className="flex items-center justify-center gap-12 py-4">
-                <div className="text-center space-y-2">
+                <div className="space-y-2 text-center">
                   <SkeletonText width="w-12" className="mx-auto" />
                   <SkeletonText width="w-16" className="mx-auto" />
                 </div>
-                <div className="text-center space-y-2">
+                <div className="space-y-2 text-center">
                   <SkeletonText width="w-12" className="mx-auto" />
                   <SkeletonText width="w-16" className="mx-auto" />
                 </div>
@@ -613,7 +712,7 @@ export default function PilotDetailPage(): React.ReactElement {
               <div className="space-y-4">
                 <SkeletonText width="w-full" />
                 <SkeletonText width="w-3/4" />
-                <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="mt-4 grid grid-cols-2 gap-4">
                   <SkeletonText width="w-full" />
                   <SkeletonText width="w-full" />
                 </div>
@@ -629,7 +728,9 @@ export default function PilotDetailPage(): React.ReactElement {
     return (
       <PageError
         title="Pilot Not Found"
-        message={error || 'The requested pilot could not be found in the roster.'}
+        message={
+          error || 'The requested pilot could not be found in the roster.'
+        }
         backLink="/gameplay/pilots"
         backLabel="Back to Roster"
       />
@@ -637,7 +738,8 @@ export default function PilotDetailPage(): React.ReactElement {
   }
 
   const isPersistent = pilot.type === PilotType.Persistent;
-  const isActive = pilot.status === PilotStatus.Active || pilot.status === PilotStatus.Injured;
+  const isActive =
+    pilot.status === PilotStatus.Active || pilot.status === PilotStatus.Injured;
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },
@@ -660,8 +762,18 @@ export default function PilotDetailPage(): React.ReactElement {
             size="sm"
             onClick={() => setIsEditModalOpen(true)}
             leftIcon={
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
               </svg>
             }
           >
@@ -671,10 +783,20 @@ export default function PilotDetailPage(): React.ReactElement {
             variant="ghost"
             size="sm"
             onClick={() => setIsDeleteModalOpen(true)}
-            className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+            className="text-red-400 hover:bg-red-900/20 hover:text-red-300"
             leftIcon={
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
               </svg>
             }
           >
@@ -684,10 +806,10 @@ export default function PilotDetailPage(): React.ReactElement {
       }
     >
       {/* Tab Navigation */}
-      <div className="flex items-center gap-1 mb-6 border-b border-border-theme-subtle">
+      <div className="border-border-theme-subtle mb-6 flex items-center gap-1 border-b">
         <button
           onClick={() => handleTabChange('overview')}
-          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+          className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
             activeTab === 'overview'
               ? 'text-accent'
               : 'text-text-theme-secondary hover:text-text-theme-primary'
@@ -695,12 +817,12 @@ export default function PilotDetailPage(): React.ReactElement {
         >
           Overview
           {activeTab === 'overview' && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+            <span className="bg-accent absolute right-0 bottom-0 left-0 h-0.5" />
           )}
         </button>
         <button
           onClick={() => handleTabChange('career')}
-          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+          className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
             activeTab === 'career'
               ? 'text-accent'
               : 'text-text-theme-secondary hover:text-text-theme-primary'
@@ -708,157 +830,222 @@ export default function PilotDetailPage(): React.ReactElement {
         >
           Career History
           {activeTab === 'career' && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+            <span className="bg-accent absolute right-0 bottom-0 left-0 h-0.5" />
           )}
         </button>
       </div>
 
       {/* Tab Content */}
       {activeTab === 'overview' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Left Column - Pilot Info */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="space-y-6 lg:col-span-1">
             {/* Identity Card */}
             <Card variant="accent-left" accentColor="amber" className="p-5">
-            <div className="flex items-start gap-4">
-              {/* Avatar */}
-              <div className="w-20 h-20 rounded-xl bg-surface-raised flex items-center justify-center flex-shrink-0 border border-border-theme-subtle">
-                <svg className="w-10 h-10 text-text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+              <div className="flex items-start gap-4">
+                {/* Avatar */}
+                <div className="bg-surface-raised border-border-theme-subtle flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-xl border">
+                  <svg
+                    className="text-text-theme-secondary h-10 w-10"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                </div>
+
+                {/* Info */}
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-text-theme-primary truncate text-xl font-bold">
+                    {pilot.name}
+                  </h2>
+                  {pilot.callsign && (
+                    <p className="text-accent font-medium">
+                      &quot;{pilot.callsign}&quot;
+                    </p>
+                  )}
+                  {pilot.affiliation && (
+                    <p className="text-text-theme-secondary mt-1 text-sm">
+                      {pilot.affiliation}
+                    </p>
+                  )}
+
+                  <div className="mt-3 flex items-center gap-2">
+                    <StatusBadge status={pilot.status} />
+                    <Badge
+                      variant={isPersistent ? 'emerald' : 'amber'}
+                      size="sm"
+                    >
+                      {isPersistent ? 'Persistent' : 'Statblock'}
+                    </Badge>
+                  </div>
+                </div>
               </div>
+            </Card>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <h2 className="text-xl font-bold text-text-theme-primary truncate">
-                  {pilot.name}
-                </h2>
-                {pilot.callsign && (
-                  <p className="text-accent font-medium">&quot;{pilot.callsign}&quot;</p>
-                )}
-                {pilot.affiliation && (
-                  <p className="text-sm text-text-theme-secondary mt-1">
-                    {pilot.affiliation}
-                  </p>
-                )}
-
-                <div className="flex items-center gap-2 mt-3">
-                  <StatusBadge status={pilot.status} />
-                  <Badge variant={isPersistent ? 'emerald' : 'amber'} size="sm">
-                    {isPersistent ? 'Persistent' : 'Statblock'}
+            {/* Skills Card */}
+            <Card variant="dark">
+              <CardSection title="Combat Skills" />
+              <div className="flex items-center justify-center gap-12 py-4">
+                <div className="text-center">
+                  <div className="text-accent text-4xl font-bold tabular-nums">
+                    {pilot.skills.gunnery}
+                  </div>
+                  <div className="text-text-theme-secondary mt-1 text-xs">
+                    Gunnery
+                  </div>
+                  <Badge
+                    variant={
+                      pilot.skills.gunnery <= 3
+                        ? 'emerald'
+                        : pilot.skills.gunnery <= 5
+                          ? 'amber'
+                          : 'red'
+                    }
+                    size="sm"
+                    className="mt-2"
+                  >
+                    {getSkillLabel(pilot.skills.gunnery)}
+                  </Badge>
+                </div>
+                <div className="text-border-theme text-5xl font-light">/</div>
+                <div className="text-center">
+                  <div className="text-accent text-4xl font-bold tabular-nums">
+                    {pilot.skills.piloting}
+                  </div>
+                  <div className="text-text-theme-secondary mt-1 text-xs">
+                    Piloting
+                  </div>
+                  <Badge
+                    variant={
+                      pilot.skills.piloting <= 3
+                        ? 'emerald'
+                        : pilot.skills.piloting <= 5
+                          ? 'amber'
+                          : 'red'
+                    }
+                    size="sm"
+                    className="mt-2"
+                  >
+                    {getSkillLabel(pilot.skills.piloting)}
                   </Badge>
                 </div>
               </div>
-            </div>
-          </Card>
-
-          {/* Skills Card */}
-          <Card variant="dark">
-            <CardSection title="Combat Skills" />
-            <div className="flex items-center justify-center gap-12 py-4">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-accent tabular-nums">{pilot.skills.gunnery}</div>
-                <div className="text-xs text-text-theme-secondary mt-1">Gunnery</div>
-                <Badge variant={pilot.skills.gunnery <= 3 ? 'emerald' : pilot.skills.gunnery <= 5 ? 'amber' : 'red'} size="sm" className="mt-2">
-                  {getSkillLabel(pilot.skills.gunnery)}
-                </Badge>
-              </div>
-              <div className="text-5xl text-border-theme font-light">/</div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-accent tabular-nums">{pilot.skills.piloting}</div>
-                <div className="text-xs text-text-theme-secondary mt-1">Piloting</div>
-                <Badge variant={pilot.skills.piloting <= 3 ? 'emerald' : pilot.skills.piloting <= 5 ? 'amber' : 'red'} size="sm" className="mt-2">
-                  {getSkillLabel(pilot.skills.piloting)}
-                </Badge>
-              </div>
-            </div>
-            <div className="text-center text-sm text-text-theme-secondary pt-3 border-t border-border-theme-subtle">
-              Pilot Rating: <span className="text-accent font-bold">{getPilotRating(pilot.skills)}</span>
-            </div>
-          </Card>
-
-          {/* Wounds Card */}
-          {pilot.wounds > 0 && (
-            <Card variant="dark" className="border-red-600/30 bg-red-900/10">
-              <CardSection title="Wounds" />
-              <div className="flex items-center gap-3">
-                <div className="flex gap-1">
-                  {Array.from({ length: 6 }, (_, i) => (
-                    <div
-                      key={i}
-                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        i < pilot.wounds
-                          ? 'bg-red-600 border-red-500'
-                          : 'border-border-theme-subtle bg-surface-raised/30'
-                      }`}
-                    >
-                      {i < pilot.wounds && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <span className="text-red-400 font-medium">
-                  {pilot.wounds}/6 wounds
+              <div className="text-text-theme-secondary border-border-theme-subtle border-t pt-3 text-center text-sm">
+                Pilot Rating:{' '}
+                <span className="text-accent font-bold">
+                  {getPilotRating(pilot.skills)}
                 </span>
               </div>
-              <p className="text-xs text-text-theme-secondary mt-3">
-                Skill penalty: +{pilot.wounds} to all skill checks
-              </p>
             </Card>
-          )}
 
-          {/* Career Stats Card */}
-          {careerStats && (
-            <Card variant="dark">
-              <CardSection title="Career Statistics" />
-              <StatList>
-                <StatRow label="Missions" value={careerStats.missionsCompleted} />
-                <StatRow label="Victories" value={careerStats.victories} />
-                <StatRow label="Defeats" value={careerStats.defeats} />
-                <StatRow label="Draws" value={careerStats.draws} />
-                <StatRow label="Win Rate" value={`${careerStats.winRate}%`} />
-                <StatRow label="Total Kills" value={careerStats.totalKills} />
-              </StatList>
-            </Card>
-          )}
+            {/* Wounds Card */}
+            {pilot.wounds > 0 && (
+              <Card variant="dark" className="border-red-600/30 bg-red-900/10">
+                <CardSection title="Wounds" />
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-1">
+                    {Array.from({ length: 6 }, (_, i) => (
+                      <div
+                        key={i}
+                        className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${
+                          i < pilot.wounds
+                            ? 'border-red-500 bg-red-600'
+                            : 'border-border-theme-subtle bg-surface-raised/30'
+                        }`}
+                      >
+                        {i < pilot.wounds && (
+                          <svg
+                            className="h-3 w-3 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <span className="font-medium text-red-400">
+                    {pilot.wounds}/6 wounds
+                  </span>
+                </div>
+                <p className="text-text-theme-secondary mt-3 text-xs">
+                  Skill penalty: +{pilot.wounds} to all skill checks
+                </p>
+              </Card>
+            )}
 
-          {/* Awards Section */}
-          {isPersistent && (
-            <AwardGrid
-              pilotId={pilotId!}
-              showUnearned={true}
-              columns={3}
-            />
-          )}
+            {/* Career Stats Card */}
+            {careerStats && (
+              <Card variant="dark">
+                <CardSection title="Career Statistics" />
+                <StatList>
+                  <StatRow
+                    label="Missions"
+                    value={careerStats.missionsCompleted}
+                  />
+                  <StatRow label="Victories" value={careerStats.victories} />
+                  <StatRow label="Defeats" value={careerStats.defeats} />
+                  <StatRow label="Draws" value={careerStats.draws} />
+                  <StatRow label="Win Rate" value={`${careerStats.winRate}%`} />
+                  <StatRow label="Total Kills" value={careerStats.totalKills} />
+                </StatList>
+              </Card>
+            )}
+
+            {/* Awards Section */}
+            {isPersistent && (
+              <AwardGrid pilotId={pilotId!} showUnearned={true} columns={3} />
+            )}
+          </div>
+
+          {/* Right Column - Progression Panel */}
+          <div className="lg:col-span-2">
+            {isPersistent && isActive ? (
+              <PilotProgressionPanel
+                pilot={pilot}
+                onUpdate={() => loadPilots()}
+              />
+            ) : (
+              <Card variant="dark" className="p-8 text-center">
+                <div className="bg-surface-raised/50 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+                  <svg
+                    className="text-text-theme-muted h-8 w-8"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-text-theme-primary mb-2 text-lg font-semibold">
+                  Progression Unavailable
+                </h3>
+                <p className="text-text-theme-secondary mx-auto max-w-md text-sm">
+                  {!isPersistent
+                    ? 'Statblock pilots do not track progression. They are intended for quick NPC creation.'
+                    : `This pilot is ${pilot.status.toLowerCase()} and cannot advance skills or abilities.`}
+                </p>
+              </Card>
+            )}
+          </div>
         </div>
-
-        {/* Right Column - Progression Panel */}
-        <div className="lg:col-span-2">
-          {isPersistent && isActive ? (
-            <PilotProgressionPanel pilot={pilot} onUpdate={() => loadPilots()} />
-          ) : (
-            <Card variant="dark" className="p-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-raised/50 flex items-center justify-center">
-                <svg className="w-8 h-8 text-text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-text-theme-primary mb-2">
-                Progression Unavailable
-              </h3>
-              <p className="text-text-theme-secondary text-sm max-w-md mx-auto">
-                {!isPersistent
-                  ? 'Statblock pilots do not track progression. They are intended for quick NPC creation.'
-                  : `This pilot is ${pilot.status.toLowerCase()} and cannot advance skills or abilities.`
-                }
-              </p>
-            </Card>
-          )}
-        </div>
-      </div>
       ) : (
         /* Career History Tab */
         <PilotCareerTab pilotId={pilotId!} pilotName={pilot.name} />

@@ -6,10 +6,65 @@ This directory contains all OpenSpec specifications for the MekStation, organize
 
 ```
 specs/
-├── phase-1-foundation/      # Foundational type system and properties
-├── phase-2-construction/    # BattleMech construction systems
-└── README.md               # This file
+├── [spec-name]/            # Individual specification directories
+└── README.md              # This file
 ```
+
+---
+
+## Cross-Cutting Specifications
+
+Specifications that apply across all development phases and components.
+
+### Code Formatting Standards
+
+**Path**: `code-formatting-standards/spec.md`
+
+Defines code formatting standards using oxfmt:
+
+- oxfmt formatter configuration and settings
+- Tailwind CSS class sorting rules
+- Import statement sorting rules
+- Pre-commit hook integration (lint-staged)
+- CI/CD validation (GitHub Actions)
+- Developer workflow and IDE integration
+
+**Dependencies**: None (tooling)
+**Used By**: All code files, CI/CD pipeline, pre-commit hooks
+
+---
+
+### Validation Patterns
+
+**Path**: `validation-patterns/spec.md`
+
+Defines code quality and validation patterns:
+
+- Type guard functions for runtime validation
+- Validation result patterns
+- Boundary validation rules
+- No double type assertions rule (code review enforcement)
+- Compile-time type safety standards
+
+**Dependencies**: None (patterns)
+**Used By**: All TypeScript code, code review process
+
+---
+
+### Storybook Component Library
+
+**Path**: `storybook-component-library/spec.md`
+
+Defines component documentation and testing standards:
+
+- Storybook configuration and setup
+- Story writing patterns and decorators
+- Static build for CI validation
+- Autodocs generation from TypeScript types
+- Component testing and visual regression
+
+**Dependencies**: Code Formatting Standards, Validation Patterns
+**Used By**: All UI components, CI/CD pipeline
 
 ---
 
@@ -18,9 +73,11 @@ specs/
 Foundational interfaces, enumerations, and property standards that all other specifications depend on.
 
 ### Core Entity Types
+
 **Path**: `phase-1-foundation/core-entity-types/spec.md`
 
 Defines 8 foundational interfaces used across all components:
+
 - `IEntity` - Base identification (id, name)
 - `ITechBaseEntity` - Tech base classification (IS/Clan)
 - `IWeightedComponent` - Physical mass
@@ -36,9 +93,11 @@ Defines 8 foundational interfaces used across all components:
 ---
 
 ### Rules Level System
+
 **Path**: `phase-1-foundation/rules-level-system/spec.md`
 
 Defines technology complexity classification:
+
 - Introductory (basic components)
 - Standard (common technology)
 - Advanced (complex systems)
@@ -50,9 +109,11 @@ Defines technology complexity classification:
 ---
 
 ### Era & Temporal Availability
+
 **Path**: `phase-1-foundation/era-temporal-system/spec.md`
 
 Defines BattleTech timeline and technology availability:
+
 - 8 canonical eras (Age of War → Dark Age)
 - Introduction/extinction year tracking
 - Temporal filtering and validation
@@ -63,9 +124,11 @@ Defines BattleTech timeline and technology availability:
 ---
 
 ### Physical Properties System
+
 **Path**: `phase-1-foundation/physical-properties-system/spec.md`
 
 Standardizes physical component properties:
+
 - Property naming: "weight" (never "tons"), "criticalSlots" (never "slots")
 - Weight validation (finite, >= 0, fractional allowed)
 - Critical slots validation (integer, >= 0)
@@ -81,9 +144,11 @@ Standardizes physical component properties:
 BattleMech construction rules, component systems, and validation.
 
 ### Engine System
+
 **Path**: `phase-2-construction/engine-system/spec.md`
 
 10 engine types with weight/slot formulas:
+
 - Standard Fusion, XL (IS/Clan), Light, XXL, Compact
 - ICE, Fuel Cell, Fission
 - Critical slot placement (CT + side torsos)
@@ -95,9 +160,11 @@ BattleMech construction rules, component systems, and validation.
 ---
 
 ### Gyro System
+
 **Path**: `phase-2-construction/gyro-system/spec.md`
 
 4 gyro types with weight formulas:
+
 - Standard (4 slots, 1.0× weight)
 - XL (6 slots, 0.5× weight)
 - Compact (2 slots, 1.5× weight)
@@ -110,9 +177,11 @@ BattleMech construction rules, component systems, and validation.
 ---
 
 ### Heat Sink System
+
 **Path**: `phase-2-construction/heat-sink-system/spec.md`
 
 5 heat sink types and integration rules:
+
 - Single (1 heat/turn)
 - Double IS (2 heat/turn, 3 slots external)
 - Double Clan (2 heat/turn, 2 slots external)
@@ -126,9 +195,11 @@ BattleMech construction rules, component systems, and validation.
 ---
 
 ### Critical Slot Allocation
+
 **Path**: `phase-2-construction/critical-slot-allocation/spec.md`
 
 Location slot counts and placement rules:
+
 - Head: 6 slots
 - Center Torso: 12 slots
 - Side Torsos: 12 slots each
@@ -143,9 +214,11 @@ Location slot counts and placement rules:
 ---
 
 ### Internal Structure System
+
 **Path**: `phase-2-construction/internal-structure-system/spec.md`
 
 7 structure types and hit point tables:
+
 - Standard (10% weight, 0 slots)
 - Endo Steel IS (5% weight, 14 slots)
 - Endo Steel Clan (5% weight, 7 slots)
@@ -160,9 +233,11 @@ Location slot counts and placement rules:
 ---
 
 ### Cockpit System
+
 **Path**: `phase-2-construction/cockpit-system/spec.md`
 
 5 cockpit types and placement:
+
 - Standard (3 tons, head slots)
 - Small (2 tons, +1 piloting penalty)
 - Command Console (3 tons, +1 slot, -2 initiative)
@@ -176,9 +251,11 @@ Location slot counts and placement rules:
 ---
 
 ### Armor System
+
 **Path**: `phase-2-construction/armor-system/spec.md`
 
 14 armor types with points-per-ton ratios:
+
 - Standard (16 pts/ton, 0 slots)
 - Ferro-Fibrous IS (17.92 pts/ton, 14 slots)
 - Ferro-Fibrous Clan (19.2 pts/ton, 7 slots)
@@ -194,9 +271,11 @@ Location slot counts and placement rules:
 ---
 
 ### Movement System
+
 **Path**: `phase-2-construction/movement-system/spec.md`
 
 Movement formulas and jump jet mechanics:
+
 - Walk MP = floor(rating / tonnage)
 - Run MP = floor(walk × 1.5)
 - 8 jump jet types (Standard, Improved, Extended, Mechanical, Partial Wing, etc.)
@@ -209,9 +288,11 @@ Movement formulas and jump jet mechanics:
 ---
 
 ### Tech Base Integration
+
 **Path**: `phase-2-construction/tech-base-integration/spec.md`
 
 Tech base declaration and constraints:
+
 - Unit types: Inner Sphere, Clan, Mixed Tech
 - 8 structural component categories
 - Structural vs Equipment distinction
@@ -224,9 +305,11 @@ Tech base declaration and constraints:
 ---
 
 ### Construction Rules Core
+
 **Path**: `phase-2-construction/construction-rules-core/spec.md`
 
 Overall construction rules and validation:
+
 - 12-step construction sequence
 - Weight budget calculation
 - Exact weight matching requirement
@@ -243,6 +326,7 @@ Overall construction rules and validation:
 ## Usage
 
 Each specification follows the OpenSpec template structure:
+
 - Overview (purpose, scope, key concepts)
 - Requirements (with GIVEN/WHEN/THEN scenarios)
 - Data Model Requirements (TypeScript interfaces)
@@ -257,6 +341,7 @@ Each specification follows the OpenSpec template structure:
 ## Future Phases
 
 **Phase 3: Equipment Systems** (planned)
+
 - Weapon System
 - Ammunition System
 - Electronics System
@@ -266,6 +351,7 @@ Each specification follows the OpenSpec template structure:
 - Hardpoint System
 
 **Phase 4: Validation & Calculations** (planned)
+
 - Battle Value System
 - Tech Rating System
 - Heat Management System
@@ -273,12 +359,14 @@ Each specification follows the OpenSpec template structure:
 - Critical Hit System
 
 **Phase 5: Data Models** (planned)
+
 - Unit Entity Model
 - Component Database Schema
 - Save/Load Format
 - Import/Export Formats
 
 **Phase 6: UI & Integration** (planned)
+
 - UI Data Adapters
 - State Management
 - Component Selection
@@ -290,6 +378,7 @@ Each specification follows the OpenSpec template structure:
 ## Development Workflow
 
 ### Creating New Specs
+
 1. Use templates in `openspec/templates/`
 2. Follow GIVEN/WHEN/THEN scenario format
 3. Define complete TypeScript interfaces
@@ -297,12 +386,14 @@ Each specification follows the OpenSpec template structure:
 5. Document dependencies clearly
 
 ### Updating Existing Specs
+
 1. Update version number in header
 2. Add changelog entry at bottom
 3. Update dependent specs if interfaces change
 4. Maintain backwards compatibility when possible
 
 ### Validation
+
 - Follow spec-template.md structure exactly
 - Include all required sections
 - Provide testable scenarios
@@ -313,6 +404,7 @@ Each specification follows the OpenSpec template structure:
 ## Contributing
 
 When adding new specifications:
+
 1. Determine which phase it belongs to
 2. Create directory: `phase-N-category/system-name/`
 3. Create `spec.md` following template

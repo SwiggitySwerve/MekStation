@@ -5,28 +5,30 @@
  * Conventional fighters are atmospheric-only aircraft that cannot operate in space.
  */
 
-import {
-  ConventionalFighterUnitHandler,
-  createConventionalFighterHandler,
-} from '../ConventionalFighterUnitHandler';
+import { AerospaceLocation } from '../../../../types/construction/UnitLocation';
+import { RulesLevel } from '../../../../types/enums/RulesLevel';
+import { TechBase } from '../../../../types/enums/TechBase';
+import { WeightClass } from '../../../../types/enums/WeightClass';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { ISerializedUnit } from '../../../../types/unit/UnitSerialization';
 import {
   ConventionalFighterEngineType,
   AerospaceCockpitType,
 } from '../../../../types/unit/AerospaceInterfaces';
 import { AerospaceMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-import { AerospaceLocation } from '../../../../types/construction/UnitLocation';
-import { WeightClass } from '../../../../types/enums/WeightClass';
-import { TechBase } from '../../../../types/enums/TechBase';
-import { RulesLevel } from '../../../../types/enums/RulesLevel';
+import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { ISerializedUnit } from '../../../../types/unit/UnitSerialization';
+import {
+  ConventionalFighterUnitHandler,
+  createConventionalFighterHandler,
+} from '../ConventionalFighterUnitHandler';
 
 // ============================================================================
 // Test Fixtures
 // ============================================================================
 
-function createMockBlkDocument(overrides: Partial<IBlkDocument> = {}): IBlkDocument {
+function createMockBlkDocument(
+  overrides: Partial<IBlkDocument> = {},
+): IBlkDocument {
   return {
     blockVersion: 1,
     version: 'MAM0',
@@ -216,7 +218,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.motionType).toBe(AerospaceMotionType.AERODYNE);
+        expect(result.data?.unit?.motionType).toBe(
+          AerospaceMotionType.AERODYNE,
+        );
       });
     });
 
@@ -250,7 +254,11 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(false);
-        expect(result.error!.errors.some(e => e.includes('at least 1 safe thrust'))).toBe(true);
+        expect(
+          result.error!.errors.some((e) =>
+            e.includes('at least 1 safe thrust'),
+          ),
+        ).toBe(true);
       });
     });
 
@@ -268,7 +276,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data!.warnings.some(w => w.includes('low fuel'))).toBe(true);
+        expect(result.data!.warnings.some((w) => w.includes('low fuel'))).toBe(
+          true,
+        );
       });
 
       it('should not warn about adequate fuel', () => {
@@ -276,7 +286,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data!.warnings.some(w => w.includes('low fuel'))).toBe(false);
+        expect(result.data!.warnings.some((w) => w.includes('low fuel'))).toBe(
+          false,
+        );
       });
     });
 
@@ -329,7 +341,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(ConventionalFighterEngineType.ICE);
+        expect(result.data?.unit?.conventionalEngineType).toBe(
+          ConventionalFighterEngineType.ICE,
+        );
       });
 
       it('should map engine type 1 to FUEL_CELL', () => {
@@ -337,7 +351,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(ConventionalFighterEngineType.FUEL_CELL);
+        expect(result.data?.unit?.conventionalEngineType).toBe(
+          ConventionalFighterEngineType.FUEL_CELL,
+        );
       });
 
       it('should map engine type 2 to ELECTRIC', () => {
@@ -345,7 +361,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(ConventionalFighterEngineType.ELECTRIC);
+        expect(result.data?.unit?.conventionalEngineType).toBe(
+          ConventionalFighterEngineType.ELECTRIC,
+        );
       });
 
       it('should map engine type 3 to FISSION', () => {
@@ -353,7 +371,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(ConventionalFighterEngineType.FISSION);
+        expect(result.data?.unit?.conventionalEngineType).toBe(
+          ConventionalFighterEngineType.FISSION,
+        );
       });
 
       it('should map engine type 4 to FUSION', () => {
@@ -361,7 +381,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(ConventionalFighterEngineType.FUSION);
+        expect(result.data?.unit?.conventionalEngineType).toBe(
+          ConventionalFighterEngineType.FUSION,
+        );
       });
 
       it('should map engine type 5 to SOLAR', () => {
@@ -369,7 +391,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(ConventionalFighterEngineType.SOLAR);
+        expect(result.data?.unit?.conventionalEngineType).toBe(
+          ConventionalFighterEngineType.SOLAR,
+        );
       });
 
       it('should map engine type 6 to MAGLEV', () => {
@@ -377,7 +401,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(ConventionalFighterEngineType.MAGLEV);
+        expect(result.data?.unit?.conventionalEngineType).toBe(
+          ConventionalFighterEngineType.MAGLEV,
+        );
       });
 
       it('should default unknown engine type to ICE', () => {
@@ -385,7 +411,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(ConventionalFighterEngineType.ICE);
+        expect(result.data?.unit?.conventionalEngineType).toBe(
+          ConventionalFighterEngineType.ICE,
+        );
       });
     });
 
@@ -439,7 +467,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.cockpitType).toBe(AerospaceCockpitType.STANDARD);
+        expect(result.data?.unit?.cockpitType).toBe(
+          AerospaceCockpitType.STANDARD,
+        );
       });
 
       it('should parse cockpit type 1 as SMALL', () => {
@@ -455,7 +485,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.cockpitType).toBe(AerospaceCockpitType.PRIMITIVE);
+        expect(result.data?.unit?.cockpitType).toBe(
+          AerospaceCockpitType.PRIMITIVE,
+        );
       });
 
       it('should default unknown cockpit type to STANDARD', () => {
@@ -463,7 +495,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.cockpitType).toBe(AerospaceCockpitType.STANDARD);
+        expect(result.data?.unit?.cockpitType).toBe(
+          AerospaceCockpitType.STANDARD,
+        );
       });
     });
 
@@ -485,14 +519,16 @@ describe('ConventionalFighterUnitHandler', () => {
       it('should normalize location names correctly', () => {
         const doc = createMockBlkDocument({
           equipmentByLocation: {
-            'nose': ['Large Laser'],
+            nose: ['Large Laser'],
             'left wing': ['Medium Laser'],
           },
         });
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        const noseEquip = result.data?.unit?.equipment.find(e => e.location === AerospaceLocation.NOSE);
+        const noseEquip = result.data?.unit?.equipment.find(
+          (e) => e.location === AerospaceLocation.NOSE,
+        );
         expect(noseEquip).toBeDefined();
       });
 
@@ -505,7 +541,7 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        const ids = result.data?.unit?.equipment.map(e => e.id);
+        const ids = result.data?.unit?.equipment.map((e) => e.id);
         const uniqueIds = new Set(ids);
         expect(uniqueIds.size).toBe(ids?.length);
       });
@@ -519,7 +555,9 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.equipment[0].location).toBe(AerospaceLocation.FUSELAGE);
+        expect(result.data?.unit?.equipment[0].location).toBe(
+          AerospaceLocation.FUSELAGE,
+        );
       });
     });
 
@@ -581,7 +619,11 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(false);
-        expect(result.error!.errors.some(e => e.includes('cannot exceed 100 tons'))).toBe(true);
+        expect(
+          result.error!.errors.some((e) =>
+            e.includes('cannot exceed 100 tons'),
+          ),
+        ).toBe(true);
       });
 
       it('should parse valid 100 ton fighter', () => {
@@ -717,7 +759,9 @@ describe('ConventionalFighterUnitHandler', () => {
 
         const validation = handler.validate(result.data!.unit);
         expect(validation.isValid).toBe(false);
-        expect(validation.errors.some(e => e.includes('at least 5 tons'))).toBe(true);
+        expect(
+          validation.errors.some((e) => e.includes('at least 5 tons')),
+        ).toBe(true);
       });
 
       it('should fail validation for tonnage exceeding 100 tons', () => {
@@ -734,7 +778,9 @@ describe('ConventionalFighterUnitHandler', () => {
 
         const validation = handler.validate(invalidUnit);
         expect(validation.isValid).toBe(false);
-        expect(validation.errors.some(e => e.includes('cannot exceed 100 tons'))).toBe(true);
+        expect(
+          validation.errors.some((e) => e.includes('cannot exceed 100 tons')),
+        ).toBe(true);
       });
 
       it('should pass validation for 5 ton fighter', () => {
@@ -743,7 +789,9 @@ describe('ConventionalFighterUnitHandler', () => {
         expect(result.success).toBe(true);
 
         const validation = handler.validate(result.data!.unit);
-        expect(validation.errors.some(e => e.includes('at least 5 tons'))).toBe(false);
+        expect(
+          validation.errors.some((e) => e.includes('at least 5 tons')),
+        ).toBe(false);
       });
 
       it('should pass validation for 100 ton fighter', () => {
@@ -752,7 +800,9 @@ describe('ConventionalFighterUnitHandler', () => {
         expect(result.success).toBe(true);
 
         const validation = handler.validate(result.data!.unit);
-        expect(validation.errors.some(e => e.includes('cannot exceed 100 tons'))).toBe(false);
+        expect(
+          validation.errors.some((e) => e.includes('cannot exceed 100 tons')),
+        ).toBe(false);
       });
     });
 
@@ -770,7 +820,9 @@ describe('ConventionalFighterUnitHandler', () => {
 
         const validation = handler.validate(invalidUnit);
         expect(validation.isValid).toBe(false);
-        expect(validation.errors.some(e => e.includes('at least 1 safe thrust'))).toBe(true);
+        expect(
+          validation.errors.some((e) => e.includes('at least 1 safe thrust')),
+        ).toBe(true);
       });
 
       it('should pass validation with at least 1 safe thrust', () => {
@@ -779,7 +831,9 @@ describe('ConventionalFighterUnitHandler', () => {
         expect(result.success).toBe(true);
 
         const validation = handler.validate(result.data!.unit);
-        expect(validation.errors.some(e => e.includes('at least 1 safe thrust'))).toBe(false);
+        expect(
+          validation.errors.some((e) => e.includes('at least 1 safe thrust')),
+        ).toBe(false);
       });
     });
 
@@ -796,7 +850,9 @@ describe('ConventionalFighterUnitHandler', () => {
 
         const validation = handler.validate(invalidUnit);
         expect(validation.isValid).toBe(false);
-        expect(validation.errors.some(e => e.includes('at least 1 SI'))).toBe(true);
+        expect(validation.errors.some((e) => e.includes('at least 1 SI'))).toBe(
+          true,
+        );
       });
 
       it('should pass validation with at least 1 SI', () => {
@@ -805,7 +861,9 @@ describe('ConventionalFighterUnitHandler', () => {
         expect(result.success).toBe(true);
 
         const validation = handler.validate(result.data!.unit);
-        expect(validation.errors.some(e => e.includes('at least 1 SI'))).toBe(false);
+        expect(validation.errors.some((e) => e.includes('at least 1 SI'))).toBe(
+          false,
+        );
       });
     });
 
@@ -816,7 +874,9 @@ describe('ConventionalFighterUnitHandler', () => {
         expect(result.success).toBe(true);
 
         const validation = handler.validate(result.data!.unit);
-        expect(validation.infos.some(i => i.includes('cannot operate in space'))).toBe(true);
+        expect(
+          validation.infos.some((i) => i.includes('cannot operate in space')),
+        ).toBe(true);
       });
     });
 
@@ -899,7 +959,10 @@ describe('ConventionalFighterUnitHandler', () => {
 
       it('should include structural weight based on tonnage', () => {
         const lightDoc = createMockBlkDocument({ tonnage: 20, safeThrust: 10 });
-        const heavyDoc = createMockBlkDocument({ tonnage: 100, safeThrust: 10 });
+        const heavyDoc = createMockBlkDocument({
+          tonnage: 100,
+          safeThrust: 10,
+        });
 
         const lightResult = handler.parse(lightDoc);
         const heavyResult = handler.parse(heavyDoc);
@@ -1124,7 +1187,9 @@ describe('ConventionalFighterUnitHandler', () => {
         expect(parseResult.success).toBe(true);
 
         const serializeResult = handler.serialize(parseResult.data!.unit);
-        expect(serializeResult.data?.serialized?.unitType).toBe(UnitType.CONVENTIONAL_FIGHTER);
+        expect(serializeResult.data?.serialized?.unitType).toBe(
+          UnitType.CONVENTIONAL_FIGHTER,
+        );
       });
 
       it('should include tonnage', () => {
@@ -1144,7 +1209,9 @@ describe('ConventionalFighterUnitHandler', () => {
         expect(parseResult.success).toBe(true);
 
         const serializeResult = handler.serialize(parseResult.data!.unit);
-        expect(serializeResult.data?.serialized?.configuration).toContain('ICE');
+        expect(serializeResult.data?.serialized?.configuration).toContain(
+          'ICE',
+        );
       });
 
       it('should include Conventional Fighter in configuration', () => {
@@ -1153,7 +1220,9 @@ describe('ConventionalFighterUnitHandler', () => {
         expect(parseResult.success).toBe(true);
 
         const serializeResult = handler.serialize(parseResult.data!.unit);
-        expect(serializeResult.data?.serialized?.configuration).toContain('Conventional Fighter');
+        expect(serializeResult.data?.serialized?.configuration).toContain(
+          'Conventional Fighter',
+        );
       });
 
       it('should include rules level in serialized output', () => {
@@ -1195,7 +1264,9 @@ describe('ConventionalFighterUnitHandler', () => {
 
         const result = handler.deserialize(serialized);
         expect(result.success).toBe(false);
-        expect(result.error!.errors.some(e => e.includes('not yet implemented'))).toBe(true);
+        expect(
+          result.error!.errors.some((e) => e.includes('not yet implemented')),
+        ).toBe(true);
       });
     });
   });

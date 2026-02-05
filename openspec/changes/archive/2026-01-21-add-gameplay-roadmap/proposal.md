@@ -22,42 +22,47 @@ This ensures users get value from construction and sharing before we tackle the 
 ## Roadmap Overview
 
 ### Phase 1: Build & Share MVP (COMPLETE)
-| Proposal | Description | Status |
-|----------|-------------|--------|
-| `add-multi-unit-type-support` | Vehicles, aerospace, infantry construction | Archived |
-| `add-pilot-system` | Pilot creation, skills, progression | Archived |
-| `add-vault-sharing` | File-based export/import with signatures | Archived |
-| `add-unit-card-view` | Quick reference sheet for unit stats/capabilities | Archived |
+
+| Proposal                      | Description                                       | Status   |
+| ----------------------------- | ------------------------------------------------- | -------- |
+| `add-multi-unit-type-support` | Vehicles, aerospace, infantry construction        | Archived |
+| `add-pilot-system`            | Pilot creation, skills, progression               | Archived |
+| `add-vault-sharing`           | File-based export/import with signatures          | Archived |
+| `add-unit-card-view`          | Quick reference sheet for unit stats/capabilities | Archived |
 
 ### Phase 2: Organize & Collaborate (COMPLETE)
-| Proposal | Description | Status |
-|----------|-------------|--------|
+
+| Proposal               | Description                                    | Status           |
+| ---------------------- | ---------------------------------------------- | ---------------- |
 | `add-force-management` | Force roster, pilot-mech assignment, hierarchy | Archived (49/50) |
-| `add-pilot-mech-card` | Combined pilot+mech "character sheet" view | Archived (36/40) |
+| `add-pilot-mech-card`  | Combined pilot+mech "character sheet" view     | Archived (36/40) |
 
 ### Phase 3: Gameplay Core (COMPLETE)
-| Proposal | Description | Status |
-|----------|-------------|--------|
-| `add-game-session-core` | Event sourcing, turns, phases | Archived (32/48) |
-| `add-hex-grid-system` | Positioning, movement, facing | Archived (35/41) |
+
+| Proposal                | Description                    | Status           |
+| ----------------------- | ------------------------------ | ---------------- |
+| `add-game-session-core` | Event sourcing, turns, phases  | Archived (32/48) |
+| `add-hex-grid-system`   | Positioning, movement, facing  | Archived (35/41) |
 | `add-combat-resolution` | Attacks, damage, critical hits | Archived (42/52) |
 
 Note: DB/API layers deferred - MVP uses in-memory state.
 
 ### Phase 4: Gameplay Integration (COMPLETE)
-| Proposal | Description | Status |
-|----------|-------------|--------|
+
+| Proposal               | Description                        | Status      |
+| ---------------------- | ---------------------------------- | ----------- |
 | `add-encounter-system` | Scenario setup, victory conditions | Implemented |
-| `add-gameplay-ui` | Map, record sheet, action controls | Implemented |
+| `add-gameplay-ui`      | Map, record sheet, action controls | Implemented |
 
 ### Phase 5: Advanced Features (FUTURE)
-| Proposal | Description | Dependencies |
-|----------|-------------|--------------|
-| `add-vault-sharing` (P2P) | Real-time sync | Vault Phase 2 |
-| `add-campaign-system` | Multi-mission arcs, persistent state | Encounter system |
-| `add-multiplayer-support` | Real-time multiplayer sessions | Vault P2P, Game session |
-| `add-awards-system` | Medals, achievements, pilot decorations | Pilot system |
-| `add-repair-system` | Post-battle damage, repair costs | Game session |
+
+| Proposal                  | Description                             | Dependencies            |
+| ------------------------- | --------------------------------------- | ----------------------- |
+| `add-vault-sharing` (P2P) | Real-time sync                          | Vault Phase 2           |
+| `add-campaign-system`     | Multi-mission arcs, persistent state    | Encounter system        |
+| `add-multiplayer-support` | Real-time multiplayer sessions          | Vault P2P, Game session |
+| `add-awards-system`       | Medals, achievements, pilot decorations | Pilot system            |
+| `add-repair-system`       | Post-battle damage, repair costs        | Game session            |
 
 ## Implementation Order
 
@@ -91,6 +96,7 @@ Phase 5 - Advanced (FUTURE):
 ## MVP Milestones
 
 ### MVP 1: "Build & Share" (COMPLETE)
+
 - [x] Construct vehicles, aerospace, infantry (not just mechs)
 - [x] Create and customize pilots with skills/abilities
 - [x] Export units/pilots as shareable files
@@ -98,15 +104,18 @@ Phase 5 - Advanced (FUTURE):
 - [x] View unit stats in quick reference card
 
 ### MVP 2: "Organize" (COMPLETE)
+
 - [x] Organize units and pilots into forces/lances
 - [x] View combined pilot+mech character sheets
 
 ### MVP 3: "Play Core" (COMPLETE)
+
 - [x] Event-sourced game state with turn/phase structure
 - [x] Hex-based movement and positioning calculations
 - [x] Combat resolution with damage tracking and critical hits
 
 ### MVP 4: "Play Complete" (COMPLETE)
+
 - [x] Scenario/encounter setup with victory conditions
 - [x] Full gameplay UI (hex map, record sheet, action controls)
 - [x] 1v1 BattleMech duel with complete turn cycle

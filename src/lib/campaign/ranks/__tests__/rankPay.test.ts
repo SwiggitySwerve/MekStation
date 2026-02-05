@@ -1,9 +1,14 @@
-import { getRankPayMultiplier, getPersonMonthlySalaryWithRank, getOfficerShares } from '@/lib/campaign/ranks/rankPay';
-import { createRanks } from '@/types/campaign/ranks/rankTypes';
-import type { IRankSystem } from '@/types/campaign/ranks/rankTypes';
 import type { IPerson } from '@/types/campaign/Person';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import type { IRankSystem } from '@/types/campaign/ranks/rankTypes';
+
+import {
+  getRankPayMultiplier,
+  getPersonMonthlySalaryWithRank,
+  getOfficerShares,
+} from '@/lib/campaign/ranks/rankPay';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { createRanks } from '@/types/campaign/ranks/rankTypes';
 
 // =============================================================================
 // Mock Rank System
@@ -17,8 +22,16 @@ const mockSystem: IRankSystem = {
   officerCut: 31,
   ranks: createRanks({
     0: { names: { mekwarrior: 'None' }, officer: false, payMultiplier: 1.0 },
-    5: { names: { mekwarrior: 'Sergeant' }, officer: false, payMultiplier: 1.1 },
-    31: { names: { mekwarrior: 'Lieutenant' }, officer: true, payMultiplier: 1.4 },
+    5: {
+      names: { mekwarrior: 'Sergeant' },
+      officer: false,
+      payMultiplier: 1.1,
+    },
+    31: {
+      names: { mekwarrior: 'Lieutenant' },
+      officer: true,
+      payMultiplier: 1.4,
+    },
     35: { names: { mekwarrior: 'Captain' }, officer: true, payMultiplier: 1.6 },
     40: { names: { mekwarrior: 'Colonel' }, officer: true, payMultiplier: 2.0 },
   }),
@@ -43,7 +56,16 @@ const createMockPerson = (overrides: Partial<IPerson> = {}): IPerson => ({
   injuries: [],
   daysToWaitForHealing: 0,
   skills: {},
-  attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+  attributes: {
+    STR: 5,
+    BOD: 5,
+    REF: 5,
+    DEX: 5,
+    INT: 5,
+    WIL: 5,
+    CHA: 5,
+    Edge: 0,
+  },
   pilotSkills: { gunnery: 4, piloting: 5 },
   missionsCompleted: 0,
   totalKills: 0,
@@ -107,11 +129,17 @@ describe('getRankPayMultiplier', () => {
     const systemWithNegativeMultiplier: IRankSystem = {
       ...mockSystem,
       ranks: createRanks({
-        0: { names: { mekwarrior: 'None' }, officer: false, payMultiplier: -0.5 },
+        0: {
+          names: { mekwarrior: 'None' },
+          officer: false,
+          payMultiplier: -0.5,
+        },
       }),
     };
     const person = createMockPerson({ rankIndex: 0 });
-    expect(getRankPayMultiplier(person, systemWithNegativeMultiplier)).toBe(1.0);
+    expect(getRankPayMultiplier(person, systemWithNegativeMultiplier)).toBe(
+      1.0,
+    );
   });
 });
 
@@ -168,7 +196,9 @@ describe('getPersonMonthlySalaryWithRank', () => {
 
   it('should handle large base salary: 50000 * 2.0 = 100000', () => {
     const person = createMockPerson({ rankIndex: 40 });
-    expect(getPersonMonthlySalaryWithRank(50000, person, mockSystem)).toBe(100000);
+    expect(getPersonMonthlySalaryWithRank(50000, person, mockSystem)).toBe(
+      100000,
+    );
   });
 
   it('should use undefined rankIndex as 0', () => {
@@ -183,29 +213,43 @@ describe('getPersonMonthlySalaryWithRank', () => {
 
   it('should handle fractional base salary with rounding', () => {
     const person = createMockPerson({ rankIndex: 5 });
-    expect(getPersonMonthlySalaryWithRank(999.5, person, mockSystem)).toBe(1099);
+    expect(getPersonMonthlySalaryWithRank(999.5, person, mockSystem)).toBe(
+      1099,
+    );
   });
 
   it('should handle very small multiplier', () => {
     const systemWithSmallMultiplier: IRankSystem = {
       ...mockSystem,
       ranks: createRanks({
-        0: { names: { mekwarrior: 'None' }, officer: false, payMultiplier: 0.1 },
+        0: {
+          names: { mekwarrior: 'None' },
+          officer: false,
+          payMultiplier: 0.1,
+        },
       }),
     };
     const person = createMockPerson({ rankIndex: 0 });
-    expect(getPersonMonthlySalaryWithRank(1000, person, systemWithSmallMultiplier)).toBe(100);
+    expect(
+      getPersonMonthlySalaryWithRank(1000, person, systemWithSmallMultiplier),
+    ).toBe(100);
   });
 
   it('should handle large multiplier', () => {
     const systemWithLargeMultiplier: IRankSystem = {
       ...mockSystem,
       ranks: createRanks({
-        0: { names: { mekwarrior: 'None' }, officer: false, payMultiplier: 5.0 },
+        0: {
+          names: { mekwarrior: 'None' },
+          officer: false,
+          payMultiplier: 5.0,
+        },
       }),
     };
     const person = createMockPerson({ rankIndex: 0 });
-    expect(getPersonMonthlySalaryWithRank(1000, person, systemWithLargeMultiplier)).toBe(5000);
+    expect(
+      getPersonMonthlySalaryWithRank(1000, person, systemWithLargeMultiplier),
+    ).toBe(5000);
   });
 });
 
@@ -264,8 +308,16 @@ describe('getOfficerShares', () => {
       ...mockSystem,
       officerCut: 20,
       ranks: createRanks({
-        20: { names: { mekwarrior: 'Officer' }, officer: true, payMultiplier: 1.5 },
-        25: { names: { mekwarrior: 'Senior Officer' }, officer: true, payMultiplier: 2.0 },
+        20: {
+          names: { mekwarrior: 'Officer' },
+          officer: true,
+          payMultiplier: 1.5,
+        },
+        25: {
+          names: { mekwarrior: 'Senior Officer' },
+          officer: true,
+          payMultiplier: 2.0,
+        },
       }),
     };
     const person = createMockPerson({ rankIndex: 25 });
@@ -277,7 +329,11 @@ describe('getOfficerShares', () => {
       ...mockSystem,
       officerCut: 31,
       ranks: createRanks({
-        40: { names: { mekwarrior: 'Warrant Officer' }, officer: false, payMultiplier: 1.8 },
+        40: {
+          names: { mekwarrior: 'Warrant Officer' },
+          officer: false,
+          payMultiplier: 1.8,
+        },
       }),
     };
     const person = createMockPerson({ rankIndex: 40 });

@@ -1,19 +1,26 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+
 import { ArmorDiagramQuickSettings } from '@/components/customizer/armor/ArmorDiagramQuickSettings';
-import { useAppSettingsStore, AppSettingsState, ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
+import {
+  useAppSettingsStore,
+  AppSettingsState,
+  ArmorDiagramVariant,
+} from '@/stores/useAppSettingsStore';
 
 jest.mock('@/stores/useAppSettingsStore', () => ({
   useAppSettingsStore: jest.fn(),
 }));
 
-const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<typeof useAppSettingsStore>;
+const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<
+  typeof useAppSettingsStore
+>;
 
 function createMockState(
   variant: ArmorDiagramVariant,
   setFn: jest.Mock,
-  revertFn: jest.Mock
+  revertFn: jest.Mock,
 ): Partial<AppSettingsState> {
   return {
     armorDiagramVariant: variant,
@@ -29,10 +36,16 @@ describe('ArmorDiagramQuickSettings', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseAppSettingsStore.mockImplementation(<T,>(selector: (state: AppSettingsState) => T): T => {
-      const state = createMockState('clean-tech', mockSetArmorDiagramVariant, mockRevertCustomizer);
-      return selector(state as AppSettingsState);
-    });
+    mockUseAppSettingsStore.mockImplementation(
+      <T,>(selector: (state: AppSettingsState) => T): T => {
+        const state = createMockState(
+          'clean-tech',
+          mockSetArmorDiagramVariant,
+          mockRevertCustomizer,
+        );
+        return selector(state as AppSettingsState);
+      },
+    );
   });
 
   it('renders current variant name with silhouette label', () => {
@@ -96,7 +109,7 @@ describe('ArmorDiagramQuickSettings', () => {
       <div>
         <ArmorDiagramQuickSettings />
         <button data-testid="outside">Outside</button>
-      </div>
+      </div>,
     );
 
     await user.click(screen.getByRole('button', { expanded: false }));
@@ -130,10 +143,16 @@ describe('ArmorDiagramQuickSettings', () => {
   });
 
   it('reflects different initial variant', () => {
-    mockUseAppSettingsStore.mockImplementation(<T,>(selector: (state: AppSettingsState) => T): T => {
-      const state = createMockState('tactical-hud', mockSetArmorDiagramVariant, mockRevertCustomizer);
-      return selector(state as AppSettingsState);
-    });
+    mockUseAppSettingsStore.mockImplementation(
+      <T,>(selector: (state: AppSettingsState) => T): T => {
+        const state = createMockState(
+          'tactical-hud',
+          mockSetArmorDiagramVariant,
+          mockRevertCustomizer,
+        );
+        return selector(state as AppSettingsState);
+      },
+    );
 
     render(<ArmorDiagramQuickSettings />);
     // VARIANT_NAMES name for 'tactical-hud' is 'HUD'

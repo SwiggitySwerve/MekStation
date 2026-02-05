@@ -1,6 +1,8 @@
 import React, { memo, useCallback } from 'react';
 import { List } from 'react-window';
+
 import type { IViolation } from '@/components/simulation-viewer/pages/AnalysisBugs';
+
 import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 /* ========================================================================== */
@@ -73,12 +75,14 @@ const ViolationRow = ({
   const violation = violations[index];
   if (!violation) return null;
 
-  const severityClass = SEVERITY_BADGE_CLASSES[violation.severity as Severity] ?? SEVERITY_BADGE_CLASSES.info;
+  const severityClass =
+    SEVERITY_BADGE_CLASSES[violation.severity as Severity] ??
+    SEVERITY_BADGE_CLASSES.info;
 
   return (
     <div
       style={style}
-      className={`border-b border-gray-200 dark:border-gray-700 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${onViolationClick ? `cursor-pointer ${FOCUS_RING_CLASSES}` : ''}`}
+      className={`border-b border-gray-200 px-4 py-2 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800 ${onViolationClick ? `cursor-pointer ${FOCUS_RING_CLASSES}` : ''}`}
       onClick={() => onViolationClick?.(violation)}
       onKeyDown={(e) => {
         if ((e.key === 'Enter' || e.key === ' ') && onViolationClick) {
@@ -91,20 +95,20 @@ const ViolationRow = ({
       aria-label={`${violation.severity} violation: ${violation.message}`}
       data-testid={`virtualized-violation-${violation.id}`}
     >
-      <div className="flex items-center gap-3 h-full">
+      <div className="flex h-full items-center gap-3">
         <span
-          className={`px-2 py-0.5 rounded text-xs font-bold uppercase flex-shrink-0 ${severityClass}`}
+          className={`flex-shrink-0 rounded px-2 py-0.5 text-xs font-bold uppercase ${severityClass}`}
           data-testid="violation-severity-badge"
         >
           {violation.severity}
         </span>
-        <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap w-28 flex-shrink-0">
+        <span className="w-28 flex-shrink-0 text-xs whitespace-nowrap text-gray-500 dark:text-gray-400">
           {formatTimestamp(violation.timestamp)}
         </span>
-        <span className="text-xs font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap w-24 flex-shrink-0 truncate">
+        <span className="w-24 flex-shrink-0 truncate text-xs font-medium whitespace-nowrap text-gray-600 dark:text-gray-300">
           {violation.type}
         </span>
-        <span className="text-sm text-gray-800 dark:text-gray-200 truncate flex-1">
+        <span className="flex-1 truncate text-sm text-gray-800 dark:text-gray-200">
           {violation.message}
         </span>
         {onViewBattle && (
@@ -114,7 +118,7 @@ const ViolationRow = ({
               e.stopPropagation();
               onViewBattle(violation.battleId);
             }}
-            className={`text-xs text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap flex-shrink-0 px-2 py-1 rounded ${FOCUS_RING_CLASSES}`}
+            className={`flex-shrink-0 rounded px-2 py-1 text-xs whitespace-nowrap text-blue-600 hover:underline dark:text-blue-400 ${FOCUS_RING_CLASSES}`}
             aria-label={`View battle ${violation.battleId}`}
             data-testid="violation-view-battle"
           >
@@ -131,7 +135,13 @@ const ViolationRow = ({
 /* ========================================================================== */
 
 export const VirtualizedViolationLog = memo<IVirtualizedViolationLogProps>(
-  ({ violations, height = DEFAULT_HEIGHT, itemHeight = DEFAULT_ITEM_HEIGHT, onViolationClick, onViewBattle }) => {
+  ({
+    violations,
+    height = DEFAULT_HEIGHT,
+    itemHeight = DEFAULT_ITEM_HEIGHT,
+    onViolationClick,
+    onViewBattle,
+  }) => {
     const rowProps = useCallback(
       () => ({ violations, onViolationClick, onViewBattle }),
       [violations, onViolationClick, onViewBattle],
@@ -140,7 +150,7 @@ export const VirtualizedViolationLog = memo<IVirtualizedViolationLogProps>(
     if (violations.length === 0) {
       return (
         <p
-          className="text-sm text-gray-500 dark:text-gray-400 italic py-8 text-center"
+          className="py-8 text-center text-sm text-gray-500 italic dark:text-gray-400"
           data-testid="virtualized-violation-log-empty"
         >
           No violations match the current filters.
@@ -151,14 +161,16 @@ export const VirtualizedViolationLog = memo<IVirtualizedViolationLogProps>(
     return (
       <div
         data-testid="virtualized-violation-log"
-        className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800"
+        className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
       >
-        <div className="flex items-center gap-3 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-3 border-b border-gray-200 bg-gray-100 px-4 py-2 text-xs font-medium text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
           <span className="w-16 flex-shrink-0">Severity</span>
           <span className="w-28 flex-shrink-0">Timestamp</span>
           <span className="w-24 flex-shrink-0">Type</span>
           <span className="flex-1">Message</span>
-          {onViewBattle && <span className="w-20 flex-shrink-0 text-right">Actions</span>}
+          {onViewBattle && (
+            <span className="w-20 flex-shrink-0 text-right">Actions</span>
+          )}
         </div>
         <List
           rowComponent={ViolationRow}

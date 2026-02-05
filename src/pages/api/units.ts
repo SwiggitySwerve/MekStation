@@ -1,11 +1,11 @@
 /**
  * Units API
- * 
+ *
  * Query and retrieve canonical unit data.
- * 
+ *
  * GET /api/units - List/query units
  * GET /api/units?id=<id> - Get single unit by ID
- * 
+ *
  * Query Parameters:
  * - id: Get specific unit by ID
  * - techBase: Filter by tech base (INNER_SPHERE, CLAN, BOTH)
@@ -14,16 +14,17 @@
  * - unitType: Filter by unit type (BattleMech, Vehicle, etc.)
  * - minTonnage: Minimum tonnage
  * - maxTonnage: Maximum tonnage
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
+
 import { IUnitQueryCriteria } from '@/services/common/types';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { TechBase } from '@/types/enums/TechBase';
+import { canonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { Era } from '@/types/enums/Era';
+import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 interface ApiResponse {
   success: boolean;
@@ -70,7 +71,7 @@ function parseIntOrUndefined(value: string): number | undefined {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse>
+  res: NextApiResponse<ApiResponse>,
 ): Promise<void> {
   if (req.method !== 'GET') {
     return res.status(405).json({
@@ -80,12 +81,13 @@ export default async function handler(
   }
 
   try {
-    const { id, techBase, era, weightClass, unitType, minTonnage, maxTonnage } = req.query;
+    const { id, techBase, era, weightClass, unitType, minTonnage, maxTonnage } =
+      req.query;
 
     // Get single unit by ID
     if (id && typeof id === 'string') {
       const unit = await canonicalUnitService.getById(id);
-      
+
       if (!unit) {
         return res.status(404).json({
           success: false,
@@ -101,12 +103,19 @@ export default async function handler(
 
     // Build query criteria from query parameters using type-safe spread
     const criteria: IUnitQueryCriteria = {
-      ...(typeof techBase === 'string' && isValidTechBase(techBase) && { techBase }),
+      ...(typeof techBase === 'string' &&
+        isValidTechBase(techBase) && { techBase }),
       ...(typeof era === 'string' && isValidEra(era) && { era }),
-      ...(typeof weightClass === 'string' && isValidWeightClass(weightClass) && { weightClass }),
-      ...(typeof unitType === 'string' && isValidUnitType(unitType) && { unitType }),
-      ...(typeof minTonnage === 'string' && { minTonnage: parseIntOrUndefined(minTonnage) }),
-      ...(typeof maxTonnage === 'string' && { maxTonnage: parseIntOrUndefined(maxTonnage) }),
+      ...(typeof weightClass === 'string' &&
+        isValidWeightClass(weightClass) && { weightClass }),
+      ...(typeof unitType === 'string' &&
+        isValidUnitType(unitType) && { unitType }),
+      ...(typeof minTonnage === 'string' && {
+        minTonnage: parseIntOrUndefined(minTonnage),
+      }),
+      ...(typeof maxTonnage === 'string' && {
+        maxTonnage: parseIntOrUndefined(maxTonnage),
+      }),
     };
 
     // Query units
@@ -117,7 +126,6 @@ export default async function handler(
       data: units,
       count: units.length,
     });
-
   } catch (error) {
     console.error('Units API error:', error);
     return res.status(500).json({

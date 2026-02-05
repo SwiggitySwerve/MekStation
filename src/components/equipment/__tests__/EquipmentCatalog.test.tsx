@@ -1,17 +1,74 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { EquipmentCatalog } from '../EquipmentCatalog';
+import React from 'react';
+
 import type { FilterOptions } from '../EquipmentCatalog';
-import { IEquipmentItem, EquipmentCategory } from '../../../types/equipment';
-import { TechBase } from '../../../types/enums/TechBase';
+
 import { RulesLevel } from '../../../types/enums/RulesLevel';
+import { TechBase } from '../../../types/enums/TechBase';
+import { IEquipmentItem, EquipmentCategory } from '../../../types/equipment';
+import { EquipmentCatalog } from '../EquipmentCatalog';
 
 const mockItems: IEquipmentItem[] = [
-  { id: '1', name: 'Large Laser', category: EquipmentCategory.ENERGY_WEAPON, weight: 5, criticalSlots: 2, techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.STANDARD, costCBills: 100000, battleValue: 123, introductionYear: 2500 },
-  { id: '2', name: 'AC/20', category: EquipmentCategory.BALLISTIC_WEAPON, weight: 14, criticalSlots: 10, techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.STANDARD, costCBills: 300000, battleValue: 178, introductionYear: 2500 },
-  { id: '3', name: 'LRM-20', category: EquipmentCategory.MISSILE_WEAPON, weight: 7, criticalSlots: 5, techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.STANDARD, costCBills: 150000, battleValue: 220, introductionYear: 2400 },
-  { id: '4', name: 'Medium Laser', category: EquipmentCategory.ENERGY_WEAPON, weight: 1, criticalSlots: 1, techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.INTRODUCTORY, costCBills: 40000, battleValue: 46, introductionYear: 2300 },
-  { id: '5', name: 'Gauss Rifle', category: EquipmentCategory.BALLISTIC_WEAPON, weight: 15, criticalSlots: 7, techBase: TechBase.INNER_SPHERE, rulesLevel: RulesLevel.STANDARD, costCBills: 300000, battleValue: 321, introductionYear: 2590 },
+  {
+    id: '1',
+    name: 'Large Laser',
+    category: EquipmentCategory.ENERGY_WEAPON,
+    weight: 5,
+    criticalSlots: 2,
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.STANDARD,
+    costCBills: 100000,
+    battleValue: 123,
+    introductionYear: 2500,
+  },
+  {
+    id: '2',
+    name: 'AC/20',
+    category: EquipmentCategory.BALLISTIC_WEAPON,
+    weight: 14,
+    criticalSlots: 10,
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.STANDARD,
+    costCBills: 300000,
+    battleValue: 178,
+    introductionYear: 2500,
+  },
+  {
+    id: '3',
+    name: 'LRM-20',
+    category: EquipmentCategory.MISSILE_WEAPON,
+    weight: 7,
+    criticalSlots: 5,
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.STANDARD,
+    costCBills: 150000,
+    battleValue: 220,
+    introductionYear: 2400,
+  },
+  {
+    id: '4',
+    name: 'Medium Laser',
+    category: EquipmentCategory.ENERGY_WEAPON,
+    weight: 1,
+    criticalSlots: 1,
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.INTRODUCTORY,
+    costCBills: 40000,
+    battleValue: 46,
+    introductionYear: 2300,
+  },
+  {
+    id: '5',
+    name: 'Gauss Rifle',
+    category: EquipmentCategory.BALLISTIC_WEAPON,
+    weight: 15,
+    criticalSlots: 7,
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.STANDARD,
+    costCBills: 300000,
+    battleValue: 321,
+    introductionYear: 2590,
+  },
 ];
 
 const mockFilters: FilterOptions = {
@@ -35,7 +92,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       expect(screen.getByText('Large Laser')).toBeInTheDocument();
@@ -52,7 +109,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const searchInput = screen.getByPlaceholderText('Search equipment...');
@@ -67,7 +124,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const filterButton = screen.getByLabelText('Open filters');
@@ -81,11 +138,13 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       expect(screen.getByText('Energy Weapon • 5 tons')).toBeInTheDocument();
-      expect(screen.getByText('Ballistic Weapon • 14 tons')).toBeInTheDocument();
+      expect(
+        screen.getByText('Ballistic Weapon • 14 tons'),
+      ).toBeInTheDocument();
     });
 
     it('should apply custom className', () => {
@@ -96,7 +155,7 @@ describe('EquipmentCatalog', () => {
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
           className="custom-class"
-        />
+        />,
       );
 
       expect(container.querySelector('.custom-class')).toBeInTheDocument();
@@ -111,7 +170,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const searchInput = screen.getByPlaceholderText('Search equipment...');
@@ -129,7 +188,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const searchInput = screen.getByPlaceholderText('Search equipment...');
@@ -146,7 +205,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const searchInput = screen.getByPlaceholderText('Search equipment...');
@@ -162,7 +221,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const searchInput = screen.getByPlaceholderText('Search equipment...');
@@ -178,7 +237,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const listItems = container.querySelectorAll('.min-h-\\[44px\\]');
@@ -192,12 +251,12 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const buttons = container.querySelectorAll('button[type="button"]');
       const itemButtons = Array.from(buttons).filter((btn) =>
-        btn.querySelector('h3')
+        btn.querySelector('h3'),
       );
       itemButtons.forEach((button) => {
         expect(button).toHaveClass('w-full');
@@ -211,10 +270,12 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
-      const largeLaserButton = screen.getByText('Large Laser').closest('button');
+      const largeLaserButton = screen
+        .getByText('Large Laser')
+        .closest('button');
       fireEvent.click(largeLaserButton!);
 
       expect(mockOnItemSelect).toHaveBeenCalledWith(mockItems[0]);
@@ -227,12 +288,12 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const buttons = container.querySelectorAll('button[type="button"]');
       const itemButtons = Array.from(buttons).filter((btn) =>
-        btn.querySelector('h3')
+        btn.querySelector('h3'),
       );
       itemButtons.forEach((button) => {
         expect(button.className).toContain('px-4');
@@ -249,7 +310,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const filterButton = screen.getByLabelText('Open filters');
@@ -266,7 +327,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const filterButton = screen.getByLabelText('Open filters');
@@ -285,13 +346,15 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const filterButton = screen.getByLabelText('Open filters');
       fireEvent.click(filterButton);
 
-      const backdrop = screen.getByText('Filters').closest('[role="presentation"]');
+      const backdrop = screen
+        .getByText('Filters')
+        .closest('[role="presentation"]');
       fireEvent.click(backdrop!);
 
       expect(screen.queryByText('Filters')).not.toBeInTheDocument();
@@ -304,17 +367,25 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const filterButton = screen.getByLabelText('Open filters');
       fireEvent.click(filterButton);
 
       expect(screen.getByText('Equipment Category')).toBeInTheDocument();
-      expect(screen.getByText(EquipmentCategory.ENERGY_WEAPON)).toBeInTheDocument();
-      expect(screen.getByText(EquipmentCategory.BALLISTIC_WEAPON)).toBeInTheDocument();
-      expect(screen.getByText(EquipmentCategory.MISSILE_WEAPON)).toBeInTheDocument();
-      expect(screen.getByText(EquipmentCategory.MISC_EQUIPMENT)).toBeInTheDocument();
+      expect(
+        screen.getByText(EquipmentCategory.ENERGY_WEAPON),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(EquipmentCategory.BALLISTIC_WEAPON),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(EquipmentCategory.MISSILE_WEAPON),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(EquipmentCategory.MISC_EQUIPMENT),
+      ).toBeInTheDocument();
     });
 
     it('should have 80% screen height', () => {
@@ -324,13 +395,15 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const filterButton = screen.getByLabelText('Open filters');
       fireEvent.click(filterButton);
 
-      const drawer = screen.getByLabelText('Filter equipment').closest('.h-\\[80\\%\\]');
+      const drawer = screen
+        .getByLabelText('Filter equipment')
+        .closest('.h-\\[80\\%\\]');
       expect(drawer).toBeInTheDocument();
     });
 
@@ -341,7 +414,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const filterButton = screen.getByLabelText('Open filters');
@@ -359,13 +432,15 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const filterButton = screen.getByLabelText('Open filters');
       fireEvent.click(filterButton);
 
-      const energyCheckbox = screen.getByLabelText(EquipmentCategory.ENERGY_WEAPON);
+      const energyCheckbox = screen.getByLabelText(
+        EquipmentCategory.ENERGY_WEAPON,
+      );
       fireEvent.click(energyCheckbox);
 
       expect(mockOnFilterChange).toHaveBeenCalledWith({
@@ -381,7 +456,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const filterButton = screen.getByLabelText('Open filters');
@@ -400,14 +475,16 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const filterButton = screen.getByLabelText('Open filters');
       fireEvent.click(filterButton);
 
       // Check that filter labels have proper touch targets
-      const energyLabel = screen.getByText(EquipmentCategory.ENERGY_WEAPON).closest('label');
+      const energyLabel = screen
+        .getByText(EquipmentCategory.ENERGY_WEAPON)
+        .closest('label');
       expect(energyLabel?.className).toContain('min-h-[44px]');
     });
   });
@@ -420,7 +497,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const searchBar = container.querySelector('.sticky');
@@ -437,7 +514,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       expect(screen.getByLabelText('Search equipment')).toBeInTheDocument();
@@ -451,7 +528,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const filterButton = screen.getByLabelText('Open filters');
@@ -469,7 +546,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       const icons = container.querySelectorAll('[aria-hidden="true"]');
@@ -485,7 +562,7 @@ describe('EquipmentCatalog', () => {
           filters={mockFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       expect(screen.getByText('No equipment found')).toBeInTheDocument();
@@ -493,7 +570,7 @@ describe('EquipmentCatalog', () => {
 
     it('should show empty state when filters match nothing', () => {
       const filteredFilters: FilterOptions = {
-        categories: [EquipmentCategory.ARTILLERY],  // No artillery in mock data
+        categories: [EquipmentCategory.ARTILLERY], // No artillery in mock data
         weightRange: [0, 20],
       };
 
@@ -503,7 +580,7 @@ describe('EquipmentCatalog', () => {
           filters={filteredFilters}
           onFilterChange={mockOnFilterChange}
           onItemSelect={mockOnItemSelect}
-        />
+        />,
       );
 
       expect(screen.getByText('No equipment found')).toBeInTheDocument();

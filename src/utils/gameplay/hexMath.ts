@@ -70,7 +70,10 @@ export function hexAdd(a: IHexCoordinate, b: IHexCoordinate): IHexCoordinate {
 /**
  * Subtract hex coordinate b from a.
  */
-export function hexSubtract(a: IHexCoordinate, b: IHexCoordinate): IHexCoordinate {
+export function hexSubtract(
+  a: IHexCoordinate,
+  b: IHexCoordinate,
+): IHexCoordinate {
   return {
     q: a.q - b.q,
     r: a.r - b.r,
@@ -80,7 +83,10 @@ export function hexSubtract(a: IHexCoordinate, b: IHexCoordinate): IHexCoordinat
 /**
  * Scale a hex coordinate by a factor.
  */
-export function hexScale(coord: IHexCoordinate, factor: number): IHexCoordinate {
+export function hexScale(
+  coord: IHexCoordinate,
+  factor: number,
+): IHexCoordinate {
   return {
     q: coord.q * factor,
     r: coord.r * factor,
@@ -116,7 +122,7 @@ export function cubeDistance(a: ICubeCoordinate, b: ICubeCoordinate): number {
   return Math.max(
     Math.abs(a.x - b.x),
     Math.abs(a.y - b.y),
-    Math.abs(a.z - b.z)
+    Math.abs(a.z - b.z),
   );
 }
 
@@ -127,7 +133,10 @@ export function cubeDistance(a: ICubeCoordinate, b: ICubeCoordinate): number {
 /**
  * Get the neighboring hex in a given direction.
  */
-export function hexNeighbor(coord: IHexCoordinate, direction: Facing): IHexCoordinate {
+export function hexNeighbor(
+  coord: IHexCoordinate,
+  direction: Facing,
+): IHexCoordinate {
   const delta = AXIAL_DIRECTION_DELTAS[direction];
   return hexAdd(coord, delta);
 }
@@ -144,16 +153,22 @@ export function hexNeighbors(coord: IHexCoordinate): readonly IHexCoordinate[] {
  * Get neighbors within a certain range.
  * Returns all hexes at exactly the specified distance.
  */
-export function hexRing(center: IHexCoordinate, radius: number): readonly IHexCoordinate[] {
+export function hexRing(
+  center: IHexCoordinate,
+  radius: number,
+): readonly IHexCoordinate[] {
   if (radius === 0) {
     return [center];
   }
 
   const results: IHexCoordinate[] = [];
-  
+
   // Start at the hex radius steps in one direction (e.g., southwest)
-  let current = hexAdd(center, hexScale(AXIAL_DIRECTION_DELTAS[Facing.Southwest], radius));
-  
+  let current = hexAdd(
+    center,
+    hexScale(AXIAL_DIRECTION_DELTAS[Facing.Southwest], radius),
+  );
+
   // Walk around the ring in 6 segments
   for (let direction = 0; direction < 6; direction++) {
     for (let step = 0; step < radius; step++) {
@@ -161,7 +176,7 @@ export function hexRing(center: IHexCoordinate, radius: number): readonly IHexCo
       current = hexNeighbor(current, direction as Facing);
     }
   }
-  
+
   return results;
 }
 
@@ -169,13 +184,16 @@ export function hexRing(center: IHexCoordinate, radius: number): readonly IHexCo
  * Get all hexes within a certain radius (inclusive).
  * Returns hexes from center outward.
  */
-export function hexSpiral(center: IHexCoordinate, radius: number): readonly IHexCoordinate[] {
+export function hexSpiral(
+  center: IHexCoordinate,
+  radius: number,
+): readonly IHexCoordinate[] {
   const results: IHexCoordinate[] = [center];
-  
+
   for (let r = 1; r <= radius; r++) {
     results.push(...hexRing(center, r));
   }
-  
+
   return results;
 }
 
@@ -183,9 +201,12 @@ export function hexSpiral(center: IHexCoordinate, radius: number): readonly IHex
  * Get all hexes within a certain range (inclusive).
  * More efficient than hexSpiral for large ranges.
  */
-export function hexesInRange(center: IHexCoordinate, range: number): readonly IHexCoordinate[] {
+export function hexesInRange(
+  center: IHexCoordinate,
+  range: number,
+): readonly IHexCoordinate[] {
   const results: IHexCoordinate[] = [];
-  
+
   for (let q = -range; q <= range; q++) {
     const r1 = Math.max(-range, -q - range);
     const r2 = Math.min(range, -q + range);
@@ -193,7 +214,7 @@ export function hexesInRange(center: IHexCoordinate, range: number): readonly IH
       results.push({ q: center.q + q, r: center.r + r });
     }
   }
-  
+
   return results;
 }
 
@@ -236,7 +257,10 @@ function cubeRound(cube: { x: number; y: number; z: number }): ICubeCoordinate {
  * Draw a line between two hexes using the DDA algorithm.
  * Returns all hexes the line passes through.
  */
-export function hexLine(a: IHexCoordinate, b: IHexCoordinate): readonly IHexCoordinate[] {
+export function hexLine(
+  a: IHexCoordinate,
+  b: IHexCoordinate,
+): readonly IHexCoordinate[] {
   const distance = hexDistance(a, b);
   if (distance === 0) {
     return [a];
@@ -271,17 +295,17 @@ export function hexLine(a: IHexCoordinate, b: IHexCoordinate): readonly IHexCoor
 export function hexAngle(from: IHexCoordinate, to: IHexCoordinate): number {
   // Convert to pixel coordinates for angle calculation (flat-top hex)
   const dx = (to.q - from.q) * 1.5; // Simplified, actual would use hex size
-  const dy = (to.r - from.r) + (to.q - from.q) * 0.5;
-  
+  const dy = to.r - from.r + (to.q - from.q) * 0.5;
+
   // atan2 gives angle from positive x-axis, we need from positive y-axis (North)
   const radians = Math.atan2(dx, -dy);
   let degrees = radians * (180 / Math.PI);
-  
+
   // Normalize to 0-360
   if (degrees < 0) {
     degrees += 360;
   }
-  
+
   return degrees;
 }
 
@@ -291,11 +315,11 @@ export function hexAngle(from: IHexCoordinate, to: IHexCoordinate): number {
 export function angleToFacing(angle: number): Facing {
   // Normalize angle to 0-360
   const normalized = ((angle % 360) + 360) % 360;
-  
+
   // Each facing covers 60 degrees, centered on 0, 60, 120, 180, 240, 300
   // Add 30 to shift the boundaries, then divide by 60
   const index = Math.floor(((normalized + 30) % 360) / 60);
-  
+
   return index as Facing;
 }
 

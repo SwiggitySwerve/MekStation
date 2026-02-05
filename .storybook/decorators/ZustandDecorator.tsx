@@ -1,7 +1,12 @@
-import React, { ReactNode, useEffect } from 'react';
 import type { Decorator } from '@storybook/react';
-import { useNavigationStore, PanelId } from '../../src/stores/useNavigationStore';
+
+import React, { ReactNode, useEffect } from 'react';
+
 import { useAppSettingsStore } from '../../src/stores/useAppSettingsStore';
+import {
+  useNavigationStore,
+  PanelId,
+} from '../../src/stores/useNavigationStore';
 
 interface ZustandProviderProps {
   children: ReactNode;

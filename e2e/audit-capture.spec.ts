@@ -2,17 +2,17 @@ import { test, expect, Page } from '@playwright/test';
 
 /**
  * UX Audit Capture Suite
- * 
+ *
  * Captures ~530 screenshots across 4 viewports (375, 768, 1024, 1280) for comprehensive UX review.
- * 
+ *
  * Run with: npx playwright test --grep @audit
- * 
+ *
  * Screenshot organization:
  * - PRIMARY routes: captured at all 4 viewports
  * - SECONDARY routes: captured at phone (375) + desktop (1280) only
  * - DIALOG routes: captured at phone (375) + desktop (1280) when triggered
  * - Touch overlays: captured at phone (375) only for key interaction pages
- * 
+ *
  * All screenshots saved to: .sisyphus/evidence/screenshots/
  * Naming convention: {route-slug}_{viewport}_{state}.png (viewport added by Playwright)
  */
@@ -51,19 +51,17 @@ async function addTouchTargetOverlay(page: Page) {
 
 // Helper: Wait for page to be ready
 async function waitForPageReady(page: Page) {
-   await page.waitForLoadState('networkidle');
-   // Small delay for animations to settle
-   await page.waitForTimeout(300);
+  await page.waitForLoadState('networkidle');
+  // Small delay for animations to settle
+  await page.waitForTimeout(300);
 }
 
 test.describe('UX Audit Capture Suite @audit', () => {
-  
   // ============================================================================
   // 1. HOME & GLOBAL
   // ============================================================================
-  
+
   test.describe('Home & Global', () => {
-    
     test('Home dashboard - primary', async ({ page }) => {
       await page.goto('/');
       await waitForPageReady(page);
@@ -154,9 +152,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 2. COMPENDIUM
   // ============================================================================
-  
+
   test.describe('Compendium', () => {
-    
     test('Compendium hub', async ({ page }) => {
       await page.goto('/compendium');
       await waitForPageReady(page);
@@ -225,10 +222,13 @@ test.describe('UX Audit Capture Suite @audit', () => {
     test('Compendium equipment - populated', async ({ page }) => {
       await page.goto('/compendium/equipment');
       await waitForPageReady(page);
-      await expect(page).toHaveScreenshot('compendium-equipment_populated.png', {
-        fullPage: true,
-        animations: 'disabled',
-      });
+      await expect(page).toHaveScreenshot(
+        'compendium-equipment_populated.png',
+        {
+          fullPage: true,
+          animations: 'disabled',
+        },
+      );
     });
 
     test('Compendium equipment - empty', async ({ page }) => {
@@ -292,9 +292,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 3. UNIT MANAGEMENT
   // ============================================================================
-  
+
   test.describe('Unit Management', () => {
-    
     test('My units - populated', async ({ page }) => {
       await page.goto('/units');
       await waitForPageReady(page);
@@ -361,7 +360,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 4. CUSTOMIZER - BATTLEMECH (7 tabs)
   // ============================================================================
-  
+
   test.describe('Customizer - BattleMech', () => {
     const mechId = testData.units.battlemech;
 
@@ -416,10 +415,13 @@ test.describe('UX Audit Capture Suite @audit', () => {
         await silhouetteButton.click();
         await page.waitForTimeout(300);
       }
-      await expect(page).toHaveScreenshot('customizer-armor-mech_silhouette.png', {
-        fullPage: true,
-        animations: 'disabled',
-      });
+      await expect(page).toHaveScreenshot(
+        'customizer-armor-mech_silhouette.png',
+        {
+          fullPage: true,
+          animations: 'disabled',
+        },
+      );
     });
 
     test('Customizer BattleMech - equipment', async ({ page }) => {
@@ -462,7 +464,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 5. CUSTOMIZER - VEHICLE (4 tabs)
   // ============================================================================
-  
+
   test.describe('Customizer - Vehicle', () => {
     const vehicleId = testData.units.vehicle;
 
@@ -506,7 +508,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 6. CUSTOMIZER - AEROSPACE (3 tabs)
   // ============================================================================
-  
+
   test.describe('Customizer - Aerospace', () => {
     const aeroId = testData.units.aerospace;
 
@@ -541,7 +543,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 7. CUSTOMIZER - BATTLE ARMOR (2 tabs)
   // ============================================================================
-  
+
   test.describe('Customizer - Battle Armor', () => {
     const baId = testData.units.battleArmor;
 
@@ -567,7 +569,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 8. CUSTOMIZER - INFANTRY (1 view)
   // ============================================================================
-  
+
   test.describe('Customizer - Infantry', () => {
     const infantryId = testData.units.infantry;
 
@@ -584,7 +586,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 9. CUSTOMIZER - PROTOMECH (1 view)
   // ============================================================================
-  
+
   test.describe('Customizer - ProtoMech', () => {
     const protomechId = testData.units.protomech;
 
@@ -601,9 +603,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 10. GAMEPLAY - PILOTS
   // ============================================================================
-  
+
   test.describe('Gameplay - Pilots', () => {
-    
     test('Pilots roster - populated', async ({ page }) => {
       await page.goto('/gameplay/pilots');
       await waitForPageReady(page);
@@ -648,7 +649,9 @@ test.describe('UX Audit Capture Suite @audit', () => {
     test('Pilot creation - step 1 mode', async ({ page }) => {
       await page.goto('/gameplay/pilots/create');
       await waitForPageReady(page);
-      const openButton = await page.$('button:has-text("Open Creation Wizard")');
+      const openButton = await page.$(
+        'button:has-text("Open Creation Wizard")',
+      );
       if (openButton) {
         await openButton.click();
         await page.waitForTimeout(300);
@@ -673,9 +676,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 11. GAMEPLAY - FORCES
   // ============================================================================
-  
+
   test.describe('Gameplay - Forces', () => {
-    
     test('Forces roster - populated', async ({ page }) => {
       await page.goto('/gameplay/forces');
       await waitForPageReady(page);
@@ -762,9 +764,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 12. GAMEPLAY - ENCOUNTERS
   // ============================================================================
-  
+
   test.describe('Gameplay - Encounters', () => {
-    
     test('Encounters list - populated', async ({ page }) => {
       await page.goto('/gameplay/encounters');
       await waitForPageReady(page);
@@ -851,9 +852,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 13. GAMEPLAY - CAMPAIGNS
   // ============================================================================
-  
+
   test.describe('Gameplay - Campaigns', () => {
-    
     test('Campaigns list - populated', async ({ page }) => {
       await page.goto('/gameplay/campaigns');
       await waitForPageReady(page);
@@ -897,9 +897,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 14. GAMEPLAY - QUICK GAME
   // ============================================================================
-  
+
   test.describe('Gameplay - Quick Game', () => {
-    
     test('Quick game welcome', async ({ page }) => {
       await page.goto('/gameplay/quick');
       await waitForPageReady(page);
@@ -913,9 +912,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 15. GAMEPLAY - GAMES & REPLAY
   // ============================================================================
-  
+
   test.describe('Gameplay - Games & Replay', () => {
-    
     test('Games history - populated', async ({ page }) => {
       await page.goto('/gameplay/games');
       await waitForPageReady(page);
@@ -938,9 +936,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 16. GAMEPLAY - REPAIR
   // ============================================================================
-  
+
   test.describe('Gameplay - Repair', () => {
-    
     test('Repair queue - populated', async ({ page }) => {
       await page.goto('/gameplay/repair');
       await waitForPageReady(page);
@@ -963,9 +960,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 17. COMPARISON
   // ============================================================================
-  
+
   test.describe('Comparison', () => {
-    
     test('Comparison - empty', async ({ page }) => {
       await page.goto('/compare');
       await waitForPageReady(page);
@@ -1000,9 +996,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 18. AUDIT & TIMELINE
   // ============================================================================
-  
+
   test.describe('Audit & Timeline', () => {
-    
     test('Timeline - loaded', async ({ page }) => {
       await page.goto('/audit/timeline');
       await waitForPageReady(page);
@@ -1030,9 +1025,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 19. SHARING & VAULT
   // ============================================================================
-  
+
   test.describe('Sharing & Vault', () => {
-    
     test('Share hub - populated', async ({ page }) => {
       await page.goto('/share');
       await waitForPageReady(page);
@@ -1055,7 +1049,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
   // ============================================================================
   // 20. TOUCH TARGET OVERLAYS (Mobile-specific)
   // ============================================================================
-  
+
   test.describe('Touch Target Overlays @mobile-audit', () => {
     test.use({ viewport: { width: 375, height: 667 }, hasTouch: true });
 
@@ -1073,21 +1067,29 @@ test.describe('UX Audit Capture Suite @audit', () => {
       await page.goto('/compendium/units');
       await waitForPageReady(page);
       await addTouchTargetOverlay(page);
-      await expect(page).toHaveScreenshot('compendium-units_touch-targets.png', {
-        fullPage: true,
-        animations: 'disabled',
-      });
+      await expect(page).toHaveScreenshot(
+        'compendium-units_touch-targets.png',
+        {
+          fullPage: true,
+          animations: 'disabled',
+        },
+      );
     });
 
-    test('Customizer BattleMech equipment - touch targets', async ({ page }) => {
+    test('Customizer BattleMech equipment - touch targets', async ({
+      page,
+    }) => {
       const mechId = testData.units.battlemech;
       await page.goto(`/customizer/${mechId}/equipment`);
       await waitForPageReady(page);
       await addTouchTargetOverlay(page);
-      await expect(page).toHaveScreenshot('customizer-equip-mech_touch-targets.png', {
-        fullPage: true,
-        animations: 'disabled',
-      });
+      await expect(page).toHaveScreenshot(
+        'customizer-equip-mech_touch-targets.png',
+        {
+          fullPage: true,
+          animations: 'disabled',
+        },
+      );
     });
 
     test('Pilots roster - touch targets', async ({ page }) => {

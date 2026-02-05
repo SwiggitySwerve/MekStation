@@ -1,20 +1,22 @@
 /**
  * Version Repository
- * 
+ *
  * Data access layer for unit version history stored in SQLite.
  * Handles version listing, retrieval, and revert operations.
- * 
+ *
  * @spec openspec/specs/unit-versioning/spec.md
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { getSQLiteService } from '../persistence/SQLiteService';
+
 import {
   IVersionRecord,
   IVersionMetadata,
   IUnitOperationResult,
   UnitErrorCode,
 } from '@/types/persistence/UnitPersistence';
+
+import { getSQLiteService } from '../persistence/SQLiteService';
 
 /**
  * Database row type for unit_versions table
@@ -36,7 +38,11 @@ export interface IVersionRepository {
   getVersionHistory(unitId: string): readonly IVersionMetadata[];
   getVersion(unitId: string, version: number): IVersionRecord | null;
   getLatestVersion(unitId: string): IVersionRecord | null;
-  revert(unitId: string, targetVersion: number, notes?: string): IUnitOperationResult;
+  revert(
+    unitId: string,
+    targetVersion: number,
+    notes?: string,
+  ): IUnitOperationResult;
   getVersionCount(unitId: string): number;
 }
 
@@ -50,14 +56,16 @@ export class VersionRepository implements IVersionRepository {
   getVersionHistory(unitId: string): readonly IVersionMetadata[] {
     const db = getSQLiteService().getDatabase();
 
-    const rows = db.prepare(`
+    const rows = db
+      .prepare(`
       SELECT version, saved_at, notes, revert_source
       FROM unit_versions
       WHERE unit_id = ?
       ORDER BY version DESC
-    `).all(unitId) as VersionRow[];
+    `)
+      .all(unitId) as VersionRow[];
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       version: row.version,
       savedAt: row.saved_at,
       notes: row.notes,
@@ -71,10 +79,12 @@ export class VersionRepository implements IVersionRepository {
   getVersion(unitId: string, version: number): IVersionRecord | null {
     const db = getSQLiteService().getDatabase();
 
-    const row = db.prepare(`
+    const row = db
+      .prepare(`
       SELECT * FROM unit_versions
       WHERE unit_id = ? AND version = ?
-    `).get(unitId, version) as VersionRow | undefined;
+    `)
+      .get(unitId, version) as VersionRow | undefined;
 
     if (!row) {
       return null;
@@ -89,12 +99,14 @@ export class VersionRepository implements IVersionRepository {
   getLatestVersion(unitId: string): IVersionRecord | null {
     const db = getSQLiteService().getDatabase();
 
-    const row = db.prepare(`
+    const row = db
+      .prepare(`
       SELECT * FROM unit_versions
       WHERE unit_id = ?
       ORDER BY version DESC
       LIMIT 1
-    `).get(unitId) as VersionRow | undefined;
+    `)
+      .get(unitId) as VersionRow | undefined;
 
     if (!row) {
       return null;
@@ -107,7 +119,11 @@ export class VersionRepository implements IVersionRepository {
    * Revert a unit to a previous version
    * Creates a new version with the data from the target version
    */
-  revert(unitId: string, targetVersion: number, notes?: string): IUnitOperationResult {
+  revert(
+    unitId: string,
+    targetVersion: number,
+    notes?: string,
+  ): IUnitOperationResult {
     const db = getSQLiteService().getDatabase();
 
     // Get the target version
@@ -123,9 +139,11 @@ export class VersionRepository implements IVersionRepository {
     }
 
     // Get current version number
-    const currentVersionResult = db.prepare(`
+    const currentVersionResult = db
+      .prepare(`
       SELECT current_version FROM custom_units WHERE id = ?
-    `).get(unitId) as { current_version: number } | undefined;
+    `)
+      .get(unitId) as { current_version: number } | undefined;
 
     if (!currentVersionResult) {
       return {
@@ -167,7 +185,7 @@ export class VersionRepository implements IVersionRepository {
           targetVersionRecord.data,
           now,
           revertNotes,
-          targetVersion
+          targetVersion,
         );
       });
 
@@ -198,9 +216,11 @@ export class VersionRepository implements IVersionRepository {
   getVersionCount(unitId: string): number {
     const db = getSQLiteService().getDatabase();
 
-    const result = db.prepare(`
+    const result = db
+      .prepare(`
       SELECT COUNT(*) as count FROM unit_versions WHERE unit_id = ?
-    `).get(unitId) as { count: number };
+    `)
+      .get(unitId) as { count: number };
 
     return result.count;
   }
@@ -268,4 +288,3 @@ export function getVersionRepository(): VersionRepository {
 export function resetVersionRepository(): void {
   versionRepositoryInstance = null;
 }
-

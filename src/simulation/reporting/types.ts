@@ -14,25 +14,25 @@ export interface ISimulationReport {
   readonly timestamp: string;
   readonly generatedBy: string;
   readonly config: ISimulationConfig;
-  
+
   readonly summary: {
     readonly total: number;
     readonly passed: number;
     readonly failed: number;
     readonly passRate: number;
   };
-  
+
   readonly metrics: IAggregateMetrics;
-  
+
   readonly violations: readonly IReportViolation[];
   readonly violationCount: number;
-  
+
   readonly performance: {
     readonly totalDurationMs: number;
     readonly avgGameMs: number;
     readonly avgTurnMs: number;
     readonly peakMemoryMB?: number;
   };
-  
+
   readonly failedSeeds: readonly number[];
 }

@@ -1,4 +1,8 @@
-import { TerrainType, IHexTerrain, ITerrainFeature } from '@/types/gameplay/TerrainTypes';
+import {
+  TerrainType,
+  IHexTerrain,
+  ITerrainFeature,
+} from '@/types/gameplay/TerrainTypes';
 
 export type BiomeType = 'temperate' | 'desert' | 'arctic' | 'urban' | 'jungle';
 
@@ -9,42 +13,45 @@ export interface TerrainGeneratorConfig {
   seed?: number;
 }
 
-export type BiomeWeights = Record<BiomeType, Partial<Record<TerrainType, number>>>;
+export type BiomeWeights = Record<
+  BiomeType,
+  Partial<Record<TerrainType, number>>
+>;
 
 export const BIOME_WEIGHTS: BiomeWeights = {
   temperate: {
-    [TerrainType.Clear]: 0.60,
+    [TerrainType.Clear]: 0.6,
     [TerrainType.LightWoods]: 0.12,
     [TerrainType.HeavyWoods]: 0.08,
-    [TerrainType.Water]: 0.10,
+    [TerrainType.Water]: 0.1,
     [TerrainType.Rough]: 0.05,
     [TerrainType.Mud]: 0.05,
   },
   desert: {
-    [TerrainType.Sand]: 0.50,
-    [TerrainType.Rough]: 0.30,
-    [TerrainType.Clear]: 0.10,
+    [TerrainType.Sand]: 0.5,
+    [TerrainType.Rough]: 0.3,
+    [TerrainType.Clear]: 0.1,
     [TerrainType.Mud]: 0.05,
     [TerrainType.LightWoods]: 0.05,
   },
   arctic: {
-    [TerrainType.Snow]: 0.40,
-    [TerrainType.Ice]: 0.30,
-    [TerrainType.Clear]: 0.20,
+    [TerrainType.Snow]: 0.4,
+    [TerrainType.Ice]: 0.3,
+    [TerrainType.Clear]: 0.2,
     [TerrainType.Rough]: 0.05,
     [TerrainType.Water]: 0.05,
   },
   urban: {
-    [TerrainType.Pavement]: 0.40,
-    [TerrainType.Building]: 0.30,
-    [TerrainType.Clear]: 0.20,
-    [TerrainType.Rubble]: 0.10,
+    [TerrainType.Pavement]: 0.4,
+    [TerrainType.Building]: 0.3,
+    [TerrainType.Clear]: 0.2,
+    [TerrainType.Rubble]: 0.1,
   },
   jungle: {
-    [TerrainType.HeavyWoods]: 0.40,
-    [TerrainType.LightWoods]: 0.30,
-    [TerrainType.Swamp]: 0.20,
-    [TerrainType.Water]: 0.10,
+    [TerrainType.HeavyWoods]: 0.4,
+    [TerrainType.LightWoods]: 0.3,
+    [TerrainType.Swamp]: 0.2,
+    [TerrainType.Water]: 0.1,
   },
 };
 
@@ -76,7 +83,7 @@ function dotGridGradient(
   ix: number,
   iy: number,
   x: number,
-  y: number
+  y: number,
 ): number {
   const dx = x - ix;
   const dy = y - iy;
@@ -93,7 +100,12 @@ function lerp(a: number, b: number, t: number): number {
   return a + t * (b - a);
 }
 
-function perlinNoise(gradients: number[][], size: number, x: number, y: number): number {
+function perlinNoise(
+  gradients: number[][],
+  size: number,
+  x: number,
+  y: number,
+): number {
   const x0 = Math.floor(x);
   const x1 = x0 + 1;
   const y0 = Math.floor(y);
@@ -119,7 +131,7 @@ function octaveNoise(
   x: number,
   y: number,
   octaves: number,
-  persistence: number
+  persistence: number,
 ): number {
   let total = 0;
   let frequency = 1;
@@ -127,7 +139,8 @@ function octaveNoise(
   let maxValue = 0;
 
   for (let i = 0; i < octaves; i++) {
-    total += perlinNoise(gradients, size, x * frequency, y * frequency) * amplitude;
+    total +=
+      perlinNoise(gradients, size, x * frequency, y * frequency) * amplitude;
     maxValue += amplitude;
     amplitude *= persistence;
     frequency *= 2;
@@ -141,29 +154,32 @@ function selectTerrainFromWeights(
   roll: number,
   noiseValue: number,
   elevation: number,
-  isLowElevation: boolean
+  isLowElevation: boolean,
 ): TerrainType {
   const entries = Object.entries(weights) as [TerrainType, number][];
-  
+
   const modifiedWeights = entries.map(([type, weight]) => {
     let modifiedWeight = weight;
-    
+
     if (type === TerrainType.Water && isLowElevation) {
       modifiedWeight *= 2.0;
     } else if (type === TerrainType.Water && !isLowElevation) {
       modifiedWeight *= 0.3;
     }
-    
-    if ((type === TerrainType.LightWoods || type === TerrainType.HeavyWoods) && noiseValue > 0.3) {
+
+    if (
+      (type === TerrainType.LightWoods || type === TerrainType.HeavyWoods) &&
+      noiseValue > 0.3
+    ) {
       modifiedWeight *= 1.5;
     }
-    
+
     return [type, modifiedWeight] as [TerrainType, number];
   });
-  
+
   const totalWeight = modifiedWeights.reduce((sum, [, w]) => sum + w, 0);
   const normalizedRoll = roll * totalWeight;
-  
+
   let cumulative = 0;
   for (const [type, weight] of modifiedWeights) {
     cumulative += weight;
@@ -171,7 +187,7 @@ function selectTerrainFromWeights(
       return type;
     }
   }
-  
+
   return entries[0][0];
 }
 
@@ -179,17 +195,17 @@ export function generateTerrain(config: TerrainGeneratorConfig): IHexTerrain[] {
   const { width, height, biome, seed } = config;
   const actualSeed = seed ?? Math.floor(Math.random() * 0x7fffffff);
   const rng = new SeededRandom(actualSeed);
-  
+
   const gridSize = Math.max(width, height) + 4;
   const elevationGradients = createGradients(rng, gridSize);
   const terrainGradients = createGradients(rng, gridSize);
-  
+
   const grid: IHexTerrain[] = [];
   const weights = BIOME_WEIGHTS[biome];
-  
+
   const elevationScale = 0.15;
   const terrainScale = 0.2;
-  
+
   for (let r = 0; r < height; r++) {
     for (let q = 0; q < width; q++) {
       const elevationNoise = octaveNoise(
@@ -198,45 +214,48 @@ export function generateTerrain(config: TerrainGeneratorConfig): IHexTerrain[] {
         q * elevationScale,
         r * elevationScale,
         3,
-        0.5
+        0.5,
       );
-      
+
       const terrainNoise = octaveNoise(
         terrainGradients,
         gridSize,
         q * terrainScale,
         r * terrainScale,
         2,
-        0.5
+        0.5,
       );
-      
+
       const normalizedElevation = (elevationNoise + 1) / 2;
       const elevation = Math.floor(normalizedElevation * 4);
       const clampedElevation = Math.max(0, Math.min(3, elevation));
-      
+
       const isLowElevation = clampedElevation <= 1;
       const roll = rng.next();
-      
+
       const terrainType = selectTerrainFromWeights(
         weights,
         roll,
         (terrainNoise + 1) / 2,
         clampedElevation,
-        isLowElevation
+        isLowElevation,
       );
-      
+
       const feature: ITerrainFeature = {
         type: terrainType,
         level: terrainType === TerrainType.Water ? 1 : 0,
       };
-      
+
       grid.push({
         coordinate: { q, r },
-        elevation: terrainType === TerrainType.Water ? Math.min(clampedElevation, 1) : clampedElevation,
+        elevation:
+          terrainType === TerrainType.Water
+            ? Math.min(clampedElevation, 1)
+            : clampedElevation,
         features: [feature],
       });
     }
   }
-  
+
   return grid;
 }

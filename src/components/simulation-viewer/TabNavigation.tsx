@@ -1,4 +1,5 @@
 import React, { useRef, useCallback } from 'react';
+
 import type { ITabNavigationProps } from '@/components/simulation-viewer/types';
 
 const TABS = [
@@ -74,7 +75,9 @@ export const TabNavigation: React.FC<ITabNavigationProps> = ({
         return (
           <button
             key={tab.id}
-            ref={(el) => { tabRefs.current[index] = el; }}
+            ref={(el) => {
+              tabRefs.current[index] = el;
+            }}
             role="tab"
             type="button"
             id={`tab-${tab.id}`}

@@ -5,7 +5,10 @@
  */
 
 /** Tab types for navigation */
-export type TabType = 'campaign-dashboard' | 'encounter-history' | 'analysis-bugs';
+export type TabType =
+  | 'campaign-dashboard'
+  | 'encounter-history'
+  | 'analysis-bugs';
 
 /**
  * Context for drill-down navigation between tabs.
@@ -174,7 +177,7 @@ export const navigationManager = new NavigationManager();
  * <button onClick={handleDrillDown}>View Encounters</button>
  */
 export function createDrillDownHandler(
-  context: Omit<IDrillDownContext, 'sourceTab'> & { sourceTab?: string }
+  context: Omit<IDrillDownContext, 'sourceTab'> & { sourceTab?: string },
 ): () => void {
   return () => {
     const sourceTab = (context.sourceTab || 'campaign-dashboard') as TabType;

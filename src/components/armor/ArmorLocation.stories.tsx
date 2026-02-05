@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { useState } from 'react';
+
 import { ArmorLocation } from './ArmorLocation';
 
 const meta: Meta<typeof ArmorLocation> = {
@@ -27,9 +29,15 @@ const meta: Meta<typeof ArmorLocation> = {
 export default meta;
 type Story = StoryObj<typeof ArmorLocation>;
 
-function InteractiveArmorLocation(props: Omit<React.ComponentProps<typeof ArmorLocation>, 'onArmorChange'> & { initialArmor?: number }) {
+function InteractiveArmorLocation(
+  props: Omit<React.ComponentProps<typeof ArmorLocation>, 'onArmorChange'> & {
+    initialArmor?: number;
+  },
+) {
   const [armor, setArmor] = useState(props.initialArmor ?? props.currentArmor);
-  return <ArmorLocation {...props} currentArmor={armor} onArmorChange={setArmor} />;
+  return (
+    <ArmorLocation {...props} currentArmor={armor} onArmorChange={setArmor} />
+  );
 }
 
 export const Default: Story = {
@@ -54,11 +62,7 @@ export const Empty: Story = {
 
 export const FullArmor: Story = {
   render: () => (
-    <InteractiveArmorLocation
-      location="Head"
-      currentArmor={9}
-      maxArmor={9}
-    />
+    <InteractiveArmorLocation location="Head" currentArmor={9} maxArmor={9} />
   ),
 };
 
@@ -183,10 +187,12 @@ export const WithChangeCallback: Story = {
           maxArmor={47}
           onArmorChange={handleChange}
         />
-        <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded text-sm font-mono space-y-1">
-          <p className="font-semibold mb-2">Change Log:</p>
+        <div className="space-y-1 rounded bg-gray-100 p-3 font-mono text-sm dark:bg-gray-800">
+          <p className="mb-2 font-semibold">Change Log:</p>
           {log.length === 0 ? (
-            <p className="text-gray-500">Expand and modify armor to see events...</p>
+            <p className="text-gray-500">
+              Expand and modify armor to see events...
+            </p>
           ) : (
             log.map((entry, i) => <p key={i}>{entry}</p>)
           )}

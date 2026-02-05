@@ -1,5 +1,7 @@
 import type { Page as _Page } from '@playwright/test';
+
 import { expect as _expect } from '@playwright/test';
+
 import { BasePage } from './base.page';
 
 // Re-export to silence unused warnings (types kept for documentation)
@@ -33,7 +35,9 @@ export class EncounterListPage extends BasePage {
    * Click the create encounter button.
    */
   async clickCreateButton(): Promise<void> {
-    await this.clickAndWaitForNavigation(this.getByTestId('create-encounter-btn'));
+    await this.clickAndWaitForNavigation(
+      this.getByTestId('create-encounter-btn'),
+    );
   }
 
   /**
@@ -41,7 +45,9 @@ export class EncounterListPage extends BasePage {
    * @param id - The encounter ID
    */
   async clickEncounterCard(id: string): Promise<void> {
-    await this.clickAndWaitForNavigation(this.getByTestId(`encounter-card-${id}`));
+    await this.clickAndWaitForNavigation(
+      this.getByTestId(`encounter-card-${id}`),
+    );
   }
 
   /**
@@ -377,7 +383,9 @@ export class EncounterCreatePage extends BasePage {
    * Submit the create encounter form.
    */
   async submit(): Promise<void> {
-    await this.clickAndWaitForNavigation(this.getByTestId('submit-encounter-btn'));
+    await this.clickAndWaitForNavigation(
+      this.getByTestId('submit-encounter-btn'),
+    );
   }
 
   /**
@@ -401,7 +409,11 @@ export class EncounterCreatePage extends BasePage {
    * @param type - The encounter type
    * @param mapId - The map ID
    */
-  async createEncounter(name: string, type: string, mapId: string): Promise<void> {
+  async createEncounter(
+    name: string,
+    type: string,
+    mapId: string,
+  ): Promise<void> {
     await this.fillName(name);
     await this.selectType(type);
     await this.selectMap(mapId);

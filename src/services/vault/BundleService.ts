@@ -16,13 +16,12 @@ import type {
   IExportOptions,
   IExportResult,
 } from '@/types/vault';
+
 import {
   signMessage,
   verifyMessage,
   getPublicIdentity,
 } from './IdentityService';
-
-
 
 // =============================================================================
 // Constants
@@ -48,7 +47,7 @@ export async function createBundle<T>(
   contentType: ShareableContentType,
   items: T[],
   identity: IVaultIdentity,
-  options: IExportOptions = {}
+  options: IExportOptions = {},
 ): Promise<IExportResult> {
   try {
     // Serialize the payload
@@ -91,7 +90,10 @@ export async function createBundle<T>(
   } catch (error) {
     return {
       success: false,
-      error: { message: error instanceof Error ? error.message : 'Failed to create bundle' },
+      error: {
+        message:
+          error instanceof Error ? error.message : 'Failed to create bundle',
+      },
     };
   }
 }
@@ -152,7 +154,10 @@ function validateBundleStructure(obj: unknown): string | null {
     return 'Invalid bundle format: missing required fields';
   }
 
-  if (typeof bundle.payload !== 'string' || typeof bundle.signature !== 'string') {
+  if (
+    typeof bundle.payload !== 'string' ||
+    typeof bundle.signature !== 'string'
+  ) {
     return 'Invalid bundle format: missing required fields';
   }
 
@@ -177,7 +182,7 @@ export function parseBundleFromBytes(data: Uint8Array): IShareableBundle {
  * Parse and verify a bundle, extracting the content
  */
 export async function parseAndVerifyBundle<T>(
-  bundle: IShareableBundle
+  bundle: IShareableBundle,
 ): Promise<IParsedBundle<T>> {
   // Reconstruct the signed message
   const messageToVerify = JSON.stringify(bundle.metadata) + bundle.payload;
@@ -186,7 +191,7 @@ export async function parseAndVerifyBundle<T>(
   const signatureValid = await verifyMessage(
     messageToVerify,
     bundle.signature,
-    bundle.metadata.author
+    bundle.metadata.author,
   );
 
   // Parse the payload
@@ -214,13 +219,13 @@ export async function parseAndVerifyBundle<T>(
  * Verify a bundle signature without parsing the content
  */
 export async function verifyBundleSignature(
-  bundle: IShareableBundle
+  bundle: IShareableBundle,
 ): Promise<boolean> {
   const messageToVerify = JSON.stringify(bundle.metadata) + bundle.payload;
   return verifyMessage(
     messageToVerify,
     bundle.signature,
-    bundle.metadata.author
+    bundle.metadata.author,
   );
 }
 
@@ -247,7 +252,7 @@ export function validateBundleMetadata(metadata: IBundleMetadata): string[] {
     errors.push('Missing bundle version');
   } else if (!isBundleVersionCompatible(metadata.version)) {
     errors.push(
-      `Incompatible bundle version: ${metadata.version} (expected ${BUNDLE_VERSION})`
+      `Incompatible bundle version: ${metadata.version} (expected ${BUNDLE_VERSION})`,
     );
   }
 
@@ -288,7 +293,7 @@ function getAppVersion(): string {
 function generateFilename<T>(
   contentType: ShareableContentType,
   items: T[],
-  metadata: IBundleMetadata
+  metadata: IBundleMetadata,
 ): string {
   const date = new Date(metadata.createdAt)
     .toISOString()
@@ -336,7 +341,7 @@ function sanitizeFilename(name: string): string {
  */
 export function getContentTypeLabel(
   contentType: ShareableContentType,
-  count: number
+  count: number,
 ): string {
   const labels: Record<ShareableContentType, [string, string]> = {
     unit: ['Unit', 'Units'],

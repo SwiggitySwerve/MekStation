@@ -1,6 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+
 import { CompactFilterBar } from '@/components/customizer/equipment/CompactFilterBar';
 import { EquipmentCategory } from '@/types/equipment';
 
@@ -30,7 +31,7 @@ describe('CompactFilterBar', () => {
   describe('Category Buttons', () => {
     it('should render all category buttons with icons', () => {
       render(<CompactFilterBar {...defaultProps} />);
-      
+
       expect(screen.getByText('⚡')).toBeInTheDocument();
       expect(screen.getByText('🎯')).toBeInTheDocument();
       expect(screen.getByText('🚀')).toBeInTheDocument();
@@ -54,30 +55,36 @@ describe('CompactFilterBar', () => {
     it('should call onSelectCategory when category is clicked', async () => {
       const user = userEvent.setup();
       render(<CompactFilterBar {...defaultProps} showAll={false} />);
-      
+
       const energyButton = screen.getByText('⚡').closest('button');
       await user.click(energyButton!);
-      
+
       expect(defaultProps.onSelectCategory).toHaveBeenCalledWith(
         EquipmentCategory.ENERGY_WEAPON,
-        false
+        false,
       );
     });
 
     it('should call onShowAll when All is clicked', async () => {
       const user = userEvent.setup();
       render(<CompactFilterBar {...defaultProps} />);
-      
+
       const allButton = screen.getByText('All');
       await user.click(allButton);
-      
+
       expect(defaultProps.onShowAll).toHaveBeenCalledTimes(1);
     });
 
     it('should highlight active category', () => {
       const activeCategories = new Set([EquipmentCategory.ENERGY_WEAPON]);
-      render(<CompactFilterBar {...defaultProps} activeCategories={activeCategories} showAll={false} />);
-      
+      render(
+        <CompactFilterBar
+          {...defaultProps}
+          activeCategories={activeCategories}
+          showAll={false}
+        />,
+      );
+
       const energyButton = screen.getByText('⚡').closest('button');
       expect(energyButton).toHaveClass('ring-1');
     });
@@ -90,17 +97,23 @@ describe('CompactFilterBar', () => {
     });
 
     it('should show active hide filter count badge', () => {
-      render(<CompactFilterBar {...defaultProps} hidePrototype={true} hideOneShot={true} />);
+      render(
+        <CompactFilterBar
+          {...defaultProps}
+          hidePrototype={true}
+          hideOneShot={true}
+        />,
+      );
       expect(screen.getByText('2')).toBeInTheDocument();
     });
 
     it('should toggle hide filters when clicked', async () => {
       const user = userEvent.setup();
       render(<CompactFilterBar {...defaultProps} />);
-      
+
       const hideButton = screen.getByText('Hide').closest('button');
       await user.click(hideButton!);
-      
+
       expect(screen.getByText('Proto')).toBeInTheDocument();
       expect(screen.getByText('1-Shot')).toBeInTheDocument();
       expect(screen.getByText('No Wpn')).toBeInTheDocument();
@@ -110,36 +123,36 @@ describe('CompactFilterBar', () => {
     it('should call onTogglePrototype when Proto is clicked', async () => {
       const user = userEvent.setup();
       render(<CompactFilterBar {...defaultProps} />);
-      
+
       const hideButton = screen.getByText('Hide').closest('button');
       await user.click(hideButton!);
-      
+
       const protoButton = screen.getByText('Proto');
       await user.click(protoButton);
-      
+
       expect(defaultProps.onTogglePrototype).toHaveBeenCalledTimes(1);
     });
 
     it('should call onToggleOneShot when 1-Shot is clicked', async () => {
       const user = userEvent.setup();
       render(<CompactFilterBar {...defaultProps} />);
-      
+
       const hideButton = screen.getByText('Hide').closest('button');
       await user.click(hideButton!);
-      
+
       const oneShotButton = screen.getByText('1-Shot');
       await user.click(oneShotButton);
-      
+
       expect(defaultProps.onToggleOneShot).toHaveBeenCalledTimes(1);
     });
 
     it('should highlight active hide toggles', async () => {
       const user = userEvent.setup();
       render(<CompactFilterBar {...defaultProps} hidePrototype={true} />);
-      
+
       const hideButton = screen.getByText('Hide').closest('button');
       await user.click(hideButton!);
-      
+
       const protoButton = screen.getByText('Proto').closest('button');
       expect(protoButton).toHaveClass('bg-red-900/50');
     });
@@ -159,10 +172,10 @@ describe('CompactFilterBar', () => {
     it('should call onSearchChange when typing', async () => {
       const user = userEvent.setup();
       render(<CompactFilterBar {...defaultProps} />);
-      
+
       const searchInput = screen.getByPlaceholderText('Search...');
       await user.type(searchInput, 'ppc');
-      
+
       expect(defaultProps.onSearchChange).toHaveBeenCalled();
     });
 
@@ -174,10 +187,10 @@ describe('CompactFilterBar', () => {
     it('should clear search when clear button is clicked', async () => {
       const user = userEvent.setup();
       render(<CompactFilterBar {...defaultProps} search="laser" />);
-      
+
       const clearButton = screen.getByTitle('Clear search');
       await user.click(clearButton);
-      
+
       expect(defaultProps.onSearchChange).toHaveBeenCalledWith('');
     });
   });
@@ -206,10 +219,10 @@ describe('CompactFilterBar', () => {
     it('should call onClearFilters when Clear is clicked', async () => {
       const user = userEvent.setup();
       render(<CompactFilterBar {...defaultProps} search="test" />);
-      
+
       const clearButton = screen.getByText('Clear');
       await user.click(clearButton);
-      
+
       expect(defaultProps.onClearFilters).toHaveBeenCalledTimes(1);
     });
   });

@@ -3,21 +3,24 @@
  * Tests for Button Component
  */
 
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+
 import { Button, PaginationButtons } from '@/components/ui/Button';
 
 describe('Button', () => {
   describe('Base Button', () => {
     it('should render children', () => {
       render(<Button>Click Me</Button>);
-      expect(screen.getByRole('button', { name: 'Click Me' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Click Me' }),
+      ).toBeInTheDocument();
     });
 
     it('should handle onClick', () => {
       const handleClick = jest.fn();
       render(<Button onClick={handleClick}>Click</Button>);
-      
+
       fireEvent.click(screen.getByRole('button'));
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
@@ -96,23 +99,28 @@ describe('Button', () => {
     });
 
     it('should render left icon', () => {
-      render(<Button leftIcon={<span data-testid="left-icon">←</span>}>With Icon</Button>);
+      render(
+        <Button leftIcon={<span data-testid="left-icon">←</span>}>
+          With Icon
+        </Button>,
+      );
       expect(screen.getByTestId('left-icon')).toBeInTheDocument();
     });
 
     it('should render right icon', () => {
-      render(<Button rightIcon={<span data-testid="right-icon">→</span>}>With Icon</Button>);
+      render(
+        <Button rightIcon={<span data-testid="right-icon">→</span>}>
+          With Icon
+        </Button>,
+      );
       expect(screen.getByTestId('right-icon')).toBeInTheDocument();
     });
 
     it('should not render right icon when loading', () => {
       render(
-        <Button 
-          isLoading 
-          rightIcon={<span data-testid="right-icon">→</span>}
-        >
+        <Button isLoading rightIcon={<span data-testid="right-icon">→</span>}>
           Loading
-        </Button>
+        </Button>,
       );
       expect(screen.queryByTestId('right-icon')).not.toBeInTheDocument();
     });
@@ -149,7 +157,7 @@ describe('Button', () => {
 
     it('should render all pagination buttons', () => {
       render(<PaginationButtons {...defaultProps} />);
-      
+
       expect(screen.getByRole('button', { name: 'First' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Prev' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
@@ -163,56 +171,79 @@ describe('Button', () => {
 
     it('should return null when totalPages is 1', () => {
       const { container } = render(
-        <PaginationButtons {...defaultProps} totalPages={1} />
+        <PaginationButtons {...defaultProps} totalPages={1} />,
       );
       expect(container.firstChild).toBeNull();
     });
 
     it('should disable First and Prev on first page', () => {
       render(<PaginationButtons {...defaultProps} currentPage={1} />);
-      
+
       expect(screen.getByRole('button', { name: 'First' })).toBeDisabled();
       expect(screen.getByRole('button', { name: 'Prev' })).toBeDisabled();
     });
 
     it('should disable Next and Last on last page', () => {
       render(<PaginationButtons {...defaultProps} currentPage={5} />);
-      
+
       expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
       expect(screen.getByRole('button', { name: 'Last' })).toBeDisabled();
     });
 
     it('should call onPageChange with 1 when First is clicked', () => {
       const onPageChange = jest.fn();
-      render(<PaginationButtons {...defaultProps} currentPage={3} onPageChange={onPageChange} />);
-      
+      render(
+        <PaginationButtons
+          {...defaultProps}
+          currentPage={3}
+          onPageChange={onPageChange}
+        />,
+      );
+
       fireEvent.click(screen.getByRole('button', { name: 'First' }));
       expect(onPageChange).toHaveBeenCalledWith(1);
     });
 
     it('should call onPageChange with previous page when Prev is clicked', () => {
       const onPageChange = jest.fn();
-      render(<PaginationButtons {...defaultProps} currentPage={3} onPageChange={onPageChange} />);
-      
+      render(
+        <PaginationButtons
+          {...defaultProps}
+          currentPage={3}
+          onPageChange={onPageChange}
+        />,
+      );
+
       fireEvent.click(screen.getByRole('button', { name: 'Prev' }));
       expect(onPageChange).toHaveBeenCalledWith(2);
     });
 
     it('should call onPageChange with next page when Next is clicked', () => {
       const onPageChange = jest.fn();
-      render(<PaginationButtons {...defaultProps} currentPage={3} onPageChange={onPageChange} />);
-      
+      render(
+        <PaginationButtons
+          {...defaultProps}
+          currentPage={3}
+          onPageChange={onPageChange}
+        />,
+      );
+
       fireEvent.click(screen.getByRole('button', { name: 'Next' }));
       expect(onPageChange).toHaveBeenCalledWith(4);
     });
 
     it('should call onPageChange with totalPages when Last is clicked', () => {
       const onPageChange = jest.fn();
-      render(<PaginationButtons {...defaultProps} currentPage={3} onPageChange={onPageChange} />);
-      
+      render(
+        <PaginationButtons
+          {...defaultProps}
+          currentPage={3}
+          onPageChange={onPageChange}
+        />,
+      );
+
       fireEvent.click(screen.getByRole('button', { name: 'Last' }));
       expect(onPageChange).toHaveBeenCalledWith(5);
     });
   });
 });
-

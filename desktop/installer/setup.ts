@@ -1,9 +1,9 @@
 /**
  * MekStation - Desktop Installation Setup
- * 
+ *
  * This script provides automated installation and configuration
  * for the MekStation desktop application.
- * 
+ *
  * Features:
  * - One-click installation
  * - Cross-platform compatibility
@@ -13,10 +13,10 @@
  * - Auto-updater configuration
  */
 
-import { promises as fs } from 'fs';
-import * as path from 'path';
-import * as os from 'os';
 import { spawn } from 'child_process';
+import { promises as fs } from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 
 /**
  * Installation configuration
@@ -77,7 +77,7 @@ export class DesktopInstaller {
           success: false,
           message: 'System requirements not met',
           errors: requirements.errors,
-          warnings
+          warnings,
         };
       }
 
@@ -93,7 +93,10 @@ export class DesktopInstaller {
       // Import existing data if specified
       if (installConfig.importExistingData && installConfig.existingDataPath) {
         try {
-          await this.importExistingData(installConfig.existingDataPath, installConfig.dataPath);
+          await this.importExistingData(
+            installConfig.existingDataPath,
+            installConfig.dataPath,
+          );
         } catch (error) {
           warnings.push(`Failed to import existing data: ${error}`);
         }
@@ -148,23 +151,22 @@ export class DesktopInstaller {
       await this.writeInstallationMetadata(installConfig);
 
       console.log('✅ MekStation installation completed successfully!');
-      
+
       return {
         success: true,
         message: 'Installation completed successfully',
         errors,
         warnings,
-        installPath: installConfig.installPath
+        installPath: installConfig.installPath,
       };
-
     } catch (error) {
       console.error('❌ Installation failed:', error);
-      
+
       return {
         success: false,
         message: `Installation failed: ${error}`,
         errors: [error instanceof Error ? error.message : String(error)],
-        warnings
+        warnings,
       };
     }
   }
@@ -172,7 +174,10 @@ export class DesktopInstaller {
   /**
    * Uninstall the MekStation desktop application
    */
-  async uninstall(installPath: string, removeUserData: boolean = false): Promise<IInstallResult> {
+  async uninstall(
+    installPath: string,
+    removeUserData: boolean = false,
+  ): Promise<IInstallResult> {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -220,22 +225,21 @@ export class DesktopInstaller {
       }
 
       console.log('✅ MekStation uninstallation completed successfully!');
-      
+
       return {
         success: true,
         message: 'Uninstallation completed successfully',
         errors,
-        warnings
+        warnings,
       };
-
     } catch (error) {
       console.error('❌ Uninstallation failed:', error);
-      
+
       return {
         success: false,
         message: `Uninstallation failed: ${error}`,
         errors: [error instanceof Error ? error.message : String(error)],
-        warnings
+        warnings,
       };
     }
   }
@@ -243,7 +247,10 @@ export class DesktopInstaller {
   /**
    * Check system requirements
    */
-  private async checkSystemRequirements(): Promise<{ met: boolean; errors: string[] }> {
+  private async checkSystemRequirements(): Promise<{
+    met: boolean;
+    errors: string[];
+  }> {
     const errors: string[] = [];
 
     // Check operating system
@@ -261,7 +268,9 @@ export class DesktopInstaller {
       const nodeVersion = process.version;
       const majorVersion = parseInt(nodeVersion.substring(1).split('.')[0]);
       if (majorVersion < 16) {
-        errors.push(`Node.js version ${nodeVersion} is too old. Minimum required: 16.0.0`);
+        errors.push(
+          `Node.js version ${nodeVersion} is too old. Minimum required: 16.0.0`,
+        );
       }
     } catch (error) {
       // Node.js not available (normal for production)
@@ -297,7 +306,7 @@ export class DesktopInstaller {
       enableAutoStart: config.enableAutoStart ?? false,
       enableAutoUpdates: config.enableAutoUpdates ?? true,
       importExistingData: config.importExistingData ?? false,
-      existingDataPath: config.existingDataPath
+      existingDataPath: config.existingDataPath,
     };
   }
 
@@ -307,7 +316,10 @@ export class DesktopInstaller {
   private getDefaultInstallPath(): string {
     switch (this.platform) {
       case 'win32':
-        return path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'MekStation');
+        return path.join(
+          process.env.PROGRAMFILES || 'C:\\Program Files',
+          'MekStation',
+        );
       case 'darwin':
         return path.join('/Applications', 'MekStation.app');
       case 'linux':
@@ -323,9 +335,17 @@ export class DesktopInstaller {
   private getDefaultDataPath(): string {
     switch (this.platform) {
       case 'win32':
-        return path.join(process.env.APPDATA || path.join(this.userHome, 'AppData', 'Roaming'), 'MekStation');
+        return path.join(
+          process.env.APPDATA || path.join(this.userHome, 'AppData', 'Roaming'),
+          'MekStation',
+        );
       case 'darwin':
-        return path.join(this.userHome, 'Library', 'Application Support', 'MekStation');
+        return path.join(
+          this.userHome,
+          'Library',
+          'Application Support',
+          'MekStation',
+        );
       case 'linux':
         return path.join(this.userHome, '.mekstation');
       default:
@@ -353,13 +373,13 @@ export class DesktopInstaller {
       'package.json',
       'assets/icons/icon.png',
       'assets/icons/icon.ico',
-      'assets/icons/icon.icns'
+      'assets/icons/icon.icns',
     ];
 
     for (const file of appFiles) {
       const targetPath = path.join(installPath, file);
       await fs.mkdir(path.dirname(targetPath), { recursive: true });
-      
+
       // Create placeholder file
       await fs.writeFile(targetPath, `// MekStation - ${file}\n`);
     }
@@ -375,16 +395,21 @@ export class DesktopInstaller {
     await fs.mkdir(path.join(dataPath, 'units'), { recursive: true });
     await fs.mkdir(path.join(dataPath, 'backups'), { recursive: true });
     await fs.mkdir(path.join(dataPath, 'logs'), { recursive: true });
-    
+
     console.log(`📊 Data directory setup complete: ${dataPath}`);
   }
 
   /**
    * Import existing data
    */
-  private async importExistingData(sourcePath: string, targetPath: string): Promise<void> {
+  private async importExistingData(
+    sourcePath: string,
+    targetPath: string,
+  ): Promise<void> {
     // This would implement data migration logic
-    console.log(`📥 Importing existing data from ${sourcePath} to ${targetPath}`);
+    console.log(
+      `📥 Importing existing data from ${sourcePath} to ${targetPath}`,
+    );
     // Implementation would copy and migrate data files
   }
 
@@ -393,7 +418,7 @@ export class DesktopInstaller {
    */
   private async createDesktopShortcut(installPath: string): Promise<void> {
     const desktopPath = path.join(this.userHome, 'Desktop');
-    
+
     switch (this.platform) {
       case 'win32':
         // Create .lnk file on Windows
@@ -420,7 +445,7 @@ Categories=Game;
         await fs.writeFile(desktopFilePath, desktopFileContent);
         break;
     }
-    
+
     console.log('🖥️ Desktop shortcut created');
   }
 
@@ -449,10 +474,10 @@ Categories=Game;
       autoUpdates: {
         enabled: true,
         checkInterval: 3600000, // 1 hour
-        channel: 'stable'
-      }
+        channel: 'stable',
+      },
     };
-    
+
     await fs.writeFile(configPath, JSON.stringify(config, null, 2));
     console.log('🔄 Auto-updates configured');
   }
@@ -475,7 +500,7 @@ const { DesktopInstaller } = require('./installer/setup');
 const installer = new DesktopInstaller();
 installer.uninstall('${installPath}');
 `;
-    
+
     await fs.writeFile(uninstallerPath, uninstallerContent);
     console.log('🗑️ Uninstaller created');
   }
@@ -483,16 +508,18 @@ installer.uninstall('${installPath}');
   /**
    * Write installation metadata
    */
-  private async writeInstallationMetadata(config: IInstallConfig): Promise<void> {
+  private async writeInstallationMetadata(
+    config: IInstallConfig,
+  ): Promise<void> {
     const metadataPath = path.join(config.installPath, 'install.json');
     const metadata = {
       version: '1.0.0',
       installedAt: new Date().toISOString(),
       platform: this.platform,
       architecture: this.architecture,
-      config
+      config,
     };
-    
+
     await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
     console.log('📝 Installation metadata written');
   }
@@ -576,7 +603,7 @@ if (require.main === module) {
 
   switch (action) {
     case 'install':
-      installer.install().then(result => {
+      installer.install().then((result) => {
         console.log(result.message);
         process.exit(result.success ? 0 : 1);
       });
@@ -587,7 +614,7 @@ if (require.main === module) {
         console.error('Install path required for uninstall');
         process.exit(1);
       }
-      installer.uninstall(installPath).then(result => {
+      installer.uninstall(installPath).then((result) => {
         console.log(result.message);
         process.exit(result.success ? 0 : 1);
       });

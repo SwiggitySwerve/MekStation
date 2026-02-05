@@ -12,11 +12,13 @@
  */
 
 import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
+
 import {
   GameEventType,
   GameSide,
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
+
 import { getPayload } from './utils/getPayload';
 
 // =============================================================================
@@ -78,7 +80,7 @@ interface DetectorTrackingState {
 /**
  * Gets a unit name by ID, falling back to the ID itself.
  */
- 
+
 function _getUnitName(units: readonly BattleUnit[], unitId: string): string {
   const unit = units.find((u) => u.id === unitId);
   return unit ? unit.name : unitId;
@@ -129,7 +131,9 @@ export class PassiveUnitDetector {
   // Initialization
   // ===========================================================================
 
-  private initializeTrackingState(battleState: BattleState): DetectorTrackingState {
+  private initializeTrackingState(
+    battleState: BattleState,
+  ): DetectorTrackingState {
     const inactivityCounter = new Map<string, number>();
     const lastActiveByUnit = new Map<string, number>();
 
@@ -198,7 +202,10 @@ export class PassiveUnitDetector {
     // Check each unit for inactivity
     for (const unit of battleState.units) {
       // Skip destroyed or shutdown units
-      if (state.destroyedUnits.has(unit.id) || state.shutdownUnits.has(unit.id)) {
+      if (
+        state.destroyedUnits.has(unit.id) ||
+        state.shutdownUnits.has(unit.id)
+      ) {
         continue;
       }
 
@@ -231,7 +238,10 @@ export class PassiveUnitDetector {
     }
   }
 
-  private processMovement(event: IGameEvent, state: DetectorTrackingState): void {
+  private processMovement(
+    event: IGameEvent,
+    state: DetectorTrackingState,
+  ): void {
     if (event.actorId) {
       state.lastActiveByUnit.set(event.actorId, event.turn);
       state.inactivityCounter.set(event.actorId, 0);
@@ -245,7 +255,10 @@ export class PassiveUnitDetector {
     }
   }
 
-  private processUnitDestroyed(event: IGameEvent, state: DetectorTrackingState): void {
+  private processUnitDestroyed(
+    event: IGameEvent,
+    state: DetectorTrackingState,
+  ): void {
     const payload = getPayload<{ readonly unitId: string }>(event);
     state.destroyedUnits.add(payload.unitId);
   }

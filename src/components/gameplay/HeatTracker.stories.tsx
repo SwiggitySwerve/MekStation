@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { HeatTracker, HeatScale } from './HeatTracker';
+
 import { useState } from 'react';
+
+import { HeatTracker, HeatScale } from './HeatTracker';
 
 const meta: Meta<typeof HeatTracker> = {
   title: 'Gameplay/HeatTracker',
@@ -127,17 +129,21 @@ const InteractiveExample = () => {
 
   return (
     <div className="w-80 space-y-4">
-      <HeatTracker currentHeat={heat} heatScale={scale} onScaleChange={setScale} />
-      <div className="flex gap-2 justify-center">
+      <HeatTracker
+        currentHeat={heat}
+        heatScale={scale}
+        onScaleChange={setScale}
+      />
+      <div className="flex justify-center gap-2">
         <button
           onClick={() => setHeat(Math.max(0, heat - 5))}
-          className="px-3 py-2 bg-blue-500 text-white rounded text-sm"
+          className="rounded bg-blue-500 px-3 py-2 text-sm text-white"
         >
           Cool -5
         </button>
         <button
           onClick={() => setHeat(heat + 5)}
-          className="px-3 py-2 bg-red-500 text-white rounded text-sm"
+          className="rounded bg-red-500 px-3 py-2 text-sm text-white"
         >
           Heat +5
         </button>

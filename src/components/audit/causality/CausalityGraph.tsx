@@ -7,10 +7,18 @@
  * @spec openspec/changes/add-audit-timeline/specs/audit-timeline/spec.md
  */
 
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+} from 'react';
+
 import { ICausalityChain, ICausalityNode } from '@/hooks/audit';
-import { CausalityNode } from './CausalityNode';
+
 import { CausalityEdge } from './CausalityEdge';
+import { CausalityNode } from './CausalityNode';
 import { CausalityZoomControls } from './CausalityZoomControls';
 
 // =============================================================================
@@ -74,7 +82,9 @@ function calculateLayout(chain: ICausalityChain): NodePosition[] {
   const maxNodesAtAnyDepth = Math.max(...Array.from(depthCounts.values()));
   Array.from(depthCounts.entries()).forEach(([depth, count]) => {
     const totalHeight = count * NODE_HEIGHT + (count - 1) * VERTICAL_GAP;
-    const maxHeight = maxNodesAtAnyDepth * NODE_HEIGHT + (maxNodesAtAnyDepth - 1) * VERTICAL_GAP;
+    const maxHeight =
+      maxNodesAtAnyDepth * NODE_HEIGHT +
+      (maxNodesAtAnyDepth - 1) * VERTICAL_GAP;
     depthOffsets.set(depth, (maxHeight - totalHeight) / 2);
   });
 
@@ -94,10 +104,10 @@ function calculateLayout(chain: ICausalityChain): NodePosition[] {
   for (const depth of depths) {
     const nodes = nodesByDepth.get(depth) || [];
     const offset = depthOffsets.get(depth) || 0;
-    
+
     for (const node of nodes) {
       const currentY = depthY.get(depth) || offset;
-      
+
       positions.push({
         node,
         x: PADDING + depth * (NODE_WIDTH + HORIZONTAL_GAP),
@@ -116,7 +126,10 @@ function calculateLayout(chain: ICausalityChain): NodePosition[] {
 /**
  * Calculate the total bounds of the graph.
  */
-function calculateBounds(positions: NodePosition[]): { width: number; height: number } {
+function calculateBounds(positions: NodePosition[]): {
+  width: number;
+  height: number;
+} {
   if (positions.length === 0) {
     return { width: 400, height: 300 };
   }
@@ -146,7 +159,7 @@ export function CausalityGraph({
   className = '',
 }: CausalityGraphProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Pan/zoom state
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -186,32 +199,38 @@ export function CausalityGraph({
 
   const handleFit = useCallback(() => {
     if (!containerRef.current) return;
-    
+
     const containerWidth = containerRef.current.clientWidth;
     const containerHeight = containerRef.current.clientHeight;
-    
+
     const scaleX = containerWidth / bounds.width;
     const scaleY = containerHeight / bounds.height;
     const newZoom = Math.min(scaleX, scaleY, 1) * 0.9; // 90% to add some padding
-    
+
     setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom)));
     setPan({ x: 0, y: 0 });
   }, [bounds]);
 
   // Pan handlers
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button !== 0) return; // Only left click
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
-  }, [pan]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button !== 0) return; // Only left click
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    },
+    [pan],
+  );
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging) return;
-    setPan({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y,
-    });
-  }, [isDragging, dragStart]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDragging) return;
+      setPan({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      });
+    },
+    [isDragging, dragStart],
+  );
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -231,21 +250,29 @@ export function CausalityGraph({
       const timer = setTimeout(handleFit, 100);
       return () => clearTimeout(timer);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [chain?.focusEvent.id]); // Intentionally only trigger on chain change, not position recalcs
 
   // Empty state
   if (!chain) {
     return (
-      <div className={`
-        flex items-center justify-center
-        bg-surface-deep/50 border border-border-theme-subtle rounded-xl
-        text-text-theme-muted
-        ${className}
-      `}>
-        <div className="text-center p-8">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 mx-auto mb-3 opacity-40">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+      <div
+        className={`bg-surface-deep/50 border-border-theme-subtle text-text-theme-muted flex items-center justify-center rounded-xl border ${className} `}
+      >
+        <div className="p-8 text-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="mx-auto mb-3 h-12 w-12 opacity-40"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
+            />
           </svg>
           <p className="text-sm">Select an event to view its causality chain</p>
         </div>
@@ -254,7 +281,9 @@ export function CausalityGraph({
   }
 
   return (
-    <div className={`relative overflow-hidden bg-surface-deep/30 border border-border-theme-subtle rounded-xl ${className}`}>
+    <div
+      className={`bg-surface-deep/30 border-border-theme-subtle relative overflow-hidden rounded-xl border ${className}`}
+    >
       {/* Zoom Controls */}
       <div className="absolute top-3 right-3 z-20">
         <CausalityZoomControls
@@ -269,27 +298,39 @@ export function CausalityGraph({
       </div>
 
       {/* Stats bar */}
-      <div className="absolute top-3 left-3 z-20 flex items-center gap-3 px-3 py-1.5 bg-surface-base/80 backdrop-blur-sm rounded-lg border border-border-theme-subtle text-xs text-text-theme-muted">
+      <div className="bg-surface-base/80 border-border-theme-subtle text-text-theme-muted absolute top-3 left-3 z-20 flex items-center gap-3 rounded-lg border px-3 py-1.5 text-xs backdrop-blur-sm">
         <span>
-          <span className="text-text-theme-secondary">{chain.stats.totalEvents}</span> events
+          <span className="text-text-theme-secondary">
+            {chain.stats.totalEvents}
+          </span>{' '}
+          events
         </span>
-        <span className="w-px h-3 bg-border-theme-subtle" />
+        <span className="bg-border-theme-subtle h-3 w-px" />
         <span>
-          <span className="text-text-theme-secondary">{chain.stats.maxDepth}</span> depth
+          <span className="text-text-theme-secondary">
+            {chain.stats.maxDepth}
+          </span>{' '}
+          depth
         </span>
-        <span className="w-px h-3 bg-border-theme-subtle" />
+        <span className="bg-border-theme-subtle h-3 w-px" />
         <span>
-          <span className="text-amber-400">{chain.stats.byRelationship.triggered}</span> triggered
+          <span className="text-amber-400">
+            {chain.stats.byRelationship.triggered}
+          </span>{' '}
+          triggered
         </span>
         <span>
-          <span className="text-cyan-400">{chain.stats.byRelationship.derived}</span> derived
+          <span className="text-cyan-400">
+            {chain.stats.byRelationship.derived}
+          </span>{' '}
+          derived
         </span>
       </div>
 
       {/* Graph canvas */}
       <div
         ref={containerRef}
-        className={`w-full h-full min-h-[400px] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`h-full min-h-[400px] w-full ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -307,7 +348,7 @@ export function CausalityGraph({
           {/* Render edges first (behind nodes) */}
           {positions.map((pos) => {
             if (!pos.node.cause) return null;
-            
+
             const parentPos = positionMap.get(pos.node.cause.event.id);
             if (!parentPos) return null;
 
@@ -339,7 +380,9 @@ export function CausalityGraph({
             >
               <CausalityNode
                 node={pos.node}
-                onClick={onNodeClick ? () => onNodeClick(pos.node.event.id) : undefined}
+                onClick={
+                  onNodeClick ? () => onNodeClick(pos.node.event.id) : undefined
+                }
                 isSelected={selectedNodeId === pos.node.event.id}
                 isFocusEvent={chain.focusEvent.id === pos.node.event.id}
               />
@@ -349,8 +392,8 @@ export function CausalityGraph({
       </div>
 
       {/* Gradient overlays for depth effect */}
-      <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-surface-deep/50 to-transparent pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-surface-deep/50 to-transparent pointer-events-none" />
+      <div className="from-surface-deep/50 pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r to-transparent" />
+      <div className="from-surface-deep/50 pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l to-transparent" />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 ## Phase 1: File-Based Sharing
 
 ### 1.1 Identity Foundation
+
 - [x] 1.1.1 Implement Ed25519 keypair generation
 - [x] 1.1.2 Implement secure key storage (encrypted at rest)
 - [x] 1.1.3 Implement friend code encoding/decoding
@@ -10,6 +11,7 @@
 - [x] 1.1.5 Write tests for identity system
 
 ### 1.2 Export System
+
 - [x] 1.2.1 Define shareable bundle format (JSON + signature)
 - [x] 1.2.2 Implement unit export (single and batch)
 - [x] 1.2.3 Implement pilot export
@@ -19,6 +21,7 @@
 - [x] 1.2.7 Write tests for export
 
 ### 1.3 Import System
+
 - [x] 1.3.1 Implement bundle parsing and validation
 - [x] 1.3.2 Implement signature verification
 - [x] 1.3.3 Implement conflict detection (duplicate IDs)
@@ -27,6 +30,7 @@
 - [x] 1.3.6 Write tests for import
 
 ### 1.4 Export/Import UI
+
 - [x] 1.4.1 Add "Export" option to unit/pilot/force context menus
 - [x] 1.4.2 Create export dialog (select items, options)
 - [x] 1.4.3 Create import dialog (file picker, preview, confirm)
@@ -36,6 +40,7 @@
 ## Phase 2: Link-Based Sharing
 
 ### 2.1 Permission Model
+
 - [x] 2.1.1 Define IPermissionGrant interface
 - [x] 2.1.2 Implement permission levels (read/write/admin)
 - [x] 2.1.3 Implement permission scopes (item/category/all)
@@ -44,6 +49,7 @@
 - [x] 2.1.6 Write tests for permissions
 
 ### 2.2 Share Link Generation
+
 - [x] 2.2.1 Define share link format (encoded payload or reference)
 - [x] 2.2.2 Implement link generation with embedded permissions
 - [x] 2.2.3 Implement link expiry options
@@ -52,12 +58,14 @@
 - [x] 2.2.6 Write tests for link generation
 
 ### 2.3 Share Link API Endpoints
+
 - [x] 2.3.1 GET/POST /api/vault/share (list/create links)
 - [x] 2.3.2 GET/PATCH/DELETE /api/vault/share/[id] (manage link)
 - [x] 2.3.3 POST /api/vault/share/redeem (redeem by token/URL)
 - [x] 2.3.4 Write API integration tests
 
 ### 2.4 Link Sharing UI
+
 - [x] 2.4.1 Create "Share" dialog with link generation
 - [x] 2.4.2 Add permission configuration to share dialog
 - [x] 2.4.3 Add copy-to-clipboard for generated links
@@ -67,6 +75,7 @@
 ## Phase 3: P2P Sync
 
 ### 3.1 Contact Management
+
 - [x] 3.1.1 Define IContact interface
 - [x] 3.1.2 Create contacts database table
 - [x] 3.1.3 Implement "Add Contact" by friend code
@@ -75,6 +84,7 @@
 - [x] 3.1.6 Write tests for contacts
 
 ### 3.2 Vault Service
+
 - [x] 3.2.1 Define IVault interface
 - [x] 3.2.2 Implement vault content listing
 - [x] 3.2.3 Implement shared folder creation
@@ -83,6 +93,7 @@
 - [x] 3.2.6 Write tests for vault service
 
 ### 3.3 Sync Engine
+
 - [x] 3.3.1 Implement change log (track local modifications)
 - [x] 3.3.2 Implement change log exchange protocol
 - [x] 3.3.3 Implement state reconciliation
@@ -91,6 +102,7 @@
 - [x] 3.3.6 Write tests for sync engine
 
 ### 3.4 P2P Transport
+
 - [x] 3.4.1 Implement WebRTC connection setup
 - [x] 3.4.2 Implement signaling (via relay or manual)
 - [x] 3.4.3 Implement NAT traversal (STUN/TURN)
@@ -99,6 +111,7 @@
 - [x] 3.4.6 Write tests for P2P transport
 
 ### 3.5 Sync UI
+
 - [x] 3.5.1 Create "Contacts" page
 - [x] 3.5.2 Create "Shared with Me" view
 - [x] 3.5.3 Create "My Shared Items" management
@@ -109,24 +122,28 @@
 ## Phase 4: Polish & Advanced Features
 
 ### 4.1 Shared Folders
+
 - [x] 4.1.1 Implement folder creation and management
 - [x] 4.1.2 Implement bulk permission assignment
 - [x] 4.1.3 Implement folder-level sync
 - [x] 4.1.4 Create folder management UI
 
 ### 4.2 Version History
+
 - [x] 4.2.1 Track version history for shared items
 - [x] 4.2.2 Implement version diff view
 - [x] 4.2.3 Implement rollback to previous version
 - [x] 4.2.4 Create version history UI
 
 ### 4.3 Offline Queue
+
 - [x] 4.3.1 Queue changes when peer offline
 - [x] 4.3.2 Implement relay-based store-and-forward
 - [x] 4.3.3 Implement queue expiry policy
 - [x] 4.3.4 Show pending sync status in UI
 
 ### 4.4 Public Sharing
+
 - [x] 4.4.1 Implement "Public" permission level
 - [~] 4.4.2 Optional: public vault browsing on relay (skipped - optional)
 - [x] 4.4.3 Implement public link generation (no auth required)

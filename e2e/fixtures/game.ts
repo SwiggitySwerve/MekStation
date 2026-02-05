@@ -91,22 +91,24 @@ export interface E2EGameplayState {
  */
 export async function waitForGameplayStoreReady(
   page: Page,
-  timeout: number = 10000
+  timeout: number = 10000,
 ): Promise<void> {
   await page.waitForFunction(
     () => {
-      const stores = (window as unknown as {
-        __ZUSTAND_STORES__?: {
-          gameplay?: {
-            getState: () => { isLoading: boolean; session: unknown | null };
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            gameplay?: {
+              getState: () => { isLoading: boolean; session: unknown | null };
+            };
           };
-        };
-      }).__ZUSTAND_STORES__;
+        }
+      ).__ZUSTAND_STORES__;
       if (!stores?.gameplay) return false;
       const state = stores.gameplay.getState();
       return !state.isLoading && state.session !== null;
     },
-    { timeout }
+    { timeout },
   );
 }
 
@@ -139,7 +141,7 @@ export async function createDemoSession(page: Page): Promise<void> {
 
     if (!stores?.gameplay) {
       throw new Error(
-        'Gameplay store not exposed. Ensure window.__ZUSTAND_STORES__.gameplay is set in your app for E2E testing.'
+        'Gameplay store not exposed. Ensure window.__ZUSTAND_STORES__.gameplay is set in your app for E2E testing.',
       );
     }
 
@@ -154,7 +156,7 @@ export async function createDemoSession(page: Page): Promise<void> {
  * @returns The current game session or null
  */
 export async function getGameSession(
-  page: Page
+  page: Page,
 ): Promise<E2EGameSession | null> {
   return page.evaluate(() => {
     const stores = (
@@ -182,7 +184,7 @@ export async function getGameSession(
  * @returns The current gameplay state
  */
 export async function getGameplayState(
-  page: Page
+  page: Page,
 ): Promise<E2EGameplayState | null> {
   return page.evaluate(() => {
     const stores = (
@@ -217,7 +219,7 @@ export async function getGameplayState(
  */
 export async function selectUnit(
   page: Page,
-  unitId: string | null
+  unitId: string | null,
 ): Promise<void> {
   await page.evaluate((id) => {
     const stores = (
@@ -248,7 +250,7 @@ export async function selectUnit(
  */
 export async function setTarget(
   page: Page,
-  unitId: string | null
+  unitId: string | null,
 ): Promise<void> {
   await page.evaluate((id) => {
     const stores = (
@@ -279,7 +281,7 @@ export async function setTarget(
  */
 export async function handleAction(
   page: Page,
-  actionId: string
+  actionId: string,
 ): Promise<void> {
   await page.evaluate((id) => {
     const stores = (
@@ -310,7 +312,7 @@ export async function handleAction(
  */
 export async function toggleWeapon(
   page: Page,
-  weaponId: string
+  weaponId: string,
 ): Promise<void> {
   await page.evaluate((id) => {
     const stores = (
@@ -455,7 +457,7 @@ export const PHASE_ACTIONS = {
  */
 export async function getUnitState(
   page: Page,
-  unitId: string
+  unitId: string,
 ): Promise<E2EUnitGameState | null> {
   return page.evaluate((id) => {
     const stores = (

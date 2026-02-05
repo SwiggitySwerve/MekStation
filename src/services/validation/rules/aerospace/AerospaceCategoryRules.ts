@@ -8,6 +8,7 @@
  */
 
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -17,7 +18,6 @@ import {
   createUnitValidationRuleResult,
   IValidatableUnit,
 } from '../../../../types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 
 /**
  * Extended aerospace unit interface for aerospace-specific validation
@@ -83,12 +83,19 @@ export const AeroEngineRequired: IUnitValidationRuleDefinition = {
           {
             field: 'engine',
             suggestion: 'Select an engine for the aerospace unit',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -107,8 +114,15 @@ export const AeroThrustRatingValid: IUnitValidationRuleDefinition = {
     const { unit } = context;
     const errors = [];
 
-    if (isAerospaceUnit(unit) && THRUST_REQUIRED_TYPES.includes(unit.unitType)) {
-      if (unit.thrust === undefined || !Number.isInteger(unit.thrust) || unit.thrust <= 0) {
+    if (
+      isAerospaceUnit(unit) &&
+      THRUST_REQUIRED_TYPES.includes(unit.unitType)
+    ) {
+      if (
+        unit.thrust === undefined ||
+        !Number.isInteger(unit.thrust) ||
+        unit.thrust <= 0
+      ) {
         errors.push(
           createUnitValidationError(
             this.id,
@@ -121,13 +135,20 @@ export const AeroThrustRatingValid: IUnitValidationRuleDefinition = {
               expected: '> 0 (integer)',
               actual: String(unit.thrust),
               suggestion: 'Set a valid positive integer thrust rating',
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -147,7 +168,10 @@ export const AeroStructuralIntegrityRequired: IUnitValidationRuleDefinition = {
     const errors = [];
 
     if (isAerospaceUnit(unit)) {
-      if (unit.structuralIntegrity === undefined || unit.structuralIntegrity <= 0) {
+      if (
+        unit.structuralIntegrity === undefined ||
+        unit.structuralIntegrity <= 0
+      ) {
         errors.push(
           createUnitValidationError(
             this.id,
@@ -160,13 +184,20 @@ export const AeroStructuralIntegrityRequired: IUnitValidationRuleDefinition = {
               expected: '> 0',
               actual: String(unit.structuralIntegrity),
               suggestion: 'Set a valid positive structural integrity value',
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -199,13 +230,20 @@ export const AeroFuelCapacityValid: IUnitValidationRuleDefinition = {
               expected: '>= 0',
               actual: String(unit.fuelCapacity),
               suggestion: 'Set a valid non-negative fuel capacity',
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -237,7 +275,10 @@ const MIN_THRUST_WEIGHT_RATIO: Record<string, number> = {
 /**
  * Maximum rear-arc weapons by tonnage bracket
  */
-const MAX_REAR_WEAPONS_BY_TONNAGE: Array<{ maxTonnage: number; maxWeapons: number }> = [
+const MAX_REAR_WEAPONS_BY_TONNAGE: Array<{
+  maxTonnage: number;
+  maxWeapons: number;
+}> = [
   { maxTonnage: 50, maxWeapons: 1 },
   { maxTonnage: 75, maxWeapons: 2 },
   { maxTonnage: 100, maxWeapons: 3 },
@@ -246,7 +287,9 @@ const MAX_REAR_WEAPONS_BY_TONNAGE: Array<{ maxTonnage: number; maxWeapons: numbe
 /**
  * Type guard for extended aerospace units
  */
-function isAerospaceUnitExtended(unit: IValidatableUnit): unit is IAerospaceUnitExtended {
+function isAerospaceUnitExtended(
+  unit: IValidatableUnit,
+): unit is IAerospaceUnitExtended {
   return AEROSPACE_UNIT_TYPES.includes(unit.unitType);
 }
 
@@ -257,7 +300,8 @@ function isAerospaceUnitExtended(unit: IValidatableUnit): unit is IAerospaceUnit
 export const AeroThrustWeightRatio: IUnitValidationRuleDefinition = {
   id: 'AERO-THRUST-001',
   name: 'Thrust/Weight Ratio',
-  description: 'Aerospace fighters must have sufficient thrust for their weight',
+  description:
+    'Aerospace fighters must have sufficient thrust for their weight',
   category: ValidationCategory.MOVEMENT,
   priority: 44,
   applicableUnitTypes: THRUST_REQUIRED_TYPES,
@@ -267,7 +311,10 @@ export const AeroThrustWeightRatio: IUnitValidationRuleDefinition = {
     const errors = [];
     const warnings = [];
 
-    if (isAerospaceUnit(unit) && THRUST_REQUIRED_TYPES.includes(unit.unitType)) {
+    if (
+      isAerospaceUnit(unit) &&
+      THRUST_REQUIRED_TYPES.includes(unit.unitType)
+    ) {
       const minRatio = MIN_THRUST_WEIGHT_RATIO[unit.unitType] ?? 0.1;
       const thrust = unit.thrust ?? 0;
       const weight = unit.weight;
@@ -296,8 +343,8 @@ export const AeroThrustWeightRatio: IUnitValidationRuleDefinition = {
                     weight,
                   },
                 },
-              }
-            )
+              },
+            ),
           );
         } else if (ratio < minRatio * 1.5) {
           // Warning for marginally acceptable thrust
@@ -311,14 +358,21 @@ export const AeroThrustWeightRatio: IUnitValidationRuleDefinition = {
               {
                 field: 'thrust',
                 suggestion: 'Consider increasing thrust for better performance',
-              }
-            )
+              },
+            ),
           );
         }
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, warnings, [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      warnings,
+      [],
+      0,
+    );
   },
 };
 
@@ -339,7 +393,10 @@ export const AeroMinFuelCapacity: IUnitValidationRuleDefinition = {
     const errors = [];
     const warnings = [];
 
-    if (isAerospaceUnitExtended(unit) && THRUST_REQUIRED_TYPES.includes(unit.unitType)) {
+    if (
+      isAerospaceUnitExtended(unit) &&
+      THRUST_REQUIRED_TYPES.includes(unit.unitType)
+    ) {
       const fuelCapacity = unit.fuelCapacity ?? 0;
       // Minimum fuel: 1 ton per 5 tons of unit weight (i.e., 20% of tonnage in fuel points)
       const minFuel = Math.ceil(unit.weight * 0.2 * 80); // 80 fuel points per ton
@@ -363,8 +420,8 @@ export const AeroMinFuelCapacity: IUnitValidationRuleDefinition = {
                   min: minFuel,
                 },
               },
-            }
-          )
+            },
+          ),
         );
       } else if (fuelCapacity < minFuel * 1.25) {
         warnings.push(
@@ -377,13 +434,20 @@ export const AeroMinFuelCapacity: IUnitValidationRuleDefinition = {
             {
               field: 'fuelCapacity',
               suggestion: 'Consider adding more fuel for extended operations',
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, warnings, [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      warnings,
+      [],
+      0,
+    );
   },
 };
 
@@ -426,13 +490,20 @@ export const AeroMaxFuelCapacity: IUnitValidationRuleDefinition = {
                   max: maxFuelCapacity,
                 },
               },
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -467,8 +538,8 @@ export const AeroWeaponArcAssignments: IUnitValidationRuleDefinition = {
               {
                 field: `weapons.${weapon.id}.arc`,
                 suggestion: `Assign weapon to one of: ${validArcs.join(', ')}`,
-              }
-            )
+              },
+            ),
           );
         } else if (!validArcs.includes(weapon.arc)) {
           errors.push(
@@ -483,8 +554,8 @@ export const AeroWeaponArcAssignments: IUnitValidationRuleDefinition = {
                 expected: validArcs.join(' | '),
                 actual: weapon.arc,
                 suggestion: `Change arc to one of: ${validArcs.join(', ')}`,
-              }
-            )
+              },
+            ),
           );
         }
       }
@@ -500,13 +571,20 @@ export const AeroWeaponArcAssignments: IUnitValidationRuleDefinition = {
             'Unit has no weapons assigned',
             {
               suggestion: 'Consider adding weapons for combat capability',
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], infos, 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      infos,
+      0,
+    );
   },
 };
 
@@ -527,8 +605,14 @@ export const AeroRearArcWeaponRestrictions: IUnitValidationRuleDefinition = {
     const errors = [];
     const warnings = [];
 
-    if (isAerospaceUnitExtended(unit) && THRUST_REQUIRED_TYPES.includes(unit.unitType) && unit.weapons) {
-      const rearWeapons = unit.weapons.filter((w) => w.arc === 'aft' || w.isRearMounting);
+    if (
+      isAerospaceUnitExtended(unit) &&
+      THRUST_REQUIRED_TYPES.includes(unit.unitType) &&
+      unit.weapons
+    ) {
+      const rearWeapons = unit.weapons.filter(
+        (w) => w.arc === 'aft' || w.isRearMounting,
+      );
       const rearWeaponCount = rearWeapons.length;
 
       // Find max allowed for this tonnage
@@ -560,8 +644,8 @@ export const AeroRearArcWeaponRestrictions: IUnitValidationRuleDefinition = {
                 },
                 relatedIds: rearWeapons.map((w) => w.id),
               },
-            }
-          )
+            },
+          ),
         );
       } else if (rearWeaponCount === maxRearWeapons && maxRearWeapons > 0) {
         warnings.push(
@@ -573,27 +657,35 @@ export const AeroRearArcWeaponRestrictions: IUnitValidationRuleDefinition = {
             `Rear-arc weapon capacity at maximum: ${rearWeaponCount}/${maxRearWeapons}`,
             {
               suggestion: 'Cannot add more rear-arc weapons',
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, warnings, [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      warnings,
+      [],
+      0,
+    );
   },
 };
 
 /**
  * All aerospace category validation rules
  */
-export const AEROSPACE_CATEGORY_RULES: readonly IUnitValidationRuleDefinition[] = [
-  AeroEngineRequired,
-  AeroThrustRatingValid,
-  AeroStructuralIntegrityRequired,
-  AeroFuelCapacityValid,
-  AeroThrustWeightRatio,
-  AeroMinFuelCapacity,
-  AeroMaxFuelCapacity,
-  AeroWeaponArcAssignments,
-  AeroRearArcWeaponRestrictions,
-];
+export const AEROSPACE_CATEGORY_RULES: readonly IUnitValidationRuleDefinition[] =
+  [
+    AeroEngineRequired,
+    AeroThrustRatingValid,
+    AeroStructuralIntegrityRequired,
+    AeroFuelCapacityValid,
+    AeroThrustWeightRatio,
+    AeroMinFuelCapacity,
+    AeroMaxFuelCapacity,
+    AeroWeaponArcAssignments,
+    AeroRearArcWeaponRestrictions,
+  ];

@@ -1,9 +1,9 @@
+import Link from 'next/link';
 /**
  * CompendiumLayout Component
  * Provides consistent layout and breadcrumb navigation for all compendium pages.
  */
 import React from 'react';
-import Link from 'next/link';
 
 export interface BreadcrumbItem {
   label: string;
@@ -46,8 +46,8 @@ export function CompendiumLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface-deep via-surface-base to-surface-deep">
-      <div className={`${maxWidthClasses[maxWidth]} mx-auto px-4 sm:px-6 py-6`}>
+    <div className="from-surface-deep via-surface-base to-surface-deep min-h-screen bg-gradient-to-br">
+      <div className={`${maxWidthClasses[maxWidth]} mx-auto px-4 py-6 sm:px-6`}>
         {/* Breadcrumb Navigation */}
         <nav aria-label="Breadcrumb" className="mb-4">
           <ol className="flex items-center gap-2 text-sm">
@@ -58,7 +58,7 @@ export function CompendiumLayout({
               return (
                 <li key={index} className="flex items-center gap-2">
                   {!isFirst && (
-                    <ChevronIcon className="w-3 h-3 text-text-theme-muted" />
+                    <ChevronIcon className="text-text-theme-muted h-3 w-3" />
                   )}
                   {crumb.href && !isLast ? (
                     <Link
@@ -68,7 +68,13 @@ export function CompendiumLayout({
                       {crumb.label}
                     </Link>
                   ) : (
-                    <span className={isLast ? 'text-text-theme-primary font-medium' : 'text-text-theme-secondary'}>
+                    <span
+                      className={
+                        isLast
+                          ? 'text-text-theme-primary font-medium'
+                          : 'text-text-theme-secondary'
+                      }
+                    >
                       {crumb.label}
                     </span>
                   )}
@@ -82,7 +88,7 @@ export function CompendiumLayout({
         <header className="mb-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-text-theme-primary tracking-wide">
+              <h1 className="text-text-theme-primary text-2xl font-bold tracking-wide">
                 {title}
               </h1>
               {subtitle && (
@@ -112,7 +118,11 @@ function ChevronIcon({ className = '' }: { className?: string }) {
       stroke="currentColor"
       className={className}
     >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M8.25 4.5l7.5 7.5-7.5 7.5"
+      />
     </svg>
   );
 }

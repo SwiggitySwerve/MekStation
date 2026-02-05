@@ -1,9 +1,10 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { EquipmentDetail, WeaponDetails } from '../EquipmentDetail';
-import { IEquipmentItem, EquipmentCategory } from '../../../types/equipment';
-import { TechBase } from '../../../types/enums/TechBase';
+import React from 'react';
+
 import { RulesLevel } from '../../../types/enums/RulesLevel';
+import { TechBase } from '../../../types/enums/TechBase';
+import { IEquipmentItem, EquipmentCategory } from '../../../types/equipment';
+import { EquipmentDetail, WeaponDetails } from '../EquipmentDetail';
 
 const mockItem: IEquipmentItem = {
   id: '1',
@@ -24,7 +25,8 @@ const mockWeaponDetails: WeaponDetails = {
   heat: 8,
 };
 
-const mockDescription = 'A powerful energy weapon that deals significant damage.';
+const mockDescription =
+  'A powerful energy weapon that deals significant damage.';
 
 describe('EquipmentDetail', () => {
   const mockOnBack = jest.fn();
@@ -44,7 +46,9 @@ describe('EquipmentDetail', () => {
     it('should display equipment category', () => {
       render(<EquipmentDetail item={mockItem} onBack={mockOnBack} />);
 
-      expect(screen.getByText(EquipmentCategory.ENERGY_WEAPON)).toBeInTheDocument();
+      expect(
+        screen.getByText(EquipmentCategory.ENERGY_WEAPON),
+      ).toBeInTheDocument();
     });
 
     it('should display equipment weight', () => {
@@ -54,7 +58,13 @@ describe('EquipmentDetail', () => {
     });
 
     it('should display combat stats when weaponDetails provided', () => {
-      render(<EquipmentDetail item={mockItem} weaponDetails={mockWeaponDetails} onBack={mockOnBack} />);
+      render(
+        <EquipmentDetail
+          item={mockItem}
+          weaponDetails={mockWeaponDetails}
+          onBack={mockOnBack}
+        />,
+      );
 
       expect(screen.getByText('Damage')).toBeInTheDocument();
       expect(screen.getAllByText('8')).toHaveLength(2); // Appears for damage and heat
@@ -64,14 +74,28 @@ describe('EquipmentDetail', () => {
     });
 
     it('should display description when provided', () => {
-      render(<EquipmentDetail item={mockItem} description={mockDescription} onBack={mockOnBack} />);
+      render(
+        <EquipmentDetail
+          item={mockItem}
+          description={mockDescription}
+          onBack={mockOnBack}
+        />,
+      );
 
-      expect(screen.getByText('A powerful energy weapon that deals significant damage.')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'A powerful energy weapon that deals significant damage.',
+        ),
+      ).toBeInTheDocument();
     });
 
     it('should apply custom className', () => {
       const { container } = render(
-        <EquipmentDetail item={mockItem} onBack={mockOnBack} className="custom-class" />
+        <EquipmentDetail
+          item={mockItem}
+          onBack={mockOnBack}
+          className="custom-class"
+        />,
       );
 
       expect(container.querySelector('.custom-class')).toBeInTheDocument();
@@ -111,7 +135,14 @@ describe('EquipmentDetail', () => {
 
   describe('Content Sections', () => {
     it('should organize stats in sections', () => {
-      render(<EquipmentDetail item={mockItem} weaponDetails={mockWeaponDetails} description={mockDescription} onBack={mockOnBack} />);
+      render(
+        <EquipmentDetail
+          item={mockItem}
+          weaponDetails={mockWeaponDetails}
+          description={mockDescription}
+          onBack={mockOnBack}
+        />,
+      );
 
       expect(screen.getByText('Information')).toBeInTheDocument();
       expect(screen.getByText('Combat Stats')).toBeInTheDocument();
@@ -127,7 +158,9 @@ describe('EquipmentDetail', () => {
     });
 
     it('should be scrollable', () => {
-      const { container } = render(<EquipmentDetail item={mockItem} onBack={mockOnBack} />);
+      const { container } = render(
+        <EquipmentDetail item={mockItem} onBack={mockOnBack} />,
+      );
 
       const contentArea = container.querySelector('.overflow-y-auto');
       expect(contentArea).toBeInTheDocument();
@@ -136,7 +169,13 @@ describe('EquipmentDetail', () => {
 
   describe('Action Buttons', () => {
     it('should display assign button when onAssign is provided', () => {
-      render(<EquipmentDetail item={mockItem} onBack={mockOnBack} onAssign={mockOnAssign} />);
+      render(
+        <EquipmentDetail
+          item={mockItem}
+          onBack={mockOnBack}
+          onAssign={mockOnAssign}
+        />,
+      );
 
       expect(screen.getByText('Assign Equipment')).toBeInTheDocument();
     });
@@ -148,7 +187,13 @@ describe('EquipmentDetail', () => {
     });
 
     it('should call onAssign when assign button is clicked', () => {
-      render(<EquipmentDetail item={mockItem} onBack={mockOnBack} onAssign={mockOnAssign} />);
+      render(
+        <EquipmentDetail
+          item={mockItem}
+          onBack={mockOnBack}
+          onAssign={mockOnAssign}
+        />,
+      );
 
       const assignButton = screen.getByText('Assign Equipment');
       fireEvent.click(assignButton);
@@ -157,7 +202,13 @@ describe('EquipmentDetail', () => {
     });
 
     it('should have 44x44px minimum height on assign button', () => {
-      render(<EquipmentDetail item={mockItem} onBack={mockOnBack} onAssign={mockOnAssign} />);
+      render(
+        <EquipmentDetail
+          item={mockItem}
+          onBack={mockOnBack}
+          onAssign={mockOnAssign}
+        />,
+      );
 
       const assignButton = screen.getByText('Assign Equipment');
       expect(assignButton).toHaveClass('min-h-[44px]');
@@ -165,7 +216,11 @@ describe('EquipmentDetail', () => {
 
     it('should position actions at bottom', () => {
       const { container } = render(
-        <EquipmentDetail item={mockItem} onBack={mockOnBack} onAssign={mockOnAssign} />
+        <EquipmentDetail
+          item={mockItem}
+          onBack={mockOnBack}
+          onAssign={mockOnAssign}
+        />,
       );
 
       const actionArea = container.querySelector('.sticky.bottom-0');
@@ -175,7 +230,9 @@ describe('EquipmentDetail', () => {
 
   describe('Slide-in Transition', () => {
     it('should have slide-in animation', () => {
-      const { container } = render(<EquipmentDetail item={mockItem} onBack={mockOnBack} />);
+      const { container } = render(
+        <EquipmentDetail item={mockItem} onBack={mockOnBack} />,
+      );
 
       const detailView = container.querySelector('.equipment-detail');
       expect(detailView).toHaveClass('transition-transform');
@@ -183,7 +240,9 @@ describe('EquipmentDetail', () => {
     });
 
     it('should be fixed position covering full screen', () => {
-      const { container } = render(<EquipmentDetail item={mockItem} onBack={mockOnBack} />);
+      const { container } = render(
+        <EquipmentDetail item={mockItem} onBack={mockOnBack} />,
+      );
 
       const detailView = container.querySelector('.equipment-detail');
       expect(detailView).toHaveClass('fixed');
@@ -199,7 +258,9 @@ describe('EquipmentDetail', () => {
     });
 
     it('should hide icons from screen readers', () => {
-      const { container } = render(<EquipmentDetail item={mockItem} onBack={mockOnBack} />);
+      const { container } = render(
+        <EquipmentDetail item={mockItem} onBack={mockOnBack} />,
+      );
 
       const icons = container.querySelectorAll('[aria-hidden="true"]');
       expect(icons.length).toBeGreaterThan(0);
@@ -273,22 +334,39 @@ describe('EquipmentDetail', () => {
         damage: 0,
       };
 
-      render(<EquipmentDetail item={amsItem} weaponDetails={amsWeaponDetails} description="Anti-missile system" onBack={mockOnBack} />);
+      render(
+        <EquipmentDetail
+          item={amsItem}
+          weaponDetails={amsWeaponDetails}
+          description="Anti-missile system"
+          onBack={mockOnBack}
+        />,
+      );
 
       expect(screen.getByText('0')).toBeInTheDocument();
     });
 
     it('should handle long descriptions', () => {
       const longDescription =
-        'This is a very long description that should wrap properly and remain readable. '.repeat(10);
+        'This is a very long description that should wrap properly and remain readable. '.repeat(
+          10,
+        );
 
-      const { container } = render(<EquipmentDetail item={mockItem} description={longDescription} onBack={mockOnBack} />);
+      const { container } = render(
+        <EquipmentDetail
+          item={mockItem}
+          description={longDescription}
+          onBack={mockOnBack}
+        />,
+      );
 
       // Check that description is rendered, even if truncated
       expect(screen.getByText('Description')).toBeInTheDocument();
       const descriptionElement = container.querySelector('.leading-relaxed');
       expect(descriptionElement).toBeInTheDocument();
-      expect(descriptionElement?.textContent).toContain('This is a very long description');
+      expect(descriptionElement?.textContent).toContain(
+        'This is a very long description',
+      );
     });
   });
 });

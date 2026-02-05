@@ -14,27 +14,34 @@
 
 import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+
+import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
+import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
+
+import {
+  advanceDay as advanceDayPure,
+  advanceDays as advanceDaysPure,
+  DayReport,
+} from '@/lib/campaign/dayAdvancement';
+import { registerBuiltinProcessors } from '@/lib/campaign/processors';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
-    ICampaign,
-    ICampaignOptions,
-    IMission,
-    createCampaign as createCampaignEntity,
-  } from '@/types/campaign/Campaign';
+  ICampaign,
+  ICampaignOptions,
+  IMission,
+  createCampaign as createCampaignEntity,
+} from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
-import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
-import { advanceDay as advanceDayPure, advanceDays as advanceDaysPure, DayReport } from '@/lib/campaign/dayAdvancement';
-import { registerBuiltinProcessors } from '@/lib/campaign/processors';
-import { IForce } from '@/types/campaign/Force';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
-import { IPerson } from '@/types/campaign/Person';
-import { Money } from '@/types/campaign/Money';
-import { Transaction } from '@/types/campaign/Transaction';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
-import { createPersonnelStore, PersonnelStore } from './usePersonnelStore';
+import { IForce } from '@/types/campaign/Force';
+import { Money } from '@/types/campaign/Money';
+import { IPerson } from '@/types/campaign/Person';
+import { Transaction } from '@/types/campaign/Transaction';
+
 import { createForcesStore, ForcesStore } from './useForcesStore';
 import { createMissionsStore, MissionsStore } from './useMissionsStore';
+import { createPersonnelStore, PersonnelStore } from './usePersonnelStore';
 
 // =============================================================================
 // Serialized Campaign State (for persistence)
@@ -45,30 +52,30 @@ import { createMissionsStore, MissionsStore } from './useMissionsStore';
  * Maps are converted to arrays for JSON serialization.
  */
 interface SerializedCampaignState {
-    id: string;
-    name: string;
-    currentDate: string; // ISO 8601 string
-    factionId: string;
-    rootForceId: string;
-    finances: {
-      transactions: Array<{
-        id: string;
-        type: string;
-        amount: number;
-        date: string;
-        description: string;
-      }>;
-      balance: number;
-    };
-    factionStandings?: Record<string, IFactionStanding>;
-    shoppingList?: IShoppingList;
-    options: ICampaignOptions;
-    campaignType?: string;
-    campaignStartDate?: string;
-    description?: string;
-    iconUrl?: string;
-    createdAt: string;
-    updatedAt: string;
+  id: string;
+  name: string;
+  currentDate: string; // ISO 8601 string
+  factionId: string;
+  rootForceId: string;
+  finances: {
+    transactions: Array<{
+      id: string;
+      type: string;
+      amount: number;
+      date: string;
+      description: string;
+    }>;
+    balance: number;
+  };
+  factionStandings?: Record<string, IFactionStanding>;
+  shoppingList?: IShoppingList;
+  options: ICampaignOptions;
+  campaignType?: string;
+  campaignStartDate?: string;
+  description?: string;
+  iconUrl?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // =============================================================================
@@ -90,7 +97,7 @@ interface CampaignActions {
   createCampaign: (
     name: string,
     factionId: string,
-    options?: Partial<ICampaignOptions>
+    options?: Partial<ICampaignOptions>,
   ) => string;
 
   /** Load a campaign by ID */
@@ -131,73 +138,76 @@ export type CampaignStore = CampaignState & CampaignActions;
  * Serialize campaign state for persistence.
  */
 function serializeCampaign(campaign: ICampaign): SerializedCampaignState {
-   return {
-     id: campaign.id,
-     name: campaign.name,
-     currentDate: campaign.currentDate.toISOString(),
-     factionId: campaign.factionId,
-     rootForceId: campaign.rootForceId,
-     finances: {
-       transactions: campaign.finances.transactions.map((t) => ({
-         id: t.id,
-         type: t.type,
-         amount: t.amount.amount,
-         date: t.date.toISOString(),
-         description: t.description,
-       })),
-       balance: campaign.finances.balance.amount,
-     },
-      shoppingList: campaign.shoppingList,
-      options: campaign.options,
-      campaignType: campaign.campaignType,
-      campaignStartDate: campaign.campaignStartDate?.toISOString(),
-     description: campaign.description,
-     iconUrl: campaign.iconUrl,
-     createdAt: campaign.createdAt,
-     updatedAt: campaign.updatedAt,
-   };
+  return {
+    id: campaign.id,
+    name: campaign.name,
+    currentDate: campaign.currentDate.toISOString(),
+    factionId: campaign.factionId,
+    rootForceId: campaign.rootForceId,
+    finances: {
+      transactions: campaign.finances.transactions.map((t) => ({
+        id: t.id,
+        type: t.type,
+        amount: t.amount.amount,
+        date: t.date.toISOString(),
+        description: t.description,
+      })),
+      balance: campaign.finances.balance.amount,
+    },
+    shoppingList: campaign.shoppingList,
+    options: campaign.options,
+    campaignType: campaign.campaignType,
+    campaignStartDate: campaign.campaignStartDate?.toISOString(),
+    description: campaign.description,
+    iconUrl: campaign.iconUrl,
+    createdAt: campaign.createdAt,
+    updatedAt: campaign.updatedAt,
+  };
 }
 
 /**
  * Deserialize campaign state from persistence.
  */
 function deserializeCampaign(
-   serialized: SerializedCampaignState,
-   personnel: Map<string, IPerson>,
-   forces: Map<string, IForce>,
-   missions: Map<string, IMission>
+  serialized: SerializedCampaignState,
+  personnel: Map<string, IPerson>,
+  forces: Map<string, IForce>,
+  missions: Map<string, IMission>,
 ): ICampaign {
-   return {
-     id: serialized.id,
-     name: serialized.name,
-     currentDate: new Date(serialized.currentDate),
-     factionId: serialized.factionId,
-     personnel,
-     forces,
-     rootForceId: serialized.rootForceId,
-     missions,
-     finances: {
-       transactions: serialized.finances.transactions.map((t): Transaction => ({
-         id: t.id,
-         type: t.type as TransactionType,
-         amount: new Money(t.amount),
-         date: new Date(t.date),
-         description: t.description,
-       })),
-       balance: new Money(serialized.finances.balance),
-     },
-       factionStandings: serialized.factionStandings ?? {},
-       shoppingList: serialized.shoppingList,
-       options: serialized.options,
-       campaignType: (serialized.campaignType as CampaignType) ?? CampaignType.MERCENARY,
-       campaignStartDate: serialized.campaignStartDate
-        ? new Date(serialized.campaignStartDate)
-        : undefined,
-      description: serialized.description,
-      iconUrl: serialized.iconUrl,
-      createdAt: serialized.createdAt,
-      updatedAt: serialized.updatedAt,
-    };
+  return {
+    id: serialized.id,
+    name: serialized.name,
+    currentDate: new Date(serialized.currentDate),
+    factionId: serialized.factionId,
+    personnel,
+    forces,
+    rootForceId: serialized.rootForceId,
+    missions,
+    finances: {
+      transactions: serialized.finances.transactions.map(
+        (t): Transaction => ({
+          id: t.id,
+          type: t.type as TransactionType,
+          amount: new Money(t.amount),
+          date: new Date(t.date),
+          description: t.description,
+        }),
+      ),
+      balance: new Money(serialized.finances.balance),
+    },
+    factionStandings: serialized.factionStandings ?? {},
+    shoppingList: serialized.shoppingList,
+    options: serialized.options,
+    campaignType:
+      (serialized.campaignType as CampaignType) ?? CampaignType.MERCENARY,
+    campaignStartDate: serialized.campaignStartDate
+      ? new Date(serialized.campaignStartDate)
+      : undefined,
+    description: serialized.description,
+    iconUrl: serialized.iconUrl,
+    createdAt: serialized.createdAt,
+    updatedAt: serialized.updatedAt,
+  };
 }
 
 // =============================================================================
@@ -286,7 +296,9 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           }
 
           try {
-            const parsed = JSON.parse(stored) as { state: SerializedCampaignState };
+            const parsed = JSON.parse(stored) as {
+              state: SerializedCampaignState;
+            };
             const serialized = parsed.state;
 
             // Create sub-stores and load their data
@@ -296,13 +308,22 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
 
             // Get data from sub-stores (they auto-hydrate from their own storage)
             const personnel = new Map(
-              personnelStore.getState().getAll().map((p) => [p.id, p])
+              personnelStore
+                .getState()
+                .getAll()
+                .map((p) => [p.id, p]),
             );
             const forces = new Map(
-              forcesStore.getState().getAllForces().map((f) => [f.id, f])
+              forcesStore
+                .getState()
+                .getAllForces()
+                .map((f) => [f.id, f]),
             );
             const missions = new Map(
-              missionsStore.getState().getAllMissions().map((m) => [m.id, m])
+              missionsStore
+                .getState()
+                .getAllMissions()
+                .map((m) => [m.id, m]),
             );
 
             // Deserialize campaign
@@ -310,7 +331,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
               serialized,
               personnel,
               forces,
-              missions
+              missions,
             );
 
             set({
@@ -327,7 +348,8 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         },
 
         saveCampaign: () => {
-          const { campaign, personnelStore, forcesStore, missionsStore } = get();
+          const { campaign, personnelStore, forcesStore, missionsStore } =
+            get();
 
           if (!campaign) {
             return;
@@ -336,19 +358,28 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           // Sync sub-store data to campaign
           const personnel = personnelStore
             ? new Map(
-                personnelStore.getState().getAll().map((p) => [p.id, p])
+                personnelStore
+                  .getState()
+                  .getAll()
+                  .map((p) => [p.id, p]),
               )
             : campaign.personnel;
 
           const forces = forcesStore
             ? new Map(
-                forcesStore.getState().getAllForces().map((f) => [f.id, f])
+                forcesStore
+                  .getState()
+                  .getAllForces()
+                  .map((f) => [f.id, f]),
               )
             : campaign.forces;
 
           const missions = missionsStore
             ? new Map(
-                missionsStore.getState().getAllMissions().map((m) => [m.id, m])
+                missionsStore
+                  .getState()
+                  .getAllMissions()
+                  .map((m) => [m.id, m]),
               )
             : campaign.missions;
 
@@ -368,7 +399,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           const storageKey = `campaign-${campaign.id}`;
           clientSafeStorage.setItem(
             storageKey,
-            JSON.stringify({ state: serialized })
+            JSON.stringify({ state: serialized }),
           );
         },
 
@@ -464,7 +495,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             serialized,
             new Map(),
             new Map(),
-            new Map()
+            new Map(),
           );
 
           return {
@@ -475,8 +506,8 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             missionsStore: null,
           };
         },
-      }
-    )
+      },
+    ),
   );
 }
 

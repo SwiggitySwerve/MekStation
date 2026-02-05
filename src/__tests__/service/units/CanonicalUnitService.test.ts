@@ -1,6 +1,9 @@
-import { CanonicalUnitService, canonicalUnitService } from '@/services/units/CanonicalUnitService';
-import { TechBase } from '@/types/enums/TechBase';
+import {
+  CanonicalUnitService,
+  canonicalUnitService,
+} from '@/services/units/CanonicalUnitService';
 import { Era } from '@/types/enums/Era';
+import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
@@ -105,10 +108,42 @@ describe('CanonicalUnitService', () => {
     it('should determine weight class from tonnage', async () => {
       const mockIndex = {
         units: [
-          { id: 'light', chassis: 'Light', model: 'Mech', tonnage: 30, techBase: 'INNER_SPHERE', year: 2750, path: 'test.json' },
-          { id: 'medium', chassis: 'Medium', model: 'Mech', tonnage: 50, techBase: 'INNER_SPHERE', year: 2750, path: 'test.json' },
-          { id: 'heavy', chassis: 'Heavy', model: 'Mech', tonnage: 70, techBase: 'INNER_SPHERE', year: 2750, path: 'test.json' },
-          { id: 'assault', chassis: 'Assault', model: 'Mech', tonnage: 100, techBase: 'INNER_SPHERE', year: 2750, path: 'test.json' },
+          {
+            id: 'light',
+            chassis: 'Light',
+            model: 'Mech',
+            tonnage: 30,
+            techBase: 'INNER_SPHERE',
+            year: 2750,
+            path: 'test.json',
+          },
+          {
+            id: 'medium',
+            chassis: 'Medium',
+            model: 'Mech',
+            tonnage: 50,
+            techBase: 'INNER_SPHERE',
+            year: 2750,
+            path: 'test.json',
+          },
+          {
+            id: 'heavy',
+            chassis: 'Heavy',
+            model: 'Mech',
+            tonnage: 70,
+            techBase: 'INNER_SPHERE',
+            year: 2750,
+            path: 'test.json',
+          },
+          {
+            id: 'assault',
+            chassis: 'Assault',
+            model: 'Mech',
+            tonnage: 100,
+            techBase: 'INNER_SPHERE',
+            year: 2750,
+            path: 'test.json',
+          },
         ],
       };
 
@@ -119,16 +154,32 @@ describe('CanonicalUnitService', () => {
 
       const index = await service.getIndex();
 
-      expect(index.find(u => u.id === 'light')?.weightClass).toBe(WeightClass.LIGHT);
-      expect(index.find(u => u.id === 'medium')?.weightClass).toBe(WeightClass.MEDIUM);
-      expect(index.find(u => u.id === 'heavy')?.weightClass).toBe(WeightClass.HEAVY);
-      expect(index.find(u => u.id === 'assault')?.weightClass).toBe(WeightClass.ASSAULT);
+      expect(index.find((u) => u.id === 'light')?.weightClass).toBe(
+        WeightClass.LIGHT,
+      );
+      expect(index.find((u) => u.id === 'medium')?.weightClass).toBe(
+        WeightClass.MEDIUM,
+      );
+      expect(index.find((u) => u.id === 'heavy')?.weightClass).toBe(
+        WeightClass.HEAVY,
+      );
+      expect(index.find((u) => u.id === 'assault')?.weightClass).toBe(
+        WeightClass.ASSAULT,
+      );
     });
 
     it('should map era from file path', async () => {
       const mockIndex = {
         units: [
-          { id: 'test', chassis: 'Test', model: 'Mech', tonnage: 50, techBase: 'INNER_SPHERE', year: 2750, path: '4-clan-invasion/test.json' },
+          {
+            id: 'test',
+            chassis: 'Test',
+            model: 'Mech',
+            tonnage: 50,
+            techBase: 'INNER_SPHERE',
+            year: 2750,
+            path: '4-clan-invasion/test.json',
+          },
         ],
       };
 
@@ -275,7 +326,7 @@ describe('CanonicalUnitService', () => {
       const firstCallCount = (global.fetch as jest.Mock).mock.calls.length;
       await service.getById('test-unit');
       const secondCallCount = (global.fetch as jest.Mock).mock.calls.length;
-      
+
       // Unit should be cached, so second call shouldn't fetch unit again
       expect(secondCallCount).toBe(firstCallCount);
     });
@@ -341,7 +392,7 @@ describe('CanonicalUnitService', () => {
         json: async () => mockIndex,
       });
       await service.getIndex();
-      
+
       // Now set up mocks for individual unit fetches
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({
@@ -461,7 +512,7 @@ describe('CanonicalUnitService', () => {
       const results = await service.query({ minTonnage: 75 });
 
       expect(results.length).toBe(2);
-      expect(results.every(u => u.tonnage >= 75)).toBe(true);
+      expect(results.every((u) => u.tonnage >= 75)).toBe(true);
     });
 
     it('should filter by max tonnage', async () => {
@@ -540,7 +591,7 @@ describe('CanonicalUnitService', () => {
       service.clearCache();
       await service.getById('test-unit');
       const afterClear = (global.fetch as jest.Mock).mock.calls.length;
-      
+
       // After clear, should fetch again
       expect(afterClear).toBeGreaterThan(beforeClear);
     });

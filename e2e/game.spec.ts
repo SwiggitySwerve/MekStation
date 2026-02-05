@@ -9,13 +9,8 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
+
 import {
-  GameListPage,
-  GameSessionPage,
-  GameReplayPage,
-} from './pages/game.page';
-import {
-  waitForGameplayStoreReady,
   getGameSession,
   getGameplayState,
   selectUnit,
@@ -24,6 +19,11 @@ import {
   DEMO_INITIAL_STATE,
   PHASE_ACTIONS,
 } from './fixtures/game';
+import {
+  GameListPage,
+  GameSessionPage,
+  GameReplayPage,
+} from './pages/game.page';
 
 // =============================================================================
 // Test Configuration
@@ -40,7 +40,7 @@ async function waitForStoreReady(page: Page): Promise<void> {
       };
       return win.__ZUSTAND_STORES__?.gameplay !== undefined;
     },
-    { timeout: 10000 }
+    { timeout: 10000 },
   );
 }
 
@@ -78,7 +78,7 @@ test.describe('Game List Page @smoke @game', () => {
     } else {
       // Cards should be visible
       await expect(
-        page.locator('[data-testid^="game-card-"]').first()
+        page.locator('[data-testid^="game-card-"]').first(),
       ).toBeVisible();
     }
   });
@@ -98,7 +98,7 @@ test.describe('Demo Game Session @smoke @game', () => {
     await waitForStoreReady(page);
   });
 
-  test('demo session loads successfully', async ({ page }) => {
+  test('demo session loads successfully', async () => {
     // Wait for game session to load
     await sessionPage.waitForGameLoaded();
 
@@ -129,7 +129,7 @@ test.describe('Demo Game Session @smoke @game', () => {
     expect(phaseName.toLowerCase()).toContain('weapon');
   });
 
-  test('displays turn number', async ({ page }) => {
+  test('displays turn number', async () => {
     await sessionPage.waitForGameLoaded();
 
     // Turn number should be visible
@@ -149,7 +149,7 @@ test.describe('Demo Game Session @smoke @game', () => {
     await expect(page.getByTestId('map-panel')).toBeVisible();
   });
 
-  test('displays action bar', async ({ page }) => {
+  test('displays action bar', async () => {
     await sessionPage.waitForGameLoaded();
 
     // Action bar should be visible
@@ -157,15 +157,15 @@ test.describe('Demo Game Session @smoke @game', () => {
     expect(actionBarVisible).toBe(true);
   });
 
-  test('displays unit tokens on map', async ({ page }) => {
+  test('displays unit tokens on map', async () => {
     await sessionPage.waitForGameLoaded();
 
     // Both demo units should have tokens visible
     const playerUnitVisible = await sessionPage.isUnitTokenVisible(
-      DEMO_UNITS.PLAYER.id
+      DEMO_UNITS.PLAYER.id,
     );
     const opponentUnitVisible = await sessionPage.isUnitTokenVisible(
-      DEMO_UNITS.OPPONENT.id
+      DEMO_UNITS.OPPONENT.id,
     );
 
     expect(playerUnitVisible).toBe(true);
@@ -218,9 +218,7 @@ test.describe('Unit Selection @game', () => {
     expect(state?.ui.selectedUnitId).toBe(DEMO_UNITS.PLAYER.id);
   });
 
-  test('record sheet panel shows no unit selected initially', async ({
-    page,
-  }) => {
+  test('record sheet panel shows no unit selected initially', async () => {
     // Initially no unit should be selected
     const noUnitVisible = await sessionPage.isNoUnitSelectedVisible();
     expect(noUnitVisible).toBe(true);
@@ -253,7 +251,7 @@ test.describe('Zoom Controls @game', () => {
     await expect(page.getByTestId('reset-view-btn')).toBeVisible();
   });
 
-  test('can click zoom buttons without error', async ({ page }) => {
+  test('can click zoom buttons without error', async () => {
     // Just verify they're clickable without errors
     await sessionPage.clickZoomIn();
     await sessionPage.clickZoomOut();
@@ -283,12 +281,12 @@ test.describe('Action Bar @game', () => {
     await expect(page.getByTestId('action-bar')).toBeVisible();
   });
 
-  test('skip action is available', async ({ page }) => {
+  test('skip action is available', async () => {
     const isVisible = await sessionPage.isActionVisible('skip');
     expect(isVisible).toBe(true);
   });
 
-  test('clear action is available in weapon attack phase', async ({ page }) => {
+  test('clear action is available in weapon attack phase', async () => {
     // Demo starts at weapon_attack phase, where 'clear' is available (not 'concede')
     // 'concede' is only available in 'end' phase
     const isVisible = await sessionPage.isActionVisible('clear');
@@ -345,10 +343,10 @@ test.describe('Game Session State @game', () => {
     expect(session?.units).toHaveLength(2);
 
     const playerUnit = session?.units.find(
-      (u) => u.id === DEMO_UNITS.PLAYER.id
+      (u) => u.id === DEMO_UNITS.PLAYER.id,
     );
     const opponentUnit = session?.units.find(
-      (u) => u.id === DEMO_UNITS.OPPONENT.id
+      (u) => u.id === DEMO_UNITS.OPPONENT.id,
     );
 
     expect(playerUnit?.name).toBe(DEMO_UNITS.PLAYER.name);
@@ -359,10 +357,10 @@ test.describe('Game Session State @game', () => {
     const session = await getGameSession(page);
 
     const playerUnit = session?.units.find(
-      (u) => u.id === DEMO_UNITS.PLAYER.id
+      (u) => u.id === DEMO_UNITS.PLAYER.id,
     );
     const opponentUnit = session?.units.find(
-      (u) => u.id === DEMO_UNITS.OPPONENT.id
+      (u) => u.id === DEMO_UNITS.OPPONENT.id,
     );
 
     expect(playerUnit?.side).toBe('player');
@@ -423,16 +421,14 @@ test.describe('Game Replay Page @game', () => {
 
     // One of these should be true - any state is acceptable
     expect(
-      replayPageVisible || errorHeading || noEventsText || loadingSpinner
+      replayPageVisible || errorHeading || noEventsText || loadingSpinner,
     ).toBe(true);
   });
 
   // Note: The following tests are skipped because the demo session
   // doesn't have event data loaded into the event store that the
   // replay system uses. These would pass with a real game session.
-  test.skip('replay page shows controls when events exist', async ({
-    page,
-  }) => {
+  test.skip('replay page shows controls when events exist', async () => {
     await replayPage.navigate('demo');
     await replayPage.waitForReplayLoaded();
 
@@ -478,7 +474,9 @@ test.describe('Game Flow @game', () => {
     await sessionPage.waitForGameLoaded();
   });
 
-  test('can lock movement for selected unit (requires movement phase)', async ({ page }) => {
+  test('can lock movement for selected unit (requires movement phase)', async ({
+    page,
+  }) => {
     // Demo starts at weapon_attack phase
     // First, verify the current phase
     const initialSession = await getGameSession(page);
@@ -486,7 +484,7 @@ test.describe('Game Flow @game', () => {
 
     // Select a player unit
     await selectUnit(page, DEMO_UNITS.PLAYER.id);
-    
+
     // Verify selection
     const state = await getGameplayState(page);
     expect(state?.ui.selectedUnitId).toBe(DEMO_UNITS.PLAYER.id);
@@ -507,7 +505,15 @@ test.describe('Game Flow @game', () => {
 
     // Queue a weapon (AC/20 from demo weapons)
     await page.evaluate((weaponId) => {
-      const stores = (window as Window & { __ZUSTAND_STORES__?: { gameplay?: { getState: () => { toggleWeapon: (id: string) => void } } } }).__ZUSTAND_STORES__;
+      const stores = (
+        window as Window & {
+          __ZUSTAND_STORES__?: {
+            gameplay?: {
+              getState: () => { toggleWeapon: (id: string) => void };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
       stores?.gameplay?.getState().toggleWeapon(weaponId);
     }, 'weapon-1');
 
@@ -572,10 +578,11 @@ test.describe('Phase Transitions @game', () => {
   test('phase actions match current phase', async ({ page }) => {
     const session = await getGameSession(page);
     const phase = session?.currentState.phase;
-    
+
     // Get expected actions for current phase
-    const expectedActions = PHASE_ACTIONS[phase as keyof typeof PHASE_ACTIONS] ?? [];
-    
+    const expectedActions =
+      PHASE_ACTIONS[phase as keyof typeof PHASE_ACTIONS] ?? [];
+
     // Verify at least one expected action is available
     for (const action of expectedActions) {
       const isVisible = await sessionPage.isActionVisible(action);

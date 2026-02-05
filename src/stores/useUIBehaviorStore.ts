@@ -26,7 +26,11 @@ export interface UIBehaviorState {
 }
 
 /** Keys that are action functions, not state */
-type ActionKeys = 'setSidebarDefaultCollapsed' | 'setConfirmOnClose' | 'setShowTooltips' | 'resetToDefaults';
+type ActionKeys =
+  | 'setSidebarDefaultCollapsed'
+  | 'setConfirmOnClose'
+  | 'setShowTooltips'
+  | 'resetToDefaults';
 
 const DEFAULT_UI_BEHAVIOR: Omit<UIBehaviorState, ActionKeys> = {
   sidebarDefaultCollapsed: false,
@@ -42,16 +46,18 @@ export const useUIBehaviorStore = create<UIBehaviorState>()(
     (set) => ({
       ...DEFAULT_UI_BEHAVIOR,
 
-      setSidebarDefaultCollapsed: (collapsed) => set({ sidebarDefaultCollapsed: collapsed }),
+      setSidebarDefaultCollapsed: (collapsed) =>
+        set({ sidebarDefaultCollapsed: collapsed }),
       setConfirmOnClose: (confirm) => set({ confirmOnClose: confirm }),
       setShowTooltips: (show) => set({ showTooltips: show }),
 
-      resetToDefaults: () => set({
-        ...DEFAULT_UI_BEHAVIOR,
-      }),
+      resetToDefaults: () =>
+        set({
+          ...DEFAULT_UI_BEHAVIOR,
+        }),
     }),
     {
       name: 'mekstation-ui-behavior',
-    }
-  )
+    },
+  ),
 );

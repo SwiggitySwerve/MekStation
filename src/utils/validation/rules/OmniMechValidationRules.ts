@@ -10,7 +10,8 @@ import { pass, fail, warn } from './validationHelpers';
 export const OmniMechBaseHeatSinksRule: IValidationRuleDefinition = {
   id: 'configuration.omnimech.base_heat_sinks',
   name: 'OmniMech Base Heat Sinks',
-  description: 'Validates that base chassis heat sinks do not exceed total heat sinks',
+  description:
+    'Validates that base chassis heat sinks do not exceed total heat sinks',
   category: ValidationCategory.CONSTRUCTION,
   priority: 10,
 
@@ -21,7 +22,9 @@ export const OmniMechBaseHeatSinksRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const baseChassisHeatSinks = unit.baseChassisHeatSinks as number | undefined;
+    const baseChassisHeatSinks = unit.baseChassisHeatSinks as
+      | number
+      | undefined;
     const heatSinkCount = unit.heatSinkCount as number | undefined;
 
     if (baseChassisHeatSinks === undefined || baseChassisHeatSinks === -1) {
@@ -39,7 +42,8 @@ export const OmniMechBaseHeatSinksRule: IValidationRuleDefinition = {
           path: 'baseChassisHeatSinks',
           expected: `<= ${heatSinkCount}`,
           actual: `${baseChassisHeatSinks}`,
-          suggestion: 'Reduce base chassis heat sinks or increase total heat sink count',
+          suggestion:
+            'Reduce base chassis heat sinks or increase total heat sink count',
         },
       ]);
     }
@@ -62,7 +66,9 @@ export const OmniMechBaseHeatSinksValidRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const baseChassisHeatSinks = unit.baseChassisHeatSinks as number | undefined;
+    const baseChassisHeatSinks = unit.baseChassisHeatSinks as
+      | number
+      | undefined;
 
     if (baseChassisHeatSinks === undefined || baseChassisHeatSinks === -1) {
       return pass(this.id);
@@ -79,7 +85,8 @@ export const OmniMechBaseHeatSinksValidRule: IValidationRuleDefinition = {
           path: 'baseChassisHeatSinks',
           expected: '>= 0 or -1 for auto',
           actual: `${baseChassisHeatSinks}`,
-          suggestion: 'Set base chassis heat sinks to 0 or higher, or use -1 for auto',
+          suggestion:
+            'Set base chassis heat sinks to 0 or higher, or use -1 for auto',
         },
       ]);
     }
@@ -102,14 +109,16 @@ export const OmniMechFixedEquipmentRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const equipment = unit.equipment as Array<Record<string, unknown>> | undefined;
+    const equipment = unit.equipment as
+      | Array<Record<string, unknown>>
+      | undefined;
 
     if (!equipment || equipment.length === 0) {
       return pass(this.id);
     }
 
     const hasFixedEquipment = equipment.some(
-      (item) => item.isOmniPodMounted !== true
+      (item) => item.isOmniPodMounted !== true,
     );
 
     if (!hasFixedEquipment) {
@@ -121,7 +130,8 @@ export const OmniMechFixedEquipmentRule: IValidationRuleDefinition = {
           category: this.category,
           message: 'OmniMech has no fixed (chassis-mounted) equipment',
           path: 'equipment',
-          suggestion: 'Mark some equipment as fixed to define the base chassis configuration',
+          suggestion:
+            'Mark some equipment as fixed to define the base chassis configuration',
         },
       ]);
     }

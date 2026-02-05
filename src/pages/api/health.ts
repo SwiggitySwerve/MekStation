@@ -1,9 +1,9 @@
 /**
  * Health Check API Endpoint
- * 
+ *
  * Used by Docker health checks and load balancers to verify
  * the application is running and healthy.
- * 
+ *
  * Returns:
  * - 200 OK with status information when healthy
  * - 503 Service Unavailable when unhealthy
@@ -38,7 +38,7 @@ const MEMORY_ERROR_THRESHOLD = 900 * 1024 * 1024; // 900MB
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse<IHealthResponse>
+  res: NextApiResponse<IHealthResponse>,
 ): void {
   // Only allow GET requests
   if (req.method !== 'GET') {
@@ -50,7 +50,7 @@ export default function handler(
   try {
     const memoryUsage = process.memoryUsage();
     const heapUsed = memoryUsage.heapUsed;
-    
+
     // Determine memory status
     let memoryStatus: 'ok' | 'warning' | 'error' = 'ok';
     if (heapUsed > MEMORY_ERROR_THRESHOLD) {
@@ -60,7 +60,7 @@ export default function handler(
     }
 
     const isHealthy = memoryStatus !== 'error';
-    
+
     const response: IHealthResponse = {
       status: isHealthy ? 'healthy' : 'unhealthy',
       timestamp: new Date().toISOString(),
@@ -81,11 +81,11 @@ export default function handler(
 
     // Set appropriate status code
     const statusCode = isHealthy ? 200 : 503;
-    
+
     // Set cache headers to prevent caching of health status
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
-    
+
     res.status(statusCode).json(response);
   } catch (error) {
     console.error('[Health API] Health check failed:', error);
@@ -100,7 +100,7 @@ export default function handler(
         memory: 'error',
       },
     };
-    
+
     res.status(503).json(errorResponse);
   }
 }

@@ -11,6 +11,7 @@ Replace the current row-based `ArmorPipLayout` algorithm (ported from MegaMekLab
 The existing `ArmorPipLayout.ts` is a direct port of MegaMekLab's `ArmorPipLayout.java`:
 
 **Algorithm characteristics:**
+
 - **Grid-based**: Distributes pips in horizontal rows within rectangular bounding regions
 - **Row-by-row placement**: Calculates number of rows, pips per row, and spacing
 - **Rectangle-only**: Uses `<rect>` elements to define horizontal bands for pip placement
@@ -18,6 +19,7 @@ The existing `ArmorPipLayout.ts` is a direct port of MegaMekLab's `ArmorPipLayou
 - **Multi-section**: Supports splitting pips across multiple sub-groups proportionally
 
 **Limitations:**
+
 1. **Rectangular constraint**: Can only place pips within rectangular regions, not arbitrary polygons
 2. **Grid artifacts**: Row-based placement creates visible horizontal lines
 3. **No density variation**: Cannot vary pip density within a region
@@ -25,21 +27,23 @@ The existing `ArmorPipLayout.ts` is a direct port of MegaMekLab's `ArmorPipLayou
 
 ### Current Usage Contexts
 
-| Context | File | Notes |
-|---------|------|-------|
-| PDF Record Sheet | `svgRecordSheetRenderer/armor.ts` | Dynamic pip generation for quads/tripods |
-| Pre-made Pip SVGs | `/public/data/record-sheets/pips/` | Static SVG files for biped mechs |
-| Interactive Armor Diagram | `armor/variants/*.tsx` | Uses different fill-based visualization |
+| Context                   | File                               | Notes                                    |
+| ------------------------- | ---------------------------------- | ---------------------------------------- |
+| PDF Record Sheet          | `svgRecordSheetRenderer/armor.ts`  | Dynamic pip generation for quads/tripods |
+| Pre-made Pip SVGs         | `/public/data/record-sheets/pips/` | Static SVG files for biped mechs         |
+| Interactive Armor Diagram | `armor/variants/*.tsx`             | Uses different fill-based visualization  |
 
 ## Proposed Solution
 
 ### Primary Approach: Poisson + Turf.js
 
 Based on research, the optimal solution combines:
+
 - **`poisson-disk-sampling`** (~6K weekly npm downloads) - Bridson's O(n) algorithm
 - **`@turf/boolean-point-in-polygon`** - Efficient polygon containment tests
 
 This pairing delivers:
+
 - Uniform "blue noise" distribution avoiding visual clustering
 - Support for arbitrary polygon shapes
 - Variable density control via `distanceFunction`
@@ -48,6 +52,7 @@ This pairing delivers:
 ### Alternative: Lloyd's Relaxation for Exact Counts
 
 For cases where exact pip counts are required (armor values):
+
 - Use `d3-delaunay` for Voronoi tessellation
 - Apply Lloyd's relaxation to iteratively improve distribution
 - Start with random points, converge toward uniform spacing
@@ -124,7 +129,7 @@ export interface DistributedPips {
 
 export function distributePips(
   region: PolygonRegion,
-  options: PipDistributionOptions
+  options: PipDistributionOptions,
 ): DistributedPips;
 ```
 
@@ -136,7 +141,7 @@ import { booleanPointInPolygon, polygon, bbox } from '@turf/turf';
 
 export function distributePips(
   region: PolygonRegion,
-  options: PipDistributionOptions
+  options: PipDistributionOptions,
 ): DistributedPips {
   const {
     targetCount,
@@ -155,7 +160,7 @@ export function distributePips(
   // Estimate initial pip spacing based on target count and area
   const polygonArea = calculatePolygonArea(region.vertices);
   const estimatedSpacing = Math.sqrt(polygonArea / targetCount) * 0.85;
-  
+
   let bestResult: DistributedPips | null = null;
   let currentSpacing = minDistance ?? estimatedSpacing;
 
@@ -172,22 +177,33 @@ export function distributePips(
     const rawPoints = pds.fill();
     const points = rawPoints
       .map(([x, y]): [number, number] => [x + bounds[0], y + bounds[1]])
-      .filter(point => booleanPointInPolygon(point, poly));
+      .filter((point) => booleanPointInPolygon(point, poly));
 
     // Adjust count if needed
-    const adjustedPoints = adjustPointCount(points, targetCount, poly, currentSpacing);
+    const adjustedPoints = adjustPointCount(
+      points,
+      targetCount,
+      poly,
+      currentSpacing,
+    );
 
     // Apply Lloyd's relaxation for better uniformity
-    const relaxedPoints = relaxationIterations > 0
-      ? applyLloydRelaxation(adjustedPoints, poly, relaxationIterations)
-      : adjustedPoints;
+    const relaxedPoints =
+      relaxationIterations > 0
+        ? applyLloydRelaxation(adjustedPoints, poly, relaxationIterations)
+        : adjustedPoints;
 
     const result: DistributedPips = {
       positions: relaxedPoints,
       count: relaxedPoints.length,
       exactMatch: relaxedPoints.length === targetCount,
       pipRadius: currentSpacing * 0.4,
-      bounds: { minX: bounds[0], minY: bounds[1], maxX: bounds[2], maxY: bounds[3] },
+      bounds: {
+        minX: bounds[0],
+        minY: bounds[1],
+        maxX: bounds[2],
+        maxY: bounds[3],
+      },
     };
 
     if (result.exactMatch) {
@@ -195,8 +211,11 @@ export function distributePips(
     }
 
     // Track best result
-    if (!bestResult || 
-        Math.abs(result.count - targetCount) < Math.abs(bestResult.count - targetCount)) {
+    if (
+      !bestResult ||
+      Math.abs(result.count - targetCount) <
+        Math.abs(bestResult.count - targetCount)
+    ) {
       bestResult = result;
     }
 
@@ -219,7 +238,7 @@ function adjustPointCount(
   points: [number, number][],
   targetCount: number,
   poly: Feature<Polygon>,
-  spacing: number
+  spacing: number,
 ): [number, number][] {
   if (points.length === targetCount) {
     return points;
@@ -229,16 +248,16 @@ function adjustPointCount(
     // Remove points furthest from centroid (least central)
     const centroid = calculateCentroid(points);
     return points
-      .map(p => ({ point: p, dist: distance(p, centroid) }))
+      .map((p) => ({ point: p, dist: distance(p, centroid) }))
       .sort((a, b) => a.dist - b.dist)
       .slice(0, targetCount)
-      .map(p => p.point);
+      .map((p) => p.point);
   }
 
   // Need more points - add at maximum distance from existing points
   const result = [...points];
   const bounds = bbox(poly);
-  
+
   while (result.length < targetCount) {
     let bestCandidate: [number, number] | null = null;
     let bestMinDist = 0;
@@ -252,7 +271,7 @@ function adjustPointCount(
 
       if (!booleanPointInPolygon(candidate, poly)) continue;
 
-      const minDist = Math.min(...result.map(p => distance(candidate, p)));
+      const minDist = Math.min(...result.map((p) => distance(candidate, p)));
       if (minDist > bestMinDist) {
         bestMinDist = minDist;
         bestCandidate = candidate;
@@ -280,12 +299,14 @@ export function addPolygonPips(
   group: Element,
   region: PolygonRegion,
   pipCount: number,
-  options: Partial<PipDistributionOptions & { fill?: string; strokeWidth?: number }> = {}
+  options: Partial<
+    PipDistributionOptions & { fill?: string; strokeWidth?: number }
+  > = {},
 ): void {
   if (pipCount <= 0) return;
 
   const { fill = '#FFFFFF', strokeWidth = 0.5, ...distOptions } = options;
-  
+
   const result = distributePips(region, {
     targetCount: pipCount,
     ...distOptions,
@@ -307,21 +328,25 @@ export function addPolygonPips(
 ## Migration Strategy
 
 ### Phase 1: New Service Implementation
+
 1. Add dependencies (`poisson-disk-sampling`, `@turf/boolean-point-in-polygon`)
 2. Create `PipDistribution.ts` service with full test coverage
 3. Add polygon extraction utilities for existing SVG templates
 
 ### Phase 2: Parallel Operation
+
 1. Add feature flag for new algorithm
 2. Run both algorithms in parallel for comparison
 3. Visual QA of pip distributions across all mech types
 
 ### Phase 3: Template Enhancement
+
 1. Update SVG templates with polygon regions (replacing rectangles)
 2. Define polygon shapes for all body parts across mech types
 3. Add support for complex regions (legs with knee joints, etc.)
 
 ### Phase 4: Full Migration
+
 1. Switch default to new algorithm
 2. Deprecate `ArmorPipLayout` (keep for fallback)
 3. Remove rectangle-based template regions
@@ -345,6 +370,7 @@ src/services/printing/
 ## Testing Strategy
 
 ### Unit Tests
+
 - Poisson distribution uniformity metrics
 - Polygon containment accuracy
 - Exact count achievement rate
@@ -352,23 +378,25 @@ src/services/printing/
 - Edge cases (single pip, max pips, narrow regions)
 
 ### Visual Regression Tests
+
 - Compare pip distributions across all mech types
 - Verify no pips outside polygon boundaries
 - Check spacing uniformity visually
 
 ### Performance Tests
+
 - Benchmark against current implementation
 - Test with max armor values (307 points CT)
 - Measure bundle size impact
 
 ## Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Bundle size increase | Medium | Tree-shake Turf.js modules, lazy load for PDF |
-| Performance regression | Low | Poisson is O(n), faster than current |
-| Visual inconsistency | Medium | Side-by-side comparison before rollout |
-| Exact count failure | Low | Hybrid approach guarantees count matching |
+| Risk                   | Impact | Mitigation                                    |
+| ---------------------- | ------ | --------------------------------------------- |
+| Bundle size increase   | Medium | Tree-shake Turf.js modules, lazy load for PDF |
+| Performance regression | Low    | Poisson is O(n), faster than current          |
+| Visual inconsistency   | Medium | Side-by-side comparison before rollout        |
+| Exact count failure    | Low    | Hybrid approach guarantees count matching     |
 
 ## Success Criteria
 

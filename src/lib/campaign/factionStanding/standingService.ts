@@ -21,7 +21,7 @@ export function adjustRegard(
   delta: number,
   reason: string,
   date: Date,
-  regardMultiplier: number = 1
+  regardMultiplier: number = 1,
 ): IFactionStanding {
   const previousRegard = standing.regard;
   const previousLevel = standing.level;
@@ -61,7 +61,7 @@ export function adjustRegard(
  */
 export function processRegardDecay(
   standing: IFactionStanding,
-  date: Date
+  date: Date,
 ): IFactionStanding {
   const { regard } = standing;
 
@@ -99,7 +99,7 @@ export function processContractOutcome(
   employerFactionId: string,
   targetFactionId: string | undefined,
   outcome: 'success' | 'partial' | 'failure' | 'breach',
-  date: Date
+  date: Date,
 ): Record<string, IFactionStanding> {
   const updated = { ...standings };
 
@@ -120,7 +120,7 @@ export function processContractOutcome(
     employerStanding,
     delta,
     `Contract ${outcome}`,
-    date
+    date,
   );
 
   // Adjust target standing if different from employer
@@ -133,7 +133,7 @@ export function processContractOutcome(
       targetStanding,
       targetDelta,
       `Contract ${outcome} (opposing)`,
-      date
+      date,
     );
   }
 

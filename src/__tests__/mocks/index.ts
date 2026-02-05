@@ -1,6 +1,6 @@
 /**
  * Test Mocks Index
- * 
+ *
  * Re-exports all mock implementations for convenient importing.
  */
 
@@ -22,4 +22,3 @@ export {
   MockDatabase,
   MockStore,
 } from './storage/MockIndexedDB';
-

@@ -1,13 +1,14 @@
 /**
  * Unit Serialization Types
- * 
+ *
  * Defines JSON save/load formats and serialization interfaces.
- * 
+ *
  * @spec openspec/specs/serialization-formats/spec.md
  */
 
-import { IBattleMech } from './BattleMechInterfaces';
 import type { ResultType } from '@/services/core/types/BaseTypes';
+
+import { IBattleMech } from './BattleMechInterfaces';
 
 /**
  * File format version for backwards compatibility
@@ -34,7 +35,7 @@ export interface ISerializedUnit {
   readonly chassis: string;
   readonly model: string;
   readonly variant?: string;
-  
+
   // Classification
   readonly unitType: string;
   readonly configuration: string;
@@ -43,28 +44,28 @@ export interface ISerializedUnit {
   readonly era: string;
   readonly year: number;
   readonly tonnage: number;
-  
+
   // Structural components
   readonly engine: ISerializedEngine;
   readonly gyro: ISerializedGyro;
   readonly cockpit: string;
   readonly structure: ISerializedStructure;
-  
+
   // Armor
   readonly armor: ISerializedArmor;
-  
+
   // Heat sinks
   readonly heatSinks: ISerializedHeatSinks;
-  
+
   // Movement
   readonly movement: ISerializedMovement;
-  
+
   // Equipment
   readonly equipment: ISerializedEquipment[];
-  
+
   // Critical slots
   readonly criticalSlots: ISerializedCriticalSlots;
-  
+
   // Optional
   readonly quirks?: string[];
   readonly fluff?: ISerializedFluff;
@@ -167,7 +168,10 @@ export interface ISerializationError {
   readonly warnings: string[];
 }
 
-export type ISerializationResult = ResultType<ISerializationData, ISerializationError>;
+export type ISerializationResult = ResultType<
+  ISerializationData,
+  ISerializationError
+>;
 
 export interface IDeserializationData {
   readonly unit: IBattleMech;
@@ -181,7 +185,10 @@ export interface IDeserializationError {
   readonly migrations: string[];
 }
 
-export type IDeserializationResult = ResultType<IDeserializationData, IDeserializationError>;
+export type IDeserializationResult = ResultType<
+  IDeserializationData,
+  IDeserializationError
+>;
 
 /**
  * Unit serializer interface
@@ -233,4 +240,3 @@ export interface IMTFImporter {
 export interface IMTFExporter {
   export(unit: IBattleMech): ISerializationResult;
 }
-

@@ -11,22 +11,22 @@
 
 ### Overall Health Assessment
 
-| Status | Count | Percentage |
-|--------|-------|------------|
-| **Production Ready** | 15 | 39% |
-| **Needs Revision** | 18 | 47% |
-| **Critical Issues** | 5 | 13% |
-| **Total Validated** | 38 | 100% |
+| Status               | Count | Percentage |
+| -------------------- | ----- | ---------- |
+| **Production Ready** | 15    | 39%        |
+| **Needs Revision**   | 18    | 47%        |
+| **Critical Issues**  | 5     | 13%        |
+| **Total Validated**  | 38    | 100%       |
 
 ### Specification Quality by Phase
 
-| Phase | Average Accuracy | Status |
-|-------|-----------------|---------|
-| Phase 1 - Foundation | 85% | Good (1 critical error) |
-| Phase 2 - Construction | 70% | Needs Work (Multiple formula errors) |
-| Phase 3 - Equipment | 75% | Needs Work (Stat accuracy issues) |
-| Phase 4 - Validation/Calculations | 72% | Needs Work (Critical BV errors) |
-| Phase 5 - Data Models | 80% | Good (Minor issues) |
+| Phase                             | Average Accuracy | Status                               |
+| --------------------------------- | ---------------- | ------------------------------------ |
+| Phase 1 - Foundation              | 85%              | Good (1 critical error)              |
+| Phase 2 - Construction            | 70%              | Needs Work (Multiple formula errors) |
+| Phase 3 - Equipment               | 75%              | Needs Work (Stat accuracy issues)    |
+| Phase 4 - Validation/Calculations | 72%              | Needs Work (Critical BV errors)      |
+| Phase 5 - Data Models             | 80%              | Good (Minor issues)                  |
 
 ### Estimated Effort
 
@@ -41,10 +41,12 @@
 ## Critical Issues Requiring Immediate Attention
 
 ### 1. Heat Sink System (phase-2-construction/heat-sink-system/spec.md)
+
 **Severity:** CRITICAL
 **Impact:** Breaks basic mech construction
 
 **Issues:**
+
 - Integral heat sink cap specified as 10 (INCORRECT - should be 10 for standard, 0 for compact/XL)
 - Missing rules for compact/XL engines having 0 integral heat sinks
 - Missing clan double heat sink (CDHS) rules completely
@@ -55,10 +57,12 @@
 ---
 
 ### 2. Construction Rules Core (phase-2-construction/construction-rules-core/spec.md)
+
 **Severity:** CRITICAL
 **Impact:** Core construction calculations are incorrect
 
 **Issues:**
+
 - Engine weight formula `Math.ceil(rating/5) * 0.5` is WRONG (should use official weight table)
 - Integral heat sink cap of 10 applies incorrectly to XL/Light/Compact engines
 - Missing MASC weight calculation rules
@@ -70,10 +74,12 @@
 ---
 
 ### 3. Battle Value System (phase-4-validation-calculations/battle-value-system/spec.md)
+
 **Severity:** CRITICAL
 **Impact:** Battle Value calculations will be completely wrong
 
 **Issues:**
+
 - Defensive BV formula has armor and structure multipliers REVERSED
   - Spec says: `armorPoints * 1.0 + structurePoints * 2.5`
   - Should be: `armorPoints * 2.5 + structurePoints * 1.0`
@@ -86,10 +92,12 @@
 ---
 
 ### 4. Validation Patterns (phase-1-foundation/validation-patterns/spec.md)
+
 **Severity:** CRITICAL
 **Impact:** Referenced throughout other specs incorrectly
 
 **Issues:**
+
 - Uses `TechBase.BOTH` which doesn't exist in core enumerations
 - Should use `TechBase.INNER_SPHERE | TechBase.CLAN` or similar pattern
 - This error is referenced in multiple other specs that inherit the pattern
@@ -99,10 +107,12 @@
 ---
 
 ### 5. Engine System (phase-2-construction/engine-system/spec.md)
+
 **Severity:** CRITICAL
 **Impact:** All engine-related calculations are affected
 
 **Issues:**
+
 - Engine weight formula incorrect (formula vs table)
 - Integral heat sink rules wrong for non-standard engines
 - Missing XXL engine rules
@@ -118,6 +128,7 @@
 ### Formula Errors
 
 #### Movement System (phase-2-construction/movement-system/spec.md)
+
 - TSM run MP formula: `Math.floor(walkMP * 1.5)` is WRONG
   - Should be: `walkMP + Math.ceil(walkMP / 2)`
   - Example: Walk 5 → Run 8 (not 7.5 rounded down to 7)
@@ -125,6 +136,7 @@
 - MASC/Supercharger interaction missing
 
 #### Ammunition System (phase-3-equipment/ammunition-system/spec.md)
+
 - LRM ammo: 120 shots/ton specified (WRONG - should be 100 shots/ton for IS LRM-20)
 - MG ammo: 100 shots/ton specified (WRONG - should be 200 shots/ton)
 - AC/20 ammo: Listed as 10 shots/ton (WRONG - should be 5 shots/ton)
@@ -132,12 +144,14 @@
 - Artemis-compatible ammo weight rules missing
 
 #### Armor System (phase-2-construction/armor-system/spec.md)
+
 - Heavy Ferro-Fibrous points per ton needs verification (may be incorrect)
 - Hardened armor damage reduction formula incomplete
 - Reactive armor blow-off mechanics missing
 - Stealth armor ECM interaction not specified
 
 #### Electronics System (phase-3-equipment/electronics-system/spec.md)
+
 - Targeting Computer weight: `weaponTonnage * 0.1` is incomplete
   - Should be: `Math.ceil(weaponTonnage) tons`, minimum 1 ton
 - MASC weight formula missing entirely
@@ -145,6 +159,7 @@
 - C3 rules incomplete (C3i, C3 Master/Slave differences)
 
 #### Physical Weapons System (phase-3-equipment/physical-weapons-system/spec.md)
+
 - Talons completely wrong:
   - Spec says: 0.5 tons, 1 crit, kick damage +1
   - Should be: Varies by weight class, multiple crits, kick damage +50%
@@ -158,6 +173,7 @@
 #### Missing Equipment Types
 
 **Weapons:**
+
 - Rocket Launchers (RL-10, RL-15, RL-20)
 - Improved Heavy weapons (Gauss, Large Laser, etc.)
 - Light/Heavy Machine Gun variants
@@ -169,6 +185,7 @@
 - Bombast Laser
 
 **Equipment:**
+
 - Radical Heat Sink System
 - Laser Insulator
 - Coolant Pod
@@ -180,6 +197,7 @@
 - Armored components (Armored Gyro, Armored Cockpit, Armored Sensors)
 
 **Ammunition:**
+
 - Precision ammo
 - Tracer ammo
 - Thunder (mines)
@@ -194,6 +212,7 @@
 #### Missing Validation Rules
 
 **Construction:**
+
 - Lower arm actuator removal validation
 - Hand actuator removal validation
 - Shoulder actuator rules (always required)
@@ -202,12 +221,14 @@
 - Split equipment validation (Gauss in multiple locations)
 
 **Tech Base:**
+
 - Mixed Tech construction rules incomplete
 - Tech Base availability by era missing
 - Prototype equipment rules missing
 - Experimental equipment construction limits
 
 **Critical Slots:**
+
 - Partial wing placement rules
 - Supercharger placement (must be in CT)
 - MASC placement (must be in legs)
@@ -265,36 +286,43 @@
 ### Phase 1 - Foundation
 
 #### ✅ core-entity-types/spec.md
+
 **Status:** Production Ready
 **Accuracy:** 95%
 **Issues:** Minor interface documentation gaps
 
 #### ⚠️ validation-patterns/spec.md
+
 **Status:** CRITICAL - Needs Immediate Fix
 **Accuracy:** 70%
 **Issues:** TechBase.BOTH doesn't exist; referenced throughout codebase
 
 #### ✅ weight-class-system/spec.md
+
 **Status:** Production Ready
 **Accuracy:** 95%
 **Issues:** Excellent implementation, minor edge cases
 
 #### ✅ core-enumerations/spec.md
+
 **Status:** Production Ready
 **Accuracy:** 90%
 **Issues:** Complete and accurate
 
 #### ⚠️ era-temporal-system/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 75%
 **Issues:** Min year 2443 should be 2005; missing Jihad era
 
 #### ✅ physical-properties-system/spec.md
+
 **Status:** Production Ready
 **Accuracy:** 90%
 **Issues:** Minor completeness gaps
 
 #### ✅ rules-level-system/spec.md
+
 **Status:** Production Ready
 **Accuracy:** 92%
 **Issues:** Well-defined system
@@ -304,66 +332,79 @@
 ### Phase 2 - Construction
 
 #### 🔴 construction-rules-core/spec.md
+
 **Status:** CRITICAL
 **Accuracy:** 60%
 **Issues:** Engine weight formula wrong, heat sink cap wrong, multiple missing calculations
 
 #### ⚠️ armor-system/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 75%
 **Issues:** Heavy Ferro-Fibrous verification needed, missing armor types
 
 #### ⚠️ critical-slot-allocation/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 78%
 **Issues:** Missing placement restrictions, incomplete validation
 
 #### 🔴 formula-registry/spec.md
+
 **Status:** CRITICAL
 **Accuracy:** 65%
 **Issues:** Engine weight formula incorrect, multiple formula errors
 
 #### ✅ internal-structure-system/spec.md
+
 **Status:** Production Ready (EXCELLENT)
 **Accuracy:** 98%
 **Issues:** Nearly perfect implementation
 
 #### 🔴 movement-system/spec.md
+
 **Status:** CRITICAL
 **Accuracy:** 68%
 **Issues:** TSM run MP formula wrong, missing movement modes
 
 #### ⚠️ cockpit-system/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 80%
 **Issues:** Missing cockpit types, incomplete command console rules
 
 #### 🔴 engine-system/spec.md
+
 **Status:** CRITICAL
 **Accuracy:** 62%
 **Issues:** Multiple formula errors, integral heat sink rules wrong
 
 #### ⚠️ gyro-system/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 82%
 **Issues:** Missing gyro types, weight calculation edge cases
 
 #### 🔴 heat-sink-system/spec.md
+
 **Status:** CRITICAL
 **Accuracy:** 55%
 **Issues:** Integral heat sink cap completely wrong, missing CDHS rules
 
 #### ⚠️ tech-base-integration/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 77%
 **Issues:** Mixed Tech rules incomplete
 
 #### ✅ tech-base-rules-matrix/spec.md
+
 **Status:** Production Ready (EXCELLENT)
 **Accuracy:** 95%
 **Issues:** Comprehensive and accurate
 
 #### ⚠️ tech-base-variants-reference/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 80%
 **Issues:** Cross-cutting consistency issues
@@ -373,36 +414,43 @@
 ### Phase 3 - Equipment
 
 #### ⚠️ equipment-database/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 75%
 **Issues:** Missing equipment entries, incomplete metadata
 
 #### 🔴 ammunition-system/spec.md
+
 **Status:** CRITICAL
 **Accuracy:** 65%
 **Issues:** LRM/MG/AC ammo shots-per-ton wrong, missing ammo types
 
 #### ⚠️ weapon-system/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 72%
 **Issues:** Multiple weapon stat errors, missing weapons
 
 #### 🔴 physical-weapons-system/spec.md
+
 **Status:** CRITICAL
 **Accuracy:** 60%
 **Issues:** Talons completely wrong, incomplete rules
 
 #### ⚠️ hardpoint-system/spec.md
+
 **Status:** Needs Revision (NON-CANON)
 **Accuracy:** N/A
 **Issues:** Not canon to tabletop, needs documentation as video game adaptation
 
 #### ⚠️ electronics-system/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 70%
 **Issues:** TC/MASC/Supercharger formulas wrong, missing equipment
 
 #### ⚠️ equipment-placement/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 76%
 **Issues:** Missing placement restrictions, incomplete validation
@@ -412,26 +460,31 @@
 ### Phase 4 - Validation/Calculations
 
 #### 🔴 battle-value-system/spec.md
+
 **Status:** CRITICAL
 **Accuracy:** 58%
 **Issues:** Armor/structure multipliers REVERSED, missing modifiers
 
 #### ⚠️ critical-hit-system/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 72%
 **Issues:** Heat scale incomplete, missing critical effects
 
 #### ⚠️ tech-rating-system/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 80%
 **Issues:** Incomplete tech rating assignments
 
 #### ⚠️ damage-system/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 74%
 **Issues:** Energy weapon range errors, cluster table incomplete
 
 #### ⚠️ heat-management-system/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 76%
 **Issues:** Missing heat thresholds, incomplete effects
@@ -441,21 +494,25 @@
 ### Phase 5 - Data Models
 
 #### ⚠️ unit-entity-model/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 82%
 **Issues:** Minor errors in examples, incomplete field definitions
 
 #### ⚠️ serialization-formats/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 78%
 **Issues:** MTF format confusion, incomplete SSW rules
 
 #### ⚠️ database-schema/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 75%
 **Issues:** Missing concrete table definitions
 
 #### ⚠️ data-integrity-validation/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 80%
 **Issues:** Incomplete validation rules, missing cross-checks
@@ -465,6 +522,7 @@
 ### Master Specification
 
 #### ⚠️ validation-rules-master/spec.md
+
 **Status:** Needs Revision
 **Accuracy:** 85%
 **Issues:** 89 rules cataloged, missing ammunition validation rules, needs sync with findings
@@ -670,13 +728,13 @@ A specification is production-ready when:
 
 ### Current vs Target
 
-| Metric | Current | Target | Gap |
-|--------|---------|--------|-----|
-| Production Ready Specs | 15/38 (39%) | 35/38 (92%) | +20 specs |
-| Critical Formula Accuracy | 65% | 98% | +33% |
-| Equipment Coverage | 60% | 90% | +30% |
-| Cross-Spec Consistency | 75% | 95% | +20% |
-| Validation Rule Coverage | 70% | 90% | +20% |
+| Metric                    | Current     | Target      | Gap       |
+| ------------------------- | ----------- | ----------- | --------- |
+| Production Ready Specs    | 15/38 (39%) | 35/38 (92%) | +20 specs |
+| Critical Formula Accuracy | 65%         | 98%         | +33%      |
+| Equipment Coverage        | 60%         | 90%         | +30%      |
+| Cross-Spec Consistency    | 75%         | 95%         | +20%      |
+| Validation Rule Coverage  | 70%         | 90%         | +20%      |
 
 ---
 
@@ -695,6 +753,7 @@ The OpenSpec project has a **solid foundation** with excellent work in Phase 1 (
 The validation has identified specific, actionable issues with clear fixes. The specification foundation is strong enough that corrections can be made systematically without major restructuring.
 
 **Next Steps:**
+
 1. Review and prioritize findings with development team
 2. Assign critical fixes to immediate sprint
 3. Schedule high-priority completeness work for next 2-3 sprints

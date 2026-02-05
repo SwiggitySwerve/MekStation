@@ -1,7 +1,7 @@
 /**
  * IWeightedComponent - Physical mass interface
  * Components with physical characteristics SHALL implement this interface.
- * 
+ *
  * @spec core-entity-types/spec.md
  */
 
@@ -37,11 +37,7 @@ export function isWeightedComponent(obj: unknown): obj is IWeightedComponent {
  * @returns true if the weight is a finite number >= 0
  */
 export function isValidWeight(weight: unknown): weight is number {
-  return (
-    typeof weight === 'number' &&
-    Number.isFinite(weight) &&
-    weight >= 0
-  );
+  return typeof weight === 'number' && Number.isFinite(weight) && weight >= 0;
 }
 
 /**
@@ -52,4 +48,3 @@ export function isValidWeight(weight: unknown): weight is number {
 export function roundWeight(weight: number): number {
   return Math.round(weight * 2) / 2;
 }
-

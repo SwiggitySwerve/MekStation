@@ -1,10 +1,10 @@
+import { TerrainType, IHexTerrain } from '@/types/gameplay/TerrainTypes';
 import {
   generateTerrain,
   TerrainGeneratorConfig,
   BiomeType,
   BIOME_WEIGHTS,
 } from '@/utils/gameplay/terrainGenerator';
-import { TerrainType, IHexTerrain } from '@/types/gameplay/TerrainTypes';
 
 describe('terrainGenerator', () => {
   describe('generateTerrain', () => {
@@ -50,7 +50,9 @@ describe('terrainGenerator', () => {
           expect(hex.coordinate.r).toBeLessThan(4);
         }
 
-        const coordSet = new Set(grid.map((h: IHexTerrain) => `${h.coordinate.q},${h.coordinate.r}`));
+        const coordSet = new Set(
+          grid.map((h: IHexTerrain) => `${h.coordinate.q},${h.coordinate.r}`),
+        );
         expect(coordSet.size).toBe(grid.length);
       });
     });
@@ -125,7 +127,8 @@ describe('terrainGenerator', () => {
 
         const differences = grid1.filter(
           (h1: IHexTerrain, i: number) =>
-            h1.features[0].type !== grid2[i].features[0].type || h1.elevation !== grid2[i].elevation
+            h1.features[0].type !== grid2[i].features[0].type ||
+            h1.elevation !== grid2[i].elevation,
         );
         expect(differences.length).toBeGreaterThan(0);
       });
@@ -142,14 +145,17 @@ describe('terrainGenerator', () => {
 
         const allSame = grid1.every(
           (h1: IHexTerrain, i: number) =>
-            h1.features[0].type === grid2[i].features[0].type && h1.elevation === grid2[i].elevation
+            h1.features[0].type === grid2[i].features[0].type &&
+            h1.elevation === grid2[i].elevation,
         );
         expect(allSame).toBe(false);
       });
     });
 
     describe('biome distribution', () => {
-      const countTerrainTypes = (grid: IHexTerrain[]): Map<TerrainType, number> => {
+      const countTerrainTypes = (
+        grid: IHexTerrain[],
+      ): Map<TerrainType, number> => {
         const counts = new Map<TerrainType, number>();
         for (const hex of grid) {
           const type = hex.features[0].type;
@@ -161,7 +167,7 @@ describe('terrainGenerator', () => {
       const checkDistribution = (
         grid: IHexTerrain[],
         weights: Record<string, number>,
-        tolerance: number = 0.15
+        tolerance: number = 0.15,
       ) => {
         const counts = countTerrainTypes(grid);
         const total = grid.length;
@@ -171,7 +177,9 @@ describe('terrainGenerator', () => {
           const actualCount = counts.get(terrain) || 0;
           const actualWeight = actualCount / total;
 
-          expect(actualWeight).toBeGreaterThanOrEqual(expectedWeight - tolerance);
+          expect(actualWeight).toBeGreaterThanOrEqual(
+            expectedWeight - tolerance,
+          );
           expect(actualWeight).toBeLessThanOrEqual(expectedWeight + tolerance);
         }
       };
@@ -191,12 +199,13 @@ describe('terrainGenerator', () => {
           {
             [TerrainType.Clear]: 0.6,
           },
-          0.15
+          0.15,
         );
 
         const counts = countTerrainTypes(grid);
         const woodsCount =
-          (counts.get(TerrainType.LightWoods) || 0) + (counts.get(TerrainType.HeavyWoods) || 0);
+          (counts.get(TerrainType.LightWoods) || 0) +
+          (counts.get(TerrainType.HeavyWoods) || 0);
         const woodsPercent = woodsCount / grid.length;
         expect(woodsPercent).toBeGreaterThanOrEqual(0.1);
         expect(woodsPercent).toBeLessThanOrEqual(0.35);
@@ -246,8 +255,10 @@ describe('terrainGenerator', () => {
         const grid = generateTerrain(config);
 
         const counts = countTerrainTypes(grid);
-        const pavementPercent = (counts.get(TerrainType.Pavement) || 0) / grid.length;
-        const buildingPercent = (counts.get(TerrainType.Building) || 0) / grid.length;
+        const pavementPercent =
+          (counts.get(TerrainType.Pavement) || 0) / grid.length;
+        const buildingPercent =
+          (counts.get(TerrainType.Building) || 0) / grid.length;
         expect(pavementPercent + buildingPercent).toBeGreaterThanOrEqual(0.4);
         expect(pavementPercent + buildingPercent).toBeLessThanOrEqual(0.9);
       });
@@ -263,9 +274,13 @@ describe('terrainGenerator', () => {
         const grid = generateTerrain(config);
 
         const counts = countTerrainTypes(grid);
-        const heavyWoodsPercent = (counts.get(TerrainType.HeavyWoods) || 0) / grid.length;
-        const lightWoodsPercent = (counts.get(TerrainType.LightWoods) || 0) / grid.length;
-        expect(heavyWoodsPercent + lightWoodsPercent).toBeGreaterThanOrEqual(0.4);
+        const heavyWoodsPercent =
+          (counts.get(TerrainType.HeavyWoods) || 0) / grid.length;
+        const lightWoodsPercent =
+          (counts.get(TerrainType.LightWoods) || 0) / grid.length;
+        expect(heavyWoodsPercent + lightWoodsPercent).toBeGreaterThanOrEqual(
+          0.4,
+        );
         expect(heavyWoodsPercent + lightWoodsPercent).toBeLessThanOrEqual(0.9);
       });
     });
@@ -287,7 +302,9 @@ describe('terrainGenerator', () => {
           hex.features[0].type === TerrainType.HeavyWoods;
 
         const getHexAt = (q: number, r: number) =>
-          grid.find((h: IHexTerrain) => h.coordinate.q === q && h.coordinate.r === r);
+          grid.find(
+            (h: IHexTerrain) => h.coordinate.q === q && h.coordinate.r === r,
+          );
 
         for (const hex of grid) {
           if (isWoods(hex)) {
@@ -322,14 +339,24 @@ describe('terrainGenerator', () => {
 
         const grid = generateTerrain(config);
 
-        const waterHexes = grid.filter((h: IHexTerrain) => h.features[0].type === TerrainType.Water);
-        const nonWaterHexes = grid.filter((h: IHexTerrain) => h.features[0].type !== TerrainType.Water);
+        const waterHexes = grid.filter(
+          (h: IHexTerrain) => h.features[0].type === TerrainType.Water,
+        );
+        const nonWaterHexes = grid.filter(
+          (h: IHexTerrain) => h.features[0].type !== TerrainType.Water,
+        );
 
         if (waterHexes.length > 0 && nonWaterHexes.length > 0) {
           const avgWaterElevation =
-            waterHexes.reduce((sum: number, h: IHexTerrain) => sum + h.elevation, 0) / waterHexes.length;
+            waterHexes.reduce(
+              (sum: number, h: IHexTerrain) => sum + h.elevation,
+              0,
+            ) / waterHexes.length;
           const avgNonWaterElevation =
-            nonWaterHexes.reduce((sum: number, h: IHexTerrain) => sum + h.elevation, 0) / nonWaterHexes.length;
+            nonWaterHexes.reduce(
+              (sum: number, h: IHexTerrain) => sum + h.elevation,
+              0,
+            ) / nonWaterHexes.length;
 
           expect(avgWaterElevation).toBeLessThanOrEqual(avgNonWaterElevation);
         }
@@ -351,7 +378,13 @@ describe('terrainGenerator', () => {
       });
 
       it('should handle all biome types', () => {
-        const biomes: BiomeType[] = ['temperate', 'desert', 'arctic', 'urban', 'jungle'];
+        const biomes: BiomeType[] = [
+          'temperate',
+          'desert',
+          'arctic',
+          'urban',
+          'jungle',
+        ];
 
         for (const biome of biomes) {
           const config: TerrainGeneratorConfig = {
@@ -364,7 +397,9 @@ describe('terrainGenerator', () => {
           const grid = generateTerrain(config);
 
           expect(grid).toHaveLength(100);
-          expect(grid.every((h: IHexTerrain) => h.features.length > 0)).toBe(true);
+          expect(grid.every((h: IHexTerrain) => h.features.length > 0)).toBe(
+            true,
+          );
         }
       });
     });
@@ -381,7 +416,10 @@ describe('terrainGenerator', () => {
 
     it('should have weights that sum to approximately 1.0', () => {
       for (const [, weights] of Object.entries(BIOME_WEIGHTS)) {
-        const sum = (Object.values(weights) as number[]).reduce((a: number, b: number) => a + b, 0);
+        const sum = (Object.values(weights) as number[]).reduce(
+          (a: number, b: number) => a + b,
+          0,
+        );
         expect(sum).toBeCloseTo(1.0, 2);
       }
     });

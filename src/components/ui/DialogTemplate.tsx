@@ -23,6 +23,7 @@
  * ```
  */
 import React from 'react';
+
 import { ModalOverlay } from '@/components/customizer/dialogs/ModalOverlay';
 import { cs } from '@/components/customizer/styles';
 
@@ -78,8 +79,12 @@ export function DialogTemplate({
   ariaDescribedBy,
 }: DialogTemplateProps): React.ReactElement | null {
   // Generate stable IDs for accessibility
-  const titleId = ariaLabelledBy || `dialog-title-${title.toLowerCase().replace(/\s+/g, '-')}`;
-  const subtitleId = subtitle ? `dialog-subtitle-${title.toLowerCase().replace(/\s+/g, '-')}` : undefined;
+  const titleId =
+    ariaLabelledBy ||
+    `dialog-title-${title.toLowerCase().replace(/\s+/g, '-')}`;
+  const subtitleId = subtitle
+    ? `dialog-subtitle-${title.toLowerCase().replace(/\s+/g, '-')}`
+    : undefined;
 
   return (
     <ModalOverlay
@@ -108,7 +113,7 @@ export function DialogTemplate({
             disabled={preventClose}
           >
             <svg
-              className="w-5 h-5"
+              className="h-5 w-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

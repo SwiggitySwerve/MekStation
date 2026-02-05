@@ -7,10 +7,11 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { getEncounterService } from '@/services/encounter/EncounterService';
-import { IEncounter } from '@/types/encounter';
+
 import { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
+import { getEncounterService } from '@/services/encounter/EncounterService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { IEncounter } from '@/types/encounter';
 
 // =============================================================================
 // Response Types
@@ -30,13 +31,14 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<CloneResponse | ErrorResponse>
+  res: NextApiResponse<CloneResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -74,7 +76,8 @@ export default async function handler(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to clone encounter';
+    const message =
+      error instanceof Error ? error.message : 'Failed to clone encounter';
     return res.status(500).json({ error: message });
   }
 }

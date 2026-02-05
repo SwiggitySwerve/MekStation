@@ -6,9 +6,12 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
-import { UnitType } from './BattleMechInterfaces';
+import {
+  BattleArmorLocation,
+  ProtoMechLocation,
+} from '../construction/UnitLocation';
 import { ISquadUnit, SquadMotionType } from './BaseUnitInterfaces';
-import { BattleArmorLocation, ProtoMechLocation } from '../construction/UnitLocation';
+import { UnitType } from './BattleMechInterfaces';
 
 // ============================================================================
 // Battle Armor Types
@@ -373,7 +376,9 @@ export interface IProtoMech extends ISquadUnit {
 /**
  * Check if unit is Battle Armor
  */
-export function isBattleArmor(unit: { unitType: UnitType }): unit is IBattleArmor {
+export function isBattleArmor(unit: {
+  unitType: UnitType;
+}): unit is IBattleArmor {
   return unit.unitType === UnitType.BATTLE_ARMOR;
 }
 
@@ -394,9 +399,9 @@ export function isProtoMech(unit: { unitType: UnitType }): unit is IProtoMech {
 /**
  * Check if unit is any personnel type
  */
-export function isPersonnelUnit(
-  unit: { unitType: UnitType }
-): unit is IBattleArmor | IInfantry | IProtoMech {
+export function isPersonnelUnit(unit: {
+  unitType: UnitType;
+}): unit is IBattleArmor | IInfantry | IProtoMech {
   return (
     unit.unitType === UnitType.BATTLE_ARMOR ||
     unit.unitType === UnitType.INFANTRY ||

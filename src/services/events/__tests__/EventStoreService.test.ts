@@ -3,10 +3,15 @@
  * @spec openspec/changes/add-unified-event-store/specs/event-store/spec.md
  */
 
-// Jest globals are available
-import { EventStoreService, getEventStore, resetEventStore } from '../EventStoreService';
-import { createEvent, resetSequence } from '@/utils/events/eventFactory';
 import { EventCategory, IBaseEvent } from '@/types/events';
+import { createEvent, resetSequence } from '@/utils/events/eventFactory';
+
+// Jest globals are available
+import {
+  EventStoreService,
+  getEventStore,
+  resetEventStore,
+} from '../EventStoreService';
 
 describe('EventStoreService', () => {
   let store: EventStoreService;
@@ -109,9 +114,24 @@ describe('EventStoreService', () => {
     });
 
     it('should sort events by sequence before appending', () => {
-      const e1 = createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} });
-      const e2 = createEvent({ category: EventCategory.Game, type: 'e2', payload: {}, context: {} });
-      const e3 = createEvent({ category: EventCategory.Game, type: 'e3', payload: {}, context: {} });
+      const e1 = createEvent({
+        category: EventCategory.Game,
+        type: 'e1',
+        payload: {},
+        context: {},
+      });
+      const e2 = createEvent({
+        category: EventCategory.Game,
+        type: 'e2',
+        payload: {},
+        context: {},
+      });
+      const e3 = createEvent({
+        category: EventCategory.Game,
+        type: 'e3',
+        payload: {},
+        context: {},
+      });
 
       // Append out of order
       store.appendBatch([e3, e1, e2]);
@@ -132,7 +152,7 @@ describe('EventStoreService', () => {
           type: 'movement',
           payload: {},
           context: { gameId: 'g1', unitId: 'u1' },
-        })
+        }),
       );
       store.append(
         createEvent({
@@ -140,7 +160,7 @@ describe('EventStoreService', () => {
           type: 'attack',
           payload: {},
           context: { gameId: 'g1', unitId: 'u2' },
-        })
+        }),
       );
       store.append(
         createEvent({
@@ -148,7 +168,7 @@ describe('EventStoreService', () => {
           type: 'xp_gained',
           payload: {},
           context: { pilotId: 'p1' },
-        })
+        }),
       );
     });
 
@@ -164,7 +184,9 @@ describe('EventStoreService', () => {
         filters: { category: EventCategory.Game },
       });
       expect(result.events.length).toBe(2);
-      expect(result.events.every((e) => e.category === EventCategory.Game)).toBe(true);
+      expect(
+        result.events.every((e) => e.category === EventCategory.Game),
+      ).toBe(true);
     });
 
     it('should filter by types', () => {
@@ -211,15 +233,38 @@ describe('EventStoreService', () => {
       const result = store.query({
         sort: { field: 'sequence', direction: 'desc' },
       });
-      expect(result.events[0].sequence).toBeGreaterThan(result.events[1].sequence);
+      expect(result.events[0].sequence).toBeGreaterThan(
+        result.events[1].sequence,
+      );
     });
   });
 
   describe('getEventsInRange', () => {
     it('should return events in sequence range', () => {
-      store.append(createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} }));
-      store.append(createEvent({ category: EventCategory.Game, type: 'e2', payload: {}, context: {} }));
-      store.append(createEvent({ category: EventCategory.Game, type: 'e3', payload: {}, context: {} }));
+      store.append(
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e1',
+          payload: {},
+          context: {},
+        }),
+      );
+      store.append(
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e2',
+          payload: {},
+          context: {},
+        }),
+      );
+      store.append(
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e3',
+          payload: {},
+          context: {},
+        }),
+      );
 
       const events = store.getEventsInRange(1, 2);
       expect(events.length).toBe(2);
@@ -284,9 +329,30 @@ describe('EventStoreService', () => {
 
   describe('getEventsByCategory', () => {
     it('should return events filtered by category', () => {
-      store.append(createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} }));
-      store.append(createEvent({ category: EventCategory.Pilot, type: 'e2', payload: {}, context: {} }));
-      store.append(createEvent({ category: EventCategory.Game, type: 'e3', payload: {}, context: {} }));
+      store.append(
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e1',
+          payload: {},
+          context: {},
+        }),
+      );
+      store.append(
+        createEvent({
+          category: EventCategory.Pilot,
+          type: 'e2',
+          payload: {},
+          context: {},
+        }),
+      );
+      store.append(
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e3',
+          payload: {},
+          context: {},
+        }),
+      );
 
       const gameEvents = store.getEventsByCategory(EventCategory.Game);
       expect(gameEvents.length).toBe(2);
@@ -295,8 +361,22 @@ describe('EventStoreService', () => {
 
   describe('clear', () => {
     it('should remove all events', () => {
-      store.append(createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} }));
-      store.append(createEvent({ category: EventCategory.Game, type: 'e2', payload: {}, context: {} }));
+      store.append(
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e1',
+          payload: {},
+          context: {},
+        }),
+      );
+      store.append(
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e2',
+          payload: {},
+          context: {},
+        }),
+      );
 
       store.clear();
 

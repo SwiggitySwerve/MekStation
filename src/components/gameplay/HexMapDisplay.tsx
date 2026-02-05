@@ -5,7 +5,26 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+} from 'react';
+
+import {
+  HEX_SIZE,
+  HEX_WIDTH,
+  HEX_HEIGHT,
+  HEX_COLORS,
+} from '@/constants/hexMap';
+import {
+  TERRAIN_COLORS,
+  WATER_DEPTH_COLORS,
+  TERRAIN_PATTERNS,
+  TERRAIN_LAYER_ORDER,
+} from '@/constants/terrain';
 import {
   IHexCoordinate,
   Facing,
@@ -18,15 +37,8 @@ import {
   IHex,
 } from '@/types/gameplay';
 import { TERRAIN_PROPERTIES, CoverLevel } from '@/types/gameplay/TerrainTypes';
-import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 import { coordToKey } from '@/utils/gameplay/hexMath';
-import { HEX_SIZE, HEX_WIDTH, HEX_HEIGHT, HEX_COLORS } from '@/constants/hexMap';
-import {
-  TERRAIN_COLORS,
-  WATER_DEPTH_COLORS,
-  TERRAIN_PATTERNS,
-  TERRAIN_LAYER_ORDER,
-} from '@/constants/terrain';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 
 // =============================================================================
 // Types
@@ -60,7 +72,7 @@ export interface HexMapDisplayProps {
  */
 function hexToPixel(hex: IHexCoordinate): { x: number; y: number } {
   const x = HEX_SIZE * (3 / 2) * hex.q;
-  const y = HEX_SIZE * (Math.sqrt(3) / 2 * hex.q + Math.sqrt(3) * hex.r);
+  const y = HEX_SIZE * ((Math.sqrt(3) / 2) * hex.q + Math.sqrt(3) * hex.r);
   return { x, y };
 }
 
@@ -69,8 +81,8 @@ function hexToPixel(hex: IHexCoordinate): { x: number; y: number } {
  * @internal Reserved for future mouse interaction support
  */
 function _pixelToHex(x: number, y: number): IHexCoordinate {
-  const q = (2 / 3 * x) / HEX_SIZE;
-  const r = (-1 / 3 * x + Math.sqrt(3) / 3 * y) / HEX_SIZE;
+  const q = ((2 / 3) * x) / HEX_SIZE;
+  const r = ((-1 / 3) * x + (Math.sqrt(3) / 3) * y) / HEX_SIZE;
   return _roundHex(q, r);
 }
 
@@ -152,7 +164,10 @@ function hexEquals(a: IHexCoordinate, b: IHexCoordinate): boolean {
 /**
  * Check if a hex is in a list.
  */
-function hexInList(hex: IHexCoordinate, list: readonly IHexCoordinate[]): boolean {
+function hexInList(
+  hex: IHexCoordinate,
+  list: readonly IHexCoordinate[],
+): boolean {
   return list.some((h) => hexEquals(h, hex));
 }
 
@@ -160,12 +175,12 @@ function hexInList(hex: IHexCoordinate, list: readonly IHexCoordinate[]): boolea
  * Get the primary terrain feature (highest layer order) for a hex.
  */
 function getPrimaryTerrainFeature(
-  terrain: IHexTerrain | undefined
+  terrain: IHexTerrain | undefined,
 ): { type: TerrainType; level: number } | null {
   if (!terrain || terrain.features.length === 0) return null;
 
   const sortedFeatures = [...terrain.features].sort(
-    (a, b) => TERRAIN_LAYER_ORDER[b.type] - TERRAIN_LAYER_ORDER[a.type]
+    (a, b) => TERRAIN_LAYER_ORDER[b.type] - TERRAIN_LAYER_ORDER[a.type],
   );
   return sortedFeatures[0];
 }
@@ -239,7 +254,8 @@ const HexCell = React.memo(function HexCell({
   const primaryFeature = getPrimaryTerrainFeature(terrain);
   const terrainType = primaryFeature?.type ?? null;
 
-  const hasOverlay = isSelected || isInPath || movementInfo || isInAttackRange || isHovered;
+  const hasOverlay =
+    isSelected || isInPath || movementInfo || isInAttackRange || isHovered;
   let overlayFill: string | null = null;
   let overlayOpacity = 0.5;
 
@@ -277,7 +293,12 @@ const HexCell = React.memo(function HexCell({
         data-terrain={terrainType}
       />
       {hasOverlay && overlayFill && (
-        <path d={pathD} fill={overlayFill} opacity={overlayOpacity} pointerEvents="none" />
+        <path
+          d={pathD}
+          fill={overlayFill}
+          opacity={overlayOpacity}
+          pointerEvents="none"
+        />
       )}
       {showCoordinate && (
         <text x={x} y={y + 4} textAnchor="middle" fontSize={10} fill="#64748b">
@@ -298,18 +319,28 @@ interface UnitTokenComponentProps {
   onClick: () => void;
 }
 
-const UnitTokenComponent = React.memo(function UnitTokenComponent({ token, onClick }: UnitTokenComponentProps): React.ReactElement {
+const UnitTokenComponent = React.memo(function UnitTokenComponent({
+  token,
+  onClick,
+}: UnitTokenComponentProps): React.ReactElement {
   const { x, y } = hexToPixel(token.position);
   const rotation = getFacingRotation(token.facing);
 
   // Determine token color
-  let color = token.side === GameSide.Player ? HEX_COLORS.playerToken : HEX_COLORS.opponentToken;
+  let color =
+    token.side === GameSide.Player
+      ? HEX_COLORS.playerToken
+      : HEX_COLORS.opponentToken;
   if (token.isDestroyed) {
     color = HEX_COLORS.destroyedToken;
   }
 
   // Selection ring
-  const ringColor = token.isSelected ? '#fbbf24' : token.isValidTarget ? '#f87171' : 'transparent';
+  const ringColor = token.isSelected
+    ? '#fbbf24'
+    : token.isValidTarget
+      ? '#f87171'
+      : 'transparent';
 
   return (
     <g
@@ -322,10 +353,20 @@ const UnitTokenComponent = React.memo(function UnitTokenComponent({ token, onCli
       data-testid={`unit-token-${token.unitId}`}
     >
       {/* Selection/target ring */}
-      <circle r={HEX_SIZE * 0.7} fill="none" stroke={ringColor} strokeWidth={3} />
+      <circle
+        r={HEX_SIZE * 0.7}
+        fill="none"
+        stroke={ringColor}
+        strokeWidth={3}
+      />
 
       {/* Token body */}
-      <circle r={HEX_SIZE * 0.5} fill={color} stroke="#1e293b" strokeWidth={2} />
+      <circle
+        r={HEX_SIZE * 0.5}
+        fill={color}
+        stroke="#1e293b"
+        strokeWidth={2}
+      />
 
       {/* Facing indicator (arrow) */}
       <g transform={`rotate(${rotation - 90})`}>
@@ -478,7 +519,11 @@ function TerrainPatternDefs(): React.ReactElement {
         width="12"
         height="12"
       >
-        <rect width="12" height="12" fill={TERRAIN_COLORS[TerrainType.LightWoods]} />
+        <rect
+          width="12"
+          height="12"
+          fill={TERRAIN_COLORS[TerrainType.LightWoods]}
+        />
         <circle cx="6" cy="6" r="3" fill="#4ade80" opacity="0.6" />
         <circle cx="0" cy="0" r="2" fill="#22c55e" opacity="0.4" />
         <circle cx="12" cy="12" r="2" fill="#22c55e" opacity="0.4" />
@@ -490,7 +535,11 @@ function TerrainPatternDefs(): React.ReactElement {
         width="10"
         height="10"
       >
-        <rect width="10" height="10" fill={TERRAIN_COLORS[TerrainType.HeavyWoods]} />
+        <rect
+          width="10"
+          height="10"
+          fill={TERRAIN_COLORS[TerrainType.HeavyWoods]}
+        />
         <circle cx="5" cy="5" r="4" fill="#15803d" opacity="0.7" />
         <circle cx="0" cy="0" r="3" fill="#166534" opacity="0.5" />
         <circle cx="10" cy="10" r="3" fill="#166534" opacity="0.5" />
@@ -516,11 +565,22 @@ function TerrainPatternDefs(): React.ReactElement {
         width="10"
         height="10"
       >
-        <rect width="10" height="10" fill={TERRAIN_COLORS[TerrainType.Rubble]} />
+        <rect
+          width="10"
+          height="10"
+          fill={TERRAIN_COLORS[TerrainType.Rubble]}
+        />
         <polygon points="2,3 4,1 5,4" fill="#78716c" />
         <polygon points="6,7 8,5 9,8" fill="#57534e" />
         <polygon points="1,8 3,6 4,9" fill="#78716c" />
-        <rect x="5" y="2" width="2" height="1.5" fill="#57534e" transform="rotate(15 6 2.75)" />
+        <rect
+          x="5"
+          y="2"
+          width="2"
+          height="1.5"
+          fill="#57534e"
+          transform="rotate(15 6 2.75)"
+        />
       </pattern>
 
       <pattern
@@ -529,7 +589,11 @@ function TerrainPatternDefs(): React.ReactElement {
         width="10"
         height="10"
       >
-        <rect width="10" height="10" fill={TERRAIN_COLORS[TerrainType.Building]} />
+        <rect
+          width="10"
+          height="10"
+          fill={TERRAIN_COLORS[TerrainType.Building]}
+        />
         <line x1="0" y1="5" x2="10" y2="5" stroke="#57534e" strokeWidth="0.5" />
         <line x1="5" y1="0" x2="5" y2="10" stroke="#57534e" strokeWidth="0.5" />
         <rect x="1" y="1" width="3" height="3" fill="#44403c" opacity="0.3" />
@@ -566,7 +630,10 @@ export function HexMapDisplay({
   const [zoom, setZoom] = useState(1);
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
-  const [touchStart, setTouchStart] = useState<{ dist: number; zoom: number } | null>(null);
+  const [touchStart, setTouchStart] = useState<{
+    dist: number;
+    zoom: number;
+  } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [showMovementOverlay, setShowMovementOverlay] = useState(false);
   const [showCoverOverlay, setShowCoverOverlay] = useState(false);
@@ -617,15 +684,17 @@ export function HexMapDisplay({
   }, [hexTerrain, hexes, radius]);
 
   const selectedUnitPosition = useMemo(() => {
-    const selectedToken = tokens.find(t => t.isSelected);
+    const selectedToken = tokens.find((t) => t.isSelected);
     return selectedToken?.position ?? null;
   }, [tokens]);
 
   const losResults = useMemo(() => {
-    if (!showLOSOverlay || !selectedUnitPosition) return new Map<string, boolean>();
+    if (!showLOSOverlay || !selectedUnitPosition)
+      return new Map<string, boolean>();
     const results = new Map<string, boolean>();
     for (const hex of hexes) {
-      if (hex.q === selectedUnitPosition.q && hex.r === selectedUnitPosition.r) continue;
+      if (hex.q === selectedUnitPosition.q && hex.r === selectedUnitPosition.r)
+        continue;
       const los = calculateLOS(selectedUnitPosition, hex, hexGrid);
       results.set(coordToKey(hex), los.hasLOS);
     }
@@ -652,7 +721,7 @@ export function HexMapDisplay({
     (hex: IHexCoordinate) => {
       onHexClick?.(hex);
     },
-    [onHexClick]
+    [onHexClick],
   );
 
   // Handle hex hover
@@ -661,7 +730,7 @@ export function HexMapDisplay({
       setHoveredHex(hex);
       onHexHover?.(hex);
     },
-    [onHexHover]
+    [onHexHover],
   );
 
   // Handle token click
@@ -669,7 +738,7 @@ export function HexMapDisplay({
     (unitId: string) => {
       onTokenClick?.(unitId);
     },
-    [onTokenClick]
+    [onTokenClick],
   );
 
   // Pan and zoom handlers
@@ -679,12 +748,15 @@ export function HexMapDisplay({
     setZoom((z) => Math.max(0.5, Math.min(3, z * delta)));
   }, []);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button === 1 || (e.button === 0 && e.altKey)) {
-      setIsPanning(true);
-      setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
-    }
-  }, [pan]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button === 1 || (e.button === 0 && e.altKey)) {
+        setIsPanning(true);
+        setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+      }
+    },
+    [pan],
+  );
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
@@ -695,46 +767,58 @@ export function HexMapDisplay({
         });
       }
     },
-    [isPanning, panStart]
+    [isPanning, panStart],
   );
 
   const handleMouseUp = useCallback(() => {
     setIsPanning(false);
   }, []);
 
-  const getTouchDistance = useCallback((t1: React.Touch, t2: React.Touch): number => {
-    const dx = t2.clientX - t1.clientX;
-    const dy = t2.clientY - t1.clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  }, []);
+  const getTouchDistance = useCallback(
+    (t1: React.Touch, t2: React.Touch): number => {
+      const dx = t2.clientX - t1.clientX;
+      const dy = t2.clientY - t1.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    },
+    [],
+  );
 
   // Touch pan and pinch-zoom handlers
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 2) {
-      const dist = getTouchDistance(e.touches[0], e.touches[1]);
-      setTouchStart({ dist, zoom });
-      setIsPanning(false);
-    } else if (e.touches.length === 1) {
-      setIsPanning(true);
-      setPanStart({ x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y });
-      setTouchStart(null);
-    }
-  }, [getTouchDistance, zoom, pan]);
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.touches.length === 2) {
+        const dist = getTouchDistance(e.touches[0], e.touches[1]);
+        setTouchStart({ dist, zoom });
+        setIsPanning(false);
+      } else if (e.touches.length === 1) {
+        setIsPanning(true);
+        setPanStart({
+          x: e.touches[0].clientX - pan.x,
+          y: e.touches[0].clientY - pan.y,
+        });
+        setTouchStart(null);
+      }
+    },
+    [getTouchDistance, zoom, pan],
+  );
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    e.preventDefault();
-    
-    if (e.touches.length === 2 && touchStart) {
-      const dist = getTouchDistance(e.touches[0], e.touches[1]);
-      const scale = dist / touchStart.dist;
-      setZoom(Math.max(0.5, Math.min(3, touchStart.zoom * scale)));
-    } else if (e.touches.length === 1 && isPanning) {
-      setPan({
-        x: e.touches[0].clientX - panStart.x,
-        y: e.touches[0].clientY - panStart.y,
-      });
-    }
-  }, [touchStart, getTouchDistance, isPanning, panStart]);
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
+
+      if (e.touches.length === 2 && touchStart) {
+        const dist = getTouchDistance(e.touches[0], e.touches[1]);
+        const scale = dist / touchStart.dist;
+        setZoom(Math.max(0.5, Math.min(3, touchStart.zoom * scale)));
+      } else if (e.touches.length === 1 && isPanning) {
+        setPan({
+          x: e.touches[0].clientX - panStart.x,
+          y: e.touches[0].clientY - panStart.y,
+        });
+      }
+    },
+    [touchStart, getTouchDistance, isPanning, panStart],
+  );
 
   const handleTouchEnd = useCallback(() => {
     setTouchStart(null);
@@ -752,11 +836,14 @@ export function HexMapDisplay({
   }, [viewBox, zoom, pan]);
 
   return (
-    <div className={`relative overflow-hidden bg-slate-100 ${className}`} data-testid="hex-map">
+    <div
+      className={`relative overflow-hidden bg-slate-100 ${className}`}
+      data-testid="hex-map"
+    >
       <svg
         ref={svgRef}
         viewBox={transformedViewBox}
-        className="w-full h-full touch-manipulation"
+        className="h-full w-full touch-manipulation"
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -769,10 +856,12 @@ export function HexMapDisplay({
       >
         <TerrainPatternDefs />
         <g>
-{hexes.map((hex) => {
+          {hexes.map((hex) => {
             const key = `${hex.q},${hex.r}`;
             const terrain = terrainLookup.get(key);
-            const isSelected = selectedHex ? hexEquals(hex, selectedHex) : false;
+            const isSelected = selectedHex
+              ? hexEquals(hex, selectedHex)
+              : false;
             const isHovered = hoveredHex ? hexEquals(hex, hoveredHex) : false;
             const movementInfo = movementRangeLookup.get(key);
             const isInAttackRange = hexInList(hex, attackRange);
@@ -811,7 +900,11 @@ export function HexMapDisplay({
           <g data-testid="los-overlay">
             {hexes.map((hex) => {
               const key = coordToKey(hex);
-              if (hex.q === selectedUnitPosition.q && hex.r === selectedUnitPosition.r) return null;
+              if (
+                hex.q === selectedUnitPosition.q &&
+                hex.r === selectedUnitPosition.r
+              )
+                return null;
               const hasLOS = losResults.get(key) ?? true;
               return (
                 <LOSLine
@@ -858,12 +951,15 @@ export function HexMapDisplay({
         )}
       </svg>
 
-      <div className="absolute bottom-4 right-4 flex gap-2" data-testid="zoom-controls">
+      <div
+        className="absolute right-4 bottom-4 flex gap-2"
+        data-testid="zoom-controls"
+      >
         <div className="flex flex-col gap-1" data-testid="overlay-toggles">
           <button
             type="button"
             onClick={() => setShowMovementOverlay((v) => !v)}
-            className={`p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow text-xs font-medium transition-colors ${
+            className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 text-xs font-medium shadow transition-colors ${
               showMovementOverlay
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
                 : 'bg-white text-slate-700 hover:bg-gray-100'
@@ -876,7 +972,7 @@ export function HexMapDisplay({
           <button
             type="button"
             onClick={() => setShowCoverOverlay((v) => !v)}
-            className={`p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow text-xs font-medium transition-colors ${
+            className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 text-xs font-medium shadow transition-colors ${
               showCoverOverlay
                 ? 'bg-green-600 text-white hover:bg-green-700'
                 : 'bg-white text-slate-700 hover:bg-gray-100'
@@ -889,7 +985,7 @@ export function HexMapDisplay({
           <button
             type="button"
             onClick={() => setShowLOSOverlay((v) => !v)}
-            className={`p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow text-xs font-medium transition-colors ${
+            className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 text-xs font-medium shadow transition-colors ${
               showLOSOverlay
                 ? 'bg-amber-600 text-white hover:bg-amber-700'
                 : 'bg-white text-slate-700 hover:bg-gray-100'
@@ -904,7 +1000,7 @@ export function HexMapDisplay({
           <button
             type="button"
             onClick={() => setZoom((z) => Math.min(3, z * 1.2))}
-            className="bg-white p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow hover:bg-gray-100"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded bg-white p-2 shadow hover:bg-gray-100"
             title="Zoom in"
             data-testid="zoom-in-btn"
           >
@@ -913,7 +1009,7 @@ export function HexMapDisplay({
           <button
             type="button"
             onClick={() => setZoom((z) => Math.max(0.5, z / 1.2))}
-            className="bg-white p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow hover:bg-gray-100"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded bg-white p-2 shadow hover:bg-gray-100"
             title="Zoom out"
             data-testid="zoom-out-btn"
           >
@@ -925,7 +1021,7 @@ export function HexMapDisplay({
               setZoom(1);
               setPan({ x: 0, y: 0 });
             }}
-            className="bg-white p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded shadow hover:bg-gray-100"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded bg-white p-2 shadow hover:bg-gray-100"
             title="Reset view"
             data-testid="reset-view-btn"
           >

@@ -16,13 +16,21 @@ if (typeof structuredClone === 'undefined') {
 
 import 'fake-indexeddb/auto';
 import { IDBFactory } from 'fake-indexeddb';
+
+import type {
+  ICampaignUnitInstance,
+  ICampaignPilotInstance,
+} from '../../../types/campaign/CampaignInstanceInterfaces';
+
+import {
+  CampaignUnitStatus,
+  CampaignPilotStatus,
+} from '../../../types/campaign/CampaignInterfaces';
 import {
   CampaignInstanceService,
   _resetCampaignInstanceService,
 } from '../CampaignInstanceService';
 import { _resetIndexedDBService } from '../IndexedDBService';
-import { CampaignUnitStatus, CampaignPilotStatus } from '../../../types/campaign/CampaignInterfaces';
-import type { ICampaignUnitInstance, ICampaignPilotInstance } from '../../../types/campaign/CampaignInstanceInterfaces';
 
 // Reset singletons and IndexedDB before each test
 beforeEach(() => {
@@ -59,7 +67,7 @@ describe('CampaignInstanceService - Unit Instances', () => {
           name: 'Atlas AS7-D',
           chassis: 'Atlas',
           variant: 'AS7-D',
-        }
+        },
       );
 
       expect(instance.id).toBeTruthy();
@@ -91,7 +99,7 @@ describe('CampaignInstanceService - Unit Instances', () => {
           name: 'Marauder MAD-3R',
           chassis: 'Marauder',
           variant: 'MAD-3R',
-        }
+        },
       );
 
       expect(instance.forceId).toBe('force-1');
@@ -104,7 +112,7 @@ describe('CampaignInstanceService - Unit Instances', () => {
     it('should retrieve a created unit instance', async () => {
       const created = await service.createUnitInstance(
         { campaignId: 'campaign-1', vaultUnitId: 'vault-1' },
-        { version: 1, name: 'Test', chassis: 'Test', variant: 'T-1' }
+        { version: 1, name: 'Test', chassis: 'Test', variant: 'T-1' },
       );
 
       const retrieved = await service.getUnitInstance(created.id);
@@ -124,7 +132,7 @@ describe('CampaignInstanceService - Unit Instances', () => {
     it('should update unit instance fields', async () => {
       const created = await service.createUnitInstance(
         { campaignId: 'campaign-1', vaultUnitId: 'vault-1' },
-        { version: 1, name: 'Test', chassis: 'Test', variant: 'T-1' }
+        { version: 1, name: 'Test', chassis: 'Test', variant: 'T-1' },
       );
 
       const updated = await service.updateUnitInstance(created.id, {
@@ -144,7 +152,9 @@ describe('CampaignInstanceService - Unit Instances', () => {
 
     it('should throw for non-existent instance', async () => {
       await expect(
-        service.updateUnitInstance('non-existent', { status: CampaignUnitStatus.Damaged })
+        service.updateUnitInstance('non-existent', {
+          status: CampaignUnitStatus.Damaged,
+        }),
       ).rejects.toThrow('Unit instance not found');
     });
   });
@@ -153,7 +163,7 @@ describe('CampaignInstanceService - Unit Instances', () => {
     it('should delete a unit instance', async () => {
       const created = await service.createUnitInstance(
         { campaignId: 'campaign-1', vaultUnitId: 'vault-1' },
-        { version: 1, name: 'Test', chassis: 'Test', variant: 'T-1' }
+        { version: 1, name: 'Test', chassis: 'Test', variant: 'T-1' },
       );
 
       await service.deleteUnitInstance(created.id);
@@ -167,16 +177,24 @@ describe('CampaignInstanceService - Unit Instances', () => {
     beforeEach(async () => {
       // Create test instances
       await service.createUnitInstance(
-        { campaignId: 'campaign-1', vaultUnitId: 'vault-1', forceId: 'force-1' },
-        { version: 1, name: 'Unit 1', chassis: 'Atlas', variant: 'AS7-D' }
+        {
+          campaignId: 'campaign-1',
+          vaultUnitId: 'vault-1',
+          forceId: 'force-1',
+        },
+        { version: 1, name: 'Unit 1', chassis: 'Atlas', variant: 'AS7-D' },
       );
       await service.createUnitInstance(
-        { campaignId: 'campaign-1', vaultUnitId: 'vault-2', forceId: 'force-2' },
-        { version: 1, name: 'Unit 2', chassis: 'Marauder', variant: 'MAD-3R' }
+        {
+          campaignId: 'campaign-1',
+          vaultUnitId: 'vault-2',
+          forceId: 'force-2',
+        },
+        { version: 1, name: 'Unit 2', chassis: 'Marauder', variant: 'MAD-3R' },
       );
       await service.createUnitInstance(
         { campaignId: 'campaign-2', vaultUnitId: 'vault-3' },
-        { version: 1, name: 'Unit 3', chassis: 'Warhammer', variant: 'WHM-6R' }
+        { version: 1, name: 'Unit 3', chassis: 'Warhammer', variant: 'WHM-6R' },
       );
     });
 
@@ -186,7 +204,9 @@ describe('CampaignInstanceService - Unit Instances', () => {
     });
 
     it('should filter by campaign ID', async () => {
-      const instances = await service.listUnitInstances({ campaignId: 'campaign-1' });
+      const instances = await service.listUnitInstances({
+        campaignId: 'campaign-1',
+      });
       expect(instances).toHaveLength(2);
       expect(instances.every((i) => i.campaignId === 'campaign-1')).toBe(true);
     });
@@ -200,7 +220,9 @@ describe('CampaignInstanceService - Unit Instances', () => {
     it('should filter available only', async () => {
       // Update one to destroyed
       const all = await service.listUnitInstances({ campaignId: 'campaign-1' });
-      await service.updateUnitInstance(all[0].id, { status: CampaignUnitStatus.Destroyed });
+      await service.updateUnitInstance(all[0].id, {
+        status: CampaignUnitStatus.Destroyed,
+      });
 
       const available = await service.listUnitInstances({
         campaignId: 'campaign-1',
@@ -226,7 +248,11 @@ describe('CampaignInstanceService - Pilot Instances', () => {
     it('should create pilot instance from vault pilot', async () => {
       const instance = await service.createPilotInstanceFromVault(
         { campaignId: 'campaign-1', vaultPilotId: 'vault-pilot-1' },
-        { name: 'John Doe', callsign: 'Maverick', skills: { gunnery: 3, piloting: 4 } }
+        {
+          name: 'John Doe',
+          callsign: 'Maverick',
+          skills: { gunnery: 3, piloting: 4 },
+        },
       );
 
       expect(instance.id).toBeTruthy();
@@ -252,7 +278,11 @@ describe('CampaignInstanceService - Pilot Instances', () => {
       expect(instance.id).toBeTruthy();
       expect(instance.campaignId).toBe('campaign-1');
       expect(instance.vaultPilotId).toBeNull();
-      expect(instance.statblockData).toEqual({ name: 'Generic Pilot', gunnery: 4, piloting: 5 });
+      expect(instance.statblockData).toEqual({
+        name: 'Generic Pilot',
+        gunnery: 4,
+        piloting: 5,
+      });
       expect(instance.pilotName).toBe('Generic Pilot');
       expect(instance.currentSkills).toEqual({ gunnery: 4, piloting: 5 });
     });
@@ -262,7 +292,7 @@ describe('CampaignInstanceService - Pilot Instances', () => {
     it('should update pilot instance fields', async () => {
       const created = await service.createPilotInstanceFromVault(
         { campaignId: 'campaign-1', vaultPilotId: 'vault-pilot-1' },
-        { name: 'Test Pilot', skills: { gunnery: 4, piloting: 5 } }
+        { name: 'Test Pilot', skills: { gunnery: 4, piloting: 5 } },
       );
 
       const updated = await service.updatePilotInstance(created.id, {
@@ -283,11 +313,11 @@ describe('CampaignInstanceService - Pilot Instances', () => {
     beforeEach(async () => {
       await service.createPilotInstanceFromVault(
         { campaignId: 'campaign-1', vaultPilotId: 'pilot-1' },
-        { name: 'Pilot 1', skills: { gunnery: 4, piloting: 5 } }
+        { name: 'Pilot 1', skills: { gunnery: 4, piloting: 5 } },
       );
       await service.createPilotInstanceFromVault(
         { campaignId: 'campaign-1', vaultPilotId: 'pilot-2' },
-        { name: 'Pilot 2', skills: { gunnery: 3, piloting: 4 } }
+        { name: 'Pilot 2', skills: { gunnery: 3, piloting: 4 } },
       );
       await service.createPilotInstanceFromStatblock({
         campaignId: 'campaign-2',
@@ -301,12 +331,16 @@ describe('CampaignInstanceService - Pilot Instances', () => {
     });
 
     it('should filter by campaign ID', async () => {
-      const instances = await service.listPilotInstances({ campaignId: 'campaign-1' });
+      const instances = await service.listPilotInstances({
+        campaignId: 'campaign-1',
+      });
       expect(instances).toHaveLength(2);
     });
 
     it('should filter available only', async () => {
-      const all = await service.listPilotInstances({ campaignId: 'campaign-1' });
+      const all = await service.listPilotInstances({
+        campaignId: 'campaign-1',
+      });
       await service.updatePilotInstance(all[0].id, { recoveryTime: 5 });
 
       const available = await service.listPilotInstances({
@@ -332,12 +366,12 @@ describe('CampaignInstanceService - Assignments', () => {
 
     unitInstance = await service.createUnitInstance(
       { campaignId: 'campaign-1', vaultUnitId: 'vault-1' },
-      { version: 1, name: 'Atlas', chassis: 'Atlas', variant: 'AS7-D' }
+      { version: 1, name: 'Atlas', chassis: 'Atlas', variant: 'AS7-D' },
     );
 
     pilotInstance = await service.createPilotInstanceFromVault(
       { campaignId: 'campaign-1', vaultPilotId: 'pilot-1' },
-      { name: 'Test Pilot', skills: { gunnery: 4, piloting: 5 } }
+      { name: 'Test Pilot', skills: { gunnery: 4, piloting: 5 } },
     );
   });
 
@@ -356,7 +390,7 @@ describe('CampaignInstanceService - Assignments', () => {
       // Create second pilot
       const pilot2 = await service.createPilotInstanceFromVault(
         { campaignId: 'campaign-1', vaultPilotId: 'pilot-2' },
-        { name: 'Pilot 2', skills: { gunnery: 3, piloting: 4 } }
+        { name: 'Pilot 2', skills: { gunnery: 3, piloting: 4 } },
       );
 
       // Assign first pilot
@@ -402,24 +436,24 @@ describe('CampaignInstanceService - Bulk Operations', () => {
     // Create instances for multiple campaigns
     await service.createUnitInstance(
       { campaignId: 'campaign-1', vaultUnitId: 'v1' },
-      { version: 1, name: 'U1', chassis: 'C', variant: 'V' }
+      { version: 1, name: 'U1', chassis: 'C', variant: 'V' },
     );
     await service.createUnitInstance(
       { campaignId: 'campaign-1', vaultUnitId: 'v2' },
-      { version: 1, name: 'U2', chassis: 'C', variant: 'V' }
+      { version: 1, name: 'U2', chassis: 'C', variant: 'V' },
     );
     await service.createUnitInstance(
       { campaignId: 'campaign-2', vaultUnitId: 'v3' },
-      { version: 1, name: 'U3', chassis: 'C', variant: 'V' }
+      { version: 1, name: 'U3', chassis: 'C', variant: 'V' },
     );
 
     await service.createPilotInstanceFromVault(
       { campaignId: 'campaign-1', vaultPilotId: 'p1' },
-      { name: 'P1', skills: { gunnery: 4, piloting: 5 } }
+      { name: 'P1', skills: { gunnery: 4, piloting: 5 } },
     );
     await service.createPilotInstanceFromVault(
       { campaignId: 'campaign-2', vaultPilotId: 'p2' },
-      { name: 'P2', skills: { gunnery: 4, piloting: 5 } }
+      { name: 'P2', skills: { gunnery: 4, piloting: 5 } },
     );
   });
 
@@ -427,10 +461,18 @@ describe('CampaignInstanceService - Bulk Operations', () => {
     it('should delete all instances for a campaign', async () => {
       await service.deleteInstancesForCampaign('campaign-1');
 
-      const units1 = await service.listUnitInstances({ campaignId: 'campaign-1' });
-      const pilots1 = await service.listPilotInstances({ campaignId: 'campaign-1' });
-      const units2 = await service.listUnitInstances({ campaignId: 'campaign-2' });
-      const pilots2 = await service.listPilotInstances({ campaignId: 'campaign-2' });
+      const units1 = await service.listUnitInstances({
+        campaignId: 'campaign-1',
+      });
+      const pilots1 = await service.listPilotInstances({
+        campaignId: 'campaign-1',
+      });
+      const units2 = await service.listUnitInstances({
+        campaignId: 'campaign-2',
+      });
+      const pilots2 = await service.listPilotInstances({
+        campaignId: 'campaign-2',
+      });
 
       expect(units1).toHaveLength(0);
       expect(pilots1).toHaveLength(0);

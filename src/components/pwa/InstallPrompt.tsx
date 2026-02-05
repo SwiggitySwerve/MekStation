@@ -9,8 +9,11 @@ export interface InstallPromptProps {
   className?: string;
 }
 
-export function InstallPrompt({ className = '' }: InstallPromptProps): React.ReactElement | null {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+export function InstallPrompt({
+  className = '',
+}: InstallPromptProps): React.ReactElement | null {
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
@@ -22,7 +25,9 @@ export function InstallPrompt({ className = '' }: InstallPromptProps): React.Rea
     }
 
     // Check if running as PWA (Safari-specific property)
-    if ((navigator as Navigator & { standalone?: boolean }).standalone === true) {
+    if (
+      (navigator as Navigator & { standalone?: boolean }).standalone === true
+    ) {
       setIsInstalled(true);
       return;
     }
@@ -48,7 +53,10 @@ export function InstallPrompt({ className = '' }: InstallPromptProps): React.Rea
     window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt,
+      );
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
@@ -86,7 +94,8 @@ export function InstallPrompt({ className = '' }: InstallPromptProps): React.Rea
     const dismissed = localStorage.getItem('pwa-install-prompt-dismissed');
     if (!dismissed) return false;
 
-    const daysSinceDismissal = (Date.now() - parseInt(dismissed)) / (1000 * 60 * 60 * 24);
+    const daysSinceDismissal =
+      (Date.now() - parseInt(dismissed)) / (1000 * 60 * 60 * 24);
     return daysSinceDismissal < 7; // Don't show if dismissed within 7 days
   };
 
@@ -95,13 +104,15 @@ export function InstallPrompt({ className = '' }: InstallPromptProps): React.Rea
   }
 
   return (
-    <div className={`fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 animate-slide-up ${className}`.trim()}>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 border-2 border-red-500">
+    <div
+      className={`animate-slide-up fixed right-4 bottom-4 left-4 z-50 md:right-4 md:left-auto md:w-96 ${className}`.trim()}
+    >
+      <div className="rounded-lg border-2 border-red-500 bg-white p-4 shadow-lg dark:bg-gray-800">
         <div className="flex items-start gap-4">
           {/* Icon */}
-          <div className="flex-shrink-0 w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-red-500">
             <svg
-              className="w-6 h-6 text-white"
+              className="h-6 w-6 text-white"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -116,25 +127,26 @@ export function InstallPrompt({ className = '' }: InstallPromptProps): React.Rea
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+          <div className="min-w-0 flex-1">
+            <h3 className="mb-1 text-lg font-semibold text-gray-900 dark:text-white">
               Install MekStation
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Install the app for offline access and a better experience on your device.
+            <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+              Install the app for offline access and a better experience on your
+              device.
             </p>
 
             {/* Actions */}
             <div className="flex gap-2">
               <button
                 onClick={handleInstall}
-                className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors min-h-[44px] min-w-[44px]"
+                className="min-h-[44px] min-w-[44px] flex-1 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600"
               >
                 Install
               </button>
               <button
                 onClick={handleDismiss}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg transition-colors min-h-[44px] min-w-[44px]"
+                className="min-h-[44px] min-w-[44px] rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                 aria-label="Not now"
               >
                 Not Now

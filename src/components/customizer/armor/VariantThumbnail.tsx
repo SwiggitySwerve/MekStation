@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+
 import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
 
 interface VariantThumbnailProps {
@@ -13,7 +14,10 @@ interface VariantThumbnailProps {
   className?: string;
 }
 
-export function VariantThumbnail({ variant, className = '' }: VariantThumbnailProps): React.ReactElement {
+export function VariantThumbnail({
+  variant,
+  className = '',
+}: VariantThumbnailProps): React.ReactElement {
   // Make filter/gradient IDs unique per variant to avoid conflicts when multiple thumbnails are rendered
   const neonGlowId = `neon-glow-${variant}`;
   const metallicGradientId = `metallic-gradient-${variant}`;
@@ -68,7 +72,7 @@ export function VariantThumbnail({ variant, className = '' }: VariantThumbnailPr
   return (
     <svg
       viewBox="0 0 40 60"
-      className={`w-10 h-[60px] ${className}`}
+      className={`h-[60px] w-10 ${className}`}
       aria-label={`${variant} style preview`}
       role="img"
     >
@@ -80,7 +84,13 @@ export function VariantThumbnail({ variant, className = '' }: VariantThumbnailPr
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
-        <linearGradient id={metallicGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient
+          id={metallicGradientId}
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="100%"
+        >
           <stop offset="0%" stopColor="#64748b" />
           <stop offset="50%" stopColor="#94a3b8" />
           <stop offset="100%" stopColor="#475569" />
@@ -117,9 +127,30 @@ export function VariantThumbnail({ variant, className = '' }: VariantThumbnailPr
 
       {variant === 'tactical-hud' && (
         <>
-          <rect x="14" y="20" width="12" height="4" fill="#3b82f6" opacity="0.8" />
-          <rect x="14" y="28" width="12" height="4" fill="#3b82f6" opacity="0.6" />
-          <rect x="14" y="36" width="12" height="4" fill="#3b82f6" opacity="0.4" />
+          <rect
+            x="14"
+            y="20"
+            width="12"
+            height="4"
+            fill="#3b82f6"
+            opacity="0.8"
+          />
+          <rect
+            x="14"
+            y="28"
+            width="12"
+            height="4"
+            fill="#3b82f6"
+            opacity="0.6"
+          />
+          <rect
+            x="14"
+            y="36"
+            width="12"
+            height="4"
+            fill="#3b82f6"
+            opacity="0.4"
+          />
         </>
       )}
 
@@ -135,8 +166,26 @@ export function VariantThumbnail({ variant, className = '' }: VariantThumbnailPr
             strokeWidth="1"
             strokeDasharray="3 2"
           />
-          <text x="20" y="22" textAnchor="middle" fontSize="6" fill="white" fontWeight="bold">F</text>
-          <text x="20" y="46" textAnchor="middle" fontSize="6" fill="white" fontWeight="bold">R</text>
+          <text
+            x="20"
+            y="22"
+            textAnchor="middle"
+            fontSize="6"
+            fill="white"
+            fontWeight="bold"
+          >
+            F
+          </text>
+          <text
+            x="20"
+            y="46"
+            textAnchor="middle"
+            fontSize="6"
+            fill="white"
+            fontWeight="bold"
+          >
+            R
+          </text>
         </>
       )}
 
@@ -186,7 +235,16 @@ export function VariantThumbnail({ variant, className = '' }: VariantThumbnailPr
             stroke="#64748b"
             strokeWidth="0.5"
           />
-          <text x="20" y="33" textAnchor="middle" fontSize="8" fill="white" fontWeight="bold">24</text>
+          <text
+            x="20"
+            y="33"
+            textAnchor="middle"
+            fontSize="8"
+            fill="white"
+            fontWeight="bold"
+          >
+            24
+          </text>
         </>
       )}
     </svg>

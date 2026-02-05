@@ -3,6 +3,7 @@
 ## Why
 
 MekStation needs full auditability across games, campaigns, pilots, and repairs. Users want to:
+
 - **Replay** any game turn-by-turn
 - **View campaign history** as a timeline of missions, outcomes, and roster changes
 - **Track pilot careers** across multiple campaigns (kills, wounds, XP, awards)
@@ -23,6 +24,7 @@ Current game event sourcing (`gameEvents.ts`, `gameState.ts`) is limited to sing
 ## Philosophy: Events as Source of Truth
 
 **State is never stored - only events.** All state (campaign progress, pilot XP, unit damage) is derived by replaying events through reducers. This enables:
+
 - Perfect replay and time travel
 - Full audit trail with causality
 - Verification via hash chains

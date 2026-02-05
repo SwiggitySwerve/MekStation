@@ -4,11 +4,12 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 import '@testing-library/jest-dom';
-import { PhaseBanner } from '../PhaseBanner';
 import { GamePhase, GameSide } from '@/types/gameplay';
+
+import { PhaseBanner } from '../PhaseBanner';
 
 describe('PhaseBanner', () => {
   const defaultProps = {
@@ -44,7 +45,9 @@ describe('PhaseBanner', () => {
   });
 
   it('should render different phases correctly', () => {
-    const { rerender } = render(<PhaseBanner {...defaultProps} phase={GamePhase.Initiative} />);
+    const { rerender } = render(
+      <PhaseBanner {...defaultProps} phase={GamePhase.Initiative} />,
+    );
     expect(screen.getByText('Initiative')).toBeInTheDocument();
 
     rerender(<PhaseBanner {...defaultProps} phase={GamePhase.WeaponAttack} />);

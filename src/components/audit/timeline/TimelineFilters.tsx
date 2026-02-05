@@ -6,9 +6,10 @@
  */
 
 import React, { useCallback } from 'react';
-import { EventCategory } from '@/types/events';
-import { ITimelineFilters } from '@/hooks/audit';
+
 import { Button } from '@/components/ui/Button';
+import { ITimelineFilters } from '@/hooks/audit';
+import { EventCategory } from '@/types/events';
 
 // =============================================================================
 // Types
@@ -36,7 +37,11 @@ type CategoryOption = {
 const CATEGORY_OPTIONS: CategoryOption[] = [
   { value: undefined, label: 'All Categories', shortLabel: 'All' },
   { value: EventCategory.Game, label: 'Game Events', shortLabel: 'Game' },
-  { value: EventCategory.Campaign, label: 'Campaign Events', shortLabel: 'Campaign' },
+  {
+    value: EventCategory.Campaign,
+    label: 'Campaign Events',
+    shortLabel: 'Campaign',
+  },
   { value: EventCategory.Pilot, label: 'Pilot Events', shortLabel: 'Pilot' },
   { value: EventCategory.Repair, label: 'Repair Events', shortLabel: 'Repair' },
   { value: EventCategory.Award, label: 'Award Events', shortLabel: 'Award' },
@@ -45,12 +50,18 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
 
 // Category color mapping for button styling
 const CATEGORY_COLORS: Record<string, string> = {
-  [EventCategory.Game]: 'hover:border-amber-500/50 data-[active=true]:border-amber-500 data-[active=true]:bg-amber-500/10 data-[active=true]:text-amber-400',
-  [EventCategory.Campaign]: 'hover:border-cyan-500/50 data-[active=true]:border-cyan-500 data-[active=true]:bg-cyan-500/10 data-[active=true]:text-cyan-400',
-  [EventCategory.Pilot]: 'hover:border-emerald-500/50 data-[active=true]:border-emerald-500 data-[active=true]:bg-emerald-500/10 data-[active=true]:text-emerald-400',
-  [EventCategory.Repair]: 'hover:border-violet-500/50 data-[active=true]:border-violet-500 data-[active=true]:bg-violet-500/10 data-[active=true]:text-violet-400',
-  [EventCategory.Award]: 'hover:border-rose-500/50 data-[active=true]:border-rose-500 data-[active=true]:bg-rose-500/10 data-[active=true]:text-rose-400',
-  [EventCategory.Meta]: 'hover:border-slate-500/50 data-[active=true]:border-slate-500 data-[active=true]:bg-slate-500/10 data-[active=true]:text-slate-400',
+  [EventCategory.Game]:
+    'hover:border-amber-500/50 data-[active=true]:border-amber-500 data-[active=true]:bg-amber-500/10 data-[active=true]:text-amber-400',
+  [EventCategory.Campaign]:
+    'hover:border-cyan-500/50 data-[active=true]:border-cyan-500 data-[active=true]:bg-cyan-500/10 data-[active=true]:text-cyan-400',
+  [EventCategory.Pilot]:
+    'hover:border-emerald-500/50 data-[active=true]:border-emerald-500 data-[active=true]:bg-emerald-500/10 data-[active=true]:text-emerald-400',
+  [EventCategory.Repair]:
+    'hover:border-violet-500/50 data-[active=true]:border-violet-500 data-[active=true]:bg-violet-500/10 data-[active=true]:text-violet-400',
+  [EventCategory.Award]:
+    'hover:border-rose-500/50 data-[active=true]:border-rose-500 data-[active=true]:bg-rose-500/10 data-[active=true]:text-rose-400',
+  [EventCategory.Meta]:
+    'hover:border-slate-500/50 data-[active=true]:border-slate-500 data-[active=true]:bg-slate-500/10 data-[active=true]:text-slate-400',
 };
 
 // =============================================================================
@@ -70,7 +81,7 @@ export function TimelineFilters({
         category,
       });
     },
-    [filters, onChange]
+    [filters, onChange],
   );
 
   // Handle root events toggle
@@ -81,32 +92,31 @@ export function TimelineFilters({
     });
   }, [filters, onChange]);
 
-return (
+  return (
     <div className={`space-y-4 ${className}`} data-testid="timeline-filters">
       {/* Category Filter - Button Group */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-text-theme-secondary">
+        <label className="text-text-theme-secondary block text-sm font-medium">
           Category
         </label>
         <div className="flex flex-wrap gap-1.5">
           {CATEGORY_OPTIONS.map((option) => {
             const isActive = filters.category === option.value;
-            const colorClass = option.value ? CATEGORY_COLORS[option.value] : '';
-            
+            const colorClass = option.value
+              ? CATEGORY_COLORS[option.value]
+              : '';
+
             return (
               <button
                 key={option.value ?? 'all'}
                 type="button"
                 data-active={isActive}
                 onClick={() => handleCategoryChange(option.value)}
-                className={`
-                  px-3 py-1.5 text-sm font-medium rounded-lg border transition-all duration-200
-                  ${isActive && !option.value
+                className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
+                  isActive && !option.value
                     ? 'border-accent bg-accent/10 text-accent'
                     : 'border-border-theme-subtle text-text-theme-secondary hover:text-text-theme-primary'
-                  }
-                  ${colorClass}
-                `}
+                } ${colorClass} `}
               >
                 {option.shortLabel}
               </button>
@@ -122,27 +132,26 @@ return (
           role="checkbox"
           aria-checked={filters.rootEventsOnly ?? false}
           onClick={handleRootEventsToggle}
-          className={`
-            relative w-10 h-5 rounded-full transition-colors duration-200
-            ${filters.rootEventsOnly 
-              ? 'bg-accent' 
-              : 'bg-surface-raised border border-border-theme'
-            }
-          `}
+          className={`relative h-5 w-10 rounded-full transition-colors duration-200 ${
+            filters.rootEventsOnly
+              ? 'bg-accent'
+              : 'bg-surface-raised border-border-theme border'
+          } `}
         >
           <span
-            className={`
-              absolute top-0.5 w-4 h-4 rounded-full transition-transform duration-200
-              ${filters.rootEventsOnly 
-                ? 'translate-x-5 bg-surface-deep' 
-                : 'translate-x-0.5 bg-text-theme-muted'
-              }
-            `}
+            className={`absolute top-0.5 h-4 w-4 rounded-full transition-transform duration-200 ${
+              filters.rootEventsOnly
+                ? 'bg-surface-deep translate-x-5'
+                : 'bg-text-theme-muted translate-x-0.5'
+            } `}
           />
         </button>
-        <label className="text-sm text-text-theme-secondary select-none cursor-pointer" onClick={handleRootEventsToggle}>
+        <label
+          className="text-text-theme-secondary cursor-pointer text-sm select-none"
+          onClick={handleRootEventsToggle}
+        >
           Root events only
-          <span className="block text-xs text-text-theme-muted">
+          <span className="text-text-theme-muted block text-xs">
             Hide events triggered by other events
           </span>
         </label>
@@ -150,32 +159,57 @@ return (
 
       {/* Active Filters Summary */}
       {(filters.category || filters.rootEventsOnly) && (
-        <div className="flex items-center gap-2 pt-2 border-t border-border-theme-subtle/30">
-          <span className="text-xs text-text-theme-muted">Active:</span>
+        <div className="border-border-theme-subtle/30 flex items-center gap-2 border-t pt-2">
+          <span className="text-text-theme-muted text-xs">Active:</span>
           {filters.category && (
-            <span className="inline-flex items-center gap-1 text-xs bg-surface-raised/50 px-2 py-0.5 rounded-full text-text-theme-secondary">
-              {CATEGORY_OPTIONS.find(o => o.value === filters.category)?.label}
+            <span className="bg-surface-raised/50 text-text-theme-secondary inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs">
+              {
+                CATEGORY_OPTIONS.find((o) => o.value === filters.category)
+                  ?.label
+              }
               <button
                 type="button"
                 onClick={() => handleCategoryChange(undefined)}
                 className="hover:text-text-theme-primary"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="h-3 w-3"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </span>
           )}
           {filters.rootEventsOnly && (
-            <span className="inline-flex items-center gap-1 text-xs bg-surface-raised/50 px-2 py-0.5 rounded-full text-text-theme-secondary">
+            <span className="bg-surface-raised/50 text-text-theme-secondary inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs">
               Root only
               <button
                 type="button"
                 onClick={handleRootEventsToggle}
                 className="hover:text-text-theme-primary"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="h-3 w-3"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </span>
@@ -183,7 +217,13 @@ return (
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onChange({ ...filters, category: undefined, rootEventsOnly: false })}
+            onClick={() =>
+              onChange({
+                ...filters,
+                category: undefined,
+                rootEventsOnly: false,
+              })
+            }
             className="ml-auto text-xs"
           >
             Clear all

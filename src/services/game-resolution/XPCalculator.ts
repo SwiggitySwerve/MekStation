@@ -92,7 +92,8 @@ export function calculateXPBreakdown(input: IXPCalculationInput): IXPBreakdown {
   const killXP = input.kills * XP_VALUES.PER_KILL;
   const victoryXP = input.victory ? XP_VALUES.VICTORY_BONUS : 0;
   const survivalXP = input.survivedCritical ? XP_VALUES.CRITICAL_SURVIVAL : 0;
-  const objectiveXP = input.optionalObjectivesCompleted * XP_VALUES.PER_OBJECTIVE;
+  const objectiveXP =
+    input.optionalObjectivesCompleted * XP_VALUES.PER_OBJECTIVE;
 
   let bonusXP = 0;
   if (input.wasWounded) {
@@ -102,7 +103,8 @@ export function calculateXPBreakdown(input: IXPCalculationInput): IXPBreakdown {
     bonusXP += XP_VALUES.HEAVY_DAMAGE_SURVIVAL;
   }
 
-  const totalXP = baseXP + killXP + victoryXP + survivalXP + objectiveXP + bonusXP;
+  const totalXP =
+    baseXP + killXP + victoryXP + survivalXP + objectiveXP + bonusXP;
 
   return {
     baseXP,
@@ -139,7 +141,7 @@ export function xpRequiredForLevel(currentLevel: number): number {
  */
 export function canImproveSkill(
   currentSkillLevel: number,
-  availableXP: number
+  availableXP: number,
 ): {
   canImprove: boolean;
   xpRequired: number;
@@ -166,7 +168,7 @@ export function calculateTeamXP(
     survivedCritical: boolean;
   }>,
   victory: boolean,
-  objectivesCompleted: number
+  objectivesCompleted: number,
 ): Record<string, number> {
   const xpByPilot: Record<string, number> = {};
 

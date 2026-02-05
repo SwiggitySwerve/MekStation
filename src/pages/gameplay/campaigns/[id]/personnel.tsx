@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 /**
  * Campaign Personnel Page
  * Manage personnel roster for the campaign.
@@ -5,23 +6,15 @@
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
  */
 import { useState } from 'react';
-import { useRouter } from 'next/router';
-import {
-  PageLayout,
-  Card,
-  EmptyState,
-  Badge,
-} from '@/components/ui';
+
+import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
+import { PageLayout, Card, EmptyState } from '@/components/ui';
+import { getBaseSalary } from '@/lib/campaign/personnel/roleSalaries';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
-import { IPerson } from '@/types/campaign/Person';
 import { PersonnelStatus, STATUS_SEVERITY } from '@/types/campaign/enums';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import { getBaseSalary } from '@/lib/campaign/personnel/roleSalaries';
-import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
-import {
-  getRolesByCategory,
-  ALL_CAMPAIGN_PERSONNEL_ROLES,
-} from '@/types/campaign/enums/CampaignPersonnelRole';
+import { getRolesByCategory } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { IPerson } from '@/types/campaign/Person';
 
 // =============================================================================
 // Personnel Card Component
@@ -33,7 +26,11 @@ interface PersonnelCardProps {
   onRoleChange?: (personId: string, newRole: CampaignPersonnelRole) => void;
 }
 
-function PersonnelCard({ person, onStatusChange, onRoleChange }: PersonnelCardProps): React.ReactElement {
+function PersonnelCard({
+  person,
+  onStatusChange,
+  onRoleChange,
+}: PersonnelCardProps): React.ReactElement {
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const getStatusColor = (status: PersonnelStatus): string => {
@@ -58,104 +55,111 @@ function PersonnelCard({ person, onStatusChange, onRoleChange }: PersonnelCardPr
 
   return (
     <Card className="p-4">
-      <div className="flex items-start justify-between mb-3">
-         <div>
-           <h3 className="font-semibold text-text-theme-primary text-lg">
-             {person.name}
-           </h3>
-           <p className="text-sm text-text-theme-secondary">
-             {person.rank}
-           </p>
-         </div>
-         <div className="relative">
-           <button
-             onClick={() => setShowStatusMenu(!showStatusMenu)}
-             className={`${getStatusColor(person.status)} px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity`}
-           >
-             {person.status}
-           </button>
-           {showStatusMenu && (
-             <div className="absolute right-0 mt-2 w-48 bg-surface-raised border border-border-theme rounded-lg shadow-lg z-10 max-h-64 overflow-y-auto">
-               {Object.values(PersonnelStatus).map((status) => (
-                 <button
-                   key={status}
-                   onClick={() => {
-                     onStatusChange?.(person.id, status);
-                     setShowStatusMenu(false);
-                   }}
-                   className={`w-full text-left px-4 py-2 hover:bg-surface-hover transition-colors ${
-                     person.status === status ? 'bg-surface-hover font-semibold' : ''
-                   }`}
-                 >
-                   {status}
-                 </button>
-               ))}
-             </div>
-           )}
-         </div>
-       </div>
+      <div className="mb-3 flex items-start justify-between">
+        <div>
+          <h3 className="text-text-theme-primary text-lg font-semibold">
+            {person.name}
+          </h3>
+          <p className="text-text-theme-secondary text-sm">{person.rank}</p>
+        </div>
+        <div className="relative">
+          <button
+            onClick={() => setShowStatusMenu(!showStatusMenu)}
+            className={`${getStatusColor(person.status)} cursor-pointer rounded-full px-3 py-1 text-sm font-medium transition-opacity hover:opacity-80`}
+          >
+            {person.status}
+          </button>
+          {showStatusMenu && (
+            <div className="bg-surface-raised border-border-theme absolute right-0 z-10 mt-2 max-h-64 w-48 overflow-y-auto rounded-lg border shadow-lg">
+              {Object.values(PersonnelStatus).map((status) => (
+                <button
+                  key={status}
+                  onClick={() => {
+                    onStatusChange?.(person.id, status);
+                    setShowStatusMenu(false);
+                  }}
+                  className={`hover:bg-surface-hover w-full px-4 py-2 text-left transition-colors ${
+                    person.status === status
+                      ? 'bg-surface-hover font-semibold'
+                      : ''
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-2 text-sm">
-         <div className="relative">
-           <p className="text-text-theme-secondary">Primary Role</p>
-           <button
-             onClick={() => setShowRoleMenu(!showRoleMenu)}
-             className="text-text-theme-primary hover:text-text-theme-accent cursor-pointer transition-colors"
-           >
-             {person.primaryRole}
-           </button>
-           {showRoleMenu && (
-             <div className="absolute left-0 mt-2 w-56 bg-surface-raised border border-border-theme rounded-lg shadow-lg z-10 max-h-96 overflow-y-auto">
-               {(['combat', 'support', 'civilian'] as const).map((category) => (
-                 <div key={category}>
-                   <div className="px-4 py-2 font-semibold text-text-theme-secondary text-xs uppercase bg-surface-hover sticky top-0">
-                     {category}
-                   </div>
-                   {getRolesByCategory(category).map((role) => (
-                     <button
-                       key={role}
-                       onClick={() => {
-                         onRoleChange?.(person.id, role);
-                         setShowRoleMenu(false);
-                       }}
-                       className={`w-full text-left px-4 py-2 hover:bg-surface-hover transition-colors ${
-                         person.primaryRole === role ? 'bg-surface-hover font-semibold' : ''
-                       }`}
-                     >
-                       {role}
-                     </button>
-                   ))}
-                 </div>
-               ))}
-             </div>
-           )}
-         </div>
-         {person.secondaryRole && (
-           <div>
-             <p className="text-text-theme-secondary">Secondary Role</p>
-             <p className="text-text-theme-primary">{person.secondaryRole}</p>
-           </div>
-         )}
-         <div>
-           <p className="text-text-theme-secondary">Hits</p>
-           <p className="text-text-theme-primary">{person.hits}/6</p>
-         </div>
-         <div>
-           <p className="text-text-theme-secondary">XP</p>
-           <p className="text-text-theme-primary">{person.xp}</p>
-         </div>
-         <div>
-           <p className="text-text-theme-secondary">Monthly Salary</p>
-           <p className="text-text-theme-primary font-mono">
-             {getMonthlySalary(person.primaryRole as CampaignPersonnelRole).toLocaleString()} C-bills
-           </p>
-         </div>
-       </div>
+        <div className="relative">
+          <p className="text-text-theme-secondary">Primary Role</p>
+          <button
+            onClick={() => setShowRoleMenu(!showRoleMenu)}
+            className="text-text-theme-primary hover:text-text-theme-accent cursor-pointer transition-colors"
+          >
+            {person.primaryRole}
+          </button>
+          {showRoleMenu && (
+            <div className="bg-surface-raised border-border-theme absolute left-0 z-10 mt-2 max-h-96 w-56 overflow-y-auto rounded-lg border shadow-lg">
+              {(['combat', 'support', 'civilian'] as const).map((category) => (
+                <div key={category}>
+                  <div className="text-text-theme-secondary bg-surface-hover sticky top-0 px-4 py-2 text-xs font-semibold uppercase">
+                    {category}
+                  </div>
+                  {getRolesByCategory(category).map((role) => (
+                    <button
+                      key={role}
+                      onClick={() => {
+                        onRoleChange?.(person.id, role);
+                        setShowRoleMenu(false);
+                      }}
+                      className={`hover:bg-surface-hover w-full px-4 py-2 text-left transition-colors ${
+                        person.primaryRole === role
+                          ? 'bg-surface-hover font-semibold'
+                          : ''
+                      }`}
+                    >
+                      {role}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {person.secondaryRole && (
+          <div>
+            <p className="text-text-theme-secondary">Secondary Role</p>
+            <p className="text-text-theme-primary">{person.secondaryRole}</p>
+          </div>
+        )}
+        <div>
+          <p className="text-text-theme-secondary">Hits</p>
+          <p className="text-text-theme-primary">{person.hits}/6</p>
+        </div>
+        <div>
+          <p className="text-text-theme-secondary">XP</p>
+          <p className="text-text-theme-primary">{person.xp}</p>
+        </div>
+        <div>
+          <p className="text-text-theme-secondary">Monthly Salary</p>
+          <p className="text-text-theme-primary font-mono">
+            {getMonthlySalary(
+              person.primaryRole as CampaignPersonnelRole,
+            ).toLocaleString()}{' '}
+            C-bills
+          </p>
+        </div>
+      </div>
 
       {person.unitId && (
-        <div className="mt-3 pt-3 border-t border-border-theme">
-          <p className="text-xs text-text-theme-secondary">Assigned to Unit</p>
-          <p className="text-sm text-text-theme-primary font-mono">{person.unitId}</p>
+        <div className="border-border-theme mt-3 border-t pt-3">
+          <p className="text-text-theme-secondary text-xs">Assigned to Unit</p>
+          <p className="text-text-theme-primary font-mono text-sm">
+            {person.unitId}
+          </p>
         </div>
       )}
     </Card>
@@ -196,7 +200,7 @@ export default function PersonnelPage(): React.ReactElement {
         maxWidth="wide"
       >
         <div className="animate-pulse">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <Card key={i} className="h-48">
                 <div className="h-full" />
@@ -218,9 +222,9 @@ export default function PersonnelPage(): React.ReactElement {
       >
         <EmptyState
           icon={
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
+            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
               <svg
-                className="w-8 h-8 text-text-theme-muted"
+                className="text-text-theme-muted h-8 w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -257,9 +261,9 @@ export default function PersonnelPage(): React.ReactElement {
       {personnel.length === 0 ? (
         <EmptyState
           icon={
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
+            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
               <svg
-                className="w-8 h-8 text-text-theme-muted"
+                className="text-text-theme-muted h-8 w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -277,7 +281,7 @@ export default function PersonnelPage(): React.ReactElement {
           message="This campaign has no personnel assigned yet."
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {personnel.map((person) => (
             <PersonnelCard key={person.id} person={person} />
           ))}

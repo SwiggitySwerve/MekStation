@@ -18,17 +18,23 @@ describe('Formula Registry', () => {
   // ============================================================================
   describe('WEIGHT_FORMULAS', () => {
     it('should contain engine formulas', () => {
-      const engineFormulas = WEIGHT_FORMULAS.filter(f => f.id.startsWith('engine.'));
+      const engineFormulas = WEIGHT_FORMULAS.filter((f) =>
+        f.id.startsWith('engine.'),
+      );
       expect(engineFormulas.length).toBeGreaterThan(0);
     });
 
     it('should contain gyro formulas', () => {
-      const gyroFormulas = WEIGHT_FORMULAS.filter(f => f.id.startsWith('gyro.'));
+      const gyroFormulas = WEIGHT_FORMULAS.filter((f) =>
+        f.id.startsWith('gyro.'),
+      );
       expect(gyroFormulas.length).toBeGreaterThan(0);
     });
 
     it('should contain structure formulas', () => {
-      const structureFormulas = WEIGHT_FORMULAS.filter(f => f.id.startsWith('structure.'));
+      const structureFormulas = WEIGHT_FORMULAS.filter((f) =>
+        f.id.startsWith('structure.'),
+      );
       expect(structureFormulas.length).toBeGreaterThan(0);
     });
 
@@ -54,17 +60,19 @@ describe('Formula Registry', () => {
   // ============================================================================
   describe('MOVEMENT_FORMULAS', () => {
     it('should contain walk MP formula', () => {
-      const walkFormula = MOVEMENT_FORMULAS.find(f => f.id.includes('walk'));
+      const walkFormula = MOVEMENT_FORMULAS.find((f) => f.id.includes('walk'));
       expect(walkFormula).toBeDefined();
     });
 
     it('should contain run MP formula', () => {
-      const runFormula = MOVEMENT_FORMULAS.find(f => f.id.includes('run'));
+      const runFormula = MOVEMENT_FORMULAS.find((f) => f.id.includes('run'));
       expect(runFormula).toBeDefined();
     });
 
     it('should contain engine rating formula', () => {
-      const engineFormula = MOVEMENT_FORMULAS.find(f => f.id.includes('engine_rating'));
+      const engineFormula = MOVEMENT_FORMULAS.find((f) =>
+        f.id.includes('engine_rating'),
+      );
       expect(engineFormula).toBeDefined();
     });
 
@@ -82,12 +90,14 @@ describe('Formula Registry', () => {
   // ============================================================================
   describe('SLOT_FORMULAS', () => {
     it('should contain engine slot formulas', () => {
-      const engineFormulas = SLOT_FORMULAS.filter(f => f.id.includes('engine'));
+      const engineFormulas = SLOT_FORMULAS.filter((f) =>
+        f.id.includes('engine'),
+      );
       expect(engineFormulas.length).toBeGreaterThan(0);
     });
 
     it('should contain gyro slot formula', () => {
-      const gyroFormula = SLOT_FORMULAS.find(f => f.id.includes('gyro'));
+      const gyroFormula = SLOT_FORMULAS.find((f) => f.id.includes('gyro'));
       expect(gyroFormula).toBeDefined();
     });
 
@@ -105,12 +115,16 @@ describe('Formula Registry', () => {
   // ============================================================================
   describe('HEAT_SINK_FORMULAS', () => {
     it('should contain integral heat sinks formula', () => {
-      const integralFormula = HEAT_SINK_FORMULAS.find(f => f.id.includes('integral'));
+      const integralFormula = HEAT_SINK_FORMULAS.find((f) =>
+        f.id.includes('integral'),
+      );
       expect(integralFormula).toBeDefined();
     });
 
     it('should contain dissipation formulas', () => {
-      const dissipationFormulas = HEAT_SINK_FORMULAS.filter(f => f.id.includes('dissipation'));
+      const dissipationFormulas = HEAT_SINK_FORMULAS.filter((f) =>
+        f.id.includes('dissipation'),
+      );
       expect(dissipationFormulas.length).toBeGreaterThan(0);
     });
 
@@ -128,7 +142,7 @@ describe('Formula Registry', () => {
   // ============================================================================
   describe('ARMOR_FORMULAS', () => {
     it('should contain max armor formula', () => {
-      const maxFormula = ARMOR_FORMULAS.find(f => f.id.includes('max'));
+      const maxFormula = ARMOR_FORMULAS.find((f) => f.id.includes('max'));
       expect(maxFormula).toBeDefined();
     });
 
@@ -240,7 +254,7 @@ describe('Formula Registry', () => {
         ...ARMOR_FORMULAS,
       ];
 
-      const ids = allFormulas.map(f => f.id);
+      const ids = allFormulas.map((f) => f.id);
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(ids.length);
     });
@@ -254,7 +268,9 @@ describe('Formula Registry', () => {
         ...ARMOR_FORMULAS,
       ];
 
-      const techManualFormulas = allFormulas.filter(f => f.source === 'TechManual');
+      const techManualFormulas = allFormulas.filter(
+        (f) => f.source === 'TechManual',
+      );
       for (const formula of techManualFormulas) {
         // Page reference should exist for TechManual sourced formulas
         expect(formula.pageReference).toBeDefined();
@@ -262,4 +278,3 @@ describe('Formula Registry', () => {
     });
   });
 });
-

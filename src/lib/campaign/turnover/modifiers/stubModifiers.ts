@@ -1,5 +1,5 @@
-import type { IPerson } from '@/types/campaign/Person';
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
 
 /** @stub Needs fatigue system */
 export function getFatigueModifier(_person: IPerson): number {

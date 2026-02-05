@@ -1,11 +1,12 @@
 /**
  * useEquipmentRegistry Hook
- * 
+ *
  * Provides access to the equipment registry and triggers re-renders
  * when the registry becomes ready.
  */
 
 import { useState, useEffect, useCallback } from 'react';
+
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 
 /**
@@ -26,7 +27,7 @@ export function useEquipmentRegistry(): UseEquipmentRegistryResult {
 
   useEffect(() => {
     const registry = getEquipmentRegistry();
-    
+
     // Check if already ready
     if (registry.isReady()) {
       setIsReady(true);
@@ -36,7 +37,8 @@ export function useEquipmentRegistry(): UseEquipmentRegistryResult {
     // If not ready and we haven't attempted init, start it
     if (!initAttempted) {
       setInitAttempted(true);
-      registry.initialize()
+      registry
+        .initialize()
         .then(() => setIsReady(true))
         .catch(() => {
           // Initialization failed - will retry on next mount
@@ -54,4 +56,3 @@ export function useEquipmentRegistry(): UseEquipmentRegistryResult {
 
   return { isReady, recheckReady };
 }
-

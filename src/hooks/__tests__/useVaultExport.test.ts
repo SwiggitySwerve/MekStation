@@ -6,17 +6,29 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { useVaultExport, ExportOptions } from '../useVaultExport';
-import { useIdentityStore } from '@/stores/useIdentityStore';
+
+import type {
+  IExportableUnit,
+  IExportablePilot,
+  IExportableForce,
+  IShareableBundle,
+} from '@/types/vault';
+
 import { serializeBundle } from '@/services/vault/BundleService';
-import type { IExportableUnit, IExportablePilot, IExportableForce, IShareableBundle } from '@/types/vault';
+import { useIdentityStore } from '@/stores/useIdentityStore';
+
+import { useVaultExport, ExportOptions } from '../useVaultExport';
 
 // Mock dependencies
 jest.mock('@/stores/useIdentityStore');
 jest.mock('@/services/vault/BundleService');
 
-const mockUseIdentityStore = useIdentityStore as jest.MockedFunction<typeof useIdentityStore>;
-const mockSerializeBundle = serializeBundle as jest.MockedFunction<typeof serializeBundle>;
+const mockUseIdentityStore = useIdentityStore as jest.MockedFunction<
+  typeof useIdentityStore
+>;
+const mockSerializeBundle = serializeBundle as jest.MockedFunction<
+  typeof serializeBundle
+>;
 
 // Mock global fetch
 const mockFetch = jest.fn();
@@ -28,7 +40,11 @@ const createMockBundle = (): IShareableBundle => ({
     version: '1.0.0',
     contentType: 'unit',
     itemCount: 1,
-    author: { displayName: 'Test Author', publicKey: 'abc123', friendCode: 'TEST-1234' },
+    author: {
+      displayName: 'Test Author',
+      publicKey: 'abc123',
+      friendCode: 'TEST-1234',
+    },
     createdAt: '2024-01-01T00:00:00Z',
     appVersion: '0.1.0',
   },
@@ -36,7 +52,9 @@ const createMockBundle = (): IShareableBundle => ({
   signature: 'test-signature',
 });
 
-const createMockUnit = (overrides: Partial<IExportableUnit> = {}): IExportableUnit => ({
+const createMockUnit = (
+  overrides: Partial<IExportableUnit> = {},
+): IExportableUnit => ({
   id: 'unit-1',
   name: 'Test Mech',
   chassis: 'Atlas',
@@ -45,7 +63,9 @@ const createMockUnit = (overrides: Partial<IExportableUnit> = {}): IExportableUn
   ...overrides,
 });
 
-const createMockPilot = (overrides: Partial<IExportablePilot> = {}): IExportablePilot => ({
+const createMockPilot = (
+  overrides: Partial<IExportablePilot> = {},
+): IExportablePilot => ({
   id: 'pilot-1',
   name: 'John Doe',
   callsign: 'Maverick',
@@ -53,7 +73,9 @@ const createMockPilot = (overrides: Partial<IExportablePilot> = {}): IExportable
   ...overrides,
 });
 
-const createMockForce = (overrides: Partial<IExportableForce> = {}): IExportableForce => ({
+const createMockForce = (
+  overrides: Partial<IExportableForce> = {},
+): IExportableForce => ({
   id: 'force-1',
   name: 'Alpha Lance',
   description: 'Test force',
@@ -61,7 +83,9 @@ const createMockForce = (overrides: Partial<IExportableForce> = {}): IExportable
   ...overrides,
 });
 
-const createExportOptions = (overrides: Partial<ExportOptions> = {}): ExportOptions => ({
+const createExportOptions = (
+  overrides: Partial<ExportOptions> = {},
+): ExportOptions => ({
   password: 'test-password',
   description: 'Test export',
   tags: ['test'],
@@ -72,7 +96,7 @@ describe('useVaultExport', () => {
   // Store original implementations
   const originalCreateObjectURL = URL.createObjectURL;
   const originalRevokeObjectURL = URL.revokeObjectURL;
-  
+
   // Mock functions for DOM operations
   const mockClick = jest.fn();
   const mockWriteText = jest.fn();
@@ -82,13 +106,17 @@ describe('useVaultExport', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Default identity store mock - unlocked
     mockUseIdentityStore.mockReturnValue({
       isUnlocked: true,
       initialized: true,
       hasIdentity: true,
-      publicIdentity: { displayName: 'Test User', publicKey: 'abc123', friendCode: 'TEST-1234' },
+      publicIdentity: {
+        displayName: 'Test User',
+        publicKey: 'abc123',
+        friendCode: 'TEST-1234',
+      },
       loading: false,
       error: null,
       checkIdentity: jest.fn(),
@@ -102,11 +130,12 @@ describe('useVaultExport', () => {
     // Default fetch mock - success
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        success: true,
-        bundle: createMockBundle(),
-        suggestedFilename: 'test-unit-20240101.mekbundle',
-      }),
+      json: () =>
+        Promise.resolve({
+          success: true,
+          bundle: createMockBundle(),
+          suggestedFilename: 'test-unit-20240101.mekbundle',
+        }),
     });
 
     // Default serialize mock
@@ -115,27 +144,32 @@ describe('useVaultExport', () => {
     // Setup URL mocks
     URL.createObjectURL = jest.fn().mockReturnValue('blob:test-url');
     URL.revokeObjectURL = jest.fn();
-    
+
     // Setup DOM spies - only intercept anchor element creation
-    // eslint-disable-next-line no-restricted-syntax
     const mockAnchor = {
       href: '',
       download: '',
       click: mockClick,
     } as unknown as HTMLAnchorElement;
-    
+
     const originalCreateElement = document.createElement.bind(document);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    createElementSpy = jest.spyOn(document, 'createElement').mockImplementation((tagName: string): any => {
-      if (tagName === 'a') {
-        return mockAnchor;
-      }
-      // Call original for other elements (needed by React Testing Library)
-      return originalCreateElement(tagName);
-    });
-    
-    appendChildSpy = jest.spyOn(document.body, 'appendChild').mockImplementation((node) => node);
-    removeChildSpy = jest.spyOn(document.body, 'removeChild').mockImplementation((node) => node);
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+    createElementSpy = jest
+      .spyOn(document, 'createElement')
+      .mockImplementation(((tagName: string) => {
+        if (tagName === 'a') {
+          return mockAnchor;
+        }
+        // Call original for other elements (needed by React Testing Library)
+        return originalCreateElement(tagName);
+      }) as unknown as jest.Mock) as unknown as jest.SpyInstance;
+
+    appendChildSpy = jest
+      .spyOn(document.body, 'appendChild')
+      .mockImplementation((node) => node);
+    removeChildSpy = jest
+      .spyOn(document.body, 'removeChild')
+      .mockImplementation((node) => node);
 
     // Mock clipboard
     Object.defineProperty(navigator, 'clipboard', {
@@ -200,8 +234,12 @@ describe('useVaultExport', () => {
       });
 
       expect(exportResult.success).toBe(false);
-      expect(exportResult.error).toEqual({ message: 'Identity not unlocked. Please unlock your vault first.' });
-      expect(result.current.error).toBe('Identity not unlocked. Please unlock your vault first.');
+      expect(exportResult.error).toEqual({
+        message: 'Identity not unlocked. Please unlock your vault first.',
+      });
+      expect(result.current.error).toBe(
+        'Identity not unlocked. Please unlock your vault first.',
+      );
     });
 
     it('should fail when no units provided', async () => {
@@ -263,7 +301,9 @@ describe('useVaultExport', () => {
       expect(exportResult.success).toBe(true);
       if (exportResult.success) {
         expect(exportResult.data.bundle).toBeDefined();
-        expect(exportResult.data.suggestedFilename).toBe('test-unit-20240101.mekbundle');
+        expect(exportResult.data.suggestedFilename).toBe(
+          'test-unit-20240101.mekbundle',
+        );
       }
     });
 
@@ -285,10 +325,11 @@ describe('useVaultExport', () => {
     it('should handle API error response', async () => {
       mockFetch.mockResolvedValue({
         ok: false,
-        json: () => Promise.resolve({
-          success: false,
-          error: 'Invalid password',
-        }),
+        json: () =>
+          Promise.resolve({
+            success: false,
+            error: 'Invalid password',
+          }),
       });
 
       const { result } = renderHook(() => useVaultExport());
@@ -335,11 +376,12 @@ describe('useVaultExport', () => {
       // Then, successful export should clear error
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          success: true,
-          bundle: createMockBundle(),
-          suggestedFilename: 'test.mekbundle',
-        }),
+        json: () =>
+          Promise.resolve({
+            success: true,
+            bundle: createMockBundle(),
+            suggestedFilename: 'test.mekbundle',
+          }),
       });
 
       await act(async () => {
@@ -360,10 +402,13 @@ describe('useVaultExport', () => {
         await result.current.exportPilots(pilots, options);
       });
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/vault/sign', expect.objectContaining({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        body: expect.stringContaining('"contentType":"pilot"'),
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/vault/sign',
+        expect.objectContaining({
+          // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          body: expect.stringContaining('"contentType":"pilot"'),
+        }),
+      );
     });
 
     it('should fail when no pilots provided', async () => {
@@ -401,10 +446,13 @@ describe('useVaultExport', () => {
         await result.current.exportForces(forces, options);
       });
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/vault/sign', expect.objectContaining({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        body: expect.stringContaining('"contentType":"force"'),
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/vault/sign',
+        expect.objectContaining({
+          // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          body: expect.stringContaining('"contentType":"force"'),
+        }),
+      );
     });
 
     it('should fail when no forces provided', async () => {

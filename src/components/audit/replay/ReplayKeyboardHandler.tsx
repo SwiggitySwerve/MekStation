@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useCallback } from 'react';
+
 import { type PlaybackState } from '@/hooks/audit';
 
 // =============================================================================
@@ -96,7 +97,10 @@ export function useReplayKeyboardShortcuts({
       const code = event.code;
 
       // Play/Pause - Space
-      if (SHORTCUTS.PLAY_PAUSE.includes(key) || SHORTCUTS.PLAY_PAUSE.includes(code)) {
+      if (
+        SHORTCUTS.PLAY_PAUSE.includes(key) ||
+        SHORTCUTS.PLAY_PAUSE.includes(code)
+      ) {
         event.preventDefault();
         if (playbackState === 'playing') {
           onPause();
@@ -107,42 +111,60 @@ export function useReplayKeyboardShortcuts({
       }
 
       // Step Backward - Left Arrow
-      if (SHORTCUTS.STEP_BACKWARD.includes(key) || SHORTCUTS.STEP_BACKWARD.includes(code)) {
+      if (
+        SHORTCUTS.STEP_BACKWARD.includes(key) ||
+        SHORTCUTS.STEP_BACKWARD.includes(code)
+      ) {
         event.preventDefault();
         onStepBackward();
         return;
       }
 
       // Step Forward - Right Arrow
-      if (SHORTCUTS.STEP_FORWARD.includes(key) || SHORTCUTS.STEP_FORWARD.includes(code)) {
+      if (
+        SHORTCUTS.STEP_FORWARD.includes(key) ||
+        SHORTCUTS.STEP_FORWARD.includes(code)
+      ) {
         event.preventDefault();
         onStepForward();
         return;
       }
 
       // Go to Start - Home
-      if (SHORTCUTS.GO_TO_START.includes(key) || SHORTCUTS.GO_TO_START.includes(code)) {
+      if (
+        SHORTCUTS.GO_TO_START.includes(key) ||
+        SHORTCUTS.GO_TO_START.includes(code)
+      ) {
         event.preventDefault();
         onGoToStart();
         return;
       }
 
       // Go to End - End
-      if (SHORTCUTS.GO_TO_END.includes(key) || SHORTCUTS.GO_TO_END.includes(code)) {
+      if (
+        SHORTCUTS.GO_TO_END.includes(key) ||
+        SHORTCUTS.GO_TO_END.includes(code)
+      ) {
         event.preventDefault();
         onGoToEnd();
         return;
       }
 
       // Speed Up - +/=
-      if (SHORTCUTS.SPEED_UP.includes(key) || SHORTCUTS.SPEED_UP.includes(code)) {
+      if (
+        SHORTCUTS.SPEED_UP.includes(key) ||
+        SHORTCUTS.SPEED_UP.includes(code)
+      ) {
         event.preventDefault();
         onSpeedUp();
         return;
       }
 
       // Speed Down - -/_
-      if (SHORTCUTS.SPEED_DOWN.includes(key) || SHORTCUTS.SPEED_DOWN.includes(code)) {
+      if (
+        SHORTCUTS.SPEED_DOWN.includes(key) ||
+        SHORTCUTS.SPEED_DOWN.includes(code)
+      ) {
         event.preventDefault();
         onSpeedDown();
         return;
@@ -158,7 +180,7 @@ export function useReplayKeyboardShortcuts({
       onSpeedDown,
       onGoToStart,
       onGoToEnd,
-    ]
+    ],
   );
 
   useEffect(() => {
@@ -216,12 +238,14 @@ export function KeyboardShortcutsHelp({
   className?: string;
 }): React.ReactElement {
   return (
-    <div className={`text-xs text-text-theme-muted ${className}`}>
-      <div className="font-medium text-text-theme-secondary mb-2">Keyboard Shortcuts</div>
+    <div className={`text-text-theme-muted text-xs ${className}`}>
+      <div className="text-text-theme-secondary mb-2 font-medium">
+        Keyboard Shortcuts
+      </div>
       <div className="grid grid-cols-2 gap-x-4 gap-y-1">
         {KEYBOARD_SHORTCUTS.map(({ key, description }) => (
           <div key={key} className="flex items-center gap-2">
-            <kbd className="px-1.5 py-0.5 bg-surface-raised/50 border border-border-theme-subtle rounded text-[10px] font-mono min-w-[24px] text-center">
+            <kbd className="bg-surface-raised/50 border-border-theme-subtle min-w-[24px] rounded border px-1.5 py-0.5 text-center font-mono text-[10px]">
               {key}
             </kbd>
             <span>{description}</span>

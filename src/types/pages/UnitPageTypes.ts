@@ -1,11 +1,11 @@
+import { Era } from '@/types/enums/Era';
 /**
  * Shared Types for Unit Pages
- * 
+ *
  * Common interfaces used across unit-related pages.
  * Extracted to avoid DRY violations.
  */
 import { TechBase } from '@/types/enums/TechBase';
-import { Era } from '@/types/enums/Era';
 import { WeightClass } from '@/types/enums/WeightClass';
 
 /**
@@ -178,4 +178,3 @@ export function calculateTotalArmor(armor: IArmorConfig | undefined): number {
     return sum;
   }, 0);
 }
-

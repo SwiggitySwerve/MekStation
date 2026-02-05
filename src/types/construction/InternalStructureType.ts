@@ -1,13 +1,13 @@
 /**
  * Internal Structure Type Definitions
- * 
+ *
  * Defines all standard BattleTech internal structure types.
- * 
+ *
  * @spec openspec/specs/internal-structure-system/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 
 /**
  * Internal structure type enumeration
@@ -43,84 +43,87 @@ export interface InternalStructureDefinition {
 /**
  * All internal structure definitions
  */
-export const INTERNAL_STRUCTURE_DEFINITIONS: readonly InternalStructureDefinition[] = [
-  {
-    type: InternalStructureType.STANDARD,
-    name: 'Standard',
-    techBase: TechBase.INNER_SPHERE,
-    rulesLevel: RulesLevel.INTRODUCTORY,
-    weightMultiplier: 0.10,
-    criticalSlots: 0,
-    structurePointMultiplier: 1.0,
-    introductionYear: 2439,
-  },
-  {
-    type: InternalStructureType.ENDO_STEEL_IS,
-    name: 'Endo Steel (IS)',
-    techBase: TechBase.INNER_SPHERE,
-    rulesLevel: RulesLevel.STANDARD,
-    weightMultiplier: 0.05,
-    criticalSlots: 14,
-    structurePointMultiplier: 1.0,
-    introductionYear: 2487,
-  },
-  {
-    type: InternalStructureType.ENDO_STEEL_CLAN,
-    name: 'Endo Steel (Clan)',
-    techBase: TechBase.CLAN,
-    rulesLevel: RulesLevel.STANDARD,
-    weightMultiplier: 0.05,
-    criticalSlots: 7,
-    structurePointMultiplier: 1.0,
-    introductionYear: 2827,
-  },
-  {
-    type: InternalStructureType.ENDO_COMPOSITE,
-    name: 'Endo-Composite',
-    techBase: TechBase.INNER_SPHERE,
-    rulesLevel: RulesLevel.EXPERIMENTAL,
-    weightMultiplier: 0.075,
-    criticalSlots: 7,
-    structurePointMultiplier: 1.0,
-    introductionYear: 3067,
-  },
-  {
-    type: InternalStructureType.REINFORCED,
-    name: 'Reinforced',
-    techBase: TechBase.INNER_SPHERE,
-    rulesLevel: RulesLevel.EXPERIMENTAL,
-    weightMultiplier: 0.20,
-    criticalSlots: 0,
-    structurePointMultiplier: 2.0,
-    introductionYear: 3057,
-  },
-  {
-    type: InternalStructureType.COMPOSITE,
-    name: 'Composite',
-    techBase: TechBase.INNER_SPHERE,
-    rulesLevel: RulesLevel.EXPERIMENTAL,
-    weightMultiplier: 0.05,
-    criticalSlots: 0,
-    structurePointMultiplier: 0.5,
-    introductionYear: 3061,
-  },
-  {
-    type: InternalStructureType.INDUSTRIAL,
-    name: 'Industrial',
-    techBase: TechBase.INNER_SPHERE,
-    rulesLevel: RulesLevel.INTRODUCTORY,
-    weightMultiplier: 0.20,
-    criticalSlots: 0,
-    structurePointMultiplier: 1.0,
-    introductionYear: 2350,
-  },
-] as const;
+export const INTERNAL_STRUCTURE_DEFINITIONS: readonly InternalStructureDefinition[] =
+  [
+    {
+      type: InternalStructureType.STANDARD,
+      name: 'Standard',
+      techBase: TechBase.INNER_SPHERE,
+      rulesLevel: RulesLevel.INTRODUCTORY,
+      weightMultiplier: 0.1,
+      criticalSlots: 0,
+      structurePointMultiplier: 1.0,
+      introductionYear: 2439,
+    },
+    {
+      type: InternalStructureType.ENDO_STEEL_IS,
+      name: 'Endo Steel (IS)',
+      techBase: TechBase.INNER_SPHERE,
+      rulesLevel: RulesLevel.STANDARD,
+      weightMultiplier: 0.05,
+      criticalSlots: 14,
+      structurePointMultiplier: 1.0,
+      introductionYear: 2487,
+    },
+    {
+      type: InternalStructureType.ENDO_STEEL_CLAN,
+      name: 'Endo Steel (Clan)',
+      techBase: TechBase.CLAN,
+      rulesLevel: RulesLevel.STANDARD,
+      weightMultiplier: 0.05,
+      criticalSlots: 7,
+      structurePointMultiplier: 1.0,
+      introductionYear: 2827,
+    },
+    {
+      type: InternalStructureType.ENDO_COMPOSITE,
+      name: 'Endo-Composite',
+      techBase: TechBase.INNER_SPHERE,
+      rulesLevel: RulesLevel.EXPERIMENTAL,
+      weightMultiplier: 0.075,
+      criticalSlots: 7,
+      structurePointMultiplier: 1.0,
+      introductionYear: 3067,
+    },
+    {
+      type: InternalStructureType.REINFORCED,
+      name: 'Reinforced',
+      techBase: TechBase.INNER_SPHERE,
+      rulesLevel: RulesLevel.EXPERIMENTAL,
+      weightMultiplier: 0.2,
+      criticalSlots: 0,
+      structurePointMultiplier: 2.0,
+      introductionYear: 3057,
+    },
+    {
+      type: InternalStructureType.COMPOSITE,
+      name: 'Composite',
+      techBase: TechBase.INNER_SPHERE,
+      rulesLevel: RulesLevel.EXPERIMENTAL,
+      weightMultiplier: 0.05,
+      criticalSlots: 0,
+      structurePointMultiplier: 0.5,
+      introductionYear: 3061,
+    },
+    {
+      type: InternalStructureType.INDUSTRIAL,
+      name: 'Industrial',
+      techBase: TechBase.INNER_SPHERE,
+      rulesLevel: RulesLevel.INTRODUCTORY,
+      weightMultiplier: 0.2,
+      criticalSlots: 0,
+      structurePointMultiplier: 1.0,
+      introductionYear: 2350,
+    },
+  ] as const;
 
 /**
  * Get internal structure definition by type
  */
-export function getInternalStructureDefinition(type: InternalStructureType): InternalStructureDefinition | undefined {
-  return INTERNAL_STRUCTURE_DEFINITIONS.find(def => def.type === type);
+export function getInternalStructureDefinition(
+  type: InternalStructureType,
+): InternalStructureDefinition | undefined {
+  return INTERNAL_STRUCTURE_DEFINITIONS.find((def) => def.type === type);
 }
 
 /**
@@ -149,7 +152,7 @@ export const STRUCTURE_POINTS_TABLE: Record<number, Record<string, number>> = {
 
 /**
  * Get structure points for a location
- * 
+ *
  * @param tonnage - Unit tonnage
  * @param location - Location name
  * @returns Structure points
@@ -161,13 +164,12 @@ export function getStructurePoints(tonnage: number, location: string): number {
   }
 
   const normalizedLocation = location.toLowerCase().replace(/\s+/g, '');
-  
+
   if (normalizedLocation.includes('head')) return table.head;
   if (normalizedLocation.includes('centertorso')) return table.centerTorso;
   if (normalizedLocation.includes('torso')) return table.sideTorso;
   if (normalizedLocation.includes('arm')) return table.arm;
   if (normalizedLocation.includes('leg')) return table.leg;
-  
+
   return 0;
 }
-

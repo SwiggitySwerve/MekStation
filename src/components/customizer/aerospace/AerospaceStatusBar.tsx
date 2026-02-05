@@ -8,10 +8,11 @@
  */
 
 import React, { useMemo } from 'react';
+
+import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
 import { useAerospaceStore } from '@/stores/useAerospaceStore';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { getEngineDefinition } from '@/types/construction/EngineType';
-import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
 
 // =============================================================================
 // Types
@@ -48,14 +49,18 @@ function StatusItem({
 
   return (
     <div className="flex flex-col items-center px-3 py-1">
-      <span className="text-[10px] text-text-theme-secondary uppercase tracking-wide">
+      <span className="text-text-theme-secondary text-[10px] tracking-wide uppercase">
         {label}
       </span>
-      <span className={`text-sm font-semibold tabular-nums ${statusColors[status]}`}>
+      <span
+        className={`text-sm font-semibold tabular-nums ${statusColors[status]}`}
+      >
         {value}
       </span>
       {subValue && (
-        <span className="text-[10px] text-text-theme-secondary">{subValue}</span>
+        <span className="text-text-theme-secondary text-[10px]">
+          {subValue}
+        </span>
       )}
     </div>
   );
@@ -100,7 +105,12 @@ export function AerospaceStatusBar({
     // Structure weight (roughly 10% of tonnage)
     const structureWeight = tonnage * 0.1;
 
-    const totalUsed = engineWeight + armorTonnage + equipmentWeight + cockpitWeight + structureWeight;
+    const totalUsed =
+      engineWeight +
+      armorTonnage +
+      equipmentWeight +
+      cockpitWeight +
+      structureWeight;
     const remaining = tonnage - totalUsed;
 
     return {
@@ -130,23 +140,45 @@ export function AerospaceStatusBar({
   const heatDissipation = doubleHeatSinks ? heatSinks * 2 : heatSinks;
 
   // Status indicators
-  const weightStatus = weightBreakdown.remaining < 0 ? 'error' : weightBreakdown.remaining === 0 ? 'success' : 'normal';
-  const armorStatus = armorStats.unallocated < 0 ? 'error' : armorStats.unallocated > 0 ? 'warning' : 'success';
+  const weightStatus =
+    weightBreakdown.remaining < 0
+      ? 'error'
+      : weightBreakdown.remaining === 0
+        ? 'success'
+        : 'normal';
+  const armorStatus =
+    armorStats.unallocated < 0
+      ? 'error'
+      : armorStats.unallocated > 0
+        ? 'warning'
+        : 'success';
 
   if (compact) {
     return (
       <div
-        className={`flex items-center justify-between gap-2 px-3 py-1.5 bg-surface-base border-b border-border-theme-subtle text-xs ${className}`}
+        className={`bg-surface-base border-border-theme-subtle flex items-center justify-between gap-2 border-b px-3 py-1.5 text-xs ${className}`}
       >
         <span className="font-medium text-white">{tonnage}t ASF</span>
         <span className="text-text-theme-secondary">
           {safeThrust}/{maxThrust} Thrust
         </span>
         <span className="text-text-theme-secondary">{fuel} Fuel</span>
-        <span className={armorStatus === 'error' ? 'text-red-400' : 'text-text-theme-secondary'}>
+        <span
+          className={
+            armorStatus === 'error'
+              ? 'text-red-400'
+              : 'text-text-theme-secondary'
+          }
+        >
           {armorStats.allocated} armor
         </span>
-        <span className={weightStatus === 'error' ? 'text-red-400' : 'text-text-theme-secondary'}>
+        <span
+          className={
+            weightStatus === 'error'
+              ? 'text-red-400'
+              : 'text-text-theme-secondary'
+          }
+        >
           {weightBreakdown.remaining.toFixed(1)}t free
         </span>
       </div>
@@ -155,14 +187,10 @@ export function AerospaceStatusBar({
 
   return (
     <div
-      className={`flex items-center justify-between bg-surface-base border-b border-border-theme-subtle ${className}`}
+      className={`bg-surface-base border-border-theme-subtle flex items-center justify-between border-b ${className}`}
     >
       {/* Tonnage */}
-      <StatusItem
-        label="Tonnage"
-        value={`${tonnage}t`}
-        subValue="ASF"
-      />
+      <StatusItem label="Tonnage" value={`${tonnage}t`} subValue="ASF" />
 
       {/* Weight Available */}
       <StatusItem
@@ -180,23 +208,20 @@ export function AerospaceStatusBar({
       />
 
       {/* Fuel */}
-      <StatusItem
-        label="Fuel"
-        value={fuel}
-        subValue="points"
-      />
+      <StatusItem label="Fuel" value={fuel} subValue="points" />
 
       {/* Structural Integrity */}
-      <StatusItem
-        label="SI"
-        value={structuralIntegrity}
-      />
+      <StatusItem label="SI" value={structuralIntegrity} />
 
       {/* Armor */}
       <StatusItem
         label="Armor"
         value={armorStats.allocated}
-        subValue={armorStats.unallocated !== 0 ? `${armorStats.unallocated > 0 ? '+' : ''}${armorStats.unallocated}` : 'allocated'}
+        subValue={
+          armorStats.unallocated !== 0
+            ? `${armorStats.unallocated > 0 ? '+' : ''}${armorStats.unallocated}`
+            : 'allocated'
+        }
         status={armorStatus}
       />
 
@@ -208,11 +233,7 @@ export function AerospaceStatusBar({
       />
 
       {/* Equipment Count */}
-      <StatusItem
-        label="Equipment"
-        value={equipment.length}
-        subValue="items"
-      />
+      <StatusItem label="Equipment" value={equipment.length} subValue="items" />
     </div>
   );
 }

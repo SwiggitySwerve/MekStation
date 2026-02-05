@@ -28,20 +28,24 @@ export function CampaignTypeCard({
     <Card
       className={`cursor-pointer transition-all ${
         selected
-          ? 'border-accent ring-2 ring-accent/30 bg-accent/5'
+          ? 'border-accent ring-accent/30 bg-accent/5 ring-2'
           : 'hover:border-accent/50 hover:bg-surface-raised/50'
       }`}
       onClick={onSelect}
     >
       <div className="flex items-start gap-3">
-        <span className="text-2xl" role="img" aria-label={CAMPAIGN_TYPE_DISPLAY[type]}>
+        <span
+          className="text-2xl"
+          role="img"
+          aria-label={CAMPAIGN_TYPE_DISPLAY[type]}
+        >
           {TYPE_ICONS[type]}
         </span>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-text-theme-primary text-lg">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-text-theme-primary text-lg font-semibold">
             {CAMPAIGN_TYPE_DISPLAY[type]}
           </h3>
-          <p className="text-sm text-text-theme-secondary mt-1">
+          <p className="text-text-theme-secondary mt-1 text-sm">
             {CAMPAIGN_TYPE_DESCRIPTIONS[type]}
           </p>
         </div>

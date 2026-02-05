@@ -7,17 +7,17 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import { getCockpitDefinition } from '@/types/construction/CockpitType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 import { calculateGyroWeight } from '@/utils/construction/gyroCalculations';
 import { calculateHeatSinkWeight } from '@/utils/construction/heatSinkCalculations';
-import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
-import { getCockpitDefinition } from '@/types/construction/CockpitType';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
 
 /**
  * Parameters for structural weight calculation
@@ -57,7 +57,9 @@ export interface StructuralWeightParams {
  * @param params - Structural weight calculation parameters
  * @returns Total structural weight in tons
  */
-export function calculateStructuralWeight(params: StructuralWeightParams): number {
+export function calculateStructuralWeight(
+  params: StructuralWeightParams,
+): number {
   const {
     tonnage,
     engineType,
@@ -71,26 +73,43 @@ export function calculateStructuralWeight(params: StructuralWeightParams): numbe
   } = params;
 
   // Engine weight
-  const engineWeight = calculateEngineWeight(engineRating, engineType as EngineType);
+  const engineWeight = calculateEngineWeight(
+    engineRating,
+    engineType as EngineType,
+  );
 
   // Gyro weight
   const gyroWeight = calculateGyroWeight(engineRating, gyroType as GyroType);
 
   // Structure weight
-  const structureDef = getInternalStructureDefinition(internalStructureType as InternalStructureType);
-  const structureWeight = structureDef ? ceilToHalfTon(tonnage * structureDef.weightMultiplier) : ceilToHalfTon(tonnage * 0.1);
+  const structureDef = getInternalStructureDefinition(
+    internalStructureType as InternalStructureType,
+  );
+  const structureWeight = structureDef
+    ? ceilToHalfTon(tonnage * structureDef.weightMultiplier)
+    : ceilToHalfTon(tonnage * 0.1);
 
   // Cockpit weight
   const cockpitDef = getCockpitDefinition(cockpitType as CockpitType);
   const cockpitWeight = cockpitDef?.weight ?? 3;
 
   // Heat sink weight (first 10 are free)
-  const heatSinkWeight = calculateHeatSinkWeight(heatSinkCount, heatSinkType as HeatSinkType);
+  const heatSinkWeight = calculateHeatSinkWeight(
+    heatSinkCount,
+    heatSinkType as HeatSinkType,
+  );
 
   // Armor weight
   const armorWeight = armorTonnage;
 
-  return engineWeight + gyroWeight + structureWeight + cockpitWeight + heatSinkWeight + armorWeight;
+  return (
+    engineWeight +
+    gyroWeight +
+    structureWeight +
+    cockpitWeight +
+    heatSinkWeight +
+    armorWeight
+  );
 }
 
 /**
@@ -100,7 +119,10 @@ export function calculateStructuralWeight(params: StructuralWeightParams): numbe
  * @param engineType - Engine type string
  * @returns Engine weight in tons
  */
-export function getEngineWeight(engineRating: number, engineType: string): number {
+export function getEngineWeight(
+  engineRating: number,
+  engineType: string,
+): number {
   return calculateEngineWeight(engineRating, engineType as EngineType);
 }
 
@@ -122,9 +144,16 @@ export function getGyroWeight(engineRating: number, gyroType: string): number {
  * @param internalStructureType - Internal structure type string
  * @returns Structure weight in tons
  */
-export function getStructureWeight(tonnage: number, internalStructureType: string): number {
-  const structureDef = getInternalStructureDefinition(internalStructureType as InternalStructureType);
-  return structureDef ? ceilToHalfTon(tonnage * structureDef.weightMultiplier) : ceilToHalfTon(tonnage * 0.1);
+export function getStructureWeight(
+  tonnage: number,
+  internalStructureType: string,
+): number {
+  const structureDef = getInternalStructureDefinition(
+    internalStructureType as InternalStructureType,
+  );
+  return structureDef
+    ? ceilToHalfTon(tonnage * structureDef.weightMultiplier)
+    : ceilToHalfTon(tonnage * 0.1);
 }
 
 /**
@@ -145,7 +174,10 @@ export function getCockpitWeight(cockpitType: string): number {
  * @param heatSinkType - Heat sink type string
  * @returns Heat sink weight in tons
  */
-export function getHeatSinkWeight(heatSinkCount: number, heatSinkType: string): number {
+export function getHeatSinkWeight(
+  heatSinkCount: number,
+  heatSinkType: string,
+): number {
   return calculateHeatSinkWeight(heatSinkCount, heatSinkType as HeatSinkType);
 }
 
@@ -156,7 +188,10 @@ export function getHeatSinkWeight(heatSinkCount: number, heatSinkType: string): 
  * @param allocatedWeight - Currently allocated weight
  * @returns Remaining weight available (can be negative if over capacity)
  */
-export function getRemainingWeight(maxWeight: number, allocatedWeight: number): number {
+export function getRemainingWeight(
+  maxWeight: number,
+  allocatedWeight: number,
+): number {
   return maxWeight - allocatedWeight;
 }
 
@@ -167,7 +202,10 @@ export function getRemainingWeight(maxWeight: number, allocatedWeight: number): 
  * @param allocatedWeight - Currently allocated weight
  * @returns True if within limits, false if over capacity
  */
-export function isWithinWeightLimit(maxWeight: number, allocatedWeight: number): boolean {
+export function isWithinWeightLimit(
+  maxWeight: number,
+  allocatedWeight: number,
+): boolean {
   return allocatedWeight <= maxWeight;
 }
 
@@ -178,6 +216,9 @@ export function isWithinWeightLimit(maxWeight: number, allocatedWeight: number):
  * @param allocatedWeight - Currently allocated weight
  * @returns Amount over capacity (0 if within limits)
  */
-export function getWeightOverflow(maxWeight: number, allocatedWeight: number): number {
+export function getWeightOverflow(
+  maxWeight: number,
+  allocatedWeight: number,
+): number {
   return Math.max(0, allocatedWeight - maxWeight);
 }

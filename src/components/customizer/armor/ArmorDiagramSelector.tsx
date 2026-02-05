@@ -6,7 +6,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
+
 import { MechLocation } from '@/types/construction';
+
 import { LocationArmorData } from './ArmorDiagram';
 import {
   CleanTechDiagram,
@@ -15,11 +17,18 @@ import {
   PremiumMaterialDiagram,
 } from './variants';
 
-export type DiagramVariant = 'clean-tech' | 'neon-operator' | 'tactical-hud' | 'premium-material';
+export type DiagramVariant =
+  | 'clean-tech'
+  | 'neon-operator'
+  | 'tactical-hud'
+  | 'premium-material';
 
 const STORAGE_KEY = 'mekstation-armor-diagram-variant';
 
-const VARIANT_INFO: Record<DiagramVariant, { name: string; description: string }> = {
+const VARIANT_INFO: Record<
+  DiagramVariant,
+  { name: string; description: string }
+> = {
   'clean-tech': {
     name: 'Clean Tech',
     description: 'Maximum readability, solid colors, stacked front/rear',
@@ -137,34 +146,39 @@ export function ArmorDiagramSelector({
   return (
     <div className={`space-y-3 ${className}`}>
       {/* Variant Selector */}
-      <div className="bg-surface-base/50 rounded-lg border border-border-theme p-3">
+      <div className="bg-surface-base/50 border-border-theme rounded-lg border p-3">
         <div className="flex items-center justify-between">
-          <div className="text-xs text-text-theme-secondary font-medium">
+          <div className="text-text-theme-secondary text-xs font-medium">
             UAT Design Testing
           </div>
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-surface-raised hover:bg-surface-raised/80 rounded text-sm text-white transition-colors"
+              className="bg-surface-raised hover:bg-surface-raised/80 flex items-center gap-2 rounded px-3 py-1.5 text-sm text-white transition-colors"
             >
               <span>{VARIANT_INFO[activeVariant].name}</span>
               <svg
-                className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-1 w-64 bg-surface-raised rounded-lg shadow-xl border border-border-theme-strong z-50">
+              <div className="bg-surface-raised border-border-theme-strong absolute right-0 z-50 mt-1 w-64 rounded-lg border shadow-xl">
                 {(Object.keys(VARIANT_INFO) as DiagramVariant[]).map((v) => (
                   <button
                     key={v}
                     onClick={() => handleVariantChange(v)}
-                    className={`w-full text-left px-4 py-3 hover:bg-surface-base transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                    className={`hover:bg-surface-base w-full px-4 py-3 text-left transition-colors first:rounded-t-lg last:rounded-b-lg ${
                       activeVariant === v ? 'bg-surface-base' : ''
                     }`}
                   >
@@ -173,12 +187,20 @@ export function ArmorDiagramSelector({
                         {VARIANT_INFO[v].name}
                       </span>
                       {activeVariant === v && (
-                        <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        <svg
+                          className="h-4 w-4 text-green-400"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                       )}
                     </div>
-                    <p className="text-xs text-text-theme-secondary mt-0.5">
+                    <p className="text-text-theme-secondary mt-0.5 text-xs">
                       {VARIANT_INFO[v].description}
                     </p>
                   </button>
@@ -206,7 +228,10 @@ export function ArmorDiagramSelector({
 /**
  * Hook to get/set diagram variant preference
  */
-export function useDiagramVariant(): [DiagramVariant, (v: DiagramVariant) => void] {
+export function useDiagramVariant(): [
+  DiagramVariant,
+  (v: DiagramVariant) => void,
+] {
   const [variant, setVariant] = useState<DiagramVariant>('clean-tech');
 
   useEffect(() => {

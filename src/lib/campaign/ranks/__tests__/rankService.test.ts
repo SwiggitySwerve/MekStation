@@ -1,3 +1,13 @@
+import type { IPerson } from '@/types/campaign/Person';
+
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import {
+  Profession,
+  IRankSystem,
+  createRanks,
+} from '@/types/campaign/ranks/rankTypes';
+
 import {
   mapRoleToProfession,
   getRankName,
@@ -9,10 +19,6 @@ import {
   getTimeInRank,
   isRecentlyPromoted,
 } from '../rankService';
-import { Profession, IRankSystem, createRanks } from '@/types/campaign/ranks/rankTypes';
-import type { IPerson } from '@/types/campaign/Person';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 
 const mockRankSystem: IRankSystem = {
   code: 'TEST',
@@ -21,10 +27,26 @@ const mockRankSystem: IRankSystem = {
   type: 'default',
   officerCut: 31,
   ranks: createRanks({
-    0: { names: { mekwarrior: 'None', aerospace: 'None' }, officer: false, payMultiplier: 1.0 },
-    1: { names: { mekwarrior: 'Private', aerospace: 'Airman', tech: 'Tech' }, officer: false, payMultiplier: 1.0 },
-    5: { names: { mekwarrior: 'Sergeant' }, officer: false, payMultiplier: 1.1 },
-    31: { names: { mekwarrior: 'Lieutenant' }, officer: true, payMultiplier: 1.4 },
+    0: {
+      names: { mekwarrior: 'None', aerospace: 'None' },
+      officer: false,
+      payMultiplier: 1.0,
+    },
+    1: {
+      names: { mekwarrior: 'Private', aerospace: 'Airman', tech: 'Tech' },
+      officer: false,
+      payMultiplier: 1.0,
+    },
+    5: {
+      names: { mekwarrior: 'Sergeant' },
+      officer: false,
+      payMultiplier: 1.1,
+    },
+    31: {
+      names: { mekwarrior: 'Lieutenant' },
+      officer: true,
+      payMultiplier: 1.4,
+    },
     40: { names: { mekwarrior: 'Colonel' }, officer: true, payMultiplier: 2.0 },
   }),
 };
@@ -45,7 +67,16 @@ const createMockPerson = (overrides: Partial<IPerson> = {}): IPerson => ({
   injuries: [],
   daysToWaitForHealing: 0,
   skills: {},
-  attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+  attributes: {
+    STR: 5,
+    BOD: 5,
+    REF: 5,
+    DEX: 5,
+    INT: 5,
+    WIL: 5,
+    CHA: 5,
+    Edge: 0,
+  },
   pilotSkills: { gunnery: 4, piloting: 5 },
   missionsCompleted: 0,
   totalKills: 0,
@@ -60,131 +91,195 @@ const createMockPerson = (overrides: Partial<IPerson> = {}): IPerson => ({
 
 describe('mapRoleToProfession', () => {
   it('maps PILOT to MEKWARRIOR', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.PILOT)).toBe(Profession.MEKWARRIOR);
+    expect(mapRoleToProfession(CampaignPersonnelRole.PILOT)).toBe(
+      Profession.MEKWARRIOR,
+    );
   });
 
   it('maps LAM_PILOT to MEKWARRIOR', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.LAM_PILOT)).toBe(Profession.MEKWARRIOR);
+    expect(mapRoleToProfession(CampaignPersonnelRole.LAM_PILOT)).toBe(
+      Profession.MEKWARRIOR,
+    );
   });
 
   it('maps PROTOMEK_PILOT to MEKWARRIOR', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.PROTOMEK_PILOT)).toBe(Profession.MEKWARRIOR);
+    expect(mapRoleToProfession(CampaignPersonnelRole.PROTOMEK_PILOT)).toBe(
+      Profession.MEKWARRIOR,
+    );
   });
 
   it('maps AEROSPACE_PILOT to AEROSPACE', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.AEROSPACE_PILOT)).toBe(Profession.AEROSPACE);
+    expect(mapRoleToProfession(CampaignPersonnelRole.AEROSPACE_PILOT)).toBe(
+      Profession.AEROSPACE,
+    );
   });
 
   it('maps CONVENTIONAL_AIRCRAFT_PILOT to AEROSPACE', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.CONVENTIONAL_AIRCRAFT_PILOT)).toBe(Profession.AEROSPACE);
+    expect(
+      mapRoleToProfession(CampaignPersonnelRole.CONVENTIONAL_AIRCRAFT_PILOT),
+    ).toBe(Profession.AEROSPACE);
   });
 
   it('maps VEHICLE_DRIVER to VEHICLE', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.VEHICLE_DRIVER)).toBe(Profession.VEHICLE);
+    expect(mapRoleToProfession(CampaignPersonnelRole.VEHICLE_DRIVER)).toBe(
+      Profession.VEHICLE,
+    );
   });
 
   it('maps VEHICLE_CREW_VTOL to VEHICLE', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.VEHICLE_CREW_VTOL)).toBe(Profession.VEHICLE);
+    expect(mapRoleToProfession(CampaignPersonnelRole.VEHICLE_CREW_VTOL)).toBe(
+      Profession.VEHICLE,
+    );
   });
 
   it('maps VEHICLE_CREW_NAVAL to NAVAL', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.VEHICLE_CREW_NAVAL)).toBe(Profession.NAVAL);
+    expect(mapRoleToProfession(CampaignPersonnelRole.VEHICLE_CREW_NAVAL)).toBe(
+      Profession.NAVAL,
+    );
   });
 
   it('maps VESSEL_PILOT to NAVAL', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.VESSEL_PILOT)).toBe(Profession.NAVAL);
+    expect(mapRoleToProfession(CampaignPersonnelRole.VESSEL_PILOT)).toBe(
+      Profession.NAVAL,
+    );
   });
 
   it('maps VESSEL_GUNNER to NAVAL', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.VESSEL_GUNNER)).toBe(Profession.NAVAL);
+    expect(mapRoleToProfession(CampaignPersonnelRole.VESSEL_GUNNER)).toBe(
+      Profession.NAVAL,
+    );
   });
 
   it('maps VESSEL_CREW to NAVAL', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.VESSEL_CREW)).toBe(Profession.NAVAL);
+    expect(mapRoleToProfession(CampaignPersonnelRole.VESSEL_CREW)).toBe(
+      Profession.NAVAL,
+    );
   });
 
   it('maps VESSEL_NAVIGATOR to NAVAL', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.VESSEL_NAVIGATOR)).toBe(Profession.NAVAL);
+    expect(mapRoleToProfession(CampaignPersonnelRole.VESSEL_NAVIGATOR)).toBe(
+      Profession.NAVAL,
+    );
   });
 
   it('maps BATTLE_ARMOUR to INFANTRY', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.BATTLE_ARMOUR)).toBe(Profession.INFANTRY);
+    expect(mapRoleToProfession(CampaignPersonnelRole.BATTLE_ARMOUR)).toBe(
+      Profession.INFANTRY,
+    );
   });
 
   it('maps SOLDIER to INFANTRY', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.SOLDIER)).toBe(Profession.INFANTRY);
+    expect(mapRoleToProfession(CampaignPersonnelRole.SOLDIER)).toBe(
+      Profession.INFANTRY,
+    );
   });
 
   it('maps TECH to TECH', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.TECH)).toBe(Profession.TECH);
+    expect(mapRoleToProfession(CampaignPersonnelRole.TECH)).toBe(
+      Profession.TECH,
+    );
   });
 
   it('maps MEK_TECH to TECH', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.MEK_TECH)).toBe(Profession.TECH);
+    expect(mapRoleToProfession(CampaignPersonnelRole.MEK_TECH)).toBe(
+      Profession.TECH,
+    );
   });
 
   it('maps MECHANIC to TECH', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.MECHANIC)).toBe(Profession.TECH);
+    expect(mapRoleToProfession(CampaignPersonnelRole.MECHANIC)).toBe(
+      Profession.TECH,
+    );
   });
 
   it('maps AERO_TEK to TECH', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.AERO_TEK)).toBe(Profession.TECH);
+    expect(mapRoleToProfession(CampaignPersonnelRole.AERO_TEK)).toBe(
+      Profession.TECH,
+    );
   });
 
   it('maps BA_TECH to TECH', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.BA_TECH)).toBe(Profession.TECH);
+    expect(mapRoleToProfession(CampaignPersonnelRole.BA_TECH)).toBe(
+      Profession.TECH,
+    );
   });
 
   it('maps ASTECH to TECH', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.ASTECH)).toBe(Profession.TECH);
+    expect(mapRoleToProfession(CampaignPersonnelRole.ASTECH)).toBe(
+      Profession.TECH,
+    );
   });
 
   it('maps DOCTOR to MEDICAL', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.DOCTOR)).toBe(Profession.MEDICAL);
+    expect(mapRoleToProfession(CampaignPersonnelRole.DOCTOR)).toBe(
+      Profession.MEDICAL,
+    );
   });
 
   it('maps MEDIC to MEDICAL', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.MEDIC)).toBe(Profession.MEDICAL);
+    expect(mapRoleToProfession(CampaignPersonnelRole.MEDIC)).toBe(
+      Profession.MEDICAL,
+    );
   });
 
   it('maps ADMIN_COMMAND to ADMINISTRATOR', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.ADMIN_COMMAND)).toBe(Profession.ADMINISTRATOR);
+    expect(mapRoleToProfession(CampaignPersonnelRole.ADMIN_COMMAND)).toBe(
+      Profession.ADMINISTRATOR,
+    );
   });
 
   it('maps ADMIN_LOGISTICS to ADMINISTRATOR', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.ADMIN_LOGISTICS)).toBe(Profession.ADMINISTRATOR);
+    expect(mapRoleToProfession(CampaignPersonnelRole.ADMIN_LOGISTICS)).toBe(
+      Profession.ADMINISTRATOR,
+    );
   });
 
   it('maps ADMIN_TRANSPORT to ADMINISTRATOR', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.ADMIN_TRANSPORT)).toBe(Profession.ADMINISTRATOR);
+    expect(mapRoleToProfession(CampaignPersonnelRole.ADMIN_TRANSPORT)).toBe(
+      Profession.ADMINISTRATOR,
+    );
   });
 
   it('maps ADMIN_HR to ADMINISTRATOR', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.ADMIN_HR)).toBe(Profession.ADMINISTRATOR);
+    expect(mapRoleToProfession(CampaignPersonnelRole.ADMIN_HR)).toBe(
+      Profession.ADMINISTRATOR,
+    );
   });
 
   it('maps ADMIN (legacy) to ADMINISTRATOR', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.ADMIN)).toBe(Profession.ADMINISTRATOR);
+    expect(mapRoleToProfession(CampaignPersonnelRole.ADMIN)).toBe(
+      Profession.ADMINISTRATOR,
+    );
   });
 
   it('maps DEPENDENT to CIVILIAN', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.DEPENDENT)).toBe(Profession.CIVILIAN);
+    expect(mapRoleToProfession(CampaignPersonnelRole.DEPENDENT)).toBe(
+      Profession.CIVILIAN,
+    );
   });
 
   it('maps CIVILIAN_OTHER to CIVILIAN', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.CIVILIAN_OTHER)).toBe(Profession.CIVILIAN);
+    expect(mapRoleToProfession(CampaignPersonnelRole.CIVILIAN_OTHER)).toBe(
+      Profession.CIVILIAN,
+    );
   });
 
   it('maps SUPPORT to CIVILIAN', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.SUPPORT)).toBe(Profession.CIVILIAN);
+    expect(mapRoleToProfession(CampaignPersonnelRole.SUPPORT)).toBe(
+      Profession.CIVILIAN,
+    );
   });
 
   it('maps UNASSIGNED to CIVILIAN', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.UNASSIGNED)).toBe(Profession.CIVILIAN);
+    expect(mapRoleToProfession(CampaignPersonnelRole.UNASSIGNED)).toBe(
+      Profession.CIVILIAN,
+    );
   });
 
   it('maps MERCHANT to CIVILIAN', () => {
-    expect(mapRoleToProfession(CampaignPersonnelRole.MERCHANT)).toBe(Profession.CIVILIAN);
+    expect(mapRoleToProfession(CampaignPersonnelRole.MERCHANT)).toBe(
+      Profession.CIVILIAN,
+    );
   });
 });
 
@@ -194,37 +289,58 @@ describe('mapRoleToProfession', () => {
 
 describe('getRankName', () => {
   it('returns profession-specific name for PILOT at rank 1', () => {
-    const person = createMockPerson({ rankIndex: 1, primaryRole: CampaignPersonnelRole.PILOT });
+    const person = createMockPerson({
+      rankIndex: 1,
+      primaryRole: CampaignPersonnelRole.PILOT,
+    });
     expect(getRankName(person, mockRankSystem)).toBe('Private');
   });
 
   it('returns aerospace-specific name for AEROSPACE_PILOT at rank 1', () => {
-    const person = createMockPerson({ rankIndex: 1, primaryRole: CampaignPersonnelRole.AEROSPACE_PILOT });
+    const person = createMockPerson({
+      rankIndex: 1,
+      primaryRole: CampaignPersonnelRole.AEROSPACE_PILOT,
+    });
     expect(getRankName(person, mockRankSystem)).toBe('Airman');
   });
 
   it('returns tech-specific name for TECH at rank 1', () => {
-    const person = createMockPerson({ rankIndex: 1, primaryRole: CampaignPersonnelRole.TECH });
+    const person = createMockPerson({
+      rankIndex: 1,
+      primaryRole: CampaignPersonnelRole.TECH,
+    });
     expect(getRankName(person, mockRankSystem)).toBe('Tech');
   });
 
   it('falls back to mekwarrior name when profession name is missing', () => {
-    const person = createMockPerson({ rankIndex: 5, primaryRole: CampaignPersonnelRole.AEROSPACE_PILOT });
+    const person = createMockPerson({
+      rankIndex: 5,
+      primaryRole: CampaignPersonnelRole.AEROSPACE_PILOT,
+    });
     expect(getRankName(person, mockRankSystem)).toBe('Sergeant');
   });
 
   it('returns None for empty rank (no names defined)', () => {
-    const person = createMockPerson({ rankIndex: 10, primaryRole: CampaignPersonnelRole.PILOT });
+    const person = createMockPerson({
+      rankIndex: 10,
+      primaryRole: CampaignPersonnelRole.PILOT,
+    });
     expect(getRankName(person, mockRankSystem)).toBe('None');
   });
 
   it('defaults to rankIndex 0 when rankIndex is undefined', () => {
-    const person = createMockPerson({ rankIndex: undefined, primaryRole: CampaignPersonnelRole.PILOT });
+    const person = createMockPerson({
+      rankIndex: undefined,
+      primaryRole: CampaignPersonnelRole.PILOT,
+    });
     expect(getRankName(person, mockRankSystem)).toBe('None');
   });
 
   it('returns officer rank name at index 31', () => {
-    const person = createMockPerson({ rankIndex: 31, primaryRole: CampaignPersonnelRole.PILOT });
+    const person = createMockPerson({
+      rankIndex: 31,
+      primaryRole: CampaignPersonnelRole.PILOT,
+    });
     expect(getRankName(person, mockRankSystem)).toBe('Lieutenant');
   });
 });
@@ -235,19 +351,31 @@ describe('getRankName', () => {
 
 describe('getRankNameByIndex', () => {
   it('returns profession-specific name by index and role', () => {
-    expect(getRankNameByIndex(1, CampaignPersonnelRole.AEROSPACE_PILOT, mockRankSystem)).toBe('Airman');
+    expect(
+      getRankNameByIndex(
+        1,
+        CampaignPersonnelRole.AEROSPACE_PILOT,
+        mockRankSystem,
+      ),
+    ).toBe('Airman');
   });
 
   it('falls back to mekwarrior name when profession name is missing', () => {
-    expect(getRankNameByIndex(5, CampaignPersonnelRole.DOCTOR, mockRankSystem)).toBe('Sergeant');
+    expect(
+      getRankNameByIndex(5, CampaignPersonnelRole.DOCTOR, mockRankSystem),
+    ).toBe('Sergeant');
   });
 
   it('returns None for empty rank slot', () => {
-    expect(getRankNameByIndex(10, CampaignPersonnelRole.PILOT, mockRankSystem)).toBe('None');
+    expect(
+      getRankNameByIndex(10, CampaignPersonnelRole.PILOT, mockRankSystem),
+    ).toBe('None');
   });
 
   it('returns correct name at officer rank', () => {
-    expect(getRankNameByIndex(40, CampaignPersonnelRole.PILOT, mockRankSystem)).toBe('Colonel');
+    expect(
+      getRankNameByIndex(40, CampaignPersonnelRole.PILOT, mockRankSystem),
+    ).toBe('Colonel');
   });
 });
 
@@ -317,8 +445,12 @@ describe('promoteToRank', () => {
     expect(result.reason).toBeUndefined();
     expect(result.updatedPerson.rankIndex).toBe(1);
     expect(result.updatedPerson.rank).toBe('Private');
-    expect(result.updatedPerson.lastRankChangeDate).toEqual(new Date('3025-06-15'));
-    expect(result.updatedPerson.lastPromotionDate).toEqual(new Date('3025-06-15'));
+    expect(result.updatedPerson.lastRankChangeDate).toEqual(
+      new Date('3025-06-15'),
+    );
+    expect(result.updatedPerson.lastPromotionDate).toEqual(
+      new Date('3025-06-15'),
+    );
   });
 
   it('promotes from enlisted to officer rank', () => {
@@ -373,7 +505,10 @@ describe('promoteToRank', () => {
   });
 
   it('uses correct profession name for aerospace pilot promotion', () => {
-    const person = createMockPerson({ rankIndex: 0, primaryRole: CampaignPersonnelRole.AEROSPACE_PILOT });
+    const person = createMockPerson({
+      rankIndex: 0,
+      primaryRole: CampaignPersonnelRole.AEROSPACE_PILOT,
+    });
     const result = promoteToRank(person, 1, '3025-06-15', mockRankSystem);
 
     expect(result.valid).toBe(true);
@@ -402,12 +537,17 @@ describe('demoteToRank', () => {
     expect(result.reason).toBeUndefined();
     expect(result.updatedPerson.rankIndex).toBe(1);
     expect(result.updatedPerson.rank).toBe('Private');
-    expect(result.updatedPerson.lastRankChangeDate).toEqual(new Date('3025-06-15'));
+    expect(result.updatedPerson.lastRankChangeDate).toEqual(
+      new Date('3025-06-15'),
+    );
   });
 
   it('does NOT update lastPromotionDate on demotion', () => {
     const promotionDate = new Date('3025-03-01');
-    const person = createMockPerson({ rankIndex: 5, lastPromotionDate: promotionDate });
+    const person = createMockPerson({
+      rankIndex: 5,
+      lastPromotionDate: promotionDate,
+    });
     const result = demoteToRank(person, 1, '3025-06-15', mockRankSystem);
 
     expect(result.valid).toBe(true);

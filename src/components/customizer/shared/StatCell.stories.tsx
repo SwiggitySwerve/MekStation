@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { StatCell } from './StatCell';
 
 const meta: Meta<typeof StatCell> = {
@@ -8,7 +9,8 @@ const meta: Meta<typeof StatCell> = {
   parameters: {
     docs: {
       description: {
-        component: 'Displays a single statistic with label and value for unit info displays.',
+        component:
+          'Displays a single statistic with label and value for unit info displays.',
       },
     },
   },
@@ -64,7 +66,7 @@ export const Error: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex gap-6 p-4 bg-slate-900 rounded">
+    <div className="flex gap-6 rounded bg-slate-900 p-4">
       <StatCell label="Default" value={50} />
       <StatCell label="Success" value={30} variant="success" />
       <StatCell label="Warning" value={28} variant="warning" />
@@ -75,7 +77,7 @@ export const AllVariants: Story = {
 
 export const UnitStatsRow: Story = {
   render: () => (
-    <div className="flex gap-6 p-4 bg-slate-900 rounded justify-around">
+    <div className="flex justify-around gap-6 rounded bg-slate-900 p-4">
       <StatCell label="Tonnage" value={75} unit="t" />
       <StatCell label="Walk" value={4} unit="MP" />
       <StatCell label="Run" value={6} unit="MP" />

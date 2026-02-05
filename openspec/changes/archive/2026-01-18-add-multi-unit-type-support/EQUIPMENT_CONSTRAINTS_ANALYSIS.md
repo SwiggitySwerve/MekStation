@@ -6,11 +6,11 @@ This document analyzes the gaps in MekStation's equipment system that prevent pr
 
 ## Reference Locations
 
-| Resource | Path | Notes |
-|----------|------|-------|
-| MegaMek Core | `E:\Projects\megamek` | github.com/MegaMek/megamek |
-| MegaMekLab | `E:\Projects\megameklab` | github.com/MegaMek/megameklab |
-| mm-data | `E:\Projects\mm-data` | github.com/MegaMek/mm-data |
+| Resource     | Path                     | Notes                         |
+| ------------ | ------------------------ | ----------------------------- |
+| MegaMek Core | `E:\Projects\megamek`    | github.com/MegaMek/megamek    |
+| MegaMekLab   | `E:\Projects\megameklab` | github.com/MegaMek/megameklab |
+| mm-data      | `E:\Projects\mm-data`    | github.com/MegaMek/mm-data    |
 
 ---
 
@@ -50,6 +50,7 @@ F_TANK_WEAPON    // Vehicle/Tank weapons
 ### Flag Usage Pattern
 
 Equipment in MegaMek uses bitwise OR to combine flags:
+
 ```java
 // Example: MASC can mount on Mechs AND Tanks AND Support Vehicles
 misc.flags = misc.flags
@@ -77,23 +78,27 @@ misc.flags = misc.flags
 ### Equipment Interfaces (src/types/equipment/)
 
 **IWeapon** fields:
+
 - id, name, category, subType, techBase, rulesLevel
 - damage, heat, ranges, weight, criticalSlots
 - ammoPerTon, costCBills, battleValue, introductionYear
 - isExplosive, special[]
 
 **IAmmunition** fields:
+
 - id, name, category, variant, techBase, rulesLevel
 - compatibleWeaponIds[], shotsPerTon, weight, criticalSlots
 - costPerTon, battleValue, isExplosive, introductionYear
 - damageModifier, rangeModifier, special[]
 
 **IElectronics** fields:
+
 - id, name, category, techBase, rulesLevel
 - weight, criticalSlots, costCBills, battleValue
 - introductionYear, special[], variableEquipmentId
 
 **IMiscEquipment** fields:
+
 - id, name, category, techBase, rulesLevel
 - weight, criticalSlots, costCBills, battleValue
 - introductionYear, special[], variableEquipmentId
@@ -138,16 +143,16 @@ interface IEquipmentFilter {
 
 **Missing Equipment Categories**:
 
-| Category | Examples | Unit Types |
-|----------|----------|------------|
-| BA Manipulators | Basic, Battle Claw, Armored Glove | Battle Armor |
-| BA Weapons | David Light Gauss, BA MG, Micro Grenade | Battle Armor |
-| Infantry Weapons | Rifles, Support Weapons, Archaic | Infantry |
-| Vehicle Systems | Turrets, Motive Systems, Flotation | Vehicles |
-| VTOL Systems | Rotors, VTOL Jet | VTOL |
-| Aerospace Systems | Fuel Tanks, Thrust Enhancement | Aerospace |
-| Capital Systems | Naval Weapons, Gravity Decks, K-F Drive | DropShips+ |
-| ProtoMech Systems | Main Gun, Proto JJ | ProtoMech |
+| Category          | Examples                                | Unit Types   |
+| ----------------- | --------------------------------------- | ------------ |
+| BA Manipulators   | Basic, Battle Claw, Armored Glove       | Battle Armor |
+| BA Weapons        | David Light Gauss, BA MG, Micro Grenade | Battle Armor |
+| Infantry Weapons  | Rifles, Support Weapons, Archaic        | Infantry     |
+| Vehicle Systems   | Turrets, Motive Systems, Flotation      | Vehicles     |
+| VTOL Systems      | Rotors, VTOL Jet                        | VTOL         |
+| Aerospace Systems | Fuel Tanks, Thrust Enhancement          | Aerospace    |
+| Capital Systems   | Naval Weapons, Gravity Decks, K-F Drive | DropShips+   |
+| ProtoMech Systems | Main Gun, Proto JJ                      | ProtoMech    |
 
 ### Gap 4: No Location Compatibility by Unit Type
 
@@ -155,20 +160,21 @@ interface IEquipmentFilter {
 
 **Missing Location Sets**:
 
-| Unit Type | Locations |
-|-----------|-----------|
-| Vehicle | FRONT, LEFT, RIGHT, REAR, TURRET, BODY |
-| VTOL | FRONT, LEFT, RIGHT, REAR, ROTOR, BODY |
-| Aerospace | NOSE, LEFT_WING, RIGHT_WING, AFT, FUSELAGE |
-| Battle Armor | SQUAD, BODY, LEFT_ARM, RIGHT_ARM |
-| Infantry | SQUAD (no equipment locations) |
-| DropShip+ | NOSE, FL_ARC, FR_ARC, AL_ARC, AR_ARC, AFT |
+| Unit Type    | Locations                                  |
+| ------------ | ------------------------------------------ |
+| Vehicle      | FRONT, LEFT, RIGHT, REAR, TURRET, BODY     |
+| VTOL         | FRONT, LEFT, RIGHT, REAR, ROTOR, BODY      |
+| Aerospace    | NOSE, LEFT_WING, RIGHT_WING, AFT, FUSELAGE |
+| Battle Armor | SQUAD, BODY, LEFT_ARM, RIGHT_ARM           |
+| Infantry     | SQUAD (no equipment locations)             |
+| DropShip+    | NOSE, FL_ARC, FR_ARC, AL_ARC, AR_ARC, AFT  |
 
 ### Gap 5: No Special Equipment Flags
 
 **Current State**: `special[]` array exists but lacks standardized flags.
 
 **Missing Flag Types**:
+
 - Heat generation flags (F_HEAT_SINK, F_DOUBLE_HEAT_SINK)
 - Defensive flags (F_CASE, F_CASE_II, F_STEALTH)
 - Movement flags (F_JUMP_JET, F_MASC, F_TSM)
@@ -180,6 +186,7 @@ interface IEquipmentFilter {
 **Current State**: Variable equipment (tonnage-based) assumes mech formulas.
 
 **Missing Formulas**:
+
 - Vehicle armor (different points-per-ton)
 - Aerospace fuel (fuel points, not tons)
 - Capital armor (different calculation entirely)
@@ -190,6 +197,7 @@ interface IEquipmentFilter {
 **Current State**: Mounting rules are mech-centric.
 
 **Missing Rules**:
+
 - Turret mounting restrictions (weight limits)
 - Arc-based mounting (aerospace, capital ships)
 - Squad-based mounting (battle armor)
@@ -201,24 +209,24 @@ interface IEquipmentFilter {
 
 Based on MegaMek flags, here's which equipment categories work with which units:
 
-| Equipment | Mech | Vehicle | VTOL | Aero | BA | Infantry | Proto | Capital |
-|-----------|:----:|:-------:|:----:|:----:|:--:|:--------:|:-----:|:-------:|
-| Standard Weapons | ✓ | ✓ | ✓ | ✓ | - | - | ✓ | - |
-| BA Weapons | - | - | - | - | ✓ | - | - | - |
-| Infantry Weapons | - | - | - | - | - | ✓ | - | - |
-| Capital Weapons | - | - | - | - | - | - | - | ✓ |
-| Jump Jets | ✓ | ✓* | - | - | ✓ | - | ✓ | - |
-| MASC | ✓ | ✓ | - | - | ✓ | - | ✓ | - |
-| TSM | ✓ | - | - | - | - | - | - | - |
-| Standard Armor | ✓ | ✓ | ✓ | ✓ | - | - | ✓ | - |
-| BA Armor | - | - | - | - | ✓ | - | - | - |
-| Capital Armor | - | - | - | - | - | - | - | ✓ |
-| CASE | ✓ | ✓ | ✓ | ✓ | - | - | - | ✓ |
-| ECM | ✓ | ✓ | ✓ | ✓ | ✓ | - | - | - |
-| C3 Systems | ✓ | ✓ | ✓ | ✓ | ✓ | - | - | - |
-| Targeting Computer | ✓ | ✓ | ✓ | ✓ | - | - | - | - |
+| Equipment          | Mech | Vehicle | VTOL | Aero | BA  | Infantry | Proto | Capital |
+| ------------------ | :--: | :-----: | :--: | :--: | :-: | :------: | :---: | :-----: |
+| Standard Weapons   |  ✓   |    ✓    |  ✓   |  ✓   |  -  |    -     |   ✓   |    -    |
+| BA Weapons         |  -   |    -    |  -   |  -   |  ✓  |    -     |   -   |    -    |
+| Infantry Weapons   |  -   |    -    |  -   |  -   |  -  |    ✓     |   -   |    -    |
+| Capital Weapons    |  -   |    -    |  -   |  -   |  -  |    -     |   -   |    ✓    |
+| Jump Jets          |  ✓   |   ✓\*   |  -   |  -   |  ✓  |    -     |   ✓   |    -    |
+| MASC               |  ✓   |    ✓    |  -   |  -   |  ✓  |    -     |   ✓   |    -    |
+| TSM                |  ✓   |    -    |  -   |  -   |  -  |    -     |   -   |    -    |
+| Standard Armor     |  ✓   |    ✓    |  ✓   |  ✓   |  -  |    -     |   ✓   |    -    |
+| BA Armor           |  -   |    -    |  -   |  -   |  ✓  |    -     |   -   |    -    |
+| Capital Armor      |  -   |    -    |  -   |  -   |  -  |    -     |   -   |    ✓    |
+| CASE               |  ✓   |    ✓    |  ✓   |  ✓   |  -  |    -     |   -   |    ✓    |
+| ECM                |  ✓   |    ✓    |  ✓   |  ✓   |  ✓  |    -     |   -   |    -    |
+| C3 Systems         |  ✓   |    ✓    |  ✓   |  ✓   |  ✓  |    -     |   -   |    -    |
+| Targeting Computer |  ✓   |    ✓    |  ✓   |  ✓   |  -  |    -     |   -   |    -    |
 
-*Vehicle Jump Jets are a different equipment item from Mech Jump Jets
+\*Vehicle Jump Jets are a different equipment item from Mech Jump Jets
 
 ---
 
@@ -229,16 +237,16 @@ Based on MegaMek flags, here's which equipment categories work with which units:
 ```typescript
 interface IEquipmentBase {
   // Existing fields...
-  
+
   // NEW: Unit type compatibility
   readonly allowedUnitTypes: UnitType[];
-  
+
   // NEW: Standardized flags (replaces freeform special[])
   readonly flags: EquipmentFlag[];
-  
+
   // NEW: Location restrictions (if any)
   readonly allowedLocations?: LocationType[];
-  
+
   // NEW: Mounting constraints
   readonly mountingConstraints?: IMountingConstraints;
 }
@@ -269,7 +277,7 @@ enum EquipmentFlag {
   JUMPSHIP_EQUIPMENT = 'JS_EQUIPMENT',
   WARSHIP_EQUIPMENT = 'WS_EQUIPMENT',
   SPACE_STATION_EQUIPMENT = 'SS_EQUIPMENT',
-  
+
   // Behavior flags
   HEAT_SINK = 'HEAT_SINK',
   DOUBLE_HEAT_SINK = 'DOUBLE_HEAT_SINK',
@@ -300,14 +308,14 @@ interface IEquipmentFilter {
   maxYear?: number;
   minYear?: number;
   searchText?: string;
-  
+
   // NEW: Unit type filter
   unitType?: UnitType | UnitType[];
-  
+
   // NEW: Flag filter
   hasFlags?: EquipmentFlag[];
   excludeFlags?: EquipmentFlag[];
-  
+
   // NEW: Location filter
   mountableAt?: LocationType[];
 }
@@ -318,17 +326,20 @@ interface IEquipmentFilter {
 ## Implementation Priority
 
 ### Phase 1: Core Schema (Blocking)
+
 1. Add `allowedUnitTypes` to equipment interfaces
 2. Add `EquipmentFlag` enum
 3. Update equipment JSON schema
 4. Add unitType to IEquipmentFilter
 
 ### Phase 2: Data Migration (Blocking)
+
 1. Audit existing equipment for unit type compatibility
 2. Add allowedUnitTypes to all existing equipment JSON
 3. Convert special[] to flags[] where applicable
 
 ### Phase 3: New Equipment Categories
+
 1. Add Battle Armor equipment
 2. Add Vehicle-specific equipment
 3. Add Aerospace-specific equipment
@@ -337,6 +348,7 @@ interface IEquipmentFilter {
 6. Add Capital ship equipment
 
 ### Phase 4: UI Integration
+
 1. Filter equipment browser by active unit type
 2. Show compatibility warnings
 3. Prevent invalid equipment mounting
@@ -346,21 +358,25 @@ interface IEquipmentFilter {
 ## Validation Rules to Add
 
 ### VAL-EQUIP-UNIT-001: Unit Type Compatibility
+
 - **WHEN** mounting equipment on a unit
 - **THEN** equipment.allowedUnitTypes MUST include unit.unitType
 - **SEVERITY** Error
 
 ### VAL-EQUIP-UNIT-002: Location Compatibility
+
 - **WHEN** mounting equipment at a location
 - **THEN** location MUST be valid for unit type
 - **SEVERITY** Error
 
 ### VAL-EQUIP-UNIT-003: Turret Mounting
+
 - **WHEN** mounting equipment with requiresTurret=true
 - **THEN** unit MUST have turret configured
 - **SEVERITY** Error
 
 ### VAL-EQUIP-UNIT-004: Incompatible Equipment
+
 - **WHEN** mounting equipment with incompatibleWith[]
 - **THEN** unit MUST NOT have any listed equipment mounted
 - **SEVERITY** Error

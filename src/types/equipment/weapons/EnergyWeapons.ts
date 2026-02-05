@@ -1,11 +1,11 @@
 /**
  * Energy Weapon Definitions
- * 
+ *
  * Type definitions for Lasers, PPCs, Flamers, and energy-based defensive systems.
- * 
+ *
  * NOTE: Actual weapon data is now loaded from JSON files at runtime.
  * This file only contains type exports and empty arrays for backwards compatibility.
- * 
+ *
  * @spec openspec/specs/weapon-system/spec.md
  */
 

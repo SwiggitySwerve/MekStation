@@ -21,9 +21,12 @@ const UNIT_CATEGORIES = [
   'handheld',
 ] as const;
 
-export type UnitCategory = typeof UNIT_CATEGORIES[number];
+export type UnitCategory = (typeof UNIT_CATEGORIES)[number];
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
   }

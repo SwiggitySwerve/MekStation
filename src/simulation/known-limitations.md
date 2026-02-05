@@ -17,6 +17,7 @@ These are documented gaps in functionality, not defects. They represent future w
 **Code Reference**: `src/types/gameplay/GameSessionInterfaces.ts:39` - `PhysicalAttack = 'physical_attack'` with comment "Physical attacks (future)"
 
 **Example Violations to Exclude**:
+
 - "Unit should have physical attack option available"
 - "Physical attack phase has no actions"
 - "Melee combat not resolved"
@@ -32,11 +33,13 @@ These are documented gaps in functionality, not defects. They represent future w
 
 **When**: Part of resource management milestone, requires persistent unit state and reload actions.
 
-**Code Reference**: 
+**Code Reference**:
+
 - `src/types/gameplay/GameSessionInterfaces.ts:451` - `ammo` field exists but not enforced
 - `src/types/gameplay/CombatInterfaces.ts` - `ammoConsumed` field in interfaces but not validated
 
 **Example Violations to Exclude**:
+
 - "Unit fired weapon with 0 ammo remaining"
 - "Ammo not decremented after firing"
 - "Reload action not available"
@@ -53,11 +56,13 @@ These are documented gaps in functionality, not defects. They represent future w
 **When**: Part of heat management milestone, requires state machine for shutdown/restart cycles.
 
 **Code Reference**:
+
 - `src/constants/heat.ts:32` - `SHUTDOWN: 30` threshold defined
 - `src/types/validation/HeatManagement.ts` - Shutdown risk checks exist but not enforced
 - `src/utils/gameplay/__tests__/resolveHeatPhase.test.ts` - Tests for shutdown checks exist but implementation incomplete
 
 **Example Violations to Exclude**:
+
 - "Unit should shut down at 30 heat"
 - "Shutdown recovery roll not performed"
 - "Heat-induced ammo explosion not triggered at 24+ heat"
@@ -74,10 +79,12 @@ These are documented gaps in functionality, not defects. They represent future w
 **When**: Refinement in terrain milestone, requires expanded terrain type definitions.
 
 **Code Reference**:
+
 - `src/utils/gameplay/movement.ts:92-139` - `getHexMovementCost` function with basic terrain handling
 - `src/types/gameplay/TerrainTypes.ts` - `TERRAIN_PROPERTIES` with simplified modifiers
 
 **Example Violations to Exclude**:
+
 - "Movement cost incorrect for water hexes" (unless clearly broken)
 - "Rubble terrain cost should vary by level"
 - "Building entry/exit cost not applied"
@@ -90,6 +97,7 @@ These are documented gaps in functionality, not defects. They represent future w
 **Status**: Partially Implemented (piloting checks incomplete)
 
 **Why**: Pilot skill values (`gunnery`, `piloting`) are tracked in `IGameUnit`, but many piloting skill checks are not enforced:
+
 - Fall checks after taking leg damage
 - Skid checks after running on pavement
 - Consciousness checks after head hits (defined but not enforced)
@@ -98,10 +106,12 @@ These are documented gaps in functionality, not defects. They represent future w
 **When**: Part of pilot mechanics milestone.
 
 **Code Reference**:
+
 - `src/types/gameplay/GameSessionInterfaces.ts:416-417` - Pilot skills defined
 - `src/types/gameplay/GameSessionInterfaces.ts:327-330` - Consciousness check fields exist but not enforced
 
 **Example Violations to Exclude**:
+
 - "Piloting check not performed after leg damage"
 - "Unit should fall after failed piloting check"
 - "Consciousness check not triggered"
@@ -114,6 +124,7 @@ These are documented gaps in functionality, not defects. They represent future w
 **Status**: Partially Implemented (damage tracking only)
 
 **Why**: Critical hits are tracked (`IDamageAppliedPayload.criticals`), but many critical hit effects are not enforced:
+
 - Weapon destruction (tracked but not enforced in firing)
 - Actuator damage affecting movement/attacks
 - Sensor hits affecting targeting
@@ -123,10 +134,12 @@ These are documented gaps in functionality, not defects. They represent future w
 **When**: Part of critical effects milestone.
 
 **Code Reference**:
+
 - `src/types/gameplay/GameSessionInterfaces.ts:297` - `criticals` field exists
 - `src/types/gameplay/GameSessionInterfaces.ts:449` - `destroyedEquipment` tracked but not enforced
 
 **Example Violations to Exclude**:
+
 - "Destroyed weapon still fires"
 - "Actuator damage not affecting movement"
 - "Sensor critical not affecting to-hit"
@@ -144,9 +157,11 @@ These are documented gaps in functionality, not defects. They represent future w
 **When**: Part of advanced combat milestone, requires 3D terrain model.
 
 **Code Reference**:
+
 - Movement validation exists but LOS validation is incomplete
 
 **Example Violations to Exclude**:
+
 - "LOS blocked by intervening terrain"
 - "Elevation difference not considered for LOS"
 - "Building blocks LOS but attack allowed"
@@ -163,10 +178,12 @@ These are documented gaps in functionality, not defects. They represent future w
 **When**: Part of advanced pilot mechanics milestone.
 
 **Code Reference**:
+
 - `src/lib/campaign/progression/spaAcquisition.ts` - Marked `@stub - Not implemented`
 - `src/types/pilot/SpecialAbilities.ts` - Abilities defined but not applied
 
 **Example Violations to Exclude**:
+
 - "SPA effect not applied to to-hit roll"
 - "Dodge ability not reducing incoming damage"
 - "Gunnery Specialist bonus not applied"
@@ -182,10 +199,12 @@ These are documented gaps in functionality, not defects. They represent future w
 **When**: Future expansion after core BattleMech gameplay is complete.
 
 **Code Reference**:
+
 - `src/services/units/handlers/` - Multiple vehicle handlers marked "not implemented"
 - `src/services/units/handlers/__tests__/VTOLUnitHandler.test.ts` - Tests expect "not implemented" errors
 
 **Example Violations to Exclude**:
+
 - "Vehicle movement rules not applied"
 - "VTOL altitude not tracked"
 - "Aerospace unit movement invalid"
@@ -202,10 +221,12 @@ These are documented gaps in functionality, not defects. They represent future w
 **When**: Part of campaign milestone.
 
 **Code Reference**:
+
 - `src/lib/campaign/progression/xpAwards.ts` - Marked `@stub - Not implemented`
 - `src/lib/campaign/progression/spaAcquisition.ts` - Marked `@stub - Not implemented`
 
 **Example Violations to Exclude**:
+
 - "XP not awarded after battle"
 - "Pilot skill not improving"
 - "Unit repair not tracked"
@@ -222,9 +243,11 @@ These are documented gaps in functionality, not defects. They represent future w
 **When**: Low priority - JSON import covers most use cases.
 
 **Code Reference**:
+
 - `src/services/conversion/MTFImportService.ts` - Methods return "not implemented" errors
 
 **Example Violations to Exclude**:
+
 - "MTF file parsing failed"
 - "Direct MTF import not available"
 
@@ -239,6 +262,7 @@ When implementing invariant checks, consult this document to avoid reporting kno
 ### For Game Engine Developers
 
 When implementing a feature listed here:
+
 1. Remove the corresponding section from this document
 2. Update the exclusion patterns in `knownLimitations.ts`
 3. Add tests to verify the feature works correctly
@@ -255,6 +279,7 @@ If a violation appears in simulation output, check this document first. If it ma
 **Last Updated**: 2026-02-01
 
 **Review Frequency**: Update this document whenever:
+
 - A new limitation is discovered during simulation runs
 - A previously limited feature is implemented
 - Simulation invariants are added that might trigger false positives

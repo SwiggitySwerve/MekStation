@@ -7,10 +7,10 @@
  * @module campaign/skills/skillProgression
  */
 
+import { SKILL_CATALOG } from '@/constants/campaign/skillCatalog';
+import { ICampaignOptions } from '@/types/campaign/Campaign';
 import { IPerson } from '@/types/campaign/Person';
 import { ISkill } from '@/types/campaign/skills';
-import { ICampaignOptions } from '@/types/campaign/Campaign';
-import { SKILL_CATALOG } from '@/constants/campaign/skillCatalog';
 import { getAttributeModifier } from '@/types/campaign/skills/IAttributes';
 
 /**
@@ -41,7 +41,7 @@ export function getSkillImprovementCost(
   skillId: string,
   currentLevel: number,
   person: IPerson,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): number {
   const skillType = SKILL_CATALOG[skillId];
   if (!skillType) return Infinity;
@@ -79,7 +79,7 @@ export function getSkillImprovementCost(
 export function canImproveSkill(
   person: IPerson,
   skillId: string,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): boolean {
   const skill = person.skills[skillId];
 
@@ -120,7 +120,7 @@ export function canImproveSkill(
 export function improveSkill(
   person: IPerson,
   skillId: string,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): IPerson {
   const skill = person.skills[skillId];
 
@@ -130,7 +130,7 @@ export function improveSkill(
 
   if (skill.level >= 10) {
     throw new Error(
-      `Skill ${skillId} is already at maximum level (10) for person ${person.id}`
+      `Skill ${skillId} is already at maximum level (10) for person ${person.id}`,
     );
   }
 
@@ -138,7 +138,7 @@ export function improveSkill(
 
   if (person.xp < cost) {
     throw new Error(
-      `Insufficient XP to improve ${skillId}. Need ${cost}, have ${person.xp}`
+      `Insufficient XP to improve ${skillId}. Need ${cost}, have ${person.xp}`,
     );
   }
 
@@ -178,17 +178,15 @@ export function improveSkill(
 export function addSkill(
   person: IPerson,
   skillId: string,
-  initialLevel: number
+  initialLevel: number,
 ): IPerson {
   if (person.skills[skillId]) {
-    throw new Error(
-      `Skill ${skillId} already exists on person ${person.id}`
-    );
+    throw new Error(`Skill ${skillId} already exists on person ${person.id}`);
   }
 
   if (initialLevel < 0 || initialLevel > 10) {
     throw new Error(
-      `Invalid initial skill level: ${initialLevel}. Must be between 0 and 10.`
+      `Invalid initial skill level: ${initialLevel}. Must be between 0 and 10.`,
     );
   }
 

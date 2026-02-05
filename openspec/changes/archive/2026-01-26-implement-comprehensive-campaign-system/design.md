@@ -29,6 +29,7 @@ The domain model is adapted from MekHQ (Java-based BattleTech campaign manager a
 **Decision**: All entity interfaces use `readonly` fields throughout.
 
 **Rationale**:
+
 - Prevents accidental mutations in complex state management
 - Enables safe sharing of entities across components
 - Matches React/TypeScript best practices
@@ -44,21 +45,24 @@ The domain model is adapted from MekHQ (Java-based BattleTech campaign manager a
 **Decision**: Use `Map<string, T>` for all entity collections instead of arrays.
 
 **Rationale**:
+
 - **O(1) lookups** vs O(n) array search - critical for 100+ personnel
 - Clean iteration with `Map.values()`, `Map.entries()`
 - Type-safe keys (string IDs)
 - Built-in `has()`, `get()`, `set()`, `delete()` methods
 - Better performance for frequent lookups and updates
 
-**Example**: 
+**Example**:
+
 ```typescript
 // src/stores/campaign/usePersonnelStore.ts
-personnel: Map<string, IPerson>
-forces: Map<string, IForce>
-missions: Map<string, IMission>
+personnel: Map<string, IPerson>;
+forces: Map<string, IForce>;
+missions: Map<string, IMission>;
 ```
 
-**Trade-offs**: 
+**Trade-offs**:
+
 - Slightly higher memory overhead vs arrays
 - Requires conversion for JSON serialization
 - Worth it for performance at scale
@@ -68,6 +72,7 @@ missions: Map<string, IMission>
 **Decision**: Money class stores cents as `number` (not `bigint` or `float`).
 
 **Rationale**:
+
 - **Prevents floating-point errors**: 0.1 + 0.2 = 0.3 (not 0.30000000000000004)
 - **Immutable operations**: All arithmetic returns new Money instances
 - **Single rounding point**: Round at construction only, not in operations
@@ -77,10 +82,13 @@ missions: Map<string, IMission>
 **Example**: `src/types/campaign/Money.ts`
 
 **Implementation**:
+
 ```typescript
 class Money {
-  private readonly cents: number;  // Store as integer cents
-  add(other: Money): Money { return new Money((this.cents + other.cents) / 100); }
+  private readonly cents: number; // Store as integer cents
+  add(other: Money): Money {
+    return new Money((this.cents + other.cents) / 100);
+  }
 }
 ```
 
@@ -91,6 +99,7 @@ class Money {
 **Decision**: All business logic functions are pure (no side effects, deterministic output).
 
 **Rationale**:
+
 - **Testability**: No mocks needed, just input → output verification
 - **Determinism**: Same inputs always produce same outputs
 - **Composability**: Functions can be chained and combined safely
@@ -98,6 +107,7 @@ class Money {
 - **Seeded random**: Combat uses seeded RNG for reproducible tests
 
 **Examples**:
+
 - `src/lib/campaign/dayAdvancement.ts:advanceDay(campaign): DayReport`
 - `src/lib/combat/acar.ts:calculateForceBV(unitIds): number`
 - `src/lib/campaign/contractMarket.ts:generateContracts(campaign, count): Contract[]`
@@ -109,6 +119,7 @@ class Money {
 **Decision**: Campaign store composes independent sub-stores (personnel, forces, missions).
 
 **Rationale**:
+
 - **Separation of concerns**: Each sub-store manages one entity type
 - **Independent persistence**: Each store persists to its own IndexedDB key
 - **Testability**: Sub-stores can be tested in isolation
@@ -118,6 +129,7 @@ class Money {
 **Example**: `src/stores/campaign/useCampaignStore.ts`
 
 **Implementation**:
+
 ```typescript
 const useCampaignStore = create((set, get) => ({
   personnel: createPersonnelStore(campaignId),
@@ -134,6 +146,7 @@ const useCampaignStore = create((set, get) => ({
 **Decision**: Force hierarchy uses iterative traversal with `visited` Set to prevent infinite loops.
 
 **Rationale**:
+
 - **Safety**: Handles malformed data gracefully (circular references)
 - **Stack safety**: Iterative vs recursive (no stack overflow)
 - **Explicit control**: Clear termination conditions
@@ -142,15 +155,19 @@ const useCampaignStore = create((set, get) => ({
 **Example**: `src/types/campaign/Force.ts:getAllSubForces()`
 
 **Implementation**:
+
 ```typescript
-function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[] {
+function getAllSubForces(
+  force: IForce,
+  forceMap: Map<string, IForce>,
+): IForce[] {
   const visited = new Set<string>();
   const queue = [force.id];
   const result: IForce[] = [];
-  
+
   while (queue.length > 0) {
     const id = queue.shift()!;
-    if (visited.has(id)) continue;  // Circular protection
+    if (visited.has(id)) continue; // Circular protection
     visited.add(id);
     // ...
   }
@@ -165,6 +182,7 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
 **Decision**: Store manages one campaign at a time (no multi-campaign switching in UI).
 
 **Rationale**:
+
 - **MVP simplification**: Reduces complexity for initial release
 - **Extensible**: Architecture supports multi-campaign (just needs UI)
 - **User flow**: Most users focus on one campaign at a time
@@ -177,11 +195,13 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
 ## Testing Strategy
 
 ### TDD Approach
+
 - **Tests written alongside implementation**: 800+ tests across all layers
 - **Confidence in refactoring**: Comprehensive coverage enables safe changes
 - **Edge case discovery**: Tests caught circular references, negative money, etc.
 
 ### Seeded Random for Determinism
+
 - **Combat resolution**: Uses `new Random(seed)` for reproducible outcomes
 - **Contract generation**: Seeded RNG for consistent test results
 - **Debugging**: Failed tests can be reproduced exactly
@@ -189,6 +209,7 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
 **Example**: `src/lib/combat/__tests__/acar.test.ts` uses fixed seed `42`
 
 ### Test Organization
+
 - **Unit tests**: Pure functions (100% coverage)
   - Money operations, enum helpers, skill calculations
 - **Integration tests**: Store operations with persistence
@@ -197,6 +218,7 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
   - Campaign pages, navigation, SSR safety
 
 ### Coverage Metrics
+
 - Campaign store: 151 tests
 - Personnel store: 48 tests
 - Forces store: 35 tests
@@ -209,6 +231,7 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
 ## Persistence Strategy
 
 ### IndexedDB via Zustand
+
 - **Campaign store**: Persists to `mekstation:campaign:${id}`
 - **Sub-stores**: Independent persistence keys
   - Personnel: `mekstation:campaign:${id}:personnel`
@@ -216,6 +239,7 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
   - Missions: `mekstation:campaign:${id}:missions`
 
 ### SSR-Safe Persistence
+
 - **clientSafeStorage wrapper**: Prevents IndexedDB access during SSR
 - **Hydration handling**: Stores rehydrate after client mount
 - **Next.js compatibility**: Works with App Router and Pages Router
@@ -223,12 +247,14 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
 ## Integration with MekStation
 
 ### Reuse Existing Assets
+
 - **Unit store**: Reference units by ID (no duplication of unit data)
 - **BV calculations**: Reuse existing `src/utils/battleValue.ts`
 - **Equipment database**: Leverage existing equipment data
 - **Pilot store**: Extended to Person concept (backwards compatible)
 
 ### UI Patterns
+
 - **Tailwind CSS 4**: Follows existing MekStation styling
 - **Component patterns**: Reuses existing patterns (cards, lists, navigation)
 - **Gameplay navigation**: Integrates with existing gameplay section
@@ -236,11 +262,13 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
 ## MekHQ Domain Model Influence
 
 ### Reference Implementation
+
 - **Java codebase**: `E:\Projects\mekhq\MekHQ\src\mekhq\campaign\`
 - **Domain patterns adapted**: Not ported line-by-line, but conceptually aligned
 - **Simplified for MVP**: 40-50 fields vs 100-250 in MekHQ
 
 ### Key Adaptations
+
 - **Person**: 45 fields vs MekHQ's 250+ (no genealogy, education, personality)
 - **Campaign options**: 40 vs MekHQ's 200+ (core gameplay only)
 - **Skill system**: 7 core attributes vs extended set
@@ -248,6 +276,7 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
 - **Mission system**: 3-level hierarchy preserved (Mission→Contract→Scenario)
 
 ### Divergences from MekHQ
+
 - **Fresh save format**: Not compatible with .cpnx files (can add import later)
 - **No MegaMek integration**: MekStation has its own unit system
 - **Simplified personnel**: No prisoner management, genealogy, or education tracking
@@ -256,17 +285,20 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
 ## Performance Considerations
 
 ### Data Structure Choices
+
 - **Map for O(1) lookups**: Critical for 100+ personnel, 50+ forces
 - **Iterative tree traversal**: Stack-safe for deep force hierarchies
 - **Independent sub-store persistence**: Avoids monolithic save/load
 
 ### Scale Targets
+
 - **Personnel**: 50-200 typical (tested up to 500)
 - **Forces**: 10-50 nodes in tree (tested up to 100)
 - **Missions**: 5-20 active contracts (tested up to 50)
 - **All operations**: Sub-millisecond response times
 
 ### Memory Optimization
+
 - **No unit duplication**: Reference existing unit store by ID
 - **Lazy loading**: Sub-stores load independently
 - **Efficient serialization**: Map → Array conversion only at persistence boundaries
@@ -274,11 +306,13 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
 ## Migration & Compatibility
 
 ### No MekHQ Import (MVP)
+
 - **Fresh save format**: Not compatible with MekHQ .cpnx files
 - **Simplified data model**: Different field structure
 - **Future**: Could add import/export if user demand exists
 
 ### Backwards Compatibility
+
 - **Pilot concept extended**: Existing pilots can upgrade to Person
 - **Existing unit stores unchanged**: Campaign references units, doesn't replace them
 - **Additive changes only**: No breaking changes to existing MekStation features
@@ -286,18 +320,23 @@ function getAllSubForces(force: IForce, forceMap: Map<string, IForce>): IForce[]
 ## Risks & Mitigations
 
 ### Risk: Complex tree structures causing infinite loops
+
 **Mitigation**: Circular reference protection with `visited` Set in all traversal functions
 
 ### Risk: Financial precision errors from floating-point arithmetic
+
 **Mitigation**: Money class stores cents as integer, rounds once at construction
 
 ### Risk: Store persistence conflicts between sub-stores
+
 **Mitigation**: Independent persistence keys per sub-store
 
 ### Risk: Large datasets causing performance issues
+
 **Mitigation**: Map-based O(1) lookups, tested at scale (500 personnel, 100 forces)
 
 ### Risk: SSR/hydration issues with IndexedDB
+
 **Mitigation**: clientSafeStorage wrapper, proper hydration handling
 
 ## Open Questions

@@ -6,6 +6,17 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
+
+import { getMapPresetsByBiome } from '../../constants/scenario/mapPresets';
+import {
+  BATTLE_MODIFIERS,
+  getModifiersForBiome,
+  getModifiersForScenarioType,
+} from '../../constants/scenario/modifiers';
+import {
+  getScenarioTemplateById,
+  SCENARIO_TEMPLATES,
+} from '../../constants/scenario/templates';
 import {
   BiomeType,
   type IBattleModifier,
@@ -17,16 +28,6 @@ import {
   OpForSkillLevel,
   UnitTypeCategory,
 } from '../../types/scenario';
-import {
-  getScenarioTemplateById,
-  SCENARIO_TEMPLATES,
-} from '../../constants/scenario/templates';
-import {
-  BATTLE_MODIFIERS,
-  getModifiersForBiome,
-  getModifiersForScenarioType,
-} from '../../constants/scenario/modifiers';
-import { getMapPresetsByBiome } from '../../constants/scenario/mapPresets';
 import { opForGenerator } from './OpForGeneratorService';
 
 // =============================================================================
@@ -125,7 +126,7 @@ export class ScenarioGeneratorService {
     // If specific type requested, find matching template
     if (config.scenarioType) {
       const matching = SCENARIO_TEMPLATES.filter(
-        (t) => t.objectiveType === config.scenarioType
+        (t) => t.objectiveType === config.scenarioType,
       );
       if (matching.length > 0) {
         return this.pickRandom(matching);
@@ -135,7 +136,8 @@ export class ScenarioGeneratorService {
     // Filter templates by unit count compatibility
     const compatible = SCENARIO_TEMPLATES.filter((t) => {
       if (t.minPlayerUnits > config.playerUnitCount) return false;
-      if (t.maxPlayerUnits > 0 && t.maxPlayerUnits < config.playerUnitCount) return false;
+      if (t.maxPlayerUnits > 0 && t.maxPlayerUnits < config.playerUnitCount)
+        return false;
       return true;
     });
 
@@ -176,10 +178,11 @@ export class ScenarioGeneratorService {
    */
   private generateOpFor(
     config: IScenarioGeneratorConfig,
-    template: IScenarioTemplate
+    template: IScenarioTemplate,
   ) {
     // Adjust difficulty based on template
-    const effectiveDifficulty = config.difficulty * template.defaultOpForMultiplier;
+    const effectiveDifficulty =
+      config.difficulty * template.defaultOpForMultiplier;
 
     // Determine skill level from difficulty
     const skillLevel = this.difficultyToSkillLevel(config.difficulty);
@@ -206,7 +209,7 @@ export class ScenarioGeneratorService {
         bvCeiling: config.playerBV * effectiveDifficulty * 1.15,
         allowCombinedArms: false,
       },
-      this.random.bind(this)
+      this.random.bind(this),
     );
   }
 
@@ -228,21 +231,23 @@ export class ScenarioGeneratorService {
   private selectModifiers(
     config: IScenarioGeneratorConfig,
     template: IScenarioTemplate,
-    biome: BiomeType
+    biome: BiomeType,
   ): readonly IBattleModifier[] {
     if (config.maxModifiers <= 0) {
       return [];
     }
 
     // Get applicable modifiers
-    const scenarioModifiers = getModifiersForScenarioType(template.objectiveType);
+    const scenarioModifiers = getModifiersForScenarioType(
+      template.objectiveType,
+    );
     const biomeModifiers = getModifiersForBiome(biome);
 
     // Intersect the two lists (modifiers that work for both)
     const applicable = BATTLE_MODIFIERS.filter(
       (m) =>
         (scenarioModifiers.includes(m) || biomeModifiers.includes(m)) &&
-        (config.allowNegativeModifiers || m.effect !== ModifierEffect.Negative)
+        (config.allowNegativeModifiers || m.effect !== ModifierEffect.Negative),
     );
 
     if (applicable.length === 0) {
@@ -259,13 +264,18 @@ export class ScenarioGeneratorService {
         (m) =>
           !selected.includes(m) &&
           !excluded.has(m.id) &&
-          !(m.applicability.exclusiveWith?.some((ex) => selected.some((s) => s.id === ex)))
+          !m.applicability.exclusiveWith?.some((ex) =>
+            selected.some((s) => s.id === ex),
+          ),
       );
 
       if (available.length === 0) break;
 
       // Weighted selection
-      const totalWeight = available.reduce((sum, m) => sum + m.applicability.weight, 0);
+      const totalWeight = available.reduce(
+        (sum, m) => sum + m.applicability.weight,
+        0,
+      );
       let roll = this.random() * totalWeight;
 
       for (const modifier of available) {
@@ -273,7 +283,9 @@ export class ScenarioGeneratorService {
         if (roll <= 0) {
           selected.push(modifier);
           // Add exclusives to excluded set
-          modifier.applicability.exclusiveWith?.forEach((ex) => excluded.add(ex));
+          modifier.applicability.exclusiveWith?.forEach((ex) =>
+            excluded.add(ex),
+          );
           break;
         }
       }
@@ -287,13 +299,15 @@ export class ScenarioGeneratorService {
    */
   private calculateTurnLimit(
     template: IScenarioTemplate,
-    modifiers: readonly IBattleModifier[]
+    modifiers: readonly IBattleModifier[],
   ): number {
     let turnLimit = template.turnLimit;
 
     for (const modifier of modifiers) {
       if (modifier.implementation.type === 'objective_modifier') {
-        const change = modifier.implementation.parameters.turnLimitChange as number | undefined;
+        const change = modifier.implementation.parameters.turnLimitChange as
+          | number
+          | undefined;
         if (change) {
           turnLimit += change;
         }

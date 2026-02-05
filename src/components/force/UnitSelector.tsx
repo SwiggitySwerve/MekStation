@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+
 import { ModalOverlay } from '@/components/customizer/dialogs/ModalOverlay';
 import { Card, Badge, Button, Input } from '@/components/ui';
 
@@ -46,7 +47,7 @@ export interface UnitSelectorProps {
 // =============================================================================
 
 function getWeightClassVariant(
-  weightClass: string
+  weightClass: string,
 ): 'emerald' | 'amber' | 'orange' | 'red' | 'muted' {
   switch (weightClass.toLowerCase()) {
     case 'light':
@@ -63,7 +64,7 @@ function getWeightClassVariant(
 }
 
 function getTechBaseVariant(
-  techBase: string
+  techBase: string,
 ): 'cyan' | 'emerald' | 'violet' | 'muted' {
   switch (techBase.toLowerCase()) {
     case 'clan':
@@ -159,9 +160,9 @@ export function UnitSelector({
 
   return (
     <ModalOverlay isOpen={isOpen} onClose={onClose} className="max-w-2xl">
-      <div className="p-6 space-y-4 max-h-[70vh] flex flex-col">
+      <div className="flex max-h-[70vh] flex-col space-y-4 p-6">
         {/* Title */}
-        <h2 className="text-xl font-semibold text-text-theme-primary">
+        <h2 className="text-text-theme-primary text-xl font-semibold">
           {title}
         </h2>
 
@@ -177,11 +178,11 @@ export function UnitSelector({
         <div className="flex flex-wrap items-center gap-4">
           {/* Weight class filter */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-text-theme-muted">Weight:</span>
+            <span className="text-text-theme-muted text-sm">Weight:</span>
             <select
               value={weightClassFilter}
               onChange={(e) => setWeightClassFilter(e.target.value)}
-              className="bg-surface-theme-elevated border border-border-theme-subtle rounded px-2 py-1 text-sm text-text-theme-primary"
+              className="bg-surface-theme-elevated border-border-theme-subtle text-text-theme-primary rounded border px-2 py-1 text-sm"
             >
               <option value="all">All</option>
               <option value="light">Light</option>
@@ -193,11 +194,11 @@ export function UnitSelector({
 
           {/* Tech base filter */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-text-theme-muted">Tech:</span>
+            <span className="text-text-theme-muted text-sm">Tech:</span>
             <select
               value={techBaseFilter}
               onChange={(e) => setTechBaseFilter(e.target.value)}
-              className="bg-surface-theme-elevated border border-border-theme-subtle rounded px-2 py-1 text-sm text-text-theme-primary"
+              className="bg-surface-theme-elevated border-border-theme-subtle text-text-theme-primary rounded border px-2 py-1 text-sm"
             >
               <option value="all">All</option>
               <option value="is">Inner Sphere</option>
@@ -207,21 +208,21 @@ export function UnitSelector({
           </div>
 
           {/* Show assigned toggle */}
-          <label className="flex items-center gap-2 text-sm text-text-theme-secondary cursor-pointer">
+          <label className="text-text-theme-secondary flex cursor-pointer items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={showAssigned}
               onChange={(e) => setShowAssigned(e.target.checked)}
-              className="rounded border-border-theme-subtle"
+              className="border-border-theme-subtle rounded"
             />
             Show assigned
           </label>
         </div>
 
         {/* Unit list */}
-        <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+        <div className="flex-1 space-y-2 overflow-y-auto pr-2">
           {filteredUnits.length === 0 ? (
-            <div className="text-center py-8 text-text-theme-muted">
+            <div className="text-text-theme-muted py-8 text-center">
               No units found
             </div>
           ) : (
@@ -237,8 +238,8 @@ export function UnitSelector({
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-medium text-text-theme-primary">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-text-theme-primary font-medium">
                           {unit.name}
                         </span>
                         <Badge
@@ -259,16 +260,16 @@ export function UnitSelector({
                           </Badge>
                         )}
                       </div>
-                      <div className="text-sm text-text-theme-secondary mt-1">
+                      <div className="text-text-theme-secondary mt-1 text-sm">
                         {unit.chassis} {unit.model}
                       </div>
                     </div>
 
-                    <div className="text-right ml-4">
-                      <div className="font-mono text-lg text-accent font-bold">
+                    <div className="ml-4 text-right">
+                      <div className="text-accent font-mono text-lg font-bold">
                         {unit.bv.toLocaleString()}
                       </div>
-                      <div className="text-sm text-text-theme-muted font-mono">
+                      <div className="text-text-theme-muted font-mono text-sm">
                         {unit.tonnage}t
                       </div>
                     </div>
@@ -280,12 +281,12 @@ export function UnitSelector({
         </div>
 
         {/* Results count */}
-        <div className="text-sm text-text-theme-muted">
+        <div className="text-text-theme-muted text-sm">
           Showing {filteredUnits.length} of {units.length} units
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end pt-4 border-t border-border-theme-subtle">
+        <div className="border-border-theme-subtle flex justify-end border-t pt-4">
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>

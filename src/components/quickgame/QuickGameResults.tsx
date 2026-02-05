@@ -6,15 +6,18 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
-import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { useQuickGameStore } from '@/stores/useQuickGameStore';
+import { useState, useRef, useCallback } from 'react';
+
+import type { IQuickGameUnit } from '@/types/quickgame/QuickGameInterfaces';
+
 import { Button, Card } from '@/components/ui';
 import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
-import { projectUnitPerformance } from '@/utils/gameplay/combatStatistics';
-import { DamageMatrix } from './DamageMatrix';
+import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { GameEventType, GamePhase } from '@/types/gameplay';
-import type { IQuickGameUnit } from '@/types/quickgame/QuickGameInterfaces';
+import { projectUnitPerformance } from '@/utils/gameplay/combatStatistics';
+
+import { DamageMatrix } from './DamageMatrix';
 
 type ResultsTab = 'summary' | 'units' | 'damage' | 'timeline';
 
@@ -55,14 +58,22 @@ interface ResultBannerProps {
   reason: string | null;
 }
 
-function ResultBanner({ winner, reason }: ResultBannerProps): React.ReactElement {
+function ResultBanner({
+  winner,
+  reason,
+}: ResultBannerProps): React.ReactElement {
   const config = {
     player: {
       title: 'Victory!',
       color: 'from-emerald-600 to-emerald-800',
       textColor: 'text-emerald-100',
       icon: (
-        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="h-12 w-12"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -77,7 +88,12 @@ function ResultBanner({ winner, reason }: ResultBannerProps): React.ReactElement
       color: 'from-red-600 to-red-800',
       textColor: 'text-red-100',
       icon: (
-        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="h-12 w-12"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -92,7 +108,12 @@ function ResultBanner({ winner, reason }: ResultBannerProps): React.ReactElement
       color: 'from-amber-600 to-amber-800',
       textColor: 'text-amber-100',
       icon: (
-        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="h-12 w-12"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -111,7 +132,7 @@ function ResultBanner({ winner, reason }: ResultBannerProps): React.ReactElement
       <div className={`${textColor} mb-4 flex justify-center`}>{icon}</div>
       <h2 className={`text-3xl font-bold ${textColor} mb-2`}>{title}</h2>
       {reason && (
-        <p className={`${textColor} opacity-80 capitalize`}>
+        <p className={`${textColor} capitalize opacity-80`}>
           {reason.replace(/_/g, ' ')}
         </p>
       )}
@@ -128,9 +149,14 @@ function BattleSummary(): React.ReactElement {
 
   if (!game) return <></>;
 
-  const playerUnitsDestroyed = game.playerForce.units.filter((u) => u.isDestroyed).length;
-  const playerUnitsWithdrawn = game.playerForce.units.filter((u) => u.isWithdrawn).length;
-  const opponentUnitsDestroyed = game.opponentForce?.units.filter((u) => u.isDestroyed).length ?? 0;
+  const playerUnitsDestroyed = game.playerForce.units.filter(
+    (u) => u.isDestroyed,
+  ).length;
+  const playerUnitsWithdrawn = game.playerForce.units.filter(
+    (u) => u.isWithdrawn,
+  ).length;
+  const opponentUnitsDestroyed =
+    game.opponentForce?.units.filter((u) => u.isDestroyed).length ?? 0;
 
   const startTime = new Date(game.startedAt);
   const endTime = game.endedAt ? new Date(game.endedAt) : new Date();
@@ -139,28 +165,37 @@ function BattleSummary(): React.ReactElement {
 
   return (
     <Card>
-      <div className="p-4 border-b border-gray-700">
+      <div className="border-b border-gray-700 p-4">
         <h3 className="font-medium text-white">Battle Summary</h3>
       </div>
       <div className="p-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Your Losses</p>
+            <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
+              Your Losses
+            </p>
             <p className="text-white">
               {playerUnitsDestroyed} destroyed
-              {playerUnitsWithdrawn > 0 && `, ${playerUnitsWithdrawn} withdrawn`}
+              {playerUnitsWithdrawn > 0 &&
+                `, ${playerUnitsWithdrawn} withdrawn`}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Enemy Losses</p>
+            <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
+              Enemy Losses
+            </p>
             <p className="text-white">{opponentUnitsDestroyed} destroyed</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Turns Played</p>
+            <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
+              Turns Played
+            </p>
             <p className="text-white">{game.turn}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Duration</p>
+            <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
+              Duration
+            </p>
             <p className="text-white">{durationMinutes} minutes</p>
           </div>
         </div>
@@ -169,20 +204,23 @@ function BattleSummary(): React.ReactElement {
   );
 }
 
-function UnitStatusRow({ 
-  unit, 
+function UnitStatusRow({
+  unit,
   forceType,
-  events 
-}: { 
-  unit: IQuickGameUnit; 
+  events,
+}: {
+  unit: IQuickGameUnit;
   forceType: 'player' | 'opponent';
   events: readonly { type: string; turn: number; phase: GamePhase }[];
 }): React.ReactElement {
-  const performance = projectUnitPerformance(events as Parameters<typeof projectUnitPerformance>[0], unit.instanceId);
-  
+  const performance = projectUnitPerformance(
+    events as Parameters<typeof projectUnitPerformance>[0],
+    unit.instanceId,
+  );
+
   let statusText: string;
   let statusColor: string;
-  
+
   if (unit.isDestroyed) {
     statusText = 'Destroyed';
     statusColor = 'text-red-400';
@@ -195,16 +233,16 @@ function UnitStatusRow({
   }
 
   return (
-    <div className="flex items-center justify-between py-3 px-4 border-b border-gray-700/50 last:border-b-0 hover:bg-gray-800/30 transition-colors">
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-white truncate">
-          {unit.name}
-        </p>
+    <div className="flex items-center justify-between border-b border-gray-700/50 px-4 py-3 transition-colors last:border-b-0 hover:bg-gray-800/30">
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium text-white">{unit.name}</p>
         <div className="flex items-center gap-2 text-xs text-gray-400">
-          {unit.pilotName && (
-            <span className="truncate">{unit.pilotName}</span>
-          )}
-          <span className={forceType === 'player' ? 'text-cyan-400' : 'text-red-400'}>
+          {unit.pilotName && <span className="truncate">{unit.pilotName}</span>}
+          <span
+            className={
+              forceType === 'player' ? 'text-cyan-400' : 'text-red-400'
+            }
+          >
             {forceType === 'player' ? 'Player' : 'OpFor'}
           </span>
         </div>
@@ -220,26 +258,34 @@ function UnitStatusRow({
   );
 }
 
-function TimelineEventRow({ 
-  event, 
-  index 
-}: { 
-  event: { type: GameEventType; turn: number; phase: GamePhase; timestamp: string; actorId?: string };
+function TimelineEventRow({
+  event,
+  index,
+}: {
+  event: {
+    type: GameEventType;
+    turn: number;
+    phase: GamePhase;
+    timestamp: string;
+    actorId?: string;
+  };
   index: number;
 }): React.ReactElement {
   const label = EVENT_LABELS[event.type] ?? event.type;
   const phaseLabel = PHASE_LABELS[event.phase];
-  
+
   return (
-    <div className="flex items-start gap-3 py-2 px-3 text-sm">
-      <span className="text-gray-500 font-mono w-8 flex-shrink-0">#{index + 1}</span>
-      <div className="flex-1 min-w-0">
+    <div className="flex items-start gap-3 px-3 py-2 text-sm">
+      <span className="w-8 flex-shrink-0 font-mono text-gray-500">
+        #{index + 1}
+      </span>
+      <div className="min-w-0 flex-1">
         <span className="text-white">{label}</span>
         {event.actorId && (
-          <span className="text-cyan-400 ml-2 truncate">({event.actorId})</span>
+          <span className="ml-2 truncate text-cyan-400">({event.actorId})</span>
         )}
       </div>
-      <div className="text-xs text-gray-400 text-right flex-shrink-0">
+      <div className="flex-shrink-0 text-right text-xs text-gray-400">
         <p>Turn {event.turn}</p>
         <p>{phaseLabel}</p>
       </div>
@@ -252,16 +298,20 @@ export function QuickGameResults(): React.ReactElement {
   const { game, playAgain, clearGame } = useQuickGameStore();
   const [activeTab, setActiveTab] = useState<ResultsTab>('summary');
   const tabListRef = useRef<HTMLDivElement>(null);
-  
+
   const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId as ResultsTab);
   }, []);
 
-  const handleKeyDown = useTabKeyboardNavigation(RESULTS_TABS, activeTab, handleTabChange);
+  const handleKeyDown = useTabKeyboardNavigation(
+    RESULTS_TABS,
+    activeTab,
+    handleTabChange,
+  );
 
   if (!game) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-900">
         <Card className="p-8 text-center">
           <p className="text-gray-400">No game results to display.</p>
           <Button
@@ -290,14 +340,23 @@ export function QuickGameResults(): React.ReactElement {
   };
 
   const allUnits = [
-    ...game.playerForce.units.map(u => ({ unit: u, forceType: 'player' as const })),
-    ...(game.opponentForce?.units.map(u => ({ unit: u, forceType: 'opponent' as const })) ?? []),
+    ...game.playerForce.units.map((u) => ({
+      unit: u,
+      forceType: 'player' as const,
+    })),
+    ...(game.opponentForce?.units.map((u) => ({
+      unit: u,
+      forceType: 'opponent' as const,
+    })) ?? []),
   ];
 
   return (
-    <div className="max-w-2xl mx-auto p-4 py-8">
+    <div className="mx-auto max-w-2xl p-4 py-8">
       <div className="mb-6">
-        <ResultBanner winner={game.winner ?? 'draw'} reason={game.victoryReason} />
+        <ResultBanner
+          winner={game.winner ?? 'draw'}
+          reason={game.victoryReason}
+        />
       </div>
 
       <Card className="mb-6">
@@ -317,14 +376,11 @@ export function QuickGameResults(): React.ReactElement {
               aria-controls={`tabpanel-${tab.id}`}
               tabIndex={activeTab === tab.id ? 0 : -1}
               onClick={() => handleTabChange(tab.id)}
-              className={`
-                flex-1 px-4 py-3 text-sm font-medium transition-colors
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset
-                ${activeTab === tab.id
-                  ? 'text-white border-b-2 border-blue-500 bg-gray-800/50'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800/30'
-                }
-              `}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-inset ${
+                activeTab === tab.id
+                  ? 'border-b-2 border-blue-500 bg-gray-800/50 text-white'
+                  : 'text-gray-400 hover:bg-gray-800/30 hover:text-white'
+              } `}
             >
               {tab.label}
             </button>
@@ -339,12 +395,14 @@ export function QuickGameResults(): React.ReactElement {
           className="p-4"
         >
           <BattleSummary />
-          
+
           {game.scenario && (
-            <div className="mt-4 p-4 bg-gray-800/50 rounded-lg">
-              <h4 className="text-sm font-medium text-gray-300 mb-2">Scenario</h4>
+            <div className="mt-4 rounded-lg bg-gray-800/50 p-4">
+              <h4 className="mb-2 text-sm font-medium text-gray-300">
+                Scenario
+              </h4>
               <p className="text-white">{game.scenario.template.name}</p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="mt-1 text-xs text-gray-500">
                 {game.scenario.mapPreset.name} - {game.scenario.mapPreset.biome}
               </p>
             </div>
@@ -358,7 +416,9 @@ export function QuickGameResults(): React.ReactElement {
           hidden={activeTab !== 'units'}
         >
           {allUnits.length === 0 ? (
-            <p className="p-4 text-gray-400 text-center">No units in this battle.</p>
+            <p className="p-4 text-center text-gray-400">
+              No units in this battle.
+            </p>
           ) : (
             <div className="divide-y divide-gray-700/50">
               {allUnits.map(({ unit, forceType }) => (
@@ -382,7 +442,10 @@ export function QuickGameResults(): React.ReactElement {
         >
           <DamageMatrix
             events={game.events}
-            units={[...game.playerForce.units, ...(game.opponentForce?.units ?? [])]}
+            units={[
+              ...game.playerForce.units,
+              ...(game.opponentForce?.units ?? []),
+            ]}
           />
         </div>
 
@@ -393,9 +456,9 @@ export function QuickGameResults(): React.ReactElement {
           hidden={activeTab !== 'timeline'}
         >
           {game.events.length === 0 ? (
-            <p className="p-4 text-gray-400 text-center">No events recorded.</p>
+            <p className="p-4 text-center text-gray-400">No events recorded.</p>
           ) : (
-            <div className="max-h-96 overflow-y-auto divide-y divide-gray-700/30">
+            <div className="max-h-96 divide-y divide-gray-700/30 overflow-y-auto">
               {game.events.map((event, index) => (
                 <TimelineEventRow key={event.id} event={event} index={index} />
               ))}
@@ -433,7 +496,7 @@ export function QuickGameResults(): React.ReactElement {
         </Button>
       </div>
 
-      <p className="text-center text-xs text-gray-500 mt-6">
+      <p className="mt-6 text-center text-xs text-gray-500">
         This was a quick game session. No data is persisted.
       </p>
     </div>

@@ -14,7 +14,10 @@ export function pass(ruleId: string): IValidationRuleResult {
   };
 }
 
-export function fail(ruleId: string, errors: IValidationError[]): IValidationRuleResult {
+export function fail(
+  ruleId: string,
+  errors: IValidationError[],
+): IValidationRuleResult {
   return {
     ruleId,
     passed: false,
@@ -25,7 +28,10 @@ export function fail(ruleId: string, errors: IValidationError[]): IValidationRul
   };
 }
 
-export function warn(ruleId: string, warnings: IValidationError[]): IValidationRuleResult {
+export function warn(
+  ruleId: string,
+  warnings: IValidationError[],
+): IValidationRuleResult {
   return {
     ruleId,
     passed: true,

@@ -4,6 +4,7 @@
  */
 
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+
 import { BASE_SALARY_BY_ROLE, getBaseSalary } from './roleSalaries';
 
 describe('Role Base Salary Mapping', () => {
@@ -34,11 +35,15 @@ describe('Role Base Salary Mapping', () => {
     });
 
     it('should have AEROSPACE_PILOT salary = 1500', () => {
-      expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.AEROSPACE_PILOT]).toBe(1500);
+      expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.AEROSPACE_PILOT]).toBe(
+        1500,
+      );
     });
 
     it('should have VEHICLE_DRIVER salary = 900', () => {
-      expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.VEHICLE_DRIVER]).toBe(900);
+      expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.VEHICLE_DRIVER]).toBe(
+        900,
+      );
     });
 
     it('should have SOLDIER salary = 600', () => {
@@ -46,7 +51,9 @@ describe('Role Base Salary Mapping', () => {
     });
 
     it('should have BATTLE_ARMOUR salary = 1200', () => {
-      expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.BATTLE_ARMOUR]).toBe(1200);
+      expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.BATTLE_ARMOUR]).toBe(
+        1200,
+      );
     });
   });
 
@@ -68,7 +75,9 @@ describe('Role Base Salary Mapping', () => {
     });
 
     it('should have ADMIN_COMMAND salary = 700', () => {
-      expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.ADMIN_COMMAND]).toBe(700);
+      expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.ADMIN_COMMAND]).toBe(
+        700,
+      );
     });
 
     it('should have ADMIN_HR salary = 700', () => {
@@ -86,7 +95,9 @@ describe('Role Base Salary Mapping', () => {
     });
 
     it('should have CIVILIAN_OTHER salary = 400', () => {
-      expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.CIVILIAN_OTHER]).toBe(400);
+      expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.CIVILIAN_OTHER]).toBe(
+        400,
+      );
     });
 
     it('should have MERCHANT salary = 600', () => {
@@ -161,13 +172,13 @@ describe('Role Base Salary Mapping', () => {
 
     it('should have pilot salaries higher than support staff', () => {
       expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.PILOT]).toBeGreaterThan(
-        BASE_SALARY_BY_ROLE[CampaignPersonnelRole.ASTECH]
+        BASE_SALARY_BY_ROLE[CampaignPersonnelRole.ASTECH],
       );
     });
 
     it('should have doctor salary higher than medic', () => {
       expect(BASE_SALARY_BY_ROLE[CampaignPersonnelRole.DOCTOR]).toBeGreaterThan(
-        BASE_SALARY_BY_ROLE[CampaignPersonnelRole.MEDIC]
+        BASE_SALARY_BY_ROLE[CampaignPersonnelRole.MEDIC],
       );
     });
 

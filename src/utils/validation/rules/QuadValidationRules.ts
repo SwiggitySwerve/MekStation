@@ -1,4 +1,8 @@
 import {
+  MechLocation,
+  LOCATION_SLOT_COUNTS,
+} from '../../../types/construction/CriticalSlotAllocation';
+import {
   IValidationRuleDefinition,
   IValidationRuleResult,
   IValidationContext,
@@ -6,13 +10,13 @@ import {
   ValidationCategory,
   ValidationSeverity,
 } from '../../../types/validation/rules/ValidationRuleInterfaces';
-import { MechLocation, LOCATION_SLOT_COUNTS } from '../../../types/construction/CriticalSlotAllocation';
 import { pass, fail, warn } from './validationHelpers';
 
 export const QuadNoArmsRule: IValidationRuleDefinition = {
   id: 'configuration.quad.no_arms',
   name: 'Quad No Arms',
-  description: 'Validates that quad mechs do not have equipment in arm locations',
+  description:
+    'Validates that quad mechs do not have equipment in arm locations',
   category: ValidationCategory.CONSTRUCTION,
   priority: 5,
 
@@ -24,7 +28,9 @@ export const QuadNoArmsRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const equipment = unit.equipment as Array<Record<string, unknown>> | undefined;
+    const equipment = unit.equipment as
+      | Array<Record<string, unknown>>
+      | undefined;
 
     if (!equipment) {
       return pass(this.id);
@@ -71,7 +77,9 @@ export const QuadLegCountRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const armorAllocation = unit.armorAllocation as Record<string, unknown> | undefined;
+    const armorAllocation = unit.armorAllocation as
+      | Record<string, unknown>
+      | undefined;
 
     const quadLegs = [
       MechLocation.FRONT_LEFT_LEG,
@@ -120,7 +128,9 @@ export const QuadTotalSlotsRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const criticalSlots = unit.criticalSlots as Record<string, Array<unknown>> | undefined;
+    const criticalSlots = unit.criticalSlots as
+      | Record<string, Array<unknown>>
+      | undefined;
 
     if (!criticalSlots) {
       return pass(this.id);
@@ -136,7 +146,10 @@ export const QuadTotalSlotsRule: IValidationRuleDefinition = {
       MechLocation.REAR_LEFT_LEG,
       MechLocation.REAR_RIGHT_LEG,
     ];
-    const maxSlots = quadLocations.reduce((sum, loc) => sum + LOCATION_SLOT_COUNTS[loc], 0);
+    const maxSlots = quadLocations.reduce(
+      (sum, loc) => sum + LOCATION_SLOT_COUNTS[loc],
+      0,
+    );
     let usedSlots = 0;
 
     for (const [, slots] of Object.entries(criticalSlots)) {
@@ -179,7 +192,9 @@ export const QuadLegArmorBalanceRule: IValidationRuleDefinition = {
 
   validate(context: IValidationContext): IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
-    const armorAllocation = unit.armorAllocation as Record<string, number> | undefined;
+    const armorAllocation = unit.armorAllocation as
+      | Record<string, number>
+      | undefined;
 
     if (!armorAllocation) {
       return pass(this.id);

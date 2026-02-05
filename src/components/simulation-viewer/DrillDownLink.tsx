@@ -1,5 +1,7 @@
 import React from 'react';
+
 import type { IDrillDownLinkProps } from '@/components/simulation-viewer/types';
+
 import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 const ICONS: Record<string, string> = {
@@ -11,7 +13,10 @@ const ICONS: Record<string, string> = {
 };
 
 interface DrillDownLinkInternalProps extends IDrillDownLinkProps {
-  readonly onClick?: (targetTab: string, filter?: Record<string, unknown>) => void;
+  readonly onClick?: (
+    targetTab: string,
+    filter?: Record<string, unknown>,
+  ) => void;
 }
 
 export const DrillDownLink: React.FC<DrillDownLinkInternalProps> = ({
@@ -33,7 +38,7 @@ export const DrillDownLink: React.FC<DrillDownLinkInternalProps> = ({
     }
   };
 
-  const resolvedIcon = icon ? ICONS[icon] ?? icon : null;
+  const resolvedIcon = icon ? (ICONS[icon] ?? icon) : null;
 
   const linkClasses = [
     'inline-flex items-center gap-2',
@@ -59,7 +64,11 @@ export const DrillDownLink: React.FC<DrillDownLinkInternalProps> = ({
       data-target-tab={targetTab}
     >
       {resolvedIcon && (
-        <span className="inline-block" aria-hidden="true" data-testid="drill-down-icon">
+        <span
+          className="inline-block"
+          aria-hidden="true"
+          data-testid="drill-down-icon"
+        >
           {resolvedIcon}
         </span>
       )}

@@ -1,7 +1,7 @@
 /**
  * IDocumentedEntity - Source documentation interface
  * Components with source references SHALL implement IDocumentedEntity.
- * 
+ *
  * @spec core-entity-types/spec.md
  */
 
@@ -32,15 +32,17 @@ export function isDocumentedEntity(obj: unknown): obj is IDocumentedEntity {
   }
 
   const doc = obj as IDocumentedEntity;
-  
+
   // Both are optional, so just check if they're the right type when present
   if (doc.sourceBook !== undefined && typeof doc.sourceBook !== 'string') {
     return false;
   }
-  if (doc.pageReference !== undefined && typeof doc.pageReference !== 'string') {
+  if (
+    doc.pageReference !== undefined &&
+    typeof doc.pageReference !== 'string'
+  ) {
     return false;
   }
 
   return true;
 }
-

@@ -4,6 +4,8 @@
  * Tests for BattleTech hit location tables and damage location determination.
  */
 
+import { FiringArc, CombatLocation } from '@/types/gameplay';
+
 import {
   FRONT_HIT_LOCATION_TABLE,
   LEFT_HIT_LOCATION_TABLE,
@@ -28,7 +30,6 @@ import {
   getStandardLocations,
   getAllLocations,
 } from '../hitLocation';
-import { FiringArc, CombatLocation } from '@/types/gameplay';
 
 // =============================================================================
 // Hit Location Table Tests
@@ -228,7 +229,12 @@ describe('determineHitLocation', () => {
   });
 
   it('should return valid hit result for all arcs', () => {
-    const arcs = [FiringArc.Front, FiringArc.Left, FiringArc.Right, FiringArc.Rear];
+    const arcs = [
+      FiringArc.Front,
+      FiringArc.Left,
+      FiringArc.Right,
+      FiringArc.Rear,
+    ];
 
     for (const arc of arcs) {
       const result = determineHitLocation(arc);
@@ -464,11 +470,15 @@ describe('getLocationDisplayName', () => {
   it('should return correct display names', () => {
     expect(getLocationDisplayName('head')).toBe('Head');
     expect(getLocationDisplayName('center_torso')).toBe('Center Torso');
-    expect(getLocationDisplayName('center_torso_rear')).toBe('Center Torso (Rear)');
+    expect(getLocationDisplayName('center_torso_rear')).toBe(
+      'Center Torso (Rear)',
+    );
     expect(getLocationDisplayName('left_torso')).toBe('Left Torso');
     expect(getLocationDisplayName('left_torso_rear')).toBe('Left Torso (Rear)');
     expect(getLocationDisplayName('right_torso')).toBe('Right Torso');
-    expect(getLocationDisplayName('right_torso_rear')).toBe('Right Torso (Rear)');
+    expect(getLocationDisplayName('right_torso_rear')).toBe(
+      'Right Torso (Rear)',
+    );
     expect(getLocationDisplayName('left_arm')).toBe('Left Arm');
     expect(getLocationDisplayName('right_arm')).toBe('Right Arm');
     expect(getLocationDisplayName('left_leg')).toBe('Left Leg');

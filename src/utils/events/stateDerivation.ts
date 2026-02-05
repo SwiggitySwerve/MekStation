@@ -39,7 +39,7 @@ export type ReducerMap<TState> = {
 export function deriveState<TState>(
   initialState: TState,
   events: readonly IBaseEvent[],
-  reducers: ReducerMap<TState>
+  reducers: ReducerMap<TState>,
 ): TState {
   // Sort events by sequence
   const sorted = [...events].sort((a, b) => a.sequence - b.sequence);
@@ -63,10 +63,12 @@ export function deriveState<TState>(
 export function deriveFromCheckpoint<TState>(
   checkpoint: ICheckpoint<TState>,
   events: readonly IBaseEvent[],
-  reducers: ReducerMap<TState>
+  reducers: ReducerMap<TState>,
 ): TState {
   // Filter events after checkpoint
-  const afterCheckpoint = events.filter((e) => e.sequence > checkpoint.sequence);
+  const afterCheckpoint = events.filter(
+    (e) => e.sequence > checkpoint.sequence,
+  );
 
   // Start from checkpoint state and apply events
   return deriveState(checkpoint.state, afterCheckpoint, reducers);
@@ -84,7 +86,7 @@ export function deriveStateAtSequence<TState>(
   initialState: TState,
   events: readonly IBaseEvent[],
   targetSequence: number,
-  reducers: ReducerMap<TState>
+  reducers: ReducerMap<TState>,
 ): TState {
   // Filter events up to target sequence
   const filtered = events.filter((e) => e.sequence <= targetSequence);
@@ -105,7 +107,7 @@ export function deriveStateWithCheckpoint<TState>(
   events: readonly IBaseEvent[],
   targetSequence: number,
   reducers: ReducerMap<TState>,
-  initialState: TState
+  initialState: TState,
 ): TState {
   // Filter events up to target
   const eventsUpToTarget = events.filter((e) => e.sequence <= targetSequence);
@@ -113,7 +115,7 @@ export function deriveStateWithCheckpoint<TState>(
   if (checkpoint && checkpoint.sequence <= targetSequence) {
     // Use checkpoint - only replay events after it
     const eventsAfterCheckpoint = eventsUpToTarget.filter(
-      (e) => e.sequence > checkpoint.sequence
+      (e) => e.sequence > checkpoint.sequence,
     );
     return deriveState(checkpoint.state, eventsAfterCheckpoint, reducers);
   }
@@ -132,7 +134,7 @@ export function deriveStateWithCheckpoint<TState>(
 function applyEventToState<TState>(
   state: TState,
   event: IBaseEvent,
-  reducers: ReducerMap<TState>
+  reducers: ReducerMap<TState>,
 ): TState {
   const categoryReducers = reducers[event.category];
   if (!categoryReducers) {
@@ -175,7 +177,7 @@ export class ReducerBuilder<TState> {
    */
   forCategory(
     category: string,
-    reducers: Record<string, EventReducer<TState>>
+    reducers: Record<string, EventReducer<TState>>,
   ): this {
     this.reducers[category] = { ...this.reducers[category], ...reducers };
     return this;

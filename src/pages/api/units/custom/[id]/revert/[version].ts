@@ -1,12 +1,13 @@
 /**
  * Unit Revert API - Revert to Previous Version
- * 
+ *
  * POST /api/units/custom/:id/revert/:version - Revert a unit to a previous version
- * 
+ *
  * @spec openspec/specs/unit-versioning/spec.md
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getVersionRepository } from '@/services/units/VersionRepository';
 import { IUnitOperationResult } from '@/types/persistence/UnitPersistence';
@@ -30,13 +31,14 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<RevertResponse | ErrorResponse>
+  res: NextApiResponse<RevertResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -69,9 +71,11 @@ export default async function handler(
     if (result.success) {
       return res.status(200).json(result);
     } else {
-      const statusCode = result.error.errorCode === 'NOT_FOUND' || result.error.errorCode === 'VERSION_NOT_FOUND'
-        ? 404
-        : 400;
+      const statusCode =
+        result.error.errorCode === 'NOT_FOUND' ||
+        result.error.errorCode === 'VERSION_NOT_FOUND'
+          ? 404
+          : 400;
       return res.status(statusCode).json(result);
     }
   } catch (error) {
@@ -79,4 +83,3 @@ export default async function handler(
     return res.status(500).json({ error: message });
   }
 }
-

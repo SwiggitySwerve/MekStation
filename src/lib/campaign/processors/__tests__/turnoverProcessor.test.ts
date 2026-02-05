@@ -1,12 +1,17 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import type { IPerson } from '@/types/campaign/Person';
-import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
-import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+
+import type { ICampaign } from '@/types/campaign/Campaign';
 import type { TurnoverFrequency } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
+
+import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
+
+import type { TurnoverReport } from '../../turnover/turnoverCheck';
+
 import { DayPhase, _resetDayPipeline, getDayPipeline } from '../../dayPipeline';
 import {
   turnoverProcessor,
@@ -14,7 +19,6 @@ import {
   applyTurnoverResults,
   registerTurnoverProcessor,
 } from '../turnoverProcessor';
-import type { TurnoverReport, TurnoverCheckResult } from '../../turnover/turnoverCheck';
 
 function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
   return {
@@ -33,7 +37,16 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '3000-01-01T00:00:00Z',
     updatedAt: '3025-06-15T00:00:00Z',
@@ -42,24 +55,24 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
 }
 
 function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
-    return {
-      id: 'campaign-001',
-      name: 'Test Campaign',
-      currentDate: new Date('3025-06-15T00:00:00Z'),
-      factionId: 'mercenary',
-      personnel: new Map<string, IPerson>(),
-      forces: new Map(),
-      rootForceId: 'force-root',
-      missions: new Map(),
-      finances: { transactions: [], balance: new Money(1000000) },
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: createDefaultCampaignOptions(),
-      createdAt: '3020-01-01T00:00:00Z',
-      updatedAt: '3025-06-15T00:00:00Z',
-      ...overrides,
-      campaignType: CampaignType.MERCENARY,
-    };
+  return {
+    id: 'campaign-001',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-06-15T00:00:00Z'),
+    factionId: 'mercenary',
+    personnel: new Map<string, IPerson>(),
+    forces: new Map(),
+    rootForceId: 'force-root',
+    missions: new Map(),
+    finances: { transactions: [], balance: new Money(1000000) },
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: createDefaultCampaignOptions(),
+    createdAt: '3020-01-01T00:00:00Z',
+    updatedAt: '3025-06-15T00:00:00Z',
+    ...overrides,
+    campaignType: CampaignType.MERCENARY,
+  };
 }
 
 describe('turnoverProcessor', () => {
@@ -99,19 +112,25 @@ describe('shouldRunTurnover', () => {
 
   it('should return true on Jan 1st for quarterly frequency', () => {
     const jan1 = new Date('3025-01-01T00:00:00Z');
-    const options = { turnoverCheckFrequency: 'quarterly' as TurnoverFrequency };
+    const options = {
+      turnoverCheckFrequency: 'quarterly' as TurnoverFrequency,
+    };
     expect(shouldRunTurnover(options, jan1)).toBe(true);
   });
 
   it('should return true on Apr 1st for quarterly frequency', () => {
     const apr1 = new Date('3025-04-01T00:00:00Z');
-    const options = { turnoverCheckFrequency: 'quarterly' as TurnoverFrequency };
+    const options = {
+      turnoverCheckFrequency: 'quarterly' as TurnoverFrequency,
+    };
     expect(shouldRunTurnover(options, apr1)).toBe(true);
   });
 
   it('should return false on Feb 1st for quarterly frequency', () => {
     const feb1 = new Date('3025-02-01T00:00:00Z');
-    const options = { turnoverCheckFrequency: 'quarterly' as TurnoverFrequency };
+    const options = {
+      turnoverCheckFrequency: 'quarterly' as TurnoverFrequency,
+    };
     expect(shouldRunTurnover(options, feb1)).toBe(false);
   });
 

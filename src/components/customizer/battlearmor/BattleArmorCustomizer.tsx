@@ -11,12 +11,15 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { StoreApi } from 'zustand';
 
 // Store
-import { BattleArmorStoreContext, BattleArmorStore } from '@/stores/useBattleArmorStore';
+import {
+  BattleArmorStoreContext,
+  BattleArmorStore,
+} from '@/stores/useBattleArmorStore';
 
+import { BattleArmorDiagram } from './BattleArmorDiagram';
+import { BattleArmorSquadTab } from './BattleArmorSquadTab';
 // Components
 import { BattleArmorStructureTab } from './BattleArmorStructureTab';
-import { BattleArmorSquadTab } from './BattleArmorSquadTab';
-import { BattleArmorDiagram } from './BattleArmorDiagram';
 
 // =============================================================================
 // Types
@@ -62,17 +65,19 @@ interface TabButtonProps {
   onClick: () => void;
 }
 
-function TabButton({ tab, isActive, onClick }: TabButtonProps): React.ReactElement {
+function TabButton({
+  tab,
+  isActive,
+  onClick,
+}: TabButtonProps): React.ReactElement {
   return (
     <button
       onClick={onClick}
-      className={`
-        px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap
-        ${isActive
-          ? 'bg-accent text-white border-b-2 border-accent'
-          : 'text-text-theme-secondary hover:text-white hover:bg-surface-raised/50'
-        }
-      `}
+      className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+        isActive
+          ? 'bg-accent border-accent border-b-2 text-white'
+          : 'text-text-theme-secondary hover:bg-surface-raised/50 hover:text-white'
+      } `}
     >
       <span className="hidden sm:inline">{tab.label}</span>
       <span className="sm:hidden">{tab.shortLabel}</span>
@@ -103,7 +108,7 @@ export function BattleArmorCustomizer({
       setActiveTab(tabId);
       onTabChange?.(tabId);
     },
-    [onTabChange]
+    [onTabChange],
   );
 
   // Get current tab content
@@ -120,9 +125,9 @@ export function BattleArmorCustomizer({
 
   return (
     <BattleArmorStoreContext.Provider value={store}>
-      <div className={`flex flex-col h-full ${className}`}>
+      <div className={`flex h-full flex-col ${className}`}>
         {/* Tab Bar */}
-        <div className="flex items-center border-b border-border-theme bg-surface-base overflow-x-auto">
+        <div className="border-border-theme bg-surface-base flex items-center overflow-x-auto border-b">
           {BATTLE_ARMOR_TABS.map((tab) => (
             <TabButton
               key={tab.id}
@@ -134,15 +139,15 @@ export function BattleArmorCustomizer({
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex min-h-0 overflow-hidden">
+        <div className="flex min-h-0 flex-1 overflow-hidden">
           {/* Tab Content */}
-          <div className="flex-1 overflow-auto p-4">
-            {tabContent}
-          </div>
+          <div className="flex-1 overflow-auto p-4">{tabContent}</div>
 
           {/* Diagram Sidebar (visible on large screens) */}
-          <div className="hidden lg:block w-64 border-l border-border-theme bg-surface-base p-4 overflow-auto">
-            <h3 className="text-sm font-semibold text-white mb-3">Squad Overview</h3>
+          <div className="border-border-theme bg-surface-base hidden w-64 overflow-auto border-l p-4 lg:block">
+            <h3 className="mb-3 text-sm font-semibold text-white">
+              Squad Overview
+            </h3>
             <BattleArmorDiagram />
           </div>
         </div>

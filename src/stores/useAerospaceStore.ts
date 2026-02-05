@@ -8,15 +8,17 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.1
  */
 
+import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { createContext, useContext } from 'react';
+
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
-import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import { WeightClass } from '@/types/enums/WeightClass';
 import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId } from '@/utils/uuid';
-import { WeightClass } from '@/types/enums/WeightClass';
+
 import {
   AerospaceState,
   AerospaceStore,
@@ -57,7 +59,9 @@ function calculateMaxThrust(safeThrust: number): number {
 /**
  * Create an isolated Zustand store for a single aerospace unit
  */
-export function createAerospaceStore(initialState: AerospaceState): StoreApi<AerospaceStore> {
+export function createAerospaceStore(
+  initialState: AerospaceState,
+): StoreApi<AerospaceStore> {
   return create<AerospaceStore>()(
     persist(
       (set, get) => ({
@@ -249,8 +253,12 @@ export function createAerospaceStore(initialState: AerospaceState): StoreApi<Aer
 
             const newAllocation = {
               [AerospaceLocation.NOSE]: Math.floor(totalPoints * nosePercent),
-              [AerospaceLocation.LEFT_WING]: Math.floor(totalPoints * wingPercent),
-              [AerospaceLocation.RIGHT_WING]: Math.floor(totalPoints * wingPercent),
+              [AerospaceLocation.LEFT_WING]: Math.floor(
+                totalPoints * wingPercent,
+              ),
+              [AerospaceLocation.RIGHT_WING]: Math.floor(
+                totalPoints * wingPercent,
+              ),
               [AerospaceLocation.AFT]: Math.floor(totalPoints * aftPercent),
             };
 
@@ -307,7 +315,11 @@ export function createAerospaceStore(initialState: AerospaceState): StoreApi<Aer
 
         addEquipment: (item: IEquipmentItem, arc?) => {
           const instanceId = generateUnitId();
-          const mountedEquipment = createAerospaceMountedEquipment(item, instanceId, arc);
+          const mountedEquipment = createAerospaceMountedEquipment(
+            item,
+            instanceId,
+            arc,
+          );
 
           set((state) => ({
             equipment: [...state.equipment, mountedEquipment],
@@ -328,16 +340,21 @@ export function createAerospaceStore(initialState: AerospaceState): StoreApi<Aer
         updateEquipmentArc: (instanceId: string, arc) =>
           set((state) => ({
             equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, location: arc } : e
+              e.id === instanceId ? { ...e, location: arc } : e,
             ),
             isModified: true,
             lastModifiedAt: Date.now(),
           })),
 
-        linkAmmo: (weaponInstanceId: string, ammoInstanceId: string | undefined) =>
+        linkAmmo: (
+          weaponInstanceId: string,
+          ammoInstanceId: string | undefined,
+        ) =>
           set((state) => ({
             equipment: state.equipment.map((e) =>
-              e.id === weaponInstanceId ? { ...e, linkedAmmoId: ammoInstanceId } : e
+              e.id === weaponInstanceId
+                ? { ...e, linkedAmmoId: ammoInstanceId }
+                : e,
             ),
             isModified: true,
             lastModifiedAt: Date.now(),
@@ -398,15 +415,17 @@ export function createAerospaceStore(initialState: AerospaceState): StoreApi<Aer
           createdAt: state.createdAt,
           lastModifiedAt: state.lastModifiedAt,
         }),
-      }
-    )
+      },
+    ),
   );
 }
 
 /**
  * Create a new aerospace store from options
  */
-export function createNewAerospaceStore(options: CreateAerospaceOptions): StoreApi<AerospaceStore> {
+export function createNewAerospaceStore(
+  options: CreateAerospaceOptions,
+): StoreApi<AerospaceStore> {
   const initialState = createDefaultAerospaceState(options);
   return createAerospaceStore(initialState);
 }
@@ -418,7 +437,8 @@ export function createNewAerospaceStore(options: CreateAerospaceOptions): StoreA
 /**
  * Context for providing the active aerospace's store
  */
-export const AerospaceStoreContext = createContext<StoreApi<AerospaceStore> | null>(null);
+export const AerospaceStoreContext =
+  createContext<StoreApi<AerospaceStore> | null>(null);
 
 /**
  * Hook to access the aerospace store from context
@@ -427,13 +447,15 @@ export const AerospaceStoreContext = createContext<StoreApi<AerospaceStore> | nu
  * const safeThrust = useAerospaceStore((s) => s.safeThrust);
  * const setSafeThrust = useAerospaceStore((s) => s.setSafeThrust);
  */
-export function useAerospaceStore<T>(selector: (state: AerospaceStore) => T): T {
+export function useAerospaceStore<T>(
+  selector: (state: AerospaceStore) => T,
+): T {
   const store = useContext(AerospaceStoreContext);
 
   if (!store) {
     throw new Error(
       'useAerospaceStore must be used within an AerospaceStoreProvider. ' +
-        'Wrap your component tree with <AerospaceStoreProvider>.'
+        'Wrap your component tree with <AerospaceStoreProvider>.',
     );
   }
 
@@ -447,7 +469,9 @@ export function useAerospaceStoreApi(): StoreApi<AerospaceStore> {
   const store = useContext(AerospaceStoreContext);
 
   if (!store) {
-    throw new Error('useAerospaceStoreApi must be used within an AerospaceStoreProvider.');
+    throw new Error(
+      'useAerospaceStoreApi must be used within an AerospaceStoreProvider.',
+    );
   }
 
   return store;

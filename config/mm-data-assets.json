@@ -4,11 +4,7 @@
   "basePath": "data/images/recordsheets",
   "cdnBase": "https://cdn.jsdelivr.net/gh",
   "rawBase": "https://raw.githubusercontent.com",
-  "directories": [
-    "biped_pips",
-    "templates_us",
-    "templates_iso"
-  ],
+  "directories": ["biped_pips", "templates_us", "templates_iso"],
   "patterns": {
     "biped_pips": [
       "Armor_CT_{1-51}_Humanoid.svg",

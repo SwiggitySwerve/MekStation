@@ -2,8 +2,13 @@
  * Tests for heat utility functions
  */
 
-import { getWaterCoolingBonus, getTerrainHeatEffect, calculateHeatDissipation } from '../heat';
 import { TerrainType, ITerrainFeature } from '@/types/gameplay/TerrainTypes';
+
+import {
+  getWaterCoolingBonus,
+  getTerrainHeatEffect,
+  calculateHeatDissipation,
+} from '../heat';
 
 describe('getWaterCoolingBonus', () => {
   it('should return 0 for no water (depth 0)', () => {

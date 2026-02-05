@@ -5,6 +5,7 @@
 import { describe, expect, it } from '@jest/globals';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+
 import { parseMegaMekBoard } from '@/lib/parsers/megaMekBoard';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
@@ -301,7 +302,10 @@ end`;
 
   describe('full board parsing', () => {
     it('should parse sample.board fixture', () => {
-      const fixturePath = join(__dirname, '../../../../lib/parsers/__fixtures__/sample.board');
+      const fixturePath = join(
+        __dirname,
+        '../../../../lib/parsers/__fixtures__/sample.board',
+      );
       const content = readFileSync(fixturePath, 'utf-8');
       const result = parseMegaMekBoard(content);
 
@@ -310,14 +314,18 @@ end`;
       expect(result.hexes.length).toBeGreaterThan(0);
 
       // Verify specific hexes
-      const hex0101 = result.hexes.find((h) => h.coordinate.q === 0 && h.coordinate.r === 0);
+      const hex0101 = result.hexes.find(
+        (h) => h.coordinate.q === 0 && h.coordinate.r === 0,
+      );
       expect(hex0101).toBeDefined();
       expect(hex0101?.features).toContainEqual({
         type: TerrainType.LightWoods,
         level: 1,
       });
 
-      const hex0109 = result.hexes.find((h) => h.coordinate.q === 0 && h.coordinate.r === 8);
+      const hex0109 = result.hexes.find(
+        (h) => h.coordinate.q === 0 && h.coordinate.r === 8,
+      );
       expect(hex0109).toBeDefined();
       expect(hex0109?.features).toContainEqual({
         type: TerrainType.Building,
@@ -375,7 +383,9 @@ end`;
     it('should throw on missing size line', () => {
       const content = `hex 0101 0 "" ""
 end`;
-      expect(() => parseMegaMekBoard(content)).toThrow('Missing size declaration');
+      expect(() => parseMegaMekBoard(content)).toThrow(
+        'Missing size declaration',
+      );
     });
 
     it('should throw on invalid size format', () => {
@@ -388,7 +398,9 @@ end`;
       const content = `size 2 2
 hex XXXX 0 "" ""
 end`;
-      expect(() => parseMegaMekBoard(content)).toThrow('Invalid hex coordinate');
+      expect(() => parseMegaMekBoard(content)).toThrow(
+        'Invalid hex coordinate',
+      );
     });
 
     it('should throw on invalid elevation', () => {

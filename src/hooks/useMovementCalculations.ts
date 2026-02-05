@@ -10,6 +10,7 @@
  */
 
 import { useMemo } from 'react';
+
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import {
   JumpJetType,
@@ -128,14 +129,14 @@ export function calculateEngineRating(walkMP: number, tonnage: number): number {
  * ```
  */
 export function useMovementCalculations(
-  input: MovementCalculationsInput
+  input: MovementCalculationsInput,
 ): MovementCalculationsResult {
   const { tonnage, engineRating, jumpJetType, enhancement } = input;
 
   // Derive Walk MP from engine rating
   const walkMP = useMemo(
     () => calculateWalkMP(engineRating, tonnage),
-    [engineRating, tonnage]
+    [engineRating, tonnage],
   );
 
   // Calculate Run MP
@@ -156,26 +157,26 @@ export function useMovementCalculations(
   // Calculate max Jump MP based on walk MP and jump jet type
   const maxJumpMP = useMemo(
     () => getMaxJumpMP(walkMP, jumpJetType),
-    [walkMP, jumpJetType]
+    [walkMP, jumpJetType],
   );
 
   // Helper: get engine rating for a given Walk MP
   const getEngineRatingForWalkMP = useMemo(
     () => (newWalkMP: number) => calculateEngineRating(newWalkMP, tonnage),
-    [tonnage]
+    [tonnage],
   );
 
   // Helper: clamp Walk MP to valid range
   const clampWalkMP = useMemo(
     () => (newWalkMP: number) =>
       Math.max(walkMPRange.min, Math.min(walkMPRange.max, newWalkMP)),
-    [walkMPRange]
+    [walkMPRange],
   );
 
   // Helper: clamp Jump MP to valid range
   const clampJumpMP = useMemo(
     () => (newJumpMP: number) => Math.max(0, Math.min(maxJumpMP, newJumpMP)),
-    [maxJumpMP]
+    [maxJumpMP],
   );
 
   return {
@@ -210,7 +211,8 @@ export function getEnhancementOptions(): EnhancementOption[] {
     {
       value: MovementEnhancementType.MASC,
       label: 'MASC',
-      description: 'Sprint = Walk × 2 when activated. Risk of leg damage on failed roll.',
+      description:
+        'Sprint = Walk × 2 when activated. Risk of leg damage on failed roll.',
     },
     {
       value: MovementEnhancementType.TSM,

@@ -1,13 +1,14 @@
 /**
  * Formula Evaluator
- * 
+ *
  * Generic formula evaluation engine for variable equipment calculations.
  * Supports arithmetic operations and MIN/MAX combinators.
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  */
 
 import { IFormula } from '@/types/equipment/VariableEquipment';
+
 import { ValidationError } from '../common/errors';
 
 /**
@@ -28,7 +29,6 @@ export interface IFormulaEvaluator {
  * Formula Evaluator implementation
  */
 export class FormulaEvaluator implements IFormulaEvaluator {
-  
   /**
    * Evaluate a formula with the given context
    */
@@ -70,7 +70,7 @@ export class FormulaEvaluator implements IFormulaEvaluator {
       default:
         throw new ValidationError(
           `Unknown formula type: ${(formula as IFormula).type}`,
-          [`Formula type '${(formula as IFormula).type}' is not supported`]
+          [`Formula type '${(formula as IFormula).type}' is not supported`],
         );
     }
   }
@@ -80,7 +80,7 @@ export class FormulaEvaluator implements IFormulaEvaluator {
    */
   validateContext(formula: IFormula, context: FormulaContext): string[] {
     const required = this.getRequiredFields(formula);
-    const missing = required.filter(field => context[field] === undefined);
+    const missing = required.filter((field) => context[field] === undefined);
     return missing;
   }
 
@@ -136,31 +136,50 @@ export class FormulaEvaluator implements IFormulaEvaluator {
 
   private evaluateFixed(formula: IFormula): number {
     if (formula.value === undefined) {
-      throw new ValidationError('FIXED formula missing value', ['value is required']);
+      throw new ValidationError('FIXED formula missing value', [
+        'value is required',
+      ]);
     }
     return formula.value;
   }
 
-  private evaluateCeilDivide(formula: IFormula, context: FormulaContext): number {
+  private evaluateCeilDivide(
+    formula: IFormula,
+    context: FormulaContext,
+  ): number {
     const fieldValue = this.getFieldValue(formula.field!, context);
     if (formula.divisor === undefined || formula.divisor === 0) {
-      throw new ValidationError('CEIL_DIVIDE formula missing or zero divisor', ['divisor is required']);
+      throw new ValidationError('CEIL_DIVIDE formula missing or zero divisor', [
+        'divisor is required',
+      ]);
     }
     return Math.ceil(fieldValue / formula.divisor);
   }
 
-  private evaluateFloorDivide(formula: IFormula, context: FormulaContext): number {
+  private evaluateFloorDivide(
+    formula: IFormula,
+    context: FormulaContext,
+  ): number {
     const fieldValue = this.getFieldValue(formula.field!, context);
     if (formula.divisor === undefined || formula.divisor === 0) {
-      throw new ValidationError('FLOOR_DIVIDE formula missing or zero divisor', ['divisor is required']);
+      throw new ValidationError(
+        'FLOOR_DIVIDE formula missing or zero divisor',
+        ['divisor is required'],
+      );
     }
     return Math.floor(fieldValue / formula.divisor);
   }
 
-  private evaluateRoundDivide(formula: IFormula, context: FormulaContext): number {
+  private evaluateRoundDivide(
+    formula: IFormula,
+    context: FormulaContext,
+  ): number {
     const fieldValue = this.getFieldValue(formula.field!, context);
     if (formula.divisor === undefined || formula.divisor === 0) {
-      throw new ValidationError('ROUND_DIVIDE formula missing or zero divisor', ['divisor is required']);
+      throw new ValidationError(
+        'ROUND_DIVIDE formula missing or zero divisor',
+        ['divisor is required'],
+      );
     }
     return Math.round(fieldValue / formula.divisor);
   }
@@ -168,20 +187,30 @@ export class FormulaEvaluator implements IFormulaEvaluator {
   private evaluateMultiply(formula: IFormula, context: FormulaContext): number {
     const fieldValue = this.getFieldValue(formula.field!, context);
     if (formula.multiplier === undefined) {
-      throw new ValidationError('MULTIPLY formula missing multiplier', ['multiplier is required']);
+      throw new ValidationError('MULTIPLY formula missing multiplier', [
+        'multiplier is required',
+      ]);
     }
     return fieldValue * formula.multiplier;
   }
 
-  private evaluateMultiplyRound(formula: IFormula, context: FormulaContext): number {
+  private evaluateMultiplyRound(
+    formula: IFormula,
+    context: FormulaContext,
+  ): number {
     const fieldValue = this.getFieldValue(formula.field!, context);
     if (formula.multiplier === undefined) {
-      throw new ValidationError('MULTIPLY_ROUND formula missing multiplier', ['multiplier is required']);
+      throw new ValidationError('MULTIPLY_ROUND formula missing multiplier', [
+        'multiplier is required',
+      ]);
     }
     if (formula.roundTo === undefined || formula.roundTo <= 0) {
-      throw new ValidationError('MULTIPLY_ROUND formula missing or invalid roundTo', ['roundTo must be positive']);
+      throw new ValidationError(
+        'MULTIPLY_ROUND formula missing or invalid roundTo',
+        ['roundTo must be positive'],
+      );
     }
-    
+
     const rawValue = fieldValue * formula.multiplier;
     // Round up to nearest roundTo value
     return Math.ceil(rawValue / formula.roundTo) * formula.roundTo;
@@ -191,13 +220,16 @@ export class FormulaEvaluator implements IFormulaEvaluator {
     if (context.weight === undefined) {
       throw new ValidationError(
         'EQUALS_WEIGHT requires weight to be calculated first',
-        ['weight must be in context before evaluating EQUALS_WEIGHT']
+        ['weight must be in context before evaluating EQUALS_WEIGHT'],
       );
     }
     return context.weight;
   }
 
-  private evaluateEqualsField(formula: IFormula, context: FormulaContext): number {
+  private evaluateEqualsField(
+    formula: IFormula,
+    context: FormulaContext,
+  ): number {
     return this.getFieldValue(formula.field!, context);
   }
 
@@ -205,8 +237,8 @@ export class FormulaEvaluator implements IFormulaEvaluator {
     if (!formula.formulas || formula.formulas.length === 0) {
       return 0; // Empty MIN returns 0
     }
-    
-    const values = formula.formulas.map(f => this.evaluate(f, context));
+
+    const values = formula.formulas.map((f) => this.evaluate(f, context));
     return Math.min(...values);
   }
 
@@ -214,19 +246,23 @@ export class FormulaEvaluator implements IFormulaEvaluator {
     if (!formula.formulas || formula.formulas.length === 0) {
       return 0; // Empty MAX returns 0
     }
-    
-    const values = formula.formulas.map(f => this.evaluate(f, context));
+
+    const values = formula.formulas.map((f) => this.evaluate(f, context));
     return Math.max(...values);
   }
 
   private evaluatePlus(formula: IFormula, context: FormulaContext): number {
     if (!formula.base) {
-      throw new ValidationError('PLUS formula missing base', ['base formula is required']);
+      throw new ValidationError('PLUS formula missing base', [
+        'base formula is required',
+      ]);
     }
     if (formula.bonus === undefined) {
-      throw new ValidationError('PLUS formula missing bonus', ['bonus value is required']);
+      throw new ValidationError('PLUS formula missing bonus', [
+        'bonus value is required',
+      ]);
     }
-    
+
     const baseValue = this.evaluate(formula.base, context);
     return baseValue + formula.bonus;
   }
@@ -237,10 +273,9 @@ export class FormulaEvaluator implements IFormulaEvaluator {
 
   private getFieldValue(field: string, context: FormulaContext): number {
     if (context[field] === undefined) {
-      throw new ValidationError(
-        `Missing required context field: ${field}`,
-        [`Context must include '${field}'`]
-      );
+      throw new ValidationError(`Missing required context field: ${field}`, [
+        `Context must include '${field}'`,
+      ]);
     }
     return context[field];
   }
@@ -248,4 +283,3 @@ export class FormulaEvaluator implements IFormulaEvaluator {
 
 // Singleton instance
 export const formulaEvaluator = new FormulaEvaluator();
-

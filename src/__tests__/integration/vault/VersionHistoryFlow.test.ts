@@ -11,8 +11,11 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import { VersionHistoryService, type ApplyContentFn } from '@/services/vault/VersionHistoryService';
 import { MockVersionHistoryRepository } from '@/__tests__/helpers/vault';
+import {
+  VersionHistoryService,
+  type ApplyContentFn,
+} from '@/services/vault/VersionHistoryService';
 
 // =============================================================================
 // Test Fixtures
@@ -86,7 +89,7 @@ describe('Version History Flow Integration', () => {
         itemId,
         createMechContent({ model: 'AS7-D' }),
         'local',
-        { message: 'Initial creation' }
+        { message: 'Initial creation' },
       );
       expect(v1?.version).toBe(1);
 
@@ -103,7 +106,7 @@ describe('Version History Flow Integration', () => {
           ],
         }),
         'local',
-        { message: 'Added Medium Laser' }
+        { message: 'Added Medium Laser' },
       );
       expect(v2?.version).toBe(2);
 
@@ -121,7 +124,7 @@ describe('Version History Flow Integration', () => {
           ],
         }),
         'local',
-        { message: 'Upgraded to command variant' }
+        { message: 'Upgraded to command variant' },
       );
       expect(v3?.version).toBe(3);
 
@@ -143,7 +146,7 @@ describe('Version History Flow Integration', () => {
         itemId,
         createMechContent({ chassis: 'Timber Wolf' }),
         'USER-A-CODE',
-        { message: 'Created by User A' }
+        { message: 'Created by User A' },
       );
 
       // User B makes changes
@@ -152,23 +155,31 @@ describe('Version History Flow Integration', () => {
         itemId,
         createMechContent({ chassis: 'Timber Wolf', model: 'Prime' }),
         'USER-B-CODE',
-        { message: 'Updated by User B' }
+        { message: 'Updated by User B' },
       );
 
       // User A makes more changes
       await service.saveVersion(
         'unit',
         itemId,
-        createMechContent({ chassis: 'Timber Wolf', model: 'Prime', notes: 'Clan OmniMech' }),
+        createMechContent({
+          chassis: 'Timber Wolf',
+          model: 'Prime',
+          notes: 'Clan OmniMech',
+        }),
         'USER-A-CODE',
-        { message: 'User A added notes' }
+        { message: 'User A added notes' },
       );
 
       const history = await service.getHistory(itemId, 'unit');
 
       // Should have contributions from both users
-      const userAVersions = history.filter(v => v.createdBy === 'USER-A-CODE');
-      const userBVersions = history.filter(v => v.createdBy === 'USER-B-CODE');
+      const userAVersions = history.filter(
+        (v) => v.createdBy === 'USER-A-CODE',
+      );
+      const userBVersions = history.filter(
+        (v) => v.createdBy === 'USER-B-CODE',
+      );
 
       expect(userAVersions).toHaveLength(2);
       expect(userBVersions).toHaveLength(1);
@@ -191,7 +202,7 @@ describe('Version History Flow Integration', () => {
           model: 'AS7-D',
           tonnage: 100,
         }),
-        'local'
+        'local',
       );
 
       // Version 2: Changed model and added notes
@@ -203,7 +214,7 @@ describe('Version History Flow Integration', () => {
           tonnage: 100,
           notes: 'Kurita variant',
         }),
-        'local'
+        'local',
       );
 
       const diff = await service.diffVersions(itemId, 'unit', 1, 2);
@@ -227,7 +238,7 @@ describe('Version History Flow Integration', () => {
         'unit',
         itemId,
         createMechContent({ notes: 'To be removed' }),
-        'local'
+        'local',
       );
 
       // Version 2: Notes removed
@@ -235,7 +246,7 @@ describe('Version History Flow Integration', () => {
         'unit',
         itemId,
         createMechContent(), // No notes
-        'local'
+        'local',
       );
 
       const diff = await service.diffVersions(itemId, 'unit', 1, 2);
@@ -252,7 +263,7 @@ describe('Version History Flow Integration', () => {
           'unit',
           itemId,
           createMechContent({ model: `Model-${i}` }),
-          'local'
+          'local',
         );
       }
 
@@ -282,7 +293,7 @@ describe('Version History Flow Integration', () => {
         itemId,
         createMechContent({ model: 'Original' }),
         'local',
-        { message: 'Original version' }
+        { message: 'Original version' },
       );
 
       await service.saveVersion(
@@ -290,11 +301,16 @@ describe('Version History Flow Integration', () => {
         itemId,
         createMechContent({ model: 'Bad Change' }),
         'local',
-        { message: 'Mistake' }
+        { message: 'Mistake' },
       );
 
       // Rollback to v1
-      const result = await service.rollbackToVersion(itemId, 'unit', 1, 'local');
+      const result = await service.rollbackToVersion(
+        itemId,
+        'unit',
+        1,
+        'local',
+      );
 
       expect(result.success).toBe(true);
       expect(result.restoredVersion?.version).toBe(3); // New version created
@@ -315,9 +331,24 @@ describe('Version History Flow Integration', () => {
       const itemId = 'unit-rollback-history';
 
       // Create 3 versions
-      await service.saveVersion('unit', itemId, createMechContent({ model: 'V1' }), 'local');
-      await service.saveVersion('unit', itemId, createMechContent({ model: 'V2' }), 'local');
-      await service.saveVersion('unit', itemId, createMechContent({ model: 'V3' }), 'local');
+      await service.saveVersion(
+        'unit',
+        itemId,
+        createMechContent({ model: 'V1' }),
+        'local',
+      );
+      await service.saveVersion(
+        'unit',
+        itemId,
+        createMechContent({ model: 'V2' }),
+        'local',
+      );
+      await service.saveVersion(
+        'unit',
+        itemId,
+        createMechContent({ model: 'V3' }),
+        'local',
+      );
 
       // Rollback to v1
       await service.rollbackToVersion(itemId, 'unit', 1, 'local');
@@ -338,7 +369,12 @@ describe('Version History Flow Integration', () => {
 
       await service.saveVersion('unit', itemId, createMechContent(), 'local');
 
-      const result = await service.rollbackToVersion(itemId, 'unit', 99, 'local');
+      const result = await service.rollbackToVersion(
+        itemId,
+        'unit',
+        99,
+        'local',
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('not found');
@@ -359,7 +395,7 @@ describe('Version History Flow Integration', () => {
           'unit',
           itemId,
           createMechContent({ model: `V${i}` }),
-          'local'
+          'local',
         );
       }
 
@@ -370,7 +406,7 @@ describe('Version History Flow Integration', () => {
       // Should have versions 8, 9, 10
       const history = await service.getHistory(itemId, 'unit');
       expect(history).toHaveLength(3);
-      expect(history.map(v => v.version)).toEqual([10, 9, 8]);
+      expect(history.map((v) => v.version)).toEqual([10, 9, 8]);
     });
 
     it('should not prune if fewer versions than keep count', async () => {
@@ -425,13 +461,9 @@ describe('Version History Flow Integration', () => {
       expect(v1?.version).toBe(1);
 
       // Try to create another with same content
-      const v2 = await service.saveVersion(
-        'unit',
-        itemId,
-        content,
-        'local',
-        { skipIfUnchanged: true }
-      );
+      const v2 = await service.saveVersion('unit', itemId, content, 'local', {
+        skipIfUnchanged: true,
+      });
       expect(v2).toBeNull();
 
       // Should still have only 1 version
@@ -447,7 +479,7 @@ describe('Version History Flow Integration', () => {
         itemId,
         createMechContent({ model: 'V1' }),
         'local',
-        { skipIfUnchanged: true }
+        { skipIfUnchanged: true },
       );
 
       const v2 = await service.saveVersion(
@@ -455,7 +487,7 @@ describe('Version History Flow Integration', () => {
         itemId,
         createMechContent({ model: 'V2' }),
         'local',
-        { skipIfUnchanged: true }
+        { skipIfUnchanged: true },
       );
 
       expect(v2).toBeDefined();
@@ -473,8 +505,18 @@ describe('Version History Flow Integration', () => {
 
       // Create several versions with varying sizes
       await service.saveVersion('unit', itemId, createMechContent(), 'local');
-      await service.saveVersion('unit', itemId, createMechContent({ notes: 'Added notes' }), 'local');
-      await service.saveVersion('unit', itemId, createMechContent({ notes: 'More notes with longer content' }), 'local');
+      await service.saveVersion(
+        'unit',
+        itemId,
+        createMechContent({ notes: 'Added notes' }),
+        'local',
+      );
+      await service.saveVersion(
+        'unit',
+        itemId,
+        createMechContent({ notes: 'More notes with longer content' }),
+        'local',
+      );
 
       const summary = await service.getHistorySummary(itemId, 'unit');
 

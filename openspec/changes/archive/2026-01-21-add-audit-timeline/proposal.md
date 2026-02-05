@@ -3,6 +3,7 @@
 ## Why
 
 With the unified event store capturing all state changes, users need ways to view and navigate this history. The audit timeline provides multiple views for different use cases:
+
 - Timeline feed for narrative/storytelling
 - Diff view for debugging
 - Query interface for analytics

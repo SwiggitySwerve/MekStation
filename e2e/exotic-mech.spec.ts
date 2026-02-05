@@ -10,6 +10,7 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
+
 import {
   waitForTabManagerStoreReady,
   createQuadMech,
@@ -71,13 +72,13 @@ test.describe('QuadMech Customizer @customizer @exotic @quad', () => {
     // Note: armorAllocation includes ALL possible location keys (set to 0 for unused)
     // But the configuration determines which are valid/used
     const armorKeys = Object.keys(state?.armorAllocation ?? {});
-    
+
     // Should have quad-specific leg location keys (using MechLocation enum values)
     expect(armorKeys).toContain('Front Left Leg');
     expect(armorKeys).toContain('Front Right Leg');
     expect(armorKeys).toContain('Rear Left Leg');
     expect(armorKeys).toContain('Rear Right Leg');
-    
+
     // Verify configuration is set correctly
     expect(state?.configuration).toBe('Quad');
 
@@ -297,7 +298,7 @@ test.describe('Tripod Mech Customizer @customizer @exotic @tripod', () => {
 
     // Verify configuration is set correctly
     expect(state?.configuration).toBe('Tripod');
-    
+
     // Verify helper function returns expected locations
     const expectedLocations = getConfigurationLocations('Tripod');
     expect(expectedLocations.length).toBe(9); // 9 locations for Tripod
@@ -305,7 +306,9 @@ test.describe('Tripod Mech Customizer @customizer @exotic @tripod', () => {
     await closeTab(page, unitId);
   });
 
-  test('Tripod has 9 locations (3 legs + arms + torsos + head)', async ({ page }) => {
+  test('Tripod has 9 locations (3 legs + arms + torsos + head)', async ({
+    page,
+  }) => {
     const unitId = await createTripodMech(page, {
       name: 'Tripod 9 Locations',
       tonnage: 85,
@@ -377,7 +380,10 @@ test.describe('Exotic Mech Configuration Switching @customizer @exotic', () => {
     // Create one of each type
     const quadId = await createQuadMech(page, { name: 'Quad A', tonnage: 60 });
     const lamId = await createLAM(page, { name: 'LAM B', tonnage: 50 });
-    const tripodId = await createTripodMech(page, { name: 'Tripod C', tonnage: 80 });
+    const tripodId = await createTripodMech(page, {
+      name: 'Tripod C',
+      tonnage: 80,
+    });
 
     // Verify all exist with correct configurations
     const quadState = await getExoticMechState(page, quadId);
@@ -394,18 +400,18 @@ test.describe('Exotic Mech Configuration Switching @customizer @exotic', () => {
     await closeTab(page, tripodId);
   });
 
-  test('configuration locations are distinct', async ({ page }) => {
+  test('configuration locations are distinct', async () => {
     const bipedLocations = getConfigurationLocations('Biped');
     const quadLocations = getConfigurationLocations('Quad');
     const tripodLocations = getConfigurationLocations('Tripod');
 
     // Biped has no center leg
     expect(bipedLocations).not.toContain('Center Leg');
-    
+
     // Quad has no arms, has 4 distinct leg locations
     expect(quadLocations).not.toContain('Left Arm');
     expect(quadLocations).toContain('Front Left Leg');
-    
+
     // Tripod has center leg and arms
     expect(tripodLocations).toContain('Center Leg');
     expect(tripodLocations).toContain('Left Arm');

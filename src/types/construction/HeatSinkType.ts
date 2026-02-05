@@ -1,13 +1,13 @@
 /**
  * Heat Sink Type Definitions
- * 
+ *
  * Defines all standard BattleTech heat sink types.
- * 
+ *
  * @spec openspec/specs/heat-sink-system/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 
 /**
  * Heat sink type enumeration
@@ -104,7 +104,8 @@ export const HEAT_SINK_DEFINITIONS: readonly HeatSinkDefinition[] = [
 /**
  * Get heat sink definition by type
  */
-export function getHeatSinkDefinition(type: HeatSinkType): HeatSinkDefinition | undefined {
-  return HEAT_SINK_DEFINITIONS.find(def => def.type === type);
+export function getHeatSinkDefinition(
+  type: HeatSinkType,
+): HeatSinkDefinition | undefined {
+  return HEAT_SINK_DEFINITIONS.find((def) => def.type === type);
 }
-

@@ -8,11 +8,16 @@
  */
 
 import React, { useCallback, useMemo } from 'react';
-import { useAerospaceStore } from '@/stores/useAerospaceStore';
-import { ArmorTypeEnum, getArmorDefinition } from '@/types/construction/ArmorType';
-import { AerospaceLocation } from '@/types/construction/UnitLocation';
+
 import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
+import { useAerospaceStore } from '@/stores/useAerospaceStore';
+import {
+  ArmorTypeEnum,
+  getArmorDefinition,
+} from '@/types/construction/ArmorType';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -48,16 +53,22 @@ interface AerospaceArmorTabProps {
 // Helper Functions
 // =============================================================================
 
-function calculateArmorPoints(tonnage: number, armorType: ArmorTypeEnum): number {
+function calculateArmorPoints(
+  tonnage: number,
+  armorType: ArmorTypeEnum,
+): number {
   const def = getArmorDefinition(armorType);
   const pointsPerTon = def?.pointsPerTon ?? 16;
   return Math.floor(tonnage * pointsPerTon);
 }
 
-function getMaxAerospaceArmorForArc(tonnage: number, arc: AerospaceLocation): number {
+function getMaxAerospaceArmorForArc(
+  tonnage: number,
+  arc: AerospaceLocation,
+): number {
   // Aerospace armor maximums are based on tonnage and arc
   const baseArmor = Math.floor(tonnage * 0.8); // Max ~80% of tonnage in armor points
-  
+
   switch (arc) {
     case AerospaceLocation.NOSE:
       return Math.floor(baseArmor * 0.35); // Nose gets most
@@ -101,19 +112,19 @@ export function AerospaceArmorTab({
   const pointsPerTon = armorDef?.pointsPerTon ?? 16;
   const availablePoints = useMemo(
     () => calculateArmorPoints(armorTonnage, armorType),
-    [armorTonnage, armorType]
+    [armorTonnage, armorType],
   );
   const allocatedPoints = useMemo(
     () => getTotalAerospaceArmor(armorAllocation),
-    [armorAllocation]
+    [armorAllocation],
   );
   const maxTotalArmor = useMemo(
     () => getMaxTotalAerospaceArmor(tonnage),
-    [tonnage]
+    [tonnage],
   );
   const maxUsefulTonnage = useMemo(
     () => ceilToHalfTon(maxTotalArmor / pointsPerTon),
-    [maxTotalArmor, pointsPerTon]
+    [maxTotalArmor, pointsPerTon],
   );
 
   const unallocatedPoints = availablePoints - allocatedPoints;
@@ -123,7 +134,7 @@ export function AerospaceArmorTab({
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       setArmorType(e.target.value as ArmorTypeEnum);
     },
-    [setArmorType]
+    [setArmorType],
   );
 
   const handleArmorTonnageChange = useCallback(
@@ -131,7 +142,7 @@ export function AerospaceArmorTab({
       const clamped = Math.max(0, Math.min(maxUsefulTonnage, newTonnage));
       setArmorTonnage(clamped);
     },
-    [setArmorTonnage, maxUsefulTonnage]
+    [setArmorTonnage, maxUsefulTonnage],
   );
 
   const handleArcArmorChange = useCallback(
@@ -140,7 +151,7 @@ export function AerospaceArmorTab({
       const clamped = Math.max(0, Math.min(max, points));
       setArcArmor(arc, clamped);
     },
-    [setArcArmor, tonnage]
+    [setArcArmor, tonnage],
   );
 
   const handleMaximizeArmor = useCallback(() => {
@@ -148,8 +159,11 @@ export function AerospaceArmorTab({
   }, [setArmorTonnage, maxUsefulTonnage]);
 
   return (
-    <div className={`${cs.panel.main} ${className}`} data-testid="aerospace-armor-tab">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div
+      className={`${cs.panel.main} ${className}`}
+      data-testid="aerospace-armor-tab"
+    >
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Armor Configuration Section */}
         <section data-testid="aerospace-armor-config-section">
           <h3 className={cs.text.sectionTitle}>Armor Configuration</h3>
@@ -175,11 +189,13 @@ export function AerospaceArmorTab({
           {/* Armor Tonnage */}
           <div className="mb-4">
             <label className={cs.text.label}>Armor Tonnage</label>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1 flex items-center gap-2">
               <input
                 type="number"
                 value={armorTonnage}
-                onChange={(e) => handleArmorTonnageChange(Number(e.target.value))}
+                onChange={(e) =>
+                  handleArmorTonnageChange(Number(e.target.value))
+                }
                 min={0}
                 max={maxUsefulTonnage}
                 step={0.5}
@@ -187,16 +203,29 @@ export function AerospaceArmorTab({
                 className={`${cs.input.number} w-20`}
                 data-testid="aerospace-armor-tonnage-input"
               />
-              <span className={cs.text.secondary} data-testid="aerospace-armor-max-tonnage">/ {maxUsefulTonnage} tons max</span>
+              <span
+                className={cs.text.secondary}
+                data-testid="aerospace-armor-max-tonnage"
+              >
+                / {maxUsefulTonnage} tons max
+              </span>
             </div>
           </div>
 
           {/* Points Summary */}
-          <div className={`${cs.panel.summary} mb-4`} data-testid="aerospace-armor-summary">
+          <div
+            className={`${cs.panel.summary} mb-4`}
+            data-testid="aerospace-armor-summary"
+          >
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
                 <span className={cs.text.label}>Available Points:</span>
-                <span className={`${cs.text.value} ml-2`} data-testid="aerospace-armor-available">{availablePoints}</span>
+                <span
+                  className={`${cs.text.value} ml-2`}
+                  data-testid="aerospace-armor-available"
+                >
+                  {availablePoints}
+                </span>
               </div>
               <div>
                 <span className={cs.text.label}>Allocated:</span>
@@ -218,8 +247,8 @@ export function AerospaceArmorTab({
                     unallocatedPoints < 0
                       ? cs.text.valueNegative
                       : unallocatedPoints > 0
-                      ? cs.text.valueWarning
-                      : cs.text.value
+                        ? cs.text.valueWarning
+                        : cs.text.value
                   }`}
                   data-testid="aerospace-armor-unallocated"
                 >
@@ -228,7 +257,12 @@ export function AerospaceArmorTab({
               </div>
               <div>
                 <span className={cs.text.label}>Points/Ton:</span>
-                <span className={`${cs.text.value} ml-2`} data-testid="aerospace-armor-points-per-ton">{pointsPerTon}</span>
+                <span
+                  className={`${cs.text.value} ml-2`}
+                  data-testid="aerospace-armor-points-per-ton"
+                >
+                  {pointsPerTon}
+                </span>
               </div>
             </div>
           </div>
@@ -272,23 +306,31 @@ export function AerospaceArmorTab({
               const maxValue = getMaxAerospaceArmorForArc(tonnage, arc);
 
               return (
-                <div key={arc} className="flex items-center gap-3" data-testid={`aerospace-arc-row-${arc}`}>
+                <div
+                  key={arc}
+                  className="flex items-center gap-3"
+                  data-testid={`aerospace-arc-row-${arc}`}
+                >
                   <span className={`${cs.text.label} w-24`}>{label}</span>
                   <input
                     type="range"
                     value={currentValue}
-                    onChange={(e) => handleArcArmorChange(arc, Number(e.target.value))}
+                    onChange={(e) =>
+                      handleArcArmorChange(arc, Number(e.target.value))
+                    }
                     min={0}
                     max={maxValue}
                     disabled={readOnly || maxValue === 0}
                     className="flex-1"
                     data-testid={`aerospace-arc-slider-${arc}`}
                   />
-                  <div className="flex items-center gap-1 w-20">
+                  <div className="flex w-20 items-center gap-1">
                     <input
                       type="number"
                       value={currentValue}
-                      onChange={(e) => handleArcArmorChange(arc, Number(e.target.value))}
+                      onChange={(e) =>
+                        handleArcArmorChange(arc, Number(e.target.value))
+                      }
                       min={0}
                       max={maxValue}
                       disabled={readOnly || maxValue === 0}
@@ -303,7 +345,10 @@ export function AerospaceArmorTab({
           </div>
 
           {/* Simple Arc Diagram */}
-          <div className="mt-6 p-4 bg-surface-raised/30 rounded-lg" data-testid="aerospace-armor-diagram">
+          <div
+            className="bg-surface-raised/30 mt-6 rounded-lg p-4"
+            data-testid="aerospace-armor-diagram"
+          >
             <AerospaceArmorDiagramSimple allocation={armorAllocation} />
           </div>
         </section>
@@ -324,7 +369,7 @@ function AerospaceArmorDiagramSimple({
   allocation,
 }: AerospaceArmorDiagramSimpleProps): React.ReactElement {
   return (
-    <div className="text-center text-sm font-mono">
+    <div className="text-center font-mono text-sm">
       {/* Nose */}
       <div className="mb-4">
         <span className="text-text-theme-secondary">NOSE</span>
@@ -334,14 +379,14 @@ function AerospaceArmorDiagramSimple({
       </div>
 
       {/* Wings */}
-      <div className="flex justify-center items-center gap-12 mb-4">
+      <div className="mb-4 flex items-center justify-center gap-12">
         <div>
           <span className="text-text-theme-secondary">L.WING</span>
           <div className="text-lg font-bold text-cyan-400">
             {allocation[AerospaceLocation.LEFT_WING] ?? 0}
           </div>
         </div>
-        <div className="w-8 h-8 border-2 border-border-theme rounded-full" />
+        <div className="border-border-theme h-8 w-8 rounded-full border-2" />
         <div>
           <span className="text-text-theme-secondary">R.WING</span>
           <div className="text-lg font-bold text-cyan-400">

@@ -224,27 +224,39 @@ export type EquipmentFlag = UnitTypeEquipmentFlag | EquipmentBehaviorFlag;
 /**
  * Helper to check if a flag is a unit type flag
  */
-export function isUnitTypeFlag(flag: EquipmentFlag): flag is UnitTypeEquipmentFlag {
-  return Object.values(UnitTypeEquipmentFlag).includes(flag as UnitTypeEquipmentFlag);
+export function isUnitTypeFlag(
+  flag: EquipmentFlag,
+): flag is UnitTypeEquipmentFlag {
+  return Object.values(UnitTypeEquipmentFlag).includes(
+    flag as UnitTypeEquipmentFlag,
+  );
 }
 
 /**
  * Helper to check if a flag is a behavior flag
  */
-export function isBehaviorFlag(flag: EquipmentFlag): flag is EquipmentBehaviorFlag {
-  return Object.values(EquipmentBehaviorFlag).includes(flag as EquipmentBehaviorFlag);
+export function isBehaviorFlag(
+  flag: EquipmentFlag,
+): flag is EquipmentBehaviorFlag {
+  return Object.values(EquipmentBehaviorFlag).includes(
+    flag as EquipmentBehaviorFlag,
+  );
 }
 
 /**
  * Get all unit type flags from a flag array
  */
-export function getUnitTypeFlags(flags: EquipmentFlag[]): UnitTypeEquipmentFlag[] {
+export function getUnitTypeFlags(
+  flags: EquipmentFlag[],
+): UnitTypeEquipmentFlag[] {
   return flags.filter(isUnitTypeFlag);
 }
 
 /**
  * Get all behavior flags from a flag array
  */
-export function getBehaviorFlags(flags: EquipmentFlag[]): EquipmentBehaviorFlag[] {
+export function getBehaviorFlags(
+  flags: EquipmentFlag[],
+): EquipmentBehaviorFlag[] {
   return flags.filter(isBehaviorFlag);
 }

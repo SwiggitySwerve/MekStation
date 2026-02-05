@@ -1,9 +1,9 @@
 /**
  * Conversion Validation
- * 
+ *
  * Validates converted units against BattleTech construction rules.
  * This is a lightweight validation for the conversion pipeline.
- * 
+ *
  * @spec unit-json.plan.md
  */
 
@@ -75,7 +75,9 @@ const STRUCTURE_POINTS: Record<number, Record<string, number>> = {
 /**
  * Valid tonnage values for standard mechs
  */
-const VALID_TONNAGES = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+const VALID_TONNAGES = [
+  20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
+];
 
 // ============================================================================
 // VALIDATION SERVICE
@@ -84,11 +86,13 @@ const VALID_TONNAGES = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 
 /**
  * Validate a converted unit
  */
-export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidationResult {
+export function validateConvertedUnit(
+  unit: ISerializedUnit,
+): ConversionValidationResult {
   const errors: ConversionValidationIssue[] = [];
   const warnings: ConversionValidationIssue[] = [];
   const info: ConversionValidationIssue[] = [];
-  
+
   // Validate tonnage
   if (!VALID_TONNAGES.includes(unit.tonnage)) {
     warnings.push({
@@ -99,7 +103,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
       actual: unit.tonnage,
     });
   }
-  
+
   // Validate engine rating
   if (unit.engine.rating < 10 || unit.engine.rating > 500) {
     errors.push({
@@ -110,7 +114,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
       actual: unit.engine.rating,
     });
   }
-  
+
   if (unit.engine.rating % 5 !== 0) {
     errors.push({
       code: 'INVALID_ENGINE_RATING',
@@ -120,7 +124,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
       actual: unit.engine.rating,
     });
   }
-  
+
   // Validate movement
   if (unit.movement.walk < 1) {
     errors.push({
@@ -131,7 +135,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
       actual: unit.movement.walk,
     });
   }
-  
+
   // Calculate expected walk MP from engine rating and tonnage
   const expectedWalk = Math.floor(unit.engine.rating / unit.tonnage);
   if (unit.movement.walk !== expectedWalk) {
@@ -144,7 +148,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
       actual: unit.movement.walk,
     });
   }
-  
+
   // Validate heat sinks
   if (unit.heatSinks.count < 10) {
     warnings.push({
@@ -156,10 +160,10 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
       actual: unit.heatSinks.count,
     });
   }
-  
+
   // Validate armor
   validateArmor(unit, errors, warnings);
-  
+
   // Validate required fields
   if (!unit.id) {
     errors.push({
@@ -169,7 +173,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
       field: 'id',
     });
   }
-  
+
   if (!unit.chassis || unit.chassis.trim() === '') {
     errors.push({
       code: 'MISSING_CHASSIS',
@@ -178,7 +182,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
       field: 'chassis',
     });
   }
-  
+
   if (!unit.model || unit.model.trim() === '') {
     errors.push({
       code: 'MISSING_MODEL',
@@ -187,7 +191,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
       field: 'model',
     });
   }
-  
+
   // Check for equipment
   if (!unit.equipment || unit.equipment.length === 0) {
     warnings.push({
@@ -197,7 +201,7 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
       field: 'equipment',
     });
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,
@@ -212,16 +216,16 @@ export function validateConvertedUnit(unit: ISerializedUnit): ConversionValidati
 function validateArmor(
   unit: ISerializedUnit,
   errors: ConversionValidationIssue[],
-  warnings: ConversionValidationIssue[]
+  warnings: ConversionValidationIssue[],
 ): void {
   const allocation = unit.armor.allocation;
-  
+
   // Get structure points for this tonnage
   const nearestTonnage = VALID_TONNAGES.reduce((prev, curr) =>
-    Math.abs(curr - unit.tonnage) < Math.abs(prev - unit.tonnage) ? curr : prev
+    Math.abs(curr - unit.tonnage) < Math.abs(prev - unit.tonnage) ? curr : prev,
   );
   const structure = STRUCTURE_POINTS[nearestTonnage];
-  
+
   if (!structure) {
     warnings.push({
       code: 'UNKNOWN_TONNAGE_FOR_ARMOR',
@@ -231,7 +235,7 @@ function validateArmor(
     });
     return;
   }
-  
+
   // Validate head armor (max 9)
   const headArmor = typeof allocation.head === 'number' ? allocation.head : 0;
   if (headArmor > 9) {
@@ -244,19 +248,23 @@ function validateArmor(
       actual: headArmor,
     });
   }
-  
+
   // Validate other locations (max = 2 × structure points)
-  const locationChecks: Array<{ key: string; name: string; structureKey: string }> = [
+  const locationChecks: Array<{
+    key: string;
+    name: string;
+    structureKey: string;
+  }> = [
     { key: 'leftArm', name: 'Left Arm', structureKey: 'arm' },
     { key: 'rightArm', name: 'Right Arm', structureKey: 'arm' },
     { key: 'leftLeg', name: 'Left Leg', structureKey: 'leg' },
     { key: 'rightLeg', name: 'Right Leg', structureKey: 'leg' },
   ];
-  
+
   for (const { key, name, structureKey } of locationChecks) {
     const armor = typeof allocation[key] === 'number' ? allocation[key] : 0;
     const maxArmor = structure[structureKey] * 2;
-    
+
     if (armor > maxArmor) {
       warnings.push({
         code: 'ARMOR_EXCEEDED',
@@ -268,30 +276,53 @@ function validateArmor(
       });
     }
   }
-  
+
   // Validate torso locations (front + rear ≤ 2 × structure)
-  const torsoChecks: Array<{ frontKey: string; rearKey?: string; name: string; structureKey: string }> = [
-    { frontKey: 'centerTorso', rearKey: 'centerTorsoRear', name: 'Center Torso', structureKey: 'centerTorso' },
-    { frontKey: 'leftTorso', rearKey: 'leftTorsoRear', name: 'Left Torso', structureKey: 'sideTorso' },
-    { frontKey: 'rightTorso', rearKey: 'rightTorsoRear', name: 'Right Torso', structureKey: 'sideTorso' },
+  const torsoChecks: Array<{
+    frontKey: string;
+    rearKey?: string;
+    name: string;
+    structureKey: string;
+  }> = [
+    {
+      frontKey: 'centerTorso',
+      rearKey: 'centerTorsoRear',
+      name: 'Center Torso',
+      structureKey: 'centerTorso',
+    },
+    {
+      frontKey: 'leftTorso',
+      rearKey: 'leftTorsoRear',
+      name: 'Left Torso',
+      structureKey: 'sideTorso',
+    },
+    {
+      frontKey: 'rightTorso',
+      rearKey: 'rightTorsoRear',
+      name: 'Right Torso',
+      structureKey: 'sideTorso',
+    },
   ];
-  
+
   for (const { frontKey, rearKey, name, structureKey } of torsoChecks) {
     const frontVal = allocation[frontKey];
-    const front = typeof frontVal === 'object' && frontVal !== null && 'front' in frontVal 
-      ? (frontVal as { front: number }).front 
-      : (typeof frontVal === 'number' ? frontVal : 0);
-    
-    const rearVal = rearKey ? allocation[rearKey] : (
-      typeof frontVal === 'object' && frontVal !== null && 'rear' in frontVal 
-        ? (frontVal as { rear: number }).rear 
-        : 0
-    );
+    const front =
+      typeof frontVal === 'object' && frontVal !== null && 'front' in frontVal
+        ? (frontVal as { front: number }).front
+        : typeof frontVal === 'number'
+          ? frontVal
+          : 0;
+
+    const rearVal = rearKey
+      ? allocation[rearKey]
+      : typeof frontVal === 'object' && frontVal !== null && 'rear' in frontVal
+        ? (frontVal as { rear: number }).rear
+        : 0;
     const rear = typeof rearVal === 'number' ? rearVal : 0;
-    
+
     const total = front + rear;
     const maxArmor = structure[structureKey] * 2;
-    
+
     if (total > maxArmor) {
       warnings.push({
         code: 'ARMOR_EXCEEDED',
@@ -319,11 +350,11 @@ export function validateBatch(units: ISerializedUnit[]): {
   let valid = 0;
   let invalid = 0;
   let withWarnings = 0;
-  
+
   for (const unit of units) {
     const result = validateConvertedUnit(unit);
     results.push({ id: unit.id, result });
-    
+
     if (result.isValid) {
       valid++;
       if (result.warnings.length > 0) {
@@ -333,7 +364,7 @@ export function validateBatch(units: ISerializedUnit[]): {
       invalid++;
     }
   }
-  
+
   return {
     total: units.length,
     valid,
@@ -342,4 +373,3 @@ export function validateBatch(units: ISerializedUnit[]): {
     results,
   };
 }
-

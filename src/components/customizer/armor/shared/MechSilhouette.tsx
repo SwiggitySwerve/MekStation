@@ -4,7 +4,10 @@
  * Provides path data and positioning for different mech silhouette styles.
  */
 
-export type { LocationPosition, SilhouetteConfig } from './MechSilhouette.types';
+export type {
+  LocationPosition,
+  SilhouetteConfig,
+} from './MechSilhouette.types';
 
 export {
   REALISTIC_SILHOUETTE,

@@ -44,14 +44,20 @@ export function getRankTier(rankIndex: number): RankTier {
 }
 
 export function isValidRankIndex(rankIndex: number): boolean {
-  return Number.isInteger(rankIndex) && rankIndex >= 0 && rankIndex < RANK_TIERS.TOTAL;
+  return (
+    Number.isInteger(rankIndex) &&
+    rankIndex >= 0 &&
+    rankIndex < RANK_TIERS.TOTAL
+  );
 }
 
 export function createEmptyRank(): IRank {
   return { names: {}, officer: false, payMultiplier: 1.0 };
 }
 
-export function createRanks(populatedRanks: Record<number, IRank>): readonly IRank[] {
+export function createRanks(
+  populatedRanks: Record<number, IRank>,
+): readonly IRank[] {
   const ranks: IRank[] = [];
   for (let i = 0; i < RANK_TIERS.TOTAL; i++) {
     ranks.push(populatedRanks[i] ?? createEmptyRank());
@@ -61,11 +67,18 @@ export function createRanks(populatedRanks: Record<number, IRank>): readonly IRa
 
 // Type guards
 export function isProfession(value: unknown): value is Profession {
-  return typeof value === 'string' && Object.values(Profession).includes(value as Profession);
+  return (
+    typeof value === 'string' &&
+    Object.values(Profession).includes(value as Profession)
+  );
 }
 
 export function isRankTier(value: unknown): value is RankTier {
-  return value === 'enlisted' || value === 'warrant_officer' || value === 'officer';
+  return (
+    value === 'enlisted' || value === 'warrant_officer' || value === 'officer'
+  );
 }
 
-export const ALL_PROFESSIONS: readonly Profession[] = Object.freeze(Object.values(Profession));
+export const ALL_PROFESSIONS: readonly Profession[] = Object.freeze(
+  Object.values(Profession),
+);

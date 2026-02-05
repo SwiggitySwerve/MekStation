@@ -109,7 +109,7 @@ export const ARMOR_COST_MODIFIERS: Record<string, number> = {
 export const STRUCTURE_COST_MODIFIERS: Record<string, number> = {
   standard: 1.0,
   'endo-steel': 1.5,
-  'composite': 1.75,
+  composite: 1.75,
   reinforced: 2.0,
 };
 
@@ -318,7 +318,7 @@ export interface ISalvageInventory {
  */
 export function calculateArmorRepairCost(
   pointsToRestore: number,
-  armorType: string = 'standard'
+  armorType: string = 'standard',
 ): number {
   const modifier = ARMOR_COST_MODIFIERS[armorType] ?? 1.0;
   return Math.ceil(pointsToRestore * REPAIR_COSTS.ARMOR_PER_POINT * modifier);
@@ -330,12 +330,17 @@ export function calculateArmorRepairCost(
 export function calculateStructureRepairCost(
   pointsToRestore: number,
   structureType: string = 'standard',
-  isCritical: boolean = false
+  isCritical: boolean = false,
 ): number {
   const typeModifier = STRUCTURE_COST_MODIFIERS[structureType] ?? 1.0;
-  const critModifier = isCritical ? REPAIR_COSTS.CRITICAL_DAMAGE_MULTIPLIER : 1.0;
+  const critModifier = isCritical
+    ? REPAIR_COSTS.CRITICAL_DAMAGE_MULTIPLIER
+    : 1.0;
   return Math.ceil(
-    pointsToRestore * REPAIR_COSTS.STRUCTURE_PER_POINT * typeModifier * critModifier
+    pointsToRestore *
+      REPAIR_COSTS.STRUCTURE_PER_POINT *
+      typeModifier *
+      critModifier,
   );
 }
 
@@ -356,7 +361,9 @@ export function calculateStructureRepairTime(pointsToRestore: number): number {
 /**
  * Calculate total repair job cost.
  */
-export function calculateTotalRepairCost(items: readonly IRepairItem[]): number {
+export function calculateTotalRepairCost(
+  items: readonly IRepairItem[],
+): number {
   return items
     .filter((item) => item.selected)
     .reduce((sum, item) => sum + item.cost, 0);
@@ -365,7 +372,9 @@ export function calculateTotalRepairCost(items: readonly IRepairItem[]): number 
 /**
  * Calculate total repair job time.
  */
-export function calculateTotalRepairTime(items: readonly IRepairItem[]): number {
+export function calculateTotalRepairTime(
+  items: readonly IRepairItem[],
+): number {
   return items
     .filter((item) => item.selected)
     .reduce((sum, item) => sum + item.timeHours, 0);
@@ -376,7 +385,7 @@ export function calculateTotalRepairTime(items: readonly IRepairItem[]): number 
  */
 export function calculateFieldRepair(
   assessment: IDamageAssessment,
-  availableSupplies: number
+  availableSupplies: number,
 ): IFieldRepairResult {
   const armorRestored: Record<string, number> = {};
   let totalArmorRestored = 0;
@@ -386,19 +395,24 @@ export function calculateFieldRepair(
     if (locDamage.armorDamage <= 0) continue;
 
     // Field repair can restore up to 25% of max armor
-    const maxFieldRepair = Math.ceil(locDamage.armorMax * REPAIR_COSTS.FIELD_REPAIR_ARMOR_PERCENT);
+    const maxFieldRepair = Math.ceil(
+      locDamage.armorMax * REPAIR_COSTS.FIELD_REPAIR_ARMOR_PERCENT,
+    );
     const restoreAmount = Math.min(locDamage.armorDamage, maxFieldRepair);
-    const suppliesCost = restoreAmount * REPAIR_COSTS.FIELD_REPAIR_SUPPLIES_PER_POINT;
+    const suppliesCost =
+      restoreAmount * REPAIR_COSTS.FIELD_REPAIR_SUPPLIES_PER_POINT;
 
     if (suppliesUsed + suppliesCost > availableSupplies) {
       // Limited by supplies
       const affordablePoints = Math.floor(
-        (availableSupplies - suppliesUsed) / REPAIR_COSTS.FIELD_REPAIR_SUPPLIES_PER_POINT
+        (availableSupplies - suppliesUsed) /
+          REPAIR_COSTS.FIELD_REPAIR_SUPPLIES_PER_POINT,
       );
       if (affordablePoints > 0) {
         armorRestored[locDamage.location] = affordablePoints;
         totalArmorRestored += affordablePoints;
-        suppliesUsed += affordablePoints * REPAIR_COSTS.FIELD_REPAIR_SUPPLIES_PER_POINT;
+        suppliesUsed +=
+          affordablePoints * REPAIR_COSTS.FIELD_REPAIR_SUPPLIES_PER_POINT;
       }
       break;
     }
@@ -431,7 +445,7 @@ export function createDamageAssessment(
   structureDamage: Record<string, number>,
   destroyedComponents: string[],
   armorMax: Record<string, number>,
-  structureMax: Record<string, number>
+  structureMax: Record<string, number>,
 ): IDamageAssessment {
   const locationDamage: ILocationDamage[] = [];
   let totalArmorDamage = 0;
@@ -450,7 +464,7 @@ export function createDamageAssessment(
       // Filter destroyed components for this location
       // In a real implementation, this would need component-location mapping
       const locDestroyedComponents = destroyedComponents.filter((c) =>
-        c.toLowerCase().includes(location.replace('_', ' '))
+        c.toLowerCase().includes(location.replace('_', ' ')),
       );
 
       locationDamage.push({
@@ -471,7 +485,9 @@ export function createDamageAssessment(
   }
 
   // Check if unit is destroyed (CT structure = 0)
-  const ctDamage = locationDamage.find((l) => l.location === UnitLocation.CenterTorso);
+  const ctDamage = locationDamage.find(
+    (l) => l.location === UnitLocation.CenterTorso,
+  );
   const isDestroyed =
     ctDamage !== undefined &&
     ctDamage.structureMax > 0 &&
@@ -481,9 +497,11 @@ export function createDamageAssessment(
   const operationalPercent = isDestroyed
     ? 0
     : Math.round(
-        ((totalArmorMax - totalArmorDamage + (totalStructureMax - totalStructureDamage)) /
+        ((totalArmorMax -
+          totalArmorDamage +
+          (totalStructureMax - totalStructureDamage)) /
           (totalArmorMax + totalStructureMax)) *
-          100
+          100,
       );
 
   return {
@@ -507,7 +525,7 @@ export function createDamageAssessment(
 export function generateRepairItems(
   assessment: IDamageAssessment,
   armorType: string = 'standard',
-  structureType: string = 'standard'
+  structureType: string = 'standard',
 ): IRepairItem[] {
   const items: IRepairItem[] = [];
   let itemId = 0;
@@ -528,13 +546,18 @@ export function generateRepairItems(
 
     // Structure repair items
     if (locDamage.structureDamage > 0) {
-      const isCritical = locDamage.structureDamage > locDamage.structureMax * 0.5;
+      const isCritical =
+        locDamage.structureDamage > locDamage.structureMax * 0.5;
       items.push({
         id: `repair-${itemId++}`,
         type: RepairType.Structure,
         location: locDamage.location,
         pointsToRestore: locDamage.structureDamage,
-        cost: calculateStructureRepairCost(locDamage.structureDamage, structureType, isCritical),
+        cost: calculateStructureRepairCost(
+          locDamage.structureDamage,
+          structureType,
+          isCritical,
+        ),
         timeHours: calculateStructureRepairTime(locDamage.structureDamage),
         selected: true,
       });
@@ -581,7 +604,7 @@ export interface IRepairJobValidationResult {
 export function validateRepairJob(
   job: IRepairJob,
   availableCBills: number,
-  _availableSupplies: number
+  _availableSupplies: number,
 ): IRepairJobValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -601,7 +624,9 @@ export function validateRepairJob(
   const shortfall = canAfford ? 0 : job.totalCost - availableCBills;
 
   if (!canAfford) {
-    errors.push(`Insufficient C-Bills: need ${job.totalCost}, have ${availableCBills}`);
+    errors.push(
+      `Insufficient C-Bills: need ${job.totalCost}, have ${availableCBills}`,
+    );
   }
 
   // Warnings
@@ -610,7 +635,9 @@ export function validateRepairJob(
   }
 
   if (job.totalTimeHours > 48) {
-    warnings.push('Repair time exceeds 48 hours - unit will be unavailable for next mission');
+    warnings.push(
+      'Repair time exceeds 48 hours - unit will be unavailable for next mission',
+    );
   }
 
   return {
@@ -662,11 +689,13 @@ export function isDamageAssessment(obj: unknown): obj is IDamageAssessment {
 /**
  * Get repair jobs that need attention (blocked or pending too long).
  */
-export function getJobsNeedingAttention(jobs: readonly IRepairJob[]): readonly IRepairJob[] {
+export function getJobsNeedingAttention(
+  jobs: readonly IRepairJob[],
+): readonly IRepairJob[] {
   return jobs.filter(
     (job) =>
       job.status === RepairJobStatus.Blocked ||
-      (job.status === RepairJobStatus.Pending && job.priority > 5)
+      (job.status === RepairJobStatus.Pending && job.priority > 5),
   );
 }
 
@@ -682,7 +711,7 @@ export function calculateBatchRepairCost(jobs: readonly IRepairJob[]): number {
  */
 export function findMatchingSalvage(
   item: IRepairItem,
-  inventory: ISalvageInventory
+  inventory: ISalvageInventory,
 ): ISalvagedPart | undefined {
   if (item.type !== RepairType.ComponentReplace || !item.componentName) {
     return undefined;
@@ -691,7 +720,7 @@ export function findMatchingSalvage(
   return inventory.parts.find(
     (part) =>
       part.componentName.toLowerCase() === item.componentName?.toLowerCase() &&
-      part.condition >= 0.5 // Must be at least 50% condition
+      part.condition >= 0.5, // Must be at least 50% condition
   );
 }
 
@@ -715,9 +744,11 @@ export function sortJobsByPriority(jobs: readonly IRepairJob[]): IRepairJob[] {
 
 export function calculateQualityAdjustedRepairCost(
   baseCost: number,
-  quality?: PartQuality
+  quality?: PartQuality,
 ): number {
-  const multiplier = getQualityRepairCostMultiplier(quality ?? DEFAULT_UNIT_QUALITY);
+  const multiplier = getQualityRepairCostMultiplier(
+    quality ?? DEFAULT_UNIT_QUALITY,
+  );
   return Math.ceil(baseCost * multiplier);
 }
 
@@ -732,7 +763,7 @@ export function calculateQualityAdjustedRepairCost(
 export function calculateRepairTargetNumber(
   techSkillValue: number,
   quality?: PartQuality,
-  additionalModifiers: number = 0
+  additionalModifiers: number = 0,
 ): number {
   const qualityMod = QUALITY_TN_MODIFIER[quality ?? DEFAULT_UNIT_QUALITY];
   return techSkillValue + qualityMod + additionalModifiers;

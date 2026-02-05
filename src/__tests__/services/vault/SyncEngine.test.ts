@@ -10,12 +10,13 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type { IChangeLogEntry } from '@/types/vault';
+
 import {
   SyncEngine,
   getSyncEngine,
   resetSyncEngine,
 } from '@/services/vault/SyncEngine';
-import type { IChangeLogEntry } from '@/types/vault';
 
 // =============================================================================
 // Mocks
@@ -61,7 +62,9 @@ jest.mock('@/services/vault/ChangeLogRepository', () => ({
 // Test Data
 // =============================================================================
 
-const createMockChange = (overrides: Partial<IChangeLogEntry> = {}): IChangeLogEntry => ({
+const createMockChange = (
+  overrides: Partial<IChangeLogEntry> = {},
+): IChangeLogEntry => ({
   id: `change-${Math.random().toString(36).slice(2)}`,
   changeType: 'update',
   contentType: 'unit',
@@ -116,14 +119,19 @@ describe('SyncEngine', () => {
       const mockChange = createMockChange();
       mockRecordChange.mockResolvedValue(mockChange);
 
-      const result = await syncEngine.recordChange('update', 'unit', 'unit-123', 'test data');
+      const result = await syncEngine.recordChange(
+        'update',
+        'unit',
+        'unit-123',
+        'test data',
+      );
 
       expect(mockRecordChange).toHaveBeenCalledWith(
         'update',
         'unit',
         'unit-123',
         null, // contentHash (no hash function set)
-        'test data'
+        'test data',
       );
       expect(result).toEqual(mockChange);
     });
@@ -141,12 +149,15 @@ describe('SyncEngine', () => {
         'unit',
         'unit-123',
         'computed-hash',
-        null
+        null,
       );
     });
 
     it('should get changes for a peer based on sync state', async () => {
-      const changes = [createMockChange({ version: 5 }), createMockChange({ version: 6 })];
+      const changes = [
+        createMockChange({ version: 5 }),
+        createMockChange({ version: 6 }),
+      ];
       mockGetChangesSince.mockResolvedValue(changes);
 
       const result = await syncEngine.getChangesForPeer('peer-1');
@@ -162,7 +173,9 @@ describe('SyncEngine', () => {
       // Simulate having sync state for peer
       syncEngine.setSyncStatus('peer-1', 'idle');
       // Need to update sync state with version
-      await syncEngine.applyRemoteChanges('peer-1', [createMockChange({ version: 10 })]);
+      await syncEngine.applyRemoteChanges('peer-1', [
+        createMockChange({ version: 10 }),
+      ]);
 
       await syncEngine.getChangesForPeer('peer-1');
 
@@ -198,7 +211,9 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(null);
       mockRecordChange.mockResolvedValue(remoteChange);
 
-      const result = await syncEngine.applyRemoteChanges('peer-1', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('peer-1', [
+        remoteChange,
+      ]);
 
       expect(result.applied).toHaveLength(1);
       expect(result.conflicts).toHaveLength(0);
@@ -211,7 +226,9 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(localChange);
       mockRecordChange.mockResolvedValue(remoteChange);
 
-      const result = await syncEngine.applyRemoteChanges('peer-1', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('peer-1', [
+        remoteChange,
+      ]);
 
       expect(result.applied).toHaveLength(1);
       expect(result.conflicts).toHaveLength(0);
@@ -223,7 +240,9 @@ describe('SyncEngine', () => {
       const remoteChange = createMockChange({ version: 5 });
       mockGetLatestForItem.mockResolvedValue(localChange);
 
-      const result = await syncEngine.applyRemoteChanges('peer-1', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('peer-1', [
+        remoteChange,
+      ]);
 
       expect(result.applied).toHaveLength(0);
       expect(result.conflicts).toHaveLength(0);
@@ -243,7 +262,9 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(localChange);
       mockRecordConflict.mockResolvedValue('conflict-123');
 
-      const result = await syncEngine.applyRemoteChanges('peer-1', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('peer-1', [
+        remoteChange,
+      ]);
 
       expect(result.applied).toHaveLength(0);
       expect(result.conflicts).toHaveLength(1);
@@ -265,7 +286,9 @@ describe('SyncEngine', () => {
       mockGetLatestForItem.mockResolvedValue(localChange);
       mockRecordChange.mockResolvedValue(remoteChange);
 
-      const result = await syncEngine.applyRemoteChanges('peer-1', [remoteChange]);
+      const result = await syncEngine.applyRemoteChanges('peer-1', [
+        remoteChange,
+      ]);
 
       expect(result.applied).toHaveLength(1);
       expect(result.conflicts).toHaveLength(0);
@@ -379,7 +402,11 @@ describe('SyncEngine', () => {
       const states = syncEngine.getAllSyncStates();
 
       expect(states).toHaveLength(3);
-      expect(states.map((s) => s.peerId).sort()).toEqual(['peer-1', 'peer-2', 'peer-3']);
+      expect(states.map((s) => s.peerId).sort()).toEqual([
+        'peer-1',
+        'peer-2',
+        'peer-3',
+      ]);
     });
 
     it('should reset sync state for a peer', () => {
@@ -420,7 +447,7 @@ describe('SyncEngine', () => {
       ];
       mockGetLatestForItem.mockResolvedValue(null);
       mockRecordChange.mockImplementation((_, __, ___, ____, _____, ______) =>
-        Promise.resolve(changes[0])
+        Promise.resolve(changes[0]),
       );
 
       const result = await syncEngine.applyRemoteChanges('peer-1', changes);
@@ -441,7 +468,7 @@ describe('SyncEngine', () => {
         'unit',
         'unit-new',
         null,
-        null
+        null,
       );
     });
   });

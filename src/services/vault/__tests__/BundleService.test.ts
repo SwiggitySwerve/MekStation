@@ -6,6 +6,8 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type { IShareableBundle, IBundleMetadata } from '@/types/vault';
+
 import {
   BUNDLE_VERSION,
   serializeBundle,
@@ -14,7 +16,6 @@ import {
   isBundleVersionCompatible,
   getContentTypeLabel,
 } from '@/services/vault/BundleService';
-import type { IShareableBundle, IBundleMetadata } from '@/types/vault';
 
 // =============================================================================
 // Bundle Version
@@ -96,7 +97,9 @@ describe('Bundle Serialization', () => {
 
     it('should throw on missing required fields', () => {
       expect(() => parseBundle('{}')).toThrow('missing required fields');
-      expect(() => parseBundle('{"metadata": {}}')).toThrow('missing required fields');
+      expect(() => parseBundle('{"metadata": {}}')).toThrow(
+        'missing required fields',
+      );
     });
 
     it('should throw on missing metadata fields', () => {

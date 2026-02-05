@@ -5,11 +5,13 @@
  */
 
 import React from 'react';
-import { EquipmentRow } from './EquipmentRow';
-import { CompactFilterBar } from './CompactFilterBar';
+
 import { useEquipmentBrowser } from '@/hooks/useEquipmentBrowser';
 import { SortColumn } from '@/stores/useEquipmentStore';
 import { IEquipmentItem } from '@/types/equipment';
+
+import { CompactFilterBar } from './CompactFilterBar';
+import { EquipmentRow } from './EquipmentRow';
 
 export interface EquipmentBrowserProps {
   /** Called when equipment is added to unit */
@@ -55,16 +57,18 @@ export function EquipmentBrowser({
     setSort,
     refresh,
   } = useEquipmentBrowser();
-  
+
   if (error) {
     return (
-      <div className={`bg-surface-base rounded-lg border border-border-theme-subtle p-4 ${className}`}>
-        <div className="text-center py-8">
-          <div className="text-red-400 mb-2">Failed to load equipment</div>
-          <p className="text-sm text-text-theme-secondary mb-4">{error}</p>
+      <div
+        className={`bg-surface-base border-border-theme-subtle rounded-lg border p-4 ${className}`}
+      >
+        <div className="py-8 text-center">
+          <div className="mb-2 text-red-400">Failed to load equipment</div>
+          <p className="text-text-theme-secondary mb-4 text-sm">{error}</p>
           <button
             onClick={refresh}
-            className="px-4 py-2 bg-accent hover:bg-accent/80 text-white rounded transition-colors"
+            className="bg-accent hover:bg-accent/80 rounded px-4 py-2 text-white transition-colors"
           >
             Retry
           </button>
@@ -72,15 +76,19 @@ export function EquipmentBrowser({
       </div>
     );
   }
-  
+
   return (
-    <div className={`bg-surface-base rounded-lg border border-border-theme-subtle flex flex-col ${className}`}>
-      <div className="px-3 py-2 border-b border-border-theme-subtle flex items-center justify-between">
+    <div
+      className={`bg-surface-base border-border-theme-subtle flex flex-col rounded-lg border ${className}`}
+    >
+      <div className="border-border-theme-subtle flex items-center justify-between border-b px-3 py-2">
         <h3 className="text-sm font-semibold text-white">Equipment Database</h3>
-        <span className="text-[10px] text-text-theme-secondary">{totalItems} items</span>
+        <span className="text-text-theme-secondary text-[10px]">
+          {totalItems} items
+        </span>
       </div>
 
-      <div className="px-3 py-2 border-b border-border-theme-subtle bg-surface-base/50">
+      <div className="border-border-theme-subtle bg-surface-base/50 border-b px-3 py-2">
         <CompactFilterBar
           activeCategories={activeCategories}
           showAll={showAllCategories}
@@ -98,29 +106,35 @@ export function EquipmentBrowser({
           onSearchChange={setSearch}
           onClearFilters={clearFilters}
         />
-        
+
         {hideUnavailable && (unitYear || unitTechBase) && (
-          <div className="flex items-center gap-2 text-[10px] text-text-theme-secondary mt-1.5">
+          <div className="text-text-theme-secondary mt-1.5 flex items-center gap-2 text-[10px]">
             <span className="text-slate-500">Filtering:</span>
             {unitYear && (
-              <span className="bg-surface-raised px-1.5 py-0.5 rounded">Year ≤ {unitYear}</span>
+              <span className="bg-surface-raised rounded px-1.5 py-0.5">
+                Year ≤ {unitYear}
+              </span>
             )}
             {unitTechBase && (
-              <span className="bg-surface-raised px-1.5 py-0.5 rounded">{unitTechBase}</span>
+              <span className="bg-surface-raised rounded px-1.5 py-0.5">
+                {unitTechBase}
+              </span>
             )}
           </div>
         )}
       </div>
-      
+
       <div className="flex-1 overflow-auto">
         {isLoading ? (
           <div className="p-8 text-center">
-            <div className="animate-pulse text-text-theme-secondary">Loading equipment...</div>
+            <div className="text-text-theme-secondary animate-pulse">
+              Loading equipment...
+            </div>
           </div>
         ) : (
           <table className="w-full">
-            <thead className="sticky top-0 bg-surface-base">
-              <tr className="text-left text-[10px] text-text-theme-secondary uppercase border-b border-border-theme-subtle">
+            <thead className="bg-surface-base sticky top-0">
+              <tr className="text-text-theme-secondary border-border-theme-subtle border-b text-left text-[10px] uppercase">
                 <SortableHeader
                   label="Name"
                   column="name"
@@ -129,10 +143,13 @@ export function EquipmentBrowser({
                   onSort={setSort}
                   className="pl-1.5"
                 />
-                <th className="px-1 py-1 text-center w-20 sm:w-24">Range</th>
-                <th className="px-1 py-1 text-center w-10 sm:w-12">Dmg</th>
-                <th className="px-1 py-1 text-center w-8 sm:w-10">Heat</th>
-                <th className="px-1 py-1 text-center w-12 cursor-pointer hover:text-white transition-colors" onClick={() => setSort('weight')}>
+                <th className="w-20 px-1 py-1 text-center sm:w-24">Range</th>
+                <th className="w-10 px-1 py-1 text-center sm:w-12">Dmg</th>
+                <th className="w-8 px-1 py-1 text-center sm:w-10">Heat</th>
+                <th
+                  className="w-12 cursor-pointer px-1 py-1 text-center transition-colors hover:text-white"
+                  onClick={() => setSort('weight')}
+                >
                   <span className="flex items-center justify-center gap-0.5">
                     Wt
                     {sortColumn === 'weight' && (
@@ -148,15 +165,18 @@ export function EquipmentBrowser({
                   currentColumn={sortColumn}
                   direction={sortDirection}
                   onSort={setSort}
-                  className="text-center w-10"
+                  className="w-10 text-center"
                 />
-                <th className="px-1 py-1 w-10"></th>
+                <th className="w-10 px-1 py-1"></th>
               </tr>
             </thead>
             <tbody>
               {paginatedEquipment.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-text-theme-secondary">
+                  <td
+                    colSpan={7}
+                    className="text-text-theme-secondary px-3 py-8 text-center"
+                  >
                     No equipment found
                   </td>
                 </tr>
@@ -174,37 +194,37 @@ export function EquipmentBrowser({
           </table>
         )}
       </div>
-      
-      <div className="px-3 py-1.5 border-t border-border-theme-subtle flex items-center justify-between">
-        <div className="text-[10px] text-text-theme-secondary">
+
+      <div className="border-border-theme-subtle flex items-center justify-between border-t px-3 py-1.5">
+        <div className="text-text-theme-secondary text-[10px]">
           Page {currentPage}/{totalPages}
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setPage(1)}
             disabled={currentPage === 1}
-            className="px-1.5 py-0.5 text-[10px] bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary disabled:opacity-40 rounded transition-colors"
+            className="bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary rounded px-1.5 py-0.5 text-[10px] transition-colors disabled:opacity-40"
           >
             ««
           </button>
           <button
             onClick={() => setPage(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
-            className="px-1.5 py-0.5 text-[10px] bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary disabled:opacity-40 rounded transition-colors"
+            className="bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary rounded px-1.5 py-0.5 text-[10px] transition-colors disabled:opacity-40"
           >
             ‹
           </button>
           <button
             onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
-            className="px-1.5 py-0.5 text-[10px] bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary disabled:opacity-40 rounded transition-colors"
+            className="bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary rounded px-1.5 py-0.5 text-[10px] transition-colors disabled:opacity-40"
           >
             ›
           </button>
           <button
             onClick={() => setPage(totalPages)}
             disabled={currentPage === totalPages}
-            className="px-1.5 py-0.5 text-[10px] bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary disabled:opacity-40 rounded transition-colors"
+            className="bg-surface-raised hover:bg-surface-raised/80 text-text-theme-secondary rounded px-1.5 py-0.5 text-[10px] transition-colors disabled:opacity-40"
           >
             »»
           </button>
@@ -235,13 +255,13 @@ function SortableHeader({
   className = '',
 }: SortableHeaderProps) {
   const isActive = column === currentColumn;
-  
+
   return (
     <th
-      className={`px-1 py-1 cursor-pointer hover:text-white transition-colors ${className}`}
+      className={`cursor-pointer px-1 py-1 transition-colors hover:text-white ${className}`}
       onClick={() => onSort(column)}
     >
-      <span className="flex items-center gap-0.5 justify-inherit">
+      <span className="justify-inherit flex items-center gap-0.5">
         {label}
         {isActive && (
           <span className="text-accent text-[8px]">

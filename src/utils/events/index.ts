@@ -22,7 +22,11 @@ export {
 } from './eventFactory';
 
 // Chunk factory
-export { createChunkSummary, createChunk, createCheckpoint } from './chunkFactory';
+export {
+  createChunkSummary,
+  createChunk,
+  createCheckpoint,
+} from './chunkFactory';
 
 // Hash utilities
 export {

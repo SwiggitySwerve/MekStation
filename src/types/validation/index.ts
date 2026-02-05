@@ -12,4 +12,3 @@ export * from './DamageSystem';
 export * from './CriticalHitSystem';
 export * from './UnitValidationInterfaces';
 export * from './rules/ValidationRuleInterfaces';
-

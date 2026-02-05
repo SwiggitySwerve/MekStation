@@ -58,9 +58,9 @@ const FOCUSABLE_SELECTOR =
  */
 export function trapFocus(element: HTMLElement): () => void {
   const getFocusableElements = (): HTMLElement[] =>
-    Array.from(element.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-      (el) => !el.hasAttribute('disabled') && el.offsetParent !== null,
-    );
+    Array.from(
+      element.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+    ).filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
 
   const handleKeyDown = (e: KeyboardEvent): void => {
     if (e.key !== 'Tab') return;

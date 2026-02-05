@@ -7,12 +7,12 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.3
  */
 
-import { TechBase } from '@/types/enums/TechBase';
+import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { IEquipmentItem } from '@/types/equipment';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { IProtoMechMountedEquipment } from '@/types/unit/PersonnelInterfaces';
-import { ProtoMechLocation } from '@/types/construction/UnitLocation';
-import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -51,7 +51,9 @@ export function createEmptyProtoMechArmorAllocation(): IProtoMechArmorAllocation
 /**
  * Calculate total ProtoMech armor
  */
-export function getTotalProtoMechArmor(allocation: IProtoMechArmorAllocation): number {
+export function getTotalProtoMechArmor(
+  allocation: IProtoMechArmorAllocation,
+): number {
   return (
     (allocation[ProtoMechLocation.HEAD] || 0) +
     (allocation[ProtoMechLocation.TORSO] || 0) +
@@ -72,7 +74,7 @@ export function getTotalProtoMechArmor(allocation: IProtoMechArmorAllocation): n
 export function createProtoMechMountedEquipment(
   item: IEquipmentItem,
   instanceId: string,
-  location?: ProtoMechLocation
+  location?: ProtoMechLocation,
 ): IProtoMechMountedEquipment {
   return {
     id: instanceId,
@@ -253,8 +255,14 @@ export interface ProtoMechStoreActions {
   // Equipment Actions
   addEquipment: (item: IEquipmentItem, location?: ProtoMechLocation) => string;
   removeEquipment: (instanceId: string) => void;
-  updateEquipmentLocation: (instanceId: string, location: ProtoMechLocation) => void;
-  linkAmmo: (weaponInstanceId: string, ammoInstanceId: string | undefined) => void;
+  updateEquipmentLocation: (
+    instanceId: string,
+    location: ProtoMechLocation,
+  ) => void;
+  linkAmmo: (
+    weaponInstanceId: string,
+    ammoInstanceId: string | undefined,
+  ) => void;
   clearAllEquipment: () => void;
 
   // Metadata Actions
@@ -285,7 +293,9 @@ export interface CreateProtoMechOptions {
 /**
  * Get default internal structure for ProtoMech tonnage
  */
-function getDefaultProtoMechStructure(tonnage: number): IProtoMechArmorAllocation {
+function getDefaultProtoMechStructure(
+  tonnage: number,
+): IProtoMechArmorAllocation {
   // Simplified structure based on tonnage
   const base = Math.ceil(tonnage / 2);
   return {
@@ -302,7 +312,7 @@ function getDefaultProtoMechStructure(tonnage: number): IProtoMechArmorAllocatio
  * Create a default ProtoMech state
  */
 export function createDefaultProtoMechState(
-  options: CreateProtoMechOptions = {}
+  options: CreateProtoMechOptions = {},
 ): ProtoMechState {
   const now = Date.now();
   const id = options.id ?? generateUUID();

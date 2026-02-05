@@ -1,21 +1,23 @@
 /**
  * Unit Info Banner Component
- * 
+ *
  * Modular stat box display that flows and wraps as space permits.
  * Uses balanced grid for even row distribution when wrapping.
  * Single responsive component for both mobile and desktop.
- * 
+ *
  * @spec openspec/specs/unit-info-banner/spec.md
  */
 
 import React from 'react';
-import { TechBaseBadge } from './TechBaseBadge';
-import { ValidationSummary } from './ValidationSummary';
+
 import { BalancedGrid } from '@/components/common/BalancedGrid';
+import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
+import { UnitValidationState } from '@/hooks/useUnitValidation';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { ValidationStatus } from '@/utils/colors/statusColors';
-import { UnitValidationState } from '@/hooks/useUnitValidation';
-import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
+
+import { TechBaseBadge } from './TechBaseBadge';
+import { ValidationSummary } from './ValidationSummary';
 
 // =============================================================================
 // Types
@@ -56,7 +58,8 @@ interface UnitInfoBannerProps {
 // =============================================================================
 
 const styles = {
-  label: 'text-[9px] sm:text-[10px] font-medium text-text-theme-secondary uppercase tracking-wider',
+  label:
+    'text-[9px] sm:text-[10px] font-medium text-text-theme-secondary uppercase tracking-wider',
   value: {
     normal: 'text-white',
     warning: 'text-amber-400',
@@ -83,7 +86,11 @@ function SimpleStat({ label, value, status = 'normal' }: SimpleStatProps) {
   return (
     <div className={styles.box}>
       <span className={styles.label}>{label}</span>
-      <span className={`text-sm sm:text-base font-bold ${styles.value[status]}`}>{value}</span>
+      <span
+        className={`text-sm font-bold sm:text-base ${styles.value[status]}`}
+      >
+        {value}
+      </span>
     </div>
   );
 }
@@ -96,65 +103,91 @@ interface CapacityStatProps {
   status?: 'normal' | 'warning' | 'error' | 'success';
 }
 
-function CapacityStat({ label, current, max, unit = '', status = 'normal' }: CapacityStatProps) {
+function CapacityStat({
+  label,
+  current,
+  max,
+  unit = '',
+  status = 'normal',
+}: CapacityStatProps) {
   return (
     <div className={styles.box}>
       <span className={styles.label}>{label}</span>
       <div className="flex items-baseline gap-0.5">
-        <span className={`text-sm sm:text-base font-bold ${styles.value[status]}`}>
-          {current}{unit}
+        <span
+          className={`text-sm font-bold sm:text-base ${styles.value[status]}`}
+        >
+          {current}
+          {unit}
         </span>
         <span className={`text-[10px] ${styles.muted}`}>/</span>
         <span className={`text-[10px] ${styles.muted}`}>
-          {max}{unit}
+          {max}
+          {unit}
         </span>
       </div>
     </div>
   );
 }
 
-
 // =============================================================================
 // Main Component
 // =============================================================================
 
-export function UnitInfoBanner({ stats, validation, onValidationNavigate, className = '' }: UnitInfoBannerProps): React.ReactElement {
-  const weightStatus: 'normal' | 'warning' | 'error' = 
-    stats.weightUsed > stats.tonnage ? 'error' :
-    stats.weightRemaining < 0.5 ? 'warning' : 'normal';
-  
-  const slotsStatus: 'normal' | 'warning' | 'error' = 
+export function UnitInfoBanner({
+  stats,
+  validation,
+  onValidationNavigate,
+  className = '',
+}: UnitInfoBannerProps): React.ReactElement {
+  const weightStatus: 'normal' | 'warning' | 'error' =
+    stats.weightUsed > stats.tonnage
+      ? 'error'
+      : stats.weightRemaining < 0.5
+        ? 'warning'
+        : 'normal';
+
+  const slotsStatus: 'normal' | 'warning' | 'error' =
     stats.criticalSlotsUsed > stats.criticalSlotsTotal ? 'error' : 'normal';
-  
-  const heatStatus: 'normal' | 'warning' | 'error' | 'success' = 
-    stats.heatGenerated > stats.heatDissipation ? 'error' :
-    stats.heatGenerated === stats.heatDissipation ? 'warning' : 'success';
+
+  const heatStatus: 'normal' | 'warning' | 'error' | 'success' =
+    stats.heatGenerated > stats.heatDissipation
+      ? 'error'
+      : stats.heatGenerated === stats.heatDissipation
+        ? 'warning'
+        : 'success';
 
   const hasRunPlus = stats.maxRunMP && stats.maxRunMP > stats.runMP;
 
   return (
-    <div className={`bg-surface-base border border-border-theme-subtle rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 ${className}`}>
-      <div className="flex items-center gap-2 mb-1.5">
-        <h2 className="text-sm sm:text-base font-bold text-white truncate">{stats.name}</h2>
+    <div
+      className={`bg-surface-base border-border-theme-subtle rounded-lg border px-2 py-1.5 sm:px-3 sm:py-2 ${className}`}
+    >
+      <div className="mb-1.5 flex items-center gap-2">
+        <h2 className="truncate text-sm font-bold text-white sm:text-base">
+          {stats.name}
+        </h2>
         <TechBaseBadge techBaseMode={stats.techBaseMode} />
-{validation && (
-          <ValidationSummary 
+        {validation && (
+          <ValidationSummary
             validation={validation}
             onNavigate={onValidationNavigate}
           />
         )}
       </div>
-      
+
       {/* BalancedGrid automatically distributes items evenly across rows */}
       <BalancedGrid minItemWidth={75} gap={6} className="sm:gap-1.5">
         <SimpleStat label="Tonnage" value={stats.tonnage} />
         <SimpleStat label="Walk" value={stats.walkMP} />
         <SimpleStat label="Run" value={stats.runMP} />
-        {hasRunPlus && (
-          <SimpleStat label="Run+" value={stats.maxRunMP!} />
-        )}
+        {hasRunPlus && <SimpleStat label="Run+" value={stats.maxRunMP!} />}
         <SimpleStat label="Jump" value={stats.jumpMP} />
-        <SimpleStat label="BV" value={stats.battleValue?.toLocaleString() ?? '-'} status="bv" />
+        <SimpleStat
+          label="BV"
+          value={stats.battleValue?.toLocaleString() ?? '-'}
+          status="bv"
+        />
         <SimpleStat label="Engine" value={stats.engineRating} status="engine" />
         <CapacityStat
           label="Weight"
@@ -163,9 +196,23 @@ export function UnitInfoBanner({ stats, validation, onValidationNavigate, classN
           unit="t"
           status={weightStatus}
         />
-        <CapacityStat label="Armor" current={stats.armorPoints} max={stats.maxArmorPoints} />
-        <CapacityStat label="Slots" current={stats.criticalSlotsUsed} max={stats.criticalSlotsTotal} status={slotsStatus} />
-        <CapacityStat label="Heat" current={stats.heatGenerated} max={stats.heatDissipation} status={heatStatus} />
+        <CapacityStat
+          label="Armor"
+          current={stats.armorPoints}
+          max={stats.maxArmorPoints}
+        />
+        <CapacityStat
+          label="Slots"
+          current={stats.criticalSlotsUsed}
+          max={stats.criticalSlotsTotal}
+          status={slotsStatus}
+        />
+        <CapacityStat
+          label="Heat"
+          current={stats.heatGenerated}
+          max={stats.heatDissipation}
+          status={heatStatus}
+        />
       </BalancedGrid>
     </div>
   );

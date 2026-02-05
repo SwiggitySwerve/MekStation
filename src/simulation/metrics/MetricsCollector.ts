@@ -84,12 +84,14 @@ export class MetricsCollector {
       totalTurns += game.turns;
       totalDurationMs += game.durationMs;
       totalPlayerUnitsDestroyed += game.playerUnitsStart - game.playerUnitsEnd;
-      totalOpponentUnitsDestroyed += game.opponentUnitsStart - game.opponentUnitsEnd;
+      totalOpponentUnitsDestroyed +=
+        game.opponentUnitsStart - game.opponentUnitsEnd;
 
       for (const violation of game.violations) {
         totalViolations++;
-        violationsByType[violation.invariant] = (violationsByType[violation.invariant] || 0) + 1;
-        
+        violationsByType[violation.invariant] =
+          (violationsByType[violation.invariant] || 0) + 1;
+
         if (violation.severity === 'critical') {
           criticalViolations++;
         } else {
@@ -101,8 +103,10 @@ export class MetricsCollector {
     const totalGames = this.games.length;
     const completedGames = totalGames - incompleteGames;
 
-    const playerWinRate = completedGames > 0 ? (playerWins / completedGames) * 100 : 0;
-    const opponentWinRate = completedGames > 0 ? (opponentWins / completedGames) * 100 : 0;
+    const playerWinRate =
+      completedGames > 0 ? (playerWins / completedGames) * 100 : 0;
+    const opponentWinRate =
+      completedGames > 0 ? (opponentWins / completedGames) * 100 : 0;
     const drawRate = completedGames > 0 ? (draws / completedGames) * 100 : 0;
 
     return {

@@ -9,25 +9,25 @@
 export enum ForceRole {
   /** Standard combat force */
   STANDARD = 'Standard',
-  
+
   /** Support force (logistics, medical, etc.) */
   SUPPORT = 'Support',
-  
+
   /** Convoy/transport force */
   CONVOY = 'Convoy',
-  
+
   /** Security/garrison force */
   SECURITY = 'Security',
-  
+
   /** Reconnaissance force */
   RECON = 'Reconnaissance',
-  
+
   /** Strike force */
   STRIKE = 'Strike',
-  
+
   /** Reserve force */
   RESERVE = 'Reserve',
-  
+
   /** Mixed composition force */
   MIXED = 'Mixed',
 }

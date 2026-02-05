@@ -1,5 +1,5 @@
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { MechConfiguration } from '@/services/assets/MmDataAssetService';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
 export interface LocationBounds {
   x: number;
@@ -47,7 +47,7 @@ export const LAM_LOCATION_BOUNDS = BIPED_LOCATION_BOUNDS;
 export const QUADVEE_LOCATION_BOUNDS = QUAD_LOCATION_BOUNDS;
 
 export function getLocationBoundsForConfiguration(
-  config: MechConfiguration
+  config: MechConfiguration,
 ): Record<string, LocationBounds> {
   switch (config) {
     case MechConfiguration.BIPED:
@@ -67,7 +67,7 @@ export function getLocationBoundsForConfiguration(
 
 export function getLocationBounds(
   config: MechConfiguration,
-  location: MechLocation | string
+  location: MechLocation | string,
 ): LocationBounds | undefined {
   const bounds = getLocationBoundsForConfiguration(config);
   return bounds[location];

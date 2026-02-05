@@ -1,27 +1,26 @@
-import type { IAIUnitState, IWeapon } from './types';
-import type { SeededRandom } from '../core/SeededRandom';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+
+import type { SeededRandom } from '../core/SeededRandom';
+import type { IAIUnitState, IWeapon } from './types';
 
 export class AttackAI {
   getValidTargets(
     attacker: IAIUnitState,
-    allUnits: readonly IAIUnitState[]
+    allUnits: readonly IAIUnitState[],
   ): readonly IAIUnitState[] {
     if (attacker.weapons.length === 0) {
       return [];
     }
 
     const maxWeaponRange = Math.max(
-      ...attacker.weapons
-        .filter(w => !w.destroyed)
-        .map(w => w.longRange)
+      ...attacker.weapons.filter((w) => !w.destroyed).map((w) => w.longRange),
     );
 
     if (maxWeaponRange === 0 || maxWeaponRange === -Infinity) {
       return [];
     }
 
-    return allUnits.filter(target => {
+    return allUnits.filter((target) => {
       if (target.unitId === attacker.unitId) return false;
       if (target.destroyed) return false;
 
@@ -32,7 +31,7 @@ export class AttackAI {
 
   selectTarget(
     targets: readonly IAIUnitState[],
-    random: SeededRandom
+    random: SeededRandom,
   ): IAIUnitState | null {
     if (targets.length === 0) {
       return null;
@@ -44,11 +43,11 @@ export class AttackAI {
 
   selectWeapons(
     attacker: IAIUnitState,
-    target: IAIUnitState
+    target: IAIUnitState,
   ): readonly IWeapon[] {
     const distance = hexDistance(attacker.position, target.position);
 
-    return attacker.weapons.filter(weapon => {
+    return attacker.weapons.filter((weapon) => {
       if (weapon.destroyed) return false;
       if (distance > weapon.longRange) return false;
 

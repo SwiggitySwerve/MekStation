@@ -10,6 +10,7 @@
  */
 
 import { MechLocation } from '@/types/construction';
+
 import {
   LayoutConstraint,
   MechLayoutConfig,
@@ -25,9 +26,7 @@ const HEAD: PartDefinition = {
   baseWidth: 60,
   baseHeight: 45,
   shape: 'path',
-  anchors: [
-    { id: 'neck', position: 'bottom', offset: { x: 0, y: 0 } },
-  ],
+  anchors: [{ id: 'neck', position: 'bottom', offset: { x: 0, y: 0 } }],
   pathTemplate: `
     M {x} {y}
     L {x2} {y}
@@ -46,11 +45,27 @@ const CENTER_TORSO: PartDefinition = {
   anchors: [
     { id: 'neck', position: 'top', offset: { x: 0, y: 0 } },
     // Side anchors for side torsos - aligned at top
-    { id: 'left_side', position: 'left', edgePosition: { edge: 'left', at: 0 } },
-    { id: 'right_side', position: 'right', edgePosition: { edge: 'right', at: 0 } },
+    {
+      id: 'left_side',
+      position: 'left',
+      edgePosition: { edge: 'left', at: 0 },
+    },
+    {
+      id: 'right_side',
+      position: 'right',
+      edgePosition: { edge: 'right', at: 0 },
+    },
     // Front leg hip anchors - at top portion of center torso (like biped legs but higher)
-    { id: 'front_left_hip', position: 'bottom', edgePosition: { edge: 'bottom', at: 0.2 } },
-    { id: 'front_right_hip', position: 'bottom', edgePosition: { edge: 'bottom', at: 0.8 } },
+    {
+      id: 'front_left_hip',
+      position: 'bottom',
+      edgePosition: { edge: 'bottom', at: 0.2 },
+    },
+    {
+      id: 'front_right_hip',
+      position: 'bottom',
+      edgePosition: { edge: 'bottom', at: 0.8 },
+    },
   ],
   pathTemplate: `
     M {x} {y}
@@ -69,7 +84,11 @@ const LEFT_TORSO: PartDefinition = {
   anchors: [
     { id: 'inner', position: 'right', edgePosition: { edge: 'right', at: 0 } },
     // Rear leg mount at 75% down (25% up from bottom) - like arm mount but lower
-    { id: 'rear_leg_mount', position: 'left', edgePosition: { edge: 'left', at: 0.75 } },
+    {
+      id: 'rear_leg_mount',
+      position: 'left',
+      edgePosition: { edge: 'left', at: 0.75 },
+    },
   ],
   pathTemplate: `
     M {x} {y}
@@ -88,7 +107,11 @@ const RIGHT_TORSO: PartDefinition = {
   anchors: [
     { id: 'inner', position: 'left', edgePosition: { edge: 'left', at: 0 } },
     // Rear leg mount at 75% down (25% up from bottom) - like arm mount but lower
-    { id: 'rear_leg_mount', position: 'right', edgePosition: { edge: 'right', at: 0.75 } },
+    {
+      id: 'rear_leg_mount',
+      position: 'right',
+      edgePosition: { edge: 'right', at: 0.75 },
+    },
   ],
   pathTemplate: `
     M {x} {y}

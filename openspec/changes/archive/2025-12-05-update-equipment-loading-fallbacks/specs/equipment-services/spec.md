@@ -9,17 +9,20 @@ The EquipmentLoaderService SHALL track its loading state and provide status info
 **Priority**: High
 
 #### Scenario: Check loaded state
+
 - **GIVEN** the equipment loader has been instantiated
 - **WHEN** calling `getIsLoaded()`
 - **THEN** return `true` if `loadOfficialEquipment()` completed successfully
 - **AND** return `false` before loading or if loading failed
 
 #### Scenario: Get total count
+
 - **GIVEN** the equipment loader has loaded data
 - **WHEN** calling `getTotalCount()`
 - **THEN** return sum of all loaded equipment items across all categories
 
 #### Scenario: Get load errors
+
 - **GIVEN** the equipment loader attempted to load data
 - **WHEN** calling `getLoadErrors()`
 - **THEN** return array of error messages from failed file loads
@@ -36,6 +39,7 @@ The EquipmentLookupService SHALL support async initialization and track data sou
 **Priority**: High
 
 #### Scenario: Initialize service
+
 - **GIVEN** a new EquipmentLookupService instance
 - **WHEN** calling `initialize()`
 - **THEN** system SHALL attempt to load from EquipmentLoaderService
@@ -43,18 +47,21 @@ The EquipmentLookupService SHALL support async initialization and track data sou
 - **AND** system SHALL set `initialized` flag to true when complete
 
 #### Scenario: Check initialization state
+
 - **GIVEN** the lookup service exists
 - **WHEN** calling `isInitialized()`
 - **THEN** return `true` if `initialize()` has completed
 - **AND** return `false` if not yet initialized
 
 #### Scenario: Get data source
+
 - **GIVEN** the lookup service has initialized
 - **WHEN** calling `getDataSource()`
 - **THEN** return `'json'` if JSON loader provided sufficient items (≥100)
 - **AND** return `'fallback'` if using hardcoded fallback data
 
 #### Scenario: Get load result
+
 - **GIVEN** the lookup service has initialized
 - **WHEN** calling `getLoadResult()`
 - **THEN** return the IEquipmentLoadResult from the loader
@@ -71,6 +78,7 @@ Equipment utility functions SHALL fall back to hardcoded definitions when JSON d
 **Priority**: Critical
 
 #### Scenario: Heat sink equipment lookup
+
 - **GIVEN** heat sink equipment is requested
 - **WHEN** calling `getHeatSinkEquipment(type)`
 - **THEN** system SHALL first try `equipmentLoaderService.getMiscEquipmentById(id)`
@@ -78,6 +86,7 @@ Equipment utility functions SHALL fall back to hardcoded definitions when JSON d
 - **AND** fallback SHALL include all standard heat sink types
 
 #### Scenario: Jump jet equipment lookup
+
 - **GIVEN** jump jet equipment is requested
 - **WHEN** calling `getJumpJetEquipment(tonnage, type)`
 - **THEN** system SHALL first try `equipmentLoaderService.getMiscEquipmentById(id)`
@@ -85,6 +94,7 @@ Equipment utility functions SHALL fall back to hardcoded definitions when JSON d
 - **AND** fallback SHALL include light/medium/heavy standard and improved jets
 
 #### Scenario: Targeting computer equipment lookup
+
 - **GIVEN** targeting computer equipment is requested
 - **WHEN** calling `getTargetingComputerEquipment(techBase)`
 - **THEN** system SHALL first try `equipmentLoaderService.getElectronicsById(id)`
@@ -92,6 +102,7 @@ Equipment utility functions SHALL fall back to hardcoded definitions when JSON d
 - **AND** fallback SHALL include IS and Clan targeting computers
 
 #### Scenario: Enhancement equipment lookup
+
 - **GIVEN** movement enhancement equipment is requested (MASC, TSM, Supercharger)
 - **WHEN** calling `getEnhancementEquipment(type, techBase)`
 - **THEN** system SHALL first try `equipmentLoaderService.getMiscEquipmentById(id)`
@@ -109,6 +120,7 @@ Equipment filter functions SHALL use hardcoded ID lists for filtering equipment 
 **Priority**: High
 
 #### Scenario: Filter out heat sinks
+
 - **GIVEN** a unit's equipment list
 - **WHEN** calling `filterOutHeatSinks(equipment)`
 - **THEN** system SHALL use `HEAT_SINK_EQUIPMENT_IDS` constant
@@ -116,6 +128,7 @@ Equipment filter functions SHALL use hardcoded ID lists for filtering equipment 
 - **AND** return equipment array without heat sink entries
 
 #### Scenario: Filter out jump jets
+
 - **GIVEN** a unit's equipment list
 - **WHEN** calling `filterOutJumpJets(equipment)`
 - **THEN** system SHALL use `JUMP_JET_EQUIPMENT_IDS` constant
@@ -123,6 +136,7 @@ Equipment filter functions SHALL use hardcoded ID lists for filtering equipment 
 - **AND** return equipment array without jump jet entries
 
 #### Scenario: Filter out targeting computers
+
 - **GIVEN** a unit's equipment list
 - **WHEN** calling `filterOutTargetingComputer(equipment)`
 - **THEN** system SHALL use `TARGETING_COMPUTER_IDS` constant
@@ -130,6 +144,7 @@ Equipment filter functions SHALL use hardcoded ID lists for filtering equipment 
 - **AND** return equipment array without targeting computer entries
 
 #### Scenario: Filter out enhancements
+
 - **GIVEN** a unit's equipment list
 - **WHEN** calling `filterOutEnhancementEquipment(equipment)`
 - **THEN** system SHALL use `ENHANCEMENT_EQUIPMENT_IDS` constant

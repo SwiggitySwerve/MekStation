@@ -6,17 +6,20 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.6
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { ProtoMechLocation } from '../../../types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
+import {
+  SquadMotionType,
+  ISquadMovement,
+} from '../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import {
   IProtoMech,
   IProtoMechMountedEquipment,
 } from '../../../types/unit/PersonnelInterfaces';
-import { SquadMotionType, ISquadMovement } from '../../../types/unit/BaseUnitInterfaces';
-import { ProtoMechLocation } from '../../../types/construction/UnitLocation';
+import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
@@ -77,7 +80,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   /**
    * Parse ProtoMech-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<IProtoMech> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<IProtoMech> & {
     errors: string[];
     warnings: string[];
   } {
@@ -116,7 +121,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
 
     // Main gun detection
     const hasMainGun = equipment.some(
-      (e) => e.location === ProtoMechLocation.MAIN_GUN
+      (e) => e.location === ProtoMechLocation.MAIN_GUN,
     );
 
     // Special features from raw tags
@@ -125,7 +130,10 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     const isQuad = this.getBooleanFromRaw(rawTags, 'quad');
     const hasMyomerBooster = this.getBooleanFromRaw(rawTags, 'myomerbooster');
     const hasMagneticClamps = this.getBooleanFromRaw(rawTags, 'magneticclamps');
-    const hasExtendedTorsoTwist = this.getBooleanFromRaw(rawTags, 'extendedtorsotwist');
+    const hasExtendedTorsoTwist = this.getBooleanFromRaw(
+      rawTags,
+      'extendedtorsotwist',
+    );
 
     return {
       unitType: UnitType.PROTOMECH,
@@ -155,7 +163,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   /**
    * Parse armor values into location-keyed record
    */
-  private parseArmorByLocation(armor: readonly number[]): Record<ProtoMechLocation, number> {
+  private parseArmorByLocation(
+    armor: readonly number[],
+  ): Record<ProtoMechLocation, number> {
     const result: Record<ProtoMechLocation, number> = {
       [ProtoMechLocation.HEAD]: 0,
       [ProtoMechLocation.TORSO]: 0,
@@ -177,7 +187,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   /**
    * Calculate internal structure by tonnage
    */
-  private calculateStructure(tonnage: number): Record<ProtoMechLocation, number> {
+  private calculateStructure(
+    tonnage: number,
+  ): Record<ProtoMechLocation, number> {
     // ProtoMech structure is based on tonnage
     // Simplified calculation
     const headStructure = 1;
@@ -198,11 +210,15 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly IProtoMechMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly IProtoMechMountedEquipment[] {
     const equipment: IProtoMechMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const location = this.normalizeLocation(locationKey);
 
       for (const item of items) {
@@ -231,7 +247,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
    */
   private getBooleanFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): boolean {
     const value = rawTags[key];
     if (Array.isArray(value)) {
@@ -245,14 +261,16 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<IProtoMech>
+    typeSpecificFields: Partial<IProtoMech>,
   ): IProtoMech {
     // ProtoMechs are always Clan tech
     const techBase = TechBase.CLAN;
     const rulesLevel = RulesLevel.ADVANCED;
 
     // Weight class based on individual ProtoMech tonnage
-    const weightClass = this.getWeightClass(typeSpecificFields.weightPerUnit || 5);
+    const weightClass = this.getWeightClass(
+      typeSpecificFields.weightPerUnit || 5,
+    );
 
     return {
       // Identity
@@ -312,7 +330,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   /**
    * Serialize ProtoMech-specific fields
    */
-  protected serializeTypeSpecificFields(unit: IProtoMech): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: IProtoMech,
+  ): Partial<ISerializedUnit> {
     return {
       configuration: unit.isQuad ? 'Quad' : 'Biped',
       rulesLevel: String(unit.rulesLevel),
@@ -323,7 +343,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
    * Deserialize from standard format
    */
   deserialize(_serialized: ISerializedUnit): IUnitParseResult<IProtoMech> {
-    return createFailureResult(['ProtoMech deserialization not yet implemented']);
+    return createFailureResult([
+      'ProtoMech deserialization not yet implemented',
+    ]);
   }
 
   /**

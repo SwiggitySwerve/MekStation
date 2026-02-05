@@ -26,21 +26,21 @@ mm-data/data/images/recordsheets/
 
 ### Location Naming Convention
 
-| MechLocation Enum | mm-data Code | Description |
-|-------------------|--------------|-------------|
-| HEAD | HD | Head |
-| CENTER_TORSO | CT | Center Torso |
-| LEFT_TORSO | LT | Left Torso |
-| RIGHT_TORSO | RT | Right Torso |
-| LEFT_ARM | LArm | Left Arm |
-| RIGHT_ARM | RArm | Right Arm |
-| LEFT_LEG | LLeg | Left Leg |
-| RIGHT_LEG | RLeg | Right Leg |
-| FRONT_LEFT_LEG | FLL | Front Left Leg (Quad) |
-| FRONT_RIGHT_LEG | FRL | Front Right Leg (Quad) |
-| REAR_LEFT_LEG | RLL | Rear Left Leg (Quad) |
-| REAR_RIGHT_LEG | RRL | Rear Right Leg (Quad) |
-| CENTER_LEG | CL | Center Leg (Tripod) |
+| MechLocation Enum | mm-data Code | Description            |
+| ----------------- | ------------ | ---------------------- |
+| HEAD              | HD           | Head                   |
+| CENTER_TORSO      | CT           | Center Torso           |
+| LEFT_TORSO        | LT           | Left Torso             |
+| RIGHT_TORSO       | RT           | Right Torso            |
+| LEFT_ARM          | LArm         | Left Arm               |
+| RIGHT_ARM         | RArm         | Right Arm              |
+| LEFT_LEG          | LLeg         | Left Leg               |
+| RIGHT_LEG         | RLeg         | Right Leg              |
+| FRONT_LEFT_LEG    | FLL          | Front Left Leg (Quad)  |
+| FRONT_RIGHT_LEG   | FRL          | Front Right Leg (Quad) |
+| REAR_LEFT_LEG     | RLL          | Rear Left Leg (Quad)   |
+| REAR_RIGHT_LEG    | RRL          | Rear Right Leg (Quad)  |
+| CENTER_LEG        | CL           | Center Leg (Tripod)    |
 
 ## Component Architecture
 
@@ -53,16 +53,29 @@ New service to manage mm-data asset loading:
 
 interface MmDataAssetService {
   // Load armor pip SVG for a specific location and count
-  getArmorPipSvg(location: MechLocation, count: number, isRear?: boolean): Promise<SVGElement>;
-  
+  getArmorPipSvg(
+    location: MechLocation,
+    count: number,
+    isRear?: boolean,
+  ): Promise<SVGElement>;
+
   // Load internal structure pip SVG for tonnage and location
-  getStructurePipSvg(tonnage: number, location: MechLocation): Promise<SVGElement>;
-  
+  getStructurePipSvg(
+    tonnage: number,
+    location: MechLocation,
+  ): Promise<SVGElement>;
+
   // Load record sheet template for configuration
-  getRecordSheetTemplate(config: MechConfiguration, paperSize: PaperSize): Promise<SVGDocument>;
-  
+  getRecordSheetTemplate(
+    config: MechConfiguration,
+    paperSize: PaperSize,
+  ): Promise<SVGDocument>;
+
   // Preload assets for a specific configuration
-  preloadConfiguration(config: MechConfiguration, tonnage: number): Promise<void>;
+  preloadConfiguration(
+    config: MechConfiguration,
+    tonnage: number,
+  ): Promise<void>;
 }
 ```
 
@@ -95,7 +108,10 @@ Extend RecordSheetService to handle all configurations:
 // src/services/printing/RecordSheetService.ts
 
 // Template selection based on configuration
-function getTemplatePath(config: MechConfiguration, paperSize: PaperSize): string {
+function getTemplatePath(
+  config: MechConfiguration,
+  paperSize: PaperSize,
+): string {
   const sizeDir = paperSize === PaperSize.A4 ? 'templates_iso' : 'templates_us';
   const configMap: Record<MechConfiguration, string> = {
     [MechConfiguration.BIPED]: 'mek_biped_default.svg',
@@ -113,6 +129,7 @@ function getTemplatePath(config: MechConfiguration, paperSize: PaperSize): strin
 ### Development Mode
 
 During development, mm-data is expected to be a sibling repository:
+
 ```
 Projects/
 ├── MekStation/
@@ -141,6 +158,7 @@ cp -r "$SOURCE/biped_pips" "$DEST/"
 ### Production Build
 
 For production builds where mm-data may not be present:
+
 1. Assets are checked into MekStation's public folder
 2. CI/CD pipeline can sync from mm-data before build
 3. Version tracking via `mm-data-version.json` manifest
@@ -154,18 +172,18 @@ Since mm-data pip SVGs are static (just circles), we need to add interactivity:
 <svg className="armor-diagram">
   {/* Layer 1: Background silhouette */}
   <image href={silhouettePath} />
-  
+
   {/* Layer 2: Armor pips from mm-data (visual only) */}
   <g className="armor-pips">
-    {locations.map(loc => (
+    {locations.map((loc) => (
       <MmDataArmorPips key={loc} location={loc} count={armorData[loc]} />
     ))}
   </g>
-  
+
   {/* Layer 3: Invisible click targets with hover effects */}
   <g className="click-targets">
-    {locations.map(loc => (
-      <ClickTarget 
+    {locations.map((loc) => (
+      <ClickTarget
         key={loc}
         location={loc}
         bounds={locationBounds[loc]}
@@ -210,15 +228,18 @@ const BIPED_LOCATION_BOUNDS: Record<MechLocation, LocationBounds> = {
 ## Migration Path
 
 ### Phase 1: Add MegaMek Classic Variant
+
 - Keep all 5 existing variants functional
 - Add "MegaMek Classic" as 6th variant option
 - Set as new default in Settings
 
 ### Phase 2: Complete Template Coverage
+
 - Add all configuration templates to public folder
 - Update RecordSheetService to handle each
 - Test PDF export for all configurations
 
 ### Phase 3: Optional Cleanup
+
 - After user validation, consider deprecating less-used variants
 - Or keep all variants for user preference

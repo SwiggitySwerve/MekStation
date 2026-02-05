@@ -1,5 +1,6 @@
-import React from 'react';
 import { render } from '@testing-library/react';
+import React from 'react';
+
 import { InstallPrompt } from '../InstallPrompt';
 
 // Type for window with optional localStorage for testing
@@ -67,7 +68,10 @@ describe('InstallPrompt', () => {
   describe('LocalStorage Integration', () => {
     it('should respect localStorage dismissal check', () => {
       // Set a recent dismissal
-      localStorage.setItem('pwa-install-prompt-dismissed', Date.now().toString());
+      localStorage.setItem(
+        'pwa-install-prompt-dismissed',
+        Date.now().toString(),
+      );
 
       const { container } = render(<InstallPrompt />);
       expect(container).toBeTruthy();

@@ -7,9 +7,11 @@
  */
 
 import { useMemo } from 'react';
-import { projectDamageMatrix } from '@/utils/gameplay/combatStatistics';
+
 import type { IGameEvent } from '@/types/gameplay';
 import type { IQuickGameUnit } from '@/types/quickgame/QuickGameInterfaces';
+
+import { projectDamageMatrix } from '@/utils/gameplay/combatStatistics';
 
 export interface DamageMatrixProps {
   readonly events: readonly IGameEvent[];
@@ -18,7 +20,7 @@ export interface DamageMatrixProps {
 
 function getUnitName(
   unitId: string,
-  unitMap: ReadonlyMap<string, IQuickGameUnit>
+  unitMap: ReadonlyMap<string, IQuickGameUnit>,
 ): string {
   const unit = unitMap.get(unitId);
   return unit?.name ?? unitId;
@@ -43,7 +45,7 @@ export function DamageMatrix({
 
   const { matrix, totalDealt, totalReceived } = useMemo(
     () => projectDamageMatrix(events),
-    [events]
+    [events],
   );
 
   const attackerIds = useMemo(() => Array.from(matrix.keys()), [matrix]);
@@ -67,9 +69,9 @@ export function DamageMatrix({
 
   if (matrix.size === 0) {
     return (
-      <div className="text-gray-500 text-center py-8">
+      <div className="py-8 text-center text-gray-500">
         <svg
-          className="w-12 h-12 mx-auto mb-3 opacity-50"
+          className="mx-auto mb-3 h-12 w-12 opacity-50"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -82,7 +84,7 @@ export function DamageMatrix({
           />
         </svg>
         <p className="text-lg font-medium">No damage dealt</p>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="mt-1 text-sm text-gray-600">
           No combat damage was recorded in this battle.
         </p>
       </div>
@@ -94,19 +96,19 @@ export function DamageMatrix({
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr>
-            <th className="bg-gray-800 text-gray-300 font-semibold p-2 text-left border border-gray-700 sticky left-0 z-10">
+            <th className="sticky left-0 z-10 border border-gray-700 bg-gray-800 p-2 text-left font-semibold text-gray-300">
               Attacker ↓ / Target →
             </th>
             {targetIds.map((targetId) => (
               <th
                 key={targetId}
-                className="bg-gray-800 text-gray-300 font-semibold p-2 text-center border border-gray-700 min-w-[80px]"
+                className="min-w-[80px] border border-gray-700 bg-gray-800 p-2 text-center font-semibold text-gray-300"
                 title={getUnitName(targetId, unitMap)}
               >
                 {truncateName(getUnitName(targetId, unitMap))}
               </th>
             ))}
-            <th className="bg-gray-900 text-amber-400 font-bold p-2 text-center border border-gray-700 min-w-[80px]">
+            <th className="min-w-[80px] border border-gray-700 bg-gray-900 p-2 text-center font-bold text-amber-400">
               Total Dealt
             </th>
           </tr>
@@ -119,7 +121,7 @@ export function DamageMatrix({
             return (
               <tr key={attackerId}>
                 <th
-                  className="bg-gray-800 text-gray-300 font-semibold p-2 text-left border border-gray-700 sticky left-0 z-10"
+                  className="sticky left-0 z-10 border border-gray-700 bg-gray-800 p-2 text-left font-semibold text-gray-300"
                   title={getUnitName(attackerId, unitMap)}
                 >
                   {truncateName(getUnitName(attackerId, unitMap))}
@@ -131,7 +133,7 @@ export function DamageMatrix({
                   return (
                     <td
                       key={targetId}
-                      className={`p-2 text-center border border-gray-700 font-mono ${
+                      className={`border border-gray-700 p-2 text-center font-mono ${
                         isSelfDamage
                           ? 'bg-gray-700 text-gray-400'
                           : damage > 0
@@ -146,7 +148,7 @@ export function DamageMatrix({
                     </td>
                   );
                 })}
-                <td className="bg-gray-900 text-amber-400 font-bold p-2 text-center border border-gray-700 font-mono">
+                <td className="border border-gray-700 bg-gray-900 p-2 text-center font-mono font-bold text-amber-400">
                   {attackerDealt}
                 </td>
               </tr>
@@ -155,7 +157,7 @@ export function DamageMatrix({
         </tbody>
         <tfoot>
           <tr>
-            <th className="bg-gray-900 text-cyan-400 font-bold p-2 text-left border border-gray-700 sticky left-0 z-10">
+            <th className="sticky left-0 z-10 border border-gray-700 bg-gray-900 p-2 text-left font-bold text-cyan-400">
               Total Received
             </th>
             {targetIds.map((targetId) => {
@@ -163,13 +165,13 @@ export function DamageMatrix({
               return (
                 <td
                   key={targetId}
-                  className="bg-gray-900 text-cyan-400 font-bold p-2 text-center border border-gray-700 font-mono"
+                  className="border border-gray-700 bg-gray-900 p-2 text-center font-mono font-bold text-cyan-400"
                 >
                   {received}
                 </td>
               );
             })}
-            <td className="bg-gray-950 text-white font-bold p-2 text-center border border-gray-700 font-mono">
+            <td className="border border-gray-700 bg-gray-950 p-2 text-center font-mono font-bold text-white">
               {grandTotal}
             </td>
           </tr>

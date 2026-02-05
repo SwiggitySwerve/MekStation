@@ -188,26 +188,44 @@ export interface IPersonnelMarketOffer {
  * Type guard for UnitMarketRarity values.
  */
 export function isUnitMarketRarity(value: unknown): value is UnitMarketRarity {
-  return typeof value === 'string' && Object.values(UnitMarketRarity).includes(value as UnitMarketRarity);
+  return (
+    typeof value === 'string' &&
+    Object.values(UnitMarketRarity).includes(value as UnitMarketRarity)
+  );
 }
 
 /**
  * Type guard for UnitMarketType values.
  */
 export function isUnitMarketType(value: unknown): value is UnitMarketType {
-  return typeof value === 'string' && Object.values(UnitMarketType).includes(value as UnitMarketType);
+  return (
+    typeof value === 'string' &&
+    Object.values(UnitMarketType).includes(value as UnitMarketType)
+  );
 }
 
 /**
  * Type guard for PersonnelMarketStyle values.
  */
-export function isPersonnelMarketStyle(value: unknown): value is PersonnelMarketStyle {
-  return typeof value === 'string' && Object.values(PersonnelMarketStyle).includes(value as PersonnelMarketStyle);
+export function isPersonnelMarketStyle(
+  value: unknown,
+): value is PersonnelMarketStyle {
+  return (
+    typeof value === 'string' &&
+    Object.values(PersonnelMarketStyle).includes(value as PersonnelMarketStyle)
+  );
 }
 
 /**
  * Type guard for MarketExperienceLevel values.
  */
-export function isMarketExperienceLevel(value: unknown): value is MarketExperienceLevel {
-  return typeof value === 'string' && Object.values(MarketExperienceLevel).includes(value as MarketExperienceLevel);
+export function isMarketExperienceLevel(
+  value: unknown,
+): value is MarketExperienceLevel {
+  return (
+    typeof value === 'string' &&
+    Object.values(MarketExperienceLevel).includes(
+      value as MarketExperienceLevel,
+    )
+  );
 }

@@ -68,7 +68,7 @@ const setupMockDatabase = () => {
             createdAt: string,
             updatedAt: string,
             itemCount: number,
-            isShared: number
+            isShared: number,
           ) => {
             const folder: IStoredVaultFolder = {
               id,
@@ -82,7 +82,7 @@ const setupMockDatabase = () => {
             };
             mockFolders.set(id, folder);
             return { changes: 1 };
-          }
+          },
         );
       }
 
@@ -122,7 +122,7 @@ const setupMockDatabase = () => {
       ) {
         stmt.all.mockImplementation(() => {
           return Array.from(mockFolders.values()).sort((a, b) =>
-            a.name.localeCompare(b.name)
+            a.name.localeCompare(b.name),
           );
         });
       }
@@ -147,7 +147,7 @@ const setupMockDatabase = () => {
               return { changes: 1 };
             }
             return { changes: 0 };
-          }
+          },
         );
       }
 
@@ -162,7 +162,7 @@ const setupMockDatabase = () => {
               return { changes: 1 };
             }
             return { changes: 0 };
-          }
+          },
         );
       }
 
@@ -180,12 +180,16 @@ const setupMockDatabase = () => {
               return { changes: 1 };
             }
             return { changes: 0 };
-          }
+          },
         );
       }
 
       // UPDATE vault_folders SET parent_id = ? WHERE parent_id = ? (reparent children on delete)
-      if (sql.includes('UPDATE vault_folders SET parent_id = ? WHERE parent_id = ?')) {
+      if (
+        sql.includes(
+          'UPDATE vault_folders SET parent_id = ? WHERE parent_id = ?',
+        )
+      ) {
         stmt.run.mockImplementation(
           (newParentId: string | null, oldParentId: string) => {
             let changes = 0;
@@ -196,7 +200,7 @@ const setupMockDatabase = () => {
               }
             });
             return { changes };
-          }
+          },
         );
       }
 
@@ -211,7 +215,7 @@ const setupMockDatabase = () => {
               return { changes: 1 };
             }
             return { changes: 0 };
-          }
+          },
         );
       }
 
@@ -231,11 +235,11 @@ const setupMockDatabase = () => {
             folderId: string,
             itemId: string,
             itemType: string,
-            assignedAt: string
+            assignedAt: string,
           ) => {
             const items = mockFolderItems.get(folderId) || [];
             const existingIndex = items.findIndex(
-              (i) => i.item_id === itemId && i.item_type === itemType
+              (i) => i.item_id === itemId && i.item_type === itemType,
             );
             const item: IStoredFolderItem = {
               folder_id: folderId,
@@ -250,45 +254,53 @@ const setupMockDatabase = () => {
             }
             mockFolderItems.set(folderId, items);
             return { changes: 1 };
-          }
+          },
         );
       }
 
       // DELETE FROM vault_folder_items WHERE folder_id = ? AND item_id = ? AND item_type = ?
       if (
-        sql.includes('DELETE FROM vault_folder_items WHERE folder_id = ? AND item_id = ? AND item_type = ?')
+        sql.includes(
+          'DELETE FROM vault_folder_items WHERE folder_id = ? AND item_id = ? AND item_type = ?',
+        )
       ) {
         stmt.run.mockImplementation(
           (folderId: string, itemId: string, itemType: string) => {
             const items = mockFolderItems.get(folderId) || [];
             const newItems = items.filter(
-              (i) => !(i.item_id === itemId && i.item_type === itemType)
+              (i) => !(i.item_id === itemId && i.item_type === itemType),
             );
             mockFolderItems.set(folderId, newItems);
             return { changes: items.length - newItems.length };
-          }
+          },
         );
       }
 
       // SELECT * FROM vault_folder_items WHERE folder_id = ?
-      if (sql.includes('SELECT * FROM vault_folder_items WHERE folder_id = ?')) {
+      if (
+        sql.includes('SELECT * FROM vault_folder_items WHERE folder_id = ?')
+      ) {
         stmt.all.mockImplementation((folderId: string) => {
           const items = mockFolderItems.get(folderId) || [];
           return items.sort(
             (a, b) =>
               new Date(b.assigned_at).getTime() -
-              new Date(a.assigned_at).getTime()
+              new Date(a.assigned_at).getTime(),
           );
         });
       }
 
       // SELECT f.* FROM vault_folders f INNER JOIN vault_folder_items fi (getItemFolders)
-      if (sql.includes('INNER JOIN vault_folder_items fi ON f.id = fi.folder_id')) {
+      if (
+        sql.includes('INNER JOIN vault_folder_items fi ON f.id = fi.folder_id')
+      ) {
         stmt.all.mockImplementation((itemId: string, itemType: string) => {
           const folderIds: string[] = [];
           mockFolderItems.forEach((items, folderId) => {
             if (
-              items.some((i) => i.item_id === itemId && i.item_type === itemType)
+              items.some(
+                (i) => i.item_id === itemId && i.item_type === itemType,
+              )
             ) {
               folderIds.push(folderId);
             }
@@ -302,17 +314,19 @@ const setupMockDatabase = () => {
 
       // SELECT 1 FROM vault_folder_items WHERE folder_id = ? AND item_id = ? AND item_type = ?
       if (
-        sql.includes('SELECT 1 FROM vault_folder_items WHERE folder_id = ? AND item_id = ? AND item_type = ?')
+        sql.includes(
+          'SELECT 1 FROM vault_folder_items WHERE folder_id = ? AND item_id = ? AND item_type = ?',
+        )
       ) {
         stmt.get.mockImplementation(
           (folderId: string, itemId: string, itemType: string) => {
             const items = mockFolderItems.get(folderId) || [];
             return items.find(
-              (i) => i.item_id === itemId && i.item_type === itemType
+              (i) => i.item_id === itemId && i.item_type === itemType,
             )
               ? { '1': 1 }
               : undefined;
-          }
+          },
         );
       }
 
@@ -324,11 +338,11 @@ const setupMockDatabase = () => {
             assignedAt: string,
             fromFolderId: string,
             itemId: string,
-            itemType: string
+            itemType: string,
           ) => {
             const fromItems = mockFolderItems.get(fromFolderId) || [];
             const itemIndex = fromItems.findIndex(
-              (i) => i.item_id === itemId && i.item_type === itemType
+              (i) => i.item_id === itemId && i.item_type === itemType,
             );
             if (itemIndex === -1) return { changes: 0 };
 
@@ -346,19 +360,21 @@ const setupMockDatabase = () => {
             mockFolderItems.set(toFolderId, toItems);
 
             return { changes: 1 };
-          }
+          },
         );
       }
 
       // DELETE FROM vault_folder_items WHERE item_id = ? AND item_type = ?
       if (
-        sql.includes('DELETE FROM vault_folder_items WHERE item_id = ? AND item_type = ?')
+        sql.includes(
+          'DELETE FROM vault_folder_items WHERE item_id = ? AND item_type = ?',
+        )
       ) {
         stmt.run.mockImplementation((itemId: string, itemType: string) => {
           let totalChanges = 0;
           mockFolderItems.forEach((items, folderId) => {
             const newItems = items.filter(
-              (i) => !(i.item_id === itemId && i.item_type === itemType)
+              (i) => !(i.item_id === itemId && i.item_type === itemType),
             );
             if (newItems.length !== items.length) {
               totalChanges += items.length - newItems.length;
@@ -381,7 +397,7 @@ const setupMockDatabase = () => {
               return { changes: 1 };
             }
             return { changes: 0 };
-          }
+          },
         );
       }
 
@@ -436,10 +452,12 @@ describe('VaultFolderRepository', () => {
       await repository.initialize();
 
       expect(mockDatabase.exec).toHaveBeenCalled();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      // oxlint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const execCall = mockDatabase.exec.mock.calls[0][0] as string;
       expect(execCall).toContain('CREATE TABLE IF NOT EXISTS vault_folders');
-      expect(execCall).toContain('CREATE TABLE IF NOT EXISTS vault_folder_items');
+      expect(execCall).toContain(
+        'CREATE TABLE IF NOT EXISTS vault_folder_items',
+      );
       expect(execCall).toContain('CREATE INDEX IF NOT EXISTS');
     });
 
@@ -669,7 +687,7 @@ describe('VaultFolderRepository', () => {
     it('should return false for non-existent folder', async () => {
       const result = await repository.updateFolderName(
         'non-existent',
-        'New Name'
+        'New Name',
       );
 
       expect(result).toBe(false);
@@ -697,7 +715,7 @@ describe('VaultFolderRepository', () => {
 
       const result = await repository.updateFolderDescription(
         folder.id,
-        'New description'
+        'New description',
       );
 
       expect(result).toBe(true);
@@ -720,7 +738,7 @@ describe('VaultFolderRepository', () => {
     it('should return false for non-existent folder', async () => {
       const result = await repository.updateFolderDescription(
         'non-existent',
-        'desc'
+        'desc',
       );
 
       expect(result).toBe(false);
@@ -810,7 +828,9 @@ describe('VaultFolderRepository', () => {
     });
 
     it('should unset folder sharing', async () => {
-      const folder = await repository.createFolder('Shared', { isShared: true });
+      const folder = await repository.createFolder('Shared', {
+        isShared: true,
+      });
 
       const result = await repository.setFolderShared(folder.id, false);
 
@@ -886,7 +906,7 @@ describe('VaultFolderRepository', () => {
       const result = await repository.addItemToFolder(
         folder.id,
         'unit-123',
-        'unit'
+        'unit',
       );
 
       expect(result).toBe(true);
@@ -939,7 +959,7 @@ describe('VaultFolderRepository', () => {
       const result = await repository.removeItemFromFolder(
         folder.id,
         'unit-123',
-        'unit'
+        'unit',
       );
 
       expect(result).toBe(true);
@@ -954,7 +974,7 @@ describe('VaultFolderRepository', () => {
       const result = await repository.removeItemFromFolder(
         folder.id,
         'unit-123',
-        'unit'
+        'unit',
       );
 
       expect(result).toBe(false);
@@ -1025,7 +1045,7 @@ describe('VaultFolderRepository', () => {
 
       expect(folders).toHaveLength(2);
       expect(folders.map((f) => f.id).sort()).toEqual(
-        [folder1.id, folder2.id].sort()
+        [folder1.id, folder2.id].sort(),
       );
     });
 
@@ -1062,7 +1082,7 @@ describe('VaultFolderRepository', () => {
       const result = await repository.isItemInFolder(
         folder.id,
         'unit-123',
-        'unit'
+        'unit',
       );
 
       expect(result).toBe(true);
@@ -1074,7 +1094,7 @@ describe('VaultFolderRepository', () => {
       const result = await repository.isItemInFolder(
         folder.id,
         'unit-123',
-        'unit'
+        'unit',
       );
 
       expect(result).toBe(false);
@@ -1087,7 +1107,7 @@ describe('VaultFolderRepository', () => {
       const result = await repository.isItemInFolder(
         folder.id,
         'id-123',
-        'pilot'
+        'pilot',
       );
 
       expect(result).toBe(false);
@@ -1104,7 +1124,7 @@ describe('VaultFolderRepository', () => {
         'unit-123',
         'unit',
         folder1.id,
-        folder2.id
+        folder2.id,
       );
 
       expect(result).toBe(true);
@@ -1125,7 +1145,7 @@ describe('VaultFolderRepository', () => {
         'unit-123',
         'unit',
         folder1.id,
-        folder2.id
+        folder2.id,
       );
 
       expect(result).toBe(false);
@@ -1158,7 +1178,10 @@ describe('VaultFolderRepository', () => {
       await repository.addItemToFolder(folder2.id, 'unit-123', 'unit');
       await repository.addItemToFolder(folder3.id, 'other-unit', 'unit');
 
-      const count = await repository.removeItemFromAllFolders('unit-123', 'unit');
+      const count = await repository.removeItemFromAllFolders(
+        'unit-123',
+        'unit',
+      );
 
       expect(count).toBe(2);
 
@@ -1174,7 +1197,10 @@ describe('VaultFolderRepository', () => {
     it('should return 0 when item not in any folder', async () => {
       await repository.createFolder('Folder');
 
-      const count = await repository.removeItemFromAllFolders('unit-123', 'unit');
+      const count = await repository.removeItemFromAllFolders(
+        'unit-123',
+        'unit',
+      );
 
       expect(count).toBe(0);
     });

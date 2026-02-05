@@ -4,16 +4,9 @@
  * Tests for unit type handler registration and lookup
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
-import {
-  UnitTypeRegistry,
-  getUnitTypeRegistry,
-  registerUnitTypeHandler,
-  getUnitTypeHandler,
-  isUnitTypeSupported,
-} from '../UnitTypeRegistry';
-import { UnitCategory } from '../../../types/validation/UnitValidationInterfaces';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { UnitCategory } from '../../../types/validation/UnitValidationInterfaces';
 import {
   createVehicleHandler,
   createAerospaceHandler,
@@ -22,6 +15,13 @@ import {
   initializeUnitTypeHandlers,
   resetHandlerInitialization,
 } from '../handlers';
+import {
+  UnitTypeRegistry,
+  getUnitTypeRegistry,
+  registerUnitTypeHandler,
+  getUnitTypeHandler,
+  isUnitTypeSupported,
+} from '../UnitTypeRegistry';
 
 // ============================================================================
 // Tests
@@ -113,11 +113,15 @@ describe('UnitTypeRegistry', () => {
       registerUnitTypeHandler(createBattleArmorHandler());
       registerUnitTypeHandler(createInfantryHandler());
 
-      const vehicleHandlers = getUnitTypeRegistry().getHandlersByCategory(UnitCategory.VEHICLE);
+      const vehicleHandlers = getUnitTypeRegistry().getHandlersByCategory(
+        UnitCategory.VEHICLE,
+      );
       expect(vehicleHandlers.length).toBe(1);
       expect(vehicleHandlers[0].unitType).toBe(UnitType.VEHICLE);
 
-      const personnelHandlers = getUnitTypeRegistry().getHandlersByCategory(UnitCategory.PERSONNEL);
+      const personnelHandlers = getUnitTypeRegistry().getHandlersByCategory(
+        UnitCategory.PERSONNEL,
+      );
       expect(personnelHandlers.length).toBe(2);
     });
   });
@@ -141,7 +145,9 @@ describe('UnitTypeRegistry', () => {
         rawTags: {},
       };
 
-      const handler = getUnitTypeRegistry().getHandlerForDocument(mockDoc as IBlkDocument);
+      const handler = getUnitTypeRegistry().getHandlerForDocument(
+        mockDoc as IBlkDocument,
+      );
       expect(handler).toBeDefined();
       expect(handler?.unitType).toBe(UnitType.VEHICLE);
     });
@@ -163,7 +169,9 @@ describe('UnitTypeRegistry', () => {
         rawTags: {},
       };
 
-      const handler = getUnitTypeRegistry().getHandlerForDocument(mockDoc as IBlkDocument);
+      const handler = getUnitTypeRegistry().getHandlerForDocument(
+        mockDoc as IBlkDocument,
+      );
       expect(handler).toBeUndefined();
     });
   });
@@ -207,10 +215,14 @@ describe('UnitTypeRegistry', () => {
 
     it('should not re-register on second call', () => {
       initializeUnitTypeHandlers();
-      const count1 = (getUnitTypeRegistry() as UnitTypeRegistry).getHandlerCount();
+      const count1 = (
+        getUnitTypeRegistry() as UnitTypeRegistry
+      ).getHandlerCount();
 
       initializeUnitTypeHandlers();
-      const count2 = (getUnitTypeRegistry() as UnitTypeRegistry).getHandlerCount();
+      const count2 = (
+        getUnitTypeRegistry() as UnitTypeRegistry
+      ).getHandlerCount();
 
       expect(count1).toBe(count2);
     });

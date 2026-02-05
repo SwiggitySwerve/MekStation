@@ -94,14 +94,18 @@ export interface IOutcomeCalculationInput {
  * Count surviving units for a side.
  */
 function countSurvivingUnits(state: IGameState, side: GameSide): number {
-  return Object.values(state.units).filter((u) => !u.destroyed && u.side === side).length;
+  return Object.values(state.units).filter(
+    (u) => !u.destroyed && u.side === side,
+  ).length;
 }
 
 /**
  * Count destroyed units for a side.
  */
 function countDestroyedUnits(state: IGameState, side: GameSide): number {
-  return Object.values(state.units).filter((u) => u.destroyed && u.side === side).length;
+  return Object.values(state.units).filter(
+    (u) => u.destroyed && u.side === side,
+  ).length;
 }
 
 /**
@@ -118,7 +122,7 @@ function generateVictoryDescription(
   winner: 'player' | 'opponent' | 'draw',
   reason: VictoryReason,
   playerSurviving: number,
-  opponentSurviving: number
+  opponentSurviving: number,
 ): string {
   switch (reason) {
     case 'elimination':
@@ -170,7 +174,9 @@ function generateVictoryDescription(
  * Calculate game outcome from state and events.
  * This is the primary entry point for determining game results.
  */
-export function calculateGameOutcome(input: IOutcomeCalculationInput): IGameOutcome {
+export function calculateGameOutcome(
+  input: IOutcomeCalculationInput,
+): IGameOutcome {
   const { state, config, startedAt, endedAt } = input;
 
   // Calculate duration
@@ -226,7 +232,12 @@ export function calculateGameOutcome(input: IOutcomeCalculationInput): IGameOutc
     reason = 'objective'; // Default assumption
   }
 
-  const description = generateVictoryDescription(winner, reason, playerSurviving, opponentSurviving);
+  const description = generateVictoryDescription(
+    winner,
+    reason,
+    playerSurviving,
+    opponentSurviving,
+  );
 
   return {
     winner,
@@ -249,7 +260,7 @@ export function calculateOutcomeFromEvents(
   events: readonly IGameEvent[],
   config: IGameConfig,
   startedAt: string,
-  endedAt: string
+  endedAt: string,
 ): IGameOutcome {
   const state = deriveState(gameId, events);
   return calculateGameOutcome({
@@ -266,7 +277,7 @@ export function calculateOutcomeFromEvents(
  */
 export function calculateCombatStats(
   events: readonly IGameEvent[],
-  units: Record<string, IUnitGameState>
+  units: Record<string, IUnitGameState>,
 ): ICombatStats {
   let playerDamageDealt = 0;
   let opponentDamageDealt = 0;
@@ -339,7 +350,7 @@ export function isGameEnded(state: IGameState, config: IGameConfig): boolean {
  */
 export function determineWinner(
   state: IGameState,
-  config: IGameConfig
+  config: IGameConfig,
 ): 'player' | 'opponent' | 'draw' | null {
   const playerSurviving = countSurvivingUnits(state, GameSide.Player);
   const opponentSurviving = countSurvivingUnits(state, GameSide.Opponent);

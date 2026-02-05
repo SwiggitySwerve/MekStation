@@ -1,9 +1,15 @@
 /**
  * Tests for Construction Rules Core
- * 
+ *
  * @spec openspec/specs/construction-rules-core/spec.md
  */
 
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import {
   validateTonnage,
   calculateInternalStructure,
@@ -17,18 +23,14 @@ import {
   validateConstruction,
   MechBuildConfig,
 } from '@/utils/construction/constructionRules';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CockpitType } from '@/types/construction/CockpitType';
 
 describe('Construction Rules', () => {
   /**
    * Create a valid mech configuration for testing
    */
-  function createValidConfig(overrides: Partial<MechBuildConfig> = {}): MechBuildConfig {
+  function createValidConfig(
+    overrides: Partial<MechBuildConfig> = {},
+  ): MechBuildConfig {
     return {
       tonnage: 50,
       engineRating: 200,
@@ -50,8 +52,10 @@ describe('Construction Rules', () => {
   // ============================================================================
   describe('validateTonnage', () => {
     it('should accept valid tonnages in 5-ton increments', () => {
-      const validTonnages = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
-      
+      const validTonnages = [
+        20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
+      ];
+
       for (const tonnage of validTonnages) {
         const result = validateTonnage(tonnage);
         expect(result.isValid).toBe(true);
@@ -62,19 +66,25 @@ describe('Construction Rules', () => {
     it('should reject tonnage below 20', () => {
       const result = validateTonnage(15);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Tonnage must be between 20 and 100 (got 15)');
+      expect(result.errors).toContain(
+        'Tonnage must be between 20 and 100 (got 15)',
+      );
     });
 
     it('should reject tonnage above 100', () => {
       const result = validateTonnage(105);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Tonnage must be between 20 and 100 (got 105)');
+      expect(result.errors).toContain(
+        'Tonnage must be between 20 and 100 (got 105)',
+      );
     });
 
     it('should reject non-5-ton increments', () => {
       const result = validateTonnage(52);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Tonnage must be a multiple of 5 (got 52)');
+      expect(result.errors).toContain(
+        'Tonnage must be a multiple of 5 (got 52)',
+      );
     });
 
     it('should return step 1 with correct name', () => {
@@ -89,28 +99,43 @@ describe('Construction Rules', () => {
   // ============================================================================
   describe('calculateInternalStructure', () => {
     it('should calculate standard structure weight (10% of tonnage)', () => {
-      const result = calculateInternalStructure(50, InternalStructureType.STANDARD);
+      const result = calculateInternalStructure(
+        50,
+        InternalStructureType.STANDARD,
+      );
       expect(result.weight).toBe(5); // 50 * 0.10 = 5
       expect(result.isValid).toBe(true);
     });
 
     it('should calculate endo steel weight (5% of tonnage)', () => {
-      const result = calculateInternalStructure(50, InternalStructureType.ENDO_STEEL_IS);
+      const result = calculateInternalStructure(
+        50,
+        InternalStructureType.ENDO_STEEL_IS,
+      );
       expect(result.weight).toBe(2.5); // 50 * 0.05 = 2.5
     });
 
     it('should include critical slots for endo steel', () => {
-      const result = calculateInternalStructure(50, InternalStructureType.ENDO_STEEL_IS);
+      const result = calculateInternalStructure(
+        50,
+        InternalStructureType.ENDO_STEEL_IS,
+      );
       expect(result.criticalSlots).toBe(14);
     });
 
     it('should have 0 critical slots for standard structure', () => {
-      const result = calculateInternalStructure(50, InternalStructureType.STANDARD);
+      const result = calculateInternalStructure(
+        50,
+        InternalStructureType.STANDARD,
+      );
       expect(result.criticalSlots).toBe(0);
     });
 
     it('should return step 2', () => {
-      const result = calculateInternalStructure(50, InternalStructureType.STANDARD);
+      const result = calculateInternalStructure(
+        50,
+        InternalStructureType.STANDARD,
+      );
       expect(result.step).toBe(2);
       expect(result.name).toBe('Internal Structure');
     });
@@ -130,7 +155,9 @@ describe('Construction Rules', () => {
       // Rating 40 / tonnage 50 = 0.8 walk MP (rounds down to 0)
       const result = calculateEngine(50, 40, EngineType.STANDARD);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('less than 1 walk MP'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('less than 1 walk MP'))).toBe(
+        true,
+      );
     });
 
     it('should calculate critical slots for engine', () => {
@@ -162,7 +189,7 @@ describe('Construction Rules', () => {
     it('should return gyro critical slots', () => {
       const standardResult = calculateGyro(200, GyroType.STANDARD);
       expect(standardResult.criticalSlots).toBe(4);
-      
+
       const compactResult = calculateGyro(200, GyroType.COMPACT);
       expect(compactResult.criticalSlots).toBe(2);
     });
@@ -206,30 +233,55 @@ describe('Construction Rules', () => {
   // ============================================================================
   describe('calculateHeatSinks', () => {
     it('should require minimum 10 heat sinks', () => {
-      const result = calculateHeatSinks(HeatSinkType.SINGLE, 5, 200, EngineType.STANDARD);
+      const result = calculateHeatSinks(
+        HeatSinkType.SINGLE,
+        5,
+        200,
+        EngineType.STANDARD,
+      );
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('Minimum'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('Minimum'))).toBe(true);
     });
 
     it('should calculate heat sink weight (first 10 are weight-free)', () => {
       // Per BattleTech rules, first 10 heat sinks are WEIGHT-FREE
       // With 12 total, only 2 cost weight (12 - 10 = 2)
-      const result = calculateHeatSinks(HeatSinkType.SINGLE, 12, 200, EngineType.STANDARD);
+      const result = calculateHeatSinks(
+        HeatSinkType.SINGLE,
+        12,
+        200,
+        EngineType.STANDARD,
+      );
       expect(result.weight).toBe(2);
     });
 
     it('should calculate external heat sink slots', () => {
-      const result = calculateHeatSinks(HeatSinkType.SINGLE, 12, 200, EngineType.STANDARD);
+      const result = calculateHeatSinks(
+        HeatSinkType.SINGLE,
+        12,
+        200,
+        EngineType.STANDARD,
+      );
       expect(result.criticalSlots).toBe(4); // 1 slot each for single
     });
 
     it('should warn when many external heat sinks', () => {
-      const result = calculateHeatSinks(HeatSinkType.SINGLE, 20, 200, EngineType.STANDARD);
+      const result = calculateHeatSinks(
+        HeatSinkType.SINGLE,
+        20,
+        200,
+        EngineType.STANDARD,
+      );
       expect(result.warnings.length).toBeGreaterThan(0);
     });
 
     it('should return step 6', () => {
-      const result = calculateHeatSinks(HeatSinkType.SINGLE, 10, 200, EngineType.STANDARD);
+      const result = calculateHeatSinks(
+        HeatSinkType.SINGLE,
+        10,
+        200,
+        EngineType.STANDARD,
+      );
       expect(result.step).toBe(6);
       expect(result.name).toBe('Heat Sinks');
     });
@@ -253,7 +305,11 @@ describe('Construction Rules', () => {
     });
 
     it('should include armor critical slots', () => {
-      const ferroResult = calculateArmor(ArmorTypeEnum.FERRO_FIBROUS_IS, 160, 50);
+      const ferroResult = calculateArmor(
+        ArmorTypeEnum.FERRO_FIBROUS_IS,
+        160,
+        50,
+      );
       expect(ferroResult.criticalSlots).toBe(14);
     });
 
@@ -271,29 +327,35 @@ describe('Construction Rules', () => {
     it('should sum all structural component weights', () => {
       const config = createValidConfig();
       const weight = calculateStructuralWeight(config);
-      
+
       // Should be positive and reasonable for a 50-ton mech
       expect(weight).toBeGreaterThan(0);
       expect(weight).toBeLessThan(50);
     });
 
     it('should vary by engine type', () => {
-      const standardEngine = createValidConfig({ engineType: EngineType.STANDARD });
+      const standardEngine = createValidConfig({
+        engineType: EngineType.STANDARD,
+      });
       const xlEngine = createValidConfig({ engineType: EngineType.XL_IS });
-      
+
       const standardWeight = calculateStructuralWeight(standardEngine);
       const xlWeight = calculateStructuralWeight(xlEngine);
-      
+
       expect(xlWeight).toBeLessThan(standardWeight);
     });
 
     it('should vary by structure type', () => {
-      const standard = createValidConfig({ internalStructureType: InternalStructureType.STANDARD });
-      const endo = createValidConfig({ internalStructureType: InternalStructureType.ENDO_STEEL_IS });
-      
+      const standard = createValidConfig({
+        internalStructureType: InternalStructureType.STANDARD,
+      });
+      const endo = createValidConfig({
+        internalStructureType: InternalStructureType.ENDO_STEEL_IS,
+      });
+
       const standardWeight = calculateStructuralWeight(standard);
       const endoWeight = calculateStructuralWeight(endo);
-      
+
       expect(endoWeight).toBeLessThan(standardWeight);
     });
   });
@@ -306,7 +368,7 @@ describe('Construction Rules', () => {
       const config = createValidConfig();
       const remaining = calculateRemainingTonnage(config);
       const structural = calculateStructuralWeight(config);
-      
+
       expect(remaining).toBe(config.tonnage - structural);
     });
 
@@ -316,7 +378,7 @@ describe('Construction Rules', () => {
         totalHeatSinks: 20,
       });
       const remaining = calculateRemainingTonnage(config);
-      
+
       expect(remaining).toBeGreaterThanOrEqual(0);
     });
   });
@@ -328,7 +390,7 @@ describe('Construction Rules', () => {
     it('should validate a proper mech configuration', () => {
       const config = createValidConfig();
       const result = validateConstruction(config);
-      
+
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
       expect(result.steps).toHaveLength(7);
@@ -340,7 +402,7 @@ describe('Construction Rules', () => {
         totalHeatSinks: 5, // Invalid
       });
       const result = validateConstruction(config);
-      
+
       expect(result.isValid).toBe(false);
       expect(result.errors.length).toBeGreaterThanOrEqual(2);
     });
@@ -348,19 +410,19 @@ describe('Construction Rules', () => {
     it('should calculate total weight correctly', () => {
       const config = createValidConfig();
       const result = validateConstruction(config);
-      
+
       let expectedWeight = 0;
       for (const step of result.steps) {
         expectedWeight += step.weight;
       }
-      
+
       expect(result.totalWeight).toBe(expectedWeight);
     });
 
     it('should calculate remaining tonnage', () => {
       const config = createValidConfig();
       const result = validateConstruction(config);
-      
+
       expect(result.remainingTonnage).toBe(config.tonnage - result.totalWeight);
     });
 
@@ -372,20 +434,22 @@ describe('Construction Rules', () => {
         totalHeatSinks: 20,
       });
       const result = validateConstruction(config);
-      
+
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('exceeds tonnage'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('exceeds tonnage'))).toBe(
+        true,
+      );
     });
 
     it('should calculate total critical slots', () => {
       const config = createValidConfig();
       const result = validateConstruction(config);
-      
+
       let expectedSlots = 0;
       for (const step of result.steps) {
         expectedSlots += step.criticalSlots;
       }
-      
+
       expect(result.totalCriticalSlots).toBe(expectedSlots);
     });
 
@@ -394,9 +458,8 @@ describe('Construction Rules', () => {
         totalHeatSinks: 25, // Will generate warning about external heat sinks
       });
       const result = validateConstruction(config);
-      
+
       expect(result.warnings.length).toBeGreaterThan(0);
     });
   });
 });
-

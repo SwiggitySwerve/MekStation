@@ -8,6 +8,7 @@
  */
 
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -17,7 +18,6 @@ import {
   createUnitValidationRuleResult,
   IValidatableUnit,
 } from '../../../../types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
 import { isVehicleType } from '../../../../utils/validation/UnitCategoryMapper';
 import {
   VEHICLE_TONNAGE,
@@ -48,7 +48,10 @@ function isVehicleUnit(unit: IValidatableUnit): unit is IVehicleUnit {
 /**
  * Get tonnage range for a vehicle unit type
  */
-function getVehicleTonnageRange(unitType: UnitType): { min: number; max: number } {
+function getVehicleTonnageRange(unitType: UnitType): {
+  min: number;
+  max: number;
+} {
   switch (unitType) {
     case UnitType.VEHICLE:
       return VEHICLE_TONNAGE;
@@ -70,7 +73,11 @@ export const VehicleEngineRequired: IUnitValidationRuleDefinition = {
   description: 'All Vehicle category units must have an engine',
   category: ValidationCategory.CONSTRUCTION,
   priority: 30,
-  applicableUnitTypes: [UnitType.VEHICLE, UnitType.VTOL, UnitType.SUPPORT_VEHICLE],
+  applicableUnitTypes: [
+    UnitType.VEHICLE,
+    UnitType.VTOL,
+    UnitType.SUPPORT_VEHICLE,
+  ],
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
@@ -87,12 +94,19 @@ export const VehicleEngineRequired: IUnitValidationRuleDefinition = {
           {
             field: 'engine',
             suggestion: 'Select an engine for the vehicle',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -105,7 +119,11 @@ export const VehicleMotiveSystemRequired: IUnitValidationRuleDefinition = {
   description: 'All Vehicle category units must have a motive system type',
   category: ValidationCategory.CONSTRUCTION,
   priority: 31,
-  applicableUnitTypes: [UnitType.VEHICLE, UnitType.VTOL, UnitType.SUPPORT_VEHICLE],
+  applicableUnitTypes: [
+    UnitType.VEHICLE,
+    UnitType.VTOL,
+    UnitType.SUPPORT_VEHICLE,
+  ],
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
@@ -121,13 +139,21 @@ export const VehicleMotiveSystemRequired: IUnitValidationRuleDefinition = {
           'Motive system type required',
           {
             field: 'motiveSystem',
-            suggestion: 'Select a motive system type (Wheeled, Tracked, Hover, WiGE, Naval, VTOL)',
-          }
-        )
+            suggestion:
+              'Select a motive system type (Wheeled, Tracked, Hover, WiGE, Naval, VTOL)',
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -167,14 +193,22 @@ export const VehicleTurretCapacity: IUnitValidationRuleDefinition = {
               field: 'turret.usedWeight',
               expected: `<= ${capacity}`,
               actual: String(usedWeight),
-              suggestion: 'Remove equipment from turret or increase turret capacity',
-            }
-          )
+              suggestion:
+                'Remove equipment from turret or increase turret capacity',
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -204,12 +238,19 @@ export const VTOLRotorRequired: IUnitValidationRuleDefinition = {
           {
             field: 'rotor',
             suggestion: 'Add a rotor system to the VTOL',
-          }
-        )
+          },
+        ),
       );
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
@@ -222,7 +263,11 @@ export const VehicleTonnageRange: IUnitValidationRuleDefinition = {
   description: 'Vehicle tonnage must be within valid range for vehicle type',
   category: ValidationCategory.WEIGHT,
   priority: 34,
-  applicableUnitTypes: [UnitType.VEHICLE, UnitType.VTOL, UnitType.SUPPORT_VEHICLE],
+  applicableUnitTypes: [
+    UnitType.VEHICLE,
+    UnitType.VTOL,
+    UnitType.SUPPORT_VEHICLE,
+  ],
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
@@ -243,23 +288,31 @@ export const VehicleTonnageRange: IUnitValidationRuleDefinition = {
               expected: `${range.min}-${range.max}`,
               actual: String(unit.weight),
               suggestion: `Set tonnage within ${range.min}-${range.max} ton range`,
-            }
-          )
+            },
+          ),
         );
       }
     }
 
-    return createUnitValidationRuleResult(this.id, this.name, errors, [], [], 0);
+    return createUnitValidationRuleResult(
+      this.id,
+      this.name,
+      errors,
+      [],
+      [],
+      0,
+    );
   },
 };
 
 /**
  * All vehicle category validation rules
  */
-export const VEHICLE_CATEGORY_RULES: readonly IUnitValidationRuleDefinition[] = [
-  VehicleEngineRequired,
-  VehicleMotiveSystemRequired,
-  VehicleTurretCapacity,
-  VTOLRotorRequired,
-  VehicleTonnageRange,
-];
+export const VEHICLE_CATEGORY_RULES: readonly IUnitValidationRuleDefinition[] =
+  [
+    VehicleEngineRequired,
+    VehicleMotiveSystemRequired,
+    VehicleTurretCapacity,
+    VTOLRotorRequired,
+    VehicleTonnageRange,
+  ];

@@ -9,16 +9,21 @@
  * @module campaign/scenario/__tests__/battleChance
  */
 
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { type IContract } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
+import {
+  CombatRole,
+  AtBMoraleLevel,
+  type ICombatTeam,
+} from '@/types/campaign/scenario/scenarioTypes';
+
 import {
   BASE_BATTLE_CHANCE,
   calculateBattleTypeMod,
   checkForBattle,
   type RandomFn,
 } from '../battleChance';
-import { CombatRole, AtBMoraleLevel, type ICombatTeam } from '@/types/campaign/scenario/scenarioTypes';
-import { type IContract } from '@/types/campaign/Mission';
-import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
-import { Money } from '@/types/campaign/Money';
 
 // =============================================================================
 // Test Helpers
@@ -31,7 +36,10 @@ import { Money } from '@/types/campaign/Money';
  * @param value - The value to return (0-1 range)
  * @returns RandomFn that always returns the specified value
  */
-const seededRandom = (value: number): RandomFn => () => value;
+const seededRandom =
+  (value: number): RandomFn =>
+  () =>
+    value;
 
 /**
  * Create a mock combat team for testing.
@@ -51,7 +59,9 @@ const createMockTeam = (role: CombatRole): ICombatTeam => ({
  * @param moraleLevel - Morale level for the contract
  * @returns IContract with minimal required fields
  */
-const createMockContract = (moraleLevel: AtBMoraleLevel = AtBMoraleLevel.STALEMATE): IContract => ({
+const createMockContract = (
+  moraleLevel: AtBMoraleLevel = AtBMoraleLevel.STALEMATE,
+): IContract => ({
   id: 'test-contract-001',
   name: 'Test Contract',
   type: 'contract',
@@ -203,7 +213,7 @@ describe('checkForBattle', () => {
     it('should return false at exactly 40% boundary (roll 0.40)', () => {
       const team = createMockTeam(CombatRole.MANEUVER);
       const contract = createMockContract();
-      const random = seededRandom(0.40);
+      const random = seededRandom(0.4);
 
       const result = checkForBattle(team, contract, random);
       expect(result).toBe(false);

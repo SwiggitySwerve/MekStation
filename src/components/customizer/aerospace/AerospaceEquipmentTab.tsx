@@ -8,11 +8,13 @@
  */
 
 import React, { useCallback } from 'react';
+
 import { useAerospaceStore } from '@/stores/useAerospaceStore';
-import { EquipmentBrowser } from '../equipment/EquipmentBrowser';
-import { IEquipmentItem } from '@/types/equipment';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import { IEquipmentItem } from '@/types/equipment';
 import { IAerospaceMountedEquipment } from '@/types/unit/AerospaceInterfaces';
+
+import { EquipmentBrowser } from '../equipment/EquipmentBrowser';
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
@@ -59,7 +61,7 @@ export function AerospaceEquipmentTab({
       if (readOnly) return;
       addEquipment(item, AerospaceLocation.NOSE);
     },
-    [addEquipment, readOnly]
+    [addEquipment, readOnly],
   );
 
   const handleRemoveEquipment = useCallback(
@@ -67,7 +69,7 @@ export function AerospaceEquipmentTab({
       if (readOnly) return;
       removeEquipment(instanceId);
     },
-    [removeEquipment, readOnly]
+    [removeEquipment, readOnly],
   );
 
   const handleArcChange = useCallback(
@@ -75,7 +77,7 @@ export function AerospaceEquipmentTab({
       if (readOnly) return;
       updateEquipmentArc(instanceId, newArc);
     },
-    [updateEquipmentArc, readOnly]
+    [updateEquipmentArc, readOnly],
   );
 
   const handleClearAll = useCallback(() => {
@@ -84,9 +86,12 @@ export function AerospaceEquipmentTab({
   }, [clearAllEquipment, readOnly]);
 
   return (
-    <div className={`flex flex-col h-full gap-4 ${className}`} data-testid="aerospace-equipment-tab">
+    <div
+      className={`flex h-full flex-col gap-4 ${className}`}
+      data-testid="aerospace-equipment-tab"
+    >
       {/* Equipment Browser */}
-      <div className="flex-1 min-h-0" data-testid="aerospace-equipment-browser">
+      <div className="min-h-0 flex-1" data-testid="aerospace-equipment-browser">
         <EquipmentBrowser
           onAddEquipment={handleAddEquipment}
           className="h-full"
@@ -95,9 +100,13 @@ export function AerospaceEquipmentTab({
 
       {/* Mounted Equipment Section */}
       <div className={cs.panel.main} data-testid="aerospace-mounted-equipment">
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3 flex items-center justify-between">
           <h3 className={cs.text.sectionTitle.replace('mb-4', 'mb-0')}>
-            Mounted Equipment (<span data-testid="aerospace-equipment-count">{equipment.length}</span>)
+            Mounted Equipment (
+            <span data-testid="aerospace-equipment-count">
+              {equipment.length}
+            </span>
+            )
           </h3>
           {equipment.length > 0 && !readOnly && (
             <button
@@ -111,14 +120,20 @@ export function AerospaceEquipmentTab({
         </div>
 
         {equipment.length === 0 ? (
-          <div className={cs.panel.empty} data-testid="aerospace-equipment-empty">
+          <div
+            className={cs.panel.empty}
+            data-testid="aerospace-equipment-empty"
+          >
             <p className="text-text-theme-secondary">No equipment mounted</p>
-            <p className="text-xs text-text-theme-secondary/70 mt-1">
+            <p className="text-text-theme-secondary/70 mt-1 text-xs">
               Add equipment from the browser above
             </p>
           </div>
         ) : (
-          <div className="space-y-2 max-h-64 overflow-auto" data-testid="aerospace-equipment-list">
+          <div
+            className="max-h-64 space-y-2 overflow-auto"
+            data-testid="aerospace-equipment-list"
+          >
             {equipment.map((item) => (
               <MountedEquipmentRow
                 key={item.id}
@@ -159,16 +174,26 @@ function MountedEquipmentRow({
   onRemove,
 }: MountedEquipmentRowProps): React.ReactElement {
   return (
-    <div className="flex items-center gap-2 p-2 bg-surface-raised/50 rounded border border-border-theme-subtle" data-testid={`aerospace-equipment-row-${item.id}`}>
+    <div
+      className="bg-surface-raised/50 border-border-theme-subtle flex items-center gap-2 rounded border p-2"
+      data-testid={`aerospace-equipment-row-${item.id}`}
+    >
       {/* Equipment Name */}
-      <div className="flex-1 min-w-0">
-        <span className="text-sm text-white truncate block" data-testid={`aerospace-equipment-name-${item.id}`}>{item.name}</span>
+      <div className="min-w-0 flex-1">
+        <span
+          className="block truncate text-sm text-white"
+          data-testid={`aerospace-equipment-name-${item.id}`}
+        >
+          {item.name}
+        </span>
       </div>
 
       {/* Arc Selector */}
       <select
         value={item.location}
-        onChange={(e) => onArcChange(item.id, e.target.value as AerospaceLocation)}
+        onChange={(e) =>
+          onArcChange(item.id, e.target.value as AerospaceLocation)
+        }
         disabled={readOnly}
         className={`${cs.select.inline} w-28`}
         data-testid={`aerospace-equipment-arc-${item.id}`}
@@ -184,12 +209,22 @@ function MountedEquipmentRow({
       <button
         onClick={() => onRemove(item.id)}
         disabled={readOnly}
-        className="p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors disabled:opacity-50"
+        className="rounded p-1 text-red-400 transition-colors hover:bg-red-900/30 hover:text-red-300 disabled:opacity-50"
         title="Remove"
         data-testid={`aerospace-equipment-remove-${item.id}`}
       >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
     </div>

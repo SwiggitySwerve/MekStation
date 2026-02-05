@@ -5,7 +5,11 @@
  * @spec openspec/specs/terrain-system/spec.md
  */
 
-import { TerrainType, TERRAIN_PROPERTIES, ITerrainFeature } from '@/types/gameplay/TerrainTypes';
+import {
+  TerrainType,
+  TERRAIN_PROPERTIES,
+  ITerrainFeature,
+} from '@/types/gameplay/TerrainTypes';
 
 /**
  * Get bonus heat dissipation from standing in water.
@@ -23,7 +27,9 @@ export function getWaterCoolingBonus(waterDepth: number): number {
  * @param terrainFeatures - Array of terrain features at the hex
  * @returns Net heat effect (negative = cooling, positive = heating)
  */
-export function getTerrainHeatEffect(terrainFeatures: readonly ITerrainFeature[]): number {
+export function getTerrainHeatEffect(
+  terrainFeatures: readonly ITerrainFeature[],
+): number {
   let heatEffect = 0;
 
   for (const feature of terrainFeatures) {
@@ -48,10 +54,14 @@ export function getTerrainHeatEffect(terrainFeatures: readonly ITerrainFeature[]
  */
 export function calculateHeatDissipation(
   baseHeatSinks: number,
-  terrainFeatures: readonly ITerrainFeature[]
+  terrainFeatures: readonly ITerrainFeature[],
 ): number {
-  const waterFeature = terrainFeatures.find((f) => f.type === TerrainType.Water);
-  const waterBonus = waterFeature ? getWaterCoolingBonus(waterFeature.level) : 0;
+  const waterFeature = terrainFeatures.find(
+    (f) => f.type === TerrainType.Water,
+  );
+  const waterBonus = waterFeature
+    ? getWaterCoolingBonus(waterFeature.level)
+    : 0;
 
   return baseHeatSinks + waterBonus;
 }

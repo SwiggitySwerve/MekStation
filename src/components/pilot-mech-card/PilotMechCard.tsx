@@ -11,9 +11,11 @@
  */
 
 import React from 'react';
-import { Card } from '@/components/ui/Card';
+
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { formatSkills, isPilotCombatReady } from '@/services/pilot-mech-card';
 import {
   IPilotMechCardData,
   PilotMechCardVariant,
@@ -21,10 +23,10 @@ import {
   IPilotMechCardStandardProps,
   IPilotMechCardGameplayProps,
 } from '@/types/pilot/pilot-mech-card';
-import { formatSkills, isPilotCombatReady } from '@/services/pilot-mech-card';
-import { PilotSection } from './PilotSection';
-import { MechSection } from './MechSection';
+
 import { EffectiveStatsSection } from './EffectiveStatsSection';
+import { MechSection } from './MechSection';
+import { PilotSection } from './PilotSection';
 
 // =============================================================================
 // Compact Variant
@@ -56,10 +58,10 @@ export function PilotMechCardCompact({
     >
       <div className="flex items-center justify-between gap-4">
         {/* Left: Pilot identity & skills */}
-        <div className="flex items-center gap-4 min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 items-center gap-4">
           {/* Ready indicator */}
           <div
-            className={`w-2 h-2 rounded-full flex-shrink-0 ${
+            className={`h-2 w-2 flex-shrink-0 rounded-full ${
               isReady ? 'bg-emerald-500' : 'bg-amber-500'
             }`}
             title={isReady ? 'Combat Ready' : 'Not Ready'}
@@ -68,10 +70,10 @@ export function PilotMechCardCompact({
           {/* Pilot info */}
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-text-theme-primary truncate">
+              <span className="text-text-theme-primary truncate font-semibold">
                 {data.callsign ? `"${data.callsign}"` : data.pilotName}
               </span>
-              <span className="text-sm font-mono text-text-theme-secondary">
+              <span className="text-text-theme-secondary font-mono text-sm">
                 ({formatSkills(data.gunnery, data.piloting)})
               </span>
               {data.wounds > 0 && (
@@ -81,7 +83,7 @@ export function PilotMechCardCompact({
               )}
             </div>
             {data.callsign && (
-              <span className="text-xs text-text-theme-muted truncate block">
+              <span className="text-text-theme-muted block truncate text-xs">
                 {data.pilotName}
               </span>
             )}
@@ -89,32 +91,34 @@ export function PilotMechCardCompact({
         </div>
 
         {/* Center: Mech name (if assigned) */}
-        <div className="hidden sm:block min-w-0 flex-1">
+        <div className="hidden min-w-0 flex-1 sm:block">
           {data.mech ? (
             <div className="flex items-center gap-2">
-              <span className="text-text-theme-primary font-medium truncate">
+              <span className="text-text-theme-primary truncate font-medium">
                 {data.mech.name}
               </span>
-              <span className="text-sm text-text-theme-muted font-mono">
+              <span className="text-text-theme-muted font-mono text-sm">
                 {data.mech.tonnage}t
               </span>
             </div>
           ) : (
-            <span className="text-text-theme-muted italic text-sm">
+            <span className="text-text-theme-muted text-sm italic">
               No mech assigned
             </span>
           )}
         </div>
 
         {/* Right: BV & Status */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center gap-3">
           <Badge variant={getStatusVariant()} size="sm">
             {data.status}
           </Badge>
           {data.mech && (
             <div className="text-right">
-              <div className="text-xs text-text-theme-muted uppercase tracking-wide">BV</div>
-              <div className="text-accent font-bold font-mono">
+              <div className="text-text-theme-muted text-xs tracking-wide uppercase">
+                BV
+              </div>
+              <div className="text-accent font-mono font-bold">
                 {data.mech.battleValue.toLocaleString()}
               </div>
             </div>
@@ -145,9 +149,9 @@ export function PilotMechCardStandard({
   return (
     <Card variant="default" className={`overflow-hidden ${className}`}>
       {/* Two-column layout on desktop, stacked on mobile */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Pilot Section (Left) */}
-        <div className="border-b lg:border-b-0 lg:border-r border-border-theme-subtle pb-6 lg:pb-0 lg:pr-6">
+        <div className="border-border-theme-subtle border-b pb-6 lg:border-r lg:border-b-0 lg:pr-6 lg:pb-0">
           <PilotSection
             data={data}
             showCareerStats={true}
@@ -171,7 +175,7 @@ export function PilotMechCardStandard({
 
       {/* Action Bar */}
       {hasActions && (
-        <div className="flex items-center gap-2 pt-6 mt-6 border-t border-border-theme-subtle">
+        <div className="border-border-theme-subtle mt-6 flex items-center gap-2 border-t pt-6">
           {onExport && (
             <Button variant="ghost" size="sm" onClick={onExport}>
               Export
@@ -220,14 +224,14 @@ export function PilotMechCardGameplay({
   return (
     <Card variant="default" className={`overflow-hidden ${className}`}>
       {/* Header with ready status */}
-      <div className="flex items-center justify-between mb-4 pb-4 border-b border-border-theme-subtle">
+      <div className="border-border-theme-subtle mb-4 flex items-center justify-between border-b pb-4">
         <div className="flex items-center gap-3">
           <div
-            className={`w-3 h-3 rounded-full ${
-              isReady ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
+            className={`h-3 w-3 rounded-full ${
+              isReady ? 'animate-pulse bg-emerald-500' : 'bg-rose-500'
             }`}
           />
-          <h3 className="text-lg font-bold text-text-theme-primary">
+          <h3 className="text-text-theme-primary text-lg font-bold">
             {data.callsign ? `"${data.callsign}"` : data.pilotName}
           </h3>
           <Badge variant={isReady ? 'emerald' : 'rose'} size="sm">
@@ -237,7 +241,7 @@ export function PilotMechCardGameplay({
         {data.mech && (
           <div className="text-right">
             <span className="text-text-theme-muted text-sm">BV </span>
-            <span className="text-accent font-bold font-mono">
+            <span className="text-accent font-mono font-bold">
               {data.mech.battleValue.toLocaleString()}
             </span>
           </div>
@@ -245,7 +249,7 @@ export function PilotMechCardGameplay({
       </div>
 
       {/* Two-column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Pilot Section with Wound Controls */}
         <div className="space-y-4">
           <PilotSection
@@ -257,8 +261,8 @@ export function PilotMechCardGameplay({
 
           {/* Wound Application Buttons */}
           {(onApplyWound || onHealWound) && (
-            <div className="flex items-center gap-2 pt-4 border-t border-border-theme-subtle">
-              <span className="text-sm text-text-theme-muted">Wounds:</span>
+            <div className="border-border-theme-subtle flex items-center gap-2 border-t pt-4">
+              <span className="text-text-theme-muted text-sm">Wounds:</span>
               {onHealWound && (
                 <Button
                   variant="ghost"
@@ -269,7 +273,7 @@ export function PilotMechCardGameplay({
                   - Heal
                 </Button>
               )}
-              <span className="font-mono font-bold text-text-theme-primary">
+              <span className="text-text-theme-primary font-mono font-bold">
                 {data.wounds}
               </span>
               {onApplyWound && (
@@ -296,37 +300,39 @@ export function PilotMechCardGameplay({
 
           {/* Gameplay Heat Display (Placeholder) */}
           {data.mech && (
-            <div className="bg-surface-base/40 rounded-lg p-4 border border-border-theme-subtle/50">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-text-theme-secondary uppercase tracking-wider">
+            <div className="bg-surface-base/40 border-border-theme-subtle/50 rounded-lg border p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-text-theme-secondary text-sm font-semibold tracking-wider uppercase">
                   Current Heat
                 </span>
                 <span
-                  className={`text-2xl font-bold font-mono ${
+                  className={`font-mono text-2xl font-bold ${
                     currentHeat >= 10
                       ? 'text-rose-400'
                       : currentHeat >= 5
-                      ? 'text-amber-400'
-                      : 'text-text-theme-primary'
+                        ? 'text-amber-400'
+                        : 'text-text-theme-primary'
                   }`}
                 >
                   {currentHeat}
                 </span>
               </div>
-              <div className="text-xs text-text-theme-muted italic">
-                Heat tracking placeholder - full implementation in gameplay phase
+              <div className="text-text-theme-muted text-xs italic">
+                Heat tracking placeholder - full implementation in gameplay
+                phase
               </div>
             </div>
           )}
 
           {/* Damage State Placeholder */}
           {data.mech && Object.keys(damageState).length > 0 && (
-            <div className="bg-surface-base/40 rounded-lg p-4 border border-border-theme-subtle/50">
-              <span className="text-sm font-semibold text-text-theme-secondary uppercase tracking-wider block mb-2">
+            <div className="bg-surface-base/40 border-border-theme-subtle/50 rounded-lg border p-4">
+              <span className="text-text-theme-secondary mb-2 block text-sm font-semibold tracking-wider uppercase">
                 Damage State
               </span>
-              <div className="text-xs text-text-theme-muted italic">
-                Damage tracking placeholder - full implementation in gameplay phase
+              <div className="text-text-theme-muted text-xs italic">
+                Damage tracking placeholder - full implementation in gameplay
+                phase
               </div>
             </div>
           )}
@@ -334,7 +340,7 @@ export function PilotMechCardGameplay({
       </div>
 
       {/* Quick Actions */}
-      <div className="flex items-center gap-2 pt-6 mt-6 border-t border-border-theme-subtle">
+      <div className="border-border-theme-subtle mt-6 flex items-center gap-2 border-t pt-6">
         {onEditPilot && (
           <Button variant="ghost" size="sm" onClick={onEditPilot}>
             Edit Pilot

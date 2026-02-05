@@ -5,6 +5,9 @@
  * Covers CRUD operations for forces and assignment operations.
  */
 
+import fs from 'fs';
+import path from 'path';
+
 import {
   ForceRepository,
   getForceRepository,
@@ -20,8 +23,6 @@ import {
   ForcePosition,
   ICreateForceRequest,
 } from '@/types/force';
-import fs from 'fs';
-import path from 'path';
 
 // Test database path
 const TEST_DB_PATH = './data/test-force-repository.db';
@@ -86,7 +87,7 @@ describe('ForceRepository', () => {
       // Check forces table exists
       const forcesTable = db
         .prepare(
-          "SELECT name FROM sqlite_master WHERE type='table' AND name='forces'"
+          "SELECT name FROM sqlite_master WHERE type='table' AND name='forces'",
         )
         .get();
       expect(forcesTable).toBeDefined();
@@ -94,7 +95,7 @@ describe('ForceRepository', () => {
       // Check force_assignments table exists
       const assignmentsTable = db
         .prepare(
-          "SELECT name FROM sqlite_master WHERE type='table' AND name='force_assignments'"
+          "SELECT name FROM sqlite_master WHERE type='table' AND name='force_assignments'",
         )
         .get();
       expect(assignmentsTable).toBeDefined();
@@ -312,7 +313,10 @@ describe('ForceRepository', () => {
     it('should return all forces', () => {
       repository.createForce({ name: 'Force A', forceType: ForceType.Lance });
       repository.createForce({ name: 'Force B', forceType: ForceType.Star });
-      repository.createForce({ name: 'Force C', forceType: ForceType.Level_II });
+      repository.createForce({
+        name: 'Force C',
+        forceType: ForceType.Level_II,
+      });
 
       const forces = repository.getAllForces();
 
@@ -375,9 +379,18 @@ describe('ForceRepository', () => {
     });
 
     it('should return root forces ordered by name', () => {
-      repository.createForce({ name: 'Zebra Force', forceType: ForceType.Lance });
-      repository.createForce({ name: 'Alpha Force', forceType: ForceType.Lance });
-      repository.createForce({ name: 'Delta Force', forceType: ForceType.Lance });
+      repository.createForce({
+        name: 'Zebra Force',
+        forceType: ForceType.Lance,
+      });
+      repository.createForce({
+        name: 'Alpha Force',
+        forceType: ForceType.Lance,
+      });
+      repository.createForce({
+        name: 'Delta Force',
+        forceType: ForceType.Lance,
+      });
 
       const forces = repository.getRootForces();
 
@@ -545,7 +558,9 @@ describe('ForceRepository', () => {
 
       const force = repository.getForceById(result.id!);
       // Note: empty string is stored, but the hydration converts null/empty to undefined
-      expect(force?.affiliation === '' || force?.affiliation === undefined).toBe(true);
+      expect(
+        force?.affiliation === '' || force?.affiliation === undefined,
+      ).toBe(true);
     });
 
     it('should update description', () => {
@@ -622,7 +637,9 @@ describe('ForceRepository', () => {
 
       const forceAfter = repository.getForceById(result.id!);
       // updatedAt should be >= createdAt after update
-      expect(forceAfter?.updatedAt && forceAfter.updatedAt >= createdAt!).toBe(true);
+      expect(forceAfter?.updatedAt && forceAfter.updatedAt >= createdAt!).toBe(
+        true,
+      );
       // The force should have the new name
       expect(forceAfter?.name).toBe('New Name');
     });
@@ -864,7 +881,10 @@ describe('ForceRepository', () => {
 
       const updatedForce = repository.getForceById(forceResult.id!);
       // Empty string stored as-is or converted
-      expect(updatedForce?.assignments[0].notes === '' || updatedForce?.assignments[0].notes === undefined).toBe(true);
+      expect(
+        updatedForce?.assignments[0].notes === '' ||
+          updatedForce?.assignments[0].notes === undefined,
+      ).toBe(true);
     });
 
     it('should update multiple fields at once', () => {
@@ -1054,7 +1074,10 @@ describe('ForceRepository', () => {
     });
 
     it('should return error if both assignments do not exist', () => {
-      const swapResult = repository.swapAssignments('non-existent-1', 'non-existent-2');
+      const swapResult = repository.swapAssignments(
+        'non-existent-1',
+        'non-existent-2',
+      );
 
       expect(swapResult.success).toBe(false);
       expect(swapResult.errorCode).toBe(ForceErrorCode.NotFound);

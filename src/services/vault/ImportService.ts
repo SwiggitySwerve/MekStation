@@ -18,6 +18,7 @@ import type {
   NameChecker,
   ItemSaver,
 } from '@/types/vault';
+
 import {
   parseBundle,
   parseBundleFromBytes,
@@ -37,7 +38,7 @@ export type { IImportHandlers, ExistsChecker, NameChecker, ItemSaver };
 export async function importFromString<T>(
   data: string,
   handlers: IImportHandlers<T>,
-  options: IImportOptions = { conflictResolution: 'ask' }
+  options: IImportOptions = { conflictResolution: 'ask' },
 ): Promise<IImportResult> {
   try {
     const bundle = parseBundle(data);
@@ -45,7 +46,10 @@ export async function importFromString<T>(
   } catch (error) {
     return {
       success: false,
-      error: { message: error instanceof Error ? error.message : 'Failed to parse bundle' },
+      error: {
+        message:
+          error instanceof Error ? error.message : 'Failed to parse bundle',
+      },
     };
   }
 }
@@ -56,7 +60,7 @@ export async function importFromString<T>(
 export async function importFromBytes<T>(
   data: Uint8Array,
   handlers: IImportHandlers<T>,
-  options: IImportOptions = { conflictResolution: 'ask' }
+  options: IImportOptions = { conflictResolution: 'ask' },
 ): Promise<IImportResult> {
   try {
     const bundle = parseBundleFromBytes(data);
@@ -64,7 +68,10 @@ export async function importFromBytes<T>(
   } catch (error) {
     return {
       success: false,
-      error: { message: error instanceof Error ? error.message : 'Failed to parse bundle' },
+      error: {
+        message:
+          error instanceof Error ? error.message : 'Failed to parse bundle',
+      },
     };
   }
 }
@@ -75,7 +82,7 @@ export async function importFromBytes<T>(
 export async function importBundle<T>(
   bundle: IShareableBundle,
   handlers: IImportHandlers<T>,
-  options: IImportOptions = { conflictResolution: 'ask' }
+  options: IImportOptions = { conflictResolution: 'ask' },
 ): Promise<IImportResult> {
   // Validate metadata
   const metadataErrors = validateBundleMetadata(bundle.metadata);
@@ -101,7 +108,7 @@ export async function importBundle<T>(
   const conflicts = await detectConflicts<T>(
     parsed.items,
     bundle.metadata.contentType,
-    handlers
+    handlers,
   );
 
   // If there are unresolved conflicts and resolution is 'ask', return them
@@ -125,14 +132,17 @@ export async function importBundle<T>(
   // Apply conflict resolutions
   const resolvedConflicts = options.resolvedConflicts || [];
   const conflictMap = new Map(
-    resolvedConflicts.map((c) => [c.bundleItemId, c.resolution])
+    resolvedConflicts.map((c) => [c.bundleItemId, c.resolution]),
   );
 
   // Apply default resolution to unresolved conflicts
   for (const conflict of conflicts) {
     if (!conflictMap.has(conflict.bundleItemId)) {
       // 'ask' defaults to 'skip' when no resolution provided
-      const defaultResolution = options.conflictResolution === 'ask' ? 'skip' : options.conflictResolution;
+      const defaultResolution =
+        options.conflictResolution === 'ask'
+          ? 'skip'
+          : options.conflictResolution;
       conflictMap.set(conflict.bundleItemId, defaultResolution);
     }
   }
@@ -200,7 +210,7 @@ export async function importBundle<T>(
 async function detectConflicts<T>(
   items: T[],
   contentType: ShareableContentType,
-  handlers: IImportHandlers<T>
+  handlers: IImportHandlers<T>,
 ): Promise<IImportConflict[]> {
   const conflicts: IImportConflict[] = [];
 
@@ -275,7 +285,7 @@ export function generateImportId(): string {
  */
 export function remapItemIds<T extends { id: string }>(
   item: T,
-  idMap: Map<string, string>
+  idMap: Map<string, string>,
 ): T {
   const newId = idMap.get(item.id) || generateImportId();
   return { ...item, id: newId };
@@ -324,9 +334,7 @@ export function validateBundleFile(file: File): string | null {
 /**
  * Preview a bundle without importing
  */
-export async function previewBundle(
-  data: string
-): Promise<{
+export async function previewBundle(data: string): Promise<{
   valid: boolean;
   metadata?: IShareableBundle['metadata'];
   itemCount?: number;

@@ -11,10 +11,13 @@
 ## Overview
 
 ### Purpose
+
 Defines the campaign management HUD layout system for MekStation, providing a Civilization-style 3-panel interface for strategic mercenary company management. This specification encodes information architecture, panel layouts, context modes, and action blocking patterns for campaign gameplay.
 
 ### Scope
+
 **In Scope:**
+
 - 3-panel layout structure (left roster, right events, bottom context, center map)
 - Top HUD bar with campaign status indicators
 - AdvanceDay button with action blocking pattern
@@ -24,6 +27,7 @@ Defines the campaign management HUD layout system for MekStation, providing a Ci
 - Map area component swapping (Starmap ↔ TacticalMap)
 
 **Out of Scope:**
+
 - Campaign logic and state management (see campaign-system spec)
 - Contract negotiation workflow (see contract-types spec)
 - Repair and maintenance workflow (see repair-maintenance spec)
@@ -32,6 +36,7 @@ Defines the campaign management HUD layout system for MekStation, providing a Ci
 - Tactical map rendering implementation (see tactical-map-interface spec)
 
 ### Key Concepts
+
 - **HUD Layout**: The persistent shell that contains all campaign UI elements
 - **Context Panel**: A dynamic bottom panel that changes content based on user selection
 - **Action Blocking**: A pattern where the AdvanceDay button transforms to show mandatory incomplete tasks
@@ -43,6 +48,7 @@ Defines the campaign management HUD layout system for MekStation, providing a Ci
 ## Requirements
 
 ### Requirement: 3-Panel Layout Structure
+
 The system SHALL provide a 3-panel layout following Civilization design principles.
 
 **Rationale**: Corner widget layout scales well across resolutions and provides clear information hierarchy.
@@ -50,34 +56,41 @@ The system SHALL provide a 3-panel layout following Civilization design principl
 **Priority**: Critical
 
 #### Scenario: Layout renders with all panels
+
 **GIVEN** the campaign page is loaded
 **WHEN** the HUD layout is rendered
 **THEN** the following panels SHALL be present:
-  - Left panel: Force roster (collapsible)
-  - Right panel: Events and contracts (collapsible)
-  - Bottom panel: Context panel (dynamic content)
-  - Center area: Map display (Starmap or TacticalMap)
-  - Top bar: Campaign status indicators
+
+- Left panel: Force roster (collapsible)
+- Right panel: Events and contracts (collapsible)
+- Bottom panel: Context panel (dynamic content)
+- Center area: Map display (Starmap or TacticalMap)
+- Top bar: Campaign status indicators
 
 #### Scenario: Left panel displays force roster
+
 **GIVEN** the campaign HUD is rendered
 **WHEN** viewing the left panel
 **THEN** it SHALL display:
-  - List of all 'Mechs in the company
-  - Pilot assignments for each 'Mech
-  - Status indicators (ready, repair, damaged)
-  - Collapse/expand toggle button
+
+- List of all 'Mechs in the company
+- Pilot assignments for each 'Mech
+- Status indicators (ready, repair, damaged)
+- Collapse/expand toggle button
 
 #### Scenario: Right panel displays events and contracts
+
 **GIVEN** the campaign HUD is rendered
 **WHEN** viewing the right panel
 **THEN** it SHALL display:
-  - Notification list with categories (contracts, personnel, equipment, finance, story)
-  - Click-to-jump functionality for each notification
-  - Bundled similar notifications
-  - Collapse/expand toggle button
+
+- Notification list with categories (contracts, personnel, equipment, finance, story)
+- Click-to-jump functionality for each notification
+- Bundled similar notifications
+- Collapse/expand toggle button
 
 #### Scenario: Panels can be collapsed
+
 **GIVEN** a side panel is expanded
 **WHEN** the user clicks the collapse button
 **THEN** the panel SHALL collapse to a narrow strip
@@ -87,6 +100,7 @@ The system SHALL provide a 3-panel layout following Civilization design principl
 ---
 
 ### Requirement: Top HUD Bar Status Indicators
+
 The system SHALL display campaign status indicators in the top bar following the 3-tier information hierarchy.
 
 **Rationale**: Glanceable information must be always visible for strategic decision-making.
@@ -94,34 +108,41 @@ The system SHALL display campaign status indicators in the top bar following the
 **Priority**: Critical
 
 #### Scenario: HUD bar displays core metrics
+
 **GIVEN** the campaign HUD is rendered
 **WHEN** viewing the top bar
 **THEN** the following SHALL be displayed:
-  - Current date (BattleTech calendar format: YYYY-MM-DD)
-  - C-Bills balance (formatted with M/K suffixes)
-  - Company morale (percentage or status indicator)
-  - Mercenary rating (text: Reliable, Questionable, etc.)
-  - Settings menu button
+
+- Current date (BattleTech calendar format: YYYY-MM-DD)
+- C-Bills balance (formatted with M/K suffixes)
+- Company morale (percentage or status indicator)
+- Mercenary rating (text: Reliable, Questionable, etc.)
+- Settings menu button
 
 #### Scenario: Hover reveals detailed tooltips
+
 **GIVEN** the top HUD bar is displayed
 **WHEN** the user hovers over a status indicator
 **THEN** a tooltip SHALL appear with detailed information:
-  - C-Bills: Monthly income, expenses, net change
-  - Morale: Contributing factors, recent changes
-  - Mercenary Rating: Current score, next threshold
+
+- C-Bills: Monthly income, expenses, net change
+- Morale: Contributing factors, recent changes
+- Mercenary Rating: Current score, next threshold
 
 #### Scenario: Click opens deep dive panel
+
 **GIVEN** the top HUD bar is displayed
 **WHEN** the user clicks a status indicator
 **THEN** the context panel SHALL switch to the corresponding detail view:
-  - C-Bills → Financial summary
-  - Morale → Morale breakdown
-  - Mercenary Rating → Reputation details
+
+- C-Bills → Financial summary
+- Morale → Morale breakdown
+- Mercenary Rating → Reputation details
 
 ---
 
 ### Requirement: AdvanceDay Button with Action Blocking
+
 The system SHALL provide an AdvanceDay button that transforms to show blocking actions when mandatory tasks are incomplete.
 
 **Rationale**: Civilization's End Turn pattern prevents player errors and guides workflow.
@@ -129,51 +150,62 @@ The system SHALL provide an AdvanceDay button that transforms to show blocking a
 **Priority**: Critical
 
 #### Scenario: AdvanceDay button shows ready state
+
 **GIVEN** all mandatory campaign tasks are complete
 **WHEN** viewing the AdvanceDay button
 **THEN** it SHALL display:
-  - Text: "Advance Day"
-  - Green/positive visual treatment
-  - Arrow icon indicating forward progress
-  - Enabled state
+
+- Text: "Advance Day"
+- Green/positive visual treatment
+- Arrow icon indicating forward progress
+- Enabled state
 
 #### Scenario: Button shows blocking action
+
 **GIVEN** a mandatory task is incomplete (e.g., unassigned pilots)
 **WHEN** viewing the AdvanceDay button
 **THEN** it SHALL display:
-  - Text: Name of blocking action (e.g., "Assign Pilots")
-  - Warning/attention visual treatment
-  - Icon indicating the blocking category
-  - Enabled state (clickable to route to blocker)
+
+- Text: Name of blocking action (e.g., "Assign Pilots")
+- Warning/attention visual treatment
+- Icon indicating the blocking category
+- Enabled state (clickable to route to blocker)
 
 #### Scenario: Click on blocking action routes to task
+
 **GIVEN** the AdvanceDay button shows a blocking action
 **WHEN** the user clicks the button
 **THEN** the system SHALL:
-  - Navigate to the relevant panel/modal for the blocking task
-  - Highlight the specific items requiring attention
-  - NOT advance the day
+
+- Navigate to the relevant panel/modal for the blocking task
+- Highlight the specific items requiring attention
+- NOT advance the day
 
 #### Scenario: Multiple blockers show highest priority
+
 **GIVEN** multiple mandatory tasks are incomplete
 **WHEN** viewing the AdvanceDay button
 **THEN** it SHALL display the highest priority blocker:
-  - Priority order: Assign Pilots > Resolve Repair > Select Contract
-  - Only one blocker shown at a time
-  - Resolving one blocker reveals the next
+
+- Priority order: Assign Pilots > Resolve Repair > Select Contract
+- Only one blocker shown at a time
+- Resolving one blocker reveals the next
 
 #### Scenario: AdvanceDay executes when ready
+
 **GIVEN** the AdvanceDay button shows "Advance Day" (ready state)
 **WHEN** the user clicks the button
 **THEN** the system SHALL:
-  - Trigger the campaign day advancement
-  - Process all daily events
-  - Update campaign state
-  - Display results/notifications
+
+- Trigger the campaign day advancement
+- Process all daily events
+- Update campaign state
+- Display results/notifications
 
 ---
 
 ### Requirement: Context Panel Mode System
+
 The system SHALL provide a context panel that changes content based on user selection.
 
 **Rationale**: Single panel for detailed information reduces screen clutter and provides consistent interaction pattern.
@@ -181,58 +213,69 @@ The system SHALL provide a context panel that changes content based on user sele
 **Priority**: High
 
 #### Scenario: Default mode shows campaign summary
+
 **GIVEN** no specific item is selected
 **WHEN** viewing the context panel
 **THEN** it SHALL display:
-  - Campaign summary (current objectives, next deadlines)
-  - Recent activity log
-  - Quick action buttons
+
+- Campaign summary (current objectives, next deadlines)
+- Recent activity log
+- Quick action buttons
 
 #### Scenario: System selection shows SystemDetails mode
+
 **GIVEN** a star system is selected on the starmap
 **WHEN** the context panel updates
 **THEN** it SHALL display:
-  - System name and faction control
-  - Population and industrial rating
-  - Available contracts list
-  - Market access button
-  - Jump distance from current location
+
+- System name and faction control
+- Population and industrial rating
+- Available contracts list
+- Market access button
+- Jump distance from current location
 
 #### Scenario: Contract selection shows ContractDetails mode
+
 **GIVEN** a contract is selected from the events panel or system details
 **WHEN** the context panel updates
 **THEN** it SHALL display:
-  - Contract type and employer
-  - Mission objectives
-  - Payment terms (advance, success, salvage)
-  - Difficulty rating
-  - Accept/Decline buttons
+
+- Contract type and employer
+- Mission objectives
+- Payment terms (advance, success, salvage)
+- Difficulty rating
+- Accept/Decline buttons
 
 #### Scenario: Mech selection shows MechStatus mode
+
 **GIVEN** a 'Mech is selected from the roster panel
 **WHEN** the context panel updates
 **THEN** it SHALL display:
-  - 'Mech variant name and tonnage
-  - Current armor and structure status
-  - Assigned pilot
-  - Repair queue and estimated completion
-  - Equipment loadout summary
-  - View record sheet button
+
+- 'Mech variant name and tonnage
+- Current armor and structure status
+- Assigned pilot
+- Repair queue and estimated completion
+- Equipment loadout summary
+- View record sheet button
 
 #### Scenario: Pilot selection shows PilotStatus mode
+
 **GIVEN** a pilot is selected from the roster
 **WHEN** the context panel updates
 **THEN** it SHALL display:
-  - Pilot name and callsign
-  - Gunnery and piloting skills
-  - Special abilities
-  - XP and progression
-  - Injury status
-  - Assigned 'Mech
+
+- Pilot name and callsign
+- Gunnery and piloting skills
+- Special abilities
+- XP and progression
+- Injury status
+- Assigned 'Mech
 
 ---
 
 ### Requirement: Map Area Component Swapping
+
 The system SHALL support seamless swapping between Starmap and TacticalMap components in the center map area.
 
 **Rationale**: Campaign and combat share the same layout shell for consistent UX.
@@ -240,29 +283,34 @@ The system SHALL support seamless swapping between Starmap and TacticalMap compo
 **Priority**: High
 
 #### Scenario: Campaign mode displays Starmap
+
 **GIVEN** the player is in campaign strategic mode
 **WHEN** viewing the map area
 **THEN** the Starmap component SHALL be rendered
 **AND** starmap-specific controls SHALL be available (jump range filters, faction overlays)
 
 #### Scenario: Combat mode displays TacticalMap
+
 **GIVEN** the player enters a combat mission
 **WHEN** the map area updates
 **THEN** the TacticalMap component SHALL be rendered
 **AND** tactical-specific controls SHALL be available (movement ranges, attack ranges)
 
 #### Scenario: Transition preserves layout shell
+
 **GIVEN** the player transitions from campaign to combat
 **WHEN** the map component swaps
 **THEN** the following SHALL remain unchanged:
-  - Top HUD bar
-  - Left panel (roster)
-  - Right panel (events)
-  - Bottom context panel (content changes, structure persists)
+
+- Top HUD bar
+- Left panel (roster)
+- Right panel (events)
+- Bottom context panel (content changes, structure persists)
 
 ---
 
 ### Requirement: 3-Tier Information Hierarchy
+
 The system SHALL implement a 3-tier information hierarchy across all HUD elements.
 
 **Rationale**: Civilization's layered information approach makes complex decisions tractable.
@@ -270,49 +318,59 @@ The system SHALL implement a 3-tier information hierarchy across all HUD element
 **Priority**: High
 
 #### Scenario: Tier 1 - Glanceable information always visible
+
 **GIVEN** the campaign HUD is rendered
 **WHEN** viewing without interaction
 **THEN** the following SHALL be immediately visible:
-  - Top bar: Date, C-Bills, Morale, Rating
-  - Roster: 'Mech names, status icons
-  - Events: Notification count, category icons
-  - Map: System names, faction colors
+
+- Top bar: Date, C-Bills, Morale, Rating
+- Roster: 'Mech names, status icons
+- Events: Notification count, category icons
+- Map: System names, faction colors
 
 #### Scenario: Tier 2 - Hover reveals summary
+
 **GIVEN** the user hovers over a UI element
 **WHEN** the hover state is active
 **THEN** a tooltip SHALL appear with summary information:
-  - System: Population, industrial rating, contract count
-  - 'Mech: Armor %, pilot name, repair status
-  - Contract: Type, payment, deadline
-  - Pilot: Skills, XP, injury status
+
+- System: Population, industrial rating, contract count
+- 'Mech: Armor %, pilot name, repair status
+- Contract: Type, payment, deadline
+- Pilot: Skills, XP, injury status
 
 #### Scenario: Tier 3 - Click opens deep dive
+
 **GIVEN** the user clicks a UI element
 **WHEN** the click is processed
 **THEN** the context panel or modal SHALL display full details:
-  - System: Complete encyclopedia entry, market, contracts
-  - 'Mech: Full record sheet, repair queue, loadout
-  - Contract: Negotiation screen, full briefing
-  - Pilot: Complete stats, abilities, history
+
+- System: Complete encyclopedia entry, market, contracts
+- 'Mech: Full record sheet, repair queue, loadout
+- Contract: Negotiation screen, full briefing
+- Pilot: Complete stats, abilities, history
 
 ---
 
 ### Requirement: Responsive Panel Behavior
+
 The system SHALL adapt panel layout for different screen sizes.
 
 **Priority**: Medium
 
 #### Scenario: Desktop displays full layout
+
 **GIVEN** the viewport width is >= 1280px
 **WHEN** rendering the HUD
 **THEN** all panels SHALL be displayed simultaneously:
-  - Left panel: 250px width
-  - Right panel: 250px width
-  - Map area: Remaining width
-  - Context panel: Full width, 200px height
+
+- Left panel: 250px width
+- Right panel: 250px width
+- Map area: Remaining width
+- Context panel: Full width, 200px height
 
 #### Scenario: Tablet collapses side panels by default
+
 **GIVEN** the viewport width is 768px - 1279px
 **WHEN** rendering the HUD
 **THEN** side panels SHALL be collapsed by default
@@ -320,11 +378,13 @@ The system SHALL adapt panel layout for different screen sizes.
 **AND** panels SHALL overlay map when expanded
 
 #### Scenario: Mobile is not supported
+
 **GIVEN** the viewport width is < 768px
 **WHEN** attempting to access campaign mode
 **THEN** a message SHALL be displayed:
-  - "Campaign management requires a larger screen"
-  - Recommendation to use desktop or tablet
+
+- "Campaign management requires a larger screen"
+- Recommendation to use desktop or tablet
 
 ---
 
@@ -339,25 +399,25 @@ The system SHALL adapt panel layout for different screen sizes.
 interface ICampaignLayoutProps {
   /** Current campaign state */
   readonly campaign: ICampaign;
-  
+
   /** Current map mode */
   readonly mapMode: 'starmap' | 'tactical';
-  
+
   /** Whether left panel is collapsed */
   readonly isLeftPanelCollapsed: boolean;
-  
+
   /** Whether right panel is collapsed */
   readonly isRightPanelCollapsed: boolean;
-  
+
   /** Current context panel mode */
   readonly contextPanelMode: ContextPanelMode;
-  
+
   /** Data for the current context panel mode */
   readonly contextPanelData: ContextPanelData | null;
-  
+
   /** Callback when AdvanceDay is clicked */
   readonly onAdvanceDay: () => void;
-  
+
   /** Callback when panel collapse state changes */
   readonly onPanelToggle: (panel: 'left' | 'right') => void;
 }
@@ -365,7 +425,7 @@ interface ICampaignLayoutProps {
 /**
  * Context panel mode union type.
  */
-type ContextPanelMode = 
+type ContextPanelMode =
   | 'default'
   | 'systemDetails'
   | 'contractDetails'
@@ -375,7 +435,7 @@ type ContextPanelMode =
 /**
  * Context panel data discriminated union.
  */
-type ContextPanelData = 
+type ContextPanelData =
   | { mode: 'default'; data: ICampaignSummary }
   | { mode: 'systemDetails'; data: IStarSystem }
   | { mode: 'contractDetails'; data: IContract }
@@ -388,10 +448,10 @@ type ContextPanelData =
 interface IContextPanelProps {
   /** Current mode */
   readonly mode: ContextPanelMode;
-  
+
   /** Data for the current mode */
   readonly data: ContextPanelData | null;
-  
+
   /** Callback when user interacts with panel content */
   readonly onAction: (action: ContextPanelAction) => void;
 }
@@ -411,10 +471,10 @@ type ContextPanelAction =
 interface IAdvanceDayButtonProps {
   /** Current blocking action, if any */
   readonly blocker: ActionBlocker | null;
-  
+
   /** Whether the button is in a loading state */
   readonly isProcessing: boolean;
-  
+
   /** Callback when button is clicked */
   readonly onClick: () => void;
 }
@@ -425,16 +485,16 @@ interface IAdvanceDayButtonProps {
 interface ActionBlocker {
   /** Blocker type */
   readonly type: 'assignPilots' | 'resolveRepair' | 'selectContract';
-  
+
   /** Display text for the blocker */
   readonly text: string;
-  
+
   /** Icon identifier for the blocker */
   readonly icon: string;
-  
+
   /** Priority (higher = shown first) */
   readonly priority: number;
-  
+
   /** Route/action to take when clicked */
   readonly action: () => void;
 }
@@ -445,21 +505,23 @@ interface ActionBlocker {
 interface IHUDBarProps {
   /** Current campaign date */
   readonly date: string;
-  
+
   /** C-Bills balance */
   readonly cBills: number;
-  
+
   /** Company morale (0-100) */
   readonly morale: number;
-  
+
   /** Mercenary rating text */
   readonly mercenaryRating: string;
-  
+
   /** Active contract summary, if any */
   readonly activeContract: IContractSummary | null;
-  
+
   /** Callback when status indicator is clicked */
-  readonly onStatusClick: (status: 'date' | 'cBills' | 'morale' | 'rating') => void;
+  readonly onStatusClick: (
+    status: 'date' | 'cBills' | 'morale' | 'rating',
+  ) => void;
 }
 
 /**
@@ -468,13 +530,13 @@ interface IHUDBarProps {
 interface IContractSummary {
   /** Contract ID */
   readonly id: string;
-  
+
   /** Contract type */
   readonly type: string;
-  
+
   /** Employer name */
   readonly employer: string;
-  
+
   /** Days remaining */
   readonly daysRemaining: number;
 }
@@ -485,13 +547,13 @@ interface IContractSummary {
 interface ICampaignSummary {
   /** Current objectives */
   readonly objectives: readonly string[];
-  
+
   /** Next deadline */
   readonly nextDeadline: {
     readonly description: string;
     readonly daysRemaining: number;
   } | null;
-  
+
   /** Recent activity log entries */
   readonly recentActivity: readonly IActivityLogEntry[];
 }
@@ -502,16 +564,21 @@ interface ICampaignSummary {
 interface IActivityLogEntry {
   /** Entry ID */
   readonly id: string;
-  
+
   /** Timestamp */
   readonly timestamp: string;
-  
+
   /** Category */
-  readonly category: 'contract' | 'personnel' | 'equipment' | 'finance' | 'story';
-  
+  readonly category:
+    | 'contract'
+    | 'personnel'
+    | 'equipment'
+    | 'finance'
+    | 'story';
+
   /** Description text */
   readonly description: string;
-  
+
   /** Optional action to take */
   readonly action?: () => void;
 }
@@ -519,14 +586,14 @@ interface IActivityLogEntry {
 
 ### Required Properties
 
-| Property | Type | Required | Description | Valid Values | Default |
-|----------|------|----------|-------------|--------------|---------|
-| `mapMode` | `'starmap' \| 'tactical'` | Yes | Current map display mode | starmap, tactical | starmap |
-| `contextPanelMode` | `ContextPanelMode` | Yes | Current context panel content | default, systemDetails, contractDetails, mechStatus, pilotStatus | default |
-| `isLeftPanelCollapsed` | `boolean` | Yes | Left panel collapse state | true, false | false |
-| `isRightPanelCollapsed` | `boolean` | Yes | Right panel collapse state | true, false | false |
-| `blocker` | `ActionBlocker \| null` | Yes | Current action blocker | ActionBlocker or null | null |
-| `morale` | `number` | Yes | Company morale | 0-100 | 50 |
+| Property                | Type                      | Required | Description                   | Valid Values                                                     | Default |
+| ----------------------- | ------------------------- | -------- | ----------------------------- | ---------------------------------------------------------------- | ------- |
+| `mapMode`               | `'starmap' \| 'tactical'` | Yes      | Current map display mode      | starmap, tactical                                                | starmap |
+| `contextPanelMode`      | `ContextPanelMode`        | Yes      | Current context panel content | default, systemDetails, contractDetails, mechStatus, pilotStatus | default |
+| `isLeftPanelCollapsed`  | `boolean`                 | Yes      | Left panel collapse state     | true, false                                                      | false   |
+| `isRightPanelCollapsed` | `boolean`                 | Yes      | Right panel collapse state    | true, false                                                      | false   |
+| `blocker`               | `ActionBlocker \| null`   | Yes      | Current action blocker        | ActionBlocker or null                                            | null    |
+| `morale`                | `number`                  | Yes      | Company morale                | 0-100                                                            | 50      |
 
 ### Type Constraints
 
@@ -571,16 +638,16 @@ interface IActivityLogEntry {
 
 ### Panel Dimensions (Desktop)
 
-| Panel | Width | Height | Position |
-|-------|-------|--------|----------|
-| Top HUD Bar | 100% | 60px | Fixed top |
-| Left Panel (expanded) | 250px | calc(100vh - 60px - 200px) | Fixed left |
-| Left Panel (collapsed) | 40px | calc(100vh - 60px - 200px) | Fixed left |
-| Right Panel (expanded) | 250px | calc(100vh - 60px - 200px) | Fixed right |
-| Right Panel (collapsed) | 40px | calc(100vh - 60px - 200px) | Fixed right |
-| Map Area | Remaining width | calc(100vh - 60px - 200px) | Center |
-| Context Panel | 100% | 200px | Fixed bottom |
-| AdvanceDay Button | 150px | 80px | Fixed bottom-right |
+| Panel                   | Width           | Height                     | Position           |
+| ----------------------- | --------------- | -------------------------- | ------------------ |
+| Top HUD Bar             | 100%            | 60px                       | Fixed top          |
+| Left Panel (expanded)   | 250px           | calc(100vh - 60px - 200px) | Fixed left         |
+| Left Panel (collapsed)  | 40px            | calc(100vh - 60px - 200px) | Fixed left         |
+| Right Panel (expanded)  | 250px           | calc(100vh - 60px - 200px) | Fixed right        |
+| Right Panel (collapsed) | 40px            | calc(100vh - 60px - 200px) | Fixed right        |
+| Map Area                | Remaining width | calc(100vh - 60px - 200px) | Center             |
+| Context Panel           | 100%            | 200px                      | Fixed bottom       |
+| AdvanceDay Button       | 150px           | 80px                       | Fixed bottom-right |
 
 ---
 
@@ -593,6 +660,7 @@ interface IActivityLogEntry {
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
 if (contextPanelData !== null && contextPanelMode !== contextPanelData.mode) {
   // invalid - mode mismatch
@@ -610,6 +678,7 @@ if (contextPanelData !== null && contextPanelMode !== contextPanelData.mode) {
 **Severity**: Error
 
 **Condition**:
+
 ```typescript
 if (morale < 0 || morale > 100) {
   // invalid - out of range
@@ -627,10 +696,11 @@ if (morale < 0 || morale > 100) {
 **Severity**: Warning
 
 **Condition**:
+
 ```typescript
 const blockers = getActiveBlockers();
 if (blockers.length > 1) {
-  const highestPriority = Math.max(...blockers.map(b => b.priority));
+  const highestPriority = Math.max(...blockers.map((b) => b.priority));
   if (displayedBlocker.priority !== highestPriority) {
     // warning - wrong blocker displayed
   }
@@ -646,15 +716,18 @@ if (blockers.length > 1) {
 ## Dependencies
 
 ### Depends On
+
 - **starmap-interface**: Provides the Starmap component for campaign strategic view
 - **tactical-map-interface**: Provides the TacticalMap component for combat view
 - **campaign-system**: Provides campaign state, advancement logic, and event processing
 
 ### Used By
+
 - **campaign-page-implementation**: Implements the full campaign page using this layout
 - **multiplayer-lobby**: May reuse HUD components for multiplayer campaign sessions
 
 ### Component Hierarchy
+
 1. Campaign system provides state and logic
 2. Campaign HUD layout renders shell and panels
 3. Starmap/TacticalMap components render in map area
@@ -665,12 +738,14 @@ if (blockers.length > 1) {
 ## Implementation Notes
 
 ### Performance Considerations
+
 - Collapse side panels by default on smaller screens to maximize map area
 - Use React.memo for panel components to prevent unnecessary re-renders
 - Debounce hover tooltips to avoid excessive tooltip rendering
 - Lazy load context panel content when mode changes
 
 ### Edge Cases
+
 - **No active campaign**: Display campaign creation/load screen instead of HUD
 - **Empty roster**: Left panel shows "No 'Mechs" message with add button
 - **No notifications**: Right panel shows "No events" message
@@ -678,6 +753,7 @@ if (blockers.length > 1) {
 - **Viewport too small**: Display "screen too small" message for < 768px width
 
 ### Common Pitfalls
+
 - **Pitfall**: Forgetting to update context panel when selection changes
   - **Solution**: Use a centralized selection state that triggers context panel updates
 - **Pitfall**: Panel collapse state not persisting across sessions
@@ -692,6 +768,7 @@ if (blockers.length > 1) {
 ### Example 1: Rendering Campaign HUD with Starmap
 
 **Input**:
+
 ```typescript
 const campaign: ICampaign = {
   id: 'campaign-001',
@@ -732,6 +809,7 @@ const layoutProps: ICampaignLayoutProps = {
 ```
 
 **Processing**:
+
 ```typescript
 // Render campaign layout
 <CampaignLayout {...layoutProps}>
@@ -744,35 +822,35 @@ const layoutProps: ICampaignLayoutProps = {
     activeContract={null}
     onStatusClick={(status) => console.log(`Clicked ${status}`)}
   />
-  
+
   {/* Left panel: Roster */}
   <RosterPanel
     mechs={campaign.mechs}
     isCollapsed={layoutProps.isLeftPanelCollapsed}
     onToggle={() => layoutProps.onPanelToggle('left')}
   />
-  
+
   {/* Map area: Starmap */}
   <StarmapDisplay
     currentSystem={campaign.currentSystem}
     systems={getAllSystems()}
     onSystemSelect={(system) => console.log(`Selected ${system.name}`)}
   />
-  
+
   {/* Right panel: Events */}
   <EventsPanel
     notifications={campaign.notifications}
     isCollapsed={layoutProps.isRightPanelCollapsed}
     onToggle={() => layoutProps.onPanelToggle('right')}
   />
-  
+
   {/* Context panel */}
   <ContextPanel
     mode={layoutProps.contextPanelMode}
     data={layoutProps.contextPanelData}
     onAction={(action) => console.log('Context action:', action)}
   />
-  
+
   {/* AdvanceDay button */}
   <AdvanceDayButton
     blocker={null}
@@ -783,6 +861,7 @@ const layoutProps: ICampaignLayoutProps = {
 ```
 
 **Output**:
+
 - Full campaign HUD rendered with starmap
 - All panels visible and expanded
 - Context panel shows campaign summary
@@ -791,6 +870,7 @@ const layoutProps: ICampaignLayoutProps = {
 ### Example 2: AdvanceDay Button with Blocker
 
 **Input**:
+
 ```typescript
 const blocker: ActionBlocker = {
   type: 'assignPilots',
@@ -817,6 +897,7 @@ const buttonProps: IAdvanceDayButtonProps = {
 ```
 
 **Processing**:
+
 ```typescript
 <AdvanceDayButton {...buttonProps} />
 
@@ -845,6 +926,7 @@ if (blocker) {
 ```
 
 **Output**:
+
 - Button displays "Assign Pilots" with warning styling
 - Clicking button opens pilot assignment modal
 - Day does NOT advance until blocker is resolved
@@ -852,6 +934,7 @@ if (blocker) {
 ### Example 3: Context Panel Mode Switch
 
 **Input**:
+
 ```typescript
 // User clicks a star system on the starmap
 const selectedSystem: IStarSystem = {
@@ -874,6 +957,7 @@ const contextPanelData: ContextPanelData = {
 ```
 
 **Processing**:
+
 ```typescript
 <ContextPanel
   mode="systemDetails"
@@ -893,7 +977,7 @@ return (
     <p>Population: {formatNumber(data.population)}</p>
     <p>Industrial Rating: {data.industrialRating}</p>
     <p>Jump Distance: {data.jumpDistance} jumps</p>
-    
+
     <h3>Available Contracts</h3>
     <ul>
       {data.availableContracts.map(contract => (
@@ -902,7 +986,7 @@ return (
         </li>
       ))}
     </ul>
-    
+
     <button onClick={() => onAction({ type: 'accessMarket', systemId: data.id })}>
       Access Market
     </button>
@@ -911,6 +995,7 @@ return (
 ```
 
 **Output**:
+
 - Context panel displays Solaris VII system details
 - Shows faction, population, industrial rating, jump distance
 - Lists 2 available contracts
@@ -921,16 +1006,19 @@ return (
 ## References
 
 ### Design Principles
+
 - **Civilization 5/6 HUD Design**: Corner widget layout, End Turn button pattern, 3-tier information hierarchy
 - **Red Blob Games - UI Design**: Information layering and progressive disclosure
 
 ### Related Documentation
+
 - `starmap-interface`: Starmap component specification
 - `tactical-map-interface`: Tactical map component specification
 - `campaign-system`: Campaign state and logic specification
 - `contract-types`: Contract negotiation and management
 
 ### Research Sources
+
 - `.sisyphus/drafts/campaign-map-design-research.md`: Part 1 (Civilization Design Principles), Part 3 (Campaign-Specific UI Patterns), Part 6 (Design Recommendations)
 
 ---
@@ -938,5 +1026,6 @@ return (
 ## Changelog
 
 ### Version 1.0 (2026-01-31)
+
 - Initial specification based on Civilization HUD design research
 - Covers 3-panel layout, context panel modes, action blocking pattern, 3-tier information hierarchy

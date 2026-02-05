@@ -9,11 +9,13 @@ The system SHALL maintain a master index of all canonical units.
 **Priority**: Critical
 
 #### Scenario: Master index location
+
 - **GIVEN** units are stored in `public/data/units/battlemechs/`
 - **WHEN** accessing the index
 - **THEN** index SHALL be at `public/data/units/battlemechs/index.json`
 
 #### Scenario: Index entry format
+
 - **GIVEN** a unit in the index
 - **THEN** entry SHALL contain:
   - `id` - Unique unit identifier (e.g., "atlas-as7-d")
@@ -29,6 +31,7 @@ The system SHALL maintain a master index of all canonical units.
   - `path` - Relative path to full JSON file
 
 #### Scenario: Index metadata
+
 - **GIVEN** the index.json file
 - **THEN** metadata SHALL include:
   - `version` - Format version string
@@ -36,9 +39,9 @@ The system SHALL maintain a master index of all canonical units.
   - `totalUnits` - Total count of units in index
 
 #### Scenario: Index entry with metrics
+
 - **GIVEN** Atlas AS7-D unit in the index
 - **THEN** entry SHALL include:
   - `rulesLevel`: "STANDARD"
   - `bv`: 1897
   - `cost`: 9626000
-

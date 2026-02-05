@@ -1,12 +1,14 @@
-import React from 'react';
 import { render, screen, fireEvent, within, act } from '@testing-library/react';
-import {
-  EncounterHistory,
-  formatDuration,
-} from '@/components/simulation-viewer/pages/EncounterHistory';
+import React from 'react';
+
 import type {
   IEncounterHistoryProps,
   IBattle,
+} from '@/components/simulation-viewer/pages/EncounterHistory';
+
+import {
+  EncounterHistory,
+  formatDuration,
 } from '@/components/simulation-viewer/pages/EncounterHistory';
 
 /* ========================================================================== */
@@ -23,8 +25,18 @@ const mockBattle1: IBattle = {
   forces: {
     player: {
       units: [
-        { id: 'u1', name: 'Atlas AS7-D', pilot: 'Natasha Kerensky', status: 'operational' },
-        { id: 'u2', name: 'Timber Wolf', pilot: 'Aidan Pryde', status: 'damaged' },
+        {
+          id: 'u1',
+          name: 'Atlas AS7-D',
+          pilot: 'Natasha Kerensky',
+          status: 'operational',
+        },
+        {
+          id: 'u2',
+          name: 'Timber Wolf',
+          pilot: 'Aidan Pryde',
+          status: 'damaged',
+        },
       ],
       totalBV: 3500,
     },
@@ -76,11 +88,51 @@ const mockBattle1: IBattle = {
     },
   ],
   events: [
-    { id: 'ev1', turn: 1, phase: 'Movement', timestamp: 0, type: 'movement', description: 'Atlas moves 4 hexes forward', involvedUnits: ['u1'] },
-    { id: 'ev2', turn: 1, phase: 'Weapon Attack', timestamp: 10, type: 'attack', description: 'Atlas fires PPC at Mad Cat', involvedUnits: ['u1', 'e1'] },
-    { id: 'ev3', turn: 2, phase: 'Movement', timestamp: 20, type: 'movement', description: 'Timber Wolf flanks right', involvedUnits: ['u2'] },
-    { id: 'ev4', turn: 2, phase: 'Weapon Attack', timestamp: 30, type: 'attack', description: 'Timber Wolf fires LRMs at Warhawk', involvedUnits: ['u2', 'e2'] },
-    { id: 'ev5', turn: 3, phase: 'Weapon Attack', timestamp: 40, type: 'damage', description: 'Atlas headshots Mad Cat', involvedUnits: ['u1', 'e1'] },
+    {
+      id: 'ev1',
+      turn: 1,
+      phase: 'Movement',
+      timestamp: 0,
+      type: 'movement',
+      description: 'Atlas moves 4 hexes forward',
+      involvedUnits: ['u1'],
+    },
+    {
+      id: 'ev2',
+      turn: 1,
+      phase: 'Weapon Attack',
+      timestamp: 10,
+      type: 'attack',
+      description: 'Atlas fires PPC at Mad Cat',
+      involvedUnits: ['u1', 'e1'],
+    },
+    {
+      id: 'ev3',
+      turn: 2,
+      phase: 'Movement',
+      timestamp: 20,
+      type: 'movement',
+      description: 'Timber Wolf flanks right',
+      involvedUnits: ['u2'],
+    },
+    {
+      id: 'ev4',
+      turn: 2,
+      phase: 'Weapon Attack',
+      timestamp: 30,
+      type: 'attack',
+      description: 'Timber Wolf fires LRMs at Warhawk',
+      involvedUnits: ['u2', 'e2'],
+    },
+    {
+      id: 'ev5',
+      turn: 3,
+      phase: 'Weapon Attack',
+      timestamp: 40,
+      type: 'damage',
+      description: 'Atlas headshots Mad Cat',
+      involvedUnits: ['u1', 'e1'],
+    },
   ],
   stats: { totalKills: 2, totalDamage: 140, unitsLost: 0 },
 };
@@ -95,13 +147,23 @@ const mockBattle2: IBattle = {
   forces: {
     player: {
       units: [
-        { id: 'u3', name: 'Hunchback HBK-4G', pilot: 'Victor Davion', status: 'destroyed' },
+        {
+          id: 'u3',
+          name: 'Hunchback HBK-4G',
+          pilot: 'Victor Davion',
+          status: 'destroyed',
+        },
       ],
       totalBV: 1500,
     },
     enemy: {
       units: [
-        { id: 'e3', name: 'Dire Wolf', pilot: 'Enemy 3', status: 'operational' },
+        {
+          id: 'e3',
+          name: 'Dire Wolf',
+          pilot: 'Enemy 3',
+          status: 'operational',
+        },
       ],
       totalBV: 2800,
     },
@@ -123,10 +185,42 @@ const mockBattle2: IBattle = {
     },
   ],
   events: [
-    { id: 'ev6', turn: 1, phase: 'Movement', timestamp: 0, type: 'movement', description: 'Hunchback advances', involvedUnits: ['u3'] },
-    { id: 'ev7', turn: 2, phase: 'Weapon Attack', timestamp: 15, type: 'attack', description: 'Hunchback fires AC/20', involvedUnits: ['u3', 'e3'] },
-    { id: 'ev8', turn: 3, phase: 'Weapon Attack', timestamp: 25, type: 'damage', description: 'Dire Wolf fires all weapons', involvedUnits: ['e3', 'u3'] },
-    { id: 'ev9', turn: 4, phase: 'Weapon Attack', timestamp: 35, type: 'damage', description: 'Hunchback destroyed', involvedUnits: ['e3', 'u3'] },
+    {
+      id: 'ev6',
+      turn: 1,
+      phase: 'Movement',
+      timestamp: 0,
+      type: 'movement',
+      description: 'Hunchback advances',
+      involvedUnits: ['u3'],
+    },
+    {
+      id: 'ev7',
+      turn: 2,
+      phase: 'Weapon Attack',
+      timestamp: 15,
+      type: 'attack',
+      description: 'Hunchback fires AC/20',
+      involvedUnits: ['u3', 'e3'],
+    },
+    {
+      id: 'ev8',
+      turn: 3,
+      phase: 'Weapon Attack',
+      timestamp: 25,
+      type: 'damage',
+      description: 'Dire Wolf fires all weapons',
+      involvedUnits: ['e3', 'u3'],
+    },
+    {
+      id: 'ev9',
+      turn: 4,
+      phase: 'Weapon Attack',
+      timestamp: 35,
+      type: 'damage',
+      description: 'Hunchback destroyed',
+      involvedUnits: ['e3', 'u3'],
+    },
   ],
   stats: { totalKills: 0, totalDamage: 20, unitsLost: 1 },
 };
@@ -141,7 +235,12 @@ const mockBattle3: IBattle = {
   forces: {
     player: {
       units: [
-        { id: 'u4', name: 'Centurion CN9-A', pilot: 'Kai Allard-Liao', status: 'damaged' },
+        {
+          id: 'u4',
+          name: 'Centurion CN9-A',
+          pilot: 'Kai Allard-Liao',
+          status: 'damaged',
+        },
       ],
       totalBV: 1200,
     },
@@ -159,7 +258,15 @@ const mockBattle3: IBattle = {
   },
   keyMoments: [],
   events: [
-    { id: 'ev10', turn: 1, phase: 'Movement', timestamp: 0, type: 'movement', description: 'Centurion takes position', involvedUnits: ['u4'] },
+    {
+      id: 'ev10',
+      turn: 1,
+      phase: 'Movement',
+      timestamp: 0,
+      type: 'movement',
+      description: 'Centurion takes position',
+      involvedUnits: ['u4'],
+    },
   ],
   stats: { totalKills: 0, totalDamage: 35, unitsLost: 0 },
 };
@@ -203,12 +310,17 @@ describe('EncounterHistory', () => {
 
     it('renders campaign-id as data attribute', () => {
       renderPage();
-      expect(screen.getByTestId('encounter-history')).toHaveAttribute('data-campaign-id', 'campaign-001');
+      expect(screen.getByTestId('encounter-history')).toHaveAttribute(
+        'data-campaign-id',
+        'campaign-001',
+      );
     });
 
     it('renders the page title', () => {
       renderPage();
-      expect(screen.getByTestId('encounter-history-title')).toHaveTextContent('Encounter History');
+      expect(screen.getByTestId('encounter-history-title')).toHaveTextContent(
+        'Encounter History',
+      );
     });
 
     it('renders battle list sidebar', () => {
@@ -242,7 +354,9 @@ describe('EncounterHistory', () => {
     it('renders battle detail when battle is selected', () => {
       renderPage();
       selectBattle('b1');
-      expect(screen.queryByTestId('no-battle-selected')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('no-battle-selected'),
+      ).not.toBeInTheDocument();
     });
 
     it('renders forces section when battle selected', () => {
@@ -270,9 +384,15 @@ describe('EncounterHistory', () => {
     it('renders unit status badges', () => {
       renderPage();
       selectBattle('b1');
-      expect(screen.getByTestId('unit-status-badge-u1')).toHaveTextContent('operational');
-      expect(screen.getByTestId('unit-status-badge-u2')).toHaveTextContent('damaged');
-      expect(screen.getByTestId('unit-status-badge-e1')).toHaveTextContent('destroyed');
+      expect(screen.getByTestId('unit-status-badge-u1')).toHaveTextContent(
+        'operational',
+      );
+      expect(screen.getByTestId('unit-status-badge-u2')).toHaveTextContent(
+        'damaged',
+      );
+      expect(screen.getByTestId('unit-status-badge-e1')).toHaveTextContent(
+        'destroyed',
+      );
     });
 
     it('renders damage matrix when battle selected', () => {
@@ -301,9 +421,15 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       expect(screen.getByTestId('key-moment-km1')).toBeInTheDocument();
-      expect(screen.getByTestId('key-moment-tier-badge-km1')).toHaveTextContent('critical');
-      expect(screen.getByTestId('key-moment-tier-badge-km2')).toHaveTextContent('major');
-      expect(screen.getByTestId('key-moment-tier-badge-km3')).toHaveTextContent('minor');
+      expect(screen.getByTestId('key-moment-tier-badge-km1')).toHaveTextContent(
+        'critical',
+      );
+      expect(screen.getByTestId('key-moment-tier-badge-km2')).toHaveTextContent(
+        'major',
+      );
+      expect(screen.getByTestId('key-moment-tier-badge-km3')).toHaveTextContent(
+        'minor',
+      );
     });
 
     it('renders event timeline when battle selected', () => {
@@ -341,7 +467,9 @@ describe('EncounterHistory', () => {
     it('filters battles by victory outcome', () => {
       renderPage();
       const filterPanel = screen.getByTestId('battle-list-filter');
-      const victoryCheckbox = within(filterPanel).getByTestId('checkbox-outcome-victory');
+      const victoryCheckbox = within(filterPanel).getByTestId(
+        'checkbox-outcome-victory',
+      );
       fireEvent.click(victoryCheckbox);
       expect(screen.getByTestId('battle-card-b1')).toBeInTheDocument();
       expect(screen.queryByTestId('battle-card-b2')).not.toBeInTheDocument();
@@ -351,7 +479,9 @@ describe('EncounterHistory', () => {
     it('filters battles by defeat outcome', () => {
       renderPage();
       const filterPanel = screen.getByTestId('battle-list-filter');
-      const defeatCheckbox = within(filterPanel).getByTestId('checkbox-outcome-defeat');
+      const defeatCheckbox = within(filterPanel).getByTestId(
+        'checkbox-outcome-defeat',
+      );
       fireEvent.click(defeatCheckbox);
       expect(screen.queryByTestId('battle-card-b1')).not.toBeInTheDocument();
       expect(screen.getByTestId('battle-card-b2')).toBeInTheDocument();
@@ -361,7 +491,9 @@ describe('EncounterHistory', () => {
     it('filters battles by draw outcome', () => {
       renderPage();
       const filterPanel = screen.getByTestId('battle-list-filter');
-      const drawCheckbox = within(filterPanel).getByTestId('checkbox-outcome-draw');
+      const drawCheckbox = within(filterPanel).getByTestId(
+        'checkbox-outcome-draw',
+      );
       fireEvent.click(drawCheckbox);
       expect(screen.queryByTestId('battle-card-b1')).not.toBeInTheDocument();
       expect(screen.queryByTestId('battle-card-b2')).not.toBeInTheDocument();
@@ -371,7 +503,9 @@ describe('EncounterHistory', () => {
     it('shows empty message when filter matches nothing', () => {
       renderPage({ battles: [mockBattle1] });
       const filterPanel = screen.getByTestId('battle-list-filter');
-      const defeatCheckbox = within(filterPanel).getByTestId('checkbox-outcome-defeat');
+      const defeatCheckbox = within(filterPanel).getByTestId(
+        'checkbox-outcome-defeat',
+      );
       fireEvent.click(defeatCheckbox);
       expect(screen.getByTestId('empty-battle-list')).toBeInTheDocument();
     });
@@ -386,42 +520,64 @@ describe('EncounterHistory', () => {
 
     it('defaults to duration sort ascending', () => {
       renderPage();
-      expect(screen.getByTestId('sort-button-duration')).toHaveAttribute('aria-pressed', 'true');
-      expect(screen.getByTestId('sort-direction-indicator')).toHaveTextContent('↑');
+      expect(screen.getByTestId('sort-button-duration')).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+      expect(screen.getByTestId('sort-direction-indicator')).toHaveTextContent(
+        '↑',
+      );
     });
 
     it('toggles sort direction when clicking same sort button', () => {
       renderPage();
       fireEvent.click(screen.getByTestId('sort-button-duration'));
-      expect(screen.getByTestId('sort-direction-indicator')).toHaveTextContent('↓');
+      expect(screen.getByTestId('sort-direction-indicator')).toHaveTextContent(
+        '↓',
+      );
     });
 
     it('sorts battles by kills when kills button clicked', () => {
       renderPage();
       fireEvent.click(screen.getByTestId('sort-button-kills'));
-      expect(screen.getByTestId('sort-button-kills')).toHaveAttribute('aria-pressed', 'true');
-      expect(screen.getByTestId('sort-button-duration')).toHaveAttribute('aria-pressed', 'false');
+      expect(screen.getByTestId('sort-button-kills')).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+      expect(screen.getByTestId('sort-button-duration')).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      );
     });
 
     it('sorts battles by damage when damage button clicked', () => {
       renderPage();
       fireEvent.click(screen.getByTestId('sort-button-damage'));
-      expect(screen.getByTestId('sort-button-damage')).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getByTestId('sort-button-damage')).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
     });
 
     it('resets to ascending when switching sort keys', () => {
       renderPage();
       fireEvent.click(screen.getByTestId('sort-button-duration'));
-      expect(screen.getByTestId('sort-direction-indicator')).toHaveTextContent('↓');
+      expect(screen.getByTestId('sort-direction-indicator')).toHaveTextContent(
+        '↓',
+      );
       fireEvent.click(screen.getByTestId('sort-button-kills'));
-      expect(screen.getByTestId('sort-direction-indicator')).toHaveTextContent('↑');
+      expect(screen.getByTestId('sort-direction-indicator')).toHaveTextContent(
+        '↑',
+      );
     });
 
     it('filters key moments by tier', () => {
       renderPage();
       selectBattle('b1');
       const kmFilter = screen.getByTestId('key-moments-filter');
-      const criticalCheckbox = within(kmFilter).getByTestId('checkbox-tier-critical');
+      const criticalCheckbox = within(kmFilter).getByTestId(
+        'checkbox-tier-critical',
+      );
       fireEvent.click(criticalCheckbox);
       expect(screen.getByTestId('key-moment-km1')).toBeInTheDocument();
       expect(screen.queryByTestId('key-moment-km2')).not.toBeInTheDocument();
@@ -432,7 +588,9 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       const kmFilter = screen.getByTestId('key-moments-filter');
-      const shutdownCheckbox = within(kmFilter).getByTestId('checkbox-type-shutdown');
+      const shutdownCheckbox = within(kmFilter).getByTestId(
+        'checkbox-type-shutdown',
+      );
       fireEvent.click(shutdownCheckbox);
       expect(screen.queryByTestId('key-moment-km1')).not.toBeInTheDocument();
       expect(screen.getByTestId('key-moment-km3')).toBeInTheDocument();
@@ -451,7 +609,9 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       const kmFilter = screen.getByTestId('key-moments-filter');
-      const criticalCheckbox = within(kmFilter).getByTestId('checkbox-tier-critical');
+      const criticalCheckbox = within(kmFilter).getByTestId(
+        'checkbox-tier-critical',
+      );
       const killCheckbox = within(kmFilter).getByTestId('checkbox-type-kill');
       fireEvent.click(criticalCheckbox);
       fireEvent.click(killCheckbox);
@@ -476,7 +636,9 @@ describe('EncounterHistory', () => {
     it('displays initial turn as Turn 1', () => {
       renderPage();
       selectBattle('b1');
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 1 / 3',
+      );
     });
 
     it('play button shows Play text initially', () => {
@@ -496,8 +658,12 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('vcr-play-pause'));
-      act(() => { jest.advanceTimersByTime(1000); });
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 2 / 3',
+      );
     });
 
     it('pause button stops playback', () => {
@@ -513,7 +679,9 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 2 / 3',
+      );
     });
 
     it('step back goes back one turn', () => {
@@ -521,9 +689,13 @@ describe('EncounterHistory', () => {
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 3 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 3 / 3',
+      );
       fireEvent.click(screen.getByTestId('vcr-step-back'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 2 / 3',
+      );
     });
 
     it('step back is disabled at turn 1', () => {
@@ -544,7 +716,9 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('vcr-step-back'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 1 / 3',
+      );
     });
 
     it('step forward does not exceed max turn', () => {
@@ -553,13 +727,17 @@ describe('EncounterHistory', () => {
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 3 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 3 / 3',
+      );
     });
 
     it('speed control changes playback speed', () => {
       renderPage();
       selectBattle('b1');
-      const speedSelect = screen.getByTestId('vcr-speed-select') as HTMLSelectElement;
+      const speedSelect = screen.getByTestId(
+        'vcr-speed-select',
+      ) as HTMLSelectElement;
       fireEvent.change(speedSelect, { target: { value: '2' } });
       expect(speedSelect.value).toBe('2');
     });
@@ -570,8 +748,12 @@ describe('EncounterHistory', () => {
       const speedSelect = screen.getByTestId('vcr-speed-select');
       fireEvent.change(speedSelect, { target: { value: '2' } });
       fireEvent.click(screen.getByTestId('vcr-play-pause'));
-      act(() => { jest.advanceTimersByTime(500); });
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+      act(() => {
+        jest.advanceTimersByTime(500);
+      });
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 2 / 3',
+      );
     });
 
     it('playback at 4x advances turn in 250ms', () => {
@@ -580,17 +762,25 @@ describe('EncounterHistory', () => {
       const speedSelect = screen.getByTestId('vcr-speed-select');
       fireEvent.change(speedSelect, { target: { value: '4' } });
       fireEvent.click(screen.getByTestId('vcr-play-pause'));
-      act(() => { jest.advanceTimersByTime(250); });
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+      act(() => {
+        jest.advanceTimersByTime(250);
+      });
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 2 / 3',
+      );
     });
 
     it('playback stops at end of timeline', () => {
       renderPage();
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('vcr-play-pause'));
-      act(() => { jest.advanceTimersByTime(3000); });
+      act(() => {
+        jest.advanceTimersByTime(3000);
+      });
       expect(screen.getByTestId('vcr-play-pause')).toHaveTextContent('Play');
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 3 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 3 / 3',
+      );
     });
 
     it('playback wraps to start when pressing play at end', () => {
@@ -598,16 +788,22 @@ describe('EncounterHistory', () => {
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 3 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 3 / 3',
+      );
       fireEvent.click(screen.getByTestId('vcr-play-pause'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 1 / 3',
+      );
     });
 
     it('VCR controls still work with virtualized timeline', () => {
       renderPage();
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('vcr-play-pause'));
-      act(() => { jest.advanceTimersByTime(1000); });
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
       expect(screen.getByTestId('vcr-turn-display')).toBeInTheDocument();
     });
 
@@ -633,7 +829,9 @@ describe('EncounterHistory', () => {
     it('play button is disabled when battle has no events', () => {
       renderPage();
       selectBattle('b3');
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 1');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 1 / 1',
+      );
     });
   });
 
@@ -645,7 +843,9 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('key-moment-km1'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 3 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 3 / 3',
+      );
     });
 
     it('virtualized timeline renders when battle has events', () => {
@@ -658,7 +858,9 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       const eventList = screen.getByTestId('event-list');
-      expect(within(eventList).getByTestId('virtualized-timeline')).toBeInTheDocument();
+      expect(
+        within(eventList).getByTestId('virtualized-timeline'),
+      ).toBeInTheDocument();
     });
 
     it('empty events shows no events message', () => {
@@ -670,16 +872,22 @@ describe('EncounterHistory', () => {
     it('VCR turn display still tracks correctly with virtualized timeline', () => {
       renderPage();
       selectBattle('b1');
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 1 / 3',
+      );
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 2 / 3',
+      );
     });
 
     it('VCR step forward moves turn with virtualized timeline', () => {
       renderPage();
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 2 / 3',
+      );
     });
 
     it('VCR step back works with virtualized timeline', () => {
@@ -687,14 +895,18 @@ describe('EncounterHistory', () => {
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
       fireEvent.click(screen.getByTestId('vcr-step-back'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 1 / 3',
+      );
     });
 
     it('key moment click updates VCR turn display', () => {
       renderPage();
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('key-moment-km1'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 3 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 3 / 3',
+      );
     });
 
     it('event list container renders for battle with events', () => {
@@ -711,13 +923,19 @@ describe('EncounterHistory', () => {
 
     it('mission groups are expanded by default', () => {
       renderPage();
-      expect(screen.getByTestId('mission-group-header-m1')).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('mission-group-header-m1')).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
     });
 
     it('mission groups can be collapsed', () => {
       renderPage();
       fireEvent.click(screen.getByTestId('mission-group-header-m1'));
-      expect(screen.getByTestId('mission-group-header-m1')).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.getByTestId('mission-group-header-m1')).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
       expect(screen.queryByTestId('battle-card-b1')).not.toBeInTheDocument();
     });
 
@@ -744,7 +962,9 @@ describe('EncounterHistory', () => {
     it('defaults to campaign average comparison mode', () => {
       renderPage();
       selectBattle('b1');
-      const toggle = screen.getByTestId('comparison-mode-toggle') as HTMLSelectElement;
+      const toggle = screen.getByTestId(
+        'comparison-mode-toggle',
+      ) as HTMLSelectElement;
       expect(toggle.value).toBe('campaign-average');
     });
 
@@ -752,10 +972,16 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       expect(screen.getByTestId('comparison-metrics')).toBeInTheDocument();
-      expect(screen.getByTestId('comparison-metric-duration')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('comparison-metric-duration'),
+      ).toBeInTheDocument();
       expect(screen.getByTestId('comparison-metric-kills')).toBeInTheDocument();
-      expect(screen.getByTestId('comparison-metric-damage')).toBeInTheDocument();
-      expect(screen.getByTestId('comparison-metric-unitsLost')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('comparison-metric-damage'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('comparison-metric-unitsLost'),
+      ).toBeInTheDocument();
     });
 
     it('toggle to specific battle shows battle selector', () => {
@@ -763,7 +989,9 @@ describe('EncounterHistory', () => {
       selectBattle('b1');
       const toggle = screen.getByTestId('comparison-mode-toggle');
       fireEvent.change(toggle, { target: { value: 'specific-battle' } });
-      expect(screen.getByTestId('comparison-battle-select')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('comparison-battle-select'),
+      ).toBeInTheDocument();
     });
 
     it('specific battle selector excludes current battle', () => {
@@ -773,7 +1001,7 @@ describe('EncounterHistory', () => {
       fireEvent.change(toggle, { target: { value: 'specific-battle' } });
       const selector = screen.getByTestId('comparison-battle-select');
       const options = within(selector).getAllByRole('option');
-      const optionValues = options.map(o => (o as HTMLOptionElement).value);
+      const optionValues = options.map((o) => (o as HTMLOptionElement).value);
       expect(optionValues).not.toContain('b1');
       expect(optionValues).toContain('b2');
       expect(optionValues).toContain('b3');
@@ -800,10 +1028,18 @@ describe('EncounterHistory', () => {
     it('bar charts are rendered for each metric', () => {
       renderPage();
       selectBattle('b1');
-      expect(screen.getByTestId('comparison-bar-current-duration')).toBeInTheDocument();
-      expect(screen.getByTestId('comparison-bar-baseline-duration')).toBeInTheDocument();
-      expect(screen.getByTestId('comparison-bar-current-kills')).toBeInTheDocument();
-      expect(screen.getByTestId('comparison-bar-baseline-kills')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('comparison-bar-current-duration'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('comparison-bar-baseline-duration'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('comparison-bar-current-kills'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('comparison-bar-baseline-kills'),
+      ).toBeInTheDocument();
     });
 
     it('comparison metrics show current vs baseline values', () => {
@@ -828,7 +1064,10 @@ describe('EncounterHistory', () => {
       const compSection = screen.getByTestId('comparison-metrics');
       const link = within(compSection).getByTestId('drill-down-link');
       fireEvent.click(link);
-      expect(onDrillDown).toHaveBeenCalledWith('analysis-bugs', expect.objectContaining({ battleId: 'b1' }));
+      expect(onDrillDown).toHaveBeenCalledWith(
+        'analysis-bugs',
+        expect.objectContaining({ battleId: 'b1' }),
+      );
     });
   });
 
@@ -847,7 +1086,9 @@ describe('EncounterHistory', () => {
     it('layout container uses flex-col lg:flex-row', () => {
       renderPage();
       const container = screen.getByTestId('encounter-history');
-      const flexContainer = container.querySelector('.flex.flex-col.lg\\:flex-row');
+      const flexContainer = container.querySelector(
+        '.flex.flex-col.lg\\:flex-row',
+      );
       expect(flexContainer).toBeInTheDocument();
     });
 
@@ -869,7 +1110,9 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       const forcesSection = screen.getByTestId('forces-section');
-      const grid = forcesSection.querySelector('.grid.grid-cols-1.md\\:grid-cols-2');
+      const grid = forcesSection.querySelector(
+        '.grid.grid-cols-1.md\\:grid-cols-2',
+      );
       expect(grid).toBeInTheDocument();
     });
 
@@ -901,7 +1144,9 @@ describe('EncounterHistory', () => {
     it('key moments timeline has horizontal scroll', () => {
       renderPage();
       selectBattle('b1');
-      expect(screen.getByTestId('key-moments-timeline')).toHaveClass('overflow-x-auto');
+      expect(screen.getByTestId('key-moments-timeline')).toHaveClass(
+        'overflow-x-auto',
+      );
     });
   });
 
@@ -911,19 +1156,23 @@ describe('EncounterHistory', () => {
   describe('Dark Mode Tests', () => {
     it('page container has dark mode background', () => {
       renderPage();
-      expect(screen.getByTestId('encounter-history')).toHaveClass('dark:bg-gray-900');
+      expect(screen.getByTestId('encounter-history')).toHaveClass(
+        'dark:bg-gray-900',
+      );
     });
 
     it('page title has dark mode text color', () => {
       renderPage();
-      expect(screen.getByTestId('encounter-history-title')).toHaveClass('dark:text-gray-100');
+      expect(screen.getByTestId('encounter-history-title')).toHaveClass(
+        'dark:text-gray-100',
+      );
     });
 
     it('section headings have dark mode text color', () => {
       renderPage();
       selectBattle('b1');
       const headings = screen.getAllByTestId('section-heading');
-      headings.forEach(h => {
+      headings.forEach((h) => {
         expect(h).toHaveClass('dark:text-gray-200');
       });
     });
@@ -1013,7 +1262,10 @@ describe('EncounterHistory', () => {
 
     it('handles empty campaignId', () => {
       renderPage({ campaignId: '' });
-      expect(screen.getByTestId('encounter-history')).toHaveAttribute('data-campaign-id', '');
+      expect(screen.getByTestId('encounter-history')).toHaveAttribute(
+        'data-campaign-id',
+        '',
+      );
     });
 
     it('handles single battle', () => {
@@ -1029,24 +1281,36 @@ describe('EncounterHistory', () => {
 
     it('battle card shows outcome badge', () => {
       renderPage();
-      expect(screen.getByTestId('battle-outcome-badge-b1')).toHaveTextContent('victory');
-      expect(screen.getByTestId('battle-outcome-badge-b2')).toHaveTextContent('defeat');
-      expect(screen.getByTestId('battle-outcome-badge-b3')).toHaveTextContent('draw');
+      expect(screen.getByTestId('battle-outcome-badge-b1')).toHaveTextContent(
+        'victory',
+      );
+      expect(screen.getByTestId('battle-outcome-badge-b2')).toHaveTextContent(
+        'defeat',
+      );
+      expect(screen.getByTestId('battle-outcome-badge-b3')).toHaveTextContent(
+        'draw',
+      );
     });
 
     it('battle card shows formatted duration', () => {
       renderPage();
-      expect(screen.getByTestId('battle-duration-b1')).toHaveTextContent('30:00');
+      expect(screen.getByTestId('battle-duration-b1')).toHaveTextContent(
+        '30:00',
+      );
     });
 
     it('battle card shows kill count', () => {
       renderPage();
-      expect(screen.getByTestId('battle-kills-b1')).toHaveTextContent('2 kills');
+      expect(screen.getByTestId('battle-kills-b1')).toHaveTextContent(
+        '2 kills',
+      );
     });
 
     it('battle card shows damage total', () => {
       renderPage();
-      expect(screen.getByTestId('battle-damage-b1')).toHaveTextContent('140 dmg');
+      expect(screen.getByTestId('battle-damage-b1')).toHaveTextContent(
+        '140 dmg',
+      );
     });
 
     it('outcome summary shows correct stats', () => {
@@ -1091,31 +1355,55 @@ describe('EncounterHistory', () => {
   describe('Accessibility', () => {
     it('sidebar has aria-label', () => {
       renderPage();
-      expect(screen.getByTestId('battle-list-sidebar')).toHaveAttribute('aria-label', 'Battle list');
+      expect(screen.getByTestId('battle-list-sidebar')).toHaveAttribute(
+        'aria-label',
+        'Battle list',
+      );
     });
 
     it('main content has aria-label', () => {
       renderPage();
-      expect(screen.getByTestId('battle-detail')).toHaveAttribute('aria-label', 'Battle detail');
+      expect(screen.getByTestId('battle-detail')).toHaveAttribute(
+        'aria-label',
+        'Battle detail',
+      );
     });
 
     it('sort controls group has aria-label', () => {
       renderPage();
-      expect(screen.getByTestId('sort-controls')).toHaveAttribute('aria-label', 'Sort battles by');
+      expect(screen.getByTestId('sort-controls')).toHaveAttribute(
+        'aria-label',
+        'Sort battles by',
+      );
     });
 
     it('sort buttons have aria-pressed', () => {
       renderPage();
-      expect(screen.getByTestId('sort-button-duration')).toHaveAttribute('aria-pressed', 'true');
-      expect(screen.getByTestId('sort-button-kills')).toHaveAttribute('aria-pressed', 'false');
+      expect(screen.getByTestId('sort-button-duration')).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+      expect(screen.getByTestId('sort-button-kills')).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      );
     });
 
     it('VCR buttons have aria-labels', () => {
       renderPage();
       selectBattle('b1');
-      expect(screen.getByTestId('vcr-play-pause')).toHaveAttribute('aria-label', 'Play');
-      expect(screen.getByTestId('vcr-step-back')).toHaveAttribute('aria-label', 'Step back');
-      expect(screen.getByTestId('vcr-step-forward')).toHaveAttribute('aria-label', 'Step forward');
+      expect(screen.getByTestId('vcr-play-pause')).toHaveAttribute(
+        'aria-label',
+        'Play',
+      );
+      expect(screen.getByTestId('vcr-step-back')).toHaveAttribute(
+        'aria-label',
+        'Step back',
+      );
+      expect(screen.getByTestId('vcr-step-forward')).toHaveAttribute(
+        'aria-label',
+        'Step forward',
+      );
     });
 
     it('damage matrix cells are keyboard accessible', () => {
@@ -1130,17 +1418,35 @@ describe('EncounterHistory', () => {
     it('damage matrix cells have title for hover tooltip', () => {
       renderPage();
       selectBattle('b1');
-      expect(screen.getByTestId('damage-cell-u1-e1')).toHaveAttribute('title', '45 damage');
+      expect(screen.getByTestId('damage-cell-u1-e1')).toHaveAttribute(
+        'title',
+        '45 damage',
+      );
     });
 
     it('detail sections have aria-labels', () => {
       renderPage();
       selectBattle('b1');
-      expect(screen.getByTestId('forces-section')).toHaveAttribute('aria-label', 'Forces');
-      expect(screen.getByTestId('damage-matrix-section')).toHaveAttribute('aria-label', 'Damage matrix');
-      expect(screen.getByTestId('key-moments-section')).toHaveAttribute('aria-label', 'Key moments');
-      expect(screen.getByTestId('event-timeline-section')).toHaveAttribute('aria-label', 'Event timeline');
-      expect(screen.getByTestId('comparison-section')).toHaveAttribute('aria-label', 'Comparison view');
+      expect(screen.getByTestId('forces-section')).toHaveAttribute(
+        'aria-label',
+        'Forces',
+      );
+      expect(screen.getByTestId('damage-matrix-section')).toHaveAttribute(
+        'aria-label',
+        'Damage matrix',
+      );
+      expect(screen.getByTestId('key-moments-section')).toHaveAttribute(
+        'aria-label',
+        'Key moments',
+      );
+      expect(screen.getByTestId('event-timeline-section')).toHaveAttribute(
+        'aria-label',
+        'Event timeline',
+      );
+      expect(screen.getByTestId('comparison-section')).toHaveAttribute(
+        'aria-label',
+        'Comparison view',
+      );
     });
   });
 
@@ -1152,9 +1458,13 @@ describe('EncounterHistory', () => {
       renderPage();
       selectBattle('b1');
       fireEvent.click(screen.getByTestId('vcr-step-forward'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 2 / 3',
+      );
       selectBattle('b2');
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 4');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 1 / 4',
+      );
     });
 
     it('damage cell click calls onDrillDown with correct context', () => {
@@ -1184,13 +1494,17 @@ describe('EncounterHistory', () => {
     it('key moment shows description text', () => {
       renderPage();
       selectBattle('b1');
-      expect(screen.getByTestId('key-moment-km1')).toHaveTextContent('Atlas destroys Mad Cat with headshot');
+      expect(screen.getByTestId('key-moment-km1')).toHaveTextContent(
+        'Atlas destroys Mad Cat with headshot',
+      );
     });
 
     it('key moment shows phase and type info', () => {
       renderPage();
       selectBattle('b1');
-      expect(screen.getByTestId('key-moment-km1')).toHaveTextContent('Weapon Attack');
+      expect(screen.getByTestId('key-moment-km1')).toHaveTextContent(
+        'Weapon Attack',
+      );
       expect(screen.getByTestId('key-moment-km1')).toHaveTextContent('kill');
     });
   });

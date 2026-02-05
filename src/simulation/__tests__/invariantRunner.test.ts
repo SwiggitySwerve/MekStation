@@ -2,8 +2,6 @@
  * Tests for InvariantRunner
  */
 
-import { InvariantRunner } from '../invariants/InvariantRunner';
-import { IInvariant, IViolation } from '../invariants/types';
 import {
   IGameState,
   GameStatus,
@@ -12,6 +10,9 @@ import {
   GameSide,
 } from '@/types/gameplay';
 import { Facing, MovementType } from '@/types/gameplay';
+
+import { InvariantRunner } from '../invariants/InvariantRunner';
+import { IInvariant, IViolation } from '../invariants/types';
 
 function createMinimalGameState(): IGameState {
   return {

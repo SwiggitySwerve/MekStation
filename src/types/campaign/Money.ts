@@ -72,7 +72,7 @@ export class Money {
     if (divisor === 0) {
       throw new Error('Cannot divide Money by zero');
     }
-    return new Money((this.cents / divisor) / 100);
+    return new Money(this.cents / divisor / 100);
   }
 
   /**

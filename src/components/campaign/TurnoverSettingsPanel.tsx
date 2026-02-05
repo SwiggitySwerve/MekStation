@@ -1,6 +1,11 @@
 import React, { memo, useCallback } from 'react';
+
+import type {
+  ICampaignOptions,
+  TurnoverFrequency,
+} from '@/types/campaign/Campaign';
+
 import { Card } from '@/components/ui';
-import type { ICampaignOptions, TurnoverFrequency } from '@/types/campaign/Campaign';
 
 interface TurnoverSettingsPanelProps {
   options: ICampaignOptions;
@@ -23,20 +28,26 @@ interface ToggleRowProps {
   id: string;
 }
 
-const ToggleRow = memo(function ToggleRow({ label, checked, onChange, disabled, id }: ToggleRowProps) {
+const ToggleRow = memo(function ToggleRow({
+  label,
+  checked,
+  onChange,
+  disabled,
+  id,
+}: ToggleRowProps) {
   return (
     <label
       htmlFor={id}
       className={`flex items-center justify-between py-2 ${disabled ? 'opacity-50' : 'cursor-pointer'}`}
     >
-      <span className="text-sm text-text-theme-primary">{label}</span>
+      <span className="text-text-theme-primary text-sm">{label}</span>
       <input
         id={id}
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
         disabled={disabled}
-        className="w-4 h-4 rounded border-border-theme-subtle text-accent focus:ring-accent focus:ring-offset-0"
+        className="border-border-theme-subtle text-accent focus:ring-accent h-4 w-4 rounded focus:ring-offset-0"
       />
     </label>
   );
@@ -64,8 +75,10 @@ const NumberInputRow = memo(function NumberInputRow({
   id,
 }: NumberInputRowProps) {
   return (
-    <div className={`flex items-center justify-between py-2 ${disabled ? 'opacity-50' : ''}`}>
-      <label htmlFor={id} className="text-sm text-text-theme-primary">
+    <div
+      className={`flex items-center justify-between py-2 ${disabled ? 'opacity-50' : ''}`}
+    >
+      <label htmlFor={id} className="text-text-theme-primary text-sm">
         {label}
       </label>
       <input
@@ -77,7 +90,7 @@ const NumberInputRow = memo(function NumberInputRow({
         max={max}
         step={step}
         disabled={disabled}
-        className="w-20 px-2 py-1 text-sm text-right rounded bg-surface-deep border border-border-theme-subtle text-text-theme-primary focus:border-accent focus:outline-none"
+        className="bg-surface-deep border-border-theme-subtle text-text-theme-primary focus:border-accent w-20 rounded border px-2 py-1 text-right text-sm focus:outline-none"
       />
     </div>
   );
@@ -98,14 +111,24 @@ export const TurnoverSettingsPanel = memo(function TurnoverSettingsPanel({
 
   return (
     <Card className="p-4" data-testid="turnover-settings-panel">
-      <h3 className="text-base font-semibold text-text-theme-primary mb-3 flex items-center gap-2">
-        <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      <h3 className="text-text-theme-primary mb-3 flex items-center gap-2 text-base font-semibold">
+        <svg
+          className="h-5 w-5 text-amber-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+          />
         </svg>
         Turnover Settings
       </h3>
 
-      <div className="divide-y divide-border-theme-subtle">
+      <div className="divide-border-theme-subtle divide-y">
         <ToggleRow
           id="turnover-enabled"
           label="Enable Turnover System"
@@ -113,16 +136,26 @@ export const TurnoverSettingsPanel = memo(function TurnoverSettingsPanel({
           onChange={(checked) => updateOption('useTurnover', checked)}
         />
 
-        <div className={`flex items-center justify-between py-2 ${turnoverDisabled ? 'opacity-50' : ''}`}>
-          <label htmlFor="turnover-frequency" className="text-sm text-text-theme-primary">
+        <div
+          className={`flex items-center justify-between py-2 ${turnoverDisabled ? 'opacity-50' : ''}`}
+        >
+          <label
+            htmlFor="turnover-frequency"
+            className="text-text-theme-primary text-sm"
+          >
             Check Frequency
           </label>
           <select
             id="turnover-frequency"
             value={options.turnoverCheckFrequency}
-            onChange={(e) => updateOption('turnoverCheckFrequency', e.target.value as TurnoverFrequency)}
+            onChange={(e) =>
+              updateOption(
+                'turnoverCheckFrequency',
+                e.target.value as TurnoverFrequency,
+              )
+            }
             disabled={turnoverDisabled}
-            className="px-2 py-1 text-sm rounded bg-surface-deep border border-border-theme-subtle text-text-theme-primary focus:border-accent focus:outline-none"
+            className="bg-surface-deep border-border-theme-subtle text-text-theme-primary focus:border-accent rounded border px-2 py-1 text-sm focus:outline-none"
           >
             {FREQUENCY_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -156,7 +189,9 @@ export const TurnoverSettingsPanel = memo(function TurnoverSettingsPanel({
           id="turnover-commander-immune"
           label="Commander Immune"
           checked={options.turnoverCommanderImmune}
-          onChange={(checked) => updateOption('turnoverCommanderImmune', checked)}
+          onChange={(checked) =>
+            updateOption('turnoverCommanderImmune', checked)
+          }
           disabled={turnoverDisabled}
         />
 
@@ -164,7 +199,9 @@ export const TurnoverSettingsPanel = memo(function TurnoverSettingsPanel({
           id="turnover-skill-modifiers"
           label="Use Skill Modifiers"
           checked={options.turnoverUseSkillModifiers}
-          onChange={(checked) => updateOption('turnoverUseSkillModifiers', checked)}
+          onChange={(checked) =>
+            updateOption('turnoverUseSkillModifiers', checked)
+          }
           disabled={turnoverDisabled}
         />
 
@@ -172,7 +209,9 @@ export const TurnoverSettingsPanel = memo(function TurnoverSettingsPanel({
           id="turnover-age-modifiers"
           label="Use Age Modifiers"
           checked={options.turnoverUseAgeModifiers}
-          onChange={(checked) => updateOption('turnoverUseAgeModifiers', checked)}
+          onChange={(checked) =>
+            updateOption('turnoverUseAgeModifiers', checked)
+          }
           disabled={turnoverDisabled}
         />
 
@@ -180,7 +219,9 @@ export const TurnoverSettingsPanel = memo(function TurnoverSettingsPanel({
           id="turnover-mission-modifiers"
           label="Use Mission Status Modifiers"
           checked={options.turnoverUseMissionStatusModifiers}
-          onChange={(checked) => updateOption('turnoverUseMissionStatusModifiers', checked)}
+          onChange={(checked) =>
+            updateOption('turnoverUseMissionStatusModifiers', checked)
+          }
           disabled={turnoverDisabled}
         />
       </div>

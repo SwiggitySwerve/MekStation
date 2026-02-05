@@ -6,7 +6,9 @@
  */
 
 import React, { useRef, useCallback, useEffect } from 'react';
+
 import { IBaseEvent } from '@/types/events';
+
 import { EventTimelineItem } from './EventTimelineItem';
 
 // =============================================================================
@@ -38,28 +40,30 @@ export interface EventTimelineProps {
 
 function LoadingSpinner(): React.ReactElement {
   return (
-    <div className="flex items-center justify-center py-6 gap-3">
-      <svg 
-        className="animate-spin h-5 w-5 text-accent" 
-        xmlns="http://www.w3.org/2000/svg" 
-        fill="none" 
+    <div className="flex items-center justify-center gap-3 py-6">
+      <svg
+        className="text-accent h-5 w-5 animate-spin"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
         viewBox="0 0 24 24"
       >
-        <circle 
-          className="opacity-25" 
-          cx="12" 
-          cy="12" 
-          r="10" 
-          stroke="currentColor" 
-          strokeWidth="4" 
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
         />
-        <path 
-          className="opacity-75" 
-          fill="currentColor" 
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" 
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
         />
       </svg>
-      <span className="text-sm text-text-theme-secondary">Loading more events...</span>
+      <span className="text-text-theme-secondary text-sm">
+        Loading more events...
+      </span>
     </div>
   );
 }
@@ -70,25 +74,27 @@ function LoadingSpinner(): React.ReactElement {
 
 function EmptyState(): React.ReactElement {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-      <div className="w-16 h-16 mb-4 rounded-2xl bg-surface-raised/50 flex items-center justify-center">
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          fill="none" 
-          viewBox="0 0 24 24" 
-          strokeWidth={1.5} 
-          stroke="currentColor" 
-          className="w-8 h-8 text-text-theme-muted"
+    <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+      <div className="bg-surface-raised/50 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="text-text-theme-muted h-8 w-8"
         >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" 
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
           />
         </svg>
       </div>
-      <h3 className="text-lg font-medium text-text-theme-primary mb-1">No events found</h3>
-      <p className="text-sm text-text-theme-muted max-w-xs">
+      <h3 className="text-text-theme-primary mb-1 text-lg font-medium">
+        No events found
+      </h3>
+      <p className="text-text-theme-muted max-w-xs text-sm">
         Try adjusting your filters or check back later for new events.
       </p>
     </div>
@@ -130,7 +136,7 @@ export function EventTimeline({
         root: containerRef.current,
         rootMargin: '100px', // Trigger 100px before reaching the end
         threshold: 0,
-      }
+      },
     );
 
     observer.observe(sentinel);
@@ -145,13 +151,15 @@ export function EventTimeline({
     (event: IBaseEvent) => {
       onEventClick?.(event);
     },
-    [onEventClick]
+    [onEventClick],
   );
 
   // Empty state
   if (events.length === 0 && !isLoading) {
     return (
-      <div className={`bg-surface-base/30 rounded-xl border border-border-theme-subtle ${className}`}>
+      <div
+        className={`bg-surface-base/30 border-border-theme-subtle rounded-xl border ${className}`}
+      >
         <EmptyState />
       </div>
     );
@@ -160,24 +168,19 @@ export function EventTimeline({
   return (
     <div
       ref={containerRef}
-      className={`
-        relative overflow-y-auto overflow-x-hidden
-        bg-surface-base/30 rounded-xl border border-border-theme-subtle
-        scrollbar-thin scrollbar-thumb-border-theme scrollbar-track-transparent
-        ${className}
-      `}
+      className={`bg-surface-base/30 border-border-theme-subtle scrollbar-thin scrollbar-thumb-border-theme scrollbar-track-transparent relative overflow-x-hidden overflow-y-auto rounded-xl border ${className} `}
       style={{ maxHeight }}
     >
       {/* Timeline Track */}
-      <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-border-theme via-border-theme-subtle to-transparent pointer-events-none" />
+      <div className="from-border-theme via-border-theme-subtle pointer-events-none absolute top-0 bottom-0 left-6 w-px bg-gradient-to-b to-transparent" />
 
       {/* Events List */}
-      <div className="relative p-4 space-y-3">
+      <div className="relative space-y-3 p-4">
         {events.map((event) => (
           <div key={event.id} className="relative pl-6">
             {/* Timeline Dot */}
-            <div className="absolute left-0 top-4 w-3 h-3 rounded-full bg-surface-raised border-2 border-border-theme z-10" />
-            
+            <div className="bg-surface-raised border-border-theme absolute top-4 left-0 z-10 h-3 w-3 rounded-full border-2" />
+
             <EventTimelineItem
               event={event}
               onClick={() => handleEventClick(event)}
@@ -196,8 +199,8 @@ export function EventTimeline({
 
         {/* End of list indicator */}
         {!hasMore && events.length > 0 && !isLoading && (
-          <div className="text-center py-4">
-            <span className="text-xs text-text-theme-muted bg-surface-raised/50 px-3 py-1.5 rounded-full">
+          <div className="py-4 text-center">
+            <span className="text-text-theme-muted bg-surface-raised/50 rounded-full px-3 py-1.5 text-xs">
               End of timeline
             </span>
           </div>

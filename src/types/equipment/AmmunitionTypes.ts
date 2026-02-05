@@ -1,17 +1,17 @@
 /**
  * Ammunition Type Definitions
- * 
+ *
  * Type definitions for ammunition and compatibility rules.
- * 
+ *
  * NOTE: Actual ammunition data is now loaded from JSON files at runtime.
  * This file only contains type exports and empty arrays for backwards compatibility.
- * 
+ *
  * @spec openspec/specs/ammunition-system/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
-import { RulesLevel } from '../enums/RulesLevel';
 import { EquipmentFlag } from '../enums/EquipmentFlag';
+import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 import { UnitType } from '../unit/BattleMechInterfaces';
 
 /**
@@ -166,7 +166,7 @@ export const AMMUNITION_TYPES = ALL_AMMUNITION;
  * @deprecated Use EquipmentLookupService.getById() instead.
  */
 export function getAmmunitionById(id: string): IAmmunition | undefined {
-  return ALL_AMMUNITION.find(a => a.id === id);
+  return ALL_AMMUNITION.find((a) => a.id === id);
 }
 
 /**
@@ -174,7 +174,7 @@ export function getAmmunitionById(id: string): IAmmunition | undefined {
  * @deprecated Use EquipmentLookupService instead.
  */
 export function getCompatibleAmmunition(weaponId: string): IAmmunition[] {
-  return ALL_AMMUNITION.filter(a => a.compatibleWeaponIds.includes(weaponId));
+  return ALL_AMMUNITION.filter((a) => a.compatibleWeaponIds.includes(weaponId));
 }
 
 /**
@@ -182,7 +182,7 @@ export function getCompatibleAmmunition(weaponId: string): IAmmunition[] {
  * @deprecated Use EquipmentLookupService instead.
  */
 export function getAmmunitionByCategory(category: AmmoCategory): IAmmunition[] {
-  return ALL_AMMUNITION.filter(a => a.category === category);
+  return ALL_AMMUNITION.filter((a) => a.category === category);
 }
 
 /**

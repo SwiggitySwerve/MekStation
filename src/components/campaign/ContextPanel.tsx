@@ -50,7 +50,12 @@ export interface ContextPanelProps {
 
 function GlobeIcon({ className = 'w-5 h-5' }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -63,7 +68,12 @@ function GlobeIcon({ className = 'w-5 h-5' }: { className?: string }) {
 
 function DocumentIcon({ className = 'w-5 h-5' }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -76,7 +86,12 @@ function DocumentIcon({ className = 'w-5 h-5' }: { className?: string }) {
 
 function MechIcon({ className = 'w-5 h-5' }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -89,7 +104,12 @@ function MechIcon({ className = 'w-5 h-5' }: { className?: string }) {
 
 function PilotIcon({ className = 'w-5 h-5' }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -102,9 +122,18 @@ function PilotIcon({ className = 'w-5 h-5' }: { className?: string }) {
 
 function CrosshairIcon({ className = 'w-4 h-4' }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <circle cx="12" cy="12" r="10" strokeWidth={1.5} />
-      <path strokeLinecap="round" strokeWidth={1.5} d="M12 2v4m0 12v4m8-10h-4M6 12H2" />
+      <path
+        strokeLinecap="round"
+        strokeWidth={1.5}
+        d="M12 2v4m0 12v4m8-10h-4M6 12H2"
+      />
     </svg>
   );
 }
@@ -163,14 +192,29 @@ function getContractTypeIcon(type: string): React.ReactNode {
 
   if (typeLower === 'raid' || typeLower === 'assault') {
     return (
-      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+      <svg
+        className={iconClass}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M13 10V3L4 14h7v7l9-11h-7z"
+        />
       </svg>
     );
   }
   if (typeLower === 'garrison' || typeLower === 'defense') {
     return (
-      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg
+        className={iconClass}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -182,8 +226,18 @@ function getContractTypeIcon(type: string): React.ReactNode {
   }
   if (typeLower === 'recon' || typeLower === 'reconnaissance') {
     return (
-      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <svg
+        className={iconClass}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+        />
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -195,7 +249,12 @@ function getContractTypeIcon(type: string): React.ReactNode {
   }
   if (typeLower === 'escort' || typeLower === 'extraction') {
     return (
-      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg
+        className={iconClass}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -206,7 +265,12 @@ function getContractTypeIcon(type: string): React.ReactNode {
     );
   }
   return (
-    <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={iconClass}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -220,57 +284,75 @@ function getContractTypeIcon(type: string): React.ReactNode {
 function EmptyPanel(): React.ReactElement {
   return (
     <div
-      className="h-full flex items-center justify-center text-slate-500"
+      className="flex h-full items-center justify-center text-slate-500"
       data-testid="context-panel-empty"
     >
       <div className="flex items-center gap-3">
-        <CrosshairIcon className="w-5 h-5 opacity-50" />
+        <CrosshairIcon className="h-5 w-5 opacity-50" />
         <span className="text-sm">Select a system, contract, or unit</span>
       </div>
     </div>
   );
 }
 
-function SystemDetailsPanel({ data }: { data: SystemData }): React.ReactElement {
+function SystemDetailsPanel({
+  data,
+}: {
+  data: SystemData;
+}): React.ReactElement {
   return (
     <div
-      className="h-full p-4 flex items-center gap-6"
+      className="flex h-full items-center gap-6 p-4"
       data-testid="context-panel-system"
     >
-      <div className="w-12 h-12 rounded-xl bg-sky-900/30 border border-sky-700/30 flex items-center justify-center flex-shrink-0">
-        <GlobeIcon className="w-6 h-6 text-sky-400" />
+      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-sky-700/30 bg-sky-900/30">
+        <GlobeIcon className="h-6 w-6 text-sky-400" />
       </div>
 
       <div className="min-w-0">
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-0.5">System</div>
-        <div className="text-slate-100 text-lg font-semibold truncate">{data.name}</div>
+        <div className="mb-0.5 text-xs tracking-wider text-slate-400 uppercase">
+          System
+        </div>
+        <div className="truncate text-lg font-semibold text-slate-100">
+          {data.name}
+        </div>
       </div>
 
-      <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+      <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
 
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-1">Faction</div>
-        <span className="inline-flex items-center px-2.5 py-1 rounded bg-sky-900/40 text-sky-400 text-sm font-medium border border-sky-700/40">
+        <div className="mb-1 text-xs tracking-wider text-slate-400 uppercase">
+          Faction
+        </div>
+        <span className="inline-flex items-center rounded border border-sky-700/40 bg-sky-900/40 px-2.5 py-1 text-sm font-medium text-sky-400">
           {data.faction}
         </span>
       </div>
 
       {data.population !== undefined && (
         <>
-          <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+          <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
           <div>
-            <div className="text-slate-400 text-xs uppercase tracking-wider mb-0.5">Population</div>
-            <div className="text-slate-200 text-sm font-mono">{formatPopulation(data.population)}</div>
+            <div className="mb-0.5 text-xs tracking-wider text-slate-400 uppercase">
+              Population
+            </div>
+            <div className="font-mono text-sm text-slate-200">
+              {formatPopulation(data.population)}
+            </div>
           </div>
         </>
       )}
 
       {data.industrialRating && (
         <>
-          <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+          <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
           <div>
-            <div className="text-slate-400 text-xs uppercase tracking-wider mb-0.5">Industry</div>
-            <div className="text-amber-400 text-sm font-medium">{data.industrialRating}</div>
+            <div className="mb-0.5 text-xs tracking-wider text-slate-400 uppercase">
+              Industry
+            </div>
+            <div className="text-sm font-medium text-amber-400">
+              {data.industrialRating}
+            </div>
           </div>
         </>
       )}
@@ -278,48 +360,62 @@ function SystemDetailsPanel({ data }: { data: SystemData }): React.ReactElement 
   );
 }
 
-function ContractDetailsPanel({ data }: { data: ContractData }): React.ReactElement {
+function ContractDetailsPanel({
+  data,
+}: {
+  data: ContractData;
+}): React.ReactElement {
   return (
     <div
-      className="h-full p-4 flex items-center gap-6"
+      className="flex h-full items-center gap-6 p-4"
       data-testid="context-panel-contract"
     >
-      <div className="w-12 h-12 rounded-xl bg-amber-900/30 border border-amber-700/30 flex items-center justify-center flex-shrink-0">
-        <DocumentIcon className="w-6 h-6 text-amber-400" />
+      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-amber-700/30 bg-amber-900/30">
+        <DocumentIcon className="h-6 w-6 text-amber-400" />
       </div>
 
       <div className="min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
-          <span className="text-slate-400 text-xs uppercase tracking-wider">Contract</span>
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-700/50 text-slate-300 text-xs border border-slate-600/50">
+        <div className="mb-0.5 flex items-center gap-2">
+          <span className="text-xs tracking-wider text-slate-400 uppercase">
+            Contract
+          </span>
+          <span className="inline-flex items-center gap-1 rounded border border-slate-600/50 bg-slate-700/50 px-1.5 py-0.5 text-xs text-slate-300">
             {getContractTypeIcon(data.type)}
             {data.type}
           </span>
         </div>
-        <div className="text-slate-100 text-lg font-semibold truncate">{data.name}</div>
+        <div className="truncate text-lg font-semibold text-slate-100">
+          {data.name}
+        </div>
       </div>
 
-      <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+      <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
 
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-0.5">Employer</div>
-        <div className="text-slate-200 text-sm">{data.employer}</div>
+        <div className="mb-0.5 text-xs tracking-wider text-slate-400 uppercase">
+          Employer
+        </div>
+        <div className="text-sm text-slate-200">{data.employer}</div>
       </div>
 
-      <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+      <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
 
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-0.5">Payment</div>
-        <div className="text-amber-400 text-sm font-mono font-semibold">
+        <div className="mb-0.5 text-xs tracking-wider text-slate-400 uppercase">
+          Payment
+        </div>
+        <div className="font-mono text-sm font-semibold text-amber-400">
           {formatCBills(data.payment)} C-Bills
         </div>
       </div>
 
-      <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+      <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
 
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-0.5">Deadline</div>
-        <div className="text-slate-200 text-sm font-mono">{data.deadline}</div>
+        <div className="mb-0.5 text-xs tracking-wider text-slate-400 uppercase">
+          Deadline
+        </div>
+        <div className="font-mono text-sm text-slate-200">{data.deadline}</div>
       </div>
     </div>
   );
@@ -328,38 +424,48 @@ function ContractDetailsPanel({ data }: { data: ContractData }): React.ReactElem
 function MechStatusPanel({ data }: { data: MechData }): React.ReactElement {
   return (
     <div
-      className="h-full p-4 flex items-center gap-6"
+      className="flex h-full items-center gap-6 p-4"
       data-testid="context-panel-mech"
     >
-      <div className="w-12 h-12 rounded-xl bg-violet-900/30 border border-violet-700/30 flex items-center justify-center flex-shrink-0">
-        <MechIcon className="w-6 h-6 text-violet-400" />
+      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-violet-700/30 bg-violet-900/30">
+        <MechIcon className="h-6 w-6 text-violet-400" />
       </div>
 
       <div className="min-w-0">
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-0.5">Mech</div>
-        <div className="text-slate-100 text-lg font-semibold">
+        <div className="mb-0.5 text-xs tracking-wider text-slate-400 uppercase">
+          Mech
+        </div>
+        <div className="text-lg font-semibold text-slate-100">
           {data.name}{' '}
-          <span className="text-slate-400 font-mono text-sm">{data.variant}</span>
+          <span className="font-mono text-sm text-slate-400">
+            {data.variant}
+          </span>
         </div>
       </div>
 
-      <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+      <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
 
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-0.5">Tonnage</div>
-        <div className="text-slate-200 text-sm font-mono">{data.tonnage}t</div>
+        <div className="mb-0.5 text-xs tracking-wider text-slate-400 uppercase">
+          Tonnage
+        </div>
+        <div className="font-mono text-sm text-slate-200">{data.tonnage}t</div>
       </div>
 
-      <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+      <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
 
       <div className="w-40">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-slate-400 text-xs uppercase tracking-wider">Armor</span>
-          <span className={`text-xs font-mono ${getArmorTextColor(data.armorPercent)}`}>
+        <div className="mb-1 flex items-center justify-between">
+          <span className="text-xs tracking-wider text-slate-400 uppercase">
+            Armor
+          </span>
+          <span
+            className={`font-mono text-xs ${getArmorTextColor(data.armorPercent)}`}
+          >
             {data.armorPercent}%
           </span>
         </div>
-        <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+        <div className="h-2 overflow-hidden rounded-full bg-slate-700">
           <div
             className={`h-full ${getArmorColor(data.armorPercent)} transition-all duration-300`}
             style={{ width: `${data.armorPercent}%` }}
@@ -367,12 +473,14 @@ function MechStatusPanel({ data }: { data: MechData }): React.ReactElement {
         </div>
       </div>
 
-      <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+      <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
 
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-1">Status</div>
+        <div className="mb-1 text-xs tracking-wider text-slate-400 uppercase">
+          Status
+        </div>
         <span
-          className={`inline-flex items-center px-2.5 py-1 rounded text-sm font-medium border ${getStatusBadgeStyle(data.status)}`}
+          className={`inline-flex items-center rounded border px-2.5 py-1 text-sm font-medium ${getStatusBadgeStyle(data.status)}`}
         >
           {data.status}
         </span>
@@ -386,52 +494,66 @@ function PilotStatusPanel({ data }: { data: PilotData }): React.ReactElement {
 
   return (
     <div
-      className="h-full p-4 flex items-center gap-6"
+      className="flex h-full items-center gap-6 p-4"
       data-testid="context-panel-pilot"
     >
-      <div className="w-12 h-12 rounded-xl bg-emerald-900/30 border border-emerald-700/30 flex items-center justify-center flex-shrink-0">
-        <PilotIcon className="w-6 h-6 text-emerald-400" />
+      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-emerald-700/30 bg-emerald-900/30">
+        <PilotIcon className="h-6 w-6 text-emerald-400" />
       </div>
 
       <div className="min-w-0">
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-0.5">Pilot</div>
-        <div className="text-slate-100 text-lg font-semibold truncate">
+        <div className="mb-0.5 text-xs tracking-wider text-slate-400 uppercase">
+          Pilot
+        </div>
+        <div className="truncate text-lg font-semibold text-slate-100">
           {data.name}
-          <span className="text-emerald-400 text-sm font-normal ml-2">&ldquo;{data.callsign}&rdquo;</span>
+          <span className="ml-2 text-sm font-normal text-emerald-400">
+            &ldquo;{data.callsign}&rdquo;
+          </span>
         </div>
       </div>
 
-      <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+      <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
 
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-0.5">Gunnery</div>
-        <div className="text-cyan-400 text-xl font-mono font-bold">{data.gunnery}</div>
+        <div className="mb-0.5 text-xs tracking-wider text-slate-400 uppercase">
+          Gunnery
+        </div>
+        <div className="font-mono text-xl font-bold text-cyan-400">
+          {data.gunnery}
+        </div>
       </div>
 
-      <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+      <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
 
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-0.5">Piloting</div>
-        <div className="text-amber-400 text-xl font-mono font-bold">{data.piloting}</div>
+        <div className="mb-0.5 text-xs tracking-wider text-slate-400 uppercase">
+          Piloting
+        </div>
+        <div className="font-mono text-xl font-bold text-amber-400">
+          {data.piloting}
+        </div>
       </div>
 
-      <div className="h-8 w-px bg-slate-700 flex-shrink-0" />
+      <div className="h-8 w-px flex-shrink-0 bg-slate-700" />
 
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider mb-1">Wounds</div>
+        <div className="mb-1 text-xs tracking-wider text-slate-400 uppercase">
+          Wounds
+        </div>
         <div className="flex items-center gap-1">
           {Array.from({ length: maxWounds }).map((_, i) => (
             <div
               key={i}
-              className={`w-3 h-3 rounded-full border ${
+              className={`h-3 w-3 rounded-full border ${
                 i < data.wounds
-                  ? 'bg-red-500 border-red-400'
-                  : 'bg-slate-700 border-slate-600'
+                  ? 'border-red-400 bg-red-500'
+                  : 'border-slate-600 bg-slate-700'
               }`}
             />
           ))}
           {data.wounds > 0 && (
-            <span className="text-red-400 text-xs ml-1">
+            <span className="ml-1 text-xs text-red-400">
               ({data.wounds}/{maxWounds})
             </span>
           )}

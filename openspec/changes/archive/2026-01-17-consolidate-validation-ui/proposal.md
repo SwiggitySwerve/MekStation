@@ -3,6 +3,7 @@
 ## Why
 
 The customizer currently displays validation information in **two separate locations**:
+
 1. `ValidationSummary` - compact badge in UnitInfoBanner with dropdown popup
 2. `ValidationPanel` - full collapsible panel below the banner (32-232px vertical space)
 
@@ -25,11 +26,11 @@ Both components show identical validation errors/warnings, creating redundancy. 
 
 ## Screen Space Savings
 
-| Before | After |
-|--------|-------|
-| UnitInfoBanner: ~80-100px | UnitInfoBanner: ~80-100px |
-| ValidationPanel header: 32px | (removed) |
-| ValidationPanel content: 0-200px | (removed) |
+| Before                           | After                           |
+| -------------------------------- | ------------------------------- |
+| UnitInfoBanner: ~80-100px        | UnitInfoBanner: ~80-100px       |
+| ValidationPanel header: 32px     | (removed)                       |
+| ValidationPanel content: 0-200px | (removed)                       |
 | **Total header area: 112-332px** | **Total header area: 80-100px** |
 
 **Net savings: 32-232px vertical space**

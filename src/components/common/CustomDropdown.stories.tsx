@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import CustomDropdown from './CustomDropdown';
+
 import { useState } from 'react';
+
+import CustomDropdown from './CustomDropdown';
 
 const meta: Meta<typeof CustomDropdown> = {
   title: 'Common/CustomDropdown',
@@ -67,8 +69,12 @@ export const Disabled: Story = {
 const InteractiveExample = () => {
   const [value, setValue] = useState('Standard');
   return (
-    <div className="space-y-4 w-48">
-      <CustomDropdown value={value} options={engineOptions} onChange={setValue} />
+    <div className="w-48 space-y-4">
+      <CustomDropdown
+        value={value}
+        options={engineOptions}
+        onChange={setValue}
+      />
       <p className="text-text-theme-secondary text-sm">
         Selected: <span className="text-accent font-medium">{value}</span>
       </p>

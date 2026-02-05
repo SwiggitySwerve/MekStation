@@ -1,9 +1,13 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { TurnoverReportPanel } from '../TurnoverReportPanel';
+import React from 'react';
+
 import type { TurnoverDepartureEvent } from '@/lib/campaign/dayAdvancement';
 
-function createDeparture(overrides: Partial<TurnoverDepartureEvent> = {}): TurnoverDepartureEvent {
+import { TurnoverReportPanel } from '../TurnoverReportPanel';
+
+function createDeparture(
+  overrides: Partial<TurnoverDepartureEvent> = {},
+): TurnoverDepartureEvent {
   return {
     personId: 'p1',
     personName: 'Alice Smith',
@@ -12,9 +16,24 @@ function createDeparture(overrides: Partial<TurnoverDepartureEvent> = {}): Turno
     targetNumber: 7,
     payoutAmount: 12000,
     modifiers: [
-      { modifierId: 'baseTarget', displayName: 'Base Target', value: 3, isStub: false },
-      { modifierId: 'injuries', displayName: 'Injuries', value: 2, isStub: false },
-      { modifierId: 'officer', displayName: 'Officer Status', value: -1, isStub: false },
+      {
+        modifierId: 'baseTarget',
+        displayName: 'Base Target',
+        value: 3,
+        isStub: false,
+      },
+      {
+        modifierId: 'injuries',
+        displayName: 'Injuries',
+        value: 2,
+        isStub: false,
+      },
+      {
+        modifierId: 'officer',
+        displayName: 'Officer Status',
+        value: -1,
+        isStub: false,
+      },
       { modifierId: 'fatigue', displayName: 'Fatigue', value: 0, isStub: true },
     ],
     ...overrides,
@@ -28,7 +47,10 @@ describe('TurnoverReportPanel', () => {
   });
 
   it('should display departure count in header', () => {
-    const departures = [createDeparture(), createDeparture({ personId: 'p2', personName: 'Bob' })];
+    const departures = [
+      createDeparture(),
+      createDeparture({ personId: 'p2', personName: 'Bob' }),
+    ];
     render(<TurnoverReportPanel departures={departures} />);
     expect(screen.getByText('Personnel Departures (2)')).toBeInTheDocument();
   });
@@ -42,7 +64,9 @@ describe('TurnoverReportPanel', () => {
   it('should display deserted status', () => {
     render(
       <TurnoverReportPanel
-        departures={[createDeparture({ departureType: 'deserted', payoutAmount: 0 })]}
+        departures={[
+          createDeparture({ departureType: 'deserted', payoutAmount: 0 }),
+        ]}
       />,
     );
     expect(screen.getByText('Deserted')).toBeInTheDocument();
@@ -57,7 +81,12 @@ describe('TurnoverReportPanel', () => {
   it('should display summary counts', () => {
     const departures = [
       createDeparture({ personId: 'p1', departureType: 'retired' }),
-      createDeparture({ personId: 'p2', personName: 'Bob', departureType: 'deserted', payoutAmount: 0 }),
+      createDeparture({
+        personId: 'p2',
+        personName: 'Bob',
+        departureType: 'deserted',
+        payoutAmount: 0,
+      }),
     ];
     render(<TurnoverReportPanel departures={departures} />);
     expect(screen.getByText('1 retired')).toBeInTheDocument();

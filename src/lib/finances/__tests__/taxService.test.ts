@@ -1,10 +1,13 @@
 import { describe, it, expect } from '@jest/globals';
-import { Money } from '@/types/campaign/Money';
+
 import type { ICampaign } from '@/types/campaign/Campaign';
-import { CampaignType } from '@/types/campaign/CampaignType';
 import type { IPerson } from '@/types/campaign/Person';
-import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+
 import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
+import { CampaignType } from '@/types/campaign/CampaignType';
+import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { Money } from '@/types/campaign/Money';
+
 import {
   calculateTaxes,
   calculateProfits,
@@ -17,29 +20,29 @@ describe('taxService', () => {
   // Helper to create a minimal campaign
   function createTestCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
     return {
-       id: 'test-campaign',
-       name: 'Test Campaign',
-       currentDate: new Date('3025-01-01'),
-       factionId: 'mercenary',
-       personnel: new Map(),
-       forces: new Map(),
-       rootForceId: 'root-force',
-       missions: new Map(),
-       finances: {
-         transactions: [],
-         balance: new Money(0),
-       },
-        factionStandings: {},
-        shoppingList: { items: [] },
-         options: {
-         healingRateMultiplier: 1.0,
-         salaryMultiplier: 1.0,
-         retirementAge: 65,
-         healingWaitingPeriod: 1,
-         medicalSystem: MedicalSystem.STANDARD,
-         maxPatientsPerDoctor: 25,
-         doctorsUseAdministration: false,
-         xpPerMission: 1,
+      id: 'test-campaign',
+      name: 'Test Campaign',
+      currentDate: new Date('3025-01-01'),
+      factionId: 'mercenary',
+      personnel: new Map(),
+      forces: new Map(),
+      rootForceId: 'root-force',
+      missions: new Map(),
+      finances: {
+        transactions: [],
+        balance: new Money(0),
+      },
+      factionStandings: {},
+      shoppingList: { items: [] },
+      options: {
+        healingRateMultiplier: 1.0,
+        salaryMultiplier: 1.0,
+        retirementAge: 65,
+        healingWaitingPeriod: 1,
+        medicalSystem: MedicalSystem.STANDARD,
+        maxPatientsPerDoctor: 25,
+        doctorsUseAdministration: false,
+        xpPerMission: 1,
         xpPerKill: 1,
         xpCostMultiplier: 1.0,
         trackTimeInService: true,
@@ -53,21 +56,21 @@ describe('taxService', () => {
         payForSalaries: true,
         payForAmmunition: true,
         maintenanceCycleDays: 7,
-         useLoanSystem: true,
-         useTaxes: true,
-         taxRate: 10,
-         overheadPercent: 5,
-         useRoleBasedSalaries: false,
-         payForSecondaryRole: true,
-         maxLoanPercent: 50,
-         defaultLoanRate: 5,
-         taxFrequency: 'annually',
-         useFoodAndHousing: true,
-         clanPriceMultiplier: 2.0,
-         mixedTechPriceMultiplier: 1.5,
-         usedEquipmentMultiplier: 0.5,
-         damagedEquipmentMultiplier: 0.33,
-         useAutoResolve: false,
+        useLoanSystem: true,
+        useTaxes: true,
+        taxRate: 10,
+        overheadPercent: 5,
+        useRoleBasedSalaries: false,
+        payForSecondaryRole: true,
+        maxLoanPercent: 50,
+        defaultLoanRate: 5,
+        taxFrequency: 'annually',
+        useFoodAndHousing: true,
+        clanPriceMultiplier: 2.0,
+        mixedTechPriceMultiplier: 1.5,
+        usedEquipmentMultiplier: 0.5,
+        damagedEquipmentMultiplier: 0.33,
+        useAutoResolve: false,
         autoResolveCasualtyRate: 1.0,
         allowPilotCapture: true,
         useRandomInjuries: true,
@@ -93,12 +96,12 @@ describe('taxService', () => {
         turnoverCheckFrequency: 'monthly',
         turnoverCommanderImmune: true,
         turnoverPayoutMultiplier: 12,
-         turnoverUseSkillModifiers: true,
-         turnoverUseAgeModifiers: true,
-         turnoverUseMissionStatusModifiers: true,
-         trackFactionStanding: true,
-         regardChangeMultiplier: 1.0,
-       },
+        turnoverUseSkillModifiers: true,
+        turnoverUseAgeModifiers: true,
+        turnoverUseMissionStatusModifiers: true,
+        trackFactionStanding: true,
+        regardChangeMultiplier: 1.0,
+      },
       createdAt: '2025-01-01T00:00:00Z',
       updatedAt: '2025-01-01T00:00:00Z',
       ...overrides,

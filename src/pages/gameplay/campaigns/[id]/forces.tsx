@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 /**
  * Campaign Forces Page (TO&E)
  * Table of Organization and Equipment - manage force hierarchy.
@@ -5,17 +6,12 @@
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
  */
 import { useState } from 'react';
-import { useRouter } from 'next/router';
-import {
-  PageLayout,
-  Card,
-  EmptyState,
-  Badge,
-} from '@/components/ui';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
-import { IForce } from '@/types/campaign/Force';
-import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
+import { PageLayout, Card, EmptyState, Badge } from '@/components/ui';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { FormationLevel } from '@/types/campaign/enums';
+import { IForce } from '@/types/campaign/Force';
 
 // =============================================================================
 // Force Tree Node Component
@@ -27,7 +23,11 @@ interface ForceNodeProps {
   level: number;
 }
 
-function ForceNode({ force, allForces, level }: ForceNodeProps): React.ReactElement {
+function ForceNode({
+  force,
+  allForces,
+  level,
+}: ForceNodeProps): React.ReactElement {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = force.subForceIds.length > 0;
   const indent = level * 24;
@@ -50,31 +50,46 @@ function ForceNode({ force, allForces, level }: ForceNodeProps): React.ReactElem
   return (
     <div>
       <div
-        className="flex items-center gap-3 p-3 hover:bg-surface-raised/50 rounded cursor-pointer transition-colors"
+        className="hover:bg-surface-raised/50 flex cursor-pointer items-center gap-3 rounded p-3 transition-colors"
         style={{ paddingLeft: `${indent + 12}px` }}
         onClick={() => hasChildren && setIsExpanded(!isExpanded)}
       >
         {/* Expand/Collapse Icon */}
         {hasChildren ? (
           <svg
-            className={`w-4 h-4 text-text-theme-secondary transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+            className={`text-text-theme-secondary h-4 w-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         ) : (
           <div className="w-4" />
         )}
 
         {/* Force Icon */}
-        <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        <svg
+          className="text-accent h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+          />
         </svg>
 
         {/* Force Name */}
-        <span className="font-semibold text-text-theme-primary flex-1">
+        <span className="text-text-theme-primary flex-1 font-semibold">
           {force.name}
         </span>
 
@@ -84,12 +99,12 @@ function ForceNode({ force, allForces, level }: ForceNodeProps): React.ReactElem
         </Badge>
 
         {/* Force Type */}
-        <span className="text-sm text-text-theme-secondary">
+        <span className="text-text-theme-secondary text-sm">
           {force.forceType}
         </span>
 
         {/* Unit Count */}
-        <span className="text-sm text-text-theme-secondary">
+        <span className="text-text-theme-secondary text-sm">
           {force.unitIds.length} units
         </span>
       </div>
@@ -167,9 +182,9 @@ export default function ForcesPage(): React.ReactElement {
       >
         <EmptyState
           icon={
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
+            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
               <svg
-                className="w-8 h-8 text-text-theme-muted"
+                className="text-text-theme-muted h-8 w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -206,9 +221,9 @@ export default function ForcesPage(): React.ReactElement {
       {!rootForce ? (
         <EmptyState
           icon={
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-raised/50 flex items-center justify-center">
+            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
               <svg
-                className="w-8 h-8 text-text-theme-muted"
+                className="text-text-theme-muted h-8 w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -227,11 +242,11 @@ export default function ForcesPage(): React.ReactElement {
         />
       ) : (
         <Card>
-          <div className="mb-4 pb-4 border-b border-border-theme">
-            <h2 className="text-lg font-semibold text-text-theme-primary">
+          <div className="border-border-theme mb-4 border-b pb-4">
+            <h2 className="text-text-theme-primary text-lg font-semibold">
               Force Hierarchy
             </h2>
-            <p className="text-sm text-text-theme-secondary mt-1">
+            <p className="text-text-theme-secondary mt-1 text-sm">
               {campaign.forces.size} total forces
             </p>
           </div>

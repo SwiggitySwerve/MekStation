@@ -32,7 +32,7 @@ import {
  */
 export function isEventType<T extends GameEventType>(
   event: IGameEvent,
-  type: T
+  type: T,
 ): boolean {
   return event.type === type;
 }
@@ -44,7 +44,9 @@ export function isEventType<T extends GameEventType>(
 /**
  * Extract GameCreated payload.
  */
-export function getGameCreatedPayload(event: IGameEvent): IGameCreatedPayload | null {
+export function getGameCreatedPayload(
+  event: IGameEvent,
+): IGameCreatedPayload | null {
   if (event.type !== GameEventType.GameCreated) return null;
   return event.payload as IGameCreatedPayload;
 }
@@ -52,7 +54,9 @@ export function getGameCreatedPayload(event: IGameEvent): IGameCreatedPayload | 
 /**
  * Extract GameStarted payload.
  */
-export function getGameStartedPayload(event: IGameEvent): IGameStartedPayload | null {
+export function getGameStartedPayload(
+  event: IGameEvent,
+): IGameStartedPayload | null {
   if (event.type !== GameEventType.GameStarted) return null;
   return event.payload as IGameStartedPayload;
 }
@@ -60,7 +64,9 @@ export function getGameStartedPayload(event: IGameEvent): IGameStartedPayload | 
 /**
  * Extract GameEnded payload.
  */
-export function getGameEndedPayload(event: IGameEvent): IGameEndedPayload | null {
+export function getGameEndedPayload(
+  event: IGameEvent,
+): IGameEndedPayload | null {
   if (event.type !== GameEventType.GameEnded) return null;
   return event.payload as IGameEndedPayload;
 }
@@ -68,7 +74,9 @@ export function getGameEndedPayload(event: IGameEvent): IGameEndedPayload | null
 /**
  * Extract PhaseChanged payload.
  */
-export function getPhaseChangedPayload(event: IGameEvent): IPhaseChangedPayload | null {
+export function getPhaseChangedPayload(
+  event: IGameEvent,
+): IPhaseChangedPayload | null {
   if (event.type !== GameEventType.PhaseChanged) return null;
   return event.payload as IPhaseChangedPayload;
 }
@@ -76,7 +84,9 @@ export function getPhaseChangedPayload(event: IGameEvent): IPhaseChangedPayload 
 /**
  * Extract InitiativeRolled payload.
  */
-export function getInitiativeRolledPayload(event: IGameEvent): IInitiativeRolledPayload | null {
+export function getInitiativeRolledPayload(
+  event: IGameEvent,
+): IInitiativeRolledPayload | null {
   if (event.type !== GameEventType.InitiativeRolled) return null;
   return event.payload as IInitiativeRolledPayload;
 }
@@ -84,7 +94,9 @@ export function getInitiativeRolledPayload(event: IGameEvent): IInitiativeRolled
 /**
  * Extract MovementDeclared payload.
  */
-export function getMovementDeclaredPayload(event: IGameEvent): IMovementDeclaredPayload | null {
+export function getMovementDeclaredPayload(
+  event: IGameEvent,
+): IMovementDeclaredPayload | null {
   if (event.type !== GameEventType.MovementDeclared) return null;
   return event.payload as IMovementDeclaredPayload;
 }
@@ -92,7 +104,9 @@ export function getMovementDeclaredPayload(event: IGameEvent): IMovementDeclared
 /**
  * Extract MovementLocked payload.
  */
-export function getMovementLockedPayload(event: IGameEvent): IMovementLockedPayload | null {
+export function getMovementLockedPayload(
+  event: IGameEvent,
+): IMovementLockedPayload | null {
   if (event.type !== GameEventType.MovementLocked) return null;
   return event.payload as IMovementLockedPayload;
 }
@@ -100,7 +114,9 @@ export function getMovementLockedPayload(event: IGameEvent): IMovementLockedPayl
 /**
  * Extract AttackDeclared payload.
  */
-export function getAttackDeclaredPayload(event: IGameEvent): IAttackDeclaredPayload | null {
+export function getAttackDeclaredPayload(
+  event: IGameEvent,
+): IAttackDeclaredPayload | null {
   if (event.type !== GameEventType.AttackDeclared) return null;
   return event.payload as IAttackDeclaredPayload;
 }
@@ -108,7 +124,9 @@ export function getAttackDeclaredPayload(event: IGameEvent): IAttackDeclaredPayl
 /**
  * Extract AttackResolved payload.
  */
-export function getAttackResolvedPayload(event: IGameEvent): IAttackResolvedPayload | null {
+export function getAttackResolvedPayload(
+  event: IGameEvent,
+): IAttackResolvedPayload | null {
   if (event.type !== GameEventType.AttackResolved) return null;
   return event.payload as IAttackResolvedPayload;
 }
@@ -116,7 +134,9 @@ export function getAttackResolvedPayload(event: IGameEvent): IAttackResolvedPayl
 /**
  * Extract DamageApplied payload.
  */
-export function getDamageAppliedPayload(event: IGameEvent): IDamageAppliedPayload | null {
+export function getDamageAppliedPayload(
+  event: IGameEvent,
+): IDamageAppliedPayload | null {
   if (event.type !== GameEventType.DamageApplied) return null;
   return event.payload as IDamageAppliedPayload;
 }
@@ -124,7 +144,9 @@ export function getDamageAppliedPayload(event: IGameEvent): IDamageAppliedPayloa
 /**
  * Extract HeatGenerated payload.
  */
-export function getHeatGeneratedPayload(event: IGameEvent): IHeatPayload | null {
+export function getHeatGeneratedPayload(
+  event: IGameEvent,
+): IHeatPayload | null {
   if (event.type !== GameEventType.HeatGenerated) return null;
   return event.payload as IHeatPayload;
 }
@@ -132,7 +154,9 @@ export function getHeatGeneratedPayload(event: IGameEvent): IHeatPayload | null 
 /**
  * Extract HeatDissipated payload.
  */
-export function getHeatDissipatedPayload(event: IGameEvent): IHeatPayload | null {
+export function getHeatDissipatedPayload(
+  event: IGameEvent,
+): IHeatPayload | null {
   if (event.type !== GameEventType.HeatDissipated) return null;
   return event.payload as IHeatPayload;
 }
@@ -148,7 +172,9 @@ export function getPilotHitPayload(event: IGameEvent): IPilotHitPayload | null {
 /**
  * Extract UnitDestroyed payload.
  */
-export function getUnitDestroyedPayload(event: IGameEvent): IUnitDestroyedPayload | null {
+export function getUnitDestroyedPayload(
+  event: IGameEvent,
+): IUnitDestroyedPayload | null {
   if (event.type !== GameEventType.UnitDestroyed) return null;
   return event.payload as IUnitDestroyedPayload;
 }
@@ -162,7 +188,7 @@ export function getUnitDestroyedPayload(event: IGameEvent): IUnitDestroyedPayloa
  */
 export function filterEventsByType<T extends GameEventType>(
   events: readonly IGameEvent[],
-  type: T
+  type: T,
 ): IGameEvent[] {
   return events.filter((e) => e.type === type);
 }
@@ -172,7 +198,7 @@ export function filterEventsByType<T extends GameEventType>(
  */
 export function getLastEventOfType<T extends GameEventType>(
   events: readonly IGameEvent[],
-  type: T
+  type: T,
 ): IGameEvent | null {
   for (let i = events.length - 1; i >= 0; i--) {
     if (events[i].type === type) {
@@ -187,11 +213,15 @@ export function getLastEventOfType<T extends GameEventType>(
  */
 export function getEventsForUnit(
   events: readonly IGameEvent[],
-  unitId: string
+  unitId: string,
 ): IGameEvent[] {
   return events.filter((e) => {
     if (e.actorId === unitId) return true;
     const payload = e.payload as Record<string, unknown>;
-    return payload?.unitId === unitId || payload?.attackerId === unitId || payload?.targetId === unitId;
+    return (
+      payload?.unitId === unitId ||
+      payload?.attackerId === unitId ||
+      payload?.targetId === unitId
+    );
   });
 }

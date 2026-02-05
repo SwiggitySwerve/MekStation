@@ -16,6 +16,7 @@ rg "MASC" openspec/specs/
 ```
 
 See [`openspec/specs/`](../openspec/specs/) for 38 comprehensive specifications covering:
+
 - Construction rules (engines, gyros, armor, structure)
 - Equipment systems (weapons, electronics, ammunition)
 - Validation rules (critical slots, heat management, battle value)
@@ -43,4 +44,3 @@ See [`openspec/specs/`](../openspec/specs/) for 38 comprehensive specifications 
 - **Agent Rules**: See [`.cursorrules`](../.cursorrules) for comprehensive development guidelines
 - **OpenSpec**: See [`openspec/AGENTS.md`](../openspec/AGENTS.md) for spec-driven development workflow
 - **BattleTech Rules**: See [`openspec/specs/`](../openspec/specs/) for all domain specifications
-

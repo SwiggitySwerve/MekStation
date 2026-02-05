@@ -30,4 +30,3 @@ describe('colors/index', () => {
     expect(colorUtils.getArmorLocationColorClass).toBeDefined();
   });
 });
-

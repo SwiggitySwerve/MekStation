@@ -6,7 +6,13 @@
  * @spec openspec/changes/add-campaign-instances/specs/campaign-instances/spec.md
  */
 
-import { createCampaignEvent } from './eventFactory';
+import type { IUnitDamageState } from '@/types/campaign/CampaignInstanceInterfaces';
+import type {
+  CampaignUnitStatus,
+  CampaignPilotStatus,
+} from '@/types/campaign/CampaignInterfaces';
+import type { IPilotSkills } from '@/types/pilot/PilotInterfaces';
+
 import { getEventStore } from '@/services/events';
 import {
   CampaignInstanceEventTypes,
@@ -29,9 +35,8 @@ import {
   type ICausedBy,
   type IBaseEvent,
 } from '@/types/events';
-import type { CampaignUnitStatus, CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces';
-import type { IUnitDamageState } from '@/types/campaign/CampaignInstanceInterfaces';
-import type { IPilotSkills } from '@/types/pilot/PilotInterfaces';
+
+import { createCampaignEvent } from './eventFactory';
 
 // =============================================================================
 // Unit Instance Events
@@ -54,7 +59,7 @@ export function emitUnitInstanceCreated(
     forceSlot?: number;
     missionId?: string;
   },
-  emit = true
+  emit = true,
 ): IBaseEvent<IUnitInstanceCreatedPayload> {
   const payload: IUnitInstanceCreatedPayload = {
     instanceId: params.instanceId,
@@ -74,7 +79,7 @@ export function emitUnitInstanceCreated(
     payload,
     params.campaignId,
     params.missionId,
-    { unitId: params.instanceId }
+    { unitId: params.instanceId },
   );
 
   if (emit) {
@@ -99,7 +104,7 @@ export function emitUnitInstanceDamageApplied(
     gameId?: string;
   },
   causedBy?: ICausedBy,
-  emit = true
+  emit = true,
 ): IBaseEvent<IUnitInstanceDamageAppliedPayload> {
   const payload: IUnitInstanceDamageAppliedPayload = {
     instanceId: params.instanceId,
@@ -116,7 +121,7 @@ export function emitUnitInstanceDamageApplied(
     params.campaignId,
     undefined,
     { unitId: params.instanceId, gameId: params.gameId },
-    causedBy
+    causedBy,
   );
 
   if (emit) {
@@ -138,7 +143,7 @@ export function emitUnitInstanceStatusChanged(
     reason?: string;
   },
   causedBy?: ICausedBy,
-  emit = true
+  emit = true,
 ): IBaseEvent<IUnitInstanceStatusChangedPayload> {
   const payload: IUnitInstanceStatusChangedPayload = {
     instanceId: params.instanceId,
@@ -153,7 +158,7 @@ export function emitUnitInstanceStatusChanged(
     params.campaignId,
     undefined,
     { unitId: params.instanceId },
-    causedBy
+    causedBy,
   );
 
   if (emit) {
@@ -174,7 +179,7 @@ export function emitUnitInstancePilotAssigned(
     campaignId: string;
     previousPilotInstanceId?: string;
   },
-  emit = true
+  emit = true,
 ): IBaseEvent<IUnitInstancePilotAssignedPayload> {
   const payload: IUnitInstancePilotAssignedPayload = {
     unitInstanceId: params.unitInstanceId,
@@ -188,7 +193,7 @@ export function emitUnitInstancePilotAssigned(
     payload,
     params.campaignId,
     undefined,
-    { unitId: params.unitInstanceId, pilotId: params.pilotInstanceId }
+    { unitId: params.unitInstanceId, pilotId: params.pilotInstanceId },
   );
 
   if (emit) {
@@ -209,7 +214,7 @@ export function emitUnitInstancePilotUnassigned(
     campaignId: string;
     reason?: 'manual' | 'pilot_wounded' | 'pilot_kia' | 'unit_destroyed';
   },
-  emit = true
+  emit = true,
 ): IBaseEvent<IUnitInstancePilotUnassignedPayload> {
   const payload: IUnitInstancePilotUnassignedPayload = {
     unitInstanceId: params.unitInstanceId,
@@ -223,7 +228,7 @@ export function emitUnitInstancePilotUnassigned(
     payload,
     params.campaignId,
     undefined,
-    { unitId: params.unitInstanceId, pilotId: params.pilotInstanceId }
+    { unitId: params.unitInstanceId, pilotId: params.pilotInstanceId },
   );
 
   if (emit) {
@@ -247,7 +252,7 @@ export function emitUnitInstanceDestroyed(
     gameId?: string;
   },
   causedBy?: ICausedBy,
-  emit = true
+  emit = true,
 ): IBaseEvent<IUnitInstanceDestroyedPayload> {
   const payload: IUnitInstanceDestroyedPayload = {
     instanceId: params.instanceId,
@@ -263,7 +268,7 @@ export function emitUnitInstanceDestroyed(
     params.campaignId,
     undefined,
     { unitId: params.instanceId, gameId: params.gameId },
-    causedBy
+    causedBy,
   );
 
   if (emit) {
@@ -284,7 +289,7 @@ export function emitUnitInstanceRepairStarted(
     estimatedTime: number;
     repairItems: readonly string[];
   },
-  emit = true
+  emit = true,
 ): IBaseEvent<IUnitInstanceRepairStartedPayload> {
   const payload: IUnitInstanceRepairStartedPayload = {
     instanceId: params.instanceId,
@@ -298,7 +303,7 @@ export function emitUnitInstanceRepairStarted(
     payload,
     params.campaignId,
     undefined,
-    { unitId: params.instanceId }
+    { unitId: params.instanceId },
   );
 
   if (emit) {
@@ -320,7 +325,7 @@ export function emitUnitInstanceRepairCompleted(
     newStatus: CampaignUnitStatus;
   },
   causedBy?: ICausedBy,
-  emit = true
+  emit = true,
 ): IBaseEvent<IUnitInstanceRepairCompletedPayload> {
   const payload: IUnitInstanceRepairCompletedPayload = {
     instanceId: params.instanceId,
@@ -335,7 +340,7 @@ export function emitUnitInstanceRepairCompleted(
     params.campaignId,
     undefined,
     { unitId: params.instanceId },
-    causedBy
+    causedBy,
   );
 
   if (emit) {
@@ -362,7 +367,7 @@ export function emitPilotInstanceCreated(
     skills: IPilotSkills;
     missionId?: string;
   },
-  emit = true
+  emit = true,
 ): IBaseEvent<IPilotInstanceCreatedPayload> {
   const payload: IPilotInstanceCreatedPayload = {
     instanceId: params.instanceId,
@@ -379,7 +384,7 @@ export function emitPilotInstanceCreated(
     payload,
     params.campaignId,
     params.missionId,
-    { pilotId: params.instanceId }
+    { pilotId: params.instanceId },
   );
 
   if (emit) {
@@ -398,12 +403,18 @@ export function emitPilotInstanceXPGained(
     campaignId: string;
     xpGained: number;
     totalXP: number;
-    source: 'mission_participation' | 'kill' | 'victory' | 'objective' | 'survival' | 'other';
+    source:
+      | 'mission_participation'
+      | 'kill'
+      | 'victory'
+      | 'objective'
+      | 'survival'
+      | 'other';
     details?: string;
     gameId?: string;
   },
   causedBy?: ICausedBy,
-  emit = true
+  emit = true,
 ): IBaseEvent<IPilotInstanceXPGainedPayload> {
   const payload: IPilotInstanceXPGainedPayload = {
     instanceId: params.instanceId,
@@ -419,7 +430,7 @@ export function emitPilotInstanceXPGained(
     params.campaignId,
     undefined,
     { pilotId: params.instanceId, gameId: params.gameId },
-    causedBy
+    causedBy,
   );
 
   if (emit) {
@@ -441,7 +452,7 @@ export function emitPilotInstanceSkillImproved(
     newValue: number;
     xpSpent: number;
   },
-  emit = true
+  emit = true,
 ): IBaseEvent<IPilotInstanceSkillImprovedPayload> {
   const payload: IPilotInstanceSkillImprovedPayload = {
     instanceId: params.instanceId,
@@ -456,7 +467,7 @@ export function emitPilotInstanceSkillImproved(
     payload,
     params.campaignId,
     undefined,
-    { pilotId: params.instanceId }
+    { pilotId: params.instanceId },
   );
 
   if (emit) {
@@ -480,7 +491,7 @@ export function emitPilotInstanceWounded(
     gameId?: string;
   },
   causedBy?: ICausedBy,
-  emit = true
+  emit = true,
 ): IBaseEvent<IPilotInstanceWoundedPayload> {
   const payload: IPilotInstanceWoundedPayload = {
     instanceId: params.instanceId,
@@ -496,7 +507,7 @@ export function emitPilotInstanceWounded(
     params.campaignId,
     undefined,
     { pilotId: params.instanceId, gameId: params.gameId },
-    causedBy
+    causedBy,
   );
 
   if (emit) {
@@ -518,7 +529,7 @@ export function emitPilotInstanceStatusChanged(
     reason?: string;
   },
   causedBy?: ICausedBy,
-  emit = true
+  emit = true,
 ): IBaseEvent<IPilotInstanceStatusChangedPayload> {
   const payload: IPilotInstanceStatusChangedPayload = {
     instanceId: params.instanceId,
@@ -533,7 +544,7 @@ export function emitPilotInstanceStatusChanged(
     params.campaignId,
     undefined,
     { pilotId: params.instanceId },
-    causedBy
+    causedBy,
   );
 
   if (emit) {
@@ -557,7 +568,7 @@ export function emitPilotInstanceKillRecorded(
     gameId?: string;
   },
   causedBy?: ICausedBy,
-  emit = true
+  emit = true,
 ): IBaseEvent<IPilotInstanceKillRecordedPayload> {
   const payload: IPilotInstanceKillRecordedPayload = {
     instanceId: params.instanceId,
@@ -573,7 +584,7 @@ export function emitPilotInstanceKillRecorded(
     params.campaignId,
     undefined,
     { pilotId: params.instanceId, gameId: params.gameId },
-    causedBy
+    causedBy,
   );
 
   if (emit) {
@@ -597,7 +608,7 @@ export function emitPilotInstanceMissionCompleted(
     xpEarned: number;
     totalMissions: number;
   },
-  emit = true
+  emit = true,
 ): IBaseEvent<IPilotInstanceMissionCompletedPayload> {
   const payload: IPilotInstanceMissionCompletedPayload = {
     instanceId: params.instanceId,
@@ -614,7 +625,7 @@ export function emitPilotInstanceMissionCompleted(
     payload,
     params.campaignId,
     params.missionId,
-    { pilotId: params.instanceId }
+    { pilotId: params.instanceId },
   );
 
   if (emit) {
@@ -640,7 +651,7 @@ export function emitPilotInstanceDeceased(
     gameId?: string;
   },
   causedBy?: ICausedBy,
-  emit = true
+  emit = true,
 ): IBaseEvent<IPilotInstanceDeceasedPayload> {
   const payload: IPilotInstanceDeceasedPayload = {
     instanceId: params.instanceId,
@@ -658,7 +669,7 @@ export function emitPilotInstanceDeceased(
     params.campaignId,
     undefined,
     { pilotId: params.instanceId, gameId: params.gameId },
-    causedBy
+    causedBy,
   );
 
   if (emit) {

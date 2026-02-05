@@ -2,14 +2,26 @@
  * Tests for Unit Factory Service
  */
 
-import { UnitFactoryService, getUnitFactory, resetUnitFactory } from '@/services/units/UnitFactoryService';
-import { ISerializedUnit } from '@/types/unit/UnitSerialization';
-import { EngineType, GyroType, HeatSinkType, MechLocation, InternalStructureType, ArmorTypeEnum, CockpitType } from '@/types/construction';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+import {
+  UnitFactoryService,
+  getUnitFactory,
+  resetUnitFactory,
+} from '@/services/units/UnitFactoryService';
+import {
+  EngineType,
+  GyroType,
+  HeatSinkType,
+  MechLocation,
+  InternalStructureType,
+  ArmorTypeEnum,
+  CockpitType,
+} from '@/types/construction';
 import { Era } from '@/types/enums/Era';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
 // Mock the equipment registry
 jest.mock('@/services/equipment/EquipmentRegistry', () => ({
@@ -24,7 +36,9 @@ jest.mock('@/services/equipment/EquipmentRegistry', () => ({
 describe('UnitFactoryService', () => {
   let factory: UnitFactoryService;
 
-  const createSerializedUnit = (overrides: Partial<ISerializedUnit> = {}): ISerializedUnit => ({
+  const createSerializedUnit = (
+    overrides: Partial<ISerializedUnit> = {},
+  ): ISerializedUnit => ({
     id: 'test-mech-001',
     chassis: 'Atlas',
     model: 'AS7-D',
@@ -73,14 +87,100 @@ describe('UnitFactoryService', () => {
       { id: 'medium-laser', location: 'CENTER_TORSO' },
     ],
     criticalSlots: {
-      HEAD: ['Life Support', 'Sensors', 'Cockpit', 'null', 'Sensors', 'Life Support'],
-      CENTER_TORSO: ['Engine', 'Engine', 'Engine', 'Gyro', 'Gyro', 'Gyro', 'Gyro', 'Engine', 'Engine', 'Engine', 'Medium Laser', 'null'],
-      LEFT_TORSO: [null, null, null, null, null, null, null, null, null, null, null, null],
-      RIGHT_TORSO: ['AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20', 'AC/20', null, null],
-      LEFT_ARM: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', null, null, null, null, null, null, null, null],
-      RIGHT_ARM: ['Shoulder', 'Upper Arm Actuator', 'Lower Arm Actuator', 'Hand Actuator', null, null, null, null, null, null, null, null],
-      LEFT_LEG: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', null, null],
-      RIGHT_LEG: ['Hip', 'Upper Leg Actuator', 'Lower Leg Actuator', 'Foot Actuator', null, null],
+      HEAD: [
+        'Life Support',
+        'Sensors',
+        'Cockpit',
+        'null',
+        'Sensors',
+        'Life Support',
+      ],
+      CENTER_TORSO: [
+        'Engine',
+        'Engine',
+        'Engine',
+        'Gyro',
+        'Gyro',
+        'Gyro',
+        'Gyro',
+        'Engine',
+        'Engine',
+        'Engine',
+        'Medium Laser',
+        'null',
+      ],
+      LEFT_TORSO: [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      RIGHT_TORSO: [
+        'AC/20',
+        'AC/20',
+        'AC/20',
+        'AC/20',
+        'AC/20',
+        'AC/20',
+        'AC/20',
+        'AC/20',
+        'AC/20',
+        'AC/20',
+        null,
+        null,
+      ],
+      LEFT_ARM: [
+        'Shoulder',
+        'Upper Arm Actuator',
+        'Lower Arm Actuator',
+        'Hand Actuator',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      RIGHT_ARM: [
+        'Shoulder',
+        'Upper Arm Actuator',
+        'Lower Arm Actuator',
+        'Hand Actuator',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+      LEFT_LEG: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        null,
+        null,
+      ],
+      RIGHT_LEG: [
+        'Hip',
+        'Upper Leg Actuator',
+        'Lower Leg Actuator',
+        'Foot Actuator',
+        null,
+        null,
+      ],
     },
     quirks: [],
     ...overrides,
@@ -124,7 +224,10 @@ describe('UnitFactoryService', () => {
       });
 
       it('should set the correct name', () => {
-        const serialized = createSerializedUnit({ chassis: 'Hunchback', model: 'HBK-4G' });
+        const serialized = createSerializedUnit({
+          chassis: 'Hunchback',
+          model: 'HBK-4G',
+        });
         const result = factory.createFromSerialized(serialized);
 
         expect(result.unit?.name).toBe('Hunchback HBK-4G');
@@ -309,7 +412,9 @@ describe('UnitFactoryService', () => {
       });
 
       it('should parse HEAVY_DUTY gyro', () => {
-        const serialized = createSerializedUnit({ gyro: { type: 'HEAVY_DUTY' } });
+        const serialized = createSerializedUnit({
+          gyro: { type: 'HEAVY_DUTY' },
+        });
         const result = factory.createFromSerialized(serialized);
 
         expect(result.unit?.gyro.type).toBe(GyroType.HEAVY_DUTY);
@@ -341,17 +446,25 @@ describe('UnitFactoryService', () => {
 
     describe('structure configuration', () => {
       it('should parse STANDARD structure', () => {
-        const serialized = createSerializedUnit({ structure: { type: 'STANDARD' } });
+        const serialized = createSerializedUnit({
+          structure: { type: 'STANDARD' },
+        });
         const result = factory.createFromSerialized(serialized);
 
-        expect(result.unit?.structure.type).toBe(InternalStructureType.STANDARD);
+        expect(result.unit?.structure.type).toBe(
+          InternalStructureType.STANDARD,
+        );
       });
 
       it('should parse ENDO_STEEL structure', () => {
-        const serialized = createSerializedUnit({ structure: { type: 'ENDO_STEEL' } });
+        const serialized = createSerializedUnit({
+          structure: { type: 'ENDO_STEEL' },
+        });
         const result = factory.createFromSerialized(serialized);
 
-        expect(result.unit?.structure.type).toBe(InternalStructureType.ENDO_STEEL_IS);
+        expect(result.unit?.structure.type).toBe(
+          InternalStructureType.ENDO_STEEL_IS,
+        );
       });
 
       it('should build structure points', () => {
@@ -359,7 +472,9 @@ describe('UnitFactoryService', () => {
         const result = factory.createFromSerialized(serialized);
 
         expect(result.unit?.structure.points[MechLocation.HEAD]).toBe(3);
-        expect(result.unit?.structure.points[MechLocation.CENTER_TORSO]).toBe(31);
+        expect(result.unit?.structure.points[MechLocation.CENTER_TORSO]).toBe(
+          31,
+        );
       });
     });
 
@@ -507,9 +622,7 @@ describe('UnitFactoryService', () => {
 
       it('should set equipment locations', () => {
         const serialized = createSerializedUnit({
-          equipment: [
-            { id: 'medium-laser', location: 'LEFT_ARM' },
-          ],
+          equipment: [{ id: 'medium-laser', location: 'LEFT_ARM' }],
         });
         const result = factory.createFromSerialized(serialized);
 
@@ -530,7 +643,7 @@ describe('UnitFactoryService', () => {
         const result = factory.createFromSerialized(serialized);
 
         const headSlots = result.unit?.criticalSlots.find(
-          cs => cs.location === MechLocation.HEAD
+          (cs) => cs.location === MechLocation.HEAD,
         );
         expect(headSlots).toBeDefined();
 
@@ -566,7 +679,9 @@ describe('UnitFactoryService', () => {
           // Missing required fields like engine, armor, etc.
         };
 
-        const result = factory.createFromSerialized(malformed as ISerializedUnit);
+        const result = factory.createFromSerialized(
+          malformed as ISerializedUnit,
+        );
 
         expect(result.success).toBe(false);
         expect(result.errors.length).toBeGreaterThan(0);
@@ -574,4 +689,3 @@ describe('UnitFactoryService', () => {
     });
   });
 });
-

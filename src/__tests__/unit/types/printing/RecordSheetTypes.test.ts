@@ -1,19 +1,19 @@
 /**
  * Tests for RecordSheetTypes - Location Mappings and Constants
- * 
+ *
  * @spec openspec/changes/integrate-mm-data-assets/specs/record-sheet-export/spec.md
- * 
+ *
  * Verifies that all mech locations have correct abbreviations and names
  * for use in record sheet rendering.
  */
 
-import { 
-  LOCATION_ABBREVIATIONS, 
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import {
+  LOCATION_ABBREVIATIONS,
   LOCATION_NAMES,
   PaperSize,
   PAPER_DIMENSIONS,
 } from '@/types/printing/RecordSheetTypes';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
 describe('RecordSheetTypes', () => {
   describe('LOCATION_ABBREVIATIONS', () => {
@@ -57,7 +57,9 @@ describe('RecordSheetTypes', () => {
       });
 
       it('should have abbreviation for FRONT_RIGHT_LEG', () => {
-        expect(LOCATION_ABBREVIATIONS[MechLocation.FRONT_RIGHT_LEG]).toBe('FRL');
+        expect(LOCATION_ABBREVIATIONS[MechLocation.FRONT_RIGHT_LEG]).toBe(
+          'FRL',
+        );
       });
 
       it('should have abbreviation for REAR_LEFT_LEG', () => {
@@ -78,8 +80,8 @@ describe('RecordSheetTypes', () => {
     describe('Completeness', () => {
       it('should have abbreviations for all MechLocation values', () => {
         const allLocations = Object.values(MechLocation);
-        
-        allLocations.forEach(location => {
+
+        allLocations.forEach((location) => {
           expect(LOCATION_ABBREVIATIONS[location]).toBeDefined();
           expect(typeof LOCATION_ABBREVIATIONS[location]).toBe('string');
           expect(LOCATION_ABBREVIATIONS[location].length).toBeGreaterThan(0);
@@ -89,7 +91,7 @@ describe('RecordSheetTypes', () => {
       it('should have unique abbreviations', () => {
         const abbreviations = Object.values(LOCATION_ABBREVIATIONS);
         const uniqueAbbreviations = new Set(abbreviations);
-        
+
         expect(uniqueAbbreviations.size).toBe(abbreviations.length);
       });
     });
@@ -98,8 +100,8 @@ describe('RecordSheetTypes', () => {
   describe('LOCATION_NAMES', () => {
     it('should have display name for all MechLocation values', () => {
       const allLocations = Object.values(MechLocation);
-      
-      allLocations.forEach(location => {
+
+      allLocations.forEach((location) => {
         expect(LOCATION_NAMES[location]).toBeDefined();
         expect(typeof LOCATION_NAMES[location]).toBe('string');
       });
@@ -110,7 +112,9 @@ describe('RecordSheetTypes', () => {
       expect(LOCATION_NAMES[MechLocation.HEAD]).toBe('Head');
       expect(LOCATION_NAMES[MechLocation.LEFT_ARM]).toBe('Left Arm');
       expect(LOCATION_NAMES[MechLocation.CENTER_LEG]).toBe('Center Leg');
-      expect(LOCATION_NAMES[MechLocation.FRONT_LEFT_LEG]).toBe('Front Left Leg');
+      expect(LOCATION_NAMES[MechLocation.FRONT_LEFT_LEG]).toBe(
+        'Front Left Leg',
+      );
     });
   });
 

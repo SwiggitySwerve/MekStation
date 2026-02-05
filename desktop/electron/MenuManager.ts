@@ -1,9 +1,9 @@
 /**
  * Menu Manager for MekStation Desktop App
- * 
+ *
  * Manages the native application menu bar with standard menus,
  * keyboard shortcuts, and dynamic content like recent files.
- * 
+ *
  * Features:
  * - Platform-aware menu construction (macOS vs Windows/Linux)
  * - Standard keyboard shortcuts (Cmd/Ctrl based on platform)
@@ -13,10 +13,11 @@
  */
 
 import { Menu, MenuItem, BrowserWindow, app, shell } from 'electron';
+
 import {
   IRecentFile,
   MenuCommand,
-  MENU_IPC_CHANNELS
+  MENU_IPC_CHANNELS,
 } from '../types/BaseTypes';
 
 /**
@@ -45,7 +46,7 @@ const DEFAULT_MENU_STATE: IMenuState = {
   canUndo: false,
   canRedo: false,
   hasUnit: false,
-  hasSelection: false
+  hasSelection: false,
 };
 
 /**
@@ -144,7 +145,7 @@ export class MenuManager {
         {
           label: 'Preferences...',
           accelerator: 'Cmd+,',
-          click: () => this.sendCommand('file:preferences')
+          click: () => this.sendCommand('file:preferences'),
         },
         { type: 'separator' },
         { role: 'services' },
@@ -153,8 +154,8 @@ export class MenuManager {
         { role: 'hideOthers' },
         { role: 'unhide' },
         { type: 'separator' },
-        { role: 'quit' }
-      ]
+        { role: 'quit' },
+      ],
     };
   }
 
@@ -163,7 +164,7 @@ export class MenuManager {
    */
   private createFileMenu(
     modifier: string,
-    isMac: boolean
+    isMac: boolean,
   ): Electron.MenuItemConstructorOptions {
     const recentFilesSubmenu = this.createRecentFilesSubmenu();
 
@@ -171,45 +172,45 @@ export class MenuManager {
       {
         label: 'New Unit',
         accelerator: `${modifier}+N`,
-        click: () => this.sendCommand('file:new')
+        click: () => this.sendCommand('file:new'),
       },
       {
         label: 'Open...',
         accelerator: `${modifier}+O`,
-        click: () => this.sendCommand('file:open')
+        click: () => this.sendCommand('file:open'),
       },
       {
         label: 'Open Recent',
-        submenu: recentFilesSubmenu
+        submenu: recentFilesSubmenu,
       },
       { type: 'separator' },
       {
         label: 'Save',
         accelerator: `${modifier}+S`,
-        click: () => this.sendCommand('file:save')
+        click: () => this.sendCommand('file:save'),
       },
       {
         label: 'Save As...',
         accelerator: `${modifier}+Shift+S`,
-        click: () => this.sendCommand('file:save-as')
+        click: () => this.sendCommand('file:save-as'),
       },
       { type: 'separator' },
       {
         label: 'Import...',
         accelerator: `${modifier}+I`,
-        click: () => this.sendCommand('file:import')
+        click: () => this.sendCommand('file:import'),
       },
       {
         label: 'Export...',
         accelerator: `${modifier}+E`,
-        click: () => this.sendCommand('file:export')
+        click: () => this.sendCommand('file:export'),
       },
       { type: 'separator' },
       {
         label: 'Print...',
         accelerator: `${modifier}+P`,
-        click: () => this.sendCommand('file:print')
-      }
+        click: () => this.sendCommand('file:print'),
+      },
     ];
 
     // On Windows/Linux, add preferences and quit to File menu
@@ -219,20 +220,20 @@ export class MenuManager {
         {
           label: 'Preferences',
           accelerator: `${modifier}+,`,
-          click: () => this.sendCommand('file:preferences')
+          click: () => this.sendCommand('file:preferences'),
         },
         { type: 'separator' },
         {
           label: 'Quit',
           accelerator: `${modifier}+Q`,
-          click: () => this.sendCommand('file:quit')
-        }
+          click: () => this.sendCommand('file:quit'),
+        },
       );
     }
 
     return {
       label: 'File',
-      submenu
+      submenu,
     };
   }
 
@@ -244,30 +245,32 @@ export class MenuManager {
       return [
         {
           label: 'No Recent Files',
-          enabled: false
-        }
+          enabled: false,
+        },
       ];
     }
 
-    const items: Electron.MenuItemConstructorOptions[] = this.recentFiles.map((file, index) => {
-      // Format: "1. Atlas AS7-D (100t) - BattleMech"
-      const accelerator = index < 9 ? `CmdOrCtrl+${index + 1}` : undefined;
-      const tonnageStr = file.tonnage ? ` (${file.tonnage}t)` : '';
-      const label = `${file.name}${file.variant ? ` ${file.variant}` : ''}${tonnageStr}`;
+    const items: Electron.MenuItemConstructorOptions[] = this.recentFiles.map(
+      (file, index) => {
+        // Format: "1. Atlas AS7-D (100t) - BattleMech"
+        const accelerator = index < 9 ? `CmdOrCtrl+${index + 1}` : undefined;
+        const tonnageStr = file.tonnage ? ` (${file.tonnage}t)` : '';
+        const label = `${file.name}${file.variant ? ` ${file.variant}` : ''}${tonnageStr}`;
 
-      return {
-        label,
-        accelerator,
-        click: () => this.config.onOpenRecent(file.id)
-      };
-    });
+        return {
+          label,
+          accelerator,
+          click: () => this.config.onOpenRecent(file.id),
+        };
+      },
+    );
 
     items.push(
       { type: 'separator' },
       {
         label: 'Clear Recent',
-        click: () => this.sendCommand('file:clear-recent')
-      }
+        click: () => this.sendCommand('file:clear-recent'),
+      },
     );
 
     return items;
@@ -276,7 +279,9 @@ export class MenuManager {
   /**
    * Create Edit menu
    */
-  private createEditMenu(modifier: string): Electron.MenuItemConstructorOptions {
+  private createEditMenu(
+    modifier: string,
+  ): Electron.MenuItemConstructorOptions {
     return {
       label: 'Edit',
       submenu: [
@@ -284,66 +289,68 @@ export class MenuManager {
           label: 'Undo',
           accelerator: `${modifier}+Z`,
           enabled: this.menuState.canUndo,
-          click: () => this.sendCommand('edit:undo')
+          click: () => this.sendCommand('edit:undo'),
         },
         {
           label: 'Redo',
           accelerator: process.platform === 'darwin' ? 'Cmd+Shift+Z' : 'Ctrl+Y',
           enabled: this.menuState.canRedo,
-          click: () => this.sendCommand('edit:redo')
+          click: () => this.sendCommand('edit:redo'),
         },
         { type: 'separator' },
         {
           label: 'Cut',
           accelerator: `${modifier}+X`,
-          role: 'cut'
+          role: 'cut',
         },
         {
           label: 'Copy',
           accelerator: `${modifier}+C`,
-          role: 'copy'
+          role: 'copy',
         },
         {
           label: 'Paste',
           accelerator: `${modifier}+V`,
-          role: 'paste'
+          role: 'paste',
         },
         { type: 'separator' },
         {
           label: 'Select All',
           accelerator: `${modifier}+A`,
-          role: 'selectAll'
-        }
-      ]
+          role: 'selectAll',
+        },
+      ],
     };
   }
 
   /**
    * Create View menu
    */
-  private createViewMenu(modifier: string): Electron.MenuItemConstructorOptions {
+  private createViewMenu(
+    modifier: string,
+  ): Electron.MenuItemConstructorOptions {
     const submenu: Electron.MenuItemConstructorOptions[] = [
       {
         label: 'Zoom In',
         accelerator: `${modifier}+=`,
-        click: () => this.sendCommand('view:zoom-in')
+        click: () => this.sendCommand('view:zoom-in'),
       },
       {
         label: 'Zoom Out',
         accelerator: `${modifier}+-`,
-        click: () => this.sendCommand('view:zoom-out')
+        click: () => this.sendCommand('view:zoom-out'),
       },
       {
         label: 'Reset Zoom',
         accelerator: `${modifier}+0`,
-        click: () => this.sendCommand('view:zoom-reset')
+        click: () => this.sendCommand('view:zoom-reset'),
       },
       { type: 'separator' },
       {
         label: 'Toggle Fullscreen',
         accelerator: process.platform === 'darwin' ? 'Ctrl+Cmd+F' : 'F11',
-        click: () => this.sendCommand('view:fullscreen')
-      }
+        click: () => this.sendCommand('view:fullscreen'),
+      },
     ];
 
     // Developer tools in development mode or if enabled
@@ -352,51 +359,54 @@ export class MenuManager {
         { type: 'separator' },
         {
           label: 'Toggle Developer Tools',
-          accelerator: process.platform === 'darwin' ? 'Alt+Cmd+I' : 'Ctrl+Shift+I',
-          click: () => this.sendCommand('view:dev-tools')
+          accelerator:
+            process.platform === 'darwin' ? 'Alt+Cmd+I' : 'Ctrl+Shift+I',
+          click: () => this.sendCommand('view:dev-tools'),
         },
         { role: 'reload' },
-        { role: 'forceReload' }
+        { role: 'forceReload' },
       );
     }
 
     return {
       label: 'View',
-      submenu
+      submenu,
     };
   }
 
   /**
    * Create Unit menu
    */
-  private createUnitMenu(modifier: string): Electron.MenuItemConstructorOptions {
+  private createUnitMenu(
+    modifier: string,
+  ): Electron.MenuItemConstructorOptions {
     return {
       label: 'Unit',
       submenu: [
         {
           label: 'New Unit...',
           accelerator: `${modifier}+Shift+N`,
-          click: () => this.sendCommand('unit:new')
+          click: () => this.sendCommand('unit:new'),
         },
         {
           label: 'Duplicate Unit',
           accelerator: `${modifier}+D`,
           enabled: this.menuState.hasUnit,
-          click: () => this.sendCommand('unit:duplicate')
+          click: () => this.sendCommand('unit:duplicate'),
         },
         { type: 'separator' },
         {
           label: 'Delete Unit',
           enabled: this.menuState.hasUnit,
-          click: () => this.sendCommand('unit:delete')
+          click: () => this.sendCommand('unit:delete'),
         },
         { type: 'separator' },
         {
           label: 'Unit Properties...',
           enabled: this.menuState.hasUnit,
-          click: () => this.sendCommand('unit:properties')
-        }
-      ]
+          click: () => this.sendCommand('unit:properties'),
+        },
+      ],
     };
   }
 
@@ -412,8 +422,8 @@ export class MenuManager {
         { type: 'separator' },
         { role: 'front' },
         { type: 'separator' },
-        { role: 'window' }
-      ]
+        { role: 'window' },
+      ],
     };
   }
 
@@ -424,17 +434,17 @@ export class MenuManager {
     const submenu: Electron.MenuItemConstructorOptions[] = [
       {
         label: 'Documentation',
-        click: () => this.sendCommand('help:documentation')
+        click: () => this.sendCommand('help:documentation'),
       },
       {
         label: 'Report Issue...',
-        click: () => this.sendCommand('help:report-issue')
+        click: () => this.sendCommand('help:report-issue'),
       },
       { type: 'separator' },
       {
         label: 'Check for Updates...',
-        click: () => this.sendCommand('help:check-updates')
-      }
+        click: () => this.sendCommand('help:check-updates'),
+      },
     ];
 
     // On Windows/Linux, add About to Help menu
@@ -443,14 +453,14 @@ export class MenuManager {
         { type: 'separator' },
         {
           label: 'About MekStation',
-          click: () => this.sendCommand('help:about')
-        }
+          click: () => this.sendCommand('help:about'),
+        },
       );
     }
 
     return {
       label: 'Help',
-      submenu
+      submenu,
     };
   }
 

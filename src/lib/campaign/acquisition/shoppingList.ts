@@ -7,7 +7,10 @@
  * Based on MekHQ ShoppingList.java queue management patterns.
  */
 
-import { IAcquisitionRequest, IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
+import {
+  IAcquisitionRequest,
+  IShoppingList,
+} from '@/types/campaign/acquisition/acquisitionTypes';
 
 /**
  * Create an empty shopping list
@@ -22,7 +25,7 @@ export function createShoppingList(): IShoppingList {
  */
 export function addRequest(
   list: IShoppingList,
-  request: IAcquisitionRequest
+  request: IAcquisitionRequest,
 ): IShoppingList {
   return {
     items: [...list.items, request],
@@ -35,10 +38,10 @@ export function addRequest(
  */
 export function removeRequest(
   list: IShoppingList,
-  requestId: string
+  requestId: string,
 ): IShoppingList {
   return {
-    items: list.items.filter(item => item.id !== requestId),
+    items: list.items.filter((item) => item.id !== requestId),
   };
 }
 
@@ -49,11 +52,11 @@ export function removeRequest(
 export function updateRequest(
   list: IShoppingList,
   requestId: string,
-  updates: Partial<IAcquisitionRequest>
+  updates: Partial<IAcquisitionRequest>,
 ): IShoppingList {
   return {
-    items: list.items.map(item =>
-      item.id === requestId ? { ...item, ...updates } : item
+    items: list.items.map((item) =>
+      item.id === requestId ? { ...item, ...updates } : item,
     ),
   };
 }
@@ -64,31 +67,37 @@ export function updateRequest(
  */
 export function findRequest(
   list: IShoppingList,
-  requestId: string
+  requestId: string,
 ): IAcquisitionRequest | undefined {
-  return list.items.find(item => item.id === requestId);
+  return list.items.find((item) => item.id === requestId);
 }
 
 /**
  * Get all pending requests
  * Returns a readonly array of requests with status='pending'
  */
-export function getPendingRequests(list: IShoppingList): readonly IAcquisitionRequest[] {
-  return list.items.filter(item => item.status === 'pending');
+export function getPendingRequests(
+  list: IShoppingList,
+): readonly IAcquisitionRequest[] {
+  return list.items.filter((item) => item.status === 'pending');
 }
 
 /**
  * Get all in-transit requests
  * Returns a readonly array of requests with status='in_transit'
  */
-export function getInTransitRequests(list: IShoppingList): readonly IAcquisitionRequest[] {
-  return list.items.filter(item => item.status === 'in_transit');
+export function getInTransitRequests(
+  list: IShoppingList,
+): readonly IAcquisitionRequest[] {
+  return list.items.filter((item) => item.status === 'in_transit');
 }
 
 /**
  * Get all delivered requests
  * Returns a readonly array of requests with status='delivered'
  */
-export function getDeliveredRequests(list: IShoppingList): readonly IAcquisitionRequest[] {
-  return list.items.filter(item => item.status === 'delivered');
+export function getDeliveredRequests(
+  list: IShoppingList,
+): readonly IAcquisitionRequest[] {
+  return list.items.filter((item) => item.status === 'delivered');
 }

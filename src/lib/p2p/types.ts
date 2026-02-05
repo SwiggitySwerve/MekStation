@@ -6,9 +6,9 @@
  * @spec openspec/changes/add-p2p-vault-sync/specs/vault-sync/spec.md
  */
 
-import type * as Y from 'yjs';
-import type { WebrtcProvider } from 'y-webrtc';
 import type { IndexeddbPersistence } from 'y-indexeddb';
+import type { WebrtcProvider } from 'y-webrtc';
+import type * as Y from 'yjs';
 
 // =============================================================================
 // Connection Types
@@ -221,7 +221,12 @@ export type SyncEvent =
   | { type: 'peer-left'; peerId: string }
   | { type: 'sync-started'; itemId: string }
   | { type: 'sync-completed'; itemId: string }
-  | { type: 'conflict'; itemId: string; localVersion: unknown; remoteVersion: unknown }
+  | {
+      type: 'conflict';
+      itemId: string;
+      localVersion: unknown;
+      remoteVersion: unknown;
+    }
   | { type: 'error'; message: string };
 
 /**

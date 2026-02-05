@@ -1,10 +1,10 @@
 #!/usr/bin/env tsx
 /**
  * Fetch mm-data assets from jsDelivr CDN (with GitHub raw fallback).
- * 
+ *
  * Usage:
  *   npx tsx scripts/mm-data/fetch-assets.ts [--version=v0.3.1] [--force] [--dry-run]
- * 
+ *
  * Options:
  *   --version=TAG    Override version from config (e.g., v0.3.1, main)
  *   --force          Re-download even if files exist
@@ -27,8 +27,8 @@ interface AssetConfig {
 
 // Parse CLI arguments
 const args = process.argv.slice(2);
-const getArg = (prefix: string): string | undefined => 
-  args.find(a => a.startsWith(prefix))?.split('=')[1];
+const getArg = (prefix: string): string | undefined =>
+  args.find((a) => a.startsWith(prefix))?.split('=')[1];
 
 const VERSION_OVERRIDE = getArg('--version=');
 const FORCE = args.includes('--force');
@@ -37,7 +37,10 @@ const PREFER_LOCAL = args.includes('--prefer-local');
 
 const CONFIG_PATH = path.join(process.cwd(), 'config/mm-data-assets.json');
 const OUTPUT_DIR = path.join(process.cwd(), 'public/record-sheets');
-const LOCAL_MM_DATA = path.join(process.cwd(), '../mm-data/data/images/recordsheets');
+const LOCAL_MM_DATA = path.join(
+  process.cwd(),
+  '../mm-data/data/images/recordsheets',
+);
 
 // Load config
 function loadConfig(): AssetConfig {
@@ -64,9 +67,9 @@ function expandPattern(pattern: string): string[] {
   const listMatch = pattern.match(/\{([^}]+)\}/);
   if (listMatch) {
     const [full, items] = listMatch;
-    return items.split(',').flatMap(item => 
-      expandPattern(pattern.replace(full, item.trim()))
-    );
+    return items
+      .split(',')
+      .flatMap((item) => expandPattern(pattern.replace(full, item.trim())));
   }
 
   return [pattern];
@@ -75,7 +78,7 @@ function expandPattern(pattern: string): string[] {
 // Get all asset paths from config
 function getAssetPaths(config: AssetConfig): string[] {
   const paths: string[] = [];
-  
+
   for (const [dir, patterns] of Object.entries(config.patterns)) {
     for (const pattern of patterns) {
       const expanded = expandPattern(pattern);
@@ -84,15 +87,15 @@ function getAssetPaths(config: AssetConfig): string[] {
       }
     }
   }
-  
+
   return paths;
 }
 
 // Download a single file with fallback
 async function downloadFile(
-  assetPath: string, 
-  config: AssetConfig, 
-  version: string
+  assetPath: string,
+  config: AssetConfig,
+  version: string,
 ): Promise<{ success: boolean; source: string; error?: string }> {
   const cdnUrl = `${config.cdnBase}/${config.repository}@${version}/${config.basePath}/${assetPath}`;
   const rawUrl = `${config.rawBase}/${config.repository}/${version}/${config.basePath}/${assetPath}`;
@@ -140,7 +143,9 @@ async function downloadFile(
 }
 
 // Copy from local mm-data repo
-async function copyFromLocal(assetPath: string): Promise<{ success: boolean; source: string; error?: string }> {
+async function copyFromLocal(
+  assetPath: string,
+): Promise<{ success: boolean; source: string; error?: string }> {
   const sourcePath = path.join(LOCAL_MM_DATA, assetPath);
   const outputPath = path.join(OUTPUT_DIR, assetPath);
 
@@ -186,20 +191,28 @@ async function main() {
   let cached = 0;
   let failed = 0;
   const failures: { path: string; error: string }[] = [];
-  const sources: Record<string, number> = { cdn: 0, raw: 0, local: 0, cached: 0 };
+  const sources: Record<string, number> = {
+    cdn: 0,
+    raw: 0,
+    local: 0,
+    cached: 0,
+  };
 
   // Process in batches
   const BATCH_SIZE = 20;
   for (let i = 0; i < assetPaths.length; i += BATCH_SIZE) {
     const batch = assetPaths.slice(i, i + BATCH_SIZE);
-    
+
     const results = await Promise.all(
       batch.map(async (assetPath) => {
         if (useLocal) {
           return { path: assetPath, result: await copyFromLocal(assetPath) };
         }
-        return { path: assetPath, result: await downloadFile(assetPath, config, version) };
-      })
+        return {
+          path: assetPath,
+          result: await downloadFile(assetPath, config, version),
+        };
+      }),
     );
 
     for (const { path: assetPath, result } of results) {
@@ -214,7 +227,10 @@ async function main() {
         }
       } else {
         failed++;
-        failures.push({ path: assetPath, error: result.error || 'Unknown error' });
+        failures.push({
+          path: assetPath,
+          error: result.error || 'Unknown error',
+        });
         process.stdout.write('X');
       }
     }
@@ -256,7 +272,7 @@ async function main() {
     };
     fs.writeFileSync(
       path.join(OUTPUT_DIR, 'mm-data-version.json'),
-      JSON.stringify(manifest, null, 2)
+      JSON.stringify(manifest, null, 2),
     );
     console.log('\n✓ Wrote mm-data-version.json');
   }

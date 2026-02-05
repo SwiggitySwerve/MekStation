@@ -11,7 +11,12 @@ import React from 'react';
 // Types
 // =============================================================================
 
-export type FilterChipVariant = 'category' | 'type' | 'context' | 'time' | 'sequence';
+export type FilterChipVariant =
+  | 'category'
+  | 'type'
+  | 'context'
+  | 'time'
+  | 'sequence';
 
 export interface FilterChipProps {
   /** Display label for the filter */
@@ -85,7 +90,7 @@ const CloseIcon = () => (
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 20 20"
     fill="currentColor"
-    className="w-3.5 h-3.5"
+    className="h-3.5 w-3.5"
   >
     <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
   </svg>
@@ -106,28 +111,19 @@ export function FilterChip({
 
   return (
     <span
-      className={`
-        group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
-        text-xs font-medium border transition-all duration-150
-        ${config.bg} ${config.text} ${config.border} ${config.hover}
-        ${className}
-      `}
+      className={`group inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-all duration-150 ${config.bg} ${config.text} ${config.border} ${config.hover} ${className} `}
     >
       {/* Label */}
       <span className="text-text-theme-muted">{label}:</span>
-      
+
       {/* Value */}
       <span className="font-semibold">{value}</span>
-      
+
       {/* Remove button */}
       <button
         type="button"
         onClick={onRemove}
-        className={`
-          ml-0.5 p-0.5 rounded-full transition-colors duration-150
-          hover:bg-white/10 focus:outline-none focus:ring-1 focus:ring-white/20
-          ${config.icon}
-        `}
+        className={`ml-0.5 rounded-full p-0.5 transition-colors duration-150 hover:bg-white/10 focus:ring-1 focus:ring-white/20 focus:outline-none ${config.icon} `}
         aria-label={`Remove ${label} filter`}
       >
         <CloseIcon />

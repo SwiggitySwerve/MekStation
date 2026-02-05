@@ -8,8 +8,14 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import type {
+  PermissionLevel,
+  PermissionScopeType,
+  ContentCategory,
+} from '@/types/vault';
+
 import { getShareLinkService } from '@/services/vault/ShareLinkService';
-import type { PermissionLevel, PermissionScopeType, ContentCategory } from '@/types/vault';
 
 // =============================================================================
 // Request Body Types
@@ -27,7 +33,7 @@ interface CreateShareLinkBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<void> {
   const service = getShareLinkService();
 
@@ -48,14 +54,15 @@ export default async function handler(
 async function handleGet(
   req: NextApiRequest,
   res: NextApiResponse,
-  service: ReturnType<typeof getShareLinkService>
+  service: ReturnType<typeof getShareLinkService>,
 ) {
   try {
     const { active } = req.query;
 
-    const links = active === 'true'
-      ? await service.getActiveLinks()
-      : await service.getAllLinks();
+    const links =
+      active === 'true'
+        ? await service.getActiveLinks()
+        : await service.getAllLinks();
 
     return res.status(200).json({
       links,
@@ -64,7 +71,8 @@ async function handleGet(
   } catch (error) {
     console.error('Failed to list share links:', error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to list share links',
+      error:
+        error instanceof Error ? error.message : 'Failed to list share links',
     });
   }
 }
@@ -75,7 +83,7 @@ async function handleGet(
 async function handlePost(
   req: NextApiRequest,
   res: NextApiResponse,
-  service: ReturnType<typeof getShareLinkService>
+  service: ReturnType<typeof getShareLinkService>,
 ) {
   try {
     const body = req.body as CreateShareLinkBody;
@@ -110,18 +118,27 @@ async function handlePost(
 
     if (scopeType === 'item' || scopeType === 'folder') {
       if (!body.scopeId || typeof body.scopeId !== 'string') {
-        return res.status(400).json({ error: 'scopeId is required for item/folder scope' });
+        return res
+          .status(400)
+          .json({ error: 'scopeId is required for item/folder scope' });
       }
       scopeId = body.scopeId;
     }
 
     if (scopeType === 'category') {
       if (!body.scopeCategory || typeof body.scopeCategory !== 'string') {
-        return res.status(400).json({ error: 'scopeCategory is required for category scope' });
+        return res
+          .status(400)
+          .json({ error: 'scopeCategory is required for category scope' });
       }
-      if (!['units', 'pilots', 'forces', 'encounters'].includes(body.scopeCategory)) {
+      if (
+        !['units', 'pilots', 'forces', 'encounters'].includes(
+          body.scopeCategory,
+        )
+      ) {
         return res.status(400).json({
-          error: 'scopeCategory must be one of: units, pilots, forces, encounters',
+          error:
+            'scopeCategory must be one of: units, pilots, forces, encounters',
         });
       }
       scopeCategory = body.scopeCategory as ContentCategory;
@@ -135,7 +152,9 @@ async function handlePost(
       }
       const date = new Date(body.expiresAt);
       if (isNaN(date.getTime())) {
-        return res.status(400).json({ error: 'expiresAt must be a valid ISO date' });
+        return res
+          .status(400)
+          .json({ error: 'expiresAt must be a valid ISO date' });
       }
       expiresAt = body.expiresAt;
     }
@@ -143,7 +162,9 @@ async function handlePost(
     let maxUses: number | null = null;
     if (body.maxUses !== undefined) {
       if (typeof body.maxUses !== 'number' || body.maxUses < 1) {
-        return res.status(400).json({ error: 'maxUses must be a positive number' });
+        return res
+          .status(400)
+          .json({ error: 'maxUses must be a positive number' });
       }
       maxUses = Math.floor(body.maxUses);
     }
@@ -179,7 +200,8 @@ async function handlePost(
   } catch (error) {
     console.error('Failed to create share link:', error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to create share link',
+      error:
+        error instanceof Error ? error.message : 'Failed to create share link',
     });
   }
 }

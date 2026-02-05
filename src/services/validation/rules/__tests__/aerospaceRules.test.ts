@@ -5,6 +5,7 @@
  * thrust/weight ratio, fuel capacity, and weapon arc validation.
  */
 
+import { TechBase, RulesLevel, Era } from '@/types/enums';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   IValidatableUnit,
@@ -12,7 +13,7 @@ import {
   UnitCategory,
   UnitValidationSeverity,
 } from '@/types/validation/UnitValidationInterfaces';
-import { TechBase, RulesLevel, Era } from '@/types/enums';
+
 import {
   AeroEngineRequired,
   AeroThrustRatingValid,
@@ -44,7 +45,9 @@ interface IAerospaceTestUnit extends IValidatableUnit {
   }>;
 }
 
-function createAerospaceUnit(overrides: Partial<IAerospaceTestUnit> = {}): IAerospaceTestUnit {
+function createAerospaceUnit(
+  overrides: Partial<IAerospaceTestUnit> = {},
+): IAerospaceTestUnit {
   return {
     id: 'test-aero-1',
     name: 'Test Aerospace Fighter',
@@ -102,7 +105,9 @@ describe('Aerospace Category Rules', () => {
 
   describe('VAL-AERO-001: Engine Required', () => {
     it('should pass when engine is present', () => {
-      const unit = createAerospaceUnit({ engine: { type: 'Fusion', rating: 200 } });
+      const unit = createAerospaceUnit({
+        engine: { type: 'Fusion', rating: 200 },
+      });
       const context = createTestContext(unit);
       const result = AeroEngineRequired.validate(context);
 
@@ -117,7 +122,9 @@ describe('Aerospace Category Rules', () => {
 
       expect(result.passed).toBe(false);
       expect(result.errors.length).toBe(1);
-      expect(result.errors[0].severity).toBe(UnitValidationSeverity.CRITICAL_ERROR);
+      expect(result.errors[0].severity).toBe(
+        UnitValidationSeverity.CRITICAL_ERROR,
+      );
     });
   });
 
@@ -136,7 +143,9 @@ describe('Aerospace Category Rules', () => {
       const result = AeroThrustRatingValid.validate(context);
 
       expect(result.passed).toBe(false);
-      expect(result.errors[0].severity).toBe(UnitValidationSeverity.CRITICAL_ERROR);
+      expect(result.errors[0].severity).toBe(
+        UnitValidationSeverity.CRITICAL_ERROR,
+      );
     });
 
     it('should fail with negative thrust', () => {

@@ -1,4 +1,7 @@
-import { IDesktopSettings, IElectronAPI } from '../../src/components/settings/useElectron';
+import {
+  IDesktopSettings,
+  IElectronAPI,
+} from '../../src/components/settings/useElectron';
 
 const DEFAULT_SETTINGS: IDesktopSettings = {
   version: 1,
@@ -46,11 +49,20 @@ export function createMockElectronAPI(): IElectronAPI {
     minimizeWindow: async () => console.log('[Mock Electron] minimizeWindow'),
     maximizeWindow: async () => console.log('[Mock Electron] maximizeWindow'),
     closeWindow: async () => console.log('[Mock Electron] closeWindow'),
-    saveFile: async () => ({ canceled: false, filePath: '/Users/pilot/Documents/unit.json' }),
-    openFile: async () => ({ canceled: false, filePaths: ['/Users/pilot/Documents/unit.json'] }),
+    saveFile: async () => ({
+      canceled: false,
+      filePath: '/Users/pilot/Documents/unit.json',
+    }),
+    openFile: async () => ({
+      canceled: false,
+      filePaths: ['/Users/pilot/Documents/unit.json'],
+    }),
     readFile: async () => ({ success: true, data: '{}' }),
     writeFile: async () => ({ success: true }),
-    selectDirectory: async () => ({ canceled: false, filePaths: ['/Users/pilot/Documents'] }),
+    selectDirectory: async () => ({
+      canceled: false,
+      filePaths: ['/Users/pilot/Documents'],
+    }),
     getSettings: async () => mockSettings,
     setSettings: async (updates) => {
       mockSettings = { ...mockSettings, ...updates };
@@ -89,7 +101,8 @@ export function createMockElectronAPI(): IElectronAPI {
 
 export function enableMockElectron() {
   if (typeof window !== 'undefined') {
-    (window as unknown as Record<string, unknown>).electronAPI = createMockElectronAPI();
+    (window as unknown as Record<string, unknown>).electronAPI =
+      createMockElectronAPI();
   }
 }
 

@@ -80,10 +80,11 @@ export const CONDITION_MULTIPLIER = {
 export function calculateUnitPrice(
   basePrice: Money,
   techBase: string,
-  condition: string
+  condition: string,
 ): Money {
   const techMultiplier =
-    TECH_PRICE_MULTIPLIER[techBase as keyof typeof TECH_PRICE_MULTIPLIER]?.unit ?? 1.0;
+    TECH_PRICE_MULTIPLIER[techBase as keyof typeof TECH_PRICE_MULTIPLIER]
+      ?.unit ?? 1.0;
   const conditionMultiplier =
     CONDITION_MULTIPLIER[condition as keyof typeof CONDITION_MULTIPLIER] ?? 1.0;
 
@@ -112,10 +113,11 @@ export function calculateUnitPrice(
 export function calculatePartPrice(
   basePrice: Money,
   techBase: string,
-  condition: string
+  condition: string,
 ): Money {
   const techMultiplier =
-    TECH_PRICE_MULTIPLIER[techBase as keyof typeof TECH_PRICE_MULTIPLIER]?.part ?? 1.0;
+    TECH_PRICE_MULTIPLIER[techBase as keyof typeof TECH_PRICE_MULTIPLIER]
+      ?.part ?? 1.0;
   const conditionMultiplier =
     CONDITION_MULTIPLIER[condition as keyof typeof CONDITION_MULTIPLIER] ?? 1.0;
 

@@ -10,6 +10,8 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type { IStoredIdentity, IVaultIdentity } from '@/types/vault';
+
 import {
   createIdentity,
   unlockIdentity,
@@ -22,7 +24,6 @@ import {
   isValidFriendCode,
   fromBase64,
 } from '@/services/vault/IdentityService';
-import type { IStoredIdentity, IVaultIdentity } from '@/types/vault';
 
 // =============================================================================
 // Test Configuration
@@ -40,7 +41,7 @@ const hasRequiredEnvironment = async (): Promise<boolean> => {
     const testKeyPair = await crypto.webcrypto.subtle.generateKey(
       { name: 'Ed25519' },
       true,
-      ['sign', 'verify']
+      ['sign', 'verify'],
     );
     return !!testKeyPair;
   } catch {
@@ -58,7 +59,9 @@ describe('Vault Identity Flow Integration', () => {
   beforeAll(async () => {
     envAvailable = await hasRequiredEnvironment();
     if (!envAvailable) {
-      console.log('Skipping crypto tests: required APIs not available in this environment');
+      console.log(
+        'Skipping crypto tests: required APIs not available in this environment',
+      );
     }
   });
 
@@ -86,11 +89,15 @@ describe('Vault Identity Flow Integration', () => {
       const stored = await createIdentity('FriendCodeTest', 'password123');
 
       expect(isValidFriendCode(stored.friendCode)).toBe(true);
-      expect(stored.friendCode).toMatch(/^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/);
+      expect(stored.friendCode).toMatch(
+        /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/,
+      );
 
       // Friend code should match the public key
       const publicKeyBytes = fromBase64(stored.publicKey);
-      expect(friendCodeMatchesPublicKey(stored.friendCode, publicKeyBytes)).toBe(true);
+      expect(
+        friendCodeMatchesPublicKey(stored.friendCode, publicKeyBytes),
+      ).toBe(true);
     });
 
     it('should create unique identities each time', async () => {
@@ -130,7 +137,7 @@ describe('Vault Identity Flow Integration', () => {
       if (!envAvailable) return;
 
       await expect(
-        unlockIdentity(storedIdentity, 'wrongPassword')
+        unlockIdentity(storedIdentity, 'wrongPassword'),
       ).rejects.toThrow();
     });
 
@@ -179,7 +186,11 @@ describe('Vault Identity Flow Integration', () => {
       const signature = await signMessage(originalMessage, identity);
       const publicIdentity = getPublicIdentity(identity);
 
-      const isValid = await verifyMessage(tamperedMessage, signature, publicIdentity);
+      const isValid = await verifyMessage(
+        tamperedMessage,
+        signature,
+        publicIdentity,
+      );
 
       expect(isValid).toBe(false);
     });
@@ -195,7 +206,11 @@ describe('Vault Identity Flow Integration', () => {
       const otherIdentity = await unlockIdentity(otherStored, 'otherPassword');
       const otherPublicIdentity = getPublicIdentity(otherIdentity);
 
-      const isValid = await verifyMessage(message, signature, otherPublicIdentity);
+      const isValid = await verifyMessage(
+        message,
+        signature,
+        otherPublicIdentity,
+      );
 
       expect(isValid).toBe(false);
     });
@@ -216,7 +231,11 @@ describe('Vault Identity Flow Integration', () => {
 
       const signature = await signMessage(complexPayload, identity);
       const publicIdentity = getPublicIdentity(identity);
-      const isValid = await verifyMessage(complexPayload, signature, publicIdentity);
+      const isValid = await verifyMessage(
+        complexPayload,
+        signature,
+        publicIdentity,
+      );
 
       expect(isValid).toBe(true);
     });

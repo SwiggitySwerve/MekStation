@@ -1,8 +1,12 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { UnitInfoBanner, UnitStats } from '@/components/customizer/shared/UnitInfoBanner';
-import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import React from 'react';
+
+import {
+  UnitInfoBanner,
+  UnitStats,
+} from '@/components/customizer/shared/UnitInfoBanner';
 import { UnitValidationState } from '@/hooks/useUnitValidation';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 
 describe('UnitInfoBanner', () => {
   const createStats = (overrides?: Partial<UnitStats>): UnitStats => ({
@@ -30,14 +34,14 @@ describe('UnitInfoBanner', () => {
   it('should render unit name', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('Atlas AS7-D')).toBeInTheDocument();
   });
 
   it('should render tech base badge', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('IS')).toBeInTheDocument();
   });
 
@@ -55,14 +59,14 @@ describe('UnitInfoBanner', () => {
       isValidating: false,
     };
     render(<UnitInfoBanner stats={stats} validation={mockValidation} />);
-    
+
     expect(screen.getByText('✓')).toBeInTheDocument();
   });
 
   it('should display movement stats as separate boxes', () => {
     const stats = createStats({ walkMP: 4, runMP: 6, jumpMP: 3 });
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('Walk')).toBeInTheDocument();
     expect(screen.getByText('Run')).toBeInTheDocument();
     expect(screen.getByText('Jump')).toBeInTheDocument();
@@ -74,7 +78,7 @@ describe('UnitInfoBanner', () => {
   it('should display max run MP as Run+ when enhancement is active', () => {
     const stats = createStats({ runMP: 5, maxRunMP: 10 });
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('Run+')).toBeInTheDocument();
     expect(screen.getByText('10')).toBeInTheDocument();
   });
@@ -82,7 +86,7 @@ describe('UnitInfoBanner', () => {
   it('should display weight stats', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('Weight')).toBeInTheDocument();
     expect(screen.getByText(/50.0/)).toBeInTheDocument();
   });
@@ -90,7 +94,7 @@ describe('UnitInfoBanner', () => {
   it('should display armor stats', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('Armor')).toBeInTheDocument();
     expect(screen.getByText('200')).toBeInTheDocument();
     expect(screen.getByText('307')).toBeInTheDocument();
@@ -99,7 +103,7 @@ describe('UnitInfoBanner', () => {
   it('should display critical slots stats', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('Slots')).toBeInTheDocument();
     expect(screen.getByText('40')).toBeInTheDocument();
     expect(screen.getByText('78')).toBeInTheDocument();
@@ -108,7 +112,7 @@ describe('UnitInfoBanner', () => {
   it('should display heat stats', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('Heat')).toBeInTheDocument();
     const heatLabel = screen.getByText('Heat');
     const heatContainer = heatLabel.closest('div');
@@ -119,7 +123,7 @@ describe('UnitInfoBanner', () => {
   it('should display tonnage stat', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('Tonnage')).toBeInTheDocument();
     expect(screen.getByText('100')).toBeInTheDocument();
   });
@@ -127,7 +131,7 @@ describe('UnitInfoBanner', () => {
   it('should display engine rating stat', () => {
     const stats = createStats();
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('Engine')).toBeInTheDocument();
     expect(screen.getByText('300')).toBeInTheDocument();
   });
@@ -135,7 +139,7 @@ describe('UnitInfoBanner', () => {
   it('should display battle value when provided', () => {
     const stats = createStats({ battleValue: 2500 });
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('BV')).toBeInTheDocument();
     expect(screen.getByText('2,500')).toBeInTheDocument();
   });
@@ -143,7 +147,7 @@ describe('UnitInfoBanner', () => {
   it('should display dash for battle value when not provided', () => {
     const stats = createStats({ battleValue: undefined });
     render(<UnitInfoBanner stats={stats} />);
-    
+
     expect(screen.getByText('-')).toBeInTheDocument();
   });
 });

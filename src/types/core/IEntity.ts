@@ -1,7 +1,7 @@
 /**
  * IEntity - Base entity interface
  * All entities in the system SHALL extend from IEntity, providing universal identification.
- * 
+ *
  * @spec core-entity-types/spec.md
  */
 
@@ -30,4 +30,3 @@ export function isEntity(obj: unknown): obj is IEntity {
     typeof (obj as IEntity).name === 'string'
   );
 }
-

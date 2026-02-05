@@ -16,10 +16,11 @@
  * @module lib/finances/salaryService
  */
 
+import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
+
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import type { IPerson } from '@/types/campaign/Person';
-import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import { Money } from '@/types/campaign/Money';
 
 // =============================================================================
@@ -28,11 +29,11 @@ import { Money } from '@/types/campaign/Money';
 
 /**
  * Experience level categories for salary calculation.
- * 
+ *
  * Local type alias for salary tier calculations with extended range beyond
  * the standard skill progression levels. Includes ultra_green (below green)
  * and legendary (above elite) for specialized salary calculations.
- * 
+ *
  * @see SkillExperienceLevel for character progression in campaign skills
  * @see MarketExperienceLevel for personnel market hiring
  * @see PilotExperienceLevel for pilot templates
@@ -73,22 +74,30 @@ export const BASE_MONTHLY_SALARY: Record<string, number> = {
  * Maps all CampaignPersonnelRole values to one of the 10 canonical salary roles.
  * Roles already in BASE_MONTHLY_SALARY map to themselves.
  */
-export const ROLE_SALARY_MAPPING: Record<CampaignPersonnelRole, CampaignPersonnelRole> = {
+export const ROLE_SALARY_MAPPING: Record<
+  CampaignPersonnelRole,
+  CampaignPersonnelRole
+> = {
   // Combat roles → closest canonical
   [CampaignPersonnelRole.PILOT]: CampaignPersonnelRole.PILOT,
   [CampaignPersonnelRole.LAM_PILOT]: CampaignPersonnelRole.AEROSPACE_PILOT,
-  [CampaignPersonnelRole.AEROSPACE_PILOT]: CampaignPersonnelRole.AEROSPACE_PILOT,
+  [CampaignPersonnelRole.AEROSPACE_PILOT]:
+    CampaignPersonnelRole.AEROSPACE_PILOT,
   [CampaignPersonnelRole.VEHICLE_DRIVER]: CampaignPersonnelRole.VEHICLE_DRIVER,
-  [CampaignPersonnelRole.VEHICLE_CREW_NAVAL]: CampaignPersonnelRole.VEHICLE_DRIVER,
-  [CampaignPersonnelRole.VEHICLE_CREW_VTOL]: CampaignPersonnelRole.VEHICLE_DRIVER,
-  [CampaignPersonnelRole.CONVENTIONAL_AIRCRAFT_PILOT]: CampaignPersonnelRole.AEROSPACE_PILOT,
+  [CampaignPersonnelRole.VEHICLE_CREW_NAVAL]:
+    CampaignPersonnelRole.VEHICLE_DRIVER,
+  [CampaignPersonnelRole.VEHICLE_CREW_VTOL]:
+    CampaignPersonnelRole.VEHICLE_DRIVER,
+  [CampaignPersonnelRole.CONVENTIONAL_AIRCRAFT_PILOT]:
+    CampaignPersonnelRole.AEROSPACE_PILOT,
   [CampaignPersonnelRole.PROTOMEK_PILOT]: CampaignPersonnelRole.PILOT,
   [CampaignPersonnelRole.BATTLE_ARMOUR]: CampaignPersonnelRole.SOLDIER,
   [CampaignPersonnelRole.SOLDIER]: CampaignPersonnelRole.SOLDIER,
   [CampaignPersonnelRole.VESSEL_PILOT]: CampaignPersonnelRole.AEROSPACE_PILOT,
   [CampaignPersonnelRole.VESSEL_GUNNER]: CampaignPersonnelRole.SOLDIER,
   [CampaignPersonnelRole.VESSEL_CREW]: CampaignPersonnelRole.SUPPORT,
-  [CampaignPersonnelRole.VESSEL_NAVIGATOR]: CampaignPersonnelRole.AEROSPACE_PILOT,
+  [CampaignPersonnelRole.VESSEL_NAVIGATOR]:
+    CampaignPersonnelRole.AEROSPACE_PILOT,
 
   // Support roles → closest canonical
   [CampaignPersonnelRole.TECH]: CampaignPersonnelRole.TECH,
@@ -164,7 +173,10 @@ export const SPECIAL_MULTIPLIERS = {
  * XP thresholds for experience levels.
  * Based on total XP earned by the person.
  */
-export const XP_LEVEL_THRESHOLDS: readonly { readonly level: ExperienceLevel; readonly minXp: number }[] = [
+export const XP_LEVEL_THRESHOLDS: readonly {
+  readonly level: ExperienceLevel;
+  readonly minXp: number;
+}[] = [
   { level: 'legendary', minXp: 8000 },
   { level: 'elite', minXp: 4000 },
   { level: 'veteran', minXp: 2000 },
@@ -214,7 +226,9 @@ export interface SalaryOptions {
  * Creates SalaryOptions from ICampaignOptions with defaults for
  * salary-specific fields not yet in ICampaignOptions.
  */
-export function createSalaryOptions(campaignOptions: ICampaignOptions): SalaryOptions {
+export function createSalaryOptions(
+  campaignOptions: ICampaignOptions,
+): SalaryOptions {
   return {
     salaryMultiplier: campaignOptions.salaryMultiplier,
     // Default to true — secondary roles are paid by default
@@ -233,8 +247,12 @@ export function createSalaryOptions(campaignOptions: ICampaignOptions): SalaryOp
  * @returns Base monthly salary in C-bills
  */
 export function getBaseSalaryForRole(role: CampaignPersonnelRole): number {
-  const canonicalRole = ROLE_SALARY_MAPPING[role] ?? CampaignPersonnelRole.UNASSIGNED;
-  return BASE_MONTHLY_SALARY[canonicalRole] ?? BASE_MONTHLY_SALARY[CampaignPersonnelRole.UNASSIGNED];
+  const canonicalRole =
+    ROLE_SALARY_MAPPING[role] ?? CampaignPersonnelRole.UNASSIGNED;
+  return (
+    BASE_MONTHLY_SALARY[canonicalRole] ??
+    BASE_MONTHLY_SALARY[CampaignPersonnelRole.UNASSIGNED]
+  );
 }
 
 /**
@@ -260,7 +278,7 @@ export function getBaseSalaryForRole(role: CampaignPersonnelRole): number {
  */
 export function calculatePersonSalary(
   person: IPerson,
-  options: SalaryOptions
+  options: SalaryOptions,
 ): Money {
   const baseSalary = getBaseSalaryForRole(person.primaryRole);
   const xpLevel = getExperienceLevel(person);
@@ -375,7 +393,9 @@ const SUPPORT_ROLES = new Set<CampaignPersonnelRole>([
  * console.log(`Total: ${breakdown.total.format()}`);
  * console.log(`Combat: ${breakdown.combatSalaries.format()}`);
  */
-export function calculateTotalMonthlySalary(campaign: ICampaign): SalaryBreakdown {
+export function calculateTotalMonthlySalary(
+  campaign: ICampaign,
+): SalaryBreakdown {
   const salaryOptions = createSalaryOptions(campaign.options);
   const entries = new Map<string, Money>();
 

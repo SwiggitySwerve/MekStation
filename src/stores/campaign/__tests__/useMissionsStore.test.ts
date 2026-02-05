@@ -5,11 +5,17 @@
  * query methods, scenario management, and persistence coverage.
  */
 
-import { createMissionsStore } from '../useMissionsStore';
-import { IMission, IContract, createMission, createContract } from '@/types/campaign/Mission';
-import { IScenario, createScenario } from '@/types/campaign/Scenario';
 import { MissionStatus } from '@/types/campaign/enums';
 import { ScenarioStatus } from '@/types/campaign/enums/ScenarioStatus';
+import {
+  IMission,
+  IContract,
+  createMission,
+  createContract,
+} from '@/types/campaign/Mission';
+import { IScenario, createScenario } from '@/types/campaign/Scenario';
+
+import { createMissionsStore } from '../useMissionsStore';
 
 // =============================================================================
 // Test Data Helpers
@@ -350,10 +356,22 @@ describe('useMissionsStore', () => {
   describe('Mission Query Methods', () => {
     describe('getActiveMissions', () => {
       it('should return only ACTIVE missions', () => {
-        const active1 = createTestMission({ name: 'Active 1', status: MissionStatus.ACTIVE });
-        const active2 = createTestMission({ name: 'Active 2', status: MissionStatus.ACTIVE });
-        const pending = createTestMission({ name: 'Pending', status: MissionStatus.PENDING });
-        const success = createTestMission({ name: 'Success', status: MissionStatus.SUCCESS });
+        const active1 = createTestMission({
+          name: 'Active 1',
+          status: MissionStatus.ACTIVE,
+        });
+        const active2 = createTestMission({
+          name: 'Active 2',
+          status: MissionStatus.ACTIVE,
+        });
+        const pending = createTestMission({
+          name: 'Pending',
+          status: MissionStatus.PENDING,
+        });
+        const success = createTestMission({
+          name: 'Success',
+          status: MissionStatus.SUCCESS,
+        });
 
         store.getState().addMission(active1);
         store.getState().addMission(active2);
@@ -376,11 +394,26 @@ describe('useMissionsStore', () => {
 
     describe('getCompletedMissions', () => {
       it('should return SUCCESS, PARTIAL, and FAILED missions', () => {
-        const success = createTestMission({ name: 'Success', status: MissionStatus.SUCCESS });
-        const partial = createTestMission({ name: 'Partial', status: MissionStatus.PARTIAL });
-        const failed = createTestMission({ name: 'Failed', status: MissionStatus.FAILED });
-        const active = createTestMission({ name: 'Active', status: MissionStatus.ACTIVE });
-        const pending = createTestMission({ name: 'Pending', status: MissionStatus.PENDING });
+        const success = createTestMission({
+          name: 'Success',
+          status: MissionStatus.SUCCESS,
+        });
+        const partial = createTestMission({
+          name: 'Partial',
+          status: MissionStatus.PARTIAL,
+        });
+        const failed = createTestMission({
+          name: 'Failed',
+          status: MissionStatus.FAILED,
+        });
+        const active = createTestMission({
+          name: 'Active',
+          status: MissionStatus.ACTIVE,
+        });
+        const pending = createTestMission({
+          name: 'Pending',
+          status: MissionStatus.PENDING,
+        });
 
         store.getState().addMission(success);
         store.getState().addMission(partial);
@@ -405,24 +438,39 @@ describe('useMissionsStore', () => {
 
     describe('getMissionsByStatus', () => {
       it('should filter by specific status', () => {
-        const pending1 = createTestMission({ name: 'P1', status: MissionStatus.PENDING });
-        const pending2 = createTestMission({ name: 'P2', status: MissionStatus.PENDING });
-        const active = createTestMission({ name: 'A1', status: MissionStatus.ACTIVE });
+        const pending1 = createTestMission({
+          name: 'P1',
+          status: MissionStatus.PENDING,
+        });
+        const pending2 = createTestMission({
+          name: 'P2',
+          status: MissionStatus.PENDING,
+        });
+        const active = createTestMission({
+          name: 'A1',
+          status: MissionStatus.ACTIVE,
+        });
 
         store.getState().addMission(pending1);
         store.getState().addMission(pending2);
         store.getState().addMission(active);
 
-        const result = store.getState().getMissionsByStatus(MissionStatus.PENDING);
+        const result = store
+          .getState()
+          .getMissionsByStatus(MissionStatus.PENDING);
         expect(result).toHaveLength(2);
-        expect(result.every((m) => m.status === MissionStatus.PENDING)).toBe(true);
+        expect(result.every((m) => m.status === MissionStatus.PENDING)).toBe(
+          true,
+        );
       });
 
       it('should return empty array for status with no matches', () => {
         const active = createTestMission({ status: MissionStatus.ACTIVE });
         store.getState().addMission(active);
 
-        expect(store.getState().getMissionsByStatus(MissionStatus.BREACH)).toEqual([]);
+        expect(
+          store.getState().getMissionsByStatus(MissionStatus.BREACH),
+        ).toEqual([]);
       });
 
       it('should work with all MissionStatus values', () => {
@@ -476,7 +524,9 @@ describe('useMissionsStore', () => {
       });
 
       it('should return empty array when no active contracts', () => {
-        const pendingContract = createTestContract({ status: MissionStatus.PENDING });
+        const pendingContract = createTestContract({
+          status: MissionStatus.PENDING,
+        });
         store.getState().addMission(pendingContract);
 
         expect(store.getState().getActiveContracts()).toEqual([]);
@@ -675,7 +725,9 @@ describe('useMissionsStore', () => {
       });
 
       it('should return empty array when store is empty', () => {
-        expect(store.getState().getScenariosByMission('any-mission')).toEqual([]);
+        expect(store.getState().getScenariosByMission('any-mission')).toEqual(
+          [],
+        );
       });
     });
 
@@ -745,7 +797,10 @@ describe('useMissionsStore', () => {
 
       const stored = localStorageMock.getItem('missions-test-campaign');
       const parsed = JSON.parse(stored!) as {
-        state?: { missions?: [string, IMission][]; scenarios?: [string, IScenario][] };
+        state?: {
+          missions?: [string, IMission][];
+          scenarios?: [string, IScenario][];
+        };
       };
 
       expect(parsed.state?.missions).toBeDefined();
@@ -838,7 +893,10 @@ describe('useMissionsStore', () => {
 
     it('should persist both missions and scenarios together', () => {
       const mission = createTestMission({ name: 'Mission' });
-      const scenario = createTestScenario({ name: 'Scenario', missionId: mission.id });
+      const scenario = createTestScenario({
+        name: 'Scenario',
+        missionId: mission.id,
+      });
 
       store.getState().addMission(mission);
       store.getState().addScenario(scenario);
@@ -848,7 +906,9 @@ describe('useMissionsStore', () => {
       expect(newStore.getState().missions.size).toBe(1);
       expect(newStore.getState().scenarios.size).toBe(1);
       expect(newStore.getState().getMission(mission.id)?.name).toBe('Mission');
-      expect(newStore.getState().getScenario(scenario.id)?.name).toBe('Scenario');
+      expect(newStore.getState().getScenario(scenario.id)?.name).toBe(
+        'Scenario',
+      );
     });
   });
 
@@ -884,7 +944,7 @@ describe('useMissionsStore', () => {
         status: MissionStatus.ACTIVE,
       });
       expect(store.getState().getMission(mission.id)?.status).toBe(
-        MissionStatus.ACTIVE
+        MissionStatus.ACTIVE,
       );
 
       // Active -> Success
@@ -892,7 +952,7 @@ describe('useMissionsStore', () => {
         status: MissionStatus.SUCCESS,
       });
       expect(store.getState().getMission(mission.id)?.status).toBe(
-        MissionStatus.SUCCESS
+        MissionStatus.SUCCESS,
       );
     });
 
@@ -948,14 +1008,14 @@ describe('useMissionsStore', () => {
         status: ScenarioStatus.CURRENT,
       });
       expect(store.getState().getScenario(scenario.id)?.status).toBe(
-        ScenarioStatus.CURRENT
+        ScenarioStatus.CURRENT,
       );
 
       store.getState().updateScenario(scenario.id, {
         status: ScenarioStatus.VICTORY,
       });
       expect(store.getState().getScenario(scenario.id)?.status).toBe(
-        ScenarioStatus.VICTORY
+        ScenarioStatus.VICTORY,
       );
     });
   });

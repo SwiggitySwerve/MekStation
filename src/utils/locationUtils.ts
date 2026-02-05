@@ -1,5 +1,5 @@
 const LOCATION_SHORTCUTS: Record<string, string> = {
-  'Head': 'HD',
+  Head: 'HD',
   'Center Torso': 'CT',
   'Left Torso': 'LT',
   'Right Torso': 'RT',
@@ -18,6 +18,8 @@ export function getLocationShorthand(location: string): string {
 }
 
 export function getLocationFullName(shorthand: string): string {
-  const entry = Object.entries(LOCATION_SHORTCUTS).find(([, abbr]) => abbr === shorthand);
+  const entry = Object.entries(LOCATION_SHORTCUTS).find(
+    ([, abbr]) => abbr === shorthand,
+  );
   return entry ? entry[0] : shorthand;
 }

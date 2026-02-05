@@ -3,9 +3,10 @@
  * Represents the financial state of a campaign
  */
 
+import type { ILoan } from './Loan';
+
 import { Money } from './Money';
 import { Transaction } from './Transaction';
-import type { ILoan } from './Loan';
 
 export interface IFinances {
   transactions: Transaction[];

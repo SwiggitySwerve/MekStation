@@ -2,6 +2,10 @@
  * Campaign Instance Events Tests
  */
 
+import { createEmptyDamageState } from '@/types/campaign/CampaignInstanceInterfaces';
+import { CampaignUnitStatus } from '@/types/campaign/CampaignInterfaces';
+import { CampaignInstanceEventTypes, EventCategory } from '@/types/events';
+
 import {
   emitUnitInstanceCreated,
   emitUnitInstanceDamageApplied,
@@ -16,9 +20,6 @@ import {
   emitPilotInstanceDeceased,
 } from '../campaignInstanceEvents';
 import { resetSequence } from '../eventFactory';
-import { CampaignInstanceEventTypes, EventCategory } from '@/types/events';
-import { CampaignUnitStatus, CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces';
-import { createEmptyDamageState } from '@/types/campaign/CampaignInstanceInterfaces';
 
 // Reset sequence before each test
 beforeEach(() => {
@@ -45,7 +46,7 @@ describe('Unit Instance Events', () => {
           forceId: 'force-1',
           forceSlot: 2,
         },
-        false // Don't actually emit to store
+        false, // Don't actually emit to store
       );
 
       expect(event.category).toBe(EventCategory.Campaign);
@@ -75,10 +76,12 @@ describe('Unit Instance Events', () => {
           gameId: 'game-1',
         },
         { eventId: 'attack-event-1', relationship: 'triggered' },
-        false
+        false,
       );
 
-      expect(event.type).toBe(CampaignInstanceEventTypes.UNIT_INSTANCE_DAMAGE_APPLIED);
+      expect(event.type).toBe(
+        CampaignInstanceEventTypes.UNIT_INSTANCE_DAMAGE_APPLIED,
+      );
       expect(event.payload.damagePercentageChange).toBe(15);
       expect(event.payload.damageSource).toBe('AC/20');
       expect(event.context.gameId).toBe('game-1');
@@ -98,10 +101,12 @@ describe('Unit Instance Events', () => {
           reason: 'Combat damage',
         },
         undefined,
-        false
+        false,
       );
 
-      expect(event.type).toBe(CampaignInstanceEventTypes.UNIT_INSTANCE_STATUS_CHANGED);
+      expect(event.type).toBe(
+        CampaignInstanceEventTypes.UNIT_INSTANCE_STATUS_CHANGED,
+      );
       expect(event.payload.previousStatus).toBe(CampaignUnitStatus.Operational);
       expect(event.payload.newStatus).toBe(CampaignUnitStatus.Damaged);
       expect(event.payload.reason).toBe('Combat damage');
@@ -118,10 +123,12 @@ describe('Unit Instance Events', () => {
           campaignId: 'campaign-1',
           previousPilotInstanceId: 'old-pilot-inst',
         },
-        false
+        false,
       );
 
-      expect(event.type).toBe(CampaignInstanceEventTypes.UNIT_INSTANCE_PILOT_ASSIGNED);
+      expect(event.type).toBe(
+        CampaignInstanceEventTypes.UNIT_INSTANCE_PILOT_ASSIGNED,
+      );
       expect(event.payload.unitInstanceId).toBe('unit-inst-1');
       expect(event.payload.pilotInstanceId).toBe('pilot-inst-1');
       expect(event.payload.previousPilotInstanceId).toBe('old-pilot-inst');
@@ -143,10 +150,12 @@ describe('Unit Instance Events', () => {
           gameId: 'game-1',
         },
         { eventId: 'damage-event', relationship: 'triggered' },
-        false
+        false,
       );
 
-      expect(event.type).toBe(CampaignInstanceEventTypes.UNIT_INSTANCE_DESTROYED);
+      expect(event.type).toBe(
+        CampaignInstanceEventTypes.UNIT_INSTANCE_DESTROYED,
+      );
       expect(event.payload.cause).toBe('Ammo explosion');
       expect(event.payload.pilotFate).toBe('survived');
       expect(event.causedBy?.eventId).toBe('damage-event');
@@ -170,10 +179,12 @@ describe('Pilot Instance Events', () => {
           pilotCallsign: 'Viper',
           skills: { gunnery: 3, piloting: 4 },
         },
-        false
+        false,
       );
 
-      expect(event.type).toBe(CampaignInstanceEventTypes.PILOT_INSTANCE_CREATED);
+      expect(event.type).toBe(
+        CampaignInstanceEventTypes.PILOT_INSTANCE_CREATED,
+      );
       expect(event.payload.vaultPilotId).toBe('vault-pilot-1');
       expect(event.payload.isStatblock).toBe(false);
       expect(event.payload.pilotName).toBe('Jane Smith');
@@ -189,7 +200,7 @@ describe('Pilot Instance Events', () => {
           pilotName: 'NPC Pilot',
           skills: { gunnery: 4, piloting: 5 },
         },
-        false
+        false,
       );
 
       expect(event.payload.vaultPilotId).toBeNull();
@@ -210,10 +221,12 @@ describe('Pilot Instance Events', () => {
           gameId: 'game-1',
         },
         { eventId: 'kill-event', relationship: 'derived' },
-        false
+        false,
       );
 
-      expect(event.type).toBe(CampaignInstanceEventTypes.PILOT_INSTANCE_XP_GAINED);
+      expect(event.type).toBe(
+        CampaignInstanceEventTypes.PILOT_INSTANCE_XP_GAINED,
+      );
       expect(event.payload.xpGained).toBe(5);
       expect(event.payload.totalXP).toBe(25);
       expect(event.payload.source).toBe('kill');
@@ -234,10 +247,12 @@ describe('Pilot Instance Events', () => {
           gameId: 'game-1',
         },
         undefined,
-        false
+        false,
       );
 
-      expect(event.type).toBe(CampaignInstanceEventTypes.PILOT_INSTANCE_WOUNDED);
+      expect(event.type).toBe(
+        CampaignInstanceEventTypes.PILOT_INSTANCE_WOUNDED,
+      );
       expect(event.payload.woundsReceived).toBe(2);
       expect(event.payload.totalWounds).toBe(3);
       expect(event.payload.recoveryTime).toBe(14);
@@ -257,10 +272,12 @@ describe('Pilot Instance Events', () => {
           gameId: 'game-1',
         },
         undefined,
-        false
+        false,
       );
 
-      expect(event.type).toBe(CampaignInstanceEventTypes.PILOT_INSTANCE_KILL_RECORDED);
+      expect(event.type).toBe(
+        CampaignInstanceEventTypes.PILOT_INSTANCE_KILL_RECORDED,
+      );
       expect(event.payload.targetName).toBe('Hunchback HBK-4G');
       expect(event.payload.weaponUsed).toBe('PPC');
       expect(event.payload.totalKills).toBe(7);
@@ -280,10 +297,12 @@ describe('Pilot Instance Events', () => {
           xpEarned: 8,
           totalMissions: 5,
         },
-        false
+        false,
       );
 
-      expect(event.type).toBe(CampaignInstanceEventTypes.PILOT_INSTANCE_MISSION_COMPLETED);
+      expect(event.type).toBe(
+        CampaignInstanceEventTypes.PILOT_INSTANCE_MISSION_COMPLETED,
+      );
       expect(event.payload.missionName).toBe('Base Assault');
       expect(event.payload.outcome).toBe('victory');
       expect(event.payload.kills).toBe(2);
@@ -306,10 +325,12 @@ describe('Pilot Instance Events', () => {
           gameId: 'game-5',
         },
         { eventId: 'unit-destroyed-event', relationship: 'triggered' },
-        false
+        false,
       );
 
-      expect(event.type).toBe(CampaignInstanceEventTypes.PILOT_INSTANCE_DECEASED);
+      expect(event.type).toBe(
+        CampaignInstanceEventTypes.PILOT_INSTANCE_DECEASED,
+      );
       expect(event.payload.pilotName).toBe('John Doe');
       expect(event.payload.cause).toBe('Cockpit destroyed');
       expect(event.payload.unitName).toBe('Atlas AS7-D');
@@ -336,7 +357,7 @@ describe('Event Properties', () => {
         unitVariant: 'T-1',
         status: CampaignUnitStatus.Operational,
       },
-      false
+      false,
     );
 
     const event2 = emitUnitInstanceCreated(
@@ -350,7 +371,7 @@ describe('Event Properties', () => {
         unitVariant: 'T-2',
         status: CampaignUnitStatus.Operational,
       },
-      false
+      false,
     );
 
     expect(event1.id).not.toBe(event2.id);
@@ -365,7 +386,7 @@ describe('Event Properties', () => {
         pilotName: 'Pilot 1',
         skills: { gunnery: 4, piloting: 5 },
       },
-      false
+      false,
     );
 
     const event2 = emitPilotInstanceCreated(
@@ -376,7 +397,7 @@ describe('Event Properties', () => {
         pilotName: 'Pilot 2',
         skills: { gunnery: 4, piloting: 5 },
       },
-      false
+      false,
     );
 
     expect(event2.sequence).toBe(event1.sequence + 1);
@@ -394,7 +415,7 @@ describe('Event Properties', () => {
         unitVariant: 'T',
         status: CampaignUnitStatus.Operational,
       },
-      false
+      false,
     );
 
     expect(event.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);

@@ -8,6 +8,8 @@
  */
 
 import * as Y from 'yjs';
+
+import { generateRoomCode } from './roomCodes';
 import {
   ConnectionState,
   type ISyncRoom,
@@ -16,7 +18,6 @@ import {
   type SyncEventListener,
   P2P_CONFIG,
 } from './types';
-import { generateRoomCode } from './roomCodes';
 
 // =============================================================================
 // Types
@@ -135,7 +136,10 @@ export function createMockSyncRoom(options: ISyncRoomOptions = {}): ISyncRoom {
   };
 }
 
-export function joinMockSyncRoom(roomCode: string, password?: string): ISyncRoom {
+export function joinMockSyncRoom(
+  roomCode: string,
+  password?: string,
+): ISyncRoom {
   return createMockSyncRoom({ roomCode, password });
 }
 
@@ -257,8 +261,16 @@ export function getMockYMap<T>(name: string): Y.Map<T> | null {
   return mockRoom?.doc.getMap<T>(name) ?? null;
 }
 
-export function getMockRetryState(): { isRetrying: boolean; attempts: number; maxAttempts: number } {
-  return { isRetrying: false, attempts: 0, maxAttempts: P2P_CONFIG.maxReconnectAttempts };
+export function getMockRetryState(): {
+  isRetrying: boolean;
+  attempts: number;
+  maxAttempts: number;
+} {
+  return {
+    isRetrying: false,
+    attempts: 0,
+    maxAttempts: P2P_CONFIG.maxReconnectAttempts,
+  };
 }
 
 export function cancelMockReconnect(): void {
@@ -286,7 +298,9 @@ function createMockWebrtcProvider(): ISyncRoom['webrtcProvider'] {
         const states = new Map<number, Record<string, unknown>>();
         states.set(Date.now(), { user: { name: 'Mock User' } });
         connectedPeers.forEach((peerId) => {
-          states.set(parseInt(peerId.split('-')[1]) || Date.now(), { user: { name: peerId } });
+          states.set(parseInt(peerId.split('-')[1]) || Date.now(), {
+            user: { name: peerId },
+          });
         });
         return states;
       },
@@ -296,7 +310,6 @@ function createMockWebrtcProvider(): ISyncRoom['webrtcProvider'] {
     destroy: () => {},
     on: () => {},
   };
-  // eslint-disable-next-line no-restricted-syntax -- Mock implementation requires double assertion
   return mockProvider as unknown as ISyncRoom['webrtcProvider'];
 }
 
@@ -307,7 +320,6 @@ function createMockPersistence(): ISyncRoom['persistence'] {
   const mockPersistence = {
     destroy: () => {},
   };
-  // eslint-disable-next-line no-restricted-syntax -- Mock implementation requires double assertion
   return mockPersistence as unknown as ISyncRoom['persistence'];
 }
 

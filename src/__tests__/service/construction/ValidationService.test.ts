@@ -1,13 +1,19 @@
 /**
  * Validation Service Tests
- * 
+ *
  * Tests for mech build validation.
- * 
+ *
  * @spec openspec/specs/construction-services/spec.md
  */
 
-import { ValidationService, validationService } from '@/services/construction/ValidationService';
-import { IEditableMech, IEquipmentSlot } from '@/services/construction/MechBuilderService';
+import {
+  IEditableMech,
+  IEquipmentSlot,
+} from '@/services/construction/MechBuilderService';
+import {
+  ValidationService,
+  validationService,
+} from '@/services/construction/ValidationService';
 import { TechBase } from '@/types/enums/TechBase';
 
 describe('ValidationService', () => {
@@ -20,7 +26,9 @@ describe('ValidationService', () => {
   /**
    * Create a valid mock mech for testing
    */
-  function createValidMech(overrides: Partial<IEditableMech> = {}): IEditableMech {
+  function createValidMech(
+    overrides: Partial<IEditableMech> = {},
+  ): IEditableMech {
     return {
       id: 'test-mech',
       chassis: 'Test',
@@ -71,7 +79,7 @@ describe('ValidationService', () => {
     it('should return valid for proper mech', () => {
       const mech = createValidMech();
       const result = service.validate(mech);
-      
+
       expect(result.isValid).toBe(true);
     });
 
@@ -84,9 +92,9 @@ describe('ValidationService', () => {
           head: 15, // Invalid: exceeds 9
         },
       });
-      
+
       const result = service.validate(mech);
-      
+
       expect(result.isValid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
     });
@@ -99,7 +107,7 @@ describe('ValidationService', () => {
     it('should pass for valid weight', () => {
       const mech = createValidMech();
       const errors = service.validateWeight(mech);
-      
+
       expect(errors).toHaveLength(0);
     });
 
@@ -123,10 +131,10 @@ describe('ValidationService', () => {
           rightLeg: 30,
         },
       });
-      
+
       const errors = service.validateWeight(mech);
-      
-      expect(errors.some(e => e.code === 'OVERWEIGHT')).toBe(true);
+
+      expect(errors.some((e) => e.code === 'OVERWEIGHT')).toBe(true);
     });
   });
 
@@ -137,7 +145,7 @@ describe('ValidationService', () => {
     it('should pass for valid armor', () => {
       const mech = createValidMech();
       const errors = service.validateArmor(mech);
-      
+
       expect(errors).toHaveLength(0);
     });
 
@@ -148,10 +156,10 @@ describe('ValidationService', () => {
           head: 15,
         },
       });
-      
+
       const errors = service.validateArmor(mech);
-      
-      expect(errors.some(e => e.code === 'ARMOR_EXCEEDS_MAX')).toBe(true);
+
+      expect(errors.some((e) => e.code === 'ARMOR_EXCEEDS_MAX')).toBe(true);
       expect(errors[0].field).toBe('head');
     });
 
@@ -162,9 +170,9 @@ describe('ValidationService', () => {
           head: 9,
         },
       });
-      
+
       const errors = service.validateArmor(mech);
-      
+
       expect(errors).toHaveLength(0);
     });
   });
@@ -180,36 +188,50 @@ describe('ValidationService', () => {
           { equipmentId: 'eq-2', location: 'rightArm', slotIndex: 1 },
         ] as readonly IEquipmentSlot[],
       });
-      
+
       const errors = service.validateCriticalSlots(mech);
-      
+
       expect(errors).toHaveLength(0);
     });
 
     it('should detect slots exceeding max in location', () => {
       // Create equipment that exceeds 6 slots in head
-      const equipment = Array(10).fill(null).map((_, i) => ({ 
-        equipmentId: `eq-${i}`, 
-        location: 'head', 
-        slotIndex: i 
-      })) as IEquipmentSlot[];
+      const equipment = Array(10)
+        .fill(null)
+        .map((_, i) => ({
+          equipmentId: `eq-${i}`,
+          location: 'head',
+          slotIndex: i,
+        })) as IEquipmentSlot[];
       const mech = createValidMech({ equipment });
-      
+
       const errors = service.validateCriticalSlots(mech);
-      
-      expect(errors.some(e => e.code === 'SLOTS_EXCEEDED')).toBe(true);
+
+      expect(errors.some((e) => e.code === 'SLOTS_EXCEEDED')).toBe(true);
     });
 
     it('should validate each location separately', () => {
       const mech = createValidMech({
         equipment: [
-          ...Array(6).fill(null).map((_, i) => ({ equipmentId: 'eq', location: 'leftArm', slotIndex: i })),
-          ...Array(6).fill(null).map((_, i) => ({ equipmentId: 'eq', location: 'rightArm', slotIndex: i })),
+          ...Array(6)
+            .fill(null)
+            .map((_, i) => ({
+              equipmentId: 'eq',
+              location: 'leftArm',
+              slotIndex: i,
+            })),
+          ...Array(6)
+            .fill(null)
+            .map((_, i) => ({
+              equipmentId: 'eq',
+              location: 'rightArm',
+              slotIndex: i,
+            })),
         ],
       });
-      
+
       const errors = service.validateCriticalSlots(mech);
-      
+
       // 6 slots in each arm should be fine (max is 12)
       expect(errors).toHaveLength(0);
     });
@@ -222,7 +244,7 @@ describe('ValidationService', () => {
     it('should return empty array (stub implementation)', () => {
       const mech = createValidMech();
       const errors = service.validateTechLevel(mech);
-      
+
       // Currently a stub
       expect(Array.isArray(errors)).toBe(true);
     });
@@ -235,32 +257,40 @@ describe('ValidationService', () => {
     it('should detect engine rating below 10', () => {
       const mech = createValidMech({ engineRating: 5 });
       const result = service.validate(mech);
-      
-      expect(result.errors.some(e => e.code === 'INVALID_ENGINE_RATING')).toBe(true);
+
+      expect(
+        result.errors.some((e) => e.code === 'INVALID_ENGINE_RATING'),
+      ).toBe(true);
     });
 
     it('should detect engine rating above 400', () => {
       const mech = createValidMech({ engineRating: 450 });
       const result = service.validate(mech);
-      
-      expect(result.errors.some(e => e.code === 'INVALID_ENGINE_RATING')).toBe(true);
+
+      expect(
+        result.errors.some((e) => e.code === 'INVALID_ENGINE_RATING'),
+      ).toBe(true);
     });
 
     it('should detect engine rating not multiple of 5', () => {
       const mech = createValidMech({ engineRating: 203 });
       const result = service.validate(mech);
-      
-      expect(result.errors.some(e => e.code === 'INVALID_ENGINE_RATING')).toBe(true);
+
+      expect(
+        result.errors.some((e) => e.code === 'INVALID_ENGINE_RATING'),
+      ).toBe(true);
     });
 
     it('should pass valid engine ratings', () => {
       const validRatings = [100, 150, 200, 250, 300, 400];
-      
+
       for (const rating of validRatings) {
         const mech = createValidMech({ engineRating: rating });
         const result = service.validate(mech);
-        
-        expect(result.errors.filter(e => e.code === 'INVALID_ENGINE_RATING')).toHaveLength(0);
+
+        expect(
+          result.errors.filter((e) => e.code === 'INVALID_ENGINE_RATING'),
+        ).toHaveLength(0);
       }
     });
   });
@@ -272,22 +302,28 @@ describe('ValidationService', () => {
     it('should detect less than 10 heat sinks', () => {
       const mech = createValidMech({ heatSinkCount: 5 });
       const result = service.validate(mech);
-      
-      expect(result.errors.some(e => e.code === 'INSUFFICIENT_HEAT_SINKS')).toBe(true);
+
+      expect(
+        result.errors.some((e) => e.code === 'INSUFFICIENT_HEAT_SINKS'),
+      ).toBe(true);
     });
 
     it('should pass with exactly 10 heat sinks', () => {
       const mech = createValidMech({ heatSinkCount: 10 });
       const result = service.validate(mech);
-      
-      expect(result.errors.filter(e => e.code === 'INSUFFICIENT_HEAT_SINKS')).toHaveLength(0);
+
+      expect(
+        result.errors.filter((e) => e.code === 'INSUFFICIENT_HEAT_SINKS'),
+      ).toHaveLength(0);
     });
 
     it('should pass with more than 10 heat sinks', () => {
       const mech = createValidMech({ heatSinkCount: 20 });
       const result = service.validate(mech);
-      
-      expect(result.errors.filter(e => e.code === 'INSUFFICIENT_HEAT_SINKS')).toHaveLength(0);
+
+      expect(
+        result.errors.filter((e) => e.code === 'INSUFFICIENT_HEAT_SINKS'),
+      ).toHaveLength(0);
     });
   });
 
@@ -297,8 +333,10 @@ describe('ValidationService', () => {
   describe('canAddEquipment()', () => {
     it('should allow adding to empty location', () => {
       const mech = createValidMech({ equipment: [] });
-      
-      expect(service.canAddEquipment(mech, 'medium-laser', 'rightArm')).toBe(true);
+
+      expect(service.canAddEquipment(mech, 'medium-laser', 'rightArm')).toBe(
+        true,
+      );
     });
 
     it('should allow adding to partially filled location', () => {
@@ -307,30 +345,33 @@ describe('ValidationService', () => {
           { equipmentId: 'eq-1', location: 'rightArm', slotIndex: 0 },
         ] as readonly IEquipmentSlot[],
       });
-      
-      expect(service.canAddEquipment(mech, 'medium-laser', 'rightArm')).toBe(true);
+
+      expect(service.canAddEquipment(mech, 'medium-laser', 'rightArm')).toBe(
+        true,
+      );
     });
 
     it('should prevent adding to full location', () => {
       const equipment = Array(12).fill({ id: 'eq', location: 'rightArm' });
       const mech = createValidMech({ equipment });
-      
-      expect(service.canAddEquipment(mech, 'medium-laser', 'rightArm')).toBe(false);
+
+      expect(service.canAddEquipment(mech, 'medium-laser', 'rightArm')).toBe(
+        false,
+      );
     });
 
     it('should handle head with 6 slot limit', () => {
       const equipment = Array(6).fill({ id: 'eq', location: 'head' });
       const mech = createValidMech({ equipment });
-      
+
       expect(service.canAddEquipment(mech, 'equipment', 'head')).toBe(false);
     });
 
     it('should handle leg locations with 6 slot limit', () => {
       const equipment = Array(6).fill({ id: 'eq', location: 'leftLeg' });
       const mech = createValidMech({ equipment });
-      
+
       expect(service.canAddEquipment(mech, 'equipment', 'leftLeg')).toBe(false);
     });
   });
 });
-

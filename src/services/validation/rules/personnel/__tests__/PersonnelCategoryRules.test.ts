@@ -7,6 +7,7 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import { TechBase, RulesLevel, Era } from '@/types/enums';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   IValidatableUnit,
@@ -14,7 +15,7 @@ import {
   UnitCategory,
   UnitValidationSeverity,
 } from '@/types/validation/UnitValidationInterfaces';
-import { TechBase, RulesLevel, Era } from '@/types/enums';
+
 import {
   PersonnelSquadSizeValid,
   BattleArmorWeightRange,
@@ -32,7 +33,9 @@ interface IPersonnelTestUnit extends IValidatableUnit {
   trooperWeight?: number;
 }
 
-function createInfantryUnit(overrides: Partial<IPersonnelTestUnit> = {}): IPersonnelTestUnit {
+function createInfantryUnit(
+  overrides: Partial<IPersonnelTestUnit> = {},
+): IPersonnelTestUnit {
   return {
     id: 'test-infantry-1',
     name: 'Test Infantry Platoon',
@@ -50,7 +53,9 @@ function createInfantryUnit(overrides: Partial<IPersonnelTestUnit> = {}): IPerso
   };
 }
 
-function createBattleArmorUnit(overrides: Partial<IPersonnelTestUnit> = {}): IPersonnelTestUnit {
+function createBattleArmorUnit(
+  overrides: Partial<IPersonnelTestUnit> = {},
+): IPersonnelTestUnit {
   return {
     id: 'test-ba-1',
     name: 'Test Battle Armor Squad',
@@ -71,7 +76,7 @@ function createBattleArmorUnit(overrides: Partial<IPersonnelTestUnit> = {}): IPe
 
 function createTestContext(
   unit: IValidatableUnit,
-  category: UnitCategory = UnitCategory.PERSONNEL
+  category: UnitCategory = UnitCategory.PERSONNEL,
 ): IUnitValidationContext {
   return {
     unit,
@@ -132,13 +137,19 @@ describe('Personnel Category Rules', () => {
       });
 
       it('should apply to Infantry and Battle Armor', () => {
-        expect(PersonnelSquadSizeValid.applicableUnitTypes).toContain(UnitType.INFANTRY);
-        expect(PersonnelSquadSizeValid.applicableUnitTypes).toContain(UnitType.BATTLE_ARMOR);
+        expect(PersonnelSquadSizeValid.applicableUnitTypes).toContain(
+          UnitType.INFANTRY,
+        );
+        expect(PersonnelSquadSizeValid.applicableUnitTypes).toContain(
+          UnitType.BATTLE_ARMOR,
+        );
       });
 
       it('should have a description', () => {
         expect(PersonnelSquadSizeValid.description).toContain('Squad');
-        expect(PersonnelSquadSizeValid.description).toContain('positive integer');
+        expect(PersonnelSquadSizeValid.description).toContain(
+          'positive integer',
+        );
       });
     });
 
@@ -309,7 +320,9 @@ describe('Personnel Category Rules', () => {
       });
 
       it('should apply only to Battle Armor', () => {
-        expect(BattleArmorWeightRange.applicableUnitTypes).toEqual([UnitType.BATTLE_ARMOR]);
+        expect(BattleArmorWeightRange.applicableUnitTypes).toEqual([
+          UnitType.BATTLE_ARMOR,
+        ]);
       });
 
       it('should have a description mentioning weight range', () => {
@@ -368,7 +381,9 @@ describe('Personnel Category Rules', () => {
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
-        expect(result.errors[0].severity).toBe(UnitValidationSeverity.CRITICAL_ERROR);
+        expect(result.errors[0].severity).toBe(
+          UnitValidationSeverity.CRITICAL_ERROR,
+        );
         expect(result.errors[0].field).toBe('trooperWeight');
         expect(result.errors[0].message).toContain('0.4-2');
       });
@@ -451,16 +466,22 @@ describe('Personnel Category Rules', () => {
     describe('metadata', () => {
       it('should have correct rule metadata', () => {
         expect(InfantryPrimaryWeaponRequired.id).toBe('VAL-PERS-003');
-        expect(InfantryPrimaryWeaponRequired.name).toBe('Infantry Primary Weapon Required');
+        expect(InfantryPrimaryWeaponRequired.name).toBe(
+          'Infantry Primary Weapon Required',
+        );
         expect(InfantryPrimaryWeaponRequired.priority).toBe(52);
       });
 
       it('should apply only to Infantry', () => {
-        expect(InfantryPrimaryWeaponRequired.applicableUnitTypes).toEqual([UnitType.INFANTRY]);
+        expect(InfantryPrimaryWeaponRequired.applicableUnitTypes).toEqual([
+          UnitType.INFANTRY,
+        ]);
       });
 
       it('should have a description mentioning primary weapon', () => {
-        expect(InfantryPrimaryWeaponRequired.description).toContain('primary weapon');
+        expect(InfantryPrimaryWeaponRequired.description).toContain(
+          'primary weapon',
+        );
       });
     });
 
@@ -502,7 +523,9 @@ describe('Personnel Category Rules', () => {
         expect(result.passed).toBe(true); // Warnings don't fail validation
         expect(result.errors.length).toBe(0);
         expect(result.warnings.length).toBe(1);
-        expect(result.warnings[0].severity).toBe(UnitValidationSeverity.WARNING);
+        expect(result.warnings[0].severity).toBe(
+          UnitValidationSeverity.WARNING,
+        );
         expect(result.warnings[0].field).toBe('primaryWeapon');
       });
 
@@ -511,7 +534,9 @@ describe('Personnel Category Rules', () => {
         const context = createTestContext(unit);
         const result = InfantryPrimaryWeaponRequired.validate(context);
 
-        expect(result.warnings[0].suggestion).toContain('Define a primary weapon');
+        expect(result.warnings[0].suggestion).toContain(
+          'Define a primary weapon',
+        );
       });
 
       it('should have warning message about missing weapon', () => {

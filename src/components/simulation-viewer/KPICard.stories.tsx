@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { KPICard } from './KPICard';
 
 const meta: Meta<typeof KPICard> = {
@@ -19,9 +20,9 @@ const meta: Meta<typeof KPICard> = {
 export default meta;
 type Story = StoryObj<typeof KPICard>;
 
-const sampleTrendUp = [0.60, 0.63, 0.65, 0.68, 0.72, 0.75, 0.78, 0.80];
-const sampleTrendDown = [0.85, 0.82, 0.78, 0.74, 0.70, 0.68, 0.65, 0.60];
-const sampleTrendFlat = [0.50, 0.51, 0.49, 0.50, 0.51, 0.50, 0.49, 0.50];
+const sampleTrendUp = [0.6, 0.63, 0.65, 0.68, 0.72, 0.75, 0.78, 0.8];
+const sampleTrendDown = [0.85, 0.82, 0.78, 0.74, 0.7, 0.68, 0.65, 0.6];
+const sampleTrendFlat = [0.5, 0.51, 0.49, 0.5, 0.51, 0.5, 0.49, 0.5];
 
 export const Default: Story = {
   args: {
@@ -146,11 +147,11 @@ export const DarkMode: Story = {
     value: '72%',
     comparison: '+3% this session',
     comparisonDirection: 'up',
-    trend: [0.65, 0.67, 0.68, 0.70, 0.71, 0.72],
+    trend: [0.65, 0.67, 0.68, 0.7, 0.71, 0.72],
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-gray-900 p-8 rounded-lg w-80">
+      <div className="dark w-80 rounded-lg bg-gray-900 p-8">
         <Story />
       </div>
     ),
@@ -159,7 +160,7 @@ export const DarkMode: Story = {
 
 export const AllVariants: StoryObj = {
   render: () => (
-    <div className="grid grid-cols-2 gap-4 max-w-2xl">
+    <div className="grid max-w-2xl grid-cols-2 gap-4">
       <KPICard
         label="Win Rate"
         value="80%"
@@ -181,10 +182,7 @@ export const AllVariants: StoryObj = {
         comparisonDirection="neutral"
         trend={sampleTrendFlat}
       />
-      <KPICard
-        label="Total Games"
-        value="96"
-      />
+      <KPICard label="Total Games" value="96" />
     </div>
   ),
   parameters: {
@@ -194,8 +192,8 @@ export const AllVariants: StoryObj = {
 
 export const DarkModeGrid: StoryObj = {
   render: () => (
-    <div className="dark bg-gray-900 p-8 rounded-lg">
-      <div className="grid grid-cols-2 gap-4 max-w-2xl">
+    <div className="dark rounded-lg bg-gray-900 p-8">
+      <div className="grid max-w-2xl grid-cols-2 gap-4">
         <KPICard
           label="BV Efficiency"
           value="1.8x"

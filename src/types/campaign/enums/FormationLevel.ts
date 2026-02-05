@@ -9,25 +9,25 @@
 export enum FormationLevel {
   /** Lance - 4 mechs (smallest unit) */
   LANCE = 'Lance',
-  
+
   /** Company - 12 mechs (3 lances) */
   COMPANY = 'Company',
-  
+
   /** Battalion - 36 mechs (3 companies) */
   BATTALION = 'Battalion',
-  
+
   /** Regiment - 108+ mechs (3 battalions) */
   REGIMENT = 'Regiment',
-  
+
   /** Reinforced Lance - 5-6 mechs */
   REINFORCED_LANCE = 'Reinforced Lance',
-  
+
   /** Reinforced Company - 15+ mechs */
   REINFORCED_COMPANY = 'Reinforced Company',
-  
+
   /** Reinforced Battalion - 45+ mechs */
   REINFORCED_BATTALION = 'Reinforced Battalion',
-  
+
   /** Reinforced Regiment - 120+ mechs */
   REINFORCED_REGIMENT = 'Reinforced Regiment',
 }

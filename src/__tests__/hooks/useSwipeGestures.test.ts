@@ -1,6 +1,11 @@
 import { renderHook, act } from '@testing-library/react';
 import React, { type TouchEvent as ReactTouchEvent } from 'react';
-import { useSwipeGestures, useTabSwipeGestures, useBackSwipeGesture } from '../../hooks/useSwipeGestures';
+
+import {
+  useSwipeGestures,
+  useTabSwipeGestures,
+  useBackSwipeGesture,
+} from '../../hooks/useSwipeGestures';
 
 /**
  * Partial Touch type with only the properties used by the hook
@@ -57,14 +62,17 @@ function createMockTouchList(touches: MockTouch[]): React.TouchList {
  * Creates a mock touch event for testing swipe gestures.
  * Uses Pick to extract only the properties actually used by the hook.
  */
-function createMockTouchEvent(
-  coordinates: { clientX: number; clientY: number }
-): Pick<ReactTouchEvent<Element>, 'touches'> {
+function createMockTouchEvent(coordinates: {
+  clientX: number;
+  clientY: number;
+}): Pick<ReactTouchEvent<Element>, 'touches'> {
   return {
-    touches: createMockTouchList([{
-      clientX: coordinates.clientX,
-      clientY: coordinates.clientY,
-    }]),
+    touches: createMockTouchList([
+      {
+        clientX: coordinates.clientX,
+        clientY: coordinates.clientY,
+      },
+    ]),
   };
 }
 
@@ -73,16 +81,16 @@ describe('useSwipeGestures', () => {
     it('should detect swipe right', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight, swipeThreshold: 50 })
+        useSwipeGestures({ onSwipeRight, swipeThreshold: 50 }),
       );
 
       act(() => {
         // Touch start
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         // Touch move
-        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 200, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         // Touch end
@@ -95,14 +103,14 @@ describe('useSwipeGestures', () => {
     it('should detect swipe left', () => {
       const onSwipeLeft = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeLeft, swipeThreshold: 50 })
+        useSwipeGestures({ onSwipeLeft, swipeThreshold: 50 }),
       );
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 200, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -114,14 +122,14 @@ describe('useSwipeGestures', () => {
     it('should not trigger swipe if movement is below threshold', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight, swipeThreshold: 50 })
+        useSwipeGestures({ onSwipeRight, swipeThreshold: 50 }),
       );
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 140, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 140, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -132,15 +140,13 @@ describe('useSwipeGestures', () => {
 
     it('should use default threshold of 50px', () => {
       const onSwipeRight = jest.fn();
-      const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight })
-      );
+      const { result } = renderHook(() => useSwipeGestures({ onSwipeRight }));
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 151, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 151, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -154,14 +160,14 @@ describe('useSwipeGestures', () => {
     it('should detect swipe up', () => {
       const onSwipeUp = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeUp, swipeThreshold: 50 })
+        useSwipeGestures({ onSwipeUp, swipeThreshold: 50 }),
       );
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 200 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 200 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -173,14 +179,14 @@ describe('useSwipeGestures', () => {
     it('should detect swipe down', () => {
       const onSwipeDown = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeDown, swipeThreshold: 50 })
+        useSwipeGestures({ onSwipeDown, swipeThreshold: 50 }),
       );
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 100, clientY: 200 });
+        const touchMove = createMockTouchEvent({ clientX: 100, clientY: 200 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -194,15 +200,19 @@ describe('useSwipeGestures', () => {
     it('should cancel horizontal swipe if vertical movement exceeds threshold', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight, swipeThreshold: 50, verticalThreshold: 75 })
+        useSwipeGestures({
+          onSwipeRight,
+          swipeThreshold: 50,
+          verticalThreshold: 75,
+        }),
       );
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         // Move both horizontally and vertically, but vertical exceeds threshold
-        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 200 });
+        const touchMove = createMockTouchEvent({ clientX: 200, clientY: 200 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -214,15 +224,19 @@ describe('useSwipeGestures', () => {
     it('should allow horizontal swipe if vertical movement is below threshold', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight, swipeThreshold: 50, verticalThreshold: 75 })
+        useSwipeGestures({
+          onSwipeRight,
+          swipeThreshold: 50,
+          verticalThreshold: 75,
+        }),
       );
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         // Move horizontally more than vertically
-        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 150 });
+        const touchMove = createMockTouchEvent({ clientX: 200, clientY: 150 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -234,15 +248,15 @@ describe('useSwipeGestures', () => {
     it('should detect vertical swipe even with horizontal drift', () => {
       const onSwipeUp = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeUp, swipeThreshold: 50 })
+        useSwipeGestures({ onSwipeUp, swipeThreshold: 50 }),
       );
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 200 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 200 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         // Vertical movement is dominant
-        const touchMove = createMockTouchEvent( { clientX: 120, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 120, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -256,15 +270,20 @@ describe('useSwipeGestures', () => {
     it('should only detect swipe from left edge when enabled', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight, leftEdgeOnly: true, edgeWidth: 20, swipeThreshold: 100 })
+        useSwipeGestures({
+          onSwipeRight,
+          leftEdgeOnly: true,
+          edgeWidth: 20,
+          swipeThreshold: 100,
+        }),
       );
 
       act(() => {
         // Start within edge width
-        const touchStart = createMockTouchEvent( { clientX: 15, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 15, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 150, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 150, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -276,15 +295,20 @@ describe('useSwipeGestures', () => {
     it('should not trigger when start is outside edge width', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight, leftEdgeOnly: true, edgeWidth: 20, swipeThreshold: 100 })
+        useSwipeGestures({
+          onSwipeRight,
+          leftEdgeOnly: true,
+          edgeWidth: 20,
+          swipeThreshold: 100,
+        }),
       );
 
       act(() => {
         // Start outside edge width
-        const touchStart = createMockTouchEvent( { clientX: 50, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 50, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 200, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -296,15 +320,19 @@ describe('useSwipeGestures', () => {
     it('should use default edge width of 20px', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight, leftEdgeOnly: true, swipeThreshold: 100 })
+        useSwipeGestures({
+          onSwipeRight,
+          leftEdgeOnly: true,
+          swipeThreshold: 100,
+        }),
       );
 
       act(() => {
         // Start at exactly 20px (should trigger)
-        const touchStart = createMockTouchEvent( { clientX: 20, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 20, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 150, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 150, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -317,15 +345,21 @@ describe('useSwipeGestures', () => {
   describe('callback invocation', () => {
     it('should not call callbacks when not provided', () => {
       const { result } = renderHook(() =>
-        useSwipeGestures({ swipeThreshold: 50 })
+        useSwipeGestures({ swipeThreshold: 50 }),
       );
 
       expect(() => {
         act(() => {
-          const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+          const touchStart = createMockTouchEvent({
+            clientX: 100,
+            clientY: 100,
+          });
           result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-          const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+          const touchMove = createMockTouchEvent({
+            clientX: 200,
+            clientY: 100,
+          });
           result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
           result.current.onTouchEnd();
@@ -345,15 +379,15 @@ describe('useSwipeGestures', () => {
           onSwipeUp,
           onSwipeDown,
           swipeThreshold: 50,
-        })
+        }),
       );
 
       // Test swipe right
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 200, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -369,12 +403,10 @@ describe('useSwipeGestures', () => {
   describe('edge cases', () => {
     it('should handle touch end without move', () => {
       const onSwipeRight = jest.fn();
-      const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight })
-      );
+      const { result } = renderHook(() => useSwipeGestures({ onSwipeRight }));
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -385,12 +417,10 @@ describe('useSwipeGestures', () => {
 
     it('should handle touch without start', () => {
       const onSwipeRight = jest.fn();
-      const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight })
-      );
+      const { result } = renderHook(() => useSwipeGestures({ onSwipeRight }));
 
       act(() => {
-        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 200, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -402,15 +432,15 @@ describe('useSwipeGestures', () => {
     it('should handle multiple swipes in sequence', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight, swipeThreshold: 50 })
+        useSwipeGestures({ onSwipeRight, swipeThreshold: 50 }),
       );
 
       // First swipe
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 200, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -418,10 +448,10 @@ describe('useSwipeGestures', () => {
 
       // Second swipe
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 200, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -433,14 +463,14 @@ describe('useSwipeGestures', () => {
     it('should use custom swipe threshold', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight, swipeThreshold: 100 })
+        useSwipeGestures({ onSwipeRight, swipeThreshold: 100 }),
       );
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 250, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 250, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -452,14 +482,14 @@ describe('useSwipeGestures', () => {
     it('should handle zero threshold', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useSwipeGestures({ onSwipeRight, swipeThreshold: 0 })
+        useSwipeGestures({ onSwipeRight, swipeThreshold: 0 }),
       );
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 101, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 101, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -472,15 +502,13 @@ describe('useSwipeGestures', () => {
   describe('useTabSwipeGestures', () => {
     it('should use pre-configured threshold of 50px', () => {
       const onSwipeLeft = jest.fn();
-      const { result } = renderHook(() =>
-        useTabSwipeGestures({ onSwipeLeft })
-      );
+      const { result } = renderHook(() => useTabSwipeGestures({ onSwipeLeft }));
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 200, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 100, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 100, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -491,15 +519,13 @@ describe('useSwipeGestures', () => {
 
     it('should not trigger with movement below 50px', () => {
       const onSwipeLeft = jest.fn();
-      const { result } = renderHook(() =>
-        useTabSwipeGestures({ onSwipeLeft })
-      );
+      const { result } = renderHook(() => useTabSwipeGestures({ onSwipeLeft }));
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 200, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 160, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 160, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -513,16 +539,16 @@ describe('useSwipeGestures', () => {
     it('should use pre-configured settings for back swipe', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useBackSwipeGesture({ onSwipeRight })
+        useBackSwipeGesture({ onSwipeRight }),
       );
 
       act(() => {
         // Start within 20px edge
-        const touchStart = createMockTouchEvent( { clientX: 15, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 15, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
         // Move more than 100px (exceeds threshold)
-        const touchMove = createMockTouchEvent( { clientX: 120, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 120, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -534,15 +560,15 @@ describe('useSwipeGestures', () => {
     it('should not trigger when starting outside edge', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useBackSwipeGesture({ onSwipeRight })
+        useBackSwipeGesture({ onSwipeRight }),
       );
 
       act(() => {
         // Start outside 20px edge
-        const touchStart = createMockTouchEvent( { clientX: 50, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 50, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 200, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 200, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();
@@ -554,14 +580,14 @@ describe('useSwipeGestures', () => {
     it('should not trigger when movement below 100px threshold', () => {
       const onSwipeRight = jest.fn();
       const { result } = renderHook(() =>
-        useBackSwipeGesture({ onSwipeRight })
+        useBackSwipeGesture({ onSwipeRight }),
       );
 
       act(() => {
-        const touchStart = createMockTouchEvent( { clientX: 10, clientY: 100 });
+        const touchStart = createMockTouchEvent({ clientX: 10, clientY: 100 });
         result.current.onTouchStart(touchStart as ReactTouchEvent<Element>);
 
-        const touchMove = createMockTouchEvent( { clientX: 80, clientY: 100 });
+        const touchMove = createMockTouchEvent({ clientX: 80, clientY: 100 });
         result.current.onTouchMove(touchMove as ReactTouchEvent<Element>);
 
         result.current.onTouchEnd();

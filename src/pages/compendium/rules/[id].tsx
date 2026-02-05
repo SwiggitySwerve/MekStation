@@ -1,12 +1,20 @@
+import { useRouter } from 'next/router';
 /**
  * Rule Section Detail Page - Redirect
  * Redirects to the combined construction rules page with anchor.
  */
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
 
 // Valid rule section IDs for validation
-const validSectionIds = ['structure', 'engine', 'armor', 'heatsinks', 'gyro', 'movement', 'criticals'];
+const validSectionIds = [
+  'structure',
+  'engine',
+  'armor',
+  'heatsinks',
+  'gyro',
+  'movement',
+  'criticals',
+];
 
 export default function RuleSectionRedirect(): React.ReactElement | null {
   const router = useRouter();

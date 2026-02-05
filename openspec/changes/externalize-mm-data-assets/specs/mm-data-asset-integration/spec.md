@@ -9,6 +9,7 @@ The system SHALL provide a service for loading and caching assets from mm-data, 
 **Priority**: Critical
 
 #### Scenario: Asset loading fallback chain
+
 - **GIVEN** the application needs to load an mm-data asset
 - **WHEN** `MmDataAssetService.loadSVG(path)` is called
 - **THEN** attempt to load from sources in order:
@@ -19,6 +20,7 @@ The system SHALL provide a service for loading and caching assets from mm-data, 
 - **AND** cache result for subsequent calls
 
 #### Scenario: Armor pip loading (unchanged API)
+
 - **GIVEN** a MechLocation and armor count
 - **WHEN** `MmDataAssetService.getArmorPipSvg(location, count)` is called
 - **THEN** return the SVG content for that armor pip configuration
@@ -26,18 +28,21 @@ The system SHALL provide a service for loading and caching assets from mm-data, 
 - **AND** result is cached for subsequent calls
 
 #### Scenario: Version configuration
+
 - **GIVEN** asset version is configured via `MM_DATA_VERSION` environment variable
 - **WHEN** loading assets from remote sources
 - **THEN** use configured version in CDN/GitHub URLs
 - **AND** default to "main" if not configured
 
 #### Scenario: Offline mode (desktop)
+
 - **GIVEN** the application is running in Electron desktop mode
 - **WHEN** loading assets
 - **THEN** prefer local bundled assets
 - **AND** skip remote fallbacks if running offline
 
 #### Scenario: Loading failure handling
+
 - **GIVEN** all sources fail to load an asset
 - **WHEN** `loadSVG()` returns an error
 - **THEN** throw descriptive error with asset path and attempted sources
@@ -52,6 +57,7 @@ The system SHALL provide a script to fetch assets from mm-data releases at build
 **Priority**: High
 
 #### Scenario: Fetch from jsDelivr CDN
+
 - **GIVEN** `MM_DATA_VERSION` is set to a release tag (e.g., "v0.50.07")
 - **WHEN** `npm run fetch:assets` is executed
 - **THEN** download assets from jsDelivr CDN: `cdn.jsdelivr.net/gh/MegaMek/mm-data@{tag}/...`
@@ -60,12 +66,14 @@ The system SHALL provide a script to fetch assets from mm-data releases at build
 - **AND** write `mm-data-version.json` with fetched version info
 
 #### Scenario: Fallback to GitHub raw
+
 - **GIVEN** jsDelivr CDN is unavailable
 - **WHEN** `npm run fetch:assets` is executed
 - **THEN** fall back to GitHub raw URLs: `raw.githubusercontent.com/MegaMek/mm-data/{tag}/...`
 - **AND** download all required assets
 
 #### Scenario: Development with local mm-data
+
 - **GIVEN** `../mm-data` directory exists (sibling repo)
 - **AND** `--prefer-local` flag is passed
 - **WHEN** `npm run fetch:assets --prefer-local` is executed
@@ -73,6 +81,7 @@ The system SHALL provide a script to fetch assets from mm-data releases at build
 - **AND** skip remote fetching
 
 #### Scenario: Missing assets error
+
 - **GIVEN** required assets are not present
 - **WHEN** `npm run build` is executed
 - **THEN** fail build with clear error message
@@ -89,6 +98,7 @@ The system SHALL maintain a configuration of required mm-data assets and version
 **Priority**: High
 
 #### Scenario: Configuration structure
+
 - **GIVEN** the asset config file `config/mm-data-assets.json`
 - **THEN** it SHALL contain:
   ```json
@@ -104,6 +114,7 @@ The system SHALL maintain a configuration of required mm-data assets and version
   ```
 
 #### Scenario: Asset validation
+
 - **GIVEN** fetched assets in `public/record-sheets/`
 - **WHEN** `npm run validate:assets` is executed
 - **THEN** verify each configured file exists
@@ -118,12 +129,14 @@ The system SHALL bundle mm-data assets into desktop builds.
 **Priority**: Critical
 
 #### Scenario: Electron build includes assets
+
 - **GIVEN** assets have been fetched to `public/record-sheets/`
 - **WHEN** `npm run electron:dist:win` is executed
 - **THEN** include all record-sheets assets in the app bundle
 - **AND** assets are accessible at runtime without network
 
 #### Scenario: Web build asset handling
+
 - **GIVEN** building for web deployment
 - **WHEN** `npm run build` is executed
 - **THEN** assets are included in the static output

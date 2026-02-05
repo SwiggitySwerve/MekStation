@@ -9,7 +9,9 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import type { PermissionLevel } from '@/types/vault';
+
 import { getVaultService } from '@/services/vault/VaultService';
 
 // =============================================================================
@@ -56,7 +58,7 @@ interface ErrorResponse {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SharesResponse | SuccessResponse | ErrorResponse>
+  res: NextApiResponse<SharesResponse | SuccessResponse | ErrorResponse>,
 ): Promise<void> {
   const { id } = req.query;
 
@@ -98,9 +100,10 @@ export default async function handler(
 async function handleList(
   folderId: string,
   res: NextApiResponse<SharesResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
-  const folderWithPermissions = await vaultService.getFolderWithPermissions(folderId);
+  const folderWithPermissions =
+    await vaultService.getFolderWithPermissions(folderId);
 
   if (!folderWithPermissions) {
     return res.status(404).json({ error: 'Folder not found' });
@@ -115,7 +118,7 @@ async function handleShare(
   folderId: string,
   req: NextApiRequest,
   res: NextApiResponse<SuccessResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const body = req.body as ShareRequest | BulkShareRequest;
 
@@ -130,13 +133,13 @@ async function handleShare(
           await vaultService.shareFolderWithContact(
             folderId,
             contact.friendCode,
-            contact.level
+            contact.level,
           );
           return true;
         } catch {
           return false;
         }
-      })
+      }),
     );
 
     const shared = results.filter(Boolean).length;
@@ -165,7 +168,7 @@ async function handleUnshare(
   folderId: string,
   req: NextApiRequest,
   res: NextApiResponse<SuccessResponse | ErrorResponse>,
-  vaultService: ReturnType<typeof getVaultService>
+  vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { contactFriendCode } = req.body as UnshareRequest;
 

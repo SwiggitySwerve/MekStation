@@ -3,8 +3,9 @@
  * Tests for Badge Component
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
+
 import { Badge, TechBaseBadge, WeightClassBadge } from '@/components/ui/Badge';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';

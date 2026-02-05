@@ -13,6 +13,7 @@
  */
 
 import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
+
 import {
   GameEventType,
   GameSide,
@@ -20,6 +21,7 @@ import {
   type IDamageAppliedPayload,
   type IHeatPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+
 import { getPayload } from './utils/getPayload';
 
 // =============================================================================
@@ -98,7 +100,7 @@ interface DetectorTrackingState {
 /**
  * Gets a unit name by ID, falling back to the ID itself.
  */
- 
+
 function _getUnitName(units: readonly BattleUnit[], unitId: string): string {
   const unit = units.find((u) => u.id === unitId);
   return unit ? unit.name : unitId;
@@ -138,7 +140,10 @@ function structureEqual(
   if (keys1.length !== keys2.length) return false;
 
   for (let i = 0; i < keys1.length; i++) {
-    if (keys1[i] !== keys2[i] || structure1[keys1[i]] !== structure2[keys2[i]]) {
+    if (
+      keys1[i] !== keys2[i] ||
+      structure1[keys1[i]] !== structure2[keys2[i]]
+    ) {
       return false;
     }
   }
@@ -282,7 +287,10 @@ export class NoProgressDetector {
     }
   }
 
-  private processMovement(event: IGameEvent, state: DetectorTrackingState): void {
+  private processMovement(
+    event: IGameEvent,
+    state: DetectorTrackingState,
+  ): void {
     state.movementThisTurn = true;
   }
 
@@ -330,7 +338,10 @@ export class NoProgressDetector {
     turnHeat.set(unitId, newTotal);
   }
 
-  private processUnitDestroyed(event: IGameEvent, state: DetectorTrackingState): void {
+  private processUnitDestroyed(
+    event: IGameEvent,
+    state: DetectorTrackingState,
+  ): void {
     const payload = getPayload<{ readonly unitId: string }>(event);
     state.destroyedUnits.add(payload.unitId);
   }
@@ -355,21 +366,36 @@ export class NoProgressDetector {
     }
 
     // Get current state, inheriting from previous turn if not updated
-     
-    const currentArmor = new Map(state.unitArmor.get(currentTurn) || new Map()) as Map<string, Record<string, number>>;
-     
-    const currentStructure = new Map(state.unitStructure.get(currentTurn) || new Map()) as Map<string, Record<string, number>>;
-     
-    const currentHeat = new Map(state.unitHeat.get(currentTurn) || new Map()) as Map<string, number>;
+
+    const currentArmor = new Map(
+      state.unitArmor.get(currentTurn) || new Map(),
+    ) as Map<string, Record<string, number>>;
+
+    const currentStructure = new Map(
+      state.unitStructure.get(currentTurn) || new Map(),
+    ) as Map<string, Record<string, number>>;
+
+    const currentHeat = new Map(
+      state.unitHeat.get(currentTurn) || new Map(),
+    ) as Map<string, number>;
 
     // If state wasn't updated this turn, inherit from last snapshot
     if (state.lastSnapshot !== null) {
       for (const unit of battleState.units) {
-        if (!currentArmor.has(unit.id) && state.lastSnapshot.armor.has(unit.id)) {
+        if (
+          !currentArmor.has(unit.id) &&
+          state.lastSnapshot.armor.has(unit.id)
+        ) {
           currentArmor.set(unit.id, state.lastSnapshot.armor.get(unit.id)!);
         }
-        if (!currentStructure.has(unit.id) && state.lastSnapshot.structure.has(unit.id)) {
-          currentStructure.set(unit.id, state.lastSnapshot.structure.get(unit.id)!);
+        if (
+          !currentStructure.has(unit.id) &&
+          state.lastSnapshot.structure.has(unit.id)
+        ) {
+          currentStructure.set(
+            unit.id,
+            state.lastSnapshot.structure.get(unit.id)!,
+          );
         }
         if (!currentHeat.has(unit.id) && state.lastSnapshot.heat.has(unit.id)) {
           currentHeat.set(unit.id, state.lastSnapshot.heat.get(unit.id)!);
@@ -396,7 +422,11 @@ export class NoProgressDetector {
     }
 
     // Check if state changed or movement occurred
-    const stateChanged = !snapshotsEqual(state.lastSnapshot, currentSnapshot, battleState);
+    const stateChanged = !snapshotsEqual(
+      state.lastSnapshot,
+      currentSnapshot,
+      battleState,
+    );
     const progressDetected = stateChanged || state.movementThisTurn;
 
     if (progressDetected) {

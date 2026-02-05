@@ -1,6 +1,6 @@
 /**
  * Construction Utilities Barrel Export
- * 
+ *
  * @spec openspec/specs/construction-rules-core/spec.md
  */
 
@@ -14,4 +14,3 @@ export * from './formulaRegistry';
 export * from './techBaseValidation';
 export * from './costCalculations';
 export * from './battleValueCalculations';
-

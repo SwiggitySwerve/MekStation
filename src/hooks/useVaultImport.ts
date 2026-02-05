@@ -7,12 +7,14 @@
  */
 
 import { useState, useCallback } from 'react';
+
 import type {
   IImportOptions,
   IImportResult,
   IImportConflict,
   IImportHandlers,
 } from '@/types/vault';
+
 import {
   importFromString,
   readBundleFromFile,
@@ -67,20 +69,20 @@ export interface UseVaultImportActions {
   /** Import from the selected file */
   importFile: <T>(
     handlers: IImportHandlers<T>,
-    options?: IImportOptions
+    options?: IImportOptions,
   ) => Promise<IImportResult>;
 
   /** Import from a string */
   importString: <T>(
     data: string,
     handlers: IImportHandlers<T>,
-    options?: IImportOptions
+    options?: IImportOptions,
   ) => Promise<IImportResult>;
 
   /** Resolve conflicts and continue import */
   resolveConflicts: <T>(
     resolutions: IImportConflict[],
-    handlers: IImportHandlers<T>
+    handlers: IImportHandlers<T>,
   ) => Promise<IImportResult>;
 
   /** Reset the import state */
@@ -141,7 +143,8 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
         setError(previewResult.error || 'Invalid bundle');
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to read file';
+      const message =
+        err instanceof Error ? err.message : 'Failed to read file';
       setError(message);
       setPreview({ valid: false, error: message });
     }
@@ -160,10 +163,13 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
   const handleImportFile = useCallback(
     async <T>(
       handlers: IImportHandlers<T>,
-      options: IImportOptions = { conflictResolution: 'ask' }
+      options: IImportOptions = { conflictResolution: 'ask' },
     ): Promise<IImportResult> => {
       if (!fileContent) {
-        const err: IImportResult = { success: false, error: { message: 'No file content' } };
+        const err: IImportResult = {
+          success: false,
+          error: { message: 'No file content' },
+        };
         setError(err.error.message);
         return err;
       }
@@ -173,10 +179,18 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
       setStep('importing');
 
       try {
-        const importResult = await importFromString<T>(fileContent, handlers, options);
+        const importResult = await importFromString<T>(
+          fileContent,
+          handlers,
+          options,
+        );
 
         // Check for conflicts that need resolution
-        if (importResult.success && importResult.data.conflicts && importResult.data.conflicts.length > 0) {
+        if (
+          importResult.success &&
+          importResult.data.conflicts &&
+          importResult.data.conflicts.length > 0
+        ) {
           setConflicts(importResult.data.conflicts);
           setStep('conflicts');
           setImporting(false);
@@ -200,14 +214,14 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
         setImporting(false);
       }
     },
-    [fileContent]
+    [fileContent],
   );
 
   const handleImportString = useCallback(
     async <T>(
       data: string,
       handlers: IImportHandlers<T>,
-      options: IImportOptions = { conflictResolution: 'ask' }
+      options: IImportOptions = { conflictResolution: 'ask' },
     ): Promise<IImportResult> => {
       setImporting(true);
       setError(null);
@@ -216,7 +230,11 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
       try {
         const importResult = await importFromString<T>(data, handlers, options);
 
-        if (importResult.success && importResult.data.conflicts && importResult.data.conflicts.length > 0) {
+        if (
+          importResult.success &&
+          importResult.data.conflicts &&
+          importResult.data.conflicts.length > 0
+        ) {
           setConflicts(importResult.data.conflicts);
           setStep('conflicts');
           setImporting(false);
@@ -240,16 +258,19 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
         setImporting(false);
       }
     },
-    []
+    [],
   );
 
   const handleResolveConflicts = useCallback(
     async <T>(
       resolutions: IImportConflict[],
-      handlers: IImportHandlers<T>
+      handlers: IImportHandlers<T>,
     ): Promise<IImportResult> => {
       if (!fileContent) {
-        const err: IImportResult = { success: false, error: { message: 'No file content' } };
+        const err: IImportResult = {
+          success: false,
+          error: { message: 'No file content' },
+        };
         setError(err.error.message);
         return err;
       }
@@ -259,7 +280,7 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
         resolvedConflicts: resolutions,
       });
     },
-    [fileContent, handleImportFile]
+    [fileContent, handleImportFile],
   );
 
   const handleReset = useCallback(() => {

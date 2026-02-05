@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
-import { useNavigationStore, PanelId } from '../../stores/useNavigationStore';
+
 import { useDeviceType } from '../../hooks/useDeviceType';
+import { useNavigationStore, PanelId } from '../../stores/useNavigationStore';
 
 export interface Tab {
   id: string;
@@ -60,7 +61,7 @@ export function BottomNavBar({
 
   return (
     <nav
-      className={`fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 md:hidden ${className}`.trim()}
+      className={`fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white md:hidden dark:border-gray-700 dark:bg-gray-900 ${className}`.trim()}
       style={{
         minHeight: '56px',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -68,7 +69,7 @@ export function BottomNavBar({
       role="navigation"
       aria-label="Editor tabs"
     >
-      <div className="flex justify-around items-center h-full min-h-[44px]">
+      <div className="flex h-full min-h-[44px] items-center justify-around">
         {tabs.map((tab) => {
           const isActive = activeTab?.id === tab.id;
 
@@ -76,15 +77,11 @@ export function BottomNavBar({
             <button
               key={tab.id}
               onClick={() => handleTabPress(tab)}
-              className={`
-                flex flex-col items-center justify-center
-                flex-1 min-w-[44px] min-h-[44px]
-                transition-colors duration-200
-                ${isActive
+              className={`flex min-h-[44px] min-w-[44px] flex-1 flex-col items-center justify-center transition-colors duration-200 ${
+                isActive
                   ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-                }
-              `.trim()}
+                  : 'text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
+              } `.trim()}
               style={{
                 paddingTop: '8px',
                 paddingBottom: 'max(8px, env(safe-area-inset-bottom, 0px))',
@@ -95,7 +92,7 @@ export function BottomNavBar({
               role="tab"
               type="button"
             >
-              <div className="text-xl mb-1" aria-hidden="true">
+              <div className="mb-1 text-xl" aria-hidden="true">
                 {tab.icon}
               </div>
               <span className="text-xs font-medium">{tab.label}</span>

@@ -1,10 +1,16 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
 /**
  * Tests for /api/meta/unit_weight_classes endpoint
  */
 import { createMocks } from 'node-mocks-http';
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import handler from '@/pages/api/meta/unit_weight_classes';
-import { STANDARD_WEIGHT_CLASSES, WeightClass } from '@/types/enums/WeightClass';
+import {
+  STANDARD_WEIGHT_CLASSES,
+  WeightClass,
+} from '@/types/enums/WeightClass';
+
 import { parseApiResponse } from '../../helpers';
 
 /**

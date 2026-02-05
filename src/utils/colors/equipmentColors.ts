@@ -1,15 +1,15 @@
 /**
  * Equipment Category Color System - SINGLE SOURCE OF TRUTH
- * 
+ *
  * All equipment category colors for the entire application.
  * Used by: Equipment Browser, Critical Slots Display, Customizer, etc.
- * 
+ *
  * RESERVED COLORS (used by system components in slotColors.ts):
  *   - Orange: Engine
  *   - Purple: Gyro
  *   - Blue: Actuator
  *   - Yellow-600: Cockpit/Sensors
- * 
+ *
  * @spec openspec/specs/color-system/spec.md
  */
 
@@ -43,7 +43,7 @@ export interface CategoryColorDefinition {
  * Legacy equipment color type for backward compatibility
  * @deprecated Use EquipmentCategory directly
  */
-export type EquipmentColorType = 
+export type EquipmentColorType =
   | 'weapon'
   | 'ammunition'
   | 'heatsink'
@@ -70,18 +70,21 @@ export interface EquipmentColorDefinition {
 
 /**
  * Color definitions for each equipment category.
- * 
+ *
  * Color assignments avoid conflicts with system components:
  * - Engine uses Orange → Ballistic uses Amber instead
  * - Gyro uses Purple → Structural uses Lime instead
  * - Actuator uses Blue → Electronics uses Teal instead
  * - Cockpit uses Yellow-600 → Ammo uses Yellow-400 (different shade)
  */
-export const EQUIPMENT_CATEGORY_COLORS: Record<EquipmentCategory, CategoryColorDefinition> = {
+export const EQUIPMENT_CATEGORY_COLORS: Record<
+  EquipmentCategory,
+  CategoryColorDefinition
+> = {
   // -------------------------------------------------------------------------
   // WEAPON CATEGORIES - Each has a distinct color
   // -------------------------------------------------------------------------
-  
+
   [EquipmentCategory.ENERGY_WEAPON]: {
     label: 'Energy',
     badgeVariant: 'yellow',
@@ -91,7 +94,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<EquipmentCategory, CategoryColorD
     slotHoverBg: 'hover:bg-yellow-500',
     indicatorBg: 'bg-yellow-500',
   },
-  
+
   [EquipmentCategory.BALLISTIC_WEAPON]: {
     label: 'Ballistic',
     badgeVariant: 'red',
@@ -101,7 +104,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<EquipmentCategory, CategoryColorD
     slotHoverBg: 'hover:bg-red-600',
     indicatorBg: 'bg-red-500',
   },
-  
+
   [EquipmentCategory.MISSILE_WEAPON]: {
     label: 'Missile',
     badgeVariant: 'teal',
@@ -111,7 +114,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<EquipmentCategory, CategoryColorD
     slotHoverBg: 'hover:bg-teal-600',
     indicatorBg: 'bg-teal-500',
   },
-  
+
   [EquipmentCategory.ARTILLERY]: {
     label: 'Artillery',
     badgeVariant: 'violet',
@@ -121,7 +124,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<EquipmentCategory, CategoryColorD
     slotHoverBg: 'hover:bg-violet-600',
     indicatorBg: 'bg-violet-500',
   },
-  
+
   [EquipmentCategory.CAPITAL_WEAPON]: {
     label: 'Capital',
     badgeVariant: 'fuchsia',
@@ -131,7 +134,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<EquipmentCategory, CategoryColorD
     slotHoverBg: 'hover:bg-fuchsia-600',
     indicatorBg: 'bg-fuchsia-500',
   },
-  
+
   [EquipmentCategory.PHYSICAL_WEAPON]: {
     label: 'Physical',
     badgeVariant: 'rose',
@@ -141,11 +144,11 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<EquipmentCategory, CategoryColorD
     slotHoverBg: 'hover:bg-rose-600',
     indicatorBg: 'bg-rose-500',
   },
-  
+
   // -------------------------------------------------------------------------
   // AMMUNITION - Yellow (different shade than cockpit's yellow-600)
   // -------------------------------------------------------------------------
-  
+
   [EquipmentCategory.AMMUNITION]: {
     label: 'Ammo',
     badgeVariant: 'amber',
@@ -155,11 +158,11 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<EquipmentCategory, CategoryColorD
     slotHoverBg: 'hover:bg-amber-500',
     indicatorBg: 'bg-amber-400',
   },
-  
+
   // -------------------------------------------------------------------------
   // OTHER EQUIPMENT - Avoiding reserved system component colors
   // -------------------------------------------------------------------------
-  
+
   [EquipmentCategory.ELECTRONICS]: {
     label: 'Electronics',
     badgeVariant: 'cyan',
@@ -169,7 +172,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<EquipmentCategory, CategoryColorD
     slotHoverBg: 'hover:bg-cyan-600',
     indicatorBg: 'bg-cyan-500',
   },
-  
+
   [EquipmentCategory.MOVEMENT]: {
     label: 'Movement',
     badgeVariant: 'emerald',
@@ -179,7 +182,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<EquipmentCategory, CategoryColorD
     slotHoverBg: 'hover:bg-emerald-600',
     indicatorBg: 'bg-emerald-500',
   },
-  
+
   [EquipmentCategory.STRUCTURAL]: {
     label: 'Structural',
     badgeVariant: 'lime',
@@ -189,7 +192,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<EquipmentCategory, CategoryColorD
     slotHoverBg: 'hover:bg-lime-600',
     indicatorBg: 'bg-lime-500',
   },
-  
+
   [EquipmentCategory.MISC_EQUIPMENT]: {
     label: 'Misc',
     badgeVariant: 'slate',
@@ -245,14 +248,35 @@ export const BALLISTIC_AMMO_COLORS: CategoryColorDefinition = {
 
 /** Patterns to detect missile ammo by name */
 const MISSILE_AMMO_PATTERNS = [
-  'lrm', 'srm', 'mrm', 'atm', 'mml', 'streak', 'narc', 'arrow iv',
-  'long range missile', 'short range missile', 'medium range missile',
+  'lrm',
+  'srm',
+  'mrm',
+  'atm',
+  'mml',
+  'streak',
+  'narc',
+  'arrow iv',
+  'long range missile',
+  'short range missile',
+  'medium range missile',
 ];
 
 /** Patterns to detect ballistic ammo by name */
 const BALLISTIC_AMMO_PATTERNS = [
-  'ac/', 'ac ', 'autocannon', 'gauss', 'machine gun', 'mg ', 'lb-x', 'lb ',
-  'ultra ac', 'uac', 'rotary', 'rac/', 'light ac', 'lac',
+  'ac/',
+  'ac ',
+  'autocannon',
+  'gauss',
+  'machine gun',
+  'mg ',
+  'lb-x',
+  'lb ',
+  'ultra ac',
+  'uac',
+  'rotary',
+  'rac/',
+  'light ac',
+  'lac',
 ];
 
 /**
@@ -260,17 +284,17 @@ const BALLISTIC_AMMO_PATTERNS = [
  */
 export function detectAmmoSubType(name: string): AmmoSubType {
   const lowerName = name.toLowerCase();
-  
+
   // Check for missile ammo patterns
-  if (MISSILE_AMMO_PATTERNS.some(pattern => lowerName.includes(pattern))) {
+  if (MISSILE_AMMO_PATTERNS.some((pattern) => lowerName.includes(pattern))) {
     return 'missile';
   }
-  
+
   // Check for ballistic ammo patterns
-  if (BALLISTIC_AMMO_PATTERNS.some(pattern => lowerName.includes(pattern))) {
+  if (BALLISTIC_AMMO_PATTERNS.some((pattern) => lowerName.includes(pattern))) {
     return 'ballistic';
   }
-  
+
   return 'generic';
 }
 
@@ -279,7 +303,7 @@ export function detectAmmoSubType(name: string): AmmoSubType {
  */
 export function getAmmoColors(name: string): CategoryColorDefinition {
   const subType = detectAmmoSubType(name);
-  
+
   switch (subType) {
     case 'missile':
       return MISSILE_AMMO_COLORS;
@@ -297,7 +321,9 @@ export function getAmmoColors(name: string): CategoryColorDefinition {
 /**
  * Get full color definition for an equipment category
  */
-export function getCategoryColors(category: EquipmentCategory): CategoryColorDefinition {
+export function getCategoryColors(
+  category: EquipmentCategory,
+): CategoryColorDefinition {
   return EQUIPMENT_CATEGORY_COLORS[category];
 }
 
@@ -337,25 +363,70 @@ export function getCategoryIndicatorClass(category: EquipmentCategory): string {
 /**
  * Patterns for classifying equipment by name.
  */
-const EQUIPMENT_NAME_PATTERNS: Record<EquipmentCategory | 'heatsink', readonly string[]> = {
+const EQUIPMENT_NAME_PATTERNS: Record<
+  EquipmentCategory | 'heatsink',
+  readonly string[]
+> = {
   // Heat sinks (special case - not a category but needs detection)
   heatsink: ['heat sink', 'heatsink'],
-  
+
   // Weapons
   [EquipmentCategory.ENERGY_WEAPON]: ['laser', 'ppc', 'flamer'],
-  [EquipmentCategory.BALLISTIC_WEAPON]: ['autocannon', 'ac/', 'gauss', 'machine gun', 'ultra ac', 'lb-x', 'rotary ac'],
-  [EquipmentCategory.MISSILE_WEAPON]: ['lrm', 'srm', 'mrm', 'atm', 'mml', 'narc', 'streak'],
+  [EquipmentCategory.BALLISTIC_WEAPON]: [
+    'autocannon',
+    'ac/',
+    'gauss',
+    'machine gun',
+    'ultra ac',
+    'lb-x',
+    'rotary ac',
+  ],
+  [EquipmentCategory.MISSILE_WEAPON]: [
+    'lrm',
+    'srm',
+    'mrm',
+    'atm',
+    'mml',
+    'narc',
+    'streak',
+  ],
   [EquipmentCategory.ARTILLERY]: ['arrow iv', 'long tom', 'sniper', 'thumper'],
   [EquipmentCategory.CAPITAL_WEAPON]: ['naval', 'capital'],
-  [EquipmentCategory.PHYSICAL_WEAPON]: ['hatchet', 'sword', 'claw', 'mace', 'lance', 'talons'],
-  
+  [EquipmentCategory.PHYSICAL_WEAPON]: [
+    'hatchet',
+    'sword',
+    'claw',
+    'mace',
+    'lance',
+    'talons',
+  ],
+
   // Ammunition
   [EquipmentCategory.AMMUNITION]: ['ammo', 'ammunition', 'rounds'],
-  
+
   // Other
-  [EquipmentCategory.ELECTRONICS]: ['computer', 'ecm', 'bap', 'probe', 'c3', 'tag', 'targeting'],
-  [EquipmentCategory.MOVEMENT]: ['jump jet', 'masc', 'supercharger', 'partial wing', 'tsm'],
-  [EquipmentCategory.STRUCTURAL]: ['endo steel', 'endo-steel', 'ferro-fibrous', 'ferro fibrous'],
+  [EquipmentCategory.ELECTRONICS]: [
+    'computer',
+    'ecm',
+    'bap',
+    'probe',
+    'c3',
+    'tag',
+    'targeting',
+  ],
+  [EquipmentCategory.MOVEMENT]: [
+    'jump jet',
+    'masc',
+    'supercharger',
+    'partial wing',
+    'tsm',
+  ],
+  [EquipmentCategory.STRUCTURAL]: [
+    'endo steel',
+    'endo-steel',
+    'ferro-fibrous',
+    'ferro fibrous',
+  ],
   [EquipmentCategory.MISC_EQUIPMENT]: [],
 };
 
@@ -380,16 +451,18 @@ const CLASSIFICATION_PRIORITY: readonly (EquipmentCategory | 'heatsink')[] = [
  * Classify equipment by name into a category.
  * Returns null for heat sinks (special case) or misc if no match.
  */
-export function classifyEquipmentByName(name: string): EquipmentCategory | 'heatsink' {
+export function classifyEquipmentByName(
+  name: string,
+): EquipmentCategory | 'heatsink' {
   const lowerName = name.toLowerCase();
-  
+
   for (const category of CLASSIFICATION_PRIORITY) {
     const patterns = EQUIPMENT_NAME_PATTERNS[category];
-    if (patterns.some(pattern => lowerName.includes(pattern))) {
+    if (patterns.some((pattern) => lowerName.includes(pattern))) {
       return category;
     }
   }
-  
+
   return EquipmentCategory.MISC_EQUIPMENT;
 }
 
@@ -398,11 +471,11 @@ export function classifyEquipmentByName(name: string): EquipmentCategory | 'heat
  */
 export function getEquipmentSlotClassesByName(name: string): string {
   const category = classifyEquipmentByName(name);
-  
+
   if (category === 'heatsink') {
     return `${HEATSINK_COLORS.slotBg} ${HEATSINK_COLORS.slotBorder} ${HEATSINK_COLORS.slotText} ${HEATSINK_COLORS.slotHoverBg}`;
   }
-  
+
   return getCategorySlotClasses(category);
 }
 
@@ -413,7 +486,10 @@ export function getEquipmentSlotClassesByName(name: string): string {
 /**
  * @deprecated Use EQUIPMENT_CATEGORY_COLORS instead
  */
-export const EQUIPMENT_COLORS: Record<EquipmentColorType, EquipmentColorDefinition> = {
+export const EQUIPMENT_COLORS: Record<
+  EquipmentColorType,
+  EquipmentColorDefinition
+> = {
   weapon: {
     bg: 'bg-yellow-600',
     border: 'border-yellow-700',
@@ -475,7 +551,9 @@ export const EQUIPMENT_COLORS: Record<EquipmentColorType, EquipmentColorDefiniti
 /**
  * @deprecated Use getCategoryColors instead
  */
-export function getEquipmentColors(colorType: EquipmentColorType): EquipmentColorDefinition {
+export function getEquipmentColors(
+  colorType: EquipmentColorType,
+): EquipmentColorDefinition {
   return EQUIPMENT_COLORS[colorType];
 }
 
@@ -484,7 +562,9 @@ export function getEquipmentColors(colorType: EquipmentColorType): EquipmentColo
  * This provides per-category colors (Energy=yellow, Ballistic=red, Missile=teal, etc.)
  * instead of grouping all weapons into a single color.
  */
-export function getCategoryColorsLegacy(category: EquipmentCategory): EquipmentColorDefinition {
+export function getCategoryColorsLegacy(
+  category: EquipmentCategory,
+): EquipmentColorDefinition {
   const cat = EQUIPMENT_CATEGORY_COLORS[category];
   return {
     bg: cat.slotBg,
@@ -498,7 +578,9 @@ export function getCategoryColorsLegacy(category: EquipmentCategory): EquipmentC
 /**
  * @deprecated Use getCategorySlotClasses instead
  */
-export function getEquipmentColorClasses(colorType: EquipmentColorType): string {
+export function getEquipmentColorClasses(
+  colorType: EquipmentColorType,
+): string {
   const colors = getEquipmentColors(colorType);
   return `${colors.bg} ${colors.border} ${colors.text} ${colors.hoverBg}`;
 }
@@ -508,9 +590,9 @@ export function getEquipmentColorClasses(colorType: EquipmentColorType): string 
  */
 export function classifyEquipment(name: string): EquipmentColorType {
   const category = classifyEquipmentByName(name);
-  
+
   if (category === 'heatsink') return 'heatsink';
-  
+
   // Map category to legacy type
   switch (category) {
     case EquipmentCategory.ENERGY_WEAPON:
@@ -537,7 +619,9 @@ export function classifyEquipment(name: string): EquipmentColorType {
 /**
  * @deprecated Use categoryToColorType from legacy map
  */
-export function categoryToColorType(category: EquipmentCategory): EquipmentColorType {
+export function categoryToColorType(
+  category: EquipmentCategory,
+): EquipmentColorType {
   switch (category) {
     case EquipmentCategory.ENERGY_WEAPON:
     case EquipmentCategory.BALLISTIC_WEAPON:
@@ -565,14 +649,14 @@ export function categoryToColorType(category: EquipmentCategory): EquipmentColor
  */
 export function getBattleTechEquipmentClasses(
   equipmentName: string,
-  isSelected: boolean = false
+  isSelected: boolean = false,
 ): string {
   const classes = getEquipmentSlotClassesByName(equipmentName);
   const baseClasses = `${classes} border rounded transition-colors`;
-  
+
   if (isSelected) {
     return `${baseClasses} ring-2 ring-yellow-400 ring-offset-1 ring-offset-slate-900`;
   }
-  
+
   return baseClasses;
 }

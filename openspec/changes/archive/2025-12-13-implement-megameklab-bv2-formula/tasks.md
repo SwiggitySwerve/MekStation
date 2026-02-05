@@ -50,4 +50,3 @@
 
 - [ ] Remove debug console.log statements
 - [ ] Update JSDoc comments with new formulas
-

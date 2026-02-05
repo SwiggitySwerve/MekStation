@@ -1,11 +1,15 @@
 import { getDayPipeline } from '../dayPipeline';
-import { healingProcessor } from './healingProcessor';
-import { contractProcessor } from './contractProcessor';
-import { dailyCostsProcessor } from './dailyCostsProcessor';
 import { registerAcquisitionProcessor } from './acquisitionProcessor';
 import { autoAwardsProcessor } from './autoAwardsProcessor';
+import { contractProcessor } from './contractProcessor';
+import { dailyCostsProcessor } from './dailyCostsProcessor';
+import { healingProcessor } from './healingProcessor';
+import {
+  unitMarketProcessor,
+  personnelMarketProcessor,
+  contractMarketProcessor,
+} from './marketProcessors';
 import { randomEventsProcessor } from './randomEventsProcessor';
-import { unitMarketProcessor, personnelMarketProcessor, contractMarketProcessor } from './marketProcessors';
 
 export { healingProcessor } from './healingProcessor';
 export { contractProcessor } from './contractProcessor';
@@ -13,7 +17,11 @@ export { dailyCostsProcessor } from './dailyCostsProcessor';
 export { registerAcquisitionProcessor } from './acquisitionProcessor';
 export { autoAwardsProcessor } from './autoAwardsProcessor';
 export { randomEventsProcessor } from './randomEventsProcessor';
-export { unitMarketProcessor, personnelMarketProcessor, contractMarketProcessor } from './marketProcessors';
+export {
+  unitMarketProcessor,
+  personnelMarketProcessor,
+  contractMarketProcessor,
+} from './marketProcessors';
 
 let registered = false;
 

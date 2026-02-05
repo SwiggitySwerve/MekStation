@@ -1,12 +1,13 @@
 /**
  * Suggest Clone Name API
- * 
+ *
  * POST /api/units/custom/suggest-name - Get a unique name suggestion for a unit clone
- * 
+ *
  * @spec openspec/specs/unit-services/spec.md
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import { ICloneNameSuggestion } from '@/types/persistence/UnitPersistence';
@@ -32,13 +33,14 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuggestNameResponse | ErrorResponse>
+  res: NextApiResponse<SuggestNameResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -59,18 +61,24 @@ export default async function handler(
 
   try {
     // Check if original name is available
-    const isOriginalAvailable = !unitRepository.nameExists(body.chassis, body.variant);
+    const isOriginalAvailable = !unitRepository.nameExists(
+      body.chassis,
+      body.variant,
+    );
 
     // Get suggestion
-    const suggestion = unitRepository.suggestCloneName(body.chassis, body.variant);
+    const suggestion = unitRepository.suggestCloneName(
+      body.chassis,
+      body.variant,
+    );
 
     return res.status(200).json({
       ...suggestion,
       isOriginalAvailable,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to suggest name';
+    const message =
+      error instanceof Error ? error.message : 'Failed to suggest name';
     return res.status(500).json({ error: message });
   }
 }
-

@@ -58,6 +58,7 @@ types/
 ```
 
 **Import pattern**:
+
 ```typescript
 import { TechBase, RulesLevel } from '@/types/enums';
 import { IEntity, ITechBaseEntity } from '@/types/core';
@@ -118,4 +119,3 @@ OpenSpec Specs → TypeScript Types → Services → Components
      ↓                 ↓              ↓           ↓
   (Rules)          (Contracts)    (Logic)      (UI)
 ```
-

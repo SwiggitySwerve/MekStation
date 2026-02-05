@@ -1,18 +1,22 @@
 /**
  * Formula Registry
- * 
+ *
  * Layered registry for variable equipment formulas.
  * Layer 1: Standard formulas (variableEquipmentFormulas.ts, read-only)
  * Layer 2: Custom formulas (IndexedDB, read-write, overrides standard)
- * 
+ *
  * @spec openspec/specs/equipment-services/spec.md
  */
 
-import { IVariableFormulas, IStoredFormula, validateVariableFormulas } from '@/types/equipment/VariableEquipment';
-import { ValidationError, StorageError } from '../common/errors';
-import { VARIABLE_EQUIPMENT_FORMULAS } from './variableEquipmentFormulas';
-import { indexedDBService, STORES } from '../persistence/IndexedDBService';
+import {
+  IVariableFormulas,
+  IStoredFormula,
+  validateVariableFormulas,
+} from '@/types/equipment/VariableEquipment';
 
+import { ValidationError, StorageError } from '../common/errors';
+import { indexedDBService, STORES } from '../persistence/IndexedDBService';
+import { VARIABLE_EQUIPMENT_FORMULAS } from './variableEquipmentFormulas';
 
 /**
  * Formula registry interface
@@ -23,9 +27,12 @@ export interface IFormulaRegistry {
   isVariable(equipmentId: string): boolean;
   getRequiredContext(equipmentId: string): readonly string[];
   getAllVariableEquipmentIds(): string[];
-  
+
   // Custom formula management
-  registerCustomFormulas(equipmentId: string, formulas: IVariableFormulas): Promise<void>;
+  registerCustomFormulas(
+    equipmentId: string,
+    formulas: IVariableFormulas,
+  ): Promise<void>;
   unregisterCustomFormulas(equipmentId: string): Promise<void>;
   getCustomFormulaIds(): string[];
 }
@@ -92,7 +99,7 @@ export class FormulaRegistry implements IFormulaRegistry {
   getAllVariableEquipmentIds(): string[] {
     const standardIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
     const customIds = Array.from(this.customFormulas.keys());
-    
+
     // Combine and deduplicate
     return Array.from(new Set(standardIds.concat(customIds)));
   }
@@ -100,14 +107,14 @@ export class FormulaRegistry implements IFormulaRegistry {
   /**
    * Register custom formulas for an equipment ID
    */
-  async registerCustomFormulas(equipmentId: string, formulas: IVariableFormulas): Promise<void> {
+  async registerCustomFormulas(
+    equipmentId: string,
+    formulas: IVariableFormulas,
+  ): Promise<void> {
     // Validate formulas
     const errors = validateVariableFormulas(formulas);
     if (errors.length > 0) {
-      throw new ValidationError(
-        `Invalid formulas for ${equipmentId}`,
-        errors
-      );
+      throw new ValidationError(`Invalid formulas for ${equipmentId}`, errors);
     }
 
     // Store in memory
@@ -119,10 +126,9 @@ export class FormulaRegistry implements IFormulaRegistry {
     } catch (error) {
       // Roll back memory change on storage failure
       this.customFormulas.delete(equipmentId);
-      throw new StorageError(
-        `Failed to persist formulas for ${equipmentId}`,
-        { error: String(error) }
-      );
+      throw new StorageError(`Failed to persist formulas for ${equipmentId}`, {
+        error: String(error),
+      });
     }
   }
 
@@ -141,7 +147,10 @@ export class FormulaRegistry implements IFormulaRegistry {
     try {
       await this.deleteCustomFormula(equipmentId);
     } catch (error) {
-      console.warn(`Failed to delete persisted formulas for ${equipmentId}:`, error);
+      console.warn(
+        `Failed to delete persisted formulas for ${equipmentId}:`,
+        error,
+      );
     }
   }
 
@@ -161,7 +170,7 @@ export class FormulaRegistry implements IFormulaRegistry {
       // Note: This requires the custom-formulas store to exist
       // For now, we'll try to load and silently fail if store doesn't exist
       const stored = await this.getAllStoredFormulas();
-      
+
       for (const record of stored) {
         this.customFormulas.set(record.equipmentId, record.formulas);
       }
@@ -173,13 +182,18 @@ export class FormulaRegistry implements IFormulaRegistry {
 
   private async getAllStoredFormulas(): Promise<IStoredFormula[]> {
     try {
-      return await indexedDBService.getAll<IStoredFormula>(STORES.CUSTOM_FORMULAS);
+      return await indexedDBService.getAll<IStoredFormula>(
+        STORES.CUSTOM_FORMULAS,
+      );
     } catch {
       return [];
     }
   }
 
-  private async saveCustomFormula(equipmentId: string, formulas: IVariableFormulas): Promise<void> {
+  private async saveCustomFormula(
+    equipmentId: string,
+    formulas: IVariableFormulas,
+  ): Promise<void> {
     const record: IStoredFormula = {
       equipmentId,
       formulas,
@@ -197,4 +211,3 @@ export class FormulaRegistry implements IFormulaRegistry {
 
 // Singleton instance
 export const formulaRegistry = new FormulaRegistry();
-

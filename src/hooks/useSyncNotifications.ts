@@ -11,19 +11,25 @@
  */
 
 import { useEffect, useCallback, useRef } from 'react';
-import { useToast } from '@/components/shared/Toast';
+
 import type {
   ISyncConflict,
   P2PConnectionState,
   ShareableContentType,
 } from '@/types/vault';
 
+import { useToast } from '@/components/shared/Toast';
+
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface SyncNotificationEvent {
-  type: 'share_received' | 'conflict_detected' | 'sync_complete' | 'connection_changed';
+  type:
+    | 'share_received'
+    | 'conflict_detected'
+    | 'sync_complete'
+    | 'connection_changed';
   data?: unknown;
 }
 
@@ -49,7 +55,10 @@ export interface UseSyncNotificationsOptions {
   /** Whether notifications are enabled */
   enabled?: boolean;
   /** Callback when user clicks to view shared item */
-  onViewShare?: (itemId: string, itemType: ShareableContentType | 'folder') => void;
+  onViewShare?: (
+    itemId: string,
+    itemType: ShareableContentType | 'folder',
+  ) => void;
   /** Callback when user clicks to resolve conflict */
   onResolveConflict?: (conflict: ISyncConflict) => void;
   /** Callback when user clicks to view sync details */
@@ -89,7 +98,7 @@ function getContentTypeLabel(type: ShareableContentType | 'folder'): string {
 }
 
 function pluralize(count: number, singular: string, plural?: string): string {
-  return count === 1 ? singular : (plural || `${singular}s`);
+  return count === 1 ? singular : plural || `${singular}s`;
 }
 
 // =============================================================================
@@ -119,7 +128,7 @@ function pluralize(count: number, singular: string, plural?: string): string {
  * ```
  */
 export function useSyncNotifications(
-  options: UseSyncNotificationsOptions = {}
+  options: UseSyncNotificationsOptions = {},
 ): UseSyncNotificationsReturn {
   const {
     enabled = true,
@@ -149,7 +158,7 @@ export function useSyncNotifications(
     (type: string, ...args: string[]): string => {
       return `${type}:${args.join(':')}`;
     },
-    []
+    [],
   );
 
   /**
@@ -170,13 +179,18 @@ export function useSyncNotifications(
     (data: ShareReceivedData) => {
       if (!enabled) return;
 
-      const key = getNotificationKey('share', data.itemName, data.fromContactName);
+      const key = getNotificationKey(
+        'share',
+        data.itemName,
+        data.fromContactName,
+      );
       if (wasRecentlyShown(key)) return;
 
       const typeLabel = getContentTypeLabel(data.itemType);
-      const message = data.itemCount && data.itemCount > 1
-        ? `${data.fromContactName} shared ${data.itemCount} ${pluralize(data.itemCount, typeLabel)} with you`
-        : `${data.fromContactName} shared "${data.itemName}" with you`;
+      const message =
+        data.itemCount && data.itemCount > 1
+          ? `${data.fromContactName} shared ${data.itemCount} ${pluralize(data.itemCount, typeLabel)} with you`
+          : `${data.fromContactName} shared "${data.itemName}" with you`;
 
       showToast({
         message,
@@ -190,7 +204,7 @@ export function useSyncNotifications(
           : undefined,
       });
     },
-    [enabled, showToast, onViewShare, getNotificationKey, wasRecentlyShown]
+    [enabled, showToast, onViewShare, getNotificationKey, wasRecentlyShown],
   );
 
   /**
@@ -217,7 +231,13 @@ export function useSyncNotifications(
           : undefined,
       });
     },
-    [enabled, showToast, onResolveConflict, getNotificationKey, wasRecentlyShown]
+    [
+      enabled,
+      showToast,
+      onResolveConflict,
+      getNotificationKey,
+      wasRecentlyShown,
+    ],
   );
 
   /**
@@ -231,7 +251,11 @@ export function useSyncNotifications(
       const totalChanges = data.changesReceived + data.changesSent;
       if (totalChanges === 0) return;
 
-      const key = getNotificationKey('sync', data.peerName, String(totalChanges));
+      const key = getNotificationKey(
+        'sync',
+        data.peerName,
+        String(totalChanges),
+      );
       if (wasRecentlyShown(key)) return;
 
       const parts: string[] = [];
@@ -254,7 +278,13 @@ export function useSyncNotifications(
           : undefined,
       });
     },
-    [enabled, showToast, onViewSyncDetails, getNotificationKey, wasRecentlyShown]
+    [
+      enabled,
+      showToast,
+      onViewSyncDetails,
+      getNotificationKey,
+      wasRecentlyShown,
+    ],
   );
 
   /**
@@ -296,7 +326,7 @@ export function useSyncNotifications(
         duration: 3000,
       });
     },
-    [enabled, showToast, getNotificationKey, wasRecentlyShown]
+    [enabled, showToast, getNotificationKey, wasRecentlyShown],
   );
 
   return {

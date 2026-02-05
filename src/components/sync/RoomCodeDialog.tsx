@@ -6,11 +6,18 @@
  * @spec openspec/changes/add-p2p-vault-sync/specs/vault-sync/spec.md
  */
 import React, { useState, useCallback, useEffect } from 'react';
+
+import type { IPeer } from '@/lib/p2p';
+
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { formatRoomCode, getRoomCodePlaceholder, isValidRoomCode } from '@/lib/p2p';
+import {
+  formatRoomCode,
+  getRoomCodePlaceholder,
+  isValidRoomCode,
+} from '@/lib/p2p';
+
 import { PeerList } from './PeerList';
-import type { IPeer } from '@/lib/p2p';
 
 // =============================================================================
 // Types
@@ -58,20 +65,22 @@ interface TabButtonProps {
   disabled?: boolean;
 }
 
-function TabButton({ active, onClick, children, disabled }: TabButtonProps): React.ReactElement {
+function TabButton({
+  active,
+  onClick,
+  children,
+  disabled,
+}: TabButtonProps): React.ReactElement {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`
-        flex-1 py-2.5 px-4 text-sm font-medium rounded-lg transition-all
-        ${active
-          ? 'bg-surface-raised text-text-theme-primary border border-border-theme'
+      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+        active
+          ? 'bg-surface-raised text-text-theme-primary border-border-theme border'
           : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-base/50'
-        }
-        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-      `}
+      } ${disabled ? 'cursor-not-allowed opacity-50' : ''} `}
     >
       {children}
     </button>
@@ -86,7 +95,9 @@ interface RoomCodeDisplayProps {
   roomCode: string;
 }
 
-function RoomCodeDisplay({ roomCode }: RoomCodeDisplayProps): React.ReactElement {
+function RoomCodeDisplay({
+  roomCode,
+}: RoomCodeDisplayProps): React.ReactElement {
   const [copied, setCopied] = useState(false);
   const formattedCode = formatRoomCode(roomCode);
 
@@ -110,29 +121,44 @@ function RoomCodeDisplay({ roomCode }: RoomCodeDisplayProps): React.ReactElement
 
   return (
     <div className="flex flex-col items-center gap-3 py-4">
-      <p className="text-xs text-text-theme-muted uppercase tracking-wider">Room Code</p>
+      <p className="text-text-theme-muted text-xs tracking-wider uppercase">
+        Room Code
+      </p>
       <div className="flex items-center gap-3">
-        <span className="text-3xl font-mono font-bold tracking-[0.3em] text-cyan-400">
+        <span className="font-mono text-3xl font-bold tracking-[0.3em] text-cyan-400">
           {formattedCode}
         </span>
         <button
           type="button"
           onClick={handleCopy}
-          className={`
-            p-2 rounded-lg transition-all
-            ${copied
-              ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30'
-              : 'bg-surface-raised/50 text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised border border-border-theme-subtle'
-            }
-          `}
+          className={`rounded-lg p-2 transition-all ${
+            copied
+              ? 'border border-emerald-500/30 bg-emerald-600/20 text-emerald-400'
+              : 'bg-surface-raised/50 text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised border-border-theme-subtle border'
+          } `}
           aria-label={copied ? 'Copied!' : 'Copy room code'}
         >
           {copied ? (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           ) : (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -143,7 +169,9 @@ function RoomCodeDisplay({ roomCode }: RoomCodeDisplayProps): React.ReactElement
           )}
         </button>
       </div>
-      <p className="text-xs text-text-theme-muted">Share this code with others to sync</p>
+      <p className="text-text-theme-muted text-xs">
+        Share this code with others to sync
+      </p>
     </div>
   );
 }
@@ -215,13 +243,18 @@ export function RoomCodeDialog({
     setCreatedCode(null);
   }, [onLeaveRoom]);
 
-  const handleJoinCodeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    // Auto-format as user types
-    const raw = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-    if (raw.length <= 6) {
-      setJoinCode(raw.length > 3 ? `${raw.slice(0, 3)}-${raw.slice(3)}` : raw);
-    }
-  }, []);
+  const handleJoinCodeChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      // Auto-format as user types
+      const raw = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+      if (raw.length <= 6) {
+        setJoinCode(
+          raw.length > 3 ? `${raw.slice(0, 3)}-${raw.slice(3)}` : raw,
+        );
+      }
+    },
+    [],
+  );
 
   if (!isOpen) return null;
 
@@ -237,20 +270,30 @@ export function RoomCodeDialog({
       />
 
       {/* Dialog */}
-      <div className="relative w-full max-w-md mx-4 bg-surface-base border border-border-theme rounded-2xl shadow-2xl shadow-black/50 overflow-hidden">
+      <div className="bg-surface-base border-border-theme relative mx-4 w-full max-w-md overflow-hidden rounded-2xl border shadow-2xl shadow-black/50">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-theme-subtle">
-          <h2 className="text-lg font-semibold text-text-theme-primary">
+        <div className="border-border-theme-subtle flex items-center justify-between border-b px-6 py-4">
+          <h2 className="text-text-theme-primary text-lg font-semibold">
             {isConnected ? 'Sync Room' : 'Connect to Sync'}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-text-theme-muted hover:text-text-theme-primary hover:bg-surface-raised transition-colors"
+            className="text-text-theme-muted hover:text-text-theme-primary hover:bg-surface-raised rounded-lg p-1.5 transition-colors"
             aria-label="Close dialog"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -262,8 +305,8 @@ export function RoomCodeDialog({
             <div className="space-y-6">
               <RoomCodeDisplay roomCode={currentRoomCode} />
 
-              <div className="border-t border-border-theme-subtle pt-4">
-                <h3 className="text-sm font-medium text-text-theme-secondary mb-3">
+              <div className="border-border-theme-subtle border-t pt-4">
+                <h3 className="text-text-theme-secondary mb-3 text-sm font-medium">
                   Connected Peers
                 </h3>
                 <PeerList
@@ -282,7 +325,7 @@ export function RoomCodeDialog({
             /* Disconnected state - show tabs */
             <div className="space-y-6">
               {/* Tab buttons */}
-              <div className="flex gap-2 p-1 bg-surface-base/50 rounded-xl border border-border-theme-subtle">
+              <div className="bg-surface-base/50 border-border-theme-subtle flex gap-2 rounded-xl border p-1">
                 <TabButton
                   active={activeTab === 'create'}
                   onClick={() => setActiveTab('create')}
@@ -306,8 +349,9 @@ export function RoomCodeDialog({
                     <RoomCodeDisplay roomCode={createdCode} />
                   ) : (
                     <>
-                      <p className="text-sm text-text-theme-secondary text-center">
-                        Create a new room and share the code with others to sync your vault.
+                      <p className="text-text-theme-secondary text-center text-sm">
+                        Create a new room and share the code with others to sync
+                        your vault.
                       </p>
                       <Input
                         type="password"
@@ -329,7 +373,7 @@ export function RoomCodeDialog({
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p className="text-sm text-text-theme-secondary text-center">
+                  <p className="text-text-theme-secondary text-center text-sm">
                     Enter a room code to join an existing sync session.
                   </p>
                   <Input
@@ -338,7 +382,7 @@ export function RoomCodeDialog({
                     value={joinCode}
                     onChange={handleJoinCodeChange}
                     accent="cyan"
-                    className="text-center text-lg font-mono tracking-wider"
+                    className="text-center font-mono text-lg tracking-wider"
                   />
                   <Input
                     type="password"
@@ -361,9 +405,9 @@ export function RoomCodeDialog({
 
               {/* Error display */}
               {error && (
-                <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-red-600/10 border border-red-500/30">
+                <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-600/10 px-4 py-3">
                   <svg
-                    className="w-5 h-5 text-red-400 flex-shrink-0"
+                    className="h-5 w-5 flex-shrink-0 text-red-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

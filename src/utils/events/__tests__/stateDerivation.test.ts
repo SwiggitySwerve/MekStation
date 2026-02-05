@@ -3,6 +3,9 @@
  * @spec openspec/changes/add-unified-event-store/specs/event-store/spec.md
  */
 
+import { EventCategory, IBaseEvent, ICheckpoint } from '@/types/events';
+
+import { createEvent, resetSequence } from '../eventFactory';
 // Jest globals are available
 import {
   deriveState,
@@ -12,8 +15,6 @@ import {
   createReducerBuilder,
   ReducerMap,
 } from '../stateDerivation';
-import { createEvent, resetSequence } from '../eventFactory';
-import { EventCategory, IBaseEvent, ICheckpoint } from '@/types/events';
 
 // Test state type
 interface TestState {
@@ -254,7 +255,13 @@ describe('deriveStateWithCheckpoint', () => {
       meta: testReducers.test,
     };
 
-    const state = deriveStateWithCheckpoint(checkpoint, events, 51, reducers, initialState);
+    const state = deriveStateWithCheckpoint(
+      checkpoint,
+      events,
+      51,
+      reducers,
+      initialState,
+    );
     expect(state.count).toBe(110);
   });
 
@@ -272,7 +279,13 @@ describe('deriveStateWithCheckpoint', () => {
       meta: testReducers.test,
     };
 
-    const state = deriveStateWithCheckpoint(undefined, events, 1, reducers, initialState);
+    const state = deriveStateWithCheckpoint(
+      undefined,
+      events,
+      1,
+      reducers,
+      initialState,
+    );
     expect(state.count).toBe(5);
   });
 
@@ -300,7 +313,13 @@ describe('deriveStateWithCheckpoint', () => {
     };
 
     // Target is before checkpoint, so checkpoint should not be used
-    const state = deriveStateWithCheckpoint(checkpoint, events, 1, reducers, initialState);
+    const state = deriveStateWithCheckpoint(
+      checkpoint,
+      events,
+      1,
+      reducers,
+      initialState,
+    );
     expect(state.count).toBe(5); // Not 999
   });
 });

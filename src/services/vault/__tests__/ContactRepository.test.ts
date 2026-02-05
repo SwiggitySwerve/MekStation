@@ -6,12 +6,13 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type { IContact, IStoredContact } from '@/types/vault';
+
 import {
   ContactRepository,
   getContactRepository,
   resetContactRepository,
 } from '@/services/vault/ContactRepository';
-import type { IContact, IStoredContact } from '@/types/vault';
 
 // =============================================================================
 // Mock SQLite Service
@@ -62,7 +63,9 @@ Object.defineProperty(globalThis, 'crypto', {
 // Test Helpers
 // =============================================================================
 
-const createMockStoredContact = (overrides: Partial<IStoredContact> = {}): IStoredContact => ({
+const createMockStoredContact = (
+  overrides: Partial<IStoredContact> = {},
+): IStoredContact => ({
   id: 'contact-test-123',
   friend_code: 'ABCD-EFGH-JKLM-NPQR',
   public_key: 'test-public-key-base64',
@@ -91,7 +94,7 @@ const createMockContact = (overrides: Partial<IContact> = {}): IContact => ({
 });
 
 const createContactInput = (
-  overrides: Partial<Omit<IContact, 'id' | 'addedAt'>> = {}
+  overrides: Partial<Omit<IContact, 'id' | 'addedAt'>> = {},
 ): Omit<IContact, 'id' | 'addedAt'> => ({
   friendCode: 'ABCD-EFGH-JKLM-NPQR',
   publicKey: 'test-public-key-base64',
@@ -132,7 +135,7 @@ describe('ContactRepository', () => {
 
       expect(mockSQLiteService.initialize).toHaveBeenCalled();
       expect(mockDatabase.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE TABLE IF NOT EXISTS vault_contacts')
+        expect.stringContaining('CREATE TABLE IF NOT EXISTS vault_contacts'),
       );
     });
 
@@ -140,9 +143,15 @@ describe('ContactRepository', () => {
       await repository.initialize();
 
       const execCall = (mockDatabase.exec.mock.calls as string[][])[0][0];
-      expect(execCall).toContain('CREATE INDEX IF NOT EXISTS idx_vault_contacts_friend_code');
-      expect(execCall).toContain('CREATE INDEX IF NOT EXISTS idx_vault_contacts_public_key');
-      expect(execCall).toContain('CREATE INDEX IF NOT EXISTS idx_vault_contacts_added_at');
+      expect(execCall).toContain(
+        'CREATE INDEX IF NOT EXISTS idx_vault_contacts_friend_code',
+      );
+      expect(execCall).toContain(
+        'CREATE INDEX IF NOT EXISTS idx_vault_contacts_public_key',
+      );
+      expect(execCall).toContain(
+        'CREATE INDEX IF NOT EXISTS idx_vault_contacts_added_at',
+      );
     });
 
     it('should only initialize once', async () => {
@@ -182,7 +191,7 @@ describe('ContactRepository', () => {
       await repository.create(input);
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO vault_contacts')
+        expect.stringContaining('INSERT INTO vault_contacts'),
       );
       expect(mockStatement.run).toHaveBeenCalledWith(
         `contact-${mockUUID}`,
@@ -194,7 +203,7 @@ describe('ContactRepository', () => {
         expect.any(String), // addedAt
         input.lastSeenAt,
         1, // isTrusted converted to integer
-        input.notes
+        input.notes,
       );
     });
 
@@ -229,7 +238,7 @@ describe('ContactRepository', () => {
       const result = await repository.getById('contact-test-123');
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_contacts WHERE id = ?'
+        'SELECT * FROM vault_contacts WHERE id = ?',
       );
       expect(mockStatement.get).toHaveBeenCalledWith('contact-test-123');
       expect(result).toEqual(createMockContact());
@@ -261,7 +270,7 @@ describe('ContactRepository', () => {
       const result = await repository.getByFriendCode('ABCD-EFGH-JKLM-NPQR');
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_contacts WHERE friend_code = ?'
+        'SELECT * FROM vault_contacts WHERE friend_code = ?',
       );
       expect(mockStatement.get).toHaveBeenCalledWith('ABCD-EFGH-JKLM-NPQR');
       expect(result).not.toBeNull();
@@ -284,7 +293,7 @@ describe('ContactRepository', () => {
       const result = await repository.getByPublicKey('test-public-key-base64');
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_contacts WHERE public_key = ?'
+        'SELECT * FROM vault_contacts WHERE public_key = ?',
       );
       expect(mockStatement.get).toHaveBeenCalledWith('test-public-key-base64');
       expect(result).not.toBeNull();
@@ -310,7 +319,7 @@ describe('ContactRepository', () => {
       const result = await repository.getAll();
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_contacts ORDER BY COALESCE(nickname, display_name)'
+        'SELECT * FROM vault_contacts ORDER BY COALESCE(nickname, display_name)',
       );
       expect(result).toHaveLength(2);
     });
@@ -348,7 +357,7 @@ describe('ContactRepository', () => {
       const result = await repository.getTrusted();
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'SELECT * FROM vault_contacts WHERE is_trusted = 1 ORDER BY COALESCE(nickname, display_name)'
+        'SELECT * FROM vault_contacts WHERE is_trusted = 1 ORDER BY COALESCE(nickname, display_name)',
       );
       expect(result).toHaveLength(2);
       expect(result.every((c) => c.isTrusted)).toBe(true);
@@ -371,9 +380,15 @@ describe('ContactRepository', () => {
       const result = await repository.search('Test');
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE nickname LIKE ? OR display_name LIKE ? OR friend_code LIKE ?')
+        expect.stringContaining(
+          'WHERE nickname LIKE ? OR display_name LIKE ? OR friend_code LIKE ?',
+        ),
       );
-      expect(mockStatement.all).toHaveBeenCalledWith('%Test%', '%Test%', '%Test%');
+      expect(mockStatement.all).toHaveBeenCalledWith(
+        '%Test%',
+        '%Test%',
+        '%Test%',
+      );
       expect(result).toHaveLength(1);
     });
 
@@ -394,19 +409,28 @@ describe('ContactRepository', () => {
     it('should update nickname and return true on success', async () => {
       mockStatement.run.mockReturnValue({ changes: 1 });
 
-      const result = await repository.updateNickname('contact-123', 'New Nickname');
+      const result = await repository.updateNickname(
+        'contact-123',
+        'New Nickname',
+      );
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_contacts SET nickname = ? WHERE id = ?'
+        'UPDATE vault_contacts SET nickname = ? WHERE id = ?',
       );
-      expect(mockStatement.run).toHaveBeenCalledWith('New Nickname', 'contact-123');
+      expect(mockStatement.run).toHaveBeenCalledWith(
+        'New Nickname',
+        'contact-123',
+      );
       expect(result).toBe(true);
     });
 
     it('should return false when contact not found', async () => {
       mockStatement.run.mockReturnValue({ changes: 0 });
 
-      const result = await repository.updateNickname('non-existent', 'Nickname');
+      const result = await repository.updateNickname(
+        'non-existent',
+        'Nickname',
+      );
 
       expect(result).toBe(false);
     });
@@ -428,7 +452,7 @@ describe('ContactRepository', () => {
       const result = await repository.updateTrusted('contact-123', true);
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_contacts SET is_trusted = ? WHERE id = ?'
+        'UPDATE vault_contacts SET is_trusted = ? WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith(1, 'contact-123');
       expect(result).toBe(true);
@@ -459,9 +483,12 @@ describe('ContactRepository', () => {
       const result = await repository.updateNotes('contact-123', 'New notes');
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_contacts SET notes = ? WHERE id = ?'
+        'UPDATE vault_contacts SET notes = ? WHERE id = ?',
       );
-      expect(mockStatement.run).toHaveBeenCalledWith('New notes', 'contact-123');
+      expect(mockStatement.run).toHaveBeenCalledWith(
+        'New notes',
+        'contact-123',
+      );
       expect(result).toBe(true);
     });
 
@@ -491,7 +518,7 @@ describe('ContactRepository', () => {
       const result = await repository.updateLastSeen('contact-123', timestamp);
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_contacts SET last_seen_at = ? WHERE id = ?'
+        'UPDATE vault_contacts SET last_seen_at = ? WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith(timestamp, 'contact-123');
       expect(result).toBe(true);
@@ -500,7 +527,10 @@ describe('ContactRepository', () => {
     it('should return false when contact not found', async () => {
       mockStatement.run.mockReturnValue({ changes: 0 });
 
-      const result = await repository.updateLastSeen('non-existent', '2024-01-15T10:30:00.000Z');
+      const result = await repository.updateLastSeen(
+        'non-existent',
+        '2024-01-15T10:30:00.000Z',
+      );
 
       expect(result).toBe(false);
     });
@@ -513,16 +543,16 @@ describe('ContactRepository', () => {
       const result = await repository.updateFromIdentity(
         'contact-123',
         'New Display Name',
-        'avatar-url'
+        'avatar-url',
       );
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_contacts SET display_name = ?, avatar = ? WHERE id = ?'
+        'UPDATE vault_contacts SET display_name = ?, avatar = ? WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith(
         'New Display Name',
         'avatar-url',
-        'contact-123'
+        'contact-123',
       );
       expect(result).toBe(true);
     });
@@ -530,16 +560,28 @@ describe('ContactRepository', () => {
     it('should allow setting avatar to null', async () => {
       mockStatement.run.mockReturnValue({ changes: 1 });
 
-      const result = await repository.updateFromIdentity('contact-123', 'Name', null);
+      const result = await repository.updateFromIdentity(
+        'contact-123',
+        'Name',
+        null,
+      );
 
-      expect(mockStatement.run).toHaveBeenCalledWith('Name', null, 'contact-123');
+      expect(mockStatement.run).toHaveBeenCalledWith(
+        'Name',
+        null,
+        'contact-123',
+      );
       expect(result).toBe(true);
     });
 
     it('should return false when contact not found', async () => {
       mockStatement.run.mockReturnValue({ changes: 0 });
 
-      const result = await repository.updateFromIdentity('non-existent', 'Name', null);
+      const result = await repository.updateFromIdentity(
+        'non-existent',
+        'Name',
+        null,
+      );
 
       expect(result).toBe(false);
     });
@@ -556,7 +598,7 @@ describe('ContactRepository', () => {
       const result = await repository.delete('contact-123');
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'DELETE FROM vault_contacts WHERE id = ?'
+        'DELETE FROM vault_contacts WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('contact-123');
       expect(result).toBe(true);
@@ -578,7 +620,7 @@ describe('ContactRepository', () => {
       const result = await repository.deleteByFriendCode('ABCD-EFGH-JKLM-NPQR');
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'DELETE FROM vault_contacts WHERE friend_code = ?'
+        'DELETE FROM vault_contacts WHERE friend_code = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('ABCD-EFGH-JKLM-NPQR');
       expect(result).toBe(true);
@@ -604,7 +646,7 @@ describe('ContactRepository', () => {
       const result = await repository.exists('ABCD-EFGH-JKLM-NPQR');
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'SELECT 1 FROM vault_contacts WHERE friend_code = ?'
+        'SELECT 1 FROM vault_contacts WHERE friend_code = ?',
       );
       expect(mockStatement.get).toHaveBeenCalledWith('ABCD-EFGH-JKLM-NPQR');
       expect(result).toBe(true);
@@ -626,7 +668,7 @@ describe('ContactRepository', () => {
       const result = await repository.count();
 
       expect(mockDatabase.prepare).toHaveBeenCalledWith(
-        'SELECT COUNT(*) as count FROM vault_contacts'
+        'SELECT COUNT(*) as count FROM vault_contacts',
       );
       expect(result).toBe(5);
     });

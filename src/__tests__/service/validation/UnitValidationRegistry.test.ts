@@ -1,6 +1,6 @@
 /**
  * Unit tests for UnitValidationRegistry
- * 
+ *
  * Tests the hierarchical registry for unit validation rules including
  * registration, retrieval, inheritance, and caching.
  */
@@ -10,17 +10,17 @@ import {
   getUnitValidationRegistry,
   resetUnitValidationRegistry,
 } from '@/services/validation/UnitValidationRegistry';
+import { Era } from '@/types/enums/Era';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   UnitCategory,
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
   createUnitValidationRuleResult,
 } from '@/types/validation/UnitValidationInterfaces';
-import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { Era } from '@/types/enums/Era';
 
 describe('UnitValidationRegistry', () => {
   let registry: UnitValidationRegistry;
@@ -28,7 +28,7 @@ describe('UnitValidationRegistry', () => {
   // Helper to create a mock rule definition
   const createMockRule = (
     id: string,
-    options: Partial<IUnitValidationRuleDefinition> = {}
+    options: Partial<IUnitValidationRuleDefinition> = {},
   ): IUnitValidationRuleDefinition => ({
     id,
     name: `Test Rule ${id}`,
@@ -39,7 +39,8 @@ describe('UnitValidationRegistry', () => {
     overrides: options.overrides,
     extends: options.extends,
     canValidate: options.canValidate,
-    validate: () => createUnitValidationRuleResult(id, `Test Rule ${id}`, [], [], [], 0),
+    validate: () =>
+      createUnitValidationRuleResult(id, `Test Rule ${id}`, [], [], [], 0),
   });
 
   // Helper to create a mock validation context
@@ -102,9 +103,9 @@ describe('UnitValidationRegistry', () => {
       const vehicleRules = registry.getRulesForUnitType(UnitType.VEHICLE);
       const aeroRules = registry.getRulesForUnitType(UnitType.AEROSPACE);
 
-      expect(mechRules.some(r => r.id === 'VAL-UNIV-TEST')).toBe(true);
-      expect(vehicleRules.some(r => r.id === 'VAL-UNIV-TEST')).toBe(true);
-      expect(aeroRules.some(r => r.id === 'VAL-UNIV-TEST')).toBe(true);
+      expect(mechRules.some((r) => r.id === 'VAL-UNIV-TEST')).toBe(true);
+      expect(vehicleRules.some((r) => r.id === 'VAL-UNIV-TEST')).toBe(true);
+      expect(aeroRules.some((r) => r.id === 'VAL-UNIV-TEST')).toBe(true);
     });
   });
 
@@ -129,8 +130,8 @@ describe('UnitValidationRegistry', () => {
       const mechRules = registry.getRulesForUnitType(UnitType.BATTLEMECH);
       const vehicleRules = registry.getRulesForUnitType(UnitType.VEHICLE);
 
-      expect(mechRules.some(r => r.id === 'VAL-MECH-TEST')).toBe(true);
-      expect(vehicleRules.some(r => r.id === 'VAL-MECH-TEST')).toBe(false);
+      expect(mechRules.some((r) => r.id === 'VAL-MECH-TEST')).toBe(true);
+      expect(vehicleRules.some((r) => r.id === 'VAL-MECH-TEST')).toBe(false);
     });
   });
 
@@ -151,8 +152,8 @@ describe('UnitValidationRegistry', () => {
       const bmRules = registry.getRulesForUnitType(UnitType.BATTLEMECH);
       const omRules = registry.getRulesForUnitType(UnitType.OMNIMECH);
 
-      expect(bmRules.some(r => r.id === 'VAL-BM-TEST')).toBe(true);
-      expect(omRules.some(r => r.id === 'VAL-BM-TEST')).toBe(false);
+      expect(bmRules.some((r) => r.id === 'VAL-BM-TEST')).toBe(true);
+      expect(omRules.some((r) => r.id === 'VAL-BM-TEST')).toBe(false);
     });
   });
 
@@ -233,7 +234,7 @@ describe('UnitValidationRegistry', () => {
 
       const foundRule = registry.getRule('VAL-TEST-001');
       const context = createMockContext(UnitType.BATTLEMECH);
-      
+
       expect(foundRule?.canValidate(context)).toBe(false);
     });
   });
@@ -241,8 +242,14 @@ describe('UnitValidationRegistry', () => {
   describe('Clear', () => {
     it('should clear all rules', () => {
       registry.registerUniversalRule(createMockRule('VAL-UNIV-001'));
-      registry.registerCategoryRule(UnitCategory.MECH, createMockRule('VAL-MECH-001'));
-      registry.registerUnitTypeRule(UnitType.BATTLEMECH, createMockRule('VAL-BM-001'));
+      registry.registerCategoryRule(
+        UnitCategory.MECH,
+        createMockRule('VAL-MECH-001'),
+      );
+      registry.registerUnitTypeRule(
+        UnitType.BATTLEMECH,
+        createMockRule('VAL-BM-001'),
+      );
 
       registry.clear();
 
@@ -254,9 +261,15 @@ describe('UnitValidationRegistry', () => {
 
   describe('Priority Sorting', () => {
     it('should return rules sorted by priority', () => {
-      registry.registerUniversalRule(createMockRule('VAL-LOW', { priority: 100 }));
-      registry.registerUniversalRule(createMockRule('VAL-HIGH', { priority: 10 }));
-      registry.registerUniversalRule(createMockRule('VAL-MED', { priority: 50 }));
+      registry.registerUniversalRule(
+        createMockRule('VAL-LOW', { priority: 100 }),
+      );
+      registry.registerUniversalRule(
+        createMockRule('VAL-HIGH', { priority: 10 }),
+      );
+      registry.registerUniversalRule(
+        createMockRule('VAL-MED', { priority: 50 }),
+      );
 
       const rules = registry.getRulesForUnitType(UnitType.BATTLEMECH);
 
@@ -280,8 +293,8 @@ describe('UnitValidationRegistry', () => {
       const rules = registry.getRulesForUnitType(UnitType.BATTLEMECH);
 
       // The overriding rule should have removed the base rule
-      expect(rules.some(r => r.id === 'VAL-BASE')).toBe(false);
-      expect(rules.some(r => r.id === 'VAL-OVERRIDE')).toBe(true);
+      expect(rules.some((r) => r.id === 'VAL-BASE')).toBe(false);
+      expect(rules.some((r) => r.id === 'VAL-OVERRIDE')).toBe(true);
     });
   });
 
@@ -294,7 +307,14 @@ describe('UnitValidationRegistry', () => {
         ...createMockRule('VAL-BASE', { priority: 10 }),
         validate: () => {
           baseExecuted = true;
-          return createUnitValidationRuleResult('VAL-BASE', 'Base', [], [], [], 0);
+          return createUnitValidationRuleResult(
+            'VAL-BASE',
+            'Base',
+            [],
+            [],
+            [],
+            0,
+          );
         },
       };
 
@@ -302,7 +322,14 @@ describe('UnitValidationRegistry', () => {
         ...createMockRule('VAL-EXTEND', { priority: 20, extends: 'VAL-BASE' }),
         validate: () => {
           extendExecuted = true;
-          return createUnitValidationRuleResult('VAL-EXTEND', 'Extend', [], [], [], 0);
+          return createUnitValidationRuleResult(
+            'VAL-EXTEND',
+            'Extend',
+            [],
+            [],
+            [],
+            0,
+          );
         },
       };
 
@@ -313,7 +340,7 @@ describe('UnitValidationRegistry', () => {
       const context = createMockContext(UnitType.BATTLEMECH);
 
       // Find the chained rule (it should use the base rule's ID)
-      const chainedRule = rules.find(r => r.id === 'VAL-BASE');
+      const chainedRule = rules.find((r) => r.id === 'VAL-BASE');
       expect(chainedRule).toBeDefined();
 
       // Execute the chained rule
@@ -376,7 +403,7 @@ describe('UnitValidationRegistry', () => {
 
       const foundRule = registry.getRule('VAL-CUSTOM');
       const heavyContext = createMockContext(UnitType.BATTLEMECH);
-      
+
       const lightContext: IUnitValidationContext = {
         ...createMockContext(UnitType.BATTLEMECH),
         unit: { ...createMockContext(UnitType.BATTLEMECH).unit, weight: 20 },

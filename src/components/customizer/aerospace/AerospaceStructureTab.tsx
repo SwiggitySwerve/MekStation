@@ -7,17 +7,22 @@
  */
 
 import React, { useCallback } from 'react';
+
 import { useAerospaceStore } from '@/stores/useAerospaceStore';
 import { EngineType } from '@/types/construction/EngineType';
-import { AerospaceCockpitType } from '@/types/unit/AerospaceInterfaces';
 import { TechBase } from '@/types/enums/TechBase';
+import { AerospaceCockpitType } from '@/types/unit/AerospaceInterfaces';
+
 import { customizerStyles as cs } from '../styles';
 
 // =============================================================================
 // Constants
 // =============================================================================
 
-const TONNAGE_OPTIONS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+const TONNAGE_OPTIONS = [
+  5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95,
+  100,
+];
 
 const ENGINE_TYPE_OPTIONS: { value: EngineType; label: string }[] = [
   { value: EngineType.STANDARD, label: 'Standard Fusion' },
@@ -74,7 +79,9 @@ export function AerospaceStructureTab({
   const setEngineType = useAerospaceStore((s) => s.setEngineType);
   const setSafeThrust = useAerospaceStore((s) => s.setSafeThrust);
   const setFuel = useAerospaceStore((s) => s.setFuel);
-  const setStructuralIntegrity = useAerospaceStore((s) => s.setStructuralIntegrity);
+  const setStructuralIntegrity = useAerospaceStore(
+    (s) => s.setStructuralIntegrity,
+  );
   const setCockpitType = useAerospaceStore((s) => s.setCockpitType);
   const setHeatSinks = useAerospaceStore((s) => s.setHeatSinks);
   const setDoubleHeatSinks = useAerospaceStore((s) => s.setDoubleHeatSinks);
@@ -89,14 +96,14 @@ export function AerospaceStructureTab({
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       setTonnage(Number(e.target.value));
     },
-    [setTonnage]
+    [setTonnage],
   );
 
   const handleEngineTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       setEngineType(e.target.value as EngineType);
     },
-    [setEngineType]
+    [setEngineType],
   );
 
   const handleThrustChange = useCallback(
@@ -104,19 +111,22 @@ export function AerospaceStructureTab({
       const newThrust = Math.max(1, Math.min(12, safeThrust + delta));
       setSafeThrust(newThrust);
     },
-    [safeThrust, setSafeThrust]
+    [safeThrust, setSafeThrust],
   );
 
   const handleCockpitTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       setCockpitType(e.target.value as AerospaceCockpitType);
     },
-    [setCockpitType]
+    [setCockpitType],
   );
 
   return (
-    <div className={`${cs.panel.main} ${className}`} data-testid="aerospace-structure-tab">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div
+      className={`${cs.panel.main} ${className}`}
+      data-testid="aerospace-structure-tab"
+    >
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Chassis Section */}
         <section data-testid="aerospace-chassis-section">
           <h3 className={cs.text.sectionTitle}>Chassis</h3>
@@ -142,25 +152,27 @@ export function AerospaceStructureTab({
           {/* Tech Base (read-only display) */}
           <div className="mb-4">
             <label className={cs.text.label}>Tech Base</label>
-            <div className={`${cs.input.full} mt-1 bg-surface-base cursor-not-allowed`}>
+            <div
+              className={`${cs.input.full} bg-surface-base mt-1 cursor-not-allowed`}
+            >
               {techBase === TechBase.INNER_SPHERE ? 'Inner Sphere' : 'Clan'}
             </div>
           </div>
 
           {/* OmniFighter Toggle */}
           <div className="mb-4">
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={isOmni}
                 onChange={(e) => setIsOmni(e.target.checked)}
                 disabled={readOnly}
-                className="w-4 h-4"
+                className="h-4 w-4"
                 data-testid="aerospace-omni-checkbox"
               />
               <span className={cs.text.label}>OmniFighter</span>
             </label>
-            <p className="text-xs text-text-theme-secondary mt-1">
+            <p className="text-text-theme-secondary mt-1 text-xs">
               OmniFighters can swap pod-mounted equipment between missions
             </p>
           </div>
@@ -191,7 +203,7 @@ export function AerospaceStructureTab({
           {/* Safe Thrust */}
           <div className="mb-4">
             <label className={cs.text.label}>Safe Thrust</label>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1 flex items-center gap-2">
               <button
                 onClick={() => handleThrustChange(-1)}
                 disabled={readOnly || safeThrust <= 1}
@@ -215,7 +227,10 @@ export function AerospaceStructureTab({
               >
                 +
               </button>
-              <span className={cs.text.secondary} data-testid="aerospace-max-thrust">
+              <span
+                className={cs.text.secondary}
+                data-testid="aerospace-max-thrust"
+              >
                 (Max: {maxThrust})
               </span>
             </div>
@@ -224,7 +239,9 @@ export function AerospaceStructureTab({
           {/* Engine Rating (calculated) */}
           <div className="mb-4">
             <label className={cs.text.label}>Engine Rating</label>
-            <div className={`${cs.input.full} mt-1 bg-surface-base cursor-not-allowed`}>
+            <div
+              className={`${cs.input.full} bg-surface-base mt-1 cursor-not-allowed`}
+            >
               {engineRating}
             </div>
           </div>
@@ -252,7 +269,7 @@ export function AerospaceStructureTab({
           {/* Structural Integrity */}
           <div className="mb-4">
             <label className={cs.text.label}>Structural Integrity</label>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1 flex items-center gap-2">
               <button
                 onClick={() => setStructuralIntegrity(structuralIntegrity - 1)}
                 disabled={readOnly || structuralIntegrity <= 1}
@@ -299,23 +316,23 @@ export function AerospaceStructureTab({
 
           {/* Cockpit Options */}
           <div className="space-y-2">
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={hasReinforcedCockpit}
                 onChange={(e) => setReinforcedCockpit(e.target.checked)}
                 disabled={readOnly}
-                className="w-4 h-4"
+                className="h-4 w-4"
               />
               <span className={cs.text.label}>Reinforced Cockpit</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={hasEjectionSeat}
                 onChange={(e) => setEjectionSeat(e.target.checked)}
                 disabled={readOnly}
-                className="w-4 h-4"
+                className="h-4 w-4"
               />
               <span className={cs.text.label}>Ejection Seat</span>
             </label>
@@ -329,7 +346,7 @@ export function AerospaceStructureTab({
           {/* Heat Sinks */}
           <div className="mb-4">
             <label className={cs.text.label}>Heat Sinks</label>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1 flex items-center gap-2">
               <button
                 onClick={() => setHeatSinks(heatSinks - 1)}
                 disabled={readOnly || heatSinks <= 0}
@@ -358,31 +375,36 @@ export function AerospaceStructureTab({
 
           {/* Double Heat Sinks */}
           <div className="mb-4">
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={doubleHeatSinks}
                 onChange={(e) => setDoubleHeatSinks(e.target.checked)}
                 disabled={readOnly}
-                className="w-4 h-4"
+                className="h-4 w-4"
                 data-testid="aerospace-double-heatsinks-checkbox"
               />
               <span className={cs.text.label}>Double Heat Sinks</span>
             </label>
-            <p className="text-xs text-text-theme-secondary mt-1" data-testid="aerospace-heat-dissipation">
-              {doubleHeatSinks ? `${heatSinks * 2} heat dissipation` : `${heatSinks} heat dissipation`}
+            <p
+              className="text-text-theme-secondary mt-1 text-xs"
+              data-testid="aerospace-heat-dissipation"
+            >
+              {doubleHeatSinks
+                ? `${heatSinks * 2} heat dissipation`
+                : `${heatSinks} heat dissipation`}
             </p>
           </div>
 
           {/* Bomb Bay */}
           <div className="mb-4">
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={hasBombBay}
                 onChange={(e) => setHasBombBay(e.target.checked)}
                 disabled={readOnly}
-                className="w-4 h-4"
+                className="h-4 w-4"
                 data-testid="aerospace-bombbay-checkbox"
               />
               <span className={cs.text.label}>Bomb Bay</span>

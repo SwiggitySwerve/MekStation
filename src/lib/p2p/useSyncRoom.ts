@@ -8,10 +8,11 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { useSyncRoomStore } from './useSyncRoomStore';
-import { ConnectionState, IPeer } from './types';
+
 import { formatRoomCode } from './roomCodes';
 import { getConnectedPeerCount } from './SyncProvider';
+import { ConnectionState, IPeer } from './types';
+import { useSyncRoomStore } from './useSyncRoomStore';
 
 // =============================================================================
 // Hook Return Type
@@ -115,14 +116,14 @@ export function useSyncRoom(): UseSyncRoomReturn {
       const code = await store.createRoom({ password });
       return formatRoomCode(code);
     },
-    [store]
+    [store],
   );
 
   const joinRoom = useCallback(
     async (roomCode: string, password?: string) => {
       await store.joinRoom(roomCode, password);
     },
-    [store]
+    [store],
   );
 
   const leaveRoom = useCallback(() => {
@@ -133,7 +134,7 @@ export function useSyncRoom(): UseSyncRoomReturn {
     (name: string) => {
       store.setLocalPeerName(name);
     },
-    [store]
+    [store],
   );
 
   const clearError = useCallback(() => {
@@ -141,7 +142,9 @@ export function useSyncRoom(): UseSyncRoomReturn {
   }, [store]);
 
   return {
-    roomCode: store.activeRoom ? formatRoomCode(store.activeRoom.roomCode) : null,
+    roomCode: store.activeRoom
+      ? formatRoomCode(store.activeRoom.roomCode)
+      : null,
     rawRoomCode: store.activeRoom?.roomCode ?? null,
     connectionState: store.connectionState,
     isConnected: store.connectionState === ConnectionState.Connected,

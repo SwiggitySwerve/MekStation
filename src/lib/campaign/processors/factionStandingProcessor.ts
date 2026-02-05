@@ -1,5 +1,5 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
+
 import {
   IDayProcessor,
   IDayProcessorResult,
@@ -8,7 +8,6 @@ import {
   getDayPipeline,
   isFirstOfMonth,
 } from '../dayPipeline';
-import { processRegardDecay } from '../factionStanding/standingService';
 import {
   checkAccoladeEscalation,
   checkCensureEscalation,
@@ -17,8 +16,12 @@ import {
   AccoladeLevel,
   CensureLevel,
 } from '../factionStanding/escalation';
+import { processRegardDecay } from '../factionStanding/standingService';
 
-function createAccoladeEvent(factionId: string, level: AccoladeLevel): IDayEvent {
+function createAccoladeEvent(
+  factionId: string,
+  level: AccoladeLevel,
+): IDayEvent {
   const levelNames: Record<AccoladeLevel, string> = {
     [AccoladeLevel.NONE]: 'None',
     [AccoladeLevel.TAKING_NOTICE]: 'Taking Notice',

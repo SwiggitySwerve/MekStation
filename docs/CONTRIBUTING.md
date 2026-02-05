@@ -58,4 +58,3 @@ See [`openspec/AGENTS.md`](../openspec/AGENTS.md) for the complete workflow.
 ## Questions?
 
 Open a GitHub issue for questions or clarifications before starting work on large features.
-

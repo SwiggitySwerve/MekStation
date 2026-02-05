@@ -1,3 +1,10 @@
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import {
   getEngineTechBase,
   getGyroTechBase,
@@ -13,13 +20,6 @@ import {
   getAvailableHeatSinkTypes,
   getAvailableArmorTypes,
 } from '@/utils/construction/techBaseValidation';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 
 describe('techBaseValidation', () => {
   describe('getEngineTechBase()', () => {
@@ -59,21 +59,37 @@ describe('techBaseValidation', () => {
 
   describe('isComponentCompatible()', () => {
     it('should return true for same tech base', () => {
-      expect(isComponentCompatible(TechBase.INNER_SPHERE, TechBase.INNER_SPHERE, false)).toBe(true);
-      expect(isComponentCompatible(TechBase.CLAN, TechBase.CLAN, false)).toBe(true);
+      expect(
+        isComponentCompatible(
+          TechBase.INNER_SPHERE,
+          TechBase.INNER_SPHERE,
+          false,
+        ),
+      ).toBe(true);
+      expect(isComponentCompatible(TechBase.CLAN, TechBase.CLAN, false)).toBe(
+        true,
+      );
     });
 
     it('should return true when mixed tech is allowed', () => {
-      expect(isComponentCompatible(TechBase.INNER_SPHERE, TechBase.CLAN, true)).toBe(true);
-      expect(isComponentCompatible(TechBase.CLAN, TechBase.INNER_SPHERE, true)).toBe(true);
+      expect(
+        isComponentCompatible(TechBase.INNER_SPHERE, TechBase.CLAN, true),
+      ).toBe(true);
+      expect(
+        isComponentCompatible(TechBase.CLAN, TechBase.INNER_SPHERE, true),
+      ).toBe(true);
     });
 
     it('should allow IS components on Clan units', () => {
-      expect(isComponentCompatible(TechBase.INNER_SPHERE, TechBase.CLAN, false)).toBe(true);
+      expect(
+        isComponentCompatible(TechBase.INNER_SPHERE, TechBase.CLAN, false),
+      ).toBe(true);
     });
 
     it('should not allow Clan components on IS units without mixed tech', () => {
-      expect(isComponentCompatible(TechBase.CLAN, TechBase.INNER_SPHERE, false)).toBe(false);
+      expect(
+        isComponentCompatible(TechBase.CLAN, TechBase.INNER_SPHERE, false),
+      ).toBe(false);
     });
   });
 
@@ -85,9 +101,9 @@ describe('techBaseValidation', () => {
           engineType: EngineType.STANDARD,
           gyroType: GyroType.STANDARD,
         },
-        false
+        false,
       );
-      
+
       expect(result.isValid).toBe(true);
     });
 
@@ -97,9 +113,9 @@ describe('techBaseValidation', () => {
         {
           engineType: EngineType.XL_CLAN,
         },
-        false
+        false,
       );
-      
+
       // Result depends on actual engine definitions
       expect(result).toBeDefined();
     });
@@ -114,9 +130,9 @@ describe('techBaseValidation', () => {
           heatSinkType: HeatSinkType.SINGLE,
           armorType: ArmorTypeEnum.STANDARD,
         },
-        false
+        false,
       );
-      
+
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
@@ -128,9 +144,9 @@ describe('techBaseValidation', () => {
           engineType: EngineType.XL_CLAN,
           gyroType: GyroType.STANDARD, // Add IS component to create mixed tech
         },
-        true
+        true,
       );
-      
+
       expect(result.isValid).toBe(true);
       expect(result.warnings).toContain('Unit uses mixed tech components');
     });
@@ -142,7 +158,7 @@ describe('techBaseValidation', () => {
         engineType: EngineType.STANDARD,
         gyroType: GyroType.STANDARD,
       });
-      
+
       expect(level).toBeDefined();
     });
 
@@ -151,7 +167,7 @@ describe('techBaseValidation', () => {
         engineType: EngineType.STANDARD,
         gyroType: GyroType.XL,
       });
-      
+
       expect(level).toBeDefined();
     });
 
@@ -163,13 +179,13 @@ describe('techBaseValidation', () => {
         heatSinkType: HeatSinkType.SINGLE,
         armorType: ArmorTypeEnum.STANDARD,
       });
-      
+
       expect(level).toBeDefined();
     });
 
     it('should handle empty components', () => {
       const level = getHighestRulesLevel({});
-      
+
       expect(level).toBe(RulesLevel.INTRODUCTORY);
     });
   });
@@ -177,7 +193,7 @@ describe('techBaseValidation', () => {
   describe('getAvailableEngineTypes()', () => {
     it('should return engine types for Inner Sphere', () => {
       const types = getAvailableEngineTypes(TechBase.INNER_SPHERE, false);
-      
+
       expect(types).toBeDefined();
       expect(Array.isArray(types)).toBe(true);
       expect(types.length).toBeGreaterThan(0);
@@ -185,24 +201,32 @@ describe('techBaseValidation', () => {
 
     it('should return engine types for Clan', () => {
       const types = getAvailableEngineTypes(TechBase.CLAN, false);
-      
+
       expect(types).toBeDefined();
       expect(Array.isArray(types)).toBe(true);
       expect(types.length).toBeGreaterThan(0);
     });
 
     it('should include more types with mixed tech', () => {
-      const typesWithoutMixed = getAvailableEngineTypes(TechBase.INNER_SPHERE, false);
-      const typesWithMixed = getAvailableEngineTypes(TechBase.INNER_SPHERE, true);
-      
-      expect(typesWithMixed.length).toBeGreaterThanOrEqual(typesWithoutMixed.length);
+      const typesWithoutMixed = getAvailableEngineTypes(
+        TechBase.INNER_SPHERE,
+        false,
+      );
+      const typesWithMixed = getAvailableEngineTypes(
+        TechBase.INNER_SPHERE,
+        true,
+      );
+
+      expect(typesWithMixed.length).toBeGreaterThanOrEqual(
+        typesWithoutMixed.length,
+      );
     });
   });
 
   describe('getAvailableGyroTypes()', () => {
     it('should return gyro types for Inner Sphere', () => {
       const types = getAvailableGyroTypes(TechBase.INNER_SPHERE, false);
-      
+
       expect(types).toBeDefined();
       expect(Array.isArray(types)).toBe(true);
       expect(types.length).toBeGreaterThan(0);
@@ -210,24 +234,29 @@ describe('techBaseValidation', () => {
 
     it('should return gyro types for Clan', () => {
       const types = getAvailableGyroTypes(TechBase.CLAN, false);
-      
+
       expect(types).toBeDefined();
       expect(Array.isArray(types)).toBe(true);
       expect(types.length).toBeGreaterThan(0);
     });
 
     it('should include more types with mixed tech', () => {
-      const typesWithoutMixed = getAvailableGyroTypes(TechBase.INNER_SPHERE, false);
+      const typesWithoutMixed = getAvailableGyroTypes(
+        TechBase.INNER_SPHERE,
+        false,
+      );
       const typesWithMixed = getAvailableGyroTypes(TechBase.INNER_SPHERE, true);
-      
-      expect(typesWithMixed.length).toBeGreaterThanOrEqual(typesWithoutMixed.length);
+
+      expect(typesWithMixed.length).toBeGreaterThanOrEqual(
+        typesWithoutMixed.length,
+      );
     });
   });
 
   describe('getAvailableStructureTypes()', () => {
     it('should return structure types for Inner Sphere', () => {
       const types = getAvailableStructureTypes(TechBase.INNER_SPHERE, false);
-      
+
       expect(types).toBeDefined();
       expect(Array.isArray(types)).toBe(true);
       expect(types.length).toBeGreaterThan(0);
@@ -235,24 +264,32 @@ describe('techBaseValidation', () => {
 
     it('should return structure types for Clan', () => {
       const types = getAvailableStructureTypes(TechBase.CLAN, false);
-      
+
       expect(types).toBeDefined();
       expect(Array.isArray(types)).toBe(true);
       expect(types.length).toBeGreaterThan(0);
     });
 
     it('should include more types with mixed tech', () => {
-      const typesWithoutMixed = getAvailableStructureTypes(TechBase.INNER_SPHERE, false);
-      const typesWithMixed = getAvailableStructureTypes(TechBase.INNER_SPHERE, true);
-      
-      expect(typesWithMixed.length).toBeGreaterThanOrEqual(typesWithoutMixed.length);
+      const typesWithoutMixed = getAvailableStructureTypes(
+        TechBase.INNER_SPHERE,
+        false,
+      );
+      const typesWithMixed = getAvailableStructureTypes(
+        TechBase.INNER_SPHERE,
+        true,
+      );
+
+      expect(typesWithMixed.length).toBeGreaterThanOrEqual(
+        typesWithoutMixed.length,
+      );
     });
   });
 
   describe('getAvailableHeatSinkTypes()', () => {
     it('should return heat sink types for Inner Sphere', () => {
       const types = getAvailableHeatSinkTypes(TechBase.INNER_SPHERE, false);
-      
+
       expect(types).toBeDefined();
       expect(Array.isArray(types)).toBe(true);
       expect(types.length).toBeGreaterThan(0);
@@ -260,24 +297,32 @@ describe('techBaseValidation', () => {
 
     it('should return heat sink types for Clan', () => {
       const types = getAvailableHeatSinkTypes(TechBase.CLAN, false);
-      
+
       expect(types).toBeDefined();
       expect(Array.isArray(types)).toBe(true);
       expect(types.length).toBeGreaterThan(0);
     });
 
     it('should include more types with mixed tech', () => {
-      const typesWithoutMixed = getAvailableHeatSinkTypes(TechBase.INNER_SPHERE, false);
-      const typesWithMixed = getAvailableHeatSinkTypes(TechBase.INNER_SPHERE, true);
-      
-      expect(typesWithMixed.length).toBeGreaterThanOrEqual(typesWithoutMixed.length);
+      const typesWithoutMixed = getAvailableHeatSinkTypes(
+        TechBase.INNER_SPHERE,
+        false,
+      );
+      const typesWithMixed = getAvailableHeatSinkTypes(
+        TechBase.INNER_SPHERE,
+        true,
+      );
+
+      expect(typesWithMixed.length).toBeGreaterThanOrEqual(
+        typesWithoutMixed.length,
+      );
     });
   });
 
   describe('getAvailableArmorTypes()', () => {
     it('should return armor types for Inner Sphere', () => {
       const types = getAvailableArmorTypes(TechBase.INNER_SPHERE, false);
-      
+
       expect(types).toBeDefined();
       expect(Array.isArray(types)).toBe(true);
       expect(types.length).toBeGreaterThan(0);
@@ -285,17 +330,25 @@ describe('techBaseValidation', () => {
 
     it('should return armor types for Clan', () => {
       const types = getAvailableArmorTypes(TechBase.CLAN, false);
-      
+
       expect(types).toBeDefined();
       expect(Array.isArray(types)).toBe(true);
       expect(types.length).toBeGreaterThan(0);
     });
 
     it('should include more types with mixed tech', () => {
-      const typesWithoutMixed = getAvailableArmorTypes(TechBase.INNER_SPHERE, false);
-      const typesWithMixed = getAvailableArmorTypes(TechBase.INNER_SPHERE, true);
-      
-      expect(typesWithMixed.length).toBeGreaterThanOrEqual(typesWithoutMixed.length);
+      const typesWithoutMixed = getAvailableArmorTypes(
+        TechBase.INNER_SPHERE,
+        false,
+      );
+      const typesWithMixed = getAvailableArmorTypes(
+        TechBase.INNER_SPHERE,
+        true,
+      );
+
+      expect(typesWithMixed.length).toBeGreaterThanOrEqual(
+        typesWithoutMixed.length,
+      );
     });
   });
 });

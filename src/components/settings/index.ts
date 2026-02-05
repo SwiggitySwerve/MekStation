@@ -4,7 +4,10 @@
  */
 
 export { DesktopSettingsDialog } from './DesktopSettingsDialog';
-export { DesktopSettingsProvider, useDesktopSettingsDialog } from './DesktopSettingsContext';
+export {
+  DesktopSettingsProvider,
+  useDesktopSettingsDialog,
+} from './DesktopSettingsContext';
 export { useDesktopSettings } from './useDesktopSettings';
 export { useRecentFiles } from './useRecentFiles';
 export { useElectron, isElectron } from './useElectron';
@@ -14,5 +17,5 @@ export type {
   IRecentFile,
   IAddRecentFileParams,
   RecentFileUnitType,
-  MenuCommand
+  MenuCommand,
 } from './useElectron';

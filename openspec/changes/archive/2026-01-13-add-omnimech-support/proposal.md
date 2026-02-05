@@ -10,6 +10,7 @@ OmniMechs represent a significant portion of BattleTech units, especially Clan d
 4. **Construction Constraints**: Pod-mounted equipment has specific placement rules
 
 Currently, MekStation:
+
 - Detects OmniMechs during import (`isOmniMechConfig()`)
 - Has `isOmni` flag in unit store
 - Has skeletal `IOmniMech` interface
@@ -23,6 +24,7 @@ Currently, MekStation:
 ### New Capability: `omnimech-system`
 
 Core OmniMech support including:
+
 - Fixed vs pod equipment tracking per mounted item
 - Base chassis heat sink count
 - Pod space calculation per location
@@ -32,6 +34,7 @@ Core OmniMech support including:
 ### Modified Capabilities
 
 **`serialization-formats`**
+
 - MTF parser: Parse `Base Chassis Heat Sinks:` field
 - MTF parser: Parse `clanname:` field for Clan reporting name
 - MTF parser: Detect `(omnipod)` suffix on equipment lines
@@ -39,26 +42,31 @@ Core OmniMech support including:
 - MTF exporter: Add `(omnipod)` suffix to pod-mounted equipment
 
 **`heat-sink-system`**
+
 - Separate base chassis heat sinks from pod heat sinks
 - Validate minimum fixed heat sinks based on engine capacity
 - Track which heat sinks are fixed vs swappable
 
 **`equipment-placement`**
+
 - Track `isOmniPodMounted` flag per equipment instance
 - Determine if equipment CAN be pod-mounted (`canPodMount()`)
 - Equipment that is `omniFixedOnly` cannot be pod-mounted
 
 **`unit-store-architecture`**
+
 - Add `baseChassisHeatSinks` to unit state
 - Add `isOmniPodMounted` to equipment instances
 - Add reset chassis action (clear all pod equipment)
 
 **`customizer-tabs`**
+
 - Structure Tab: Add "OmniMech" checkbox with cascade effects
 - Structure Tab: Add base chassis heat sink spinner (visible when isOmni)
 - Structure Tab: Add "Reset Chassis" button for variant switching
 
 **`validation-rules-master`**
+
 - OmniMech heat sink minimum validation
 - Pod equipment placement validation
 - Fixed equipment immutability validation

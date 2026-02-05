@@ -8,6 +8,7 @@
  */
 
 import React from 'react';
+
 import { Card, Badge } from '@/components/ui';
 import {
   IForce,
@@ -41,7 +42,7 @@ export interface ForceCardProps {
 // =============================================================================
 
 function getStatusBadgeVariant(
-  status: ForceStatus
+  status: ForceStatus,
 ): 'emerald' | 'amber' | 'cyan' | 'muted' {
   switch (status) {
     case ForceStatus.Active:
@@ -73,7 +74,7 @@ function getStatusLabel(status: ForceStatus): string {
 }
 
 function getForceTypeVariant(
-  forceType: ForceType
+  forceType: ForceType,
 ): 'amber' | 'cyan' | 'violet' | 'muted' {
   switch (forceType) {
     case ForceType.Lance:
@@ -106,10 +107,7 @@ export function ForceCard({
   const stats = force.stats;
   const readyCount = Math.min(stats.assignedPilots, stats.assignedUnits);
   const totalSlots =
-    stats.assignedPilots +
-    stats.assignedUnits +
-    stats.emptySlots -
-    readyCount; // Avoid double counting
+    stats.assignedPilots + stats.assignedUnits + stats.emptySlots - readyCount; // Avoid double counting
 
   const readinessPercent =
     totalSlots > 0 ? Math.round((readyCount / totalSlots) * 100) : 0;
@@ -119,7 +117,7 @@ export function ForceCard({
       variant={isSelected ? 'interactive' : 'default'}
       onClick={onClick}
       data-testid={testId}
-      className={`group transition-all ${isSelected ? 'ring-2 ring-accent' : ''} ${className}`}
+      className={`group transition-all ${isSelected ? 'ring-accent ring-2' : ''} ${className}`}
     >
       <div
         className="flex items-start gap-4"
@@ -127,26 +125,20 @@ export function ForceCard({
       >
         {/* Hierarchy indicator */}
         {depth > 0 && (
-          <div className="flex-shrink-0 w-4 h-full border-l-2 border-border-theme-subtle" />
+          <div className="border-border-theme-subtle h-full w-4 flex-shrink-0 border-l-2" />
         )}
 
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {/* Header */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold text-text-theme-primary truncate">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-text-theme-primary truncate font-semibold">
                 {force.name}
               </h3>
-              <Badge
-                variant={getForceTypeVariant(force.forceType)}
-                size="sm"
-              >
+              <Badge variant={getForceTypeVariant(force.forceType)} size="sm">
                 {getForceTypeName(force.forceType)}
               </Badge>
-              <Badge
-                variant={getStatusBadgeVariant(force.status)}
-                size="sm"
-              >
+              <Badge variant={getStatusBadgeVariant(force.status)} size="sm">
                 {getStatusLabel(force.status)}
               </Badge>
             </div>
@@ -154,7 +146,7 @@ export function ForceCard({
 
           {/* Affiliation */}
           {force.affiliation && (
-            <div className="text-sm text-text-theme-secondary mb-2">
+            <div className="text-text-theme-secondary mb-2 text-sm">
               {force.affiliation}
             </div>
           )}
@@ -163,13 +155,13 @@ export function ForceCard({
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1">
               <span className="text-text-theme-muted">BV:</span>
-              <span className="font-mono font-bold text-accent">
+              <span className="text-accent font-mono font-bold">
                 {stats.totalBV.toLocaleString()}
               </span>
             </div>
             <div className="flex items-center gap-1">
               <span className="text-text-theme-muted">Tonnage:</span>
-              <span className="font-mono font-bold text-text-theme-primary">
+              <span className="text-text-theme-primary font-mono font-bold">
                 {stats.totalTonnage}t
               </span>
             </div>
@@ -180,8 +172,8 @@ export function ForceCard({
                   readinessPercent === 100
                     ? 'text-emerald-400'
                     : readinessPercent >= 50
-                    ? 'text-amber-400'
-                    : 'text-red-400'
+                      ? 'text-amber-400'
+                      : 'text-red-400'
                 }`}
               >
                 {readyCount}/{totalSlots - stats.emptySlots}
@@ -191,14 +183,14 @@ export function ForceCard({
 
           {/* Readiness bar */}
           <div className="mt-2">
-            <div className="h-1 bg-surface-theme-elevated rounded-full overflow-hidden">
+            <div className="bg-surface-theme-elevated h-1 overflow-hidden rounded-full">
               <div
                 className={`h-full transition-all ${
                   readinessPercent === 100
                     ? 'bg-emerald-500'
                     : readinessPercent >= 50
-                    ? 'bg-amber-500'
-                    : 'bg-red-500'
+                      ? 'bg-amber-500'
+                      : 'bg-red-500'
                 }`}
                 style={{ width: `${readinessPercent}%` }}
               />
@@ -208,9 +200,9 @@ export function ForceCard({
 
         {/* Arrow indicator */}
         {onClick && (
-          <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
             <svg
-              className="w-5 h-5 text-text-theme-muted"
+              className="text-text-theme-muted h-5 w-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

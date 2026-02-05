@@ -18,6 +18,7 @@ src/
 **Purpose**: Define validation-related interfaces and type definitions.
 
 **Contains**:
+
 - `UnitValidationInterfaces.ts` - Core validation result types (`IValidationResult`, `IValidationError`)
 - `rules/ValidationRuleInterfaces.ts` - Rule definition interfaces (`IValidationRule`, `IRuleCategory`)
 - Domain calculation types (`BattleValue`, `HeatManagement`, `TechRating`, etc.)
@@ -33,6 +34,7 @@ import type { IValidationResult, IValidationError } from '@/types/validation';
 **Purpose**: Pure, stateless validation helper functions.
 
 **Contains**:
+
 - `armorValidationUtils.ts` - Armor allocation calculations and checks
 - `slotValidationUtils.ts` - Critical slot usage calculations
 - `weightValidationUtils.ts` - Weight budget calculations
@@ -47,7 +49,10 @@ import type { IValidationResult, IValidationError } from '@/types/validation';
 **Usage**: Import utilities for performing validation calculations. These depend only on types.
 
 ```typescript
-import { calculateStructuralWeight, isWithinWeightLimit } from '@/utils/validation';
+import {
+  calculateStructuralWeight,
+  isWithinWeightLimit,
+} from '@/utils/validation';
 import { StandardValidationRules } from '@/utils/validation/rules';
 ```
 
@@ -56,6 +61,7 @@ import { StandardValidationRules } from '@/utils/validation/rules';
 **Purpose**: Validation framework with registry, orchestration, and stateful operations.
 
 **Contains**:
+
 - `UnitValidationRegistry.ts` - Registry of all validation rules by category
 - `UnitValidationOrchestrator.ts` - Coordinates running rules against units
 - `initializeUnitValidation.ts` - Bootstraps the validation system
@@ -69,10 +75,10 @@ import { StandardValidationRules } from '@/utils/validation/rules';
 **Usage**: Import services for orchestrating validation across a unit.
 
 ```typescript
-import { 
-  UnitValidationRegistry, 
+import {
+  UnitValidationRegistry,
   UnitValidationOrchestrator,
-  initializeUnitValidation 
+  initializeUnitValidation,
 } from '@/services/validation';
 ```
 
@@ -87,6 +93,7 @@ services/validation (Layer 3) ← imports types + utils
 ```
 
 **Rules**:
+
 - Layer 1 has no internal dependencies
 - Layer 2 imports only from Layer 1
 - Layer 3 imports from Layer 1 and Layer 2
@@ -95,12 +102,14 @@ services/validation (Layer 3) ← imports types + utils
 ## Adding New Validation Rules
 
 ### 1. Define types (if needed) in `types/validation/`
+
 ```typescript
 // types/validation/rules/ValidationRuleInterfaces.ts
 export interface IMyNewRule extends IValidationRule { ... }
 ```
 
 ### 2. Implement pure logic in `utils/validation/rules/`
+
 ```typescript
 // utils/validation/rules/MyNewRules.ts
 export const MyNewRules: IValidationRule[] = [
@@ -114,15 +123,13 @@ export const MyNewRules: IValidationRule[] = [
 ```
 
 ### 3. Register in the service layer
+
 ```typescript
 // services/validation/rules/mech/MechCategoryRules.ts
 import { MyNewRules } from '@/utils/validation/rules';
 
 export function registerMechRules(registry: UnitValidationRegistry) {
-  registry.registerRules('mech', [
-    ...existingRules,
-    ...MyNewRules,
-  ]);
+  registry.registerRules('mech', [...existingRules, ...MyNewRules]);
 }
 ```
 

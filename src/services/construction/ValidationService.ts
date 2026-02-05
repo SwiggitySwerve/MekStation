@@ -1,21 +1,31 @@
 /**
  * Validation Service
- * 
+ *
  * Validates mech builds against BattleTech construction rules.
- * 
+ *
  * @spec openspec/specs/construction-services/spec.md
  */
 
-import { IValidationResult, IValidationError, ValidationSeverity, validResult, invalidResult } from '../common/types';
-import { IEditableMech } from './MechBuilderService';
-import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { initializeUnitValidationRules } from '@/services/validation/initializeUnitValidation';
+import { UnitValidationOrchestrator } from '@/services/validation/UnitValidationOrchestrator';
 import { EngineType } from '@/types/construction/EngineType';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
-import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { TechBase } from '@/types/enums/TechBase';
-import { IValidatableUnit, IUnitValidationOptions, IUnitValidationResult } from '@/types/validation/UnitValidationInterfaces';
-import { UnitValidationOrchestrator } from '@/services/validation/UnitValidationOrchestrator';
-import { initializeUnitValidationRules } from '@/services/validation/initializeUnitValidation';
+import {
+  IValidatableUnit,
+  IUnitValidationOptions,
+  IUnitValidationResult,
+} from '@/types/validation/UnitValidationInterfaces';
+import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+
+import {
+  IValidationResult,
+  IValidationError,
+  ValidationSeverity,
+  validResult,
+  invalidResult,
+} from '../common/types';
 import {
   ENGINE_RATING_MIN,
   ENGINE_RATING_MAX,
@@ -29,25 +39,33 @@ import {
   CRITICAL_SLOTS,
   CRITICAL_SLOTS_DEFAULT,
 } from './constructionConstants';
+import { IEditableMech } from './MechBuilderService';
 
 /**
  * Validation service interface
  */
 export interface IValidationService {
   validate(mech: IEditableMech): IValidationResult;
-  validateUnit(unit: IValidatableUnit, options?: IUnitValidationOptions): IUnitValidationResult;
+  validateUnit(
+    unit: IValidatableUnit,
+    options?: IUnitValidationOptions,
+  ): IUnitValidationResult;
   validateWeight(mech: IEditableMech): IValidationError[];
   validateArmor(mech: IEditableMech): IValidationError[];
   validateCriticalSlots(mech: IEditableMech): IValidationError[];
   validateTechLevel(mech: IEditableMech): IValidationError[];
-  canAddEquipment(mech: IEditableMech, equipmentId: string, location: string): boolean;
+  canAddEquipment(
+    mech: IEditableMech,
+    equipmentId: string,
+    location: string,
+  ): boolean;
 }
 
 function getMaxArmorForLocation(tonnage: number, location: string): number {
   if (location === 'head') {
     return HEAD_ARMOR_MAX;
   }
-  
+
   const structurePoints = getStructurePoints(tonnage, location);
   return structurePoints * ARMOR_TO_STRUCTURE_RATIO;
 }
@@ -56,7 +74,6 @@ function getMaxArmorForLocation(tonnage: number, location: string): number {
  * Validation Service implementation
  */
 export class ValidationService implements IValidationService {
-
   /**
    * Validate entire mech build
    */
@@ -79,16 +96,25 @@ export class ValidationService implements IValidationService {
 
   validateWeight(mech: IEditableMech): IValidationError[] {
     const errors: IValidationError[] = [];
-    
+
     const structureWeight = mech.tonnage * STRUCTURE_WEIGHT_PERCENT;
-    const engineWeight = this.getEngineWeight(mech.engineRating, mech.engineType);
+    const engineWeight = this.getEngineWeight(
+      mech.engineRating,
+      mech.engineType,
+    );
     const gyroWeight = Math.ceil(mech.engineRating / GYRO_WEIGHT_DIVISOR);
     const cockpitWeight = COCKPIT_WEIGHT_STANDARD;
     const armorWeight = this.calculateArmorWeight(mech.armorAllocation);
     const heatSinkWeight = Math.max(0, mech.heatSinkCount - HEAT_SINK_MINIMUM);
-    
-    const totalWeight = structureWeight + engineWeight + gyroWeight + cockpitWeight + armorWeight + heatSinkWeight;
-    
+
+    const totalWeight =
+      structureWeight +
+      engineWeight +
+      gyroWeight +
+      cockpitWeight +
+      armorWeight +
+      heatSinkWeight;
+
     if (totalWeight > mech.tonnage) {
       const overage = (totalWeight - mech.tonnage).toFixed(1);
       errors.push({
@@ -111,20 +137,48 @@ export class ValidationService implements IValidationService {
     const armor = mech.armorAllocation;
 
     // Check each location against its maximum
-    const locationChecks: { location: string; displayName: string; actual: number; rear?: number }[] = [
+    const locationChecks: {
+      location: string;
+      displayName: string;
+      actual: number;
+      rear?: number;
+    }[] = [
       { location: 'head', displayName: 'Head', actual: armor.head },
-      { location: 'centerTorso', displayName: 'Center Torso', actual: armor.centerTorso, rear: armor.centerTorsoRear },
-      { location: 'leftTorso', displayName: 'Left Torso', actual: armor.leftTorso, rear: armor.leftTorsoRear },
-      { location: 'rightTorso', displayName: 'Right Torso', actual: armor.rightTorso, rear: armor.rightTorsoRear },
+      {
+        location: 'centerTorso',
+        displayName: 'Center Torso',
+        actual: armor.centerTorso,
+        rear: armor.centerTorsoRear,
+      },
+      {
+        location: 'leftTorso',
+        displayName: 'Left Torso',
+        actual: armor.leftTorso,
+        rear: armor.leftTorsoRear,
+      },
+      {
+        location: 'rightTorso',
+        displayName: 'Right Torso',
+        actual: armor.rightTorso,
+        rear: armor.rightTorsoRear,
+      },
       { location: 'leftArm', displayName: 'Left Arm', actual: armor.leftArm },
-      { location: 'rightArm', displayName: 'Right Arm', actual: armor.rightArm },
+      {
+        location: 'rightArm',
+        displayName: 'Right Arm',
+        actual: armor.rightArm,
+      },
       { location: 'leftLeg', displayName: 'Left Leg', actual: armor.leftLeg },
-      { location: 'rightLeg', displayName: 'Right Leg', actual: armor.rightLeg },
+      {
+        location: 'rightLeg',
+        displayName: 'Right Leg',
+        actual: armor.rightLeg,
+      },
     ];
 
     for (const check of locationChecks) {
       const maxArmor = getMaxArmorForLocation(mech.tonnage, check.location);
-      
+
       // For torso locations, front + rear must not exceed max
       if (check.rear !== undefined) {
         const totalTorsoArmor = check.actual + check.rear;
@@ -134,7 +188,12 @@ export class ValidationService implements IValidationService {
             message: `${check.displayName} total armor (${totalTorsoArmor}) exceeds maximum of ${maxArmor}`,
             severity: ValidationSeverity.ERROR,
             field: check.location,
-            details: { front: check.actual, rear: check.rear, total: totalTorsoArmor, max: maxArmor },
+            details: {
+              front: check.actual,
+              rear: check.rear,
+              total: totalTorsoArmor,
+              max: maxArmor,
+            },
           });
         }
         // Warn if torso has zero front armor (rear-only is unusual)
@@ -175,14 +234,16 @@ export class ValidationService implements IValidationService {
 
   validateCriticalSlots(mech: IEditableMech): IValidationError[] {
     const errors: IValidationError[] = [];
-    
+
     const slotsUsed: Record<string, number> = {};
     for (const eq of mech.equipment) {
       slotsUsed[eq.location] = (slotsUsed[eq.location] || 0) + 1;
     }
 
     for (const [location, used] of Object.entries(slotsUsed)) {
-      const max = CRITICAL_SLOTS[location as keyof typeof CRITICAL_SLOTS] || CRITICAL_SLOTS_DEFAULT;
+      const max =
+        CRITICAL_SLOTS[location as keyof typeof CRITICAL_SLOTS] ||
+        CRITICAL_SLOTS_DEFAULT;
       if (used > max) {
         errors.push({
           code: 'SLOTS_EXCEEDED',
@@ -204,48 +265,51 @@ export class ValidationService implements IValidationService {
   validateTechLevel(mech: IEditableMech): IValidationError[] {
     const errors: IValidationError[] = [];
     const registry = getEquipmentRegistry();
-    
+
     for (const slot of mech.equipment) {
       const result = registry.lookup(slot.equipmentId);
       if (!result.found || !result.equipment) {
         continue; // Skip unknown equipment
       }
-      
+
       const equipment = result.equipment;
       if (!('techBase' in equipment)) {
         continue; // Skip equipment without tech base info
       }
-      
+
       const eqTechBase = (equipment as { techBase: TechBase }).techBase;
-      
+
       // Check compatibility
       // Per spec VAL-ENUM-004: Tech base is binary (IS or Clan)
       // Equipment must match mech's component tech base, unless mech is in mixed mode
       // Note: Mixed mode is handled at the unit configuration level, not here
       const isCompatible = eqTechBase === mech.techBase;
-      
+
       if (!isCompatible) {
         errors.push({
           code: 'TECH_BASE_INCOMPATIBLE',
           message: `${slot.equipmentId} (${eqTechBase}) is not compatible with ${mech.techBase} tech base`,
           severity: ValidationSeverity.ERROR,
           field: 'equipment',
-          details: { 
-            equipment: slot.equipmentId, 
-            equipmentTechBase: eqTechBase, 
-            mechTechBase: mech.techBase 
+          details: {
+            equipment: slot.equipmentId,
+            equipmentTechBase: eqTechBase,
+            mechTechBase: mech.techBase,
           },
         });
       }
     }
-    
+
     return errors;
   }
 
   private validateEngine(mech: IEditableMech): IValidationError[] {
     const errors: IValidationError[] = [];
 
-    if (mech.engineRating < ENGINE_RATING_MIN || mech.engineRating > ENGINE_RATING_MAX) {
+    if (
+      mech.engineRating < ENGINE_RATING_MIN ||
+      mech.engineRating > ENGINE_RATING_MAX
+    ) {
       errors.push({
         code: 'INVALID_ENGINE_RATING',
         message: `Engine rating ${mech.engineRating} must be between ${ENGINE_RATING_MIN} and ${ENGINE_RATING_MAX}`,
@@ -281,9 +345,17 @@ export class ValidationService implements IValidationService {
     return errors;
   }
 
-  canAddEquipment(mech: IEditableMech, _equipmentId: string, location: string): boolean {
-    const locationEquipment = mech.equipment.filter(e => e.location === location);
-    const max = CRITICAL_SLOTS[location as keyof typeof CRITICAL_SLOTS] || CRITICAL_SLOTS_DEFAULT;
+  canAddEquipment(
+    mech: IEditableMech,
+    _equipmentId: string,
+    location: string,
+  ): boolean {
+    const locationEquipment = mech.equipment.filter(
+      (e) => e.location === location,
+    );
+    const max =
+      CRITICAL_SLOTS[location as keyof typeof CRITICAL_SLOTS] ||
+      CRITICAL_SLOTS_DEFAULT;
     return locationEquipment.length < max;
   }
 
@@ -331,17 +403,24 @@ export class ValidationService implements IValidationService {
     return calculateEngineWeight(rating, engineType);
   }
 
-  private calculateArmorWeight(armor: IEditableMech['armorAllocation']): number {
-    const totalPoints = 
+  private calculateArmorWeight(
+    armor: IEditableMech['armorAllocation'],
+  ): number {
+    const totalPoints =
       armor.head +
-      armor.centerTorso + armor.centerTorsoRear +
-      armor.leftTorso + armor.leftTorsoRear +
-      armor.rightTorso + armor.rightTorsoRear +
-      armor.leftArm + armor.rightArm +
-      armor.leftLeg + armor.rightLeg;
-    
+      armor.centerTorso +
+      armor.centerTorsoRear +
+      armor.leftTorso +
+      armor.leftTorsoRear +
+      armor.rightTorso +
+      armor.rightTorsoRear +
+      armor.leftArm +
+      armor.rightArm +
+      armor.leftLeg +
+      armor.rightLeg;
+
     // Standard armor: 16 points per ton
-    return Math.ceil(totalPoints / 16 * 2) / 2; // Round to 0.5 tons
+    return Math.ceil((totalPoints / 16) * 2) / 2; // Round to 0.5 tons
   }
 
   /**
@@ -360,16 +439,19 @@ export class ValidationService implements IValidationService {
 
   /**
    * Validate any unit using the new Unit Validation Framework
-   * 
+   *
    * This method provides a unified entry point for validating any unit type
    * (BattleMech, Vehicle, Aerospace, Infantry, etc.) using the hierarchical
    * validation rule system.
-   * 
+   *
    * @param unit - The unit to validate (must implement IValidatableUnit)
    * @param options - Validation options (strictMode, skipRules, etc.)
    * @returns Validation result with errors, warnings, and infos
    */
-  validateUnit(unit: IValidatableUnit, options?: IUnitValidationOptions): IUnitValidationResult {
+  validateUnit(
+    unit: IValidatableUnit,
+    options?: IUnitValidationOptions,
+  ): IUnitValidationResult {
     return this.getOrchestrator().validate(unit, options);
   }
 }
@@ -399,4 +481,3 @@ export function _resetValidationService(): void {
 // Legacy export for backward compatibility
 // @deprecated Use getValidationService() instead
 export const validationService = getValidationService();
-

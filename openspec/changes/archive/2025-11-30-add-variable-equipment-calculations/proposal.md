@@ -26,4 +26,3 @@ Many BattleTech equipment items have properties (weight, slots, cost, BV) that v
   - `src/utils/equipment/EquipmentCalculator.ts` (new)
   - `src/types/equipment/ElectronicsTypes.ts` (modify)
   - `src/types/equipment/MiscEquipmentTypes.ts` (modify)
-

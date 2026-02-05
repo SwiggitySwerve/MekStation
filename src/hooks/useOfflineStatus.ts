@@ -91,7 +91,7 @@ export interface UseOfflineStatusOptions {
  * ```
  */
 export function useOfflineStatus(
-  options: UseOfflineStatusOptions = {}
+  options: UseOfflineStatusOptions = {},
 ): NetworkStatus {
   const { onOffline, onOnline, performNetworkCheck = false, pingUrl } = options;
 
@@ -127,7 +127,7 @@ export function useOfflineStatus(
         return newStatus;
       });
     },
-    [onOnline, onOffline]
+    [onOnline, onOffline],
   );
 
   // Perform actual network check via fetch

@@ -1,9 +1,9 @@
+import Link from 'next/link';
 /**
  * Breadcrumb Component
  * Hierarchical navigation indicator showing current location in site structure.
  */
 import React from 'react';
-import Link from 'next/link';
 
 export interface BreadcrumbItem {
   /** Display label for the breadcrumb item */
@@ -30,10 +30,14 @@ function ChevronSeparator() {
       viewBox="0 0 24 24"
       strokeWidth={2}
       stroke="currentColor"
-      className="w-3.5 h-3.5 text-text-theme-muted flex-shrink-0"
+      className="text-text-theme-muted h-3.5 w-3.5 flex-shrink-0"
       aria-hidden="true"
     >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M8.25 4.5l7.5 7.5-7.5 7.5"
+      />
     </svg>
   );
 }
@@ -41,7 +45,9 @@ function ChevronSeparator() {
 /** Slash separator */
 function SlashSeparator() {
   return (
-    <span className="text-text-theme-muted flex-shrink-0" aria-hidden="true">/</span>
+    <span className="text-text-theme-muted flex-shrink-0" aria-hidden="true">
+      /
+    </span>
   );
 }
 
@@ -59,9 +65,9 @@ export function Breadcrumb({
   return (
     <nav
       aria-label="Breadcrumb"
-      className={`flex items-center flex-wrap gap-1.5 text-sm ${className}`}
+      className={`flex flex-wrap items-center gap-1.5 text-sm ${className}`}
     >
-      <ol className="flex items-center flex-wrap gap-1.5 list-none p-0 m-0">
+      <ol className="m-0 flex list-none flex-wrap items-center gap-1.5 p-0">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           const isClickable = item.href && !isLast;
@@ -72,14 +78,14 @@ export function Breadcrumb({
               {isClickable ? (
                 <Link
                   href={item.href!}
-                  className="text-text-theme-secondary hover:text-accent transition-colors duration-150 truncate max-w-[150px] sm:max-w-none"
+                  className="text-text-theme-secondary hover:text-accent max-w-[150px] truncate transition-colors duration-150 sm:max-w-none"
                   title={item.label}
                 >
                   {item.label}
                 </Link>
               ) : (
                 <span
-                  className={`truncate max-w-[150px] sm:max-w-none ${
+                  className={`max-w-[150px] truncate sm:max-w-none ${
                     isLast
                       ? 'text-text-theme-primary font-medium'
                       : 'text-text-theme-secondary'

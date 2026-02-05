@@ -7,9 +7,15 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { CapitalShipLocation } from '../../../types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import { IBlkDocument } from '../../../types/formats/BlkFormat';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
+import {
+  AerospaceMotionType,
+  IAerospaceMovement,
+} from '../../../types/unit/BaseUnitInterfaces';
+import { IBaseUnit } from '../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import {
   ICapitalMountedEquipment,
   ITransportBay,
@@ -19,18 +25,12 @@ import {
   QuartersType,
   CapitalArc,
 } from '../../../types/unit/CapitalShipInterfaces';
-import {
-  AerospaceMotionType,
-  IAerospaceMovement,
-} from '../../../types/unit/BaseUnitInterfaces';
-import { CapitalShipLocation } from '../../../types/construction/UnitLocation';
+import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
-import { IBaseUnit } from '../../../types/unit/BaseUnitInterfaces';
 
 // ============================================================================
 // Space Station Interface
@@ -127,7 +127,9 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
   /**
    * Parse Space Station-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<ISpaceStation> & {
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<ISpaceStation> & {
     errors: string[];
     warnings: string[];
   } {
@@ -175,7 +177,8 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
     const hasKFDrive = this.getBooleanFromRaw(rawTags, 'kfdrive');
 
     // Pressurized modules
-    const pressurizedModules = this.parseNumericRaw(rawTags, 'pressurizedmodules') || 1;
+    const pressurizedModules =
+      this.parseNumericRaw(rawTags, 'pressurizedmodules') || 1;
 
     // Crew configuration
     const crewConfiguration = this.parseCrewConfiguration(document);
@@ -251,15 +254,19 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
   /**
    * Parse station type from raw tags
    */
-  private parseStationType(rawTags: Record<string, string | string[]>): SpaceStationType {
-    const typeStr = this.getStringFromRaw(rawTags, 'stationtype')?.toLowerCase() || '';
-    
+  private parseStationType(
+    rawTags: Record<string, string | string[]>,
+  ): SpaceStationType {
+    const typeStr =
+      this.getStringFromRaw(rawTags, 'stationtype')?.toLowerCase() || '';
+
     if (typeStr.includes('shipyard')) return SpaceStationType.SHIPYARD;
     if (typeStr.includes('recharge')) return SpaceStationType.RECHARGE_STATION;
     if (typeStr.includes('habitat')) return SpaceStationType.HABITAT;
-    if (typeStr.includes('military') || typeStr.includes('defense')) return SpaceStationType.MILITARY;
+    if (typeStr.includes('military') || typeStr.includes('defense'))
+      return SpaceStationType.MILITARY;
     if (typeStr.includes('deep')) return SpaceStationType.DEEP_SPACE;
-    
+
     return SpaceStationType.ORBITAL;
   }
 
@@ -268,7 +275,7 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
    */
   private getStringFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): string | undefined {
     const value = rawTags[key];
     if (Array.isArray(value)) {
@@ -280,7 +287,9 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
   /**
    * Parse crew configuration
    */
-  private parseCrewConfiguration(document: IBlkDocument): ICapitalCrewConfiguration {
+  private parseCrewConfiguration(
+    document: IBlkDocument,
+  ): ICapitalCrewConfiguration {
     return {
       crew: document.crew || 0,
       officers: document.officers || 0,
@@ -317,7 +326,7 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
    */
   private parseTransporterString(
     transporter: string,
-    bayNumber: number
+    bayNumber: number,
   ): ITransportBay | null {
     const lower = transporter.toLowerCase();
     const parts = lower.split(':');
@@ -367,11 +376,15 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
   /**
    * Parse equipment from BLK document
    */
-  private parseEquipment(document: IBlkDocument): readonly ICapitalMountedEquipment[] {
+  private parseEquipment(
+    document: IBlkDocument,
+  ): readonly ICapitalMountedEquipment[] {
     const equipment: ICapitalMountedEquipment[] = [];
     let mountId = 0;
 
-    for (const [locationKey, items] of Object.entries(document.equipmentByLocation)) {
+    for (const [locationKey, items] of Object.entries(
+      document.equipmentByLocation,
+    )) {
       const arc = this.normalizeArc(locationKey);
 
       for (const item of items) {
@@ -411,7 +424,10 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
   /**
    * Parse numeric value from raw tags
    */
-  private parseNumericRaw(rawTags: Record<string, string | string[]>, key: string): number {
+  private parseNumericRaw(
+    rawTags: Record<string, string | string[]>,
+    key: string,
+  ): number {
     const value = rawTags[key];
     if (Array.isArray(value)) {
       return parseFloat(value[0]) || 0;
@@ -424,7 +440,7 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
    */
   private getBooleanFromRaw(
     rawTags: Record<string, string | string[]>,
-    key: string
+    key: string,
   ): boolean {
     const value = rawTags[key];
     if (value === undefined) return false;
@@ -439,7 +455,7 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
-    typeSpecificFields: Partial<ISpaceStation>
+    typeSpecificFields: Partial<ISpaceStation>,
   ): ISpaceStation {
     const techBase = this.parseTechBase(commonFields.techBase);
     const rulesLevel = this.parseRulesLevel(commonFields.techBase);
@@ -517,7 +533,9 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
   /**
    * Serialize Space Station-specific fields
    */
-  protected serializeTypeSpecificFields(unit: ISpaceStation): Partial<ISerializedUnit> {
+  protected serializeTypeSpecificFields(
+    unit: ISpaceStation,
+  ): Partial<ISerializedUnit> {
     return {
       configuration: `Space Station (${unit.stationType})`,
       rulesLevel: String(unit.rulesLevel),
@@ -528,7 +546,9 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
    * Deserialize from standard format
    */
   deserialize(_serialized: ISerializedUnit): IUnitParseResult<ISpaceStation> {
-    return createFailureResult(['Space Station deserialization not yet implemented']);
+    return createFailureResult([
+      'Space Station deserialization not yet implemented',
+    ]);
   }
 
   /**
@@ -561,7 +581,7 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
     const escapeCapacity = unit.escapePods * 7 + unit.lifeBoats * 6;
     if (escapeCapacity < totalPersonnel && totalPersonnel > 0) {
       warnings.push(
-        `Insufficient escape capacity (${escapeCapacity}) for personnel (${totalPersonnel})`
+        `Insufficient escape capacity (${escapeCapacity}) for personnel (${totalPersonnel})`,
       );
     }
 

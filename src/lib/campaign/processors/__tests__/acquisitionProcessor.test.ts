@@ -1,25 +1,34 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+/* oxlint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import { describe, it, expect, beforeEach } from '@jest/globals';
+
+import type {
+  IAcquisitionRequest,
+  IShoppingList,
+} from '@/types/campaign/acquisition/acquisitionTypes';
 import type { ICampaign } from '@/types/campaign/Campaign';
+
+import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
-import type { IAcquisitionRequest, IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
 import { Money } from '@/types/campaign/Money';
+
+import { createShoppingList } from '../../acquisition/shoppingList';
 import { DayPhase, _resetDayPipeline } from '../../dayPipeline';
-import { acquisitionProcessor, registerAcquisitionProcessor } from '../acquisitionProcessor';
 import {
-  createShoppingList,
-} from '../../acquisition/shoppingList';
+  acquisitionProcessor,
+  registerAcquisitionProcessor,
+} from '../acquisitionProcessor';
 
 // =============================================================================
 // Test Helpers
 // =============================================================================
 
-function createTestCampaign(overrides?: Partial<ICampaign> & { shoppingList?: IShoppingList }): ICampaign & { shoppingList: IShoppingList } {
+function createTestCampaign(
+  overrides?: Partial<ICampaign> & { shoppingList?: IShoppingList },
+): ICampaign & { shoppingList: IShoppingList } {
   const baseDate = new Date('3025-01-15');
   const { shoppingList, ...campaignOverrides } = overrides || {};
-  
+
   const campaign: ICampaign = {
     id: 'test-campaign',
     name: 'Test Campaign',
@@ -44,15 +53,17 @@ function createTestCampaign(overrides?: Partial<ICampaign> & { shoppingList?: IS
     campaignType: CampaignType.MERCENARY,
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  // oxlint-disable-next-line @typescript-eslint/no-unsafe-return
   return {
     ...campaign,
     shoppingList: shoppingList || createShoppingList(),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   } as any;
 }
 
-function createPendingRequest(overrides?: Partial<IAcquisitionRequest>): IAcquisitionRequest {
+function createPendingRequest(
+  overrides?: Partial<IAcquisitionRequest>,
+): IAcquisitionRequest {
   return {
     id: 'req-001',
     partId: 'part-001',
@@ -66,7 +77,9 @@ function createPendingRequest(overrides?: Partial<IAcquisitionRequest>): IAcquis
   };
 }
 
-function createInTransitRequest(overrides?: Partial<IAcquisitionRequest>): IAcquisitionRequest {
+function createInTransitRequest(
+  overrides?: Partial<IAcquisitionRequest>,
+): IAcquisitionRequest {
   const baseDate = new Date('3025-01-15');
   const deliveryDate = new Date(baseDate.getTime() - 5 * 24 * 60 * 60 * 1000);
   return {
@@ -89,7 +102,6 @@ function createInTransitRequest(overrides?: Partial<IAcquisitionRequest>): IAcqu
 // Configuration Tests
 // =============================================================================
 
- 
 describe('acquisitionProcessor', () => {
   beforeEach(() => {
     _resetDayPipeline();
@@ -132,7 +144,10 @@ describe('acquisitionProcessor', () => {
         },
       });
 
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
 
       expect(result.campaign).toBe(campaign);
       expect(result.events).toHaveLength(0);
@@ -149,7 +164,10 @@ describe('acquisitionProcessor', () => {
         },
       });
 
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
 
       expect(result.campaign).toBe(campaign);
       expect(result.events).toHaveLength(0);
@@ -162,15 +180,18 @@ describe('acquisitionProcessor', () => {
 
   describe('empty shopping list', () => {
     it('should handle empty shopping list', () => {
-       const campaign = createTestCampaign({
-         shoppingList: createShoppingList(),
-       });
+      const campaign = createTestCampaign({
+        shoppingList: createShoppingList(),
+      });
 
-       const result = acquisitionProcessor.process(campaign, campaign.currentDate);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
 
-       expect(result.campaign.shoppingList!.items).toHaveLength(0);
-       expect(result.events).toHaveLength(0);
-     });
+      expect(result.campaign.shoppingList!.items).toHaveLength(0);
+      expect(result.events).toHaveLength(0);
+    });
   });
 
   // ==========================================================================
@@ -186,7 +207,10 @@ describe('acquisitionProcessor', () => {
         },
       });
 
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
 
       // Request should be processed (status changed)
       const updatedRequest = result.campaign.shoppingList!.items[0];
@@ -203,9 +227,17 @@ describe('acquisitionProcessor', () => {
 
       // Use deterministic random for guaranteed success (roll 12 vs TN 8)
       const deterministicRandom = () => 1; // Will roll 6+6=12
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
-      const successEvents = result.events.filter((e) => e.type === 'acquisition' && e.data?.eventType === 'acquisition_success');
+      const successEvents = result.events.filter(
+        (e) =>
+          e.type === 'acquisition' &&
+          e.data?.eventType === 'acquisition_success',
+      );
       expect(successEvents.length).toBeGreaterThan(0);
     });
 
@@ -219,9 +251,17 @@ describe('acquisitionProcessor', () => {
 
       // Use deterministic random for guaranteed failure (roll 2 vs TN 8)
       const deterministicRandom = () => 0; // Will roll 1+1=2
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
-      const failureEvents = result.events.filter((e) => e.type === 'acquisition' && e.data?.eventType === 'acquisition_failure');
+      const failureEvents = result.events.filter(
+        (e) =>
+          e.type === 'acquisition' &&
+          e.data?.eventType === 'acquisition_failure',
+      );
       expect(failureEvents.length).toBeGreaterThan(0);
     });
 
@@ -235,9 +275,13 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1; // Guaranteed success
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       const updatedRequest = (result.campaign as any).shoppingList.items[0];
       expect(updatedRequest.status).toBe('in_transit');
     });
@@ -251,7 +295,11 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 0; // Guaranteed failure
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
       const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.status).toBe('failed');
@@ -266,7 +314,11 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1; // Guaranteed success
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
       const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.deliveryDate).toBeDefined();
@@ -282,7 +334,11 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1;
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
       const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.attempts).toBe(1);
@@ -297,7 +353,11 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1;
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
       const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.lastAttemptDate).toBeDefined();
@@ -313,7 +373,11 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1;
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
       expect(result.campaign.shoppingList!.items).toHaveLength(2);
       expect(result.campaign.shoppingList!.items[0].status).not.toBe('pending');
@@ -338,7 +402,10 @@ describe('acquisitionProcessor', () => {
         },
       });
 
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
 
       const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.status).toBe('delivered');
@@ -356,9 +423,14 @@ describe('acquisitionProcessor', () => {
         },
       });
 
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
 
-      const deliveryEvents = result.events.filter((e) => e.type === 'acquisition' && e.data?.eventType === 'delivery');
+      const deliveryEvents = result.events.filter(
+        (e) => e.type === 'acquisition' && e.data?.eventType === 'delivery',
+      );
       expect(deliveryEvents.length).toBeGreaterThan(0);
     });
 
@@ -374,7 +446,10 @@ describe('acquisitionProcessor', () => {
         },
       });
 
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
 
       const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.status).toBe('in_transit');
@@ -392,7 +467,10 @@ describe('acquisitionProcessor', () => {
         },
       });
 
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
 
       const updatedRequest = result.campaign.shoppingList!.items[0];
       expect(updatedRequest.status).toBe('delivered');
@@ -415,7 +493,10 @@ describe('acquisitionProcessor', () => {
         },
       });
 
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
 
       expect(result.campaign.shoppingList!.items[0].status).toBe('delivered');
       expect(result.campaign.shoppingList!.items[1].status).toBe('delivered');
@@ -441,7 +522,11 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1;
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
       expect(result.campaign.shoppingList!.items).toHaveLength(2);
       expect(result.campaign.shoppingList!.items[0].status).not.toBe('pending');
@@ -462,7 +547,11 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1;
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
       expect(result.events.length).toBeGreaterThan(0);
       const eventTypes = result.events.map((e) => e.data?.eventType);
@@ -485,9 +574,15 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1;
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
-      const acquisitionEvents = result.events.filter((e) => e.type === 'acquisition');
+      const acquisitionEvents = result.events.filter(
+        (e) => e.type === 'acquisition',
+      );
       expect(acquisitionEvents.length).toBeGreaterThan(0);
     });
 
@@ -500,9 +595,15 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1;
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
-      const successEvent = result.events.find((e) => e.data?.eventType === 'acquisition_success');
+      const successEvent = result.events.find(
+        (e) => e.data?.eventType === 'acquisition_success',
+      );
       expect(successEvent?.data?.requestId).toBe(request.id);
       expect(successEvent?.data?.partName).toBe(request.partName);
     });
@@ -516,9 +617,15 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1;
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
-      const acquisitionEvents = result.events.filter((e) => e.type === 'acquisition');
+      const acquisitionEvents = result.events.filter(
+        (e) => e.type === 'acquisition',
+      );
       acquisitionEvents.forEach((event) => {
         expect(['info', 'warning', 'critical']).toContain(event.severity);
       });
@@ -533,9 +640,15 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1;
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
-      const acquisitionEvents = result.events.filter((e) => e.type === 'acquisition');
+      const acquisitionEvents = result.events.filter(
+        (e) => e.type === 'acquisition',
+      );
       acquisitionEvents.forEach((event) => {
         expect(event.description).toBeDefined();
         expect(event.description.length).toBeGreaterThan(0);
@@ -549,13 +662,13 @@ describe('acquisitionProcessor', () => {
 
   describe('registration', () => {
     it('should register processor with pipeline', () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-call
+      // oxlint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-call
       const pipeline = require('../../dayPipeline').getDayPipeline();
       registerAcquisitionProcessor();
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      // oxlint-disable-next-line @typescript-eslint/no-unsafe-call
       const processors = pipeline.getProcessors();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
       const registered = processors.find((p: any) => p.id === 'acquisition');
       expect(registered).toBeDefined();
     });
@@ -576,7 +689,11 @@ describe('acquisitionProcessor', () => {
 
       const originalStatus = campaign.shoppingList.items[0].status;
       const deterministicRandom = () => 1;
-      acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
       expect(campaign.shoppingList.items[0].status).toBe(originalStatus);
     });
@@ -589,7 +706,11 @@ describe('acquisitionProcessor', () => {
       });
 
       const deterministicRandom = () => 1;
-      const result = acquisitionProcessor.process(campaign, campaign.currentDate, deterministicRandom);
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+        deterministicRandom,
+      );
 
       expect(result.campaign).not.toBe(campaign);
     });

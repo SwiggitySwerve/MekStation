@@ -7,6 +7,7 @@
  */
 
 import type { IStoredIdentity, IEncryptedData } from '@/types/vault';
+
 import { getSQLiteService } from '@/services/persistence';
 
 // =============================================================================
@@ -70,7 +71,7 @@ export class IdentityRepository {
       identity.friendCode,
       identity.createdAt,
       identity.avatar || null,
-      1 // New identity is active by default
+      1, // New identity is active by default
     );
   }
 
@@ -139,7 +140,7 @@ export class IdentityRepository {
 
     db.exec('UPDATE vault_identities SET is_active = 0');
     db.prepare('UPDATE vault_identities SET is_active = 1 WHERE id = ?').run(
-      id
+      id,
     );
   }
 
@@ -148,7 +149,7 @@ export class IdentityRepository {
    */
   async update(
     id: string,
-    updates: { displayName?: string; avatar?: string }
+    updates: { displayName?: string; avatar?: string },
   ): Promise<void> {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -170,7 +171,7 @@ export class IdentityRepository {
 
     values.push(id);
     db.prepare(
-      `UPDATE vault_identities SET ${sets.join(', ')} WHERE id = ?`
+      `UPDATE vault_identities SET ${sets.join(', ')} WHERE id = ?`,
     ).run(...values);
   }
 
@@ -206,7 +207,9 @@ export class IdentityRepository {
       id: row.id,
       displayName: row.display_name,
       publicKey: row.public_key,
-      encryptedPrivateKey: JSON.parse(row.encrypted_private_key) as IEncryptedData,
+      encryptedPrivateKey: JSON.parse(
+        row.encrypted_private_key,
+      ) as IEncryptedData,
       friendCode: row.friend_code,
       createdAt: row.created_at,
       avatar: row.avatar || undefined,

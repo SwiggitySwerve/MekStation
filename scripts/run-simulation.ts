@@ -1,24 +1,29 @@
 #!/usr/bin/env npx tsx
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
 
-import { BatchRunner } from '../src/simulation/runner/BatchRunner';
-import { SimulationRunner } from '../src/simulation/runner/SimulationRunner';
-import { InvariantRunner } from '../src/simulation/invariants/InvariantRunner';
+import { ISimulationConfig } from '../src/simulation/core/types';
+import { STANDARD_LANCE } from '../src/simulation/generator/presets';
 import {
   checkUnitPositionUniqueness,
   checkHeatNonNegative,
   checkArmorBounds,
 } from '../src/simulation/invariants/checkers';
+import { InvariantRunner } from '../src/simulation/invariants/InvariantRunner';
 import { MetricsCollector } from '../src/simulation/metrics/MetricsCollector';
 import { ReportGenerator } from '../src/simulation/reporting/ReportGenerator';
+import { BatchRunner } from '../src/simulation/runner/BatchRunner';
+import { SimulationRunner } from '../src/simulation/runner/SimulationRunner';
 import { SnapshotManager } from '../src/simulation/snapshot/SnapshotManager';
-import { STANDARD_LANCE } from '../src/simulation/generator/presets';
-import { ISimulationConfig } from '../src/simulation/core/types';
 
-function parseArgs(): { count: number; seed: number; preset: string; outputDir: string } {
+function parseArgs(): {
+  count: number;
+  seed: number;
+  preset: string;
+  outputDir: string;
+} {
   const args = process.argv.slice(2);
-  
+
   let count = 10;
   let seed = Date.now();
   let preset = 'standard';
@@ -88,9 +93,19 @@ function createInvariantRunner(): InvariantRunner {
 function getPresetConfig(preset: string, seed: number): ISimulationConfig {
   switch (preset) {
     case 'light':
-      return { seed, turnLimit: 10, unitCount: { player: 2, opponent: 2 }, mapRadius: 5 };
+      return {
+        seed,
+        turnLimit: 10,
+        unitCount: { player: 2, opponent: 2 },
+        mapRadius: 5,
+      };
     case 'stress':
-      return { seed, turnLimit: 50, unitCount: { player: 4, opponent: 4 }, mapRadius: 10 };
+      return {
+        seed,
+        turnLimit: 50,
+        unitCount: { player: 4, opponent: 4 },
+        mapRadius: 10,
+      };
     case 'standard':
     default:
       return { ...STANDARD_LANCE, seed };
@@ -108,7 +123,9 @@ async function main(): Promise<void> {
   console.log(`Base Seed:   ${seed}`);
   console.log(`Preset:      ${preset}`);
   console.log(`Output Dir:  ${outputDir}`);
-  console.log(`Config:      ${config.unitCount.player}v${config.unitCount.opponent}, ${config.turnLimit} turn limit, radius ${config.mapRadius}`);
+  console.log(
+    `Config:      ${config.unitCount.player}v${config.unitCount.opponent}, ${config.turnLimit} turn limit, radius ${config.mapRadius}`,
+  );
   console.log('='.repeat(60));
 
   const batchRunner = new BatchRunner();
@@ -126,18 +143,23 @@ async function main(): Promise<void> {
       lastProgress = progress;
     }
   });
-  
+
   const elapsed = Date.now() - startTime;
   console.log(`\r  Progress: 100% (${count}/${count})    `);
-  console.log(`\nCompleted in ${elapsed}ms (${(elapsed / count).toFixed(2)}ms per simulation)`);
+  console.log(
+    `\nCompleted in ${elapsed}ms (${(elapsed / count).toFixed(2)}ms per simulation)`,
+  );
 
   let failedCount = 0;
   for (const result of results) {
     metricsCollector.recordGame(result);
-    
+
     if (result.violations.length > 0) {
       failedCount++;
-      snapshotManager.saveFailedScenario(result, { ...config, seed: result.seed });
+      snapshotManager.saveFailedScenario(result, {
+        ...config,
+        seed: result.seed,
+      });
     }
   }
 
@@ -147,9 +169,15 @@ async function main(): Promise<void> {
   console.log('Results Summary');
   console.log('-'.repeat(60));
   console.log(`Total Games:      ${aggregate.totalGames}`);
-  console.log(`Player Wins:      ${aggregate.playerWins} (${aggregate.playerWinRate.toFixed(1)}%)`);
-  console.log(`Opponent Wins:    ${aggregate.opponentWins} (${aggregate.opponentWinRate.toFixed(1)}%)`);
-  console.log(`Draws:            ${aggregate.draws} (${aggregate.drawRate.toFixed(1)}%)`);
+  console.log(
+    `Player Wins:      ${aggregate.playerWins} (${aggregate.playerWinRate.toFixed(1)}%)`,
+  );
+  console.log(
+    `Opponent Wins:    ${aggregate.opponentWins} (${aggregate.opponentWinRate.toFixed(1)}%)`,
+  );
+  console.log(
+    `Draws:            ${aggregate.draws} (${aggregate.drawRate.toFixed(1)}%)`,
+  );
   console.log(`Incomplete:       ${aggregate.incompleteGames}`);
   console.log(`Average Turns:    ${aggregate.avgTurns.toFixed(1)}`);
   console.log(`Total Violations: ${aggregate.totalViolations}`);
@@ -160,23 +188,26 @@ async function main(): Promise<void> {
   }
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const reportPath = path.join(outputDir, `simulation-report-${timestamp}.json`);
+  const reportPath = path.join(
+    outputDir,
+    `simulation-report-${timestamp}.json`,
+  );
 
   const reportGenerator = new ReportGenerator();
   reportGenerator.saveTo(
     metricsCollector.getMetrics(),
     aggregate,
     config,
-    reportPath
+    reportPath,
   );
 
   console.log('\n' + '-'.repeat(60));
   console.log(`Report saved: ${reportPath}`);
-  
+
   if (failedCount > 0) {
     console.log(`Snapshots saved to: src/simulation/__snapshots__/failed/`);
   }
-  
+
   console.log('-'.repeat(60));
 
   const exitCode = aggregate.totalViolations > 0 ? 1 : 0;

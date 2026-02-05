@@ -1,8 +1,14 @@
-import { IDayProcessor, IDayProcessorResult, DayPhase, IDayEvent } from '../dayPipeline';
 import { ICampaign } from '@/types/campaign/Campaign';
-import { processHealing } from '../dayAdvancement';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import { processHealing } from '../dayAdvancement';
+import {
+  IDayProcessor,
+  IDayProcessorResult,
+  DayPhase,
+  IDayEvent,
+} from '../dayPipeline';
+
+// oxlint-disable-next-line @typescript-eslint/no-explicit-any
 function castToRecord(data: any): Record<string, unknown> {
   return data as Record<string, unknown>;
 }

@@ -6,9 +6,6 @@
 import {
   IDamageAppliedPayload,
   IUnitDestroyedPayload,
-  GameEventType,
-  GamePhase,
-  GameStatus,
 } from '../GameSessionInterfaces';
 
 describe('Damage Attribution Fields', () => {
@@ -167,12 +164,9 @@ describe('Damage Attribution Fields', () => {
     });
 
     it('should support all destruction causes with killerUnitId', () => {
-      const causes: Array<'damage' | 'ammo_explosion' | 'pilot_death' | 'shutdown'> = [
-        'damage',
-        'ammo_explosion',
-        'pilot_death',
-        'shutdown',
-      ];
+      const causes: Array<
+        'damage' | 'ammo_explosion' | 'pilot_death' | 'shutdown'
+      > = ['damage', 'ammo_explosion', 'pilot_death', 'shutdown'];
 
       causes.forEach((cause) => {
         const payload: IUnitDestroyedPayload = {

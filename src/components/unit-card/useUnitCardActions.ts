@@ -5,14 +5,20 @@
  * Integrates with existing vault services and navigation.
  */
 
-import { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useCallback, useState } from 'react';
 
 export interface UseUnitCardActionsOptions {
   /** Unit ID */
   unitId: string;
   /** Unit type for routing (default: 'mech') */
-  unitType?: 'mech' | 'vehicle' | 'aerospace' | 'battle-armor' | 'infantry' | 'protomech';
+  unitType?:
+    | 'mech'
+    | 'vehicle'
+    | 'aerospace'
+    | 'battle-armor'
+    | 'infantry'
+    | 'protomech';
   /** Callback after successful duplication */
   onDuplicateSuccess?: (newUnitId: string) => void;
   /** Callback after successful deletion */
@@ -63,9 +69,10 @@ export function useUnitCardActions({
 
   // Navigate to unit editor
   const handleEdit = useCallback(() => {
-    const path = unitType === 'mech' 
-      ? `/customizer/${unitId}`
-      : `/${unitType}/customizer/${unitId}`;
+    const path =
+      unitType === 'mech'
+        ? `/customizer/${unitId}`
+        : `/${unitType}/customizer/${unitId}`;
     router.push(path);
   }, [unitId, unitType, router]);
 

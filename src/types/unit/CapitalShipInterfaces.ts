@@ -6,8 +6,8 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
-import { UnitType } from './BattleMechInterfaces';
 import { IAerospaceUnit, AerospaceMotionType } from './BaseUnitInterfaces';
+import { UnitType } from './BattleMechInterfaces';
 
 // ============================================================================
 // Transporter/Bay Definitions
@@ -419,16 +419,18 @@ export function isWarShip(unit: { unitType: UnitType }): unit is IWarShip {
 /**
  * Check if unit is a Space Station
  */
-export function isSpaceStation(unit: { unitType: UnitType }): unit is ISpaceStation {
+export function isSpaceStation(unit: {
+  unitType: UnitType;
+}): unit is ISpaceStation {
   return unit.unitType === UnitType.SPACE_STATION;
 }
 
 /**
  * Check if unit is any capital ship type
  */
-export function isCapitalShip(
-  unit: { unitType: UnitType }
-): unit is IDropShip | IJumpShip | IWarShip | ISpaceStation {
+export function isCapitalShip(unit: {
+  unitType: UnitType;
+}): unit is IDropShip | IJumpShip | IWarShip | ISpaceStation {
   return (
     unit.unitType === UnitType.DROPSHIP ||
     unit.unitType === UnitType.JUMPSHIP ||

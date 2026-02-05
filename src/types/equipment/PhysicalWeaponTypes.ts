@@ -1,13 +1,13 @@
 /**
  * Physical Weapon Type Definitions
- * 
+ *
  * Defines melee and physical weapons for BattleMechs.
- * 
+ *
  * @spec openspec/specs/physical-weapons-system/spec.md
  */
 
-import { TechBase } from '../enums/TechBase';
 import { RulesLevel } from '../enums/RulesLevel';
+import { TechBase } from '../enums/TechBase';
 
 /**
  * Physical weapon type enumeration
@@ -204,56 +204,70 @@ export const PHYSICAL_WEAPON_DEFINITIONS: readonly IPhysicalWeapon[] = [
 /**
  * Get physical weapon definition by type
  */
-export function getPhysicalWeaponDefinition(type: PhysicalWeaponType): IPhysicalWeapon | undefined {
-  return PHYSICAL_WEAPON_DEFINITIONS.find(w => w.type === type);
+export function getPhysicalWeaponDefinition(
+  type: PhysicalWeaponType,
+): IPhysicalWeapon | undefined {
+  return PHYSICAL_WEAPON_DEFINITIONS.find((w) => w.type === type);
 }
 
 /**
  * Calculate physical weapon weight
  */
-export function calculatePhysicalWeaponWeight(type: PhysicalWeaponType, mechTonnage: number): number {
+export function calculatePhysicalWeaponWeight(
+  type: PhysicalWeaponType,
+  mechTonnage: number,
+): number {
   const def = getPhysicalWeaponDefinition(type);
   if (!def) return 0;
-  
+
   if (def.weightFormula === 'fixed') {
     return def.fixedWeight ?? 0;
   }
-  
+
   return Math.ceil(mechTonnage / (def.tonnageDivisor ?? 15));
 }
 
 /**
  * Calculate physical weapon damage
  */
-export function calculatePhysicalWeaponDamage(type: PhysicalWeaponType, mechTonnage: number): number {
+export function calculatePhysicalWeaponDamage(
+  type: PhysicalWeaponType,
+  mechTonnage: number,
+): number {
   const def = getPhysicalWeaponDefinition(type);
   if (!def) return 0;
-  
+
   if (def.damageFormula === 'fixed') {
     return def.fixedDamage ?? 0;
   }
-  
+
   const baseDamage = Math.floor(mechTonnage / (def.damageDivisor ?? 5));
-  
+
   if (def.damageFormula === 'tonnage_divisor_plus') {
     return baseDamage + (def.damageBonus ?? 0);
   }
-  
+
   return baseDamage;
 }
 
 /**
  * Calculate physical weapon critical slots
  */
-export function calculatePhysicalWeaponSlots(type: PhysicalWeaponType, mechTonnage: number): number {
+export function calculatePhysicalWeaponSlots(
+  type: PhysicalWeaponType,
+  mechTonnage: number,
+): number {
   const def = getPhysicalWeaponDefinition(type);
   if (!def) return 0;
-  
+
   // Most physical weapons take 1 slot per 15 tons (rounded up)
-  if (def.type === PhysicalWeaponType.HATCHET || def.type === PhysicalWeaponType.SWORD) {
+  if (
+    def.type === PhysicalWeaponType.HATCHET ||
+    def.type === PhysicalWeaponType.SWORD
+  ) {
     return Math.ceil(mechTonnage / 15);
   }
-  
+
   return Math.ceil(mechTonnage / 15);
 }
 
@@ -264,28 +278,27 @@ export function validatePhysicalWeaponPlacement(
   type: PhysicalWeaponType,
   location: string,
   hasLowerArmActuator: boolean,
-  hasHandActuator: boolean
+  hasHandActuator: boolean,
 ): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
   const def = getPhysicalWeaponDefinition(type);
-  
+
   if (!def) {
     errors.push(`Unknown physical weapon type: ${type}`);
     return { isValid: false, errors };
   }
-  
+
   if (!def.validLocations.includes(location)) {
     errors.push(`${def.name} cannot be mounted in ${location}`);
   }
-  
+
   if (def.requiresLowerArm && !hasLowerArmActuator) {
     errors.push(`${def.name} requires lower arm actuator`);
   }
-  
+
   if (def.requiresHand && !hasHandActuator) {
     errors.push(`${def.name} requires hand actuator`);
   }
-  
+
   return { isValid: errors.length === 0, errors };
 }
-

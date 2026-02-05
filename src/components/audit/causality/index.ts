@@ -6,22 +6,13 @@
  */
 
 // Main graph container
-export {
-  CausalityGraph,
-  type CausalityGraphProps,
-} from './CausalityGraph';
+export { CausalityGraph, type CausalityGraphProps } from './CausalityGraph';
 
 // Individual node display
-export {
-  CausalityNode,
-  type CausalityNodeProps,
-} from './CausalityNode';
+export { CausalityNode, type CausalityNodeProps } from './CausalityNode';
 
 // Edge/arrow between nodes
-export {
-  CausalityEdge,
-  type CausalityEdgeProps,
-} from './CausalityEdge';
+export { CausalityEdge, type CausalityEdgeProps } from './CausalityEdge';
 
 // Zoom and pan controls
 export {
@@ -30,7 +21,4 @@ export {
 } from './CausalityZoomControls';
 
 // "Why?" button for state changes
-export {
-  WhyButton,
-  type WhyButtonProps,
-} from './WhyButton';
+export { WhyButton, type WhyButtonProps } from './WhyButton';

@@ -32,11 +32,14 @@
  */
 export function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
   func: T,
-  delay: number
+  delay: number,
 ): T & { cancel: () => void } {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-  const debounced = function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+  const debounced = function (
+    this: ThisParameterType<T>,
+    ...args: Parameters<T>
+  ) {
     // Clear existing timeout
     if (timeoutId !== null) {
       clearTimeout(timeoutId);

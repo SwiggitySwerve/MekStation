@@ -6,12 +6,15 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2.8
  */
 
-import { VehicleUnitHandler, createVehicleHandler } from '../VehicleUnitHandler';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { GroundMotionType } from '../../../../types/unit/BaseUnitInterfaces';
 import { VehicleLocation } from '../../../../types/construction/UnitLocation';
+import { IBlkDocument } from '../../../../types/formats/BlkFormat';
+import { GroundMotionType } from '../../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
 import { TurretType } from '../../../../types/unit/VehicleInterfaces';
+import {
+  VehicleUnitHandler,
+  createVehicleHandler,
+} from '../VehicleUnitHandler';
 
 // ============================================================================
 // Test Fixtures
@@ -21,7 +24,7 @@ import { TurretType } from '../../../../types/unit/VehicleInterfaces';
  * Create a mock BLK document for testing
  */
 function createMockBlkDocument(
-  overrides: Partial<IBlkDocument> = {}
+  overrides: Partial<IBlkDocument> = {},
 ): IBlkDocument {
   return {
     blockVersion: 1,
@@ -195,11 +198,17 @@ describe('VehicleUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.armorByLocation[VehicleLocation.FRONT]).toBe(20);
+      expect(result.data?.unit?.armorByLocation[VehicleLocation.FRONT]).toBe(
+        20,
+      );
       expect(result.data?.unit?.armorByLocation[VehicleLocation.LEFT]).toBe(15);
-      expect(result.data?.unit?.armorByLocation[VehicleLocation.RIGHT]).toBe(15);
+      expect(result.data?.unit?.armorByLocation[VehicleLocation.RIGHT]).toBe(
+        15,
+      );
       expect(result.data?.unit?.armorByLocation[VehicleLocation.REAR]).toBe(10);
-      expect(result.data?.unit?.armorByLocation[VehicleLocation.TURRET]).toBe(12);
+      expect(result.data?.unit?.armorByLocation[VehicleLocation.TURRET]).toBe(
+        12,
+      );
     });
 
     it('should calculate total armor points', () => {
@@ -239,13 +248,13 @@ describe('VehicleUnitHandler', () => {
       expect(result.data?.unit?.equipment.length).toBe(3);
 
       const frontEquip = result.data?.unit?.equipment.find(
-        (e) => e.location === VehicleLocation.FRONT
+        (e) => e.location === VehicleLocation.FRONT,
       );
       expect(frontEquip?.name).toBe('Medium Laser');
       expect(frontEquip?.isTurretMounted).toBe(false);
 
       const turretEquip = result.data?.unit?.equipment.find(
-        (e) => e.location === VehicleLocation.TURRET
+        (e) => e.location === VehicleLocation.TURRET,
       );
       expect(turretEquip?.name).toBe('AC/5');
       expect(turretEquip?.isTurretMounted).toBe(true);
@@ -301,9 +310,9 @@ describe('VehicleUnitHandler', () => {
 
       const validateResult = handler.validate(parseResult.data!.unit);
       expect(validateResult.isValid).toBe(false);
-      expect(validateResult.errors.some((e) => e.includes('exceeds maximum'))).toBe(
-        true
-      );
+      expect(
+        validateResult.errors.some((e) => e.includes('exceeds maximum')),
+      ).toBe(true);
     });
 
     it('should warn about hover vehicles over 50 tons', () => {
@@ -314,7 +323,9 @@ describe('VehicleUnitHandler', () => {
 
       const validateResult = handler.validate(parseResult.data!.unit);
       expect(
-        validateResult.warnings.some((w) => w.includes('Hover vehicles over 50 tons'))
+        validateResult.warnings.some((w) =>
+          w.includes('Hover vehicles over 50 tons'),
+        ),
       ).toBe(true);
     });
   });

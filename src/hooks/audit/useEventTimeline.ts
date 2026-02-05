@@ -6,6 +6,8 @@
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+
+import { EventStoreService, getEventStore } from '@/services/events';
 import {
   IBaseEvent,
   IEventQueryFilters,
@@ -13,7 +15,6 @@ import {
   IEventQueryResult,
   EventCategory,
 } from '@/types/events';
-import { EventStoreService, getEventStore } from '@/services/events';
 
 // =============================================================================
 // Types
@@ -136,7 +137,8 @@ const DEFAULT_FILTERS: ITimelineFilters = {};
 function toQueryFilters(filters: ITimelineFilters): IEventQueryFilters {
   return {
     category: filters.category,
-    types: filters.types && filters.types.length > 0 ? filters.types : undefined,
+    types:
+      filters.types && filters.types.length > 0 ? filters.types : undefined,
     context: filters.context,
     timeRange: filters.timeRange,
     rootEventsOnly: filters.rootEventsOnly,
@@ -149,7 +151,7 @@ function toQueryFilters(filters: ITimelineFilters): IEventQueryFilters {
  */
 function applySearchFilter(
   events: readonly IBaseEvent[],
-  query: string
+  query: string,
 ): IBaseEvent[] {
   if (!query.trim()) {
     return [...events];
@@ -176,7 +178,9 @@ function applySearchFilter(
 
     // Search in context values
     const contextValues = Object.values(event.context).filter(Boolean);
-    if (contextValues.some((v) => String(v).toLowerCase().includes(lowerQuery))) {
+    if (
+      contextValues.some((v) => String(v).toLowerCase().includes(lowerQuery))
+    ) {
       return true;
     }
 
@@ -207,7 +211,7 @@ function applySearchFilter(
  * ```
  */
 export function useEventTimeline(
-  options: IUseEventTimelineOptions = {}
+  options: IUseEventTimelineOptions = {},
 ): UseEventTimelineReturn {
   const {
     initialFilters = DEFAULT_FILTERS,
@@ -239,7 +243,7 @@ export function useEventTimeline(
       totalPages: Math.ceil(total / pageSize),
       hasMore: (page + 1) * pageSize < total,
     }),
-    [page, pageSize, total]
+    [page, pageSize, total],
   );
 
   // Load events based on current state
@@ -248,7 +252,7 @@ export function useEventTimeline(
       currentFilters: ITimelineFilters,
       currentPage: number,
       currentPageSize: number,
-      appendMode: boolean = false
+      appendMode: boolean = false,
     ) => {
       setIsLoading(true);
       setError(null);
@@ -268,13 +272,14 @@ export function useEventTimeline(
         };
 
         // Query the event store
-        let result: IEventQueryResult<IBaseEvent> = eventStore.query(queryOptions);
+        let result: IEventQueryResult<IBaseEvent> =
+          eventStore.query(queryOptions);
 
         // Apply full-text search if present (post-filter)
         if (currentFilters.searchQuery) {
           const filteredEvents = applySearchFilter(
             result.events,
-            currentFilters.searchQuery
+            currentFilters.searchQuery,
           );
           result = {
             ...result,
@@ -306,7 +311,7 @@ export function useEventTimeline(
         setIsLoading(false);
       }
     },
-    [eventStore, infiniteScroll]
+    [eventStore, infiniteScroll],
   );
 
   // Initial load and filter changes
@@ -346,7 +351,7 @@ export function useEventTimeline(
       setPage(clampedPage);
       loadEvents(filters, clampedPage, pageSize, false);
     },
-    [filters, pageSize, total, loadEvents]
+    [filters, pageSize, total, loadEvents],
   );
 
   const loadMore = useCallback(() => {
@@ -398,7 +403,7 @@ export function useEventTimeline(
  */
 export function useGameTimeline(
   gameId: string,
-  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {}
+  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {},
 ): UseEventTimelineReturn {
   return useEventTimeline({
     ...options,
@@ -414,7 +419,7 @@ export function useGameTimeline(
  */
 export function usePilotTimeline(
   pilotId: string,
-  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {}
+  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {},
 ): UseEventTimelineReturn {
   return useEventTimeline({
     ...options,
@@ -429,7 +434,7 @@ export function usePilotTimeline(
  */
 export function useCampaignTimeline(
   campaignId: string,
-  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {}
+  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {},
 ): UseEventTimelineReturn {
   return useEventTimeline({
     ...options,
@@ -448,7 +453,7 @@ export function useCampaignTimeline(
  */
 export function useUnitInstanceTimeline(
   unitInstanceId: string,
-  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {}
+  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {},
 ): UseEventTimelineReturn {
   return useEventTimeline({
     ...options,
@@ -467,7 +472,7 @@ export function useUnitInstanceTimeline(
  */
 export function usePilotInstanceTimeline(
   pilotInstanceId: string,
-  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {}
+  options: Omit<IUseEventTimelineOptions, 'initialFilters'> = {},
 ): UseEventTimelineReturn {
   return useEventTimeline({
     ...options,

@@ -8,7 +8,8 @@
  * - Rules reference
  */
 
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
+
 import { BasePage } from './base.page';
 
 /**
@@ -49,7 +50,9 @@ export class CompendiumPage extends BasePage {
 
     // Cards - fallback to text/role selectors when testids aren't present
     this.unitDatabaseCard = page.getByRole('link', { name: /unit database/i });
-    this.equipmentCatalogCard = page.getByRole('link', { name: /equipment catalog/i });
+    this.equipmentCatalogCard = page.getByRole('link', {
+      name: /equipment catalog/i,
+    });
     this.ruleCategoryCards = page.locator('[data-testid^="rule-category-"]');
 
     // Quick reference
@@ -63,7 +66,10 @@ export class CompendiumPage extends BasePage {
 
   async waitForPageLoad(): Promise<void> {
     // Wait for page content to load - use heading as indicator
-    await this.page.getByRole('heading', { name: /compendium/i }).first().waitFor();
+    await this.page
+      .getByRole('heading', { name: /compendium/i })
+      .first()
+      .waitFor();
   }
 
   async search(query: string): Promise<void> {
@@ -72,7 +78,9 @@ export class CompendiumPage extends BasePage {
   }
 
   async clearSearch(): Promise<void> {
-    const clearButton = this.page.getByRole('button', { name: /clear search/i });
+    const clearButton = this.page.getByRole('button', {
+      name: /clear search/i,
+    });
     if (await clearButton.isVisible()) {
       await clearButton.click();
     }
@@ -92,14 +100,23 @@ export class CompendiumPage extends BasePage {
 
   async navigateToRuleSection(sectionId: string): Promise<void> {
     // Find the card by its title text
-    const ruleCard = this.page.locator('a').filter({ hasText: new RegExp(sectionId, 'i') }).first();
+    const ruleCard = this.page
+      .locator('a')
+      .filter({ hasText: new RegExp(sectionId, 'i') })
+      .first();
     await ruleCard.click();
-    await this.page.waitForURL(new RegExp(`/compendium/rules/${sectionId}`), { timeout: 10000 });
+    await this.page.waitForURL(new RegExp(`/compendium/rules/${sectionId}`), {
+      timeout: 10000,
+    });
   }
 
   async getRuleSectionCount(): Promise<number> {
     // Count the rule category cards in the rules section
-    return await this.page.locator('section').filter({ hasText: /construction rules/i }).getByRole('link').count();
+    return await this.page
+      .locator('section')
+      .filter({ hasText: /construction rules/i })
+      .getByRole('link')
+      .count();
   }
 }
 
@@ -163,7 +180,10 @@ export class UnitBrowserPage extends BasePage {
 
   async waitForPageLoad(): Promise<void> {
     // Wait for the page to load - use heading as indicator
-    await this.page.getByRole('heading', { name: /unit database/i }).first().waitFor();
+    await this.page
+      .getByRole('heading', { name: /unit database/i })
+      .first()
+      .waitFor();
   }
 
   async search(query: string): Promise<void> {
@@ -198,7 +218,9 @@ export class UnitBrowserPage extends BasePage {
   }
 
   async setViewMode(mode: 'grid' | 'list' | 'table'): Promise<void> {
-    const button = this.page.getByRole('button', { name: new RegExp(mode, 'i') });
+    const button = this.page.getByRole('button', {
+      name: new RegExp(mode, 'i'),
+    });
     await button.click();
   }
 
@@ -213,7 +235,7 @@ export class UnitBrowserPage extends BasePage {
   async clickUnit(index: number = 0): Promise<void> {
     // Click a unit in the list (works for table or card view)
     const tableRows = this.unitTableRows;
-    if (await tableRows.count() > 0) {
+    if ((await tableRows.count()) > 0) {
       await tableRows.nth(index).click();
     } else {
       await this.unitCards.nth(index).click();
@@ -222,8 +244,11 @@ export class UnitBrowserPage extends BasePage {
 
   async getSubtitleText(): Promise<string> {
     // The subtitle shows the unit count
-    const subtitleElement = this.page.locator('p').filter({ hasText: /units?$/i }).first();
-    return await subtitleElement.textContent() || '';
+    const subtitleElement = this.page
+      .locator('p')
+      .filter({ hasText: /units?$/i })
+      .first();
+    return (await subtitleElement.textContent()) || '';
   }
 }
 
@@ -285,7 +310,10 @@ export class EquipmentBrowserPage extends BasePage {
 
   async waitForPageLoad(): Promise<void> {
     // Wait for the page to load - use heading as indicator
-    await this.page.getByRole('heading', { name: /equipment catalog/i }).first().waitFor();
+    await this.page
+      .getByRole('heading', { name: /equipment catalog/i })
+      .first()
+      .waitFor();
   }
 
   async search(query: string): Promise<void> {
@@ -315,7 +343,9 @@ export class EquipmentBrowserPage extends BasePage {
   }
 
   async setViewMode(mode: 'grid' | 'list' | 'table'): Promise<void> {
-    const button = this.page.getByRole('button', { name: new RegExp(mode, 'i') });
+    const button = this.page.getByRole('button', {
+      name: new RegExp(mode, 'i'),
+    });
     await button.click();
   }
 
@@ -330,7 +360,7 @@ export class EquipmentBrowserPage extends BasePage {
   async clickEquipment(index: number = 0): Promise<void> {
     // Click an equipment item in the list
     const tableRows = this.equipmentTableRows;
-    if (await tableRows.count() > 0) {
+    if ((await tableRows.count()) > 0) {
       await tableRows.nth(index).click();
     } else {
       await this.equipmentCards.nth(index).click();
@@ -339,8 +369,11 @@ export class EquipmentBrowserPage extends BasePage {
 
   async getSubtitleText(): Promise<string> {
     // The subtitle shows the item count
-    const subtitleElement = this.page.locator('p').filter({ hasText: /items?$/i }).first();
-    return await subtitleElement.textContent() || '';
+    const subtitleElement = this.page
+      .locator('p')
+      .filter({ hasText: /items?$/i })
+      .first();
+    return (await subtitleElement.textContent()) || '';
   }
 }
 
@@ -465,7 +498,9 @@ export class EquipmentDetailPage extends BasePage {
     this.rulesLevelBadge = page.getByTestId('rules-level-badge');
 
     // Stats sections
-    this.physicalPropertiesCard = page.getByTestId('equipment-physical-properties');
+    this.physicalPropertiesCard = page.getByTestId(
+      'equipment-physical-properties',
+    );
     this.availabilityCard = page.getByTestId('equipment-availability');
     this.combatStatsCard = page.getByTestId('equipment-combat-stats');
     this.rangeProfileCard = page.getByTestId('equipment-range-profile');
@@ -474,7 +509,9 @@ export class EquipmentDetailPage extends BasePage {
   }
 
   async goto(equipmentId: string): Promise<void> {
-    await this.page.goto(`/compendium/equipment/${encodeURIComponent(equipmentId)}`);
+    await this.page.goto(
+      `/compendium/equipment/${encodeURIComponent(equipmentId)}`,
+    );
     await this.waitForPageLoad();
   }
 

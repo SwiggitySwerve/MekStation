@@ -1,9 +1,9 @@
 /**
  * Global Status Bar Component
- * 
+ *
  * Displays capacity utilization at the bottom of the customizer,
  * visible across all tabs.
- * 
+ *
  * @spec openspec/changes/unify-equipment-tab/specs/equipment-tray/spec.md
  */
 
@@ -44,32 +44,44 @@ interface GlobalStatusBarProps {
 /**
  * Global status bar showing weight, slots, and heat capacity
  */
-export function GlobalStatusBar({ stats, className = '' }: GlobalStatusBarProps): React.ReactElement {
+export function GlobalStatusBar({
+  stats,
+  className = '',
+}: GlobalStatusBarProps): React.ReactElement {
   const isOverWeight = stats.weightRemaining < 0;
   const isOverSlots = stats.slotsUsed > stats.slotsTotal;
   const isOverHeat = stats.heatGenerated > stats.heatDissipation;
-  
+
   return (
-    <div className={`bg-surface-base border-t border-border-theme-subtle px-4 py-2 ${className}`}>
+    <div
+      className={`bg-surface-base border-border-theme-subtle border-t px-4 py-2 ${className}`}
+    >
       <div className="flex items-center justify-between gap-6 text-sm">
         {/* Weight */}
         <div className="flex items-center gap-2">
           <span className="text-text-theme-secondary">Weight:</span>
-          <span className={isOverWeight ? 'text-red-400 font-medium' : 'text-white'}>
+          <span
+            className={isOverWeight ? 'font-medium text-red-400' : 'text-white'}
+          >
             {stats.weightUsed.toFixed(1)} / {stats.weightMax}t
           </span>
-          <span className={`text-xs ${isOverWeight ? 'text-red-400' : 'text-green-400'}`}>
-            ({isOverWeight ? '' : '+'}{stats.weightRemaining.toFixed(1)}t rem)
+          <span
+            className={`text-xs ${isOverWeight ? 'text-red-400' : 'text-green-400'}`}
+          >
+            ({isOverWeight ? '' : '+'}
+            {stats.weightRemaining.toFixed(1)}t rem)
           </span>
         </div>
-        
+
         {/* Divider */}
         <div className="h-4 w-px bg-slate-600" />
-        
+
         {/* Slots */}
         <div className="flex items-center gap-2">
           <span className="text-text-theme-secondary">Free Slots:</span>
-          <span className={isOverSlots ? 'text-red-400 font-medium' : 'text-white'}>
+          <span
+            className={isOverSlots ? 'font-medium text-red-400' : 'text-white'}
+          >
             {stats.slotsUsed} / {stats.slotsTotal}
           </span>
           {isOverSlots && (
@@ -78,14 +90,16 @@ export function GlobalStatusBar({ stats, className = '' }: GlobalStatusBarProps)
             </span>
           )}
         </div>
-        
+
         {/* Divider */}
         <div className="h-4 w-px bg-slate-600" />
-        
+
         {/* Heat */}
         <div className="flex items-center gap-2">
           <span className="text-text-theme-secondary">Heat:</span>
-          <span className={isOverHeat ? 'text-amber-400 font-medium' : 'text-white'}>
+          <span
+            className={isOverHeat ? 'font-medium text-amber-400' : 'text-white'}
+          >
             {stats.heatGenerated} / {stats.heatDissipation}
           </span>
           {isOverHeat && (
@@ -94,10 +108,10 @@ export function GlobalStatusBar({ stats, className = '' }: GlobalStatusBarProps)
             </span>
           )}
         </div>
-        
+
         {/* Spacer to push warnings to right */}
         <div className="flex-1" />
-        
+
         {/* Capacity warnings */}
         {(isOverWeight || isOverSlots) && (
           <div className="flex items-center gap-2 text-xs">
@@ -115,4 +129,3 @@ export function GlobalStatusBar({ stats, className = '' }: GlobalStatusBarProps)
 }
 
 export default GlobalStatusBar;
-

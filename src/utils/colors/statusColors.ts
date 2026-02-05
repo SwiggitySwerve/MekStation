@@ -1,8 +1,8 @@
 /**
  * Status and Interactive State Colors
- * 
+ *
  * Colors for validation states, allocation status, and interactive feedback.
- * 
+ *
  * @spec openspec/specs/color-system/spec.md
  */
 
@@ -19,12 +19,21 @@ export type AllocationStatus = 'allocated' | 'unallocated' | 'partial';
 /**
  * Interactive state types
  */
-export type InteractiveState = 'default' | 'hover' | 'selected' | 'dropValid' | 'dropInvalid' | 'disabled';
+export type InteractiveState =
+  | 'default'
+  | 'hover'
+  | 'selected'
+  | 'dropValid'
+  | 'dropInvalid'
+  | 'disabled';
 
 /**
  * Validation status color definitions
  */
-export const VALIDATION_COLORS: Record<ValidationStatus, { bg: string; text: string; border: string; icon: string }> = {
+export const VALIDATION_COLORS: Record<
+  ValidationStatus,
+  { bg: string; text: string; border: string; icon: string }
+> = {
   valid: {
     bg: 'bg-green-900/50',
     text: 'text-green-400',
@@ -54,7 +63,10 @@ export const VALIDATION_COLORS: Record<ValidationStatus, { bg: string; text: str
 /**
  * Allocation status color definitions
  */
-export const ALLOCATION_COLORS: Record<AllocationStatus, { bg: string; text: string; badge: string }> = {
+export const ALLOCATION_COLORS: Record<
+  AllocationStatus,
+  { bg: string; text: string; badge: string }
+> = {
   allocated: {
     bg: 'bg-green-900/30',
     text: 'text-green-400',
@@ -75,7 +87,10 @@ export const ALLOCATION_COLORS: Record<AllocationStatus, { bg: string; text: str
 /**
  * Interactive state color definitions
  */
-export const INTERACTIVE_COLORS: Record<InteractiveState, { bg: string; border: string; ring?: string; cursor: string }> = {
+export const INTERACTIVE_COLORS: Record<
+  InteractiveState,
+  { bg: string; border: string; ring?: string; cursor: string }
+> = {
   default: {
     bg: 'bg-slate-800',
     border: 'border-slate-700',
@@ -114,28 +129,44 @@ export const INTERACTIVE_COLORS: Record<InteractiveState, { bg: string; border: 
 /**
  * Get validation status colors
  */
-export function getValidationColors(status: ValidationStatus): { bg: string; text: string; border: string; icon: string } {
+export function getValidationColors(status: ValidationStatus): {
+  bg: string;
+  text: string;
+  border: string;
+  icon: string;
+} {
   return VALIDATION_COLORS[status];
 }
 
 /**
  * Get allocation status colors
  */
-export function getAllocationColors(status: AllocationStatus): { bg: string; text: string; badge: string } {
+export function getAllocationColors(status: AllocationStatus): {
+  bg: string;
+  text: string;
+  badge: string;
+} {
   return ALLOCATION_COLORS[status];
 }
 
 /**
  * Get interactive state colors
  */
-export function getInteractiveColors(state: InteractiveState): { bg: string; border: string; ring?: string; cursor: string } {
+export function getInteractiveColors(state: InteractiveState): {
+  bg: string;
+  border: string;
+  ring?: string;
+  cursor: string;
+} {
   return INTERACTIVE_COLORS[state];
 }
 
 /**
  * Build class string for a validation indicator
  */
-export function getValidationIndicatorClasses(status: ValidationStatus): string {
+export function getValidationIndicatorClasses(
+  status: ValidationStatus,
+): string {
   const colors = getValidationColors(status);
   return `${colors.bg} ${colors.text} ${colors.border} border rounded px-2 py-1`;
 }
@@ -191,8 +222,7 @@ export const ARMOR_LOCATION_COLORS = {
  */
 export function getArmorLocationColorClass(
   locationType: 'head' | 'torso' | 'rear' | 'limb',
-  state: 'default' | 'hover' | 'selected'
+  state: 'default' | 'hover' | 'selected',
 ): string {
   return ARMOR_LOCATION_COLORS[locationType][state];
 }
-

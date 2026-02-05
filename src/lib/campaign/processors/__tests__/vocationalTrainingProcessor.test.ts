@@ -1,11 +1,14 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import type { IPerson } from '@/types/campaign/Person';
+
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
+
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
+
 import { DayPhase, _resetDayPipeline, getDayPipeline } from '../../dayPipeline';
 import {
   vocationalTrainingProcessor,
@@ -32,7 +35,16 @@ function createTestPerson(overrides: Partial<IPerson> = {}): IPerson {
     injuries: [],
     daysToWaitForHealing: 0,
     skills: {},
-    attributes: { STR: 5, BOD: 5, REF: 5, DEX: 5, INT: 5, WIL: 5, CHA: 5, Edge: 0 },
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    },
     pilotSkills: { gunnery: 4, piloting: 5 },
     createdAt: '3000-01-01T00:00:00Z',
     updatedAt: '3025-06-15T00:00:00Z',
@@ -113,7 +125,10 @@ describe('processVocationalTraining', () => {
 
     // Roll 7 (3+4) vs TN 7 = success
     const random = randomFor2d6(3, 4);
-    const { updatedCampaign, events } = processVocationalTraining(campaign, random);
+    const { updatedCampaign, events } = processVocationalTraining(
+      campaign,
+      random,
+    );
 
     expect(events).toHaveLength(1);
     expect(events[0].type).toBe('vocational');
@@ -140,7 +155,10 @@ describe('processVocationalTraining', () => {
 
     // Roll 6 (2+4) vs TN 7 = failure
     const random = randomFor2d6(2, 4);
-    const { updatedCampaign, events } = processVocationalTraining(campaign, random);
+    const { updatedCampaign, events } = processVocationalTraining(
+      campaign,
+      random,
+    );
 
     expect(events).toHaveLength(0);
 
@@ -157,7 +175,10 @@ describe('processVocationalTraining', () => {
       personnel: new Map([['person-001', person]]),
     });
 
-    const { updatedCampaign, events } = processVocationalTraining(campaign, () => 0);
+    const { updatedCampaign, events } = processVocationalTraining(
+      campaign,
+      () => 0,
+    );
 
     expect(events).toHaveLength(0);
     const updated = updatedCampaign.personnel.get('person-001');
@@ -174,7 +195,10 @@ describe('processVocationalTraining', () => {
       currentDate: new Date('3025-06-15'),
     });
 
-    const { updatedCampaign, events } = processVocationalTraining(campaign, () => 0);
+    const { updatedCampaign, events } = processVocationalTraining(
+      campaign,
+      () => 0,
+    );
 
     expect(events).toHaveLength(0);
     const updated = updatedCampaign.personnel.get('person-001');
@@ -190,7 +214,10 @@ describe('processVocationalTraining', () => {
       personnel: new Map([['person-001', person]]),
     });
 
-    const { updatedCampaign, events } = processVocationalTraining(campaign, () => 0);
+    const { updatedCampaign, events } = processVocationalTraining(
+      campaign,
+      () => 0,
+    );
 
     expect(events).toHaveLength(0);
     const updated = updatedCampaign.personnel.get('person-001');
@@ -206,7 +233,10 @@ describe('processVocationalTraining', () => {
       personnel: new Map([['person-001', person]]),
     });
 
-    const { updatedCampaign, events } = processVocationalTraining(campaign, () => 0);
+    const { updatedCampaign, events } = processVocationalTraining(
+      campaign,
+      () => 0,
+    );
 
     expect(events).toHaveLength(0);
     const updated = updatedCampaign.personnel.get('person-001');
@@ -273,7 +303,10 @@ describe('processVocationalTraining', () => {
 
     // Roll 7 (3+4) vs TN 7 = success for person 1
     const random = randomFor2d6(3, 4);
-    const { updatedCampaign, events } = processVocationalTraining(campaign, random);
+    const { updatedCampaign, events } = processVocationalTraining(
+      campaign,
+      random,
+    );
 
     expect(events).toHaveLength(1);
     expect(events[0].data?.personId).toBe('person-001');
@@ -315,9 +348,14 @@ describe('vocationalTrainingProcessor.process', () => {
       personnel: new Map([['person-001', person]]),
     });
 
-    const result = vocationalTrainingProcessor.process(campaign, new Date('3025-06-15'));
+    const result = vocationalTrainingProcessor.process(
+      campaign,
+      new Date('3025-06-15'),
+    );
 
-    expect(result.campaign.personnel.get('person-001')?.traits?.vocationalXPTimer).toBe(29);
+    expect(
+      result.campaign.personnel.get('person-001')?.traits?.vocationalXPTimer,
+    ).toBe(29);
   });
 });
 

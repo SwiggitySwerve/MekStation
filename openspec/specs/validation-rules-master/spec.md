@@ -11,10 +11,13 @@
 ## Overview
 
 ### Purpose
+
 This document consolidates ALL validation rules from all MekStation specifications into a single, comprehensive reference. It provides a complete catalog of validation requirements, error messages, severity levels, and cross-references to source specifications.
 
 ### Scope
+
 **In Scope:**
+
 - Complete validation rules matrix with unique IDs
 - Error message templates for all validation scenarios
 - Validation severity levels (Critical Error, Error, Warning)
@@ -23,12 +26,14 @@ This document consolidates ALL validation rules from all MekStation specificatio
 - Validation category organization
 
 **Out of Scope:**
+
 - Validation implementation code (covered in validation services)
 - UI-specific validation display logic
 - Performance optimization strategies
 - Test case specifications
 
 ### Key Statistics
+
 - **Total Rules Cataloged**: 89 validation rules
 - **Source Specifications**: 18 specifications analyzed
 - **Rule Categories**: 12 major categories
@@ -39,6 +44,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Validation Rules Matrix
 
 ### Category Index
+
 1. [Property Validation](#property-validation) (9 rules)
 2. [Range Validation](#range-validation) (8 rules)
 3. [Enum Validation](#enum-validation) (6 rules)
@@ -57,6 +63,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Property Validation
 
 ### VAL-PROP-001: Entity ID Required
+
 **Rule**: All entities must have non-empty unique identifiers
 
 **Severity**: Error
@@ -72,6 +79,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PROP-002: Entity Name Required
+
 **Rule**: All entities must have non-empty display names
 
 **Severity**: Error
@@ -87,6 +95,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PROP-003: Weight Non-Negative
+
 **Rule**: Weight must be finite and non-negative
 
 **Severity**: Error
@@ -96,6 +105,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Component weight must be a non-negative finite number"`
 
 **Source**:
+
 - Core Entity Types (spec.md, lines 348-362)
 - Physical Properties System (spec.md, lines 507-545)
 - Validation Patterns (spec.md, lines 507-545)
@@ -105,6 +115,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PROP-004: Critical Slots Non-Negative Integer
+
 **Rule**: Critical slots must be non-negative integer
 
 **Severity**: Error
@@ -114,6 +125,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Critical slots must be a non-negative integer"`
 
 **Source**:
+
 - Core Entity Types (spec.md, lines 364-378)
 - Physical Properties System (spec.md, lines 547-585)
 - Validation Patterns (spec.md, lines 547-585)
@@ -123,6 +135,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PROP-005: Temporal Consistency
+
 **Rule**: Extinction year must be after introduction year
 
 **Severity**: Error
@@ -132,6 +145,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Extinction year must be after introduction year"`
 
 **Source**:
+
 - Core Entity Types (spec.md, lines 380-395)
 - Era & Temporal System (spec.md, lines 478-494)
 - Validation Patterns (spec.md, lines 478-494)
@@ -141,6 +155,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PROP-006: Cost Non-Negative
+
 **Rule**: Cost must be non-negative finite number
 
 **Severity**: Error
@@ -156,6 +171,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PROP-007: Battle Value Non-Negative
+
 **Rule**: Battle Value must be non-negative finite number
 
 **Severity**: Error
@@ -171,6 +187,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PROP-008: Page Reference Positive Integer
+
 **Rule**: Page reference must be positive integer if present
 
 **Severity**: Warning
@@ -186,6 +203,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PROP-009: Property Naming Standard
+
 **Rule**: Use standardized property names (weight, not tons; criticalSlots, not slots)
 
 **Severity**: Error
@@ -203,6 +221,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Range Validation
 
 ### VAL-RANGE-001: BattleMech Tonnage Range
+
 **Rule**: Tonnage must be 20-100 tons and divisible by 5
 
 **Severity**: Critical Error
@@ -212,6 +231,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"BattleMech tonnage must be between 20 and 100 tons and divisible by 5"`
 
 **Source**:
+
 - Validation Patterns (spec.md, lines 587-625)
 - Construction Rules Core (spec.md, lines 54-65)
 
@@ -222,6 +242,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-RANGE-002: Percentage Range
+
 **Rule**: Percentage must be 0-100
 
 **Severity**: Error
@@ -239,6 +260,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-RANGE-003: Introduction Year Range
+
 **Rule**: Introduction year must be within timeline (2443-3250)
 
 **Severity**: Error
@@ -256,6 +278,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-RANGE-004: Engine Rating Range
+
 **Rule**: Engine rating must be 10-500 in multiples of 5
 
 **Severity**: Critical Error
@@ -273,6 +296,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-RANGE-005: Head Armor Maximum
+
 **Rule**: Head armor cannot exceed 9 points
 
 **Severity**: Error
@@ -290,6 +314,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-RANGE-006: Location Armor Maximum
+
 **Rule**: Location armor cannot exceed 2× internal structure (except head)
 
 **Severity**: Error
@@ -307,6 +332,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-RANGE-007: Jump MP Maximum
+
 **Rule**: Jump MP cannot exceed walk MP (standard jets) or run MP (extended jets)
 
 **Severity**: Error
@@ -324,6 +350,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-RANGE-008: Numeric Range Custom
+
 **Rule**: Value must be within specified range
 
 **Severity**: Error
@@ -343,6 +370,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Enum Validation
 
 ### VAL-ENUM-001: TechBase Valid
+
 **Rule**: Component tech base must be valid enum value
 
 **Severity**: Error
@@ -352,6 +380,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Component must have a valid TechBase value (INNER_SPHERE or CLAN)"`
 
 **Source**:
+
 - Core Enumerations (spec.md, lines 607-627)
 - Validation Patterns (spec.md, lines 607-627)
 
@@ -362,6 +391,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-ENUM-002: RulesLevel Valid
+
 **Rule**: Component rules level must be valid enum value
 
 **Severity**: Error
@@ -371,6 +401,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Component must have a valid rules level (INTRODUCTORY, STANDARD, ADVANCED, or EXPERIMENTAL)"`
 
 **Source**:
+
 - Core Enumerations (spec.md, lines 607-627)
 - Rules Level System (spec.md, lines 209-225)
 
@@ -381,6 +412,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-ENUM-003: Era Valid
+
 **Rule**: Component era must be valid enum value
 
 **Severity**: Error
@@ -398,6 +430,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-ENUM-004: Component Tech Base Not Mixed
+
 **Rule**: Component tech base must be binary (not MIXED)
 
 **Severity**: Error
@@ -413,6 +446,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-ENUM-005: Unit Tech Base Consistency
+
 **Rule**: Unit tech base must match component composition
 
 **Severity**: Warning
@@ -428,6 +462,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-ENUM-006: Era Alignment
+
 **Rule**: Era should align with introduction year
 
 **Severity**: Warning
@@ -445,6 +480,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Tech Base Compatibility
 
 ### VAL-TECH-001: Tech Base Compatibility
+
 **Rule**: Component tech base must be compatible with unit
 
 **Severity**: Error
@@ -454,6 +490,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Component tech base {componentTechBase} is incompatible with unit tech base {unitTechBase}"`
 
 **Source**:
+
 - Validation Patterns (spec.md, lines 667-706)
 - Tech Base Integration (spec.md, lines 118-150)
 
@@ -462,6 +499,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-TECH-002: Structural Component Locking
+
 **Rule**: Pure IS/Clan units cannot use opposite tech base structural components
 
 **Severity**: Error
@@ -477,6 +515,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-TECH-003: XL Engine Tech Variant
+
 **Rule**: XL Engine must use tech base-appropriate variant
 
 **Severity**: Error
@@ -486,6 +525,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"XL Engine variant does not match unit tech base"`
 
 **Source**:
+
 - Engine System (spec.md, lines 343-383)
 - Tech Base Integration (spec.md, lines 195-251)
 
@@ -494,6 +534,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-TECH-004: Heat Sink System Consistency
+
 **Rule**: All heat sinks on unit must be same type (cannot mix IS and Clan DHS)
 
 **Severity**: Error
@@ -509,6 +550,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-TECH-005: Gyro Tech Base Restriction
+
 **Rule**: Clan cannot use advanced gyro types (XL, Compact, Heavy-Duty)
 
 **Severity**: Error
@@ -526,6 +568,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Era Availability
 
 ### VAL-ERA-001: Component Not Yet Invented
+
 **Rule**: Component must be available in campaign year (not future tech)
 
 **Severity**: Error
@@ -535,6 +578,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"{Component} not yet invented in year {campaignYear} (introduced {introductionYear})"`
 
 **Source**:
+
 - Era & Temporal System (spec.md, lines 167-181)
 - Validation Patterns (spec.md, lines 708-754)
 
@@ -543,6 +587,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-ERA-002: Component Extinct
+
 **Rule**: Component must not be extinct in campaign year
 
 **Severity**: Error
@@ -552,6 +597,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"{Component} is extinct/unavailable in year {campaignYear} (extinct {extinctionYear})"`
 
 **Source**:
+
 - Era & Temporal System (spec.md, lines 182-187)
 - Validation Patterns (spec.md, lines 708-754)
 
@@ -560,6 +606,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-ERA-003: Era Filtering
+
 **Rule**: Components must be available in construction era
 
 **Severity**: Error
@@ -577,6 +624,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Rules Level Validation
 
 ### VAL-RULES-001: Rules Level Required
+
 **Rule**: All tech base entities must have valid rules level
 
 **Severity**: Error
@@ -592,6 +640,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-RULES-002: Advanced Rules Legality
+
 **Rule**: Experimental components cannot be used in tournament play
 
 **Severity**: Warning
@@ -607,6 +656,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-RULES-003: Rules Level Filter Exceeded
+
 **Rule**: Component rules level must not exceed filter
 
 **Severity**: Error
@@ -624,6 +674,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Weight Budget Validation
 
 ### VAL-WEIGHT-001: Exact Weight Matching
+
 **Rule**: Total component weight must equal exactly the mech's tonnage
 
 **Severity**: Critical Error
@@ -639,6 +690,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-WEIGHT-002: Overweight Design
+
 **Rule**: Design cannot exceed tonnage limit
 
 **Severity**: Critical Error
@@ -654,6 +706,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-WEIGHT-003: Underweight Design
+
 **Rule**: Design cannot be under tonnage limit
 
 **Severity**: Critical Error
@@ -669,6 +722,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-WEIGHT-004: Engine Weight Valid
+
 **Rule**: Engine weight must not exceed tonnage
 
 **Severity**: Critical Error
@@ -684,6 +738,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-WEIGHT-005: Armor Weight Within Budget
+
 **Rule**: Armor weight must fit within remaining tonnage budget
 
 **Severity**: Error
@@ -701,6 +756,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Critical Slot Validation
 
 ### VAL-SLOT-001: Single Slot Occupancy
+
 **Rule**: Each slot must be occupied by at most one component
 
 **Severity**: Error
@@ -716,6 +772,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SLOT-002: Location Capacity Not Exceeded
+
 **Rule**: Equipment cannot exceed available slots in location
 
 **Severity**: Error
@@ -731,6 +788,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SLOT-003: Contiguous Slot Requirement
+
 **Rule**: Multi-slot equipment must occupy consecutive slots
 
 **Severity**: Error
@@ -746,6 +804,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SLOT-004: No Split Components
+
 **Rule**: Equipment requiring multiple slots cannot be split across locations
 
 **Severity**: Error
@@ -761,6 +820,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SLOT-005: Location Restriction Compliance
+
 **Rule**: Equipment must be placed in allowed locations only
 
 **Severity**: Error
@@ -776,6 +836,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SLOT-006: Head Slot Availability
+
 **Rule**: Head has only 1 available slot (slot 3) for equipment with standard cockpit
 
 **Severity**: Error
@@ -785,6 +846,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Head has only 1 available equipment slot (slot 3 with standard cockpit)"`
 
 **Source**:
+
 - Critical Slot Allocation (spec.md, lines 84-115)
 - Cockpit System (spec.md, lines 94-105)
 
@@ -793,6 +855,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SLOT-007: Engine Slots Reserved
+
 **Rule**: Engine critical slots are fixed and cannot be used for equipment
 
 **Severity**: Error
@@ -802,6 +865,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Slots {slotIndices} are occupied by engine and cannot be used"`
 
 **Source**:
+
 - Engine System (spec.md, lines 248-306)
 - Critical Slot Allocation (spec.md, lines 116-165)
 
@@ -810,6 +874,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SLOT-008: Gyro Slots Reserved
+
 **Rule**: Gyro critical slots are fixed and cannot be used for equipment
 
 **Severity**: Error
@@ -819,6 +884,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Slots {slotIndices} are occupied by gyro and cannot be used"`
 
 **Source**:
+
 - Gyro System (spec.md, lines 144-181)
 - Critical Slot Allocation (spec.md, lines 150-177)
 
@@ -829,6 +895,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Structural Validation
 
 ### VAL-STRUCT-001: Maximum Armor Per Location
+
 **Rule**: Location armor cannot exceed 2× internal structure
 
 **Severity**: Error
@@ -844,6 +911,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-STRUCT-002: Head Armor Special Case
+
 **Rule**: Head armor limited to 9 points regardless of structure
 
 **Severity**: Error
@@ -859,6 +927,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-STRUCT-003: Rear Armor Torso Only
+
 **Rule**: Rear armor only allowed on torso locations
 
 **Severity**: Error
@@ -874,6 +943,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-STRUCT-004: Rear Armor Counts Toward Total
+
 **Rule**: Front + rear armor must not exceed location maximum
 
 **Severity**: Error
@@ -889,6 +959,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-STRUCT-005: Total Maximum Armor
+
 **Rule**: Total mech armor cannot exceed sum of location maximums
 
 **Severity**: Error
@@ -904,6 +975,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-STRUCT-006: Structure Points Multiplier
+
 **Rule**: Reinforced structure doubles points, Composite halves points
 
 **Severity**: Validation
@@ -919,6 +991,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-STRUCT-007: Structure Weight Percentage
+
 **Rule**: Structure weight must match type-specific percentage of tonnage
 
 **Severity**: Error
@@ -934,6 +1007,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-STRUCT-008: Endo Steel Rounding
+
 **Rule**: Endo Steel weight rounds up to nearest 0.5 ton
 
 **Severity**: Validation
@@ -949,6 +1023,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-STRUCT-009: Gyro Weight Calculation
+
 **Rule**: Gyro weight = CEIL(engineRating / 100) × weightMultiplier
 
 **Severity**: Error
@@ -964,6 +1039,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-STRUCT-010: Engine Weight Formula
+
 **Rule**: Engine weight follows type-specific formula
 
 **Severity**: Error
@@ -981,6 +1057,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Component Requirements
 
 ### VAL-COMP-001: Minimum Heat Sinks
+
 **Rule**: All BattleMechs must have at least 10 heat sinks
 
 **Severity**: Critical Error
@@ -990,6 +1067,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Unit must have at least 10 heat sinks (current: {count})"`
 
 **Source**:
+
 - Construction Rules Core (spec.md, lines 91-109)
 - Heat Sink System (spec.md, lines 148-174)
 
@@ -998,6 +1076,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-COMP-002: Engine Required
+
 **Rule**: All BattleMechs must have an engine
 
 **Severity**: Critical Error
@@ -1013,6 +1092,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-COMP-003: Gyro Required
+
 **Rule**: All BattleMechs must have a gyro
 
 **Severity**: Critical Error
@@ -1028,6 +1108,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-COMP-004: Cockpit Required
+
 **Rule**: All BattleMechs must have a cockpit
 
 **Severity**: Critical Error
@@ -1043,6 +1124,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-COMP-005: Internal Structure Required
+
 **Rule**: All BattleMechs must have internal structure
 
 **Severity**: Critical Error
@@ -1058,6 +1140,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-COMP-006: Armor Type Selected
+
 **Rule**: Armor type must be selected (may have 0 points but type required)
 
 **Severity**: Critical Error
@@ -1073,6 +1156,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-COMP-007: Shoulder Actuators Fixed
+
 **Rule**: Shoulder actuators cannot be removed
 
 **Severity**: Error
@@ -1088,6 +1172,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-COMP-008: Upper Arm Actuators Fixed
+
 **Rule**: Upper arm actuators cannot be removed
 
 **Severity**: Error
@@ -1103,6 +1188,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-COMP-009: Hand Requires Lower Arm
+
 **Rule**: Hand actuator requires lower arm actuator to be present
 
 **Severity**: Error
@@ -1118,6 +1204,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-COMP-010: Leg Actuators Fixed
+
 **Rule**: Leg actuators (Hip, Upper, Lower, Foot) cannot be removed
 
 **Severity**: Error
@@ -1133,6 +1220,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-COMP-011: Stealth Armor Requires ECM
+
 **Rule**: Stealth armor requires Guardian ECM equipment
 
 **Severity**: Error
@@ -1148,6 +1236,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-COMP-012: Stealth Armor Requires Double Heat Sinks
+
 **Rule**: Stealth armor requires Double Heat Sinks
 
 **Severity**: Error
@@ -1165,6 +1254,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Construction Sequence
 
 ### VAL-SEQ-001: Tonnage First
+
 **Rule**: Tonnage must be selected before other components
 
 **Severity**: Error
@@ -1180,6 +1270,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SEQ-002: Engine Before Gyro
+
 **Rule**: Engine must be selected before gyro (gyro weight depends on engine)
 
 **Severity**: Error
@@ -1195,6 +1286,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SEQ-003: Structure Before Armor
+
 **Rule**: Internal structure must be selected before armor allocation
 
 **Severity**: Error
@@ -1210,6 +1302,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SEQ-004: Fixed Components Before Equipment
+
 **Rule**: All fixed components (engine, gyro, actuators, cockpit) before equipment
 
 **Severity**: Warning
@@ -1225,6 +1318,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SEQ-005: Gyro Depends on Engine Rating
+
 **Rule**: Changing engine rating invalidates gyro (must recalculate weight)
 
 **Severity**: Warning
@@ -1240,6 +1334,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SEQ-006: Tech Base Before Structural Components
+
 **Rule**: Tech base declaration should precede structural component selection
 
 **Severity**: Warning
@@ -1249,6 +1344,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Declare tech base before selecting structural components"`
 
 **Source**:
+
 - Construction Rules Core (spec.md, lines 360-377)
 - Tech Base Integration (spec.md, lines 46-85)
 
@@ -1257,6 +1353,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SEQ-007: Component Change Displaces Equipment
+
 **Rule**: Changing engine/gyro type may displace equipment in affected slots
 
 **Severity**: Warning
@@ -1272,6 +1369,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SEQ-008: Construction Year Affects Availability
+
 **Rule**: Construction year must be set to determine component availability
 
 **Severity**: Warning
@@ -1281,6 +1379,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Set construction year to filter available components by era"`
 
 **Source**:
+
 - Era & Temporal System (spec.md, lines 121-143)
 - Tech Base Integration (spec.md, lines 254-287)
 
@@ -1289,6 +1388,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SEQ-009: Rules Level Filter Affects Options
+
 **Rule**: Rules level filter should be set before component selection
 
 **Severity**: Info
@@ -1304,6 +1404,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-SEQ-010: Validation Before Complete
+
 **Rule**: All validation rules must pass before unit is considered complete
 
 **Severity**: Critical Error
@@ -1321,6 +1422,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Placement Validation
 
 ### VAL-PLACE-001: Jump Jets Torso/Legs Only
+
 **Rule**: Jump jets can only be placed in torso and leg locations
 
 **Severity**: Error
@@ -1336,6 +1438,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PLACE-002: Rear Weapons Torso Only
+
 **Rule**: Rear-facing weapons only allowed in torso locations
 
 **Severity**: Error
@@ -1351,6 +1454,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PLACE-003: Torso-Mounted Cockpit Gyro Incompatibility
+
 **Rule**: Torso-mounted cockpit incompatible with XL Gyro
 
 **Severity**: Error
@@ -1366,6 +1470,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PLACE-004: Actuator Placement Fixed
+
 **Rule**: Actuators must be in specific slots (0-3 for arms, 0-3 for legs)
 
 **Severity**: Error
@@ -1381,6 +1486,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PLACE-005: Engine Placement Center Torso
+
 **Rule**: Engine primary slots must be in Center Torso
 
 **Severity**: Error
@@ -1390,6 +1496,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Engine primary slots must be in Center Torso"`
 
 **Source**:
+
 - Engine System (spec.md, lines 248-306)
 - Critical Slot Allocation (spec.md, lines 116-149)
 
@@ -1398,6 +1505,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PLACE-006: Gyro Placement Center Torso
+
 **Rule**: Gyro must be placed in Center Torso after engine
 
 **Severity**: Error
@@ -1407,6 +1515,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Gyro must be placed in Center Torso slots 3-6 (Standard), 3-8 (XL), or 3-4 (Compact)"`
 
 **Source**:
+
 - Gyro System (spec.md, lines 144-181)
 - Critical Slot Allocation (spec.md, lines 150-177)
 
@@ -1415,6 +1524,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PLACE-007: XL Engine Side Torso Slots
+
 **Rule**: XL Engine must occupy side torso slots (3 IS, 2 Clan)
 
 **Severity**: Error
@@ -1424,6 +1534,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"XL Engine requires {3 IS or 2 Clan} slots in each side torso"`
 
 **Source**:
+
 - Engine System (spec.md, lines 63-77, 259-277)
 - Critical Slot Allocation (spec.md, lines 131-141)
 
@@ -1432,6 +1543,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PLACE-008: Head Equipment Limit
+
 **Rule**: Only 1 equipment slot available in head (slot 3) with standard cockpit
 
 **Severity**: Warning
@@ -1441,6 +1553,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 **Error Message**: `"Head has limited equipment space (1 slot with standard cockpit, 0 with command console/primitive)"`
 
 **Source**:
+
 - Cockpit System (spec.md, lines 94-183)
 - Critical Slot Allocation (spec.md, lines 84-115)
 
@@ -1449,6 +1562,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PLACE-009: Partial Wing Side Torso Split
+
 **Rule**: Partial wings must be split between left and right torso (3 slots each)
 
 **Severity**: Error
@@ -1464,6 +1578,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### VAL-PLACE-010: Endo Steel Slot Distribution
+
 **Rule**: Endo Steel/Composite slots must be distributed across locations
 
 **Severity**: Validation
@@ -1481,9 +1596,11 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ## Validation Severity Levels
 
 ### Critical Error
+
 **Definition**: Prevents save/export of configuration. Unit is non-functional.
 
 **Examples**:
+
 - Exact weight mismatch
 - Invalid tonnage
 - Missing required components (engine, gyro, cockpit)
@@ -1495,9 +1612,11 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### Error
+
 **Definition**: Invalid configuration that violates construction rules. Unit cannot be used.
 
 **Examples**:
+
 - Armor exceeding structural maximum
 - Equipment in incompatible location
 - Tech base incompatibility
@@ -1509,9 +1628,11 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ---
 
 ### Warning
+
 **Definition**: Legal but unusual configuration. Unit is valid but may have issues.
 
 **Examples**:
+
 - Zero armor on location
 - Minimal rear armor (<10%)
 - Head armor below maximum (9)
@@ -1560,30 +1681,35 @@ This document consolidates ALL validation rules from all MekStation specificatio
 ### Standard Format
 
 **Property Errors**:
+
 ```
 "{Property} must be {constraint}. Got: {actualValue}"
 Example: "Weight must be a non-negative finite number. Got: -1.5"
 ```
 
 **Range Errors**:
+
 ```
 "{Property} must be between {min} and {max}. Got: {actualValue}"
 Example: "Tonnage must be between 20 and 100 tons. Got: 47"
 ```
 
 **Compatibility Errors**:
+
 ```
 "{Component} {reason} with {context}"
 Example: "Component tech base CLAN is incompatible with unit tech base INNER_SPHERE"
 ```
 
 **Requirement Errors**:
+
 ```
 "{Requirement} {status}"
 Example: "Unit must have at least 10 heat sinks (current: 8)"
 ```
 
 **Placement Errors**:
+
 ```
 "{Component} cannot be placed in {location}. {reason}"
 Example: "Jump jets cannot be placed in Head. Jump jets only allowed in torso and legs"
@@ -1592,12 +1718,14 @@ Example: "Jump jets cannot be placed in Head. Jump jets only allowed in torso an
 ### Contextual Information
 
 All error messages should include:
+
 - **What**: Clear description of the problem
 - **Why**: Brief reason (if not obvious)
 - **How**: Suggested fix or user action
 - **Context**: Actual values causing the issue
 
 Example Complete Error:
+
 ```json
 {
   "ruleId": "VAL-WEIGHT-001",
@@ -1619,21 +1747,21 @@ Example Complete Error:
 
 ## Validation by Category Summary
 
-| Category | Rule Count | Critical | Error | Warning |
-|----------|------------|----------|-------|---------|
-| Property Validation | 9 | 0 | 8 | 1 |
-| Range Validation | 8 | 2 | 6 | 0 |
-| Enum Validation | 6 | 0 | 4 | 2 |
-| Tech Base Compatibility | 5 | 0 | 5 | 0 |
-| Era Availability | 3 | 0 | 3 | 0 |
-| Rules Level Validation | 3 | 0 | 1 | 2 |
-| Weight Budget Validation | 5 | 3 | 2 | 0 |
-| Critical Slot Validation | 8 | 0 | 8 | 0 |
-| Structural Validation | 10 | 0 | 10 | 0 |
-| Component Requirements | 12 | 7 | 5 | 0 |
-| Construction Sequence | 10 | 1 | 2 | 7 |
-| Placement Validation | 10 | 0 | 7 | 3 |
-| **TOTAL** | **89** | **13** | **61** | **15** |
+| Category                 | Rule Count | Critical | Error  | Warning |
+| ------------------------ | ---------- | -------- | ------ | ------- |
+| Property Validation      | 9          | 0        | 8      | 1       |
+| Range Validation         | 8          | 2        | 6      | 0       |
+| Enum Validation          | 6          | 0        | 4      | 2       |
+| Tech Base Compatibility  | 5          | 0        | 5      | 0       |
+| Era Availability         | 3          | 0        | 3      | 0       |
+| Rules Level Validation   | 3          | 0        | 1      | 2       |
+| Weight Budget Validation | 5          | 3        | 2      | 0       |
+| Critical Slot Validation | 8          | 0        | 8      | 0       |
+| Structural Validation    | 10         | 0        | 10     | 0       |
+| Component Requirements   | 12         | 7        | 5      | 0       |
+| Construction Sequence    | 10         | 1        | 2      | 7       |
+| Placement Validation     | 10         | 0        | 7      | 3       |
+| **TOTAL**                | **89**     | **13**   | **61** | **15**  |
 
 ---
 
@@ -1641,36 +1769,39 @@ Example Complete Error:
 
 ### By Source Specification
 
-| Specification | Rule Count | Categories Covered |
-|---------------|------------|-------------------|
-| Core Entity Types | 12 | Property, Enum |
-| Core Enumerations | 8 | Enum, Tech Base |
-| Era & Temporal System | 6 | Era, Range |
-| Physical Properties System | 8 | Property, Range |
-| Rules Level System | 5 | Rules Level, Enum |
-| Validation Patterns | 15 | All categories |
-| Engine System | 8 | Range, Component, Weight |
-| Gyro System | 6 | Structural, Component, Sequence |
-| Heat Sink System | 7 | Component, Tech Base, Range |
-| Internal Structure System | 8 | Structural, Weight, Range |
-| Armor System | 14 | Structural, Range, Component |
-| Cockpit System | 8 | Component, Placement |
-| Movement System | 7 | Range, Placement, Component |
-| Critical Slot Allocation | 15 | Slot, Placement, Sequence |
-| Construction Rules Core | 12 | Weight, Component, Sequence |
-| Tech Base Integration | 10 | Tech Base, Compatibility |
+| Specification              | Rule Count | Categories Covered              |
+| -------------------------- | ---------- | ------------------------------- |
+| Core Entity Types          | 12         | Property, Enum                  |
+| Core Enumerations          | 8          | Enum, Tech Base                 |
+| Era & Temporal System      | 6          | Era, Range                      |
+| Physical Properties System | 8          | Property, Range                 |
+| Rules Level System         | 5          | Rules Level, Enum               |
+| Validation Patterns        | 15         | All categories                  |
+| Engine System              | 8          | Range, Component, Weight        |
+| Gyro System                | 6          | Structural, Component, Sequence |
+| Heat Sink System           | 7          | Component, Tech Base, Range     |
+| Internal Structure System  | 8          | Structural, Weight, Range       |
+| Armor System               | 14         | Structural, Range, Component    |
+| Cockpit System             | 8          | Component, Placement            |
+| Movement System            | 7          | Range, Placement, Component     |
+| Critical Slot Allocation   | 15         | Slot, Placement, Sequence       |
+| Construction Rules Core    | 12         | Weight, Component, Sequence     |
+| Tech Base Integration      | 10         | Tech Base, Compatibility        |
 
 ---
 
 ## References
 
 ### Official BattleTech Rules
+
 - **TechManual**: Various pages - Component specifications and constraints
 - **Total Warfare**: Construction rules and validation requirements
 - **BattleMech Manual**: Quick reference for component limits
 
 ### Source Specifications
+
 All 18 specifications analyzed:
+
 - Phase 1 Foundation: Core Entity Types, Core Enumerations, Era & Temporal System, Physical Properties System, Rules Level System, Validation Patterns
 - Phase 2 Construction: Armor System, Cockpit System, Construction Rules Core, Critical Slot Allocation, Engine System, Gyro System, Heat Sink System, Internal Structure System, Movement System, Tech Base Integration
 
@@ -1679,6 +1810,7 @@ All 18 specifications analyzed:
 ## Changelog
 
 ### Version 1.0 (2025-11-28)
+
 - Initial release
 - Cataloged 89 validation rules from 18 specifications
 - Organized into 12 major categories
@@ -1687,106 +1819,131 @@ All 18 specifications analyzed:
 - Created validation dependency graph
 - Added comprehensive cross-reference tables
 - Documented all rule sources and user actions
+
 ## Requirements
+
 ### Requirement: Validation Rule Registry
+
 The system SHALL maintain a central registry of all validation rules.
 
 #### Scenario: Rule registration
+
 - **WHEN** registering a validation rule
 - **THEN** rule SHALL be added to registry
 - **AND** rule SHALL have unique identifier
 - **AND** rule SHALL specify category and priority
 
 ### Requirement: Weight Validation
+
 The system SHALL validate total and component weights.
 
 #### Scenario: Total weight validation
+
 - **WHEN** validating unit weight
 - **THEN** sum of all components MUST equal mech tonnage
 - **AND** overweight SHALL produce error
 - **AND** underweight SHALL produce warning
 
 ### Requirement: Slot Validation
+
 The system SHALL validate critical slot allocation based on mech configuration type.
 
 #### Scenario: Biped slot limits
+
 - **WHEN** validating critical slots for Biped mechs
 - **THEN** total used slots MUST NOT exceed 78
 
 #### Scenario: Quad slot limits
+
 - **WHEN** validating critical slots for Quad mechs
 - **THEN** total used slots MUST NOT exceed 90
 - **AND** slot count SHALL be calculated as: 6 (head) + 36 (torsos) + 48 (4x12 quad legs)
 
 #### Scenario: Tripod slot limits
+
 - **WHEN** validating critical slots for Tripod mechs
 - **THEN** total used slots MUST NOT exceed 84
 - **AND** slot count SHALL be calculated as: 6 (head) + 36 (torsos) + 24 (arms) + 18 (3x6 legs)
 
 #### Scenario: QuadVee slot limits
+
 - **WHEN** validating critical slots for QuadVee mechs
 - **THEN** total used slots MUST NOT exceed 90
 - **AND** slot count SHALL match Quad configuration
 
 #### Scenario: LAM slot limits
+
 - **WHEN** validating critical slots for LAM mechs in Mech mode
 - **THEN** total used slots MUST NOT exceed 78
 - **AND** slot count SHALL match Biped configuration
 
 ### Requirement: Tech Base Validation
+
 The system SHALL validate tech base compatibility.
 
 #### Scenario: Component compatibility
+
 - **WHEN** validating component tech base
 - **THEN** structural components MUST match unit tech base
 - **AND** mixed tech units MAY have mixed equipment
 - **AND** incompatible combinations SHALL produce error
 
 ### Requirement: Era Validation
+
 The system SHALL validate era availability.
 
 #### Scenario: Era restrictions
+
 - **WHEN** validating component availability
 - **THEN** introductionYear MUST be <= campaign year
 - **AND** extinctionYear (if present) MUST be > campaign year
 - **AND** unavailable components SHALL produce error
 
 ### Requirement: Validation Orchestration
+
 The system SHALL orchestrate validation execution.
 
 #### Scenario: Validation execution
+
 - **WHEN** running full validation
 - **THEN** rules SHALL execute in priority order
 - **AND** results SHALL be aggregated
 - **AND** all errors and warnings SHALL be reported
 
 ### Requirement: Configuration-Specific Slot Validation
+
 The system SHALL use configuration-aware slot validation.
 
 #### Scenario: Dynamic slot count calculation
+
 - **WHEN** validating total slot usage
 - **THEN** maximum slots SHALL be determined by mech configuration
 - **AND** slot counts SHALL be imported from canonical source (CriticalSlotAllocation.ts)
 - **AND** validation SHALL NOT use hardcoded slot limits
 
 ### Requirement: Validation Rule Registration with Configuration Filter
+
 The system SHALL register all validation rules with configuration applicability.
 
 #### Scenario: Rule registration with configuration filter
+
 - **WHEN** registering a validation rule
 - **THEN** rule SHALL include appliesTo array of MechConfiguration values
 - **AND** empty appliesTo SHALL mean rule applies to all configurations
 
 #### Scenario: Rule execution filtering
+
 - **WHEN** executing validation for a unit
 - **THEN** validator SHALL filter rules by unit's configuration
 - **AND** only rules where appliesTo includes unit configuration SHALL execute
 - **AND** rules with empty appliesTo SHALL always execute
 
 ### Requirement: Quad-Specific Validation Rules
+
 The system SHALL validate quad mech construction rules.
 
 #### Scenario: Quad no hand actuators
+
 - **GIVEN** unit is QUAD configuration
 - **WHEN** validation runs
 - **THEN** validator SHALL verify no hand actuators are present
@@ -1794,27 +1951,32 @@ The system SHALL validate quad mech construction rules.
 - **AND** violation SHALL generate ERROR severity
 
 #### Scenario: Quad no hand weapons
+
 - **GIVEN** unit is QUAD configuration
 - **WHEN** equipment includes hand weapons (hatchet, sword, claw, mace)
 - **THEN** validator SHALL reject equipment
 - **AND** error message SHALL indicate "Hand weapons cannot be mounted on quad mechs"
 
 #### Scenario: Quad turret mounting
+
 - **GIVEN** unit is QUAD configuration
 - **WHEN** weapons are mounted facing rear arc
 - **THEN** validator SHALL check turret mounting rules
 - **AND** rear-facing weapons without turret SHALL generate WARNING
 
 #### Scenario: Quad leg equipment distribution
+
 - **GIVEN** unit is QUAD configuration
 - **WHEN** equipment requires leg mounting (tracks, talons, jump boosters)
 - **THEN** validator SHALL verify equipment is distributed across all 4 legs
 - **AND** uneven distribution SHALL generate ERROR
 
 ### Requirement: LAM-Specific Validation Rules
+
 The system SHALL validate LAM construction rules.
 
 #### Scenario: LAM Landing Gear required
+
 - **GIVEN** unit is LAM configuration
 - **WHEN** validation runs
 - **THEN** validator SHALL verify Landing Gear is present in CT, LT, RT
@@ -1822,62 +1984,74 @@ The system SHALL validate LAM construction rules.
 - **AND** error message SHALL indicate required locations
 
 #### Scenario: LAM Avionics required
+
 - **GIVEN** unit is LAM configuration
 - **WHEN** validation runs
 - **THEN** validator SHALL verify Avionics is present in Head, LT, RT
 - **AND** missing Avionics SHALL generate ERROR
 
 #### Scenario: LAM prohibited equipment
+
 - **GIVEN** unit is LAM configuration
 - **WHEN** equipment includes LAM-prohibited items
 - **THEN** validator SHALL reject equipment
 - **AND** prohibited items include: heavy gauss rifle, supercharger, modular armor, jump boosters
 
 #### Scenario: LAM mode weapon restrictions
+
 - **GIVEN** LAM unit has weapons mounted
 - **WHEN** displaying mode-specific validation
 - **THEN** Fighter mode SHALL show warnings for leg-mounted weapons
 - **AND** AirMech mode SHALL show warnings for melee weapons
 
 ### Requirement: Tripod-Specific Validation Rules
+
 The system SHALL validate tripod mech construction rules.
 
 #### Scenario: Tripod center leg equipment
+
 - **GIVEN** unit is TRIPOD configuration
 - **WHEN** equipment requires leg mounting (tracks, talons, jump boosters)
 - **THEN** validator SHALL verify equipment is distributed across all 3 legs
 - **AND** center leg SHALL be included in distribution
 
 #### Scenario: Tripod environmental sealing
+
 - **GIVEN** unit is TRIPOD configuration
 - **WHEN** Environmental Sealing is equipped
 - **THEN** validator SHALL verify 1 slot in each location including CENTER_LEG
 - **AND** total slots SHALL be 8 (one more than biped)
 
 #### Scenario: Tripod stealth armor
+
 - **GIVEN** unit is TRIPOD configuration
 - **WHEN** Stealth Armor is equipped
 - **THEN** validator SHALL verify slots in all limb locations including CENTER_LEG
 
 ### Requirement: QuadVee-Specific Validation Rules
+
 The system SHALL validate QuadVee construction rules.
 
 #### Scenario: QuadVee inherits quad rules
+
 - **GIVEN** unit is QUADVEE configuration
 - **WHEN** validation runs
 - **THEN** all QUAD validation rules SHALL apply
 - **AND** additional QuadVee-specific rules SHALL also apply
 
 #### Scenario: QuadVee conversion equipment
+
 - **GIVEN** unit is QUADVEE configuration
 - **WHEN** validation runs
 - **THEN** validator SHALL verify conversion equipment is present
 - **AND** missing conversion equipment SHALL generate ERROR
 
 ### Requirement: Configuration Change Validation
+
 The system SHALL validate configuration changes.
 
 #### Scenario: Configuration change equipment check
+
 - **GIVEN** user changes unit configuration
 - **WHEN** new configuration has different equipment restrictions
 - **THEN** validator SHALL check existing equipment against new rules
@@ -1885,8 +2059,8 @@ The system SHALL validate configuration changes.
 - **AND** user SHALL be prompted to remove incompatible equipment
 
 #### Scenario: Configuration change location mapping
+
 - **GIVEN** user changes configuration (e.g., BIPED to QUAD)
 - **WHEN** equipment is allocated to locations
 - **THEN** validator SHALL check if equipment locations are valid in new config
 - **AND** equipment in invalid locations SHALL be unallocated
-

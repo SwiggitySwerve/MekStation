@@ -9,6 +9,7 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 import { getShareLinkService } from '@/services/vault/ShareLinkService';
 
 // =============================================================================
@@ -24,7 +25,7 @@ interface UpdateShareLinkBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<void> {
   const { id } = req.query;
 
@@ -54,7 +55,7 @@ async function handleGet(
   _req: NextApiRequest,
   res: NextApiResponse,
   service: ReturnType<typeof getShareLinkService>,
-  id: string
+  id: string,
 ) {
   try {
     const link = await service.getById(id);
@@ -73,7 +74,8 @@ async function handleGet(
   } catch (error) {
     console.error('Failed to get share link:', error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to get share link',
+      error:
+        error instanceof Error ? error.message : 'Failed to get share link',
     });
   }
 }
@@ -85,7 +87,7 @@ async function handlePatch(
   req: NextApiRequest,
   res: NextApiResponse,
   service: ReturnType<typeof getShareLinkService>,
-  id: string
+  id: string,
 ) {
   try {
     const body = req.body as UpdateShareLinkBody;
@@ -99,11 +101,13 @@ async function handlePatch(
     // Update label
     if (body.label !== undefined) {
       if (body.label !== null && typeof body.label !== 'string') {
-        return res.status(400).json({ error: 'label must be a string or null' });
+        return res
+          .status(400)
+          .json({ error: 'label must be a string or null' });
       }
       const result = await service.updateLabel(
         id,
-        body.label === null ? null : body.label.trim() || null
+        body.label === null ? null : body.label.trim() || null,
       );
       if (!result.success) {
         return res.status(400).json({ error: result.error });
@@ -114,14 +118,21 @@ async function handlePatch(
     if (body.expiresAt !== undefined) {
       if (body.expiresAt !== null) {
         if (typeof body.expiresAt !== 'string') {
-          return res.status(400).json({ error: 'expiresAt must be a string or null' });
+          return res
+            .status(400)
+            .json({ error: 'expiresAt must be a string or null' });
         }
         const date = new Date(body.expiresAt);
         if (isNaN(date.getTime())) {
-          return res.status(400).json({ error: 'expiresAt must be a valid ISO date' });
+          return res
+            .status(400)
+            .json({ error: 'expiresAt must be a valid ISO date' });
         }
       }
-      const result = await service.updateExpiry(id, body.expiresAt as string | null);
+      const result = await service.updateExpiry(
+        id,
+        body.expiresAt as string | null,
+      );
       if (!result.success) {
         return res.status(400).json({ error: result.error });
       }
@@ -129,12 +140,17 @@ async function handlePatch(
 
     // Update max uses
     if (body.maxUses !== undefined) {
-      if (body.maxUses !== null && (typeof body.maxUses !== 'number' || body.maxUses < 1)) {
-        return res.status(400).json({ error: 'maxUses must be a positive number or null' });
+      if (
+        body.maxUses !== null &&
+        (typeof body.maxUses !== 'number' || body.maxUses < 1)
+      ) {
+        return res
+          .status(400)
+          .json({ error: 'maxUses must be a positive number or null' });
       }
       const result = await service.updateMaxUses(
         id,
-        body.maxUses === null ? null : Math.floor(body.maxUses)
+        body.maxUses === null ? null : Math.floor(body.maxUses),
       );
       if (!result.success) {
         return res.status(400).json({ error: result.error });
@@ -163,7 +179,8 @@ async function handlePatch(
   } catch (error) {
     console.error('Failed to update share link:', error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to update share link',
+      error:
+        error instanceof Error ? error.message : 'Failed to update share link',
     });
   }
 }
@@ -175,7 +192,7 @@ async function handleDelete(
   _req: NextApiRequest,
   res: NextApiResponse,
   service: ReturnType<typeof getShareLinkService>,
-  id: string
+  id: string,
 ) {
   try {
     const result = await service.delete(id);
@@ -188,7 +205,8 @@ async function handleDelete(
   } catch (error) {
     console.error('Failed to delete share link:', error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to delete share link',
+      error:
+        error instanceof Error ? error.message : 'Failed to delete share link',
     });
   }
 }

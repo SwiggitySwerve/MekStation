@@ -3,15 +3,6 @@
  */
 
 import {
-  checkUnitPositionUniqueness,
-  checkHeatNonNegative,
-  checkArmorBounds,
-  checkDestroyedUnitsStayDestroyed,
-  checkPhaseTransitions,
-  checkSequenceMonotonicity,
-  checkTurnNonDecreasing,
-} from '../invariants/checkers';
-import {
   IGameState,
   IUnitGameState,
   GamePhase,
@@ -22,6 +13,16 @@ import {
   GameEventType,
 } from '@/types/gameplay';
 import { Facing, MovementType } from '@/types/gameplay';
+
+import {
+  checkUnitPositionUniqueness,
+  checkHeatNonNegative,
+  checkArmorBounds,
+  checkDestroyedUnitsStayDestroyed,
+  checkPhaseTransitions,
+  checkSequenceMonotonicity,
+  checkTurnNonDecreasing,
+} from '../invariants/checkers';
 
 function createMinimalGameState(overrides?: Partial<IGameState>): IGameState {
   return {
@@ -36,7 +37,10 @@ function createMinimalGameState(overrides?: Partial<IGameState>): IGameState {
   };
 }
 
-function createMinimalUnit(id: string, overrides?: Partial<IUnitGameState>): IUnitGameState {
+function createMinimalUnit(
+  id: string,
+  overrides?: Partial<IUnitGameState>,
+): IUnitGameState {
   return {
     id,
     side: GameSide.Player,
@@ -107,7 +111,10 @@ describe('Invariant Checkers', () => {
     it('should ignore destroyed units', () => {
       const state = createMinimalGameState({
         units: {
-          unit1: createMinimalUnit('unit1', { position: { q: 0, r: 0 }, destroyed: true }),
+          unit1: createMinimalUnit('unit1', {
+            position: { q: 0, r: 0 },
+            destroyed: true,
+          }),
           unit2: createMinimalUnit('unit2', { position: { q: 0, r: 0 } }),
         },
       });
@@ -243,7 +250,10 @@ describe('Invariant Checkers', () => {
         },
       });
 
-      const violations = checkDestroyedUnitsStayDestroyed(currentState, previousState);
+      const violations = checkDestroyedUnitsStayDestroyed(
+        currentState,
+        previousState,
+      );
       expect(violations).toEqual([]);
     });
 
@@ -260,7 +270,10 @@ describe('Invariant Checkers', () => {
         },
       });
 
-      const violations = checkDestroyedUnitsStayDestroyed(currentState, previousState);
+      const violations = checkDestroyedUnitsStayDestroyed(
+        currentState,
+        previousState,
+      );
       expect(violations).toHaveLength(1);
       expect(violations[0].invariant).toBe('destroyed_units_stay_destroyed');
       expect(violations[0].severity).toBe('critical');
@@ -275,7 +288,10 @@ describe('Invariant Checkers', () => {
         },
       });
 
-      const violations = checkDestroyedUnitsStayDestroyed(currentState, undefined);
+      const violations = checkDestroyedUnitsStayDestroyed(
+        currentState,
+        undefined,
+      );
       expect(violations).toEqual([]);
     });
 
@@ -293,23 +309,34 @@ describe('Invariant Checkers', () => {
         },
       });
 
-      const violations = checkDestroyedUnitsStayDestroyed(currentState, previousState);
+      const violations = checkDestroyedUnitsStayDestroyed(
+        currentState,
+        previousState,
+      );
       expect(violations).toEqual([]);
     });
   });
 
   describe('checkPhaseTransitions', () => {
     it('should return empty array for valid phase transition', () => {
-      const currentState = createMinimalGameState({ phase: GamePhase.Movement });
-      const previousState = createMinimalGameState({ phase: GamePhase.Initiative });
+      const currentState = createMinimalGameState({
+        phase: GamePhase.Movement,
+      });
+      const previousState = createMinimalGameState({
+        phase: GamePhase.Initiative,
+      });
 
       const violations = checkPhaseTransitions(currentState, previousState);
       expect(violations).toEqual([]);
     });
 
     it('should detect invalid phase transition', () => {
-      const currentState = createMinimalGameState({ phase: GamePhase.Initiative });
-      const previousState = createMinimalGameState({ phase: GamePhase.Movement });
+      const currentState = createMinimalGameState({
+        phase: GamePhase.Initiative,
+      });
+      const previousState = createMinimalGameState({
+        phase: GamePhase.Movement,
+      });
 
       const violations = checkPhaseTransitions(currentState, previousState);
       expect(violations).toHaveLength(1);
@@ -321,15 +348,21 @@ describe('Invariant Checkers', () => {
     });
 
     it('should allow same phase (no transition)', () => {
-      const currentState = createMinimalGameState({ phase: GamePhase.Movement });
-      const previousState = createMinimalGameState({ phase: GamePhase.Movement });
+      const currentState = createMinimalGameState({
+        phase: GamePhase.Movement,
+      });
+      const previousState = createMinimalGameState({
+        phase: GamePhase.Movement,
+      });
 
       const violations = checkPhaseTransitions(currentState, previousState);
       expect(violations).toEqual([]);
     });
 
     it('should handle undefined previous state', () => {
-      const currentState = createMinimalGameState({ phase: GamePhase.Initiative });
+      const currentState = createMinimalGameState({
+        phase: GamePhase.Initiative,
+      });
 
       const violations = checkPhaseTransitions(currentState, undefined);
       expect(violations).toEqual([]);
@@ -385,7 +418,10 @@ describe('Invariant Checkers', () => {
           type: GameEventType.PhaseChanged,
           turn: 1,
           phase: GamePhase.Movement,
-          payload: { fromPhase: GamePhase.Initiative, toPhase: GamePhase.Movement },
+          payload: {
+            fromPhase: GamePhase.Initiative,
+            toPhase: GamePhase.Movement,
+          },
         },
       ];
 
@@ -423,7 +459,10 @@ describe('Invariant Checkers', () => {
           type: GameEventType.PhaseChanged,
           turn: 1,
           phase: GamePhase.Movement,
-          payload: { fromPhase: GamePhase.Initiative, toPhase: GamePhase.Movement },
+          payload: {
+            fromPhase: GamePhase.Initiative,
+            toPhase: GamePhase.Movement,
+          },
         },
       ];
 

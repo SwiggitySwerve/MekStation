@@ -4,10 +4,7 @@
  * Tests for mech location shorthand conversions.
  */
 
-import {
-  getLocationShorthand,
-  getLocationFullName,
-} from '../locationUtils';
+import { getLocationShorthand, getLocationFullName } from '../locationUtils';
 
 // =============================================================================
 // getLocationShorthand Tests
@@ -98,7 +95,20 @@ describe('Location Round-Trip', () => {
   });
 
   it('should round-trip from shorthand to full name and back', () => {
-    const shorthands = ['HD', 'CT', 'LT', 'RT', 'LA', 'RA', 'LL', 'RL', 'FLL', 'FRL', 'RLL', 'RRL'];
+    const shorthands = [
+      'HD',
+      'CT',
+      'LT',
+      'RT',
+      'LA',
+      'RA',
+      'LL',
+      'RL',
+      'FLL',
+      'FRL',
+      'RLL',
+      'RRL',
+    ];
     for (const shorthand of shorthands) {
       const fullName = getLocationFullName(shorthand);
       const backToShorthand = getLocationShorthand(fullName);

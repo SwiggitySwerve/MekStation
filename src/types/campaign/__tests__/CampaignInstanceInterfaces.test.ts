@@ -27,7 +27,7 @@ import { CampaignUnitStatus, CampaignPilotStatus } from '../CampaignInterfaces';
 // =============================================================================
 
 function createTestLocationDamage(
-  overrides: Partial<ILocationDamageState> = {}
+  overrides: Partial<ILocationDamageState> = {},
 ): ILocationDamageState {
   return {
     location: 'center_torso',
@@ -41,7 +41,7 @@ function createTestLocationDamage(
 }
 
 function createTestDamageState(
-  overrides: Partial<IUnitDamageState> = {}
+  overrides: Partial<IUnitDamageState> = {},
 ): IUnitDamageState {
   return {
     locations: [
@@ -61,7 +61,7 @@ function createTestDamageState(
 }
 
 function createTestUnitInstance(
-  overrides: Partial<ICampaignUnitInstance> = {}
+  overrides: Partial<ICampaignUnitInstance> = {},
 ): ICampaignUnitInstance {
   const now = new Date().toISOString();
   return {
@@ -85,7 +85,7 @@ function createTestUnitInstance(
 }
 
 function createTestPilotInstance(
-  overrides: Partial<ICampaignPilotInstance> = {}
+  overrides: Partial<ICampaignPilotInstance> = {},
 ): ICampaignPilotInstance {
   const now = new Date().toISOString();
   return {
@@ -148,7 +148,7 @@ describe('isCampaignUnitInstance', () => {
         id: 'test',
         campaignId: 'campaign-1',
         vaultUnitId: 'vault-1',
-      })
+      }),
     ).toBe(false);
   });
 
@@ -246,7 +246,7 @@ describe('createUnitInstance', () => {
       'Marauder MAD-3R',
       'Marauder',
       'MAD-3R',
-      damageState
+      damageState,
     );
 
     expect(instance.id).toBe('inst-1');
@@ -275,7 +275,7 @@ describe('createPilotInstanceFromVault', () => {
       'vault-pilot-1',
       'Jane Smith',
       'Viper',
-      { gunnery: 3, piloting: 4 }
+      { gunnery: 3, piloting: 4 },
     );
 
     expect(instance.id).toBe('pilot-inst-1');
@@ -301,7 +301,7 @@ describe('createPilotInstanceFromVault', () => {
       'vault-pilot-1',
       'Jane Smith',
       undefined,
-      { gunnery: 3, piloting: 4 }
+      { gunnery: 3, piloting: 4 },
     );
 
     expect(instance.pilotCallsign).toBeUndefined();
@@ -315,7 +315,11 @@ describe('createPilotInstanceFromStatblock', () => {
       gunnery: 4,
       piloting: 5,
     };
-    const instance = createPilotInstanceFromStatblock('pilot-inst-2', 'camp-1', statblock);
+    const instance = createPilotInstanceFromStatblock(
+      'pilot-inst-2',
+      'camp-1',
+      statblock,
+    );
 
     expect(instance.id).toBe('pilot-inst-2');
     expect(instance.campaignId).toBe('camp-1');
@@ -334,9 +338,16 @@ describe('createPilotInstanceFromStatblock', () => {
       piloting: 3,
       abilityIds: ['marksman', 'mech_melee_specialist'],
     };
-    const instance = createPilotInstanceFromStatblock('pilot-inst-3', 'camp-1', statblock);
+    const instance = createPilotInstanceFromStatblock(
+      'pilot-inst-3',
+      'camp-1',
+      statblock,
+    );
 
-    expect(instance.statblockData?.abilityIds).toEqual(['marksman', 'mech_melee_specialist']);
+    expect(instance.statblockData?.abilityIds).toEqual([
+      'marksman',
+      'mech_melee_specialist',
+    ]);
   });
 });
 

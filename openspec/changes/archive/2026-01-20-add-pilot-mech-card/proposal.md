@@ -48,12 +48,12 @@ Players need a combined view of their pilot and assigned mech — the "character
 
 ## Use Cases
 
-| Context | Behavior |
-|---------|----------|
-| Force roster | Show all pilot-mech cards in force |
+| Context         | Behavior                                |
+| --------------- | --------------------------------------- |
+| Force roster    | Show all pilot-mech cards in force      |
 | Pre-game review | Review your characters before encounter |
-| Share with GM | GM can see player character sheets |
-| During gameplay | Reference during combat |
+| Share with GM   | GM can see player character sheets      |
+| During gameplay | Reference during combat                 |
 
 ## Impact
 

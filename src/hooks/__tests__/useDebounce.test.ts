@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* oxlint-disable @typescript-eslint/no-unsafe-return */
 /**
  * Tests for Debounce Hooks
  *
@@ -6,6 +6,7 @@
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react';
+
 import { useDebounce, useDebouncedCallback } from '../useDebounce';
 
 describe('useDebounce', () => {
@@ -28,7 +29,7 @@ describe('useDebounce', () => {
       ({ value, delay }) => useDebounce(value, delay),
       {
         initialProps: { value: 'initial', delay: 300 },
-      }
+      },
     );
 
     expect(result.current).toBe('initial');
@@ -63,7 +64,7 @@ describe('useDebounce', () => {
       ({ value }) => useDebounce(value, 300),
       {
         initialProps: { value: 'initial' },
-      }
+      },
     );
 
     rerender({ value: 'first' });
@@ -103,7 +104,7 @@ describe('useDebounce', () => {
       ({ value }) => useDebounce(value, 300),
       {
         initialProps: { value: obj1 },
-      }
+      },
     );
 
     expect(result.current).toBe(obj1);
@@ -124,7 +125,7 @@ describe('useDebounce', () => {
       ({ value }) => useDebounce(value, 300),
       {
         initialProps: { value: 'initial' },
-      }
+      },
     );
 
     rerender({ value: 'updated' });
@@ -145,7 +146,7 @@ describe('useDebounce', () => {
       ({ value, delay }) => useDebounce(value, delay),
       {
         initialProps: { value: 'initial', delay: 300 },
-      }
+      },
     );
 
     rerender({ value: 'updated', delay: 100 });
@@ -261,7 +262,7 @@ describe('useDebouncedCallback', () => {
       ({ callback }) => useDebouncedCallback(callback, 300),
       {
         initialProps: { callback: callback1 },
-      }
+      },
     );
 
     // Update callback
@@ -284,7 +285,10 @@ describe('useDebouncedCallback', () => {
   it('should handle multiple arguments', () => {
     const callback = jest.fn();
     const { result } = renderHook(() =>
-      useDebouncedCallback((a: number, b: string, c: boolean) => callback(a, b, c), 300)
+      useDebouncedCallback(
+        (a: number, b: string, c: boolean) => callback(a, b, c),
+        300,
+      ),
     );
 
     act(() => {
@@ -300,7 +304,9 @@ describe('useDebouncedCallback', () => {
 
   it('should cleanup on unmount', () => {
     const callback = jest.fn();
-    const { result, unmount } = renderHook(() => useDebouncedCallback(callback, 300));
+    const { result, unmount } = renderHook(() =>
+      useDebouncedCallback(callback, 300),
+    );
 
     act(() => {
       result.current('test');
@@ -324,7 +330,7 @@ describe('useDebouncedCallback', () => {
 
   it('should work with different delay values', () => {
     const callback = jest.fn();
-    
+
     // Test with 100ms delay
     const { result } = renderHook(() => useDebouncedCallback(callback, 100));
 

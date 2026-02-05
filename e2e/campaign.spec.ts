@@ -8,16 +8,17 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
-import {
-  CampaignListPage,
-  CampaignDetailPage,
-  CampaignCreatePage,
-} from './pages/campaign.page';
+
 import {
   createTestCampaign,
   getCampaign,
   deleteCampaign,
 } from './fixtures/campaign';
+import {
+  CampaignListPage,
+  CampaignDetailPage,
+  CampaignCreatePage,
+} from './pages/campaign.page';
 
 // =============================================================================
 // Test Configuration
@@ -29,10 +30,12 @@ test.setTimeout(30000);
 async function waitForStoreReady(page: Page): Promise<void> {
   await page.waitForFunction(
     () => {
-      const win = window as unknown as { __ZUSTAND_STORES__?: { campaign?: unknown } };
+      const win = window as unknown as {
+        __ZUSTAND_STORES__?: { campaign?: unknown };
+      };
       return win.__ZUSTAND_STORES__?.campaign !== undefined;
     },
-    { timeout: 10000 }
+    { timeout: 10000 },
   );
 }
 
@@ -52,7 +55,9 @@ test.describe('Campaign List Page @smoke @campaign', () => {
   test('navigates to campaigns list page', async ({ page }) => {
     // Page should load with title
     await expect(page).toHaveURL(/\/gameplay\/campaigns$/);
-    await expect(page.getByRole('heading', { name: /campaigns/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /campaigns/i }),
+    ).toBeVisible();
   });
 
   test('displays empty state when no campaigns exist', async () => {
@@ -151,7 +156,9 @@ test.describe('Campaign Creation @smoke @campaign', () => {
 
     // Should redirect to campaign detail
     await expect(page).toHaveURL(/\/gameplay\/campaigns\/[^/]+$/);
-    await expect(page.getByTestId('page-title')).toContainText('E2E Test Campaign');
+    await expect(page.getByTestId('page-title')).toContainText(
+      'E2E Test Campaign',
+    );
   });
 
   test('validates required fields', async ({ page }) => {
@@ -204,14 +211,25 @@ test.describe('Campaign Detail Page @campaign', () => {
 
     // Force store subscribers to update by triggering a search (empty string)
     await page.evaluate(() => {
-      const stores = (window as { __ZUSTAND_STORES__?: { campaign?: { getState: () => { setSearchQuery: (q: string) => void } } } }).__ZUSTAND_STORES__;
+      const stores = (
+        window as {
+          __ZUSTAND_STORES__?: {
+            campaign?: {
+              getState: () => { setSearchQuery: (q: string) => void };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
       if (stores?.campaign) {
         stores.campaign.getState().setSearchQuery('');
       }
     });
 
     // Wait for any campaign card to appear (React should re-render when store updates)
-    await page.locator('[data-testid^="campaign-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="campaign-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
   });
 
   test.afterEach(async ({ page }) => {
@@ -319,7 +337,10 @@ test.describe('Campaign Deletion @campaign', () => {
     });
 
     // Wait for any campaign card to appear
-    await page.locator('[data-testid^="campaign-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="campaign-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
     await listPage.clickCampaignCard(campaignId);
     await page.waitForLoadState('networkidle');
 
@@ -348,7 +369,10 @@ test.describe('Campaign Deletion @campaign', () => {
     });
 
     // Wait for any campaign card to appear
-    await page.locator('[data-testid^="campaign-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="campaign-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
     await listPage.clickCampaignCard(campaignId);
     await page.waitForLoadState('networkidle');
 
@@ -389,7 +413,10 @@ test.describe('Campaign Missions @campaign', () => {
     });
 
     // Wait for any campaign card to appear
-    await page.locator('[data-testid^="campaign-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="campaign-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
   });
 
   test.afterEach(async ({ page }) => {
@@ -401,7 +428,9 @@ test.describe('Campaign Missions @campaign', () => {
   });
 
   // Skip: Campaign created via store doesn't include missions (needs template)
-  test.skip('displays mission tree with available missions', async ({ page }) => {
+  test.skip('displays mission tree with available missions', async ({
+    page,
+  }) => {
     // Navigate via list click
     await listPage.clickCampaignCard(campaignId);
     await page.waitForLoadState('networkidle');
@@ -452,7 +481,10 @@ test.describe('Campaign Audit Timeline @campaign', () => {
     });
 
     // Wait for any campaign card to appear
-    await page.locator('[data-testid^="campaign-card-"]').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page
+      .locator('[data-testid^="campaign-card-"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 10000 });
   });
 
   test.afterEach(async ({ page }) => {

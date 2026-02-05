@@ -7,6 +7,7 @@ Variable equipment (Targeting Computer, MASC, Supercharger, etc.) has properties
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Data-driven formula definitions (no hardcoded switch statements)
 - Support MIN/MAX combinators for complex formulas
 - Runtime registration of custom equipment formulas
@@ -15,6 +16,7 @@ Variable equipment (Targeting Computer, MASC, Supercharger, etc.) has properties
 - Same public API for EquipmentCalculatorService
 
 **Non-Goals:**
+
 - Full expression parser (no arbitrary math expressions)
 - Formula editing UI (future enhancement)
 - Server-side formula storage (client-only for now)
@@ -26,25 +28,25 @@ Variable equipment (Targeting Computer, MASC, Supercharger, etc.) has properties
 Use a structured formula type instead of string expressions:
 
 ```typescript
-type FormulaType = 
-  | 'FIXED'           // Constant value
-  | 'CEIL_DIVIDE'     // ceil(field / divisor)
-  | 'FLOOR_DIVIDE'    // floor(field / divisor)
-  | 'MULTIPLY'        // field × multiplier
-  | 'MULTIPLY_ROUND'  // field × multiplier, rounded
-  | 'EQUALS_WEIGHT'   // = calculated weight
-  | 'EQUALS_FIELD'    // = context field
-  | 'MIN'             // min(formula1, formula2, ...)
-  | 'MAX';            // max(formula1, formula2, ...)
+type FormulaType =
+  | 'FIXED' // Constant value
+  | 'CEIL_DIVIDE' // ceil(field / divisor)
+  | 'FLOOR_DIVIDE' // floor(field / divisor)
+  | 'MULTIPLY' // field × multiplier
+  | 'MULTIPLY_ROUND' // field × multiplier, rounded
+  | 'EQUALS_WEIGHT' // = calculated weight
+  | 'EQUALS_FIELD' // = context field
+  | 'MIN' // min(formula1, formula2, ...)
+  | 'MAX'; // max(formula1, formula2, ...)
 
 interface IFormula {
   readonly type: FormulaType;
-  readonly field?: string;         // Context field name
-  readonly value?: number;         // For FIXED
-  readonly divisor?: number;       // For CEIL_DIVIDE, FLOOR_DIVIDE
-  readonly multiplier?: number;    // For MULTIPLY variants
-  readonly roundTo?: number;       // Rounding precision (0.5, 1)
-  readonly formulas?: IFormula[];  // For MIN/MAX combinators
+  readonly field?: string; // Context field name
+  readonly value?: number; // For FIXED
+  readonly divisor?: number; // For CEIL_DIVIDE, FLOOR_DIVIDE
+  readonly multiplier?: number; // For MULTIPLY variants
+  readonly roundTo?: number; // Rounding precision (0.5, 1)
+  readonly formulas?: IFormula[]; // For MIN/MAX combinators
 }
 ```
 
@@ -72,7 +74,8 @@ interface IFormula {
 └─────────────────────────────────────────┘
 ```
 
-**Rationale**: 
+**Rationale**:
+
 - Builtin formulas are versioned with code (bug fixes apply automatically)
 - Custom formulas are stored with user data (exportable, importable)
 - Custom can override builtin for variants
@@ -107,12 +110,12 @@ interface IStoredFormula {
 
 ## Risks / Trade-offs
 
-| Risk | Mitigation |
-|------|------------|
-| Formula type explosion | Keep types minimal, add only when needed |
+| Risk                              | Mitigation                                  |
+| --------------------------------- | ------------------------------------------- |
+| Formula type explosion            | Keep types minimal, add only when needed    |
 | Circular dependencies in formulas | Validate formula references at registration |
-| Performance of registry lookups | Use Map for O(1) lookup |
-| Invalid custom formulas | Validate on registration and load |
+| Performance of registry lookups   | Use Map for O(1) lookup                     |
+| Invalid custom formulas           | Validate on registration and load           |
 
 ## Migration Plan
 
@@ -129,4 +132,3 @@ interface IStoredFormula {
 - Should we support nested formulas beyond MIN/MAX (e.g., ADD, SUBTRACT)?
 - Should custom formula validation be strict or permissive?
 - What's the maximum formula nesting depth to allow?
-

@@ -8,10 +8,11 @@
  */
 
 import { useMemo } from 'react';
+
 import { useUnitStore } from '@/stores/useUnitStore';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel, Era, getEraForYear } from '@/types/enums';
+import { TechBase } from '@/types/enums/TechBase';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 /**
  * Unit metadata for validation
@@ -52,9 +53,12 @@ export function useUnitMetadata(): UnitMetadata {
   const techBase = useUnitStore((s) => s.techBase);
   const rulesLevel = useUnitStore((s) => s.rulesLevel);
   const year = useUnitStore((s) => s.year);
-  const extinctionYear = useUnitStore((s) => (s as { extinctionYear?: number }).extinctionYear);
+  const extinctionYear = useUnitStore(
+    (s) => (s as { extinctionYear?: number }).extinctionYear,
+  );
   const cost = useUnitStore((s) => (s as { cost?: number }).cost) ?? 0;
-  const battleValue = useUnitStore((s) => (s as { battleValue?: number }).battleValue) ?? 0;
+  const battleValue =
+    useUnitStore((s) => (s as { battleValue?: number }).battleValue) ?? 0;
 
   return useMemo(() => {
     // Derive era from year
@@ -72,5 +76,15 @@ export function useUnitMetadata(): UnitMetadata {
       cost,
       battleValue,
     };
-  }, [id, name, unitType, techBase, rulesLevel, year, extinctionYear, cost, battleValue]);
+  }, [
+    id,
+    name,
+    unitType,
+    techBase,
+    rulesLevel,
+    year,
+    extinctionYear,
+    cost,
+    battleValue,
+  ]);
 }

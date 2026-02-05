@@ -22,6 +22,7 @@ ABCDEFGHJKLMNPQRSTUVWXYZ23456789
 ```
 
 **Excluded characters**:
+
 - `I` - Looks like `1` or `l`
 - `O` - Looks like `0`
 - `0` - Looks like `O`
@@ -48,12 +49,12 @@ Uses `crypto.getRandomValues()` when available, falls back to `Math.random()`.
 ```typescript
 import { isValidRoomCode, parseRoomCode } from '@/lib/p2p/roomCodes';
 
-isValidRoomCode('ABC-DEF');  // true
-isValidRoomCode('ABCDEF');   // true
-isValidRoomCode('abc-def');  // true (case-insensitive)
-isValidRoomCode('AB');       // false (too short)
-isValidRoomCode('ABCDEFG');  // false (too long)
-isValidRoomCode('ABC-DEI');  // false (contains I)
+isValidRoomCode('ABC-DEF'); // true
+isValidRoomCode('ABCDEF'); // true
+isValidRoomCode('abc-def'); // true (case-insensitive)
+isValidRoomCode('AB'); // false (too short)
+isValidRoomCode('ABCDEFG'); // false (too long)
+isValidRoomCode('ABC-DEI'); // false (contains I)
 
 const code = parseRoomCode('abc-def'); // "ABCDEF" or null
 ```
@@ -69,8 +70,8 @@ User input is normalized before use:
 ```typescript
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 
-normalizeRoomCode('abc-def');     // "ABCDEF"
-normalizeRoomCode('  Ab C  ');    // "ABC"
+normalizeRoomCode('abc-def'); // "ABCDEF"
+normalizeRoomCode('  Ab C  '); // "ABC"
 normalizeRoomCode('abc-def-ghi'); // "ABCDEF" (truncated)
 ```
 
@@ -79,8 +80,8 @@ normalizeRoomCode('abc-def-ghi'); // "ABCDEF" (truncated)
 ```typescript
 import { formatRoomCode } from '@/lib/p2p/roomCodes';
 
-formatRoomCode('ABCDEF');  // "ABC-DEF"
-formatRoomCode('ABC');     // "ABC"
+formatRoomCode('ABCDEF'); // "ABC-DEF"
+formatRoomCode('ABC'); // "ABC"
 ```
 
 ## URL Sharing

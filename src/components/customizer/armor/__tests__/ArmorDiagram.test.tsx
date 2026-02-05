@@ -1,19 +1,41 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { ArmorDiagram } from '../ArmorDiagram';
+import React from 'react';
+
 import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
 import { MechLocation } from '@/types/construction';
 
+import { ArmorDiagram } from '../ArmorDiagram';
+
 // Mock the store
 jest.mock('@/stores/useAppSettingsStore');
-const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<typeof useAppSettingsStore>;
+const mockUseAppSettingsStore = useAppSettingsStore as jest.MockedFunction<
+  typeof useAppSettingsStore
+>;
 
 describe('ArmorDiagram', () => {
   const mockArmorData = [
     { location: MechLocation.HEAD, current: 9, maximum: 9 },
-    { location: MechLocation.CENTER_TORSO, current: 35, maximum: 47, rear: 12, rearMaximum: 23 },
-    { location: MechLocation.LEFT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
-    { location: MechLocation.RIGHT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
+    {
+      location: MechLocation.CENTER_TORSO,
+      current: 35,
+      maximum: 47,
+      rear: 12,
+      rearMaximum: 23,
+    },
+    {
+      location: MechLocation.LEFT_TORSO,
+      current: 24,
+      maximum: 32,
+      rear: 8,
+      rearMaximum: 16,
+    },
+    {
+      location: MechLocation.RIGHT_TORSO,
+      current: 24,
+      maximum: 32,
+      rear: 8,
+      rearMaximum: 16,
+    },
     { location: MechLocation.LEFT_ARM, current: 20, maximum: 24 },
     { location: MechLocation.RIGHT_ARM, current: 20, maximum: 24 },
     { location: MechLocation.LEFT_LEG, current: 28, maximum: 32 },
@@ -61,7 +83,9 @@ describe('ArmorDiagram', () => {
       } as ReturnType<typeof useAppSettingsStore>);
 
       // Check that the selected location has the selected styling
-      const { container } = render(<ArmorDiagram {...defaultProps} selectedLocation={MechLocation.HEAD} />);
+      const { container } = render(
+        <ArmorDiagram {...defaultProps} selectedLocation={MechLocation.HEAD} />,
+      );
       const selectedButton = container.querySelector('.ring-2');
       expect(selectedButton).toBeInTheDocument();
     });

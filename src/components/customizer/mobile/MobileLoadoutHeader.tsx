@@ -1,10 +1,10 @@
 /**
  * Mobile Loadout Header Component
- * 
+ *
  * Compact always-visible status bar for mobile devices showing key unit stats.
  * Displays Weight, Slots, Heat, and BV with color-coded status indicators.
  * Tapping expands to full-screen equipment list.
- * 
+ *
  * @spec c:\Users\wroll\.cursor\plans\mobile_loadout_full-screen_redesign_00a59d27.plan.md
  */
 
@@ -82,10 +82,15 @@ interface StatDisplayProps {
   status?: StatusLevel;
 }
 
-function StatDisplay({ label, value, max, status = 'normal' }: StatDisplayProps) {
+function StatDisplay({
+  label,
+  value,
+  max,
+  status = 'normal',
+}: StatDisplayProps) {
   return (
-    <div className="flex flex-col items-center px-1.5 min-w-0">
-      <span className="text-[8px] text-text-theme-secondary uppercase tracking-wider truncate">
+    <div className="flex min-w-0 flex-col items-center px-1.5">
+      <span className="text-text-theme-secondary truncate text-[8px] tracking-wider uppercase">
         {label}
       </span>
       <div className="flex items-baseline gap-0.5">
@@ -119,66 +124,61 @@ export function MobileLoadoutHeader({
 
   return (
     <div
-      className={`
-        w-full h-11 flex items-center
-        bg-surface-base border-t border-border-theme
-        ${className}
-      `}
+      className={`bg-surface-base border-border-theme flex h-11 w-full items-center border-t ${className} `}
     >
       {/* Main stats area - tappable to expand loadout */}
       <button
         onClick={onToggle}
-        className="flex-1 h-full px-2 flex items-center justify-between active:bg-surface-raised/50 transition-colors"
+        className="active:bg-surface-raised/50 flex h-full flex-1 items-center justify-between px-2 transition-colors"
         aria-expanded={isExpanded}
         aria-label={isExpanded ? 'Collapse loadout' : 'Expand loadout'}
       >
         {/* Stats row */}
-        <div className="flex items-center gap-1 flex-1 min-w-0 overflow-hidden">
-        <StatDisplay
-          label="Weight"
-          value={stats.weightUsed.toFixed(1)}
-          max={stats.weightMax}
-          status={weightStatus}
-        />
-        
-        <div className="w-px h-5 bg-border-theme-subtle flex-shrink-0" />
-        
-        <StatDisplay
-          label="Slots"
-          value={stats.slotsUsed}
-          max={stats.slotsMax}
-          status={slotsStatus}
-        />
-        
-        <div className="w-px h-5 bg-border-theme-subtle flex-shrink-0" />
-        
-        <StatDisplay
-          label="Heat"
-          value={stats.heatGenerated}
-          max={stats.heatDissipation}
-          status={heatStatus}
-        />
-        
-        <div className="w-px h-5 bg-border-theme-subtle flex-shrink-0" />
-        
-        <StatDisplay
-          label="BV"
-          value={stats.battleValue.toLocaleString()}
-        />
-      </div>
+        <div className="flex min-w-0 flex-1 items-center gap-1 overflow-hidden">
+          <StatDisplay
+            label="Weight"
+            value={stats.weightUsed.toFixed(1)}
+            max={stats.weightMax}
+            status={weightStatus}
+          />
+
+          <div className="bg-border-theme-subtle h-5 w-px flex-shrink-0" />
+
+          <StatDisplay
+            label="Slots"
+            value={stats.slotsUsed}
+            max={stats.slotsMax}
+            status={slotsStatus}
+          />
+
+          <div className="bg-border-theme-subtle h-5 w-px flex-shrink-0" />
+
+          <StatDisplay
+            label="Heat"
+            value={stats.heatGenerated}
+            max={stats.heatDissipation}
+            status={heatStatus}
+          />
+
+          <div className="bg-border-theme-subtle h-5 w-px flex-shrink-0" />
+
+          <StatDisplay label="BV" value={stats.battleValue.toLocaleString()} />
+        </div>
 
         {/* Expand indicator with equipment count */}
-        <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
+        <div className="ml-2 flex flex-shrink-0 items-center gap-1.5">
           {stats.unassignedCount > 0 && (
-            <span className="text-[9px] text-amber-400 font-medium">
+            <span className="text-[9px] font-medium text-amber-400">
               {stats.unassignedCount} unassigned
             </span>
           )}
-          <div className="flex items-center gap-1 bg-accent/20 rounded-full px-2 py-0.5">
-            <span className="text-xs font-bold text-accent">
+          <div className="bg-accent/20 flex items-center gap-1 rounded-full px-2 py-0.5">
+            <span className="text-accent text-xs font-bold">
               {stats.equipmentCount}
             </span>
-            <span className={`text-[10px] text-accent transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+            <span
+              className={`text-accent text-[10px] transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+            >
               ▲
             </span>
           </div>

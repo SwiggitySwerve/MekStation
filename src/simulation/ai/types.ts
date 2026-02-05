@@ -12,7 +12,13 @@ import { IHexCoordinate, Facing, MovementType } from '@/types/gameplay';
 /**
  * Retreat edge direction for bot behavior.
  */
-export type RetreatEdge = 'nearest' | 'north' | 'south' | 'east' | 'west' | 'none';
+export type RetreatEdge =
+  | 'nearest'
+  | 'north'
+  | 'south'
+  | 'east'
+  | 'west'
+  | 'none';
 
 /**
  * Bot behavior settings (adapted from MekHQ's BehaviorSettings).

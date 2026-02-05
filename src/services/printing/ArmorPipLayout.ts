@@ -58,7 +58,7 @@ class Bounds {
     public readonly left: number,
     public readonly top: number,
     public readonly right: number,
-    public readonly bottom: number
+    public readonly bottom: number,
   ) {}
 
   get width(): number {
@@ -112,7 +112,7 @@ export class ArmorPipLayout {
     svgDoc: Document,
     group: Element,
     pipCount: number,
-    options: PipOptions = {}
+    options: PipOptions = {},
   ): void {
     if (pipCount <= 0) return;
 
@@ -131,7 +131,13 @@ export class ArmorPipLayout {
     if (isMulti) {
       ArmorPipLayout.handleMultiSection(svgDoc, group, pipCount, options);
     } else {
-      const layout = new ArmorPipLayout(svgDoc, group, strokeWidth, fill, className);
+      const layout = new ArmorPipLayout(
+        svgDoc,
+        group,
+        strokeWidth,
+        fill,
+        className,
+      );
       if (layout.regions.size > 0) {
         if (groupByFive) {
           layout.processGroupedByFive(pipCount, staggered);
@@ -149,7 +155,7 @@ export class ArmorPipLayout {
     svgDoc: Document,
     group: Element,
     pipCount: number,
-    options: PipOptions
+    options: PipOptions,
   ): void {
     const sections: ArmorPipLayout[] = [];
     let totalArea = 0;
@@ -164,7 +170,7 @@ export class ArmorPipLayout {
           child,
           options.strokeWidth ?? DEFAULT_PIP_STROKE,
           options.fill ?? FILL_WHITE,
-          options.className
+          options.className,
         );
         if (section.regions.size > 0) {
           sections.push(section);
@@ -180,7 +186,7 @@ export class ArmorPipLayout {
     let allocated = 0;
     for (const section of sections) {
       const pips = Math.round(
-        pipCount * ((section.avgWidth * section.bounds.height) / totalArea)
+        pipCount * ((section.avgWidth * section.bounds.height) / totalArea),
       );
       allocated += pips;
       pipCounts.push(pips);
@@ -228,7 +234,7 @@ export class ArmorPipLayout {
     group: Element,
     strokeWidth: number,
     fill: string,
-    className?: string
+    className?: string,
   ) {
     this.svgDoc = svgDoc;
     this.group = group;
@@ -236,18 +242,24 @@ export class ArmorPipLayout {
     this.fill = fill;
     this.className = className;
     this.bounds = this.processRegions();
-    
+
     // Calculate average dimensions
     const heights = Array.from(this.regions.values()).map((b) => b.height);
     const widths = Array.from(this.regions.values()).map((b) => b.width);
-    const negativeWidths = Array.from(this.negativeRegions.values()).map((b) => b.width);
-    
-    this.avgHeight = heights.length > 0 
-      ? heights.reduce((a, b) => a + b, 0) / heights.length 
-      : 0;
-    this.avgWidth = widths.length > 0
-      ? (widths.reduce((a, b) => a + b, 0) - negativeWidths.reduce((a, b) => a + b, 0)) / widths.length
-      : 0;
+    const negativeWidths = Array.from(this.negativeRegions.values()).map(
+      (b) => b.width,
+    );
+
+    this.avgHeight =
+      heights.length > 0
+        ? heights.reduce((a, b) => a + b, 0) / heights.length
+        : 0;
+    this.avgWidth =
+      widths.length > 0
+        ? (widths.reduce((a, b) => a + b, 0) -
+            negativeWidths.reduce((a, b) => a + b, 0)) /
+          widths.length
+        : 0;
   }
 
   /**
@@ -264,7 +276,7 @@ export class ArmorPipLayout {
       const child = children[i];
       if (child.tagName === 'rect') {
         const bbox = Bounds.fromRect(child);
-        
+
         if (bbox.left < left) left = bbox.left;
         if (bbox.top < top) top = bbox.top;
         if (bbox.right > right) right = bbox.right;
@@ -356,7 +368,10 @@ export class ArmorPipLayout {
         let capacity = Math.floor(bbox.width / diameter);
         capacity -= Math.floor(capacity / 6);
 
-        const groups = Math.min(Math.floor(remaining / 5), Math.floor(capacity / 5));
+        const groups = Math.min(
+          Math.floor(remaining / 5),
+          Math.floor(capacity / 5),
+        );
         remaining -= groups * 5;
         capacity -= groups * 5;
 
@@ -408,7 +423,7 @@ export class ArmorPipLayout {
       this.drawPip(
         pip.x,
         pip.y + (originalDiameter / 2 - diameter / 2.2),
-        diameter / 2.2
+        diameter / 2.2,
       );
     }
   }
@@ -422,7 +437,9 @@ export class ArmorPipLayout {
     // Estimate number of rows based on aspect ratio
     let nRows = Math.max(
       1,
-      Math.round(Math.sqrt((pipCount * this.bounds.height) / this.bounds.width))
+      Math.round(
+        Math.sqrt((pipCount * this.bounds.height) / this.bounds.width),
+      ),
     );
 
     // Don't allocate more rows than pips
@@ -433,7 +450,7 @@ export class ArmorPipLayout {
     // Calculate average pips per column
     let nCols = Math.min(
       Math.floor(pipCount / nRows),
-      Math.floor(this.avgWidth / this.avgHeight)
+      Math.floor(this.avgWidth / this.avgHeight),
     );
 
     // Adjust to fit all pips
@@ -460,17 +477,24 @@ export class ArmorPipLayout {
     const gaps: Bounds[] = [];
 
     // Expand spacing geometrically to reduce crowding
-    spacing = Math.sqrt((spacing * nRows) / this.bounds.height) * this.bounds.height / nRows;
+    spacing =
+      (Math.sqrt((spacing * nRows) / this.bounds.height) * this.bounds.height) /
+      nRows;
 
     let yPosition = Math.max(
       this.bounds.top,
-      this.bounds.top + (this.bounds.height - spacing * nRows) / 2 + spacing * 0.5 - radius
+      this.bounds.top +
+        (this.bounds.height - spacing * nRows) / 2 +
+        spacing * 0.5 -
+        radius,
     );
 
     let shift = 0;
     let parity = nCols % 2;
 
-    const sortedRegions = Array.from(this.regions.entries()).sort((a, b) => a[0] - b[0]);
+    const sortedRegions = Array.from(this.regions.entries()).sort(
+      (a, b) => a[0] - b[0],
+    );
 
     for (let r = 0; r < nRows; r++) {
       // Find bounding regions for this row
@@ -487,7 +511,7 @@ export class ArmorPipLayout {
         Math.max(upper.left, lowerBounds.left),
         yPosition,
         Math.min(upper.right, lowerBounds.right),
-        yPosition + spacing
+        yPosition + spacing,
       );
 
       const upperKey = this.findFloorKey(yPosition, sortedRegions);
@@ -495,11 +519,15 @@ export class ArmorPipLayout {
       const gap = this.mergeGaps(
         row,
         upperKey !== null ? this.negativeRegions.get(upperKey) : undefined,
-        lowerKey !== null ? this.negativeRegions.get(lowerKey) : undefined
+        lowerKey !== null ? this.negativeRegions.get(lowerKey) : undefined,
       );
 
       // Skip row if gap covers entire width
-      if (gap.width > 0 && gap.left <= row.left + PRECISION && gap.right >= row.right - PRECISION) {
+      if (
+        gap.width > 0 &&
+        gap.left <= row.left + PRECISION &&
+        gap.right >= row.right - PRECISION
+      ) {
         yPosition += spacing;
         continue;
       }
@@ -539,13 +567,30 @@ export class ArmorPipLayout {
     }
 
     // Adjust counts to match exact pip count
-    const xSpacing = this.adjustCount(pipCount, rows, gaps, rowCount, staggered, spacing);
+    const xSpacing = this.adjustCount(
+      pipCount,
+      rows,
+      gaps,
+      rowCount,
+      staggered,
+      spacing,
+    );
 
     // Draw the pips
-    this.drawPips(rows, gaps, rowCount, staggered, Math.min(radius, xSpacing * 0.4), xSpacing);
+    this.drawPips(
+      rows,
+      gaps,
+      rowCount,
+      staggered,
+      Math.min(radius, xSpacing * 0.4),
+      xSpacing,
+    );
   }
 
-  private findFloorRegion(y: number, sorted: Array<[number, Bounds]>): Bounds | null {
+  private findFloorRegion(
+    y: number,
+    sorted: Array<[number, Bounds]>,
+  ): Bounds | null {
     let result: Bounds | null = null;
     for (const [key, bounds] of sorted) {
       if (key <= y) {
@@ -557,7 +602,10 @@ export class ArmorPipLayout {
     return result;
   }
 
-  private findCeilingRegion(y: number, sorted: Array<[number, Bounds]>): Bounds | null {
+  private findCeilingRegion(
+    y: number,
+    sorted: Array<[number, Bounds]>,
+  ): Bounds | null {
     for (const [key, bounds] of sorted) {
       if (key >= y) {
         return bounds;
@@ -566,7 +614,10 @@ export class ArmorPipLayout {
     return null;
   }
 
-  private findFloorKey(y: number, sorted: Array<[number, Bounds]>): number | null {
+  private findFloorKey(
+    y: number,
+    sorted: Array<[number, Bounds]>,
+  ): number | null {
     let result: number | null = null;
     for (const [key] of sorted) {
       if (key <= y) {
@@ -578,7 +629,10 @@ export class ArmorPipLayout {
     return result;
   }
 
-  private findCeilingKey(y: number, sorted: Array<[number, Bounds]>): number | null {
+  private findCeilingKey(
+    y: number,
+    sorted: Array<[number, Bounds]>,
+  ): number | null {
     for (const [key] of sorted) {
       if (key >= y) {
         return key;
@@ -609,7 +663,12 @@ export class ArmorPipLayout {
       right = Math.max(gap1.right, gap2.right);
     }
 
-    return new Bounds(Math.max(left, row.left), row.top, Math.min(right, row.right), row.bottom);
+    return new Bounds(
+      Math.max(left, row.left),
+      row.top,
+      Math.min(right, row.right),
+      row.bottom,
+    );
   }
 
   /**
@@ -621,7 +680,7 @@ export class ArmorPipLayout {
     gaps: Bounds[],
     rowCount: number[],
     staggered: boolean,
-    spacing: number
+    spacing: number,
   ): number {
     let current = rowCount.reduce((a, b) => a + b, 0);
 
@@ -631,14 +690,17 @@ export class ArmorPipLayout {
 
     // Sort indices by available space
     const indices = Array.from({ length: rows.length }, (_, i) => i).sort(
-      (a, b) => rowCount[a] / (rows[a].width - gaps[a].width) - rowCount[b] / (rows[b].width - gaps[b].width)
+      (a, b) =>
+        rowCount[a] / (rows[a].width - gaps[a].width) -
+        rowCount[b] / (rows[b].width - gaps[b].width),
     );
 
     // Track mirrored rows
     const mirrored = rows.map(
       (row, i) =>
         gaps[i].width > 0 &&
-        Math.abs(gaps[i].left - row.left - (row.right - gaps[i].right)) < spacing
+        Math.abs(gaps[i].left - row.left - (row.right - gaps[i].right)) <
+          spacing,
     );
     const allMirrored = mirrored.every(Boolean);
 
@@ -651,7 +713,8 @@ export class ArmorPipLayout {
       skipped = 0;
       while (current !== pipCount && skipped < rows.length) {
         const index = indices[row % indices.length];
-        const mirror = mirrored[index] && (!allMirrored || Math.abs(pipCount - current) > 1);
+        const mirror =
+          mirrored[index] && (!allMirrored || Math.abs(pipCount - current) > 1);
 
         if (pipCount > current) {
           let change: number;
@@ -661,7 +724,11 @@ export class ArmorPipLayout {
             change = mirror ? 2 : rowDelta;
           }
 
-          if (change > 0 && spacing * (rowCount[index] + change) <= rows[index].width - gaps[index].width) {
+          if (
+            change > 0 &&
+            spacing * (rowCount[index] + change) <=
+              rows[index].width - gaps[index].width
+          ) {
             rowCount[index] += change;
             current += change;
           } else {
@@ -712,7 +779,7 @@ export class ArmorPipLayout {
     rowCount: number[],
     staggered: boolean,
     radius: number,
-    xSpacing: number
+    xSpacing: number,
   ): void {
     const dx = staggered ? xSpacing * 2 : xSpacing;
 
@@ -720,7 +787,10 @@ export class ArmorPipLayout {
     let pct = 0;
     for (let r = 0; r < rows.length; r++) {
       if (rowCount[r] > (gaps[r].width > 0 ? 2 : 1)) {
-        pct = Math.max(pct, (dx * rowCount[r]) / (rows[r].width - gaps[r].width));
+        pct = Math.max(
+          pct,
+          (dx * rowCount[r]) / (rows[r].width - gaps[r].width),
+        );
       }
     }
 
@@ -740,17 +810,49 @@ export class ArmorPipLayout {
 
       if (gaps[r].width > 0) {
         // Split row around gap
-        const leftBounds = new Bounds(row.left, row.top, gaps[r].left, row.bottom);
-        const rightBounds = new Bounds(gaps[r].right, row.top, row.right, row.bottom);
+        const leftBounds = new Bounds(
+          row.left,
+          row.top,
+          gaps[r].left,
+          row.bottom,
+        );
+        const rightBounds = new Bounds(
+          gaps[r].right,
+          row.top,
+          row.right,
+          row.bottom,
+        );
         const leftCount = Math.round(
-          rowCount[r] * (leftBounds.width / (leftBounds.width + rightBounds.width))
+          rowCount[r] *
+            (leftBounds.width / (leftBounds.width + rightBounds.width)),
         );
 
-        this.drawRow(leftBounds, leftCount, radius, adjustedDx, centerX, xPadding);
-        this.drawRow(rightBounds, rowCount[r] - leftCount, radius, adjustedDx, centerX, xPadding);
+        this.drawRow(
+          leftBounds,
+          leftCount,
+          radius,
+          adjustedDx,
+          centerX,
+          xPadding,
+        );
+        this.drawRow(
+          rightBounds,
+          rowCount[r] - leftCount,
+          radius,
+          adjustedDx,
+          centerX,
+          xPadding,
+        );
         centerX = row.centerX;
       } else {
-        centerX = this.drawRow(row, rowCount[r], radius, adjustedDx, centerX, xPadding);
+        centerX = this.drawRow(
+          row,
+          rowCount[r],
+          radius,
+          adjustedDx,
+          centerX,
+          xPadding,
+        );
       }
     }
   }
@@ -764,7 +866,7 @@ export class ArmorPipLayout {
     radius: number,
     dx: number,
     centerX: number,
-    xPadding: number
+    xPadding: number,
   ): number {
     let xPosition = this.calcRowStartX(centerX, count, dx) + xPadding;
 
@@ -793,7 +895,11 @@ export class ArmorPipLayout {
   /**
    * Calculate the x coordinate of the leftmost pip to center the row
    */
-  private calcRowStartX(center: number, pipCount: number, cellWidth: number): number {
+  private calcRowStartX(
+    center: number,
+    pipCount: number,
+    cellWidth: number,
+  ): number {
     return center - cellWidth * (pipCount / 2);
   }
 

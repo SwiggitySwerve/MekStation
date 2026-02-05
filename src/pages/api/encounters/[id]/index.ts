@@ -9,10 +9,11 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { getEncounterService } from '@/services/encounter/EncounterService';
-import { IEncounter, IUpdateEncounterInput } from '@/types/encounter';
+
 import { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
+import { getEncounterService } from '@/services/encounter/EncounterService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { IEncounter, IUpdateEncounterInput } from '@/types/encounter';
 
 // =============================================================================
 // Response Types
@@ -39,13 +40,16 @@ type ErrorResponse = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<GetResponse | UpdateResponse | DeleteResponse | ErrorResponse>
+  res: NextApiResponse<
+    GetResponse | UpdateResponse | DeleteResponse | ErrorResponse
+  >,
 ): Promise<void> {
   // Initialize database
   try {
     getSQLiteService().initialize();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Database initialization failed';
+    const message =
+      error instanceof Error ? error.message : 'Database initialization failed';
     return res.status(500).json({ error: message });
   }
 
@@ -65,7 +69,9 @@ export default async function handler(
       return handleDelete(encounterService, id, res);
     default:
       res.setHeader('Allow', ['GET', 'PATCH', 'DELETE']);
-      return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+      return res
+        .status(405)
+        .json({ error: `Method ${req.method} Not Allowed` });
   }
 }
 
@@ -75,7 +81,7 @@ export default async function handler(
 function handleGet(
   encounterService: ReturnType<typeof getEncounterService>,
   id: string,
-  res: NextApiResponse<GetResponse | ErrorResponse>
+  res: NextApiResponse<GetResponse | ErrorResponse>,
 ) {
   try {
     const encounter = encounterService.getEncounter(id);
@@ -84,7 +90,8 @@ function handleGet(
     }
     return res.status(200).json({ encounter });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to get encounter';
+    const message =
+      error instanceof Error ? error.message : 'Failed to get encounter';
     return res.status(500).json({ error: message });
   }
 }
@@ -96,7 +103,7 @@ function handlePatch(
   encounterService: ReturnType<typeof getEncounterService>,
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<UpdateResponse | ErrorResponse>
+  res: NextApiResponse<UpdateResponse | ErrorResponse>,
 ) {
   try {
     const body = req.body as IUpdateEncounterInput;
@@ -104,7 +111,9 @@ function handlePatch(
 
     if (result.success) {
       const encounter = encounterService.getEncounter(id);
-      return res.status(200).json({ ...result, encounter: encounter || undefined });
+      return res
+        .status(200)
+        .json({ ...result, encounter: encounter || undefined });
     } else {
       return res.status(400).json({
         success: false,
@@ -113,7 +122,8 @@ function handlePatch(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to update encounter';
+    const message =
+      error instanceof Error ? error.message : 'Failed to update encounter';
     return res.status(500).json({ error: message });
   }
 }
@@ -124,7 +134,7 @@ function handlePatch(
 function handleDelete(
   encounterService: ReturnType<typeof getEncounterService>,
   id: string,
-  res: NextApiResponse<DeleteResponse | ErrorResponse>
+  res: NextApiResponse<DeleteResponse | ErrorResponse>,
 ) {
   try {
     const result = encounterService.deleteEncounter(id);
@@ -139,7 +149,8 @@ function handleDelete(
       });
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to delete encounter';
+    const message =
+      error instanceof Error ? error.message : 'Failed to delete encounter';
     return res.status(500).json({ error: message });
   }
 }

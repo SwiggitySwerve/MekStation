@@ -1,14 +1,14 @@
 /**
  * Weapon Type Interfaces and Enumerations
- * 
+ *
  * Core types shared across all weapon categories.
- * 
+ *
  * @spec openspec/specs/weapon-system/spec.md
  */
 
-import { TechBase } from '../../enums/TechBase';
-import { RulesLevel } from '../../enums/RulesLevel';
 import { EquipmentFlag } from '../../enums/EquipmentFlag';
+import { RulesLevel } from '../../enums/RulesLevel';
+import { TechBase } from '../../enums/TechBase';
 import { UnitType } from '../../unit/BattleMechInterfaces';
 
 /**
@@ -119,4 +119,3 @@ export interface IWeapon {
    */
   readonly allowedLocations?: readonly string[];
 }
-

@@ -14,7 +14,12 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
-import { IEntity, ITechBaseEntity, ITemporalEntity, IValuedComponent } from '../core';
+import {
+  IEntity,
+  ITechBaseEntity,
+  ITemporalEntity,
+  IValuedComponent,
+} from '../core';
 import { WeightClass } from '../enums';
 import { UnitType, IUnitMetadata } from './BattleMechInterfaces';
 
@@ -28,7 +33,8 @@ import { UnitType, IUnitMetadata } from './BattleMechInterfaces';
  * All units in MekStation extend from IBaseUnit, providing common
  * identification, classification, and economic properties.
  */
-export interface IBaseUnit extends IEntity, ITechBaseEntity, ITemporalEntity, IValuedComponent {
+export interface IBaseUnit
+  extends IEntity, ITechBaseEntity, ITemporalEntity, IValuedComponent {
   /** Unit type discriminator for polymorphic handling */
   readonly unitType: UnitType;
 

@@ -1,16 +1,35 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+
+import { ARMOR_STATUS } from '@/components/customizer/armor/shared/ArmorFills';
 import { PremiumMaterialDiagram } from '@/components/customizer/armor/variants/PremiumMaterialDiagram';
 import { MechLocation } from '@/types/construction';
-import { ARMOR_STATUS } from '@/components/customizer/armor/shared/ArmorFills';
 
 describe('PremiumMaterialDiagram', () => {
   const mockArmorData = [
     { location: MechLocation.HEAD, current: 9, maximum: 9 },
-    { location: MechLocation.CENTER_TORSO, current: 35, maximum: 47, rear: 12, rearMaximum: 23 },
-    { location: MechLocation.LEFT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
-    { location: MechLocation.RIGHT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
+    {
+      location: MechLocation.CENTER_TORSO,
+      current: 35,
+      maximum: 47,
+      rear: 12,
+      rearMaximum: 23,
+    },
+    {
+      location: MechLocation.LEFT_TORSO,
+      current: 24,
+      maximum: 32,
+      rear: 8,
+      rearMaximum: 16,
+    },
+    {
+      location: MechLocation.RIGHT_TORSO,
+      current: 24,
+      maximum: 32,
+      rear: 8,
+      rearMaximum: 16,
+    },
     { location: MechLocation.LEFT_ARM, current: 20, maximum: 24 },
     { location: MechLocation.RIGHT_ARM, current: 20, maximum: 24 },
     { location: MechLocation.LEFT_LEG, current: 28, maximum: 32 },
@@ -51,7 +70,9 @@ describe('PremiumMaterialDiagram', () => {
   it('should display instruction text', () => {
     render(<PremiumMaterialDiagram {...defaultProps} />);
 
-    expect(screen.getByText('Tap any plate to adjust armor values')).toBeInTheDocument();
+    expect(
+      screen.getByText('Tap any plate to adjust armor values'),
+    ).toBeInTheDocument();
   });
 
   it('should call onLocationClick when a location is clicked', async () => {
@@ -61,11 +82,15 @@ describe('PremiumMaterialDiagram', () => {
     const headGroup = screen.getByRole('button', { name: /Head armor/i });
     await user.click(headGroup);
 
-    expect(defaultProps.onLocationClick).toHaveBeenCalledWith(MechLocation.HEAD);
+    expect(defaultProps.onLocationClick).toHaveBeenCalledWith(
+      MechLocation.HEAD,
+    );
   });
 
   it('should apply custom className', () => {
-    const { container } = render(<PremiumMaterialDiagram {...defaultProps} className="custom-class" />);
+    const { container } = render(
+      <PremiumMaterialDiagram {...defaultProps} className="custom-class" />,
+    );
 
     expect(container.firstChild).toHaveClass('custom-class');
   });

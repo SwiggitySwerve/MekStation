@@ -1,9 +1,15 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { GlobalStatusBar, StatusBarStats } from '@/components/customizer/shared/GlobalStatusBar';
+import React from 'react';
+
+import {
+  GlobalStatusBar,
+  StatusBarStats,
+} from '@/components/customizer/shared/GlobalStatusBar';
 
 describe('GlobalStatusBar', () => {
-  const createStats = (overrides?: Partial<StatusBarStats>): StatusBarStats => ({
+  const createStats = (
+    overrides?: Partial<StatusBarStats>,
+  ): StatusBarStats => ({
     weightUsed: 50,
     weightMax: 100,
     weightRemaining: 50,
@@ -17,7 +23,7 @@ describe('GlobalStatusBar', () => {
   it('should display weight information', () => {
     const stats = createStats();
     render(<GlobalStatusBar stats={stats} />);
-    
+
     expect(screen.getByText(/Weight:/)).toBeInTheDocument();
     expect(screen.getByText(/50.0 \/ 100t/)).toBeInTheDocument();
     expect(screen.getByText(/\+50.0t rem/)).toBeInTheDocument();
@@ -26,7 +32,7 @@ describe('GlobalStatusBar', () => {
   it('should display slot information', () => {
     const stats = createStats();
     render(<GlobalStatusBar stats={stats} />);
-    
+
     expect(screen.getByText(/Free Slots:/)).toBeInTheDocument();
     expect(screen.getByText(/40 \/ 78/)).toBeInTheDocument();
   });
@@ -34,7 +40,7 @@ describe('GlobalStatusBar', () => {
   it('should display heat information', () => {
     const stats = createStats();
     render(<GlobalStatusBar stats={stats} />);
-    
+
     expect(screen.getByText(/Heat:/)).toBeInTheDocument();
     expect(screen.getByText(/20 \/ 30/)).toBeInTheDocument();
   });
@@ -45,10 +51,10 @@ describe('GlobalStatusBar', () => {
       weightRemaining: -10,
     });
     render(<GlobalStatusBar stats={stats} />);
-    
+
     const weightText = screen.getByText(/110.0 \/ 100t/);
     expect(weightText).toHaveClass('text-red-400');
-    
+
     expect(screen.getByText(/⚠️/)).toBeInTheDocument();
     expect(screen.getByText(/Over Weight/)).toBeInTheDocument();
   });
@@ -59,10 +65,10 @@ describe('GlobalStatusBar', () => {
       slotsTotal: 78,
     });
     render(<GlobalStatusBar stats={stats} />);
-    
+
     const slotsText = screen.getByText(/80 \/ 78/);
     expect(slotsText).toHaveClass('text-red-400');
-    
+
     expect(screen.getByText(/over by 2/)).toBeInTheDocument();
     expect(screen.getByText(/Over Slots/)).toBeInTheDocument();
   });
@@ -73,10 +79,10 @@ describe('GlobalStatusBar', () => {
       heatDissipation: 30,
     });
     render(<GlobalStatusBar stats={stats} />);
-    
+
     const heatText = screen.getByText(/35 \/ 30/);
     expect(heatText).toHaveClass('text-amber-400');
-    
+
     expect(screen.getByText(/\+5 buildup/)).toBeInTheDocument();
   });
 
@@ -88,17 +94,18 @@ describe('GlobalStatusBar', () => {
       slotsTotal: 78,
     });
     render(<GlobalStatusBar stats={stats} />);
-    
+
     expect(screen.getByText(/Over Weight/)).toBeInTheDocument();
     expect(screen.getByText(/Over Slots/)).toBeInTheDocument();
   });
 
   it('should apply custom className', () => {
     const stats = createStats();
-    const { container } = render(<GlobalStatusBar stats={stats} className="custom-class" />);
-    
+    const { container } = render(
+      <GlobalStatusBar stats={stats} className="custom-class" />,
+    );
+
     const statusBar = container.firstChild;
     expect(statusBar).toHaveClass('custom-class');
   });
 });
-

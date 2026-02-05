@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { useState } from 'react';
+
 import { CampaignLayout, CampaignLayoutProps } from './CampaignLayout';
 import { StarmapDisplay, IStarSystem, FACTION_COLORS } from './StarmapDisplay';
 
@@ -24,17 +26,33 @@ type Story = StoryObj<typeof CampaignLayout>;
 
 const factionNames = Object.keys(FACTION_COLORS);
 
-function generateRandomSystems(count: number, spread: number = 500): IStarSystem[] {
+function generateRandomSystems(
+  count: number,
+  spread: number = 500,
+): IStarSystem[] {
   const systemNames = [
-    'Terra', 'Tharkad', 'Luthien', 'Sian', 'Atreus', 'New Avalon',
-    'Solaris', 'Hesperus', 'Coventry', 'Galax', 'Robinson', 'Tikonov',
+    'Terra',
+    'Tharkad',
+    'Luthien',
+    'Sian',
+    'Atreus',
+    'New Avalon',
+    'Solaris',
+    'Hesperus',
+    'Coventry',
+    'Galax',
+    'Robinson',
+    'Tikonov',
   ];
 
   return Array.from({ length: count }, (_, i) => {
     const angle = Math.random() * Math.PI * 2;
     const distance = Math.random() * spread;
     const baseName = systemNames[i % systemNames.length];
-    const suffix = i >= systemNames.length ? ` ${Math.floor(i / systemNames.length) + 1}` : '';
+    const suffix =
+      i >= systemNames.length
+        ? ` ${Math.floor(i / systemNames.length) + 1}`
+        : '';
 
     return {
       id: `system-${i}`,
@@ -44,7 +62,10 @@ function generateRandomSystems(count: number, spread: number = 500): IStarSystem
         y: Math.sin(angle) * distance + spread / 2,
       },
       faction: factionNames[Math.floor(Math.random() * factionNames.length)],
-      population: Math.random() > 0.3 ? Math.floor(Math.random() * 5_000_000_000) + 100_000 : undefined,
+      population:
+        Math.random() > 0.3
+          ? Math.floor(Math.random() * 5_000_000_000) + 100_000
+          : undefined,
     };
   });
 }
@@ -60,15 +81,17 @@ function MockRosterContent() {
   ];
 
   return (
-    <div className="p-3 space-y-2">
+    <div className="space-y-2 p-3">
       {pilots.map((pilot) => (
         <div
           key={pilot.name}
-          className="p-2 bg-slate-700/50 rounded border border-slate-600 hover:border-slate-500 transition-colors cursor-pointer"
+          className="cursor-pointer rounded border border-slate-600 bg-slate-700/50 p-2 transition-colors hover:border-slate-500"
         >
-          <div className="text-slate-200 text-sm font-medium">{pilot.name}</div>
-          <div className="text-slate-400 text-xs">{pilot.mech}</div>
-          <div className={`text-xs mt-1 ${pilot.status === 'Ready' ? 'text-emerald-400' : 'text-amber-400'}`}>
+          <div className="text-sm font-medium text-slate-200">{pilot.name}</div>
+          <div className="text-xs text-slate-400">{pilot.mech}</div>
+          <div
+            className={`mt-1 text-xs ${pilot.status === 'Ready' ? 'text-emerald-400' : 'text-amber-400'}`}
+          >
             {pilot.status}
           </div>
         </div>
@@ -79,29 +102,39 @@ function MockRosterContent() {
 
 function MockEventsContent() {
   const events = [
-    { type: 'Contract', title: 'Raid on Hesperus II', reward: '2,500,000 C-Bills' },
+    {
+      type: 'Contract',
+      title: 'Raid on Hesperus II',
+      reward: '2,500,000 C-Bills',
+    },
     { type: 'News', title: 'Lyran offensive stalls', reward: null },
     { type: 'Contract', title: 'Garrison Duty', reward: '800,000 C-Bills' },
   ];
 
   return (
-    <div className="p-3 space-y-2">
+    <div className="space-y-2 p-3">
       {events.map((event, i) => (
         <div
           key={i}
-          className="p-2 bg-slate-700/50 rounded border border-slate-600 hover:border-slate-500 transition-colors cursor-pointer"
+          className="cursor-pointer rounded border border-slate-600 bg-slate-700/50 p-2 transition-colors hover:border-slate-500"
         >
           <div className="flex items-center gap-2">
             <span
-              className={`text-xs px-1.5 py-0.5 rounded ${
-                event.type === 'Contract' ? 'bg-amber-900 text-amber-300' : 'bg-sky-900 text-sky-300'
+              className={`rounded px-1.5 py-0.5 text-xs ${
+                event.type === 'Contract'
+                  ? 'bg-amber-900 text-amber-300'
+                  : 'bg-sky-900 text-sky-300'
               }`}
             >
               {event.type}
             </span>
           </div>
-          <div className="text-slate-200 text-sm font-medium mt-1">{event.title}</div>
-          {event.reward && <div className="text-amber-400 text-xs mt-1">{event.reward}</div>}
+          <div className="mt-1 text-sm font-medium text-slate-200">
+            {event.title}
+          </div>
+          {event.reward && (
+            <div className="mt-1 text-xs text-amber-400">{event.reward}</div>
+          )}
         </div>
       ))}
     </div>
@@ -111,35 +144,43 @@ function MockEventsContent() {
 function MockContextPanel({ systemName }: { systemName?: string }) {
   if (!systemName) {
     return (
-      <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+      <div className="flex h-full items-center justify-center text-sm text-slate-500">
         Select a system to view details
       </div>
     );
   }
 
   return (
-    <div className="h-full p-4 flex gap-8">
+    <div className="flex h-full gap-8 p-4">
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider">System</div>
-        <div className="text-slate-100 text-lg font-semibold">{systemName}</div>
+        <div className="text-xs tracking-wider text-slate-400 uppercase">
+          System
+        </div>
+        <div className="text-lg font-semibold text-slate-100">{systemName}</div>
       </div>
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider">Faction</div>
-        <div className="text-sky-400 text-sm">Lyran Commonwealth</div>
+        <div className="text-xs tracking-wider text-slate-400 uppercase">
+          Faction
+        </div>
+        <div className="text-sm text-sky-400">Lyran Commonwealth</div>
       </div>
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider">Population</div>
-        <div className="text-slate-200 text-sm">3.2 Billion</div>
+        <div className="text-xs tracking-wider text-slate-400 uppercase">
+          Population
+        </div>
+        <div className="text-sm text-slate-200">3.2 Billion</div>
       </div>
       <div>
-        <div className="text-slate-400 text-xs uppercase tracking-wider">Distance</div>
-        <div className="text-slate-200 text-sm">12 jumps (24 days)</div>
+        <div className="text-xs tracking-wider text-slate-400 uppercase">
+          Distance
+        </div>
+        <div className="text-sm text-slate-200">12 jumps (24 days)</div>
       </div>
       <div className="ml-auto flex items-center gap-2">
-        <button className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded transition-colors">
+        <button className="rounded bg-amber-600 px-3 py-1.5 text-sm text-white transition-colors hover:bg-amber-500">
           Set Course
         </button>
-        <button className="px-3 py-1.5 bg-slate-600 hover:bg-slate-500 text-white text-sm rounded transition-colors">
+        <button className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white transition-colors hover:bg-slate-500">
           View Contracts
         </button>
       </div>
@@ -152,7 +193,11 @@ const defaultProps: CampaignLayoutProps = {
   cBills: 12500000,
   morale: 85,
   reputation: 'Reliable',
-  children: <div className="h-full bg-slate-950 flex items-center justify-center text-slate-600">Map Area</div>,
+  children: (
+    <div className="flex h-full items-center justify-center bg-slate-950 text-slate-600">
+      Map Area
+    </div>
+  ),
 };
 
 export const Default: Story = {
@@ -168,9 +213,13 @@ export const WithStarmap: Story = {
   render: function WithStarmapStory() {
     const [leftOpen, setLeftOpen] = useState(true);
     const [rightOpen, setRightOpen] = useState(true);
-    const [selectedSystem, setSelectedSystem] = useState<string | undefined>('system-0');
+    const [selectedSystem, setSelectedSystem] = useState<string | undefined>(
+      'system-0',
+    );
 
-    const selectedName = selectedSystem ? demoSystems.find((s) => s.id === selectedSystem)?.name : undefined;
+    const selectedName = selectedSystem
+      ? demoSystems.find((s) => s.id === selectedSystem)?.name
+      : undefined;
 
     return (
       <CampaignLayout
@@ -247,11 +296,14 @@ export const Interactive: Story = {
         rightPanelContent={<MockEventsContent />}
         contextPanelContent={<MockContextPanel systemName="New Avalon" />}
       >
-        <div className="h-full bg-slate-950 flex items-center justify-center">
+        <div className="flex h-full items-center justify-center bg-slate-950">
           <div className="text-center">
-            <div className="text-slate-400 text-sm mb-2">Click panel arrows to collapse/expand</div>
-            <div className="text-slate-600 text-xs">
-              Left: {leftOpen ? 'Open' : 'Collapsed'} | Right: {rightOpen ? 'Open' : 'Collapsed'}
+            <div className="mb-2 text-sm text-slate-400">
+              Click panel arrows to collapse/expand
+            </div>
+            <div className="text-xs text-slate-600">
+              Left: {leftOpen ? 'Open' : 'Collapsed'} | Right:{' '}
+              {rightOpen ? 'Open' : 'Collapsed'}
             </div>
           </div>
         </div>

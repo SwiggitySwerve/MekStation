@@ -2,9 +2,14 @@
  * Tests for ControlledInput component
  */
 import '@testing-library/jest-dom';
-import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { ControlledInput, useControlledInput, ValidationResult } from '@/components/common/ControlledInput';
+import React from 'react';
+
+import {
+  ControlledInput,
+  useControlledInput,
+  ValidationResult,
+} from '@/components/common/ControlledInput';
 
 // Mock timers for debounce testing
 jest.useFakeTimers();
@@ -43,7 +48,9 @@ describe('ControlledInput', () => {
     });
 
     it('should display placeholder', () => {
-      render(<ControlledInput {...defaultProps} placeholder="Enter username" />);
+      render(
+        <ControlledInput {...defaultProps} placeholder="Enter username" />,
+      );
 
       expect(screen.getByPlaceholderText('Enter username')).toBeInTheDocument();
     });
@@ -88,7 +95,13 @@ describe('ControlledInput', () => {
 
     it('should debounce onChange callback', () => {
       const onChange = jest.fn();
-      render(<ControlledInput {...defaultProps} onChange={onChange} debounceMs={300} />);
+      render(
+        <ControlledInput
+          {...defaultProps}
+          onChange={onChange}
+          debounceMs={300}
+        />,
+      );
       const input = screen.getByRole('textbox');
 
       fireEvent.change(input, { target: { value: 'Test' } });
@@ -103,7 +116,9 @@ describe('ControlledInput', () => {
     });
 
     it('should sync with external value changes', () => {
-      const { rerender } = render(<ControlledInput {...defaultProps} value="Initial" />);
+      const { rerender } = render(
+        <ControlledInput {...defaultProps} value="Initial" />,
+      );
 
       expect(screen.getByRole('textbox')).toHaveValue('Initial');
 
@@ -126,11 +141,11 @@ describe('ControlledInput', () => {
 
     it('should show validation error after change', () => {
       render(
-        <ControlledInput 
-          {...defaultProps} 
+        <ControlledInput
+          {...defaultProps}
           value="test"
           validation={requiredValidation}
-        />
+        />,
       );
       const input = screen.getByRole('textbox');
 
@@ -141,10 +156,7 @@ describe('ControlledInput', () => {
 
     it('should show warning message', () => {
       render(
-        <ControlledInput 
-          {...defaultProps}
-          validation={warningValidation}
-        />
+        <ControlledInput {...defaultProps} validation={warningValidation} />,
       );
       const input = screen.getByRole('textbox');
 
@@ -156,11 +168,11 @@ describe('ControlledInput', () => {
     it('should call onValidationChange when validation changes', () => {
       const onValidationChange = jest.fn();
       render(
-        <ControlledInput 
+        <ControlledInput
           {...defaultProps}
           validation={requiredValidation}
           onValidationChange={onValidationChange}
-        />
+        />,
       );
       const input = screen.getByRole('textbox');
 
@@ -172,12 +184,12 @@ describe('ControlledInput', () => {
     it('should not call onChange when validation fails', () => {
       const onChange = jest.fn();
       render(
-        <ControlledInput 
+        <ControlledInput
           {...defaultProps}
           value="valid"
           onChange={onChange}
           validation={requiredValidation}
-        />
+        />,
       );
       const input = screen.getByRole('textbox');
 
@@ -192,11 +204,11 @@ describe('ControlledInput', () => {
 
     it('should not show validation until dirty', () => {
       render(
-        <ControlledInput 
+        <ControlledInput
           {...defaultProps}
           value=""
           validation={requiredValidation}
-        />
+        />,
       );
 
       expect(screen.queryByText('Field is required')).not.toBeInTheDocument();
@@ -278,21 +290,15 @@ describe('ControlledInput', () => {
 });
 
 describe('useControlledInput hook', () => {
-  const TestComponent = ({ 
-    initialValue = '', 
-    validation 
-  }: { 
-    initialValue?: string; 
+  const TestComponent = ({
+    initialValue = '',
+    validation,
+  }: {
+    initialValue?: string;
     validation?: (value: string) => ValidationResult;
   }) => {
-    const {
-      value,
-      isDirty,
-      handleChange,
-      reset,
-      isValid,
-      error,
-    } = useControlledInput(initialValue, validation);
+    const { value, isDirty, handleChange, reset, isValid, error } =
+      useControlledInput(initialValue, validation);
 
     return (
       <div>
@@ -320,7 +326,9 @@ describe('useControlledInput hook', () => {
 
     expect(screen.getByTestId('is-dirty').textContent).toBe('false');
 
-    fireEvent.change(screen.getByTestId('input'), { target: { value: 'Changed' } });
+    fireEvent.change(screen.getByTestId('input'), {
+      target: { value: 'Changed' },
+    });
 
     expect(screen.getByTestId('is-dirty').textContent).toBe('true');
   });
@@ -342,7 +350,9 @@ describe('useControlledInput hook', () => {
   it('should reset to initial state', () => {
     render(<TestComponent initialValue="Initial" />);
 
-    fireEvent.change(screen.getByTestId('input'), { target: { value: 'Changed' } });
+    fireEvent.change(screen.getByTestId('input'), {
+      target: { value: 'Changed' },
+    });
     expect(screen.getByTestId('input')).toHaveValue('Changed');
     expect(screen.getByTestId('is-dirty').textContent).toBe('true');
 
@@ -352,4 +362,3 @@ describe('useControlledInput hook', () => {
     expect(screen.getByTestId('is-dirty').textContent).toBe('false');
   });
 });
-

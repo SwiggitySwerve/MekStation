@@ -4,20 +4,25 @@
  * Comprehensive tests for Infantry BLK parsing, validation, calculations, and serialization
  */
 
-import { InfantryUnitHandler, createInfantryHandler } from '../InfantryUnitHandler';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
 import { SquadMotionType } from '../../../../types/unit/BaseUnitInterfaces';
+import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
 import {
   InfantryArmorKit,
   InfantrySpecialization,
 } from '../../../../types/unit/PersonnelInterfaces';
+import {
+  InfantryUnitHandler,
+  createInfantryHandler,
+} from '../InfantryUnitHandler';
 
 // ============================================================================
 // Test Fixtures
 // ============================================================================
 
-function createMockBlkDocument(overrides: Partial<IBlkDocument> = {}): IBlkDocument {
+function createMockBlkDocument(
+  overrides: Partial<IBlkDocument> = {},
+): IBlkDocument {
   return {
     blockVersion: 1,
     version: 'MAM0',
@@ -72,7 +77,7 @@ function createFieldGunInfantryDocument(): IBlkDocument {
     squadn: 2,
     primary: 'Rifle',
     equipmentByLocation: {
-      'Platoon': ['Light Field Gun', 'Medium Field Gun'],
+      Platoon: ['Light Field Gun', 'Medium Field Gun'],
     },
   });
 }
@@ -202,7 +207,10 @@ describe('InfantryUnitHandler', () => {
       });
 
       it('should parse name and model correctly', () => {
-        const doc = createMockBlkDocument({ name: 'Test Platoon', model: 'Mark II' });
+        const doc = createMockBlkDocument({
+          name: 'Test Platoon',
+          model: 'Mark II',
+        });
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
@@ -246,7 +254,8 @@ describe('InfantryUnitHandler', () => {
 
       it('should use default squad size if not specified', () => {
         // Create document without squadSize by spreading without that field
-        const { squadSize: _unused, ...docWithoutSquadSize } = createMockBlkDocument();
+        const { squadSize: _unused, ...docWithoutSquadSize } =
+          createMockBlkDocument();
         const doc = docWithoutSquadSize as IBlkDocument;
         const result = handler.parse(doc);
 
@@ -256,7 +265,8 @@ describe('InfantryUnitHandler', () => {
 
       it('should use default number of squads if not specified', () => {
         // Create document without squadn by spreading without that field
-        const { squadn: _unused, ...docWithoutSquadn } = createMockBlkDocument();
+        const { squadn: _unused, ...docWithoutSquadn } =
+          createMockBlkDocument();
         const doc = docWithoutSquadn as IBlkDocument;
         const result = handler.parse(doc);
 
@@ -400,7 +410,8 @@ describe('InfantryUnitHandler', () => {
 
       it('should default primary weapon to Rifle', () => {
         // Create document without primary by spreading without that field
-        const { primary: _unused, ...docWithoutPrimary } = createMockBlkDocument();
+        const { primary: _unused, ...docWithoutPrimary } =
+          createMockBlkDocument();
         const doc = docWithoutPrimary as IBlkDocument;
         const result = handler.parse(doc);
 
@@ -487,7 +498,9 @@ describe('InfantryUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.armorKit).toBe(InfantryArmorKit.ENVIRONMENTAL);
+        expect(result.data?.unit?.armorKit).toBe(
+          InfantryArmorKit.ENVIRONMENTAL,
+        );
       });
 
       it('should default to none for unknown armor kit', () => {
@@ -513,7 +526,9 @@ describe('InfantryUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.specialization).toBe(InfantrySpecialization.ANTI_MECH);
+        expect(result.data?.unit?.specialization).toBe(
+          InfantrySpecialization.ANTI_MECH,
+        );
       });
 
       it('should parse antimech variant specialization', () => {
@@ -523,7 +538,9 @@ describe('InfantryUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.specialization).toBe(InfantrySpecialization.ANTI_MECH);
+        expect(result.data?.unit?.specialization).toBe(
+          InfantrySpecialization.ANTI_MECH,
+        );
       });
 
       it('should parse paratrooper specialization', () => {
@@ -533,7 +550,9 @@ describe('InfantryUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.specialization).toBe(InfantrySpecialization.PARATROOPER);
+        expect(result.data?.unit?.specialization).toBe(
+          InfantrySpecialization.PARATROOPER,
+        );
       });
 
       it('should parse mountain specialization', () => {
@@ -543,7 +562,9 @@ describe('InfantryUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.specialization).toBe(InfantrySpecialization.MOUNTAIN);
+        expect(result.data?.unit?.specialization).toBe(
+          InfantrySpecialization.MOUNTAIN,
+        );
       });
 
       it('should parse marine specialization', () => {
@@ -553,7 +574,9 @@ describe('InfantryUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.specialization).toBe(InfantrySpecialization.MARINE);
+        expect(result.data?.unit?.specialization).toBe(
+          InfantrySpecialization.MARINE,
+        );
       });
 
       it('should parse xct specialization', () => {
@@ -563,7 +586,9 @@ describe('InfantryUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.specialization).toBe(InfantrySpecialization.XCT);
+        expect(result.data?.unit?.specialization).toBe(
+          InfantrySpecialization.XCT,
+        );
       });
 
       it('should parse tag specialization', () => {
@@ -573,7 +598,9 @@ describe('InfantryUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.specialization).toBe(InfantrySpecialization.TAG);
+        expect(result.data?.unit?.specialization).toBe(
+          InfantrySpecialization.TAG,
+        );
       });
 
       it('should parse engineer specialization', () => {
@@ -583,7 +610,9 @@ describe('InfantryUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.specialization).toBe(InfantrySpecialization.ENGINEER);
+        expect(result.data?.unit?.specialization).toBe(
+          InfantrySpecialization.ENGINEER,
+        );
       });
 
       it('should default to none for no specialization', () => {
@@ -591,7 +620,9 @@ describe('InfantryUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.specialization).toBe(InfantrySpecialization.NONE);
+        expect(result.data?.unit?.specialization).toBe(
+          InfantrySpecialization.NONE,
+        );
       });
     });
 
@@ -712,7 +743,9 @@ describe('InfantryUnitHandler', () => {
 
         const validation = handler.validate(result.data!.unit);
         expect(validation.isValid).toBe(false);
-        expect(validation.errors.some(e => e.includes('squad size'))).toBe(true);
+        expect(validation.errors.some((e) => e.includes('squad size'))).toBe(
+          true,
+        );
       });
 
       it('should pass validation for squad size of 1', () => {
@@ -721,7 +754,9 @@ describe('InfantryUnitHandler', () => {
         expect(result.success).toBe(true);
 
         const validation = handler.validate(result.data!.unit);
-        expect(validation.errors.some(e => e.includes('squad size'))).toBe(false);
+        expect(validation.errors.some((e) => e.includes('squad size'))).toBe(
+          false,
+        );
       });
 
       it('should pass validation for squad size of 10', () => {
@@ -730,7 +765,9 @@ describe('InfantryUnitHandler', () => {
         expect(result.success).toBe(true);
 
         const validation = handler.validate(result.data!.unit);
-        expect(validation.errors.some(e => e.includes('squad size'))).toBe(false);
+        expect(validation.errors.some((e) => e.includes('squad size'))).toBe(
+          false,
+        );
       });
     });
 
@@ -749,7 +786,9 @@ describe('InfantryUnitHandler', () => {
         expect(result.success).toBe(true);
 
         const validation = handler.validate(result.data!.unit);
-        expect(validation.warnings.some(w => w.includes('squads'))).toBe(true);
+        expect(validation.warnings.some((w) => w.includes('squads'))).toBe(
+          true,
+        );
       });
 
       it('should not warn for standard squad count of 4', () => {
@@ -758,7 +797,9 @@ describe('InfantryUnitHandler', () => {
         expect(result.success).toBe(true);
 
         const validation = handler.validate(result.data!.unit);
-        expect(validation.warnings.some(w => w.includes('squads'))).toBe(false);
+        expect(validation.warnings.some((w) => w.includes('squads'))).toBe(
+          false,
+        );
       });
     });
 
@@ -768,7 +809,7 @@ describe('InfantryUnitHandler', () => {
           motionType: 'Jump',
           jumpingMP: 3,
           equipmentByLocation: {
-            'Platoon': ['Light Field Gun'],
+            Platoon: ['Light Field Gun'],
           },
         });
         const result = handler.parse(doc);
@@ -776,7 +817,11 @@ describe('InfantryUnitHandler', () => {
 
         const validation = handler.validate(result.data!.unit);
         expect(validation.isValid).toBe(false);
-        expect(validation.errors.some(e => e.includes('Jump infantry cannot carry field guns'))).toBe(true);
+        expect(
+          validation.errors.some((e) =>
+            e.includes('Jump infantry cannot carry field guns'),
+          ),
+        ).toBe(true);
       });
 
       it('should pass validation for foot infantry with field guns', () => {
@@ -785,7 +830,9 @@ describe('InfantryUnitHandler', () => {
         expect(result.success).toBe(true);
 
         const validation = handler.validate(result.data!.unit);
-        expect(validation.errors.some(e => e.includes('field guns'))).toBe(false);
+        expect(validation.errors.some((e) => e.includes('field guns'))).toBe(
+          false,
+        );
       });
     });
 
@@ -801,7 +848,11 @@ describe('InfantryUnitHandler', () => {
 
         // With anti-mech training, validation should pass
         const validation = handler.validate(result.data!.unit);
-        expect(validation.errors.some(e => e.includes('Swarm attacks require anti-mech training'))).toBe(false);
+        expect(
+          validation.errors.some((e) =>
+            e.includes('Swarm attacks require anti-mech training'),
+          ),
+        ).toBe(false);
       });
     });
 
@@ -810,7 +861,7 @@ describe('InfantryUnitHandler', () => {
         const doc = createMockBlkDocument({
           squadSize: 1, // Squad size of 1, but field gun needs crew of 2
           equipmentByLocation: {
-            'Platoon': ['Light Field Gun'],
+            Platoon: ['Light Field Gun'],
           },
         });
         const result = handler.parse(doc);
@@ -818,7 +869,11 @@ describe('InfantryUnitHandler', () => {
 
         const validation = handler.validate(result.data!.unit);
         expect(validation.isValid).toBe(false);
-        expect(validation.errors.some(e => e.includes('requires more crew than squad size'))).toBe(true);
+        expect(
+          validation.errors.some((e) =>
+            e.includes('requires more crew than squad size'),
+          ),
+        ).toBe(true);
       });
 
       it('should pass if squad size accommodates field gun crew', () => {
@@ -827,7 +882,9 @@ describe('InfantryUnitHandler', () => {
         expect(result.success).toBe(true);
 
         const validation = handler.validate(result.data!.unit);
-        expect(validation.errors.some(e => e.includes('requires more crew'))).toBe(false);
+        expect(
+          validation.errors.some((e) => e.includes('requires more crew')),
+        ).toBe(false);
       });
     });
   });
@@ -1010,7 +1067,9 @@ describe('InfantryUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const serializeResult = handler.serialize(parseResult.data!.unit);
-      expect(serializeResult.data?.serialized?.unitType).toBe(UnitType.INFANTRY);
+      expect(serializeResult.data?.serialized?.unitType).toBe(
+        UnitType.INFANTRY,
+      );
     });
 
     it('should include configuration (motion type) in serialized output', () => {
@@ -1019,11 +1078,16 @@ describe('InfantryUnitHandler', () => {
       expect(parseResult.success).toBe(true);
 
       const serializeResult = handler.serialize(parseResult.data!.unit);
-      expect(serializeResult.data?.serialized?.configuration).toBe(SquadMotionType.JUMP);
+      expect(serializeResult.data?.serialized?.configuration).toBe(
+        SquadMotionType.JUMP,
+      );
     });
 
     it('should include chassis and model', () => {
-      const doc = createMockBlkDocument({ name: 'Test Platoon', model: 'Alpha' });
+      const doc = createMockBlkDocument({
+        name: 'Test Platoon',
+        model: 'Alpha',
+      });
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
@@ -1063,7 +1127,9 @@ describe('InfantryUnitHandler', () => {
 
       const result = handler.deserialize(serialized);
       expect(result.success).toBe(false);
-      expect(result.error!.errors.some(e => e.includes('not yet implemented'))).toBe(true);
+      expect(
+        result.error!.errors.some((e) => e.includes('not yet implemented')),
+      ).toBe(true);
     });
   });
 

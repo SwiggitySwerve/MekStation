@@ -7,9 +7,10 @@
  * @module campaign/progression/skillCostTraits
  */
 
-import type { IPerson } from '../../../types/campaign/Person';
 import type { ICampaignOptions } from '../../../types/campaign/Campaign';
+import type { IPerson } from '../../../types/campaign/Person';
 import type { ISkillType } from '../../../types/campaign/skills/ISkillType';
+
 import { SKILL_CATALOG } from '../../../constants/campaign/skillCatalog';
 
 /**
@@ -78,7 +79,10 @@ export function isTechSkill(skillType: ISkillType): boolean {
  * // Person with Gremlins on non-tech skill (ignored)
  * calculateTraitMultiplier(person, 'gunnery'); // 1.0
  */
-export function calculateTraitMultiplier(person: IPerson, skillId: string): number {
+export function calculateTraitMultiplier(
+  person: IPerson,
+  skillId: string,
+): number {
   let multiplier = 1.0;
 
   // Slow Learner: +20% cost
@@ -125,7 +129,7 @@ function getSkillImprovementCost(
   skillId: string,
   currentLevel: number,
   _person: IPerson,
-  _options: ICampaignOptions
+  _options: ICampaignOptions,
 ): number {
   const skillType = SKILL_CATALOG[skillId];
   if (!skillType) {
@@ -173,10 +177,15 @@ export function getSkillImprovementCostWithTraits(
   skillId: string,
   currentLevel: number,
   person: IPerson,
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): number {
   // Get base cost from skill catalog
-  const baseCost = getSkillImprovementCost(skillId, currentLevel, person, options);
+  const baseCost = getSkillImprovementCost(
+    skillId,
+    currentLevel,
+    person,
+    options,
+  );
 
   // Calculate trait multiplier
   const traitMultiplier = calculateTraitMultiplier(person, skillId);

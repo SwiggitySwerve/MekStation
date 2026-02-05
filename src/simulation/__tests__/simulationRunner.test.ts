@@ -1,11 +1,13 @@
-import { SimulationRunner } from '../runner/SimulationRunner';
-import { BatchRunner } from '../runner/BatchRunner';
-import { InvariantRunner } from '../invariants/InvariantRunner';
-import { ISimulationConfig } from '../core/types';
 import type { IDetectorConfig } from '../runner/types';
 
+import { ISimulationConfig } from '../core/types';
+import { InvariantRunner } from '../invariants/InvariantRunner';
+import { BatchRunner } from '../runner/BatchRunner';
+import { SimulationRunner } from '../runner/SimulationRunner';
 
-function createTestConfig(overrides: Partial<ISimulationConfig> = {}): ISimulationConfig {
+function createTestConfig(
+  overrides: Partial<ISimulationConfig> = {},
+): ISimulationConfig {
   return {
     seed: 12345,
     turnLimit: 10,
@@ -21,7 +23,7 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345);
       expect(runner).toBeDefined();
     });
-    
+
     it('should create with custom invariant runner', () => {
       const invariantRunner = new InvariantRunner();
       const runner = new SimulationRunner(12345, invariantRunner);
@@ -44,7 +46,11 @@ describe('SimulationRunner', () => {
     it('should create with all three parameters', () => {
       const invariantRunner = new InvariantRunner();
       const detectorConfig: IDetectorConfig = { haltOnCritical: false };
-      const runner = new SimulationRunner(12345, invariantRunner, detectorConfig);
+      const runner = new SimulationRunner(
+        12345,
+        invariantRunner,
+        detectorConfig,
+      );
       expect(runner).toBeDefined();
     });
 
@@ -55,21 +61,21 @@ describe('SimulationRunner', () => {
       expect(result.anomalies).toBeDefined();
     });
   });
-  
+
   describe('run', () => {
     it('should complete without throwing', () => {
       const runner = new SimulationRunner(12345);
       const config = createTestConfig();
-      
+
       expect(() => runner.run(config)).not.toThrow();
     });
-    
+
     it('should return valid ISimulationResult structure', () => {
       const runner = new SimulationRunner(12345);
       const config = createTestConfig();
-      
+
       const result = runner.run(config);
-      
+
       expect(result).toBeDefined();
       expect(result.seed).toBe(12345);
       expect(typeof result.turns).toBe('number');
@@ -78,102 +84,106 @@ describe('SimulationRunner', () => {
       expect(Array.isArray(result.events)).toBe(true);
       expect(Array.isArray(result.violations)).toBe(true);
     });
-    
+
     it('should return seed from config', () => {
       const runner = new SimulationRunner(99999);
       const config = createTestConfig({ seed: 99999 });
-      
+
       const result = runner.run(config);
-      
+
       expect(result.seed).toBe(99999);
     });
-    
+
     it('should return turns greater than 0', () => {
       const runner = new SimulationRunner(12345);
       const config = createTestConfig();
-      
+
       const result = runner.run(config);
-      
+
       expect(result.turns).toBeGreaterThan(0);
     });
-    
+
     it('should return durationMs as positive number', () => {
       const runner = new SimulationRunner(12345);
       const config = createTestConfig();
-      
+
       const result = runner.run(config);
-      
+
       expect(result.durationMs).toBeGreaterThanOrEqual(0);
     });
-    
+
     it('should respect turnLimit', () => {
       const runner = new SimulationRunner(12345);
       const config = createTestConfig({ turnLimit: 3 });
-      
+
       const result = runner.run(config);
-      
+
       expect(result.turns).toBeLessThanOrEqual(3);
     });
-    
+
     it('should handle different seed values deterministically', () => {
       const config = createTestConfig({ seed: 54321 });
-      
+
       const runner1 = new SimulationRunner(54321);
       const result1 = runner1.run(config);
-      
+
       const runner2 = new SimulationRunner(54321);
       const result2 = runner2.run(config);
-      
+
       expect(result1.turns).toBe(result2.turns);
       expect(result1.winner).toBe(result2.winner);
     });
-    
+
     it('should handle winner values correctly', () => {
       const runner = new SimulationRunner(12345);
       const config = createTestConfig();
-      
+
       const result = runner.run(config);
-      
+
       expect(['player', 'opponent', 'draw', null]).toContain(result.winner);
     });
-    
+
     it('should complete within reasonable time', () => {
       const runner = new SimulationRunner(12345);
       const config = createTestConfig({ turnLimit: 10 });
-      
+
       const startTime = Date.now();
       runner.run(config);
       const elapsed = Date.now() - startTime;
-      
+
       expect(elapsed).toBeLessThan(5000);
     });
-    
+
     it('should handle minimal unit counts', () => {
       const runner = new SimulationRunner(12345);
-      const config = createTestConfig({ unitCount: { player: 1, opponent: 1 } });
-      
+      const config = createTestConfig({
+        unitCount: { player: 1, opponent: 1 },
+      });
+
       const result = runner.run(config);
-      
+
       expect(result).toBeDefined();
       expect(result.turns).toBeGreaterThan(0);
     });
-    
+
     it('should handle larger unit counts', () => {
       const runner = new SimulationRunner(12345);
-      const config = createTestConfig({ unitCount: { player: 4, opponent: 4 } });
-      
+      const config = createTestConfig({
+        unitCount: { player: 4, opponent: 4 },
+      });
+
       const result = runner.run(config);
-      
+
       expect(result).toBeDefined();
       expect(result.turns).toBeGreaterThan(0);
     });
-    
+
     it('should include violations array in result', () => {
       const runner = new SimulationRunner(12345);
       const config = createTestConfig();
-      
+
       const result = runner.run(config);
-      
+
       expect(Array.isArray(result.violations)).toBe(true);
     });
   });
@@ -222,7 +232,9 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345);
       const result = runner.run(createTestConfig());
 
-      const turnEndedEvents = result.events.filter(e => e.type === 'turn_ended');
+      const turnEndedEvents = result.events.filter(
+        (e) => e.type === 'turn_ended',
+      );
       expect(turnEndedEvents.length).toBeGreaterThan(0);
     });
 
@@ -230,17 +242,23 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345);
       const result = runner.run(createTestConfig());
 
-      const damageEvents = result.events.filter(e => e.type === 'damage_applied');
+      const damageEvents = result.events.filter(
+        (e) => e.type === 'damage_applied',
+      );
       expect(damageEvents.length).toBeGreaterThan(0);
     });
 
     it('should generate UnitDestroyed events when units die', () => {
       const runner = new SimulationRunner(12345);
-      const config = createTestConfig({ unitCount: { player: 1, opponent: 1 } });
+      const config = createTestConfig({
+        unitCount: { player: 1, opponent: 1 },
+      });
       const result = runner.run(config);
 
       if (result.winner !== null && result.winner !== 'draw') {
-        const destroyedEvents = result.events.filter(e => e.type === 'unit_destroyed');
+        const destroyedEvents = result.events.filter(
+          (e) => e.type === 'unit_destroyed',
+        );
         expect(destroyedEvents.length).toBeGreaterThan(0);
       }
     });
@@ -249,11 +267,15 @@ describe('SimulationRunner', () => {
   describe('detector integration - key moments', () => {
     it('should detect first-blood when a unit is destroyed', () => {
       const runner = new SimulationRunner(12345);
-      const config = createTestConfig({ unitCount: { player: 1, opponent: 1 } });
+      const config = createTestConfig({
+        unitCount: { player: 1, opponent: 1 },
+      });
       const result = runner.run(config);
 
       if (result.winner !== null && result.winner !== 'draw') {
-        const firstBlood = result.keyMoments.filter(m => m.type === 'first-blood');
+        const firstBlood = result.keyMoments.filter(
+          (m) => m.type === 'first-blood',
+        );
         expect(firstBlood.length).toBeGreaterThanOrEqual(0);
       }
     });
@@ -275,11 +297,13 @@ describe('SimulationRunner', () => {
 
     it('should detect key moments across multiple turns', () => {
       const runner = new SimulationRunner(42);
-      const config = createTestConfig({ unitCount: { player: 2, opponent: 2 } });
+      const config = createTestConfig({
+        unitCount: { player: 2, opponent: 2 },
+      });
       const result = runner.run(config);
 
       if (result.keyMoments.length > 1) {
-        const turns = result.keyMoments.map(m => m.turn);
+        const turns = result.keyMoments.map((m) => m.turn);
         expect(new Set(turns).size).toBeGreaterThanOrEqual(1);
       }
     });
@@ -289,12 +313,17 @@ describe('SimulationRunner', () => {
       let destroyDetected = false;
       for (let seed = 0; seed < 50; seed++) {
         const runner = new SimulationRunner(seed);
-        const config = createTestConfig({ seed, unitCount: { player: 1, opponent: 1 } });
+        const config = createTestConfig({
+          seed,
+          unitCount: { player: 1, opponent: 1 },
+        });
         const result = runner.run(config);
-        const hasDestroy = result.events.some(e => e.type === 'unit_destroyed');
+        const hasDestroy = result.events.some(
+          (e) => e.type === 'unit_destroyed',
+        );
         if (hasDestroy) {
           destroyDetected = true;
-          if (result.keyMoments.some(m => m.type === 'wipe')) {
+          if (result.keyMoments.some((m) => m.type === 'wipe')) {
             wipeDetected = true;
             break;
           }
@@ -340,8 +369,8 @@ describe('SimulationRunner', () => {
       const result = runner.run(config);
 
       if (result.anomalies.length > 0) {
-        const detectorViolations = result.violations.filter(
-          v => v.invariant.startsWith('detector:')
+        const detectorViolations = result.violations.filter((v) =>
+          v.invariant.startsWith('detector:'),
         );
         expect(detectorViolations.length).toBe(result.anomalies.length);
       }
@@ -352,8 +381,8 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345, undefined, detectorConfig);
       const result = runner.run(createTestConfig());
 
-      const detectorViolations = result.violations.filter(
-        v => v.invariant.startsWith('detector:')
+      const detectorViolations = result.violations.filter((v) =>
+        v.invariant.startsWith('detector:'),
       );
 
       for (const violation of detectorViolations) {
@@ -367,8 +396,8 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345);
       const result = runner.run(createTestConfig());
 
-      const detectorViolations = result.violations.filter(
-        v => v.invariant.startsWith('detector:')
+      const detectorViolations = result.violations.filter((v) =>
+        v.invariant.startsWith('detector:'),
       );
 
       for (const violation of detectorViolations) {
@@ -381,8 +410,8 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345, undefined, detectorConfig);
       const result = runner.run(createTestConfig());
 
-      const detectorViolations = result.violations.filter(
-        v => v.invariant.startsWith('detector:')
+      const detectorViolations = result.violations.filter((v) =>
+        v.invariant.startsWith('detector:'),
       );
 
       for (const violation of detectorViolations) {
@@ -400,7 +429,9 @@ describe('SimulationRunner', () => {
       const result = runner.run(config);
 
       if (result.turns > 1) {
-        const longGameAnomalies = result.anomalies.filter(a => a.type === 'long-game');
+        const longGameAnomalies = result.anomalies.filter(
+          (a) => a.type === 'long-game',
+        );
         expect(longGameAnomalies.length).toBeGreaterThan(0);
       }
     });
@@ -410,7 +441,9 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345, undefined, detectorConfig);
       const result = runner.run(createTestConfig());
 
-      const longGameAnomalies = result.anomalies.filter(a => a.type === 'long-game');
+      const longGameAnomalies = result.anomalies.filter(
+        (a) => a.type === 'long-game',
+      );
       expect(longGameAnomalies).toHaveLength(0);
     });
 
@@ -420,7 +453,9 @@ describe('SimulationRunner', () => {
       const config = createTestConfig({ turnLimit: 5 });
       const result = runner.run(config);
 
-      const longGameAnomalies = result.anomalies.filter(a => a.type === 'long-game');
+      const longGameAnomalies = result.anomalies.filter(
+        (a) => a.type === 'long-game',
+      );
       for (const anomaly of longGameAnomalies) {
         expect(anomaly.severity).toBe('info');
       }
@@ -432,7 +467,9 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345);
       const result = runner.run(createTestConfig());
 
-      const heatAnomalies = result.anomalies.filter(a => a.type === 'heat-suicide');
+      const heatAnomalies = result.anomalies.filter(
+        (a) => a.type === 'heat-suicide',
+      );
       expect(heatAnomalies).toHaveLength(0);
     });
 
@@ -456,10 +493,15 @@ describe('SimulationRunner', () => {
 
     it('should not false-positive in short game', () => {
       const runner = new SimulationRunner(12345);
-      const config = createTestConfig({ turnLimit: 2, unitCount: { player: 1, opponent: 1 } });
+      const config = createTestConfig({
+        turnLimit: 2,
+        unitCount: { player: 1, opponent: 1 },
+      });
       const result = runner.run(config);
 
-      const passiveAnomalies = result.anomalies.filter(a => a.type === 'passive-unit');
+      const passiveAnomalies = result.anomalies.filter(
+        (a) => a.type === 'passive-unit',
+      );
       expect(passiveAnomalies).toHaveLength(0);
     });
   });
@@ -477,7 +519,9 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345);
       const result = runner.run(createTestConfig());
 
-      const noProgressAnomalies = result.anomalies.filter(a => a.type === 'no-progress');
+      const noProgressAnomalies = result.anomalies.filter(
+        (a) => a.type === 'no-progress',
+      );
       expect(noProgressAnomalies).toHaveLength(0);
     });
   });
@@ -495,7 +539,9 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345);
       const result = runner.run(createTestConfig());
 
-      const cycleAnomalies = result.anomalies.filter(a => a.type === 'state-cycle');
+      const cycleAnomalies = result.anomalies.filter(
+        (a) => a.type === 'state-cycle',
+      );
       for (const anomaly of cycleAnomalies) {
         expect(anomaly.severity).toBe('critical');
       }
@@ -555,7 +601,7 @@ describe('SimulationRunner', () => {
       const result = runner.run(config);
 
       if (result.turns > 1) {
-        const longGame = result.anomalies.filter(a => a.type === 'long-game');
+        const longGame = result.anomalies.filter((a) => a.type === 'long-game');
         expect(longGame.length).toBeGreaterThan(0);
       }
     });
@@ -610,7 +656,9 @@ describe('SimulationRunner', () => {
     it('should not halt when no critical anomalies', () => {
       const detectorConfig: IDetectorConfig = { haltOnCritical: true };
       const runner = new SimulationRunner(12345, undefined, detectorConfig);
-      const config = createTestConfig({ unitCount: { player: 1, opponent: 1 } });
+      const config = createTestConfig({
+        unitCount: { player: 1, opponent: 1 },
+      });
       const result = runner.run(config);
 
       if (result.winner !== null) {
@@ -669,8 +717,8 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345, undefined, detectorConfig);
       const result = runner.run(createTestConfig());
 
-      const detectorViolations = result.violations.filter(
-        v => v.invariant.startsWith('detector:')
+      const detectorViolations = result.violations.filter((v) =>
+        v.invariant.startsWith('detector:'),
       );
       if (result.anomalies.length > 0) {
         expect(detectorViolations.length).toBeGreaterThan(0);
@@ -693,7 +741,9 @@ describe('SimulationRunner', () => {
         haltOnCritical: false,
       };
       const runner = new SimulationRunner(12345, undefined, detectorConfig);
-      const config = createTestConfig({ unitCount: { player: 4, opponent: 4 } });
+      const config = createTestConfig({
+        unitCount: { player: 4, opponent: 4 },
+      });
       const result = runner.run(config);
 
       expect(result).toBeDefined();
@@ -741,7 +791,9 @@ describe('SimulationRunner', () => {
       const config = createTestConfig({ turnLimit: 5 });
       const result = runner.run(config);
 
-      const detViolations = result.violations.filter(v => v.invariant.startsWith('detector:'));
+      const detViolations = result.violations.filter((v) =>
+        v.invariant.startsWith('detector:'),
+      );
       for (const v of detViolations) {
         expect(v).toHaveProperty('invariant');
         expect(v).toHaveProperty('severity');
@@ -762,13 +814,19 @@ describe('SimulationRunner', () => {
 
       expect(result1.keyMoments.length).toBe(result2.keyMoments.length);
       expect(result1.anomalies.length).toBe(result2.anomalies.length);
-      expect(result1.haltedByCriticalAnomaly).toBe(result2.haltedByCriticalAnomaly);
+      expect(result1.haltedByCriticalAnomaly).toBe(
+        result2.haltedByCriticalAnomaly,
+      );
     });
 
     it('should not break existing invariant checks', () => {
       const invariantRunner = new InvariantRunner();
       const detectorConfig: IDetectorConfig = { longGameTurns: 1 };
-      const runner = new SimulationRunner(12345, invariantRunner, detectorConfig);
+      const runner = new SimulationRunner(
+        12345,
+        invariantRunner,
+        detectorConfig,
+      );
       const result = runner.run(createTestConfig());
 
       expect(Array.isArray(result.violations)).toBe(true);
@@ -817,7 +875,9 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345);
       const result = runner.run(createTestConfig());
 
-      const moveEvents = result.events.filter(e => e.type === 'movement_declared');
+      const moveEvents = result.events.filter(
+        (e) => e.type === 'movement_declared',
+      );
       expect(moveEvents.length).toBeGreaterThanOrEqual(0);
     });
 
@@ -857,7 +917,9 @@ describe('SimulationRunner', () => {
       const runner = new SimulationRunner(12345);
       const result = runner.run(createTestConfig());
 
-      const damageEvents = result.events.filter(e => e.type === 'damage_applied');
+      const damageEvents = result.events.filter(
+        (e) => e.type === 'damage_applied',
+      );
       for (const event of damageEvents) {
         expect(event.actorId).toBeDefined();
       }
@@ -870,18 +932,18 @@ describe('BatchRunner', () => {
     it('should run specified number of simulations', () => {
       const batchRunner = new BatchRunner();
       const config = createTestConfig();
-      
+
       const results = batchRunner.runBatch(5, config);
-      
+
       expect(results).toHaveLength(5);
     });
-    
+
     it('should return all results with valid structure', () => {
       const batchRunner = new BatchRunner();
       const config = createTestConfig();
-      
+
       const results = batchRunner.runBatch(3, config);
-      
+
       for (const result of results) {
         expect(result).toBeDefined();
         expect(typeof result.seed).toBe('number');
@@ -891,73 +953,73 @@ describe('BatchRunner', () => {
         expect(Array.isArray(result.violations)).toBe(true);
       }
     });
-    
+
     it('should use incrementing seeds', () => {
       const batchRunner = new BatchRunner();
       const config = createTestConfig({ seed: 1000 });
-      
+
       const results = batchRunner.runBatch(3, config);
-      
+
       expect(results[0].seed).toBe(1000);
       expect(results[1].seed).toBe(1001);
       expect(results[2].seed).toBe(1002);
     });
-    
+
     it('should call progress callback', () => {
       const batchRunner = new BatchRunner();
       const config = createTestConfig();
       const progressCalls: { current: number; total: number }[] = [];
-      
+
       batchRunner.runBatch(3, config, (current, total) => {
         progressCalls.push({ current, total });
       });
-      
+
       expect(progressCalls).toHaveLength(3);
       expect(progressCalls[0]).toEqual({ current: 1, total: 3 });
       expect(progressCalls[1]).toEqual({ current: 2, total: 3 });
       expect(progressCalls[2]).toEqual({ current: 3, total: 3 });
     });
-    
+
     it('should handle count of 0', () => {
       const batchRunner = new BatchRunner();
       const config = createTestConfig();
-      
+
       const results = batchRunner.runBatch(0, config);
-      
+
       expect(results).toHaveLength(0);
     });
-    
+
     it('should handle single simulation', () => {
       const batchRunner = new BatchRunner();
       const config = createTestConfig();
-      
+
       const results = batchRunner.runBatch(1, config);
-      
+
       expect(results).toHaveLength(1);
       expect(results[0].seed).toBe(config.seed);
     });
-    
+
     it('should complete 10 simulations in reasonable time', () => {
       const batchRunner = new BatchRunner();
       const config = createTestConfig({ turnLimit: 10 });
-      
+
       const startTime = Date.now();
       const results = batchRunner.runBatch(10, config);
       const elapsed = Date.now() - startTime;
-      
+
       expect(results).toHaveLength(10);
       expect(elapsed).toBeLessThan(10000);
     }, 15000);
-    
+
     it('should produce different results for different seeds', () => {
       const batchRunner = new BatchRunner();
       const config = createTestConfig();
-      
+
       const results = batchRunner.runBatch(5, config);
-      
-       const uniqueTurns = new Set(results.map(r => r.turns));
-       
-       expect(uniqueTurns.size).toBeGreaterThanOrEqual(1);
+
+      const uniqueTurns = new Set(results.map((r) => r.turns));
+
+      expect(uniqueTurns.size).toBeGreaterThanOrEqual(1);
     });
   });
 

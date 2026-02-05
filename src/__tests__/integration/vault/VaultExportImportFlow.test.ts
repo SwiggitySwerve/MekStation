@@ -10,11 +10,12 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import {
-  createIdentity,
-  unlockIdentity,
-  getPublicIdentity,
-} from '@/services/vault/IdentityService';
+import type {
+  IVaultIdentity,
+  IShareableBundle,
+  IImportSource,
+} from '@/types/vault';
+
 import {
   createBundle,
   serializeBundle,
@@ -25,16 +26,16 @@ import {
   BUNDLE_VERSION,
 } from '@/services/vault/BundleService';
 import {
+  createIdentity,
+  unlockIdentity,
+  getPublicIdentity,
+} from '@/services/vault/IdentityService';
+import {
   importBundle,
   importFromString,
   previewBundle,
   validateBundleFile,
 } from '@/services/vault/ImportService';
-import type {
-  IVaultIdentity,
-  IShareableBundle,
-  IImportSource,
-} from '@/types/vault';
 
 // =============================================================================
 // Test Configuration
@@ -52,7 +53,7 @@ const hasRequiredEnvironment = async (): Promise<boolean> => {
     const testKeyPair = await crypto.webcrypto.subtle.generateKey(
       { name: 'Ed25519' },
       true,
-      ['sign', 'verify']
+      ['sign', 'verify'],
     );
     return !!testKeyPair;
   } catch {
@@ -86,7 +87,12 @@ interface MockForce {
 
 const mockUnits: MockUnit[] = [
   { id: 'unit-1', name: 'Atlas AS7-D', tonnage: 100, techBase: 'INNER_SPHERE' },
-  { id: 'unit-2', name: 'Locust LCT-1V', tonnage: 20, techBase: 'INNER_SPHERE' },
+  {
+    id: 'unit-2',
+    name: 'Locust LCT-1V',
+    tonnage: 20,
+    techBase: 'INNER_SPHERE',
+  },
   { id: 'unit-3', name: 'Timber Wolf Prime', tonnage: 75, techBase: 'CLAN' },
 ];
 
@@ -110,11 +116,16 @@ describe('Vault Export/Import Flow Integration', () => {
   beforeAll(async () => {
     envAvailable = await hasRequiredEnvironment();
     if (!envAvailable) {
-      console.log('Skipping crypto tests: required APIs not available in this environment');
+      console.log(
+        'Skipping crypto tests: required APIs not available in this environment',
+      );
       return;
     }
 
-    const stored = await createIdentity('ExportImportTestUser', 'testPassword123');
+    const stored = await createIdentity(
+      'ExportImportTestUser',
+      'testPassword123',
+    );
     testIdentity = await unlockIdentity(stored, 'testPassword123');
   });
 
@@ -133,7 +144,9 @@ describe('Vault Export/Import Flow Integration', () => {
       expect(result.data.bundle?.metadata.version).toBe(BUNDLE_VERSION);
       expect(result.data.bundle?.metadata.contentType).toBe('unit');
       expect(result.data.bundle?.metadata.itemCount).toBe(3);
-      expect(result.data.bundle?.metadata.author.displayName).toBe('ExportImportTestUser');
+      expect(result.data.bundle?.metadata.author.displayName).toBe(
+        'ExportImportTestUser',
+      );
       expect(result.data.bundle?.metadata.description).toBe('Test unit bundle');
       expect(result.data.bundle?.metadata.tags).toEqual(['test', 'units']);
       expect(result.data.bundle?.signature).toBeDefined();
@@ -166,14 +179,22 @@ describe('Vault Export/Import Flow Integration', () => {
       if (!envAvailable) return;
 
       // Single item uses item name
-      const singleResult = await createBundle('unit', [mockUnits[0]], testIdentity);
+      const singleResult = await createBundle(
+        'unit',
+        [mockUnits[0]],
+        testIdentity,
+      );
       if (!singleResult.success) return;
-      expect(singleResult.data.suggestedFilename).toMatch(/^atlas-as7-d-\d{8}\.mekbundle$/);
+      expect(singleResult.data.suggestedFilename).toMatch(
+        /^atlas-as7-d-\d{8}\.mekbundle$/,
+      );
 
       // Multiple items uses content type and count
       const multiResult = await createBundle('unit', mockUnits, testIdentity);
       if (!multiResult.success) return;
-      expect(multiResult.data.suggestedFilename).toMatch(/^units-3-\d{8}\.mekbundle$/);
+      expect(multiResult.data.suggestedFilename).toMatch(
+        /^units-3-\d{8}\.mekbundle$/,
+      );
     });
   });
 
@@ -200,7 +221,9 @@ describe('Vault Export/Import Flow Integration', () => {
 
     it('should throw on missing required fields', () => {
       expect(() => parseBundle('{}')).toThrow('missing required fields');
-      expect(() => parseBundle('{"metadata": {}}')).toThrow('missing required fields');
+      expect(() => parseBundle('{"metadata": {}}')).toThrow(
+        'missing required fields',
+      );
     });
   });
 
@@ -274,7 +297,11 @@ describe('Vault Export/Import Flow Integration', () => {
         version: '99.0.0',
         contentType: 'unit' as const,
         itemCount: 1,
-        author: { displayName: 'Test', publicKey: 'key', friendCode: 'ABCD-EFGH-JKLM-NPQR' },
+        author: {
+          displayName: 'Test',
+          publicKey: 'key',
+          friendCode: 'ABCD-EFGH-JKLM-NPQR',
+        },
         createdAt: new Date().toISOString(),
         appVersion: '0.1.0',
       };
@@ -288,7 +315,11 @@ describe('Vault Export/Import Flow Integration', () => {
         version: BUNDLE_VERSION,
         contentType: 'unit' as const,
         itemCount: 1,
-        author: { displayName: 'Test', publicKey: '', friendCode: 'ABCD-EFGH-JKLM-NPQR' },
+        author: {
+          displayName: 'Test',
+          publicKey: '',
+          friendCode: 'ABCD-EFGH-JKLM-NPQR',
+        },
         createdAt: new Date().toISOString(),
         appVersion: '0.1.0',
       };
@@ -358,12 +389,15 @@ describe('Vault Export/Import Flow Integration', () => {
   describe('Import with Conflict Resolution', () => {
     // Mock handlers for import testing
     const existingIds = new Set(['unit-1']); // unit-1 already exists
-    const existingNames = new Map([['Atlas AS7-D', { id: 'existing-atlas', name: 'Atlas AS7-D' }]]);
+    const existingNames = new Map([
+      ['Atlas AS7-D', { id: 'existing-atlas', name: 'Atlas AS7-D' }],
+    ]);
     const savedItems: Array<{ item: MockUnit; source: IImportSource }> = [];
 
     const mockHandlers = {
       checkExists: async (id: string) => existingIds.has(id),
-      checkNameConflict: async (name: string) => existingNames.get(name) ?? null,
+      checkNameConflict: async (name: string) =>
+        existingNames.get(name) ?? null,
       save: async (item: MockUnit, source: IImportSource) => {
         savedItems.push({ item, source });
         return `new-${item.id}`;
@@ -384,7 +418,7 @@ describe('Vault Export/Import Flow Integration', () => {
       const importResult = await importFromString<MockUnit>(
         serialized,
         mockHandlers,
-        { conflictResolution: 'ask' }
+        { conflictResolution: 'ask' },
       );
 
       // Should detect conflict with unit-1 (existing ID)
@@ -393,7 +427,11 @@ describe('Vault Export/Import Flow Integration', () => {
       if (!importResult.success) return;
       expect(importResult.data.conflicts).toBeDefined();
       expect(importResult.data.conflicts!.length).toBeGreaterThan(0);
-      expect(importResult.data.conflicts!.some((c: { bundleItemId: string }) => c.bundleItemId === 'unit-1')).toBe(true);
+      expect(
+        importResult.data.conflicts!.some(
+          (c: { bundleItemId: string }) => c.bundleItemId === 'unit-1',
+        ),
+      ).toBe(true);
     });
 
     it('should skip conflicts with skip resolution', async () => {
@@ -406,7 +444,7 @@ describe('Vault Export/Import Flow Integration', () => {
       const importResult = await importFromString<MockUnit>(
         serialized,
         mockHandlers,
-        { conflictResolution: 'skip' }
+        { conflictResolution: 'skip' },
       );
 
       expect(importResult.success).toBe(true);
@@ -425,7 +463,7 @@ describe('Vault Export/Import Flow Integration', () => {
       const importResult = await importFromString<MockUnit>(
         serialized,
         mockHandlers,
-        { conflictResolution: 'replace' }
+        { conflictResolution: 'replace' },
       );
 
       expect(importResult.success).toBe(true);
@@ -446,12 +484,14 @@ describe('Vault Export/Import Flow Integration', () => {
       const importResult = await importBundle<MockUnit>(
         tamperedBundle,
         mockHandlers,
-        { conflictResolution: 'skip', verifySignature: true }
+        { conflictResolution: 'skip', verifySignature: true },
       );
 
       expect(importResult.success).toBe(false);
       if (importResult.success) return;
-      expect(importResult.error.message).toContain('signature verification failed');
+      expect(importResult.error.message).toContain(
+        'signature verification failed',
+      );
     });
 
     it('should track import source', async () => {
@@ -459,7 +499,12 @@ describe('Vault Export/Import Flow Integration', () => {
 
       // Use units without conflicts
       const noConflictUnits = [
-        { id: 'unit-new-1', name: 'New Mech 1', tonnage: 50, techBase: 'INNER_SPHERE' },
+        {
+          id: 'unit-new-1',
+          name: 'New Mech 1',
+          tonnage: 50,
+          techBase: 'INNER_SPHERE',
+        },
       ];
 
       const result = await createBundle('unit', noConflictUnits, testIdentity, {
@@ -470,13 +515,17 @@ describe('Vault Export/Import Flow Integration', () => {
       await importFromString<MockUnit>(
         serializeBundle(result.data.bundle!),
         mockHandlers,
-        { conflictResolution: 'skip' }
+        { conflictResolution: 'skip' },
       );
 
       expect(savedItems.length).toBe(1);
-      expect(savedItems[0].source.author.displayName).toBe('ExportImportTestUser');
+      expect(savedItems[0].source.author.displayName).toBe(
+        'ExportImportTestUser',
+      );
       expect(savedItems[0].source.originalId).toBe('unit-new-1');
-      expect(savedItems[0].source.bundleDescription).toBe('Source tracking test');
+      expect(savedItems[0].source.bundleDescription).toBe(
+        'Source tracking test',
+      );
     });
   });
 
@@ -485,14 +534,18 @@ describe('Vault Export/Import Flow Integration', () => {
     // which needs crypto. Skip if environment not available.
     it('should accept .mekbundle files', () => {
       if (!envAvailable) return;
-      const file = new File(['content'], 'test.mekbundle', { type: 'application/json' });
+      const file = new File(['content'], 'test.mekbundle', {
+        type: 'application/json',
+      });
       const error = validateBundleFile(file);
       expect(error).toBeNull();
     });
 
     it('should accept .json files', () => {
       if (!envAvailable) return;
-      const file = new File(['content'], 'test.json', { type: 'application/json' });
+      const file = new File(['content'], 'test.json', {
+        type: 'application/json',
+      });
       const error = validateBundleFile(file);
       expect(error).toBeNull();
     });
@@ -509,7 +562,7 @@ describe('Vault Export/Import Flow Integration', () => {
       // Create a mock file that reports large size
       const largeFile = new File(['x'], 'test.mekbundle');
       Object.defineProperty(largeFile, 'size', { value: 20 * 1024 * 1024 }); // 20MB
-      
+
       const error = validateBundleFile(largeFile);
       expect(error).toContain('too large');
     });
@@ -529,12 +582,16 @@ describe('Vault Export/Import Flow Integration', () => {
       const identity2 = await unlockIdentity(stored2, 'otherPassword');
 
       // Parse bundle and verify author
-      const parsed = await parseAndVerifyBundle<MockUnit>(parseBundle(serialized));
+      const parsed = await parseAndVerifyBundle<MockUnit>(
+        parseBundle(serialized),
+      );
 
       // Bundle should be signed by first identity, not second
       expect(parsed.signer.displayName).toBe('ExportImportTestUser');
       expect(parsed.signer.displayName).not.toBe(identity2.displayName);
-      expect(parsed.signer.publicKey).toBe(getPublicIdentity(testIdentity).publicKey);
+      expect(parsed.signer.publicKey).toBe(
+        getPublicIdentity(testIdentity).publicKey,
+      );
     });
   });
 });

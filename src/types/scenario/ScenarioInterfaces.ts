@@ -468,7 +468,13 @@ export interface IBattleModifier {
  */
 export interface ITerrainFeature {
   /** Feature type */
-  readonly type: 'woods' | 'water' | 'rough' | 'building' | 'elevation' | 'road';
+  readonly type:
+    | 'woods'
+    | 'water'
+    | 'rough'
+    | 'building'
+    | 'elevation'
+    | 'road';
   /** Density (0-1, how much of the map) */
   readonly density: number;
   /** Clustering factor (0-1, how clumped) */

@@ -1,21 +1,33 @@
 /**
  * Infantry Store Registry
- * 
+ *
  * Manages all active infantry store instances.
  * Parallels vehicleStoreRegistry.ts for Combat Vehicles.
- * 
+ *
  * @spec openspec/changes/add-personnel-customizer/tasks.md
  */
 
 import { StoreApi } from 'zustand';
-import { InfantryStore, InfantryState, createDefaultInfantryState, CreateInfantryOptions } from './infantryState';
-import { createInfantryStore, createNewInfantryStore } from './useInfantryStore';
-import { isValidUUID, generateUUID } from '@/utils/uuid';
+
 import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
+import { isValidUUID, generateUUID } from '@/utils/uuid';
+
+import {
+  InfantryStore,
+  InfantryState,
+  createDefaultInfantryState,
+  CreateInfantryOptions,
+} from './infantryState';
+import {
+  createInfantryStore,
+  createNewInfantryStore,
+} from './useInfantryStore';
 
 const infantryStores = new Map<string, StoreApi<InfantryStore>>();
 
-export function getInfantryStore(infantryId: string): StoreApi<InfantryStore> | undefined {
+export function getInfantryStore(
+  infantryId: string,
+): StoreApi<InfantryStore> | undefined {
   return infantryStores.get(infantryId);
 }
 
@@ -31,19 +43,24 @@ export function getInfantryStoreCount(): number {
   return infantryStores.size;
 }
 
-function ensureValidInfantryId(infantryId: string | undefined | null, context: string): string {
+function ensureValidInfantryId(
+  infantryId: string | undefined | null,
+  context: string,
+): string {
   if (infantryId && isValidUUID(infantryId)) {
     return infantryId;
   }
-  
+
   const newId = generateUUID();
   console.warn(
-    `[InfantryStoreRegistry] ${context}: Invalid infantry ID "${infantryId || '(missing)'}" replaced with "${newId}"`
+    `[InfantryStoreRegistry] ${context}: Invalid infantry ID "${infantryId || '(missing)'}" replaced with "${newId}"`,
   );
   return newId;
 }
 
-export function createAndRegisterInfantry(options: CreateInfantryOptions): StoreApi<InfantryStore> {
+export function createAndRegisterInfantry(
+  options: CreateInfantryOptions,
+): StoreApi<InfantryStore> {
   const store = createNewInfantryStore(options);
   const state = store.getState();
   infantryStores.set(state.id, store);
@@ -57,43 +74,57 @@ export function registerInfantryStore(store: StoreApi<InfantryStore>): void {
 
 export function hydrateOrCreateInfantry(
   infantryId: string,
-  fallbackOptions: CreateInfantryOptions
+  fallbackOptions: CreateInfantryOptions,
 ): StoreApi<InfantryStore> {
-  const validInfantryId = ensureValidInfantryId(infantryId, 'hydrateOrCreateInfantry');
-  
+  const validInfantryId = ensureValidInfantryId(
+    infantryId,
+    'hydrateOrCreateInfantry',
+  );
+
   const existing = infantryStores.get(validInfantryId);
   if (existing) {
     return existing;
   }
-  
+
   const storageKey = `megamek-infantry-${validInfantryId}`;
   const savedState = safeGetItem(storageKey);
-  
+
   if (savedState) {
     try {
-      const parsed = JSON.parse(savedState) as { state?: Partial<InfantryState> };
+      const parsed = JSON.parse(savedState) as {
+        state?: Partial<InfantryState>;
+      };
       const state = parsed.state;
-      
+
       if (state) {
         ensureValidInfantryId(state.id, 'localStorage state');
-        
-        const defaultState = createDefaultInfantryState({ ...fallbackOptions, id: validInfantryId });
+
+        const defaultState = createDefaultInfantryState({
+          ...fallbackOptions,
+          id: validInfantryId,
+        });
         const mergedState: InfantryState = {
           ...defaultState,
           ...state,
           id: validInfantryId,
         };
-      
+
         const store = createInfantryStore(mergedState);
         infantryStores.set(validInfantryId, store);
         return store;
       }
     } catch (e) {
-      console.warn(`Failed to hydrate infantry ${validInfantryId}, creating new:`, e);
+      console.warn(
+        `Failed to hydrate infantry ${validInfantryId}, creating new:`,
+        e,
+      );
     }
   }
-  
-  const store = createNewInfantryStore({ ...fallbackOptions, id: validInfantryId });
+
+  const store = createNewInfantryStore({
+    ...fallbackOptions,
+    id: validInfantryId,
+  });
   infantryStores.set(validInfantryId, store);
   return store;
 }
@@ -121,12 +152,15 @@ export function clearAllInfantryStores(clearStorage = false): void {
   infantryStores.clear();
 }
 
-export function duplicateInfantry(sourceInfantryId: string, newName?: string): StoreApi<InfantryStore> | null {
+export function duplicateInfantry(
+  sourceInfantryId: string,
+  newName?: string,
+): StoreApi<InfantryStore> | null {
   const sourceStore = infantryStores.get(sourceInfantryId);
   if (!sourceStore) {
     return null;
   }
-  
+
   const sourceState = sourceStore.getState();
   const newState = createDefaultInfantryState({
     name: newName ?? `${sourceState.name} (Copy)`,
@@ -135,7 +169,7 @@ export function duplicateInfantry(sourceInfantryId: string, newName?: string): S
     squadSize: sourceState.squadSize,
     numberOfSquads: sourceState.numberOfSquads,
   });
-  
+
   const mergedState: InfantryState = {
     ...newState,
     primaryWeapon: sourceState.primaryWeapon,
@@ -149,30 +183,37 @@ export function duplicateInfantry(sourceInfantryId: string, newName?: string): S
     hasAntiMechTraining: sourceState.hasAntiMechTraining,
     isAugmented: sourceState.isAugmented,
   };
-  
+
   const store = createInfantryStore(mergedState);
   infantryStores.set(mergedState.id, store);
   return store;
 }
 
-export function createInfantryFromFullState(state: InfantryState): StoreApi<InfantryStore> {
-  const validId = ensureValidInfantryId(state.id, 'createInfantryFromFullState');
-  
+export function createInfantryFromFullState(
+  state: InfantryState,
+): StoreApi<InfantryStore> {
+  const validId = ensureValidInfantryId(
+    state.id,
+    'createInfantryFromFullState',
+  );
+
   const existing = infantryStores.get(validId);
   if (existing) {
-    console.warn(`Infantry store ${validId} already exists, returning existing`);
+    console.warn(
+      `Infantry store ${validId} already exists, returning existing`,
+    );
     return existing;
   }
-  
+
   const validatedState: InfantryState = {
     ...state,
     id: validId,
   };
-  
+
   const store = createInfantryStore(validatedState);
   infantryStores.set(validId, store);
-  
+
   store.setState({ lastModifiedAt: Date.now() });
-  
+
   return store;
 }

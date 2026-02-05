@@ -1,6 +1,6 @@
 /**
  * useElectron Hook
- * 
+ *
  * Provides access to Electron APIs in the renderer process.
  * Returns null when running in web browser (non-Electron) mode.
  */
@@ -16,7 +16,10 @@ export interface IElectronAPI {
   minimizeWindow(): Promise<void>;
   maximizeWindow(): Promise<void>;
   closeWindow(): Promise<void>;
-  saveFile(defaultPath: string, filters: IFileFilter[]): Promise<ISaveDialogResult>;
+  saveFile(
+    defaultPath: string,
+    filters: IFileFilter[],
+  ): Promise<ISaveDialogResult>;
   openFile(filters: IFileFilter[]): Promise<IOpenDialogResult>;
   readFile(filePath: string): Promise<IFileResult>;
   writeFile(filePath: string, data: string): Promise<IFileResult>;
@@ -24,14 +27,21 @@ export interface IElectronAPI {
   getSettings(): Promise<IDesktopSettings | null>;
   setSettings(updates: Partial<IDesktopSettings>): Promise<IServiceResult>;
   resetSettings(): Promise<IServiceResult>;
-  getSettingValue<K extends keyof IDesktopSettings>(key: K): Promise<IDesktopSettings[K] | null>;
+  getSettingValue<K extends keyof IDesktopSettings>(
+    key: K,
+  ): Promise<IDesktopSettings[K] | null>;
   onSettingsChange(callback: (event: ISettingsChangeEvent) => void): void;
   getRecentFiles(): Promise<readonly IRecentFile[]>;
   addRecentFile(params: IAddRecentFileParams): Promise<IServiceResult>;
   removeRecentFile(id: string): Promise<IServiceResult>;
   clearRecentFiles(): Promise<IServiceResult>;
   onRecentFilesUpdate(callback: (files: readonly IRecentFile[]) => void): void;
-  updateMenuState(state: { canUndo?: boolean; canRedo?: boolean; hasUnit?: boolean; hasSelection?: boolean }): void;
+  updateMenuState(state: {
+    canUndo?: boolean;
+    canRedo?: boolean;
+    hasUnit?: boolean;
+    hasSelection?: boolean;
+  }): void;
   onMenuCommand(callback: (command: MenuCommand) => void): void;
   serviceCall(method: string, ...args: unknown[]): Promise<IServiceResult>;
   createBackup(): Promise<boolean>;
@@ -112,7 +122,13 @@ export interface IDesktopSettings {
 // UnitType for recent files - uses canonical enum values plus 'Unknown' fallback
 // The canonical UnitType enum is in @/types/unit/BattleMechInterfaces but we need
 // 'Unknown' as a fallback for the Electron desktop app interface
-export type RecentFileUnitType = 'BattleMech' | 'Vehicle' | 'Infantry' | 'ProtoMech' | 'Aerospace' | 'Unknown';
+export type RecentFileUnitType =
+  | 'BattleMech'
+  | 'Vehicle'
+  | 'Infantry'
+  | 'ProtoMech'
+  | 'Aerospace'
+  | 'Unknown';
 
 export interface IRecentFile {
   id: string;
@@ -140,12 +156,34 @@ export interface ISettingsChangeEvent {
 }
 
 export type MenuCommand =
-  | 'file:new' | 'file:open' | 'file:save' | 'file:save-as' | 'file:import'
-  | 'file:export' | 'file:print' | 'file:preferences' | 'file:quit'
-  | 'edit:undo' | 'edit:redo' | 'edit:cut' | 'edit:copy' | 'edit:paste' | 'edit:select-all'
-  | 'view:zoom-in' | 'view:zoom-out' | 'view:zoom-reset' | 'view:fullscreen' | 'view:dev-tools'
-  | 'unit:new' | 'unit:duplicate' | 'unit:delete' | 'unit:properties'
-  | 'help:about' | 'help:check-updates' | 'help:documentation' | 'help:report-issue';
+  | 'file:new'
+  | 'file:open'
+  | 'file:save'
+  | 'file:save-as'
+  | 'file:import'
+  | 'file:export'
+  | 'file:print'
+  | 'file:preferences'
+  | 'file:quit'
+  | 'edit:undo'
+  | 'edit:redo'
+  | 'edit:cut'
+  | 'edit:copy'
+  | 'edit:paste'
+  | 'edit:select-all'
+  | 'view:zoom-in'
+  | 'view:zoom-out'
+  | 'view:zoom-reset'
+  | 'view:fullscreen'
+  | 'view:dev-tools'
+  | 'unit:new'
+  | 'unit:duplicate'
+  | 'unit:delete'
+  | 'unit:properties'
+  | 'help:about'
+  | 'help:check-updates'
+  | 'help:documentation'
+  | 'help:report-issue';
 
 /**
  * Extend Window interface to include electronAPI
@@ -192,23 +230,23 @@ export function useElectronWindow(): {
   isElectron: boolean;
 } {
   const api = useElectron();
-  
+
   const minimize = useCallback(() => {
     api?.minimizeWindow();
   }, [api]);
-  
+
   const maximize = useCallback(() => {
     api?.maximizeWindow();
   }, [api]);
-  
+
   const close = useCallback(() => {
     api?.closeWindow();
   }, [api]);
-  
+
   return {
     minimize,
     maximize,
     close,
-    isElectron: api !== null
+    isElectron: api !== null,
   };
 }

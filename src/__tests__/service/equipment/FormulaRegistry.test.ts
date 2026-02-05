@@ -1,14 +1,20 @@
 /**
  * Formula Registry Tests
- * 
+ *
  * Tests for the formula registry with mock storage.
- * 
+ *
  * @spec openspec/specs/formula-registry/spec.md
  */
 
 import { FormulaRegistry } from '@/services/equipment/FormulaRegistry';
-import { IVariableFormulas, fixed, ceilDivide, equalsWeight, multiply } from '@/types/equipment/VariableEquipment';
 import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
+import {
+  IVariableFormulas,
+  fixed,
+  ceilDivide,
+  equalsWeight,
+  multiply,
+} from '@/types/equipment/VariableEquipment';
 
 // Mock the IndexedDB service
 jest.mock('@/services/persistence/IndexedDBService', () => ({
@@ -155,7 +161,7 @@ describe('FormulaRegistry', () => {
     it('should return all builtin equipment IDs', () => {
       const ids = registry.getAllVariableEquipmentIds();
       const builtinIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
-      
+
       for (const builtinId of builtinIds) {
         expect(ids).toContain(builtinId);
       }
@@ -169,8 +175,11 @@ describe('FormulaRegistry', () => {
         requiredContext: [],
       };
 
-      await registry.registerCustomFormulas('my-custom-equipment', customFormulas);
-      
+      await registry.registerCustomFormulas(
+        'my-custom-equipment',
+        customFormulas,
+      );
+
       const ids = registry.getAllVariableEquipmentIds();
       expect(ids).toContain('my-custom-equipment');
     });
@@ -199,7 +208,7 @@ describe('FormulaRegistry', () => {
       };
 
       await registry.registerCustomFormulas('test-equipment', customFormulas);
-      
+
       expect(registry.isVariable('test-equipment')).toBe(true);
       expect(registry.getFormulas('test-equipment')).toEqual(customFormulas);
     });
@@ -212,8 +221,9 @@ describe('FormulaRegistry', () => {
         requiredContext: [],
       } as IVariableFormulas;
 
-      await expect(registry.registerCustomFormulas('invalid', invalidFormulas))
-        .rejects.toThrow();
+      await expect(
+        registry.registerCustomFormulas('invalid', invalidFormulas),
+      ).rejects.toThrow();
     });
 
     it('should reject formulas with missing required fields', async () => {
@@ -226,8 +236,12 @@ describe('FormulaRegistry', () => {
         requiredContext: [],
       };
 
-      await expect(registry.registerCustomFormulas('invalid', invalidFormulas as IVariableFormulas))
-        .rejects.toThrow();
+      await expect(
+        registry.registerCustomFormulas(
+          'invalid',
+          invalidFormulas as IVariableFormulas,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -255,8 +269,9 @@ describe('FormulaRegistry', () => {
     });
 
     it('should not throw for non-existent equipment', async () => {
-      await expect(registry.unregisterCustomFormulas('non-existent'))
-        .resolves.not.toThrow();
+      await expect(
+        registry.unregisterCustomFormulas('non-existent'),
+      ).resolves.not.toThrow();
     });
 
     it('should not affect builtin formulas', async () => {
@@ -349,4 +364,3 @@ describe('FormulaRegistry', () => {
     });
   });
 });
-

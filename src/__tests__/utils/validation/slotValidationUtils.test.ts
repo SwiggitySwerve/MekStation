@@ -5,6 +5,11 @@
  */
 
 import {
+  MechLocation,
+  LOCATION_SLOT_COUNTS,
+} from '@/types/construction/CriticalSlotAllocation';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+import {
   buildSlotsByLocation,
   getLocationsForConfiguration,
   getLocationDisplayName,
@@ -15,13 +20,11 @@ import {
   LOCATION_DISPLAY_NAMES,
   IEquipmentSlotInfo,
 } from '@/utils/validation/slotValidationUtils';
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
-import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction/CriticalSlotAllocation';
 
 // Helper to create mock equipment (minimal interface for slot calculation)
 function createMockEquipment(
   location: MechLocation | undefined,
-  slots: number[] | undefined
+  slots: number[] | undefined,
 ): IEquipmentSlotInfo {
   return {
     location,
@@ -33,7 +36,7 @@ describe('Slot Validation Utilities', () => {
   describe('LOCATION_DISPLAY_NAMES', () => {
     it('should have display names for all MechLocation values', () => {
       const mechLocations = Object.values(MechLocation);
-      
+
       mechLocations.forEach((location) => {
         expect(LOCATION_DISPLAY_NAMES[location]).toBeDefined();
         expect(typeof LOCATION_DISPLAY_NAMES[location]).toBe('string');
@@ -43,9 +46,13 @@ describe('Slot Validation Utilities', () => {
 
     it('should have human-readable names', () => {
       expect(LOCATION_DISPLAY_NAMES[MechLocation.HEAD]).toBe('Head');
-      expect(LOCATION_DISPLAY_NAMES[MechLocation.CENTER_TORSO]).toBe('Center Torso');
+      expect(LOCATION_DISPLAY_NAMES[MechLocation.CENTER_TORSO]).toBe(
+        'Center Torso',
+      );
       expect(LOCATION_DISPLAY_NAMES[MechLocation.LEFT_ARM]).toBe('Left Arm');
-      expect(LOCATION_DISPLAY_NAMES[MechLocation.FRONT_LEFT_LEG]).toBe('Front Left Leg');
+      expect(LOCATION_DISPLAY_NAMES[MechLocation.FRONT_LEFT_LEG]).toBe(
+        'Front Left Leg',
+      );
     });
   });
 
@@ -83,8 +90,12 @@ describe('Slot Validation Utilities', () => {
     });
 
     it('should return same locations for QUAD and QUADVEE', () => {
-      const quadLocations = getLocationsForConfiguration(MechConfiguration.QUAD);
-      const quadveeLocations = getLocationsForConfiguration(MechConfiguration.QUADVEE);
+      const quadLocations = getLocationsForConfiguration(
+        MechConfiguration.QUAD,
+      );
+      const quadveeLocations = getLocationsForConfiguration(
+        MechConfiguration.QUADVEE,
+      );
 
       expect(quadLocations.sort()).toEqual(quadveeLocations.sort());
     });
@@ -102,7 +113,9 @@ describe('Slot Validation Utilities', () => {
 
     it('should return biped locations when undefined', () => {
       const locations = getLocationsForConfiguration(undefined);
-      const bipedLocations = getLocationsForConfiguration(MechConfiguration.BIPED);
+      const bipedLocations = getLocationsForConfiguration(
+        MechConfiguration.BIPED,
+      );
 
       expect(locations.sort()).toEqual(bipedLocations.sort());
     });
@@ -121,10 +134,18 @@ describe('Slot Validation Utilities', () => {
     it('should use correct max slots from LOCATION_SLOT_COUNTS', () => {
       const result = buildSlotsByLocation([], MechConfiguration.BIPED);
 
-      expect(result[MechLocation.HEAD]?.max).toBe(LOCATION_SLOT_COUNTS[MechLocation.HEAD]);
-      expect(result[MechLocation.CENTER_TORSO]?.max).toBe(LOCATION_SLOT_COUNTS[MechLocation.CENTER_TORSO]);
-      expect(result[MechLocation.LEFT_ARM]?.max).toBe(LOCATION_SLOT_COUNTS[MechLocation.LEFT_ARM]);
-      expect(result[MechLocation.LEFT_LEG]?.max).toBe(LOCATION_SLOT_COUNTS[MechLocation.LEFT_LEG]);
+      expect(result[MechLocation.HEAD]?.max).toBe(
+        LOCATION_SLOT_COUNTS[MechLocation.HEAD],
+      );
+      expect(result[MechLocation.CENTER_TORSO]?.max).toBe(
+        LOCATION_SLOT_COUNTS[MechLocation.CENTER_TORSO],
+      );
+      expect(result[MechLocation.LEFT_ARM]?.max).toBe(
+        LOCATION_SLOT_COUNTS[MechLocation.LEFT_ARM],
+      );
+      expect(result[MechLocation.LEFT_LEG]?.max).toBe(
+        LOCATION_SLOT_COUNTS[MechLocation.LEFT_LEG],
+      );
     });
 
     it('should count equipment slots correctly', () => {
@@ -196,9 +217,13 @@ describe('Slot Validation Utilities', () => {
   describe('getLocationDisplayName', () => {
     it('should return correct display names', () => {
       expect(getLocationDisplayName(MechLocation.HEAD)).toBe('Head');
-      expect(getLocationDisplayName(MechLocation.CENTER_TORSO)).toBe('Center Torso');
+      expect(getLocationDisplayName(MechLocation.CENTER_TORSO)).toBe(
+        'Center Torso',
+      );
       expect(getLocationDisplayName(MechLocation.LEFT_ARM)).toBe('Left Arm');
-      expect(getLocationDisplayName(MechLocation.FRONT_LEFT_LEG)).toBe('Front Left Leg');
+      expect(getLocationDisplayName(MechLocation.FRONT_LEFT_LEG)).toBe(
+        'Front Left Leg',
+      );
     });
   });
 
@@ -220,7 +245,10 @@ describe('Slot Validation Utilities', () => {
         createMockEquipment(MechLocation.CENTER_TORSO, [0]),
       ];
 
-      const slotsByLocation = buildSlotsByLocation(equipment, MechConfiguration.BIPED);
+      const slotsByLocation = buildSlotsByLocation(
+        equipment,
+        MechConfiguration.BIPED,
+      );
       const total = getTotalSlotsUsed(slotsByLocation);
 
       expect(total).toBe(6);
@@ -260,7 +288,10 @@ describe('Slot Validation Utilities', () => {
         equipment.push(createMockEquipment(MechLocation.HEAD, [i]));
       }
 
-      const slotsByLocation = buildSlotsByLocation(equipment, MechConfiguration.BIPED);
+      const slotsByLocation = buildSlotsByLocation(
+        equipment,
+        MechConfiguration.BIPED,
+      );
       const overflow = getOverflowLocations(slotsByLocation);
 
       expect(overflow).toContain('Head');
@@ -272,7 +303,10 @@ describe('Slot Validation Utilities', () => {
         equipment.push(createMockEquipment(MechLocation.LEFT_ARM, [i]));
       }
 
-      const slotsByLocation = buildSlotsByLocation(equipment, MechConfiguration.BIPED);
+      const slotsByLocation = buildSlotsByLocation(
+        equipment,
+        MechConfiguration.BIPED,
+      );
       const overflow = getOverflowLocations(slotsByLocation);
 
       expect(overflow).toContain('Left Arm');

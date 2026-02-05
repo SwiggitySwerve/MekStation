@@ -8,12 +8,13 @@
  * - Edge cases and boundary conditions
  */
 
-import { LongGameDetector } from '../LongGameDetector';
 import {
   GameEventType,
   GamePhase,
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
+
+import { LongGameDetector } from '../LongGameDetector';
 
 // =============================================================================
 // Test Fixtures
@@ -39,13 +40,15 @@ const createTurnEndedEvent = (
   gameId: string,
   turn: number,
   sequence: number = 1,
-): IGameEvent => createGameEvent(gameId, turn, GameEventType.TurnEnded, sequence);
+): IGameEvent =>
+  createGameEvent(gameId, turn, GameEventType.TurnEnded, sequence);
 
 const createDamageEvent = (
   gameId: string,
   turn: number,
   sequence: number = 1,
-): IGameEvent => createGameEvent(gameId, turn, GameEventType.DamageApplied, sequence);
+): IGameEvent =>
+  createGameEvent(gameId, turn, GameEventType.DamageApplied, sequence);
 
 // =============================================================================
 // Tests

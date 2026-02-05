@@ -6,7 +6,11 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}) => {
   const handlePrevious = () => {
     if (currentPage > 1) {
       onPageChange(currentPage - 1);
@@ -22,11 +26,11 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   // Simple pagination: Previous, Current / Total, Next
   // A more complex one would render page numbers
   return (
-    <div className="flex justify-center items-center space-x-4 my-4">
+    <div className="my-4 flex items-center justify-center space-x-4">
       <button
         onClick={handlePrevious}
         disabled={currentPage === 1}
-        className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        className="rounded bg-blue-500 px-4 py-2 text-white disabled:bg-gray-300"
       >
         Previous
       </button>
@@ -36,7 +40,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       <button
         onClick={handleNext}
         disabled={currentPage === totalPages}
-        className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        className="rounded bg-blue-500 px-4 py-2 text-white disabled:bg-gray-300"
       >
         Next
       </button>

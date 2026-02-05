@@ -41,6 +41,11 @@ export {
 } from './AwardInterfaces';
 
 // Award catalog and definitions
-export { AWARD_CATALOG, getAwardById, getAwardsByCategory, getAwardsByRarity } from './AwardCatalog';
+export {
+  AWARD_CATALOG,
+  getAwardById,
+  getAwardsByCategory,
+  getAwardsByRarity,
+} from './AwardCatalog';
 
 // Icon components and utilities are in @/components/award/awardIcons

@@ -20,23 +20,56 @@ export {
 // Ground vehicle handlers
 export { VehicleUnitHandler, createVehicleHandler } from './VehicleUnitHandler';
 export { VTOLUnitHandler, createVTOLHandler } from './VTOLUnitHandler';
-export { SupportVehicleUnitHandler, createSupportVehicleHandler } from './SupportVehicleUnitHandler';
+export {
+  SupportVehicleUnitHandler,
+  createSupportVehicleHandler,
+} from './SupportVehicleUnitHandler';
 
 // Aerospace handlers
-export { AerospaceUnitHandler, createAerospaceHandler } from './AerospaceUnitHandler';
-export { ConventionalFighterUnitHandler, createConventionalFighterHandler } from './ConventionalFighterUnitHandler';
-export { SmallCraftUnitHandler, createSmallCraftHandler } from './SmallCraftUnitHandler';
+export {
+  AerospaceUnitHandler,
+  createAerospaceHandler,
+} from './AerospaceUnitHandler';
+export {
+  ConventionalFighterUnitHandler,
+  createConventionalFighterHandler,
+} from './ConventionalFighterUnitHandler';
+export {
+  SmallCraftUnitHandler,
+  createSmallCraftHandler,
+} from './SmallCraftUnitHandler';
 
 // Personnel unit handlers
-export { BattleArmorUnitHandler, createBattleArmorHandler } from './BattleArmorUnitHandler';
-export { InfantryUnitHandler, createInfantryHandler } from './InfantryUnitHandler';
-export { ProtoMechUnitHandler, createProtoMechHandler } from './ProtoMechUnitHandler';
+export {
+  BattleArmorUnitHandler,
+  createBattleArmorHandler,
+} from './BattleArmorUnitHandler';
+export {
+  InfantryUnitHandler,
+  createInfantryHandler,
+} from './InfantryUnitHandler';
+export {
+  ProtoMechUnitHandler,
+  createProtoMechHandler,
+} from './ProtoMechUnitHandler';
 
 // Capital ship handlers
-export { DropShipUnitHandler, createDropShipHandler } from './DropShipUnitHandler';
+export {
+  DropShipUnitHandler,
+  createDropShipHandler,
+} from './DropShipUnitHandler';
 export { WarShipUnitHandler, createWarShipHandler } from './WarShipUnitHandler';
-export { JumpShipUnitHandler, createJumpShipHandler, type IJumpShip } from './JumpShipUnitHandler';
-export { SpaceStationUnitHandler, createSpaceStationHandler, type ISpaceStation, SpaceStationType } from './SpaceStationUnitHandler';
+export {
+  JumpShipUnitHandler,
+  createJumpShipHandler,
+  type IJumpShip,
+} from './JumpShipUnitHandler';
+export {
+  SpaceStationUnitHandler,
+  createSpaceStationHandler,
+  type ISpaceStation,
+  SpaceStationType,
+} from './SpaceStationUnitHandler';
 
 // Handler initialization
 export {

@@ -8,13 +8,24 @@
  * - Helper functions: name generation, random ranges, random selection
  */
 
-import { ICampaign, createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import {
+  ICampaign,
+  createDefaultCampaignOptions,
+} from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { IContract, IMission, isContract } from '@/types/campaign/Mission';
+import {
+  AtBContractType,
+  CONTRACT_TYPE_DEFINITIONS,
+} from '@/types/campaign/contracts/contractTypes';
+import {
+  MissionStatus,
+  ForceRole,
+  FormationLevel,
+} from '@/types/campaign/enums';
 import { IForce } from '@/types/campaign/Force';
-import { Money } from '@/types/campaign/Money';
 import { IFinances } from '@/types/campaign/IFinances';
-import { MissionStatus, ForceRole, FormationLevel } from '@/types/campaign/enums';
+import { IContract, IMission, isContract } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
 
 import {
   calculateForceBV,
@@ -42,10 +53,6 @@ import {
   CONTRACT_GROUP_WEIGHTS,
   RandomFn,
 } from '../contractMarket';
-import {
-  AtBContractType,
-  CONTRACT_TYPE_DEFINITIONS,
-} from '@/types/campaign/contracts/contractTypes';
 
 // =============================================================================
 // Test Fixtures
@@ -56,7 +63,7 @@ function createTestForce(
   name: string,
   parentForceId?: string,
   subForceIds: string[] = [],
-  unitIds: string[] = []
+  unitIds: string[] = [],
 ): IForce {
   return {
     id,
@@ -79,26 +86,26 @@ function createTestCampaign(overrides?: {
   const forces = overrides?.forces ?? new Map<string, IForce>();
   const rootForceId = overrides?.rootForceId ?? 'force-root';
 
-    return {
-      id: 'campaign-001',
-      name: 'Test Campaign',
-      currentDate: new Date('3025-06-15T00:00:00Z'),
-      factionId: 'mercenary',
-      personnel: new Map(),
-      forces,
-      rootForceId,
-      missions: overrides?.missions ?? new Map<string, IMission>(),
-      finances: {
-        transactions: [],
-        balance: new Money(1000000),
-      } as IFinances,
-      factionStandings: {},
-      shoppingList: { items: [] },
-      options: createDefaultCampaignOptions(),
-      campaignType: CampaignType.MERCENARY,
-      createdAt: '2026-01-26T10:00:00Z',
-      updatedAt: '2026-01-26T10:00:00Z',
-    };
+  return {
+    id: 'campaign-001',
+    name: 'Test Campaign',
+    currentDate: new Date('3025-06-15T00:00:00Z'),
+    factionId: 'mercenary',
+    personnel: new Map(),
+    forces,
+    rootForceId,
+    missions: overrides?.missions ?? new Map<string, IMission>(),
+    finances: {
+      transactions: [],
+      balance: new Money(1000000),
+    } as IFinances,
+    factionStandings: {},
+    shoppingList: { items: [] },
+    options: createDefaultCampaignOptions(),
+    campaignType: CampaignType.MERCENARY,
+    createdAt: '2026-01-26T10:00:00Z',
+    updatedAt: '2026-01-26T10:00:00Z',
+  };
 }
 
 /**
@@ -142,7 +149,13 @@ describe('Contract Market', () => {
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, [], ['unit-1', 'unit-2', 'unit-3'])
+        createTestForce(
+          'force-root',
+          'Root',
+          undefined,
+          [],
+          ['unit-1', 'unit-2', 'unit-3'],
+        ),
       );
       const campaign = createTestCampaign({ forces });
       expect(calculateForceBV(campaign)).toBe(3 * PLACEHOLDER_BV_PER_UNIT);
@@ -152,15 +165,33 @@ describe('Contract Market', () => {
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, ['force-1', 'force-2'], [])
+        createTestForce(
+          'force-root',
+          'Root',
+          undefined,
+          ['force-1', 'force-2'],
+          [],
+        ),
       );
       forces.set(
         'force-1',
-        createTestForce('force-1', 'Alpha', 'force-root', [], ['unit-1', 'unit-2'])
+        createTestForce(
+          'force-1',
+          'Alpha',
+          'force-root',
+          [],
+          ['unit-1', 'unit-2'],
+        ),
       );
       forces.set(
         'force-2',
-        createTestForce('force-2', 'Beta', 'force-root', [], ['unit-3', 'unit-4'])
+        createTestForce(
+          'force-2',
+          'Beta',
+          'force-root',
+          [],
+          ['unit-3', 'unit-4'],
+        ),
       );
       const campaign = createTestCampaign({ forces });
       expect(calculateForceBV(campaign)).toBe(4 * PLACEHOLDER_BV_PER_UNIT);
@@ -170,15 +201,33 @@ describe('Contract Market', () => {
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, ['force-1'], ['unit-1'])
+        createTestForce(
+          'force-root',
+          'Root',
+          undefined,
+          ['force-1'],
+          ['unit-1'],
+        ),
       );
       forces.set(
         'force-1',
-        createTestForce('force-1', 'Company', 'force-root', ['force-2'], ['unit-2'])
+        createTestForce(
+          'force-1',
+          'Company',
+          'force-root',
+          ['force-2'],
+          ['unit-2'],
+        ),
       );
       forces.set(
         'force-2',
-        createTestForce('force-2', 'Lance', 'force-1', [], ['unit-3', 'unit-4'])
+        createTestForce(
+          'force-2',
+          'Lance',
+          'force-1',
+          [],
+          ['unit-3', 'unit-4'],
+        ),
       );
       const campaign = createTestCampaign({ forces });
       // 1 (root) + 1 (company) + 2 (lance) = 4 units
@@ -189,7 +238,7 @@ describe('Contract Market', () => {
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, [], ['unit-1'])
+        createTestForce('force-root', 'Root', undefined, [], ['unit-1']),
       );
       const campaign = createTestCampaign({ forces });
       expect(calculateForceBV(campaign)).toBe(1000);
@@ -201,11 +250,14 @@ describe('Contract Market', () => {
   // ===========================================================================
   describe('generateContracts', () => {
     function createCampaignWithUnits(unitCount: number): ICampaign {
-      const unitIds = Array.from({ length: unitCount }, (_, i) => `unit-${i + 1}`);
+      const unitIds = Array.from(
+        { length: unitCount },
+        (_, i) => `unit-${i + 1}`,
+      );
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, [], unitIds)
+        createTestForce('force-root', 'Root', undefined, [], unitIds),
       );
       return createTestCampaign({ forces });
     }
@@ -257,7 +309,9 @@ describe('Contract Market', () => {
       const campaign = createCampaignWithUnits(4);
       const contracts = generateContracts(campaign, 20, createSeededRandom(3));
       contracts.forEach((contract) => {
-        const hasValidType = CONTRACT_TYPES.some((type) => contract.name.includes(type));
+        const hasValidType = CONTRACT_TYPES.some((type) =>
+          contract.name.includes(type),
+        );
         expect(hasValidType).toBe(true);
       });
     });
@@ -315,17 +369,30 @@ describe('Contract Market', () => {
       const terms = contracts[0].paymentTerms;
 
       const baseAmount = terms.basePayment.amount;
-      expect(terms.successPayment.amount).toBeCloseTo(baseAmount * PAYMENT_MULTIPLIERS.success, 0);
-      expect(terms.partialPayment.amount).toBeCloseTo(baseAmount * PAYMENT_MULTIPLIERS.partial, 0);
-      expect(terms.failurePayment.amount).toBeCloseTo(baseAmount * PAYMENT_MULTIPLIERS.failure, 0);
+      expect(terms.successPayment.amount).toBeCloseTo(
+        baseAmount * PAYMENT_MULTIPLIERS.success,
+        0,
+      );
+      expect(terms.partialPayment.amount).toBeCloseTo(
+        baseAmount * PAYMENT_MULTIPLIERS.partial,
+        0,
+      );
+      expect(terms.failurePayment.amount).toBeCloseTo(
+        baseAmount * PAYMENT_MULTIPLIERS.failure,
+        0,
+      );
     });
 
     it('should generate contracts with salvage percent in valid range', () => {
       const campaign = createCampaignWithUnits(4);
       const contracts = generateContracts(campaign, 20, createSeededRandom(10));
       contracts.forEach((contract) => {
-        expect(contract.paymentTerms.salvagePercent).toBeGreaterThanOrEqual(SALVAGE_MIN_PERCENT);
-        expect(contract.paymentTerms.salvagePercent).toBeLessThanOrEqual(SALVAGE_MAX_PERCENT);
+        expect(contract.paymentTerms.salvagePercent).toBeGreaterThanOrEqual(
+          SALVAGE_MIN_PERCENT,
+        );
+        expect(contract.paymentTerms.salvagePercent).toBeLessThanOrEqual(
+          SALVAGE_MAX_PERCENT,
+        );
       });
     });
 
@@ -437,7 +504,7 @@ describe('Contract Market', () => {
       expect(accepted.targetId).toBe(contract.targetId);
       expect(accepted.systemId).toBe(contract.systemId);
       expect(accepted.paymentTerms.basePayment.amount).toBe(
-        contract.paymentTerms.basePayment.amount
+        contract.paymentTerms.basePayment.amount,
       );
     });
 
@@ -455,7 +522,7 @@ describe('Contract Market', () => {
       const updated = acceptContract(campaign, contract);
 
       expect(() => acceptContract(updated, contract)).toThrow(
-        `Contract ${contract.id} already exists in campaign`
+        `Contract ${contract.id} already exists in campaign`,
       );
     });
 
@@ -515,34 +582,40 @@ describe('Contract Market', () => {
     describe('generateContractName', () => {
       it('should generate name with "House" prefix for Inner Sphere factions', () => {
         expect(generateContractName('Garrison Duty', 'Davion')).toBe(
-          'Garrison Duty for House Davion'
+          'Garrison Duty for House Davion',
         );
-        expect(generateContractName('Raid', 'Steiner')).toBe('Raid for House Steiner');
-        expect(generateContractName('Recon', 'Liao')).toBe('Recon for House Liao');
-        expect(generateContractName('Escort', 'Marik')).toBe('Escort for House Marik');
+        expect(generateContractName('Raid', 'Steiner')).toBe(
+          'Raid for House Steiner',
+        );
+        expect(generateContractName('Recon', 'Liao')).toBe(
+          'Recon for House Liao',
+        );
+        expect(generateContractName('Escort', 'Marik')).toBe(
+          'Escort for House Marik',
+        );
         expect(generateContractName('Extraction', 'Kurita')).toBe(
-          'Extraction for House Kurita'
+          'Extraction for House Kurita',
         );
       });
 
       it('should generate name with "Clan" prefix for Clan factions', () => {
         expect(generateContractName('Garrison Duty', 'Wolf')).toBe(
-          'Garrison Duty for Clan Wolf'
+          'Garrison Duty for Clan Wolf',
         );
         expect(generateContractName('Raid', 'Jade Falcon')).toBe(
-          'Raid for Clan Jade Falcon'
+          'Raid for Clan Jade Falcon',
         );
         expect(generateContractName('Recon', 'Ghost Bear')).toBe(
-          'Recon for Clan Ghost Bear'
+          'Recon for Clan Ghost Bear',
         );
       });
 
       it('should generate name without prefix for mercenary factions', () => {
         expect(generateContractName('Garrison Duty', 'Kell Hounds')).toBe(
-          'Garrison Duty for Kell Hounds'
+          'Garrison Duty for Kell Hounds',
         );
         expect(generateContractName('Raid', "Wolf's Dragoons")).toBe(
-          "Raid for Wolf's Dragoons"
+          "Raid for Wolf's Dragoons",
         );
       });
     });
@@ -566,7 +639,9 @@ describe('Contract Market', () => {
       it('should produce deterministic results with seeded random', () => {
         const seed1 = createSeededRandom(42);
         const seed2 = createSeededRandom(42);
-        expect(generateRandomDuration(seed1)).toBe(generateRandomDuration(seed2));
+        expect(generateRandomDuration(seed1)).toBe(
+          generateRandomDuration(seed2),
+        );
       });
     });
 
@@ -647,11 +722,17 @@ describe('Contract Market', () => {
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, ['force-1'], [])
+        createTestForce('force-root', 'Root', undefined, ['force-1'], []),
       );
       forces.set(
         'force-1',
-        createTestForce('force-1', 'Alpha', 'force-root', [], ['unit-1', 'unit-2', 'unit-3', 'unit-4'])
+        createTestForce(
+          'force-1',
+          'Alpha',
+          'force-root',
+          [],
+          ['unit-1', 'unit-2', 'unit-3', 'unit-4'],
+        ),
       );
 
       let campaign = createTestCampaign({ forces });
@@ -679,19 +760,43 @@ describe('Contract Market', () => {
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, ['force-1', 'force-2', 'force-3'], [])
+        createTestForce(
+          'force-root',
+          'Root',
+          undefined,
+          ['force-1', 'force-2', 'force-3'],
+          [],
+        ),
       );
       forces.set(
         'force-1',
-        createTestForce('force-1', 'Alpha', 'force-root', [], ['u1', 'u2', 'u3', 'u4'])
+        createTestForce(
+          'force-1',
+          'Alpha',
+          'force-root',
+          [],
+          ['u1', 'u2', 'u3', 'u4'],
+        ),
       );
       forces.set(
         'force-2',
-        createTestForce('force-2', 'Beta', 'force-root', [], ['u5', 'u6', 'u7', 'u8'])
+        createTestForce(
+          'force-2',
+          'Beta',
+          'force-root',
+          [],
+          ['u5', 'u6', 'u7', 'u8'],
+        ),
       );
       forces.set(
         'force-3',
-        createTestForce('force-3', 'Gamma', 'force-root', [], ['u9', 'u10', 'u11', 'u12'])
+        createTestForce(
+          'force-3',
+          'Gamma',
+          'force-root',
+          [],
+          ['u9', 'u10', 'u11', 'u12'],
+        ),
       );
 
       const campaign = createTestCampaign({ forces });
@@ -716,11 +821,21 @@ describe('Contract Market', () => {
       const forces = new Map<string, IForce>();
       forces.set(
         'force-root',
-        createTestForce('force-root', 'Root', undefined, [], ['u1', 'u2', 'u3', 'u4'])
+        createTestForce(
+          'force-root',
+          'Root',
+          undefined,
+          [],
+          ['u1', 'u2', 'u3', 'u4'],
+        ),
       );
       const campaign = createTestCampaign({ forces });
 
-      const contracts = generateContracts(campaign, 50, createSeededRandom(123));
+      const contracts = generateContracts(
+        campaign,
+        50,
+        createSeededRandom(123),
+      );
 
       // Should have variety in employers
       const employers = new Set(contracts.map((c) => c.employerId));
@@ -782,12 +897,12 @@ describe('Contract Market', () => {
       expect(SALVAGE_MIN_PERCENT).toBeLessThan(SALVAGE_MAX_PERCENT);
     });
 
-     it('should have frozen constant arrays', () => {
-       expect(Object.isFrozen(CONTRACT_TYPES)).toBe(true);
-       expect(Object.isFrozen(EMPLOYER_FACTIONS)).toBe(true);
-       expect(Object.isFrozen(SYSTEMS)).toBe(true);
-     });
-   });
+    it('should have frozen constant arrays', () => {
+      expect(Object.isFrozen(CONTRACT_TYPES)).toBe(true);
+      expect(Object.isFrozen(EMPLOYER_FACTIONS)).toBe(true);
+      expect(Object.isFrozen(SYSTEMS)).toBe(true);
+    });
+  });
 });
 
 // =============================================================================
@@ -810,7 +925,12 @@ describe('AtB Contract Market', () => {
     });
 
     it('should favor garrison types over guerrilla', () => {
-      const counts: Record<string, number> = { garrison: 0, raid: 0, guerrilla: 0, special: 0 };
+      const counts: Record<string, number> = {
+        garrison: 0,
+        raid: 0,
+        guerrilla: 0,
+        special: 0,
+      };
       for (let i = 0; i < 1000; i++) {
         const type = selectAtBContractType(createSeededRandom(i));
         const def = CONTRACT_TYPE_DEFINITIONS[type];
@@ -822,9 +942,15 @@ describe('AtB Contract Market', () => {
 
   describe('generateAtBContracts', () => {
     function createCampaignWithUnits(unitCount: number): ICampaign {
-      const unitIds = Array.from({ length: unitCount }, (_, i) => `unit-${i + 1}`);
+      const unitIds = Array.from(
+        { length: unitCount },
+        (_, i) => `unit-${i + 1}`,
+      );
       const forces = new Map<string, IForce>();
-      forces.set('force-root', createTestForce('force-root', 'Root', undefined, [], unitIds));
+      forces.set(
+        'force-root',
+        createTestForce('force-root', 'Root', undefined, [], unitIds),
+      );
       return createTestCampaign({ forces });
     }
 
@@ -836,7 +962,13 @@ describe('AtB Contract Market', () => {
 
     it('should generate contracts with atbContractType set', () => {
       const campaign = createCampaignWithUnits(4);
-      const contracts = generateAtBContracts(campaign, 5, 0, 0, createSeededRandom(42));
+      const contracts = generateAtBContracts(
+        campaign,
+        5,
+        0,
+        0,
+        createSeededRandom(42),
+      );
       contracts.forEach((c) => {
         expect(c.atbContractType).toBeDefined();
         expect(Object.values(AtBContractType)).toContain(c.atbContractType);
@@ -845,7 +977,13 @@ describe('AtB Contract Market', () => {
 
     it('should use variable contract lengths', () => {
       const campaign = createCampaignWithUnits(4);
-      const contracts = generateAtBContracts(campaign, 20, 0, 0, createSeededRandom(99));
+      const contracts = generateAtBContracts(
+        campaign,
+        20,
+        0,
+        0,
+        createSeededRandom(99),
+      );
       const durations = contracts.map((c) => {
         const start = new Date(c.startDate!).getTime();
         const end = new Date(c.endDate!).getTime();
@@ -859,7 +997,13 @@ describe('AtB Contract Market', () => {
     it('should scale payment with ops tempo', () => {
       const campaign = createCampaignWithUnits(4);
       // Generate many contracts and check that different types have different base payments
-      const contracts = generateAtBContracts(campaign, 50, 0, 0, createSeededRandom(123));
+      const contracts = generateAtBContracts(
+        campaign,
+        50,
+        0,
+        0,
+        createSeededRandom(123),
+      );
       const paymentsByType = new Map<string, number[]>();
       contracts.forEach((c) => {
         const type = c.atbContractType!;
@@ -872,7 +1016,13 @@ describe('AtB Contract Market', () => {
 
     it('should generate contracts with valid structure', () => {
       const campaign = createCampaignWithUnits(4);
-      const contracts = generateAtBContracts(campaign, 5, 0, 0, createSeededRandom(42));
+      const contracts = generateAtBContracts(
+        campaign,
+        5,
+        0,
+        0,
+        createSeededRandom(42),
+      );
       contracts.forEach((c) => {
         expect(c.type).toBe('contract');
         expect(c.status).toBe(MissionStatus.PENDING);
@@ -884,7 +1034,13 @@ describe('AtB Contract Market', () => {
 
     it('should generate contracts with correct name format', () => {
       const campaign = createCampaignWithUnits(4);
-      const contracts = generateAtBContracts(campaign, 10, 0, 0, createSeededRandom(55));
+      const contracts = generateAtBContracts(
+        campaign,
+        10,
+        0,
+        0,
+        createSeededRandom(55),
+      );
       contracts.forEach((c) => {
         // Name should contain the AtB type name
         const typeDef = CONTRACT_TYPE_DEFINITIONS[c.atbContractType!];
@@ -902,7 +1058,9 @@ describe('AtB Contract Market', () => {
     });
 
     it('should weight garrison highest', () => {
-      expect(CONTRACT_GROUP_WEIGHTS.garrison).toBeGreaterThan(CONTRACT_GROUP_WEIGHTS.guerrilla);
+      expect(CONTRACT_GROUP_WEIGHTS.garrison).toBeGreaterThan(
+        CONTRACT_GROUP_WEIGHTS.guerrilla,
+      );
     });
   });
 });

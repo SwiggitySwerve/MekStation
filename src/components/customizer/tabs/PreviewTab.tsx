@@ -1,24 +1,35 @@
 /**
  * Preview Tab Component
- * 
+ *
  * Displays a live record sheet preview with export options.
  * Integrates with the customizer tab system.
- * 
+ *
  * @spec openspec/specs/record-sheet-export/spec.md
  * @spec openspec/specs/customizer-tabs/spec.md
  */
 
-import React, { useRef, useCallback, useState, useEffect, useMemo } from 'react';
-import { useUnitStore } from '@/stores/useUnitStore';
-import { RecordSheetPreview } from '../preview/RecordSheetPreview';
-import { PreviewToolbar } from '../preview/PreviewToolbar';
-import { recordSheetService } from '@/services/printing/RecordSheetService';
+import React, {
+  useRef,
+  useCallback,
+  useState,
+  useEffect,
+  useMemo,
+} from 'react';
+
 import { calculationService } from '@/services/construction/CalculationService';
-import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
+import {
+  IEditableMech,
+  IArmorAllocation as IEditableArmorAllocation,
+} from '@/services/construction/MechBuilderService';
+import { recordSheetService } from '@/services/printing/RecordSheetService';
+import { useUnitStore } from '@/stores/useUnitStore';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { EquipmentCategory } from '@/types/equipment';
 import { TechBase } from '@/types/enums/TechBase';
-import { IEditableMech, IArmorAllocation as IEditableArmorAllocation } from '@/services/construction/MechBuilderService';
+import { EquipmentCategory } from '@/types/equipment';
+import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
+
+import { PreviewToolbar } from '../preview/PreviewToolbar';
+import { RecordSheetPreview } from '../preview/RecordSheetPreview';
 
 // =============================================================================
 // Types
@@ -37,7 +48,7 @@ interface PreviewTabProps {
 
 /**
  * Preview Tab Component
- * 
+ *
  * Provides record sheet preview and export functionality.
  */
 export function PreviewTab({
@@ -46,9 +57,8 @@ export function PreviewTab({
 }: PreviewTabProps): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [paperSize, setPaperSize] = useState<PaperSize>(PaperSize.LETTER);
-  
+
   // Get unit state from store
-  const unitId = useUnitStore((s) => s.id);
   const name = useUnitStore((s) => s.name);
   const chassis = useUnitStore((s) => s.chassis);
   const model = useUnitStore((s) => s.model);
@@ -95,7 +105,7 @@ export function PreviewTab({
 
     // Convert ALL equipment to IEquipmentSlot format for BV calculation
     // BV should include all equipment on the mech, whether allocated or not
-    const equipmentSlots = equipment.map(eq => ({
+    const equipmentSlots = equipment.map((eq) => ({
       equipmentId: eq.equipmentId,
       location: eq.location ?? '',
       slotIndex: eq.slots?.[0] ?? 0,
@@ -121,9 +131,22 @@ export function PreviewTab({
       isDirty: false,
     };
   }, [
-    name, chassis, model, tonnage, techBase, engineType, engineRating, walkMP,
-    internalStructureType, gyroType, cockpitType, armorType, armorAllocation,
-    heatSinkType, heatSinkCount, equipment,
+    name,
+    chassis,
+    model,
+    tonnage,
+    techBase,
+    engineType,
+    engineRating,
+    walkMP,
+    internalStructureType,
+    gyroType,
+    cockpitType,
+    armorType,
+    armorAllocation,
+    heatSinkType,
+    heatSinkCount,
+    equipment,
   ]);
 
   /**
@@ -154,8 +177,15 @@ export function PreviewTab({
    * Build critical slots from equipment assignments
    */
   const buildCriticalSlotsFromEquipment = useCallback(() => {
-    const result: Record<string, Array<{ content: string; isSystem?: boolean; equipmentId?: string } | null>> = {};
-    
+    const result: Record<
+      string,
+      Array<{
+        content: string;
+        isSystem?: boolean;
+        equipmentId?: string;
+      } | null>
+    > = {};
+
     const locations = [
       MechLocation.HEAD,
       MechLocation.CENTER_TORSO,
@@ -166,17 +196,26 @@ export function PreviewTab({
       MechLocation.LEFT_LEG,
       MechLocation.RIGHT_LEG,
     ];
-    
+
     // Initialize empty arrays for each location with proper typing
-    locations.forEach(loc => {
-      const slotCount = loc === MechLocation.HEAD || loc === MechLocation.LEFT_LEG || loc === MechLocation.RIGHT_LEG ? 6 : 12;
-      result[loc] = new Array<{ content: string; isSystem?: boolean; equipmentId?: string } | null>(slotCount).fill(null);
+    locations.forEach((loc) => {
+      const slotCount =
+        loc === MechLocation.HEAD ||
+        loc === MechLocation.LEFT_LEG ||
+        loc === MechLocation.RIGHT_LEG
+          ? 6
+          : 12;
+      result[loc] = new Array<{
+        content: string;
+        isSystem?: boolean;
+        equipmentId?: string;
+      } | null>(slotCount).fill(null);
     });
-    
+
     // Fill in equipment from the equipment list
-    equipment.forEach(eq => {
+    equipment.forEach((eq) => {
       if (eq.location && eq.slots && eq.slots.length > 0) {
-        eq.slots.forEach(slotIndex => {
+        eq.slots.forEach((slotIndex) => {
           if (result[eq.location!] && slotIndex < result[eq.location!].length) {
             result[eq.location!][slotIndex] = {
               content: eq.name,
@@ -187,7 +226,7 @@ export function PreviewTab({
         });
       }
     });
-    
+
     return result;
   }, [equipment]);
 
@@ -240,7 +279,7 @@ export function PreviewTab({
         runMP,
         jumpMP,
       },
-      equipment: equipment.map(eq => ({
+      equipment: equipment.map((eq) => ({
         id: eq.instanceId,
         name: eq.name,
         location: (eq.location || MechLocation.CENTER_TORSO) as string,
@@ -258,10 +297,29 @@ export function PreviewTab({
       cost,
     };
   }, [
-    name, chassis, model, tonnage, techBase, rulesLevel, year, configuration,
-    engineType, engineRating, gyroType, internalStructureType,
-    armorType, armorAllocation, heatSinkType, heatSinkCount,
-    enhancement, walkMP, runMP, jumpMP, equipment, battleValue, cost,
+    name,
+    chassis,
+    model,
+    tonnage,
+    techBase,
+    rulesLevel,
+    year,
+    configuration,
+    engineType,
+    engineRating,
+    gyroType,
+    internalStructureType,
+    armorType,
+    armorAllocation,
+    heatSinkType,
+    heatSinkCount,
+    enhancement,
+    walkMP,
+    runMP,
+    jumpMP,
+    equipment,
+    battleValue,
+    cost,
     buildCriticalSlotsFromEquipment,
   ]);
 
@@ -271,7 +329,7 @@ export function PreviewTab({
   const handleExportPDF = useCallback(async () => {
     const unitConfig = buildUnitConfig();
     const data = recordSheetService.extractData(unitConfig);
-    
+
     await recordSheetService.exportPDF(data, {
       paperSize,
       includePilotData: false,
@@ -289,7 +347,7 @@ export function PreviewTab({
       const { width, height } = PAPER_DIMENSIONS[paperSize];
       tempCanvas.width = width;
       tempCanvas.height = height;
-      
+
       const unitConfig = buildUnitConfig();
       const data = recordSheetService.extractData(unitConfig);
       await recordSheetService.renderPreview(tempCanvas, data, paperSize);
@@ -307,7 +365,7 @@ export function PreviewTab({
   }, []);
 
   return (
-    <div 
+    <div
       className={`preview-tab ${className}`}
       style={{
         display: 'flex',
@@ -323,7 +381,7 @@ export function PreviewTab({
         paperSize={paperSize}
         onPaperSizeChange={setPaperSize}
       />
-      
+
       {/* Preview Area */}
       <div style={{ flex: 1, overflow: 'auto' }}>
         <RecordSheetPreviewWithRef
@@ -355,7 +413,7 @@ function RecordSheetPreviewWithRef({
   onCanvasRef,
 }: RecordSheetPreviewWithRefProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Extract canvas ref after render
   useEffect(() => {
     if (containerRef.current) {
@@ -371,4 +429,3 @@ function RecordSheetPreviewWithRef({
     </div>
   );
 }
-

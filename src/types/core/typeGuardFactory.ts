@@ -1,6 +1,6 @@
 /**
  * Type Guard Factory
- * 
+ *
  * Provides a factory function to eliminate boilerplate when creating type guards.
  * Supports property type checking with full TypeScript inference.
  */
@@ -29,14 +29,14 @@ type PropertySchema<T> = {
 
 /**
  * Creates a type guard function for the specified interface
- * 
+ *
  * Eliminates boilerplate by automatically generating type guard functions
  * that check for required properties and their expected types.
- * 
+ *
  * @template T - The interface/type to create a guard for
  * @param schema - Object mapping property names to expected types
  * @returns Type guard function that narrows unknown to T
- * 
+ *
  * @example
  * // Define an interface
  * interface IPerson {
@@ -44,44 +44,44 @@ type PropertySchema<T> = {
  *   age: number;
  *   active: boolean;
  * }
- * 
+ *
  * // Create a type guard using the factory
  * const isPerson = createTypeGuard<IPerson>({
  *   name: 'string',
  *   age: 'number',
  *   active: 'boolean'
  * });
- * 
+ *
  * // Use the type guard
  * const data: unknown = { name: 'Alice', age: 30, active: true };
  * if (isPerson(data)) {
  *   console.log(data.name); // TypeScript knows data is IPerson
  * }
- * 
+ *
  * @example
  * // With optional properties using 'any'
  * interface IEntity {
  *   id: string;
  *   metadata?: Record<string, unknown>;
  * }
- * 
+ *
  * const isEntity = createTypeGuard<IEntity>({
  *   id: 'string',
  *   metadata: 'any'
  * });
- * 
+ *
  * @example
  * // With array properties
  * interface ICollection {
  *   items: unknown[];
  *   name: string;
  * }
- * 
+ *
  * const isCollection = createTypeGuard<ICollection>({
  *   items: 'array',
  *   name: 'string'
  * });
- * 
+ *
  * @remarks
  * Supported property types:
  * - 'string': checks typeof value === 'string'
@@ -93,7 +93,7 @@ type PropertySchema<T> = {
  * - 'any': checks property exists (any type)
  */
 export function createTypeGuard<T>(
-  schema: PropertySchema<T>
+  schema: PropertySchema<T>,
 ): (obj: unknown) => obj is T {
   return (obj: unknown): obj is T => {
     // First check: must be an object and not null

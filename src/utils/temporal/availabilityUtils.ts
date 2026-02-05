@@ -1,13 +1,13 @@
 /**
  * Temporal Availability Utilities
- * 
+ *
  * Functions for filtering components and equipment by temporal availability.
- * 
+ *
  * @spec openspec/specs/era-temporal-system/spec.md
  */
 
-import { Era, ERA_DEFINITIONS } from '../../types/temporal/Era';
 import { ITemporalEntity } from '../../types/core/ITemporalEntity';
+import { Era, ERA_DEFINITIONS } from '../../types/temporal/Era';
 import { getEraForYear } from './eraUtils';
 
 /**
@@ -15,11 +15,14 @@ import { getEraForYear } from './eraUtils';
  * This is a subset of ITemporalEntity, allowing both full ITemporalEntity
  * instances and simpler objects with just introductionYear to be used.
  */
-export type MinimalTemporalEntity = Pick<ITemporalEntity, 'introductionYear' | 'extinctionYear'>;
+export type MinimalTemporalEntity = Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear'
+>;
 
 /**
  * Validate temporal properties of an entity
- * 
+ *
  * @param entity - Entity with temporal properties
  * @returns Validation result with any errors
  */
@@ -28,7 +31,9 @@ export interface TemporalValidationResult {
   errors: string[];
 }
 
-export function validateTemporalProperties(entity: MinimalTemporalEntity): TemporalValidationResult {
+export function validateTemporalProperties(
+  entity: MinimalTemporalEntity,
+): TemporalValidationResult {
   const errors: string[] = [];
 
   if (!Number.isFinite(entity.introductionYear)) {
@@ -51,12 +56,15 @@ export function validateTemporalProperties(entity: MinimalTemporalEntity): Tempo
 
 /**
  * Check if an entity is available in a given year
- * 
+ *
  * @param entity - Entity with temporal properties
  * @param year - Year to check availability
  * @returns True if entity is available in that year
  */
-export function isAvailableInYear(entity: MinimalTemporalEntity, year: number): boolean {
+export function isAvailableInYear(
+  entity: MinimalTemporalEntity,
+  year: number,
+): boolean {
   if (!Number.isFinite(year) || !Number.isFinite(entity.introductionYear)) {
     return false;
   }
@@ -74,13 +82,16 @@ export function isAvailableInYear(entity: MinimalTemporalEntity, year: number): 
 
 /**
  * Check if an entity is available in a given era
- * 
+ *
  * @param entity - Entity with temporal properties
  * @param era - Era to check availability
  * @returns True if entity is available at any point during that era
  */
-export function isAvailableInEra(entity: MinimalTemporalEntity, era: Era): boolean {
-  const eraDef = ERA_DEFINITIONS.find(d => d.era === era);
+export function isAvailableInEra(
+  entity: MinimalTemporalEntity,
+  era: Era,
+): boolean {
+  const eraDef = ERA_DEFINITIONS.find((d) => d.era === era);
   if (!eraDef) {
     return false;
   }
@@ -91,7 +102,10 @@ export function isAvailableInEra(entity: MinimalTemporalEntity, era: Era): boole
   }
 
   // Entity must not be extinct before the start of the era
-  if (entity.extinctionYear !== undefined && entity.extinctionYear < eraDef.startYear) {
+  if (
+    entity.extinctionYear !== undefined &&
+    entity.extinctionYear < eraDef.startYear
+  ) {
     return false;
   }
 
@@ -100,43 +114,53 @@ export function isAvailableInEra(entity: MinimalTemporalEntity, era: Era): boole
 
 /**
  * Filter an array of temporal entities by year availability
- * 
+ *
  * @param entities - Array of entities with temporal properties
  * @param year - Year to filter by
  * @returns Entities available in the given year
  */
-export function filterByYear<T extends MinimalTemporalEntity>(entities: T[], year: number): T[] {
-  return entities.filter(entity => isAvailableInYear(entity, year));
+export function filterByYear<T extends MinimalTemporalEntity>(
+  entities: T[],
+  year: number,
+): T[] {
+  return entities.filter((entity) => isAvailableInYear(entity, year));
 }
 
 /**
  * Filter an array of temporal entities by era availability
- * 
+ *
  * @param entities - Array of entities with temporal properties
  * @param era - Era to filter by
  * @returns Entities available during the given era
  */
-export function filterByEra<T extends MinimalTemporalEntity>(entities: T[], era: Era): T[] {
-  return entities.filter(entity => isAvailableInEra(entity, era));
+export function filterByEra<T extends MinimalTemporalEntity>(
+  entities: T[],
+  era: Era,
+): T[] {
+  return entities.filter((entity) => isAvailableInEra(entity, era));
 }
 
 /**
  * Get the introduction era for an entity
- * 
+ *
  * @param entity - Entity with temporal properties
  * @returns The era in which the entity was introduced
  */
-export function getIntroductionEra(entity: MinimalTemporalEntity): Era | undefined {
+export function getIntroductionEra(
+  entity: MinimalTemporalEntity,
+): Era | undefined {
   return getEraForYear(entity.introductionYear);
 }
 
 /**
  * Get the extinction era for an entity
- * 
+ *
  * @param entity - Entity with temporal properties
  * @returns The era in which the entity went extinct, or undefined if still available
  */
-export function getExtinctionEra(entity: MinimalTemporalEntity): Era | undefined {
+export function getExtinctionEra(
+  entity: MinimalTemporalEntity,
+): Era | undefined {
   if (entity.extinctionYear === undefined) {
     return undefined;
   }
@@ -145,12 +169,12 @@ export function getExtinctionEra(entity: MinimalTemporalEntity): Era | undefined
 
 /**
  * Get the eras during which an entity is available
- * 
+ *
  * @param entity - Entity with temporal properties
  * @returns Array of eras during which the entity is available
  */
 export function getAvailableEras(entity: MinimalTemporalEntity): Era[] {
-  return ERA_DEFINITIONS
-    .filter(def => isAvailableInEra(entity, def.era))
-    .map(def => def.era);
+  return ERA_DEFINITIONS.filter((def) => isAvailableInEra(entity, def.era)).map(
+    (def) => def.era,
+  );
 }

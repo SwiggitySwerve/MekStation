@@ -1,15 +1,34 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+
 import { NeonOperatorDiagram } from '@/components/customizer/armor/variants/NeonOperatorDiagram';
 import { MechLocation } from '@/types/construction';
 
 describe('NeonOperatorDiagram', () => {
   const mockArmorData = [
     { location: MechLocation.HEAD, current: 9, maximum: 9 },
-    { location: MechLocation.CENTER_TORSO, current: 35, maximum: 47, rear: 12, rearMaximum: 23 },
-    { location: MechLocation.LEFT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
-    { location: MechLocation.RIGHT_TORSO, current: 24, maximum: 32, rear: 8, rearMaximum: 16 },
+    {
+      location: MechLocation.CENTER_TORSO,
+      current: 35,
+      maximum: 47,
+      rear: 12,
+      rearMaximum: 23,
+    },
+    {
+      location: MechLocation.LEFT_TORSO,
+      current: 24,
+      maximum: 32,
+      rear: 8,
+      rearMaximum: 16,
+    },
+    {
+      location: MechLocation.RIGHT_TORSO,
+      current: 24,
+      maximum: 32,
+      rear: 8,
+      rearMaximum: 16,
+    },
     { location: MechLocation.LEFT_ARM, current: 20, maximum: 24 },
     { location: MechLocation.RIGHT_ARM, current: 20, maximum: 24 },
     { location: MechLocation.LEFT_LEG, current: 28, maximum: 32 },
@@ -51,7 +70,9 @@ describe('NeonOperatorDiagram', () => {
     const headGroup = screen.getByRole('button', { name: /Head armor/i });
     await user.click(headGroup);
 
-    expect(defaultProps.onLocationClick).toHaveBeenCalledWith(MechLocation.HEAD);
+    expect(defaultProps.onLocationClick).toHaveBeenCalledWith(
+      MechLocation.HEAD,
+    );
   });
 
   it('should display unallocated points info', () => {
@@ -67,7 +88,9 @@ describe('NeonOperatorDiagram', () => {
   });
 
   it('should apply custom className', () => {
-    const { container } = render(<NeonOperatorDiagram {...defaultProps} className="custom-class" />);
+    const { container } = render(
+      <NeonOperatorDiagram {...defaultProps} className="custom-class" />,
+    );
 
     expect(container.firstChild).toHaveClass('custom-class');
   });

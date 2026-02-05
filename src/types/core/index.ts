@@ -1,7 +1,7 @@
 /**
  * Core Types barrel export
  * Central export point for all core interfaces.
- * 
+ *
  * @spec core-entity-types/spec.md
  */
 
@@ -29,4 +29,3 @@ export * from './Severity';
 
 // Component Category (legacy compatibility)
 export * from './ComponentCategory';
-

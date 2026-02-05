@@ -27,7 +27,9 @@ export class CampaignListPage extends BasePage {
    * Click the create campaign button.
    */
   async clickCreateButton(): Promise<void> {
-    await this.clickAndWaitForNavigation(this.getByTestId('create-campaign-btn'));
+    await this.clickAndWaitForNavigation(
+      this.getByTestId('create-campaign-btn'),
+    );
   }
 
   /**
@@ -35,7 +37,9 @@ export class CampaignListPage extends BasePage {
    * @param id - The campaign ID
    */
   async clickCampaignCard(id: string): Promise<void> {
-    await this.clickAndWaitForNavigation(this.getByTestId(`campaign-card-${id}`));
+    await this.clickAndWaitForNavigation(
+      this.getByTestId(`campaign-card-${id}`),
+    );
   }
 
   /**
@@ -211,7 +215,9 @@ export class CampaignCreatePage extends BasePage {
    * Submit the create campaign form.
    */
   async submit(): Promise<void> {
-    await this.clickAndWaitForNavigation(this.getByTestId('submit-campaign-btn'));
+    await this.clickAndWaitForNavigation(
+      this.getByTestId('submit-campaign-btn'),
+    );
   }
 
   /**
@@ -238,7 +244,7 @@ export class CampaignCreatePage extends BasePage {
   async createCampaign(
     name: string,
     description: string,
-    difficulty?: string
+    difficulty?: string,
   ): Promise<void> {
     await this.fillName(name);
     await this.fillDescription(description);

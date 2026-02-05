@@ -7,19 +7,19 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.1
  */
 
-import { TechBase } from '@/types/enums/TechBase';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { EngineType } from '@/types/construction/EngineType';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { IEquipmentItem } from '@/types/equipment';
 import {
   AerospaceCockpitType,
   IAerospaceMountedEquipment,
 } from '@/types/unit/AerospaceInterfaces';
-import { AerospaceLocation } from '@/types/construction/UnitLocation';
-import { EngineType } from '@/types/construction/EngineType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { IEquipmentItem } from '@/types/equipment';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -58,7 +58,9 @@ export function createEmptyAerospaceArmorAllocation(): IAerospaceArmorAllocation
 /**
  * Calculate total allocated aerospace armor
  */
-export function getTotalAerospaceArmor(allocation: IAerospaceArmorAllocation): number {
+export function getTotalAerospaceArmor(
+  allocation: IAerospaceArmorAllocation,
+): number {
   return (
     (allocation[AerospaceLocation.NOSE] || 0) +
     (allocation[AerospaceLocation.LEFT_WING] || 0) +
@@ -77,7 +79,7 @@ export function getTotalAerospaceArmor(allocation: IAerospaceArmorAllocation): n
 export function createAerospaceMountedEquipment(
   item: IEquipmentItem,
   instanceId: string,
-  location?: AerospaceLocation
+  location?: AerospaceLocation,
 ): IAerospaceMountedEquipment {
   return {
     id: instanceId,
@@ -277,7 +279,10 @@ export interface AerospaceActions {
   addEquipment: (item: IEquipmentItem, arc?: AerospaceLocation) => string;
   removeEquipment: (instanceId: string) => void;
   updateEquipmentArc: (instanceId: string, arc: AerospaceLocation) => void;
-  linkAmmo: (weaponInstanceId: string, ammoInstanceId: string | undefined) => void;
+  linkAmmo: (
+    weaponInstanceId: string,
+    ammoInstanceId: string | undefined,
+  ) => void;
   clearAllEquipment: () => void;
 
   // Metadata
@@ -324,7 +329,9 @@ function getAerospaceWeightClass(tonnage: number): WeightClass {
 /**
  * Create default aerospace state
  */
-export function createDefaultAerospaceState(options: CreateAerospaceOptions): AerospaceState {
+export function createDefaultAerospaceState(
+  options: CreateAerospaceOptions,
+): AerospaceState {
   const id = options.id ?? generateAerospaceId();
   const now = Date.now();
   const isConventional = options.isConventional ?? false;
@@ -354,7 +361,9 @@ export function createDefaultAerospaceState(options: CreateAerospaceOptions): Ae
     techBase: options.techBase,
 
     // Unit Type & Configuration
-    unitType: isConventional ? UnitType.CONVENTIONAL_FIGHTER : UnitType.AEROSPACE,
+    unitType: isConventional
+      ? UnitType.CONVENTIONAL_FIGHTER
+      : UnitType.AEROSPACE,
     motionType: AerospaceMotionType.AERODYNE,
     isOmni: false,
 

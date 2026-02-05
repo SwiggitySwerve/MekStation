@@ -9,13 +9,8 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import {
-  ISyncRoomState,
-  ISyncRoomActions,
-  ConnectionState,
-  IPeer,
-  ISyncRoomOptions,
-} from './types';
+
+import { isValidRoomCode, normalizeRoomCode } from './roomCodes';
 import {
   createSyncRoom,
   joinSyncRoom,
@@ -25,7 +20,13 @@ import {
   setLocalAwareness,
   onSyncEvent,
 } from './SyncProvider';
-import { isValidRoomCode, normalizeRoomCode } from './roomCodes';
+import {
+  ISyncRoomState,
+  ISyncRoomActions,
+  ConnectionState,
+  IPeer,
+  ISyncRoomOptions,
+} from './types';
 
 // =============================================================================
 // Store Type
@@ -106,7 +107,8 @@ export const useSyncRoomStore = create<SyncRoomStore>()(
 
             return room.roomCode;
           } catch (error) {
-            const message = error instanceof Error ? error.message : 'Failed to create room';
+            const message =
+              error instanceof Error ? error.message : 'Failed to create room';
             set({
               connectionState: ConnectionState.Error,
               error: message,
@@ -133,7 +135,8 @@ export const useSyncRoomStore = create<SyncRoomStore>()(
               localPeerId: getLocalPeerId(),
             });
           } catch (error) {
-            const message = error instanceof Error ? error.message : 'Failed to join room';
+            const message =
+              error instanceof Error ? error.message : 'Failed to join room';
             set({
               connectionState: ConnectionState.Error,
               error: message,
@@ -171,8 +174,8 @@ export const useSyncRoomStore = create<SyncRoomStore>()(
       partialize: (state) => ({
         localPeerName: state.localPeerName,
       }),
-    }
-  )
+    },
+  ),
 );
 
 // =============================================================================
@@ -211,7 +214,9 @@ export function usePeerCount(): number {
  * Check if connected to a room.
  */
 export function useIsConnected(): boolean {
-  return useSyncRoomStore((state) => state.connectionState === ConnectionState.Connected);
+  return useSyncRoomStore(
+    (state) => state.connectionState === ConnectionState.Connected,
+  );
 }
 
 /**

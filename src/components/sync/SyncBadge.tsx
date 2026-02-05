@@ -6,6 +6,7 @@
  * @spec openspec/changes/add-p2p-vault-sync/specs/vault-sync/spec.md
  */
 import React, { useState, useCallback } from 'react';
+
 import { SyncState } from '@/lib/p2p';
 
 // =============================================================================
@@ -36,8 +37,18 @@ interface StateConfig {
 
 function getSyncedIcon(className: string): React.ReactNode {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M5 13l4 4L19 7"
+      />
     </svg>
   );
 }
@@ -52,7 +63,12 @@ function getPendingIcon(className: string): React.ReactNode {
 
 function getSyncingIcon(className: string): React.ReactNode {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -65,7 +81,12 @@ function getSyncingIcon(className: string): React.ReactNode {
 
 function getConflictIcon(className: string): React.ReactNode {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -78,7 +99,12 @@ function getConflictIcon(className: string): React.ReactNode {
 
 function getDisabledIcon(className: string): React.ReactNode {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -179,12 +205,7 @@ export function SyncBadge({
     >
       {/* Badge */}
       <div
-        className={`
-          ${sizes.container}
-          rounded-full border flex items-center justify-center
-          ${config.bgColor} ${config.iconColor} ${config.borderColor}
-          transition-colors
-        `}
+        className={` ${sizes.container} flex items-center justify-center rounded-full border ${config.bgColor} ${config.iconColor} ${config.borderColor} transition-colors`}
         aria-label={config.tooltip}
       >
         {config.icon}
@@ -192,25 +213,12 @@ export function SyncBadge({
 
       {/* Tooltip */}
       {showTooltip && (
-        <div
-          className="
-            absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-            px-2.5 py-1.5 rounded-lg
-            bg-surface-raised border border-border-theme
-            shadow-lg shadow-black/30
-            whitespace-nowrap z-50
-          "
-        >
-          <p className="text-xs font-medium text-text-theme-primary">
+        <div className="bg-surface-raised border-border-theme absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 rounded-lg border px-2.5 py-1.5 whitespace-nowrap shadow-lg shadow-black/30">
+          <p className="text-text-theme-primary text-xs font-medium">
             {config.tooltip}
           </p>
           {/* Tooltip arrow */}
-          <div
-            className="
-              absolute top-full left-1/2 -translate-x-1/2
-              border-4 border-transparent border-t-surface-raised
-            "
-          />
+          <div className="border-t-surface-raised absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent" />
         </div>
       )}
     </div>

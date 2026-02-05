@@ -8,8 +8,12 @@
  */
 
 import { useMemo, useEffect, useRef, useState } from 'react';
+
+import {
+  initializeUnitValidationRules,
+  areRulesInitialized,
+} from '@/services/validation/initializeUnitValidation';
 import { validateUnit } from '@/services/validation/UnitValidationOrchestrator';
-import { initializeUnitValidationRules, areRulesInitialized } from '@/services/validation/initializeUnitValidation';
 import {
   IValidatableUnit,
   IUnitValidationResult,
@@ -17,12 +21,13 @@ import {
   IUnitValidationOptions,
 } from '@/types/validation/UnitValidationInterfaces';
 import { ValidationStatus } from '@/utils/colors/statusColors';
+
 import { useDebounce } from './useDebounce';
-import { useUnitMetadata } from './validation/useUnitMetadata';
-import { useWeightValidation } from './validation/useWeightValidation';
 import { useArmorValidation } from './validation/useArmorValidation';
 import { useEquipmentValidation } from './validation/useEquipmentValidation';
 import { useStructureValidation } from './validation/useStructureValidation';
+import { useUnitMetadata } from './validation/useUnitMetadata';
+import { useWeightValidation } from './validation/useWeightValidation';
 
 /**
  * Validation results formatted for UI consumption
@@ -66,7 +71,9 @@ const DEFAULT_STATE: UnitValidationState = {
 /**
  * Map IUnitValidationResult to ValidationStatus
  */
-function mapToValidationStatus(result: IUnitValidationResult): ValidationStatus {
+function mapToValidationStatus(
+  result: IUnitValidationResult,
+): ValidationStatus {
   if (result.hasCriticalErrors || result.errorCount > 0) {
     return 'error';
   }
@@ -107,7 +114,9 @@ export interface UseUnitValidationOptions extends IUnitValidationOptions {
  * );
  * ```
  */
-export function useUnitValidation(options?: UseUnitValidationOptions): UnitValidationState {
+export function useUnitValidation(
+  options?: UseUnitValidationOptions,
+): UnitValidationState {
   const hasInitialized = useRef(false);
   const debounceMs = options?.debounceMs ?? 300;
 
@@ -162,7 +171,7 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
       options?.strictMode,
       options?.includeWarnings,
       options?.includeInfos,
-    ]
+    ],
   );
 
   // Debounce the validation snapshot
@@ -194,7 +203,8 @@ export function useUnitValidation(options?: UseUnitValidationOptions): UnitValid
     }
 
     // Extract data from debounced snapshot
-    const { metadata, weightData, armorData, equipmentData, structureData } = debouncedSnapshot;
+    const { metadata, weightData, armorData, equipmentData, structureData } =
+      debouncedSnapshot;
 
     // Build validatable unit from sub-hook data
     const validatableUnit: IValidatableUnit = {
@@ -305,7 +315,9 @@ export function getValidationSummary(state: UnitValidationState): string {
     parts.push(`${state.errorCount} error${state.errorCount !== 1 ? 's' : ''}`);
   }
   if (state.warningCount > 0) {
-    parts.push(`${state.warningCount} warning${state.warningCount !== 1 ? 's' : ''}`);
+    parts.push(
+      `${state.warningCount} warning${state.warningCount !== 1 ? 's' : ''}`,
+    );
   }
   return parts.join(', ') || 'Invalid';
 }
@@ -384,7 +396,9 @@ function toValidationResult(state: UnitValidationState): ValidationResult {
           id: warning.ruleId,
           severity: ValidationSeverity.WARNING,
           message: warning.message,
-          details: warning.details ? JSON.stringify(warning.details) : undefined,
+          details: warning.details
+            ? JSON.stringify(warning.details)
+            : undefined,
         });
       }
       for (const info of ruleResult.infos) {

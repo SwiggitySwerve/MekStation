@@ -1,16 +1,16 @@
 /**
  * Tests for Gyro Calculations
- * 
+ *
  * @spec openspec/specs/gyro-system/spec.md
  */
 
+import { GyroType } from '@/types/construction/GyroType';
 import {
   calculateGyroWeight,
   getGyroCriticalSlots,
   validateGyro,
   isGyroCompatibleWithCockpit,
 } from '@/utils/construction/gyroCalculations';
-import { GyroType } from '@/types/construction/GyroType';
 
 describe('Gyro Calculations', () => {
   describe('calculateGyroWeight', () => {
@@ -22,10 +22,10 @@ describe('Gyro Calculations', () => {
     it('should calculate standard gyro weight correctly', () => {
       // 100 rating -> ceil(100/100) = 1 ton
       expect(calculateGyroWeight(100, GyroType.STANDARD)).toBe(1);
-      
+
       // 200 rating -> ceil(200/100) = 2 tons
       expect(calculateGyroWeight(200, GyroType.STANDARD)).toBe(2);
-      
+
       // 300 rating -> ceil(300/100) = 3 tons
       expect(calculateGyroWeight(300, GyroType.STANDARD)).toBe(3);
     });
@@ -33,7 +33,7 @@ describe('Gyro Calculations', () => {
     it('should round up engine rating to nearest 100', () => {
       // 150 rating -> ceil(150/100) = 2 tons
       expect(calculateGyroWeight(150, GyroType.STANDARD)).toBe(2);
-      
+
       // 250 rating -> ceil(250/100) = 3 tons
       expect(calculateGyroWeight(250, GyroType.STANDARD)).toBe(3);
     });
@@ -81,32 +81,36 @@ describe('Gyro Calculations', () => {
   describe('validateGyro', () => {
     it('should pass for valid gyro configuration', () => {
       const result = validateGyro(GyroType.STANDARD, 200);
-      
+
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
     it('should fail for engine rating <= 0', () => {
       const result = validateGyro(GyroType.STANDARD, 0);
-      
+
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.includes('Engine rating'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('Engine rating'))).toBe(true);
     });
 
     it('should fail for negative engine rating', () => {
       const result = validateGyro(GyroType.STANDARD, -100);
-      
+
       expect(result.isValid).toBe(false);
     });
   });
 
   describe('isGyroCompatibleWithCockpit', () => {
     it('should return true for standard gyro with standard cockpit', () => {
-      expect(isGyroCompatibleWithCockpit(GyroType.STANDARD, 'Standard')).toBe(true);
+      expect(isGyroCompatibleWithCockpit(GyroType.STANDARD, 'Standard')).toBe(
+        true,
+      );
     });
 
     it('should return true for compact gyro with standard cockpit', () => {
-      expect(isGyroCompatibleWithCockpit(GyroType.COMPACT, 'Standard')).toBe(true);
+      expect(isGyroCompatibleWithCockpit(GyroType.COMPACT, 'Standard')).toBe(
+        true,
+      );
     });
 
     it('should return true for XL gyro with standard cockpit', () => {
@@ -114,7 +118,9 @@ describe('Gyro Calculations', () => {
     });
 
     it('should return true for heavy-duty gyro with standard cockpit', () => {
-      expect(isGyroCompatibleWithCockpit(GyroType.HEAVY_DUTY, 'Standard')).toBe(true);
+      expect(isGyroCompatibleWithCockpit(GyroType.HEAVY_DUTY, 'Standard')).toBe(
+        true,
+      );
     });
   });
 });

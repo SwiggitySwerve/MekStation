@@ -6,14 +6,15 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import { useEffect, useCallback } from 'react';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useCallback } from 'react';
+
 import { GameplayLayout } from '@/components/gameplay';
+import { Button } from '@/components/ui';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { GameSide, GameStatus } from '@/types/gameplay';
-import { Button } from '@/components/ui';
 
 // =============================================================================
 // Loading Component
@@ -21,9 +22,12 @@ import { Button } from '@/components/ui';
 
 function GameLoading(): React.ReactElement {
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-900" data-testid="game-loading">
+    <div
+      className="flex h-screen items-center justify-center bg-gray-900"
+      data-testid="game-loading"
+    >
       <div className="text-center">
-        <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4" />
+        <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
         <p className="text-gray-400">Loading game session...</p>
       </div>
     </div>
@@ -40,29 +44,38 @@ interface CompletedGameProps {
   reason: string;
 }
 
-function CompletedGame({ gameId, winner, reason }: CompletedGameProps): React.ReactElement {
-  const winnerText = winner === 'draw' 
-    ? 'Draw' 
-    : winner === GameSide.Player 
-      ? 'Victory' 
-      : 'Defeat';
-  
-  const winnerColor = winner === 'draw'
-    ? 'text-amber-400'
-    : winner === GameSide.Player
-      ? 'text-emerald-400'
-      : 'text-red-400';
+function CompletedGame({
+  gameId,
+  winner,
+  reason,
+}: CompletedGameProps): React.ReactElement {
+  const winnerText =
+    winner === 'draw'
+      ? 'Draw'
+      : winner === GameSide.Player
+        ? 'Victory'
+        : 'Defeat';
+
+  const winnerColor =
+    winner === 'draw'
+      ? 'text-amber-400'
+      : winner === GameSide.Player
+        ? 'text-emerald-400'
+        : 'text-red-400';
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-900" data-testid="game-completed">
-      <div className="text-center max-w-lg">
-        <div className={`text-6xl font-bold mb-4 ${winnerColor}`}>
+    <div
+      className="flex h-screen items-center justify-center bg-gray-900"
+      data-testid="game-completed"
+    >
+      <div className="max-w-lg text-center">
+        <div className={`mb-4 text-6xl font-bold ${winnerColor}`}>
           {winnerText}
         </div>
-        <p className="text-gray-400 mb-8 text-lg capitalize">
+        <p className="mb-8 text-lg text-gray-400 capitalize">
           {reason.replace('_', ' ')}
         </p>
-        
+
         <div className="flex items-center justify-center gap-4">
           <Link href={`/gameplay/games/${gameId}/replay`}>
             <Button
@@ -70,9 +83,24 @@ function CompletedGame({ gameId, winner, reason }: CompletedGameProps): React.Re
               size="lg"
               data-testid="replay-game-btn"
               leftIcon={
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               }
             >
@@ -80,19 +108,33 @@ function CompletedGame({ gameId, winner, reason }: CompletedGameProps): React.Re
             </Button>
           </Link>
           <Link href="/gameplay/games">
-            <Button variant="secondary" size="lg" data-testid="back-to-games-btn">
+            <Button
+              variant="secondary"
+              size="lg"
+              data-testid="back-to-games-btn"
+            >
               Back to Games
             </Button>
           </Link>
         </div>
-        
-        <div className="mt-8 pt-8 border-t border-gray-700">
+
+        <div className="mt-8 border-t border-gray-700 pt-8">
           <Link
             href={`/audit/timeline?gameId=${gameId}`}
-            className="text-cyan-400 hover:text-cyan-300 transition-colors text-sm flex items-center justify-center gap-2"
+            className="flex items-center justify-center gap-2 text-sm text-cyan-400 transition-colors hover:text-cyan-300"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             View Full Event Timeline
           </Link>
@@ -101,8 +143,6 @@ function CompletedGame({ gameId, winner, reason }: CompletedGameProps): React.Re
     </div>
   );
 }
-
-
 
 // =============================================================================
 // Error Component
@@ -115,11 +155,14 @@ interface GameErrorProps {
 
 function GameError({ message, onRetry }: GameErrorProps): React.ReactElement {
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-900" data-testid="game-error">
-      <div className="text-center max-w-md">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-900/20 flex items-center justify-center">
+    <div
+      className="flex h-screen items-center justify-center bg-gray-900"
+      data-testid="game-error"
+    >
+      <div className="max-w-md text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-900/20">
           <svg
-            className="w-8 h-8 text-red-500"
+            className="h-8 w-8 text-red-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -132,10 +175,16 @@ function GameError({ message, onRetry }: GameErrorProps): React.ReactElement {
             />
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Failed to Load Game</h2>
-        <p className="text-gray-400 mb-4">{message}</p>
+        <h2 className="mb-2 text-xl font-bold text-white">
+          Failed to Load Game
+        </h2>
+        <p className="mb-4 text-gray-400">{message}</p>
         <div className="flex items-center justify-center gap-3">
-          <Button variant="primary" onClick={onRetry} data-testid="game-retry-btn">
+          <Button
+            variant="primary"
+            onClick={onRetry}
+            data-testid="game-retry-btn"
+          >
             Try Again
           </Button>
           <Link href="/gameplay/games">
@@ -213,12 +262,12 @@ export default function GameSessionPage(): React.ReactElement {
   }
 
   // Completed game - show results and replay option
-  if (session.currentState.status === GameStatus.Completed && session.currentState.result) {
+  if (
+    session.currentState.status === GameStatus.Completed &&
+    session.currentState.result
+  ) {
     return (
       <>
-        <Head>
-          <title>Game Complete - MekStation</title>
-        </Head>
         <CompletedGame
           gameId={session.id}
           winner={session.currentState.result.winner}

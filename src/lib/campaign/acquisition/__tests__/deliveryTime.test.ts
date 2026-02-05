@@ -7,8 +7,9 @@
  * Based on MekHQ Campaign.java lines 9289-9331
  */
 
-import { calculateDeliveryTime, roll1d6 } from '../deliveryTime';
 import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
+
+import { calculateDeliveryTime, roll1d6 } from '../deliveryTime';
 
 /**
  * Helper to create a deterministic random function that returns a specific 1d6 value
@@ -61,7 +62,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.A,
         'month',
-        randomFor1d6(1)
+        randomFor1d6(1),
       );
       expect(time).toBe(2);
     });
@@ -71,7 +72,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.B,
         'month',
-        randomFor1d6(1)
+        randomFor1d6(1),
       );
       expect(time).toBe(2);
     });
@@ -81,7 +82,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.C,
         'month',
-        randomFor1d6(1)
+        randomFor1d6(1),
       );
       expect(time).toBe(2);
     });
@@ -91,7 +92,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.D,
         'month',
-        randomFor1d6(1)
+        randomFor1d6(1),
       );
       expect(time).toBe(2);
     });
@@ -101,7 +102,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.E,
         'month',
-        randomFor1d6(1)
+        randomFor1d6(1),
       );
       expect(time).toBe(3);
     });
@@ -111,7 +112,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.F,
         'month',
-        randomFor1d6(1)
+        randomFor1d6(1),
       );
       expect(time).toBe(3);
     });
@@ -121,7 +122,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.X,
         'month',
-        randomFor1d6(1)
+        randomFor1d6(1),
       );
       expect(time).toBe(3);
     });
@@ -133,7 +134,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.A,
         'month',
-        randomFor1d6(3)
+        randomFor1d6(3),
       );
       expect(time).toBe(2);
     });
@@ -143,7 +144,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.D,
         'month',
-        randomFor1d6(4)
+        randomFor1d6(4),
       );
       expect(time).toBe(3);
     });
@@ -153,7 +154,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.F,
         'month',
-        randomFor1d6(6)
+        randomFor1d6(6),
       );
       expect(time).toBe(4);
     });
@@ -163,7 +164,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.X,
         'month',
-        randomFor1d6(6)
+        randomFor1d6(6),
       );
       expect(time).toBe(4);
     });
@@ -175,7 +176,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.A,
         'month',
-        randomFor1d6(1)
+        randomFor1d6(1),
       );
       expect(time).toBeGreaterThanOrEqual(1);
       expect(time).toBe(2);
@@ -187,7 +188,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.A,
         'month',
-        randomFor1d6(1)
+        randomFor1d6(1),
       );
       expect(time).toBeGreaterThanOrEqual(1);
     });
@@ -198,7 +199,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.A,
         'day',
-        randomFor1d6(3)
+        randomFor1d6(3),
       );
       expect(time).toBe(2);
     });
@@ -207,7 +208,7 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.A,
         'week',
-        randomFor1d6(3)
+        randomFor1d6(3),
       );
       expect(time).toBe(2);
     });
@@ -216,13 +217,17 @@ describe('calculateDeliveryTime', () => {
       const time = calculateDeliveryTime(
         AvailabilityRating.A,
         'month',
-        randomFor1d6(3)
+        randomFor1d6(3),
       );
       expect(time).toBe(2);
     });
 
     it('should default to month when not specified', () => {
-      const time = calculateDeliveryTime(AvailabilityRating.A, 'month', randomFor1d6(3));
+      const time = calculateDeliveryTime(
+        AvailabilityRating.A,
+        'month',
+        randomFor1d6(3),
+      );
       expect(time).toBe(2);
     });
   });
@@ -245,12 +250,12 @@ describe('calculateDeliveryTime', () => {
       const time1 = calculateDeliveryTime(
         AvailabilityRating.D,
         'month',
-        randomFor1d6(4)
+        randomFor1d6(4),
       );
       const time2 = calculateDeliveryTime(
         AvailabilityRating.D,
         'month',
-        randomFor1d6(4)
+        randomFor1d6(4),
       );
       expect(time1).toBe(time2);
       expect(time1).toBe(3);
@@ -299,7 +304,7 @@ describe('calculateDeliveryTime', () => {
         const time = calculateDeliveryTime(
           AvailabilityRating.D,
           'month',
-          randomFor1d6(roll)
+          randomFor1d6(roll),
         );
         expect(Number.isInteger(time)).toBe(true);
       }

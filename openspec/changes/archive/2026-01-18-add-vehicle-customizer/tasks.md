@@ -1,12 +1,14 @@
 # Tasks: Vehicle Customizer UI
 
 ## 1. Vehicle State Management
+
 - [x] 1.1 Create `VehicleState` interface extending UnitState patterns
 - [x] 1.2 Add vehicle-specific fields (motionType, turretType, etc.)
 - [x] 1.3 Create `useVehicleStore` or extend `useUnitStore`
 - [x] 1.4 Implement vehicle state <-> serialization mapping
 
 ## 2. Vehicle Customizer Tabs
+
 - [x] 2.1 Create `VehicleStructureTab` component
   - [x] Chassis selection (tonnage, motion type)
   - [x] Engine type/rating selection
@@ -24,6 +26,7 @@
   - [x] Turret weight tracking
 
 ## 3. Vehicle Diagram
+
 - [x] 3.1 Create `VehicleDiagram` component
 - [x] 3.2 Implement location click targets for vehicle shape
 - [x] 3.3 Display armor pips per location
@@ -32,12 +35,14 @@
   - Note: No mm-data vehicle assets exist; SVG-based implementation is complete
 
 ## 4. Vehicle Status Bar
+
 - [x] 4.1 Create `VehicleStatusBar` extending base StatusBar
 - [x] 4.2 Show vehicle-specific calculations (cruise/flank MP)
 - [x] 4.3 Show turret weight allocation
 - [x] 4.4 Show vehicle-specific validation errors
 
 ## 5. Vehicle Validation Rules
+
 - [x] 5.1 Create `VehicleValidationRules` extending validation framework
   - Already exists in `src/services/validation/rules/vehicle/VehicleCategoryRules.ts`
 - [x] 5.2 Validate motion type constraints
@@ -50,6 +55,7 @@
   - Registered in `src/services/validation/initializeUnitValidation.ts`
 
 ## 6. Integration
+
 - [x] 6.1 Add vehicle to unit type selector in construction flow
 - [x] 6.2 Route vehicle units to VehicleCustomizer
 - [x] 6.3 Add unit type filter to equipment browser

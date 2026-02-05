@@ -1,13 +1,13 @@
 /**
  * Equipment Lookup Service Tests
- * 
+ *
  * Tests for equipment lookup and filtering.
- * 
+ *
  * @spec openspec/specs/equipment-database/spec.md
  */
 
-import { TechBase } from '@/types/enums/TechBase';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 
 // Mock the EquipmentLoaderService
@@ -18,14 +18,14 @@ jest.mock('@/services/equipment/EquipmentLoaderService', () => {
     INNER_SPHERE: 'Inner Sphere',
     CLAN: 'Clan',
   };
-  
+
   const RulesLevelValues = {
     INTRODUCTORY: 'Introductory',
     STANDARD: 'Standard',
     ADVANCED: 'Advanced',
     EXPERIMENTAL: 'Experimental',
   };
-  
+
   // Must define mock data inside the factory function
   const mockWeapons = [
     {
@@ -279,7 +279,8 @@ describe('EquipmentLookupService', () => {
 
     it('should return equipment items with required properties', () => {
       const equipment = service.getAllEquipment();
-      for (const item of equipment.slice(0, 10)) { // Check first 10 items
+      for (const item of equipment.slice(0, 10)) {
+        // Check first 10 items
         expect(item).toHaveProperty('id');
         expect(item).toHaveProperty('name');
         expect(item).toHaveProperty('weight');
@@ -302,7 +303,7 @@ describe('EquipmentLookupService', () => {
     it('should return weapons only', () => {
       const weapons = service.getAllWeapons();
       expect(weapons.length).toBeGreaterThan(0);
-      
+
       for (const weapon of weapons) {
         expect(weapon).toHaveProperty('damage');
         expect(weapon).toHaveProperty('heat');
@@ -311,12 +312,14 @@ describe('EquipmentLookupService', () => {
 
     it('should include common weapons', () => {
       const weapons = service.getAllWeapons();
-      const weaponNames = weapons.map(w => w.name.toLowerCase());
-      
+      const weaponNames = weapons.map((w) => w.name.toLowerCase());
+
       // Check for some common weapon types
-      const hasLaser = weaponNames.some(n => n.includes('laser'));
-      const hasAc = weaponNames.some(n => n.includes('autocannon') || n.includes('ac/'));
-      
+      const hasLaser = weaponNames.some((n) => n.includes('laser'));
+      const hasAc = weaponNames.some(
+        (n) => n.includes('autocannon') || n.includes('ac/'),
+      );
+
       expect(hasLaser || hasAc).toBe(true);
     });
   });
@@ -328,7 +331,7 @@ describe('EquipmentLookupService', () => {
     it('should return ammunition only', () => {
       const ammo = service.getAllAmmunition();
       expect(ammo.length).toBeGreaterThan(0);
-      
+
       for (const item of ammo) {
         expect(item).toHaveProperty('shotsPerTon');
       }
@@ -365,8 +368,10 @@ describe('EquipmentLookupService', () => {
   // ============================================================================
   describe('getByCategory', () => {
     it('should filter by category', () => {
-      const energyWeapons = service.getByCategory(EquipmentCategory.ENERGY_WEAPON);
-      
+      const energyWeapons = service.getByCategory(
+        EquipmentCategory.ENERGY_WEAPON,
+      );
+
       for (const item of energyWeapons) {
         expect(item.category).toBe(EquipmentCategory.ENERGY_WEAPON);
       }
@@ -379,12 +384,16 @@ describe('EquipmentLookupService', () => {
     });
 
     it('should return energy weapons', () => {
-      const energyWeapons = service.getByCategory(EquipmentCategory.ENERGY_WEAPON);
+      const energyWeapons = service.getByCategory(
+        EquipmentCategory.ENERGY_WEAPON,
+      );
       expect(energyWeapons.length).toBeGreaterThan(0);
     });
 
     it('should return ballistic weapons', () => {
-      const ballisticWeapons = service.getByCategory(EquipmentCategory.BALLISTIC_WEAPON);
+      const ballisticWeapons = service.getByCategory(
+        EquipmentCategory.BALLISTIC_WEAPON,
+      );
       expect(ballisticWeapons.length).toBeGreaterThan(0);
     });
   });
@@ -396,7 +405,7 @@ describe('EquipmentLookupService', () => {
     it('should filter by Inner Sphere tech base', () => {
       const isEquipment = service.getByTechBase(TechBase.INNER_SPHERE);
       expect(isEquipment.length).toBeGreaterThan(0);
-      
+
       for (const item of isEquipment) {
         expect(item.techBase).toBe(TechBase.INNER_SPHERE);
       }
@@ -405,7 +414,7 @@ describe('EquipmentLookupService', () => {
     it('should filter by Clan tech base', () => {
       const clanEquipment = service.getByTechBase(TechBase.CLAN);
       expect(clanEquipment.length).toBeGreaterThan(0);
-      
+
       for (const item of clanEquipment) {
         expect(item.techBase).toBe(TechBase.CLAN);
       }
@@ -419,7 +428,7 @@ describe('EquipmentLookupService', () => {
     it('should filter by year', () => {
       const year = 3050;
       const available = service.getByEra(year);
-      
+
       for (const item of available) {
         expect(item.introductionYear).toBeLessThanOrEqual(year);
       }
@@ -428,7 +437,7 @@ describe('EquipmentLookupService', () => {
     it('should return more equipment for later years', () => {
       const earlyYear = service.getByEra(2500);
       const lateYear = service.getByEra(3100);
-      
+
       expect(lateYear.length).toBeGreaterThanOrEqual(earlyYear.length);
     });
   });
@@ -440,7 +449,7 @@ describe('EquipmentLookupService', () => {
     it('should find equipment by name substring', () => {
       const results = service.search('laser');
       expect(results.length).toBeGreaterThan(0);
-      
+
       for (const item of results) {
         expect(item.name.toLowerCase()).toContain('laser');
       }
@@ -450,7 +459,7 @@ describe('EquipmentLookupService', () => {
       const lower = service.search('laser');
       const upper = service.search('LASER');
       const mixed = service.search('LaSeR');
-      
+
       expect(lower.length).toBe(upper.length);
       expect(lower.length).toBe(mixed.length);
     });
@@ -466,8 +475,10 @@ describe('EquipmentLookupService', () => {
   // ============================================================================
   describe('query', () => {
     it('should filter by category', () => {
-      const results = service.query({ category: EquipmentCategory.BALLISTIC_WEAPON });
-      
+      const results = service.query({
+        category: EquipmentCategory.BALLISTIC_WEAPON,
+      });
+
       for (const item of results) {
         expect(item.category).toBe(EquipmentCategory.BALLISTIC_WEAPON);
       }
@@ -475,7 +486,7 @@ describe('EquipmentLookupService', () => {
 
     it('should filter by tech base', () => {
       const results = service.query({ techBase: TechBase.CLAN });
-      
+
       for (const item of results) {
         expect(item.techBase).toBe(TechBase.CLAN);
       }
@@ -483,7 +494,7 @@ describe('EquipmentLookupService', () => {
 
     it('should filter by year', () => {
       const results = service.query({ year: 3025 });
-      
+
       for (const item of results) {
         expect(item.introductionYear).toBeLessThanOrEqual(3025);
       }
@@ -491,7 +502,7 @@ describe('EquipmentLookupService', () => {
 
     it('should filter by name query', () => {
       const results = service.query({ nameQuery: 'pulse' });
-      
+
       for (const item of results) {
         expect(item.name.toLowerCase()).toContain('pulse');
       }
@@ -499,7 +510,7 @@ describe('EquipmentLookupService', () => {
 
     it('should filter by rules level', () => {
       const results = service.query({ rulesLevel: RulesLevel.INTRODUCTORY });
-      
+
       for (const item of results) {
         expect(item.rulesLevel).toBe(RulesLevel.INTRODUCTORY);
       }
@@ -507,7 +518,7 @@ describe('EquipmentLookupService', () => {
 
     it('should filter by max weight', () => {
       const results = service.query({ maxWeight: 2 });
-      
+
       for (const item of results) {
         expect(item.weight).toBeLessThanOrEqual(2);
       }
@@ -515,7 +526,7 @@ describe('EquipmentLookupService', () => {
 
     it('should filter by max slots', () => {
       const results = service.query({ maxSlots: 1 });
-      
+
       for (const item of results) {
         expect(item.criticalSlots).toBeLessThanOrEqual(1);
       }
@@ -527,7 +538,7 @@ describe('EquipmentLookupService', () => {
         category: EquipmentCategory.ENERGY_WEAPON,
         maxWeight: 5,
       });
-      
+
       for (const item of results) {
         expect(item.techBase).toBe(TechBase.INNER_SPHERE);
         expect(item.category).toBe(EquipmentCategory.ENERGY_WEAPON);
@@ -538,7 +549,7 @@ describe('EquipmentLookupService', () => {
     it('should return empty criteria with all equipment', () => {
       const all = service.getAllEquipment();
       const results = service.query({});
-      
+
       expect(results.length).toBe(all.length);
     });
   });
@@ -592,7 +603,7 @@ describe('EquipmentLookupService', () => {
     it('all equipment should have valid tech base', () => {
       const equipment = service.getAllEquipment();
       const validTechBases = Object.values(TechBase);
-      
+
       for (const item of equipment) {
         expect(validTechBases).toContain(item.techBase);
       }

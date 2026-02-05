@@ -7,6 +7,7 @@
 The system SHALL aggregate unit data into a card-friendly format.
 
 #### Scenario: Basic stats aggregation
+
 - **GIVEN** a unit with complete data
 - **WHEN** generating card data
 - **THEN** card SHALL include: name, chassis, model, tonnage
@@ -14,12 +15,14 @@ The system SHALL aggregate unit data into a card-friendly format.
 - **AND** card SHALL include: BV, C-Bill cost
 
 #### Scenario: Movement aggregation
+
 - **GIVEN** a unit with movement data
 - **WHEN** generating card data
 - **THEN** card SHALL include: walk MP, run MP, jump MP
 - **AND** card SHALL indicate movement enhancements (MASC, TSM)
 
 #### Scenario: Weapons aggregation
+
 - **GIVEN** a unit with mounted weapons
 - **WHEN** generating card data
 - **THEN** each weapon SHALL show: name, damage, range brackets, heat
@@ -27,6 +30,7 @@ The system SHALL aggregate unit data into a card-friendly format.
 - **AND** weapons SHALL be sorted by damage or location
 
 #### Scenario: Heat summary
+
 - **GIVEN** a unit with weapons and heat sinks
 - **WHEN** calculating heat summary
 - **THEN** total heat generated (all weapons firing) SHALL be shown
@@ -38,6 +42,7 @@ The system SHALL aggregate unit data into a card-friendly format.
 The system SHALL provide a compact card for list views.
 
 #### Scenario: Compact card content
+
 - **GIVEN** compact card variant requested
 - **WHEN** rendering card
 - **THEN** card SHALL show: name, tonnage, BV
@@ -46,6 +51,7 @@ The system SHALL provide a compact card for list views.
 - **AND** card SHALL NOT show: weapons list, equipment details
 
 #### Scenario: Compact card sizing
+
 - **GIVEN** compact card in a list
 - **WHEN** rendering
 - **THEN** card SHALL fit in a single row
@@ -56,6 +62,7 @@ The system SHALL provide a compact card for list views.
 The system SHALL provide a standard card with key details.
 
 #### Scenario: Standard card sections
+
 - **GIVEN** standard card variant requested
 - **WHEN** rendering card
 - **THEN** card SHALL include header (name, tonnage, BV, era)
@@ -66,6 +73,7 @@ The system SHALL provide a standard card with key details.
 - **AND** card SHALL include action buttons
 
 #### Scenario: Weapons table format
+
 - **GIVEN** weapons section rendering
 - **WHEN** displaying weapons
 - **THEN** each row SHALL show: weapon name, damage, range (S/M/L), heat
@@ -73,6 +81,7 @@ The system SHALL provide a standard card with key details.
 - **AND** destroyed weapons SHALL be visually indicated (for gameplay)
 
 #### Scenario: Armor section format
+
 - **GIVEN** armor section rendering
 - **WHEN** displaying armor
 - **THEN** total armor points SHALL be shown
@@ -85,6 +94,7 @@ The system SHALL provide a standard card with key details.
 The system SHALL provide an expanded card with full details.
 
 #### Scenario: Expanded card content
+
 - **GIVEN** expanded card variant requested
 - **WHEN** rendering card
 - **THEN** card SHALL include all standard card content
@@ -94,6 +104,7 @@ The system SHALL provide an expanded card with full details.
 - **AND** card SHALL include fluff/notes (if any)
 
 #### Scenario: Equipment list
+
 - **GIVEN** equipment section rendering
 - **WHEN** displaying non-weapon equipment
 - **THEN** electronics (ECM, BAP, C3) SHALL be listed
@@ -106,24 +117,28 @@ The system SHALL provide an expanded card with full details.
 The system SHALL provide quick actions on unit cards.
 
 #### Scenario: Export action
+
 - **GIVEN** a unit card with Export button
 - **WHEN** user clicks Export
 - **THEN** export dialog SHALL open
 - **AND** user can download shareable bundle
 
 #### Scenario: Share action
+
 - **GIVEN** a unit card with Share button
 - **WHEN** user clicks Share
 - **THEN** share dialog SHALL open
 - **AND** user can generate share link or configure permissions
 
 #### Scenario: Edit action
+
 - **GIVEN** a unit card with Edit button
 - **WHEN** user clicks Edit
 - **THEN** user SHALL navigate to customizer with unit loaded
 - **AND** for canonical units, a copy SHALL be created first
 
 #### Scenario: Duplicate action
+
 - **GIVEN** a unit card with Duplicate button
 - **WHEN** user clicks Duplicate
 - **THEN** a copy of the unit SHALL be created
@@ -135,12 +150,14 @@ The system SHALL provide quick actions on unit cards.
 The system SHALL render cards appropriately across devices.
 
 #### Scenario: Desktop layout
+
 - **GIVEN** desktop viewport
 - **WHEN** rendering cards in grid
 - **THEN** multiple cards SHALL display per row
 - **AND** standard card width approximately 400px
 
 #### Scenario: Mobile layout
+
 - **GIVEN** mobile viewport
 - **WHEN** rendering cards
 - **THEN** cards SHALL stack vertically
@@ -148,6 +165,7 @@ The system SHALL render cards appropriately across devices.
 - **AND** touch targets SHALL be appropriately sized
 
 #### Scenario: Print layout
+
 - **GIVEN** print request
 - **WHEN** rendering cards
 - **THEN** cards SHALL use print-friendly styles

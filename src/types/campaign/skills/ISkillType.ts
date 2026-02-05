@@ -1,5 +1,6 @@
-import { IAttributes } from './IAttributes';
 import { IEntity } from '@/types/core/IEntity';
+
+import { IAttributes } from './IAttributes';
 
 /**
  * Metadata definition for a skill type in the MekStation campaign system.

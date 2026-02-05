@@ -3,10 +3,15 @@
  * @spec openspec/changes/add-unified-event-store/specs/event-store/spec.md
  */
 
-// Jest globals are available
-import { ChunkManagerService, getChunkManager, resetChunkManager } from '../ChunkManagerService';
-import { createEvent, resetSequence } from '@/utils/events/eventFactory';
 import { EventCategory } from '@/types/events';
+import { createEvent, resetSequence } from '@/utils/events/eventFactory';
+
+// Jest globals are available
+import {
+  ChunkManagerService,
+  getChunkManager,
+  resetChunkManager,
+} from '../ChunkManagerService';
 
 describe('ChunkManagerService', () => {
   let manager: ChunkManagerService;
@@ -19,8 +24,18 @@ describe('ChunkManagerService', () => {
   describe('createChunk', () => {
     it('should create a chunk from events', () => {
       const events = [
-        createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} }),
-        createEvent({ category: EventCategory.Game, type: 'e2', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e1',
+          payload: {},
+          context: {},
+        }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e2',
+          payload: {},
+          context: {},
+        }),
       ];
 
       const chunk = manager.createChunk({ events });
@@ -35,7 +50,12 @@ describe('ChunkManagerService', () => {
 
     it('should store the chunk', () => {
       const events = [
-        createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e1',
+          payload: {},
+          context: {},
+        }),
       ];
 
       const chunk = manager.createChunk({ events });
@@ -47,12 +67,22 @@ describe('ChunkManagerService', () => {
 
     it('should link chunks via previousHash', () => {
       const events1 = [
-        createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e1',
+          payload: {},
+          context: {},
+        }),
       ];
       const chunk1 = manager.createChunk({ events: events1, campaignId: 'c1' });
 
       const events2 = [
-        createEvent({ category: EventCategory.Game, type: 'e2', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e2',
+          payload: {},
+          context: {},
+        }),
       ];
       const chunk2 = manager.createChunk({ events: events2, campaignId: 'c1' });
 
@@ -74,23 +104,40 @@ describe('ChunkManagerService', () => {
   describe('getChunksForCampaign', () => {
     it('should return all chunks for a campaign in order', () => {
       const events1 = [
-        createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e1',
+          payload: {},
+          context: {},
+        }),
       ];
       manager.createChunk({ events: events1, campaignId: 'c1' });
 
       const events2 = [
-        createEvent({ category: EventCategory.Game, type: 'e2', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e2',
+          payload: {},
+          context: {},
+        }),
       ];
       manager.createChunk({ events: events2, campaignId: 'c1' });
 
       const events3 = [
-        createEvent({ category: EventCategory.Game, type: 'e3', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e3',
+          payload: {},
+          context: {},
+        }),
       ];
       manager.createChunk({ events: events3, campaignId: 'c2' }); // Different campaign
 
       const c1Chunks = manager.getChunksForCampaign('c1');
       expect(c1Chunks.length).toBe(2);
-      expect(c1Chunks[0].sequenceRange.to).toBeLessThan(c1Chunks[1].sequenceRange.from);
+      expect(c1Chunks[0].sequenceRange.to).toBeLessThan(
+        c1Chunks[1].sequenceRange.from,
+      );
     });
 
     it('should return empty array for non-existent campaign', () => {
@@ -130,8 +177,16 @@ describe('ChunkManagerService', () => {
     it('should return the latest checkpoint for a campaign', () => {
       manager.createManifest('c1');
 
-      manager.createCheckpoint({ sequence: 10, state: { v: 1 }, campaignId: 'c1' });
-      const cp2 = manager.createCheckpoint({ sequence: 20, state: { v: 2 }, campaignId: 'c1' });
+      manager.createCheckpoint({
+        sequence: 10,
+        state: { v: 1 },
+        campaignId: 'c1',
+      });
+      const cp2 = manager.createCheckpoint({
+        sequence: 20,
+        state: { v: 2 },
+        campaignId: 'c1',
+      });
 
       const latest = manager.getLatestCheckpoint('c1');
       expect(latest?.checkpointId).toBe(cp2.checkpointId);
@@ -145,9 +200,21 @@ describe('ChunkManagerService', () => {
 
   describe('findCheckpointBefore', () => {
     it('should find nearest checkpoint before sequence', () => {
-      manager.createCheckpoint({ sequence: 10, state: { v: 1 }, campaignId: 'c1' });
-      const cp2 = manager.createCheckpoint({ sequence: 50, state: { v: 2 }, campaignId: 'c1' });
-      manager.createCheckpoint({ sequence: 100, state: { v: 3 }, campaignId: 'c1' });
+      manager.createCheckpoint({
+        sequence: 10,
+        state: { v: 1 },
+        campaignId: 'c1',
+      });
+      const cp2 = manager.createCheckpoint({
+        sequence: 50,
+        state: { v: 2 },
+        campaignId: 'c1',
+      });
+      manager.createCheckpoint({
+        sequence: 100,
+        state: { v: 3 },
+        campaignId: 'c1',
+      });
 
       const found = manager.findCheckpointBefore('c1', 75);
       expect(found?.checkpointId).toBe(cp2.checkpointId);
@@ -175,7 +242,12 @@ describe('ChunkManagerService', () => {
 
     it('should update manifest when chunks are added', () => {
       const events = [
-        createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e1',
+          payload: {},
+          context: {},
+        }),
       ];
       manager.createChunk({ events, campaignId: 'c1' });
 
@@ -188,12 +260,22 @@ describe('ChunkManagerService', () => {
   describe('verifyCampaignIntegrity', () => {
     it('should pass for valid campaign', () => {
       const events1 = [
-        createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e1',
+          payload: {},
+          context: {},
+        }),
       ];
       manager.createChunk({ events: events1, campaignId: 'c1' });
 
       const events2 = [
-        createEvent({ category: EventCategory.Game, type: 'e2', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e2',
+          payload: {},
+          context: {},
+        }),
       ];
       manager.createChunk({ events: events2, campaignId: 'c1' });
 
@@ -205,13 +287,28 @@ describe('ChunkManagerService', () => {
   describe('getEventsFromChunks', () => {
     it('should return all events from campaign chunks', () => {
       const events1 = [
-        createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} }),
-        createEvent({ category: EventCategory.Game, type: 'e2', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e1',
+          payload: {},
+          context: {},
+        }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e2',
+          payload: {},
+          context: {},
+        }),
       ];
       manager.createChunk({ events: events1, campaignId: 'c1' });
 
       const events2 = [
-        createEvent({ category: EventCategory.Game, type: 'e3', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e3',
+          payload: {},
+          context: {},
+        }),
       ];
       manager.createChunk({ events: events2, campaignId: 'c1' });
 
@@ -221,9 +318,24 @@ describe('ChunkManagerService', () => {
 
     it('should filter by sequence range', () => {
       const events = [
-        createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} }),
-        createEvent({ category: EventCategory.Game, type: 'e2', payload: {}, context: {} }),
-        createEvent({ category: EventCategory.Game, type: 'e3', payload: {}, context: {} }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e1',
+          payload: {},
+          context: {},
+        }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e2',
+          payload: {},
+          context: {},
+        }),
+        createEvent({
+          category: EventCategory.Game,
+          type: 'e3',
+          payload: {},
+          context: {},
+        }),
       ];
       manager.createChunk({ events, campaignId: 'c1' });
 
@@ -236,7 +348,14 @@ describe('ChunkManagerService', () => {
   describe('getStats', () => {
     it('should return statistics', () => {
       manager.createChunk({
-        events: [createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} })],
+        events: [
+          createEvent({
+            category: EventCategory.Game,
+            type: 'e1',
+            payload: {},
+            context: {},
+          }),
+        ],
         campaignId: 'c1',
       });
       manager.createCheckpoint({ sequence: 1, state: {}, campaignId: 'c1' });
@@ -251,13 +370,24 @@ describe('ChunkManagerService', () => {
   describe('clear', () => {
     it('should remove all data', () => {
       manager.createChunk({
-        events: [createEvent({ category: EventCategory.Game, type: 'e1', payload: {}, context: {} })],
+        events: [
+          createEvent({
+            category: EventCategory.Game,
+            type: 'e1',
+            payload: {},
+            context: {},
+          }),
+        ],
         campaignId: 'c1',
       });
 
       manager.clear();
 
-      expect(manager.getStats()).toEqual({ chunkCount: 0, checkpointCount: 0, campaignCount: 0 });
+      expect(manager.getStats()).toEqual({
+        chunkCount: 0,
+        checkpointCount: 0,
+        campaignCount: 0,
+      });
     });
   });
 });

@@ -62,7 +62,10 @@ export function parseLegacyMegaMekId(legacyId: string): string | null {
 /**
  * Convert MegaMek concatenated equipment name to slug format
  */
-export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): string {
+export function convertMegaMekNameToSlug(
+  name: string,
+  techBase: 'is' | 'cl',
+): string {
   const prefix = techBase === 'cl' ? 'clan-' : '';
 
   // Common weapon patterns
@@ -222,8 +225,8 @@ export function convertMegaMekNameToSlug(name: string, techBase: 'is' | 'cl'): s
   // Fallback: convert camelCase to slug
   // Insert hyphens before capital letters and numbers
   const slug = name
-    .replace(/([a-z])(\d)/g, '$1-$2')  // letter followed by number
-    .replace(/(\d)([a-z])/g, '$1-$2')  // number followed by letter
+    .replace(/([a-z])(\d)/g, '$1-$2') // letter followed by number
+    .replace(/(\d)([a-z])/g, '$1-$2') // number followed by letter
     .replace(/([a-z])([A-Z])/g, '$1-$2') // camelCase
     .toLowerCase();
 

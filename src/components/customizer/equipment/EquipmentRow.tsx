@@ -1,15 +1,16 @@
 /**
  * Equipment Row Component
- * 
+ *
  * Table row for equipment in the browser.
- * 
+ *
  * @spec openspec/specs/equipment-browser/spec.md
  */
 
 import React, { memo, useMemo } from 'react';
+
+import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { IEquipmentItem, EquipmentCategory, IWeapon } from '@/types/equipment';
 import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
-import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 
 interface EquipmentRowProps {
   /** Equipment item data */
@@ -38,13 +39,16 @@ function isWeaponCategory(category: EquipmentCategory): boolean {
  * Get weapon data from equipment item if it's a weapon
  * Uses equipmentLookupService which loads from JSON
  */
-function getWeaponData(equipment: IEquipmentItem, allWeapons: readonly IWeapon[]): IWeapon | null {
+function getWeaponData(
+  equipment: IEquipmentItem,
+  allWeapons: readonly IWeapon[],
+): IWeapon | null {
   if (!isWeaponCategory(equipment.category)) {
     return null;
   }
-  
+
   // Look up weapon by ID from loaded weapons
-  return allWeapons.find(w => w.id === equipment.id) ?? null;
+  return allWeapons.find((w) => w.id === equipment.id) ?? null;
 }
 
 /**
@@ -54,7 +58,7 @@ function formatRange(weapon: IWeapon | null): string {
   if (!weapon) {
     return '-';
   }
-  
+
   const ranges = weapon.ranges;
   const hasShort = ranges.short !== undefined && ranges.short !== null;
   const hasMedium = ranges.medium !== undefined && ranges.medium !== null;
@@ -76,7 +80,7 @@ function formatDamage(weapon: IWeapon | null): string {
   if (!weapon) {
     return '-';
   }
-  
+
   if (weapon.damage !== undefined && weapon.damage !== null) {
     return String(weapon.damage);
   }
@@ -90,7 +94,7 @@ function formatHeat(weapon: IWeapon | null): string {
   if (!weapon) {
     return '-';
   }
-  
+
   if (weapon.heat !== undefined && weapon.heat !== null && weapon.heat > 0) {
     return String(weapon.heat);
   }
@@ -107,47 +111,47 @@ export const EquipmentRow = memo(function EquipmentRow({
   compact = false,
 }: EquipmentRowProps) {
   const colors = getCategoryColorsLegacy(equipment.category);
-  
+
   // Get all weapons from lookup service (memoized to avoid re-fetching)
   const allWeapons = useMemo(() => {
     return equipmentLookupService.getAllWeapons();
   }, []);
-  
+
   // Look up weapon data for this equipment
   const weaponData = useMemo(() => {
     return getWeaponData(equipment, allWeapons);
   }, [equipment, allWeapons]);
-  
+
   if (compact) {
     return (
-      <tr className="border-t border-border-theme-subtle/20 hover:bg-surface-raised/30 transition-colors text-[11px]">
+      <tr className="border-border-theme-subtle/20 hover:bg-surface-raised/30 border-t text-[11px] transition-colors">
         <td className="px-1.5 py-0.5">
           <div className="flex items-center gap-1">
-            <span className={`w-1 h-1 rounded-sm flex-shrink-0 ${colors.bg}`} />
-            <span className="text-white truncate" title={equipment.name}>
+            <span className={`h-1 w-1 flex-shrink-0 rounded-sm ${colors.bg}`} />
+            <span className="truncate text-white" title={equipment.name}>
               {equipment.name}
             </span>
           </div>
         </td>
-        <td className="px-1 py-0.5 text-text-theme-secondary text-center w-20 sm:w-24 text-[10px] tabular-nums">
+        <td className="text-text-theme-secondary w-20 px-1 py-0.5 text-center text-[10px] tabular-nums sm:w-24">
           {formatRange(weaponData)}
         </td>
-        <td className="px-1 py-0.5 text-slate-300 text-center w-10 sm:w-12">
+        <td className="w-10 px-1 py-0.5 text-center text-slate-300 sm:w-12">
           {formatDamage(weaponData)}
         </td>
-        <td className="px-1 py-0.5 text-slate-300 text-center w-8 sm:w-10">
+        <td className="w-8 px-1 py-0.5 text-center text-slate-300 sm:w-10">
           {formatHeat(weaponData)}
         </td>
-        <td className="px-1 py-0.5 text-slate-300 text-center tabular-nums w-12">
+        <td className="w-12 px-1 py-0.5 text-center text-slate-300 tabular-nums">
           {equipment.weight}
         </td>
-        <td className="px-1 py-0.5 text-slate-300 text-center tabular-nums w-10">
+        <td className="w-10 px-1 py-0.5 text-center text-slate-300 tabular-nums">
           {equipment.criticalSlots}
         </td>
-        <td className="px-1 py-0.5 w-10">
+        <td className="w-10 px-1 py-0.5">
           <button
             onClick={onAdd}
-            className="w-full px-1 py-0.5 text-[10px] bg-accent hover:bg-accent/80 text-white rounded transition-colors font-medium"
+            className="bg-accent hover:bg-accent/80 w-full rounded px-1 py-0.5 text-[10px] font-medium text-white transition-colors"
             title={`Add ${equipment.name}`}
           >
             +
@@ -159,45 +163,45 @@ export const EquipmentRow = memo(function EquipmentRow({
 
   // Standard layout
   return (
-    <tr className="border-t border-border-theme-subtle/50 hover:bg-surface-raised/30 transition-colors">
+    <tr className="border-border-theme-subtle/50 hover:bg-surface-raised/30 border-t transition-colors">
       {/* Name */}
       <td className="px-3 py-2">
         <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-sm ${colors.bg}`} />
+          <span className={`h-2 w-2 rounded-sm ${colors.bg}`} />
           <span className="text-white">{equipment.name}</span>
         </div>
       </td>
-      
+
       {/* Range */}
-      <td className="px-3 py-2 text-text-theme-secondary text-center">
+      <td className="text-text-theme-secondary px-3 py-2 text-center">
         {formatRange(weaponData)}
       </td>
-      
+
       {/* Damage */}
-      <td className="px-3 py-2 text-slate-300 text-center">
+      <td className="px-3 py-2 text-center text-slate-300">
         {formatDamage(weaponData)}
       </td>
-      
+
       {/* Heat */}
-      <td className="px-3 py-2 text-slate-300 text-center">
+      <td className="px-3 py-2 text-center text-slate-300">
         {formatHeat(weaponData)}
       </td>
-      
+
       {/* Weight */}
-      <td className="px-3 py-2 text-slate-300 text-center">
+      <td className="px-3 py-2 text-center text-slate-300">
         {equipment.weight}t
       </td>
-      
+
       {/* Critical Slots */}
-      <td className="px-3 py-2 text-slate-300 text-center">
+      <td className="px-3 py-2 text-center text-slate-300">
         {equipment.criticalSlots}
       </td>
-      
+
       {/* Add button */}
       <td className="px-3 py-2">
         <button
           onClick={onAdd}
-          className="px-2 py-1 text-xs bg-accent hover:bg-accent/80 text-white rounded transition-colors"
+          className="bg-accent hover:bg-accent/80 rounded px-2 py-1 text-xs text-white transition-colors"
         >
           Add
         </button>

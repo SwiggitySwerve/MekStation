@@ -11,8 +11,9 @@
  * @module campaign/medical/doctorCapacity
  */
 
-import type { IPerson } from '../../../types/campaign/Person';
 import type { ICampaignOptions } from '../../../types/campaign/Campaign';
+import type { IPerson } from '../../../types/campaign/Person';
+
 import { CampaignPersonnelRole } from '../../../types/campaign/enums/CampaignPersonnelRole';
 
 /**
@@ -26,7 +27,10 @@ import { CampaignPersonnelRole } from '../../../types/campaign/enums/CampaignPer
  * @param options - Campaign options
  * @returns Maximum patient capacity
  */
-export function getDoctorCapacity(doctor: IPerson, options: ICampaignOptions): number {
+export function getDoctorCapacity(
+  doctor: IPerson,
+  options: ICampaignOptions,
+): number {
   const base = options.maxPatientsPerDoctor;
 
   if (!options.doctorsUseAdministration) {
@@ -46,12 +50,15 @@ export function getDoctorCapacity(doctor: IPerson, options: ICampaignOptions): n
  * @param personnel - All personnel in campaign
  * @returns Number of patients with injuries
  */
-export function getAssignedPatientCount(doctor: IPerson, personnel: IPerson[]): number {
+export function getAssignedPatientCount(
+  doctor: IPerson,
+  personnel: IPerson[],
+): number {
   return personnel.filter(
     (person) =>
       person.injuries &&
       person.injuries.length > 0 &&
-      person.doctorId === doctor.id
+      person.doctorId === doctor.id,
   ).length;
 }
 
@@ -66,7 +73,7 @@ export function getAssignedPatientCount(doctor: IPerson, personnel: IPerson[]): 
 export function isDoctorOverloaded(
   doctor: IPerson,
   personnel: IPerson[],
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): boolean {
   const capacity = getDoctorCapacity(doctor, options);
   const patientCount = getAssignedPatientCount(doctor, personnel);
@@ -86,7 +93,7 @@ export function isDoctorOverloaded(
 export function getOverloadPenalty(
   doctor: IPerson,
   personnel: IPerson[],
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): number {
   const capacity = getDoctorCapacity(doctor, options);
   const patientCount = getAssignedPatientCount(doctor, personnel);
@@ -108,12 +115,12 @@ export function getOverloadPenalty(
 export function getBestAvailableDoctor(
   patient: IPerson,
   personnel: IPerson[],
-  options: ICampaignOptions
+  options: ICampaignOptions,
 ): IPerson | null {
   const doctors = personnel.filter(
     (person) =>
       person.primaryRole === CampaignPersonnelRole.DOCTOR ||
-      person.primaryRole === CampaignPersonnelRole.MEDIC
+      person.primaryRole === CampaignPersonnelRole.MEDIC,
   );
 
   if (doctors.length === 0) {

@@ -239,9 +239,10 @@ export function isBatchallDisabled(level: FactionStandingLevel): boolean {
  * @param level The faction standing level
  * @returns Object with tickets (0-6) and rollModifier (-3 to +3)
  */
-export function getRecruitmentModifier(
-  level: FactionStandingLevel
-): { tickets: number; rollModifier: number } {
+export function getRecruitmentModifier(level: FactionStandingLevel): {
+  tickets: number;
+  rollModifier: number;
+} {
   return RECRUITMENT_MODIFIER[level];
 }
 
@@ -260,7 +261,7 @@ export function getBarracksCostMultiplier(level: FactionStandingLevel): number {
  * @returns Modifier value from -2 to +3
  */
 export function getUnitMarketRarityModifier(
-  level: FactionStandingLevel
+  level: FactionStandingLevel,
 ): number {
   return UNIT_MARKET_RARITY_MODIFIER[level];
 }
@@ -280,7 +281,7 @@ export function getContractPayMultiplier(level: FactionStandingLevel): number {
  * @returns Modifier value from -3 to +3
  */
 export function getStartSupportPointsModifier(
-  level: FactionStandingLevel
+  level: FactionStandingLevel,
 ): number {
   return START_SUPPORT_POINTS_MODIFIER[level];
 }
@@ -291,7 +292,7 @@ export function getStartSupportPointsModifier(
  * @returns Modifier value from -4 to +3
  */
 export function getPeriodicSupportPointsModifier(
-  level: FactionStandingLevel
+  level: FactionStandingLevel,
 ): number {
   return PERIODIC_SUPPORT_POINTS_MODIFIER[level];
 }
@@ -318,7 +319,9 @@ export interface FactionStandingEffects {
  * @param level The faction standing level
  * @returns Complete FactionStandingEffects object with all 11 effects
  */
-export function getAllEffects(level: FactionStandingLevel): FactionStandingEffects {
+export function getAllEffects(
+  level: FactionStandingLevel,
+): FactionStandingEffects {
   return {
     negotiation: getNegotiationModifier(level),
     resupplyWeight: getResupplyWeightModifier(level),

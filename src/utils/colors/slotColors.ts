@@ -1,26 +1,26 @@
 /**
  * Critical Slot Color System
- * 
+ *
  * Colors for system components in critical slot displays.
- * 
+ *
  * @spec openspec/specs/color-system/spec.md
  */
 
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
 
 /**
  * System component types that occupy critical slots
  */
-export type SystemComponentType = 
+export type SystemComponentType =
   | 'engine'
   | 'gyro'
   | 'actuator'
   | 'cockpit'
   | 'lifesupport'
   | 'sensors'
-  | 'structure'   // Endo Steel variants - unhittable structural slots
-  | 'armor'       // Ferro-Fibrous variants - unhittable armor slots
+  | 'structure' // Endo Steel variants - unhittable structural slots
+  | 'armor' // Ferro-Fibrous variants - unhittable armor slots
   | 'empty';
 
 /**
@@ -57,7 +57,7 @@ export interface SlotColorDefinition {
 
 /**
  * System component slot colors
- * 
+ *
  * - Engine: orange (bg-orange-600)
  * - Gyro: purple (bg-purple-600)
  * - Actuator: blue (bg-blue-600)
@@ -126,14 +126,18 @@ export const SLOT_COLORS: Record<SystemComponentType, SlotColorDefinition> = {
 /**
  * Get color classes for a system component type
  */
-export function getSlotColors(componentType: SystemComponentType): SlotColorDefinition {
+export function getSlotColors(
+  componentType: SystemComponentType,
+): SlotColorDefinition {
   return SLOT_COLORS[componentType] || SLOT_COLORS.empty;
 }
 
 /**
  * Get combined Tailwind class string for a slot
  */
-export function getSlotColorClasses(componentType: SystemComponentType): string {
+export function getSlotColorClasses(
+  componentType: SystemComponentType,
+): string {
   const colors = getSlotColors(componentType);
   return `${colors.bg} ${colors.border} ${colors.text} ${colors.hoverBg}`;
 }
@@ -144,17 +148,21 @@ export function getSlotColorClasses(componentType: SystemComponentType): string 
  */
 export function classifySystemComponent(name: string): SystemComponentType {
   // Check for slotted structure types (Endo Steel variants)
-  if (SLOTTED_STRUCTURE_TYPES.some(type => name === type || name.includes(type))) {
+  if (
+    SLOTTED_STRUCTURE_TYPES.some((type) => name === type || name.includes(type))
+  ) {
     return 'structure';
   }
-  
+
   // Check for slotted armor types (Ferro-Fibrous variants, Stealth, etc.)
-  if (SLOTTED_ARMOR_TYPES.some(type => name === type || name.includes(type))) {
+  if (
+    SLOTTED_ARMOR_TYPES.some((type) => name === type || name.includes(type))
+  ) {
     return 'armor';
   }
-  
+
   const lowerName = name.toLowerCase();
-  
+
   if (lowerName.includes('engine') || lowerName.includes('fusion')) {
     return 'engine';
   }
@@ -182,7 +190,7 @@ export function classifySystemComponent(name: string): SystemComponentType {
   if (lowerName.includes('sensor')) {
     return 'sensors';
   }
-  
+
   return 'empty';
 }
 
@@ -190,7 +198,8 @@ export function classifySystemComponent(name: string): SystemComponentType {
  * Check if a system component type is unhittable (cannot be destroyed by critical hits).
  * Structure (Endo Steel) and Armor (Ferro-Fibrous) slots are unhittable per BattleTech rules.
  */
-export function isUnhittableComponent(componentType: SystemComponentType): boolean {
+export function isUnhittableComponent(
+  componentType: SystemComponentType,
+): boolean {
   return componentType === 'structure' || componentType === 'armor';
 }
-

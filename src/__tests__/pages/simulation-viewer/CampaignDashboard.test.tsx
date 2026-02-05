@@ -1,12 +1,14 @@
-import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
+import React from 'react';
+
+import type { ICampaignDashboardProps } from '@/components/simulation-viewer/pages/CampaignDashboard';
+import type { ICampaignDashboardMetrics } from '@/types/simulation-viewer';
+
 import {
   CampaignDashboard,
   formatCompactNumber,
   formatPercent,
 } from '@/components/simulation-viewer/pages/CampaignDashboard';
-import type { ICampaignDashboardProps } from '@/components/simulation-viewer/pages/CampaignDashboard';
-import type { ICampaignDashboardMetrics } from '@/types/simulation-viewer';
 
 const mockMetrics: ICampaignDashboardMetrics = {
   roster: { active: 12, wounded: 3, kia: 1, total: 16 },
@@ -86,11 +88,17 @@ const defaultProps: ICampaignDashboardProps = {
 };
 
 function renderDashboard(overrides: Partial<ICampaignDashboardProps> = {}) {
-  const props = { ...defaultProps, ...overrides, onDrillDown: overrides.onDrillDown ?? jest.fn() };
+  const props = {
+    ...defaultProps,
+    ...overrides,
+    onDrillDown: overrides.onDrillDown ?? jest.fn(),
+  };
   return render(<CampaignDashboard {...props} />);
 }
 
-function metricsWithUndefined(key: keyof ICampaignDashboardMetrics): ICampaignDashboardMetrics {
+function metricsWithUndefined(
+  key: keyof ICampaignDashboardMetrics,
+): ICampaignDashboardMetrics {
   const result = { ...mockMetrics };
   Object.defineProperty(result, key, { value: undefined, writable: true });
   return result;
@@ -113,7 +121,9 @@ describe('CampaignDashboard', () => {
 
     it('renders the dashboard title', () => {
       renderDashboard();
-      expect(screen.getByTestId('dashboard-title')).toHaveTextContent('Campaign Dashboard');
+      expect(screen.getByTestId('dashboard-title')).toHaveTextContent(
+        'Campaign Dashboard',
+      );
     });
 
     it('renders the responsive grid container', () => {
@@ -378,27 +388,37 @@ describe('CampaignDashboard', () => {
 
     it('financial section spans 2 columns on md', () => {
       renderDashboard();
-      expect(screen.getByTestId('financial-section')).toHaveClass('md:col-span-2');
+      expect(screen.getByTestId('financial-section')).toHaveClass(
+        'md:col-span-2',
+      );
     });
 
     it('progression section has col-span-1', () => {
       renderDashboard();
-      expect(screen.getByTestId('progression-section')).toHaveClass('col-span-1');
+      expect(screen.getByTestId('progression-section')).toHaveClass(
+        'col-span-1',
+      );
     });
 
     it('top performers spans 3 columns on lg', () => {
       renderDashboard();
-      expect(screen.getByTestId('top-performers-section')).toHaveClass('lg:col-span-3');
+      expect(screen.getByTestId('top-performers-section')).toHaveClass(
+        'lg:col-span-3',
+      );
     });
 
     it('top performers spans 2 columns on md', () => {
       renderDashboard();
-      expect(screen.getByTestId('top-performers-section')).toHaveClass('md:col-span-2');
+      expect(screen.getByTestId('top-performers-section')).toHaveClass(
+        'md:col-span-2',
+      );
     });
 
     it('warnings section spans full width on lg (4 columns)', () => {
       renderDashboard();
-      expect(screen.getByTestId('warnings-section')).toHaveClass('lg:col-span-4');
+      expect(screen.getByTestId('warnings-section')).toHaveClass(
+        'lg:col-span-4',
+      );
     });
 
     it('dashboard has responsive padding', () => {
@@ -413,7 +433,9 @@ describe('CampaignDashboard', () => {
   describe('Dark Mode', () => {
     it('dashboard container has dark mode background class', () => {
       renderDashboard();
-      expect(screen.getByTestId('campaign-dashboard')).toHaveClass('dark:bg-gray-900');
+      expect(screen.getByTestId('campaign-dashboard')).toHaveClass(
+        'dark:bg-gray-900',
+      );
     });
 
     it('section headings have dark mode text color', () => {
@@ -426,7 +448,9 @@ describe('CampaignDashboard', () => {
 
     it('dashboard title has dark mode text class', () => {
       renderDashboard();
-      expect(screen.getByTestId('dashboard-title')).toHaveClass('dark:text-gray-100');
+      expect(screen.getByTestId('dashboard-title')).toHaveClass(
+        'dark:text-gray-100',
+      );
     });
 
     it('performer cards have dark mode background', () => {
@@ -455,7 +479,9 @@ describe('CampaignDashboard', () => {
 
       it('defaults to 30d time range', () => {
         renderDashboard();
-        const select = screen.getByTestId('time-range-select') as HTMLSelectElement;
+        const select = screen.getByTestId(
+          'time-range-select',
+        ) as HTMLSelectElement;
         expect(select.value).toBe('30d');
       });
 
@@ -558,7 +584,9 @@ describe('CampaignDashboard', () => {
         renderDashboard();
         const dismissButtons = screen.getAllByTestId('warning-dismiss');
         expect(dismissButtons[0]).toHaveAttribute('aria-label');
-        expect(dismissButtons[0].getAttribute('aria-label')).toContain('Dismiss warning');
+        expect(dismissButtons[0].getAttribute('aria-label')).toContain(
+          'Dismiss warning',
+        );
       });
 
       it('shows empty state when all warnings are dismissed', () => {
@@ -568,7 +596,9 @@ describe('CampaignDashboard', () => {
         fireEvent.click(screen.getAllByTestId('warning-dismiss')[0]);
 
         expect(screen.getByTestId('warnings-empty')).toBeInTheDocument();
-        expect(screen.getByTestId('warnings-empty')).toHaveTextContent('all systems nominal');
+        expect(screen.getByTestId('warnings-empty')).toHaveTextContent(
+          'all systems nominal',
+        );
       });
     });
 
@@ -579,7 +609,9 @@ describe('CampaignDashboard', () => {
         const rosterSection = screen.getByTestId('roster-section');
         const link = within(rosterSection).getByTestId('drill-down-link');
         fireEvent.click(link);
-        expect(onDrillDown).toHaveBeenCalledWith('encounter-history', { section: 'roster' });
+        expect(onDrillDown).toHaveBeenCalledWith('encounter-history', {
+          section: 'roster',
+        });
       });
 
       it('calls onDrillDown when force drill-down is clicked', () => {
@@ -588,7 +620,9 @@ describe('CampaignDashboard', () => {
         const forceSection = screen.getByTestId('force-section');
         const link = within(forceSection).getByTestId('drill-down-link');
         fireEvent.click(link);
-        expect(onDrillDown).toHaveBeenCalledWith('encounter-history', { section: 'force' });
+        expect(onDrillDown).toHaveBeenCalledWith('encounter-history', {
+          section: 'force',
+        });
       });
 
       it('calls onDrillDown when financial drill-down is clicked', () => {
@@ -597,7 +631,9 @@ describe('CampaignDashboard', () => {
         const financialSection = screen.getByTestId('financial-section');
         const link = within(financialSection).getByTestId('drill-down-link');
         fireEvent.click(link);
-        expect(onDrillDown).toHaveBeenCalledWith('campaign-dashboard', { section: 'financial' });
+        expect(onDrillDown).toHaveBeenCalledWith('campaign-dashboard', {
+          section: 'financial',
+        });
       });
 
       it('calls onDrillDown when progression drill-down is clicked', () => {
@@ -606,7 +642,9 @@ describe('CampaignDashboard', () => {
         const section = screen.getByTestId('progression-section');
         const link = within(section).getByTestId('drill-down-link');
         fireEvent.click(link);
-        expect(onDrillDown).toHaveBeenCalledWith('encounter-history', { section: 'progression' });
+        expect(onDrillDown).toHaveBeenCalledWith('encounter-history', {
+          section: 'progression',
+        });
       });
 
       it('calls onDrillDown with personId when performer drill-down is clicked', () => {
@@ -615,7 +653,9 @@ describe('CampaignDashboard', () => {
         const cards = screen.getAllByTestId('performer-card');
         const link = within(cards[0]).getByTestId('drill-down-link');
         fireEvent.click(link);
-        expect(onDrillDown).toHaveBeenCalledWith('encounter-history', { personId: 'p1' });
+        expect(onDrillDown).toHaveBeenCalledWith('encounter-history', {
+          personId: 'p1',
+        });
       });
 
       it('calls onDrillDown when warning details link is clicked', () => {
@@ -624,7 +664,9 @@ describe('CampaignDashboard', () => {
         const warningItems = screen.getAllByTestId('warning-item');
         const link = within(warningItems[0]).getByTestId('drill-down-link');
         fireEvent.click(link);
-        expect(onDrillDown).toHaveBeenCalledWith('encounter-history', { warningTarget: 'roster' });
+        expect(onDrillDown).toHaveBeenCalledWith('encounter-history', {
+          warningTarget: 'roster',
+        });
       });
 
       it('does not crash when onDrillDown is not provided', () => {
@@ -712,7 +754,12 @@ describe('CampaignDashboard', () => {
       const metrics = {
         ...mockMetrics,
         financialTrend: [
-          { date: '2025-01-01', balance: 500000, income: 100000, expenses: 80000 },
+          {
+            date: '2025-01-01',
+            balance: 500000,
+            income: 100000,
+            expenses: 80000,
+          },
         ],
       };
       renderDashboard({ metrics });
@@ -722,7 +769,11 @@ describe('CampaignDashboard', () => {
     it('handles zero missions completed', () => {
       const metrics = {
         ...mockMetrics,
-        progression: { ...mockMetrics.progression, missionsCompleted: 0, missionsTotal: 0 },
+        progression: {
+          ...mockMetrics.progression,
+          missionsCompleted: 0,
+          missionsTotal: 0,
+        },
       };
       renderDashboard({ metrics });
       const section = screen.getByTestId('progression-section');
@@ -762,7 +813,9 @@ describe('CampaignDashboard', () => {
       const metrics = { ...mockMetrics, topPerformers: [] };
       renderDashboard({ metrics });
       expect(screen.getByTestId('performers-empty')).toBeInTheDocument();
-      expect(screen.getByTestId('performers-empty')).toHaveTextContent('No performance data');
+      expect(screen.getByTestId('performers-empty')).toHaveTextContent(
+        'No performance data',
+      );
     });
 
     it('handles all warnings false', () => {
@@ -798,7 +851,12 @@ describe('CampaignDashboard', () => {
       const metrics = {
         ...mockMetrics,
         financialTrend: [
-          { date: '2025-01-15', balance: 5000000, income: 1200000, expenses: 800000 },
+          {
+            date: '2025-01-15',
+            balance: 5000000,
+            income: 1200000,
+            expenses: 800000,
+          },
         ],
       };
       renderDashboard({ metrics });
@@ -811,8 +869,24 @@ describe('CampaignDashboard', () => {
       const metrics = {
         ...mockMetrics,
         topPerformers: [
-          { personId: 'p1', name: 'Alpha', rank: 'Lt', kills: 10, xp: 100, survivalRate: 1.0, missionsCompleted: 5 },
-          { personId: 'p2', name: 'Beta', rank: 'Lt', kills: 10, xp: 100, survivalRate: 1.0, missionsCompleted: 5 },
+          {
+            personId: 'p1',
+            name: 'Alpha',
+            rank: 'Lt',
+            kills: 10,
+            xp: 100,
+            survivalRate: 1.0,
+            missionsCompleted: 5,
+          },
+          {
+            personId: 'p2',
+            name: 'Beta',
+            rank: 'Lt',
+            kills: 10,
+            xp: 100,
+            survivalRate: 1.0,
+            missionsCompleted: 5,
+          },
         ],
       };
       renderDashboard({ metrics });
@@ -822,12 +896,7 @@ describe('CampaignDashboard', () => {
 
     it('handles missing optional onDrillDown', () => {
       expect(() => {
-        render(
-          <CampaignDashboard
-            campaignId="test"
-            metrics={mockMetrics}
-          />,
-        );
+        render(<CampaignDashboard campaignId="test" metrics={mockMetrics} />);
       }).not.toThrow();
     });
 
@@ -901,9 +970,21 @@ describe('CampaignDashboard', () => {
     it('renders correctly with partial null-like metrics', () => {
       const metrics = {
         roster: { active: 0, wounded: 0, kia: 0, total: 0 },
-        force: { operational: 0, damaged: 0, destroyed: 0, totalBV: 0, damagedBV: 0 },
+        force: {
+          operational: 0,
+          damaged: 0,
+          destroyed: 0,
+          totalBV: 0,
+          damagedBV: 0,
+        },
         financialTrend: [],
-        progression: { missionsCompleted: 0, missionsTotal: 0, winRate: 0, totalXP: 0, averageXPPerMission: 0 },
+        progression: {
+          missionsCompleted: 0,
+          missionsTotal: 0,
+          winRate: 0,
+          totalXP: 0,
+          averageXPPerMission: 0,
+        },
         topPerformers: [],
         warnings: { lowFunds: false, manyWounded: false, lowBV: false },
       } as ICampaignDashboardMetrics;
@@ -1013,12 +1094,22 @@ describe('CampaignDashboard', () => {
   describe('Accessibility', () => {
     it('sections have aria-label attributes', () => {
       renderDashboard();
-      expect(screen.getByTestId('roster-section')).toHaveAttribute('aria-label');
+      expect(screen.getByTestId('roster-section')).toHaveAttribute(
+        'aria-label',
+      );
       expect(screen.getByTestId('force-section')).toHaveAttribute('aria-label');
-      expect(screen.getByTestId('financial-section')).toHaveAttribute('aria-label');
-      expect(screen.getByTestId('progression-section')).toHaveAttribute('aria-label');
-      expect(screen.getByTestId('top-performers-section')).toHaveAttribute('aria-label');
-      expect(screen.getByTestId('warnings-section')).toHaveAttribute('aria-label');
+      expect(screen.getByTestId('financial-section')).toHaveAttribute(
+        'aria-label',
+      );
+      expect(screen.getByTestId('progression-section')).toHaveAttribute(
+        'aria-label',
+      );
+      expect(screen.getByTestId('top-performers-section')).toHaveAttribute(
+        'aria-label',
+      );
+      expect(screen.getByTestId('warnings-section')).toHaveAttribute(
+        'aria-label',
+      );
     });
 
     it('sort controls group has aria-label', () => {
@@ -1031,9 +1122,17 @@ describe('CampaignDashboard', () => {
 
     it('sort buttons have aria-pressed attribute', () => {
       renderDashboard();
-      expect(screen.getByTestId('sort-button-kills')).toHaveAttribute('aria-pressed', 'true');
-      expect(screen.getByTestId('sort-button-xp')).toHaveAttribute('aria-pressed', 'false');
-      expect(screen.getByTestId('sort-button-missionsCompleted')).toHaveAttribute('aria-pressed', 'false');
+      expect(screen.getByTestId('sort-button-kills')).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+      expect(screen.getByTestId('sort-button-xp')).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      );
+      expect(
+        screen.getByTestId('sort-button-missionsCompleted'),
+      ).toHaveAttribute('aria-pressed', 'false');
     });
 
     it('warning severity is conveyed through data attribute', () => {

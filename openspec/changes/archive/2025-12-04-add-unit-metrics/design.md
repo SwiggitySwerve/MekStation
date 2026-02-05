@@ -7,11 +7,13 @@ Users need Battle Value (BV) and C-Bill cost for army building and campaign play
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Calculate accurate BV and cost matching official TechManual rules
 - Pre-calculate values in index for fast browsing (no runtime calculation)
 - Support all standard equipment and configurations
 
 **Non-Goals:**
+
 - Pilot skill modifiers (BV adjusts for Gunnery/Piloting but we show base BV)
 - Quirk modifiers
 - Clan vs IS equipment cost differences beyond base multipliers
@@ -19,6 +21,7 @@ Users need Battle Value (BV) and C-Bill cost for army building and campaign play
 ## C-Bill Cost Formulas
 
 ### Engine Cost
+
 ```
 cost = (rating^2) × 5000 × type_multiplier
 
@@ -34,6 +37,7 @@ Type Multipliers:
 ```
 
 ### Gyro Cost
+
 ```
 cost = ceil(engineRating / 100) × 300000 × type_multiplier
 
@@ -45,6 +49,7 @@ Type Multipliers:
 ```
 
 ### Structure Cost
+
 ```
 cost = tonnage × cost_per_ton
 
@@ -58,6 +63,7 @@ Cost Per Ton:
 ```
 
 ### Armor Cost
+
 ```
 cost = total_armor_points × cost_per_point
 
@@ -72,6 +78,7 @@ Cost Per Point:
 ```
 
 ### Cockpit Cost
+
 ```
 Standard: 200000
 Small: 175000
@@ -80,12 +87,14 @@ Torso-Mounted: 750000
 ```
 
 ### Heat Sink Cost
+
 ```
 Single: 2000 each
 Double: 6000 each
 ```
 
 ### Total Cost Formula
+
 ```
 Total = Engine + Gyro + Structure + Armor + Cockpit + HeatSinks + Equipment + (Tonnage × 10000)
 ```
@@ -93,6 +102,7 @@ Total = Engine + Gyro + Structure + Armor + Cockpit + HeatSinks + Equipment + (T
 ## Battle Value 2.0 Formulas
 
 ### Defensive BV
+
 ```
 Defensive_BV = (armor_factor + structure_factor) × defensive_modifier
 
@@ -104,6 +114,7 @@ defensive_modifier = base modifier adjusted for:
 ```
 
 ### Offensive BV
+
 ```
 Offensive_BV = sum(weapon_BV × heat_modifier) + ammo_BV
 
@@ -113,6 +124,7 @@ heat_modifier = adjusted based on heat efficiency:
 ```
 
 ### Speed Factor
+
 ```
 Target Movement Modifier → Speed Factor lookup:
 
@@ -131,6 +143,7 @@ Max speed factor: 2.24
 ```
 
 ### Total BV
+
 ```
 Total_BV = (Defensive_BV + Offensive_BV) × Speed_Factor
 ```
@@ -157,4 +170,3 @@ Total_BV = (Defensive_BV + Offensive_BV) × Speed_Factor
 
 - Should we support pilot skill-adjusted BV display? (Defer to future change)
 - Should cost include ammo? (Yes, per TechManual)
-

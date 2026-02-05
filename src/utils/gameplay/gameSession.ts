@@ -6,6 +6,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
+
 import {
   IGameSession,
   IGameEvent,
@@ -16,6 +17,19 @@ import {
   GamePhase,
   GameSide,
 } from '@/types/gameplay';
+import {
+  IHexCoordinate,
+  Facing,
+  MovementType,
+  RangeBracket,
+  FiringArc,
+  GameEventType,
+  IAttackDeclaredPayload,
+  IWeaponAttack,
+  IToHitModifier,
+  IMovementDeclaredPayload,
+} from '@/types/gameplay';
+
 import {
   createGameCreatedEvent,
   createGameStartedEvent,
@@ -32,10 +46,11 @@ import {
   createHeatGeneratedEvent,
 } from './gameEvents';
 import { deriveState, allUnitsLocked } from './gameState';
-import { IHexCoordinate, Facing, MovementType, RangeBracket, FiringArc, GameEventType, IAttackDeclaredPayload, IWeaponAttack, IToHitModifier, IMovementDeclaredPayload, IHeatPayload } from '@/types/gameplay';
+import {
+  roll2d6 as rollDice,
+  determineHitLocationFromRoll,
+} from './hitLocation';
 import { calculateToHit } from './toHit';
-import { roll2d6 as rollDice, determineHitLocationFromRoll, createDiceRoll } from './hitLocation';
-import { resolveDamage, createDamageState, IUnitDamageState } from './damage';
 
 // =============================================================================
 // Session Creation
@@ -46,18 +61,18 @@ import { resolveDamage, createDamageState, IUnitDamageState } from './damage';
  */
 export function createGameSession(
   config: IGameConfig,
-  units: readonly IGameUnit[]
+  units: readonly IGameUnit[],
 ): IGameSession {
   const id = uuidv4();
   const now = new Date().toISOString();
-  
+
   // Create the initial event
   const createdEvent = createGameCreatedEvent(id, config, units);
   const events: IGameEvent[] = [createdEvent];
-  
+
   // Derive initial state
   const currentState = deriveState(id, events);
-  
+
   return {
     id,
     createdAt: now,
@@ -72,14 +87,17 @@ export function createGameSession(
 /**
  * Start a game session.
  */
-export function startGame(session: IGameSession, firstSide: GameSide): IGameSession {
+export function startGame(
+  session: IGameSession,
+  firstSide: GameSide,
+): IGameSession {
   if (session.currentState.status !== GameStatus.Setup) {
     throw new Error('Game is not in setup state');
   }
-  
+
   const sequence = session.events.length;
   const event = createGameStartedEvent(session.id, sequence, firstSide);
-  
+
   return appendEvent(session, event);
 }
 
@@ -89,16 +107,23 @@ export function startGame(session: IGameSession, firstSide: GameSide): IGameSess
 export function endGame(
   session: IGameSession,
   winner: GameSide | 'draw',
-  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective'
+  reason: 'destruction' | 'concede' | 'turn_limit' | 'objective',
 ): IGameSession {
   if (session.currentState.status !== GameStatus.Active) {
     throw new Error('Game is not active');
   }
-  
+
   const { turn, phase } = session.currentState;
   const sequence = session.events.length;
-  const event = createGameEndedEvent(session.id, sequence, turn, phase, winner, reason);
-  
+  const event = createGameEndedEvent(
+    session.id,
+    sequence,
+    turn,
+    phase,
+    winner,
+    reason,
+  );
+
   return appendEvent(session, event);
 }
 
@@ -109,10 +134,13 @@ export function endGame(
 /**
  * Append an event to the session (immutable).
  */
-export function appendEvent(session: IGameSession, event: IGameEvent): IGameSession {
+export function appendEvent(
+  session: IGameSession,
+  event: IGameEvent,
+): IGameSession {
   const events = [...session.events, event];
   const currentState = deriveState(session.id, events);
-  
+
   return {
     ...session,
     events,
@@ -124,8 +152,11 @@ export function appendEvent(session: IGameSession, event: IGameEvent): IGameSess
 /**
  * Get events for a specific turn.
  */
-export function getEventsForTurn(session: IGameSession, turn: number): readonly IGameEvent[] {
-  return session.events.filter(e => e.turn === turn);
+export function getEventsForTurn(
+  session: IGameSession,
+  turn: number,
+): readonly IGameEvent[] {
+  return session.events.filter((e) => e.turn === turn);
 }
 
 /**
@@ -134,9 +165,9 @@ export function getEventsForTurn(session: IGameSession, turn: number): readonly 
 export function getEventsForPhase(
   session: IGameSession,
   turn: number,
-  phase: GamePhase
+  phase: GamePhase,
 ): readonly IGameEvent[] {
-  return session.events.filter(e => e.turn === turn && e.phase === phase);
+  return session.events.filter((e) => e.turn === turn && e.phase === phase);
 }
 
 // =============================================================================
@@ -154,12 +185,12 @@ export function getNextPhase(currentPhase: GamePhase): GamePhase {
     GamePhase.Heat,
     GamePhase.End,
   ];
-  
+
   const currentIndex = phaseOrder.indexOf(currentPhase);
   if (currentIndex === -1 || currentIndex === phaseOrder.length - 1) {
     return GamePhase.Initiative; // Wrap to next turn
   }
-  
+
   return phaseOrder[currentIndex + 1];
 }
 
@@ -169,15 +200,22 @@ export function getNextPhase(currentPhase: GamePhase): GamePhase {
 export function advancePhase(session: IGameSession): IGameSession {
   const { phase, turn } = session.currentState;
   const nextPhase = getNextPhase(phase);
-  
+
   // If wrapping to initiative, increment turn
-  const nextTurn = nextPhase === GamePhase.Initiative && phase !== GamePhase.Initiative
-    ? turn + 1
-    : turn;
-  
+  const nextTurn =
+    nextPhase === GamePhase.Initiative && phase !== GamePhase.Initiative
+      ? turn + 1
+      : turn;
+
   const sequence = session.events.length;
-  const event = createPhaseChangedEvent(session.id, sequence, nextTurn, phase, nextPhase);
-  
+  const event = createPhaseChangedEvent(
+    session.id,
+    sequence,
+    nextTurn,
+    phase,
+    nextPhase,
+  );
+
   return appendEvent(session, event);
 }
 
@@ -186,16 +224,16 @@ export function advancePhase(session: IGameSession): IGameSession {
  */
 export function canAdvancePhase(session: IGameSession): boolean {
   const { phase, status } = session.currentState;
-  
+
   if (status !== GameStatus.Active) {
     return false;
   }
-  
+
   // Movement and Attack phases require all units to be locked
   if (phase === GamePhase.Movement || phase === GamePhase.WeaponAttack) {
     return allUnitsLocked(session.currentState);
   }
-  
+
   // Other phases can advance freely
   return true;
 }
@@ -216,15 +254,15 @@ export function roll2d6(): number {
  */
 export function rollInitiative(
   session: IGameSession,
-  movesFirst?: GameSide
+  movesFirst?: GameSide,
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Initiative) {
     throw new Error('Not in initiative phase');
   }
-  
+
   const playerRoll = roll2d6();
   const opponentRoll = roll2d6();
-  
+
   let winner: GameSide;
   if (playerRoll > opponentRoll) {
     winner = GameSide.Player;
@@ -234,10 +272,12 @@ export function rollInitiative(
     // Tie - re-roll (for simplicity, player wins ties)
     winner = GameSide.Player;
   }
-  
+
   // Winner chooses who moves first (default: winner moves second for tactical advantage)
-  const actualMovesFirst = movesFirst ?? (winner === GameSide.Player ? GameSide.Opponent : GameSide.Player);
-  
+  const actualMovesFirst =
+    movesFirst ??
+    (winner === GameSide.Player ? GameSide.Opponent : GameSide.Player);
+
   const sequence = session.events.length;
   const { turn } = session.currentState;
   const event = createInitiativeRolledEvent(
@@ -247,9 +287,9 @@ export function rollInitiative(
     playerRoll,
     opponentRoll,
     winner,
-    actualMovesFirst
+    actualMovesFirst,
   );
-  
+
   return appendEvent(session, event);
 }
 
@@ -268,17 +308,17 @@ export function declareMovement(
   facing: Facing,
   movementType: MovementType,
   mpUsed: number,
-  heatGenerated: number
+  heatGenerated: number,
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.Movement) {
     throw new Error('Not in movement phase');
   }
-  
+
   const unit = session.currentState.units[unitId];
   if (!unit) {
     throw new Error(`Unit ${unitId} not found`);
   }
-  
+
   const sequence = session.events.length;
   const { turn } = session.currentState;
   const event = createMovementDeclaredEvent(
@@ -291,24 +331,27 @@ export function declareMovement(
     facing,
     movementType,
     mpUsed,
-    heatGenerated
+    heatGenerated,
   );
-  
+
   return appendEvent(session, event);
 }
 
 /**
  * Lock movement for a unit.
  */
-export function lockMovement(session: IGameSession, unitId: string): IGameSession {
+export function lockMovement(
+  session: IGameSession,
+  unitId: string,
+): IGameSession {
   if (session.currentState.phase !== GamePhase.Movement) {
     throw new Error('Not in movement phase');
   }
-  
+
   const sequence = session.events.length;
   const { turn } = session.currentState;
   const event = createMovementLockedEvent(session.id, sequence, turn, unitId);
-  
+
   return appendEvent(session, event);
 }
 
@@ -323,27 +366,27 @@ export function declareAttack(
   weapons: readonly IWeaponAttack[],
   range: number,
   rangeBracket: RangeBracket,
-  firingArc: FiringArc
+  _firingArc: FiringArc,
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.WeaponAttack) {
     throw new Error('Not in weapon attack phase');
   }
-  
+
   const attackerUnit = session.currentState.units[attackerId];
   const targetUnit = session.currentState.units[targetId];
-  
+
   if (!attackerUnit) {
     throw new Error(`Attacker unit ${attackerId} not found`);
   }
   if (!targetUnit) {
     throw new Error(`Target unit ${targetId} not found`);
   }
-  
-  const attacker = session.units.find(u => u.id === attackerId);
+
+  const attacker = session.units.find((u) => u.id === attackerId);
   if (!attacker) {
     throw new Error(`Attacker ${attackerId} not found in units`);
   }
-  
+
   const toHitCalc = calculateToHit(
     {
       gunnery: attacker.gunnery,
@@ -359,17 +402,17 @@ export function declareAttack(
       partialCover: false,
     },
     rangeBracket,
-    range
+    range,
   );
-  
-  const modifiers: IToHitModifier[] = toHitCalc.modifiers.map(m => ({
+
+  const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((m) => ({
     name: m.name,
     value: m.value,
     source: m.source,
   }));
-  
-  const weaponIds = weapons.map(w => w.weaponId);
-  
+
+  const weaponIds = weapons.map((w) => w.weaponId);
+
   const sequence = session.events.length;
   const { turn } = session.currentState;
   const event = createAttackDeclaredEvent(
@@ -380,49 +423,60 @@ export function declareAttack(
     targetId,
     weaponIds,
     toHitCalc.finalToHit,
-    modifiers
+    modifiers,
   );
-  
+
   return appendEvent(session, event);
 }
 
-export function lockAttack(session: IGameSession, unitId: string): IGameSession {
+export function lockAttack(
+  session: IGameSession,
+  unitId: string,
+): IGameSession {
   if (session.currentState.phase !== GamePhase.WeaponAttack) {
     throw new Error('Not in weapon attack phase');
   }
-  
+
   const sequence = session.events.length;
   const { turn } = session.currentState;
   const event = createAttackLockedEvent(session.id, sequence, turn, unitId);
-  
+
   return appendEvent(session, event);
 }
 
-export type DiceRoller = () => { dice: readonly number[]; total: number; isSnakeEyes: boolean; isBoxcars: boolean };
+export type DiceRoller = () => {
+  dice: readonly number[];
+  total: number;
+  isSnakeEyes: boolean;
+  isBoxcars: boolean;
+};
 
 export function resolveAttack(
   session: IGameSession,
   attackEvent: IGameEvent,
-  diceRoller: DiceRoller = rollDice
+  diceRoller: DiceRoller = rollDice,
 ): IGameSession {
   const payload = attackEvent.payload as IAttackDeclaredPayload;
   const { attackerId, targetId, weapons, toHitNumber } = payload;
-  
+
   let currentSession = session;
-  
+
   for (const weaponId of weapons) {
     const attackRoll = diceRoller();
     const hit = attackRoll.total >= toHitNumber;
-    
+
     const sequence = currentSession.events.length;
     const { turn } = currentSession.currentState;
-    
+
     if (hit) {
       const locationRoll = diceRoller();
-      const hitLocationResult = determineHitLocationFromRoll(FiringArc.Front, locationRoll);
+      const hitLocationResult = determineHitLocationFromRoll(
+        FiringArc.Front,
+        locationRoll,
+      );
       const location = hitLocationResult.location;
       const damage = 5;
-      
+
       const resolvedEvent = createAttackResolvedEvent(
         currentSession.id,
         sequence,
@@ -434,10 +488,10 @@ export function resolveAttack(
         toHitNumber,
         true,
         location,
-        damage
+        damage,
       );
       currentSession = appendEvent(currentSession, resolvedEvent);
-      
+
       const damageSequence = currentSession.events.length;
       const damageEvent = createDamageAppliedEvent(
         currentSession.id,
@@ -448,7 +502,7 @@ export function resolveAttack(
         damage,
         0,
         0,
-        false
+        false,
       );
       currentSession = appendEvent(currentSession, damageEvent);
     } else {
@@ -461,31 +515,31 @@ export function resolveAttack(
         weaponId,
         attackRoll.total,
         toHitNumber,
-        false
+        false,
       );
       currentSession = appendEvent(currentSession, resolvedEvent);
     }
   }
-  
+
   return currentSession;
 }
 
 export function resolveAllAttacks(
   session: IGameSession,
-  diceRoller: DiceRoller = rollDice
+  diceRoller: DiceRoller = rollDice,
 ): IGameSession {
   const { turn } = session.currentState;
-  
+
   const attackEvents = session.events.filter(
-    e => e.type === GameEventType.AttackDeclared && e.turn === turn
+    (e) => e.type === GameEventType.AttackDeclared && e.turn === turn,
   );
-  
+
   let currentSession = session;
-  
+
   for (const attackEvent of attackEvents) {
     currentSession = resolveAttack(currentSession, attackEvent, diceRoller);
   }
-  
+
   return currentSession;
 }
 
@@ -501,21 +555,21 @@ export function resolveHeatPhase(session: IGameSession): IGameSession {
   const { turn } = session.currentState;
   let currentSession = session;
 
-  const turnEvents = session.events.filter(e => e.turn === turn);
-  
+  const turnEvents = session.events.filter((e) => e.turn === turn);
+
   const unitIds = Object.keys(session.currentState.units);
 
   for (const unitId of unitIds) {
     const unitState = currentSession.currentState.units[unitId];
-    const unit = currentSession.units.find(u => u.id === unitId);
-    
+    const unit = currentSession.units.find((u) => u.id === unitId);
+
     if (!unit || unitState.destroyed) {
       continue;
     }
 
     let heatFromMovement = 0;
     const movementEvent = turnEvents.find(
-      e => e.type === GameEventType.MovementDeclared && e.actorId === unitId
+      (e) => e.type === GameEventType.MovementDeclared && e.actorId === unitId,
     );
     if (movementEvent) {
       const payload = movementEvent.payload as IMovementDeclaredPayload;
@@ -524,7 +578,7 @@ export function resolveHeatPhase(session: IGameSession): IGameSession {
 
     let heatFromWeapons = 0;
     const attackEvents = turnEvents.filter(
-      e => e.type === GameEventType.AttackDeclared && e.actorId === unitId
+      (e) => e.type === GameEventType.AttackDeclared && e.actorId === unitId,
     );
     for (const attackEvent of attackEvents) {
       const payload = attackEvent.payload as IAttackDeclaredPayload;
@@ -543,13 +597,13 @@ export function resolveHeatPhase(session: IGameSession): IGameSession {
         unitId,
         totalHeatGenerated,
         'weapons',
-        unitState.heat + totalHeatGenerated
+        unitState.heat + totalHeatGenerated,
       );
       currentSession = appendEvent(currentSession, heatGenEvent);
     }
 
     const currentHeat = currentSession.currentState.units[unitId].heat;
-    
+
     const baseHeatSinks = 10;
     const waterCoolingBonus = 0;
     const totalDissipation = baseHeatSinks + waterCoolingBonus;
@@ -563,7 +617,7 @@ export function resolveHeatPhase(session: IGameSession): IGameSession {
       turn,
       unitId,
       totalDissipation,
-      newHeat
+      newHeat,
     );
 
     currentSession = appendEvent(currentSession, dissipationEvent);
@@ -579,8 +633,11 @@ export function resolveHeatPhase(session: IGameSession): IGameSession {
 /**
  * Get state at a specific event sequence.
  */
-export function replayToSequence(session: IGameSession, sequence: number): IGameState {
-  const eventsUpTo = session.events.filter(e => e.sequence <= sequence);
+export function replayToSequence(
+  session: IGameSession,
+  sequence: number,
+): IGameState {
+  const eventsUpTo = session.events.filter((e) => e.sequence <= sequence);
   return deriveState(session.id, eventsUpTo);
 }
 
@@ -588,7 +645,7 @@ export function replayToSequence(session: IGameSession, sequence: number): IGame
  * Get state at a specific turn.
  */
 export function replayToTurn(session: IGameSession, turn: number): IGameState {
-  const eventsUpTo = session.events.filter(e => e.turn <= turn);
+  const eventsUpTo = session.events.filter((e) => e.turn <= turn);
   return deriveState(session.id, eventsUpTo);
 }
 
@@ -597,11 +654,11 @@ export function replayToTurn(session: IGameSession, turn: number): IGameState {
  */
 export function generateGameLog(session: IGameSession): string {
   const lines: string[] = [];
-  
+
   for (const event of session.events) {
     const timestamp = new Date(event.timestamp).toLocaleTimeString();
     const prefix = `[Turn ${event.turn}/${event.phase}] ${timestamp}:`;
-    
+
     switch (event.type) {
       case 'game_created':
         lines.push(`${prefix} Game created`);
@@ -640,6 +697,6 @@ export function generateGameLog(session: IGameSession): string {
         lines.push(`${prefix} ${event.type}`);
     }
   }
-  
+
   return lines.join('\n');
 }

@@ -5,8 +5,9 @@
  * @spec openspec/changes/add-pilot-system/specs/pilot-system/spec.md
  */
 
-import { IEntity } from '../core/IEntity';
 import type { IPilotAward, IPilotStats } from '../award/AwardInterfaces';
+
+import { IEntity } from '../core/IEntity';
 
 // =============================================================================
 // Enums
@@ -35,7 +36,7 @@ export enum PilotStatus {
 
 /**
  * Experience level templates for quick pilot generation.
- * 
+ *
  * Pilot experience level for skills and salary calculations.
  * @see SkillExperienceLevel for character progression in campaign skills
  * @see MarketExperienceLevel for personnel market hiring
@@ -166,7 +167,11 @@ export interface IPilotingModifierParams {
   /** Piloting skill roll modifier (negative = better) */
   readonly modifier: number;
   /** Condition when this modifier applies */
-  readonly condition?: 'jump_landing' | 'dfa_attack' | 'difficult_terrain' | string;
+  readonly condition?:
+    | 'jump_landing'
+    | 'dfa_attack'
+    | 'difficult_terrain'
+    | string;
 }
 
 /**
@@ -244,7 +249,7 @@ export type AbilityEffectParams =
 
 /**
  * Special ability that modifies pilot performance.
- * 
+ *
  * The effectParams type is determined by the effectType field:
  * - ToHitModifier → IToHitModifierParams
  * - DamageModifier → IDamageModifierParams
@@ -452,56 +457,72 @@ export function isPilotStatblock(obj: unknown): obj is IPilotStatblock {
 /**
  * Type guard for to-hit modifier parameters.
  */
-export function isToHitModifierParams(params: AbilityEffectParams): params is IToHitModifierParams {
+export function isToHitModifierParams(
+  params: AbilityEffectParams,
+): params is IToHitModifierParams {
   return 'modifier' in params && typeof params.modifier === 'number';
 }
 
 /**
  * Type guard for damage modifier parameters.
  */
-export function isDamageModifierParams(params: AbilityEffectParams): params is IDamageModifierParams {
+export function isDamageModifierParams(
+  params: AbilityEffectParams,
+): params is IDamageModifierParams {
   return 'multiplier' in params || 'clusterColumnShift' in params;
 }
 
 /**
  * Type guard for piloting modifier parameters.
  */
-export function isPilotingModifierParams(params: AbilityEffectParams): params is IPilotingModifierParams {
+export function isPilotingModifierParams(
+  params: AbilityEffectParams,
+): params is IPilotingModifierParams {
   return 'modifier' in params && typeof params.modifier === 'number';
 }
 
 /**
  * Type guard for TMM modifier parameters.
  */
-export function isTMMModifierParams(params: AbilityEffectParams): params is ITMMModifierParams {
+export function isTMMModifierParams(
+  params: AbilityEffectParams,
+): params is ITMMModifierParams {
   return 'modifier' in params && typeof params.modifier === 'number';
 }
 
 /**
  * Type guard for consciousness modifier parameters.
  */
-export function isConsciousnessModifierParams(params: AbilityEffectParams): params is IConsciousnessModifierParams {
+export function isConsciousnessModifierParams(
+  params: AbilityEffectParams,
+): params is IConsciousnessModifierParams {
   return 'modifier' in params && typeof params.modifier === 'number';
 }
 
 /**
  * Type guard for heat modifier parameters.
  */
-export function isHeatModifierParams(params: AbilityEffectParams): params is IHeatModifierParams {
+export function isHeatModifierParams(
+  params: AbilityEffectParams,
+): params is IHeatModifierParams {
   return 'heatReduction' in params || 'shutdownThresholdIncrease' in params;
 }
 
 /**
  * Type guard for initiative modifier parameters.
  */
-export function isInitiativeModifierParams(params: AbilityEffectParams): params is IInitiativeModifierParams {
+export function isInitiativeModifierParams(
+  params: AbilityEffectParams,
+): params is IInitiativeModifierParams {
   return 'modifier' in params && typeof params.modifier === 'number';
 }
 
 /**
  * Type guard for special ability parameters.
  */
-export function isSpecialAbilityParams(params: AbilityEffectParams): params is ISpecialAbilityParams {
+export function isSpecialAbilityParams(
+  params: AbilityEffectParams,
+): params is ISpecialAbilityParams {
   return (
     'ignoreFirstWoundPenalty' in params ||
     'rerollsPerGame' in params ||
@@ -512,7 +533,7 @@ export function isSpecialAbilityParams(params: AbilityEffectParams): params is I
 /**
  * Get typed effect parameters based on effect type.
  * Provides runtime type narrowing for effect parameters.
- * 
+ *
  * @example
  * ```typescript
  * const ability = getAbility('marksman');
@@ -524,7 +545,7 @@ export function isSpecialAbilityParams(params: AbilityEffectParams): params is I
  */
 export function getTypedEffectParams(
   effectType: AbilityEffectType,
-  params: AbilityEffectParams
+  params: AbilityEffectParams,
 ):
   | { type: 'ToHitModifier'; params: IToHitModifierParams }
   | { type: 'DamageModifier'; params: IDamageModifierParams }
@@ -534,22 +555,33 @@ export function getTypedEffectParams(
   | { type: 'HeatModifier'; params: IHeatModifierParams }
   | { type: 'InitiativeModifier'; params: IInitiativeModifierParams }
   | { type: 'Special'; params: ISpecialAbilityParams } {
-  
   switch (effectType) {
     case AbilityEffectType.ToHitModifier:
       return { type: 'ToHitModifier', params: params as IToHitModifierParams };
     case AbilityEffectType.DamageModifier:
-      return { type: 'DamageModifier', params: params as IDamageModifierParams };
+      return {
+        type: 'DamageModifier',
+        params: params as IDamageModifierParams,
+      };
     case AbilityEffectType.PilotingModifier:
-      return { type: 'PilotingModifier', params: params as IPilotingModifierParams };
+      return {
+        type: 'PilotingModifier',
+        params: params as IPilotingModifierParams,
+      };
     case AbilityEffectType.TMMModifier:
       return { type: 'TMMModifier', params: params as ITMMModifierParams };
     case AbilityEffectType.ConsciousnessModifier:
-      return { type: 'ConsciousnessModifier', params: params as IConsciousnessModifierParams };
+      return {
+        type: 'ConsciousnessModifier',
+        params: params as IConsciousnessModifierParams,
+      };
     case AbilityEffectType.HeatModifier:
       return { type: 'HeatModifier', params: params as IHeatModifierParams };
     case AbilityEffectType.InitiativeModifier:
-      return { type: 'InitiativeModifier', params: params as IInitiativeModifierParams };
+      return {
+        type: 'InitiativeModifier',
+        params: params as IInitiativeModifierParams,
+      };
     case AbilityEffectType.Special:
       return { type: 'Special', params: params as ISpecialAbilityParams };
     default:

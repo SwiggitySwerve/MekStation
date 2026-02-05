@@ -7,12 +7,14 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
 
+import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { createContext, useContext } from 'react';
+
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { IEquipmentItem } from '@/types/equipment';
 import { generateUnitId } from '@/utils/uuid';
+
 import {
   BattleArmorState,
   BattleArmorStore,
@@ -31,7 +33,9 @@ export type { BattleArmorStore } from './battleArmorState';
 /**
  * Create an isolated Zustand store for a single Battle Armor unit
  */
-export function createBattleArmorStore(initialState: BattleArmorState): StoreApi<BattleArmorStore> {
+export function createBattleArmorStore(
+  initialState: BattleArmorState,
+): StoreApi<BattleArmorStore> {
   return create<BattleArmorStore>()(
     persist(
       (set, _get) => ({
@@ -257,7 +261,11 @@ export function createBattleArmorStore(initialState: BattleArmorState): StoreApi
 
         addEquipment: (item: IEquipmentItem, location?) => {
           const instanceId = generateUnitId();
-          const mountedEquipment = createBattleArmorMountedEquipment(item, instanceId, location);
+          const mountedEquipment = createBattleArmorMountedEquipment(
+            item,
+            instanceId,
+            location,
+          );
 
           set((state) => ({
             equipment: [...state.equipment, mountedEquipment],
@@ -278,7 +286,7 @@ export function createBattleArmorStore(initialState: BattleArmorState): StoreApi
         updateEquipmentLocation: (instanceId: string, location) =>
           set((state) => ({
             equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, location } : e
+              e.id === instanceId ? { ...e, location } : e,
             ),
             isModified: true,
             lastModifiedAt: Date.now(),
@@ -287,7 +295,7 @@ export function createBattleArmorStore(initialState: BattleArmorState): StoreApi
         setEquipmentAPMount: (instanceId: string, isAPMount) =>
           set((state) => ({
             equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, isAPMount } : e
+              e.id === instanceId ? { ...e, isAPMount } : e,
             ),
             isModified: true,
             lastModifiedAt: Date.now(),
@@ -296,7 +304,7 @@ export function createBattleArmorStore(initialState: BattleArmorState): StoreApi
         setEquipmentTurretMount: (instanceId: string, isTurretMounted) =>
           set((state) => ({
             equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, isTurretMounted } : e
+              e.id === instanceId ? { ...e, isTurretMounted } : e,
             ),
             isModified: true,
             lastModifiedAt: Date.now(),
@@ -305,7 +313,7 @@ export function createBattleArmorStore(initialState: BattleArmorState): StoreApi
         setEquipmentModular: (instanceId: string, isModular) =>
           set((state) => ({
             equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, isModular } : e
+              e.id === instanceId ? { ...e, isModular } : e,
             ),
             isModified: true,
             lastModifiedAt: Date.now(),
@@ -367,15 +375,17 @@ export function createBattleArmorStore(initialState: BattleArmorState): StoreApi
           createdAt: state.createdAt,
           lastModifiedAt: state.lastModifiedAt,
         }),
-      }
-    )
+      },
+    ),
   );
 }
 
 /**
  * Create a new Battle Armor store from options
  */
-export function createNewBattleArmorStore(options: CreateBattleArmorOptions): StoreApi<BattleArmorStore> {
+export function createNewBattleArmorStore(
+  options: CreateBattleArmorOptions,
+): StoreApi<BattleArmorStore> {
   const initialState = createDefaultBattleArmorState(options);
   return createBattleArmorStore(initialState);
 }
@@ -387,18 +397,21 @@ export function createNewBattleArmorStore(options: CreateBattleArmorOptions): St
 /**
  * Context for providing the active Battle Armor's store
  */
-export const BattleArmorStoreContext = createContext<StoreApi<BattleArmorStore> | null>(null);
+export const BattleArmorStoreContext =
+  createContext<StoreApi<BattleArmorStore> | null>(null);
 
 /**
  * Hook to access the Battle Armor store from context
  */
-export function useBattleArmorStore<T>(selector: (state: BattleArmorStore) => T): T {
+export function useBattleArmorStore<T>(
+  selector: (state: BattleArmorStore) => T,
+): T {
   const store = useContext(BattleArmorStoreContext);
 
   if (!store) {
     throw new Error(
       'useBattleArmorStore must be used within a BattleArmorStoreProvider. ' +
-        'Wrap your component tree with <BattleArmorStoreContext.Provider>.'
+        'Wrap your component tree with <BattleArmorStoreContext.Provider>.',
     );
   }
 
@@ -412,7 +425,9 @@ export function useBattleArmorStoreApi(): StoreApi<BattleArmorStore> {
   const store = useContext(BattleArmorStoreContext);
 
   if (!store) {
-    throw new Error('useBattleArmorStoreApi must be used within a BattleArmorStoreProvider.');
+    throw new Error(
+      'useBattleArmorStoreApi must be used within a BattleArmorStoreProvider.',
+    );
   }
 
   return store;

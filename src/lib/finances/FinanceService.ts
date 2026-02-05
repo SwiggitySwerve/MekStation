@@ -13,16 +13,16 @@
  * @module lib/finances/FinanceService
  */
 
-import { IFinances } from '@/types/campaign/IFinances';
-import { Transaction } from '@/types/campaign/Transaction';
-import { TransactionType } from '@/types/campaign/enums/TransactionType';
-import { Money } from '@/types/campaign/Money';
 import { ICampaign } from '@/types/campaign/Campaign';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
+import { getAllUnits } from '@/types/campaign/Force';
+import { IFinances } from '@/types/campaign/IFinances';
 import { IContract } from '@/types/campaign/Mission';
 import { getTotalPayout } from '@/types/campaign/Mission';
-import { getAllUnits } from '@/types/campaign/Force';
-import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
-import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { Money } from '@/types/campaign/Money';
+import { Transaction } from '@/types/campaign/Transaction';
 
 // =============================================================================
 // Constants
@@ -59,7 +59,7 @@ export const DEFAULT_DAILY_MAINTENANCE = 100;
  */
 export function recordTransaction(
   finances: IFinances,
-  transaction: Transaction
+  transaction: Transaction,
 ): IFinances {
   const updatedTransactions = [...finances.transactions, transaction];
 
@@ -156,7 +156,7 @@ export function calculateDailyCosts(campaign: ICampaign): DailyCosts {
     (p) =>
       p.status !== PersonnelStatus.KIA &&
       p.status !== PersonnelStatus.RETIRED &&
-      p.status !== PersonnelStatus.DESERTED
+      p.status !== PersonnelStatus.DESERTED,
   );
   const personnelCount = eligiblePersonnel.length;
 
@@ -164,7 +164,7 @@ export function calculateDailyCosts(campaign: ICampaign): DailyCosts {
   let salaries = Money.ZERO;
   if (options.payForSalaries && personnelCount > 0) {
     const dailySalaryPerPerson = new Money(
-      DEFAULT_DAILY_SALARY * options.salaryMultiplier
+      DEFAULT_DAILY_SALARY * options.salaryMultiplier,
     );
     salaries = dailySalaryPerPerson.multiply(personnelCount);
   }
@@ -181,7 +181,7 @@ export function calculateDailyCosts(campaign: ICampaign): DailyCosts {
   let maintenance = Money.ZERO;
   if (options.payForMaintenance && unitCount > 0) {
     const dailyMaintenancePerUnit = new Money(
-      DEFAULT_DAILY_MAINTENANCE * options.maintenanceCostMultiplier
+      DEFAULT_DAILY_MAINTENANCE * options.maintenanceCostMultiplier,
     );
     maintenance = dailyMaintenancePerUnit.multiply(unitCount);
   }
@@ -221,7 +221,7 @@ export function calculateDailyCosts(campaign: ICampaign): DailyCosts {
  */
 export function processContractPayment(
   campaign: ICampaign,
-  contract: IContract
+  contract: IContract,
 ): IFinances {
   // Only process terminal contracts
   const terminalStatuses: MissionStatus[] = [

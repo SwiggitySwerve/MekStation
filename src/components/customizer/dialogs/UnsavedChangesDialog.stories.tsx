@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { UnsavedChangesDialog } from './UnsavedChangesDialog';
-import { useState } from 'react';
+
 import { fn } from '@storybook/test';
+import { useState } from 'react';
+
+import { UnsavedChangesDialog } from './UnsavedChangesDialog';
 
 const meta: Meta<typeof UnsavedChangesDialog> = {
   title: 'Customizer/Dialogs/UnsavedChangesDialog',
@@ -10,7 +12,8 @@ const meta: Meta<typeof UnsavedChangesDialog> = {
   parameters: {
     docs: {
       description: {
-        component: 'Confirmation dialog for closing tabs with unsaved changes. Matches MegaMekLab style with Yes/No/Cancel options.',
+        component:
+          'Confirmation dialog for closing tabs with unsaved changes. Matches MegaMekLab style with Yes/No/Cancel options.',
       },
     },
   },
@@ -24,13 +27,17 @@ export default meta;
 
 type Story = StoryObj<typeof UnsavedChangesDialog>;
 
-function UnsavedChangesDialogDemo({ withSaveOption = true }: { withSaveOption?: boolean }) {
+function UnsavedChangesDialogDemo({
+  withSaveOption = true,
+}: {
+  withSaveOption?: boolean;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div>
       <button
         onClick={() => setIsOpen(true)}
-        className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded"
+        className="rounded bg-amber-600 px-4 py-2 text-white hover:bg-amber-500"
       >
         Trigger Unsaved Changes Warning
       </button>
@@ -42,10 +49,14 @@ function UnsavedChangesDialogDemo({ withSaveOption = true }: { withSaveOption?: 
           alert('Discarded changes!');
           setIsOpen(false);
         }}
-        onSave={withSaveOption ? () => {
-          alert('Saving unit...');
-          setIsOpen(false);
-        } : undefined}
+        onSave={
+          withSaveOption
+            ? () => {
+                alert('Saving unit...');
+                setIsOpen(false);
+              }
+            : undefined
+        }
       />
     </div>
   );
