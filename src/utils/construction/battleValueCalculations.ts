@@ -12,6 +12,7 @@ import {
   getStructureBVMultiplier,
   getGyroBVMultiplier,
 } from '../../types/validation/BattleValue';
+import { resolveEquipmentBV } from './equipmentBVResolver';
 
 // ============================================================================
 // SPEED FACTOR TABLE (from TechManual)
@@ -219,117 +220,19 @@ export function calculateOffensiveBVWithHeatTracking(
   };
 }
 
-export const WEAPON_BV: Record<string, number> = {
-  // Energy weapons
-  'small-laser': 9,
-  'medium-laser': 46,
-  'large-laser': 123,
-  'er-small-laser': 17,
-  'er-medium-laser': 62,
-  'er-large-laser': 163,
-  ppc: 176,
-  'er-ppc': 229,
-  'small-pulse-laser': 12,
-  'medium-pulse-laser': 48,
-  'large-pulse-laser': 119,
-
-  // Ballistic weapons
-  'machine-gun': 5,
-  'ac-2': 37,
-  'ac-5': 70,
-  'ac-10': 123,
-  'ac-20': 178,
-  'lb-2-x-ac': 42,
-  'lb-5-x-ac': 83,
-  'lb-10-x-ac': 148,
-  'lb-20-x-ac': 237,
-  'ultra-ac-2': 56,
-  'ultra-ac-5': 112,
-  'ultra-ac-10': 210,
-  'ultra-ac-20': 281,
-  'gauss-rifle': 320,
-  'light-gauss-rifle': 159,
-  'heavy-gauss-rifle': 346,
-
-  // Missile weapons
-  'srm-2': 21,
-  'srm-4': 39,
-  'srm-6': 59,
-  'lrm-5': 45,
-  'lrm-10': 90,
-  'lrm-15': 136,
-  'lrm-20': 181,
-  'streak-srm-2': 30,
-  'streak-srm-4': 59,
-  'streak-srm-6': 89,
-  'mrm-10': 56,
-  'mrm-20': 112,
-  'mrm-30': 168,
-  'mrm-40': 224,
-};
-
-export const WEAPON_HEAT: Record<string, number> = {
-  // Energy weapons
-  'small-laser': 1,
-  'medium-laser': 3,
-  'large-laser': 8,
-  'er-small-laser': 2,
-  'er-medium-laser': 5,
-  'er-large-laser': 12,
-  ppc: 10,
-  'er-ppc': 15,
-  'small-pulse-laser': 2,
-  'medium-pulse-laser': 4,
-  'large-pulse-laser': 10,
-
-  // Ballistic weapons (most generate no heat)
-  'machine-gun': 0,
-  'ac-2': 1,
-  'ac-5': 1,
-  'ac-10': 3,
-  'ac-20': 7,
-  'lb-2-x-ac': 1,
-  'lb-5-x-ac': 1,
-  'lb-10-x-ac': 2,
-  'lb-20-x-ac': 6,
-  'ultra-ac-2': 1,
-  'ultra-ac-5': 1,
-  'ultra-ac-10': 4,
-  'ultra-ac-20': 8,
-  'gauss-rifle': 1,
-  'light-gauss-rifle': 1,
-  'heavy-gauss-rifle': 2,
-
-  // Missile weapons
-  'srm-2': 2,
-  'srm-4': 3,
-  'srm-6': 4,
-  'lrm-5': 2,
-  'lrm-10': 4,
-  'lrm-15': 5,
-  'lrm-20': 6,
-  'streak-srm-2': 2,
-  'streak-srm-4': 3,
-  'streak-srm-6': 4,
-  'mrm-10': 4,
-  'mrm-20': 6,
-  'mrm-30': 10,
-  'mrm-40': 12,
-};
-
-function normalizeWeaponId(weaponId: string): string {
-  let normalized = weaponId.toLowerCase().replace(/-\d+$/, '');
-
-  normalized = normalized.replace(/^ac(\d+)$/, 'ac-$1');
-  normalized = normalized.replace(/^srm(\d+)$/, 'srm-$1');
-  normalized = normalized.replace(/^lrm(\d+)$/, 'lrm-$1');
-  normalized = normalized.replace(/^mrm(\d+)$/, 'mrm-$1');
-
-  return normalized;
+/**
+ * @deprecated Use resolveEquipmentBV() from equipmentBVResolver.ts instead.
+ * Retained as thin wrappers for backward compatibility during migration.
+ */
+export function getWeaponBV(weaponId: string): number {
+  return resolveEquipmentBV(weaponId).battleValue;
 }
 
-function getWeaponHeat(weaponId: string): number {
-  return WEAPON_HEAT[weaponId] ?? 0;
+/**
+ * @deprecated Use resolveEquipmentBV() from equipmentBVResolver.ts instead.
+ */
+export function getWeaponHeat(weaponId: string): number {
+  return resolveEquipmentBV(weaponId).heat;
 }
 
 /**
@@ -348,14 +251,12 @@ export function calculateOffensiveBV(
 
   for (const weapon of weapons) {
     const weaponId = weapon.id.toLowerCase();
-    let bv = WEAPON_BV[weaponId] ?? 0;
+    let bv = resolveEquipmentBV(weapon.id).battleValue;
 
-    // Rear-mounted weapons get reduced BV
     if (weapon.rear) {
       bv = Math.round(bv * 0.5);
     }
 
-    // Targeting computer bonus for direct-fire weapons
     if (
       hasTargetingComputer &&
       !weaponId.includes('lrm') &&
@@ -428,13 +329,14 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
   });
 
   const weaponsWithBV = config.weapons.map((w) => {
-    const weaponId = normalizeWeaponId(w.id);
-    let bv = WEAPON_BV[weaponId] ?? 0;
+    const resolved = resolveEquipmentBV(w.id);
+    let bv = resolved.battleValue;
 
     if (w.rear) {
       bv = Math.round(bv * 0.5);
     }
 
+    const weaponId = w.id.toLowerCase();
     if (
       config.hasTargetingComputer &&
       !weaponId.includes('lrm') &&
@@ -444,12 +346,10 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
       bv = Math.round(bv * 1.25);
     }
 
-    const heat = getWeaponHeat(weaponId);
-
     return {
       id: w.id,
       name: weaponId,
-      heat,
+      heat: resolved.heat,
       bv,
     };
   });
@@ -492,13 +392,14 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
   });
 
   const weaponsWithBV = config.weapons.map((w) => {
-    const weaponId = normalizeWeaponId(w.id);
-    let bv = WEAPON_BV[weaponId] ?? 0;
+    const resolved = resolveEquipmentBV(w.id);
+    let bv = resolved.battleValue;
 
     if (w.rear) {
       bv = Math.round(bv * 0.5);
     }
 
+    const weaponId = w.id.toLowerCase();
     if (
       config.hasTargetingComputer &&
       !weaponId.includes('lrm') &&
@@ -508,12 +409,10 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
       bv = Math.round(bv * 1.25);
     }
 
-    const heat = getWeaponHeat(weaponId);
-
     return {
       id: w.id,
       name: weaponId,
-      heat,
+      heat: resolved.heat,
       bv,
     };
   });
