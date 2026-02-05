@@ -2,10 +2,10 @@
 
 ## 1. New Capability: Code Formatting Standards Spec
 
-- [ ] 1.1 Create directory `openspec/specs/code-formatting-standards/`
-- [ ] 1.2 Create `openspec/specs/code-formatting-standards/spec.md` with content from `openspec/changes/update-specs-for-oxlint-migration/specs/code-formatting-standards/spec.md`
-- [ ] 1.3 Verify spec follows OpenSpec template structure (metadata, overview, requirements, scenarios)
-- [ ] 1.4 Verify all oxlint/oxfmt references are accurate and up-to-date
+- [x] 1.1 Create directory `openspec/specs/code-formatting-standards/`
+- [x] 1.2 Create `openspec/specs/code-formatting-standards/spec.md` with content from `openspec/changes/update-specs-for-oxlint-migration/specs/code-formatting-standards/spec.md`
+- [x] 1.3 Verify spec follows OpenSpec template structure (metadata, overview, requirements, scenarios)
+- [x] 1.4 Verify all oxlint/oxfmt references are accurate and up-to-date
 
 ## 2. Modified Capabilities: Apply Delta Specs
 
