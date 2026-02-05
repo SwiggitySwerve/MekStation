@@ -15,7 +15,11 @@ import {
   SPEED_FACTORS,
   calculateOffensiveBVWithHeatTracking,
   calculateOffensiveSpeedFactor,
+  calculateExplosivePenalties,
   type DefensiveBVConfig,
+  type ExplosiveEquipmentEntry,
+  type ExplosivePenaltyConfig,
+  type MechLocation,
 } from '@/utils/construction/battleValueCalculations';
 
 describe('battleValueCalculations', () => {
@@ -1070,6 +1074,436 @@ describe('battleValueCalculations', () => {
         expect(typeof result.gyroBV).toBe('number');
         expect(typeof result.defensiveFactor).toBe('number');
         expect(typeof result.totalDefensiveBV).toBe('number');
+      });
+    });
+  });
+
+  // ============================================================================
+  // EXPLOSIVE EQUIPMENT PENALTY CALCULATION
+  // ============================================================================
+
+  describe('calculateExplosivePenalties()', () => {
+    describe('per-slot penalty rates', () => {
+      const baseConfig: Omit<ExplosivePenaltyConfig, 'equipment'> = {
+        caseLocations: [],
+        caseIILocations: [],
+      };
+
+      it('should apply 15 BV per slot for standard explosive equipment (ammo)', () => {
+        const result = calculateExplosivePenalties({
+          ...baseConfig,
+          equipment: [
+            { location: 'RT', slots: 2, penaltyCategory: 'standard' },
+          ],
+        });
+        // 2 slots × 15 = 30
+        expect(result.totalPenalty).toBe(30);
+        expect(result.locationPenalties.RT).toBe(30);
+      });
+
+      it('should apply 1 BV per slot for Gauss weapons', () => {
+        const result = calculateExplosivePenalties({
+          ...baseConfig,
+          equipment: [{ location: 'RA', slots: 7, penaltyCategory: 'gauss' }],
+        });
+        // 7 slots × 1 = 7
+        expect(result.totalPenalty).toBe(7);
+        expect(result.locationPenalties.RA).toBe(7);
+      });
+
+      it('should apply 1 BV total for HVAC weapons regardless of slots', () => {
+        const result = calculateExplosivePenalties({
+          ...baseConfig,
+          equipment: [{ location: 'RT', slots: 4, penaltyCategory: 'hvac' }],
+        });
+        // 1 total (not 4 × 1)
+        expect(result.totalPenalty).toBe(1);
+        expect(result.locationPenalties.RT).toBe(1);
+      });
+
+      it('should apply 1 BV per slot for reduced penalty types', () => {
+        const result = calculateExplosivePenalties({
+          ...baseConfig,
+          equipment: [{ location: 'LT', slots: 3, penaltyCategory: 'reduced' }],
+        });
+        // 3 slots × 1 = 3
+        expect(result.totalPenalty).toBe(3);
+        expect(result.locationPenalties.LT).toBe(3);
+      });
+    });
+
+    describe('multi-location penalty accumulation', () => {
+      it('should sum penalties across multiple locations', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RT', slots: 1, penaltyCategory: 'standard' },
+            { location: 'LT', slots: 1, penaltyCategory: 'standard' },
+            { location: 'CT', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: [],
+          caseIILocations: [],
+        });
+        // 3 locations × 15 = 45
+        expect(result.totalPenalty).toBe(45);
+        expect(result.locationPenalties.RT).toBe(15);
+        expect(result.locationPenalties.LT).toBe(15);
+        expect(result.locationPenalties.CT).toBe(15);
+      });
+
+      it('should accumulate penalties within same location', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RT', slots: 1, penaltyCategory: 'standard' },
+            { location: 'RT', slots: 1, penaltyCategory: 'standard' },
+            { location: 'RT', slots: 7, penaltyCategory: 'gauss' },
+          ],
+          caseLocations: [],
+          caseIILocations: [],
+        });
+        // RT: 15 + 15 + 7 = 37
+        expect(result.totalPenalty).toBe(37);
+        expect(result.locationPenalties.RT).toBe(37);
+      });
+    });
+
+    describe('CASE II protection', () => {
+      it('should eliminate ALL penalties in a CASE II protected location', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RT', slots: 2, penaltyCategory: 'standard' },
+            { location: 'LT', slots: 2, penaltyCategory: 'standard' },
+          ],
+          caseLocations: [],
+          caseIILocations: ['RT'],
+        });
+        // RT: protected by CASE II → 0
+        // LT: unprotected → 2 × 15 = 30
+        expect(result.totalPenalty).toBe(30);
+        expect(result.locationPenalties.RT).toBeUndefined();
+        expect(result.locationPenalties.LT).toBe(30);
+      });
+
+      it('should give zero penalty when all locations have CASE II', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RT', slots: 2, penaltyCategory: 'standard' },
+            { location: 'LT', slots: 2, penaltyCategory: 'standard' },
+            { location: 'RA', slots: 7, penaltyCategory: 'gauss' },
+          ],
+          caseLocations: [],
+          caseIILocations: ['RT', 'LT', 'RA'],
+        });
+        expect(result.totalPenalty).toBe(0);
+      });
+
+      it('should protect arms with CASE II independently of torso', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RA', slots: 1, penaltyCategory: 'standard' },
+            { location: 'RT', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: [],
+          caseIILocations: ['RA'],
+        });
+        // RA: CASE II → 0
+        // RT: no protection → 15
+        expect(result.totalPenalty).toBe(15);
+        expect(result.locationPenalties.RA).toBeUndefined();
+      });
+    });
+
+    describe('CASE (IS) protection', () => {
+      it('should eliminate penalty in side torso with standard engine', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RT', slots: 2, penaltyCategory: 'standard' },
+          ],
+          caseLocations: ['RT'],
+          caseIILocations: [],
+          engineType: EngineType.STANDARD,
+        });
+        // CASE in RT + standard engine (0 side torso slots) → no penalty
+        expect(result.totalPenalty).toBe(0);
+      });
+
+      it('should NOT eliminate penalty in side torso with IS XL engine', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RT', slots: 2, penaltyCategory: 'standard' },
+          ],
+          caseLocations: ['RT'],
+          caseIILocations: [],
+          engineType: EngineType.XL_IS,
+        });
+        // CASE in RT + IS XL (3 side torso slots) → penalty still applies
+        expect(result.totalPenalty).toBe(30);
+      });
+
+      it('should NOT eliminate penalty in side torso with XXL engine', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'LT', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: ['LT'],
+          caseIILocations: [],
+          engineType: EngineType.XXL,
+        });
+        // XXL has 3 side torso slots → CASE ineffective
+        expect(result.totalPenalty).toBe(15);
+      });
+
+      it('should eliminate penalty in arm with CASE regardless of engine', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [{ location: 'RA', slots: 7, penaltyCategory: 'gauss' }],
+          caseLocations: ['RA'],
+          caseIILocations: [],
+          engineType: EngineType.XL_IS,
+        });
+        // CASE in arm always protects arm
+        expect(result.totalPenalty).toBe(0);
+      });
+    });
+
+    describe('Clan XL engine (CASE-equivalent)', () => {
+      it('should allow CASE to work in side torsos with Clan XL (2 slots)', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RT', slots: 1, penaltyCategory: 'standard' },
+            { location: 'LT', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: ['RT', 'LT'],
+          caseIILocations: [],
+          engineType: EngineType.XL_CLAN,
+        });
+        // Clan XL has 2 side torso slots → CASE effective
+        expect(result.totalPenalty).toBe(0);
+      });
+
+      it('should allow CASE to work with Light engine (2 slots)', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RT', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: ['RT'],
+          caseIILocations: [],
+          engineType: EngineType.LIGHT,
+        });
+        // Light engine has 2 side torso slots → CASE effective
+        expect(result.totalPenalty).toBe(0);
+      });
+    });
+
+    describe('arm transfer logic (non-quad)', () => {
+      it('should apply arm penalty when torso has penalty (no CASE anywhere)', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RA', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: [],
+          caseIILocations: [],
+        });
+        // No CASE in RA, no CASE in RT → arm has penalty
+        expect(result.totalPenalty).toBe(15);
+      });
+
+      it('should NOT apply arm penalty when transfer torso is protected by CASE', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RA', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: ['RT'],
+          caseIILocations: [],
+          engineType: EngineType.STANDARD,
+        });
+        // No CASE in RA, but RT has CASE + standard engine → RT no penalty → RA no penalty
+        expect(result.totalPenalty).toBe(0);
+      });
+
+      it('should apply arm penalty when torso CASE is overridden by IS XL', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RA', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: ['RT'],
+          caseIILocations: [],
+          engineType: EngineType.XL_IS,
+        });
+        // RT has CASE but IS XL overrides → RT has penalty → RA transfers penalty
+        expect(result.totalPenalty).toBe(15);
+      });
+
+      it('should NOT apply arm penalty when transfer torso has CASE II', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'LA', slots: 2, penaltyCategory: 'standard' },
+          ],
+          caseLocations: [],
+          caseIILocations: ['LT'],
+        });
+        // No CASE in LA, but LT has CASE II → LT no penalty → LA no penalty
+        expect(result.totalPenalty).toBe(0);
+      });
+
+      it('LA transfers to LT, RA transfers to RT', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'LA', slots: 1, penaltyCategory: 'standard' },
+            { location: 'RA', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: ['LT'],
+          caseIILocations: [],
+          engineType: EngineType.STANDARD,
+        });
+        // LA → LT: LT has CASE + standard engine → no penalty → LA no penalty
+        // RA → RT: RT has no CASE → penalty → RA has penalty = 15
+        expect(result.totalPenalty).toBe(15);
+        expect(result.locationPenalties.LA).toBeUndefined();
+        expect(result.locationPenalties.RA).toBe(15);
+      });
+    });
+
+    describe('quad mech arm handling', () => {
+      it('should always apply penalty in leg/arm locations on quad mechs', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RA', slots: 1, penaltyCategory: 'standard' },
+            { location: 'LA', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: ['RT', 'LT'],
+          caseIILocations: [],
+          engineType: EngineType.STANDARD,
+          isQuad: true,
+        });
+        // Quad mechs: arms don't transfer to torso, always have penalty
+        expect(result.totalPenalty).toBe(30);
+      });
+    });
+
+    describe('CT, HD, and leg locations always have penalty', () => {
+      it('should always penalize CT even with CASE in CT', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'CT', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: ['CT'],
+          caseIILocations: [],
+        });
+        // CT always has penalty (CASE doesn't help in CT for BV)
+        expect(result.totalPenalty).toBe(15);
+      });
+
+      it('should always penalize HD', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [{ location: 'HD', slots: 1, penaltyCategory: 'reduced' }],
+          caseLocations: [],
+          caseIILocations: [],
+        });
+        expect(result.totalPenalty).toBe(1);
+      });
+
+      it('should always penalize legs', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'LL', slots: 1, penaltyCategory: 'standard' },
+            { location: 'RL', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: [],
+          caseIILocations: [],
+        });
+        expect(result.totalPenalty).toBe(30);
+      });
+
+      it('should protect CT with CASE II', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'CT', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: [],
+          caseIILocations: ['CT'],
+        });
+        expect(result.totalPenalty).toBe(0);
+      });
+    });
+
+    describe('realistic mech scenarios', () => {
+      it('should calculate penalties for ammo-heavy mech (no protection)', () => {
+        // Atlas-like: AC/20 ammo in RT (1 slot), LRM-20 ammo in LT (2 slots), SRM-6 ammo in CT (1 slot)
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RT', slots: 1, penaltyCategory: 'standard' },
+            { location: 'LT', slots: 2, penaltyCategory: 'standard' },
+            { location: 'CT', slots: 1, penaltyCategory: 'standard' },
+          ],
+          caseLocations: [],
+          caseIILocations: [],
+        });
+        // RT: 15, LT: 30, CT: 15 = 60
+        expect(result.totalPenalty).toBe(60);
+      });
+
+      it('should calculate penalty for Gauss Rifle (1 per slot)', () => {
+        // Gauss Rifle: 7 crit slots in RA
+        const result = calculateExplosivePenalties({
+          equipment: [{ location: 'RA', slots: 7, penaltyCategory: 'gauss' }],
+          caseLocations: [],
+          caseIILocations: [],
+        });
+        // 7 slots × 1 = 7
+        expect(result.totalPenalty).toBe(7);
+      });
+
+      it('should handle mixed explosive types in same location', () => {
+        // RT: Gauss ammo (1 slot, standard) + Gauss Rifle (7 slots, gauss)
+        const result = calculateExplosivePenalties({
+          equipment: [
+            { location: 'RT', slots: 1, penaltyCategory: 'standard' },
+            { location: 'RT', slots: 7, penaltyCategory: 'gauss' },
+          ],
+          caseLocations: [],
+          caseIILocations: [],
+        });
+        // 15 + 7 = 22
+        expect(result.totalPenalty).toBe(22);
+        expect(result.locationPenalties.RT).toBe(22);
+      });
+
+      it('should return zero for mech with no explosive equipment', () => {
+        const result = calculateExplosivePenalties({
+          equipment: [],
+          caseLocations: [],
+          caseIILocations: [],
+        });
+        expect(result.totalPenalty).toBe(0);
+      });
+    });
+
+    describe('integration with defensive BV', () => {
+      it('should subtract explosive penalties from defensive BV', () => {
+        const withoutPenalty = calculateDefensiveBV({
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+        });
+
+        const penalty = 30;
+        const withPenalty = calculateDefensiveBV({
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          explosivePenalties: penalty,
+        });
+
+        // Defensive BV should be reduced by penalty × defensive factor
+        const tmm = calculateTMM(6, 0);
+        const defensiveFactor = 1 + tmm / 10.0;
+        expect(withPenalty.totalDefensiveBV).toBeCloseTo(
+          withoutPenalty.totalDefensiveBV - penalty * defensiveFactor,
+          1,
+        );
       });
     });
   });

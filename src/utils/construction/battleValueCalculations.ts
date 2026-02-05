@@ -6,7 +6,10 @@
  * @spec openspec/specs/battle-value-system/spec.md
  */
 
-import { EngineType } from '../../types/construction/EngineType';
+import {
+  EngineType,
+  getEngineDefinition,
+} from '../../types/construction/EngineType';
 import {
   getPilotSkillModifier,
   getArmorBVMultiplier,
@@ -15,6 +18,206 @@ import {
   getEngineBVMultiplier,
 } from '../../types/validation/BattleValue';
 import { resolveEquipmentBV } from './equipmentBVResolver';
+
+// ============================================================================
+// EXPLOSIVE EQUIPMENT PENALTY CALCULATION
+// ============================================================================
+
+/**
+ * Mech location codes used for explosive penalty tracking.
+ */
+export type MechLocation =
+  | 'HD'
+  | 'CT'
+  | 'LT'
+  | 'RT'
+  | 'LA'
+  | 'RA'
+  | 'LL'
+  | 'RL';
+
+/**
+ * Explosive penalty category determines BV penalty per critical slot.
+ *
+ * - 'standard': 15 BV per slot (most ammo, generic explosive equipment)
+ * - 'gauss': 1 BV per slot (Gauss weapons)
+ * - 'hvac': 1 BV total regardless of slots (Hyper-Assault autocannons)
+ * - 'reduced': 1 BV per slot (PPC capacitors, improved heavy lasers,
+ *   B-Pods, M-Pods, jump jets, coolant pods, RISC laser pulse modules,
+ *   emergency coolant systems, TSEMP, Mek Taser)
+ */
+export type ExplosivePenaltyCategory =
+  | 'standard'
+  | 'gauss'
+  | 'hvac'
+  | 'reduced';
+
+/**
+ * A single piece of explosive equipment for penalty calculation.
+ */
+export interface ExplosiveEquipmentEntry {
+  /** Location where the equipment is installed */
+  location: MechLocation;
+  /** Number of critical slots occupied */
+  slots: number;
+  /** Penalty category determines BV penalty rate */
+  penaltyCategory: ExplosivePenaltyCategory;
+}
+
+/**
+ * Configuration for explosive penalty calculation.
+ *
+ * @see MekBVCalculator.processExplosiveEquipment() lines 138-278
+ * @see MekBVCalculator.hasExplosiveEquipmentPenalty() lines 517-528
+ */
+export interface ExplosivePenaltyConfig {
+  /** All explosive equipment on the mech */
+  equipment: ExplosiveEquipmentEntry[];
+  /** Locations with CASE (IS) protection */
+  caseLocations: MechLocation[];
+  /** Locations with CASE II protection (eliminates all penalties) */
+  caseIILocations: MechLocation[];
+  /** Engine type (affects side torso CASE effectiveness) */
+  engineType?: EngineType;
+  /** Whether the mech is a quad (affects arm transfer logic) */
+  isQuad?: boolean;
+}
+
+/**
+ * Result of explosive penalty calculation with per-location breakdown.
+ */
+export interface ExplosivePenaltyResult {
+  /** Total explosive penalty to subtract from defensive BV */
+  totalPenalty: number;
+  /** Penalty breakdown per location */
+  locationPenalties: Partial<Record<MechLocation, number>>;
+}
+
+/**
+ * Get the BV penalty per slot for an explosive penalty category.
+ *
+ * @param category - The explosive penalty category
+ * @returns BV penalty per critical slot
+ */
+function getPenaltyPerSlot(category: ExplosivePenaltyCategory): number {
+  switch (category) {
+    case 'standard':
+      return 15;
+    case 'gauss':
+    case 'hvac':
+    case 'reduced':
+      return 1;
+  }
+}
+
+/**
+ * Determine the number of engine critical slots in each side torso.
+ * Used for CASE effectiveness check per MegaMek.
+ *
+ * @param engineType - The engine type
+ * @returns Number of engine crit slots per side torso
+ */
+function getEngineSideTorsoSlots(engineType?: EngineType): number {
+  if (!engineType) return 0;
+  const def = getEngineDefinition(engineType);
+  return def?.sideTorsoSlots ?? 0;
+}
+
+/**
+ * Determine whether explosive equipment in a location incurs a BV penalty.
+ *
+ * Implements MekBVCalculator.hasExplosiveEquipmentPenalty() logic:
+ * - CASE II → no penalty (location fully protected)
+ * - Arms (non-quad): no penalty if arm has CASE, or if transfer torso has no penalty
+ * - Side torsos: no penalty if CASE present AND engine has <3 side torso crit slots
+ * - CT, HD, legs: always have penalty (no CASE protection for BV)
+ *
+ * @see MekBVCalculator.java lines 517-528
+ */
+function hasExplosiveEquipmentPenalty(
+  location: MechLocation,
+  config: ExplosivePenaltyConfig,
+): boolean {
+  // CASE II eliminates all penalties
+  if (config.caseIILocations.includes(location)) {
+    return false;
+  }
+
+  const hasCASE = config.caseLocations.includes(location);
+  const sideTorsoSlots = getEngineSideTorsoSlots(config.engineType);
+
+  // Arms on non-quad mechs: CASE in arm protects it; otherwise check transfer torso
+  if (!config.isQuad && (location === 'LA' || location === 'RA')) {
+    if (hasCASE) {
+      return false;
+    }
+    // Transfer location: LA → LT, RA → RT
+    const transferLocation: MechLocation = location === 'LA' ? 'LT' : 'RT';
+    return hasExplosiveEquipmentPenalty(transferLocation, config);
+  }
+
+  // Side torsos: CASE protects only if engine has fewer than 3 side torso crit slots
+  // With IS XL (3 slots) or XXL (3+ slots), CASE doesn't help — explosion still kills mech
+  // With Clan XL (2 slots) + built-in CASE, no penalty
+  if (location === 'LT' || location === 'RT') {
+    return !hasCASE || sideTorsoSlots >= 3;
+  }
+
+  // CT, HD, legs: always have penalty (no CASE protection for BV purposes)
+  return true;
+}
+
+/**
+ * Calculate explosive equipment BV penalties per TechManual BV 2.0 rules.
+ *
+ * For each location, checks all explosive equipment and applies per-slot penalties:
+ * - Standard explosive (ammo, etc.): 15 BV per critical slot
+ * - Gauss weapons: 1 BV per critical slot
+ * - HVAC weapons: 1 BV total (regardless of slot count)
+ * - Reduced penalty types: 1 BV per critical slot
+ *
+ * Protection:
+ * - CASE II eliminates ALL penalties in the protected location
+ * - CASE (IS) prevents penalties in side torsos (unless engine has 3+ side torso slots)
+ * - CASE (IS) in arms always prevents penalties
+ * - Clan XL engines (2 side torso slots) allow CASE to work in side torsos
+ * - IS XL/XXL engines (3+ side torso slots) override CASE in side torsos
+ *
+ * @param config - Explosive equipment and CASE protection configuration
+ * @returns Total penalty and per-location breakdown
+ *
+ * @see MekBVCalculator.processExplosiveEquipment() lines 138-278
+ * @see MekBVCalculator.hasExplosiveEquipmentPenalty() lines 517-528
+ * @see openspec/specs/battle-value-system/spec.md lines 49-61
+ */
+export function calculateExplosivePenalties(
+  config: ExplosivePenaltyConfig,
+): ExplosivePenaltyResult {
+  const locationPenalties: Partial<Record<MechLocation, number>> = {};
+  let totalPenalty = 0;
+
+  for (const item of config.equipment) {
+    // Skip if location is protected (no penalty)
+    if (!hasExplosiveEquipmentPenalty(item.location, config)) {
+      continue;
+    }
+
+    const penaltyPerSlot = getPenaltyPerSlot(item.penaltyCategory);
+
+    // HVAC: 1 total regardless of slots
+    const effectiveSlots = item.penaltyCategory === 'hvac' ? 1 : item.slots;
+
+    const penalty = penaltyPerSlot * effectiveSlots;
+    locationPenalties[item.location] =
+      (locationPenalties[item.location] ?? 0) + penalty;
+    totalPenalty += penalty;
+  }
+
+  return {
+    totalPenalty,
+    locationPenalties,
+  };
+}
 
 // ============================================================================
 // SPEED FACTOR TABLE (from TechManual)
