@@ -30,11 +30,10 @@ interface MockEquipmentLookupService {
 }
 
 // Import after mocking to get mock references
-// oxlint-disable-next-line @typescript-eslint/no-require-imports
-const { equipmentLookupService } =
-  require('@/services/equipment/EquipmentLookupService') as {
-    equipmentLookupService: MockEquipmentLookupService;
-  };
+import * as EquipmentLookupServiceModule from '@/services/equipment/EquipmentLookupService';
+const { equipmentLookupService } = EquipmentLookupServiceModule as unknown as {
+  equipmentLookupService: MockEquipmentLookupService;
+};
 
 const mockGetAllEquipment = equipmentLookupService.getAllEquipment;
 const mockGetAllWeapons = equipmentLookupService.getAllWeapons;

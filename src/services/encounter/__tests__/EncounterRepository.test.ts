@@ -376,7 +376,7 @@ describe('EncounterRepository', () => {
       // The repository only processes description if it's !== undefined
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
       repository.updateEncounter(createResult.id!, {
-        description: null as any,
+        description: null as unknown as string | undefined,
       });
 
       const encounter = repository.getEncounterById(createResult.id!);

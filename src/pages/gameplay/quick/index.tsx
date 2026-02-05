@@ -248,9 +248,6 @@ export default function QuickGamePage(): React.ReactElement {
   if (!game) {
     return (
       <>
-        <Head>
-          <title>Quick Game | MekStation</title>
-        </Head>
         <WelcomeScreen onStart={handleStart} />
       </>
     );

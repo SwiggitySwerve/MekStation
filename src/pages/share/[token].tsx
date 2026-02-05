@@ -135,9 +135,6 @@ export default function ShareLinkPage(): React.JSX.Element {
   if (loading || !token) {
     return (
       <>
-        <Head>
-          <title>Loading Share Link - MekStation</title>
-        </Head>
         <PageLoading message="Validating share link..." />
       </>
     );
@@ -169,9 +166,6 @@ export default function ShareLinkPage(): React.JSX.Element {
 
     return (
       <>
-        <Head>
-          <title>{errorTitle} - MekStation</title>
-        </Head>
         <PageLayout
           title={errorTitle}
           subtitle={errorMessage}

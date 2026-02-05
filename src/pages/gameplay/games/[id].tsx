@@ -268,9 +268,6 @@ export default function GameSessionPage(): React.ReactElement {
   ) {
     return (
       <>
-        <Head>
-          <title>Game Complete - MekStation</title>
-        </Head>
         <CompletedGame
           gameId={session.id}
           winner={session.currentState.result.winner}

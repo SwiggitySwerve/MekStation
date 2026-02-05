@@ -111,7 +111,7 @@ describe('heatSinkCalculations', () => {
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       const result = validateHeatSinks(
         15,
-        'INVALID' as any,
+        'INVALID' as unknown as HeatSinkType,
         250,
         EngineType.STANDARD,
       );
