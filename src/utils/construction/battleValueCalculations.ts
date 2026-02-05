@@ -299,6 +299,10 @@ export interface DefensiveBVConfig {
   explosivePenalties?: number;
   /** Defensive equipment IDs (AMS, ECM, BAP, shields, armored components) */
   defensiveEquipment?: string[];
+  /** Stealth armor adds +2 to TMM for defensive factor */
+  hasStealthArmor?: boolean;
+  /** Chameleon Light Polarization Shield adds +2 to TMM for defensive factor */
+  hasChameleonLPS?: boolean;
 }
 
 export interface DefensiveBVResult {
@@ -348,7 +352,17 @@ export function calculateDefensiveBV(
     resolvedDefensiveEquipmentBV -
     explosivePenalties;
 
-  const maxTMM = calculateTMM(config.runMP, config.jumpMP);
+  let maxTMM = calculateTMM(config.runMP, config.jumpMP);
+
+  // Stealth armor and Chameleon LPS each add +2 to TMM for defensive factor
+  // See MekBVCalculator.tmmFactor() lines 281-303
+  if (config.hasStealthArmor) {
+    maxTMM += 2;
+  }
+  if (config.hasChameleonLPS) {
+    maxTMM += 2;
+  }
+
   const defensiveFactor = 1 + maxTMM / 10.0;
 
   const totalDefensiveBV = baseDef * defensiveFactor;
@@ -388,6 +402,14 @@ export interface OffensiveBVConfig {
   heatDissipation: number;
   /** Whether the unit has a functional Targeting Computer */
   hasTargetingComputer?: boolean;
+  /** Triple Strength Myomer: weight bonus ×1.5 */
+  hasTSM?: boolean;
+  /** Industrial TSM: weight bonus ×1.15 */
+  hasIndustrialTSM?: boolean;
+  /** Number of arms with functional AES (0-2) for weight bonus multiplier */
+  aesArms?: number;
+  /** Industrial mech without advanced fire control: offensive BV ×0.9 */
+  isIndustrialMech?: boolean;
 }
 
 export interface OffensiveBVResult {
@@ -558,13 +580,28 @@ export function calculateOffensiveBVWithHeatTracking(
     ? calculateAmmoBVWithExcessiveCap(config.weapons, config.ammo)
     : 0;
 
-  const weightBonus = config.tonnage;
+  // Weight bonus with TSM/AES modifiers per MekBVCalculator.processWeight()
+  const aesMultiplier = 1.0 + (config.aesArms ?? 0) * 0.1;
+  const adjustedWeight = config.tonnage * aesMultiplier;
+  let weightBonus: number;
+  if (config.hasTSM) {
+    weightBonus = adjustedWeight * 1.5;
+  } else if (config.hasIndustrialTSM) {
+    weightBonus = adjustedWeight * 1.15;
+  } else {
+    weightBonus = adjustedWeight;
+  }
+
   const speedFactor = calculateOffensiveSpeedFactor(
     config.runMP,
     config.jumpMP,
   );
   const baseOffensive = weaponBV + ammoBV + weightBonus;
-  const totalOffensiveBV = baseOffensive * speedFactor;
+
+  // Industrial mechs without advanced fire control get ×0.9
+  // See MekBVCalculator.processOffensiveTypeModifier() lines 416-424
+  const typeModifier = config.isIndustrialMech ? 0.9 : 1.0;
+  const totalOffensiveBV = baseOffensive * speedFactor * typeModifier;
 
   return {
     weaponBV,
@@ -631,6 +668,41 @@ export function calculateOffensiveBV(
 // TOTAL BV CALCULATION
 // ============================================================================
 
+/**
+ * Cockpit type identifiers for BV cockpit modifiers.
+ * Per MekBVCalculator.processSummarize() lines 462-506
+ */
+export type CockpitType =
+  | 'standard'
+  | 'small'
+  | 'torso-mounted'
+  | 'small-command-console'
+  | 'command-console'
+  | 'interface'
+  | 'drone-operating-system';
+
+/**
+ * Get cockpit BV modifier.
+ * Applied to final (defensive + offensive) BV.
+ *
+ * - Small / Torso-mounted / Small Command Console / Drone OS: ×0.95
+ * - Interface: ×1.3
+ * - Standard / Command Console / others: ×1.0
+ */
+export function getCockpitModifier(cockpitType?: CockpitType): number {
+  switch (cockpitType) {
+    case 'small':
+    case 'torso-mounted':
+    case 'small-command-console':
+    case 'drone-operating-system':
+      return 0.95;
+    case 'interface':
+      return 1.3;
+    default:
+      return 1.0;
+  }
+}
+
 export interface BVCalculationConfig {
   totalArmorPoints: number;
   totalStructurePoints: number;
@@ -646,6 +718,13 @@ export interface BVCalculationConfig {
   structureType?: string;
   gyroType?: string;
   engineType?: EngineType;
+  cockpitType?: CockpitType;
+  hasStealthArmor?: boolean;
+  hasChameleonLPS?: boolean;
+  hasTSM?: boolean;
+  hasIndustrialTSM?: boolean;
+  aesArms?: number;
+  isIndustrialMech?: boolean;
 }
 
 /**
@@ -683,6 +762,8 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     structureType: config.structureType,
     gyroType: config.gyroType,
     engineType: config.engineType,
+    hasStealthArmor: config.hasStealthArmor,
+    hasChameleonLPS: config.hasChameleonLPS,
   });
 
   const weaponsWithBV = config.weapons.map((w) => {
@@ -711,11 +792,17 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     jumpMP: config.jumpMP,
     heatDissipation: config.heatSinkCapacity,
     hasTargetingComputer: config.hasTargetingComputer,
+    hasTSM: config.hasTSM,
+    hasIndustrialTSM: config.hasIndustrialTSM,
+    aesArms: config.aesArms,
+    isIndustrialMech: config.isIndustrialMech,
   });
 
-  return Math.round(
-    defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV,
-  );
+  const baseBV =
+    defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV;
+  const cockpitMod = getCockpitModifier(config.cockpitType);
+
+  return Math.round(baseBV * cockpitMod);
 }
 
 /**
@@ -742,6 +829,8 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     structureType: config.structureType,
     gyroType: config.gyroType,
     engineType: config.engineType,
+    hasStealthArmor: config.hasStealthArmor,
+    hasChameleonLPS: config.hasChameleonLPS,
   });
 
   const weaponsWithBV = config.weapons.map((w) => {
@@ -770,15 +859,21 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     jumpMP: config.jumpMP,
     heatDissipation: config.heatSinkCapacity,
     hasTargetingComputer: config.hasTargetingComputer,
+    hasTSM: config.hasTSM,
+    hasIndustrialTSM: config.hasIndustrialTSM,
+    aesArms: config.aesArms,
+    isIndustrialMech: config.isIndustrialMech,
   });
+
+  const baseBV =
+    defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV;
+  const cockpitMod = getCockpitModifier(config.cockpitType);
 
   return {
     defensiveBV: defensiveResult.totalDefensiveBV,
     offensiveBV: offensiveResult.totalOffensiveBV,
     speedFactor: offensiveResult.speedFactor,
-    totalBV: Math.round(
-      defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV,
-    ),
+    totalBV: Math.round(baseBV * cockpitMod),
   };
 }
 

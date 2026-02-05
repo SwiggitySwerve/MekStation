@@ -17,10 +17,12 @@ import {
   calculateOffensiveSpeedFactor,
   calculateExplosivePenalties,
   calculateAmmoBVWithExcessiveCap,
+  getCockpitModifier,
   type DefensiveBVConfig,
   type ExplosiveEquipmentEntry,
   type ExplosivePenaltyConfig,
   type MechLocation,
+  type CockpitType,
 } from '@/utils/construction/battleValueCalculations';
 import { resetCatalogCache } from '@/utils/construction/equipmentBVResolver';
 
@@ -2312,6 +2314,384 @@ describe('battleValueCalculations', () => {
         // Total = 100 + 90 = 190
         expect(result.weaponBV).toBe(190);
       });
+    });
+  });
+
+  // ============================================================================
+  // COCKPIT BV MODIFIERS
+  // ============================================================================
+
+  describe('getCockpitModifier()', () => {
+    it('should return 0.95 for small cockpit', () => {
+      expect(getCockpitModifier('small')).toBe(0.95);
+    });
+
+    it('should return 0.95 for torso-mounted cockpit', () => {
+      expect(getCockpitModifier('torso-mounted')).toBe(0.95);
+    });
+
+    it('should return 0.95 for small command console', () => {
+      expect(getCockpitModifier('small-command-console')).toBe(0.95);
+    });
+
+    it('should return 0.95 for drone operating system', () => {
+      expect(getCockpitModifier('drone-operating-system')).toBe(0.95);
+    });
+
+    it('should return 1.3 for interface cockpit', () => {
+      expect(getCockpitModifier('interface')).toBe(1.3);
+    });
+
+    it('should return 1.0 for standard cockpit', () => {
+      expect(getCockpitModifier('standard')).toBe(1.0);
+    });
+
+    it('should return 1.0 for command console', () => {
+      expect(getCockpitModifier('command-console')).toBe(1.0);
+    });
+
+    it('should return 1.0 for undefined cockpit type', () => {
+      expect(getCockpitModifier(undefined)).toBe(1.0);
+    });
+  });
+
+  describe('cockpit modifier applied to total BV', () => {
+    it('should reduce final BV by ×0.95 for small cockpit', () => {
+      const baseConfig = {
+        totalArmorPoints: 100,
+        totalStructurePoints: 50,
+        tonnage: 50,
+        heatSinkCapacity: 10,
+        walkMP: 5,
+        runMP: 8,
+        jumpMP: 0,
+        weapons: [{ id: 'medium-laser' }],
+      };
+
+      const baseBV = calculateTotalBV(baseConfig);
+      const smallCockpitBV = calculateTotalBV({
+        ...baseConfig,
+        cockpitType: 'small' as CockpitType,
+      });
+
+      // Small cockpit: final BV × 0.95
+      // Due to rounding, check the relationship holds
+      expect(smallCockpitBV).toBeLessThan(baseBV);
+      // The ratio should be approximately 0.95
+      expect(smallCockpitBV / baseBV).toBeCloseTo(0.95, 1);
+    });
+
+    it('should increase final BV by ×1.3 for interface cockpit', () => {
+      const baseConfig = {
+        totalArmorPoints: 100,
+        totalStructurePoints: 50,
+        tonnage: 50,
+        heatSinkCapacity: 10,
+        walkMP: 5,
+        runMP: 8,
+        jumpMP: 0,
+        weapons: [{ id: 'medium-laser' }],
+      };
+
+      const baseBV = calculateTotalBV(baseConfig);
+      const interfaceBV = calculateTotalBV({
+        ...baseConfig,
+        cockpitType: 'interface' as CockpitType,
+      });
+
+      expect(interfaceBV).toBeGreaterThan(baseBV);
+      expect(interfaceBV / baseBV).toBeCloseTo(1.3, 1);
+    });
+
+    it('should not change BV for standard cockpit', () => {
+      const config = {
+        totalArmorPoints: 100,
+        totalStructurePoints: 50,
+        tonnage: 50,
+        heatSinkCapacity: 10,
+        walkMP: 5,
+        runMP: 8,
+        jumpMP: 0,
+        weapons: [{ id: 'medium-laser' }],
+      };
+
+      const baseBV = calculateTotalBV(config);
+      const standardBV = calculateTotalBV({
+        ...config,
+        cockpitType: 'standard' as CockpitType,
+      });
+
+      expect(standardBV).toBe(baseBV);
+    });
+
+    it('should apply cockpit modifier in getBVBreakdown', () => {
+      const baseConfig = {
+        totalArmorPoints: 100,
+        totalStructurePoints: 50,
+        tonnage: 50,
+        heatSinkCapacity: 10,
+        walkMP: 5,
+        runMP: 8,
+        jumpMP: 0,
+        weapons: [{ id: 'medium-laser' }],
+      };
+
+      const baseBreakdown = getBVBreakdown(baseConfig);
+      const smallBreakdown = getBVBreakdown({
+        ...baseConfig,
+        cockpitType: 'small' as CockpitType,
+      });
+
+      expect(smallBreakdown.totalBV).toBeLessThan(baseBreakdown.totalBV);
+    });
+  });
+
+  // ============================================================================
+  // WEIGHT MODIFIERS (TSM, AES)
+  // ============================================================================
+
+  describe('weight modifiers (TSM, AES)', () => {
+    const baseOffensiveConfig = {
+      weapons: [
+        { id: 'medium-laser-1', name: 'Medium Laser', heat: 3, bv: 46 },
+      ],
+      tonnage: 50,
+      walkMP: 5,
+      runMP: 8,
+      jumpMP: 0,
+      heatDissipation: 10,
+    };
+
+    describe('TSM (Triple Strength Myomer)', () => {
+      it('should multiply weight bonus by 1.5', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          ...baseOffensiveConfig,
+          hasTSM: true,
+        });
+
+        // Weight bonus = 50 × 1.5 = 75
+        expect(result.weightBonus).toBe(75);
+      });
+
+      it('should increase total offensive BV with TSM', () => {
+        const baseResult =
+          calculateOffensiveBVWithHeatTracking(baseOffensiveConfig);
+        const tsmResult = calculateOffensiveBVWithHeatTracking({
+          ...baseOffensiveConfig,
+          hasTSM: true,
+        });
+
+        expect(tsmResult.totalOffensiveBV).toBeGreaterThan(
+          baseResult.totalOffensiveBV,
+        );
+      });
+    });
+
+    describe('Industrial TSM', () => {
+      it('should multiply weight bonus by 1.15', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          ...baseOffensiveConfig,
+          hasIndustrialTSM: true,
+        });
+
+        // Weight bonus = 50 × 1.15 = 57.5
+        expect(result.weightBonus).toBeCloseTo(57.5, 2);
+      });
+    });
+
+    describe('AES (Actuator Enhancement System)', () => {
+      it('should multiply weight by 1.1 for one arm with AES', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          ...baseOffensiveConfig,
+          aesArms: 1,
+        });
+
+        // Weight bonus = 50 × 1.1 = 55
+        expect(result.weightBonus).toBeCloseTo(55, 2);
+      });
+
+      it('should multiply weight by 1.2 for two arms with AES', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          ...baseOffensiveConfig,
+          aesArms: 2,
+        });
+
+        // Weight bonus = 50 × 1.2 = 60
+        expect(result.weightBonus).toBeCloseTo(60, 2);
+      });
+
+      it('should default to no AES modifier when aesArms is 0', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          ...baseOffensiveConfig,
+          aesArms: 0,
+        });
+
+        expect(result.weightBonus).toBe(50);
+      });
+    });
+
+    describe('TSM + AES combination', () => {
+      it('should apply AES multiplier first, then TSM to adjusted weight', () => {
+        const result = calculateOffensiveBVWithHeatTracking({
+          ...baseOffensiveConfig,
+          hasTSM: true,
+          aesArms: 2,
+        });
+
+        // AES: 1.0 + 0.2 = 1.2, adjustedWeight = 50 × 1.2 = 60
+        // TSM: 60 × 1.5 = 90
+        expect(result.weightBonus).toBeCloseTo(90, 2);
+      });
+    });
+  });
+
+  // ============================================================================
+  // OFFENSIVE TYPE MODIFIER (Industrial Mech)
+  // ============================================================================
+
+  describe('offensive type modifier (Industrial Mech)', () => {
+    it('should reduce offensive BV by ×0.9 for Industrial mech', () => {
+      const baseResult = calculateOffensiveBVWithHeatTracking({
+        weapons: [
+          { id: 'medium-laser-1', name: 'Medium Laser', heat: 3, bv: 46 },
+        ],
+        tonnage: 50,
+        walkMP: 5,
+        runMP: 8,
+        jumpMP: 0,
+        heatDissipation: 10,
+      });
+
+      const industrialResult = calculateOffensiveBVWithHeatTracking({
+        weapons: [
+          { id: 'medium-laser-1', name: 'Medium Laser', heat: 3, bv: 46 },
+        ],
+        tonnage: 50,
+        walkMP: 5,
+        runMP: 8,
+        jumpMP: 0,
+        heatDissipation: 10,
+        isIndustrialMech: true,
+      });
+
+      expect(industrialResult.totalOffensiveBV).toBeCloseTo(
+        baseResult.totalOffensiveBV * 0.9,
+        2,
+      );
+    });
+
+    it('should not reduce offensive BV for non-Industrial mech', () => {
+      const result1 = calculateOffensiveBVWithHeatTracking({
+        weapons: [
+          { id: 'medium-laser-1', name: 'Medium Laser', heat: 3, bv: 46 },
+        ],
+        tonnage: 50,
+        walkMP: 5,
+        runMP: 8,
+        jumpMP: 0,
+        heatDissipation: 10,
+      });
+
+      const result2 = calculateOffensiveBVWithHeatTracking({
+        weapons: [
+          { id: 'medium-laser-1', name: 'Medium Laser', heat: 3, bv: 46 },
+        ],
+        tonnage: 50,
+        walkMP: 5,
+        runMP: 8,
+        jumpMP: 0,
+        heatDissipation: 10,
+        isIndustrialMech: false,
+      });
+
+      expect(result1.totalOffensiveBV).toBe(result2.totalOffensiveBV);
+    });
+  });
+
+  // ============================================================================
+  // STEALTH / CHAMELEON TMM BONUSES
+  // ============================================================================
+
+  describe('stealth and chameleon TMM bonuses', () => {
+    const baseDefConfig: DefensiveBVConfig = {
+      totalArmorPoints: 100,
+      totalStructurePoints: 50,
+      tonnage: 50,
+      runMP: 6,
+      jumpMP: 0,
+      armorType: 'standard',
+      structureType: 'standard',
+      gyroType: 'standard',
+    };
+
+    it('should add +2 TMM for stealth armor', () => {
+      const baseResult = calculateDefensiveBV(baseDefConfig);
+      const stealthResult = calculateDefensiveBV({
+        ...baseDefConfig,
+        hasStealthArmor: true,
+      });
+
+      // Base TMM for runMP 6 = 2, factor = 1 + 2/10 = 1.2
+      // Stealth TMM = 2 + 2 = 4, factor = 1 + 4/10 = 1.4
+      expect(baseResult.defensiveFactor).toBe(1.2);
+      expect(stealthResult.defensiveFactor).toBe(1.4);
+    });
+
+    it('should add +2 TMM for chameleon LPS', () => {
+      const baseResult = calculateDefensiveBV(baseDefConfig);
+      const chameleonResult = calculateDefensiveBV({
+        ...baseDefConfig,
+        hasChameleonLPS: true,
+      });
+
+      expect(baseResult.defensiveFactor).toBe(1.2);
+      expect(chameleonResult.defensiveFactor).toBe(1.4);
+    });
+
+    it('should stack stealth and chameleon for +4 TMM total', () => {
+      const bothResult = calculateDefensiveBV({
+        ...baseDefConfig,
+        hasStealthArmor: true,
+        hasChameleonLPS: true,
+      });
+
+      // TMM = 2 + 2 (stealth) + 2 (chameleon) = 6
+      // factor = 1 + 6/10 = 1.6
+      expect(bothResult.defensiveFactor).toBe(1.6);
+    });
+
+    it('should increase total defensive BV with stealth armor', () => {
+      const baseResult = calculateDefensiveBV(baseDefConfig);
+      const stealthResult = calculateDefensiveBV({
+        ...baseDefConfig,
+        hasStealthArmor: true,
+      });
+
+      expect(stealthResult.totalDefensiveBV).toBeGreaterThan(
+        baseResult.totalDefensiveBV,
+      );
+      // Ratio should be 1.4 / 1.2 ≈ 1.167
+      expect(
+        stealthResult.totalDefensiveBV / baseResult.totalDefensiveBV,
+      ).toBeCloseTo(1.4 / 1.2, 2);
+    });
+
+    it('should propagate stealth armor through calculateTotalBV', () => {
+      const config = {
+        totalArmorPoints: 100,
+        totalStructurePoints: 50,
+        tonnage: 50,
+        heatSinkCapacity: 10,
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        weapons: [{ id: 'medium-laser' }],
+      };
+
+      const baseBV = calculateTotalBV(config);
+      const stealthBV = calculateTotalBV({ ...config, hasStealthArmor: true });
+
+      expect(stealthBV).toBeGreaterThan(baseBV);
     });
   });
 });
