@@ -181,13 +181,16 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
   );
   if (electronics?.items) {
     for (const item of electronics.items) {
-      catalog.set(item.id, {
-        id: item.id,
-        name: item.name,
-        category: item.category,
-        techBase: item.techBase,
-        battleValue: item.battleValue,
-      });
+      // Don't overwrite weapons entries (weapons have priority)
+      if (!catalog.has(item.id)) {
+        catalog.set(item.id, {
+          id: item.id,
+          name: item.name,
+          category: item.category,
+          techBase: item.techBase,
+          battleValue: item.battleValue,
+        });
+      }
     }
   }
 
@@ -197,13 +200,16 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
   );
   if (misc?.items) {
     for (const item of misc.items) {
-      catalog.set(item.id, {
-        id: item.id,
-        name: item.name,
-        category: item.category,
-        techBase: item.techBase,
-        battleValue: item.battleValue,
-      });
+      // Don't overwrite weapons entries (weapons have priority)
+      if (!catalog.has(item.id)) {
+        catalog.set(item.id, {
+          id: item.id,
+          name: item.name,
+          category: item.category,
+          techBase: item.techBase,
+          battleValue: item.battleValue,
+        });
+      }
     }
   }
 
@@ -213,13 +219,16 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
   );
   if (ammo?.items) {
     for (const item of ammo.items) {
-      catalog.set(item.id, {
-        id: item.id,
-        name: item.name,
-        category: item.category,
-        techBase: item.techBase,
-        battleValue: item.battleValue,
-      });
+      // Don't overwrite weapons entries (weapons have priority)
+      if (!catalog.has(item.id)) {
+        catalog.set(item.id, {
+          id: item.id,
+          name: item.name,
+          category: item.category,
+          techBase: item.techBase,
+          battleValue: item.battleValue,
+        });
+      }
     }
   }
 

@@ -294,6 +294,8 @@ export interface DefensiveBVConfig {
   engineMultiplier?: number;
   defensiveEquipmentBV?: number;
   explosivePenalties?: number;
+  /** Defensive equipment IDs (AMS, ECM, BAP, shields, armored components) */
+  defensiveEquipment?: string[];
 }
 
 export interface DefensiveBVResult {
@@ -319,7 +321,16 @@ export function calculateDefensiveBV(
     config.engineType !== undefined
       ? getEngineBVMultiplier(config.engineType)
       : (config.engineMultiplier ?? 1.0);
-  const defensiveEquipmentBV = config.defensiveEquipmentBV ?? 0;
+
+  // Resolve defensive equipment BV from catalog (AMS, ECM, BAP, shields, armored components)
+  let resolvedDefensiveEquipmentBV = config.defensiveEquipmentBV ?? 0;
+  if (config.defensiveEquipment && config.defensiveEquipment.length > 0) {
+    for (const equipmentId of config.defensiveEquipment) {
+      const result = resolveEquipmentBV(equipmentId);
+      resolvedDefensiveEquipmentBV += result.battleValue;
+    }
+  }
+
   const explosivePenalties = config.explosivePenalties ?? 0;
 
   const armorBV = config.totalArmorPoints * 2.5 * armorMultiplier * (bar / 10);
@@ -328,7 +339,11 @@ export function calculateDefensiveBV(
   const gyroBV = config.tonnage * gyroMultiplier;
 
   const baseDef =
-    armorBV + structureBV + gyroBV + defensiveEquipmentBV - explosivePenalties;
+    armorBV +
+    structureBV +
+    gyroBV +
+    resolvedDefensiveEquipmentBV -
+    explosivePenalties;
 
   const maxTMM = calculateTMM(config.runMP, config.jumpMP);
   const defensiveFactor = 1 + maxTMM / 10.0;

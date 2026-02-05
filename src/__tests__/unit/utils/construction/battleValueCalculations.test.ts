@@ -21,8 +21,12 @@ import {
   type ExplosivePenaltyConfig,
   type MechLocation,
 } from '@/utils/construction/battleValueCalculations';
+import { resetCatalogCache } from '@/utils/construction/equipmentBVResolver';
 
 describe('battleValueCalculations', () => {
+  beforeAll(() => {
+    resetCatalogCache();
+  });
   describe('calculateTMM()', () => {
     it('should return 0 for low movement', () => {
       expect(calculateTMM(2, 0)).toBe(0);
@@ -1504,6 +1508,169 @@ describe('battleValueCalculations', () => {
           withoutPenalty.totalDefensiveBV - penalty * defensiveFactor,
           1,
         );
+      });
+    });
+
+    describe('defensive equipment BV contributions', () => {
+      it('should add AMS BV to defensive total', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          defensiveEquipment: ['ams'],
+        };
+        const result = calculateDefensiveBV(config);
+
+        // AMS BV is 32 (from catalog)
+        // baseDef = 100*2.5 + 50*1.5 + 50*0.5 + 32 = 250 + 75 + 25 + 32 = 382
+        // defensiveFactor = 1 + 2/10 = 1.2 (TMM for 6 MP)
+        // totalDefensiveBV = 382 * 1.2 = 458.4
+        expect(result.totalDefensiveBV).toBeCloseTo(458.4, 1);
+      });
+
+      it('should add ECM BV to defensive total', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          defensiveEquipment: ['guardian-ecm'],
+        };
+        const result = calculateDefensiveBV(config);
+
+        // Guardian ECM BV is 61 (from catalog)
+        // baseDef = 100*2.5 + 50*1.5 + 50*0.5 + 61 = 250 + 75 + 25 + 61 = 411
+        // defensiveFactor = 1 + 2/10 = 1.2 (TMM for 6 MP)
+        // totalDefensiveBV = 411 * 1.2 = 493.2
+        expect(result.totalDefensiveBV).toBeCloseTo(493.2, 1);
+      });
+
+      it('should add BAP BV to defensive total', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          defensiveEquipment: ['beagle-active-probe'],
+        };
+        const result = calculateDefensiveBV(config);
+
+        // Beagle Active Probe BV is 10 (from catalog)
+        // baseDef = 100*2.5 + 50*1.5 + 50*0.5 + 10 = 250 + 75 + 25 + 10 = 360
+        // defensiveFactor = 1 + 2/10 = 1.2 (TMM for 6 MP)
+        // totalDefensiveBV = 360 * 1.2 = 432
+        expect(result.totalDefensiveBV).toBeCloseTo(432, 1);
+      });
+
+      it('should sum multiple defensive equipment BV contributions', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          defensiveEquipment: ['ams', 'guardian-ecm', 'beagle-active-probe'],
+        };
+        const result = calculateDefensiveBV(config);
+
+        // AMS (32) + Guardian ECM (61) + Beagle Active Probe (10) = 103
+        // baseDef = 100*2.5 + 50*1.5 + 50*0.5 + 103 = 250 + 75 + 25 + 103 = 453
+        // defensiveFactor = 1 + 2/10 = 1.2 (TMM for 6 MP)
+        // totalDefensiveBV = 453 * 1.2 = 543.6
+        expect(result.totalDefensiveBV).toBeCloseTo(543.6, 1);
+      });
+
+      it('should apply defensive equipment BV before speed factor multiplication', () => {
+        const baseConfig: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+        };
+
+        const withoutEquipment = calculateDefensiveBV(baseConfig);
+        const withEquipment = calculateDefensiveBV({
+          ...baseConfig,
+          defensiveEquipment: ['ams'],
+        });
+
+        // The difference should be AMS BV (32) multiplied by the defensive factor (1.2)
+        // 32 * 1.2 = 38.4
+        expect(
+          withEquipment.totalDefensiveBV - withoutEquipment.totalDefensiveBV,
+        ).toBeCloseTo(32 * 1.2, 1);
+      });
+
+      it('should handle empty defensive equipment list', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          defensiveEquipment: [],
+        };
+        const result = calculateDefensiveBV(config);
+
+        // Should be same as without defensive equipment
+        const baseConfig: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+        };
+        const baseResult = calculateDefensiveBV(baseConfig);
+
+        expect(result.totalDefensiveBV).toBe(baseResult.totalDefensiveBV);
+      });
+
+      it('should combine defensiveEquipmentBV and defensiveEquipment array', () => {
+        const config: DefensiveBVConfig = {
+          totalArmorPoints: 100,
+          totalStructurePoints: 50,
+          tonnage: 50,
+          runMP: 6,
+          jumpMP: 0,
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          defensiveEquipmentBV: 50,
+          defensiveEquipment: ['ams'],
+        };
+        const result = calculateDefensiveBV(config);
+
+        // defensiveEquipmentBV (50) + AMS (32) = 82
+        // baseDef = 100*2.5 + 50*1.5 + 50*0.5 + 82 = 250 + 75 + 25 + 82 = 432
+        // defensiveFactor = 1 + 2/10 = 1.2 (TMM for 6 MP)
+        // totalDefensiveBV = 432 * 1.2 = 518.4
+        expect(result.totalDefensiveBV).toBeCloseTo(518.4, 1);
       });
     });
   });
