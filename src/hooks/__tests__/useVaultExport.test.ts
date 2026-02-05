@@ -156,15 +156,13 @@ describe('useVaultExport', () => {
     // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     createElementSpy = jest
       .spyOn(document, 'createElement')
-      .mockImplementation(
-        ((tagName: string) => {
-          if (tagName === 'a') {
-            return mockAnchor;
-          }
-          // Call original for other elements (needed by React Testing Library)
-          return originalCreateElement(tagName);
-        }) as unknown as jest.Mock,
-      ) as unknown as jest.SpyInstance;
+      .mockImplementation(((tagName: string) => {
+        if (tagName === 'a') {
+          return mockAnchor;
+        }
+        // Call original for other elements (needed by React Testing Library)
+        return originalCreateElement(tagName);
+      }) as unknown as jest.Mock) as unknown as jest.SpyInstance;
 
     appendChildSpy = jest
       .spyOn(document.body, 'appendChild')
