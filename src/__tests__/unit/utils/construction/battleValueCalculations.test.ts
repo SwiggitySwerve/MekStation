@@ -87,9 +87,10 @@ describe('battleValueCalculations', () => {
         true,
       );
 
-      // medium-laser: 46 * 1.25 = 57.5 -> 58
-      // ac-10 rear: 123 * 0.5 = 61.5 -> 62, then *1.25 = 77.5 -> 78
-      expect(offensive).toBe(136);
+      // medium-laser: 46 * 1.25 = 57.5
+      // ac-10 rear: 123 * 0.5 = 61.5, then *1.25 = 76.875
+      // No intermediate rounding — accumulate as float
+      expect(offensive).toBeCloseTo(134.375, 2);
     });
   });
 
@@ -132,16 +133,17 @@ describe('battleValueCalculations', () => {
       }
 
       describe('heat tracking algorithm', () => {
-        it('should apply 50% penalty to weapons when cumulative heat exceeds dissipation', () => {
+        it('should apply 50% penalty to weapons when cumulative heat exceeds heat efficiency', () => {
           // Awesome AWS-8Q: 3×PPC (10 heat each) + 1×ML (3 heat)
           // Heat sinks: 28 (single) = 28 dissipation
-          // Running heat: 2
+          // Heat efficiency = 6 + 28 - 2 = 32
           //
           // Sorted by BV descending: PPC (176), PPC (176), PPC (176), ML (46)
-          // Weapon 1 (PPC): cumulative = 2 + 10 = 12 ≤ 28 → full BV = 176
-          // Weapon 2 (PPC): cumulative = 12 + 10 = 22 ≤ 28 → full BV = 176
-          // Weapon 3 (PPC): cumulative = 22 + 10 = 32 > 28 → 50% penalty → 88
-          // Weapon 4 (ML):  cumulative = 32 + 3 = 35 > 28 → 50% penalty → 23
+          // Weapon 1 (PPC): heatSum = 10, exceeded=false → full BV = 176, 10 < 32
+          // Weapon 2 (PPC): heatSum = 20, exceeded=false → full BV = 176, 20 < 32
+          // Weapon 3 (PPC): heatSum = 30, exceeded=false → full BV = 176, 30 < 32
+          // Weapon 4 (ML):  heatSum = 33, exceeded=false → full BV = 46, 33 >= 32 → exceeded
+          // All weapons fit within heat efficiency threshold
           const awesome = CANONICAL_BV_UNITS.find(
             (u) => u.id === 'awesome-aws-8q',
           )!;
@@ -149,9 +151,9 @@ describe('battleValueCalculations', () => {
 
           const result = calculateOffensiveBVWithHeatTracking(config);
 
-          // First 2 PPCs at full BV, 3rd PPC and ML at 50%
-          // 176 + 176 + 88 + 23 = 463
-          expect(result.weaponBV).toBeCloseTo(463, 0);
+          // All 3 PPCs + ML at full BV (weapon that crosses threshold gets full BV)
+          // 176 + 176 + 176 + 46 = 574
+          expect(result.weaponBV).toBeCloseTo(574, 0);
         });
 
         it('should NOT apply penalty when heat is within dissipation', () => {
@@ -177,13 +179,14 @@ describe('battleValueCalculations', () => {
         it('should apply partial penalties based on incremental heat', () => {
           // Hunchback HBK-4G: 1×AC/20 (7 heat) + 2×ML (3 heat each) + 1×SL (1 heat)
           // Heat sinks: 10 = 10 dissipation
-          // Running heat: 2
+          // Heat efficiency = 6 + 10 - 2 = 14
           //
           // Sorted by BV: AC/20 (303), ML (46), ML (46), SL (9)
-          // Weapon 1 (AC/20): cumulative = 2 + 7 = 9 <= 10 → no penalty → 303
-          // Weapon 2 (ML): cumulative = 9 + 3 = 12 > 10 → 50% penalty → 23
-          // Weapon 3 (ML): cumulative = 12 + 3 = 15 > 10 → 50% penalty → 23
-          // Weapon 4 (SL): cumulative = 15 + 1 = 16 > 10 → 50% penalty → 4.5
+          // Weapon 1 (AC/20): heatSum=7, exceeded=false → 303, 7 < 14
+          // Weapon 2 (ML): heatSum=10, exceeded=false → 46, 10 < 14
+          // Weapon 3 (ML): heatSum=13, exceeded=false → 46, 13 < 14
+          // Weapon 4 (SL): heatSum=14, exceeded=false → 9, 14 >= 14 → exceeded
+          // All weapons within heat efficiency (weapon at threshold gets full BV)
           const hunchback = CANONICAL_BV_UNITS.find(
             (u) => u.id === 'hunchback-hbk-4g',
           )!;
@@ -191,21 +194,18 @@ describe('battleValueCalculations', () => {
 
           const result = calculateOffensiveBVWithHeatTracking(config);
 
-          // 303 + 23 + 23 + 4.5 = 353.5
-          expect(result.weaponBV).toBeCloseTo(353.5, 0);
+          // 303 + 46 + 46 + 9 = 404
+          expect(result.weaponBV).toBeCloseTo(404, 0);
         });
 
         it('should sort weapons by BV descending before applying heat tracking', () => {
           // Hunchback HBK-4G: AC/20 (303), 2×ML (46 each), SL (9)
-          // Heat sinks: 10 = 10 dissipation
-          // Running heat: 2
+          // Heat efficiency = 6 + 10 - 2 = 14
           //
           // Sorted by BV: AC/20 (303), ML (46), ML (46), SL (9)
-          // AC/20: 2 + 7 = 9 <= 10 → no penalty → 303
-          // ML: 9 + 3 = 12 > 10 → 50% → 23
-          // ML: 12 + 3 = 15 > 10 → 50% → 23
-          // SL: 15 + 1 = 16 > 10 → 50% → 4.5
-          // Total: 303 + 23 + 23 + 4.5 = 353.5
+          // All weapons within heatEfficiency=14 (total weapon heat=14)
+          // Weapon at threshold gets full BV, so all 4 weapons at full BV
+          // Total: 303 + 46 + 46 + 9 = 404
           const hunchback = CANONICAL_BV_UNITS.find(
             (u) => u.id === 'hunchback-hbk-4g',
           )!;
@@ -213,12 +213,12 @@ describe('battleValueCalculations', () => {
 
           const result = calculateOffensiveBVWithHeatTracking(config);
 
-          expect(result.weaponBV).toBeCloseTo(353.5, 0);
+          expect(result.weaponBV).toBeCloseTo(404, 0);
         });
 
-        it('should start with running heat of 2', () => {
-          // The running heat represents movement heat in MegaMek
-          // Even a mech with zero-heat weapons starts at heat level 2
+        it('should subtract running heat from heat efficiency threshold', () => {
+          // Heat efficiency = 6 + heatDissipation - moveHeat
+          // Locust: 6 + 10 - 2 = 14. Only 3 weapon heat, well within threshold.
           const locust = CANONICAL_BV_UNITS.find(
             (u) => u.id === 'locust-lct-1v',
           )!;
@@ -226,8 +226,7 @@ describe('battleValueCalculations', () => {
 
           const result = calculateOffensiveBVWithHeatTracking(config);
 
-          // With 10 heat sinks and only 3 heat from ML, running heat 2 + 3 = 5 <= 10
-          // All weapons should be at full BV: 46 + 5 + 5 = 56
+          // All weapons at full BV: 46 + 5 + 5 = 56
           expect(result.weaponBV).toBe(56);
         });
       });
@@ -339,12 +338,12 @@ describe('battleValueCalculations', () => {
 
           const result = calculateOffensiveBVWithHeatTracking(config);
 
-          // Weapon BV: 463 (2 PPCs full, 1 PPC + ML at 50%)
+          // Weapon BV: 574 (all weapons within heat efficiency = 6+28-2 = 32)
           // Weight bonus: 80
-          // Base offensive: 543
-          // Speed factor: 1.0 (slow mech)
-          // Total: round(543 * 1.0) = 543
-          expect(result.totalOffensiveBV).toBeCloseTo(543, 0);
+          // Base offensive: 654
+          // Speed factor: 1.0
+          // Total: 654 * 1.0 = 654 (no intermediate rounding)
+          expect(result.totalOffensiveBV).toBeCloseTo(654, 0);
         });
 
         it('should calculate total offensive BV for Hunchback HBK-4G', () => {
@@ -355,12 +354,12 @@ describe('battleValueCalculations', () => {
 
           const result = calculateOffensiveBVWithHeatTracking(config);
 
-          // Weapon BV: 353.5 (partial heat penalties)
+          // Weapon BV: 404 (all within heat efficiency = 6+10-2 = 14)
           // Weight bonus: 50
-          // Base offensive: 403.5
+          // Base offensive: 454
           // Speed factor: 1.37 (runMP 8)
-          // Total: round(403.5 * 1.37) = 553
-          expect(result.totalOffensiveBV).toBeCloseTo(553, 0);
+          // Total: 454 * 1.37 = 621.98 (no intermediate rounding)
+          expect(result.totalOffensiveBV).toBeCloseTo(621.98, 0);
         });
       });
 
@@ -474,15 +473,15 @@ describe('battleValueCalculations', () => {
       const offensiveResult =
         calculateOffensiveBVWithHeatTracking(offensiveConfig);
 
-      return (
-        defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV
+      return Math.round(
+        defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV,
       );
     }
 
-    it('should calculate exact BV for Atlas AS7-D (1,885)', () => {
+    it('should calculate exact BV for Atlas AS7-D (1,942)', () => {
       const atlas = CANONICAL_BV_UNITS.find((u) => u.id === 'atlas-as7-d')!;
       const result = calculateCanonicalUnitBV(atlas);
-      expect(result).toBe(1885);
+      expect(result).toBe(1942);
     });
 
     it('should calculate exact BV for Locust LCT-1V (390)', () => {
@@ -491,20 +490,20 @@ describe('battleValueCalculations', () => {
       expect(result).toBe(390);
     });
 
-    it('should calculate exact BV for Hunchback HBK-4G (1,080)', () => {
+    it('should calculate exact BV for Hunchback HBK-4G (1,149)', () => {
       const hunchback = CANONICAL_BV_UNITS.find(
         (u) => u.id === 'hunchback-hbk-4g',
       )!;
       const result = calculateCanonicalUnitBV(hunchback);
-      expect(result).toBe(1080);
+      expect(result).toBe(1149);
     });
 
-    it('should calculate exact BV for Awesome AWS-8Q (1,312)', () => {
+    it('should calculate exact BV for Awesome AWS-8Q (1,423)', () => {
       const awesome = CANONICAL_BV_UNITS.find(
         (u) => u.id === 'awesome-aws-8q',
       )!;
       const result = calculateCanonicalUnitBV(awesome);
-      expect(result).toBe(1312);
+      expect(result).toBe(1423);
     });
 
     it('should calculate exact BV for Stinger STG-3R (439)', () => {
@@ -515,44 +514,44 @@ describe('battleValueCalculations', () => {
       expect(result).toBe(439);
     });
 
-    it('should calculate exact BV for Commando COM-2D (560)', () => {
+    it('should calculate exact BV for Commando COM-2D (595)', () => {
       const commando = CANONICAL_BV_UNITS.find(
         (u) => u.id === 'commando-com-2d',
       )!;
       const result = calculateCanonicalUnitBV(commando);
-      expect(result).toBe(560);
+      expect(result).toBe(595);
     });
 
-    it('should calculate exact BV for Centurion CN9-A (838)', () => {
+    it('should calculate exact BV for Centurion CN9-A (959)', () => {
       const centurion = CANONICAL_BV_UNITS.find(
         (u) => u.id === 'centurion-cn9-a',
       )!;
       const result = calculateCanonicalUnitBV(centurion);
-      expect(result).toBe(838);
+      expect(result).toBe(959);
     });
 
-    it('should calculate exact BV for Marauder MAD-3R (1,031)', () => {
+    it('should calculate exact BV for Marauder MAD-3R (1,228)', () => {
       const marauder = CANONICAL_BV_UNITS.find(
         (u) => u.id === 'marauder-mad-3r',
       )!;
       const result = calculateCanonicalUnitBV(marauder);
-      expect(result).toBe(1031);
+      expect(result).toBe(1228);
     });
 
-    it('should calculate exact BV for Warhammer WHM-6R (969)', () => {
+    it('should calculate exact BV for Warhammer WHM-6R (1,166)', () => {
       const warhammer = CANONICAL_BV_UNITS.find(
         (u) => u.id === 'warhammer-whm-6r',
       )!;
       const result = calculateCanonicalUnitBV(warhammer);
-      expect(result).toBe(969);
+      expect(result).toBe(1166);
     });
 
-    it('should calculate exact BV for BattleMaster BLR-1G (1,186)', () => {
+    it('should calculate exact BV for BattleMaster BLR-1G (1,383)', () => {
       const battlemaster = CANONICAL_BV_UNITS.find(
         (u) => u.id === 'battlemaster-blr-1g',
       )!;
       const result = calculateCanonicalUnitBV(battlemaster);
-      expect(result).toBe(1186);
+      expect(result).toBe(1383);
     });
 
     it('should calculate exact BV for all 10 canonical units', () => {
@@ -816,8 +815,8 @@ describe('battleValueCalculations', () => {
         // Gyro: 20 × 0.5 = 10
         // Base: 115 + 49.5 + 10 = 174.5
         // TMM 4 -> factor 1.4
-        // Total: 174.5 × 1.4 = 244.3 -> round to 244
-        expect(result.totalDefensiveBV).toBe(244);
+        // Total: 174.5 × 1.4 = 244.3 (no intermediate rounding)
+        expect(result.totalDefensiveBV).toBeCloseTo(244.3, 1);
       });
 
       it('should calculate total defensive BV for Stinger STG-3R', () => {
@@ -832,8 +831,8 @@ describe('battleValueCalculations', () => {
         // Gyro: 20 × 0.5 = 10
         // Base: 174.5
         // TMM 3 -> factor 1.3
-        // Total: 174.5 × 1.3 = 226.85 -> round to 227
-        expect(result.totalDefensiveBV).toBe(227);
+        // Total: 174.5 × 1.3 = 226.85 (no intermediate rounding)
+        expect(result.totalDefensiveBV).toBeCloseTo(226.85, 1);
       });
 
       it('should calculate total defensive BV for Hunchback HBK-4G', () => {
@@ -848,8 +847,8 @@ describe('battleValueCalculations', () => {
         // Gyro: 50 × 0.5 = 25
         // Base: 405.5
         // runMP 8 -> TMM 3 -> factor 1.3
-        // Total: 405.5 × 1.3 = 527.15 -> round to 527
-        expect(result.totalDefensiveBV).toBe(527);
+        // Total: 405.5 × 1.3 = 527.15 (no intermediate rounding)
+        expect(result.totalDefensiveBV).toBeCloseTo(527.15, 1);
       });
 
       it('should calculate total defensive BV for all canonical units', () => {

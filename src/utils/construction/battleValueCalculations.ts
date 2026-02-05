@@ -123,7 +123,7 @@ export function calculateDefensiveBV(
   const maxTMM = calculateTMM(config.runMP, config.jumpMP);
   const defensiveFactor = 1 + maxTMM / 10.0;
 
-  const totalDefensiveBV = Math.round(baseDef * defensiveFactor);
+  const totalDefensiveBV = baseDef * defensiveFactor;
 
   return {
     armorBV,
@@ -177,24 +177,41 @@ export function calculateOffensiveBVWithHeatTracking(
 ): OffensiveBVResult {
   const weaponsWithRearPenalty = config.weapons.map((w) => ({
     ...w,
-    bv: w.rear ? Math.round(w.bv * 0.5) : w.bv,
+    bv: w.rear ? w.bv * 0.5 : w.bv,
   }));
 
   const sortedWeapons = [...weaponsWithRearPenalty].sort((a, b) => b.bv - a.bv);
 
+  // MegaMek heat efficiency formula: 6 + heatCapacity - moveHeat
+  // moveHeat = max(runningHeat, jumpHeat) where:
+  //   runningHeat = 2 (standard for all running mechs)
+  //   jumpHeat = max(3, jumpMP) for mechs with jump jets
+  // See MekBVCalculator.heatEfficiency() lines 321-389
   const RUNNING_HEAT = 2;
-  let cumulativeHeat = RUNNING_HEAT;
+  const jumpHeat = config.jumpMP > 0 ? Math.max(3, config.jumpMP) : 0;
+  const moveHeat = Math.max(RUNNING_HEAT, jumpHeat);
+  const heatEfficiency = 6 + config.heatDissipation - moveHeat;
+
+  // MegaMek tracks heat with a flag: the weapon that pushes cumulative heat
+  // past the threshold gets FULL BV; only subsequent weapons get halved.
+  // See HeatTrackingBVCalculator.processWeapons() lines 78-128
+  let heatExceeded = heatEfficiency <= 0;
+  let heatSum = 0;
   let weaponBV = 0;
 
   for (const weapon of sortedWeapons) {
-    cumulativeHeat += weapon.heat;
+    heatSum += weapon.heat;
     let adjustedBV = weapon.bv;
 
-    if (cumulativeHeat > config.heatDissipation) {
+    if (heatExceeded) {
       adjustedBV *= 0.5;
     }
 
     weaponBV += adjustedBV;
+
+    if (heatSum >= heatEfficiency) {
+      heatExceeded = true;
+    }
   }
 
   let ammoBV = 0;
@@ -210,7 +227,8 @@ export function calculateOffensiveBVWithHeatTracking(
     config.jumpMP,
   );
   const baseOffensive = weaponBV + ammoBV + weightBonus;
-  const totalOffensiveBV = Math.round(baseOffensive * speedFactor);
+  // No intermediate rounding — accumulated as float, rounded once at final BV sum
+  const totalOffensiveBV = baseOffensive * speedFactor;
 
   return {
     weaponBV,
@@ -254,7 +272,7 @@ export function calculateOffensiveBV(
     let bv = resolveEquipmentBV(weapon.id).battleValue;
 
     if (weapon.rear) {
-      bv = Math.round(bv * 0.5);
+      bv = bv * 0.5;
     }
 
     if (
@@ -263,7 +281,7 @@ export function calculateOffensiveBV(
       !weaponId.includes('srm') &&
       !weaponId.includes('mrm')
     ) {
-      bv = Math.round(bv * 1.25);
+      bv = bv * 1.25;
     }
 
     total += bv;
@@ -333,7 +351,7 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     let bv = resolved.battleValue;
 
     if (w.rear) {
-      bv = Math.round(bv * 0.5);
+      bv = bv * 0.5;
     }
 
     const weaponId = w.id.toLowerCase();
@@ -343,7 +361,7 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
       !weaponId.includes('srm') &&
       !weaponId.includes('mrm')
     ) {
-      bv = Math.round(bv * 1.25);
+      bv = bv * 1.25;
     }
 
     return {
@@ -363,7 +381,9 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     heatDissipation: config.heatSinkCapacity,
   });
 
-  return defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV;
+  return Math.round(
+    defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV,
+  );
 }
 
 /**
@@ -396,7 +416,7 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     let bv = resolved.battleValue;
 
     if (w.rear) {
-      bv = Math.round(bv * 0.5);
+      bv = bv * 0.5;
     }
 
     const weaponId = w.id.toLowerCase();
@@ -406,7 +426,7 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
       !weaponId.includes('srm') &&
       !weaponId.includes('mrm')
     ) {
-      bv = Math.round(bv * 1.25);
+      bv = bv * 1.25;
     }
 
     return {
@@ -430,8 +450,9 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     defensiveBV: defensiveResult.totalDefensiveBV,
     offensiveBV: offensiveResult.totalOffensiveBV,
     speedFactor: offensiveResult.speedFactor,
-    totalBV:
+    totalBV: Math.round(
       defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV,
+    ),
   };
 }
 

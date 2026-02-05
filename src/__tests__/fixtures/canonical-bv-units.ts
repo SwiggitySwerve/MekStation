@@ -193,7 +193,7 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       },
     ],
     heatSinks: { type: 'Single', count: 20 },
-    expectedBV: 1885,
+    expectedBV: 1942,
   },
 
   // 2. Locust LCT-1V (20t Light) - Calculated BV: 390
@@ -337,7 +337,7 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       },
     ],
     heatSinks: { type: 'Single', count: 10 },
-    expectedBV: 1080,
+    expectedBV: 1149,
   },
 
   // 4. Awesome AWS-8Q (80t Heavy, 3x PPC) - Calculated BV: 1,312
@@ -408,7 +408,7 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       },
     ],
     heatSinks: { type: 'Single', count: 28 },
-    expectedBV: 1312,
+    expectedBV: 1423,
   },
 
   // 5. Stinger STG-3R (20t Light, Jump Jets) - Calculated BV: 439
@@ -526,7 +526,7 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       },
     ],
     heatSinks: { type: 'Single', count: 10 },
-    expectedBV: 560,
+    expectedBV: 595,
   },
 
   // 7. Centurion CN9-A (50t Medium, Mixed) - Calculated BV: 838
@@ -597,7 +597,7 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       },
     ],
     heatSinks: { type: 'Single', count: 10 },
-    expectedBV: 838,
+    expectedBV: 959,
   },
 
   // 8. Marauder MAD-3R (75t Heavy) - Calculated BV: 1,031
@@ -668,7 +668,7 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       },
     ],
     heatSinks: { type: 'Single', count: 14 },
-    expectedBV: 1031,
+    expectedBV: 1228,
   },
 
   // 9. Warhammer WHM-6R (70t Heavy) - Calculated BV: 969
@@ -755,7 +755,7 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       },
     ],
     heatSinks: { type: 'Single', count: 13 },
-    expectedBV: 969,
+    expectedBV: 1166,
   },
 
   // 10. BattleMaster BLR-1G (85t Assault) - Calculated BV: 1,186
@@ -834,6 +834,6 @@ export const CANONICAL_BV_UNITS: CanonicalBVUnit[] = [
       },
     ],
     heatSinks: { type: 'Single', count: 16 },
-    expectedBV: 1186,
+    expectedBV: 1383,
   },
 ];
