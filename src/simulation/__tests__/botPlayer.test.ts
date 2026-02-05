@@ -5,17 +5,10 @@ import type {
   IHexGrid,
 } from '@/types/gameplay';
 
-import {
-  Facing,
-  MovementType,
-  GamePhase,
-  GameEventType,
-} from '@/types/gameplay';
+import { Facing, MovementType, GameEventType } from '@/types/gameplay';
 
-import { AttackAI } from '../ai/AttackAI';
 import { BotPlayer } from '../ai/BotPlayer';
-import { MoveAI } from '../ai/MoveAI';
-import { DEFAULT_BEHAVIOR, type IAIUnitState, type IWeapon } from '../ai/types';
+import { type IAIUnitState, type IWeapon } from '../ai/types';
 import { SeededRandom } from '../core/SeededRandom';
 
 function createMockGrid(

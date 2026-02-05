@@ -152,7 +152,7 @@ function createDamagedState(damagePercentage: number): IUnitDamageState {
   // Using a simplified calculation based on center torso
   const armorMax = 40;
   const structureMax = 20;
-  const totalPerLocation = armorMax + structureMax;
+  const _totalPerLocation = armorMax + structureMax;
   const damageAmount = Math.floor((armorMax * damagePercentage) / 100);
   const armorCurrent = Math.max(0, armorMax - damageAmount);
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
 
-import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import type { ICampaign } from '@/types/campaign/Campaign';
 import type { TurnoverFrequency } from '@/types/campaign/Campaign';
 import type { IPerson } from '@/types/campaign/Person';
 
@@ -10,10 +10,7 @@ import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelR
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
 
-import type {
-  TurnoverReport,
-  TurnoverCheckResult,
-} from '../../turnover/turnoverCheck';
+import type { TurnoverReport } from '../../turnover/turnoverCheck';
 
 import { DayPhase, _resetDayPipeline, getDayPipeline } from '../../dayPipeline';
 import {

@@ -5,11 +5,7 @@ import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { IPerson } from '@/types/campaign/Person';
 import { ISkillType } from '@/types/campaign/skills';
 
-import {
-  performSkillCheck,
-  getEffectiveSkillTN,
-  SkillCheckResult,
-} from '../skillCheck';
+import { performSkillCheck, getEffectiveSkillTN } from '../skillCheck';
 
 describe('Skill Check Resolution', () => {
   // Test data

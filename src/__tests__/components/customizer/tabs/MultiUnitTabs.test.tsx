@@ -4,7 +4,7 @@ import React from 'react';
 
 import { MultiUnitTabs } from '@/components/customizer/tabs/MultiUnitTabs';
 import { ToastProvider } from '@/components/shared/Toast';
-import { CustomizerTabId, DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
+import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
 import {
   useTabManagerStore,
   TabManagerState,

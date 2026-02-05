@@ -400,7 +400,7 @@ test.describe('Exotic Mech Configuration Switching @customizer @exotic', () => {
     await closeTab(page, tripodId);
   });
 
-  test('configuration locations are distinct', async ({ page }) => {
+  test('configuration locations are distinct', async () => {
     const bipedLocations = getConfigurationLocations('Biped');
     const quadLocations = getConfigurationLocations('Quad');
     const tripodLocations = getConfigurationLocations('Tripod');

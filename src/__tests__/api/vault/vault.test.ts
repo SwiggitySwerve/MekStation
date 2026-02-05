@@ -16,11 +16,6 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { createMocks } from 'node-mocks-http';
 
-import {
-  parseApiResponse,
-  createMock,
-  type PartialMock,
-} from '@/__tests__/helpers';
 import folderByIdHandler from '@/pages/api/vault/folders/[id]';
 import foldersHandler from '@/pages/api/vault/folders/index';
 // Import API handlers
@@ -38,147 +33,20 @@ jest.mock('@/services/vault/VaultService');
 jest.mock('@/services/vault/ShareLinkService');
 jest.mock('@/services/vault/VersionHistoryService');
 
-import {
-  getIdentityRepository,
-  IdentityRepository,
-} from '@/services/vault/IdentityRepository';
+import { getIdentityRepository } from '@/services/vault/IdentityRepository';
 import {
   createIdentity,
   unlockIdentity,
   signMessage,
   getPublicIdentity,
 } from '@/services/vault/IdentityService';
-import {
-  getShareLinkService,
-  ShareLinkService,
-} from '@/services/vault/ShareLinkService';
-import { getVaultService, VaultService } from '@/services/vault/VaultService';
-import {
-  getVersionHistoryService,
-  VersionHistoryService,
-} from '@/services/vault/VersionHistoryService';
+import { getShareLinkService } from '@/services/vault/ShareLinkService';
+import { getVaultService } from '@/services/vault/VaultService';
+import { getVersionHistoryService } from '@/services/vault/VersionHistoryService';
 
 // =============================================================================
 // Response Types
 // =============================================================================
-
-interface IdentityCheckResponse {
-  hasIdentity: boolean;
-  publicIdentity?: {
-    displayName: string;
-    publicKey: string;
-    friendCode: string;
-    avatar?: string;
-  };
-}
-
-interface IdentityCreateResponse {
-  success: boolean;
-  publicIdentity?: {
-    displayName: string;
-    publicKey: string;
-    friendCode: string;
-    avatar?: string;
-  };
-  error?: string;
-}
-
-interface IdentityUpdateResponse {
-  success: boolean;
-  error?: string;
-}
-
-interface FolderListResponse {
-  folders: Array<{
-    id: string;
-    name: string;
-    description?: string | null;
-    parentId?: string | null;
-    path?: string;
-    createdAt: string;
-    updatedAt: string;
-  }>;
-  total?: number;
-}
-
-interface FolderResponse {
-  folder: {
-    id: string;
-    name: string;
-    description?: string | null;
-    parentId?: string | null;
-    path?: string;
-    createdAt: string;
-    updatedAt: string;
-  };
-}
-
-interface FolderOperationResponse {
-  success: boolean;
-  error?: string;
-}
-
-interface ShareLinkListResponse {
-  links: Array<{
-    id: string;
-    token: string;
-    scopeType: string;
-    scopeId: string;
-    level: string;
-    isActive: boolean;
-    currentUses: number;
-    maxUses?: number | null;
-    expiresAt?: string | null;
-    label?: string;
-    createdAt: string;
-  }>;
-  count: number;
-}
-
-interface ShareLinkCreateResponse {
-  success: boolean;
-  link?: {
-    id: string;
-    token: string;
-    url: string;
-  };
-  error?: string;
-}
-
-interface ShareRedeemResponse {
-  success: boolean;
-  link?: {
-    scopeType: string;
-    scopeId: string;
-    level: string;
-  };
-  errorCode?: string;
-}
-
-interface VersionHistoryResponse {
-  versions: Array<{
-    id: string;
-    versionNumber: number;
-    contentHash: string;
-    createdAt: string;
-    message?: string;
-  }>;
-  summary?: {
-    totalVersions: number;
-    firstVersion: string;
-    latestVersion: string;
-  };
-}
-
-interface SaveVersionResponse {
-  version: {
-    id: string;
-    versionNumber: number;
-    contentHash: string;
-    createdAt: string;
-  };
-  skipped?: boolean;
-}
 
 interface SignBundleResponse {
   success: boolean;

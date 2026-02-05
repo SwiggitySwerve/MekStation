@@ -10,8 +10,6 @@
  * @module lib/campaign/contractMarket
  */
 
-import type { IContractClause } from '@/types/campaign/contracts/contractTypes';
-
 import { ICampaign } from '@/types/campaign/Campaign';
 import {
   AtBContractType,
@@ -435,7 +433,7 @@ export function generateAtBContracts(
     const durationDays = contractLengthToDays(lengthMonths);
 
     // Negotiate clauses
-    const clauses = negotiateAllClauses(
+    const _clauses = negotiateAllClauses(
       negotiatorSkill,
       factionStandingMod,
       random,
@@ -551,7 +549,7 @@ export function generateFollowupContract(
   const employer = completedContract.employerId;
   const system = completedContract.systemId;
   const target = randomTarget(employer, random);
-  const forceBV = calculateForceBV(campaign);
+  const _forceBV = calculateForceBV(campaign);
 
   // Determine contract type - different from the completed one
   let typeName: string;

@@ -118,41 +118,6 @@ describe('battleValueCalculations', () => {
 
     describe('calculateOffensiveBV() - MegaMek-accurate with Heat Tracking', () => {
       /**
-       * Helper: Sum armor points from all locations
-       */
-      function sumArmorPoints(armor: ArmorPoints): number {
-        return (
-          armor.head +
-          armor.centerTorso +
-          armor.centerTorsoRear +
-          armor.leftTorso +
-          armor.leftTorsoRear +
-          armor.rightTorso +
-          armor.rightTorsoRear +
-          armor.leftArm +
-          armor.rightArm +
-          armor.leftLeg +
-          armor.rightLeg
-        );
-      }
-
-      /**
-       * Helper: Sum structure points from all locations
-       */
-      function sumStructurePoints(structure: StructurePoints): number {
-        return (
-          structure.head +
-          structure.centerTorso +
-          structure.leftTorso +
-          structure.rightTorso +
-          structure.leftArm +
-          structure.rightArm +
-          structure.leftLeg +
-          structure.rightLeg
-        );
-      }
-
-      /**
        * Helper: Build offensive BV config from a canonical unit fixture
        */
       function buildOffensiveBVConfig(unit: CanonicalBVUnit) {

@@ -7,12 +7,6 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
-import { Era } from '@/types/enums/Era';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { TechBase } from '@/types/enums/TechBase';
-import { WeightClass } from '@/types/enums/WeightClass';
-import { EquipmentCategory } from '@/types/equipment';
-
 // ============================================================================
 // RESULT TYPES (re-exported from core)
 // ============================================================================

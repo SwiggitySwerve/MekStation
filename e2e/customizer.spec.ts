@@ -516,7 +516,7 @@ test.describe('Vehicle Structure Tab @customizer @vehicle', () => {
 
   test('vehicle customizer displays', async ({ page }) => {
     // The vehicle customizer should be visible
-    const customizer = page.locator('[data-testid="vehicle-customizer"]');
+    const _customizer = page.locator('[data-testid="vehicle-customizer"]');
     // It may or may not be visible depending on routing, but page should load
     await expect(page).toHaveURL(new RegExp(`/customizer/${vehicleId}`));
   });

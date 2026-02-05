@@ -41,7 +41,7 @@ test.describe('Unit Card Components @ui @components @unit-card', () => {
     const unitCards = page.locator(
       '[data-testid="unit-card"], .unit-card, [class*="UnitCard"]',
     );
-    const count = await unitCards.count();
+    const _count = await unitCards.count();
 
     // Should have unit cards or be on the units page
     await expect(page).toHaveURL(/units/);
@@ -97,7 +97,7 @@ test.describe('Armor Diagram Components @ui @components @armor', () => {
     const armorDiagram = page
       .locator('[data-testid="armor-diagram"], [class*="ArmorDiagram"], svg')
       .first();
-    const count = await armorDiagram.count();
+    const _count = await armorDiagram.count();
 
     // Should have armor-related content or be on armor tab
     await expect(page).toHaveURL(/armor/);

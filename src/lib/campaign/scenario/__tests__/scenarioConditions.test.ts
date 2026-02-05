@@ -9,7 +9,6 @@ import { type RandomFn } from '../battleChance';
 import {
   generateRandomConditions,
   getConditionEffects,
-  type IConditionEffect,
 } from '../scenarioConditions';
 
 describe('scenarioConditions', () => {

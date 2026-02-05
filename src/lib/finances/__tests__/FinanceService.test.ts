@@ -43,7 +43,6 @@ import {
   processContractPayment,
   DEFAULT_DAILY_SALARY,
   DEFAULT_DAILY_MAINTENANCE,
-  DailyCosts,
 } from '../FinanceService';
 
 // =============================================================================

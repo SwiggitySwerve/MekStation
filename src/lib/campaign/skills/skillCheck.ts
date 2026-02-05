@@ -9,7 +9,7 @@
  */
 
 import { IPerson } from '@/types/campaign/Person';
-import { ISkill, ISkillType, getSkillValue } from '@/types/campaign/skills';
+import { ISkillType, getSkillValue } from '@/types/campaign/skills';
 
 /**
  * Function type for random number generation.

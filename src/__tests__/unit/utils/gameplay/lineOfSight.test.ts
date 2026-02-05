@@ -11,7 +11,6 @@ import {
   calculateLOS,
   parseTerrainFeatures,
   getBlockingTerrain,
-  ILOSResult,
 } from '@/utils/gameplay/lineOfSight';
 
 function createHex(

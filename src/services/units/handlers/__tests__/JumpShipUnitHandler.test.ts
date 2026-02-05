@@ -7,7 +7,7 @@
  */
 
 import { CapitalShipLocation } from '../../../../types/construction/UnitLocation';
-import { TechBase, RulesLevel } from '../../../../types/enums';
+import { TechBase } from '../../../../types/enums';
 import { IBlkDocument } from '../../../../types/formats/BlkFormat';
 import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
 import {

@@ -11,7 +11,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
 import {
-  waitForGameplayStoreReady,
   getGameSession,
   getGameplayState,
   selectUnit,
@@ -99,7 +98,7 @@ test.describe('Demo Game Session @smoke @game', () => {
     await waitForStoreReady(page);
   });
 
-  test('demo session loads successfully', async ({ page }) => {
+  test('demo session loads successfully', async () => {
     // Wait for game session to load
     await sessionPage.waitForGameLoaded();
 
@@ -130,7 +129,7 @@ test.describe('Demo Game Session @smoke @game', () => {
     expect(phaseName.toLowerCase()).toContain('weapon');
   });
 
-  test('displays turn number', async ({ page }) => {
+  test('displays turn number', async () => {
     await sessionPage.waitForGameLoaded();
 
     // Turn number should be visible
@@ -150,7 +149,7 @@ test.describe('Demo Game Session @smoke @game', () => {
     await expect(page.getByTestId('map-panel')).toBeVisible();
   });
 
-  test('displays action bar', async ({ page }) => {
+  test('displays action bar', async () => {
     await sessionPage.waitForGameLoaded();
 
     // Action bar should be visible
@@ -158,7 +157,7 @@ test.describe('Demo Game Session @smoke @game', () => {
     expect(actionBarVisible).toBe(true);
   });
 
-  test('displays unit tokens on map', async ({ page }) => {
+  test('displays unit tokens on map', async () => {
     await sessionPage.waitForGameLoaded();
 
     // Both demo units should have tokens visible
@@ -219,9 +218,7 @@ test.describe('Unit Selection @game', () => {
     expect(state?.ui.selectedUnitId).toBe(DEMO_UNITS.PLAYER.id);
   });
 
-  test('record sheet panel shows no unit selected initially', async ({
-    page,
-  }) => {
+  test('record sheet panel shows no unit selected initially', async () => {
     // Initially no unit should be selected
     const noUnitVisible = await sessionPage.isNoUnitSelectedVisible();
     expect(noUnitVisible).toBe(true);
@@ -254,7 +251,7 @@ test.describe('Zoom Controls @game', () => {
     await expect(page.getByTestId('reset-view-btn')).toBeVisible();
   });
 
-  test('can click zoom buttons without error', async ({ page }) => {
+  test('can click zoom buttons without error', async () => {
     // Just verify they're clickable without errors
     await sessionPage.clickZoomIn();
     await sessionPage.clickZoomOut();
@@ -284,12 +281,12 @@ test.describe('Action Bar @game', () => {
     await expect(page.getByTestId('action-bar')).toBeVisible();
   });
 
-  test('skip action is available', async ({ page }) => {
+  test('skip action is available', async () => {
     const isVisible = await sessionPage.isActionVisible('skip');
     expect(isVisible).toBe(true);
   });
 
-  test('clear action is available in weapon attack phase', async ({ page }) => {
+  test('clear action is available in weapon attack phase', async () => {
     // Demo starts at weapon_attack phase, where 'clear' is available (not 'concede')
     // 'concede' is only available in 'end' phase
     const isVisible = await sessionPage.isActionVisible('clear');
@@ -431,9 +428,7 @@ test.describe('Game Replay Page @game', () => {
   // Note: The following tests are skipped because the demo session
   // doesn't have event data loaded into the event store that the
   // replay system uses. These would pass with a real game session.
-  test.skip('replay page shows controls when events exist', async ({
-    page,
-  }) => {
+  test.skip('replay page shows controls when events exist', async () => {
     await replayPage.navigate('demo');
     await replayPage.waitForReplayLoaded();
 

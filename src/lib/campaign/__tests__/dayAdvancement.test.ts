@@ -26,10 +26,8 @@ import {
   FormationLevel,
 } from '@/types/campaign/enums';
 import { IForce } from '@/types/campaign/Force';
-import { IFinances } from '@/types/campaign/IFinances';
 import {
   IMission,
-  IContract,
   createContract,
   createMission,
 } from '@/types/campaign/Mission';
@@ -43,10 +41,6 @@ import {
   processDailyCosts,
   DEFAULT_DAILY_SALARY,
   DEFAULT_DAILY_MAINTENANCE,
-  DayReport,
-  HealedPersonEvent,
-  ExpiredContractEvent,
-  DailyCostBreakdown,
 } from '../dayAdvancement';
 
 // =============================================================================

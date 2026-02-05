@@ -7,12 +7,8 @@
 import { act, renderHook } from '@testing-library/react';
 
 import {
-  AwardCategory,
-  AwardRarity,
   CriteriaType,
-  IAward,
   IAwardContext,
-  createEmptyPilotStats,
   getAwardById,
   AWARD_CATALOG,
 } from '@/types/award';
@@ -39,7 +35,6 @@ const createTestContext = (
  * Reset store state between tests
  */
 function resetStore() {
-  const store = useAwardStore.getState();
   // Clear all data
   useAwardStore.setState({
     pilotStats: {},
@@ -639,7 +634,7 @@ describe('useAwardStore', () => {
     });
 
     it('should evaluate all criteria types', () => {
-      const { result } = renderHook(() => useAwardStore());
+      renderHook(() => useAwardStore());
 
       // Test each criteria type has at least one award
       const criteriaTypes = new Set(AWARD_CATALOG.map((a) => a.criteria.type));

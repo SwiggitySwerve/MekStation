@@ -629,7 +629,7 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
 
     const newKillCount = instance.killCount + 1;
 
-    const updated = await service.updatePilotInstance(instanceId, {
+    const _updated = await service.updatePilotInstance(instanceId, {
       killCount: newKillCount,
     });
 

@@ -5,8 +5,6 @@ import {
   getAllEventTypes,
   getAllBetrayalSubTypes,
   EVENT_CHECK_CHANCE,
-  type IContractEvent,
-  type ContractEventEffect,
   type RandomFn,
 } from '../contractEvents';
 

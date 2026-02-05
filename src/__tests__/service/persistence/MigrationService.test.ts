@@ -46,19 +46,17 @@ describe('MigrationService', () => {
     mockIndexedDBService.getAll.mockResolvedValue([]);
     mockIndexedDBService.clear.mockResolvedValue();
 
-    // @ts-expect-error - Returning interface mock instead of class instance for testing
     mockSQLiteService.mockReturnValue(
       createMock<ISQLiteService>({
         initialize: jest.fn(),
-      }),
+      }) as unknown as ReturnType<typeof getSQLiteService>,
     );
 
-    // @ts-expect-error - Returning interface mock instead of class instance for testing
     mockUnitRepository.mockReturnValue(
       createMock<IUnitRepository>({
         findByName: jest.fn(),
         create: jest.fn(),
-      }),
+      }) as unknown as ReturnType<typeof getUnitRepository>,
     );
   });
 

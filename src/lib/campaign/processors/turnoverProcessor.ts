@@ -4,12 +4,8 @@ import type { Transaction } from '@/types/campaign/Transaction';
 
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
-import { Money } from '@/types/campaign/Money';
 
-import type {
-  TurnoverReport,
-  TurnoverCheckResult,
-} from '../turnover/turnoverCheck';
+import type { TurnoverReport } from '../turnover/turnoverCheck';
 
 import {
   IDayProcessor,

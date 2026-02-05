@@ -12,7 +12,6 @@ import {
   CombatRole,
   AtBScenarioType,
   AtBMoraleLevel,
-  MORALE_VALUES,
 } from '@/types/campaign/scenario/scenarioTypes';
 
 import { calculateBattleTypeMod, type RandomFn } from './battleChance';

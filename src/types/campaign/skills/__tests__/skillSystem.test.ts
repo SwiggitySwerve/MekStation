@@ -1,6 +1,5 @@
 import {
   IAttributes,
-  getAttributeModifier,
   ISkillType,
   ISkill,
   getSkillValue,

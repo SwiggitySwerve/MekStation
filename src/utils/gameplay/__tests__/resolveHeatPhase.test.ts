@@ -7,7 +7,6 @@
 import {
   GamePhase,
   GameSide,
-  GameEventType,
   Facing,
   MovementType,
   IGameConfig,
@@ -17,8 +16,6 @@ import {
   RangeBracket,
   FiringArc,
   IWeaponAttack,
-  IHeatPayload,
-  IGameEvent,
   WeaponCategory,
 } from '@/types/gameplay';
 

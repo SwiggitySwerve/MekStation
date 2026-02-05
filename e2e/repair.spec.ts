@@ -226,7 +226,7 @@ test.describe('Repair Search and Filters @repair', () => {
     }
   });
 
-  test('status filter shows pending jobs', async ({ page }) => {
+  test('status filter shows pending jobs', async () => {
     // Click pending filter
     await repairPage.filterByStatus('pending');
 
@@ -243,7 +243,7 @@ test.describe('Repair Search and Filters @repair', () => {
     await expect(page.getByTestId('repair-results-count')).toBeVisible();
   });
 
-  test('all filter shows all jobs', async ({ page }) => {
+  test('all filter shows all jobs', async () => {
     // First apply a filter
     await repairPage.filterByStatus('pending');
 

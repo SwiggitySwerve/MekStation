@@ -21,11 +21,7 @@ import { SeededRandom } from '../core/SeededRandom';
 import { ISimulationConfig } from '../core/types';
 import { WeightedTable } from '../core/WeightedTable';
 import { UNIT_TEMPLATES } from './templates';
-import {
-  IUnitTemplate,
-  DEFAULT_GENERATION_OPTIONS,
-  IGenerationOptions,
-} from './types';
+import { IUnitTemplate, DEFAULT_GENERATION_OPTIONS } from './types';
 
 export function createDefaultUnitWeights(): WeightedTable<IUnitTemplate> {
   const table = new WeightedTable<IUnitTemplate>();
@@ -52,7 +48,7 @@ export class ScenarioGenerator {
   ) {}
 
   generate(config: ISimulationConfig, random: SeededRandom): IGameSession {
-    const options = DEFAULT_GENERATION_OPTIONS;
+    const _options = DEFAULT_GENERATION_OPTIONS;
     const grid = this.generateMap(config.mapRadius, random);
 
     const playerUnits = this.generateForce(

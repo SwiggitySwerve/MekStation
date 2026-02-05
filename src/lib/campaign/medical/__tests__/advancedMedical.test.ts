@@ -71,7 +71,7 @@ describe('advancedMedical', () => {
     it('should return worsened outcome with 30% chance', () => {
       const patient = createMockPerson('patient-1');
       const injury = createMockInjury('inj-1');
-      const options = createMockOptions();
+      const _options = createMockOptions();
 
       // Test with random value that triggers worsening (0-0.3)
       const result = untreatedAdvanced(patient, injury, () => 0.15);

@@ -14,7 +14,6 @@ import {
   ICombatContext,
 } from '@/types/gameplay';
 import {
-  TerrainType,
   TERRAIN_PROPERTIES,
   ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';

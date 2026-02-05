@@ -14,7 +14,6 @@ import {
   calculateOpForBV,
   calculateForceComposition,
   LANCE_SIZE,
-  type IOpForConfig,
   type RandomFn,
 } from '../opForGeneration';
 
@@ -33,22 +32,6 @@ const seededRandom =
   (value: number): RandomFn =>
   () =>
     value;
-
-/**
- * Create a random function that cycles through values.
- * Used for testing multiple random calls.
- *
- * @param values - Array of values to cycle through
- * @returns RandomFn that returns next value on each call
- */
-const cyclingRandom = (values: number[]): RandomFn => {
-  let index = 0;
-  return () => {
-    const value = values[index % values.length];
-    index++;
-    return value;
-  };
-};
 
 // =============================================================================
 // LANCE_SIZE Constants Tests

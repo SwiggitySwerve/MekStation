@@ -6,9 +6,6 @@
 import {
   IDamageAppliedPayload,
   IUnitDestroyedPayload,
-  GameEventType,
-  GamePhase,
-  GameStatus,
 } from '../GameSessionInterfaces';
 
 describe('Damage Attribution Fields', () => {

@@ -147,9 +147,8 @@ describe('displacementUtils', () => {
   describe('applyDisplacement()', () => {
     it('should return original equipment when no displacement', () => {
       const equipment = [createEquipment()];
-      // @ts-expect-error - MockEquipment is partial for testing
       const result = applyDisplacement(
-        equipment as Parameters<typeof applyDisplacement>[0],
+        equipment as unknown as Parameters<typeof applyDisplacement>[0],
         [],
       );
 

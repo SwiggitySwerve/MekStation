@@ -18,8 +18,6 @@ import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
 import {
   IUnitTypeHandler,
   IUnitParseResult,
-  IUnitParseData,
-  IUnitParseError,
   IUnitSerializeResult,
   IUnitValidateResult,
   UnitCategory,

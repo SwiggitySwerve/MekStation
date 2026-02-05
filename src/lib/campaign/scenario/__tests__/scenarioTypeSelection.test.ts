@@ -24,7 +24,6 @@ import {
   selectFrontlineScenario,
   selectTrainingScenario,
   selectScenarioType,
-  type IScenarioTypeResult,
 } from '../scenarioTypeSelection';
 
 // =============================================================================

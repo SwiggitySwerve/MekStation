@@ -8,15 +8,12 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
-import { PageLayout, Card, EmptyState, Badge } from '@/components/ui';
+import { PageLayout, Card, EmptyState } from '@/components/ui';
 import { getBaseSalary } from '@/lib/campaign/personnel/roleSalaries';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { PersonnelStatus, STATUS_SEVERITY } from '@/types/campaign/enums';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
-import {
-  getRolesByCategory,
-  ALL_CAMPAIGN_PERSONNEL_ROLES,
-} from '@/types/campaign/enums/CampaignPersonnelRole';
+import { getRolesByCategory } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { IPerson } from '@/types/campaign/Person';
 
 // =============================================================================

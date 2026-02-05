@@ -5,7 +5,6 @@ import {
   getAllSkillTypes,
   SKILL_CATEGORIES,
 } from '../../../../constants/campaign/skillCatalog';
-import { ISkillType } from '../ISkillType';
 
 describe('Skill Catalog', () => {
   describe('SKILL_CATALOG Structure', () => {
@@ -112,7 +111,7 @@ describe('Skill Catalog', () => {
 
   describe('Skill Type Validation', () => {
     it('should have valid costs array for every skill', () => {
-      for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+      for (const [_skillId, skillType] of Object.entries(SKILL_CATALOG)) {
         expect(skillType.costs).toBeDefined();
         expect(Array.isArray(skillType.costs)).toBe(true);
         expect(skillType.costs).toHaveLength(11);
@@ -132,19 +131,19 @@ describe('Skill Catalog', () => {
         'Edge',
       ];
 
-      for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+      for (const [_skillId, skillType] of Object.entries(SKILL_CATALOG)) {
         expect(validAttributes).toContain(skillType.linkedAttribute);
       }
     });
 
     it('should have targetNumber of 7 for all skills', () => {
-      for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+      for (const [_skillId, skillType] of Object.entries(SKILL_CATALOG)) {
         expect(skillType.targetNumber).toBe(7);
       }
     });
 
     it('should have non-empty name and description for every skill', () => {
-      for (const [skillId, skillType] of Object.entries(SKILL_CATALOG)) {
+      for (const [_skillId, skillType] of Object.entries(SKILL_CATALOG)) {
         expect(skillType.name).toBeDefined();
         expect(skillType.name.length).toBeGreaterThan(0);
         expect(skillType.description).toBeDefined();

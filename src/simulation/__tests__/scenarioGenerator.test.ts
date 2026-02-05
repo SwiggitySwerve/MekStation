@@ -146,10 +146,10 @@ describe('ScenarioGenerator', () => {
       const session1 = generator.generate(config, random1);
       const session2 = generator.generate(config, random2);
 
-      const state1Units = Object.values(
+      const _state1Units = Object.values(
         session1.currentState.units,
       ) as IUnitGameState[];
-      const state2Units = Object.values(
+      const _state2Units = Object.values(
         session2.currentState.units,
       ) as IUnitGameState[];
 

@@ -158,7 +158,7 @@ export function calculateOpForBV(
 export function calculateForceComposition(
   targetBV: number,
   faction: string,
-  random: RandomFn,
+  _random: RandomFn,
 ): IOpForConfig {
   // Determine unit count based on faction (case-insensitive)
   const factionLower = faction.toLowerCase();

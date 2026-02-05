@@ -4,13 +4,7 @@
  * Tests per-game metrics recording and aggregate statistics computation.
  */
 
-import {
-  GameEventType,
-  GamePhase,
-} from '@/types/gameplay/GameSessionInterfaces';
-
 import { ISimulationResult } from '../core/types';
-import { IViolation } from '../invariants/types';
 import { MetricsCollector } from '../metrics/MetricsCollector';
 
 describe('MetricsCollector', () => {

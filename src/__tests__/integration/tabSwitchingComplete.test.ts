@@ -19,32 +19,21 @@ import {
   DEFAULT_TAB,
   isValidTabId,
 } from '@/hooks/useCustomizerRouter';
-import {
-  clearAllStores,
-  getUnitStore,
-  hasUnitStore,
-} from '@/stores/unitStoreRegistry';
-import {
-  useTabManagerStore,
-  UNIT_TEMPLATES,
-} from '@/stores/useTabManagerStore';
+import { getUnitStore, hasUnitStore } from '@/stores/unitStoreRegistry';
+import { useTabManagerStore } from '@/stores/useTabManagerStore';
 import { TechBase } from '@/types/enums/TechBase';
 
-import { setupMockLocalStorage } from '../helpers/storeTestHelpers';
 import {
   createMultiUnitScenario,
   createMockUnitWithData,
   simulateTabSwitch,
   simulateSubTabNavigation,
-  expectSubTabsMatch,
   expectActiveTab,
   expectTabCount,
   ALL_VALID_SUB_TABS,
   COMMON_SUB_TABS,
-  resetTabStores,
   setupTabSwitchingTest,
   createMockRouter,
-  verifyUrlMatchesState,
 } from '../helpers/tabSwitchingHelpers';
 
 describe('Tab Switching Complete Test Suite', () => {

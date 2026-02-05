@@ -14,7 +14,6 @@
 import { Money } from '../Money';
 import {
   IPaymentTerms,
-  ContractOutcome,
   calculateTotalPayout,
   calculateSalvageShare,
   calculateMaxPayout,

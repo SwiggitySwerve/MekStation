@@ -7,14 +7,7 @@ import { useRouter } from 'next/router';
  */
 import { useState, useCallback } from 'react';
 
-import {
-  PageLayout,
-  Card,
-  Input,
-  Button,
-  EmptyState,
-  Badge,
-} from '@/components/ui';
+import { PageLayout, Card, Button, EmptyState } from '@/components/ui';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { ICampaign } from '@/types/campaign/Campaign';
 

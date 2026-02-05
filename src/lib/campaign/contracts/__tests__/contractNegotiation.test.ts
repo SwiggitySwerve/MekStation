@@ -1,7 +1,4 @@
-import {
-  ContractClauseType,
-  CLAUSE_LEVELS,
-} from '@/types/campaign/contracts/contractTypes';
+import { ContractClauseType } from '@/types/campaign/contracts/contractTypes';
 
 import {
   roll2d6,

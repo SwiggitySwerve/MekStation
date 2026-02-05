@@ -1,11 +1,10 @@
-import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IForce } from '@/types/campaign/Force';
 import type { IMission } from '@/types/campaign/Mission';
 import type { IPerson } from '@/types/campaign/Person';
 
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import { Money } from '@/types/campaign/Money';
@@ -22,9 +21,7 @@ import {
   calculateTotalMonthlySalary,
   createSalaryOptions,
   isEligibleForSalary,
-  ExperienceLevel,
   SalaryOptions,
-  SalaryBreakdown,
 } from '../salaryService';
 
 // =============================================================================

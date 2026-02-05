@@ -215,7 +215,7 @@ test.describe('Force Creation @smoke @force', () => {
     await expect(page).toHaveURL(/\/gameplay\/forces\/[^/]+$/);
   });
 
-  test('validates minimum name length', async ({ page }) => {
+  test('validates minimum name length', async () => {
     await createPage.navigate();
 
     // Fill single character name (too short)
@@ -250,12 +250,10 @@ test.describe('Force Creation @smoke @force', () => {
 // =============================================================================
 
 test.describe('Force Detail Page @force', () => {
-  let detailPage: ForceDetailPage;
   let listPage: ForceListPage;
   let forceId: string | null;
 
   test.beforeEach(async ({ page }) => {
-    detailPage = new ForceDetailPage(page);
     listPage = new ForceListPage(page);
 
     // Navigate to list first to ensure store is initialized

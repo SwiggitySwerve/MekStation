@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { PageLayout, Card, EmptyState, Badge } from '@/components/ui';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
-import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+import { FormationLevel } from '@/types/campaign/enums';
 import { IForce } from '@/types/campaign/Force';
 
 // =============================================================================

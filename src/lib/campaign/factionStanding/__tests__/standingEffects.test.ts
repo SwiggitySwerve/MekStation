@@ -13,7 +13,6 @@ import {
   getStartSupportPointsModifier,
   getPeriodicSupportPointsModifier,
   getAllEffects,
-  FactionStandingEffects,
 } from '../standingEffects';
 
 describe('Faction Standing Effects', () => {

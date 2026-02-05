@@ -1,9 +1,4 @@
-import type {
-  AutoAwardTrigger,
-  IAutoAwardConfig,
-  IAutoGrantCriteria,
-  IAwardGrantEvent,
-} from '../autoAwardTypes';
+import type { IAutoGrantCriteria, IAwardGrantEvent } from '../autoAwardTypes';
 
 import {
   AutoAwardCategory,

@@ -101,7 +101,7 @@ export function QuickGameTimeline(): React.ReactElement {
       <Card>
         <div className="max-h-96 overflow-y-auto">
           <div className="divide-y divide-gray-700">
-            {events.map((event, index) => (
+            {events.map((event, _index) => (
               <div
                 key={event.id}
                 className="p-3 transition-colors hover:bg-gray-800/50"

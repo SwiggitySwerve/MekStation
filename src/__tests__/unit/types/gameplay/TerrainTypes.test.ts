@@ -7,7 +7,6 @@ import {
   TerrainType,
   CoverLevel,
   ITerrainFeature,
-  ITerrainProperties,
   IHexTerrain,
   TERRAIN_PROPERTIES,
 } from '../../../../types/gameplay/TerrainTypes';

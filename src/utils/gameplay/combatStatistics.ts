@@ -3,12 +3,7 @@
  * Aggregate combat statistics from game events.
  */
 
-import {
-  IGameEvent,
-  GameEventType,
-  IDamageAppliedPayload,
-  IUnitDestroyedPayload,
-} from '@/types/gameplay';
+import { IGameEvent, GameEventType } from '@/types/gameplay';
 
 import {
   getDamageAppliedPayload,

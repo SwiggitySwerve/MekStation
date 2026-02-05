@@ -20,10 +20,13 @@ describe('FileService', () => {
     };
     const mockAnchorElement = mockAnchor as HTMLAnchorElement;
 
-    // @ts-expect-error - Mocking createElement for test purposes
     mockCreateElement = jest
       .spyOn(document, 'createElement')
-      .mockReturnValue(mockAnchorElement);
+      .mockReturnValue(
+        mockAnchorElement as unknown as ReturnType<
+          typeof document.createElement
+        >,
+      );
     jest
       .spyOn(document.body, 'appendChild')
       .mockImplementation(() => mockAnchorElement);

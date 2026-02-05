@@ -25,7 +25,11 @@ import {
   canStartGame,
   QUICK_GAME_STORAGE_KEY,
 } from '@/types/quickgame';
-import { BiomeType, ScenarioObjectiveType } from '@/types/scenario';
+import {
+  BiomeType,
+  ScenarioObjectiveType,
+  IGeneratedScenario,
+} from '@/types/scenario';
 import { Era } from '@/types/temporal/Era';
 
 // =============================================================================
@@ -441,20 +445,23 @@ export const selectCurrentStep = (
 /**
  * Select player force.
  */
-export const selectPlayerForce = (state: QuickGameStore) =>
-  state.game?.playerForce ?? null;
+export const selectPlayerForce = (
+  state: QuickGameStore,
+): IQuickGameForce | null => state.game?.playerForce ?? null;
 
 /**
  * Select opponent force.
  */
-export const selectOpponentForce = (state: QuickGameStore) =>
-  state.game?.opponentForce ?? null;
+export const selectOpponentForce = (
+  state: QuickGameStore,
+): IQuickGameForce | null => state.game?.opponentForce ?? null;
 
 /**
  * Select scenario.
  */
-export const selectScenario = (state: QuickGameStore) =>
-  state.game?.scenario ?? null;
+export const selectScenario = (
+  state: QuickGameStore,
+): IGeneratedScenario | null => state.game?.scenario ?? null;
 
 /**
  * Check if game can start.

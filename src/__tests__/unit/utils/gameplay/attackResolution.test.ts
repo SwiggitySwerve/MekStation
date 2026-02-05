@@ -12,7 +12,6 @@ import {
   IGameUnit,
   IGameEvent,
   IGameSession,
-  GamePhase,
   GameSide,
   GameEventType,
   LockState,

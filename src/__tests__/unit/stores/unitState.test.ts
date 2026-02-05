@@ -7,13 +7,11 @@ import {
   getTotalAllocatedArmor,
   armorResultToAllocation,
 } from '@/stores/unitState';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import {
   getMaxTotalArmor,
-  calculateArmorPoints,
   calculateOptimalArmorAllocation,
 } from '@/utils/construction/armorCalculations';
 
@@ -27,7 +25,7 @@ describe('unitState', () => {
       });
 
       const maxArmor = getMaxTotalArmor(50, MechConfiguration.BIPED);
-      const expectedTargetPoints = Math.floor(maxArmor * 0.7);
+      const _expectedTargetPoints = Math.floor(maxArmor * 0.7);
 
       expect(unit.armorTonnage).toBeGreaterThan(0);
 

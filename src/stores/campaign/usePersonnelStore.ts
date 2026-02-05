@@ -8,7 +8,7 @@
  * Persists to IndexedDB via localStorage with Map serialization.
  */
 
-import { create } from 'zustand';
+import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
@@ -72,7 +72,9 @@ export type PersonnelStore = PersonnelState & PersonnelActions;
  * const addPerson = store.getState().addPerson;
  * addPerson(newPerson);
  */
-export function createPersonnelStore(campaignId: string) {
+export function createPersonnelStore(
+  campaignId: string,
+): StoreApi<PersonnelStore> {
   return create<PersonnelStore>()(
     persist(
       (set, get) => ({

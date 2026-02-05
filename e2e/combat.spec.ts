@@ -15,7 +15,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
 import {
-  waitForGameplayStoreReady,
   selectUnit,
   getUnitState,
   DEMO_UNITS,
@@ -59,7 +58,7 @@ test.describe('Record Sheet Display @smoke @combat', () => {
     await sessionPage.waitForGameLoaded();
   });
 
-  test('shows no unit selected initially', async ({ page }) => {
+  test('shows no unit selected initially', async () => {
     // Initially no unit should be selected
     const noUnitVisible = await sessionPage.isNoUnitSelectedVisible();
     expect(noUnitVisible).toBe(true);

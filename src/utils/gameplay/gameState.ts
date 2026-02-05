@@ -23,7 +23,6 @@ import {
   IInitiativeRolledPayload,
   IMovementDeclaredPayload,
   IAttackDeclaredPayload,
-  IAttackLockedPayload,
   IDamageAppliedPayload,
   IHeatPayload,
   IPilotHitPayload,

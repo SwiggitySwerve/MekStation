@@ -5,11 +5,7 @@
  * @spec openspec/specs/terrain-system/spec.md
  */
 
-import {
-  IHexCoordinate,
-  IHex,
-  IHexGrid,
-} from '@/types/gameplay/HexGridInterfaces';
+import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 import {
   TerrainType,
   TERRAIN_PROPERTIES,

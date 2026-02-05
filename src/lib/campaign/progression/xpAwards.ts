@@ -249,8 +249,8 @@ export function awardAdminXP(
  * @returns null (not implemented)
  */
 export function awardEducationXP(
-  person: IPerson,
-  options: ICampaignOptions,
+  _person: IPerson,
+  _options: ICampaignOptions,
 ): IXPAwardEvent | null {
   // @stub - Education system not implemented
   return null;

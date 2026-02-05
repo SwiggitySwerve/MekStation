@@ -94,7 +94,7 @@ export function checkCensureEscalation(
  */
 export function applyAccolade(
   standing: IFactionStanding,
-  level: AccoladeLevel,
+  _level: AccoladeLevel,
 ): IFactionStanding {
   // Calculate new accolade level (increment by 1, capped at 5)
   const newAccoladeLevel = Math.min(standing.accoladeLevel + 1, 5);
@@ -115,7 +115,7 @@ export function applyAccolade(
  */
 export function applyCensure(
   standing: IFactionStanding,
-  level: CensureLevel,
+  _level: CensureLevel,
 ): IFactionStanding {
   // Calculate new censure level (increment by 1, capped at 5)
   const newCensureLevel = Math.min(standing.censureLevel + 1, 5);

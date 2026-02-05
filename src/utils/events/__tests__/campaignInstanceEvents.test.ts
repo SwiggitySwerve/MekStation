@@ -3,10 +3,7 @@
  */
 
 import { createEmptyDamageState } from '@/types/campaign/CampaignInstanceInterfaces';
-import {
-  CampaignUnitStatus,
-  CampaignPilotStatus,
-} from '@/types/campaign/CampaignInterfaces';
+import { CampaignUnitStatus } from '@/types/campaign/CampaignInterfaces';
 import { CampaignInstanceEventTypes, EventCategory } from '@/types/events';
 
 import {

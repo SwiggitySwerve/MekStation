@@ -1,16 +1,8 @@
+import { useCampaignStore, CampaignViewMode } from '@/stores/useCampaignStore';
 import {
-  useCampaignStore,
-  CampaignViewMode,
-  IMissionContext,
-} from '@/stores/useCampaignStore';
-import {
-  CampaignStatus,
   CampaignMissionStatus,
-  CampaignUnitStatus,
-  CampaignPilotStatus,
   DEFAULT_CAMPAIGN_RESOURCES,
 } from '@/types/campaign';
-import { GameStatus, GamePhase } from '@/types/gameplay';
 
 function createTestCampaign() {
   const store = useCampaignStore.getState();

@@ -1,7 +1,5 @@
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 
-import { isDead, isDepartedUnit } from './statusRules';
-
 export interface IStatusTransitionResult {
   readonly valid: boolean;
   readonly reason?: string;

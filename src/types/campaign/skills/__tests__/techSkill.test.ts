@@ -12,7 +12,6 @@ import {
   getSkillType,
 } from '../../../../constants/campaign/skillCatalog';
 import { SkillExperienceLevel } from '../experienceLevels';
-import { getSkillValue } from '../ISkill';
 import {
   TECH_SKILL_TYPE,
   getTechSkillValue,

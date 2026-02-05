@@ -5,6 +5,7 @@
  * Extracted from Sidebar.tsx for reusability and maintainability.
  */
 
+import Image from 'next/image';
 import React from 'react';
 
 // =============================================================================
@@ -17,9 +18,11 @@ export function MekStationIcon({
   className?: string;
 }): React.ReactElement {
   return (
-    <img
+    <Image
       src="/mekstation-logo.png"
       alt="MekStation"
+      width={20}
+      height={20}
       className={className}
       style={{ objectFit: 'contain' }}
     />

@@ -19,7 +19,6 @@ import { IFinances } from '@/types/campaign/IFinances';
 import {
   UnitMarketRarity,
   UnitMarketType,
-  RARITY_VALUES,
   MARKET_TYPE_QUALITY,
 } from '@/types/campaign/markets/marketTypes';
 import { Money } from '@/types/campaign/Money';
@@ -187,9 +186,7 @@ describe('Unit Market', () => {
 
     it('should return 100 for middle rolls (6-8)', () => {
       // Need d1+d2 in [6,8]. d1=3, d2=3 -> roll=6
-      let callCount = 0;
       const fixedRandom: RandomFn = () => {
-        callCount++;
         return 0.4; // floor(0.4*6)+1 = 3
       };
       // d1=3, d2=3, roll=6, modifier=0, price=100

@@ -15,7 +15,6 @@ import {
 
 describe('UnitSerializer', () => {
   // Helper to create partial IBattleMech mocks for testing
-  // @ts-expect-error - Partial mock of IBattleMech for testing
   const createMockUnit = (overrides?: Record<string, unknown>): IBattleMech =>
     ({
       id: 'test-unit',
@@ -71,7 +70,7 @@ describe('UnitSerializer', () => {
       equipment: [],
       criticalSlots: [],
       ...overrides,
-    }) as IBattleMech;
+    }) as unknown as IBattleMech;
 
   describe('serializeUnit()', () => {
     it('should serialize unit to JSON', () => {

@@ -28,10 +28,8 @@ import {
   IWeaponAttack,
   IToHitModifier,
   IMovementDeclaredPayload,
-  IHeatPayload,
 } from '@/types/gameplay';
 
-import { resolveDamage, createDamageState, IUnitDamageState } from './damage';
 import {
   createGameCreatedEvent,
   createGameStartedEvent,
@@ -51,7 +49,6 @@ import { deriveState, allUnitsLocked } from './gameState';
 import {
   roll2d6 as rollDice,
   determineHitLocationFromRoll,
-  createDiceRoll,
 } from './hitLocation';
 import { calculateToHit } from './toHit';
 
@@ -369,7 +366,7 @@ export function declareAttack(
   weapons: readonly IWeaponAttack[],
   range: number,
   rangeBracket: RangeBracket,
-  firingArc: FiringArc,
+  _firingArc: FiringArc,
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.WeaponAttack) {
     throw new Error('Not in weapon attack phase');

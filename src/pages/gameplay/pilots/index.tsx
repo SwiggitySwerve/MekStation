@@ -9,7 +9,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   SkeletonText,
   SkeletonInput,
-  SkeletonFormSection,
 } from '@/components/common/SkeletonLoader';
 import {
   PageLayout,

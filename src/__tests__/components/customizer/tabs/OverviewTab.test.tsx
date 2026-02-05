@@ -62,9 +62,8 @@ describe('OverviewTab', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // TS: the test uses a narrowed mock state; suppress strict selector typing
-    // @ts-expect-error - mock store is partial for testing
     mockUseUnitStore.mockImplementation((selector) =>
-      selector(mockStoreValues),
+      selector(mockStoreValues as unknown as Parameters<typeof selector>[0]),
     );
     mockUseTabManagerStore.mockImplementation((selector) => {
       if (typeof selector === 'function') {

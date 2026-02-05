@@ -6,7 +6,6 @@ import { FactionStandingLevel } from '@/types/campaign/factionStanding/IFactionS
 import { Money } from '@/types/campaign/Money';
 
 import { DayPhase, _resetDayPipeline, getDayPipeline } from '../../dayPipeline';
-import { AccoladeLevel, CensureLevel } from '../../factionStanding/escalation';
 import {
   factionStandingProcessor,
   registerFactionStandingProcessor,

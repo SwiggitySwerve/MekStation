@@ -10,13 +10,11 @@
 
 import { test, expect, type Page } from '@playwright/test';
 
-import { createTestCampaign } from './fixtures/campaign';
 import {
   waitForTabManagerStoreReady,
   createMechUnit,
   closeTab,
 } from './fixtures/customizer';
-import { createTestForce } from './fixtures/force';
 
 // =============================================================================
 // Test Configuration
@@ -28,22 +26,6 @@ test.setTimeout(60000); // Longer timeout for integration tests
 async function waitForHydration(page: Page): Promise<void> {
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(500);
-}
-
-// Helper to wait for store ready
-async function waitForStoresReady(page: Page): Promise<void> {
-  await page.waitForFunction(
-    () => {
-      const win = window as unknown as {
-        __ZUSTAND_STORES__?: Record<string, unknown>;
-      };
-      return (
-        win.__ZUSTAND_STORES__?.campaign !== undefined &&
-        win.__ZUSTAND_STORES__?.force !== undefined
-      );
-    },
-    { timeout: 10000 },
-  );
 }
 
 // =============================================================================

@@ -7,7 +7,6 @@
 
 import {
   IAcquisitionRequest,
-  IShoppingList,
   AvailabilityRating,
 } from '@/types/campaign/acquisition/acquisitionTypes';
 

@@ -141,7 +141,7 @@ test.describe('Unit Browser @compendium', () => {
     await unitBrowser.goto();
 
     // Get initial count (shown in subtitle)
-    const initialSubtitle = await unitBrowser.getSubtitleText();
+    const _initialSubtitle = await unitBrowser.getSubtitleText();
 
     // Search for something specific
     await unitBrowser.search('atlas');
@@ -150,7 +150,7 @@ test.describe('Unit Browser @compendium', () => {
     await page.waitForTimeout(500);
 
     // The count should change (or stay same if no units match)
-    const filteredSubtitle = await unitBrowser.getSubtitleText();
+    const _filteredSubtitle = await unitBrowser.getSubtitleText();
     // We can't guarantee results, but the search should work without errors
   });
 
@@ -308,7 +308,7 @@ test.describe('Equipment Browser @compendium', () => {
     const categorySelect = page.getByLabel(/filter by category/i);
     if (await categorySelect.isVisible()) {
       // Get count before filtering
-      const countBefore = await equipmentBrowser.getDisplayedEquipmentCount();
+      const _countBefore = await equipmentBrowser.getDisplayedEquipmentCount();
 
       // Filter by Energy Weapon (if option exists)
       try {

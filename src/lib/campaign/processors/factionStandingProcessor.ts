@@ -1,5 +1,4 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
 
 import {
   IDayProcessor,

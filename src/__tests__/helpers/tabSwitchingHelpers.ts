@@ -24,7 +24,7 @@ import {
 } from '@/stores/useTabManagerStore';
 import { TechBase } from '@/types/enums/TechBase';
 
-import { setupMockLocalStorage, MockLocalStorage } from './storeTestHelpers';
+import { setupMockLocalStorage } from './storeTestHelpers';
 
 // =============================================================================
 // Types
