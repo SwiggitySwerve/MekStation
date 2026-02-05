@@ -1,7 +1,3 @@
-import { RulesLevel, Era } from '@/types/enums';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { TechBase } from '@/types/enums/TechBase';
-import { IUnitValidationContext, UnitCategory, IValidatableUnit } from '@/types/validation/UnitValidationInterfaces';
 import {
   EntityIdRequired,
   EntityNameRequired,
@@ -19,9 +15,19 @@ import {
   WeightOverflowValidation,
   CriticalSlotOverflowValidation,
 } from '@/services/validation/rules/universal/UniversalValidationRules';
+import { RulesLevel, Era } from '@/types/enums';
+import { TechBase } from '@/types/enums/TechBase';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  IUnitValidationContext,
+  UnitCategory,
+  IValidatableUnit,
+} from '@/types/validation/UnitValidationInterfaces';
 
 describe('UniversalValidationRules', () => {
-  const createBaseUnit = (overrides: Partial<IValidatableUnit> = {}): IValidatableUnit => ({
+  const createBaseUnit = (
+    overrides: Partial<IValidatableUnit> = {},
+  ): IValidatableUnit => ({
     id: 'test-unit',
     name: 'Test Unit',
     unitType: UnitType.BATTLEMECH,
@@ -60,7 +66,9 @@ describe('UniversalValidationRules', () => {
 
   describe('VAL-UNIV-002: Entity Name Required', () => {
     it('should pass if name is present', () => {
-      const result = EntityNameRequired.validate(createContext(createBaseUnit()));
+      const result = EntityNameRequired.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
 
@@ -79,7 +87,7 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail for invalid unit type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- Testing invalid input handling
       const unit = createBaseUnit({ unitType: 'INVALID' as any });
       const result = ValidUnitType.validate(createContext(unit));
       expect(result.passed).toBe(false);
@@ -93,7 +101,7 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should fail for missing or invalid tech base', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- Testing invalid input handling
       const unit = createBaseUnit({ techBase: '' as any });
       const result = TechBaseRequired.validate(createContext(unit));
       expect(result.passed).toBe(false);
@@ -102,12 +110,14 @@ describe('UniversalValidationRules', () => {
 
   describe('VAL-UNIV-005: Rules Level Required', () => {
     it('should pass for valid rules level', () => {
-      const result = RulesLevelRequired.validate(createContext(createBaseUnit()));
+      const result = RulesLevelRequired.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
 
     it('should fail for missing or invalid rules level', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- Testing invalid input handling
       const unit = createBaseUnit({ rulesLevel: 'INVALID' as any });
       const result = RulesLevelRequired.validate(createContext(unit));
       expect(result.passed).toBe(false);
@@ -116,17 +126,23 @@ describe('UniversalValidationRules', () => {
 
   describe('VAL-UNIV-006: Introduction Year Valid', () => {
     it('should pass for year within BT timeline', () => {
-      const result = IntroductionYearValid.validate(createContext(createBaseUnit()));
+      const result = IntroductionYearValid.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
 
     it('should fail for year outside BT timeline', () => {
       const unitTooEarly = createBaseUnit({ introductionYear: 1900 });
-      const result = IntroductionYearValid.validate(createContext(unitTooEarly));
+      const result = IntroductionYearValid.validate(
+        createContext(unitTooEarly),
+      );
       expect(result.passed).toBe(false);
-      
+
       const unitTooLate = createBaseUnit({ introductionYear: 4000 });
-      expect(IntroductionYearValid.validate(createContext(unitTooLate)).passed).toBe(false);
+      expect(
+        IntroductionYearValid.validate(createContext(unitTooLate)).passed,
+      ).toBe(false);
     });
   });
 
@@ -146,7 +162,9 @@ describe('UniversalValidationRules', () => {
 
   describe('VAL-UNIV-008: Weight Non-Negative', () => {
     it('should pass for non-negative weight', () => {
-      const result = WeightNonNegative.validate(createContext(createBaseUnit()));
+      const result = WeightNonNegative.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
 
@@ -172,7 +190,9 @@ describe('UniversalValidationRules', () => {
 
   describe('VAL-UNIV-010: Battle Value Non-Negative', () => {
     it('should pass for non-negative battle value', () => {
-      const result = BattleValueNonNegative.validate(createContext(createBaseUnit()));
+      const result = BattleValueNonNegative.validate(
+        createContext(createBaseUnit()),
+      );
       expect(result.passed).toBe(true);
     });
 
@@ -212,16 +232,25 @@ describe('UniversalValidationRules', () => {
   describe('VAL-UNIV-012: Rules Level Compliance', () => {
     it('should pass if unit rules level is below or equal to filter', () => {
       const unit = createBaseUnit(); // Standard
-      const context = { ...createContext(unit), rulesLevelFilter: RulesLevel.STANDARD };
+      const context = {
+        ...createContext(unit),
+        rulesLevelFilter: RulesLevel.STANDARD,
+      };
       expect(RulesLevelCompliance.validate(context).passed).toBe(true);
-      
-      const contextAdvanced = { ...createContext(unit), rulesLevelFilter: RulesLevel.ADVANCED };
+
+      const contextAdvanced = {
+        ...createContext(unit),
+        rulesLevelFilter: RulesLevel.ADVANCED,
+      };
       expect(RulesLevelCompliance.validate(contextAdvanced).passed).toBe(true);
     });
 
     it('should fail if unit rules level exceeds filter', () => {
       const unit = createBaseUnit({ rulesLevel: RulesLevel.ADVANCED });
-      const context = { ...createContext(unit), rulesLevelFilter: RulesLevel.STANDARD };
+      const context = {
+        ...createContext(unit),
+        rulesLevelFilter: RulesLevel.STANDARD,
+      };
       expect(RulesLevelCompliance.validate(context).passed).toBe(false);
     });
 
@@ -234,22 +263,57 @@ describe('UniversalValidationRules', () => {
 
   describe('VAL-UNIV-013: Armor Allocation Validation', () => {
     // Helper to create armor allocation with displayName for all configurations
-    const createFullArmorAllocation = (armorValue: number, maxValue: number = 10) => ({
+    const createFullArmorAllocation = (
+      armorValue: number,
+      maxValue: number = 10,
+    ) => ({
       head: { current: armorValue, max: 9, displayName: 'Head' },
-      centerTorso: { current: armorValue, max: maxValue, displayName: 'Center Torso' },
-      centerTorsoRear: { current: armorValue, max: maxValue, displayName: 'Center Torso (Rear)' },
-      leftTorso: { current: armorValue, max: maxValue, displayName: 'Left Torso' },
-      leftTorsoRear: { current: armorValue, max: maxValue, displayName: 'Left Torso (Rear)' },
-      rightTorso: { current: armorValue, max: maxValue, displayName: 'Right Torso' },
-      rightTorsoRear: { current: armorValue, max: maxValue, displayName: 'Right Torso (Rear)' },
+      centerTorso: {
+        current: armorValue,
+        max: maxValue,
+        displayName: 'Center Torso',
+      },
+      centerTorsoRear: {
+        current: armorValue,
+        max: maxValue,
+        displayName: 'Center Torso (Rear)',
+      },
+      leftTorso: {
+        current: armorValue,
+        max: maxValue,
+        displayName: 'Left Torso',
+      },
+      leftTorsoRear: {
+        current: armorValue,
+        max: maxValue,
+        displayName: 'Left Torso (Rear)',
+      },
+      rightTorso: {
+        current: armorValue,
+        max: maxValue,
+        displayName: 'Right Torso',
+      },
+      rightTorsoRear: {
+        current: armorValue,
+        max: maxValue,
+        displayName: 'Right Torso (Rear)',
+      },
       leftArm: { current: armorValue, max: maxValue, displayName: 'Left Arm' },
-      rightArm: { current: armorValue, max: maxValue, displayName: 'Right Arm' },
+      rightArm: {
+        current: armorValue,
+        max: maxValue,
+        displayName: 'Right Arm',
+      },
       leftLeg: { current: armorValue, max: maxValue, displayName: 'Left Leg' },
-      rightLeg: { current: armorValue, max: maxValue, displayName: 'Right Leg' },
+      rightLeg: {
+        current: armorValue,
+        max: maxValue,
+        displayName: 'Right Leg',
+      },
     });
 
     it('should pass with no errors/warnings when armor is fully allocated', () => {
-      const unit = createBaseUnit({ 
+      const unit = createBaseUnit({
         totalArmorPoints: 100,
         armorByLocation: createFullArmorAllocation(10, 10),
       });
@@ -261,10 +325,14 @@ describe('UniversalValidationRules', () => {
 
     it('should emit errors when armor is below 20% (critical)', () => {
       const armorByLocation = createFullArmorAllocation(10, 10);
-      armorByLocation.head = { current: 0, max: 9, displayName: 'Head' };        // 0% - critical
-      armorByLocation.centerTorso = { current: 1, max: 10, displayName: 'Center Torso' }; // 10% - critical
-      
-      const unit = createBaseUnit({ 
+      armorByLocation.head = { current: 0, max: 9, displayName: 'Head' }; // 0% - critical
+      armorByLocation.centerTorso = {
+        current: 1,
+        max: 10,
+        displayName: 'Center Torso',
+      }; // 10% - critical
+
+      const unit = createBaseUnit({
         totalArmorPoints: 80,
         armorByLocation,
       });
@@ -278,8 +346,8 @@ describe('UniversalValidationRules', () => {
     it('should emit warnings when armor is between 20-40% (low)', () => {
       const armorByLocation = createFullArmorAllocation(10, 20); // 50% - no warning
       armorByLocation.head = { current: 3, max: 10, displayName: 'Head' }; // 30% - low, warning
-      
-      const unit = createBaseUnit({ 
+
+      const unit = createBaseUnit({
         totalArmorPoints: 90,
         armorByLocation,
       });
@@ -292,8 +360,8 @@ describe('UniversalValidationRules', () => {
 
     it('should not warn when armor is at or above 40%', () => {
       const armorByLocation = createFullArmorAllocation(4, 10); // 40% - no warning
-      
-      const unit = createBaseUnit({ 
+
+      const unit = createBaseUnit({
         totalArmorPoints: 44,
         armorByLocation,
       });
@@ -310,7 +378,7 @@ describe('UniversalValidationRules', () => {
     });
 
     it('should validate when armorByLocation is defined', () => {
-      const unit = createBaseUnit({ 
+      const unit = createBaseUnit({
         totalArmorPoints: 50,
         armorByLocation: createFullArmorAllocation(5, 10),
       });
@@ -323,18 +391,30 @@ describe('UniversalValidationRules', () => {
       const quadArmorAllocation = {
         head: { current: 9, max: 9, displayName: 'Head' },
         centerTorso: { current: 10, max: 10, displayName: 'Center Torso' },
-        centerTorsoRear: { current: 5, max: 10, displayName: 'Center Torso (Rear)' },
+        centerTorsoRear: {
+          current: 5,
+          max: 10,
+          displayName: 'Center Torso (Rear)',
+        },
         leftTorso: { current: 10, max: 10, displayName: 'Left Torso' },
-        leftTorsoRear: { current: 5, max: 10, displayName: 'Left Torso (Rear)' },
+        leftTorsoRear: {
+          current: 5,
+          max: 10,
+          displayName: 'Left Torso (Rear)',
+        },
         rightTorso: { current: 10, max: 10, displayName: 'Right Torso' },
-        rightTorsoRear: { current: 5, max: 10, displayName: 'Right Torso (Rear)' },
+        rightTorsoRear: {
+          current: 5,
+          max: 10,
+          displayName: 'Right Torso (Rear)',
+        },
         frontLeftLeg: { current: 10, max: 10, displayName: 'Front Left Leg' },
         frontRightLeg: { current: 10, max: 10, displayName: 'Front Right Leg' },
         rearLeftLeg: { current: 10, max: 10, displayName: 'Rear Left Leg' },
         rearRightLeg: { current: 10, max: 10, displayName: 'Rear Right Leg' },
       };
-      
-      const unit = createBaseUnit({ 
+
+      const unit = createBaseUnit({
         totalArmorPoints: 99,
         armorByLocation: quadArmorAllocation,
       });
@@ -348,19 +428,31 @@ describe('UniversalValidationRules', () => {
       const tripodArmorAllocation = {
         head: { current: 9, max: 9, displayName: 'Head' },
         centerTorso: { current: 10, max: 10, displayName: 'Center Torso' },
-        centerTorsoRear: { current: 5, max: 10, displayName: 'Center Torso (Rear)' },
+        centerTorsoRear: {
+          current: 5,
+          max: 10,
+          displayName: 'Center Torso (Rear)',
+        },
         leftTorso: { current: 10, max: 10, displayName: 'Left Torso' },
-        leftTorsoRear: { current: 5, max: 10, displayName: 'Left Torso (Rear)' },
+        leftTorsoRear: {
+          current: 5,
+          max: 10,
+          displayName: 'Left Torso (Rear)',
+        },
         rightTorso: { current: 10, max: 10, displayName: 'Right Torso' },
-        rightTorsoRear: { current: 5, max: 10, displayName: 'Right Torso (Rear)' },
+        rightTorsoRear: {
+          current: 5,
+          max: 10,
+          displayName: 'Right Torso (Rear)',
+        },
         leftArm: { current: 10, max: 10, displayName: 'Left Arm' },
         rightArm: { current: 10, max: 10, displayName: 'Right Arm' },
         leftLeg: { current: 10, max: 10, displayName: 'Left Leg' },
         rightLeg: { current: 10, max: 10, displayName: 'Right Leg' },
         centerLeg: { current: 10, max: 10, displayName: 'Center Leg' },
       };
-      
-      const unit = createBaseUnit({ 
+
+      const unit = createBaseUnit({
         totalArmorPoints: 109,
         armorByLocation: tripodArmorAllocation,
       });
@@ -423,12 +515,14 @@ describe('UniversalValidationRules', () => {
     it('should pass when all locations are within slot limits', () => {
       const unit = createBaseUnit({
         slotsByLocation: {
-          'Head': { used: 4, max: 6, displayName: 'Head' },
+          Head: { used: 4, max: 6, displayName: 'Head' },
           'Center Torso': { used: 10, max: 12, displayName: 'Center Torso' },
           'Left Arm': { used: 8, max: 12, displayName: 'Left Arm' },
         },
       });
-      const result = CriticalSlotOverflowValidation.validate(createContext(unit));
+      const result = CriticalSlotOverflowValidation.validate(
+        createContext(unit),
+      );
       expect(result.passed).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
@@ -436,11 +530,13 @@ describe('UniversalValidationRules', () => {
     it('should emit critical error when any location exceeds slot limit', () => {
       const unit = createBaseUnit({
         slotsByLocation: {
-          'Head': { used: 8, max: 6, displayName: 'Head' },
+          Head: { used: 8, max: 6, displayName: 'Head' },
           'Center Torso': { used: 10, max: 12, displayName: 'Center Torso' },
         },
       });
-      const result = CriticalSlotOverflowValidation.validate(createContext(unit));
+      const result = CriticalSlotOverflowValidation.validate(
+        createContext(unit),
+      );
       expect(result.passed).toBe(false);
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].message).toContain('Head');
@@ -451,11 +547,13 @@ describe('UniversalValidationRules', () => {
     it('should emit errors for multiple locations exceeding limits', () => {
       const unit = createBaseUnit({
         slotsByLocation: {
-          'Head': { used: 8, max: 6, displayName: 'Head' },
+          Head: { used: 8, max: 6, displayName: 'Head' },
           'Left Arm': { used: 14, max: 12, displayName: 'Left Arm' },
         },
       });
-      const result = CriticalSlotOverflowValidation.validate(createContext(unit));
+      const result = CriticalSlotOverflowValidation.validate(
+        createContext(unit),
+      );
       expect(result.passed).toBe(false);
       expect(result.errors).toHaveLength(2);
     });
@@ -469,7 +567,7 @@ describe('UniversalValidationRules', () => {
     it('should validate when slot data is defined', () => {
       const unit = createBaseUnit({
         slotsByLocation: {
-          'Head': { used: 4, max: 6, displayName: 'Head' },
+          Head: { used: 4, max: 6, displayName: 'Head' },
         },
       });
       const context = createContext(unit);

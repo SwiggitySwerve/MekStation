@@ -18,6 +18,7 @@ import {
   MIN_SKILL_VALUE,
   MAX_SKILL_VALUE,
 } from '@/types/pilot';
+
 import { IPilotOperationResult, PilotErrorCode } from '../PilotRepository';
 
 // =============================================================================
@@ -30,67 +31,74 @@ let mockIdCounter = 0;
 
 // Mock repository implementation
 const mockRepository = {
-  create: jest.fn((options: {
-    identity: IPilotIdentity;
-    type: PilotType;
-    skills: { gunnery: number; piloting: number };
-    startingXp?: number;
-    rank?: string;
-    abilityIds?: readonly string[];
-  }): IPilotOperationResult => {
-    const id = `pilot-${++mockIdCounter}`;
-    const now = new Date().toISOString();
-    const pilot: IPilot = {
-      id,
-      name: options.identity.name,
-      callsign: options.identity.callsign,
-      affiliation: options.identity.affiliation,
-      portrait: options.identity.portrait,
-      background: options.identity.background,
-      type: options.type,
-      status: PilotStatus.Active,
-      skills: options.skills,
-      wounds: 0,
-      abilities: (options.abilityIds || []).map((abilityId) => ({
-        abilityId,
-        acquiredDate: now,
-      })),
-      career: options.type === PilotType.Persistent ? {
-        missionsCompleted: 0,
-        victories: 0,
-        defeats: 0,
-        draws: 0,
-        totalKills: 0,
-        killRecords: [],
-        missionHistory: [],
-        xp: options.startingXp || 0,
-        totalXpEarned: options.startingXp || 0,
-        rank: options.rank || 'MechWarrior',
-      } : undefined,
-      createdAt: now,
-      updatedAt: now,
-    };
-    mockPilots.set(id, pilot);
-    return { success: true, id };
-  }),
-
-  update: jest.fn((id: string, updates: Partial<IPilot>): IPilotOperationResult => {
-    const pilot = mockPilots.get(id);
-    if (!pilot) {
-      return {
-        success: false,
-        error: `Pilot ${id} not found`,
-        errorCode: PilotErrorCode.NotFound,
+  create: jest.fn(
+    (options: {
+      identity: IPilotIdentity;
+      type: PilotType;
+      skills: { gunnery: number; piloting: number };
+      startingXp?: number;
+      rank?: string;
+      abilityIds?: readonly string[];
+    }): IPilotOperationResult => {
+      const id = `pilot-${++mockIdCounter}`;
+      const now = new Date().toISOString();
+      const pilot: IPilot = {
+        id,
+        name: options.identity.name,
+        callsign: options.identity.callsign,
+        affiliation: options.identity.affiliation,
+        portrait: options.identity.portrait,
+        background: options.identity.background,
+        type: options.type,
+        status: PilotStatus.Active,
+        skills: options.skills,
+        wounds: 0,
+        abilities: (options.abilityIds || []).map((abilityId) => ({
+          abilityId,
+          acquiredDate: now,
+        })),
+        career:
+          options.type === PilotType.Persistent
+            ? {
+                missionsCompleted: 0,
+                victories: 0,
+                defeats: 0,
+                draws: 0,
+                totalKills: 0,
+                killRecords: [],
+                missionHistory: [],
+                xp: options.startingXp || 0,
+                totalXpEarned: options.startingXp || 0,
+                rank: options.rank || 'MechWarrior',
+              }
+            : undefined,
+        createdAt: now,
+        updatedAt: now,
       };
-    }
-    const updated: IPilot = {
-      ...pilot,
-      ...updates,
-      updatedAt: new Date().toISOString(),
-    };
-    mockPilots.set(id, updated);
-    return { success: true, id };
-  }),
+      mockPilots.set(id, pilot);
+      return { success: true, id };
+    },
+  ),
+
+  update: jest.fn(
+    (id: string, updates: Partial<IPilot>): IPilotOperationResult => {
+      const pilot = mockPilots.get(id);
+      if (!pilot) {
+        return {
+          success: false,
+          error: `Pilot ${id} not found`,
+          errorCode: PilotErrorCode.NotFound,
+        };
+      }
+      const updated: IPilot = {
+        ...pilot,
+        ...updates,
+        updatedAt: new Date().toISOString(),
+      };
+      mockPilots.set(id, updated);
+      return { success: true, id };
+    },
+  ),
 
   delete: jest.fn((id: string): IPilotOperationResult => {
     if (!mockPilots.has(id)) {
@@ -120,56 +128,62 @@ const mockRepository = {
     return mockPilots.has(id);
   }),
 
-  recordMission: jest.fn((
-    pilotId: string,
-    mission: {
-      gameId: string;
-      missionName: string;
-      outcome: 'victory' | 'defeat' | 'draw';
-      xpEarned: number;
-      kills: number;
-    }
-  ): IPilotOperationResult => {
-    const pilot = mockPilots.get(pilotId);
-    if (!pilot) {
-      return {
-        success: false,
-        error: `Pilot ${pilotId} not found`,
-        errorCode: PilotErrorCode.NotFound,
-      };
-    }
-    if (!pilot.career) {
-      return { success: true, id: pilotId };
-    }
-    
-    const outcomeKey = mission.outcome === 'victory' ? 'victories' 
-      : mission.outcome === 'defeat' ? 'defeats' : 'draws';
-    
-    const updated: IPilot = {
-      ...pilot,
-      career: {
-        ...pilot.career,
-        missionsCompleted: pilot.career.missionsCompleted + 1,
-        [outcomeKey]: pilot.career[outcomeKey] + 1,
-        xp: pilot.career.xp + mission.xpEarned,
-        totalXpEarned: pilot.career.totalXpEarned + mission.xpEarned,
-        missionHistory: [
-          ...pilot.career.missionHistory,
-          {
-            gameId: mission.gameId,
-            missionName: mission.missionName,
-            date: new Date().toISOString(),
-            outcome: mission.outcome,
-            xpEarned: mission.xpEarned,
-            kills: mission.kills,
-          },
-        ],
+  recordMission: jest.fn(
+    (
+      pilotId: string,
+      mission: {
+        gameId: string;
+        missionName: string;
+        outcome: 'victory' | 'defeat' | 'draw';
+        xpEarned: number;
+        kills: number;
       },
-      updatedAt: new Date().toISOString(),
-    };
-    mockPilots.set(pilotId, updated);
-    return { success: true, id: pilotId };
-  }),
+    ): IPilotOperationResult => {
+      const pilot = mockPilots.get(pilotId);
+      if (!pilot) {
+        return {
+          success: false,
+          error: `Pilot ${pilotId} not found`,
+          errorCode: PilotErrorCode.NotFound,
+        };
+      }
+      if (!pilot.career) {
+        return { success: true, id: pilotId };
+      }
+
+      const outcomeKey =
+        mission.outcome === 'victory'
+          ? 'victories'
+          : mission.outcome === 'defeat'
+            ? 'defeats'
+            : 'draws';
+
+      const updated: IPilot = {
+        ...pilot,
+        career: {
+          ...pilot.career,
+          missionsCompleted: pilot.career.missionsCompleted + 1,
+          [outcomeKey]: pilot.career[outcomeKey] + 1,
+          xp: pilot.career.xp + mission.xpEarned,
+          totalXpEarned: pilot.career.totalXpEarned + mission.xpEarned,
+          missionHistory: [
+            ...pilot.career.missionHistory,
+            {
+              gameId: mission.gameId,
+              missionName: mission.missionName,
+              date: new Date().toISOString(),
+              outcome: mission.outcome,
+              xpEarned: mission.xpEarned,
+              kills: mission.kills,
+            },
+          ],
+        },
+        updatedAt: new Date().toISOString(),
+      };
+      mockPilots.set(pilotId, updated);
+      return { success: true, id: pilotId };
+    },
+  ),
 
   spendXp: jest.fn((pilotId: string, amount: number): IPilotOperationResult => {
     const pilot = mockPilots.get(pilotId);
@@ -330,7 +344,7 @@ describe('PilotService', () => {
       it('should create a Green pilot with correct skills', () => {
         const result = service.createFromTemplate(
           PilotExperienceLevel.Green,
-          createMockIdentity('Green Pilot')
+          createMockIdentity('Green Pilot'),
         );
 
         expect(result.success).toBe(true);
@@ -339,14 +353,14 @@ describe('PilotService', () => {
             skills: PILOT_TEMPLATES[PilotExperienceLevel.Green].skills,
             startingXp: PILOT_TEMPLATES[PilotExperienceLevel.Green].startingXp,
             rank: 'Cadet',
-          })
+          }),
         );
       });
 
       it('should create a Regular pilot with correct skills', () => {
         const result = service.createFromTemplate(
           PilotExperienceLevel.Regular,
-          createMockIdentity('Regular Pilot')
+          createMockIdentity('Regular Pilot'),
         );
 
         expect(result.success).toBe(true);
@@ -354,30 +368,31 @@ describe('PilotService', () => {
           expect.objectContaining({
             skills: PILOT_TEMPLATES[PilotExperienceLevel.Regular].skills,
             rank: 'MechWarrior',
-          })
+          }),
         );
       });
 
       it('should create a Veteran pilot with correct skills', () => {
         const result = service.createFromTemplate(
           PilotExperienceLevel.Veteran,
-          createMockIdentity('Veteran Pilot')
+          createMockIdentity('Veteran Pilot'),
         );
 
         expect(result.success).toBe(true);
         expect(mockRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
             skills: PILOT_TEMPLATES[PilotExperienceLevel.Veteran].skills,
-            startingXp: PILOT_TEMPLATES[PilotExperienceLevel.Veteran].startingXp,
+            startingXp:
+              PILOT_TEMPLATES[PilotExperienceLevel.Veteran].startingXp,
             rank: 'Sergeant',
-          })
+          }),
         );
       });
 
       it('should create an Elite pilot with correct skills', () => {
         const result = service.createFromTemplate(
           PilotExperienceLevel.Elite,
-          createMockIdentity('Elite Pilot')
+          createMockIdentity('Elite Pilot'),
         );
 
         expect(result.success).toBe(true);
@@ -386,7 +401,7 @@ describe('PilotService', () => {
             skills: PILOT_TEMPLATES[PilotExperienceLevel.Elite].skills,
             startingXp: PILOT_TEMPLATES[PilotExperienceLevel.Elite].startingXp,
             rank: 'Lieutenant',
-          })
+          }),
         );
       });
     });
@@ -407,14 +422,14 @@ describe('PilotService', () => {
 
       it('should create pilots with weighted skill distribution', () => {
         const mockRandom = jest.spyOn(Math, 'random');
-        
+
         // Test veteran roll (10%)
         mockRandom.mockReturnValue(0.05);
         service.createRandom(createMockIdentity('Veteran Roll'));
         expect(mockRepository.create).toHaveBeenLastCalledWith(
           expect.objectContaining({
-            skills: expect.objectContaining({ gunnery: 3 }), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-          })
+            skills: expect.objectContaining({ gunnery: 3 }), // oxlint-disable-line @typescript-eslint/no-unsafe-assignment
+          }),
         );
 
         // Test untrained roll (20%)
@@ -422,8 +437,8 @@ describe('PilotService', () => {
         service.createRandom(createMockIdentity('Untrained Roll'));
         expect(mockRepository.create).toHaveBeenLastCalledWith(
           expect.objectContaining({
-            skills: expect.objectContaining({ gunnery: 6 }), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-          })
+            skills: expect.objectContaining({ gunnery: 6 }), // oxlint-disable-line @typescript-eslint/no-unsafe-assignment
+          }),
         );
 
         // Test green roll (30%)
@@ -431,8 +446,8 @@ describe('PilotService', () => {
         service.createRandom(createMockIdentity('Green Roll'));
         expect(mockRepository.create).toHaveBeenLastCalledWith(
           expect.objectContaining({
-            skills: expect.objectContaining({ gunnery: 5 }), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-          })
+            skills: expect.objectContaining({ gunnery: 5 }), // oxlint-disable-line @typescript-eslint/no-unsafe-assignment
+          }),
         );
 
         // Test regular roll (40%)
@@ -440,8 +455,8 @@ describe('PilotService', () => {
         service.createRandom(createMockIdentity('Regular Roll'));
         expect(mockRepository.create).toHaveBeenLastCalledWith(
           expect.objectContaining({
-            skills: expect.objectContaining({ gunnery: 4 }), // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-          })
+            skills: expect.objectContaining({ gunnery: 4 }), // oxlint-disable-line @typescript-eslint/no-unsafe-assignment
+          }),
         );
 
         mockRandom.mockRestore();
@@ -490,14 +505,20 @@ describe('PilotService', () => {
         });
         const id = 'pilot-1';
 
-        const result = service.updatePilot(id, { callsign: 'Updated Callsign' });
+        const result = service.updatePilot(id, {
+          callsign: 'Updated Callsign',
+        });
 
         expect(result.success).toBe(true);
-        expect(mockRepository.update).toHaveBeenCalledWith(id, { callsign: 'Updated Callsign' });
+        expect(mockRepository.update).toHaveBeenCalledWith(id, {
+          callsign: 'Updated Callsign',
+        });
       });
 
       it('should return error for non-existent pilot', () => {
-        const result = service.updatePilot('non-existent', { callsign: 'Test' });
+        const result = service.updatePilot('non-existent', {
+          callsign: 'Test',
+        });
 
         expect(result.success).toBe(false);
         expect(result.errorCode).toBe(PilotErrorCode.NotFound);
@@ -579,7 +600,9 @@ describe('PilotService', () => {
 
         service.listActivePilots();
 
-        expect(mockRepository.listByStatus).toHaveBeenCalledWith(PilotStatus.Active);
+        expect(mockRepository.listByStatus).toHaveBeenCalledWith(
+          PilotStatus.Active,
+        );
       });
     });
   });
@@ -787,7 +810,7 @@ describe('PilotService', () => {
             outcome: 'draw',
             xpEarned: XP_AWARDS.missionSurvival,
             kills: 0,
-          })
+          }),
         );
       });
 
@@ -805,8 +828,8 @@ describe('PilotService', () => {
         expect(mockRepository.recordMission).toHaveBeenCalledWith(
           id,
           expect.objectContaining({
-            xpEarned: XP_AWARDS.missionSurvival + (3 * XP_AWARDS.kill),
-          })
+            xpEarned: XP_AWARDS.missionSurvival + 3 * XP_AWARDS.kill,
+          }),
         );
       });
 
@@ -825,7 +848,7 @@ describe('PilotService', () => {
           id,
           expect.objectContaining({
             xpEarned: XP_AWARDS.missionSurvival + XP_AWARDS.victoryBonus,
-          })
+          }),
         );
       });
 
@@ -844,7 +867,7 @@ describe('PilotService', () => {
           id,
           expect.objectContaining({
             xpEarned: XP_AWARDS.missionSurvival,
-          })
+          }),
         );
       });
 
@@ -856,14 +879,17 @@ describe('PilotService', () => {
         });
         const id = 'pilot-1';
 
-        const result = service.awardMissionXp(id, 'draw', 1, { firstBlood: true });
+        const result = service.awardMissionXp(id, 'draw', 1, {
+          firstBlood: true,
+        });
 
         expect(result.success).toBe(true);
         expect(mockRepository.recordMission).toHaveBeenCalledWith(
           id,
           expect.objectContaining({
-            xpEarned: XP_AWARDS.missionSurvival + XP_AWARDS.kill + XP_AWARDS.firstBlood,
-          })
+            xpEarned:
+              XP_AWARDS.missionSurvival + XP_AWARDS.kill + XP_AWARDS.firstBlood,
+          }),
         );
       });
 
@@ -875,19 +901,22 @@ describe('PilotService', () => {
         });
         const id = 'pilot-1';
 
-        const result = service.awardMissionXp(id, 'victory', 1, { higherBVOpponent: true });
+        const result = service.awardMissionXp(id, 'victory', 1, {
+          higherBVOpponent: true,
+        });
 
-        const expectedXp = XP_AWARDS.missionSurvival + 
-          XP_AWARDS.kill + 
-          XP_AWARDS.victoryBonus + 
+        const expectedXp =
+          XP_AWARDS.missionSurvival +
+          XP_AWARDS.kill +
+          XP_AWARDS.victoryBonus +
           XP_AWARDS.higherBVOpponent;
-        
+
         expect(result.success).toBe(true);
         expect(mockRepository.recordMission).toHaveBeenCalledWith(
           id,
           expect.objectContaining({
             xpEarned: expectedXp,
-          })
+          }),
         );
       });
 
@@ -904,18 +933,19 @@ describe('PilotService', () => {
           higherBVOpponent: true,
         });
 
-        const expectedXp = XP_AWARDS.missionSurvival +
-          (2 * XP_AWARDS.kill) +
+        const expectedXp =
+          XP_AWARDS.missionSurvival +
+          2 * XP_AWARDS.kill +
           XP_AWARDS.victoryBonus +
           XP_AWARDS.firstBlood +
           XP_AWARDS.higherBVOpponent;
-        
+
         expect(result.success).toBe(true);
         expect(mockRepository.recordMission).toHaveBeenCalledWith(
           id,
           expect.objectContaining({
             xpEarned: expectedXp,
-          })
+          }),
         );
       });
     });
@@ -1018,7 +1048,7 @@ describe('PilotService', () => {
           skills: { gunnery: 4, piloting: 5 },
         });
         const id = 'pilot-1';
-        
+
         // Kill the pilot
         for (let i = 0; i < 6; i++) {
           service.applyWound(id);

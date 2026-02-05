@@ -7,17 +7,16 @@
  * @module campaign/progression/__tests__/skillCostTraits.test.ts
  */
 
-/* eslint-disable no-restricted-syntax */
+import type { ICampaignOptions } from '../../../../types/campaign/Campaign';
+import type { IPerson } from '../../../../types/campaign/Person';
 
+import { SKILL_CATALOG } from '../../../../constants/campaign/skillCatalog';
 import {
   calculateTraitMultiplier,
   getSkillImprovementCostWithTraits,
   isTechSkill,
   checkVeterancySPA,
 } from '../skillCostTraits';
-import type { IPerson } from '../../../../types/campaign/Person';
-import type { ICampaignOptions } from '../../../../types/campaign/Campaign';
-import { SKILL_CATALOG } from '../../../../constants/campaign/skillCatalog';
 
 // =============================================================================
 // Test Fixtures
@@ -399,28 +398,48 @@ describe('getSkillImprovementCostWithTraits', () => {
   describe('Base cost calculation', () => {
     it('should return cost for skill at level 0', () => {
       const person = createTestPerson();
-      const cost = getSkillImprovementCostWithTraits('gunnery', 0, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'gunnery',
+        0,
+        person,
+        options,
+      );
       // Gunnery costs[0] = 0, but minimum cost is 1 XP
       expect(cost).toBe(1);
     });
 
     it('should return cost for skill at level 1', () => {
       const person = createTestPerson();
-      const cost = getSkillImprovementCostWithTraits('gunnery', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'gunnery',
+        1,
+        person,
+        options,
+      );
       // Gunnery costs[1] = 8 (level 1→2 costs 8 XP)
       expect(cost).toBe(8);
     });
 
     it('should return cost for skill at level 5', () => {
       const person = createTestPerson();
-      const cost = getSkillImprovementCostWithTraits('gunnery', 5, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'gunnery',
+        5,
+        person,
+        options,
+      );
       // Gunnery costs[5] = 24 (level 5→6 costs 24 XP)
       expect(cost).toBe(24);
     });
 
     it('should return cost for tech skill at level 0', () => {
       const person = createTestPerson();
-      const cost = getSkillImprovementCostWithTraits('tech-mech', 0, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'tech-mech',
+        0,
+        person,
+        options,
+      );
       // Tech/Mech costs[0] = 0, but minimum cost is 1 XP
       expect(cost).toBe(1);
     });
@@ -429,14 +448,24 @@ describe('getSkillImprovementCostWithTraits', () => {
   describe('Slow Learner modifier', () => {
     it('should add +20% to cost with Slow Learner', () => {
       const person = createTestPerson({ traits: { slowLearner: true } });
-      const cost = getSkillImprovementCostWithTraits('gunnery', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'gunnery',
+        1,
+        person,
+        options,
+      );
       // Base: 8, Multiplier: 1.2, Result: 8 * 1.2 = 9.6 → 10
       expect(cost).toBe(10);
     });
 
     it('should round correctly with Slow Learner', () => {
       const person = createTestPerson({ traits: { slowLearner: true } });
-      const cost = getSkillImprovementCostWithTraits('gunnery', 2, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'gunnery',
+        2,
+        person,
+        options,
+      );
       // Base: 8, Multiplier: 1.2, Result: 8 * 1.2 = 9.6 → 10
       expect(cost).toBe(10);
     });
@@ -445,14 +474,24 @@ describe('getSkillImprovementCostWithTraits', () => {
   describe('Fast Learner modifier', () => {
     it('should subtract -20% from cost with Fast Learner', () => {
       const person = createTestPerson({ traits: { fastLearner: true } });
-      const cost = getSkillImprovementCostWithTraits('gunnery', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'gunnery',
+        1,
+        person,
+        options,
+      );
       // Base: 8, Multiplier: 0.8, Result: 8 * 0.8 = 6.4 → 6
       expect(cost).toBe(6);
     });
 
     it('should round correctly with Fast Learner', () => {
       const person = createTestPerson({ traits: { fastLearner: true } });
-      const cost = getSkillImprovementCostWithTraits('gunnery', 2, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'gunnery',
+        2,
+        person,
+        options,
+      );
       // Base: 8, Multiplier: 0.8, Result: 8 * 0.8 = 6.4 → 6
       expect(cost).toBe(6);
     });
@@ -461,14 +500,24 @@ describe('getSkillImprovementCostWithTraits', () => {
   describe('Gremlins modifier (tech skills only)', () => {
     it('should add +10% to tech skill cost with Gremlins', () => {
       const person = createTestPerson({ traits: { gremlins: true } });
-      const cost = getSkillImprovementCostWithTraits('tech-mech', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'tech-mech',
+        1,
+        person,
+        options,
+      );
       // Base: 4, Multiplier: 1.1, Result: 4 * 1.1 = 4.4 → 4
       expect(cost).toBe(4);
     });
 
     it('should NOT apply Gremlins to non-tech skills', () => {
       const person = createTestPerson({ traits: { gremlins: true } });
-      const cost = getSkillImprovementCostWithTraits('gunnery', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'gunnery',
+        1,
+        person,
+        options,
+      );
       // Base: 8, Multiplier: 1.0 (Gremlins ignored), Result: 8
       expect(cost).toBe(8);
     });
@@ -477,14 +526,24 @@ describe('getSkillImprovementCostWithTraits', () => {
   describe('Tech Empathy modifier (tech skills only)', () => {
     it('should subtract -10% from tech skill cost with Tech Empathy', () => {
       const person = createTestPerson({ traits: { techEmpathy: true } });
-      const cost = getSkillImprovementCostWithTraits('tech-mech', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'tech-mech',
+        1,
+        person,
+        options,
+      );
       // Base: 4, Multiplier: 0.9, Result: 4 * 0.9 = 3.6 → 4
       expect(cost).toBe(4);
     });
 
     it('should NOT apply Tech Empathy to non-tech skills', () => {
       const person = createTestPerson({ traits: { techEmpathy: true } });
-      const cost = getSkillImprovementCostWithTraits('gunnery', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'gunnery',
+        1,
+        person,
+        options,
+      );
       // Base: 8, Multiplier: 1.0 (Tech Empathy ignored), Result: 8
       expect(cost).toBe(8);
     });
@@ -495,7 +554,12 @@ describe('getSkillImprovementCostWithTraits', () => {
       const person = createTestPerson({
         traits: { slowLearner: true, gremlins: true },
       });
-      const cost = getSkillImprovementCostWithTraits('tech-mech', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'tech-mech',
+        1,
+        person,
+        options,
+      );
       // Base: 4, Multiplier: 1.3, Result: 4 * 1.3 = 5.2 → 5
       expect(cost).toBe(5);
     });
@@ -504,7 +568,12 @@ describe('getSkillImprovementCostWithTraits', () => {
       const person = createTestPerson({
         traits: { fastLearner: true, techEmpathy: true },
       });
-      const cost = getSkillImprovementCostWithTraits('tech-mech', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'tech-mech',
+        1,
+        person,
+        options,
+      );
       // Base: 4, Multiplier: 0.7, Result: 4 * 0.7 = 2.8 → 3
       expect(cost).toBe(3);
     });
@@ -514,7 +583,12 @@ describe('getSkillImprovementCostWithTraits', () => {
     it('should enforce minimum cost of 1 XP', () => {
       const person = createTestPerson({ traits: { fastLearner: true } });
       // Use a skill with very low base cost
-      const cost = getSkillImprovementCostWithTraits('small-arms', 0, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'small-arms',
+        0,
+        person,
+        options,
+      );
       // Base: 4, Multiplier: 0.8, Result: 4 * 0.8 = 3.2 → 3 (not 1)
       expect(cost).toBeGreaterThanOrEqual(1);
     });
@@ -525,7 +599,12 @@ describe('getSkillImprovementCostWithTraits', () => {
       const person = createTestPerson({ traits: { fastLearner: true } });
       // Small Arms costs[0] = 0, costs[1] = 4
       // 4 * 0.8 = 3.2 → 3
-      const cost = getSkillImprovementCostWithTraits('small-arms', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'small-arms',
+        1,
+        person,
+        options,
+      );
       expect(cost).toBe(3);
     });
 
@@ -533,14 +612,24 @@ describe('getSkillImprovementCostWithTraits', () => {
       const person = createTestPerson({ traits: { slowLearner: true } });
       // Small Arms costs[1] = 4
       // 4 * 1.2 = 4.8 → 5
-      const cost = getSkillImprovementCostWithTraits('small-arms', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'small-arms',
+        1,
+        person,
+        options,
+      );
       expect(cost).toBe(5);
     });
 
     it('should round 0.5 to nearest even', () => {
       const person = createTestPerson();
       // Test standard rounding behavior
-      const cost = getSkillImprovementCostWithTraits('gunnery', 1, person, options);
+      const cost = getSkillImprovementCostWithTraits(
+        'gunnery',
+        1,
+        person,
+        options,
+      );
       // 8 * 1.0 = 8
       expect(cost).toBe(8);
     });

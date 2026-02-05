@@ -1,40 +1,44 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { performSurgery, installProsthetic } from '../surgery';
-import { MedicalSystem } from '../medicalTypes';
+import {
+  PersonnelStatus,
+  CampaignPersonnelRole,
+} from '../../../../types/campaign/enums';
 import { IPerson, IInjury } from '../../../../types/campaign/Person';
-import { PersonnelStatus, CampaignPersonnelRole } from '../../../../types/campaign/enums';
 import { IAttributes } from '../../../../types/campaign/skills/IAttributes';
+import { MedicalSystem } from '../medicalTypes';
+/* oxlint-disable @typescript-eslint/no-unsafe-assignment */
+import { performSurgery, installProsthetic } from '../surgery';
 
-const createMockPerson = (id: string, name: string): IPerson => ({
-  id,
-  name,
-  status: PersonnelStatus.ACTIVE,
-  primaryRole: CampaignPersonnelRole.PILOT,
-  injuries: [],
-  skills: {},
-  attributes: {
-    STR: 5,
-    BOD: 5,
-    REF: 5,
-    DEX: 5,
-    INT: 5,
-    WIL: 5,
-    CHA: 5,
-    Edge: 0,
-  } as IAttributes,
-  pilotSkills: { gunnery: 4, piloting: 4 },
-  recruitmentDate: new Date('2025-01-01'),
-  rank: 'Private',
-  createdAt: '2025-01-01T00:00:00Z',
-  updatedAt: '2025-01-01T00:00:00Z',
-  missionsCompleted: 0,
-  totalKills: 0,
-  xp: 0,
-  totalXpEarned: 0,
-  xpSpent: 0,
-  hits: 0,
-  daysToWaitForHealing: 0,
-} as IPerson);
+const createMockPerson = (id: string, name: string): IPerson =>
+  ({
+    id,
+    name,
+    status: PersonnelStatus.ACTIVE,
+    primaryRole: CampaignPersonnelRole.PILOT,
+    injuries: [],
+    skills: {},
+    attributes: {
+      STR: 5,
+      BOD: 5,
+      REF: 5,
+      DEX: 5,
+      INT: 5,
+      WIL: 5,
+      CHA: 5,
+      Edge: 0,
+    } as IAttributes,
+    pilotSkills: { gunnery: 4, piloting: 4 },
+    recruitmentDate: new Date('2025-01-01'),
+    rank: 'Private',
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z',
+    missionsCompleted: 0,
+    totalKills: 0,
+    xp: 0,
+    totalXpEarned: 0,
+    xpSpent: 0,
+    hits: 0,
+    daysToWaitForHealing: 0,
+  }) as IPerson;
 
 const createMockInjury = (id: string, permanent: boolean = true): IInjury => ({
   id,
@@ -49,7 +53,7 @@ const createMockInjury = (id: string, permanent: boolean = true): IInjury => ({
   attributeModifier: 0,
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line @typescript-eslint/no-explicit-any
 function createMockOptions(): any {
   return {
     healingRateMultiplier: 1.0,
@@ -242,7 +246,7 @@ describe('performSurgery', () => {
     const result = performSurgery(patient, injury, surgeon, options, random);
 
     const surgeryModifier = result.modifiers.find(
-      (m: { name: string; value: number }) => m.name === 'Surgery Difficulty'
+      (m: { name: string; value: number }) => m.name === 'Surgery Difficulty',
     );
     expect(surgeryModifier).toBeDefined();
     expect(surgeryModifier?.value).toBe(2);

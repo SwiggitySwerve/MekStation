@@ -1,10 +1,10 @@
+import { GyroType } from '@/types/construction/GyroType';
 import {
   calculateGyroWeight,
   getGyroCriticalSlots,
   validateGyro,
   isGyroCompatibleWithCockpit,
 } from '@/utils/construction/gyroCalculations';
-import { GyroType } from '@/types/construction/GyroType';
 
 describe('gyroCalculations', () => {
   describe('calculateGyroWeight()', () => {
@@ -17,7 +17,7 @@ describe('gyroCalculations', () => {
     it('should apply compact multiplier', () => {
       const standardWeight = calculateGyroWeight(250, GyroType.STANDARD);
       const compactWeight = calculateGyroWeight(250, GyroType.COMPACT);
-      
+
       expect(compactWeight).toBeGreaterThan(standardWeight);
     });
 
@@ -27,8 +27,10 @@ describe('gyroCalculations', () => {
     });
 
     it('should handle unknown gyro type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
-      expect(calculateGyroWeight(250, 'INVALID' as any)).toBe(Math.ceil(250 / 100));
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      expect(calculateGyroWeight(250, 'INVALID' as any)).toBe(
+        Math.ceil(250 / 100),
+      );
     });
   });
 
@@ -44,7 +46,7 @@ describe('gyroCalculations', () => {
     });
 
     it('should return default 4 for unknown gyro type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(getGyroCriticalSlots('INVALID' as any)).toBe(4);
     });
   });
@@ -52,20 +54,20 @@ describe('gyroCalculations', () => {
   describe('validateGyro()', () => {
     it('should validate correct gyro', () => {
       const result = validateGyro(GyroType.STANDARD, 250);
-      
+
       expect(result.isValid).toBe(true);
       expect(result.errors.length).toBe(0);
     });
 
     it('should reject zero or negative engine rating', () => {
       const result = validateGyro(GyroType.STANDARD, 0);
-      
+
       expect(result.isValid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
     });
 
     it('should reject unknown gyro type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       const result = validateGyro('INVALID' as any, 250);
       expect(result.isValid).toBe(false);
       expect(result.errors[0]).toContain('Unknown gyro type');
@@ -74,12 +76,18 @@ describe('gyroCalculations', () => {
 
   describe('isGyroCompatibleWithCockpit()', () => {
     it('should check compatibility', () => {
-      const compatible = isGyroCompatibleWithCockpit(GyroType.STANDARD, 'Standard');
+      const compatible = isGyroCompatibleWithCockpit(
+        GyroType.STANDARD,
+        'Standard',
+      );
       expect(compatible).toBe(true);
     });
 
     it('should handle compact gyro', () => {
-      const compatible = isGyroCompatibleWithCockpit(GyroType.COMPACT, 'Standard');
+      const compatible = isGyroCompatibleWithCockpit(
+        GyroType.COMPACT,
+        'Standard',
+      );
       expect(compatible).toBeDefined();
     });
   });

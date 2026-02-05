@@ -1,17 +1,26 @@
-import { UnitLoaderService, IRawSerializedUnit } from '@/services/units/unitLoaderService';
-import { canonicalUnitService, IFullUnit } from '@/services/units/CanonicalUnitService';
-import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { equipmentLookupService } from '@/services/equipment/EquipmentLookupService';
-import { getEquipmentRegistry, EquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+import {
+  getEquipmentRegistry,
+  EquipmentRegistry,
+} from '@/services/equipment/EquipmentRegistry';
+import {
+  canonicalUnitService,
+  IFullUnit,
+} from '@/services/units/CanonicalUnitService';
+import { customUnitApiService } from '@/services/units/CustomUnitApiService';
+import {
+  UnitLoaderService,
+  IRawSerializedUnit,
+} from '@/services/units/unitLoaderService';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
-import { CockpitType } from '@/types/construction/CockpitType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 
 // Mock dependencies
@@ -23,10 +32,18 @@ jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mock-uuid-123'),
 }));
 
-const mockCanonicalUnitService = canonicalUnitService as jest.Mocked<typeof canonicalUnitService>;
-const mockCustomUnitApiService = customUnitApiService as jest.Mocked<typeof customUnitApiService>;
-const mockEquipmentLookupService = equipmentLookupService as jest.Mocked<typeof equipmentLookupService>;
-const mockGetEquipmentRegistry = getEquipmentRegistry as jest.MockedFunction<typeof getEquipmentRegistry>;
+const mockCanonicalUnitService = canonicalUnitService as jest.Mocked<
+  typeof canonicalUnitService
+>;
+const mockCustomUnitApiService = customUnitApiService as jest.Mocked<
+  typeof customUnitApiService
+>;
+const mockEquipmentLookupService = equipmentLookupService as jest.Mocked<
+  typeof equipmentLookupService
+>;
+const mockGetEquipmentRegistry = getEquipmentRegistry as jest.MockedFunction<
+  typeof getEquipmentRegistry
+>;
 
 describe('UnitLoaderService', () => {
   let service: UnitLoaderService;
@@ -35,18 +52,21 @@ describe('UnitLoaderService', () => {
   beforeEach(() => {
     service = new UnitLoaderService();
     jest.clearAllMocks();
-    
+
     // Setup mock equipment registry (partial mock requires type assertion)
-    // eslint-disable-next-line no-restricted-syntax
     mockRegistry = {
       isReady: jest.fn().mockReturnValue(false),
-      lookup: jest.fn().mockReturnValue({ found: false, equipment: null, category: null }),
+      lookup: jest
+        .fn()
+        .mockReturnValue({ found: false, equipment: null, category: null }),
       initialize: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<EquipmentRegistry>;
     mockGetEquipmentRegistry.mockReturnValue(mockRegistry);
-    
+
     // Setup mock equipment lookup service initialization
-    mockEquipmentLookupService.initialize = jest.fn().mockResolvedValue(undefined);
+    mockEquipmentLookupService.initialize = jest
+      .fn()
+      .mockResolvedValue(undefined);
   });
 
   describe('loadCanonicalUnit', () => {
@@ -81,7 +101,9 @@ describe('UnitLoaderService', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      mockCanonicalUnitService.getById.mockRejectedValue(new Error('Service error'));
+      mockCanonicalUnitService.getById.mockRejectedValue(
+        new Error('Service error'),
+      );
 
       const result = await service.loadCanonicalUnit('canon-1');
 
@@ -123,7 +145,9 @@ describe('UnitLoaderService', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      mockCustomUnitApiService.getById.mockRejectedValue(new Error('API error'));
+      mockCustomUnitApiService.getById.mockRejectedValue(
+        new Error('API error'),
+      );
 
       const result = await service.loadCustomUnit('custom-1');
 
@@ -170,7 +194,9 @@ describe('UnitLoaderService', () => {
   });
 
   describe('mapToUnitState', () => {
-    const createMockSerializedUnit = (overrides?: Partial<IRawSerializedUnit>): IRawSerializedUnit => ({
+    const createMockSerializedUnit = (
+      overrides?: Partial<IRawSerializedUnit>,
+    ): IRawSerializedUnit => ({
       id: 'test-unit',
       chassis: 'Atlas',
       variant: 'AS7-D',
@@ -242,7 +268,9 @@ describe('UnitLoaderService', () => {
       });
       const state = service.mapToUnitState(serialized, true);
 
-      expect(state.internalStructureType).toBe(InternalStructureType.ENDO_STEEL_IS);
+      expect(state.internalStructureType).toBe(
+        InternalStructureType.ENDO_STEEL_IS,
+      );
     });
 
     it('should map cockpit types', () => {
@@ -316,9 +344,7 @@ describe('UnitLoaderService', () => {
       mockEquipmentLookupService.getById.mockReturnValue(mockEquipment);
 
       const serialized = createMockSerializedUnit({
-        equipment: [
-          { id: 'medium-laser', location: 'Right Arm' },
-        ],
+        equipment: [{ id: 'medium-laser', location: 'Right Arm' }],
       });
       const state = service.mapToUnitState(serialized, true);
 
@@ -332,16 +358,16 @@ describe('UnitLoaderService', () => {
       mockEquipmentLookupService.getById.mockReturnValue(undefined);
 
       const serialized = createMockSerializedUnit({
-        equipment: [
-          { id: 'unknown-equipment', location: 'Left Arm' },
-        ],
+        equipment: [{ id: 'unknown-equipment', location: 'Left Arm' }],
       });
       const state = service.mapToUnitState(serialized, true);
 
       expect(state.equipment).toHaveLength(1);
       expect(state.equipment[0].equipmentId).toBe('unknown-equipment');
       expect(state.equipment[0].name).toBe('unknown-equipment');
-      expect(state.equipment[0].category).toBe(EquipmentCategory.MISC_EQUIPMENT);
+      expect(state.equipment[0].category).toBe(
+        EquipmentCategory.MISC_EQUIPMENT,
+      );
     });
 
     it('should map rules level', () => {
@@ -364,7 +390,10 @@ describe('UnitLoaderService', () => {
       const serializedWithVariant = createMockSerializedUnit({
         variant: 'AS7-K',
       });
-      const stateWithVariant = service.mapToUnitState(serializedWithVariant, true);
+      const stateWithVariant = service.mapToUnitState(
+        serializedWithVariant,
+        true,
+      );
       expect(stateWithVariant.model).toBe('AS7-K');
     });
 
@@ -428,7 +457,9 @@ describe('UnitLoaderService', () => {
   });
 
   describe('Legacy Equipment ID Resolution', () => {
-    const createMockSerializedUnit = (overrides?: Partial<IRawSerializedUnit>): IRawSerializedUnit => ({
+    const createMockSerializedUnit = (
+      overrides?: Partial<IRawSerializedUnit>,
+    ): IRawSerializedUnit => ({
       id: 'test-unit',
       chassis: 'Marauder',
       model: 'C',
@@ -473,16 +504,16 @@ describe('UnitLoaderService', () => {
       });
 
       const serialized = createMockSerializedUnit({
-        equipment: [
-          { id: 'ultra-ac-5', location: 'Right Arm' },
-        ],
+        equipment: [{ id: 'ultra-ac-5', location: 'Right Arm' }],
       });
       const state = service.mapToUnitState(serialized, true);
 
       expect(state.equipment).toHaveLength(1);
       expect(state.equipment[0].equipmentId).toBe('uac-5');
       expect(state.equipment[0].name).toBe('Ultra AC/5');
-      expect(state.equipment[0].category).toBe(EquipmentCategory.BALLISTIC_WEAPON);
+      expect(state.equipment[0].category).toBe(
+        EquipmentCategory.BALLISTIC_WEAPON,
+      );
       expect(state.equipment[0].weight).toBe(9);
       expect(state.equipment[0].criticalSlots).toBe(5);
     });
@@ -524,9 +555,7 @@ describe('UnitLoaderService', () => {
 
       const serialized = createMockSerializedUnit({
         techBase: 'Clan',
-        equipment: [
-          { id: 'ultra-ac-5', location: 'Right Torso' },
-        ],
+        equipment: [{ id: 'ultra-ac-5', location: 'Right Torso' }],
       });
       const state = service.mapToUnitState(serialized, true);
 
@@ -573,9 +602,7 @@ describe('UnitLoaderService', () => {
 
       const serialized = createMockSerializedUnit({
         techBase: 'MIXED',
-        equipment: [
-          { id: 'ultra-ac-5', location: 'Right Torso' },
-        ],
+        equipment: [{ id: 'ultra-ac-5', location: 'Right Torso' }],
         criticalSlots: {
           RIGHT_TORSO: ['CLUltraAC5'],
         },
@@ -625,9 +652,7 @@ describe('UnitLoaderService', () => {
 
       const serialized = createMockSerializedUnit({
         techBase: 'MIXED',
-        equipment: [
-          { id: 'large-pulse-laser', location: 'Left Arm' },
-        ],
+        equipment: [{ id: 'large-pulse-laser', location: 'Left Arm' }],
         criticalSlots: {
           LEFT_ARM: ['CLLargePulseLaser'],
         },
@@ -660,16 +685,16 @@ describe('UnitLoaderService', () => {
       });
 
       const serialized = createMockSerializedUnit({
-        equipment: [
-          { id: 'clan-ultra-ac-5', location: 'Right Torso' },
-        ],
+        equipment: [{ id: 'clan-ultra-ac-5', location: 'Right Torso' }],
       });
       const state = service.mapToUnitState(serialized, true);
 
       expect(state.equipment).toHaveLength(1);
       expect(state.equipment[0].equipmentId).toBe('clan-uac-5');
       expect(state.equipment[0].name).toBe('Ultra AC/5 (Clan)');
-      expect(state.equipment[0].category).toBe(EquipmentCategory.BALLISTIC_WEAPON);
+      expect(state.equipment[0].category).toBe(
+        EquipmentCategory.BALLISTIC_WEAPON,
+      );
       expect(state.equipment[0].weight).toBe(7);
       expect(state.equipment[0].criticalSlots).toBe(3);
     });
@@ -696,16 +721,16 @@ describe('UnitLoaderService', () => {
 
       const serialized = createMockSerializedUnit({
         techBase: 'Inner Sphere',
-        equipment: [
-          { id: 'rotary-ac-5', location: 'Left Arm' },
-        ],
+        equipment: [{ id: 'rotary-ac-5', location: 'Left Arm' }],
       });
       const state = service.mapToUnitState(serialized, true);
 
       expect(state.equipment).toHaveLength(1);
       expect(state.equipment[0].equipmentId).toBe('rac-5');
       expect(state.equipment[0].name).toBe('Rotary AC/5');
-      expect(state.equipment[0].category).toBe(EquipmentCategory.BALLISTIC_WEAPON);
+      expect(state.equipment[0].category).toBe(
+        EquipmentCategory.BALLISTIC_WEAPON,
+      );
     });
 
     it('should resolve light-ac-5 to lac-5 through normalization', () => {
@@ -730,9 +755,7 @@ describe('UnitLoaderService', () => {
 
       const serialized = createMockSerializedUnit({
         techBase: 'Inner Sphere',
-        equipment: [
-          { id: 'light-ac-5', location: 'Right Arm' },
-        ],
+        equipment: [{ id: 'light-ac-5', location: 'Right Arm' }],
       });
       const state = service.mapToUnitState(serialized, true);
 
@@ -764,7 +787,7 @@ describe('UnitLoaderService', () => {
       const serialized = createMockSerializedUnit({
         techBase: 'Clan',
         equipment: [
-          { id: 'ultra-ac-5', location: 'Right Torso' },  // No clan prefix, but unit is Clan
+          { id: 'ultra-ac-5', location: 'Right Torso' }, // No clan prefix, but unit is Clan
         ],
       });
       const state = service.mapToUnitState(serialized, true);
@@ -777,7 +800,11 @@ describe('UnitLoaderService', () => {
     it('should fallback to placeholder for truly unknown equipment', () => {
       mockEquipmentLookupService.getById.mockReturnValue(undefined);
       mockRegistry.isReady.mockReturnValue(true);
-      mockRegistry.lookup.mockReturnValue({ found: false, equipment: null, category: null });
+      mockRegistry.lookup.mockReturnValue({
+        found: false,
+        equipment: null,
+        category: null,
+      });
 
       const serialized = createMockSerializedUnit({
         equipment: [
@@ -789,7 +816,9 @@ describe('UnitLoaderService', () => {
       expect(state.equipment).toHaveLength(1);
       expect(state.equipment[0].equipmentId).toBe('unknown-super-weapon-999');
       expect(state.equipment[0].name).toBe('unknown-super-weapon-999');
-      expect(state.equipment[0].category).toBe(EquipmentCategory.MISC_EQUIPMENT);
+      expect(state.equipment[0].category).toBe(
+        EquipmentCategory.MISC_EQUIPMENT,
+      );
       expect(state.equipment[0].weight).toBe(0);
       expect(state.equipment[0].criticalSlots).toBe(1);
     });
@@ -816,9 +845,7 @@ describe('UnitLoaderService', () => {
 
       const serialized = createMockSerializedUnit({
         techBase: 'Inner Sphere',
-        equipment: [
-          { id: 'lb-10-x-ac', location: 'Right Arm' },
-        ],
+        equipment: [{ id: 'lb-10-x-ac', location: 'Right Arm' }],
       });
       const state = service.mapToUnitState(serialized, true);
 
@@ -848,9 +875,7 @@ describe('UnitLoaderService', () => {
 
       const serialized = createMockSerializedUnit({
         techBase: 'Inner Sphere',
-        equipment: [
-          { id: 'ultra-ac-5-ammo', location: 'Right Torso' },
-        ],
+        equipment: [{ id: 'ultra-ac-5-ammo', location: 'Right Torso' }],
       });
       const state = service.mapToUnitState(serialized, true);
 
@@ -861,4 +886,3 @@ describe('UnitLoaderService', () => {
     });
   });
 });
-

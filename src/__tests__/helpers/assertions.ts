@@ -1,6 +1,6 @@
 /**
  * Custom Jest Assertions
- * 
+ *
  * Extends Jest's expect with BattleTech-specific matchers.
  */
 
@@ -13,16 +13,16 @@ const WEIGHT_TOLERANCE = 0.5;
 
 /**
  * Custom matcher: toBeValidWeight
- * 
+ *
  * Checks if a weight is within half-ton tolerance of expected value.
  */
 function toBeValidWeight(
   this: jest.MatcherContext,
   received: number,
-  expected: number
+  expected: number,
 ): jest.CustomMatcherResult {
   const pass = Math.abs(received - expected) <= WEIGHT_TOLERANCE;
-  
+
   return {
     pass,
     message: () =>
@@ -34,15 +34,15 @@ function toBeValidWeight(
 
 /**
  * Custom matcher: toBeHalfTonIncrement
- * 
+ *
  * Checks if a weight is a valid half-ton increment (0.5, 1.0, 1.5, etc.)
  */
 function toBeHalfTonIncrement(
   this: jest.MatcherContext,
-  received: number
+  received: number,
 ): jest.CustomMatcherResult {
   const isHalfTon = received === roundToHalfTon(received);
-  
+
   return {
     pass: isHalfTon,
     message: () =>
@@ -54,17 +54,17 @@ function toBeHalfTonIncrement(
 
 /**
  * Custom matcher: toBeWithinRange
- * 
+ *
  * Checks if a number is within a specified range (inclusive).
  */
 function toBeWithinRange(
   this: jest.MatcherContext,
   received: number,
   min: number,
-  max: number
+  max: number,
 ): jest.CustomMatcherResult {
   const pass = received >= min && received <= max;
-  
+
   return {
     pass,
     message: () =>
@@ -76,16 +76,16 @@ function toBeWithinRange(
 
 /**
  * Custom matcher: toBeMultipleOf
- * 
+ *
  * Checks if a number is a multiple of another number.
  */
 function toBeMultipleOf(
   this: jest.MatcherContext,
   received: number,
-  multiple: number
+  multiple: number,
 ): jest.CustomMatcherResult {
   const pass = received % multiple === 0;
-  
+
   return {
     pass,
     message: () =>
@@ -97,46 +97,46 @@ function toBeMultipleOf(
 
 /**
  * Custom matcher: toHaveValidationError
- * 
+ *
  * Checks if a validation result contains a specific error code.
  */
 function toHaveValidationError(
   this: jest.MatcherContext,
   received: { errors: Array<{ code: string }> },
-  errorCode: string
+  errorCode: string,
 ): jest.CustomMatcherResult {
-  const hasError = received.errors.some(e => e.code === errorCode);
-  
+  const hasError = received.errors.some((e) => e.code === errorCode);
+
   return {
     pass: hasError,
     message: () =>
       hasError
         ? `expected validation result not to have error '${errorCode}'`
-        : `expected validation result to have error '${errorCode}', found: ${received.errors.map(e => e.code).join(', ')}`,
+        : `expected validation result to have error '${errorCode}', found: ${received.errors.map((e) => e.code).join(', ')}`,
   };
 }
 
 /**
  * Custom matcher: toBeValidEngineRating
- * 
+ *
  * Checks if an engine rating is valid (10-500, multiple of 5).
  */
 function toBeValidEngineRating(
   this: jest.MatcherContext,
-  received: number
+  received: number,
 ): jest.CustomMatcherResult {
-  const isValid = 
+  const isValid =
     Number.isInteger(received) &&
     received >= 10 &&
     received <= 400 &&
     received % 5 === 0;
-  
+
   const issues: string[] = [];
   if (!Number.isInteger(received)) issues.push('not an integer');
   if (received < 10) issues.push('below minimum 10');
   if (received > 400) issues.push('above maximum 400');
   if (received % 5 !== 0) issues.push('not a multiple of 5');
-  
+
   return {
     pass: isValid,
     message: () =>
@@ -148,15 +148,15 @@ function toBeValidEngineRating(
 
 /**
  * Custom matcher: toBeValidSlotCount
- * 
+ *
  * Checks if a slot count is valid (non-negative integer).
  */
 function toBeValidSlotCount(
   this: jest.MatcherContext,
-  received: number
+  received: number,
 ): jest.CustomMatcherResult {
   const isValid = Number.isInteger(received) && received >= 0;
-  
+
   return {
     pass: isValid,
     message: () =>
@@ -186,7 +186,7 @@ export function registerBattleTechMatchers(): void {
  * Note: namespace is required here to augment Jest's Matchers interface
  */
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
+  // oxlint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
     interface Matchers<R> {
       toBeValidWeight(expected: number): R;
@@ -202,4 +202,3 @@ declare global {
 
 // Auto-register matchers when this module is imported
 registerBattleTechMatchers();
-

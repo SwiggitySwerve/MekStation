@@ -1,9 +1,10 @@
-/* eslint-disable no-restricted-syntax */
 import { renderHook } from '@testing-library/react';
-import { useArmorValidation } from '../useArmorValidation';
+
 import { useUnitStore } from '@/stores/useUnitStore';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+
+import { useArmorValidation } from '../useArmorValidation';
 
 // Mock the unit store
 jest.mock('@/stores/useUnitStore');
@@ -33,12 +34,13 @@ describe('useArmorValidation', () => {
       [MechLocation.REAR_RIGHT_LEG]: 0,
     };
 
-    (useUnitStore as unknown as jest.Mock).mockImplementation((selector: (state: unknown) => unknown) =>
-      selector({
-        tonnage: 50,
-        armorAllocation: mockAllocation,
-        configuration: MechConfiguration.BIPED,
-      })
+    (useUnitStore as unknown as jest.Mock).mockImplementation(
+      (selector: (state: unknown) => unknown) =>
+        selector({
+          tonnage: 50,
+          armorAllocation: mockAllocation,
+          configuration: MechConfiguration.BIPED,
+        }),
     );
 
     const { result } = renderHook(() => useArmorValidation());
@@ -69,12 +71,13 @@ describe('useArmorValidation', () => {
       [MechLocation.REAR_RIGHT_LEG]: 0,
     };
 
-    (useUnitStore as unknown as jest.Mock).mockImplementation((selector: (state: unknown) => unknown) =>
-      selector({
-        tonnage: 50,
-        armorAllocation: mockAllocation,
-        configuration: MechConfiguration.BIPED,
-      })
+    (useUnitStore as unknown as jest.Mock).mockImplementation(
+      (selector: (state: unknown) => unknown) =>
+        selector({
+          tonnage: 50,
+          armorAllocation: mockAllocation,
+          configuration: MechConfiguration.BIPED,
+        }),
     );
 
     const { result } = renderHook(() => useArmorValidation());
@@ -110,12 +113,13 @@ describe('useArmorValidation', () => {
       [MechLocation.REAR_RIGHT_LEG]: 15,
     };
 
-    (useUnitStore as unknown as jest.Mock).mockImplementation((selector: (state: unknown) => unknown) =>
-      selector({
-        tonnage: 50,
-        armorAllocation: mockAllocation,
-        configuration: MechConfiguration.QUAD,
-      })
+    (useUnitStore as unknown as jest.Mock).mockImplementation(
+      (selector: (state: unknown) => unknown) =>
+        selector({
+          tonnage: 50,
+          armorAllocation: mockAllocation,
+          configuration: MechConfiguration.QUAD,
+        }),
     );
 
     const { result } = renderHook(() => useArmorValidation());
@@ -147,12 +151,13 @@ describe('useArmorValidation', () => {
       [MechLocation.REAR_RIGHT_LEG]: 0,
     };
 
-    (useUnitStore as unknown as jest.Mock).mockImplementation((selector: (state: unknown) => unknown) =>
-      selector({
-        tonnage: 0,
-        armorAllocation: mockAllocation,
-        configuration: MechConfiguration.BIPED,
-      })
+    (useUnitStore as unknown as jest.Mock).mockImplementation(
+      (selector: (state: unknown) => unknown) =>
+        selector({
+          tonnage: 0,
+          armorAllocation: mockAllocation,
+          configuration: MechConfiguration.BIPED,
+        }),
     );
 
     const { result } = renderHook(() => useArmorValidation());

@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+dist
+coverage
+.disabled
+desktop
+scripts
+.github
+.worktrees
+openspec
+.storybook
+storybook-static
+playwright-report
+public/record-sheets

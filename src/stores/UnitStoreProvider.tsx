@@ -1,19 +1,22 @@
 /**
  * Unit Store Provider
- * 
+ *
  * React component that provides the active unit's store via context.
  * Child components can use useUnitStore() to access the current unit's state.
- * 
+ *
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 
 import React, { useMemo } from 'react';
 import { StoreApi } from 'zustand';
-import { UnitStoreContext } from './useUnitStore';
-import type { UnitStore } from './useUnitStore';
+
 import { TechBase } from '@/types/enums/TechBase';
+
+import type { UnitStore } from './useUnitStore';
+
 // Registry has SSR guards internally, safe to import directly
 import { hydrateOrCreateUnit } from './unitStoreRegistry';
+import { UnitStoreContext } from './useUnitStore';
 
 // =============================================================================
 // Types
@@ -40,7 +43,7 @@ interface UnitStoreProviderProps {
 
 /**
  * Provides the active unit's store to child components
- * 
+ *
  * Key design decisions:
  * - Receives activeTab as prop (not from hooks) to avoid hook ordering issues
  * - Registry functions have internal SSR guards
@@ -58,12 +61,12 @@ export function UnitStoreProvider({
     if (!activeTab) {
       return null;
     }
-    
+
     // SSR check - don't create stores on server
     if (typeof window === 'undefined') {
       return null;
     }
-    
+
     // Get or create the store for this tab
     try {
       return hydrateOrCreateUnit(activeTab.id, {
@@ -75,23 +78,23 @@ export function UnitStoreProvider({
       console.error('Error creating unit store:', e);
       return null;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- only recreate store when specific tab properties change, not on every activeTab reference change
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- only recreate store when specific tab properties change, not on every activeTab reference change
   }, [activeTab?.id, activeTab?.name, activeTab?.tonnage, activeTab?.techBase]);
-  
+
   // No active tab selected - show fallback
   if (!activeTab) {
     return <>{fallback}</>;
   }
-  
+
   // Store not yet created (SSR or error)
   if (!currentStore) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex flex-1 items-center justify-center">
         <div className="text-slate-400">Loading unit...</div>
       </div>
     );
   }
-  
+
   // Provide store to children
   return (
     <UnitStoreContext.Provider value={currentStore}>

@@ -1,24 +1,26 @@
 {
   "name": "mekstation-app",
   "version": "0.1.0",
+  "private": true,
   "description": "BattleTech unit construction and customization tool",
+  "license": "SEE LICENSE IN LICENSE",
   "author": {
     "name": "SwerveLabs",
     "email": "swervelabs@proton.me"
   },
-  "license": "SEE LICENSE IN LICENSE",
-  "private": true,
   "scripts": {
     "dev": "npx kill-port 3000 --silent && next dev",
     "dev:e2e": "npx kill-port 3000 --silent && next dev --webpack",
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",
-    "lint": "eslint . --config eslint.config.mjs",
-    "lint:fix": "eslint . --config eslint.config.mjs --fix",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "verify": "npm run typecheck && npm run lint && npm run test -- --watchAll=false",
-    "verify:full": "npm run typecheck && npm run lint && npm run test -- --watchAll=false && npm run build",
+    "verify": "npm run typecheck && npm run lint && npm run format:check && npm run test -- --watchAll=false",
+    "verify:full": "npm run typecheck && npm run lint && npm run format:check && npm run test -- --watchAll=false && npm run build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -124,11 +126,7 @@
     "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
-    "@eslint/config-array": "^0.20.1",
-    "@eslint/eslintrc": "^3.0.0",
-    "@next/eslint-plugin-next": "^15.3.3",
     "@playwright/test": "^1.57.0",
-    "@rushstack/eslint-patch": "^1.11.0",
     "@storybook/addon-a11y": "^8.6.15",
     "@storybook/addon-essentials": "^8.6.14",
     "@storybook/addon-interactions": "^8.6.14",
@@ -150,16 +148,10 @@
     "@types/react-dom": "^19.1.6",
     "@types/react-window": "^1.8.8",
     "@types/webpack-bundle-analyzer": "^4.7.0",
-    "@typescript-eslint/eslint-plugin": "^8.48.0",
-    "@typescript-eslint/parser": "^8.48.0",
     "@xmldom/xmldom": "^0.8.11",
     "babel-jest": "^30.0.0",
     "baseline-browser-mapping": "^2.9.17",
     "eslint": "^9.39.1",
-    "eslint-config-next": "^15.5.6",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
     "fake-indexeddb": "^6.2.5",
     "husky": "^9.1.7",
     "identity-obj-proxy": "^3.0.0",
@@ -170,13 +162,14 @@
     "lint-staged": "^16.2.7",
     "minimatch": "^3.1.2",
     "node-mocks-http": "^1.17.2",
+    "oxfmt": "^0.28.0",
+    "oxlint": "^1.43.0",
     "playwright": "^1.57.0",
     "sharp": "^0.34.5",
     "storybook": "^8.6.15",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.34.0",
     "webpack-bundle-analyzer": "^4.10.1"
   },
   "overrides": {
@@ -184,11 +177,16 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint --config eslint.config.mjs --fix",
+      "oxlint --fix",
+      "oxfmt --write",
       "bash -c 'npx tsc --noEmit --skipLibCheck'"
     ],
     "*.{js,jsx}": [
-      "eslint --config eslint.config.mjs --fix"
+      "oxlint --fix",
+      "oxfmt --write"
+    ],
+    "*.{json,md,yml,yaml,css}": [
+      "oxfmt --write"
     ]
   }
 }

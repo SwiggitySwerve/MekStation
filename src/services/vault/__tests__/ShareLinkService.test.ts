@@ -6,10 +6,6 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import {
-  ShareLinkService,
-  ICreateShareLinkOptions,
-} from '@/services/vault/ShareLinkService';
 import type {
   IShareLink,
   IShareLinkOptions,
@@ -17,6 +13,11 @@ import type {
   PermissionScopeType,
   ContentCategory,
 } from '@/types/vault';
+
+import {
+  ShareLinkService,
+  ICreateShareLinkOptions,
+} from '@/services/vault/ShareLinkService';
 
 // =============================================================================
 // Mock Repository
@@ -30,7 +31,7 @@ class MockShareLinkRepository {
     scopeType: PermissionScopeType,
     scopeId: string | null,
     scopeCategory: ContentCategory | null,
-    options: IShareLinkOptions
+    options: IShareLinkOptions,
   ): Promise<IShareLink> {
     const id = `link-mock-${++this.idCounter}`;
     const token = `test-token-${this.idCounter}`;
@@ -71,10 +72,10 @@ class MockShareLinkRepository {
 
   async getByItem(
     scopeType: PermissionScopeType,
-    scopeId: string
+    scopeId: string,
   ): Promise<IShareLink[]> {
     return Array.from(this.links.values()).filter(
-      (l) => l.scopeType === scopeType && l.scopeId === scopeId
+      (l) => l.scopeType === scopeType && l.scopeId === scopeId,
     );
   }
 
@@ -90,23 +91,47 @@ class MockShareLinkRepository {
     const link = await this.getByToken(token);
 
     if (!link) {
-      return { success: false, error: { message: 'Share link not found', errorCode: 'NOT_FOUND' as const } };
+      return {
+        success: false,
+        error: {
+          message: 'Share link not found',
+          errorCode: 'NOT_FOUND' as const,
+        },
+      };
     }
 
     if (!link.isActive) {
-      return { success: false, error: { message: 'Share link is inactive', errorCode: 'INACTIVE' as const } };
+      return {
+        success: false,
+        error: {
+          message: 'Share link is inactive',
+          errorCode: 'INACTIVE' as const,
+        },
+      };
     }
 
     if (link.expiresAt) {
       const now = new Date();
       const expiry = new Date(link.expiresAt);
       if (now > expiry) {
-        return { success: false, error: { message: 'Share link has expired', errorCode: 'EXPIRED' as const } };
+        return {
+          success: false,
+          error: {
+            message: 'Share link has expired',
+            errorCode: 'EXPIRED' as const,
+          },
+        };
       }
     }
 
     if (link.maxUses !== null && link.useCount >= link.maxUses) {
-      return { success: false, error: { message: 'Share link has reached maximum uses', errorCode: 'MAX_USES' as const } };
+      return {
+        success: false,
+        error: {
+          message: 'Share link has reached maximum uses',
+          errorCode: 'MAX_USES' as const,
+        },
+      };
     }
 
     // Increment use count
@@ -157,7 +182,7 @@ class MockShareLinkRepository {
 
   async deleteByItem(
     scopeType: PermissionScopeType,
-    scopeId: string
+    scopeId: string,
   ): Promise<number> {
     let count = 0;
     const entries = Array.from(this.links.entries());
@@ -200,7 +225,7 @@ describe('ShareLinkService', () => {
 
   beforeEach(() => {
     mockRepo = new MockShareLinkRepository();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     service = new ShareLinkService(mockRepo as any, 'mekstation://share');
   });
 
@@ -349,7 +374,9 @@ describe('ShareLinkService', () => {
       });
 
       it('should extract from web URL', () => {
-        const token = service.extractToken('https://example.com/share/abc123xyz');
+        const token = service.extractToken(
+          'https://example.com/share/abc123xyz',
+        );
         expect(token).toBe('abc123xyz');
       });
 
@@ -547,7 +574,10 @@ describe('ShareLinkService', () => {
         level: 'read',
       });
 
-      const result = await service.updateLabel(createResult.link!.id, 'New Label');
+      const result = await service.updateLabel(
+        createResult.link!.id,
+        'New Label',
+      );
 
       expect(result.success).toBe(true);
       expect(result.link?.label).toBe('New Label');
@@ -577,7 +607,10 @@ describe('ShareLinkService', () => {
       });
 
       const newExpiry = new Date(Date.now() + 86400000).toISOString();
-      const result = await service.updateExpiry(createResult.link!.id, newExpiry);
+      const result = await service.updateExpiry(
+        createResult.link!.id,
+        newExpiry,
+      );
 
       expect(result.success).toBe(true);
       expect(result.link?.expiresAt).toBe(newExpiry);
@@ -629,9 +662,21 @@ describe('ShareLinkService', () => {
 
   describe('deleteAllForItem', () => {
     it('should delete all links for item', async () => {
-      await service.create({ scopeType: 'item', scopeId: 'unit-1', level: 'read' });
-      await service.create({ scopeType: 'item', scopeId: 'unit-1', level: 'write' });
-      await service.create({ scopeType: 'item', scopeId: 'unit-2', level: 'read' });
+      await service.create({
+        scopeType: 'item',
+        scopeId: 'unit-1',
+        level: 'read',
+      });
+      await service.create({
+        scopeType: 'item',
+        scopeId: 'unit-1',
+        level: 'write',
+      });
+      await service.create({
+        scopeType: 'item',
+        scopeId: 'unit-2',
+        level: 'read',
+      });
 
       const count = await service.deleteAllForItem('item', 'unit-1');
 

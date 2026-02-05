@@ -5,14 +5,6 @@
  */
 
 import {
-  KeyMomentDetector,
-  type BattleState,
-  type BattleUnit,
-  type ICriticalHitPayload,
-  type IAmmoExplosionPayload,
-  type IHeatEffectAppliedPayload,
-} from '../KeyMomentDetector';
-import {
   GameEventType,
   GamePhase,
   GameSide,
@@ -23,6 +15,15 @@ import {
   type IAttackResolvedPayload,
   type IPilotHitPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
+
+import {
+  KeyMomentDetector,
+  type BattleState,
+  type BattleUnit,
+  type ICriticalHitPayload,
+  type IAmmoExplosionPayload,
+  type IHeatEffectAppliedPayload,
+} from '../KeyMomentDetector';
 
 // =============================================================================
 // Test Helpers
@@ -49,19 +50,38 @@ function createEvent(
     phase: GamePhase.WeaponAttack,
     ...overrides,
     type,
-    // eslint-disable-next-line no-restricted-syntax
     payload: payload as unknown as GameEventPayload,
   };
 }
 
-function createBattleUnit(overrides: Partial<BattleUnit> & { id: string }): BattleUnit {
+function createBattleUnit(
+  overrides: Partial<BattleUnit> & { id: string },
+): BattleUnit {
   return {
     name: overrides.id,
     side: GameSide.Player,
     bv: 1000,
     weaponIds: ['ac20', 'ml1', 'ml2'],
-    initialArmor: { head: 9, ct: 25, lt: 20, rt: 20, la: 15, ra: 15, ll: 15, rl: 15 },
-    initialStructure: { head: 3, ct: 16, lt: 12, rt: 12, la: 8, ra: 8, ll: 10, rl: 10 },
+    initialArmor: {
+      head: 9,
+      ct: 25,
+      lt: 20,
+      rt: 20,
+      la: 15,
+      ra: 15,
+      ll: 15,
+      rl: 15,
+    },
+    initialStructure: {
+      head: 3,
+      ct: 16,
+      lt: 12,
+      rt: 12,
+      la: 8,
+      ra: 8,
+      ll: 10,
+      rl: 10,
+    },
     ...overrides,
   };
 }
@@ -69,12 +89,42 @@ function createBattleUnit(overrides: Partial<BattleUnit> & { id: string }): Batt
 function createStandardBattleState(): BattleState {
   return {
     units: [
-      createBattleUnit({ id: 'atlas', name: 'Atlas AS7-D', side: GameSide.Player, bv: 1800 }),
-      createBattleUnit({ id: 'marauder', name: 'Marauder MAD-3R', side: GameSide.Player, bv: 1200 }),
-      createBattleUnit({ id: 'hunchback', name: 'Hunchback HBK-4G', side: GameSide.Player, bv: 900 }),
-      createBattleUnit({ id: 'timberwolf', name: 'Timber Wolf Prime', side: GameSide.Opponent, bv: 2000 }),
-      createBattleUnit({ id: 'madcat', name: 'Mad Cat Mk II', side: GameSide.Opponent, bv: 1500 }),
-      createBattleUnit({ id: 'stormcrow', name: 'Storm Crow Prime', side: GameSide.Opponent, bv: 800 }),
+      createBattleUnit({
+        id: 'atlas',
+        name: 'Atlas AS7-D',
+        side: GameSide.Player,
+        bv: 1800,
+      }),
+      createBattleUnit({
+        id: 'marauder',
+        name: 'Marauder MAD-3R',
+        side: GameSide.Player,
+        bv: 1200,
+      }),
+      createBattleUnit({
+        id: 'hunchback',
+        name: 'Hunchback HBK-4G',
+        side: GameSide.Player,
+        bv: 900,
+      }),
+      createBattleUnit({
+        id: 'timberwolf',
+        name: 'Timber Wolf Prime',
+        side: GameSide.Opponent,
+        bv: 2000,
+      }),
+      createBattleUnit({
+        id: 'madcat',
+        name: 'Mad Cat Mk II',
+        side: GameSide.Opponent,
+        bv: 1500,
+      }),
+      createBattleUnit({
+        id: 'stormcrow',
+        name: 'Storm Crow Prime',
+        side: GameSide.Opponent,
+        bv: 800,
+      }),
     ],
   };
 }
@@ -483,7 +533,12 @@ describe('KeyMomentDetector', () => {
       it('detects unit with 3+ kills', () => {
         const state: BattleState = {
           units: [
-            createBattleUnit({ id: 'ace', name: 'Ace Mech', side: GameSide.Player, bv: 2000 }),
+            createBattleUnit({
+              id: 'ace',
+              name: 'Ace Mech',
+              side: GameSide.Player,
+              bv: 2000,
+            }),
             createBattleUnit({ id: 'o1', side: GameSide.Opponent, bv: 500 }),
             createBattleUnit({ id: 'o2', side: GameSide.Opponent, bv: 500 }),
             createBattleUnit({ id: 'o3', side: GameSide.Opponent, bv: 500 }),
@@ -557,7 +612,9 @@ describe('KeyMomentDetector', () => {
       it('detects damage to head location', () => {
         const state = createStandardBattleState();
         const events = [
-          damageAppliedEvent('timberwolf', 'head', 10, 0, 2, { sourceUnitId: 'atlas' }),
+          damageAppliedEvent('timberwolf', 'head', 10, 0, 2, {
+            sourceUnitId: 'atlas',
+          }),
         ];
 
         const moments = detector.detect(events, state);
@@ -572,8 +629,12 @@ describe('KeyMomentDetector', () => {
       it('allows multiple head shots', () => {
         const state = createStandardBattleState();
         const events = [
-          damageAppliedEvent('timberwolf', 'head', 5, 4, 3, { sourceUnitId: 'atlas' }),
-          damageAppliedEvent('madcat', 'head', 8, 1, 3, { sourceUnitId: 'marauder' }),
+          damageAppliedEvent('timberwolf', 'head', 5, 4, 3, {
+            sourceUnitId: 'atlas',
+          }),
+          damageAppliedEvent('madcat', 'head', 8, 1, 3, {
+            sourceUnitId: 'marauder',
+          }),
         ];
 
         const moments = detector.detect(events, state);
@@ -585,7 +646,9 @@ describe('KeyMomentDetector', () => {
       it('ignores damage to non-head locations', () => {
         const state = createStandardBattleState();
         const events = [
-          damageAppliedEvent('timberwolf', 'ct', 20, 5, 16, { sourceUnitId: 'atlas' }),
+          damageAppliedEvent('timberwolf', 'ct', 20, 5, 16, {
+            sourceUnitId: 'atlas',
+          }),
         ];
 
         const moments = detector.detect(events, state);
@@ -656,7 +719,9 @@ describe('KeyMomentDetector', () => {
     describe('critical-engine', () => {
       it('detects engine critical hit', () => {
         const state = createStandardBattleState();
-        const events = [criticalHitEvent('timberwolf', 'ct', 'engine', 'atlas')];
+        const events = [
+          criticalHitEvent('timberwolf', 'ct', 'engine', 'atlas'),
+        ];
 
         const moments = detector.detect(events, state);
 
@@ -669,7 +734,9 @@ describe('KeyMomentDetector', () => {
 
       it('ignores non-engine criticals', () => {
         const state = createStandardBattleState();
-        const events = [criticalHitEvent('timberwolf', 'ct', 'heat_sink', 'atlas')];
+        const events = [
+          criticalHitEvent('timberwolf', 'ct', 'heat_sink', 'atlas'),
+        ];
 
         const moments = detector.detect(events, state);
 
@@ -768,8 +835,12 @@ describe('KeyMomentDetector', () => {
         const state = createStandardBattleState();
         const events = [
           attackResolvedEvent('atlas', 'timberwolf', 'ac20', true, { turn: 1 }),
-          attackResolvedEvent('marauder', 'timberwolf', 'ppc', true, { turn: 1 }),
-          attackResolvedEvent('hunchback', 'timberwolf', 'ac20', true, { turn: 1 }),
+          attackResolvedEvent('marauder', 'timberwolf', 'ppc', true, {
+            turn: 1,
+          }),
+          attackResolvedEvent('hunchback', 'timberwolf', 'ac20', true, {
+            turn: 1,
+          }),
         ];
 
         const moments = detector.detect(events, state);
@@ -784,7 +855,9 @@ describe('KeyMomentDetector', () => {
         const state = createStandardBattleState();
         const events = [
           attackResolvedEvent('atlas', 'timberwolf', 'ac20', true, { turn: 1 }),
-          attackResolvedEvent('marauder', 'timberwolf', 'ppc', true, { turn: 1 }),
+          attackResolvedEvent('marauder', 'timberwolf', 'ppc', true, {
+            turn: 1,
+          }),
         ];
 
         const moments = detector.detect(events, state);
@@ -797,8 +870,12 @@ describe('KeyMomentDetector', () => {
         const state = createStandardBattleState();
         const events = [
           attackResolvedEvent('atlas', 'timberwolf', 'ac20', true, { turn: 1 }),
-          attackResolvedEvent('marauder', 'timberwolf', 'ppc', true, { turn: 1 }),
-          attackResolvedEvent('hunchback', 'timberwolf', 'ac20', true, { turn: 1 }),
+          attackResolvedEvent('marauder', 'timberwolf', 'ppc', true, {
+            turn: 1,
+          }),
+          attackResolvedEvent('hunchback', 'timberwolf', 'ac20', true, {
+            turn: 1,
+          }),
           attackResolvedEvent('atlas', 'timberwolf', 'ml1', true, { turn: 1 }),
         ];
 
@@ -812,8 +889,12 @@ describe('KeyMomentDetector', () => {
         const state = createStandardBattleState();
         const events = [
           attackResolvedEvent('atlas', 'timberwolf', 'ac20', true, { turn: 1 }),
-          attackResolvedEvent('marauder', 'timberwolf', 'ppc', true, { turn: 1 }),
-          attackResolvedEvent('hunchback', 'timberwolf', 'ac20', true, { turn: 2 }),
+          attackResolvedEvent('marauder', 'timberwolf', 'ppc', true, {
+            turn: 1,
+          }),
+          attackResolvedEvent('hunchback', 'timberwolf', 'ac20', true, {
+            turn: 2,
+          }),
         ];
 
         const moments = detector.detect(events, state);
@@ -856,7 +937,9 @@ describe('KeyMomentDetector', () => {
     describe('mobility-kill', () => {
       it('detects leg actuator critical hit', () => {
         const state = createStandardBattleState();
-        const events = [criticalHitEvent('timberwolf', 'left_leg', 'hip', 'atlas')];
+        const events = [
+          criticalHitEvent('timberwolf', 'left_leg', 'hip', 'atlas'),
+        ];
 
         const moments = detector.detect(events, state);
 
@@ -868,7 +951,12 @@ describe('KeyMomentDetector', () => {
       it('detects various leg actuator types', () => {
         const state = createStandardBattleState();
         const events = [
-          criticalHitEvent('timberwolf', 'right_leg', 'upper_leg_actuator', 'atlas'),
+          criticalHitEvent(
+            'timberwolf',
+            'right_leg',
+            'upper_leg_actuator',
+            'atlas',
+          ),
         ];
 
         const moments = detector.detect(events, state);
@@ -881,7 +969,12 @@ describe('KeyMomentDetector', () => {
         const state = createStandardBattleState();
         const events = [
           criticalHitEvent('timberwolf', 'left_leg', 'hip', 'atlas'),
-          criticalHitEvent('timberwolf', 'right_leg', 'lower_leg_actuator', 'atlas'),
+          criticalHitEvent(
+            'timberwolf',
+            'right_leg',
+            'lower_leg_actuator',
+            'atlas',
+          ),
         ];
 
         const moments = detector.detect(events, state);
@@ -892,7 +985,9 @@ describe('KeyMomentDetector', () => {
 
       it('ignores non-leg actuator crits', () => {
         const state = createStandardBattleState();
-        const events = [criticalHitEvent('timberwolf', 'ct', 'heat_sink', 'atlas')];
+        const events = [
+          criticalHitEvent('timberwolf', 'ct', 'heat_sink', 'atlas'),
+        ];
 
         const moments = detector.detect(events, state);
 
@@ -1004,7 +1099,9 @@ describe('KeyMomentDetector', () => {
 
       it('ignores attacks without facing info', () => {
         const state = createStandardBattleState();
-        const events = [attackResolvedEvent('atlas', 'timberwolf', 'ac20', true)];
+        const events = [
+          attackResolvedEvent('atlas', 'timberwolf', 'ac20', true),
+        ];
 
         const moments = detector.detect(events, state);
 
@@ -1055,7 +1152,9 @@ describe('KeyMomentDetector', () => {
         };
         // Armor is 20, structure is 16. Damage is 10. damageToStructure = max(0, 10-20) = 0
         const events = [
-          damageAppliedEvent('target', 'ct', 10, 10, 16, { sourceUnitId: 'attacker' }),
+          damageAppliedEvent('target', 'ct', 10, 10, 16, {
+            sourceUnitId: 'attacker',
+          }),
         ];
 
         const moments = detector.detect(events, state);
@@ -1107,9 +1206,7 @@ describe('KeyMomentDetector', () => {
 
     it('handles empty battle state', () => {
       const state: BattleState = { units: [] };
-      const events = [
-        createEvent(GameEventType.TurnStarted, {}, { turn: 1 }),
-      ];
+      const events = [createEvent(GameEventType.TurnStarted, {}, { turn: 1 })];
 
       const moments = detector.detect(events, state);
 
@@ -1139,8 +1236,24 @@ describe('KeyMomentDetector', () => {
       const state = createStandardBattleState();
       // Two head shots on same unit in same turn by same attacker produce distinct events
       const events = [
-        damageAppliedEvent('timberwolf', 'head', 5, 4, 3, { sourceUnitId: 'atlas' }, { turn: 1 }),
-        damageAppliedEvent('timberwolf', 'head', 5, 0, 2, { sourceUnitId: 'atlas' }, { turn: 1 }),
+        damageAppliedEvent(
+          'timberwolf',
+          'head',
+          5,
+          4,
+          3,
+          { sourceUnitId: 'atlas' },
+          { turn: 1 },
+        ),
+        damageAppliedEvent(
+          'timberwolf',
+          'head',
+          5,
+          0,
+          2,
+          { sourceUnitId: 'atlas' },
+          { turn: 1 },
+        ),
       ];
 
       const moments = detector.detect(events, state);
@@ -1153,7 +1266,15 @@ describe('KeyMomentDetector', () => {
     it('generates unique moment IDs', () => {
       const state = createStandardBattleState();
       const events = [
-        damageAppliedEvent('timberwolf', 'head', 5, 4, 3, { sourceUnitId: 'atlas' }, { turn: 1 }),
+        damageAppliedEvent(
+          'timberwolf',
+          'head',
+          5,
+          4,
+          3,
+          { sourceUnitId: 'atlas' },
+          { turn: 1 },
+        ),
         ammoExplosionEvent('madcat', 'lt', 20, { turn: 1 }),
         unitDestroyedEvent('stormcrow', 'marauder', { turn: 2 }),
       ];
@@ -1167,23 +1288,44 @@ describe('KeyMomentDetector', () => {
 
     it('assigns correct tier to each moment type', () => {
       const tier1Types = new Set([
-        'first-blood', 'bv-swing-major', 'comeback', 'wipe', 'last-stand', 'ace-kill',
+        'first-blood',
+        'bv-swing-major',
+        'comeback',
+        'wipe',
+        'last-stand',
+        'ace-kill',
       ]);
       const tier2Types = new Set([
-        'head-shot', 'ammo-explosion', 'pilot-kill', 'critical-engine',
-        'critical-gyro', 'alpha-strike', 'focus-fire',
+        'head-shot',
+        'ammo-explosion',
+        'pilot-kill',
+        'critical-engine',
+        'critical-gyro',
+        'alpha-strike',
+        'focus-fire',
       ]);
       const tier3Types = new Set([
-        'heat-crisis', 'mobility-kill', 'weapons-kill', 'rear-arc-hit', 'overkill',
+        'heat-crisis',
+        'mobility-kill',
+        'weapons-kill',
+        'rear-arc-hit',
+        'overkill',
       ]);
 
       const state: BattleState = {
         units: [
           createBattleUnit({
-            id: 'p1', side: GameSide.Player, bv: 1000,
+            id: 'p1',
+            side: GameSide.Player,
+            bv: 1000,
             weaponIds: ['ac20'],
           }),
-          createBattleUnit({ id: 'o1', side: GameSide.Opponent, bv: 1000, weaponIds: ['ppc'] }),
+          createBattleUnit({
+            id: 'o1',
+            side: GameSide.Opponent,
+            bv: 1000,
+            weaponIds: ['ppc'],
+          }),
         ],
       };
 
@@ -1215,10 +1357,18 @@ describe('KeyMomentDetector', () => {
       const state = createStandardBattleState();
       const events = [
         createEvent(GameEventType.TurnStarted, {}, { turn: 1 }),
-        createEvent(GameEventType.PhaseChanged, { fromPhase: 'initiative', toPhase: 'movement' }),
+        createEvent(GameEventType.PhaseChanged, {
+          fromPhase: 'initiative',
+          toPhase: 'movement',
+        }),
         createEvent(GameEventType.MovementDeclared, {
-          unitId: 'atlas', from: { q: 0, r: 0 }, to: { q: 1, r: 0 },
-          facing: 0, movementType: 'walk', mpUsed: 3, heatGenerated: 0,
+          unitId: 'atlas',
+          from: { q: 0, r: 0 },
+          to: { q: 1, r: 0 },
+          facing: 0,
+          movementType: 'walk',
+          mpUsed: 3,
+          heatGenerated: 0,
         }),
       ];
 
@@ -1229,12 +1379,12 @@ describe('KeyMomentDetector', () => {
 
     it('handles events from units not in battle state', () => {
       const state: BattleState = {
-        units: [
-          createBattleUnit({ id: 'p1', side: GameSide.Player }),
-        ],
+        units: [createBattleUnit({ id: 'p1', side: GameSide.Player })],
       };
       const events = [
-        damageAppliedEvent('unknown_unit', 'head', 10, 0, 0, { sourceUnitId: 'p1' }),
+        damageAppliedEvent('unknown_unit', 'head', 10, 0, 0, {
+          sourceUnitId: 'p1',
+        }),
       ];
 
       // Should not throw
@@ -1280,8 +1430,12 @@ describe('KeyMomentDetector', () => {
       const state = createStandardBattleState();
       const events = [
         createEvent(GameEventType.TurnStarted, {}, { turn: 1 }),
-        damageAppliedEvent('timberwolf', 'ct', 10, 15, 16, { sourceUnitId: 'atlas' }),
-        damageAppliedEvent('atlas', 'la', 5, 10, 8, { sourceUnitId: 'timberwolf' }),
+        damageAppliedEvent('timberwolf', 'ct', 10, 15, 16, {
+          sourceUnitId: 'atlas',
+        }),
+        damageAppliedEvent('atlas', 'la', 5, 10, 8, {
+          sourceUnitId: 'timberwolf',
+        }),
         createEvent(GameEventType.TurnEnded, {}, { turn: 1 }),
       ];
 
@@ -1299,7 +1453,12 @@ describe('KeyMomentDetector', () => {
     it('detects multiple tier 1 moments in sequence', () => {
       const state: BattleState = {
         units: [
-          createBattleUnit({ id: 'ace', name: 'Ace', side: GameSide.Player, bv: 2000 }),
+          createBattleUnit({
+            id: 'ace',
+            name: 'Ace',
+            side: GameSide.Player,
+            bv: 2000,
+          }),
           createBattleUnit({ id: 'o1', side: GameSide.Opponent, bv: 800 }),
           createBattleUnit({ id: 'o2', side: GameSide.Opponent, bv: 800 }),
           createBattleUnit({ id: 'o3', side: GameSide.Opponent, bv: 800 }),
@@ -1323,13 +1482,26 @@ describe('KeyMomentDetector', () => {
       const state: BattleState = {
         units: [
           createBattleUnit({ id: 'p1', side: GameSide.Player, bv: 1500 }),
-          createBattleUnit({ id: 'o1', side: GameSide.Opponent, bv: 1500, weaponIds: ['ppc'] }),
+          createBattleUnit({
+            id: 'o1',
+            side: GameSide.Opponent,
+            bv: 1500,
+            weaponIds: ['ppc'],
+          }),
         ],
       };
 
       const events = [
         criticalHitEvent('o1', 'ct', 'engine', 'p1', { turn: 3 }),
-        damageAppliedEvent('o1', 'head', 10, 0, 0, { sourceUnitId: 'p1' }, { turn: 3 }),
+        damageAppliedEvent(
+          'o1',
+          'head',
+          10,
+          0,
+          0,
+          { sourceUnitId: 'p1' },
+          { turn: 3 },
+        ),
         unitDestroyedEvent('o1', 'p1', { turn: 3 }),
       ];
 
@@ -1344,19 +1516,31 @@ describe('KeyMomentDetector', () => {
       const state: BattleState = {
         units: [
           createBattleUnit({
-            id: 'p1', name: 'Atlas', side: GameSide.Player, bv: 1800,
+            id: 'p1',
+            name: 'Atlas',
+            side: GameSide.Player,
+            bv: 1800,
             weaponIds: ['ac20', 'ml1', 'ml2'],
           }),
           createBattleUnit({
-            id: 'p2', name: 'Marauder', side: GameSide.Player, bv: 1200,
+            id: 'p2',
+            name: 'Marauder',
+            side: GameSide.Player,
+            bv: 1200,
             weaponIds: ['ppc1', 'ppc2'],
           }),
           createBattleUnit({
-            id: 'o1', name: 'Timber Wolf', side: GameSide.Opponent, bv: 2000,
+            id: 'o1',
+            name: 'Timber Wolf',
+            side: GameSide.Opponent,
+            bv: 2000,
             weaponIds: ['lrm20', 'erl1'],
           }),
           createBattleUnit({
-            id: 'o2', name: 'Mad Cat', side: GameSide.Opponent, bv: 1500,
+            id: 'o2',
+            name: 'Mad Cat',
+            side: GameSide.Opponent,
+            bv: 1500,
             weaponIds: ['lrm10', 'erl2'],
           }),
         ],
@@ -1365,13 +1549,29 @@ describe('KeyMomentDetector', () => {
       const events = [
         // Turn 1: Normal combat
         attackResolvedEvent('p1', 'o1', 'ac20', true, { turn: 1 }),
-        damageAppliedEvent('o1', 'ct', 20, 5, 16, { sourceUnitId: 'p1' }, { turn: 1 }),
+        damageAppliedEvent(
+          'o1',
+          'ct',
+          20,
+          5,
+          16,
+          { sourceUnitId: 'p1' },
+          { turn: 1 },
+        ),
 
         // Turn 2: Head shot + alpha strike
         attackResolvedEvent('p1', 'o1', 'ac20', true, { turn: 2 }),
         attackResolvedEvent('p1', 'o1', 'ml1', true, { turn: 2 }),
         attackResolvedEvent('p1', 'o1', 'ml2', true, { turn: 2 }),
-        damageAppliedEvent('o1', 'head', 5, 4, 3, { sourceUnitId: 'p1' }, { turn: 2 }),
+        damageAppliedEvent(
+          'o1',
+          'head',
+          5,
+          4,
+          3,
+          { sourceUnitId: 'p1' },
+          { turn: 2 },
+        ),
 
         // Turn 3: Focus fire + destruction
         attackResolvedEvent('p1', 'o2', 'ac20', true, { turn: 3 }),

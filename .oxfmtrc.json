@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicolo-ribaudo/oxfmt-schema/refs/heads/main/schema.json",
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "experimentalTailwindcss": {},
+  "experimentalSortImports": {}
+}

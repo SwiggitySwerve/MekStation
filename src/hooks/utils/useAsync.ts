@@ -93,7 +93,7 @@ export interface UseAsyncResult<T, Args extends unknown[]> {
  */
 export function useAsync<T, Args extends unknown[] = []>(
   asyncFn: (...args: Args) => Promise<T>,
-  options: UseAsyncOptions<T> = {}
+  options: UseAsyncOptions<T> = {},
 ): UseAsyncResult<T, Args> {
   const { initialData, immediate = false, onSuccess, onError } = options;
 
@@ -152,7 +152,7 @@ export function useAsync<T, Args extends unknown[] = []>(
       lastExecutionRef.current = doExecute;
       return doExecute();
     },
-    [asyncFn, onSuccess, onError]
+    [asyncFn, onSuccess, onError],
   );
 
   const retry = useCallback(async (): Promise<T | undefined> => {
@@ -177,7 +177,7 @@ export function useAsync<T, Args extends unknown[] = []>(
       (execute as () => Promise<T | undefined>)();
     }
     // Only run on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

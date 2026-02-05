@@ -1,11 +1,25 @@
-import { getEquipmentLoader, resetEquipmentLoader, IEquipmentFilter } from '@/services/equipment/EquipmentLoaderService';
-import { TechBase } from '@/types/enums/TechBase';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+import {
+  getEquipmentLoader,
+  resetEquipmentLoader,
+  IEquipmentFilter,
+} from '@/services/equipment/EquipmentLoaderService';
 import { EquipmentBehaviorFlag } from '@/types/enums/EquipmentFlag';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import {
+  AmmoCategory,
+  AmmoVariant,
+  IAmmunition,
+} from '@/types/equipment/AmmunitionTypes';
+import {
+  ElectronicsCategory,
+  IElectronics,
+} from '@/types/equipment/ElectronicsTypes';
+import {
+  IMiscEquipment,
+  MiscEquipmentCategory,
+} from '@/types/equipment/MiscEquipmentTypes';
 import { IWeapon, WeaponCategory } from '@/types/equipment/weapons';
-import { AmmoCategory, AmmoVariant, IAmmunition } from '@/types/equipment/AmmunitionTypes';
-import { ElectronicsCategory, IElectronics } from '@/types/equipment/ElectronicsTypes';
-import { IMiscEquipment, MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 /**
@@ -23,18 +37,23 @@ interface TestableServiceMaps {
 /**
  * Helper to access private map properties for testing.
  * Returns a typed object for setting up test state.
- * 
+ *
  * Uses Object() wrapper to access private properties without double assertions.
  */
-function getServiceMaps(svc: ReturnType<typeof getEquipmentLoader>): TestableServiceMaps {
+function getServiceMaps(
+  svc: ReturnType<typeof getEquipmentLoader>,
+): TestableServiceMaps {
   // Wrap in Object() to get indexable representation, then access private properties
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const internal: Record<string, unknown> = Object(svc);
   return {
     weapons: internal['weapons'] as Map<string, Partial<IWeapon>>,
     ammunition: internal['ammunition'] as Map<string, Partial<IAmmunition>>,
     electronics: internal['electronics'] as Map<string, Partial<IElectronics>>,
-    miscEquipment: internal['miscEquipment'] as Map<string, Partial<IMiscEquipment>>,
+    miscEquipment: internal['miscEquipment'] as Map<
+      string,
+      Partial<IMiscEquipment>
+    >,
     isLoaded: internal['isLoaded'] as boolean,
   };
 }
@@ -64,7 +83,7 @@ describe('EquipmentLoaderService', () => {
     it('should return same instance', () => {
       const instance1 = getEquipmentLoader();
       const instance2 = getEquipmentLoader();
-      
+
       expect(instance1).toBe(instance2);
     });
 
@@ -72,7 +91,7 @@ describe('EquipmentLoaderService', () => {
       const instance1 = getEquipmentLoader();
       resetEquipmentLoader();
       const instance2 = getEquipmentLoader();
-      
+
       expect(instance1).not.toBe(instance2);
     });
   });
@@ -102,11 +121,14 @@ describe('EquipmentLoaderService', () => {
     it('should clear all equipment', () => {
       // Manually add some items to test clear (accessing private properties for testing)
       const serviceInternal = getServiceMaps(service);
-      serviceInternal.weapons.set('test-weapon', { id: 'test-weapon', name: 'Test' });
+      serviceInternal.weapons.set('test-weapon', {
+        id: 'test-weapon',
+        name: 'Test',
+      });
       serviceInternal.isLoaded = true;
-      
+
       service.clear();
-      
+
       expect(service.getIsLoaded()).toBe(false);
       expect(service.getAllWeapons()).toEqual([]);
       expect(service.getLoadErrors()).toEqual([]);
@@ -128,22 +150,24 @@ describe('EquipmentLoaderService', () => {
         version: '1.0',
         generatedAt: '2024-01-01',
         count: 1,
-        items: [{
-          id: 'medium-laser',
-          name: 'Medium Laser',
-          category: 'Energy',
-          subType: 'Laser',
-          techBase: 'INNER_SPHERE',
-          rulesLevel: 'STANDARD',
-          damage: 5,
-          heat: 3,
-          ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
-          weight: 1,
-          criticalSlots: 1,
-          costCBills: 40000,
-          battleValue: 46,
-          introductionYear: 2470,
-        }],
+        items: [
+          {
+            id: 'medium-laser',
+            name: 'Medium Laser',
+            category: 'Energy',
+            subType: 'Laser',
+            techBase: 'INNER_SPHERE',
+            rulesLevel: 'STANDARD',
+            damage: 5,
+            heat: 3,
+            ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
+            weight: 1,
+            criticalSlots: 1,
+            costCBills: 40000,
+            battleValue: 46,
+            introductionYear: 2470,
+          },
+        ],
       };
 
       (global.fetch as jest.Mock)
@@ -267,20 +291,27 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true, json: async () => energy })
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({ ok: true, json: async () => energy })
         .mockResolvedValueOnce({ ok: true, json: async () => ballistic })
         .mockResolvedValueOnce({ ok: true, json: async () => missile })
         .mockResolvedValueOnce({ ok: true, json: async () => ammunition })
         .mockResolvedValueOnce({ ok: true, json: async () => electronics })
         .mockResolvedValueOnce({ ok: true, json: async () => misc });
 
-      const result = await service.loadOfficialEquipment('/data/equipment/official');
+      const result = await service.loadOfficialEquipment(
+        '/data/equipment/official',
+      );
 
       expect(result.success).toBe(true);
       expect(result.warnings).toHaveLength(0);
       expect(service.getTotalCount()).toBe(6);
-      expect(service.getWeaponById('ballistic-1')?.category).toBe(WeaponCategory.BALLISTIC);
-      expect(service.getAmmunitionById('ammo-1')?.category).toBe(AmmoCategory.AUTOCANNON);
+      expect(service.getWeaponById('ballistic-1')?.category).toBe(
+        WeaponCategory.BALLISTIC,
+      );
+      expect(service.getAmmunitionById('ammo-1')?.category).toBe(
+        AmmoCategory.AUTOCANNON,
+      );
       warnSpy.mockRestore();
     });
 
@@ -309,7 +340,10 @@ describe('EquipmentLoaderService', () => {
   });
 
   describe('loadCustomEquipment()', () => {
-    const buildFile = <T extends Record<string, unknown>>(schema: string, items: readonly T[]) => ({
+    const buildFile = <T extends Record<string, unknown>>(
+      schema: string,
+      items: readonly T[],
+    ) => ({
       $schema: schema,
       version: '1.0',
       generatedAt: '2025-01-01',
@@ -348,7 +382,9 @@ describe('EquipmentLoaderService', () => {
         json: async () => weaponFile,
       } as Response);
 
-      const result = await service.loadCustomEquipment('https://example.com/custom-weapons.json');
+      const result = await service.loadCustomEquipment(
+        'https://example.com/custom-weapons.json',
+      );
 
       expect(result.success).toBe(true);
       expect(result.itemsLoaded).toBe(1);
@@ -418,9 +454,13 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should capture errors when fetch fails', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network down'));
+      (global.fetch as jest.Mock).mockRejectedValueOnce(
+        new Error('Network down'),
+      );
 
-      const result = await service.loadCustomEquipment('https://example.com/bad.json');
+      const result = await service.loadCustomEquipment(
+        'https://example.com/bad.json',
+      );
 
       expect(result.success).toBe(false);
       expect(result.errors[0]).toContain('Failed to load custom equipment');
@@ -462,16 +502,91 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
       const ammoFile = buildFile('schemas/ammunition.json', [
-        { id: 'gauss-ammo', name: 'Gauss Ammo', category: 'Gauss', variant: 'Precision', techBase: 'CLAN', rulesLevel: 'ADVANCED', compatibleWeaponIds: ['gauss'], shotsPerTon: 8, weight: 1, criticalSlots: 1, costPerTon: 20000, battleValue: 5, isExplosive: true, introductionYear: 3055 },
-        { id: 'unknown-ammo', name: 'Unknown Ammo', category: 'Unknown', variant: 'Unknown Variant', techBase: 'IS', rulesLevel: 'STANDARD', compatibleWeaponIds: ['unknown-weapon'], shotsPerTon: 5, weight: 1, criticalSlots: 1, costPerTon: 1000, battleValue: 1, isExplosive: false, introductionYear: 3025 },
+        {
+          id: 'gauss-ammo',
+          name: 'Gauss Ammo',
+          category: 'Gauss',
+          variant: 'Precision',
+          techBase: 'CLAN',
+          rulesLevel: 'ADVANCED',
+          compatibleWeaponIds: ['gauss'],
+          shotsPerTon: 8,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 20000,
+          battleValue: 5,
+          isExplosive: true,
+          introductionYear: 3055,
+        },
+        {
+          id: 'unknown-ammo',
+          name: 'Unknown Ammo',
+          category: 'Unknown',
+          variant: 'Unknown Variant',
+          techBase: 'IS',
+          rulesLevel: 'STANDARD',
+          compatibleWeaponIds: ['unknown-weapon'],
+          shotsPerTon: 5,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 1000,
+          battleValue: 1,
+          isExplosive: false,
+          introductionYear: 3025,
+        },
       ]);
       const electronicsFile = buildFile('schemas/electronics.json', [
-        { id: 'tag', name: 'TAG', category: 'TAG', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', weight: 1, criticalSlots: 1, costCBills: 100000, battleValue: 20, introductionYear: 3050, variableEquipmentId: 'tag-variable' },
-        { id: 'unknown-electronics', name: 'Unknown Electronics', category: 'Unknown', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', weight: 0.5, criticalSlots: 1, costCBills: 20000, battleValue: 5, introductionYear: 3050 },
+        {
+          id: 'tag',
+          name: 'TAG',
+          category: 'TAG',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 100000,
+          battleValue: 20,
+          introductionYear: 3050,
+          variableEquipmentId: 'tag-variable',
+        },
+        {
+          id: 'unknown-electronics',
+          name: 'Unknown Electronics',
+          category: 'Unknown',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          weight: 0.5,
+          criticalSlots: 1,
+          costCBills: 20000,
+          battleValue: 5,
+          introductionYear: 3050,
+        },
       ]);
       const miscFile = buildFile('schemas/misc-equipment.json', [
-        { id: 'movement-enhancement', name: 'MASC', category: 'Movement Enhancement', techBase: 'INNER_SPHERE', rulesLevel: 'ADVANCED', weight: 2, criticalSlots: 2, costCBills: 200000, battleValue: 50, introductionYear: 3050 },
-        { id: 'unknown-misc', name: 'Unknown Misc', category: 'Unknown', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', weight: 1, criticalSlots: 1, costCBills: 10000, battleValue: 5, introductionYear: 3025 },
+        {
+          id: 'movement-enhancement',
+          name: 'MASC',
+          category: 'Movement Enhancement',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          weight: 2,
+          criticalSlots: 2,
+          costCBills: 200000,
+          battleValue: 50,
+          introductionYear: 3050,
+        },
+        {
+          id: 'unknown-misc',
+          name: 'Unknown Misc',
+          category: 'Unknown',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 10000,
+          battleValue: 5,
+          introductionYear: 3025,
+        },
       ]);
 
       const fileResult = await service.loadCustomEquipment(weaponFile);
@@ -480,20 +595,41 @@ describe('EquipmentLoaderService', () => {
       await service.loadCustomEquipment(electronicsFile);
       await service.loadCustomEquipment(miscFile);
 
-      expect(service.getWeaponById('physical-weapon')?.category).toBe(WeaponCategory.PHYSICAL);
-      expect(service.getWeaponById('unknown-weapon')?.category).toBe(WeaponCategory.ENERGY);
-      expect(service.getAmmunitionById('gauss-ammo')?.category).toBe(AmmoCategory.GAUSS);
-      expect(service.getAmmunitionById('unknown-ammo')?.variant).toBe(AmmoVariant.STANDARD);
-      expect(service.getElectronicsById('tag')?.category).toBe(ElectronicsCategory.TAG);
-      expect(service.getElectronicsById('unknown-electronics')?.category).toBe(ElectronicsCategory.TARGETING);
-      expect(service.getMiscEquipmentById('movement-enhancement')?.category).toBe(MiscEquipmentCategory.MOVEMENT);
-      expect(service.getMiscEquipmentById('unknown-misc')?.category).toBe(MiscEquipmentCategory.HEAT_SINK);
+      expect(service.getWeaponById('physical-weapon')?.category).toBe(
+        WeaponCategory.PHYSICAL,
+      );
+      expect(service.getWeaponById('unknown-weapon')?.category).toBe(
+        WeaponCategory.ENERGY,
+      );
+      expect(service.getAmmunitionById('gauss-ammo')?.category).toBe(
+        AmmoCategory.GAUSS,
+      );
+      expect(service.getAmmunitionById('unknown-ammo')?.variant).toBe(
+        AmmoVariant.STANDARD,
+      );
+      expect(service.getElectronicsById('tag')?.category).toBe(
+        ElectronicsCategory.TAG,
+      );
+      expect(service.getElectronicsById('unknown-electronics')?.category).toBe(
+        ElectronicsCategory.TARGETING,
+      );
+      expect(
+        service.getMiscEquipmentById('movement-enhancement')?.category,
+      ).toBe(MiscEquipmentCategory.MOVEMENT);
+      expect(service.getMiscEquipmentById('unknown-misc')?.category).toBe(
+        MiscEquipmentCategory.HEAT_SINK,
+      );
     });
 
     it('should return error when fetch response is not ok', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false, status: 500 });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      });
 
-      const result = await service.loadCustomEquipment('https://example.com/bad-status.json');
+      const result = await service.loadCustomEquipment(
+        'https://example.com/bad-status.json',
+      );
 
       expect(result.success).toBe(false);
       expect(result.errors[0]).toContain('Failed to fetch: 500');
@@ -501,14 +637,27 @@ describe('EquipmentLoaderService', () => {
 
     it('should warn on unknown schema without loading items', async () => {
       const unknownFile = buildFile('schemas/unknown.json', [
-        { id: 'mystery', name: 'Mystery', category: 'Unknown', techBase: 'IS', rulesLevel: 'STANDARD', weight: 1, criticalSlots: 1, costCBills: 1000, battleValue: 1, introductionYear: 3025 },
+        {
+          id: 'mystery',
+          name: 'Mystery',
+          category: 'Unknown',
+          techBase: 'IS',
+          rulesLevel: 'STANDARD',
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 1000,
+          battleValue: 1,
+          introductionYear: 3025,
+        },
       ]);
 
       const result = await service.loadCustomEquipment(unknownFile);
 
       expect(result.success).toBe(true);
       expect(result.itemsLoaded).toBe(0);
-      expect(result.warnings).toContain('Unknown equipment type, attempting to infer from data');
+      expect(result.warnings).toContain(
+        'Unknown equipment type, attempting to infer from data',
+      );
     });
   });
 
@@ -523,9 +672,9 @@ describe('EquipmentLoaderService', () => {
         heat: 3,
         techBase: TechBase.INNER_SPHERE,
       };
-      
+
       getServiceMaps(service).weapons.set('medium-laser', mockWeapon);
-      
+
       const weapon = service.getWeaponById('medium-laser');
       expect(weapon).toEqual(mockWeapon);
     });
@@ -571,22 +720,26 @@ describe('EquipmentLoaderService', () => {
     it('should filter by tech base', () => {
       const filter: IEquipmentFilter = { techBase: TechBase.INNER_SPHERE };
       const results = service.searchWeapons(filter);
-      
+
       expect(results.length).toBe(2);
-      expect(results.every(w => w.techBase === TechBase.INNER_SPHERE)).toBe(true);
+      expect(results.every((w) => w.techBase === TechBase.INNER_SPHERE)).toBe(
+        true,
+      );
     });
 
     it('should filter by multiple tech bases', () => {
-      const filter: IEquipmentFilter = { techBase: [TechBase.INNER_SPHERE, TechBase.CLAN] };
+      const filter: IEquipmentFilter = {
+        techBase: [TechBase.INNER_SPHERE, TechBase.CLAN],
+      };
       const results = service.searchWeapons(filter);
-      
+
       expect(results.length).toBe(3);
     });
 
     it('should filter by rules level', () => {
       const filter: IEquipmentFilter = { rulesLevel: RulesLevel.ADVANCED };
       const results = service.searchWeapons(filter);
-      
+
       expect(results.length).toBe(1);
       expect(results[0].rulesLevel).toBe(RulesLevel.ADVANCED);
     });
@@ -594,15 +747,15 @@ describe('EquipmentLoaderService', () => {
     it('should filter by max year', () => {
       const filter: IEquipmentFilter = { maxYear: 2500 };
       const results = service.searchWeapons(filter);
-      
+
       expect(results.length).toBe(2);
-      expect(results.every(w => w.introductionYear <= 2500)).toBe(true);
+      expect(results.every((w) => w.introductionYear <= 2500)).toBe(true);
     });
 
     it('should filter by min year', () => {
       const filter: IEquipmentFilter = { minYear: 3000 };
       const results = service.searchWeapons(filter);
-      
+
       expect(results.length).toBe(1);
       expect(results[0].introductionYear).toBeGreaterThanOrEqual(3000);
     });
@@ -610,9 +763,9 @@ describe('EquipmentLoaderService', () => {
     it('should filter by search text', () => {
       const filter: IEquipmentFilter = { searchText: 'Large' };
       const results = service.searchWeapons(filter);
-      
+
       expect(results.length).toBe(2);
-      expect(results.every(w => w.name.includes('Large'))).toBe(true);
+      expect(results.every((w) => w.name.includes('Large'))).toBe(true);
     });
 
     it('should combine multiple filters', () => {
@@ -622,13 +775,16 @@ describe('EquipmentLoaderService', () => {
         maxYear: 2500,
       };
       const results = service.searchWeapons(filter);
-      
+
       expect(results.length).toBe(2);
-      expect(results.every(w => 
-        w.techBase === TechBase.INNER_SPHERE &&
-        w.name.includes('Laser') &&
-        w.introductionYear <= 2500
-      )).toBe(true);
+      expect(
+        results.every(
+          (w) =>
+            w.techBase === TechBase.INNER_SPHERE &&
+            w.name.includes('Laser') &&
+            w.introductionYear <= 2500,
+        ),
+      ).toBe(true);
     });
   });
 
@@ -678,7 +834,7 @@ describe('EquipmentLoaderService', () => {
       serviceMaps.ammunition.set('a1', {});
       serviceMaps.electronics.set('e1', {});
       serviceMaps.miscEquipment.set('m1', {});
-      
+
       expect(service.getTotalCount()).toBe(5);
     });
   });
@@ -725,28 +881,36 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter by single unit type', () => {
-      const results = service.searchWeapons({ unitType: UnitType.BATTLE_ARMOR });
+      const results = service.searchWeapons({
+        unitType: UnitType.BATTLE_ARMOR,
+      });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('ba-srm');
     });
 
     it('should filter by multiple unit types', () => {
-      const results = service.searchWeapons({ unitType: [UnitType.AEROSPACE, UnitType.VEHICLE] });
+      const results = service.searchWeapons({
+        unitType: [UnitType.AEROSPACE, UnitType.VEHICLE],
+      });
       // ac10 (vehicle), clan-lrm5 (aerospace), medium-laser-no-flags (defaults include aerospace/vehicle)
       expect(results.length).toBe(3);
     });
 
     it('should filter by hasFlags - match equipment with ALL specified flags', () => {
-      const results = service.searchWeapons({ hasFlags: [EquipmentBehaviorFlag.DirectFire] });
+      const results = service.searchWeapons({
+        hasFlags: [EquipmentBehaviorFlag.DirectFire],
+      });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('ac10');
     });
 
     it('should filter by excludeFlags - exclude equipment with ANY specified flags', () => {
-      const results = service.searchWeapons({ excludeFlags: [EquipmentBehaviorFlag.OneShot] });
+      const results = service.searchWeapons({
+        excludeFlags: [EquipmentBehaviorFlag.OneShot],
+      });
       // Excludes ba-srm
       expect(results.length).toBe(3);
-      expect(results.every(w => w.id !== 'ba-srm')).toBe(true);
+      expect(results.every((w) => w.id !== 'ba-srm')).toBe(true);
     });
 
     it('should combine unitType and flags filters', () => {
@@ -765,12 +929,16 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter weapons with no flags when hasFlags is specified', () => {
-      const results = service.searchWeapons({ hasFlags: [EquipmentBehaviorFlag.Masc] });
+      const results = service.searchWeapons({
+        hasFlags: [EquipmentBehaviorFlag.Masc],
+      });
       expect(results.length).toBe(0);
     });
 
     it('should not exclude weapons with no flags when excludeFlags is specified', () => {
-      const results = service.searchWeapons({ excludeFlags: [EquipmentBehaviorFlag.Masc] });
+      const results = service.searchWeapons({
+        excludeFlags: [EquipmentBehaviorFlag.Masc],
+      });
       // All 4 weapons pass since none have MASC
       expect(results.length).toBe(4);
     });
@@ -826,12 +994,16 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter by multiple tech bases', () => {
-      const results = service.searchAmmunition({ techBase: [TechBase.INNER_SPHERE, TechBase.CLAN] });
+      const results = service.searchAmmunition({
+        techBase: [TechBase.INNER_SPHERE, TechBase.CLAN],
+      });
       expect(results.length).toBe(4);
     });
 
     it('should filter by rules level', () => {
-      const results = service.searchAmmunition({ rulesLevel: RulesLevel.ADVANCED });
+      const results = service.searchAmmunition({
+        rulesLevel: RulesLevel.ADVANCED,
+      });
       expect(results.length).toBe(1);
     });
 
@@ -852,19 +1024,25 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter by unit type', () => {
-      const results = service.searchAmmunition({ unitType: UnitType.BATTLE_ARMOR });
+      const results = service.searchAmmunition({
+        unitType: UnitType.BATTLE_ARMOR,
+      });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('ba-srm-ammo');
     });
 
     it('should filter by hasFlags', () => {
-      const results = service.searchAmmunition({ hasFlags: [EquipmentBehaviorFlag.Explosive] });
+      const results = service.searchAmmunition({
+        hasFlags: [EquipmentBehaviorFlag.Explosive],
+      });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('ac10-std');
     });
 
     it('should filter by excludeFlags', () => {
-      const results = service.searchAmmunition({ excludeFlags: [EquipmentBehaviorFlag.Explosive] });
+      const results = service.searchAmmunition({
+        excludeFlags: [EquipmentBehaviorFlag.Explosive],
+      });
       expect(results.length).toBe(3);
     });
 
@@ -930,12 +1108,16 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter by multiple tech bases', () => {
-      const results = service.searchElectronics({ techBase: [TechBase.INNER_SPHERE, TechBase.CLAN] });
+      const results = service.searchElectronics({
+        techBase: [TechBase.INNER_SPHERE, TechBase.CLAN],
+      });
       expect(results.length).toBe(4);
     });
 
     it('should filter by rules level', () => {
-      const results = service.searchElectronics({ rulesLevel: RulesLevel.STANDARD });
+      const results = service.searchElectronics({
+        rulesLevel: RulesLevel.STANDARD,
+      });
       expect(results.length).toBe(2);
     });
 
@@ -955,19 +1137,25 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter by unit type', () => {
-      const results = service.searchElectronics({ unitType: UnitType.BATTLE_ARMOR });
+      const results = service.searchElectronics({
+        unitType: UnitType.BATTLE_ARMOR,
+      });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('ba-probe');
     });
 
     it('should filter by hasFlags', () => {
-      const results = service.searchElectronics({ hasFlags: [EquipmentBehaviorFlag.Ecm] });
+      const results = service.searchElectronics({
+        hasFlags: [EquipmentBehaviorFlag.Ecm],
+      });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('clan-ecm');
     });
 
     it('should filter by excludeFlags', () => {
-      const results = service.searchElectronics({ excludeFlags: [EquipmentBehaviorFlag.Bap] });
+      const results = service.searchElectronics({
+        excludeFlags: [EquipmentBehaviorFlag.Bap],
+      });
       expect(results.length).toBe(3);
     });
 
@@ -1033,12 +1221,16 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter by multiple tech bases', () => {
-      const results = service.searchMiscEquipment({ techBase: [TechBase.INNER_SPHERE, TechBase.CLAN] });
+      const results = service.searchMiscEquipment({
+        techBase: [TechBase.INNER_SPHERE, TechBase.CLAN],
+      });
       expect(results.length).toBe(4);
     });
 
     it('should filter by rules level', () => {
-      const results = service.searchMiscEquipment({ rulesLevel: RulesLevel.ADVANCED });
+      const results = service.searchMiscEquipment({
+        rulesLevel: RulesLevel.ADVANCED,
+      });
       expect(results.length).toBe(2);
     });
 
@@ -1059,19 +1251,25 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should filter by unit type', () => {
-      const results = service.searchMiscEquipment({ unitType: UnitType.BATTLE_ARMOR });
+      const results = service.searchMiscEquipment({
+        unitType: UnitType.BATTLE_ARMOR,
+      });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('ba-stealth');
     });
 
     it('should filter by hasFlags', () => {
-      const results = service.searchMiscEquipment({ hasFlags: [EquipmentBehaviorFlag.Case] });
+      const results = service.searchMiscEquipment({
+        hasFlags: [EquipmentBehaviorFlag.Case],
+      });
       expect(results.length).toBe(1);
       expect(results[0].id).toBe('clan-case');
     });
 
     it('should filter by excludeFlags', () => {
-      const results = service.searchMiscEquipment({ excludeFlags: [EquipmentBehaviorFlag.Masc] });
+      const results = service.searchMiscEquipment({
+        excludeFlags: [EquipmentBehaviorFlag.Masc],
+      });
       expect(results.length).toBe(3);
     });
 
@@ -1132,7 +1330,7 @@ describe('EquipmentLoaderService', () => {
 
     it('should return all equipment types for a unit type', () => {
       const results = service.searchByUnitType(UnitType.BATTLE_ARMOR);
-      
+
       expect(results.weapons.length).toBe(1);
       expect(results.weapons[0].id).toBe('ba-weapon');
       expect(results.ammunition.length).toBe(1);
@@ -1145,7 +1343,7 @@ describe('EquipmentLoaderService', () => {
 
     it('should return battlemech equipment', () => {
       const results = service.searchByUnitType(UnitType.BATTLEMECH);
-      
+
       expect(results.weapons.length).toBe(1);
       expect(results.weapons[0].id).toBe('mech-weapon');
     });
@@ -1158,9 +1356,9 @@ describe('EquipmentLoaderService', () => {
         name: 'AC/10 Ammo',
         category: AmmoCategory.AUTOCANNON,
       };
-      
+
       getServiceMaps(service).ammunition.set('ac10-ammo', mockAmmo);
-      
+
       const ammo = service.getAmmunitionById('ac10-ammo');
       expect(ammo).toEqual(mockAmmo);
     });
@@ -1178,9 +1376,9 @@ describe('EquipmentLoaderService', () => {
         name: 'ECM Suite',
         category: ElectronicsCategory.ECM,
       };
-      
+
       getServiceMaps(service).electronics.set('ecm-suite', mockElec);
-      
+
       const elec = service.getElectronicsById('ecm-suite');
       expect(elec).toEqual(mockElec);
     });
@@ -1198,9 +1396,9 @@ describe('EquipmentLoaderService', () => {
         name: 'Jump Jet',
         category: MiscEquipmentCategory.JUMP_JET,
       };
-      
+
       getServiceMaps(service).miscEquipment.set('jump-jet', mockMisc);
-      
+
       const misc = service.getMiscEquipmentById('jump-jet');
       expect(misc).toEqual(mockMisc);
     });
@@ -1216,7 +1414,7 @@ describe('EquipmentLoaderService', () => {
       const maps = getServiceMaps(service);
       maps.ammunition.set('ammo1', { id: 'ammo1', name: 'Ammo 1' });
       maps.ammunition.set('ammo2', { id: 'ammo2', name: 'Ammo 2' });
-      
+
       const results = service.getAllAmmunition();
       expect(results.length).toBe(2);
     });
@@ -1227,7 +1425,7 @@ describe('EquipmentLoaderService', () => {
       const maps = getServiceMaps(service);
       maps.electronics.set('elec1', { id: 'elec1', name: 'Electronics 1' });
       maps.electronics.set('elec2', { id: 'elec2', name: 'Electronics 2' });
-      
+
       const results = service.getAllElectronics();
       expect(results.length).toBe(2);
     });
@@ -1238,7 +1436,7 @@ describe('EquipmentLoaderService', () => {
       const maps = getServiceMaps(service);
       maps.miscEquipment.set('misc1', { id: 'misc1', name: 'Misc 1' });
       maps.miscEquipment.set('misc2', { id: 'misc2', name: 'Misc 2' });
-      
+
       const results = service.getAllMiscEquipment();
       expect(results.length).toBe(2);
     });
@@ -1254,22 +1452,24 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should parse Artillery weapon category', async () => {
-      const weaponFile = buildEquipmentFile([{
-        id: 'long-tom',
-        name: 'Long Tom Artillery',
-        category: 'Artillery',
-        subType: 'Tube Artillery',
-        techBase: 'INNER_SPHERE',
-        rulesLevel: 'ADVANCED',
-        damage: 20,
-        heat: 0,
-        ranges: { minimum: 0, short: 6, medium: 12, long: 18 },
-        weight: 30,
-        criticalSlots: 0,
-        costCBills: 500000,
-        battleValue: 200,
-        introductionYear: 2600,
-      }]);
+      const weaponFile = buildEquipmentFile([
+        {
+          id: 'long-tom',
+          name: 'Long Tom Artillery',
+          category: 'Artillery',
+          subType: 'Tube Artillery',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          damage: 20,
+          heat: 0,
+          ranges: { minimum: 0, short: 6, medium: 12, long: 18 },
+          weight: 30,
+          criticalSlots: 0,
+          costCBills: 500000,
+          battleValue: 200,
+          introductionYear: 2600,
+        },
+      ]);
 
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({ ok: true, json: async () => weaponFile })
@@ -1283,14 +1483,134 @@ describe('EquipmentLoaderService', () => {
 
     it('should parse all ammo categories', async () => {
       const ammoFile = buildEquipmentFile([
-        { id: 'mg-ammo', name: 'MG Ammo', category: 'Machine Gun', variant: 'Standard', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', compatibleWeaponIds: ['mg'], shotsPerTon: 200, weight: 1, criticalSlots: 1, costPerTon: 1000, battleValue: 1, isExplosive: false, introductionYear: 2400 },
-        { id: 'lrm-ammo', name: 'LRM Ammo', category: 'LRM', variant: 'Armor-Piercing', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', compatibleWeaponIds: ['lrm5'], shotsPerTon: 24, weight: 1, criticalSlots: 1, costPerTon: 30000, battleValue: 5, isExplosive: true, introductionYear: 2400 },
-        { id: 'srm-ammo', name: 'SRM Ammo', category: 'SRM', variant: 'Cluster', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', compatibleWeaponIds: ['srm2'], shotsPerTon: 50, weight: 1, criticalSlots: 1, costPerTon: 27000, battleValue: 3, isExplosive: true, introductionYear: 2400 },
-        { id: 'mrm-ammo', name: 'MRM Ammo', category: 'MRM', variant: 'Flechette', techBase: 'INNER_SPHERE', rulesLevel: 'ADVANCED', compatibleWeaponIds: ['mrm10'], shotsPerTon: 24, weight: 1, criticalSlots: 1, costPerTon: 5000, battleValue: 3, isExplosive: true, introductionYear: 3058 },
-        { id: 'atm-ammo', name: 'ATM Ammo', category: 'ATM', variant: 'Inferno', techBase: 'CLAN', rulesLevel: 'ADVANCED', compatibleWeaponIds: ['atm3'], shotsPerTon: 20, weight: 1, criticalSlots: 1, costPerTon: 75000, battleValue: 7, isExplosive: true, introductionYear: 3054 },
-        { id: 'narc-ammo', name: 'NARC Ammo', category: 'NARC', variant: 'Fragmentation', techBase: 'INNER_SPHERE', rulesLevel: 'ADVANCED', compatibleWeaponIds: ['narc'], shotsPerTon: 6, weight: 1, criticalSlots: 1, costPerTon: 6000, battleValue: 2, isExplosive: true, introductionYear: 3035 },
-        { id: 'arty-ammo', name: 'Artillery Ammo', category: 'Artillery', variant: 'Incendiary', techBase: 'INNER_SPHERE', rulesLevel: 'ADVANCED', compatibleWeaponIds: ['long-tom'], shotsPerTon: 5, weight: 1, criticalSlots: 1, costPerTon: 10000, battleValue: 1, isExplosive: true, introductionYear: 2600 },
-        { id: 'ams-ammo', name: 'AMS Ammo', category: 'AMS', variant: 'Smoke', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', compatibleWeaponIds: ['ams'], shotsPerTon: 12, weight: 1, criticalSlots: 1, costPerTon: 2000, battleValue: 1, isExplosive: false, introductionYear: 3040 },
+        {
+          id: 'mg-ammo',
+          name: 'MG Ammo',
+          category: 'Machine Gun',
+          variant: 'Standard',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          compatibleWeaponIds: ['mg'],
+          shotsPerTon: 200,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 1000,
+          battleValue: 1,
+          isExplosive: false,
+          introductionYear: 2400,
+        },
+        {
+          id: 'lrm-ammo',
+          name: 'LRM Ammo',
+          category: 'LRM',
+          variant: 'Armor-Piercing',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          compatibleWeaponIds: ['lrm5'],
+          shotsPerTon: 24,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 30000,
+          battleValue: 5,
+          isExplosive: true,
+          introductionYear: 2400,
+        },
+        {
+          id: 'srm-ammo',
+          name: 'SRM Ammo',
+          category: 'SRM',
+          variant: 'Cluster',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          compatibleWeaponIds: ['srm2'],
+          shotsPerTon: 50,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 27000,
+          battleValue: 3,
+          isExplosive: true,
+          introductionYear: 2400,
+        },
+        {
+          id: 'mrm-ammo',
+          name: 'MRM Ammo',
+          category: 'MRM',
+          variant: 'Flechette',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          compatibleWeaponIds: ['mrm10'],
+          shotsPerTon: 24,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 5000,
+          battleValue: 3,
+          isExplosive: true,
+          introductionYear: 3058,
+        },
+        {
+          id: 'atm-ammo',
+          name: 'ATM Ammo',
+          category: 'ATM',
+          variant: 'Inferno',
+          techBase: 'CLAN',
+          rulesLevel: 'ADVANCED',
+          compatibleWeaponIds: ['atm3'],
+          shotsPerTon: 20,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 75000,
+          battleValue: 7,
+          isExplosive: true,
+          introductionYear: 3054,
+        },
+        {
+          id: 'narc-ammo',
+          name: 'NARC Ammo',
+          category: 'NARC',
+          variant: 'Fragmentation',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          compatibleWeaponIds: ['narc'],
+          shotsPerTon: 6,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 6000,
+          battleValue: 2,
+          isExplosive: true,
+          introductionYear: 3035,
+        },
+        {
+          id: 'arty-ammo',
+          name: 'Artillery Ammo',
+          category: 'Artillery',
+          variant: 'Incendiary',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          compatibleWeaponIds: ['long-tom'],
+          shotsPerTon: 5,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 10000,
+          battleValue: 1,
+          isExplosive: true,
+          introductionYear: 2600,
+        },
+        {
+          id: 'ams-ammo',
+          name: 'AMS Ammo',
+          category: 'AMS',
+          variant: 'Smoke',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          compatibleWeaponIds: ['ams'],
+          shotsPerTon: 12,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 2000,
+          battleValue: 1,
+          isExplosive: false,
+          introductionYear: 3040,
+        },
       ]);
 
       (global.fetch as jest.Mock)
@@ -1302,30 +1622,135 @@ describe('EquipmentLoaderService', () => {
 
       await service.loadOfficialEquipment();
 
-      expect(service.getAmmunitionById('mg-ammo')?.category).toBe(AmmoCategory.MACHINE_GUN);
-      expect(service.getAmmunitionById('lrm-ammo')?.category).toBe(AmmoCategory.LRM);
-      expect(service.getAmmunitionById('lrm-ammo')?.variant).toBe(AmmoVariant.ARMOR_PIERCING);
-      expect(service.getAmmunitionById('srm-ammo')?.category).toBe(AmmoCategory.SRM);
-      expect(service.getAmmunitionById('srm-ammo')?.variant).toBe(AmmoVariant.CLUSTER);
-      expect(service.getAmmunitionById('mrm-ammo')?.category).toBe(AmmoCategory.MRM);
-      expect(service.getAmmunitionById('mrm-ammo')?.variant).toBe(AmmoVariant.FLECHETTE);
-      expect(service.getAmmunitionById('atm-ammo')?.category).toBe(AmmoCategory.ATM);
-      expect(service.getAmmunitionById('atm-ammo')?.variant).toBe(AmmoVariant.INFERNO);
-      expect(service.getAmmunitionById('narc-ammo')?.category).toBe(AmmoCategory.NARC);
-      expect(service.getAmmunitionById('narc-ammo')?.variant).toBe(AmmoVariant.FRAGMENTATION);
-      expect(service.getAmmunitionById('arty-ammo')?.category).toBe(AmmoCategory.ARTILLERY);
-      expect(service.getAmmunitionById('arty-ammo')?.variant).toBe(AmmoVariant.INCENDIARY);
-      expect(service.getAmmunitionById('ams-ammo')?.category).toBe(AmmoCategory.AMS);
-      expect(service.getAmmunitionById('ams-ammo')?.variant).toBe(AmmoVariant.SMOKE);
+      expect(service.getAmmunitionById('mg-ammo')?.category).toBe(
+        AmmoCategory.MACHINE_GUN,
+      );
+      expect(service.getAmmunitionById('lrm-ammo')?.category).toBe(
+        AmmoCategory.LRM,
+      );
+      expect(service.getAmmunitionById('lrm-ammo')?.variant).toBe(
+        AmmoVariant.ARMOR_PIERCING,
+      );
+      expect(service.getAmmunitionById('srm-ammo')?.category).toBe(
+        AmmoCategory.SRM,
+      );
+      expect(service.getAmmunitionById('srm-ammo')?.variant).toBe(
+        AmmoVariant.CLUSTER,
+      );
+      expect(service.getAmmunitionById('mrm-ammo')?.category).toBe(
+        AmmoCategory.MRM,
+      );
+      expect(service.getAmmunitionById('mrm-ammo')?.variant).toBe(
+        AmmoVariant.FLECHETTE,
+      );
+      expect(service.getAmmunitionById('atm-ammo')?.category).toBe(
+        AmmoCategory.ATM,
+      );
+      expect(service.getAmmunitionById('atm-ammo')?.variant).toBe(
+        AmmoVariant.INFERNO,
+      );
+      expect(service.getAmmunitionById('narc-ammo')?.category).toBe(
+        AmmoCategory.NARC,
+      );
+      expect(service.getAmmunitionById('narc-ammo')?.variant).toBe(
+        AmmoVariant.FRAGMENTATION,
+      );
+      expect(service.getAmmunitionById('arty-ammo')?.category).toBe(
+        AmmoCategory.ARTILLERY,
+      );
+      expect(service.getAmmunitionById('arty-ammo')?.variant).toBe(
+        AmmoVariant.INCENDIARY,
+      );
+      expect(service.getAmmunitionById('ams-ammo')?.category).toBe(
+        AmmoCategory.AMS,
+      );
+      expect(service.getAmmunitionById('ams-ammo')?.variant).toBe(
+        AmmoVariant.SMOKE,
+      );
     });
 
     it('should parse additional ammo variants', async () => {
       const ammoFile = buildEquipmentFile([
-        { id: 'thunder-ammo', name: 'Thunder Ammo', category: 'LRM', variant: 'Thunder', techBase: 'INNER_SPHERE', rulesLevel: 'ADVANCED', compatibleWeaponIds: ['lrm5'], shotsPerTon: 24, weight: 1, criticalSlots: 1, costPerTon: 50000, battleValue: 5, isExplosive: true, introductionYear: 3055 },
-        { id: 'swarm-ammo', name: 'Swarm Ammo', category: 'LRM', variant: 'Swarm', techBase: 'INNER_SPHERE', rulesLevel: 'ADVANCED', compatibleWeaponIds: ['lrm10'], shotsPerTon: 12, weight: 1, criticalSlots: 1, costPerTon: 60000, battleValue: 6, isExplosive: true, introductionYear: 3055 },
-        { id: 'tandem-ammo', name: 'Tandem Charge Ammo', category: 'SRM', variant: 'Tandem-Charge', techBase: 'INNER_SPHERE', rulesLevel: 'ADVANCED', compatibleWeaponIds: ['srm4'], shotsPerTon: 25, weight: 1, criticalSlots: 1, costPerTon: 50000, battleValue: 8, isExplosive: true, introductionYear: 3060 },
-        { id: 'er-ammo', name: 'Extended Range Ammo', category: 'ATM', variant: 'Extended Range', techBase: 'CLAN', rulesLevel: 'ADVANCED', compatibleWeaponIds: ['atm6'], shotsPerTon: 10, weight: 1, criticalSlots: 1, costPerTon: 80000, battleValue: 10, isExplosive: true, introductionYear: 3054 },
-        { id: 'he-ammo', name: 'High Explosive Ammo', category: 'ATM', variant: 'High Explosive', techBase: 'CLAN', rulesLevel: 'ADVANCED', compatibleWeaponIds: ['atm9'], shotsPerTon: 10, weight: 1, criticalSlots: 1, costPerTon: 90000, battleValue: 12, isExplosive: true, introductionYear: 3054 },
+        {
+          id: 'thunder-ammo',
+          name: 'Thunder Ammo',
+          category: 'LRM',
+          variant: 'Thunder',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          compatibleWeaponIds: ['lrm5'],
+          shotsPerTon: 24,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 50000,
+          battleValue: 5,
+          isExplosive: true,
+          introductionYear: 3055,
+        },
+        {
+          id: 'swarm-ammo',
+          name: 'Swarm Ammo',
+          category: 'LRM',
+          variant: 'Swarm',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          compatibleWeaponIds: ['lrm10'],
+          shotsPerTon: 12,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 60000,
+          battleValue: 6,
+          isExplosive: true,
+          introductionYear: 3055,
+        },
+        {
+          id: 'tandem-ammo',
+          name: 'Tandem Charge Ammo',
+          category: 'SRM',
+          variant: 'Tandem-Charge',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          compatibleWeaponIds: ['srm4'],
+          shotsPerTon: 25,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 50000,
+          battleValue: 8,
+          isExplosive: true,
+          introductionYear: 3060,
+        },
+        {
+          id: 'er-ammo',
+          name: 'Extended Range Ammo',
+          category: 'ATM',
+          variant: 'Extended Range',
+          techBase: 'CLAN',
+          rulesLevel: 'ADVANCED',
+          compatibleWeaponIds: ['atm6'],
+          shotsPerTon: 10,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 80000,
+          battleValue: 10,
+          isExplosive: true,
+          introductionYear: 3054,
+        },
+        {
+          id: 'he-ammo',
+          name: 'High Explosive Ammo',
+          category: 'ATM',
+          variant: 'High Explosive',
+          techBase: 'CLAN',
+          rulesLevel: 'ADVANCED',
+          compatibleWeaponIds: ['atm9'],
+          shotsPerTon: 10,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 90000,
+          battleValue: 12,
+          isExplosive: true,
+          introductionYear: 3054,
+        },
       ]);
 
       (global.fetch as jest.Mock)
@@ -1337,21 +1762,97 @@ describe('EquipmentLoaderService', () => {
 
       await service.loadOfficialEquipment();
 
-      expect(service.getAmmunitionById('thunder-ammo')?.variant).toBe(AmmoVariant.THUNDER);
-      expect(service.getAmmunitionById('swarm-ammo')?.variant).toBe(AmmoVariant.SWARM);
-      expect(service.getAmmunitionById('tandem-ammo')?.variant).toBe(AmmoVariant.TANDEM_CHARGE);
-      expect(service.getAmmunitionById('er-ammo')?.variant).toBe(AmmoVariant.EXTENDED_RANGE);
-      expect(service.getAmmunitionById('he-ammo')?.variant).toBe(AmmoVariant.HIGH_EXPLOSIVE);
+      expect(service.getAmmunitionById('thunder-ammo')?.variant).toBe(
+        AmmoVariant.THUNDER,
+      );
+      expect(service.getAmmunitionById('swarm-ammo')?.variant).toBe(
+        AmmoVariant.SWARM,
+      );
+      expect(service.getAmmunitionById('tandem-ammo')?.variant).toBe(
+        AmmoVariant.TANDEM_CHARGE,
+      );
+      expect(service.getAmmunitionById('er-ammo')?.variant).toBe(
+        AmmoVariant.EXTENDED_RANGE,
+      );
+      expect(service.getAmmunitionById('he-ammo')?.variant).toBe(
+        AmmoVariant.HIGH_EXPLOSIVE,
+      );
     });
 
     it('should parse all electronics categories', async () => {
       const elecFile = buildEquipmentFile([
-        { id: 'targeting', name: 'Targeting Computer', category: 'Targeting', techBase: 'INNER_SPHERE', rulesLevel: 'ADVANCED', weight: 1, criticalSlots: 1, costCBills: 100000, battleValue: 50, introductionYear: 3050 },
-        { id: 'ecm', name: 'ECM Suite', category: 'ECM', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', weight: 1.5, criticalSlots: 2, costCBills: 200000, battleValue: 60, introductionYear: 3045 },
-        { id: 'probe', name: 'Active Probe', category: 'Active Probe', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', weight: 1, criticalSlots: 1, costCBills: 100000, battleValue: 30, introductionYear: 3040 },
-        { id: 'c3', name: 'C3 Master', category: 'C3 System', techBase: 'INNER_SPHERE', rulesLevel: 'ADVANCED', weight: 5, criticalSlots: 5, costCBills: 1500000, battleValue: 150, introductionYear: 3050 },
-        { id: 'tag', name: 'TAG', category: 'TAG', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', weight: 1, criticalSlots: 1, costCBills: 50000, battleValue: 0, introductionYear: 3045 },
-        { id: 'comms', name: 'Communications Equipment', category: 'Communications', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', weight: 1, criticalSlots: 1, costCBills: 75000, battleValue: 10, introductionYear: 2400 },
+        {
+          id: 'targeting',
+          name: 'Targeting Computer',
+          category: 'Targeting',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 100000,
+          battleValue: 50,
+          introductionYear: 3050,
+        },
+        {
+          id: 'ecm',
+          name: 'ECM Suite',
+          category: 'ECM',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          weight: 1.5,
+          criticalSlots: 2,
+          costCBills: 200000,
+          battleValue: 60,
+          introductionYear: 3045,
+        },
+        {
+          id: 'probe',
+          name: 'Active Probe',
+          category: 'Active Probe',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 100000,
+          battleValue: 30,
+          introductionYear: 3040,
+        },
+        {
+          id: 'c3',
+          name: 'C3 Master',
+          category: 'C3 System',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          weight: 5,
+          criticalSlots: 5,
+          costCBills: 1500000,
+          battleValue: 150,
+          introductionYear: 3050,
+        },
+        {
+          id: 'tag',
+          name: 'TAG',
+          category: 'TAG',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 50000,
+          battleValue: 0,
+          introductionYear: 3045,
+        },
+        {
+          id: 'comms',
+          name: 'Communications Equipment',
+          category: 'Communications',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 75000,
+          battleValue: 10,
+          introductionYear: 2400,
+        },
       ]);
 
       (global.fetch as jest.Mock)
@@ -1364,22 +1865,100 @@ describe('EquipmentLoaderService', () => {
 
       await service.loadOfficialEquipment();
 
-      expect(service.getElectronicsById('targeting')?.category).toBe(ElectronicsCategory.TARGETING);
-      expect(service.getElectronicsById('ecm')?.category).toBe(ElectronicsCategory.ECM);
-      expect(service.getElectronicsById('probe')?.category).toBe(ElectronicsCategory.ACTIVE_PROBE);
-      expect(service.getElectronicsById('c3')?.category).toBe(ElectronicsCategory.C3);
-      expect(service.getElectronicsById('tag')?.category).toBe(ElectronicsCategory.TAG);
-      expect(service.getElectronicsById('comms')?.category).toBe(ElectronicsCategory.COMMUNICATIONS);
+      expect(service.getElectronicsById('targeting')?.category).toBe(
+        ElectronicsCategory.TARGETING,
+      );
+      expect(service.getElectronicsById('ecm')?.category).toBe(
+        ElectronicsCategory.ECM,
+      );
+      expect(service.getElectronicsById('probe')?.category).toBe(
+        ElectronicsCategory.ACTIVE_PROBE,
+      );
+      expect(service.getElectronicsById('c3')?.category).toBe(
+        ElectronicsCategory.C3,
+      );
+      expect(service.getElectronicsById('tag')?.category).toBe(
+        ElectronicsCategory.TAG,
+      );
+      expect(service.getElectronicsById('comms')?.category).toBe(
+        ElectronicsCategory.COMMUNICATIONS,
+      );
     });
 
     it('should parse all misc equipment categories', async () => {
       const miscFile = buildEquipmentFile([
-        { id: 'hs', name: 'Heat Sink', category: 'Heat Sink', techBase: 'INNER_SPHERE', rulesLevel: 'INTRODUCTORY', weight: 1, criticalSlots: 1, costCBills: 2000, battleValue: 0, introductionYear: 2400 },
-        { id: 'jj', name: 'Jump Jet', category: 'Jump Jet', techBase: 'INNER_SPHERE', rulesLevel: 'INTRODUCTORY', weight: 1, criticalSlots: 1, costCBills: 10000, battleValue: 0, introductionYear: 2400 },
-        { id: 'masc', name: 'MASC', category: 'Movement Enhancement', techBase: 'INNER_SPHERE', rulesLevel: 'ADVANCED', weight: 2, criticalSlots: 2, costCBills: 200000, battleValue: 50, introductionYear: 3035 },
-        { id: 'case', name: 'CASE', category: 'Defensive', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', weight: 0.5, criticalSlots: 1, costCBills: 50000, battleValue: 0, introductionYear: 3040 },
-        { id: 'tsm', name: 'Triple Strength Myomer', category: 'Myomer', techBase: 'INNER_SPHERE', rulesLevel: 'ADVANCED', weight: 0, criticalSlots: 6, costCBills: 16000, battleValue: 0, introductionYear: 3050 },
-        { id: 'backhoe', name: 'Backhoe', category: 'Industrial', techBase: 'INNER_SPHERE', rulesLevel: 'STANDARD', weight: 5, criticalSlots: 6, costCBills: 50000, battleValue: 0, introductionYear: 2400 },
+        {
+          id: 'hs',
+          name: 'Heat Sink',
+          category: 'Heat Sink',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'INTRODUCTORY',
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 2000,
+          battleValue: 0,
+          introductionYear: 2400,
+        },
+        {
+          id: 'jj',
+          name: 'Jump Jet',
+          category: 'Jump Jet',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'INTRODUCTORY',
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 10000,
+          battleValue: 0,
+          introductionYear: 2400,
+        },
+        {
+          id: 'masc',
+          name: 'MASC',
+          category: 'Movement Enhancement',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          weight: 2,
+          criticalSlots: 2,
+          costCBills: 200000,
+          battleValue: 50,
+          introductionYear: 3035,
+        },
+        {
+          id: 'case',
+          name: 'CASE',
+          category: 'Defensive',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          weight: 0.5,
+          criticalSlots: 1,
+          costCBills: 50000,
+          battleValue: 0,
+          introductionYear: 3040,
+        },
+        {
+          id: 'tsm',
+          name: 'Triple Strength Myomer',
+          category: 'Myomer',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          weight: 0,
+          criticalSlots: 6,
+          costCBills: 16000,
+          battleValue: 0,
+          introductionYear: 3050,
+        },
+        {
+          id: 'backhoe',
+          name: 'Backhoe',
+          category: 'Industrial',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          weight: 5,
+          criticalSlots: 6,
+          costCBills: 50000,
+          battleValue: 0,
+          introductionYear: 2400,
+        },
       ]);
 
       (global.fetch as jest.Mock)
@@ -1392,37 +1971,51 @@ describe('EquipmentLoaderService', () => {
 
       await service.loadOfficialEquipment();
 
-      expect(service.getMiscEquipmentById('hs')?.category).toBe(MiscEquipmentCategory.HEAT_SINK);
-      expect(service.getMiscEquipmentById('jj')?.category).toBe(MiscEquipmentCategory.JUMP_JET);
-      expect(service.getMiscEquipmentById('masc')?.category).toBe(MiscEquipmentCategory.MOVEMENT);
-      expect(service.getMiscEquipmentById('case')?.category).toBe(MiscEquipmentCategory.DEFENSIVE);
-      expect(service.getMiscEquipmentById('tsm')?.category).toBe(MiscEquipmentCategory.MYOMER);
-      expect(service.getMiscEquipmentById('backhoe')?.category).toBe(MiscEquipmentCategory.INDUSTRIAL);
+      expect(service.getMiscEquipmentById('hs')?.category).toBe(
+        MiscEquipmentCategory.HEAT_SINK,
+      );
+      expect(service.getMiscEquipmentById('jj')?.category).toBe(
+        MiscEquipmentCategory.JUMP_JET,
+      );
+      expect(service.getMiscEquipmentById('masc')?.category).toBe(
+        MiscEquipmentCategory.MOVEMENT,
+      );
+      expect(service.getMiscEquipmentById('case')?.category).toBe(
+        MiscEquipmentCategory.DEFENSIVE,
+      );
+      expect(service.getMiscEquipmentById('tsm')?.category).toBe(
+        MiscEquipmentCategory.MYOMER,
+      );
+      expect(service.getMiscEquipmentById('backhoe')?.category).toBe(
+        MiscEquipmentCategory.INDUSTRIAL,
+      );
     });
 
     it('should parse weapons with optional fields (ammoPerTon, isExplosive, special, flags, allowedUnitTypes, allowedLocations)', async () => {
-      const weaponFile = buildEquipmentFile([{
-        id: 'ac5',
-        name: 'Autocannon/5',
-        category: 'Ballistic',
-        subType: 'Autocannon',
-        techBase: 'INNER_SPHERE',
-        rulesLevel: 'STANDARD',
-        damage: 5,
-        heat: 1,
-        ranges: { minimum: 3, short: 6, medium: 12, long: 18, extreme: 24 },
-        weight: 8,
-        criticalSlots: 4,
-        ammoPerTon: 20,
-        costCBills: 125000,
-        battleValue: 70,
-        introductionYear: 2250,
-        isExplosive: true,
-        special: ['Jams on 1', 'Rapid Fire'],
-        allowedUnitTypes: ['BattleMech', 'Vehicle'],
-        flags: ['DIRECT_FIRE', 'RAPID_FIRE'],
-        allowedLocations: ['RA', 'LA', 'RT', 'LT', 'CT'],
-      }]);
+      const weaponFile = buildEquipmentFile([
+        {
+          id: 'ac5',
+          name: 'Autocannon/5',
+          category: 'Ballistic',
+          subType: 'Autocannon',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          damage: 5,
+          heat: 1,
+          ranges: { minimum: 3, short: 6, medium: 12, long: 18, extreme: 24 },
+          weight: 8,
+          criticalSlots: 4,
+          ammoPerTon: 20,
+          costCBills: 125000,
+          battleValue: 70,
+          introductionYear: 2250,
+          isExplosive: true,
+          special: ['Jams on 1', 'Rapid Fire'],
+          allowedUnitTypes: ['BattleMech', 'Vehicle'],
+          flags: ['DIRECT_FIRE', 'RAPID_FIRE'],
+          allowedLocations: ['RA', 'LA', 'RT', 'LT', 'CT'],
+        },
+      ]);
 
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
@@ -1444,27 +2037,29 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should parse ammunition with optional fields (damageModifier, rangeModifier, special, flags)', async () => {
-      const ammoFile = buildEquipmentFile([{
-        id: 'ac5-ap',
-        name: 'AC/5 Armor-Piercing Ammo',
-        category: 'Autocannon',
-        variant: 'Armor-Piercing',
-        techBase: 'INNER_SPHERE',
-        rulesLevel: 'ADVANCED',
-        compatibleWeaponIds: ['ac5'],
-        shotsPerTon: 15,
-        weight: 1,
-        criticalSlots: 1,
-        costPerTon: 15000,
-        battleValue: 8,
-        isExplosive: true,
-        introductionYear: 3060,
-        damageModifier: 1.5,
-        rangeModifier: -1,
-        special: ['Reduces target armor by 50%'],
-        flags: ['EXPLOSIVE'],
-        allowedUnitTypes: ['BattleMech', 'Vehicle'],
-      }]);
+      const ammoFile = buildEquipmentFile([
+        {
+          id: 'ac5-ap',
+          name: 'AC/5 Armor-Piercing Ammo',
+          category: 'Autocannon',
+          variant: 'Armor-Piercing',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          compatibleWeaponIds: ['ac5'],
+          shotsPerTon: 15,
+          weight: 1,
+          criticalSlots: 1,
+          costPerTon: 15000,
+          battleValue: 8,
+          isExplosive: true,
+          introductionYear: 3060,
+          damageModifier: 1.5,
+          rangeModifier: -1,
+          special: ['Reduces target armor by 50%'],
+          flags: ['EXPLOSIVE'],
+          allowedUnitTypes: ['BattleMech', 'Vehicle'],
+        },
+      ]);
 
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
@@ -1485,23 +2080,25 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should parse electronics with optional fields (special, variableEquipmentId, flags, allowedLocations)', async () => {
-      const elecFile = buildEquipmentFile([{
-        id: 'tc-var',
-        name: 'Targeting Computer',
-        category: 'Targeting',
-        techBase: 'INNER_SPHERE',
-        rulesLevel: 'ADVANCED',
-        weight: 1,
-        criticalSlots: 1,
-        costCBills: 100000,
-        battleValue: 50,
-        introductionYear: 3050,
-        special: ['Direct fire weapons +1 to-hit'],
-        variableEquipmentId: 'tc-variable',
-        flags: ['TARGETING_COMPUTER'],
-        allowedUnitTypes: ['BattleMech'],
-        allowedLocations: ['HD', 'CT', 'RT', 'LT'],
-      }]);
+      const elecFile = buildEquipmentFile([
+        {
+          id: 'tc-var',
+          name: 'Targeting Computer',
+          category: 'Targeting',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 100000,
+          battleValue: 50,
+          introductionYear: 3050,
+          special: ['Direct fire weapons +1 to-hit'],
+          variableEquipmentId: 'tc-variable',
+          flags: ['TARGETING_COMPUTER'],
+          allowedUnitTypes: ['BattleMech'],
+          allowedLocations: ['HD', 'CT', 'RT', 'LT'],
+        },
+      ]);
 
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
@@ -1523,23 +2120,25 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should parse misc equipment with optional fields (special, variableEquipmentId, flags, allowedLocations)', async () => {
-      const miscFile = buildEquipmentFile([{
-        id: 'dhs-var',
-        name: 'Double Heat Sink',
-        category: 'Heat Sink',
-        techBase: 'INNER_SPHERE',
-        rulesLevel: 'ADVANCED',
-        weight: 1,
-        criticalSlots: 3,
-        costCBills: 6000,
-        battleValue: 0,
-        introductionYear: 3040,
-        special: ['Dissipates 2 heat per sink'],
-        variableEquipmentId: 'dhs-variable',
-        flags: ['DOUBLE_HEAT_SINK'],
-        allowedUnitTypes: ['BattleMech'],
-        allowedLocations: ['RT', 'LT', 'RA', 'LA', 'RL', 'LL'],
-      }]);
+      const miscFile = buildEquipmentFile([
+        {
+          id: 'dhs-var',
+          name: 'Double Heat Sink',
+          category: 'Heat Sink',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'ADVANCED',
+          weight: 1,
+          criticalSlots: 3,
+          costCBills: 6000,
+          battleValue: 0,
+          introductionYear: 3040,
+          special: ['Dissipates 2 heat per sink'],
+          variableEquipmentId: 'dhs-variable',
+          flags: ['DOUBLE_HEAT_SINK'],
+          allowedUnitTypes: ['BattleMech'],
+          allowedLocations: ['RT', 'LT', 'RA', 'LA', 'RL', 'LL'],
+        },
+      ]);
 
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
@@ -1557,15 +2156,86 @@ describe('EquipmentLoaderService', () => {
       expect(misc?.variableEquipmentId).toBe('dhs-variable');
       expect(misc?.flags).toContain(EquipmentBehaviorFlag.DoubleHeatSink);
       expect(misc?.allowedUnitTypes).toContain(UnitType.BATTLEMECH);
-      expect(misc?.allowedLocations).toEqual(['RT', 'LT', 'RA', 'LA', 'RL', 'LL']);
+      expect(misc?.allowedLocations).toEqual([
+        'RT',
+        'LT',
+        'RA',
+        'LA',
+        'RL',
+        'LL',
+      ]);
     });
 
     it('should parse various unit type shorthands', async () => {
       const weaponFile = buildEquipmentFile([
-        { id: 'w1', name: 'Weapon 1', category: 'Energy', subType: 'Laser', techBase: 'IS', rulesLevel: 'STANDARD', damage: 5, heat: 3, ranges: { minimum: 0, short: 3, medium: 6, long: 9 }, weight: 1, criticalSlots: 1, costCBills: 40000, battleValue: 46, introductionYear: 2470, allowedUnitTypes: ['Mech', 'Tank', 'Fighter'] },
-        { id: 'w2', name: 'Weapon 2', category: 'Energy', subType: 'Laser', techBase: 'IS', rulesLevel: 'STANDARD', damage: 5, heat: 3, ranges: { minimum: 0, short: 3, medium: 6, long: 9 }, weight: 1, criticalSlots: 1, costCBills: 40000, battleValue: 46, introductionYear: 2470, allowedUnitTypes: ['BA', 'Proto', 'INF'] },
-        { id: 'w3', name: 'Weapon 3', category: 'Energy', subType: 'Laser', techBase: 'IS', rulesLevel: 'STANDARD', damage: 5, heat: 3, ranges: { minimum: 0, short: 3, medium: 6, long: 9 }, weight: 1, criticalSlots: 1, costCBills: 40000, battleValue: 46, introductionYear: 2470, allowedUnitTypes: ['SC', 'DS', 'JS', 'WS', 'SS'] },
-        { id: 'w4', name: 'Weapon 4', category: 'Energy', subType: 'Laser', techBase: 'IS', rulesLevel: 'STANDARD', damage: 5, heat: 3, ranges: { minimum: 0, short: 3, medium: 6, long: 9 }, weight: 1, criticalSlots: 1, costCBills: 40000, battleValue: 46, introductionYear: 2470, allowedUnitTypes: ['Support', 'ASF', 'VTOL'] },
+        {
+          id: 'w1',
+          name: 'Weapon 1',
+          category: 'Energy',
+          subType: 'Laser',
+          techBase: 'IS',
+          rulesLevel: 'STANDARD',
+          damage: 5,
+          heat: 3,
+          ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 40000,
+          battleValue: 46,
+          introductionYear: 2470,
+          allowedUnitTypes: ['Mech', 'Tank', 'Fighter'],
+        },
+        {
+          id: 'w2',
+          name: 'Weapon 2',
+          category: 'Energy',
+          subType: 'Laser',
+          techBase: 'IS',
+          rulesLevel: 'STANDARD',
+          damage: 5,
+          heat: 3,
+          ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 40000,
+          battleValue: 46,
+          introductionYear: 2470,
+          allowedUnitTypes: ['BA', 'Proto', 'INF'],
+        },
+        {
+          id: 'w3',
+          name: 'Weapon 3',
+          category: 'Energy',
+          subType: 'Laser',
+          techBase: 'IS',
+          rulesLevel: 'STANDARD',
+          damage: 5,
+          heat: 3,
+          ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 40000,
+          battleValue: 46,
+          introductionYear: 2470,
+          allowedUnitTypes: ['SC', 'DS', 'JS', 'WS', 'SS'],
+        },
+        {
+          id: 'w4',
+          name: 'Weapon 4',
+          category: 'Energy',
+          subType: 'Laser',
+          techBase: 'IS',
+          rulesLevel: 'STANDARD',
+          damage: 5,
+          heat: 3,
+          ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 40000,
+          battleValue: 46,
+          introductionYear: 2470,
+          allowedUnitTypes: ['Support', 'ASF', 'VTOL'],
+        },
       ]);
 
       (global.fetch as jest.Mock)
@@ -1598,23 +2268,25 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should handle equipment with unknown flags gracefully', async () => {
-      const weaponFile = buildEquipmentFile([{
-        id: 'w-unknown-flags',
-        name: 'Weapon with Unknown Flags',
-        category: 'Energy',
-        subType: 'Laser',
-        techBase: 'INNER_SPHERE',
-        rulesLevel: 'STANDARD',
-        damage: 5,
-        heat: 3,
-        ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
-        weight: 1,
-        criticalSlots: 1,
-        costCBills: 40000,
-        battleValue: 46,
-        introductionYear: 2470,
-        flags: ['UNKNOWN_FLAG', 'DIRECT_FIRE', 'ANOTHER_UNKNOWN'],
-      }]);
+      const weaponFile = buildEquipmentFile([
+        {
+          id: 'w-unknown-flags',
+          name: 'Weapon with Unknown Flags',
+          category: 'Energy',
+          subType: 'Laser',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          damage: 5,
+          heat: 3,
+          ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 40000,
+          battleValue: 46,
+          introductionYear: 2470,
+          flags: ['UNKNOWN_FLAG', 'DIRECT_FIRE', 'ANOTHER_UNKNOWN'],
+        },
+      ]);
 
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({ ok: true, json: async () => weaponFile })
@@ -1630,23 +2302,25 @@ describe('EquipmentLoaderService', () => {
     });
 
     it('should handle equipment with unknown unit types gracefully', async () => {
-      const weaponFile = buildEquipmentFile([{
-        id: 'w-unknown-units',
-        name: 'Weapon with Unknown Unit Types',
-        category: 'Energy',
-        subType: 'Laser',
-        techBase: 'INNER_SPHERE',
-        rulesLevel: 'STANDARD',
-        damage: 5,
-        heat: 3,
-        ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
-        weight: 1,
-        criticalSlots: 1,
-        costCBills: 40000,
-        battleValue: 46,
-        introductionYear: 2470,
-        allowedUnitTypes: ['UnknownUnit', 'BattleMech', 'AnotherUnknown'],
-      }]);
+      const weaponFile = buildEquipmentFile([
+        {
+          id: 'w-unknown-units',
+          name: 'Weapon with Unknown Unit Types',
+          category: 'Energy',
+          subType: 'Laser',
+          techBase: 'INNER_SPHERE',
+          rulesLevel: 'STANDARD',
+          damage: 5,
+          heat: 3,
+          ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
+          weight: 1,
+          criticalSlots: 1,
+          costCBills: 40000,
+          battleValue: 46,
+          introductionYear: 2470,
+          allowedUnitTypes: ['UnknownUnit', 'BattleMech', 'AnotherUnknown'],
+        },
+      ]);
 
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({ ok: true, json: async () => weaponFile })
@@ -1669,27 +2343,33 @@ describe('EquipmentLoaderService', () => {
         version: '1.0',
         generatedAt: '2025-01-01',
         count: 1,
-        items: [{
-          id: 'file-laser',
-          name: 'File Loaded Laser',
-          category: 'Energy',
-          subType: 'Laser',
-          techBase: 'INNER_SPHERE',
-          rulesLevel: 'STANDARD',
-          damage: 5,
-          heat: 3,
-          ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
-          weight: 1,
-          criticalSlots: 1,
-          costCBills: 40000,
-          battleValue: 46,
-          introductionYear: 2470,
-        }],
+        items: [
+          {
+            id: 'file-laser',
+            name: 'File Loaded Laser',
+            category: 'Energy',
+            subType: 'Laser',
+            techBase: 'INNER_SPHERE',
+            rulesLevel: 'STANDARD',
+            damage: 5,
+            heat: 3,
+            ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
+            weight: 1,
+            criticalSlots: 1,
+            costCBills: 40000,
+            battleValue: 46,
+            introductionYear: 2470,
+          },
+        ],
       };
 
       // Create an actual File object using Blob
-      const blob = new Blob([JSON.stringify(weaponData)], { type: 'application/json' });
-      const file = new File([blob], 'weapons.json', { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(weaponData)], {
+        type: 'application/json',
+      });
+      const file = new File([blob], 'weapons.json', {
+        type: 'application/json',
+      });
 
       const result = await service.loadCustomEquipment(file);
 
@@ -1741,23 +2421,25 @@ describe('EquipmentLoaderService', () => {
         version: '1.0',
         generatedAt: '2025-01-01',
         count: 1,
-        items: [{
-          id: 'no-flags',
-          name: 'No Flags Weapon',
-          category: 'Energy',
-          subType: 'Laser',
-          techBase: 'INNER_SPHERE',
-          rulesLevel: 'STANDARD',
-          damage: 5,
-          heat: 3,
-          ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
-          weight: 1,
-          criticalSlots: 1,
-          costCBills: 40000,
-          battleValue: 46,
-          introductionYear: 2470,
-          flags: [],
-        }],
+        items: [
+          {
+            id: 'no-flags',
+            name: 'No Flags Weapon',
+            category: 'Energy',
+            subType: 'Laser',
+            techBase: 'INNER_SPHERE',
+            rulesLevel: 'STANDARD',
+            damage: 5,
+            heat: 3,
+            ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
+            weight: 1,
+            criticalSlots: 1,
+            costCBills: 40000,
+            battleValue: 46,
+            introductionYear: 2470,
+            flags: [],
+          },
+        ],
       };
 
       (global.fetch as jest.Mock)
@@ -1778,23 +2460,25 @@ describe('EquipmentLoaderService', () => {
         version: '1.0',
         generatedAt: '2025-01-01',
         count: 1,
-        items: [{
-          id: 'no-unit-types',
-          name: 'No Unit Types Weapon',
-          category: 'Energy',
-          subType: 'Laser',
-          techBase: 'INNER_SPHERE',
-          rulesLevel: 'STANDARD',
-          damage: 5,
-          heat: 3,
-          ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
-          weight: 1,
-          criticalSlots: 1,
-          costCBills: 40000,
-          battleValue: 46,
-          introductionYear: 2470,
-          allowedUnitTypes: [],
-        }],
+        items: [
+          {
+            id: 'no-unit-types',
+            name: 'No Unit Types Weapon',
+            category: 'Energy',
+            subType: 'Laser',
+            techBase: 'INNER_SPHERE',
+            rulesLevel: 'STANDARD',
+            damage: 5,
+            heat: 3,
+            ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
+            weight: 1,
+            criticalSlots: 1,
+            costCBills: 40000,
+            battleValue: 46,
+            introductionYear: 2470,
+            allowedUnitTypes: [],
+          },
+        ],
       };
 
       (global.fetch as jest.Mock)
@@ -1829,4 +2513,3 @@ describe('EquipmentLoaderService', () => {
     });
   });
 });
-

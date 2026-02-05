@@ -19,23 +19,31 @@ import {
 describe('UnitCategoryMapper', () => {
   describe('getCategoryForUnitType', () => {
     it('should return MECH for BATTLEMECH', () => {
-      expect(getCategoryForUnitType(UnitType.BATTLEMECH)).toBe(UnitCategory.MECH);
+      expect(getCategoryForUnitType(UnitType.BATTLEMECH)).toBe(
+        UnitCategory.MECH,
+      );
     });
 
     it('should return VEHICLE for VEHICLE', () => {
-      expect(getCategoryForUnitType(UnitType.VEHICLE)).toBe(UnitCategory.VEHICLE);
+      expect(getCategoryForUnitType(UnitType.VEHICLE)).toBe(
+        UnitCategory.VEHICLE,
+      );
     });
 
     it('should return AEROSPACE for AEROSPACE', () => {
-      expect(getCategoryForUnitType(UnitType.AEROSPACE)).toBe(UnitCategory.AEROSPACE);
+      expect(getCategoryForUnitType(UnitType.AEROSPACE)).toBe(
+        UnitCategory.AEROSPACE,
+      );
     });
 
     it('should return PERSONNEL for INFANTRY', () => {
-      expect(getCategoryForUnitType(UnitType.INFANTRY)).toBe(UnitCategory.PERSONNEL);
+      expect(getCategoryForUnitType(UnitType.INFANTRY)).toBe(
+        UnitCategory.PERSONNEL,
+      );
     });
 
     it('should return undefined for unknown unit type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(getCategoryForUnitType('UNKNOWN' as any)).toBeUndefined();
     });
   });
@@ -51,18 +59,22 @@ describe('UnitCategoryMapper', () => {
     });
 
     it('should return empty array for unknown category', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(getUnitTypesInCategory('UNKNOWN' as any)).toEqual([]);
     });
   });
 
   describe('isUnitTypeInCategory', () => {
     it('should return true if type is in category', () => {
-      expect(isUnitTypeInCategory(UnitType.BATTLEMECH, UnitCategory.MECH)).toBe(true);
+      expect(isUnitTypeInCategory(UnitType.BATTLEMECH, UnitCategory.MECH)).toBe(
+        true,
+      );
     });
 
     it('should return false if type is not in category', () => {
-      expect(isUnitTypeInCategory(UnitType.BATTLEMECH, UnitCategory.VEHICLE)).toBe(false);
+      expect(
+        isUnitTypeInCategory(UnitType.BATTLEMECH, UnitCategory.VEHICLE),
+      ).toBe(false);
     });
   });
 

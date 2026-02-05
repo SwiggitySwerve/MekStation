@@ -7,11 +7,12 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
+import type { IPermissionGrant, PermissionLevel } from '@/types/vault';
+
 import {
   PermissionService,
   IGrantPermissionOptions,
 } from '@/services/vault/PermissionService';
-import type { IPermissionGrant, PermissionLevel } from '@/types/vault';
 
 // =============================================================================
 // Mock Repository
@@ -22,7 +23,7 @@ class MockPermissionRepository {
   private idCounter = 0;
 
   async create(
-    grant: Omit<IPermissionGrant, 'id' | 'createdAt'>
+    grant: Omit<IPermissionGrant, 'id' | 'createdAt'>,
   ): Promise<IPermissionGrant> {
     const id = `perm-mock-${++this.idCounter}`;
     const createdAt = new Date().toISOString();
@@ -47,22 +48,22 @@ class MockPermissionRepository {
 
   async getByGrantee(granteeId: string): Promise<IPermissionGrant[]> {
     return Array.from(this.permissions.values()).filter(
-      (p) => p.granteeId === granteeId
+      (p) => p.granteeId === granteeId,
     );
   }
 
   async getByItem(
     scopeType: string,
-    scopeId: string
+    scopeId: string,
   ): Promise<IPermissionGrant[]> {
     return Array.from(this.permissions.values()).filter(
-      (p) => p.scopeType === scopeType && p.scopeId === scopeId
+      (p) => p.scopeType === scopeType && p.scopeId === scopeId,
     );
   }
 
   async getByCategory(category: string): Promise<IPermissionGrant[]> {
     return Array.from(this.permissions.values()).filter(
-      (p) => p.scopeCategory === category
+      (p) => p.scopeCategory === category,
     );
   }
 
@@ -74,7 +75,7 @@ class MockPermissionRepository {
     granteeId: string,
     scopeType: string,
     scopeId: string | null,
-    category?: string
+    category?: string,
   ): Promise<PermissionLevel | null> {
     const now = new Date().toISOString();
 
@@ -85,7 +86,7 @@ class MockPermissionRepository {
           p.granteeId === granteeId &&
           p.scopeType === 'item' &&
           p.scopeId === scopeId &&
-          (!p.expiresAt || p.expiresAt > now)
+          (!p.expiresAt || p.expiresAt > now),
       );
       if (itemPerm) return itemPerm.level;
     }
@@ -97,7 +98,7 @@ class MockPermissionRepository {
           p.granteeId === granteeId &&
           p.scopeType === 'category' &&
           p.scopeCategory === category &&
-          (!p.expiresAt || p.expiresAt > now)
+          (!p.expiresAt || p.expiresAt > now),
       );
       if (categoryPerm) return categoryPerm.level;
     }
@@ -107,7 +108,7 @@ class MockPermissionRepository {
       (p) =>
         p.granteeId === granteeId &&
         p.scopeType === 'all' &&
-        (!p.expiresAt || p.expiresAt > now)
+        (!p.expiresAt || p.expiresAt > now),
     );
     if (allPerm) return allPerm.level;
 
@@ -191,7 +192,7 @@ describe('PermissionService', () => {
 
   beforeEach(() => {
     mockRepo = new MockPermissionRepository();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     service = new PermissionService(mockRepo as any);
   });
 
@@ -376,7 +377,11 @@ describe('PermissionService', () => {
         level: 'read',
       });
 
-      const result = await service.check('ABCD-EFGH-JKLM-NPQR', 'item', 'unit-123');
+      const result = await service.check(
+        'ABCD-EFGH-JKLM-NPQR',
+        'item',
+        'unit-123',
+      );
 
       expect(result.hasAccess).toBe(true);
       expect(result.level).toBe('read');
@@ -394,7 +399,7 @@ describe('PermissionService', () => {
         'ABCD-EFGH-JKLM-NPQR',
         'item',
         'unit-123',
-        'units'
+        'units',
       );
 
       expect(result.hasAccess).toBe(true);
@@ -408,7 +413,11 @@ describe('PermissionService', () => {
         level: 'admin',
       });
 
-      const result = await service.check('ABCD-EFGH-JKLM-NPQR', 'item', 'unit-123');
+      const result = await service.check(
+        'ABCD-EFGH-JKLM-NPQR',
+        'item',
+        'unit-123',
+      );
 
       expect(result.hasAccess).toBe(true);
       expect(result.level).toBe('admin');
@@ -429,7 +438,11 @@ describe('PermissionService', () => {
     });
 
     it('should return no access when no permission', async () => {
-      const result = await service.check('ABCD-EFGH-JKLM-NPQR', 'item', 'unit-123');
+      const result = await service.check(
+        'ABCD-EFGH-JKLM-NPQR',
+        'item',
+        'unit-123',
+      );
 
       expect(result.hasAccess).toBe(false);
       expect(result.level).toBeNull();
@@ -446,7 +459,11 @@ describe('PermissionService', () => {
         expiresAt: expiredAt,
       });
 
-      const result = await service.check('ABCD-EFGH-JKLM-NPQR', 'item', 'unit-123');
+      const result = await service.check(
+        'ABCD-EFGH-JKLM-NPQR',
+        'item',
+        'unit-123',
+      );
 
       expect(result.hasAccess).toBe(false);
     });
@@ -481,25 +498,45 @@ describe('PermissionService', () => {
     });
 
     it('should allow read with any permission level', async () => {
-      expect(await service.canPerformAction('reader', 'read', 'item', 'unit-123')).toBe(true);
-      expect(await service.canPerformAction('writer', 'read', 'item', 'unit-123')).toBe(true);
-      expect(await service.canPerformAction('admin', 'read', 'item', 'unit-123')).toBe(true);
+      expect(
+        await service.canPerformAction('reader', 'read', 'item', 'unit-123'),
+      ).toBe(true);
+      expect(
+        await service.canPerformAction('writer', 'read', 'item', 'unit-123'),
+      ).toBe(true);
+      expect(
+        await service.canPerformAction('admin', 'read', 'item', 'unit-123'),
+      ).toBe(true);
     });
 
     it('should allow write with write or admin', async () => {
-      expect(await service.canPerformAction('reader', 'write', 'item', 'unit-123')).toBe(false);
-      expect(await service.canPerformAction('writer', 'write', 'item', 'unit-123')).toBe(true);
-      expect(await service.canPerformAction('admin', 'write', 'item', 'unit-123')).toBe(true);
+      expect(
+        await service.canPerformAction('reader', 'write', 'item', 'unit-123'),
+      ).toBe(false);
+      expect(
+        await service.canPerformAction('writer', 'write', 'item', 'unit-123'),
+      ).toBe(true);
+      expect(
+        await service.canPerformAction('admin', 'write', 'item', 'unit-123'),
+      ).toBe(true);
     });
 
     it('should allow admin only with admin', async () => {
-      expect(await service.canPerformAction('reader', 'admin', 'item', 'unit-123')).toBe(false);
-      expect(await service.canPerformAction('writer', 'admin', 'item', 'unit-123')).toBe(false);
-      expect(await service.canPerformAction('admin', 'admin', 'item', 'unit-123')).toBe(true);
+      expect(
+        await service.canPerformAction('reader', 'admin', 'item', 'unit-123'),
+      ).toBe(false);
+      expect(
+        await service.canPerformAction('writer', 'admin', 'item', 'unit-123'),
+      ).toBe(false);
+      expect(
+        await service.canPerformAction('admin', 'admin', 'item', 'unit-123'),
+      ).toBe(true);
     });
 
     it('should deny with no permission', async () => {
-      expect(await service.canPerformAction('nobody', 'read', 'item', 'unit-123')).toBe(false);
+      expect(
+        await service.canPerformAction('nobody', 'read', 'item', 'unit-123'),
+      ).toBe(false);
     });
   });
 
@@ -516,7 +553,10 @@ describe('PermissionService', () => {
         level: 'read',
       });
 
-      const updateResult = await service.updateLevel(grantResult.grant!.id, 'write');
+      const updateResult = await service.updateLevel(
+        grantResult.grant!.id,
+        'write',
+      );
 
       expect(updateResult.success).toBe(true);
       expect(updateResult.grant?.level).toBe('write');
@@ -540,7 +580,10 @@ describe('PermissionService', () => {
       });
 
       const newExpiry = new Date(Date.now() + 86400000).toISOString();
-      const updateResult = await service.updateExpiry(grantResult.grant!.id, newExpiry);
+      const updateResult = await service.updateExpiry(
+        grantResult.grant!.id,
+        newExpiry,
+      );
 
       expect(updateResult.success).toBe(true);
       expect(updateResult.grant?.expiresAt).toBe(newExpiry);
@@ -555,7 +598,10 @@ describe('PermissionService', () => {
         expiresAt: new Date().toISOString(),
       });
 
-      const updateResult = await service.updateExpiry(grantResult.grant!.id, null);
+      const updateResult = await service.updateExpiry(
+        grantResult.grant!.id,
+        null,
+      );
 
       expect(updateResult.success).toBe(true);
       expect(updateResult.grant?.expiresAt).toBeNull();

@@ -1,3 +1,4 @@
+import { EngineType } from '@/types/construction/EngineType';
 import {
   validateEngineRating,
   getBaseEngineWeight,
@@ -12,7 +13,6 @@ import {
   isFusionEngine,
   getAllValidEngineRatings,
 } from '@/utils/construction/engineCalculations';
-import { EngineType } from '@/types/construction/EngineType';
 
 describe('engineCalculations', () => {
   describe('validateEngineRating()', () => {
@@ -69,13 +69,15 @@ describe('engineCalculations', () => {
     it('should apply XL multiplier', () => {
       const standardWeight = calculateEngineWeight(250, EngineType.STANDARD);
       const xlWeight = calculateEngineWeight(250, EngineType.XL_IS);
-      
+
       expect(xlWeight).toBeLessThan(standardWeight);
     });
 
     it('should handle unknown engine type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
-      expect(calculateEngineWeight(250, 'INVALID' as any)).toBe(getBaseEngineWeight(250));
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      expect(calculateEngineWeight(250, 'INVALID' as any)).toBe(
+        getBaseEngineWeight(250),
+      );
     });
   });
 
@@ -110,14 +112,17 @@ describe('engineCalculations', () => {
     });
 
     it('should handle different engine types', () => {
-      const standardSinks = calculateIntegralHeatSinks(250, EngineType.STANDARD);
+      const standardSinks = calculateIntegralHeatSinks(
+        250,
+        EngineType.STANDARD,
+      );
       const xlSinks = calculateIntegralHeatSinks(250, EngineType.XL_IS);
-      
+
       expect(xlSinks).toBeGreaterThanOrEqual(standardSinks);
     });
 
     it('should return 0 if engine does not support integral sinks', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(calculateIntegralHeatSinks(250, 'ICE' as any)).toBe(0);
     });
   });
@@ -134,7 +139,7 @@ describe('engineCalculations', () => {
     });
 
     it('should handle unknown engine type', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any -- Testing invalid input handling
       expect(getEngineCTSlots(250, 'INVALID' as any)).toBe(6);
     });
   });
@@ -152,7 +157,7 @@ describe('engineCalculations', () => {
   describe('getTotalEngineSlots()', () => {
     it('should sum CT and side torso slots', () => {
       const total = getTotalEngineSlots(250, EngineType.XL_IS);
-      expect(total).toBe(6 + (3 * 2));
+      expect(total).toBe(6 + 3 * 2);
     });
   });
 

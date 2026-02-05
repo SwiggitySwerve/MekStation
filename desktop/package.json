@@ -2,17 +2,26 @@
   "name": "mekstation-desktop",
   "version": "1.0.0",
   "description": "MekStation - Desktop Application",
-  "main": "dist/electron/main.js",
+  "keywords": [
+    "battletech",
+    "desktop",
+    "editor",
+    "electron",
+    "game",
+    "mech",
+    "megamek"
+  ],
+  "homepage": "https://github.com/swervelabs/mekstation",
+  "license": "Apache-2.0",
   "author": {
     "name": "SwerveLabs",
     "email": "swervelabs@proton.me"
   },
-  "license": "Apache-2.0",
-  "homepage": "https://github.com/swervelabs/mekstation",
   "repository": {
     "type": "git",
     "url": "https://github.com/swervelabs/mekstation.git"
   },
+  "main": "dist/electron/main.js",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
@@ -32,7 +41,7 @@
     "clean": "rimraf dist build release",
     "postinstall": "electron-builder install-app-deps",
     "test": "jest",
-    "lint": "eslint . --ext .ts",
+    "lint": "oxlint",
     "prepare": "npm run build",
     "type-check": "tsc --noEmit",
     "icons:generate": "node scripts/generate-icons.js",
@@ -41,36 +50,25 @@
     "test:build:mac": "node scripts/test-build.js mac",
     "test:build:linux": "node scripts/test-build.js linux"
   },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
+  },
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^20.10.0",
-    "@typescript-eslint/eslint-plugin": "^8.48.0",
-    "@typescript-eslint/parser": "^8.48.0",
     "concurrently": "^9.1.0",
     "cross-env": "^7.0.3",
     "electron": "^33.2.0",
     "electron-builder": "^25.1.8",
-    "eslint": "^9.15.0",
     "jest": "^29.7.0",
+    "oxlint": "^1.43.0",
     "rimraf": "^6.0.1",
     "ts-jest": "^29.4.6",
     "typescript": "^5.8.3",
     "wait-on": "^8.0.1"
   },
-  "dependencies": {
-    "electron-updater": "^6.6.2"
-  },
   "build": {
     "extends": "../electron-builder.yml",
     "afterPack": "scripts/electron-builder/afterPack.js"
-  },
-  "keywords": [
-    "battletech",
-    "mech",
-    "editor",
-    "game",
-    "desktop",
-    "electron",
-    "megamek"
-  ]
+  }
 }

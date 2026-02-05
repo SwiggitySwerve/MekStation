@@ -10,24 +10,24 @@
  * 6. Switch tabs, verify state preservation
  */
 
-import React from 'react';
 import { render, screen, within, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 
-import { CampaignDashboard } from '@/components/simulation-viewer/pages/CampaignDashboard';
-import { EncounterHistory } from '@/components/simulation-viewer/pages/EncounterHistory';
-import { AnalysisBugs } from '@/components/simulation-viewer/pages/AnalysisBugs';
-import { useTabNavigationStore } from '@/stores/simulation-viewer/useTabNavigationStore';
-import { useFilterStore } from '@/stores/simulation-viewer/useFilterStore';
-
-import type { ICampaignDashboardMetrics } from '@/types/simulation-viewer';
-import type { IBattle } from '@/components/simulation-viewer/pages/EncounterHistory';
 import type {
   IInvariant,
   IPageAnomaly,
   IViolation,
   IThresholds,
 } from '@/components/simulation-viewer/pages/AnalysisBugs';
+import type { IBattle } from '@/components/simulation-viewer/pages/EncounterHistory';
+import type { ICampaignDashboardMetrics } from '@/types/simulation-viewer';
+
+import { AnalysisBugs } from '@/components/simulation-viewer/pages/AnalysisBugs';
+import { CampaignDashboard } from '@/components/simulation-viewer/pages/CampaignDashboard';
+import { EncounterHistory } from '@/components/simulation-viewer/pages/EncounterHistory';
+import { useFilterStore } from '@/stores/simulation-viewer/useFilterStore';
+import { useTabNavigationStore } from '@/stores/simulation-viewer/useTabNavigationStore';
 
 /* ========================================================================== */
 /*  Mocks for virtualised components (react-window doesn't work in jsdom)     */
@@ -48,7 +48,15 @@ jest.mock('@/components/simulation-viewer/VirtualizedTimeline', () => ({
       description: string;
       involvedUnits: string[];
     }>;
-    onEventClick?: (event: { id: string; turn: number; phase: string; timestamp: number; type: string; description: string; involvedUnits: string[] }) => void;
+    onEventClick?: (event: {
+      id: string;
+      turn: number;
+      phase: string;
+      timestamp: number;
+      type: string;
+      description: string;
+      involvedUnits: string[];
+    }) => void;
     resolveUnitName?: (unitId: string) => string;
   }) => (
     <div data-testid="virtualized-timeline">
@@ -64,9 +72,13 @@ jest.mock('@/components/simulation-viewer/VirtualizedTimeline', () => ({
           }}
         >
           <span data-testid={`event-turn-${event.id}`}>Turn {event.turn}</span>
-          <span data-testid={`event-desc-${event.id}`}>{event.description}</span>
+          <span data-testid={`event-desc-${event.id}`}>
+            {event.description}
+          </span>
           <span data-testid={`event-units-${event.id}`}>
-            {event.involvedUnits.map((u) => resolveUnitName?.(u) ?? u).join(', ')}
+            {event.involvedUnits
+              .map((u) => resolveUnitName?.(u) ?? u)
+              .join(', ')}
           </span>
         </div>
       ))}
@@ -92,14 +104,20 @@ jest.mock('@/components/simulation-viewer/VirtualizedViolationLog', () => ({
     if (violations.length === 0) {
       return (
         <div data-testid="virtualized-violation-log">
-          <p data-testid="violation-empty">No violations match the current filters.</p>
+          <p data-testid="violation-empty">
+            No violations match the current filters.
+          </p>
         </div>
       );
     }
     return (
       <div data-testid="virtualized-violation-log">
         {violations.map((v) => (
-          <div key={v.id} data-testid="violation-row" data-severity={v.severity}>
+          <div
+            key={v.id}
+            data-testid="violation-row"
+            data-severity={v.severity}
+          >
             <span data-testid="violation-type">{v.type}</span>
             <span data-testid="violation-severity-badge">{v.severity}</span>
             <span data-testid="violation-message">{v.message}</span>
@@ -123,13 +141,31 @@ jest.mock('@/components/simulation-viewer/VirtualizedViolationLog', () => ({
 /*  Mock Data Factories                                                        */
 /* ========================================================================== */
 
-function createMockMetrics(overrides: Partial<ICampaignDashboardMetrics> = {}): ICampaignDashboardMetrics {
+function createMockMetrics(
+  overrides: Partial<ICampaignDashboardMetrics> = {},
+): ICampaignDashboardMetrics {
   return {
     roster: { active: 8, wounded: 2, kia: 1, total: 11 },
-    force: { operational: 6, damaged: 3, destroyed: 1, totalBV: 18000, damagedBV: 5000 },
+    force: {
+      operational: 6,
+      damaged: 3,
+      destroyed: 1,
+      totalBV: 18000,
+      damagedBV: 5000,
+    },
     financialTrend: [
-      { date: '2025-01-01', balance: 1200000, income: 200000, expenses: 150000 },
-      { date: '2025-01-15', balance: 1350000, income: 220000, expenses: 170000 },
+      {
+        date: '2025-01-01',
+        balance: 1200000,
+        income: 200000,
+        expenses: 150000,
+      },
+      {
+        date: '2025-01-15',
+        balance: 1350000,
+        income: 220000,
+        expenses: 170000,
+      },
     ],
     progression: {
       missionsCompleted: 12,
@@ -139,8 +175,24 @@ function createMockMetrics(overrides: Partial<ICampaignDashboardMetrics> = {}): 
       averageXPPerMission: 300,
     },
     topPerformers: [
-      { personId: 'p1', name: 'Natasha Kerensky', rank: 'Colonel', kills: 15, xp: 2500, survivalRate: 1.0, missionsCompleted: 12 },
-      { personId: 'p2', name: 'Kai Allard-Liao', rank: 'Captain', kills: 10, xp: 1800, survivalRate: 0.95, missionsCompleted: 10 },
+      {
+        personId: 'p1',
+        name: 'Natasha Kerensky',
+        rank: 'Colonel',
+        kills: 15,
+        xp: 2500,
+        survivalRate: 1.0,
+        missionsCompleted: 12,
+      },
+      {
+        personId: 'p2',
+        name: 'Kai Allard-Liao',
+        rank: 'Captain',
+        kills: 10,
+        xp: 1800,
+        survivalRate: 0.95,
+        missionsCompleted: 10,
+      },
     ],
     warnings: { lowFunds: false, manyWounded: true, lowBV: false },
     ...overrides,
@@ -163,15 +215,30 @@ function createMockBattle(
     forces: overrides.forces ?? {
       player: {
         units: [
-          { id: 'pu1', name: 'Atlas AS7-D', pilot: 'Natasha Kerensky', status: 'operational' },
-          { id: 'pu2', name: 'Timber Wolf', pilot: 'Aidan Pryde', status: 'damaged' },
+          {
+            id: 'pu1',
+            name: 'Atlas AS7-D',
+            pilot: 'Natasha Kerensky',
+            status: 'operational',
+          },
+          {
+            id: 'pu2',
+            name: 'Timber Wolf',
+            pilot: 'Aidan Pryde',
+            status: 'damaged',
+          },
         ],
         totalBV: 5000,
       },
       enemy: {
         units: [
           { id: 'eu1', name: 'Mad Cat', pilot: 'Enemy 1', status: 'destroyed' },
-          { id: 'eu2', name: 'Dire Wolf', pilot: 'Enemy 2', status: 'operational' },
+          {
+            id: 'eu2',
+            name: 'Dire Wolf',
+            pilot: 'Enemy 2',
+            status: 'operational',
+          },
         ],
         totalBV: 4800,
       },
@@ -187,15 +254,71 @@ function createMockBattle(
       ],
     },
     keyMoments: overrides.keyMoments ?? [
-      { id: `km-${id}-1`, turn: 2, phase: 'Weapon Attack', tier: 'critical', type: 'kill', description: 'Atlas destroys Mad Cat', involvedUnits: ['pu1', 'eu1'] },
-      { id: `km-${id}-2`, turn: 4, phase: 'Status', tier: 'minor', type: 'shutdown', description: 'Timber Wolf overheats', involvedUnits: ['pu2'] },
+      {
+        id: `km-${id}-1`,
+        turn: 2,
+        phase: 'Weapon Attack',
+        tier: 'critical',
+        type: 'kill',
+        description: 'Atlas destroys Mad Cat',
+        involvedUnits: ['pu1', 'eu1'],
+      },
+      {
+        id: `km-${id}-2`,
+        turn: 4,
+        phase: 'Status',
+        tier: 'minor',
+        type: 'shutdown',
+        description: 'Timber Wolf overheats',
+        involvedUnits: ['pu2'],
+      },
     ],
     events: overrides.events ?? [
-      { id: `ev-${id}-1`, turn: 1, phase: 'Movement', timestamp: 0, type: 'movement', description: 'Atlas advances', involvedUnits: ['pu1'] },
-      { id: `ev-${id}-2`, turn: 1, phase: 'Weapon Attack', timestamp: 10, type: 'attack', description: 'Atlas fires PPC', involvedUnits: ['pu1', 'eu1'] },
-      { id: `ev-${id}-3`, turn: 2, phase: 'Movement', timestamp: 20, type: 'movement', description: 'Timber Wolf flanks', involvedUnits: ['pu2'] },
-      { id: `ev-${id}-4`, turn: 2, phase: 'Weapon Attack', timestamp: 30, type: 'attack', description: 'Atlas headshots Mad Cat', involvedUnits: ['pu1', 'eu1'] },
-      { id: `ev-${id}-5`, turn: 3, phase: 'Weapon Attack', timestamp: 40, type: 'damage', description: 'Timber Wolf fires LRMs', involvedUnits: ['pu2', 'eu2'] },
+      {
+        id: `ev-${id}-1`,
+        turn: 1,
+        phase: 'Movement',
+        timestamp: 0,
+        type: 'movement',
+        description: 'Atlas advances',
+        involvedUnits: ['pu1'],
+      },
+      {
+        id: `ev-${id}-2`,
+        turn: 1,
+        phase: 'Weapon Attack',
+        timestamp: 10,
+        type: 'attack',
+        description: 'Atlas fires PPC',
+        involvedUnits: ['pu1', 'eu1'],
+      },
+      {
+        id: `ev-${id}-3`,
+        turn: 2,
+        phase: 'Movement',
+        timestamp: 20,
+        type: 'movement',
+        description: 'Timber Wolf flanks',
+        involvedUnits: ['pu2'],
+      },
+      {
+        id: `ev-${id}-4`,
+        turn: 2,
+        phase: 'Weapon Attack',
+        timestamp: 30,
+        type: 'attack',
+        description: 'Atlas headshots Mad Cat',
+        involvedUnits: ['pu1', 'eu1'],
+      },
+      {
+        id: `ev-${id}-5`,
+        turn: 3,
+        phase: 'Weapon Attack',
+        timestamp: 40,
+        type: 'damage',
+        description: 'Timber Wolf fires LRMs',
+        involvedUnits: ['pu2', 'eu2'],
+      },
     ],
     stats: overrides.stats ?? { totalKills: 2, totalDamage: 110, unitsLost: 0 },
     ...overrides,
@@ -204,7 +327,12 @@ function createMockBattle(
 
 function createMockAnomaly(
   id: string,
-  detector: 'heat-suicide' | 'passive-unit' | 'no-progress' | 'long-game' | 'state-cycle',
+  detector:
+    | 'heat-suicide'
+    | 'passive-unit'
+    | 'no-progress'
+    | 'long-game'
+    | 'state-cycle',
   severity: 'critical' | 'warning' | 'info',
   dismissed: boolean = false,
 ): IPageAnomaly {
@@ -223,18 +351,67 @@ function createMockAnomaly(
 
 function createMockInvariants(): IInvariant[] {
   return [
-    { id: 'inv1', name: 'Unit HP non-negative', description: 'HP >= 0', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
-    { id: 'inv2', name: 'Heat within capacity', description: 'Heat <= max heat', status: 'fail', lastChecked: '2025-01-15T14:30:00Z', failureCount: 3 },
-    { id: 'inv3', name: 'Ammo non-negative', description: 'Ammo >= 0', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
-    { id: 'inv4', name: 'Movement valid', description: 'MP <= max', status: 'pass', lastChecked: '2025-01-15T14:30:00Z', failureCount: 0 },
+    {
+      id: 'inv1',
+      name: 'Unit HP non-negative',
+      description: 'HP >= 0',
+      status: 'pass',
+      lastChecked: '2025-01-15T14:30:00Z',
+      failureCount: 0,
+    },
+    {
+      id: 'inv2',
+      name: 'Heat within capacity',
+      description: 'Heat <= max heat',
+      status: 'fail',
+      lastChecked: '2025-01-15T14:30:00Z',
+      failureCount: 3,
+    },
+    {
+      id: 'inv3',
+      name: 'Ammo non-negative',
+      description: 'Ammo >= 0',
+      status: 'pass',
+      lastChecked: '2025-01-15T14:30:00Z',
+      failureCount: 0,
+    },
+    {
+      id: 'inv4',
+      name: 'Movement valid',
+      description: 'MP <= max',
+      status: 'pass',
+      lastChecked: '2025-01-15T14:30:00Z',
+      failureCount: 0,
+    },
   ];
 }
 
 function createMockViolations(): IViolation[] {
   return [
-    { id: 'v1', type: 'heat-suicide', severity: 'critical', message: 'Unit overheated to shutdown', battleId: 'b1', timestamp: '2025-01-15T14:30:00Z' },
-    { id: 'v2', type: 'passive-unit', severity: 'warning', message: 'Unit passive for 5 turns', battleId: 'b2', timestamp: '2025-01-15T14:35:00Z' },
-    { id: 'v3', type: 'no-progress', severity: 'info', message: 'No progress for 5 turns', battleId: 'b1', timestamp: '2025-01-15T14:40:00Z' },
+    {
+      id: 'v1',
+      type: 'heat-suicide',
+      severity: 'critical',
+      message: 'Unit overheated to shutdown',
+      battleId: 'b1',
+      timestamp: '2025-01-15T14:30:00Z',
+    },
+    {
+      id: 'v2',
+      type: 'passive-unit',
+      severity: 'warning',
+      message: 'Unit passive for 5 turns',
+      battleId: 'b2',
+      timestamp: '2025-01-15T14:35:00Z',
+    },
+    {
+      id: 'v3',
+      type: 'no-progress',
+      severity: 'info',
+      message: 'No progress for 5 turns',
+      battleId: 'b1',
+      timestamp: '2025-01-15T14:40:00Z',
+    },
   ];
 }
 
@@ -309,15 +486,20 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // Verify dashboard renders
       expect(screen.getByTestId('campaign-dashboard')).toBeInTheDocument();
-      expect(screen.getByTestId('dashboard-title')).toHaveTextContent('Campaign Dashboard');
+      expect(screen.getByTestId('dashboard-title')).toHaveTextContent(
+        'Campaign Dashboard',
+      );
 
       // Find and click "View Pilot Roster" drill-down link in roster section
       const rosterSection = screen.getByTestId('roster-section');
-      const drillDownLink = within(rosterSection).getByTestId('drill-down-link');
+      const drillDownLink =
+        within(rosterSection).getByTestId('drill-down-link');
       await user.click(drillDownLink);
 
       // Verify callback was called to navigate to encounter-history with roster context
-      expect(onDrillDown).toHaveBeenCalledWith('encounter-history', { section: 'roster' });
+      expect(onDrillDown).toHaveBeenCalledWith('encounter-history', {
+        section: 'roster',
+      });
 
       // Simulate tab navigation as the parent container would
       act(() => {
@@ -325,19 +507,20 @@ describe('Simulation Viewer Integration Tests', () => {
       });
 
       // Verify the tab store reflects the navigation
-      expect(useTabNavigationStore.getState().activeTab).toBe('encounter-history');
+      expect(useTabNavigationStore.getState().activeTab).toBe(
+        'encounter-history',
+      );
 
       // Now render EncounterHistory to simulate the tab switch
       const { unmount } = render(
-        <EncounterHistory
-          campaignId="test-campaign"
-          battles={allBattles}
-        />,
+        <EncounterHistory campaignId="test-campaign" battles={allBattles} />,
       );
 
       // Verify encounter history page renders with battles
       expect(screen.getByTestId('encounter-history')).toBeInTheDocument();
-      expect(screen.getByTestId('encounter-history-title')).toHaveTextContent('Encounter History');
+      expect(screen.getByTestId('encounter-history-title')).toHaveTextContent(
+        'Encounter History',
+      );
       expect(screen.getByTestId('battle-card-b1')).toBeInTheDocument();
       expect(screen.getByTestId('battle-card-b2')).toBeInTheDocument();
       expect(screen.getByTestId('battle-card-b3')).toBeInTheDocument();
@@ -359,16 +542,21 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // Click "View Mission History" in progression section
       const progressionSection = screen.getByTestId('progression-section');
-      const drillDownLink = within(progressionSection).getByTestId('drill-down-link');
+      const drillDownLink =
+        within(progressionSection).getByTestId('drill-down-link');
       await user.click(drillDownLink);
 
-      expect(onDrillDown).toHaveBeenCalledWith('encounter-history', { section: 'progression' });
+      expect(onDrillDown).toHaveBeenCalledWith('encounter-history', {
+        section: 'progression',
+      });
 
       // Verify tab store is updated via parent
       act(() => {
         useTabNavigationStore.getState().setActiveTab('encounter-history');
       });
-      expect(useTabNavigationStore.getState().activeTab).toBe('encounter-history');
+      expect(useTabNavigationStore.getState().activeTab).toBe(
+        'encounter-history',
+      );
       expect(useTabNavigationStore.getState().canGoBack()).toBe(true);
     });
 
@@ -389,7 +577,9 @@ describe('Simulation Viewer Integration Tests', () => {
       const link = within(performerCards[0]).getByTestId('drill-down-link');
       await user.click(link);
 
-      expect(onDrillDown).toHaveBeenCalledWith('encounter-history', { personId: 'p1' });
+      expect(onDrillDown).toHaveBeenCalledWith('encounter-history', {
+        personId: 'p1',
+      });
     });
   });
 
@@ -401,10 +591,7 @@ describe('Simulation Viewer Integration Tests', () => {
       const user = userEvent.setup();
 
       render(
-        <EncounterHistory
-          campaignId="test-campaign"
-          battles={allBattles}
-        />,
+        <EncounterHistory campaignId="test-campaign" battles={allBattles} />,
       );
 
       // Verify all 3 battles visible initially
@@ -414,7 +601,9 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // Apply victory outcome filter
       const filterPanel = screen.getByTestId('battle-list-filter');
-      const victoryCheckbox = within(filterPanel).getByTestId('checkbox-outcome-victory');
+      const victoryCheckbox = within(filterPanel).getByTestId(
+        'checkbox-outcome-victory',
+      );
       await user.click(victoryCheckbox);
 
       // Verify only victory battle remains
@@ -426,7 +615,9 @@ describe('Simulation Viewer Integration Tests', () => {
       await user.click(victoryCheckbox);
 
       // Apply defeat filter
-      const defeatCheckbox = within(filterPanel).getByTestId('checkbox-outcome-defeat');
+      const defeatCheckbox = within(filterPanel).getByTestId(
+        'checkbox-outcome-defeat',
+      );
       await user.click(defeatCheckbox);
 
       // Verify only defeat battle remains
@@ -448,7 +639,9 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // Click to toggle to descending
       await user.click(durationSortBtn);
-      expect(screen.getByTestId('sort-direction-indicator')).toHaveTextContent('↓');
+      expect(screen.getByTestId('sort-direction-indicator')).toHaveTextContent(
+        '↓',
+      );
 
       // Switch to sort by kills
       const killsSortBtn = screen.getByTestId('sort-button-kills');
@@ -465,7 +658,9 @@ describe('Simulation Viewer Integration Tests', () => {
         });
       });
 
-      expect(useFilterStore.getState().encounterHistory.outcome).toBe('victory');
+      expect(useFilterStore.getState().encounterHistory.outcome).toBe(
+        'victory',
+      );
       expect(useFilterStore.getState().encounterHistory.sortBy).toBe('kills');
     });
 
@@ -481,7 +676,9 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // Apply defeat filter on victory-only list
       const filterPanel = screen.getByTestId('battle-list-filter');
-      const defeatCheckbox = within(filterPanel).getByTestId('checkbox-outcome-defeat');
+      const defeatCheckbox = within(filterPanel).getByTestId(
+        'checkbox-outcome-defeat',
+      );
       await user.click(defeatCheckbox);
 
       // Empty state shown
@@ -498,10 +695,7 @@ describe('Simulation Viewer Integration Tests', () => {
       const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
       render(
-        <EncounterHistory
-          campaignId="test-campaign"
-          battles={allBattles}
-        />,
+        <EncounterHistory campaignId="test-campaign" battles={allBattles} />,
       );
 
       // Initially no battle selected
@@ -511,7 +705,9 @@ describe('Simulation Viewer Integration Tests', () => {
       await user.click(screen.getByTestId('battle-card-b1'));
 
       // Detail view appears
-      expect(screen.queryByTestId('no-battle-selected')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('no-battle-selected'),
+      ).not.toBeInTheDocument();
       expect(screen.getByTestId('forces-section')).toBeInTheDocument();
 
       // Verify player force units displayed
@@ -539,15 +735,21 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // Verify event timeline with VCR controls
       expect(screen.getByTestId('vcr-controls')).toBeInTheDocument();
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 1 / 3',
+      );
 
       // Step forward through timeline
       await user.click(screen.getByTestId('vcr-step-forward'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 2 / 3',
+      );
 
       // Step back
       await user.click(screen.getByTestId('vcr-step-back'));
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 1 / 3',
+      );
 
       // Play the timeline
       await user.click(screen.getByTestId('vcr-play-pause'));
@@ -559,7 +761,9 @@ describe('Simulation Viewer Integration Tests', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+        expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+          'Turn 2 / 3',
+        );
       });
 
       // Pause
@@ -571,23 +775,24 @@ describe('Simulation Viewer Integration Tests', () => {
       const user = userEvent.setup();
 
       render(
-        <EncounterHistory
-          campaignId="test-campaign"
-          battles={allBattles}
-        />,
+        <EncounterHistory campaignId="test-campaign" battles={allBattles} />,
       );
 
       // Select battle
       await user.click(screen.getByTestId('battle-card-b1'));
 
       // Verify initial turn
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 1 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 1 / 3',
+      );
 
       // Click key moment (turn 2)
       await user.click(screen.getByTestId('key-moment-km-b1-1'));
 
       // VCR should jump to that turn
-      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+      expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+        'Turn 2 / 3',
+      );
     });
 
     it('should change VCR speed and advance faster', async () => {
@@ -595,10 +800,7 @@ describe('Simulation Viewer Integration Tests', () => {
       const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
       render(
-        <EncounterHistory
-          campaignId="test-campaign"
-          battles={allBattles}
-        />,
+        <EncounterHistory campaignId="test-campaign" battles={allBattles} />,
       );
 
       await user.click(screen.getByTestId('battle-card-b1'));
@@ -614,7 +816,9 @@ describe('Simulation Viewer Integration Tests', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent('Turn 2 / 3');
+        expect(screen.getByTestId('vcr-turn-display')).toHaveTextContent(
+          'Turn 2 / 3',
+        );
       });
     });
 
@@ -633,7 +837,9 @@ describe('Simulation Viewer Integration Tests', () => {
       await user.click(screen.getByTestId('battle-card-b1'));
 
       // Comparison defaults to campaign average
-      const modeToggle = screen.getByTestId('comparison-mode-toggle') as HTMLSelectElement;
+      const modeToggle = screen.getByTestId(
+        'comparison-mode-toggle',
+      ) as HTMLSelectElement;
       expect(modeToggle.value).toBe('campaign-average');
       expect(screen.getByTestId('comparison-metrics')).toBeInTheDocument();
 
@@ -641,12 +847,17 @@ describe('Simulation Viewer Integration Tests', () => {
       const compSection = screen.getByTestId('comparison-metrics');
       const compLink = within(compSection).getByTestId('drill-down-link');
       await user.click(compLink);
-      expect(onDrillDown).toHaveBeenCalledWith('analysis-bugs', expect.objectContaining({ battleId: 'b1' }));
+      expect(onDrillDown).toHaveBeenCalledWith(
+        'analysis-bugs',
+        expect.objectContaining({ battleId: 'b1' }),
+      );
 
       // Switch to specific battle comparison
       const { fireEvent } = await import('@testing-library/react');
       fireEvent.change(modeToggle, { target: { value: 'specific-battle' } });
-      expect(screen.getByTestId('comparison-battle-select')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('comparison-battle-select'),
+      ).toBeInTheDocument();
 
       // Select a comparison battle
       const battleSelect = screen.getByTestId('comparison-battle-select');
@@ -655,11 +866,17 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // Collapse a mission group
       await user.click(screen.getByTestId('mission-group-header-m1'));
-      expect(screen.getByTestId('mission-group-header-m1')).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.getByTestId('mission-group-header-m1')).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
 
       // Expand it back
       await user.click(screen.getByTestId('mission-group-header-m1'));
-      expect(screen.getByTestId('mission-group-header-m1')).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('mission-group-header-m1')).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
     });
   });
 
@@ -676,7 +893,9 @@ describe('Simulation Viewer Integration Tests', () => {
       const { unmount: unmountDashboard } = render(
         <CampaignDashboard
           campaignId="test-campaign"
-          metrics={createMockMetrics({ warnings: { lowFunds: false, manyWounded: true, lowBV: true } })}
+          metrics={createMockMetrics({
+            warnings: { lowFunds: false, manyWounded: true, lowBV: true },
+          })}
           onDrillDown={onDashboardDrillDown}
         />,
       );
@@ -691,7 +910,7 @@ describe('Simulation Viewer Integration Tests', () => {
       await user.click(warningLink);
       expect(onDashboardDrillDown).toHaveBeenCalledWith(
         'encounter-history',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
         expect.objectContaining({ warningTarget: expect.any(String) }),
       );
 
@@ -723,7 +942,9 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // Verify analysis page renders
       expect(screen.getByTestId('analysis-bugs-page')).toBeInTheDocument();
-      expect(screen.getByTestId('page-title')).toHaveTextContent('Analysis & Bugs');
+      expect(screen.getByTestId('page-title')).toHaveTextContent(
+        'Analysis & Bugs',
+      );
 
       // Verify anomaly cards rendered
       const anomalyCards = screen.getAllByTestId('anomaly-alert-card');
@@ -735,11 +956,15 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // 3. Configure a threshold
       const heatSlider = screen.getByTestId('threshold-input-heatSuicide');
-      expect(screen.getByTestId('threshold-value-heatSuicide')).toHaveTextContent('80');
+      expect(
+        screen.getByTestId('threshold-value-heatSuicide'),
+      ).toHaveTextContent('80');
 
       const { fireEvent } = await import('@testing-library/react');
       fireEvent.change(heatSlider, { target: { value: '50' } });
-      expect(screen.getByTestId('threshold-value-heatSuicide')).toHaveTextContent('50');
+      expect(
+        screen.getByTestId('threshold-value-heatSuicide'),
+      ).toHaveTextContent('50');
 
       // Save thresholds
       await user.click(screen.getByTestId('threshold-save'));
@@ -765,11 +990,17 @@ describe('Simulation Viewer Integration Tests', () => {
       const { fireEvent } = await import('@testing-library/react');
       const slider = screen.getByTestId('threshold-input-heatSuicide');
       fireEvent.change(slider, { target: { value: '25' } });
-      expect(screen.getByTestId('threshold-value-heatSuicide')).toHaveTextContent('25');
+      expect(
+        screen.getByTestId('threshold-value-heatSuicide'),
+      ).toHaveTextContent('25');
 
       await user.click(screen.getByTestId('threshold-reset'));
-      expect(screen.getByTestId('threshold-value-heatSuicide')).toHaveTextContent('80');
-      expect(screen.getByTestId('threshold-value-passiveUnit')).toHaveTextContent('60');
+      expect(
+        screen.getByTestId('threshold-value-heatSuicide'),
+      ).toHaveTextContent('80');
+      expect(
+        screen.getByTestId('threshold-value-passiveUnit'),
+      ).toHaveTextContent('60');
 
       // Filter violations by severity
       const severityCheckbox = screen.getByTestId('checkbox-severity-critical');
@@ -784,7 +1015,9 @@ describe('Simulation Viewer Integration Tests', () => {
       await user.click(invariantCards[0]);
 
       // Toggle auto-snapshot settings
-      const warningToggle = screen.getByTestId('toggle-input-auto-snapshot-warning');
+      const warningToggle = screen.getByTestId(
+        'toggle-input-auto-snapshot-warning',
+      );
       await user.click(warningToggle);
       expect(warningToggle).toBeChecked();
     });
@@ -882,7 +1115,9 @@ describe('Simulation Viewer Integration Tests', () => {
       render(
         <CampaignDashboard
           campaignId="test-campaign"
-          metrics={createMockMetrics({ warnings: { lowFunds: true, manyWounded: true, lowBV: false } })}
+          metrics={createMockMetrics({
+            warnings: { lowFunds: true, manyWounded: true, lowBV: false },
+          })}
         />,
       );
 
@@ -905,7 +1140,9 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // Empty state
       expect(screen.getByTestId('warnings-empty')).toBeInTheDocument();
-      expect(screen.getByTestId('warnings-empty')).toHaveTextContent('all systems nominal');
+      expect(screen.getByTestId('warnings-empty')).toHaveTextContent(
+        'all systems nominal',
+      );
     });
   });
 
@@ -954,7 +1191,9 @@ describe('Simulation Viewer Integration Tests', () => {
       act(() => {
         useTabNavigationStore.getState().setActiveTab('encounter-history');
       });
-      expect(useTabNavigationStore.getState().activeTab).toBe('encounter-history');
+      expect(useTabNavigationStore.getState().activeTab).toBe(
+        'encounter-history',
+      );
 
       // Encounter history filters still preserved
       expect(useFilterStore.getState().encounterHistory).toEqual({
@@ -972,14 +1211,18 @@ describe('Simulation Viewer Integration Tests', () => {
 
     it('should preserve tab navigation history across tab switches', () => {
       // Start on campaign-dashboard (default)
-      expect(useTabNavigationStore.getState().activeTab).toBe('campaign-dashboard');
+      expect(useTabNavigationStore.getState().activeTab).toBe(
+        'campaign-dashboard',
+      );
       expect(useTabNavigationStore.getState().canGoBack()).toBe(false);
 
       // Navigate to encounter-history
       act(() => {
         useTabNavigationStore.getState().setActiveTab('encounter-history');
       });
-      expect(useTabNavigationStore.getState().activeTab).toBe('encounter-history');
+      expect(useTabNavigationStore.getState().activeTab).toBe(
+        'encounter-history',
+      );
       expect(useTabNavigationStore.getState().canGoBack()).toBe(true);
 
       // Navigate to analysis-bugs
@@ -993,28 +1236,38 @@ describe('Simulation Viewer Integration Tests', () => {
       act(() => {
         useTabNavigationStore.getState().goBack();
       });
-      expect(useTabNavigationStore.getState().activeTab).toBe('encounter-history');
+      expect(useTabNavigationStore.getState().activeTab).toBe(
+        'encounter-history',
+      );
 
       // Go back again to campaign-dashboard
       act(() => {
         useTabNavigationStore.getState().goBack();
       });
-      expect(useTabNavigationStore.getState().activeTab).toBe('campaign-dashboard');
+      expect(useTabNavigationStore.getState().activeTab).toBe(
+        'campaign-dashboard',
+      );
       expect(useTabNavigationStore.getState().canGoBack()).toBe(false);
     });
 
     it('should clear all filters and preserve tab position', () => {
       // Set filters on both tabs
       act(() => {
-        useFilterStore.getState().setEncounterHistoryFilters({ outcome: 'defeat' });
-        useFilterStore.getState().setAnalysisBugsFilters({ severity: 'warning' });
+        useFilterStore
+          .getState()
+          .setEncounterHistoryFilters({ outcome: 'defeat' });
+        useFilterStore
+          .getState()
+          .setAnalysisBugsFilters({ severity: 'warning' });
         useTabNavigationStore.getState().setActiveTab('encounter-history');
       });
 
       // Verify filters set
       expect(useFilterStore.getState().encounterHistory.outcome).toBe('defeat');
       expect(useFilterStore.getState().analysisBugs.severity).toBe('warning');
-      expect(useTabNavigationStore.getState().activeTab).toBe('encounter-history');
+      expect(useTabNavigationStore.getState().activeTab).toBe(
+        'encounter-history',
+      );
 
       // Clear all filters
       act(() => {
@@ -1026,13 +1279,15 @@ describe('Simulation Viewer Integration Tests', () => {
       expect(useFilterStore.getState().analysisBugs).toEqual({});
 
       // Tab position preserved
-      expect(useTabNavigationStore.getState().activeTab).toBe('encounter-history');
+      expect(useTabNavigationStore.getState().activeTab).toBe(
+        'encounter-history',
+      );
     });
 
     it('should exercise tab navigation URL hooks via component rendering', () => {
-      const { useInitTabFromURL, useSyncTabWithURL } = jest.requireActual<typeof import('@/stores/simulation-viewer/useTabNavigationStore')>(
-        '@/stores/simulation-viewer/useTabNavigationStore',
-      );
+      const { useInitTabFromURL, useSyncTabWithURL } = jest.requireActual<
+        typeof import('@/stores/simulation-viewer/useTabNavigationStore')
+      >('@/stores/simulation-viewer/useTabNavigationStore');
 
       // Clean URL params from previous tests
       window.history.replaceState({}, '', window.location.pathname);
@@ -1046,22 +1301,30 @@ describe('Simulation Viewer Integration Tests', () => {
       };
 
       render(<TestURLSyncComponent />);
-      expect(screen.getByTestId('url-sync-test')).toHaveTextContent('campaign-dashboard');
+      expect(screen.getByTestId('url-sync-test')).toHaveTextContent(
+        'campaign-dashboard',
+      );
 
       act(() => {
         useTabNavigationStore.getState().setActiveTab('encounter-history');
       });
-      expect(screen.getByTestId('url-sync-test')).toHaveTextContent('encounter-history');
+      expect(screen.getByTestId('url-sync-test')).toHaveTextContent(
+        'encounter-history',
+      );
 
       act(() => {
         useTabNavigationStore.getState().setActiveTab('analysis-bugs');
       });
-      expect(screen.getByTestId('url-sync-test')).toHaveTextContent('analysis-bugs');
+      expect(screen.getByTestId('url-sync-test')).toHaveTextContent(
+        'analysis-bugs',
+      );
 
       act(() => {
         useTabNavigationStore.getState().goBack();
       });
-      expect(screen.getByTestId('url-sync-test')).toHaveTextContent('encounter-history');
+      expect(screen.getByTestId('url-sync-test')).toHaveTextContent(
+        'encounter-history',
+      );
 
       // Clean URL after test
       window.history.replaceState({}, '', window.location.pathname);
@@ -1069,11 +1332,20 @@ describe('Simulation Viewer Integration Tests', () => {
 
     it('should exercise filter store URL sync and clear operations', () => {
       act(() => {
-        useFilterStore.getState().setEncounterHistoryFilters({ outcome: 'victory', sortBy: 'kills' });
-        useFilterStore.getState().setAnalysisBugsFilters({ severity: 'critical', showDismissed: true });
+        useFilterStore
+          .getState()
+          .setEncounterHistoryFilters({ outcome: 'victory', sortBy: 'kills' });
+        useFilterStore
+          .getState()
+          .setAnalysisBugsFilters({
+            severity: 'critical',
+            showDismissed: true,
+          });
       });
 
-      expect(useFilterStore.getState().encounterHistory.outcome).toBe('victory');
+      expect(useFilterStore.getState().encounterHistory.outcome).toBe(
+        'victory',
+      );
       expect(useFilterStore.getState().analysisBugs.severity).toBe('critical');
       expect(useFilterStore.getState().analysisBugs.showDismissed).toBe(true);
 
@@ -1089,12 +1361,23 @@ describe('Simulation Viewer Integration Tests', () => {
       expect(useFilterStore.getState().analysisBugs).toEqual({});
 
       act(() => {
-        useFilterStore.getState().setEncounterHistoryFilters({ keyMomentTier: 'critical', keyMomentType: 'kill' });
-        useFilterStore.getState().setAnalysisBugsFilters({ detector: 'heat-suicide', battleId: 'b1' });
+        useFilterStore
+          .getState()
+          .setEncounterHistoryFilters({
+            keyMomentTier: 'critical',
+            keyMomentType: 'kill',
+          });
+        useFilterStore
+          .getState()
+          .setAnalysisBugsFilters({ detector: 'heat-suicide', battleId: 'b1' });
       });
 
-      expect(useFilterStore.getState().encounterHistory.keyMomentTier).toBe('critical');
-      expect(useFilterStore.getState().analysisBugs.detector).toBe('heat-suicide');
+      expect(useFilterStore.getState().encounterHistory.keyMomentTier).toBe(
+        'critical',
+      );
+      expect(useFilterStore.getState().analysisBugs.detector).toBe(
+        'heat-suicide',
+      );
 
       act(() => {
         useFilterStore.getState().syncToURL();
@@ -1113,15 +1396,14 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // Render encounter history, apply filter
       const { unmount: unmountEH } = render(
-        <EncounterHistory
-          campaignId="test-campaign"
-          battles={allBattles}
-        />,
+        <EncounterHistory campaignId="test-campaign" battles={allBattles} />,
       );
 
       // Apply victory filter
       const filterPanel = screen.getByTestId('battle-list-filter');
-      const victoryCheckbox = within(filterPanel).getByTestId('checkbox-outcome-victory');
+      const victoryCheckbox = within(filterPanel).getByTestId(
+        'checkbox-outcome-victory',
+      );
       await user.click(victoryCheckbox);
 
       // Verify filter applied
@@ -1130,7 +1412,9 @@ describe('Simulation Viewer Integration Tests', () => {
 
       // Save filter state to store for persistence
       act(() => {
-        useFilterStore.getState().setEncounterHistoryFilters({ outcome: 'victory' });
+        useFilterStore
+          .getState()
+          .setEncounterHistoryFilters({ outcome: 'victory' });
         useTabNavigationStore.getState().setActiveTab('analysis-bugs');
       });
 
@@ -1157,8 +1441,12 @@ describe('Simulation Viewer Integration Tests', () => {
       });
 
       // Filter state preserved in store
-      expect(useFilterStore.getState().encounterHistory.outcome).toBe('victory');
-      expect(useTabNavigationStore.getState().activeTab).toBe('encounter-history');
+      expect(useFilterStore.getState().encounterHistory.outcome).toBe(
+        'victory',
+      );
+      expect(useTabNavigationStore.getState().activeTab).toBe(
+        'encounter-history',
+      );
     });
   });
 });

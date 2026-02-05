@@ -8,11 +8,14 @@
  */
 
 import { ILocationCriticals, IRecordSheetCriticalSlot } from '@/types/printing';
+
 import { SVG_NS } from '../constants';
 import { renderCriticalSlots } from '../criticals';
 
 // Mock console.warn to capture warnings
-const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+const mockConsoleWarn = jest
+  .spyOn(console, 'warn')
+  .mockImplementation(() => {});
 
 /**
  * Interface for tracking created SVG elements during tests
@@ -40,9 +43,14 @@ function getCreatedElements(doc: Document): CreatedElement[] {
 /**
  * Creates a mock SVG Document with configurable elements
  */
-function createMockSvgDoc(options: {
-  critAreas?: Record<string, { x: number; y: number; width: number; height: number }>;
-} = {}): MockSvgDocument {
+function createMockSvgDoc(
+  options: {
+    critAreas?: Record<
+      string,
+      { x: number; y: number; width: number; height: number }
+    >;
+  } = {},
+): MockSvgDocument {
   const { critAreas = {} } = options;
 
   // Store created elements by ID
@@ -62,17 +70,22 @@ function createMockSvgDoc(options: {
     const mockRect = {
       getAttribute: (attr: string) => {
         switch (attr) {
-          case 'x': return String(rect.x);
-          case 'y': return String(rect.y);
-          case 'width': return String(rect.width);
-          case 'height': return String(rect.height);
-          default: return null;
+          case 'x':
+            return String(rect.x);
+          case 'y':
+            return String(rect.y);
+          case 'width':
+            return String(rect.width);
+          case 'height':
+            return String(rect.height);
+          default:
+            return null;
         }
       },
       parentNode: mockParent,
       nextSibling: null,
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- Mock object for testing
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- Mock object for testing
     elementsById[id] = mockRect as any;
   }
 
@@ -106,12 +119,16 @@ function createMockSvgDoc(options: {
       // Track created elements - use getters to capture final state
       const trackedElement: CreatedElement = {
         tagName,
-        get attributes() { return { ...attributes }; },
-        get textContent() { return textContent; },
+        get attributes() {
+          return { ...attributes };
+        },
+        get textContent() {
+          return textContent;
+        },
       };
       createdElements.push(trackedElement);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return -- Mock object for testing
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return -- Mock object for testing
       return mockElement as any;
     },
     // Expose created elements for test assertions
@@ -124,7 +141,9 @@ function createMockSvgDoc(options: {
 /**
  * Creates a mock critical slot
  */
-function createMockSlot(overrides: Partial<IRecordSheetCriticalSlot> = {}): IRecordSheetCriticalSlot {
+function createMockSlot(
+  overrides: Partial<IRecordSheetCriticalSlot> = {},
+): IRecordSheetCriticalSlot {
   return {
     slotNumber: 1,
     content: '',
@@ -138,7 +157,9 @@ function createMockSlot(overrides: Partial<IRecordSheetCriticalSlot> = {}): IRec
 /**
  * Creates a mock location criticals
  */
-function createMockLocationCriticals(overrides: Partial<ILocationCriticals> = {}): ILocationCriticals {
+function createMockLocationCriticals(
+  overrides: Partial<ILocationCriticals> = {},
+): ILocationCriticals {
   return {
     location: 'Head',
     abbreviation: 'HD',
@@ -160,8 +181,8 @@ describe('criticals', () => {
     it('should render critical slots for each location', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 20, width: 94, height: 103 },
-          'crits_CT': { x: 110, y: 20, width: 94, height: 206 },
+          crits_HD: { x: 10, y: 20, width: 94, height: 103 },
+          crits_CT: { x: 110, y: 20, width: 94, height: 206 },
         },
       });
 
@@ -170,19 +191,43 @@ describe('criticals', () => {
           location: 'Head',
           abbreviation: 'HD',
           slots: [
-            createMockSlot({ slotNumber: 1, content: 'Life Support', isSystem: true }),
-            createMockSlot({ slotNumber: 2, content: 'Sensors', isSystem: true }),
-            createMockSlot({ slotNumber: 3, content: 'Cockpit', isSystem: true }),
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Life Support',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 2,
+              content: 'Sensors',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 3,
+              content: 'Cockpit',
+              isSystem: true,
+            }),
             createMockSlot({ slotNumber: 4, content: '', isRollAgain: false }),
-            createMockSlot({ slotNumber: 5, content: 'Sensors', isSystem: true }),
-            createMockSlot({ slotNumber: 6, content: 'Life Support', isSystem: true }),
+            createMockSlot({
+              slotNumber: 5,
+              content: 'Sensors',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 6,
+              content: 'Life Support',
+              isSystem: true,
+            }),
           ],
         }),
         createMockLocationCriticals({
           location: 'Center Torso',
           abbreviation: 'CT',
           slots: Array.from({ length: 12 }, (_, i) =>
-            createMockSlot({ slotNumber: i + 1, content: 'Fusion Engine', isSystem: true })
+            createMockSlot({
+              slotNumber: i + 1,
+              content: 'Fusion Engine',
+              isSystem: true,
+            }),
           ),
         }),
       ];
@@ -191,7 +236,7 @@ describe('criticals', () => {
 
       // Should have created groups for each location
       const createdElements = getCreatedElements(mockDoc);
-      const groups = createdElements.filter(el => el.tagName === 'g');
+      const groups = createdElements.filter((el) => el.tagName === 'g');
       expect(groups.length).toBe(2);
     });
 
@@ -214,19 +259,27 @@ describe('criticals', () => {
         createMockLocationCriticals({
           location: 'Head',
           abbreviation: 'HD',
-          slots: [createMockSlot({ slotNumber: 1, content: 'Life Support', isSystem: true })],
+          slots: [
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Life Support',
+              isSystem: true,
+            }),
+          ],
         }),
       ];
 
       renderCriticalSlots(mockDoc, criticals);
 
-      expect(mockConsoleWarn).toHaveBeenCalledWith('Critical area not found: crits_HD');
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        'Critical area not found: crits_HD',
+      );
     });
 
     it('should skip locations with missing critical areas without affecting other locations', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_LA': { x: 10, y: 20, width: 94, height: 103 },
+          crits_LA: { x: 10, y: 20, width: 94, height: 103 },
           // No crits_HD
         },
       });
@@ -235,22 +288,36 @@ describe('criticals', () => {
         createMockLocationCriticals({
           location: 'Head',
           abbreviation: 'HD',
-          slots: [createMockSlot({ slotNumber: 1, content: 'Life Support', isSystem: true })],
+          slots: [
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Life Support',
+              isSystem: true,
+            }),
+          ],
         }),
         createMockLocationCriticals({
           location: 'Left Arm',
           abbreviation: 'LA',
-          slots: [createMockSlot({ slotNumber: 1, content: 'Shoulder', isSystem: true })],
+          slots: [
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Shoulder',
+              isSystem: true,
+            }),
+          ],
         }),
       ];
 
       renderCriticalSlots(mockDoc, criticals);
 
       // Should warn about HD but still process LA
-      expect(mockConsoleWarn).toHaveBeenCalledWith('Critical area not found: crits_HD');
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        'Critical area not found: crits_HD',
+      );
 
       const createdElements = getCreatedElements(mockDoc);
-      const groups = createdElements.filter(el => el.tagName === 'g');
+      const groups = createdElements.filter((el) => el.tagName === 'g');
       expect(groups.length).toBe(1);
     });
   });
@@ -259,7 +326,7 @@ describe('criticals', () => {
     it('should create a group with correct ID and class', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 20, width: 94, height: 103 },
+          crits_HD: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -267,14 +334,20 @@ describe('criticals', () => {
         createMockLocationCriticals({
           location: 'Head',
           abbreviation: 'HD',
-          slots: [createMockSlot({ slotNumber: 1, content: 'Life Support', isSystem: true })],
+          slots: [
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Life Support',
+              isSystem: true,
+            }),
+          ],
         }),
       ];
 
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const group = createdElements.find(el => el.tagName === 'g');
+      const group = createdElements.find((el) => el.tagName === 'g');
 
       expect(group).toBeDefined();
       expect(group!.attributes.id).toBe('critSlots_HD');
@@ -284,7 +357,7 @@ describe('criticals', () => {
     it('should render location label above the crit rect', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 50, width: 94, height: 103 },
+          crits_HD: { x: 10, y: 50, width: 94, height: 103 },
         },
       });
 
@@ -292,14 +365,22 @@ describe('criticals', () => {
         createMockLocationCriticals({
           location: 'Head',
           abbreviation: 'HD',
-          slots: [createMockSlot({ slotNumber: 1, content: 'Life Support', isSystem: true })],
+          slots: [
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Life Support',
+              isSystem: true,
+            }),
+          ],
         }),
       ];
 
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const textElements = createdElements.filter(el => el.tagName === 'text');
+      const textElements = createdElements.filter(
+        (el) => el.tagName === 'text',
+      );
 
       // First text element should be the label
       const labelElement = textElements[0];
@@ -312,7 +393,7 @@ describe('criticals', () => {
     it('should render slot numbers 1-6 for standard locations', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 20, width: 94, height: 103 },
+          crits_HD: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -321,7 +402,11 @@ describe('criticals', () => {
           location: 'Head',
           abbreviation: 'HD',
           slots: Array.from({ length: 6 }, (_, i) =>
-            createMockSlot({ slotNumber: i + 1, content: `Slot ${i + 1}`, isHittable: true })
+            createMockSlot({
+              slotNumber: i + 1,
+              content: `Slot ${i + 1}`,
+              isHittable: true,
+            }),
           ),
         }),
       ];
@@ -329,17 +414,21 @@ describe('criticals', () => {
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const textElements = createdElements.filter(el => el.tagName === 'text');
+      const textElements = createdElements.filter(
+        (el) => el.tagName === 'text',
+      );
 
       // Should have label + (6 slot numbers + 6 slot contents) = 13 text elements
-      const slotNumbers = textElements.filter(el => /^[1-6]\.$/.test(el.textContent || ''));
+      const slotNumbers = textElements.filter((el) =>
+        /^[1-6]\.$/.test(el.textContent || ''),
+      );
       expect(slotNumbers.length).toBe(6);
     });
 
     it('should render slot numbers 1-6 twice for 12-slot locations', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_CT': { x: 10, y: 20, width: 94, height: 206 },
+          crits_CT: { x: 10, y: 20, width: 94, height: 206 },
         },
       });
 
@@ -348,7 +437,11 @@ describe('criticals', () => {
           location: 'Center Torso',
           abbreviation: 'CT',
           slots: Array.from({ length: 12 }, (_, i) =>
-            createMockSlot({ slotNumber: i + 1, content: 'Fusion Engine', isSystem: true })
+            createMockSlot({
+              slotNumber: i + 1,
+              content: 'Fusion Engine',
+              isSystem: true,
+            }),
           ),
         }),
       ];
@@ -356,17 +449,21 @@ describe('criticals', () => {
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const textElements = createdElements.filter(el => el.tagName === 'text');
+      const textElements = createdElements.filter(
+        (el) => el.tagName === 'text',
+      );
 
       // Count slot numbers - should have 12 (1-6 twice)
-      const slotNumbers = textElements.filter(el => /^[1-6]\.$/.test(el.textContent || ''));
+      const slotNumbers = textElements.filter((el) =>
+        /^[1-6]\.$/.test(el.textContent || ''),
+      );
       expect(slotNumbers.length).toBe(12);
     });
 
     it('should use default dimensions when attributes are missing', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 0, y: 0, width: 94, height: 103 }, // Default values
+          crits_HD: { x: 0, y: 0, width: 94, height: 103 }, // Default values
         },
       });
 
@@ -388,7 +485,13 @@ describe('criticals', () => {
         createMockLocationCriticals({
           location: 'Head',
           abbreviation: 'HD',
-          slots: [createMockSlot({ slotNumber: 1, content: 'Life Support', isSystem: true })],
+          slots: [
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Life Support',
+              isSystem: true,
+            }),
+          ],
         }),
       ];
 
@@ -401,7 +504,7 @@ describe('criticals', () => {
     it('should render empty slots as "-Empty-" in gray', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 20, width: 94, height: 103 },
+          crits_HD: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -417,7 +520,7 @@ describe('criticals', () => {
 
       const createdElements = getCreatedElements(mockDoc);
       const contentElements = createdElements.filter(
-        el => el.tagName === 'text' && el.textContent === '-Empty-'
+        (el) => el.tagName === 'text' && el.textContent === '-Empty-',
       );
 
       expect(contentElements.length).toBe(1);
@@ -427,7 +530,7 @@ describe('criticals', () => {
     it('should render Roll Again slots with black text', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 20, width: 94, height: 103 },
+          crits_HD: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -435,7 +538,9 @@ describe('criticals', () => {
         createMockLocationCriticals({
           location: 'Head',
           abbreviation: 'HD',
-          slots: [createMockSlot({ slotNumber: 1, content: '', isRollAgain: true })],
+          slots: [
+            createMockSlot({ slotNumber: 1, content: '', isRollAgain: true }),
+          ],
         }),
       ];
 
@@ -443,7 +548,7 @@ describe('criticals', () => {
 
       const createdElements = getCreatedElements(mockDoc);
       const rollAgainElements = createdElements.filter(
-        el => el.tagName === 'text' && el.textContent === 'Roll Again'
+        (el) => el.tagName === 'text' && el.textContent === 'Roll Again',
       );
 
       expect(rollAgainElements.length).toBe(1);
@@ -454,7 +559,7 @@ describe('criticals', () => {
     it('should render hittable equipment in bold', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_LA': { x: 10, y: 20, width: 94, height: 103 },
+          crits_LA: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -462,7 +567,13 @@ describe('criticals', () => {
         createMockLocationCriticals({
           location: 'Left Arm',
           abbreviation: 'LA',
-          slots: [createMockSlot({ slotNumber: 1, content: 'Medium Laser', isHittable: true })],
+          slots: [
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Medium Laser',
+              isHittable: true,
+            }),
+          ],
         }),
       ];
 
@@ -470,7 +581,7 @@ describe('criticals', () => {
 
       const createdElements = getCreatedElements(mockDoc);
       const laserElements = createdElements.filter(
-        el => el.tagName === 'text' && el.textContent === 'Medium Laser'
+        (el) => el.tagName === 'text' && el.textContent === 'Medium Laser',
       );
 
       expect(laserElements.length).toBe(1);
@@ -480,7 +591,7 @@ describe('criticals', () => {
     it('should render non-hittable equipment (unhittables) in normal weight', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_LT': { x: 10, y: 20, width: 94, height: 103 },
+          crits_LT: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -488,7 +599,13 @@ describe('criticals', () => {
         createMockLocationCriticals({
           location: 'Left Torso',
           abbreviation: 'LT',
-          slots: [createMockSlot({ slotNumber: 1, content: 'Endo Steel', isHittable: false })],
+          slots: [
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Endo Steel',
+              isHittable: false,
+            }),
+          ],
         }),
       ];
 
@@ -496,7 +613,7 @@ describe('criticals', () => {
 
       const createdElements = getCreatedElements(mockDoc);
       const endoElements = createdElements.filter(
-        el => el.tagName === 'text' && el.textContent === 'Endo Steel'
+        (el) => el.tagName === 'text' && el.textContent === 'Endo Steel',
       );
 
       expect(endoElements.length).toBe(1);
@@ -506,7 +623,7 @@ describe('criticals', () => {
     it('should truncate long equipment names with ellipsis', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_LA': { x: 10, y: 20, width: 94, height: 103 },
+          crits_LA: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -517,7 +634,13 @@ describe('criticals', () => {
         createMockLocationCriticals({
           location: 'Left Arm',
           abbreviation: 'LA',
-          slots: [createMockSlot({ slotNumber: 1, content: longName, isHittable: true })],
+          slots: [
+            createMockSlot({
+              slotNumber: 1,
+              content: longName,
+              isHittable: true,
+            }),
+          ],
         }),
       ];
 
@@ -525,11 +648,16 @@ describe('criticals', () => {
 
       const createdElements = getCreatedElements(mockDoc);
       const contentElements = createdElements.filter(
-        el => el.tagName === 'text' && el.textContent && el.textContent.endsWith('..')
+        (el) =>
+          el.tagName === 'text' &&
+          el.textContent &&
+          el.textContent.endsWith('..'),
       );
 
       expect(contentElements.length).toBe(1);
-      expect(contentElements[0].textContent!.length).toBeLessThan(longName.length);
+      expect(contentElements[0].textContent!.length).toBeLessThan(
+        longName.length,
+      );
     });
   });
 
@@ -537,7 +665,7 @@ describe('criticals', () => {
     it('should draw bracket for multi-slot user equipment', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_LA': { x: 10, y: 20, width: 94, height: 103 },
+          crits_LA: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -546,11 +674,34 @@ describe('criticals', () => {
           location: 'Left Arm',
           abbreviation: 'LA',
           slots: [
-            createMockSlot({ slotNumber: 1, content: 'Shoulder', isSystem: true }),
-            createMockSlot({ slotNumber: 2, content: 'Upper Arm Actuator', isSystem: true }),
-            createMockSlot({ slotNumber: 3, content: 'PPC', isHittable: true, equipmentId: 'ppc-1' }),
-            createMockSlot({ slotNumber: 4, content: 'PPC', isHittable: true, equipmentId: 'ppc-1' }),
-            createMockSlot({ slotNumber: 5, content: 'PPC', isHittable: true, equipmentId: 'ppc-1' }),
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Shoulder',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 2,
+              content: 'Upper Arm Actuator',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 3,
+              content: 'PPC',
+              isHittable: true,
+              equipmentId: 'ppc-1',
+            }),
+            createMockSlot({
+              slotNumber: 4,
+              content: 'PPC',
+              isHittable: true,
+              equipmentId: 'ppc-1',
+            }),
+            createMockSlot({
+              slotNumber: 5,
+              content: 'PPC',
+              isHittable: true,
+              equipmentId: 'ppc-1',
+            }),
             createMockSlot({ slotNumber: 6, content: '', isRollAgain: false }),
           ],
         }),
@@ -559,7 +710,9 @@ describe('criticals', () => {
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const pathElements = createdElements.filter(el => el.tagName === 'path');
+      const pathElements = createdElements.filter(
+        (el) => el.tagName === 'path',
+      );
 
       // Should have one bracket for the 3-slot PPC
       expect(pathElements.length).toBe(1);
@@ -570,7 +723,7 @@ describe('criticals', () => {
     it('should NOT draw brackets for system components', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_CT': { x: 10, y: 20, width: 94, height: 206 },
+          crits_CT: { x: 10, y: 20, width: 94, height: 206 },
         },
       });
 
@@ -579,16 +732,40 @@ describe('criticals', () => {
           location: 'Center Torso',
           abbreviation: 'CT',
           slots: [
-            createMockSlot({ slotNumber: 1, content: 'Fusion Engine', isSystem: true }),
-            createMockSlot({ slotNumber: 2, content: 'Fusion Engine', isSystem: true }),
-            createMockSlot({ slotNumber: 3, content: 'Fusion Engine', isSystem: true }),
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Fusion Engine',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 2,
+              content: 'Fusion Engine',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 3,
+              content: 'Fusion Engine',
+              isSystem: true,
+            }),
             createMockSlot({ slotNumber: 4, content: 'Gyro', isSystem: true }),
             createMockSlot({ slotNumber: 5, content: 'Gyro', isSystem: true }),
             createMockSlot({ slotNumber: 6, content: 'Gyro', isSystem: true }),
             createMockSlot({ slotNumber: 7, content: 'Gyro', isSystem: true }),
-            createMockSlot({ slotNumber: 8, content: 'Fusion Engine', isSystem: true }),
-            createMockSlot({ slotNumber: 9, content: 'Fusion Engine', isSystem: true }),
-            createMockSlot({ slotNumber: 10, content: 'Fusion Engine', isSystem: true }),
+            createMockSlot({
+              slotNumber: 8,
+              content: 'Fusion Engine',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 9,
+              content: 'Fusion Engine',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 10,
+              content: 'Fusion Engine',
+              isSystem: true,
+            }),
             createMockSlot({ slotNumber: 11, content: '', isRollAgain: false }),
             createMockSlot({ slotNumber: 12, content: '', isRollAgain: false }),
           ],
@@ -598,7 +775,9 @@ describe('criticals', () => {
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const pathElements = createdElements.filter(el => el.tagName === 'path');
+      const pathElements = createdElements.filter(
+        (el) => el.tagName === 'path',
+      );
 
       // Should NOT have brackets for system components
       expect(pathElements.length).toBe(0);
@@ -607,7 +786,7 @@ describe('criticals', () => {
     it('should NOT draw brackets for single-slot equipment', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_LA': { x: 10, y: 20, width: 94, height: 103 },
+          crits_LA: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -616,8 +795,18 @@ describe('criticals', () => {
           location: 'Left Arm',
           abbreviation: 'LA',
           slots: [
-            createMockSlot({ slotNumber: 1, content: 'Medium Laser', isHittable: true, equipmentId: 'ml-1' }),
-            createMockSlot({ slotNumber: 2, content: 'Medium Laser', isHittable: true, equipmentId: 'ml-2' }), // Different ID
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Medium Laser',
+              isHittable: true,
+              equipmentId: 'ml-1',
+            }),
+            createMockSlot({
+              slotNumber: 2,
+              content: 'Medium Laser',
+              isHittable: true,
+              equipmentId: 'ml-2',
+            }), // Different ID
             createMockSlot({ slotNumber: 3, content: '', isRollAgain: false }),
             createMockSlot({ slotNumber: 4, content: '', isRollAgain: false }),
             createMockSlot({ slotNumber: 5, content: '', isRollAgain: false }),
@@ -629,7 +818,9 @@ describe('criticals', () => {
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const pathElements = createdElements.filter(el => el.tagName === 'path');
+      const pathElements = createdElements.filter(
+        (el) => el.tagName === 'path',
+      );
 
       // Single-slot equipment should not have brackets
       expect(pathElements.length).toBe(0);
@@ -638,7 +829,7 @@ describe('criticals', () => {
     it('should draw multiple brackets for multiple multi-slot equipment', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_RA': { x: 10, y: 20, width: 94, height: 103 },
+          crits_RA: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -647,12 +838,42 @@ describe('criticals', () => {
           location: 'Right Arm',
           abbreviation: 'RA',
           slots: [
-            createMockSlot({ slotNumber: 1, content: 'AC/5', isHittable: true, equipmentId: 'ac5-1' }),
-            createMockSlot({ slotNumber: 2, content: 'AC/5', isHittable: true, equipmentId: 'ac5-1' }),
-            createMockSlot({ slotNumber: 3, content: 'AC/5', isHittable: true, equipmentId: 'ac5-1' }),
-            createMockSlot({ slotNumber: 4, content: 'AC/5', isHittable: true, equipmentId: 'ac5-1' }),
-            createMockSlot({ slotNumber: 5, content: 'LRM 5', isHittable: true, equipmentId: 'lrm5-1' }),
-            createMockSlot({ slotNumber: 6, content: 'LRM 5', isHittable: true, equipmentId: 'lrm5-1' }),
+            createMockSlot({
+              slotNumber: 1,
+              content: 'AC/5',
+              isHittable: true,
+              equipmentId: 'ac5-1',
+            }),
+            createMockSlot({
+              slotNumber: 2,
+              content: 'AC/5',
+              isHittable: true,
+              equipmentId: 'ac5-1',
+            }),
+            createMockSlot({
+              slotNumber: 3,
+              content: 'AC/5',
+              isHittable: true,
+              equipmentId: 'ac5-1',
+            }),
+            createMockSlot({
+              slotNumber: 4,
+              content: 'AC/5',
+              isHittable: true,
+              equipmentId: 'ac5-1',
+            }),
+            createMockSlot({
+              slotNumber: 5,
+              content: 'LRM 5',
+              isHittable: true,
+              equipmentId: 'lrm5-1',
+            }),
+            createMockSlot({
+              slotNumber: 6,
+              content: 'LRM 5',
+              isHittable: true,
+              equipmentId: 'lrm5-1',
+            }),
           ],
         }),
       ];
@@ -660,7 +881,9 @@ describe('criticals', () => {
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const pathElements = createdElements.filter(el => el.tagName === 'path');
+      const pathElements = createdElements.filter(
+        (el) => el.tagName === 'path',
+      );
 
       // Should have brackets for both multi-slot equipment
       expect(pathElements.length).toBe(2);
@@ -669,7 +892,7 @@ describe('criticals', () => {
     it('should draw continuous bracket for equipment spanning slots 6-7 gap', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_CT': { x: 10, y: 20, width: 94, height: 206 },
+          crits_CT: { x: 10, y: 20, width: 94, height: 206 },
         },
       });
 
@@ -682,11 +905,36 @@ describe('criticals', () => {
             createMockSlot({ slotNumber: 2, content: '', isRollAgain: false }),
             createMockSlot({ slotNumber: 3, content: '', isRollAgain: false }),
             createMockSlot({ slotNumber: 4, content: '', isRollAgain: false }),
-            createMockSlot({ slotNumber: 5, content: 'LRM 20', isHittable: true, equipmentId: 'lrm20-1' }),
-            createMockSlot({ slotNumber: 6, content: 'LRM 20', isHittable: true, equipmentId: 'lrm20-1' }),
-            createMockSlot({ slotNumber: 7, content: 'LRM 20', isHittable: true, equipmentId: 'lrm20-1' }),
-            createMockSlot({ slotNumber: 8, content: 'LRM 20', isHittable: true, equipmentId: 'lrm20-1' }),
-            createMockSlot({ slotNumber: 9, content: 'LRM 20', isHittable: true, equipmentId: 'lrm20-1' }),
+            createMockSlot({
+              slotNumber: 5,
+              content: 'LRM 20',
+              isHittable: true,
+              equipmentId: 'lrm20-1',
+            }),
+            createMockSlot({
+              slotNumber: 6,
+              content: 'LRM 20',
+              isHittable: true,
+              equipmentId: 'lrm20-1',
+            }),
+            createMockSlot({
+              slotNumber: 7,
+              content: 'LRM 20',
+              isHittable: true,
+              equipmentId: 'lrm20-1',
+            }),
+            createMockSlot({
+              slotNumber: 8,
+              content: 'LRM 20',
+              isHittable: true,
+              equipmentId: 'lrm20-1',
+            }),
+            createMockSlot({
+              slotNumber: 9,
+              content: 'LRM 20',
+              isHittable: true,
+              equipmentId: 'lrm20-1',
+            }),
             createMockSlot({ slotNumber: 10, content: '', isRollAgain: false }),
             createMockSlot({ slotNumber: 11, content: '', isRollAgain: false }),
             createMockSlot({ slotNumber: 12, content: '', isRollAgain: false }),
@@ -697,7 +945,9 @@ describe('criticals', () => {
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const pathElements = createdElements.filter(el => el.tagName === 'path');
+      const pathElements = createdElements.filter(
+        (el) => el.tagName === 'path',
+      );
 
       // Should have one continuous bracket
       expect(pathElements.length).toBe(1);
@@ -709,7 +959,7 @@ describe('criticals', () => {
     it('should group equipment by equipmentId for bracketing', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_LA': { x: 10, y: 20, width: 94, height: 103 },
+          crits_LA: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -719,10 +969,30 @@ describe('criticals', () => {
           location: 'Left Arm',
           abbreviation: 'LA',
           slots: [
-            createMockSlot({ slotNumber: 1, content: 'Medium Laser', isHittable: true, equipmentId: 'ml-1' }),
-            createMockSlot({ slotNumber: 2, content: 'Medium Laser', isHittable: true, equipmentId: 'ml-1' }),
-            createMockSlot({ slotNumber: 3, content: 'Medium Laser', isHittable: true, equipmentId: 'ml-2' }),
-            createMockSlot({ slotNumber: 4, content: 'Medium Laser', isHittable: true, equipmentId: 'ml-2' }),
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Medium Laser',
+              isHittable: true,
+              equipmentId: 'ml-1',
+            }),
+            createMockSlot({
+              slotNumber: 2,
+              content: 'Medium Laser',
+              isHittable: true,
+              equipmentId: 'ml-1',
+            }),
+            createMockSlot({
+              slotNumber: 3,
+              content: 'Medium Laser',
+              isHittable: true,
+              equipmentId: 'ml-2',
+            }),
+            createMockSlot({
+              slotNumber: 4,
+              content: 'Medium Laser',
+              isHittable: true,
+              equipmentId: 'ml-2',
+            }),
             createMockSlot({ slotNumber: 5, content: '', isRollAgain: false }),
             createMockSlot({ slotNumber: 6, content: '', isRollAgain: false }),
           ],
@@ -732,7 +1002,9 @@ describe('criticals', () => {
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const pathElements = createdElements.filter(el => el.tagName === 'path');
+      const pathElements = createdElements.filter(
+        (el) => el.tagName === 'path',
+      );
 
       // Should have two separate brackets for two different equipment instances
       expect(pathElements.length).toBe(2);
@@ -741,7 +1013,7 @@ describe('criticals', () => {
     it('should fall back to content name when equipmentId is not provided', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_LA': { x: 10, y: 20, width: 94, height: 103 },
+          crits_LA: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -764,7 +1036,9 @@ describe('criticals', () => {
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const pathElements = createdElements.filter(el => el.tagName === 'path');
+      const pathElements = createdElements.filter(
+        (el) => el.tagName === 'path',
+      );
 
       // Should have one bracket for the 3-slot PPC
       expect(pathElements.length).toBe(1);
@@ -773,7 +1047,7 @@ describe('criticals', () => {
     it('should NOT bracket Roll Again slots', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 20, width: 94, height: 103 },
+          crits_HD: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -795,7 +1069,9 @@ describe('criticals', () => {
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const pathElements = createdElements.filter(el => el.tagName === 'path');
+      const pathElements = createdElements.filter(
+        (el) => el.tagName === 'path',
+      );
 
       // Roll Again slots should not have brackets
       expect(pathElements.length).toBe(0);
@@ -806,7 +1082,7 @@ describe('criticals', () => {
     it('should use correct SVG namespace for all elements', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 20, width: 94, height: 103 },
+          crits_HD: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -814,7 +1090,13 @@ describe('criticals', () => {
         createMockLocationCriticals({
           location: 'Head',
           abbreviation: 'HD',
-          slots: [createMockSlot({ slotNumber: 1, content: 'Life Support', isSystem: true })],
+          slots: [
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Life Support',
+              isSystem: true,
+            }),
+          ],
         }),
       ];
 
@@ -825,7 +1107,7 @@ describe('criticals', () => {
 
       // All calls should use SVG_NS
       expect(createElementNSSpy).toHaveBeenCalled();
-      createElementNSSpy.mock.calls.forEach(call => {
+      createElementNSSpy.mock.calls.forEach((call) => {
         expect(call[0]).toBe(SVG_NS);
       });
 
@@ -835,7 +1117,7 @@ describe('criticals', () => {
     it('should set correct font properties', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 20, width: 94, height: 103 },
+          crits_HD: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -843,17 +1125,27 @@ describe('criticals', () => {
         createMockLocationCriticals({
           location: 'Head',
           abbreviation: 'HD',
-          slots: [createMockSlot({ slotNumber: 1, content: 'Life Support', isSystem: true })],
+          slots: [
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Life Support',
+              isSystem: true,
+            }),
+          ],
         }),
       ];
 
       renderCriticalSlots(mockDoc, criticals);
 
       const createdElements = getCreatedElements(mockDoc);
-      const textElements = createdElements.filter(el => el.tagName === 'text');
+      const textElements = createdElements.filter(
+        (el) => el.tagName === 'text',
+      );
 
-      textElements.forEach(el => {
-        expect(el.attributes['font-family']).toBe('Times New Roman, Times, serif');
+      textElements.forEach((el) => {
+        expect(el.attributes['font-family']).toBe(
+          'Times New Roman, Times, serif',
+        );
         // Font size should be 7px for content or 8.75px (7 * 1.25) for title
         expect(['7px', '8.75px']).toContain(el.attributes['font-size']);
       });
@@ -864,7 +1156,7 @@ describe('criticals', () => {
     it('should handle whitespace-only content as empty', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 20, width: 94, height: 103 },
+          crits_HD: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
@@ -880,7 +1172,7 @@ describe('criticals', () => {
 
       const createdElements = getCreatedElements(mockDoc);
       const emptyElements = createdElements.filter(
-        el => el.tagName === 'text' && el.textContent === '-Empty-'
+        (el) => el.tagName === 'text' && el.textContent === '-Empty-',
       );
 
       expect(emptyElements.length).toBe(1);
@@ -889,7 +1181,7 @@ describe('criticals', () => {
     it('should handle locations with varying slot counts', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 20, width: 94, height: 60 }, // Smaller height for fewer slots
+          crits_HD: { x: 10, y: 20, width: 94, height: 60 }, // Smaller height for fewer slots
         },
       });
 
@@ -899,10 +1191,26 @@ describe('criticals', () => {
           location: 'Head',
           abbreviation: 'HD',
           slots: [
-            createMockSlot({ slotNumber: 1, content: 'Life Support', isSystem: true }),
-            createMockSlot({ slotNumber: 2, content: 'Sensors', isSystem: true }),
-            createMockSlot({ slotNumber: 3, content: 'Cockpit', isSystem: true }),
-            createMockSlot({ slotNumber: 4, content: 'Sensors', isSystem: true }),
+            createMockSlot({
+              slotNumber: 1,
+              content: 'Life Support',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 2,
+              content: 'Sensors',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 3,
+              content: 'Cockpit',
+              isSystem: true,
+            }),
+            createMockSlot({
+              slotNumber: 4,
+              content: 'Sensors',
+              isSystem: true,
+            }),
           ],
         }),
       ];
@@ -914,13 +1222,17 @@ describe('criticals', () => {
     it('should handle readonly arrays correctly', () => {
       const mockDoc = createMockSvgDoc({
         critAreas: {
-          'crits_HD': { x: 10, y: 20, width: 94, height: 103 },
+          crits_HD: { x: 10, y: 20, width: 94, height: 103 },
         },
       });
 
       // Create truly readonly arrays using Object.freeze
       const slots: readonly IRecordSheetCriticalSlot[] = Object.freeze([
-        createMockSlot({ slotNumber: 1, content: 'Life Support', isSystem: true }),
+        createMockSlot({
+          slotNumber: 1,
+          content: 'Life Support',
+          isSystem: true,
+        }),
       ]);
 
       const criticals: readonly ILocationCriticals[] = Object.freeze([

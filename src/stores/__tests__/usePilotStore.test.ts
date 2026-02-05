@@ -5,9 +5,20 @@
  */
 
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { usePilotStore, useFilteredPilots, usePilotById } from '../usePilotStore';
+
+import type {
+  IPilot,
+  ICreatePilotOptions,
+  IPilotIdentity,
+} from '@/types/pilot';
+
 import { PilotStatus, PilotType, PilotExperienceLevel } from '@/types/pilot';
-import type { IPilot, ICreatePilotOptions, IPilotIdentity } from '@/types/pilot';
+
+import {
+  usePilotStore,
+  useFilteredPilots,
+  usePilotById,
+} from '../usePilotStore';
 
 // =============================================================================
 // Test Data
@@ -28,10 +39,30 @@ const createMockPilot = (overrides: Partial<IPilot> = {}): IPilot => ({
 });
 
 const mockPilots: IPilot[] = [
-  createMockPilot({ id: 'pilot-1', name: 'John Doe', callsign: 'Ace', status: PilotStatus.Active }),
-  createMockPilot({ id: 'pilot-2', name: 'Jane Smith', callsign: 'Viper', status: PilotStatus.Active }),
-  createMockPilot({ id: 'pilot-3', name: 'Bob Wilson', callsign: 'Ghost', status: PilotStatus.Injured }),
-  createMockPilot({ id: 'pilot-4', name: 'Alice Brown', callsign: 'Storm', status: PilotStatus.KIA }),
+  createMockPilot({
+    id: 'pilot-1',
+    name: 'John Doe',
+    callsign: 'Ace',
+    status: PilotStatus.Active,
+  }),
+  createMockPilot({
+    id: 'pilot-2',
+    name: 'Jane Smith',
+    callsign: 'Viper',
+    status: PilotStatus.Active,
+  }),
+  createMockPilot({
+    id: 'pilot-3',
+    name: 'Bob Wilson',
+    callsign: 'Ghost',
+    status: PilotStatus.Injured,
+  }),
+  createMockPilot({
+    id: 'pilot-4',
+    name: 'Alice Brown',
+    callsign: 'Storm',
+    status: PilotStatus.KIA,
+  }),
 ];
 
 // =============================================================================
@@ -103,7 +134,7 @@ describe('usePilotStore', () => {
         promise.then(() => ({
           ok: true,
           json: async () => ({ pilots: mockPilots, count: mockPilots.length }),
-        }))
+        })),
       );
 
       const { result } = renderHook(() => usePilotStore());
@@ -161,7 +192,10 @@ describe('usePilotStore', () => {
 
   describe('createPilot', () => {
     it('should create pilot and reload list', async () => {
-      const newPilot = createMockPilot({ id: 'new-pilot-1', name: 'New Pilot' });
+      const newPilot = createMockPilot({
+        id: 'new-pilot-1',
+        name: 'New Pilot',
+      });
 
       // Mock create response
       mockFetchResponse({ success: true, id: newPilot.id, pilot: newPilot });
@@ -240,19 +274,28 @@ describe('usePilotStore', () => {
 
       const { result } = renderHook(() => usePilotStore());
 
-      const identity: IPilotIdentity = { name: 'Veteran Pilot', callsign: 'Vet' };
+      const identity: IPilotIdentity = {
+        name: 'Veteran Pilot',
+        callsign: 'Vet',
+      };
 
       let createdId: string | null = null;
       await act(async () => {
-        createdId = await result.current.createFromTemplate(PilotExperienceLevel.Veteran, identity);
+        createdId = await result.current.createFromTemplate(
+          PilotExperienceLevel.Veteran,
+          identity,
+        );
       });
 
       expect(createdId).toBe(newPilot.id);
-      expect(mockFetch).toHaveBeenCalledWith('/api/pilots', expect.objectContaining({
-        method: 'POST',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        body: expect.stringContaining('template'),
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/pilots',
+        expect.objectContaining({
+          method: 'POST',
+          // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          body: expect.stringContaining('template'),
+        }),
+      );
     });
   });
 
@@ -262,7 +305,10 @@ describe('usePilotStore', () => {
 
   describe('createRandom', () => {
     it('should create random pilot', async () => {
-      const newPilot = createMockPilot({ id: 'random-pilot-1', name: 'Random Pilot' });
+      const newPilot = createMockPilot({
+        id: 'random-pilot-1',
+        name: 'Random Pilot',
+      });
 
       mockFetchResponse({ success: true, id: newPilot.id, pilot: newPilot });
       mockFetchResponse({ pilots: [newPilot], count: 1 });
@@ -275,11 +321,14 @@ describe('usePilotStore', () => {
       });
 
       expect(createdId).toBe(newPilot.id);
-      expect(mockFetch).toHaveBeenCalledWith('/api/pilots', expect.objectContaining({
-        method: 'POST',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        body: expect.stringContaining('random'),
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/pilots',
+        expect.objectContaining({
+          method: 'POST',
+          // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          body: expect.stringContaining('random'),
+        }),
+      );
     });
   });
 
@@ -329,13 +378,18 @@ describe('usePilotStore', () => {
 
       let success = false;
       await act(async () => {
-        success = await result.current.updatePilot('pilot-1', { name: 'Updated Name' });
+        success = await result.current.updatePilot('pilot-1', {
+          name: 'Updated Name',
+        });
       });
 
       expect(success).toBe(true);
-      expect(mockFetch).toHaveBeenCalledWith('/api/pilots/pilot-1', expect.objectContaining({
-        method: 'PUT',
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/pilots/pilot-1',
+        expect.objectContaining({
+          method: 'PUT',
+        }),
+      );
     });
 
     it('should handle update failure', async () => {
@@ -345,7 +399,9 @@ describe('usePilotStore', () => {
 
       let success = false;
       await act(async () => {
-        success = await result.current.updatePilot('nonexistent', { name: 'Test' });
+        success = await result.current.updatePilot('nonexistent', {
+          name: 'Test',
+        });
       });
 
       expect(success).toBe(false);
@@ -370,9 +426,12 @@ describe('usePilotStore', () => {
       });
 
       expect(success).toBe(true);
-      expect(mockFetch).toHaveBeenCalledWith('/api/pilots/pilot-1', expect.objectContaining({
-        method: 'DELETE',
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/pilots/pilot-1',
+        expect.objectContaining({
+          method: 'DELETE',
+        }),
+      );
     });
 
     it('should clear selection if deleted pilot was selected', async () => {
@@ -436,7 +495,10 @@ describe('usePilotStore', () => {
     });
 
     it('should return null for invalid selection', () => {
-      usePilotStore.setState({ pilots: mockPilots, selectedPilotId: 'nonexistent' });
+      usePilotStore.setState({
+        pilots: mockPilots,
+        selectedPilotId: 'nonexistent',
+      });
 
       const { result } = renderHook(() => usePilotStore());
 
@@ -474,9 +536,12 @@ describe('usePilotStore', () => {
       });
 
       expect(success).toBe(true);
-      expect(mockFetch).toHaveBeenCalledWith('/api/pilots/pilot-1/improve-gunnery', expect.objectContaining({
-        method: 'POST',
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/pilots/pilot-1/improve-gunnery',
+        expect.objectContaining({
+          method: 'POST',
+        }),
+      );
     });
 
     it('should handle improvement failure', async () => {
@@ -507,9 +572,12 @@ describe('usePilotStore', () => {
       });
 
       expect(success).toBe(true);
-      expect(mockFetch).toHaveBeenCalledWith('/api/pilots/pilot-1/improve-piloting', expect.objectContaining({
-        method: 'POST',
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/pilots/pilot-1/improve-piloting',
+        expect.objectContaining({
+          method: 'POST',
+        }),
+      );
     });
   });
 
@@ -526,15 +594,22 @@ describe('usePilotStore', () => {
 
       let success = false;
       await act(async () => {
-        success = await result.current.purchaseAbility('pilot-1', 'ability-1', 100);
+        success = await result.current.purchaseAbility(
+          'pilot-1',
+          'ability-1',
+          100,
+        );
       });
 
       expect(success).toBe(true);
-      expect(mockFetch).toHaveBeenCalledWith('/api/pilots/pilot-1/purchase-ability', expect.objectContaining({
-        method: 'POST',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        body: expect.stringContaining('ability-1'),
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/pilots/pilot-1/purchase-ability',
+        expect.objectContaining({
+          method: 'POST',
+          // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          body: expect.stringContaining('ability-1'),
+        }),
+      );
     });
 
     it('should handle purchase failure', async () => {
@@ -544,7 +619,11 @@ describe('usePilotStore', () => {
 
       let success = false;
       await act(async () => {
-        success = await result.current.purchaseAbility('pilot-1', 'advanced-ability', 200);
+        success = await result.current.purchaseAbility(
+          'pilot-1',
+          'advanced-ability',
+          200,
+        );
       });
 
       expect(success).toBe(false);
@@ -571,11 +650,14 @@ describe('usePilotStore', () => {
       });
 
       expect(success).toBe(true);
-      expect(mockFetch).toHaveBeenCalledWith('/api/pilots/pilot-1', expect.objectContaining({
-        method: 'PUT',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        body: expect.stringContaining('wounds'),
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/pilots/pilot-1',
+        expect.objectContaining({
+          method: 'PUT',
+          // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          body: expect.stringContaining('wounds'),
+        }),
+      );
     });
 
     it('should handle pilot not found', async () => {
@@ -613,11 +695,14 @@ describe('usePilotStore', () => {
       });
 
       expect(success).toBe(true);
-      expect(mockFetch).toHaveBeenCalledWith('/api/pilots/pilot-injured', expect.objectContaining({
-        method: 'PUT',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        body: expect.stringContaining('"wounds":0'),
-      }));
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/pilots/pilot-injured',
+        expect.objectContaining({
+          method: 'PUT',
+          // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          body: expect.stringContaining('"wounds":0'),
+        }),
+      );
     });
 
     it('should not heal KIA pilots', async () => {
@@ -706,7 +791,9 @@ describe('useFilteredPilots', () => {
     const { result } = renderHook(() => useFilteredPilots());
 
     expect(result.current).toHaveLength(2);
-    expect(result.current.every((p) => p.status === PilotStatus.Active)).toBe(true);
+    expect(result.current.every((p) => p.status === PilotStatus.Active)).toBe(
+      true,
+    );
   });
 
   it('should filter by search query (name)', () => {

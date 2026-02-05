@@ -6,12 +6,18 @@
  * @spec openspec/specs/mtf-parity-validation/spec.md
  */
 
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* oxlint-disable @typescript-eslint/no-unsafe-assignment */
+/* oxlint-disable @typescript-eslint/no-unsafe-member-access */
+/* oxlint-disable @typescript-eslint/no-unsafe-call */
+/* oxlint-disable @typescript-eslint/no-unsafe-return */
 
-import { ParityReportWriter, getParityReportWriter } from '@/services/conversion/ParityReportWriter';
+import * as fs from 'fs';
+import * as path from 'path';
+
+import {
+  ParityReportWriter,
+  getParityReportWriter,
+} from '@/services/conversion/ParityReportWriter';
 import {
   IUnitValidationResult,
   IValidationSummary,
@@ -19,8 +25,6 @@ import {
   IUnitIssueReport,
   DiscrepancyCategory,
 } from '@/services/conversion/types/ParityValidation';
-import * as fs from 'fs';
-import * as path from 'path';
 
 // Mock the fs module - this mocks file I/O but NOT the ParityReportWriter class
 jest.mock('fs', () => ({
@@ -42,7 +46,9 @@ describe('ParityReportWriter', () => {
     ParityReportWriter.instance = null;
 
     writer = getParityReportWriter();
-    mockWriteFileSync = fs.writeFileSync as jest.MockedFunction<typeof fs.writeFileSync>;
+    mockWriteFileSync = fs.writeFileSync as jest.MockedFunction<
+      typeof fs.writeFileSync
+    >;
     mockMkdirSync = fs.mkdirSync as jest.MockedFunction<typeof fs.mkdirSync>;
 
     // Reset mock implementations to defaults
@@ -77,7 +83,7 @@ describe('ParityReportWriter', () => {
   // Test Data Factories
   // ============================================================================
   const createValidationResult = (
-    overrides?: Partial<IUnitValidationResult>
+    overrides?: Partial<IUnitValidationResult>,
   ): IUnitValidationResult => ({
     id: 'atlas-as7-d',
     chassis: 'Atlas',
@@ -90,7 +96,7 @@ describe('ParityReportWriter', () => {
   });
 
   const createValidationSummary = (
-    overrides?: Partial<IValidationSummary>
+    overrides?: Partial<IValidationSummary>,
   ): IValidationSummary => ({
     generatedAt: '2026-01-11T12:00:00Z',
     mmDataCommit: 'abc123def456',
@@ -129,7 +135,7 @@ describe('ParityReportWriter', () => {
 
       expect(mockMkdirSync).toHaveBeenCalledWith(
         path.join(outputDir, 'issues'),
-        { recursive: true }
+        { recursive: true },
       );
     });
 
@@ -142,7 +148,7 @@ describe('ParityReportWriter', () => {
 
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         path.join(outputDir, 'manifest.json'),
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -155,7 +161,7 @@ describe('ParityReportWriter', () => {
 
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         path.join(outputDir, 'summary.json'),
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -182,7 +188,7 @@ describe('ParityReportWriter', () => {
 
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         path.join(outputDir, 'issues', 'unit-with-issues.json'),
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -209,7 +215,7 @@ describe('ParityReportWriter', () => {
 
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         path.join(outputDir, 'issues', 'unit-with-errors.json'),
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -233,19 +239,31 @@ describe('ParityReportWriter', () => {
     it('should handle multiple units with mixed statuses', () => {
       const results: IUnitValidationResult[] = [
         createValidationResult({ id: 'unit-1', status: 'PASSED' }),
-        createValidationResult({ id: 'unit-2', status: 'ISSUES_FOUND', issues: [{
-          category: DiscrepancyCategory.ArmorMismatch,
-          expected: '100',
-          actual: '90',
-          suggestion: 'Increase armor to 100'
-        }] }),
+        createValidationResult({
+          id: 'unit-2',
+          status: 'ISSUES_FOUND',
+          issues: [
+            {
+              category: DiscrepancyCategory.ArmorMismatch,
+              expected: '100',
+              actual: '90',
+              suggestion: 'Increase armor to 100',
+            },
+          ],
+        }),
         createValidationResult({ id: 'unit-3', status: 'PASSED' }),
-        createValidationResult({ id: 'unit-4', status: 'PARSE_ERROR', issues: [{
-          category: DiscrepancyCategory.ParseError,
-          expected: 'Valid',
-          actual: 'Invalid',
-          suggestion: 'Fix'
-        }] }),
+        createValidationResult({
+          id: 'unit-4',
+          status: 'PARSE_ERROR',
+          issues: [
+            {
+              category: DiscrepancyCategory.ParseError,
+              expected: 'Valid',
+              actual: 'Invalid',
+              suggestion: 'Fix',
+            },
+          ],
+        }),
       ];
       const summary = createValidationSummary();
       const outputDir = '/output/reports';
@@ -281,7 +299,7 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const manifestCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'manifest.json')
+        (call) => call[0] === path.join(outputDir, 'manifest.json'),
       );
       expect(manifestCall).toBeDefined();
 
@@ -311,7 +329,7 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const manifestCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'manifest.json')
+        (call) => call[0] === path.join(outputDir, 'manifest.json'),
       );
       const manifestJson = manifestCall![1] as string;
       const manifest: IValidationManifest = JSON.parse(manifestJson);
@@ -352,13 +370,15 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const manifestCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'manifest.json')
+        (call) => call[0] === path.join(outputDir, 'manifest.json'),
       );
       const manifestJson = manifestCall![1] as string;
       const manifest: IValidationManifest = JSON.parse(manifestJson);
 
       const entry = manifest.units[0];
-      expect(entry.primaryIssueCategory).toBe(DiscrepancyCategory.EquipmentMismatch);
+      expect(entry.primaryIssueCategory).toBe(
+        DiscrepancyCategory.EquipmentMismatch,
+      );
       expect(entry.issueCount).toBe(2);
     });
 
@@ -370,7 +390,7 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const manifestCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'manifest.json')
+        (call) => call[0] === path.join(outputDir, 'manifest.json'),
       );
       const manifestJson = manifestCall![1] as string;
 
@@ -402,7 +422,7 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const summaryCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'summary.json')
+        (call) => call[0] === path.join(outputDir, 'summary.json'),
       );
       expect(summaryCall).toBeDefined();
 
@@ -441,14 +461,20 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const summaryCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'summary.json')
+        (call) => call[0] === path.join(outputDir, 'summary.json'),
       );
       const summaryJson = summaryCall![1] as string;
       const parsedSummary: IValidationSummary = JSON.parse(summaryJson);
 
-      expect(parsedSummary.issuesByCategory[DiscrepancyCategory.UnknownEquipment]).toBe(10);
-      expect(parsedSummary.issuesByCategory[DiscrepancyCategory.EquipmentMismatch]).toBe(5);
-      expect(parsedSummary.issuesByCategory[DiscrepancyCategory.ArmorMismatch]).toBe(4);
+      expect(
+        parsedSummary.issuesByCategory[DiscrepancyCategory.UnknownEquipment],
+      ).toBe(10);
+      expect(
+        parsedSummary.issuesByCategory[DiscrepancyCategory.EquipmentMismatch],
+      ).toBe(5);
+      expect(
+        parsedSummary.issuesByCategory[DiscrepancyCategory.ArmorMismatch],
+      ).toBe(4);
     });
 
     it('should format JSON with 2-space indentation', () => {
@@ -459,7 +485,7 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const summaryCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'summary.json')
+        (call) => call[0] === path.join(outputDir, 'summary.json'),
       );
       const summaryJson = summaryCall![1] as string;
 
@@ -504,7 +530,8 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const issueCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'issues', 'problem-unit.json')
+        (call) =>
+          call[0] === path.join(outputDir, 'issues', 'problem-unit.json'),
       );
       expect(issueCall).toBeDefined();
 
@@ -517,7 +544,9 @@ describe('ParityReportWriter', () => {
       expect(issueReport.mtfPath).toBe('/data/testmech.mtf');
       expect(issueReport.generatedPath).toBe('/output/testmech.mtf');
       expect(issueReport.issues).toHaveLength(1);
-      expect(issueReport.issues[0].category).toBe(DiscrepancyCategory.EquipmentMismatch);
+      expect(issueReport.issues[0].category).toBe(
+        DiscrepancyCategory.EquipmentMismatch,
+      );
     });
 
     it('should include all issue fields', () => {
@@ -544,7 +573,8 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const issueCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'issues', 'detailed-issue.json')
+        (call) =>
+          call[0] === path.join(outputDir, 'issues', 'detailed-issue.json'),
       );
       const issueJson = issueCall![1] as string;
       const issueReport: IUnitIssueReport = JSON.parse(issueJson);
@@ -594,15 +624,22 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const issueCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'issues', 'multi-issue.json')
+        (call) =>
+          call[0] === path.join(outputDir, 'issues', 'multi-issue.json'),
       );
       const issueJson = issueCall![1] as string;
       const issueReport: IUnitIssueReport = JSON.parse(issueJson);
 
       expect(issueReport.issues).toHaveLength(3);
-      expect(issueReport.issues[0].category).toBe(DiscrepancyCategory.ArmorMismatch);
-      expect(issueReport.issues[1].category).toBe(DiscrepancyCategory.EquipmentMismatch);
-      expect(issueReport.issues[2].category).toBe(DiscrepancyCategory.EngineMismatch);
+      expect(issueReport.issues[0].category).toBe(
+        DiscrepancyCategory.ArmorMismatch,
+      );
+      expect(issueReport.issues[1].category).toBe(
+        DiscrepancyCategory.EquipmentMismatch,
+      );
+      expect(issueReport.issues[2].category).toBe(
+        DiscrepancyCategory.EngineMismatch,
+      );
     });
 
     it('should use unit ID as filename', () => {
@@ -627,7 +664,7 @@ describe('ParityReportWriter', () => {
 
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         path.join(outputDir, 'issues', 'shadow-hawk-2h.json'),
-        expect.any(String)
+        expect.any(String),
       );
     });
   });
@@ -645,7 +682,7 @@ describe('ParityReportWriter', () => {
 
       expect(mockMkdirSync).toHaveBeenCalledWith(
         path.join(outputDir, 'issues'),
-        { recursive: true }
+        { recursive: true },
       );
     });
 
@@ -658,7 +695,7 @@ describe('ParityReportWriter', () => {
 
       expect(mockMkdirSync).toHaveBeenCalledWith(
         path.join(outputDir, 'issues'),
-        { recursive: true }
+        { recursive: true },
       );
     });
   });
@@ -676,7 +713,7 @@ describe('ParityReportWriter', () => {
 
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         path.join(outputDir, 'manifest.json'),
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -689,7 +726,7 @@ describe('ParityReportWriter', () => {
 
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         path.join(outputDir, 'summary.json'),
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -698,12 +735,14 @@ describe('ParityReportWriter', () => {
         createValidationResult({
           id: 'test-unit-123',
           status: 'ISSUES_FOUND',
-          issues: [{
-            category: DiscrepancyCategory.ArmorMismatch,
-            expected: 'A',
-            actual: 'B',
-            suggestion: 'Fix',
-          }],
+          issues: [
+            {
+              category: DiscrepancyCategory.ArmorMismatch,
+              expected: 'A',
+              actual: 'B',
+              suggestion: 'Fix',
+            },
+          ],
         }),
       ];
       const summary = createValidationSummary();
@@ -713,7 +752,7 @@ describe('ParityReportWriter', () => {
 
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         path.join(outputDir, 'issues', 'test-unit-123.json'),
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -764,7 +803,9 @@ describe('ParityReportWriter', () => {
 
     it('should handle disk full errors', () => {
       mockWriteFileSync.mockImplementation(() => {
-        const error: NodeJS.ErrnoException = new Error('ENOSPC: no space left on device');
+        const error: NodeJS.ErrnoException = new Error(
+          'ENOSPC: no space left on device',
+        );
         error.code = 'ENOSPC';
         throw error;
       });
@@ -780,7 +821,9 @@ describe('ParityReportWriter', () => {
 
     it('should handle read-only filesystem errors', () => {
       mockMkdirSync.mockImplementation(() => {
-        const error: NodeJS.ErrnoException = new Error('EROFS: read-only file system');
+        const error: NodeJS.ErrnoException = new Error(
+          'EROFS: read-only file system',
+        );
         error.code = 'EROFS';
         throw error;
       });
@@ -815,7 +858,7 @@ describe('ParityReportWriter', () => {
       expect(mockWriteFileSync).toHaveBeenCalledTimes(2);
 
       const manifestCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'manifest.json')
+        (call) => call[0] === path.join(outputDir, 'manifest.json'),
       );
       const manifestJson = manifestCall![1] as string;
       const manifest: IValidationManifest = JSON.parse(manifestJson);
@@ -840,7 +883,7 @@ describe('ParityReportWriter', () => {
       // Should write issue file even with empty issues array
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         path.join(outputDir, 'issues', 'weird-unit.json'),
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -849,12 +892,14 @@ describe('ParityReportWriter', () => {
         createValidationResult({
           id: 'unit-with-special-chars_@#$',
           status: 'ISSUES_FOUND',
-          issues: [{
-            category: DiscrepancyCategory.ArmorMismatch,
-            expected: 'A',
-            actual: 'B',
-            suggestion: 'Fix',
-          }],
+          issues: [
+            {
+              category: DiscrepancyCategory.ArmorMismatch,
+              expected: 'A',
+              actual: 'B',
+              suggestion: 'Fix',
+            },
+          ],
         }),
       ];
       const summary = createValidationSummary();
@@ -865,7 +910,7 @@ describe('ParityReportWriter', () => {
       // Should use the ID as-is in the filename
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         path.join(outputDir, 'issues', 'unit-with-special-chars_@#$.json'),
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -891,7 +936,8 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const issueCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'issues', 'minimal-issue.json')
+        (call) =>
+          call[0] === path.join(outputDir, 'issues', 'minimal-issue.json'),
       );
       const issueJson = issueCall![1] as string;
       const issueReport: IUnitIssueReport = JSON.parse(issueJson);
@@ -912,7 +958,7 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const summaryCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'summary.json')
+        (call) => call[0] === path.join(outputDir, 'summary.json'),
       );
       const summaryJson = summaryCall![1] as string;
       const parsedSummary: IValidationSummary = JSON.parse(summaryJson);
@@ -922,17 +968,24 @@ describe('ParityReportWriter', () => {
 
     it('should handle large number of results efficiently', () => {
       // Create 1000 results to test performance characteristics
-      const results: IUnitValidationResult[] = Array.from({ length: 1000 }, (_, i) =>
-        createValidationResult({
-          id: `unit-${i}`,
-          status: i % 10 === 0 ? 'ISSUES_FOUND' : 'PASSED',
-          issues: i % 10 === 0 ? [{
-            category: DiscrepancyCategory.ArmorMismatch,
-            expected: 'A',
-            actual: 'B',
-            suggestion: 'Fix',
-          }] : [],
-        })
+      const results: IUnitValidationResult[] = Array.from(
+        { length: 1000 },
+        (_, i) =>
+          createValidationResult({
+            id: `unit-${i}`,
+            status: i % 10 === 0 ? 'ISSUES_FOUND' : 'PASSED',
+            issues:
+              i % 10 === 0
+                ? [
+                    {
+                      category: DiscrepancyCategory.ArmorMismatch,
+                      expected: 'A',
+                      actual: 'B',
+                      suggestion: 'Fix',
+                    },
+                  ]
+                : [],
+          }),
       );
       const summary = createValidationSummary();
       const outputDir = '/output/reports';
@@ -956,7 +1009,7 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const manifestCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'manifest.json')
+        (call) => call[0] === path.join(outputDir, 'manifest.json'),
       );
       const manifestJson = manifestCall![1] as string;
 
@@ -971,7 +1024,7 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       const summaryCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'summary.json')
+        (call) => call[0] === path.join(outputDir, 'summary.json'),
       );
       const summaryJson = summaryCall![1] as string;
 
@@ -982,12 +1035,14 @@ describe('ParityReportWriter', () => {
       const results: IUnitValidationResult[] = [
         createValidationResult({
           status: 'ISSUES_FOUND',
-          issues: [{
-            category: DiscrepancyCategory.ArmorMismatch,
-            expected: 'A',
-            actual: 'B',
-            suggestion: 'Fix',
-          }],
+          issues: [
+            {
+              category: DiscrepancyCategory.ArmorMismatch,
+              expected: 'A',
+              actual: 'B',
+              suggestion: 'Fix',
+            },
+          ],
         }),
       ];
       const summary = createValidationSummary();
@@ -995,8 +1050,8 @@ describe('ParityReportWriter', () => {
 
       writer.writeReports(results, summary, outputDir);
 
-      const issueCall = mockWriteFileSync.mock.calls.find(
-        call => String(call[0]).includes('issues')
+      const issueCall = mockWriteFileSync.mock.calls.find((call) =>
+        String(call[0]).includes('issues'),
       );
       const issueJson = issueCall![1] as string;
 
@@ -1024,7 +1079,9 @@ describe('ParityReportWriter', () => {
 
       writer.printConsoleSummary(summary, outputDir);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Parity Validation Complete'));
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Parity Validation Complete'),
+      );
     });
 
     it('should print validation statistics', () => {
@@ -1038,10 +1095,18 @@ describe('ParityReportWriter', () => {
 
       writer.printConsoleSummary(summary, outputDir);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Units validated:     100'));
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Units passed:        85'));
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Units with issues:   12'));
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Units with errors:   3'));
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Units validated:     100'),
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Units passed:        85'),
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Units with issues:   12'),
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Units with errors:   3'),
+      );
     });
 
     it('should calculate and print pass rate', () => {
@@ -1053,7 +1118,9 @@ describe('ParityReportWriter', () => {
 
       writer.printConsoleSummary(summary, outputDir);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('85.0%'));
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('85.0%'),
+      );
     });
 
     it('should print mmDataCommit when present', () => {
@@ -1064,7 +1131,9 @@ describe('ParityReportWriter', () => {
 
       writer.printConsoleSummary(summary, outputDir);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('mm-data commit: abc123def456'));
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('mm-data commit: abc123def456'),
+      );
     });
 
     it('should not print mmDataCommit when absent', () => {
@@ -1076,7 +1145,8 @@ describe('ParityReportWriter', () => {
       writer.printConsoleSummary(summary, outputDir);
 
       const mmDataCalls = consoleLogSpy.mock.calls.filter(
-        call => call[0] && call[0].includes && call[0].includes('mm-data commit')
+        (call) =>
+          call[0] && call[0].includes && call[0].includes('mm-data commit'),
       );
       expect(mmDataCalls).toHaveLength(0);
     });
@@ -1089,7 +1159,9 @@ describe('ParityReportWriter', () => {
 
       writer.printConsoleSummary(summary, outputDir);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Generated at:   2026-01-11T12:00:00Z'));
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Generated at:   2026-01-11T12:00:00Z'),
+      );
     });
 
     it('should print output directory', () => {
@@ -1098,7 +1170,9 @@ describe('ParityReportWriter', () => {
 
       writer.printConsoleSummary(summary, outputDir);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Reports saved to: /custom/output/path'));
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Reports saved to: /custom/output/path'),
+      );
     });
 
     it('should print top issues by category when issues exist', () => {
@@ -1123,8 +1197,12 @@ describe('ParityReportWriter', () => {
 
       writer.printConsoleSummary(summary, outputDir);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Top Issues by Category:'));
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('UNKNOWN_EQUIPMENT'));
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Top Issues by Category:'),
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('UNKNOWN_EQUIPMENT'),
+      );
       expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('15'));
     });
 
@@ -1151,16 +1229,26 @@ describe('ParityReportWriter', () => {
       writer.printConsoleSummary(summary, outputDir);
 
       const categoryLines = consoleLogSpy.mock.calls
-        .map(call => call[0])
-        .filter(line => line && typeof line === 'string' &&
-          (line.includes('UNKNOWN_EQUIPMENT') ||
-           line.includes('EQUIPMENT_MISMATCH') ||
-           line.includes('ARMOR_MISMATCH')));
+        .map((call) => call[0])
+        .filter(
+          (line) =>
+            line &&
+            typeof line === 'string' &&
+            (line.includes('UNKNOWN_EQUIPMENT') ||
+              line.includes('EQUIPMENT_MISMATCH') ||
+              line.includes('ARMOR_MISMATCH')),
+        );
 
       // Verify the highest count appears first
-      const unknownIndex = categoryLines.findIndex(line => line.includes('UNKNOWN_EQUIPMENT'));
-      const equipmentIndex = categoryLines.findIndex(line => line.includes('EQUIPMENT_MISMATCH'));
-      const armorIndex = categoryLines.findIndex(line => line.includes('ARMOR_MISMATCH'));
+      const unknownIndex = categoryLines.findIndex((line) =>
+        line.includes('UNKNOWN_EQUIPMENT'),
+      );
+      const equipmentIndex = categoryLines.findIndex((line) =>
+        line.includes('EQUIPMENT_MISMATCH'),
+      );
+      const armorIndex = categoryLines.findIndex((line) =>
+        line.includes('ARMOR_MISMATCH'),
+      );
 
       expect(unknownIndex).toBeLessThan(equipmentIndex);
       expect(equipmentIndex).toBeLessThan(armorIndex);
@@ -1189,7 +1277,10 @@ describe('ParityReportWriter', () => {
       writer.printConsoleSummary(summary, outputDir);
 
       const issuesCalls = consoleLogSpy.mock.calls.filter(
-        call => call[0] && call[0].includes && call[0].includes('Top Issues by Category')
+        (call) =>
+          call[0] &&
+          call[0].includes &&
+          call[0].includes('Top Issues by Category'),
       );
       expect(issuesCalls).toHaveLength(0);
     });
@@ -1219,9 +1310,15 @@ describe('ParityReportWriter', () => {
 
       // Count how many issue category lines were printed (excluding the header)
       const categoryLines = consoleLogSpy.mock.calls
-        .map(call => call[0])
-        .filter(line => line && typeof line === 'string' &&
-          Object.values(DiscrepancyCategory).some(cat => line.includes(cat)));
+        .map((call) => call[0])
+        .filter(
+          (line) =>
+            line &&
+            typeof line === 'string' &&
+            Object.values(DiscrepancyCategory).some((cat) =>
+              line.includes(cat),
+            ),
+        );
 
       expect(categoryLines.length).toBeLessThanOrEqual(10);
     });
@@ -1236,7 +1333,9 @@ describe('ParityReportWriter', () => {
 
     beforeEach(() => {
       consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
-      processStdoutWriteSpy = jest.spyOn(process.stdout, 'write').mockImplementation();
+      processStdoutWriteSpy = jest
+        .spyOn(process.stdout, 'write')
+        .mockImplementation();
     });
 
     afterEach(() => {
@@ -1259,19 +1358,25 @@ describe('ParityReportWriter', () => {
     it('should print progress bar at 100-unit intervals in non-verbose mode', () => {
       writer.printProgress(0, 1000, '/path/to/unit.mtf', false);
 
-      expect(processStdoutWriteSpy).toHaveBeenCalledWith(expect.stringContaining('Processing: 1/1000'));
+      expect(processStdoutWriteSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Processing: 1/1000'),
+      );
     });
 
     it('should print progress bar at multiples of 100', () => {
       writer.printProgress(100, 1000, '/path/to/unit.mtf', false);
 
-      expect(processStdoutWriteSpy).toHaveBeenCalledWith(expect.stringContaining('Processing: 101/1000'));
+      expect(processStdoutWriteSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Processing: 101/1000'),
+      );
     });
 
     it('should print progress bar at last item', () => {
       writer.printProgress(999, 1000, '/path/to/unit.mtf', false);
 
-      expect(processStdoutWriteSpy).toHaveBeenCalledWith(expect.stringContaining('Processing: 1000/1000'));
+      expect(processStdoutWriteSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Processing: 1000/1000'),
+      );
     });
 
     it('should not print progress in non-verbose mode for non-milestone items', () => {
@@ -1284,13 +1389,17 @@ describe('ParityReportWriter', () => {
     it('should calculate percentage in non-verbose mode', () => {
       writer.printProgress(500, 1000, '/path/to/unit.mtf', false);
 
-      expect(processStdoutWriteSpy).toHaveBeenCalledWith(expect.stringContaining('50%'));
+      expect(processStdoutWriteSpy).toHaveBeenCalledWith(
+        expect.stringContaining('50%'),
+      );
     });
 
     it('should use carriage return for progress bar updates', () => {
       writer.printProgress(0, 1000, '/path/to/unit.mtf', false);
 
-      expect(processStdoutWriteSpy).toHaveBeenCalledWith(expect.stringMatching(/^\r/));
+      expect(processStdoutWriteSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/^\r/),
+      );
     });
   });
 
@@ -1360,7 +1469,7 @@ describe('ParityReportWriter', () => {
       expect(mockMkdirSync).toHaveBeenCalledTimes(1);
       expect(mockMkdirSync).toHaveBeenCalledWith(
         path.join(outputDir, 'issues'),
-        { recursive: true }
+        { recursive: true },
       );
 
       // Verify writeFileSync was called correct number of times:
@@ -1372,7 +1481,7 @@ describe('ParityReportWriter', () => {
 
       // Verify manifest.json structure by parsing the actual JSON
       const manifestCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'manifest.json')
+        (call) => call[0] === path.join(outputDir, 'manifest.json'),
       );
       expect(manifestCall).toBeDefined();
       const manifestJson = manifestCall![1] as string;
@@ -1408,7 +1517,7 @@ describe('ParityReportWriter', () => {
 
       // Verify summary.json structure
       const summaryCall = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'summary.json')
+        (call) => call[0] === path.join(outputDir, 'summary.json'),
       );
       expect(summaryCall).toBeDefined();
       const summaryJson = summaryCall![1] as string;
@@ -1418,7 +1527,9 @@ describe('ParityReportWriter', () => {
 
       // Verify issue file for ISSUES_FOUND unit
       const issueCall1 = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'issues', 'integration-test-issues.json')
+        (call) =>
+          call[0] ===
+          path.join(outputDir, 'issues', 'integration-test-issues.json'),
       );
       expect(issueCall1).toBeDefined();
       const issueJson1 = issueCall1![1] as string;
@@ -1443,7 +1554,9 @@ describe('ParityReportWriter', () => {
 
       // Verify issue file for PARSE_ERROR unit
       const issueCall2 = mockWriteFileSync.mock.calls.find(
-        call => call[0] === path.join(outputDir, 'issues', 'integration-test-error.json')
+        (call) =>
+          call[0] ===
+          path.join(outputDir, 'issues', 'integration-test-error.json'),
       );
       expect(issueCall2).toBeDefined();
       const issueJson2 = issueCall2![1] as string;
@@ -1484,12 +1597,14 @@ describe('ParityReportWriter', () => {
         createValidationResult({
           id: 'test-private-methods',
           status: 'ISSUES_FOUND',
-          issues: [{
-            category: DiscrepancyCategory.ArmorMismatch,
-            expected: '100',
-            actual: '90',
-            suggestion: 'Increase armor',
-          }],
+          issues: [
+            {
+              category: DiscrepancyCategory.ArmorMismatch,
+              expected: '100',
+              actual: '90',
+              suggestion: 'Increase armor',
+            },
+          ],
         }),
       ];
       const summary = createValidationSummary();
@@ -1501,20 +1616,20 @@ describe('ParityReportWriter', () => {
       writer.writeReports(results, summary, outputDir);
 
       // writeManifest was called (writes manifest.json)
-      const manifestWritten = mockWriteFileSync.mock.calls.some(
-        call => (call[0] as string).endsWith('manifest.json')
+      const manifestWritten = mockWriteFileSync.mock.calls.some((call) =>
+        (call[0] as string).endsWith('manifest.json'),
       );
       expect(manifestWritten).toBe(true);
 
       // writeSummary was called (writes summary.json)
-      const summaryWritten = mockWriteFileSync.mock.calls.some(
-        call => (call[0] as string).endsWith('summary.json')
+      const summaryWritten = mockWriteFileSync.mock.calls.some((call) =>
+        (call[0] as string).endsWith('summary.json'),
       );
       expect(summaryWritten).toBe(true);
 
       // writeUnitIssueFile was called (writes issue file)
-      const issueWritten = mockWriteFileSync.mock.calls.some(
-        call => (call[0] as string).includes('test-private-methods.json')
+      const issueWritten = mockWriteFileSync.mock.calls.some((call) =>
+        (call[0] as string).includes('test-private-methods.json'),
       );
       expect(issueWritten).toBe(true);
     });
@@ -1549,23 +1664,32 @@ describe('ParityReportWriter', () => {
 
       // Verify pass rate calculation: 150/200 = 75.0%
       const passRateCall = consoleLogSpy.mock.calls.find(
-        call => call[0] && typeof call[0] === 'string' && call[0].includes('75.0%')
+        (call) =>
+          call[0] && typeof call[0] === 'string' && call[0].includes('75.0%'),
       );
       expect(passRateCall).toBeDefined();
 
       // Verify statistics are printed
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('200'));
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('150'));
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('200'),
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('150'),
+      );
       expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('40'));
       expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('10'));
 
       // Verify issue sorting (highest first)
       const categoryLines = consoleLogSpy.mock.calls
-        .map(call => call[0])
-        .filter(line => line && typeof line === 'string' &&
-          (line.includes('UNKNOWN_EQUIPMENT') ||
-           line.includes('EQUIPMENT_MISMATCH') ||
-           line.includes('ARMOR_MISMATCH')));
+        .map((call) => call[0])
+        .filter(
+          (line) =>
+            line &&
+            typeof line === 'string' &&
+            (line.includes('UNKNOWN_EQUIPMENT') ||
+              line.includes('EQUIPMENT_MISMATCH') ||
+              line.includes('ARMOR_MISMATCH')),
+        );
 
       expect(categoryLines.length).toBeGreaterThan(0);
 
@@ -1582,14 +1706,21 @@ describe('ParityReportWriter', () => {
       consoleLogSpy.mockClear();
 
       // Test basename extraction
-      writer.printProgress(49, 100, '/very/long/path/to/shadow-hawk-2h.mtf', true);
+      writer.printProgress(
+        49,
+        100,
+        '/very/long/path/to/shadow-hawk-2h.mtf',
+        true,
+      );
       expect(consoleLogSpy).toHaveBeenCalledWith('[50/100] shadow-hawk-2h.mtf');
 
       consoleLogSpy.mockRestore();
     });
 
     it('should execute printProgress with real non-verbose logic', () => {
-      const stdoutSpy = jest.spyOn(process.stdout, 'write').mockImplementation();
+      const stdoutSpy = jest
+        .spyOn(process.stdout, 'write')
+        .mockImplementation();
 
       // Test milestone printing (index % 100 === 0)
       writer.printProgress(0, 1000, '/path/to/unit.mtf', false);
@@ -1600,14 +1731,18 @@ describe('ParityReportWriter', () => {
 
       // Test milestone printing (index % 100 === 0)
       writer.printProgress(200, 1000, '/path/to/unit.mtf', false);
-      expect(stdoutSpy).toHaveBeenCalledWith(expect.stringContaining('201/1000'));
+      expect(stdoutSpy).toHaveBeenCalledWith(
+        expect.stringContaining('201/1000'),
+      );
       expect(stdoutSpy).toHaveBeenCalledWith(expect.stringContaining('20%'));
 
       stdoutSpy.mockClear();
 
       // Test last item printing
       writer.printProgress(999, 1000, '/path/to/unit.mtf', false);
-      expect(stdoutSpy).toHaveBeenCalledWith(expect.stringContaining('1000/1000'));
+      expect(stdoutSpy).toHaveBeenCalledWith(
+        expect.stringContaining('1000/1000'),
+      );
       expect(stdoutSpy).toHaveBeenCalledWith(expect.stringContaining('100%'));
 
       stdoutSpy.mockClear();
