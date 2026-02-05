@@ -16,9 +16,9 @@
 
 ## 3. Documentation Updates
 
-- [ ] 3.1 Update `openspec/specs/README.md` to include code-formatting-standards in the spec list
-- [ ] 3.2 Verify all cross-references between specs are accurate
-- [ ] 3.3 Verify spec metadata (version, status, dependencies) is correct for all modified specs
+- [x] 3.1 Update `openspec/specs/README.md` to include code-formatting-standards in the spec list
+- [x] 3.2 Verify all cross-references between specs are accurate
+- [x] 3.3 Verify spec metadata (version, status, dependencies) is correct for all modified specs
 
 ## 4. Verification and Quality Checks
 

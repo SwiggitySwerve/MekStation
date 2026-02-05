@@ -6,10 +6,65 @@ This directory contains all OpenSpec specifications for the MekStation, organize
 
 ```
 specs/
-├── phase-1-foundation/      # Foundational type system and properties
-├── phase-2-construction/    # BattleMech construction systems
-└── README.md               # This file
+├── [spec-name]/            # Individual specification directories
+└── README.md              # This file
 ```
+
+---
+
+## Cross-Cutting Specifications
+
+Specifications that apply across all development phases and components.
+
+### Code Formatting Standards
+
+**Path**: `code-formatting-standards/spec.md`
+
+Defines code formatting standards using oxfmt:
+
+- oxfmt formatter configuration and settings
+- Tailwind CSS class sorting rules
+- Import statement sorting rules
+- Pre-commit hook integration (lint-staged)
+- CI/CD validation (GitHub Actions)
+- Developer workflow and IDE integration
+
+**Dependencies**: None (tooling)
+**Used By**: All code files, CI/CD pipeline, pre-commit hooks
+
+---
+
+### Validation Patterns
+
+**Path**: `validation-patterns/spec.md`
+
+Defines code quality and validation patterns:
+
+- Type guard functions for runtime validation
+- Validation result patterns
+- Boundary validation rules
+- No double type assertions rule (code review enforcement)
+- Compile-time type safety standards
+
+**Dependencies**: None (patterns)
+**Used By**: All TypeScript code, code review process
+
+---
+
+### Storybook Component Library
+
+**Path**: `storybook-component-library/spec.md`
+
+Defines component documentation and testing standards:
+
+- Storybook configuration and setup
+- Story writing patterns and decorators
+- Static build for CI validation
+- Autodocs generation from TypeScript types
+- Component testing and visual regression
+
+**Dependencies**: Code Formatting Standards, Validation Patterns
+**Used By**: All UI components, CI/CD pipeline
 
 ---
 
