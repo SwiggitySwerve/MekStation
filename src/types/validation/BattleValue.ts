@@ -124,16 +124,20 @@ export const GYRO_BV_MULTIPLIERS: Record<string, number> = {
 
 /**
  * Engine type BV multipliers for structure calculation
- * Per MegaMek Engine.getBVMultiplier()
+ * Per MegaMek Engine.getBVMultiplier() — based on side torso critical slots:
+ *   6 crits → 0.25 (IS XXL)
+ *   3 crits → 0.5  (IS XL)
+ *   2 crits → 0.75 (IS Light, Clan XL)
+ *   0 crits → 1.0  (Standard, Compact, ICE, etc.)
  * Formula: structureBV = totalStructure × 1.5 × structureMultiplier × engineMultiplier
  */
 export const ENGINE_BV_MULTIPLIERS: Record<EngineType, number> = {
   [EngineType.STANDARD]: 1.0,
-  [EngineType.XL_IS]: 0.75,
-  [EngineType.XL_CLAN]: 0.75,
-  [EngineType.LIGHT]: 0.75,
-  [EngineType.XXL]: 0.5,
-  [EngineType.COMPACT]: 1.0,
+  [EngineType.XL_IS]: 0.5,     // 3 side torso crits
+  [EngineType.XL_CLAN]: 0.75,  // 2 side torso crits
+  [EngineType.LIGHT]: 0.75,    // 2 side torso crits
+  [EngineType.XXL]: 0.25,      // 6 side torso crits (IS XXL)
+  [EngineType.COMPACT]: 1.0,   // 0 side torso crits
   [EngineType.ICE]: 1.0,
   [EngineType.FUEL_CELL]: 1.0,
   [EngineType.FISSION]: 1.0,
