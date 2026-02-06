@@ -358,7 +358,7 @@ export function calculateDefensiveBV(
 
   const explosivePenalties = config.explosivePenalties ?? 0;
 
-  const armorBV = config.totalArmorPoints * 2.5 * armorMultiplier * (bar / 10);
+   const armorBV = Math.round(config.totalArmorPoints * 2.5 * armorMultiplier * bar) / 10;
   const structureBV =
     config.totalStructurePoints * 1.5 * structureMultiplier * engineMultiplier;
   const gyroBV = config.tonnage * gyroMultiplier;
@@ -478,7 +478,7 @@ export function calculateOffensiveSpeedFactor(
 ): number {
   const mp = runMP + Math.round(Math.max(jumpMP, umuMP) / 2.0);
   const speedFactor =
-    Math.round(Math.pow(1 + (mp - 5) / 10.0, 1.2) * 100.0) / 100.0;
+    Math.round(Math.pow(1 + (mp - 5) / 10.0, 1.2) * 10000.0) / 10000.0;
   return speedFactor;
 }
 

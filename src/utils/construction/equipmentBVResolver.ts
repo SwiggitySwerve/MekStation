@@ -510,13 +510,13 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'small-re-engineered-laser': 'small-laser',
 
   // SRM I-OS variants (one-shot)
-  'srm-2-i-os': 'srm-2',
-  'srm-4-i-os': 'srm-4',
-  'srm-6-i-os': 'srm-6',
-  'lrm-5-i-os': 'lrm-5',
-  'lrm-10-i-os': 'lrm-10',
-  'lrm-15-i-os': 'lrm-15',
-  'lrm-20-i-os': 'lrm-20',
+  'srm-2-i-os': 'srm2-ios',
+  'srm-4-i-os': 'srm4-ios',
+  'srm-6-i-os': 'srm6-ios',
+  'lrm-5-i-os': 'lrm5-ios',
+  'lrm-10-i-os': 'lrm10-ios',
+  'lrm-15-i-os': 'lrm15-ios',
+  'lrm-20-i-os': 'lrm20-ios',
 
   // Heavy PPC
   'heavy-ppc': 'heavy-ppc',
@@ -597,13 +597,13 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   clrocketlauncher15prototype: 'rocket-launcher-15',
 
   // One-shot (OS) variants — map to base weapon for BV
-  'streak-srm-2-os': 'streak-srm-2',
-  'streak-srm-4-os': 'streak-srm-4',
-  'streak-srm-2-i-os': 'streak-srm-2',
-  'streak-srm-4-i-os': 'streak-srm-4',
-  'srm-2-os': 'srm-2',
-  'srm-6-os': 'srm-6',
-  'narc-i-os': 'narc',
+  'streak-srm-2-os': 'streaksrm2-os',
+  'streak-srm-4-os': 'streaksrm4-os',
+  'streak-srm-2-i-os': 'streaksrm2-ios',
+  'streak-srm-4-i-os': 'streaksrm4-ios',
+  'srm-2-os': 'srm2-ios',
+  'srm-6-os': 'srm6-ios',
+  'narc-i-os': 'improvednarc-os',
 
   // Prototype weapons — map to production equivalents for BV
   'prototype-er-medium-laser': 'er-medium-laser',
