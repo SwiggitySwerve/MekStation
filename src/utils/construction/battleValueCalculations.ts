@@ -244,19 +244,28 @@ export const SPEED_FACTORS: Record<number, number> = {
   10: 2.0,
 };
 
+function mpToTMM(mp: number): number {
+  if (mp <= 2) return 0;
+  if (mp <= 4) return 1;
+  if (mp <= 6) return 2;
+  if (mp <= 9) return 3;
+  if (mp <= 17) return 4;
+  if (mp <= 24) return 5;
+  return 6;
+}
+
 /**
- * Calculate Target Movement Modifier from movement capability
+ * Calculate Target Movement Modifier from movement capability.
+ *
+ * Per TW p.117 / MegaMek BVCalculator.processDefensiveFactor():
+ * - Running TMM = TMM(runMP)
+ * - Jumping TMM = TMM(jumpMP) + 1 (jump bonus)
+ * - Result = max(running, jumping)
  */
 export function calculateTMM(runMP: number, jumpMP: number = 0): number {
-  const bestMP = Math.max(runMP, jumpMP);
-
-  if (bestMP <= 2) return 0;
-  if (bestMP <= 4) return 1;
-  if (bestMP <= 6) return 2;
-  if (bestMP <= 9) return 3;
-  if (bestMP <= 17) return 4;
-  if (bestMP <= 24) return 5;
-  return 6;
+  const runTMM = mpToTMM(runMP);
+  const jumpTMM = jumpMP > 0 ? mpToTMM(jumpMP) + 1 : 0;
+  return Math.max(runTMM, jumpTMM);
 }
 
 /**
@@ -482,29 +491,93 @@ export function calculateOffensiveSpeedFactor(
  * - Orphaned ammo (no matching weapon) = 0 BV
  * - Uses base weapon BV (before rear penalty) for cap
  */
+const AMMO_WEAPON_TYPE_ALIASES: Record<string, string[]> = {
+  'arrow-iv-launcher': ['isarrowivsystem', 'isarrowiv', 'clarrowiv', 'arrow-iv'],
+  'arrow-iv': ['isarrowivsystem', 'isarrowiv', 'clarrowiv', 'arrow-iv-launcher'],
+  'long-tom': ['long-tom-cannon'],
+  'long-tom-cannon': ['long-tom'],
+  'sniper': ['sniper-cannon', 'issniperartcannon'],
+  'sniper-cannon': ['sniper'],
+  'thumper': ['thumper-cannon'],
+  'thumper-cannon': ['thumper'],
+  'medium-chemical-laser': ['medium-chem-laser', 'clmediumchemlaser'],
+  'medium-chem-laser': ['medium-chemical-laser', 'clmediumchemlaser'],
+  'lb-5-x': ['lb-5-x-ac'],
+  'lb-2-x': ['lb-2-x-ac'],
+  'lrtorpedo': ['lrm-15', 'lrm-10', 'lrm-5', 'lrm-20'],
+  'srtorpedo': ['srm-6', 'srm-4', 'srm-2'],
+  'ac-10-primitive': ['ac-10'],
+  'ac-5-primitive': ['ac-5'],
+  'ac-20-primitive': ['ac-20'],
+  'impammosrm6': ['improved-srm-6'],
+  'clanimprovedlrm15': ['improved-lrm-15'],
+  'clanimprovedlrm20': ['improved-lrm-20'],
+  'clanimprovedlrm10': ['improved-lrm-10'],
+  'clanimprovedlrm5': ['improved-lrm-5'],
+  'isarrowivsystem': ['arrow-iv-launcher', 'arrow-iv'],
+  'improved-gauss-rifle': ['climpgauss'],
+  'climpgauss': ['improved-gauss-rifle'],
+  'magshot': ['magshotgr'],
+  'magshotgr': ['magshot'],
+  'mech-taser': ['battlemech-taser', 'taser'],
+  'battlemech-taser': ['mech-taser', 'taser'],
+  'taser': ['mech-taser', 'battlemech-taser'],
+  'improved-narc': ['improvednarc', 'inarc', 'isimprovednarc'],
+  'improvednarc': ['improved-narc', 'inarc'],
+  'narc-beacon': ['narcbeacon', 'narc', 'isnarcbeacon'],
+  'narcbeacon': ['narc-beacon', 'narc'],
+  'narc': ['narc-beacon', 'narcbeacon'],
+  'clmediumchemlaser': ['medium-chemical-laser', 'medium-chem-laser'],
+};
+
+function findMatchingWeaponBV(
+  ammoType: string,
+  weaponBVByType: Record<string, number>,
+): number {
+  if (weaponBVByType[ammoType] !== undefined) return weaponBVByType[ammoType];
+  const aliases = AMMO_WEAPON_TYPE_ALIASES[ammoType];
+  if (aliases) {
+    for (const alias of aliases) {
+      if (weaponBVByType[alias] !== undefined) return weaponBVByType[alias];
+    }
+  }
+  const stripped = ammoType.replace(/-\d+$/, '');
+  if (stripped !== ammoType) {
+    const size = ammoType.slice(stripped.length + 1);
+    const torpedoAliases: Record<string, string> = {
+      lrtorpedo: 'lrm-',
+      srtorpedo: 'srm-',
+    };
+    const base = torpedoAliases[stripped];
+    if (base && weaponBVByType[base + size] !== undefined) {
+      return weaponBVByType[base + size];
+    }
+  }
+  return 0;
+}
+
 export function calculateAmmoBVWithExcessiveCap(
   weapons: Array<{ id: string; bv: number }>,
   ammo: Array<{ id: string; bv: number; weaponType: string }>,
 ): number {
   if (!ammo || ammo.length === 0) return 0;
 
-  // Weapon BV by normalized type (e.g., "ac20-1" → "ac-20")
   const weaponBVByType: Record<string, number> = {};
   for (const weapon of weapons) {
     const weaponType = normalizeEquipmentId(weapon.id);
     weaponBVByType[weaponType] = (weaponBVByType[weaponType] ?? 0) + weapon.bv;
   }
 
-  // Ammo BV by weapon type
   const ammoBVByType: Record<string, number> = {};
   for (const a of ammo) {
-    ammoBVByType[a.weaponType] = (ammoBVByType[a.weaponType] ?? 0) + a.bv;
+    const normalizedType = normalizeEquipmentId(a.weaponType);
+    ammoBVByType[normalizedType] = (ammoBVByType[normalizedType] ?? 0) + a.bv;
   }
 
   let totalAmmoBV = 0;
   for (const ammoType of Object.keys(ammoBVByType)) {
-    const matchingWeaponBV = weaponBVByType[ammoType] ?? 0;
-    if (matchingWeaponBV === 0) continue; // Orphaned ammo → 0 BV
+    const matchingWeaponBV = findMatchingWeaponBV(ammoType, weaponBVByType);
+    if (matchingWeaponBV === 0) continue;
     totalAmmoBV += Math.min(ammoBVByType[ammoType], matchingWeaponBV);
   }
 
@@ -800,6 +873,15 @@ export interface BVCalculationConfig {
   hasIndustrialTSM?: boolean;
   aesArms?: number;
   isIndustrialMech?: boolean;
+  ammo?: Array<{ id: string; bv: number; weaponType: string }>;
+  explosivePenalties?: number;
+  defensiveEquipmentBV?: number;
+  physicalWeaponBV?: number;
+  offensiveEquipmentBV?: number;
+  coolantPods?: number;
+  heatSinkCount?: number;
+  umuMP?: number;
+  hasImprovedJJ?: boolean;
 }
 
 /**
@@ -842,6 +924,9 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     hasChameleonLPS: config.hasChameleonLPS,
     hasNullSig: config.hasNullSig,
     hasVoidSig: config.hasVoidSig,
+    defensiveEquipmentBV: config.defensiveEquipmentBV,
+    explosivePenalties: config.explosivePenalties,
+    umuMP: config.umuMP,
   });
 
   const weaponsWithBV = config.weapons.map((w) => {
@@ -864,6 +949,7 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
 
   const offensiveResult = calculateOffensiveBVWithHeatTracking({
     weapons: weaponsWithBV,
+    ammo: config.ammo,
     tonnage: config.tonnage,
     walkMP: config.walkMP,
     runMP: config.runMP,
@@ -879,6 +965,12 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     hasNullSig: config.hasNullSig,
     hasVoidSig: config.hasVoidSig,
     hasChameleonShield: config.hasChameleonLPS,
+    coolantPods: config.coolantPods,
+    heatSinkCount: config.heatSinkCount,
+    hasImprovedJJ: config.hasImprovedJJ,
+    physicalWeaponBV: config.physicalWeaponBV,
+    offensiveEquipmentBV: config.offensiveEquipmentBV,
+    umuMP: config.umuMP,
   });
 
   const baseBV =
@@ -917,6 +1009,9 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     hasChameleonLPS: config.hasChameleonLPS,
     hasNullSig: config.hasNullSig,
     hasVoidSig: config.hasVoidSig,
+    defensiveEquipmentBV: config.defensiveEquipmentBV,
+    explosivePenalties: config.explosivePenalties,
+    umuMP: config.umuMP,
   });
 
   const weaponsWithBV = config.weapons.map((w) => {
@@ -939,6 +1034,7 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
 
   const offensiveResult = calculateOffensiveBVWithHeatTracking({
     weapons: weaponsWithBV,
+    ammo: config.ammo,
     tonnage: config.tonnage,
     walkMP: config.walkMP,
     runMP: config.runMP,
@@ -954,6 +1050,12 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     hasNullSig: config.hasNullSig,
     hasVoidSig: config.hasVoidSig,
     hasChameleonShield: config.hasChameleonLPS,
+    coolantPods: config.coolantPods,
+    heatSinkCount: config.heatSinkCount,
+    hasImprovedJJ: config.hasImprovedJJ,
+    physicalWeaponBV: config.physicalWeaponBV,
+    offensiveEquipmentBV: config.offensiveEquipmentBV,
+    umuMP: config.umuMP,
   });
 
   const baseBV =

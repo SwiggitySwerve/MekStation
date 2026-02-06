@@ -543,6 +543,56 @@
       ]
     },
     {
+      "id": "clan-rac-2",
+      "name": "Rotary AC/2 (Clan)",
+      "category": "Ballistic",
+      "subType": "Rotary AC",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 2,
+      "heat": 1,
+      "ranges": {
+        "minimum": 0,
+        "short": 8,
+        "medium": 17,
+        "long": 25
+      },
+      "weight": 8,
+      "criticalSlots": 4,
+      "ammoPerTon": 45,
+      "costCBills": 175000,
+      "battleValue": 161,
+      "introductionYear": 3104,
+      "special": [
+        "Can fire 1-6 shots"
+      ]
+    },
+    {
+      "id": "clan-rac-5",
+      "name": "Rotary AC/5 (Clan)",
+      "category": "Ballistic",
+      "subType": "Rotary AC",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 5,
+      "heat": 1,
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 10,
+      "criticalSlots": 8,
+      "ammoPerTon": 20,
+      "costCBills": 275000,
+      "battleValue": 345,
+      "introductionYear": 3104,
+      "special": [
+        "Can fire 1-6 shots"
+      ]
+    },
+    {
       "id": "lac-2",
       "name": "Light AC/2",
       "category": "Ballistic",
@@ -2681,7 +2731,7 @@
       "criticalSlots": 15,
       "ammoPerTon": 5,
       "costCBills": 450000,
-      "battleValue": 171,
+      "battleValue": 240,
       "introductionYear": 2600,
       "special": ["artillery"]
     },
@@ -2704,7 +2754,7 @@
       "criticalSlots": 12,
       "ammoPerTon": 5,
       "costCBills": 450000,
-      "battleValue": 171,
+      "battleValue": 240,
       "introductionYear": 2850,
       "special": ["artillery"]
     },

@@ -383,6 +383,279 @@
       ]
     },
     {
+      "id": "clan-er-small-pulse-laser",
+      "name": "ER Small Pulse Laser (Clan)",
+      "category": "Energy",
+      "subType": "ER Pulse Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 5,
+      "heat": 3,
+      "ranges": {
+        "minimum": 0,
+        "short": 2,
+        "medium": 4,
+        "long": 6
+      },
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "costCBills": 60000,
+      "battleValue": 36,
+      "introductionYear": 3057,
+      "special": [
+        "-2 to-hit modifier"
+      ]
+    },
+    {
+      "id": "clan-er-medium-pulse-laser",
+      "name": "ER Medium Pulse Laser (Clan)",
+      "category": "Energy",
+      "subType": "ER Pulse Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 7,
+      "heat": 6,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 9,
+        "long": 14
+      },
+      "weight": 2,
+      "criticalSlots": 2,
+      "costCBills": 150000,
+      "battleValue": 117,
+      "introductionYear": 3057,
+      "special": [
+        "-2 to-hit modifier"
+      ]
+    },
+    {
+      "id": "clan-er-large-pulse-laser",
+      "name": "ER Large Pulse Laser (Clan)",
+      "category": "Energy",
+      "subType": "ER Pulse Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 10,
+      "heat": 13,
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 15,
+        "long": 23
+      },
+      "weight": 6,
+      "criticalSlots": 3,
+      "costCBills": 400000,
+      "battleValue": 272,
+      "introductionYear": 3057,
+      "special": [
+        "-2 to-hit modifier"
+      ]
+    },
+    {
+      "id": "small-x-pulse-laser",
+      "name": "Small X-Pulse Laser",
+      "category": "Energy",
+      "subType": "X-Pulse Laser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 3,
+      "heat": 3,
+      "ranges": {
+        "minimum": 0,
+        "short": 2,
+        "medium": 4,
+        "long": 5
+      },
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 21,
+      "introductionYear": 3057,
+      "special": [
+        "-2 to-hit modifier"
+      ]
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "name": "Medium X-Pulse Laser",
+      "category": "Energy",
+      "subType": "X-Pulse Laser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 6,
+      "heat": 6,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 2,
+      "criticalSlots": 1,
+      "battleValue": 71,
+      "introductionYear": 3057,
+      "special": [
+        "-2 to-hit modifier"
+      ]
+    },
+    {
+      "id": "large-x-pulse-laser",
+      "name": "Large X-Pulse Laser",
+      "category": "Energy",
+      "subType": "X-Pulse Laser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 9,
+      "heat": 14,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 7,
+      "criticalSlots": 2,
+      "battleValue": 178,
+      "introductionYear": 3057,
+      "special": [
+        "-2 to-hit modifier"
+      ]
+    },
+    {
+      "id": "small-vsp-laser",
+      "name": "Small Variable Speed Pulse Laser",
+      "category": "Energy",
+      "subType": "Variable Speed Pulse Laser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 5,
+      "heat": 3,
+      "ranges": {
+        "minimum": 0,
+        "short": 2,
+        "medium": 4,
+        "long": 6
+      },
+      "weight": 2,
+      "criticalSlots": 1,
+      "battleValue": 22,
+      "introductionYear": 3070,
+      "special": [
+        "variable damage (5/4/3)"
+      ]
+    },
+    {
+      "id": "medium-vsp-laser",
+      "name": "Medium Variable Speed Pulse Laser",
+      "category": "Energy",
+      "subType": "Variable Speed Pulse Laser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 9,
+      "heat": 7,
+      "ranges": {
+        "minimum": 0,
+        "short": 2,
+        "medium": 5,
+        "long": 9
+      },
+      "weight": 4,
+      "criticalSlots": 2,
+      "battleValue": 56,
+      "introductionYear": 3070,
+      "special": [
+        "variable damage (9/7/5)"
+      ]
+    },
+    {
+      "id": "large-vsp-laser",
+      "name": "Large Variable Speed Pulse Laser",
+      "category": "Energy",
+      "subType": "Variable Speed Pulse Laser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 11,
+      "heat": 10,
+      "ranges": {
+        "minimum": 0,
+        "short": 4,
+        "medium": 8,
+        "long": 15
+      },
+      "weight": 9,
+      "criticalSlots": 4,
+      "battleValue": 123,
+      "introductionYear": 3070,
+      "special": [
+        "variable damage (11/9/7)"
+      ]
+    },
+    {
+      "id": "plasma-rifle",
+      "name": "Plasma Rifle",
+      "category": "Energy",
+      "subType": "Plasma",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": 10,
+      "heat": 10,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 6,
+      "criticalSlots": 2,
+      "costCBills": 260000,
+      "battleValue": 210,
+      "introductionYear": 3068
+    },
+    {
+      "id": "bombast-laser",
+      "name": "Bombast Laser",
+      "category": "Energy",
+      "subType": "Laser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 12,
+      "heat": 12,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 7,
+      "criticalSlots": 3,
+      "costCBills": 200000,
+      "battleValue": 137,
+      "introductionYear": 3064
+    },
+    {
+      "id": "tsemp-cannon",
+      "name": "TSEMP Cannon",
+      "category": "Energy",
+      "subType": "TSEMP",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 0,
+      "heat": 10,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 6,
+      "criticalSlots": 5,
+      "costCBills": 800000,
+      "battleValue": 488,
+      "introductionYear": 3134
+    },
+    {
       "id": "small-heavy-laser",
       "name": "Small Heavy Laser (Clan)",
       "category": "Energy",
@@ -453,6 +726,72 @@
       "special": [
         "+1 to-hit modifier"
       ]
+    },
+    {
+      "id": "improved-heavy-small-laser",
+      "name": "Improved Heavy Small Laser (Clan)",
+      "category": "Energy",
+      "subType": "Improved Heavy Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 6,
+      "heat": 3,
+      "ranges": {
+        "minimum": 0,
+        "short": 1,
+        "medium": 2,
+        "long": 3
+      },
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 30000,
+      "battleValue": 19,
+      "introductionYear": 3069,
+      "isExplosive": true
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "name": "Improved Heavy Medium Laser (Clan)",
+      "category": "Energy",
+      "subType": "Improved Heavy Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 10,
+      "heat": 7,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 1,
+      "criticalSlots": 2,
+      "costCBills": 150000,
+      "battleValue": 93,
+      "introductionYear": 3069,
+      "isExplosive": true
+    },
+    {
+      "id": "improved-heavy-large-laser",
+      "name": "Improved Heavy Large Laser (Clan)",
+      "category": "Energy",
+      "subType": "Improved Heavy Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 16,
+      "heat": 18,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 4,
+      "criticalSlots": 3,
+      "costCBills": 350000,
+      "battleValue": 296,
+      "introductionYear": 3069,
+      "isExplosive": true
     },
     {
       "id": "ppc",

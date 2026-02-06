@@ -390,6 +390,8 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'rotary-ac-2': 'rac-2',
   'rotary-ac-5': 'rac-5',
   'rotary-ac-10': 'rac-10',
+  'clan-rotary-ac-2': 'clan-rac-2',
+  'clan-rotary-ac-5': 'clan-rac-5',
 
   // HAG (unit JSON uses "hag-N", catalog uses "hagN")
   'hag-20': 'hag20',
@@ -401,10 +403,7 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'heavy-large-laser': 'large-heavy-laser',
   'heavy-small-laser': 'small-heavy-laser',
 
-  // Improved heavy lasers (not in catalog — map to closest catalog entry)
-  'improved-heavy-medium-laser': 'medium-heavy-laser',
-  'improved-heavy-large-laser': 'large-heavy-laser',
-  'improved-heavy-small-laser': 'small-heavy-laser',
+  // Improved heavy lasers now have their own catalog entries with correct BV
 
   // Autocannon (unit JSON uses "autocannon-N", catalog uses "ac-N")
   'autocannon-2': 'ac-2',
@@ -486,20 +485,24 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'c3-computer-slave': 'c3-slave',
   'improved-c3-computer': 'c3i',
 
-  // X-Pulse lasers (not in catalog — map to pulse laser equivalents)
-  'small-x-pulse-laser': 'small-pulse-laser',
-  'medium-x-pulse-laser': 'medium-pulse-laser',
-  'large-x-pulse-laser': 'large-pulse-laser',
+  // X-Pulse lasers (IS-only, in catalog)
+  'small-x-pulse-laser': 'small-x-pulse-laser',
+  'medium-x-pulse-laser': 'medium-x-pulse-laser',
+  'large-x-pulse-laser': 'large-x-pulse-laser',
+  'issmallxpulselaser': 'small-x-pulse-laser',
+  'ismediumxpulselaser': 'medium-x-pulse-laser',
+  'islargexpulselaser': 'large-x-pulse-laser',
 
-  // ER pulse lasers (not in catalog — map to pulse laser equivalents)
-  'er-medium-pulse-laser': 'medium-pulse-laser',
-  'er-large-pulse-laser': 'large-pulse-laser',
-  'er-small-pulse-laser': 'small-pulse-laser',
+  // ER pulse lasers (Clan-exclusive, in catalog as clan-er-*-pulse-laser)
+  // Clan resolution in validate-bv.ts adds clan- prefix automatically
 
-  // VSP lasers (map to catalog equivalents)
-  'medium-vsp-laser': 'medium-laser',
-  'large-vsp-laser': 'large-laser',
-  'small-vsp-laser': 'basmallvsplaser',
+  // VSP lasers (Variable Speed Pulse, in catalog)
+  'small-vsp-laser': 'small-vsp-laser',
+  'medium-vsp-laser': 'medium-vsp-laser',
+  'large-vsp-laser': 'large-vsp-laser',
+  'issmallvsplaser': 'small-vsp-laser',
+  'ismediumvsplaser': 'medium-vsp-laser',
+  'islargevsplaser': 'large-vsp-laser',
 
   // RE-Engineered lasers (not in catalog — map to standard equivalents)
   'medium-re-engineered-laser': 'medium-laser',
@@ -538,8 +541,6 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'ismachine-gun': 'machine-gun',
   isrotaryac5: 'rac-5',
   isrotaryac2: 'rac-2',
-  ismediumxpulselaser: 'medium-pulse-laser',
-  ismediumvsplaser: 'medium-laser',
   clheavylargelaser: 'large-heavy-laser',
 
   // ProtoMech AC (unit JSON uses "protomech-ac-N", catalog uses "protomechacN")
@@ -568,6 +569,62 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
 
   // C3 boosted with TAG
   'c3-master-boosted-with-tag': 'c3-boosted-master',
+
+  // MegaMek internal IDs (numeric-prefixed, stripped to these forms)
+  isplasmarifle: 'plasma-rifle',
+  islppc: 'light-ppc',
+  isblazer: 'blazer-cannon',
+  iseherppc: 'er-ppc', // Enhanced ER PPC → ER PPC for BV purposes
+  clplasmacannon: 'clan-plasma-cannon',
+  clheavysmalllaser: 'clan-heavy-small-laser',
+  clmicropulselaser: 'clan-micro-pulse-laser',
+  ismg: 'machine-gun',
+  clmg: 'clan-machine-gun',
+  islightmg: 'light-machine-gun',
+  issrm4os: 'srm-4',
+  isangelecm: 'angel-ecm',
+  clantimissilesystem: 'clan-ams',
+  clactiveprobe: 'clan-active-probe',
+  cllightactiveprobe: 'light-active-probe',
+  clerflamer: 'clan-flamer',
+  iserflamer: 'flamer',
+  isc3mastercomputer: 'c3-master',
+  isc3slaveunit: 'c3-slave',
+  issniperartcannon: 'sniper-cannon',
+  isfluidgun: 'fluid-gun',
+  ismediumpulselaserprototype: 'medium-pulse-laser',
+  islbxac10prototype: 'lb-10-x-ac',
+  clrocketlauncher15prototype: 'rocket-launcher-15',
+
+  // One-shot (OS) variants — map to base weapon for BV
+  'streak-srm-2-os': 'streak-srm-2',
+  'streak-srm-4-os': 'streak-srm-4',
+  'streak-srm-2-i-os': 'streak-srm-2',
+  'streak-srm-4-i-os': 'streak-srm-4',
+  'srm-2-os': 'srm-2',
+  'srm-6-os': 'srm-6',
+  'narc-i-os': 'narc',
+
+  // Prototype weapons — map to production equivalents for BV
+  'prototype-er-medium-laser': 'er-medium-laser',
+  'prototype-er-small-laser': 'er-small-laser',
+  'er-large-laser-prototype': 'er-large-laser',
+  'prototype-streak-srm-4': 'streak-srm-4',
+  'prototype-streak-srm-6': 'streak-srm-6',
+  'prototype-ultra-autocannon-10': 'ultra-ac-10',
+  'prototype-lb-10-x-autocannon': 'lb-10-x-ac',
+  'prototype-rocket-launcher-20': 'rocket-launcher-20',
+  'rocket-launcher-10-pp': 'rocket-launcher-10',
+  'ac-10p': 'ac-10',
+
+  // C3 variants
+  'c3-boosted-system-master': 'c3-boosted-master',
+  'c3-computer-[master]': 'c3-master',
+  'c3-remote-sensor-launcher': 'c3-master',
+  isc3remotesensorlauncher: 'c3-master',
+
+  // Vehicle flamer
+  'flamer-vehicle': 'flamer',
 };
 
 /**
@@ -802,6 +859,32 @@ export function isResolvable(equipmentId: string): boolean {
   const catalog = loadEquipmentCatalog();
   const normalizedId = normalizeEquipmentId(equipmentId);
   return catalog.has(normalizedId);
+}
+
+export interface AmmoBVResult {
+  battleValue: number;
+  weaponType: string;
+  resolved: boolean;
+}
+
+/**
+ * Resolve an ammo ID/name to its BV and associated weapon type.
+ * Uses the ammunition catalog and name-mappings for resolution.
+ */
+export function resolveAmmoBV(ammoId: string): AmmoBVResult {
+  const catalog = loadEquipmentCatalog();
+  const normalizedId = normalizeEquipmentId(ammoId);
+  const entry = catalog.get(normalizedId);
+
+  if (!entry) {
+    return { battleValue: 0, weaponType: '', resolved: false };
+  }
+
+  return {
+    battleValue: entry.battleValue ?? 0,
+    weaponType: normalizedId.replace(/-ammo$/, '').replace(/^ammo-/, ''),
+    resolved: true,
+  };
 }
 
 /**
