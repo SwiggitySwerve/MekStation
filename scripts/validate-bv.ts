@@ -19,6 +19,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { EngineType } from '../src/types/construction/EngineType';
 import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
 import {
   calculateTotalBV,
@@ -304,6 +305,52 @@ function normalizeStructureType(structureType: string): string {
 }
 
 /**
+ * Map engine type string from unit data to EngineType enum.
+ * Also returns an optional BV multiplier override for Clan XXL (4 side crits → 0.5)
+ * since our EngineType.XXL defaults to IS XXL (6 side crits → 0.25).
+ */
+function mapEngineType(engineTypeStr: string, techBase: string): { type: EngineType; bvMultiplierOverride?: number } {
+  const lower = engineTypeStr.toLowerCase().replace(/[_\s-]+/g, '');
+  if (lower.includes('xxl')) {
+    // Clan XXL: 4 side torso crits → 0.5 (vs IS XXL: 6 → 0.25)
+    if (techBase === 'CLAN') return { type: EngineType.XXL, bvMultiplierOverride: 0.5 };
+    return { type: EngineType.XXL };
+  }
+  if (lower.includes('xl')) {
+    return { type: techBase === 'CLAN' ? EngineType.XL_CLAN : EngineType.XL_IS };
+  }
+  if (lower.includes('light')) return { type: EngineType.LIGHT };
+  if (lower.includes('compact')) return { type: EngineType.COMPACT };
+  if (lower.includes('ice') || lower.includes('combustion')) return { type: EngineType.ICE };
+  if (lower.includes('fuelcell') || lower.includes('fuel')) return { type: EngineType.FUEL_CELL };
+  if (lower.includes('fission')) return { type: EngineType.FISSION };
+  return { type: EngineType.STANDARD };
+}
+
+/**
+ * Scan critical slots for MASC, Supercharger, and TSM
+ */
+function scanSpecialEquipment(criticalSlots?: Record<string, (string | null)[]>): {
+  hasMASC: boolean;
+  hasSupercharger: boolean;
+  hasTSM: boolean;
+} {
+  const result = { hasMASC: false, hasSupercharger: false, hasTSM: false };
+  if (!criticalSlots) return result;
+  for (const slots of Object.values(criticalSlots)) {
+    if (!Array.isArray(slots)) continue;
+    for (const slot of slots) {
+      if (!slot || typeof slot !== 'string') continue;
+      const lo = slot.toLowerCase().replace(/\s+/g, '');
+      if (lo.includes('masc') && !lo.includes('supercharger')) result.hasMASC = true;
+      if (lo.includes('supercharger')) result.hasSupercharger = true;
+      if (lo.includes('triplestrength') || lo === 'tsm' || lo.includes('tsm')) result.hasTSM = true;
+    }
+  }
+  return result;
+}
+
+/**
  * Check if a location is rear-facing
  */
 function isRearLocation(location: string): boolean {
@@ -321,7 +368,19 @@ function mapUnitToConfig(unit: UnitData): {
   const issues: string[] = [];
 
   const walkMP = unit.movement.walk;
-  const runMP = Math.floor(walkMP * 1.5);
+  const special = scanSpecialEquipment(unit.criticalSlots);
+  let bvWalk = walkMP;
+  if (special.hasTSM) bvWalk = walkMP + 1;
+  let runMP: number;
+  if (special.hasMASC && special.hasSupercharger) {
+    runMP = Math.ceil(bvWalk * 2.5);
+  } else if (special.hasMASC || special.hasSupercharger) {
+    runMP = bvWalk * 2;
+  } else {
+    runMP = Math.ceil(bvWalk * 1.5);
+  }
+  const armorType = normalizeArmorType(unit.armor.type);
+  if (armorType === 'hardened') runMP = Math.max(0, runMP - 1);
   const jumpMP = unit.movement.jump || 0;
 
   const totalArmorPoints = calculateTotalArmor(unit.armor.allocation);
@@ -360,19 +419,24 @@ function mapUnitToConfig(unit: UnitData): {
       eq.id.toLowerCase().includes('computer'),
   );
 
+  const { type: engineType, bvMultiplierOverride } = mapEngineType(unit.engine.type, unit.techBase);
+
   const config: BVCalculationConfig = {
     totalArmorPoints,
     totalStructurePoints,
     tonnage: unit.tonnage,
     heatSinkCapacity: calculateHeatDissipation(unit.heatSinks),
-    walkMP,
+    walkMP: bvWalk,
     runMP,
     jumpMP,
     weapons,
     hasTargetingComputer,
-    armorType: normalizeArmorType(unit.armor.type),
+    hasTSM: special.hasTSM,
+    armorType,
     structureType: normalizeStructureType(unit.structure.type),
     gyroType: normalizeGyroType(unit.gyro.type),
+    engineType,
+    engineMultiplier: bvMultiplierOverride,
   };
 
   return { config, issues };
