@@ -303,6 +303,12 @@ export interface DefensiveBVConfig {
   hasStealthArmor?: boolean;
   /** Chameleon Light Polarization Shield adds +2 to TMM for defensive factor */
   hasChameleonLPS?: boolean;
+  /** Null Signature System adds +2 to TMM for defensive factor */
+  hasNullSig?: boolean;
+  /** Void Signature System: TMM min 3, or +1 if already 3 */
+  hasVoidSig?: boolean;
+  /** UMU movement points (Underwater Maneuvering Unit) */
+  umuMP?: number;
 }
 
 export interface DefensiveBVResult {
@@ -323,11 +329,14 @@ export function calculateDefensiveBV(
   const gyroMultiplier = getGyroBVMultiplier(config.gyroType ?? 'standard');
 
   const bar = config.bar ?? 10;
-  // Calculate engine multiplier from engineType if provided, otherwise use explicit value or default
+  // Explicit engineMultiplier takes priority (e.g., Clan XXL override),
+  // then engineType lookup, then default 1.0
   const engineMultiplier =
-    config.engineType !== undefined
-      ? getEngineBVMultiplier(config.engineType)
-      : (config.engineMultiplier ?? 1.0);
+    config.engineMultiplier !== undefined
+      ? config.engineMultiplier
+      : config.engineType !== undefined
+        ? getEngineBVMultiplier(config.engineType)
+        : 1.0;
 
   // Resolve defensive equipment BV from catalog (AMS, ECM, BAP, shields, armored components)
   let resolvedDefensiveEquipmentBV = config.defensiveEquipmentBV ?? 0;
@@ -352,15 +361,22 @@ export function calculateDefensiveBV(
     resolvedDefensiveEquipmentBV -
     explosivePenalties;
 
-  let maxTMM = calculateTMM(config.runMP, config.jumpMP);
+  let maxTMM = calculateTMM(config.runMP, Math.max(config.jumpMP, config.umuMP ?? 0));
 
   // Stealth armor and Chameleon LPS each add +2 to TMM for defensive factor
   // See MekBVCalculator.tmmFactor() lines 281-303
-  if (config.hasStealthArmor) {
+  if (config.hasStealthArmor || config.hasNullSig) {
     maxTMM += 2;
   }
   if (config.hasChameleonLPS) {
     maxTMM += 2;
+  }
+  if (config.hasVoidSig) {
+    if (maxTMM < 3) {
+      maxTMM = 3;
+    } else if (maxTMM === 3) {
+      maxTMM++;
+    }
   }
 
   const defensiveFactor = 1 + maxTMM / 10.0;
@@ -410,6 +426,32 @@ export interface OffensiveBVConfig {
   aesArms?: number;
   /** Industrial mech without advanced fire control: offensive BV ×0.9 */
   isIndustrialMech?: boolean;
+  /** UMU movement points (Underwater Maneuvering Unit) */
+  umuMP?: number;
+  /** Engine type for running heat (XXL=6, ICE/FC=0, others=2) */
+  engineType?: EngineType;
+  /** XXL engine flag (legacy, prefer engineType) */
+  isXXLEngine?: boolean;
+  /** Stealth armor: -10 heat efficiency */
+  hasStealthArmor?: boolean;
+  /** Null Signature System: -10 heat efficiency */
+  hasNullSig?: boolean;
+  /** Void Signature System: -10 heat efficiency */
+  hasVoidSig?: boolean;
+  /** Chameleon LPS: -6 heat efficiency */
+  hasChameleonShield?: boolean;
+  /** Coolant pods for heat efficiency bonus */
+  coolantPods?: number;
+  /** Total heat sink count (for coolant pod calc) */
+  heatSinkCount?: number;
+  /** Improved Jump Jets (halved jump heat MP) */
+  hasImprovedJJ?: boolean;
+  /** Jump MP for heat calc (may differ from movement jump) */
+  jumpHeatMP?: number;
+  /** Physical weapon BV (hatchets, swords, etc.) */
+  physicalWeaponBV?: number;
+  /** Offensive equipment BV (Watchdog CEWS, etc.) */
+  offensiveEquipmentBV?: number;
 }
 
 export interface OffensiveBVResult {
@@ -548,12 +590,38 @@ export function calculateOffensiveBVWithHeatTracking(
   // MegaMek heatSorter: heatless first → BV descending → heat ascending ties
   const sortedWeapons = [...weaponsWithModifiers].sort(heatSorter);
 
-  // MegaMek heat efficiency: 6 + heatCapacity - moveHeat
-  // See MekBVCalculator.heatEfficiency() lines 321-389
-  const RUNNING_HEAT = 2;
-  const jumpHeat = config.jumpMP > 0 ? Math.max(3, config.jumpMP) : 0;
-  const moveHeat = Math.max(RUNNING_HEAT, jumpHeat);
-  const heatEfficiency = 6 + config.heatDissipation - moveHeat;
+  const engineType = config.engineType;
+  const runningHeat =
+    engineType === EngineType.ICE || engineType === EngineType.FUEL_CELL
+      ? 0
+      : config.isXXLEngine || engineType === EngineType.XXL
+        ? 6
+        : 2;
+  let jumpHeat = 0;
+  const jumpHeatMP = config.jumpHeatMP ?? config.jumpMP;
+  if (jumpHeatMP > 0) {
+    if (config.hasImprovedJJ) {
+      const effectiveJumpMP = Math.ceil(jumpHeatMP / 2);
+      jumpHeat = config.isXXLEngine || engineType === EngineType.XXL
+        ? Math.max(6, effectiveJumpMP * 2)
+        : Math.max(3, effectiveJumpMP);
+    } else {
+      jumpHeat = config.isXXLEngine || engineType === EngineType.XXL
+        ? Math.max(6, jumpHeatMP * 2)
+        : Math.max(3, jumpHeatMP);
+    }
+  }
+  const moveHeat = Math.max(runningHeat, jumpHeat);
+  let heatEfficiency = 6 + config.heatDissipation - moveHeat;
+
+  if ((config.coolantPods ?? 0) > 0 && (config.heatSinkCount ?? 0) > 0) {
+    heatEfficiency += Math.ceil((config.heatSinkCount! * config.coolantPods!) / 5);
+  }
+
+  if (config.hasStealthArmor) heatEfficiency -= 10;
+  if (config.hasNullSig) heatEfficiency -= 10;
+  if (config.hasVoidSig) heatEfficiency -= 10;
+  if (config.hasChameleonShield) heatEfficiency -= 6;
 
   // Weapon that crosses threshold gets FULL BV; only subsequent weapons get halved.
   // See HeatTrackingBVCalculator.processWeapons() lines 78-128
@@ -595,8 +663,11 @@ export function calculateOffensiveBVWithHeatTracking(
   const speedFactor = calculateOffensiveSpeedFactor(
     config.runMP,
     config.jumpMP,
+    config.umuMP ?? 0,
   );
-  const baseOffensive = weaponBV + ammoBV + weightBonus;
+  const physicalWeaponBV = config.physicalWeaponBV ?? 0;
+  const offensiveEquipmentBV = config.offensiveEquipmentBV ?? 0;
+  const baseOffensive = weaponBV + ammoBV + physicalWeaponBV + weightBonus + offensiveEquipmentBV;
 
   // Industrial mechs without advanced fire control get ×0.9
   // See MekBVCalculator.processOffensiveTypeModifier() lines 416-424
@@ -718,9 +789,13 @@ export interface BVCalculationConfig {
   structureType?: string;
   gyroType?: string;
   engineType?: EngineType;
+  /** Override engine BV multiplier (e.g., for Clan XXL which uses 0.5 vs IS XXL 0.25) */
+  engineMultiplier?: number;
   cockpitType?: CockpitType;
   hasStealthArmor?: boolean;
   hasChameleonLPS?: boolean;
+  hasNullSig?: boolean;
+  hasVoidSig?: boolean;
   hasTSM?: boolean;
   hasIndustrialTSM?: boolean;
   aesArms?: number;
@@ -762,8 +837,11 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     structureType: config.structureType,
     gyroType: config.gyroType,
     engineType: config.engineType,
+    engineMultiplier: config.engineMultiplier,
     hasStealthArmor: config.hasStealthArmor,
     hasChameleonLPS: config.hasChameleonLPS,
+    hasNullSig: config.hasNullSig,
+    hasVoidSig: config.hasVoidSig,
   });
 
   const weaponsWithBV = config.weapons.map((w) => {
@@ -796,6 +874,11 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     hasIndustrialTSM: config.hasIndustrialTSM,
     aesArms: config.aesArms,
     isIndustrialMech: config.isIndustrialMech,
+    engineType: config.engineType,
+    hasStealthArmor: config.hasStealthArmor,
+    hasNullSig: config.hasNullSig,
+    hasVoidSig: config.hasVoidSig,
+    hasChameleonShield: config.hasChameleonLPS,
   });
 
   const baseBV =
@@ -829,8 +912,11 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     structureType: config.structureType,
     gyroType: config.gyroType,
     engineType: config.engineType,
+    engineMultiplier: config.engineMultiplier,
     hasStealthArmor: config.hasStealthArmor,
     hasChameleonLPS: config.hasChameleonLPS,
+    hasNullSig: config.hasNullSig,
+    hasVoidSig: config.hasVoidSig,
   });
 
   const weaponsWithBV = config.weapons.map((w) => {
@@ -863,6 +949,11 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     hasIndustrialTSM: config.hasIndustrialTSM,
     aesArms: config.aesArms,
     isIndustrialMech: config.isIndustrialMech,
+    engineType: config.engineType,
+    hasStealthArmor: config.hasStealthArmor,
+    hasNullSig: config.hasNullSig,
+    hasVoidSig: config.hasVoidSig,
+    hasChameleonShield: config.hasChameleonLPS,
   });
 
   const baseBV =
