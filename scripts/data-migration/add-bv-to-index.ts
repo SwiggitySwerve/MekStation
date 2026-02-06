@@ -2,151 +2,23 @@
 /**
  * Add BV to existing index.json
  *
- * Calculates Battle Value for each unit and adds it to the index.
+ * Calculates Battle Value for each unit using the full BV 2.0 engine
+ * and adds it to the index.
  *
  * Usage:
- *   npx ts-node scripts/data-migration/add-bv-to-index.ts
+ *   npx tsx scripts/data-migration/add-bv-to-index.ts
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { calculateTotalBV } from '../../src/utils/construction/battleValueCalculations';
+import { resolveEquipmentBV } from '../../src/utils/construction/equipmentBVResolver';
 
 const INDEX_PATH = 'public/data/units/battlemechs/index.json';
 const UNITS_DIR = 'public/data/units/battlemechs';
 
-// ============================================================================
-// BV CONSTANTS
-// ============================================================================
-
-const SPEED_FACTORS: Record<number, number> = {
-  0: 1.0,
-  1: 1.1,
-  2: 1.2,
-  3: 1.3,
-  4: 1.4,
-  5: 1.5,
-  6: 1.6,
-  7: 1.7,
-  8: 1.8,
-  9: 1.9,
-  10: 2.0,
-};
-
-const WEAPON_BV: Record<string, number> = {
-  // Energy weapons
-  'small-laser': 9,
-  'medium-laser': 46,
-  'large-laser': 123,
-  'er-small-laser': 17,
-  'er-medium-laser': 62,
-  'er-large-laser': 163,
-  ppc: 176,
-  'er-ppc': 229,
-  'snub-nose-ppc': 165,
-  'small-pulse-laser': 12,
-  'medium-pulse-laser': 48,
-  'large-pulse-laser': 119,
-  'er-small-pulse-laser': 36,
-  'er-medium-pulse-laser': 111,
-  'er-large-pulse-laser': 272,
-  flamer: 6,
-  'er-flamer': 16,
-  'small-x-pulse-laser': 21,
-  'medium-x-pulse-laser': 71,
-  'large-x-pulse-laser': 178,
-
-  // Ballistic weapons
-  'machine-gun': 5,
-  'light-machine-gun': 5,
-  'heavy-machine-gun': 6,
-  'ac-2': 37,
-  'ac-5': 70,
-  'ac-10': 123,
-  'ac-20': 178,
-  'lb-2-x-ac': 42,
-  'lb-5-x-ac': 83,
-  'lb-10-x-ac': 148,
-  'lb-20-x-ac': 237,
-  'ultra-ac-2': 56,
-  'ultra-ac-5': 112,
-  'ultra-ac-10': 210,
-  'ultra-ac-20': 281,
-  'rotary-ac-2': 118,
-  'rotary-ac-5': 247,
-  'light-ac-2': 30,
-  'light-ac-5': 62,
-  'gauss-rifle': 320,
-  'light-gauss-rifle': 159,
-  'heavy-gauss-rifle': 346,
-  'hyper-assault-gauss-20': 267,
-  'hyper-assault-gauss-30': 401,
-  'hyper-assault-gauss-40': 535,
-
-  // Missile weapons
-  'srm-2': 21,
-  'srm-4': 39,
-  'srm-6': 59,
-  'lrm-5': 45,
-  'lrm-10': 90,
-  'lrm-15': 136,
-  'lrm-20': 181,
-  'streak-srm-2': 30,
-  'streak-srm-4': 59,
-  'streak-srm-6': 89,
-  'mrm-10': 56,
-  'mrm-20': 112,
-  'mrm-30': 168,
-  'mrm-40': 224,
-  'atm-3': 53,
-  'atm-6': 105,
-  'atm-9': 158,
-  'atm-12': 212,
-  'mml-3': 29,
-  'mml-5': 49,
-  'mml-7': 67,
-  'mml-9': 86,
-
-  // Clan energy
-  'er-micro-laser': 7,
-  'micro-pulse-laser': 12,
-  'heavy-small-laser': 15,
-  'heavy-medium-laser': 76,
-  'heavy-large-laser': 244,
-
-  // Support weapons
-  tag: 0,
-  'narc-launcher': 30,
-  'inarc-launcher': 75,
-  'anti-missile-system': 32,
-  'laser-anti-missile-system': 45,
-};
-
-// Internal structure points by tonnage (standard)
-const INTERNAL_STRUCTURE: Record<number, number> = {
-  20: 33,
-  25: 42,
-  30: 51,
-  35: 60,
-  40: 68,
-  45: 77,
-  50: 85,
-  55: 94,
-  60: 102,
-  65: 111,
-  70: 119,
-  75: 128,
-  80: 136,
-  85: 145,
-  90: 153,
-  95: 162,
-  100: 170,
-};
-
-// ============================================================================
-// TYPES
-// ============================================================================
-
 interface UnitData {
+  id: string;
   tonnage: number;
   engine?: { type: string; rating: number };
   movement?: { walk: number; jump?: number };
@@ -155,6 +27,9 @@ interface UnitData {
     type: string;
     allocation?: Record<string, number | { front: number; rear: number }>;
   };
+  structure?: { type: string };
+  gyro?: { type: string };
+  cockpit?: string;
   equipment?: { id: string; location: string }[];
 }
 
@@ -179,33 +54,6 @@ interface IndexFile {
   units: IndexEntry[];
 }
 
-// ============================================================================
-// BV CALCULATION
-// ============================================================================
-
-function calculateTMM(runMP: number, jumpMP: number = 0): number {
-  const bestMP = Math.max(runMP, jumpMP);
-  if (bestMP <= 2) return 0;
-  if (bestMP <= 4) return 1;
-  if (bestMP <= 6) return 2;
-  if (bestMP <= 9) return 3;
-  if (bestMP <= 12) return 4;
-  if (bestMP <= 17) return 5;
-  if (bestMP <= 24) return 6;
-  return 7;
-}
-
-function calculateSpeedFactor(walkMP: number, jumpMP: number = 0): number {
-  const runMP = Math.ceil(walkMP * 1.5);
-  const tmm = calculateTMM(runMP, jumpMP);
-  let factor = SPEED_FACTORS[tmm] ?? 1.0;
-
-  if (jumpMP > walkMP) {
-    factor = Math.min(2.24, factor + Math.min(0.5, (jumpMP - walkMP) * 0.1));
-  }
-  return factor;
-}
-
 function calculateTotalArmorPoints(
   allocation:
     | Record<string, number | { front: number; rear: number }>
@@ -223,57 +71,124 @@ function calculateTotalArmorPoints(
   return total;
 }
 
-function getWeaponBV(equipmentId: string): number {
-  const normalized = equipmentId.toLowerCase().replace(/[_\s]/g, '-');
-  return WEAPON_BV[normalized] ?? 0;
+function getInternalStructurePoints(tonnage: number): number {
+  const structureTable: Record<number, number> = {
+    20: 33, 25: 42, 30: 51, 35: 60, 40: 68, 45: 77, 50: 85, 55: 94,
+    60: 102, 65: 111, 70: 119, 75: 128, 80: 136, 85: 145, 90: 153, 95: 162,
+    100: 170,
+  };
+  return structureTable[tonnage] ?? Math.round(tonnage * 1.7);
+}
+
+function normalizeEngineType(engineType?: string): string | undefined {
+  if (!engineType) return undefined;
+  const normalized = engineType.toUpperCase();
+  const typeMap: Record<string, string> = {
+    FUSION: 'FUSION',
+    ICE: 'ICE',
+    XL: 'XL',
+    XXL: 'XXL',
+    LIGHT: 'LIGHT',
+    COMPACT: 'COMPACT',
+    FISSION: 'FISSION',
+  };
+  return typeMap[normalized];
+}
+
+function normalizeArmorType(armorType?: string): string | undefined {
+  if (!armorType) return 'standard';
+  const normalized = armorType.toUpperCase();
+  const typeMap: Record<string, string> = {
+    STANDARD: 'standard',
+    FERRO_FIBROUS: 'ferro-fibrous',
+    LIGHT_FERRO: 'light-ferro-fibrous',
+    HEAVY_FERRO: 'heavy-ferro-fibrous',
+    REACTIVE: 'reactive',
+    REFLECTIVE: 'reflective',
+    HARDENED: 'hardened',
+    STEALTH: 'stealth',
+  };
+  return typeMap[normalized] ?? 'standard';
+}
+
+function normalizeStructureType(structureType?: string): string | undefined {
+  if (!structureType) return 'standard';
+  const normalized = structureType.toUpperCase();
+  const typeMap: Record<string, string> = {
+    STANDARD: 'standard',
+    ENDO_STEEL: 'endo-steel',
+    COMPOSITE: 'composite',
+    REINFORCED: 'reinforced',
+  };
+  return typeMap[normalized] ?? 'standard';
+}
+
+function normalizeGyroType(gyroType?: string): string | undefined {
+  if (!gyroType) return 'standard';
+  const normalized = gyroType.toUpperCase();
+  const typeMap: Record<string, string> = {
+    STANDARD: 'standard',
+    HEAVY_DUTY: 'heavy-duty',
+    LIGHT: 'light',
+    COMPACT: 'compact',
+  };
+  return typeMap[normalized] ?? 'standard';
+}
+
+function normalizeCockpitType(cockpitType?: string): string | undefined {
+  if (!cockpitType) return 'standard';
+  const normalized = cockpitType.toUpperCase();
+  const typeMap: Record<string, string> = {
+    STANDARD: 'standard',
+    SMALL: 'small',
+    TORSO_MOUNTED: 'torso-mounted',
+    COMMAND_CONSOLE: 'command-console',
+    SMALL_COMMAND_CONSOLE: 'small-command-console',
+    INTERFACE: 'interface',
+    DRONE_OPERATING_SYSTEM: 'drone-operating-system',
+  };
+  return typeMap[normalized] ?? 'standard';
 }
 
 function calculateUnitBV(unit: UnitData): number {
-  // Get structure points
-  const structurePoints =
-    INTERNAL_STRUCTURE[unit.tonnage] ?? Math.round(unit.tonnage * 1.7);
+  try {
+    const walkMP = unit.movement?.walk ?? 3;
+    const jumpMP = unit.movement?.jump ?? 0;
+    const runMP = Math.ceil(walkMP * 1.5);
 
-  // Get armor points
-  const armorPoints = calculateTotalArmorPoints(unit.armor?.allocation);
+    const totalArmorPoints = calculateTotalArmorPoints(unit.armor?.allocation);
+    const totalStructurePoints = getInternalStructurePoints(unit.tonnage);
+    const heatSinkCount = unit.heatSinks?.count ?? 10;
 
-  // Defensive BV
-  const armorFactor = armorPoints * 2.5;
-  const structureFactor = structurePoints * 1.5;
-  const defensiveBV = armorFactor + structureFactor;
+    const weapons = (unit.equipment ?? []).map((eq) => ({
+      id: eq.id,
+    }));
 
-  // Offensive BV from weapons
-  let offensiveBV = 0;
-  if (unit.equipment) {
-    for (const item of unit.equipment) {
-      const weaponBV = getWeaponBV(item.id);
-      offensiveBV += weaponBV;
-    }
+    const config = {
+      totalArmorPoints,
+      totalStructurePoints,
+      tonnage: unit.tonnage,
+      heatSinkCapacity: heatSinkCount,
+      walkMP,
+      runMP,
+      jumpMP,
+      weapons,
+      armorType: normalizeArmorType(unit.armor?.type),
+      structureType: normalizeStructureType(unit.structure?.type),
+      gyroType: normalizeGyroType(unit.gyro?.type),
+      engineType: normalizeEngineType(unit.engine?.type) as any,
+      cockpitType: normalizeCockpitType(unit.cockpit) as any,
+    };
+
+    return calculateTotalBV(config);
+  } catch (error) {
+    console.error(`Error calculating BV for unit ${unit.id}:`, error);
+    return 0;
   }
-
-  // If no weapons found, estimate from tonnage
-  if (offensiveBV === 0) {
-    offensiveBV = unit.tonnage * 8; // Rough estimate
-  }
-
-  // Speed factor
-  const walkMP =
-    unit.movement?.walk ??
-    Math.floor((unit.engine?.rating ?? 200) / unit.tonnage);
-  const jumpMP = unit.movement?.jump ?? 0;
-  const speedFactor = calculateSpeedFactor(walkMP, jumpMP);
-
-  // Total BV
-  const totalBV = Math.round((defensiveBV + offensiveBV) * speedFactor);
-
-  return totalBV;
 }
 
-// ============================================================================
-// MAIN
-// ============================================================================
-
 async function main(): Promise<void> {
-  console.log('Adding BV to index.json...\n');
+  console.log('Regenerating index.json with full BV 2.0 engine...\n');
 
   const indexContent = fs.readFileSync(INDEX_PATH, 'utf-8');
   const index: IndexFile = JSON.parse(indexContent);
@@ -282,6 +197,7 @@ async function main(): Promise<void> {
 
   let updated = 0;
   let errors = 0;
+  const samples: Array<{ chassis: string; model: string; oldBV?: number; newBV: number }> = [];
 
   for (const entry of index.units) {
     try {
@@ -294,10 +210,16 @@ async function main(): Promise<void> {
 
       const unitContent = fs.readFileSync(unitPath, 'utf-8');
       const unit: UnitData = JSON.parse(unitContent);
+      unit.id = entry.id;
 
-      const bv = calculateUnitBV(unit);
-      entry.bv = bv;
+      const oldBV = entry.bv;
+      const newBV = calculateUnitBV(unit);
+      entry.bv = newBV;
       updated++;
+
+      if (samples.length < 10) {
+        samples.push({ chassis: entry.chassis, model: entry.model, oldBV, newBV });
+      }
     } catch (error) {
       console.error(`Error processing ${entry.path}: ${error}`);
       errors++;
@@ -308,17 +230,16 @@ async function main(): Promise<void> {
   fs.writeFileSync(INDEX_PATH, JSON.stringify(index, null, 2));
 
   console.log('\n========================================');
-  console.log('BV Calculation Complete');
+  console.log('BV Regeneration Complete');
   console.log('========================================');
   console.log(`Updated: ${updated}`);
   console.log(`Errors: ${errors}`);
   console.log(`Output: ${INDEX_PATH}`);
 
-  console.log('\nSample BVs:');
-  for (const entry of index.units.slice(0, 5)) {
-    console.log(
-      `  ${entry.chassis} ${entry.model}: ${entry.bv?.toLocaleString()} BV`,
-    );
+  console.log('\nSample BV Changes:');
+  for (const sample of samples) {
+    const change = sample.oldBV ? ` (${sample.oldBV} → ${sample.newBV})` : ` (${sample.newBV})`;
+    console.log(`  ${sample.chassis} ${sample.model}:${change}`);
   }
 }
 
