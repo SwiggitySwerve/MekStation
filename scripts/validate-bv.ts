@@ -275,6 +275,10 @@ const CATALOG_BV_OVERRIDES: Record<string, { bv: number; heat: number }> = {
   'er-flamer': { bv: 16, heat: 4 },
   'erflamer': { bv: 16, heat: 4 },
   'iserflamer': { bv: 16, heat: 4 },
+  // Clan ER Flamer has BV 15 (different from IS BV 16)
+  'clerflamer': { bv: 15, heat: 4 },
+  'clan-er-flamer': { bv: 15, heat: 4 },
+  'clanerflamer': { bv: 15, heat: 4 },
   'small-re-engineered-laser': { bv: 14, heat: 4 },
   'smallreengineeredlaser': { bv: 14, heat: 4 },
   'issmallreengineeredlaser': { bv: 14, heat: 4 },
@@ -378,6 +382,7 @@ interface CritScan {
   umuMP: number;
   detectedGyroType: string | null;
   modularArmorSlots: number;
+  spikeCount: number;
 }
 
 function classifyPhysicalWeapon(slotLower: string): string | null {
@@ -393,6 +398,8 @@ function classifyPhysicalWeapon(slotLower: string): string | null {
   if (s === 'is wrecking ball' || s === 'wrecking ball') return 'wrecking-ball';
   if (s === 'chain whip') return 'chain-whip';
   if (s === 'buzzsaw' || s === 'is buzzsaw' || s === 'clan buzzsaw' || s === 'clbuzzsaw') return 'buzzsaw';
+  if (s === 'dual saw' || s === 'is dual saw') return 'dual-saw';
+  if (s === 'miningdrill' || s === 'mining drill' || s === 'is mining drill') return 'mining-drill';
   if (s.includes('vibroblade') || s === 'islargevibroblade' || s === 'ismediumvibroblade' || s === 'issmallvibroblade') {
     if (s.includes('large')) return 'vibroblade-large';
     if (s.includes('small')) return 'vibroblade-small';
@@ -415,6 +422,8 @@ function calculatePhysicalWeaponBV(type: string, tonnage: number, hasTSM: boolea
     case 'wrecking-ball': return 8;
     case 'chain-whip': return 5.175;
     case 'buzzsaw': return 67;
+    case 'dual-saw': return Math.ceil(tonnage / 7.0);  // Industrial melee, no TSM bonus
+    case 'mining-drill': return Math.ceil(tonnage / 5.0);  // Industrial melee, no TSM bonus
     case 'vibroblade-large': return Math.ceil(tonnage / 5.0) * 1.725 * tsmMod;
     case 'vibroblade-medium': return Math.ceil(tonnage / 7.0) * 1.725 * tsmMod;
     case 'vibroblade-small': return (Math.ceil(tonnage / 10.0) + 1) * 1.725 * tsmMod;
@@ -444,7 +453,7 @@ function getWeaponSlotCounts(): Map<string, number> {
 }
 
 function scanCrits(unit: UnitData): CritScan {
-  const r: CritScan = { hasTC: false, hasTSM: false, hasMASC: false, hasSupercharger: false, hasECM: false, hasAngelECM: false, hasActiveProbe: false, hasBloodhound: false, hasPartialWing: false, hasNullSig: false, hasVoidSig: false, hasChameleon: false, hasImprovedJJ: false, hasWatchdog: false, detectedSmallCockpit: false, detectedInterfaceCockpit: false, detectedDroneOS: false, coolantPods: 0, heatSinkCount: 0, hasRadicalHS: false, critDHSCount: 0, aesLocs: [], mgaLocs: [], harjelIILocs: [], harjelIIILocs: [], caseLocs: [], caseIILocs: [], artemisIVLocs: [], artemisVLocs: [], apollo: 0, ppcCap: 0, ammo: [], explosive: [], defEquipIds: [], detectedArmorType: null, physicalWeapons: [], rearWeaponCountByLoc: new Map(), amsAmmoBV: 0, armoredComponentBV: 0, umuMP: 0, detectedGyroType: null, modularArmorSlots: 0, hasLargeShield: false };
+  const r: CritScan = { hasTC: false, hasTSM: false, hasMASC: false, hasSupercharger: false, hasECM: false, hasAngelECM: false, hasActiveProbe: false, hasBloodhound: false, hasPartialWing: false, hasNullSig: false, hasVoidSig: false, hasChameleon: false, hasImprovedJJ: false, hasWatchdog: false, detectedSmallCockpit: false, detectedInterfaceCockpit: false, detectedDroneOS: false, coolantPods: 0, heatSinkCount: 0, hasRadicalHS: false, critDHSCount: 0, aesLocs: [], mgaLocs: [], harjelIILocs: [], harjelIIILocs: [], caseLocs: [], caseIILocs: [], artemisIVLocs: [], artemisVLocs: [], apollo: 0, ppcCap: 0, ammo: [], explosive: [], defEquipIds: [], detectedArmorType: null, physicalWeapons: [], rearWeaponCountByLoc: new Map(), amsAmmoBV: 0, armoredComponentBV: 0, umuMP: 0, detectedGyroType: null, modularArmorSlots: 0, hasLargeShield: false, spikeCount: 0 };
   if (!unit.criticalSlots) return r;
   const rearSlotsByLoc = new Map<string, Map<string, number>>();
 
@@ -512,7 +521,7 @@ function scanCrits(unit: UnitData): CritScan {
 
       // Ammo
       if (lo.includes('ammo') && !lo.includes('ammo feed')) {
-        const isNonExplosiveAmmo = lo.includes('gauss') || lo.includes('plasma') || lo.includes('fluid') || lo.includes('nail') || lo.includes('rivet') || lo.includes('c3') || lo.includes('sensor') || lo.includes('rail gun');
+        const isNonExplosiveAmmo = lo.includes('gauss') || lo.includes('magshot') || lo.includes('plasma') || lo.includes('fluid') || lo.includes('nail') || lo.includes('rivet') || lo.includes('c3') || lo.includes('sensor') || lo.includes('rail gun');
         if (ml && !isNonExplosiveAmmo) r.explosive.push({ location: ml, slots: 1, penaltyCategory: 'standard' });
         const pr = resolveAmmoByPattern(clean, unit.techBase);
         if (pr && pr.bv > 0) { r.ammo.push({ id: clean, bv: pr.bv, weaponType: pr.weaponType, location: loc }); }
@@ -554,6 +563,8 @@ function scanCrits(unit: UnitData): CritScan {
       else if ((lo.includes('b-pod') || lo === 'isbpod' || lo === 'clbpod') && !lo.includes('ammo')) r.defEquipIds.push(clean);
       // M-Pod is an offensive weapon (BV=5), NOT defensive equipment — handled via equipment list
       else if ((lo.includes('a-pod') || lo === 'isapod' || lo === 'clapod') && !lo.includes('ammo')) r.defEquipIds.push(clean);
+      // Spikes: defensive equipment, BV=4 per location (MegaMek MiscType.F_CLUB + countsAsDefensiveEquipment)
+      if ((lo === 'spikes' || lo === 'isspikes' || lo === 'clspikes' || lo === 'is spikes' || lo === 'clan spikes') && clean !== prevSlotClean) r.spikeCount++;
 
       prevSlotClean = clean;
 
@@ -859,6 +870,15 @@ function resolveAmmoByPattern(name: string, _techBase: string): { bv: number; we
     .replace(/\s*(?:Artemis(?:\s*V)?|Narc)-?[Cc]apable/gi, '')
     .replace(/\|.*/g, '')
     .trim();
+
+  // Early check for IS Streak SRM ammo: normalizeEquipmentId maps via name-mappings.json
+  // to "clan-streak-srm-N" (Clan BV values). Intercept to use correct IS-specific BV.
+  const isStreakMatch = clean.match(/^IS\s+Streak\s+SRM\s+(\d+)\s+Ammo$/i);
+  if (isStreakMatch) {
+    const key = `is-streak-srm-${isStreakMatch[1]}-ammo`;
+    const found = lu.get(key);
+    if (found) return found;
+  }
 
   const norm = normalizeEquipmentId(clean);
   let e = lu.get(norm); if (e) return e;
@@ -1375,6 +1395,8 @@ function calculateUnitBV(unit: UnitData, unitId?: string): { bv: number; breakdo
   if (cs.amsAmmoBV > 0 && amsWeaponBV > 0) {
     defEquipBV += Math.min(amsWeaponBV, cs.amsAmmoBV);
   }
+  // Spikes: 4 BV per location (defensive equipment per MegaMek)
+  defEquipBV += cs.spikeCount * 4;
 
   const explResult = calculateExplosivePenalties({ equipment: cs.explosive, caseLocations: cs.caseLocs, caseIILocations: cs.caseIILocs, engineType, isQuad: effectiveConfig?.toLowerCase() === 'quad' });
 
