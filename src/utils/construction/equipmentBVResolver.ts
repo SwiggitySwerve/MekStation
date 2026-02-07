@@ -627,7 +627,7 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   isplasmarifle: 'plasma-rifle',
   islppc: 'light-ppc',
   isblazer: 'blazer-cannon',
-  iseherppc: 'er-ppc', // Enhanced ER PPC → ER PPC for BV purposes
+  iseherppc: 'enhanced-er-ppc', // IS Enhanced ER PPC (BV=329, distinct from ER PPC BV=229)
   clplasmacannon: 'clan-plasma-cannon',
   clheavysmalllaser: 'small-heavy-laser',
   clmicropulselaser: 'clan-micro-pulse-laser',

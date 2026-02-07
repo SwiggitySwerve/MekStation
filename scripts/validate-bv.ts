@@ -204,7 +204,7 @@ const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   'clan-laser-ams': { bv: 45, heat: 7 }, 'cllaserantimissilesystem': { bv: 45, heat: 7 },
   'risc-advanced-point-defense-system': { bv: 150, heat: 0 },
   'issmallxpulselaser': { bv: 21, heat: 3 }, 'ismediumxpulselaser': { bv: 71, heat: 6 }, 'islargexpulselaser': { bv: 178, heat: 14 },
-  'primitive-prototype-ppc': { bv: 176, heat: 15 }, 'ppcp': { bv: 176, heat: 15 },
+  // MOVED to CATALOG_BV_OVERRIDES (normalizeEquipmentId maps 'ppcp' → 'ppc', resolving with wrong heat=10)
   'heavy-rifle': { bv: 64, heat: 4 }, 'isheavyrifle': { bv: 64, heat: 4 },
   'medium-rifle': { bv: 35, heat: 2 }, 'light-rifle': { bv: 21, heat: 1 }, 'rifle-cannon': { bv: 35, heat: 2 },
   'mortar-1': { bv: 10, heat: 0 }, 'mortar-2': { bv: 14, heat: 0 }, 'mortar-4': { bv: 24, heat: 0 }, 'mortar-8': { bv: 36, heat: 0 },
@@ -311,6 +311,17 @@ const CATALOG_BV_OVERRIDES: Record<string, { bv: number; heat: number }> = {
   'thunderbolt-10-i-os': { bv: 25, heat: 1.25 },
   'thunderbolt-15-i-os': { bv: 46, heat: 1.75 },
   'thunderbolt-20-i-os': { bv: 61, heat: 2 },
+  // Mech Mortars: catalog has wrong BV values (e.g., BV=86 for mortar/8), correct per MegaMek
+  'mech-mortar-1': { bv: 10, heat: 0 }, 'mech-mortar-2': { bv: 14, heat: 0 },
+  'mech-mortar-4': { bv: 24, heat: 0 }, 'mech-mortar-8': { bv: 36, heat: 0 },
+  'ismekmortar1': { bv: 10, heat: 0 }, 'ismekmortar2': { bv: 14, heat: 0 },
+  'ismekmortar4': { bv: 24, heat: 0 }, 'ismekmortar8': { bv: 36, heat: 0 },
+  'clmekmortar1': { bv: 10, heat: 0 }, 'clmekmortar2': { bv: 14, heat: 0 },
+  'clmekmortar4': { bv: 24, heat: 0 }, 'clmekmortar8': { bv: 36, heat: 0 },
+  'clan-mech-mortar-1': { bv: 10, heat: 0 }, 'clan-mech-mortar-2': { bv: 14, heat: 0 },
+  'clan-mech-mortar-4': { bv: 24, heat: 0 }, 'clan-mech-mortar-8': { bv: 36, heat: 0 },
+  // Primitive Prototype PPC: normalizeEquipmentId maps 'ppcp' → 'ppc' (heat=10), must override
+  'primitive-prototype-ppc': { bv: 176, heat: 15 }, 'ppcp': { bv: 176, heat: 15 },
 };
 
 function resolveWeaponForUnit(id: string, techBase: string, isClanEquip?: boolean): { battleValue: number; heat: number; resolved: boolean } {
@@ -365,7 +376,7 @@ interface CritScan {
   hasTC: boolean; hasTSM: boolean; hasMASC: boolean; hasSupercharger: boolean;
   hasECM: boolean; hasAngelECM: boolean; hasActiveProbe: boolean; hasBloodhound: boolean;
   hasPartialWing: boolean; hasNullSig: boolean; hasVoidSig: boolean; hasChameleon: boolean;
-  hasImprovedJJ: boolean; hasWatchdog: boolean; detectedSmallCockpit: boolean; detectedInterfaceCockpit: boolean; detectedDroneOS: boolean; coolantPods: number; heatSinkCount: number; hasRadicalHS: boolean; critDHSCount: number; hasLargeShield: boolean;
+  hasImprovedJJ: boolean; hasWatchdog: boolean; detectedSmallCockpit: boolean; detectedInterfaceCockpit: boolean; detectedDroneOS: boolean; coolantPods: number; heatSinkCount: number; hasRadicalHS: boolean; critDHSCount: number; hasLargeShield: boolean; hasMediumShield: boolean; shieldArms: string[]; riscAPDS: number;
   aesLocs: string[];
   mgaLocs: Array<{ location: string; type: 'light' | 'standard' | 'heavy' }>;
   harjelIILocs: MechLocation[]; harjelIIILocs: MechLocation[];
@@ -383,6 +394,7 @@ interface CritScan {
   detectedGyroType: string | null;
   modularArmorSlots: number;
   spikeCount: number;
+  mineDispenserCount: number;
 }
 
 function classifyPhysicalWeapon(slotLower: string): string | null {
@@ -435,7 +447,15 @@ let _weaponSlotCache: Map<string, number> | null = null;
 function getWeaponSlotCounts(): Map<string, number> {
   if (_weaponSlotCache) return _weaponSlotCache;
   _weaponSlotCache = new Map();
-  const catalogs = ['energy.json', 'ballistic.json', 'missile.json'];
+  // Load weapon catalogs data-driven from index.json
+  let catalogs: string[] = [];
+  try {
+    const idx = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'public/data/equipment/official/index.json'), 'utf-8'));
+    if (idx?.files?.weapons && typeof idx.files.weapons === 'object') {
+      catalogs = (Object.values(idx.files.weapons) as string[]).map(f => '../' + f);
+    }
+  } catch { /* fallback */ }
+  if (catalogs.length === 0) catalogs = ['energy-laser.json', 'energy-ppc.json', 'energy-other.json', 'ballistic-autocannon.json', 'ballistic-gauss.json', 'ballistic-machinegun.json', 'ballistic-other.json', 'missile-atm.json', 'missile-lrm.json', 'missile-mrm.json', 'missile-other.json', 'missile-srm.json', 'physical.json'];
   for (const cat of catalogs) {
     try {
       const d = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'public/data/equipment/official/weapons/' + cat), 'utf-8'));
@@ -453,7 +473,7 @@ function getWeaponSlotCounts(): Map<string, number> {
 }
 
 function scanCrits(unit: UnitData): CritScan {
-  const r: CritScan = { hasTC: false, hasTSM: false, hasMASC: false, hasSupercharger: false, hasECM: false, hasAngelECM: false, hasActiveProbe: false, hasBloodhound: false, hasPartialWing: false, hasNullSig: false, hasVoidSig: false, hasChameleon: false, hasImprovedJJ: false, hasWatchdog: false, detectedSmallCockpit: false, detectedInterfaceCockpit: false, detectedDroneOS: false, coolantPods: 0, heatSinkCount: 0, hasRadicalHS: false, critDHSCount: 0, aesLocs: [], mgaLocs: [], harjelIILocs: [], harjelIIILocs: [], caseLocs: [], caseIILocs: [], artemisIVLocs: [], artemisVLocs: [], apollo: 0, ppcCap: 0, ammo: [], explosive: [], defEquipIds: [], detectedArmorType: null, physicalWeapons: [], rearWeaponCountByLoc: new Map(), amsAmmoBV: 0, armoredComponentBV: 0, umuMP: 0, detectedGyroType: null, modularArmorSlots: 0, hasLargeShield: false, spikeCount: 0 };
+  const r: CritScan = { hasTC: false, hasTSM: false, hasMASC: false, hasSupercharger: false, hasECM: false, hasAngelECM: false, hasActiveProbe: false, hasBloodhound: false, hasPartialWing: false, hasNullSig: false, hasVoidSig: false, hasChameleon: false, hasImprovedJJ: false, hasWatchdog: false, detectedSmallCockpit: false, detectedInterfaceCockpit: false, detectedDroneOS: false, coolantPods: 0, heatSinkCount: 0, hasRadicalHS: false, critDHSCount: 0, aesLocs: [], mgaLocs: [], harjelIILocs: [], harjelIIILocs: [], caseLocs: [], caseIILocs: [], artemisIVLocs: [], artemisVLocs: [], apollo: 0, ppcCap: 0, ammo: [], explosive: [], defEquipIds: [], detectedArmorType: null, physicalWeapons: [], rearWeaponCountByLoc: new Map(), amsAmmoBV: 0, armoredComponentBV: 0, umuMP: 0, detectedGyroType: null, modularArmorSlots: 0, hasLargeShield: false, hasMediumShield: false, shieldArms: [], riscAPDS: 0, spikeCount: 0, mineDispenserCount: 0 };
   if (!unit.criticalSlots) return r;
   const rearSlotsByLoc = new Map<string, Map<string, number>>();
 
@@ -501,6 +521,7 @@ function scanCrits(unit: UnitData): CritScan {
       }
       else if (lo.includes('apollo')) r.apollo++;
       else if (lo.includes('ppc capacitor') || lo.includes('ppccapacitor')) r.ppcCap++;
+      else if (lo === 'isapds' || lo.includes('risc') && lo.includes('apds') || lo.includes('advanced point defense')) { if (clean !== prevSlotClean) { r.riscAPDS++; r.defEquipIds.push(clean); } }
 
       // Improved Jump Jets
       if (lo.includes('improved jump jet') || lo === 'isimprovedjumpjet' || lo === 'climprovedjumpjet') r.hasImprovedJJ = true;
@@ -521,7 +542,7 @@ function scanCrits(unit: UnitData): CritScan {
 
       // Ammo
       if (lo.includes('ammo') && !lo.includes('ammo feed')) {
-        const isNonExplosiveAmmo = lo.includes('gauss') || lo.includes('magshot') || lo.includes('plasma') || lo.includes('fluid') || lo.includes('nail') || lo.includes('rivet') || lo.includes('c3') || lo.includes('sensor') || lo.includes('rail gun');
+        const isNonExplosiveAmmo = lo.includes('gauss') || lo.includes('magshot') || lo.includes('plasma') || lo.includes('fluid') || lo.includes('nail') || lo.includes('rivet') || lo.includes('c3') || lo.includes('sensor') || lo.includes('rail gun') || lo.includes('apds');
         if (ml && !isNonExplosiveAmmo) r.explosive.push({ location: ml, slots: 1, penaltyCategory: 'standard' });
         const pr = resolveAmmoByPattern(clean, unit.techBase);
         if (pr && pr.bv > 0) { r.ammo.push({ id: clean, bv: pr.bv, weaponType: pr.weaponType, location: loc }); }
@@ -553,18 +574,36 @@ function scanCrits(unit: UnitData): CritScan {
       if ((lo.includes('improvedheavylaser') || lo.includes('improved heavy laser') || lo.includes('improvedmediumheavylaser') || lo.includes('improved medium heavy') || lo.includes('improvedsmallheavylaser') || lo.includes('improved small heavy') || lo.includes('improvedlargeheavylaser') || lo.includes('improved large heavy')) && !lo.includes('ammo')) { if (ml) r.explosive.push({ location: ml, slots: 1, penaltyCategory: 'reduced' }); }
 
       // Defensive equip — push once per equipment instance (skip consecutive duplicate slots for multi-slot items)
-      if ((lo.includes('anti-missile') || lo.includes('antimissile') || lo === 'isams' || lo === 'clams') && !lo.includes('ammo')) { if (clean !== prevSlotClean) r.defEquipIds.push(clean); }
-      else if ((lo.includes('ecm') || lo.includes('guardian') || lo.includes('angel') || lo.includes('watchdog') || lo.includes('novacews') || lo.includes('nova cews')) && !lo.includes('ammo')) { if (clean !== prevSlotClean) r.defEquipIds.push(clean); }
+      // Regular AMS is 1-crit (each slot = separate weapon). Laser AMS is 2-crit IS / 1-crit Clan → use dedup.
+      if ((lo.includes('anti-missile') || lo.includes('antimissile') || lo === 'isams' || lo === 'clams') && !lo.includes('ammo')) {
+        const isMultiCritAMS = lo.includes('laser');
+        if (isMultiCritAMS) { if (clean !== prevSlotClean) r.defEquipIds.push(clean); }
+        else { r.defEquipIds.push(clean); }
+      }
+      else if ((lo.includes('ecm') || lo.includes('guardian') || lo.includes('angel') || lo.includes('watchdog') || lo.includes('novacews') || lo.includes('nova cews') || lo.includes('electronicwarfare') || lo.includes('electronic warfare')) && !lo.includes('ammo')) { if (clean !== prevSlotClean) r.defEquipIds.push(clean); }
       else if ((lo.includes('beagle') || lo.includes('bloodhound') || (lo.includes('active') && lo.includes('probe'))) && !lo.includes('ammo')) { if (clean !== prevSlotClean) r.defEquipIds.push(clean); }
       else if (lo.includes('shield') && !lo.includes('blue-shield') && !lo.includes('chameleon')) {
-        if (clean !== prevSlotClean) r.defEquipIds.push(clean);
+        if (clean !== prevSlotClean) {
+          r.defEquipIds.push(clean);
+          // Only Medium/Large shields impose weapon BV penalty (active shields).
+          // Small shields are passive — weapons in that arm fire normally.
+          const isActiveShield = (lo.includes('medium') || lo.includes('large')) && !lo.includes('small');
+          if (isActiveShield && loc.toUpperCase().includes('ARM')) {
+            const armLoc = loc.toUpperCase().replace(/[_(].*/, '').trim() + '_ARM';
+            if (!r.shieldArms.includes(armLoc)) r.shieldArms.push(armLoc);
+          }
+        }
         if (lo.includes('large')) r.hasLargeShield = true;
+        if (lo.includes('medium') && !lo.includes('small') && !lo.includes('large')) r.hasMediumShield = true;
       }
       else if ((lo.includes('b-pod') || lo === 'isbpod' || lo === 'clbpod') && !lo.includes('ammo')) r.defEquipIds.push(clean);
       // M-Pod is an offensive weapon (BV=5), NOT defensive equipment — handled via equipment list
-      else if ((lo.includes('a-pod') || lo === 'isapod' || lo === 'clapod') && !lo.includes('ammo')) r.defEquipIds.push(clean);
+      else if ((lo.includes('a-pod') || lo.includes('antipersonnel') || lo === 'isapod' || lo === 'clapod') && !lo.includes('ammo')) r.defEquipIds.push(clean);
       // Spikes: defensive equipment, BV=4 per location (MegaMek MiscType.F_CLUB + countsAsDefensiveEquipment)
       if ((lo === 'spikes' || lo === 'isspikes' || lo === 'clspikes' || lo === 'is spikes' || lo === 'clan spikes') && clean !== prevSlotClean) r.spikeCount++;
+      // Mine Dispensers: offensive equipment, BV=8 per slot per MegaMek
+      // Each crit slot is counted separately (no dedup) — 4 slots = 4 dispensers = 32 BV
+      if (lo.includes('mine dispenser') || lo.includes('minedispenser') || lo === 'isvehicularminedispenser' || lo === 'vehicularminedispenser') r.mineDispenserCount++;
 
       prevSlotClean = clean;
 
@@ -823,9 +862,9 @@ function buildAmmoLookup(): Map<string, { bv: number; weaponType: string }> {
     ['hvac-2-ammo', 7, 'hvac-2'], ['hvac-5-ammo', 11, 'hvac-5'], ['hvac-10-ammo', 20, 'hvac-10'],
     ['thunderbolt-5-ammo', 8, 'thunderbolt-5'], ['thunderbolt-10-ammo', 16, 'thunderbolt-10'],
     ['thunderbolt-15-ammo', 29, 'thunderbolt-15'], ['thunderbolt-20-ammo', 46, 'thunderbolt-20'],
-    // Clan Improved LRM uses Clan BV values
-    ['clan-improved-lrm-5-ammo', 7, 'lrm-5'], ['clan-improved-lrm-10-ammo', 14, 'lrm-10'],
-    ['clan-improved-lrm-15-ammo', 21, 'lrm-15'], ['clan-improved-lrm-20-ammo', 27, 'lrm-20'],
+    // Clan Improved LRM uses Clan BV values; weaponType must match 'improved-lrm-N' (not 'lrm-N')
+    ['clan-improved-lrm-5-ammo', 7, 'improved-lrm-5'], ['clan-improved-lrm-10-ammo', 14, 'improved-lrm-10'],
+    ['clan-improved-lrm-15-ammo', 21, 'improved-lrm-15'], ['clan-improved-lrm-20-ammo', 27, 'improved-lrm-20'],
     // Fluid Gun
     ['fluid-gun-ammo', 1, 'fluid-gun'],
     // Clan Streak LRM per-size
@@ -855,8 +894,8 @@ function buildAmmoLookup(): Map<string, { bv: number; weaponType: string }> {
     ['clan-medium-chemical-laser-ammo', 5, 'medium-chemical-laser'],
     ['clan-heavy-flamer-ammo', 1, 'heavy-flamer'], ['cl-heavy-flamer-ammo', 1, 'heavy-flamer'],
     ['clan-improved-gauss-ammo', 40, 'improved-gauss-rifle'],
-    ['clanimprovedlrm5ammo', 7, 'lrm-5'], ['clanimprovedlrm10ammo', 14, 'lrm-10'],
-    ['clanimprovedlrm15ammo', 21, 'lrm-15'], ['clanimprovedlrm20ammo', 27, 'lrm-20'],
+    ['clanimprovedlrm5ammo', 7, 'improved-lrm-5'], ['clanimprovedlrm10ammo', 14, 'improved-lrm-10'],
+    ['clanimprovedlrm15ammo', 21, 'improved-lrm-15'], ['clanimprovedlrm20ammo', 27, 'improved-lrm-20'],
     ['light-machine-gun-ammo-half', 1, 'light-machine-gun'],
     ['clan-light-machine-gun-ammo-half', 1, 'light-machine-gun'],
     ['heavy-machine-gun-ammo-half', 1, 'heavy-machine-gun'],
@@ -870,6 +909,20 @@ function buildAmmoLookup(): Map<string, { bv: number; weaponType: string }> {
     if (!ammoLookup.has(id)) ammoLookup.set(id, { bv, weaponType: wt });
     const canon = id.replace(/[^a-z0-9]/g, '');
     if (!ammoLookup.has(canon)) ammoLookup.set(canon, { bv, weaponType: wt });
+  }
+
+  // Force-override: catalog entries with known wrong BV values (UNOFFICIAL entries)
+  const overrides: Array<[string, number, string]> = [
+    // Clan Improved LRM ammo: catalog has IS BV values (6/11/17/23), correct Clan values are 7/14/21/27
+    ['clanimprovedlrm5ammo', 7, 'improved-lrm-5'], ['clanimprovedlrm10ammo', 14, 'improved-lrm-10'],
+    ['clanimprovedlrm15ammo', 21, 'improved-lrm-15'], ['clanimprovedlrm20ammo', 27, 'improved-lrm-20'],
+    ['clan-improved-lrm-5-ammo', 7, 'improved-lrm-5'], ['clan-improved-lrm-10-ammo', 14, 'improved-lrm-10'],
+    ['clan-improved-lrm-15-ammo', 21, 'improved-lrm-15'], ['clan-improved-lrm-20-ammo', 27, 'improved-lrm-20'],
+  ];
+  for (const [id, bv, wt] of overrides) {
+    ammoLookup.set(id, { bv, weaponType: wt });
+    const canon = id.replace(/[^a-z0-9]/g, '');
+    ammoLookup.set(canon, { bv, weaponType: wt });
   }
 
   return ammoLookup;
@@ -947,9 +1000,9 @@ function resolveAmmoByPattern(name: string, _techBase: string): { bv: number; we
     { re: /^(?:is\s*)?fluidgun\s*ammo$/,             ids: _ => [`fluid-gun-ammo`] },
     { re: /^(?:is\s*)?(?:heavy\s*)?flamer\s*ammo$/,  ids: _ => [`mg-ammo`] },
     { re: /^(?:is\s*)?vehicle\s*flamer\s*ammo$/,     ids: _ => [`mg-ammo`] },
-    { re: /^(?:is\s*)?(?:light\s*)?mg\s*ammo$/,      ids: _ => [`mg-ammo`] },
+    { re: /^(?:is\s*)?mg\s*ammo$/,                   ids: _ => [`mg-ammo`] },
     { re: /^(?:is\s*)?ammo\s+mg$/,                   ids: _ => [`mg-ammo`, `ammo-mg-full`] },
-    { re: /^(?:is\s*)?(?:light\s*)?machine\s*gun\s*ammo$/,ids: _ => [`mg-ammo`, `ammo-mg-full`] },
+    { re: /^(?:is\s*)?machine\s*gun\s*ammo$/,ids: _ => [`mg-ammo`, `ammo-mg-full`] },
     { re: /^(?:is\s*)?heavy\s*machine\s*gun\s*ammo$/, ids: _ => [`heavy-mg-ammo`, `heavy-machine-gun-ammo-full`] },
     { re: /^(?:is\s*)?light\s*machine\s*gun\s*ammo$/, ids: _ => [`light-mg-ammo`, `light-machine-gun-ammo-full`] },
     { re: /^(?:is\s*)?ams\s*ammo$/,                  ids: _ => [`ams-ammo`] },
@@ -973,7 +1026,7 @@ function resolveAmmoByPattern(name: string, _techBase: string): { bv: number; we
     { re: /^(?:is\s*)?ammo\s+streak\s*srm-(\d+)$/,    ids: m => [`is-streak-srm-${m[1]}-ammo`, `streak-srm-${m[1]}-ammo`, `streak-srm-ammo`] },
     { re: /^(?:is\s*)?lrt(\d+)\s*ammo$/,              ids: m => [`ammo-lrtorpedo-${m[1]}`, `ammo-lrm-${m[1]}`] },
     { re: /^(?:is\s*)?srt(\d+)\s*ammo$/,              ids: m => [`ammo-srtorpedo-${m[1]}`, `ammo-srm-${m[1]}`] },
-    { re: /^(?:is\s*)?lightmg\s*ammo(?:\s*\(\d+\))?$/,ids: _ => [`light-mg-ammo`, `light-machine-gun-ammo-full`] },
+    { re: /^(?:is\s*)?light\s*mg\s*ammo(?:\s*\(\d+\))?$/,ids: _ => [`light-mg-ammo`, `light-machine-gun-ammo-full`] },
     { re: /^(?:is\s*)?impgauss\s*ammo$/,              ids: _ => [`impgaussammo`] },
     { re: /^(?:is\s*)?arrowiv\s+ammo$/,               ids: _ => [`arrowivammo`] },
     { re: /^(?:is\s*)?arrowiv\s+homing\s*ammo$/,      ids: _ => [`arrowivammo`] },
@@ -1007,8 +1060,8 @@ function resolveAmmoByPattern(name: string, _techBase: string): { bv: number; we
     { re: /^cl(?:an)?\s*apgaussrifle\s*ammo$/,        ids: _ => [`ap-gauss-ammo`, `apgaussrifle`] },
     { re: /^cl(?:an)?\s*impgauss\s*ammo$/,            ids: _ => [`impgaussammo`] },
     { re: /^cl(?:an)?\s*improvedlrm(\d+)\s*ammo$/,    ids: m => [`clanimprovedlrm${m[1]}ammo`] },
-    { re: /^cl(?:an)?\s*(?:heavy\s*)?machine\s*gun\s*ammo$/,ids: _ => [`mg-ammo`, `ammo-mg-full`] },
-    { re: /^cl(?:an)?\s*(?:heavy\s*)?mg\s*ammo$/,     ids: _ => [`mg-ammo`, `ammo-mg-full`] },
+    { re: /^cl(?:an)?\s*machine\s*gun\s*ammo$/,ids: _ => [`mg-ammo`, `ammo-mg-full`] },
+    { re: /^cl(?:an)?\s*mg\s*ammo$/,                  ids: _ => [`mg-ammo`, `ammo-mg-full`] },
     { re: /^cl(?:an)?\s*heavy\s*machine\s*gun\s*ammo$/,ids: _ => [`heavy-mg-ammo`, `heavy-machine-gun-ammo-full`] },
     { re: /^cl(?:an)?\s*light\s*machine\s*gun\s*ammo$/,ids: _ => [`light-mg-ammo`, `light-machine-gun-ammo-full`] },
     { re: /^cl(?:an)?\s*ams\s*ammo$/,                 ids: _ => [`clan-ams-ammo`, `ams-ammo`] },
@@ -1098,7 +1151,7 @@ function isWeaponEquip(id: string): boolean {
 
 function isDefEquip(id: string): boolean {
   const lo = id.toLowerCase();
-  return lo.includes('anti-missile') || lo.includes('antimissile') || lo.includes('ams') || lo.includes('ecm') || lo.includes('guardian') || lo.includes('angel') || lo.includes('bap') || lo.includes('beagle') || lo.includes('probe') || lo.includes('bloodhound') || lo.includes('light-active-probe') || lo.includes('null-signature') || (lo.includes('shield') && !lo.includes('blue-shield'));
+  return lo.includes('anti-missile') || lo.includes('antimissile') || lo.includes('ams') || lo.includes('ecm') || lo.includes('guardian') || lo.includes('angel') || lo.includes('bap') || lo.includes('beagle') || lo.includes('probe') || lo.includes('bloodhound') || lo.includes('light-active-probe') || lo.includes('null-signature') || (lo.includes('shield') && !lo.includes('blue-shield')) || lo.includes('apds') || lo.includes('advanced-point-defense') || lo.includes('point-defense-system');
 }
 
 // === KNOWN HEAVY DUTY GYRO UNITS (from MegaMek mm-data MTF files) ===
@@ -1125,34 +1178,12 @@ const KNOWN_HD_GYRO_UNITS = new Set([
   'templar-iii-tlr2-j-arthur', 'templar-iii-tlr2-o', 'templar-iii-tlr2-oa',
   'templar-iii-tlr2-ob', 'templar-iii-tlr2-oc', 'templar-iii-tlr2-od',
   'thunderbolt-iic-2', 'thunderbolt-tdr-11s', 'thunderbolt-tdr-17s', 'thunderbolt-tdr-7s',
-  'vanquisher-vqr-5v', 'vanquisher-vqr-7v', 'vanquisher-vqr-7v-pravuil',
+  'vanquisher-vqr-5v', 'vanquisher-vqr-7v',
   'victor-vtr-12d',
   'warhammer-whd-10ct', 'warhammer-whm-x7-the-lich',
   'white-flame-whf-3c', 'xanthos-xnt-4o',
 ]);
 
-// === KNOWN SMALL COCKPIT UNITS (unit.cockpit mislabeled as STANDARD) ===
-// These units have Small Cockpits per MegaMek/MUL but their JSON data says "STANDARD".
-// The HEAD crit layout is also standard-looking (LS=2), so no heuristic can detect them.
-const KNOWN_SMALL_COCKPIT_UNITS = new Set([
-  'archer-arc-4m-ismail', 'atlas-as7-s-hanssen',
-  'axman-axm-6t', 'axman-axm-6x',
-  'black-knight-blk-nt-2y', 'black-knight-blk-nt-3b',
-  'crockett-crk-5003-0-saddleford',
-  'helepolis-hep-2x', 'hierofalcon-d',
-  'pathfinder-pff-2t',
-]);
-
-// These units have STANDARD cockpits but LS=1 in HEAD (equipment displaced 2nd Life Support).
-// The LS heuristic would falsely detect them as small cockpit; override to standard.
-const KNOWN_STANDARD_COCKPIT_OVERRIDE = new Set([
-  'barghest-bgs-4t',        // C3 slave in HEAD displaces 2nd LS
-  'celerity-clr-02-x-d', 'celerity-clr-03-o', 'celerity-clr-03-ob',
-  'celerity-clr-03-oc', 'celerity-clr-05-x',  // C3i/C3/ECM/BAP in HEAD
-  'galahad-glh-3d-laodices', // C3i in HEAD
-  'revenant-ubm-2r4', 'revenant-ubm-2r7', // Drone OS + Endo Steel in HEAD
-  'thunder-fox-tft-l8',     // Light Ferro-Fibrous in HEAD
-]);
 
 // === MAIN BV CALCULATION ===
 function calculateUnitBV(unit: UnitData, unitId?: string): { bv: number; breakdown: ValidationResult['breakdown']; issues: string[]; } {
@@ -1181,7 +1212,15 @@ function calculateUnitBV(unit: UnitData, unitId?: string): { bv: number; breakdo
   }
 
   let totalArmor = calcTotalArmor(unit.armor.allocation);
-  if (cockpitType === 'torso-mounted') totalArmor += 7;
+  // Torso-mounted cockpit: MegaMek doubles CT armor in BV via addTorsoMountedCockpit()
+  // (CT front + rear armor is added again to total armor points)
+  if (cockpitType === 'torso-mounted') {
+    const ctAlloc = unit.armor?.allocation?.CENTER_TORSO ?? unit.armor?.allocation?.CT;
+    let ctFront = 0, ctRear = 0;
+    if (typeof ctAlloc === 'number') { ctFront = ctAlloc; }
+    else if (ctAlloc) { ctFront = (ctAlloc as any).front ?? 0; ctRear = (ctAlloc as any).rear ?? 0; }
+    totalArmor += ctFront + ctRear;
+  }
   // Detect quad from armor locations if configuration field is wrong (e.g., Boreas/Notos marked as "Biped")
   const armorLocKeys = Object.keys(unit.armor?.allocation || {}).map((k: string) => k.toUpperCase());
   const hasQuadArmorLocs = armorLocKeys.some((k: string) => ['FLL','FRL','RLL','RRL','FRONT_LEFT_LEG','FRONT_RIGHT_LEG','REAR_LEFT_LEG','REAR_RIGHT_LEG'].includes(k));
@@ -1216,12 +1255,14 @@ function calculateUnitBV(unit: UnitData, unitId?: string): { bv: number; breakdo
 
   let bvWalk = walkMP;
   if (cs.hasTSM) bvWalk = walkMP + 1;
+  // Medium/Large Shield: -1 walk MP per TechManual (applied before run calculation)
+  if (cs.hasMediumShield || cs.hasLargeShield) bvWalk = Math.max(0, bvWalk - 1);
 
   let runMP = cs.hasMASC && cs.hasSupercharger ? Math.ceil(bvWalk * 2.5) : (cs.hasMASC || cs.hasSupercharger ? bvWalk * 2 : Math.ceil(bvWalk * 1.5));
   if (armorType === 'hardened') runMP = Math.max(0, runMP - 1);
-  if (cs.hasLargeShield) runMP = Math.max(0, runMP - 1);
   let jumpMP = unit.movement.jump || 0;
-  const partialWingJumpBonus = cs.hasPartialWing ? (unit.tonnage <= 55 ? 2 : 1) : 0;
+  // Partial Wing adds jump MP only if mech already has jump jets (per MegaMek Mek.getJumpMP())
+  const partialWingJumpBonus = cs.hasPartialWing && jumpMP > 0 ? (unit.tonnage <= 55 ? 2 : 1) : 0;
   jumpMP += partialWingJumpBonus;
   const hasStealth = armorType === 'stealth';
 
@@ -1251,17 +1292,19 @@ function calculateUnitBV(unit: UnitData, unitId?: string): { bv: number; breakdo
   }
 
   for (const eq of unit.equipment) {
-    const lo = eq.id.toLowerCase();
-    if (lo.includes('targeting-computer') || lo.includes('targeting computer')) { hasTC = true; continue; }
-    if (lo.includes('tsm') || lo.includes('triple-strength-myomer')) continue;
-    if (isDefEquip(eq.id)) continue;
-    if (!isWeaponEquip(eq.id)) continue;
-
+    // Strip numeric prefix from equipment ID (e.g., "1-iseherppc" → "iseherppc")
     const qtyMatch = eq.id.match(/^(\d+)-/);
     const qty = (qtyMatch && parseInt(qtyMatch[1], 10) > 1) ? parseInt(qtyMatch[1], 10) : 1;
+    const resolveId = qtyMatch ? eq.id.replace(/^\d+-/, '') : eq.id;
 
-    const clanDetected = unit.techBase === 'MIXED' && isClanEquipAtLocation(eq.id, eq.location, unit.criticalSlots);
-    const res = resolveWeaponForUnit(eq.id, unit.techBase, clanDetected);
+    const lo = resolveId.toLowerCase();
+    if (lo.includes('targeting-computer') || lo.includes('targeting computer')) { hasTC = true; continue; }
+    if (lo.includes('tsm') || lo.includes('triple-strength-myomer')) continue;
+    if (isDefEquip(resolveId)) continue;
+    if (!isWeaponEquip(resolveId)) continue;
+
+    const clanDetected = unit.techBase === 'MIXED' && isClanEquipAtLocation(resolveId, eq.location, unit.criticalSlots);
+    const res = resolveWeaponForUnit(resolveId, unit.techBase, clanDetected);
     if (!res.resolved || res.battleValue === 0) unresolvedWeapons.push(eq.id);
 
     const wid = eq.id.toLowerCase();
@@ -1300,19 +1343,73 @@ function calculateUnitBV(unit: UnitData, unitId?: string): { bv: number; breakdo
       weapons.push({
         id: normalizeWeaponKey(eq.id), name: wid, heat: effectiveHeat, bv: effectiveBV,
         rear: thisRear, hasAES: weaponHasAES,
-        isDirectFire: !wid.includes('lrm') && !wid.includes('srm') && !wid.includes('mrm') && !wid.includes('atm') && !wid.includes('mml') && !wid.includes('narc') && !wid.includes('inarc'),
+        isDirectFire: !wid.includes('lrm') && !wid.includes('srm') && !wid.includes('mrm') && !wid.includes('atm') && !wid.includes('mml') && !wid.includes('narc') && !wid.includes('inarc') && !wid.includes('lrt') && !wid.includes('srt') && !wid.includes('thunderbolt') && !wid.includes('rocket') && !wid.includes('arrow') && !wid.includes('mortar') && !wid.includes('sniper') && !wid.includes('thumper') && !wid.includes('long-tom'),
         location: eq.location,
       });
     }
   }
   if (unresolvedWeapons.length > 0) issues.push(`Unresolved weapons (0 BV): ${unresolvedWeapons.join(', ')}`);
 
+
+  // Machine Gun Array (MGA): MegaMek counts individual MGs at full BV, then adds
+  // MGA bonus = sum(linked MG BVs) × 0.67 as a separate weapon entry with heat=0.
+  // MGA links to up to 4 MGs of matching type at the same location.
+  // Track consumed MGs so each MG is only linked to one MGA.
+  const mgaConsumed = new Set<number>();  // indices of weapons already linked to an MGA
+  for (const eq of unit.equipment) {
+    // Strip quantity prefix (e.g., "1-islmga" → "islmga")
+    const rawId = eq.id.toLowerCase().replace(/^\d+-/, '');
+    let mgType: string | null = null;
+    if (rawId === 'machine-gun-array' || rawId === 'ismga' || rawId === 'clmga' || rawId.endsWith('-mga')) mgType = 'machine-gun';
+    else if (rawId === 'light-machine-gun-array' || rawId === 'islmga' || rawId === 'cllmga' || rawId.endsWith('-lmga') || rawId === 'islightmga' || rawId === 'cllightmga') mgType = 'light-machine-gun';
+    else if (rawId === 'heavy-machine-gun-array' || rawId === 'ishmga' || rawId === 'clhmga' || rawId.endsWith('-hmga') || rawId === 'isheavymga' || rawId === 'clheavymga') mgType = 'heavy-machine-gun';
+    if (!mgType) continue;
+
+    const mgLoc = eq.location.split(',')[0].toUpperCase();
+    // Link up to 4 unconsumed MGs of matching type at the same location
+    let linkedMGBV = 0;
+    let linkedCount = 0;
+    for (let wi = 0; wi < weapons.length; wi++) {
+      if (linkedCount >= 4) break;
+      if (mgaConsumed.has(wi)) continue;
+      const w = weapons[wi];
+      const wLoc = w.location.split(',')[0].toUpperCase();
+      if (wLoc !== mgLoc) continue;
+      const wid = w.name.replace(/^\d+-/, '');
+      const isMatch =
+        (mgType === 'machine-gun' && (wid === 'machine-gun' || wid === 'clmg' || wid === 'ismg'))
+        || (mgType === 'light-machine-gun' && (wid === 'light-machine-gun' || wid === 'islightmg' || wid === 'cllightmg' || wid === 'islmg'))
+        || (mgType === 'heavy-machine-gun' && (wid === 'heavy-machine-gun' || wid === 'isheavymg' || wid === 'clheavymg' || wid === 'clhmg'));
+      if (isMatch) {
+        linkedMGBV += w.bv;
+        linkedCount++;
+        mgaConsumed.add(wi);
+      }
+    }
+    if (linkedMGBV > 0) {
+      const mgaBV = linkedMGBV * 0.67;
+      weapons.push({
+        id: 'mga-bonus', name: rawId, heat: 0, bv: mgaBV,
+        rear: false, hasAES: false, isDirectFire: false, location: eq.location,
+      });
+    }
+  }
+
+  // Drone Operating System: all weapon BVs × 0.8 (MegaMek processWeapons dBV *= 0.8)
+  if (cs.detectedDroneOS) {
+    for (const w of weapons) { w.bv *= 0.8; }
+  }
+
+  // Note: Shields do NOT halve weapon BV in MegaMek's BVCalculator.
+  // Shield arm tracking (cs.shieldArms) is kept for potential future use, but
+  // weapons in shield arms are counted at full BV per the MegaMek source code.
+
   // Artemis IV/V — location-aware assignment (Artemis links to missile weapon in same location)
   if (cs.artemisIVLocs.length > 0 || cs.artemisVLocs.length > 0) {
     const ivLocs = [...cs.artemisIVLocs];
     const vLocs = [...cs.artemisVLocs];
     for (const w of weapons) {
-      const isMsl = w.name.includes('lrm') || w.name.includes('srm') || w.name.includes('mml') || w.name.includes('atm');
+      const isMsl = w.name.includes('lrm') || w.name.includes('srm') || w.name.includes('mml') || w.name.includes('atm') || w.name.includes('lrt') || w.name.includes('srt');
       if (!isMsl) continue;
       const wLoc = toMechLoc(w.location.split(',')[0]);
       if (!wLoc) continue;
@@ -1351,32 +1448,10 @@ function calculateUnitBV(unit: UnitData, unitId?: string): { bv: number; breakdo
     }
   }
 
-  // MGA: MegaMek sums linked MG BVs × 0.67 as a single weapon entry, replacing individual MGs.
-  // Individual MGs linked to an MGA are also counted separately (MegaMek double-counts).
-  // MGA weapon: heat=0, BV = sum(linked MG BVs) × 0.67
-  if (cs.mgaLocs.length > 0) {
-    for (const mga of cs.mgaLocs) {
-      const mgaLocUpper = mga.location.toUpperCase();
-      const mgType = mga.type;
-      let mgBVSum = 0;
-      for (const w of weapons) {
-        if (w.location.split(',')[0].toUpperCase() !== mgaLocUpper) continue;
-        // Strip IS/Clan prefix for matching (e.g., 'islightmg' → 'lightmg', 'clmachinegun' → 'machinegun')
-        const wlo = w.name.replace(/^\d+-/, '').replace(/^(?:is|cl|clan)/, '');
-        const isMG = (mgType === 'standard' && (wlo.includes('machine-gun') || wlo.includes('machinegun') || wlo === 'mg') && !wlo.includes('light') && !wlo.includes('heavy'))
-          || (mgType === 'light' && (wlo.includes('light-machine-gun') || wlo.includes('lightmachine') || wlo.includes('lightmg') || wlo === 'light-mg'))
-          || (mgType === 'heavy' && (wlo.includes('heavy-machine-gun') || wlo.includes('heavymachine') || wlo.includes('heavymg') || wlo === 'heavy-mg'));
-        if (isMG) mgBVSum += w.bv;
-      }
-      // Add MGA as a weapon entry with combined BV × 0.67 (MegaMek processWeapon for F_MGA)
-      if (mgBVSum > 0) {
-        weapons.push({
-          id: 'mga-' + mgType, name: 'mga-' + mgType, heat: 0, bv: mgBVSum * 0.67,
-          rear: false, isDirectFire: true, location: mga.location,
-        });
-      }
-    }
-  }
+  // MGA: MegaMek documentation says MGA replaces individual MGs with sum(BV) × 0.67, but
+  // MUL reference BVs do NOT apply this reduction — they use full individual MG BV.
+  // Applying ×0.67 causes massive regression (units drop 5-10% further below reference).
+  // Keep individual MGs at full BV with no MGA reduction to match MUL reference values.
 
   // determineFront — use fully-modified BV (with TC, rear ×0.5) per MegaMek
   let fBV = 0, rBV = 0;
@@ -1473,6 +1548,8 @@ function calculateUnitBV(unit: UnitData, unitId?: string): { bv: number; breakdo
 
   const isXXLEngine = engineType === EngineType.XXL;
   let offensiveEquipBV = 0;
+  // Mine Dispensers: BV=8 each, offensive equipment per MegaMek
+  offensiveEquipBV += cs.mineDispenserCount * 8;
   // Note: Watchdog CEWS is NOT counted as offensive equipment in MegaMek
   // (the bv=7 code is unreachable due to F_BAP skip in processOffensiveEquipment)
   // AES weight bonus: arm AES (+0.1 each), leg AES (+0.2 biped, +0.4 quad)
@@ -1500,16 +1577,23 @@ function calculateUnitBV(unit: UnitData, unitId?: string): { bv: number; breakdo
   });
 
   const baseBV = defResult.totalDefensiveBV + offResult.totalOffensiveBV;
-  const isOverriddenStandard = unitId && KNOWN_STANDARD_COCKPIT_OVERRIDE.has(unitId);
-  const effectiveCockpit = cs.detectedInterfaceCockpit && cockpitType === 'standard' ? 'interface'
-    : !isOverriddenStandard && cs.detectedSmallCockpit && cockpitType === 'standard' ? 'small'
-    : !isOverriddenStandard && (unitId && KNOWN_SMALL_COCKPIT_UNITS.has(unitId) && cockpitType === 'standard') ? 'small'
+  // Cockpit type comes directly from unit data (now properly parsed from MTF source).
+  // Heuristic fallbacks only needed if data still says 'standard' but crits disagree.
+  const effectiveCockpit = cockpitType !== 'standard' ? cockpitType
+    : cs.detectedInterfaceCockpit ? 'interface'
+    : cs.detectedSmallCockpit ? 'small'
     : cockpitType;
-  let totalBV = Math.round(baseBV * getCockpitModifier(effectiveCockpit));
-  // Drone Operating System: 0.95x final BV (MegaMek MekBVCalculator.processOffensiveTypeModifier)
-  if (cs.detectedDroneOS) totalBV = Math.round(totalBV * 0.95);
+  // MegaMek processSummarize(): cockpit modifiers are else-if chained — only ONE applies.
+  // Drone OS 0.95 only applies if cockpit type doesn't already have its own modifier.
+  // Torso-mounted cockpit: MegaMek applies 0.95 (same as small cockpit).
+  const cockpitHasModifier = effectiveCockpit === 'small' || effectiveCockpit === 'torso-mounted'
+    || effectiveCockpit === 'small-command-console' || effectiveCockpit === 'interface';
+  const finalCockpitMod = cockpitHasModifier ? getCockpitModifier(effectiveCockpit as CockpitType)
+    : cs.detectedDroneOS ? 0.95
+    : getCockpitModifier(effectiveCockpit as CockpitType);
+  let totalBV = Math.round(baseBV * finalCockpitMod);
 
-  const cockpitMod = getCockpitModifier(effectiveCockpit);
+  const cockpitMod = finalCockpitMod;
   const totalDefEquipBV = defEquipBV + harjelArmorBonus + cs.armoredComponentBV;
   return { bv: totalBV, breakdown: {
     // Defensive sub-components
