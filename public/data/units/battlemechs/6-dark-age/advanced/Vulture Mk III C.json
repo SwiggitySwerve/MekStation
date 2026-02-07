@@ -198,7 +198,7 @@
   },
   "quirks": [
     "stable",
-    "variable_range_long"
+    "variable_range_targeting"
   ],
   "mulId": 6274,
   "role": "Skirmisher",

@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "TORSO_MOUNTED",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -161,7 +161,7 @@
     ]
   },
   "quirks": [
-    "variable_range_long"
+    "variable_range_targeting"
   ],
   "mulId": 6461,
   "role": "Skirmisher",

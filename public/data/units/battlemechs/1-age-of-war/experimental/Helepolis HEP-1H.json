@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -164,10 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "reinforced_legs",
-    "stable"
-  ],
+  "quirks": ["reinforced_legs", "stable"],
   "fluff": {
     "overview": "First unleashed by the Terran Hegemony in 2460, the Helepolis is a ponderous BattleMech designed to deliver artillery fire.",
     "capabilities": "The Helepolis is built around an Armstrong Industries Sniper Artillery Piece. The accurate, long-range fire makes it effective against static defenses.",

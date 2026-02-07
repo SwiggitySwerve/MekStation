@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -156,10 +156,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_pilot",
-    "exp_actuator"
-  ],
+  "quirks": ["easy_pilot", "exp_actuator"],
   "mulId": 1850,
   "role": "Missile Boat",
   "source": "XTR:Primitives I"

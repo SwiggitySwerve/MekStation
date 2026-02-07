@@ -168,10 +168,7 @@
       null
     ]
   },
-  "quirks": [
-    "obsolete",
-    "poor_target_long"
-  ],
+  "quirks": ["poor_target_long"],
   "fluff": {
     "overview": "The predecessor to Clan Steel Viper's Crossbow OmniMech, the original Crossbow first saw battlefield action for the Lyran Commonwealth in 2468. The 60-ton 'Mech is speedy for its era, capable of 86 km/h. This came at the expense of armor, however, as the Crossbow is only protected by eight tons of armor.",
     "capabilities": "A fire support 'Mech, the Crossbow carries a pair of CDC Double-Five LRM-10s. A pair of Rassal Blue-Beam Medium Lasers back them up at close range. The four weapons are all mounted in the arms, which were envisaged as easily-repairable turrets as much as arms. It is this configuration that seems to have been the inspiration for the Clan OmniMech. The Crossbowâs only torso-mounted weapon is an A-4 âLightningâ Series PPC. The lack of any additional heat sinks leaves the PPC as a medium-range weapon or an alternative when the Crossbow runs out of missiles.",

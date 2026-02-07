@@ -14,9 +14,9 @@
     "rating": 315
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "NONE"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "INTERFACE",
   "structure": {
     "type": "STANDARD"
   },

@@ -177,7 +177,7 @@
     ]
   },
   "quirks": [
-    "variable_range_long",
+    "variable_range_targeting",
     "good_rep_1",
     "difficult_maintain",
     "command_mech"

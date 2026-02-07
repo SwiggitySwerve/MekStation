@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -169,7 +169,8 @@
     "imp_com",
     "searchlight",
     "ubiquitous_clan",
-    "ubiquitous_is"
+    "ubiquitous_is",
+    "obsolete:2504"
   ],
   "mulId": 7183,
   "role": "Brawler",

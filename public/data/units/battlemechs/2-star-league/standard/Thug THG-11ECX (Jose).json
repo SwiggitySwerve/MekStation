@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "COMMAND_CONSOLE",
   "structure": {
     "type": "STANDARD"
   },
@@ -180,7 +180,7 @@
     "rugged_1",
     "bad_rep_is",
     "non_standard",
-    "obsolete"
+    "obsolete:2776"
   ],
   "fluff": {
     "overview": "The Thug was designed by Maltex Corporation as a direct competitor to the popular Warhammer BattleMech. First seeing production in 2572.",

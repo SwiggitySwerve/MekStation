@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -160,11 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "low_profile",
-    "cramped_cockpit",
-    "obsolete"
-  ],
+  "quirks": ["low_profile", "cramped_cockpit", "obsolete:2505"],
   "fluff": {
     "overview": "The Toro was the Taurian Concordat's first indigenous BattleMech. First produced in 2481, the design was based on captured Firebees and developed as a collaboration between the three best arms manufacturers in the Concordat.",
     "capabilities": "The light 'Mech is slow by 31st century standards, but it was quite maneuverable for the Age of War. The design topped out at 86 km/h. It was protected by a respectable six and a half tons of armor. Its comparatively low cost allowed entire battalions to swiftly be equipped with BattleMechs",

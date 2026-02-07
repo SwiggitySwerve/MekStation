@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -189,7 +189,8 @@
     ]
   },
   "quirks": [
-    "stable"
+    "stable",
+    "obsolete:2480"
   ],
   "mulId": 3623,
   "role": "Missile Boat",

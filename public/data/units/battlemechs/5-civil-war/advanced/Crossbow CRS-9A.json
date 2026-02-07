@@ -169,7 +169,6 @@
     ]
   },
   "quirks": [
-    "obsolete",
     "poor_target_long"
   ],
   "fluff": {

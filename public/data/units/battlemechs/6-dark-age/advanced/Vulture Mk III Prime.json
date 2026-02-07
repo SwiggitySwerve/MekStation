@@ -189,7 +189,7 @@
     ]
   },
   "quirks": [
-    "variable_range_long",
+    "variable_range_targeting",
     "stable"
   ],
   "mulId": 6271,

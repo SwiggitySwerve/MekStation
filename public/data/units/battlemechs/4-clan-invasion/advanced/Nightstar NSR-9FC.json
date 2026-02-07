@@ -52,28 +52,28 @@
   },
   "equipment": [
     {
-      "id": "medium-laser",
+      "id": "lb-10-x-ac",
       "location": "LEFT_ARM"
     },
     {
       "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "lb-10-x-ac",
       "location": "RIGHT_ARM"
     },
     {
       "id": "medium-laser",
-      "location": "HEAD"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "er-ppc",
       "location": "RIGHT_TORSO"
     },
     {
-      "id": "lb-10-x-ac",
-      "location": "LEFT_ARM"
-    },
-    {
-      "id": "lb-10-x-ac",
-      "location": "RIGHT_ARM"
+      "id": "medium-laser",
+      "location": "HEAD"
     }
   ],
   "criticalSlots": {
@@ -173,11 +173,26 @@
     ]
   },
   "quirks": [
-    "command_mech",
     "good_rep_1",
-    "variable_range_long",
-    "difficult_maintain"
+    "difficult_maintain",
+    "command_mech",
+    "variable_range_targeting"
   ],
+  "fluff": {
+    "overview": "<p>The Nightstar emerged in 2767 as the Star League Defense Force's direct response to a disturbing tactical trend during the Amaris Civil War: enemy troops had begun systematically targeting unit commanders, most of whom piloted Marauder BattleMechs. Just eight months after the SLDF commissioned this ninety-five-ton assault design, the first Nightstars entered production, filling a critical need for a heavily armed command platform capable of engaging threats at standoff ranges while keeping senior officers alive. The design's operational tenure proved tragically brief. With production limited to just two facilities, the Nightstar became an early casualty of the First Succession War when both plants were lost in 2786âthe Norse-Storm factory fell to a devastating Free Worlds League raid while General Motors' Kathil operation ended when its engineering staff perished in a catastrophic accident. Nearly three centuries would pass before the Nightstar returned to Inner Sphere battlefields.</p>",
+    "capabilities": "<p>Drawing heavily from its Marauder lineage, the Nightstar builds upon that proven design philosophy while adding twenty tons of additional combat capability. A Pitban 285 extralight fusion engine provides modest mobility at fifty-four kilometers per hour, a deliberate trade-off that allows the chassis to carry over fifty tons of weapons and equipment beneath eighteen tons of Kallon Royalstar armor protection rivaling most contemporary assault 'Mechs.</p>",
+    "history": "<p>The Nightstar's history divides cleanly into two distinct eras separated by nearly three centuries of absence from Inner Sphere battlefields. Commissioned during the darkest days of the Amaris Civil War, the design served the Star League Defense Force with distinction during the campaign to liberate Terra and dismantle the Rim Worlds Republic. When Aleksandr Kerensky led the bulk of the SLDF into exile, relatively few Nightstars accompanied the Exodus fleet, leaving most examples in the hands of the Successor States.</p>",
+    "deployment": "<p>General Motors developed this variant to align with Federated Suns mobile warfare doctrine. Replacing the standard power plant with a larger 380-rated extralight engine increases top speed to sixty-four kilometers per hour, transforming the Nightstar from a static firebase into a more maneuverable combatant. The weight savings from swapping the Gauss rifles for twin LB 10-X autocannonsâfed by four tons of CASE-protected ammunitionâallows for this enhanced mobility while retaining tactical flexibility through the autocannons' ability to load standard or cluster munitions. Three standard medium lasers round out the weapons array, with all thirteen heat sinks mounted within the massive engine housing.</p>",
+    "manufacturer": "General Motors",
+    "primaryFactory": "Kathil",
+    "systemManufacturer": {
+      "CHASSIS": "Norse-GM Heavy TRQ",
+      "ENGINE": "Pitban 380 XL",
+      "ARMOR": "Kallon Royalstar Heavy Type K",
+      "COMMUNICATIONS": "Tek BattleCom",
+      "TARGETING": "DLK Type Phased Array Sensors"
+    }
+  },
   "mulId": 2285,
   "role": "Juggernaut",
   "source": "TR:3058U"

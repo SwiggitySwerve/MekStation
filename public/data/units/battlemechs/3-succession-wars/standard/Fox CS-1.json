@@ -195,6 +195,21 @@
   "quirks": [
     "variable_range_long"
   ],
+  "fluff": {
+    "overview": "The Fox holds a unique place in Clan history as Clan Sea Fox's first BattleMech, entering production in 2824 at the Constantin Assembly Plant. Legend suggests the design originated from a wager between two Clan Khans, though the details have been lost to time. Conceived as a versatile medium combatant, the Fox blended proven Star League technology with experimental early Clan weaponry to create a platform capable of addressing diverse tactical requirements. The design quickly became the darling of the Golden Century, earning a reputation for reliability and battlefield flexibility that few contemporaries could match. Despite this success, the Sea Foxes mysteriously ceased production of updated variants and eventually removed the Fox from their touman entirely, leaving its legacy as a celebrated but ultimately abandoned design.",
+    "capabilities": "<p>The Fox was engineered to compete across multiple engagement ranges, a philosophy reflected in its comprehensive weapons suite. A pair of experimental Improved LRM-15 launchers provide the primary armament, delivering reliable long-range firepower that proved highly effective during the Golden Century's numerous Trials. The Garret A6 targeting and tracking system represents the design's technological heart, featuring an adaptive mode with selectable range-finding and telemetry functions that grant impressive accuracy at varied distances. For engagements at intermediate and close ranges, the Fox carries three medium lasers and twin Streak SRM-2 launchers mounted in the legs, providing adequate deterrent against aggressive opponents. Four machine guns round out the arsenal, making the design particularly threatening to conventional infantry formations common in early Clan warfare.</p>",
+    "history": "<p>The Fox emerged during the formative years of Clan Sea Fox, representing their first indigenous BattleMech design and establishing their early manufacturing capabilities. Unlike the later Diamond Shark merchant practices for which the Clan would become famous, the Sea Foxes never marketed the Fox to other Clans during its operational heyday. Instead, the design was distributed evenly throughout Sea Fox military holdings, where it participated in the countless Trials and skirmishes that characterized the Golden Century.</p>",
+    "deployment": "<p>The original production model represents a mixed-technology approach, combining Star League-era components with experimental Clan Improved LRM-15 launchers. This configuration prioritized reliability and production simplicity during the early Golden Century, when Clan manufacturing capabilities were still maturing. The CS-1 saw widespread deployment throughout Sea Fox holdings and participated in numerous notable engagements against rival Clans.</p>",
+    "manufacturer": "Constantin Assembly Plant M27A-E",
+    "primaryFactory": "Priori",
+    "systemManufacturer": {
+      "CHASSIS": "Crucis-d Endo",
+      "ENGINE": "Vlar 300 XL",
+      "ARMOR": "Riese-500 with CASE",
+      "COMMUNICATIONS": "Garret T11-b",
+      "TARGETING": "Garret A6"
+    }
+  },
   "mulId": 4182,
   "role": "Missile Boat",
   "source": "TR:GC"

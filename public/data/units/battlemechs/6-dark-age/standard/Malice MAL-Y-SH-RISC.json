@@ -14,9 +14,9 @@
     "rating": 315
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "HEAVY_DUTY"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SUPERHEAVY",
   "structure": {
     "type": "ENDO_STEEL"
   },

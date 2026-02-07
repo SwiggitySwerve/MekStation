@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -152,10 +152,7 @@
       null
     ]
   },
-  "quirks": [
-    "low_profile",
-    "exp_actuator"
-  ],
+  "quirks": ["low_profile", "exp_actuator"],
   "fluff": {
     "overview": "Created for the Lyran Commonwealth Armed Forces and one of the first 'Mechs ever designed for reconnaissance, the Commando was much lighter and faster than its precursors, though it still utilized primitive BattleMech technology.",
     "capabilities": "With only four tons of armor to protect itself, the Commando is not meant to participate in a stand-up fight against heavier enemies, but it excels at hit-and-run tactics and as a scout hunter.",
