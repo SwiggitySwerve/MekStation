@@ -172,12 +172,7 @@
       null
     ]
   },
-  "quirks": [
-    "command_mech",
-    "ubiquitous_clan",
-    "ubiquitous_is",
-    "imp_com"
-  ],
+  "quirks": ["command_mech", "ubiquitous_clan", "ubiquitous_is", "imp_com"],
   "role": "Skirmisher",
   "source": "Shrapnel: Gothic"
 }

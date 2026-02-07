@@ -168,9 +168,7 @@
       "Stealth"
     ]
   },
-  "quirks": [
-    "exp_actuator"
-  ],
+  "quirks": ["exp_actuator"],
   "mulId": 1008,
   "role": "Missile Boat",
   "source": "TR:3075"

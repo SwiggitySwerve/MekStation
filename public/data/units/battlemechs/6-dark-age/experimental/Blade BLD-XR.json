@@ -164,10 +164,7 @@
       "IS Reactive"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "pro_actuator"
-  ],
+  "quirks": ["easy_maintain", "pro_actuator"],
   "mulId": 7345,
   "role": "Sniper",
   "source": "XTR:RotS 2"

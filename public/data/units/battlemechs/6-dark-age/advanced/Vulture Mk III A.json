@@ -180,10 +180,7 @@
       null
     ]
   },
-  "quirks": [
-    "stable",
-    "variable_range_targeting"
-  ],
+  "quirks": ["stable", "variable_range_targeting"],
   "mulId": 6272,
   "role": "Skirmisher",
   "source": "TR:3145:C"

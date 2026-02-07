@@ -156,9 +156,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "mulId": 769,
   "role": "Striker",
   "source": "TR:3085"

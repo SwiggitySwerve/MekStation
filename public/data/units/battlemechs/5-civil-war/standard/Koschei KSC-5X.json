@@ -164,10 +164,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "imp_life_support",
-    "weak_head_1"
-  ],
+  "quirks": ["imp_life_support", "weak_head_1"],
   "mulId": 1826,
   "role": "Skirmisher",
   "source": "TR:3075"

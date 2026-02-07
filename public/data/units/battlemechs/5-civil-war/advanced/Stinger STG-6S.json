@@ -160,12 +160,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "rugged_1",
-    "ubiquitous_clan",
-    "ubiquitous_is",
-    "cramped_cockpit"
-  ],
+  "quirks": ["rugged_1", "ubiquitous_clan", "ubiquitous_is", "cramped_cockpit"],
   "mulId": 3067,
   "role": "Scout",
   "source": "TR:3085"

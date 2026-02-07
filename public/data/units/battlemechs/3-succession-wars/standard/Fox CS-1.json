@@ -192,9 +192,7 @@
       "Clan Endo Steel"
     ]
   },
-  "quirks": [
-    "variable_range_long"
-  ],
+  "quirks": ["variable_range_long"],
   "fluff": {
     "overview": "The Fox holds a unique place in Clan history as Clan Sea Fox's first BattleMech, entering production in 2824 at the Constantin Assembly Plant. Legend suggests the design originated from a wager between two Clan Khans, though the details have been lost to time. Conceived as a versatile medium combatant, the Fox blended proven Star League technology with experimental early Clan weaponry to create a platform capable of addressing diverse tactical requirements. The design quickly became the darling of the Golden Century, earning a reputation for reliability and battlefield flexibility that few contemporaries could match. Despite this success, the Sea Foxes mysteriously ceased production of updated variants and eventually removed the Fox from their touman entirely, leaving its legacy as a celebrated but ultimately abandoned design.",
     "capabilities": "<p>The Fox was engineered to compete across multiple engagement ranges, a philosophy reflected in its comprehensive weapons suite. A pair of experimental Improved LRM-15 launchers provide the primary armament, delivering reliable long-range firepower that proved highly effective during the Golden Century's numerous Trials. The Garret A6 targeting and tracking system represents the design's technological heart, featuring an adaptive mode with selectable range-finding and telemetry functions that grant impressive accuracy at varied distances. For engagements at intermediate and close ranges, the Fox carries three medium lasers and twin Streak SRM-2 launchers mounted in the legs, providing adequate deterrent against aggressive opponents. Four machine guns round out the arsenal, making the design particularly threatening to conventional infantry formations common in early Clan warfare.</p>",

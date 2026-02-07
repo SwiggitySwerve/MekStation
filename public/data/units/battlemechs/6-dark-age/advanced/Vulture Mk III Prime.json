@@ -188,10 +188,7 @@
       null
     ]
   },
-  "quirks": [
-    "variable_range_targeting",
-    "stable"
-  ],
+  "quirks": ["variable_range_targeting", "stable"],
   "mulId": 6271,
   "role": "Missile Boat",
   "source": "TR:3145:C"

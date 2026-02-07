@@ -168,10 +168,7 @@
       "Stealth"
     ]
   },
-  "quirks": [
-    "low_profile",
-    "weak_head_2"
-  ],
+  "quirks": ["low_profile", "weak_head_2"],
   "fluff": {
     "overview": "The Jinggau is made to engage in direct combat, not lurk at the periphery or wait for a few fortunate long-range hits.",
     "capabilities": "It can close relatively easily in virtually any terrain thanks to its top-end mobility for its weight, which includes a running speed of over 85 kph and a 150-meter leap capacity. With more than eleven tons of armor, the Jinggau has a very good chance of surviving whether traversing wide terrain or fighting in stand-up combat. The major offense comes from a number of strong hitting primary weapons including the Zhi-tong-yao (\"painkiller\") Gauss rifle. The weapon fires piercing shots until the Jinggau is within striking distance of its secondary lasers, which can frighten the pilot of even an assault mech. At that point, the main armaments continue to unleash their knockdown power punches while the lasers look for vulnerable areas to butcher an enemy machine.",

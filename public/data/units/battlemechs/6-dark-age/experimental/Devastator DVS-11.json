@@ -180,10 +180,7 @@
       null
     ]
   },
-  "quirks": [
-    "hyper_actuator",
-    "searchlight"
-  ],
+  "quirks": ["hyper_actuator", "searchlight"],
   "fluff": {
     "overview": "Designed by General Kerensky himself right before the start of the Amaris Civil War, development of the Devastator ended abruptly when Stefan the Usurper took control of the Terran Hegemony.",
     "capabilities": "In order to overcome its poor speed, long-range power was designed. Although the Devastator is capable of holding its own in close quarters battle, its capacity to control heat is its most striking trait. Pilots are able to move with the utmost speed and fire all of the heavy weaponry without fear thanks to fourteen double heat sinks. A Devastator pilot just needs to slightly scale back his movements to prevent the design from overheating, even when doused in inferno gel or subjected to several engine strikes.",

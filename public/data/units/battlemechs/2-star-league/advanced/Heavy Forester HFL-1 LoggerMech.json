@@ -101,6 +101,34 @@
       "Ejection Seat (Industrial Mech)",
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Searchlight"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Searchlight"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Searchlight (R)"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Searchlight (R)"
     ]
   },
   "mulId": 4529,

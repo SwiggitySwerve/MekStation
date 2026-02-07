@@ -142,6 +142,34 @@
       "Heat Sink",
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Machine Gun",
+      "Machine Gun"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Machine Gun",
+      "Machine Gun"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator"
     ]
   },
   "quirks": [

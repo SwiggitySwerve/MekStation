@@ -156,9 +156,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "mulId": 6457,
   "role": "Brawler",
   "source": "TR:3145:CC"

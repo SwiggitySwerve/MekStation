@@ -196,9 +196,7 @@
       "IS Light Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "rugged_1"
-  ],
+  "quirks": ["rugged_1"],
   "mulId": 7347,
   "role": "Juggernaut",
   "source": "XTR:RotS 2"

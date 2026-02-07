@@ -139,14 +139,7 @@
       "ISERSmallLaser",
       "Heavy Ferro-Fibrous"
     ],
-    "HEAD": [
-      "Life Support",
-      "Sensors",
-      "Cockpit",
-      "Sensors",
-      null,
-      null
-    ],
+    "HEAD": ["Life Support", "Sensors", "Cockpit", "Sensors", null, null],
     "LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",
@@ -164,11 +157,7 @@
       null
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "bad_rep_is",
-    "no_arms"
-  ],
+  "quirks": ["ext_twist", "bad_rep_is", "no_arms"],
   "mulId": 3165,
   "role": "Striker",
   "source": "TR:3085"

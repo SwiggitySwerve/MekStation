@@ -139,14 +139,7 @@
       "Cockpit",
       "Sensors"
     ],
-    "HEAD": [
-      "Sensors",
-      "Sensors",
-      null,
-      null,
-      null,
-      null
-    ],
+    "HEAD": ["Sensors", "Sensors", null, null, null, null],
     "LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",
@@ -164,9 +157,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "variable_range_targeting"
-  ],
+  "quirks": ["variable_range_targeting"],
   "mulId": 6462,
   "role": "Skirmisher",
   "source": "TR:3145:CC"

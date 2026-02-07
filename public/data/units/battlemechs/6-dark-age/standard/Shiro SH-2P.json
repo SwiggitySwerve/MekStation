@@ -168,9 +168,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "distracting"
-  ],
+  "quirks": ["distracting"],
   "mulId": 6417,
   "role": "Missile Boat",
   "source": "TR:3145:DC"

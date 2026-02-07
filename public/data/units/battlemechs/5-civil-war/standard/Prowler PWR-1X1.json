@@ -164,9 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "poor_life_support"
-  ],
+  "quirks": ["poor_life_support"],
   "mulId": 2582,
   "role": "Skirmisher",
   "source": "TR:3055U"

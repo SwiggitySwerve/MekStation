@@ -114,6 +114,34 @@
       null,
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS LB 20-X AC Ammo",
+      "IS LB 20-X Cluster Ammo"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS LB 20-X AC Ammo",
+      "IS LB 20-X Cluster Ammo"
     ]
   },
   "quirks": [

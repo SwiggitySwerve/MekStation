@@ -160,9 +160,7 @@
       "IS Light Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "bad_rep_clan"
-  ],
+  "quirks": ["bad_rep_clan"],
   "mulId": 6677,
   "role": "Brawler",
   "source": "TR:3145:RotS"

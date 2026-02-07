@@ -172,10 +172,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "bad_rep_clan",
-    "bad_rep_is"
-  ],
+  "quirks": ["bad_rep_clan", "bad_rep_is"],
   "mulId": 3279,
   "role": "Sniper",
   "source": "TR:3060"

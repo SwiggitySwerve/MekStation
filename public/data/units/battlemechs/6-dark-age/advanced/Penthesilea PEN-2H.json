@@ -172,9 +172,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "rugged_1"
-  ],
+  "quirks": ["rugged_1"],
   "mulId": 2470,
   "role": "Brawler",
   "source": "TR:3085"

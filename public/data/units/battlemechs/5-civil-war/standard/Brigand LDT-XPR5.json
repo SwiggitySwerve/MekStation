@@ -164,11 +164,7 @@
       "IS Improved Jump Jet"
     ]
   },
-  "quirks": [
-    "nimble_jumper",
-    "easy_pilot",
-    "easy_maintain"
-  ],
+  "quirks": ["nimble_jumper", "easy_pilot", "easy_maintain"],
   "mulId": 7317,
   "role": "Striker",
   "source": "HTP:Tortuga"

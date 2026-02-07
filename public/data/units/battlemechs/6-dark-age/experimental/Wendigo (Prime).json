@@ -176,9 +176,7 @@
       "CLDoubleHeatSink (omnipod)"
     ]
   },
-  "quirks": [
-    "distracting"
-  ],
+  "quirks": ["distracting"],
   "mulId": 6402,
   "role": "Skirmisher",
   "source": "TR:3145:DC"

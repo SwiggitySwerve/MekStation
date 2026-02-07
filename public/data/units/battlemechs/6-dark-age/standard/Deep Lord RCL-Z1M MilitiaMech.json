@@ -156,10 +156,7 @@
       null
     ]
   },
-  "quirks": [
-    "imp_life_support",
-    "pro_actuator"
-  ],
+  "quirks": ["imp_life_support", "pro_actuator"],
   "mulId": 4057,
   "role": "Juggernaut",
   "source": "TR:Proto"

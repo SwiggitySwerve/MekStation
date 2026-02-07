@@ -164,11 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "bad_rep_is",
-    "no_arms"
-  ],
+  "quirks": ["ext_twist", "bad_rep_is", "no_arms"],
   "mulId": 6915,
   "role": "Striker",
   "source": "RS:3145-NTNU"

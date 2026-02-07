@@ -160,12 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "multi_trac",
-    "difficult_maintain",
-    "cowl",
-    "imp_life_support"
-  ],
+  "quirks": ["multi_trac", "difficult_maintain", "cowl", "imp_life_support"],
   "fluff": {
     "overview": "The Grand Titan was designed by Vining Engineering and Salvage Team to take on the best 'Mechs that the Inner Sphere or the Clans had to offer.",
     "capabilities": "The 'Mech is built on an Endo Steel chassis and with a LTV 400 XL Engine, which propels the Grand Titan to a top speed of 64.8 kph, to save as much weight as possible. The Grand Titan also carries eighteen tons of armor.",

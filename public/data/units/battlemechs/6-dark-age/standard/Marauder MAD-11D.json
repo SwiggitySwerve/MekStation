@@ -168,11 +168,7 @@
       "IS Endo-Composite"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "hyper_actuator",
-    "low_profile"
-  ],
+  "quirks": ["command_mech", "hyper_actuator", "low_profile"],
   "mulId": 7534,
   "role": "Sniper",
   "source": "RG06"

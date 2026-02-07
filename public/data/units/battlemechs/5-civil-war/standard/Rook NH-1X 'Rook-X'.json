@@ -178,9 +178,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "rugged_1"
-  ],
+  "quirks": ["rugged_1"],
   "mulId": 4935,
   "role": "Juggernaut",
   "source": "XTR:RetroTech"

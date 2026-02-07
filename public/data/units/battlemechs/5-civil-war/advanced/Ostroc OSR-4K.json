@@ -164,9 +164,7 @@
       "Improved Jump Jet"
     ]
   },
-  "quirks": [
-    "low_profile"
-  ],
+  "quirks": ["low_profile"],
   "fluff": {
     "overview": "The Ostroc is a heavy 'Mech, weighing in at the lower end of its weight class, originally designed to act as an urban combatant during the Age of War.",
     "capabilities": "Its unique walker/pod profile, later seen in the Stalker and Marauder, combined with a low silhouette similar to the UrbanMech makes the Ostroc difficult to spot in an urban environment. Fast for its size, well-armored and boasting good medium- and short-range firepower, the Ostroc was also capable when fighting outside a cityscape, particularly as a heavy scout/raider.",

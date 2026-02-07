@@ -172,11 +172,7 @@
       "IS Endo-Composite"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "hyper_actuator",
-    "low_profile"
-  ],
+  "quirks": ["command_mech", "hyper_actuator", "low_profile"],
   "mulId": 6866,
   "role": "Brawler",
   "source": "RS:3145-NTNU"

@@ -176,11 +176,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "bad_rep_clan",
-    "bad_rep_is",
-    "exp_actuator"
-  ],
+  "quirks": ["bad_rep_clan", "bad_rep_is", "exp_actuator"],
   "mulId": 5664,
   "role": "Striker",
   "source": "RS:3067u"

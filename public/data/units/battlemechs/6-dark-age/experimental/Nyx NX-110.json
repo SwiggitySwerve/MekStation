@@ -156,10 +156,7 @@
       "IS Anti-Penetrative Ablation"
     ]
   },
-  "quirks": [
-    "low_profile",
-    "difficult_maintain"
-  ],
+  "quirks": ["low_profile", "difficult_maintain"],
   "mulId": 6936,
   "role": "Scout",
   "source": "RS:3145-NTNU"

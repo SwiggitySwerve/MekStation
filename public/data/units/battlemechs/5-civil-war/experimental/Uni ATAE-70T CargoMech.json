@@ -101,6 +101,34 @@
       null,
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Industrial Triple Strength Myomer"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Industrial Triple Strength Myomer"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Industrial Triple Strength Myomer"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Industrial Triple Strength Myomer"
     ]
   },
   "mulId": 7175,

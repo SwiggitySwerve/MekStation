@@ -152,11 +152,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "nimble_jumper",
-    "no_eject"
-  ],
+  "quirks": ["easy_maintain", "nimble_jumper", "no_eject"],
   "fluff": {
     "overview": "The Spider was the first BattleMech produced by Newhart Industries, designed in 2650 as a light reconnaissance and attack 'Mech to be used by Star League Defense Force Special Operations forces such as the Blackhearts.",
     "capabilities": "In terms of maneuverability the Spider has a ground speed comparable to a Locust and can out-jump either the vaunted Wasp or Stinger light 'Mechs. Built with top-of-the-line reliable parts, sophisticated reconnaissance equipment and an energy weapon payload which allowed for extended operations without resupply, the Spider was a great success. While not produced in large numbers it could be rapidly manufactured and so served up through to the end of the Star League.",

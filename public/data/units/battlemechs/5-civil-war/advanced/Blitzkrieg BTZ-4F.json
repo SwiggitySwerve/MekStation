@@ -152,10 +152,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "directional_torso_mount",
-    "no_arms"
-  ],
+  "quirks": ["directional_torso_mount", "no_arms"],
   "mulId": 395,
   "role": "Skirmisher",
   "source": "TR:3060"

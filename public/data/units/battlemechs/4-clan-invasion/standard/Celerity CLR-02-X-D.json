@@ -101,6 +101,46 @@
       "Sensors",
       "ISC3iUnit",
       "ISC3iUnit"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "manufacturer:Comstar",
+      "primaryfactory:Unknown",
+      "systemmanufacturer:CHASSIS:Unknown",
+      "systemmanufacturer:ENGINE:Unknown",
+      "systemmanufacturer:ARMOR:Unknown",
+      "systemmanufacturer:JUMPJET:Unknown",
+      "systemmanufacturer:COMMUNICATIONS:Unknown",
+      "systemmanufacturer:TARGETING:Unknown"
     ]
   },
   "quirks": [

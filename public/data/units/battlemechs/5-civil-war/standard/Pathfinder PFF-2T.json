@@ -152,9 +152,7 @@
       null
     ]
   },
-  "quirks": [
-    "imp_sensors"
-  ],
+  "quirks": ["imp_sensors"],
   "mulId": 4791,
   "role": "None",
   "source": "XTR:RetroTech"

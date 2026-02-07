@@ -135,14 +135,7 @@
       "Fusion Engine",
       "Fusion Engine"
     ],
-    "HEAD": [
-      "Life Support",
-      "Sensors",
-      "Cockpit",
-      "Sensors",
-      null,
-      null
-    ],
+    "HEAD": ["Life Support", "Sensors", "Cockpit", "Sensors", null, null],
     "LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",
@@ -160,9 +153,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "imp_target_short"
-  ],
+  "quirks": ["imp_target_short"],
   "mulId": 6450,
   "role": "Striker",
   "source": "TR:3145:CC"

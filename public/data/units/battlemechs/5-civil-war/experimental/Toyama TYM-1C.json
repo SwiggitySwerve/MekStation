@@ -164,10 +164,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "bad_rep_clan",
-    "bad_rep_is"
-  ],
+  "quirks": ["bad_rep_clan", "bad_rep_is"],
   "mulId": 3280,
   "role": "Missile Boat",
   "source": "TR:3060"

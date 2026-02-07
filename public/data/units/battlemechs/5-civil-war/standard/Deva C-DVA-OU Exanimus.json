@@ -172,12 +172,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "imp_com",
-    "imp_sensors",
-    "bad_rep_clan",
-    "bad_rep_is"
-  ],
+  "quirks": ["imp_com", "imp_sensors", "bad_rep_clan", "bad_rep_is"],
   "mulId": 892,
   "role": "Brawler",
   "source": "TR:3085"

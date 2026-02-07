@@ -160,10 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_target_med"
-  ],
+  "quirks": ["easy_maintain", "imp_target_med"],
   "mulId": 1864,
   "role": "Striker",
   "source": "XTR:Davion"

@@ -176,10 +176,7 @@
       null
     ]
   },
-  "quirks": [
-    "distracting",
-    "prototype"
-  ],
+  "quirks": ["distracting", "prototype"],
   "role": "Brawler",
   "source": "XTR:RISC"
 }

@@ -160,9 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "distracting"
-  ],
+  "quirks": ["distracting"],
   "mulId": 6404,
   "role": "Sniper",
   "source": "TR:3145:DC"

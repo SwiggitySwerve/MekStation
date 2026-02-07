@@ -180,10 +180,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "good_rep_1",
-    "stable"
-  ],
+  "quirks": ["good_rep_1", "stable"],
   "mulId": 8001,
   "source": "RS:3150"
 }

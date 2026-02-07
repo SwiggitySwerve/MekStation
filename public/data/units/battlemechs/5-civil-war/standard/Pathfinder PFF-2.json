@@ -156,9 +156,7 @@
       null
     ]
   },
-  "quirks": [
-    "imp_sensors"
-  ],
+  "quirks": ["imp_sensors"],
   "mulId": 4790,
   "role": "Scout",
   "source": "XTR:RetroTech"

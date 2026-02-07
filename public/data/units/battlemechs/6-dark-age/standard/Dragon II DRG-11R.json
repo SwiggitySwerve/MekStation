@@ -164,9 +164,7 @@
       "IS Light Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "stable"
-  ],
+  "quirks": ["stable"],
   "mulId": 6415,
   "role": "Missile Boat",
   "source": "TR:3145:DC"

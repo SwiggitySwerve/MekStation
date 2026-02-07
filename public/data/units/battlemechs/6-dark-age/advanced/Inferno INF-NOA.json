@@ -164,11 +164,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "battle_fists_la",
-    "battle_fists_ra",
-    "easy_pilot"
-  ],
+  "quirks": ["battle_fists_la", "battle_fists_ra", "easy_pilot"],
   "mulId": 7716,
   "role": "Brawler",
   "source": "RG09"

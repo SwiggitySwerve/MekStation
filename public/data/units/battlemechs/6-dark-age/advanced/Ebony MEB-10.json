@@ -127,14 +127,7 @@
       "Fusion Engine",
       "Fusion Engine"
     ],
-    "HEAD": [
-      "Life Support",
-      "Sensors",
-      "Cockpit",
-      "Sensors",
-      null,
-      null
-    ],
+    "HEAD": ["Life Support", "Sensors", "Cockpit", "Sensors", null, null],
     "LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",
@@ -152,9 +145,7 @@
       "Stealth"
     ]
   },
-  "quirks": [
-    "imp_target_med"
-  ],
+  "quirks": ["imp_target_med"],
   "mulId": 940,
   "role": "Scout",
   "source": "TR:3085"

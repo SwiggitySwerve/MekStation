@@ -160,10 +160,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "rugged_1",
-    "difficult_eject"
-  ],
+  "quirks": ["rugged_1", "difficult_eject"],
   "fluff": {
     "overview": "The Vindicator is one of the most well-known Capellan Confederation BattleMechs. This workhorse of the CCAF was built in 2826 between the First and Second Succession War to maximize the effectiveness of the Confederation's surviving production capabilities and fulfill as many roles as possible.",
     "capabilities": "The 'Mech has a top speed of only 64.8 km/h, which allows it to keep up with most heavy 'Mechs and some slower medium 'Mechs. Four jump jets give it a jumping capability of up to 120 meters that, while not up to par with the greater distances of 'Mechs like the Phoenix Hawk, allows the Vindicator the ability to outmaneuver most heavier 'Mechs, as well as making it easier to traverse rough terrain. It also carries more armor than the Phoenix Hawk with good overall coverage, particularly on its rear torso and legs, making it better protected than smaller 'Mechs. Armament for the 'Mech is adequate though its primary weapons are unsuited for point-blank ranges, while sixteen heat sinks help keep it cool.",

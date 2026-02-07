@@ -126,6 +126,38 @@
       "CLMediumPulseLaser",
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Gauss Ammo",
+      "Clan Gauss Ammo"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan LB 20-X AC Ammo",
+      "Clan LB 20-X Cluster Ammo"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
     ]
   },
   "quirks": [

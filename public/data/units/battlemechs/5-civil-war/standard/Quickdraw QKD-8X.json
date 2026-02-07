@@ -175,10 +175,7 @@
       "Stealth Armor"
     ]
   },
-  "quirks": [
-    "hyper_actuator",
-    "exp_actuator"
-  ],
+  "quirks": ["hyper_actuator", "exp_actuator"],
   "mulId": 2617,
   "role": "Sniper",
   "source": "XTR:Corps"

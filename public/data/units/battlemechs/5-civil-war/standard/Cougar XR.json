@@ -160,11 +160,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "ubiquitous_clan",
-    "prototype",
-    "unbalanced"
-  ],
+  "quirks": ["ubiquitous_clan", "prototype", "unbalanced"],
   "mulId": 4013,
   "role": "Missile Boat",
   "source": "XTR:Clans"

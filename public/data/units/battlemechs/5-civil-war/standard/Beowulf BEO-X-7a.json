@@ -168,11 +168,7 @@
       "Stealth"
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "exp_actuator",
-    "prototype"
-  ],
+  "quirks": ["ext_twist", "exp_actuator", "prototype"],
   "mulId": 5548,
   "role": "Skirmisher",
   "source": "XTR:ComStar"

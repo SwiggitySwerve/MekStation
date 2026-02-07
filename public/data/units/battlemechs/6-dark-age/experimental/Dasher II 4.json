@@ -172,9 +172,7 @@
       "IS Improved Jump Jet"
     ]
   },
-  "quirks": [
-    "poor_performance"
-  ],
+  "quirks": ["poor_performance"],
   "mulId": 6919,
   "role": "Striker",
   "source": "RS:3145-NTNU"

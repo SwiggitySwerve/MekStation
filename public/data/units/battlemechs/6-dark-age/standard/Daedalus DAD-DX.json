@@ -180,9 +180,7 @@
       "IS Endo-Composite"
     ]
   },
-  "quirks": [
-    "difficult_maintain"
-  ],
+  "quirks": ["difficult_maintain"],
   "mulId": 8105,
   "role": "Striker",
   "source": "XTR:Caveat"

@@ -164,12 +164,7 @@
       "Improved Jump Jet"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "imp_com",
-    "ubiquitous_clan",
-    "ubiquitous_is"
-  ],
+  "quirks": ["command_mech", "imp_com", "ubiquitous_clan", "ubiquitous_is"],
   "mulId": 2504,
   "role": "Striker",
   "source": "TR:3085"

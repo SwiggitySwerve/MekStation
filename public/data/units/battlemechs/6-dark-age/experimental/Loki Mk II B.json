@@ -172,9 +172,7 @@
       "Clan Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "multi_trac"
-  ],
+  "quirks": ["multi_trac"],
   "mulId": 6279,
   "role": "Brawler",
   "source": "TR:3145:C"

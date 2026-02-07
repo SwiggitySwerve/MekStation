@@ -138,6 +138,38 @@
       "ISMediumPulseLaser",
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISERMediumLaser",
+      "ISAntiPersonnelPod"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISERMediumLaser",
+      "ISAntiPersonnelPod"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Ultra AC/10 Ammo",
+      "IS Ultra AC/10 Ammo"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Ultra AC/10 Ammo",
+      "IS Ultra AC/10 Ammo"
     ]
   },
   "quirks": [

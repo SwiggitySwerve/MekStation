@@ -172,10 +172,7 @@
       null
     ]
   },
-  "quirks": [
-    "command_mech",
-    "weak_head_1"
-  ],
+  "quirks": ["command_mech", "weak_head_1"],
   "mulId": 7978,
   "source": "RS:3150"
 }

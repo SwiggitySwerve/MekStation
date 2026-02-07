@@ -176,10 +176,7 @@
       "IS Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_target_long"
-  ],
+  "quirks": ["easy_maintain", "imp_target_long"],
   "fluff": {
     "overview": "The Albatross, designed by the Free Worlds League in 3053 in anticipation of a potential conflict with the advancing Clans, is a versatile workhorse 'Mech that does not specialize in one specific role.",
     "capabilities": "Weighing 95 tons, it is one of House Marik's heaviest 'Mechs and utilizes a GM 380 XL engine, enabling speeds of up to 65 kph. To prioritize weapon capacity, the designers opted against incorporating an endo steel chassis or ferro-fibrous armor. The Albatross boasts impressive weaponry designed for various engagement ranges. It features an LRM rack and extended-range lasers for potent long-range firepower, while a combination of an autocannon and lasers effectively engages foes at closer distances. For opponents closing in, MechWarriors can employ the SRMs. With thirteen tons of armor, the Albatross offers enhanced battlefield survivability, though it is prone to overheating. Additionally, the 'Mech incorporates CASE technology for safeguarding against ammunition explosions.",

@@ -172,9 +172,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "cowl"
-  ],
+  "quirks": ["cowl"],
   "role": "Striker",
   "source": "Force Pack:Davion"
 }

@@ -160,10 +160,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "no_arms",
-    "no_eject"
-  ],
+  "quirks": ["no_arms", "no_eject"],
   "mulId": 6918,
   "role": "Striker",
   "source": "RS:3145-NTNU"

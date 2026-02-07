@@ -184,9 +184,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "distracting"
-  ],
+  "quirks": ["distracting"],
   "mulId": 2556,
   "role": "Striker",
   "source": "TR:3055U"

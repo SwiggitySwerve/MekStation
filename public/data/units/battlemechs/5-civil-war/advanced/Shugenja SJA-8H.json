@@ -172,11 +172,7 @@
       null
     ]
   },
-  "quirks": [
-    "cowl",
-    "hyper_actuator",
-    "exp_actuator"
-  ],
+  "quirks": ["cowl", "hyper_actuator", "exp_actuator"],
   "mulId": 2943,
   "role": "Brawler",
   "source": "TR:3060"

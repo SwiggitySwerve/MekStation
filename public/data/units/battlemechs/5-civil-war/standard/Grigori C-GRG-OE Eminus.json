@@ -180,12 +180,7 @@
       "IS Light Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "imp_com",
-    "imp_sensors",
-    "bad_rep_clan",
-    "bad_rep_is"
-  ],
+  "quirks": ["imp_com", "imp_sensors", "bad_rep_clan", "bad_rep_is"],
   "fluff": {
     "overview": "The Grigori is one of the Word of Blake's new Celestial series OmniMechs designed by Doctor Devon Cortland.",
     "capabilities": "It is constructed on a standard chassis, but makes use of eleven tons of Light Ferro-Fibrous armor, a light fusion engine, and an XL Gyro; as well as the small cockpit that is common to all of the Celestials. Like the other Celestials, the Grigori has a C3i Computer to help direct its fire.",

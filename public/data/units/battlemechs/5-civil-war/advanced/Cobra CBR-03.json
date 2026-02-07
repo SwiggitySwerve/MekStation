@@ -164,9 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "pro_actuator"
-  ],
+  "quirks": ["pro_actuator"],
   "mulId": 656,
   "role": "Missile Boat",
   "source": "TR:3060"

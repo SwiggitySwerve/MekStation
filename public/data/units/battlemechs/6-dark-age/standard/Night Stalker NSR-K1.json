@@ -164,9 +164,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "distracting"
-  ],
+  "quirks": ["distracting"],
   "mulId": 6718,
   "role": "Scout",
   "source": "TR:3145:RotS"

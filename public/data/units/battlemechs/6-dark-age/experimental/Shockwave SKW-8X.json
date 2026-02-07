@@ -156,11 +156,7 @@
       null
     ]
   },
-  "quirks": [
-    "battle_fists_la",
-    "battle_fists_ra",
-    "easy_maintain"
-  ],
+  "quirks": ["battle_fists_la", "battle_fists_ra", "easy_maintain"],
   "mulId": 6902,
   "role": "Brawler",
   "source": "RS:3145-NTNU"

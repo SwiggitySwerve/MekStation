@@ -152,10 +152,7 @@
       "IS Endo-Steel"
     ]
   },
-  "quirks": [
-    "pro_actuator",
-    "no_eject"
-  ],
+  "quirks": ["pro_actuator", "no_eject"],
   "mulId": 6392,
   "role": "Striker",
   "source": "TR:3145:DC"

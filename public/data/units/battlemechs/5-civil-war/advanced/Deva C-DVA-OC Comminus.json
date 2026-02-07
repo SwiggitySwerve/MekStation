@@ -168,12 +168,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "imp_com",
-    "imp_sensors",
-    "bad_rep_clan",
-    "bad_rep_is"
-  ],
+  "quirks": ["imp_com", "imp_sensors", "bad_rep_clan", "bad_rep_is"],
   "mulId": 888,
   "role": "Skirmisher",
   "source": "TR:3075"

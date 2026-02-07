@@ -172,9 +172,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "ext_twist"
-  ],
+  "quirks": ["ext_twist"],
   "mulId": 2570,
   "role": "Skirmisher",
   "source": "BD:LL"

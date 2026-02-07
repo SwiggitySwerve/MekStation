@@ -168,9 +168,7 @@
       "IS Stealth"
     ]
   },
-  "quirks": [
-    "command_mech"
-  ],
+  "quirks": ["command_mech"],
   "mulId": 7402,
   "role": "Sniper",
   "source": "TP:CC"

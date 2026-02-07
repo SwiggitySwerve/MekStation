@@ -164,9 +164,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "ext_twist"
-  ],
+  "quirks": ["ext_twist"],
   "mulId": 2569,
   "role": "Skirmisher",
   "source": "TR:3085"

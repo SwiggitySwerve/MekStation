@@ -164,10 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "obsolete:3028",
-    "command_mech"
-  ],
+  "quirks": ["obsolete:3028", "command_mech"],
   "fluff": {
     "overview": "The Cataphract is a heavy BattleMech and one of the first original designs since the start of the Succession Wars.",
     "capabilities": "The Cataphract, with its armor layers, can easily absorb damage, but it can also deal it. The CeresArms Smasher PPC (taken from the Vindicator) and the SarLon MaxiCannon combine to deliver a brutal punch at greater ranges. A quartet of CeresArms medium lasers close in to give short-range firepower to both the front and rear.",

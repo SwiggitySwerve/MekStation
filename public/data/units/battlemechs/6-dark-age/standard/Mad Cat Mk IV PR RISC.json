@@ -172,11 +172,7 @@
       "Clan Endo Steel"
     ]
   },
-  "quirks": [
-    "stable",
-    "non_standard",
-    "pro_actuator"
-  ],
+  "quirks": ["stable", "non_standard", "pro_actuator"],
   "role": "Brawler",
   "source": "XTR:RISC"
 }

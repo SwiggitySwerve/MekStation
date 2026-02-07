@@ -156,10 +156,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_com"
-  ],
+  "quirks": ["easy_maintain", "imp_com"],
   "mulId": 7703,
   "role": "Missile Boat",
   "source": "RG09"

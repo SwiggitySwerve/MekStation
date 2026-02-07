@@ -160,10 +160,7 @@
       "ISLongTomCannonAmmo"
     ]
   },
-  "quirks": [
-    "battle_fists_la",
-    "battle_fists_ra"
-  ],
+  "quirks": ["battle_fists_la", "battle_fists_ra"],
   "fluff": {
     "overview": "The largest BattleMech ever built by HildCo Interplanetary, the Pillager is built as a larger version of the Victor, and is intended for assaulting urban centers and hardened fortifications.",
     "capabilities": "Based on a range of engine types, the Pillager has average mobility for its size, with a top speed of 54 km/h. Three HildCo Model 13 jump jets allow the 'Mech to jump up to ninety meters, increasing its mobility. The Pillager possesses outstanding armor protection and more than enough heat sinks to meet the Pillager's needs.",

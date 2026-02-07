@@ -172,10 +172,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "pro_actuator",
-    "stable"
-  ],
+  "quirks": ["pro_actuator", "stable"],
   "mulId": 2448,
   "role": "Brawler",
   "source": "TR:3075"

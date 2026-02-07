@@ -197,11 +197,7 @@
       "ISAntiPersonnelPod"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "distracting",
-    "searchlight"
-  ],
+  "quirks": ["command_mech", "distracting", "searchlight"],
   "fluff": {
     "overview": "<p>The Ares BattleMech, a product of the Rhodes Project, represents a significant advancement in super-heavy Mech technology. Developed as a more versatile successor to the Poseidon, the Ares compensates for its heavier weight and slower speed with robust armor, a reconfigurable payload, and the capacity to transport friendly battle armor. Its OmniMech design allows for rapid servicing and a wide array of firepower options, including artillery support. Visually similar to its sister Mech, the Poseidon, the Ares adds an element of unpredictability on the battlefield, keeping enemy commanders guessing about its actual capabilities until it engages in combat.</p>",
     "capabilities": "<p>The Ares, built on a unique tripedal humanoid chassis, closely resembles the Poseidon in appearance but is distinct in its operational capabilities. The intentional similarity in design serves not only as an engineering convenience but also as a strategic ploy to confuse observers and enemies. Equipped with a versatile array of weapons configurations, the Ares can adapt to various combat roles, from direct engagement to artillery support. Its various field configurations, each with specialized nomenclature, further contribute to the Mech's versatility and adaptability on the battlefield.</p>",

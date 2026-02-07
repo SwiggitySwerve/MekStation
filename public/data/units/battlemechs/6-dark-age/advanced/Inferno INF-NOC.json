@@ -172,11 +172,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "battle_fists_la",
-    "battle_fists_ra",
-    "easy_pilot"
-  ],
+  "quirks": ["battle_fists_la", "battle_fists_ra", "easy_pilot"],
   "mulId": 7718,
   "role": "Missile Boat",
   "source": "RG09"

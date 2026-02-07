@@ -164,10 +164,7 @@
       "Light Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "no_arms",
-    "no_eject"
-  ],
+  "quirks": ["no_arms", "no_eject"],
   "mulId": 2659,
   "role": "Striker",
   "source": "TR:3085"

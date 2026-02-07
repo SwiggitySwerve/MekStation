@@ -48,7 +48,7 @@
   },
   "movement": {
     "walk": 5,
-    "jump": 4
+    "jump": 3
   },
   "equipment": [
     {

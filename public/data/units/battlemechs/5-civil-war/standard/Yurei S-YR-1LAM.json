@@ -135,14 +135,7 @@
       "Landing Gear",
       "Jump Jet"
     ],
-    "HEAD": [
-      "Life Support",
-      "Sensors",
-      "Cockpit",
-      "Avionics",
-      "Sensors",
-      null
-    ],
+    "HEAD": ["Life Support", "Sensors", "Cockpit", "Avionics", "Sensors", null],
     "LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",
@@ -160,9 +153,7 @@
       null
     ]
   },
-  "quirks": [
-    "non_standard"
-  ],
+  "quirks": ["non_standard"],
   "mulId": 5431,
   "role": "Skirmisher",
   "source": "JFR"

@@ -172,9 +172,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "stable"
-  ],
+  "quirks": ["stable"],
   "fluff": {
     "overview": "<p>Shortly before his death in 3052, Archon-Prince Hanse Davion issued a directive to develop a BattleMech capable of defeating Clan OmniMechs in single combat. His specific mandate was to create a design that would \"tame the Jade Falcons.\" Whether the resulting name was intentional irony or a designer's jest remains unknown, but the Falconer designation stuck. Entering production in 3053, TharHes Industries delivered a seventy-five-ton heavy BattleMech that represented the pinnacle of recovered Star League technology married to insights gleaned from captured Clan equipment. The Falconer was engineered from the ground up as an anti-Clan platform, incorporating the best technologies the Federated Commonwealth could muster in response to the existential threat posed by the Clan Invasion.</p>",
     "capabilities": "<p>The Falconer's design philosophy centered on matching Clan weapons at their preferred engagement ranges. The Poland Main Model A Gauss rifle serves as the primary armament, capable of inflicting devastating damage at extreme distances without generating waste heat. Backing this weapon is a Defiance 1001 extended-range particle projection cannon, providing similar reach with slightly less hitting power but eliminating ammunition dependency. For close-quarters engagements, four Defiance B3M medium lasers deliver a punishing alpha strike against any enemy that closes the distance.</p>",

@@ -168,9 +168,7 @@
       "Clan Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "non_standard"
-  ],
+  "quirks": ["non_standard"],
   "mulId": 4129,
   "role": "Sniper",
   "source": "Unbound"

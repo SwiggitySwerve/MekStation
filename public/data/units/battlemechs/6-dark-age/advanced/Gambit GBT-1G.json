@@ -160,9 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "hyper_actuator"
-  ],
+  "quirks": ["hyper_actuator"],
   "mulId": 6500,
   "role": "Striker",
   "source": "TR:3145:FWL"

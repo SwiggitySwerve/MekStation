@@ -168,11 +168,7 @@
       "ISSuperCooledMyomer"
     ]
   },
-  "quirks": [
-    "combat_computer",
-    "command_mech",
-    "non_standard"
-  ],
+  "quirks": ["combat_computer", "command_mech", "non_standard"],
   "mulId": 964,
   "role": "Juggernaut",
   "source": "XTR:RISC"

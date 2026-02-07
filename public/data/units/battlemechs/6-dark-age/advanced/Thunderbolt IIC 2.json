@@ -172,10 +172,7 @@
       "Clan Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "difficult_maintain",
-    "pro_actuator"
-  ],
+  "quirks": ["difficult_maintain", "pro_actuator"],
   "fluff": {
     "overview": "The Thunderbolt IIC is a second-line heavy BattleMech that was originally developed for Clan Jade Falcon in 3085.",
     "capabilities": "The Thunderbolt IIC is a blend of standard and Advanced Clan technology. Due to the then-experimental nature of its weaponry, its MechWarriors were required to keep detailed logs noting the equipment's performance.",

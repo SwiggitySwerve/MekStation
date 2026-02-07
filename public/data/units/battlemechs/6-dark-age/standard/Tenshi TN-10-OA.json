@@ -164,11 +164,7 @@
       "IS Endo-Composite"
     ]
   },
-  "quirks": [
-    "distracting",
-    "searchlight",
-    "difficult_eject"
-  ],
+  "quirks": ["distracting", "searchlight", "difficult_eject"],
   "fluff": {
     "overview": "The Tenshi, (\"Angel\" in japanese), is an Assault Class OmniMech, which was manufactured during the early thirty-second century for the Draconis Combine's armed forces.",
     "capabilities": "Among the Tenshi's design features is its durability and having a heavy equipment payload. The designers saw fit to equip the 'Mech with a Compact Gyro and 18.5 tons of Standard Armor. The Tenshi also uses a number of new technologies that had finally entered production in the decades preceding the Jihad. The use of an Endo-Composite internal structure and a Light Fusion Engine granted the design a huge pod capacity of 48 tons. However, this large capacity had come at a price; that price being a slightly lower maximum speed than other comparable designs of the era.",

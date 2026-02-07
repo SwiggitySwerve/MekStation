@@ -164,9 +164,7 @@
       "IS Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "ext_twist"
-  ],
+  "quirks": ["ext_twist"],
   "mulId": 7348,
   "role": "Skirmisher",
   "source": "XTR:RotS 2"

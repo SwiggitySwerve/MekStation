@@ -168,11 +168,7 @@
       "IS Reflective"
     ]
   },
-  "quirks": [
-    "reinforced_legs",
-    "difficult_maintain",
-    "exp_actuator"
-  ],
+  "quirks": ["reinforced_legs", "difficult_maintain", "exp_actuator"],
   "mulId": 8109,
   "role": "Skirmisher",
   "source": "XTR:Caveat"

@@ -176,9 +176,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "mulId": 6922,
   "role": "Striker",
   "source": "RS:3145-NTNU"

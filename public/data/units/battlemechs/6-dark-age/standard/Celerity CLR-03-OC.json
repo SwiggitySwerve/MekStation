@@ -103,10 +103,7 @@
       "BeagleActiveProbe (omnipod)"
     ]
   },
-  "quirks": [
-    "imp_com",
-    "exp_actuator"
-  ],
+  "quirks": ["imp_com", "exp_actuator"],
   "mulId": 6706,
   "role": "Scout",
   "source": "TR:3145:RotS"

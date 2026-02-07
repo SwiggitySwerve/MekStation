@@ -156,12 +156,7 @@
       "Improved Jump Jet"
     ]
   },
-  "quirks": [
-    "imp_com",
-    "imp_sensors",
-    "low_profile",
-    "rugged_1"
-  ],
+  "quirks": ["imp_com", "imp_sensors", "low_profile", "rugged_1"],
   "fluff": {
     "overview": "The Ostscout was designed as a pure recon BattleMech by Ostmann Industries. To that end, it was built entirely around gathering data and getting out of trouble, tasks for which it is exceptional.",
     "capabilities": "The Ostscout is quick enough to escape most traps, and very few other designs can match it in terms of speed and maneuverability. However its ability to run and leap out of danger came at the expense of offensive capability. In fact were it not for aggressive lobbying on the part of its test pilots the final production model would have been completely weaponless. As it is, the Ostscout would be hard-pressed to win a fight against all but the lightest 'Mechs. A poor combatant, the 'Mech excels at operating deep behind enemy lines, gathering as much information as possible about the terrain and the disposition of enemy forces. The true centerpiece of the design is its advanced sensor systems, including the TRSS.2L3 target-tracking system and powerful narrow-band Barret 4000 comm system. The sensor arrays themselves are mounted outside the main chassis due to their delicate nature, with the Ostscout using its arms to aim them. Everything from hydrological to geological data is recorded, so much data in fact that the 'Mech's computer cannot process it fast enough. This forces the Ostscout to move slowly when traveling through an area of interest, waving its arms seemingly at random, which makes it one of the few times the 'Mech is vulnerable to the enemy. However so long as the enemy's first salvo doesn't cripple it, the Ostscout will likely escape from an ambush.",

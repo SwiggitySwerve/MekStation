@@ -152,9 +152,7 @@
       "IS Stealth"
     ]
   },
-  "quirks": [
-    "imp_target_med"
-  ],
+  "quirks": ["imp_target_med"],
   "mulId": 6942,
   "role": "Scout",
   "source": "RS:3145-NTNU"

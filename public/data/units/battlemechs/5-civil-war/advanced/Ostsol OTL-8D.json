@@ -168,10 +168,7 @@
       "Heavy Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "imp_sensors",
-    "low_profile"
-  ],
+  "quirks": ["imp_sensors", "low_profile"],
   "mulId": 2377,
   "role": "Skirmisher",
   "source": "TR:3085"

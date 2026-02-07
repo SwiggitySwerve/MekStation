@@ -164,12 +164,7 @@
       "Clan Ferro-Lamellor"
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "multi_trac",
-    "pro_actuator",
-    "bad_rep_clan"
-  ],
+  "quirks": ["ext_twist", "multi_trac", "pro_actuator", "bad_rep_clan"],
   "fluff": {
     "overview": "The Osteon was The Society's assault-class OmniMech. To maximize the 'Mech's battlefield longevity, the designers focused on survivability above other considerations. Eighteen tons of Ferro-Lamellor armor provide excellent protection against weapons fire, but in case the armor is breached the Reinforced Structure will resist most attacks. In addition, the Torso-Mounted Cockpit allows the Osteon's pilot to take advantage of the heavy center torso armor. To maximize the Osteon's damage potential, a Nova CEWS allows the unit to share targeting data with friendly units. This equipment is so valuable that it's permanently mounted in the 'Mech's head.",
     "capabilities": "This variant is intended for underwater combat. Equipped with two Underwater Maneuvering Units for mobility beneath the waves and a BattleMech HarJel System for protection against hull breaches. The Osteon-U carries a quartet of LRT-15's paired with Artemis V Fire Control Systems to combat other subsurface threats. Nine tons of ammunition means that the Osteon-U will be able to stay in the fight for a long time.",

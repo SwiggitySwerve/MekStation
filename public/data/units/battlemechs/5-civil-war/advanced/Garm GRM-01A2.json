@@ -156,9 +156,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "ext_twist"
-  ],
+  "quirks": ["ext_twist"],
   "mulId": 1190,
   "role": "Missile Boat",
   "source": "TR:3060"

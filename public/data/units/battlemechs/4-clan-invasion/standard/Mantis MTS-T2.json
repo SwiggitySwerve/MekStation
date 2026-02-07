@@ -168,9 +168,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "non_standard"
-  ],
+  "quirks": ["non_standard"],
   "mulId": 2025,
   "role": "Striker",
   "source": "TR:3055U"

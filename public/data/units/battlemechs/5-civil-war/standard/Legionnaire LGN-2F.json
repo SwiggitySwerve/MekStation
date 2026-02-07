@@ -160,10 +160,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_target_med"
-  ],
+  "quirks": ["easy_maintain", "imp_target_med"],
   "mulId": 4491,
   "role": "Striker",
   "source": "TR:Proto"

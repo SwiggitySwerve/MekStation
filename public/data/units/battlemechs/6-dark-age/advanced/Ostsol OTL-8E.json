@@ -172,10 +172,7 @@
       null
     ]
   },
-  "quirks": [
-    "imp_sensors",
-    "low_profile"
-  ],
+  "quirks": ["imp_sensors", "low_profile"],
   "mulId": 8172,
   "role": "Skirmisher",
   "source": "RG14"

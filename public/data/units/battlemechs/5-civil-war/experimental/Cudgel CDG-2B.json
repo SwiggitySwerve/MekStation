@@ -172,9 +172,7 @@
       "TSM"
     ]
   },
-  "quirks": [
-    "difficult_maintain"
-  ],
+  "quirks": ["difficult_maintain"],
   "mulId": 768,
   "role": "Juggernaut",
   "source": "TR:3055U"

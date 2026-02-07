@@ -168,11 +168,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "pro_actuator",
-    "weak_head_1"
-  ],
+  "quirks": ["imp_target_short", "pro_actuator", "weak_head_1"],
   "mulId": 3370,
   "role": "Striker",
   "source": "XTR:Gladiators"

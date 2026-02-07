@@ -176,9 +176,7 @@
       "IS Heavy Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "difficult_eject"
-  ],
+  "quirks": ["difficult_eject"],
   "mulId": 6629,
   "role": "Brawler",
   "source": "TR:3145:LC"

@@ -172,9 +172,7 @@
       "IS Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "searchlight"
-  ],
+  "quirks": ["searchlight"],
   "fluff": {
     "overview": "The Guillotine was originally designed in 2499 as a front-line BattleMech for the Terran Hegemony and was the Star League Defense Force's standard heavy 'Mech for generations.",
     "capabilities": "While its weaponry was ample for its era, as time went by the march of technology allowed for the development of larger 'Mechs which were significantly better armed. However few of these new 'Mechs could match the Guillotine in maneuverability or staying power, and so the 'Mech simply transitioned from the front-line shock role to that of a heavy raider - a task it excels at thanks to its quick speed and use of jump jets. Its mobility also makes the 'Mech adept at fighting in difficult terrain such as jungle or mountainous regions. The only serious issue with the 'Mech ironically are its weapons, which have been plagued with various problems over the centuries.",

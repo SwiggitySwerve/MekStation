@@ -172,9 +172,7 @@
       "IS Light Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "bad_rep_is"
-  ],
+  "quirks": ["bad_rep_is"],
   "fluff": {
     "overview": "The 'Mech known as the Nexus was originally called the Jackrabbit and was built for the Star League Defense Force by Skobel MechWorks.",
     "capabilities": "The Nexus has a top speed of 119 km/h and is powered by a Nissan 175 fusion engine which is both light and rugged. To save weight without the vulnerability of an extralight engine, the Nexus is built on a Skobel 100-ROB Endo Steel chassis. For protection, the 'Mech carries a light two tons of Krupp 200 Ferro-Fibrous armor, relying on its speed and maneuverability, which is enhanced with a jumping capability of up to one hundred and twenty meters. Finally, to handle the heat from the arsenal of energy weapons, the Nexus carries ten double heat sinks.",

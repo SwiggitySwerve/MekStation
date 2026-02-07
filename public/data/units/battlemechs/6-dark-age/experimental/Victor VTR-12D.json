@@ -164,9 +164,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "rugged_1"
-  ],
+  "quirks": ["rugged_1"],
   "fluff": {
     "overview": "The Victor was built in 2508 under contract to the Terran Hegemony as a support 'Mech with jump capabilities.",
     "capabilities": "Standing at 14 meters tall, the Victor approaches the concept of support in an unorthodox way for a 'Mech of its weight class. While only possessing a ground speed of 64.8 km/h, the Victor achieves a high degree of mobility instead through the use of four jump jets, allowing it to jump up to one hundred and twenty meters. A Victor can therefore \"support\" friendly units by jumping directly into the fray and bringing its deadly close range arsenal to bear, an ability which can surprise inexperienced MechWarriors and prove advantageous in mountainous terrain. One sacrifice made for this superb mobility is the 'Mech's relatively light armor of only eleven and a half tons, while the lack of proper anti-infantry capabilities is a minor problem.",

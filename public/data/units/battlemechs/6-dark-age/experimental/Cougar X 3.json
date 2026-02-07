@@ -160,9 +160,7 @@
       "Clan Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "ubiquitous_clan"
-  ],
+  "quirks": ["ubiquitous_clan"],
   "mulId": 6953,
   "role": "Striker",
   "source": "RS:3145-NTNU"

@@ -172,9 +172,7 @@
       "Improved Jump Jet"
     ]
   },
-  "quirks": [
-    "rugged_1"
-  ],
+  "quirks": ["rugged_1"],
   "mulId": 2742,
   "role": "Skirmisher",
   "source": "TR:3085"

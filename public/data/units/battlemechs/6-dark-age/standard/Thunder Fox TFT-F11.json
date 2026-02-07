@@ -106,6 +106,38 @@
       "CLERPPC (T)",
       "ISTargeting Computer",
       "ISTargeting Computer"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "IS Endo Steel"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "IS Endo Steel"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "IS Endo Steel"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "IS Endo Steel"
     ]
   },
   "quirks": [

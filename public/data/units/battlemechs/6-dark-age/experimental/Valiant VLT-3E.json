@@ -168,11 +168,7 @@
       "IS Heavy Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "pro_actuator",
-    "weak_head_1"
-  ],
+  "quirks": ["imp_target_short", "pro_actuator", "weak_head_1"],
   "mulId": 7293,
   "role": "Striker",
   "source": "XTR:RotS 1"

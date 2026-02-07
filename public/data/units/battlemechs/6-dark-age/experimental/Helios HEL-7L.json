@@ -168,9 +168,7 @@
       "IS Light Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "mulId": 7989,
   "role": "Sniper",
   "source": "RS:3150"

@@ -172,11 +172,7 @@
       "ISImprovedJump Jet"
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "difficult_maintain",
-    "weak_head_1"
-  ],
+  "quirks": ["imp_target_short", "difficult_maintain", "weak_head_1"],
   "fluff": {
     "overview": "The Sagittaire is built to fight in the confines of an urban battlefield.",
     "capabilities": "The laser-heavy Sagittaire is powered by a Pitban extralight engine and has a top speed of 54 kph, which is comparable to 'Mechs of similar weight. The HildCo lifters fitted in the legs and midline, however, make the Sagittaire one of the few assault 'Mechs with jumping capacity, offering it a great deal of tactical versatility. That, of course, does not account for the psychological impact of witnessing a 95-ton BattleMech fly through the air on inexperienced troops. As if that weren't enough, the Sagittaire's pulse-technology lasers combined with the targeting computer enable a MechWarrior to retain a high rate of movement while still outperforming most other BattleMechs. With eighteen tons of armor, the need for such a strategy is questionable. The design is truly deadly when the Sagittaire's feet are firmly planted on the earth.",

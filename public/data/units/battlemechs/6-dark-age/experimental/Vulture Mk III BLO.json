@@ -184,10 +184,7 @@
       null
     ]
   },
-  "quirks": [
-    "stable",
-    "variable_range_targeting"
-  ],
+  "quirks": ["stable", "variable_range_targeting"],
   "mulId": 7633,
   "role": "Missile Boat",
   "source": "SO:UF"

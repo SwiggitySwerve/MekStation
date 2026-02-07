@@ -156,10 +156,7 @@
       "IS Heavy Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_com"
-  ],
+  "quirks": ["easy_maintain", "imp_com"],
   "role": "Scout",
   "source": "Shrapnel #23"
 }

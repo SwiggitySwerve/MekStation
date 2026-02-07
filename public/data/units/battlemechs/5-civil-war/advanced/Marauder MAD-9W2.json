@@ -168,11 +168,7 @@
       "Improved Jump Jet"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "hyper_actuator",
-    "low_profile"
-  ],
+  "quirks": ["command_mech", "hyper_actuator", "low_profile"],
   "mulId": 2051,
   "role": "Skirmisher",
   "source": "TR:3085"
