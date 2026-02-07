@@ -356,6 +356,162 @@ The system SHALL accumulate all BV components as floating-point and round once a
 - **THEN** final BV SHALL equal `Math.round(802.2 + 908.32) = Math.round(1710.52) = 1711`
 - **AND** intermediate values SHALL NOT be rounded to 802 and 908
 
+### Requirement: Improved Jump Jet Detection (EC-37)
+
+The system SHALL detect Improved Jump Jets using flexible crit name matching.
+
+#### Scenario: Improved Jump Jet crit name variants
+
+- **WHEN** scanning critical slots for jump jet type
+- **THEN** detection SHALL match all known crit name patterns:
+  - `"Improved Jump Jet"` (standard)
+  - `"ImprovedJump Jet"` (no space variant)
+  - `"ISImprovedJumpJet"` (IS prefix, no spaces)
+  - `"CLImprovedJumpJet"` (Clan prefix, no spaces)
+- **AND** detection SHALL be case-insensitive
+- **AND** Improved Jump Jets SHALL use `Math.ceil(jumpMP / 2)` for effective jump MP in heat calculation
+
+### Requirement: Rear-Facing Weapon Detection (EC-38, EC-39)
+
+The system SHALL detect rear-facing weapons with case-insensitive and normalization-tolerant matching.
+
+#### Scenario: Case-insensitive (R) marker detection
+
+- **WHEN** identifying rear-facing weapons from crit slot names
+- **THEN** detection SHALL match `(R)` case-insensitively (e.g., `(r)`, `(R)`)
+- **AND** rear-facing weapons SHALL receive BV × 0.5 modifier
+
+#### Scenario: Rear-facing name normalization tolerance
+
+- **WHEN** matching weapon equipment IDs to crit slot names for rear-facing determination
+- **AND** word order differs between ID and crit name (e.g., `"improved-heavy-medium-laser"` vs `"CLImprovedMediumHeavyLaser"`)
+- **THEN** matching SHALL fall back to sorted-character comparison
+- **AND** both strings SHALL be normalized, sorted by character, and compared
+- **AND** a match SHALL correctly apply the rear-facing modifier
+
+### Requirement: Clan Implicit CASE for MIXED Tech Units (EC-42)
+
+The system SHALL determine Clan implicit CASE eligibility for MIXED tech base units using structural component analysis.
+
+#### Scenario: Clan chassis detection via structural components
+
+- **WHEN** calculating explosive penalties for a MIXED tech base unit
+- **AND** unit critical slots contain Clan structural components:
+  - `"Clan Endo Steel"`
+  - `"Clan Ferro-Fibrous"`
+  - `"CLDouble Heat Sink"` or `"Clan Double Heat Sink"`
+- **THEN** unit SHALL be treated as Clan chassis for CASE purposes
+- **AND** all torso and arm locations SHALL receive implicit CASE protection
+
+#### Scenario: Clan engine detection for implicit CASE
+
+- **WHEN** calculating explosive penalties for a MIXED tech base unit
+- **AND** unit engine type string contains "CLAN"
+- **THEN** unit SHALL be treated as Clan chassis for CASE purposes
+
+#### Scenario: Per-location Clan ammo CASE for IS-chassis MIXED units
+
+- **WHEN** calculating explosive penalties for a MIXED tech base unit
+- **AND** unit is NOT a Clan chassis (no Clan engine or structural components)
+- **AND** a specific location contains Clan-prefixed ammo (e.g., `"CLStreakSRM6Ammo"`)
+- **THEN** that specific location SHALL receive implicit CASE protection
+- **AND** other locations without Clan ammo SHALL NOT receive implicit CASE
+
+### Requirement: Rifle Weapon and Ammo Resolution (EC-41)
+
+The system SHALL correctly resolve Heavy, Medium, and Light Rifle weapons and their ammunition.
+
+#### Scenario: Rifle weapon BV values
+
+- **WHEN** calculating weapon BV for rifle weapons
+- **THEN** Heavy Rifle BV SHALL be 91
+- **AND** Medium Rifle BV SHALL be 35
+- **AND** Light Rifle BV SHALL be 21
+
+#### Scenario: Rifle ammo BV values
+
+- **WHEN** calculating ammo BV for rifle ammunition
+- **THEN** Heavy Rifle Ammo BV SHALL be 11 per ton
+- **AND** Medium Rifle Ammo BV SHALL be 6 per ton
+- **AND** Light Rifle Ammo BV SHALL be 3 per ton
+
+#### Scenario: Rifle ammo-weapon type aliasing
+
+- **WHEN** applying excessive ammo cap
+- **AND** weapon type is `heavy-rifle` or `rifle-cannon`
+- **THEN** ammo matching SHALL treat `heavy-rifle` and `rifle-cannon` as equivalent weapon types
+- **AND** `AMMO_WEAPON_TYPE_ALIASES` SHALL map between these types
+
+### Requirement: MUL BV Reference Overrides (EC-43)
+
+The system SHALL support overriding MUL reference BV values when they are known to be stale or incorrect.
+
+#### Scenario: MUL BV override application
+
+- **WHEN** validating BV calculations
+- **AND** a unit ID exists in `MUL_BV_OVERRIDES` map
+- **THEN** the override value SHALL be used instead of the MUL index value
+- **AND** the original MUL value SHALL be logged as overridden
+
+#### Scenario: Override justification
+
+- **WHEN** adding a MUL BV override
+- **THEN** the override value MUST match MegaMek runtime BV exactly
+- **AND** a comment SHALL document why the override was added
+- **AND** overrides SHALL only be used for confirmed MUL/MegaMek divergences
+
+### Requirement: PPC Capacitor BV Contribution (EC-45)
+
+The system SHALL calculate PPC Capacitor BV contribution by matching capacitors to PPCs by shared location.
+
+#### Scenario: PPC Capacitor BV by location
+
+- **WHEN** calculating weapon BV
+- **AND** a PPC Capacitor is found in crit slots
+- **THEN** the capacitor SHALL be matched to the PPC in the same location
+- **AND** IS ER PPC + Capacitor SHALL add +114 BV
+- **AND** Clan ER PPC + Capacitor SHALL add +136 BV
+- **AND** IS Light PPC + Capacitor SHALL add proportional BV
+
+### Requirement: Clan Chassis CASE for MIXED Tech Units (EC-46)
+
+The system SHALL determine implicit CASE for MIXED tech units using a three-tier detection hierarchy, NOT a blanket per-location Clan ammo heuristic.
+
+#### Scenario: MIXED unit with Clan engine gets full CASE
+
+- **WHEN** calculating defensive BV for a MIXED tech unit
+- **AND** the engine type contains "CLAN" (e.g., CLAN_XL, CLAN_XXL)
+- **THEN** implicit CASE SHALL be applied to ALL torso and arm locations (LT, RT, LA, RA)
+
+#### Scenario: MIXED unit with Clan structural components gets full CASE
+
+- **WHEN** calculating defensive BV for a MIXED tech unit without a Clan engine
+- **AND** critical slots contain Clan structural components ("Clan Endo Steel", "Clan Ferro-Fibrous", "CLDouble Heat Sink", "Clan Double Heat Sink")
+- **THEN** implicit CASE SHALL be applied to ALL torso and arm locations
+
+#### Scenario: Verified Clan-chassis MIXED unit gets per-location CASE
+
+- **WHEN** calculating defensive BV for a MIXED tech unit
+- **AND** the unit has no Clan engine and no Clan structural components
+- **AND** the unit ID is in the `CLAN_CHASSIS_MIXED_UNITS` verified set
+- **THEN** per-location implicit CASE SHALL be applied ONLY to torso/arm locations
+  that contain Clan ammo (crit names starting with "Clan " and containing "ammo")
+
+#### Scenario: IS-chassis MIXED unit gets no implicit CASE
+
+- **WHEN** calculating defensive BV for a MIXED tech unit
+- **AND** the unit has no Clan engine, no Clan structural components
+- **AND** the unit ID is NOT in the `CLAN_CHASSIS_MIXED_UNITS` verified set
+- **THEN** NO implicit CASE SHALL be applied
+- **AND** explosive penalties SHALL be calculated normally for all locations
+
+#### Scenario: MegaMek TechBase distinction
+
+- **NOTE** MegaMek uses "Mixed (Clan Chassis)" vs "Mixed (IS Chassis)" in MTF files
+- **AND** our MTFParserService normalizes both to "MIXED", losing the chassis distinction
+- **THEN** the `CLAN_CHASSIS_MIXED_UNITS` set serves as the authoritative lookup
+  until `chassisTechBase` is added to the unit data model
+
 ## REMOVED Requirements
 
-None. All existing requirements remain valid; this delta adds 15 new calculation phases.
+None. All existing requirements remain valid; this delta adds 15 original + 10 additional calculation phases.

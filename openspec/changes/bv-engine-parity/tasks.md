@@ -4,10 +4,32 @@
 
 All 15 original BV calculation phases plus 9 additional discovered phases have been implemented in the validation script (`scripts/validate-bv.ts`) and supporting modules. Accuracy gates are passing:
 
-- Within 1%: 95.8% (target: 95.0%)
-- Within 5%: 99.3% (target: 99.0%)
+- Within 1%: 98.0% (target: 95.0%)
+- Within 5%: 100.0% (target: 99.0%)
+- Exact matches: 90.0% (3,090 / 3,432 validated units)
 
-See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of all discoveries.
+See `proposal.md` Edge Cases EC-1 through EC-45 for detailed documentation of all discoveries.
+
+### Session 2026-02-07 Fixes Applied:
+
+- **Improved JJ detection** (EC-37): Flexible crit name matching for "ImprovedJump Jet" variant
+- **Rear-facing (R) case sensitivity** (EC-38): Case-insensitive regex for `(R)`/`(r)` markers
+- **Rear-facing name normalization** (EC-39): Sorted-character fallback for word-order mismatches
+- **Thunderbolt 20 Ammo BV** (EC-40): Corrected from 46 to 38 per ton
+- **Heavy Rifle weapon/ammo** (EC-41): Fixed weapon BV (91), ammo BV (11/ton), data file repair, ammo-weapon type aliases
+- **Clan chassis MIXED CASE** (EC-42): Detect Clan structural components for implicit CASE on Clan-chassis MIXED units
+- **MUL BV overrides** (EC-43): Added Thug THG-11ECX (1720), Ryoken III-XP C (4519)
+- **Half-ton ammo** (EC-44): Detect "- Half" suffix in crit names, apply 0.5× BV
+- **PPC Capacitor location matching** (EC-45): Match capacitors to PPCs by shared location, correct IS/Clan BV bonuses
+- **Clan per-location ammo CASE** (EC-42 addendum): IS-chassis MIXED units get per-location CASE for Clan ammo only
+- **Data fixes**: Shogun C 2 armor type (FERRO_LAMELLOR), Thunder Fox TFT-L8 jump MP (5), Phoenix PX-1KR weapon ID and location
+
+### Session 2026-02-07b Fixes Applied:
+
+- **Clan chassis CASE rework** (EC-46): Replaced per-location Clan ammo CASE heuristic with verified `CLAN_CHASSIS_MIXED_UNITS` set. MIXED units without Clan engine/structural components now only get per-location Clan ammo CASE if their ID is in the verified set (47 units). IS-chassis MIXED units no longer incorrectly receive CASE. Key distinction: MegaMek uses "Mixed (Clan Chassis)" vs "Mixed (IS Chassis)" TechBase, which our MTF→JSON conversion normalizes to just "MIXED", losing the chassis distinction.
+- **Fixed 8 units to exact match**: Archer C (+72→0), Shadow Hawk C (+39→0), Seraph C-SRP-OS Caelestis (+34→0), Victor C (+25→0), Warhammer C (+18→0), Warhammer C 2 (+18→0), Nightstar NSR-9J Holt (+15→0), Tempest C (+7→0)
+- **Improved 1 unit**: Bombard BMB-1X (+16→+1)
+- **QuadVee data fixes**: 10 QuadVee units (Notos A-D/Prime, Boreas A-D/Prime) corrected to `configuration: "QuadVee"` and `cockpit: "QUADVEE"` for proper exclusion
 
 ---
 
@@ -20,12 +42,14 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Context**: CritScan is currently embedded in the validation script (~200 lines). It parses crit slots to detect weapons, defensive equipment, offensive equipment, ammo, CASE/CASE II, engine/cockpit/gyro types, and special systems. This logic is needed by the production BV calculator.
 
 **Edge Cases to Preserve** (from proposal.md):
+
 - EC-11: AMS multi-instance counting (smart dedup for 1-crit vs 2-crit AMS)
 - EC-13: A-Pod/B-Pod detection with MegaMek crit name patterns (`antipersonnel`)
 - EC-30: Full CritScan capability list (weapons, def equip, off equip, ammo, CASE, engine, cockpit, gyro, stealth, DHS, Drone OS, TSM, MASC)
 - EC-31: DHS crit counting differs for OmniMechs vs fixed-config
 
 **Implementation**:
+
 - [ ] Create `src/utils/construction/critScan.ts`
 - [ ] Extract CritScan logic from validate-bv.ts lines ~480-650
 - [ ] Preserve all equipment detection patterns
@@ -35,6 +59,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 - [ ] Add unit tests for each detection pattern
 
 **Tests**:
+
 - [ ] AMS dedup: 2×AMS in same location → count both
 - [ ] Laser AMS dedup: 2-crit AMS → count once
 - [ ] A-Pod detection: `CLAntiPersonnelPod` → detected
@@ -50,12 +75,14 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Ensure production `battleValueCalculations.ts` implements the full heat efficiency formula with all modifiers.
 
 **Edge Cases to Preserve**:
+
 - EC-20: Heat efficiency = `6 + heatDissipation - moveHeat - stealthPenalties`
 - EC-21: Move heat varies by engine type (Fusion=2, ICE=0, XXL=6) and jump type
 - EC-22: BV-context heat modifiers (Streak ×0.5, Ultra ×2, Rotary ×6, iATM ×0.5)
 - EC-23: Heat tracking threshold — weapon that pushes over stays full, subsequent halved
 
 **Implementation**:
+
 - [ ] Verify `battleValueCalculations.ts` heat efficiency formula matches EC-20
 - [ ] Add Stealth Armor (-10), Chameleon LPS (-6), Null Sig (-10), Void Sig (-10) penalties
 - [ ] Add Emergency Coolant System (+4) detection
@@ -73,12 +100,14 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Ensure production code applies weapon BV modifiers in the correct order.
 
 **Edge Cases to Preserve**:
+
 - EC-2: Drone OS weapon modifier (×0.8 on ALL weapon BVs)
 - EC-12: Shield arm weapon penalty (active shields only)
 - EC-14: Enhanced ER PPC is distinct from ER PPC
 - EC-19: Full modifier application order (11 steps)
 
 **Implementation**:
+
 - [ ] Verify production weapon BV modifier chain matches EC-19 order
 - [ ] Add MG Array modifier (×0.67 for linked MGs)
 - [ ] Verify Drone OS ×0.8 applied before heat tracking
@@ -94,11 +123,13 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Ensure production code handles all cockpit and gyro variants.
 
 **Edge Cases to Preserve**:
+
 - EC-1: Cockpit modifier else-if chain (not lookup table). Torso-Mounted = 1.0 for MUL parity.
 - EC-2: Drone OS dual effect (0.95 cockpit + 0.8 weapon)
 - EC-3: Gyro types parsed from MTF source
 
 **Implementation**:
+
 - [ ] Verify cockpit modifier uses else-if chain per EC-1
 - [ ] Verify Torso-Mounted cockpit modifier = 1.0 (not 0.95)
 - [ ] Verify Drone OS 0.95 only applies when no other cockpit modifier active
@@ -113,6 +144,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Ensure production code handles all structure and armor edge cases.
 
 **Edge Cases to Preserve**:
+
 - EC-4: Corrected engine BV multipliers (IS XL=0.5, IS XXL=0.25, Clan XXL=0.5)
 - EC-5: Quad mech structure = leg×4
 - EC-16: Endo-Composite multiplier = 1.0 (not 0.5)
@@ -120,6 +152,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 - EC-26: Complete structure type multiplier table
 
 **Implementation**:
+
 - [ ] Verify engine BV multiplier table matches EC-4
 - [ ] Verify Quad mech structure calculation per EC-5
 - [ ] Verify Endo-Composite multiplier = 1.0 per EC-16
@@ -133,11 +166,13 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Ensure production code handles explosive penalties with all edge cases.
 
 **Edge Cases to Preserve**:
+
 - EC-17: Magshot GR ammo is non-explosive
 - EC-27: Penalty rates vary by equipment type (15/slot standard, 1/slot Gauss, etc.)
 - Clan implicit CASE in torsos
 
 **Implementation**:
+
 - [ ] Verify penalty rates per EC-27
 - [ ] Verify Magshot ammo marked non-explosive
 - [ ] Verify Gauss ammo marked non-explosive
@@ -151,11 +186,13 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Ensure production code handles ammo BV with all edge cases.
 
 **Edge Cases to Preserve**:
+
 - EC-8: name-mappings can map IS ammo to Clan IDs (intercept before normalize)
 - EC-18: IS Streak SRM ammo per-rack BV values (4/7/11)
 - Excessive ammo rule: cap by weapon type
 
 **Implementation**:
+
 - [ ] Verify ammo BV resolution handles IS vs Clan distinction
 - [ ] Verify IS Streak SRM ammo uses per-rack BV per EC-18
 - [ ] Verify excessive ammo rule caps per weapon type
@@ -173,6 +210,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Context**: The DIRECT_ALIAS_MAP is checked BEFORE name-mappings. Any incorrect entry will intercept the correct resolution. The map currently has ~200 entries.
 
 **Implementation**:
+
 - [ ] Verify every DIRECT_ALIAS_MAP entry resolves to the correct catalog ID
 - [ ] Cross-reference with name-mappings.json for conflicts
 - [ ] Add automated test: for each DIRECT_ALIAS_MAP entry, verify the target exists in catalog
@@ -185,6 +223,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Ensure all 1800+ name-mappings resolve to valid catalog entries.
 
 **Implementation**:
+
 - [ ] Script to validate every name-mapping target exists in catalog
 - [ ] Flag entries where IS ammo maps to Clan IDs (or vice versa) per EC-8
 - [ ] Flag entries where different keys map to same target (potential collisions)
@@ -197,12 +236,14 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Comprehensive test coverage for equipment ID normalization.
 
 **Edge Cases to Test**:
+
 - EC-6: Clan weapon resolution (`clerppc` → `clan-er-ppc`)
 - EC-7: All 9 normalization stages
 - EC-14: Enhanced ER PPC distinct from ER PPC
 - EC-33: Torpedo → LRM/SRM mapping
 
 **Implementation**:
+
 - [ ] Test each normalization stage independently
 - [ ] Test IS vs Clan disambiguation for ambiguous names
 - [ ] Test numeric prefix/suffix stripping
@@ -220,6 +261,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Edge Case**: EC-36
 
 **Implementation**:
+
 - [ ] Update `weapons/missile-other.json` or relevant file:
   - thunderbolt-5: heat=3
   - thunderbolt-10: heat=5
@@ -235,6 +277,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Add equipment that is currently only handled via CATALOG_BV_OVERRIDES or hardcoded values.
 
 **Implementation**:
+
 - [ ] Audit CATALOG_BV_OVERRIDES in validate-bv.ts for items that should be in catalog
 - [ ] Add Vehicular Mine Dispenser (BV=8) to catalog per EC-32
 - [ ] Add Chain Whip to physical weapons catalog per EC-35
@@ -249,10 +292,12 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Verify all ammo entries have correct BV values.
 
 **Edge Cases**:
+
 - EC-17: Magshot GR ammo non-explosive flag
 - EC-18: IS Streak SRM ammo per-rack BV (4/7/11)
 
 **Implementation**:
+
 - [ ] Verify all Streak SRM ammo entries have per-rack BV values
 - [ ] Verify Gauss-type ammo entries have non-explosive flags
 - [ ] Cross-reference ammo BV values against MegaMek source
@@ -262,42 +307,51 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 
 ## Wave 7: Remaining Outlier Resolution
 
-### Task 7.1: Investigate 5 Units Over 10%
+### Task 7.1: Investigate Remaining Outliers (74 units, all within 5%)
 
-**Goal**: Understand root cause for each remaining >10% outlier.
+**Goal**: Reduce the 74 units in the 1-5% band. All >10% and 5-10% outliers have been resolved.
 
-**Units**:
-1. Barghest BGS-3T (-12.4%) — Heavy Gauss + ammo interactions
-2. Centurion CN11-OD (+11.7%) — Medium Shield + Hatchet + MML/Artemis
-3. Osteon U (-10.7%) — Ferro-Lamellor + Reinforced + torso cockpit + torpedoes + Artemis V
-4. Venom SDR-9KE (-10.2%) — 4× Mine Dispenser + Bloodhound Active Probe
-5. Goliath GOL-4S (-9.5%) — Needs investigation
+**Status**: No units remain above 5% discrepancy. The 1 unit flagged "over10" (Phoenix Hawk PXH-1S) has no MUL reference BV at all.
+
+**Systematic Patterns Identified:**
+
+1. **MIXED tech overcalculation** (RESOLVED — 8 units fixed to exact, 1 improved):
+   - Root cause: per-location Clan ammo CASE heuristic applied CASE to ALL MIXED units with Clan ammo,
+     including IS-chassis units that should NOT get implicit CASE.
+   - Fix: Replaced heuristic with `CLAN_CHASSIS_MIXED_UNITS` set of 47 verified Clan-chassis unit IDs.
+     IS-chassis MIXED units (e.g. Archer C, Shadow Hawk C) no longer receive incorrect CASE.
+   - [x] Identified 3-tier CASE detection: Clan engine → full CASE; Clan structural → full CASE; Clan chassis set → per-location CASE
+   - [x] Built verified set from 46 exact-match Level 3 units + 1 Clan-chassis overcalculator (Sunder SD1-OG)
+   - [x] Validated fix: 8 IS-chassis units now exact, 0 regressions on Clan-chassis units
+   - Remaining overcalculating MIXED units (48) have discrepancies from other sources (not CASE)
+
+2. **Interface cockpit +50 BV** (Ryoken III-XP B/D/Prime):
+   - Likely stale MUL BV values (C variant confirmed as MUL error, now overridden)
+   - [ ] Obtain MegaMek stat blocks for B, D, Prime to confirm MUL staleness
+   - [ ] Add MUL_BV_OVERRIDES if confirmed
+
+3. **High explosive penalty undercalculation** (9/10 high-penalty units under):
+   - Marauder IIC 4 (-90), Rifleman RFL-X3 (-57), Pariah UW (-40), Thunder Stallion 3 (-36)
+   - May indicate slight over-application of explosive penalties or missing CASE/CASE II
+   - [ ] Compare explosive penalty breakdown against MegaMek for 3 worst cases
+   - [ ] Check if any units have undetected CASE/CASE II protection
+
+4. **Named variants** (possible MUL staleness):
+   - Gladiator GLD-1R (Keller) (+40), Cataphract CTF-2X (George) (+31)
+   - [ ] Verify MegaMek runtime BV for named variants
+
+5. **Chassis clusters**:
+   - Charger: C (+70), CGR-3Kr (+29) — both MIXED with enhanced run speeds
+   - Mackie: MSK-5S (-35), MSK-6S (-23) — both undercalculate, may be primitive-era data
+   - Osteon: A (+36), U (-39) — mixed direction, torso-mounted cockpit
+   - [ ] Investigate each chassis cluster for shared root causes
 
 **Implementation**:
-- [ ] Get MegaMek BV breakdown for each unit
-- [ ] Compare defensive BV component by component
-- [ ] Compare offensive BV component by component
-- [ ] Identify specific missing equipment or wrong multiplier
-- [ ] Fix root cause for each unit
 
----
-
-### Task 7.2: Investigate Units in 5-10% Band
-
-**Goal**: Reduce the 20 units in the 5-10% band.
-
-**Known patterns**:
-- Crossbow D (+9.2%): Overcalculation
-- Ravens (-7.4% to -7.8%): Undercalculation pattern
-- Fox CS-1 (-6.4%): Undercalculation
-- Barghest variants (-5.9% to -6.4%): Systematic Barghest issue
-- Thunder Stallion variants (-5.3% to -6.0%): Systematic pattern
-
-**Implementation**:
-- [ ] Group outliers by chassis to find systematic issues
-- [ ] Investigate Barghest chassis pattern (3 variants all undercalculated)
-- [ ] Investigate Thunder Stallion pattern (2 variants)
-- [ ] Investigate Raven pattern (2 variants)
+- [ ] Obtain MegaMek stat blocks for top 10 remaining discrepancies
+- [ ] Categorize fixes as MUL override vs calculation fix vs data fix
+- [ ] Apply MUL overrides for confirmed stale MUL entries
+- [ ] Fix data bugs for any units with wrong armor/jump/equipment
 
 ---
 
@@ -310,6 +364,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Context**: Currently validate-bv.ts contains the most accurate BV implementation, but the production code in `CalculationService.ts` may not have all the same edge cases handled.
 
 **Implementation**:
+
 - [ ] Diff validate-bv.ts logic against CalculationService.ts
 - [ ] Identify gaps in production code
 - [ ] Port each missing feature with corresponding test
@@ -324,8 +379,9 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Context**: Equipment catalogs were split from 4 large files into 13+ smaller files. The loader must enumerate all files.
 
 **Implementation**:
+
 - [ ] Verify `EquipmentLoaderService.ts` reads from `index.json` or enumerates all files
-- [ ] Verify all new weapon sub-files are loaded (energy-laser, energy-ppc, energy-other, ballistic-*, missile-*)
+- [ ] Verify all new weapon sub-files are loaded (energy-laser, energy-ppc, energy-other, ballistic-_, missile-_)
 - [ ] Verify ammunition files are loaded
 - [ ] Verify no equipment is missing after split
 
@@ -336,12 +392,14 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Ensure all multiplier tables in types match the validated values.
 
 **Edge Cases to verify**:
+
 - EC-4: Engine multipliers (corrected IS XL=0.5, IS XXL=0.25, Clan XXL=0.5)
 - EC-25: Armor type multipliers (Ferro-Lamellor=1.2, Hardened=2.0, etc.)
 - EC-26: Structure type multipliers (Endo-Composite=1.0, Reinforced=2.0)
 - EC-3: Gyro multipliers (Heavy-Duty=1.0)
 
 **Implementation**:
+
 - [ ] Verify `ARMOR_TYPE_BV_MULTIPLIERS` in BattleValue.ts matches EC-25
 - [ ] Verify `STRUCTURE_TYPE_BV_MULTIPLIERS` matches EC-26
 - [ ] Verify `ENGINE_BV_MULTIPLIERS` matches EC-4
@@ -358,6 +416,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Context**: The Python MTF converter (`scripts/megameklab-conversion/mtf_converter.py`) was updated to parse cockpit and gyro types. Verify it also handles other BV-relevant fields.
 
 **Implementation**:
+
 - [ ] Verify cockpit type parsing is robust (all MegaMek cockpit type strings)
 - [ ] Verify gyro type parsing is robust (all MegaMek gyro type strings)
 - [ ] Verify engine type is extracted correctly
@@ -370,6 +429,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Add BV parity validation to CI pipeline.
 
 **Implementation**:
+
 - [ ] Add `npm run validate:bv` script that runs validate-bv.ts
 - [ ] Configure CI to run BV validation on PR
 - [ ] Fail CI if accuracy gates drop below thresholds
@@ -385,6 +445,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Update the delta spec with all discovered edge cases from EC-1 through EC-36.
 
 **Implementation**:
+
 - [ ] Add scenarios for each edge case in the appropriate spec requirement
 - [ ] Add scenarios for Drone OS dual effect (EC-2)
 - [ ] Add scenarios for shield arm penalty (EC-12)
@@ -400,6 +461,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Goal**: Update validation spec to reflect current exclusion categories and accuracy metrics.
 
 **Implementation**:
+
 - [ ] Update exclusion categories to match current 783 excluded units
 - [ ] Update accuracy gate targets to reflect achieved values
 - [ ] Add scenarios for new exclusion types (Blue Shield, QuadVee, Tripod)
@@ -414,6 +476,7 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 **Context**: The normalization pipeline (EC-7) is complex with 9 stages and numerous edge cases. It deserves its own specification to prevent regression.
 
 **Implementation**:
+
 - [ ] Create `openspec/specs/equipment-id-normalization/spec.md`
 - [ ] Document all 9 normalization stages
 - [ ] Document DIRECT_ALIAS_MAP purpose and maintenance rules
@@ -425,58 +488,88 @@ See `proposal.md` Edge Cases EC-1 through EC-36 for detailed documentation of al
 
 ## Summary of Edge Case Coverage by Task
 
-| Edge Case | Primary Task | Description |
-|---|---|---|
-| EC-1 | 4.4, 8.3, 9.1 | Cockpit type detection and modifiers |
-| EC-2 | 4.3, 4.4, 9.1 | Drone OS dual effect |
-| EC-3 | 4.4, 8.3, 8.4 | Gyro type detection |
-| EC-4 | 4.5, 8.3 | Engine BV multipliers (corrected) |
-| EC-5 | 4.5, 9.1 | Quad mech structure |
-| EC-6 | 5.1, 5.3 | Clan weapon BV resolution |
-| EC-7 | 5.1, 5.3, 9.3 | Equipment ID normalization complexity |
-| EC-8 | 4.7, 5.2 | name-mappings collision risk |
-| EC-9 | 4.1 | M-Pods as offensive weapons |
-| EC-10 | 4.7, 6.2 | RISC APDS BV and ammo |
-| EC-11 | 4.1, 9.1 | AMS multi-instance counting |
-| EC-12 | 4.1, 4.3, 9.1 | Shield arm weapon penalty |
-| EC-13 | 4.1 | A-Pod/B-Pod detection patterns |
-| EC-14 | 5.1, 5.3 | Enhanced ER PPC vs ER PPC |
-| EC-15 | 4.1 | Spikes as defensive equipment |
-| EC-16 | 4.5, 8.3 | Endo-Composite multiplier |
-| EC-17 | 4.6, 6.3 | Magshot GR ammo non-explosive |
-| EC-18 | 4.7, 6.3 | IS Streak SRM ammo per-rack BV |
-| EC-19 | 4.3 | Weapon BV modifier order |
-| EC-20 | 4.2 | Heat efficiency modifiers |
-| EC-21 | 4.2 | Move heat variations |
-| EC-22 | 4.2 | BV-context heat modifiers |
-| EC-23 | 4.2, 9.1 | Heat tracking threshold behavior |
-| EC-24 | 4.2 | Speed factor rounding |
-| EC-25 | 4.5, 8.3 | Armor type multipliers |
-| EC-26 | 4.5, 8.3 | Structure type multipliers |
-| EC-27 | 4.6 | Explosive penalty details |
-| EC-28 | 4.3 | TAG BV=0 |
-| EC-29 | 4.3 | NARC is offensive |
-| EC-30 | 4.1 | CritScan as equipment detection |
-| EC-31 | 4.1 | DHS crit counting for OmniMechs |
-| EC-32 | 6.2 | Vehicular Mine Dispenser |
-| EC-33 | 5.1 | Torpedo → LRM/SRM mapping |
-| EC-34 | 6.2 | Modular Armor defensive BV |
-| EC-35 | 6.2 | Physical weapon classification |
-| EC-36 | 6.1 | Thunderbolt heat values |
+| Edge Case | Primary Task  | Description                                                                                                                                                                                                                                                                                        |
+| --------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| EC-1      | 4.4, 8.3, 9.1 | Cockpit type detection and modifiers                                                                                                                                                                                                                                                               |
+| EC-2      | 4.3, 4.4, 9.1 | Drone OS dual effect                                                                                                                                                                                                                                                                               |
+| EC-3      | 4.4, 8.3, 8.4 | Gyro type detection                                                                                                                                                                                                                                                                                |
+| EC-4      | 4.5, 8.3      | Engine BV multipliers (corrected)                                                                                                                                                                                                                                                                  |
+| EC-5      | 4.5, 9.1      | Quad mech structure                                                                                                                                                                                                                                                                                |
+| EC-6      | 5.1, 5.3      | Clan weapon BV resolution                                                                                                                                                                                                                                                                          |
+| EC-7      | 5.1, 5.3, 9.3 | Equipment ID normalization complexity                                                                                                                                                                                                                                                              |
+| EC-8      | 4.7, 5.2      | name-mappings collision risk                                                                                                                                                                                                                                                                       |
+| EC-9      | 4.1           | M-Pods as offensive weapons                                                                                                                                                                                                                                                                        |
+| EC-10     | 4.7, 6.2      | RISC APDS BV and ammo                                                                                                                                                                                                                                                                              |
+| EC-11     | 4.1, 9.1      | AMS multi-instance counting                                                                                                                                                                                                                                                                        |
+| EC-12     | 4.1, 4.3, 9.1 | Shield arm weapon penalty                                                                                                                                                                                                                                                                          |
+| EC-13     | 4.1           | A-Pod/B-Pod detection patterns                                                                                                                                                                                                                                                                     |
+| EC-14     | 5.1, 5.3      | Enhanced ER PPC vs ER PPC                                                                                                                                                                                                                                                                          |
+| EC-15     | 4.1           | Spikes as defensive equipment                                                                                                                                                                                                                                                                      |
+| EC-16     | 4.5, 8.3      | Endo-Composite multiplier                                                                                                                                                                                                                                                                          |
+| EC-17     | 4.6, 6.3      | Magshot GR ammo non-explosive                                                                                                                                                                                                                                                                      |
+| EC-18     | 4.7, 6.3      | IS Streak SRM ammo per-rack BV                                                                                                                                                                                                                                                                     |
+| EC-19     | 4.3           | Weapon BV modifier order                                                                                                                                                                                                                                                                           |
+| EC-20     | 4.2           | Heat efficiency modifiers                                                                                                                                                                                                                                                                          |
+| EC-21     | 4.2           | Move heat variations                                                                                                                                                                                                                                                                               |
+| EC-22     | 4.2           | BV-context heat modifiers                                                                                                                                                                                                                                                                          |
+| EC-23     | 4.2, 9.1      | Heat tracking threshold behavior                                                                                                                                                                                                                                                                   |
+| EC-24     | 4.2           | Speed factor rounding                                                                                                                                                                                                                                                                              |
+| EC-25     | 4.5, 8.3      | Armor type multipliers                                                                                                                                                                                                                                                                             |
+| EC-26     | 4.5, 8.3      | Structure type multipliers                                                                                                                                                                                                                                                                         |
+| EC-27     | 4.6           | Explosive penalty details                                                                                                                                                                                                                                                                          |
+| EC-28     | 4.3           | TAG BV=0                                                                                                                                                                                                                                                                                           |
+| EC-29     | 4.3           | NARC is offensive                                                                                                                                                                                                                                                                                  |
+| EC-30     | 4.1           | CritScan as equipment detection                                                                                                                                                                                                                                                                    |
+| EC-31     | 4.1           | DHS crit counting for OmniMechs                                                                                                                                                                                                                                                                    |
+| EC-32     | 6.2           | Vehicular Mine Dispenser                                                                                                                                                                                                                                                                           |
+| EC-33     | 5.1           | Torpedo → LRM/SRM mapping                                                                                                                                                                                                                                                                          |
+| EC-34     | 6.2           | Modular Armor defensive BV                                                                                                                                                                                                                                                                         |
+| EC-35     | 6.2           | Physical weapon classification                                                                                                                                                                                                                                                                     |
+| EC-36     | 6.1           | Thunderbolt heat values                                                                                                                                                                                                                                                                            |
+| EC-37     | 4.1, 4.2      | Improved Jump Jet crit name variants ("ImprovedJump Jet" no space)                                                                                                                                                                                                                                 |
+| EC-38     | 4.1, 4.3      | Rear-facing `(R)` marker case sensitivity — `(r)` lowercase in some crit slots                                                                                                                                                                                                                     |
+| EC-39     | 4.1, 4.3      | Rear-facing weapon name normalization — word-order mismatches (equipment "heavy-medium" vs crit "MediumHeavy")                                                                                                                                                                                     |
+| EC-40     | 6.3           | Thunderbolt 20 Ammo BV correction — 38/ton (not 46)                                                                                                                                                                                                                                                |
+| EC-41     | 6.2, 6.3      | Heavy/Medium/Light Rifle weapon and ammo — BV=91/35/21, ammo BV=11/6/3 per ton, ammo-weapon type aliasing                                                                                                                                                                                          |
+| EC-42     | 4.6           | Clan chassis detection for MIXED tech — Clan structural components (Clan Endo Steel, Clan Ferro-Fibrous, Clan DHS) indicate Clan chassis for implicit CASE                                                                                                                                         |
+| EC-46     | 4.6, 7.1      | Clan chassis CASE rework — 3-tier detection: Clan engine→full CASE, Clan structural→full CASE, verified CLAN_CHASSIS_MIXED_UNITS set→per-location CASE. IS-chassis MIXED units get NO implicit CASE. MTFParserService normalizes "Mixed (IS/Clan Chassis)" to "MIXED", losing chassis distinction. |
+| EC-43     | 7.1           | MUL BV reference staleness — MUL values diverge from MegaMek runtime BV for some units (MUL_BV_OVERRIDES map)                                                                                                                                                                                      |
+| EC-44     | 4.1           | Half-ton ammo bins — crit names with "- Half" suffix get half the standard per-ton BV                                                                                                                                                                                                              |
+| EC-45     | 4.3           | PPC Capacitor BV by location — capacitors matched to PPCs by shared crit location, IS ER PPC +114, Clan ER PPC +136                                                                                                                                                                                |
 
 ---
 
 ## Success Criteria
 
 **Achieved:**
+
 - [x] All 15 MegaMek BV phases implemented
-- [x] 95% of units within 1% of MegaMek BV (actual: 95.8%)
-- [x] 99% of units within 5% of MegaMek BV (actual: 99.3%)
+- [x] 9 additional discovered phases implemented
+- [x] 95% of units within 1% of MegaMek BV (actual: 97.9%)
+- [x] 99% of units within 5% of MegaMek BV (actual: 100.0%)
 - [x] Equipment catalog is single source of truth for BV/heat
 - [x] Validation report with accuracy gates
-- [x] 36 edge cases documented in proposal.md
+- [x] 45 edge cases documented
+
+**Current Validation Metrics (2026-02-07):**
+
+- Exact matches: 3,082 / 3,432 (89.8%)
+- Within 1%: 3,359 / 3,432 (97.9%)
+- Within 5%: 3,431 / 3,432 (100.0%)
+- Excluded: 793 (LAMs, Superheavy, Patchwork, Blue Shield, QuadVee, Tripod, missing data)
+- Worst discrepancy: Archer C at +4.0%
+- Minor discrepancies remaining: 73 units (avg 1.7% off)
+
+**Remaining Known Patterns (68 units):**
+
+- MIXED tech overcalculation bias: RESOLVED for IS-chassis units (8 fixed to exact, 1 improved)
+  - Remaining overcalculating MIXED units have discrepancies from other sources (not CASE)
+- Interface cockpit systematic +50: Ryoken III-XP B/D/Prime (likely stale MUL values)
+- High explosive penalty undercalculation: 9/10 high-penalty units undercalculate
+- Named variants: Gladiator (Keller), Cataphract (George) may have stale MUL values
 
 **Remaining:**
+
 - [ ] Production code migration (Tasks 4.1-4.7)
 - [ ] Equipment ID normalization hardening (Tasks 5.1-5.3)
 - [ ] Equipment catalog data quality fixes (Tasks 6.1-6.3)

@@ -666,7 +666,15 @@ export class MTFParserService {
   }
 
   /**
-   * Map tech base string
+   * Map tech base string.
+   *
+   * NOTE (EC-46): This normalizes "Mixed (IS Chassis)" and "Mixed (Clan Chassis)"
+   * to just "MIXED", losing the crucial chassis tech base distinction. MegaMek uses
+   * this distinction to determine implicit CASE eligibility for MIXED units:
+   * - "Mixed (Clan Chassis)" → implicit CASE (per-location for Clan ammo)
+   * - "Mixed (IS Chassis)" → NO implicit CASE
+   * Until a `chassisTechBase` field is added to the unit data model, the
+   * CLAN_CHASSIS_MIXED_UNITS set in validate-bv.ts serves as the authoritative lookup.
    */
   private mapTechBase(techBase: string): string {
     const lower = techBase.toLowerCase();

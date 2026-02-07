@@ -48,7 +48,7 @@
   },
   "movement": {
     "walk": 5,
-    "jump": 4
+    "jump": 5
   },
   "equipment": [
     {
@@ -144,9 +144,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "mulId": 3219,
   "role": "Skirmisher",
   "source": "TR:3085"

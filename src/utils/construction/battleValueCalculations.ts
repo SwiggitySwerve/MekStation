@@ -358,7 +358,8 @@ export function calculateDefensiveBV(
 
   const explosivePenalties = config.explosivePenalties ?? 0;
 
-   const armorBV = Math.round(config.totalArmorPoints * 2.5 * armorMultiplier * bar) / 10;
+  const armorBV =
+    Math.round(config.totalArmorPoints * 2.5 * armorMultiplier * bar) / 10;
   const structureBV =
     config.totalStructurePoints * 1.5 * structureMultiplier * engineMultiplier;
   const gyroBV = config.tonnage * gyroMultiplier;
@@ -370,7 +371,10 @@ export function calculateDefensiveBV(
     resolvedDefensiveEquipmentBV -
     explosivePenalties;
 
-  let maxTMM = calculateTMM(config.runMP, Math.max(config.jumpMP, config.umuMP ?? 0));
+  let maxTMM = calculateTMM(
+    config.runMP,
+    Math.max(config.jumpMP, config.umuMP ?? 0),
+  );
 
   // Stealth armor and Chameleon LPS each add +2 to TMM for defensive factor
   // See MekBVCalculator.tmmFactor() lines 281-303
@@ -507,43 +511,69 @@ export function calculateOffensiveSpeedFactor(
  * - Uses base weapon BV (before rear penalty) for cap
  */
 const AMMO_WEAPON_TYPE_ALIASES: Record<string, string[]> = {
-  'arrow-iv-launcher': ['isarrowivsystem', 'isarrowiv', 'clarrowiv', 'arrow-iv'],
-  'arrow-iv': ['isarrowivsystem', 'isarrowiv', 'clarrowiv', 'arrow-iv-launcher'],
+  'arrow-iv-launcher': [
+    'isarrowivsystem',
+    'isarrowiv',
+    'clarrowiv',
+    'arrow-iv',
+  ],
+  'arrow-iv': [
+    'isarrowivsystem',
+    'isarrowiv',
+    'clarrowiv',
+    'arrow-iv-launcher',
+  ],
   'long-tom': ['long-tom-cannon'],
   'long-tom-cannon': ['long-tom'],
-  'sniper': ['sniper-cannon', 'issniperartcannon'],
+  sniper: ['sniper-cannon', 'issniperartcannon'],
   'sniper-cannon': ['sniper'],
-  'thumper': ['thumper-cannon'],
+  thumper: ['thumper-cannon'],
   'thumper-cannon': ['thumper'],
-  'medium-chemical-laser': ['medium-chem-laser', 'clmediumchemlaser', 'clan-medium-chemical-laser'],
-  'medium-chem-laser': ['medium-chemical-laser', 'clmediumchemlaser', 'clan-medium-chemical-laser'],
-  'clan-medium-chemical-laser': ['medium-chemical-laser', 'medium-chem-laser', 'clmediumchemlaser'],
+  'medium-chemical-laser': [
+    'medium-chem-laser',
+    'clmediumchemlaser',
+    'clan-medium-chemical-laser',
+  ],
+  'medium-chem-laser': [
+    'medium-chemical-laser',
+    'clmediumchemlaser',
+    'clan-medium-chemical-laser',
+  ],
+  'clan-medium-chemical-laser': [
+    'medium-chemical-laser',
+    'medium-chem-laser',
+    'clmediumchemlaser',
+  ],
   'lb-5-x': ['lb-5-x-ac'],
   'lb-2-x': ['lb-2-x-ac'],
-  'lrtorpedo': ['lrm-15', 'lrm-10', 'lrm-5', 'lrm-20'],
-  'srtorpedo': ['srm-6', 'srm-4', 'srm-2'],
+  lrtorpedo: ['lrm-15', 'lrm-10', 'lrm-5', 'lrm-20'],
+  srtorpedo: ['srm-6', 'srm-4', 'srm-2'],
   'ac-10-primitive': ['ac-10'],
   'ac-5-primitive': ['ac-5'],
   'ac-20-primitive': ['ac-20'],
-  'impammosrm6': ['improved-srm-6'],
-  'clanimprovedlrm15': ['improved-lrm-15'],
-  'clanimprovedlrm20': ['improved-lrm-20'],
-  'clanimprovedlrm10': ['improved-lrm-10'],
-  'clanimprovedlrm5': ['improved-lrm-5'],
-  'isarrowivsystem': ['arrow-iv-launcher', 'arrow-iv'],
+  impammosrm6: ['improved-srm-6'],
+  clanimprovedlrm15: ['improved-lrm-15'],
+  clanimprovedlrm20: ['improved-lrm-20'],
+  clanimprovedlrm10: ['improved-lrm-10'],
+  clanimprovedlrm5: ['improved-lrm-5'],
+  isarrowivsystem: ['arrow-iv-launcher', 'arrow-iv'],
   'improved-gauss-rifle': ['climpgauss'],
-  'climpgauss': ['improved-gauss-rifle'],
-  'magshot': ['magshotgr'],
-  'magshotgr': ['magshot'],
+  climpgauss: ['improved-gauss-rifle'],
+  magshot: ['magshotgr'],
+  magshotgr: ['magshot'],
   'mech-taser': ['battlemech-taser', 'taser'],
   'battlemech-taser': ['mech-taser', 'taser'],
-  'taser': ['mech-taser', 'battlemech-taser'],
+  'heavy-rifle': ['rifle-cannon', 'isheavyrifle'],
+  'rifle-cannon': ['heavy-rifle', 'isheavyrifle'],
+  'medium-rifle': ['rifle-cannon', 'ismediumrifle'],
+  'light-rifle': ['islightrifle'],
+  taser: ['mech-taser', 'battlemech-taser'],
   'improved-narc': ['improvednarc', 'inarc', 'isimprovednarc'],
-  'improvednarc': ['improved-narc', 'inarc'],
+  improvednarc: ['improved-narc', 'inarc'],
   'narc-beacon': ['narcbeacon', 'narc', 'isnarcbeacon'],
-  'narcbeacon': ['narc-beacon', 'narc'],
-  'narc': ['narc-beacon', 'narcbeacon'],
-  'clmediumchemlaser': ['medium-chemical-laser', 'medium-chem-laser'],
+  narcbeacon: ['narc-beacon', 'narc'],
+  narc: ['narc-beacon', 'narcbeacon'],
+  clmediumchemlaser: ['medium-chemical-laser', 'medium-chem-laser'],
 };
 
 function findMatchingWeaponBV(
@@ -691,20 +721,24 @@ export function calculateOffensiveBVWithHeatTracking(
   if (jumpHeatMP > 0) {
     if (config.hasImprovedJJ) {
       const effectiveJumpMP = Math.ceil(jumpHeatMP / 2);
-      jumpHeat = config.isXXLEngine || engineType === EngineType.XXL
-        ? Math.max(6, effectiveJumpMP * 2)
-        : Math.max(3, effectiveJumpMP);
+      jumpHeat =
+        config.isXXLEngine || engineType === EngineType.XXL
+          ? Math.max(6, effectiveJumpMP * 2)
+          : Math.max(3, effectiveJumpMP);
     } else {
-      jumpHeat = config.isXXLEngine || engineType === EngineType.XXL
-        ? Math.max(6, jumpHeatMP * 2)
-        : Math.max(3, jumpHeatMP);
+      jumpHeat =
+        config.isXXLEngine || engineType === EngineType.XXL
+          ? Math.max(6, jumpHeatMP * 2)
+          : Math.max(3, jumpHeatMP);
     }
   }
   const moveHeat = Math.max(runningHeat, jumpHeat);
   let heatEfficiency = 6 + config.heatDissipation - moveHeat;
 
   if ((config.coolantPods ?? 0) > 0 && (config.heatSinkCount ?? 0) > 0) {
-    heatEfficiency += Math.ceil((config.heatSinkCount! * config.coolantPods!) / 5);
+    heatEfficiency += Math.ceil(
+      (config.heatSinkCount! * config.coolantPods!) / 5,
+    );
   }
 
   if (config.hasStealthArmor) heatEfficiency -= 10;
@@ -745,7 +779,8 @@ export function calculateOffensiveBVWithHeatTracking(
 
   // Weight bonus with TSM/AES modifiers per MekBVCalculator.processWeight()
   // Arm AES: +0.1 per arm. Leg AES: +0.2 biped, +0.4 quad (lines 428-441)
-  const aesMultiplier = 1.0 + (config.aesArms ?? 0) * 0.1 + (config.aesLegs ?? 0) * 0.1;
+  const aesMultiplier =
+    1.0 + (config.aesArms ?? 0) * 0.1 + (config.aesLegs ?? 0) * 0.1;
   const adjustedWeight = config.tonnage * aesMultiplier;
   let weightBonus: number;
   if (config.hasTSM) {
@@ -763,7 +798,8 @@ export function calculateOffensiveBVWithHeatTracking(
   );
   const physicalWeaponBV = config.physicalWeaponBV ?? 0;
   const offensiveEquipmentBV = config.offensiveEquipmentBV ?? 0;
-  const baseOffensive = weaponBV + ammoBV + physicalWeaponBV + weightBonus + offensiveEquipmentBV;
+  const baseOffensive =
+    weaponBV + ammoBV + physicalWeaponBV + weightBonus + offensiveEquipmentBV;
 
   // Industrial mechs without advanced fire control get ×0.9
   // See MekBVCalculator.processOffensiveTypeModifier() lines 416-424

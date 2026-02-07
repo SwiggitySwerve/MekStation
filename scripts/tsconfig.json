@@ -1,20 +1,35 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "target": "es2020",
+    "lib": ["es2020"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "strict": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
     "resolveJsonModule": true,
-    "outDir": "./dist",
-    "rootDir": "..",
-    "baseUrl": "..",
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "baseUrl": "../src",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./*"]
     }
   },
-  "include": ["./**/*.ts", "../src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "validate-bv.ts",
+    "validate-parity.ts",
+    "data-migration/**/*.ts",
+    "../src/**/*.ts",
+    "../src/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "../src/**/__tests__/**",
+    "../src/**/*.test.ts",
+    "../src/**/*.test.tsx",
+    "../src/**/*.spec.ts",
+    "../src/**/*.spec.tsx"
+  ]
 }

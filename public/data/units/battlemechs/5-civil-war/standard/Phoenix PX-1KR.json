@@ -60,8 +60,8 @@
       "location": "LEFT_TORSO"
     },
     {
-      "id": "rifle-cannon",
-      "location": "HEAVY),_RIGHT_ARM"
+      "id": "heavy-rifle",
+      "location": "RIGHT_ARM"
     }
   ],
   "criticalSlots": {

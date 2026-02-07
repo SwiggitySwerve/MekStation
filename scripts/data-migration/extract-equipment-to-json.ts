@@ -7,6 +7,8 @@
  * Usage: npx ts-node scripts/data-migration/extract-equipment-to-json.ts
  */
 
+export {};
+
 /* oxlint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 const path = require('path');

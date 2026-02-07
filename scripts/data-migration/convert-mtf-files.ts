@@ -18,6 +18,8 @@
  *     --generate-index Generate index.json after conversion
  */
 
+export {};
+
 /* oxlint-disable @typescript-eslint/no-require-imports */
 const { spawn } = require('child_process');
 const fs = require('fs');

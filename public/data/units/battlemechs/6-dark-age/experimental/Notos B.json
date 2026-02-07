@@ -3,7 +3,7 @@
   "chassis": "Notos",
   "model": "B",
   "unitType": "BattleMech",
-  "configuration": "Biped",
+  "configuration": "QuadVee",
   "techBase": "CLAN",
   "rulesLevel": "EXPERIMENTAL",
   "era": "DARK_AGE",

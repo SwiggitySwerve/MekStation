@@ -18,7 +18,7 @@
   },
   "cockpit": "STANDARD",
   "structure": {
-    "type": "ENDO_STEEL"
+    "type": "ENDO_STEEL_CLAN"
   },
   "armor": {
     "type": "STANDARD",
@@ -156,11 +156,7 @@
       "HAG/40 Ammo"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "hyper_actuator",
-    "exp_actuator"
-  ],
+  "quirks": ["command_mech", "hyper_actuator", "exp_actuator"],
   "fluff": {
     "overview": "Given the Marauder's outstanding performance and sterling reputation, it was only natural for the Clans to commit resources to constructing a worthy successor.",
     "capabilities": "While fundamentally comparable to the original Marauder in many aspects, even Golden Century ClanTech's sophisticated capabilities could not prevent the BattleMech's chassis from growing to accommodate all of its enhancements. As a result, the Marauder IIC received ten tons of overall bulk, similar to other classic 'Mechs modified by the Clans at the period. The IIC followed in both function and form the huge footsteps of its ancestor, emphasizing a perfect blend of long-range, high yield firepower, robust armor, and the mobility to keep up with its supporting troops. Although the Clans' dueling heritage prized individual warrior prowess and rapid encounters over drawn-out campaigns, their choice for high-power energy weapons over ballistics and missiles allows this 'Mech to stay lethal in the hands of an expert MechWarrior nearly indefinitely. When combined with its other characteristics, the Marauder IIC's battlefield durability cemented its position as a suitable command 'Mech, as well as its appeal among the glory-seeking warriors that comprise the majority of the Clan officer corps.",

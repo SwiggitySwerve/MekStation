@@ -462,33 +462,33 @@ npm run validate:bv-parity -- --top=20
 npm run validate:bv-parity -- --json-only
 ```
 
-### Example: Interpreting validation output
+### Example: Interpreting validation output (post-parity)
 
 ```
 BV Parity Validation Report
 ===========================
-Total Units: 4,200
-Excluded: 23 (LAMs, Superheavy, Patchwork)
-Validated: 4,177
+Total Units: 4,225
+Excluded: 783 (LAMs, Superheavy, Patchwork, Blue Shield, QuadVee, Tripod, missing data)
+Validated: 3,432
 
 Accuracy:
-  Exact Matches:     9 (0.2%)
-  Within 1%:       203 (4.8%)
-  Within 5%:     1,252 (29.8%)
-  Within 10%:    1,462 (35.0%)
-  More than 10%: 2,738 (65.2%)
+  Exact Matches:   3,090 (90.0%)
+  Within 1%:       3,364 (98.0%)
+  Within 5%:       3,431 (100.0%)
+  Within 10%:      3,431 (100.0%)
+  More than 10%:       1 (0.0%) [no MUL reference]
 
 Accuracy Gates:
-  ✗ Primary (95% within 1%):   4.8% - FAIL
-  ✗ Secondary (99% within 5%): 29.8% - FAIL
+  ✓ Primary (95% within 1%):    98.0% - PASS
+  ✓ Secondary (99% within 5%): 100.0% - PASS
 
-Top Discrepancy Categories:
-  1. heat-tracking:      1,523 (36.3%)
-  2. missing-ammo:         687 (16.4%)
-  3. wrong-weapon-bv:      312 (7.5%)
-  4. engine-multiplier:    216 (5.2%)
+Top Remaining Patterns:
+  1. MIXED tech overcalculation:  RESOLVED (8 fixed to exact, 1 improved via EC-46)
+  2. Explosive penalty variance:  10 units (9/10 undercalculate)
+  3. Interface cockpit MUL:        3 units (systematic +50 BV, likely stale MUL)
+  4. Named variant MUL:            2 units (Keller, George custom configs)
 
-Recommendation: Fix heat-tracking category first (highest impact)
+Status: Both accuracy gates PASSING. Remaining 68 units are all <5% off.
 ```
 
 ## References

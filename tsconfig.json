@@ -27,7 +27,7 @@
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": [
     "node_modules",
-    "scripts/data-migration/**/*",
+    "scripts/**/*",
     "desktop/**/*",
     "src/pages/**/__tests__/**/*",
     "src/pages/**/*.test.ts",
