@@ -1,9 +1,8 @@
 {
   "version": "2.0.0",
-  "generatedAt": "2026-02-07T05:34:57.619Z",
+  "generatedAt": "2026-02-07T08:07:29.456Z",
   "files": {
     "weapons": {
-      "energy": "weapons/energy.json",
       "ballistic-autocannon": "weapons/ballistic-autocannon.json",
       "ballistic-gauss": "weapons/ballistic-gauss.json",
       "ballistic-machinegun": "weapons/ballistic-machinegun.json",
@@ -13,7 +12,10 @@
       "missile-mrm": "weapons/missile-mrm.json",
       "missile-other": "weapons/missile-other.json",
       "missile-srm": "weapons/missile-srm.json",
-      "physical": "weapons/physical.json"
+      "physical": "weapons/physical.json",
+      "energy-laser": "weapons/energy-laser.json",
+      "energy-ppc": "weapons/energy-ppc.json",
+      "energy-other": "weapons/energy-other.json"
     },
     "ammunition": {
       "artillery": "ammunition/artillery.json",
@@ -27,8 +29,20 @@
       "other": "ammunition/other.json",
       "srm": "ammunition/srm.json"
     },
-    "electronics": "electronics.json",
-    "miscellaneous": "miscellaneous.json"
+    "electronics": {
+      "ecm": "electronics/ecm.json",
+      "active-probe": "electronics/active-probe.json",
+      "c3": "electronics/c3.json",
+      "other": "electronics/other.json"
+    },
+    "miscellaneous": {
+      "heat-sinks": "miscellaneous/heat-sinks.json",
+      "jump-jets": "miscellaneous/jump-jets.json",
+      "movement": "miscellaneous/movement.json",
+      "myomer": "miscellaneous/myomer.json",
+      "defensive": "miscellaneous/defensive.json",
+      "other": "miscellaneous/other.json"
+    }
   },
   "totalItems": {
     "weapons": 459,

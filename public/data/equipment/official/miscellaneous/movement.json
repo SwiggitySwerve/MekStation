@@ -1,0 +1,59 @@
+{
+  "$schema": "../../_schema/misc-equipment-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2026-02-07T08:02:30.863Z",
+  "count": 3,
+  "items": [
+    {
+      "id": "masc",
+      "name": "MASC",
+      "category": "Movement Enhancement",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2740,
+      "special": [
+        "Double running speed for one turn",
+        "Risk of leg damage"
+      ],
+      "variableEquipmentId": "masc-is"
+    },
+    {
+      "id": "clan-masc",
+      "name": "MASC (Clan)",
+      "category": "Movement Enhancement",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2827,
+      "special": [
+        "Double running speed for one turn",
+        "Risk of leg damage"
+      ],
+      "variableEquipmentId": "masc-clan"
+    },
+    {
+      "id": "supercharger",
+      "name": "Supercharger",
+      "category": "Movement Enhancement",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 1,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3068,
+      "special": [
+        "+1 running MP",
+        "Risk of engine damage"
+      ],
+      "variableEquipmentId": "supercharger"
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "$schema": "../../_schema/electronics-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2026-02-07T08:07:29.445Z",
+  "count": 11,
+  "items": [
+    {
+      "id": "beagle-active-probe",
+      "name": "Beagle Active Probe",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 200000,
+      "battleValue": 10,
+      "introductionYear": 2576,
+      "special": [
+        "4 hex detection range",
+        "Detects hidden units"
+      ]
+    },
+    {
+      "id": "bloodhound-active-probe",
+      "name": "Bloodhound Active Probe",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 2,
+      "criticalSlots": 3,
+      "costCBills": 500000,
+      "battleValue": 25,
+      "introductionYear": 3058,
+      "special": [
+        "8 hex detection range",
+        "Detects hidden units",
+        "Counters stealth"
+      ]
+    },
+    {
+      "id": "clan-active-probe",
+      "name": "Active Probe (Clan)",
+      "category": "Active Probe",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 200000,
+      "battleValue": 12,
+      "introductionYear": 2832,
+      "special": [
+        "5 hex detection range",
+        "Detects hidden units"
+      ]
+    },
+    {
+      "id": "light-active-probe",
+      "name": "Light Active Probe",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 50000,
+      "battleValue": 7,
+      "introductionYear": 3052,
+      "special": [
+        "3 hex detection range"
+      ]
+    },
+    {
+      "id": "clan-light-active-probe",
+      "name": "Light Active Probe (Clan)",
+      "category": "Active Probe",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 50000,
+      "battleValue": 7,
+      "introductionYear": 3058,
+      "special": [
+        "3 hex detection range"
+      ]
+    },
+    {
+      "id": "active-probe-beagle",
+      "name": "Active Probe (Beagle)",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 200000,
+      "battleValue": 10,
+      "introductionYear": 2560,
+      "special": []
+    },
+    {
+      "id": "active-probe-beagle-prototype",
+      "name": "Active Probe (Beagle) Prototype",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 2,
+      "criticalSlots": 3,
+      "costCBills": 600000,
+      "battleValue": 10,
+      "introductionYear": 2560,
+      "special": []
+    },
+    {
+      "id": "thbbloodhoundactiveprobe",
+      "name": "Bloodhound Active Probe (THB)",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 5,
+      "criticalSlots": 2,
+      "costCBills": 750000,
+      "battleValue": 25,
+      "introductionYear": 3058,
+      "special": []
+    },
+    {
+      "id": "active-probe",
+      "name": "Active Probe",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 200000,
+      "battleValue": 12,
+      "introductionYear": 2000,
+      "special": []
+    },
+    {
+      "id": "active-probe-light",
+      "name": "Active Probe (Light)",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0.25,
+      "criticalSlots": 2,
+      "costCBills": 50000,
+      "battleValue": 0,
+      "introductionYear": 3050,
+      "special": []
+    },
+    {
+      "id": "improved-sensors",
+      "name": "Improved Sensors",
+      "category": "Active Probe",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0.065,
+      "criticalSlots": 1,
+      "costCBills": 35000,
+      "battleValue": 0,
+      "introductionYear": 3051,
+      "special": []
+    }
+  ]
+}

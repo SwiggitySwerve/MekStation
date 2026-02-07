@@ -761,9 +761,22 @@ function extractWeaponTypeFromAmmoId(ammoId: string): string {
 function buildAmmoLookup(): Map<string, { bv: number; weaponType: string }> {
   if (ammoLookup) return ammoLookup;
   ammoLookup = new Map();
+
+  // Data-driven: load ammunition files from index.json (supports split files)
+  const basePath = path.resolve(process.cwd(), 'public/data/equipment/official');
+  let ammoFiles: string[] = ['ammunition.json'];
   try {
-    const d = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'public/data/equipment/official/ammunition.json'), 'utf-8'));
-    for (const item of d.items || []) {
+    const indexData = JSON.parse(fs.readFileSync(path.join(basePath, 'index.json'), 'utf-8'));
+    const ammoEntry = indexData?.files?.ammunition;
+    if (ammoEntry && typeof ammoEntry === 'object' && !Array.isArray(ammoEntry)) {
+      ammoFiles = Object.values(ammoEntry) as string[];
+    }
+  } catch { /* fall back to ammunition.json */ }
+
+  for (const ammoFile of ammoFiles) {
+    try {
+    const d = JSON.parse(fs.readFileSync(path.join(basePath, ammoFile), 'utf-8'));
+    for (const item of (d.items || []) as Array<{ id: string; battleValue: number; compatibleWeaponIds?: string[] }>) {
       const wt = item.compatibleWeaponIds?.[0]
         ? normalizeWeaponKey(item.compatibleWeaponIds[0])
         : extractWeaponTypeFromAmmoId(item.id);
@@ -771,7 +784,8 @@ function buildAmmoLookup(): Map<string, { bv: number; weaponType: string }> {
       const canon = item.id.replace(/[^a-z0-9]/g, '');
       if (!ammoLookup.has(canon)) ammoLookup.set(canon, { bv: item.battleValue, weaponType: wt });
     }
-  } catch { /* ignore */ }
+    } catch { /* ignore individual ammo file errors */ }
+  }
 
   const hc: Array<[string, number, string]> = [
     ['mml-3-lrm-ammo', 4, 'mml-3'], ['mml-3-srm-ammo', 4, 'mml-3'],

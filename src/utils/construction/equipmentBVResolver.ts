@@ -165,13 +165,13 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
     files: {
       weapons: Record<string, string>;
       ammunition: Record<string, string> | string;
-      electronics: string;
-      miscellaneous: string;
+      electronics: Record<string, string> | string;
+      miscellaneous: Record<string, string> | string;
     };
   }>(path.join(basePath, 'index.json'));
   const weaponFiles = indexData?.files?.weapons
     ? Object.values(indexData.files.weapons)
-    : ['weapons/energy.json', 'weapons/ballistic.json', 'weapons/missile.json'];
+    : ['weapons/energy-laser.json', 'weapons/energy-ppc.json', 'weapons/energy-other.json', 'weapons/ballistic-autocannon.json', 'weapons/ballistic-gauss.json', 'weapons/ballistic-machinegun.json', 'weapons/ballistic-other.json', 'weapons/missile-atm.json', 'weapons/missile-lrm.json', 'weapons/missile-mrm.json', 'weapons/missile-other.json', 'weapons/missile-srm.json', 'weapons/physical.json'];
   for (const file of weaponFiles) {
     const data = loadJsonFile<WeaponCatalogFile>(path.join(basePath, file));
     if (data?.items) {
@@ -181,40 +181,46 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
     }
   }
 
-  // Load electronics
-  const electronics = loadJsonFile<MiscCatalogFile>(
-    path.join(basePath, 'electronics.json'),
-  );
-  if (electronics?.items) {
-    for (const item of electronics.items) {
-      // Don't overwrite weapons entries (weapons have priority)
-      if (!catalog.has(item.id)) {
-        catalog.set(item.id, {
-          id: item.id,
-          name: item.name,
-          category: item.category,
-          techBase: item.techBase,
-          battleValue: item.battleValue,
-        });
+  // Load electronics (data-driven from index.json)
+  const elecEntry = indexData?.files?.electronics;
+  const elecFiles = elecEntry && typeof elecEntry === 'object' && !Array.isArray(elecEntry)
+    ? Object.values(elecEntry) as string[]
+    : ['electronics/ecm.json', 'electronics/active-probe.json', 'electronics/c3.json', 'electronics/other.json'];
+  for (const elecFile of elecFiles) {
+    const electronics = loadJsonFile<MiscCatalogFile>(path.join(basePath, elecFile));
+    if (electronics?.items) {
+      for (const item of electronics.items) {
+        if (!catalog.has(item.id)) {
+          catalog.set(item.id, {
+            id: item.id,
+            name: item.name,
+            category: item.category,
+            techBase: item.techBase,
+            battleValue: item.battleValue,
+          });
+        }
       }
     }
   }
 
-  // Load miscellaneous
-  const misc = loadJsonFile<MiscCatalogFile>(
-    path.join(basePath, 'miscellaneous.json'),
-  );
-  if (misc?.items) {
-    for (const item of misc.items) {
-      // Don't overwrite weapons entries (weapons have priority)
-      if (!catalog.has(item.id)) {
-        catalog.set(item.id, {
-          id: item.id,
-          name: item.name,
-          category: item.category,
-          techBase: item.techBase,
-          battleValue: item.battleValue,
-        });
+  // Load miscellaneous (data-driven from index.json)
+  const miscEntry = indexData?.files?.miscellaneous;
+  const miscFiles = miscEntry && typeof miscEntry === 'object' && !Array.isArray(miscEntry)
+    ? Object.values(miscEntry) as string[]
+    : ['miscellaneous/heat-sinks.json', 'miscellaneous/jump-jets.json', 'miscellaneous/movement.json', 'miscellaneous/myomer.json', 'miscellaneous/defensive.json', 'miscellaneous/other.json'];
+  for (const miscFile of miscFiles) {
+    const misc = loadJsonFile<MiscCatalogFile>(path.join(basePath, miscFile));
+    if (misc?.items) {
+      for (const item of misc.items) {
+        if (!catalog.has(item.id)) {
+          catalog.set(item.id, {
+            id: item.id,
+            name: item.name,
+            category: item.category,
+            techBase: item.techBase,
+            battleValue: item.battleValue,
+          });
+        }
       }
     }
   }
@@ -223,7 +229,7 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
   const ammoFileEntries = indexData?.files?.ammunition;
   const ammoFiles = ammoFileEntries && typeof ammoFileEntries === 'object' && !Array.isArray(ammoFileEntries)
     ? Object.values(ammoFileEntries) as string[]
-    : ['ammunition.json'];
+    : ['ammunition/artillery.json', 'ammunition/atm.json', 'ammunition/autocannon.json', 'ammunition/gauss.json', 'ammunition/lrm.json', 'ammunition/machinegun.json', 'ammunition/mrm.json', 'ammunition/narc.json', 'ammunition/other.json', 'ammunition/srm.json'];
   for (const ammoFile of ammoFiles) {
     const ammo = loadJsonFile<AmmoCatalogFile>(path.join(basePath, ammoFile));
     if (ammo?.items) {

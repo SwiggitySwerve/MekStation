@@ -1,0 +1,163 @@
+{
+  "$schema": "../../_schema/electronics-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2026-02-07T08:07:29.444Z",
+  "count": 11,
+  "items": [
+    {
+      "id": "guardian-ecm",
+      "name": "Guardian ECM Suite",
+      "category": "ECM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 200000,
+      "battleValue": 61,
+      "introductionYear": 3045,
+      "special": [
+        "6 hex ECM bubble",
+        "Blocks enemy electronics"
+      ]
+    },
+    {
+      "id": "clan-ecm",
+      "name": "ECM Suite (Clan)",
+      "category": "ECM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 200000,
+      "battleValue": 61,
+      "introductionYear": 2832,
+      "special": [
+        "6 hex ECM bubble",
+        "Blocks enemy electronics"
+      ]
+    },
+    {
+      "id": "angel-ecm",
+      "name": "Angel ECM Suite",
+      "category": "ECM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 2,
+      "criticalSlots": 2,
+      "costCBills": 750000,
+      "battleValue": 100,
+      "introductionYear": 3063,
+      "special": [
+        "6 hex ECM bubble",
+        "Enhanced protection vs active probes"
+      ]
+    },
+    {
+      "id": "watchdog-cews",
+      "name": "Watchdog CEWS",
+      "category": "ECM",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 600000,
+      "battleValue": 68,
+      "introductionYear": 3059,
+      "special": [
+        "Combined ECM and Active Probe",
+        "4 hex probe range"
+      ]
+    },
+    {
+      "id": "guardianecmsuite",
+      "name": "ECM Suite (Guardian)",
+      "category": "ECM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 200000,
+      "battleValue": 61,
+      "introductionYear": 2595,
+      "special": []
+    },
+    {
+      "id": "guardianecmsuiteprototype",
+      "name": "ECM Suite (Guardian) Prototype",
+      "category": "ECM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 2,
+      "criticalSlots": 3,
+      "costCBills": 1000000,
+      "battleValue": 61,
+      "introductionYear": 2595,
+      "special": []
+    },
+    {
+      "id": "ecmsuite",
+      "name": "ECM Suite",
+      "category": "ECM",
+      "techBase": "CLAN",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 200000,
+      "battleValue": 61,
+      "introductionYear": 2830,
+      "special": []
+    },
+    {
+      "id": "thbangelecmsuite",
+      "name": "THB Angel ECM Suite",
+      "category": "ECM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 1000000,
+      "battleValue": 100,
+      "introductionYear": 3057,
+      "special": []
+    },
+    {
+      "id": "electronic-warfare-ew-equipment",
+      "name": "Electronic Warfare (EW) Equipment",
+      "category": "ECM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 7.5,
+      "criticalSlots": 4,
+      "costCBills": 500000,
+      "battleValue": 39,
+      "introductionYear": 3020,
+      "special": []
+    },
+    {
+      "id": "watchdog-composite-electronic-warfare-system-cews",
+      "name": "Watchdog Composite Electronic Warfare System (CEWS)",
+      "category": "ECM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 500000,
+      "battleValue": 68,
+      "introductionYear": 5000,
+      "special": []
+    },
+    {
+      "id": "nova-combined-electronic-warfare-system-cews",
+      "name": "Nova Combined Electronic Warfare System (CEWS)",
+      "category": "ECM",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "costCBills": 1100000,
+      "battleValue": 68,
+      "introductionYear": 1100,
+      "special": []
+    }
+  ]
+}
