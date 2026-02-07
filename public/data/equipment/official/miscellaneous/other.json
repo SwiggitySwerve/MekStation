@@ -4040,7 +4040,7 @@
       "weight": 3,
       "criticalSlots": 4,
       "costCBills": 300000,
-      "battleValue": 45,
+      "battleValue": 64,
       "introductionYear": 3137,
       "special": [
         "point-defense"
