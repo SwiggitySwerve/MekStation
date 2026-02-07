@@ -4579,7 +4579,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
       "damage": 0,
-      "heat": 0,
+      "heat": 5,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -4601,7 +4601,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
       "damage": 0,
-      "heat": 0,
+      "heat": 7,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -4623,7 +4623,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
       "damage": 0,
-      "heat": 0,
+      "heat": 8,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -4645,7 +4645,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
       "damage": 0,
-      "heat": 0,
+      "heat": 3,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -4667,7 +4667,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "EXPERIMENTAL",
       "damage": 0,
-      "heat": 0,
+      "heat": 5,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -4689,7 +4689,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
       "damage": 0,
-      "heat": 0,
+      "heat": 5,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -4711,7 +4711,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "EXPERIMENTAL",
       "damage": 0,
-      "heat": 0,
+      "heat": 7,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -4733,7 +4733,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
       "damage": 0,
-      "heat": 0,
+      "heat": 7,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -4755,7 +4755,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "EXPERIMENTAL",
       "damage": 0,
-      "heat": 0,
+      "heat": 8,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -4777,7 +4777,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
       "damage": 0,
-      "heat": 0,
+      "heat": 8,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -4799,7 +4799,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "EXPERIMENTAL",
       "damage": 0,
-      "heat": 0,
+      "heat": 3,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -4821,7 +4821,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
       "damage": 0,
-      "heat": 0,
+      "heat": 3,
       "ranges": {
         "minimum": 0,
         "short": 0,
@@ -5939,7 +5939,7 @@
       "criticalSlots": 2,
       "ammoPerTon": 20,
       "costCBills": 50000,
-      "battleValue": 63,
+      "battleValue": 83,
       "introductionYear": 3070,
       "special": ["iatm"]
     },
@@ -5958,11 +5958,11 @@
         "medium": 10,
         "long": 15
       },
-      "weight": 3,
+      "weight": 3.5,
       "criticalSlots": 3,
       "ammoPerTon": 10,
-      "costCBills": 125000,
-      "battleValue": 126,
+      "costCBills": 250000,
+      "battleValue": 165,
       "introductionYear": 3070,
       "special": ["iatm"]
     },
@@ -5984,8 +5984,8 @@
       "weight": 5,
       "criticalSlots": 4,
       "ammoPerTon": 7,
-      "costCBills": 225000,
-      "battleValue": 189,
+      "costCBills": 450000,
+      "battleValue": 231,
       "introductionYear": 3070,
       "special": ["iatm"]
     },
@@ -6007,8 +6007,8 @@
       "weight": 7,
       "criticalSlots": 5,
       "ammoPerTon": 5,
-      "costCBills": 350000,
-      "battleValue": 252,
+      "costCBills": 700000,
+      "battleValue": 333,
       "introductionYear": 3070,
       "special": ["iatm"]
     }

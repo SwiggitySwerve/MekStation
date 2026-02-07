@@ -920,6 +920,27 @@
       "introductionYear": 2824
     },
     {
+      "id": "enhanced-er-ppc",
+      "name": "Enhanced ER PPC",
+      "category": "Energy",
+      "subType": "PPC",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 12,
+      "heat": 15,
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 23
+      },
+      "weight": 7,
+      "criticalSlots": 3,
+      "costCBills": 300000,
+      "battleValue": 329,
+      "introductionYear": 2823
+    },
+    {
       "id": "flamer",
       "name": "Flamer",
       "category": "Energy",
@@ -1162,6 +1183,164 @@
       "costCBills": 75000,
       "battleValue": 99,
       "introductionYear": 3059,
+      "special": [
+        "Requires ammo"
+      ]
+    },
+    {
+      "id": "improved-small-laser",
+      "name": "Improved Small Laser",
+      "category": "Energy",
+      "subType": "Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 3,
+      "heat": 1,
+      "ranges": {
+        "minimum": 0,
+        "short": 1,
+        "medium": 2,
+        "long": 3
+      },
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 11250,
+      "battleValue": 12,
+      "introductionYear": 2815
+    },
+    {
+      "id": "improved-medium-laser",
+      "name": "Improved Medium Laser",
+      "category": "Energy",
+      "subType": "Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 5,
+      "heat": 3,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 40000,
+      "battleValue": 60,
+      "introductionYear": 2815
+    },
+    {
+      "id": "improved-large-laser",
+      "name": "Improved Large Laser",
+      "category": "Energy",
+      "subType": "Laser",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 8,
+      "heat": 8,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 5,
+      "criticalSlots": 2,
+      "costCBills": 100000,
+      "battleValue": 123,
+      "introductionYear": 2815
+    },
+    {
+      "id": "clan-plasma-cannon",
+      "name": "Plasma Cannon (Clan)",
+      "category": "Energy",
+      "subType": "Plasma",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": 0,
+      "heat": 7,
+      "ranges": {
+        "minimum": 0,
+        "short": 6,
+        "medium": 12,
+        "long": 18
+      },
+      "weight": 3,
+      "criticalSlots": 1,
+      "ammoPerTon": 10,
+      "costCBills": 320000,
+      "battleValue": 170,
+      "introductionYear": 3069,
+      "special": [
+        "Causes heat to target"
+      ]
+    },
+    {
+      "id": "blazer-cannon",
+      "name": "Binary Laser (Blazer) Cannon",
+      "category": "Energy",
+      "subType": "Laser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 12,
+      "heat": 16,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 9,
+      "criticalSlots": 4,
+      "costCBills": 200000,
+      "battleValue": 222,
+      "introductionYear": 2812
+    },
+    {
+      "id": "battlemech-taser",
+      "name": "BattleMech Taser",
+      "category": "Energy",
+      "subType": "Taser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 0,
+      "heat": 6,
+      "ranges": {
+        "minimum": 0,
+        "short": 1,
+        "medium": 2,
+        "long": 4
+      },
+      "weight": 4,
+      "criticalSlots": 3,
+      "costCBills": 200000,
+      "battleValue": 40,
+      "introductionYear": 3067,
+      "special": [
+        "Shuts down target"
+      ]
+    },
+    {
+      "id": "fluid-gun",
+      "name": "Fluid Gun",
+      "category": "Energy",
+      "subType": "Flamer",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "damage": 2,
+      "heat": 0,
+      "ranges": {
+        "minimum": 0,
+        "short": 1,
+        "medium": 2,
+        "long": 3
+      },
+      "weight": 2,
+      "criticalSlots": 1,
+      "ammoPerTon": 20,
+      "costCBills": 35000,
+      "battleValue": 6,
+      "introductionYear": 3057,
       "special": [
         "Requires ammo"
       ]

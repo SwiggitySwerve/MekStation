@@ -160,12 +160,18 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
   const catalog = new Map<string, EquipmentCatalogEntry>();
   const basePath = getEquipmentBasePath();
 
-  // Load weapon files
-  const weaponFiles = [
-    'weapons/energy.json',
-    'weapons/ballistic.json',
-    'weapons/missile.json',
-  ];
+  // Load weapon files from index.json (data-driven)
+  const indexData = loadJsonFile<{
+    files: {
+      weapons: Record<string, string>;
+      ammunition: Record<string, string> | string;
+      electronics: string;
+      miscellaneous: string;
+    };
+  }>(path.join(basePath, 'index.json'));
+  const weaponFiles = indexData?.files?.weapons
+    ? Object.values(indexData.files.weapons)
+    : ['weapons/energy.json', 'weapons/ballistic.json', 'weapons/missile.json'];
   for (const file of weaponFiles) {
     const data = loadJsonFile<WeaponCatalogFile>(path.join(basePath, file));
     if (data?.items) {
@@ -213,21 +219,25 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
     }
   }
 
-  // Load ammunition
-  const ammo = loadJsonFile<AmmoCatalogFile>(
-    path.join(basePath, 'ammunition.json'),
-  );
-  if (ammo?.items) {
-    for (const item of ammo.items) {
-      // Don't overwrite weapons entries (weapons have priority)
-      if (!catalog.has(item.id)) {
-        catalog.set(item.id, {
-          id: item.id,
-          name: item.name,
-          category: item.category,
-          techBase: item.techBase,
-          battleValue: item.battleValue,
-        });
+  // Load ammunition (data-driven from index.json)
+  const ammoFileEntries = indexData?.files?.ammunition;
+  const ammoFiles = ammoFileEntries && typeof ammoFileEntries === 'object' && !Array.isArray(ammoFileEntries)
+    ? Object.values(ammoFileEntries) as string[]
+    : ['ammunition.json'];
+  for (const ammoFile of ammoFiles) {
+    const ammo = loadJsonFile<AmmoCatalogFile>(path.join(basePath, ammoFile));
+    if (ammo?.items) {
+      for (const item of ammo.items) {
+        // Don't overwrite weapons entries (weapons have priority)
+        if (!catalog.has(item.id)) {
+          catalog.set(item.id, {
+            id: item.id,
+            name: item.name,
+            category: item.category,
+            techBase: item.techBase,
+            battleValue: item.battleValue,
+          });
+        }
       }
     }
   }
@@ -402,6 +412,10 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'heavy-medium-laser': 'medium-heavy-laser',
   'heavy-large-laser': 'large-heavy-laser',
   'heavy-small-laser': 'small-heavy-laser',
+  // Clan-prefixed heavy lasers (IS-only weapons used on mixed-tech units)
+  'clan-heavy-medium-laser': 'medium-heavy-laser',
+  'clan-heavy-large-laser': 'large-heavy-laser',
+  'clan-heavy-small-laser': 'small-heavy-laser',
 
   // Improved heavy lasers now have their own catalog entries with correct BV
 
@@ -494,12 +508,33 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'islargexpulselaser': 'large-x-pulse-laser',
 
   // ER pulse lasers (Clan-exclusive, in catalog as clan-er-*-pulse-laser)
-  // Clan resolution in validate-bv.ts adds clan- prefix automatically
+  'er-small-pulse-laser': 'clan-er-small-pulse-laser',
+  'er-medium-pulse-laser': 'clan-er-medium-pulse-laser',
+  'er-large-pulse-laser': 'clan-er-large-pulse-laser',
+
+  // Chemical lasers (Clan-exclusive, appears without clan- prefix)
+  'small-chem-laser': 'clan-small-chemical-laser',
+  'medium-chem-laser': 'clan-medium-chemical-laser',
+  'large-chem-laser': 'clan-large-chemical-laser',
+
+  // Particle Cannon (alternate name for PPC)
+  'particle-cannon': 'ppc',
+
+  // Enhanced ER PPC
+  'enhanced-ppc': 'enhanced-er-ppc',
+  'enhanced-er-ppc': 'enhanced-er-ppc',
+
+  // Binary Laser / Blazer Cannon aliases
+  'binary-laser-blazer-cannon': 'blazer-cannon',
+  'binary-laser-cannon': 'blazer-cannon',
 
   // VSP lasers (Variable Speed Pulse, in catalog)
   'small-vsp-laser': 'small-vsp-laser',
   'medium-vsp-laser': 'medium-vsp-laser',
   'large-vsp-laser': 'large-vsp-laser',
+  'small-vsp': 'small-vsp-laser',
+  'medium-vsp': 'medium-vsp-laser',
+  'large-vsp': 'large-vsp-laser',
   'issmallvsplaser': 'small-vsp-laser',
   'ismediumvsplaser': 'medium-vsp-laser',
   'islargevsplaser': 'large-vsp-laser',
@@ -509,14 +544,14 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'large-re-engineered-laser': 'large-laser',
   'small-re-engineered-laser': 'small-laser',
 
-  // SRM I-OS variants (one-shot)
-  'srm-2-i-os': 'srm2-ios',
-  'srm-4-i-os': 'srm4-ios',
-  'srm-6-i-os': 'srm6-ios',
-  'lrm-5-i-os': 'lrm5-ios',
-  'lrm-10-i-os': 'lrm10-ios',
-  'lrm-15-i-os': 'lrm15-ios',
-  'lrm-20-i-os': 'lrm20-ios',
+  // I-OS variants — map to BASE weapon (validate-bv.ts applies ÷5 BV penalty)
+  'srm-2-i-os': 'srm-2',
+  'srm-4-i-os': 'srm-4',
+  'srm-6-i-os': 'srm-6',
+  'lrm-5-i-os': 'lrm-5',
+  'lrm-10-i-os': 'lrm-10',
+  'lrm-15-i-os': 'lrm-15',
+  'lrm-20-i-os': 'lrm-20',
 
   // Heavy PPC
   'heavy-ppc': 'heavy-ppc',
@@ -563,26 +598,42 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'srt-2': 'srm-2',
   'srt-4': 'srm-4',
   'srt-6': 'srm-6',
+  // Clan torpedo variants (map to Clan LRM/SRM for correct BV)
+  'clan-lrt-5': 'clan-lrm-5',
+  'clan-lrt-10': 'clan-lrm-10',
+  'clan-lrt-15': 'clan-lrm-15',
+  'clan-lrt-20': 'clan-lrm-20',
+  'clan-srt-2': 'clan-srm-2',
+  'clan-srt-4': 'clan-srm-4',
+  'clan-srt-6': 'clan-srm-6',
 
   // Anti-BA pods
   'anti-battlearmor-pods-b-pods': 'b-pod',
+  isbpod: 'b-pod',
+  clbpod: 'b-pod',
 
   // C3 boosted with TAG
   'c3-master-boosted-with-tag': 'c3-boosted-master',
 
   // MegaMek internal IDs (numeric-prefixed, stripped to these forms)
+  islaserantimissilesystem: 'laser-ams',
+  cllaserantimissilesystem: 'clan-laser-ams',
   isplasmarifle: 'plasma-rifle',
   islppc: 'light-ppc',
   isblazer: 'blazer-cannon',
   iseherppc: 'er-ppc', // Enhanced ER PPC → ER PPC for BV purposes
   clplasmacannon: 'clan-plasma-cannon',
-  clheavysmalllaser: 'clan-heavy-small-laser',
+  clheavysmalllaser: 'small-heavy-laser',
   clmicropulselaser: 'clan-micro-pulse-laser',
   ismg: 'machine-gun',
   clmg: 'clan-machine-gun',
   islightmg: 'light-machine-gun',
   issrm4os: 'srm-4',
   isangelecm: 'angel-ecm',
+  clangelecmsuite: 'angel-ecm',
+  angelecmsuite: 'angel-ecm',
+  novacews: 'watchdog-cews',         // Nova CEWS: defBV=68 (same as Watchdog CEWS per Sarna/MegaMek)
+  watchdogecmsuite: 'watchdog-cews',
   clantimissilesystem: 'clan-ams',
   clactiveprobe: 'clan-active-probe',
   cllightactiveprobe: 'light-active-probe',
@@ -591,19 +642,35 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   isc3mastercomputer: 'c3-master',
   isc3slaveunit: 'c3-slave',
   issniperartcannon: 'sniper-cannon',
+  sniper: 'sniper-cannon',                // Unit JSON uses "sniper" for Sniper Cannon (BV=85)
+  isarrowivsystem: 'arrow-iv-launcher',    // MegaMek ISArrowIVSystem (BV=240)
+  clarrowivsystem: 'clan-arrow-iv-launcher',
   isfluidgun: 'fluid-gun',
   ismediumpulselaserprototype: 'medium-pulse-laser',
   islbxac10prototype: 'lb-10-x-ac',
   clrocketlauncher15prototype: 'rocket-launcher-15',
 
-  // One-shot (OS) variants — map to base weapon for BV
-  'streak-srm-2-os': 'streaksrm2-os',
-  'streak-srm-4-os': 'streaksrm4-os',
-  'streak-srm-2-i-os': 'streaksrm2-ios',
-  'streak-srm-4-i-os': 'streaksrm4-ios',
-  'srm-2-os': 'srm2-ios',
-  'srm-6-os': 'srm6-ios',
-  'narc-i-os': 'improvednarc-os',
+  // One-shot (OS) variants — map to BASE weapon (validate-bv.ts applies ÷5 BV penalty)
+  'streak-srm-2-os': 'streak-srm-2',
+  'streak-srm-4-os': 'streak-srm-4',
+  'streak-srm-2-i-os': 'streak-srm-2',
+  'streak-srm-4-i-os': 'streak-srm-4',
+  'srm-2-os': 'srm-2',
+  'srm-6-os': 'srm-6',
+  'narc-i-os': 'narc',
+
+  // Primitive weapons — map to production equivalents for BV (same BV per MegaMek)
+  'primitive-prototype-ppc': 'ppc',
+  ppcp: 'ppc',
+
+  // Rifle Cannon (experimental ballistic weapon)
+  'rifle-cannon': 'rifle-cannon-heavy',  // Phoenix PX-1KR uses Heavy Rifle Cannon
+
+  // TSEMP (one-shot variant maps to base cannon; IOS penalty applied in validate-bv.ts)
+  'tsemp-one-shot': 'tsemp-cannon',
+
+  // Electronic Warfare (EW) Equipment (defensive BV=39)
+  iselectronicwarfareequipment: 'electronic-warfare-ew-equipment',
 
   // Prototype weapons — map to production equivalents for BV
   'prototype-er-medium-laser': 'er-medium-laser',
@@ -611,7 +678,7 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'er-large-laser-prototype': 'er-large-laser',
   'prototype-streak-srm-4': 'streak-srm-4',
   'prototype-streak-srm-6': 'streak-srm-6',
-  'prototype-ultra-autocannon-10': 'ultra-ac-10',
+  'prototype-ultra-autocannon-10': 'uac-10',
   'prototype-lb-10-x-autocannon': 'lb-10-x-ac',
   'prototype-rocket-launcher-20': 'rocket-launcher-20',
   'rocket-launcher-10-pp': 'rocket-launcher-10',
@@ -622,6 +689,17 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'c3-computer-[master]': 'c3-master',
   'c3-remote-sensor-launcher': 'c3-master',
   isc3remotesensorlauncher: 'c3-master',
+
+  // Plasma Cannon (Clan-exclusive, appears without clan- prefix)
+  'plasma-cannon': 'clan-plasma-cannon',
+
+  // Silver Bullet Gauss (unit JSON uses "silver-bullet-gauss-rifle", catalog uses "sbgr")
+  'silver-bullet-gauss-rifle': 'sbgr',
+
+  // Taser (unit JSON uses "taser", catalog uses "battlemech-taser")
+  'taser': 'battlemech-taser',
+  'mech-taser': 'battlemech-taser',
+  'ismektaser': 'battlemech-taser',
 
   // Vehicle flamer
   'flamer-vehicle': 'flamer',
@@ -787,6 +865,16 @@ function applyBVHeatOverride(
     return baseHeat * 6;
   }
   if (name.includes('streak srm')) {
+    return baseHeat * 0.5;
+  }
+
+  // Streak LRM: half heat for BV (MegaMek: LRM_STREAK → weaponHeat *= 0.5)
+  if (name.includes('streak lrm')) {
+    return baseHeat * 0.5;
+  }
+
+  // iATM (Improved ATM): half heat for BV (MegaMek: IATM → weaponHeat *= 0.5)
+  if (name.includes('improved atm') || name.includes('iatm')) {
     return baseHeat * 0.5;
   }
 

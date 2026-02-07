@@ -675,70 +675,62 @@ export class EquipmentLoaderService {
     let itemsLoaded = 0;
 
     try {
-      // Load energy weapons
-      const energyData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
-        'weapons/energy.json',
-        basePath,
-      );
-      if (energyData) {
-        energyData.items.forEach((item) => {
-          const weapon = convertWeapon(item);
-          this.weapons.set(weapon.id, weapon);
-          itemsLoaded++;
-        });
-      } else {
-        warnings.push('Failed to load energy weapons');
+      // Load index.json for data-driven file discovery
+      const indexData = await readJsonFile<{
+        files: {
+          weapons: Record<string, string>;
+          ammunition: Record<string, string> | string;
+          electronics: string;
+          miscellaneous: string;
+        };
+      }>('index.json', basePath);
+
+      // Load weapon files (data-driven from index.json)
+      const weaponFiles = indexData?.files?.weapons
+        ? Object.values(indexData.files.weapons)
+        : ['weapons/energy.json', 'weapons/ballistic.json', 'weapons/missile.json', 'weapons/physical.json'];
+      for (const weaponFile of weaponFiles) {
+        const weaponData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
+          weaponFile,
+          basePath,
+        );
+        if (weaponData) {
+          weaponData.items.forEach((item) => {
+            const weapon = convertWeapon(item);
+            this.weapons.set(weapon.id, weapon);
+            itemsLoaded++;
+          });
+        } else {
+          warnings.push(`Failed to load weapons from ${weaponFile}`);
+        }
       }
 
-      // Load ballistic weapons
-      const ballisticData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
-        'weapons/ballistic.json',
-        basePath,
-      );
-      if (ballisticData) {
-        ballisticData.items.forEach((item) => {
-          const weapon = convertWeapon(item);
-          this.weapons.set(weapon.id, weapon);
-          itemsLoaded++;
-        });
-      } else {
-        warnings.push('Failed to load ballistic weapons');
-      }
-
-      // Load missile weapons
-      const missileData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
-        'weapons/missile.json',
-        basePath,
-      );
-      if (missileData) {
-        missileData.items.forEach((item) => {
-          const weapon = convertWeapon(item);
-          this.weapons.set(weapon.id, weapon);
-          itemsLoaded++;
-        });
-      } else {
-        warnings.push('Failed to load missile weapons');
-      }
-
-      // Load ammunition
-      const ammoData = await readJsonFile<IEquipmentFile<IRawAmmunitionData>>(
-        'ammunition.json',
-        basePath,
-      );
-      if (ammoData) {
-        ammoData.items.forEach((item) => {
-          const ammo = convertAmmunition(item);
-          this.ammunition.set(ammo.id, ammo);
-          itemsLoaded++;
-        });
-      } else {
-        warnings.push('Failed to load ammunition');
+      // Load ammunition files (data-driven from index.json)
+      const ammoEntry = indexData?.files?.ammunition;
+      const ammoFiles = ammoEntry && typeof ammoEntry === 'object'
+        ? Object.values(ammoEntry) as string[]
+        : ['ammunition.json'];
+      for (const ammoFile of ammoFiles) {
+        const ammoData = await readJsonFile<IEquipmentFile<IRawAmmunitionData>>(
+          ammoFile,
+          basePath,
+        );
+        if (ammoData) {
+          ammoData.items.forEach((item) => {
+            const ammo = convertAmmunition(item);
+            this.ammunition.set(ammo.id, ammo);
+            itemsLoaded++;
+          });
+        } else {
+          warnings.push(`Failed to load ammunition from ${ammoFile}`);
+        }
       }
 
       // Load electronics
+      const electronicsFile = indexData?.files?.electronics || 'electronics.json';
       const electronicsData = await readJsonFile<
         IEquipmentFile<IRawElectronicsData>
-      >('electronics.json', basePath);
+      >(electronicsFile, basePath);
       if (electronicsData) {
         electronicsData.items.forEach((item) => {
           const electronics = convertElectronics(item);
@@ -750,9 +742,10 @@ export class EquipmentLoaderService {
       }
 
       // Load misc equipment
+      const miscFile = indexData?.files?.miscellaneous || 'miscellaneous.json';
       const miscData = await readJsonFile<
         IEquipmentFile<IRawMiscEquipmentData>
-      >('miscellaneous.json', basePath);
+      >(miscFile, basePath);
       if (miscData) {
         miscData.items.forEach((item) => {
           const equipment = convertMiscEquipment(item);

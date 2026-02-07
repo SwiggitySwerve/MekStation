@@ -433,6 +433,8 @@ export interface OffensiveBVConfig {
   hasIndustrialTSM?: boolean;
   /** Number of arms with functional AES (0-2) for weight bonus multiplier */
   aesArms?: number;
+  /** Number of legs with functional AES (0 for none, 2 for biped, 4 for quad) */
+  aesLegs?: number;
   /** Industrial mech without advanced fire control: offensive BV ×0.9 */
   isIndustrialMech?: boolean;
   /** UMU movement points (Underwater Maneuvering Unit) */
@@ -461,6 +463,10 @@ export interface OffensiveBVConfig {
   physicalWeaponBV?: number;
   /** Offensive equipment BV (Watchdog CEWS, etc.) */
   offensiveEquipmentBV?: number;
+  /** MASC present (reserved for future use) */
+  hasMASC?: boolean;
+  /** Supercharger present (reserved for future use) */
+  hasSupercharger?: boolean;
 }
 
 export interface OffensiveBVResult {
@@ -469,6 +475,15 @@ export interface OffensiveBVResult {
   weightBonus: number;
   speedFactor: number;
   totalOffensiveBV: number;
+  /** Heat tracking details for diagnostic breakdowns */
+  heatEfficiency?: number;
+  moveHeat?: number;
+  rawWeaponBV?: number;
+  halvedWeaponBV?: number;
+  weaponCount?: number;
+  halvedWeaponCount?: number;
+  physicalWeaponBV?: number;
+  offensiveEquipmentBV?: number;
 }
 
 export function calculateOffensiveSpeedFactor(
@@ -478,7 +493,7 @@ export function calculateOffensiveSpeedFactor(
 ): number {
   const mp = runMP + Math.round(Math.max(jumpMP, umuMP) / 2.0);
   const speedFactor =
-    Math.round(Math.pow(1 + (mp - 5) / 10.0, 1.2) * 10000.0) / 10000.0;
+    Math.round(Math.pow(1 + (mp - 5) / 10.0, 1.2) * 100.0) / 100.0;
   return speedFactor;
 }
 
@@ -500,8 +515,9 @@ const AMMO_WEAPON_TYPE_ALIASES: Record<string, string[]> = {
   'sniper-cannon': ['sniper'],
   'thumper': ['thumper-cannon'],
   'thumper-cannon': ['thumper'],
-  'medium-chemical-laser': ['medium-chem-laser', 'clmediumchemlaser'],
-  'medium-chem-laser': ['medium-chemical-laser', 'clmediumchemlaser'],
+  'medium-chemical-laser': ['medium-chem-laser', 'clmediumchemlaser', 'clan-medium-chemical-laser'],
+  'medium-chem-laser': ['medium-chemical-laser', 'clmediumchemlaser', 'clan-medium-chemical-laser'],
+  'clan-medium-chemical-laser': ['medium-chemical-laser', 'medium-chem-laser', 'clmediumchemlaser'],
   'lb-5-x': ['lb-5-x-ac'],
   'lb-2-x': ['lb-2-x-ac'],
   'lrtorpedo': ['lrm-15', 'lrm-10', 'lrm-5', 'lrm-20'],
@@ -701,13 +717,19 @@ export function calculateOffensiveBVWithHeatTracking(
   let heatExceeded = heatEfficiency <= 0;
   let heatSum = 0;
   let weaponBV = 0;
+  let rawWeaponBVTotal = 0;
+  let halvedWeaponBVTotal = 0;
+  let halvedWeaponCount = 0;
 
   for (const weapon of sortedWeapons) {
     heatSum += weapon.heat;
     let adjustedBV = weapon.bv;
+    rawWeaponBVTotal += weapon.bv;
 
     if (heatExceeded) {
       adjustedBV *= 0.5;
+      halvedWeaponBVTotal += weapon.bv * 0.5;
+      halvedWeaponCount++;
     }
 
     weaponBV += adjustedBV;
@@ -722,7 +744,8 @@ export function calculateOffensiveBVWithHeatTracking(
     : 0;
 
   // Weight bonus with TSM/AES modifiers per MekBVCalculator.processWeight()
-  const aesMultiplier = 1.0 + (config.aesArms ?? 0) * 0.1;
+  // Arm AES: +0.1 per arm. Leg AES: +0.2 biped, +0.4 quad (lines 428-441)
+  const aesMultiplier = 1.0 + (config.aesArms ?? 0) * 0.1 + (config.aesLegs ?? 0) * 0.1;
   const adjustedWeight = config.tonnage * aesMultiplier;
   let weightBonus: number;
   if (config.hasTSM) {
@@ -753,6 +776,14 @@ export function calculateOffensiveBVWithHeatTracking(
     weightBonus,
     speedFactor,
     totalOffensiveBV,
+    heatEfficiency,
+    moveHeat,
+    rawWeaponBV: rawWeaponBVTotal,
+    halvedWeaponBV: halvedWeaponBVTotal,
+    weaponCount: sortedWeapons.length,
+    halvedWeaponCount,
+    physicalWeaponBV,
+    offensiveEquipmentBV,
   };
 }
 
@@ -872,6 +903,7 @@ export interface BVCalculationConfig {
   hasTSM?: boolean;
   hasIndustrialTSM?: boolean;
   aesArms?: number;
+  aesLegs?: number;
   isIndustrialMech?: boolean;
   ammo?: Array<{ id: string; bv: number; weaponType: string }>;
   explosivePenalties?: number;
@@ -959,6 +991,7 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     hasTSM: config.hasTSM,
     hasIndustrialTSM: config.hasIndustrialTSM,
     aesArms: config.aesArms,
+    aesLegs: config.aesLegs,
     isIndustrialMech: config.isIndustrialMech,
     engineType: config.engineType,
     hasStealthArmor: config.hasStealthArmor,
@@ -1044,6 +1077,7 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     hasTSM: config.hasTSM,
     hasIndustrialTSM: config.hasIndustrialTSM,
     aesArms: config.aesArms,
+    aesLegs: config.aesLegs,
     isIndustrialMech: config.isIndustrialMech,
     engineType: config.engineType,
     hasStealthArmor: config.hasStealthArmor,

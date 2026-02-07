@@ -106,6 +106,7 @@ export const ARMOR_BV_MULTIPLIERS: Record<string, number> = {
 export const STRUCTURE_BV_MULTIPLIERS: Record<string, number> = {
   industrial: 0.5,
   composite: 0.5,
+  'endo-composite': 1.0,
   reinforced: 2.0,
   standard: 1.0,
 };
