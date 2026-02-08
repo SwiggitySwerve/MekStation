@@ -14,9 +14,9 @@
     "rating": 315
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "HEAVY_DUTY"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SUPERHEAVY",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -164,9 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "illegal_design"
-  ],
+  "quirks": ["illegal_design"],
   "role": "Sniper",
   "source": "XTR:RISC"
 }

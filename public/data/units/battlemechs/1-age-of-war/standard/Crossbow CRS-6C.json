@@ -160,10 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "obsolete",
-    "poor_target_long"
-  ],
+  "quirks": ["poor_target_long"],
   "fluff": {
     "overview": "The predecessor to Clan Steel Viper's Crossbow OmniMech, the original Crossbow first saw battlefield action for the Lyran Commonwealth in 2468. The 60-ton 'Mech is speedy for its era, capable of 86 km/h. This came at the expense of armor, however, as the Crossbow is only protected by eight tons of armor.",
     "capabilities": "This variant introduced in 2481, meant for close-quarters action, removed the missile launchers and one laser in favor of an Autocannon/10, though it had a limited ammunition supply",

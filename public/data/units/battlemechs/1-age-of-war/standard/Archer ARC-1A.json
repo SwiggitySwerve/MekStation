@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -172,7 +172,8 @@
     "ubiquitous_is",
     "easy_maintain",
     "ext_twist",
-    "difficult_eject"
+    "difficult_eject",
+    "obsolete:2485"
   ],
   "fluff": {
     "overview": "One of the most iconic BattleMechs is the Archer, with its low-slung torso, enormous fists, and missile-bay covers. The Archer was first manufactured in 2474 for heavy-hitting, long-range brawling, and fire-support.",

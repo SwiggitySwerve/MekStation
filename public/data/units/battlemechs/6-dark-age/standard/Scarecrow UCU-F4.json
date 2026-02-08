@@ -14,7 +14,7 @@
     "rating": 200
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -224,11 +224,7 @@
       "Chameleon Light Polarization Shield"
     ]
   },
-  "quirks": [
-    "bad_rep_is",
-    "difficult_maintain",
-    "no_arms"
-  ],
+  "quirks": ["bad_rep_is", "difficult_maintain", "no_arms"],
   "mulId": 6336,
   "role": "Brawler",
   "source": "TR:3145:FS"

@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -133,6 +133,38 @@
       "Cockpit",
       "Sensors",
       "ISDroneOperatingSystem",
+      "IS Endo Steel"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
+      "IS Endo Steel"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo Steel",
       "IS Endo Steel"
     ]
   },

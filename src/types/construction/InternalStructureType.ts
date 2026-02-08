@@ -131,6 +131,8 @@ export function getInternalStructureDefinition(
  * Based on TechManual tables
  */
 export const STRUCTURE_POINTS_TABLE: Record<number, Record<string, number>> = {
+  10: { head: 3, centerTorso: 4, sideTorso: 3, arm: 1, leg: 2 },
+  15: { head: 3, centerTorso: 5, sideTorso: 4, arm: 2, leg: 3 },
   20: { head: 3, centerTorso: 6, sideTorso: 5, arm: 3, leg: 4 },
   25: { head: 3, centerTorso: 8, sideTorso: 6, arm: 4, leg: 6 },
   30: { head: 3, centerTorso: 10, sideTorso: 7, arm: 5, leg: 7 },

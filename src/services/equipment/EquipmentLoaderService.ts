@@ -259,13 +259,15 @@ interface IRawMiscEquipmentData {
 }
 
 /**
- * Equipment file wrapper structure
+ * Equipment file wrapper structure.
+ * Only `items` is required — metadata fields are optional since some
+ * equipment files were restructured without the wrapper fields.
  */
 interface IEquipmentFile<T> {
-  $schema: string;
-  version: string;
-  generatedAt: string;
-  count: number;
+  $schema?: string;
+  version?: string;
+  generatedAt?: string;
+  count?: number;
   items: T[];
 }
 
@@ -675,92 +677,137 @@ export class EquipmentLoaderService {
     let itemsLoaded = 0;
 
     try {
-      // Load energy weapons
-      const energyData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
-        'weapons/energy.json',
-        basePath,
-      );
-      if (energyData) {
-        energyData.items.forEach((item) => {
-          const weapon = convertWeapon(item);
-          this.weapons.set(weapon.id, weapon);
-          itemsLoaded++;
-        });
-      } else {
-        warnings.push('Failed to load energy weapons');
+      // Load index.json for data-driven file discovery
+      const indexData = await readJsonFile<{
+        files: {
+          weapons: Record<string, string>;
+          ammunition: Record<string, string> | string;
+          electronics: Record<string, string> | string;
+          miscellaneous: Record<string, string> | string;
+        };
+      }>('index.json', basePath);
+
+      // Load weapon files (data-driven from index.json)
+      const weaponFiles = indexData?.files?.weapons
+        ? Object.values(indexData.files.weapons)
+        : [
+            'weapons/energy-laser.json',
+            'weapons/energy-ppc.json',
+            'weapons/energy-other.json',
+            'weapons/ballistic-autocannon.json',
+            'weapons/ballistic-gauss.json',
+            'weapons/ballistic-machinegun.json',
+            'weapons/ballistic-other.json',
+            'weapons/missile-atm.json',
+            'weapons/missile-lrm.json',
+            'weapons/missile-mrm.json',
+            'weapons/missile-other.json',
+            'weapons/missile-srm.json',
+            'weapons/physical.json',
+          ];
+      for (const weaponFile of weaponFiles) {
+        const weaponData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
+          weaponFile,
+          basePath,
+        );
+        if (weaponData) {
+          weaponData.items.forEach((item) => {
+            const weapon = convertWeapon(item);
+            this.weapons.set(weapon.id, weapon);
+            itemsLoaded++;
+          });
+        } else {
+          warnings.push(`Failed to load weapons from ${weaponFile}`);
+        }
       }
 
-      // Load ballistic weapons
-      const ballisticData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
-        'weapons/ballistic.json',
-        basePath,
-      );
-      if (ballisticData) {
-        ballisticData.items.forEach((item) => {
-          const weapon = convertWeapon(item);
-          this.weapons.set(weapon.id, weapon);
-          itemsLoaded++;
-        });
-      } else {
-        warnings.push('Failed to load ballistic weapons');
+      // Load ammunition files (data-driven from index.json)
+      const ammoEntry = indexData?.files?.ammunition;
+      const ammoFiles =
+        ammoEntry && typeof ammoEntry === 'object'
+          ? (Object.values(ammoEntry) as string[])
+          : [
+              'ammunition/artillery.json',
+              'ammunition/atm.json',
+              'ammunition/autocannon.json',
+              'ammunition/gauss.json',
+              'ammunition/lrm.json',
+              'ammunition/machinegun.json',
+              'ammunition/mrm.json',
+              'ammunition/narc.json',
+              'ammunition/other.json',
+              'ammunition/srm.json',
+            ];
+      for (const ammoFile of ammoFiles) {
+        const ammoData = await readJsonFile<IEquipmentFile<IRawAmmunitionData>>(
+          ammoFile,
+          basePath,
+        );
+        if (ammoData) {
+          ammoData.items.forEach((item) => {
+            const ammo = convertAmmunition(item);
+            this.ammunition.set(ammo.id, ammo);
+            itemsLoaded++;
+          });
+        } else {
+          warnings.push(`Failed to load ammunition from ${ammoFile}`);
+        }
       }
 
-      // Load missile weapons
-      const missileData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
-        'weapons/missile.json',
-        basePath,
-      );
-      if (missileData) {
-        missileData.items.forEach((item) => {
-          const weapon = convertWeapon(item);
-          this.weapons.set(weapon.id, weapon);
-          itemsLoaded++;
-        });
-      } else {
-        warnings.push('Failed to load missile weapons');
+      // Load electronics files (data-driven from index.json)
+      const elecEntry = indexData?.files?.electronics;
+      const elecFiles =
+        elecEntry && typeof elecEntry === 'object' && !Array.isArray(elecEntry)
+          ? (Object.values(elecEntry) as string[])
+          : [
+              'electronics/ecm.json',
+              'electronics/active-probe.json',
+              'electronics/c3.json',
+              'electronics/other.json',
+            ];
+      for (const elecFile of elecFiles) {
+        const electronicsData = await readJsonFile<
+          IEquipmentFile<IRawElectronicsData>
+        >(elecFile, basePath);
+        if (electronicsData) {
+          electronicsData.items.forEach((item) => {
+            const electronics = convertElectronics(item);
+            this.electronics.set(electronics.id, electronics);
+            itemsLoaded++;
+          });
+        } else {
+          warnings.push(`Failed to load electronics from ${elecFile}`);
+        }
       }
 
-      // Load ammunition
-      const ammoData = await readJsonFile<IEquipmentFile<IRawAmmunitionData>>(
-        'ammunition.json',
-        basePath,
-      );
-      if (ammoData) {
-        ammoData.items.forEach((item) => {
-          const ammo = convertAmmunition(item);
-          this.ammunition.set(ammo.id, ammo);
-          itemsLoaded++;
-        });
-      } else {
-        warnings.push('Failed to load ammunition');
-      }
-
-      // Load electronics
-      const electronicsData = await readJsonFile<
-        IEquipmentFile<IRawElectronicsData>
-      >('electronics.json', basePath);
-      if (electronicsData) {
-        electronicsData.items.forEach((item) => {
-          const electronics = convertElectronics(item);
-          this.electronics.set(electronics.id, electronics);
-          itemsLoaded++;
-        });
-      } else {
-        warnings.push('Failed to load electronics');
-      }
-
-      // Load misc equipment
-      const miscData = await readJsonFile<
-        IEquipmentFile<IRawMiscEquipmentData>
-      >('miscellaneous.json', basePath);
-      if (miscData) {
-        miscData.items.forEach((item) => {
-          const equipment = convertMiscEquipment(item);
-          this.miscEquipment.set(equipment.id, equipment);
-          itemsLoaded++;
-        });
-      } else {
-        warnings.push('Failed to load miscellaneous equipment');
+      // Load misc equipment files (data-driven from index.json)
+      const miscEntry = indexData?.files?.miscellaneous;
+      const miscFiles =
+        miscEntry && typeof miscEntry === 'object' && !Array.isArray(miscEntry)
+          ? (Object.values(miscEntry) as string[])
+          : [
+              'miscellaneous/heat-sinks.json',
+              'miscellaneous/jump-jets.json',
+              'miscellaneous/movement.json',
+              'miscellaneous/myomer.json',
+              'miscellaneous/defensive.json',
+              'miscellaneous/other.json',
+            ];
+      for (const miscFile of miscFiles) {
+        const miscData = await readJsonFile<
+          IEquipmentFile<IRawMiscEquipmentData>
+        >(miscFile, basePath);
+        if (miscData) {
+          miscData.items.forEach((item) => {
+            const equipment = convertMiscEquipment(item);
+            this.miscEquipment.set(equipment.id, equipment);
+            itemsLoaded++;
+          });
+        } else {
+          warnings.push(
+            `Failed to load miscellaneous equipment from ${miscFile}`,
+          );
+        }
       }
 
       this.isLoaded = true;

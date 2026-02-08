@@ -14,7 +14,7 @@
     "rating": 375
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -172,9 +172,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "ext_twist"
-  ],
+  "quirks": ["ext_twist"],
   "mulId": 2570,
   "role": "Skirmisher",
   "source": "BD:LL"

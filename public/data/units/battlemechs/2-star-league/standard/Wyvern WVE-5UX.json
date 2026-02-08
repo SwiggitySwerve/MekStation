@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "COMMAND_CONSOLE",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -168,9 +168,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "rugged_1"
-  ],
+  "quirks": ["rugged_1"],
   "mulId": 7319,
   "role": "Brawler",
   "source": "XTR:Gunslingers"

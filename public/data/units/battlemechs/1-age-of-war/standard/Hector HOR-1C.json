@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -52,20 +52,20 @@
   },
   "equipment": [
     {
-      "id": "large-laser",
-      "location": "LEFT_ARM"
-    },
-    {
-      "id": "large-laser",
-      "location": "RIGHT_ARM"
+      "id": "small-laser",
+      "location": "LEFT_LEG"
     },
     {
       "id": "small-laser",
       "location": "RIGHT_LEG"
     },
     {
-      "id": "small-laser",
-      "location": "LEFT_LEG"
+      "id": "large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
     }
   ],
   "criticalSlots": {
@@ -164,11 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "bad_rep_is",
-    "exp_actuator",
-    "obsolete"
-  ],
+  "quirks": ["bad_rep_is", "exp_actuator", "obsolete:2525"],
   "mulId": 4284,
   "role": "Brawler",
   "source": "ED:AoW"

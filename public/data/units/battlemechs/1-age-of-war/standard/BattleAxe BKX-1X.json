@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -176,11 +176,7 @@
       null
     ]
   },
-  "quirks": [
-    "hard_pilot",
-    "poor_performance",
-    "prototype"
-  ],
+  "quirks": ["hard_pilot", "poor_performance", "prototype"],
   "mulId": 5584,
   "role": "Juggernaut",
   "source": "XTR:Primitives II"

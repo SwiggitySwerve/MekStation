@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -177,7 +177,7 @@
     "ext_twist",
     "poor_performance",
     "prototype",
-    "obsolete"
+    "obsolete:2470"
   ],
   "mulId": 1599,
   "role": "Brawler",

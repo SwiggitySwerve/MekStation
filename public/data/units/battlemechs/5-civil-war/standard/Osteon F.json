@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "TORSO_MOUNTED",
   "structure": {
     "type": "REINFORCED"
   },
@@ -200,12 +200,7 @@
       "Clan Ferro-Lamellor"
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "multi_trac",
-    "pro_actuator",
-    "bad_rep_clan"
-  ],
+  "quirks": ["ext_twist", "multi_trac", "pro_actuator", "bad_rep_clan"],
   "fluff": {
     "overview": "The Osteon was The Society's assault-class OmniMech. To maximize the 'Mech's battlefield longevity, the designers focused on survivability above other considerations. Eighteen tons of Ferro-Lamellor armor provide excellent protection against weapons fire, but in case the armor is breached the Reinforced Structure will resist most attacks. In addition, the Torso-Mounted Cockpit allows the Osteon's pilot to take advantage of the heavy center torso armor. To maximize the Osteon's damage potential, a Nova CEWS allows the unit to share targeting data with friendly units. This equipment is so valuable that it's permanently mounted in the 'Mech's head.",
     "capabilities": "This configuration uses an ER Large Laser, Gauss Rifle, and Rotary AC/5 for its main weaponry. These are supplemented by eight Machine Guns split into two Machine Gun Arrays of four. Four tons of autocannon and two tons of Gauss Rifle ammo are carried.",

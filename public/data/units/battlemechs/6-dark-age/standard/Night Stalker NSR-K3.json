@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "TORSO_MOUNTED",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -172,9 +172,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "distracting"
-  ],
+  "quirks": ["distracting"],
   "mulId": 6674,
   "role": "Scout",
   "source": "TR:3145:RotS"

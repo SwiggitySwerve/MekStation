@@ -154,6 +154,38 @@
       "Clan Endo Steel",
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Endo Steel",
+      "Clan Ferro-Fibrous"
     ]
   },
   "quirks": [

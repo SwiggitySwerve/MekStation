@@ -14,7 +14,7 @@
     "rating": 350
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "HEAVY_DUTY"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -118,6 +118,38 @@
       "ISAntiMissileSystem",
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Endo Steel"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Endo Steel"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Endo Steel"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Jump Jet",
+      "Endo Steel"
     ]
   },
   "quirks": [

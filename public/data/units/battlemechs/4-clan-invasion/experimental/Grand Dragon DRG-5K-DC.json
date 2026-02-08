@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "COMMAND_CONSOLE",
   "structure": {
     "type": "STANDARD"
   },
@@ -164,11 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "low_profile",
-    "stable"
-  ],
+  "quirks": ["ext_twist", "low_profile", "stable"],
   "fluff": {
     "overview": "The Grand Dragon is the successful follow-up to the Dragon BattleMech.",
     "capabilities": "Protected by ten tons of armor, the Grand Dragon uses thirteen double heat sinks for excellent heat management and uses a 16.5 ton Hermes 360 XL engine to achieve a moderate cruising speed of 64 km/h. Originally the Grand Dragon used the same Alshain Type 56-60H chassis as was found in the Dragon 'Mech it replaced. However, when the new Nykvarn plant was being set up an innovative engineering team came up with a way to increase the Grand Dragon's rotation from 250Â° to 300Â° by using an alternative assembly method for the hip and torso structure. This improvement was responsible for Nykvarn being awarded the honor of restarting Grand Dragon production, with all new Grand Dragons using this Nykvarn Type 58-66SH chassis",

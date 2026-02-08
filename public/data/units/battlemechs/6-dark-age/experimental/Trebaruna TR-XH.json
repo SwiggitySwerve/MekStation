@@ -110,6 +110,38 @@
       "ISImprovedHeavyGauss Ammo",
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Improved Jump Jet",
+      "IS Improved Jump Jet"
     ]
   },
   "quirks": [

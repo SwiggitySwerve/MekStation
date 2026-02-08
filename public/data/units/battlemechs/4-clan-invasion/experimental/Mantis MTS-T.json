@@ -14,7 +14,7 @@
     "rating": 270
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -168,9 +168,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "non_standard"
-  ],
+  "quirks": ["non_standard"],
   "mulId": 2024,
   "role": "Striker",
   "source": "TR:3055U"

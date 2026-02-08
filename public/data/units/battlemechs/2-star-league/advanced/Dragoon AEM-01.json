@@ -160,12 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "bad_rep_clan",
-    "bad_rep_is",
-    "obsolete"
-  ],
+  "quirks": ["easy_maintain", "bad_rep_clan", "bad_rep_is", "obsolete:2780"],
   "fluff": {
     "overview": "The brainchild of Stefan Amaris, the Dragoon BattleMech was envisioned as part of Amaris's ambitious plan to create a family of \"modular\" multi-mission combat units for his Amaris Empire Armed Forces.",
     "capabilities": "Armed with only a few, but powerful weapons found only in the 'Mech's arms. Powered by one of Nissan's 280-rated XL Fusion Engines, the 'Mech is able to achieve a modest pace of 64 km/h. Its defenses include a Guardian ECM Suite, while its armored hull is protected by 11.5 tons of Ferro-Fibrous armor.",

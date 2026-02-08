@@ -14,7 +14,7 @@
     "rating": 300
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -160,10 +160,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "non_standard"
-  ],
+  "quirks": ["imp_target_short", "non_standard"],
   "mulId": 523,
   "role": "Skirmisher",
   "source": "TR:3050"

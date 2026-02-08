@@ -14,7 +14,7 @@
     "rating": 270
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -168,9 +168,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "fluff": {
     "overview": "A low-cost alternative to the Atlas-K: the AKU-1X Akuma.",
     "capabilities": "Akuma was smaller and lighter than anÂ Atlas to minimize costs. The lighter fusion engine saved money. Despite its tiny size, the Akuma has comparable armor protection and ground speed. The 'Mech's enormous mask makes it look like the monster it's named after. The Combine MechWarrior fires first after the Akuma scares the adversary.Â Advanced weaponry function best at short and medium ranges on the 'Mech. The 'Mech's poor speed doesn't matter because it's designed for defense or slow advances against static or dug-in opponents.Â",

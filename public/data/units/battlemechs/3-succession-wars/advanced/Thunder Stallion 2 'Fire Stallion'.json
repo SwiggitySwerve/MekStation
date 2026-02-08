@@ -126,6 +126,38 @@
       null,
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "CLDoubleHeatSink",
+      "CLDoubleHeatSink"
     ]
   },
   "quirks": [

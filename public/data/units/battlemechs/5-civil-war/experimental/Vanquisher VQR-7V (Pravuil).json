@@ -14,9 +14,9 @@
     "rating": 300
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -176,12 +176,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "bad_rep_is",
-    "stable",
-    "no_arms",
-    "bad_rep_clan"
-  ],
+  "quirks": ["bad_rep_is", "stable", "no_arms", "bad_rep_clan"],
   "fluff": {
     "overview": "Based on the King Crab, and built in the same factory that first produced the Mackie, the Vanquisher has a legendary pedigree.",
     "capabilities": "In order to allow it to carry as heavy a payload as possible without sacrificing durability, the 'Mech is built on a Hollis Alteration Mark VI Endo Steel that carries a Vlar 300 fusion engine, which propels the 'Mech to a top speed of 54 km/h. The Vanquisher is protected by nineteen and a half tons of armor with CASE in both side torsos to protect the 'Mech from going down in an ammunition explosion.",

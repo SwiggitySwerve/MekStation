@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "COMMAND_CONSOLE",
   "structure": {
     "type": "STANDARD"
   },
@@ -172,11 +172,7 @@
       null
     ]
   },
-  "quirks": [
-    "anti_air",
-    "easy_maintain",
-    "rugged_1"
-  ],
+  "quirks": ["anti_air", "easy_maintain", "rugged_1"],
   "fluff": {
     "overview": "The Orion was built in 2456 as the first true heavy BattleMech. Originally designed for the Terran Hegemony to maintain its dominance and built on Hesperus II.",
     "capabilities": "The Orion is a dependable workhorse design that can handle almost any combat role, thanks to its mix of long and short-range weaponry and its respectable armoring.",

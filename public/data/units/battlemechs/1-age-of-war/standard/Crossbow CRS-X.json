@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -176,11 +176,7 @@
       null
     ]
   },
-  "quirks": [
-    "obsolete",
-    "poor_target_long",
-    "prototype"
-  ],
+  "quirks": ["obsolete:2490", "poor_target_long", "prototype"],
   "fluff": {
     "overview": "The predecessor to Clan Steel Viper's Crossbow OmniMech, the original Crossbow first saw battlefield action for the Lyran Commonwealth in 2468. The 60-ton 'Mech is speedy for its era, capable of 86 km/h. This came at the expense of armor, however, as the Crossbow is only protected by eight tons of armor.",
     "capabilities": "The prototype used less sophisticated components, forcing the downgrade of many weapon systems. Each arm carried a pair of LRM-5 launchers and a Medium Laser, while a single Large Laser mounted in the torso provided additional long range firepower. The Primitive Engine drove this version of the Crossbow at a top speed of 64km/h. The bulk of the engine, cockpit, and armor required engineers to devote more tonnage to armor. This would be overcome in later versions of the Crossbow",

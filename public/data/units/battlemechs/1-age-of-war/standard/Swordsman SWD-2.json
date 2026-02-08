@@ -172,12 +172,7 @@
       null
     ]
   },
-  "quirks": [
-    "searchlight",
-    "bad_rep_is",
-    "obsolete",
-    "poor_work"
-  ],
+  "quirks": ["searchlight", "bad_rep_is", "obsolete:2482", "poor_work"],
   "mulId": 7182,
   "role": "Brawler",
   "source": "XTR:Primitives IV"

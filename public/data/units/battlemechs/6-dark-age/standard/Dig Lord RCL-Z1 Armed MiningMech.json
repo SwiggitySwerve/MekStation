@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "INDUSTRIAL",
   "structure": {
     "type": "INDUSTRIAL"
   },
@@ -160,10 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "pro_actuator",
-    "prototype"
-  ],
+  "quirks": ["pro_actuator", "prototype"],
   "mulId": 5565,
   "role": "Ambusher",
   "source": "XTR:Periphery"

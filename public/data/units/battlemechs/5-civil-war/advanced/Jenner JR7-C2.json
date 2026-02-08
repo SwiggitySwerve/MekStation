@@ -14,9 +14,9 @@
     "rating": 245
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "STANDARD"
   },
@@ -164,9 +164,7 @@
       "Heavy Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "fluff": {
     "overview": "The Jenner became the standard light warhorse of the DCMS with the outbreak of the First Succession War, though its reputation would be forever tarnished following its role in the Kentares Massacre.",
     "capabilities": "Five Smithson Lifter jump jets, two in each side torso and one in the center torso gave it a jumping distance of 150 meters, while its 245-rated Magna fusion engine allowed for a top speed of over 118 km/h, making it faster than most other 'Mechs. A favorite tactic of Jenner lances was to gang up on larger 'Mechs and unleash a devastating alpha strike. One or two of the 'Mechs would be equipped with inferno rounds, so even if the enemy survived the first strike they were badly damaged and running hot, allowing the Jenners to jump to safety and cool down themselves. A few seconds later the attack would be repeated until finally, the enemy was dead. It was also common practice to pair the Jenner with another Combine 'Mech, the Panther, creating a deadly combination of sheer speed and firepower with the slower Panther provided cover fire for the Jenner's flanking attack. The Jenner was such a favorite among Kurita MechWarriors that it became the benchmark against which all other newly designed Combine 'Mechs were compared.",

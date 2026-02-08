@@ -1,0 +1,178 @@
+{
+  "id": "phoenix-hawk-pxh-1gu-special",
+  "chassis": "Phoenix Hawk",
+  "model": "PXH-1GU 'Special'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "DARK_AGE",
+  "year": 3150,
+  "tonnage": 45,
+  "engine": {
+    "type": "FUSION",
+    "rating": 270
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 18,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 23,
+        "rear": 5
+      },
+      "HEAD": 6,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 13
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "light-blazer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "small-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "light-blazer",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "small-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "machine-gun",
+      "location": "RIGHT_ARM"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Heat Sink",
+      "Light Blazer",
+      "Light Blazer",
+      "Small Laser",
+      "Machine Gun",
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Heat Sink",
+      "Small Laser",
+      "Machine Gun",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "Light Blazer",
+      "Light Blazer",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Ammo MG - Full",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": ["command_mech", "ubiquitous_clan", "ubiquitous_is", "imp_com"],
+  "role": "Skirmisher",
+  "source": "Shrapnel: Gothic"
+}

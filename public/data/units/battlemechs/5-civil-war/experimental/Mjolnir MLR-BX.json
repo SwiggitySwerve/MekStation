@@ -14,7 +14,7 @@
     "rating": 150
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -156,9 +156,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "mulId": 2195,
   "role": "Striker",
   "source": "TR:3085"

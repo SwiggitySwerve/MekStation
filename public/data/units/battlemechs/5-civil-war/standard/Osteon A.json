@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "TORSO_MOUNTED",
   "structure": {
     "type": "REINFORCED"
   },
@@ -184,12 +184,7 @@
       "Clan Ferro-Lamellor"
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "multi_trac",
-    "pro_actuator",
-    "bad_rep_clan"
-  ],
+  "quirks": ["ext_twist", "multi_trac", "pro_actuator", "bad_rep_clan"],
   "fluff": {
     "overview": "The Osteon was The Society's assault-class OmniMech. To maximize the 'Mech's battlefield longevity, the designers focused on survivability above other considerations. Eighteen tons of Ferro-Lamellor armor provide excellent protection against weapons fire, but in case the armor is breached the Reinforced Structure will resist most attacks. In addition, the Torso-Mounted Cockpit allows the Osteon's pilot to take advantage of the heavy center torso armor. To maximize the Osteon's damage potential, a Nova CEWS allows the unit to share targeting data with friendly units. This equipment is so valuable that it's permanently mounted in the 'Mech's head.",
     "capabilities": "The Osteon-A uses a trio of Mech Mortar/8s to lay down suppressing fire against conventional infantry, Battle Armor, ProtoMechs, and other light 'Mechs. Six tons of mortar ammunition provide an ample supply for a battle, but the lack of CASE or CASE II protection may concern some warriors. To augment this long range power, the 'Mech carries a single ER Large Laser in the left torso. For close in work, the Osteon-A carries a Medium Pulse Laser in the right torso, and each arm carries a pair of Improved Heavy Medium Lasers. To dissipate the additional heat from these weapons, the 'Mech carries a total of fourteen Double Heat Sinks.",

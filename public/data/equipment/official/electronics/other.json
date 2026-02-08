@@ -1,0 +1,120 @@
+{
+  "$schema": "../../_schema/electronics-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2026-02-07T08:07:29.455Z",
+  "count": 7,
+  "items": [
+    {
+      "id": "targeting-computer",
+      "name": "Targeting Computer",
+      "category": "Targeting",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3062,
+      "special": [
+        "-1 to-hit for direct fire weapons"
+      ],
+      "variableEquipmentId": "targeting-computer-is"
+    },
+    {
+      "id": "clan-targeting-computer",
+      "name": "Targeting Computer (Clan)",
+      "category": "Targeting",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2860,
+      "special": [
+        "-1 to-hit for direct fire weapons"
+      ],
+      "variableEquipmentId": "targeting-computer-clan"
+    },
+    {
+      "id": "tag",
+      "name": "TAG",
+      "category": "TAG",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 50000,
+      "battleValue": 0,
+      "introductionYear": 2600,
+      "special": [
+        "Designates targets for homing missiles",
+        "Uses small laser ranges"
+      ]
+    },
+    {
+      "id": "clan-tag",
+      "name": "TAG (Clan)",
+      "category": "TAG",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 50000,
+      "battleValue": 0,
+      "introductionYear": 2820,
+      "special": [
+        "Designates targets for homing missiles",
+        "Uses small laser ranges"
+      ]
+    },
+    {
+      "id": "light-tag",
+      "name": "Light TAG",
+      "category": "TAG",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 40000,
+      "battleValue": 0,
+      "introductionYear": 3054,
+      "special": [
+        "Designates targets",
+        "Shorter range than standard TAG"
+      ]
+    },
+    {
+      "id": "clan-light-tag",
+      "name": "Light TAG (Clan)",
+      "category": "TAG",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 40000,
+      "battleValue": 0,
+      "introductionYear": 3054,
+      "special": [
+        "Designates targets",
+        "Shorter range than standard TAG"
+      ]
+    },
+    {
+      "id": "communications-equipment",
+      "name": "Communications Equipment",
+      "category": "Communications",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2300,
+      "special": [
+        "Variable weight",
+        "Variable critical slots"
+      ]
+    }
+  ]
+}

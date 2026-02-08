@@ -1,0 +1,85 @@
+{
+  "$schema": "../../_schema/misc-equipment-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2026-02-07T08:02:30.862Z",
+  "count": 5,
+  "items": [
+    {
+      "id": "single-heat-sink",
+      "name": "Heat Sink",
+      "category": "Heat Sink",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 2000,
+      "battleValue": 0,
+      "introductionYear": 2022,
+      "special": [
+        "Dissipates 1 heat"
+      ]
+    },
+    {
+      "id": "double-heat-sink",
+      "name": "Double Heat Sink",
+      "category": "Heat Sink",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 3,
+      "costCBills": 6000,
+      "battleValue": 0,
+      "introductionYear": 2567,
+      "special": [
+        "Dissipates 2 heat"
+      ]
+    },
+    {
+      "id": "clan-double-heat-sink",
+      "name": "Double Heat Sink (Clan)",
+      "category": "Heat Sink",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 2,
+      "costCBills": 6000,
+      "battleValue": 0,
+      "introductionYear": 2825,
+      "special": [
+        "Dissipates 2 heat"
+      ]
+    },
+    {
+      "id": "compact-heat-sink",
+      "name": "Compact Heat Sink",
+      "category": "Heat Sink",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 3000,
+      "battleValue": 0,
+      "introductionYear": 3058,
+      "special": [
+        "Dissipates 1 heat",
+        "Fits in 1 slot"
+      ]
+    },
+    {
+      "id": "laser-heat-sink",
+      "name": "Laser Heat Sink",
+      "category": "Heat Sink",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1,
+      "criticalSlots": 2,
+      "costCBills": 6000,
+      "battleValue": 0,
+      "introductionYear": 3075,
+      "special": [
+        "Dissipates 2 heat",
+        "Bonus for energy weapons"
+      ]
+    }
+  ]
+}

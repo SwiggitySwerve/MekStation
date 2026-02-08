@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -171,7 +171,8 @@
     "exp_actuator",
     "no_arms",
     "no_eject",
-    "weak_legs"
+    "weak_legs",
+    "obsolete:2405"
   ],
   "mulId": 7407,
   "role": "Scout",

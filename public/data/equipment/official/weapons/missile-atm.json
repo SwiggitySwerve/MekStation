@@ -1,0 +1,297 @@
+{
+  "items": [
+    {
+      "id": "atm-3",
+      "name": "ATM 3",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "ammoPerTon": 20,
+      "costCBills": 50000,
+      "battleValue": 53,
+      "introductionYear": 3054,
+      "special": [
+        "Multiple ammo types"
+      ]
+    },
+    {
+      "id": "atm-6",
+      "name": "ATM 6",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 3.5,
+      "criticalSlots": 3,
+      "ammoPerTon": 10,
+      "costCBills": 125000,
+      "battleValue": 105,
+      "introductionYear": 3054,
+      "special": [
+        "Multiple ammo types"
+      ]
+    },
+    {
+      "id": "atm-9",
+      "name": "ATM 9",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 6,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 5,
+      "criticalSlots": 4,
+      "ammoPerTon": 7,
+      "costCBills": 225000,
+      "battleValue": 147,
+      "introductionYear": 3054,
+      "special": [
+        "Multiple ammo types"
+      ]
+    },
+    {
+      "id": "atm-12",
+      "name": "ATM 12",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 8,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 7,
+      "criticalSlots": 5,
+      "ammoPerTon": 5,
+      "costCBills": 350000,
+      "battleValue": 212,
+      "introductionYear": 3054,
+      "special": [
+        "Multiple ammo types"
+      ]
+    },
+    {
+      "id": "iatm12",
+      "name": "Improved ATM 12",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "UNOFFICIAL",
+      "damage": 0,
+      "heat": 8,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15,
+        "extreme": 20
+      },
+      "weight": 7,
+      "criticalSlots": 5,
+      "costCBills": 700000,
+      "battleValue": 333,
+      "introductionYear": 3054,
+      "special": []
+    },
+    {
+      "id": "iatm3",
+      "name": "Improved ATM 3",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "UNOFFICIAL",
+      "damage": 0,
+      "heat": 2,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15,
+        "extreme": 20
+      },
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 100000,
+      "battleValue": 83,
+      "introductionYear": 3054,
+      "special": []
+    },
+    {
+      "id": "iatm6",
+      "name": "Improved ATM 6",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "UNOFFICIAL",
+      "damage": 0,
+      "heat": 4,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15,
+        "extreme": 20
+      },
+      "weight": 3.5,
+      "criticalSlots": 3,
+      "costCBills": 250000,
+      "battleValue": 165,
+      "introductionYear": 3054,
+      "special": []
+    },
+    {
+      "id": "iatm9",
+      "name": "Improved ATM 9",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "UNOFFICIAL",
+      "damage": 0,
+      "heat": 6,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15,
+        "extreme": 20
+      },
+      "weight": 5,
+      "criticalSlots": 4,
+      "costCBills": 450000,
+      "battleValue": 231,
+      "introductionYear": 3054,
+      "special": []
+    },
+    {
+      "id": "iatm-3",
+      "name": "iATM 3",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "ammoPerTon": 20,
+      "costCBills": 50000,
+      "battleValue": 83,
+      "introductionYear": 3070,
+      "special": [
+        "iatm"
+      ]
+    },
+    {
+      "id": "iatm-6",
+      "name": "iATM 6",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 3.5,
+      "criticalSlots": 3,
+      "ammoPerTon": 10,
+      "costCBills": 250000,
+      "battleValue": 165,
+      "introductionYear": 3070,
+      "special": [
+        "iatm"
+      ]
+    },
+    {
+      "id": "iatm-9",
+      "name": "iATM 9",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": "2/missile",
+      "heat": 6,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 5,
+      "criticalSlots": 4,
+      "ammoPerTon": 7,
+      "costCBills": 450000,
+      "battleValue": 231,
+      "introductionYear": 3070,
+      "special": [
+        "iatm"
+      ]
+    },
+    {
+      "id": "iatm-12",
+      "name": "iATM 12",
+      "category": "Missile",
+      "subType": "ATM",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": "2/missile",
+      "heat": 8,
+      "ranges": {
+        "minimum": 4,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 7,
+      "criticalSlots": 5,
+      "ammoPerTon": 5,
+      "costCBills": 700000,
+      "battleValue": 333,
+      "introductionYear": 3070,
+      "special": [
+        "iatm"
+      ]
+    }
+  ],
+  "$schema": "../_schema/weapon-schema.json"
+}

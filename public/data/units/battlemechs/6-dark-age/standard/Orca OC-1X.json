@@ -14,7 +14,7 @@
     "rating": 400
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "HEAVY_DUTY"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -183,7 +183,7 @@
   "quirks": [
     "distracting",
     "hard_pilot",
-    "obsolete",
+    "obsolete:3105",
     "poor_performance",
     "prototype"
   ],

@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "STANDARD"
   },
@@ -126,6 +126,38 @@
       "Sensors",
       "ISGuardianECMSuite",
       "ISGuardianECMSuite"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet",
+      "Improved Jump Jet"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet",
+      "Improved Jump Jet"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet",
+      "Improved Jump Jet"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Improved Jump Jet",
+      "Improved Jump Jet"
     ]
   },
   "quirks": [

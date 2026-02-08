@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "STANDARD"
   },
@@ -172,10 +172,7 @@
       "ImprovedJump Jet"
     ]
   },
-  "quirks": [
-    "easy_pilot",
-    "poor_life_support"
-  ],
+  "quirks": ["easy_pilot", "poor_life_support"],
   "fluff": {
     "overview": "Introduced in 2735, the Crockett was originally designed and built for the Star League as a training BattleMech with combat capability in response to needs during the Hidden Wars.",
     "capabilities": "Due to the fact that the Crockett was originally a training 'Mech, it carries a variety of weapons. In addition, the highly-advanced Scope 30 RNDST targeting-tracking system gave the large lasers superior range to any other laser system at the time of its introduction. The Crockett is also very well-protected thanks to sixteen and a half tons of armor. Finally it carries three jump jets, one in either leg and the rear torso, giving it a range of 90 meters.",

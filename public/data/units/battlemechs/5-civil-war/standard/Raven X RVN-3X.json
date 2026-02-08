@@ -14,7 +14,7 @@
     "rating": 210
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -164,9 +164,7 @@
       "IS Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "imp_sensors"
-  ],
+  "quirks": ["imp_sensors"],
   "mulId": 2672,
   "role": "Scout",
   "source": "XTR:Liao"

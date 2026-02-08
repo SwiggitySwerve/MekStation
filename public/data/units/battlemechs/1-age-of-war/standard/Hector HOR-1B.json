@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -52,20 +52,20 @@
   },
   "equipment": [
     {
-      "id": "large-laser",
-      "location": "LEFT_ARM"
-    },
-    {
-      "id": "large-laser",
-      "location": "RIGHT_ARM"
-    },
-    {
       "id": "machine-gun",
       "location": "LEFT_LEG"
     },
     {
       "id": "machine-gun",
       "location": "RIGHT_LEG"
+    },
+    {
+      "id": "large-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
     }
   ],
   "criticalSlots": {
@@ -164,11 +164,7 @@
       "IS Machine Gun Ammo - Half"
     ]
   },
-  "quirks": [
-    "bad_rep_is",
-    "exp_actuator",
-    "obsolete"
-  ],
+  "quirks": ["bad_rep_is", "exp_actuator", "obsolete:2520"],
   "mulId": 4283,
   "role": "Brawler",
   "source": "ED:AoW"

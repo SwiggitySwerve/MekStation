@@ -14,7 +14,7 @@
     "rating": 240
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -160,10 +160,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_com"
-  ],
+  "quirks": ["easy_maintain", "imp_com"],
   "fluff": {
     "overview": "The Hermes II was first produced in 2798, based on the original Hermes BattleMech that had been used by the Star League. A heavy scout, the Hermes II boasted respectable weaponry, armoring, and speed, allowing it to easily brawl with lighter 'Mechs or survive an encounter with heavier 'Mechs and retreat.",
     "capabilities": "Seven and a half tons of armor provides the Hermes II with good protection, superior to that of the lighter scouting elements it's likely to encounter. The Hermes has respectable cruising speed with enough to scout ahead of the main force, although the heart of this reconnaissance 'Mech is its Irian E.A.R. communications system. Powerful enough to communicate with orbiting satellites, drawbacks to system include its bulk and the required surface area it takes up on the 'Mech in order to function. Out of all medium-weight 'Mechs at the time the Hermes II was the easiest to perform field maintenance on, leading to its nickname \"old reliable.\"",

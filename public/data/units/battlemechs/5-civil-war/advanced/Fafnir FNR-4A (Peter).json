@@ -14,7 +14,7 @@
     "rating": 300
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -192,9 +192,7 @@
       "ISHeavyGauss Ammo"
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "mulId": 1020,
   "role": "Juggernaut",
   "source": "JTP:Tharkad"

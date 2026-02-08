@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL_CLAN"
   },
@@ -172,9 +172,7 @@
       "Clan Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "easy_pilot"
-  ],
+  "quirks": ["easy_pilot"],
   "fluff": {
     "overview": "The Ion Sparrow was introduced by Clan Jade Falcon on Alyina as an experimental test bed for the advanced Partial Wing system.",
     "capabilities": "The Ion Sparrow uses an Endo Steel chassis, XL Engine, and Ferro-Fibrous armor to save weight. It also uses a Small Cockpit to save more weight. Eight jump jets have been mounted in the right and left torso; Paired with the Partial Wing, this allows the Ion Sparrow to cover 300 meters per jump. The wing also works with the double heat sinks to dissipate more heat. However, despite the weight saving equipment installed the 'Mech only has four tons of pod space available.",

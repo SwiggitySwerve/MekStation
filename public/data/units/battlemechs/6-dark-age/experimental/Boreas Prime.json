@@ -3,7 +3,7 @@
   "chassis": "Boreas",
   "model": "Prime",
   "unitType": "BattleMech",
-  "configuration": "Biped",
+  "configuration": "QuadVee",
   "techBase": "CLAN",
   "rulesLevel": "EXPERIMENTAL",
   "era": "DARK_AGE",
@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "QUADVEE",
   "structure": {
     "type": "STANDARD"
   },

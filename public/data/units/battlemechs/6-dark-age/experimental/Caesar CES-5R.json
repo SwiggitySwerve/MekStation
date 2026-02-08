@@ -14,7 +14,7 @@
     "rating": 280
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -172,9 +172,7 @@
       null
     ]
   },
-  "quirks": [
-    "hyper_actuator"
-  ],
+  "quirks": ["hyper_actuator"],
   "fluff": {
     "overview": "Originally a reverse engineered version of the Capellan Confederation's Cataphract intended to mask development of the Federated Commonwealth's fearsome Axman, the Caesar would turn out to be a good but not great BattleMech in its own right.",
     "capabilities": "The Caesar was built to do as much damage to an enemy at as great a stand-off range as possible. The 'Mech therefore carries primarily long-ranged armament. The 'Mech also uses an 280-rated XL engine and sixteen double heat sinks, both of which save significant amounts of weight, in order to carry as many weapons and as much armor as possible. The 'Mech utilizes CASE to protect against ammunition explosions should an enemy be able to breach the ten and a half tons of armor that protect it.",

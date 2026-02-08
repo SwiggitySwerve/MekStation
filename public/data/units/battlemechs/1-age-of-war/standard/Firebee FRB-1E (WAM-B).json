@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -170,7 +170,7 @@
     "ext_twist",
     "difficult_maintain",
     "non_standard",
-    "obsolete",
+    "obsolete:2524",
     "poor_work"
   ],
   "mulId": 1078,

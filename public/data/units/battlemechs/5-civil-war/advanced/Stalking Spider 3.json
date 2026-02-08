@@ -122,6 +122,38 @@
       "CLTargeting Computer",
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Improved Jump Jet",
+      "Clan Improved Jump Jet"
     ]
   },
   "quirks": [

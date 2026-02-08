@@ -1,0 +1,155 @@
+{
+  "$schema": "../../_schema/weapon-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2026-02-07T08:02:30.861Z",
+  "count": 7,
+  "items": [
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "category": "Energy",
+      "subType": "PPC",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "damage": 10,
+      "heat": 10,
+      "ranges": {
+        "minimum": 3,
+        "short": 6,
+        "medium": 12,
+        "long": 18
+      },
+      "weight": 7,
+      "criticalSlots": 3,
+      "costCBills": 200000,
+      "battleValue": 176,
+      "introductionYear": 2460
+    },
+    {
+      "id": "er-ppc",
+      "name": "ER PPC",
+      "category": "Energy",
+      "subType": "PPC",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": 10,
+      "heat": 15,
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 23
+      },
+      "weight": 7,
+      "criticalSlots": 3,
+      "costCBills": 300000,
+      "battleValue": 229,
+      "introductionYear": 2751
+    },
+    {
+      "id": "light-ppc",
+      "name": "Light PPC",
+      "category": "Energy",
+      "subType": "PPC",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": 5,
+      "heat": 5,
+      "ranges": {
+        "minimum": 3,
+        "short": 6,
+        "medium": 12,
+        "long": 18
+      },
+      "weight": 3,
+      "criticalSlots": 2,
+      "costCBills": 150000,
+      "battleValue": 88,
+      "introductionYear": 3067
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "category": "Energy",
+      "subType": "PPC",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": 15,
+      "heat": 15,
+      "ranges": {
+        "minimum": 3,
+        "short": 6,
+        "medium": 12,
+        "long": 18
+      },
+      "weight": 10,
+      "criticalSlots": 4,
+      "costCBills": 250000,
+      "battleValue": 295,
+      "introductionYear": 3067
+    },
+    {
+      "id": "snub-nose-ppc",
+      "name": "Snub-Nose PPC",
+      "category": "Energy",
+      "subType": "PPC",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "damage": 10,
+      "heat": 10,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 6,
+      "criticalSlots": 2,
+      "costCBills": 165000,
+      "battleValue": 165,
+      "introductionYear": 3067
+    },
+    {
+      "id": "clan-er-ppc",
+      "name": "ER PPC (Clan)",
+      "category": "Energy",
+      "subType": "PPC",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": 15,
+      "heat": 15,
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 23
+      },
+      "weight": 6,
+      "criticalSlots": 2,
+      "costCBills": 300000,
+      "battleValue": 412,
+      "introductionYear": 2824
+    },
+    {
+      "id": "enhanced-er-ppc",
+      "name": "Enhanced ER PPC",
+      "category": "Energy",
+      "subType": "PPC",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 12,
+      "heat": 15,
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 23
+      },
+      "weight": 7,
+      "criticalSlots": 3,
+      "costCBills": 300000,
+      "battleValue": 329,
+      "introductionYear": 2823
+    }
+  ]
+}

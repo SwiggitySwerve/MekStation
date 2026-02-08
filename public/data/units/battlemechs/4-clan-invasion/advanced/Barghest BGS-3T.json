@@ -110,6 +110,22 @@
       null,
       "Sensors",
       "Life Support"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISHeavyGauss Ammo",
+      "ISHeavyGauss Ammo"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISHeavyGauss Ammo",
+      "ISHeavyGauss Ammo"
     ]
   },
   "quirks": [

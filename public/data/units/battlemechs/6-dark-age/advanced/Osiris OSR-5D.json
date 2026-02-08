@@ -14,7 +14,7 @@
     "rating": 210
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -152,9 +152,7 @@
       "Light Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "ext_twist"
-  ],
+  "quirks": ["ext_twist"],
   "fluff": {
     "overview": "The Osiris was essentially modeled after the Clan Dragonfly and designed by the same engineers who designed the Anubis. The Osiris was designed to be a fast, hit-and-fade style offensive platform and can perform well in that capacity with its awesome speed, although it does appear to rely too heavily on its mobility to protect it from damage.",
     "capabilities": "While the limits of Inner Sphere technology forced the designers to skimp on the specifications somewhat, the Osiris does maintain the same speed as the design it is based off of with its powerful Pharaoh 240 XL. The armor and jump capacity are sadly lacking, however, as the Osiris can only jump half as far as the Dragonfly with its four Rawlings 61 jump jets and is armored with four and a half tons of StarGuard Ferro-Fibrous.",

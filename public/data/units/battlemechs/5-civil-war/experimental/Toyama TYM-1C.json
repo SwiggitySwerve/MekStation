@@ -14,7 +14,7 @@
     "rating": 300
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -164,10 +164,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "bad_rep_clan",
-    "bad_rep_is"
-  ],
+  "quirks": ["bad_rep_clan", "bad_rep_is"],
   "mulId": 3280,
   "role": "Missile Boat",
   "source": "TR:3060"

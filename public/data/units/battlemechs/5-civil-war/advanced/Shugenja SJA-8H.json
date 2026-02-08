@@ -14,7 +14,7 @@
     "rating": 300
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -172,11 +172,7 @@
       null
     ]
   },
-  "quirks": [
-    "cowl",
-    "hyper_actuator",
-    "exp_actuator"
-  ],
+  "quirks": ["cowl", "hyper_actuator", "exp_actuator"],
   "mulId": 2943,
   "role": "Brawler",
   "source": "TR:3060"

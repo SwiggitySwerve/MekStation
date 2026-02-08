@@ -14,7 +14,7 @@
     "rating": 360
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -176,10 +176,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "good_rep_1"
-  ],
+  "quirks": ["command_mech", "good_rep_1"],
   "fluff": {
     "overview": "The Yu Huang, a significant BattleMech from Shengli Arms, marks a blend of technological advancement and cultural symbolism in the Capellan Confederation. With Chancellor Sun-Tzu Liao's directive, this 'Mech not only exhibits a design inspired by ancient Chinese deities but also reflects the Confederation's commitment to self-reliance in military technology. Equipped with a potent LB-20X autocannon, the Yu Huang was conceived to be a commanding presence on the battlefield, a testament to the Chancellorâs vision for a renewed Capellan military force.",
     "capabilities": "The Yu Huang stands out in the assault-class category with its combination of advanced weaponry and defensive systems. Notable for its high speed and agility for a ninety-ton 'Mech, it features a robust endo steel frame and an extra-light engine, allowing for substantial armor without compromising mobility. The Yu Huang is equipped with a diverse arsenal, typically including long-range weaponry like PPCs and LRM launchers, complemented by medium lasers for close-quarters engagements. Its signature autocannon, adaptable with different ammunition types, offers versatility in various combat scenarios. Enhanced by advanced jump jet capabilities, the Yu Huang is adept at rapid repositioning, making it a formidable presence on any battlefield.",

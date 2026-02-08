@@ -146,10 +146,6 @@ describe('EquipmentLoaderService', () => {
 
     it('should handle successful load', async () => {
       const mockWeaponData = {
-        $schema: 'test',
-        version: '1.0',
-        generatedAt: '2024-01-01',
-        count: 1,
         items: [
           {
             id: 'medium-laser',
@@ -170,16 +166,25 @@ describe('EquipmentLoaderService', () => {
         ],
       };
 
+      // Mock index.json with a minimal file set pointing to one weapon file
+      const mockIndex = {
+        files: {
+          weapons: { laser: 'weapons/energy-laser.json' },
+          ammunition: {},
+          electronics: {},
+          miscellaneous: {},
+        },
+      };
+
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => mockWeaponData,
+          json: async () => mockIndex,
         })
-        .mockResolvedValueOnce({ ok: false, status: 404 })
-        .mockResolvedValueOnce({ ok: false, status: 404 })
-        .mockResolvedValueOnce({ ok: false, status: 404 })
-        .mockResolvedValueOnce({ ok: false, status: 404 })
-        .mockResolvedValueOnce({ ok: false, status: 404 });
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockWeaponData,
+        });
 
       const result = await service.loadOfficialEquipment();
 
@@ -291,7 +296,22 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
+      // Mock index.json with minimal file set (one file per category)
+      const mockIndex = {
+        files: {
+          weapons: {
+            energy: 'weapons/energy-laser.json',
+            ballistic: 'weapons/ballistic-autocannon.json',
+            missile: 'weapons/missile-lrm.json',
+          },
+          ammunition: { ac: 'ammunition/autocannon.json' },
+          electronics: { ecm: 'electronics/ecm.json' },
+          miscellaneous: { def: 'miscellaneous/defensive.json' },
+        },
+      };
+
       (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({ ok: true, json: async () => mockIndex })
         .mockResolvedValueOnce({ ok: true, json: async () => energy })
         .mockResolvedValueOnce({ ok: true, json: async () => ballistic })
         .mockResolvedValueOnce({ ok: true, json: async () => missile })
@@ -1451,6 +1471,26 @@ describe('EquipmentLoaderService', () => {
       items,
     });
 
+    // Helper: mock index.json to route to specific files by category
+    const mockIndexWith = (overrides: {
+      weapons?: Record<string, string>;
+      ammunition?: Record<string, string>;
+      electronics?: Record<string, string>;
+      miscellaneous?: Record<string, string>;
+    }) => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          files: {
+            weapons: overrides.weapons ?? {},
+            ammunition: overrides.ammunition ?? {},
+            electronics: overrides.electronics ?? {},
+            miscellaneous: overrides.miscellaneous ?? {},
+          },
+        }),
+      });
+    };
+
     it('should parse Artillery weapon category', async () => {
       const weaponFile = buildEquipmentFile([
         {
@@ -1471,9 +1511,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: true, json: async () => weaponFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ weapons: { art: 'weapons/artillery.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => weaponFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -1613,12 +1655,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // ballistic
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // missile
-        .mockResolvedValueOnce({ ok: true, json: async () => ammoFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ ammunition: { all: 'ammunition/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ammoFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -1753,12 +1794,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // ballistic
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // missile
-        .mockResolvedValueOnce({ ok: true, json: async () => ammoFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ ammunition: { all: 'ammunition/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ammoFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -1855,13 +1895,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // ballistic
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // missile
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // ammo
-        .mockResolvedValueOnce({ ok: true, json: async () => elecFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ electronics: { all: 'electronics/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => elecFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -1961,13 +1999,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // ballistic
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // missile
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // ammo
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // electronics
-        .mockResolvedValueOnce({ ok: true, json: async () => miscFile });
+      mockIndexWith({ miscellaneous: { all: 'miscellaneous/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => miscFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -2017,10 +2053,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
-        .mockResolvedValueOnce({ ok: true, json: async () => weaponFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ weapons: { all: 'weapons/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => weaponFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -2061,12 +2098,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // ballistic
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // missile
-        .mockResolvedValueOnce({ ok: true, json: async () => ammoFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ ammunition: { all: 'ammunition/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ammoFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -2100,13 +2136,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // ballistic
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // missile
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // ammo
-        .mockResolvedValueOnce({ ok: true, json: async () => elecFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ electronics: { all: 'electronics/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => elecFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -2140,13 +2174,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // energy
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // ballistic
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // missile
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // ammo
-        .mockResolvedValueOnce({ ok: false, status: 404 }) // electronics
-        .mockResolvedValueOnce({ ok: true, json: async () => miscFile });
+      mockIndexWith({ miscellaneous: { all: 'miscellaneous/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => miscFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -2238,9 +2270,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: true, json: async () => weaponFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ weapons: { all: 'weapons/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => weaponFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -2288,9 +2322,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: true, json: async () => weaponFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ weapons: { all: 'weapons/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => weaponFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -2322,9 +2358,11 @@ describe('EquipmentLoaderService', () => {
         },
       ]);
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: true, json: async () => weaponFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ weapons: { all: 'weapons/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => weaponFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -2415,6 +2453,26 @@ describe('EquipmentLoaderService', () => {
   });
 
   describe('edge cases', () => {
+    // Helper: mock index.json to route to specific files
+    const mockIndexWith = (overrides: {
+      weapons?: Record<string, string>;
+      ammunition?: Record<string, string>;
+      electronics?: Record<string, string>;
+      miscellaneous?: Record<string, string>;
+    }) => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          files: {
+            weapons: overrides.weapons ?? {},
+            ammunition: overrides.ammunition ?? {},
+            electronics: overrides.electronics ?? {},
+            miscellaneous: overrides.miscellaneous ?? {},
+          },
+        }),
+      });
+    };
+
     it('should handle empty flags array', async () => {
       const weaponFile = {
         $schema: 'schemas/weapon.json',
@@ -2442,9 +2500,11 @@ describe('EquipmentLoaderService', () => {
         ],
       };
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: true, json: async () => weaponFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ weapons: { all: 'weapons/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => weaponFile,
+      });
 
       await service.loadOfficialEquipment();
 
@@ -2481,9 +2541,11 @@ describe('EquipmentLoaderService', () => {
         ],
       };
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: true, json: async () => weaponFile })
-        .mockResolvedValue({ ok: false, status: 404 });
+      mockIndexWith({ weapons: { all: 'weapons/all.json' } });
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => weaponFile,
+      });
 
       await service.loadOfficialEquipment();
 

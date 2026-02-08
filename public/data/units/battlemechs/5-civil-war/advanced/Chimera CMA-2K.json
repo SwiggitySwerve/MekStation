@@ -14,7 +14,7 @@
     "rating": 280
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -184,9 +184,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "nimble_jumper"
-  ],
+  "quirks": ["nimble_jumper"],
   "mulId": 5667,
   "role": "Striker",
   "source": "RS:3067u"

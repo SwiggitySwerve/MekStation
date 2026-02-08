@@ -14,7 +14,7 @@
     "rating": 250
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -156,10 +156,7 @@
       "CLDoubleHeatSink"
     ]
   },
-  "quirks": [
-    "barrel_fists_la",
-    "barrel_fists_ra"
-  ],
+  "quirks": ["barrel_fists_la", "barrel_fists_ra"],
   "mulId": 987,
   "role": "Striker",
   "source": "XTR:Davion"

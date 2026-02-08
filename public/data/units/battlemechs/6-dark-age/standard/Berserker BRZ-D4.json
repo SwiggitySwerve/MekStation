@@ -14,7 +14,7 @@
     "rating": 400
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -172,9 +172,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "distracting"
-  ],
+  "quirks": ["distracting"],
   "mulId": 6831,
   "role": "Juggernaut",
   "source": "RS:3145-NTNU"

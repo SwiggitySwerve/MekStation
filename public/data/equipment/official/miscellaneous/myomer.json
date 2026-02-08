@@ -1,0 +1,40 @@
+{
+  "$schema": "../../_schema/misc-equipment-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2026-02-07T08:02:30.873Z",
+  "count": 2,
+  "items": [
+    {
+      "id": "tsm",
+      "name": "Triple Strength Myomer",
+      "category": "Myomer",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 6,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3050,
+      "special": [
+        "+2 walking MP at 9+ heat",
+        "Double physical attack damage"
+      ],
+      "variableEquipmentId": "tsm"
+    },
+    {
+      "id": "industrial-tsm",
+      "name": "Industrial TSM",
+      "category": "Myomer",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 6,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2680,
+      "special": [
+        "Improved lifting capacity"
+      ]
+    }
+  ]
+}

@@ -14,7 +14,7 @@
     "rating": 300
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -168,11 +168,7 @@
       "IS Endo-Composite"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "hyper_actuator",
-    "low_profile"
-  ],
+  "quirks": ["command_mech", "hyper_actuator", "low_profile"],
   "mulId": 7534,
   "role": "Sniper",
   "source": "RG06"

@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "STANDARD"
   },
@@ -131,14 +131,7 @@
       "Landing Gear",
       "Jump Jet"
     ],
-    "HEAD": [
-      "Life Support",
-      "Sensors",
-      "Cockpit",
-      "Sensors",
-      "Avionics",
-      null
-    ],
+    "HEAD": ["Life Support", "Sensors", "Cockpit", "Sensors", "Avionics", null],
     "LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",

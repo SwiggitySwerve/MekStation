@@ -14,9 +14,9 @@
     "rating": 180
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -168,10 +168,7 @@
       "Light Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "low_profile",
-    "no_arms"
-  ],
+  "quirks": ["low_profile", "no_arms"],
   "mulId": 5661,
   "role": "Striker",
   "source": "RS:3067u"

@@ -14,7 +14,7 @@
     "rating": 300
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -168,9 +168,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "fluff": {
     "overview": "The Trebuchet (also jovially referred to as the Trenchbucket) is a mainline medium weight BattleMech considered to be a fine blend of long- and short-range fire support for a unit of its size.",
     "capabilities": "Unlike many other pre-Clan 'Mechs, the Trebuchet was designed from the beginning to work as part of a lance instead of functioning as a standalone model.",

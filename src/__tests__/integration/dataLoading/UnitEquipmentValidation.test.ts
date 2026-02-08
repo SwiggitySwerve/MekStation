@@ -228,9 +228,18 @@ async function loadEquipmentFromFilesystem(
 
   // Load weapons
   const weaponFiles = [
-    'weapons/energy.json',
-    'weapons/ballistic.json',
-    'weapons/missile.json',
+    'weapons/energy-laser.json',
+    'weapons/energy-ppc.json',
+    'weapons/energy-other.json',
+    'weapons/ballistic-autocannon.json',
+    'weapons/ballistic-gauss.json',
+    'weapons/ballistic-machinegun.json',
+    'weapons/ballistic-other.json',
+    'weapons/missile-atm.json',
+    'weapons/missile-lrm.json',
+    'weapons/missile-mrm.json',
+    'weapons/missile-other.json',
+    'weapons/missile-srm.json',
     'weapons/physical.json',
   ];
   for (const file of weaponFiles) {
@@ -265,78 +274,110 @@ async function loadEquipmentFromFilesystem(
     }
   }
 
-  // Load ammunition
-  const ammoPath = path.join(EQUIPMENT_PATH, 'ammunition.json');
-  if (fs.existsSync(ammoPath)) {
-    const content = fs.readFileSync(ammoPath, 'utf-8');
-    const data = JSON.parse(content) as { items: RawAmmunitionData[] };
-    if (data.items) {
-      for (const item of data.items) {
-        maps.ammunition.set(item.id, {
-          id: item.id,
-          name: item.name,
-          category: parseAmmoCategory(item.category),
-          variant: parseAmmoVariant(item.variant),
-          techBase: parseTechBase(item.techBase),
-          rulesLevel: parseRulesLevel(item.rulesLevel),
-          compatibleWeaponIds: item.compatibleWeaponIds,
-          shotsPerTon: item.shotsPerTon,
-          weight: item.weight,
-          criticalSlots: item.criticalSlots,
-          costPerTon: item.costPerTon,
-          battleValue: item.battleValue,
-          isExplosive: item.isExplosive,
-          introductionYear: item.introductionYear,
-        });
-        itemsLoaded++;
+  // Load ammunition (split files)
+  const ammoFiles = [
+    'ammunition/artillery.json',
+    'ammunition/atm.json',
+    'ammunition/autocannon.json',
+    'ammunition/gauss.json',
+    'ammunition/lrm.json',
+    'ammunition/machinegun.json',
+    'ammunition/mrm.json',
+    'ammunition/narc.json',
+    'ammunition/other.json',
+    'ammunition/srm.json',
+  ];
+  for (const ammoFile of ammoFiles) {
+    const ammoPath = path.join(EQUIPMENT_PATH, ammoFile);
+    if (fs.existsSync(ammoPath)) {
+      const content = fs.readFileSync(ammoPath, 'utf-8');
+      const data = JSON.parse(content) as { items: RawAmmunitionData[] };
+      if (data.items) {
+        for (const item of data.items) {
+          maps.ammunition.set(item.id, {
+            id: item.id,
+            name: item.name,
+            category: parseAmmoCategory(item.category),
+            variant: parseAmmoVariant(item.variant),
+            techBase: parseTechBase(item.techBase),
+            rulesLevel: parseRulesLevel(item.rulesLevel),
+            compatibleWeaponIds: item.compatibleWeaponIds,
+            shotsPerTon: item.shotsPerTon,
+            weight: item.weight,
+            criticalSlots: item.criticalSlots,
+            costPerTon: item.costPerTon,
+            battleValue: item.battleValue,
+            isExplosive: item.isExplosive,
+            introductionYear: item.introductionYear,
+          });
+          itemsLoaded++;
+        }
       }
     }
   }
 
-  // Load electronics
-  const electronicsPath = path.join(EQUIPMENT_PATH, 'electronics.json');
-  if (fs.existsSync(electronicsPath)) {
-    const content = fs.readFileSync(electronicsPath, 'utf-8');
-    const data = JSON.parse(content) as { items: RawElectronicsData[] };
-    if (data.items) {
-      for (const item of data.items) {
-        maps.electronics.set(item.id, {
-          id: item.id,
-          name: item.name,
-          category: parseElectronicsCategory(item.category),
-          techBase: parseTechBase(item.techBase),
-          rulesLevel: parseRulesLevel(item.rulesLevel),
-          weight: item.weight,
-          criticalSlots: item.criticalSlots,
-          costCBills: item.costCBills,
-          battleValue: item.battleValue,
-          introductionYear: item.introductionYear,
-        });
-        itemsLoaded++;
+  // Load electronics (split files)
+  const electronicsFiles = [
+    'electronics/ecm.json',
+    'electronics/active-probe.json',
+    'electronics/c3.json',
+    'electronics/other.json',
+  ];
+  for (const elecFile of electronicsFiles) {
+    const electronicsPath = path.join(EQUIPMENT_PATH, elecFile);
+    if (fs.existsSync(electronicsPath)) {
+      const content = fs.readFileSync(electronicsPath, 'utf-8');
+      const data = JSON.parse(content) as { items: RawElectronicsData[] };
+      if (data.items) {
+        for (const item of data.items) {
+          maps.electronics.set(item.id, {
+            id: item.id,
+            name: item.name,
+            category: parseElectronicsCategory(item.category),
+            techBase: parseTechBase(item.techBase),
+            rulesLevel: parseRulesLevel(item.rulesLevel),
+            weight: item.weight,
+            criticalSlots: item.criticalSlots,
+            costCBills: item.costCBills,
+            battleValue: item.battleValue,
+            introductionYear: item.introductionYear,
+          });
+          itemsLoaded++;
+        }
       }
     }
   }
 
-  // Load misc equipment
-  const miscPath = path.join(EQUIPMENT_PATH, 'miscellaneous.json');
-  if (fs.existsSync(miscPath)) {
-    const content = fs.readFileSync(miscPath, 'utf-8');
-    const data = JSON.parse(content) as { items: RawMiscEquipmentData[] };
-    if (data.items) {
-      for (const item of data.items) {
-        maps.miscEquipment.set(item.id, {
-          id: item.id,
-          name: item.name,
-          category: parseMiscEquipmentCategory(item.category),
-          techBase: parseTechBase(item.techBase),
-          rulesLevel: parseRulesLevel(item.rulesLevel),
-          weight: item.weight,
-          criticalSlots: item.criticalSlots,
-          costCBills: item.costCBills,
-          battleValue: item.battleValue,
-          introductionYear: item.introductionYear,
-        });
-        itemsLoaded++;
+  // Load misc equipment (split files)
+  const miscFiles = [
+    'miscellaneous/heat-sinks.json',
+    'miscellaneous/jump-jets.json',
+    'miscellaneous/movement.json',
+    'miscellaneous/myomer.json',
+    'miscellaneous/defensive.json',
+    'miscellaneous/other.json',
+  ];
+  for (const miscFile of miscFiles) {
+    const miscPath = path.join(EQUIPMENT_PATH, miscFile);
+    if (fs.existsSync(miscPath)) {
+      const content = fs.readFileSync(miscPath, 'utf-8');
+      const data = JSON.parse(content) as { items: RawMiscEquipmentData[] };
+      if (data.items) {
+        for (const item of data.items) {
+          maps.miscEquipment.set(item.id, {
+            id: item.id,
+            name: item.name,
+            category: parseMiscEquipmentCategory(item.category),
+            techBase: parseTechBase(item.techBase),
+            rulesLevel: parseRulesLevel(item.rulesLevel),
+            weight: item.weight,
+            criticalSlots: item.criticalSlots,
+            costCBills: item.costCBills,
+            battleValue: item.battleValue,
+            introductionYear: item.introductionYear,
+          });
+          itemsLoaded++;
+        }
       }
     }
   }

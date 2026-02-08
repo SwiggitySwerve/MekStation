@@ -328,6 +328,10 @@ class MTFParser:
                 pass
         elif key == 'quirk':
             data['quirks'].append(value)
+        elif key == 'cockpit':
+            data['cockpit'] = value
+        elif key == 'gyro':
+            data['gyro'] = value
         elif key == 'manufacturer':
             data['manufacturer'] = value
         elif key == 'primaryfactory':
@@ -386,11 +390,11 @@ class MTFParser:
             rating=engine_data.get('rating', 0)
         )
         
-        # Parse gyro (inferred from engine type or default)
-        gyro = SerializedGyro(type='STANDARD')
-        
-        # Parse cockpit (default for now)
-        cockpit = 'STANDARD'
+        # Parse gyro
+        gyro = SerializedGyro(type=map_gyro_type(data.get('gyro', 'Standard Gyro')))
+
+        # Parse cockpit
+        cockpit = map_cockpit_type(data.get('cockpit', 'Standard Cockpit'))
         
         # Parse structure
         structure_str = data.get('structure', 'Standard')

@@ -14,7 +14,7 @@
     "rating": 300
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -150,10 +150,7 @@
       "Triple Strength Myomer"
     ]
   },
-  "quirks": [
-    "difficult_eject",
-    "difficult_maintain"
-  ],
+  "quirks": ["difficult_eject", "difficult_maintain"],
   "mulId": 8108,
   "role": "Skirmisher",
   "source": "XTR:Caveat"

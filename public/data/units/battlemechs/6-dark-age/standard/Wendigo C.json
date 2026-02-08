@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "TORSO_MOUNTED",
   "structure": {
     "type": "ENDO_STEEL_CLAN"
   },
@@ -168,9 +168,7 @@
       "CLDoubleHeatSink (OMNIPOD)"
     ]
   },
-  "quirks": [
-    "distracting"
-  ],
+  "quirks": ["distracting"],
   "mulId": 6406,
   "role": "Skirmisher",
   "source": "TR:3145:DC"

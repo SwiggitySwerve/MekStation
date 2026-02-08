@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "STANDARD"
   },
@@ -172,10 +172,7 @@
       "Triple Strength Myomer"
     ]
   },
-  "quirks": [
-    "difficult_maintain",
-    "non_standard"
-  ],
+  "quirks": ["difficult_maintain", "non_standard"],
   "mulId": 2999,
   "role": "Skirmisher",
   "source": "XTR:Gladiators"

@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "COMPOSITE"
   },
@@ -139,14 +139,7 @@
       "Light Ferro-Fibrous",
       "Light Ferro-Fibrous"
     ],
-    "HEAD": [
-      "Life Support",
-      "Sensors",
-      "Cockpit",
-      "Sensors",
-      null,
-      null
-    ],
+    "HEAD": ["Life Support", "Sensors", "Cockpit", "Sensors", null, null],
     "LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",
@@ -164,10 +157,7 @@
       "TSM"
     ]
   },
-  "quirks": [
-    "difficult_maintain",
-    "non_standard"
-  ],
+  "quirks": ["difficult_maintain", "non_standard"],
   "mulId": 2409,
   "role": "Skirmisher",
   "source": "TR:3055U"

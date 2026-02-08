@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -114,11 +114,41 @@
       "Sensors",
       "ISC3SlaveUnit",
       "Endo Steel"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISImprovedHeavyGauss Ammo",
+      "Endo Steel"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISImprovedHeavyGauss Ammo",
+      "Endo Steel"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Endo Steel",
+      "Endo Steel"
     ]
   },
-  "quirks": [
-    "directional_torso_mount"
-  ],
+  "quirks": ["directional_torso_mount"],
   "fluff": {
     "overview": "During her reign over the Lyran Alliance, Katherine Steiner-Davion decided she wanted a four-legged BattleMech that would frighten its adversaries in the same way that the classic Atlas and Banshee designs did.",
     "capabilities": "The Earthwerk GRF Quad chassis accommodates a Magna 350 XL engine, which saves weight and lets the 'Mech to carry a hefty weapons payload. The Barghest is shielded by thirteen tons of Durallex Heavy armor, which shields it from all but the most powerful enemy fire. The Barghest features ten double heat sinks to handle the 'Mech's heat buildup from its weaponry.",

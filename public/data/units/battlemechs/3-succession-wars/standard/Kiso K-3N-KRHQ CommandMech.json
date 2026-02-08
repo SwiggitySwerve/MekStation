@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "COMMAND_CONSOLE",
   "structure": {
     "type": "INDUSTRIAL"
   },
@@ -114,6 +114,39 @@
       "Cockpit",
       "Sensors",
       "Life Support"
+    ],
+    "FRONT_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Searchlight",
+      "Searchlight"
+    ],
+    "FRONT_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Searchlight",
+      "Searchlight"
+    ],
+    "REAR_LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Searchlight",
+      "Searchlight"
+    ],
+    "REAR_RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Searchlight",
+      "Searchlight",
+      "history:This mech is NOT valid. Command Console Isn't coded into MegaMek included for completeness."
     ]
   },
   "fluff": {

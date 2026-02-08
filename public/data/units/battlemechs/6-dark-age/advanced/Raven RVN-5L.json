@@ -14,7 +14,7 @@
     "rating": 280
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -176,9 +176,7 @@
       "IS Stealth"
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "mulId": 7524,
   "role": "Scout",
   "source": "RG06"

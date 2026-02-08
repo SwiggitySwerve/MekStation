@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -156,10 +156,7 @@
       "Improved Jump Jet"
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "nimble_jumper"
-  ],
+  "quirks": ["imp_target_short", "nimble_jumper"],
   "fluff": {
     "overview": "The Panther is one of the BattleMechs that is most iconic of the Draconis Combine. The design was originally commissioned in 2739 at the behest of the Star League to provide fire support for other light, fast-moving 'Mech units, with the first models going to the SLDF to fight bandits along the Periphery border.",
     "capabilities": "Luckily the Panther had also proved itself to be quite hardy, sporting six and a half tons of armor, and maneuverable, thanks to four Lexington Lifter jump jets split between both legs for a total jumping distance of 120 meters, thus an attempt to fix its one deficiency was made by League engineers by replacing the laser with a Lord's Light Particle Projection Cannon. The swap in weaponry, along with a superior armor composite, gave the PNT-9R Panther a new lease on life, such that it has seen over three centuries of continuous use since its introduction.",

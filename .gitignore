@@ -32,6 +32,9 @@ yarn-error.log*
 *.sqlite
 *.db
 
+# Development/investigation scripts
+scripts/
+
 # Development files (now organized in scripts/)
 /test-*
 /diagnose-*

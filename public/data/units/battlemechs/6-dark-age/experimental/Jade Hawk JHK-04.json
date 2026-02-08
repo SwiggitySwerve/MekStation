@@ -14,7 +14,7 @@
     "rating": 375
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "HEAVY_DUTY"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -168,11 +168,7 @@
       "Clan Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "distracting",
-    "reinforced_legs",
-    "non_standard"
-  ],
+  "quirks": ["distracting", "reinforced_legs", "non_standard"],
   "mulId": 6565,
   "role": "Sniper",
   "source": "TR:3145:Merc"

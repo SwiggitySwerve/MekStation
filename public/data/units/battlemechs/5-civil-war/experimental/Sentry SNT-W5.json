@@ -14,7 +14,7 @@
     "rating": 200
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "HEAVY_DUTY"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -168,12 +168,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "easy_pilot",
-    "rugged_1",
-    "ubiquitous_is"
-  ],
+  "quirks": ["easy_maintain", "easy_pilot", "rugged_1", "ubiquitous_is"],
   "mulId": 2867,
   "role": "Skirmisher",
   "source": "TR:3060"

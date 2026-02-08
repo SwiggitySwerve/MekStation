@@ -14,9 +14,9 @@
     "rating": 385
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "COMPOSITE"
   },
@@ -168,9 +168,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "poor_life_support"
-  ],
+  "quirks": ["poor_life_support"],
   "mulId": 2581,
   "role": "Skirmisher",
   "source": "TR:3055U"

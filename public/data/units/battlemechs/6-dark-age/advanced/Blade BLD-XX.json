@@ -14,7 +14,7 @@
     "rating": 245
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -160,9 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "mulId": 393,
   "role": "Striker",
   "source": "TR:3085"

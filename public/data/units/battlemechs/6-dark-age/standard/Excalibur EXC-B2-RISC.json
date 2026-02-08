@@ -14,7 +14,7 @@
     "rating": 350
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -164,11 +164,7 @@
       "ISSuperCooledMyomer"
     ]
   },
-  "quirks": [
-    "difficult_maintain",
-    "prototype",
-    "vestigial_hands_ra"
-  ],
+  "quirks": ["difficult_maintain", "prototype", "vestigial_hands_ra"],
   "role": "Sniper",
   "source": "XTR:RISC"
 }

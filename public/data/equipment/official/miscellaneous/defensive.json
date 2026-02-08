@@ -1,0 +1,106 @@
+{
+  "$schema": "../../_schema/misc-equipment-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2026-02-07T08:02:30.873Z",
+  "count": 6,
+  "items": [
+    {
+      "id": "ams",
+      "name": "Anti-Missile System",
+      "category": "Defensive",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 100000,
+      "battleValue": 32,
+      "introductionYear": 2617,
+      "special": [
+        "Intercepts incoming missiles",
+        "Requires ammo"
+      ]
+    },
+    {
+      "id": "clan-ams",
+      "name": "Anti-Missile System (Clan)",
+      "category": "Defensive",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 100000,
+      "battleValue": 32,
+      "introductionYear": 2831,
+      "special": [
+        "Intercepts incoming missiles",
+        "Requires ammo"
+      ]
+    },
+    {
+      "id": "laser-ams",
+      "name": "Laser Anti-Missile System",
+      "category": "Defensive",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "costCBills": 225000,
+      "battleValue": 45,
+      "introductionYear": 3059,
+      "special": [
+        "Intercepts incoming missiles",
+        "No ammo required",
+        "Generates heat"
+      ]
+    },
+    {
+      "id": "clan-laser-ams",
+      "name": "Laser Anti-Missile System (Clan)",
+      "category": "Defensive",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 225000,
+      "battleValue": 45,
+      "introductionYear": 3048,
+      "special": [
+        "Intercepts incoming missiles",
+        "No ammo required",
+        "Generates heat"
+      ]
+    },
+    {
+      "id": "reactive-armor",
+      "name": "Reactive Armor",
+      "category": "Defensive",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 14,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3063,
+      "special": [
+        "Reduced damage from missiles and ballistics",
+        "Increased damage from energy"
+      ]
+    },
+    {
+      "id": "stealth-armor",
+      "name": "Stealth Armor",
+      "category": "Defensive",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 12,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3063,
+      "special": [
+        "Requires Guardian ECM",
+        "+2 to hit at medium/long range"
+      ]
+    }
+  ]
+}

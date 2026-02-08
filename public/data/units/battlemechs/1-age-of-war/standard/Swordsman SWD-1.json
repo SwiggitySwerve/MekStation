@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -164,12 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "searchlight",
-    "bad_rep_is",
-    "obsolete",
-    "poor_work"
-  ],
+  "quirks": ["searchlight", "bad_rep_is", "obsolete:2482", "poor_work"],
   "mulId": 7181,
   "role": "Sniper",
   "source": "XTR:Primitives IV"

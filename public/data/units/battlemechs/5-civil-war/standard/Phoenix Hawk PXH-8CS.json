@@ -14,7 +14,7 @@
     "rating": 315
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -156,12 +156,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "imp_com",
-    "ubiquitous_clan",
-    "ubiquitous_is"
-  ],
+  "quirks": ["command_mech", "imp_com", "ubiquitous_clan", "ubiquitous_is"],
   "mulId": 2510,
   "role": "Striker",
   "source": "TR:3085"

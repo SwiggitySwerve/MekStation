@@ -6,6 +6,8 @@
  * @spec openspec/specs/battle-value-system/spec.md
  */
 
+import { EngineType } from '../construction/EngineType';
+
 /**
  * Battle Value calculation version
  */
@@ -104,6 +106,7 @@ export const ARMOR_BV_MULTIPLIERS: Record<string, number> = {
 export const STRUCTURE_BV_MULTIPLIERS: Record<string, number> = {
   industrial: 0.5,
   composite: 0.5,
+  'endo-composite': 1.0,
   reinforced: 2.0,
   standard: 1.0,
 };
@@ -118,6 +121,27 @@ export const GYRO_BV_MULTIPLIERS: Record<string, number> = {
   xl: 0.5,
   compact: 0.5,
   'heavy-duty': 1.0,
+};
+
+/**
+ * Engine type BV multipliers for structure calculation
+ * Per MegaMek Engine.getBVMultiplier() — based on side torso critical slots:
+ *   6 crits → 0.25 (IS XXL)
+ *   3 crits → 0.5  (IS XL)
+ *   2 crits → 0.75 (IS Light, Clan XL)
+ *   0 crits → 1.0  (Standard, Compact, ICE, etc.)
+ * Formula: structureBV = totalStructure × 1.5 × structureMultiplier × engineMultiplier
+ */
+export const ENGINE_BV_MULTIPLIERS: Record<EngineType, number> = {
+  [EngineType.STANDARD]: 1.0,
+  [EngineType.XL_IS]: 0.5, // 3 side torso crits
+  [EngineType.XL_CLAN]: 0.75, // 2 side torso crits
+  [EngineType.LIGHT]: 0.75, // 2 side torso crits
+  [EngineType.XXL]: 0.25, // 6 side torso crits (IS XXL)
+  [EngineType.COMPACT]: 1.0, // 0 side torso crits
+  [EngineType.ICE]: 1.0,
+  [EngineType.FUEL_CELL]: 1.0,
+  [EngineType.FISSION]: 1.0,
 };
 
 /**
@@ -160,6 +184,14 @@ export function getStructureBVMultiplier(structureType: string): number {
  */
 export function getGyroBVMultiplier(gyroType: string): number {
   return GYRO_BV_MULTIPLIERS[gyroType.toLowerCase()] ?? 0.5;
+}
+
+/**
+ * Get engine BV multiplier by type
+ * Returns 1.0 (standard) if type not found
+ */
+export function getEngineBVMultiplier(engineType: EngineType): number {
+  return ENGINE_BV_MULTIPLIERS[engineType] ?? 1.0;
 }
 
 /**

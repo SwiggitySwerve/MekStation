@@ -14,9 +14,9 @@
     "rating": 385
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "COMPOSITE"
   },
@@ -164,9 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "poor_life_support"
-  ],
+  "quirks": ["poor_life_support"],
   "mulId": 2582,
   "role": "Skirmisher",
   "source": "TR:3055U"

@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -175,7 +175,7 @@
     "ubiquitous_is",
     "cramped_cockpit",
     "no_arms",
-    "obsolete",
+    "obsolete:2506",
     "weak_legs"
   ],
   "fluff": {

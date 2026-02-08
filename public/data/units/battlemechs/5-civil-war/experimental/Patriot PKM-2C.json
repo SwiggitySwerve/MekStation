@@ -14,7 +14,7 @@
     "rating": 260
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "HEAVY_DUTY"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -164,10 +164,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "pro_actuator",
-    "stable"
-  ],
+  "quirks": ["pro_actuator", "stable"],
   "mulId": 2447,
   "role": "Missile Boat",
   "source": "TR:3075"

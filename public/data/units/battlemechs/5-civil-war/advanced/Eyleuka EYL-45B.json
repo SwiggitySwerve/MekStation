@@ -14,9 +14,9 @@
     "rating": 275
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "STANDARD"
   },
@@ -168,9 +168,7 @@
       "Stealth"
     ]
   },
-  "quirks": [
-    "exp_actuator"
-  ],
+  "quirks": ["exp_actuator"],
   "mulId": 1010,
   "role": "Striker",
   "source": "TR:3075"

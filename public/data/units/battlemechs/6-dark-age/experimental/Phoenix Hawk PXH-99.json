@@ -14,7 +14,7 @@
     "rating": 45
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "HEAVY_DUTY"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -168,10 +168,7 @@
       null
     ]
   },
-  "quirks": [
-    "command_mech",
-    "imp_com"
-  ],
+  "quirks": ["command_mech", "imp_com"],
   "mulId": 8106,
   "role": "Juggernaut",
   "source": "XTR:Caveat"

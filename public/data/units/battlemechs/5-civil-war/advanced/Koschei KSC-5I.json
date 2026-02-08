@@ -14,7 +14,7 @@
     "rating": 325
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -176,10 +176,7 @@
       "Light Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "imp_life_support",
-    "weak_head_1"
-  ],
+  "quirks": ["imp_life_support", "weak_head_1"],
   "mulId": 1824,
   "role": "Skirmisher",
   "source": "TR:3075"

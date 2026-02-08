@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "COMPOSITE"
   },
@@ -143,14 +143,7 @@
       null,
       null
     ],
-    "HEAD": [
-      "Life Support",
-      "Sensors",
-      "Cockpit",
-      "Sensors",
-      null,
-      null
-    ],
+    "HEAD": ["Life Support", "Sensors", "Cockpit", "Sensors", null, null],
     "LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",
@@ -168,9 +161,7 @@
       null
     ]
   },
-  "quirks": [
-    "exp_actuator"
-  ],
+  "quirks": ["exp_actuator"],
   "mulId": 5078,
   "role": "Skirmisher",
   "source": "XTR:Steiner"

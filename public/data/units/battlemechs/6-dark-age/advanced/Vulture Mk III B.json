@@ -172,10 +172,7 @@
       "Jump Jet (omnipod)"
     ]
   },
-  "quirks": [
-    "stable",
-    "variable_range_long"
-  ],
+  "quirks": ["stable", "variable_range_targeting"],
   "mulId": 6273,
   "role": "Missile Boat",
   "source": "TR:3145:C"

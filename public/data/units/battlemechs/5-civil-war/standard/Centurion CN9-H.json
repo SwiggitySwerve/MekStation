@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -176,10 +176,7 @@
       null
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "non_standard"
-  ],
+  "quirks": ["imp_target_short", "non_standard"],
   "mulId": 3922,
   "role": "Brawler",
   "source": "XTR:RetroTech"

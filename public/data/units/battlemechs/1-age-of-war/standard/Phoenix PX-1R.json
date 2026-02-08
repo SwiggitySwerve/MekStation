@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -160,11 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "poor_work",
-    "weak_legs",
-    "em_inter_whole"
-  ],
+  "quirks": ["poor_work", "weak_legs", "em_inter_whole", "obsolete:2525"],
   "mulId": 2488,
   "role": "Brawler",
   "source": "XTR:Primitives V"

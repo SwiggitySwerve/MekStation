@@ -14,7 +14,7 @@
     "rating": 280
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -172,9 +172,7 @@
       "IS Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "anti_air"
-  ],
+  "quirks": ["anti_air"],
   "mulId": 9487,
   "role": "Sniper",
   "source": "RG32"

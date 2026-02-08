@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL_CLAN"
   },
@@ -184,9 +184,7 @@
       "Clan Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "multi_trac"
-  ],
+  "quirks": ["multi_trac"],
   "mulId": 6278,
   "role": "Brawler",
   "source": "TR:3145:C"

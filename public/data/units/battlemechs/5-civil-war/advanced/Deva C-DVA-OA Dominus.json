@@ -14,9 +14,9 @@
     "rating": 280
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "HEAVY_DUTY"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -172,12 +172,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "imp_com",
-    "imp_sensors",
-    "bad_rep_clan",
-    "bad_rep_is"
-  ],
+  "quirks": ["imp_com", "imp_sensors", "bad_rep_clan", "bad_rep_is"],
   "mulId": 886,
   "role": "Brawler",
   "source": "TR:3075"

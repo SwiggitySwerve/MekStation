@@ -14,7 +14,7 @@
     "rating": 300
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -184,9 +184,7 @@
       "ISImprovedJump Jet"
     ]
   },
-  "quirks": [
-    "stable"
-  ],
+  "quirks": ["stable"],
   "mulId": 5701,
   "role": "Skirmisher",
   "source": "RS:3067u"

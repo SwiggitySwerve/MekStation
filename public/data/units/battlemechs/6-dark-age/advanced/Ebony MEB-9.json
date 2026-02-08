@@ -14,7 +14,7 @@
     "rating": 250
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -152,9 +152,7 @@
       "Stealth"
     ]
   },
-  "quirks": [
-    "imp_target_med"
-  ],
+  "quirks": ["imp_target_med"],
   "mulId": 942,
   "role": "Scout",
   "source": "TR:3085"

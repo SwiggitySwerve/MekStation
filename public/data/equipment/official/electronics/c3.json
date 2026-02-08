@@ -1,0 +1,166 @@
+{
+  "$schema": "../../_schema/electronics-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2026-02-07T08:07:29.445Z",
+  "count": 11,
+  "items": [
+    {
+      "id": "c3-master",
+      "name": "C3 Master Computer",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 5,
+      "criticalSlots": 5,
+      "costCBills": 1500000,
+      "battleValue": 0,
+      "introductionYear": 3050,
+      "special": [
+        "Coordinates up to 3 C3 slaves",
+        "Shares targeting data"
+      ]
+    },
+    {
+      "id": "c3-slave",
+      "name": "C3 Slave Unit",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 250000,
+      "battleValue": 0,
+      "introductionYear": 3050,
+      "special": [
+        "Links to C3 Master",
+        "Shares targeting data"
+      ]
+    },
+    {
+      "id": "c3i",
+      "name": "Improved C3 Computer",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 2.5,
+      "criticalSlots": 2,
+      "costCBills": 750000,
+      "battleValue": 0,
+      "introductionYear": 3062,
+      "special": [
+        "No master required",
+        "Links up to 6 units"
+      ]
+    },
+    {
+      "id": "c3-boosted-master",
+      "name": "C3 Boosted Master",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 6,
+      "criticalSlots": 6,
+      "costCBills": 3000000,
+      "battleValue": 0,
+      "introductionYear": 3073,
+      "special": [
+        "Coordinates up to 3 C3 slaves",
+        "Extended range"
+      ]
+    },
+    {
+      "id": "c3-boosted-slave",
+      "name": "C3 Boosted Slave",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 2,
+      "criticalSlots": 2,
+      "costCBills": 500000,
+      "battleValue": 0,
+      "introductionYear": 3073,
+      "special": [
+        "Links to C3 Master",
+        "Extended range"
+      ]
+    },
+    {
+      "id": "c3slaveunit",
+      "name": "C3 Computer (Slave)",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 250000,
+      "battleValue": 0,
+      "introductionYear": 3039,
+      "special": []
+    },
+    {
+      "id": "c3iunit",
+      "name": "Improved C3 Computer (C3I)",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 2.5,
+      "criticalSlots": 2,
+      "costCBills": 750000,
+      "battleValue": 0,
+      "introductionYear": 3052,
+      "special": []
+    },
+    {
+      "id": "c3boostedsystemslaveunit",
+      "name": "C3 Boosted System (Slave)",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 3,
+      "criticalSlots": 2,
+      "costCBills": 500000,
+      "battleValue": 0,
+      "introductionYear": 3073,
+      "special": []
+    },
+    {
+      "id": "c3emergencymaster",
+      "name": "C3 Emergency Master",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 2,
+      "criticalSlots": 2,
+      "costCBills": 2800000,
+      "battleValue": 0,
+      "introductionYear": 3071,
+      "special": []
+    },
+    {
+      "id": "battlearmorc3",
+      "name": "Battle Armor C3",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 0.25,
+      "criticalSlots": 1,
+      "costCBills": 62500,
+      "battleValue": 0,
+      "introductionYear": 3073,
+      "special": []
+    },
+    {
+      "id": "bc3i",
+      "name": "Battle Armor Improved C3",
+      "category": "C3 System",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 0.35,
+      "criticalSlots": 1,
+      "costCBills": 125000,
+      "battleValue": 0,
+      "introductionYear": 3063,
+      "special": []
+    }
+  ]
+}

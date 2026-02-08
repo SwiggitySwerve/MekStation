@@ -14,9 +14,9 @@
     "rating": 330
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -160,9 +160,7 @@
       "IS Stealth"
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "mulId": 5680,
   "role": "Striker",
   "source": "TR:3067"

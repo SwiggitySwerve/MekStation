@@ -14,7 +14,7 @@
     "rating": 250
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -156,9 +156,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "easy_pilot"
-  ],
+  "quirks": ["easy_pilot"],
   "mulId": 6342,
   "role": "Sniper",
   "source": "TR:3145:FS"

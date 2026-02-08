@@ -14,7 +14,7 @@
     "rating": 320
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -156,12 +156,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "imp_com",
-    "low_profile",
-    "hard_pilot",
-    "non_standard"
-  ],
+  "quirks": ["imp_com", "low_profile", "hard_pilot", "non_standard"],
   "mulId": 5781,
   "role": "Scout",
   "source": "XTR:Most Wanted"

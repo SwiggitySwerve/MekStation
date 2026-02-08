@@ -14,7 +14,7 @@
     "rating": 245
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -152,10 +152,7 @@
       "IS Endo-Steel"
     ]
   },
-  "quirks": [
-    "pro_actuator",
-    "no_eject"
-  ],
+  "quirks": ["pro_actuator", "no_eject"],
   "mulId": 6393,
   "role": "Striker",
   "source": "TR:3145:DC"

@@ -14,7 +14,7 @@
     "rating": 210
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -172,9 +172,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "poor_sealing"
-  ],
+  "quirks": ["poor_sealing"],
   "mulId": 6390,
   "role": "Scout",
   "source": "TR:3145:DC"

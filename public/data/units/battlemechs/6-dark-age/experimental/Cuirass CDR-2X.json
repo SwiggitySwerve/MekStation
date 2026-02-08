@@ -14,7 +14,7 @@
     "rating": 240
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -156,9 +156,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "mulId": 6921,
   "role": "Sniper",
   "source": "RS:3145-NTNU"

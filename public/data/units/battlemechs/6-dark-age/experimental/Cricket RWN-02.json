@@ -14,9 +14,9 @@
     "rating": 270
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "COMPOSITE"
   },
@@ -156,11 +156,7 @@
       "IS Ballistic-Reinforced"
     ]
   },
-  "quirks": [
-    "low_profile",
-    "difficult_maintain",
-    "weak_legs"
-  ],
+  "quirks": ["low_profile", "difficult_maintain", "weak_legs"],
   "fluff": {
     "overview": "The Cricket 'Mech was developed by the DCMS as a raider and harasser.",
     "capabilities": "The Cricket was constructed using every delicate, weight-saving technique available. These technologies are frequently derided as being too risky for use in line units. The spindly Cricket, on the other hand, is designed to harass opposing forces, following in the footsteps of long-time Kuritan favorites the Spider and Venom. The 'Mech makes good use of the weight saved by its delicate internals. When employing MASC, it can achieve even greater ground speed than its forefathers, but it also integrates as much ballistic-reinforced plate as could be put on its shell before the frame buckled. In this sense, the designers may have made a mistake: the Cricket has become renowned as a hanger queen, frequently requiring costly chassis work. Despite its all-energy weapon loadout, it has proven unpopular as a scout or guerilla unit due to its tiny cockpit, which makes extended durations in the field exhausting. However, the Cricket's mix of speed and lethal precise long-range PPCs has made it a favorite among DCMS skirmishers.",

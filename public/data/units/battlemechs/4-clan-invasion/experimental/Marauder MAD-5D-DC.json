@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "COMMAND_CONSOLE",
   "structure": {
     "type": "STANDARD"
   },
@@ -172,11 +172,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "hyper_actuator",
-    "low_profile"
-  ],
+  "quirks": ["command_mech", "hyper_actuator", "low_profile"],
   "mulId": 7529,
   "role": "Brawler",
   "source": "RG06"

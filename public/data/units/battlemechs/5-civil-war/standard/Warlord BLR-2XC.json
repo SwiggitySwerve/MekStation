@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "COMMAND_CONSOLE",
   "structure": {
     "type": "STANDARD"
   },
@@ -184,11 +184,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "battle_computer",
-    "imp_com"
-  ],
+  "quirks": ["easy_maintain", "battle_computer", "imp_com"],
   "mulId": 5602,
   "role": "Brawler",
   "source": "XTR:Phantoms"

@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -156,9 +156,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "difficult_maintain"
-  ],
+  "quirks": ["difficult_maintain"],
   "fluff": {
     "overview": "Born from the Terran Hegemony's attempts to create a medium fire-support platform that would be more advanced than the RLN-1N Rifleman.",
     "capabilities": "The Galahad utilizes special building materials in the form of eleven tons of Ferro-Fibrous armor and Endo Steel internals. To fit the massive weapons on the Galahad, the engine was dropped to a GM 180, giving it a maximum speed of only 54 km/h, making it difficult for the 'Mech to keep up with its companions in most cases.",

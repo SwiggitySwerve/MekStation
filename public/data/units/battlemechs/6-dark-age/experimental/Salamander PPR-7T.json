@@ -14,7 +14,7 @@
     "rating": 320
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -160,9 +160,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "difficult_maintain"
-  ],
+  "quirks": ["difficult_maintain"],
   "mulId": 6860,
   "role": "Missile Boat",
   "source": "RS:3145-NTNU"

@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -164,10 +164,7 @@
       "Mek Void Signature System"
     ]
   },
-  "quirks": [
-    "no_arms",
-    "no_eject"
-  ],
+  "quirks": ["no_arms", "no_eject"],
   "mulId": 2660,
   "role": "Sniper",
   "source": "TR:3085"

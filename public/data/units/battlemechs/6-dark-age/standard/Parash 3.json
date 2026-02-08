@@ -14,9 +14,9 @@
     "rating": 245
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "NONE"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "INTERFACE",
   "structure": {
     "type": "STANDARD"
   },
@@ -156,10 +156,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "low_profile",
-    "non_standard"
-  ],
+  "quirks": ["low_profile", "non_standard"],
   "mulId": 7375,
   "role": "Striker",
   "source": "XTR:RotS 3"

@@ -14,9 +14,9 @@
     "rating": 225
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "TORSO_MOUNTED",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -164,10 +164,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "non_standard",
-    "pro_actuator"
-  ],
+  "quirks": ["non_standard", "pro_actuator"],
   "mulId": 8107,
   "role": "Striker",
   "source": "XTR:Caveat"

@@ -7,11 +7,239 @@
  */
 
 import {
+  EngineType,
+  getEngineDefinition,
+} from '../../types/construction/EngineType';
+import {
   getPilotSkillModifier,
   getArmorBVMultiplier,
   getStructureBVMultiplier,
   getGyroBVMultiplier,
+  getEngineBVMultiplier,
 } from '../../types/validation/BattleValue';
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from './equipmentBVResolver';
+
+// ============================================================================
+// EXPLOSIVE EQUIPMENT PENALTY CALCULATION
+// ============================================================================
+
+/**
+ * Mech location codes used for explosive penalty tracking.
+ */
+export type MechLocation =
+  | 'HD'
+  | 'CT'
+  | 'LT'
+  | 'RT'
+  | 'LA'
+  | 'RA'
+  | 'LL'
+  | 'RL';
+
+/**
+ * Explosive penalty category determines BV penalty per critical slot.
+ *
+ * - 'standard': 15 BV per slot (most ammo, generic explosive equipment)
+ * - 'gauss': 1 BV per slot (Gauss weapons)
+ * - 'hvac': 1 BV total regardless of slots (Hyper-Assault autocannons)
+ * - 'reduced': 1 BV per slot (PPC capacitors, improved heavy lasers,
+ *   B-Pods, M-Pods, jump jets, coolant pods, RISC laser pulse modules,
+ *   emergency coolant systems, TSEMP, Mek Taser)
+ */
+export type ExplosivePenaltyCategory =
+  | 'standard'
+  | 'gauss'
+  | 'hvac'
+  | 'reduced';
+
+/**
+ * A single piece of explosive equipment for penalty calculation.
+ */
+export interface ExplosiveEquipmentEntry {
+  /** Location where the equipment is installed */
+  location: MechLocation;
+  /** Number of critical slots occupied */
+  slots: number;
+  /** Penalty category determines BV penalty rate */
+  penaltyCategory: ExplosivePenaltyCategory;
+}
+
+/**
+ * Configuration for explosive penalty calculation.
+ *
+ * @see MekBVCalculator.processExplosiveEquipment() lines 138-278
+ * @see MekBVCalculator.hasExplosiveEquipmentPenalty() lines 517-528
+ */
+export interface ExplosivePenaltyConfig {
+  /** All explosive equipment on the mech */
+  equipment: ExplosiveEquipmentEntry[];
+  /** Locations with CASE (IS) protection */
+  caseLocations: MechLocation[];
+  /** Locations with CASE II protection (eliminates all penalties) */
+  caseIILocations: MechLocation[];
+  /** Engine type (affects side torso CASE effectiveness) */
+  engineType?: EngineType;
+  /** Whether the mech is a quad (affects arm transfer logic) */
+  isQuad?: boolean;
+}
+
+/**
+ * Result of explosive penalty calculation with per-location breakdown.
+ */
+export interface ExplosivePenaltyResult {
+  /** Total explosive penalty to subtract from defensive BV */
+  totalPenalty: number;
+  /** Penalty breakdown per location */
+  locationPenalties: Partial<Record<MechLocation, number>>;
+}
+
+/**
+ * Get the BV penalty per slot for an explosive penalty category.
+ *
+ * @param category - The explosive penalty category
+ * @returns BV penalty per critical slot
+ */
+function getPenaltyPerSlot(category: ExplosivePenaltyCategory): number {
+  switch (category) {
+    case 'standard':
+      return 15;
+    case 'gauss':
+    case 'hvac':
+    case 'reduced':
+      return 1;
+  }
+}
+
+/**
+ * Determine the number of engine critical slots in each side torso.
+ * Used for CASE effectiveness check per MegaMek.
+ *
+ * @param engineType - The engine type
+ * @returns Number of engine crit slots per side torso
+ */
+function getEngineSideTorsoSlots(engineType?: EngineType): number {
+  if (!engineType) return 0;
+  const def = getEngineDefinition(engineType);
+  return def?.sideTorsoSlots ?? 0;
+}
+
+/**
+ * Determine whether explosive equipment in a location incurs a BV penalty.
+ *
+ * Implements MekBVCalculator.hasExplosiveEquipmentPenalty() logic:
+ * - CASE II → no penalty (location fully protected)
+ * - Arms (non-quad): no penalty if arm has CASE, or if transfer torso has no penalty
+ * - Side torsos: no penalty if CASE present AND engine has <3 side torso crit slots
+ * - CT: no penalty if CASE present (explosion vented instead of mech destruction)
+ * - Legs: transfer to adjacent side torso (LL→LT, RL→RT) — no penalty if torso is protected
+ * - HD: always has penalty (no CASE protection for head)
+ *
+ * @see MekBVCalculator.java lines 517-528
+ */
+function hasExplosiveEquipmentPenalty(
+  location: MechLocation,
+  config: ExplosivePenaltyConfig,
+): boolean {
+  // CASE II eliminates all penalties
+  if (config.caseIILocations.includes(location)) {
+    return false;
+  }
+
+  const hasCASE = config.caseLocations.includes(location);
+  const sideTorsoSlots = getEngineSideTorsoSlots(config.engineType);
+
+  // Arms on non-quad mechs: CASE in arm protects it; otherwise check transfer torso
+  if (!config.isQuad && (location === 'LA' || location === 'RA')) {
+    if (hasCASE) {
+      return false;
+    }
+    // Transfer location: LA → LT, RA → RT
+    const transferLocation: MechLocation = location === 'LA' ? 'LT' : 'RT';
+    return hasExplosiveEquipmentPenalty(transferLocation, config);
+  }
+
+  // Side torsos: CASE protects only if engine has fewer than 3 side torso crit slots
+  // With IS XL (3 slots) or XXL (3+ slots), CASE doesn't help — explosion still kills mech
+  // With Clan XL (2 slots) + built-in CASE, no penalty
+  if (location === 'LT' || location === 'RT') {
+    return !hasCASE || sideTorsoSlots >= 3;
+  }
+
+  // Center torso: CASE protects (vents explosion instead of destroying mech)
+  // Without CASE, CT ammo explosion = mech destruction = penalty
+  if (location === 'CT') {
+    return !hasCASE;
+  }
+
+  // Legs: explosion transfers to adjacent side torso (LL→LT, RL→RT)
+  // If the receiving torso can contain the explosion, no penalty
+  if (location === 'LL') {
+    return hasExplosiveEquipmentPenalty('LT', config);
+  }
+  if (location === 'RL') {
+    return hasExplosiveEquipmentPenalty('RT', config);
+  }
+
+  // Head: always has penalty (no CASE protection for BV purposes)
+  return true;
+}
+
+/**
+ * Calculate explosive equipment BV penalties per TechManual BV 2.0 rules.
+ *
+ * For each location, checks all explosive equipment and applies per-slot penalties:
+ * - Standard explosive (ammo, etc.): 15 BV per critical slot
+ * - Gauss weapons: 1 BV per critical slot
+ * - HVAC weapons: 1 BV total (regardless of slot count)
+ * - Reduced penalty types: 1 BV per critical slot
+ *
+ * Protection:
+ * - CASE II eliminates ALL penalties in the protected location
+ * - CASE prevents penalties in side torsos (unless engine has 3+ side torso slots)
+ * - CASE in arms always prevents penalties (or transfers to protected torso)
+ * - CASE in CT prevents penalties (explosion vented instead of mech destruction)
+ * - Legs transfer to side torso (LL→LT, RL→RT) — protected if torso is protected
+ * - Clan XL engines (2 side torso slots) allow CASE to work in side torsos
+ * - IS XL/XXL engines (3+ side torso slots) override CASE in side torsos
+ *
+ * @param config - Explosive equipment and CASE protection configuration
+ * @returns Total penalty and per-location breakdown
+ *
+ * @see MekBVCalculator.processExplosiveEquipment() lines 138-278
+ * @see MekBVCalculator.hasExplosiveEquipmentPenalty() lines 517-528
+ * @see openspec/specs/battle-value-system/spec.md lines 49-61
+ */
+export function calculateExplosivePenalties(
+  config: ExplosivePenaltyConfig,
+): ExplosivePenaltyResult {
+  const locationPenalties: Partial<Record<MechLocation, number>> = {};
+  let totalPenalty = 0;
+
+  for (const item of config.equipment) {
+    // Skip if location is protected (no penalty)
+    if (!hasExplosiveEquipmentPenalty(item.location, config)) {
+      continue;
+    }
+
+    const penaltyPerSlot = getPenaltyPerSlot(item.penaltyCategory);
+
+    // HVAC: 1 total regardless of slots
+    const effectiveSlots = item.penaltyCategory === 'hvac' ? 1 : item.slots;
+
+    const penalty = penaltyPerSlot * effectiveSlots;
+    locationPenalties[item.location] =
+      (locationPenalties[item.location] ?? 0) + penalty;
+    totalPenalty += penalty;
+  }
+
+  return {
+    totalPenalty,
+    locationPenalties,
+  };
+}
 
 // ============================================================================
 // SPEED FACTOR TABLE (from TechManual)
@@ -35,19 +263,28 @@ export const SPEED_FACTORS: Record<number, number> = {
   10: 2.0,
 };
 
+function mpToTMM(mp: number): number {
+  if (mp <= 2) return 0;
+  if (mp <= 4) return 1;
+  if (mp <= 6) return 2;
+  if (mp <= 9) return 3;
+  if (mp <= 17) return 4;
+  if (mp <= 24) return 5;
+  return 6;
+}
+
 /**
- * Calculate Target Movement Modifier from movement capability
+ * Calculate Target Movement Modifier from movement capability.
+ *
+ * Per TW p.117 / MegaMek BVCalculator.processDefensiveFactor():
+ * - Running TMM = TMM(runMP)
+ * - Jumping TMM = TMM(jumpMP) + 1 (jump bonus)
+ * - Result = max(running, jumping)
  */
 export function calculateTMM(runMP: number, jumpMP: number = 0): number {
-  const bestMP = Math.max(runMP, jumpMP);
-
-  if (bestMP <= 2) return 0;
-  if (bestMP <= 4) return 1;
-  if (bestMP <= 6) return 2;
-  if (bestMP <= 9) return 3;
-  if (bestMP <= 17) return 4;
-  if (bestMP <= 24) return 5;
-  return 6;
+  const runTMM = mpToTMM(runMP);
+  const jumpTMM = jumpMP > 0 ? mpToTMM(jumpMP) + 1 : 0;
+  return Math.max(runTMM, jumpTMM);
 }
 
 /**
@@ -83,10 +320,23 @@ export interface DefensiveBVConfig {
   armorType?: string;
   structureType?: string;
   gyroType?: string;
+  engineType?: EngineType;
   bar?: number;
   engineMultiplier?: number;
   defensiveEquipmentBV?: number;
   explosivePenalties?: number;
+  /** Defensive equipment IDs (AMS, ECM, BAP, shields, armored components) */
+  defensiveEquipment?: string[];
+  /** Stealth armor adds +2 to TMM for defensive factor */
+  hasStealthArmor?: boolean;
+  /** Chameleon Light Polarization Shield adds +2 to TMM for defensive factor */
+  hasChameleonLPS?: boolean;
+  /** Null Signature System adds +2 to TMM for defensive factor */
+  hasNullSig?: boolean;
+  /** Void Signature System: TMM min 3, or +1 if already 3 */
+  hasVoidSig?: boolean;
+  /** UMU movement points (Underwater Maneuvering Unit) */
+  umuMP?: number;
 }
 
 export interface DefensiveBVResult {
@@ -107,22 +357,63 @@ export function calculateDefensiveBV(
   const gyroMultiplier = getGyroBVMultiplier(config.gyroType ?? 'standard');
 
   const bar = config.bar ?? 10;
-  const engineMultiplier = config.engineMultiplier ?? 1.0;
-  const defensiveEquipmentBV = config.defensiveEquipmentBV ?? 0;
+  // Explicit engineMultiplier takes priority (e.g., Clan XXL override),
+  // then engineType lookup, then default 1.0
+  const engineMultiplier =
+    config.engineMultiplier !== undefined
+      ? config.engineMultiplier
+      : config.engineType !== undefined
+        ? getEngineBVMultiplier(config.engineType)
+        : 1.0;
+
+  // Resolve defensive equipment BV from catalog (AMS, ECM, BAP, shields, armored components)
+  let resolvedDefensiveEquipmentBV = config.defensiveEquipmentBV ?? 0;
+  if (config.defensiveEquipment && config.defensiveEquipment.length > 0) {
+    for (const equipmentId of config.defensiveEquipment) {
+      const result = resolveEquipmentBV(equipmentId);
+      resolvedDefensiveEquipmentBV += result.battleValue;
+    }
+  }
+
   const explosivePenalties = config.explosivePenalties ?? 0;
 
-  const armorBV = config.totalArmorPoints * 2.5 * armorMultiplier * (bar / 10);
+  const armorBV =
+    Math.round(config.totalArmorPoints * 2.5 * armorMultiplier * bar) / 10;
   const structureBV =
     config.totalStructurePoints * 1.5 * structureMultiplier * engineMultiplier;
   const gyroBV = config.tonnage * gyroMultiplier;
 
   const baseDef =
-    armorBV + structureBV + gyroBV + defensiveEquipmentBV - explosivePenalties;
+    armorBV +
+    structureBV +
+    gyroBV +
+    resolvedDefensiveEquipmentBV -
+    explosivePenalties;
 
-  const maxTMM = calculateTMM(config.runMP, config.jumpMP);
+  let maxTMM = calculateTMM(
+    config.runMP,
+    Math.max(config.jumpMP, config.umuMP ?? 0),
+  );
+
+  // Stealth armor and Chameleon LPS each add +2 to TMM for defensive factor
+  // See MekBVCalculator.tmmFactor() lines 281-303
+  if (config.hasStealthArmor || config.hasNullSig) {
+    maxTMM += 2;
+  }
+  if (config.hasChameleonLPS) {
+    maxTMM += 2;
+  }
+  if (config.hasVoidSig) {
+    if (maxTMM < 3) {
+      maxTMM = 3;
+    } else if (maxTMM === 3) {
+      maxTMM++;
+    }
+  }
+
   const defensiveFactor = 1 + maxTMM / 10.0;
 
-  const totalDefensiveBV = Math.round(baseDef * defensiveFactor);
+  const totalDefensiveBV = baseDef * defensiveFactor;
 
   return {
     armorBV,
@@ -144,20 +435,78 @@ export interface OffensiveBVConfig {
     heat: number;
     bv: number;
     rear?: boolean;
+    /** Weapon is in an arm location with a functional AES (×1.25) */
+    hasAES?: boolean;
+    /** Linked Artemis fire control system type */
+    artemisType?: 'iv' | 'v';
+    /** Whether this is a direct-fire weapon (eligible for TC modifier) */
+    isDirectFire?: boolean;
   }>;
-  ammo?: Array<{ id: string; bv: number }>;
+  ammo?: Array<{ id: string; bv: number; weaponType: string }>;
   tonnage: number;
   walkMP: number;
   runMP: number;
   jumpMP: number;
   heatDissipation: number;
+  /** Whether the unit has a functional Targeting Computer */
+  hasTargetingComputer?: boolean;
+  /** Triple Strength Myomer: weight bonus ×1.5 */
+  hasTSM?: boolean;
+  /** Industrial TSM: weight bonus ×1.15 */
+  hasIndustrialTSM?: boolean;
+  /** Number of arms with functional AES (0-2) for weight bonus multiplier */
+  aesArms?: number;
+  /** Number of legs with functional AES (0 for none, 2 for biped, 4 for quad) */
+  aesLegs?: number;
+  /** Industrial mech without advanced fire control: offensive BV ×0.9 */
+  isIndustrialMech?: boolean;
+  /** UMU movement points (Underwater Maneuvering Unit) */
+  umuMP?: number;
+  /** Engine type for running heat (XXL=6, ICE/FC=0, others=2) */
+  engineType?: EngineType;
+  /** XXL engine flag (legacy, prefer engineType) */
+  isXXLEngine?: boolean;
+  /** Stealth armor: -10 heat efficiency */
+  hasStealthArmor?: boolean;
+  /** Null Signature System: -10 heat efficiency */
+  hasNullSig?: boolean;
+  /** Void Signature System: -10 heat efficiency */
+  hasVoidSig?: boolean;
+  /** Chameleon LPS: -6 heat efficiency */
+  hasChameleonShield?: boolean;
+  /** Coolant pods for heat efficiency bonus */
+  coolantPods?: number;
+  /** Total heat sink count (for coolant pod calc) */
+  heatSinkCount?: number;
+  /** Improved Jump Jets (halved jump heat MP) */
+  hasImprovedJJ?: boolean;
+  /** Jump MP for heat calc (may differ from movement jump) */
+  jumpHeatMP?: number;
+  /** Physical weapon BV (hatchets, swords, etc.) */
+  physicalWeaponBV?: number;
+  /** Offensive equipment BV (Watchdog CEWS, etc.) */
+  offensiveEquipmentBV?: number;
+  /** MASC present (reserved for future use) */
+  hasMASC?: boolean;
+  /** Supercharger present (reserved for future use) */
+  hasSupercharger?: boolean;
 }
 
 export interface OffensiveBVResult {
   weaponBV: number;
+  ammoBV: number;
   weightBonus: number;
   speedFactor: number;
   totalOffensiveBV: number;
+  /** Heat tracking details for diagnostic breakdowns */
+  heatEfficiency?: number;
+  moveHeat?: number;
+  rawWeaponBV?: number;
+  halvedWeaponBV?: number;
+  weaponCount?: number;
+  halvedWeaponCount?: number;
+  physicalWeaponBV?: number;
+  offensiveEquipmentBV?: number;
 }
 
 export function calculateOffensiveSpeedFactor(
@@ -171,165 +520,341 @@ export function calculateOffensiveSpeedFactor(
   return speedFactor;
 }
 
+/**
+ * Calculate ammo BV with excessive ammo cap per weapon type.
+ *
+ * Per TechManual BV 2.0 / MegaMek BVCalculator.processAmmo() (lines 1030-1081):
+ * - Ammo grouped by weapon type, weapons grouped by normalized type
+ * - Per group: cappedBV = min(totalAmmoBV, totalWeaponBV)
+ * - Orphaned ammo (no matching weapon) = 0 BV
+ * - Uses base weapon BV (before rear penalty) for cap
+ */
+const AMMO_WEAPON_TYPE_ALIASES: Record<string, string[]> = {
+  'arrow-iv-launcher': [
+    'isarrowivsystem',
+    'isarrowiv',
+    'clarrowiv',
+    'arrow-iv',
+  ],
+  'arrow-iv': [
+    'isarrowivsystem',
+    'isarrowiv',
+    'clarrowiv',
+    'arrow-iv-launcher',
+  ],
+  'long-tom': ['long-tom-cannon'],
+  'long-tom-cannon': ['long-tom'],
+  sniper: ['sniper-cannon', 'issniperartcannon'],
+  'sniper-cannon': ['sniper'],
+  thumper: ['thumper-cannon'],
+  'thumper-cannon': ['thumper'],
+  'medium-chemical-laser': [
+    'medium-chem-laser',
+    'clmediumchemlaser',
+    'clan-medium-chemical-laser',
+  ],
+  'medium-chem-laser': [
+    'medium-chemical-laser',
+    'clmediumchemlaser',
+    'clan-medium-chemical-laser',
+  ],
+  'clan-medium-chemical-laser': [
+    'medium-chemical-laser',
+    'medium-chem-laser',
+    'clmediumchemlaser',
+  ],
+  'lb-5-x': ['lb-5-x-ac'],
+  'lb-2-x': ['lb-2-x-ac'],
+  lrtorpedo: ['lrm-15', 'lrm-10', 'lrm-5', 'lrm-20'],
+  srtorpedo: ['srm-6', 'srm-4', 'srm-2'],
+  'ac-10-primitive': ['ac-10'],
+  'ac-5-primitive': ['ac-5'],
+  'ac-20-primitive': ['ac-20'],
+  impammosrm6: ['improved-srm-6'],
+  clanimprovedlrm15: ['improved-lrm-15'],
+  clanimprovedlrm20: ['improved-lrm-20'],
+  clanimprovedlrm10: ['improved-lrm-10'],
+  clanimprovedlrm5: ['improved-lrm-5'],
+  isarrowivsystem: ['arrow-iv-launcher', 'arrow-iv'],
+  'improved-gauss-rifle': ['climpgauss'],
+  climpgauss: ['improved-gauss-rifle'],
+  magshot: ['magshotgr'],
+  magshotgr: ['magshot'],
+  'mech-taser': ['battlemech-taser', 'taser'],
+  'battlemech-taser': ['mech-taser', 'taser'],
+  'heavy-rifle': ['rifle-cannon', 'isheavyrifle'],
+  'rifle-cannon': ['heavy-rifle', 'isheavyrifle'],
+  'medium-rifle': ['rifle-cannon', 'ismediumrifle'],
+  'light-rifle': ['islightrifle'],
+  taser: ['mech-taser', 'battlemech-taser'],
+  'improved-narc': ['improvednarc', 'inarc', 'isimprovednarc'],
+  improvednarc: ['improved-narc', 'inarc'],
+  'narc-beacon': ['narcbeacon', 'narc', 'isnarcbeacon'],
+  narcbeacon: ['narc-beacon', 'narc'],
+  narc: ['narc-beacon', 'narcbeacon'],
+  clmediumchemlaser: ['medium-chemical-laser', 'medium-chem-laser'],
+};
+
+function findMatchingWeaponBV(
+  ammoType: string,
+  weaponBVByType: Record<string, number>,
+): number {
+  if (weaponBVByType[ammoType] !== undefined) return weaponBVByType[ammoType];
+  const aliases = AMMO_WEAPON_TYPE_ALIASES[ammoType];
+  if (aliases) {
+    for (const alias of aliases) {
+      if (weaponBVByType[alias] !== undefined) return weaponBVByType[alias];
+    }
+  }
+  const stripped = ammoType.replace(/-\d+$/, '');
+  if (stripped !== ammoType) {
+    const size = ammoType.slice(stripped.length + 1);
+    const torpedoAliases: Record<string, string> = {
+      lrtorpedo: 'lrm-',
+      srtorpedo: 'srm-',
+    };
+    const base = torpedoAliases[stripped];
+    if (base && weaponBVByType[base + size] !== undefined) {
+      return weaponBVByType[base + size];
+    }
+  }
+  return 0;
+}
+
+export function calculateAmmoBVWithExcessiveCap(
+  weapons: Array<{ id: string; bv: number }>,
+  ammo: Array<{ id: string; bv: number; weaponType: string }>,
+): number {
+  if (!ammo || ammo.length === 0) return 0;
+
+  const weaponBVByType: Record<string, number> = {};
+  for (const weapon of weapons) {
+    const weaponType = normalizeEquipmentId(weapon.id);
+    weaponBVByType[weaponType] = (weaponBVByType[weaponType] ?? 0) + weapon.bv;
+  }
+
+  const ammoBVByType: Record<string, number> = {};
+  for (const a of ammo) {
+    const normalizedType = normalizeEquipmentId(a.weaponType);
+    ammoBVByType[normalizedType] = (ammoBVByType[normalizedType] ?? 0) + a.bv;
+  }
+
+  let totalAmmoBV = 0;
+  for (const ammoType of Object.keys(ammoBVByType)) {
+    const matchingWeaponBV = findMatchingWeaponBV(ammoType, weaponBVByType);
+    if (matchingWeaponBV === 0) continue;
+    totalAmmoBV += Math.min(ammoBVByType[ammoType], matchingWeaponBV);
+  }
+
+  return totalAmmoBV;
+}
+
+/**
+ * Apply weapon BV modifiers in MegaMek's exact order.
+ *
+ * Order: base BV → AES (×1.25) → rear (×0.5) → Artemis IV (×1.2) / V (×1.3) → TC (×1.25)
+ *
+ * @see BVCalculator.processWeapon() lines 789-894
+ */
+function applyWeaponBVModifiers(
+  weapon: {
+    bv: number;
+    rear?: boolean;
+    hasAES?: boolean;
+    artemisType?: 'iv' | 'v';
+    isDirectFire?: boolean;
+  },
+  hasTC: boolean,
+): number {
+  let modifiedBV = weapon.bv;
+
+  // 1. AES modifier (arm-mounted weapon with Actuator Enhancement System)
+  if (weapon.hasAES) {
+    modifiedBV *= 1.25;
+  }
+
+  // 2. Rear-mounted weapon penalty
+  if (weapon.rear) {
+    modifiedBV *= 0.5;
+  }
+
+  // 3. Artemis fire control system
+  if (weapon.artemisType === 'iv') {
+    modifiedBV *= 1.2;
+  } else if (weapon.artemisType === 'v') {
+    modifiedBV *= 1.3;
+  }
+
+  // 4. Targeting Computer (direct fire weapons only)
+  if (hasTC && weapon.isDirectFire) {
+    modifiedBV *= 1.25;
+  }
+
+  return modifiedBV;
+}
+
+/**
+ * MegaMek heatSorter: heatless weapons first, then BV descending, ties broken by heat ascending.
+ *
+ * @see HeatTrackingBVCalculator.java lines 133-146
+ */
+function heatSorter(
+  a: { bv: number; heat: number },
+  b: { bv: number; heat: number },
+): number {
+  // Heatless weapons always come first
+  if (a.heat === 0 && b.heat > 0) return -1;
+  if (a.heat > 0 && b.heat === 0) return 1;
+  if (a.heat === 0 && b.heat === 0) return 0;
+
+  // Both have heat: sort by BV descending, ties by heat ascending
+  if (a.bv === b.bv) {
+    return a.heat - b.heat;
+  }
+  return b.bv - a.bv;
+}
+
 export function calculateOffensiveBVWithHeatTracking(
   config: OffensiveBVConfig,
 ): OffensiveBVResult {
-  const weaponsWithRearPenalty = config.weapons.map((w) => ({
+  const hasTC = config.hasTargetingComputer ?? false;
+
+  // Apply all modifiers (AES → rear → Artemis → TC) to get modified BV for sorting
+  const weaponsWithModifiers = config.weapons.map((w) => ({
     ...w,
-    bv: w.rear ? Math.round(w.bv * 0.5) : w.bv,
+    bv: applyWeaponBVModifiers(w, hasTC),
   }));
 
-  const sortedWeapons = [...weaponsWithRearPenalty].sort((a, b) => b.bv - a.bv);
+  // MegaMek heatSorter: heatless first → BV descending → heat ascending ties
+  const sortedWeapons = [...weaponsWithModifiers].sort(heatSorter);
 
-  const RUNNING_HEAT = 2;
-  let cumulativeHeat = RUNNING_HEAT;
+  const engineType = config.engineType;
+  const runningHeat =
+    engineType === EngineType.ICE || engineType === EngineType.FUEL_CELL
+      ? 0
+      : config.isXXLEngine || engineType === EngineType.XXL
+        ? 6
+        : 2;
+  let jumpHeat = 0;
+  const jumpHeatMP = config.jumpHeatMP ?? config.jumpMP;
+  if (jumpHeatMP > 0) {
+    if (config.hasImprovedJJ) {
+      const effectiveJumpMP = Math.ceil(jumpHeatMP / 2);
+      jumpHeat =
+        config.isXXLEngine || engineType === EngineType.XXL
+          ? Math.max(6, effectiveJumpMP * 2)
+          : Math.max(3, effectiveJumpMP);
+    } else {
+      jumpHeat =
+        config.isXXLEngine || engineType === EngineType.XXL
+          ? Math.max(6, jumpHeatMP * 2)
+          : Math.max(3, jumpHeatMP);
+    }
+  }
+  const moveHeat = Math.max(runningHeat, jumpHeat);
+  let heatEfficiency = 6 + config.heatDissipation - moveHeat;
+
+  if ((config.coolantPods ?? 0) > 0 && (config.heatSinkCount ?? 0) > 0) {
+    heatEfficiency += Math.ceil(
+      (config.heatSinkCount! * config.coolantPods!) / 5,
+    );
+  }
+
+  if (config.hasStealthArmor) heatEfficiency -= 10;
+  if (config.hasNullSig) heatEfficiency -= 10;
+  if (config.hasVoidSig) heatEfficiency -= 10;
+  if (config.hasChameleonShield) heatEfficiency -= 6;
+
+  // Weapon that crosses threshold gets FULL BV; only subsequent weapons get halved.
+  // See HeatTrackingBVCalculator.processWeapons() lines 78-128
+  let heatExceeded = heatEfficiency <= 0;
+  let heatSum = 0;
   let weaponBV = 0;
+  let rawWeaponBVTotal = 0;
+  let halvedWeaponBVTotal = 0;
+  let halvedWeaponCount = 0;
 
   for (const weapon of sortedWeapons) {
-    cumulativeHeat += weapon.heat;
+    heatSum += weapon.heat;
     let adjustedBV = weapon.bv;
+    rawWeaponBVTotal += weapon.bv;
 
-    if (cumulativeHeat > config.heatDissipation) {
+    if (heatExceeded) {
       adjustedBV *= 0.5;
+      halvedWeaponBVTotal += weapon.bv * 0.5;
+      halvedWeaponCount++;
     }
 
     weaponBV += adjustedBV;
-  }
 
-  let ammoBV = 0;
-  if (config.ammo) {
-    for (const ammo of config.ammo) {
-      ammoBV += ammo.bv;
+    if (heatSum >= heatEfficiency) {
+      heatExceeded = true;
     }
   }
 
-  const weightBonus = config.tonnage;
+  const ammoBV = config.ammo
+    ? calculateAmmoBVWithExcessiveCap(config.weapons, config.ammo)
+    : 0;
+
+  // Weight bonus with TSM/AES modifiers per MekBVCalculator.processWeight()
+  // Arm AES: +0.1 per arm. Leg AES: +0.2 biped, +0.4 quad (lines 428-441)
+  const aesMultiplier =
+    1.0 + (config.aesArms ?? 0) * 0.1 + (config.aesLegs ?? 0) * 0.1;
+  const adjustedWeight = config.tonnage * aesMultiplier;
+  let weightBonus: number;
+  if (config.hasTSM) {
+    weightBonus = adjustedWeight * 1.5;
+  } else if (config.hasIndustrialTSM) {
+    weightBonus = adjustedWeight * 1.15;
+  } else {
+    weightBonus = adjustedWeight;
+  }
+
   const speedFactor = calculateOffensiveSpeedFactor(
     config.runMP,
     config.jumpMP,
+    config.umuMP ?? 0,
   );
-  const baseOffensive = weaponBV + ammoBV + weightBonus;
-  const totalOffensiveBV = Math.round(baseOffensive * speedFactor);
+  const physicalWeaponBV = config.physicalWeaponBV ?? 0;
+  const offensiveEquipmentBV = config.offensiveEquipmentBV ?? 0;
+  const baseOffensive =
+    weaponBV + ammoBV + physicalWeaponBV + weightBonus + offensiveEquipmentBV;
+
+  // Industrial mechs without advanced fire control get ×0.9
+  // See MekBVCalculator.processOffensiveTypeModifier() lines 416-424
+  const typeModifier = config.isIndustrialMech ? 0.9 : 1.0;
+  const totalOffensiveBV = baseOffensive * speedFactor * typeModifier;
 
   return {
     weaponBV,
+    ammoBV,
     weightBonus,
     speedFactor,
     totalOffensiveBV,
+    heatEfficiency,
+    moveHeat,
+    rawWeaponBV: rawWeaponBVTotal,
+    halvedWeaponBV: halvedWeaponBVTotal,
+    weaponCount: sortedWeapons.length,
+    halvedWeaponCount,
+    physicalWeaponBV,
+    offensiveEquipmentBV,
   };
 }
 
-export const WEAPON_BV: Record<string, number> = {
-  // Energy weapons
-  'small-laser': 9,
-  'medium-laser': 46,
-  'large-laser': 123,
-  'er-small-laser': 17,
-  'er-medium-laser': 62,
-  'er-large-laser': 163,
-  ppc: 176,
-  'er-ppc': 229,
-  'small-pulse-laser': 12,
-  'medium-pulse-laser': 48,
-  'large-pulse-laser': 119,
-
-  // Ballistic weapons
-  'machine-gun': 5,
-  'ac-2': 37,
-  'ac-5': 70,
-  'ac-10': 123,
-  'ac-20': 178,
-  'lb-2-x-ac': 42,
-  'lb-5-x-ac': 83,
-  'lb-10-x-ac': 148,
-  'lb-20-x-ac': 237,
-  'ultra-ac-2': 56,
-  'ultra-ac-5': 112,
-  'ultra-ac-10': 210,
-  'ultra-ac-20': 281,
-  'gauss-rifle': 320,
-  'light-gauss-rifle': 159,
-  'heavy-gauss-rifle': 346,
-
-  // Missile weapons
-  'srm-2': 21,
-  'srm-4': 39,
-  'srm-6': 59,
-  'lrm-5': 45,
-  'lrm-10': 90,
-  'lrm-15': 136,
-  'lrm-20': 181,
-  'streak-srm-2': 30,
-  'streak-srm-4': 59,
-  'streak-srm-6': 89,
-  'mrm-10': 56,
-  'mrm-20': 112,
-  'mrm-30': 168,
-  'mrm-40': 224,
-};
-
-export const WEAPON_HEAT: Record<string, number> = {
-  // Energy weapons
-  'small-laser': 1,
-  'medium-laser': 3,
-  'large-laser': 8,
-  'er-small-laser': 2,
-  'er-medium-laser': 5,
-  'er-large-laser': 12,
-  ppc: 10,
-  'er-ppc': 15,
-  'small-pulse-laser': 2,
-  'medium-pulse-laser': 4,
-  'large-pulse-laser': 10,
-
-  // Ballistic weapons (most generate no heat)
-  'machine-gun': 0,
-  'ac-2': 1,
-  'ac-5': 1,
-  'ac-10': 3,
-  'ac-20': 7,
-  'lb-2-x-ac': 1,
-  'lb-5-x-ac': 1,
-  'lb-10-x-ac': 2,
-  'lb-20-x-ac': 6,
-  'ultra-ac-2': 1,
-  'ultra-ac-5': 1,
-  'ultra-ac-10': 4,
-  'ultra-ac-20': 8,
-  'gauss-rifle': 1,
-  'light-gauss-rifle': 1,
-  'heavy-gauss-rifle': 2,
-
-  // Missile weapons
-  'srm-2': 2,
-  'srm-4': 3,
-  'srm-6': 4,
-  'lrm-5': 2,
-  'lrm-10': 4,
-  'lrm-15': 5,
-  'lrm-20': 6,
-  'streak-srm-2': 2,
-  'streak-srm-4': 3,
-  'streak-srm-6': 4,
-  'mrm-10': 4,
-  'mrm-20': 6,
-  'mrm-30': 10,
-  'mrm-40': 12,
-};
-
-function normalizeWeaponId(weaponId: string): string {
-  let normalized = weaponId.toLowerCase().replace(/-\d+$/, '');
-
-  normalized = normalized.replace(/^ac(\d+)$/, 'ac-$1');
-  normalized = normalized.replace(/^srm(\d+)$/, 'srm-$1');
-  normalized = normalized.replace(/^lrm(\d+)$/, 'lrm-$1');
-  normalized = normalized.replace(/^mrm(\d+)$/, 'mrm-$1');
-
-  return normalized;
+/**
+ * @deprecated Use resolveEquipmentBV() from equipmentBVResolver.ts instead.
+ * Retained as thin wrappers for backward compatibility during migration.
+ */
+export function getWeaponBV(weaponId: string): number {
+  return resolveEquipmentBV(weaponId).battleValue;
 }
 
-function getWeaponHeat(weaponId: string): number {
-  return WEAPON_HEAT[weaponId] ?? 0;
+/**
+ * @deprecated Use resolveEquipmentBV() from equipmentBVResolver.ts instead.
+ */
+export function getWeaponHeat(weaponId: string): number {
+  return resolveEquipmentBV(weaponId).heat;
 }
 
 /**
@@ -348,21 +873,19 @@ export function calculateOffensiveBV(
 
   for (const weapon of weapons) {
     const weaponId = weapon.id.toLowerCase();
-    let bv = WEAPON_BV[weaponId] ?? 0;
+    let bv = resolveEquipmentBV(weapon.id).battleValue;
 
-    // Rear-mounted weapons get reduced BV
     if (weapon.rear) {
-      bv = Math.round(bv * 0.5);
+      bv = bv * 0.5;
     }
 
-    // Targeting computer bonus for direct-fire weapons
     if (
       hasTargetingComputer &&
       !weaponId.includes('lrm') &&
       !weaponId.includes('srm') &&
       !weaponId.includes('mrm')
     ) {
-      bv = Math.round(bv * 1.25);
+      bv = bv * 1.25;
     }
 
     total += bv;
@@ -374,6 +897,41 @@ export function calculateOffensiveBV(
 // ============================================================================
 // TOTAL BV CALCULATION
 // ============================================================================
+
+/**
+ * Cockpit type identifiers for BV cockpit modifiers.
+ * Per MekBVCalculator.processSummarize() lines 462-506
+ */
+export type CockpitType =
+  | 'standard'
+  | 'small'
+  | 'torso-mounted'
+  | 'small-command-console'
+  | 'command-console'
+  | 'interface'
+  | 'drone-operating-system';
+
+/**
+ * Get cockpit BV modifier.
+ * Applied to final (defensive + offensive) BV.
+ *
+ * - Small / Torso-mounted / Small Command Console / Drone OS: ×0.95
+ * - Interface: ×1.3
+ * - Standard / Command Console / others: ×1.0
+ */
+export function getCockpitModifier(cockpitType?: CockpitType): number {
+  switch (cockpitType) {
+    case 'small':
+    case 'torso-mounted':
+    case 'small-command-console':
+    case 'drone-operating-system':
+      return 0.95;
+    case 'interface':
+      return 1.3;
+    default:
+      return 1.0;
+  }
+}
 
 export interface BVCalculationConfig {
   totalArmorPoints: number;
@@ -389,6 +947,28 @@ export interface BVCalculationConfig {
   armorType?: string;
   structureType?: string;
   gyroType?: string;
+  engineType?: EngineType;
+  /** Override engine BV multiplier (e.g., for Clan XXL which uses 0.5 vs IS XXL 0.25) */
+  engineMultiplier?: number;
+  cockpitType?: CockpitType;
+  hasStealthArmor?: boolean;
+  hasChameleonLPS?: boolean;
+  hasNullSig?: boolean;
+  hasVoidSig?: boolean;
+  hasTSM?: boolean;
+  hasIndustrialTSM?: boolean;
+  aesArms?: number;
+  aesLegs?: number;
+  isIndustrialMech?: boolean;
+  ammo?: Array<{ id: string; bv: number; weaponType: string }>;
+  explosivePenalties?: number;
+  defensiveEquipmentBV?: number;
+  physicalWeaponBV?: number;
+  offensiveEquipmentBV?: number;
+  coolantPods?: number;
+  heatSinkCount?: number;
+  umuMP?: number;
+  hasImprovedJJ?: boolean;
 }
 
 /**
@@ -425,45 +1005,67 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     armorType: config.armorType,
     structureType: config.structureType,
     gyroType: config.gyroType,
+    engineType: config.engineType,
+    engineMultiplier: config.engineMultiplier,
+    hasStealthArmor: config.hasStealthArmor,
+    hasChameleonLPS: config.hasChameleonLPS,
+    hasNullSig: config.hasNullSig,
+    hasVoidSig: config.hasVoidSig,
+    defensiveEquipmentBV: config.defensiveEquipmentBV,
+    explosivePenalties: config.explosivePenalties,
+    umuMP: config.umuMP,
   });
 
   const weaponsWithBV = config.weapons.map((w) => {
-    const weaponId = normalizeWeaponId(w.id);
-    let bv = WEAPON_BV[weaponId] ?? 0;
-
-    if (w.rear) {
-      bv = Math.round(bv * 0.5);
-    }
-
-    if (
-      config.hasTargetingComputer &&
+    const resolved = resolveEquipmentBV(w.id);
+    const weaponId = w.id.toLowerCase();
+    const isDirectFire =
       !weaponId.includes('lrm') &&
       !weaponId.includes('srm') &&
-      !weaponId.includes('mrm')
-    ) {
-      bv = Math.round(bv * 1.25);
-    }
-
-    const heat = getWeaponHeat(weaponId);
+      !weaponId.includes('mrm');
 
     return {
       id: w.id,
       name: weaponId,
-      heat,
-      bv,
+      heat: resolved.heat,
+      bv: resolved.battleValue,
+      rear: w.rear,
+      isDirectFire,
     };
   });
 
   const offensiveResult = calculateOffensiveBVWithHeatTracking({
     weapons: weaponsWithBV,
+    ammo: config.ammo,
     tonnage: config.tonnage,
     walkMP: config.walkMP,
     runMP: config.runMP,
     jumpMP: config.jumpMP,
     heatDissipation: config.heatSinkCapacity,
+    hasTargetingComputer: config.hasTargetingComputer,
+    hasTSM: config.hasTSM,
+    hasIndustrialTSM: config.hasIndustrialTSM,
+    aesArms: config.aesArms,
+    aesLegs: config.aesLegs,
+    isIndustrialMech: config.isIndustrialMech,
+    engineType: config.engineType,
+    hasStealthArmor: config.hasStealthArmor,
+    hasNullSig: config.hasNullSig,
+    hasVoidSig: config.hasVoidSig,
+    hasChameleonShield: config.hasChameleonLPS,
+    coolantPods: config.coolantPods,
+    heatSinkCount: config.heatSinkCount,
+    hasImprovedJJ: config.hasImprovedJJ,
+    physicalWeaponBV: config.physicalWeaponBV,
+    offensiveEquipmentBV: config.offensiveEquipmentBV,
+    umuMP: config.umuMP,
   });
 
-  return defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV;
+  const baseBV =
+    defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV;
+  const cockpitMod = getCockpitModifier(config.cockpitType);
+
+  return Math.round(baseBV * cockpitMod);
 }
 
 /**
@@ -489,50 +1091,71 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     armorType: config.armorType,
     structureType: config.structureType,
     gyroType: config.gyroType,
+    engineType: config.engineType,
+    engineMultiplier: config.engineMultiplier,
+    hasStealthArmor: config.hasStealthArmor,
+    hasChameleonLPS: config.hasChameleonLPS,
+    hasNullSig: config.hasNullSig,
+    hasVoidSig: config.hasVoidSig,
+    defensiveEquipmentBV: config.defensiveEquipmentBV,
+    explosivePenalties: config.explosivePenalties,
+    umuMP: config.umuMP,
   });
 
   const weaponsWithBV = config.weapons.map((w) => {
-    const weaponId = normalizeWeaponId(w.id);
-    let bv = WEAPON_BV[weaponId] ?? 0;
-
-    if (w.rear) {
-      bv = Math.round(bv * 0.5);
-    }
-
-    if (
-      config.hasTargetingComputer &&
+    const resolved = resolveEquipmentBV(w.id);
+    const weaponId = w.id.toLowerCase();
+    const isDirectFire =
       !weaponId.includes('lrm') &&
       !weaponId.includes('srm') &&
-      !weaponId.includes('mrm')
-    ) {
-      bv = Math.round(bv * 1.25);
-    }
-
-    const heat = getWeaponHeat(weaponId);
+      !weaponId.includes('mrm');
 
     return {
       id: w.id,
       name: weaponId,
-      heat,
-      bv,
+      heat: resolved.heat,
+      bv: resolved.battleValue,
+      rear: w.rear,
+      isDirectFire,
     };
   });
 
   const offensiveResult = calculateOffensiveBVWithHeatTracking({
     weapons: weaponsWithBV,
+    ammo: config.ammo,
     tonnage: config.tonnage,
     walkMP: config.walkMP,
     runMP: config.runMP,
     jumpMP: config.jumpMP,
     heatDissipation: config.heatSinkCapacity,
+    hasTargetingComputer: config.hasTargetingComputer,
+    hasTSM: config.hasTSM,
+    hasIndustrialTSM: config.hasIndustrialTSM,
+    aesArms: config.aesArms,
+    aesLegs: config.aesLegs,
+    isIndustrialMech: config.isIndustrialMech,
+    engineType: config.engineType,
+    hasStealthArmor: config.hasStealthArmor,
+    hasNullSig: config.hasNullSig,
+    hasVoidSig: config.hasVoidSig,
+    hasChameleonShield: config.hasChameleonLPS,
+    coolantPods: config.coolantPods,
+    heatSinkCount: config.heatSinkCount,
+    hasImprovedJJ: config.hasImprovedJJ,
+    physicalWeaponBV: config.physicalWeaponBV,
+    offensiveEquipmentBV: config.offensiveEquipmentBV,
+    umuMP: config.umuMP,
   });
+
+  const baseBV =
+    defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV;
+  const cockpitMod = getCockpitModifier(config.cockpitType);
 
   return {
     defensiveBV: defensiveResult.totalDefensiveBV,
     offensiveBV: offensiveResult.totalOffensiveBV,
     speedFactor: offensiveResult.speedFactor,
-    totalBV:
-      defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV,
+    totalBV: Math.round(baseBV * cockpitMod),
   };
 }
 

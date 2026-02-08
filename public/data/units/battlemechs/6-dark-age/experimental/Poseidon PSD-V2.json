@@ -14,9 +14,9 @@
     "rating": 375
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "HEAVY_DUTY"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SUPERHEAVY_TRIPOD",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -205,11 +205,7 @@
       "ISAntiPersonnelPod"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "distracting",
-    "searchlight"
-  ],
+  "quirks": ["command_mech", "distracting", "searchlight"],
   "fluff": {
     "overview": "<p>The Poseidon represents a groundbreaking achievement in BattleMech engineering, successfully surpassing the â100-ton barrierâ that had long been a limit for Mech design. Emergent from the chaos of the Jihad and the technological innovations of the Word of Blake, the Poseidon was developed by the Republic of the Sphere as part of the ambitious Rhodes Project. This super-heavy tripod Mech, often referred to as a \"Colossal,\" embodies the culmination of efforts to create a Mech that is bigger, stronger, and more formidable than any predecessor. It stands as a testament to the Republic's readiness to embrace advanced warfare technology in the wake of the Blackout and the subsequent Fortress Republic initiative.</p>",
     "capabilities": "<p>The PSD-V2 Poseidon, drawing inspiration from the Orca project and the Word of Blakeâs Omega, features reengineered endo steel bones and reinforced actuators for enhanced stability and battlefield flexibility. Unlike its spiritual predecessor, the Orca, the Poseidon boasts greater stability and flexibility, making it a formidable presence on the battlefield. This super-heavy tripod is designed not just for raw power but also for operational versatility, showcasing the pinnacle of Mech engineering in the post-Jihad era.</p>",

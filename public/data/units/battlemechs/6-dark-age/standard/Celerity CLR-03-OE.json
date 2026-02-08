@@ -14,9 +14,9 @@
     "rating": 240
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -112,10 +112,7 @@
       "CLImprovedMediumHeavyLaser (omnipod)"
     ]
   },
-  "quirks": [
-    "imp_com",
-    "exp_actuator"
-  ],
+  "quirks": ["imp_com", "exp_actuator"],
   "mulId": 6708,
   "role": "Scout",
   "source": "TR:3145:RotS"

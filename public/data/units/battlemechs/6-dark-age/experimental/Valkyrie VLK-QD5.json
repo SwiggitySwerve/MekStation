@@ -14,7 +14,7 @@
     "rating": 150
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -160,10 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_com"
-  ],
+  "quirks": ["easy_maintain", "imp_com"],
   "mulId": 8104,
   "role": "Missile Boat",
   "source": "XTR:Caveat"

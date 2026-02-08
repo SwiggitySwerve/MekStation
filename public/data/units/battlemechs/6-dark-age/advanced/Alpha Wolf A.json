@@ -18,7 +18,7 @@
   },
   "cockpit": "STANDARD",
   "structure": {
-    "type": "ENDO_COMPOSITE"
+    "type": "ENDO_COMPOSITE_CLAN"
   },
   "armor": {
     "type": "STEALTH",

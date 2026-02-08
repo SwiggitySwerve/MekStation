@@ -14,7 +14,7 @@
     "rating": 250
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -160,9 +160,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "easy_pilot"
-  ],
+  "quirks": ["easy_pilot"],
   "mulId": 6341,
   "role": "Brawler",
   "source": "TR:3145:FS"

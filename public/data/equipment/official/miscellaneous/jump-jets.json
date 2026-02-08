@@ -1,0 +1,118 @@
+{
+  "$schema": "../../_schema/misc-equipment-schema.json",
+  "version": "1.0.0",
+  "generatedAt": "2026-02-07T08:02:30.863Z",
+  "count": 7,
+  "items": [
+    {
+      "id": "jump-jet-light",
+      "name": "Jump Jet (Light)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2471,
+      "special": [
+        "For mechs 10-55 tons"
+      ]
+    },
+    {
+      "id": "jump-jet-medium",
+      "name": "Jump Jet (Medium)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2471,
+      "special": [
+        "For mechs 60-85 tons"
+      ]
+    },
+    {
+      "id": "jump-jet-heavy",
+      "name": "Jump Jet (Heavy)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "INTRODUCTORY",
+      "weight": 2,
+      "criticalSlots": 1,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 2471,
+      "special": [
+        "For mechs 90-100 tons"
+      ]
+    },
+    {
+      "id": "improved-jump-jet-light",
+      "name": "Improved Jump Jet (Light)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 2,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3069,
+      "special": [
+        "For mechs 10-55 tons",
+        "Double jump distance"
+      ]
+    },
+    {
+      "id": "improved-jump-jet-medium",
+      "name": "Improved Jump Jet (Medium)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 2,
+      "criticalSlots": 2,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3069,
+      "special": [
+        "For mechs 60-85 tons",
+        "Double jump distance"
+      ]
+    },
+    {
+      "id": "improved-jump-jet-heavy",
+      "name": "Improved Jump Jet (Heavy)",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 4,
+      "criticalSlots": 2,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3069,
+      "special": [
+        "For mechs 90-100 tons",
+        "Double jump distance"
+      ]
+    },
+    {
+      "id": "partial-wing",
+      "name": "Partial Wing",
+      "category": "Jump Jet",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 6,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3067,
+      "special": [
+        "+1 Jump MP",
+        "+2 heat dissipation at altitude"
+      ],
+      "variableEquipmentId": "partial-wing"
+    }
+  ]
+}

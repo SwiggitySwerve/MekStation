@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "STANDARD"
   },
@@ -164,10 +164,7 @@
       "Improved Jump Jet"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "pro_actuator"
-  ],
+  "quirks": ["easy_maintain", "pro_actuator"],
   "mulId": 1331,
   "role": "Skirmisher",
   "source": "JTP:NewAvalon"

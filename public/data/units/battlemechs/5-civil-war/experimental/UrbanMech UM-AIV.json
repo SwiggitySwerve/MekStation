@@ -14,9 +14,9 @@
     "rating": 60
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -156,11 +156,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "low_profile",
-    "no_arms"
-  ],
+  "quirks": ["ext_twist", "low_profile", "no_arms"],
   "fluff": {
     "overview": "The UrbanMech was designed for just what its name suggests: urban combat and defense.",
     "capabilities": "This was achieved by starting with a cheap, easily-produced chassis, giving it six tons of Durallex armor to rival the protection found on many medium-weight BattleMechs, and mounting a pair of Pitban 6000 jump jets for a jumping distance of 60 meters. The trade-off was that it could only mount the miserable Leenex 60 engine, making the UrbanMech the slowest light 'Mech in existence with a cruising speed of 21.6 km/h and top speed of only 32.4 km/h. This was a severe disadvantage if the 'Mech attempted to fight in open country - something for only the foolish or desperate - but off-set by the fact that fighting in the close confines of a Star League city left little room to maneuver anyways and the UrbanMech's low profile made it difficult to target. Thus the 'Mech was primarily used for fighting guerrillas and other light 'Mechs in an urban environment, an arena where it also achieved some success fighting medium and even heavy-weight 'Mechs. Standard tactics for an UrbanMech lance was to split up into its constituent parts and occupy various buildings in order to snipe the enemy before falling back to the next defensive line.",

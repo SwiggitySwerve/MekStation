@@ -14,7 +14,7 @@
     "rating": 360
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "COMPACT"
   },
   "cockpit": "STANDARD",
   "structure": {
@@ -168,11 +168,7 @@
       "ISSuperCooledMyomer"
     ]
   },
-  "quirks": [
-    "combat_computer",
-    "command_mech",
-    "non_standard"
-  ],
+  "quirks": ["combat_computer", "command_mech", "non_standard"],
   "mulId": 964,
   "role": "Juggernaut",
   "source": "XTR:RISC"

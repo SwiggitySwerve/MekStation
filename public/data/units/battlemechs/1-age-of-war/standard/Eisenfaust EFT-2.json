@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE",
   "structure": {
     "type": "STANDARD"
   },
@@ -164,11 +164,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "obsolete",
-    "poor_performance",
-    "prototype"
-  ],
+  "quirks": ["obsolete:2472", "poor_performance", "prototype"],
   "mulId": 5618,
   "role": "Juggernaut",
   "source": "XTR:Primitives III"

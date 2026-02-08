@@ -14,9 +14,9 @@
     "rating": 375
   },
   "gyro": {
-    "type": "STANDARD"
+    "type": "XL"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "ENDO_STEEL"
   },
@@ -164,9 +164,7 @@
       "IS Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "ext_twist"
-  ],
+  "quirks": ["ext_twist"],
   "mulId": 6865,
   "role": "Skirmisher",
   "source": "RS:3145-NTNU"

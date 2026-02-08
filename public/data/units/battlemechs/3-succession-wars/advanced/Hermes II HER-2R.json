@@ -1,0 +1,171 @@
+{
+  "id": "hermes-ii-her-2r",
+  "chassis": "Hermes II",
+  "model": "HER-2R",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2799,
+  "tonnage": 40,
+  "engine": {
+    "type": "FUSION",
+    "rating": 240
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 11,
+      "RIGHT_ARM": 11,
+      "LEFT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "RIGHT_TORSO": {
+        "front": 14,
+        "rear": 5
+      },
+      "CENTER_TORSO": {
+        "front": 17,
+        "rear": 6
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 14,
+      "RIGHT_LEG": 14
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 6,
+    "jump": 0
+  },
+  "equipment": [
+    {
+      "id": "flamer",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Flamer",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "ISERLargeLaser",
+      "ISERLargeLaser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": ["easy_maintain", "imp_com"],
+  "fluff": {
+    "overview": "The original Hermes scout 'Mech rapidly developed a poor reputation. Plagued by electronic glitches and oft-criticized for its lack of firepower or armor, manufacturing for the 'Mech ceased, and Irian's lines fell silent. The start of the Succession Wars, however, would create a massive demand for BattleMechs of any sort; Irian, instead of restarting their Hermes line as-is, would rework the chassis into the heavier, slower, and tougher Hermes II. Though early tests involving an advanced torso-mounted autocannon failed, Irian quickly redesigned the Hermes II to use a more reliable Oriente autocannon placed in one of the arms. The reliable 'Mech would rapidly become one of the main heavy scouts of the FWLM, serving in numbers that few other designs could match.",
+    "capabilities": "With enough speed to stay ahead of most Free Worlds formations, the Hermes II carries decent firepower for its role. Seven and a half tons of armor keep the Hermes II well-protected, and it can outlast many other scouts on the field. The Hermes II uses many reliable and well-made systems; its E.A.R communications system is extremely advanced, able to connect to communications satellites and hard to track by enemy monitoring systems. The autocannon is durable and rarely malfunctions, and the flamer serves well as a utility weapon and as a means for the Hermes II to break visual contact with enemy forces.",
+    "deployment": "As an Irian design, the Hermes II mostly serves within FWLM forces. It has served there for centuries, and massive production lines ensure large numbers of the 'Mech enter service every year. Battle salvage and a few minor sales have seen the HER-2S spread to other Successor and periphery states, though the ravages of the Jihad now limit deployment to the Free Worlds League and a few periphery commands.\nsystemmanufacturer:CHASSIS:Irian Chassis\nsystemmode:CHASSIS:Class 40\nsystemmanufacturer:ENGINE:Hermes\nsystemmode:ENGINE:240\nsystemmanufacturer:ARMOR:Riese\nsystemmode:ARMOR:456\nsystemmanufacturer:COMMUNICATIONS:Irian\nsystemmode:COMMUNICATIONS:E.A.R.\nsystemmanufacturer:TARGETING:Wasat\nsystemmode:TARGETING:Aggressor"
+  },
+  "role": "Sniper",
+  "source": "Shrapnel #23"
+}

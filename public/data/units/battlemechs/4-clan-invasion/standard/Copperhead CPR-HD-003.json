@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "SMALL",
   "structure": {
     "type": "STANDARD"
   },
@@ -172,9 +172,7 @@
       "Reflective"
     ]
   },
-  "quirks": [
-    "difficult_maintain"
-  ],
+  "quirks": ["difficult_maintain"],
   "mulId": 691,
   "role": "Striker",
   "source": "TR:3055U"

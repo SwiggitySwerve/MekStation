@@ -169,7 +169,7 @@
     "fast_reload",
     "multi_trac",
     "searchlight",
-    "obsolete"
+    "obsolete:2778"
   ],
   "mulId": 7323,
   "role": "Brawler",
