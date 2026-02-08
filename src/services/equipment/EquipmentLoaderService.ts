@@ -259,13 +259,15 @@ interface IRawMiscEquipmentData {
 }
 
 /**
- * Equipment file wrapper structure
+ * Equipment file wrapper structure.
+ * Only `items` is required — metadata fields are optional since some
+ * equipment files were restructured without the wrapper fields.
  */
 interface IEquipmentFile<T> {
-  $schema: string;
-  version: string;
-  generatedAt: string;
-  count: number;
+  $schema?: string;
+  version?: string;
+  generatedAt?: string;
+  count?: number;
   items: T[];
 }
 
