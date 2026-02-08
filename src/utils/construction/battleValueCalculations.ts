@@ -337,6 +337,8 @@ export interface DefensiveBVConfig {
   hasVoidSig?: boolean;
   /** UMU movement points (Underwater Maneuvering Unit) */
   umuMP?: number;
+  /** Blue Shield Particle Field Damper: adds +0.2 to armor and structure BV multipliers */
+  hasBlueShield?: boolean;
 }
 
 export interface DefensiveBVResult {
@@ -350,10 +352,14 @@ export interface DefensiveBVResult {
 export function calculateDefensiveBV(
   config: DefensiveBVConfig,
 ): DefensiveBVResult {
-  const armorMultiplier = getArmorBVMultiplier(config.armorType ?? 'standard');
-  const structureMultiplier = getStructureBVMultiplier(
-    config.structureType ?? 'standard',
-  );
+  // Blue Shield Particle Field Damper adds +0.2 to both armor and structure multipliers
+  // Per MegaMek BVCalculator.armorMultiplier() line 1488 and MekBVCalculator.processStructure() line 100
+  const blueShieldBonus = config.hasBlueShield ? 0.2 : 0;
+  const armorMultiplier =
+    getArmorBVMultiplier(config.armorType ?? 'standard') + blueShieldBonus;
+  const structureMultiplier =
+    getStructureBVMultiplier(config.structureType ?? 'standard') +
+    blueShieldBonus;
   const gyroMultiplier = getGyroBVMultiplier(config.gyroType ?? 'standard');
 
   const bar = config.bar ?? 10;
