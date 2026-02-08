@@ -331,12 +331,25 @@ function calcTotalStructure(ton: number, config?: string): number {
       .filter((x) => x <= ton)
       .pop();
     if (k) {
-      const t2 = STRUCTURE_POINTS_TABLE[k];
+      const t2 = STRUCTURE_POINTS_TABLE[k] as {
+        head: number;
+        centerTorso: number;
+        sideTorso: number;
+        arm: number;
+        leg: number;
+      };
       return t2.head + t2.centerTorso + t2.sideTorso * 2 + limbIS(t2);
     }
     return 0;
   }
-  return t.head + t.centerTorso + t.sideTorso * 2 + limbIS(t);
+  const st = t as {
+    head: number;
+    centerTorso: number;
+    sideTorso: number;
+    arm: number;
+    leg: number;
+  };
+  return st.head + st.centerTorso + st.sideTorso * 2 + limbIS(st);
 }
 function calcTotalArmor(a: ArmorAllocation): number {
   let t = 0;
@@ -536,15 +549,10 @@ const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   'srm-2-os': { bv: 21, heat: 2 },
   'srm-6-os': { bv: 59, heat: 4 },
   'narc-i-os': { bv: 30, heat: 0 },
-  'prototype-er-medium-laser': { bv: 62, heat: 5 },
-  'prototype-er-small-laser': { bv: 31, heat: 2 },
-  'er-large-laser-prototype': { bv: 163, heat: 12 },
-  'prototype-streak-srm-4': { bv: 59, heat: 3 },
-  'prototype-streak-srm-6': { bv: 89, heat: 4 },
-  'prototype-ultra-autocannon-10': { bv: 210, heat: 4 },
-  'prototype-lb-10-x-autocannon': { bv: 148, heat: 2 },
+  // Prototype Rocket Launchers (not in catalog, remain as fallbacks)
   'prototype-rocket-launcher-20': { bv: 19, heat: 5 },
   'rocket-launcher-10-pp': { bv: 15, heat: 3 },
+  clrocketlauncher15prototype: { bv: 18, heat: 4 },
   'ac-10p': { bv: 123, heat: 3 },
   'c3-boosted-system-master': { bv: 0, heat: 0 },
   'c3-computer-[master]': { bv: 0, heat: 0 },
@@ -553,9 +561,6 @@ const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   iseherppc: { bv: 329, heat: 15 },
   clmicropulselaser: { bv: 12, heat: 1 },
   issniperartcannon: { bv: 77, heat: 10 },
-  ismediumpulselaserprototype: { bv: 48, heat: 4 },
-  islbxac10prototype: { bv: 148, heat: 2 },
-  clrocketlauncher15prototype: { bv: 18, heat: 4 },
   // ER Pulse Lasers (Clan-only, but sometimes appear without clan- prefix on mixed-tech units)
   'er-medium-pulse-laser': { bv: 117, heat: 6 },
   'er-small-pulse-laser': { bv: 36, heat: 3 },
@@ -695,6 +700,58 @@ const CATALOG_BV_OVERRIDES: Record<string, { bv: number; heat: number }> = {
   // Primitive Prototype PPC: normalizeEquipmentId maps 'ppcp' → 'ppc' (heat=10), must override
   'primitive-prototype-ppc': { bv: 176, heat: 15 },
   ppcp: { bv: 176, heat: 15 },
+  // === PROTOTYPE WEAPON OVERRIDES ===
+  // Prototype weapons normalize to standard versions via normalizeEquipmentId
+  // but have different (typically lower) BV and sometimes extra heat.
+  // Must override BEFORE catalog resolution. Values from MegaMek source.
+  // IS Prototype Lasers (+3 heat for ER/Pulse Large, MPL; +2 for SPL)
+  'er-large-laser-prototype': { bv: 136, heat: 15 },
+  iserlargelaserprototype: { bv: 136, heat: 15 },
+  iserlaselargeprototype: { bv: 136, heat: 15 },
+  'large-pulse-laser-prototype': { bv: 108, heat: 13 },
+  ispulselaserlargprototype: { bv: 108, heat: 13 },
+  ispulselaselargeprototype: { bv: 108, heat: 13 },
+  'medium-pulse-laser-prototype': { bv: 43, heat: 7 },
+  ismediumpulselaserprototype: { bv: 43, heat: 7 },
+  'small-pulse-laser-prototype': { bv: 11, heat: 4 },
+  ispulselasersmallprototype: { bv: 11, heat: 4 },
+  'medium-pulse-laser-recovered': { bv: 48, heat: 7 },
+  ispulselasermediumrecovered: { bv: 48, heat: 7 },
+  // IS Prototype Ballistics/Missiles
+  'gauss-rifle-prototype': { bv: 320, heat: 1 },
+  isgaussrifleprototype: { bv: 320, heat: 1 },
+  'narc-prototype': { bv: 15, heat: 0 },
+  isnarcprototype: { bv: 15, heat: 0 },
+  'ultra-ac-5-prototype': { bv: 112, heat: 1 },
+  isuac5prototype: { bv: 112, heat: 1 },
+  'lb-10-x-ac-prototype': { bv: 148, heat: 2 },
+  islbxac10prototype: { bv: 148, heat: 2 },
+  // Clan Prototype Lasers
+  'prototype-er-medium-laser': { bv: 62, heat: 5 },
+  clerlasermediumprototype: { bv: 62, heat: 5 },
+  'prototype-er-small-laser': { bv: 17, heat: 2 },
+  clerlasesmallprototype: { bv: 17, heat: 2 },
+  clersmalllaserprototype: { bv: 17, heat: 2 },
+  // Clan Prototype Streak SRM
+  'prototype-streak-srm-4': { bv: 59, heat: 3 },
+  clstreaksrm4prototype: { bv: 59, heat: 3 },
+  'prototype-streak-srm-6': { bv: 89, heat: 4 },
+  clstreaksrm6prototype: { bv: 89, heat: 4 },
+  // Clan Prototype UAC (+1 heat for UAC/10 and UAC/20)
+  'prototype-ultra-autocannon-2': { bv: 56, heat: 1 },
+  cluac2prototype: { bv: 56, heat: 1 },
+  'prototype-ultra-autocannon-10': { bv: 210, heat: 4 },
+  cluac10prototype: { bv: 210, heat: 4 },
+  'prototype-ultra-autocannon-20': { bv: 281, heat: 8 },
+  cluac20prototype: { bv: 281, heat: 8 },
+  // Clan Prototype LB-X AC
+  'prototype-lb-10-x-autocannon': { bv: 148, heat: 2 },
+  'prototype-lb-2-x-autocannon': { bv: 42, heat: 1 },
+  cllb2xacprototype: { bv: 42, heat: 1 },
+  'prototype-lb-5-x-autocannon': { bv: 83, heat: 1 },
+  cllb5xacprototype: { bv: 83, heat: 1 },
+  'prototype-lb-20-x-autocannon': { bv: 237, heat: 6 },
+  cllb20xacprototype: { bv: 237, heat: 6 },
 };
 
 function resolveWeaponForUnit(
@@ -794,6 +851,7 @@ interface CritScan {
   heatSinkCount: number;
   hasRadicalHS: boolean;
   critDHSCount: number;
+  critProtoDHSCount: number;
   hasLargeShield: boolean;
   hasMediumShield: boolean;
   shieldArms: string[];
@@ -1029,6 +1087,7 @@ function scanCrits(unit: UnitData): CritScan {
     heatSinkCount: 0,
     hasRadicalHS: false,
     critDHSCount: 0,
+    critProtoDHSCount: 0,
     aesLocs: [],
     mgaLocs: [],
     harjelIILocs: [],
@@ -1222,6 +1281,21 @@ function scanCrits(unit: UnitData): CritScan {
           lo.replace(/\s+/g, '').includes('improvedjumpjet')
         )
           r.hasImprovedJJ = true;
+
+        // Prototype Improved Jump Jets are EXPLOSIVE (misc.explosive = true in MegaMek)
+        // but have F_JUMP_JET flag, so penalty is REDUCED (1 BV per slot, not 15)
+        // per MekBVCalculator.processExplosiveEquipment() line 236
+        if (
+          lo === 'isprototypeimprovedjumpjet' ||
+          lo.includes('prototype improved jump jet')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
 
         // Coolant Pods (count for heat efficiency bonus)
         if (
@@ -1712,8 +1786,10 @@ function scanCrits(unit: UnitData): CritScan {
   r.rearWeaponCountByLoc = rearSlotsByLoc;
 
   // Count DHS from crit slots — OmniMech pod-mounted DHS may not be reflected in heatSinks.count
+  // Also track prototype DHS separately (they dissipate 2 heat each but unit.heatSinks.type may be "SINGLE")
   {
     let dhsCritSlots = 0;
+    let protoDHSCritSlots = 0;
     const isClanTech = unit.techBase === 'CLAN';
     for (const [, slots] of Object.entries(unit.criticalSlots)) {
       if (!Array.isArray(slots)) continue;
@@ -1723,18 +1799,29 @@ function scanCrits(unit: UnitData): CritScan {
           .replace(/\s*\(omnipod\)/gi, '')
           .trim()
           .toLowerCase();
+        const isProto =
+          lo === 'isdoubleheatsinkprototype' ||
+          lo === 'cldoubleheatsinkprototype' ||
+          lo === 'freezers' ||
+          lo === 'isdoubleheatsinkfreezer' ||
+          lo.includes('double heat sink prototype') ||
+          lo.includes('double heat sink (freezer');
         if (
+          isProto ||
           lo.includes('double heat sink') ||
           lo === 'isdoubleheatsink' ||
           lo === 'cldoubleheatsink'
         ) {
           dhsCritSlots++;
+          if (isProto) protoDHSCritSlots++;
         }
       }
     }
     // Clan DHS = 2 crit slots each, IS DHS = 3 crit slots each
     const slotsPerDHS = isClanTech ? 2 : 3;
     r.critDHSCount = Math.round(dhsCritSlots / slotsPerDHS);
+    // Prototype DHS are always IS (3 crit slots each)
+    r.critProtoDHSCount = Math.round(protoDHSCritSlots / 3);
   }
 
   // Clan mechs have built-in CASE in all non-head locations (torsos, arms, legs, CT).
@@ -3166,7 +3253,18 @@ function calculateUnitBV(
   const isDHS =
     unit.heatSinks.type.toUpperCase().includes('DOUBLE') ||
     unit.heatSinks.type.toUpperCase().includes('LASER');
-  let heatDiss = effectiveHSCount * (isDHS ? 2 : 1);
+  // Prototype DHS dissipate 2 heat each (same as regular DHS) per MegaMek Mek.getHeatCapacity().
+  // But unit.heatSinks.type may still be "SINGLE" if the base heat sinks are single.
+  // In that case we need: (totalHS - protoDHS) * 1 + protoDHS * 2
+  let heatDiss: number;
+  if (isDHS) {
+    heatDiss = effectiveHSCount * 2;
+  } else if (cs.critProtoDHSCount > 0) {
+    const singleHS = effectiveHSCount - cs.critProtoDHSCount;
+    heatDiss = singleHS * 1 + cs.critProtoDHSCount * 2;
+  } else {
+    heatDiss = effectiveHSCount * 1;
+  }
 
   if (cs.hasRadicalHS) heatDiss += Math.ceil(effectiveHSCount * 0.4);
   if (cs.hasPartialWing) heatDiss += 3;
@@ -3359,7 +3457,13 @@ function calculateUnitBV(
           !wid.includes('mortar') &&
           !wid.includes('sniper') &&
           !wid.includes('thumper') &&
-          !wid.includes('long-tom'),
+          !wid.includes('long-tom') &&
+          // Per MegaMek: AMS and TAG do NOT have F_DIRECT_FIRE
+          !wid.includes('anti-missile') &&
+          !wid.includes('ams') &&
+          wid !== 'tag' &&
+          !wid.includes('light-tag') &&
+          !wid.includes('clan-tag'),
         location: eq.location,
       });
     }
@@ -3621,7 +3725,9 @@ function calculateUnitBV(
   if (cs.hasBlueShield) {
     const isClan =
       unit.techBase === 'CLAN' ||
-      (unit.techBase === 'MIXED' && CLAN_CHASSIS_MIXED_UNITS.has(iu.id));
+      (unit.techBase === 'MIXED' &&
+        unitId !== undefined &&
+        CLAN_CHASSIS_MIXED_UNITS.has(unitId));
     const engineDef = getEngineDefinition(engineType);
     const sideTorsoSlots = engineDef?.sideTorsoSlots ?? 0;
     const bodyLocs: MechLocation[] = ['CT', 'RT', 'LT', 'RA', 'LA', 'RL', 'LL'];
