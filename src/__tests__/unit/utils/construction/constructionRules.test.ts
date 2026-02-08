@@ -63,19 +63,28 @@ describe('Construction Rules', () => {
       }
     });
 
+    it('should accept superheavy tonnages (105-200)', () => {
+      const superheavyTonnages = [105, 110, 150, 200];
+      for (const tonnage of superheavyTonnages) {
+        const result = validateTonnage(tonnage);
+        expect(result.isValid).toBe(true);
+        expect(result.errors).toHaveLength(0);
+      }
+    });
+
     it('should reject tonnage below 20', () => {
       const result = validateTonnage(15);
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain(
-        'Tonnage must be between 20 and 100 (got 15)',
+        'Tonnage must be between 20 and 200 (got 15)',
       );
     });
 
-    it('should reject tonnage above 100', () => {
-      const result = validateTonnage(105);
+    it('should reject tonnage above 200', () => {
+      const result = validateTonnage(205);
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain(
-        'Tonnage must be between 20 and 100 (got 105)',
+        'Tonnage must be between 20 and 200 (got 205)',
       );
     });
 

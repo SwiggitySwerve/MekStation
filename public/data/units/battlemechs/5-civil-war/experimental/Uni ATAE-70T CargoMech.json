@@ -21,7 +21,7 @@
     "type": "INDUSTRIAL"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "COMMERCIAL",
     "allocation": {
       "FLL": 27,
       "FRL": 27,

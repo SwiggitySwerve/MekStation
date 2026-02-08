@@ -21,7 +21,7 @@
     "type": "INDUSTRIAL"
   },
   "armor": {
-    "type": "INDUSTRIAL",
+    "type": "HEAVY_INDUSTRIAL",
     "allocation": {
       "LEFT_ARM": 2,
       "RIGHT_ARM": 2,

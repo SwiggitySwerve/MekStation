@@ -90,20 +90,34 @@ describe('BattleMechRules', () => {
       expect(result.passed).toBe(true);
     });
 
+    it('should pass for superheavy tonnage (150 tons)', () => {
+      const result = BattleMechTonnageRange.validate(
+        createContext(createBaseUnit({ weight: 150 })),
+      );
+      expect(result.passed).toBe(true);
+    });
+
+    it('should pass for maximum superheavy tonnage (200 tons)', () => {
+      const result = BattleMechTonnageRange.validate(
+        createContext(createBaseUnit({ weight: 200 })),
+      );
+      expect(result.passed).toBe(true);
+    });
+
     it('should fail for tonnage below 20', () => {
       const result = BattleMechTonnageRange.validate(
         createContext(createBaseUnit({ weight: 15 })),
       );
       expect(result.passed).toBe(false);
-      expect(result.errors[0].message).toContain('20 and 100');
+      expect(result.errors[0].message).toContain('20 and 200');
     });
 
-    it('should fail for tonnage above 100', () => {
+    it('should fail for tonnage above 200', () => {
       const result = BattleMechTonnageRange.validate(
-        createContext(createBaseUnit({ weight: 150 })),
+        createContext(createBaseUnit({ weight: 205 })),
       );
       expect(result.passed).toBe(false);
-      expect(result.errors[0].message).toContain('20 and 100');
+      expect(result.errors[0].message).toContain('20 and 200');
     });
 
     it('should fail for tonnage not divisible by 5', () => {

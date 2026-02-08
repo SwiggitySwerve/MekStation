@@ -21,7 +21,7 @@
     "type": "INDUSTRIAL"
   },
   "armor": {
-    "type": "INDUSTRIAL",
+    "type": "HEAVY_INDUSTRIAL",
     "allocation": {
       "LEFT_ARM": 6,
       "RIGHT_ARM": 6,
@@ -152,10 +152,7 @@
       null
     ]
   },
-  "quirks": [
-    "illegal_design",
-    "hard_pilot"
-  ],
+  "quirks": ["illegal_design", "hard_pilot"],
   "mulId": 8099,
   "role": "Striker",
   "source": "XTR:Caveat"

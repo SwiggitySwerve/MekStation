@@ -2,7 +2,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { EngineType } from '../src/types/construction/EngineType';
+import {
+  EngineType,
+  getEngineDefinition,
+} from '../src/types/construction/EngineType';
 import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
 import { getArmorBVMultiplier } from '../src/types/validation/BattleValue';
 import {
@@ -155,8 +158,7 @@ interface ValidationReport {
 }
 
 // === ALLOWLIST ===
-const UNSUPPORTED_CONFIGURATIONS = new Set(['LAM', 'Tripod', 'QuadVee']);
-const SUPERHEAVY_TONNAGE_THRESHOLD = 100;
+const UNSUPPORTED_CONFIGURATIONS = new Set(['LAM']);
 
 // === CLAN CHASSIS MIXED TECH UNITS ===
 // MIXED tech units where the chassis is Clan-built, granting implicit CASE in all torso/arm
@@ -183,6 +185,7 @@ const CLAN_CHASSIS_MIXED_UNITS = new Set([
   'griffin-c',
   'griffin-grf-6s2',
   'grigori-c-grg-os-caelestis',
+  'ha-otoko-hr-unknown',
   'hauptmann-ha1-ot',
   'hermes-ii-her-7a',
   'highlander-hgn-732-jorgensson',
@@ -223,37 +226,9 @@ function getExclusionReason(
 ): string | null {
   if (UNSUPPORTED_CONFIGURATIONS.has(unit.configuration))
     return `Unsupported configuration: ${unit.configuration}`;
-  // QuadVee cockpit implies QuadVee configuration even if configuration field is wrong
-  if (
-    typeof unit.cockpit === 'string' &&
-    unit.cockpit.toUpperCase() === 'QUADVEE'
-  )
-    return 'Unsupported configuration: QuadVee';
-  if (unit.tonnage > SUPERHEAVY_TONNAGE_THRESHOLD)
-    return `Superheavy mech (${unit.tonnage}t)`;
   if (indexUnit.bv === 0) return 'Zero BV in index';
   if ((unit.armor?.type?.toUpperCase() ?? '').includes('PATCHWORK'))
     return 'Patchwork armor';
-  if (
-    unit.equipment?.some(
-      (eq) =>
-        eq.id.toLowerCase().includes('blue-shield') ||
-        eq.id.toLowerCase().includes('blueshield'),
-    )
-  )
-    return 'Blue Shield Particle Field Damper';
-  // Also check crit slots for Blue Shield (some units have it in crits but not equipment list)
-  if (
-    unit.criticalSlots &&
-    Object.values(unit.criticalSlots).some(
-      (slots) =>
-        Array.isArray(slots) &&
-        slots.some(
-          (s) => s && typeof s === 'string' && /blue.?shield/i.test(s),
-        ),
-    )
-  )
-    return 'Blue Shield Particle Field Damper (crit-detected)';
   if (
     !unit.armor?.allocation ||
     Object.keys(unit.armor.allocation).length === 0
@@ -279,6 +254,7 @@ function mapEngineType(s: string, tb: string): EngineType {
 }
 function mapArmorType(s: string): string {
   const u = s.toUpperCase().replace(/[_\s-]+/g, '');
+  if (u.includes('COMMERCIAL')) return 'commercial';
   if (u.includes('HARDENED')) return 'hardened';
   if (u.includes('REACTIVE')) return 'reactive';
   if (u.includes('REFLECTIVE') || u.includes('LASERREFLECTIVE'))
@@ -289,7 +265,22 @@ function mapArmorType(s: string): string {
   if (u.includes('ANTIPENETRATIVE') || u.includes('ABLATION'))
     return 'anti-penetrative';
   if (u.includes('HEATDISSIPATING')) return 'heat-dissipating';
+  if (u.includes('IMPACTRESISTANT')) return 'impact-resistant';
+  // Industrial/Heavy Industrial armor: distinct types for correct BAR ratings
+  if (u.includes('HEAVYINDUSTRIAL')) return 'heavy-industrial';
+  if (u.includes('INDUSTRIAL')) return 'industrial';
   return 'standard';
+}
+
+/**
+ * Get BAR (Barrier Armor Rating) for armor type.
+ * Per MegaMek Mek.getBARRating() (Mek.java:5341):
+ *   Commercial = BAR 5, ALL other armor types = BAR 10 for BattleMechs.
+ *   Industrial and Heavy Industrial armor still use BAR 10 in MegaMek's BV calculation.
+ * BAR is applied as barRating / 10.0 to armor BV.
+ */
+function getArmorBAR(armorType: string): number {
+  return armorType === 'commercial' ? 5 : 10;
 }
 function mapStructureType(s: string): string {
   const u = s.toUpperCase().replace(/[_\s-]+/g, '');
@@ -301,6 +292,7 @@ function mapStructureType(s: string): string {
 }
 function mapGyroType(s: string): string {
   const u = s.toUpperCase().replace(/[_\s-]+/g, '');
+  if (u.includes('SUPERHEAVY')) return 'superheavy';
   if (u.includes('HEAVYDUTY') || u.includes('HEAVY')) return 'heavy-duty';
   if (u.includes('XL')) return 'xl';
   if (u.includes('COMPACT')) return 'compact';
@@ -321,8 +313,16 @@ function mapCockpitType(s: string): CockpitType {
 
 // === STRUCTURE/ARMOR ===
 function calcTotalStructure(ton: number, config?: string): number {
-  const isQuad = config?.toLowerCase() === 'quad';
-  const limbIS = (t: any) => (isQuad ? t.leg * 4 : t.arm * 2 + t.leg * 2);
+  const cfgLower = config?.toLowerCase() ?? '';
+  const isQuad = cfgLower === 'quad' || cfgLower === 'quadvee';
+  const isTripod = cfgLower === 'tripod';
+  // Biped: 2 arms + 2 legs; Quad/QuadVee: 4 legs; Tripod: 2 arms + 3 legs
+  const limbIS = (t: { arm: number; leg: number }) =>
+    isQuad
+      ? t.leg * 4
+      : isTripod
+        ? t.arm * 2 + t.leg * 3
+        : t.arm * 2 + t.leg * 2;
   const t = STRUCTURE_POINTS_TABLE[ton];
   if (!t) {
     const k = Object.keys(STRUCTURE_POINTS_TABLE)
@@ -331,12 +331,25 @@ function calcTotalStructure(ton: number, config?: string): number {
       .filter((x) => x <= ton)
       .pop();
     if (k) {
-      const t2 = STRUCTURE_POINTS_TABLE[k];
+      const t2 = STRUCTURE_POINTS_TABLE[k] as {
+        head: number;
+        centerTorso: number;
+        sideTorso: number;
+        arm: number;
+        leg: number;
+      };
       return t2.head + t2.centerTorso + t2.sideTorso * 2 + limbIS(t2);
     }
     return 0;
   }
-  return t.head + t.centerTorso + t.sideTorso * 2 + limbIS(t);
+  const st = t as {
+    head: number;
+    centerTorso: number;
+    sideTorso: number;
+    arm: number;
+    leg: number;
+  };
+  return st.head + st.centerTorso + st.sideTorso * 2 + limbIS(st);
 }
 function calcTotalArmor(a: ArmorAllocation): number {
   let t = 0;
@@ -504,8 +517,8 @@ const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   'long-tom-cannon': { bv: 329, heat: 20 },
   'sniper-cannon': { bv: 77, heat: 10 },
   'thumper-cannon': { bv: 41, heat: 5 },
-  'nail-rivet-gun': { bv: 7, heat: 0 },
-  'nail-gun': { bv: 7, heat: 0 },
+  'nail-rivet-gun': { bv: 1, heat: 0 },
+  'nail-gun': { bv: 1, heat: 0 },
   'battlemech-taser': { bv: 40, heat: 6 },
   'mech-taser': { bv: 40, heat: 6 },
   ismektaser: { bv: 40, heat: 6 },
@@ -525,10 +538,10 @@ const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   'medium-rifle': { bv: 35, heat: 2 },
   'light-rifle': { bv: 21, heat: 1 },
   'rifle-cannon': { bv: 35, heat: 2 },
-  'mortar-1': { bv: 10, heat: 0 },
-  'mortar-2': { bv: 14, heat: 0 },
-  'mortar-4': { bv: 24, heat: 0 },
-  'mortar-8': { bv: 36, heat: 0 },
+  'mortar-1': { bv: 10, heat: 1 },
+  'mortar-2': { bv: 14, heat: 2 },
+  'mortar-4': { bv: 26, heat: 5 },
+  'mortar-8': { bv: 50, heat: 10 },
   'streak-srm-2-os': { bv: 30, heat: 2 },
   'streak-srm-4-os': { bv: 59, heat: 3 },
   'streak-srm-2-i-os': { bv: 30, heat: 2 },
@@ -536,15 +549,12 @@ const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   'srm-2-os': { bv: 21, heat: 2 },
   'srm-6-os': { bv: 59, heat: 4 },
   'narc-i-os': { bv: 30, heat: 0 },
-  'prototype-er-medium-laser': { bv: 62, heat: 5 },
-  'prototype-er-small-laser': { bv: 31, heat: 2 },
-  'er-large-laser-prototype': { bv: 163, heat: 12 },
-  'prototype-streak-srm-4': { bv: 59, heat: 3 },
-  'prototype-streak-srm-6': { bv: 89, heat: 4 },
-  'prototype-ultra-autocannon-10': { bv: 210, heat: 4 },
-  'prototype-lb-10-x-autocannon': { bv: 148, heat: 2 },
-  'prototype-rocket-launcher-20': { bv: 24, heat: 5 },
-  'rocket-launcher-10-pp': { bv: 18, heat: 3 },
+  // Prototype Rocket Launchers (not in catalog, remain as fallbacks)
+  'prototype-rocket-launcher-20': { bv: 19, heat: 5 },
+  rocketlauncher20prototype: { bv: 19, heat: 5 },
+  'rocket-launcher-10-pp': { bv: 15, heat: 3 },
+  clrocketlauncher10prototype: { bv: 15, heat: 3 },
+  clrocketlauncher15prototype: { bv: 18, heat: 4 },
   'ac-10p': { bv: 123, heat: 3 },
   'c3-boosted-system-master': { bv: 0, heat: 0 },
   'c3-computer-[master]': { bv: 0, heat: 0 },
@@ -553,9 +563,6 @@ const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   iseherppc: { bv: 329, heat: 15 },
   clmicropulselaser: { bv: 12, heat: 1 },
   issniperartcannon: { bv: 77, heat: 10 },
-  ismediumpulselaserprototype: { bv: 48, heat: 4 },
-  islbxac10prototype: { bv: 148, heat: 2 },
-  clrocketlauncher15prototype: { bv: 23, heat: 4 },
   // ER Pulse Lasers (Clan-only, but sometimes appear without clan- prefix on mixed-tech units)
   'er-medium-pulse-laser': { bv: 117, heat: 6 },
   'er-small-pulse-laser': { bv: 36, heat: 3 },
@@ -563,15 +570,19 @@ const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   // ISRemoteSensorDispenser - not a weapon, 0 BV
   isremotesensordispenser: { bv: 0, heat: 0 },
   'remote-sensor-dispenser': { bv: 0, heat: 0 },
+  // C3 Remote Sensor Launcher IS a weapon (extends MissileWeapon) per MegaMek ISC3RemoteSensorLauncher.java
+  'c3-remote-sensor-launcher': { bv: 30, heat: 0 },
+  isc3remotesensorlauncher: { bv: 30, heat: 0 },
+  c3remotesensorlauncher: { bv: 30, heat: 0 },
   // IS SRM-4 One-Shot (missing variant)
   'issrm4-os': { bv: 39, heat: 3 },
   // Clan Heavy Lasers (alternate IDs)
   clheavymediumlaser: { bv: 76, heat: 7 },
   clheavylargelaser: { bv: 244, heat: 18 },
   clflamer: { bv: 6, heat: 3 },
-  // Mech Mortars (alternate IDs)
-  'mech-mortar-4': { bv: 24, heat: 0 },
-  'mech-mortar-8': { bv: 36, heat: 0 },
+  // Mech Mortars (alternate IDs) — BV/heat per MegaMek ISMekMortar/CLMekMortar sources
+  'mech-mortar-4': { bv: 26, heat: 5 },
+  'mech-mortar-8': { bv: 50, heat: 10 },
   // Improved SRM-6
   'improved-srm-6': { bv: 59, heat: 4 },
   // iATM (improved ATM)
@@ -671,26 +682,78 @@ const CATALOG_BV_OVERRIDES: Record<string, { bv: number; heat: number }> = {
   'thunderbolt-10-i-os': { bv: 25, heat: 1.25 },
   'thunderbolt-15-i-os': { bv: 46, heat: 1.75 },
   'thunderbolt-20-i-os': { bv: 61, heat: 2 },
-  // Mech Mortars: catalog has wrong BV values (e.g., BV=86 for mortar/8), correct per MegaMek
-  'mech-mortar-1': { bv: 10, heat: 0 },
-  'mech-mortar-2': { bv: 14, heat: 0 },
-  'mech-mortar-4': { bv: 24, heat: 0 },
-  'mech-mortar-8': { bv: 36, heat: 0 },
-  ismekmortar1: { bv: 10, heat: 0 },
-  ismekmortar2: { bv: 14, heat: 0 },
-  ismekmortar4: { bv: 24, heat: 0 },
-  ismekmortar8: { bv: 36, heat: 0 },
-  clmekmortar1: { bv: 10, heat: 0 },
-  clmekmortar2: { bv: 14, heat: 0 },
-  clmekmortar4: { bv: 24, heat: 0 },
-  clmekmortar8: { bv: 36, heat: 0 },
-  'clan-mech-mortar-1': { bv: 10, heat: 0 },
-  'clan-mech-mortar-2': { bv: 14, heat: 0 },
-  'clan-mech-mortar-4': { bv: 24, heat: 0 },
-  'clan-mech-mortar-8': { bv: 36, heat: 0 },
+  // Mech Mortars: BV/heat per MegaMek ISMekMortar/CLMekMortar source files
+  'mech-mortar-1': { bv: 10, heat: 1 },
+  'mech-mortar-2': { bv: 14, heat: 2 },
+  'mech-mortar-4': { bv: 26, heat: 5 },
+  'mech-mortar-8': { bv: 50, heat: 10 },
+  ismekmortar1: { bv: 10, heat: 1 },
+  ismekmortar2: { bv: 14, heat: 2 },
+  ismekmortar4: { bv: 26, heat: 5 },
+  ismekmortar8: { bv: 50, heat: 10 },
+  clmekmortar1: { bv: 10, heat: 1 },
+  clmekmortar2: { bv: 14, heat: 2 },
+  clmekmortar4: { bv: 26, heat: 5 },
+  clmekmortar8: { bv: 50, heat: 10 },
+  'clan-mech-mortar-1': { bv: 10, heat: 1 },
+  'clan-mech-mortar-2': { bv: 14, heat: 2 },
+  'clan-mech-mortar-4': { bv: 26, heat: 5 },
+  'clan-mech-mortar-8': { bv: 50, heat: 10 },
   // Primitive Prototype PPC: normalizeEquipmentId maps 'ppcp' → 'ppc' (heat=10), must override
   'primitive-prototype-ppc': { bv: 176, heat: 15 },
   ppcp: { bv: 176, heat: 15 },
+  // === PROTOTYPE WEAPON OVERRIDES ===
+  // Prototype weapons normalize to standard versions via normalizeEquipmentId
+  // but have different (typically lower) BV and sometimes extra heat.
+  // Must override BEFORE catalog resolution. Values from MegaMek source.
+  // IS Prototype Lasers (+3 heat for ER/Pulse Large, MPL; +2 for SPL)
+  'er-large-laser-prototype': { bv: 136, heat: 15 },
+  iserlargelaserprototype: { bv: 136, heat: 15 },
+  iserlaselargeprototype: { bv: 136, heat: 15 },
+  'large-pulse-laser-prototype': { bv: 108, heat: 13 },
+  ispulselaserlargprototype: { bv: 108, heat: 13 },
+  ispulselaselargeprototype: { bv: 108, heat: 13 },
+  'medium-pulse-laser-prototype': { bv: 43, heat: 7 },
+  ismediumpulselaserprototype: { bv: 43, heat: 7 },
+  'small-pulse-laser-prototype': { bv: 11, heat: 4 },
+  ispulselasersmallprototype: { bv: 11, heat: 4 },
+  'medium-pulse-laser-recovered': { bv: 48, heat: 7 },
+  ispulselasermediumrecovered: { bv: 48, heat: 7 },
+  // IS Prototype Ballistics/Missiles
+  'gauss-rifle-prototype': { bv: 320, heat: 1 },
+  isgaussrifleprototype: { bv: 320, heat: 1 },
+  'narc-prototype': { bv: 15, heat: 0 },
+  isnarcprototype: { bv: 15, heat: 0 },
+  'ultra-ac-5-prototype': { bv: 112, heat: 1 },
+  isuac5prototype: { bv: 112, heat: 1 },
+  'lb-10-x-ac-prototype': { bv: 148, heat: 2 },
+  islbxac10prototype: { bv: 148, heat: 2 },
+  // Clan Prototype Lasers
+  'prototype-er-medium-laser': { bv: 62, heat: 5 },
+  clerlasermediumprototype: { bv: 62, heat: 5 },
+  'prototype-er-small-laser': { bv: 17, heat: 2 },
+  clerlasesmallprototype: { bv: 17, heat: 2 },
+  clersmalllaserprototype: { bv: 17, heat: 2 },
+  // Clan Prototype Streak SRM
+  'prototype-streak-srm-4': { bv: 59, heat: 3 },
+  clstreaksrm4prototype: { bv: 59, heat: 3 },
+  'prototype-streak-srm-6': { bv: 89, heat: 4 },
+  clstreaksrm6prototype: { bv: 89, heat: 4 },
+  // Clan Prototype UAC (+1 heat for UAC/10 and UAC/20)
+  'prototype-ultra-autocannon-2': { bv: 56, heat: 1 },
+  cluac2prototype: { bv: 56, heat: 1 },
+  'prototype-ultra-autocannon-10': { bv: 210, heat: 4 },
+  cluac10prototype: { bv: 210, heat: 4 },
+  'prototype-ultra-autocannon-20': { bv: 281, heat: 8 },
+  cluac20prototype: { bv: 281, heat: 8 },
+  // Clan Prototype LB-X AC
+  'prototype-lb-10-x-autocannon': { bv: 148, heat: 2 },
+  'prototype-lb-2-x-autocannon': { bv: 42, heat: 1 },
+  cllb2xacprototype: { bv: 42, heat: 1 },
+  'prototype-lb-5-x-autocannon': { bv: 83, heat: 1 },
+  cllb5xacprototype: { bv: 83, heat: 1 },
+  'prototype-lb-20-x-autocannon': { bv: 237, heat: 6 },
+  cllb20xacprototype: { bv: 237, heat: 6 },
 };
 
 function resolveWeaponForUnit(
@@ -769,6 +832,8 @@ function resolveWeaponForUnit(
 interface CritScan {
   hasTC: boolean;
   hasTSM: boolean;
+  /** Industrial Triple-Strength Myomer: weight ×1.15, no walk MP bonus, no physical TSM mod */
+  hasIndustrialTSM: boolean;
   hasMASC: boolean;
   hasSupercharger: boolean;
   hasECM: boolean;
@@ -788,6 +853,7 @@ interface CritScan {
   heatSinkCount: number;
   hasRadicalHS: boolean;
   critDHSCount: number;
+  critProtoDHSCount: number;
   hasLargeShield: boolean;
   hasMediumShield: boolean;
   shieldArms: string[];
@@ -815,6 +881,13 @@ interface CritScan {
   modularArmorSlots: number;
   spikeCount: number;
   mineDispenserCount: number;
+  /** RISC Viral Jammer (Decoy or Homing): BV=284 each, defensive equipment */
+  riscViralJammerCount: number;
+  /** Blue Shield Particle Field Damper: +0.2 to armor and structure multipliers */
+  hasBlueShield: boolean;
+  /** Accumulated BV from misc (non-weapon, non-physical) equipment with offensive BV
+   *  (e.g., Bridge Layers: Light=5, Medium=10, Heavy=20) */
+  miscEquipBV: number;
 }
 
 function classifyPhysicalWeapon(slotLower: string): string | null {
@@ -840,6 +913,19 @@ function classifyPhysicalWeapon(slotLower: string): string | null {
   if (s === 'dual saw' || s === 'is dual saw') return 'dual-saw';
   if (s === 'miningdrill' || s === 'mining drill' || s === 'is mining drill')
     return 'mining-drill';
+  // Industrial physical weapons — flat BV per MegaMek MiscType.java
+  if (s === 'chainsaw' || s === 'is chainsaw') return 'chainsaw';
+  if (s === 'backhoe' || s === 'is backhoe') return 'backhoe';
+  if (s === 'combine') return 'combine';
+  if (s === 'spot welder' || s === 'is spot welder') return 'spot-welder';
+  if (s === 'rock cutter' || s === 'is rock cutter') return 'rock-cutter';
+  if (
+    s === 'pile driver' ||
+    s === 'is pile driver' ||
+    s === 'heavy-duty pile driver' ||
+    s === 'heavy duty pile driver'
+  )
+    return 'pile-driver';
   if (
     s.includes('vibroblade') ||
     s === 'islargevibroblade' ||
@@ -886,6 +972,19 @@ function calculatePhysicalWeaponBV(
       return Math.ceil(tonnage / 7.0); // Industrial melee, no TSM bonus
     case 'mining-drill':
       return Math.ceil(tonnage / 5.0); // Industrial melee, no TSM bonus
+    // Industrial physical weapons — flat BV per MegaMek MiscType.java
+    case 'chainsaw':
+      return 7;
+    case 'backhoe':
+      return 8;
+    case 'combine':
+      return 5;
+    case 'spot-welder':
+      return 5;
+    case 'rock-cutter':
+      return 6;
+    case 'pile-driver':
+      return 5;
     case 'vibroblade-large':
       return Math.ceil(tonnage / 5.0) * 1.725 * tsmMod;
     case 'vibroblade-medium':
@@ -970,6 +1069,7 @@ function scanCrits(unit: UnitData): CritScan {
   const r: CritScan = {
     hasTC: false,
     hasTSM: false,
+    hasIndustrialTSM: false,
     hasMASC: false,
     hasSupercharger: false,
     hasECM: false,
@@ -989,6 +1089,7 @@ function scanCrits(unit: UnitData): CritScan {
     heatSinkCount: 0,
     hasRadicalHS: false,
     critDHSCount: 0,
+    critProtoDHSCount: 0,
     aesLocs: [],
     mgaLocs: [],
     harjelIILocs: [],
@@ -1016,6 +1117,9 @@ function scanCrits(unit: UnitData): CritScan {
     riscAPDS: 0,
     spikeCount: 0,
     mineDispenserCount: 0,
+    riscViralJammerCount: 0,
+    hasBlueShield: false,
+    miscEquipBV: 0,
   };
   if (!unit.criticalSlots) return r;
   const rearSlotsByLoc = new Map<string, Map<string, number>>();
@@ -1024,412 +1128,652 @@ function scanCrits(unit: UnitData): CritScan {
     const ml = toMechLoc(loc);
     if (!Array.isArray(slots)) continue;
     let prevSlotClean: string | null = null;
-    for (const slot of slots) {
-      if (!slot || typeof slot !== 'string') {
+    for (const rawSlot of slots) {
+      if (!rawSlot || typeof rawSlot !== 'string') {
         prevSlotClean = null;
         continue;
       }
-      const clean = slot.replace(/\s*\(omnipod\)/gi, '').trim();
-      const lo = clean.toLowerCase();
+      // Superheavy pipe-separated double-slots: "IS Gauss Ammo|IS Gauss Ammo"
+      // Split and process each sub-item independently (each represents 1 ton)
+      const subItems = rawSlot.includes('|')
+        ? rawSlot.split('|').map((s) => s.trim())
+        : [rawSlot];
+      for (const slot of subItems) {
+        if (!slot) continue;
+        const clean = slot.replace(/\s*\(omnipod\)/gi, '').trim();
+        const lo = clean.toLowerCase();
 
-      // Armored components: each "(armored)" crit slot adds 5 BV (MekBVCalculator.processDefensiveEquipment)
-      if (lo.includes('(armored)') || lo.includes('armored')) {
-        const isArmoredComponent =
-          lo.includes('(armored)') ||
-          (lo.endsWith('armored') && !lo.includes('armor'));
-        if (isArmoredComponent) r.armoredComponentBV += 5;
-      }
-
-      // Modular Armor: each slot adds 10 armor points (MekBVCalculator uses entity.getTotalOArmor() which includes modular armor)
-      if (lo.includes('modulararmor') || lo.includes('modular armor'))
-        r.modularArmorSlots++;
-
-      // CASE
-      if (
-        lo.includes('case ii') ||
-        lo.includes('caseii') ||
-        lo.includes('clcaseii') ||
-        lo.includes('iscaseii')
-      ) {
-        if (ml && !r.caseIILocs.includes(ml)) r.caseIILocs.push(ml);
-      } else if (lo.includes('case') && !lo.includes('case ii')) {
-        if (ml && !r.caseLocs.includes(ml)) r.caseLocs.push(ml);
-      }
-
-      // Equipment flags
-      if (lo.includes('targeting computer') || lo.includes('targetingcomputer'))
-        r.hasTC = true;
-      else if (
-        lo === 'tsm' ||
-        lo.includes('triple strength') ||
-        lo.includes('triplestrength')
-      )
-        r.hasTSM = true;
-      else if (lo.includes('masc') && !lo.includes('ammo')) r.hasMASC = true;
-      else if (lo.includes('supercharger') || lo.includes('super charger'))
-        r.hasSupercharger = true;
-      else if (lo.includes('novacews') || lo.includes('nova cews')) {
-        r.hasAngelECM = true;
-        r.hasActiveProbe = true;
-        r.hasWatchdog = true;
-      } else if (
-        (lo.includes('angel') && lo.includes('ecm')) ||
-        lo.includes('watchdog')
-      ) {
-        r.hasAngelECM = true;
-        r.hasWatchdog = true;
-      } else if (lo.includes('ecm') || lo.includes('guardian')) r.hasECM = true;
-      else if (lo.includes('bloodhound')) r.hasBloodhound = true;
-      else if (
-        lo.includes('beagle') ||
-        (lo.includes('active') && lo.includes('probe'))
-      )
-        r.hasActiveProbe = true;
-      else if (lo.includes('null') && lo.includes('sig')) r.hasNullSig = true;
-      else if (lo.includes('void') && lo.includes('sig')) r.hasVoidSig = true;
-      else if (
-        lo.includes('chameleon') &&
-        (lo.includes('shield') ||
-          lo.includes('polarization') ||
-          lo.includes('lps'))
-      )
-        r.hasChameleon = true;
-      else if (lo.includes('partial') && lo.includes('wing'))
-        r.hasPartialWing = true;
-      else if (
-        lo.includes('umu') &&
-        !lo.includes('ammo') &&
-        !lo.includes('accumul') &&
-        (lo === 'umu' ||
-          lo === 'isumu' ||
-          lo === 'clumu' ||
-          lo.startsWith('umu ') ||
-          lo.startsWith('umu(') ||
-          /\bumu\b/.test(lo))
-      )
-        r.umuMP++;
-      else if (
-        lo.includes('aes') &&
-        (lo.includes('actuator') ||
-          lo === 'isaes' ||
-          lo === 'claes' ||
-          lo === 'is aes' ||
-          lo === 'clan aes' ||
-          lo === 'aes')
-      ) {
-        if (ml && !r.aesLocs.includes(loc)) r.aesLocs.push(loc);
-      } else if (
-        lo.includes('machine gun array') ||
-        /^(?:is|cl)(?:l|h)?mga$/.test(lo)
-      ) {
-        const mgaType =
-          lo.includes('light') || /^(?:is|cl)lmga$/.test(lo)
-            ? 'light'
-            : lo.includes('heavy') || /^(?:is|cl)hmga$/.test(lo)
-              ? 'heavy'
-              : 'standard';
-        r.mgaLocs.push({ location: loc, type: mgaType });
-      } else if (lo.includes('apollo')) r.apollo++;
-      else if (lo.includes('ppc capacitor') || lo.includes('ppccapacitor')) {
-        if (loc) r.ppcCapLocs.push(loc);
-      } else if (
-        lo === 'isapds' ||
-        (lo.includes('risc') && lo.includes('apds')) ||
-        lo.includes('advanced point defense')
-      ) {
-        if (clean !== prevSlotClean) {
-          r.riscAPDS++;
-          r.defEquipIds.push(clean);
+        // Armored components: each "(armored)" crit slot adds 5 BV (MekBVCalculator.processDefensiveEquipment)
+        if (lo.includes('(armored)') || lo.includes('armored')) {
+          const isArmoredComponent =
+            lo.includes('(armored)') ||
+            (lo.endsWith('armored') && !lo.includes('armor'));
+          if (isArmoredComponent) r.armoredComponentBV += 5;
         }
-      }
 
-      // Improved Jump Jets — crit names vary: "Improved Jump Jet", "ImprovedJump Jet", "ISImprovedJump Jet"
-      if (
-        lo.includes('improved jump jet') ||
-        lo.includes('improvedjump jet') ||
-        lo === 'isimprovedjumpjet' ||
-        lo === 'climprovedjumpjet' ||
-        lo.replace(/\s+/g, '').includes('improvedjumpjet')
-      )
-        r.hasImprovedJJ = true;
+        // Modular Armor: each slot adds 10 armor points (MekBVCalculator uses entity.getTotalOArmor() which includes modular armor)
+        if (lo.includes('modulararmor') || lo.includes('modular armor'))
+          r.modularArmorSlots++;
 
-      // Coolant Pods (count for heat efficiency bonus)
-      if (
-        lo.includes('coolant pod') ||
-        lo === 'iscoolantpod' ||
-        lo === 'clcoolantpod' ||
-        lo === 'is-coolant-pod'
-      )
-        r.coolantPods++;
+        // CASE
+        if (
+          lo.includes('case ii') ||
+          lo.includes('caseii') ||
+          lo.includes('clcaseii') ||
+          lo.includes('iscaseii')
+        ) {
+          if (ml && !r.caseIILocs.includes(ml)) r.caseIILocs.push(ml);
+        } else if (lo.includes('case') && !lo.includes('case ii')) {
+          if (ml && !r.caseLocs.includes(ml)) r.caseLocs.push(ml);
+        }
 
-      // Radical Heat Sink System
-      if (lo.includes('radical heat sink') || lo.includes('radicalheatsink'))
-        r.hasRadicalHS = true;
+        // Equipment flags
+        if (
+          lo.includes('targeting computer') ||
+          lo.includes('targetingcomputer')
+        )
+          r.hasTC = true;
+        else if (
+          lo.includes('industrial triple strength') ||
+          lo.includes('industrial triple-strength') ||
+          lo.includes('industrialtriplestrength') ||
+          lo === 'industrial tsm'
+        )
+          r.hasIndustrialTSM = true;
+        else if (
+          lo === 'tsm' ||
+          lo.includes('triple strength') ||
+          lo.includes('triplestrength')
+        )
+          r.hasTSM = true;
+        else if (lo.includes('masc') && !lo.includes('ammo')) r.hasMASC = true;
+        else if (lo.includes('supercharger') || lo.includes('super charger'))
+          r.hasSupercharger = true;
+        else if (lo.includes('novacews') || lo.includes('nova cews')) {
+          r.hasAngelECM = true;
+          r.hasActiveProbe = true;
+          r.hasWatchdog = true;
+        } else if (
+          (lo.includes('angel') && lo.includes('ecm')) ||
+          lo.includes('watchdog')
+        ) {
+          r.hasAngelECM = true;
+          r.hasWatchdog = true;
+        } else if (lo.includes('ecm') || lo.includes('guardian'))
+          r.hasECM = true;
+        else if (lo.includes('bloodhound')) r.hasBloodhound = true;
+        else if (
+          lo.includes('beagle') ||
+          (lo.includes('active') && lo.includes('probe'))
+        )
+          r.hasActiveProbe = true;
+        else if (lo.includes('null') && lo.includes('sig')) r.hasNullSig = true;
+        else if (lo.includes('void') && lo.includes('sig')) r.hasVoidSig = true;
+        else if (
+          lo.includes('chameleon') &&
+          (lo.includes('shield') ||
+            lo.includes('polarization') ||
+            lo.includes('lps'))
+        )
+          r.hasChameleon = true;
+        else if (lo.includes('partial') && lo.includes('wing'))
+          r.hasPartialWing = true;
+        else if (
+          lo.includes('umu') &&
+          !lo.includes('ammo') &&
+          !lo.includes('accumul') &&
+          (lo === 'umu' ||
+            lo === 'isumu' ||
+            lo === 'clumu' ||
+            lo.startsWith('umu ') ||
+            lo.startsWith('umu(') ||
+            /\bumu\b/.test(lo))
+        )
+          r.umuMP++;
+        else if (
+          lo.includes('aes') &&
+          (lo.includes('actuator') ||
+            lo === 'isaes' ||
+            lo === 'claes' ||
+            lo === 'is aes' ||
+            lo === 'clan aes' ||
+            lo === 'aes')
+        ) {
+          if (ml && !r.aesLocs.includes(loc)) r.aesLocs.push(loc);
+        } else if (
+          lo.includes('machine gun array') ||
+          /^(?:is|cl)(?:l|h)?mga$/.test(lo)
+        ) {
+          const mgaType =
+            lo.includes('light') || /^(?:is|cl)lmga$/.test(lo)
+              ? 'light'
+              : lo.includes('heavy') || /^(?:is|cl)hmga$/.test(lo)
+                ? 'heavy'
+                : 'standard';
+          r.mgaLocs.push({ location: loc, type: mgaType });
+        } else if (lo.includes('apollo')) r.apollo++;
+        else if (lo.includes('ppc capacitor') || lo.includes('ppccapacitor')) {
+          if (loc) r.ppcCapLocs.push(loc);
+        } else if (
+          lo === 'isapds' ||
+          (lo.includes('risc') && lo.includes('apds')) ||
+          lo.includes('advanced point defense')
+        ) {
+          if (clean !== prevSlotClean) {
+            r.riscAPDS++;
+            r.defEquipIds.push(clean);
+          }
+        }
+        // RISC Viral Jammer (Decoy/Homing): defensive equipment, BV=284 each per MegaMek MiscType
+        if (
+          lo.includes('risc viral jammer') ||
+          lo.includes('riscviraljammer')
+        ) {
+          if (clean !== prevSlotClean) {
+            r.riscViralJammerCount++;
+          }
+        }
 
-      // HarJel II/III (per-location armor BV multiplier)
-      if (
-        lo.includes('harjel iii') ||
-        lo.includes('harjel3') ||
-        lo === 'harjel iii self-repair system'
-      ) {
-        if (ml && !r.harjelIIILocs.includes(ml)) r.harjelIIILocs.push(ml);
-      } else if (
-        lo.includes('harjel ii') ||
-        lo.includes('harjel2') ||
-        lo === 'harjel ii self-repair system'
-      ) {
-        if (ml && !r.harjelIILocs.includes(ml)) r.harjelIILocs.push(ml);
-      }
+        // Improved Jump Jets — crit names vary: "Improved Jump Jet", "ImprovedJump Jet", "ISImprovedJump Jet"
+        if (
+          lo.includes('improved jump jet') ||
+          lo.includes('improvedjump jet') ||
+          lo === 'isimprovedjumpjet' ||
+          lo === 'climprovedjumpjet' ||
+          lo.replace(/\s+/g, '').includes('improvedjumpjet')
+        )
+          r.hasImprovedJJ = true;
 
-      // Artemis
-      if (
-        (lo.includes('artemisv') || lo.includes('artemis v')) &&
-        !lo.includes('artemis iv') &&
-        !lo.includes('ammo') &&
-        !lo.includes('capable')
-      ) {
-        if (ml) r.artemisVLocs.push(ml);
-      } else if (
-        lo.includes('artemis') &&
-        !lo.includes('ammo') &&
-        !lo.includes('capable') &&
-        !lo.includes('artemisv') &&
-        !lo.includes('artemis v')
-      ) {
-        if (ml) r.artemisIVLocs.push(ml);
-      }
-
-      // Ammo
-      if (lo.includes('ammo') && !lo.includes('ammo feed')) {
-        const isNonExplosiveAmmo =
-          lo.includes('gauss') ||
-          lo.includes('magshot') ||
-          lo.includes('plasma') ||
-          lo.includes('fluid') ||
-          lo.includes('nail') ||
-          lo.includes('rivet') ||
-          lo.includes('c3') ||
-          lo.includes('sensor') ||
-          lo.includes('rail gun') ||
-          lo.includes('apds');
-        if (ml && !isNonExplosiveAmmo)
-          r.explosive.push({
-            location: ml,
-            slots: 1,
-            penaltyCategory: 'standard',
-          });
-        // Half-ton ammo bins (crit names like "IS Machine Gun Ammo - Half") get half BV.
-        // The lookup/pattern resolution returns the full-ton BV; we halve it here for half-ton bins.
-        const isHalfTonAmmo = lo.includes('half');
-        const pr = resolveAmmoByPattern(clean, unit.techBase);
-        if (pr && pr.bv > 0) {
-          r.ammo.push({
-            id: clean,
-            bv: isHalfTonAmmo ? pr.bv * 0.5 : pr.bv,
-            weaponType: pr.weaponType,
-            location: loc,
-          });
-        } else {
-          const ar = resolveAmmoBV(clean);
-          if (ar.resolved && ar.battleValue > 0) {
-            r.ammo.push({
-              id: clean,
-              bv: isHalfTonAmmo ? ar.battleValue * 0.5 : ar.battleValue,
-              weaponType: normalizeWeaponKey(ar.weaponType),
-              location: loc,
+        // Prototype Improved Jump Jets are EXPLOSIVE (misc.explosive = true in MegaMek)
+        // but have F_JUMP_JET flag, so penalty is REDUCED (1 BV per slot, not 15)
+        // per MekBVCalculator.processExplosiveEquipment() line 236
+        if (
+          lo === 'isprototypeimprovedjumpjet' ||
+          lo.includes('prototype improved jump jet')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
             });
-          } else if (pr) {
+        }
+
+        // Coolant Pods (count for heat efficiency bonus)
+        if (
+          lo.includes('coolant pod') ||
+          lo === 'iscoolantpod' ||
+          lo === 'clcoolantpod' ||
+          lo === 'is-coolant-pod'
+        )
+          r.coolantPods++;
+
+        // Radical Heat Sink System
+        if (lo.includes('radical heat sink') || lo.includes('radicalheatsink'))
+          r.hasRadicalHS = true;
+
+        // Blue Shield Particle Field Damper: +0.2 to armor and structure multipliers
+        if (
+          lo.includes('blue shield') ||
+          lo.includes('blue-shield') ||
+          lo.includes('blueshield')
+        ) {
+          r.hasBlueShield = true;
+        }
+
+        // HarJel II/III (per-location armor BV multiplier)
+        if (
+          lo.includes('harjel iii') ||
+          lo.includes('harjel3') ||
+          lo === 'harjel iii self-repair system'
+        ) {
+          if (ml && !r.harjelIIILocs.includes(ml)) r.harjelIIILocs.push(ml);
+        } else if (
+          lo.includes('harjel ii') ||
+          lo.includes('harjel2') ||
+          lo === 'harjel ii self-repair system'
+        ) {
+          if (ml && !r.harjelIILocs.includes(ml)) r.harjelIILocs.push(ml);
+        }
+
+        // Artemis
+        if (
+          (lo.includes('artemisv') || lo.includes('artemis v')) &&
+          !lo.includes('artemis iv') &&
+          !lo.includes('ammo') &&
+          !lo.includes('capable')
+        ) {
+          if (ml) r.artemisVLocs.push(ml);
+        } else if (
+          lo.includes('artemis') &&
+          !lo.includes('ammo') &&
+          !lo.includes('capable') &&
+          !lo.includes('artemisv') &&
+          !lo.includes('artemis v')
+        ) {
+          if (ml) r.artemisIVLocs.push(ml);
+        }
+
+        // Ammo
+        if (lo.includes('ammo') && !lo.includes('ammo feed')) {
+          // Per MegaMek AmmoType.java: Gauss-type ammo (including HAG) is non-explosive.
+          // HAG crit names like "CLHAG20 Ammo" don't contain "gauss", so check 'hag' separately.
+          // SB Gauss abbreviated crit name "ISSBGR Ammo" also lacks "gauss".
+          const isNonExplosiveAmmo =
+            lo.includes('gauss') ||
+            lo.includes('hag') ||
+            lo.includes('sbgr') ||
+            lo.includes('magshot') ||
+            lo.includes('plasma') ||
+            lo.includes('fluid') ||
+            lo.includes('nail') ||
+            lo.includes('rivet') ||
+            lo.includes('c3') ||
+            lo.includes('sensor') ||
+            lo.includes('rail gun') ||
+            lo.includes('apds');
+          if (ml && !isNonExplosiveAmmo)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'standard',
+            });
+          // Half-ton ammo bins (crit names like "IS Machine Gun Ammo - Half") get half BV.
+          // The lookup/pattern resolution returns the full-ton BV; we halve it here for half-ton bins.
+          const isHalfTonAmmo = lo.includes('half');
+          const pr = resolveAmmoByPattern(clean, unit.techBase);
+          if (pr && pr.bv > 0) {
             r.ammo.push({
               id: clean,
               bv: isHalfTonAmmo ? pr.bv * 0.5 : pr.bv,
               weaponType: pr.weaponType,
               location: loc,
             });
-          }
-        }
-        // AMS/APDS ammo — accumulate BV for defensive equipment (capped at AMS weapon BV)
-        const isAmsAmmo =
-          (lo.includes('ams') ||
-            lo.includes('anti-missile') ||
-            lo.includes('antimissile')) &&
-          lo.includes('ammo');
-        const isApdsAmmo = lo.includes('apds') && lo.includes('ammo');
-        if (isAmsAmmo || isApdsAmmo) {
-          // IS AMS ammo = 11 BV, Clan AMS ammo = 22 BV, APDS ammo = 22 BV
-          let amsAmmoVal: number;
-          if (isApdsAmmo) {
-            amsAmmoVal = 22;
-          } else if (lo.includes('cl') || unit.techBase === 'CLAN') {
-            amsAmmoVal = 22;
           } else {
-            amsAmmoVal = 11;
+            const ar = resolveAmmoBV(clean);
+            if (ar.resolved && ar.battleValue > 0) {
+              r.ammo.push({
+                id: clean,
+                bv: isHalfTonAmmo ? ar.battleValue * 0.5 : ar.battleValue,
+                weaponType: normalizeWeaponKey(ar.weaponType),
+                location: loc,
+              });
+            } else if (pr) {
+              r.ammo.push({
+                id: clean,
+                bv: isHalfTonAmmo ? pr.bv * 0.5 : pr.bv,
+                weaponType: pr.weaponType,
+                location: loc,
+              });
+            }
           }
-          // Half-ton AMS/APDS ammo bins also get half BV
-          if (isHalfTonAmmo) amsAmmoVal *= 0.5;
-          r.amsAmmoBV += amsAmmoVal;
-        }
-      }
-
-      // NARC/iNARC Pods — ammo named "Pods" not "Ammo"; treat as explosive
-      if (
-        (lo.includes('narc') || lo.includes('inarc')) &&
-        lo.endsWith('pods') &&
-        !lo.includes('ammo')
-      ) {
-        if (ml)
-          r.explosive.push({
-            location: ml,
-            slots: 1,
-            penaltyCategory: 'standard',
-          });
-      }
-
-      // Gauss explosive (includes HAG / Silver Bullet Gauss whose crit names
-      // don't contain 'gauss': CLHAG20/30/40, ISSBGR, etc.)
-      if (
-        (lo.includes('gauss') ||
-          /(?:cl|is)?hag\d/.test(lo) ||
-          lo.includes('sbgr') ||
-          lo.includes('sbg')) &&
-        !lo.includes('ammo') &&
-        !lo.includes('ap gauss')
-      ) {
-        if (ml)
-          r.explosive.push({
-            location: ml,
-            slots: 1,
-            penaltyCategory: 'gauss',
-          });
-      }
-
-      // Improved Heavy Lasers: 1 BV per slot (reduced penalty) per MekBVCalculator
-      if (
-        (lo.includes('improvedheavylaser') ||
-          lo.includes('improved heavy laser') ||
-          lo.includes('improvedmediumheavylaser') ||
-          lo.includes('improved medium heavy') ||
-          lo.includes('improvedsmallheavylaser') ||
-          lo.includes('improved small heavy') ||
-          lo.includes('improvedlargeheavylaser') ||
-          lo.includes('improved large heavy')) &&
-        !lo.includes('ammo')
-      ) {
-        if (ml)
-          r.explosive.push({
-            location: ml,
-            slots: 1,
-            penaltyCategory: 'reduced',
-          });
-      }
-
-      // Defensive equip — push once per equipment instance (skip consecutive duplicate slots for multi-slot items)
-      // Regular AMS is 1-crit (each slot = separate weapon). Laser AMS is 2-crit IS / 1-crit Clan → use dedup.
-      if (
-        (lo.includes('anti-missile') ||
-          lo.includes('antimissile') ||
-          lo === 'isams' ||
-          lo === 'clams') &&
-        !lo.includes('ammo')
-      ) {
-        const isMultiCritAMS = lo.includes('laser');
-        if (isMultiCritAMS) {
-          if (clean !== prevSlotClean) r.defEquipIds.push(clean);
-        } else {
-          r.defEquipIds.push(clean);
-        }
-      } else if (
-        (lo.includes('ecm') ||
-          lo.includes('guardian') ||
-          lo.includes('angel') ||
-          lo.includes('watchdog') ||
-          lo.includes('novacews') ||
-          lo.includes('nova cews') ||
-          lo.includes('electronicwarfare') ||
-          lo.includes('electronic warfare')) &&
-        !lo.includes('ammo')
-      ) {
-        if (clean !== prevSlotClean) r.defEquipIds.push(clean);
-      } else if (
-        (lo.includes('beagle') ||
-          lo.includes('bloodhound') ||
-          (lo.includes('active') && lo.includes('probe'))) &&
-        !lo.includes('ammo')
-      ) {
-        if (clean !== prevSlotClean) r.defEquipIds.push(clean);
-      } else if (
-        lo.includes('shield') &&
-        !lo.includes('blue-shield') &&
-        !lo.includes('chameleon')
-      ) {
-        if (clean !== prevSlotClean) {
-          r.defEquipIds.push(clean);
-          // Only Medium/Large shields impose weapon BV penalty (active shields).
-          // Small shields are passive — weapons in that arm fire normally.
-          const isActiveShield =
-            (lo.includes('medium') || lo.includes('large')) &&
-            !lo.includes('small');
-          if (isActiveShield && loc.toUpperCase().includes('ARM')) {
-            const armLoc =
-              loc
-                .toUpperCase()
-                .replace(/[_(].*/, '')
-                .trim() + '_ARM';
-            if (!r.shieldArms.includes(armLoc)) r.shieldArms.push(armLoc);
+          // AMS/APDS ammo — accumulate BV for defensive equipment (capped at AMS weapon BV)
+          const isAmsAmmo =
+            (lo.includes('ams') ||
+              lo.includes('anti-missile') ||
+              lo.includes('antimissile')) &&
+            lo.includes('ammo');
+          const isApdsAmmo = lo.includes('apds') && lo.includes('ammo');
+          if (isAmsAmmo || isApdsAmmo) {
+            // IS AMS ammo = 11 BV, Clan AMS ammo = 22 BV, APDS ammo = 22 BV
+            let amsAmmoVal: number;
+            if (isApdsAmmo) {
+              amsAmmoVal = 22;
+            } else if (lo.includes('cl') || unit.techBase === 'CLAN') {
+              amsAmmoVal = 22;
+            } else {
+              amsAmmoVal = 11;
+            }
+            // Half-ton AMS/APDS ammo bins also get half BV
+            if (isHalfTonAmmo) amsAmmoVal *= 0.5;
+            r.amsAmmoBV += amsAmmoVal;
           }
         }
-        if (lo.includes('large')) r.hasLargeShield = true;
-        if (
-          lo.includes('medium') &&
-          !lo.includes('small') &&
-          !lo.includes('large')
-        )
-          r.hasMediumShield = true;
-      } else if (
-        (lo.includes('b-pod') || lo === 'isbpod' || lo === 'clbpod') &&
-        !lo.includes('ammo')
-      )
-        r.defEquipIds.push(clean);
-      // M-Pod is an offensive weapon (BV=5), NOT defensive equipment — handled via equipment list
-      else if (
-        (lo.includes('a-pod') ||
-          lo.includes('antipersonnel') ||
-          lo === 'isapod' ||
-          lo === 'clapod') &&
-        !lo.includes('ammo')
-      )
-        r.defEquipIds.push(clean);
-      // Spikes: defensive equipment, BV=4 per location (MegaMek MiscType.F_CLUB + countsAsDefensiveEquipment)
-      if (
-        (lo === 'spikes' ||
-          lo === 'isspikes' ||
-          lo === 'clspikes' ||
-          lo === 'is spikes' ||
-          lo === 'clan spikes') &&
-        clean !== prevSlotClean
-      )
-        r.spikeCount++;
-      // Mine Dispensers: offensive equipment, BV=8 per slot per MegaMek
-      // Each crit slot is counted separately (no dedup) — 4 slots = 4 dispensers = 32 BV
-      if (
-        lo.includes('mine dispenser') ||
-        lo.includes('minedispenser') ||
-        lo === 'isvehicularminedispenser' ||
-        lo === 'vehicularminedispenser'
-      )
-        r.mineDispenserCount++;
 
-      prevSlotClean = clean;
-
-      // Physical weapons — detect first slot only (they span multiple slots)
-      const physType = classifyPhysicalWeapon(lo);
-      if (physType) {
-        const key = physType + '@' + loc;
+        // ISC3Sensors — ammo for C3 Remote Sensor Launcher (crit name "ISC3Sensors",
+        // doesn't contain "ammo" keyword). BV=6 per slot, non-explosive.
+        // Per MegaMek AmmoType.java createISC3RemoteSensorAmmo(): bv=6, explosive=false
         if (
-          !r.physicalWeapons.some((pw) => pw.type + '@' + pw.location === key)
+          lo === 'isc3sensors' ||
+          lo === 'c3 remote sensors' ||
+          lo === 'c3remotesensors'
         ) {
-          r.physicalWeapons.push({ type: physType, location: loc });
+          r.ammo.push({
+            id: clean,
+            bv: 6,
+            weaponType: 'c3-remote-sensor-launcher',
+            location: loc,
+          });
         }
-      }
+
+        // NARC/iNARC Pods — ammo named "Pods" not "Ammo"; treat as explosive
+        if (
+          (lo.includes('narc') || lo.includes('inarc')) &&
+          lo.endsWith('pods') &&
+          !lo.includes('ammo')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'standard',
+            });
+        }
+
+        // Gauss explosive (includes HAG / Silver Bullet Gauss whose crit names
+        // don't contain 'gauss': CLHAG20/30/40, ISSBGR, etc.)
+        if (
+          (lo.includes('gauss') ||
+            /(?:cl|is)?hag\d/.test(lo) ||
+            lo.includes('sbgr') ||
+            lo.includes('sbg')) &&
+          !lo.includes('ammo') &&
+          !lo.includes('ap gauss')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'gauss',
+            });
+        }
+
+        // Improved Heavy Lasers: 1 BV per slot (reduced penalty) per MekBVCalculator
+        if (
+          (lo.includes('improvedheavylaser') ||
+            lo.includes('improved heavy laser') ||
+            lo.includes('improvedmediumheavylaser') ||
+            lo.includes('improved medium heavy') ||
+            lo.includes('improvedsmallheavylaser') ||
+            lo.includes('improved small heavy') ||
+            lo.includes('improvedlargeheavylaser') ||
+            lo.includes('improved large heavy')) &&
+          !lo.includes('ammo')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // Extended Fuel Tank — explosive per MegaMek MiscType.java (misc.explosive = true)
+        // Each crit slot carries -15 BV penalty in standard explosive processing
+        if (
+          lo.includes('extended fuel tank') ||
+          lo.includes('extendedfueltank')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'standard',
+            });
+        }
+
+        // Mek Taser — weapon itself is explosive per MegaMek ISMekTaser.java
+        // (explosive = true, explosionDamage = 6). Uses reduced penalty (1 BV per slot)
+        // same as TSEMP, Improved Heavy Lasers, B/M-Pods per MekBVCalculator.
+        if (
+          lo === 'mek taser' ||
+          lo === 'ismektaser' ||
+          lo === 'isbattlemechtaser' ||
+          lo === 'battlemech taser'
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // PPC Capacitor — explosive per MegaMek MiscType.F_PPC_CAPACITOR
+        // Reduced penalty: 1 BV per slot per MekBVCalculator lines 231-233
+        if (lo.includes('ppc capacitor') || lo.includes('ppccapacitor')) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // Coolant Pod — explosive per MegaMek AmmoType COOLANT_POD
+        // Reduced penalty: 1 BV per slot per MekBVCalculator lines 241-243
+        if (lo.includes('coolant pod') && !lo.includes('emergency')) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // TSEMP weapons — explosive per MegaMek TSEMPWeapon.java (explosive = true)
+        // Reduced penalty: 1 BV per slot per MekBVCalculator (instanceof TSEMPWeapon)
+        if (lo.includes('tsemp') && !lo.includes('ammo')) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // B-Pod — explosive per MegaMek WeaponType.F_B_POD
+        // Reduced penalty: 1 BV per slot per MekBVCalculator lines 227-228
+        // Note: B-Pod is ALSO defensive equipment (pushed to defEquipIds below),
+        // explosive penalty is a separate deduction from defensive BV.
+        if (
+          (lo.includes('b-pod') || lo === 'isbpod' || lo === 'clbpod') &&
+          !lo.includes('ammo')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // M-Pod — explosive per MegaMek WeaponType.F_M_POD
+        // Reduced penalty: 1 BV per slot per MekBVCalculator lines 229-230
+        if (
+          (lo.includes('m-pod') || lo === 'ismpod' || lo === 'clmpod') &&
+          !lo.includes('ammo')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // HVAC (Hyper-Velocity Autocannon) — explosive per MegaMek HVACWeapon.java
+        // Special handling: 1 BV total regardless of actual slot count
+        if (
+          (lo.includes('hvac') ||
+            lo.includes('hyper velocity') ||
+            lo.includes('hypervelocity')) &&
+          !lo.includes('ammo')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'hvac',
+            });
+        }
+
+        // Emergency Coolant System — explosive per MegaMek MiscType.F_EMERGENCY_COOLANT_SYSTEM
+        // Reduced penalty: 1 BV per slot per MekBVCalculator
+        if (
+          lo.includes('emergency coolant') ||
+          lo.includes('emergencycoolant')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // RISC Hyper Laser — explosive per MegaMek ISRISCHyperLaser.java (explosive = true)
+        // Reduced penalty: 1 BV per slot per MekBVCalculator (instanceof ISRISCHyperLaser)
+        if (
+          lo.includes('risc') &&
+          lo.includes('hyper') &&
+          lo.includes('laser')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // RISC Laser Pulse Module — explosive per MegaMek MiscType.F_RISC_LASER_PULSE_MODULE
+        // Reduced penalty: 1 BV per slot per MekBVCalculator
+        if (lo.includes('risc') && lo.includes('laser pulse module')) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // Defensive equip — push once per equipment instance (skip consecutive duplicate slots for multi-slot items)
+        // Regular AMS is 1-crit (each slot = separate weapon). Laser AMS is 2-crit IS / 1-crit Clan → use dedup.
+        if (
+          (lo.includes('anti-missile') ||
+            lo.includes('antimissile') ||
+            lo === 'isams' ||
+            lo === 'clams') &&
+          !lo.includes('ammo')
+        ) {
+          const isMultiCritAMS = lo.includes('laser');
+          if (isMultiCritAMS) {
+            if (clean !== prevSlotClean) r.defEquipIds.push(clean);
+          } else {
+            r.defEquipIds.push(clean);
+          }
+        } else if (
+          (lo.includes('ecm') ||
+            lo.includes('guardian') ||
+            lo.includes('angel') ||
+            lo.includes('watchdog') ||
+            lo.includes('novacews') ||
+            lo.includes('nova cews') ||
+            lo.includes('electronicwarfare') ||
+            lo.includes('electronic warfare')) &&
+          !lo.includes('ammo')
+        ) {
+          if (clean !== prevSlotClean) r.defEquipIds.push(clean);
+        } else if (
+          (lo.includes('beagle') ||
+            lo.includes('bloodhound') ||
+            (lo.includes('active') && lo.includes('probe'))) &&
+          !lo.includes('ammo')
+        ) {
+          if (clean !== prevSlotClean) r.defEquipIds.push(clean);
+        } else if (
+          lo.includes('shield') &&
+          !lo.includes('blue-shield') &&
+          !lo.includes('chameleon')
+        ) {
+          if (clean !== prevSlotClean) {
+            r.defEquipIds.push(clean);
+            // Only Medium/Large shields impose weapon BV penalty (active shields).
+            // Small shields are passive — weapons in that arm fire normally.
+            const isActiveShield =
+              (lo.includes('medium') || lo.includes('large')) &&
+              !lo.includes('small');
+            if (isActiveShield && loc.toUpperCase().includes('ARM')) {
+              const armLoc =
+                loc
+                  .toUpperCase()
+                  .replace(/[_(].*/, '')
+                  .trim() + '_ARM';
+              if (!r.shieldArms.includes(armLoc)) r.shieldArms.push(armLoc);
+            }
+          }
+          if (lo.includes('large')) r.hasLargeShield = true;
+          if (
+            lo.includes('medium') &&
+            !lo.includes('small') &&
+            !lo.includes('large')
+          )
+            r.hasMediumShield = true;
+        } else if (
+          (lo.includes('b-pod') || lo === 'isbpod' || lo === 'clbpod') &&
+          !lo.includes('ammo')
+        )
+          r.defEquipIds.push(clean);
+        // M-Pod is an offensive weapon (BV=5), NOT defensive equipment — handled via equipment list
+        else if (
+          (lo.includes('a-pod') ||
+            lo.includes('antipersonnel') ||
+            lo === 'isapod' ||
+            lo === 'clapod') &&
+          !lo.includes('ammo')
+        )
+          r.defEquipIds.push(clean);
+        // Spikes: defensive equipment, BV=4 per location (MegaMek MiscType.F_CLUB + countsAsDefensiveEquipment)
+        if (
+          (lo === 'spikes' ||
+            lo === 'isspikes' ||
+            lo === 'clspikes' ||
+            lo === 'is spikes' ||
+            lo === 'clan spikes') &&
+          clean !== prevSlotClean
+        )
+          r.spikeCount++;
+        // Mine Dispensers: offensive equipment, BV=8 per slot per MegaMek
+        // Each crit slot is counted separately (no dedup) — 4 slots = 4 dispensers = 32 BV
+        if (
+          lo.includes('mine dispenser') ||
+          lo.includes('minedispenser') ||
+          lo === 'isvehicularminedispenser' ||
+          lo === 'vehicularminedispenser'
+        )
+          r.mineDispenserCount++;
+
+        // Bridge Layers: misc equipment with non-zero offensive BV, dedup per slot group.
+        // Light=5, Medium=10, Heavy=20 per MegaMek MiscType.java
+        if (clean !== prevSlotClean) {
+          if (lo.includes('heavybridgelayer') || lo === 'heavy bridge layer')
+            r.miscEquipBV += 20;
+          else if (
+            lo.includes('mediumbridgelayer') ||
+            lo === 'medium bridge layer'
+          )
+            r.miscEquipBV += 10;
+          else if (
+            lo.includes('lightbridgelayer') ||
+            lo === 'light bridge layer'
+          )
+            r.miscEquipBV += 5;
+        }
+
+        prevSlotClean = clean;
+
+        // Physical weapons — detect first slot only (they span multiple slots)
+        const physType = classifyPhysicalWeapon(lo);
+        if (physType) {
+          const key = physType + '@' + loc;
+          if (
+            !r.physicalWeapons.some((pw) => pw.type + '@' + pw.location === key)
+          ) {
+            r.physicalWeapons.push({ type: physType, location: loc });
+          }
+        }
+      } // end for (const slot of subItems)
     }
   }
 
@@ -1541,8 +1885,10 @@ function scanCrits(unit: UnitData): CritScan {
   r.rearWeaponCountByLoc = rearSlotsByLoc;
 
   // Count DHS from crit slots — OmniMech pod-mounted DHS may not be reflected in heatSinks.count
+  // Also track prototype DHS separately (they dissipate 2 heat each but unit.heatSinks.type may be "SINGLE")
   {
     let dhsCritSlots = 0;
+    let protoDHSCritSlots = 0;
     const isClanTech = unit.techBase === 'CLAN';
     for (const [, slots] of Object.entries(unit.criticalSlots)) {
       if (!Array.isArray(slots)) continue;
@@ -1552,18 +1898,29 @@ function scanCrits(unit: UnitData): CritScan {
           .replace(/\s*\(omnipod\)/gi, '')
           .trim()
           .toLowerCase();
+        const isProto =
+          lo === 'isdoubleheatsinkprototype' ||
+          lo === 'cldoubleheatsinkprototype' ||
+          lo === 'freezers' ||
+          lo === 'isdoubleheatsinkfreezer' ||
+          lo.includes('double heat sink prototype') ||
+          lo.includes('double heat sink (freezer');
         if (
+          isProto ||
           lo.includes('double heat sink') ||
           lo === 'isdoubleheatsink' ||
           lo === 'cldoubleheatsink'
         ) {
           dhsCritSlots++;
+          if (isProto) protoDHSCritSlots++;
         }
       }
     }
     // Clan DHS = 2 crit slots each, IS DHS = 3 crit slots each
     const slotsPerDHS = isClanTech ? 2 : 3;
     r.critDHSCount = Math.round(dhsCritSlots / slotsPerDHS);
+    // Prototype DHS are always IS (3 crit slots each)
+    r.critProtoDHSCount = Math.round(protoDHSCritSlots / 3);
   }
 
   // Clan mechs have built-in CASE in all non-head locations (torsos, arms, legs, CT).
@@ -1577,10 +1934,34 @@ function scanCrits(unit: UnitData): CritScan {
     'LL',
     'RL',
   ];
+  // IS-chassis MIXED units with Clan engines do NOT get implicit CASE.
+  // Per MegaMek: Entity.isClan() returns false for ALL MIXED tech units.
+  // Only pure Clan units get implicit CASE from tech base.
+  // Detect IS chassis by presence of IS structural components (IS Endo Steel,
+  // IS Ferro-Fibrous, etc.) in crits — these indicate an IS-chassis design
+  // that happens to use a Clan engine, like the UrbanKnight UM-DKX.
+  const hasISStructural =
+    unit.techBase === 'MIXED' &&
+    unit.criticalSlots &&
+    Object.values(unit.criticalSlots).some(
+      (slots) =>
+        Array.isArray(slots) &&
+        slots.some(
+          (s: string | null) =>
+            s != null &&
+            typeof s === 'string' &&
+            (s.includes('IS Endo Steel') ||
+              s.includes('IS Ferro-Fibrous') ||
+              s.includes('IS Endo-Composite') ||
+              s.includes('IS Heavy Ferro-Fibrous') ||
+              s.includes('IS Light Ferro-Fibrous')),
+        ),
+    );
   let hasClanCASE =
     unit.techBase === 'CLAN' ||
     (unit.techBase === 'MIXED' &&
-      (unit.engine?.type || '').toUpperCase().includes('CLAN'));
+      (unit.engine?.type || '').toUpperCase().includes('CLAN') &&
+      !hasISStructural);
   if (hasClanCASE) {
     for (const loc of ALL_NON_HEAD_LOCS) {
       if (!r.caseLocs.includes(loc) && !r.caseIILocs.includes(loc))
@@ -1711,6 +2092,38 @@ function scanCrits(unit: UnitData): CritScan {
     )
   ) {
     r.detectedDroneOS = true;
+  }
+
+  // PPC weapons with linked PPC Capacitor: MegaMek treats the PPC weapon itself as
+  // explosive (PPCWeapon → 1 BV per slot) in addition to the PPC Capacitor (1 slot).
+  // Per MekBVCalculator.processExplosiveEquipment() lines 235-237.
+  if (r.ppcCapLocs.length > 0 && unit.criticalSlots) {
+    for (const capLoc of r.ppcCapLocs) {
+      const locSlots =
+        unit.criticalSlots[capLoc] || unit.criticalSlots[capLoc.toUpperCase()];
+      if (!Array.isArray(locSlots)) continue;
+      const ml = toMechLoc(capLoc);
+      if (!ml) continue;
+      for (const s of locSlots) {
+        if (!s || typeof s !== 'string') continue;
+        const slo = s
+          .toLowerCase()
+          .replace(/\s*\(omnipod\)/gi, '')
+          .trim();
+        // Match PPC weapon slots (not capacitors or ammo)
+        if (
+          slo.includes('ppc') &&
+          !slo.includes('capacitor') &&
+          !slo.includes('ammo')
+        ) {
+          r.explosive.push({
+            location: ml,
+            slots: 1,
+            penaltyCategory: 'reduced',
+          });
+        }
+      }
+    }
   }
 
   return r;
@@ -1986,14 +2399,14 @@ function buildAmmoLookup(): Map<string, { bv: number; weaponType: string }> {
     ['ammo-srtorpedo-2', 3, 'srm-2'],
     ['ammo-srtorpedo-4', 5, 'srm-4'],
     ['ammo-srtorpedo-6', 7, 'srm-6'],
-    ['clan-sc-mortar-1-ammo', 1, 'mech-mortar-1'],
-    ['clan-sc-mortar-2-ammo', 2, 'mech-mortar-2'],
-    ['clan-sc-mortar-4-ammo', 4, 'mech-mortar-4'],
-    ['clan-sc-mortar-8-ammo', 8, 'mech-mortar-8'],
-    ['is-sc-mortar-1-ammo', 1, 'mech-mortar-1'],
-    ['is-sc-mortar-2-ammo', 2, 'mech-mortar-2'],
-    ['is-sc-mortar-4-ammo', 4, 'mech-mortar-4'],
-    ['is-sc-mortar-8-ammo', 8, 'mech-mortar-8'],
+    ['clan-sc-mortar-1-ammo', 1, 'mortar-1'],
+    ['clan-sc-mortar-2-ammo', 2, 'mortar-2'],
+    ['clan-sc-mortar-4-ammo', 4, 'mortar-4'],
+    ['clan-sc-mortar-8-ammo', 8, 'mortar-8'],
+    ['is-sc-mortar-1-ammo', 1, 'mortar-1'],
+    ['is-sc-mortar-2-ammo', 2, 'mortar-2'],
+    ['is-sc-mortar-4-ammo', 4, 'mortar-4'],
+    ['is-sc-mortar-8-ammo', 8, 'mortar-8'],
     ['lb-2-x-cluster-ammo', 6, 'lb-2-x-ac'],
     ['lb-5-x-cluster-ammo', 12, 'lb-5-x-ac'],
     ['clan-medium-chemical-laser-ammo', 5, 'medium-chemical-laser'],
@@ -2021,6 +2434,7 @@ function buildAmmoLookup(): Map<string, { bv: number; weaponType: string }> {
   }
 
   // Force-override: catalog entries with known wrong BV values (UNOFFICIAL entries)
+  // These ALWAYS overwrite any catalog value, unlike the `hc` list above.
   const overrides: Array<[string, number, string]> = [
     // Clan Improved LRM ammo: catalog has IS BV values (6/11/17/23), correct Clan values are 7/14/21/27
     ['clanimprovedlrm5ammo', 7, 'improved-lrm-5'],
@@ -2031,6 +2445,15 @@ function buildAmmoLookup(): Map<string, { bv: number; weaponType: string }> {
     ['clan-improved-lrm-10-ammo', 14, 'improved-lrm-10'],
     ['clan-improved-lrm-15-ammo', 21, 'improved-lrm-15'],
     ['clan-improved-lrm-20-ammo', 27, 'improved-lrm-20'],
+    // Mortar ammo (SC = Semi-Guided Cluster): must override any catalog defaults
+    ['clan-sc-mortar-1-ammo', 1, 'mortar-1'],
+    ['clan-sc-mortar-2-ammo', 2, 'mortar-2'],
+    ['clan-sc-mortar-4-ammo', 4, 'mortar-4'],
+    ['clan-sc-mortar-8-ammo', 8, 'mortar-8'],
+    ['is-sc-mortar-1-ammo', 1, 'mortar-1'],
+    ['is-sc-mortar-2-ammo', 2, 'mortar-2'],
+    ['is-sc-mortar-4-ammo', 4, 'mortar-4'],
+    ['is-sc-mortar-8-ammo', 8, 'mortar-8'],
   ];
   for (const [id, bv, wt] of overrides) {
     ammoLookup.set(id, { bv, weaponType: wt });
@@ -2618,6 +3041,14 @@ function resolveAmmoByPattern(
 function isWeaponEquip(id: string): boolean {
   const lo = id.toLowerCase();
   if (lo.includes('ammo')) return false;
+  // C3 Remote Sensor Launcher IS a weapon (BV=30, extends MissileWeapon in MegaMek)
+  // despite containing 'c3' and 'remote-sensor' which would be caught by the exclusion list
+  if (
+    lo.includes('c3remotesensorlauncher') ||
+    lo.includes('c3-remote-sensor-launcher') ||
+    lo.includes('c3 remote sensor launcher')
+  )
+    return true;
   const nw = [
     'heatsink',
     'heat-sink',
@@ -2677,6 +3108,21 @@ function isWeaponEquip(id: string): boolean {
     'cargo',
     'spikes',
     'minesweeper',
+    'viral jammer',
+    'viraljammer',
+    'bridgelayer',
+    'bridge-layer',
+    'salvage-arm',
+    'salvagearm',
+    'environmental-seal',
+    'environmentalsealing',
+    'ejection-seat',
+    'ejection seat',
+    'dumper',
+    'fluid-suction',
+    'fluidsuction',
+    'mechsprayer',
+    'mech-sprayer',
   ];
   for (const n of nw) if (lo.includes(n)) return false;
   // Check IS resolution first, then try Clan resolution for Clan-exclusive weapons
@@ -2705,6 +3151,18 @@ function isDefEquip(id: string): boolean {
     lo.includes('point-defense-system')
   );
 }
+
+// === RISC HEAT SINK OVERRIDE KIT UNITS (from MegaMek mm-data MTF files) ===
+// The RISC Heat Sink Override Kit applies a 1.01x multiplier to base BV.
+// It's stored as "heat sink kit:RISC Heat Sink Override Kit" in MTF files,
+// which is not exported to our JSON data format.
+// Per MekBVCalculator.processSummarize() lines 479-501.
+const KNOWN_RISC_OVERRIDE_KIT_UNITS = new Set([
+  'battleaxe-bkx-risc',
+  'emperor-emp-6x',
+  'mad-cat-mk-iv-pr-risc',
+  'malice-mal-y-sh-risc',
+]);
 
 // === KNOWN HEAVY DUTY GYRO UNITS (from MegaMek mm-data MTF files) ===
 // HD gyro has 4 crit slots (same as Standard), so it can't be detected by crit count.
@@ -2780,7 +3238,28 @@ function calculateUnitBV(
   let gyroType = mapGyroType(unit.gyro.type);
   const cockpitType = mapCockpitType(unit.cockpit || 'STANDARD');
 
+  const unitIsSuperheavy = unit.tonnage > 100;
+
   let engineBVOverride: number | undefined;
+  // Superheavy mechs have different engine BV multipliers because they have fewer
+  // side-torso engine critical slots (e.g., IS XL = 2 ST slots -> 0.75 multiplier)
+  if (unitIsSuperheavy) {
+    switch (engineType) {
+      case EngineType.XL_IS:
+        engineBVOverride = 0.75;
+        break;
+      case EngineType.XXL:
+        engineBVOverride = 0.5;
+        break;
+      case EngineType.LIGHT:
+        engineBVOverride = 1.0;
+        break;
+      case EngineType.XL_CLAN:
+        engineBVOverride = 1.0;
+        break;
+      // Standard, Compact, ICE, Fuel Cell all stay at 1.0 (default)
+    }
+  }
   if (engineType === EngineType.XXL && unit.techBase === 'CLAN')
     engineBVOverride = 0.5;
   // For MIXED tech XXL engines, detect Clan vs IS via side-torso engine crit count:
@@ -2839,10 +3318,19 @@ function calculateUnitBV(
       'REAR_RIGHT_LEG',
     ].includes(k),
   );
+  // Detect effective configuration from cockpit type when configuration field is wrong
+  // e.g., Ares superheavy tripods have configuration="Biped" but cockpit="SUPERHEAVY_TRIPOD"
+  const cockpitUpper = (
+    typeof unit.cockpit === 'string' ? unit.cockpit : ''
+  ).toUpperCase();
+  const isTripodCockpit =
+    cockpitUpper.includes('TRIPOD') || cockpitUpper === 'SUPERHEAVY_TRIPOD';
   const effectiveConfig =
     hasQuadArmorLocs && unit.configuration?.toLowerCase() !== 'quad'
       ? 'Quad'
-      : unit.configuration;
+      : isTripodCockpit && unit.configuration?.toLowerCase() !== 'tripod'
+        ? 'Tripod'
+        : unit.configuration;
   const totalStructure = calcTotalStructure(unit.tonnage, effectiveConfig);
   const cs = scanCrits(unit);
 
@@ -2864,7 +3352,18 @@ function calculateUnitBV(
   const isDHS =
     unit.heatSinks.type.toUpperCase().includes('DOUBLE') ||
     unit.heatSinks.type.toUpperCase().includes('LASER');
-  let heatDiss = effectiveHSCount * (isDHS ? 2 : 1);
+  // Prototype DHS dissipate 2 heat each (same as regular DHS) per MegaMek Mek.getHeatCapacity().
+  // But unit.heatSinks.type may still be "SINGLE" if the base heat sinks are single.
+  // In that case we need: (totalHS - protoDHS) * 1 + protoDHS * 2
+  let heatDiss: number;
+  if (isDHS) {
+    heatDiss = effectiveHSCount * 2;
+  } else if (cs.critProtoDHSCount > 0) {
+    const singleHS = effectiveHSCount - cs.critProtoDHSCount;
+    heatDiss = singleHS * 1 + cs.critProtoDHSCount * 2;
+  } else {
+    heatDiss = effectiveHSCount * 1;
+  }
 
   if (cs.hasRadicalHS) heatDiss += Math.ceil(effectiveHSCount * 0.4);
   if (cs.hasPartialWing) heatDiss += 3;
@@ -2957,9 +3456,25 @@ function calculateUnitBV(
     if (isDefEquip(resolveId)) continue;
     if (!isWeaponEquip(resolveId)) continue;
 
-    const clanDetected =
+    let clanDetected =
       unit.techBase === 'MIXED' &&
       isClanEquipAtLocation(resolveId, eq.location, unit.criticalSlots);
+    // Fallback: if crit data is missing for this location (e.g., quad leg weapons),
+    // scan ALL crit locations for a matching CL-prefixed entry of this weapon.
+    if (!clanDetected && unit.techBase === 'MIXED' && unit.criticalSlots) {
+      const locKey = eq.location.split(',')[0].toUpperCase();
+      const hasLocCrits =
+        !!unit.criticalSlots[locKey] || !!unit.criticalSlots[eq.location];
+      if (!hasLocCrits) {
+        // Location crits missing — check all locations globally
+        for (const loc of Object.keys(unit.criticalSlots)) {
+          if (isClanEquipAtLocation(resolveId, loc, unit.criticalSlots)) {
+            clanDetected = true;
+            break;
+          }
+        }
+      }
+    }
     const res = resolveWeaponForUnit(resolveId, unit.techBase, clanDetected);
     if (!res.resolved || res.battleValue === 0) unresolvedWeapons.push(eq.id);
 
@@ -3041,7 +3556,13 @@ function calculateUnitBV(
           !wid.includes('mortar') &&
           !wid.includes('sniper') &&
           !wid.includes('thumper') &&
-          !wid.includes('long-tom'),
+          !wid.includes('long-tom') &&
+          // Per MegaMek: AMS and TAG do NOT have F_DIRECT_FIRE
+          !wid.includes('anti-missile') &&
+          !wid.includes('ams') &&
+          wid !== 'tag' &&
+          !wid.includes('light-tag') &&
+          !wid.includes('clan-tag'),
         location: eq.location,
       });
     }
@@ -3285,6 +3806,8 @@ function calculateUnitBV(
   }
   // Spikes: 4 BV per location (defensive equipment per MegaMek)
   defEquipBV += cs.spikeCount * 4;
+  // RISC Viral Jammer (Decoy/Homing): 284 BV each (defensive equipment per MegaMek MiscType)
+  defEquipBV += cs.riscViralJammerCount * 284;
 
   const explResult = calculateExplosivePenalties({
     equipment: cs.explosive,
@@ -3293,6 +3816,50 @@ function calculateUnitBV(
     engineType,
     isQuad: effectiveConfig?.toLowerCase() === 'quad',
   });
+
+  // Blue Shield Particle Field Damper: explosive penalty of -1 BV per unprotected location
+  // Per MekBVCalculator.processExplosiveEquipment() lines 143-180:
+  // Counts locations (CT through LL) that are NOT protected, subtracts 1 BV per unprotected loc.
+  let blueShieldExplosivePenalty = 0;
+  if (cs.hasBlueShield) {
+    const isClan =
+      unit.techBase === 'CLAN' ||
+      (unit.techBase === 'MIXED' &&
+        unitId !== undefined &&
+        CLAN_CHASSIS_MIXED_UNITS.has(unitId));
+    const engineDef = getEngineDefinition(engineType);
+    const sideTorsoSlots = engineDef?.sideTorsoSlots ?? 0;
+    const bodyLocs: MechLocation[] = ['CT', 'RT', 'LT', 'RA', 'LA', 'RL', 'LL'];
+    for (const loc of bodyLocs) {
+      // CASE II protects fully
+      if (cs.caseIILocs.includes(loc)) continue;
+      if (isClan) {
+        // Clan: CT, RL, LL always unprotected; arms always protected;
+        // side torsos protected unless engine has >2 side torso slots
+        if (loc === 'RA' || loc === 'LA') continue; // arms protected by built-in Clan CASE
+        if ((loc === 'RT' || loc === 'LT') && sideTorsoSlots <= 2) continue;
+      } else {
+        // IS: if engine has ≤2 side torso slots, CASE can protect locations
+        if (sideTorsoSlots <= 2) {
+          if ((loc === 'RT' || loc === 'LT') && cs.caseLocs.includes(loc))
+            continue;
+          if (
+            loc === 'LA' &&
+            (cs.caseLocs.includes('LA') || cs.caseLocs.includes('LT'))
+          )
+            continue;
+          if (
+            loc === 'RA' &&
+            (cs.caseLocs.includes('RA') || cs.caseLocs.includes('RT'))
+          )
+            continue;
+        }
+      }
+      blueShieldExplosivePenalty += 1;
+    }
+  }
+  const totalExplosivePenalty =
+    explResult.totalPenalty + blueShieldExplosivePenalty;
 
   // HarJel II/III: per-location armor BV multiplier (1.1x / 1.2x)
   // MegaMek calculates armor BV per-location when HarJel is present
@@ -3340,6 +3907,10 @@ function calculateUnitBV(
   // Convert to an equivalent runMP that calculateTMM will map to correctMaxTMM
   const defRunMP = correctMaxTMM <= 6 ? tmmToMinMP[correctMaxTMM] : 25;
 
+  // BAR (Barrier Armor Rating): Commercial armor = BAR 5, all others = BAR 10
+  // Per MegaMek Mek.getBARRating() and BVCalculator.processArmor()
+  const bar = getArmorBAR(armorType);
+
   const defCfg: Parameters<typeof calculateDefensiveBV>[0] = {
     totalArmorPoints: totalArmor,
     totalStructurePoints: totalStructure,
@@ -3351,12 +3922,14 @@ function calculateUnitBV(
     structureType,
     gyroType,
     engineType,
+    bar,
     defensiveEquipmentBV: defEquipBV + harjelArmorBonus + cs.armoredComponentBV,
-    explosivePenalties: explResult.totalPenalty,
+    explosivePenalties: totalExplosivePenalty,
     hasStealthArmor: hasStealth,
     hasChameleonLPS: cs.hasChameleon,
     hasNullSig: cs.hasNullSig,
     hasVoidSig: cs.hasVoidSig,
+    hasBlueShield: cs.hasBlueShield,
   };
   if (engineBVOverride !== undefined) {
     defCfg.engineMultiplier = engineBVOverride;
@@ -3378,6 +3951,8 @@ function calculateUnitBV(
   let offensiveEquipBV = 0;
   // Mine Dispensers: BV=8 each, offensive equipment per MegaMek
   offensiveEquipBV += cs.mineDispenserCount * 8;
+  // Misc equipment with offensive BV (Bridge Layers, etc.)
+  offensiveEquipBV += cs.miscEquipBV;
   // Note: Watchdog CEWS is NOT counted as offensive equipment in MegaMek
   // (the bv=7 code is unreachable due to F_BAP skip in processOffensiveEquipment)
   // AES weight bonus: arm AES (+0.1 each), leg AES (+0.2 biped, +0.4 quad)
@@ -3388,6 +3963,17 @@ function calculateUnitBV(
   const hasLegAES = cs.aesLocs.some((loc) => loc.toUpperCase().includes('LEG'));
   const isQuad = effectiveConfig?.toLowerCase() === 'quad';
   const baseJumpMP = unit.movement.jump || 0;
+  // EC-52: Industrial mech fire control modifier
+  // MegaMek Mek.hasAdvancedFireControl() returns false for industrial cockpit types:
+  // COCKPIT_INDUSTRIAL, COCKPIT_PRIMITIVE_INDUSTRIAL, COCKPIT_SUPERHEAVY_INDUSTRIAL,
+  // COCKPIT_TRIPOD_INDUSTRIAL, COCKPIT_SUPERHEAVY_TRIPOD_INDUSTRIAL
+  // When false, offensive BV is multiplied by 0.9
+  const isIndustrialMech =
+    cockpitUpper === 'INDUSTRIAL' ||
+    cockpitUpper === 'PRIMITIVE_INDUSTRIAL' ||
+    cockpitUpper === 'SUPERHEAVY_INDUSTRIAL' ||
+    cockpitUpper === 'TRIPOD_INDUSTRIAL' ||
+    cockpitUpper === 'SUPERHEAVY_TRIPOD_INDUSTRIAL';
   const offResult = calculateOffensiveBVWithHeatTracking({
     weapons,
     ammo: ammoForCalc,
@@ -3399,6 +3985,7 @@ function calculateUnitBV(
     heatDissipation: heatDiss,
     hasTargetingComputer: hasTC,
     hasTSM: cs.hasTSM,
+    hasIndustrialTSM: cs.hasIndustrialTSM,
     hasStealthArmor: hasStealth,
     hasNullSig: cs.hasNullSig,
     hasVoidSig: cs.hasVoidSig,
@@ -3413,6 +4000,7 @@ function calculateUnitBV(
     jumpHeatMP: baseJumpMP,
     aesArms: armAES,
     aesLegs: hasLegAES ? (isQuad ? 4 : 2) : 0,
+    isIndustrialMech,
   });
 
   const baseBV = defResult.totalDefensiveBV + offResult.totalOffensiveBV;
@@ -3439,7 +4027,11 @@ function calculateUnitBV(
     : cs.detectedDroneOS
       ? 0.95
       : getCockpitModifier(effectiveCockpit as CockpitType);
-  let totalBV = Math.round(baseBV * finalCockpitMod);
+  // RISC Heat Sink Override Kit: 1.01x multiplier to base BV
+  // Per MekBVCalculator.processSummarize() lines 479-501
+  const riscKitMod =
+    unitId && KNOWN_RISC_OVERRIDE_KIT_UNITS.has(unitId) ? 1.01 : 1.0;
+  let totalBV = Math.round(baseBV * finalCockpitMod * riscKitMod);
 
   const cockpitMod = finalCockpitMod;
   const totalDefEquipBV = defEquipBV + harjelArmorBonus + cs.armoredComponentBV;
@@ -3606,8 +4198,30 @@ async function main(): Promise<void> {
   const results: ValidationResult[] = [];
   const excluded: Array<{ unit: string; reason: string }> = [];
 
-  // Load MUL BV cache: use MUL (Master Unit List) BV as authoritative reference
-  // when available, since many index BV values are outdated (BV 1.0 era or wrong)
+  // Load MegaMek BV cache: authoritative BV reference extracted from MegaMek's
+  // runtime engine. Supersedes MUL data and eliminates need for BV overrides.
+  const megamekBVMap = new Map<string, number>();
+  {
+    const megamekCachePath = path.resolve(
+      process.cwd(),
+      'scripts/data-migration/megamek-bv-cache.json',
+    );
+    if (fs.existsSync(megamekCachePath)) {
+      const cache = JSON.parse(fs.readFileSync(megamekCachePath, 'utf-8'));
+      for (const [id, entry] of Object.entries(
+        cache.entries as Record<string, { megamekBV: number }>,
+      )) {
+        if (entry.megamekBV > 0) {
+          megamekBVMap.set(id, entry.megamekBV);
+        }
+      }
+      console.log(
+        `  MegaMek BV reference available for: ${megamekBVMap.size} units`,
+      );
+    }
+  }
+
+  // Load MUL BV cache as fallback: used only for units not covered by MegaMek
   const mulBVMap = new Map<string, number>();
   const mulMatchTypes = new Map<string, string>();
   {
@@ -3623,11 +4237,6 @@ async function main(): Promise<void> {
         if (entry && entry.mulBV > 0 && entry.matchType === 'exact') {
           mulBVMap.set(u.id, entry.mulBV);
         }
-        // Accept fuzzy matches only when MUL name (stripped of parenthetical alt-names)
-        // matches our "chassis model" exactly. This prevents wrong matches like:
-        //   "Loki Mk II (Hel) Prime" ≠ "Loki Prime"
-        //   "Gladiator-B (Executioner-B) A" ≠ "Gladiator A"
-        //   "Man O' War (Gargoyle) Prime" model ends with "e" matching model "E"
         if (
           entry &&
           entry.mulBV > 0 &&
@@ -3637,7 +4246,7 @@ async function main(): Promise<void> {
           const mulStripped = entry.mulName
             .toLowerCase()
             .trim()
-            .replace(/\s*\([^)]*\)\s*/g, ' ') // strip (alternate names)
+            .replace(/\s*\([^)]*\)\s*/g, ' ')
             .replace(/\s+/g, ' ')
             .trim();
           const expected = (u.chassis + ' ' + u.model).toLowerCase().trim();
@@ -3646,13 +4255,16 @@ async function main(): Promise<void> {
           }
         }
       }
-      console.log(`  MUL BV reference available for: ${mulBVMap.size} units`);
+      console.log(
+        `  MUL BV fallback available for: ${mulBVMap.size} units (${mulBVMap.size - megamekBVMap.size > 0 ? mulBVMap.size - megamekBVMap.size + ' additional' : 'all superseded by MegaMek'})`,
+      );
     }
   }
 
-  // MUL BV overrides: MUL (Master Unit List) reports incorrect BV for these units.
-  // Our BV calculation matches MegaMek runtime BV exactly, confirming MUL is wrong.
-  // Override with MegaMek runtime BV so these units don't produce false discrepancies.
+  // MUL BV overrides: LEGACY - Previously used to override stale MUL BV values
+  // with MegaMek runtime BV. Now superseded by megamek-bv-cache.json which provides
+  // authoritative BV for all 4,227 units directly from MegaMek's engine.
+  // Kept as fallback in case megamek-bv-cache.json is not available.
   const MUL_BV_OVERRIDES: Record<string, number> = {
     'mauler-mal-1x-affc': 1214, // MUL says 1286, MegaMek runtime = 1214
     'revenant-ubm-1a': 826, // MUL says 784,  MegaMek runtime = 826
@@ -4134,38 +4746,39 @@ async function main(): Promise<void> {
       continue;
     }
 
-    // Determine reference BV: prefer MUL BV (authoritative), fall back to index BV
+    // Determine reference BV: prefer MegaMek BV (authoritative), then MUL, then index
+    const megamekBV = megamekBVMap.get(iu.id);
     const mulBV = mulBVMap.get(iu.id);
-    const referenceBV = mulBV ?? iu.bv;
+    const referenceBV = megamekBV ?? mulBV ?? iu.bv;
 
-    // Exclude units with no reliable reference BV
-    if (!mulBV && suspectBVIds.has(iu.id)) {
-      excluded.push({
-        unit: `${iu.chassis} ${iu.model}`,
-        reason: 'No MUL match + suspect index BV',
-      });
-      continue;
-    }
-    // Exclude units with no MUL match at all — index BV is unreliable for verification
-    const matchType = mulMatchTypes.get(iu.id);
-    if (
-      !mulBV &&
-      (matchType === 'not-found' ||
-        (matchType === 'fuzzy' && !mulBVMap.has(iu.id)))
-    ) {
-      excluded.push({
-        unit: `${iu.chassis} ${iu.model}`,
-        reason: 'No verified MUL reference BV',
-      });
-      continue;
-    }
-    // MUL matched by name but returned BV=0 — reference is unreliable (common for named variants)
-    if (!mulBV && matchType === 'exact') {
-      excluded.push({
-        unit: `${iu.chassis} ${iu.model}`,
-        reason: 'MUL matched but BV unavailable',
-      });
-      continue;
+    // With MegaMek BV available, most exclusions for missing reference data go away
+    if (!megamekBV && !mulBV) {
+      // No authoritative reference from either source
+      if (suspectBVIds.has(iu.id)) {
+        excluded.push({
+          unit: `${iu.chassis} ${iu.model}`,
+          reason: 'No MegaMek/MUL match + suspect index BV',
+        });
+        continue;
+      }
+      const matchType = mulMatchTypes.get(iu.id);
+      if (
+        matchType === 'not-found' ||
+        (matchType === 'fuzzy' && !mulBVMap.has(iu.id))
+      ) {
+        excluded.push({
+          unit: `${iu.chassis} ${iu.model}`,
+          reason: 'No verified reference BV',
+        });
+        continue;
+      }
+      if (matchType === 'exact') {
+        excluded.push({
+          unit: `${iu.chassis} ${iu.model}`,
+          reason: 'MUL matched but BV unavailable',
+        });
+        continue;
+      }
     }
     if (!referenceBV || referenceBV === 0) {
       excluded.push({

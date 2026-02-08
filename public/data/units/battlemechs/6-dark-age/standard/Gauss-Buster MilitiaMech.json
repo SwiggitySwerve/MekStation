@@ -21,7 +21,7 @@
     "type": "INDUSTRIAL"
   },
   "armor": {
-    "type": "INDUSTRIAL",
+    "type": "HEAVY_INDUSTRIAL",
     "allocation": {
       "LEFT_ARM": 5,
       "RIGHT_ARM": 5,
@@ -152,11 +152,7 @@
       null
     ]
   },
-  "quirks": [
-    "illegal_design",
-    "stable",
-    "easy_maintain"
-  ],
+  "quirks": ["illegal_design", "stable", "easy_maintain"],
   "mulId": 8100,
   "role": "Sniper",
   "source": "XTR:Caveat"

@@ -21,7 +21,7 @@
     "type": "ENDO_STEEL"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "IMPACT_RESISTANT",
     "allocation": {
       "LEFT_ARM": 15,
       "RIGHT_ARM": 15,
@@ -164,9 +164,7 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "bad_rep_is"
-  ],
+  "quirks": ["bad_rep_is"],
   "mulId": 8377,
   "role": "Striker",
   "source": "XTR:Royal Fantasy"

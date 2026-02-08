@@ -21,7 +21,7 @@
     "type": "INDUSTRIAL"
   },
   "armor": {
-    "type": "INDUSTRIAL",
+    "type": "HEAVY_INDUSTRIAL",
     "allocation": {
       "FLL": 16,
       "FRL": 16,

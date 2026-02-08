@@ -83,18 +83,56 @@ export interface ConstructionResult {
 }
 
 /**
+ * Determine if a unit is a Superheavy BattleMech based on tonnage.
+ * All superheavy-specific rules are gated on this classification.
+ *
+ * @spec openspec/specs/superheavy-mech-system/spec.md
+ */
+export function isSuperHeavy(tonnage: number): boolean {
+  return tonnage > 100;
+}
+
+/**
+ * Calculate the number of critical entries consumed by equipment on a superheavy mech.
+ * Standard mechs use criticalSlots directly; superheavy mechs use ceil(N/2).
+ *
+ * @spec openspec/specs/superheavy-mech-system/spec.md
+ */
+export function getEquipmentCritEntries(
+  criticalSlots: number,
+  superheavy: boolean,
+): number {
+  if (!superheavy) return criticalSlots;
+  return Math.ceil(criticalSlots / 2);
+}
+
+/**
  * Step 1: Choose tonnage
- * Valid tonnages: 20-100 in 5-ton increments (standard mechs)
+ * Valid tonnages: 20-200 in 5-ton increments
+ * (20-100 for standard mechs, 105-200 for superheavy)
+ *
+ * @spec openspec/specs/superheavy-mech-system/spec.md
  */
 export function validateTonnage(tonnage: number): ConstructionStepResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  if (tonnage < 20 || tonnage > 100) {
-    errors.push(`Tonnage must be between 20 and 100 (got ${tonnage})`);
+  if (tonnage < 20 || tonnage > 200) {
+    errors.push(`Tonnage must be between 20 and 200 (got ${tonnage})`);
   }
   if (tonnage % 5 !== 0) {
     errors.push(`Tonnage must be a multiple of 5 (got ${tonnage})`);
+  }
+  // Warn for tonnages in the "gap" between standard and superheavy (101-104)
+  if (tonnage > 100 && tonnage < 105) {
+    errors.push(
+      `Tonnage 101-104 is invalid. Superheavy mechs start at 105 tons (got ${tonnage})`,
+    );
+  }
+  if (isSuperHeavy(tonnage)) {
+    warnings.push(
+      'Superheavy mech: requires SUPERHEAVY cockpit and gyro, double-slot critical system active',
+    );
   }
 
   return {

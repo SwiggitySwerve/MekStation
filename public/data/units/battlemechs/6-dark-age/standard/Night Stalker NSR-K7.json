@@ -21,7 +21,7 @@
     "type": "ENDO_STEEL"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "IMPACT_RESISTANT",
     "allocation": {
       "LEFT_ARM": 12,
       "RIGHT_ARM": 12,

@@ -133,9 +133,8 @@ function getEngineSideTorsoSlots(engineType?: EngineType): number {
  * - CASE II → no penalty (location fully protected)
  * - Arms (non-quad): no penalty if arm has CASE, or if transfer torso has no penalty
  * - Side torsos: no penalty if CASE present AND engine has <3 side torso crit slots
- * - CT: no penalty if CASE present (explosion vented instead of mech destruction)
- * - Legs: transfer to adjacent side torso (LL→LT, RL→RT) — no penalty if torso is protected
- * - HD: always has penalty (no CASE protection for head)
+ * - CT, HD, Legs: ALWAYS have penalty — CASE does NOT protect these locations
+ *   (only CASE II eliminates penalties in CT, HD, and legs)
  *
  * @see MekBVCalculator.java lines 517-528
  */
@@ -168,22 +167,10 @@ function hasExplosiveEquipmentPenalty(
     return !hasCASE || sideTorsoSlots >= 3;
   }
 
-  // Center torso: CASE protects (vents explosion instead of destroying mech)
-  // Without CASE, CT ammo explosion = mech destruction = penalty
-  if (location === 'CT') {
-    return !hasCASE;
-  }
-
-  // Legs: explosion transfers to adjacent side torso (LL→LT, RL→RT)
-  // If the receiving torso can contain the explosion, no penalty
-  if (location === 'LL') {
-    return hasExplosiveEquipmentPenalty('LT', config);
-  }
-  if (location === 'RL') {
-    return hasExplosiveEquipmentPenalty('RT', config);
-  }
-
-  // Head: always has penalty (no CASE protection for BV purposes)
+  // Center torso, Head, Legs: ALWAYS have penalty (unless CASE II, checked above).
+  // Per MegaMek MekBVCalculator.hasExplosiveEquipmentPenalty() lines 517-528:
+  // CASE does NOT protect CT, HD, LL, or RL — only CASE II does.
+  // The else branch returns true for all locations not explicitly handled above.
   return true;
 }
 
@@ -199,9 +186,9 @@ function hasExplosiveEquipmentPenalty(
  * Protection:
  * - CASE II eliminates ALL penalties in the protected location
  * - CASE prevents penalties in side torsos (unless engine has 3+ side torso slots)
- * - CASE in arms always prevents penalties (or transfers to protected torso)
- * - CASE in CT prevents penalties (explosion vented instead of mech destruction)
- * - Legs transfer to side torso (LL→LT, RL→RT) — protected if torso is protected
+ * - CASE in arms prevents penalties (or penalty depends on transfer torso)
+ * - CT, HD, LL, RL: ALWAYS have penalty — CASE does NOT protect these locations
+ * - Only CASE II can prevent penalties in CT, HD, and legs
  * - Clan XL engines (2 side torso slots) allow CASE to work in side torsos
  * - IS XL/XXL engines (3+ side torso slots) override CASE in side torsos
  *
@@ -337,6 +324,8 @@ export interface DefensiveBVConfig {
   hasVoidSig?: boolean;
   /** UMU movement points (Underwater Maneuvering Unit) */
   umuMP?: number;
+  /** Blue Shield Particle Field Damper: adds +0.2 to armor and structure BV multipliers */
+  hasBlueShield?: boolean;
 }
 
 export interface DefensiveBVResult {
@@ -350,20 +339,25 @@ export interface DefensiveBVResult {
 export function calculateDefensiveBV(
   config: DefensiveBVConfig,
 ): DefensiveBVResult {
-  const armorMultiplier = getArmorBVMultiplier(config.armorType ?? 'standard');
-  const structureMultiplier = getStructureBVMultiplier(
-    config.structureType ?? 'standard',
-  );
+  // Blue Shield Particle Field Damper adds +0.2 to both armor and structure multipliers
+  // Per MegaMek BVCalculator.armorMultiplier() line 1488 and MekBVCalculator.processStructure() line 100
+  const blueShieldBonus = config.hasBlueShield ? 0.2 : 0;
+  const armorMultiplier =
+    getArmorBVMultiplier(config.armorType ?? 'standard') + blueShieldBonus;
+  const structureMultiplier =
+    getStructureBVMultiplier(config.structureType ?? 'standard') +
+    blueShieldBonus;
   const gyroMultiplier = getGyroBVMultiplier(config.gyroType ?? 'standard');
 
   const bar = config.bar ?? 10;
   // Explicit engineMultiplier takes priority (e.g., Clan XXL override),
-  // then engineType lookup, then default 1.0
+  // then engineType lookup (superheavy-aware), then default 1.0
+  const unitIsSuperheavy = config.tonnage > 100;
   const engineMultiplier =
     config.engineMultiplier !== undefined
       ? config.engineMultiplier
       : config.engineType !== undefined
-        ? getEngineBVMultiplier(config.engineType)
+        ? getEngineBVMultiplier(config.engineType, unitIsSuperheavy)
         : 1.0;
 
   // Resolve defensive equipment BV from catalog (AMS, ECM, BAP, shields, armored components)
@@ -544,6 +538,27 @@ const AMMO_WEAPON_TYPE_ALIASES: Record<string, string[]> = {
   ],
   'long-tom': ['long-tom-cannon'],
   'long-tom-cannon': ['long-tom'],
+  // Mortar aliases: equipment JSONs use 'mortar-X', crit slots use 'mech-mortar-X'.
+  // normalizeEquipmentId strips trailing '-N' from 'mortar-N' → 'mortar', so we
+  // also need a broad 'mortar' alias to bridge the gap when weapons use 'mech-mortar-N'.
+  'mech-mortar-1': ['mortar-1', 'mortar'],
+  'mech-mortar-2': ['mortar-2', 'mortar'],
+  'mech-mortar-4': ['mortar-4', 'mortar'],
+  'mech-mortar-8': ['mortar-8', 'mortar'],
+  'mortar-1': ['mech-mortar-1', 'mortar'],
+  'mortar-2': ['mech-mortar-2', 'mortar'],
+  'mortar-4': ['mech-mortar-4', 'mortar'],
+  'mortar-8': ['mech-mortar-8', 'mortar'],
+  mortar: [
+    'mech-mortar-1',
+    'mech-mortar-2',
+    'mech-mortar-4',
+    'mech-mortar-8',
+    'mortar-1',
+    'mortar-2',
+    'mortar-4',
+    'mortar-8',
+  ],
   sniper: ['sniper-cannon', 'issniperartcannon'],
   'sniper-cannon': ['sniper'],
   thumper: ['thumper-cannon'],

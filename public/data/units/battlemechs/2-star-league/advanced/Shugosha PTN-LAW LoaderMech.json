@@ -21,7 +21,7 @@
     "type": "INDUSTRIAL"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "COMMERCIAL",
     "allocation": {
       "LEFT_ARM": 4,
       "RIGHT_ARM": 4,

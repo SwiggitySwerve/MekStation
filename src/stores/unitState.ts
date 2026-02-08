@@ -292,6 +292,14 @@ export interface IMountedEquipmentInstance {
    * Only relevant when the unit's isOmni flag is true.
    */
   readonly isOmniPodMounted: boolean;
+  /**
+   * Actual crit entries consumed on a superheavy mech.
+   * Equal to criticalSlots for standard mechs, ceil(criticalSlots / 2) for superheavy.
+   * Only set when the unit is a superheavy mech.
+   *
+   * @spec openspec/specs/superheavy-mech-system/spec.md
+   */
+  readonly critEntries?: number;
 }
 
 /**

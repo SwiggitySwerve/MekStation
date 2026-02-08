@@ -1388,7 +1388,7 @@ describe('battleValueCalculations', () => {
     });
 
     describe('CT, HD, and leg locations always have penalty', () => {
-      it('should not penalize CT when CASE is present (EC-47)', () => {
+      it('should still penalize CT even when CASE is present (EC-47)', () => {
         const result = calculateExplosivePenalties({
           equipment: [
             { location: 'CT', slots: 1, penaltyCategory: 'standard' },
@@ -1396,8 +1396,10 @@ describe('battleValueCalculations', () => {
           caseLocations: ['CT'],
           caseIILocations: [],
         });
-        // EC-47: CT with CASE vents explosion, no penalty
-        expect(result.totalPenalty).toBe(0);
+        // Per MegaMek MekBVCalculator.hasExplosiveEquipmentPenalty():
+        // CASE does NOT protect CT — only CASE II does.
+        // CT destruction kills the mech regardless of CASE.
+        expect(result.totalPenalty).toBe(15);
       });
 
       it('should penalize CT without CASE', () => {

@@ -38,11 +38,62 @@ export interface SlotContent {
 }
 
 /**
+ * Composition wrapper for one critical slot position.
+ * Standard mechs use only primary; superheavy mechs can pair a secondary.
+ *
+ * @spec openspec/specs/superheavy-mech-system/spec.md
+ */
+export interface CritEntry {
+  /** Slot index in the location (0-based) */
+  index: number;
+  /** Primary mount (always present) */
+  primary: SlotContent;
+  /** Secondary mount (superheavy double-slot only) */
+  secondary?: SlotContent;
+  /** Whether this entry supports double-mounting */
+  isDoubleSlot: boolean;
+}
+
+/**
+ * Flatten all equipment from CritEntry[] for scanning/counting.
+ * Use this instead of manually iterating entries to check secondary mounts.
+ *
+ * @spec openspec/specs/superheavy-mech-system/spec.md
+ */
+export function flattenEntries(entries: CritEntry[]): SlotContent[] {
+  return entries.flatMap((e) =>
+    e.secondary ? [e.primary, e.secondary] : [e.primary],
+  );
+}
+
+/**
+ * Build CritEntry[] from a flat SlotContent[] array.
+ * For standard mechs, each SlotContent becomes a CritEntry with isDoubleSlot=false.
+ * This is the migration bridge from the old slots model to the new entries model.
+ */
+export function slotsToCritEntries(
+  slots: SlotContent[],
+  isSuperheavy: boolean = false,
+): CritEntry[] {
+  return slots.map((slot) => ({
+    index: slot.index,
+    primary: slot,
+    secondary: undefined,
+    isDoubleSlot: isSuperheavy,
+  }));
+}
+
+/**
  * Location data for the display
  */
 export interface LocationData {
   location: MechLocation;
+  /** @deprecated Use entries instead. Retained for backward compatibility during migration. */
   slots: SlotContent[];
+  /** Canonical slot data source with double-slot support */
+  entries: CritEntry[];
+  /** Whether this location belongs to a superheavy mech */
+  isSuperheavy: boolean;
 }
 
 interface CriticalSlotsDisplayProps {

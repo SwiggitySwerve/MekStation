@@ -21,7 +21,7 @@
     "type": "COMPOSITE"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "IMPACT_RESISTANT",
     "allocation": {
       "FLL": 2,
       "FRL": 2,
@@ -94,14 +94,7 @@
       "Fusion Engine",
       "Fusion Engine"
     ],
-    "HEAD": [
-      "Life Support",
-      "Sensors",
-      "Cockpit",
-      "Sensors",
-      null,
-      null
-    ],
+    "HEAD": ["Life Support", "Sensors", "Cockpit", "Sensors", null, null],
     "FRONT_LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",
@@ -135,9 +128,7 @@
       "IS Impact-Resistant"
     ]
   },
-  "quirks": [
-    "exp_actuator"
-  ],
+  "quirks": ["exp_actuator"],
   "mulId": 6710,
   "role": "Scout",
   "source": "TR:3145:RotS"

@@ -150,6 +150,27 @@ export const STRUCTURE_POINTS_TABLE: Record<number, Record<string, number>> = {
   90: { head: 3, centerTorso: 29, sideTorso: 19, arm: 15, leg: 19 },
   95: { head: 3, centerTorso: 30, sideTorso: 20, arm: 16, leg: 20 },
   100: { head: 3, centerTorso: 31, sideTorso: 21, arm: 17, leg: 21 },
+  // Superheavy Mechs (>100 tons) - per MegaMek Mek.autoSetInternal()
+  105: { head: 4, centerTorso: 32, sideTorso: 22, arm: 17, leg: 22 },
+  110: { head: 4, centerTorso: 33, sideTorso: 23, arm: 18, leg: 23 },
+  115: { head: 4, centerTorso: 35, sideTorso: 24, arm: 19, leg: 24 },
+  120: { head: 4, centerTorso: 36, sideTorso: 25, arm: 20, leg: 25 },
+  125: { head: 4, centerTorso: 38, sideTorso: 26, arm: 21, leg: 26 },
+  130: { head: 4, centerTorso: 39, sideTorso: 27, arm: 21, leg: 27 },
+  135: { head: 4, centerTorso: 41, sideTorso: 28, arm: 22, leg: 28 },
+  140: { head: 4, centerTorso: 42, sideTorso: 29, arm: 23, leg: 29 },
+  145: { head: 4, centerTorso: 44, sideTorso: 31, arm: 24, leg: 31 },
+  150: { head: 4, centerTorso: 45, sideTorso: 32, arm: 25, leg: 32 },
+  155: { head: 4, centerTorso: 47, sideTorso: 33, arm: 26, leg: 33 },
+  160: { head: 4, centerTorso: 48, sideTorso: 34, arm: 26, leg: 34 },
+  165: { head: 4, centerTorso: 50, sideTorso: 35, arm: 27, leg: 35 },
+  170: { head: 4, centerTorso: 51, sideTorso: 36, arm: 28, leg: 36 },
+  175: { head: 4, centerTorso: 53, sideTorso: 37, arm: 29, leg: 37 },
+  180: { head: 4, centerTorso: 54, sideTorso: 38, arm: 30, leg: 38 },
+  185: { head: 4, centerTorso: 56, sideTorso: 39, arm: 31, leg: 39 },
+  190: { head: 4, centerTorso: 57, sideTorso: 40, arm: 31, leg: 40 },
+  195: { head: 4, centerTorso: 59, sideTorso: 41, arm: 32, leg: 41 },
+  200: { head: 4, centerTorso: 60, sideTorso: 42, arm: 33, leg: 42 },
 };
 
 /**

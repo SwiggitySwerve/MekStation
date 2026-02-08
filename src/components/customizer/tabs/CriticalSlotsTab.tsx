@@ -29,7 +29,11 @@ import {
   getUnallocatedUnhittables,
 } from '@/utils/construction/slotOperations';
 
-import { LocationData, SlotContent } from '../critical-slots';
+import {
+  LocationData,
+  SlotContent,
+  slotsToCritEntries,
+} from '../critical-slots';
 import { LocationGrid } from '../critical-slots/LocationGrid';
 import { VerticalSlotChip } from '../critical-slots/VerticalSlotChip';
 
@@ -346,6 +350,8 @@ export function CriticalSlotsTab({
   const engineType = useUnitStore((s) => s.engineType);
   const gyroType = useUnitStore((s) => s.gyroType);
   const isOmni = useUnitStore((s) => s.isOmni);
+  const tonnage = useUnitStore((s) => s.tonnage);
+  const unitIsSuperheavy = tonnage > 100;
   const updateEquipmentLocation = useUnitStore(
     (s) => s.updateEquipmentLocation,
   );
@@ -370,11 +376,21 @@ export function CriticalSlotsTab({
 
   // Build location data
   const getLocationData = useCallback(
-    (location: MechLocation): LocationData => ({
-      location,
-      slots: buildLocationSlots(location, engineType, gyroType, equipment),
-    }),
-    [equipment, engineType, gyroType],
+    (location: MechLocation): LocationData => {
+      const slots = buildLocationSlots(
+        location,
+        engineType,
+        gyroType,
+        equipment,
+      );
+      return {
+        location,
+        slots,
+        entries: slotsToCritEntries(slots, unitIsSuperheavy),
+        isSuperheavy: unitIsSuperheavy,
+      };
+    },
+    [equipment, engineType, gyroType, unitIsSuperheavy],
   );
 
   // Calculate assignable slots for selected equipment
@@ -410,6 +426,22 @@ export function CriticalSlotsTab({
         }
         if (contiguous) {
           assignable.push(emptySlots[i]);
+        }
+      }
+
+      // Superheavy double-slot pairing: occupied single-crit entries are also assignable
+      // if the selected equipment is also a single-crit item (ammo or heat sink)
+      if (unitIsSuperheavy && slotsNeeded === 1) {
+        for (const entry of locData.entries) {
+          if (
+            entry.isDoubleSlot &&
+            !entry.secondary &&
+            entry.primary.type === 'equipment' &&
+            entry.primary.totalSlots === 1 &&
+            !assignable.includes(entry.index)
+          ) {
+            assignable.push(entry.index);
+          }
         }
       }
 
@@ -476,6 +508,26 @@ export function CriticalSlotsTab({
       // Validate there are enough contiguous empty slots starting at slotIndex
       const locData = getLocationData(location);
       const slotsNeeded = eq.criticalSlots;
+
+      // Superheavy double-slot pairing: if dropping a 1-crit item on an occupied
+      // single-crit entry, attempt to pair them
+      if (unitIsSuperheavy && slotsNeeded === 1) {
+        const targetEntry = locData.entries.find((e) => e.index === slotIndex);
+        if (
+          targetEntry &&
+          targetEntry.isDoubleSlot &&
+          !targetEntry.secondary &&
+          targetEntry.primary.type === 'equipment' &&
+          targetEntry.primary.totalSlots === 1
+        ) {
+          // TODO: Wire to store's pairEquipment action when implemented
+          // For now, fall through to standard placement which handles the
+          // equipment via existing updateEquipmentLocation
+          console.debug(
+            `Superheavy pairing: ${eq.name} -> slot ${slotIndex} (pairing not yet wired to store)`,
+          );
+        }
+      }
 
       // Check if all required slots are empty
       for (let i = 0; i < slotsNeeded; i++) {

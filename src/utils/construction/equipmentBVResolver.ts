@@ -698,7 +698,9 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   isfluidgun: 'fluid-gun',
   ismediumpulselaserprototype: 'medium-pulse-laser',
   islbxac10prototype: 'lb-10-x-ac',
+  clrocketlauncher10prototype: 'rocket-launcher-10',
   clrocketlauncher15prototype: 'rocket-launcher-15',
+  rocketlauncher20prototype: 'rocket-launcher-20',
 
   // One-shot (OS) variants — map to BASE weapon (validate-bv.ts applies ÷5 BV penalty)
   'streak-srm-2-os': 'streak-srm-2',

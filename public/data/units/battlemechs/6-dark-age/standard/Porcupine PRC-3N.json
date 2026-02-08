@@ -21,7 +21,7 @@
     "type": "STANDARD"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "IMPACT_RESISTANT",
     "allocation": {
       "LEFT_ARM": 6,
       "RIGHT_ARM": 6,
@@ -152,9 +152,7 @@
       "Mek Null Signature System"
     ]
   },
-  "quirks": [
-    "distracting"
-  ],
+  "quirks": ["distracting"],
   "mulId": 8102,
   "role": "Striker",
   "source": "XTR:Caveat"

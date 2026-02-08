@@ -150,6 +150,9 @@ export function StructureTab({
   // Enhancement options (static data from hook module)
   const enhancementOptions = getEnhancementOptions();
 
+  // Superheavy detection
+  const isSuperheavy = tonnage > 100;
+
   // Handlers - Tonnage and Configuration
   const handleTonnageChange = useCallback(
     (newTonnage: number) => {
@@ -157,11 +160,23 @@ export function StructureTab({
         BATTLEMECH_TONNAGE.min,
         Math.min(BATTLEMECH_TONNAGE.max, newTonnage),
       );
-      const rounded =
+      let rounded =
         Math.round(clamped / BATTLEMECH_TONNAGE.step) * BATTLEMECH_TONNAGE.step;
+
+      // Skip the invalid 101-104 gap when stepping
+      if (rounded > 100 && rounded < 105) {
+        rounded = newTonnage > tonnage ? 105 : 100;
+      }
+
       setTonnage(rounded);
+
+      // Auto-set cockpit and gyro when crossing into superheavy range
+      if (rounded > 100) {
+        setCockpitType(CockpitType.SUPER_HEAVY);
+        setGyroType(GyroType.SUPERHEAVY);
+      }
     },
-    [setTonnage],
+    [setTonnage, setCockpitType, setGyroType, tonnage],
   );
 
   const handleConfigurationChange = useCallback(
@@ -357,6 +372,13 @@ export function StructureTab({
                   +
                 </button>
               </div>
+              {/* Superheavy warning banner */}
+              {isSuperheavy && (
+                <div className="mt-1 rounded border border-amber-600/40 bg-amber-900/20 px-2 py-1 text-xs text-amber-300">
+                  Superheavy: double-slot crits, SUPERHEAVY cockpit/gyro
+                  required
+                </div>
+              )}
             </div>
 
             {/* Engine Type */}

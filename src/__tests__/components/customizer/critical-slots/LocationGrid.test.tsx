@@ -32,7 +32,13 @@ describe('LocationGrid', () => {
     location: MechLocation.HEAD,
     data: {
       location: MechLocation.HEAD,
-      slots: [],
+      slots: [] as { index: number; type: 'empty' | 'system' | 'equipment' }[],
+      entries: [] as {
+        index: number;
+        primary: { index: number; type: 'empty' | 'system' | 'equipment' };
+        isDoubleSlot: boolean;
+      }[],
+      isSuperheavy: false,
     },
     assignableSlots: [],
     onSlotClick: jest.fn(),
@@ -69,6 +75,19 @@ describe('LocationGrid', () => {
           equipmentName: 'Medium Laser',
         },
       ],
+      entries: [
+        {
+          index: 0,
+          primary: {
+            index: 0,
+            type: 'equipment' as const,
+            equipmentId: 'equip-1',
+            equipmentName: 'Medium Laser',
+          },
+          isDoubleSlot: false,
+        },
+      ],
+      isSuperheavy: false,
     };
 
     render(<LocationGrid {...defaultProps} data={data} />);
@@ -104,6 +123,19 @@ describe('LocationGrid', () => {
           equipmentName: 'Medium Laser',
         },
       ],
+      entries: [
+        {
+          index: 0,
+          primary: {
+            index: 0,
+            type: 'equipment' as const,
+            equipmentId: 'equip-1',
+            equipmentName: 'Medium Laser',
+          },
+          isDoubleSlot: false,
+        },
+      ],
+      isSuperheavy: false,
     };
 
     render(

@@ -33,12 +33,16 @@ const ENGINE_RATING_MAX_BATTLEMECH = 500;
 
 /**
  * VAL-BM-001: BattleMech Tonnage Range
- * Tonnage must be 20-100 tons and divisible by 5
+ * Tonnage must be 20-200 tons and divisible by 5
+ * (20-100 standard, 105-200 superheavy)
+ *
+ * @spec openspec/specs/superheavy-mech-system/spec.md
  */
 export const BattleMechTonnageRange: IUnitValidationRuleDefinition = {
   id: 'VAL-BM-001',
   name: 'BattleMech Tonnage Range',
-  description: 'BattleMech tonnage must be 20-100 tons and divisible by 5',
+  description:
+    'BattleMech tonnage must be 20-200 tons and divisible by 5 (105-200 for superheavy)',
   category: ValidationCategory.CONSTRUCTION,
   priority: 10,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
