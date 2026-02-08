@@ -1280,8 +1280,13 @@ function scanCrits(unit: UnitData): CritScan {
 
         // Ammo
         if (lo.includes('ammo') && !lo.includes('ammo feed')) {
+          // Per MegaMek AmmoType.java: Gauss-type ammo (including HAG) is non-explosive.
+          // HAG crit names like "CLHAG20 Ammo" don't contain "gauss", so check 'hag' separately.
+          // SB Gauss abbreviated crit name "ISSBGR Ammo" also lacks "gauss".
           const isNonExplosiveAmmo =
             lo.includes('gauss') ||
+            lo.includes('hag') ||
+            lo.includes('sbgr') ||
             lo.includes('magshot') ||
             lo.includes('plasma') ||
             lo.includes('fluid') ||
@@ -2961,6 +2966,18 @@ function isDefEquip(id: string): boolean {
   );
 }
 
+// === RISC HEAT SINK OVERRIDE KIT UNITS (from MegaMek mm-data MTF files) ===
+// The RISC Heat Sink Override Kit applies a 1.01x multiplier to base BV.
+// It's stored as "heat sink kit:RISC Heat Sink Override Kit" in MTF files,
+// which is not exported to our JSON data format.
+// Per MekBVCalculator.processSummarize() lines 479-501.
+const KNOWN_RISC_OVERRIDE_KIT_UNITS = new Set([
+  'battleaxe-bkx-risc',
+  'emperor-emp-6x',
+  'mad-cat-mk-iv-pr-risc',
+  'malice-mal-y-sh-risc',
+]);
+
 // === KNOWN HEAVY DUTY GYRO UNITS (from MegaMek mm-data MTF files) ===
 // HD gyro has 4 crit slots (same as Standard), so it can't be detected by crit count.
 // These units have "Gyro:Heavy Duty Gyro" in their MTF source files.
@@ -3805,7 +3822,11 @@ function calculateUnitBV(
     : cs.detectedDroneOS
       ? 0.95
       : getCockpitModifier(effectiveCockpit as CockpitType);
-  let totalBV = Math.round(baseBV * finalCockpitMod);
+  // RISC Heat Sink Override Kit: 1.01x multiplier to base BV
+  // Per MekBVCalculator.processSummarize() lines 479-501
+  const riscKitMod =
+    unitId && KNOWN_RISC_OVERRIDE_KIT_UNITS.has(unitId) ? 1.01 : 1.0;
+  let totalBV = Math.round(baseBV * finalCockpitMod * riscKitMod);
 
   const cockpitMod = finalCockpitMod;
   const totalDefEquipBV = defEquipBV + harjelArmorBonus + cs.armoredComponentBV;
