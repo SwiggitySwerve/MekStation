@@ -152,9 +152,7 @@
       "Mek Null Signature System"
     ]
   },
-  "quirks": [
-    "distracting"
-  ],
+  "quirks": ["distracting"],
   "mulId": 8102,
   "role": "Striker",
   "source": "XTR:Caveat"

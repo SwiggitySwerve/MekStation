@@ -176,9 +176,7 @@
       null
     ]
   },
-  "quirks": [
-    "pro_actuator"
-  ],
+  "quirks": ["pro_actuator"],
   "mulId": 4795,
   "role": "Ambusher",
   "source": "TR:Proto"

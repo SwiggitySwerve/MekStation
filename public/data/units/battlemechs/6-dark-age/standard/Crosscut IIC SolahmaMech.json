@@ -152,10 +152,7 @@
       null
     ]
   },
-  "quirks": [
-    "illegal_design",
-    "hard_pilot"
-  ],
+  "quirks": ["illegal_design", "hard_pilot"],
   "mulId": 8099,
   "role": "Striker",
   "source": "XTR:Caveat"
