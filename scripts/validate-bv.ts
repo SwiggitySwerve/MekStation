@@ -504,8 +504,8 @@ const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   'long-tom-cannon': { bv: 329, heat: 20 },
   'sniper-cannon': { bv: 77, heat: 10 },
   'thumper-cannon': { bv: 41, heat: 5 },
-  'nail-rivet-gun': { bv: 7, heat: 0 },
-  'nail-gun': { bv: 7, heat: 0 },
+  'nail-rivet-gun': { bv: 1, heat: 0 },
+  'nail-gun': { bv: 1, heat: 0 },
   'battlemech-taser': { bv: 40, heat: 6 },
   'mech-taser': { bv: 40, heat: 6 },
   ismektaser: { bv: 40, heat: 6 },
@@ -825,6 +825,9 @@ interface CritScan {
   riscViralJammerCount: number;
   /** Blue Shield Particle Field Damper: +0.2 to armor and structure multipliers */
   hasBlueShield: boolean;
+  /** Accumulated BV from misc (non-weapon, non-physical) equipment with offensive BV
+   *  (e.g., Bridge Layers: Light=5, Medium=10, Heavy=20) */
+  miscEquipBV: number;
 }
 
 function classifyPhysicalWeapon(slotLower: string): string | null {
@@ -854,6 +857,15 @@ function classifyPhysicalWeapon(slotLower: string): string | null {
   if (s === 'chainsaw' || s === 'is chainsaw') return 'chainsaw';
   if (s === 'backhoe' || s === 'is backhoe') return 'backhoe';
   if (s === 'combine') return 'combine';
+  if (s === 'spot welder' || s === 'is spot welder') return 'spot-welder';
+  if (s === 'rock cutter' || s === 'is rock cutter') return 'rock-cutter';
+  if (
+    s === 'pile driver' ||
+    s === 'is pile driver' ||
+    s === 'heavy-duty pile driver' ||
+    s === 'heavy duty pile driver'
+  )
+    return 'pile-driver';
   if (
     s.includes('vibroblade') ||
     s === 'islargevibroblade' ||
@@ -906,6 +918,12 @@ function calculatePhysicalWeaponBV(
     case 'backhoe':
       return 8;
     case 'combine':
+      return 5;
+    case 'spot-welder':
+      return 5;
+    case 'rock-cutter':
+      return 6;
+    case 'pile-driver':
       return 5;
     case 'vibroblade-large':
       return Math.ceil(tonnage / 5.0) * 1.725 * tsmMod;
@@ -1040,6 +1058,7 @@ function scanCrits(unit: UnitData): CritScan {
     mineDispenserCount: 0,
     riscViralJammerCount: 0,
     hasBlueShield: false,
+    miscEquipBV: 0,
   };
   if (!unit.criticalSlots) return r;
   const rearSlotsByLoc = new Map<string, Map<string, number>>();
@@ -1096,7 +1115,8 @@ function scanCrits(unit: UnitData): CritScan {
         else if (
           lo.includes('industrial triple strength') ||
           lo.includes('industrial triple-strength') ||
-          lo.includes('industrialtriplestrength')
+          lo.includes('industrialtriplestrength') ||
+          lo === 'industrial tsm'
         )
           r.hasIndustrialTSM = true;
         else if (
@@ -1428,6 +1448,28 @@ function scanCrits(unit: UnitData): CritScan {
             });
         }
 
+        // PPC Capacitor — explosive per MegaMek MiscType.F_PPC_CAPACITOR
+        // Reduced penalty: 1 BV per slot per MekBVCalculator lines 231-233
+        if (lo.includes('ppc capacitor') || lo.includes('ppccapacitor')) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // Coolant Pod — explosive per MegaMek AmmoType COOLANT_POD
+        // Reduced penalty: 1 BV per slot per MekBVCalculator lines 241-243
+        if (lo.includes('coolant pod') && !lo.includes('emergency')) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
         // Defensive equip — push once per equipment instance (skip consecutive duplicate slots for multi-slot items)
         // Regular AMS is 1-crit (each slot = separate weapon). Laser AMS is 2-crit IS / 1-crit Clan → use dedup.
         if (
@@ -1523,6 +1565,23 @@ function scanCrits(unit: UnitData): CritScan {
           lo === 'vehicularminedispenser'
         )
           r.mineDispenserCount++;
+
+        // Bridge Layers: misc equipment with non-zero offensive BV, dedup per slot group.
+        // Light=5, Medium=10, Heavy=20 per MegaMek MiscType.java
+        if (clean !== prevSlotClean) {
+          if (lo.includes('heavybridgelayer') || lo === 'heavy bridge layer')
+            r.miscEquipBV += 20;
+          else if (
+            lo.includes('mediumbridgelayer') ||
+            lo === 'medium bridge layer'
+          )
+            r.miscEquipBV += 10;
+          else if (
+            lo.includes('lightbridgelayer') ||
+            lo === 'light bridge layer'
+          )
+            r.miscEquipBV += 5;
+        }
 
         prevSlotClean = clean;
 
@@ -1842,6 +1901,38 @@ function scanCrits(unit: UnitData): CritScan {
     )
   ) {
     r.detectedDroneOS = true;
+  }
+
+  // PPC weapons with linked PPC Capacitor: MegaMek treats the PPC weapon itself as
+  // explosive (PPCWeapon → 1 BV per slot) in addition to the PPC Capacitor (1 slot).
+  // Per MekBVCalculator.processExplosiveEquipment() lines 235-237.
+  if (r.ppcCapLocs.length > 0 && unit.criticalSlots) {
+    for (const capLoc of r.ppcCapLocs) {
+      const locSlots =
+        unit.criticalSlots[capLoc] || unit.criticalSlots[capLoc.toUpperCase()];
+      if (!Array.isArray(locSlots)) continue;
+      const ml = toMechLoc(capLoc);
+      if (!ml) continue;
+      for (const s of locSlots) {
+        if (!s || typeof s !== 'string') continue;
+        const slo = s
+          .toLowerCase()
+          .replace(/\s*\(omnipod\)/gi, '')
+          .trim();
+        // Match PPC weapon slots (not capacitors or ammo)
+        if (
+          slo.includes('ppc') &&
+          !slo.includes('capacitor') &&
+          !slo.includes('ammo')
+        ) {
+          r.explosive.push({
+            location: ml,
+            slots: 1,
+            penaltyCategory: 'reduced',
+          });
+        }
+      }
+    }
   }
 
   return r;
@@ -2828,6 +2919,19 @@ function isWeaponEquip(id: string): boolean {
     'minesweeper',
     'viral jammer',
     'viraljammer',
+    'bridgelayer',
+    'bridge-layer',
+    'salvage-arm',
+    'salvagearm',
+    'environmental-seal',
+    'environmentalsealing',
+    'ejection-seat',
+    'ejection seat',
+    'dumper',
+    'fluid-suction',
+    'fluidsuction',
+    'mechsprayer',
+    'mech-sprayer',
   ];
   for (const n of nw) if (lo.includes(n)) return false;
   // Check IS resolution first, then try Clan resolution for Clan-exclusive weapons
@@ -3625,6 +3729,8 @@ function calculateUnitBV(
   let offensiveEquipBV = 0;
   // Mine Dispensers: BV=8 each, offensive equipment per MegaMek
   offensiveEquipBV += cs.mineDispenserCount * 8;
+  // Misc equipment with offensive BV (Bridge Layers, etc.)
+  offensiveEquipBV += cs.miscEquipBV;
   // Note: Watchdog CEWS is NOT counted as offensive equipment in MegaMek
   // (the bv=7 code is unreachable due to F_BAP skip in processOffensiveEquipment)
   // AES weight bonus: arm AES (+0.1 each), leg AES (+0.2 biped, +0.4 quad)
