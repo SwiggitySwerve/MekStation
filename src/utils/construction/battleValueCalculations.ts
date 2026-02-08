@@ -133,9 +133,8 @@ function getEngineSideTorsoSlots(engineType?: EngineType): number {
  * - CASE II → no penalty (location fully protected)
  * - Arms (non-quad): no penalty if arm has CASE, or if transfer torso has no penalty
  * - Side torsos: no penalty if CASE present AND engine has <3 side torso crit slots
- * - CT: no penalty if CASE present (explosion vented instead of mech destruction)
- * - Legs: transfer to adjacent side torso (LL→LT, RL→RT) — no penalty if torso is protected
- * - HD: always has penalty (no CASE protection for head)
+ * - CT, HD, Legs: ALWAYS have penalty — CASE does NOT protect these locations
+ *   (only CASE II eliminates penalties in CT, HD, and legs)
  *
  * @see MekBVCalculator.java lines 517-528
  */
