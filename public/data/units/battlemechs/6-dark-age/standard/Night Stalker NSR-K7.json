@@ -21,7 +21,7 @@
     "type": "ENDO_STEEL"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "IMPACT_RESISTANT",
     "allocation": {
       "LEFT_ARM": 12,
       "RIGHT_ARM": 12,
@@ -164,7 +164,9 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": ["distracting"],
+  "quirks": [
+    "distracting"
+  ],
   "mulId": 6720,
   "role": "Scout",
   "source": "TR:3145:RotS"

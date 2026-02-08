@@ -21,7 +21,7 @@
     "type": "STANDARD"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "IMPACT_RESISTANT",
     "allocation": {
       "LEFT_ARM": 6,
       "RIGHT_ARM": 6,

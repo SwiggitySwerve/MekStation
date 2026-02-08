@@ -21,7 +21,7 @@
     "type": "ENDO_COMPOSITE"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "IMPACT_RESISTANT",
     "allocation": {
       "LEFT_ARM": 34,
       "RIGHT_ARM": 34,
@@ -172,7 +172,9 @@
       "Jump Jet"
     ]
   },
-  "quirks": ["distracting"],
+  "quirks": [
+    "distracting"
+  ],
   "mulId": 6831,
   "role": "Juggernaut",
   "source": "RS:3145-NTNU"

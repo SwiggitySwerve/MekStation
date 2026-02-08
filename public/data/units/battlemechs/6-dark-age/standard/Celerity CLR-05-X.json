@@ -21,7 +21,7 @@
     "type": "COMPOSITE"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "IMPACT_RESISTANT",
     "allocation": {
       "FLL": 2,
       "FRL": 2,
