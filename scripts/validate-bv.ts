@@ -551,7 +551,9 @@ const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   'narc-i-os': { bv: 30, heat: 0 },
   // Prototype Rocket Launchers (not in catalog, remain as fallbacks)
   'prototype-rocket-launcher-20': { bv: 19, heat: 5 },
+  rocketlauncher20prototype: { bv: 19, heat: 5 },
   'rocket-launcher-10-pp': { bv: 15, heat: 3 },
+  clrocketlauncher10prototype: { bv: 15, heat: 3 },
   clrocketlauncher15prototype: { bv: 18, heat: 4 },
   'ac-10p': { bv: 123, heat: 3 },
   'c3-boosted-system-master': { bv: 0, heat: 0 },
@@ -1541,6 +1543,103 @@ function scanCrits(unit: UnitData): CritScan {
         // Coolant Pod — explosive per MegaMek AmmoType COOLANT_POD
         // Reduced penalty: 1 BV per slot per MekBVCalculator lines 241-243
         if (lo.includes('coolant pod') && !lo.includes('emergency')) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // TSEMP weapons — explosive per MegaMek TSEMPWeapon.java (explosive = true)
+        // Reduced penalty: 1 BV per slot per MekBVCalculator (instanceof TSEMPWeapon)
+        if (lo.includes('tsemp') && !lo.includes('ammo')) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // B-Pod — explosive per MegaMek WeaponType.F_B_POD
+        // Reduced penalty: 1 BV per slot per MekBVCalculator lines 227-228
+        // Note: B-Pod is ALSO defensive equipment (pushed to defEquipIds below),
+        // explosive penalty is a separate deduction from defensive BV.
+        if (
+          (lo.includes('b-pod') || lo === 'isbpod' || lo === 'clbpod') &&
+          !lo.includes('ammo')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // M-Pod — explosive per MegaMek WeaponType.F_M_POD
+        // Reduced penalty: 1 BV per slot per MekBVCalculator lines 229-230
+        if (
+          (lo.includes('m-pod') || lo === 'ismpod' || lo === 'clmpod') &&
+          !lo.includes('ammo')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // HVAC (Hyper-Velocity Autocannon) — explosive per MegaMek HVACWeapon.java
+        // Special handling: 1 BV total regardless of actual slot count
+        if (
+          (lo.includes('hvac') ||
+            lo.includes('hyper velocity') ||
+            lo.includes('hypervelocity')) &&
+          !lo.includes('ammo')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'hvac',
+            });
+        }
+
+        // Emergency Coolant System — explosive per MegaMek MiscType.F_EMERGENCY_COOLANT_SYSTEM
+        // Reduced penalty: 1 BV per slot per MekBVCalculator
+        if (
+          lo.includes('emergency coolant') ||
+          lo.includes('emergencycoolant')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // RISC Hyper Laser — explosive per MegaMek ISRISCHyperLaser.java (explosive = true)
+        // Reduced penalty: 1 BV per slot per MekBVCalculator (instanceof ISRISCHyperLaser)
+        if (
+          lo.includes('risc') &&
+          lo.includes('hyper') &&
+          lo.includes('laser')
+        ) {
+          if (ml)
+            r.explosive.push({
+              location: ml,
+              slots: 1,
+              penaltyCategory: 'reduced',
+            });
+        }
+
+        // RISC Laser Pulse Module — explosive per MegaMek MiscType.F_RISC_LASER_PULSE_MODULE
+        // Reduced penalty: 1 BV per slot per MekBVCalculator
+        if (lo.includes('risc') && lo.includes('laser pulse module')) {
           if (ml)
             r.explosive.push({
               location: ml,
