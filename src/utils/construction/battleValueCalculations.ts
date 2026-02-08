@@ -551,6 +551,27 @@ const AMMO_WEAPON_TYPE_ALIASES: Record<string, string[]> = {
   ],
   'long-tom': ['long-tom-cannon'],
   'long-tom-cannon': ['long-tom'],
+  // Mortar aliases: equipment JSONs use 'mortar-X', crit slots use 'mech-mortar-X'.
+  // normalizeEquipmentId strips trailing '-N' from 'mortar-N' → 'mortar', so we
+  // also need a broad 'mortar' alias to bridge the gap when weapons use 'mech-mortar-N'.
+  'mech-mortar-1': ['mortar-1', 'mortar'],
+  'mech-mortar-2': ['mortar-2', 'mortar'],
+  'mech-mortar-4': ['mortar-4', 'mortar'],
+  'mech-mortar-8': ['mortar-8', 'mortar'],
+  'mortar-1': ['mech-mortar-1', 'mortar'],
+  'mortar-2': ['mech-mortar-2', 'mortar'],
+  'mortar-4': ['mech-mortar-4', 'mortar'],
+  'mortar-8': ['mech-mortar-8', 'mortar'],
+  mortar: [
+    'mech-mortar-1',
+    'mech-mortar-2',
+    'mech-mortar-4',
+    'mech-mortar-8',
+    'mortar-1',
+    'mortar-2',
+    'mortar-4',
+    'mortar-8',
+  ],
   sniper: ['sniper-cannon', 'issniperartcannon'],
   'sniper-cannon': ['sniper'],
   thumper: ['thumper-cannon'],
