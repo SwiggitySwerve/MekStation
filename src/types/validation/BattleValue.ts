@@ -134,11 +134,11 @@ export const GYRO_BV_MULTIPLIERS: Record<string, number> = {
  */
 export const ENGINE_BV_MULTIPLIERS: Record<EngineType, number> = {
   [EngineType.STANDARD]: 1.0,
-  [EngineType.XL_IS]: 0.5,     // 3 side torso crits
-  [EngineType.XL_CLAN]: 0.75,  // 2 side torso crits
-  [EngineType.LIGHT]: 0.75,    // 2 side torso crits
-  [EngineType.XXL]: 0.25,      // 6 side torso crits (IS XXL)
-  [EngineType.COMPACT]: 1.0,   // 0 side torso crits
+  [EngineType.XL_IS]: 0.5, // 3 side torso crits
+  [EngineType.XL_CLAN]: 0.75, // 2 side torso crits
+  [EngineType.LIGHT]: 0.75, // 2 side torso crits
+  [EngineType.XXL]: 0.25, // 6 side torso crits (IS XXL)
+  [EngineType.COMPACT]: 1.0, // 0 side torso crits
   [EngineType.ICE]: 1.0,
   [EngineType.FUEL_CELL]: 1.0,
   [EngineType.FISSION]: 1.0,

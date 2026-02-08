@@ -688,7 +688,21 @@ export class EquipmentLoaderService {
       // Load weapon files (data-driven from index.json)
       const weaponFiles = indexData?.files?.weapons
         ? Object.values(indexData.files.weapons)
-        : ['weapons/energy-laser.json', 'weapons/energy-ppc.json', 'weapons/energy-other.json', 'weapons/ballistic-autocannon.json', 'weapons/ballistic-gauss.json', 'weapons/ballistic-machinegun.json', 'weapons/ballistic-other.json', 'weapons/missile-atm.json', 'weapons/missile-lrm.json', 'weapons/missile-mrm.json', 'weapons/missile-other.json', 'weapons/missile-srm.json', 'weapons/physical.json'];
+        : [
+            'weapons/energy-laser.json',
+            'weapons/energy-ppc.json',
+            'weapons/energy-other.json',
+            'weapons/ballistic-autocannon.json',
+            'weapons/ballistic-gauss.json',
+            'weapons/ballistic-machinegun.json',
+            'weapons/ballistic-other.json',
+            'weapons/missile-atm.json',
+            'weapons/missile-lrm.json',
+            'weapons/missile-mrm.json',
+            'weapons/missile-other.json',
+            'weapons/missile-srm.json',
+            'weapons/physical.json',
+          ];
       for (const weaponFile of weaponFiles) {
         const weaponData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
           weaponFile,
@@ -707,9 +721,21 @@ export class EquipmentLoaderService {
 
       // Load ammunition files (data-driven from index.json)
       const ammoEntry = indexData?.files?.ammunition;
-      const ammoFiles = ammoEntry && typeof ammoEntry === 'object'
-        ? Object.values(ammoEntry) as string[]
-        : ['ammunition/artillery.json', 'ammunition/atm.json', 'ammunition/autocannon.json', 'ammunition/gauss.json', 'ammunition/lrm.json', 'ammunition/machinegun.json', 'ammunition/mrm.json', 'ammunition/narc.json', 'ammunition/other.json', 'ammunition/srm.json'];
+      const ammoFiles =
+        ammoEntry && typeof ammoEntry === 'object'
+          ? (Object.values(ammoEntry) as string[])
+          : [
+              'ammunition/artillery.json',
+              'ammunition/atm.json',
+              'ammunition/autocannon.json',
+              'ammunition/gauss.json',
+              'ammunition/lrm.json',
+              'ammunition/machinegun.json',
+              'ammunition/mrm.json',
+              'ammunition/narc.json',
+              'ammunition/other.json',
+              'ammunition/srm.json',
+            ];
       for (const ammoFile of ammoFiles) {
         const ammoData = await readJsonFile<IEquipmentFile<IRawAmmunitionData>>(
           ammoFile,
@@ -728,9 +754,15 @@ export class EquipmentLoaderService {
 
       // Load electronics files (data-driven from index.json)
       const elecEntry = indexData?.files?.electronics;
-      const elecFiles = elecEntry && typeof elecEntry === 'object' && !Array.isArray(elecEntry)
-        ? Object.values(elecEntry) as string[]
-        : ['electronics/ecm.json', 'electronics/active-probe.json', 'electronics/c3.json', 'electronics/other.json'];
+      const elecFiles =
+        elecEntry && typeof elecEntry === 'object' && !Array.isArray(elecEntry)
+          ? (Object.values(elecEntry) as string[])
+          : [
+              'electronics/ecm.json',
+              'electronics/active-probe.json',
+              'electronics/c3.json',
+              'electronics/other.json',
+            ];
       for (const elecFile of elecFiles) {
         const electronicsData = await readJsonFile<
           IEquipmentFile<IRawElectronicsData>
@@ -748,9 +780,17 @@ export class EquipmentLoaderService {
 
       // Load misc equipment files (data-driven from index.json)
       const miscEntry = indexData?.files?.miscellaneous;
-      const miscFiles = miscEntry && typeof miscEntry === 'object' && !Array.isArray(miscEntry)
-        ? Object.values(miscEntry) as string[]
-        : ['miscellaneous/heat-sinks.json', 'miscellaneous/jump-jets.json', 'miscellaneous/movement.json', 'miscellaneous/myomer.json', 'miscellaneous/defensive.json', 'miscellaneous/other.json'];
+      const miscFiles =
+        miscEntry && typeof miscEntry === 'object' && !Array.isArray(miscEntry)
+          ? (Object.values(miscEntry) as string[])
+          : [
+              'miscellaneous/heat-sinks.json',
+              'miscellaneous/jump-jets.json',
+              'miscellaneous/movement.json',
+              'miscellaneous/myomer.json',
+              'miscellaneous/defensive.json',
+              'miscellaneous/other.json',
+            ];
       for (const miscFile of miscFiles) {
         const miscData = await readJsonFile<
           IEquipmentFile<IRawMiscEquipmentData>
@@ -762,7 +802,9 @@ export class EquipmentLoaderService {
             itemsLoaded++;
           });
         } else {
-          warnings.push(`Failed to load miscellaneous equipment from ${miscFile}`);
+          warnings.push(
+            `Failed to load miscellaneous equipment from ${miscFile}`,
+          );
         }
       }
 

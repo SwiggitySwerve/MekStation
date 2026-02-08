@@ -276,9 +276,15 @@ async function loadEquipmentFromFilesystem(
 
   // Load ammunition (split files)
   const ammoFiles = [
-    'ammunition/artillery.json', 'ammunition/atm.json', 'ammunition/autocannon.json',
-    'ammunition/gauss.json', 'ammunition/lrm.json', 'ammunition/machinegun.json',
-    'ammunition/mrm.json', 'ammunition/narc.json', 'ammunition/other.json',
+    'ammunition/artillery.json',
+    'ammunition/atm.json',
+    'ammunition/autocannon.json',
+    'ammunition/gauss.json',
+    'ammunition/lrm.json',
+    'ammunition/machinegun.json',
+    'ammunition/mrm.json',
+    'ammunition/narc.json',
+    'ammunition/other.json',
     'ammunition/srm.json',
   ];
   for (const ammoFile of ammoFiles) {
@@ -312,8 +318,10 @@ async function loadEquipmentFromFilesystem(
 
   // Load electronics (split files)
   const electronicsFiles = [
-    'electronics/ecm.json', 'electronics/active-probe.json',
-    'electronics/c3.json', 'electronics/other.json',
+    'electronics/ecm.json',
+    'electronics/active-probe.json',
+    'electronics/c3.json',
+    'electronics/other.json',
   ];
   for (const elecFile of electronicsFiles) {
     const electronicsPath = path.join(EQUIPMENT_PATH, elecFile);
@@ -342,9 +350,12 @@ async function loadEquipmentFromFilesystem(
 
   // Load misc equipment (split files)
   const miscFiles = [
-    'miscellaneous/heat-sinks.json', 'miscellaneous/jump-jets.json',
-    'miscellaneous/movement.json', 'miscellaneous/myomer.json',
-    'miscellaneous/defensive.json', 'miscellaneous/other.json',
+    'miscellaneous/heat-sinks.json',
+    'miscellaneous/jump-jets.json',
+    'miscellaneous/movement.json',
+    'miscellaneous/myomer.json',
+    'miscellaneous/defensive.json',
+    'miscellaneous/other.json',
   ];
   for (const miscFile of miscFiles) {
     const miscPath = path.join(EQUIPMENT_PATH, miscFile);

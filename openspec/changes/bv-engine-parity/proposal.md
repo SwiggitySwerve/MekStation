@@ -40,48 +40,48 @@ This change rewrote the BV calculation engine to achieve MegaMek BV 2.0 parity. 
 
 ### Phase Implementation Status
 
-| # | Phase | Status | Impact |
-|---|-------|--------|--------|
-| 1 | Engine BV multiplier on structure | DONE | High — IS XL=0.5, Clan XL=0.75, etc. |
-| 2 | Defensive equipment BV | DONE | Medium — AMS, ECM, BAP, shields, APDS |
-| 3 | Explosive penalty with CASE/CASE II | DONE | Medium — per-location with protection rules |
-| 4 | Stealth/Chameleon TMM bonuses | DONE | Low — +2 TMM each, stacks |
-| 5 | Weapon sort order | DONE | High — heatless first → BV desc → heat asc |
-| 6 | Weapon BV modifiers | DONE | High — Artemis IV/V, TC, AES, Drone OS |
-| 7 | Heat adjustments (Ultra/Rotary/Streak) | DONE | Medium — ×2/×6/×0.5 heat for BV tracking |
-| 8 | Ammo BV with excessive ammo rule | DONE | High — cap by weapon type |
-| 9 | Offensive equipment BV | DONE | Low — melee weapons, mine dispensers |
-| 10 | Weight modifiers (TSM/AES) | DONE | Low — ×1.5/×1.15 tonnage bonus |
-| 11 | Offensive type modifier | DONE | Low — Industrial ×0.9 |
-| 12 | Cockpit modifier | DONE | Medium — Small/Torso/Interface/Drone OS |
-| 13 | Heat efficiency formula | DONE | Highest — `6 + heatDissipation - moveHeat` |
-| 14 | Gyro BV contribution | DONE | Low — Heavy-Duty ×1.0, others ×0.5 |
-| 15 | Single final rounding | DONE | Low — `Math.round()` once at end |
+| #   | Phase                                  | Status | Impact                                      |
+| --- | -------------------------------------- | ------ | ------------------------------------------- |
+| 1   | Engine BV multiplier on structure      | DONE   | High — IS XL=0.5, Clan XL=0.75, etc.        |
+| 2   | Defensive equipment BV                 | DONE   | Medium — AMS, ECM, BAP, shields, APDS       |
+| 3   | Explosive penalty with CASE/CASE II    | DONE   | Medium — per-location with protection rules |
+| 4   | Stealth/Chameleon TMM bonuses          | DONE   | Low — +2 TMM each, stacks                   |
+| 5   | Weapon sort order                      | DONE   | High — heatless first → BV desc → heat asc  |
+| 6   | Weapon BV modifiers                    | DONE   | High — Artemis IV/V, TC, AES, Drone OS      |
+| 7   | Heat adjustments (Ultra/Rotary/Streak) | DONE   | Medium — ×2/×6/×0.5 heat for BV tracking    |
+| 8   | Ammo BV with excessive ammo rule       | DONE   | High — cap by weapon type                   |
+| 9   | Offensive equipment BV                 | DONE   | Low — melee weapons, mine dispensers        |
+| 10  | Weight modifiers (TSM/AES)             | DONE   | Low — ×1.5/×1.15 tonnage bonus              |
+| 11  | Offensive type modifier                | DONE   | Low — Industrial ×0.9                       |
+| 12  | Cockpit modifier                       | DONE   | Medium — Small/Torso/Interface/Drone OS     |
+| 13  | Heat efficiency formula                | DONE   | Highest — `6 + heatDissipation - moveHeat`  |
+| 14  | Gyro BV contribution                   | DONE   | Low — Heavy-Duty ×1.0, others ×0.5          |
+| 15  | Single final rounding                  | DONE   | Low — `Math.round()` once at end            |
 
 ### Additional Phases Discovered During Implementation
 
-| # | Phase | Status | Impact |
-|---|-------|--------|--------|
-| 16 | Drone Operating System weapon modifier | DONE | ×0.8 on ALL weapon BVs |
-| 17 | Cockpit/gyro type parsing from MTF source | DONE | 753 units corrected |
-| 18 | CritScan equipment detection from crit slots | DONE | Critical for units with missing equipment arrays |
-| 19 | Clan weapon BV resolution | DONE | #1 source of undercalculation at Wave 2 |
-| 20 | Quad mech structure calculation | DONE | leg×4 not arm×2+leg×2 |
-| 21 | Shield arm weapon penalty (active only) | DONE | Small shields are passive |
-| 22 | AMS multi-instance counting | DONE | Count each 1-crit AMS instance |
-| 23 | Enhanced ER PPC distinct resolution | DONE | BV=329, not ER PPC BV=229 |
-| 24 | Speed factor 2dp rounding | DONE | Keeps parity, removing it loses 4 net units |
+| #   | Phase                                        | Status | Impact                                           |
+| --- | -------------------------------------------- | ------ | ------------------------------------------------ |
+| 16  | Drone Operating System weapon modifier       | DONE   | ×0.8 on ALL weapon BVs                           |
+| 17  | Cockpit/gyro type parsing from MTF source    | DONE   | 753 units corrected                              |
+| 18  | CritScan equipment detection from crit slots | DONE   | Critical for units with missing equipment arrays |
+| 19  | Clan weapon BV resolution                    | DONE   | #1 source of undercalculation at Wave 2          |
+| 20  | Quad mech structure calculation              | DONE   | leg×4 not arm×2+leg×2                            |
+| 21  | Shield arm weapon penalty (active only)      | DONE   | Small shields are passive                        |
+| 22  | AMS multi-instance counting                  | DONE   | Count each 1-crit AMS instance                   |
+| 23  | Enhanced ER PPC distinct resolution          | DONE   | BV=329, not ER PPC BV=229                        |
+| 24  | Speed factor 2dp rounding                    | DONE   | Keeps parity, removing it loses 4 net units      |
 
 ### Not Yet Implemented (Low Impact)
 
-| Phase | Status | Expected Impact |
-|-------|--------|----------------|
-| One-shot weapon heat ÷ 4 | NOT DONE | Very low — few one-shot weapons |
-| PPC + Capacitor heat + 5 | NOT DONE | Low — 9 outlier units affected |
-| Emergency Coolant System +4 heat | NOT DONE | Very low — rare equipment |
-| Super Cooled Myomer moveHeat=0 | NOT DONE | Very low — rare equipment |
-| Laser Insulator heat - 1 | NOT DONE | Very low — rare equipment |
-| Thunderbolt catalog heat fix | NOT DONE | Low — heat=0 in catalog should be 3/5/7/8 |
+| Phase                            | Status   | Expected Impact                           |
+| -------------------------------- | -------- | ----------------------------------------- |
+| One-shot weapon heat ÷ 4         | NOT DONE | Very low — few one-shot weapons           |
+| PPC + Capacitor heat + 5         | NOT DONE | Low — 9 outlier units affected            |
+| Emergency Coolant System +4 heat | NOT DONE | Very low — rare equipment                 |
+| Super Cooled Myomer moveHeat=0   | NOT DONE | Very low — rare equipment                 |
+| Laser Insulator heat - 1         | NOT DONE | Very low — rare equipment                 |
+| Thunderbolt catalog heat fix     | NOT DONE | Low — heat=0 in catalog should be 3/5/7/8 |
 
 ---
 
@@ -95,15 +95,15 @@ This section documents every specific edge case encountered during the BV integr
 
 **Solution**: MTF converter now parses cockpit type from source files. Cockpit modifiers are applied as an else-if chain (matching MegaMek):
 
-| Cockpit Type | Modifier | Notes |
-|---|---|---|
-| Standard | 1.0 | |
-| Command Console | 1.0 | |
-| Small | 0.95 | |
-| Torso-Mounted | 1.0 | MegaMek applies 0.95 but MUL ref values use 1.0 |
-| Small Command Console | 0.95 | |
-| Interface | 1.3 | |
-| Drone Operating System | 0.95 | Does NOT stack with other cockpit modifiers |
+| Cockpit Type           | Modifier | Notes                                           |
+| ---------------------- | -------- | ----------------------------------------------- |
+| Standard               | 1.0      |                                                 |
+| Command Console        | 1.0      |                                                 |
+| Small                  | 0.95     |                                                 |
+| Torso-Mounted          | 1.0      | MegaMek applies 0.95 but MUL ref values use 1.0 |
+| Small Command Console  | 0.95     |                                                 |
+| Interface              | 1.3      |                                                 |
+| Drone Operating System | 0.95     | Does NOT stack with other cockpit modifiers     |
 
 **Critical detail**: The cockpit modifier is an else-if chain in MegaMek, not a lookup table. Drone OS 0.95 only applies if no other cockpit modifier is active. Torso-Mounted cockpit is treated as 1.0 for MUL reference parity despite MegaMek code using 0.95.
 
@@ -112,6 +112,7 @@ This section documents every specific edge case encountered during the BV integr
 **Problem**: Drone OS was only applying the 0.95 cockpit modifier, missing the 0.8× weapon BV modifier.
 
 **Solution**: Drone OS applies TWO separate effects:
+
 1. **Cockpit modifier**: 0.95× on final BV (applied in cockpit modifier phase)
 2. **Weapon BV modifier**: 0.8× on ALL weapon BVs (applied in weapon processing phase, before heat tracking)
 
@@ -123,12 +124,12 @@ These are multiplicative and both must be applied. Source: MegaMek `BVCalculator
 
 **Solution**: MTF converter now parses gyro type from source files.
 
-| Gyro Type | BV Multiplier (× tonnage) |
-|---|---|
-| Standard | 0.5 |
-| XL Gyro | 0.5 |
-| Compact Gyro | 0.5 |
-| Heavy-Duty Gyro | 1.0 |
+| Gyro Type       | BV Multiplier (× tonnage) |
+| --------------- | ------------------------- |
+| Standard        | 0.5                       |
+| XL Gyro         | 0.5                       |
+| Compact Gyro    | 0.5                       |
+| Heavy-Duty Gyro | 1.0                       |
 
 ### EC-4: Engine BV Multipliers (Corrected Values)
 
@@ -136,18 +137,18 @@ These are multiplicative and both must be applied. Source: MegaMek `BVCalculator
 
 **Corrected values** (verified against MegaMek `Engine.getBVMultiplier()`):
 
-| Engine Type | Multiplier |
-|---|---|
-| Standard Fusion | 1.0 |
-| Compact | 1.0 |
-| ICE | 1.0 |
-| Fuel Cell | 1.0 |
-| Fission | 1.0 |
-| IS XL | 0.5 |
-| Clan XL | 0.75 |
-| Light | 0.75 |
-| IS XXL | 0.25 |
-| Clan XXL | 0.5 |
+| Engine Type     | Multiplier |
+| --------------- | ---------- |
+| Standard Fusion | 1.0        |
+| Compact         | 1.0        |
+| ICE             | 1.0        |
+| Fuel Cell       | 1.0        |
+| Fission         | 1.0        |
+| IS XL           | 0.5        |
+| Clan XL         | 0.75       |
+| Light           | 0.75       |
+| IS XXL          | 0.25       |
+| Clan XXL        | 0.5        |
 
 ### EC-5: Quad Mech Structure Calculation
 
@@ -160,6 +161,7 @@ These are multiplicative and both must be applied. Source: MegaMek `BVCalculator
 **Problem**: Clan weapons were the #1 source of undercalculation gaps at Wave 2. Clan weapon IDs (e.g., `clan-er-medium-laser`) differ from IS IDs and require separate catalog entries.
 
 **Solution**: Equipment ID normalization must handle:
+
 - `cl` prefix → `clan-` prefix (e.g., `clerppc` → `clan-er-ppc`)
 - Clan-specific weapon entries in catalog (Clan ER lasers have different BV than IS ER lasers)
 - Mixed-tech units where Clan weapons appear on IS chassis
@@ -169,6 +171,7 @@ These are multiplicative and both must be applied. Source: MegaMek `BVCalculator
 **Problem**: MegaMek uses multiple naming conventions for the same equipment. Unit JSON equipment arrays use numeric-prefixed IDs (e.g., `1-ismediumlaser`), crit slot names use MegaMek internal names (e.g., `ISMediumLaser`, `CLAntiPersonnelPod`), and catalog uses kebab-case (e.g., `medium-laser`).
 
 **Solution**: Multi-stage normalization pipeline:
+
 1. Direct catalog lookup
 2. Strip numeric prefix/suffix (`1-ismediumlaser` → `ismediumlaser`)
 3. DIRECT_ALIAS_MAP (hardcoded common aliases)
@@ -200,6 +203,7 @@ These are multiplicative and both must be applied. Source: MegaMek `BVCalculator
 **Problem**: APDS BV was 45 in catalog (should be 64). APDS ammo was not being detected.
 
 **Solution**:
+
 - APDS BV = 64 (defensive equipment)
 - APDS ammo BV = 22 (defensive, capped like AMS ammo)
 - Name mappings: `ISAPDS` → `risc-apds`, `ISAPDS Ammo` → `risc-apds-ammo`
@@ -257,6 +261,7 @@ These are multiplicative and both must be applied. Source: MegaMek `BVCalculator
 **Problem**: The exact order of BV modifier application matters for precision.
 
 **Solution** (matches MegaMek `BVCalculator.processWeapon()`):
+
 1. Base BV from catalog
 2. MG Array modifier (×0.67 for linked MGs)
 3. AES arm modifier (×1.25)
@@ -274,6 +279,7 @@ These are multiplicative and both must be applied. Source: MegaMek `BVCalculator
 **Problem**: Heat efficiency base formula was correct (`6 + heatDissipation - moveHeat`) but equipment-specific penalties were missing.
 
 **Solution**: Additional heat efficiency modifiers:
+
 - Stealth Armor: -10
 - Chameleon LPS: -6
 - Null Signature System: -10
@@ -286,6 +292,7 @@ These are multiplicative and both must be applied. Source: MegaMek `BVCalculator
 **Problem**: Move heat was assumed to be a flat 2 for all units.
 
 **Solution**: Move heat varies by engine and movement type:
+
 - Fusion/Light/XL/Clan XL running: 2
 - ICE/Fuel Cell running: 0
 - XXL running: 6
@@ -299,15 +306,15 @@ These are multiplicative and both must be applied. Source: MegaMek `BVCalculator
 
 **Solution** (all implemented in `applyBVHeatOverride()`):
 
-| Weapon Type | Heat Modifier | Implemented |
-|---|---|---|
-| Streak SRM/LRM | ×0.5 | Yes |
-| iATM | ×0.5 | Yes |
-| Ultra AC | ×2 | Yes |
-| Rotary AC | ×6 | Yes |
-| One-shot | ÷4 | No |
-| PPC + Capacitor | +5 | No |
-| Laser Insulator | -1 (min 1) | No |
+| Weapon Type     | Heat Modifier | Implemented |
+| --------------- | ------------- | ----------- |
+| Streak SRM/LRM  | ×0.5          | Yes         |
+| iATM            | ×0.5          | Yes         |
+| Ultra AC        | ×2            | Yes         |
+| Rotary AC       | ×6            | Yes         |
+| One-shot        | ÷4            | No          |
+| PPC + Capacitor | +5            | No          |
+| Laser Insulator | -1 (min 1)    | No          |
 
 ### EC-23: Heat Tracking Threshold Behavior
 
@@ -327,28 +334,29 @@ These are multiplicative and both must be applied. Source: MegaMek `BVCalculator
 
 **Solution**:
 
-| Armor Type | Multiplier |
-|---|---|
-| Standard, Ferro-Fibrous (IS/Clan), Light FF, Heavy FF, Stealth | 1.0 |
-| Anti-Penetrative Ablation, Heat-Dissipating | 1.0 |
-| Hardened | 2.0 |
-| Reactive, Reflective (Laser-Reflective), Ballistic-Reinforced | 1.5 |
-| Ferro-Lamellor | 1.2 |
+| Armor Type                                                     | Multiplier |
+| -------------------------------------------------------------- | ---------- |
+| Standard, Ferro-Fibrous (IS/Clan), Light FF, Heavy FF, Stealth | 1.0        |
+| Anti-Penetrative Ablation, Heat-Dissipating                    | 1.0        |
+| Hardened                                                       | 2.0        |
+| Reactive, Reflective (Laser-Reflective), Ballistic-Reinforced  | 1.5        |
+| Ferro-Lamellor                                                 | 1.2        |
 
 ### EC-26: Structure Type Multipliers
 
-| Structure Type | Multiplier |
-|---|---|
-| Standard, Endo Steel (IS/Clan), Endo-Composite | 1.0 |
-| Composite | 0.5 |
-| Reinforced | 2.0 |
-| Industrial | 0.5 |
+| Structure Type                                 | Multiplier |
+| ---------------------------------------------- | ---------- |
+| Standard, Endo Steel (IS/Clan), Endo-Composite | 1.0        |
+| Composite                                      | 0.5        |
+| Reinforced                                     | 2.0        |
+| Industrial                                     | 0.5        |
 
 ### EC-27: Explosive Penalty Details
 
 **Problem**: The penalty-per-slot varies by equipment type and protection level.
 
 **Solution**:
+
 - Standard explosive ammo: 15 BV per slot
 - Gauss weapon crits: 1 BV per slot (weapon itself, not ammo — Gauss ammo is non-explosive)
 - HVAC crits: 1 BV total (regardless of slots)
@@ -370,6 +378,7 @@ NARC Missile Beacon (IS BV=30, iNARC BV=75) IS counted as a normal offensive wea
 **Problem**: Many units have equipment in crit slots that is NOT listed in the equipment array. CritScan was created to detect equipment directly from critical hit slot data.
 
 **Solution**: CritScan parses crit slots to detect:
+
 - Weapons (mapped via name-mappings and DIRECT_ALIAS_MAP)
 - Defensive equipment (AMS, ECM, BAP, shields, A-Pod, B-Pod, APDS)
 - Offensive equipment (mine dispensers, melee weapons)
@@ -397,6 +406,7 @@ NARC Missile Beacon (IS BV=30, iNARC BV=75) IS counted as a normal offensive wea
 **Problem**: LRT (Torpedo) and SRT weapons are underwater variants of LRM/SRM but have different IDs.
 
 **Solution**: DIRECT_ALIAS_MAP maps torpedo variants to their LRM/SRM equivalents:
+
 - `lrt-5/10/15/20` → `lrm-5/10/15/20`
 - `srt-2/4/6` → `srm-2/4/6`
 - `clan-lrt-*` → `clan-lrm-*`
@@ -417,6 +427,7 @@ NARC Missile Beacon (IS BV=30, iNARC BV=75) IS counted as a normal offensive wea
 ### EC-36: Thunderbolt Missile Heat Values
 
 **Problem**: Thunderbolt missiles in catalog have `heat=0` but should have non-zero heat:
+
 - Thunderbolt-5: heat=3
 - Thunderbolt-10: heat=5
 - Thunderbolt-15: heat=7
@@ -441,27 +452,27 @@ NARC Missile Beacon (IS BV=30, iNARC BV=75) IS counted as a normal offensive wea
 
 ### Exclusions (783 units)
 
-| Category | Count |
-|---|---|
-| No MUL match + suspect index BV | 612 |
-| No verified MUL reference BV | 118 |
-| LAM configuration | 23 |
-| Superheavy (>100 tons) | 10 |
-| Tripod configuration | 5 |
-| Missing armor allocation data | 5 |
-| Blue Shield Particle Field Damper | 4 |
-| QuadVee configuration | 3 |
-| MUL matched but BV unavailable | 3 |
+| Category                          | Count |
+| --------------------------------- | ----- |
+| No MUL match + suspect index BV   | 612   |
+| No verified MUL reference BV      | 118   |
+| LAM configuration                 | 23    |
+| Superheavy (>100 tons)            | 10    |
+| Tripod configuration              | 5     |
+| Missing armor allocation data     | 5     |
+| Blue Shield Particle Field Damper | 4     |
+| QuadVee configuration             | 3     |
+| MUL matched but BV unavailable    | 3     |
 
 ### Remaining Outliers (5 units over 10%)
 
-| Unit | Ref BV | Calc BV | Diff | Issue |
-|---|---|---|---|---|
-| Barghest BGS-3T | 1900 | 1665 | -12.4% | Under — needs investigation |
-| Centurion CN11-OD | 1177 | 1315 | +11.7% | Over — shield + hatchet interaction |
-| Osteon U | 2647 | 2363 | -10.7% | Under — Ferro-Lamellor + Reinforced + torpedoes |
-| Venom SDR-9KE | 803 | 721 | -10.2% | Under — mine dispensers + Bloodhound |
-| Goliath GOL-4S | 1912 | 1731 | -9.5% | Under — needs investigation |
+| Unit              | Ref BV | Calc BV | Diff   | Issue                                           |
+| ----------------- | ------ | ------- | ------ | ----------------------------------------------- |
+| Barghest BGS-3T   | 1900   | 1665    | -12.4% | Under — needs investigation                     |
+| Centurion CN11-OD | 1177   | 1315    | +11.7% | Over — shield + hatchet interaction             |
+| Osteon U          | 2647   | 2363    | -10.7% | Under — Ferro-Lamellor + Reinforced + torpedoes |
+| Venom SDR-9KE     | 803    | 721     | -10.2% | Under — mine dispensers + Bloodhound            |
+| Goliath GOL-4S    | 1912   | 1731    | -9.5%  | Under — needs investigation                     |
 
 ---
 
@@ -490,16 +501,16 @@ NARC Missile Beacon (IS BV=30, iNARC BV=75) IS counted as a normal offensive wea
 
 ### Key Files Modified
 
-| File | Purpose |
-|---|---|
-| `src/utils/construction/battleValueCalculations.ts` | All BV calculation phases |
-| `src/utils/construction/equipmentBVResolver.ts` | Equipment BV/heat resolution + normalization |
-| `src/types/validation/BattleValue.ts` | BV types, multiplier tables |
-| `scripts/validate-bv.ts` | Validation script (~1750 lines) |
-| `public/data/equipment/official/` | Equipment catalogs (split into 13 weapon files + ammo + misc) |
-| `public/data/equipment/name-mappings.json` | 1800+ MegaMek → catalog ID mappings |
-| `public/data/units/battlemechs/` | 753 unit files updated (cockpit/gyro types from MTF) |
-| `scripts/megameklab-conversion/mtf_converter.py` | MTF converter updated to parse cockpit/gyro |
+| File                                                | Purpose                                                       |
+| --------------------------------------------------- | ------------------------------------------------------------- |
+| `src/utils/construction/battleValueCalculations.ts` | All BV calculation phases                                     |
+| `src/utils/construction/equipmentBVResolver.ts`     | Equipment BV/heat resolution + normalization                  |
+| `src/types/validation/BattleValue.ts`               | BV types, multiplier tables                                   |
+| `scripts/validate-bv.ts`                            | Validation script (~1750 lines)                               |
+| `public/data/equipment/official/`                   | Equipment catalogs (split into 13 weapon files + ammo + misc) |
+| `public/data/equipment/name-mappings.json`          | 1800+ MegaMek → catalog ID mappings                           |
+| `public/data/units/battlemechs/`                    | 753 unit files updated (cockpit/gyro types from MTF)          |
+| `scripts/megameklab-conversion/mtf_converter.py`    | MTF converter updated to parse cockpit/gyro                   |
 
 ---
 

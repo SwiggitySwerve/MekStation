@@ -131,9 +131,18 @@ describe('Equipment Data Loading', () => {
   // ============================================================================
   describe('Weapon Data Validation', () => {
     const weaponFiles = [
-      'energy-laser.json', 'energy-ppc.json', 'energy-other.json',
-      'ballistic-autocannon.json', 'ballistic-gauss.json', 'ballistic-machinegun.json', 'ballistic-other.json',
-      'missile-atm.json', 'missile-lrm.json', 'missile-mrm.json', 'missile-other.json', 'missile-srm.json',
+      'energy-laser.json',
+      'energy-ppc.json',
+      'energy-other.json',
+      'ballistic-autocannon.json',
+      'ballistic-gauss.json',
+      'ballistic-machinegun.json',
+      'ballistic-other.json',
+      'missile-atm.json',
+      'missile-lrm.json',
+      'missile-mrm.json',
+      'missile-other.json',
+      'missile-srm.json',
       'physical.json',
     ];
 
@@ -210,9 +219,16 @@ describe('Equipment Data Loading', () => {
   // ============================================================================
   describe('Ammunition Data Validation', () => {
     const ammoFiles = [
-      'artillery.json', 'atm.json', 'autocannon.json', 'gauss.json',
-      'lrm.json', 'machinegun.json', 'mrm.json', 'narc.json',
-      'other.json', 'srm.json',
+      'artillery.json',
+      'atm.json',
+      'autocannon.json',
+      'gauss.json',
+      'lrm.json',
+      'machinegun.json',
+      'mrm.json',
+      'narc.json',
+      'other.json',
+      'srm.json',
     ];
 
     ammoFiles.forEach((file) => {
@@ -251,7 +267,9 @@ describe('Equipment Data Loading', () => {
         });
 
         it('each ammo ID should be unique', () => {
-          const ids = (ammunition as Record<string, unknown>[]).map((a) => a.id);
+          const ids = (ammunition as Record<string, unknown>[]).map(
+            (a) => a.id,
+          );
           const uniqueIds = new Set(ids);
           expect(uniqueIds.size).toBe(ids.length);
         });
@@ -263,7 +281,12 @@ describe('Equipment Data Loading', () => {
   // Electronics Data Validation
   // ============================================================================
   describe('Electronics Data Validation', () => {
-    const electronicsFiles = ['ecm.json', 'active-probe.json', 'c3.json', 'other.json'];
+    const electronicsFiles = [
+      'ecm.json',
+      'active-probe.json',
+      'c3.json',
+      'other.json',
+    ];
 
     electronicsFiles.forEach((file) => {
       describe(file, () => {

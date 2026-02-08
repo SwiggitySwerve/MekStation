@@ -171,7 +171,21 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
   }>(path.join(basePath, 'index.json'));
   const weaponFiles = indexData?.files?.weapons
     ? Object.values(indexData.files.weapons)
-    : ['weapons/energy-laser.json', 'weapons/energy-ppc.json', 'weapons/energy-other.json', 'weapons/ballistic-autocannon.json', 'weapons/ballistic-gauss.json', 'weapons/ballistic-machinegun.json', 'weapons/ballistic-other.json', 'weapons/missile-atm.json', 'weapons/missile-lrm.json', 'weapons/missile-mrm.json', 'weapons/missile-other.json', 'weapons/missile-srm.json', 'weapons/physical.json'];
+    : [
+        'weapons/energy-laser.json',
+        'weapons/energy-ppc.json',
+        'weapons/energy-other.json',
+        'weapons/ballistic-autocannon.json',
+        'weapons/ballistic-gauss.json',
+        'weapons/ballistic-machinegun.json',
+        'weapons/ballistic-other.json',
+        'weapons/missile-atm.json',
+        'weapons/missile-lrm.json',
+        'weapons/missile-mrm.json',
+        'weapons/missile-other.json',
+        'weapons/missile-srm.json',
+        'weapons/physical.json',
+      ];
   for (const file of weaponFiles) {
     const data = loadJsonFile<WeaponCatalogFile>(path.join(basePath, file));
     if (data?.items) {
@@ -183,11 +197,19 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
 
   // Load electronics (data-driven from index.json)
   const elecEntry = indexData?.files?.electronics;
-  const elecFiles = elecEntry && typeof elecEntry === 'object' && !Array.isArray(elecEntry)
-    ? Object.values(elecEntry) as string[]
-    : ['electronics/ecm.json', 'electronics/active-probe.json', 'electronics/c3.json', 'electronics/other.json'];
+  const elecFiles =
+    elecEntry && typeof elecEntry === 'object' && !Array.isArray(elecEntry)
+      ? (Object.values(elecEntry) as string[])
+      : [
+          'electronics/ecm.json',
+          'electronics/active-probe.json',
+          'electronics/c3.json',
+          'electronics/other.json',
+        ];
   for (const elecFile of elecFiles) {
-    const electronics = loadJsonFile<MiscCatalogFile>(path.join(basePath, elecFile));
+    const electronics = loadJsonFile<MiscCatalogFile>(
+      path.join(basePath, elecFile),
+    );
     if (electronics?.items) {
       for (const item of electronics.items) {
         if (!catalog.has(item.id)) {
@@ -205,9 +227,17 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
 
   // Load miscellaneous (data-driven from index.json)
   const miscEntry = indexData?.files?.miscellaneous;
-  const miscFiles = miscEntry && typeof miscEntry === 'object' && !Array.isArray(miscEntry)
-    ? Object.values(miscEntry) as string[]
-    : ['miscellaneous/heat-sinks.json', 'miscellaneous/jump-jets.json', 'miscellaneous/movement.json', 'miscellaneous/myomer.json', 'miscellaneous/defensive.json', 'miscellaneous/other.json'];
+  const miscFiles =
+    miscEntry && typeof miscEntry === 'object' && !Array.isArray(miscEntry)
+      ? (Object.values(miscEntry) as string[])
+      : [
+          'miscellaneous/heat-sinks.json',
+          'miscellaneous/jump-jets.json',
+          'miscellaneous/movement.json',
+          'miscellaneous/myomer.json',
+          'miscellaneous/defensive.json',
+          'miscellaneous/other.json',
+        ];
   for (const miscFile of miscFiles) {
     const misc = loadJsonFile<MiscCatalogFile>(path.join(basePath, miscFile));
     if (misc?.items) {
@@ -227,9 +257,23 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
 
   // Load ammunition (data-driven from index.json)
   const ammoFileEntries = indexData?.files?.ammunition;
-  const ammoFiles = ammoFileEntries && typeof ammoFileEntries === 'object' && !Array.isArray(ammoFileEntries)
-    ? Object.values(ammoFileEntries) as string[]
-    : ['ammunition/artillery.json', 'ammunition/atm.json', 'ammunition/autocannon.json', 'ammunition/gauss.json', 'ammunition/lrm.json', 'ammunition/machinegun.json', 'ammunition/mrm.json', 'ammunition/narc.json', 'ammunition/other.json', 'ammunition/srm.json'];
+  const ammoFiles =
+    ammoFileEntries &&
+    typeof ammoFileEntries === 'object' &&
+    !Array.isArray(ammoFileEntries)
+      ? (Object.values(ammoFileEntries) as string[])
+      : [
+          'ammunition/artillery.json',
+          'ammunition/atm.json',
+          'ammunition/autocannon.json',
+          'ammunition/gauss.json',
+          'ammunition/lrm.json',
+          'ammunition/machinegun.json',
+          'ammunition/mrm.json',
+          'ammunition/narc.json',
+          'ammunition/other.json',
+          'ammunition/srm.json',
+        ];
   for (const ammoFile of ammoFiles) {
     const ammo = loadJsonFile<AmmoCatalogFile>(path.join(basePath, ammoFile));
     if (ammo?.items) {
@@ -509,9 +553,9 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'small-x-pulse-laser': 'small-x-pulse-laser',
   'medium-x-pulse-laser': 'medium-x-pulse-laser',
   'large-x-pulse-laser': 'large-x-pulse-laser',
-  'issmallxpulselaser': 'small-x-pulse-laser',
-  'ismediumxpulselaser': 'medium-x-pulse-laser',
-  'islargexpulselaser': 'large-x-pulse-laser',
+  issmallxpulselaser: 'small-x-pulse-laser',
+  ismediumxpulselaser: 'medium-x-pulse-laser',
+  islargexpulselaser: 'large-x-pulse-laser',
 
   // ER pulse lasers (Clan-exclusive, in catalog as clan-er-*-pulse-laser)
   'er-small-pulse-laser': 'clan-er-small-pulse-laser',
@@ -541,9 +585,9 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'small-vsp': 'small-vsp-laser',
   'medium-vsp': 'medium-vsp-laser',
   'large-vsp': 'large-vsp-laser',
-  'issmallvsplaser': 'small-vsp-laser',
-  'ismediumvsplaser': 'medium-vsp-laser',
-  'islargevsplaser': 'large-vsp-laser',
+  issmallvsplaser: 'small-vsp-laser',
+  ismediumvsplaser: 'medium-vsp-laser',
+  islargevsplaser: 'large-vsp-laser',
 
   // RE-Engineered lasers (not in catalog — map to standard equivalents)
   'medium-re-engineered-laser': 'medium-laser',
@@ -638,7 +682,7 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   isangelecm: 'angel-ecm',
   clangelecmsuite: 'angel-ecm',
   angelecmsuite: 'angel-ecm',
-  novacews: 'watchdog-cews',         // Nova CEWS: defBV=68 (same as Watchdog CEWS per Sarna/MegaMek)
+  novacews: 'watchdog-cews', // Nova CEWS: defBV=68 (same as Watchdog CEWS per Sarna/MegaMek)
   watchdogecmsuite: 'watchdog-cews',
   clantimissilesystem: 'clan-ams',
   clactiveprobe: 'clan-active-probe',
@@ -648,8 +692,8 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   isc3mastercomputer: 'c3-master',
   isc3slaveunit: 'c3-slave',
   issniperartcannon: 'sniper-cannon',
-  sniper: 'sniper-cannon',                // Unit JSON uses "sniper" for Sniper Cannon (BV=85)
-  isarrowivsystem: 'arrow-iv-launcher',    // MegaMek ISArrowIVSystem (BV=240)
+  sniper: 'sniper-cannon', // Unit JSON uses "sniper" for Sniper Cannon (BV=85)
+  isarrowivsystem: 'arrow-iv-launcher', // MegaMek ISArrowIVSystem (BV=240)
   clarrowivsystem: 'clan-arrow-iv-launcher',
   isfluidgun: 'fluid-gun',
   ismediumpulselaserprototype: 'medium-pulse-laser',
@@ -670,7 +714,7 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   ppcp: 'ppc',
 
   // Rifle Cannon (experimental ballistic weapon)
-  'rifle-cannon': 'rifle-cannon-heavy',  // Phoenix PX-1KR uses Heavy Rifle Cannon
+  'rifle-cannon': 'rifle-cannon-heavy', // Phoenix PX-1KR uses Heavy Rifle Cannon
 
   // TSEMP (one-shot variant maps to base cannon; IOS penalty applied in validate-bv.ts)
   'tsemp-one-shot': 'tsemp-cannon',
@@ -703,9 +747,9 @@ const DIRECT_ALIAS_MAP: Record<string, string> = {
   'silver-bullet-gauss-rifle': 'sbgr',
 
   // Taser (unit JSON uses "taser", catalog uses "battlemech-taser")
-  'taser': 'battlemech-taser',
+  taser: 'battlemech-taser',
   'mech-taser': 'battlemech-taser',
-  'ismektaser': 'battlemech-taser',
+  ismektaser: 'battlemech-taser',
 
   // Vehicle flamer
   'flamer-vehicle': 'flamer',
