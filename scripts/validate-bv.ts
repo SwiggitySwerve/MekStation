@@ -2,7 +2,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { EngineType } from '../src/types/construction/EngineType';
+import {
+  EngineType,
+  getEngineDefinition,
+} from '../src/types/construction/EngineType';
 import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
 import { getArmorBVMultiplier } from '../src/types/validation/BattleValue';
 import {
@@ -155,8 +158,7 @@ interface ValidationReport {
 }
 
 // === ALLOWLIST ===
-const UNSUPPORTED_CONFIGURATIONS = new Set(['LAM', 'Tripod', 'QuadVee']);
-const SUPERHEAVY_TONNAGE_THRESHOLD = 100;
+const UNSUPPORTED_CONFIGURATIONS = new Set(['LAM']);
 
 // === CLAN CHASSIS MIXED TECH UNITS ===
 // MIXED tech units where the chassis is Clan-built, granting implicit CASE in all torso/arm
@@ -223,37 +225,9 @@ function getExclusionReason(
 ): string | null {
   if (UNSUPPORTED_CONFIGURATIONS.has(unit.configuration))
     return `Unsupported configuration: ${unit.configuration}`;
-  // QuadVee cockpit implies QuadVee configuration even if configuration field is wrong
-  if (
-    typeof unit.cockpit === 'string' &&
-    unit.cockpit.toUpperCase() === 'QUADVEE'
-  )
-    return 'Unsupported configuration: QuadVee';
-  if (unit.tonnage > SUPERHEAVY_TONNAGE_THRESHOLD)
-    return `Superheavy mech (${unit.tonnage}t)`;
   if (indexUnit.bv === 0) return 'Zero BV in index';
   if ((unit.armor?.type?.toUpperCase() ?? '').includes('PATCHWORK'))
     return 'Patchwork armor';
-  if (
-    unit.equipment?.some(
-      (eq) =>
-        eq.id.toLowerCase().includes('blue-shield') ||
-        eq.id.toLowerCase().includes('blueshield'),
-    )
-  )
-    return 'Blue Shield Particle Field Damper';
-  // Also check crit slots for Blue Shield (some units have it in crits but not equipment list)
-  if (
-    unit.criticalSlots &&
-    Object.values(unit.criticalSlots).some(
-      (slots) =>
-        Array.isArray(slots) &&
-        slots.some(
-          (s) => s && typeof s === 'string' && /blue.?shield/i.test(s),
-        ),
-    )
-  )
-    return 'Blue Shield Particle Field Damper (crit-detected)';
   if (
     !unit.armor?.allocation ||
     Object.keys(unit.armor.allocation).length === 0
@@ -279,6 +253,7 @@ function mapEngineType(s: string, tb: string): EngineType {
 }
 function mapArmorType(s: string): string {
   const u = s.toUpperCase().replace(/[_\s-]+/g, '');
+  if (u.includes('COMMERCIAL')) return 'commercial';
   if (u.includes('HARDENED')) return 'hardened';
   if (u.includes('REACTIVE')) return 'reactive';
   if (u.includes('REFLECTIVE') || u.includes('LASERREFLECTIVE'))
@@ -289,7 +264,17 @@ function mapArmorType(s: string): string {
   if (u.includes('ANTIPENETRATIVE') || u.includes('ABLATION'))
     return 'anti-penetrative';
   if (u.includes('HEATDISSIPATING')) return 'heat-dissipating';
+  if (u.includes('IMPACTRESISTANT')) return 'impact-resistant';
   return 'standard';
+}
+
+/**
+ * Get BAR (Barrier Armor Rating) for armor type.
+ * Per MegaMek Mek.getBARRating(): Commercial armor = BAR 5, all others = BAR 10.
+ * BAR is applied as barRating / 10.0 to armor BV.
+ */
+function getArmorBAR(armorType: string): number {
+  return armorType === 'commercial' ? 5 : 10;
 }
 function mapStructureType(s: string): string {
   const u = s.toUpperCase().replace(/[_\s-]+/g, '');
@@ -321,8 +306,16 @@ function mapCockpitType(s: string): CockpitType {
 
 // === STRUCTURE/ARMOR ===
 function calcTotalStructure(ton: number, config?: string): number {
-  const isQuad = config?.toLowerCase() === 'quad';
-  const limbIS = (t: any) => (isQuad ? t.leg * 4 : t.arm * 2 + t.leg * 2);
+  const cfgLower = config?.toLowerCase() ?? '';
+  const isQuad = cfgLower === 'quad' || cfgLower === 'quadvee';
+  const isTripod = cfgLower === 'tripod';
+  // Biped: 2 arms + 2 legs; Quad/QuadVee: 4 legs; Tripod: 2 arms + 3 legs
+  const limbIS = (t: { arm: number; leg: number }) =>
+    isQuad
+      ? t.leg * 4
+      : isTripod
+        ? t.arm * 2 + t.leg * 3
+        : t.arm * 2 + t.leg * 2;
   const t = STRUCTURE_POINTS_TABLE[ton];
   if (!t) {
     const k = Object.keys(STRUCTURE_POINTS_TABLE)
@@ -769,6 +762,8 @@ function resolveWeaponForUnit(
 interface CritScan {
   hasTC: boolean;
   hasTSM: boolean;
+  /** Industrial Triple-Strength Myomer: weight ×1.15, no walk MP bonus, no physical TSM mod */
+  hasIndustrialTSM: boolean;
   hasMASC: boolean;
   hasSupercharger: boolean;
   hasECM: boolean;
@@ -815,6 +810,10 @@ interface CritScan {
   modularArmorSlots: number;
   spikeCount: number;
   mineDispenserCount: number;
+  /** RISC Viral Jammer (Decoy or Homing): BV=284 each, defensive equipment */
+  riscViralJammerCount: number;
+  /** Blue Shield Particle Field Damper: +0.2 to armor and structure multipliers */
+  hasBlueShield: boolean;
 }
 
 function classifyPhysicalWeapon(slotLower: string): string | null {
@@ -970,6 +969,7 @@ function scanCrits(unit: UnitData): CritScan {
   const r: CritScan = {
     hasTC: false,
     hasTSM: false,
+    hasIndustrialTSM: false,
     hasMASC: false,
     hasSupercharger: false,
     hasECM: false,
@@ -1016,6 +1016,8 @@ function scanCrits(unit: UnitData): CritScan {
     riscAPDS: 0,
     spikeCount: 0,
     mineDispenserCount: 0,
+    riscViralJammerCount: 0,
+    hasBlueShield: false,
   };
   if (!unit.criticalSlots) return r;
   const rearSlotsByLoc = new Map<string, Map<string, number>>();
@@ -1059,6 +1061,12 @@ function scanCrits(unit: UnitData): CritScan {
       // Equipment flags
       if (lo.includes('targeting computer') || lo.includes('targetingcomputer'))
         r.hasTC = true;
+      else if (
+        lo.includes('industrial triple strength') ||
+        lo.includes('industrial triple-strength') ||
+        lo.includes('industrialtriplestrength')
+      )
+        r.hasIndustrialTSM = true;
       else if (
         lo === 'tsm' ||
         lo.includes('triple strength') ||
@@ -1142,6 +1150,12 @@ function scanCrits(unit: UnitData): CritScan {
           r.defEquipIds.push(clean);
         }
       }
+      // RISC Viral Jammer (Decoy/Homing): defensive equipment, BV=284 each per MegaMek MiscType
+      if (lo.includes('risc viral jammer') || lo.includes('riscviraljammer')) {
+        if (clean !== prevSlotClean) {
+          r.riscViralJammerCount++;
+        }
+      }
 
       // Improved Jump Jets — crit names vary: "Improved Jump Jet", "ImprovedJump Jet", "ISImprovedJump Jet"
       if (
@@ -1165,6 +1179,15 @@ function scanCrits(unit: UnitData): CritScan {
       // Radical Heat Sink System
       if (lo.includes('radical heat sink') || lo.includes('radicalheatsink'))
         r.hasRadicalHS = true;
+
+      // Blue Shield Particle Field Damper: +0.2 to armor and structure multipliers
+      if (
+        lo.includes('blue shield') ||
+        lo.includes('blue-shield') ||
+        lo.includes('blueshield')
+      ) {
+        r.hasBlueShield = true;
+      }
 
       // HarJel II/III (per-location armor BV multiplier)
       if (
@@ -2677,6 +2700,8 @@ function isWeaponEquip(id: string): boolean {
     'cargo',
     'spikes',
     'minesweeper',
+    'viral jammer',
+    'viraljammer',
   ];
   for (const n of nw) if (lo.includes(n)) return false;
   // Check IS resolution first, then try Clan resolution for Clan-exclusive weapons
@@ -2839,10 +2864,19 @@ function calculateUnitBV(
       'REAR_RIGHT_LEG',
     ].includes(k),
   );
+  // Detect effective configuration from cockpit type when configuration field is wrong
+  // e.g., Ares superheavy tripods have configuration="Biped" but cockpit="SUPERHEAVY_TRIPOD"
+  const cockpitUpper = (
+    typeof unit.cockpit === 'string' ? unit.cockpit : ''
+  ).toUpperCase();
+  const isTripodCockpit =
+    cockpitUpper.includes('TRIPOD') || cockpitUpper === 'SUPERHEAVY_TRIPOD';
   const effectiveConfig =
     hasQuadArmorLocs && unit.configuration?.toLowerCase() !== 'quad'
       ? 'Quad'
-      : unit.configuration;
+      : isTripodCockpit && unit.configuration?.toLowerCase() !== 'tripod'
+        ? 'Tripod'
+        : unit.configuration;
   const totalStructure = calcTotalStructure(unit.tonnage, effectiveConfig);
   const cs = scanCrits(unit);
 
@@ -3285,6 +3319,8 @@ function calculateUnitBV(
   }
   // Spikes: 4 BV per location (defensive equipment per MegaMek)
   defEquipBV += cs.spikeCount * 4;
+  // RISC Viral Jammer (Decoy/Homing): 284 BV each (defensive equipment per MegaMek MiscType)
+  defEquipBV += cs.riscViralJammerCount * 284;
 
   const explResult = calculateExplosivePenalties({
     equipment: cs.explosive,
@@ -3293,6 +3329,48 @@ function calculateUnitBV(
     engineType,
     isQuad: effectiveConfig?.toLowerCase() === 'quad',
   });
+
+  // Blue Shield Particle Field Damper: explosive penalty of -1 BV per unprotected location
+  // Per MekBVCalculator.processExplosiveEquipment() lines 143-180:
+  // Counts locations (CT through LL) that are NOT protected, subtracts 1 BV per unprotected loc.
+  let blueShieldExplosivePenalty = 0;
+  if (cs.hasBlueShield) {
+    const isClan =
+      unit.techBase === 'CLAN' ||
+      (unit.techBase === 'MIXED' && CLAN_CHASSIS_MIXED_UNITS.has(iu.id));
+    const engineDef = getEngineDefinition(engineType);
+    const sideTorsoSlots = engineDef?.sideTorsoSlots ?? 0;
+    const bodyLocs: MechLocation[] = ['CT', 'RT', 'LT', 'RA', 'LA', 'RL', 'LL'];
+    for (const loc of bodyLocs) {
+      // CASE II protects fully
+      if (cs.caseIILocs.includes(loc)) continue;
+      if (isClan) {
+        // Clan: CT, RL, LL always unprotected; arms always protected;
+        // side torsos protected unless engine has >2 side torso slots
+        if (loc === 'RA' || loc === 'LA') continue; // arms protected by built-in Clan CASE
+        if ((loc === 'RT' || loc === 'LT') && sideTorsoSlots <= 2) continue;
+      } else {
+        // IS: if engine has ≤2 side torso slots, CASE can protect locations
+        if (sideTorsoSlots <= 2) {
+          if ((loc === 'RT' || loc === 'LT') && cs.caseLocs.includes(loc))
+            continue;
+          if (
+            loc === 'LA' &&
+            (cs.caseLocs.includes('LA') || cs.caseLocs.includes('LT'))
+          )
+            continue;
+          if (
+            loc === 'RA' &&
+            (cs.caseLocs.includes('RA') || cs.caseLocs.includes('RT'))
+          )
+            continue;
+        }
+      }
+      blueShieldExplosivePenalty += 1;
+    }
+  }
+  const totalExplosivePenalty =
+    explResult.totalPenalty + blueShieldExplosivePenalty;
 
   // HarJel II/III: per-location armor BV multiplier (1.1x / 1.2x)
   // MegaMek calculates armor BV per-location when HarJel is present
@@ -3340,6 +3418,10 @@ function calculateUnitBV(
   // Convert to an equivalent runMP that calculateTMM will map to correctMaxTMM
   const defRunMP = correctMaxTMM <= 6 ? tmmToMinMP[correctMaxTMM] : 25;
 
+  // BAR (Barrier Armor Rating): Commercial armor = BAR 5, all others = BAR 10
+  // Per MegaMek Mek.getBARRating() and BVCalculator.processArmor()
+  const bar = getArmorBAR(armorType);
+
   const defCfg: Parameters<typeof calculateDefensiveBV>[0] = {
     totalArmorPoints: totalArmor,
     totalStructurePoints: totalStructure,
@@ -3351,12 +3433,14 @@ function calculateUnitBV(
     structureType,
     gyroType,
     engineType,
+    bar,
     defensiveEquipmentBV: defEquipBV + harjelArmorBonus + cs.armoredComponentBV,
-    explosivePenalties: explResult.totalPenalty,
+    explosivePenalties: totalExplosivePenalty,
     hasStealthArmor: hasStealth,
     hasChameleonLPS: cs.hasChameleon,
     hasNullSig: cs.hasNullSig,
     hasVoidSig: cs.hasVoidSig,
+    hasBlueShield: cs.hasBlueShield,
   };
   if (engineBVOverride !== undefined) {
     defCfg.engineMultiplier = engineBVOverride;
@@ -3388,6 +3472,17 @@ function calculateUnitBV(
   const hasLegAES = cs.aesLocs.some((loc) => loc.toUpperCase().includes('LEG'));
   const isQuad = effectiveConfig?.toLowerCase() === 'quad';
   const baseJumpMP = unit.movement.jump || 0;
+  // EC-52: Industrial mech fire control modifier
+  // MegaMek Mek.hasAdvancedFireControl() returns false for industrial cockpit types:
+  // COCKPIT_INDUSTRIAL, COCKPIT_PRIMITIVE_INDUSTRIAL, COCKPIT_SUPERHEAVY_INDUSTRIAL,
+  // COCKPIT_TRIPOD_INDUSTRIAL, COCKPIT_SUPERHEAVY_TRIPOD_INDUSTRIAL
+  // When false, offensive BV is multiplied by 0.9
+  const isIndustrialMech =
+    cockpitUpper === 'INDUSTRIAL' ||
+    cockpitUpper === 'PRIMITIVE_INDUSTRIAL' ||
+    cockpitUpper === 'SUPERHEAVY_INDUSTRIAL' ||
+    cockpitUpper === 'TRIPOD_INDUSTRIAL' ||
+    cockpitUpper === 'SUPERHEAVY_TRIPOD_INDUSTRIAL';
   const offResult = calculateOffensiveBVWithHeatTracking({
     weapons,
     ammo: ammoForCalc,
@@ -3399,6 +3494,7 @@ function calculateUnitBV(
     heatDissipation: heatDiss,
     hasTargetingComputer: hasTC,
     hasTSM: cs.hasTSM,
+    hasIndustrialTSM: cs.hasIndustrialTSM,
     hasStealthArmor: hasStealth,
     hasNullSig: cs.hasNullSig,
     hasVoidSig: cs.hasVoidSig,
@@ -3413,6 +3509,7 @@ function calculateUnitBV(
     jumpHeatMP: baseJumpMP,
     aesArms: armAES,
     aesLegs: hasLegAES ? (isQuad ? 4 : 2) : 0,
+    isIndustrialMech,
   });
 
   const baseBV = defResult.totalDefensiveBV + offResult.totalOffensiveBV;
@@ -3606,8 +3703,30 @@ async function main(): Promise<void> {
   const results: ValidationResult[] = [];
   const excluded: Array<{ unit: string; reason: string }> = [];
 
-  // Load MUL BV cache: use MUL (Master Unit List) BV as authoritative reference
-  // when available, since many index BV values are outdated (BV 1.0 era or wrong)
+  // Load MegaMek BV cache: authoritative BV reference extracted from MegaMek's
+  // runtime engine. Supersedes MUL data and eliminates need for BV overrides.
+  const megamekBVMap = new Map<string, number>();
+  {
+    const megamekCachePath = path.resolve(
+      process.cwd(),
+      'scripts/data-migration/megamek-bv-cache.json',
+    );
+    if (fs.existsSync(megamekCachePath)) {
+      const cache = JSON.parse(fs.readFileSync(megamekCachePath, 'utf-8'));
+      for (const [id, entry] of Object.entries(
+        cache.entries as Record<string, { megamekBV: number }>,
+      )) {
+        if (entry.megamekBV > 0) {
+          megamekBVMap.set(id, entry.megamekBV);
+        }
+      }
+      console.log(
+        `  MegaMek BV reference available for: ${megamekBVMap.size} units`,
+      );
+    }
+  }
+
+  // Load MUL BV cache as fallback: used only for units not covered by MegaMek
   const mulBVMap = new Map<string, number>();
   const mulMatchTypes = new Map<string, string>();
   {
@@ -3623,11 +3742,6 @@ async function main(): Promise<void> {
         if (entry && entry.mulBV > 0 && entry.matchType === 'exact') {
           mulBVMap.set(u.id, entry.mulBV);
         }
-        // Accept fuzzy matches only when MUL name (stripped of parenthetical alt-names)
-        // matches our "chassis model" exactly. This prevents wrong matches like:
-        //   "Loki Mk II (Hel) Prime" ≠ "Loki Prime"
-        //   "Gladiator-B (Executioner-B) A" ≠ "Gladiator A"
-        //   "Man O' War (Gargoyle) Prime" model ends with "e" matching model "E"
         if (
           entry &&
           entry.mulBV > 0 &&
@@ -3637,7 +3751,7 @@ async function main(): Promise<void> {
           const mulStripped = entry.mulName
             .toLowerCase()
             .trim()
-            .replace(/\s*\([^)]*\)\s*/g, ' ') // strip (alternate names)
+            .replace(/\s*\([^)]*\)\s*/g, ' ')
             .replace(/\s+/g, ' ')
             .trim();
           const expected = (u.chassis + ' ' + u.model).toLowerCase().trim();
@@ -3646,13 +3760,16 @@ async function main(): Promise<void> {
           }
         }
       }
-      console.log(`  MUL BV reference available for: ${mulBVMap.size} units`);
+      console.log(
+        `  MUL BV fallback available for: ${mulBVMap.size} units (${mulBVMap.size - megamekBVMap.size > 0 ? mulBVMap.size - megamekBVMap.size + ' additional' : 'all superseded by MegaMek'})`,
+      );
     }
   }
 
-  // MUL BV overrides: MUL (Master Unit List) reports incorrect BV for these units.
-  // Our BV calculation matches MegaMek runtime BV exactly, confirming MUL is wrong.
-  // Override with MegaMek runtime BV so these units don't produce false discrepancies.
+  // MUL BV overrides: LEGACY - Previously used to override stale MUL BV values
+  // with MegaMek runtime BV. Now superseded by megamek-bv-cache.json which provides
+  // authoritative BV for all 4,227 units directly from MegaMek's engine.
+  // Kept as fallback in case megamek-bv-cache.json is not available.
   const MUL_BV_OVERRIDES: Record<string, number> = {
     'mauler-mal-1x-affc': 1214, // MUL says 1286, MegaMek runtime = 1214
     'revenant-ubm-1a': 826, // MUL says 784,  MegaMek runtime = 826
@@ -4134,38 +4251,39 @@ async function main(): Promise<void> {
       continue;
     }
 
-    // Determine reference BV: prefer MUL BV (authoritative), fall back to index BV
+    // Determine reference BV: prefer MegaMek BV (authoritative), then MUL, then index
+    const megamekBV = megamekBVMap.get(iu.id);
     const mulBV = mulBVMap.get(iu.id);
-    const referenceBV = mulBV ?? iu.bv;
+    const referenceBV = megamekBV ?? mulBV ?? iu.bv;
 
-    // Exclude units with no reliable reference BV
-    if (!mulBV && suspectBVIds.has(iu.id)) {
-      excluded.push({
-        unit: `${iu.chassis} ${iu.model}`,
-        reason: 'No MUL match + suspect index BV',
-      });
-      continue;
-    }
-    // Exclude units with no MUL match at all — index BV is unreliable for verification
-    const matchType = mulMatchTypes.get(iu.id);
-    if (
-      !mulBV &&
-      (matchType === 'not-found' ||
-        (matchType === 'fuzzy' && !mulBVMap.has(iu.id)))
-    ) {
-      excluded.push({
-        unit: `${iu.chassis} ${iu.model}`,
-        reason: 'No verified MUL reference BV',
-      });
-      continue;
-    }
-    // MUL matched by name but returned BV=0 — reference is unreliable (common for named variants)
-    if (!mulBV && matchType === 'exact') {
-      excluded.push({
-        unit: `${iu.chassis} ${iu.model}`,
-        reason: 'MUL matched but BV unavailable',
-      });
-      continue;
+    // With MegaMek BV available, most exclusions for missing reference data go away
+    if (!megamekBV && !mulBV) {
+      // No authoritative reference from either source
+      if (suspectBVIds.has(iu.id)) {
+        excluded.push({
+          unit: `${iu.chassis} ${iu.model}`,
+          reason: 'No MegaMek/MUL match + suspect index BV',
+        });
+        continue;
+      }
+      const matchType = mulMatchTypes.get(iu.id);
+      if (
+        matchType === 'not-found' ||
+        (matchType === 'fuzzy' && !mulBVMap.has(iu.id))
+      ) {
+        excluded.push({
+          unit: `${iu.chassis} ${iu.model}`,
+          reason: 'No verified reference BV',
+        });
+        continue;
+      }
+      if (matchType === 'exact') {
+        excluded.push({
+          unit: `${iu.chassis} ${iu.model}`,
+          reason: 'MUL matched but BV unavailable',
+        });
+        continue;
+      }
     }
     if (!referenceBV || referenceBV === 0) {
       excluded.push({
