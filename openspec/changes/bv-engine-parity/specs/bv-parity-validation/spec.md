@@ -468,27 +468,30 @@ npm run validate:bv-parity -- --json-only
 BV Parity Validation Report
 ===========================
 Total Units: 4,225
-Excluded: 783 (LAMs, Superheavy, Patchwork, Blue Shield, QuadVee, Tripod, missing data)
+Excluded: 793 (LAMs, Superheavy, Patchwork, Blue Shield, QuadVee, Tripod, missing data)
 Validated: 3,432
 
 Accuracy:
-  Exact Matches:   3,090 (90.0%)
-  Within 1%:       3,364 (98.0%)
+  Exact Matches:   3,047 (88.8%)
+  Within 1%:       3,349 (97.6%)
   Within 5%:       3,431 (100.0%)
   Within 10%:      3,431 (100.0%)
   More than 10%:       1 (0.0%) [no MUL reference]
 
 Accuracy Gates:
-  ✓ Primary (95% within 1%):    98.0% - PASS
+  ✓ Primary (95% within 1%):    97.6% - PASS
   ✓ Secondary (99% within 5%): 100.0% - PASS
 
 Top Remaining Patterns:
-  1. MIXED tech overcalculation:  RESOLVED (8 fixed to exact, 1 improved via EC-46)
-  2. Explosive penalty variance:  10 units (9/10 undercalculate)
-  3. Interface cockpit MUL:        3 units (systematic +50 BV, likely stale MUL)
-  4. Named variant MUL:            2 units (Keller, George custom configs)
+  1. MIXED tech overcalculation:  RESOLVED (EC-46)
+  2. CT/Leg CASE penalty:         ~46 units overcalculating (MUL stale, see EC-47)
+  3. Armored components BV:       ~5 units undercalculating (not yet implemented)
+  4. Interface cockpit MUL:        3 units (systematic +50 BV, likely stale MUL)
+  5. Named variant MUL:            2 units (Keller, George custom configs)
 
-Status: Both accuracy gates PASSING. Remaining 68 units are all <5% off.
+Status: Both accuracy gates PASSING. Remaining 83 units are all <5% off.
+  Note: Exact match regression from 90.0% to 88.8% is due to EC-47 (CT/leg CASE fix
+  aligning with current MegaMek runtime vs stale MUL data).
 ```
 
 ## References

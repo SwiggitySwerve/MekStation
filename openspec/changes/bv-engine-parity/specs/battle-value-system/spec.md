@@ -481,13 +481,13 @@ The system SHALL determine implicit CASE for MIXED tech units using a three-tier
 
 - **WHEN** calculating defensive BV for a MIXED tech unit
 - **AND** the engine type contains "CLAN" (e.g., CLAN_XL, CLAN_XXL)
-- **THEN** implicit CASE SHALL be applied to ALL torso and arm locations (LT, RT, LA, RA)
+- **THEN** implicit CASE SHALL be applied to ALL non-head locations (LT, RT, LA, RA, CT, LL, RL)
 
 #### Scenario: MIXED unit with Clan structural components gets full CASE
 
 - **WHEN** calculating defensive BV for a MIXED tech unit without a Clan engine
 - **AND** critical slots contain Clan structural components ("Clan Endo Steel", "Clan Ferro-Fibrous", "CLDouble Heat Sink", "Clan Double Heat Sink")
-- **THEN** implicit CASE SHALL be applied to ALL torso and arm locations
+- **THEN** implicit CASE SHALL be applied to ALL non-head locations
 
 #### Scenario: Verified Clan-chassis MIXED unit gets per-location CASE
 
@@ -511,6 +511,42 @@ The system SHALL determine implicit CASE for MIXED tech units using a three-tier
 - **AND** our MTFParserService normalizes both to "MIXED", losing the chassis distinction
 - **THEN** the `CLAN_CHASSIS_MIXED_UNITS` set serves as the authoritative lookup
   until `chassisTechBase` is added to the unit data model
+
+### Requirement: Explosive Penalty CASE Protection for CT and Legs (EC-47)
+
+The system SHALL correctly apply CASE protection to Center Torso and leg locations
+for explosive equipment BV penalty calculations.
+
+#### Scenario: CT with CASE has no explosive penalty
+
+- **WHEN** calculating explosive equipment penalties
+- **AND** the Center Torso has CASE or CASE II
+- **THEN** no explosive penalty SHALL be applied to CT
+- **BECAUSE** CASE vents the explosion, preventing mech destruction
+
+#### Scenario: Leg explosive transfers to side torso
+
+- **WHEN** calculating explosive equipment penalties for a leg location
+- **THEN** the leg SHALL transfer the penalty check to the adjacent side torso
+- **AND** Left Leg SHALL transfer to Left Torso
+- **AND** Right Leg SHALL transfer to Right Torso
+- **AND** if the receiving torso has no penalty, the leg SHALL have no penalty
+
+#### Scenario: Clan implicit CASE covers all non-head locations
+
+- **WHEN** a Clan or Clan-chassis MIXED unit has implicit CASE
+- **THEN** CASE SHALL be applied to ALL non-head locations: LT, RT, LA, RA, CT, LL, RL
+- **AND** this eliminates explosive penalties for ALL non-head ammo locations
+- **NOTE** Previously only LT, RT, LA, RA received implicit CASE, causing false
+  penalties for ammo in CT and legs (confirmed by MegaMek stat block for Marauder IIC 4)
+
+#### Scenario: MUL BV staleness from CT/leg CASE rule change
+
+- **NOTE** MUL (Master Unit List) BV values for ~46 Clan units still reflect the
+  older calculation that penalized CT and leg ammo regardless of CASE
+- **AND** our calculation now matches MegaMek's current runtime behavior
+- **THEN** these units appear as overcalculations vs MUL but are correct per MegaMek
+- **AND** this causes exact match regression from 90.0% to 88.8% (MUL staleness, not error)
 
 ## REMOVED Requirements
 

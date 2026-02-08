@@ -133,7 +133,9 @@ function getEngineSideTorsoSlots(engineType?: EngineType): number {
  * - CASE II → no penalty (location fully protected)
  * - Arms (non-quad): no penalty if arm has CASE, or if transfer torso has no penalty
  * - Side torsos: no penalty if CASE present AND engine has <3 side torso crit slots
- * - CT, HD, legs: always have penalty (no CASE protection for BV)
+ * - CT: no penalty if CASE present (explosion vented instead of mech destruction)
+ * - Legs: transfer to adjacent side torso (LL→LT, RL→RT) — no penalty if torso is protected
+ * - HD: always has penalty (no CASE protection for head)
  *
  * @see MekBVCalculator.java lines 517-528
  */
@@ -166,7 +168,22 @@ function hasExplosiveEquipmentPenalty(
     return !hasCASE || sideTorsoSlots >= 3;
   }
 
-  // CT, HD, legs: always have penalty (no CASE protection for BV purposes)
+  // Center torso: CASE protects (vents explosion instead of destroying mech)
+  // Without CASE, CT ammo explosion = mech destruction = penalty
+  if (location === 'CT') {
+    return !hasCASE;
+  }
+
+  // Legs: explosion transfers to adjacent side torso (LL→LT, RL→RT)
+  // If the receiving torso can contain the explosion, no penalty
+  if (location === 'LL') {
+    return hasExplosiveEquipmentPenalty('LT', config);
+  }
+  if (location === 'RL') {
+    return hasExplosiveEquipmentPenalty('RT', config);
+  }
+
+  // Head: always has penalty (no CASE protection for BV purposes)
   return true;
 }
 
@@ -181,8 +198,10 @@ function hasExplosiveEquipmentPenalty(
  *
  * Protection:
  * - CASE II eliminates ALL penalties in the protected location
- * - CASE (IS) prevents penalties in side torsos (unless engine has 3+ side torso slots)
- * - CASE (IS) in arms always prevents penalties
+ * - CASE prevents penalties in side torsos (unless engine has 3+ side torso slots)
+ * - CASE in arms always prevents penalties (or transfers to protected torso)
+ * - CASE in CT prevents penalties (explosion vented instead of mech destruction)
+ * - Legs transfer to side torso (LL→LT, RL→RT) — protected if torso is protected
  * - Clan XL engines (2 side torso slots) allow CASE to work in side torsos
  * - IS XL/XXL engines (3+ side torso slots) override CASE in side torsos
  *

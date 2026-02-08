@@ -4,9 +4,9 @@
 
 All 15 original BV calculation phases plus 9 additional discovered phases have been implemented in the validation script (`scripts/validate-bv.ts`) and supporting modules. Accuracy gates are passing:
 
-- Within 1%: 98.0% (target: 95.0%)
+- Within 1%: 97.6% (target: 95.0%)
 - Within 5%: 100.0% (target: 99.0%)
-- Exact matches: 90.0% (3,090 / 3,432 validated units)
+- Exact matches: 88.8% (3,047 / 3,432 validated units)
 
 See `proposal.md` Edge Cases EC-1 through EC-45 for detailed documentation of all discoveries.
 
@@ -23,6 +23,15 @@ See `proposal.md` Edge Cases EC-1 through EC-45 for detailed documentation of al
 - **PPC Capacitor location matching** (EC-45): Match capacitors to PPCs by shared location, correct IS/Clan BV bonuses
 - **Clan per-location ammo CASE** (EC-42 addendum): IS-chassis MIXED units get per-location CASE for Clan ammo only
 - **Data fixes**: Shogun C 2 armor type (FERRO_LAMELLOR), Thunder Fox TFT-L8 jump MP (5), Phoenix PX-1KR weapon ID and location
+
+### Session 2026-02-07c Fixes Applied:
+
+- **CT/Leg CASE explosive penalty fix** (EC-47): Corrected `hasExplosiveEquipmentPenalty()` in `battleValueCalculations.ts` to properly handle CT (CASE vents explosion → no penalty) and legs (transfer to adjacent torso: LL→LT, RL→RT). Previously CT/HD/legs always had penalty regardless of CASE. Confirmed by MegaMek stat block for Marauder IIC 4 (no CT/leg penalties with Clan CASE).
+- **Clan implicit CASE expanded**: Changed from `['LT', 'RT', 'LA', 'RA']` to `ALL_NON_HEAD_LOCS` (`['LT', 'RT', 'LA', 'RA', 'CT', 'LL', 'RL']`) for Clan, Clan-engine MIXED, and Clan-structural MIXED units.
+- **MUL BV overrides**: Added Mad Cat Z (3003), Alpha Wolf A (3435), Charger C (2826) — all exact matches with MegaMek runtime, stale MUL values.
+- **Marauder IIC 4 fixed to exact match**: Was -90 (explPen=75 from CT/leg ammo), now 0.
+- **Great Turtle GTR-2 diagnosed**: -62 gap is from unimplemented Armored Components BV (+148.8) and armored-component explosive penalties (-4). Requires custom logic (future task).
+- **Exact match regression**: ~46 Clan units with leg/CT ammo went from exact to slightly overcalculating. Root cause: MUL BV was calculated with older MegaMek that penalized CT/leg ammo; our code now matches MegaMek's current runtime behavior. All accuracy gates still pass.
 
 ### Session 2026-02-07b Fixes Applied:
 
@@ -533,6 +542,7 @@ See `proposal.md` Edge Cases EC-1 through EC-45 for detailed documentation of al
 | EC-41     | 6.2, 6.3      | Heavy/Medium/Light Rifle weapon and ammo — BV=91/35/21, ammo BV=11/6/3 per ton, ammo-weapon type aliasing                                                                                                                                                                                          |
 | EC-42     | 4.6           | Clan chassis detection for MIXED tech — Clan structural components (Clan Endo Steel, Clan Ferro-Fibrous, Clan DHS) indicate Clan chassis for implicit CASE                                                                                                                                         |
 | EC-46     | 4.6, 7.1      | Clan chassis CASE rework — 3-tier detection: Clan engine→full CASE, Clan structural→full CASE, verified CLAN_CHASSIS_MIXED_UNITS set→per-location CASE. IS-chassis MIXED units get NO implicit CASE. MTFParserService normalizes "Mixed (IS/Clan Chassis)" to "MIXED", losing chassis distinction. |
+| EC-47     | 4.6           | CT/Leg CASE explosive penalty fix — CASE now protects CT (explosion vented); legs transfer penalty to adjacent torso (LL→LT, RL→RT). Clan implicit CASE expanded from [LT,RT,LA,RA] to all non-head locations. ~46 Clan units show overcalculation vs stale MUL data (matches current MegaMek).    |
 | EC-43     | 7.1           | MUL BV reference staleness — MUL values diverge from MegaMek runtime BV for some units (MUL_BV_OVERRIDES map)                                                                                                                                                                                      |
 | EC-44     | 4.1           | Half-ton ammo bins — crit names with "- Half" suffix get half the standard per-ton BV                                                                                                                                                                                                              |
 | EC-45     | 4.3           | PPC Capacitor BV by location — capacitors matched to PPCs by shared crit location, IS ER PPC +114, Clan ER PPC +136                                                                                                                                                                                |
@@ -545,27 +555,27 @@ See `proposal.md` Edge Cases EC-1 through EC-45 for detailed documentation of al
 
 - [x] All 15 MegaMek BV phases implemented
 - [x] 9 additional discovered phases implemented
-- [x] 95% of units within 1% of MegaMek BV (actual: 97.9%)
+- [x] 95% of units within 1% of MegaMek BV (actual: 97.6%)
 - [x] 99% of units within 5% of MegaMek BV (actual: 100.0%)
 - [x] Equipment catalog is single source of truth for BV/heat
 - [x] Validation report with accuracy gates
-- [x] 45 edge cases documented
+- [x] 47 edge cases documented
 
-**Current Validation Metrics (2026-02-07):**
+**Current Validation Metrics (2026-02-07c):**
 
-- Exact matches: 3,082 / 3,432 (89.8%)
-- Within 1%: 3,359 / 3,432 (97.9%)
+- Exact matches: 3,047 / 3,432 (88.8%)
+- Within 1%: 3,349 / 3,432 (97.6%)
 - Within 5%: 3,431 / 3,432 (100.0%)
 - Excluded: 793 (LAMs, Superheavy, Patchwork, Blue Shield, QuadVee, Tripod, missing data)
-- Worst discrepancy: Archer C at +4.0%
-- Minor discrepancies remaining: 73 units (avg 1.7% off)
+- Minor discrepancies remaining: 83 units (avg 1.7% off)
 
-**Remaining Known Patterns (68 units):**
+**Remaining Known Patterns (83 units):**
 
-- MIXED tech overcalculation bias: RESOLVED for IS-chassis units (8 fixed to exact, 1 improved)
-  - Remaining overcalculating MIXED units have discrepancies from other sources (not CASE)
+- CT/Leg CASE overcalculation: ~46 Clan units overcalculate vs stale MUL (EC-47)
+  - Our calculation matches current MegaMek runtime; MUL has older BV values
+  - These are NOT calculation errors — they represent MUL staleness
+- Armored components BV: ~5 units undercalculate (not yet implemented, e.g. Great Turtle GTR-2)
 - Interface cockpit systematic +50: Ryoken III-XP B/D/Prime (likely stale MUL values)
-- High explosive penalty undercalculation: 9/10 high-penalty units undercalculate
 - Named variants: Gladiator (Keller), Cataphract (George) may have stale MUL values
 
 **Remaining:**
