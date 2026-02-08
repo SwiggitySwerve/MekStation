@@ -390,6 +390,7 @@ describe('CalculationService', () => {
         equipment: [
           createEquipmentSlot('ppc', 'rightArm', 0),
           createEquipmentSlot('ppc', 'leftArm', 0),
+          createEquipmentSlot('ppc', 'rightTorso', 0),
         ],
       });
       const doubleHSMech = createTestMech({
@@ -398,6 +399,7 @@ describe('CalculationService', () => {
         equipment: [
           createEquipmentSlot('ppc', 'rightArm', 0),
           createEquipmentSlot('ppc', 'leftArm', 0),
+          createEquipmentSlot('ppc', 'rightTorso', 0),
         ],
       });
 
