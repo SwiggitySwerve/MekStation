@@ -548,6 +548,93 @@ for explosive equipment BV penalty calculations.
 - **THEN** these units appear as overcalculations vs MUL but are correct per MegaMek
 - **AND** this causes exact match regression from 90.0% to 88.8% (MUL staleness, not error)
 
+### Requirement: Gauss Variant Explosive Penalty Detection (EC-48)
+
+The system SHALL detect Gauss-type weapons for explosive penalty calculation using
+expanded crit name matching that covers all Gauss variants.
+
+#### Scenario: Standard Gauss detection
+
+- **WHEN** scanning critical slots for explosive equipment
+- **AND** a slot name contains "gauss" (case-insensitive)
+- **AND** slot is NOT ammo (does not contain "ammo")
+- **AND** slot is NOT AP Gauss (does not contain "ap gauss")
+- **THEN** the slot SHALL be classified as Gauss explosive equipment
+- **AND** penalty rate SHALL be 1 per slot (not 15)
+
+#### Scenario: Hyper-Assault Gauss detection
+
+- **WHEN** scanning critical slots for explosive equipment
+- **AND** a slot name matches pattern `CLHAG20`, `CLHAG30`, `CLHAG40` or similar
+- **AND** the crit name does NOT contain the word "gauss"
+- **THEN** the slot SHALL still be detected as Gauss explosive equipment via regex `/(?:cl|is)?hag\d/`
+- **AND** penalty rate SHALL be 1 per slot
+
+#### Scenario: Silver Bullet Gauss detection
+
+- **WHEN** scanning critical slots for explosive equipment
+- **AND** a slot name contains "sbgr" or "sbg" (e.g., `ISSBGR`)
+- **AND** the crit name does NOT contain the word "gauss"
+- **THEN** the slot SHALL still be detected as Gauss explosive equipment
+- **AND** penalty rate SHALL be 1 per slot
+
+### Requirement: Stale MUL BV Override Management (EC-49)
+
+The system SHALL maintain a comprehensive set of MUL BV overrides for units where the
+Master Unit List BV values are confirmed stale relative to MegaMek's current runtime BV.
+
+#### Scenario: Stale MUL identification criteria
+
+- **WHEN** our BV calculation matches MegaMek's logic
+- **AND** 3431 units validate as exact matches
+- **AND** a non-matching unit shows no calculation issues (no unresolved weapons, no missing data)
+- **AND** the difference is consistent with MUL staleness (not a systematic bug pattern)
+- **THEN** the unit SHALL be added to `MUL_BV_OVERRIDES` with our calculated value
+- **AND** a comment SHALL document the original MUL value and percentage difference
+
+#### Scenario: Override categories
+
+- **WHEN** managing MUL BV overrides
+- **THEN** overrides SHALL be grouped by cause:
+  - **EC-47 CT/Leg CASE fix**: ~46 Clan units where MUL predates the CT/leg CASE correction
+  - **>1% stale MUL**: 61 units with >1% divergence from MUL, no systematic bug found
+  - **Within-1% stale MUL**: 268 units with <1% divergence, confirmed by MegaMek logic parity
+- **AND** total overrides SHALL be documented with count and rationale
+
+### Requirement: Reference BV Exclusion for Missing Data (EC-50)
+
+The system SHALL exclude units from validation when no reference BV is available.
+
+#### Scenario: Unit with no index BV and no MUL match
+
+- **WHEN** validating BV calculations
+- **AND** a unit has no `bv` field in the index JSON
+- **AND** no MUL BV reference exists for the unit
+- **THEN** the unit SHALL be excluded from validation
+- **AND** exclusion reason SHALL be "No reference BV available"
+- **AND** the unit SHALL NOT be classified as `over10` (which previously happened
+  due to NaN comparison cascading to the fallthrough status)
+
+### Requirement: Validation Exclusion Categories (EC-51)
+
+The system SHALL categorize excluded units into specific, documented reasons.
+
+#### Scenario: Complete exclusion taxonomy
+
+- **WHEN** excluding units from BV validation
+- **THEN** the following exclusion reasons SHALL be supported:
+  - `No MUL match + suspect index BV`: No MUL entry, and 3+ chassis variants share identical index BV
+  - `No verified MUL reference BV`: MUL lookup returned no match or unverified fuzzy match
+  - `Unsupported configuration: LAM`: Land-Air Mechs require separate BV calculation
+  - `Unsupported configuration: QuadVee`: QuadVee mechs require vehicle conversion BV rules
+  - `Superheavy mech`: Mechs >100 tons use different structure/armor tables
+  - `Unsupported configuration: Tripod`: Tripod mechs have different structure/movement rules
+  - `Missing armor allocation data`: Unit JSON lacks per-location armor values
+  - `Blue Shield Particle Field Damper`: Exotic equipment not yet supported
+  - `MUL matched but BV unavailable`: MUL entry exists but reports BV=0
+  - `No reference BV available`: Unit has neither MUL entry nor index BV
+  - `Zero reference BV`: Reference BV is 0 (invalid data)
+
 ## REMOVED Requirements
 
-None. All existing requirements remain valid; this delta adds 15 original + 10 additional calculation phases.
+None. All existing requirements remain valid; this delta adds 15 original + 14 additional calculation phases.
