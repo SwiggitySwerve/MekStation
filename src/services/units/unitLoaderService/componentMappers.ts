@@ -90,6 +90,9 @@ export function mapGyroType(typeStr: string): GyroType {
   ) {
     return GyroType.HEAVY_DUTY;
   }
+  if (normalized === 'SUPERHEAVY' || normalized === 'SUPERHEAVYGYRO') {
+    return GyroType.SUPERHEAVY;
+  }
 
   return GyroType.STANDARD;
 }

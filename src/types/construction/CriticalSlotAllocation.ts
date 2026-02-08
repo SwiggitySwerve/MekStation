@@ -94,6 +94,18 @@ export const LOCATION_SLOT_COUNTS: Readonly<Record<MechLocation, number>> = {
 export const TOTAL_CRITICAL_SLOTS = 78;
 
 /**
+ * Note on Superheavy Mechs:
+ *
+ * Superheavy mechs (105-200 tons) use the same entry count per location
+ * as standard mechs (12 for torsos/arms, 6 for head/legs). The difference
+ * is that each entry is a "double-slot" that can hold two single-crit items.
+ * Equipment slot consumption is calculated via ceil(N/2) for crit entries.
+ *
+ * @see getLocationSlotCount in MechConfigurationSystem.ts for config-based lookup
+ * @spec openspec/specs/superheavy-mech-system/spec.md
+ */
+
+/**
  * Fixed component placement in locations
  */
 export interface FixedSlotAllocation {

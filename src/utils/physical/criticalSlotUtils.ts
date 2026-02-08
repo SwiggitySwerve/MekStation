@@ -110,3 +110,32 @@ export function canAllocateSlots(
     allocated + required <= capacity
   );
 }
+
+/**
+ * Parse a pipe-separated critical slot entry into individual item names.
+ *
+ * MegaMek's MTF format for superheavy mechs uses pipe notation to represent
+ * two items paired in one double-slot, e.g., "IS Gauss Ammo|IS Gauss Ammo".
+ * This function splits on `|` and returns both names.
+ *
+ * For non-pipe entries, returns a single-element array.
+ *
+ * @spec openspec/specs/superheavy-mech-system/spec.md
+ */
+export function parsePipeSeparatedCritEntry(
+  entry: string,
+): readonly [string] | readonly [string, string] {
+  if (entry.includes('|')) {
+    const parts = entry.split('|');
+    return [parts[0].trim(), parts[1].trim()] as const;
+  }
+  return [entry] as const;
+}
+
+/**
+ * Count the number of individual items in a critical slot entry.
+ * Pipe-separated entries (superheavy double-slot) count as 2.
+ */
+export function countCritItems(entry: string): number {
+  return entry.includes('|') ? 2 : 1;
+}

@@ -11,7 +11,13 @@ import React from 'react';
 
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';
 
-import { LocationData, SlotContent } from './CriticalSlotsDisplay';
+import {
+  CritEntry,
+  LocationData,
+  SlotContent,
+  slotsToCritEntries,
+} from './CriticalSlotsDisplay';
+import { DoubleSlotRow } from './DoubleSlotRow';
 import { SlotRow } from './SlotRow';
 
 /**
@@ -83,12 +89,31 @@ export function LocationGrid({
 }: LocationGridProps): React.ReactElement {
   const slotCount = LOCATION_SLOT_COUNTS[location];
   const label = getLocationLabel(location);
+  const isSuperheavy = data?.isSuperheavy ?? false;
 
-  // Create slot data for all slots
-  const slots: SlotContent[] = Array.from({ length: slotCount }, (_, i) => {
-    const existing = data?.slots.find((s) => s.index === i);
-    return existing || { index: i, type: 'empty' as const };
-  });
+  // Build CritEntry[] from entries (preferred) or slots (backward compat)
+  const entries: CritEntry[] = (() => {
+    if (data?.entries && data.entries.length > 0) {
+      // Pad with empty entries if needed
+      const padded = Array.from({ length: slotCount }, (_, i) => {
+        const existing = data.entries.find((e) => e.index === i);
+        return (
+          existing || {
+            index: i,
+            primary: { index: i, type: 'empty' as const },
+            isDoubleSlot: isSuperheavy,
+          }
+        );
+      });
+      return padded;
+    }
+    // Fallback: build from slots array
+    const slots: SlotContent[] = Array.from({ length: slotCount }, (_, i) => {
+      const existing = data?.slots.find((s) => s.index === i);
+      return existing || { index: i, type: 'empty' as const };
+    });
+    return slotsToCritEntries(slots, isSuperheavy);
+  })();
 
   return (
     <div
@@ -103,24 +128,53 @@ export function LocationGrid({
 
       {/* Slots */}
       <div className="p-0.5">
-        {slots.map((slot) => (
-          <SlotRow
-            key={slot.index}
-            slot={slot}
-            isAssignable={assignableSlots.includes(slot.index)}
-            isSelected={
-              !!(
-                selectedEquipmentId && slot.equipmentId === selectedEquipmentId
-              )
-            }
-            compact={compact}
-            isOmni={isOmni}
-            onClick={() => onSlotClick(slot.index)}
-            onDrop={(equipmentId) => onEquipmentDrop(slot.index, equipmentId)}
-            onRemove={() => onEquipmentRemove(slot.index)}
-            onDragStart={onEquipmentDragStart}
-          />
-        ))}
+        {entries.map((entry) =>
+          isSuperheavy && entry.isDoubleSlot ? (
+            <DoubleSlotRow
+              key={entry.index}
+              entry={entry}
+              isAssignable={assignableSlots.includes(entry.index)}
+              isSelected={
+                !!(
+                  selectedEquipmentId &&
+                  entry.primary.equipmentId === selectedEquipmentId
+                )
+              }
+              isPairable={
+                entry.primary.type === 'equipment' &&
+                entry.primary.totalSlots === 1 &&
+                !entry.secondary
+              }
+              compact={compact}
+              onClick={() => onSlotClick(entry.index)}
+              onDrop={(equipmentId) =>
+                onEquipmentDrop(entry.index, equipmentId)
+              }
+              onRemove={() => onEquipmentRemove(entry.index)}
+              onDragStart={onEquipmentDragStart}
+            />
+          ) : (
+            <SlotRow
+              key={entry.index}
+              slot={entry.primary}
+              isAssignable={assignableSlots.includes(entry.index)}
+              isSelected={
+                !!(
+                  selectedEquipmentId &&
+                  entry.primary.equipmentId === selectedEquipmentId
+                )
+              }
+              compact={compact}
+              isOmni={isOmni}
+              onClick={() => onSlotClick(entry.index)}
+              onDrop={(equipmentId) =>
+                onEquipmentDrop(entry.index, equipmentId)
+              }
+              onRemove={() => onEquipmentRemove(entry.index)}
+              onDragStart={onEquipmentDragStart}
+            />
+          ),
+        )}
       </div>
     </div>
   );

@@ -8,3 +8,4 @@ export * from './ValidationRuleRegistry';
 export * from './ValidationOrchestrator';
 export * from './StandardValidationRules';
 export * from './ConfigurationValidationRules';
+export * from './SuperheavyValidationRules';

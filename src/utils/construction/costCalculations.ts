@@ -43,6 +43,7 @@ export const GYRO_COST_MULTIPLIERS: Record<GyroType, number> = {
   [GyroType.XL]: 0.5,
   [GyroType.COMPACT]: 1.5,
   [GyroType.HEAVY_DUTY]: 2.0,
+  [GyroType.SUPERHEAVY]: 1.0,
 };
 
 /**

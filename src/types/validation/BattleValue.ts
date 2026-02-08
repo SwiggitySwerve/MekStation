@@ -115,12 +115,15 @@ export const STRUCTURE_BV_MULTIPLIERS: Record<string, number> = {
  * Gyro type BV multipliers
  * Per MegaMek Mek.java:5589-5597
  * Formula: tonnage × gyro_multiplier
+ *
+ * @spec openspec/specs/superheavy-mech-system/spec.md
  */
 export const GYRO_BV_MULTIPLIERS: Record<string, number> = {
   standard: 0.5,
   xl: 0.5,
   compact: 0.5,
   'heavy-duty': 1.0,
+  superheavy: 0.5,
 };
 
 /**
@@ -139,6 +142,28 @@ export const ENGINE_BV_MULTIPLIERS: Record<EngineType, number> = {
   [EngineType.LIGHT]: 0.75, // 2 side torso crits
   [EngineType.XXL]: 0.25, // 6 side torso crits (IS XXL)
   [EngineType.COMPACT]: 1.0, // 0 side torso crits
+  [EngineType.ICE]: 1.0,
+  [EngineType.FUEL_CELL]: 1.0,
+  [EngineType.FISSION]: 1.0,
+};
+
+/**
+ * Superheavy engine BV multipliers - reduced side-torso crits change the multiplier.
+ * Per MegaMek Engine.getSideTorsoCriticalSlots() and Engine.getBVMultiplier():
+ *   IS XL:   3 → 2 crits → 0.5 → 0.75
+ *   Clan XL: 2 → 1 crit  → 0.75 → 1.0
+ *   Light:   2 → 1 crit  → 0.75 → 1.0
+ *   IS XXL:  6 → 3 crits → 0.25 → 0.5
+ *
+ * @spec openspec/specs/superheavy-mech-system/spec.md
+ */
+export const SUPERHEAVY_ENGINE_BV_MULTIPLIERS: Record<EngineType, number> = {
+  [EngineType.STANDARD]: 1.0,
+  [EngineType.XL_IS]: 0.75, // 2 side torso crits (reduced from 3)
+  [EngineType.XL_CLAN]: 1.0, // 1 side torso crit (reduced from 2)
+  [EngineType.LIGHT]: 1.0, // 1 side torso crit (reduced from 2)
+  [EngineType.XXL]: 0.5, // 3 side torso crits (reduced from 6)
+  [EngineType.COMPACT]: 1.0,
   [EngineType.ICE]: 1.0,
   [EngineType.FUEL_CELL]: 1.0,
   [EngineType.FISSION]: 1.0,
@@ -179,18 +204,32 @@ export function getStructureBVMultiplier(structureType: string): number {
 }
 
 /**
- * Get gyro BV multiplier by type
- * Returns 0.5 (standard) if type not found
+ * Get gyro BV multiplier by type.
+ * Normalizes input key: lowercases and replaces underscores with hyphens
+ * to handle both "HEAVY_DUTY" (JSON format) and "heavy-duty" (lookup key).
+ * Returns 0.5 (standard) if type not found.
+ *
+ * @spec openspec/specs/superheavy-mech-system/spec.md
  */
 export function getGyroBVMultiplier(gyroType: string): number {
-  return GYRO_BV_MULTIPLIERS[gyroType.toLowerCase()] ?? 0.5;
+  const normalized = gyroType.toLowerCase().replace(/_/g, '-');
+  return GYRO_BV_MULTIPLIERS[normalized] ?? 0.5;
 }
 
 /**
- * Get engine BV multiplier by type
- * Returns 1.0 (standard) if type not found
+ * Get engine BV multiplier by type.
+ * For superheavy mechs, uses the reduced side-torso crit multipliers.
+ * Returns 1.0 (standard) if type not found.
+ *
+ * @spec openspec/specs/superheavy-mech-system/spec.md
  */
-export function getEngineBVMultiplier(engineType: EngineType): number {
+export function getEngineBVMultiplier(
+  engineType: EngineType,
+  superheavy: boolean = false,
+): number {
+  if (superheavy) {
+    return SUPERHEAVY_ENGINE_BV_MULTIPLIERS[engineType] ?? 1.0;
+  }
   return ENGINE_BV_MULTIPLIERS[engineType] ?? 1.0;
 }
 

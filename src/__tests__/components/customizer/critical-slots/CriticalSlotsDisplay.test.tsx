@@ -45,6 +45,19 @@ describe('CriticalSlotsDisplay', () => {
           { index: 0, type: 'empty' as const },
           { index: 1, type: 'empty' as const },
         ],
+        entries: [
+          {
+            index: 0,
+            primary: { index: 0, type: 'empty' as const },
+            isDoubleSlot: false,
+          },
+          {
+            index: 1,
+            primary: { index: 1, type: 'empty' as const },
+            isDoubleSlot: false,
+          },
+        ],
+        isSuperheavy: false,
       },
     ],
     autoFillUnhittables: false,

@@ -17,6 +17,7 @@ export enum GyroType {
   XL = 'XL Gyro',
   COMPACT = 'Compact Gyro',
   HEAVY_DUTY = 'Heavy-Duty Gyro',
+  SUPERHEAVY = 'Superheavy Gyro',
 }
 
 /**
@@ -80,6 +81,16 @@ export const GYRO_DEFINITIONS: readonly GyroDefinition[] = [
     criticalSlots: 4,
     introductionYear: 3067,
     hitsToDestroy: 3, // More resilient
+  },
+  {
+    type: GyroType.SUPERHEAVY,
+    name: 'Superheavy Gyro',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.ADVANCED,
+    weightMultiplier: 1.0,
+    criticalSlots: 4,
+    introductionYear: 3076,
+    hitsToDestroy: 2,
   },
 ] as const;
 

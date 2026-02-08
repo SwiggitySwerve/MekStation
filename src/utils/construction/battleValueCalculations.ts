@@ -364,12 +364,13 @@ export function calculateDefensiveBV(
 
   const bar = config.bar ?? 10;
   // Explicit engineMultiplier takes priority (e.g., Clan XXL override),
-  // then engineType lookup, then default 1.0
+  // then engineType lookup (superheavy-aware), then default 1.0
+  const unitIsSuperheavy = config.tonnage > 100;
   const engineMultiplier =
     config.engineMultiplier !== undefined
       ? config.engineMultiplier
       : config.engineType !== undefined
-        ? getEngineBVMultiplier(config.engineType)
+        ? getEngineBVMultiplier(config.engineType, unitIsSuperheavy)
         : 1.0;
 
   // Resolve defensive equipment BV from catalog (AMS, ECM, BAP, shields, armored components)
