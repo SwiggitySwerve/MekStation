@@ -303,6 +303,12 @@ ARMOR_TYPE_MAP: Dict[str, str] = {
     "Primitive": "PRIMITIVE",
     "Industrial Armor": "INDUSTRIAL",
     "Industrial": "INDUSTRIAL",
+    "Commercial": "COMMERCIAL",
+    "Commercial Armor": "COMMERCIAL",
+    "Heavy Industrial": "HEAVY_INDUSTRIAL",
+    "Heavy Industrial Armor": "HEAVY_INDUSTRIAL",
+    "Impact-Resistant": "IMPACT_RESISTANT",
+    "Impact-Resistant Armor": "IMPACT_RESISTANT",
 }
 
 
@@ -330,6 +336,12 @@ def map_armor_type(value: str) -> str:
         return "FERRO_FIBROUS"
     if "PRIMITIVE" in upper:
         return "PRIMITIVE"
+    if "COMMERCIAL" in upper:
+        return "COMMERCIAL"
+    if "IMPACT" in upper and "RESIST" in upper:
+        return "IMPACT_RESISTANT"
+    if "HEAVY" in upper and "INDUSTRIAL" in upper:
+        return "HEAVY_INDUSTRIAL"
     if "INDUSTRIAL" in upper:
         return "INDUSTRIAL"
     return "STANDARD"
