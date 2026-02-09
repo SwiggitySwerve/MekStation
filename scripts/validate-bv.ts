@@ -448,8 +448,8 @@ function isClanEquipAtLocation(
         .replace(/\s*\(omnipod\)/gi, '')
         .replace(/\s*\(R\)/g, '')
         .trim();
-      // Check if this crit slot starts with CL (Clan equipment marker)
-      if (!/^CL/i.test(clean)) continue;
+      // Check if this crit slot starts with CL or "Clan " (Clan equipment marker)
+      if (!/^CL/i.test(clean) && !/^Clan\s/i.test(clean)) continue;
       // Normalize after stripping CL prefix to compare with equipment ID
       const slotNorm = clean
         .toLowerCase()
@@ -888,6 +888,8 @@ interface CritScan {
   /** Accumulated BV from misc (non-weapon, non-physical) equipment with offensive BV
    *  (e.g., Bridge Layers: Light=5, Medium=10, Heavy=20) */
   miscEquipBV: number;
+  hasRamPlate: boolean;
+  critLaserHSCount: number;
 }
 
 function classifyPhysicalWeapon(slotLower: string): string | null {
@@ -1120,6 +1122,8 @@ function scanCrits(unit: UnitData): CritScan {
     riscViralJammerCount: 0,
     hasBlueShield: false,
     miscEquipBV: 0,
+    hasRamPlate: false,
+    critLaserHSCount: 0,
   };
   if (!unit.criticalSlots) return r;
   const rearSlotsByLoc = new Map<string, Map<string, number>>();
@@ -1154,6 +1158,9 @@ function scanCrits(unit: UnitData): CritScan {
         // Modular Armor: each slot adds 10 armor points (MekBVCalculator uses entity.getTotalOArmor() which includes modular armor)
         if (lo.includes('modulararmor') || lo.includes('modular armor'))
           r.modularArmorSlots++;
+
+        if (lo.includes('ram plate') || lo.includes('ramplate'))
+          r.hasRamPlate = true;
 
         // CASE
         if (
@@ -1916,11 +1923,43 @@ function scanCrits(unit: UnitData): CritScan {
         }
       }
     }
-    // Clan DHS = 2 crit slots each, IS DHS = 3 crit slots each
-    const slotsPerDHS = isClanTech ? 2 : 3;
+    let slotsPerDHS = 3; // IS default
+    if (isClanTech) {
+      slotsPerDHS = 2;
+    } else if (unit.techBase === 'MIXED') {
+      const hasClanDHS = Object.values(unit.criticalSlots).some(
+        (slots) =>
+          Array.isArray(slots) &&
+          slots.some(
+            (s) =>
+              s &&
+              typeof s === 'string' &&
+              (s.startsWith('CLDouble') || s.includes('Clan Double Heat Sink')),
+          ),
+      );
+      if (hasClanDHS) slotsPerDHS = 2;
+    }
     r.critDHSCount = Math.round(dhsCritSlots / slotsPerDHS);
     // Prototype DHS are always IS (3 crit slots each)
     r.critProtoDHSCount = Math.round(protoDHSCritSlots / 3);
+
+    // Count Laser Heat Sinks (2 crit slots each, Clan, F_DOUBLE_HEAT_SINK in MegaMek)
+    let laserHSCritSlots = 0;
+    for (const [, lhsSlots] of Object.entries(unit.criticalSlots)) {
+      if (!Array.isArray(lhsSlots)) continue;
+      for (const s of lhsSlots) {
+        if (!s || typeof s !== 'string') continue;
+        if (
+          s
+            .toLowerCase()
+            .replace(/\s*\(omnipod\)/gi, '')
+            .trim()
+            .includes('laser heat sink')
+        )
+          laserHSCritSlots++;
+      }
+    }
+    r.critLaserHSCount = Math.round(laserHSCritSlots / 2);
   }
 
   // Clan mechs have built-in CASE in all non-head locations (torsos, arms, legs, CT).
@@ -2000,6 +2039,11 @@ function scanCrits(unit: UnitData): CritScan {
   // TechBase. MegaMek applies per-location implicit CASE only in torso/arm locations
   // that contain Clan ammo — NOT full unit-wide CASE like pure Clan or Clan-engine units.
   // The CLAN_CHASSIS_MIXED_UNITS set contains unit IDs verified by BV validation parity.
+  // CLAN_CHASSIS_MIXED_UNITS: MegaMek's BV explosive penalty uses locationHasCase()
+  // which only checks explicitly-mounted CASE equipment, NOT implicit Clan CASE.
+  // The crit scanner already detects explicit ISCASE/CLCASE in crits, so no additional
+  // CASE injection is needed here. Implicit Clan CASE (isClan() flag) affects hasCase()
+  // and Blue Shield logic separately, but NOT the per-location explosive penalty.
   if (
     unit.techBase === 'MIXED' &&
     !hasClanCASE &&
@@ -3352,15 +3396,16 @@ function calculateUnitBV(
   const isDHS =
     unit.heatSinks.type.toUpperCase().includes('DOUBLE') ||
     unit.heatSinks.type.toUpperCase().includes('LASER');
-  // Prototype DHS dissipate 2 heat each (same as regular DHS) per MegaMek Mek.getHeatCapacity().
-  // But unit.heatSinks.type may still be "SINGLE" if the base heat sinks are single.
-  // In that case we need: (totalHS - protoDHS) * 1 + protoDHS * 2
+  // Prototype DHS and Laser HS dissipate 2 heat each (F_DOUBLE_HEAT_SINK in MegaMek).
+  // When unit.heatSinks.type is "SINGLE" but crits contain double-dissipation HS,
+  // we need mixed calculation: (totalHS - doubleHS) * 1 + doubleHS * 2
   let heatDiss: number;
   if (isDHS) {
     heatDiss = effectiveHSCount * 2;
-  } else if (cs.critProtoDHSCount > 0) {
-    const singleHS = effectiveHSCount - cs.critProtoDHSCount;
-    heatDiss = singleHS * 1 + cs.critProtoDHSCount * 2;
+  } else if (cs.critLaserHSCount > 0 || cs.critProtoDHSCount > 0) {
+    const doubleHSCount = cs.critLaserHSCount + cs.critProtoDHSCount;
+    const singleHS = effectiveHSCount - doubleHSCount;
+    heatDiss = singleHS * 1 + doubleHSCount * 2;
   } else {
     heatDiss = effectiveHSCount * 1;
   }
@@ -3953,6 +3998,11 @@ function calculateUnitBV(
   offensiveEquipBV += cs.mineDispenserCount * 8;
   // Misc equipment with offensive BV (Bridge Layers, etc.)
   offensiveEquipBV += cs.miscEquipBV;
+  if (cs.hasRamPlate) {
+    const ramDamage = Math.floor(unit.tonnage * runMP * 0.1) / 2;
+    const ramPlateBV = Math.floor(ramDamage) * 1.1;
+    offensiveEquipBV += Math.round(ramPlateBV * 1000.0) / 1000.0;
+  }
   // Note: Watchdog CEWS is NOT counted as offensive equipment in MegaMek
   // (the bv=7 code is unreachable due to F_BAP skip in processOffensiveEquipment)
   // AES weight bonus: arm AES (+0.1 each), leg AES (+0.2 biped, +0.4 quad)
