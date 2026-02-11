@@ -22,6 +22,7 @@ import {
 import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
 import { isValidLocationForEquipment } from '@/types/equipment/EquipmentPlacement';
 import { SystemComponentType } from '@/utils/colors/slotColors';
+import { logger } from '@/utils/logger';
 import {
   fillUnhittableSlots,
   compactEquipmentSlots,
@@ -523,7 +524,7 @@ export function CriticalSlotsTab({
           // TODO: Wire to store's pairEquipment action when implemented
           // For now, fall through to standard placement which handles the
           // equipment via existing updateEquipmentLocation
-          console.debug(
+          logger.debug(
             `Superheavy pairing: ${eq.name} -> slot ${slotIndex} (pairing not yet wired to store)`,
           );
         }
