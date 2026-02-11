@@ -14,6 +14,7 @@ import {
 } from '@/types/award';
 
 import { getAwardIcon, getRarityStrokeWidth } from './awardIcons';
+import { getRarityBorder, getRarityGlow } from './awardRarityStyles';
 
 // =============================================================================
 // Types
@@ -26,40 +27,6 @@ interface AwardBadgeProps {
   size?: 'sm' | 'md' | 'lg';
   showName?: boolean;
   className?: string;
-}
-
-// =============================================================================
-// Rarity Styling Helpers
-// =============================================================================
-
-function getRarityBorder(rarity: AwardRarity): string {
-  switch (rarity) {
-    case AwardRarity.Common:
-      return 'border-slate-500/50 hover:border-slate-400';
-    case AwardRarity.Uncommon:
-      return 'border-emerald-500/50 hover:border-emerald-400';
-    case AwardRarity.Rare:
-      return 'border-blue-500/50 hover:border-blue-400';
-    case AwardRarity.Legendary:
-      return 'border-amber-500/50 hover:border-amber-400';
-    default:
-      return 'border-slate-500/50';
-  }
-}
-
-function getRarityGlow(rarity: AwardRarity): string {
-  switch (rarity) {
-    case AwardRarity.Common:
-      return '';
-    case AwardRarity.Uncommon:
-      return 'shadow-emerald-500/20';
-    case AwardRarity.Rare:
-      return 'shadow-blue-500/30';
-    case AwardRarity.Legendary:
-      return 'shadow-amber-500/40';
-    default:
-      return '';
-  }
 }
 
 // =============================================================================
