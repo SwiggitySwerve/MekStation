@@ -1,4 +1,8 @@
 import { ServiceError } from '@/services/common/errors';
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { logger } from '@/utils/logger';
 import { getLocationsForConfigurationString } from '@/utils/mech/mechLocationRegistry';
@@ -129,20 +133,10 @@ interface CachedSVG {
 type AssetSource = 'local' | 'cdn' | 'github-raw';
 
 class MmDataAssetService {
-  private static instance: MmDataAssetService;
   private svgCache: Map<string, CachedSVG> = new Map();
   private readonly CACHE_TTL_MS = 5 * 60 * 1000;
   private config: MmDataAssetConfig | null = null;
   private configLoadPromise: Promise<MmDataAssetConfig> | null = null;
-
-  private constructor() {}
-
-  static getInstance(): MmDataAssetService {
-    if (!MmDataAssetService.instance) {
-      MmDataAssetService.instance = new MmDataAssetService();
-    }
-    return MmDataAssetService.instance;
-  }
 
   /**
    * Get the mm-data version to use for CDN/GitHub URLs.
@@ -418,4 +412,16 @@ class MmDataAssetService {
   }
 }
 
-export const mmDataAssetService = MmDataAssetService.getInstance();
+const mmDataAssetServiceFactory: SingletonFactory<MmDataAssetService> =
+  createSingleton((): MmDataAssetService => new MmDataAssetService());
+
+export function getMmDataAssetService(): MmDataAssetService {
+  return mmDataAssetServiceFactory.get();
+}
+
+export function resetMmDataAssetService(): void {
+  mmDataAssetServiceFactory.reset();
+}
+
+// @deprecated Use getMmDataAssetService() instead
+export const mmDataAssetService = getMmDataAssetService();

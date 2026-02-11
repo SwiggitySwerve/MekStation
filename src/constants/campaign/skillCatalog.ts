@@ -426,7 +426,7 @@ const SKILL_CATEGORY_MAP: Record<string, string> = {
  * @example
  * const gunnery = getSkillType('gunnery');
  * if (gunnery) {
- *   console.log(gunnery.name); // "Gunnery"
+ *   logger.debug(gunnery.name); // "Gunnery"
  * }
  */
 export function getSkillType(id: string): ISkillType | undefined {
@@ -441,7 +441,7 @@ export function getSkillType(id: string): ISkillType | undefined {
  *
  * @example
  * const combatSkills = getSkillsByCategory('combat');
- * console.log(combatSkills.length); // 11
+ * logger.debug(combatSkills.length); // 11
  */
 export function getSkillsByCategory(category: string): ISkillType[] {
   return Object.values(SKILL_CATALOG).filter(
@@ -456,7 +456,7 @@ export function getSkillsByCategory(category: string): ISkillType[] {
  *
  * @example
  * const allSkills = getAllSkillTypes();
- * console.log(allSkills.length); // 39
+ * logger.debug(allSkills.length); // 39
  */
 export function getAllSkillTypes(): ISkillType[] {
   return Object.values(SKILL_CATALOG);

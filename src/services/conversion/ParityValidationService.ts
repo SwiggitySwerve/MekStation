@@ -10,6 +10,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
+
 import { getMTFExportService, MTFExportService } from './MTFExportService';
 import { getMTFParserService, MTFParserService } from './MTFParserService';
 import {
@@ -24,20 +29,12 @@ import {
  * Parity Validation Service
  */
 export class ParityValidationService {
-  private static instance: ParityValidationService | null = null;
   private parser: MTFParserService;
   private exporter: MTFExportService;
 
-  private constructor() {
+  constructor() {
     this.parser = getMTFParserService();
     this.exporter = getMTFExportService();
-  }
-
-  static getInstance(): ParityValidationService {
-    if (!ParityValidationService.instance) {
-      ParityValidationService.instance = new ParityValidationService();
-    }
-    return ParityValidationService.instance;
   }
 
   /**
@@ -706,9 +703,13 @@ export class ParityValidationService {
   }
 }
 
-/**
- * Get singleton instance
- */
+const parityValidationServiceFactory: SingletonFactory<ParityValidationService> =
+  createSingleton((): ParityValidationService => new ParityValidationService());
+
 export function getParityValidationService(): ParityValidationService {
-  return ParityValidationService.getInstance();
+  return parityValidationServiceFactory.get();
+}
+
+export function resetParityValidationService(): void {
+  parityValidationServiceFactory.reset();
 }

@@ -89,8 +89,8 @@ export function AwardBadge({
   const IconComponent = getAwardIcon(award.icon);
   const strokeWidth = getRarityStrokeWidth(award.rarity);
 
-   // Icon size based on container size (approximately 50% of container)
-   const iconSize = AWARD_ICON_SIZES[size];
+  // Icon size based on container size (approximately 50% of container)
+  const iconSize = AWARD_ICON_SIZES[size];
 
   return (
     <div

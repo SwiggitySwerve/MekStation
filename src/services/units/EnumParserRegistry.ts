@@ -7,6 +7,10 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
 import { MechConfiguration, MechLocation } from '@/types/construction';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
@@ -328,24 +332,20 @@ class EnumParserRegistryImpl implements IEnumParserRegistry {
 // Singleton Export
 // =============================================================================
 
-let _instance: EnumParserRegistryImpl | null = null;
+const enumParserRegistryFactory: SingletonFactory<EnumParserRegistryImpl> =
+  createSingleton((): EnumParserRegistryImpl => new EnumParserRegistryImpl());
 
-/**
- * Get the singleton EnumParserRegistry instance
- */
 export function getEnumParserRegistry(): IEnumParserRegistry {
-  if (!_instance) {
-    _instance = new EnumParserRegistryImpl();
-  }
-  return _instance;
+  return enumParserRegistryFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetEnumParserRegistry(): void {
+  enumParserRegistryFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetEnumParserRegistry(): void {
-  _instance = null;
+  enumParserRegistryFactory.reset();
 }
 
 // =============================================================================

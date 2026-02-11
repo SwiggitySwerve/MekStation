@@ -23,6 +23,13 @@ import type {
   IChangeLogEntry,
 } from '@/types/vault';
 
+import { logger } from '@/utils/logger';
+
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -439,7 +446,7 @@ export class P2PTransport {
         await handler(peerId, message);
       }
     } catch (error) {
-      console.error('Failed to handle message:', error);
+      logger.error('Failed to handle message:', error);
     }
   }
 
@@ -453,7 +460,7 @@ export class P2PTransport {
     // - Handle ICE candidates by adding them
 
     // For now, just log
-    console.log('Received signaling:', message.type, 'from', message.sourceId);
+    logger.debug('Received signaling:', message.type, 'from', message.sourceId);
   }
 
   // ===========================================================================
@@ -532,29 +539,37 @@ export class P2PTransport {
 // Singleton
 // =============================================================================
 
-let p2pTransport: P2PTransport | null = null;
+let _p2pMyId: string | undefined;
+
+const p2pTransportFactory: SingletonFactory<P2PTransport> = createSingleton(
+  (): P2PTransport => {
+    if (!_p2pMyId) {
+      throw new Error('P2P Transport requires myId for first initialization');
+    }
+    return new P2PTransport(_p2pMyId);
+  },
+  (instance) => instance.disconnectAll(),
+);
 
 export function getP2PTransport(myId?: string): P2PTransport {
-  if (!p2pTransport) {
+  if (!_p2pMyId) {
     if (!myId) {
       throw new Error('P2P Transport requires myId for first initialization');
     }
-    p2pTransport = new P2PTransport(myId);
-  } else if (myId && myId !== p2pTransport.getMyId()) {
-    console.warn(
-      `getP2PTransport called with different myId (${myId}) than initialized (${p2pTransport.getMyId()}). ` +
+    _p2pMyId = myId;
+  } else if (myId && myId !== p2pTransportFactory.get().getMyId()) {
+    logger.warn(
+      `getP2PTransport called with different myId (${myId}) than initialized (${p2pTransportFactory.get().getMyId()}). ` +
         'Using existing instance. Call resetP2PTransport() first if you need to reinitialize.',
     );
   }
-  return p2pTransport;
+  return p2pTransportFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetP2PTransport(): void {
-  if (p2pTransport) {
-    p2pTransport.disconnectAll();
-  }
-  p2pTransport = null;
+  p2pTransportFactory.reset();
+  _p2pMyId = undefined;
 }

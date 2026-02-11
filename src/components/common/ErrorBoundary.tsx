@@ -5,6 +5,8 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
+import { logger } from '@/utils/logger';
+
 interface ErrorBoundaryState {
   hasError: boolean;
   error?: Error;
@@ -55,11 +57,11 @@ export class ErrorBoundary extends Component<
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // CRITICAL: Log error for debugging
-    console.error(
+    logger.error(
       `[ErrorBoundary] Error caught in ${this.props.componentName || 'component'}:`,
       error,
     );
-    console.error('[ErrorBoundary] Error info:', errorInfo);
+    logger.error('[ErrorBoundary] Error info:', errorInfo);
 
     // CRITICAL: Call custom error handler if provided
     if (this.props.onError) {
@@ -123,7 +125,7 @@ export class ErrorBoundary extends Component<
     // CRITICAL: Send to error logging service (if available)
     try {
       // This would integrate with an error logging service
-      console.error('[ErrorBoundary] Error log:', errorLog);
+      logger.error('[ErrorBoundary] Error log:', errorLog);
 
       // CRITICAL: Store in localStorage for debugging
       const errorLogs = JSON.parse(
@@ -138,7 +140,7 @@ export class ErrorBoundary extends Component<
 
       localStorage.setItem('errorLogs', JSON.stringify(errorLogs));
     } catch (logError) {
-      console.error('[ErrorBoundary] Failed to log error:', logError);
+      logger.error('[ErrorBoundary] Failed to log error:', logError);
     }
   }
 
@@ -147,12 +149,12 @@ export class ErrorBoundary extends Component<
       this.props.maxRecoveryAttempts || ErrorBoundary.MAX_RECOVERY_ATTEMPTS;
 
     if (this.state.recoveryAttempts >= maxAttempts) {
-      console.error('[ErrorBoundary] Maximum recovery attempts reached');
+      logger.error('[ErrorBoundary] Maximum recovery attempts reached');
       this.setState({ canRecover: false });
       return;
     }
 
-    console.log(
+    logger.debug(
       `[ErrorBoundary] Attempting recovery (attempt ${this.state.recoveryAttempts + 1})`,
     );
 
@@ -166,7 +168,7 @@ export class ErrorBoundary extends Component<
   };
 
   private handleReset = (): void => {
-    console.log('[ErrorBoundary] Resetting component state');
+    logger.debug('[ErrorBoundary] Resetting component state');
 
     // CRITICAL: Reset to initial state
     this.setState({
@@ -197,7 +199,7 @@ export class ErrorBoundary extends Component<
         'Error report copied to clipboard. Please include this in your bug report.',
       );
     } catch (clipboardError) {
-      console.error(
+      logger.error(
         '[ErrorBoundary] Failed to copy error report:',
         clipboardError,
       );
@@ -328,7 +330,7 @@ export function useErrorBoundary(): {
 
   const handleError = React.useCallback(
     (error: Error, errorInfo: ErrorInfo) => {
-      console.error('[useErrorBoundary] Error caught:', error, errorInfo);
+      logger.error('[useErrorBoundary] Error caught:', error, errorInfo);
       setError(error);
     },
     [],

@@ -47,9 +47,9 @@ export interface IService {
  * ```typescript
  * const result = await service.doSomething();
  * if (result.success) {
- *   console.log(result.data);
+ *   logger.debug(result.data);
  * } else {
- *   console.error(result.error);
+ *   logger.error(result.error);
  * }
  * ```
  */

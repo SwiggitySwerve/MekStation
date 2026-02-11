@@ -193,7 +193,7 @@ export function getRemainingBalance(loan: ILoan): Money {
  *
  * @example
  * if (isLoanPaidOff(loan)) {
- *   console.log('Loan is fully paid!');
+ *   logger.debug('Loan is fully paid!');
  * }
  */
 export function isLoanPaidOff(loan: ILoan): boolean {

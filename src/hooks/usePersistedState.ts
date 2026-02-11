@@ -7,6 +7,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
+import { logger } from '@/utils/logger';
+
 /**
  * Hook that syncs state with localStorage
  *
@@ -32,7 +34,7 @@ export function usePersistedState<T>(
         setValue(JSON.parse(stored));
       }
     } catch (e) {
-      console.warn(`Failed to read localStorage key "${key}":`, e);
+      logger.warn(`Failed to read localStorage key "${key}":`, e);
     }
     setIsInitialized(true);
   }, [key]);
@@ -45,7 +47,7 @@ export function usePersistedState<T>(
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
-      console.warn(`Failed to write localStorage key "${key}":`, e);
+      logger.warn(`Failed to write localStorage key "${key}":`, e);
     }
   }, [key, value, isInitialized]);
 

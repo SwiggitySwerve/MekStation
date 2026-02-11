@@ -506,7 +506,7 @@ export function getTotalPersonnel(campaign: ICampaign): number {
  *
  * @example
  * const active = getActivePersonnel(campaign);
- * console.log(`${active.length} personnel ready for duty`);
+ * logger.debug(`${active.length} personnel ready for duty`);
  */
 export function getActivePersonnel(campaign: ICampaign): IPerson[] {
   return Array.from(campaign.personnel.values()).filter(isActive);
@@ -555,7 +555,7 @@ export function getTotalForces(campaign: ICampaign): number {
  *
  * @example
  * const unitIds = getAllUnits(campaign);
- * console.log(`Campaign has ${unitIds.length} units`);
+ * logger.debug(`Campaign has ${unitIds.length} units`);
  */
 export function getAllUnits(campaign: ICampaign): string[] {
   const unitIds = new Set<string>();
@@ -581,7 +581,7 @@ export function getAllUnits(campaign: ICampaign): string[] {
  *
  * @example
  * const balance = getBalance(campaign);
- * console.log(`Balance: ${balance.format()}`);
+ * logger.debug(`Balance: ${balance.format()}`);
  */
 export function getBalance(campaign: ICampaign): Money {
   return campaign.finances.balance;
@@ -710,7 +710,7 @@ export function getRootForce(campaign: ICampaign): IForce | undefined {
  *
  * @example
  * if (isMission(obj)) {
- *   console.log(obj.name);
+ *   logger.debug(obj.name);
  * }
  */
 export function isMission(value: unknown): value is IMission {
@@ -725,7 +725,7 @@ export function isMission(value: unknown): value is IMission {
  *
  * @example
  * if (isCampaignOptions(obj)) {
- *   console.log(obj.salaryMultiplier);
+ *   logger.debug(obj.salaryMultiplier);
  * }
  */
 export function isCampaignOptions(value: unknown): value is ICampaignOptions {
@@ -752,7 +752,7 @@ export function isCampaignOptions(value: unknown): value is ICampaignOptions {
  *
  * @example
  * if (isCampaign(obj)) {
- *   console.log(obj.name);
+ *   logger.debug(obj.name);
  * }
  */
 export function isCampaign(value: unknown): value is ICampaign {

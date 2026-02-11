@@ -11,6 +11,7 @@ import { StoreApi } from 'zustand';
 
 import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { logger } from '@/utils/logger';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import {
@@ -53,7 +54,7 @@ function ensureValidAerospaceId(
   }
 
   const newId = generateUUID();
-  console.warn(
+  logger.warn(
     `[AerospaceStoreRegistry] ${context}: Invalid aerospace ID "${aerospaceId || '(missing)'}" replaced with "${newId}"`,
   );
   return newId;
@@ -115,7 +116,7 @@ export function hydrateOrCreateAerospace(
         return store;
       }
     } catch (e) {
-      console.warn(
+      logger.warn(
         `Failed to hydrate aerospace ${validAerospaceId}, creating new:`,
         e,
       );
@@ -202,7 +203,7 @@ export function createAerospaceFromFullState(
 
   const existing = aerospaceStores.get(validId);
   if (existing) {
-    console.warn(
+    logger.warn(
       `Aerospace store ${validId} already exists, returning existing`,
     );
     return existing;

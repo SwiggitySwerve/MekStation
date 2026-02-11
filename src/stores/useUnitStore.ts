@@ -57,6 +57,7 @@ import {
   calculateTargetingComputerWeight,
   calculateTargetingComputerSlots,
 } from '@/utils/equipment/equipmentListUtils';
+import { logger } from '@/utils/logger';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 import {
   getFullyValidatedSelections,
@@ -1047,7 +1048,7 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
                 };
               } catch {
                 // Formula not found or calculation failed - use defaults
-                console.warn(
+                logger.warn(
                   `Variable equipment calculation failed for ${item.variableEquipmentId}`,
                 );
               }

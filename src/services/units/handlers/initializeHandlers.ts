@@ -7,6 +7,8 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
+import { logger } from '@/utils/logger';
+
 import { getUnitTypeRegistry } from '../UnitTypeRegistry';
 import { createAerospaceHandler } from './AerospaceUnitHandler';
 import { createBattleArmorHandler } from './BattleArmorUnitHandler';
@@ -35,7 +37,7 @@ let isInitialized = false;
  */
 export function initializeUnitTypeHandlers(): void {
   if (isInitialized) {
-    console.warn('[initializeHandlers] Handlers already initialized');
+    logger.warn('[initializeHandlers] Handlers already initialized');
     return;
   }
 
@@ -64,7 +66,7 @@ export function initializeUnitTypeHandlers(): void {
 
   isInitialized = true;
 
-  console.log(
+  logger.debug(
     `[initializeHandlers] Registered ${registry.getRegisteredTypes().length} unit type handlers`,
   );
 }

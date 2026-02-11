@@ -19,10 +19,10 @@ import type { IAnomaly } from '@/types/simulation-viewer';
  *     configKey: 'heatSuicideThreshold',
  *     timestamp: Date.now()
  *   },
- *   onViewSnapshot: (anomaly) => console.log('View snapshot'),
- *   onViewBattle: (battleId) => console.log('View battle'),
- *   onConfigureThreshold: (configKey) => console.log('Configure'),
- *   onDismiss: (anomalyId) => console.log('Dismiss')
+ *   onViewSnapshot: (anomaly) => logger.debug('View snapshot'),
+ *   onViewBattle: (battleId) => logger.debug('View battle'),
+ *   onConfigureThreshold: (configKey) => logger.debug('Configure'),
+ *   onDismiss: (anomalyId) => logger.debug('Dismiss')
  * };
  */
 export interface IAnomalyAlertCardProps {

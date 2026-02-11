@@ -16,6 +16,7 @@
 
 import { createSingleton } from '@/services/core/createSingleton';
 import { ICampaign } from '@/types/campaign/Campaign';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Pipeline Phase Enum
@@ -242,7 +243,7 @@ export class DayPipelineRegistry {
         processorsRun.push(processor.id);
       } catch (error) {
         // Log error but continue pipeline — processor is skipped
-        console.error(
+        logger.error(
           `[DayPipeline] Processor "${processor.id}" (${processor.displayName}) failed:`,
           error,
         );

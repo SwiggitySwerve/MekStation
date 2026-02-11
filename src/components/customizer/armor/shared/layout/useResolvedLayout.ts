@@ -8,6 +8,7 @@
 import { useMemo } from 'react';
 
 import { MechLocation } from '@/types/construction';
+import { logger } from '@/utils/logger';
 
 import { resolveLayout } from './LayoutEngine';
 import {
@@ -184,7 +185,7 @@ export function useResolvedLayout(
   const config = useMemo(() => {
     const cfg = getLayoutConfig(layoutId);
     if (!cfg) {
-      console.warn(
+      logger.warn(
         `Layout '${layoutId}' not found, falling back to geometric-biped`,
       );
       return GEOMETRIC_BIPED_LAYOUT;

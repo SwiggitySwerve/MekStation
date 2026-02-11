@@ -18,6 +18,10 @@ import {
   ScenarioTemplateType,
 } from '@/types/encounter';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { getForceRepository } from '../forces/ForceRepository';
 import {
   getEncounterRepository,
@@ -362,11 +366,13 @@ export class EncounterService implements IEncounterService {
 // Singleton Instance
 // =============================================================================
 
-let service: EncounterService | null = null;
+const encounterServiceFactory: SingletonFactory<EncounterService> =
+  createSingleton((): EncounterService => new EncounterService());
 
 export function getEncounterService(): EncounterService {
-  if (!service) {
-    service = new EncounterService();
-  }
-  return service;
+  return encounterServiceFactory.get();
+}
+
+export function resetEncounterService(): void {
+  encounterServiceFactory.reset();
 }

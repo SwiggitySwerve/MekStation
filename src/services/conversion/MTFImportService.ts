@@ -8,6 +8,10 @@
  */
 
 import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
+import {
   getEquipmentNameMapper,
   EquipmentNameMapper,
 } from '@/services/equipment/EquipmentNameMapper';
@@ -71,24 +75,12 @@ const DEFAULT_VALIDATION_OPTIONS: IValidationOptions = {
  * Handles importing and validating unit data from JSON.
  */
 export class MTFImportService implements IMTFImporter {
-  private static instance: MTFImportService | null = null;
-
   private registry: EquipmentRegistry;
   private nameMapper: EquipmentNameMapper;
 
-  private constructor() {
+  constructor() {
     this.registry = getEquipmentRegistry();
     this.nameMapper = getEquipmentNameMapper();
-  }
-
-  /**
-   * Get singleton instance
-   */
-  static getInstance(): MTFImportService {
-    if (!MTFImportService.instance) {
-      MTFImportService.instance = new MTFImportService();
-    }
-    return MTFImportService.instance;
   }
 
   /**
@@ -481,9 +473,13 @@ export class MTFImportService implements IMTFImporter {
   }
 }
 
-/**
- * Convenience function to get the import service instance
- */
+const mtfImportServiceFactory: SingletonFactory<MTFImportService> =
+  createSingleton((): MTFImportService => new MTFImportService());
+
 export function getMTFImportService(): MTFImportService {
-  return MTFImportService.getInstance();
+  return mtfImportServiceFactory.get();
+}
+
+export function resetMTFImportService(): void {
+  mtfImportServiceFactory.reset();
 }

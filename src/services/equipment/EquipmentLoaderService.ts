@@ -34,6 +34,7 @@ import {
 } from '@/types/equipment/MiscEquipmentTypes';
 import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { logger } from '@/utils/logger';
 
 import {
   createSingleton,
@@ -77,7 +78,7 @@ async function readJsonFile<T>(
       const content = await fs.readFile(fullPath, 'utf-8');
       return JSON.parse(content) as T;
     } catch (error) {
-      console.warn(
+      logger.warn(
         `[EquipmentLoaderService] Server-side read failed for ${filePath}:`,
         error,
       );
@@ -90,12 +91,12 @@ async function readJsonFile<T>(
       if (response.ok) {
         return (await response.json()) as T;
       }
-      console.warn(
+      logger.warn(
         `[EquipmentLoaderService] Fetch failed for ${filePath}: ${response.status}`,
       );
       return null;
     } catch (error) {
-      console.warn(
+      logger.warn(
         `[EquipmentLoaderService] Fetch error for ${filePath}:`,
         error,
       );

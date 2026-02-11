@@ -21,6 +21,16 @@ import {
   generateStructurePipsForLocationFallback,
 } from '@/services/printing/svgRecordSheetRenderer/structure';
 import { IRecordSheetData, ILocationStructure } from '@/types/printing';
+import { logger } from '@/utils/logger';
+
+jest.mock('@/utils/logger', () => ({
+  logger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 
 // Mock the ArmorPipLayout module
 jest.mock('@/services/printing/ArmorPipLayout', () => ({
@@ -161,17 +171,12 @@ const createMockPipSVG = (pipCount: number): string => {
 
 describe('structure.ts', () => {
   let mockFetch: jest.Mock;
-  let consoleWarnSpy: jest.SpyInstance;
+  const consoleWarnSpy = logger.warn as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockFetch = jest.fn();
     global.fetch = mockFetch;
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleWarnSpy.mockRestore();
   });
 
   describe('fillStructurePips', () => {

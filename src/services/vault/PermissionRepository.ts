@@ -16,6 +16,10 @@ import type {
 
 import { getSQLiteService } from '@/services/persistence';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { ICrudRepository } from '../core/ICrudRepository';
 
 // =============================================================================
@@ -435,18 +439,16 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
 // Singleton
 // =============================================================================
 
-let permissionRepository: PermissionRepository | null = null;
+const permissionRepositoryFactory: SingletonFactory<PermissionRepository> =
+  createSingleton((): PermissionRepository => new PermissionRepository());
 
 export function getPermissionRepository(): PermissionRepository {
-  if (!permissionRepository) {
-    permissionRepository = new PermissionRepository();
-  }
-  return permissionRepository;
+  return permissionRepositoryFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetPermissionRepository(): void {
-  permissionRepository = null;
+  permissionRepositoryFactory.reset();
 }

@@ -16,7 +16,7 @@ import {
   MTFExportService,
   getMTFExportService,
 } from '@/services/conversion/MTFExportService';
-import { MTFParserService } from '@/services/conversion/MTFParserService';
+import { getMTFParserService } from '@/services/conversion/MTFParserService';
 import {
   ISerializedUnit,
   ISerializedFluff,
@@ -39,9 +39,9 @@ describe('MTFExportService', () => {
       expect(instance1).toBe(instance2);
     });
 
-    it('should return same instance from static method', () => {
-      const instance1 = MTFExportService.getInstance();
-      const instance2 = MTFExportService.getInstance();
+    it('should return same instance from getter', () => {
+      const instance1 = getMTFExportService();
+      const instance2 = getMTFExportService();
       expect(instance1).toBe(instance2);
     });
   });
@@ -1770,7 +1770,7 @@ describe('MTFExportService', () => {
   // OmniMech Round-Trip Tests
   // ============================================================================
   describe('OmniMech Round-Trip', () => {
-    const parser = MTFParserService.getInstance();
+    const parser = getMTFParserService();
 
     it('should preserve isOmni flag through export and re-parse', () => {
       const unit: ISerializedUnit = {
@@ -2012,7 +2012,7 @@ describe('MTFExportService', () => {
   // OmniMech Variant Workflow Tests
   // ============================================================================
   describe('OmniMech Variant Workflow', () => {
-    const parser = MTFParserService.getInstance();
+    const parser = getMTFParserService();
 
     it('should support variant switching workflow: Prime -> reset -> A variant', () => {
       // Step 1: Start with Prime variant (has pod equipment)

@@ -6,7 +6,11 @@
 
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
-import { MTFImportService, getMTFImportService } from '../MTFImportService';
+import {
+  MTFImportService,
+  getMTFImportService,
+  resetMTFImportService,
+} from '../MTFImportService';
 
 // Mock dependencies
 jest.mock('@/services/equipment/EquipmentRegistry', () => ({
@@ -102,9 +106,7 @@ describe('MTFImportService', () => {
   let service: MTFImportService;
 
   beforeEach(() => {
-    // Reset singleton
-    // @ts-expect-error - accessing private static for testing
-    MTFImportService.instance = null;
+    resetMTFImportService();
     service = getMTFImportService();
   });
 

@@ -23,6 +23,7 @@ import {
 } from '@/components/ui';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { IRepairJob, RepairJobStatus } from '@/types/repair';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Filter Types
@@ -361,7 +362,7 @@ export default function RepairBayPage(): React.ReactElement {
 
   const handleFieldRepair = useCallback(() => {
     // TODO: Implement field repair modal
-    console.log('Field repair clicked');
+    logger.debug('Field repair clicked');
   }, []);
 
   const handleRepairAll = useCallback(() => {

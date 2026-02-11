@@ -31,6 +31,7 @@ import {
   endGame,
   replayToSequence,
 } from '@/utils/gameplay/gameSession';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Types
@@ -214,7 +215,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
         break;
       }
       default:
-        console.warn('Unknown action:', actionId);
+        logger.warn('Unknown action:', actionId);
     }
   },
 

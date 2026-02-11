@@ -8,8 +8,18 @@ import { IForce } from '@/types/campaign/Force';
 import { IMission } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import { IPerson, createInjury } from '@/types/campaign/Person';
+import { logger } from '@/utils/logger';
 
 import { advanceDays } from '../dayAdvancement';
+
+jest.mock('@/utils/logger', () => ({
+  logger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 import {
   DayPhase,
   DayPipelineRegistry,
@@ -305,7 +315,7 @@ describe('DayPipelineRegistry', () => {
     });
 
     it('should skip failing processor and continue pipeline', () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = logger.error as jest.Mock;
 
       const callOrder: string[] = [];
       const trackingProcessor = (
@@ -331,12 +341,10 @@ describe('DayPipelineRegistry', () => {
       expect(callOrder).toEqual(['before', 'after']);
       expect(result.processorsRun).toEqual(['before', 'broken', 'after']);
       expect(consoleSpy).toHaveBeenCalledTimes(1);
-
-      consoleSpy.mockRestore();
     });
 
     it('should use unchanged campaign state when processor fails', () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = logger.error as jest.Mock;
 
       const mutator: IDayProcessor = {
         id: 'mutator',
@@ -368,8 +376,6 @@ describe('DayPipelineRegistry', () => {
       const result = registry.processDay(campaign);
 
       expect(result.campaign.name).toBe('Before failure');
-
-      consoleSpy.mockRestore();
     });
 
     it('should handle empty registry', () => {

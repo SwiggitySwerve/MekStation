@@ -8,6 +8,10 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
 import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
@@ -274,25 +278,20 @@ export class CanonicalUnitService implements ICanonicalUnitService {
 }
 
 // Singleton instance with lazy initialization
-let _instance: CanonicalUnitService | null = null;
+const canonicalUnitServiceFactory: SingletonFactory<CanonicalUnitService> =
+  createSingleton((): CanonicalUnitService => new CanonicalUnitService());
 
-/**
- * Get the singleton CanonicalUnitService instance
- * Provides lazy initialization for better testability and DI support
- */
 export function getCanonicalUnitService(): CanonicalUnitService {
-  if (!_instance) {
-    _instance = new CanonicalUnitService();
-  }
-  return _instance;
+  return canonicalUnitServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetCanonicalUnitService(): void {
+  canonicalUnitServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetCanonicalUnitService(): void {
-  _instance = null;
+  canonicalUnitServiceFactory.reset();
 }
 
 // Legacy export for backward compatibility

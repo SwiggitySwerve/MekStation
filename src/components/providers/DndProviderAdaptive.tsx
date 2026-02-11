@@ -16,6 +16,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import { useDeviceType } from '@/hooks/useDeviceType';
+import { logger } from '@/utils/logger';
 
 // NOTE: TouchBackend import - requires react-dnd-touch-backend package
 // Uncomment when package is installed:
@@ -74,7 +75,7 @@ export function DndProviderAdaptive({
       // };
 
       // Fallback to HTML5Backend until touch backend is installed
-      console.warn(
+      logger.warn(
         'DndProviderAdaptive: Touch device detected but react-dnd-touch-backend not installed. ' +
           'Run: npm install react-dnd-touch-backend',
       );

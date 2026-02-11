@@ -11,6 +11,8 @@ import { IndexeddbPersistence } from 'y-indexeddb';
 import { WebrtcProvider } from 'y-webrtc';
 import * as Y from 'yjs';
 
+import { logger } from '@/utils/logger';
+
 import { generateRoomCode } from './roomCodes';
 import {
   ISyncRoom,
@@ -46,7 +48,7 @@ function emitEvent(event: SyncEvent): void {
     try {
       listener(event);
     } catch (error) {
-      console.error('[SyncProvider] Error in event listener:', error);
+      logger.error('[SyncProvider] Error in event listener:', error);
     }
   });
 }
@@ -157,7 +159,7 @@ function attemptReconnect(roomCode: string, password?: string): void {
 
   const delay = calculateRetryDelay(retryState.attempts - 1);
 
-  console.log(
+  logger.debug(
     `[SyncProvider] Reconnect attempt ${retryState.attempts}/${P2P_CONFIG.maxReconnectAttempts} in ${delay}ms`,
   );
 
@@ -181,7 +183,7 @@ function attemptReconnect(roomCode: string, password?: string): void {
       createSyncRoom({ roomCode, password });
       retryState.isRetrying = false;
     } catch (error) {
-      console.error('[SyncProvider] Reconnect failed:', error);
+      logger.error('[SyncProvider] Reconnect failed:', error);
       retryState.isRetrying = false;
       // Schedule next retry
       attemptReconnect(roomCode, password);
@@ -297,13 +299,13 @@ export function destroySyncRoom(room: ISyncRoom): void {
     room.webrtcProvider.disconnect();
     room.webrtcProvider.destroy();
   } catch (error) {
-    console.error('[SyncProvider] Error destroying WebRTC provider:', error);
+    logger.error('[SyncProvider] Error destroying WebRTC provider:', error);
   }
 
   try {
     room.persistence.destroy();
   } catch (error) {
-    console.error(
+    logger.error(
       '[SyncProvider] Error destroying IndexedDB persistence:',
       error,
     );
@@ -312,7 +314,7 @@ export function destroySyncRoom(room: ISyncRoom): void {
   try {
     room.doc.destroy();
   } catch (error) {
-    console.error('[SyncProvider] Error destroying Y.Doc:', error);
+    logger.error('[SyncProvider] Error destroying Y.Doc:', error);
   }
 
   if (activeRoom === room) {

@@ -17,6 +17,7 @@ import {
   Badge,
   Input,
 } from '@/components/ui';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Types
@@ -949,7 +950,7 @@ export default function ContactsPage(): React.ReactElement {
       );
       setEditingContact(null);
     } catch (err) {
-      console.error('Failed to save edit:', err);
+      logger.error('Failed to save edit:', err);
     } finally {
       setIsSaving(false);
     }
@@ -977,7 +978,7 @@ export default function ContactsPage(): React.ReactElement {
         ),
       );
     } catch (err) {
-      console.error('Failed to toggle trust:', err);
+      logger.error('Failed to toggle trust:', err);
     } finally {
       setActionState({ contactId: null, type: null });
     }
@@ -1000,7 +1001,7 @@ export default function ContactsPage(): React.ReactElement {
       setContacts((prev) => prev.filter((c) => c.id !== contact.id));
       setDeleteConfirmId(null);
     } catch (err) {
-      console.error('Failed to delete:', err);
+      logger.error('Failed to delete:', err);
     } finally {
       setActionState({ contactId: null, type: null });
     }

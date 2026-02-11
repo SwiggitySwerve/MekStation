@@ -8,6 +8,10 @@
  */
 
 import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
+import {
   ISerializedUnit,
   ISerializedFluff,
 } from '@/types/unit/UnitSerialization';
@@ -84,17 +88,6 @@ const LOCATION_NAMES: Record<string, string> = {
  * MTF Export Service
  */
 export class MTFExportService {
-  private static instance: MTFExportService | null = null;
-
-  private constructor() {}
-
-  static getInstance(): MTFExportService {
-    if (!MTFExportService.instance) {
-      MTFExportService.instance = new MTFExportService();
-    }
-    return MTFExportService.instance;
-  }
-
   /**
    * Export ISerializedUnit to MTF format string
    */
@@ -558,9 +551,13 @@ export class MTFExportService {
   }
 }
 
-/**
- * Get singleton instance
- */
+const mtfExportServiceFactory: SingletonFactory<MTFExportService> =
+  createSingleton((): MTFExportService => new MTFExportService());
+
 export function getMTFExportService(): MTFExportService {
-  return MTFExportService.getInstance();
+  return mtfExportServiceFactory.get();
+}
+
+export function resetMTFExportService(): void {
+  mtfExportServiceFactory.reset();
 }

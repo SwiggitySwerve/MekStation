@@ -17,6 +17,7 @@ import * as path from 'path';
 import {
   ParityReportWriter,
   getParityReportWriter,
+  resetParityReportWriter,
 } from '@/services/conversion/ParityReportWriter';
 import {
   IUnitValidationResult,
@@ -41,10 +42,7 @@ describe('ParityReportWriter', () => {
     // Clear all mocks before each test
     jest.clearAllMocks();
 
-    // Reset the singleton instance to ensure clean state
-    // @ts-expect-error - accessing private static property for testing
-    ParityReportWriter.instance = null;
-
+    resetParityReportWriter();
     writer = getParityReportWriter();
     mockWriteFileSync = fs.writeFileSync as jest.MockedFunction<
       typeof fs.writeFileSync
@@ -66,15 +64,9 @@ describe('ParityReportWriter', () => {
       expect(instance1).toBe(instance2);
     });
 
-    it('should return same instance from static method', () => {
-      const instance1 = ParityReportWriter.getInstance();
-      const instance2 = ParityReportWriter.getInstance();
-      expect(instance1).toBe(instance2);
-    });
-
-    it('should return same instance from factory function and static method', () => {
+    it('should return same instance from both getter calls', () => {
       const instance1 = getParityReportWriter();
-      const instance2 = ParityReportWriter.getInstance();
+      const instance2 = getParityReportWriter();
       expect(instance1).toBe(instance2);
     });
   });

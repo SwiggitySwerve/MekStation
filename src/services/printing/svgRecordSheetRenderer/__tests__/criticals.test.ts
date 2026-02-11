@@ -8,14 +8,20 @@
  */
 
 import { ILocationCriticals, IRecordSheetCriticalSlot } from '@/types/printing';
+// Mock logger to capture warnings
+import { logger } from '@/utils/logger';
 
 import { SVG_NS } from '../constants';
 import { renderCriticalSlots } from '../criticals';
-
-// Mock console.warn to capture warnings
-const mockConsoleWarn = jest
-  .spyOn(console, 'warn')
-  .mockImplementation(() => {});
+jest.mock('@/utils/logger', () => ({
+  logger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+const mockConsoleWarn = logger.warn as jest.Mock;
 
 /**
  * Interface for tracking created SVG elements during tests

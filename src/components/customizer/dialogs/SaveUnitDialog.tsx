@@ -17,6 +17,7 @@ import {
   unitNameValidator,
   INameValidationResult,
 } from '@/services/units/UnitNameValidator';
+import { logger } from '@/utils/logger';
 
 import { customizerStyles as cs } from '../styles';
 
@@ -110,7 +111,7 @@ export function SaveUnitDialog({
           setStatus('error');
         }
       } catch (error) {
-        console.error('Validation error:', error);
+        logger.error('Validation error:', error);
         setStatus('error');
         setValidationResult({
           isValid: false,
@@ -201,7 +202,7 @@ export function SaveUnitDialog({
       setVariant(suggested.variant);
       validateName(chassis, suggested.variant);
     } catch (error) {
-      console.error('Failed to generate unique name:', error);
+      logger.error('Failed to generate unique name:', error);
     }
   };
 

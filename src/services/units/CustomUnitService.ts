@@ -8,6 +8,10 @@
 
 import { v4 as uuidv4 } from 'uuid';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
 import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
 import { getWeightClass } from '@/types/enums/WeightClass';
@@ -190,25 +194,20 @@ export class CustomUnitService implements ICustomUnitService {
 }
 
 // Singleton instance with lazy initialization
-let _instance: CustomUnitService | null = null;
+const customUnitServiceFactory: SingletonFactory<CustomUnitService> =
+  createSingleton((): CustomUnitService => new CustomUnitService());
 
-/**
- * Get the singleton CustomUnitService instance
- * Provides lazy initialization for better testability and DI support
- */
 export function getCustomUnitService(): CustomUnitService {
-  if (!_instance) {
-    _instance = new CustomUnitService();
-  }
-  return _instance;
+  return customUnitServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetCustomUnitService(): void {
+  customUnitServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetCustomUnitService(): void {
-  _instance = null;
+  customUnitServiceFactory.reset();
 }
 
 // Legacy export for backward compatibility

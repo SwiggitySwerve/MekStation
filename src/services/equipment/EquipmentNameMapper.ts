@@ -8,6 +8,7 @@
  */
 
 import { TechBase } from '@/types/enums/TechBase';
+import { logger } from '@/utils/logger';
 
 import {
   createSingleton,
@@ -359,7 +360,7 @@ export class EquipmentNameMapper {
 
       return count;
     } catch (e) {
-      console.error('Failed to load name mappings:', e);
+      logger.error('Failed to load name mappings:', e);
       return 0;
     }
   }

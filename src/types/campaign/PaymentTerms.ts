@@ -84,7 +84,7 @@ export type ContractOutcome = 'success' | 'partial' | 'failure';
  *
  * @example
  * const total = calculateTotalPayout(terms, 'success');
- * console.log(total.format()); // "850,000.00 C-bills"
+ * logger.debug(total.format()); // "850,000.00 C-bills"
  */
 export function calculateTotalPayout(
   terms: IPaymentTerms,
@@ -196,7 +196,7 @@ export function hasSupportCoverage(terms: IPaymentTerms): boolean {
  *
  * @example
  * if (isPaymentTerms(obj)) {
- *   console.log(obj.basePayment.format());
+ *   logger.debug(obj.basePayment.format());
  * }
  */
 export function isPaymentTerms(value: unknown): value is IPaymentTerms {

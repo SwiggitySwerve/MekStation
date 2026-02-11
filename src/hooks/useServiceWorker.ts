@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 
+import { logger } from '@/utils/logger';
+
 export interface ServiceWorkerState {
   isSupported: boolean;
   isInstalled: boolean;
@@ -76,7 +78,7 @@ export function useServiceWorker(): ServiceWorkerReturn {
         });
       })
       .catch((error) => {
-        console.error('Service worker registration failed:', error);
+        logger.error('Service worker registration failed:', error);
       });
 
     // Check if service worker is already controlling the page

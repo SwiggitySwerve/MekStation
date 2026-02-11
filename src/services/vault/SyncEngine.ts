@@ -16,6 +16,10 @@ import type {
 } from '@/types/vault';
 
 import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+import {
   ChangeLogRepository,
   getChangeLogRepository,
 } from './ChangeLogRepository';
@@ -584,18 +588,17 @@ export class SyncEngine {
 // Singleton
 // =============================================================================
 
-let syncEngine: SyncEngine | null = null;
+const syncEngineFactory: SingletonFactory<SyncEngine> = createSingleton(
+  (): SyncEngine => new SyncEngine(),
+);
 
 export function getSyncEngine(): SyncEngine {
-  if (!syncEngine) {
-    syncEngine = new SyncEngine();
-  }
-  return syncEngine;
+  return syncEngineFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetSyncEngine(): void {
-  syncEngine = null;
+  syncEngineFactory.reset();
 }

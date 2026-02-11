@@ -20,6 +20,10 @@ import {
   UnitValidationSeverity,
 } from '../../types/validation/UnitValidationInterfaces';
 import { getCategoryForUnitType } from '../../utils/validation/UnitCategoryMapper';
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { getUnitValidationRegistry } from './UnitValidationRegistry';
 
 /**
@@ -285,23 +289,23 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
 /**
  * Singleton instance of the orchestrator
  */
-let orchestratorInstance: UnitValidationOrchestrator | null = null;
+const unitValidationOrchestratorFactory: SingletonFactory<UnitValidationOrchestrator> =
+  createSingleton(
+    (): UnitValidationOrchestrator => new UnitValidationOrchestrator(),
+  );
 
 /**
  * Get the singleton orchestrator instance
  */
 export function getUnitValidationOrchestrator(): UnitValidationOrchestrator {
-  if (!orchestratorInstance) {
-    orchestratorInstance = new UnitValidationOrchestrator();
-  }
-  return orchestratorInstance;
+  return unitValidationOrchestratorFactory.get();
 }
 
 /**
  * Reset the singleton orchestrator (for testing)
  */
 export function resetUnitValidationOrchestrator(): void {
-  orchestratorInstance = null;
+  unitValidationOrchestratorFactory.reset();
 }
 
 /**

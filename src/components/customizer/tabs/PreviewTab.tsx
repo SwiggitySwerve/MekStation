@@ -27,6 +27,7 @@ import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
+import { logger } from '@/utils/logger';
 
 import { PreviewToolbar } from '../preview/PreviewToolbar';
 import { RecordSheetPreview } from '../preview/RecordSheetPreview';
@@ -156,7 +157,7 @@ export function PreviewTab({
     try {
       return calculationService.calculateBattleValue(editableMech);
     } catch (error) {
-      console.warn('Failed to calculate BV:', error);
+      logger.warn('Failed to calculate BV:', error);
       return 0;
     }
   }, [editableMech]);
@@ -168,7 +169,7 @@ export function PreviewTab({
     try {
       return calculationService.calculateCost(editableMech);
     } catch (error) {
-      console.warn('Failed to calculate cost:', error);
+      logger.warn('Failed to calculate cost:', error);
       return 0;
     }
   }, [editableMech]);

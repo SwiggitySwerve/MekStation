@@ -147,9 +147,9 @@ export function TimelineDatePicker({
       const toDiff = Math.abs(
         new Date(timeRange.to).getTime() - new Date(presetValue.to).getTime(),
       );
-       if (fromDiff < PRESET_TOLERANCE_MS && toDiff < PRESET_TOLERANCE_MS) {
-         return preset.label;
-       }
+      if (fromDiff < PRESET_TOLERANCE_MS && toDiff < PRESET_TOLERANCE_MS) {
+        return preset.label;
+      }
     }
     return null;
   }, [timeRange, presets]);

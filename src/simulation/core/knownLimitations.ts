@@ -182,7 +182,7 @@ export function isKnownLimitation(violation: IViolation): boolean {
  * ```typescript
  * const category = getLimitationCategory(violation);
  * if (category) {
- *   console.log(`Excluded: ${category}`);
+ *   logger.debug(`Excluded: ${category}`);
  * }
  * ```
  */
@@ -215,7 +215,7 @@ export function getLimitationCategory(violation: IViolation): string | null {
  * ```typescript
  * const explanation = getLimitationExplanation(violation);
  * if (explanation) {
- *   console.log(`Skipped: ${explanation}`);
+ *   logger.debug(`Skipped: ${explanation}`);
  * }
  * ```
  */
@@ -289,8 +289,8 @@ export function filterKnownLimitations(
  * ```typescript
  * const { knownLimitations, potentialBugs } = partitionViolations(allViolations);
  *
- * console.log(`Excluded ${knownLimitations.length} known limitations`);
- * console.log(`Found ${potentialBugs.length} potential bugs`);
+ * logger.debug(`Excluded ${knownLimitations.length} known limitations`);
+ * logger.debug(`Found ${potentialBugs.length} potential bugs`);
  * ```
  */
 export function partitionViolations(violations: readonly IViolation[]): {

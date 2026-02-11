@@ -8,6 +8,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 
 import { type IBaseEvent } from '@/types/events';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Constants
@@ -238,13 +239,16 @@ export function ExportButton({
     };
   }, [isOpen]);
 
-   // Reset copied state after delay
-   useEffect(() => {
-     if (copied) {
-       const timer = setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION_MS);
-       return () => clearTimeout(timer);
-     }
-   }, [copied]);
+  // Reset copied state after delay
+  useEffect(() => {
+    if (copied) {
+      const timer = setTimeout(
+        () => setCopied(false),
+        COPY_FEEDBACK_DURATION_MS,
+      );
+      return () => clearTimeout(timer);
+    }
+  }, [copied]);
 
   // Toggle dropdown
   const handleToggle = useCallback(() => {

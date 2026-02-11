@@ -19,7 +19,7 @@
  * @example
  * ```typescript
  * const search = debounce((query: string) => {
- *   console.log('Searching for:', query);
+ *   logger.debug('Searching for:', query);
  * }, 300);
  *
  * search('a');

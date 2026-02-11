@@ -11,6 +11,10 @@ import type {
   CockpitType as BVCockpitType,
 } from '@/utils/construction/battleValueCalculations';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
@@ -605,25 +609,20 @@ export class CalculationService implements ICalculationService {
 }
 
 // Singleton instance with lazy initialization
-let _instance: CalculationService | null = null;
+const calculationServiceFactory: SingletonFactory<CalculationService> =
+  createSingleton((): CalculationService => new CalculationService());
 
-/**
- * Get the singleton CalculationService instance
- * Provides lazy initialization for better testability and DI support
- */
 export function getCalculationService(): CalculationService {
-  if (!_instance) {
-    _instance = new CalculationService();
-  }
-  return _instance;
+  return calculationServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetCalculationService(): void {
+  calculationServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetCalculationService(): void {
-  _instance = null;
+  calculationServiceFactory.reset();
 }
 
 // Legacy export for backward compatibility

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import { logger } from '@/utils/logger';
+
 export interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
@@ -73,9 +75,9 @@ export function InstallPrompt({
     const { outcome } = await deferredPrompt.userChoice;
 
     if (outcome === 'accepted') {
-      console.log('PWA installation accepted');
+      logger.debug('PWA installation accepted');
     } else {
-      console.log('PWA installation dismissed');
+      logger.debug('PWA installation dismissed');
     }
 
     // Clear the deferred prompt

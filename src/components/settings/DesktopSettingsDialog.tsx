@@ -11,6 +11,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import { ModalOverlay } from '@/components/customizer/dialogs/ModalOverlay';
 import { Button } from '@/components/ui';
+import { logger } from '@/utils/logger';
 
 import { useDesktopSettings } from './useDesktopSettings';
 import { useElectron, IDesktopSettings, UpdateChannel } from './useElectron';
@@ -136,7 +137,7 @@ export function DesktopSettingsDialog({
           updateLocalSetting(key, result.filePaths[0]);
         }
       } catch (error) {
-        console.error('Failed to select directory:', error);
+        logger.error('Failed to select directory:', error);
       }
     },
     [api, updateLocalSetting],

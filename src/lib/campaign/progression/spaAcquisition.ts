@@ -261,7 +261,7 @@ export function rollComingOfAgeSPA(
  * if (result.success) {
  *   person = result.updatedPerson;
  * } else {
- *   console.error(result.reason);
+ *   logger.error(result.reason);
  * }
  */
 export function purchaseSPA(

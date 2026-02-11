@@ -539,7 +539,7 @@ export function isSpecialAbilityParams(
  * const ability = getAbility('marksman');
  * const params = getTypedEffectParams(ability.effectType, ability.effectParams);
  * if (params.type === 'ToHitModifier') {
- *   console.log(params.params.modifier); // Type-safe access
+ *   logger.debug(params.params.modifier); // Type-safe access
  * }
  * ```
  */

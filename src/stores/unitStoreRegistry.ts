@@ -10,6 +10,7 @@
 import { StoreApi } from 'zustand';
 
 import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
+import { logger } from '@/utils/logger';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import {
@@ -102,7 +103,7 @@ function ensureValidUnitId(
   }
 
   const newId = generateUUID();
-  console.warn(
+  logger.warn(
     `[UnitStoreRegistry] ${context}: Invalid unit ID "${unitId || '(missing)'}" replaced with "${newId}"`,
   );
   return newId;
@@ -158,7 +159,7 @@ export function hydrateOrCreateUnit(
         return store;
       }
     } catch (e) {
-      console.warn(`Failed to hydrate unit ${validUnitId}, creating new:`, e);
+      logger.warn(`Failed to hydrate unit ${validUnitId}, creating new:`, e);
     }
   }
 
@@ -270,7 +271,7 @@ export function createUnitFromFullState(state: UnitState): StoreApi<UnitStore> {
   // Check if already exists (shouldn't happen since IDs are unique UUIDs)
   const existing = unitStores.get(validId);
   if (existing) {
-    console.warn(`Unit store ${validId} already exists, returning existing`);
+    logger.warn(`Unit store ${validId} already exists, returning existing`);
     return existing;
   }
 

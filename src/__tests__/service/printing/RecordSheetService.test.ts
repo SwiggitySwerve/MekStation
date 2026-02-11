@@ -6,6 +6,7 @@
 
 import {
   RecordSheetService,
+  getRecordSheetService,
   recordSheetService,
 } from '@/services/printing/RecordSheetService';
 import { PaperSize } from '@/types/printing';
@@ -128,13 +129,13 @@ describe('RecordSheetService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = RecordSheetService.getInstance();
+    service = getRecordSheetService();
   });
 
   describe('Singleton Pattern', () => {
     it('should return singleton instance', () => {
-      const instance1 = RecordSheetService.getInstance();
-      const instance2 = RecordSheetService.getInstance();
+      const instance1 = getRecordSheetService();
+      const instance2 = getRecordSheetService();
 
       expect(instance1).toBe(instance2);
     });

@@ -16,6 +16,10 @@ import type {
 
 import { getSQLiteService } from '@/services/persistence';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { ICrudRepository } from '../core/ICrudRepository';
 
 // =============================================================================
@@ -613,18 +617,16 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
 // Singleton
 // =============================================================================
 
-let vaultFolderRepository: VaultFolderRepository | null = null;
+const vaultFolderRepositoryFactory: SingletonFactory<VaultFolderRepository> =
+  createSingleton((): VaultFolderRepository => new VaultFolderRepository());
 
 export function getVaultFolderRepository(): VaultFolderRepository {
-  if (!vaultFolderRepository) {
-    vaultFolderRepository = new VaultFolderRepository();
-  }
-  return vaultFolderRepository;
+  return vaultFolderRepositoryFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetVaultFolderRepository(): void {
-  vaultFolderRepository = null;
+  vaultFolderRepositoryFactory.reset();
 }

@@ -10,6 +10,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
+
+import {
   IUnitValidationResult,
   IValidationSummary,
   IValidationManifest,
@@ -21,17 +26,6 @@ import {
  * Parity Report Writer
  */
 export class ParityReportWriter {
-  private static instance: ParityReportWriter | null = null;
-
-  private constructor() {}
-
-  static getInstance(): ParityReportWriter {
-    if (!ParityReportWriter.instance) {
-      ParityReportWriter.instance = new ParityReportWriter();
-    }
-    return ParityReportWriter.instance;
-  }
-
   /**
    * Write all reports for a validation run
    */
@@ -189,9 +183,13 @@ export class ParityReportWriter {
   }
 }
 
-/**
- * Get singleton instance
- */
+const parityReportWriterFactory: SingletonFactory<ParityReportWriter> =
+  createSingleton((): ParityReportWriter => new ParityReportWriter());
+
 export function getParityReportWriter(): ParityReportWriter {
-  return ParityReportWriter.getInstance();
+  return parityReportWriterFactory.get();
+}
+
+export function resetParityReportWriter(): void {
+  parityReportWriterFactory.reset();
 }

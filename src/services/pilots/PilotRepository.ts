@@ -21,6 +21,10 @@ import {
   DEFAULT_PILOT_SKILLS,
 } from '@/types/pilot';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
 
 // =============================================================================
@@ -680,21 +684,19 @@ export class PilotRepository implements IPilotRepository {
 }
 
 // Singleton instance
-let pilotRepositoryInstance: PilotRepository | null = null;
+const pilotRepositoryFactory: SingletonFactory<PilotRepository> =
+  createSingleton((): PilotRepository => new PilotRepository());
 
 /**
  * Get or create the PilotRepository singleton
  */
 export function getPilotRepository(): PilotRepository {
-  if (!pilotRepositoryInstance) {
-    pilotRepositoryInstance = new PilotRepository();
-  }
-  return pilotRepositoryInstance;
+  return pilotRepositoryFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetPilotRepository(): void {
-  pilotRepositoryInstance = null;
+  pilotRepositoryFactory.reset();
 }

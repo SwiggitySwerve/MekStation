@@ -18,6 +18,10 @@ import {
   IUnitValidationRuleResult,
 } from '../../types/validation/UnitValidationInterfaces';
 import { getCategoryForUnitType } from '../../utils/validation/UnitCategoryMapper';
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 
 /**
  * Default priority for rules without explicit priority
@@ -393,21 +397,19 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
 /**
  * Singleton instance of the registry
  */
-let registryInstance: UnitValidationRegistry | null = null;
+const unitValidationRegistryFactory: SingletonFactory<UnitValidationRegistry> =
+  createSingleton((): UnitValidationRegistry => new UnitValidationRegistry());
 
 /**
  * Get the singleton registry instance
  */
 export function getUnitValidationRegistry(): UnitValidationRegistry {
-  if (!registryInstance) {
-    registryInstance = new UnitValidationRegistry();
-  }
-  return registryInstance;
+  return unitValidationRegistryFactory.get();
 }
 
 /**
  * Reset the singleton registry (for testing)
  */
 export function resetUnitValidationRegistry(): void {
-  registryInstance = null;
+  unitValidationRegistryFactory.reset();
 }

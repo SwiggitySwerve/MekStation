@@ -7,6 +7,11 @@
  * @spec openspec/specs/equipment-services/spec.md
  */
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
+
 import { ValidationError } from '../common/errors';
 import {
   IVariableEquipmentContext,
@@ -182,25 +187,22 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
 }
 
 // Singleton instance with lazy initialization
-let _instance: EquipmentCalculatorService | null = null;
+const equipmentCalculatorServiceFactory: SingletonFactory<EquipmentCalculatorService> =
+  createSingleton(
+    (): EquipmentCalculatorService => new EquipmentCalculatorService(),
+  );
 
-/**
- * Get the singleton EquipmentCalculatorService instance
- * Provides lazy initialization for better testability and DI support
- */
 export function getEquipmentCalculatorService(): EquipmentCalculatorService {
-  if (!_instance) {
-    _instance = new EquipmentCalculatorService();
-  }
-  return _instance;
+  return equipmentCalculatorServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetEquipmentCalculatorService(): void {
+  equipmentCalculatorServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetEquipmentCalculatorService(): void {
-  _instance = null;
+  equipmentCalculatorServiceFactory.reset();
 }
 
 // Legacy export for backward compatibility

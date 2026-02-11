@@ -99,8 +99,8 @@ const ATMOSPHERE_TYPES = [
  *
  * @example
  * const conditions = generateRandomConditions(Math.random);
- * console.log(conditions.gravity); // 0.8
- * console.log(conditions.atmosphere); // 'toxic'
+ * logger.debug(conditions.gravity); // 0.8
+ * logger.debug(conditions.atmosphere); // 'toxic'
  */
 export function generateRandomConditions(
   random: RandomFn,
@@ -158,9 +158,9 @@ export function generateRandomConditions(
  *   gravity: 0.15,
  *   atmosphere: 'toxic',
  * });
- * console.log(effects.noTanks); // true
- * console.log(effects.noConvInfantry); // true
- * console.log(effects.description);
+ * logger.debug(effects.noTanks); // true
+ * logger.debug(effects.noConvInfantry); // true
+ * logger.debug(effects.description);
  * // "Low gravity restricts tanks. Toxic atmosphere restricts infantry and tanks. "
  */
 export function getConditionEffects(

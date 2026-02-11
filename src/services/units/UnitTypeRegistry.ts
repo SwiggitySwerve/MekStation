@@ -7,6 +7,8 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.3
  */
 
+import { logger } from '@/utils/logger';
+
 import { IBlkDocument } from '../../types/formats/BlkFormat';
 import { IBaseUnit } from '../../types/unit/BaseUnitInterfaces';
 import { UnitType } from '../../types/unit/BattleMechInterfaces';
@@ -37,7 +39,7 @@ class UnitTypeRegistry implements IUnitTypeRegistry {
    */
   register<T extends IBaseUnit>(handler: IUnitTypeHandler<T>): void {
     if (this.handlers.has(handler.unitType)) {
-      console.warn(
+      logger.warn(
         `[UnitTypeRegistry] Replacing existing handler for ${handler.unitType}`,
       );
     }

@@ -105,7 +105,7 @@ function createEmptyCategorySummaries(): Record<
  * @example
  * const equipment = useUnitStore((s) => s.equipment);
  * const calculations = useEquipmentCalculations(equipment);
- * console.log(`Total weight: ${calculations.totalWeight}t`);
+ * logger.debug(`Total weight: ${calculations.totalWeight}t`);
  */
 export function useEquipmentCalculations(
   equipment: readonly IMountedEquipmentInstance[],

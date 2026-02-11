@@ -17,6 +17,10 @@ import type {
 } from '@/types/vault';
 
 import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+import {
   getShareLinkRepository,
   ShareLinkRepository,
 } from './ShareLinkRepository';
@@ -417,18 +421,16 @@ export class ShareLinkService {
 // Singleton
 // =============================================================================
 
-let shareLinkService: ShareLinkService | null = null;
+const shareLinkServiceFactory: SingletonFactory<ShareLinkService> =
+  createSingleton((): ShareLinkService => new ShareLinkService());
 
 export function getShareLinkService(): ShareLinkService {
-  if (!shareLinkService) {
-    shareLinkService = new ShareLinkService();
-  }
-  return shareLinkService;
+  return shareLinkServiceFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetShareLinkService(): void {
-  shareLinkService = null;
+  shareLinkServiceFactory.reset();
 }

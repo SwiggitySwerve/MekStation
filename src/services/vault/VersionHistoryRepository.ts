@@ -15,6 +15,11 @@ import type {
 
 import { getSQLiteService } from '@/services/persistence';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+
 // =============================================================================
 // Repository
 // =============================================================================
@@ -406,18 +411,18 @@ export class VersionHistoryRepository {
 // Singleton
 // =============================================================================
 
-let versionHistoryRepository: VersionHistoryRepository | null = null;
+const versionHistoryRepositoryFactory: SingletonFactory<VersionHistoryRepository> =
+  createSingleton(
+    (): VersionHistoryRepository => new VersionHistoryRepository(),
+  );
 
 export function getVersionHistoryRepository(): VersionHistoryRepository {
-  if (!versionHistoryRepository) {
-    versionHistoryRepository = new VersionHistoryRepository();
-  }
-  return versionHistoryRepository;
+  return versionHistoryRepositoryFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetVersionHistoryRepository(): void {
-  versionHistoryRepository = null;
+  versionHistoryRepositoryFactory.reset();
 }

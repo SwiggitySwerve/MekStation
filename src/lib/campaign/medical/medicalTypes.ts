@@ -142,7 +142,7 @@ export interface ISurgeryResult extends IMedicalCheckResult {
  *
  * @example
  * if (isMedicalSystem(value)) {
- *   console.log(`System: ${value}`);
+ *   logger.debug(`System: ${value}`);
  * }
  */
 export function isMedicalSystem(value: unknown): value is MedicalSystem {
@@ -161,7 +161,7 @@ export function isMedicalSystem(value: unknown): value is MedicalSystem {
  *
  * @example
  * if (isMedicalCheckResult(obj)) {
- *   console.log(`Patient: ${obj.patientId}`);
+ *   logger.debug(`Patient: ${obj.patientId}`);
  * }
  */
 export function isMedicalCheckResult(
@@ -198,7 +198,7 @@ export function isMedicalCheckResult(
  *
  * @example
  * if (isSurgeryResult(obj)) {
- *   console.log(`Permanent removed: ${obj.permanentRemoved}`);
+ *   logger.debug(`Permanent removed: ${obj.permanentRemoved}`);
  * }
  */
 export function isSurgeryResult(value: unknown): value is ISurgeryResult {

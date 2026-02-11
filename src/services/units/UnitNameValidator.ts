@@ -10,6 +10,8 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
+import { logger } from '@/utils/logger';
+
 import { IUnitIndexEntry } from '../common/types';
 import { canonicalUnitService } from './CanonicalUnitService';
 import { customUnitService } from './CustomUnitService';
@@ -215,7 +217,7 @@ class UnitNameValidatorService implements IUnitNameValidator {
 
       return !!conflict;
     } catch (error) {
-      console.warn('Failed to check canonical units:', error);
+      logger.warn('Failed to check canonical units:', error);
       // If we can't check, assume no conflict to not block saves
       return false;
     }
@@ -247,7 +249,7 @@ class UnitNameValidatorService implements IUnitNameValidator {
 
       return conflict || null;
     } catch (error) {
-      console.warn('Failed to check custom units:', error);
+      logger.warn('Failed to check custom units:', error);
       return null;
     }
   }

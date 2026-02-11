@@ -93,7 +93,7 @@ export function recordTransaction(
  *
  * @example
  * const balance = getBalance(finances);
- * console.log(balance.format()); // "1,000,000.00 C-bills"
+ * logger.debug(balance.format()); // "1,000,000.00 C-bills"
  */
 export function getBalance(finances: IFinances): Money {
   return finances.transactions.reduce((balance, transaction) => {
@@ -144,9 +144,9 @@ export interface DailyCosts {
  *
  * @example
  * const costs = calculateDailyCosts(campaign);
- * console.log(`Salaries: ${costs.salaries.format()}`);
- * console.log(`Maintenance: ${costs.maintenance.format()}`);
- * console.log(`Total: ${costs.total.format()}`);
+ * logger.debug(`Salaries: ${costs.salaries.format()}`);
+ * logger.debug(`Maintenance: ${costs.maintenance.format()}`);
+ * logger.debug(`Total: ${costs.total.format()}`);
  */
 export function calculateDailyCosts(campaign: ICampaign): DailyCosts {
   const { options } = campaign;

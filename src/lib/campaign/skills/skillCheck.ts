@@ -143,7 +143,7 @@ export function getEffectiveSkillTN(
  * );
  *
  * if (result.success) {
- *   console.log(`Hit! Margin: ${result.margin}`);
+ *   logger.debug(`Hit! Margin: ${result.margin}`);
  * }
  */
 export function performSkillCheck(

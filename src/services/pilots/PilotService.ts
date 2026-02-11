@@ -26,6 +26,10 @@ import {
 } from '@/types/pilot';
 
 import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+import {
   getPilotRepository,
   IPilotOperationResult,
   PilotErrorCode,
@@ -516,21 +520,20 @@ export class PilotService implements IPilotService {
 }
 
 // Singleton instance
-let pilotServiceInstance: PilotService | null = null;
+const pilotServiceFactory: SingletonFactory<PilotService> = createSingleton(
+  (): PilotService => new PilotService(),
+);
 
 /**
  * Get or create the PilotService singleton
  */
 export function getPilotService(): PilotService {
-  if (!pilotServiceInstance) {
-    pilotServiceInstance = new PilotService();
-  }
-  return pilotServiceInstance;
+  return pilotServiceFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetPilotService(): void {
-  pilotServiceInstance = null;
+  pilotServiceFactory.reset();
 }

@@ -21,6 +21,7 @@
 
 import { StoreApi } from 'zustand';
 
+import { logger } from '@/utils/logger';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -165,7 +166,7 @@ export function createStoreRegistry<
     }
 
     const newId = generateUUID();
-    console.warn(
+    logger.warn(
       `[${registryName}] ${context}: Invalid ID "${id || '(missing)'}" replaced with "${newId}"`,
     );
     return newId;
@@ -239,7 +240,7 @@ export function createStoreRegistry<
             return store;
           }
         } catch (e) {
-          console.warn(
+          logger.warn(
             `Failed to hydrate ${registryName} ${validId}, creating new:`,
             e,
           );

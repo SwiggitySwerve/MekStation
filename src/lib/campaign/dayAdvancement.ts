@@ -395,9 +395,9 @@ export function processDailyCosts(campaign: ICampaign): {
  *
  * @example
  * const report = advanceDay(campaign);
- * console.log(`${report.healedPersonnel.length} personnel healed`);
- * console.log(`${report.expiredContracts.length} contracts expired`);
- * console.log(`Daily costs: ${report.costs.total.format()}`);
+ * logger.debug(`${report.healedPersonnel.length} personnel healed`);
+ * logger.debug(`${report.expiredContracts.length} contracts expired`);
+ * logger.debug(`Daily costs: ${report.costs.total.format()}`);
  * // Use report.campaign for the updated state
  */
 export function advanceDay(campaign: ICampaign): DayReport {

@@ -9,6 +9,10 @@
 import { jsPDF } from 'jspdf';
 
 import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
+import {
   IRecordSheetData,
   PaperSize,
   PAPER_DIMENSIONS,
@@ -36,20 +40,6 @@ export type { IUnitConfig };
  * Record Sheet Service class
  */
 export class RecordSheetService {
-  private static instance: RecordSheetService;
-
-  private constructor() {}
-
-  /**
-   * Get singleton instance
-   */
-  static getInstance(): RecordSheetService {
-    if (!RecordSheetService.instance) {
-      RecordSheetService.instance = new RecordSheetService();
-    }
-    return RecordSheetService.instance;
-  }
-
   /**
    * Extract record sheet data from unit configuration
    */
@@ -203,4 +193,17 @@ export class RecordSheetService {
   }
 }
 
-export const recordSheetService = RecordSheetService.getInstance();
+const recordSheetServiceFactory: SingletonFactory<RecordSheetService> =
+  createSingleton((): RecordSheetService => new RecordSheetService());
+
+export function getRecordSheetService(): RecordSheetService {
+  return recordSheetServiceFactory.get();
+}
+
+export function resetRecordSheetService(): void {
+  recordSheetServiceFactory.reset();
+}
+
+// Legacy export for backward compatibility
+// @deprecated Use getRecordSheetService() instead
+export const recordSheetService = getRecordSheetService();

@@ -25,6 +25,7 @@ import {
 } from '@/hooks/useCustomizerRouter';
 // Stores
 import { useTabManagerStore, TabInfo } from '@/stores/useTabManagerStore';
+import { logger } from '@/utils/logger';
 
 import { UnitTypeRouter } from './UnitTypeRouter';
 
@@ -123,7 +124,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
         }, 0);
       } else {
         // Unit doesn't exist in tabs - redirect to index
-        console.warn('Unit not found in tabs:', routerUnitId);
+        logger.warn('Unit not found in tabs:', routerUnitId);
         isSyncingRef.current = true;
         routerNavigateToIndex();
         setTimeout(() => {

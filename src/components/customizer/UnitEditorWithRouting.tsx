@@ -78,6 +78,7 @@ import {
   getMovementModifiersFromEquipment,
   calculateMaxRunMPWithModifiers,
 } from '@/utils/construction/movementCalculations';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Constants
@@ -330,7 +331,7 @@ export function UnitEditorWithRouting({
 
       return calculationService.calculateBattleValue(editableMech);
     } catch (error) {
-      console.warn('Failed to calculate BV:', error);
+      logger.warn('Failed to calculate BV:', error);
       return 0;
     }
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- registryReady triggers recalc when registry loads
@@ -404,7 +405,7 @@ export function UnitEditorWithRouting({
 
       return calculationService.calculateHeatProfile(editableMech);
     } catch (error) {
-      console.warn('Failed to calculate heat profile:', error);
+      logger.warn('Failed to calculate heat profile:', error);
       return {
         heatGenerated: 0,
         heatDissipated: calculations.totalHeatDissipation,
@@ -693,7 +694,7 @@ export function UnitEditorWithRouting({
 
       // Check location restrictions first
       if (!isValidLocationForEquipment(item.equipmentId, location)) {
-        console.warn(
+        logger.warn(
           `Cannot assign ${item.name} to ${location} - location restriction`,
         );
         return;
@@ -738,7 +739,7 @@ export function UnitEditorWithRouting({
       }
 
       // No contiguous slots found (shouldn't happen if canFit was true)
-      console.warn('No contiguous slots found for quick assign');
+      logger.warn('No contiguous slots found for quick assign');
     },
     [equipment, engineType, gyroType, updateEquipmentLocation],
   );

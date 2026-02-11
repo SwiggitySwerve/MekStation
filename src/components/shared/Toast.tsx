@@ -15,6 +15,8 @@ import React, {
   useContext,
 } from 'react';
 
+import { logger } from '@/utils/logger';
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -395,7 +397,7 @@ export function toast(config: Omit<ToastConfig, 'id'>): void {
   if (toastRef) {
     toastRef.showToast(config);
   } else {
-    console.warn(
+    logger.warn(
       'Toast: No toast provider found. Make sure ToastProvider is mounted.',
     );
   }

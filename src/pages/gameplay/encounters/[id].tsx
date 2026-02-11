@@ -25,6 +25,7 @@ import {
   SCENARIO_TEMPLATES,
 } from '@/types/encounter';
 import { getStatusColor, getStatusLabel } from '@/utils/encounterStatus';
+import { logger } from '@/utils/logger';
 
 function getVictoryConditionLabel(type: VictoryConditionType): string {
   switch (type) {
@@ -134,7 +135,7 @@ export default function EncounterDetailPage(): React.ReactElement {
 
       // TODO: Apply generated scenario to encounter
       // This would update victory conditions, map config, and potentially create OpFor
-      console.log('Generated scenario:', scenario);
+      logger.debug('Generated scenario:', scenario);
 
       // For now, just close the modal and show a success message
       setShowGenerateModal(false);

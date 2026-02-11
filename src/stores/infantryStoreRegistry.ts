@@ -10,6 +10,7 @@
 import { StoreApi } from 'zustand';
 
 import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
+import { logger } from '@/utils/logger';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import {
@@ -52,7 +53,7 @@ function ensureValidInfantryId(
   }
 
   const newId = generateUUID();
-  console.warn(
+  logger.warn(
     `[InfantryStoreRegistry] ${context}: Invalid infantry ID "${infantryId || '(missing)'}" replaced with "${newId}"`,
   );
   return newId;
@@ -114,7 +115,7 @@ export function hydrateOrCreateInfantry(
         return store;
       }
     } catch (e) {
-      console.warn(
+      logger.warn(
         `Failed to hydrate infantry ${validInfantryId}, creating new:`,
         e,
       );
@@ -199,9 +200,7 @@ export function createInfantryFromFullState(
 
   const existing = infantryStores.get(validId);
   if (existing) {
-    console.warn(
-      `Infantry store ${validId} already exists, returning existing`,
-    );
+    logger.warn(`Infantry store ${validId} already exists, returning existing`);
     return existing;
   }
 
