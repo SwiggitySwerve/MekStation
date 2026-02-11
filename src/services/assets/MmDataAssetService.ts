@@ -1,5 +1,6 @@
 import { ServiceError } from '@/services/common/errors';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { logger } from '@/utils/logger';
 import { getLocationsForConfigurationString } from '@/utils/mech/mechLocationRegistry';
 
 export enum MechConfiguration {
@@ -352,7 +353,14 @@ class MmDataAssetService {
     const templatePromise = this.loadRecordSheetTemplate(config, paperSize);
 
     const structurePromises = locations.map((loc) =>
-      this.loadStructurePipSVG(tonnage, loc).catch(() => null),
+      this.loadStructurePipSVG(tonnage, loc).catch((error) => {
+        logger.warn('Failed to load structure pip SVG', {
+          tonnage,
+          location: loc,
+          error,
+        });
+        return null;
+      }),
     );
 
     await Promise.all([templatePromise, ...structurePromises]);

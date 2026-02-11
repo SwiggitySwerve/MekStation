@@ -20,6 +20,7 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+import { logger } from '@/utils/logger';
 
 import {
   COCKPIT_COST_STANDARD,
@@ -411,7 +412,9 @@ export class CalculationService implements ICalculationService {
     const registry = getEquipmentRegistry();
 
     if (!registry.isReady()) {
-      registry.initialize().catch(() => {});
+      registry.initialize().catch((error) => {
+        logger.error('Failed to initialize equipment registry', error);
+      });
       return {
         heatGenerated: 0,
         heatDissipated,

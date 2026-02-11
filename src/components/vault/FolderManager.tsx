@@ -22,6 +22,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input, Select } from '@/components/ui/Input';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Types
@@ -633,7 +634,10 @@ export function FolderCreateDialog({
       });
 
       if (!response.ok) {
-        const errorData = (await response.json().catch(() => ({}))) as {
+        const errorData = (await response.json().catch((e) => {
+          logger.debug('Response not JSON when creating folder', e);
+          return {};
+        })) as {
           error?: string;
         };
         throw new Error(
@@ -792,7 +796,10 @@ export function FolderEditDialog({
       });
 
       if (!response.ok) {
-        const errorData = (await response.json().catch(() => ({}))) as {
+        const errorData = (await response.json().catch((e) => {
+          logger.debug('Response not JSON when updating folder', e);
+          return {};
+        })) as {
           error?: string;
         };
         throw new Error(
@@ -823,7 +830,10 @@ export function FolderEditDialog({
       });
 
       if (!response.ok) {
-        const errorData = (await response.json().catch(() => ({}))) as {
+        const errorData = (await response.json().catch((e) => {
+          logger.debug('Response not JSON when deleting folder', e);
+          return {};
+        })) as {
           error?: string;
         };
         throw new Error(

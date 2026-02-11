@@ -25,6 +25,7 @@ import {
   formatRelativeTime,
   formatFullDateTime,
 } from '@/utils/formatting';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Types
@@ -438,7 +439,10 @@ export function VersionHistoryPanel({
         );
 
         if (!response.ok) {
-          const errorData = (await response.json().catch(() => ({}))) as {
+          const errorData = (await response.json().catch((e) => {
+            logger.debug('Response not JSON when fetching versions', e);
+            return {};
+          })) as {
             error?: string;
           };
           throw new Error(
@@ -495,7 +499,10 @@ export function VersionHistoryPanel({
         });
 
         if (!response.ok) {
-          const errorData = (await response.json().catch(() => ({}))) as {
+          const errorData = (await response.json().catch((e) => {
+            logger.debug('Response not JSON when rolling back version', e);
+            return {};
+          })) as {
             error?: string;
           };
           throw new Error(
@@ -790,7 +797,10 @@ export function VersionDiffView({
         );
 
         if (!response.ok) {
-          const errorData = (await response.json().catch(() => ({}))) as {
+          const errorData = (await response.json().catch((e) => {
+            logger.debug('Response not JSON when fetching diff', e);
+            return {};
+          })) as {
             error?: string;
           };
           throw new Error(
