@@ -14,9 +14,14 @@ import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
+import { EquipmentType } from '@/types/enums/EquipmentType';
 import {
+  getArmorBVMultiplier,
   getDefensiveSpeedFactor,
+  getEngineBVMultiplier,
+  getGyroBVMultiplier,
   getOffensiveSpeedFactor,
+  getStructureBVMultiplier,
 } from '@/types/validation/BattleValue';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 
@@ -126,6 +131,26 @@ function getCockpitCost(cockpitType: CockpitType | string): number {
   }
 
   return COCKPIT_COST_STANDARD;
+}
+
+function normalizeBVType(value: string): string {
+  return value.toLowerCase().replace(/\s+/g, '-');
+}
+
+function getCockpitBVModifier(cockpitType: CockpitType | string): number {
+  const normalized = normalizeBVType(String(cockpitType));
+
+  switch (normalized) {
+    case 'small':
+    case 'torso-mounted':
+    case 'small-command-console':
+    case 'drone-operating-system':
+      return 0.95;
+    case 'interface':
+      return 1.3;
+    default:
+      return 1.0;
+  }
 }
 
 /**
@@ -262,65 +287,56 @@ export class CalculationService implements ICalculationService {
    */
   calculateBattleValue(mech: IEditableMech): number {
     const movement = this.calculateMovement(mech);
+    const engineType =
+      typeof mech.engineType === 'string'
+        ? this.mapEngineType(mech.engineType)
+        : mech.engineType;
+    const defensiveBV = this.calculateDefensiveBV(mech, movement, engineType);
+    const offensiveBV = this.calculateOffensiveBV(mech, movement, engineType);
+    const cockpitModifier = getCockpitBVModifier(mech.cockpitType);
 
-    // 1. Calculate Defensive BV (includes gyro and defensive speed factor)
-    const defensiveBV = this.calculateDefensiveBV(mech, movement);
-
-    // 2. Calculate Offensive BV (includes incremental heat penalties, weight bonus, and offensive speed factor)
-    const offensiveBV = this.calculateOffensiveBV(mech, movement);
-
-    // 3. Final BV is simply the sum (speed factors already applied separately)
-    const finalBV = defensiveBV + offensiveBV;
-
-    return Math.round(finalBV);
+    return Math.round((defensiveBV + offensiveBV) * cockpitModifier);
   }
 
-  /**
-   * Calculate defensive BV from armor, structure, and gyro
-   * Per MegaMekLab BV2: (armor + structure + gyro) × defensiveSpeedFactor
-   *
-   * @spec openspec/specs/battle-value-system/spec.md
-   */
   private calculateDefensiveBV(
     mech: IEditableMech,
     movement: IMovementProfile,
+    engineType: EngineType,
   ): number {
-    // Armor BV = total armor points × 2.5
     const totalArmorPoints = this.calculateTotalArmorPoints(mech);
-    const armorBV = totalArmorPoints * 2.5;
-
-    // Structure BV = total structure points × 1.5
     const totalStructurePoints = this.calculateTotalStructurePoints(mech);
-    const structureBV = totalStructurePoints * 1.5;
 
-    // Gyro BV = tonnage × 0.5 (per MegaMekLab)
-    const gyroBV = mech.tonnage * 0.5;
+    const armorMultiplier = getArmorBVMultiplier(
+      normalizeBVType(String(mech.armorType)),
+    );
+    const structureMultiplier = getStructureBVMultiplier(
+      normalizeBVType(String(mech.structureType)),
+    );
+    const gyroMultiplier = getGyroBVMultiplier(
+      normalizeBVType(String(mech.gyroType)),
+    );
+    const engineMultiplier = getEngineBVMultiplier(
+      engineType,
+      mech.tonnage > 100,
+    );
 
-    // Base defensive BV before speed factor
-    const baseDefensiveBV = armorBV + structureBV + gyroBV;
+    const armorBV = totalArmorPoints * 2.5 * armorMultiplier;
+    const structureBV =
+      totalStructurePoints * 1.5 * structureMultiplier * engineMultiplier;
+    const gyroBV = mech.tonnage * gyroMultiplier;
 
-    // Apply defensive speed factor (TMM-based)
     const defensiveSpeedFactor = getDefensiveSpeedFactor(
       movement.runMP,
       movement.jumpMP,
     );
-    const finalDefensiveBV = baseDefensiveBV * defensiveSpeedFactor;
 
-    return finalDefensiveBV;
+    return (armorBV + structureBV + gyroBV) * defensiveSpeedFactor;
   }
 
-  /**
-   * Calculate offensive BV using incremental heat tracking
-   * Per MegaMekLab BV2: (incrementalWeaponsBV + ammoBV + tonnage) × offensiveSpeedFactor
-   *
-   * Weapons are added incrementally with cumulative heat tracking.
-   * Weapons that cause the mech to exceed heat dissipation receive 50% BV penalty.
-   *
-   * @spec openspec/specs/battle-value-system/spec.md
-   */
   private calculateOffensiveBV(
     mech: IEditableMech,
     movement: IMovementProfile,
+    engineType: EngineType,
   ): number {
     const registry = getEquipmentRegistry();
 
@@ -336,17 +352,15 @@ export class CalculationService implements ICalculationService {
       : HEAT_SINK_CAPACITY_SINGLE;
     const heatDissipation = mech.heatSinkCount * heatSinkCapacity;
 
-    // Running heat: 2 heat for running movement
-    const RUNNING_HEAT = 2;
-    let cumulativeHeat = RUNNING_HEAT;
+    const runningHeat =
+      engineType === EngineType.ICE || engineType === EngineType.FUEL_CELL
+        ? 0
+        : 2;
+    const jumpHeat = movement.jumpMP > 0 ? Math.max(3, movement.jumpMP) : 0;
+    const moveHeat = Math.max(runningHeat, jumpHeat);
+    const heatEfficiency = 6 + heatDissipation - moveHeat;
 
-    // Separate weapons/ammo from equipment
-    const weaponsWithBV: Array<{
-      id: string;
-      bv: number;
-      heat: number;
-      isAmmo: boolean;
-    }> = [];
+    const weaponsWithBV: Array<{ bv: number; heat: number }> = [];
     let ammoBV = 0;
 
     for (const slot of mech.equipment) {
@@ -356,60 +370,50 @@ export class CalculationService implements ICalculationService {
       const equipment = result.equipment as {
         battleValue?: number;
         heat?: number;
-        category?: string;
       };
+
+      if (result.category === EquipmentType.AMMUNITION) {
+        ammoBV += equipment.battleValue ?? 0;
+        continue;
+      }
+
       const bv = equipment.battleValue ?? 0;
       const heat = equipment.heat ?? 0;
-      const category = equipment.category ?? '';
-
-      // Check if this is ammunition
-      const isAmmo =
-        category.toLowerCase().includes('ammun') ||
-        slot.equipmentId.toLowerCase().includes('ammo');
-
-      if (isAmmo) {
-        // Ammo BV is added directly, no heat penalty
-        ammoBV += bv;
-      } else if (heat > 0 || bv > 0) {
-        // Heat-generating equipment or equipment with BV
-        weaponsWithBV.push({ id: slot.equipmentId, bv, heat, isAmmo: false });
+      if (bv > 0 || heat > 0) {
+        weaponsWithBV.push({ bv, heat });
       }
     }
 
-    // Sort weapons by BV descending (per MegaMekLab - highest BV weapons first)
-    weaponsWithBV.sort((a, b) => b.bv - a.bv);
+    weaponsWithBV.sort((a, b) => {
+      if (a.heat === 0 && b.heat > 0) return -1;
+      if (a.heat > 0 && b.heat === 0) return 1;
+      if (a.bv === b.bv) return a.heat - b.heat;
+      return b.bv - a.bv;
+    });
 
-    // Calculate weapon BV with incremental heat penalties
-    let weaponsBV = 0;
+    let weaponBV = 0;
+    let heatSum = 0;
+    let heatExceeded = heatEfficiency <= 0;
 
     for (const weapon of weaponsWithBV) {
-      // Add this weapon's heat to cumulative heat
-      cumulativeHeat += weapon.heat;
-
-      // Check if we're now over dissipation threshold
-      if (cumulativeHeat <= heatDissipation) {
-        // Within dissipation: full BV
-        weaponsBV += weapon.bv;
-      } else {
-        // Exceeds dissipation: 50% penalty
-        weaponsBV += weapon.bv * 0.5;
+      heatSum += weapon.heat;
+      weaponBV += heatExceeded ? weapon.bv * 0.5 : weapon.bv;
+      if (heatSum >= heatEfficiency) {
+        heatExceeded = true;
       }
     }
 
-    // Weight bonus: add tonnage
-    const weightBonus = mech.tonnage;
-
-    // Base offensive BV before speed factor
-    const baseOffensiveBV = weaponsBV + ammoBV + weightBonus;
-
-    // Apply offensive speed factor (slightly lower than defensive)
+    const baseOffensiveBV = weaponBV + ammoBV + mech.tonnage;
     const offensiveSpeedFactor = getOffensiveSpeedFactor(
       movement.runMP,
       movement.jumpMP,
     );
-    const finalOffensiveBV = baseOffensiveBV * offensiveSpeedFactor;
 
-    return finalOffensiveBV;
+    const isIndustrialMech =
+      normalizeBVType(String(mech.structureType)) === 'industrial';
+    const industrialModifier = isIndustrialMech ? 0.9 : 1.0;
+
+    return baseOffensiveBV * offensiveSpeedFactor * industrialModifier;
   }
 
   /**

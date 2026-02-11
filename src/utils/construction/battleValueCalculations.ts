@@ -474,6 +474,8 @@ export interface OffensiveBVConfig {
   heatSinkCount?: number;
   /** Improved Jump Jets (halved jump heat MP) */
   hasImprovedJJ?: boolean;
+  /** Prototype Improved Jump Jets (doubled jump heat MP, min 6) */
+  hasPrototypeIJJ?: boolean;
   /** Jump MP for heat calc (may differ from movement jump) */
   jumpHeatMP?: number;
   /** Physical weapon BV (hatchets, swords, etc.) */
@@ -484,6 +486,8 @@ export interface OffensiveBVConfig {
   hasMASC?: boolean;
   /** Supercharger present (reserved for future use) */
   hasSupercharger?: boolean;
+  /** Super-Cooled Myomer: moveHeat = 0 per MegaMek MekBVCalculator heatEfficiency() */
+  hasSCM?: boolean;
 }
 
 export interface OffensiveBVResult {
@@ -753,7 +757,16 @@ export function calculateOffensiveBVWithHeatTracking(
   let jumpHeat = 0;
   const jumpHeatMP = config.jumpHeatMP ?? config.jumpMP;
   if (jumpHeatMP > 0) {
-    if (config.hasImprovedJJ) {
+    if (config.hasPrototypeIJJ) {
+      // Prototype Improved Jump Jets: DOUBLED heat, minimum 6.
+      // Per MegaMek Mek.getJumpHeat(): max(6, Engine.getJumpHeat(movedMP * 2))
+      // Engine.getJumpHeat(n) = XXL ? max(6, n*2) : max(3, n)
+      const doubledMP = jumpHeatMP * 2;
+      jumpHeat =
+        config.isXXLEngine || engineType === EngineType.XXL
+          ? Math.max(6, doubledMP * 2)
+          : Math.max(6, Math.max(3, doubledMP));
+    } else if (config.hasImprovedJJ) {
       const effectiveJumpMP = Math.ceil(jumpHeatMP / 2);
       jumpHeat =
         config.isXXLEngine || engineType === EngineType.XXL
@@ -766,7 +779,8 @@ export function calculateOffensiveBVWithHeatTracking(
           : Math.max(3, jumpHeatMP);
     }
   }
-  const moveHeat = Math.max(runningHeat, jumpHeat);
+  // Super-Cooled Myomer: moveHeat = 0 per MegaMek MekBVCalculator heatEfficiency()
+  const moveHeat = config.hasSCM ? 0 : Math.max(runningHeat, jumpHeat);
   let heatEfficiency = 6 + config.heatDissipation - moveHeat;
 
   if ((config.coolantPods ?? 0) > 0 && (config.heatSinkCount ?? 0) > 0) {
@@ -984,6 +998,7 @@ export interface BVCalculationConfig {
   heatSinkCount?: number;
   umuMP?: number;
   hasImprovedJJ?: boolean;
+  hasPrototypeIJJ?: boolean;
 }
 
 /**
@@ -1037,7 +1052,10 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     const isDirectFire =
       !weaponId.includes('lrm') &&
       !weaponId.includes('srm') &&
-      !weaponId.includes('mrm');
+      !weaponId.includes('mrm') &&
+      // Per MegaMek: MGs and Flamers do NOT have F_DIRECT_FIRE (TC doesn't apply)
+      !weaponId.includes('machine-gun') &&
+      !weaponId.includes('flamer');
 
     return {
       id: w.id,
@@ -1071,6 +1089,7 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     coolantPods: config.coolantPods,
     heatSinkCount: config.heatSinkCount,
     hasImprovedJJ: config.hasImprovedJJ,
+    hasPrototypeIJJ: config.hasPrototypeIJJ,
     physicalWeaponBV: config.physicalWeaponBV,
     offensiveEquipmentBV: config.offensiveEquipmentBV,
     umuMP: config.umuMP,
@@ -1123,7 +1142,10 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     const isDirectFire =
       !weaponId.includes('lrm') &&
       !weaponId.includes('srm') &&
-      !weaponId.includes('mrm');
+      !weaponId.includes('mrm') &&
+      // Per MegaMek: MGs and Flamers do NOT have F_DIRECT_FIRE (TC doesn't apply)
+      !weaponId.includes('machine-gun') &&
+      !weaponId.includes('flamer');
 
     return {
       id: w.id,
@@ -1157,6 +1179,7 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     coolantPods: config.coolantPods,
     heatSinkCount: config.heatSinkCount,
     hasImprovedJJ: config.hasImprovedJJ,
+    hasPrototypeIJJ: config.hasPrototypeIJJ,
     physicalWeaponBV: config.physicalWeaponBV,
     offensiveEquipmentBV: config.offensiveEquipmentBV,
     umuMP: config.umuMP,

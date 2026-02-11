@@ -52,8 +52,8 @@
   },
   "equipment": [
     {
-      "id": "rifle-cannon",
-      "location": "HEAVY),_LEFT_TORSO"
+      "id": "heavy-rifle",
+      "location": "LEFT_TORSO"
     },
     {
       "id": "srm-6",

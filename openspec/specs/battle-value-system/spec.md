@@ -46,19 +46,27 @@ The system SHALL calculate defensive BV from armor, structure, gyro, and defensi
 - **AND** Reinforced structure SHALL use multiplier 2.0
 - **AND** Standard and all other structure types SHALL use multiplier 1.0
 
-#### Scenario: Explosive equipment penalty
+#### Scenario: Explosive equipment penalty categories
 
 - **WHEN** calculating defensive BV
-- **AND** unit has explosive equipment without CASE II protection
-- **THEN** each critical slot of explosive equipment SHALL subtract from defensive BV
-- **AND** most explosive equipment SHALL subtract 15 per slot
-- **AND** Gauss weapons SHALL subtract 1 per slot
-- **AND** HVAC weapons SHALL subtract 1 total (regardless of slots)
-- **AND** PPC weapons with capacitors SHALL subtract 1 per slot
-- **AND** Improved Heavy Lasers SHALL subtract 1 per slot
-- **AND** PPC Capacitors, RISC Laser Pulse Modules, Emergency Coolant Systems, and Jump Jets SHALL subtract 1 per slot
-- **AND** Coolant Pod ammo SHALL subtract 1 per slot
-- **AND** B-Pods and M-Pods SHALL subtract 1 per slot
+- **AND** unit has explosive equipment
+- **THEN** penalties SHALL be applied per category:
+  - **Standard** (15 BV/slot): most ammo types, Improved Heavy Lasers
+  - **Reduced** (1 BV/slot): Gauss weapons, PPC Capacitors, Coolant Pods, B-Pods, M-Pods,
+    TSEMP weapons, Prototype Improved Jump Jets, Emergency Coolant System,
+    RISC Hyper Laser, RISC Laser Pulse Module, Mek Taser
+  - **Gauss** (1 BV/slot): Gauss weapon crits (standard, Light, Heavy, HAG, Silver Bullet)
+  - **HVAC** (1 BV total): Hyper-Velocity Autocannon (regardless of slot count)
+
+#### Scenario: CASE protection by location
+
+- **WHEN** calculating explosive equipment penalties
+- **THEN** CASE II SHALL eliminate all penalties in the protected location
+- **AND** standard CASE SHALL protect side torsos (if engine has <3 side torso crit slots)
+- **AND** standard CASE SHALL protect arms (non-quad; otherwise check transfer torso)
+- **AND** standard CASE SHALL NOT protect CT, HD, or Legs — only CASE II does
+- **AND** Clan mechs SHALL have implicit CASE in all non-head locations (LT, RT, LA, RA, CT, LL, RL)
+- **BUT** Clan implicit CASE follows standard CASE rules — it does NOT protect CT, HD, or Legs
 
 #### Scenario: Defensive speed factor calculation
 
@@ -196,6 +204,42 @@ The system SHALL adjust final BV based on pilot gunnery and piloting skills usin
 - **AND** gunnery 0 / piloting 0 SHALL give multiplier 2.42
 - **AND** gunnery 4 / piloting 5 SHALL give multiplier 1.00 (standard pilot)
 - **AND** gunnery 8 / piloting 8 SHALL give multiplier 0.64
+
+### Requirement: Prototype Equipment BV
+
+The system SHALL correctly resolve prototype weapon and equipment BV/heat values.
+
+#### Scenario: Prototype weapon BV resolution
+
+- **WHEN** calculating BV for a prototype weapon
+- **THEN** prototype weapons SHALL use the same base BV as their standard counterparts
+- **AND** prototype weapons MAY have different (typically higher) heat values
+- **AND** resolution SHALL check CATALOG_BV_OVERRIDES before catalog lookup
+
+#### Scenario: Prototype Double Heat Sink dissipation
+
+- **WHEN** calculating heat dissipation
+- **AND** unit has Prototype DHS (detected from crit slot names)
+- **THEN** each Prototype DHS SHALL dissipate 2 heat (same as regular DHS)
+- **AND** Prototype DHS SHALL always use IS sizing (3 crit slots each)
+- **AND** unit's `heatSinks.type` MAY still be "SINGLE" even with Prototype DHS present
+
+#### Scenario: Prototype Improved Jump Jets are explosive
+
+- **WHEN** scanning for explosive equipment
+- **AND** a crit slot contains Prototype Improved Jump Jets
+- **THEN** the slot SHALL be classified as explosive with `reduced` penalty (1 BV/slot)
+
+### Requirement: Industrial Mech Fire Control
+
+The system SHALL apply a 0.9× offensive BV modifier for industrial mechs without advanced fire control.
+
+#### Scenario: Industrial cockpit offensive modifier
+
+- **WHEN** calculating offensive BV
+- **AND** unit has an industrial cockpit type
+- **THEN** offensive BV SHALL be multiplied by 0.9
+- **AND** this reflects the reduced fire control capability of industrial designs
 
 ### Requirement: Registry Initialization Check
 

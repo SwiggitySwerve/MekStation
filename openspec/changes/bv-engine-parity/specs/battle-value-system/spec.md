@@ -517,20 +517,32 @@ The system SHALL determine implicit CASE for MIXED tech units using a three-tier
 The system SHALL correctly apply CASE protection to Center Torso and leg locations
 for explosive equipment BV penalty calculations.
 
-#### Scenario: CT with CASE has no explosive penalty
+#### Scenario: CT with CASE still has explosive penalty
 
 - **WHEN** calculating explosive equipment penalties
-- **AND** the Center Torso has CASE or CASE II
+- **AND** the Center Torso has standard CASE protection
+- **THEN** explosive penalty SHALL still be applied to CT
+- **BECAUSE** per MegaMek `MekBVCalculator.hasExplosiveEquipmentPenalty()` lines 517-528,
+  standard CASE does NOT protect CT — only CASE II eliminates CT penalties
+- **NOTE** This was corrected from an earlier understanding that CT CASE vented explosions.
+  The production code and MegaMek both treat CT, HD, and Legs as always penalized with standard CASE.
+
+#### Scenario: CT with CASE II has no explosive penalty
+
+- **WHEN** calculating explosive equipment penalties
+- **AND** the Center Torso has CASE II protection
 - **THEN** no explosive penalty SHALL be applied to CT
-- **BECAUSE** CASE vents the explosion, preventing mech destruction
+- **BECAUSE** CASE II fully eliminates explosive penalties in any location
 
-#### Scenario: Leg explosive transfers to side torso
+#### Scenario: Leg locations always penalized
 
-- **WHEN** calculating explosive equipment penalties for a leg location
-- **THEN** the leg SHALL transfer the penalty check to the adjacent side torso
-- **AND** Left Leg SHALL transfer to Left Torso
-- **AND** Right Leg SHALL transfer to Right Torso
-- **AND** if the receiving torso has no penalty, the leg SHALL have no penalty
+- **WHEN** calculating explosive equipment penalties for a leg location (LL or RL)
+- **AND** the leg has explosive equipment
+- **THEN** the leg SHALL always incur an explosive penalty
+- **AND** standard CASE in legs does NOT prevent the penalty
+- **AND** only CASE II in the leg eliminates the penalty
+- **NOTE** Unlike arms (which transfer to the connecting torso), legs do not transfer
+  penalty checks. Per MegaMek, legs always have penalty unless CASE II protected.
 
 #### Scenario: Clan implicit CASE covers all non-head locations
 
@@ -635,6 +647,108 @@ The system SHALL categorize excluded units into specific, documented reasons.
   - `No reference BV available`: Unit has neither MUL entry nor index BV
   - `Zero reference BV`: Reference BV is 0 (invalid data)
 
+### Requirement: Prototype Equipment BV Resolution (EC-37 through EC-52 addendum)
+
+The system SHALL correctly resolve prototype equipment BV and heat values using the
+multi-stage equipment resolution pipeline.
+
+#### Scenario: Prototype weapon BV uses same base BV as standard
+
+- **WHEN** resolving BV for a prototype weapon
+- **THEN** prototype weapons SHALL use the **same base BV** as their standard counterparts
+- **AND** malfunction/jam probability SHALL NOT be reflected in BV
+- **AND** prototype weapons MAY have **different heat values** (typically higher)
+- **EXAMPLE** IS ER Large Laser Prototype: BV=136 (same as standard), heat=15 (standard=12)
+
+#### Scenario: Prototype weapon resolution priority
+
+- **WHEN** resolving a prototype weapon's BV and heat
+- **THEN** resolution SHALL follow this priority order:
+  1. `CATALOG_BV_OVERRIDES` (highest priority — catches MegaMek crit names)
+  2. `DIRECT_ALIAS_MAP` (maps prototype IDs to standard catalog entries)
+  3. `normalizeEquipmentId()` (strips `prototype-?` suffix)
+  4. `FALLBACK_WEAPON_BV` (catches remaining prototype IDs not resolved above)
+
+#### Scenario: Prototype DHS heat dissipation
+
+- **WHEN** calculating heat dissipation for prototype Double Heat Sinks
+- **THEN** each prototype DHS SHALL dissipate **2 heat** (same as regular DHS)
+- **AND** prototype DHS SHALL be detected from crit slot names:
+  `"ISDoubleHeatSinkPrototype"`, `"CLDoubleHeatSinkPrototype"`,
+  `"Freezers"`, `"Double Heat Sink (Freezer)"`
+- **AND** prototype DHS SHALL always use IS sizing (3 crit slots each)
+- **AND** unit's `heatSinks.type` MAY still be `"SINGLE"` even when prototype DHS are present
+
+#### Scenario: Prototype Improved Jump Jets are explosive
+
+- **WHEN** scanning critical slots for explosive equipment
+- **AND** a slot contains a Prototype Improved Jump Jet
+  (`"ISPrototypeImprovedJumpJet"` or `"Prototype Improved Jump Jet"`)
+- **THEN** the slot SHALL be classified as explosive equipment
+- **AND** the penalty category SHALL be `reduced` (1 BV per slot, not 15)
+- **BECAUSE** MegaMek sets `misc.explosive = true` but the `F_JUMP_JET` flag
+  triggers the reduced penalty path
+
+### Requirement: Expanded Explosive Penalty Categories
+
+The system SHALL classify explosive equipment into four distinct penalty categories.
+
+#### Scenario: Standard explosive penalty
+
+- **WHEN** explosive equipment is classified as `standard`
+- **THEN** penalty SHALL be **15 BV per critical slot**
+- **AND** this category applies to: most ammo types, Improved Heavy Lasers
+
+#### Scenario: Reduced explosive penalty
+
+- **WHEN** explosive equipment is classified as `reduced`
+- **THEN** penalty SHALL be **1 BV per critical slot**
+- **AND** this category applies to: PPC Capacitors, Coolant Pods, B-Pods, M-Pods,
+  TSEMP weapons, Prototype Improved Jump Jets, Emergency Coolant System,
+  RISC Hyper Laser, RISC Laser Pulse Module, Mek Taser
+
+#### Scenario: Gauss explosive penalty
+
+- **WHEN** explosive equipment is classified as `gauss`
+- **THEN** penalty SHALL be **1 BV per critical slot**
+- **AND** this category applies to all Gauss-family weapon crits:
+  standard Gauss, Light Gauss, Heavy Gauss, HAG (Hyper-Assault Gauss),
+  Silver Bullet Gauss Rifle (SBGR)
+- **AND** detection SHALL use expanded matching:
+  `includes('gauss')` OR regex `/(?:cl|is)?hag\d/` OR `includes('sbgr')` OR `includes('sbg')`
+- **AND** AP Gauss SHALL be excluded (`includes('ap gauss')`)
+- **AND** Gauss ammo SHALL be excluded (`includes('ammo')`) — Gauss ammo is non-explosive
+
+#### Scenario: HVAC explosive penalty
+
+- **WHEN** explosive equipment is classified as `hvac`
+- **THEN** penalty SHALL be **1 BV total** (regardless of actual slot count)
+- **AND** this category applies to Hyper-Velocity Autocannon weapons
+- **AND** detection SHALL match: `includes('hvac')` OR `includes('hyper velocity')` OR `includes('hypervelocity')`
+
+### Requirement: Industrial Mech Fire Control Modifier (EC-52)
+
+The system SHALL apply a 0.9× offensive BV modifier for industrial mechs lacking
+advanced fire control.
+
+#### Scenario: Industrial cockpit detection
+
+- **WHEN** calculating offensive BV
+- **AND** unit cockpit type matches any of:
+  - `COCKPIT_INDUSTRIAL`
+  - `COCKPIT_PRIMITIVE_INDUSTRIAL`
+  - `COCKPIT_SUPERHEAVY_INDUSTRIAL`
+  - `COCKPIT_TRIPOD_INDUSTRIAL`
+  - `COCKPIT_SUPERHEAVY_TRIPOD_INDUSTRIAL`
+- **THEN** offensive BV (weapon BV + ammo BV + tonnage bonus) SHALL be multiplied by 0.9
+- **AND** this modifier SHALL be applied before the cockpit modifier on final BV
+
+#### Scenario: Non-industrial cockpit has full offensive BV
+
+- **WHEN** calculating offensive BV
+- **AND** unit cockpit type is NOT an industrial type (e.g., Standard, Small, Interface)
+- **THEN** no offensive BV reduction SHALL be applied for fire control
+
 ## REMOVED Requirements
 
-None. All existing requirements remain valid; this delta adds 15 original + 14 additional calculation phases.
+None. All existing requirements remain valid; this delta adds 15 original + 14 additional calculation phases, plus prototype equipment handling, expanded explosive penalty categories, and industrial fire control modifier.
