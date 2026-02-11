@@ -648,7 +648,7 @@ describe('battleValueCalculations', () => {
         expect(result.armorBV).toBe(115);
       });
 
-      it('should apply hardened armor multiplier (1.0×)', () => {
+      it('should apply hardened armor multiplier (2.0×)', () => {
         const config: DefensiveBVConfig = {
           totalArmorPoints: 100,
           totalStructurePoints: 50,
@@ -661,11 +661,11 @@ describe('battleValueCalculations', () => {
         };
         const result = calculateDefensiveBV(config);
 
-        // 100 × 2.5 × 1.0 = 250 (EC-25: hardened = 1.0)
-        expect(result.armorBV).toBe(250);
+        // 100 × 2.5 × 2.0 = 500
+        expect(result.armorBV).toBe(500);
       });
 
-      it('should apply reactive armor multiplier (1.0×)', () => {
+      it('should apply reactive armor multiplier (1.5×)', () => {
         const config: DefensiveBVConfig = {
           totalArmorPoints: 100,
           totalStructurePoints: 50,
@@ -678,8 +678,8 @@ describe('battleValueCalculations', () => {
         };
         const result = calculateDefensiveBV(config);
 
-        // 100 × 2.5 × 1.0 = 250 (EC-25: reactive = 1.0)
-        expect(result.armorBV).toBe(250);
+        // 100 × 2.5 × 1.5 = 375
+        expect(result.armorBV).toBe(375);
       });
     });
 
@@ -753,7 +753,7 @@ describe('battleValueCalculations', () => {
         expect(result.structureBV).toBe(75);
       });
 
-      it('should apply XL (IS) engine multiplier (0.75×)', () => {
+      it('should apply XL (IS) engine multiplier (0.5×)', () => {
         const config: DefensiveBVConfig = {
           totalArmorPoints: 100,
           totalStructurePoints: 50,
@@ -767,8 +767,8 @@ describe('battleValueCalculations', () => {
         };
         const result = calculateDefensiveBV(config);
 
-        // 50 × 1.5 × 0.75 = 56.25 (EC-4: IS XL = 0.75)
-        expect(result.structureBV).toBe(56.25);
+        // 50 × 1.5 × 0.5 = 37.5 (EC-4: IS XL = 3 side torso crits)
+        expect(result.structureBV).toBe(37.5);
       });
 
       it('should apply XL (Clan) engine multiplier (0.75×)', () => {
@@ -807,7 +807,7 @@ describe('battleValueCalculations', () => {
         expect(result.structureBV).toBe(56.25);
       });
 
-      it('should apply XXL engine multiplier (0.5×)', () => {
+      it('should apply XXL engine multiplier (0.25×)', () => {
         const config: DefensiveBVConfig = {
           totalArmorPoints: 100,
           totalStructurePoints: 50,
@@ -821,8 +821,8 @@ describe('battleValueCalculations', () => {
         };
         const result = calculateDefensiveBV(config);
 
-        // 50 × 1.5 × 0.5 = 37.5 (EC-4: XXL = 0.5)
-        expect(result.structureBV).toBe(37.5);
+        // 50 × 1.5 × 0.25 = 18.75 (EC-4: IS XXL = 6 side torso crits)
+        expect(result.structureBV).toBe(18.75);
       });
 
       it('should apply compact engine multiplier (1.0×)', () => {
@@ -911,8 +911,8 @@ describe('battleValueCalculations', () => {
         };
         const result = calculateDefensiveBV(config);
 
-        // 50 × 1.5 × 2.0 (reinforced) × 0.75 (XL IS) = 112.5 (EC-4)
-        expect(result.structureBV).toBe(112.5);
+        // 50 × 1.5 × 2.0 (reinforced) × 0.5 (XL IS) = 75 (EC-4)
+        expect(result.structureBV).toBe(75);
       });
     });
 

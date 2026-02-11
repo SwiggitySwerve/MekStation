@@ -86,36 +86,34 @@ export const BV2_SPEED_FACTORS: Record<number, number> = {
 
 /**
  * Armor type BV multipliers
- * Per EC-25: standard=1.0, ferro-fibrous=1.12, light-ferro=1.06, heavy-ferro=1.24,
- * stealth=1.0, reactive=1.0, reflective=1.0, hardened=1.0
+ * Per MegaMek BVCalculator.java:1477-1498
  */
 export const ARMOR_BV_MULTIPLIERS: Record<string, number> = {
+  hardened: 2.0,
+  reactive: 1.5,
+  reflective: 1.5,
+  'ballistic-reinforced': 1.5,
+  'ferro-lamellor': 1.2,
+  'anti-penetrative': 1.2,
+  'heat-dissipating': 1.1,
   standard: 1.0,
-  'ferro-fibrous': 1.12,
-  'light-ferro': 1.06,
-  'heavy-ferro': 1.24,
-  stealth: 1.0,
-  reactive: 1.0,
-  reflective: 1.0,
-  hardened: 1.0,
 };
 
 /**
  * Structure type BV multipliers
- * Per EC-26: standard=1.0, endo-steel=1.0, endo-composite=1.0, composite=0.5, reinforced=2.0, industrial=0.5
+ * Per MegaMek MekBVCalculator.java:88-123
  */
 export const STRUCTURE_BV_MULTIPLIERS: Record<string, number> = {
-  standard: 1.0,
-  'endo-steel': 1.0,
-  'endo-composite': 1.0,
-  composite: 0.5,
-  reinforced: 2.0,
   industrial: 0.5,
+  composite: 0.5,
+  'endo-composite': 1.0,
+  reinforced: 2.0,
+  standard: 1.0,
 };
 
 /**
  * Gyro type BV multipliers
- * Per EC-3: standard=0.5, xl=0.5, compact=0.5, heavy-duty=1.0, none=0.0
+ * Per MegaMek Mek.java:5589-5597
  * Formula: tonnage × gyro_multiplier
  *
  * @spec openspec/specs/superheavy-mech-system/spec.md
@@ -125,21 +123,25 @@ export const GYRO_BV_MULTIPLIERS: Record<string, number> = {
   xl: 0.5,
   compact: 0.5,
   'heavy-duty': 1.0,
-  none: 0.0,
+  superheavy: 0.5,
 };
 
 /**
  * Engine type BV multipliers for structure calculation
- * Per EC-4: standard=1.0, xl-is=0.75, xl-clan=0.75, light=0.75, xxl=0.5, compact=1.0, ice=1.0
+ * Per MegaMek Engine.getBVMultiplier() — based on side torso critical slots:
+ *   6 crits → 0.25 (IS XXL)
+ *   3 crits → 0.5  (IS XL)
+ *   2 crits → 0.75 (IS Light, Clan XL)
+ *   0 crits → 1.0  (Standard, Compact, ICE, etc.)
  * Formula: structureBV = totalStructure × 1.5 × structureMultiplier × engineMultiplier
  */
 export const ENGINE_BV_MULTIPLIERS: Record<EngineType, number> = {
   [EngineType.STANDARD]: 1.0,
-  [EngineType.XL_IS]: 0.75,
-  [EngineType.XL_CLAN]: 0.75,
-  [EngineType.LIGHT]: 0.75,
-  [EngineType.XXL]: 0.5,
-  [EngineType.COMPACT]: 1.0,
+  [EngineType.XL_IS]: 0.5, // 3 side torso crits
+  [EngineType.XL_CLAN]: 0.75, // 2 side torso crits
+  [EngineType.LIGHT]: 0.75, // 2 side torso crits
+  [EngineType.XXL]: 0.25, // 6 side torso crits (IS XXL)
+  [EngineType.COMPACT]: 1.0, // 0 side torso crits
   [EngineType.ICE]: 1.0,
   [EngineType.FUEL_CELL]: 1.0,
   [EngineType.FISSION]: 1.0,
@@ -184,19 +186,6 @@ export const PILOT_SKILL_MULTIPLIERS: number[][] = [
   [1.17, 1.06, 1.01, 0.96, 0.88, 0.8, 0.76, 0.72, 0.68], // gunnery 7
   [1.1, 0.99, 0.95, 0.9, 0.83, 0.75, 0.71, 0.68, 0.64], // gunnery 8
 ];
-
-/**
- * Cockpit type BV modifiers
- * Per EC-1: standard=1.0, small=0.95, command-console=1.0, torso-mounted=0.95, interface=1.3, drone-operating-system=0.95
- */
-export const COCKPIT_BV_MODIFIERS: Record<string, number> = {
-  standard: 1.0,
-  small: 0.95,
-  'command-console': 1.0,
-  'torso-mounted': 0.95,
-  interface: 1.3,
-  'drone-operating-system': 0.95,
-};
 
 /**
  * Get armor BV multiplier by type
@@ -305,6 +294,25 @@ export interface BVCalculation {
 }
 
 /**
+ * Offensive speed factor lookup table - indexed by TMM
+ * Per MegaMekLab BV2 implementation
+ * Offensive factors are slightly lower than defensive factors
+ */
+export const BV2_OFFENSIVE_SPEED_FACTORS_BY_TMM: Record<number, number> = {
+  0: 1.0,
+  1: 1.06,
+  2: 1.12,
+  3: 1.18,
+  4: 1.24,
+  5: 1.3,
+  6: 1.36,
+  7: 1.42,
+  8: 1.48,
+  9: 1.54,
+  10: 1.6,
+};
+
+/**
  * Get defensive speed factor for BV2 calculation
  * Applied to (armor + structure + gyro)
  */
@@ -315,7 +323,18 @@ export function getDefensiveSpeedFactor(runMP: number, jumpMP: number): number {
 }
 
 /**
- * @deprecated Use getDefensiveSpeedFactor instead
+ * Get offensive speed factor for BV2 calculation
+ * Applied to (weapons + ammo + weight bonus)
+ * Slightly lower than defensive factor per MegaMekLab
+ */
+export function getOffensiveSpeedFactor(runMP: number, jumpMP: number): number {
+  const tmm = calculateTMM(runMP, jumpMP);
+  const cappedTMM = Math.min(10, Math.max(0, tmm));
+  return BV2_OFFENSIVE_SPEED_FACTORS_BY_TMM[cappedTMM] ?? 1.0;
+}
+
+/**
+ * @deprecated Use getDefensiveSpeedFactor or getOffensiveSpeedFactor instead
  * Get speed factor for BV2 calculation
  */
 export function getBV2SpeedFactor(runMP: number, jumpMP: number): number {
