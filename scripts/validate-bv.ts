@@ -80,7 +80,7 @@ interface ValidationResult {
   calculatedBV: number | null;
   difference: number | null;
   percentDiff: number | null;
-  status: 'exact' | 'within1' | 'within5' | 'within10' | 'over10' | 'error';
+  status: 'exact' | 'within1' | 'within2' | 'within3' | 'over3' | 'error';
   error?: string;
   breakdown?: {
     // Defensive sub-components
@@ -146,15 +146,17 @@ interface ValidationReport {
     failedToCalculate: number;
     exactMatch: number;
     within1Percent: number;
-    within5Percent: number;
-    within10Percent: number;
-    over10Percent: number;
+    within2Percent: number;
+    within3Percent: number;
+    over3Percent: number;
     within1PercentPct: number;
-    within5PercentPct: number;
+    within2PercentPct: number;
+    within3PercentPct: number;
   };
   accuracyGates: {
     within1Percent: { target: number; actual: number; passed: boolean };
-    within5Percent: { target: number; actual: number; passed: boolean };
+    within2Percent: { target: number; actual: number; passed: boolean };
+    within3Percent: { target: number; actual: number; passed: boolean };
   };
   topDiscrepancies: ValidationResult[];
   allResults: ValidationResult[];
@@ -948,6 +950,7 @@ interface CritScan {
   artemisVLocs: string[];
   apollo: number;
   ppcCapLocs: string[];
+  armoredPPCCapLocs: string[];
   ammo: Array<{ id: string; bv: number; weaponType: string; location: string }>;
   explosive: ExplosiveEquipmentEntry[];
   defEquipIds: string[];
@@ -1192,6 +1195,7 @@ function scanCrits(unit: UnitData, unitId?: string): CritScan {
     artemisVLocs: [],
     apollo: 0,
     ppcCapLocs: [],
+    armoredPPCCapLocs: [],
     ammo: [],
     explosive: [],
     defEquipIds: [],
@@ -1257,6 +1261,7 @@ function scanCrits(unit: UnitData, unitId?: string): CritScan {
         // Armored components: per MegaMek Mek.getArmoredComponentBV():
         // - If equipment BV > 0: add equipmentBV * 0.05 per crit slot
         // - If equipment BV == 0: add 5 per crit slot (flat fallback for system crits)
+        // - PPC Capacitor is SKIPPED (its BV folds into the PPC weapon's armored calc)
         if (lo.includes('(armored)') || lo.includes('armored')) {
           const isArmoredComponent =
             lo.includes('(armored)') ||
@@ -1265,12 +1270,21 @@ function scanCrits(unit: UnitData, unitId?: string): CritScan {
             // Strip (Armored) suffix and resolve equipment BV
             const armoredName = clean.replace(/\s*\(armored\)/gi, '').trim();
             const armoredLo = armoredName.toLowerCase();
+            // PPC Capacitor (armored): skip per MegaMek — its BV is folded into
+            // the linked PPC weapon's armored BV calc (handled in post-scan correction)
+            if (
+              armoredLo.includes('ppc capacitor') ||
+              armoredLo.includes('ppccapacitor')
+            ) {
+              if (loc) r.armoredPPCCapLocs.push(loc);
+              // Do NOT add to armoredComponentBV here — handled below
+            }
             // System crits (gyro, engine, actuators, sensors, etc.) have BV=0 → flat 5
-            const isSystemCrit =
+            else if (
               /^(gyro|fusion engine|engine|xl engine|light engine|compact engine|xxl engine|hip|shoulder|upper arm|lower arm|hand|upper leg|lower leg|foot|life support|sensors|cockpit|compact gyro|heavy.?duty gyro|xl gyro|superheavy gyro)$/i.test(
                 armoredName,
-              );
-            if (isSystemCrit) {
+              )
+            ) {
               r.armoredComponentBV += 5;
               if (armoredLo.includes('gyro')) r.armoredGyroSlots++;
             } else {
@@ -4268,6 +4282,85 @@ function calculateUnitBV(
     correctedArmoredBV += cs.armoredGyroSlots * (correctPerSlot - 5);
   }
 
+  // Armored PPC + Capacitor correction: per MegaMek Mek.getArmoredComponentBV(),
+  // PPC Capacitor is SKIPPED from direct counting. Instead, when a PPC weapon has
+  // a linked cap, both BVs are combined: (ppcBV + capBV) × 0.05 × (ppcSlots + 1).
+  // Our per-slot scanning already counted armored PPC slots as ppcBV × 0.05 each.
+  // This correction adds the missing capBV contribution and the +1 slot bonus.
+  if (cs.armoredPPCCapLocs.length > 0 && unit.criticalSlots) {
+    for (const capLoc of cs.armoredPPCCapLocs) {
+      // Find armored PPC crit slots in the same location
+      const locSlots = (unit.criticalSlots as Record<string, unknown[]>)[
+        capLoc
+      ];
+      if (!locSlots) continue;
+      const armoredPPCSlots = locSlots.filter(
+        (s) =>
+          typeof s === 'string' &&
+          s.toLowerCase().includes('ppc') &&
+          !s.toLowerCase().includes('capacitor') &&
+          (s.toLowerCase().includes('(armored)') ||
+            (s.toLowerCase().endsWith('armored') &&
+              !s.toLowerCase().includes('armor'))),
+      ).length;
+      if (armoredPPCSlots === 0) continue;
+      // Determine PPC BV (check if Clan PPC from crit names)
+      const hasClanPPC = locSlots.some(
+        (s) =>
+          typeof s === 'string' &&
+          s.toUpperCase().startsWith('CL') &&
+          s.toUpperCase().includes('PPC'),
+      );
+      // Determine PPC variant and cap BV
+      const ppcSlotName =
+        locSlots
+          .find(
+            (s) =>
+              typeof s === 'string' &&
+              s.toLowerCase().includes('ppc') &&
+              !s.toLowerCase().includes('capacitor'),
+          )
+          ?.toString()
+          .toLowerCase() ?? '';
+      let capBV = 88; // standard PPC cap
+      if (ppcSlotName.includes('erppc') || ppcSlotName.includes('er ppc')) {
+        capBV = hasClanPPC ? 136 : 114;
+      } else if (
+        ppcSlotName.includes('heavy') ||
+        ppcSlotName.includes('hppc')
+      ) {
+        capBV = 53;
+      } else if (
+        ppcSlotName.includes('snub') ||
+        ppcSlotName.includes('snppc')
+      ) {
+        capBV = 87;
+      } else if (
+        ppcSlotName.includes('light') ||
+        ppcSlotName.includes('lppc')
+      ) {
+        capBV = 44;
+      }
+      // Resolve PPC weapon BV
+      const ppcName = ppcSlotName
+        .replace(/\s*\(armored\)/gi, '')
+        .replace(/\s*\(r\)/gi, '')
+        .trim();
+      const ppcResult = resolveWeaponForUnit(
+        ppcName,
+        unit.techBase || 'INNER_SPHERE',
+      );
+      const ppcBV = ppcResult.resolved ? ppcResult.battleValue : 0;
+      if (ppcBV > 0) {
+        // MegaMek formula: (ppcBV + capBV) × 0.05 × (ppcSlots + 1)
+        // Already counted: ppcBV × 0.05 × ppcSlots (from per-slot scanning)
+        // Difference: capBV × 0.05 × (ppcSlots + 1) + ppcBV × 0.05
+        const correction = capBV * 0.05 * (armoredPPCSlots + 1) + ppcBV * 0.05;
+        correctedArmoredBV += correction;
+      }
+    }
+  }
+
   const defCfg: Parameters<typeof calculateDefensiveBV>[0] = {
     totalArmorPoints: totalArmor,
     totalStructurePoints: totalStructure,
@@ -4451,7 +4544,12 @@ function calculateUnitBV(
 function classifyRootCause(result: ValidationResult, unit: UnitData): string {
   if (result.status === 'error' || result.calculatedBV === null)
     return 'calculation-error';
-  if (result.status === 'exact' || result.status === 'within1') return 'none';
+  if (
+    result.status === 'exact' ||
+    result.status === 'within1' ||
+    result.status === 'within2'
+  )
+    return 'none';
   const diff = result.difference!;
   const absPct = Math.abs(result.percentDiff!);
   if (result.issues.some((i) => i.includes('Unresolved weapons')))
@@ -4482,7 +4580,10 @@ function classifyRootCause(result: ValidationResult, unit: UnitData): string {
 function buildPareto(results: ValidationResult[]): ParetoAnalysis {
   const fails = results.filter(
     (r) =>
-      r.status !== 'exact' && r.status !== 'within1' && r.status !== 'error',
+      r.status !== 'exact' &&
+      r.status !== 'within1' &&
+      r.status !== 'within2' &&
+      r.status !== 'error',
   );
   const cats: Record<string, { units: string[]; diffs: number[] }> = {};
   for (const r of fails) {
@@ -5166,11 +5267,11 @@ async function main(): Promise<void> {
           ? 'exact'
           : absPct <= 1
             ? 'within1'
-            : absPct <= 5
-              ? 'within5'
-              : absPct <= 10
-                ? 'within10'
-                : 'over10';
+            : absPct <= 2
+              ? 'within2'
+              : absPct <= 3
+                ? 'within3'
+                : 'over3';
       const r: ValidationResult = {
         unitId: iu.id,
         chassis: iu.chassis,
@@ -5212,26 +5313,28 @@ async function main(): Promise<void> {
   const w1 = results.filter(
     (r) => r.status === 'exact' || r.status === 'within1',
   ).length;
-  const w5 = results.filter((r) =>
-    ['exact', 'within1', 'within5'].includes(r.status),
+  const w2 = results.filter((r) =>
+    ['exact', 'within1', 'within2'].includes(r.status),
   ).length;
-  const w10 = results.filter((r) =>
-    ['exact', 'within1', 'within5', 'within10'].includes(r.status),
+  const w3 = results.filter((r) =>
+    ['exact', 'within1', 'within2', 'within3'].includes(r.status),
   ).length;
-  const o10 = results.filter((r) => r.status === 'over10').length;
+  const o3 = results.filter((r) => r.status === 'over3').length;
   const w1p = calc > 0 ? (w1 / calc) * 100 : 0;
-  const w5p = calc > 0 ? (w5 / calc) * 100 : 0;
+  const w2p = calc > 0 ? (w2 / calc) * 100 : 0;
+  const w3p = calc > 0 ? (w3 / calc) * 100 : 0;
   const g1 = w1p >= 95.0,
-    g5 = w5p >= 99.0;
+    g2 = w2p >= 99.0,
+    g3 = w3p >= 99.5;
 
   console.log(
     `\n=== SUMMARY ===\nTotal: ${units.length}  Excluded: ${excluded.length}  Validated: ${calc + fail}  Calculated: ${calc}  Failed: ${fail}`,
   );
   console.log(
-    `\nExact: ${exact} (${((exact / calc) * 100).toFixed(1)}%)\nWithin 1%: ${w1} (${w1p.toFixed(1)}%)\nWithin 5%: ${w5} (${w5p.toFixed(1)}%)\nWithin 10%: ${w10} (${((w10 / calc) * 100).toFixed(1)}%)\nOver 10%: ${o10} (${((o10 / calc) * 100).toFixed(1)}%)`,
+    `\nExact: ${exact} (${((exact / calc) * 100).toFixed(1)}%)\nWithin 1%: ${w1} (${w1p.toFixed(1)}%)\nWithin 2%: ${w2} (${w2p.toFixed(1)}%)\nWithin 3%: ${w3} (${w3p.toFixed(1)}%)\nOver 3%: ${o3} (${((o3 / calc) * 100).toFixed(1)}%)`,
   );
   console.log(
-    `\n=== ACCURACY GATES ===\nWithin 1%:  ${w1p.toFixed(1)}% (target: 95.0%) ${g1 ? '✅ PASS' : '❌ FAIL'}\nWithin 5%:  ${w5p.toFixed(1)}% (target: 99.0%) ${g5 ? '✅ PASS' : '❌ FAIL'}`,
+    `\n=== ACCURACY GATES ===\nWithin 1%:  ${w1p.toFixed(1)}% (target: 95.0%) ${g1 ? '✅ PASS' : '❌ FAIL'}\nWithin 2%:  ${w2p.toFixed(1)}% (target: 99.0%) ${g2 ? '✅ PASS' : '❌ FAIL'}\nWithin 3%:  ${w3p.toFixed(1)}% (target: 99.5%) ${g3 ? '✅ PASS' : '❌ FAIL'}`,
   );
 
   if (excluded.length > 0) {
@@ -5273,11 +5376,12 @@ async function main(): Promise<void> {
       failedToCalculate: fail,
       exactMatch: exact,
       within1Percent: w1,
-      within5Percent: w5,
-      within10Percent: w10,
-      over10Percent: o10,
+      within2Percent: w2,
+      within3Percent: w3,
+      over3Percent: o3,
       within1PercentPct: Math.round(w1p * 10) / 10,
-      within5PercentPct: Math.round(w5p * 10) / 10,
+      within2PercentPct: Math.round(w2p * 10) / 10,
+      within3PercentPct: Math.round(w3p * 10) / 10,
     },
     accuracyGates: {
       within1Percent: {
@@ -5285,10 +5389,15 @@ async function main(): Promise<void> {
         actual: Math.round(w1p * 10) / 10,
         passed: g1,
       },
-      within5Percent: {
+      within2Percent: {
         target: 99.0,
-        actual: Math.round(w5p * 10) / 10,
-        passed: g5,
+        actual: Math.round(w2p * 10) / 10,
+        passed: g2,
+      },
+      within3Percent: {
+        target: 99.5,
+        actual: Math.round(w3p * 10) / 10,
+        passed: g3,
       },
     },
     topDiscrepancies: top,
@@ -5332,7 +5441,7 @@ async function main(): Promise<void> {
     JSON.stringify(pareto, null, 2),
   );
   console.log(`\nReports: ${outputPath}/`);
-  if (g1 && g5) console.log('\n🎉 ALL ACCURACY GATES PASSED!');
+  if (g1 && g2 && g3) console.log('\n🎉 ALL ACCURACY GATES PASSED!');
 }
 
 main().catch((e) => {
