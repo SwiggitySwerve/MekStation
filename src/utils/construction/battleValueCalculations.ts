@@ -944,22 +944,19 @@ export type CockpitType =
  * Get cockpit BV modifier.
  * Applied to final (defensive + offensive) BV.
  *
- * - Small / Small Command Console / Drone OS: ×0.95
+ * - Small / Torso-mounted / Small Command Console / Drone OS: ×0.95
  * - Interface: ×1.3
- * - Torso-mounted / Standard / Command Console / others: ×1.0
- *
- * Note: Torso-mounted cockpit uses 1.0 (not 0.95) per MUL parity validation (EC-1).
- * MegaMek's BVCalculator.processSummarize() does not apply a modifier for torso-mounted.
+ * - Standard / Command Console / others: ×1.0
  */
 export function getCockpitModifier(cockpitType?: CockpitType): number {
   switch (cockpitType) {
     case 'small':
+    case 'torso-mounted':
     case 'small-command-console':
     case 'drone-operating-system':
       return 0.95;
     case 'interface':
       return 1.3;
-    case 'torso-mounted':
     default:
       return 1.0;
   }

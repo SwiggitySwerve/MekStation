@@ -294,12 +294,9 @@ export interface BVCalculation {
 }
 
 /**
- * @deprecated This table contains fabricated values that do NOT match MegaMek.
- * MegaMek uses a formula based on adjusted running MP, not a TMM-based lookup.
- * Use `calculateOffensiveSpeedFactor()` from `battleValueCalculations.ts` instead.
- * Will be removed when CalculationService is rewritten in Wave D.
- *
- * @see src/utils/construction/battleValueCalculations.ts#calculateOffensiveSpeedFactor
+ * Offensive speed factor lookup table - indexed by TMM
+ * Per MegaMekLab BV2 implementation
+ * Offensive factors are slightly lower than defensive factors
  */
 export const BV2_OFFENSIVE_SPEED_FACTORS_BY_TMM: Record<number, number> = {
   0: 1.0,
@@ -326,11 +323,9 @@ export function getDefensiveSpeedFactor(runMP: number, jumpMP: number): number {
 }
 
 /**
- * @deprecated Uses fabricated TMM-based lookup table that doesn't match MegaMek.
- * Use `calculateOffensiveSpeedFactor()` from `battleValueCalculations.ts` instead.
- * The correct implementation uses a power function: `(1 + (mp-5)/10)^1.2`.
- *
- * @see src/utils/construction/battleValueCalculations.ts#calculateOffensiveSpeedFactor
+ * Get offensive speed factor for BV2 calculation
+ * Applied to (weapons + ammo + weight bonus)
+ * Slightly lower than defensive factor per MegaMekLab
  */
 export function getOffensiveSpeedFactor(runMP: number, jumpMP: number): number {
   const tmm = calculateTMM(runMP, jumpMP);

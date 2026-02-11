@@ -142,12 +142,12 @@ function getCockpitBVModifier(cockpitType: CockpitType | string): number {
 
   switch (normalized) {
     case 'small':
+    case 'torso-mounted':
     case 'small-command-console':
     case 'drone-operating-system':
       return 0.95;
     case 'interface':
       return 1.3;
-    case 'torso-mounted':
     default:
       return 1.0;
   }

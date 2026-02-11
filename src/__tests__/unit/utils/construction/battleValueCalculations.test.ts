@@ -2341,8 +2341,8 @@ describe('battleValueCalculations', () => {
       expect(getCockpitModifier('small')).toBe(0.95);
     });
 
-    it('should return 1.0 for torso-mounted cockpit (EC-1 MUL parity)', () => {
-      expect(getCockpitModifier('torso-mounted')).toBe(1.0);
+    it('should return 0.95 for torso-mounted cockpit', () => {
+      expect(getCockpitModifier('torso-mounted')).toBe(0.95);
     });
 
     it('should return 0.95 for small command console', () => {
