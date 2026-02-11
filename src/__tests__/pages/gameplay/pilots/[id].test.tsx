@@ -157,18 +157,28 @@ jest.mock('@/components/common/SkeletonLoader', () => ({
   ),
 }));
 
-jest.mock('@/components/pilots', () => ({
-  PilotProgressionPanel: ({
-    pilot,
-  }: {
-    pilot: IPilot;
-    onUpdate?: () => void;
-  }) => (
-    <div data-testid="pilot-progression-panel">
-      Progression for {pilot.name}
-    </div>
-  ),
+const MockPilotProgressionPanel = ({
+  pilot,
+}: {
+  pilot: IPilot;
+  onUpdate?: () => void;
+}) => (
+  <div data-testid="pilot-progression-panel">Progression for {pilot.name}</div>
+);
+
+jest.mock('@/components/pilots/PilotProgressionPanel', () => ({
+  PilotProgressionPanel: (props: { pilot: IPilot; onUpdate?: () => void }) =>
+    MockPilotProgressionPanel(props),
 }));
+
+jest.mock('@/components/pilots', () => {
+  const actual = jest.requireActual('@/components/pilots');
+  return {
+    ...actual,
+    PilotProgressionPanel: (props: { pilot: IPilot; onUpdate?: () => void }) =>
+      MockPilotProgressionPanel(props),
+  };
+});
 
 // Mock pilot timeline hook
 const mockUsePilotTimeline = {
