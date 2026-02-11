@@ -6,9 +6,9 @@
  */
 
 import * as aerospaceRegistry from '@/stores/aerospaceStoreRegistry';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import * as unitRegistry from '@/stores/unitStoreRegistry';
 import { useAwardStore } from '@/stores/useAwardStore';
-import { useCampaignStore } from '@/stores/useCampaignStore';
 import { useEncounterStore } from '@/stores/useEncounterStore';
 import { useForceStore } from '@/stores/useForceStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
