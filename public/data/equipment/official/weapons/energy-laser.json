@@ -2,7 +2,7 @@
   "$schema": "../../_schema/weapon-schema.json",
   "version": "1.0.0",
   "generatedAt": "2026-02-07T08:02:30.860Z",
-  "count": 41,
+  "count": 44,
   "items": [
     {
       "id": "small-laser",
@@ -234,9 +234,7 @@
       "costCBills": 16000,
       "battleValue": 12,
       "introductionYear": 2609,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "medium-pulse-laser",
@@ -258,9 +256,7 @@
       "costCBills": 60000,
       "battleValue": 48,
       "introductionYear": 2609,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "large-pulse-laser",
@@ -282,9 +278,7 @@
       "costCBills": 175000,
       "battleValue": 119,
       "introductionYear": 2609,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "clan-micro-pulse-laser",
@@ -306,9 +300,7 @@
       "costCBills": 12500,
       "battleValue": 12,
       "introductionYear": 3060,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "clan-small-pulse-laser",
@@ -330,9 +322,7 @@
       "costCBills": 16000,
       "battleValue": 24,
       "introductionYear": 2829,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "clan-medium-pulse-laser",
@@ -354,9 +344,7 @@
       "costCBills": 60000,
       "battleValue": 111,
       "introductionYear": 2829,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "clan-large-pulse-laser",
@@ -378,9 +366,7 @@
       "costCBills": 175000,
       "battleValue": 265,
       "introductionYear": 2829,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "clan-er-small-pulse-laser",
@@ -402,9 +388,7 @@
       "costCBills": 60000,
       "battleValue": 36,
       "introductionYear": 3057,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "clan-er-medium-pulse-laser",
@@ -426,9 +410,7 @@
       "costCBills": 150000,
       "battleValue": 117,
       "introductionYear": 3057,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "clan-er-large-pulse-laser",
@@ -450,9 +432,7 @@
       "costCBills": 400000,
       "battleValue": 272,
       "introductionYear": 3057,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "small-x-pulse-laser",
@@ -473,9 +453,7 @@
       "criticalSlots": 1,
       "battleValue": 21,
       "introductionYear": 3057,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "medium-x-pulse-laser",
@@ -496,9 +474,7 @@
       "criticalSlots": 1,
       "battleValue": 71,
       "introductionYear": 3057,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "large-x-pulse-laser",
@@ -519,9 +495,7 @@
       "criticalSlots": 2,
       "battleValue": 178,
       "introductionYear": 3057,
-      "special": [
-        "-2 to-hit modifier"
-      ]
+      "special": ["-2 to-hit modifier"]
     },
     {
       "id": "small-vsp-laser",
@@ -542,9 +516,7 @@
       "criticalSlots": 1,
       "battleValue": 22,
       "introductionYear": 3070,
-      "special": [
-        "variable damage (5/4/3)"
-      ]
+      "special": ["variable damage (5/4/3)"]
     },
     {
       "id": "medium-vsp-laser",
@@ -565,9 +537,7 @@
       "criticalSlots": 2,
       "battleValue": 56,
       "introductionYear": 3070,
-      "special": [
-        "variable damage (9/7/5)"
-      ]
+      "special": ["variable damage (9/7/5)"]
     },
     {
       "id": "large-vsp-laser",
@@ -588,9 +558,7 @@
       "criticalSlots": 4,
       "battleValue": 123,
       "introductionYear": 3070,
-      "special": [
-        "variable damage (11/9/7)"
-      ]
+      "special": ["variable damage (11/9/7)"]
     },
     {
       "id": "bombast-laser",
@@ -633,9 +601,7 @@
       "costCBills": 20000,
       "battleValue": 15,
       "introductionYear": 3059,
-      "special": [
-        "+1 to-hit modifier"
-      ]
+      "special": ["+1 to-hit modifier"]
     },
     {
       "id": "medium-heavy-laser",
@@ -657,9 +623,7 @@
       "costCBills": 100000,
       "battleValue": 76,
       "introductionYear": 3059,
-      "special": [
-        "+1 to-hit modifier"
-      ]
+      "special": ["+1 to-hit modifier"]
     },
     {
       "id": "large-heavy-laser",
@@ -681,9 +645,7 @@
       "costCBills": 250000,
       "battleValue": 244,
       "introductionYear": 3059,
-      "special": [
-        "+1 to-hit modifier"
-      ]
+      "special": ["+1 to-hit modifier"]
     },
     {
       "id": "improved-heavy-small-laser",
@@ -773,9 +735,7 @@
       "battleValue": 22,
       "introductionYear": 3070,
       "special": [],
-      "allowedUnitTypes": [
-        "Battle Armor"
-      ]
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "clan-small-chemical-laser",
@@ -798,9 +758,7 @@
       "costCBills": 10000,
       "battleValue": 7,
       "introductionYear": 3059,
-      "special": [
-        "Requires ammo"
-      ]
+      "special": ["Requires ammo"]
     },
     {
       "id": "clan-medium-chemical-laser",
@@ -823,9 +781,7 @@
       "costCBills": 30000,
       "battleValue": 37,
       "introductionYear": 3059,
-      "special": [
-        "Requires ammo"
-      ]
+      "special": ["Requires ammo"]
     },
     {
       "id": "clan-large-chemical-laser",
@@ -848,9 +804,7 @@
       "costCBills": 75000,
       "battleValue": 99,
       "introductionYear": 3059,
-      "special": [
-        "Requires ammo"
-      ]
+      "special": ["Requires ammo"]
     },
     {
       "id": "improved-small-laser",
@@ -914,6 +868,69 @@
       "costCBills": 100000,
       "battleValue": 123,
       "introductionYear": 2815
+    },
+    {
+      "id": "small-re-engineered-laser",
+      "name": "Small Re-engineered Laser",
+      "category": "Energy",
+      "subType": "Re-engineered Laser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 3,
+      "heat": 4,
+      "ranges": {
+        "minimum": 0,
+        "short": 1,
+        "medium": 2,
+        "long": 3
+      },
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 12500,
+      "battleValue": 14,
+      "introductionYear": 3130
+    },
+    {
+      "id": "medium-re-engineered-laser",
+      "name": "Medium Re-engineered Laser",
+      "category": "Energy",
+      "subType": "Re-engineered Laser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 6,
+      "heat": 6,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9
+      },
+      "weight": 2.5,
+      "criticalSlots": 2,
+      "costCBills": 62500,
+      "battleValue": 65,
+      "introductionYear": 3130
+    },
+    {
+      "id": "large-re-engineered-laser",
+      "name": "Large Re-engineered Laser",
+      "category": "Energy",
+      "subType": "Re-engineered Laser",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "damage": 9,
+      "heat": 9,
+      "ranges": {
+        "minimum": 0,
+        "short": 5,
+        "medium": 10,
+        "long": 15
+      },
+      "weight": 8,
+      "criticalSlots": 5,
+      "costCBills": 250000,
+      "battleValue": 161,
+      "introductionYear": 3130
     },
     {
       "id": "blazer-cannon",

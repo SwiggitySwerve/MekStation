@@ -21,9 +21,7 @@
       "costCBills": 100000,
       "battleValue": 32,
       "introductionYear": 2617,
-      "special": [
-        "Defensive"
-      ]
+      "special": ["Defensive"]
     },
     {
       "id": "clan-ams",
@@ -46,9 +44,7 @@
       "costCBills": 100000,
       "battleValue": 32,
       "introductionYear": 2831,
-      "special": [
-        "Defensive"
-      ]
+      "special": ["Defensive"]
     },
     {
       "id": "protomechac2",
@@ -1250,9 +1246,7 @@
       "costCBills": 450000,
       "battleValue": 240,
       "introductionYear": 2600,
-      "special": [
-        "artillery"
-      ]
+      "special": ["artillery"]
     },
     {
       "id": "clan-arrow-iv-launcher",
@@ -1275,9 +1269,7 @@
       "costCBills": 450000,
       "battleValue": 240,
       "introductionYear": 2850,
-      "special": [
-        "artillery"
-      ]
+      "special": ["artillery"]
     },
     {
       "id": "long-tom",
@@ -1300,9 +1292,7 @@
       "costCBills": 650000,
       "battleValue": 226,
       "introductionYear": 2695,
-      "special": [
-        "artillery"
-      ]
+      "special": ["artillery"]
     },
     {
       "id": "sniper-cannon",
@@ -1325,9 +1315,7 @@
       "costCBills": 300000,
       "battleValue": 85,
       "introductionYear": 2695,
-      "special": [
-        "artillery"
-      ]
+      "special": ["artillery"]
     },
     {
       "id": "thumper-cannon",
@@ -1350,9 +1338,7 @@
       "costCBills": 200000,
       "battleValue": 43,
       "introductionYear": 2695,
-      "special": [
-        "artillery"
-      ]
+      "special": ["artillery"]
     },
     {
       "id": "mech-mortar-1",
@@ -1375,9 +1361,7 @@
       "costCBills": 7000,
       "battleValue": 10,
       "introductionYear": 2531,
-      "special": [
-        "artillery"
-      ]
+      "special": ["artillery"]
     },
     {
       "id": "mech-mortar-2",
@@ -1398,11 +1382,9 @@
       "criticalSlots": 2,
       "ammoPerTon": 12,
       "costCBills": 15000,
-      "battleValue": 21,
+      "battleValue": 14,
       "introductionYear": 2531,
-      "special": [
-        "artillery"
-      ]
+      "special": ["artillery"]
     },
     {
       "id": "mech-mortar-4",
@@ -1423,11 +1405,9 @@
       "criticalSlots": 3,
       "ammoPerTon": 6,
       "costCBills": 32000,
-      "battleValue": 43,
+      "battleValue": 26,
       "introductionYear": 2531,
-      "special": [
-        "artillery"
-      ]
+      "special": ["artillery"]
     },
     {
       "id": "mech-mortar-8",
@@ -1448,11 +1428,101 @@
       "criticalSlots": 5,
       "ammoPerTon": 4,
       "costCBills": 70000,
-      "battleValue": 86,
+      "battleValue": 50,
       "introductionYear": 2531,
-      "special": [
-        "artillery"
-      ]
+      "special": ["artillery"]
+    },
+    {
+      "id": "clan-mech-mortar-1",
+      "name": "Mech Mortar 1 (Clan)",
+      "category": "Ballistic",
+      "subType": "Artillery",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 1,
+      "heat": 1,
+      "ranges": {
+        "minimum": 6,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 1,
+      "criticalSlots": 1,
+      "ammoPerTon": 24,
+      "costCBills": 7000,
+      "battleValue": 10,
+      "introductionYear": 2531,
+      "special": ["artillery"]
+    },
+    {
+      "id": "clan-mech-mortar-2",
+      "name": "Mech Mortar 2 (Clan)",
+      "category": "Ballistic",
+      "subType": "Artillery",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 2,
+      "heat": 2,
+      "ranges": {
+        "minimum": 6,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 2,
+      "criticalSlots": 2,
+      "ammoPerTon": 12,
+      "costCBills": 15000,
+      "battleValue": 14,
+      "introductionYear": 2531,
+      "special": ["artillery"]
+    },
+    {
+      "id": "clan-mech-mortar-4",
+      "name": "Mech Mortar 4 (Clan)",
+      "category": "Ballistic",
+      "subType": "Artillery",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 4,
+      "heat": 5,
+      "ranges": {
+        "minimum": 6,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 5,
+      "criticalSlots": 3,
+      "ammoPerTon": 6,
+      "costCBills": 32000,
+      "battleValue": 26,
+      "introductionYear": 2531,
+      "special": ["artillery"]
+    },
+    {
+      "id": "clan-mech-mortar-8",
+      "name": "Mech Mortar 8 (Clan)",
+      "category": "Ballistic",
+      "subType": "Artillery",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 8,
+      "heat": 10,
+      "ranges": {
+        "minimum": 6,
+        "short": 7,
+        "medium": 14,
+        "long": 21
+      },
+      "weight": 10,
+      "criticalSlots": 5,
+      "ammoPerTon": 4,
+      "costCBills": 70000,
+      "battleValue": 50,
+      "introductionYear": 2531,
+      "special": ["artillery"]
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

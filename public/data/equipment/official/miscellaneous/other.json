@@ -2,7 +2,7 @@
   "$schema": "../../_schema/misc-equipment-schema.json",
   "version": "1.0.0",
   "generatedAt": "2026-02-07T08:02:30.873Z",
-  "count": 298,
+  "count": 299,
   "items": [
     {
       "id": "jump-jet",
@@ -15,9 +15,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2464,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "improved-jump-jet",
@@ -30,9 +28,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3067,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "prototype-improved-jump-jet",
@@ -45,9 +41,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3020,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "primitive-prototype-jump-jet",
@@ -60,9 +54,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2464,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "extended-jump-jet-system",
@@ -75,9 +67,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3145,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "umu",
@@ -90,9 +80,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3065,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "protomek-myomer-booster",
@@ -105,9 +93,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3066,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "mech-mechanical-jump-boosters",
@@ -120,10 +106,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3060,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "protomechpartialwing",
@@ -136,9 +119,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3145,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "vtoljetbooster",
@@ -151,9 +132,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3078,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "tracks",
@@ -166,10 +145,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2430,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "quadvee-wheels",
@@ -182,10 +158,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3130,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "modulararmor",
@@ -913,9 +886,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3071,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "chain-whip",
@@ -941,10 +912,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3050,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "flail",
@@ -970,10 +938,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3015,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "lance",
@@ -986,10 +951,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3064,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "mace",
@@ -1002,10 +964,7 @@
       "costCBills": 130000,
       "battleValue": 0,
       "introductionYear": 3061,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "retractable-blade",
@@ -1018,10 +977,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "smallshield",
@@ -1086,10 +1042,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3050,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "talons",
@@ -1102,10 +1055,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3145,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "smallvibroblade",
@@ -1287,9 +1237,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "droneoperatingsystem",
@@ -1302,9 +1250,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "remotedronecommandconsole",
@@ -1330,9 +1276,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "improvedsmartroboticcontrolsystem",
@@ -1345,9 +1289,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "shieldedaerosrcs",
@@ -1360,9 +1302,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2755,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "improvedshieldedaerosrcs",
@@ -1375,9 +1315,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2755,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "eliteshieldedaerosrcs",
@@ -1390,9 +1328,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2755,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "caspardronecontrolsystem",
@@ -1405,9 +1341,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2695,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "improvedcaspardronecontrolsystem",
@@ -1420,9 +1354,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2695,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "caspariidronecontrolsystem",
@@ -1435,9 +1367,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3064,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "improvedcaspariidronecontrolsystem",
@@ -1450,9 +1380,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3064,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "autotacticalanalysiscomputer",
@@ -1465,9 +1393,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2700,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "directtacticalanalysissystem",
@@ -1480,9 +1406,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3072,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "sdsselfdestructsystem",
@@ -1495,9 +1419,7 @@
       "costCBills": 1000000,
       "battleValue": 0,
       "introductionYear": 2695,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "sdsjammersystem",
@@ -1692,9 +1614,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "advanced-fire-control",
@@ -1707,9 +1627,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "artemisiv",
@@ -1982,9 +1900,7 @@
       "costCBills": 5000,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "dumper-rear",
@@ -1997,9 +1913,7 @@
       "costCBills": 5000,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "dumper-right",
@@ -2012,9 +1926,7 @@
       "costCBills": 5000,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "dumper-left",
@@ -2027,9 +1939,7 @@
       "costCBills": 5000,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "fluid-suction-system-light-mech",
@@ -2068,9 +1978,7 @@
       "costCBills": 25000,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "heavy-duty-pile-driver",
@@ -2096,9 +2004,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "lift-hoist-arresting-hoist",
@@ -2228,9 +2134,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2131,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "smallnavalcommscannersuite",
@@ -2269,9 +2173,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3065,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "navaltugadaptor",
@@ -2284,9 +2186,7 @@
       "costCBills": 100000,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "pcmt",
@@ -2312,9 +2212,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2520,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "laserinsulator",
@@ -2392,9 +2290,7 @@
       "costCBills": 1000000,
       "battleValue": 0,
       "introductionYear": 3053,
-      "special": [
-        "Variable critical slots"
-      ]
+      "special": ["Variable critical slots"]
     },
     {
       "id": "boobytrap",
@@ -2407,9 +2303,7 @@
       "costCBills": 100000,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "cargo",
@@ -2422,10 +2316,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "liquid-storage",
@@ -2438,10 +2329,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "cargo-container-10-tons",
@@ -2454,9 +2342,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable critical slots"
-      ]
+      "special": ["Variable critical slots"]
     },
     {
       "id": "chaffpod",
@@ -2521,10 +2407,7 @@
       "costCBills": 2000,
       "battleValue": 0,
       "introductionYear": 2000,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "harjel",
@@ -2589,9 +2472,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "mek-null-signature-system",
@@ -2734,9 +2615,7 @@
       "costCBills": 25000,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "protomech-melee-weapon",
@@ -2879,10 +2758,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3070,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "industrial-triple-strength-myomer",
@@ -2921,9 +2797,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "flotationhull",
@@ -2949,9 +2823,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2470,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "fullyamphibiouschassis",
@@ -2964,9 +2836,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2470,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "cvdunebuggychassis",
@@ -2992,9 +2862,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2475,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "amphibiouschassis",
@@ -3072,9 +2940,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "externalpowerpickupchassismod",
@@ -3269,9 +3135,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "headturret",
@@ -3284,9 +3148,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3145,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "quadturret",
@@ -3299,9 +3161,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "vehicular-sponson-turret",
@@ -3314,9 +3174,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "pintle-mount",
@@ -3329,9 +3187,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "bacuttingtorch",
@@ -3526,9 +3382,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2110,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "baindustrialdrill",
@@ -3710,9 +3564,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3070,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "ba-myomer-booster",
@@ -3725,9 +3577,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3145,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "partial-wing-ba",
@@ -3857,9 +3707,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2300,
-      "special": [
-        "Variable weight"
-      ]
+      "special": ["Variable weight"]
     },
     {
       "id": "demolition-charge",
@@ -3950,10 +3798,20 @@
       "costCBills": 6000,
       "battleValue": 5,
       "introductionYear": 3060,
-      "special": [
-        "anti-infantry",
-        "one-shot"
-      ]
+      "special": ["anti-infantry", "one-shot"]
+    },
+    {
+      "id": "vehicular-mine-dispenser",
+      "name": "Vehicular Mine Dispenser",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 20000,
+      "battleValue": 8,
+      "introductionYear": 2750,
+      "special": ["one-shot"]
     },
     {
       "id": "b-pod",
@@ -3966,10 +3824,7 @@
       "costCBills": 2500,
       "battleValue": 2,
       "introductionYear": 3068,
-      "special": [
-        "anti-battle-armor",
-        "one-shot"
-      ]
+      "special": ["anti-battle-armor", "one-shot"]
     },
     {
       "id": "coolant-pod",
@@ -3982,9 +3837,7 @@
       "costCBills": 50000,
       "battleValue": 0,
       "introductionYear": 3049,
-      "special": [
-        "coolant"
-      ]
+      "special": ["coolant"]
     },
     {
       "id": "cargo",
@@ -3997,9 +3850,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2000,
-      "special": [
-        "industrial"
-      ]
+      "special": ["industrial"]
     },
     {
       "id": "lift-hoist",
@@ -4012,9 +3863,7 @@
       "costCBills": 50000,
       "battleValue": 0,
       "introductionYear": 2000,
-      "special": [
-        "industrial"
-      ]
+      "special": ["industrial"]
     },
     {
       "id": "vehicular-grenade-launcher",
@@ -4027,9 +3876,7 @@
       "costCBills": 10000,
       "battleValue": 5,
       "introductionYear": 3065,
-      "special": [
-        "smoke"
-      ]
+      "special": ["smoke"]
     },
     {
       "id": "risc-apds",
@@ -4042,9 +3889,7 @@
       "costCBills": 300000,
       "battleValue": 64,
       "introductionYear": 3137,
-      "special": [
-        "point-defense"
-      ]
+      "special": ["point-defense"]
     }
   ]
 }
