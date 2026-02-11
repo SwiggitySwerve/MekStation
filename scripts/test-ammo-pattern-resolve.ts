@@ -81,7 +81,7 @@ function buildAmmoLookup(): Map<string, { bv: number; weaponType: string }> {
     ['clan-rac-2-ammo', 20, 'rac-2'], ['clan-rac-5-ammo', 43, 'rac-5'], ['clan-rac-20-ammo', 59, 'rac-20'],
     ['hvac-2-ammo', 7, 'hvac-2'], ['hvac-5-ammo', 11, 'hvac-5'], ['hvac-10-ammo', 20, 'hvac-10'],
     ['thunderbolt-5-ammo', 8, 'thunderbolt-5'], ['thunderbolt-10-ammo', 16, 'thunderbolt-10'],
-    ['thunderbolt-15-ammo', 29, 'thunderbolt-15'], ['thunderbolt-20-ammo', 46, 'thunderbolt-20'],
+    ['thunderbolt-15-ammo', 29, 'thunderbolt-15'], ['thunderbolt-20-ammo', 38, 'thunderbolt-20'],
     ['clan-improved-lrm-5-ammo', 7, 'lrm-5'], ['clan-improved-lrm-10-ammo', 14, 'lrm-10'],
     ['clan-improved-lrm-15-ammo', 21, 'lrm-15'], ['clan-improved-lrm-20-ammo', 27, 'lrm-20'],
     ['fluid-gun-ammo', 1, 'fluid-gun'],
