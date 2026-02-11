@@ -45,6 +45,7 @@
     "fetch:assets:force": "npx tsx scripts/mm-data/fetch-assets.ts --force",
     "test:cdn-access": "npx tsx scripts/mm-data/test-cdn-access.ts",
     "validate:parity": "npx tsx scripts/validate-parity.ts",
+    "validate:bv": "npx tsx scripts/validate-bv.ts",
     "validate:refactor": "npm run test && npm run lint && npm run build",
     "analyze:files": "./scripts/monitor-file-sizes.sh",
     "analyze:files:report": "./scripts/monitor-file-sizes.sh > file-analysis-report.txt && cat file-analysis-report.txt",
