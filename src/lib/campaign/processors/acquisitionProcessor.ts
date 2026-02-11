@@ -167,8 +167,7 @@ export const acquisitionProcessor: IDayProcessor & {
       return { events: [], campaign };
     }
 
-    // oxlint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const shoppingList = (campaign as any).shoppingList;
+    const shoppingList = campaign.shoppingList;
     // oxlint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (
       !shoppingList ||
@@ -190,13 +189,10 @@ export const acquisitionProcessor: IDayProcessor & {
     updatedList = deliveryResult.updatedList;
     allEvents.push(...deliveryResult.events);
 
-    // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const updatedCampaign: ICampaign & { shoppingList: IShoppingList } = {
       ...campaign,
-      // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
       shoppingList: updatedList,
-      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any;
+    };
 
     return { events: allEvents, campaign: updatedCampaign as ICampaign };
   },
