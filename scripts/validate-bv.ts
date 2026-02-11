@@ -971,9 +971,9 @@ function calculatePhysicalWeaponBV(
     case 'buzzsaw':
       return 67;
     case 'dual-saw':
-      return Math.ceil(tonnage / 7.0); // Industrial melee, no TSM bonus
+      return 9; // Flat BV per MegaMek MiscType.java
     case 'mining-drill':
-      return Math.ceil(tonnage / 5.0); // Industrial melee, no TSM bonus
+      return 6; // Flat BV per MegaMek MiscType.java
     // Industrial physical weapons — flat BV per MegaMek MiscType.java
     case 'chainsaw':
       return 7;
@@ -988,11 +988,11 @@ function calculatePhysicalWeaponBV(
     case 'pile-driver':
       return 5;
     case 'vibroblade-large':
-      return Math.ceil(tonnage / 5.0) * 1.725 * tsmMod;
+      return 24; // Flat BV per MegaMek MiscType.java (not tonnage-based)
     case 'vibroblade-medium':
-      return Math.ceil(tonnage / 7.0) * 1.725 * tsmMod;
+      return 17; // Flat BV per MegaMek MiscType.java
     case 'vibroblade-small':
-      return (Math.ceil(tonnage / 10.0) + 1) * 1.725 * tsmMod;
+      return 12; // Flat BV per MegaMek MiscType.java
     default:
       return 0;
   }
@@ -3167,6 +3167,34 @@ function isWeaponEquip(id: string): boolean {
     'fluidsuction',
     'mechsprayer',
     'mech-sprayer',
+    // Physical weapons — BV counted via physicalWeaponBV, not weaponBV
+    'chainsaw',
+    'backhoe',
+    'vibroblade',
+    'mining-drill',
+    'miningdrill',
+    'buzzsaw',
+    'dual-saw',
+    'dual saw',
+    'combine',
+    'spot-welder',
+    'spot welder',
+    'spotwelder',
+    'rock-cutter',
+    'rock cutter',
+    'rockcutter',
+    'pile-driver',
+    'pile driver',
+    'piledriver',
+    'flail',
+    'wrecking-ball',
+    'wrecking ball',
+    'wreckingball',
+    'chain-whip',
+    'chain whip',
+    'lance',
+    'claw',
+    'talon',
   ];
   for (const n of nw) if (lo.includes(n)) return false;
   // Check IS resolution first, then try Clan resolution for Clan-exclusive weapons
@@ -3664,17 +3692,25 @@ function calculateUnitBV(
       const wid = w.name.replace(/^\d+-/, '');
       const isMatch =
         (mgType === 'machine-gun' &&
-          (wid === 'machine-gun' || wid === 'clmg' || wid === 'ismg')) ||
+          (wid === 'machine-gun' ||
+            wid === 'clmg' ||
+            wid === 'ismg' ||
+            wid === 'ismachine-gun' ||
+            wid === 'clmachine-gun')) ||
         (mgType === 'light-machine-gun' &&
           (wid === 'light-machine-gun' ||
             wid === 'islightmg' ||
             wid === 'cllightmg' ||
-            wid === 'islmg')) ||
+            wid === 'islmg' ||
+            wid === 'islightmachine-gun' ||
+            wid === 'cllightmachine-gun')) ||
         (mgType === 'heavy-machine-gun' &&
           (wid === 'heavy-machine-gun' ||
             wid === 'isheavymg' ||
             wid === 'clheavymg' ||
-            wid === 'clhmg'));
+            wid === 'clhmg' ||
+            wid === 'isheavymachine-gun' ||
+            wid === 'clheavymachine-gun'));
       if (isMatch) {
         linkedMGBV += w.bv;
         linkedCount++;

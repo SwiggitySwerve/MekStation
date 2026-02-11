@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "PRIMITIVE_INDUSTRIAL",
   "structure": {
     "type": "INDUSTRIAL"
   },
