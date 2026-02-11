@@ -58,6 +58,8 @@ const PADDING = 40;
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 2;
 const ZOOM_STEP = 0.1;
+const LAYOUT_FIT_DELAY_MS = 100;
+const LAYOUT_FIT_PADDING_RATIO = 0.9;
 
 // =============================================================================
 // Layout Algorithm
@@ -203,11 +205,11 @@ export function CausalityGraph({
     const containerWidth = containerRef.current.clientWidth;
     const containerHeight = containerRef.current.clientHeight;
 
-    const scaleX = containerWidth / bounds.width;
-    const scaleY = containerHeight / bounds.height;
-    const newZoom = Math.min(scaleX, scaleY, 1) * 0.9; // 90% to add some padding
+     const scaleX = containerWidth / bounds.width;
+     const scaleY = containerHeight / bounds.height;
+     const newZoom = Math.min(scaleX, scaleY, 1) * LAYOUT_FIT_PADDING_RATIO;
 
-    setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom)));
+     setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom)));
     setPan({ x: 0, y: 0 });
   }, [bounds]);
 
@@ -243,15 +245,15 @@ export function CausalityGraph({
     setZoom((z) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z + delta)));
   }, []);
 
-  // Fit on initial render or chain change
-  useEffect(() => {
-    if (chain && positions.length > 0) {
-      // Small delay to ensure container is measured
-      const timer = setTimeout(handleFit, 100);
-      return () => clearTimeout(timer);
-    }
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [chain?.focusEvent.id]); // Intentionally only trigger on chain change, not position recalcs
+   // Fit on initial render or chain change
+   useEffect(() => {
+     if (chain && positions.length > 0) {
+       // Small delay to ensure container is measured
+       const timer = setTimeout(handleFit, LAYOUT_FIT_DELAY_MS);
+       return () => clearTimeout(timer);
+     }
+     // oxlint-disable-next-line react-hooks/exhaustive-deps
+   }, [chain?.focusEvent.id]); // Intentionally only trigger on chain change, not position recalcs
 
   // Empty state
   if (!chain) {

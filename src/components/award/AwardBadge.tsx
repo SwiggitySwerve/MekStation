@@ -30,6 +30,16 @@ interface AwardBadgeProps {
 }
 
 // =============================================================================
+// Icon Size Constants
+// =============================================================================
+
+const AWARD_ICON_SIZES = {
+  sm: 20,
+  md: 28,
+  lg: 40,
+} as const;
+
+// =============================================================================
 // Size Configurations
 // =============================================================================
 
@@ -79,8 +89,8 @@ export function AwardBadge({
   const IconComponent = getAwardIcon(award.icon);
   const strokeWidth = getRarityStrokeWidth(award.rarity);
 
-  // Icon size based on container size (approximately 50% of container)
-  const iconSize = size === 'sm' ? 20 : size === 'md' ? 28 : 40;
+   // Icon size based on container size (approximately 50% of container)
+   const iconSize = AWARD_ICON_SIZES[size];
 
   return (
     <div
