@@ -2,7 +2,7 @@
   "$schema": "../../_schema/weapon-schema.json",
   "version": "1.0.0",
   "generatedAt": "2026-02-07T08:02:30.861Z",
-  "count": 11,
+  "count": 13,
   "items": [
     {
       "id": "plasma-rifle",
@@ -66,9 +66,51 @@
       "costCBills": 7500,
       "battleValue": 6,
       "introductionYear": 2025,
-      "special": [
-        "Causes 2 heat to target"
-      ]
+      "special": ["Causes 2 heat to target"]
+    },
+    {
+      "id": "er-flamer",
+      "name": "ER Flamer",
+      "category": "Energy",
+      "subType": "Flamer",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "damage": 2,
+      "heat": 4,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 5,
+        "long": 7
+      },
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 15000,
+      "battleValue": 16,
+      "introductionYear": 3067,
+      "special": ["Causes 2 heat to target"]
+    },
+    {
+      "id": "clan-er-flamer",
+      "name": "ER Flamer (Clan)",
+      "category": "Energy",
+      "subType": "Flamer",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "damage": 2,
+      "heat": 4,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 5,
+        "long": 7
+      },
+      "weight": 1,
+      "criticalSlots": 1,
+      "costCBills": 15000,
+      "battleValue": 15,
+      "introductionYear": 3067,
+      "special": ["Causes 2 heat to target"]
     },
     {
       "id": "heavy-flamer",
@@ -90,9 +132,7 @@
       "costCBills": 11250,
       "battleValue": 15,
       "introductionYear": 3068,
-      "special": [
-        "Causes 4 heat to target"
-      ]
+      "special": ["Causes 4 heat to target"]
     },
     {
       "id": "vehicle-flamer",
@@ -115,10 +155,7 @@
       "costCBills": 7500,
       "battleValue": 5,
       "introductionYear": 1950,
-      "special": [
-        "Causes 2 heat to target",
-        "Requires ammo"
-      ]
+      "special": ["Causes 2 heat to target", "Requires ammo"]
     },
     {
       "id": "clan-flamer",
@@ -140,9 +177,7 @@
       "costCBills": 7500,
       "battleValue": 6,
       "introductionYear": 2827,
-      "special": [
-        "Causes 2 heat to target"
-      ]
+      "special": ["Causes 2 heat to target"]
     },
     {
       "id": "laser-ams",
@@ -164,10 +199,7 @@
       "costCBills": 225000,
       "battleValue": 45,
       "introductionYear": 3059,
-      "special": [
-        "Defensive",
-        "No ammo required"
-      ]
+      "special": ["Defensive", "No ammo required"]
     },
     {
       "id": "clan-laser-ams",
@@ -189,10 +221,7 @@
       "costCBills": 225000,
       "battleValue": 45,
       "introductionYear": 3048,
-      "special": [
-        "Defensive",
-        "No ammo required"
-      ]
+      "special": ["Defensive", "No ammo required"]
     },
     {
       "id": "clan-plasma-cannon",
@@ -215,9 +244,7 @@
       "costCBills": 320000,
       "battleValue": 170,
       "introductionYear": 3069,
-      "special": [
-        "Causes heat to target"
-      ]
+      "special": ["Causes heat to target"]
     },
     {
       "id": "battlemech-taser",
@@ -239,9 +266,7 @@
       "costCBills": 200000,
       "battleValue": 40,
       "introductionYear": 3067,
-      "special": [
-        "Shuts down target"
-      ]
+      "special": ["Shuts down target"]
     },
     {
       "id": "fluid-gun",
@@ -264,9 +289,7 @@
       "costCBills": 35000,
       "battleValue": 6,
       "introductionYear": 3057,
-      "special": [
-        "Requires ammo"
-      ]
+      "special": ["Requires ammo"]
     }
   ]
 }

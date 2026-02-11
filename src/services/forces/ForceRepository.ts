@@ -21,6 +21,7 @@ import {
   ForcePosition,
   getDefaultSlotCount,
 } from '@/types/force';
+import { calculateUnitBV, type UnitData } from '@/utils/construction/bvAdapter';
 
 import { getSQLiteService } from '../persistence/SQLiteService';
 
@@ -577,22 +578,59 @@ export class ForceRepository implements IForceRepository {
    * Calculate force statistics.
    */
   private calculateStats(assignments: IAssignment[]): IForceStats {
-    // TODO: Integrate with actual unit and pilot data for BV/tonnage calculations
-
     const assignedPilots = assignments.filter((a) => a.pilotId !== null).length;
     const assignedUnits = assignments.filter((a) => a.unitId !== null).length;
     const emptySlots = assignments.filter(
       (a) => a.pilotId === null && a.unitId === null,
     ).length;
 
+    // Calculate total BV from assigned units
+    let totalBV = 0;
+    for (const assignment of assignments) {
+      if (assignment.unitId) {
+        totalBV += this.calculateUnitBV(assignment.unitId);
+      }
+    }
+
     return {
-      totalBV: 0,
+      totalBV,
       totalTonnage: 0,
       assignedPilots,
       assignedUnits,
       emptySlots,
       averageSkill: null,
     };
+  }
+
+  /**
+   * Calculate BV for a single unit by ID.
+   * Fetches unit data from database and uses the BV adapter.
+   * Returns 0 if unit not found or BV calculation fails.
+   */
+  private calculateUnitBV(unitId: string): number {
+    try {
+      const db = getSQLiteService().getDatabase();
+
+      // Try to fetch from custom_units table
+      const customUnit = db
+        .prepare('SELECT data FROM custom_units WHERE id = ?')
+        .get(unitId) as { data: string } | undefined;
+
+      if (customUnit) {
+        try {
+          const unitData = JSON.parse(customUnit.data) as UnitData;
+          return calculateUnitBV(unitData);
+        } catch {
+          return 0;
+        }
+      }
+
+      // If not found in custom units, return 0 (graceful fallback)
+      return 0;
+    } catch {
+      // If any database error occurs, return 0 (graceful fallback)
+      return 0;
+    }
   }
 
   /**

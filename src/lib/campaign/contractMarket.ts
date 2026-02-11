@@ -23,6 +23,7 @@ import { getAllUnits } from '@/types/campaign/Force';
 import { IContract, createContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
+import { calculateUnitBV } from '@/utils/construction/bvAdapter';
 
 import {
   calculateContractLength,
@@ -184,12 +185,14 @@ function randomInt(
 /**
  * Calculate total BV of all units in campaign forces.
  *
- * Uses placeholder BV (1000 per unit) until real BV calculator is integrated.
+ * Uses placeholder BV (1000 per unit) as a fallback.
+ * Note: Full BV calculation requires access to unit data which is not available
+ * in this context. For accurate BV, use ForceRepository.calculateStats() which
+ * has database access to fetch unit data.
  *
  * @param campaign - Campaign to calculate BV for
  * @returns Total BV (placeholder: 1000 per unit)
  */
-// TODO: Use actual unit BV from MekStation BV calculator
 export function calculateForceBV(campaign: ICampaign): number {
   const rootForce = campaign.forces.get(campaign.rootForceId);
   if (!rootForce) {

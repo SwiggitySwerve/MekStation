@@ -34,6 +34,9 @@ jobs:
       - name: Run tests
         run: npm run test:coverage
 
+      - name: Validate BV parity
+        run: npm run validate:bv
+
       - name: Build Storybook
         run: npm run storybook:build
 
