@@ -22,8 +22,14 @@ const nextConfig: NextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
 
-  // Turbopack config (empty to silence Next.js 16 warning)
-  turbopack: {},
+  // Turbopack config — resolve Node.js-only modules for browser builds
+  // (equipmentBVResolver.ts uses fs/path for catalog loading at runtime)
+  turbopack: {
+    resolveAlias: {
+      fs: { browser: './src/utils/construction/emptyModule.ts' },
+      path: { browser: './src/utils/construction/emptyModule.ts' },
+    },
+  },
 
   // Configure page extensions to exclude test files
   pageExtensions: ['ts', 'tsx', 'js', 'jsx'],

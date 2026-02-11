@@ -6,6 +6,11 @@
  * @spec openspec/specs/construction-services/spec.md
  */
 
+import type {
+  BVCalculationConfig,
+  CockpitType as BVCockpitType,
+} from '@/utils/construction/battleValueCalculations';
+
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
@@ -14,15 +19,6 @@ import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
-import { EquipmentType } from '@/types/enums/EquipmentType';
-import {
-  getArmorBVMultiplier,
-  getDefensiveSpeedFactor,
-  getEngineBVMultiplier,
-  getGyroBVMultiplier,
-  getOffensiveSpeedFactor,
-  getStructureBVMultiplier,
-} from '@/types/validation/BattleValue';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 
 import {
@@ -49,6 +45,21 @@ import {
   MECH_CONSTRUCTION_MULTIPLIER,
 } from './constructionConstants';
 import { IEditableMech } from './MechBuilderService';
+
+// Lazy-loaded BV engine — avoids pulling Node.js `fs` into browser bundle
+// (equipmentBVResolver.ts reads equipment JSON from filesystem)
+type CalculateTotalBVFn = (config: BVCalculationConfig) => number;
+let _calculateTotalBV: CalculateTotalBVFn | null = null;
+void import('@/utils/construction/battleValueCalculations').then((mod) => {
+  _calculateTotalBV = mod.calculateTotalBV;
+});
+
+function calculateTotalBV(config: BVCalculationConfig): number {
+  if (_calculateTotalBV) {
+    return _calculateTotalBV(config);
+  }
+  return 0;
+}
 
 // =============================================================================
 // TYPE-SAFE HELPER FUNCTIONS
@@ -135,22 +146,6 @@ function getCockpitCost(cockpitType: CockpitType | string): number {
 
 function normalizeBVType(value: string): string {
   return value.toLowerCase().replace(/\s+/g, '-');
-}
-
-function getCockpitBVModifier(cockpitType: CockpitType | string): number {
-  const normalized = normalizeBVType(String(cockpitType));
-
-  switch (normalized) {
-    case 'small':
-    case 'torso-mounted':
-    case 'small-command-console':
-    case 'drone-operating-system':
-      return 0.95;
-    case 'interface':
-      return 1.3;
-    default:
-      return 1.0;
-  }
 }
 
 /**
@@ -276,144 +271,57 @@ export class CalculationService implements ICalculationService {
   }
 
   /**
-   * Calculate Battle Value using MegaMekLab BV2 formula
+   * Calculate Battle Value using the validated BV 2.0 engine.
    *
-   * Formula:
-   *   Defensive BV = (armor + structure + gyro) × defensiveSpeedFactor
-   *   Offensive BV = (incrementalWeaponsBV + ammoBV + tonnage) × offensiveSpeedFactor
-   *   Total BV = round(Defensive BV + Offensive BV)
+   * Delegates to calculateTotalBV() from battleValueCalculations.ts which
+   * implements the full MegaMek-accurate BV2 formula with heat tracking,
+   * explosive penalties, and cockpit modifiers.
    *
    * @spec openspec/specs/battle-value-system/spec.md
    */
   calculateBattleValue(mech: IEditableMech): number {
     const movement = this.calculateMovement(mech);
-    const engineType =
-      typeof mech.engineType === 'string'
-        ? this.mapEngineType(mech.engineType)
-        : mech.engineType;
-    const defensiveBV = this.calculateDefensiveBV(mech, movement, engineType);
-    const offensiveBV = this.calculateOffensiveBV(mech, movement, engineType);
-    const cockpitModifier = getCockpitBVModifier(mech.cockpitType);
-
-    return Math.round((defensiveBV + offensiveBV) * cockpitModifier);
-  }
-
-  private calculateDefensiveBV(
-    mech: IEditableMech,
-    movement: IMovementProfile,
-    engineType: EngineType,
-  ): number {
-    const totalArmorPoints = this.calculateTotalArmorPoints(mech);
-    const totalStructurePoints = this.calculateTotalStructurePoints(mech);
-
-    const armorMultiplier = getArmorBVMultiplier(
-      normalizeBVType(String(mech.armorType)),
-    );
-    const structureMultiplier = getStructureBVMultiplier(
-      normalizeBVType(String(mech.structureType)),
-    );
-    const gyroMultiplier = getGyroBVMultiplier(
-      normalizeBVType(String(mech.gyroType)),
-    );
-    const engineMultiplier = getEngineBVMultiplier(
-      engineType,
-      mech.tonnage > 100,
-    );
-
-    const armorBV = totalArmorPoints * 2.5 * armorMultiplier;
-    const structureBV =
-      totalStructurePoints * 1.5 * structureMultiplier * engineMultiplier;
-    const gyroBV = mech.tonnage * gyroMultiplier;
-
-    const defensiveSpeedFactor = getDefensiveSpeedFactor(
-      movement.runMP,
-      movement.jumpMP,
-    );
-
-    return (armorBV + structureBV + gyroBV) * defensiveSpeedFactor;
-  }
-
-  private calculateOffensiveBV(
-    mech: IEditableMech,
-    movement: IMovementProfile,
-    engineType: EngineType,
-  ): number {
-    const registry = getEquipmentRegistry();
-
-    if (!registry.isReady()) {
-      registry.initialize().catch(() => {
-        // Initialization error handled silently - will retry on next call
-      });
-      return 0;
-    }
-
     const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType)
       ? HEAT_SINK_CAPACITY_DOUBLE
       : HEAT_SINK_CAPACITY_SINGLE;
-    const heatDissipation = mech.heatSinkCount * heatSinkCapacity;
 
-    const runningHeat =
-      engineType === EngineType.ICE || engineType === EngineType.FUEL_CELL
-        ? 0
-        : 2;
-    const jumpHeat = movement.jumpMP > 0 ? Math.max(3, movement.jumpMP) : 0;
-    const moveHeat = Math.max(runningHeat, jumpHeat);
-    const heatEfficiency = 6 + heatDissipation - moveHeat;
+    const config: BVCalculationConfig = {
+      totalArmorPoints: this.calculateTotalArmorPoints(mech),
+      totalStructurePoints: this.calculateTotalStructurePoints(mech),
+      tonnage: mech.tonnage,
+      heatSinkCapacity: mech.heatSinkCount * heatSinkCapacity,
+      walkMP: movement.walkMP,
+      runMP: movement.runMP,
+      jumpMP: movement.jumpMP,
+      weapons: this.extractWeapons(mech),
+      armorType: normalizeBVType(String(mech.armorType)),
+      structureType: normalizeBVType(String(mech.structureType)),
+      gyroType: normalizeBVType(String(mech.gyroType)),
+      engineType:
+        typeof mech.engineType === 'string'
+          ? this.mapEngineType(mech.engineType)
+          : mech.engineType,
+      cockpitType: normalizeBVType(String(mech.cockpitType)) as BVCockpitType,
+      heatSinkCount: mech.heatSinkCount,
+      isIndustrialMech:
+        normalizeBVType(String(mech.structureType)) === 'industrial',
+    };
 
-    const weaponsWithBV: Array<{ bv: number; heat: number }> = [];
-    let ammoBV = 0;
+    return calculateTotalBV(config);
+  }
 
-    for (const slot of mech.equipment) {
-      const result = registry.lookup(slot.equipmentId);
-      if (!result.found || !result.equipment) continue;
-
-      const equipment = result.equipment as {
-        battleValue?: number;
-        heat?: number;
-      };
-
-      if (result.category === EquipmentType.AMMUNITION) {
-        ammoBV += equipment.battleValue ?? 0;
-        continue;
-      }
-
-      const bv = equipment.battleValue ?? 0;
-      const heat = equipment.heat ?? 0;
-      if (bv > 0 || heat > 0) {
-        weaponsWithBV.push({ bv, heat });
-      }
-    }
-
-    weaponsWithBV.sort((a, b) => {
-      if (a.heat === 0 && b.heat > 0) return -1;
-      if (a.heat > 0 && b.heat === 0) return 1;
-      if (a.bv === b.bv) return a.heat - b.heat;
-      return b.bv - a.bv;
-    });
-
-    let weaponBV = 0;
-    let heatSum = 0;
-    let heatExceeded = heatEfficiency <= 0;
-
-    for (const weapon of weaponsWithBV) {
-      heatSum += weapon.heat;
-      weaponBV += heatExceeded ? weapon.bv * 0.5 : weapon.bv;
-      if (heatSum >= heatEfficiency) {
-        heatExceeded = true;
-      }
-    }
-
-    const baseOffensiveBV = weaponBV + ammoBV + mech.tonnage;
-    const offensiveSpeedFactor = getOffensiveSpeedFactor(
-      movement.runMP,
-      movement.jumpMP,
-    );
-
-    const isIndustrialMech =
-      normalizeBVType(String(mech.structureType)) === 'industrial';
-    const industrialModifier = isIndustrialMech ? 0.9 : 1.0;
-
-    return baseOffensiveBV * offensiveSpeedFactor * industrialModifier;
+  /**
+   * Extract weapon entries from mech equipment for BV calculation.
+   * Passes all equipment IDs — calculateTotalBV's internal resolver
+   * handles filtering weapons vs ammo vs misc.
+   */
+  private extractWeapons(
+    mech: IEditableMech,
+  ): Array<{ id: string; rear?: boolean }> {
+    return mech.equipment.map((slot) => ({
+      id: slot.equipmentId,
+      rear: false,
+    }));
   }
 
   /**
