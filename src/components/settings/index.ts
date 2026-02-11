@@ -19,3 +19,18 @@ export type {
   RecentFileUnitType,
   MenuCommand,
 } from './useElectron';
+
+export { AppearanceSettings } from './AppearanceSettings';
+export { CustomizerSettings } from './CustomizerSettings';
+export { VaultSettings } from './VaultSettings';
+export { P2PSyncSettings } from './P2PSyncSettings';
+export { UIBehaviorSettings } from './UIBehaviorSettings';
+export { AccessibilitySettings } from './AccessibilitySettings';
+export { AuditSettings } from './AuditSettings';
+export { ResetSettings } from './ResetSettings';
+export {
+  QuickNavigation,
+  isValidSectionId,
+  type SectionId,
+  type SettingsSectionProps,
+} from './SettingsShared';
