@@ -20,7 +20,6 @@ import { TechBase } from '@/types/enums/TechBase';
 import {
   calculateTMM,
   getDefensiveSpeedFactor,
-  getOffensiveSpeedFactor,
 } from '@/types/validation/BattleValue';
 
 describe('CalculationService', () => {
@@ -235,13 +234,9 @@ describe('CalculationService', () => {
       expect(getDefensiveSpeedFactor(8, 0)).toBe(1.3); // TMM 3
     });
 
-    it('should return correct offensive speed factors', () => {
-      // Offensive speed factors per MegaMekLab (slightly lower than defensive)
-      expect(getOffensiveSpeedFactor(2, 0)).toBe(1.0); // TMM 0
-      expect(getOffensiveSpeedFactor(4, 0)).toBe(1.06); // TMM 1
-      expect(getOffensiveSpeedFactor(6, 0)).toBe(1.12); // TMM 2
-      expect(getOffensiveSpeedFactor(8, 0)).toBe(1.18); // TMM 3
-    });
+    // Offensive speed factor tests removed — fabricated TMM table was deprecated.
+    // The correct formula-based implementation is calculateOffensiveSpeedFactor()
+    // in battleValueCalculations.ts.
   });
 
   describe('calculateHeatProfile', () => {
@@ -642,11 +637,8 @@ describe('CalculationService', () => {
       expect(defensiveFactor).toBe(1.2);
     });
 
-    it('should apply speed factor of 1.12 for offensive TMM 2', () => {
-      // Offensive speed factor for TMM 2 should be 1.12
-      const offensiveFactor = getOffensiveSpeedFactor(6, 0);
-      expect(offensiveFactor).toBe(1.12);
-    });
+    // Offensive speed factor test removed — fabricated TMM table was deprecated.
+    // Correct formula is in calculateOffensiveSpeedFactor() in battleValueCalculations.ts.
 
     it('should calculate heat dissipation correctly', () => {
       const mech = createMarauderC();
