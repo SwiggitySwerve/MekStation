@@ -1,6 +1,10 @@
 import React from 'react';
 
-export function ClockIcon({ className = 'w-5 h-5' }: { className?: string }) {
+export function ClockIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +23,11 @@ export function ClockIcon({ className = 'w-5 h-5' }: { className?: string }) {
   );
 }
 
-export function HistoryIcon({ className = 'w-5 h-5' }: { className?: string }) {
+export function HistoryIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -61,7 +69,11 @@ export function ArrowPathIcon({
   );
 }
 
-export function EyeIcon({ className = 'w-5 h-5' }: { className?: string }) {
+export function EyeIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -108,7 +120,11 @@ export function DocumentDuplicateIcon({
   );
 }
 
-export function XMarkIcon({ className = 'w-5 h-5' }: { className?: string }) {
+export function XMarkIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -127,7 +143,11 @@ export function XMarkIcon({ className = 'w-5 h-5' }: { className?: string }) {
   );
 }
 
-export function CheckIcon({ className = 'w-5 h-5' }: { className?: string }) {
+export function CheckIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -192,7 +212,11 @@ export function ServerStackIcon({
   );
 }
 
-export function PlusIcon({ className = 'w-4 h-4' }: { className?: string }) {
+export function PlusIcon({
+  className = 'w-4 h-4',
+}: {
+  className?: string;
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -211,7 +235,11 @@ export function PlusIcon({ className = 'w-4 h-4' }: { className?: string }) {
   );
 }
 
-export function MinusIcon({ className = 'w-4 h-4' }: { className?: string }) {
+export function MinusIcon({
+  className = 'w-4 h-4',
+}: {
+  className?: string;
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -249,7 +277,11 @@ export function ArrowsRightLeftIcon({
   );
 }
 
-export function SpinnerIcon({ className = 'w-5 h-5' }: { className?: string }) {
+export function SpinnerIcon({
+  className = 'w-5 h-5',
+}: {
+  className?: string;
+}): React.ReactElement {
   return (
     <svg
       className={`animate-spin ${className}`}

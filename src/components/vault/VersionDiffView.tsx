@@ -9,11 +9,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 
-import type {
-  IVersionSnapshot,
-  IVersionDiff,
-  ShareableContentType,
-} from '@/types/vault';
+import type { IVersionDiff } from '@/types/vault';
 
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';

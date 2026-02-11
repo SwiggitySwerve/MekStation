@@ -9,8 +9,6 @@
 
 import React, { useState, useCallback } from 'react';
 
-import type { IVersionSnapshot } from '@/types/vault';
-
 import { Button } from '@/components/ui/Button';
 import {
   formatBytes,
