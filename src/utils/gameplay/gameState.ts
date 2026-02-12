@@ -745,16 +745,44 @@ function applyUnitFell(
 
 function applyPhysicalAttackDeclared(
   state: IGameState,
-  _payload: IPhysicalAttackDeclaredPayload,
+  payload: IPhysicalAttackDeclaredPayload,
 ): IGameState {
-  return state;
+  const unit = state.units[payload.attackerId];
+  if (!unit) return state;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.attackerId]: {
+        ...unit,
+        lockState: LockState.Planning,
+      },
+    },
+  };
 }
 
 function applyPhysicalAttackResolved(
   state: IGameState,
-  _payload: IPhysicalAttackResolvedPayload,
+  payload: IPhysicalAttackResolvedPayload,
 ): IGameState {
-  return state;
+  if (!payload.hit) return state;
+
+  const target = state.units[payload.targetId];
+  if (!target) return state;
+
+  const currentDamageThisPhase = target.damageThisPhase ?? 0;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.targetId]: {
+        ...target,
+        damageThisPhase: currentDamageThisPhase + (payload.damage ?? 0),
+      },
+    },
+  };
 }
 
 function applyShutdownCheck(

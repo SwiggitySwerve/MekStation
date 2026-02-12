@@ -556,8 +556,12 @@ describe('getNextPhase', () => {
     expect(getNextPhase(GamePhase.Movement)).toBe(GamePhase.WeaponAttack);
   });
 
-  it('should return Heat after WeaponAttack', () => {
-    expect(getNextPhase(GamePhase.WeaponAttack)).toBe(GamePhase.Heat);
+  it('should return PhysicalAttack after WeaponAttack', () => {
+    expect(getNextPhase(GamePhase.WeaponAttack)).toBe(GamePhase.PhysicalAttack);
+  });
+
+  it('should return Heat after PhysicalAttack', () => {
+    expect(getNextPhase(GamePhase.PhysicalAttack)).toBe(GamePhase.Heat);
   });
 
   it('should return End after Heat', () => {
@@ -566,11 +570,6 @@ describe('getNextPhase', () => {
 
   it('should wrap to Initiative after End', () => {
     expect(getNextPhase(GamePhase.End)).toBe(GamePhase.Initiative);
-  });
-
-  it('should handle PhysicalAttack phase (not in phase order)', () => {
-    // PhysicalAttack is defined but not in the phase order, should wrap to Initiative
-    expect(getNextPhase(GamePhase.PhysicalAttack)).toBe(GamePhase.Initiative);
   });
 });
 
@@ -604,6 +603,7 @@ describe('advancePhase', () => {
     // Advance through all phases
     session = advancePhase(session); // -> Movement
     session = advancePhase(session); // -> WeaponAttack
+    session = advancePhase(session); // -> PhysicalAttack
     session = advancePhase(session); // -> Heat
     session = advancePhase(session); // -> End
 
@@ -689,9 +689,9 @@ describe('canAdvancePhase', () => {
 
   it('should return true for Heat phase (no lock requirement)', () => {
     let session = createActiveSession();
-    // Advance to Heat phase
     session = advancePhase(session); // -> Movement
     session = advancePhase(session); // -> WeaponAttack
+    session = advancePhase(session); // -> PhysicalAttack
     session = advancePhase(session); // -> Heat
 
     expect(canAdvancePhase(session)).toBe(true);
@@ -1371,6 +1371,9 @@ describe('Integration', () => {
     session = advancePhase(session); // -> WeaponAttack
     expect(session.currentState.phase).toBe(GamePhase.WeaponAttack);
 
+    session = advancePhase(session); // -> PhysicalAttack
+    expect(session.currentState.phase).toBe(GamePhase.PhysicalAttack);
+
     session = advancePhase(session); // -> Heat
     expect(session.currentState.phase).toBe(GamePhase.Heat);
 
@@ -1379,8 +1382,6 @@ describe('Integration', () => {
 
     session = advancePhase(session); // -> Initiative (wrap to new turn)
     expect(session.currentState.phase).toBe(GamePhase.Initiative);
-    // Note: Turn increment is tracked in events but applyPhaseChanged doesn't update state.turn
-    // The last phase_changed event will have the correct turn number in its event.turn field
     const lastEvent = session.events[session.events.length - 1];
     expect(lastEvent.turn).toBe(2);
   });

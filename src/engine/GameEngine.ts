@@ -264,6 +264,7 @@ export class GameEngine {
       }
 
       session = resolveAllAttacks(session);
+      session = advancePhase(session); // → PhysicalAttack
       session = advancePhase(session); // → Heat
       session = resolveHeatPhase(session);
       session = advancePhase(session); // → End
@@ -503,6 +504,8 @@ export class InteractiveSession {
         }
       }
       this.session = resolveAllAttacks(this.session);
+      this.session = advancePhase(this.session);
+    } else if (phase === GamePhase.PhysicalAttack) {
       this.session = advancePhase(this.session);
     } else if (phase === GamePhase.Heat) {
       this.session = resolveHeatPhase(this.session);

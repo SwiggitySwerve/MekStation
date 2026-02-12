@@ -552,7 +552,7 @@ describe('Phase 4: IUnitGameState Extension', () => {
   });
 
   describe('PhysicalAttack reducers', () => {
-    it('PhysicalAttackDeclared returns state unchanged (placeholder)', () => {
+    it('PhysicalAttackDeclared sets attacker to Planning', () => {
       const state = createStateWithUnit();
       const event = makeEvent(GameEventType.PhysicalAttackDeclared, {
         attackerId: 'unit-1',
@@ -562,11 +562,21 @@ describe('Phase 4: IUnitGameState Extension', () => {
       });
 
       const result = applyEvent(state, event);
-      expect(result).toBe(state);
+      expect(result.units['unit-1'].lockState).toBe(LockState.Planning);
     });
 
-    it('PhysicalAttackResolved returns state unchanged (placeholder)', () => {
-      const state = createStateWithUnit();
+    it('PhysicalAttackResolved accumulates damageThisPhase on target hit', () => {
+      const state = {
+        ...createStateWithUnit(),
+        units: {
+          ...createStateWithUnit().units,
+          'unit-2': {
+            ...createStateWithUnit().units['unit-1'],
+            id: 'unit-2',
+            damageThisPhase: 0,
+          },
+        },
+      };
       const event = makeEvent(GameEventType.PhysicalAttackResolved, {
         attackerId: 'unit-1',
         targetId: 'unit-2',
@@ -576,6 +586,21 @@ describe('Phase 4: IUnitGameState Extension', () => {
         hit: true,
         damage: 10,
         location: 'left_leg',
+      });
+
+      const result = applyEvent(state, event);
+      expect(result.units['unit-2'].damageThisPhase).toBe(10);
+    });
+
+    it('PhysicalAttackResolved miss returns state unchanged', () => {
+      const state = createStateWithUnit();
+      const event = makeEvent(GameEventType.PhysicalAttackResolved, {
+        attackerId: 'unit-1',
+        targetId: 'unit-2',
+        attackType: 'kick',
+        roll: 3,
+        toHitNumber: 7,
+        hit: false,
       });
 
       const result = applyEvent(state, event);
