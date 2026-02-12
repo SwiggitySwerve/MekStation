@@ -78,19 +78,19 @@
 
 ## 6. Ammo System
 
-- [ ] 6.1 Create `src/utils/gameplay/ammoTracking.ts` — ammo bin state management
-- [ ] 6.2 Define `IAmmoSlotState` interface — binId, weaponType, location, remainingRounds, maxRounds, isExplosive
-- [ ] 6.3 Initialize ammo bin state from unit construction data at game start
-- [ ] 6.4 Implement `consumeAmmo(ammoState, weaponType, rounds)` — decrement rounds, emit `AmmoConsumed` event
-- [ ] 6.5 Implement weapon firing restriction — prevent firing weapons with 0 remaining ammo
-- [ ] 6.6 Implement ammo explosion from critical hit — damage = remainingRounds × damagePerRound, applied to IS at bin location
-- [ ] 6.7 Implement CASE protection — limit explosion to single location, no transfer, no pilot damage
-- [ ] 6.8 Implement CASE II protection — only 1 point transfers, no pilot damage
-- [ ] 6.9 Implement no-CASE behavior — damage transfers normally, pilot takes 1 damage
-- [ ] 6.10 Implement Clan omnimech default CASE in side torsos
-- [ ] 6.11 Implement Gauss rifle explosion on critical — 20 damage, no ammo dependency
-- [ ] 6.12 Wire ammo consumption into attack resolution — consume rounds when weapon fires
-- [ ] 6.13 Write tests for ammo tracking, consumption, explosion with/without CASE
+- [x] 6.1 Create `src/utils/gameplay/ammoTracking.ts` — ammo bin state management
+- [x] 6.2 Define `IAmmoSlotState` interface — binId, weaponType, location, remainingRounds, maxRounds, isExplosive
+- [x] 6.3 Initialize ammo bin state from unit construction data at game start
+- [x] 6.4 Implement `consumeAmmo(ammoState, weaponType, rounds)` — decrement rounds, emit `AmmoConsumed` event
+- [x] 6.5 Implement weapon firing restriction — prevent firing weapons with 0 remaining ammo
+- [x] 6.6 Implement ammo explosion from critical hit — damage = remainingRounds × damagePerRound, applied to IS at bin location
+- [x] 6.7 Implement CASE protection — limit explosion to single location, no transfer, no pilot damage
+- [x] 6.8 Implement CASE II protection — only 1 point transfers, no pilot damage
+- [x] 6.9 Implement no-CASE behavior — damage transfers normally, pilot takes 1 damage
+- [x] 6.10 Implement Clan omnimech default CASE in side torsos
+- [x] 6.11 Implement Gauss rifle explosion on critical — 20 damage, no ammo dependency
+- [x] 6.12 Wire ammo consumption into attack resolution — consume rounds when weapon fires
+- [x] 6.13 Write tests for ammo tracking, consumption, explosion with/without CASE
 
 ## 7. Heat System Overhaul
 

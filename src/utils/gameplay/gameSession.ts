@@ -33,6 +33,7 @@ import {
 } from '@/types/gameplay';
 import { CombatLocation } from '@/types/gameplay';
 
+import { consumeAmmo, isEnergyWeapon } from './ammoTracking';
 import {
   resolveCriticalHits,
   checkTACTrigger,
@@ -64,6 +65,7 @@ import {
   createHeatGeneratedEvent,
   createCriticalHitResolvedEvent,
   createPSRTriggeredEvent,
+  createAmmoConsumedEvent,
 } from './gameEvents';
 import { deriveState, allUnitsLocked } from './gameState';
 import {
@@ -627,6 +629,34 @@ export function resolveAttack(
   let currentSession = session;
 
   for (const weaponId of weapons) {
+    const weaponData = weaponDataMap.get(weaponId);
+    const weaponName = weaponData?.weaponName ?? weaponId;
+
+    // Task 6.12: Consume ammo before firing (non-energy weapons)
+    const attackerStateForAmmo = currentSession.currentState.units[attackerId];
+    const ammoState = attackerStateForAmmo?.ammoState ?? {};
+    if (!isEnergyWeapon(weaponName) && Object.keys(ammoState).length > 0) {
+      const ammoResult = consumeAmmo(ammoState, attackerId, weaponName);
+      if (ammoResult) {
+        const ammoSeq = currentSession.events.length;
+        const ammoTurn = currentSession.currentState.turn;
+        currentSession = appendEvent(
+          currentSession,
+          createAmmoConsumedEvent(
+            currentSession.id,
+            ammoSeq,
+            ammoTurn,
+            GamePhase.WeaponAttack,
+            attackerId,
+            ammoResult.event.binId,
+            ammoResult.event.weaponType,
+            ammoResult.event.roundsConsumed,
+            ammoResult.event.roundsRemaining,
+          ),
+        );
+      }
+    }
+
     const attackRoll = diceRoller();
     const hit = attackRoll.total >= toHitNumber;
 
@@ -647,7 +677,6 @@ export function resolveAttack(
         locationRoll,
       );
       const location = hitLocationResult.location;
-      const weaponData = weaponDataMap.get(weaponId);
       let damage = weaponData?.damage ?? 5;
 
       // Task 3.5: Head-capping rule — max 3 damage from single standard weapon
