@@ -11,6 +11,7 @@ import {
   IUnitGameState,
   IGameUnit,
   IGameConfig,
+  IComponentDamageState,
   GameEventType,
   GamePhase,
   GameStatus,
@@ -27,12 +28,33 @@ import {
   IHeatPayload,
   IPilotHitPayload,
   IUnitDestroyedPayload,
+  ICriticalHitResolvedPayload,
+  IPSRTriggeredPayload,
+  IPSRResolvedPayload,
+  IUnitFellPayload,
+  IPhysicalAttackDeclaredPayload,
+  IPhysicalAttackResolvedPayload,
+  IShutdownCheckPayload,
+  IStartupAttemptPayload,
+  IAmmoConsumedPayload,
 } from '@/types/gameplay';
 import { Facing, MovementType, IHexCoordinate } from '@/types/gameplay';
 
 // =============================================================================
 // Initial State Creation
 // =============================================================================
+
+const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
+  engineHits: 0,
+  gyroHits: 0,
+  sensorHits: 0,
+  lifeSupport: 0,
+  cockpitHit: false,
+  actuators: {},
+  weaponsDestroyed: [],
+  heatSinksDestroyed: 0,
+  jumpJetsDestroyed: 0,
+};
 
 /**
  * Create initial state for a unit.
@@ -59,6 +81,12 @@ export function createInitialUnitState(
     pilotConscious: true,
     destroyed: false,
     lockState: LockState.Pending,
+    componentDamage: DEFAULT_COMPONENT_DAMAGE,
+    prone: false,
+    shutdown: false,
+    ammoState: {},
+    pendingPSRs: [],
+    weaponsFiredThisTurn: [],
   };
 }
 
@@ -141,6 +169,45 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.UnitDestroyed:
       return applyUnitDestroyed(state, event.payload as IUnitDestroyedPayload);
+
+    case GameEventType.CriticalHitResolved:
+      return applyCriticalHitResolved(
+        state,
+        event.payload as ICriticalHitResolvedPayload,
+      );
+
+    case GameEventType.PSRTriggered:
+      return applyPSRTriggered(state, event.payload as IPSRTriggeredPayload);
+
+    case GameEventType.PSRResolved:
+      return applyPSRResolved(state, event.payload as IPSRResolvedPayload);
+
+    case GameEventType.UnitFell:
+      return applyUnitFell(state, event.payload as IUnitFellPayload);
+
+    case GameEventType.PhysicalAttackDeclared:
+      return applyPhysicalAttackDeclared(
+        state,
+        event.payload as IPhysicalAttackDeclaredPayload,
+      );
+
+    case GameEventType.PhysicalAttackResolved:
+      return applyPhysicalAttackResolved(
+        state,
+        event.payload as IPhysicalAttackResolvedPayload,
+      );
+
+    case GameEventType.ShutdownCheck:
+      return applyShutdownCheck(state, event.payload as IShutdownCheckPayload);
+
+    case GameEventType.StartupAttempt:
+      return applyStartupAttempt(
+        state,
+        event.payload as IStartupAttemptPayload,
+      );
+
+    case GameEventType.AmmoConsumed:
+      return applyAmmoConsumed(state, event.payload as IAmmoConsumedPayload);
 
     default:
       // Unknown event type, return state unchanged
@@ -257,11 +324,20 @@ function applyPhaseChanged(
  * Apply TurnStarted event.
  */
 function applyTurnStarted(state: IGameState, event: IGameEvent): IGameState {
+  const units = { ...state.units };
+  for (const unitId of Object.keys(units)) {
+    units[unitId] = {
+      ...units[unitId],
+      weaponsFiredThisTurn: [],
+    };
+  }
+
   return {
     ...state,
     turn: event.turn,
     phase: GamePhase.Initiative,
     activationIndex: 0,
+    units,
     turnEvents: [event],
   };
 }
@@ -501,6 +577,253 @@ function applyUnitDestroyed(
       [payload.unitId]: {
         ...unit,
         destroyed: true,
+      },
+    },
+  };
+}
+
+// =============================================================================
+// Phase 4: Extended Combat Reducers
+// =============================================================================
+
+function applyCriticalHitResolved(
+  state: IGameState,
+  payload: ICriticalHitResolvedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) return state;
+
+  const componentDamage = unit.componentDamage ?? {
+    ...DEFAULT_COMPONENT_DAMAGE,
+  };
+
+  let updatedDamage = { ...componentDamage };
+
+  switch (payload.componentType) {
+    case 'engine':
+      updatedDamage = {
+        ...updatedDamage,
+        engineHits: updatedDamage.engineHits + 1,
+      };
+      break;
+    case 'gyro':
+      updatedDamage = {
+        ...updatedDamage,
+        gyroHits: updatedDamage.gyroHits + 1,
+      };
+      break;
+    case 'sensor':
+      updatedDamage = {
+        ...updatedDamage,
+        sensorHits: updatedDamage.sensorHits + 1,
+      };
+      break;
+    case 'life_support':
+      updatedDamage = {
+        ...updatedDamage,
+        lifeSupport: updatedDamage.lifeSupport + 1,
+      };
+      break;
+    case 'cockpit':
+      updatedDamage = { ...updatedDamage, cockpitHit: true };
+      break;
+    case 'weapon':
+      updatedDamage = {
+        ...updatedDamage,
+        weaponsDestroyed: [
+          ...updatedDamage.weaponsDestroyed,
+          payload.componentName,
+        ],
+      };
+      break;
+    case 'heat_sink':
+      updatedDamage = {
+        ...updatedDamage,
+        heatSinksDestroyed: updatedDamage.heatSinksDestroyed + 1,
+      };
+      break;
+    case 'jump_jet':
+      updatedDamage = {
+        ...updatedDamage,
+        jumpJetsDestroyed: updatedDamage.jumpJetsDestroyed + 1,
+      };
+      break;
+    case 'actuator':
+      updatedDamage = {
+        ...updatedDamage,
+        actuators: {
+          ...updatedDamage.actuators,
+          [payload.componentName]: true,
+        },
+      };
+      break;
+  }
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        componentDamage: updatedDamage,
+      },
+    },
+  };
+}
+
+function applyPSRTriggered(
+  state: IGameState,
+  payload: IPSRTriggeredPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) return state;
+
+  const pendingPSRs = unit.pendingPSRs ?? [];
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        pendingPSRs: [
+          ...pendingPSRs,
+          {
+            entityId: payload.unitId,
+            reason: payload.reason,
+            additionalModifier: payload.additionalModifier,
+            triggerSource: payload.triggerSource,
+          },
+        ],
+      },
+    },
+  };
+}
+
+function applyPSRResolved(
+  state: IGameState,
+  payload: IPSRResolvedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) return state;
+
+  const pendingPSRs = unit.pendingPSRs ?? [];
+  const remaining = pendingPSRs.filter((psr) => psr.reason !== payload.reason);
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        pendingPSRs: remaining,
+      },
+    },
+  };
+}
+
+function applyUnitFell(
+  state: IGameState,
+  payload: IUnitFellPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) return state;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        prone: true,
+        facing: payload.newFacing,
+        pendingPSRs: [],
+      },
+    },
+  };
+}
+
+function applyPhysicalAttackDeclared(
+  state: IGameState,
+  _payload: IPhysicalAttackDeclaredPayload,
+): IGameState {
+  return state;
+}
+
+function applyPhysicalAttackResolved(
+  state: IGameState,
+  _payload: IPhysicalAttackResolvedPayload,
+): IGameState {
+  return state;
+}
+
+function applyShutdownCheck(
+  state: IGameState,
+  payload: IShutdownCheckPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) return state;
+
+  if (!payload.shutdownOccurred) return state;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        shutdown: true,
+      },
+    },
+  };
+}
+
+function applyStartupAttempt(
+  state: IGameState,
+  payload: IStartupAttemptPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) return state;
+
+  if (!payload.success) return state;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        shutdown: false,
+      },
+    },
+  };
+}
+
+function applyAmmoConsumed(
+  state: IGameState,
+  payload: IAmmoConsumedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) return state;
+
+  const ammoState = unit.ammoState ?? {};
+  const bin = ammoState[payload.binId];
+
+  if (!bin) return state;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        ammoState: {
+          ...ammoState,
+          [payload.binId]: {
+            ...bin,
+            remainingRounds: payload.roundsRemaining,
+          },
+        },
       },
     },
   };

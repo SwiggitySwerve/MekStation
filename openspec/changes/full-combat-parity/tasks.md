@@ -49,13 +49,13 @@
 
 ## 4. Extend IUnitGameState
 
-- [ ] 4.1 Add `IComponentDamageState` interface to `GameSessionInterfaces.ts` — engineHits, gyroHits, sensorHits, lifeSupport, cockpitHit, actuators (8 types), weaponsDestroyed, heatSinksDestroyed, jumpJetsDestroyed
-- [ ] 4.2 Add new fields to `IUnitGameState`: `componentDamage`, `prone`, `shutdown`, `ammoState`, `pendingPSRs`, `damageThisPhase`, `weaponsFiredThisTurn`
-- [ ] 4.3 Set default values in `createInitialUnitState()` — `prone: false`, `shutdown: false`, empty component damage, etc.
-- [ ] 4.4 Add new `GameEventType` values: `CriticalHitResolved`, `PSRTriggered`, `PSRResolved`, `UnitFell`, `PhysicalAttackDeclared`, `PhysicalAttackResolved`, `ShutdownCheck`, `StartupAttempt`, `AmmoConsumed`
-- [ ] 4.5 Add event payload interfaces for each new event type
-- [ ] 4.6 Add `applyEvent()` reducer cases for all new event types in `gameState.ts`
-- [ ] 4.7 Write tests for backward compatibility — existing saved games/replays still load with default values for new fields
+- [x] 4.1 Add `IComponentDamageState` interface to `GameSessionInterfaces.ts` — engineHits, gyroHits, sensorHits, lifeSupport, cockpitHit, actuators (8 types), weaponsDestroyed, heatSinksDestroyed, jumpJetsDestroyed
+- [x] 4.2 Add new fields to `IUnitGameState`: `componentDamage`, `prone`, `shutdown`, `ammoState`, `pendingPSRs`, `damageThisPhase`, `weaponsFiredThisTurn`
+- [x] 4.3 Set default values in `createInitialUnitState()` — `prone: false`, `shutdown: false`, empty component damage, etc.
+- [x] 4.4 Add new `GameEventType` values: `CriticalHitResolved`, `PSRTriggered`, `PSRResolved`, `UnitFell`, `PhysicalAttackDeclared`, `PhysicalAttackResolved`, `ShutdownCheck`, `StartupAttempt`, `AmmoConsumed`
+- [x] 4.5 Add event payload interfaces for each new event type
+- [x] 4.6 Add `applyEvent()` reducer cases for all new event types in `gameState.ts`
+- [x] 4.7 Write tests for backward compatibility — existing saved games/replays still load with default values for new fields
 
 ## 5. Critical Hit Resolution
 
