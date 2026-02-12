@@ -94,18 +94,16 @@ export default function EncounterDetailPage(): React.ReactElement {
     }
   }, [isInitialized, id, validateEncounter]);
 
-  // Handle launch
   const handleLaunch = useCallback(async () => {
     if (!id || typeof id !== 'string') return;
     clearError();
-    const success = await launchEncounter(id);
-    if (success) {
+    const gameSessionId = await launchEncounter(id);
+    if (gameSessionId) {
       showToast({
         message: 'Battle launched! Good hunting, MechWarrior.',
         variant: 'success',
       });
-      // Navigate to game session (placeholder for now)
-      router.push('/gameplay/encounters');
+      router.push(`/gameplay/games/${gameSessionId}`);
     } else {
       showToast({ message: 'Failed to launch encounter', variant: 'error' });
     }
