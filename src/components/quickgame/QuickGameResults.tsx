@@ -7,14 +7,25 @@
  */
 
 import { useRouter } from 'next/router';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 
+import type { IGameOutcome, ICombatStats } from '@/services/game-resolution';
+import type { IDamageAssessment } from '@/services/game-resolution/DamageCalculator';
+import type { BattleState } from '@/simulation/detectors/KeyMomentDetector';
 import type { IQuickGameUnit } from '@/types/quickgame/QuickGameInterfaces';
+import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
 
 import { Button, Card } from '@/components/ui';
 import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
+import {
+  calculateGameOutcome,
+  calculateCombatStats,
+  assessUnitDamage,
+} from '@/services/game-resolution';
+import { KeyMomentDetector } from '@/simulation/detectors/KeyMomentDetector';
+import { useGameplayStore } from '@/stores/useGameplayStore';
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
-import { GameEventType, GamePhase } from '@/types/gameplay';
+import { GameEventType, GamePhase, GameSide } from '@/types/gameplay';
 import { projectUnitPerformance } from '@/utils/gameplay/combatStatistics';
 
 import { DamageMatrix } from './DamageMatrix';
@@ -144,63 +155,175 @@ function ResultBanner({
 // Battle Summary Component
 // =============================================================================
 
-function BattleSummary(): React.ReactElement {
+interface BattleSummaryProps {
+  outcome: IGameOutcome | null;
+  combatStats: ICombatStats | null;
+  keyMoments: readonly IKeyMoment[];
+}
+
+function BattleSummary({
+  outcome,
+  combatStats,
+  keyMoments,
+}: BattleSummaryProps): React.ReactElement {
   const { game } = useQuickGameStore();
+  const [showLowerTiers, setShowLowerTiers] = useState(false);
 
   if (!game) return <></>;
 
-  const playerUnitsDestroyed = game.playerForce.units.filter(
-    (u) => u.isDestroyed,
-  ).length;
-  const playerUnitsWithdrawn = game.playerForce.units.filter(
-    (u) => u.isWithdrawn,
-  ).length;
-  const opponentUnitsDestroyed =
-    game.opponentForce?.units.filter((u) => u.isDestroyed).length ?? 0;
-
-  const startTime = new Date(game.startedAt);
-  const endTime = game.endedAt ? new Date(game.endedAt) : new Date();
-  const durationMs = endTime.getTime() - startTime.getTime();
-  const durationMinutes = Math.floor(durationMs / 60000);
+  const tier1Moments = keyMoments.filter((m) => m.tier === 1);
+  const tier2Moments = keyMoments.filter((m) => m.tier === 2);
+  const tier3Moments = keyMoments.filter((m) => m.tier === 3);
 
   return (
-    <Card>
-      <div className="border-b border-gray-700 p-4">
-        <h3 className="font-medium text-white">Battle Summary</h3>
-      </div>
-      <div className="p-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
-              Your Losses
-            </p>
-            <p className="text-white">
-              {playerUnitsDestroyed} destroyed
-              {playerUnitsWithdrawn > 0 &&
-                `, ${playerUnitsWithdrawn} withdrawn`}
-            </p>
-          </div>
-          <div>
-            <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
-              Enemy Losses
-            </p>
-            <p className="text-white">{opponentUnitsDestroyed} destroyed</p>
-          </div>
-          <div>
-            <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
-              Turns Played
-            </p>
-            <p className="text-white">{game.turn}</p>
-          </div>
-          <div>
-            <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
-              Duration
-            </p>
-            <p className="text-white">{durationMinutes} minutes</p>
+    <div className="space-y-4">
+      <Card>
+        <div className="border-b border-gray-700 p-4">
+          <h3 className="font-medium text-white">Battle Statistics</h3>
+        </div>
+        <div className="p-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
+                Your Losses
+              </p>
+              <p className="text-white">
+                {outcome?.playerUnitsDestroyed ?? 0} destroyed
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
+                Enemy Losses
+              </p>
+              <p className="text-white">
+                {outcome?.opponentUnitsDestroyed ?? 0} destroyed
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
+                Turns Played
+              </p>
+              <p className="text-white">{outcome?.turnsPlayed ?? game.turn}</p>
+            </div>
+            <div>
+              <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
+                Duration
+              </p>
+              <p className="text-white">
+                {outcome
+                  ? `${Math.floor(outcome.durationMs / 60000)} min`
+                  : '—'}
+              </p>
+            </div>
+            {combatStats && (
+              <>
+                <div>
+                  <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
+                    Damage Dealt
+                  </p>
+                  <p className="text-cyan-400">
+                    {combatStats.playerDamageDealt}
+                  </p>
+                </div>
+                <div>
+                  <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
+                    Damage Taken
+                  </p>
+                  <p className="text-red-400">
+                    {combatStats.opponentDamageDealt}
+                  </p>
+                </div>
+                <div>
+                  <p className="mb-1 text-xs tracking-wide text-gray-500 uppercase">
+                    Critical Hits
+                  </p>
+                  <p className="text-amber-400">{combatStats.criticalHits}</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+
+      {keyMoments.length > 0 && (
+        <Card>
+          <div className="border-b border-gray-700 p-4">
+            <h3 className="font-medium text-white">Key Moments</h3>
+          </div>
+          <div className="space-y-2 p-4">
+            {tier1Moments.map((moment) => (
+              <div
+                key={moment.id}
+                className="rounded-lg border border-amber-700/40 bg-amber-900/20 p-3"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="rounded bg-amber-600 px-1.5 py-0.5 text-xs font-bold text-white">
+                    T1
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    Turn {moment.turn}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-white">{moment.description}</p>
+              </div>
+            ))}
+
+            {(tier2Moments.length > 0 || tier3Moments.length > 0) && (
+              <>
+                {showLowerTiers ? (
+                  <>
+                    {tier2Moments.map((moment) => (
+                      <div
+                        key={moment.id}
+                        className="rounded-lg border border-gray-700/50 bg-gray-800/30 p-3"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-gray-600 px-1.5 py-0.5 text-xs font-bold text-white">
+                            T2
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            Turn {moment.turn}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-sm text-gray-300">
+                          {moment.description}
+                        </p>
+                      </div>
+                    ))}
+                    {tier3Moments.map((moment) => (
+                      <div
+                        key={moment.id}
+                        className="rounded-lg border border-gray-700/30 bg-gray-800/20 p-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-gray-700 px-1.5 py-0.5 text-xs text-gray-300">
+                            T3
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            Turn {moment.turn}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {moment.description}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setShowLowerTiers(true)}
+                    className="text-xs text-gray-400 underline hover:text-gray-300"
+                  >
+                    Show {tier2Moments.length + tier3Moments.length} more
+                    moments
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </Card>
+      )}
+    </div>
   );
 }
 
@@ -208,52 +331,101 @@ function UnitStatusRow({
   unit,
   forceType,
   events,
+  damageAssessment,
 }: {
   unit: IQuickGameUnit;
   forceType: 'player' | 'opponent';
   events: readonly { type: string; turn: number; phase: GamePhase }[];
+  damageAssessment?: IDamageAssessment;
 }): React.ReactElement {
   const performance = projectUnitPerformance(
     events as Parameters<typeof projectUnitPerformance>[0],
     unit.instanceId,
   );
 
-  let statusText: string;
-  let statusColor: string;
+  const statusText = damageAssessment
+    ? damageAssessment.status.replace(/_/g, ' ')
+    : unit.isDestroyed
+      ? 'Destroyed'
+      : unit.isWithdrawn
+        ? 'Withdrawn'
+        : 'Survived';
 
-  if (unit.isDestroyed) {
-    statusText = 'Destroyed';
-    statusColor = 'text-red-400';
-  } else if (unit.isWithdrawn) {
-    statusText = 'Withdrawn';
-    statusColor = 'text-amber-400';
-  } else {
-    statusText = 'Survived';
-    statusColor = 'text-emerald-400';
-  }
+  const statusColor =
+    damageAssessment?.status === 'destroyed' || unit.isDestroyed
+      ? 'text-red-400'
+      : damageAssessment?.status === 'crippled' ||
+          damageAssessment?.status === 'critical'
+        ? 'text-amber-400'
+        : unit.isWithdrawn
+          ? 'text-amber-400'
+          : 'text-emerald-400';
 
   return (
-    <div className="flex items-center justify-between border-b border-gray-700/50 px-4 py-3 transition-colors last:border-b-0 hover:bg-gray-800/30">
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-white">{unit.name}</p>
-        <div className="flex items-center gap-2 text-xs text-gray-400">
-          {unit.pilotName && <span className="truncate">{unit.pilotName}</span>}
-          <span
-            className={
-              forceType === 'player' ? 'text-cyan-400' : 'text-red-400'
-            }
-          >
-            {forceType === 'player' ? 'Player' : 'OpFor'}
+    <div className="border-b border-gray-700/50 px-4 py-3 transition-colors last:border-b-0 hover:bg-gray-800/30">
+      <div className="flex items-center justify-between">
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium text-white">{unit.name}</p>
+          <div className="flex items-center gap-2 text-xs text-gray-400">
+            {unit.pilotName && (
+              <span className="truncate">{unit.pilotName}</span>
+            )}
+            <span
+              className={
+                forceType === 'player' ? 'text-cyan-400' : 'text-red-400'
+              }
+            >
+              {forceType === 'player' ? 'Player' : 'OpFor'}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-right text-xs text-gray-400">
+            <p>{performance.damageDealt} dmg dealt</p>
+            <p>{performance.kills} kills</p>
+          </div>
+          <span className={`text-sm font-medium capitalize ${statusColor}`}>
+            {statusText}
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-4">
-        <div className="text-right text-xs text-gray-400">
-          <p>{performance.damageDealt} dmg dealt</p>
-          <p>{performance.kills} kills</p>
+
+      {damageAssessment && !unit.isDestroyed && (
+        <div className="mt-2 flex gap-4">
+          <div className="flex-1">
+            <div className="mb-1 flex items-center justify-between text-xs">
+              <span className="text-gray-500">Armor</span>
+              <span className="text-gray-400">
+                {Math.round(100 - damageAssessment.armorDamagePercent)}%
+              </span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-gray-700">
+              <div
+                className="h-full rounded-full bg-cyan-500 transition-all"
+                style={{
+                  width: `${100 - damageAssessment.armorDamagePercent}%`,
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex-1">
+            <div className="mb-1 flex items-center justify-between text-xs">
+              <span className="text-gray-500">Structure</span>
+              <span className="text-gray-400">
+                {Math.round(100 - damageAssessment.structureDamagePercent)}%
+              </span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-gray-700">
+              <div
+                className="h-full rounded-full bg-amber-500 transition-all"
+                style={{
+                  width: `${100 - damageAssessment.structureDamagePercent}%`,
+                }}
+              />
+            </div>
+          </div>
         </div>
-        <span className={`font-medium ${statusColor}`}>{statusText}</span>
-      </div>
+      )}
     </div>
   );
 }
@@ -296,6 +468,7 @@ function TimelineEventRow({
 export function QuickGameResults(): React.ReactElement {
   const router = useRouter();
   const { game, playAgain, clearGame } = useQuickGameStore();
+  const session = useGameplayStore((s) => s.session);
   const [activeTab, setActiveTab] = useState<ResultsTab>('summary');
   const tabListRef = useRef<HTMLDivElement>(null);
 
@@ -308,6 +481,79 @@ export function QuickGameResults(): React.ReactElement {
     activeTab,
     handleTabChange,
   );
+
+  const outcome = useMemo((): IGameOutcome | null => {
+    if (!session || !game) return null;
+    return calculateGameOutcome({
+      state: session.currentState,
+      events: session.events,
+      config: session.config,
+      startedAt: game.startedAt,
+      endedAt: game.endedAt ?? new Date().toISOString(),
+    });
+  }, [session, game]);
+
+  const combatStats = useMemo((): ICombatStats | null => {
+    if (!session) return null;
+    return calculateCombatStats(session.events, session.currentState.units);
+  }, [session]);
+
+  const keyMoments = useMemo((): readonly IKeyMoment[] => {
+    if (!session || !game) return [];
+    const detector = new KeyMomentDetector();
+    const allQuickUnits = [
+      ...game.playerForce.units,
+      ...(game.opponentForce?.units ?? []),
+    ];
+
+    const battleState: BattleState = {
+      units: allQuickUnits.map((u) => {
+        const unitState = session.currentState.units[u.instanceId];
+        const side = game.playerForce.units.some(
+          (pu) => pu.instanceId === u.instanceId,
+        )
+          ? GameSide.Player
+          : GameSide.Opponent;
+
+        return {
+          id: unitState?.id ?? u.instanceId,
+          name: u.name,
+          side,
+          bv: u.bv,
+          weaponIds: [],
+          initialArmor: u.maxArmor,
+          initialStructure: u.maxStructure,
+        };
+      }),
+    };
+
+    return detector.detect(session.events, battleState);
+  }, [session, game]);
+
+  const unitDamageMap = useMemo((): Map<string, IDamageAssessment> => {
+    const map = new Map<string, IDamageAssessment>();
+    if (!session || !game) return map;
+
+    const allQuickUnits = [
+      ...game.playerForce.units,
+      ...(game.opponentForce?.units ?? []),
+    ];
+
+    for (const qUnit of allQuickUnits) {
+      const unitState = Object.values(session.currentState.units).find(
+        (u) => u.id === qUnit.instanceId || u.id === qUnit.sourceUnitId,
+      );
+      if (unitState) {
+        const assessment = assessUnitDamage(
+          unitState,
+          qUnit.maxArmor,
+          qUnit.maxStructure,
+        );
+        map.set(qUnit.instanceId, assessment);
+      }
+    }
+    return map;
+  }, [session, game]);
 
   if (!game) {
     return (
@@ -394,7 +640,11 @@ export function QuickGameResults(): React.ReactElement {
           hidden={activeTab !== 'summary'}
           className="p-4"
         >
-          <BattleSummary />
+          <BattleSummary
+            outcome={outcome}
+            combatStats={combatStats}
+            keyMoments={keyMoments}
+          />
 
           {game.scenario && (
             <div className="mt-4 rounded-lg bg-gray-800/50 p-4">
@@ -427,6 +677,7 @@ export function QuickGameResults(): React.ReactElement {
                   unit={unit}
                   forceType={forceType}
                   events={game.events}
+                  damageAssessment={unitDamageMap.get(unit.instanceId)}
                 />
               ))}
             </div>
