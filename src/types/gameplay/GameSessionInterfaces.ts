@@ -247,12 +247,29 @@ export interface IAttackDeclaredPayload {
   readonly attackerId: string;
   /** Target unit */
   readonly targetId: string;
-  /** Weapon(s) used */
+  /** Weapon ID(s) used (backward-compatible) */
   readonly weapons: readonly string[];
+  /** Full weapon attack data (damage, heat, ranges per weapon) */
+  readonly weaponAttacks?: readonly IWeaponAttackData[];
   /** Calculated to-hit number */
   readonly toHitNumber: number;
   /** All to-hit modifiers */
   readonly modifiers: readonly IToHitModifier[];
+}
+
+/**
+ * Weapon attack data stored in attack events.
+ * Carries the real weapon stats so resolveAttack can use actual damage/heat values.
+ */
+export interface IWeaponAttackData {
+  /** Weapon ID */
+  readonly weaponId: string;
+  /** Weapon name */
+  readonly weaponName: string;
+  /** Damage per hit */
+  readonly damage: number;
+  /** Heat generated */
+  readonly heat: number;
 }
 
 /**
@@ -421,6 +438,8 @@ export interface IGameUnit {
   /** Pilot skills */
   readonly gunnery: number;
   readonly piloting: number;
+  /** Total heat sinks on unit (default: 10 if not provided) */
+  readonly heatSinks?: number;
 }
 
 // =============================================================================

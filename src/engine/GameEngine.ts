@@ -128,9 +128,6 @@ export class GameEngine {
   /**
    * Run a fully automated battle (both sides AI-controlled).
    * Returns the completed game session.
-   *
-   * NOTE: resolveAttack in gameSession.ts uses hardcoded `damage = 5`.
-   * TODO: Wire real weapon damage in a later PR.
    */
   runToCompletion(
     playerUnits: readonly IAdaptedUnit[],
@@ -228,18 +225,21 @@ export class GameEngine {
         const atkEvt = botPlayer.playAttackPhase(aiUnit, enemies);
         if (atkEvt) {
           const weaponAttacks: IWeaponAttack[] = atkEvt.payload.weapons.map(
-            (wId) => ({
-              weaponId: wId,
-              weaponName: wId,
-              damage: 5,
-              heat: 3,
-              category: 'energy' as never,
-              minRange: 0,
-              shortRange: 3,
-              mediumRange: 6,
-              longRange: 9,
-              isCluster: false,
-            }),
+            (wId) => {
+              const wData = weapons.find((w) => w.id === wId);
+              return {
+                weaponId: wId,
+                weaponName: wData?.name ?? wId,
+                damage: wData?.damage ?? 5,
+                heat: wData?.heat ?? 3,
+                category: 'energy' as never,
+                minRange: wData?.minRange ?? 0,
+                shortRange: wData?.shortRange ?? 3,
+                mediumRange: wData?.mediumRange ?? 6,
+                longRange: wData?.longRange ?? 9,
+                isCluster: false,
+              };
+            },
           );
 
           session = declareAttack(
@@ -428,18 +428,22 @@ export class InteractiveSession {
     targetId: string,
     weaponIds: readonly string[],
   ): void {
-    const weaponAttacks: IWeaponAttack[] = weaponIds.map((wId) => ({
-      weaponId: wId,
-      weaponName: wId,
-      damage: 5,
-      heat: 3,
-      category: 'energy' as never,
-      minRange: 0,
-      shortRange: 3,
-      mediumRange: 6,
-      longRange: 9,
-      isCluster: false,
-    }));
+    const unitWeapons = this.weaponsByUnit.get(attackerId) ?? [];
+    const weaponAttacks: IWeaponAttack[] = weaponIds.map((wId) => {
+      const wData = unitWeapons.find((w) => w.id === wId);
+      return {
+        weaponId: wId,
+        weaponName: wData?.name ?? wId,
+        damage: wData?.damage ?? 5,
+        heat: wData?.heat ?? 3,
+        category: 'energy' as never,
+        minRange: wData?.minRange ?? 0,
+        shortRange: wData?.shortRange ?? 3,
+        mediumRange: wData?.mediumRange ?? 6,
+        longRange: wData?.longRange ?? 9,
+        isCluster: false,
+      };
+    });
 
     this.session = declareAttack(
       this.session,
@@ -550,18 +554,21 @@ export class InteractiveSession {
         const atkEvt = this.botPlayer.playAttackPhase(aiUnit, enemies);
         if (atkEvt) {
           const weaponAttacks: IWeaponAttack[] = atkEvt.payload.weapons.map(
-            (wId) => ({
-              weaponId: wId,
-              weaponName: wId,
-              damage: 5,
-              heat: 3,
-              category: 'energy' as never,
-              minRange: 0,
-              shortRange: 3,
-              mediumRange: 6,
-              longRange: 9,
-              isCluster: false,
-            }),
+            (wId) => {
+              const wData = weapons.find((w) => w.id === wId);
+              return {
+                weaponId: wId,
+                weaponName: wData?.name ?? wId,
+                damage: wData?.damage ?? 5,
+                heat: wData?.heat ?? 3,
+                category: 'energy' as never,
+                minRange: wData?.minRange ?? 0,
+                shortRange: wData?.shortRange ?? 3,
+                mediumRange: wData?.mediumRange ?? 6,
+                longRange: wData?.longRange ?? 9,
+                isCluster: false,
+              };
+            },
           );
 
           this.session = declareAttack(

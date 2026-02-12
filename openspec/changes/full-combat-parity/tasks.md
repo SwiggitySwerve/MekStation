@@ -14,17 +14,17 @@
 
 ## 1. Wire Real Weapon Data into Game Engine
 
-- [ ] 1.1 Replace hardcoded `damage = 5` in `gameSession.ts:resolveAttack()` (line 478) with actual weapon damage from `IWeaponData`
-- [ ] 1.2 Replace hardcoded `damage = 5` in `GameEngine.ts` auto-resolve with actual weapon damage
-- [ ] 1.3 Replace hardcoded `heat: 3` weapon heat with actual weapon heat values from `IWeaponData`
-- [ ] 1.4 Replace hardcoded range brackets `(3, 6, 9)` with per-weapon `shortRange`/`mediumRange`/`longRange` from `IWeaponData`
-- [ ] 1.5 Replace hardcoded `weapons.length * 10` heat generation in `resolveHeatPhase()` (line 585) with sum of actual weapon heat values
-- [ ] 1.6 Replace hardcoded `baseHeatSinks = 10` in `resolveHeatPhase()` (line 607) with actual unit heat sink count
-- [ ] 1.7 Wire `heat.ts:getWaterCoolingBonus()` into heat dissipation based on unit terrain position
-- [ ] 1.8 Fix movement heat calculation — replace current logic with walk=1, run=2, jump=max(3, jumpMP used)
-- [ ] 1.9 Make `hitLocation.ts` accept injectable `DiceRoller` parameter — replace `Math.random()` with seeded random
-- [ ] 1.10 Pass `IWeaponAttack` data through from attack declaration to resolution so damage/heat/range are available
-- [ ] 1.11 Write integration tests — verify weapon damage, heat, and range flow from declaration through resolution
+- [x] 1.1 Replace hardcoded `damage = 5` in `gameSession.ts:resolveAttack()` (line 478) with actual weapon damage from `IWeaponData`
+- [x] 1.2 Replace hardcoded `damage = 5` in `GameEngine.ts` auto-resolve with actual weapon damage
+- [x] 1.3 Replace hardcoded `heat: 3` weapon heat with actual weapon heat values from `IWeaponData`
+- [x] 1.4 Replace hardcoded range brackets `(3, 6, 9)` with per-weapon `shortRange`/`mediumRange`/`longRange` from `IWeaponData`
+- [x] 1.5 Replace hardcoded `weapons.length * 10` heat generation in `resolveHeatPhase()` (line 585) with sum of actual weapon heat values
+- [x] 1.6 Replace hardcoded `baseHeatSinks = 10` in `resolveHeatPhase()` (line 607) with actual unit heat sink count
+- [x] 1.7 Wire `heat.ts:getWaterCoolingBonus()` into heat dissipation based on unit terrain position
+- [x] 1.8 Fix movement heat calculation — replace current logic with walk=1, run=2, jump=max(3, jumpMP used)
+- [x] 1.9 Make `hitLocation.ts` accept injectable `DiceRoller` parameter — replace `Math.random()` with seeded random
+- [x] 1.10 Pass `IWeaponAttack` data through from attack declaration to resolution so damage/heat/range are available
+- [x] 1.11 Write integration tests — verify weapon damage, heat, and range flow from declaration through resolution
 
 ## 2. Firing Arc Calculation
 
