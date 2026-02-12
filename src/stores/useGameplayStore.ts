@@ -63,6 +63,8 @@ interface GameplayActions {
   loadSession: (sessionId: string) => Promise<void>;
   /** Create a demo session for testing */
   createDemoSession: () => void;
+  /** Set a completed game session (e.g. from GameEngine auto-resolve) */
+  setSession: (session: IGameSession) => void;
   /** Select a unit */
   selectUnit: (unitId: string | null) => void;
   /** Set target unit */
@@ -129,6 +131,14 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
       maxStructure: createDemoMaxStructure(),
       pilotNames: createDemoPilotNames(),
       heatSinks: createDemoHeatSinks(),
+      isLoading: false,
+      error: null,
+    });
+  },
+
+  setSession: (session: IGameSession) => {
+    set({
+      session,
       isLoading: false,
       error: null,
     });

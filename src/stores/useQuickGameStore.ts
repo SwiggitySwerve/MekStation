@@ -9,9 +9,21 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+import type { IAdaptedUnit } from '@/engine/types';
+import type { IQuickGameUnit } from '@/types/quickgame/QuickGameInterfaces';
+
 import { Faction } from '@/constants/scenario/rats';
+import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
+import { GameEngine } from '@/engine/GameEngine';
 import { scenarioGenerator } from '@/services/generators';
-import { GameStatus, GamePhase, IGameEvent } from '@/types/gameplay';
+import { useGameplayStore } from '@/stores/useGameplayStore';
+import {
+  GameStatus,
+  GamePhase,
+  GameSide,
+  type IGameEvent,
+  type IGameUnit,
+} from '@/types/gameplay';
 import {
   IQuickGameState,
   IQuickGameActions,
@@ -344,6 +356,107 @@ export const useQuickGameStore = create<QuickGameStore>()(
           isDirty: true,
           error: null,
         });
+      },
+
+      startBattle: async () => {
+        const { game } = get();
+        if (!game || !game.opponentForce) {
+          set({ error: 'No active game or opponent force' });
+          return;
+        }
+
+        set({ isLoading: true, error: null });
+
+        try {
+          const adaptUnits = async (
+            units: readonly IQuickGameUnit[],
+            side: GameSide,
+          ): Promise<IAdaptedUnit[]> => {
+            const adapted: IAdaptedUnit[] = [];
+            for (const unit of units) {
+              const result = await adaptUnit(unit.sourceUnitId, {
+                side,
+                gunnery: unit.gunnery,
+                piloting: unit.piloting,
+              });
+              if (result) {
+                adapted.push(result);
+              }
+            }
+            return adapted;
+          };
+
+          const playerAdapted = await adaptUnits(
+            game.playerForce.units,
+            GameSide.Player,
+          );
+          const opponentAdapted = await adaptUnits(
+            game.opponentForce.units,
+            GameSide.Opponent,
+          );
+
+          const gameUnits: IGameUnit[] = [
+            ...game.playerForce.units.map((u, i) => ({
+              id: playerAdapted[i]?.id ?? u.instanceId,
+              name: u.name,
+              side: GameSide.Player as GameSide,
+              unitRef: u.sourceUnitId,
+              pilotRef: u.pilotName ?? 'Unknown',
+              gunnery: u.gunnery,
+              piloting: u.piloting,
+            })),
+            ...game.opponentForce.units.map((u, i) => ({
+              id: opponentAdapted[i]?.id ?? u.instanceId,
+              name: u.name,
+              side: GameSide.Opponent as GameSide,
+              unitRef: u.sourceUnitId,
+              pilotRef: u.pilotName ?? 'Unknown',
+              gunnery: u.gunnery,
+              piloting: u.piloting,
+            })),
+          ];
+
+          const engine = new GameEngine({ seed: Date.now() });
+          const session = engine.runToCompletion(
+            playerAdapted,
+            opponentAdapted,
+            gameUnits,
+          );
+
+          useGameplayStore.getState().setSession(session);
+
+          const winner = session.currentState.result?.winner;
+          const winnerStr: 'player' | 'opponent' | 'draw' =
+            winner === GameSide.Player
+              ? 'player'
+              : winner === GameSide.Opponent
+                ? 'opponent'
+                : 'draw';
+
+          set({
+            game: {
+              ...game,
+              status: GameStatus.Completed,
+              step: QuickGameStep.Results,
+              winner: winnerStr,
+              victoryReason:
+                session.currentState.result?.reason ?? 'Battle concluded',
+              endedAt: new Date().toISOString(),
+              events: session.events as IGameEvent[],
+              turn: session.currentState.turn,
+            },
+            isLoading: false,
+            isDirty: true,
+          });
+        } catch (error) {
+          set({
+            error:
+              error instanceof Error
+                ? error.message
+                : 'Failed to resolve battle',
+            isLoading: false,
+          });
+        }
       },
 
       recordEvent: (event: IGameEvent) => {

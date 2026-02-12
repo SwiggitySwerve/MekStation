@@ -249,9 +249,9 @@ describe('QuickGameResults', () => {
   });
 
   describe('Summary Tab Content', () => {
-    it('displays battle summary', () => {
+    it('displays battle statistics', () => {
       render(<QuickGameResults />);
-      expect(screen.getByText('Battle Summary')).toBeInTheDocument();
+      expect(screen.getByText('Battle Statistics')).toBeInTheDocument();
     });
 
     it('displays scenario information', () => {
