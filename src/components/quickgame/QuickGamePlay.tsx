@@ -1,18 +1,16 @@
 /**
  * Quick Game Play Component
- * Displays the active game state and allows basic game control.
- * This is a simplified version - full game interface integration is TODO.
+ * Launches auto-resolved battle via GameEngine and displays progress.
+ * Transitions to Results step when battle completes.
  *
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 
-import { Button, Card } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
-import { GamePhase } from '@/types/gameplay';
-
-import { QuickGameTimeline } from './QuickGameTimeline';
+import { GameStatus } from '@/types/gameplay';
 
 // =============================================================================
 // Unit Card Component
@@ -34,14 +32,9 @@ interface UnitCardProps {
     isWithdrawn: boolean;
   };
   isPlayer: boolean;
-  onDestroy?: () => void;
 }
 
-function UnitCard({
-  unit,
-  isPlayer,
-  onDestroy,
-}: UnitCardProps): React.ReactElement {
+function UnitCard({ unit, isPlayer }: UnitCardProps): React.ReactElement {
   return (
     <div
       className={`rounded-lg border p-3 ${
@@ -72,7 +65,6 @@ function UnitCard({
         </div>
       </div>
 
-      {/* Status indicators */}
       <div className="mt-2 flex items-center gap-2">
         {unit.heat > 0 && (
           <span className="rounded bg-orange-900/50 px-1.5 py-0.5 text-xs text-orange-300">
@@ -90,56 +82,6 @@ function UnitCard({
           </span>
         )}
       </div>
-
-      {/* Quick action - for demo purposes */}
-      {!unit.isDestroyed && !unit.isWithdrawn && onDestroy && (
-        <button
-          onClick={onDestroy}
-          className="mt-2 text-xs text-red-400 underline hover:text-red-300"
-        >
-          Mark Destroyed (Demo)
-        </button>
-      )}
-    </div>
-  );
-}
-
-// =============================================================================
-// Phase Display Component
-// =============================================================================
-
-interface PhaseDisplayProps {
-  phase: GamePhase;
-  turn: number;
-}
-
-function PhaseDisplay({ phase, turn }: PhaseDisplayProps): React.ReactElement {
-  const phaseLabels: Record<GamePhase, string> = {
-    [GamePhase.Initiative]: 'Initiative',
-    [GamePhase.Movement]: 'Movement',
-    [GamePhase.WeaponAttack]: 'Weapon Attack',
-    [GamePhase.PhysicalAttack]: 'Physical Attack',
-    [GamePhase.Heat]: 'Heat',
-    [GamePhase.End]: 'End Phase',
-  };
-
-  return (
-    <div className="flex items-center gap-4 border-b border-gray-700 bg-gray-800 px-4 py-2">
-      <div className="flex items-center gap-2">
-        <span className="text-xs tracking-wide text-gray-500 uppercase">
-          Turn
-        </span>
-        <span className="text-lg font-bold text-cyan-400">{turn}</span>
-      </div>
-      <div className="h-6 w-px bg-gray-700" />
-      <div className="flex items-center gap-2">
-        <span className="text-xs tracking-wide text-gray-500 uppercase">
-          Phase
-        </span>
-        <span className="text-sm font-medium text-white">
-          {phaseLabels[phase]}
-        </span>
-      </div>
     </div>
   );
 }
@@ -149,8 +91,20 @@ function PhaseDisplay({ phase, turn }: PhaseDisplayProps): React.ReactElement {
 // =============================================================================
 
 export function QuickGamePlay(): React.ReactElement {
-  const { game, endGame } = useQuickGameStore();
-  const [showEndModal, setShowEndModal] = useState(false);
+  const { game, isLoading, error, startBattle } = useQuickGameStore();
+  const battleStarted = useRef(false);
+
+  useEffect(() => {
+    if (
+      game &&
+      game.status === GameStatus.Active &&
+      !isLoading &&
+      !battleStarted.current
+    ) {
+      battleStarted.current = true;
+      startBattle();
+    }
+  }, [game, isLoading, startBattle]);
 
   if (!game) {
     return (
@@ -160,61 +114,13 @@ export function QuickGamePlay(): React.ReactElement {
     );
   }
 
-  // Count active units
-  const playerAlive = game.playerForce.units.filter(
-    (u) => !u.isDestroyed && !u.isWithdrawn,
-  ).length;
-  const opponentAlive =
-    game.opponentForce?.units.filter((u) => !u.isDestroyed && !u.isWithdrawn)
-      .length ?? 0;
-
-  const handleEndGame = (winner: 'player' | 'opponent' | 'draw') => {
-    const reasons = {
-      player: 'Player victory',
-      opponent: 'Enemy victory',
-      draw: 'Draw',
-    };
-    endGame(winner, reasons[winner]);
-    setShowEndModal(false);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Phase indicator */}
-      <PhaseDisplay phase={game.phase} turn={game.turn} />
-
-      {/* Main content */}
-      <div className="p-4">
-        {/* Info banner */}
-        <Card className="mb-4 border-cyan-500/30 bg-gradient-to-r from-cyan-900/20 to-purple-900/20">
-          <div className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium text-white">
-                  {game.scenario?.template.name}
-                </h3>
-                <p className="mt-1 text-xs text-gray-400">
-                  {game.scenario?.mapPreset.name} -{' '}
-                  {game.scenario?.mapPreset.biome}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-400">Active Units</p>
-                <p className="text-white">
-                  <span className="text-cyan-400">{playerAlive}</span>
-                  {' vs '}
-                  <span className="text-red-400">{opponentAlive}</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Notice about simplified interface */}
-        <Card className="mb-4 border-amber-700/50 bg-amber-900/20">
-          <div className="flex items-start gap-3 p-4">
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-900">
+        <Card className="mx-4 max-w-md border-red-700/50">
+          <div className="p-6 text-center">
             <svg
-              className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-400"
+              className="mx-auto mb-4 h-12 w-12 text-red-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -223,117 +129,107 @@ export function QuickGamePlay(): React.ReactElement {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
               />
             </svg>
-            <div>
-              <p className="text-sm font-medium text-amber-300">
-                Simplified Game Interface
-              </p>
-              <p className="mt-1 text-xs text-amber-200/70">
-                This is a demo interface. The full hex map and combat resolution
-                system will be integrated in a future update. For now, you can
-                manually mark units as destroyed and end the game.
-              </p>
-            </div>
+            <h3 className="mb-2 text-lg font-medium text-red-300">
+              Battle Error
+            </h3>
+            <p className="text-sm text-gray-400">{error}</p>
           </div>
         </Card>
-
-        {/* Forces grid */}
-        <div className="mb-4 grid gap-4 md:grid-cols-2">
-          {/* Player Force */}
-          <Card>
-            <div className="border-b border-gray-700 p-3">
-              <h3 className="font-medium text-cyan-400">Your Force</h3>
-              <p className="text-xs text-gray-500">
-                {playerAlive} of {game.playerForce.units.length} active
-              </p>
-            </div>
-            <div className="space-y-2 p-3">
-              {game.playerForce.units.map((unit) => (
-                <UnitCard key={unit.instanceId} unit={unit} isPlayer />
-              ))}
-            </div>
-          </Card>
-
-          {/* Opponent Force */}
-          <Card>
-            <div className="border-b border-gray-700 p-3">
-              <h3 className="font-medium text-red-400">Enemy Force</h3>
-              <p className="text-xs text-gray-500">
-                {opponentAlive} of {game.opponentForce?.units.length ?? 0}{' '}
-                active
-              </p>
-            </div>
-            <div className="space-y-2 p-3">
-              {game.opponentForce?.units.map((unit) => (
-                <UnitCard key={unit.instanceId} unit={unit} isPlayer={false} />
-              ))}
-            </div>
-          </Card>
-        </div>
-
-        {/* Game control */}
-        <Card>
-          <div className="flex items-center justify-between p-4">
-            <div>
-              <p className="font-medium text-white">Game Control</p>
-              <p className="text-xs text-gray-500">End the game manually</p>
-            </div>
-            <Button variant="secondary" onClick={() => setShowEndModal(true)}>
-              End Game
-            </Button>
-          </div>
-        </Card>
-
-        {/* Session timeline */}
-        {game.events.length > 0 && (
-          <div className="mt-4">
-            <QuickGameTimeline />
-          </div>
-        )}
       </div>
+    );
+  }
 
-      {/* End game modal */}
-      {showEndModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <Card className="mx-4 w-full max-w-sm">
-            <div className="border-b border-gray-700 p-4">
-              <h3 className="font-medium text-white">End Game</h3>
+  if (isLoading || game.status === GameStatus.Active) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-900">
+        <div className="mx-4 max-w-lg text-center">
+          <div className="mb-8">
+            <div className="relative mx-auto h-16 w-16">
+              <div className="absolute inset-0 animate-ping rounded-full border-2 border-cyan-400/30" />
+              <div className="absolute inset-2 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
+              <div className="absolute inset-4 rounded-full bg-cyan-400/10" />
             </div>
-            <div className="space-y-3 p-4">
-              <Button
-                variant="primary"
-                className="w-full"
-                onClick={() => handleEndGame('player')}
-              >
-                Victory (Player Wins)
-              </Button>
-              <Button
-                variant="secondary"
-                className="w-full"
-                onClick={() => handleEndGame('opponent')}
-              >
-                Defeat (Enemy Wins)
-              </Button>
-              <Button
-                variant="secondary"
-                className="w-full"
-                onClick={() => handleEndGame('draw')}
-              >
-                Draw
-              </Button>
-              <Button
-                variant="secondary"
-                className="w-full"
-                onClick={() => setShowEndModal(false)}
-              >
-                Cancel
-              </Button>
+          </div>
+
+          <h2 className="mb-2 text-xl font-bold text-white">
+            Resolving Battle...
+          </h2>
+          <p className="mb-8 text-sm text-gray-400">
+            The GameEngine is auto-resolving combat between forces
+          </p>
+
+          <Card className="border-cyan-500/30 bg-gradient-to-r from-cyan-900/20 to-purple-900/20">
+            <div className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-white">
+                    {game.scenario?.template.name}
+                  </h3>
+                  <p className="mt-1 text-xs text-gray-400">
+                    {game.scenario?.mapPreset.name} -{' '}
+                    {game.scenario?.mapPreset.biome}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-400">Forces</p>
+                  <p className="text-white">
+                    <span className="text-cyan-400">
+                      {game.playerForce.units.length}
+                    </span>
+                    {' vs '}
+                    <span className="text-red-400">
+                      {game.opponentForce?.units.length ?? 0}
+                    </span>
+                  </p>
+                </div>
+              </div>
             </div>
           </Card>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <Card>
+              <div className="border-b border-gray-700 p-3">
+                <h3 className="text-sm font-medium text-cyan-400">
+                  Your Force
+                </h3>
+              </div>
+              <div className="space-y-2 p-3">
+                {game.playerForce.units.map((unit) => (
+                  <UnitCard key={unit.instanceId} unit={unit} isPlayer />
+                ))}
+              </div>
+            </Card>
+
+            <Card>
+              <div className="border-b border-gray-700 p-3">
+                <h3 className="text-sm font-medium text-red-400">
+                  Enemy Force
+                </h3>
+              </div>
+              <div className="space-y-2 p-3">
+                {game.opponentForce?.units.map((unit) => (
+                  <UnitCard
+                    key={unit.instanceId}
+                    unit={unit}
+                    isPlayer={false}
+                  />
+                ))}
+              </div>
+            </Card>
+          </div>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-900">
+      <Card className="p-8 text-center">
+        <p className="text-gray-400">Battle complete. Loading results...</p>
+      </Card>
     </div>
   );
 }

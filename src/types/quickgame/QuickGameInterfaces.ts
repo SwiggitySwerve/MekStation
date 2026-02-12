@@ -218,6 +218,8 @@ export interface IQuickGameActions {
   previousStep: () => void;
   /** Start the game (move to playing) */
   startGame: () => void;
+  /** Run auto-resolved battle via GameEngine */
+  startBattle: () => Promise<void>;
   /** Record a game event */
   recordEvent: (event: IGameEvent) => void;
   /** End the game */
