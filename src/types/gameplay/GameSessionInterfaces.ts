@@ -662,6 +662,12 @@ export interface IUnitGameState {
   readonly weaponsFiredThisTurn?: readonly string[];
   readonly edgePointsRemaining?: number;
   readonly isDodging?: boolean;
+  /** Weapons that are jammed (UAC/RAC jam mechanic) */
+  readonly jammedWeapons?: readonly string[];
+  /** Target has Narc beacon attached */
+  readonly narcedBy?: readonly string[];
+  /** Target is TAG-designated this turn */
+  readonly tagDesignated?: boolean;
 }
 
 /**

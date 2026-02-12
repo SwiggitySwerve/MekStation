@@ -200,16 +200,16 @@
 
 ## 13. Special Weapon Mechanics
 
-- [ ] 13.1 Fix Ultra AC modeling — 2 independent to-hit rolls, independent hit locations, jam on natural 2
-- [ ] 13.2 Fix Rotary AC modeling — 1-6 independent shots selected by pilot, independent to-hit/location, jam risk
-- [ ] 13.3 Implement LB-X cluster/slug mode toggle — slug = standard AC, cluster = use cluster table for hits
-- [ ] 13.4 Implement AMS — reduce incoming missile cluster hits, consume AMS ammo per intercept
-- [ ] 13.5 Implement Artemis IV/V — +2 to cluster roll when equipped and linked to launcher
-- [ ] 13.6 Implement Narc/iNarc beacon — +2 to missile attacks against marked target
-- [ ] 13.7 Implement TAG designation — enables semi-guided LRM, standard LRM bonus
-- [ ] 13.8 Implement MRM -1 cluster column modifier
-- [ ] 13.9 Implement Streak SRM verification — confirm all-or-nothing behavior is correct
-- [ ] 13.10 Write tests for each special weapon mechanic
+- [x] 13.1 Fix Ultra AC modeling — 2 independent to-hit rolls, independent hit locations, jam on natural 2
+- [x] 13.2 Fix Rotary AC modeling — 1-6 independent shots selected by pilot, independent to-hit/location, jam risk
+- [x] 13.3 Implement LB-X cluster/slug mode toggle — slug = standard AC, cluster = use cluster table for hits
+- [x] 13.4 Implement AMS — reduce incoming missile cluster hits, consume AMS ammo per intercept
+- [x] 13.5 Implement Artemis IV/V — +2 to cluster roll when equipped and linked to launcher
+- [x] 13.6 Implement Narc/iNarc beacon — +2 to missile attacks against marked target
+- [x] 13.7 Implement TAG designation — enables semi-guided LRM, standard LRM bonus
+- [x] 13.8 Implement MRM -1 cluster column modifier
+- [x] 13.9 Implement Streak SRM verification — confirm all-or-nothing behavior is correct
+- [x] 13.10 Write tests for each special weapon mechanic
 
 ## 14. ECM & Electronic Warfare
 

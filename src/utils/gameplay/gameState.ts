@@ -87,6 +87,9 @@ export function createInitialUnitState(
     ammoState: {},
     pendingPSRs: [],
     weaponsFiredThisTurn: [],
+    jammedWeapons: [],
+    narcedBy: [],
+    tagDesignated: false,
   };
 }
 
