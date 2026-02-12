@@ -155,6 +155,8 @@ export interface IBlkDocument {
   // ===== Quirks =====
   /** Unit quirks */
   readonly quirks?: readonly string[];
+  /** Weapon-specific quirks: weapon name → quirk IDs */
+  readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
 
   // ===== Raw Data =====
   /** All parsed tags for debugging/extension */

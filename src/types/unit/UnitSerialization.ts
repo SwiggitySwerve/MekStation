@@ -68,6 +68,7 @@ export interface ISerializedUnit {
 
   // Optional
   readonly quirks?: string[];
+  readonly weaponQuirks?: Record<string, string[]>;
   readonly fluff?: ISerializedFluff;
 
   // OmniMech-specific
