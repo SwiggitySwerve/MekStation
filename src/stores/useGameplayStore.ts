@@ -105,10 +105,16 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   ...initialState,
 
   loadSession: async (sessionId: string) => {
+    // If session is already loaded (e.g. from setSession via auto-resolve), skip
+    const existing = get().session;
+    if (existing && existing.id === sessionId) {
+      set({ isLoading: false, error: null });
+      return;
+    }
+
     set({ isLoading: true, error: null });
     try {
       // TODO: Load from API
-      // For now, create demo session if requested
       if (sessionId === 'demo') {
         get().createDemoSession();
       } else {
