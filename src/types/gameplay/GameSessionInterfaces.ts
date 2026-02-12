@@ -5,6 +5,8 @@
  * @spec openspec/changes/add-game-session-core/specs/game-session-core/spec.md
  */
 
+import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+
 import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
 
 // =============================================================================
@@ -97,6 +99,17 @@ export enum GameEventType {
   UnitDestroyed = 'unit_destroyed',
   AmmoExplosion = 'ammo_explosion',
   CriticalHit = 'critical_hit',
+
+  // Phase 4: Extended combat events
+  CriticalHitResolved = 'critical_hit_resolved',
+  PSRTriggered = 'psr_triggered',
+  PSRResolved = 'psr_resolved',
+  UnitFell = 'unit_fell',
+  PhysicalAttackDeclared = 'physical_attack_declared',
+  PhysicalAttackResolved = 'physical_attack_resolved',
+  ShutdownCheck = 'shutdown_check',
+  StartupAttempt = 'startup_attempt',
+  AmmoConsumed = 'ammo_consumed',
 }
 
 /**
@@ -374,6 +387,84 @@ export interface IToHitModifier {
   readonly source: string;
 }
 
+// =============================================================================
+// Phase 4: Extended Combat Event Payloads
+// =============================================================================
+
+export interface ICriticalHitResolvedPayload {
+  readonly unitId: string;
+  readonly location: string;
+  readonly slotIndex: number;
+  readonly componentType: string;
+  readonly componentName: string;
+  readonly effect: string;
+  readonly destroyed: boolean;
+}
+
+export interface IPSRTriggeredPayload {
+  readonly unitId: string;
+  readonly reason: string;
+  readonly additionalModifier: number;
+  readonly triggerSource: string;
+}
+
+export interface IPSRResolvedPayload {
+  readonly unitId: string;
+  readonly targetNumber: number;
+  readonly roll: number;
+  readonly modifiers: number;
+  readonly passed: boolean;
+  readonly reason: string;
+}
+
+export interface IUnitFellPayload {
+  readonly unitId: string;
+  readonly fallDamage: number;
+  readonly newFacing: Facing;
+  readonly pilotDamage: number;
+}
+
+export interface IPhysicalAttackDeclaredPayload {
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push';
+  readonly toHitNumber: number;
+}
+
+export interface IPhysicalAttackResolvedPayload {
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly attackType: 'punch' | 'kick' | 'charge' | 'dfa' | 'push';
+  readonly roll: number;
+  readonly toHitNumber: number;
+  readonly hit: boolean;
+  readonly damage?: number;
+  readonly location?: string;
+}
+
+export interface IShutdownCheckPayload {
+  readonly unitId: string;
+  readonly heatLevel: number;
+  readonly targetNumber: number;
+  readonly roll: number;
+  readonly shutdownOccurred: boolean;
+}
+
+export interface IStartupAttemptPayload {
+  readonly unitId: string;
+  readonly targetNumber: number;
+  readonly roll: number;
+  readonly success: boolean;
+}
+
+export interface IAmmoConsumedPayload {
+  readonly unitId: string;
+  readonly binId: string;
+  readonly weaponType: string;
+  readonly roundsConsumed: number;
+  readonly roundsRemaining: number;
+}
+
 /**
  * Union type for all event payloads.
  */
@@ -393,7 +484,16 @@ export type GameEventPayload =
   | IDamageAppliedPayload
   | IHeatPayload
   | IPilotHitPayload
-  | IUnitDestroyedPayload;
+  | IUnitDestroyedPayload
+  | ICriticalHitResolvedPayload
+  | IPSRTriggeredPayload
+  | IPSRResolvedPayload
+  | IUnitFellPayload
+  | IPhysicalAttackDeclaredPayload
+  | IPhysicalAttackResolvedPayload
+  | IShutdownCheckPayload
+  | IStartupAttemptPayload
+  | IAmmoConsumedPayload;
 
 /**
  * Complete game event with payload.
@@ -443,6 +543,69 @@ export interface IGameUnit {
 }
 
 // =============================================================================
+// Component Damage & Combat State Types
+// =============================================================================
+
+/**
+ * Tracks component damage for a unit.
+ * Each field directly maps to combat mechanics (to-hit modifiers, PSR triggers, heat effects).
+ *
+ * @see design.md D4: Component Damage as Typed State, Not Strings
+ */
+export interface IComponentDamageState {
+  /** Engine critical hits: 0-3 (3 = destroyed). Each hit adds +5 heat/turn. */
+  readonly engineHits: number;
+  /** Gyro critical hits: 0-2 (2 = destroyed for standard gyro). Each hit adds +3 PSR modifier. */
+  readonly gyroHits: number;
+  /** Sensor critical hits: 0-2. Each hit adds +1/+2 to-hit penalty. */
+  readonly sensorHits: number;
+  /** Life support hits: 0-2. Enables pilot heat damage when damaged. */
+  readonly lifeSupport: number;
+  /** Cockpit destroyed = pilot killed. */
+  readonly cockpitHit: boolean;
+  /** Actuator destruction state per actuator type. */
+  readonly actuators: Partial<Record<ActuatorType, boolean>>;
+  /** IDs of destroyed weapons. */
+  readonly weaponsDestroyed: readonly string[];
+  /** Number of heat sinks destroyed (reduces dissipation by 1 single / 2 double each). */
+  readonly heatSinksDestroyed: number;
+  /** Number of jump jets destroyed (reduces max jump MP by 1 each). */
+  readonly jumpJetsDestroyed: number;
+}
+
+/**
+ * State of a single ammo bin during gameplay.
+ */
+export interface IAmmoSlotState {
+  /** Unique bin identifier */
+  readonly binId: string;
+  /** Weapon type this ammo feeds */
+  readonly weaponType: string;
+  /** Location of the ammo bin */
+  readonly location: string;
+  /** Rounds remaining */
+  readonly remainingRounds: number;
+  /** Maximum rounds capacity */
+  readonly maxRounds: number;
+  /** Whether this ammo is explosive (for CASE interactions) */
+  readonly isExplosive: boolean;
+}
+
+/**
+ * A pending Piloting Skill Roll that must be resolved.
+ */
+export interface IPendingPSR {
+  /** Entity/unit that must make the roll */
+  readonly entityId: string;
+  /** Human-readable reason for the PSR */
+  readonly reason: string;
+  /** Additional modifier to the piloting skill roll */
+  readonly additionalModifier: number;
+  /** What triggered this PSR */
+  readonly triggerSource: string;
+}
+
+// =============================================================================
 // Game State
 // =============================================================================
 
@@ -486,6 +649,18 @@ export interface IUnitGameState {
   readonly pendingAction?: unknown;
   /** Cumulative damage taken this phase (for 20+ damage PSR trigger) */
   readonly damageThisPhase?: number;
+  /** Component damage tracking (engine, gyro, sensors, actuators, etc.) */
+  readonly componentDamage?: IComponentDamageState;
+  /** Unit is prone (fallen) */
+  readonly prone?: boolean;
+  /** Unit is shut down (reactor offline) */
+  readonly shutdown?: boolean;
+  /** Ammo bin state tracking */
+  readonly ammoState?: Record<string, IAmmoSlotState>;
+  /** Pending piloting skill rolls to resolve */
+  readonly pendingPSRs?: readonly IPendingPSR[];
+  /** Weapon IDs fired this turn (for physical attack restrictions) */
+  readonly weaponsFiredThisTurn?: readonly string[];
 }
 
 /**
