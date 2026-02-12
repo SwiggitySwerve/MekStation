@@ -9,6 +9,8 @@ import {
   IUnitGameState,
   IGameEvent,
   LockState,
+  IComponentDamageState,
+  RangeBracket,
 } from '@/types/gameplay';
 import {
   Facing,
@@ -18,13 +20,27 @@ import {
   IHex,
   IMovementCapability,
 } from '@/types/gameplay';
-import { CombatLocation } from '@/types/gameplay';
+import { CombatLocation, IAttackerState, ITargetState } from '@/types/gameplay';
 import { resolveDamage, IUnitDamageState } from '@/utils/gameplay/damage';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import {
-  determineHitLocationFromRoll,
+  determineHitLocation,
   isHeadHit,
+  D6Roller,
 } from '@/utils/gameplay/hitLocation';
+import { hexDistance } from '@/utils/gameplay/hexMath';
+import {
+  chooseBestPhysicalAttack,
+  resolvePhysicalAttack,
+  IPhysicalAttackInput,
+} from '@/utils/gameplay/physicalAttacks';
+import {
+  resolveAllPSRs,
+  createDamagePSR,
+  createKickedPSR,
+  IPSRBatchResult,
+} from '@/utils/gameplay/pilotingSkillRolls';
+import { calculateToHit } from '@/utils/gameplay/toHit';
 
 import type { IAIUnitState, IWeapon } from '../ai/types';
 import type { BattleState as AnomalyBattleState } from '../detectors/HeatSuicideDetector';
@@ -44,6 +60,39 @@ import { IViolation } from '../invariants/types';
 import { ISimulationRunResult, IDetectorConfig } from './types';
 
 const MAX_TURNS = 10;
+
+/** Default tonnage for simulation minimal units */
+const DEFAULT_TONNAGE = 65;
+/** Default piloting skill */
+const DEFAULT_PILOTING = 5;
+
+/** Default component damage state (no damage) */
+const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
+  engineHits: 0,
+  gyroHits: 0,
+  sensorHits: 0,
+  lifeSupport: 0,
+  cockpitHit: false,
+  actuators: {},
+  weaponsDestroyed: [],
+  heatSinksDestroyed: 0,
+  jumpJetsDestroyed: 0,
+};
+
+/**
+ * Determine range bracket from weapon ranges and distance.
+ */
+function getRangeBracket(
+  distance: number,
+  shortRange: number,
+  mediumRange: number,
+  longRange: number,
+): RangeBracket {
+  if (distance <= shortRange) return RangeBracket.Short;
+  if (distance <= mediumRange) return RangeBracket.Medium;
+  if (distance <= longRange) return RangeBracket.Long;
+  return RangeBracket.OutOfRange;
+}
 
 function createMinimalGrid(radius: number): IHexGrid {
   const hexes = new Map<string, IHex>();
@@ -123,6 +172,12 @@ function createMinimalUnitState(
     pilotConscious: true,
     destroyed: false,
     lockState: LockState.Pending,
+    componentDamage: DEFAULT_COMPONENT_DAMAGE,
+    prone: false,
+    shutdown: false,
+    pendingPSRs: [],
+    damageThisPhase: 0,
+    weaponsFiredThisTurn: [],
   };
 }
 
@@ -180,8 +235,15 @@ export class SimulationRunner {
     };
   }
 
+  private createD6Roller(): D6Roller {
+    return () => Math.floor(this.random.next() * 6) + 1;
+  }
+
   /**
    * Runs a single simulation with integrated anomaly and key-moment detection.
+   *
+   * Phase order per turn: Initiative -> Movement -> WeaponAttack -> PSR ->
+   * PhysicalAttack -> PSR -> Heat -> End
    *
    * Detectors are run after the game loop on the full event stream.
    * When `haltOnCritical` is enabled, the StateCycleDetector is checked
@@ -206,7 +268,9 @@ export class SimulationRunner {
 
     while (turn <= turnLimit) {
       currentState = { ...currentState, turn };
+      currentState = this.resetTurnState(currentState);
 
+      // Movement Phase
       currentState = this.runMovementPhase(
         currentState,
         botPlayer,
@@ -218,6 +282,7 @@ export class SimulationRunner {
       );
       eventSequence = events.length;
 
+      // Weapon Attack Phase
       currentState = this.runAttackPhase(
         currentState,
         botPlayer,
@@ -228,9 +293,33 @@ export class SimulationRunner {
       );
       eventSequence = events.length;
 
+      // PSR Resolution (post-weapon-attack)
+      currentState = this.runPSRPhase(currentState, events, gameId);
+      eventSequence = events.length;
+
       if (this.isGameOver(currentState)) {
         break;
       }
+
+      // Physical Attack Phase
+      currentState = this.runPhysicalAttackPhase(
+        currentState,
+        violations,
+        events,
+        gameId,
+      );
+      eventSequence = events.length;
+
+      // PSR Resolution (post-physical-attack)
+      currentState = this.runPSRPhase(currentState, events, gameId);
+      eventSequence = events.length;
+
+      if (this.isGameOver(currentState)) {
+        break;
+      }
+
+      // Heat Phase
+      currentState = this.runHeatPhase(currentState);
 
       currentState = { ...currentState, phase: GamePhase.End };
       violations.push(...this.invariantRunner.runAll(currentState));
@@ -455,6 +544,19 @@ export class SimulationRunner {
     return currentState;
   }
 
+  private resetTurnState(state: IGameState): IGameState {
+    const updatedUnits: Record<string, IUnitGameState> = {};
+    for (const [id, unit] of Object.entries(state.units)) {
+      updatedUnits[id] = {
+        ...unit,
+        damageThisPhase: 0,
+        weaponsFiredThisTurn: [],
+        pendingPSRs: [],
+      };
+    }
+    return { ...state, units: updatedUnits };
+  }
+
   private runAttackPhase(
     state: IGameState,
     botPlayer: BotPlayer,
@@ -466,10 +568,12 @@ export class SimulationRunner {
     let currentState = { ...state, phase: GamePhase.WeaponAttack };
     violations.push(...this.invariantRunner.runAll(currentState));
 
+    const d6Roller = this.createD6Roller();
+
     const allAIUnits = Object.values(currentState.units).map(toAIUnitState);
     for (const unitId of Object.keys(currentState.units)) {
       const unit = currentState.units[unitId];
-      if (unit.destroyed) continue;
+      if (unit.destroyed || unit.shutdown) continue;
 
       const aiUnit = toAIUnitState(unit);
       const enemyUnits = allAIUnits.filter(
@@ -479,17 +583,103 @@ export class SimulationRunner {
       const attackEvent = botPlayer.playAttackPhase(aiUnit, enemyUnits);
 
       if (attackEvent) {
-        const targetBefore = currentState.units[attackEvent.payload.targetId];
-        const weaponDamage = 5;
-        currentState = this.applyDamageResult(
-          currentState,
-          attackEvent.payload.targetId,
-          unit,
-          weaponDamage,
-        );
-        const targetAfter = currentState.units[attackEvent.payload.targetId];
+        const targetId = attackEvent.payload.targetId;
+        const target = currentState.units[targetId];
+        if (!target || target.destroyed) continue;
 
-        if (targetBefore && targetAfter) {
+        const weapon = createMinimalWeapon(`${unitId}-weapon-1`);
+        const distance = hexDistance(unit.position, target.position);
+        const rangeBracket = getRangeBracket(
+          distance,
+          weapon.shortRange,
+          weapon.mediumRange,
+          weapon.longRange,
+        );
+
+        if (rangeBracket === RangeBracket.OutOfRange) continue;
+
+        const attackerState: IAttackerState = {
+          gunnery: 4,
+          movementType: unit.movementThisTurn,
+          heat: unit.heat,
+          damageModifiers: [],
+        };
+        const targetState: ITargetState = {
+          movementType: target.movementThisTurn,
+          hexesMoved: target.hexesMovedThisTurn,
+          prone: target.prone ?? false,
+          immobile: target.shutdown ?? false,
+          partialCover: false,
+        };
+
+        const toHitCalc = calculateToHit(
+          attackerState,
+          targetState,
+          rangeBracket,
+          distance,
+          weapon.minRange,
+        );
+
+        const die1 = d6Roller();
+        const die2 = d6Roller();
+        const attackRoll = die1 + die2;
+        const hit = attackRoll >= toHitCalc.finalToHit;
+
+        if (hit) {
+          const firingArc = calculateFiringArc(
+            unit.position,
+            target.position,
+            target.facing,
+          );
+          const hitLocationResult = determineHitLocation(firingArc, d6Roller);
+          const location = hitLocationResult.location;
+
+          let damage = weapon.damage;
+          if (isHeadHit(location) && damage > 3) {
+            damage = 3;
+          }
+
+          const targetBefore = currentState.units[targetId];
+          const damageState = this.buildDamageState(targetBefore);
+          const result = resolveDamage(damageState, location, damage);
+
+          currentState = this.applyDamageResultToState(
+            currentState,
+            targetId,
+            result.state,
+            result.result,
+          );
+          const targetAfter = currentState.units[targetId];
+
+          // Track damage this phase for 20+ PSR
+          const prevDamage = targetAfter.damageThisPhase ?? 0;
+          currentState = {
+            ...currentState,
+            units: {
+              ...currentState.units,
+              [targetId]: {
+                ...targetAfter,
+                damageThisPhase: prevDamage + damage,
+              },
+            },
+          };
+
+          // Record weapons fired
+          const attackerAfter = currentState.units[unitId];
+          currentState = {
+            ...currentState,
+            units: {
+              ...currentState.units,
+              [unitId]: {
+                ...attackerAfter,
+                weaponsFiredThisTurn: [
+                  ...(attackerAfter.weaponsFiredThisTurn ?? []),
+                  weapon.id,
+                ],
+              },
+            },
+          };
+
           events.push(
             this.createGameEvent(
               gameId,
@@ -498,19 +688,26 @@ export class SimulationRunner {
               currentState.turn,
               GamePhase.WeaponAttack,
               {
-                unitId: attackEvent.payload.targetId,
-                location: 'center_torso',
-                damage: weaponDamage,
-                armorRemaining: targetAfter.armor.center_torso ?? 0,
-                structureRemaining: targetAfter.structure.center_torso ?? 0,
-                locationDestroyed: false,
+                unitId: targetId,
+                location,
+                damage,
+                armorRemaining:
+                  currentState.units[targetId].armor[location] ?? 0,
+                structureRemaining:
+                  currentState.units[targetId].structure[location] ?? 0,
+                locationDestroyed: (
+                  currentState.units[targetId].destroyedLocations as string[]
+                ).includes(location),
                 sourceUnitId: unitId,
               },
               unitId,
             ),
           );
 
-          if (targetAfter.destroyed && !targetBefore.destroyed) {
+          if (
+            currentState.units[targetId].destroyed &&
+            !targetBefore.destroyed
+          ) {
             events.push(
               this.createGameEvent(
                 gameId,
@@ -519,17 +716,399 @@ export class SimulationRunner {
                 currentState.turn,
                 GamePhase.WeaponAttack,
                 {
-                  unitId: attackEvent.payload.targetId,
+                  unitId: targetId,
                   cause: 'damage' as const,
                   killerUnitId: unitId,
                 },
               ),
             );
           }
+
+          // 20+ damage PSR trigger
+          const targetPostDamage = currentState.units[targetId];
+          if (
+            !targetPostDamage.destroyed &&
+            (targetPostDamage.damageThisPhase ?? 0) >= 20
+          ) {
+            const existingPSRs = targetPostDamage.pendingPSRs ?? [];
+            const hasDamagePSR = existingPSRs.some(
+              (p) => p.triggerSource === '20+_damage',
+            );
+            if (!hasDamagePSR) {
+              currentState = {
+                ...currentState,
+                units: {
+                  ...currentState.units,
+                  [targetId]: {
+                    ...targetPostDamage,
+                    pendingPSRs: [
+                      ...existingPSRs,
+                      createDamagePSR(targetId),
+                    ],
+                  },
+                },
+              };
+            }
+          }
         }
       }
     }
     violations.push(...this.invariantRunner.runAll(currentState));
+
+    return currentState;
+  }
+
+  private runPhysicalAttackPhase(
+    state: IGameState,
+    violations: IViolation[],
+    events: IGameEvent[],
+    gameId: string,
+  ): IGameState {
+    let currentState = { ...state, phase: GamePhase.PhysicalAttack };
+    violations.push(...this.invariantRunner.runAll(currentState));
+
+    const d6Roller = this.createD6Roller();
+
+    for (const unitId of Object.keys(currentState.units)) {
+      const unit = currentState.units[unitId];
+      if (unit.destroyed || unit.shutdown || (unit.prone ?? false)) continue;
+
+      const enemies = Object.values(currentState.units).filter(
+        (u) =>
+          !u.destroyed &&
+          u.side !== unit.side &&
+          hexDistance(unit.position, u.position) <= 1,
+      );
+      if (enemies.length === 0) continue;
+
+      const componentDamage = unit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE;
+      const weaponsFired = unit.weaponsFiredThisTurn ?? [];
+
+      const bestAttack = chooseBestPhysicalAttack(
+        DEFAULT_TONNAGE,
+        DEFAULT_PILOTING,
+        componentDamage,
+        {
+          attackerProne: unit.prone ?? false,
+          weaponsFiredFromLeftArm: weaponsFired,
+          weaponsFiredFromRightArm: weaponsFired,
+          heat: unit.heat,
+        },
+      );
+
+      if (!bestAttack) continue;
+      if (bestAttack !== 'punch' && bestAttack !== 'kick') continue;
+
+      const targetIdx = this.random.nextInt(enemies.length);
+      const target = enemies[targetIdx];
+
+      const attackInput: IPhysicalAttackInput = {
+        attackerTonnage: DEFAULT_TONNAGE,
+        pilotingSkill: DEFAULT_PILOTING,
+        componentDamage,
+        attackType: bestAttack,
+        arm: 'right',
+        attackerProne: unit.prone ?? false,
+        weaponsFiredFromArm: bestAttack === 'punch' ? weaponsFired : undefined,
+        heat: unit.heat,
+      };
+
+      const result = resolvePhysicalAttack(attackInput, d6Roller);
+
+      events.push(
+        this.createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.PhysicalAttackDeclared,
+          currentState.turn,
+          GamePhase.PhysicalAttack,
+          {
+            attackerId: unitId,
+            targetId: target.id,
+            attackType: bestAttack,
+            toHitNumber: result.toHitNumber,
+          },
+          unitId,
+        ),
+      );
+
+      if (result.hit && result.targetDamage > 0 && result.hitLocation) {
+        const targetBefore = currentState.units[target.id];
+        const damageState = this.buildDamageState(targetBefore);
+
+        let damage = result.targetDamage;
+        if (isHeadHit(result.hitLocation) && damage > 3) {
+          damage = 3;
+        }
+
+        const dmgResult = resolveDamage(
+          damageState,
+          result.hitLocation,
+          damage,
+        );
+        currentState = this.applyDamageResultToState(
+          currentState,
+          target.id,
+          dmgResult.state,
+          dmgResult.result,
+        );
+        const targetAfter = currentState.units[target.id];
+
+        events.push(
+          this.createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.DamageApplied,
+            currentState.turn,
+            GamePhase.PhysicalAttack,
+            {
+              unitId: target.id,
+              location: result.hitLocation,
+              damage,
+              armorRemaining: targetAfter.armor[result.hitLocation] ?? 0,
+              structureRemaining:
+                targetAfter.structure[result.hitLocation] ?? 0,
+              locationDestroyed: (
+                targetAfter.destroyedLocations as string[]
+              ).includes(result.hitLocation),
+              sourceUnitId: unitId,
+            },
+            unitId,
+          ),
+        );
+
+        if (targetAfter.destroyed && !targetBefore.destroyed) {
+          events.push(
+            this.createGameEvent(
+              gameId,
+              events.length,
+              GameEventType.UnitDestroyed,
+              currentState.turn,
+              GamePhase.PhysicalAttack,
+              {
+                unitId: target.id,
+                cause: 'damage' as const,
+                killerUnitId: unitId,
+              },
+            ),
+          );
+        }
+
+        if (result.targetPSR && !targetAfter.destroyed) {
+          const existingPSRs =
+            currentState.units[target.id].pendingPSRs ?? [];
+          currentState = {
+            ...currentState,
+            units: {
+              ...currentState.units,
+              [target.id]: {
+                ...currentState.units[target.id],
+                pendingPSRs: [...existingPSRs, createKickedPSR(target.id)],
+              },
+            },
+          };
+        }
+      }
+
+      if (!result.hit && result.attackerPSR) {
+        const attackerUnit = currentState.units[unitId];
+        const existingPSRs = attackerUnit.pendingPSRs ?? [];
+        currentState = {
+          ...currentState,
+          units: {
+            ...currentState.units,
+            [unitId]: {
+              ...attackerUnit,
+              pendingPSRs: [
+                ...existingPSRs,
+                {
+                  entityId: unitId,
+                  reason: `${bestAttack} missed`,
+                  additionalModifier: result.attackerPSRModifier,
+                  triggerSource: `${bestAttack}_miss`,
+                },
+              ],
+            },
+          },
+        };
+      }
+
+      events.push(
+        this.createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.PhysicalAttackResolved,
+          currentState.turn,
+          GamePhase.PhysicalAttack,
+          {
+            attackerId: unitId,
+            targetId: target.id,
+            attackType: bestAttack,
+            toHitNumber: result.toHitNumber,
+            hit: result.hit,
+            damage: result.targetDamage,
+            roll: result.roll,
+          },
+          unitId,
+        ),
+      );
+    }
+    violations.push(...this.invariantRunner.runAll(currentState));
+
+    return currentState;
+  }
+
+  private runPSRPhase(
+    state: IGameState,
+    events: IGameEvent[],
+    gameId: string,
+  ): IGameState {
+    let currentState = state;
+    const d6Roller = this.createD6Roller();
+
+    for (const unitId of Object.keys(currentState.units)) {
+      const unit = currentState.units[unitId];
+      if (unit.destroyed) continue;
+
+      const pendingPSRs = unit.pendingPSRs ?? [];
+      if (pendingPSRs.length === 0) continue;
+
+      const componentDamage = unit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE;
+
+      const batchResult: IPSRBatchResult = resolveAllPSRs(
+        DEFAULT_PILOTING,
+        pendingPSRs,
+        componentDamage,
+        unit.pilotWounds,
+        d6Roller,
+      );
+
+      for (const psrResult of batchResult.results) {
+        events.push(
+          this.createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.PSRResolved,
+            currentState.turn,
+            currentState.phase,
+            {
+              unitId,
+              reason: psrResult.psr.reason,
+              targetNumber: psrResult.targetNumber,
+              roll: psrResult.roll,
+              passed: psrResult.passed,
+            },
+            unitId,
+          ),
+        );
+      }
+
+      if (batchResult.unitFell) {
+        const currentUnit = currentState.units[unitId];
+        const newPilotWounds = currentUnit.pilotWounds + 1;
+        const pilotConscious =
+          newPilotWounds < 6 && currentUnit.pilotConscious;
+
+        currentState = {
+          ...currentState,
+          units: {
+            ...currentState.units,
+            [unitId]: {
+              ...currentUnit,
+              prone: true,
+              pilotWounds: newPilotWounds,
+              pilotConscious,
+              destroyed: !pilotConscious ? true : currentUnit.destroyed,
+              pendingPSRs: [],
+            },
+          },
+        };
+
+        events.push(
+          this.createGameEvent(
+            gameId,
+            events.length,
+            GameEventType.UnitFell,
+            currentState.turn,
+            currentState.phase,
+            {
+              unitId,
+              pilotDamage: 1,
+            },
+            unitId,
+          ),
+        );
+
+        if (!pilotConscious && !currentUnit.destroyed) {
+          events.push(
+            this.createGameEvent(
+              gameId,
+              events.length,
+              GameEventType.UnitDestroyed,
+              currentState.turn,
+              currentState.phase,
+              {
+                unitId,
+                cause: 'pilot_death' as const,
+              },
+            ),
+          );
+        }
+      } else {
+        currentState = {
+          ...currentState,
+          units: {
+            ...currentState.units,
+            [unitId]: {
+              ...currentState.units[unitId],
+              pendingPSRs: [],
+            },
+          },
+        };
+      }
+    }
+
+    return currentState;
+  }
+
+  private runHeatPhase(state: IGameState): IGameState {
+    let currentState = { ...state, phase: GamePhase.Heat };
+    const baseHeatSinks = 10;
+
+    for (const unitId of Object.keys(currentState.units)) {
+      const unit = currentState.units[unitId];
+      if (unit.destroyed) continue;
+
+      const weaponsFired = unit.weaponsFiredThisTurn ?? [];
+      const weaponHeat = weaponsFired.length * 3;
+
+      let movementHeat = 0;
+      if (unit.movementThisTurn === MovementType.Walk) movementHeat = 1;
+      else if (unit.movementThisTurn === MovementType.Run) movementHeat = 2;
+      else if (unit.movementThisTurn === MovementType.Jump) movementHeat = 3;
+
+      const componentDamage = unit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE;
+      const engineHeat = componentDamage.engineHits * 5;
+
+      const heatSinksLost = componentDamage.heatSinksDestroyed ?? 0;
+      const dissipation = Math.max(0, baseHeatSinks - heatSinksLost);
+
+      const newHeat = Math.max(
+        0,
+        unit.heat + weaponHeat + movementHeat + engineHeat - dissipation,
+      );
+
+      currentState = {
+        ...currentState,
+        units: {
+          ...currentState.units,
+          [unitId]: {
+            ...unit,
+            heat: newHeat,
+          },
+        },
+      };
+    }
 
     return currentState;
   }
@@ -626,48 +1205,28 @@ export class SimulationRunner {
     };
   }
 
-  private applyDamageResult(
+  private applyDamageResultToState(
     state: IGameState,
     targetId: string,
-    attackerUnit: IUnitGameState,
-    weaponDamage: number,
+    damageState: IUnitDamageState,
+    damageResult: {
+      readonly locationDamages: readonly {
+        readonly location: CombatLocation;
+        readonly armorRemaining: number;
+        readonly structureRemaining: number;
+        readonly destroyed: boolean;
+      }[];
+      readonly unitDestroyed: boolean;
+    },
   ): IGameState {
     const target = state.units[targetId];
-    if (!target || target.destroyed) return state;
-
-    const firingArc = calculateFiringArc(
-      attackerUnit.position,
-      target.position,
-      target.facing,
-    );
-
-    const die1 = Math.floor(this.random.next() * 6) + 1;
-    const die2 = Math.floor(this.random.next() * 6) + 1;
-    const locationRoll = {
-      dice: [die1, die2] as readonly number[],
-      total: die1 + die2,
-      isSnakeEyes: die1 + die2 === 2,
-      isBoxcars: die1 + die2 === 12,
-    };
-    const hitLocationResult = determineHitLocationFromRoll(
-      firingArc,
-      locationRoll,
-    );
-    const location = hitLocationResult.location;
-
-    let damage = weaponDamage;
-    if (isHeadHit(location) && damage > 3) {
-      damage = 3;
-    }
-
-    const damageState = this.buildDamageState(target);
-    const result = resolveDamage(damageState, location, damage);
+    if (!target) return state;
 
     const newArmor = { ...target.armor };
     const newStructure = { ...target.structure };
     const newDestroyedLocations = [...target.destroyedLocations];
 
-    for (const locDamage of result.result.locationDamages) {
+    for (const locDamage of damageResult.locationDamages) {
       newArmor[locDamage.location] = locDamage.armorRemaining;
       newStructure[locDamage.location] = locDamage.structureRemaining;
       if (
@@ -675,7 +1234,6 @@ export class SimulationRunner {
         !newDestroyedLocations.includes(locDamage.location)
       ) {
         newDestroyedLocations.push(locDamage.location);
-        // Cascading: side torso destruction → arm destruction
         if (
           locDamage.location === 'left_torso' &&
           !newDestroyedLocations.includes('left_arm')
@@ -700,9 +1258,9 @@ export class SimulationRunner {
       armor: newArmor,
       structure: newStructure,
       destroyedLocations: newDestroyedLocations,
-      pilotWounds: result.state.pilotWounds,
-      pilotConscious: result.state.pilotConscious,
-      destroyed: result.result.unitDestroyed,
+      pilotWounds: damageState.pilotWounds,
+      pilotConscious: damageState.pilotConscious,
+      destroyed: damageResult.unitDestroyed,
     };
 
     return {
@@ -714,29 +1272,33 @@ export class SimulationRunner {
     };
   }
 
+  private isUnitOperable(u: IUnitGameState): boolean {
+    return !u.destroyed && u.pilotConscious !== false;
+  }
+
   private isGameOver(state: IGameState): boolean {
-    const playerUnits = Object.values(state.units).filter(
-      (u) => u.side === GameSide.Player && !u.destroyed,
+    const playerAlive = Object.values(state.units).some(
+      (u) => u.side === GameSide.Player && this.isUnitOperable(u),
     );
-    const opponentUnits = Object.values(state.units).filter(
-      (u) => u.side === GameSide.Opponent && !u.destroyed,
+    const opponentAlive = Object.values(state.units).some(
+      (u) => u.side === GameSide.Opponent && this.isUnitOperable(u),
     );
-    return playerUnits.length === 0 || opponentUnits.length === 0;
+    return !playerAlive || !opponentAlive;
   }
 
   private determineWinner(
     state: IGameState,
   ): 'player' | 'opponent' | 'draw' | null {
-    const playerUnits = Object.values(state.units).filter(
-      (u) => u.side === GameSide.Player && !u.destroyed,
+    const playerAlive = Object.values(state.units).some(
+      (u) => u.side === GameSide.Player && this.isUnitOperable(u),
     );
-    const opponentUnits = Object.values(state.units).filter(
-      (u) => u.side === GameSide.Opponent && !u.destroyed,
+    const opponentAlive = Object.values(state.units).some(
+      (u) => u.side === GameSide.Opponent && this.isUnitOperable(u),
     );
 
-    if (playerUnits.length === 0 && opponentUnits.length === 0) return 'draw';
-    if (playerUnits.length === 0) return 'opponent';
-    if (opponentUnits.length === 0) return 'player';
+    if (!playerAlive && !opponentAlive) return 'draw';
+    if (!playerAlive) return 'opponent';
+    if (!opponentAlive) return 'player';
     return null;
   }
 }
