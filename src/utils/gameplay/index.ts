@@ -84,3 +84,4 @@ export * from './hitLocation';
 export * from './damage';
 export * from './clusterWeapons';
 export * from './specialWeaponMechanics';
+export * from './electronicWarfare';
