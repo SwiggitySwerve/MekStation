@@ -94,19 +94,19 @@
 
 ## 7. Heat System Overhaul
 
-- [ ] 7.1 Consolidate heat thresholds into single source `constants/heat.ts` — delete wrong tables from `toHit.ts` and `HeatManagement.ts`
-- [ ] 7.2 Implement canonical to-hit penalties: cumulative +1 at heat 8, 13, 17, 24
-- [ ] 7.3 Implement heat movement penalties: `floor(heat/5)` MP reduction, apply in movement validation
-- [ ] 7.4 Implement shutdown checks in `resolveHeatPhase()` — heat ≥14, roll 2d6 vs `4+floor((heat-14)/4)*2`
-- [ ] 7.5 Implement automatic shutdown at heat ≥30 — no roll, immediate shutdown
-- [ ] 7.6 Implement shutdown state effects — unit cannot move/fire/act, can be targeted normally
-- [ ] 7.7 Implement PSR at TN 3 on shutdown (fall risk)
-- [ ] 7.8 Implement startup rolls at beginning of turn — same TN formula as shutdown
-- [ ] 7.9 Implement engine hit heat generation — +5 heat per engine critical hit per turn
-- [ ] 7.10 Implement heat-induced ammo explosion checks — heat ≥19: TN4, ≥23: TN6, ≥28: TN8, roll 2d6 ≥ TN to avoid
-- [ ] 7.11 Implement pilot heat damage — 1 point at heat 15-24, 2 points at heat 25+, requires life support damage
-- [ ] 7.12 Implement Hot Dog SPA interaction — +3 to shutdown threshold
-- [ ] 7.13 Write tests for all heat thresholds, shutdown/startup, ammo explosion checks, pilot damage
+- [x] 7.1 Consolidate heat thresholds into single source `constants/heat.ts` — delete wrong tables from `toHit.ts` and `HeatManagement.ts`
+- [x] 7.2 Implement canonical to-hit penalties: cumulative +1 at heat 8, 13, 17, 24
+- [x] 7.3 Implement heat movement penalties: `floor(heat/5)` MP reduction, apply in movement validation
+- [x] 7.4 Implement shutdown checks in `resolveHeatPhase()` — heat ≥14, roll 2d6 vs `4+floor((heat-14)/4)*2`
+- [x] 7.5 Implement automatic shutdown at heat ≥30 — no roll, immediate shutdown
+- [x] 7.6 Implement shutdown state effects — unit cannot move/fire/act, can be targeted normally
+- [x] 7.7 Implement PSR at TN 3 on shutdown (fall risk)
+- [x] 7.8 Implement startup rolls at beginning of turn — same TN formula as shutdown
+- [x] 7.9 Implement engine hit heat generation — +5 heat per engine critical hit per turn
+- [x] 7.10 Implement heat-induced ammo explosion checks — heat ≥19: TN4, ≥23: TN6, ≥28: TN8, roll 2d6 ≥ TN to avoid
+- [x] 7.11 Implement pilot heat damage — 1 point at heat 15-24, 2 points at heat 25+, requires life support damage
+- [x] 7.12 Implement Hot Dog SPA interaction — +3 to shutdown threshold
+- [x] 7.13 Write tests for all heat thresholds, shutdown/startup, ammo explosion checks, pilot damage
 
 ## 8. Piloting Skill Rolls & Fall Mechanics
 
