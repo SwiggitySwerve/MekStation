@@ -18,6 +18,13 @@ import {
   IHex,
   IMovementCapability,
 } from '@/types/gameplay';
+import { CombatLocation } from '@/types/gameplay';
+import { resolveDamage, IUnitDamageState } from '@/utils/gameplay/damage';
+import { calculateFiringArc } from '@/utils/gameplay/firingArc';
+import {
+  determineHitLocationFromRoll,
+  isHeadHit,
+} from '@/utils/gameplay/hitLocation';
 
 import type { IAIUnitState, IWeapon } from '../ai/types';
 import type { BattleState as AnomalyBattleState } from '../detectors/HeatSuicideDetector';
@@ -473,9 +480,12 @@ export class SimulationRunner {
 
       if (attackEvent) {
         const targetBefore = currentState.units[attackEvent.payload.targetId];
-        currentState = this.applySimpleDamage(
+        const weaponDamage = 5;
+        currentState = this.applyDamageResult(
           currentState,
           attackEvent.payload.targetId,
+          unit,
+          weaponDamage,
         );
         const targetAfter = currentState.units[attackEvent.payload.targetId];
 
@@ -490,7 +500,7 @@ export class SimulationRunner {
               {
                 unitId: attackEvent.payload.targetId,
                 location: 'center_torso',
-                damage: 5,
+                damage: weaponDamage,
                 armorRemaining: targetAfter.armor.center_torso ?? 0,
                 structureRemaining: targetAfter.structure.center_torso ?? 0,
                 locationDestroyed: false,
@@ -595,28 +605,104 @@ export class SimulationRunner {
     };
   }
 
-  private applySimpleDamage(state: IGameState, targetId: string): IGameState {
+  private buildDamageState(unit: IUnitGameState): IUnitDamageState {
+    const armorRecord = unit.armor as Record<CombatLocation, number>;
+    const rearArmor: Record<
+      'center_torso' | 'left_torso' | 'right_torso',
+      number
+    > = {
+      center_torso: armorRecord.center_torso_rear ?? 10,
+      left_torso: armorRecord.left_torso_rear ?? 7,
+      right_torso: armorRecord.right_torso_rear ?? 7,
+    };
+    return {
+      armor: armorRecord,
+      rearArmor,
+      structure: unit.structure as Record<CombatLocation, number>,
+      destroyedLocations: unit.destroyedLocations as CombatLocation[],
+      pilotWounds: unit.pilotWounds,
+      pilotConscious: unit.pilotConscious,
+      destroyed: unit.destroyed,
+    };
+  }
+
+  private applyDamageResult(
+    state: IGameState,
+    targetId: string,
+    attackerUnit: IUnitGameState,
+    weaponDamage: number,
+  ): IGameState {
     const target = state.units[targetId];
     if (!target || target.destroyed) return state;
 
-    const SIMPLE_DAMAGE = 5;
-    const newArmor = { ...target.armor };
-    const ctArmor = newArmor.center_torso ?? 0;
-    newArmor.center_torso = Math.max(0, ctArmor - SIMPLE_DAMAGE);
-
-    const totalStructure = Object.values(target.structure).reduce(
-      (sum, v) => sum + v,
-      0,
+    const firingArc = calculateFiringArc(
+      attackerUnit.position,
+      target.position,
+      target.facing,
     );
-    const ctBreached =
-      newArmor.center_torso === 0 &&
-      (target.structure.center_torso ?? 0) <= SIMPLE_DAMAGE;
-    const destroyed = totalStructure <= 0 || ctBreached;
+
+    const die1 = Math.floor(this.random.next() * 6) + 1;
+    const die2 = Math.floor(this.random.next() * 6) + 1;
+    const locationRoll = {
+      dice: [die1, die2] as readonly number[],
+      total: die1 + die2,
+      isSnakeEyes: die1 + die2 === 2,
+      isBoxcars: die1 + die2 === 12,
+    };
+    const hitLocationResult = determineHitLocationFromRoll(
+      firingArc,
+      locationRoll,
+    );
+    const location = hitLocationResult.location;
+
+    let damage = weaponDamage;
+    if (isHeadHit(location) && damage > 3) {
+      damage = 3;
+    }
+
+    const damageState = this.buildDamageState(target);
+    const result = resolveDamage(damageState, location, damage);
+
+    const newArmor = { ...target.armor };
+    const newStructure = { ...target.structure };
+    const newDestroyedLocations = [...target.destroyedLocations];
+
+    for (const locDamage of result.result.locationDamages) {
+      newArmor[locDamage.location] = locDamage.armorRemaining;
+      newStructure[locDamage.location] = locDamage.structureRemaining;
+      if (
+        locDamage.destroyed &&
+        !newDestroyedLocations.includes(locDamage.location)
+      ) {
+        newDestroyedLocations.push(locDamage.location);
+        // Cascading: side torso destruction → arm destruction
+        if (
+          locDamage.location === 'left_torso' &&
+          !newDestroyedLocations.includes('left_arm')
+        ) {
+          newDestroyedLocations.push('left_arm');
+          newArmor['left_arm'] = 0;
+          newStructure['left_arm'] = 0;
+        }
+        if (
+          locDamage.location === 'right_torso' &&
+          !newDestroyedLocations.includes('right_arm')
+        ) {
+          newDestroyedLocations.push('right_arm');
+          newArmor['right_arm'] = 0;
+          newStructure['right_arm'] = 0;
+        }
+      }
+    }
 
     const updatedUnit: IUnitGameState = {
       ...target,
       armor: newArmor,
-      destroyed,
+      structure: newStructure,
+      destroyedLocations: newDestroyedLocations,
+      pilotWounds: result.state.pilotWounds,
+      pilotConscious: result.state.pilotConscious,
+      destroyed: result.result.unitDestroyed,
     };
 
     return {

@@ -223,13 +223,13 @@ function applyPhaseChanged(
   event: IGameEvent,
   payload: IPhaseChangedPayload,
 ): IGameState {
-  // Reset lock states when entering a new phase
   const units = { ...state.units };
   for (const unitId of Object.keys(units)) {
     units[unitId] = {
       ...units[unitId],
       lockState: LockState.Pending,
       pendingAction: undefined,
+      damageThisPhase: 0,
     };
   }
 
@@ -372,7 +372,19 @@ function applyAttackLocked(state: IGameState, event: IGameEvent): IGameState {
 }
 
 /**
+ * Get the arm location that corresponds to a side torso (for cascading destruction).
+ */
+function getArmForSideTorso(location: string): string | null {
+  if (location === 'left_torso' || location === 'left_torso_rear')
+    return 'left_arm';
+  if (location === 'right_torso' || location === 'right_torso_rear')
+    return 'right_arm';
+  return null;
+}
+
+/**
  * Apply DamageApplied event.
+ * Handles damage transfer chain and side torso → arm cascading destruction.
  */
 function applyDamageApplied(
   state: IGameState,
@@ -381,22 +393,40 @@ function applyDamageApplied(
   const unit = state.units[payload.unitId];
   if (!unit) return state;
 
+  const newDestroyedLocations = [...unit.destroyedLocations];
+  const newArmor = { ...unit.armor };
+  const newStructure = { ...unit.structure };
+
+  newArmor[payload.location] = payload.armorRemaining;
+  newStructure[payload.location] = payload.structureRemaining;
+
+  if (
+    payload.locationDestroyed &&
+    !newDestroyedLocations.includes(payload.location)
+  ) {
+    newDestroyedLocations.push(payload.location);
+
+    // Task 3.4: Side torso destruction cascades to arm
+    const cascadedArm = getArmForSideTorso(payload.location);
+    if (cascadedArm && !newDestroyedLocations.includes(cascadedArm)) {
+      newDestroyedLocations.push(cascadedArm);
+      newArmor[cascadedArm] = 0;
+      newStructure[cascadedArm] = 0;
+    }
+  }
+
+  // Task 3.6: Track damageThisPhase
+  const currentDamageThisPhase = unit.damageThisPhase ?? 0;
+
   const updatedUnit: IUnitGameState = {
     ...unit,
-    armor: {
-      ...unit.armor,
-      [payload.location]: payload.armorRemaining,
-    },
-    structure: {
-      ...unit.structure,
-      [payload.location]: payload.structureRemaining,
-    },
-    destroyedLocations: payload.locationDestroyed
-      ? [...unit.destroyedLocations, payload.location]
-      : unit.destroyedLocations,
+    armor: newArmor,
+    structure: newStructure,
+    destroyedLocations: newDestroyedLocations,
     destroyedEquipment: payload.criticals
       ? [...unit.destroyedEquipment, ...payload.criticals]
       : unit.destroyedEquipment,
+    damageThisPhase: currentDamageThisPhase + payload.damage,
   };
 
   return {

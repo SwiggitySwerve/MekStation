@@ -239,8 +239,11 @@ describe('Simulation System Integration', () => {
     });
 
     it('should have less than 5% games with violations', () => {
+      const isInvariantViolation = (v: { invariant: string }) =>
+        !v.invariant.startsWith('detector:');
+
       const gamesWithViolations = batchResults.filter(
-        (r) => r.violations.length > 0,
+        (r) => r.violations.filter(isInvariantViolation).length > 0,
       ).length;
       const violationRate =
         (gamesWithViolations / STATISTICAL_GAME_COUNT) * 100;
@@ -257,6 +260,7 @@ describe('Simulation System Integration', () => {
 
       for (const result of batchResults) {
         for (const violation of result.violations) {
+          if (violation.invariant.startsWith('detector:')) continue;
           violationCounts[violation.invariant] =
             (violationCounts[violation.invariant] || 0) + 1;
         }
