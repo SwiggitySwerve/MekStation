@@ -128,23 +128,23 @@ describe('To-Hit Calculation', () => {
   });
 
   describe('calculateHeatModifier', () => {
-    it('should return 0 for low heat (0-4)', () => {
+    it('should return 0 for low heat (0-7)', () => {
       expect(calculateHeatModifier(0).value).toBe(0);
-      expect(calculateHeatModifier(4).value).toBe(0);
+      expect(calculateHeatModifier(7).value).toBe(0);
     });
 
-    it('should return 1 for heat 5-7', () => {
-      expect(calculateHeatModifier(5).value).toBe(1);
-      expect(calculateHeatModifier(7).value).toBe(1);
+    it('should return 1 for heat 8-12', () => {
+      expect(calculateHeatModifier(8).value).toBe(1);
+      expect(calculateHeatModifier(12).value).toBe(1);
     });
 
-    it('should return 2 for heat 8-12', () => {
-      expect(calculateHeatModifier(8).value).toBe(2);
-      expect(calculateHeatModifier(12).value).toBe(2);
+    it('should return 2 for heat 13-16', () => {
+      expect(calculateHeatModifier(13).value).toBe(2);
+      expect(calculateHeatModifier(16).value).toBe(2);
     });
 
-    it('should return 3 for heat 13+', () => {
-      expect(calculateHeatModifier(13).value).toBe(3);
+    it('should return 3 for heat 17-23', () => {
+      expect(calculateHeatModifier(17).value).toBe(3);
       expect(calculateHeatModifier(20).value).toBe(3);
     });
   });
@@ -183,7 +183,7 @@ describe('To-Hit Calculation', () => {
         5,
         8,
       );
-      // 4 (gunnery) + 2 (medium) + 2 (run) + 1 (TMM for 5 hexes) + 2 (heat 8) = 11
+      // 4 (gunnery) + 2 (medium) + 2 (run) + 2 (TMM for 5 hexes → bracket 5-6) + 1 (heat 8 → +1) = 11
       expect(result.finalToHit).toBe(11);
     });
 
@@ -521,12 +521,10 @@ describe('Cluster Weapons', () => {
       expect(getNearestClusterSize(10)).toBe(10);
     });
 
-    it('should round up to next available size', () => {
-      // Sizes available: 2, 4, 5, 6, 10, 15, 20
-      // Implementation rounds up to next available threshold
-      expect(getNearestClusterSize(7)).toBe(10); // 7 <= 10, returns 10
-      expect(getNearestClusterSize(12)).toBe(15); // 12 <= 15, returns 15
-      expect(getNearestClusterSize(3)).toBe(4); // 3 <= 4, returns 4
+    it('should return exact sizes now that all columns exist', () => {
+      expect(getNearestClusterSize(7)).toBe(7);
+      expect(getNearestClusterSize(12)).toBe(12);
+      expect(getNearestClusterSize(3)).toBe(3);
     });
 
     it('should cap at 20', () => {
@@ -540,9 +538,8 @@ describe('Cluster Weapons', () => {
       expect(lookupClusterHits(12, 20)).toBe(20);
     });
 
-    it('should handle non-standard cluster sizes', () => {
-      // 7 rounds up to 10 in cluster table
-      expect(lookupClusterHits(7, 7)).toBe(6);
+    it('should use exact column for now-supported sizes', () => {
+      expect(lookupClusterHits(7, 7)).toBe(4);
     });
   });
 
@@ -603,9 +600,9 @@ describe('Combat Integration', () => {
       4,
     );
 
-    // Expected: 4 (gunnery) + 2 (medium) + 1 (walk) + 2 (TMM 6/5=2) + 1 (heat 5-7) = 10
-    expect(result.finalToHit).toBe(10);
+    // Expected: 4 (gunnery) + 2 (medium) + 1 (walk) + 2 (TMM 6 hexes → bracket 5-6) + 0 (heat 5 → no penalty) = 9
+    expect(result.finalToHit).toBe(9);
     expect(result.impossible).toBe(false);
-    expect(result.probability).toBeCloseTo(6 / 36, 3); // P(10+)
+    expect(result.probability).toBeCloseTo(10 / 36, 3); // P(9+)
   });
 });

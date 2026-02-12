@@ -119,7 +119,7 @@ export const CRITICAL_HIT_EFFECTS: readonly CriticalHitEffect[] = [
   },
   {
     componentType: CriticalComponentType.LIFE_SUPPORT,
-    hitsToDestroy: 1,
+    hitsToDestroy: 2,
     effectPerHit: 'Pilot takes 1 damage at end of turn',
   },
 ] as const;

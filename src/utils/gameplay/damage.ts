@@ -458,7 +458,7 @@ export function applyPilotDamage(
     // Target number: 3 + total wounds
     consciousnessTarget = 3 + newPilotWounds;
     consciousnessRoll = roll2d6();
-    conscious = consciousnessRoll.total > consciousnessTarget;
+    conscious = consciousnessRoll.total >= consciousnessTarget;
 
     if (!conscious) {
       newPilotConscious = false;

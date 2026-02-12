@@ -26,14 +26,14 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
     id: 'weapon-specialist',
     name: 'Weapon Specialist',
     description:
-      'Specialized training with a specific weapon type grants -1 to-hit modifier when using that weapon.',
+      'Specialized training with a specific weapon type grants -2 to-hit modifier when using that weapon.',
     xpCost: 50,
     prerequisites: [],
     minGunnery: 4,
     effectType: AbilityEffectType.ToHitModifier,
     effectParams: {
-      modifier: -1,
-      weaponType: 'selected', // User selects weapon type on acquisition
+      modifier: -2,
+      weaponType: 'selected',
     },
   },
 
@@ -56,14 +56,13 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
     id: 'sniper',
     name: 'Sniper',
     description:
-      'Ignores +1 range modifier for medium range when using direct-fire weapons.',
+      'Halves all positive range modifiers (round down) when using direct-fire weapons.',
     xpCost: 100,
     prerequisites: ['marksman'],
     minGunnery: 2,
     effectType: AbilityEffectType.ToHitModifier,
     effectParams: {
-      modifier: -1,
-      condition: 'medium_range',
+      halveRangeModifiers: true,
       weaponCategory: 'direct_fire',
     },
   },
@@ -120,15 +119,14 @@ export const SPECIAL_ABILITIES: Record<string, ISpecialAbility> = {
   'jumping-jack': {
     id: 'jumping-jack',
     name: 'Jumping Jack',
-    description:
-      'Expert jump jet pilot. -1 to piloting skill rolls when landing from a jump.',
+    description: 'Reduces jump attack to-hit modifier from +3 to +1.',
     xpCost: 50,
     prerequisites: [],
     minPiloting: 4,
-    effectType: AbilityEffectType.PilotingModifier,
+    effectType: AbilityEffectType.ToHitModifier,
     effectParams: {
-      modifier: -1,
-      condition: 'jump_landing',
+      jumpModifierOverride: 1,
+      condition: 'attacker_jumped',
     },
   },
 

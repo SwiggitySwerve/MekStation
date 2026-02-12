@@ -47,18 +47,19 @@ export const ATTACKER_MOVEMENT_MODIFIERS: Readonly<
 };
 
 /**
- * Heat level to-hit penalty thresholds.
- * Heat 0-4: +0, 5-7: +1, 8-12: +2, 13+: +3
+ * Heat level to-hit penalty thresholds (MegaMek canonical).
+ * +1@8, +2@13, +3@17, +4@24
  */
 export const HEAT_THRESHOLDS: readonly {
   minHeat: number;
   maxHeat: number;
   modifier: number;
 }[] = [
-  { minHeat: 0, maxHeat: 4, modifier: 0 },
-  { minHeat: 5, maxHeat: 7, modifier: 1 },
-  { minHeat: 8, maxHeat: 12, modifier: 2 },
-  { minHeat: 13, maxHeat: Infinity, modifier: 3 },
+  { minHeat: 0, maxHeat: 7, modifier: 0 },
+  { minHeat: 8, maxHeat: 12, modifier: 1 },
+  { minHeat: 13, maxHeat: 16, modifier: 2 },
+  { minHeat: 17, maxHeat: 23, modifier: 3 },
+  { minHeat: 24, maxHeat: Infinity, modifier: 4 },
 ];
 
 /**
@@ -160,9 +161,23 @@ export function calculateAttackerMovementModifier(
 }
 
 /**
+ * TMM bracket table per TotalWarfare/MegaMek canonical values.
+ * Hexes moved → base TMM before jump bonus.
+ */
+const TMM_BRACKETS: readonly { min: number; max: number; tmm: number }[] = [
+  { min: 0, max: 2, tmm: 0 },
+  { min: 3, max: 4, tmm: 1 },
+  { min: 5, max: 6, tmm: 2 },
+  { min: 7, max: 9, tmm: 3 },
+  { min: 10, max: 17, tmm: 4 },
+  { min: 18, max: 24, tmm: 5 },
+  { min: 25, max: Infinity, tmm: 6 },
+];
+
+/**
  * Calculate Target Movement Modifier (TMM).
- * TMM = ceil(hexesMoved / 5), minimum +1 if moved
- * Additional +1 if target jumped
+ * Uses canonical bracket table instead of ceil(hexesMoved/5).
+ * Additional +1 if target jumped.
  */
 export function calculateTMM(
   movementType: MovementType,
@@ -177,8 +192,10 @@ export function calculateTMM(
     };
   }
 
-  // Base TMM: hexes / 5, rounded up, minimum 1
-  let tmm = Math.max(1, Math.ceil(hexesMoved / 5));
+  // Base TMM from canonical bracket table
+  let tmm =
+    TMM_BRACKETS.find((b) => hexesMoved >= b.min && hexesMoved <= b.max)?.tmm ??
+    0;
 
   // Additional +1 for jumping
   if (movementType === MovementType.Jump) {
@@ -233,7 +250,7 @@ export function calculateMinimumRangeModifier(
 
 /**
  * Target prone modifier.
- * +1 to hit if target is prone and adjacent, -2 if not adjacent.
+ * -2 to hit if target is prone and adjacent (easier), +1 if not adjacent (harder).
  */
 export function calculateProneModifier(
   targetProne: boolean,
@@ -243,15 +260,15 @@ export function calculateProneModifier(
     return null;
   }
 
-  const value = range <= 1 ? 1 : -2;
+  const value = range <= 1 ? -2 : 1;
   return {
     name: 'Target Prone',
     value,
     source: 'other',
     description:
       range <= 1
-        ? 'Target prone at close range: +1'
-        : 'Target prone at range: -2',
+        ? 'Target prone at close range: -2'
+        : 'Target prone at range: +1',
   };
 }
 
