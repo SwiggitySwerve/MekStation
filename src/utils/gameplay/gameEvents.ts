@@ -34,6 +34,8 @@ import {
   ICriticalHitResolvedPayload,
   IPSRTriggeredPayload,
   IAmmoConsumedPayload,
+  IShutdownCheckPayload,
+  IStartupAttemptPayload,
 } from '@/types/gameplay';
 import { IHexCoordinate, Facing, MovementType } from '@/types/gameplay';
 
@@ -577,6 +579,66 @@ export function createPSRTriggeredEvent(
       gameId,
       sequence,
       GameEventType.PSRTriggered,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createShutdownCheckEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  heatLevel: number,
+  targetNumber: number,
+  roll: number,
+  shutdownOccurred: boolean,
+): IGameEvent {
+  const payload: IShutdownCheckPayload = {
+    unitId,
+    heatLevel,
+    targetNumber,
+    roll,
+    shutdownOccurred,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.ShutdownCheck,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createStartupAttemptEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  targetNumber: number,
+  roll: number,
+  success: boolean,
+): IGameEvent {
+  const payload: IStartupAttemptPayload = {
+    unitId,
+    targetNumber,
+    roll,
+    success,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.StartupAttempt,
       turn,
       phase,
       unitId,

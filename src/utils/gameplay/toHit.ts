@@ -46,21 +46,13 @@ export const ATTACKER_MOVEMENT_MODIFIERS: Readonly<
   [MovementType.Jump]: 3,
 };
 
+import { HEAT_TO_HIT_TABLE } from '@/constants/heat';
+
 /**
- * Heat level to-hit penalty thresholds (MegaMek canonical).
- * +1@8, +2@13, +3@17, +4@24
+ * Re-export for backward compatibility — use HEAT_TO_HIT_TABLE from constants/heat.ts directly.
+ * @deprecated Use HEAT_TO_HIT_TABLE from '@/constants/heat' instead.
  */
-export const HEAT_THRESHOLDS: readonly {
-  minHeat: number;
-  maxHeat: number;
-  modifier: number;
-}[] = [
-  { minHeat: 0, maxHeat: 7, modifier: 0 },
-  { minHeat: 8, maxHeat: 12, modifier: 1 },
-  { minHeat: 13, maxHeat: 16, modifier: 2 },
-  { minHeat: 17, maxHeat: 23, modifier: 3 },
-  { minHeat: 24, maxHeat: Infinity, modifier: 4 },
-];
+export const HEAT_THRESHOLDS = HEAT_TO_HIT_TABLE;
 
 /**
  * 2d6 probability table: P(roll >= target)

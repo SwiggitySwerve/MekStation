@@ -8,6 +8,12 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  ENGINE_HIT_HEAT,
+  getShutdownTN,
+  getAmmoExplosionTN,
+  getPilotHeatDamage,
+} from '@/constants/heat';
+import {
   IGameSession,
   IGameEvent,
   IGameState,
@@ -33,7 +39,11 @@ import {
 } from '@/types/gameplay';
 import { CombatLocation } from '@/types/gameplay';
 
-import { consumeAmmo, isEnergyWeapon } from './ammoTracking';
+import {
+  consumeAmmo,
+  isEnergyWeapon,
+  resolveAmmoExplosion,
+} from './ammoTracking';
 import {
   resolveCriticalHits,
   checkTACTrigger,
@@ -66,6 +76,8 @@ import {
   createCriticalHitResolvedEvent,
   createPSRTriggeredEvent,
   createAmmoConsumedEvent,
+  createShutdownCheckEvent,
+  createStartupAttemptEvent,
 } from './gameEvents';
 import { deriveState, allUnitsLocked } from './gameState';
 import {
@@ -859,7 +871,10 @@ export function resolveAllAttacks(
 // Heat Phase
 // =============================================================================
 
-export function resolveHeatPhase(session: IGameSession): IGameSession {
+export function resolveHeatPhase(
+  session: IGameSession,
+  diceRoller: DiceRoller = rollDice,
+): IGameSession {
   if (session.currentState.phase !== GamePhase.Heat) {
     throw new Error('Not in heat phase');
   }
@@ -878,6 +893,8 @@ export function resolveHeatPhase(session: IGameSession): IGameSession {
     if (!unit || unitState.destroyed) {
       continue;
     }
+
+    // --- Heat Generation ---
 
     let heatFromMovement = 0;
     const movementEvent = turnEvents.find(
@@ -903,7 +920,13 @@ export function resolveHeatPhase(session: IGameSession): IGameSession {
       }
     }
 
-    const totalHeatGenerated = heatFromMovement + heatFromWeapons;
+    // Task 7.9: Engine critical hit heat generation (+5 per engine hit)
+    const compDamage = unitState.componentDamage;
+    const engineHits = compDamage?.engineHits ?? 0;
+    const heatFromEngine = engineHits * ENGINE_HIT_HEAT;
+
+    const totalHeatGenerated =
+      heatFromMovement + heatFromWeapons + heatFromEngine;
 
     if (totalHeatGenerated > 0) {
       const heatGenSequence = currentSession.events.length;
@@ -914,18 +937,26 @@ export function resolveHeatPhase(session: IGameSession): IGameSession {
         GamePhase.Heat,
         unitId,
         totalHeatGenerated,
-        'weapons',
+        heatFromEngine > 0 ? 'external' : 'weapons',
         unitState.heat + totalHeatGenerated,
       );
       currentSession = appendEvent(currentSession, heatGenEvent);
     }
 
-    const currentHeat = currentSession.currentState.units[unitId].heat;
+    // --- Heat Dissipation ---
+    // Task 7.10/7.11: Consolidated dissipation with heat sink crit reduction
+    const currentHeatBeforeDissipation =
+      currentSession.currentState.units[unitId].heat;
 
     const unitHeatSinks = unit.heatSinks ?? 10;
-    const totalDissipation = unitHeatSinks;
+    const heatSinksDestroyed = compDamage?.heatSinksDestroyed ?? 0;
+    // Each destroyed heat sink reduces dissipation by 1 (single) — doubles tracked as 2 per sink
+    const totalDissipation = Math.max(0, unitHeatSinks - heatSinksDestroyed);
 
-    const newHeat = Math.max(0, currentHeat - totalDissipation);
+    const newHeat = Math.max(
+      0,
+      currentHeatBeforeDissipation - totalDissipation,
+    );
 
     const dissipationSequence = currentSession.events.length;
     const dissipationEvent = createHeatDissipatedEvent(
@@ -936,8 +967,182 @@ export function resolveHeatPhase(session: IGameSession): IGameSession {
       totalDissipation,
       newHeat,
     );
-
     currentSession = appendEvent(currentSession, dissipationEvent);
+
+    // --- Post-dissipation heat for checks ---
+    const finalHeat = currentSession.currentState.units[unitId].heat;
+
+    // Task 7.5: Automatic shutdown at heat >= 30
+    if (finalHeat >= 30) {
+      const shutdownSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createShutdownCheckEvent(
+          currentSession.id,
+          shutdownSeq,
+          turn,
+          GamePhase.Heat,
+          unitId,
+          finalHeat,
+          Infinity,
+          0,
+          true,
+        ),
+      );
+
+      // Task 7.7: PSR at TN 3 on shutdown
+      const psrSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createPSRTriggeredEvent(
+          currentSession.id,
+          psrSeq,
+          turn,
+          GamePhase.Heat,
+          unitId,
+          'Reactor shutdown',
+          0,
+          'heat_shutdown',
+        ),
+      );
+    }
+    // Task 7.4: Shutdown check at heat >= 14
+    else {
+      const shutdownTN = getShutdownTN(finalHeat);
+      if (shutdownTN > 0) {
+        const shutdownRoll = diceRoller();
+        const shutdownAvoided = shutdownRoll.total >= shutdownTN;
+
+        const shutdownSeq = currentSession.events.length;
+        currentSession = appendEvent(
+          currentSession,
+          createShutdownCheckEvent(
+            currentSession.id,
+            shutdownSeq,
+            turn,
+            GamePhase.Heat,
+            unitId,
+            finalHeat,
+            shutdownTN,
+            shutdownRoll.total,
+            !shutdownAvoided,
+          ),
+        );
+
+        if (!shutdownAvoided) {
+          // Task 7.7: PSR at TN 3 on shutdown
+          const psrSeq = currentSession.events.length;
+          currentSession = appendEvent(
+            currentSession,
+            createPSRTriggeredEvent(
+              currentSession.id,
+              psrSeq,
+              turn,
+              GamePhase.Heat,
+              unitId,
+              'Reactor shutdown',
+              0,
+              'heat_shutdown',
+            ),
+          );
+        }
+      }
+    }
+
+    // Task 7.10: Heat-induced ammo explosion check
+    const ammoExplosionTN = getAmmoExplosionTN(finalHeat);
+    if (ammoExplosionTN > 0) {
+      const unitAmmoState =
+        currentSession.currentState.units[unitId].ammoState ?? {};
+      const hasAmmo = Object.values(unitAmmoState).some(
+        (bin) => bin.remainingRounds > 0 && bin.isExplosive,
+      );
+
+      if (hasAmmo) {
+        if (ammoExplosionTN === Infinity) {
+          // Auto-explode at 30+ — all ammo explodes
+          for (const bin of Object.values(unitAmmoState)) {
+            if (bin.remainingRounds > 0 && bin.isExplosive) {
+              const explosionResult = resolveAmmoExplosion(
+                unitAmmoState,
+                bin.binId,
+                bin.remainingRounds,
+                'none',
+              );
+              if (explosionResult && explosionResult.totalDamage > 0) {
+                const destroySeq = currentSession.events.length;
+                currentSession = appendEvent(
+                  currentSession,
+                  createUnitDestroyedEvent(
+                    currentSession.id,
+                    destroySeq,
+                    turn,
+                    GamePhase.Heat,
+                    unitId,
+                    'ammo_explosion',
+                  ),
+                );
+                break;
+              }
+            }
+          }
+        } else {
+          const ammoRoll = diceRoller();
+          if (ammoRoll.total < ammoExplosionTN) {
+            // Failed ammo explosion check — find first explosive ammo bin
+            const explosiveBin = Object.values(unitAmmoState).find(
+              (bin) => bin.remainingRounds > 0 && bin.isExplosive,
+            );
+            if (explosiveBin) {
+              const explosionResult = resolveAmmoExplosion(
+                unitAmmoState,
+                explosiveBin.binId,
+                explosiveBin.remainingRounds,
+                'none',
+              );
+              if (explosionResult && explosionResult.totalDamage > 0) {
+                const destroySeq = currentSession.events.length;
+                currentSession = appendEvent(
+                  currentSession,
+                  createUnitDestroyedEvent(
+                    currentSession.id,
+                    destroySeq,
+                    turn,
+                    GamePhase.Heat,
+                    unitId,
+                    'ammo_explosion',
+                  ),
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Task 7.11: Pilot heat damage
+    const lifeSupportHits = compDamage?.lifeSupport ?? 0;
+    const pilotDamage = getPilotHeatDamage(finalHeat, lifeSupportHits);
+    if (pilotDamage > 0) {
+      const currentUnitState = currentSession.currentState.units[unitId];
+      const totalWounds = currentUnitState.pilotWounds + pilotDamage;
+      const pilotSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createPilotHitEvent(
+          currentSession.id,
+          pilotSeq,
+          turn,
+          GamePhase.Heat,
+          unitId,
+          pilotDamage,
+          totalWounds,
+          'head_hit',
+          true,
+          totalWounds < 6,
+        ),
+      );
+    }
   }
 
   return currentSession;
