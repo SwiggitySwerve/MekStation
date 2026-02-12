@@ -9,9 +9,20 @@ import { useState, useCallback } from 'react';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
-import { PageLayout, Card, Button, EmptyState } from '@/components/ui';
+import { PageLayout, Card, Button, Badge, EmptyState } from '@/components/ui';
 import { DayReport } from '@/lib/campaign/dayAdvancement';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
+import {
+  ScenarioGenerator,
+  createDefaultUnitWeights,
+  createDefaultTerrainWeights,
+} from '@/simulation/generator';
+import {
+  useCampaignRosterStore,
+  type UnitReadiness,
+} from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { CampaignUnitStatus } from '@/types/campaign/CampaignInterfaces';
 
 // =============================================================================
 // Stat Card Component
@@ -41,13 +52,31 @@ function StatCard({ label, value, icon }: StatCardProps): React.ReactElement {
 // Main Page Component
 // =============================================================================
 
+function getReadinessBadge(
+  readiness: UnitReadiness,
+): 'success' | 'warning' | 'red' {
+  switch (readiness) {
+    case 'Ready':
+      return 'success';
+    case 'Damaged':
+      return 'warning';
+    case 'Destroyed':
+      return 'red';
+  }
+}
+
 export default function CampaignDashboardPage(): React.ReactElement {
   const router = useRouter();
   const { id: _id } = router.query;
   const store = useCampaignStore();
   const campaign = store.getState().getCampaign();
+  const rosterStore = useCampaignRosterStore;
+  const units = rosterStore.getState().getUnitsWithReadiness();
+  const missions = rosterStore.getState().getMissionHistory();
+  const missionCount = rosterStore.getState().missionCount;
   const [isClient, setIsClient] = useState(false);
   const [dayReports, setDayReports] = useState<DayReport[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Hydration fix
   useState(() => {
@@ -74,6 +103,64 @@ export default function CampaignDashboardPage(): React.ReactElement {
       setDayReports(reports);
     }
   }, [store, campaign?.options.enableDayReportNotifications]);
+
+  const handleGenerateMission = useCallback(async () => {
+    if (!campaign) return;
+    setIsGenerating(true);
+
+    try {
+      const deployableUnits = rosterStore.getState().getDeployableUnits();
+      if (deployableUnits.length === 0) return;
+
+      const deployedUnitIds = deployableUnits.map((u) => u.unitId);
+      const missionNum = missionCount + 1;
+      const missionName = `Mission ${missionNum}`;
+
+      const generator = new ScenarioGenerator(
+        createDefaultUnitWeights(),
+        createDefaultTerrainWeights(),
+      );
+      const seed = Date.now();
+      const random = new SeededRandom(seed);
+      const unitCount = Math.min(deployableUnits.length, 4);
+
+      const session = generator.generate(
+        {
+          seed,
+          turnLimit: 20,
+          unitCount: { player: unitCount, opponent: unitCount },
+          mapRadius: 8,
+        },
+        random,
+      );
+
+      const encounterResp = await fetch('/api/encounters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${campaign.name} - ${missionName}`,
+          description: `Campaign mission ${missionNum} — auto-generated encounter`,
+          template: 'skirmish',
+        }),
+      });
+
+      const encounterData = (await encounterResp.json()) as {
+        success: boolean;
+        id?: string;
+      };
+      const encounterId = encounterData.id ?? session.id;
+
+      const missionId = rosterStore
+        .getState()
+        .createMission(missionName, deployedUnitIds, encounterId);
+
+      router.push(
+        `/gameplay/encounters/${encounterId}?campaignId=${campaign.id}&missionId=${missionId}`,
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [campaign, rosterStore, missionCount, router]);
 
   // Show loading state during SSR/hydration
   if (!isClient) {
@@ -269,6 +356,125 @@ export default function CampaignDashboardPage(): React.ReactElement {
         />
       </div>
 
+      {/* Generate Mission */}
+      <Card className="mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-text-theme-primary text-lg font-semibold">
+              Operations
+            </h2>
+            <p className="text-text-theme-secondary text-sm">
+              {missionCount} missions completed
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            onClick={handleGenerateMission}
+            disabled={
+              isGenerating ||
+              units.filter((u) => u.readiness !== 'Destroyed').length === 0
+            }
+            data-testid="generate-mission-btn"
+          >
+            {isGenerating ? 'Generating...' : 'Generate Mission'}
+          </Button>
+        </div>
+      </Card>
+
+      {/* Roster with Readiness */}
+      <Card className="mb-6">
+        <h2 className="text-text-theme-primary mb-4 text-lg font-semibold">
+          Roster
+        </h2>
+        {units.length === 0 ? (
+          <p className="text-text-theme-muted py-4 text-center text-sm">
+            No units in roster. Create a new campaign with units to get started.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {units.map((unit) => (
+              <div
+                key={unit.unitId}
+                className={`bg-surface-deep border-border-theme-subtle rounded-lg border p-4 ${
+                  unit.readiness === 'Destroyed' ? 'opacity-50' : ''
+                }`}
+                data-testid="roster-unit-card"
+              >
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-text-theme-primary font-semibold">
+                    {unit.unitName}
+                  </span>
+                  <Badge variant={getReadinessBadge(unit.readiness)} size="sm">
+                    {unit.readiness}
+                  </Badge>
+                </div>
+                {unit.readiness === 'Damaged' && (
+                  <div className="mt-2">
+                    <div className="bg-surface-raised h-1.5 overflow-hidden rounded-full">
+                      <div
+                        className="h-full bg-gradient-to-r from-yellow-500 to-red-500"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            Object.values(unit.armorDamage).reduce(
+                              (s, v) => s + v,
+                              0,
+                            ) * 5,
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      {/* Mission History */}
+      {missions.length > 0 && (
+        <Card className="mb-6">
+          <h2 className="text-text-theme-primary mb-4 text-lg font-semibold">
+            Mission History
+          </h2>
+          <div className="space-y-2">
+            {missions.map((mission) => (
+              <div
+                key={mission.id}
+                className="bg-surface-deep border-border-theme-subtle flex items-center justify-between rounded-lg border p-3"
+                data-testid="mission-history-item"
+              >
+                <div>
+                  <span className="text-text-theme-primary font-medium">
+                    {mission.name}
+                  </span>
+                  <span className="text-text-theme-muted ml-2 text-sm">
+                    #{mission.missionNumber}
+                  </span>
+                </div>
+                <Badge
+                  variant={
+                    mission.result === 'victory'
+                      ? 'success'
+                      : mission.result === 'defeat'
+                        ? 'red'
+                        : mission.result === 'draw'
+                          ? 'warning'
+                          : 'muted'
+                  }
+                  size="sm"
+                >
+                  {mission.result === 'pending'
+                    ? 'In Progress'
+                    : mission.result}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
       {/* Quick Actions */}
       <Card className="mb-6">
         <h2 className="text-text-theme-primary mb-4 text-lg font-semibold">
@@ -282,19 +488,6 @@ export default function CampaignDashboardPage(): React.ReactElement {
             }
             className="justify-start"
           >
-            <svg
-              className="mr-2 h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
             Manage Personnel
           </Button>
           <Button
@@ -304,19 +497,6 @@ export default function CampaignDashboardPage(): React.ReactElement {
             }
             className="justify-start"
           >
-            <svg
-              className="mr-2 h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-              />
-            </svg>
             Organize Forces
           </Button>
           <Button
@@ -326,19 +506,6 @@ export default function CampaignDashboardPage(): React.ReactElement {
             }
             className="justify-start"
           >
-            <svg
-              className="mr-2 h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-              />
-            </svg>
             View Missions
           </Button>
         </div>

@@ -6,6 +6,7 @@
  */
 
 import { Faction } from '../../../constants/scenario/rats';
+import { SeededRandom } from '../../../simulation/core/SeededRandom';
 import {
   OpForSkillLevel,
   ScenarioObjectiveType,
@@ -47,7 +48,11 @@ describe('Balance Testing', () => {
           Faction.DRACONIS_COMBINE,
           Era.CLAN_INVASION,
         );
-        const result = opForGenerator.generate(config);
+        // Use seeded random for deterministic results
+        const seededRandom = new SeededRandom(42);
+        const result = opForGenerator.generate(config, () =>
+          seededRandom.next(),
+        );
 
         const deviation = Math.abs(result.bvDeviation);
         expect(deviation).toBeLessThan(maxDeviation);
@@ -262,7 +267,11 @@ describe('Balance Testing', () => {
           Faction.LYRAN_COMMONWEALTH,
           Era.LATE_SUCCESSION_WARS,
         );
-        const result = opForGenerator.generate(config);
+        // Use seeded random for deterministic results
+        const seededRandom = new SeededRandom(42);
+        const result = opForGenerator.generate(config, () =>
+          seededRandom.next(),
+        );
 
         expect(result.units.length).toBeGreaterThanOrEqual(minUnits);
         expect(result.units.length).toBeLessThanOrEqual(maxUnits);

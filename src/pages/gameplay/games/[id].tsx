@@ -9,10 +9,16 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
+
+import type { IUnitGameState } from '@/types/gameplay/GameSessionInterfaces';
 
 import { GameplayLayout, SpectatorView } from '@/components/gameplay';
 import { Button } from '@/components/ui';
+import {
+  useCampaignRosterStore,
+  type IUnitDamageState,
+} from '@/stores/campaign/useCampaignRosterStore';
 import { useGameplayStore, InteractivePhase } from '@/stores/useGameplayStore';
 import { GameSide, GameStatus, MovementType } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
@@ -43,13 +49,22 @@ interface CompletedGameProps {
   gameId: string;
   winner: GameSide | 'draw';
   reason: string;
+  campaignId?: string;
+  missionId?: string;
+  unitStates?: Record<string, IUnitGameState>;
 }
 
 function CompletedGame({
   gameId,
   winner,
   reason,
+  campaignId,
+  missionId,
+  unitStates,
 }: CompletedGameProps): React.ReactElement {
+  const router = useRouter();
+  const rosterStore = useCampaignRosterStore;
+
   const winnerText =
     winner === 'draw'
       ? 'Draw'
@@ -64,6 +79,62 @@ function CompletedGame({
         ? 'text-emerald-400'
         : 'text-red-400';
 
+  const handleReturnToCampaign = useCallback(() => {
+    if (!campaignId || !missionId) return;
+
+    const resultValue =
+      winner === GameSide.Player
+        ? 'victory'
+        : winner === GameSide.Opponent
+          ? 'defeat'
+          : 'draw';
+
+    const damageStates: IUnitDamageState[] = [];
+    if (unitStates) {
+      const rosterUnits = rosterStore.getState().units;
+      for (const unit of rosterUnits) {
+        const gameUnit = Object.values(unitStates).find(
+          (u) => u.side === GameSide.Player && u.id === unit.unitId,
+        );
+
+        if (gameUnit) {
+          const armorDamage: Record<string, number> = {};
+          for (const [loc, maxVal] of Object.entries(gameUnit.armor)) {
+            const currentVal = gameUnit.armor[loc] ?? 0;
+            const diff = (maxVal ?? 0) - currentVal;
+            if (diff > 0) armorDamage[loc] = diff;
+          }
+
+          const structureDamage: Record<string, number> = {};
+          for (const [loc, val] of Object.entries(gameUnit.structure)) {
+            const maxStructure = gameUnit.structure[loc] ?? 0;
+            const diff = maxStructure - (val ?? 0);
+            if (diff > 0) structureDamage[loc] = diff;
+          }
+
+          damageStates.push({
+            unitId: unit.unitId,
+            armorDamage,
+            structureDamage,
+            destroyedComponents: [...gameUnit.destroyedLocations],
+            destroyed: gameUnit.destroyed,
+          });
+        }
+      }
+    }
+
+    rosterStore
+      .getState()
+      .completeMission(
+        missionId,
+        resultValue as 'victory' | 'defeat' | 'draw',
+        damageStates,
+        gameId,
+      );
+
+    router.push(`/gameplay/campaigns/${campaignId}`);
+  }, [campaignId, missionId, winner, unitStates, rosterStore, gameId, router]);
+
   return (
     <div
       className="flex h-screen items-center justify-center bg-gray-900"
@@ -77,46 +148,38 @@ function CompletedGame({
           {reason.replace('_', ' ')}
         </p>
 
-        <div className="flex items-center justify-center gap-4">
-          <Link href={`/gameplay/games/${gameId}/replay`}>
+        <div className="flex flex-col items-center gap-4">
+          {campaignId && missionId && (
             <Button
               variant="primary"
               size="lg"
-              data-testid="replay-game-btn"
-              leftIcon={
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              }
+              onClick={handleReturnToCampaign}
+              data-testid="return-to-campaign-btn"
             >
-              Replay Game
+              Return to Campaign
             </Button>
-          </Link>
-          <Link href="/gameplay/games">
-            <Button
-              variant="secondary"
-              size="lg"
-              data-testid="back-to-games-btn"
-            >
-              Back to Games
-            </Button>
-          </Link>
+          )}
+
+          <div className="flex items-center justify-center gap-4">
+            <Link href={`/gameplay/games/${gameId}/replay`}>
+              <Button
+                variant={campaignId ? 'secondary' : 'primary'}
+                size="lg"
+                data-testid="replay-game-btn"
+              >
+                Replay Game
+              </Button>
+            </Link>
+            <Link href="/gameplay/games">
+              <Button
+                variant="secondary"
+                size="lg"
+                data-testid="back-to-games-btn"
+              >
+                Back to Games
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <div className="mt-8 border-t border-gray-700 pt-8">
@@ -124,19 +187,6 @@ function CompletedGame({
             href={`/audit/timeline?gameId=${gameId}`}
             className="flex items-center justify-center gap-2 text-sm text-cyan-400 transition-colors hover:text-cyan-300"
           >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
             View Full Event Timeline
           </Link>
         </div>
@@ -205,7 +255,9 @@ function GameError({ message, onRetry }: GameErrorProps): React.ReactElement {
 
 export default function GameSessionPage(): React.ReactElement {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, campaignId, missionId } = router.query;
+  const campaignIdStr = typeof campaignId === 'string' ? campaignId : undefined;
+  const missionIdStr = typeof missionId === 'string' ? missionId : undefined;
 
   const {
     session,
@@ -343,6 +395,9 @@ export default function GameSessionPage(): React.ReactElement {
         gameId={session.id}
         winner={session.currentState.result.winner}
         reason={session.currentState.result.reason}
+        campaignId={campaignIdStr}
+        missionId={missionIdStr}
+        unitStates={session.currentState.units}
       />
     );
   }
@@ -362,7 +417,14 @@ export default function GameSessionPage(): React.ReactElement {
           : 'draw';
     const reason = result?.reason ?? 'unknown';
     return (
-      <CompletedGame gameId={session.id} winner={winner} reason={reason} />
+      <CompletedGame
+        gameId={session.id}
+        winner={winner}
+        reason={reason}
+        campaignId={campaignIdStr}
+        missionId={missionIdStr}
+        unitStates={interactiveSession.getState().units}
+      />
     );
   }
 
