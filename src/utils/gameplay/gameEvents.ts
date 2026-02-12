@@ -33,6 +33,8 @@ import {
   IToHitModifier,
   ICriticalHitResolvedPayload,
   IPSRTriggeredPayload,
+  IPSRResolvedPayload,
+  IUnitFellPayload,
   IAmmoConsumedPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
@@ -579,6 +581,68 @@ export function createPSRTriggeredEvent(
       gameId,
       sequence,
       GameEventType.PSRTriggered,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createPSRResolvedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  targetNumber: number,
+  roll: number,
+  modifiers: number,
+  passed: boolean,
+  reason: string,
+): IGameEvent {
+  const payload: IPSRResolvedPayload = {
+    unitId,
+    targetNumber,
+    roll,
+    modifiers,
+    passed,
+    reason,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.PSRResolved,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createUnitFellEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  fallDamage: number,
+  newFacing: Facing,
+  pilotDamage: number,
+): IGameEvent {
+  const payload: IUnitFellPayload = {
+    unitId,
+    fallDamage,
+    newFacing,
+    pilotDamage,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.UnitFell,
       turn,
       phase,
       unitId,

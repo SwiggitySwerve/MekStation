@@ -75,6 +75,8 @@ import {
   createHeatGeneratedEvent,
   createCriticalHitResolvedEvent,
   createPSRTriggeredEvent,
+  createPSRResolvedEvent,
+  createUnitFellEvent,
   createAmmoConsumedEvent,
   createShutdownCheckEvent,
   createStartupAttemptEvent,
@@ -85,6 +87,13 @@ import {
   determineHitLocationFromRoll,
   isHeadHit,
 } from './hitLocation';
+import { resolveFall } from './fallMechanics';
+import {
+  resolveAllPSRs,
+  checkPhaseDamagePSR,
+  isLegLocation,
+  isGyroDestroyed,
+} from './pilotingSkillRolls';
 import { calculateToHit } from './toHit';
 
 // =============================================================================
@@ -795,6 +804,27 @@ export function resolveAttack(
         }
       }
 
+      // Task 8.6: Leg structure damage PSR trigger
+      for (const locDamage of damageResult.result.locationDamages) {
+        if (isLegLocation(locDamage.location) && locDamage.structureDamage > 0) {
+          const legPsrSeq = currentSession.events.length;
+          currentSession = appendEvent(
+            currentSession,
+            createPSRTriggeredEvent(
+              currentSession.id,
+              legPsrSeq,
+              turn,
+              GamePhase.WeaponAttack,
+              targetId,
+              'Leg damage (internal structure exposed)',
+              0,
+              'leg_damage',
+            ),
+          );
+          break;
+        }
+      }
+
       if (damageResult.result.pilotDamage) {
         const pd = damageResult.result.pilotDamage;
         const pilotSequence = currentSession.events.length;
@@ -862,6 +892,248 @@ export function resolveAllAttacks(
 
   for (const attackEvent of attackEvents) {
     currentSession = resolveAttack(currentSession, attackEvent, diceRoller);
+  }
+
+  return currentSession;
+}
+
+// =============================================================================
+// PSR Resolution (End of Phase)
+// =============================================================================
+
+/**
+ * Check for 20+ damage PSR triggers and queue them.
+ * Called at end of weapon attack phase.
+ */
+export function checkAndQueueDamagePSRs(
+  session: IGameSession,
+): IGameSession {
+  let currentSession = session;
+  const { turn, phase } = currentSession.currentState;
+  const unitIds = Object.keys(currentSession.currentState.units);
+
+  for (const unitId of unitIds) {
+    const unitState = currentSession.currentState.units[unitId];
+    if (unitState.destroyed || !unitState.pilotConscious) continue;
+
+    const damagePSR = checkPhaseDamagePSR(unitState);
+    if (damagePSR) {
+      const seq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createPSRTriggeredEvent(
+          currentSession.id,
+          seq,
+          turn,
+          phase,
+          unitId,
+          damagePSR.reason,
+          damagePSR.additionalModifier,
+          damagePSR.triggerSource,
+        ),
+      );
+    }
+  }
+
+  return currentSession;
+}
+
+/**
+ * Resolve all pending PSRs for all units.
+ * Implements first-failure-clears-remaining rule.
+ * On failure, triggers fall mechanics (damage, prone, pilot damage).
+ */
+export function resolvePendingPSRs(
+  session: IGameSession,
+  diceRoller: DiceRoller = rollDice,
+): IGameSession {
+  let currentSession = session;
+  const { turn, phase } = currentSession.currentState;
+  const unitIds = Object.keys(currentSession.currentState.units);
+
+  for (const unitId of unitIds) {
+    const unitState = currentSession.currentState.units[unitId];
+    if (unitState.destroyed || !unitState.pilotConscious) continue;
+
+    const pendingPSRs = unitState.pendingPSRs ?? [];
+    if (pendingPSRs.length === 0) continue;
+
+    const unit = currentSession.units.find((u) => u.id === unitId);
+    if (!unit) continue;
+
+    const componentDamage = unitState.componentDamage ?? {
+      engineHits: 0,
+      gyroHits: 0,
+      sensorHits: 0,
+      lifeSupport: 0,
+      cockpitHit: false,
+      actuators: {},
+      weaponsDestroyed: [],
+      heatSinksDestroyed: 0,
+      jumpJetsDestroyed: 0,
+    };
+
+    // Check for automatic fall (gyro destroyed)
+    if (isGyroDestroyed(componentDamage)) {
+      // Auto-fall — no roll needed, emit UnitFell event directly
+      const d6Roller = () => {
+        const r = diceRoller();
+        return r.dice[0];
+      };
+      const fallResult = resolveFall(50, unitState.facing, 0, d6Roller);
+
+      // Clear all PSRs via resolved events
+      for (const psr of pendingPSRs) {
+        const resSeq = currentSession.events.length;
+        currentSession = appendEvent(
+          currentSession,
+          createPSRResolvedEvent(
+            currentSession.id,
+            resSeq,
+            turn,
+            phase,
+            unitId,
+            Infinity,
+            0,
+            0,
+            false,
+            psr.reason,
+          ),
+        );
+      }
+
+      // Emit UnitFell
+      const fellSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createUnitFellEvent(
+          currentSession.id,
+          fellSeq,
+          turn,
+          phase,
+          unitId,
+          fallResult.totalDamage,
+          fallResult.newFacing,
+          fallResult.pilotDamage,
+        ),
+      );
+
+      // Pilot damage from fall
+      const currentUnitState = currentSession.currentState.units[unitId];
+      const totalWounds = currentUnitState.pilotWounds + 1;
+      const pilotSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createPilotHitEvent(
+          currentSession.id,
+          pilotSeq,
+          turn,
+          phase,
+          unitId,
+          1,
+          totalWounds,
+          'head_hit',
+          true,
+          totalWounds < 6,
+        ),
+      );
+
+      continue;
+    }
+
+    // Normal PSR resolution with dice
+    const d6Roller = () => {
+      const r = diceRoller();
+      return r.dice[0];
+    };
+
+    const batchResult = resolveAllPSRs(
+      unit.piloting,
+      pendingPSRs,
+      componentDamage,
+      unitState.pilotWounds,
+      d6Roller,
+    );
+
+    // Emit PSRResolved events for each rolled PSR
+    for (const result of batchResult.results) {
+      const resSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createPSRResolvedEvent(
+          currentSession.id,
+          resSeq,
+          turn,
+          phase,
+          unitId,
+          result.targetNumber,
+          result.roll,
+          result.modifiers.reduce((s, m) => s + m.value, 0),
+          result.passed,
+          result.psr.reason,
+        ),
+      );
+    }
+
+    // Emit PSRResolved events for cleared PSRs (not rolled, auto-cleared)
+    for (const cleared of batchResult.clearedPSRs) {
+      const resSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createPSRResolvedEvent(
+          currentSession.id,
+          resSeq,
+          turn,
+          phase,
+          unitId,
+          0,
+          0,
+          0,
+          false,
+          cleared.reason,
+        ),
+      );
+    }
+
+    // On failure, resolve fall
+    if (batchResult.unitFell) {
+      const fallResult = resolveFall(50, unitState.facing, 0, d6Roller);
+
+      const fellSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createUnitFellEvent(
+          currentSession.id,
+          fellSeq,
+          turn,
+          phase,
+          unitId,
+          fallResult.totalDamage,
+          fallResult.newFacing,
+          fallResult.pilotDamage,
+        ),
+      );
+
+      // Pilot damage from fall
+      const currentUnitState = currentSession.currentState.units[unitId];
+      const totalWounds = currentUnitState.pilotWounds + 1;
+      const pilotSeq = currentSession.events.length;
+      currentSession = appendEvent(
+        currentSession,
+        createPilotHitEvent(
+          currentSession.id,
+          pilotSeq,
+          turn,
+          phase,
+          unitId,
+          1,
+          totalWounds,
+          'head_hit',
+          true,
+          totalWounds < 6,
+        ),
+      );
+    }
   }
 
   return currentSession;
