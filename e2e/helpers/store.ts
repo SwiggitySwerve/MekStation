@@ -16,7 +16,7 @@ const DEFAULT_TIMEOUT = 10000;
  * Stores should be exposed in development/test mode via:
  * ```typescript
  * if (process.env.NODE_ENV !== 'production') {
- *   window.__STORES__ = { myStore: useMyStore };
+ *   window.__ZUSTAND_STORES__ = { myStore: useMyStore };
  * }
  * ```
  *
@@ -33,20 +33,17 @@ const DEFAULT_TIMEOUT = 10000;
  */
 export async function isStoreExposed(page: Page): Promise<boolean> {
   return await page.evaluate(() => {
-    return (
-      typeof (window as Window & { __STORES__?: unknown }).__STORES__ !==
-      'undefined'
-    );
+    return typeof window.__ZUSTAND_STORES__ !== 'undefined';
   });
 }
 
 /**
  * Get the current state of a Zustand store.
  *
- * Requires stores to be exposed on window.__STORES__ in development/test mode.
+ * Requires stores to be exposed on window.__ZUSTAND_STORES__ in development/test mode.
  *
  * @param page - Playwright Page object
- * @param storeName - The name of the store (key in __STORES__ object)
+ * @param storeName - The name of the store (key in __ZUSTAND_STORES__ object)
  * @returns The current state of the store
  * @throws Error if stores are not exposed or store doesn't exist
  *
@@ -68,32 +65,28 @@ export async function getStoreState<T>(
   const exposed = await isStoreExposed(page);
   if (!exposed) {
     throw new Error(
-      'Stores are not exposed on window.__STORES__. ' +
+      'Stores are not exposed on window.__ZUSTAND_STORES__. ' +
         'Make sure to expose stores in development/test mode.',
     );
   }
 
   return (await page.evaluate((name) => {
-    const stores = (
-      window as Window & {
-        __STORES__?: Record<string, { getState: () => unknown }>;
-      }
-    ).__STORES__;
+    const stores = window.__ZUSTAND_STORES__;
     if (!stores) {
-      throw new Error('window.__STORES__ is not defined');
+      throw new Error('window.__ZUSTAND_STORES__ is not defined');
     }
-    const store = stores[name];
+    const store = stores[name as keyof typeof stores];
     if (!store) {
-      throw new Error(`Store "${name}" not found in window.__STORES__`);
+      throw new Error(`Store "${name}" not found in window.__ZUSTAND_STORES__`);
     }
-    return store.getState() as unknown;
+    return (store as { getState: () => unknown }).getState() as unknown;
   }, storeName)) as T;
 }
 
 /**
  * Reset all exposed stores to their initial state.
  *
- * Requires stores to implement a `reset()` action and be exposed on window.__STORES__.
+ * Requires stores to implement a `reset()` action and be exposed on window.__ZUSTAND_STORES__.
  *
  * @param page - Playwright Page object
  * @param timeout - Maximum time to wait in milliseconds (default: 10000)
@@ -114,23 +107,20 @@ export async function resetStores(
   const exposed = await isStoreExposed(page);
   if (!exposed) {
     console.warn(
-      'Stores are not exposed on window.__STORES__. Skipping reset. ' +
+      'Stores are not exposed on window.__ZUSTAND_STORES__. Skipping reset. ' +
         'Make sure to expose stores in development/test mode.',
     );
     return;
   }
 
   await page.evaluate(() => {
-    const stores = (
-      window as Window & {
-        __STORES__?: Record<string, { getState: () => { reset?: () => void } }>;
-      }
-    ).__STORES__;
+    const stores = window.__ZUSTAND_STORES__;
     if (!stores) return;
 
     Object.entries(stores).forEach(([name, store]) => {
       try {
-        const state = store.getState();
+        const s = store as { getState: () => { reset?: () => void } };
+        const state = s.getState();
         if (typeof state.reset === 'function') {
           state.reset();
         }
@@ -169,26 +159,24 @@ export async function setStoreValue(
   const exposed = await isStoreExposed(page);
   if (!exposed) {
     throw new Error(
-      'Stores are not exposed on window.__STORES__. ' +
+      'Stores are not exposed on window.__ZUSTAND_STORES__. ' +
         'Make sure to expose stores in development/test mode.',
     );
   }
 
   await page.evaluate(
     ({ name, values }) => {
-      const stores = (
-        window as Window & {
-          __STORES__?: Record<string, { setState: (s: unknown) => void }>;
-        }
-      ).__STORES__;
+      const stores = window.__ZUSTAND_STORES__;
       if (!stores) {
-        throw new Error('window.__STORES__ is not defined');
+        throw new Error('window.__ZUSTAND_STORES__ is not defined');
       }
-      const store = stores[name];
+      const store = stores[name as keyof typeof stores];
       if (!store) {
-        throw new Error(`Store "${name}" not found in window.__STORES__`);
+        throw new Error(
+          `Store "${name}" not found in window.__ZUSTAND_STORES__`,
+        );
       }
-      store.setState(values);
+      (store as { setState: (s: unknown) => void }).setState(values);
     },
     { name: storeName, values: updates },
   );

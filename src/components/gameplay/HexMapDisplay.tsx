@@ -284,6 +284,7 @@ const HexCell = React.memo(function HexCell({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{ cursor: 'pointer' }}
+      data-testid={`hex-${hex.q}-${hex.r}`}
     >
       <path
         d={pathD}
@@ -838,7 +839,7 @@ export function HexMapDisplay({
   return (
     <div
       className={`relative overflow-hidden bg-slate-100 ${className}`}
-      data-testid="hex-map"
+      data-testid="hex-map-container"
     >
       <svg
         ref={svgRef}
