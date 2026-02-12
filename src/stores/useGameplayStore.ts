@@ -7,6 +7,8 @@
 
 import { create } from 'zustand';
 
+import type { InteractiveSession } from '@/engine/GameEngine';
+
 import {
   createDemoSession,
   createDemoWeapons,
@@ -23,6 +25,7 @@ import {
   GamePhase,
   GameSide,
 } from '@/types/gameplay';
+import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import {
   lockMovement,
   advancePhase,
@@ -34,12 +37,43 @@ import {
 import { logger } from '@/utils/logger';
 
 // =============================================================================
+// Interactive Mode Phases
+// =============================================================================
+
+export enum InteractivePhase {
+  /** No interactive session */
+  None = 'none',
+  /** Selecting a unit to act with */
+  SelectUnit = 'select_unit',
+  /** Choosing movement destination */
+  SelectMovement = 'select_movement',
+  /** Selecting attack target */
+  SelectTarget = 'select_target',
+  /** Selecting weapons to fire */
+  SelectWeapons = 'select_weapons',
+  /** AI is taking its turn */
+  AITurn = 'ai_turn',
+  /** Game is over */
+  GameOver = 'game_over',
+}
+
+// =============================================================================
 // Types
 // =============================================================================
 
 interface GameplayState {
   /** Current game session */
   session: IGameSession | null;
+  /** Interactive session reference (class with methods) */
+  interactiveSession: InteractiveSession | null;
+  /** Current interactive UI phase */
+  interactivePhase: InteractivePhase;
+  /** Valid movement hexes for selected unit */
+  validMovementHexes: readonly { q: number; r: number }[];
+  /** Valid target unit IDs for selected unit */
+  validTargetIds: readonly string[];
+  /** Hit chance for current attack setup */
+  hitChance: number | null;
   /** UI state */
   ui: IGameplayUIState;
   /** Is loading */
@@ -65,6 +99,8 @@ interface GameplayActions {
   createDemoSession: () => void;
   /** Set a completed game session (e.g. from GameEngine auto-resolve) */
   setSession: (session: IGameSession) => void;
+  /** Set an interactive session (from pre-battle) */
+  setInteractiveSession: (interactiveSession: InteractiveSession) => void;
   /** Select a unit */
   selectUnit: (unitId: string | null) => void;
   /** Set target unit */
@@ -77,6 +113,31 @@ interface GameplayActions {
   clearError: () => void;
   /** Reset store */
   reset: () => void;
+
+  // --- Interactive mode actions ---
+
+  /** Select a unit for movement (shows valid hexes) */
+  selectUnitForMovement: (unitId: string) => void;
+  /** Move a unit to a target hex */
+  moveUnit: (unitId: string, targetHex: { q: number; r: number }) => void;
+  /** Select a weapon for firing */
+  selectWeapon: (weaponId: string) => void;
+  /** Select an attack target (calculates hit chance) */
+  selectAttackTarget: (unitId: string) => void;
+  /** Fire selected weapons at target */
+  fireWeapons: () => void;
+  /** Run AI opponent turn */
+  runAITurn: () => void;
+  /** Advance the interactive game phase */
+  advanceInteractivePhase: () => void;
+  /** Handle hex click in interactive mode */
+  handleInteractiveHexClick: (hex: { q: number; r: number }) => void;
+  /** Handle token click in interactive mode */
+  handleInteractiveTokenClick: (unitId: string) => void;
+  /** Skip current phase (movement or attack) */
+  skipPhase: () => void;
+  /** Check and handle game over */
+  checkGameOver: () => boolean;
 }
 
 type GameplayStore = GameplayState & GameplayActions;
@@ -87,6 +148,11 @@ type GameplayStore = GameplayState & GameplayActions;
 
 const initialState: GameplayState = {
   session: null,
+  interactiveSession: null,
+  interactivePhase: InteractivePhase.None,
+  validMovementHexes: [],
+  validTargetIds: [],
+  hitChance: null,
   ui: DEFAULT_UI_STATE,
   isLoading: false,
   error: null,
@@ -145,6 +211,23 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   setSession: (session: IGameSession) => {
     set({
       session,
+      isLoading: false,
+      error: null,
+    });
+  },
+
+  setInteractiveSession: (interactiveSession: InteractiveSession) => {
+    const session = interactiveSession.getSession();
+    const phase = session.currentState.phase;
+
+    let interactivePhase = InteractivePhase.SelectUnit;
+    if (phase === GamePhase.Initiative)
+      interactivePhase = InteractivePhase.SelectUnit;
+
+    set({
+      session,
+      interactiveSession,
+      interactivePhase,
       isLoading: false,
       error: null,
     });
@@ -233,6 +316,264 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
       default:
         logger.warn('Unknown action:', actionId);
     }
+  },
+
+  selectUnitForMovement: (unitId: string) => {
+    const { interactiveSession } = get();
+    if (!interactiveSession) return;
+
+    const actions = interactiveSession.getAvailableActions(unitId);
+
+    set((state) => ({
+      ui: { ...state.ui, selectedUnitId: unitId },
+      interactivePhase: InteractivePhase.SelectMovement,
+      validMovementHexes: actions.validMoves,
+    }));
+  },
+
+  moveUnit: (unitId: string, targetHex: { q: number; r: number }) => {
+    const { interactiveSession } = get();
+    if (!interactiveSession) return;
+
+    interactiveSession.applyMovement(
+      unitId,
+      targetHex,
+      Facing.North,
+      MovementType.Walk,
+    );
+
+    set({
+      session: interactiveSession.getSession(),
+      interactivePhase: InteractivePhase.SelectUnit,
+      validMovementHexes: [],
+      ui: { ...get().ui, selectedUnitId: null },
+    });
+  },
+
+  selectWeapon: (weaponId: string) => {
+    set((state) => {
+      const current = state.ui.queuedWeaponIds;
+      const newQueued = current.includes(weaponId)
+        ? current.filter((id) => id !== weaponId)
+        : [...current, weaponId];
+      return {
+        ui: { ...state.ui, queuedWeaponIds: newQueued },
+      };
+    });
+  },
+
+  selectAttackTarget: (targetUnitId: string) => {
+    const { interactiveSession, ui } = get();
+    if (!interactiveSession || !ui.selectedUnitId) return;
+
+    const attackerState =
+      interactiveSession.getState().units[ui.selectedUnitId];
+    const targetState = interactiveSession.getState().units[targetUnitId];
+    if (!attackerState || !targetState) return;
+
+    const hitChance = 58; // Base hit chance (gunnery 4 = 58% on 2d6)
+
+    set((state) => ({
+      ui: { ...state.ui, targetUnitId: targetUnitId },
+      interactivePhase: InteractivePhase.SelectWeapons,
+      hitChance,
+    }));
+  },
+
+  fireWeapons: () => {
+    const { interactiveSession, ui } = get();
+    if (!interactiveSession || !ui.selectedUnitId || !ui.targetUnitId) return;
+
+    const weaponIds =
+      ui.queuedWeaponIds.length > 0 ? ui.queuedWeaponIds : ['medium-laser'];
+
+    interactiveSession.applyAttack(
+      ui.selectedUnitId,
+      ui.targetUnitId,
+      weaponIds,
+    );
+
+    const gameOver = interactiveSession.isGameOver();
+
+    set({
+      session: interactiveSession.getSession(),
+      interactivePhase: gameOver
+        ? InteractivePhase.GameOver
+        : InteractivePhase.SelectUnit,
+      validTargetIds: [],
+      hitChance: null,
+      ui: {
+        ...get().ui,
+        selectedUnitId: null,
+        targetUnitId: null,
+        queuedWeaponIds: [],
+      },
+    });
+  },
+
+  runAITurn: () => {
+    const { interactiveSession } = get();
+    if (!interactiveSession) return;
+
+    set({ interactivePhase: InteractivePhase.AITurn });
+
+    const state = interactiveSession.getState();
+
+    if (state.phase === GamePhase.Movement) {
+      interactiveSession.runAITurn(GameSide.Opponent);
+      interactiveSession.advancePhase(); // → WeaponAttack
+    }
+
+    if (interactiveSession.getState().phase === GamePhase.WeaponAttack) {
+      interactiveSession.runAITurn(GameSide.Opponent);
+      interactiveSession.advancePhase(); // → Heat
+    }
+
+    if (interactiveSession.getState().phase === GamePhase.Heat) {
+      interactiveSession.advancePhase(); // → End
+    }
+
+    if (interactiveSession.getState().phase === GamePhase.End) {
+      interactiveSession.advancePhase(); // → Initiative (next turn)
+    }
+
+    const gameOver = interactiveSession.isGameOver();
+
+    set({
+      session: interactiveSession.getSession(),
+      interactivePhase: gameOver
+        ? InteractivePhase.GameOver
+        : InteractivePhase.SelectUnit,
+    });
+  },
+
+  advanceInteractivePhase: () => {
+    const { interactiveSession, session } = get();
+    if (!interactiveSession || !session) return;
+
+    const { phase } = interactiveSession.getState();
+
+    if (phase === GamePhase.Initiative) {
+      interactiveSession.advancePhase(); // rolls initiative, goes to Movement
+    } else if (phase === GamePhase.Movement) {
+      interactiveSession.advancePhase(); // → WeaponAttack
+    } else if (phase === GamePhase.WeaponAttack) {
+      interactiveSession.advancePhase(); // resolves attacks → Heat
+    } else if (phase === GamePhase.Heat) {
+      interactiveSession.advancePhase(); // → End
+    } else if (phase === GamePhase.End) {
+      interactiveSession.advancePhase(); // → Initiative (next turn)
+    }
+
+    const gameOver = interactiveSession.isGameOver();
+
+    set({
+      session: interactiveSession.getSession(),
+      interactivePhase: gameOver
+        ? InteractivePhase.GameOver
+        : InteractivePhase.SelectUnit,
+      validMovementHexes: [],
+      validTargetIds: [],
+      hitChance: null,
+      ui: {
+        ...get().ui,
+        selectedUnitId: null,
+        targetUnitId: null,
+        queuedWeaponIds: [],
+      },
+    });
+  },
+
+  handleInteractiveHexClick: (hex: { q: number; r: number }) => {
+    const { interactivePhase, ui, interactiveSession } = get();
+    if (!interactiveSession) return;
+
+    if (
+      interactivePhase === InteractivePhase.SelectMovement &&
+      ui.selectedUnitId
+    ) {
+      get().moveUnit(ui.selectedUnitId, hex);
+    }
+  },
+
+  handleInteractiveTokenClick: (unitId: string) => {
+    const { interactivePhase, interactiveSession } = get();
+    if (!interactiveSession) return;
+
+    const state = interactiveSession.getState();
+    const unit = state.units[unitId];
+    if (!unit || unit.destroyed) return;
+
+    const { phase } = state;
+    const currentInteractivePhase = interactivePhase as InteractivePhase;
+
+    if (phase === GamePhase.Movement && unit.side === GameSide.Player) {
+      get().selectUnitForMovement(unitId);
+    } else if (phase === GamePhase.WeaponAttack) {
+      if (
+        unit.side === GameSide.Player &&
+        currentInteractivePhase === InteractivePhase.SelectUnit
+      ) {
+        set((s) => ({
+          ui: { ...s.ui, selectedUnitId: unitId },
+          interactivePhase: InteractivePhase.SelectTarget,
+          validTargetIds: Object.entries(state.units)
+            .filter(([, u]) => u.side === GameSide.Opponent && !u.destroyed)
+            .map(([id]) => id),
+        }));
+      } else if (
+        unit.side === GameSide.Opponent &&
+        currentInteractivePhase === InteractivePhase.SelectTarget
+      ) {
+        get().selectAttackTarget(unitId);
+      }
+    } else if (
+      unit.side === GameSide.Player &&
+      currentInteractivePhase === InteractivePhase.SelectUnit
+    ) {
+      get().selectUnitForMovement(unitId);
+    }
+  },
+
+  skipPhase: () => {
+    const { interactiveSession } = get();
+    if (!interactiveSession) return;
+
+    interactiveSession.advancePhase();
+
+    const gameOver = interactiveSession.isGameOver();
+
+    set({
+      session: interactiveSession.getSession(),
+      interactivePhase: gameOver
+        ? InteractivePhase.GameOver
+        : InteractivePhase.SelectUnit,
+      validMovementHexes: [],
+      validTargetIds: [],
+      hitChance: null,
+      ui: {
+        ...get().ui,
+        selectedUnitId: null,
+        targetUnitId: null,
+        queuedWeaponIds: [],
+      },
+    });
+  },
+
+  checkGameOver: (): boolean => {
+    const { interactiveSession } = get();
+    if (!interactiveSession) return false;
+
+    if (interactiveSession.isGameOver()) {
+      const result = interactiveSession.getResult();
+      set({
+        session: interactiveSession.getSession(),
+        interactivePhase: InteractivePhase.GameOver,
+      });
+      logger.info('Game over', result);
+      return true;
+    }
+    return false;
   },
 
   toggleWeapon: (weaponId: string) => {
