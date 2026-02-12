@@ -51,6 +51,11 @@ export const ATTACKER_MOVEMENT_MODIFIERS: Readonly<
 
 import { HEAT_TO_HIT_TABLE } from '@/constants/heat';
 
+import {
+  calculateAttackerSPAModifiers,
+  getEffectiveWounds,
+} from './spaModifiers';
+
 /**
  * Re-export for backward compatibility — use HEAT_TO_HIT_TABLE from constants/heat.ts directly.
  * @deprecated Use HEAT_TO_HIT_TABLE from '@/constants/heat' instead.
@@ -555,9 +560,12 @@ export function calculateToHit(
   // Add damage modifiers from attacker state
   modifiers.push(...attacker.damageModifiers);
 
-  // Pilot wounds
   if (attacker.pilotWounds) {
-    const woundMod = calculatePilotWoundModifier(attacker.pilotWounds);
+    const effectiveWounds = getEffectiveWounds(
+      attacker.abilities ?? [],
+      attacker.pilotWounds,
+    );
+    const woundMod = calculatePilotWoundModifier(effectiveWounds);
     if (woundMod) modifiers.push(woundMod);
   }
 
@@ -606,6 +614,15 @@ export function calculateToHit(
     const calledMod = calculateCalledShotModifier(attacker.calledShot);
     if (calledMod) modifiers.push(calledMod);
   }
+
+  const rangeModValue = RANGE_MODIFIERS[rangeBracket] ?? 0;
+  const spaModifiers = calculateAttackerSPAModifiers(
+    attacker,
+    target,
+    rangeBracket,
+    rangeModValue,
+  );
+  modifiers.push(...spaModifiers);
 
   return aggregateModifiers(modifiers);
 }
