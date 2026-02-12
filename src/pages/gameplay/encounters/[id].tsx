@@ -56,7 +56,6 @@ export default function EncounterDetailPage(): React.ReactElement {
   const {
     getEncounter,
     loadEncounters,
-    launchEncounter,
     deleteEncounter,
     validateEncounter,
     validations,
@@ -94,20 +93,10 @@ export default function EncounterDetailPage(): React.ReactElement {
     }
   }, [isInitialized, id, validateEncounter]);
 
-  const handleLaunch = useCallback(async () => {
+  const handleLaunch = useCallback(() => {
     if (!id || typeof id !== 'string') return;
-    clearError();
-    const gameSessionId = await launchEncounter(id);
-    if (gameSessionId) {
-      showToast({
-        message: 'Battle launched! Good hunting, MechWarrior.',
-        variant: 'success',
-      });
-      router.push(`/gameplay/games/${gameSessionId}`);
-    } else {
-      showToast({ message: 'Failed to launch encounter', variant: 'error' });
-    }
-  }, [id, launchEncounter, router, clearError, showToast]);
+    router.push(`/gameplay/encounters/${id}/pre-battle`);
+  }, [id, router]);
 
   // Handle delete
   const handleDelete = useCallback(async () => {
