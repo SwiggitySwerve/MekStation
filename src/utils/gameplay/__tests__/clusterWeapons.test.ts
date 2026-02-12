@@ -77,7 +77,7 @@ describe('CLUSTER_HIT_TABLE', () => {
   });
 
   it('should have entries for all standard cluster sizes', () => {
-    const expectedSizes = [2, 4, 5, 6, 10, 15, 20];
+    const expectedSizes = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20];
     for (const roll of Object.keys(CLUSTER_HIT_TABLE).map(Number)) {
       for (const size of expectedSizes) {
         expect(CLUSTER_HIT_TABLE[roll][size]).toBeDefined();
@@ -140,17 +140,13 @@ describe('getNearestClusterSize', () => {
     expect(getNearestClusterSize(20)).toBe(20);
   });
 
-  it('should round up to nearest cluster size in table', () => {
-    // Size 3 uses 4 column (since 3 <= 4)
-    expect(getNearestClusterSize(3)).toBe(4);
-    // Size 7-10 use 10 column (since 7 > 6 but 7 <= 10)
-    expect(getNearestClusterSize(7)).toBe(10);
-    expect(getNearestClusterSize(8)).toBe(10);
-    expect(getNearestClusterSize(9)).toBe(10);
-    // Size 11-15 use 15 column
-    expect(getNearestClusterSize(12)).toBe(15);
+  it('should return exact sizes now that all columns exist', () => {
+    expect(getNearestClusterSize(3)).toBe(3);
+    expect(getNearestClusterSize(7)).toBe(7);
+    expect(getNearestClusterSize(8)).toBe(8);
+    expect(getNearestClusterSize(9)).toBe(9);
+    expect(getNearestClusterSize(12)).toBe(12);
     expect(getNearestClusterSize(14)).toBe(15);
-    // Size 16-20 use 20 column
     expect(getNearestClusterSize(18)).toBe(20);
   });
 
@@ -168,9 +164,9 @@ describe('lookupClusterHits', () => {
     expect(lookupClusterHits(2, 10)).toBe(3);
   });
 
-  it('should handle non-standard cluster sizes by rounding up', () => {
-    // Size 8 should use the 10 column (since 8 > 6 but 8 <= 10)
-    expect(lookupClusterHits(7, 8)).toBe(lookupClusterHits(7, 10));
+  it('should return exact values for now-supported sizes', () => {
+    // Size 8 now has its own column
+    expect(lookupClusterHits(7, 8)).toBe(CLUSTER_HIT_TABLE[7][8]);
   });
 
   it('should clamp out-of-range rolls', () => {

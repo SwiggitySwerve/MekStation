@@ -964,8 +964,8 @@ describe('applyPilotDamage', () => {
       expect(newState.pilotConscious).toBe(false);
     });
 
-    it('should fail consciousness check when roll equals target (need to beat)', () => {
-      // Target = 3 + 2 wounds = 5, roll 2+3=5, not > 5
+    it('should pass consciousness check when roll equals target (need to meet)', () => {
+      // Target = 3 + 2 wounds = 5, roll 2+3=5, 5 >= 5 passes
       mockRoll2d6.mockReturnValue(createMockRoll(2, 3));
       const state = createTestState({ pilotWounds: 1 });
       const { state: newState, result } = applyPilotDamage(
@@ -976,8 +976,8 @@ describe('applyPilotDamage', () => {
 
       expect(result.consciousnessTarget).toBe(5);
       expect(result.consciousnessRoll?.total).toBe(5);
-      expect(result.conscious).toBe(false);
-      expect(newState.pilotConscious).toBe(false);
+      expect(result.conscious).toBe(true);
+      expect(newState.pilotConscious).toBe(true);
     });
 
     it('should calculate correct target for 5 wounds', () => {

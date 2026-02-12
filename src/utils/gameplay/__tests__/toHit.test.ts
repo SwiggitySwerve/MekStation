@@ -163,36 +163,43 @@ describe('ATTACKER_MOVEMENT_MODIFIERS', () => {
 // =============================================================================
 
 describe('HEAT_THRESHOLDS', () => {
-  it('should have 4 heat threshold ranges', () => {
-    expect(HEAT_THRESHOLDS).toHaveLength(4);
+  it('should have 5 heat threshold ranges', () => {
+    expect(HEAT_THRESHOLDS).toHaveLength(5);
   });
 
-  it('should have no modifier for heat 0-4', () => {
+  it('should have no modifier for heat 0-7', () => {
     const threshold = HEAT_THRESHOLDS[0];
     expect(threshold.minHeat).toBe(0);
-    expect(threshold.maxHeat).toBe(4);
+    expect(threshold.maxHeat).toBe(7);
     expect(threshold.modifier).toBe(0);
   });
 
-  it('should have +1 modifier for heat 5-7', () => {
+  it('should have +1 modifier for heat 8-12', () => {
     const threshold = HEAT_THRESHOLDS[1];
-    expect(threshold.minHeat).toBe(5);
-    expect(threshold.maxHeat).toBe(7);
+    expect(threshold.minHeat).toBe(8);
+    expect(threshold.maxHeat).toBe(12);
     expect(threshold.modifier).toBe(1);
   });
 
-  it('should have +2 modifier for heat 8-12', () => {
+  it('should have +2 modifier for heat 13-16', () => {
     const threshold = HEAT_THRESHOLDS[2];
-    expect(threshold.minHeat).toBe(8);
-    expect(threshold.maxHeat).toBe(12);
+    expect(threshold.minHeat).toBe(13);
+    expect(threshold.maxHeat).toBe(16);
     expect(threshold.modifier).toBe(2);
   });
 
-  it('should have +3 modifier for heat 13+', () => {
+  it('should have +3 modifier for heat 17-23', () => {
     const threshold = HEAT_THRESHOLDS[3];
-    expect(threshold.minHeat).toBe(13);
-    expect(threshold.maxHeat).toBe(Infinity);
+    expect(threshold.minHeat).toBe(17);
+    expect(threshold.maxHeat).toBe(23);
     expect(threshold.modifier).toBe(3);
+  });
+
+  it('should have +4 modifier for heat 24+', () => {
+    const threshold = HEAT_THRESHOLDS[4];
+    expect(threshold.minHeat).toBe(24);
+    expect(threshold.maxHeat).toBe(Infinity);
+    expect(threshold.modifier).toBe(4);
   });
 
   it('should cover all heat values from 0 to Infinity', () => {
@@ -549,40 +556,50 @@ describe('calculateTMM', () => {
   });
 
   describe('walking target', () => {
-    it('should return +1 for 1-5 hexes moved', () => {
-      expect(calculateTMM(MovementType.Walk, 1).value).toBe(1);
-      expect(calculateTMM(MovementType.Walk, 5).value).toBe(1);
+    it('should return +0 for 1-2 hexes moved', () => {
+      expect(calculateTMM(MovementType.Walk, 1).value).toBe(0);
+      expect(calculateTMM(MovementType.Walk, 2).value).toBe(0);
     });
 
-    it('should return +2 for 6-10 hexes moved', () => {
+    it('should return +1 for 3-4 hexes moved', () => {
+      expect(calculateTMM(MovementType.Walk, 3).value).toBe(1);
+      expect(calculateTMM(MovementType.Walk, 4).value).toBe(1);
+    });
+
+    it('should return +2 for 5-6 hexes moved', () => {
+      expect(calculateTMM(MovementType.Walk, 5).value).toBe(2);
       expect(calculateTMM(MovementType.Walk, 6).value).toBe(2);
-      expect(calculateTMM(MovementType.Walk, 10).value).toBe(2);
     });
 
-    it('should return +3 for 11-15 hexes moved', () => {
-      expect(calculateTMM(MovementType.Walk, 11).value).toBe(3);
-      expect(calculateTMM(MovementType.Walk, 15).value).toBe(3);
+    it('should return +3 for 7-9 hexes moved', () => {
+      expect(calculateTMM(MovementType.Walk, 7).value).toBe(3);
+      expect(calculateTMM(MovementType.Walk, 9).value).toBe(3);
+    });
+
+    it('should return +4 for 10-17 hexes moved', () => {
+      expect(calculateTMM(MovementType.Walk, 10).value).toBe(4);
+      expect(calculateTMM(MovementType.Walk, 17).value).toBe(4);
     });
   });
 
   describe('running target', () => {
     it('should use same TMM calculation as walking', () => {
-      expect(calculateTMM(MovementType.Run, 5).value).toBe(1);
-      expect(calculateTMM(MovementType.Run, 10).value).toBe(2);
+      expect(calculateTMM(MovementType.Run, 5).value).toBe(2);
+      expect(calculateTMM(MovementType.Run, 10).value).toBe(4);
     });
   });
 
   describe('jumping target', () => {
     it('should add +1 to base TMM for jumping', () => {
-      // 5 hexes = TMM 1 + 1 for jumping = 2
+      // 5 hexes = TMM 2 + 1 for jumping = 3
       const modifier = calculateTMM(MovementType.Jump, 5);
-      expect(modifier.value).toBe(2);
+      expect(modifier.value).toBe(3);
     });
 
     it('should add +1 to higher TMM values for jumping', () => {
-      // 10 hexes = TMM 2 + 1 for jumping = 3
+      // 10 hexes = TMM 4 + 1 for jumping = 5
       const modifier = calculateTMM(MovementType.Jump, 10);
-      expect(modifier.value).toBe(3);
+      expect(modifier.value).toBe(5);
     });
 
     it('should include "jumped" in description', () => {
@@ -612,14 +629,14 @@ describe('calculateTMM', () => {
 // =============================================================================
 
 describe('calculateHeatModifier', () => {
-  describe('no heat penalty (0-4)', () => {
+  describe('no heat penalty (0-7)', () => {
     it('should return +0 for heat 0', () => {
       const modifier = calculateHeatModifier(0);
       expect(modifier.value).toBe(0);
     });
 
-    it('should return +0 for heat 4', () => {
-      const modifier = calculateHeatModifier(4);
+    it('should return +0 for heat 7', () => {
+      const modifier = calculateHeatModifier(7);
       expect(modifier.value).toBe(0);
     });
 
@@ -629,39 +646,51 @@ describe('calculateHeatModifier', () => {
     });
   });
 
-  describe('+1 heat penalty (5-7)', () => {
-    it('should return +1 for heat 5', () => {
-      const modifier = calculateHeatModifier(5);
-      expect(modifier.value).toBe(1);
-    });
-
-    it('should return +1 for heat 7', () => {
-      const modifier = calculateHeatModifier(7);
-      expect(modifier.value).toBe(1);
-    });
-  });
-
-  describe('+2 heat penalty (8-12)', () => {
-    it('should return +2 for heat 8', () => {
+  describe('+1 heat penalty (8-12)', () => {
+    it('should return +1 for heat 8', () => {
       const modifier = calculateHeatModifier(8);
+      expect(modifier.value).toBe(1);
+    });
+
+    it('should return +1 for heat 12', () => {
+      const modifier = calculateHeatModifier(12);
+      expect(modifier.value).toBe(1);
+    });
+  });
+
+  describe('+2 heat penalty (13-16)', () => {
+    it('should return +2 for heat 13', () => {
+      const modifier = calculateHeatModifier(13);
       expect(modifier.value).toBe(2);
     });
 
-    it('should return +2 for heat 12', () => {
-      const modifier = calculateHeatModifier(12);
+    it('should return +2 for heat 16', () => {
+      const modifier = calculateHeatModifier(16);
       expect(modifier.value).toBe(2);
     });
   });
 
-  describe('+3 heat penalty (13+)', () => {
-    it('should return +3 for heat 13', () => {
-      const modifier = calculateHeatModifier(13);
+  describe('+3 heat penalty (17-23)', () => {
+    it('should return +3 for heat 17', () => {
+      const modifier = calculateHeatModifier(17);
       expect(modifier.value).toBe(3);
     });
 
-    it('should return +3 for very high heat', () => {
-      const modifier = calculateHeatModifier(30);
+    it('should return +3 for heat 23', () => {
+      const modifier = calculateHeatModifier(23);
       expect(modifier.value).toBe(3);
+    });
+  });
+
+  describe('+4 heat penalty (24+)', () => {
+    it('should return +4 for heat 24', () => {
+      const modifier = calculateHeatModifier(24);
+      expect(modifier.value).toBe(4);
+    });
+
+    it('should return +4 for very high heat', () => {
+      const modifier = calculateHeatModifier(30);
+      expect(modifier.value).toBe(4);
     });
   });
 
@@ -762,14 +791,14 @@ describe('calculateProneModifier', () => {
   });
 
   describe('target prone at close range (adjacent)', () => {
-    it('should return +1 for prone target at range 0', () => {
+    it('should return -2 for prone target at range 0', () => {
       const modifier = calculateProneModifier(true, 0);
-      expect(modifier?.value).toBe(1);
+      expect(modifier?.value).toBe(-2);
     });
 
-    it('should return +1 for prone target at range 1 (adjacent)', () => {
+    it('should return -2 for prone target at range 1 (adjacent)', () => {
       const modifier = calculateProneModifier(true, 1);
-      expect(modifier?.value).toBe(1);
+      expect(modifier?.value).toBe(-2);
     });
 
     it('should include "close range" in description', () => {
@@ -779,14 +808,14 @@ describe('calculateProneModifier', () => {
   });
 
   describe('target prone at range', () => {
-    it('should return -2 for prone target at range 2', () => {
+    it('should return +1 for prone target at range 2', () => {
       const modifier = calculateProneModifier(true, 2);
-      expect(modifier?.value).toBe(-2);
+      expect(modifier?.value).toBe(1);
     });
 
-    it('should return -2 for prone target at long range', () => {
+    it('should return +1 for prone target at long range', () => {
       const modifier = calculateProneModifier(true, 10);
-      expect(modifier?.value).toBe(-2);
+      expect(modifier?.value).toBe(1);
     });
 
     it('should include "at range" in description', () => {
@@ -903,8 +932,8 @@ describe('calculateToHit', () => {
     });
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
-    // Gunnery 4 + TMM 1 = 5
-    expect(result.finalToHit).toBe(5);
+    // Gunnery 4 + TMM 2 (5 hexes → bracket 5-6 = +2) = 6
+    expect(result.finalToHit).toBe(6);
   });
 
   it('should include heat modifier', () => {
@@ -912,8 +941,8 @@ describe('calculateToHit', () => {
     const target = createTestTargetState();
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
-    // Gunnery 4 + Heat 2 = 6
-    expect(result.finalToHit).toBe(6);
+    // Gunnery 4 + Heat 1 (canonical: +1@8) = 5
+    expect(result.finalToHit).toBe(5);
   });
 
   it('should include minimum range modifier', () => {
@@ -930,17 +959,17 @@ describe('calculateToHit', () => {
     const target = createTestTargetState({ prone: true });
     const result = calculateToHit(attacker, target, RangeBracket.Short, 1);
 
-    // Gunnery 4 + Prone close +1 = 5
-    expect(result.finalToHit).toBe(5);
+    // Gunnery 4 + Prone close -2 = 2
+    expect(result.finalToHit).toBe(2);
   });
 
-  it('should include prone modifier (at range) as bonus', () => {
+  it('should include prone modifier (at range) as penalty', () => {
     const attacker = createTestAttackerState({ gunnery: 4 });
     const target = createTestTargetState({ prone: true });
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
-    // Gunnery 4 + Prone at range -2 = 2
-    expect(result.finalToHit).toBe(2);
+    // Gunnery 4 + Prone at range +1 = 5
+    expect(result.finalToHit).toBe(5);
   });
 
   it('should include immobile modifier as bonus', () => {
@@ -992,8 +1021,8 @@ describe('calculateToHit', () => {
     });
     const result = calculateToHit(attacker, target, RangeBracket.Medium, 5);
 
-    // Gunnery 4 + Medium range 2 + Walk 1 + TMM 2 + Heat 1 + Cover 1 = 11
-    expect(result.finalToHit).toBe(11);
+    // Gunnery 4 + Medium 2 + Walk 1 + TMM 2 (6 hexes = +2) + Heat 0 (@5 = no penalty) + Cover 1 = 10
+    expect(result.finalToHit).toBe(10);
   });
 
   it('should mark impossible shots (> 12)', () => {
@@ -1008,7 +1037,7 @@ describe('calculateToHit', () => {
     });
     const result = calculateToHit(attacker, target, RangeBracket.Long, 10);
 
-    // Gunnery 6 + Long 4 + Jump 3 + Heat 3 + TMM 3 = 19, capped at 13
+    // Gunnery 6 + Long 4 + Jump 3 + Heat 2 (@13) + TMM 5 (10 hexes=+4, +1 jump) = 20, capped at 13
     expect(result.finalToHit).toBe(13);
     expect(result.impossible).toBe(true);
     expect(result.probability).toBe(0);
@@ -1327,7 +1356,7 @@ describe('simpleToHit', () => {
       MovementType.Walk,
       5,
     );
-    expect(result.finalToHit).toBe(5); // 4 + TMM 1
+    expect(result.finalToHit).toBe(6); // 4 + TMM 2 (5 hexes → bracket 5-6 = +2)
   });
 
   it('should include heat modifier', () => {
@@ -1339,7 +1368,7 @@ describe('simpleToHit', () => {
       0,
       8,
     );
-    expect(result.finalToHit).toBe(6); // 4 + Heat 2
+    expect(result.finalToHit).toBe(5); // 4 + Heat 1 (canonical: +1@8)
   });
 
   it('should combine all parameters', () => {
@@ -1351,7 +1380,7 @@ describe('simpleToHit', () => {
       8,
       5,
     );
-    // Gunnery 4 + Medium 2 + Walk 1 + TMM 2 + Heat 1 = 10
+    // Gunnery 4 + Medium 2 + Walk 1 + TMM 3 (8 hexes → bracket 7-9 = +3) + Heat 0 (@5) = 10
     expect(result.finalToHit).toBe(10);
   });
 
@@ -1467,7 +1496,6 @@ describe('formatToHitBreakdown', () => {
 
 describe('Integration: Full to-hit calculations', () => {
   it('should calculate typical medium laser shot', () => {
-    // Gunnery 4 pilot, standing still, at short range, target walking 4 hexes
     const attacker = createTestAttackerState({ gunnery: 4 });
     const target = createTestTargetState({
       movementType: MovementType.Walk,
@@ -1475,13 +1503,12 @@ describe('Integration: Full to-hit calculations', () => {
     });
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
-    // Gunnery 4 + TMM 1 = 5
+    // Gunnery 4 + TMM 1 (4 hexes → bracket 3-4 = +1) = 5
     expect(result.finalToHit).toBe(5);
     expect(result.probability).toBeCloseTo(30 / 36, 2);
   });
 
   it('should calculate difficult LRM shot', () => {
-    // Gunnery 4 pilot, walked, heat 6, at medium range, target ran 8 hexes
     const attacker = createTestAttackerState({
       gunnery: 4,
       movementType: MovementType.Walk,
@@ -1493,7 +1520,7 @@ describe('Integration: Full to-hit calculations', () => {
     });
     const result = calculateToHit(attacker, target, RangeBracket.Medium, 10, 6);
 
-    // Gunnery 4 + Medium 2 + Walk 1 + TMM 2 + Heat 1 + MinRange 0 = 10
+    // Gunnery 4 + Medium 2 + Walk 1 + TMM 3 (8 hexes → bracket 7-9 = +3) + Heat 0 (@6) + MinRange 0 = 10
     expect(result.finalToHit).toBe(10);
     expect(result.probability).toBeCloseTo(6 / 36, 2);
   });
@@ -1506,8 +1533,8 @@ describe('Integration: Full to-hit calculations', () => {
     });
     const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
 
-    // Gunnery 4 + Prone at range -2 + Immobile -4 = -2 (very easy)
-    expect(result.finalToHit).toBe(-2);
+    // Gunnery 4 + Prone at range +1 + Immobile -4 = 1
+    expect(result.finalToHit).toBe(1);
     expect(result.probability).toBe(1.0);
   });
 
@@ -1557,8 +1584,8 @@ describe('Edge cases', () => {
     const target = createTestTargetState({ immobile: true, prone: true });
     const result = calculateToHit(attacker, target, RangeBracket.Short, 5);
 
-    // Gunnery 0 + Immobile -4 + Prone at range -2 = -6
-    expect(result.finalToHit).toBe(-6);
+    // Gunnery 0 + Immobile -4 + Prone at range +1 = -3
+    expect(result.finalToHit).toBe(-3);
     expect(result.probability).toBe(1.0);
     expect(result.impossible).toBe(false);
   });
@@ -1593,7 +1620,7 @@ describe('Edge cases', () => {
 
   it('should handle very high heat values', () => {
     const modifier = calculateHeatModifier(100);
-    expect(modifier.value).toBe(3); // Max is +3
+    expect(modifier.value).toBe(4); // Max is +4 (canonical: +4@24+)
   });
 
   it('should handle range exactly at bracket boundaries', () => {
