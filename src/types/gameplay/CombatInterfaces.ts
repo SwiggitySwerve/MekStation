@@ -174,6 +174,7 @@ export type ToHitModifierSource =
   | 'equipment'
   | 'spa'
   | 'quirk'
+  | 'environmental'
   | 'other';
 
 /**
