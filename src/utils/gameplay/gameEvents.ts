@@ -23,6 +23,7 @@ import {
   IMovementDeclaredPayload,
   IMovementLockedPayload,
   IAttackDeclaredPayload,
+  IWeaponAttackData,
   IAttackLockedPayload,
   IAttackResolvedPayload,
   IDamageAppliedPayload,
@@ -276,6 +277,7 @@ export function createAttackDeclaredEvent(
   weapons: readonly string[],
   toHitNumber: number,
   modifiers: readonly IToHitModifier[],
+  weaponAttacks?: readonly IWeaponAttackData[],
 ): IGameEvent {
   const payload: IAttackDeclaredPayload = {
     attackerId,
@@ -283,6 +285,7 @@ export function createAttackDeclaredEvent(
     weapons,
     toHitNumber,
     modifiers,
+    weaponAttacks,
   };
   return {
     ...createEventBase(

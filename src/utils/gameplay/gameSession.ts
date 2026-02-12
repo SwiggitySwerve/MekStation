@@ -16,6 +16,7 @@ import {
   GameStatus,
   GamePhase,
   GameSide,
+  IWeaponAttackData,
 } from '@/types/gameplay';
 import {
   IHexCoordinate,
@@ -412,6 +413,12 @@ export function declareAttack(
   }));
 
   const weaponIds = weapons.map((w) => w.weaponId);
+  const weaponAttackData: IWeaponAttackData[] = weapons.map((w) => ({
+    weaponId: w.weaponId,
+    weaponName: w.weaponName,
+    damage: w.damage,
+    heat: w.heat,
+  }));
 
   const sequence = session.events.length;
   const { turn } = session.currentState;
@@ -424,6 +431,7 @@ export function declareAttack(
     weaponIds,
     toHitCalc.finalToHit,
     modifiers,
+    weaponAttackData,
   );
 
   return appendEvent(session, event);
@@ -457,7 +465,14 @@ export function resolveAttack(
   diceRoller: DiceRoller = rollDice,
 ): IGameSession {
   const payload = attackEvent.payload as IAttackDeclaredPayload;
-  const { attackerId, targetId, weapons, toHitNumber } = payload;
+  const { attackerId, targetId, weapons, weaponAttacks, toHitNumber } = payload;
+
+  const weaponDataMap = new Map<string, IWeaponAttackData>();
+  if (weaponAttacks) {
+    for (const wa of weaponAttacks) {
+      weaponDataMap.set(wa.weaponId, wa);
+    }
+  }
 
   let currentSession = session;
 
@@ -475,7 +490,8 @@ export function resolveAttack(
         locationRoll,
       );
       const location = hitLocationResult.location;
-      const damage = 5;
+      const weaponData = weaponDataMap.get(weaponId);
+      const damage = weaponData?.damage ?? 5;
 
       const resolvedEvent = createAttackResolvedEvent(
         currentSession.id,
@@ -581,8 +597,14 @@ export function resolveHeatPhase(session: IGameSession): IGameSession {
       (e) => e.type === GameEventType.AttackDeclared && e.actorId === unitId,
     );
     for (const attackEvent of attackEvents) {
-      const payload = attackEvent.payload as IAttackDeclaredPayload;
-      heatFromWeapons += payload.weapons.length * 10;
+      const atkPayload = attackEvent.payload as IAttackDeclaredPayload;
+      if (atkPayload.weaponAttacks && atkPayload.weaponAttacks.length > 0) {
+        for (const wa of atkPayload.weaponAttacks) {
+          heatFromWeapons += wa.heat;
+        }
+      } else {
+        heatFromWeapons += atkPayload.weapons.length * 3;
+      }
     }
 
     const totalHeatGenerated = heatFromMovement + heatFromWeapons;
@@ -604,9 +626,8 @@ export function resolveHeatPhase(session: IGameSession): IGameSession {
 
     const currentHeat = currentSession.currentState.units[unitId].heat;
 
-    const baseHeatSinks = 10;
-    const waterCoolingBonus = 0;
-    const totalDissipation = baseHeatSinks + waterCoolingBonus;
+    const unitHeatSinks = unit.heatSinks ?? 10;
+    const totalDissipation = unitHeatSinks;
 
     const newHeat = Math.max(0, currentHeat - totalDissipation);
 
