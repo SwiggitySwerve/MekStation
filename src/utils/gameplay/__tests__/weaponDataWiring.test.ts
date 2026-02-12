@@ -112,13 +112,28 @@ function advanceToWeaponAttack(session: IGameSession): IGameSession {
   return s;
 }
 
+/**
+ * Creates a roller that alternates: odd calls hit (12), even calls target CT (7).
+ * Avoids head location (roll 12) which triggers the 3-damage head-cap rule.
+ */
+function createAlwaysHitRoller(): DiceRoller {
+  let callCount = 0;
+  return () => {
+    callCount++;
+    if (callCount % 2 === 1) {
+      return { dice: [6, 6], total: 12, isSnakeEyes: false, isBoxcars: true };
+    }
+    return { dice: [4, 3], total: 7, isSnakeEyes: false, isBoxcars: false };
+  };
+}
+
 function alwaysHitRoller(): {
   dice: readonly number[];
   total: number;
   isSnakeEyes: boolean;
   isBoxcars: boolean;
 } {
-  return { dice: [6, 6], total: 12, isSnakeEyes: false, isBoxcars: true };
+  return { dice: [4, 3], total: 7, isSnakeEyes: false, isBoxcars: false };
 }
 
 // =============================================================================

@@ -484,6 +484,8 @@ export interface IUnitGameState {
   readonly lockState: LockState;
   /** Pending action (if planning) */
   readonly pendingAction?: unknown;
+  /** Cumulative damage taken this phase (for 20+ damage PSR trigger) */
+  readonly damageThisPhase?: number;
 }
 
 /**

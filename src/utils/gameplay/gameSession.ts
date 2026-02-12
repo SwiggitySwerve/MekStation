@@ -13,6 +13,7 @@ import {
   IGameState,
   IGameConfig,
   IGameUnit,
+  IUnitGameState,
   GameStatus,
   GamePhase,
   GameSide,
@@ -30,7 +31,12 @@ import {
   IToHitModifier,
   IMovementDeclaredPayload,
 } from '@/types/gameplay';
+import { CombatLocation } from '@/types/gameplay';
 
+import {
+  resolveDamage as resolveDamagePipeline,
+  IUnitDamageState,
+} from './damage';
 import { calculateFiringArc } from './firingArc';
 import {
   createGameCreatedEvent,
@@ -44,6 +50,8 @@ import {
   createAttackLockedEvent,
   createAttackResolvedEvent,
   createDamageAppliedEvent,
+  createPilotHitEvent,
+  createUnitDestroyedEvent,
   createHeatDissipatedEvent,
   createHeatGeneratedEvent,
 } from './gameEvents';
@@ -51,6 +59,7 @@ import { deriveState, allUnitsLocked } from './gameState';
 import {
   roll2d6 as rollDice,
   determineHitLocationFromRoll,
+  isHeadHit,
 } from './hitLocation';
 import { calculateToHit } from './toHit';
 
@@ -460,6 +469,42 @@ export type DiceRoller = () => {
   isBoxcars: boolean;
 };
 
+const DEFAULT_REAR_ARMOR: Record<
+  'center_torso' | 'left_torso' | 'right_torso',
+  number
+> = {
+  center_torso: 10,
+  left_torso: 7,
+  right_torso: 7,
+};
+
+function buildDamageStateFromUnit(
+  unit: IUnitGameState,
+  tonnage: number = 50,
+): IUnitDamageState {
+  const armorRecord = unit.armor as Record<CombatLocation, number>;
+  const structureRecord = unit.structure as Record<CombatLocation, number>;
+  const rearArmor: Record<
+    'center_torso' | 'left_torso' | 'right_torso',
+    number
+  > = {
+    center_torso:
+      armorRecord.center_torso_rear ?? DEFAULT_REAR_ARMOR.center_torso,
+    left_torso: armorRecord.left_torso_rear ?? DEFAULT_REAR_ARMOR.left_torso,
+    right_torso: armorRecord.right_torso_rear ?? DEFAULT_REAR_ARMOR.right_torso,
+  };
+
+  return {
+    armor: armorRecord,
+    rearArmor,
+    structure: structureRecord,
+    destroyedLocations: unit.destroyedLocations as CombatLocation[],
+    pilotWounds: unit.pilotWounds,
+    pilotConscious: unit.pilotConscious,
+    destroyed: unit.destroyed,
+  };
+}
+
 export function resolveAttack(
   session: IGameSession,
   attackEvent: IGameEvent,
@@ -499,7 +544,12 @@ export function resolveAttack(
       );
       const location = hitLocationResult.location;
       const weaponData = weaponDataMap.get(weaponId);
-      const damage = weaponData?.damage ?? 5;
+      let damage = weaponData?.damage ?? 5;
+
+      // Task 3.5: Head-capping rule — max 3 damage from single standard weapon
+      if (isHeadHit(location) && damage > 3) {
+        damage = 3;
+      }
 
       const resolvedEvent = createAttackResolvedEvent(
         currentSession.id,
@@ -516,19 +566,67 @@ export function resolveAttack(
       );
       currentSession = appendEvent(currentSession, resolvedEvent);
 
-      const damageSequence = currentSession.events.length;
-      const damageEvent = createDamageAppliedEvent(
-        currentSession.id,
-        damageSequence,
-        turn,
-        targetId,
-        location,
+      // Task 3.1: Use full damage pipeline from damage.ts
+      const damageState = buildDamageStateFromUnit(targetState);
+      const damageResult = resolveDamagePipeline(
+        damageState,
+        location as CombatLocation,
         damage,
-        0,
-        0,
-        false,
       );
-      currentSession = appendEvent(currentSession, damageEvent);
+
+      // Task 3.2: Emit DamageApplied events with actual armor/structure values
+      for (const locDamage of damageResult.result.locationDamages) {
+        const damageSequence = currentSession.events.length;
+        const damageEvent = createDamageAppliedEvent(
+          currentSession.id,
+          damageSequence,
+          turn,
+          targetId,
+          locDamage.location,
+          locDamage.damage,
+          locDamage.armorRemaining,
+          locDamage.structureRemaining,
+          locDamage.destroyed,
+        );
+        currentSession = appendEvent(currentSession, damageEvent);
+      }
+
+      // Emit PilotHit event if head was hit and pilot took damage
+      if (damageResult.result.pilotDamage) {
+        const pd = damageResult.result.pilotDamage;
+        const pilotSequence = currentSession.events.length;
+        const pilotEvent = createPilotHitEvent(
+          currentSession.id,
+          pilotSequence,
+          turn,
+          GamePhase.WeaponAttack,
+          targetId,
+          pd.woundsInflicted,
+          pd.totalWounds,
+          pd.source as 'head_hit' | 'ammo_explosion' | 'mech_destruction',
+          pd.consciousnessCheckRequired,
+          pd.conscious,
+        );
+        currentSession = appendEvent(currentSession, pilotEvent);
+      }
+
+      // Emit UnitDestroyed event if unit was destroyed
+      if (damageResult.result.unitDestroyed) {
+        const destroySequence = currentSession.events.length;
+        const destroyEvent = createUnitDestroyedEvent(
+          currentSession.id,
+          destroySequence,
+          turn,
+          GamePhase.WeaponAttack,
+          targetId,
+          (damageResult.result.destructionCause as
+            | 'damage'
+            | 'ammo_explosion'
+            | 'pilot_death'
+            | 'shutdown') ?? 'damage',
+        );
+        currentSession = appendEvent(currentSession, destroyEvent);
+      }
     } else {
       const resolvedEvent = createAttackResolvedEvent(
         currentSession.id,

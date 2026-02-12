@@ -38,14 +38,14 @@
 
 ## 3. Wire Damage Pipeline
 
-- [ ] 3.1 Connect `damage.ts:resolveDamage()` into `gameSession.ts:resolveAttack()` — replace flat damage subtraction with full armor→structure→transfer pipeline
-- [ ] 3.2 Emit correct `DamageApplied` events with actual armor/structure values from `resolveDamage()` result
-- [ ] 3.3 Implement damage transfer chain in `applyDamageApplied()` reducer — arm damage transfers to side torso, side torso to CT
-- [ ] 3.4 Implement side torso destruction cascading to arm destruction — when side torso IS reaches 0, corresponding arm is destroyed
-- [ ] 3.5 Implement head-capping rule — max 3 damage to head from single standard weapon per hit
-- [ ] 3.6 Track `damageThisPhase` on `IUnitGameState` — accumulate damage per unit per phase for 20+ damage PSR trigger
-- [ ] 3.7 Connect `damage.ts` into `SimulationRunner.ts` — replace `applySimpleDamage()` with shared CombatResolver pipeline
-- [ ] 3.8 Write tests for full damage pipeline: armor absorption, structure penetration, transfer, side torso cascade, head cap
+- [x] 3.1 Connect `damage.ts:resolveDamage()` into `gameSession.ts:resolveAttack()` — replace flat damage subtraction with full armor→structure→transfer pipeline
+- [x] 3.2 Emit correct `DamageApplied` events with actual armor/structure values from `resolveDamage()` result
+- [x] 3.3 Implement damage transfer chain in `applyDamageApplied()` reducer — arm damage transfers to side torso, side torso to CT
+- [x] 3.4 Implement side torso destruction cascading to arm destruction — when side torso IS reaches 0, corresponding arm is destroyed
+- [x] 3.5 Implement head-capping rule — max 3 damage to head from single standard weapon per hit
+- [x] 3.6 Track `damageThisPhase` on `IUnitGameState` — accumulate damage per unit per phase for 20+ damage PSR trigger
+- [x] 3.7 Connect `damage.ts` into `SimulationRunner.ts` — replace `applySimpleDamage()` with shared CombatResolver pipeline
+- [x] 3.8 Write tests for full damage pipeline: armor absorption, structure penetration, transfer, side torso cascade, head cap
 
 ## 4. Extend IUnitGameState
 
