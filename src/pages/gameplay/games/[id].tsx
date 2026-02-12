@@ -11,10 +11,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useCallback } from 'react';
 
-import { GameplayLayout } from '@/components/gameplay';
+import { GameplayLayout, SpectatorView } from '@/components/gameplay';
 import { Button } from '@/components/ui';
-import { useGameplayStore } from '@/stores/useGameplayStore';
-import { GameSide, GameStatus } from '@/types/gameplay';
+import { useGameplayStore, InteractivePhase } from '@/stores/useGameplayStore';
+import { GameSide, GameStatus, MovementType } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
 // =============================================================================
@@ -222,6 +222,19 @@ export default function GameSessionPage(): React.ReactElement {
     pilotNames,
     heatSinks,
     clearError,
+    interactiveSession,
+    interactivePhase,
+    spectatorMode,
+    validMovementHexes,
+    validTargetIds,
+    hitChance,
+    handleInteractiveHexClick,
+    handleInteractiveTokenClick,
+    advanceInteractivePhase,
+    fireWeapons,
+    runAITurn,
+    skipPhase,
+    checkGameOver,
   } = useGameplayStore();
 
   // Load session on mount
@@ -233,13 +246,19 @@ export default function GameSessionPage(): React.ReactElement {
     }
   }, [id, loadSession, createDemoSession]);
 
-  // Handle hex click
-  const handleHexClick = useCallback((hex: { q: number; r: number }) => {
-    logger.debug('Hex clicked:', hex);
-    // TODO: Handle movement/targeting based on current phase
-  }, []);
+  const isInteractive = !!interactiveSession;
 
-  // Handle retry
+  const handleHexClick = useCallback(
+    (hex: { q: number; r: number }) => {
+      if (interactiveSession) {
+        handleInteractiveHexClick(hex);
+      } else {
+        logger.debug('Hex clicked:', hex);
+      }
+    },
+    [interactiveSession, handleInteractiveHexClick],
+  );
+
   const handleRetry = useCallback(() => {
     clearError();
     if (typeof id === 'string') {
@@ -247,39 +266,118 @@ export default function GameSessionPage(): React.ReactElement {
     }
   }, [id, loadSession, clearError]);
 
-  // Loading state
+  const handleTokenClick = useCallback(
+    (unitId: string | null) => {
+      if (!unitId) {
+        selectUnit(null);
+        return;
+      }
+      if (isInteractive) {
+        handleInteractiveTokenClick(unitId);
+      } else {
+        selectUnit(unitId === ui.selectedUnitId ? null : unitId);
+      }
+    },
+    [isInteractive, handleInteractiveTokenClick, selectUnit, ui.selectedUnitId],
+  );
+
+  const handleInteractiveAction = useCallback(
+    (actionId: string) => {
+      if (!isInteractive) {
+        handleAction(actionId);
+        return;
+      }
+
+      switch (actionId) {
+        case 'lock':
+        case 'skip':
+          skipPhase();
+          break;
+        case 'next-turn':
+          runAITurn();
+          break;
+        case 'fire':
+          fireWeapons();
+          break;
+        case 'advance':
+          advanceInteractivePhase();
+          break;
+        case 'concede':
+          handleAction(actionId);
+          break;
+        default:
+          handleAction(actionId);
+      }
+
+      checkGameOver();
+    },
+    [
+      isInteractive,
+      handleAction,
+      skipPhase,
+      runAITurn,
+      fireWeapons,
+      advanceInteractivePhase,
+      checkGameOver,
+    ],
+  );
+
   if (isLoading) {
     return <GameLoading />;
   }
 
-  // Error state
   if (error) {
     return <GameError message={error} onRetry={handleRetry} />;
   }
 
-  // No session
   if (!session) {
     return <GameLoading />;
   }
 
-  // Completed game - show results and replay option
   if (
     session.currentState.status === GameStatus.Completed &&
     session.currentState.result
   ) {
     return (
-      <>
-        <CompletedGame
-          gameId={session.id}
-          winner={session.currentState.result.winner}
-          reason={session.currentState.result.reason}
-        />
-      </>
+      <CompletedGame
+        gameId={session.id}
+        winner={session.currentState.result.winner}
+        reason={session.currentState.result.reason}
+      />
     );
   }
 
-  // Determine if it's player's turn
+  if (
+    interactivePhase === InteractivePhase.GameOver &&
+    interactiveSession &&
+    !spectatorMode
+  ) {
+    const result = interactiveSession.getResult();
+    const rawWinner = result?.winner ?? 'draw';
+    const winner: GameSide | 'draw' =
+      rawWinner === 'player'
+        ? GameSide.Player
+        : rawWinner === 'opponent'
+          ? GameSide.Opponent
+          : 'draw';
+    const reason = result?.reason ?? 'unknown';
+    return (
+      <CompletedGame gameId={session.id} winner={winner} reason={reason} />
+    );
+  }
+
+  if (spectatorMode?.enabled && interactiveSession) {
+    return <SpectatorView />;
+  }
+
   const isPlayerTurn = session.currentState.firstMover === GameSide.Player;
+
+  const movementRangeHexes = validMovementHexes.map((hex) => ({
+    hex,
+    mpCost: 1,
+    reachable: true,
+    movementType: MovementType.Walk,
+  }));
 
   return (
     <>
@@ -290,8 +388,8 @@ export default function GameSessionPage(): React.ReactElement {
         <GameplayLayout
           session={session}
           selectedUnitId={ui.selectedUnitId}
-          onUnitSelect={selectUnit}
-          onAction={handleAction}
+          onUnitSelect={handleTokenClick}
+          onAction={handleInteractiveAction}
           onHexClick={handleHexClick}
           canUndo={false}
           isPlayerTurn={isPlayerTurn}
@@ -300,6 +398,10 @@ export default function GameSessionPage(): React.ReactElement {
           maxStructure={maxStructure}
           pilotNames={pilotNames}
           heatSinks={heatSinks}
+          interactivePhase={isInteractive ? interactivePhase : undefined}
+          hitChance={hitChance}
+          validTargetIds={validTargetIds}
+          movementRange={movementRangeHexes}
         />
       </div>
     </>

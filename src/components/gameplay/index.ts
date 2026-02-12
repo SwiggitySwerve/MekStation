@@ -22,3 +22,4 @@ export { ScenarioGenerator } from './ScenarioGenerator';
 export type { ScenarioGeneratorProps } from './ScenarioGenerator';
 export { GenerateScenarioModal } from './GenerateScenarioModal';
 export type { GenerateScenarioModalProps } from './GenerateScenarioModal';
+export { SpectatorView } from './SpectatorView';

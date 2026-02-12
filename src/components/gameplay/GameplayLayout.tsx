@@ -13,6 +13,8 @@ import React, {
   useEffect,
 } from 'react';
 
+import type { InteractivePhase } from '@/stores/useGameplayStore';
+
 import {
   GamePhase,
   GameSide,
@@ -21,6 +23,7 @@ import {
   IUnitToken,
   ILayoutConfig,
   IWeaponStatus,
+  IMovementRangeHex,
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
 } from '@/types/gameplay';
@@ -60,6 +63,14 @@ export interface GameplayLayoutProps {
   pilotNames?: Record<string, string>;
   /** Heat sinks per unit */
   heatSinks?: Record<string, number>;
+  /** Interactive mode phase (if in interactive mode) */
+  interactivePhase?: InteractivePhase;
+  /** Hit chance for current attack setup */
+  hitChance?: number | null;
+  /** Valid target unit IDs */
+  validTargetIds?: readonly string[];
+  /** Movement range hexes for map display */
+  movementRange?: readonly IMovementRangeHex[];
   /** Optional className for styling */
   className?: string;
 }
@@ -119,6 +130,10 @@ export function GameplayLayout({
   maxStructure = {},
   pilotNames = {},
   heatSinks = {},
+  interactivePhase,
+  hitChance,
+  validTargetIds = [],
+  movementRange = [],
   className = '',
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
@@ -141,7 +156,6 @@ export function GameplayLayout({
     return lookup;
   }, [units]);
 
-  // Build tokens for map display
   const tokens = useMemo(() => {
     return Object.entries(currentState.units).map(([unitId, state]) => {
       const unitInfo = unitInfoLookup[unitId] || {
@@ -149,11 +163,11 @@ export function GameplayLayout({
         side: GameSide.Player,
       };
       const isSelected = unitId === selectedUnitId;
-      // In attack phase, opponent units are valid targets
       const isValidTarget =
-        currentState.phase === GamePhase.WeaponAttack &&
-        unitInfo.side === GameSide.Opponent &&
-        !state.destroyed;
+        validTargetIds.includes(unitId) ||
+        (currentState.phase === GamePhase.WeaponAttack &&
+          unitInfo.side === GameSide.Opponent &&
+          !state.destroyed);
 
       return unitStateToToken(
         unitId,
@@ -163,7 +177,7 @@ export function GameplayLayout({
         isValidTarget,
       );
     });
-  }, [currentState, unitInfoLookup, selectedUnitId]);
+  }, [currentState, unitInfoLookup, selectedUnitId, validTargetIds]);
 
   // Selected unit data
   const selectedUnit = selectedUnitId
@@ -251,10 +265,26 @@ export function GameplayLayout({
             radius={config.mapRadius}
             tokens={tokens}
             selectedHex={selectedUnit?.position || null}
+            movementRange={movementRange}
             onHexClick={handleHexClick}
             onTokenClick={handleTokenClick}
             className="h-full"
           />
+          {interactivePhase &&
+            hitChance !== undefined &&
+            hitChance !== null && (
+              <div
+                className="absolute bottom-4 left-4 rounded-lg bg-gray-900/90 px-4 py-3 text-white shadow-lg"
+                data-testid="hit-chance-panel"
+              >
+                <div className="text-xs tracking-wider text-gray-400 uppercase">
+                  Hit Chance
+                </div>
+                <div className="text-2xl font-bold text-amber-400">
+                  {hitChance}%
+                </div>
+              </div>
+            )}
         </div>
 
         {/* Resize Handle */}
@@ -300,6 +330,9 @@ export function GameplayLayout({
         canUndo={canUndo}
         canAct={isPlayerTurn}
         onAction={onAction}
+        infoText={
+          interactivePhase ? `Interactive: ${interactivePhase}` : undefined
+        }
       />
 
       {/* Event Log */}
