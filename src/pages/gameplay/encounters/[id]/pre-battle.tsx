@@ -173,12 +173,14 @@ function BVComparison({
 interface ModeSelectionProps {
   onAutoResolve: () => void;
   onInteractive: () => void;
+  onSpectate: () => void;
   isResolving: boolean;
 }
 
 function ModeSelection({
   onAutoResolve,
   onInteractive,
+  onSpectate,
   isResolving,
 }: ModeSelectionProps): React.ReactElement {
   return (
@@ -191,7 +193,7 @@ function ModeSelection({
           Select how you want to resolve this encounter.
         </p>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {/* Auto-Resolve */}
           <button
             onClick={onAutoResolve}
@@ -257,6 +259,37 @@ function ModeSelection({
               choose targets, and manage heat.
             </p>
           </button>
+
+          {/* Simulate Battle (Spectator) */}
+          <button
+            onClick={onSpectate}
+            disabled={isResolving}
+            className="group border-border-theme-subtle rounded-lg border-2 p-6 text-left transition-all hover:border-emerald-500/50 hover:bg-emerald-500/5 disabled:cursor-wait disabled:opacity-60"
+            data-testid="simulate-battle-btn"
+          >
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/20">
+              <svg
+                className="h-5 w-5 text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-text-theme-primary mb-1 font-medium">
+              Simulate Battle
+            </h3>
+            <p className="text-text-theme-muted text-sm">
+              Watch AI control both sides. Playback controls let you pause,
+              step, and adjust speed.
+            </p>
+          </button>
         </div>
       </div>
     </Card>
@@ -279,7 +312,8 @@ export default function PreBattlePage(): React.ReactElement {
   } = useEncounterStore();
   const { forces, loadForces } = useForceStore();
   const { pilots, loadPilots } = usePilotStore();
-  const { setSession, setInteractiveSession } = useGameplayStore();
+  const { setSession, setInteractiveSession, setSpectatorMode } =
+    useGameplayStore();
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
@@ -616,7 +650,152 @@ export default function PreBattlePage(): React.ReactElement {
     router,
   ]);
 
-  // Loading state
+  const startSpectator = useCallback(async () => {
+    if (!encounter || !encounter.playerForce || !encounter.opponentForce) {
+      showToast({
+        message: 'Encounter forces not configured',
+        variant: 'error',
+      });
+      return;
+    }
+
+    setIsResolving(true);
+
+    try {
+      const playerUnitIds: string[] = [];
+      const opponentUnitIds: string[] = [];
+
+      if (playerForce) {
+        for (const assignment of playerForce.assignments) {
+          if (assignment.unitId) playerUnitIds.push(assignment.unitId);
+        }
+      }
+      if (opponentForce) {
+        for (const assignment of opponentForce.assignments) {
+          if (assignment.unitId) opponentUnitIds.push(assignment.unitId);
+        }
+      }
+
+      if (playerUnitIds.length === 0 || opponentUnitIds.length === 0) {
+        showToast({
+          message: 'Both forces need at least one unit assigned',
+          variant: 'error',
+        });
+        setIsResolving(false);
+        return;
+      }
+
+      const getPilotSkills = (
+        pilotId: string | null,
+      ): { gunnery: number; piloting: number } => {
+        if (!pilotId) return { gunnery: 4, piloting: 5 };
+        const pilot = pilots.find((p) => p.id === pilotId);
+        if (!pilot) return { gunnery: 4, piloting: 5 };
+        return {
+          gunnery: pilot.skills.gunnery,
+          piloting: pilot.skills.piloting,
+        };
+      };
+
+      const playerAdapted: IAdaptedUnit[] = [];
+      const playerAssignments =
+        playerForce?.assignments.filter((a) => a.unitId) ?? [];
+      for (const assignment of playerAssignments) {
+        if (!assignment.unitId) continue;
+        const skills = getPilotSkills(assignment.pilotId);
+        const adapted = await adaptUnit(assignment.unitId, {
+          side: GameSide.Player,
+          gunnery: skills.gunnery,
+          piloting: skills.piloting,
+        });
+        if (adapted) playerAdapted.push(adapted);
+      }
+
+      const opponentAdapted: IAdaptedUnit[] = [];
+      const opponentAssignments =
+        opponentForce?.assignments.filter((a) => a.unitId) ?? [];
+      for (const assignment of opponentAssignments) {
+        if (!assignment.unitId) continue;
+        const skills = getPilotSkills(assignment.pilotId);
+        const adapted = await adaptUnit(assignment.unitId, {
+          side: GameSide.Opponent,
+          gunnery: skills.gunnery,
+          piloting: skills.piloting,
+        });
+        if (adapted) opponentAdapted.push(adapted);
+      }
+
+      if (playerAdapted.length === 0 || opponentAdapted.length === 0) {
+        showToast({
+          message: 'Failed to load unit data for one or both forces',
+          variant: 'error',
+        });
+        setIsResolving(false);
+        return;
+      }
+
+      const gameUnits: IGameUnit[] = [
+        ...playerAssignments.map((a, i) => ({
+          id: playerAdapted[i]?.id ?? a.unitId ?? a.id,
+          name: playerAdapted[i]?.id ?? `Player Unit ${i + 1}`,
+          side: GameSide.Player as GameSide,
+          unitRef: a.unitId ?? '',
+          pilotRef: a.pilotId ?? 'Unknown',
+          gunnery: getPilotSkills(a.pilotId).gunnery,
+          piloting: getPilotSkills(a.pilotId).piloting,
+        })),
+        ...opponentAssignments.map((a, i) => ({
+          id: opponentAdapted[i]?.id ?? a.unitId ?? a.id,
+          name: opponentAdapted[i]?.id ?? `Opponent Unit ${i + 1}`,
+          side: GameSide.Opponent as GameSide,
+          unitRef: a.unitId ?? '',
+          pilotRef: a.pilotId ?? 'Unknown',
+          gunnery: getPilotSkills(a.pilotId).gunnery,
+          piloting: getPilotSkills(a.pilotId).piloting,
+        })),
+      ];
+
+      const engine = new GameEngine({ seed: Date.now() });
+      const interactiveSession = engine.createInteractiveSession(
+        playerAdapted,
+        opponentAdapted,
+        gameUnits,
+      );
+
+      setSpectatorMode(interactiveSession, {
+        enabled: true,
+        playing: true,
+        speed: 1,
+      });
+
+      const session = interactiveSession.getSession();
+      logger.info('Spectator session created', { sessionId: session.id });
+
+      showToast({
+        message: 'Launching spectator mode...',
+        variant: 'success',
+      });
+      router.push(`/gameplay/games/${session.id}`);
+    } catch (err) {
+      logger.error('Spectator mode failed:', err);
+      showToast({
+        message:
+          err instanceof Error ? err.message : 'Failed to start spectator mode',
+        variant: 'error',
+      });
+    } finally {
+      setIsResolving(false);
+    }
+  }, [
+    encounter,
+    playerForce,
+    opponentForce,
+    pilots,
+    showToast,
+    setSpectatorMode,
+    router,
+  ]);
+
   if (!isInitialized || encountersLoading) {
     return (
       <PageLayout
@@ -787,6 +966,7 @@ export default function PreBattlePage(): React.ReactElement {
           <ModeSelection
             onAutoResolve={startAutoResolve}
             onInteractive={startInteractive}
+            onSpectate={startSpectator}
             isResolving={isResolving}
           />
         </div>

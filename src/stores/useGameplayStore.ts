@@ -41,20 +41,19 @@ import { logger } from '@/utils/logger';
 // =============================================================================
 
 export enum InteractivePhase {
-  /** No interactive session */
   None = 'none',
-  /** Selecting a unit to act with */
   SelectUnit = 'select_unit',
-  /** Choosing movement destination */
   SelectMovement = 'select_movement',
-  /** Selecting attack target */
   SelectTarget = 'select_target',
-  /** Selecting weapons to fire */
   SelectWeapons = 'select_weapons',
-  /** AI is taking its turn */
   AITurn = 'ai_turn',
-  /** Game is over */
   GameOver = 'game_over',
+}
+
+export interface SpectatorMode {
+  enabled: boolean;
+  playing: boolean;
+  speed: 1 | 2 | 4;
 }
 
 // =============================================================================
@@ -62,81 +61,48 @@ export enum InteractivePhase {
 // =============================================================================
 
 interface GameplayState {
-  /** Current game session */
   session: IGameSession | null;
-  /** Interactive session reference (class with methods) */
   interactiveSession: InteractiveSession | null;
-  /** Current interactive UI phase */
   interactivePhase: InteractivePhase;
-  /** Valid movement hexes for selected unit */
+  spectatorMode: SpectatorMode | null;
   validMovementHexes: readonly { q: number; r: number }[];
-  /** Valid target unit IDs for selected unit */
   validTargetIds: readonly string[];
-  /** Hit chance for current attack setup */
   hitChance: number | null;
-  /** UI state */
   ui: IGameplayUIState;
-  /** Is loading */
   isLoading: boolean;
-  /** Error message */
   error: string | null;
-  /** Unit weapons lookup */
   unitWeapons: Record<string, readonly IWeaponStatus[]>;
-  /** Max armor values lookup */
   maxArmor: Record<string, Record<string, number>>;
-  /** Max structure values lookup */
   maxStructure: Record<string, Record<string, number>>;
-  /** Pilot names lookup */
   pilotNames: Record<string, string>;
-  /** Heat sinks lookup */
   heatSinks: Record<string, number>;
 }
 
 interface GameplayActions {
-  /** Load a game session */
   loadSession: (sessionId: string) => Promise<void>;
-  /** Create a demo session for testing */
   createDemoSession: () => void;
-  /** Set a completed game session (e.g. from GameEngine auto-resolve) */
   setSession: (session: IGameSession) => void;
-  /** Set an interactive session (from pre-battle) */
   setInteractiveSession: (interactiveSession: InteractiveSession) => void;
-  /** Select a unit */
+  setSpectatorMode: (
+    interactiveSession: InteractiveSession,
+    spectatorMode: SpectatorMode,
+  ) => void;
   selectUnit: (unitId: string | null) => void;
-  /** Set target unit */
   setTarget: (unitId: string | null) => void;
-  /** Handle action from action bar */
   handleAction: (actionId: string) => void;
-  /** Toggle weapon selection */
   toggleWeapon: (weaponId: string) => void;
-  /** Clear error */
   clearError: () => void;
-  /** Reset store */
   reset: () => void;
-
-  // --- Interactive mode actions ---
-
-  /** Select a unit for movement (shows valid hexes) */
   selectUnitForMovement: (unitId: string) => void;
-  /** Move a unit to a target hex */
   moveUnit: (unitId: string, targetHex: { q: number; r: number }) => void;
-  /** Select a weapon for firing */
   selectWeapon: (weaponId: string) => void;
-  /** Select an attack target (calculates hit chance) */
   selectAttackTarget: (unitId: string) => void;
-  /** Fire selected weapons at target */
   fireWeapons: () => void;
-  /** Run AI opponent turn */
   runAITurn: () => void;
-  /** Advance the interactive game phase */
   advanceInteractivePhase: () => void;
-  /** Handle hex click in interactive mode */
   handleInteractiveHexClick: (hex: { q: number; r: number }) => void;
-  /** Handle token click in interactive mode */
   handleInteractiveTokenClick: (unitId: string) => void;
-  /** Skip current phase (movement or attack) */
   skipPhase: () => void;
-  /** Check and handle game over */
   checkGameOver: () => boolean;
 }
 
@@ -150,6 +116,7 @@ const initialState: GameplayState = {
   session: null,
   interactiveSession: null,
   interactivePhase: InteractivePhase.None,
+  spectatorMode: null,
   validMovementHexes: [],
   validTargetIds: [],
   hitChance: null,
@@ -228,6 +195,23 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
       session,
       interactiveSession,
       interactivePhase,
+      spectatorMode: null,
+      isLoading: false,
+      error: null,
+    });
+  },
+
+  setSpectatorMode: (
+    interactiveSession: InteractiveSession,
+    spectatorMode: SpectatorMode,
+  ) => {
+    const session = interactiveSession.getSession();
+
+    set({
+      session,
+      interactiveSession,
+      interactivePhase: InteractivePhase.AITurn,
+      spectatorMode,
       isLoading: false,
       error: null,
     });

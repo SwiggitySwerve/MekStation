@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useCallback } from 'react';
 
-import { GameplayLayout } from '@/components/gameplay';
+import { GameplayLayout, SpectatorView } from '@/components/gameplay';
 import { Button } from '@/components/ui';
 import { useGameplayStore, InteractivePhase } from '@/stores/useGameplayStore';
 import { GameSide, GameStatus, MovementType } from '@/types/gameplay';
@@ -224,6 +224,7 @@ export default function GameSessionPage(): React.ReactElement {
     clearError,
     interactiveSession,
     interactivePhase,
+    spectatorMode,
     validMovementHexes,
     validTargetIds,
     hitChance,
@@ -346,7 +347,11 @@ export default function GameSessionPage(): React.ReactElement {
     );
   }
 
-  if (interactivePhase === InteractivePhase.GameOver && interactiveSession) {
+  if (
+    interactivePhase === InteractivePhase.GameOver &&
+    interactiveSession &&
+    !spectatorMode
+  ) {
     const result = interactiveSession.getResult();
     const rawWinner = result?.winner ?? 'draw';
     const winner: GameSide | 'draw' =
@@ -359,6 +364,10 @@ export default function GameSessionPage(): React.ReactElement {
     return (
       <CompletedGame gameId={session.id} winner={winner} reason={reason} />
     );
+  }
+
+  if (spectatorMode?.enabled && interactiveSession) {
+    return <SpectatorView />;
   }
 
   const isPlayerTurn = session.currentState.firstMover === GameSide.Player;

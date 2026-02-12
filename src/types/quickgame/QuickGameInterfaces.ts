@@ -220,6 +220,8 @@ export interface IQuickGameActions {
   startGame: () => void;
   /** Run auto-resolved battle via GameEngine */
   startBattle: () => Promise<void>;
+  /** Launch spectator mode (AI vs AI) via InteractiveSession */
+  startSpectatorMode: () => Promise<void>;
   /** Record a game event */
   recordEvent: (event: IGameEvent) => void;
   /** End the game */

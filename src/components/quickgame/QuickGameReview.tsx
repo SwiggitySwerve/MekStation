@@ -5,8 +5,11 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
+import { useRouter } from 'next/router';
+
 import { Button, Card } from '@/components/ui';
 import { FACTION_NAMES, Faction } from '@/constants/scenario/rats';
+import { useGameplayStore } from '@/stores/useGameplayStore';
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
 
 // =============================================================================
@@ -195,7 +198,17 @@ function ModifierDisplay(): React.ReactElement {
 // =============================================================================
 
 export function QuickGameReview(): React.ReactElement {
-  const { game, previousStep, startGame, isLoading } = useQuickGameStore();
+  const router = useRouter();
+  const { game, previousStep, startGame, startSpectatorMode, isLoading } =
+    useQuickGameStore();
+
+  const handleWatchAIBattle = async () => {
+    await startSpectatorMode();
+    const session = useGameplayStore.getState().session;
+    if (session) {
+      router.push(`/gameplay/games/${session.id}`);
+    }
+  };
 
   if (!game || !game.scenario || !game.opponentForce) {
     return (
@@ -352,14 +365,24 @@ export function QuickGameReview(): React.ReactElement {
         <Button variant="secondary" onClick={previousStep}>
           Back to Configuration
         </Button>
-        <Button
-          variant="primary"
-          onClick={startGame}
-          disabled={isLoading}
-          data-testid="start-game-btn"
-        >
-          Start Battle
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            variant="secondary"
+            onClick={handleWatchAIBattle}
+            disabled={isLoading}
+            data-testid="watch-ai-battle-btn"
+          >
+            Watch AI Battle
+          </Button>
+          <Button
+            variant="primary"
+            onClick={startGame}
+            disabled={isLoading}
+            data-testid="start-game-btn"
+          >
+            Start Battle
+          </Button>
+        </div>
       </div>
     </div>
   );
