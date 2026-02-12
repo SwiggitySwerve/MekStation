@@ -110,25 +110,25 @@
 
 ## 8. Piloting Skill Rolls & Fall Mechanics
 
-- [ ] 8.1 Create `src/utils/gameplay/pilotingSkillRolls.ts` — PSR resolution and trigger management
-- [ ] 8.2 Implement `resolvePSR(pilotingSkill, modifiers, diceRoller)` — 2d6 ≥ target = success, return `IPSRResult`
-- [ ] 8.3 Define `IPendingPSR` interface — entityId, reason, additionalModifier, triggerSource
-- [ ] 8.4 Implement PSR modifier stacking: gyro hits (+3 each), pilot wounds (+1 each), actuator damage (varies)
-- [ ] 8.5 Implement 20+ phase damage PSR trigger — check `damageThisPhase` at end of weapon attack phase
-- [ ] 8.6 Implement component damage PSR triggers — leg/hip actuator destroyed, gyro hit
-- [ ] 8.7 Implement physical attack PSR triggers — kicked/charged/DFA'd/pushed → target PSR
-- [ ] 8.8 Implement physical attack miss PSR triggers — kick miss → attacker PSR, DFA miss → attacker PSR(+4)
-- [ ] 8.9 Implement shutdown PSR — PSR at TN 3 on reactor shutdown
-- [ ] 8.10 Implement terrain PSR triggers — entering rubble, rough terrain while running, water entry/exit
-- [ ] 8.11 Create `src/utils/gameplay/fallMechanics.ts` — fall damage and prone management
-- [ ] 8.12 Implement fall damage: `ceil(weight/10) × (fallHeight+1)` applied in 5-point clusters to random hit locations
-- [ ] 8.13 Implement fall direction: D6 for new facing (0=front, 1-2=right, 3=rear, 4-5=left)
-- [ ] 8.14 Implement prone state: set `prone: true` on `IUnitGameState`, change facing per fall direction
-- [ ] 8.15 Implement pilot damage from fall: 1 point per fall, consciousness check
-- [ ] 8.16 Implement standing up: costs full walking MP, requires PSR, add to movement phase
-- [ ] 8.17 Implement first-failure-clears rule: first PSR failure causes fall, clear remaining PSRs for that entity
-- [ ] 8.18 Wire PSR resolution into end-of-phase processing — resolve all pending PSRs after weapon/physical phases
-- [ ] 8.19 Write tests for PSR resolution, all trigger types, fall damage, prone state, standing up
+- [x] 8.1 Create `src/utils/gameplay/pilotingSkillRolls.ts` — PSR resolution and trigger management
+- [x] 8.2 Implement `resolvePSR(pilotingSkill, modifiers, diceRoller)` — 2d6 ≥ target = success, return `IPSRResult`
+- [x] 8.3 Define `IPendingPSR` interface — entityId, reason, additionalModifier, triggerSource
+- [x] 8.4 Implement PSR modifier stacking: gyro hits (+3 each), pilot wounds (+1 each), actuator damage (varies)
+- [x] 8.5 Implement 20+ phase damage PSR trigger — check `damageThisPhase` at end of weapon attack phase
+- [x] 8.6 Implement component damage PSR triggers — leg/hip actuator destroyed, gyro hit
+- [x] 8.7 Implement physical attack PSR triggers — kicked/charged/DFA'd/pushed → target PSR
+- [x] 8.8 Implement physical attack miss PSR triggers — kick miss → attacker PSR, DFA miss → attacker PSR(+4)
+- [x] 8.9 Implement shutdown PSR — PSR at TN 3 on reactor shutdown
+- [x] 8.10 Implement terrain PSR triggers — entering rubble, rough terrain while running, water entry/exit
+- [x] 8.11 Create `src/utils/gameplay/fallMechanics.ts` — fall damage and prone management
+- [x] 8.12 Implement fall damage: `ceil(weight/10) × (fallHeight+1)` applied in 5-point clusters to random hit locations
+- [x] 8.13 Implement fall direction: D6 for new facing (0=front, 1-2=right, 3=rear, 4-5=left)
+- [x] 8.14 Implement prone state: set `prone: true` on `IUnitGameState`, change facing per fall direction
+- [x] 8.15 Implement pilot damage from fall: 1 point per fall, consciousness check
+- [x] 8.16 Implement standing up: costs full walking MP, requires PSR, add to movement phase
+- [x] 8.17 Implement first-failure-clears rule: first PSR failure causes fall, clear remaining PSRs for that entity
+- [x] 8.18 Wire PSR resolution into end-of-phase processing — resolve all pending PSRs after weapon/physical phases
+- [x] 8.19 Write tests for PSR resolution, all trigger types, fall damage, prone state, standing up
 
 ## 9. Physical Attack System
 
