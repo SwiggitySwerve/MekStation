@@ -33,6 +33,7 @@ import {
   IToHitModifier,
   ICriticalHitResolvedPayload,
   IPSRTriggeredPayload,
+  IAmmoConsumedPayload,
 } from '@/types/gameplay';
 import { IHexCoordinate, Facing, MovementType } from '@/types/gameplay';
 
@@ -576,6 +577,37 @@ export function createPSRTriggeredEvent(
       gameId,
       sequence,
       GameEventType.PSRTriggered,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createAmmoConsumedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  binId: string,
+  weaponType: string,
+  roundsConsumed: number,
+  roundsRemaining: number,
+): IGameEvent {
+  const payload: IAmmoConsumedPayload = {
+    unitId,
+    binId,
+    weaponType,
+    roundsConsumed,
+    roundsRemaining,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.AmmoConsumed,
       turn,
       phase,
       unitId,

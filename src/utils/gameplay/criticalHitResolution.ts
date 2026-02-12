@@ -920,7 +920,11 @@ function applyJumpJetHit(
   };
 }
 
-/** Ammo critical — mark destroyed, ammo explosion handling deferred to Phase 6 */
+/**
+ * Ammo critical — triggers ammo explosion.
+ * The explosion result is attached to the effect for the caller to process
+ * (apply damage to IS at bin location, handle CASE, etc.).
+ */
 function applyAmmoHit(
   slot: ICriticalSlotEntry,
   _unitId: string,
@@ -928,7 +932,6 @@ function applyAmmoHit(
   componentDamage: IComponentDamageState,
   _events: CriticalHitEvent[],
 ): { effect: ICriticalEffect; updatedDamage: IComponentDamageState } {
-  // Mark ammo as destroyed; actual explosion logic deferred to Phase 6
   return {
     effect: {
       type: CriticalEffectType.AmmoExplosion,
