@@ -1,5 +1,13 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import { IComponentDamageState, IPendingPSR, IUnitGameState, GameSide, LockState, MovementType, Facing } from '@/types/gameplay';
+import {
+  IComponentDamageState,
+  IPendingPSR,
+  IUnitGameState,
+  GameSide,
+  LockState,
+  MovementType,
+  Facing,
+} from '@/types/gameplay';
 
 import {
   resolvePSR,
@@ -91,7 +99,10 @@ describe('Piloting Skill Rolls', () => {
 
     it('should add gyro damage modifier (+3 per hit)', () => {
       const psr: IPendingPSR = createDamagePSR('unit-1');
-      const compDamage: IComponentDamageState = { ...DEFAULT_COMP_DAMAGE, gyroHits: 1 };
+      const compDamage: IComponentDamageState = {
+        ...DEFAULT_COMP_DAMAGE,
+        gyroHits: 1,
+      };
       const roller = makeDiceSequence([4, 3]); // total = 7
       const result = resolvePSR(5, psr, compDamage, 0, roller);
 
@@ -110,7 +121,10 @@ describe('Piloting Skill Rolls', () => {
 
     it('should stack gyro + pilot wound modifiers', () => {
       const psr: IPendingPSR = createDamagePSR('unit-1');
-      const compDamage: IComponentDamageState = { ...DEFAULT_COMP_DAMAGE, gyroHits: 1 };
+      const compDamage: IComponentDamageState = {
+        ...DEFAULT_COMP_DAMAGE,
+        gyroHits: 1,
+      };
       const roller = makeDiceSequence([5, 5]); // total = 10
       const result = resolvePSR(5, psr, compDamage, 2, roller);
 
@@ -152,7 +166,10 @@ describe('Piloting Skill Rolls', () => {
 
     it('should return modifier breakdown', () => {
       const psr: IPendingPSR = createDFAMissPSR('unit-1');
-      const compDamage: IComponentDamageState = { ...DEFAULT_COMP_DAMAGE, gyroHits: 1 };
+      const compDamage: IComponentDamageState = {
+        ...DEFAULT_COMP_DAMAGE,
+        gyroHits: 1,
+      };
       const roller = makeDiceSequence([6, 6]); // total = 12
       const result = resolvePSR(5, psr, compDamage, 1, roller);
 
@@ -234,7 +251,10 @@ describe('Piloting Skill Rolls', () => {
 
     it('should include gyro +3 per hit', () => {
       const psr: IPendingPSR = createDamagePSR('unit-1');
-      const compDamage: IComponentDamageState = { ...DEFAULT_COMP_DAMAGE, gyroHits: 2 };
+      const compDamage: IComponentDamageState = {
+        ...DEFAULT_COMP_DAMAGE,
+        gyroHits: 2,
+      };
       const mods = calculatePSRModifiers(psr, compDamage, 0);
       const gyroMod = mods.find((m) => m.source === 'gyro');
       expect(gyroMod).toBeDefined();
@@ -298,33 +318,137 @@ describe('Piloting Skill Rolls', () => {
       expectedSource: PSRTrigger;
       expectedMod: number;
     }> = [
-      { fn: createDamagePSR, expectedSource: PSRTrigger.PhaseDamage20Plus, expectedMod: 0 },
-      { fn: createLegDamagePSR, expectedSource: PSRTrigger.LegDamage, expectedMod: 0 },
-      { fn: createHipActuatorPSR, expectedSource: PSRTrigger.HipActuatorDestroyed, expectedMod: 0 },
+      {
+        fn: createDamagePSR,
+        expectedSource: PSRTrigger.PhaseDamage20Plus,
+        expectedMod: 0,
+      },
+      {
+        fn: createLegDamagePSR,
+        expectedSource: PSRTrigger.LegDamage,
+        expectedMod: 0,
+      },
+      {
+        fn: createHipActuatorPSR,
+        expectedSource: PSRTrigger.HipActuatorDestroyed,
+        expectedMod: 0,
+      },
       { fn: createGyroPSR, expectedSource: PSRTrigger.GyroHit, expectedMod: 0 },
-      { fn: createUpperLegActuatorPSR, expectedSource: PSRTrigger.UpperLegActuatorHit, expectedMod: 0 },
-      { fn: createLowerLegActuatorPSR, expectedSource: PSRTrigger.LowerLegActuatorHit, expectedMod: 0 },
-      { fn: createFootActuatorPSR, expectedSource: PSRTrigger.FootActuatorHit, expectedMod: 0 },
-      { fn: createKickedPSR, expectedSource: PSRTrigger.Kicked, expectedMod: 0 },
-      { fn: createChargedPSR, expectedSource: PSRTrigger.Charged, expectedMod: 0 },
-      { fn: createDFATargetPSR, expectedSource: PSRTrigger.DFATarget, expectedMod: 0 },
-      { fn: createPushedPSR, expectedSource: PSRTrigger.Pushed, expectedMod: 0 },
-      { fn: createKickMissPSR, expectedSource: PSRTrigger.KickMiss, expectedMod: 0 },
-      { fn: createChargeMissPSR, expectedSource: PSRTrigger.ChargeMiss, expectedMod: 0 },
-      { fn: createDFAMissPSR, expectedSource: PSRTrigger.DFAMiss, expectedMod: 4 },
-      { fn: createShutdownPSR, expectedSource: PSRTrigger.Shutdown, expectedMod: 0 },
-      { fn: createStandingUpPSR, expectedSource: PSRTrigger.StandingUp, expectedMod: 0 },
-      { fn: createRubblePSR, expectedSource: PSRTrigger.EnteringRubble, expectedMod: 0 },
-      { fn: createRunningRoughTerrainPSR, expectedSource: PSRTrigger.RunningRoughTerrain, expectedMod: 0 },
-      { fn: createIcePSR, expectedSource: PSRTrigger.MovingOnIce, expectedMod: 0 },
-      { fn: createEnteringWaterPSR, expectedSource: PSRTrigger.EnteringWater, expectedMod: 0 },
-      { fn: createExitingWaterPSR, expectedSource: PSRTrigger.ExitingWater, expectedMod: 0 },
-      { fn: createSkiddingPSR, expectedSource: PSRTrigger.Skidding, expectedMod: 0 },
-      { fn: createRunningDamagedHipPSR, expectedSource: PSRTrigger.RunningDamagedHip, expectedMod: 0 },
-      { fn: createRunningDamagedGyroPSR, expectedSource: PSRTrigger.RunningDamagedGyro, expectedMod: 0 },
-      { fn: createBuildingCollapsePSR, expectedSource: PSRTrigger.BuildingCollapse, expectedMod: 0 },
-      { fn: createMASCFailurePSR, expectedSource: PSRTrigger.MASCFailure, expectedMod: 0 },
-      { fn: createSuperchargerFailurePSR, expectedSource: PSRTrigger.SuperchargerFailure, expectedMod: 0 },
+      {
+        fn: createUpperLegActuatorPSR,
+        expectedSource: PSRTrigger.UpperLegActuatorHit,
+        expectedMod: 0,
+      },
+      {
+        fn: createLowerLegActuatorPSR,
+        expectedSource: PSRTrigger.LowerLegActuatorHit,
+        expectedMod: 0,
+      },
+      {
+        fn: createFootActuatorPSR,
+        expectedSource: PSRTrigger.FootActuatorHit,
+        expectedMod: 0,
+      },
+      {
+        fn: createKickedPSR,
+        expectedSource: PSRTrigger.Kicked,
+        expectedMod: 0,
+      },
+      {
+        fn: createChargedPSR,
+        expectedSource: PSRTrigger.Charged,
+        expectedMod: 0,
+      },
+      {
+        fn: createDFATargetPSR,
+        expectedSource: PSRTrigger.DFATarget,
+        expectedMod: 0,
+      },
+      {
+        fn: createPushedPSR,
+        expectedSource: PSRTrigger.Pushed,
+        expectedMod: 0,
+      },
+      {
+        fn: createKickMissPSR,
+        expectedSource: PSRTrigger.KickMiss,
+        expectedMod: 0,
+      },
+      {
+        fn: createChargeMissPSR,
+        expectedSource: PSRTrigger.ChargeMiss,
+        expectedMod: 0,
+      },
+      {
+        fn: createDFAMissPSR,
+        expectedSource: PSRTrigger.DFAMiss,
+        expectedMod: 4,
+      },
+      {
+        fn: createShutdownPSR,
+        expectedSource: PSRTrigger.Shutdown,
+        expectedMod: 0,
+      },
+      {
+        fn: createStandingUpPSR,
+        expectedSource: PSRTrigger.StandingUp,
+        expectedMod: 0,
+      },
+      {
+        fn: createRubblePSR,
+        expectedSource: PSRTrigger.EnteringRubble,
+        expectedMod: 0,
+      },
+      {
+        fn: createRunningRoughTerrainPSR,
+        expectedSource: PSRTrigger.RunningRoughTerrain,
+        expectedMod: 0,
+      },
+      {
+        fn: createIcePSR,
+        expectedSource: PSRTrigger.MovingOnIce,
+        expectedMod: 0,
+      },
+      {
+        fn: createEnteringWaterPSR,
+        expectedSource: PSRTrigger.EnteringWater,
+        expectedMod: 0,
+      },
+      {
+        fn: createExitingWaterPSR,
+        expectedSource: PSRTrigger.ExitingWater,
+        expectedMod: 0,
+      },
+      {
+        fn: createSkiddingPSR,
+        expectedSource: PSRTrigger.Skidding,
+        expectedMod: 0,
+      },
+      {
+        fn: createRunningDamagedHipPSR,
+        expectedSource: PSRTrigger.RunningDamagedHip,
+        expectedMod: 0,
+      },
+      {
+        fn: createRunningDamagedGyroPSR,
+        expectedSource: PSRTrigger.RunningDamagedGyro,
+        expectedMod: 0,
+      },
+      {
+        fn: createBuildingCollapsePSR,
+        expectedSource: PSRTrigger.BuildingCollapse,
+        expectedMod: 0,
+      },
+      {
+        fn: createMASCFailurePSR,
+        expectedSource: PSRTrigger.MASCFailure,
+        expectedMod: 0,
+      },
+      {
+        fn: createSuperchargerFailurePSR,
+        expectedSource: PSRTrigger.SuperchargerFailure,
+        expectedMod: 0,
+      },
     ];
 
     it.each(triggerTests)(
@@ -405,13 +529,19 @@ describe('Piloting Skill Rolls', () => {
       expect(isGyroDestroyed(DEFAULT_COMP_DAMAGE)).toBe(false);
     });
     it('should return false for 1 gyro hit', () => {
-      expect(isGyroDestroyed({ ...DEFAULT_COMP_DAMAGE, gyroHits: 1 })).toBe(false);
+      expect(isGyroDestroyed({ ...DEFAULT_COMP_DAMAGE, gyroHits: 1 })).toBe(
+        false,
+      );
     });
     it('should return true for 2 gyro hits', () => {
-      expect(isGyroDestroyed({ ...DEFAULT_COMP_DAMAGE, gyroHits: 2 })).toBe(true);
+      expect(isGyroDestroyed({ ...DEFAULT_COMP_DAMAGE, gyroHits: 2 })).toBe(
+        true,
+      );
     });
     it('should return true for 3+ gyro hits', () => {
-      expect(isGyroDestroyed({ ...DEFAULT_COMP_DAMAGE, gyroHits: 3 })).toBe(true);
+      expect(isGyroDestroyed({ ...DEFAULT_COMP_DAMAGE, gyroHits: 3 })).toBe(
+        true,
+      );
     });
   });
 

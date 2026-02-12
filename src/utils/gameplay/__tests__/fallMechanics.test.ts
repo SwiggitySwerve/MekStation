@@ -114,7 +114,9 @@ describe('Fall Mechanics', () => {
     });
 
     it('should shift facing right when falling right', () => {
-      expect(getNewFacingFromFall(Facing.North, 'right')).toBe(Facing.Northeast);
+      expect(getNewFacingFromFall(Facing.North, 'right')).toBe(
+        Facing.Northeast,
+      );
     });
 
     it('should reverse facing when falling rear', () => {

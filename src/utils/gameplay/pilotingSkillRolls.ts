@@ -130,11 +130,7 @@ export function resolvePSR(
   pilotWounds: number,
   diceRoller: D6Roller = undefined as unknown as D6Roller,
 ): IPSRResult {
-  const modifiers = calculatePSRModifiers(
-    psr,
-    componentDamage,
-    pilotWounds,
-  );
+  const modifiers = calculatePSRModifiers(psr, componentDamage, pilotWounds);
 
   const totalModifier = modifiers.reduce((sum, m) => sum + m.value, 0);
 
@@ -639,7 +635,9 @@ export function createSuperchargerFailurePSR(entityId: string): IPendingPSR {
  * Check if a unit has accumulated 20+ damage this phase.
  * Should be called at end of weapon attack phase.
  */
-export function checkPhaseDamagePSR(unitState: IUnitGameState): IPendingPSR | null {
+export function checkPhaseDamagePSR(
+  unitState: IUnitGameState,
+): IPendingPSR | null {
   const damageThisPhase = unitState.damageThisPhase ?? 0;
   if (damageThisPhase >= 20) {
     return createDamagePSR(unitState.id);
@@ -682,6 +680,8 @@ export function createStandUpAttempt(
  * Check if a gyro is destroyed (2 hits for standard gyro).
  * A destroyed gyro means automatic fall — no PSR possible.
  */
-export function isGyroDestroyed(componentDamage: IComponentDamageState): boolean {
+export function isGyroDestroyed(
+  componentDamage: IComponentDamageState,
+): boolean {
   return componentDamage.gyroHits >= 2;
 }

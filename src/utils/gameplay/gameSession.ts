@@ -56,6 +56,7 @@ import {
   resolveDamage as resolveDamagePipeline,
   IUnitDamageState,
 } from './damage';
+import { resolveFall } from './fallMechanics';
 import { calculateFiringArc } from './firingArc';
 import {
   createGameCreatedEvent,
@@ -87,7 +88,6 @@ import {
   determineHitLocationFromRoll,
   isHeadHit,
 } from './hitLocation';
-import { resolveFall } from './fallMechanics';
 import {
   resolveAllPSRs,
   checkPhaseDamagePSR,
@@ -806,7 +806,10 @@ export function resolveAttack(
 
       // Task 8.6: Leg structure damage PSR trigger
       for (const locDamage of damageResult.result.locationDamages) {
-        if (isLegLocation(locDamage.location) && locDamage.structureDamage > 0) {
+        if (
+          isLegLocation(locDamage.location) &&
+          locDamage.structureDamage > 0
+        ) {
           const legPsrSeq = currentSession.events.length;
           currentSession = appendEvent(
             currentSession,
@@ -905,9 +908,7 @@ export function resolveAllAttacks(
  * Check for 20+ damage PSR triggers and queue them.
  * Called at end of weapon attack phase.
  */
-export function checkAndQueueDamagePSRs(
-  session: IGameSession,
-): IGameSession {
+export function checkAndQueueDamagePSRs(session: IGameSession): IGameSession {
   let currentSession = session;
   const { turn, phase } = currentSession.currentState;
   const unitIds = Object.keys(currentSession.currentState.units);
