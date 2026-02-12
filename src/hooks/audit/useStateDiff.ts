@@ -284,8 +284,8 @@ function computeSummary(entries: IDiffEntry[]): IDiffSummary {
  * computeDiff(100, 200);
  *
  * if (diff) {
- *   console.log('Changes:', diff.summary);
- *   diff.entries.forEach(e => console.log(e.path, e.changeType));
+ *   logger.debug('Changes:', diff.summary);
+ *   diff.entries.forEach(e => logger.debug(e.path, e.changeType));
  * }
  * ```
  */

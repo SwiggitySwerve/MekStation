@@ -17,6 +17,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { logger } from '@/utils/logger';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import {
@@ -213,7 +214,7 @@ function sanitizeTabsOnHydration(
       idMap.set(oldId, newId);
       repaired++;
 
-      console.warn(
+      logger.warn(
         `[TabManager] Repaired invalid tab ID: "${oldId}" -> "${newId}" for tab "${tab.name}"`,
       );
 
@@ -245,13 +246,13 @@ function sanitizeTabsOnHydration(
   ) {
     // Active tab ID is invalid but wasn't in the tabs - reset to first tab
     newActiveTabId = sanitizedTabs[0]?.id ?? null;
-    console.warn(
+    logger.warn(
       `[TabManager] Active tab ID "${activeTabId || '(empty)'}" is invalid, resetting to "${newActiveTabId}"`,
     );
   }
 
   if (repaired > 0) {
-    console.warn(`[TabManager] Repaired ${repaired} tab(s) with invalid IDs`);
+    logger.warn(`[TabManager] Repaired ${repaired} tab(s) with invalid IDs`);
   }
 
   return {
@@ -465,7 +466,7 @@ export const useTabManagerStore = create<TabManagerState>()(
       }),
       onRehydrateStorage: () => (state, error) => {
         if (error) {
-          console.error('[TabManager] Error during rehydration:', error);
+          logger.error('[TabManager] Error during rehydration:', error);
         }
 
         if (state) {

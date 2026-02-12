@@ -8,6 +8,13 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 
 import { type IBaseEvent } from '@/types/events';
+import { logger } from '@/utils/logger';
+
+// =============================================================================
+// Constants
+// =============================================================================
+
+const COPY_FEEDBACK_DURATION_MS = 2000;
 
 // =============================================================================
 // Types
@@ -235,7 +242,10 @@ export function ExportButton({
   // Reset copied state after delay
   useEffect(() => {
     if (copied) {
-      const timer = setTimeout(() => setCopied(false), 2000);
+      const timer = setTimeout(
+        () => setCopied(false),
+        COPY_FEEDBACK_DURATION_MS,
+      );
       return () => clearTimeout(timer);
     }
   }, [copied]);
@@ -269,7 +279,7 @@ export function ExportButton({
       setCopied(true);
       setIsOpen(false);
     } catch (err) {
-      console.error('Failed to copy to clipboard:', err);
+      logger.error('Failed to copy to clipboard:', err);
     }
   }, [events]);
 

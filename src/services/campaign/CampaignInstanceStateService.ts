@@ -41,6 +41,10 @@ import {
   emitPilotInstanceMissionCompleted,
   emitPilotInstanceDeceased,
 } from '../../utils/events/campaignInstanceEvents';
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { getCampaignInstanceService } from '../persistence/CampaignInstanceService';
 
 // =============================================================================
@@ -877,22 +881,23 @@ export class CampaignInstanceStateService implements ICampaignInstanceStateServi
 // Singleton
 // =============================================================================
 
-let _instance: CampaignInstanceStateService | null = null;
+const campaignInstanceStateServiceFactory: SingletonFactory<CampaignInstanceStateService> =
+  createSingleton(
+    (): CampaignInstanceStateService => new CampaignInstanceStateService(),
+  );
 
 /**
  * Get the singleton CampaignInstanceStateService instance.
  */
 export function getCampaignInstanceStateService(): CampaignInstanceStateService {
-  if (!_instance) {
-    _instance = new CampaignInstanceStateService();
-  }
-  return _instance;
+  return campaignInstanceStateServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing).
- * @internal
- */
+export function resetCampaignInstanceStateService(): void {
+  campaignInstanceStateServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetCampaignInstanceStateService(): void {
-  _instance = null;
+  campaignInstanceStateServiceFactory.reset();
 }

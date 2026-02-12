@@ -14,6 +14,12 @@ import {
   getRarityBackground,
 } from '@/types/award';
 
+import {
+  getRarityGlowClass,
+  getRarityBorderClass,
+  getRarityAccentBg,
+} from './awardRarityStyles';
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -24,55 +30,6 @@ interface AwardEarnedToastProps {
   onDismiss: () => void;
   autoDismissMs?: number;
   className?: string;
-}
-
-// =============================================================================
-// Rarity Styling
-// =============================================================================
-
-function getRarityGlowClass(rarity: AwardRarity): string {
-  switch (rarity) {
-    case AwardRarity.Common:
-      return 'shadow-slate-500/20';
-    case AwardRarity.Uncommon:
-      return 'shadow-emerald-500/30';
-    case AwardRarity.Rare:
-      return 'shadow-blue-500/40';
-    case AwardRarity.Legendary:
-      return 'shadow-amber-500/50';
-    default:
-      return 'shadow-slate-500/20';
-  }
-}
-
-function getRarityBorderClass(rarity: AwardRarity): string {
-  switch (rarity) {
-    case AwardRarity.Common:
-      return 'border-slate-500/30';
-    case AwardRarity.Uncommon:
-      return 'border-emerald-500/40';
-    case AwardRarity.Rare:
-      return 'border-blue-500/50';
-    case AwardRarity.Legendary:
-      return 'border-amber-500/60';
-    default:
-      return 'border-slate-500/30';
-  }
-}
-
-function getRarityAccentBg(rarity: AwardRarity): string {
-  switch (rarity) {
-    case AwardRarity.Common:
-      return 'from-slate-500/10';
-    case AwardRarity.Uncommon:
-      return 'from-emerald-500/10';
-    case AwardRarity.Rare:
-      return 'from-blue-500/10';
-    case AwardRarity.Legendary:
-      return 'from-amber-500/15';
-    default:
-      return 'from-slate-500/10';
-  }
 }
 
 const RARITY_LABELS: Record<AwardRarity, string> = {

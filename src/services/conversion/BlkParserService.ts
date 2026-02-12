@@ -20,22 +20,15 @@ import {
   BLK_EQUIPMENT_BLOCK_TAGS,
 } from '../../types/formats/BlkFormat';
 import { UnitType } from '../../types/unit/BattleMechInterfaces';
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 
 /**
  * BLK Parser Service
  */
 export class BlkParserService {
-  private static instance: BlkParserService | null = null;
-
-  private constructor() {}
-
-  static getInstance(): BlkParserService {
-    if (!BlkParserService.instance) {
-      BlkParserService.instance = new BlkParserService();
-    }
-    return BlkParserService.instance;
-  }
-
   /**
    * Parse raw BLK file content into IBlkDocument
    */
@@ -381,9 +374,13 @@ export class BlkParserService {
   }
 }
 
-/**
- * Singleton instance accessor
- */
+const blkParserServiceFactory: SingletonFactory<BlkParserService> =
+  createSingleton((): BlkParserService => new BlkParserService());
+
 export function getBlkParserService(): BlkParserService {
-  return BlkParserService.getInstance();
+  return blkParserServiceFactory.get();
+}
+
+export function resetBlkParserService(): void {
+  blkParserServiceFactory.reset();
 }

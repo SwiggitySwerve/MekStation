@@ -7,6 +7,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
+import { logger } from '@/utils/logger';
+
 import {
   useElectron,
   IRecentFile,
@@ -58,7 +60,7 @@ export function useRecentFiles(): UseRecentFilesResult {
       const message =
         err instanceof Error ? err.message : 'Failed to load recent files';
       setError(message);
-      console.error('Failed to load recent files:', err);
+      logger.error('Failed to load recent files:', err);
     } finally {
       setIsLoading(false);
     }

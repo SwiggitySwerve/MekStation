@@ -16,6 +16,10 @@ import {
   UnitErrorCode,
 } from '@/types/persistence/UnitPersistence';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
 
 /**
@@ -270,21 +274,19 @@ export class VersionRepository implements IVersionRepository {
 }
 
 // Singleton instance
-let versionRepositoryInstance: VersionRepository | null = null;
+const versionRepositoryFactory: SingletonFactory<VersionRepository> =
+  createSingleton((): VersionRepository => new VersionRepository());
 
 /**
  * Get or create the version repository singleton
  */
 export function getVersionRepository(): VersionRepository {
-  if (!versionRepositoryInstance) {
-    versionRepositoryInstance = new VersionRepository();
-  }
-  return versionRepositoryInstance;
+  return versionRepositoryFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetVersionRepository(): void {
-  versionRepositoryInstance = null;
+  versionRepositoryFactory.reset();
 }

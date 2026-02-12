@@ -59,16 +59,10 @@ describe('BlkExportService', () => {
       expect(instance1).toBe(instance2);
     });
 
-    it('should return same instance from static getInstance method', () => {
-      const instance1 = BlkExportService.getInstance();
-      const instance2 = BlkExportService.getInstance();
-      expect(instance1).toBe(instance2);
-    });
-
-    it('should return same instance from both methods', () => {
-      const fromGetter = getBlkExportService();
-      const fromStatic = BlkExportService.getInstance();
-      expect(fromGetter).toBe(fromStatic);
+    it('should return same instance from both getter calls', () => {
+      const fromGetter1 = getBlkExportService();
+      const fromGetter2 = getBlkExportService();
+      expect(fromGetter1).toBe(fromGetter2);
     });
   });
 

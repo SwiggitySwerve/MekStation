@@ -17,6 +17,11 @@ import type {
 
 import { getSQLiteService } from '@/services/persistence';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+
 // =============================================================================
 // Constants
 // =============================================================================
@@ -455,18 +460,16 @@ export class ShareLinkRepository {
 // Singleton
 // =============================================================================
 
-let shareLinkRepository: ShareLinkRepository | null = null;
+const shareLinkRepositoryFactory: SingletonFactory<ShareLinkRepository> =
+  createSingleton((): ShareLinkRepository => new ShareLinkRepository());
 
 export function getShareLinkRepository(): ShareLinkRepository {
-  if (!shareLinkRepository) {
-    shareLinkRepository = new ShareLinkRepository();
-  }
-  return shareLinkRepository;
+  return shareLinkRepositoryFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetShareLinkRepository(): void {
-  shareLinkRepository = null;
+  shareLinkRepositoryFactory.reset();
 }

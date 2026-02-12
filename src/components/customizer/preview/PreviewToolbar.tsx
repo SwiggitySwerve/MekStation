@@ -9,6 +9,7 @@
 import React, { useCallback, useState } from 'react';
 
 import { PaperSize } from '@/types/printing';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Types
@@ -50,7 +51,7 @@ export function PreviewToolbar({
     try {
       await onExportPDF();
     } catch (error) {
-      console.error('Error exporting PDF:', error);
+      logger.error('Error exporting PDF:', error);
       alert('Failed to export PDF. Please try again.');
     } finally {
       setIsExporting(false);
@@ -61,7 +62,7 @@ export function PreviewToolbar({
     try {
       onPrint();
     } catch (error) {
-      console.error('Error printing:', error);
+      logger.error('Error printing:', error);
       alert(
         'Failed to open print dialog. Please check popup blocker settings.',
       );

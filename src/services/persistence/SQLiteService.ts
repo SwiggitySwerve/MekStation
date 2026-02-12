@@ -11,6 +11,10 @@ import Database from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
 
+import { logger } from '@/utils/logger';
+
+import { createSingleton } from '../core/createSingleton';
+
 /**
  * Database configuration
  */
@@ -360,7 +364,7 @@ export class SQLiteService implements ISQLiteService {
 
       return result?.version ?? 0;
     } catch (error) {
-      console.error(
+      logger.error(
         '[SQLiteService] Failed to get current migration version:',
         error,
       );
@@ -374,7 +378,7 @@ export class SQLiteService implements ISQLiteService {
   private runMigration(migration: IMigration): void {
     if (!this.db) return;
 
-    console.log(`Running migration ${migration.version}: ${migration.name}`);
+    logger.debug(`Running migration ${migration.version}: ${migration.name}`);
 
     // Execute migration SQL
     this.db.exec(migration.up);
@@ -397,15 +401,19 @@ export class SQLiteService implements ISQLiteService {
           .run(migration.version, migration.name, new Date().toISOString());
       }
     } catch (err) {
-      console.warn(`Could not record migration ${migration.version}:`, err);
+      logger.warn(`Could not record migration ${migration.version}:`, err);
     }
 
-    console.log(`Migration ${migration.version} complete`);
+    logger.debug(`Migration ${migration.version} complete`);
   }
 }
 
-// Singleton instance
-let sqliteServiceInstance: SQLiteService | null = null;
+let _sqliteConfig: Partial<IDatabaseConfig> | undefined;
+
+const sqliteServiceFactory = createSingleton(
+  (): SQLiteService => new SQLiteService(_sqliteConfig),
+  (instance) => instance.close(),
+);
 
 /**
  * Get or create the SQLite service singleton
@@ -413,20 +421,17 @@ let sqliteServiceInstance: SQLiteService | null = null;
 export function getSQLiteService(
   config?: Partial<IDatabaseConfig>,
 ): SQLiteService {
-  if (!sqliteServiceInstance) {
-    sqliteServiceInstance = new SQLiteService(config);
+  if (config) {
+    _sqliteConfig = config;
   }
-  return sqliteServiceInstance;
+  return sqliteServiceFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetSQLiteService(): void {
-  if (sqliteServiceInstance) {
-    sqliteServiceInstance.close();
-    sqliteServiceInstance = null;
-  }
+  sqliteServiceFactory.reset();
 }
 
 export { DEFAULT_CONFIG as DATABASE_CONFIG };

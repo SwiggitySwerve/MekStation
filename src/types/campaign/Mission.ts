@@ -325,7 +325,7 @@ export function isTerminalStatus(mission: IMission): boolean {
  *
  * @example
  * if (isMission(obj)) {
- *   console.log(obj.name);
+ *   logger.debug(obj.name);
  * }
  */
 export function isMission(value: unknown): value is IMission {
@@ -351,7 +351,7 @@ export function isMission(value: unknown): value is IMission {
  *
  * @example
  * if (isContract(obj)) {
- *   console.log(obj.employerId);
+ *   logger.debug(obj.employerId);
  * }
  */
 export function isContract(value: unknown): value is IContract {

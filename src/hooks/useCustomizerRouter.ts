@@ -15,6 +15,7 @@
 import { useRouter } from 'next/router';
 import { useCallback, useMemo, useRef } from 'react';
 
+import { logger } from '@/utils/logger';
 import { isValidUnitId } from '@/utils/uuid';
 
 // =============================================================================
@@ -217,7 +218,7 @@ export function useCustomizerRouter(
   const navigateToUnit = useCallback(
     (unitId: string, tabId: CustomizerTabId = DEFAULT_TAB) => {
       if (!isValidUnitId(unitId)) {
-        console.warn('navigateToUnit: Invalid unit ID', unitId);
+        logger.warn('navigateToUnit: Invalid unit ID', unitId);
         return;
       }
 
@@ -239,12 +240,12 @@ export function useCustomizerRouter(
           : null);
 
       if (!effectiveUnitId) {
-        console.warn('navigateToTab: No current unit and no valid fallback');
+        logger.warn('navigateToTab: No current unit and no valid fallback');
         return;
       }
 
       if (!isValidTabId(tabId)) {
-        console.warn('navigateToTab: Invalid tab ID', tabId);
+        logger.warn('navigateToTab: Invalid tab ID', tabId);
         return;
       }
 

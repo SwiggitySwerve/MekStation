@@ -6,11 +6,22 @@
 
 import { StoreApi, create } from 'zustand';
 
+import { logger } from '@/utils/logger';
+
 import {
   createStoreRegistry,
   BaseStoreState,
   StoreRegistryConfig,
 } from '../createStoreRegistry';
+
+jest.mock('@/utils/logger', () => ({
+  logger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 
 // =============================================================================
 // Test Types & Mocks
@@ -111,8 +122,7 @@ describe('createStoreRegistry', () => {
       writable: true,
     });
 
-    // Suppress console.warn for cleaner test output
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    (logger.warn as jest.Mock).mockClear();
   });
 
   afterEach(() => {
@@ -348,7 +358,7 @@ describe('createStoreRegistry', () => {
       const result = registry.ensureValidId('invalid-id', 'test');
 
       expect(result).toBe('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
-      expect(console.warn).toHaveBeenCalled();
+      expect(logger.warn).toHaveBeenCalled();
     });
 
     it('should generate new UUID for null/undefined', () => {
@@ -426,7 +436,7 @@ describe('createStoreRegistry', () => {
       );
 
       expect(result.getState().name).toBe('Fallback');
-      expect(console.warn).toHaveBeenCalled();
+      expect(logger.warn).toHaveBeenCalled();
     });
 
     it('should use custom mergeState if provided', () => {
@@ -470,7 +480,7 @@ describe('createStoreRegistry', () => {
 
       // Should use generated UUID instead
       expect(result.getState().id).toBe('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
-      expect(console.warn).toHaveBeenCalled();
+      expect(logger.warn).toHaveBeenCalled();
     });
   });
 });

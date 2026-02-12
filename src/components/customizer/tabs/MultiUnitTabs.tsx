@@ -67,6 +67,7 @@ import {
 import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/temporal/Era';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { logger } from '@/utils/logger';
 import { getEraForYear } from '@/utils/temporal/eraUtils';
 import { generateUUID } from '@/utils/uuid';
 
@@ -325,7 +326,7 @@ export function MultiUnitTabs({
         }
 
         if (!result.success) {
-          console.error('Failed to save unit:', result.error);
+          logger.error('Failed to save unit:', result.error);
           showToast({
             message: `Failed to save unit: ${result.error}`,
             variant: 'error',
@@ -362,7 +363,7 @@ export function MultiUnitTabs({
           performCloseTab(tabIdToClose);
         }
       } catch (error) {
-        console.error('Failed to save unit:', error);
+        logger.error('Failed to save unit:', error);
         showToast({
           message: 'Failed to save unit. Please try again.',
           variant: 'error',
@@ -393,7 +394,7 @@ export function MultiUnitTabs({
         const result = await unitLoaderService.loadUnit(unit.id, source);
 
         if (!result.success || !result.state) {
-          console.error('Failed to load unit:', result.error);
+          logger.error('Failed to load unit:', result.error);
           // Fallback to creating blank unit with basic info
           const baseTemplate =
             UNIT_TEMPLATES.find((t) => t.tonnage === unit.tonnage) ||
@@ -441,7 +442,7 @@ export function MultiUnitTabs({
         // Close the dialog
         setIsLoadDialogOpen(false);
       } catch (error) {
-        console.error('Error loading unit:', error);
+        logger.error('Error loading unit:', error);
         showToast({
           message: 'Failed to load unit. Please try again.',
           variant: 'error',

@@ -6,6 +6,11 @@
  * @spec openspec/specs/persistence-services/spec.md
  */
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
+
 import { StorageError } from '../common/errors';
 
 const DB_NAME = 'mekstation';
@@ -258,25 +263,20 @@ export class IndexedDBService implements IIndexedDBService {
 }
 
 // Singleton instance with lazy initialization
-let _instance: IndexedDBService | null = null;
+const indexedDBServiceFactory: SingletonFactory<IndexedDBService> =
+  createSingleton((): IndexedDBService => new IndexedDBService());
 
-/**
- * Get the singleton IndexedDBService instance
- * Provides lazy initialization for better testability and DI support
- */
 export function getIndexedDBService(): IndexedDBService {
-  if (!_instance) {
-    _instance = new IndexedDBService();
-  }
-  return _instance;
+  return indexedDBServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetIndexedDBService(): void {
+  indexedDBServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetIndexedDBService(): void {
-  _instance = null;
+  indexedDBServiceFactory.reset();
 }
 
 // Legacy export for backward compatibility

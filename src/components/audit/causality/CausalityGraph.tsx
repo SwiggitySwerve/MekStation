@@ -58,6 +58,8 @@ const PADDING = 40;
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 2;
 const ZOOM_STEP = 0.1;
+const LAYOUT_FIT_DELAY_MS = 100;
+const LAYOUT_FIT_PADDING_RATIO = 0.9;
 
 // =============================================================================
 // Layout Algorithm
@@ -205,7 +207,7 @@ export function CausalityGraph({
 
     const scaleX = containerWidth / bounds.width;
     const scaleY = containerHeight / bounds.height;
-    const newZoom = Math.min(scaleX, scaleY, 1) * 0.9; // 90% to add some padding
+    const newZoom = Math.min(scaleX, scaleY, 1) * LAYOUT_FIT_PADDING_RATIO;
 
     setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom)));
     setPan({ x: 0, y: 0 });
@@ -247,7 +249,7 @@ export function CausalityGraph({
   useEffect(() => {
     if (chain && positions.length > 0) {
       // Small delay to ensure container is measured
-      const timer = setTimeout(handleFit, 100);
+      const timer = setTimeout(handleFit, LAYOUT_FIT_DELAY_MS);
       return () => clearTimeout(timer);
     }
     // oxlint-disable-next-line react-hooks/exhaustive-deps

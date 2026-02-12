@@ -284,7 +284,7 @@ export function triggerFeedback(config: TouchFeedbackConfig = {}): void {
  * @example
  * ```tsx
  * const handleClick = withFeedback(
- *   () => console.log('Clicked!'),
+ *   () => logger.debug('Clicked!'),
  *   { haptic: true, intensity: 'medium' }
  * );
  *

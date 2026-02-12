@@ -8,6 +8,7 @@
 import { StoreApi } from 'zustand';
 
 import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
+import { logger } from '@/utils/logger';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import { createVehicleStore, createNewVehicleStore } from './useVehicleStore';
@@ -47,7 +48,7 @@ function ensureValidVehicleId(
   }
 
   const newId = generateUUID();
-  console.warn(
+  logger.warn(
     `[VehicleStoreRegistry] ${context}: Invalid vehicle ID "${vehicleId || '(missing)'}" replaced with "${newId}"`,
   );
   return newId;
@@ -109,7 +110,7 @@ export function hydrateOrCreateVehicle(
         return store;
       }
     } catch (e) {
-      console.warn(
+      logger.warn(
         `Failed to hydrate vehicle ${validVehicleId}, creating new:`,
         e,
       );
@@ -193,7 +194,7 @@ export function createVehicleFromFullState(
 
   const existing = vehicleStores.get(validId);
   if (existing) {
-    console.warn(`Vehicle store ${validId} already exists, returning existing`);
+    logger.warn(`Vehicle store ${validId} already exists, returning existing`);
     return existing;
   }
 

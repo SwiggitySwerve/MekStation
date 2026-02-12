@@ -209,7 +209,7 @@ export function getLeadershipSkillValue(person: IPerson): number {
  *
  * @example
  * if (hasSkill(person, 'gunnery')) {
- *   console.log('Person is a gunner');
+ *   logger.debug('Person is a gunner');
  * }
  */
 export function hasSkill(person: IPerson, skillId: string): boolean {
@@ -229,9 +229,9 @@ export function hasSkill(person: IPerson, skillId: string): boolean {
  * @example
  * const level = getPersonSkillLevel(person, 'gunnery');
  * if (level === -1) {
- *   console.log('Person does not have gunnery skill');
+ *   logger.debug('Person does not have gunnery skill');
  * } else {
- *   console.log(`Gunnery level: ${level}`);
+ *   logger.debug(`Gunnery level: ${level}`);
  * }
  */
 export function getPersonSkillLevel(person: IPerson, skillId: string): number {
@@ -255,9 +255,9 @@ export function getPersonSkillLevel(person: IPerson, skillId: string): number {
  * @example
  * const best = getPersonBestCombatSkill(person);
  * if (best) {
- *   console.log(`Best combat skill: ${best.skillId} at level ${best.level}`);
+ *   logger.debug(`Best combat skill: ${best.skillId} at level ${best.level}`);
  * } else {
- *   console.log('No combat skills');
+ *   logger.debug('No combat skills');
  * }
  */
 export function getPersonBestCombatSkill(

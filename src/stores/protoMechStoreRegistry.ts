@@ -10,6 +10,7 @@
 import { StoreApi } from 'zustand';
 
 import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
+import { logger } from '@/utils/logger';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import {
@@ -52,7 +53,7 @@ function ensureValidProtoMechId(
   }
 
   const newId = generateUUID();
-  console.warn(
+  logger.warn(
     `[ProtoMechStoreRegistry] ${context}: Invalid protomech ID "${protoMechId || '(missing)'}" replaced with "${newId}"`,
   );
   return newId;
@@ -114,7 +115,7 @@ export function hydrateOrCreateProtoMech(
         return store;
       }
     } catch (e) {
-      console.warn(
+      logger.warn(
         `Failed to hydrate protomech ${validProtoMechId}, creating new:`,
         e,
       );
@@ -195,7 +196,7 @@ export function createProtoMechFromFullState(
 
   const existing = protoMechStores.get(validId);
   if (existing) {
-    console.warn(
+    logger.warn(
       `ProtoMech store ${validId} already exists, returning existing`,
     );
     return existing;

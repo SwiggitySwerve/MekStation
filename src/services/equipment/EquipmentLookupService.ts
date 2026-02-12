@@ -8,6 +8,10 @@
  * @spec openspec/specs/equipment-services/spec.md
  */
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
 import { TechBase } from '@/types/enums/TechBase';
 import {
   EquipmentCategory,
@@ -20,6 +24,7 @@ import {
 } from '@/types/equipment';
 import { MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 import { weaponCategoryToEquipmentCategory } from '@/utils/equipment/categoryRegistry';
+import { logger } from '@/utils/logger';
 
 import { IEquipmentQueryCriteria } from '../common/types';
 import {
@@ -123,17 +128,17 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         this.loadResult.itemsLoaded >= minItemsForJson;
 
       if (!this.useJsonSource) {
-        console.warn(
+        logger.warn(
           `[EquipmentLookupService] JSON loading failed or insufficient items (${this.loadResult.itemsLoaded}), using hardcoded fallback. ` +
             `Errors: ${this.loadResult.errors.join(', ')}`,
         );
       } else {
-        console.log(
+        logger.debug(
           `[EquipmentLookupService] Loaded ${this.loadResult.itemsLoaded} equipment items from JSON`,
         );
       }
     } catch (error) {
-      console.error(
+      logger.error(
         '[EquipmentLookupService] Failed to initialize from JSON:',
         error,
       );
@@ -387,25 +392,20 @@ export class EquipmentLookupService implements IEquipmentLookupService {
 }
 
 // Singleton instance with lazy initialization
-let _instance: EquipmentLookupService | null = null;
+const equipmentLookupServiceFactory: SingletonFactory<EquipmentLookupService> =
+  createSingleton((): EquipmentLookupService => new EquipmentLookupService());
 
-/**
- * Get the singleton EquipmentLookupService instance
- * Provides lazy initialization for better testability and DI support
- */
 export function getEquipmentLookupService(): EquipmentLookupService {
-  if (!_instance) {
-    _instance = new EquipmentLookupService();
-  }
-  return _instance;
+  return equipmentLookupServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetEquipmentLookupService(): void {
+  equipmentLookupServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetEquipmentLookupService(): void {
-  _instance = null;
+  equipmentLookupServiceFactory.reset();
 }
 
 // Legacy export for backward compatibility

@@ -48,8 +48,8 @@ export interface SwipeGestureHandlers {
  * @example
  * ```tsx
  * const handlers = useSwipeGestures({
- *   onSwipeLeft: () => console.log('Swiped left'),
- *   onSwipeRight: () => console.log('Swiped right'),
+ *   onSwipeLeft: () => logger.debug('Swiped left'),
+ *   onSwipeRight: () => logger.debug('Swiped right'),
  *   swipeThreshold: 50,
  * });
  *

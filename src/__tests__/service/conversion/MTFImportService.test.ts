@@ -30,9 +30,9 @@ describe('MTFImportService', () => {
       expect(instance1).toBe(instance2);
     });
 
-    it('should return same instance from static method', () => {
-      const instance1 = MTFImportService.getInstance();
-      const instance2 = MTFImportService.getInstance();
+    it('should return same instance from getter', () => {
+      const instance1 = getMTFImportService();
+      const instance2 = getMTFImportService();
       expect(instance1).toBe(instance2);
     });
   });

@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { type IEventQueryFilters } from '@/types/events';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Types
@@ -157,7 +158,7 @@ function loadFromStorage(): SavedQuery[] {
       return JSON.parse(stored) as SavedQuery[];
     }
   } catch (e) {
-    console.error('Failed to load saved queries:', e);
+    logger.error('Failed to load saved queries:', e);
   }
   return [];
 }
@@ -166,7 +167,7 @@ function saveToStorage(queries: SavedQuery[]): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(queries));
   } catch (e) {
-    console.error('Failed to save queries:', e);
+    logger.error('Failed to save queries:', e);
   }
 }
 

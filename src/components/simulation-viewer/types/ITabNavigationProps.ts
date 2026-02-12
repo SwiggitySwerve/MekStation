@@ -5,7 +5,7 @@
  * @example
  * const props: ITabNavigationProps = {
  *   activeTab: 'campaign-dashboard',
- *   onTabChange: (tab) => console.log('Tab changed to:', tab),
+ *   onTabChange: (tab) => logger.debug('Tab changed to:', tab),
  *   className: 'custom-tabs'
  * };
  */

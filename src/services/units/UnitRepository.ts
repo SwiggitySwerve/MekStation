@@ -23,6 +23,10 @@ import {
   ICloneNameSuggestion,
 } from '@/types/persistence/UnitPersistence';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
 
 /**
@@ -435,21 +439,20 @@ export class UnitRepository implements IUnitRepository {
 }
 
 // Singleton instance
-let unitRepositoryInstance: UnitRepository | null = null;
+const unitRepositoryFactory: SingletonFactory<UnitRepository> = createSingleton(
+  (): UnitRepository => new UnitRepository(),
+);
 
 /**
  * Get or create the unit repository singleton
  */
 export function getUnitRepository(): UnitRepository {
-  if (!unitRepositoryInstance) {
-    unitRepositoryInstance = new UnitRepository();
-  }
-  return unitRepositoryInstance;
+  return unitRepositoryFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetUnitRepository(): void {
-  unitRepositoryInstance = null;
+  unitRepositoryFactory.reset();
 }

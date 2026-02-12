@@ -9,7 +9,7 @@
  *   comparison: '+5%',
  *   comparisonDirection: 'up',
  *   trend: [0.75, 0.76, 0.78, 0.80],
- *   onClick: () => console.log('KPI clicked')
+ *   onClick: () => logger.debug('KPI clicked')
  * };
  */
 export interface IKPICardProps {

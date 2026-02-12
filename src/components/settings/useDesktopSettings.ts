@@ -7,6 +7,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
+import { logger } from '@/utils/logger';
+
 import {
   useElectron,
   IDesktopSettings,
@@ -88,7 +90,7 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
       const message =
         err instanceof Error ? err.message : 'Failed to load settings';
       setError(message);
-      console.error('Failed to load settings:', err);
+      logger.error('Failed to load settings:', err);
     } finally {
       setIsLoading(false);
     }

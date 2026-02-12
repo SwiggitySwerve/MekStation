@@ -28,6 +28,7 @@ import {
   sortEquipmentBySize,
   getUnallocatedUnhittables,
 } from '@/utils/construction/slotOperations';
+import { logger } from '@/utils/logger';
 
 import {
   LocationData,
@@ -523,7 +524,7 @@ export function CriticalSlotsTab({
           // TODO: Wire to store's pairEquipment action when implemented
           // For now, fall through to standard placement which handles the
           // equipment via existing updateEquipmentLocation
-          console.debug(
+          logger.debug(
             `Superheavy pairing: ${eq.name} -> slot ${slotIndex} (pairing not yet wired to store)`,
           );
         }

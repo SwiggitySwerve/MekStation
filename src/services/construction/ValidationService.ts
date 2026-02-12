@@ -27,6 +27,10 @@ import {
   invalidResult,
 } from '../common/types';
 import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+import {
   ENGINE_RATING_MIN,
   ENGINE_RATING_MAX,
   ENGINE_RATING_INCREMENT,
@@ -457,25 +461,24 @@ export class ValidationService implements IValidationService {
 }
 
 // Singleton instance with lazy initialization
-let _instance: ValidationService | null = null;
+const validationServiceFactory: SingletonFactory<ValidationService> =
+  createSingleton((): ValidationService => new ValidationService());
 
 /**
  * Get the singleton ValidationService instance
  * Provides lazy initialization for better testability and DI support
  */
 export function getValidationService(): ValidationService {
-  if (!_instance) {
-    _instance = new ValidationService();
-  }
-  return _instance;
+  return validationServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetValidationService(): void {
+  validationServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetValidationService(): void {
-  _instance = null;
+  validationServiceFactory.reset();
 }
 
 // Legacy export for backward compatibility

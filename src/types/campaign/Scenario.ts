@@ -162,7 +162,7 @@ export interface IScenario {
  *
  * @example
  * if (isScenarioComplete(scenario)) {
- *   console.log('Battle is over');
+ *   logger.debug('Battle is over');
  * }
  */
 export function isScenarioComplete(scenario: IScenario): boolean {
@@ -188,7 +188,7 @@ export function isScenarioComplete(scenario: IScenario): boolean {
  *
  * @example
  * if (isScenarioSuccess(scenario)) {
- *   console.log('Mission accomplished!');
+ *   logger.debug('Mission accomplished!');
  * }
  */
 export function isScenarioSuccess(scenario: IScenario): boolean {
@@ -306,7 +306,7 @@ export function isScenarioActive(scenario: IScenario): boolean {
  *
  * @example
  * if (isObjective(obj)) {
- *   console.log(obj.description);
+ *   logger.debug(obj.description);
  * }
  */
 export function isObjective(value: unknown): value is IObjective {
@@ -329,7 +329,7 @@ export function isObjective(value: unknown): value is IObjective {
  *
  * @example
  * if (isScenario(obj)) {
- *   console.log(obj.name);
+ *   logger.debug(obj.name);
  * }
  */
 export function isScenario(value: unknown): value is IScenario {

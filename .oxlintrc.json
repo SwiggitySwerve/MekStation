@@ -40,7 +40,17 @@
     "src/pages/**/*.test.ts",
     "src/pages/**/*.test.tsx",
     "src/pages/**/*.spec.ts",
-    "src/pages/**/*.spec.tsx"
+    "src/pages/**/*.spec.tsx",
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "src/pages/api/**",
+    "src/utils/logger.ts",
+    "e2e/**",
+    "src/services/conversion/ParityReportWriter.ts",
+    "next-env.d.ts"
   ],
   "rules": {
     "react/display-name": "error",
@@ -111,7 +121,9 @@
     "@typescript-eslint/no-wrapper-object-types": "error",
     "@typescript-eslint/prefer-as-const": "error",
     "@typescript-eslint/prefer-namespace-keyword": "error",
-    "@typescript-eslint/triple-slash-reference": "error"
+    "@typescript-eslint/triple-slash-reference": "error",
+    "no-empty": ["error", { "allowEmptyCatch": false }],
+    "no-console": "warn"
   },
   "globals": {
     "__dirname": "readonly",
@@ -884,6 +896,15 @@
     "XSLTProcessor": "readonly"
   },
   "overrides": [
+    {
+      "files": ["src/**/*.ts", "src/**/*.tsx"],
+      "rules": {
+        "max-lines": [
+          "warn",
+          { "max": 400, "skipBlankLines": true, "skipComments": true }
+        ]
+      }
+    },
     {
       "files": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
       "rules": {

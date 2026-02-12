@@ -4,6 +4,7 @@
  */
 
 import { IRecordSheetData } from '@/types/printing';
+import { logger } from '@/utils/logger';
 
 import { ArmorPipLayout } from '../ArmorPipLayout';
 import {
@@ -57,7 +58,7 @@ export async function fillArmorPips(
       armorPipsGroup = svgDoc.getElementById(ELEMENT_IDS.ARMOR_PIPS);
     }
     if (!armorPipsGroup) {
-      console.warn(
+      logger.warn(
         'Could not find canonArmorPips or armorPips group in template',
       );
       const rootGroup = svgDoc.createElementNS(SVG_NS, 'g');
@@ -90,7 +91,7 @@ async function loadAllArmorPips(
   const pipPromises = armor.locations.map(async (loc) => {
     const pipName = LOCATION_TO_PIP_NAME[loc.abbreviation];
     if (!pipName) {
-      console.warn(`Unknown location abbreviation: ${loc.abbreviation}`);
+      logger.warn(`Unknown location abbreviation: ${loc.abbreviation}`);
       return;
     }
 
@@ -131,7 +132,7 @@ async function loadAndInsertPips(
   try {
     const response = await fetch(pipPath);
     if (!response.ok) {
-      console.warn(`Pip file not found: ${pipPath}`);
+      logger.warn(`Pip file not found: ${pipPath}`);
       return;
     }
 
@@ -167,7 +168,7 @@ async function loadAndInsertPips(
 
     parentGroup.appendChild(locationGroup);
   } catch (error) {
-    console.warn(`Failed to load pip SVG: ${pipPath}`, error);
+    logger.warn(`Failed to load pip SVG: ${pipPath}`, error);
   }
 }
 
@@ -187,14 +188,14 @@ async function generateDynamicArmorPips(
     // Find the group ID for this location
     const groupId = pipGroupIds[loc.abbreviation];
     if (!groupId) {
-      console.warn(`No pip group ID for location: ${loc.abbreviation}`);
+      logger.warn(`No pip group ID for location: ${loc.abbreviation}`);
       return;
     }
 
     // Find the pip area element in the template
     const pipArea = svgDoc.getElementById(groupId);
     if (!pipArea) {
-      console.warn(`Pip area not found: ${groupId}`);
+      logger.warn(`Pip area not found: ${groupId}`);
       return;
     }
 

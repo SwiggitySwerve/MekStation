@@ -4,6 +4,7 @@
  */
 
 import { IRecordSheetData, ILocationStructure } from '@/types/printing';
+import { logger } from '@/utils/logger';
 
 import { ArmorPipLayout } from '../ArmorPipLayout';
 import {
@@ -114,7 +115,7 @@ async function loadAndInsertStructurePips(
   try {
     const response = await fetch(pipPath);
     if (!response.ok) {
-      console.warn(`Structure pip file not found: ${pipPath}`);
+      logger.warn(`Structure pip file not found: ${pipPath}`);
       return;
     }
 
@@ -150,7 +151,7 @@ async function loadAndInsertStructurePips(
 
     parentGroup.appendChild(locationGroup);
   } catch (error) {
-    console.warn(`Failed to load structure pip SVG: ${pipPath}`, error);
+    logger.warn(`Failed to load structure pip SVG: ${pipPath}`, error);
   }
 }
 
@@ -169,7 +170,7 @@ export function generateStructurePipsForLocationFallback(
   // Find the existing pip group to get positioning reference
   const existingPipGroup = svgDoc.getElementById(pipGroupId);
   if (!existingPipGroup) {
-    console.warn(`Structure pip group not found: ${pipGroupId}`);
+    logger.warn(`Structure pip group not found: ${pipGroupId}`);
     return;
   }
 
@@ -337,7 +338,7 @@ function generateDynamicStructurePips(
     // Find the group ID for this location
     const groupId = pipGroupIds[loc.abbreviation];
     if (!groupId) {
-      console.warn(
+      logger.warn(
         `No structure pip group ID for location: ${loc.abbreviation}`,
       );
       return;
@@ -346,7 +347,7 @@ function generateDynamicStructurePips(
     // Find the pip area element in the template
     const pipArea = svgDoc.getElementById(groupId);
     if (!pipArea) {
-      console.warn(`Structure pip area not found: ${groupId}`);
+      logger.warn(`Structure pip area not found: ${groupId}`);
       return;
     }
 

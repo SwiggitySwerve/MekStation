@@ -19,6 +19,11 @@ import {
   IChainVerificationResult,
 } from '@/utils/events/hashUtils';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+
 // =============================================================================
 // Chunk Manager Service
 // =============================================================================
@@ -304,21 +309,19 @@ export class ChunkManagerService {
 // Singleton Instance
 // =============================================================================
 
-let defaultChunkManager: ChunkManagerService | null = null;
+const chunkManagerFactory: SingletonFactory<ChunkManagerService> =
+  createSingleton((): ChunkManagerService => new ChunkManagerService());
 
 /**
  * Get the default chunk manager instance.
  */
 export function getChunkManager(): ChunkManagerService {
-  if (!defaultChunkManager) {
-    defaultChunkManager = new ChunkManagerService();
-  }
-  return defaultChunkManager;
+  return chunkManagerFactory.get();
 }
 
 /**
  * Reset the default chunk manager (for testing).
  */
 export function resetChunkManager(): void {
-  defaultChunkManager = null;
+  chunkManagerFactory.reset();
 }

@@ -17,6 +17,8 @@ import {
   getRarityBackground,
 } from '@/types/award';
 
+import { getRarityBadgeVariant, getRarityRingColor } from './awardRarityStyles';
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -47,38 +49,6 @@ const RARITY_LABELS: Record<AwardRarity, string> = {
   [AwardRarity.Rare]: 'Rare',
   [AwardRarity.Legendary]: 'Legendary',
 };
-
-function getRarityBadgeVariant(
-  rarity: AwardRarity,
-): 'slate' | 'emerald' | 'blue' | 'amber' {
-  switch (rarity) {
-    case AwardRarity.Common:
-      return 'slate';
-    case AwardRarity.Uncommon:
-      return 'emerald';
-    case AwardRarity.Rare:
-      return 'blue';
-    case AwardRarity.Legendary:
-      return 'amber';
-    default:
-      return 'slate';
-  }
-}
-
-function getRarityRingColor(rarity: AwardRarity): string {
-  switch (rarity) {
-    case AwardRarity.Common:
-      return 'ring-slate-500/30';
-    case AwardRarity.Uncommon:
-      return 'ring-emerald-500/30';
-    case AwardRarity.Rare:
-      return 'ring-blue-500/30';
-    case AwardRarity.Legendary:
-      return 'ring-amber-500/40';
-    default:
-      return 'ring-slate-500/30';
-  }
-}
 
 function formatDate(isoString: string): string {
   const date = new Date(isoString);

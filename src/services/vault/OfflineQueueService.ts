@@ -15,6 +15,8 @@ import type {
   IP2PMessage,
 } from '@/types/vault';
 
+import { logger } from '@/utils/logger';
+
 import { createSingleton } from '../core/createSingleton';
 import {
   OfflineQueueRepository,
@@ -280,7 +282,7 @@ export class OfflineQueueService {
       try {
         await this.flushAll();
       } catch (error) {
-        console.error('Failed to flush offline queue:', error);
+        logger.error('Failed to flush offline queue:', error);
       }
     }, flushInterval);
 
@@ -290,7 +292,7 @@ export class OfflineQueueService {
         await this.processExpired(true);
         await this.cleanupSent();
       } catch (error) {
-        console.error('Failed to process expired messages:', error);
+        logger.error('Failed to process expired messages:', error);
       }
     }, expiryInterval);
   }

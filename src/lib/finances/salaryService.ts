@@ -390,8 +390,8 @@ const SUPPORT_ROLES = new Set<CampaignPersonnelRole>([
  *
  * @example
  * const breakdown = calculateTotalMonthlySalary(campaign);
- * console.log(`Total: ${breakdown.total.format()}`);
- * console.log(`Combat: ${breakdown.combatSalaries.format()}`);
+ * logger.debug(`Total: ${breakdown.total.format()}`);
+ * logger.debug(`Combat: ${breakdown.combatSalaries.format()}`);
  */
 export function calculateTotalMonthlySalary(
   campaign: ICampaign,

@@ -15,6 +15,7 @@ import { exposeStoresForE2E } from '../lib/e2e/storeExposure';
 // Import only browser-safe services directly to avoid Node.js-only SQLite
 import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry';
 import { indexedDBService } from '../services/persistence/IndexedDBService';
+import { logger } from '../utils/logger';
 
 /**
  * Initialize browser-safe services
@@ -72,8 +73,8 @@ export default function App({
   useEffect(() => {
     initializeBrowserServices()
       .then(() => setServicesReady(true))
-      .catch(() => {
-        // Browser service initialization failed - app will work with reduced functionality
+      .catch((error) => {
+        logger.error('Browser service initialization failed', error);
       });
   }, []);
 

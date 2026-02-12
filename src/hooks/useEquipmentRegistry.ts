@@ -8,6 +8,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { logger } from '@/utils/logger';
 
 /**
  * Return type for useEquipmentRegistry hook
@@ -40,8 +41,8 @@ export function useEquipmentRegistry(): UseEquipmentRegistryResult {
       registry
         .initialize()
         .then(() => setIsReady(true))
-        .catch(() => {
-          // Initialization failed - will retry on next mount
+        .catch((error) => {
+          logger.error('Equipment registry initialization failed', error);
         });
     }
   }, [initAttempted]);

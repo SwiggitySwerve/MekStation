@@ -18,6 +18,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { logger } from '@/utils/logger';
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -962,7 +964,7 @@ export function resolveEquipmentBV(equipmentId: string): EquipmentBVResult {
     if (!loggedUnresolvable.has(equipmentId)) {
       loggedUnresolvable.add(equipmentId);
       if (typeof console !== 'undefined' && process.env.NODE_ENV !== 'test') {
-        console.warn(
+        logger.warn(
           `[equipmentBVResolver] Unresolvable equipment ID: "${equipmentId}" (normalized: "${normalizedId}")`,
         );
       }

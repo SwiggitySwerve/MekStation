@@ -23,6 +23,10 @@ import {
   ScenarioTemplateType,
 } from '@/types/encounter';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
 
 // =============================================================================
@@ -549,11 +553,13 @@ export class EncounterRepository implements IEncounterRepository {
 // Singleton Instance
 // =============================================================================
 
-let repository: EncounterRepository | null = null;
+const encounterRepositoryFactory: SingletonFactory<EncounterRepository> =
+  createSingleton((): EncounterRepository => new EncounterRepository());
 
 export function getEncounterRepository(): EncounterRepository {
-  if (!repository) {
-    repository = new EncounterRepository();
-  }
-  return repository;
+  return encounterRepositoryFactory.get();
+}
+
+export function resetEncounterRepository(): void {
+  encounterRepositoryFactory.reset();
 }

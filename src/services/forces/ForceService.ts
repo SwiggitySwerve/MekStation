@@ -21,6 +21,10 @@ import {
 } from '@/types/force';
 import { PilotStatus } from '@/types/pilot';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { getPilotRepository } from '../pilots/PilotRepository';
 import {
   getForceRepository,
@@ -584,11 +588,14 @@ export class ForceService implements IForceService {
 // Singleton Instance
 // =============================================================================
 
-let service: ForceService | null = null;
+const forceServiceFactory: SingletonFactory<ForceService> = createSingleton(
+  (): ForceService => new ForceService(),
+);
 
 export function getForceService(): ForceService {
-  if (!service) {
-    service = new ForceService();
-  }
-  return service;
+  return forceServiceFactory.get();
+}
+
+export function resetForceService(): void {
+  forceServiceFactory.reset();
 }

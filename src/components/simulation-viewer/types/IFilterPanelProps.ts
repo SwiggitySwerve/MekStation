@@ -13,10 +13,10 @@
  *     }
  *   ],
  *   activeFilters: { severity: ['critical', 'warning'] },
- *   onFilterChange: (filters) => console.log('Filters changed:', filters),
+ *   onFilterChange: (filters) => logger.debug('Filters changed:', filters),
  *   enableSearch: true,
  *   searchQuery: '',
- *   onSearchChange: (query) => console.log('Search:', query)
+ *   onSearchChange: (query) => logger.debug('Search:', query)
  * };
  */
 export interface IFilterPanelProps {

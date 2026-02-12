@@ -16,6 +16,8 @@ import type {
   IShareLink,
 } from '@/types/vault';
 
+import { logger } from '@/utils/logger';
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -150,7 +152,10 @@ export function ShareDialog({
       });
 
       if (!response.ok) {
-        const errorData = (await response.json().catch(() => ({}))) as {
+        const errorData = (await response.json().catch((e) => {
+          logger.debug('Response not JSON when creating share link', e);
+          return {};
+        })) as {
           error?: string;
         };
         throw new Error(

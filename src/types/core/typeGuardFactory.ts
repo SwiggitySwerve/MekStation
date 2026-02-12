@@ -55,7 +55,7 @@ type PropertySchema<T> = {
  * // Use the type guard
  * const data: unknown = { name: 'Alice', age: 30, active: true };
  * if (isPerson(data)) {
- *   console.log(data.name); // TypeScript knows data is IPerson
+ *   logger.debug(data.name); // TypeScript knows data is IPerson
  * }
  *
  * @example

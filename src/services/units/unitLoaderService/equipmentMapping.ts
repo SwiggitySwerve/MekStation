@@ -12,6 +12,7 @@ import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
+import { logger } from '@/utils/logger';
 
 import { mapMechLocation } from './componentMappers';
 import {
@@ -86,7 +87,7 @@ export function mapEquipment(
       };
     } else {
       // Not found - create placeholder with unknown equipment
-      console.warn(
+      logger.warn(
         `Equipment not found in database: ${item.id} (tried: ${resolvedId})`,
       );
       return {

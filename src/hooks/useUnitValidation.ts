@@ -21,6 +21,7 @@ import {
   IUnitValidationOptions,
 } from '@/types/validation/UnitValidationInterfaces';
 import { ValidationStatus } from '@/utils/colors/statusColors';
+import { logger } from '@/utils/logger';
 
 import { useDebounce } from './useDebounce';
 import { useArmorValidation } from './validation/useArmorValidation';
@@ -275,7 +276,7 @@ export function useUnitValidation(
         isValidating: false,
       };
     } catch (error) {
-      console.warn('Validation failed:', error);
+      logger.warn('Validation failed:', error);
       return {
         status: 'error',
         errorCount: 1,

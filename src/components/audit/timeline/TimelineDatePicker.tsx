@@ -10,6 +10,16 @@ import React, { useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/Button';
 
 // =============================================================================
+// Time Constants
+// =============================================================================
+
+const ONE_HOUR_MS = 60 * 60 * 1000;
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const PRESET_TOLERANCE_MS = 60000; // 1 minute tolerance for preset matching
+
+// =============================================================================
 // Types
 // =============================================================================
 
@@ -43,7 +53,7 @@ function getPresets(): PresetOption[] {
     {
       label: 'Last hour',
       getValue: () => {
-        const from = new Date(now.getTime() - 60 * 60 * 1000);
+        const from = new Date(now.getTime() - ONE_HOUR_MS);
         return {
           from: from.toISOString(),
           to: now.toISOString(),
@@ -53,7 +63,7 @@ function getPresets(): PresetOption[] {
     {
       label: 'Last 24h',
       getValue: () => {
-        const from = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        const from = new Date(now.getTime() - ONE_DAY_MS);
         return {
           from: from.toISOString(),
           to: now.toISOString(),
@@ -63,7 +73,7 @@ function getPresets(): PresetOption[] {
     {
       label: 'Last 7 days',
       getValue: () => {
-        const from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const from = new Date(now.getTime() - SEVEN_DAYS_MS);
         return {
           from: from.toISOString(),
           to: now.toISOString(),
@@ -73,7 +83,7 @@ function getPresets(): PresetOption[] {
     {
       label: 'Last 30 days',
       getValue: () => {
-        const from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const from = new Date(now.getTime() - THIRTY_DAYS_MS);
         return {
           from: from.toISOString(),
           to: now.toISOString(),
@@ -137,7 +147,7 @@ export function TimelineDatePicker({
       const toDiff = Math.abs(
         new Date(timeRange.to).getTime() - new Date(presetValue.to).getTime(),
       );
-      if (fromDiff < 60000 && toDiff < 60000) {
+      if (fromDiff < PRESET_TOLERANCE_MS && toDiff < PRESET_TOLERANCE_MS) {
         return preset.label;
       }
     }

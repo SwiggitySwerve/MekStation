@@ -19,6 +19,8 @@ import type {
   ItemSaver,
 } from '@/types/vault';
 
+import { logger } from '@/utils/logger';
+
 import {
   parseBundle,
   parseBundleFromBytes,
@@ -183,7 +185,7 @@ export async function importBundle<T>(
       }
     } catch (error) {
       // Log but continue with other items
-      console.error(`Failed to import item ${itemId}:`, error);
+      logger.error(`Failed to import item ${itemId}:`, error);
       skippedCount++;
     }
   }

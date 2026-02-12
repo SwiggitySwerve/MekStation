@@ -10,6 +10,11 @@ import type { IStoredIdentity, IEncryptedData } from '@/types/vault';
 
 import { getSQLiteService } from '@/services/persistence';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+
 // =============================================================================
 // Repository
 // =============================================================================
@@ -235,11 +240,13 @@ interface StoredIdentityRow {
 // Singleton
 // =============================================================================
 
-let identityRepository: IdentityRepository | null = null;
+const identityRepositoryFactory: SingletonFactory<IdentityRepository> =
+  createSingleton((): IdentityRepository => new IdentityRepository());
 
 export function getIdentityRepository(): IdentityRepository {
-  if (!identityRepository) {
-    identityRepository = new IdentityRepository();
-  }
-  return identityRepository;
+  return identityRepositoryFactory.get();
+}
+
+export function resetIdentityRepository(): void {
+  identityRepositoryFactory.reset();
 }

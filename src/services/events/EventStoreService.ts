@@ -13,6 +13,11 @@ import {
   EventCategory,
 } from '@/types/events';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+
 // =============================================================================
 // Event Store Service
 // =============================================================================
@@ -274,24 +279,20 @@ export class EventStoreService {
 // Singleton Instance
 // =============================================================================
 
-/**
- * Default event store instance.
- */
-let defaultEventStore: EventStoreService | null = null;
+const eventStoreFactory: SingletonFactory<EventStoreService> = createSingleton(
+  (): EventStoreService => new EventStoreService(),
+);
 
 /**
  * Get the default event store instance.
  */
 export function getEventStore(): EventStoreService {
-  if (!defaultEventStore) {
-    defaultEventStore = new EventStoreService();
-  }
-  return defaultEventStore;
+  return eventStoreFactory.get();
 }
 
 /**
  * Reset the default event store (for testing).
  */
 export function resetEventStore(): void {
-  defaultEventStore = null;
+  eventStoreFactory.reset();
 }

@@ -10,6 +10,7 @@
 import { StoreApi } from 'zustand';
 
 import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
+import { logger } from '@/utils/logger';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import {
@@ -52,7 +53,7 @@ function ensureValidBattleArmorId(
   }
 
   const newId = generateUUID();
-  console.warn(
+  logger.warn(
     `[BattleArmorStoreRegistry] ${context}: Invalid battle armor ID "${battleArmorId || '(missing)'}" replaced with "${newId}"`,
   );
   return newId;
@@ -116,7 +117,7 @@ export function hydrateOrCreateBattleArmor(
         return store;
       }
     } catch (e) {
-      console.warn(
+      logger.warn(
         `Failed to hydrate battle armor ${validBattleArmorId}, creating new:`,
         e,
       );
@@ -202,7 +203,7 @@ export function createBattleArmorFromFullState(
 
   const existing = battleArmorStores.get(validId);
   if (existing) {
-    console.warn(
+    logger.warn(
       `Battle armor store ${validId} already exists, returning existing`,
     );
     return existing;

@@ -10,6 +10,7 @@ import * as path from 'path';
 import {
   ParityValidationService,
   getParityValidationService,
+  resetParityValidationService,
 } from '../ParityValidationService';
 import { DiscrepancyCategory } from '../types/ParityValidation';
 
@@ -61,10 +62,7 @@ describe('ParityValidationService', () => {
     mockExporter = { export: jest.fn() };
     (getMTFExportService as jest.Mock).mockReturnValue(mockExporter);
 
-    // Get fresh service instance
-    // Note: Using type assertion to access private static for testing
-    // @ts-expect-error - accessing private static for testing
-    ParityValidationService.instance = null;
+    resetParityValidationService();
     service = getParityValidationService();
   });
 

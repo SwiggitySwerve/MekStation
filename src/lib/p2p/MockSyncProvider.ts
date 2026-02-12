@@ -9,6 +9,8 @@
 
 import * as Y from 'yjs';
 
+import { logger } from '@/utils/logger';
+
 import { generateRoomCode } from './roomCodes';
 import {
   ConnectionState,
@@ -68,7 +70,7 @@ function emitEvent(event: SyncEvent): void {
     try {
       listener(event);
     } catch (error) {
-      console.error('[MockSyncProvider] Error in event listener:', error);
+      logger.error('[MockSyncProvider] Error in event listener:', error);
     }
   });
 }
@@ -214,7 +216,7 @@ function handleBroadcastMessage(message: BroadcastMessage): void {
           const update = new Uint8Array(message.data);
           Y.applyUpdate(mockRoom.doc, update);
         } catch (error) {
-          console.error('[MockSyncProvider] Failed to apply update:', error);
+          logger.error('[MockSyncProvider] Failed to apply update:', error);
         }
       }
       break;

@@ -11,6 +11,7 @@ import React, { useMemo } from 'react';
 import { StoreApi } from 'zustand';
 
 import { TechBase } from '@/types/enums/TechBase';
+import { logger } from '@/utils/logger';
 
 import type { UnitStore } from './useUnitStore';
 
@@ -75,7 +76,7 @@ export function UnitStoreProvider({
         techBase: activeTab.techBase,
       });
     } catch (e) {
-      console.error('Error creating unit store:', e);
+      logger.error('Error creating unit store:', e);
       return null;
     }
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- only recreate store when specific tab properties change, not on every activeTab reference change

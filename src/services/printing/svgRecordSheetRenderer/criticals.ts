@@ -4,6 +4,7 @@
  */
 
 import { ILocationCriticals, IRecordSheetCriticalSlot } from '@/types/printing';
+import { logger } from '@/utils/logger';
 
 import { SVG_NS } from './constants';
 
@@ -34,7 +35,7 @@ function renderLocationCriticals(
   const critArea = svgDoc.getElementById(critAreaId);
 
   if (!critArea) {
-    console.warn(`Critical area not found: ${critAreaId}`);
+    logger.warn(`Critical area not found: ${critAreaId}`);
     return;
   }
 

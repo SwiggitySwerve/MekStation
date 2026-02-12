@@ -11,6 +11,10 @@ import type {
   CockpitType as BVCockpitType,
 } from '@/utils/construction/battleValueCalculations';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
@@ -20,6 +24,7 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+import { logger } from '@/utils/logger';
 
 import {
   COCKPIT_COST_STANDARD,
@@ -411,7 +416,9 @@ export class CalculationService implements ICalculationService {
     const registry = getEquipmentRegistry();
 
     if (!registry.isReady()) {
-      registry.initialize().catch(() => {});
+      registry.initialize().catch((error) => {
+        logger.error('Failed to initialize equipment registry', error);
+      });
       return {
         heatGenerated: 0,
         heatDissipated,
@@ -602,25 +609,20 @@ export class CalculationService implements ICalculationService {
 }
 
 // Singleton instance with lazy initialization
-let _instance: CalculationService | null = null;
+const calculationServiceFactory: SingletonFactory<CalculationService> =
+  createSingleton((): CalculationService => new CalculationService());
 
-/**
- * Get the singleton CalculationService instance
- * Provides lazy initialization for better testability and DI support
- */
 export function getCalculationService(): CalculationService {
-  if (!_instance) {
-    _instance = new CalculationService();
-  }
-  return _instance;
+  return calculationServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetCalculationService(): void {
+  calculationServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetCalculationService(): void {
-  _instance = null;
+  calculationServiceFactory.reset();
 }
 
 // Legacy export for backward compatibility

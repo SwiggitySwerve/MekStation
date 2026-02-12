@@ -28,9 +28,9 @@ describe('MTFParserService', () => {
       expect(instance1).toBe(instance2);
     });
 
-    it('should return same instance from static method', () => {
-      const instance1 = MTFParserService.getInstance();
-      const instance2 = MTFParserService.getInstance();
+    it('should return same instance from getter', () => {
+      const instance1 = getMTFParserService();
+      const instance2 = getMTFParserService();
       expect(instance1).toBe(instance2);
     });
   });

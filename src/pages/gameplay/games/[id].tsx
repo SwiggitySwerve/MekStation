@@ -15,6 +15,7 @@ import { GameplayLayout } from '@/components/gameplay';
 import { Button } from '@/components/ui';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { GameSide, GameStatus } from '@/types/gameplay';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Loading Component
@@ -234,7 +235,7 @@ export default function GameSessionPage(): React.ReactElement {
 
   // Handle hex click
   const handleHexClick = useCallback((hex: { q: number; r: number }) => {
-    console.log('Hex clicked:', hex);
+    logger.debug('Hex clicked:', hex);
     // TODO: Handle movement/targeting based on current phase
   }, []);
 

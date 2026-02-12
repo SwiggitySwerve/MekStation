@@ -5,6 +5,8 @@
  * @spec openspec/changes/add-scenario-generators/spec.md
  */
 
+import { logger } from '@/utils/logger';
+
 import {
   Faction,
   getRAT,
@@ -228,7 +230,7 @@ export class OpForGeneratorService {
       availableEntries = filterRATEntriesByYear(rat.entries, config.year);
 
       if (availableEntries.length === 0) {
-        console.warn(
+        logger.warn(
           `No units available for year ${config.year} in faction ${config.faction}. Using all available units.`,
         );
         availableEntries = rat.entries;

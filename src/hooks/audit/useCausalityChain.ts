@@ -286,8 +286,8 @@ function computeStats(nodes: readonly ICausalityNode[]): ICausalityStats {
  * computeChain('event-123', 'both', 5);
  *
  * if (chain) {
- *   console.log('Root event:', chain.root.event.type);
- *   console.log('Total events:', chain.stats.totalEvents);
+ *   logger.debug('Root event:', chain.root.event.type);
+ *   logger.debug('Total events:', chain.stats.totalEvents);
  * }
  * ```
  */

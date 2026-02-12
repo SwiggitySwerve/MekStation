@@ -68,7 +68,7 @@ export function useDebounce<T>(value: T, delay: number = 300): T {
  * ```typescript
  * function ValidationPanel() {
  *   const validate = useDebouncedCallback((unit: Unit) => {
- *     console.log('Validating:', unit);
+ *     logger.debug('Validating:', unit);
  *     // Expensive validation logic
  *   }, 300);
  *

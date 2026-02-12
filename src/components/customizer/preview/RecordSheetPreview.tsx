@@ -30,6 +30,7 @@ import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Types
@@ -183,7 +184,7 @@ export function RecordSheetPreview({
         cost: calculationService.calculateCost(editableMech),
       };
     } catch (error) {
-      console.warn('Failed to calculate BV/cost:', error);
+      logger.warn('Failed to calculate BV/cost:', error);
       return { battleValue: 0, cost: 0 };
     }
   }, [
@@ -357,7 +358,7 @@ export function RecordSheetPreview({
       // Render using MegaMekLab-style SVG templates
       await recordSheetService.renderPreview(canvas, data, paperSize);
     } catch (error) {
-      console.error('Error rendering record sheet preview:', error);
+      logger.error('Error rendering record sheet preview:', error);
 
       // Draw error state
       const ctx = canvas.getContext('2d');

@@ -8,6 +8,10 @@
  * @see BlkParserService for the corresponding import/parser
  */
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
 import { AerospaceState } from '@/stores/aerospaceState';
 import { BattleArmorState } from '@/stores/battleArmorState';
 import { InfantryState } from '@/stores/infantryState';
@@ -57,17 +61,6 @@ export type ExportableUnitState =
  * BLK Export Service
  */
 export class BlkExportService {
-  private static instance: BlkExportService | null = null;
-
-  private constructor() {}
-
-  static getInstance(): BlkExportService {
-    if (!BlkExportService.instance) {
-      BlkExportService.instance = new BlkExportService();
-    }
-    return BlkExportService.instance;
-  }
-
   /**
    * Export unit state to BLK format string
    */
@@ -793,9 +786,13 @@ export class BlkExportService {
   }
 }
 
-/**
- * Get singleton instance
- */
+const blkExportServiceFactory: SingletonFactory<BlkExportService> =
+  createSingleton((): BlkExportService => new BlkExportService());
+
 export function getBlkExportService(): BlkExportService {
-  return BlkExportService.getInstance();
+  return blkExportServiceFactory.get();
+}
+
+export function resetBlkExportService(): void {
+  blkExportServiceFactory.reset();
 }

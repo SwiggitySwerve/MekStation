@@ -7,6 +7,8 @@
  * @spec openspec/specs/persistence-services/spec.md
  */
 
+import { logger } from '@/utils/logger';
+
 import { IFullUnit } from '../units/CanonicalUnitService';
 import { getUnitRepository } from '../units/UnitRepository';
 import { indexedDBService, STORES } from './IndexedDBService';
@@ -126,7 +128,7 @@ export class MigrationService implements IMigrationService {
           );
 
           if (existing) {
-            console.log(`Skipping "${unitName}" - already exists in SQLite`);
+            logger.debug(`Skipping "${unitName}" - already exists in SQLite`);
             continue;
           }
 

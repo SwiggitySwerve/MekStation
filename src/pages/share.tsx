@@ -17,6 +17,7 @@ import {
   Badge,
 } from '@/components/ui';
 import { formatExpiry } from '@/utils/formatting';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Types
@@ -249,7 +250,7 @@ export default function ManageShareLinksPage(): React.ReactElement {
       setCopiedId(link.id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      logger.error('Failed to copy:', err);
     } finally {
       setActionState({ linkId: null, type: null });
     }
@@ -276,7 +277,7 @@ export default function ManageShareLinksPage(): React.ReactElement {
         ),
       );
     } catch (err) {
-      console.error('Failed to toggle:', err);
+      logger.error('Failed to toggle:', err);
     } finally {
       setActionState({ linkId: null, type: null });
     }
@@ -298,7 +299,7 @@ export default function ManageShareLinksPage(): React.ReactElement {
       setLinks((prev) => prev.filter((l) => l.id !== link.id));
       setDeleteConfirmId(null);
     } catch (err) {
-      console.error('Failed to delete:', err);
+      logger.error('Failed to delete:', err);
     } finally {
       setActionState({ linkId: null, type: null });
     }

@@ -6,6 +6,7 @@ import { useEffect, useState, useCallback } from 'react';
 
 import { PageLayout, Card, Input, EmptyState } from '@/components/ui';
 import { IUnitEntry, IUnitDetails, calculateTotalArmor } from '@/types/pages';
+import { logger } from '@/utils/logger';
 
 const MAX_COMPARE = 4;
 
@@ -29,7 +30,7 @@ export default function ComparePage(): React.ReactElement {
           setCatalog(data.data || []);
         }
       } catch (err) {
-        console.error('Failed to fetch catalog:', err);
+        logger.error('Failed to fetch catalog:', err);
       } finally {
         setCatalogLoading(false);
       }
@@ -71,7 +72,7 @@ export default function ComparePage(): React.ReactElement {
           setSelectedUnits((prev) => [...prev, unitData]);
         }
       } catch (err) {
-        console.error('Failed to load unit:', err);
+        logger.error('Failed to load unit:', err);
       } finally {
         setLoadingUnits((prev) => {
           const next = new Set(prev);

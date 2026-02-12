@@ -74,9 +74,9 @@ export type ContractGroup = 'garrison' | 'raid' | 'guerrilla' | 'special';
  *
  * @example
  * const def = CONTRACT_TYPE_DEFINITIONS[AtBContractType.GARRISON_DUTY];
- * console.log(def.name); // 'Garrison Duty'
- * console.log(def.opsTempo.min); // 1.0
- * console.log(def.opsTempo.max); // 1.0
+ * logger.debug(def.name); // 'Garrison Duty'
+ * logger.debug(def.opsTempo.min); // 1.0
+ * logger.debug(def.opsTempo.max); // 1.0
  */
 export interface IContractTypeDefinition {
   /** Display name of the contract type */
@@ -388,7 +388,7 @@ export interface IContractClause {
  *
  * @example
  * const level = CLAUSE_LEVELS[ContractClauseType.COMMAND][2];
- * console.log(level.name); // 'Liaison'
+ * logger.debug(level.name); // 'Liaison'
  */
 export interface IClauseLevelDefinition {
   /** Display name of the level */
@@ -405,7 +405,7 @@ export interface IClauseLevelDefinition {
  *
  * @example
  * const commandLevels = CLAUSE_LEVELS[ContractClauseType.COMMAND];
- * console.log(commandLevels[0].name); // 'Integrated'
+ * logger.debug(commandLevels[0].name); // 'Integrated'
  */
 export const CLAUSE_LEVELS: Record<
   ContractClauseType,

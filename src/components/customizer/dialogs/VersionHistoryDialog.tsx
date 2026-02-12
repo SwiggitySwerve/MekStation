@@ -13,6 +13,7 @@ import {
   IVersionWithData,
 } from '@/services/units/CustomUnitApiService';
 import { IVersionMetadata } from '@/types/persistence/UnitPersistence';
+import { logger } from '@/utils/logger';
 
 import { customizerStyles as cs } from '../styles';
 import { ModalOverlay } from './ModalOverlay';
@@ -70,7 +71,7 @@ export function VersionHistoryDialog({
       .getVersionHistory(unitId)
       .then(setVersions)
       .catch((err) => {
-        console.error('Failed to load version history:', err);
+        logger.error('Failed to load version history:', err);
         setError('Failed to load version history');
       })
       .finally(() => setIsLoading(false));
@@ -89,7 +90,7 @@ export function VersionHistoryDialog({
       .getVersion(unitId, selectedVersion)
       .then(setPreviewData)
       .catch((err) => {
-        console.error('Failed to load version preview:', err);
+        logger.error('Failed to load version preview:', err);
         setPreviewData(null);
       })
       .finally(() => setIsLoadingPreview(false));
@@ -110,7 +111,7 @@ export function VersionHistoryDialog({
         setError(result.error.message || 'Failed to revert');
       }
     } catch (err) {
-      console.error('Revert error:', err);
+      logger.error('Revert error:', err);
       setError('Failed to revert to selected version');
     } finally {
       setIsReverting(false);

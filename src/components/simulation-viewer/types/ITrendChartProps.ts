@@ -10,7 +10,7 @@
  *   ],
  *   timeRange: '7d',
  *   timeRangeOptions: ['7d', '30d', '90d'],
- *   onTimeRangeChange: (range) => console.log('Range:', range),
+ *   onTimeRangeChange: (range) => logger.debug('Range:', range),
  *   threshold: 900000,
  *   thresholdLabel: 'Minimum Balance',
  *   height: 300

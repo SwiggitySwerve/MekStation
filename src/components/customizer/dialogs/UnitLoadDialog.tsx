@@ -16,6 +16,7 @@ import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { ICustomUnitIndexEntry } from '@/types/persistence/UnitPersistence';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { logger } from '@/utils/logger';
 
 import { customizerStyles as cs } from '../styles';
 import { ModalOverlay } from './ModalOverlay';
@@ -84,7 +85,7 @@ export function UnitLoadDialog({
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error('Failed to load units:', error);
+        logger.error('Failed to load units:', error);
         setIsLoading(false);
       });
   }, [isOpen]);

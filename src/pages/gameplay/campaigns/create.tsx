@@ -11,7 +11,7 @@ import { CampaignTypeCard } from '@/components/campaign/CampaignTypeCard';
 import { PresetCard } from '@/components/campaign/PresetCard';
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout, Card, Input, Button } from '@/components/ui';
-import { useCampaignStore } from '@/stores/useCampaignStore';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { CampaignPreset, ALL_PRESETS } from '@/types/campaign/CampaignPreset';
 import {
   CampaignType,
@@ -92,7 +92,7 @@ const WIZARD_STEPS = ['Basic Info', 'Type', 'Preset', 'Roster', 'Review'];
 
 export default function CreateCampaignPage(): React.ReactElement {
   const router = useRouter();
-  const { createCampaign, error, clearError } = useCampaignStore();
+  const store = useCampaignStore();
   const { showToast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -113,7 +113,6 @@ export default function CreateCampaignPage(): React.ReactElement {
   const selectedPresetDef = ALL_PRESETS.find((p) => p.id === selectedPreset);
 
   const handleNext = useCallback(() => {
-    clearError();
     setLocalError(null);
 
     if (currentStep === 0) {
@@ -124,26 +123,25 @@ export default function CreateCampaignPage(): React.ReactElement {
     }
 
     setCurrentStep((prev) => Math.min(prev + 1, WIZARD_STEPS.length - 1));
-  }, [currentStep, name, clearError]);
+  }, [currentStep, name]);
 
   const handleBack = useCallback(() => {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    clearError();
     setLocalError(null);
     setIsSubmitting(true);
 
     try {
-      const campaignId = createCampaign({
-        name: name.trim(),
-        description: description.trim() || undefined,
-        unitIds,
-        pilotIds,
-      });
+      const campaignId = store
+        .getState()
+        .createCampaign(name.trim(), campaignType);
 
       if (campaignId) {
+        if (description.trim()) {
+          store.getState().updateCampaign({ description: description.trim() });
+        }
         showToast({
           message: `Campaign "${name.trim()}" created successfully!`,
           variant: 'success',
@@ -155,16 +153,7 @@ export default function CreateCampaignPage(): React.ReactElement {
     } finally {
       setIsSubmitting(false);
     }
-  }, [
-    name,
-    description,
-    unitIds,
-    pilotIds,
-    createCampaign,
-    router,
-    clearError,
-    showToast,
-  ]);
+  }, [name, description, campaignType, store, router, showToast]);
 
   const handleCancel = useCallback(() => {
     router.push('/gameplay/campaigns');
@@ -433,12 +422,12 @@ export default function CreateCampaignPage(): React.ReactElement {
 
       <div className="mb-8">{renderStepContent()}</div>
 
-      {(error || localError) && (
+      {localError && (
         <div
           className="mx-auto mb-6 max-w-2xl rounded-lg border border-red-600/30 bg-red-900/20 p-4"
           data-testid="name-error"
         >
-          <p className="text-sm text-red-400">{error || localError}</p>
+          <p className="text-sm text-red-400">{localError}</p>
         </div>
       )}
 

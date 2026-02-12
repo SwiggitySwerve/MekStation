@@ -6,6 +6,11 @@
  * @spec openspec/specs/persistence-services/spec.md
  */
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
+
 import { FileError } from '../common/errors';
 import {
   IImportResult,
@@ -253,25 +258,21 @@ export class FileService implements IFileService {
 }
 
 // Singleton instance with lazy initialization
-let _instance: FileService | null = null;
+const fileServiceFactory: SingletonFactory<FileService> = createSingleton(
+  (): FileService => new FileService(),
+);
 
-/**
- * Get the singleton FileService instance
- * Provides lazy initialization for better testability and DI support
- */
 export function getFileService(): FileService {
-  if (!_instance) {
-    _instance = new FileService();
-  }
-  return _instance;
+  return fileServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetFileService(): void {
+  fileServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetFileService(): void {
-  _instance = null;
+  fileServiceFactory.reset();
 }
 
 // Legacy export for backward compatibility

@@ -6,9 +6,9 @@
  */
 
 import * as aerospaceRegistry from '@/stores/aerospaceStoreRegistry';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import * as unitRegistry from '@/stores/unitStoreRegistry';
 import { useAwardStore } from '@/stores/useAwardStore';
-import { useCampaignStore } from '@/stores/useCampaignStore';
 import { useEncounterStore } from '@/stores/useEncounterStore';
 import { useForceStore } from '@/stores/useForceStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
@@ -19,6 +19,7 @@ import {
   UNIT_TEMPLATES,
 } from '@/stores/useTabManagerStore';
 import * as vehicleRegistry from '@/stores/vehicleStoreRegistry';
+import { logger } from '@/utils/logger';
 
 declare global {
   interface Window {
@@ -60,7 +61,7 @@ export function exposeStoresForE2E(): void {
   window.__UNIT_REGISTRY__ = unitRegistry;
   window.__UNIT_TEMPLATES__ = UNIT_TEMPLATES;
 
-  console.log('[E2E] Stores exposed for testing');
+  logger.debug('[E2E] Stores exposed for testing');
 }
 
 export function isE2EMode(): boolean {

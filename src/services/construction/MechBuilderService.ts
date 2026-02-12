@@ -18,6 +18,10 @@ import {
 import { TechBase } from '@/types/enums/TechBase';
 
 import { ValidationError } from '../common/errors';
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { IFullUnit } from '../units/CanonicalUnitService';
 
 /**
@@ -393,25 +397,24 @@ export class MechBuilderService implements IMechBuilderService {
 }
 
 // Singleton instance with lazy initialization
-let _instance: MechBuilderService | null = null;
+const mechBuilderServiceFactory: SingletonFactory<MechBuilderService> =
+  createSingleton((): MechBuilderService => new MechBuilderService());
 
 /**
  * Get the singleton MechBuilderService instance
  * Provides lazy initialization for better testability and DI support
  */
 export function getMechBuilderService(): MechBuilderService {
-  if (!_instance) {
-    _instance = new MechBuilderService();
-  }
-  return _instance;
+  return mechBuilderServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetMechBuilderService(): void {
+  mechBuilderServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetMechBuilderService(): void {
-  _instance = null;
+  mechBuilderServiceFactory.reset();
 }
 
 // Legacy export for backward compatibility

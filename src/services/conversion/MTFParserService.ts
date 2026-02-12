@@ -8,6 +8,10 @@
  */
 
 import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
+import {
   ISerializedUnit,
   ISerializedFluff,
 } from '@/types/unit/UnitSerialization';
@@ -70,17 +74,6 @@ const SLOT_COUNTS: Record<string, number> = {
  * MTF Parser Service
  */
 export class MTFParserService {
-  private static instance: MTFParserService | null = null;
-
-  private constructor() {}
-
-  static getInstance(): MTFParserService {
-    if (!MTFParserService.instance) {
-      MTFParserService.instance = new MTFParserService();
-    }
-    return MTFParserService.instance;
-  }
-
   /**
    * Parse raw MTF text content into ISerializedUnit
    */
@@ -754,9 +747,13 @@ export class MTFParserService {
   }
 }
 
-/**
- * Get singleton instance
- */
+const mtfParserServiceFactory: SingletonFactory<MTFParserService> =
+  createSingleton((): MTFParserService => new MTFParserService());
+
 export function getMTFParserService(): MTFParserService {
-  return MTFParserService.getInstance();
+  return mtfParserServiceFactory.get();
+}
+
+export function resetMTFParserService(): void {
+  mtfParserServiceFactory.reset();
 }

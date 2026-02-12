@@ -13,6 +13,7 @@ import {
   IStoredFormula,
   validateVariableFormulas,
 } from '@/types/equipment/VariableEquipment';
+import { logger } from '@/utils/logger';
 
 import { ValidationError, StorageError } from '../common/errors';
 import { indexedDBService, STORES } from '../persistence/IndexedDBService';
@@ -58,7 +59,7 @@ export class FormulaRegistry implements IFormulaRegistry {
       this.initialized = true;
     } catch (error) {
       // If storage fails, continue with standard formulas only
-      console.warn('Failed to load custom formulas:', error);
+      logger.warn('Failed to load custom formulas:', error);
       this.initialized = true;
     }
   }
@@ -147,7 +148,7 @@ export class FormulaRegistry implements IFormulaRegistry {
     try {
       await this.deleteCustomFormula(equipmentId);
     } catch (error) {
-      console.warn(
+      logger.warn(
         `Failed to delete persisted formulas for ${equipmentId}:`,
         error,
       );

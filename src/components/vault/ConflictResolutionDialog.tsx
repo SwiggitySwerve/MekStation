@@ -14,6 +14,8 @@ import React, { useState, useCallback } from 'react';
 
 import type { ISyncConflict, ShareableContentType } from '@/types/vault';
 
+import { logger } from '@/utils/logger';
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -338,7 +340,10 @@ export function ConflictResolutionDialog({
       });
 
       if (!response.ok) {
-        const errorData = (await response.json().catch(() => ({}))) as {
+        const errorData = (await response.json().catch((e) => {
+          logger.debug('Response not JSON when resolving conflict', e);
+          return {};
+        })) as {
           error?: string;
         };
         throw new Error(

@@ -5,10 +5,10 @@
  */
 
 import { UnitType } from '../../../types/unit/BattleMechInterfaces';
-import { BlkParserService } from '../BlkParserService';
+import { getBlkParserService } from '../BlkParserService';
 
 describe('BlkParserService', () => {
-  const parser = BlkParserService.getInstance();
+  const parser = getBlkParserService();
 
   describe('parse', () => {
     it('should parse a simple vehicle BLK file', () => {

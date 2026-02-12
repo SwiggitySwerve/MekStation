@@ -15,6 +15,11 @@ import type {
 
 import { getSQLiteService } from '@/services/persistence';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+
 // =============================================================================
 // Repository
 // =============================================================================
@@ -411,18 +416,16 @@ export class ChangeLogRepository {
 // Singleton
 // =============================================================================
 
-let changeLogRepository: ChangeLogRepository | null = null;
+const changeLogRepositoryFactory: SingletonFactory<ChangeLogRepository> =
+  createSingleton((): ChangeLogRepository => new ChangeLogRepository());
 
 export function getChangeLogRepository(): ChangeLogRepository {
-  if (!changeLogRepository) {
-    changeLogRepository = new ChangeLogRepository();
-  }
-  return changeLogRepository;
+  return changeLogRepositoryFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetChangeLogRepository(): void {
-  changeLogRepository = null;
+  changeLogRepositoryFactory.reset();
 }

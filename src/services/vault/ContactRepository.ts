@@ -14,6 +14,10 @@ import type { IContact, IStoredContact } from '@/types/vault';
 
 import { getSQLiteService } from '@/services/persistence';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { ICrudRepository } from '../core/ICrudRepository';
 
 // =============================================================================
@@ -417,18 +421,16 @@ export class ContactRepository implements ICrudRepository<IContact> {
 // Singleton
 // =============================================================================
 
-let contactRepository: ContactRepository | null = null;
+const contactRepositoryFactory: SingletonFactory<ContactRepository> =
+  createSingleton((): ContactRepository => new ContactRepository());
 
 export function getContactRepository(): ContactRepository {
-  if (!contactRepository) {
-    contactRepository = new ContactRepository();
-  }
-  return contactRepository;
+  return contactRepositoryFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetContactRepository(): void {
-  contactRepository = null;
+  contactRepositoryFactory.reset();
 }

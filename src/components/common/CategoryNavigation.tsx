@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+import { logger } from '@/utils/logger';
+
 interface CategoryNavigationProps {
   selectedCategory: string | null;
   onSelectCategory: (category: string | null) => void;
@@ -25,7 +27,7 @@ const CategoryNavigation: React.FC<CategoryNavigationProps> = ({
         const data = (await response.json()) as string[];
         setCategories(data);
       } catch (err) {
-        console.error(err);
+        logger.error(err);
         setError(
           err instanceof Error ? err.message : 'An unknown error occurred',
         );

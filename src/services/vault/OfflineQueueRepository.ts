@@ -18,6 +18,11 @@ import type {
 
 import { getSQLiteService } from '@/services/persistence';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
+
 // =============================================================================
 // Constants
 // =============================================================================
@@ -473,18 +478,16 @@ export class OfflineQueueRepository {
 // Singleton
 // =============================================================================
 
-let offlineQueueRepository: OfflineQueueRepository | null = null;
+const offlineQueueRepositoryFactory: SingletonFactory<OfflineQueueRepository> =
+  createSingleton((): OfflineQueueRepository => new OfflineQueueRepository());
 
 export function getOfflineQueueRepository(): OfflineQueueRepository {
-  if (!offlineQueueRepository) {
-    offlineQueueRepository = new OfflineQueueRepository();
-  }
-  return offlineQueueRepository;
+  return offlineQueueRepositoryFactory.get();
 }
 
 /**
  * Reset the singleton (for testing)
  */
 export function resetOfflineQueueRepository(): void {
-  offlineQueueRepository = null;
+  offlineQueueRepositoryFactory.reset();
 }

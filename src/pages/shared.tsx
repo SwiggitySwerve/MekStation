@@ -17,6 +17,7 @@ import {
   Badge,
 } from '@/components/ui';
 import { formatDate, formatRelativeTime } from '@/utils/formatting';
+import { logger } from '@/utils/logger';
 
 // =============================================================================
 // Types
@@ -647,7 +648,7 @@ export default function SharedPage(): React.ReactElement {
       await fetch('/api/vault/sync', { method: 'POST' });
       await fetchSharedItems();
     } catch (err) {
-      console.error('Sync failed:', err);
+      logger.error('Sync failed:', err);
     } finally {
       setIsSyncing(false);
     }
@@ -682,7 +683,7 @@ export default function SharedPage(): React.ReactElement {
       }
       setRevokeConfirmId(null);
     } catch (err) {
-      console.error('Failed to revoke:', err);
+      logger.error('Failed to revoke:', err);
     } finally {
       setProcessingId(null);
     }

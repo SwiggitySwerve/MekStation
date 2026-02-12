@@ -6,6 +6,7 @@
  */
 
 import { MechLocation } from '@/types/construction';
+import { logger } from '@/utils/logger';
 
 import {
   AnchorPoint,
@@ -639,7 +640,7 @@ export function resolveLayout(
 
     if (!state.resolved) {
       if (options.debug) {
-        console.warn(`Layout: Part ${location} was not resolved`);
+        logger.warn(`Layout: Part ${location} was not resolved`);
       }
       continue;
     }

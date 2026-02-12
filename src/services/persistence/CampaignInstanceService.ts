@@ -7,6 +7,11 @@
  * @spec openspec/changes/add-campaign-instances/specs/campaign-instances/spec.md
  */
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
+
 import type {
   ICampaignUnitInstance,
   ICampaignPilotInstance,
@@ -561,22 +566,18 @@ export class CampaignInstanceService implements ICampaignInstanceService {
 // Singleton
 // =============================================================================
 
-let _instance: CampaignInstanceService | null = null;
+const campaignInstanceServiceFactory: SingletonFactory<CampaignInstanceService> =
+  createSingleton((): CampaignInstanceService => new CampaignInstanceService());
 
-/**
- * Get the singleton CampaignInstanceService instance
- */
 export function getCampaignInstanceService(): CampaignInstanceService {
-  if (!_instance) {
-    _instance = new CampaignInstanceService();
-  }
-  return _instance;
+  return campaignInstanceServiceFactory.get();
 }
 
-/**
- * Reset the singleton instance (for testing)
- * @internal
- */
+export function resetCampaignInstanceService(): void {
+  campaignInstanceServiceFactory.reset();
+}
+
+/** @internal Legacy alias */
 export function _resetCampaignInstanceService(): void {
-  _instance = null;
+  campaignInstanceServiceFactory.reset();
 }

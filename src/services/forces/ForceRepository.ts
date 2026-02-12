@@ -23,6 +23,10 @@ import {
 } from '@/types/force';
 import { calculateUnitBV, type UnitData } from '@/utils/construction/bvAdapter';
 
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
 
 // =============================================================================
@@ -652,11 +656,13 @@ export class ForceRepository implements IForceRepository {
 // Singleton Instance
 // =============================================================================
 
-let repository: ForceRepository | null = null;
+const forceRepositoryFactory: SingletonFactory<ForceRepository> =
+  createSingleton((): ForceRepository => new ForceRepository());
 
 export function getForceRepository(): ForceRepository {
-  if (!repository) {
-    repository = new ForceRepository();
-  }
-  return repository;
+  return forceRepositoryFactory.get();
+}
+
+export function resetForceRepository(): void {
+  forceRepositoryFactory.reset();
 }
