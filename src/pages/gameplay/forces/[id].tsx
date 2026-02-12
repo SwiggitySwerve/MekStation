@@ -20,10 +20,14 @@ import {
 } from '@/components/force';
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout, PageError, Button, Input } from '@/components/ui';
+import { unitSearchService } from '@/services/units/UnitSearchService';
 import { useForceStore } from '@/stores/useForceStore';
 import { usePilotStore } from '@/stores/usePilotStore';
+import { TechBase } from '@/types/enums/TechBase';
+import { WeightClass } from '@/types/enums/WeightClass';
 import { IForce, IForceValidation, getForceTypeName } from '@/types/force';
 import { IPilot, PilotStatus } from '@/types/pilot';
+import { IUnitIndexEntry } from '@/types/unit/UnitIndex';
 
 // =============================================================================
 // Sub-Components
@@ -229,6 +233,38 @@ function EditNameModal({
 }
 
 // =============================================================================
+// Enum Mappers
+// =============================================================================
+
+function mapTechBase(tb: TechBase): 'IS' | 'Clan' | 'Mixed' {
+  switch (tb) {
+    case TechBase.CLAN:
+      return 'Clan';
+    case TechBase.INNER_SPHERE:
+    default:
+      return 'IS';
+  }
+}
+
+function mapWeightClass(
+  wc: WeightClass,
+): 'Light' | 'Medium' | 'Heavy' | 'Assault' {
+  switch (wc) {
+    case WeightClass.LIGHT:
+      return 'Light';
+    case WeightClass.MEDIUM:
+      return 'Medium';
+    case WeightClass.HEAVY:
+      return 'Heavy';
+    case WeightClass.ASSAULT:
+      return 'Assault';
+    default:
+      // Map Ultralight/Superheavy to closest standard class
+      return wc === WeightClass.ULTRALIGHT ? 'Light' : 'Assault';
+  }
+}
+
+// =============================================================================
 // Main Page Component
 // =============================================================================
 
@@ -259,6 +295,7 @@ export default function ForceDetailPage(): React.ReactElement {
 
   // Local state
   const [isInitialized, setIsInitialized] = useState(false);
+  const [allUnits, setAllUnits] = useState<IUnitIndexEntry[]>([]);
   const [force, setForce] = useState<IForce | null>(null);
   const [validation, setValidation] = useState<IForceValidation | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -273,10 +310,14 @@ export default function ForceDetailPage(): React.ReactElement {
     string | null
   >(null);
 
-  // Load data on mount
   useEffect(() => {
     const initialize = async () => {
       await Promise.all([loadForces(), loadPilots()]);
+      await unitSearchService.initialize();
+      const { canonicalUnitService } =
+        await import('@/services/units/CanonicalUnitService');
+      const index = await canonicalUnitService.getIndex();
+      setAllUnits([...index]);
       setIsInitialized(true);
     };
     initialize();
@@ -304,11 +345,20 @@ export default function ForceDetailPage(): React.ReactElement {
     return map;
   }, [pilots]);
 
-  // Build unit map (placeholder - units not fully implemented yet)
   const unitMap = useMemo(() => {
-    // TODO: Integrate with unit store when available
-    return new Map<string, { name: string; bv: number; tonnage: number }>();
-  }, []);
+    const map = new Map<
+      string,
+      { name: string; bv: number; tonnage: number }
+    >();
+    for (const unit of allUnits) {
+      map.set(unit.id, {
+        name: unit.name,
+        bv: unit.bv ?? 0,
+        tonnage: unit.tonnage,
+      });
+    }
+    return map;
+  }, [allUnits]);
 
   // Get assigned pilot IDs
   const assignedPilotIds = useMemo(() => {
@@ -318,11 +368,18 @@ export default function ForceDetailPage(): React.ReactElement {
       .map((a) => a.pilotId as string);
   }, [force]);
 
-  // Mock unit data for selector (placeholder)
   const availableUnits: UnitInfo[] = useMemo(() => {
-    // TODO: Load from unit store when available
-    return [];
-  }, []);
+    return allUnits.map((unit) => ({
+      id: unit.id,
+      name: unit.name,
+      chassis: unit.chassis,
+      model: unit.variant,
+      tonnage: unit.tonnage,
+      bv: unit.bv ?? 0,
+      techBase: mapTechBase(unit.techBase),
+      weightClass: mapWeightClass(unit.weightClass),
+    }));
+  }, [allUnits]);
 
   // Get assigned unit IDs
   const assignedUnitIds = useMemo(() => {
