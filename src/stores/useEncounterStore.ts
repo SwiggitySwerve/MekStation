@@ -34,6 +34,12 @@ interface EncounterResponse {
   error?: string;
 }
 
+interface LaunchResponse {
+  success: boolean;
+  gameSessionId?: string;
+  error?: string;
+}
+
 interface ValidationResponse {
   validation: IEncounterValidationResult;
 }
@@ -90,8 +96,8 @@ interface EncounterStoreActions {
   ) => Promise<boolean>;
   /** Validate an encounter */
   validateEncounter: (id: string) => Promise<IEncounterValidationResult | null>;
-  /** Launch an encounter */
-  launchEncounter: (id: string) => Promise<boolean>;
+  /** Launch an encounter — returns gameSessionId on success, null on failure */
+  launchEncounter: (id: string) => Promise<string | null>;
   /** Clone an encounter */
   cloneEncounter: (id: string, newName: string) => Promise<string | null>;
   /** Set status filter */
@@ -363,27 +369,26 @@ export const useEncounterStore = create<EncounterStore>((set, get) => ({
     }
   },
 
-  // Launch encounter
   launchEncounter: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
       const response = await fetch(`/api/encounters/${id}/launch`, {
         method: 'POST',
       });
-      const data = (await response.json()) as EncounterResponse;
+      const data = (await response.json()) as LaunchResponse;
       if (!data.success) {
         set({
           error: data.error ?? 'Failed to launch encounter',
           isLoading: false,
         });
-        return false;
+        return null;
       }
       await get().loadEncounters();
-      return true;
+      return data.gameSessionId ?? null;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       set({ error: message, isLoading: false });
-      return false;
+      return null;
     }
   },
 
