@@ -213,12 +213,12 @@
 
 ## 14. ECM & Electronic Warfare
 
-- [ ] 14.1 Create ECM bubble tracking — Guardian ECM 6-hex radius, Angel ECM, Clan ECM
-- [ ] 14.2 Implement ECM effects — nullify Artemis, Narc, TAG, C3, active probes within bubble
-- [ ] 14.3 Implement ECCM counter — one ECM counters another ECM
-- [ ] 14.4 Implement stealth armor to-hit modifier — +1 medium, +2 long (requires Guardian ECM active)
-- [ ] 14.5 Implement BAP/Beagle Active Probe counter — shorter range ECM countering
-- [ ] 14.6 Write tests for ECM interactions
+- [x] 14.1 Create ECM bubble tracking — Guardian ECM 6-hex radius, Angel ECM, Clan ECM
+- [x] 14.2 Implement ECM effects — nullify Artemis, Narc, TAG, C3, active probes within bubble
+- [x] 14.3 Implement ECCM counter — one ECM counters another ECM
+- [x] 14.4 Implement stealth armor to-hit modifier — +1 medium, +2 long (requires Guardian ECM active)
+- [x] 14.5 Implement BAP/Beagle Active Probe counter — shorter range ECM countering
+- [x] 14.6 Write tests for ECM interactions
 
 ## 15. Indirect Fire
 
