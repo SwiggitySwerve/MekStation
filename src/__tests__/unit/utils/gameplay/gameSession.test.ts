@@ -135,7 +135,10 @@ describe('gameSession', () => {
     it('should return correct next phase', () => {
       expect(getNextPhase(GamePhase.Initiative)).toBe(GamePhase.Movement);
       expect(getNextPhase(GamePhase.Movement)).toBe(GamePhase.WeaponAttack);
-      expect(getNextPhase(GamePhase.WeaponAttack)).toBe(GamePhase.Heat);
+      expect(getNextPhase(GamePhase.WeaponAttack)).toBe(
+        GamePhase.PhysicalAttack,
+      );
+      expect(getNextPhase(GamePhase.PhysicalAttack)).toBe(GamePhase.Heat);
       expect(getNextPhase(GamePhase.Heat)).toBe(GamePhase.End);
       expect(getNextPhase(GamePhase.End)).toBe(GamePhase.Initiative);
     });

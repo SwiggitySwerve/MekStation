@@ -255,7 +255,11 @@ describe('GameEngine', () => {
       interactive.advancePhase();
       expect(interactive.getState().phase).toBe(GamePhase.WeaponAttack);
 
-      // WeaponAttack → Heat
+      // WeaponAttack → PhysicalAttack
+      interactive.advancePhase();
+      expect(interactive.getState().phase).toBe(GamePhase.PhysicalAttack);
+
+      // PhysicalAttack → Heat
       interactive.advancePhase();
       expect(interactive.getState().phase).toBe(GamePhase.Heat);
 

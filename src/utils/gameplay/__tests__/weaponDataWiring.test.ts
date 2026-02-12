@@ -425,6 +425,7 @@ describe('Weapon Data Wiring', () => {
       session = lockAttack(session, 'player-1');
       session = lockAttack(session, 'opponent-1');
       session = resolveAllAttacks(session);
+      session = advancePhase(session); // → PhysicalAttack
       session = advancePhase(session); // → Heat
 
       session = resolveHeatPhase(session);
@@ -488,6 +489,7 @@ describe('Weapon Data Wiring', () => {
       session = lockAttack(session, 'player-1');
       session = lockAttack(session, 'opponent-1');
       session = resolveAllAttacks(session);
+      session = advancePhase(session); // → PhysicalAttack
       session = advancePhase(session); // → Heat
 
       session = resolveHeatPhase(session);
@@ -544,6 +546,7 @@ describe('Weapon Data Wiring', () => {
       session = lockAttack(session, 'player-1');
       session = lockAttack(session, 'opponent-1');
       session = resolveAllAttacks(session);
+      session = advancePhase(session); // → PhysicalAttack
       session = advancePhase(session); // → Heat
 
       session = resolveHeatPhase(session);

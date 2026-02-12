@@ -98,9 +98,10 @@ function setupGameAtHeatPhase() {
   let session = createGameSession(config, createTestUnits());
   session = startGame(session, GameSide.Player);
 
-  // Advance through Initiative -> Movement -> WeaponAttack -> Heat
+  // Advance through Initiative -> Movement -> WeaponAttack -> PhysicalAttack -> Heat
   session = advancePhase(session); // -> Movement
   session = advancePhase(session); // -> WeaponAttack
+  session = advancePhase(session); // -> PhysicalAttack
   session = advancePhase(session); // -> Heat
 
   return session;
@@ -663,9 +664,10 @@ describe('Heat System Edge Cases', () => {
     ];
     let session = createGameSession(config, units);
     session = startGame(session, GameSide.Player);
-    session = advancePhase(session);
-    session = advancePhase(session);
-    session = advancePhase(session);
+    session = advancePhase(session); // → Movement
+    session = advancePhase(session); // → WeaponAttack
+    session = advancePhase(session); // → PhysicalAttack
+    session = advancePhase(session); // → Heat
     session = setUnitHeat(session, 'unit-2', 10);
     session = resolveHeatPhase(session, createDiceRoller(12));
 

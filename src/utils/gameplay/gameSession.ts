@@ -226,6 +226,7 @@ export function getNextPhase(currentPhase: GamePhase): GamePhase {
     GamePhase.Initiative,
     GamePhase.Movement,
     GamePhase.WeaponAttack,
+    GamePhase.PhysicalAttack,
     GamePhase.Heat,
     GamePhase.End,
   ];
@@ -273,8 +274,12 @@ export function canAdvancePhase(session: IGameSession): boolean {
     return false;
   }
 
-  // Movement and Attack phases require all units to be locked
-  if (phase === GamePhase.Movement || phase === GamePhase.WeaponAttack) {
+  // Movement, Weapon Attack, and Physical Attack phases require all units to be locked
+  if (
+    phase === GamePhase.Movement ||
+    phase === GamePhase.WeaponAttack ||
+    phase === GamePhase.PhysicalAttack
+  ) {
     return allUnitsLocked(session.currentState);
   }
 
