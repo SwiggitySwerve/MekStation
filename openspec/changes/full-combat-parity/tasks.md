@@ -222,11 +222,11 @@
 
 ## 15. Indirect Fire
 
-- [ ] 15.1 Implement LRM indirect fire mode — fire without LOS, requires spotter
-- [ ] 15.2 Implement spotter mechanics — friendly unit with LOS to target, movement restriction (walking max)
-- [ ] 15.3 Implement indirect fire to-hit penalty — +1 base, +1 if spotter walked
-- [ ] 15.4 Implement semi-guided LRM with TAG designation
-- [ ] 15.5 Write tests for indirect fire resolution
+- [x] 15.1 Implement LRM indirect fire mode — fire without LOS, requires spotter
+- [x] 15.2 Implement spotter mechanics — friendly unit with LOS to target, movement restriction (walking max)
+- [x] 15.3 Implement indirect fire to-hit penalty — +1 base, +1 if spotter walked
+- [x] 15.4 Implement semi-guided LRM with TAG designation
+- [x] 15.5 Write tests for indirect fire resolution
 
 ## 16. Environmental Modifiers
 
