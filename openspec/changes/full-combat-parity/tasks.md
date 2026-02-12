@@ -169,18 +169,18 @@
 
 ## 11. Pilot SPAs Combat Integration
 
-- [ ] 11.1 Add `abilities: readonly string[]` field to `IAttackerState` and `ITargetState`
-- [ ] 11.2 Create `src/utils/gameplay/spaModifiers.ts` — SPA combat effect calculator
-- [ ] 11.3 Implement gunnery SPA modifiers: Weapon Specialist (-2), Gunnery Specialist (-1/+1 by category), Blood Stalker (-1 designated/+2 others), Cluster Hitter (+1 column)
-- [ ] 11.4 Implement range SPA modifiers: Range Master (zeroes one bracket), Sniper (halves all range mods)
-- [ ] 11.5 Implement Multi-Tasker SPA — -1 to secondary target penalty
-- [ ] 11.6 Implement piloting SPA modifiers: Jumping Jack (+1 instead of +3 for jump attack), Melee Specialist (-1 physical to-hit)
-- [ ] 11.7 Implement defensive SPA modifiers: Dodge Maneuver (+2 to-hit when dodging — requires dodge action)
-- [ ] 11.8 Implement misc SPA modifiers: Tactical Genius (+1 initiative), Pain Resistance (ignore first wound penalty), Iron Man (-2 consciousness)
-- [ ] 11.9 Implement Edge trigger system — replace simple reroll with 6 specific mek triggers (head hit, TAC, KO, explosion, MASC, overheat)
-- [ ] 11.10 Wire `spaModifiers.ts` into `calculateToHit()` pipeline
-- [ ] 11.11 Add ~35 official SPAs to SPA catalog with correct MegaMek values
-- [ ] 11.12 Write tests for each SPA combat effect
+- [x] 11.1 Add `abilities: readonly string[]` field to `IAttackerState` and `ITargetState`
+- [x] 11.2 Create `src/utils/gameplay/spaModifiers.ts` — SPA combat effect calculator
+- [x] 11.3 Implement gunnery SPA modifiers: Weapon Specialist (-2), Gunnery Specialist (-1/+1 by category), Blood Stalker (-1 designated/+2 others), Cluster Hitter (+1 column)
+- [x] 11.4 Implement range SPA modifiers: Range Master (zeroes one bracket), Sniper (halves all range mods)
+- [x] 11.5 Implement Multi-Tasker SPA — -1 to secondary target penalty
+- [x] 11.6 Implement piloting SPA modifiers: Jumping Jack (+1 instead of +3 for jump attack), Melee Specialist (-1 physical to-hit)
+- [x] 11.7 Implement defensive SPA modifiers: Dodge Maneuver (+2 to-hit when dodging — requires dodge action)
+- [x] 11.8 Implement misc SPA modifiers: Tactical Genius (+1 initiative), Pain Resistance (ignore first wound penalty), Iron Man (-2 consciousness)
+- [x] 11.9 Implement Edge trigger system — replace simple reroll with 6 specific mek triggers (head hit, TAC, KO, explosion, MASC, overheat)
+- [x] 11.10 Wire `spaModifiers.ts` into `calculateToHit()` pipeline
+- [x] 11.11 Add ~35 official SPAs to SPA catalog with correct MegaMek values
+- [x] 11.12 Write tests for each SPA combat effect
 
 ## 12. Mech Quirks Combat Integration
 

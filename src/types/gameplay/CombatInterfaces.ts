@@ -172,6 +172,7 @@ export type ToHitModifierSource =
   | 'damage'
   | 'terrain'
   | 'equipment'
+  | 'spa'
   | 'other';
 
 /**
@@ -564,48 +565,40 @@ export interface IIndirectFire {
  * Attacker combat state for to-hit calculation.
  */
 export interface IAttackerState {
-  /** Gunnery skill */
   readonly gunnery: number;
-  /** Movement this turn */
   readonly movementType: MovementType;
-  /** Current heat level */
   readonly heat: number;
-  /** Damaged equipment affecting accuracy */
   readonly damageModifiers: readonly IToHitModifierDetail[];
-  /** Number of pilot wounds (+1 per wound) */
   readonly pilotWounds?: number;
-  /** Number of sensor hits (+1 per hit) */
   readonly sensorHits?: number;
-  /** Actuator damage for the firing arm */
   readonly actuatorDamage?: IActuatorDamage;
-  /** Whether unit has a targeting computer (-1) */
   readonly targetingComputer?: boolean;
-  /** Whether attacker is prone (+2) */
   readonly prone?: boolean;
-  /** Secondary target info (+1 front arc, +2 other arcs) */
   readonly secondaryTarget?: ISecondaryTarget;
-  /** Indirect fire info (+1 base, +1 if spotter walked) */
   readonly indirectFire?: IIndirectFire;
-  /** Whether this is a called shot (+3) */
   readonly calledShot?: boolean;
+  readonly abilities?: readonly string[];
+  readonly weaponType?: string;
+  readonly designatedWeaponType?: string;
+  readonly weaponCategory?: string;
+  readonly designatedWeaponCategory?: string;
+  readonly targetId?: string;
+  readonly designatedTargetId?: string;
+  readonly designatedRangeBracket?: RangeBracket;
 }
 
 /**
  * Target combat state for to-hit calculation.
  */
 export interface ITargetState {
-  /** Movement this turn */
   readonly movementType: MovementType;
-  /** Hexes moved this turn */
   readonly hexesMoved: number;
-  /** Is target prone? */
   readonly prone: boolean;
-  /** Is target immobile? */
   readonly immobile: boolean;
-  /** Is target in partial cover? */
   readonly partialCover: boolean;
-  /** Unit quirk names affecting to-hit (e.g., 'multi-trac') */
   readonly unitQuirks?: readonly string[];
+  readonly abilities?: readonly string[];
+  readonly isDodging?: boolean;
 }
 
 /**

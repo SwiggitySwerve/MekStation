@@ -659,8 +659,9 @@ export interface IUnitGameState {
   readonly ammoState?: Record<string, IAmmoSlotState>;
   /** Pending piloting skill rolls to resolve */
   readonly pendingPSRs?: readonly IPendingPSR[];
-  /** Weapon IDs fired this turn (for physical attack restrictions) */
   readonly weaponsFiredThisTurn?: readonly string[];
+  readonly edgePointsRemaining?: number;
+  readonly isDodging?: boolean;
 }
 
 /**
