@@ -3,11 +3,8 @@ import { GameEventType } from '@/types/gameplay';
 import { SeededRandom } from '../core/SeededRandom';
 import { ISimulationConfig } from '../core/types';
 import { LIGHT_SKIRMISH, STANDARD_LANCE } from '../generator/presets';
+import { checkArmorBounds, checkHeatNonNegative } from '../invariants/checkers';
 import { InvariantRunner } from '../invariants/InvariantRunner';
-import {
-  checkArmorBounds,
-  checkHeatNonNegative,
-} from '../invariants/checkers';
 import { BatchRunner } from '../runner/BatchRunner';
 import { SimulationRunner } from '../runner/SimulationRunner';
 
@@ -67,9 +64,7 @@ describe('Simulation Combat Integration (Phase 17)', () => {
 
       if (damageEvents.length > 3) {
         const locations = new Set(
-          damageEvents.map(
-            (e) => (e.payload as { location: string }).location,
-          ),
+          damageEvents.map((e) => (e.payload as { location: string }).location),
         );
         // With real hit location tables, we should see variety
         expect(locations.size).toBeGreaterThan(1);
@@ -365,10 +360,10 @@ describe('Simulation Combat Integration (Phase 17)', () => {
 
       const damage1 = result1.events
         .filter((e) => e.type === GameEventType.DamageApplied)
-        .map((e) => (e.payload as { damage: number; location: string }));
+        .map((e) => e.payload as { damage: number; location: string });
       const damage2 = result2.events
         .filter((e) => e.type === GameEventType.DamageApplied)
-        .map((e) => (e.payload as { damage: number; location: string }));
+        .map((e) => e.payload as { damage: number; location: string });
 
       expect(damage1.length).toBe(damage2.length);
       for (let i = 0; i < damage1.length; i++) {
@@ -474,7 +469,7 @@ describe('Simulation Combat Integration (Phase 17)', () => {
         ...LIGHT_SKIRMISH,
         seed: 46001,
       };
-      const results = batchRunner.runBatch(100, config);
+      const results = batchRunner.runBatch(200, config);
 
       const gamesWithDestruction = results.filter((r) =>
         r.events.some((e) => e.type === GameEventType.UnitDestroyed),
@@ -485,7 +480,7 @@ describe('Simulation Combat Integration (Phase 17)', () => {
       );
 
       // Damage should occur in most games
-      expect(gamesWithDamage.length).toBeGreaterThan(0);
+      expect(gamesWithDamage.length).toBeGreaterThan(100);
 
       // With to-hit rolls and 10-turn limit, destruction is possible but not guaranteed
       // Verify that if destruction occurs, the events are properly structured
@@ -578,8 +573,7 @@ describe('Simulation Combat Integration (Phase 17)', () => {
 
       const weaponDamage = result.events.filter(
         (e) =>
-          e.type === GameEventType.DamageApplied &&
-          e.phase === 'weapon_attack',
+          e.type === GameEventType.DamageApplied && e.phase === 'weapon_attack',
       );
       const physicalDamage = result.events.filter(
         (e) =>
@@ -602,10 +596,7 @@ describe('Simulation Combat Integration (Phase 17)', () => {
       };
 
       // Run with invariant checks
-      const runner = new SimulationRunner(
-        47003,
-        invariantRunner,
-      );
+      const runner = new SimulationRunner(47003, invariantRunner);
       const result = runner.run(config);
 
       const structuralViolations = result.violations.filter(

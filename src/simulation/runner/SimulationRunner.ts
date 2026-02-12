@@ -23,12 +23,12 @@ import {
 import { CombatLocation, IAttackerState, ITargetState } from '@/types/gameplay';
 import { resolveDamage, IUnitDamageState } from '@/utils/gameplay/damage';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
+import { hexDistance } from '@/utils/gameplay/hexMath';
 import {
   determineHitLocation,
   isHeadHit,
   D6Roller,
 } from '@/utils/gameplay/hitLocation';
-import { hexDistance } from '@/utils/gameplay/hexMath';
 import {
   chooseBestPhysicalAttack,
   resolvePhysicalAttack,
@@ -741,10 +741,7 @@ export class SimulationRunner {
                   ...currentState.units,
                   [targetId]: {
                     ...targetPostDamage,
-                    pendingPSRs: [
-                      ...existingPSRs,
-                      createDamagePSR(targetId),
-                    ],
+                    pendingPSRs: [...existingPSRs, createDamagePSR(targetId)],
                   },
                 },
               };
@@ -895,8 +892,7 @@ export class SimulationRunner {
         }
 
         if (result.targetPSR && !targetAfter.destroyed) {
-          const existingPSRs =
-            currentState.units[target.id].pendingPSRs ?? [];
+          const existingPSRs = currentState.units[target.id].pendingPSRs ?? [];
           currentState = {
             ...currentState,
             units: {
@@ -1006,8 +1002,7 @@ export class SimulationRunner {
       if (batchResult.unitFell) {
         const currentUnit = currentState.units[unitId];
         const newPilotWounds = currentUnit.pilotWounds + 1;
-        const pilotConscious =
-          newPilotWounds < 6 && currentUnit.pilotConscious;
+        const pilotConscious = newPilotWounds < 6 && currentUnit.pilotConscious;
 
         currentState = {
           ...currentState,
