@@ -10,8 +10,16 @@ import { useState, useCallback } from 'react';
 import { CampaignTypeCard } from '@/components/campaign/CampaignTypeCard';
 import { PresetCard } from '@/components/campaign/PresetCard';
 import { useToast } from '@/components/shared/Toast';
-import { PageLayout, Card, Input, Button } from '@/components/ui';
+import { PageLayout, Card, Input, Button, Badge } from '@/components/ui';
+import { UNIT_TEMPLATES } from '@/simulation/generator';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import {
+  CampaignUnitStatus,
+  CampaignPilotStatus,
+  type ICampaignUnitState,
+  type ICampaignPilotState,
+} from '@/types/campaign/CampaignInterfaces';
 import { CampaignPreset, ALL_PRESETS } from '@/types/campaign/CampaignPreset';
 import {
   CampaignType,
@@ -107,8 +115,15 @@ export default function CreateCampaignPage(): React.ReactElement {
   const [localError, setLocalError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [unitIds, _setUnitIds] = useState<string[]>([]);
-  const [pilotIds, _setPilotIds] = useState<string[]>([]);
+  const [selectedUnits, setSelectedUnits] = useState<
+    Array<{ id: string; name: string; tonnage: number }>
+  >([]);
+  const [selectedPilots, setSelectedPilots] = useState<
+    Array<{ id: string; name: string }>
+  >([]);
+  const [pilotAssignments, setPilotAssignments] = useState<
+    Record<string, string>
+  >({});
 
   const selectedPresetDef = ALL_PRESETS.find((p) => p.id === selectedPreset);
 
@@ -129,6 +144,59 @@ export default function CreateCampaignPage(): React.ReactElement {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   }, []);
 
+  const rosterStore = useCampaignRosterStore;
+
+  const handleAddTemplateUnit = useCallback(
+    (templateName: string, tonnage: number) => {
+      const unitId = `unit-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      setSelectedUnits((prev) => [
+        ...prev,
+        { id: unitId, name: templateName, tonnage },
+      ]);
+    },
+    [],
+  );
+
+  const handleRemoveUnit = useCallback((unitId: string) => {
+    setSelectedUnits((prev) => prev.filter((u) => u.id !== unitId));
+    setPilotAssignments((prev) => {
+      const next = { ...prev };
+      delete next[unitId];
+      return next;
+    });
+  }, []);
+
+  const handleAddPilot = useCallback(() => {
+    const pilotId = `pilot-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const pilotNum = selectedPilots.length + 1;
+    setSelectedPilots((prev) => [
+      ...prev,
+      { id: pilotId, name: `MechWarrior ${pilotNum}` },
+    ]);
+  }, [selectedPilots.length]);
+
+  const handleRemovePilot = useCallback((pilotId: string) => {
+    setSelectedPilots((prev) => prev.filter((p) => p.id !== pilotId));
+    setPilotAssignments((prev) => {
+      const next: Record<string, string> = {};
+      for (const [unitId, pId] of Object.entries(prev)) {
+        if (pId !== pilotId) next[unitId] = pId;
+      }
+      return next;
+    });
+  }, []);
+
+  const handleAssignPilot = useCallback((unitId: string, pilotId: string) => {
+    setPilotAssignments((prev) => {
+      const next: Record<string, string> = {};
+      for (const [uId, pId] of Object.entries(prev)) {
+        if (pId !== pilotId) next[uId] = pId;
+      }
+      if (pilotId) next[unitId] = pilotId;
+      return next;
+    });
+  }, []);
+
   const handleSubmit = useCallback(async () => {
     setLocalError(null);
     setIsSubmitting(true);
@@ -142,6 +210,57 @@ export default function CreateCampaignPage(): React.ReactElement {
         if (description.trim()) {
           store.getState().updateCampaign({ description: description.trim() });
         }
+
+        rosterStore.getState().initRoster(campaignId);
+
+        for (const unit of selectedUnits) {
+          const template = UNIT_TEMPLATES.find((t) => t.name === unit.name);
+          const unitState: ICampaignUnitState = {
+            unitId: unit.id,
+            unitName: unit.name,
+            status: CampaignUnitStatus.Operational,
+            armorDamage: {},
+            structureDamage: {},
+            destroyedComponents: [],
+            ammoExpended: {},
+            currentHeat: 0,
+            repairCost: 0,
+            repairTime: 0,
+            pilotId: pilotAssignments[unit.id],
+          };
+          rosterStore.getState().addUnit(unitState);
+
+          if (template) {
+            const forcesStore = store.getState().getForcesStore();
+            if (forcesStore) {
+              const rootForce = forcesStore.getState().getRootForce();
+              if (rootForce) {
+                forcesStore.getState().updateForce(rootForce.id, {
+                  unitIds: [...rootForce.unitIds, unit.id],
+                });
+              }
+            }
+          }
+        }
+
+        for (const pilot of selectedPilots) {
+          const pilotState: ICampaignPilotState = {
+            pilotId: pilot.id,
+            pilotName: pilot.name,
+            status: CampaignPilotStatus.Active,
+            wounds: 0,
+            xp: 0,
+            campaignXpEarned: 0,
+            campaignKills: 0,
+            campaignMissions: 0,
+            recoveryTime: 0,
+            assignedUnitId: Object.entries(pilotAssignments).find(
+              ([, pId]) => pId === pilot.id,
+            )?.[0],
+          };
+          rosterStore.getState().addPilot(pilotState);
+        }
+
         showToast({
           message: `Campaign "${name.trim()}" created successfully!`,
           variant: 'success',
@@ -153,7 +272,18 @@ export default function CreateCampaignPage(): React.ReactElement {
     } finally {
       setIsSubmitting(false);
     }
-  }, [name, description, campaignType, store, router, showToast]);
+  }, [
+    name,
+    description,
+    campaignType,
+    store,
+    router,
+    showToast,
+    selectedUnits,
+    selectedPilots,
+    pilotAssignments,
+    rosterStore,
+  ]);
 
   const handleCancel = useCallback(() => {
     router.push('/gameplay/campaigns');
@@ -262,69 +392,195 @@ export default function CreateCampaignPage(): React.ReactElement {
               Configure Roster
             </h2>
             <p className="text-text-theme-secondary mb-6">
-              Select units and pilots from your vault to deploy in this campaign
+              Select BattleMechs and assign pilots for your campaign
             </p>
 
+            {/* Unit Selection */}
             <div className="mb-6">
-              <h3 className="text-text-theme-primary mb-3 text-sm font-medium">
-                Units
-              </h3>
-              <div className="border-border-theme-subtle bg-surface-deep/30 rounded-lg border-2 border-dashed p-6 text-center">
-                <div className="bg-surface-raised mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
-                  <svg
-                    className="text-text-theme-muted h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </div>
-                <p className="text-text-theme-secondary mb-2 text-sm">
-                  {unitIds.length > 0
-                    ? `${unitIds.length} units selected`
-                    : 'No units selected'}
-                </p>
-                <p className="text-text-theme-muted text-xs">
-                  Unit selection integrates with your vault (coming soon)
-                </p>
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-text-theme-primary text-sm font-medium">
+                  Units ({selectedUnits.length})
+                </h3>
               </div>
+
+              {/* Unit template picker */}
+              <div className="mb-4 grid grid-cols-2 gap-2">
+                {UNIT_TEMPLATES.map((template) => (
+                  <button
+                    key={template.name}
+                    type="button"
+                    onClick={() =>
+                      handleAddTemplateUnit(template.name, template.tonnage)
+                    }
+                    className="border-border-theme-subtle bg-surface-deep hover:border-accent/50 hover:bg-surface-raised/50 flex items-center gap-3 rounded-lg border p-3 text-left transition-all"
+                    data-testid={`add-unit-${template.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    <div className="bg-accent/10 text-accent flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold">
+                      {template.tonnage}t
+                    </div>
+                    <div>
+                      <div className="text-text-theme-primary text-sm font-medium">
+                        {template.name}
+                      </div>
+                      <div className="text-text-theme-muted text-xs">
+                        Walk {template.walkMP} / Jump {template.jumpMP}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Selected units list */}
+              {selectedUnits.length > 0 && (
+                <div className="space-y-2">
+                  {selectedUnits.map((unit) => (
+                    <div
+                      key={unit.id}
+                      className="bg-surface-deep border-border-theme-subtle flex items-center justify-between rounded-lg border p-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Badge variant="emerald" size="sm">
+                          {unit.tonnage}t
+                        </Badge>
+                        <span className="text-text-theme-primary text-sm font-medium">
+                          {unit.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {/* Pilot assignment dropdown */}
+                        <select
+                          value={pilotAssignments[unit.id] ?? ''}
+                          onChange={(e) =>
+                            handleAssignPilot(unit.id, e.target.value)
+                          }
+                          className="bg-surface-raised border-border-theme-subtle text-text-theme-primary rounded border px-2 py-1 text-xs"
+                        >
+                          <option value="">No pilot</option>
+                          {selectedPilots.map((pilot) => (
+                            <option key={pilot.id} value={pilot.id}>
+                              {pilot.name}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveUnit(unit.id)}
+                          className="text-text-theme-muted p-1 transition-colors hover:text-red-400"
+                        >
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {selectedUnits.length === 0 && (
+                <p className="text-text-theme-muted py-4 text-center text-sm">
+                  Click a unit type above to add it to your roster
+                </p>
+              )}
             </div>
 
+            {/* Pilot Section */}
             <div>
-              <h3 className="text-text-theme-primary mb-3 text-sm font-medium">
-                Pilots
-              </h3>
-              <div className="border-border-theme-subtle bg-surface-deep/30 rounded-lg border-2 border-dashed p-6 text-center">
-                <div className="bg-surface-raised mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
-                  <svg
-                    className="text-text-theme-muted h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                </div>
-                <p className="text-text-theme-secondary mb-2 text-sm">
-                  {pilotIds.length > 0
-                    ? `${pilotIds.length} pilots selected`
-                    : 'No pilots selected'}
-                </p>
-                <p className="text-text-theme-muted text-xs">
-                  Pilot selection integrates with your vault (coming soon)
-                </p>
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-text-theme-primary text-sm font-medium">
+                  Pilots ({selectedPilots.length})
+                </h3>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleAddPilot}
+                  data-testid="add-pilot-btn"
+                >
+                  Add Pilot
+                </Button>
               </div>
+
+              {selectedPilots.length > 0 ? (
+                <div className="space-y-2">
+                  {selectedPilots.map((pilot) => {
+                    const assignedUnit = Object.entries(pilotAssignments).find(
+                      ([, pId]) => pId === pilot.id,
+                    );
+                    const unitName = assignedUnit
+                      ? selectedUnits.find((u) => u.id === assignedUnit[0])
+                          ?.name
+                      : undefined;
+
+                    return (
+                      <div
+                        key={pilot.id}
+                        className="bg-surface-deep border-border-theme-subtle flex items-center justify-between rounded-lg border p-3"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+                            <svg
+                              className="h-4 w-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <span className="text-text-theme-primary text-sm font-medium">
+                              {pilot.name}
+                            </span>
+                            {unitName && (
+                              <span className="text-text-theme-muted ml-2 text-xs">
+                                → {unitName}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePilot(pilot.id)}
+                          className="text-text-theme-muted p-1 transition-colors hover:text-red-400"
+                        >
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-text-theme-muted py-4 text-center text-sm">
+                  Add pilots to crew your BattleMechs
+                </p>
+              )}
             </div>
           </Card>
         );
@@ -388,7 +644,7 @@ export default function CreateCampaignPage(): React.ReactElement {
                       Units:
                     </span>{' '}
                     <span className="text-text-theme-primary font-medium">
-                      {unitIds.length || 'None selected'}
+                      {selectedUnits.length || 'None selected'}
                     </span>
                   </div>
                   <div>
@@ -396,7 +652,7 @@ export default function CreateCampaignPage(): React.ReactElement {
                       Pilots:
                     </span>{' '}
                     <span className="text-text-theme-primary font-medium">
-                      {pilotIds.length || 'None selected'}
+                      {selectedPilots.length || 'None selected'}
                     </span>
                   </div>
                 </div>
