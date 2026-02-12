@@ -22,13 +22,13 @@ import {
 import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
 import { isValidLocationForEquipment } from '@/types/equipment/EquipmentPlacement';
 import { SystemComponentType } from '@/utils/colors/slotColors';
-import { logger } from '@/utils/logger';
 import {
   fillUnhittableSlots,
   compactEquipmentSlots,
   sortEquipmentBySize,
   getUnallocatedUnhittables,
 } from '@/utils/construction/slotOperations';
+import { logger } from '@/utils/logger';
 
 import {
   LocationData,
