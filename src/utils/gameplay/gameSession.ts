@@ -31,6 +31,7 @@ import {
   IMovementDeclaredPayload,
 } from '@/types/gameplay';
 
+import { calculateFiringArc } from './firingArc';
 import {
   createGameCreatedEvent,
   createGameStartedEvent,
@@ -484,9 +485,16 @@ export function resolveAttack(
     const { turn } = currentSession.currentState;
 
     if (hit) {
+      const attackerState = currentSession.currentState.units[attackerId];
+      const targetState = currentSession.currentState.units[targetId];
+      const firingArc = calculateFiringArc(
+        attackerState.position,
+        targetState.position,
+        targetState.facing,
+      );
       const locationRoll = diceRoller();
       const hitLocationResult = determineHitLocationFromRoll(
-        FiringArc.Front,
+        firingArc,
         locationRoll,
       );
       const location = hitLocationResult.location;
