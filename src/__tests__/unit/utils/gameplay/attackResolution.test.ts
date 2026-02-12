@@ -86,8 +86,8 @@ describe('Attack Resolution', () => {
     session = declareMovement(
       session,
       'unit-2',
-      { q: 3, r: 0 },
-      { q: 3, r: 0 },
+      { q: 0, r: -3 },
+      { q: 0, r: -3 },
       Facing.South,
       MovementType.Stationary,
       0,

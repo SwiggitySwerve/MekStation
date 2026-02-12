@@ -27,12 +27,12 @@ import {
   Facing,
   MovementType,
   RangeBracket,
-  FiringArc,
   type IHexCoordinate,
   type IHexGrid,
   type IHex,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import {
   createGameSession,
   startGame,
@@ -242,6 +242,14 @@ export class GameEngine {
             },
           );
 
+          const targetUnit =
+            session.currentState.units[atkEvt.payload.targetId];
+          const firingArc = calculateFiringArc(
+            unit.position,
+            targetUnit.position,
+            targetUnit.facing,
+          );
+
           session = declareAttack(
             session,
             unitId,
@@ -249,7 +257,7 @@ export class GameEngine {
             weaponAttacks,
             3,
             RangeBracket.Short,
-            FiringArc.Front,
+            firingArc,
           );
         }
         session = lockAttack(session, unitId);
@@ -445,6 +453,14 @@ export class InteractiveSession {
       };
     });
 
+    const attackerState = this.session.currentState.units[attackerId];
+    const targetState = this.session.currentState.units[targetId];
+    const firingArc = calculateFiringArc(
+      attackerState.position,
+      targetState.position,
+      targetState.facing,
+    );
+
     this.session = declareAttack(
       this.session,
       attackerId,
@@ -452,7 +468,7 @@ export class InteractiveSession {
       weaponAttacks,
       3,
       RangeBracket.Short,
-      FiringArc.Front,
+      firingArc,
     );
     this.session = lockAttack(this.session, attackerId);
   }
@@ -571,6 +587,14 @@ export class InteractiveSession {
             },
           );
 
+          const targetUnit =
+            this.session.currentState.units[atkEvt.payload.targetId];
+          const firingArc = calculateFiringArc(
+            unit.position,
+            targetUnit.position,
+            targetUnit.facing,
+          );
+
           this.session = declareAttack(
             this.session,
             unitId,
@@ -578,7 +602,7 @@ export class InteractiveSession {
             weaponAttacks,
             3,
             RangeBracket.Short,
-            FiringArc.Front,
+            firingArc,
           );
         }
         this.session = lockAttack(this.session, unitId);

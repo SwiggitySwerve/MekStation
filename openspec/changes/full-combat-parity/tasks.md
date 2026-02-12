@@ -28,13 +28,13 @@
 
 ## 2. Firing Arc Calculation
 
-- [ ] 2.1 Create `src/utils/gameplay/firingArc.ts` — implement `calculateFiringArc(attackerPos, targetPos, targetFacing)` returning `FiringArc` enum
-- [ ] 2.2 Implement hex coordinate math: determine relative hex direction from attacker to target, map against target facing to derive arc (front ±1, left +2, rear +3, right -2)
-- [ ] 2.3 Replace hardcoded `FiringArc.Front` in `resolveAttack()` (line 474) with computed firing arc
-- [ ] 2.4 Replace hardcoded `FiringArc.Front` in `GameEngine.ts` with computed firing arc
-- [ ] 2.5 Implement torso twist modifier — extend front arc by 1 hex-side in twist direction
-- [ ] 2.6 Write unit tests for all 4 arc directions with various hex positions and facings
-- [ ] 2.7 Write unit tests for torso twist arc extension
+- [x] 2.1 Create `src/utils/gameplay/firingArc.ts` — implement `calculateFiringArc(attackerPos, targetPos, targetFacing)` returning `FiringArc` enum
+- [x] 2.2 Implement hex coordinate math: determine relative hex direction from attacker to target, map against target facing to derive arc (front ±1, left +2, rear +3, right -2)
+- [x] 2.3 Replace hardcoded `FiringArc.Front` in `resolveAttack()` (line 474) with computed firing arc
+- [x] 2.4 Replace hardcoded `FiringArc.Front` in `GameEngine.ts` with computed firing arc
+- [x] 2.5 Implement torso twist modifier — extend front arc by 1 hex-side in twist direction
+- [x] 2.6 Write unit tests for all 4 arc directions with various hex positions and facings
+- [x] 2.7 Write unit tests for torso twist arc extension
 
 ## 3. Wire Damage Pipeline
 
