@@ -31,6 +31,8 @@ import {
   IPilotHitPayload,
   IUnitDestroyedPayload,
   IToHitModifier,
+  ICriticalHitResolvedPayload,
+  IPSRTriggeredPayload,
 } from '@/types/gameplay';
 import { IHexCoordinate, Facing, MovementType } from '@/types/gameplay';
 
@@ -510,6 +512,70 @@ export function createUnitDestroyedEvent(
       gameId,
       sequence,
       GameEventType.UnitDestroyed,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createCriticalHitResolvedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  location: string,
+  slotIndex: number,
+  componentType: string,
+  componentName: string,
+  effect: string,
+  destroyed: boolean,
+): IGameEvent {
+  const payload: ICriticalHitResolvedPayload = {
+    unitId,
+    location,
+    slotIndex,
+    componentType,
+    componentName,
+    effect,
+    destroyed,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.CriticalHitResolved,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createPSRTriggeredEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  reason: string,
+  additionalModifier: number,
+  triggerSource: string,
+): IGameEvent {
+  const payload: IPSRTriggeredPayload = {
+    unitId,
+    reason,
+    additionalModifier,
+    triggerSource,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.PSRTriggered,
       turn,
       phase,
       unitId,

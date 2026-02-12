@@ -34,6 +34,14 @@ import {
 import { CombatLocation } from '@/types/gameplay';
 
 import {
+  resolveCriticalHits,
+  checkTACTrigger,
+  processTAC,
+  buildDefaultCriticalSlotManifest,
+  CriticalSlotManifest,
+  CriticalHitEvent,
+} from './criticalHitResolution';
+import {
   resolveDamage as resolveDamagePipeline,
   IUnitDamageState,
 } from './damage';
@@ -54,6 +62,8 @@ import {
   createUnitDestroyedEvent,
   createHeatDissipatedEvent,
   createHeatGeneratedEvent,
+  createCriticalHitResolvedEvent,
+  createPSRTriggeredEvent,
 } from './gameEvents';
 import { deriveState, allUnitsLocked } from './gameState';
 import {
@@ -469,6 +479,100 @@ export type DiceRoller = () => {
   isBoxcars: boolean;
 };
 
+function firingArcToString(
+  arc: FiringArc,
+): 'front' | 'rear' | 'left' | 'right' {
+  switch (arc) {
+    case FiringArc.Front:
+      return 'front';
+    case FiringArc.Rear:
+      return 'rear';
+    case FiringArc.Left:
+      return 'left';
+    case FiringArc.Right:
+      return 'right';
+    default:
+      return 'front';
+  }
+}
+
+function emitCriticalEvents(
+  session: IGameSession,
+  events: readonly CriticalHitEvent[],
+  turn: number,
+  unitId: string,
+): IGameSession {
+  let currentSession = session;
+  for (const evt of events) {
+    const seq = currentSession.events.length;
+    if (evt.type === 'critical_hit_resolved') {
+      const p = evt.payload;
+      currentSession = appendEvent(
+        currentSession,
+        createCriticalHitResolvedEvent(
+          currentSession.id,
+          seq,
+          turn,
+          GamePhase.WeaponAttack,
+          p.unitId,
+          p.location,
+          p.slotIndex,
+          p.componentType,
+          p.componentName,
+          p.effect,
+          p.destroyed,
+        ),
+      );
+    } else if (evt.type === 'psr_triggered') {
+      const p = evt.payload;
+      currentSession = appendEvent(
+        currentSession,
+        createPSRTriggeredEvent(
+          currentSession.id,
+          seq,
+          turn,
+          GamePhase.WeaponAttack,
+          p.unitId,
+          p.reason,
+          p.additionalModifier,
+          p.triggerSource,
+        ),
+      );
+    } else if (evt.type === 'unit_destroyed') {
+      const p = evt.payload;
+      currentSession = appendEvent(
+        currentSession,
+        createUnitDestroyedEvent(
+          currentSession.id,
+          seq,
+          turn,
+          GamePhase.WeaponAttack,
+          unitId,
+          p.cause as 'damage' | 'ammo_explosion' | 'pilot_death' | 'shutdown',
+        ),
+      );
+    } else if (evt.type === 'pilot_hit') {
+      const p = evt.payload;
+      currentSession = appendEvent(
+        currentSession,
+        createPilotHitEvent(
+          currentSession.id,
+          seq,
+          turn,
+          GamePhase.WeaponAttack,
+          p.unitId,
+          p.wounds,
+          p.totalWounds,
+          p.source,
+          p.consciousnessCheckRequired,
+          p.consciousnessCheckPassed,
+        ),
+      );
+    }
+  }
+  return currentSession;
+}
+
 const DEFAULT_REAR_ARMOR: Record<
   'center_torso' | 'left_torso' | 'right_torso',
   number
@@ -574,7 +678,7 @@ export function resolveAttack(
         damage,
       );
 
-      // Task 3.2: Emit DamageApplied events with actual armor/structure values
+      // Emit DamageApplied events with actual armor/structure values
       for (const locDamage of damageResult.result.locationDamages) {
         const damageSequence = currentSession.events.length;
         const damageEvent = createDamageAppliedEvent(
@@ -591,7 +695,65 @@ export function resolveAttack(
         currentSession = appendEvent(currentSession, damageEvent);
       }
 
-      // Emit PilotHit event if head was hit and pilot took damage
+      // Phase 5: Critical hit resolution when internal structure exposed
+      const d6Roller = () => {
+        const r = diceRoller();
+        return r.dice[0];
+      };
+      const manifest = buildDefaultCriticalSlotManifest();
+      const targetCompDamage =
+        targetState.componentDamage ??
+        ({
+          engineHits: 0,
+          gyroHits: 0,
+          sensorHits: 0,
+          lifeSupport: 0,
+          cockpitHit: false,
+          actuators: {},
+          weaponsDestroyed: [],
+          heatSinksDestroyed: 0,
+          jumpJetsDestroyed: 0,
+        } as const);
+
+      for (const locDamage of damageResult.result.locationDamages) {
+        if (locDamage.structureDamage > 0 && !locDamage.destroyed) {
+          const critResult = resolveCriticalHits(
+            targetId,
+            locDamage.location as CombatLocation,
+            manifest,
+            targetCompDamage,
+            d6Roller,
+          );
+          currentSession = emitCriticalEvents(
+            currentSession,
+            critResult.events,
+            turn,
+            targetId,
+          );
+        }
+      }
+
+      // TAC: hit location roll of 2 triggers Through-Armor Critical
+      if (locationRoll.total === 2) {
+        const arcStr = firingArcToString(firingArc);
+        const tacLocation = checkTACTrigger(2, arcStr);
+        if (tacLocation) {
+          const tacResult = processTAC(
+            targetId,
+            tacLocation,
+            manifest,
+            targetCompDamage,
+            d6Roller,
+          );
+          currentSession = emitCriticalEvents(
+            currentSession,
+            tacResult.events,
+            turn,
+            targetId,
+          );
+        }
+      }
+
       if (damageResult.result.pilotDamage) {
         const pd = damageResult.result.pilotDamage;
         const pilotSequence = currentSession.events.length;
@@ -610,7 +772,6 @@ export function resolveAttack(
         currentSession = appendEvent(currentSession, pilotEvent);
       }
 
-      // Emit UnitDestroyed event if unit was destroyed
       if (damageResult.result.unitDestroyed) {
         const destroySequence = currentSession.events.length;
         const destroyEvent = createUnitDestroyedEvent(
