@@ -59,22 +59,22 @@
 
 ## 5. Critical Hit Resolution
 
-- [ ] 5.1 Create `src/utils/gameplay/criticalHitResolution.ts` — pure function module
-- [ ] 5.2 Implement `rollCriticalHits(diceRoller)` — 2d6: 2-7=0 crits, 8-9=1, 10-11=2, 12=location-dependent
-- [ ] 5.3 Implement roll-of-12 location handling — limb: blown off, head: destroyed, torso: 3 crits
-- [ ] 5.4 Implement `selectCriticalSlot(unitState, location, diceRoller)` — random from occupied non-destroyed slots
-- [ ] 5.5 Build critical slot manifest from unit construction data at game start — map slots to component types per location
-- [ ] 5.6 Implement engine critical effects — +5 heat per hit, 3rd hit = destruction, emit events
-- [ ] 5.7 Implement gyro critical effects — +3 PSR modifier per hit, immediate PSR on hit, 2nd hit = automatic fall/destruction
-- [ ] 5.8 Implement cockpit critical effects — pilot killed
-- [ ] 5.9 Implement sensor critical effects — +1/+2 to-hit penalty
-- [ ] 5.10 Implement actuator critical effects for all 8 types: shoulder (cannot punch), upper arm (+2/halve damage), lower arm (+2/halve damage), hand (+1), hip (cannot kick), upper leg (+2/halve damage), lower leg (+2/halve damage), foot (+1)
-- [ ] 5.11 Implement weapon critical effects — mark weapon destroyed, remove from available weapons
-- [ ] 5.12 Implement heat sink critical effects — reduce total dissipation by 1 (single) or 2 (double)
-- [ ] 5.13 Implement jump jet critical effects — reduce max jump MP by 1
-- [ ] 5.14 Wire critical hit resolution into damage pipeline — trigger when internal structure exposed
-- [ ] 5.15 Implement Through-Armor Critical (TAC) processing — trigger on hit location roll of 2
-- [ ] 5.16 Write comprehensive tests for each component type's critical effects
+- [x] 5.1 Create `src/utils/gameplay/criticalHitResolution.ts` — pure function module
+- [x] 5.2 Implement `rollCriticalHits(diceRoller)` — 2d6: 2-7=0 crits, 8-9=1, 10-11=2, 12=location-dependent
+- [x] 5.3 Implement roll-of-12 location handling — limb: blown off, head: destroyed, torso: 3 crits
+- [x] 5.4 Implement `selectCriticalSlot(unitState, location, diceRoller)` — random from occupied non-destroyed slots
+- [x] 5.5 Build critical slot manifest from unit construction data at game start — map slots to component types per location
+- [x] 5.6 Implement engine critical effects — +5 heat per hit, 3rd hit = destruction, emit events
+- [x] 5.7 Implement gyro critical effects — +3 PSR modifier per hit, immediate PSR on hit, 2nd hit = automatic fall/destruction
+- [x] 5.8 Implement cockpit critical effects — pilot killed
+- [x] 5.9 Implement sensor critical effects — +1/+2 to-hit penalty
+- [x] 5.10 Implement actuator critical effects for all 8 types: shoulder (cannot punch), upper arm (+2/halve damage), lower arm (+2/halve damage), hand (+1), hip (cannot kick), upper leg (+2/halve damage), lower leg (+2/halve damage), foot (+1)
+- [x] 5.11 Implement weapon critical effects — mark weapon destroyed, remove from available weapons
+- [x] 5.12 Implement heat sink critical effects — reduce total dissipation by 1 (single) or 2 (double)
+- [x] 5.13 Implement jump jet critical effects — reduce max jump MP by 1
+- [x] 5.14 Wire critical hit resolution into damage pipeline — trigger when internal structure exposed
+- [x] 5.15 Implement Through-Armor Critical (TAC) processing — trigger on hit location roll of 2
+- [x] 5.16 Write comprehensive tests for each component type's critical effects
 
 ## 6. Ammo System
 
