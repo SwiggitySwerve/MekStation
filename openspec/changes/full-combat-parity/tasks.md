@@ -153,19 +153,19 @@
 
 ## 10. To-Hit Modifier Completion
 
-- [ ] 10.1 Add pilot wound penalties to `calculateToHit()` — +1 per wound from `IAttackerState.pilotWounds`
-- [ ] 10.2 Implement secondary target tracking and penalty — +1 front arc, +2 other arcs. Ref: secondary-target-tracking spec
-- [ ] 10.3 Add targeting computer modifier — -1 to-hit when `IAttackerState.targetingComputer` is true
-- [ ] 10.4 Add sensor damage modifier — +1 per sensor hit from `IAttackerState.sensorHits`
-- [ ] 10.5 Add actuator damage to-hit modifiers — shoulder +4, upper arm +1, lower arm +1 (cumulative)
-- [ ] 10.6 Add attacker prone modifier — +2 to-hit when attacker is prone
-- [ ] 10.7 Wire terrain modifiers into `calculateToHit()` — woods +1/+2 target-in-terrain, partial cover +1
-- [ ] 10.8 Add minimum range penalty — +1 per hex below weapon minimum range
-- [ ] 10.9 Add indirect fire modifier — +1 base, +1 if spotter walked. Ref: indirect-fire-system spec
-- [ ] 10.10 Add called shot modifier — +3 to-hit for called shots
-- [ ] 10.11 Extend `IAttackerState` with optional fields: `pilotWounds`, `sensorHits`, `actuatorDamage`, `targetingComputer`, `prone`, `secondaryTarget`
-- [ ] 10.12 Extend `ITargetState` with optional fields: `unitQuirks`, terrain data
-- [ ] 10.13 Write tests for each new modifier — verify values match MegaMek canonical
+- [x] 10.1 Add pilot wound penalties to `calculateToHit()` — +1 per wound from `IAttackerState.pilotWounds`
+- [x] 10.2 Implement secondary target tracking and penalty — +1 front arc, +2 other arcs. Ref: secondary-target-tracking spec
+- [x] 10.3 Add targeting computer modifier — -1 to-hit when `IAttackerState.targetingComputer` is true
+- [x] 10.4 Add sensor damage modifier — +1 per sensor hit from `IAttackerState.sensorHits`
+- [x] 10.5 Add actuator damage to-hit modifiers — shoulder +4, upper arm +1, lower arm +1 (cumulative)
+- [x] 10.6 Add attacker prone modifier — +2 to-hit when attacker is prone
+- [x] 10.7 Wire terrain modifiers into `calculateToHit()` — woods +1/+2 target-in-terrain, partial cover +1
+- [x] 10.8 Add minimum range penalty — +1 per hex below weapon minimum range
+- [x] 10.9 Add indirect fire modifier — +1 base, +1 if spotter walked. Ref: indirect-fire-system spec
+- [x] 10.10 Add called shot modifier — +3 to-hit for called shots
+- [x] 10.11 Extend `IAttackerState` with optional fields: `pilotWounds`, `sensorHits`, `actuatorDamage`, `targetingComputer`, `prone`, `secondaryTarget`
+- [x] 10.12 Extend `ITargetState` with optional fields: `unitQuirks`, terrain data
+- [x] 10.13 Write tests for each new modifier — verify values match MegaMek canonical
 
 ## 11. Pilot SPAs Combat Integration
 
