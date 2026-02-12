@@ -153,6 +153,7 @@ export class BlkParserService {
         primaryFactory: this.getString(rawTags['primaryFactory']),
         // Quirks
         quirks: this.parseQuirks(rawTags['quirks']),
+        weaponQuirks: this.parseWeaponQuirks(rawTags['weapon_quirks']),
         // Raw tags for debugging
         rawTags,
       };
@@ -342,6 +343,36 @@ export class BlkParserService {
       .filter((line) => line.length > 0);
 
     return items.length > 0 ? items : undefined;
+  }
+
+  private parseWeaponQuirks(
+    value: string | string[] | undefined,
+  ): Readonly<Record<string, readonly string[]>> | undefined {
+    if (value === undefined) return undefined;
+
+    const lines = Array.isArray(value)
+      ? value
+      : value
+          .split(/\r?\n/)
+          .map((l) => l.trim())
+          .filter((l) => l.length > 0);
+
+    const result: Record<string, string[]> = {};
+    for (const entry of lines) {
+      const colonIdx = entry.indexOf(':');
+      if (colonIdx < 0) continue;
+
+      const quirkName = entry.substring(0, colonIdx).trim();
+      const weaponName = entry.substring(colonIdx + 1).trim();
+      if (!quirkName || !weaponName) continue;
+
+      if (!result[weaponName]) {
+        result[weaponName] = [];
+      }
+      result[weaponName].push(quirkName);
+    }
+
+    return Object.keys(result).length > 0 ? result : undefined;
   }
 
   /**

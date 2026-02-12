@@ -184,19 +184,19 @@
 
 ## 12. Mech Quirks Combat Integration
 
-- [ ] 12.1 Add `unitQuirks: readonly string[]` and `weaponQuirks: Record<string, readonly string[]>` to `IAttackerState`/`ITargetState`
-- [ ] 12.2 Create `src/utils/gameplay/quirkModifiers.ts` — quirk combat effect calculator
-- [ ] 12.3 Implement targeting quirks: Improved Targeting Short/Medium/Long (-1 at bracket), Poor Targeting (+1)
-- [ ] 12.4 Implement defensive quirks: Distracting (+1 enemy to-hit), Low Profile (partial cover effect)
-- [ ] 12.5 Implement piloting quirks: Easy to Pilot (-1 PSR terrain), Stable (-1 PSR), Hard to Pilot (+1 PSR), Unbalanced (+1 PSR terrain), Cramped Cockpit (+1 piloting)
-- [ ] 12.6 Implement physical quirks: Battle Fist (+1 punch damage), No Arms (cannot punch), Low Arms (elevation restriction)
-- [ ] 12.7 Implement initiative quirks: Command Mech (+1), Battle Computer (+2, not cumulative with Command Mech)
-- [ ] 12.8 Implement combat quirks: Sensor Ghosts (+1 own attacks), Multi-Trac (eliminates front-arc secondary penalty)
-- [ ] 12.9 Implement crit quirks: Rugged 1/2 (crit resistance), Protected Actuators (+1 enemy crit roll), Exposed Actuators (-1)
-- [ ] 12.10 Implement weapon quirks: Accurate (-1), Inaccurate (+1), Stable Weapon (-1 running penalty), Improved/Poor/No Cooling (heat modifiers)
-- [ ] 12.11 Add weapon quirk parsing from MTF/BLK files — per-weapon quirk storage
-- [ ] 12.12 Wire `quirkModifiers.ts` into `calculateToHit()`, PSR resolution, initiative, and physical attack pipelines
-- [ ] 12.13 Write tests for each quirk combat effect
+- [x] 12.1 Add `unitQuirks: readonly string[]` and `weaponQuirks: Record<string, readonly string[]>` to `IAttackerState`/`ITargetState`
+- [x] 12.2 Create `src/utils/gameplay/quirkModifiers.ts` — quirk combat effect calculator
+- [x] 12.3 Implement targeting quirks: Improved Targeting Short/Medium/Long (-1 at bracket), Poor Targeting (+1)
+- [x] 12.4 Implement defensive quirks: Distracting (+1 enemy to-hit), Low Profile (partial cover effect)
+- [x] 12.5 Implement piloting quirks: Easy to Pilot (-1 PSR terrain), Stable (-1 PSR), Hard to Pilot (+1 PSR), Unbalanced (+1 PSR terrain), Cramped Cockpit (+1 piloting)
+- [x] 12.6 Implement physical quirks: Battle Fist (+1 punch damage), No Arms (cannot punch), Low Arms (elevation restriction)
+- [x] 12.7 Implement initiative quirks: Command Mech (+1), Battle Computer (+2, not cumulative with Command Mech)
+- [x] 12.8 Implement combat quirks: Sensor Ghosts (+1 own attacks), Multi-Trac (eliminates front-arc secondary penalty)
+- [x] 12.9 Implement crit quirks: Rugged 1/2 (crit resistance), Protected Actuators (+1 enemy crit roll), Exposed Actuators (-1)
+- [x] 12.10 Implement weapon quirks: Accurate (-1), Inaccurate (+1), Stable Weapon (-1 running penalty), Improved/Poor/No Cooling (heat modifiers)
+- [x] 12.11 Add weapon quirk parsing from MTF/BLK files — per-weapon quirk storage
+- [x] 12.12 Wire `quirkModifiers.ts` into `calculateToHit()`, PSR resolution, initiative, and physical attack pipelines
+- [x] 12.13 Write tests for each quirk combat effect
 
 ## 13. Special Weapon Mechanics
 

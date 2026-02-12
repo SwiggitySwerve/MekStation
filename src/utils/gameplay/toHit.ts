@@ -51,6 +51,7 @@ export const ATTACKER_MOVEMENT_MODIFIERS: Readonly<
 
 import { HEAT_TO_HIT_TABLE } from '@/constants/heat';
 
+import { calculateAttackerQuirkModifiers } from './quirkModifiers';
 import {
   calculateAttackerSPAModifiers,
   getEffectiveWounds,
@@ -623,6 +624,13 @@ export function calculateToHit(
     rangeModValue,
   );
   modifiers.push(...spaModifiers);
+
+  const quirkModifiers = calculateAttackerQuirkModifiers(
+    attacker,
+    target,
+    rangeBracket,
+  );
+  modifiers.push(...quirkModifiers);
 
   return aggregateModifiers(modifiers);
 }

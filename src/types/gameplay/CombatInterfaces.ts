@@ -173,6 +173,7 @@ export type ToHitModifierSource =
   | 'terrain'
   | 'equipment'
   | 'spa'
+  | 'quirk'
   | 'other';
 
 /**
@@ -585,6 +586,8 @@ export interface IAttackerState {
   readonly targetId?: string;
   readonly designatedTargetId?: string;
   readonly designatedRangeBracket?: RangeBracket;
+  readonly unitQuirks?: readonly string[];
+  readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
 }
 
 /**
@@ -597,6 +600,7 @@ export interface ITargetState {
   readonly immobile: boolean;
   readonly partialCover: boolean;
   readonly unitQuirks?: readonly string[];
+  readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
   readonly abilities?: readonly string[];
   readonly isDodging?: boolean;
 }

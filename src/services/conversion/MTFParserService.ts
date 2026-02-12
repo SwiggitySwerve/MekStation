@@ -118,6 +118,9 @@ export class MTFParserService {
       // Parse quirks
       const quirks = this.parseQuirks(lines);
 
+      // Parse weapon quirks
+      const weaponQuirks = this.parseWeaponQuirks(lines);
+
       // Parse fluff
       const fluff = this.parseFluff(lines);
 
@@ -174,6 +177,8 @@ export class MTFParserService {
         equipment,
         criticalSlots,
         quirks: quirks.length > 0 ? quirks : undefined,
+        weaponQuirks:
+          Object.keys(weaponQuirks).length > 0 ? weaponQuirks : undefined,
         fluff: Object.keys(fluff).length > 0 ? fluff : undefined,
         // OmniMech-specific fields
         isOmni: header.isOmni || undefined,
@@ -550,6 +555,29 @@ export class MTFParserService {
     }
 
     return quirks;
+  }
+
+  private parseWeaponQuirks(lines: string[]): Record<string, string[]> {
+    const result: Record<string, string[]> = {};
+
+    for (const line of lines) {
+      if (!line.startsWith('weapon_quirk:')) continue;
+
+      const parts = line.substring('weapon_quirk:'.length).split(':');
+      if (parts.length < 2) continue;
+
+      const quirkName = parts[0].trim();
+      const weaponName = parts[1].trim();
+
+      if (!quirkName || !weaponName) continue;
+
+      if (!result[weaponName]) {
+        result[weaponName] = [];
+      }
+      result[weaponName].push(quirkName);
+    }
+
+    return result;
   }
 
   /**
