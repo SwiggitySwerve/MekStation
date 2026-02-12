@@ -9,6 +9,9 @@ import type {
   ITargetState,
   ICombatContext,
   IToHitModifierDetail,
+  IActuatorDamage,
+  ISecondaryTarget,
+  IIndirectFire,
 } from '@/types/gameplay';
 import type { ITerrainFeature } from '@/types/gameplay/TerrainTypes';
 
@@ -34,6 +37,15 @@ import {
   calculateImmobileModifier,
   calculatePartialCoverModifier,
   getTerrainToHitModifier,
+  // Phase 10 modifier functions
+  calculatePilotWoundModifier,
+  calculateSecondaryTargetModifier,
+  calculateTargetingComputerModifier,
+  calculateSensorDamageModifier,
+  calculateActuatorDamageModifier,
+  calculateAttackerProneModifier,
+  calculateIndirectFireModifier,
+  calculateCalledShotModifier,
   // Aggregation functions
   calculateToHit,
   calculateToHitFromContext,
@@ -1797,5 +1809,452 @@ describe('getTerrainToHitModifier', () => {
       ];
       expect(getTerrainToHitModifier(target, [])).toBe(1);
     });
+  });
+});
+
+// =============================================================================
+// Phase 10: To-Hit Modifier Completion Tests
+// =============================================================================
+
+describe('calculatePilotWoundModifier', () => {
+  it('should return null for 0 wounds', () => {
+    expect(calculatePilotWoundModifier(0)).toBeNull();
+  });
+
+  it('should return null for negative wounds', () => {
+    expect(calculatePilotWoundModifier(-1)).toBeNull();
+  });
+
+  it('should return +1 for 1 wound', () => {
+    const mod = calculatePilotWoundModifier(1);
+    expect(mod?.value).toBe(1);
+    expect(mod?.source).toBe('other');
+  });
+
+  it('should return +3 for 3 wounds', () => {
+    const mod = calculatePilotWoundModifier(3);
+    expect(mod?.value).toBe(3);
+  });
+
+  it('should return +5 for 5 wounds', () => {
+    const mod = calculatePilotWoundModifier(5);
+    expect(mod?.value).toBe(5);
+  });
+
+  it('should include wound count in description', () => {
+    const mod = calculatePilotWoundModifier(2);
+    expect(mod?.description).toContain('2');
+    expect(mod?.name).toBe('Pilot Wounds');
+  });
+});
+
+describe('calculateSecondaryTargetModifier', () => {
+  it('should return null when not a secondary target', () => {
+    const info: ISecondaryTarget = { isSecondary: false, inFrontArc: true };
+    expect(calculateSecondaryTargetModifier(info)).toBeNull();
+  });
+
+  it('should return +1 for secondary target in front arc', () => {
+    const info: ISecondaryTarget = { isSecondary: true, inFrontArc: true };
+    const mod = calculateSecondaryTargetModifier(info);
+    expect(mod?.value).toBe(1);
+  });
+
+  it('should return +2 for secondary target in other arc', () => {
+    const info: ISecondaryTarget = { isSecondary: true, inFrontArc: false };
+    const mod = calculateSecondaryTargetModifier(info);
+    expect(mod?.value).toBe(2);
+  });
+
+  it('should set source to other', () => {
+    const info: ISecondaryTarget = { isSecondary: true, inFrontArc: true };
+    expect(calculateSecondaryTargetModifier(info)?.source).toBe('other');
+  });
+
+  it('should include arc info in description', () => {
+    const front: ISecondaryTarget = { isSecondary: true, inFrontArc: true };
+    expect(calculateSecondaryTargetModifier(front)?.description).toContain(
+      'front',
+    );
+
+    const other: ISecondaryTarget = { isSecondary: true, inFrontArc: false };
+    expect(calculateSecondaryTargetModifier(other)?.description).toContain(
+      'other',
+    );
+  });
+});
+
+describe('calculateTargetingComputerModifier', () => {
+  it('should return null when no targeting computer', () => {
+    expect(calculateTargetingComputerModifier(false)).toBeNull();
+  });
+
+  it('should return -1 when targeting computer present', () => {
+    const mod = calculateTargetingComputerModifier(true);
+    expect(mod?.value).toBe(-1);
+  });
+
+  it('should set source to equipment', () => {
+    expect(calculateTargetingComputerModifier(true)?.source).toBe('equipment');
+  });
+
+  it('should set name to Targeting Computer', () => {
+    expect(calculateTargetingComputerModifier(true)?.name).toBe(
+      'Targeting Computer',
+    );
+  });
+});
+
+describe('calculateSensorDamageModifier', () => {
+  it('should return null for 0 sensor hits', () => {
+    expect(calculateSensorDamageModifier(0)).toBeNull();
+  });
+
+  it('should return null for negative sensor hits', () => {
+    expect(calculateSensorDamageModifier(-1)).toBeNull();
+  });
+
+  it('should return +1 for 1 sensor hit', () => {
+    const mod = calculateSensorDamageModifier(1);
+    expect(mod?.value).toBe(1);
+  });
+
+  it('should return +2 for 2 sensor hits', () => {
+    const mod = calculateSensorDamageModifier(2);
+    expect(mod?.value).toBe(2);
+  });
+
+  it('should set source to damage', () => {
+    expect(calculateSensorDamageModifier(1)?.source).toBe('damage');
+  });
+
+  it('should include hit count in description', () => {
+    const mod = calculateSensorDamageModifier(3);
+    expect(mod?.description).toContain('3');
+  });
+});
+
+describe('calculateActuatorDamageModifier', () => {
+  it('should return null when no actuators damaged', () => {
+    const damage: IActuatorDamage = {
+      shoulderDestroyed: false,
+      upperArmDestroyed: false,
+      lowerArmDestroyed: false,
+    };
+    expect(calculateActuatorDamageModifier(damage)).toBeNull();
+  });
+
+  it('should return +4 for shoulder destroyed', () => {
+    const damage: IActuatorDamage = {
+      shoulderDestroyed: true,
+      upperArmDestroyed: false,
+      lowerArmDestroyed: false,
+    };
+    expect(calculateActuatorDamageModifier(damage)?.value).toBe(4);
+  });
+
+  it('should return +1 for upper arm destroyed', () => {
+    const damage: IActuatorDamage = {
+      shoulderDestroyed: false,
+      upperArmDestroyed: true,
+      lowerArmDestroyed: false,
+    };
+    expect(calculateActuatorDamageModifier(damage)?.value).toBe(1);
+  });
+
+  it('should return +1 for lower arm destroyed', () => {
+    const damage: IActuatorDamage = {
+      shoulderDestroyed: false,
+      upperArmDestroyed: false,
+      lowerArmDestroyed: true,
+    };
+    expect(calculateActuatorDamageModifier(damage)?.value).toBe(1);
+  });
+
+  it('should be cumulative: shoulder + upper arm + lower arm = +6', () => {
+    const damage: IActuatorDamage = {
+      shoulderDestroyed: true,
+      upperArmDestroyed: true,
+      lowerArmDestroyed: true,
+    };
+    expect(calculateActuatorDamageModifier(damage)?.value).toBe(6);
+  });
+
+  it('should be cumulative: upper + lower = +2', () => {
+    const damage: IActuatorDamage = {
+      shoulderDestroyed: false,
+      upperArmDestroyed: true,
+      lowerArmDestroyed: true,
+    };
+    expect(calculateActuatorDamageModifier(damage)?.value).toBe(2);
+  });
+
+  it('should set source to damage', () => {
+    const damage: IActuatorDamage = {
+      shoulderDestroyed: true,
+      upperArmDestroyed: false,
+      lowerArmDestroyed: false,
+    };
+    expect(calculateActuatorDamageModifier(damage)?.source).toBe('damage');
+  });
+
+  it('should list damaged parts in description', () => {
+    const damage: IActuatorDamage = {
+      shoulderDestroyed: true,
+      upperArmDestroyed: true,
+      lowerArmDestroyed: false,
+    };
+    const mod = calculateActuatorDamageModifier(damage);
+    expect(mod?.description).toContain('shoulder');
+    expect(mod?.description).toContain('upper arm');
+  });
+});
+
+describe('calculateAttackerProneModifier', () => {
+  it('should return null when not prone', () => {
+    expect(calculateAttackerProneModifier(false)).toBeNull();
+  });
+
+  it('should return +2 when attacker is prone', () => {
+    const mod = calculateAttackerProneModifier(true);
+    expect(mod?.value).toBe(2);
+  });
+
+  it('should set source to other', () => {
+    expect(calculateAttackerProneModifier(true)?.source).toBe('other');
+  });
+
+  it('should set name to Attacker Prone', () => {
+    expect(calculateAttackerProneModifier(true)?.name).toBe('Attacker Prone');
+  });
+});
+
+describe('calculateIndirectFireModifier', () => {
+  it('should return null when not indirect fire', () => {
+    const info: IIndirectFire = { isIndirect: false, spotterWalked: false };
+    expect(calculateIndirectFireModifier(info)).toBeNull();
+  });
+
+  it('should return +1 for indirect fire with stationary spotter', () => {
+    const info: IIndirectFire = { isIndirect: true, spotterWalked: false };
+    const mod = calculateIndirectFireModifier(info);
+    expect(mod?.value).toBe(1);
+  });
+
+  it('should return +2 for indirect fire with walking spotter', () => {
+    const info: IIndirectFire = { isIndirect: true, spotterWalked: true };
+    const mod = calculateIndirectFireModifier(info);
+    expect(mod?.value).toBe(2);
+  });
+
+  it('should set source to other', () => {
+    const info: IIndirectFire = { isIndirect: true, spotterWalked: false };
+    expect(calculateIndirectFireModifier(info)?.source).toBe('other');
+  });
+
+  it('should include spotter info in description when walked', () => {
+    const info: IIndirectFire = { isIndirect: true, spotterWalked: true };
+    expect(calculateIndirectFireModifier(info)?.description).toContain(
+      'spotter',
+    );
+  });
+});
+
+describe('calculateCalledShotModifier', () => {
+  it('should return null when not a called shot', () => {
+    expect(calculateCalledShotModifier(false)).toBeNull();
+  });
+
+  it('should return +3 for called shot', () => {
+    const mod = calculateCalledShotModifier(true);
+    expect(mod?.value).toBe(3);
+  });
+
+  it('should set source to other', () => {
+    expect(calculateCalledShotModifier(true)?.source).toBe('other');
+  });
+
+  it('should set name to Called Shot', () => {
+    expect(calculateCalledShotModifier(true)?.name).toBe('Called Shot');
+  });
+});
+
+// =============================================================================
+// Phase 10: Integration Tests — calculateToHit with new modifiers
+// =============================================================================
+
+describe('calculateToHit with Phase 10 modifiers', () => {
+  it('should apply pilot wound penalty', () => {
+    const attacker = createTestAttackerState({ gunnery: 4, pilotWounds: 2 });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Gunnery 4 + wounds 2 = 6
+    expect(result.finalToHit).toBe(6);
+    expect(result.modifiers.some((m) => m.name === 'Pilot Wounds')).toBe(true);
+  });
+
+  it('should apply sensor damage penalty', () => {
+    const attacker = createTestAttackerState({ gunnery: 4, sensorHits: 1 });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Gunnery 4 + sensor 1 = 5
+    expect(result.finalToHit).toBe(5);
+    expect(result.modifiers.some((m) => m.name === 'Sensor Damage')).toBe(true);
+  });
+
+  it('should apply actuator damage penalty', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      actuatorDamage: {
+        shoulderDestroyed: true,
+        upperArmDestroyed: false,
+        lowerArmDestroyed: true,
+      },
+    });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Gunnery 4 + shoulder 4 + lower arm 1 = 9
+    expect(result.finalToHit).toBe(9);
+    expect(result.modifiers.some((m) => m.name === 'Actuator Damage')).toBe(
+      true,
+    );
+  });
+
+  it('should apply targeting computer bonus', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      targetingComputer: true,
+    });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Gunnery 4 + TC -1 = 3
+    expect(result.finalToHit).toBe(3);
+    expect(result.modifiers.some((m) => m.name === 'Targeting Computer')).toBe(
+      true,
+    );
+  });
+
+  it('should apply attacker prone penalty', () => {
+    const attacker = createTestAttackerState({ gunnery: 4, prone: true });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Gunnery 4 + prone 2 = 6
+    expect(result.finalToHit).toBe(6);
+    expect(result.modifiers.some((m) => m.name === 'Attacker Prone')).toBe(
+      true,
+    );
+  });
+
+  it('should apply secondary target penalty (front arc)', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      secondaryTarget: { isSecondary: true, inFrontArc: true },
+    });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Gunnery 4 + secondary 1 = 5
+    expect(result.finalToHit).toBe(5);
+  });
+
+  it('should apply secondary target penalty (other arc)', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      secondaryTarget: { isSecondary: true, inFrontArc: false },
+    });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Gunnery 4 + secondary 2 = 6
+    expect(result.finalToHit).toBe(6);
+  });
+
+  it('should apply indirect fire penalty (base)', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      indirectFire: { isIndirect: true, spotterWalked: false },
+    });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Gunnery 4 + indirect 1 = 5
+    expect(result.finalToHit).toBe(5);
+  });
+
+  it('should apply indirect fire penalty (spotter walked)', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      indirectFire: { isIndirect: true, spotterWalked: true },
+    });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Gunnery 4 + indirect 2 = 6
+    expect(result.finalToHit).toBe(6);
+  });
+
+  it('should apply called shot penalty', () => {
+    const attacker = createTestAttackerState({ gunnery: 4, calledShot: true });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Gunnery 4 + called 3 = 7
+    expect(result.finalToHit).toBe(7);
+    expect(result.modifiers.some((m) => m.name === 'Called Shot')).toBe(true);
+  });
+
+  it('should combine all new modifiers together', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      pilotWounds: 1,
+      sensorHits: 1,
+      targetingComputer: true,
+      prone: true,
+    });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Gunnery 4 + wounds 1 + sensor 1 + TC -1 + prone 2 = 7
+    expect(result.finalToHit).toBe(7);
+  });
+
+  it('should not apply optional modifiers when not set', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+    // Should be same as before: just Gunnery 4
+    expect(result.finalToHit).toBe(4);
+    expect(result.modifiers.some((m) => m.name === 'Pilot Wounds')).toBe(false);
+    expect(result.modifiers.some((m) => m.name === 'Sensor Damage')).toBe(
+      false,
+    );
+    expect(result.modifiers.some((m) => m.name === 'Actuator Damage')).toBe(
+      false,
+    );
+    expect(result.modifiers.some((m) => m.name === 'Targeting Computer')).toBe(
+      false,
+    );
+    expect(result.modifiers.some((m) => m.name === 'Attacker Prone')).toBe(
+      false,
+    );
+    expect(result.modifiers.some((m) => m.name === 'Secondary Target')).toBe(
+      false,
+    );
+    expect(result.modifiers.some((m) => m.name === 'Indirect Fire')).toBe(
+      false,
+    );
+    expect(result.modifiers.some((m) => m.name === 'Called Shot')).toBe(false);
+  });
+
+  it('should make shot impossible with many stacking penalties', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      movementType: MovementType.Jump,
+      pilotWounds: 3,
+      sensorHits: 2,
+      calledShot: true,
+    });
+    const target = createTestTargetState({
+      movementType: MovementType.Run,
+      hexesMoved: 8,
+    });
+    const result = calculateToHit(attacker, target, RangeBracket.Medium, 5);
+    // Gunnery 4 + Medium 2 + Jump 3 + TMM 3 + wounds 3 + sensor 2 + called 3 = 20 -> capped 13
+    expect(result.finalToHit).toBe(13);
+    expect(result.impossible).toBe(true);
   });
 });

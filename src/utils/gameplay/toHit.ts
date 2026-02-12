@@ -12,6 +12,9 @@ import {
   IAttackerState,
   ITargetState,
   ICombatContext,
+  IActuatorDamage,
+  ISecondaryTarget,
+  IIndirectFire,
 } from '@/types/gameplay';
 import {
   TERRAIN_PROPERTIES,
@@ -338,6 +341,172 @@ export function getTerrainToHitModifier(
   return modifier;
 }
 
+/**
+ * Pilot wound penalty: +1 per wound.
+ */
+export function calculatePilotWoundModifier(
+  pilotWounds: number,
+): IToHitModifierDetail | null {
+  if (pilotWounds <= 0) {
+    return null;
+  }
+
+  return {
+    name: 'Pilot Wounds',
+    value: pilotWounds,
+    source: 'other',
+    description: `Pilot has ${pilotWounds} wound${pilotWounds > 1 ? 's' : ''}: +${pilotWounds}`,
+  };
+}
+
+/**
+ * Secondary target penalty: +1 front arc, +2 other arcs.
+ */
+export function calculateSecondaryTargetModifier(
+  secondaryTarget: ISecondaryTarget,
+): IToHitModifierDetail | null {
+  if (!secondaryTarget.isSecondary) {
+    return null;
+  }
+
+  const value = secondaryTarget.inFrontArc ? 1 : 2;
+  return {
+    name: 'Secondary Target',
+    value,
+    source: 'other',
+    description: secondaryTarget.inFrontArc
+      ? 'Secondary target (front arc): +1'
+      : 'Secondary target (other arc): +2',
+  };
+}
+
+/**
+ * Targeting computer bonus: -1 to-hit.
+ */
+export function calculateTargetingComputerModifier(
+  hasTargetingComputer: boolean,
+): IToHitModifierDetail | null {
+  if (!hasTargetingComputer) {
+    return null;
+  }
+
+  return {
+    name: 'Targeting Computer',
+    value: -1,
+    source: 'equipment',
+    description: 'Targeting computer: -1',
+  };
+}
+
+/**
+ * Sensor damage penalty: +1 per sensor hit.
+ */
+export function calculateSensorDamageModifier(
+  sensorHits: number,
+): IToHitModifierDetail | null {
+  if (sensorHits <= 0) {
+    return null;
+  }
+
+  return {
+    name: 'Sensor Damage',
+    value: sensorHits,
+    source: 'damage',
+    description: `${sensorHits} sensor hit${sensorHits > 1 ? 's' : ''}: +${sensorHits}`,
+  };
+}
+
+/**
+ * Actuator damage penalty: shoulder +4, upper arm +1, lower arm +1 (cumulative).
+ */
+export function calculateActuatorDamageModifier(
+  actuatorDamage: IActuatorDamage,
+): IToHitModifierDetail | null {
+  let value = 0;
+  const parts: string[] = [];
+
+  if (actuatorDamage.shoulderDestroyed) {
+    value += 4;
+    parts.push('shoulder +4');
+  }
+  if (actuatorDamage.upperArmDestroyed) {
+    value += 1;
+    parts.push('upper arm +1');
+  }
+  if (actuatorDamage.lowerArmDestroyed) {
+    value += 1;
+    parts.push('lower arm +1');
+  }
+
+  if (value <= 0) {
+    return null;
+  }
+
+  return {
+    name: 'Actuator Damage',
+    value,
+    source: 'damage',
+    description: `Actuator damage (${parts.join(', ')}): +${value}`,
+  };
+}
+
+/**
+ * Attacker prone penalty: +2 to-hit.
+ */
+export function calculateAttackerProneModifier(
+  attackerProne: boolean,
+): IToHitModifierDetail | null {
+  if (!attackerProne) {
+    return null;
+  }
+
+  return {
+    name: 'Attacker Prone',
+    value: 2,
+    source: 'other',
+    description: 'Attacker is prone: +2',
+  };
+}
+
+/**
+ * Indirect fire penalty: +1 base, +1 if spotter walked.
+ */
+export function calculateIndirectFireModifier(
+  indirectFire: IIndirectFire,
+): IToHitModifierDetail | null {
+  if (!indirectFire.isIndirect) {
+    return null;
+  }
+
+  const value = indirectFire.spotterWalked ? 2 : 1;
+  return {
+    name: 'Indirect Fire',
+    value,
+    source: 'other',
+    description: indirectFire.spotterWalked
+      ? 'Indirect fire (+1) + spotter walked (+1): +2'
+      : 'Indirect fire: +1',
+  };
+}
+
+/**
+ * Called shot penalty: +3 to-hit.
+ */
+export function calculateCalledShotModifier(
+  calledShot: boolean,
+): IToHitModifierDetail | null {
+  if (!calledShot) {
+    return null;
+  }
+
+  return {
+    name: 'Called Shot',
+    value: 3,
+    source: 'other',
+    description: 'Called shot: +3',
+  };
+}
+
 // =============================================================================
 // Aggregation Functions
 // =============================================================================
@@ -385,6 +554,58 @@ export function calculateToHit(
 
   // Add damage modifiers from attacker state
   modifiers.push(...attacker.damageModifiers);
+
+  // Pilot wounds
+  if (attacker.pilotWounds) {
+    const woundMod = calculatePilotWoundModifier(attacker.pilotWounds);
+    if (woundMod) modifiers.push(woundMod);
+  }
+
+  // Sensor damage
+  if (attacker.sensorHits) {
+    const sensorMod = calculateSensorDamageModifier(attacker.sensorHits);
+    if (sensorMod) modifiers.push(sensorMod);
+  }
+
+  // Actuator damage
+  if (attacker.actuatorDamage) {
+    const actuatorMod = calculateActuatorDamageModifier(
+      attacker.actuatorDamage,
+    );
+    if (actuatorMod) modifiers.push(actuatorMod);
+  }
+
+  // Targeting computer
+  if (attacker.targetingComputer) {
+    const tcMod = calculateTargetingComputerModifier(
+      attacker.targetingComputer,
+    );
+    if (tcMod) modifiers.push(tcMod);
+  }
+
+  // Attacker prone
+  if (attacker.prone) {
+    const proneMod2 = calculateAttackerProneModifier(attacker.prone);
+    if (proneMod2) modifiers.push(proneMod2);
+  }
+
+  // Secondary target
+  if (attacker.secondaryTarget) {
+    const secMod = calculateSecondaryTargetModifier(attacker.secondaryTarget);
+    if (secMod) modifiers.push(secMod);
+  }
+
+  // Indirect fire
+  if (attacker.indirectFire) {
+    const indirectMod = calculateIndirectFireModifier(attacker.indirectFire);
+    if (indirectMod) modifiers.push(indirectMod);
+  }
+
+  // Called shot
+  if (attacker.calledShot) {
+    const calledMod = calculateCalledShotModifier(attacker.calledShot);
+    if (calledMod) modifiers.push(calledMod);
+  }
 
   return aggregateModifiers(modifiers);
 }

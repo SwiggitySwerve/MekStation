@@ -529,6 +529,38 @@ export interface IClusterHitLocation {
 // =============================================================================
 
 /**
+ * Actuator damage state for an arm.
+ */
+export interface IActuatorDamage {
+  /** Shoulder actuator destroyed */
+  readonly shoulderDestroyed: boolean;
+  /** Upper arm actuator destroyed */
+  readonly upperArmDestroyed: boolean;
+  /** Lower arm actuator destroyed */
+  readonly lowerArmDestroyed: boolean;
+}
+
+/**
+ * Secondary target information.
+ */
+export interface ISecondaryTarget {
+  /** Whether this is a secondary target */
+  readonly isSecondary: boolean;
+  /** Whether the secondary target is in the front arc */
+  readonly inFrontArc: boolean;
+}
+
+/**
+ * Indirect fire information.
+ */
+export interface IIndirectFire {
+  /** Whether this is an indirect fire attack */
+  readonly isIndirect: boolean;
+  /** Whether the spotter walked this turn */
+  readonly spotterWalked: boolean;
+}
+
+/**
  * Attacker combat state for to-hit calculation.
  */
 export interface IAttackerState {
@@ -540,6 +572,22 @@ export interface IAttackerState {
   readonly heat: number;
   /** Damaged equipment affecting accuracy */
   readonly damageModifiers: readonly IToHitModifierDetail[];
+  /** Number of pilot wounds (+1 per wound) */
+  readonly pilotWounds?: number;
+  /** Number of sensor hits (+1 per hit) */
+  readonly sensorHits?: number;
+  /** Actuator damage for the firing arm */
+  readonly actuatorDamage?: IActuatorDamage;
+  /** Whether unit has a targeting computer (-1) */
+  readonly targetingComputer?: boolean;
+  /** Whether attacker is prone (+2) */
+  readonly prone?: boolean;
+  /** Secondary target info (+1 front arc, +2 other arcs) */
+  readonly secondaryTarget?: ISecondaryTarget;
+  /** Indirect fire info (+1 base, +1 if spotter walked) */
+  readonly indirectFire?: IIndirectFire;
+  /** Whether this is a called shot (+3) */
+  readonly calledShot?: boolean;
 }
 
 /**
@@ -556,6 +604,8 @@ export interface ITargetState {
   readonly immobile: boolean;
   /** Is target in partial cover? */
   readonly partialCover: boolean;
+  /** Unit quirk names affecting to-hit (e.g., 'multi-trac') */
+  readonly unitQuirks?: readonly string[];
 }
 
 /**
