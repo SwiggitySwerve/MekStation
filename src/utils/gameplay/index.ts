@@ -85,3 +85,4 @@ export * from './damage';
 export * from './clusterWeapons';
 export * from './specialWeaponMechanics';
 export * from './electronicWarfare';
+export * from './environmentalModifiers';

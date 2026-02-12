@@ -5,6 +5,8 @@
  * @spec openspec/changes/add-game-session-core/specs/game-session-core/spec.md
  */
 
+import type { IEnvironmentalConditions } from '@/utils/gameplay/environmentalModifiers';
+
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
 import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
@@ -519,6 +521,8 @@ export interface IGameConfig {
   readonly victoryConditions: readonly string[];
   /** Optional rules enabled */
   readonly optionalRules: readonly string[];
+  /** Environmental conditions (default: standard daylight, 1.0g, etc.) */
+  readonly environmentalConditions?: IEnvironmentalConditions;
 }
 
 /**

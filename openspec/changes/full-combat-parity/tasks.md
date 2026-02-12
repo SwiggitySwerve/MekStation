@@ -230,12 +230,12 @@
 
 ## 16. Environmental Modifiers
 
-- [ ] 16.1 Implement light condition modifiers — night +2, dawn/dusk +1
-- [ ] 16.2 Implement weather modifiers — rain +1/+2, fog +1/+2, snow +1
-- [ ] 16.3 Implement wind effects — missile to-hit +1/+2, jump distance reduction
-- [ ] 16.4 Implement gravity effects — scale fall damage and jump distance
-- [ ] 16.5 Add environmental conditions to game configuration
-- [ ] 16.6 Write tests for environmental modifier combinations
+- [x] 16.1 Implement light condition modifiers — night +2, dawn/dusk +1
+- [x] 16.2 Implement weather modifiers — rain +1/+2, fog +1/+2, snow +1
+- [x] 16.3 Implement wind effects — missile to-hit +1/+2, jump distance reduction
+- [x] 16.4 Implement gravity effects — scale fall damage and jump distance
+- [x] 16.5 Add environmental conditions to game configuration
+- [x] 16.6 Write tests for environmental modifier combinations
 
 ## 17. Simulation Runner Integration
 
