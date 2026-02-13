@@ -109,13 +109,6 @@ describe('Simulation Integration Tests', () => {
           v.severity === 'critical' && !v.invariant.startsWith('detector:'),
       );
 
-      if (criticalInvariantViolations.length > 0) {
-        console.warn(
-          'Critical invariant violations found:',
-          criticalInvariantViolations.slice(0, 5),
-        );
-      }
-
       expect(criticalInvariantViolations.length).toBe(0);
     });
 
