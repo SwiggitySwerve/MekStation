@@ -86,3 +86,48 @@ export * from './clusterWeapons';
 export * from './specialWeaponMechanics';
 export * from './electronicWarfare';
 export * from './environmentalModifiers';
+
+// Dice Types - Dice rolling utilities
+export * from './diceTypes';
+
+// Ammo Tracking - Ammunition management and explosions
+export * from './ammoTracking';
+
+// Combat Statistics - Damage tracking and performance metrics
+export * from './combatStatistics';
+
+// Critical Hit Resolution - Critical hit determination and effects
+export * from './criticalHitResolution';
+
+// Event Payloads - Event payload extraction utilities
+export * from './eventPayloads';
+
+// Fall Mechanics - Fall damage and direction resolution
+export * from './fallMechanics';
+
+// Firing Arc - Arc calculations and facing
+export * from './firingArc';
+
+// Heat - Heat dissipation and effects
+export * from './heat';
+
+// Indirect Fire - Indirect fire and spotter mechanics
+export * from './indirectFire';
+
+// Line of Sight - LOS calculations and terrain blocking
+export * from './lineOfSight';
+
+// Physical Attacks - Melee combat resolution
+export * from './physicalAttacks';
+
+// Piloting Skill Rolls - PSR resolution and modifiers
+export * from './pilotingSkillRolls';
+
+// Quirk Modifiers - Unit and weapon quirk effects
+export * from './quirkModifiers';
+
+// SPA Modifiers - Special Pilot Ability effects
+export * from './spaModifiers';
+
+// Terrain Generator - Procedural terrain generation
+export * from './terrainGenerator';
