@@ -105,6 +105,7 @@ export function calculateRangeModifier(
   shortRange: number,
   mediumRange: number,
   longRange: number,
+  extremeRange?: number,
 ): IToHitModifierDetail {
   let bracket: RangeBracket;
   let value: number;
@@ -118,6 +119,9 @@ export function calculateRangeModifier(
   } else if (range <= longRange) {
     bracket = RangeBracket.Long;
     value = RANGE_MODIFIERS[RangeBracket.Long];
+  } else if (extremeRange !== undefined && range <= extremeRange) {
+    bracket = RangeBracket.Extreme;
+    value = RANGE_MODIFIERS[RangeBracket.Extreme];
   } else {
     bracket = RangeBracket.OutOfRange;
     value = Infinity;
@@ -308,6 +312,26 @@ export function calculatePartialCoverModifier(
     value: 1,
     source: 'terrain',
     description: 'Target in partial cover: +1',
+  };
+}
+
+/**
+ * Hull-down partial cover modifier.
+ * +1 to hit target in hull-down position (does not stack with terrain partial cover).
+ */
+export function calculateHullDownModifier(
+  hullDown: boolean,
+  partialCover: boolean,
+): IToHitModifierDetail | null {
+  if (!hullDown || partialCover) {
+    return null;
+  }
+
+  return {
+    name: 'Hull-Down (Partial Cover)',
+    value: 1,
+    source: 'terrain',
+    description: 'Target in hull-down position: +1',
   };
 }
 
@@ -693,10 +717,13 @@ export function getRangeBracket(
   shortRange: number,
   mediumRange: number,
   longRange: number,
+  extremeRange?: number,
 ): RangeBracket {
   if (range <= shortRange) return RangeBracket.Short;
   if (range <= mediumRange) return RangeBracket.Medium;
   if (range <= longRange) return RangeBracket.Long;
+  if (extremeRange !== undefined && range <= extremeRange)
+    return RangeBracket.Extreme;
   return RangeBracket.OutOfRange;
 }
 
