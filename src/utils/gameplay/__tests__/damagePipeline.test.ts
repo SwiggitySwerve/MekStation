@@ -15,6 +15,8 @@ import {
   LockState,
   Facing,
   MovementType,
+  RangeBracket,
+  FiringArc,
   IGameConfig,
   IGameUnit,
   IGameSession,
@@ -687,8 +689,8 @@ describe('Damage Pipeline - Full Integration', () => {
         },
       ],
       3,
-      'short' as any,
-      'front' as any,
+      RangeBracket.Short,
+      FiringArc.Front,
     );
 
     let rollCount = 0;
@@ -765,8 +767,8 @@ describe('Damage Pipeline - Full Integration', () => {
         },
       ],
       3,
-      'short' as any,
-      'front' as any,
+      RangeBracket.Short,
+      FiringArc.Front,
     );
 
     // Roller hits CT with 20 damage. But initial CT armor is probably 0 for test units
