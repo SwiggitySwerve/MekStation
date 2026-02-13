@@ -687,3 +687,1028 @@ The system SHALL integrate with all combat subsystems through explicit function 
 - **Combat Analytics**: Event stream provides data for damage matrices, kill credits, and performance metrics
 - **Multiplayer Sync**: Event-sourced architecture enables consistent state across clients
 - **AI System**: Session API provides the action interface for AI decision-making
+- **Encounter Store**: Manages encounter CRUD operations via API routes
+- **Gameplay Store**: Manages interactive session state and UI state
+- **Quick Game Store**: Manages standalone quick game sessions with session storage persistence
+
+---
+
+## Encounter Store
+
+The Encounter Store is a Zustand store that manages encounter state in the UI layer. It uses API routes for persistence to avoid bundling SQLite in the browser.
+
+**Implementation**: `src/stores/useEncounterStore.ts`
+
+### Requirement: Encounter CRUD via API Routes
+
+The store SHALL provide CRUD operations for encounters by calling API routes and maintaining local state.
+
+#### Scenario: Load all encounters
+
+- **GIVEN** the store is initialized
+- **WHEN** `loadEncounters()` is called
+- **THEN** a GET request SHALL be made to `/api/encounters`
+- **AND** the response SHALL contain an array of IEncounter objects
+- **AND** the store's `encounters` array SHALL be updated with the response
+- **AND** `isLoading` SHALL be set to false
+
+#### Scenario: Create a new encounter
+
+- **GIVEN** valid ICreateEncounterInput data
+- **WHEN** `createEncounter(input)` is called
+- **THEN** a POST request SHALL be made to `/api/encounters` with the input as JSON
+- **AND** on success, the response SHALL contain the new encounter ID
+- **AND** `loadEncounters()` SHALL be called to refresh the list
+- **AND** the new encounter ID SHALL be returned
+
+#### Scenario: Update an encounter
+
+- **GIVEN** an encounter ID and IUpdateEncounterInput data
+- **WHEN** `updateEncounter(id, input)` is called
+- **THEN** a PATCH request SHALL be made to `/api/encounters/{id}` with the input as JSON
+- **AND** on success, `loadEncounters()` SHALL be called to refresh the list
+- **AND** true SHALL be returned
+
+#### Scenario: Delete an encounter
+
+- **GIVEN** an encounter ID
+- **WHEN** `deleteEncounter(id)` is called
+- **THEN** a DELETE request SHALL be made to `/api/encounters/{id}`
+- **AND** on success, if the deleted encounter was selected, `selectedEncounterId` SHALL be set to null
+- **AND** `loadEncounters()` SHALL be called to refresh the list
+- **AND** true SHALL be returned
+
+### Requirement: Encounter Selection and Retrieval
+
+The store SHALL maintain a selected encounter ID and provide retrieval methods.
+
+#### Scenario: Select an encounter
+
+- **GIVEN** an encounter ID
+- **WHEN** `selectEncounter(id)` is called
+- **THEN** `selectedEncounterId` SHALL be set to the provided ID
+
+#### Scenario: Get selected encounter
+
+- **GIVEN** a selected encounter ID exists
+- **WHEN** `getSelectedEncounter()` is called
+- **THEN** the IEncounter object with matching ID SHALL be returned from the `encounters` array
+- **AND** if no encounter is selected, null SHALL be returned
+
+#### Scenario: Get encounter by ID
+
+- **GIVEN** an encounter ID
+- **WHEN** `getEncounter(id)` is called
+- **THEN** the IEncounter object with matching ID SHALL be returned from the `encounters` array
+- **AND** if not found, undefined SHALL be returned
+
+### Requirement: Force Assignment
+
+The store SHALL provide methods to assign player and opponent forces to encounters.
+
+#### Scenario: Set player force
+
+- **GIVEN** an encounter ID and a force ID
+- **WHEN** `setPlayerForce(encounterId, forceId)` is called
+- **THEN** a PUT request SHALL be made to `/api/encounters/{encounterId}/player-force` with `{forceId}` as JSON
+- **AND** on success, `loadEncounters()` SHALL be called to refresh the list
+- **AND** true SHALL be returned
+
+#### Scenario: Set opponent force
+
+- **GIVEN** an encounter ID and a force ID
+- **WHEN** `setOpponentForce(encounterId, forceId)` is called
+- **THEN** a PUT request SHALL be made to `/api/encounters/{encounterId}/opponent-force` with `{forceId}` as JSON
+- **AND** on success, `loadEncounters()` SHALL be called to refresh the list
+- **AND** true SHALL be returned
+
+#### Scenario: Clear opponent force
+
+- **GIVEN** an encounter ID
+- **WHEN** `clearOpponentForce(encounterId)` is called
+- **THEN** a DELETE request SHALL be made to `/api/encounters/{encounterId}/opponent-force`
+- **AND** on success, `loadEncounters()` SHALL be called to refresh the list
+- **AND** true SHALL be returned
+
+### Requirement: Template Application
+
+The store SHALL support applying scenario templates to encounters.
+
+#### Scenario: Apply a scenario template
+
+- **GIVEN** an encounter ID and a ScenarioTemplateType
+- **WHEN** `applyTemplate(encounterId, template)` is called
+- **THEN** a PUT request SHALL be made to `/api/encounters/{encounterId}/template` with `{template}` as JSON
+- **AND** on success, `loadEncounters()` SHALL be called to refresh the list
+- **AND** true SHALL be returned
+
+### Requirement: Encounter Validation
+
+The store SHALL validate encounters and cache validation results.
+
+#### Scenario: Validate an encounter
+
+- **GIVEN** an encounter ID
+- **WHEN** `validateEncounter(id)` is called
+- **THEN** a GET request SHALL be made to `/api/encounters/{id}/validate`
+- **AND** the response SHALL contain an IEncounterValidationResult object
+- **AND** the validation result SHALL be stored in the `validations` Map keyed by encounter ID
+- **AND** the validation result SHALL be returned
+
+#### Scenario: Validation cache lookup
+
+- **GIVEN** an encounter has been validated
+- **WHEN** the `validations` Map is accessed with the encounter ID
+- **THEN** the cached IEncounterValidationResult SHALL be returned
+
+### Requirement: Encounter Launch
+
+The store SHALL launch encounters and return the resulting game session ID.
+
+#### Scenario: Launch an encounter
+
+- **GIVEN** an encounter ID
+- **WHEN** `launchEncounter(id)` is called
+- **THEN** a POST request SHALL be made to `/api/encounters/{id}/launch`
+- **AND** on success, the response SHALL contain a `gameSessionId`
+- **AND** `loadEncounters()` SHALL be called to refresh the list
+- **AND** the `gameSessionId` SHALL be returned
+
+#### Scenario: Launch fails validation
+
+- **GIVEN** an encounter that fails validation
+- **WHEN** `launchEncounter(id)` is called
+- **THEN** the API SHALL return success=false with an error message
+- **AND** the error message SHALL be set in the store's `error` field
+- **AND** null SHALL be returned
+
+### Requirement: Encounter Cloning
+
+The store SHALL support cloning encounters with a new name.
+
+#### Scenario: Clone an encounter
+
+- **GIVEN** an encounter ID and a new name
+- **WHEN** `cloneEncounter(id, newName)` is called
+- **THEN** a POST request SHALL be made to `/api/encounters/{id}/clone` with `{newName}` as JSON
+- **AND** on success, the response SHALL contain the new encounter ID
+- **AND** `loadEncounters()` SHALL be called to refresh the list
+- **AND** the new encounter ID SHALL be returned
+
+### Requirement: Filtering and Search
+
+The store SHALL support filtering encounters by status and search query.
+
+#### Scenario: Set status filter
+
+- **GIVEN** a status value (EncounterStatus or 'all')
+- **WHEN** `setStatusFilter(status)` is called
+- **THEN** `statusFilter` SHALL be set to the provided value
+
+#### Scenario: Set search query
+
+- **GIVEN** a search query string
+- **WHEN** `setSearchQuery(query)` is called
+- **THEN** `searchQuery` SHALL be set to the provided value
+
+#### Scenario: Get filtered encounters
+
+- **GIVEN** a status filter of EncounterStatus.Ready and a search query of "test"
+- **WHEN** `getFilteredEncounters()` is called
+- **THEN** only encounters with status=Ready SHALL be included
+- **AND** only encounters where name, description, playerForce.forceName, or opponentForce.forceName contains "test" (case-insensitive) SHALL be included
+- **AND** the filtered array SHALL be returned
+
+#### Scenario: Get all encounters when filter is 'all'
+
+- **GIVEN** a status filter of 'all'
+- **WHEN** `getFilteredEncounters()` is called
+- **THEN** all encounters SHALL be included (no status filtering)
+- **AND** search query filtering SHALL still apply
+
+### Requirement: Error Handling
+
+The store SHALL capture and expose API errors.
+
+#### Scenario: API error during load
+
+- **GIVEN** the API returns a non-OK response
+- **WHEN** `loadEncounters()` is called
+- **THEN** the error message SHALL be set in the store's `error` field
+- **AND** `isLoading` SHALL be set to false
+
+#### Scenario: Clear error
+
+- **GIVEN** an error exists in the store
+- **WHEN** `clearError()` is called
+- **THEN** `error` SHALL be set to null
+
+---
+
+## Gameplay Store
+
+The Gameplay Store is a Zustand store that manages game session state and UI state for interactive gameplay.
+
+**Implementation**: `src/stores/useGameplayStore.ts`
+
+### Requirement: Session State Management
+
+The store SHALL manage IGameSession state and provide session loading methods.
+
+#### Scenario: Load a session by ID
+
+- **GIVEN** a session ID
+- **WHEN** `loadSession(sessionId)` is called
+- **THEN** `isLoading` SHALL be set to true
+- **AND** if sessionId is "demo", `createDemoSession()` SHALL be called
+- **AND** otherwise, an API call SHALL be made to load the session
+- **AND** on success, `session` SHALL be set to the loaded session
+- **AND** `isLoading` SHALL be set to false
+
+#### Scenario: Set session directly
+
+- **GIVEN** an IGameSession object
+- **WHEN** `setSession(session)` is called
+- **THEN** `session` SHALL be set to the provided session
+- **AND** `isLoading` SHALL be set to false
+- **AND** `error` SHALL be set to null
+
+#### Scenario: Create demo session
+
+- **GIVEN** the store is initialized
+- **WHEN** `createDemoSession()` is called
+- **THEN** a demo session SHALL be created via `createDemoSession()` fixture
+- **AND** `unitWeapons` SHALL be populated via `createDemoWeapons()`
+- **AND** `maxArmor` SHALL be populated via `createDemoMaxArmor()`
+- **AND** `maxStructure` SHALL be populated via `createDemoMaxStructure()`
+- **AND** `pilotNames` SHALL be populated via `createDemoPilotNames()`
+- **AND** `heatSinks` SHALL be populated via `createDemoHeatSinks()`
+- **AND** `isLoading` SHALL be set to false
+
+### Requirement: Interactive Session Management
+
+The store SHALL manage InteractiveSession state for player-controlled gameplay.
+
+#### Scenario: Set interactive session
+
+- **GIVEN** an InteractiveSession object
+- **WHEN** `setInteractiveSession(interactiveSession)` is called
+- **THEN** `session` SHALL be set to `interactiveSession.getSession()`
+- **AND** `interactiveSession` SHALL be set to the provided object
+- **AND** `interactivePhase` SHALL be set to InteractivePhase.SelectUnit
+- **AND** `spectatorMode` SHALL be set to null
+- **AND** `isLoading` SHALL be set to false
+
+#### Scenario: Set spectator mode
+
+- **GIVEN** an InteractiveSession object and a SpectatorMode config
+- **WHEN** `setSpectatorMode(interactiveSession, spectatorMode)` is called
+- **THEN** `session` SHALL be set to `interactiveSession.getSession()`
+- **AND** `interactiveSession` SHALL be set to the provided object
+- **AND** `interactivePhase` SHALL be set to InteractivePhase.AITurn
+- **AND** `spectatorMode` SHALL be set to the provided config
+- **AND** `isLoading` SHALL be set to false
+
+### Requirement: UI State Management
+
+The store SHALL manage IGameplayUIState for selected units, targets, and queued weapons.
+
+#### Scenario: Select a unit
+
+- **GIVEN** a unit ID
+- **WHEN** `selectUnit(unitId)` is called
+- **THEN** `ui.selectedUnitId` SHALL be set to the provided ID
+
+#### Scenario: Set target unit
+
+- **GIVEN** a unit ID
+- **WHEN** `setTarget(unitId)` is called
+- **THEN** `ui.targetUnitId` SHALL be set to the provided ID
+
+#### Scenario: Select weapon for attack
+
+- **GIVEN** a weapon ID
+- **WHEN** `selectWeapon(weaponId)` is called
+- **THEN** if the weapon is already in `ui.queuedWeaponIds`, it SHALL be removed
+- **AND** if the weapon is not in `ui.queuedWeaponIds`, it SHALL be added
+- **AND** `ui.queuedWeaponIds` SHALL be updated immutably
+
+#### Scenario: Clear queued weapons
+
+- **GIVEN** weapons are queued
+- **WHEN** `handleAction('clear')` is called
+- **THEN** `ui.queuedWeaponIds` SHALL be set to an empty array
+
+### Requirement: Interactive Movement
+
+The store SHALL manage interactive movement selection and execution.
+
+#### Scenario: Select unit for movement
+
+- **GIVEN** a unit ID
+- **WHEN** `selectUnitForMovement(unitId)` is called
+- **THEN** `interactiveSession.getAvailableActions(unitId)` SHALL be called
+- **AND** `ui.selectedUnitId` SHALL be set to the unit ID
+- **AND** `interactivePhase` SHALL be set to InteractivePhase.SelectMovement
+- **AND** `validMovementHexes` SHALL be set to the available moves from the actions
+
+#### Scenario: Move unit to target hex
+
+- **GIVEN** a unit ID and a target hex
+- **WHEN** `moveUnit(unitId, targetHex)` is called
+- **THEN** `interactiveSession.applyMovement(unitId, targetHex, Facing.North, MovementType.Walk)` SHALL be called
+- **AND** `session` SHALL be updated to `interactiveSession.getSession()`
+- **AND** `interactivePhase` SHALL be set to InteractivePhase.SelectUnit
+- **AND** `validMovementHexes` SHALL be cleared
+- **AND** `ui.selectedUnitId` SHALL be set to null
+
+### Requirement: Interactive Combat
+
+The store SHALL manage interactive attack target selection and weapon firing.
+
+#### Scenario: Select attack target
+
+- **GIVEN** an attacker unit is selected and a target unit ID is provided
+- **WHEN** `selectAttackTarget(targetUnitId)` is called
+- **THEN** the attacker and target states SHALL be retrieved from `interactiveSession.getState()`
+- **AND** a base hit chance SHALL be calculated (58% for gunnery 4)
+- **AND** `ui.targetUnitId` SHALL be set to the target ID
+- **AND** `interactivePhase` SHALL be set to InteractivePhase.SelectWeapons
+- **AND** `hitChance` SHALL be set to the calculated value
+
+#### Scenario: Fire weapons at target
+
+- **GIVEN** a selected unit, target unit, and queued weapons
+- **WHEN** `fireWeapons()` is called
+- **THEN** `interactiveSession.applyAttack(selectedUnitId, targetUnitId, weaponIds)` SHALL be called
+- **AND** if the game is over, `interactivePhase` SHALL be set to InteractivePhase.GameOver
+- **AND** otherwise, `interactivePhase` SHALL be set to InteractivePhase.SelectUnit
+- **AND** `validTargetIds`, `hitChance`, `selectedUnitId`, `targetUnitId`, and `queuedWeaponIds` SHALL be cleared
+
+### Requirement: AI Turn Execution
+
+The store SHALL execute AI turns for the opponent side.
+
+#### Scenario: Run AI turn
+
+- **GIVEN** an interactive session in Movement phase
+- **WHEN** `runAITurn()` is called
+- **THEN** `interactivePhase` SHALL be set to InteractivePhase.AITurn
+- **AND** `interactiveSession.runAITurn(GameSide.Opponent)` SHALL be called
+- **AND** `interactiveSession.advancePhase()` SHALL be called to advance to WeaponAttack
+- **AND** `interactiveSession.runAITurn(GameSide.Opponent)` SHALL be called again
+- **AND** `interactiveSession.advancePhase()` SHALL be called to advance to Heat
+- **AND** `interactiveSession.advancePhase()` SHALL be called to advance to End
+- **AND** if the game is over, `interactivePhase` SHALL be set to InteractivePhase.GameOver
+- **AND** otherwise, `interactivePhase` SHALL be set to InteractivePhase.SelectUnit
+
+### Requirement: Phase Advancement
+
+The store SHALL advance game phases and handle phase transitions.
+
+#### Scenario: Advance interactive phase
+
+- **GIVEN** an interactive session in Initiative phase
+- **WHEN** `advanceInteractivePhase()` is called
+- **THEN** `interactiveSession.advancePhase()` SHALL be called (rolls initiative, goes to Movement)
+- **AND** `session` SHALL be updated to `interactiveSession.getSession()`
+- **AND** if the game is over, `interactivePhase` SHALL be set to InteractivePhase.GameOver
+- **AND** otherwise, `interactivePhase` SHALL be set to InteractivePhase.SelectUnit
+- **AND** `validMovementHexes`, `validTargetIds`, `hitChance`, and UI selections SHALL be cleared
+
+#### Scenario: Skip phase
+
+- **GIVEN** an interactive session
+- **WHEN** `skipPhase()` is called
+- **THEN** `interactiveSession.advancePhase()` SHALL be called
+- **AND** `session` SHALL be updated to `interactiveSession.getSession()`
+- **AND** if the game is over, `interactivePhase` SHALL be set to InteractivePhase.GameOver
+- **AND** otherwise, `interactivePhase` SHALL be set to InteractivePhase.SelectUnit
+- **AND** `validMovementHexes`, `validTargetIds`, `hitChance`, and UI selections SHALL be cleared
+
+### Requirement: Game Actions
+
+The store SHALL handle game actions like lock, undo, skip, next-turn, and concede.
+
+#### Scenario: Lock movement
+
+- **GIVEN** a selected unit in Movement phase
+- **WHEN** `handleAction('lock')` is called
+- **THEN** `lockMovement(session, selectedUnitId)` SHALL be called
+- **AND** `session` SHALL be updated to the returned session
+
+#### Scenario: Undo last event
+
+- **GIVEN** a session with multiple events
+- **WHEN** `handleAction('undo')` is called
+- **THEN** the last event SHALL be removed from the events array
+- **AND** `replayToSequence(session, previousSequence)` SHALL be called to derive the previous state
+- **AND** `session` SHALL be updated with the new events array and replayed state
+
+#### Scenario: Skip to next phase
+
+- **GIVEN** a session where `canAdvancePhase(session)` returns true
+- **WHEN** `handleAction('skip')` is called
+- **THEN** `advancePhase(session)` SHALL be called
+- **AND** `session` SHALL be updated to the returned session
+
+#### Scenario: Next turn
+
+- **GIVEN** a session in End or Initiative phase
+- **WHEN** `handleAction('next-turn')` is called
+- **THEN** if in End phase, `advancePhase(session)` SHALL be called to go to Initiative
+- **AND** `rollInitiative(session)` SHALL be called
+- **AND** `advancePhase(session)` SHALL be called to go to Movement
+- **AND** `session` SHALL be updated to the final session
+
+#### Scenario: Concede game
+
+- **GIVEN** an active session
+- **WHEN** `handleAction('concede')` is called
+- **THEN** `endGame(session, GameSide.Opponent, 'concede')` SHALL be called
+- **AND** `session` SHALL be updated to the returned session
+
+### Requirement: Interactive Hex and Token Clicks
+
+The store SHALL handle hex and token clicks for interactive gameplay.
+
+#### Scenario: Click hex during movement selection
+
+- **GIVEN** `interactivePhase` is SelectMovement and a unit is selected
+- **WHEN** `handleInteractiveHexClick(hex)` is called
+- **THEN** `moveUnit(selectedUnitId, hex)` SHALL be called
+
+#### Scenario: Click player unit during movement phase
+
+- **GIVEN** a player unit in Movement phase
+- **WHEN** `handleInteractiveTokenClick(unitId)` is called
+- **THEN** `selectUnitForMovement(unitId)` SHALL be called
+
+#### Scenario: Click player unit during weapon attack phase
+
+- **GIVEN** a player unit in WeaponAttack phase and interactivePhase is SelectUnit
+- **WHEN** `handleInteractiveTokenClick(unitId)` is called
+- **THEN** `ui.selectedUnitId` SHALL be set to the unit ID
+- **AND** `interactivePhase` SHALL be set to InteractivePhase.SelectTarget
+- **AND** `validTargetIds` SHALL be set to all opponent units that are not destroyed
+
+#### Scenario: Click opponent unit during target selection
+
+- **GIVEN** an opponent unit in WeaponAttack phase and interactivePhase is SelectTarget
+- **WHEN** `handleInteractiveTokenClick(unitId)` is called
+- **THEN** `selectAttackTarget(unitId)` SHALL be called
+
+### Requirement: Game Over Check
+
+The store SHALL check for game over conditions.
+
+#### Scenario: Check game over
+
+- **GIVEN** an interactive session where `isGameOver()` returns true
+- **WHEN** `checkGameOver()` is called
+- **THEN** `interactiveSession.getResult()` SHALL be called
+- **AND** `interactivePhase` SHALL be set to InteractivePhase.GameOver
+- **AND** true SHALL be returned
+
+#### Scenario: Game not over
+
+- **GIVEN** an interactive session where `isGameOver()` returns false
+- **WHEN** `checkGameOver()` is called
+- **THEN** false SHALL be returned
+
+### Requirement: Store Reset
+
+The store SHALL support resetting to initial state.
+
+#### Scenario: Reset store
+
+- **GIVEN** a store with active session and UI state
+- **WHEN** `reset()` is called
+- **THEN** all state fields SHALL be reset to `initialState` values
+
+---
+
+## Quick Game Store
+
+The Quick Game Store is a Zustand store that manages standalone quick game sessions with session storage persistence.
+
+**Implementation**: `src/stores/useQuickGameStore.ts`
+
+### Requirement: Session Storage Persistence
+
+The store SHALL persist game state to session storage and restore on page refresh.
+
+#### Scenario: Persist game state
+
+- **GIVEN** a quick game instance exists
+- **WHEN** any state-modifying action is called
+- **THEN** the `game` field SHALL be persisted to session storage under the key `QUICK_GAME_STORAGE_KEY`
+- **AND** `isDirty` SHALL be set to true
+
+#### Scenario: Restore game state on page refresh
+
+- **GIVEN** a persisted game exists in session storage
+- **WHEN** the store is initialized
+- **THEN** the `game` field SHALL be restored from session storage
+- **AND** `restoreFromSession()` SHALL return true
+
+#### Scenario: No persisted game
+
+- **GIVEN** no persisted game exists in session storage
+- **WHEN** the store is initialized
+- **THEN** `game` SHALL be null
+- **AND** `restoreFromSession()` SHALL return false
+
+### Requirement: Game Lifecycle
+
+The store SHALL manage quick game lifecycle (start, clear, save).
+
+#### Scenario: Start new game
+
+- **GIVEN** the store is initialized
+- **WHEN** `startNewGame()` is called
+- **THEN** a new IQuickGameInstance SHALL be created via `createQuickGameInstance()`
+- **AND** `game` SHALL be set to the new instance
+- **AND** `isDirty` SHALL be set to true
+- **AND** `error` SHALL be set to null
+
+#### Scenario: Clear game
+
+- **GIVEN** an active game exists
+- **WHEN** `clearGame()` is called
+- **THEN** `game` SHALL be set to null
+- **AND** `isDirty` SHALL be set to false
+- **AND** `error` SHALL be set to null
+
+#### Scenario: Save to session
+
+- **GIVEN** an active game with isDirty=true
+- **WHEN** `saveToSession()` is called
+- **THEN** `isDirty` SHALL be set to false
+- **AND** the game SHALL be persisted to session storage (handled by middleware)
+
+### Requirement: Unit Management
+
+The store SHALL manage player force units (add, remove, update skills).
+
+#### Scenario: Add unit to player force
+
+- **GIVEN** an active game and an IQuickGameUnitRequest
+- **WHEN** `addUnit(request)` is called
+- **THEN** a new IQuickGameUnit SHALL be created via `createQuickGameUnit(request)`
+- **AND** the unit SHALL be added to `game.playerForce.units`
+- **AND** `game.playerForce.totalBV` and `totalTonnage` SHALL be recalculated via `calculateForceTotals(units)`
+- **AND** `isDirty` SHALL be set to true
+
+#### Scenario: Remove unit from player force
+
+- **GIVEN** an active game with units
+- **WHEN** `removeUnit(instanceId)` is called
+- **THEN** the unit with matching `instanceId` SHALL be removed from `game.playerForce.units`
+- **AND** `game.playerForce.totalBV` and `totalTonnage` SHALL be recalculated via `calculateForceTotals(units)`
+- **AND** `isDirty` SHALL be set to true
+
+#### Scenario: Update unit skills
+
+- **GIVEN** an active game with units
+- **WHEN** `updateUnitSkills(instanceId, gunnery, piloting)` is called
+- **THEN** the unit with matching `instanceId` SHALL have its `gunnery` and `piloting` fields updated
+- **AND** `isDirty` SHALL be set to true
+
+### Requirement: Scenario Configuration
+
+The store SHALL manage scenario configuration and generation.
+
+#### Scenario: Set scenario config
+
+- **GIVEN** an active game and partial IQuickGameScenarioConfig
+- **WHEN** `setScenarioConfig(config)` is called
+- **THEN** `game.scenarioConfig` SHALL be updated with the provided config (merged)
+- **AND** `isDirty` SHALL be set to true
+
+#### Scenario: Generate scenario
+
+- **GIVEN** an active game with at least one player unit
+- **WHEN** `generateScenario()` is called
+- **THEN** `isLoading` SHALL be set to true
+- **AND** `scenarioGenerator.generate()` SHALL be called with config mapped from `game.scenarioConfig` and `game.playerForce`
+- **AND** the generated scenario SHALL be set in `game.scenario`
+- **AND** opponent units SHALL be created from `scenario.opFor.units` via `createQuickGameUnit()`
+- **AND** `game.opponentForce` SHALL be set with the opponent units and totals
+- **AND** `isLoading` SHALL be set to false
+- **AND** `isDirty` SHALL be set to true
+
+#### Scenario: Generate scenario with no units
+
+- **GIVEN** an active game with no player units
+- **WHEN** `generateScenario()` is called
+- **THEN** `error` SHALL be set to "Add at least one unit to generate scenario"
+
+### Requirement: Step Navigation
+
+The store SHALL manage step navigation (SelectUnits → ConfigureScenario → Review).
+
+#### Scenario: Next step
+
+- **GIVEN** an active game in SelectUnits step with at least one unit
+- **WHEN** `nextStep()` is called
+- **THEN** `game.step` SHALL be set to ConfigureScenario
+- **AND** `isDirty` SHALL be set to true
+- **AND** `error` SHALL be set to null
+
+#### Scenario: Next step validation failure
+
+- **GIVEN** an active game in SelectUnits step with no units
+- **WHEN** `nextStep()` is called
+- **THEN** `error` SHALL be set to "Add at least one unit to continue"
+- **AND** `game.step` SHALL remain SelectUnits
+
+#### Scenario: Previous step
+
+- **GIVEN** an active game in ConfigureScenario step
+- **WHEN** `previousStep()` is called
+- **THEN** `game.step` SHALL be set to SelectUnits
+- **AND** `isDirty` SHALL be set to true
+- **AND** `error` SHALL be set to null
+
+### Requirement: Game Control
+
+The store SHALL manage game start, battle resolution, and spectator mode.
+
+#### Scenario: Start game
+
+- **GIVEN** an active game where `canStartGame(game)` returns true
+- **WHEN** `startGame()` is called
+- **THEN** `game.status` SHALL be set to GameStatus.Active
+- **AND** `game.step` SHALL be set to QuickGameStep.Playing
+- **AND** `game.turn` SHALL be set to 1
+- **AND** `game.phase` SHALL be set to GamePhase.Initiative
+- **AND** `isDirty` SHALL be set to true
+
+#### Scenario: Start battle (auto-resolve)
+
+- **GIVEN** an active game with player and opponent forces
+- **WHEN** `startBattle()` is called
+- **THEN** `isLoading` SHALL be set to true
+- **AND** player units SHALL be adapted via `adaptUnit()` for each unit
+- **AND** opponent units SHALL be adapted via `adaptUnit()` for each unit
+- **AND** a GameEngine instance SHALL be created
+- **AND** `engine.runToCompletion(playerAdapted, opponentAdapted, gameUnits)` SHALL be called
+- **AND** the resulting session SHALL be set in the gameplay store via `useGameplayStore.getState().setSession(session)`
+- **AND** `game.status` SHALL be set to GameStatus.Completed
+- **AND** `game.step` SHALL be set to QuickGameStep.Results
+- **AND** `game.winner` SHALL be set based on `session.currentState.result.winner`
+- **AND** `game.victoryReason` SHALL be set from `session.currentState.result.reason`
+- **AND** `game.endedAt` SHALL be set to the current ISO timestamp
+- **AND** `game.events` SHALL be set to `session.events`
+- **AND** `isLoading` SHALL be set to false
+
+#### Scenario: Start spectator mode
+
+- **GIVEN** an active game with player and opponent forces
+- **WHEN** `startSpectatorMode()` is called
+- **THEN** `isLoading` SHALL be set to true
+- **AND** player and opponent units SHALL be adapted via `adaptUnit()`
+- **AND** a GameEngine instance SHALL be created
+- **AND** `engine.createInteractiveSession(playerAdapted, opponentAdapted, gameUnits)` SHALL be called
+- **AND** the interactive session SHALL be set in the gameplay store via `useGameplayStore.getState().setSpectatorMode(interactiveSession, {enabled: true, playing: true, speed: 1})`
+- **AND** `game.status` SHALL be set to GameStatus.Active
+- **AND** `game.step` SHALL be set to QuickGameStep.Playing
+- **AND** `isLoading` SHALL be set to false
+
+### Requirement: Event Recording and Game End
+
+The store SHALL record game events and handle game end.
+
+#### Scenario: Record event
+
+- **GIVEN** an active game
+- **WHEN** `recordEvent(event)` is called
+- **THEN** the event SHALL be appended to `game.events`
+- **AND** `isDirty` SHALL be set to true
+
+#### Scenario: End game
+
+- **GIVEN** an active game
+- **WHEN** `endGame(winner, reason)` is called
+- **THEN** `game.status` SHALL be set to GameStatus.Completed
+- **AND** `game.step` SHALL be set to QuickGameStep.Results
+- **AND** `game.winner` SHALL be set to the provided winner
+- **AND** `game.victoryReason` SHALL be set to the provided reason
+- **AND** `game.endedAt` SHALL be set to the current ISO timestamp
+- **AND** `isDirty` SHALL be set to true
+
+### Requirement: Play Again
+
+The store SHALL support restarting a game with or without resetting units.
+
+#### Scenario: Play again with same units
+
+- **GIVEN** a completed game
+- **WHEN** `playAgain(resetUnits=false)` is called
+- **THEN** a new IQuickGameInstance SHALL be created
+- **AND** player units SHALL be copied from the previous game with new `instanceId` values
+- **AND** unit damage SHALL be reset (heat=0, isDestroyed=false, armor/structure restored to max)
+- **AND** `game.scenarioConfig` SHALL be copied from the previous game
+- **AND** `isDirty` SHALL be set to true
+
+#### Scenario: Play again with reset units
+
+- **GIVEN** a completed game
+- **WHEN** `playAgain(resetUnits=true)` is called
+- **THEN** a new IQuickGameInstance SHALL be created with default empty player force
+- **AND** `isDirty` SHALL be set to true
+
+---
+
+## Encounter Status Utilities
+
+The Encounter Status Utilities provide shared functions for displaying encounter status across the UI.
+
+**Implementation**: `src/utils/encounterStatus.ts`
+
+### Requirement: Status Color Mapping
+
+The utilities SHALL map EncounterStatus values to StatusBadgeColor variants.
+
+#### Scenario: Get color for Draft status
+
+- **GIVEN** EncounterStatus.Draft
+- **WHEN** `getStatusColor(status)` is called
+- **THEN** 'slate' SHALL be returned
+
+#### Scenario: Get color for Ready status
+
+- **GIVEN** EncounterStatus.Ready
+- **WHEN** `getStatusColor(status)` is called
+- **THEN** 'success' SHALL be returned
+
+#### Scenario: Get color for Launched status
+
+- **GIVEN** EncounterStatus.Launched
+- **WHEN** `getStatusColor(status)` is called
+- **THEN** 'info' SHALL be returned
+
+#### Scenario: Get color for Completed status
+
+- **GIVEN** EncounterStatus.Completed
+- **WHEN** `getStatusColor(status)` is called
+- **THEN** 'slate' SHALL be returned
+
+#### Scenario: Get color for unknown status
+
+- **GIVEN** an unknown status value
+- **WHEN** `getStatusColor(status)` is called
+- **THEN** 'slate' SHALL be returned (default)
+
+### Requirement: Status Label Mapping
+
+The utilities SHALL map EncounterStatus values to human-readable labels.
+
+#### Scenario: Get label for Draft status
+
+- **GIVEN** EncounterStatus.Draft
+- **WHEN** `getStatusLabel(status)` is called
+- **THEN** 'Draft' SHALL be returned
+
+#### Scenario: Get label for Ready status (non-verbose)
+
+- **GIVEN** EncounterStatus.Ready and verbose=false
+- **WHEN** `getStatusLabel(status, verbose)` is called
+- **THEN** 'Ready' SHALL be returned
+
+#### Scenario: Get label for Ready status (verbose)
+
+- **GIVEN** EncounterStatus.Ready and verbose=true
+- **WHEN** `getStatusLabel(status, verbose)` is called
+- **THEN** 'Ready to Launch' SHALL be returned
+
+#### Scenario: Get label for Launched status
+
+- **GIVEN** EncounterStatus.Launched
+- **WHEN** `getStatusLabel(status)` is called
+- **THEN** 'In Progress' SHALL be returned
+
+#### Scenario: Get label for Completed status
+
+- **GIVEN** EncounterStatus.Completed
+- **WHEN** `getStatusLabel(status)` is called
+- **THEN** 'Completed' SHALL be returned
+
+#### Scenario: Get label for unknown status
+
+- **GIVEN** an unknown status value
+- **WHEN** `getStatusLabel(status)` is called
+- **THEN** the raw status string SHALL be returned
+
+---
+
+## Data Model Requirements
+
+### IEncounter
+
+```typescript
+interface IEncounter {
+  id: string;
+  name: string;
+  description: string | null;
+  status: EncounterStatus;
+  playerForceId: string | null;
+  opponentForceId: string | null;
+  playerForce: {
+    forceId: string;
+    forceName: string;
+    totalBV: number;
+    unitCount: number;
+  } | null;
+  opponentForce: {
+    forceId: string;
+    forceName: string;
+    totalBV: number;
+    unitCount: number;
+  } | null;
+  scenarioTemplate: ScenarioTemplateType | null;
+  mapId: string | null;
+  turnLimit: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+### IEncounterValidationResult
+
+```typescript
+interface IEncounterValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+```
+
+### EncounterStatus
+
+```typescript
+enum EncounterStatus {
+  Draft = 'draft',
+  Ready = 'ready',
+  Launched = 'launched',
+  Completed = 'completed',
+}
+```
+
+### ScenarioTemplateType
+
+```typescript
+type ScenarioTemplateType = 'skirmish' | 'ambush' | 'holdout' | 'custom';
+```
+
+### IGameSession
+
+```typescript
+interface IGameSession {
+  id: string;
+  config: IGameConfig;
+  units: IGameUnit[];
+  events: IGameEvent[];
+  currentState: IGameState;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+### IGameplayUIState
+
+```typescript
+interface IGameplayUIState {
+  selectedUnitId: string | null;
+  targetUnitId: string | null;
+  queuedWeaponIds: string[];
+}
+
+const DEFAULT_UI_STATE: IGameplayUIState = {
+  selectedUnitId: null,
+  targetUnitId: null,
+  queuedWeaponIds: [],
+};
+```
+
+### IWeaponStatus
+
+```typescript
+interface IWeaponStatus {
+  id: string;
+  name: string;
+  damage: number;
+  heat: number;
+  minRange: number;
+  shortRange: number;
+  mediumRange: number;
+  longRange: number;
+  isEnabled: boolean;
+  ammoRemaining?: number;
+}
+```
+
+### GamePhase
+
+```typescript
+enum GamePhase {
+  Initiative = 'initiative',
+  Movement = 'movement',
+  WeaponAttack = 'weapon_attack',
+  PhysicalAttack = 'physical_attack',
+  Heat = 'heat',
+  End = 'end',
+}
+```
+
+### GameSide
+
+```typescript
+enum GameSide {
+  Player = 'player',
+  Opponent = 'opponent',
+}
+```
+
+### Facing
+
+```typescript
+enum Facing {
+  North = 0,
+  NorthEast = 1,
+  SouthEast = 2,
+  South = 3,
+  SouthWest = 4,
+  NorthWest = 5,
+}
+```
+
+### MovementType
+
+```typescript
+enum MovementType {
+  None = 'none',
+  Walk = 'walk',
+  Run = 'run',
+  Jump = 'jump',
+}
+```
+
+### IQuickGameState
+
+```typescript
+interface IQuickGameState {
+  game: IQuickGameInstance | null;
+  isLoading: boolean;
+  error: string | null;
+  isDirty: boolean;
+}
+```
+
+### IQuickGameActions
+
+```typescript
+interface IQuickGameActions {
+  startNewGame: () => void;
+  clearGame: () => void;
+  clearError: () => void;
+  addUnit: (request: IQuickGameUnitRequest) => void;
+  removeUnit: (instanceId: string) => void;
+  updateUnitSkills: (
+    instanceId: string,
+    gunnery: number,
+    piloting: number,
+  ) => void;
+  setScenarioConfig: (config: Partial<IQuickGameScenarioConfig>) => void;
+  generateScenario: () => void;
+  nextStep: () => void;
+  previousStep: () => void;
+  startGame: () => void;
+  startBattle: () => Promise<void>;
+  startSpectatorMode: () => Promise<void>;
+  recordEvent: (event: IGameEvent) => void;
+  endGame: (winner: 'player' | 'opponent' | 'draw', reason: string) => void;
+  playAgain: (resetUnits: boolean) => void;
+  restoreFromSession: () => boolean;
+  saveToSession: () => void;
+}
+```
+
+### IQuickGameUnitRequest
+
+```typescript
+interface IQuickGameUnitRequest {
+  sourceUnitId: string;
+  name: string;
+  chassis: string;
+  variant: string;
+  bv: number;
+  tonnage: number;
+  gunnery: number;
+  piloting: number;
+  pilotName?: string;
+  maxArmor: Record<string, number>;
+  maxStructure: Record<string, number>;
+}
+```

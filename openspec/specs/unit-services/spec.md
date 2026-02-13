@@ -573,3 +573,730 @@ The system SHALL support keyboard shortcut for quick save.
 - **AND** create new custom unit on confirm
 
 ---
+
+### Requirement: Unit Context Hook
+
+The system SHALL provide a React hook for accessing the active unit context.
+
+**Rationale**: Components need access to current unit state and operations without prop drilling.
+
+**Priority**: Critical
+
+**Source**: `src/hooks/useUnit.ts:1-180`
+
+#### Scenario: Access active unit tab
+
+- **GIVEN** a unit tab is active in the customizer
+- **WHEN** useUnit() is called
+- **THEN** return UnitContext with current tab data
+- **AND** include isLoading, hasUnsavedChanges flags
+- **AND** include allTabs array and activeTabId
+
+#### Scenario: Create new unit
+
+- **GIVEN** useUnit() hook is active
+- **WHEN** createNewUnit(tonnage, techBase) is called
+- **THEN** find matching UNIT_TEMPLATES entry
+- **AND** create new tab with template data
+- **AND** return new tab ID
+
+#### Scenario: Duplicate current unit
+
+- **GIVEN** an active unit tab exists
+- **WHEN** duplicateCurrentUnit() is called
+- **THEN** clone active tab state
+- **AND** create new tab with cloned data
+- **AND** return new tab ID
+
+#### Scenario: Rename unit
+
+- **GIVEN** an active unit tab exists
+- **WHEN** renameUnit(name) is called
+- **THEN** update active tab name
+- **AND** mark tab as modified
+
+#### Scenario: Mark modified
+
+- **GIVEN** an active unit tab exists
+- **WHEN** markModified() is called
+- **THEN** set isModified flag to true
+- **AND** update lastModifiedAt timestamp
+
+#### Scenario: Mark saved
+
+- **GIVEN** an active unit tab exists with unsaved changes
+- **WHEN** markSaved() is called
+- **THEN** set isModified flag to false
+- **AND** clear unsaved changes indicator
+
+---
+
+### Requirement: Unit Calculations Hook
+
+The system SHALL compute derived values from component selections.
+
+**Rationale**: Weight, slots, heat, and movement calculations must stay synchronized with component changes.
+
+**Priority**: Critical
+
+**Source**: `src/hooks/useUnitCalculations.ts:1-244`
+
+#### Scenario: Calculate engine weight
+
+- **GIVEN** engine type and rating are selected
+- **WHEN** useUnitCalculations(tonnage, selections) is called
+- **THEN** calculate engine weight via calculateEngineWeight()
+- **AND** return engineWeight in UnitCalculations
+
+#### Scenario: Calculate gyro weight
+
+- **GIVEN** gyro type and engine rating are selected
+- **WHEN** useUnitCalculations() is called
+- **THEN** calculate gyro weight via calculateGyroWeight()
+- **AND** return gyroWeight in UnitCalculations
+
+#### Scenario: Calculate heat sink weight
+
+- **GIVEN** heat sink type and count are selected
+- **WHEN** useUnitCalculations() is called
+- **THEN** calculate integral heat sinks (engine-integrated)
+- **AND** calculate external heat sinks (count - integral)
+- **AND** apply weight only to heat sinks beyond first 10
+- **AND** return heatSinkWeight in UnitCalculations
+
+#### Scenario: Calculate armor weight
+
+- **GIVEN** armor tonnage is set by user
+- **WHEN** useUnitCalculations(tonnage, selections, armorTonnage) is called
+- **THEN** use armorTonnage directly (not calculated from points)
+- **AND** return armorWeight in UnitCalculations
+
+#### Scenario: Calculate jump jet weight
+
+- **GIVEN** jump MP and jump jet type are selected
+- **WHEN** useUnitCalculations() is called
+- **THEN** calculate jump jet weight via calculateJumpJetWeight()
+- **AND** calculate jump jet slots via calculateJumpJetSlots()
+- **AND** return jumpJetWeight and jumpJetSlots
+
+#### Scenario: Calculate total structural weight
+
+- **GIVEN** all component selections are made
+- **WHEN** useUnitCalculations() is called
+- **THEN** sum engine + gyro + structure + cockpit + heat sinks + armor + jump jets
+- **AND** return totalStructuralWeight
+
+#### Scenario: Calculate critical slots
+
+- **GIVEN** all component selections are made
+- **WHEN** useUnitCalculations() is called
+- **THEN** calculate engine slots (CT + side torsos)
+- **AND** calculate gyro slots
+- **AND** calculate cockpit slots (head + other)
+- **AND** calculate actuator slots (16 fixed)
+- **AND** return totalSystemSlots (excludes equipment array items)
+
+#### Scenario: Calculate movement points
+
+- **GIVEN** engine rating and tonnage are selected
+- **WHEN** useUnitCalculations() is called
+- **THEN** calculate walkMP = floor(rating / tonnage)
+- **AND** calculate runMP = ceil(walkMP × 1.5)
+- **AND** return walkMP, runMP, jumpMP
+
+#### Scenario: Calculate heat dissipation
+
+- **GIVEN** heat sink type and count are selected
+- **WHEN** useUnitCalculations() is called
+- **THEN** calculate dissipation per sink from heat sink definition
+- **AND** calculate totalHeatDissipation = count × dissipation
+- **AND** return integralHeatSinks, externalHeatSinks, totalHeatDissipation
+
+---
+
+### Requirement: Unit Validation Hook
+
+The system SHALL provide real-time validation with debouncing.
+
+**Rationale**: Validation must run automatically but not on every keystroke to avoid performance issues.
+
+**Priority**: Critical
+
+**Source**: `src/hooks/useUnitValidation.ts:1-452`
+
+#### Scenario: Initialize validation rules
+
+- **GIVEN** useUnitValidation() is called for first time
+- **WHEN** component mounts
+- **THEN** call initializeUnitValidationRules() once
+- **AND** set hasInitialized flag to prevent re-initialization
+
+#### Scenario: Debounce validation
+
+- **GIVEN** user is making rapid changes to unit
+- **WHEN** component selections change
+- **THEN** set isValidating flag to true
+- **AND** debounce validation snapshot by 300ms (default)
+- **AND** clear isValidating flag when debounced snapshot updates
+
+#### Scenario: Build validatable unit
+
+- **GIVEN** debounced snapshot is ready
+- **WHEN** validation runs
+- **THEN** extract metadata, weightData, armorData, equipmentData, structureData
+- **AND** build IValidatableUnit object
+- **AND** call validateUnit() from UnitValidationOrchestrator
+
+#### Scenario: Map validation result
+
+- **GIVEN** validation completes successfully
+- **WHEN** result is returned
+- **THEN** count critical errors separately from regular errors
+- **AND** map to ValidationStatus (error/warning/info/valid)
+- **AND** return UnitValidationState with status, counts, isValid, hasCriticalErrors
+
+#### Scenario: Handle validation error
+
+- **GIVEN** validation throws exception
+- **WHEN** error is caught
+- **THEN** log warning via logger
+- **AND** return error state with errorCount=1, hasCriticalErrors=true
+
+#### Scenario: Disable validation
+
+- **GIVEN** useUnitValidation({ disabled: true }) is called
+- **WHEN** validation runs
+- **THEN** return DEFAULT_STATE immediately
+- **AND** skip validation logic
+
+#### Scenario: Custom debounce delay
+
+- **GIVEN** useUnitValidation({ debounceMs: 500 }) is called
+- **WHEN** component selections change
+- **THEN** debounce validation by 500ms instead of default 300ms
+
+---
+
+### Requirement: Unit Store Architecture
+
+The system SHALL provide a Zustand store with context provider and action slices.
+
+**Rationale**: Unit state management requires isolated stores per unit with domain-specific action slices.
+
+**Priority**: Critical
+
+**Source**: `src/stores/useUnitStore.ts:1-19`, `src/stores/unit/useUnitStore.ts:1-140`
+
+#### Scenario: Create unit store
+
+- **GIVEN** initial UnitState is provided
+- **WHEN** createUnitStore(initialState) is called
+- **THEN** create Zustand store with persist middleware
+- **AND** compose armor, equipment, structure, tech base action slices
+- **AND** configure persistence with name `megamek-unit-${id}`
+- **AND** return StoreApi<UnitStore>
+
+#### Scenario: Create new unit store
+
+- **GIVEN** CreateUnitOptions are provided
+- **WHEN** createNewUnitStore(options) is called
+- **THEN** call createDefaultUnitState(options)
+- **AND** call createUnitStore(initialState)
+- **AND** return StoreApi<UnitStore>
+
+#### Scenario: Use unit store in component
+
+- **GIVEN** component is wrapped in UnitStoreProvider
+- **WHEN** useUnitStore(selector) is called
+- **THEN** get store from UnitStoreContext
+- **AND** throw error if context is null
+- **AND** return selected state via useStore(store, selector)
+
+#### Scenario: Access store API
+
+- **GIVEN** component is wrapped in UnitStoreProvider
+- **WHEN** useUnitStoreApi() is called
+- **THEN** get store from UnitStoreContext
+- **AND** throw error if context is null
+- **AND** return StoreApi<UnitStore>
+
+#### Scenario: Persist unit state
+
+- **GIVEN** unit store is created with persist middleware
+- **WHEN** state changes
+- **THEN** serialize partialize() fields to localStorage
+- **AND** use clientSafeStorage for SSR safety
+- **AND** skip hydration (manual hydration via registry)
+
+---
+
+### Requirement: Unit Store Action Slices
+
+The system SHALL decompose unit actions into domain-specific slices.
+
+**Rationale**: Large stores become unmaintainable; slices provide clear separation of concerns.
+
+**Priority**: High
+
+**Source**: `src/stores/unit/useUnitArmorStore.ts:1-100`, `src/stores/unit/useUnitEquipmentStore.ts:1-100`, `src/stores/unit/useUnitStructureStore.ts:1-100`
+
+#### Scenario: Armor slice actions
+
+- **GIVEN** armor slice is composed into unit store
+- **WHEN** setArmorTonnage(tonnage) is called
+- **THEN** clamp tonnage to >= 0
+- **AND** set isModified flag and lastModifiedAt timestamp
+
+#### Scenario: Set location armor
+
+- **GIVEN** armor slice is active
+- **WHEN** setLocationArmor(location, front, rear) is called
+- **THEN** clamp front armor to [0, maxArmor]
+- **AND** clamp rear armor to [0, maxArmor - front] for torso locations
+- **AND** update armorAllocation object
+
+#### Scenario: Auto-allocate armor
+
+- **GIVEN** armor tonnage is set
+- **WHEN** autoAllocateArmor() is called
+- **THEN** calculate available points from armor tonnage
+- **AND** call calculateOptimalArmorAllocation()
+- **AND** update armorAllocation with optimal distribution
+
+#### Scenario: Equipment slice actions
+
+- **GIVEN** equipment slice is composed into unit store
+- **WHEN** addEquipment(item) is called
+- **THEN** create IMountedEquipmentInstance with unique ID
+- **AND** recalculate targeting computers if item is weapon
+- **AND** append to equipment array
+
+#### Scenario: Remove equipment
+
+- **GIVEN** equipment instance exists
+- **WHEN** removeEquipment(instanceId) is called
+- **THEN** filter out instance from equipment array
+- **AND** recalculate targeting computers if removed item was weapon
+
+#### Scenario: Update equipment location
+
+- **GIVEN** equipment instance exists
+- **WHEN** updateEquipmentLocation(instanceId, location, slots) is called
+- **THEN** find instance in equipment array
+- **AND** update location and slots fields
+- **AND** set isModified flag
+
+#### Scenario: Link ammo to weapon
+
+- **GIVEN** weapon and ammo instances exist
+- **WHEN** linkAmmo(weaponInstanceId, ammoInstanceId) is called
+- **THEN** update weapon instance with linkedAmmoId
+- **AND** set isModified flag
+
+#### Scenario: Structure slice actions
+
+- **GIVEN** structure slice is composed into unit store
+- **WHEN** setEngineType(type) is called
+- **THEN** check for equipment displacement via getEquipmentDisplacedByEngineChange()
+- **AND** apply displacement via applyDisplacement()
+- **AND** update engineType
+
+#### Scenario: Set gyro type
+
+- **GIVEN** structure slice is active
+- **WHEN** setGyroType(type) is called
+- **THEN** check for equipment displacement via getEquipmentDisplacedByGyroChange()
+- **AND** apply displacement via applyDisplacement()
+- **AND** update gyroType
+
+#### Scenario: Set heat sink count
+
+- **GIVEN** structure slice is active
+- **WHEN** setHeatSinkCount(count) is called
+- **THEN** filter out existing heat sink equipment
+- **AND** create new heat sink equipment list via createHeatSinkEquipmentList()
+- **AND** append to equipment array
+
+#### Scenario: Set jump MP
+
+- **GIVEN** structure slice is active
+- **WHEN** setJumpMP(jumpMP) is called
+- **THEN** clamp jumpMP to [0, maxJumpMP]
+- **AND** filter out existing jump jet equipment
+- **AND** create new jump jet equipment list via createJumpJetEquipmentList()
+- **AND** append to equipment array
+
+---
+
+## Data Model Requirements
+
+### UnitContext
+
+**Source**: `src/hooks/useUnit.ts:27-50`
+
+```typescript
+interface UnitContext {
+  // Current unit tab
+  readonly tab: UnitTab | null;
+  readonly isLoading: boolean;
+  readonly hasUnsavedChanges: boolean;
+
+  // All tabs
+  readonly allTabs: readonly UnitTab[];
+  readonly activeTabId: string | null;
+
+  // Actions
+  readonly selectTab: (tabId: string) => void;
+  readonly createNewUnit: (tonnage: number, techBase?: TechBase) => string;
+  readonly duplicateCurrentUnit: () => string | null;
+  readonly closeTab: (tabId: string) => void;
+  readonly renameUnit: (name: string) => void;
+  readonly markModified: () => void;
+  readonly markSaved: () => void;
+
+  // Modal state
+  readonly isNewTabModalOpen: boolean;
+  readonly openNewTabModal: () => void;
+  readonly closeNewTabModal: () => void;
+}
+```
+
+**Requirements**:
+
+- All fields SHALL be readonly to prevent external mutation
+- `tab` SHALL be null when no unit is active
+- `allTabs` SHALL be readonly array of all open unit tabs
+- `activeTabId` SHALL be null when no tab is selected
+- `createNewUnit()` SHALL return new tab ID
+- `duplicateCurrentUnit()` SHALL return null if no active tab
+
+---
+
+### IComponentSelections
+
+**Source**: `src/stores/useMultiUnitStore.ts` (referenced in `src/hooks/useUnitCalculations.ts:12`)
+
+```typescript
+interface IComponentSelections {
+  engineType: EngineType;
+  engineRating: number;
+  gyroType: GyroType;
+  internalStructureType: InternalStructureType;
+  cockpitType: CockpitType;
+  heatSinkType: HeatSinkType;
+  heatSinkCount: number;
+  armorType: ArmorTypeEnum;
+  jumpMP?: number;
+  jumpJetType?: JumpJetType;
+}
+```
+
+**Requirements**:
+
+- All structural component selections SHALL be included
+- `engineRating` SHALL be positive integer
+- `heatSinkCount` SHALL be >= 10 (minimum requirement)
+- `jumpMP` SHALL be optional (0 if not jumping)
+- `jumpJetType` SHALL be optional (defaults to STANDARD)
+
+---
+
+### UnitCalculations
+
+**Source**: `src/hooks/useUnitCalculations.ts:37-67`
+
+```typescript
+interface UnitCalculations {
+  // Weights
+  engineWeight: number;
+  gyroWeight: number;
+  structureWeight: number;
+  cockpitWeight: number;
+  heatSinkWeight: number;
+  armorWeight: number;
+  jumpJetWeight: number;
+  totalStructuralWeight: number;
+
+  // Critical Slots
+  engineSlots: number;
+  gyroSlots: number;
+  structureSlots: number;
+  cockpitSlots: number;
+  heatSinkSlots: number;
+  armorSlots: number;
+  jumpJetSlots: number;
+  totalSystemSlots: number;
+
+  // Heat
+  integralHeatSinks: number;
+  externalHeatSinks: number;
+  totalHeatDissipation: number;
+
+  // Movement
+  walkMP: number;
+  runMP: number;
+  jumpMP: number;
+}
+```
+
+**Requirements**:
+
+- All weight values SHALL be in tons (fractional allowed)
+- All slot values SHALL be non-negative integers
+- `totalStructuralWeight` SHALL equal sum of all component weights
+- `totalSystemSlots` SHALL exclude equipment array items (only fixed systems)
+- `integralHeatSinks` SHALL be floor(engineRating / 25)
+- `externalHeatSinks` SHALL be max(0, heatSinkCount - integralHeatSinks)
+- `walkMP` SHALL be floor(engineRating / tonnage)
+- `runMP` SHALL be ceil(walkMP × 1.5)
+
+---
+
+### IValidatableUnit
+
+**Source**: `src/types/validation/UnitValidationInterfaces.ts` (referenced in `src/hooks/useUnitValidation.ts:18`)
+
+```typescript
+interface IValidatableUnit {
+  // Identity
+  id: string;
+  name: string;
+  unitType: UnitType;
+  techBase: TechBase;
+  rulesLevel: RulesLevel;
+  era: Era;
+  introductionYear?: number;
+  extinctionYear?: number;
+
+  // Economics
+  weight: number;
+  cost?: number;
+  battleValue?: number;
+
+  // Components
+  engineType: EngineType;
+  gyroType: GyroType;
+  cockpitType: CockpitType;
+  internalStructureType: InternalStructureType;
+  heatSinkCount: number;
+  heatSinkType: HeatSinkType;
+
+  // Armor
+  totalArmorPoints: number;
+  maxArmorPoints: number;
+  armorByLocation: Record<MechLocation, number>;
+
+  // Weight validation
+  allocatedWeight: number;
+  maxWeight: number;
+
+  // Slot validation
+  slotsByLocation: Record<MechLocation, number>;
+}
+```
+
+**Requirements**:
+
+- All required fields SHALL be present for validation
+- `weight` SHALL equal `maxWeight` for valid units
+- `allocatedWeight` SHALL not exceed `maxWeight`
+- `totalArmorPoints` SHALL not exceed `maxArmorPoints`
+- `armorByLocation` SHALL contain entries for all valid locations
+- `slotsByLocation` SHALL contain slot counts per location
+
+---
+
+### IUnitValidationResult
+
+**Source**: `src/types/validation/UnitValidationInterfaces.ts` (referenced in `src/hooks/useUnitValidation.ts:20`)
+
+```typescript
+interface IUnitValidationResult {
+  isValid: boolean;
+  hasCriticalErrors: boolean;
+  errorCount: number;
+  warningCount: number;
+  infoCount: number;
+  results: IUnitValidationRuleResult[];
+}
+
+interface IUnitValidationRuleResult {
+  ruleId: string;
+  passed: boolean;
+  errors: IUnitValidationError[];
+  warnings: IUnitValidationWarning[];
+  infos: IUnitValidationInfo[];
+}
+
+interface IUnitValidationError {
+  ruleId: string;
+  severity: UnitValidationSeverity;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+enum UnitValidationSeverity {
+  CRITICAL_ERROR = 'critical_error',
+  ERROR = 'error',
+  WARNING = 'warning',
+  INFO = 'info',
+}
+```
+
+**Requirements**:
+
+- `isValid` SHALL be true only if errorCount === 0 and hasCriticalErrors === false
+- `hasCriticalErrors` SHALL be true if any error has severity CRITICAL_ERROR
+- `errorCount` SHALL include both CRITICAL_ERROR and ERROR severities
+- `results` SHALL contain one entry per validation rule executed
+- Each `IUnitValidationRuleResult` SHALL include ruleId and passed flag
+- `errors`, `warnings`, `infos` arrays SHALL be empty if rule passed
+
+---
+
+### UnitValidationState
+
+**Source**: `src/hooks/useUnitValidation.ts:36-55`
+
+```typescript
+interface UnitValidationState {
+  /** Overall validation status for badge display */
+  status: ValidationStatus;
+  /** Number of critical and regular errors */
+  errorCount: number;
+  /** Number of warnings */
+  warningCount: number;
+  /** Number of info messages */
+  infoCount: number;
+  /** Whether the unit is fully valid (no errors) */
+  isValid: boolean;
+  /** Whether validation has critical errors (prevents save/export) */
+  hasCriticalErrors: boolean;
+  /** Full validation result for detailed display */
+  result: IUnitValidationResult | null;
+  /** Whether validation is still initializing */
+  isLoading: boolean;
+  /** Whether validation is pending (during debounce period) */
+  isValidating: boolean;
+}
+
+type ValidationStatus = 'valid' | 'error' | 'warning' | 'info';
+```
+
+**Requirements**:
+
+- `status` SHALL be 'error' if errorCount > 0 or hasCriticalErrors === true
+- `status` SHALL be 'warning' if errorCount === 0 and warningCount > 0
+- `status` SHALL be 'info' if errorCount === 0 and warningCount === 0 and infoCount > 0
+- `status` SHALL be 'valid' if all counts are 0
+- `isValid` SHALL be true only if errorCount === 0 and hasCriticalErrors === false
+- `isLoading` SHALL be true during initial rule initialization
+- `isValidating` SHALL be true during debounce period
+- `result` SHALL be null if validation has not run yet
+
+---
+
+### UnitStore Architecture
+
+**Source**: `src/stores/unit/useUnitStore.ts:1-140`, `src/stores/unitState.ts`
+
+```typescript
+// Store factory
+function createUnitStore(initialState: UnitState): StoreApi<UnitStore>;
+function createNewUnitStore(options: CreateUnitOptions): StoreApi<UnitStore>;
+
+// Context provider
+const UnitStoreContext: Context<StoreApi<UnitStore> | null>;
+function useUnitStore<T>(selector: (state: UnitStore) => T): T;
+function useUnitStoreApi(): StoreApi<UnitStore>;
+
+// Action slices
+interface UnitArmorActions {
+  setArmorTonnage: (tonnage: number) => void;
+  setLocationArmor: (
+    location: MechLocation,
+    front: number,
+    rear?: number,
+  ) => void;
+  autoAllocateArmor: () => void;
+  maximizeArmor: () => void;
+  clearAllArmor: () => void;
+}
+
+interface UnitEquipmentActions {
+  addEquipment: (item: IEquipmentItem) => string;
+  removeEquipment: (instanceId: string) => void;
+  updateEquipmentLocation: (
+    instanceId: string,
+    location: MechLocation,
+    slots: readonly number[],
+  ) => void;
+  bulkUpdateEquipmentLocations: (
+    updates: ReadonlyArray<{
+      instanceId: string;
+      location: MechLocation;
+      slots: readonly number[];
+    }>,
+  ) => void;
+  clearEquipmentLocation: (instanceId: string) => void;
+  setEquipmentRearMounted: (instanceId: string, isRearMounted: boolean) => void;
+  linkAmmo: (
+    weaponInstanceId: string,
+    ammoInstanceId: string | undefined,
+  ) => void;
+  clearAllEquipment: () => void;
+}
+
+interface UnitStructureActions {
+  // Identity
+  setName: (name: string) => void;
+  setChassis: (chassis: string) => void;
+  setModel: (model: string) => void;
+  setYear: (year: number) => void;
+  setRulesLevel: (rulesLevel: RulesLevel) => void;
+
+  // Components (with cascade/displacement)
+  setEngineType: (type: EngineType) => void;
+  setEngineRating: (rating: number) => void;
+  setGyroType: (type: GyroType) => void;
+  setInternalStructureType: (type: InternalStructureType) => void;
+  setCockpitType: (type: CockpitType) => void;
+  setHeatSinkType: (type: HeatSinkType) => void;
+  setHeatSinkCount: (count: number) => void;
+  setArmorType: (type: ArmorTypeEnum) => void;
+  setJumpMP: (jumpMP: number) => void;
+  setJumpJetType: (jumpJetType: JumpJetType) => void;
+
+  // Metadata
+  markModified: (modified?: boolean) => void;
+}
+
+interface UnitTechBaseActions {
+  setTechBaseMode: (mode: TechBaseMode) => void;
+  setComponentTechBase: (
+    component: ComponentCategory,
+    techBase: TechBase,
+  ) => void;
+  // ... selection memory actions
+}
+
+type UnitStore = UnitState &
+  UnitArmorActions &
+  UnitEquipmentActions &
+  UnitStructureActions &
+  UnitTechBaseActions;
+```
+
+**Requirements**:
+
+- `createUnitStore()` SHALL compose all 4 action slices
+- `createUnitStore()` SHALL configure persist middleware with `megamek-unit-${id}` name
+- `createUnitStore()` SHALL use clientSafeStorage for SSR safety
+- `createUnitStore()` SHALL skip hydration (manual via registry)
+- `useUnitStore()` SHALL throw error if called outside UnitStoreProvider
+- `useUnitStoreApi()` SHALL throw error if called outside UnitStoreProvider
+- All action slices SHALL set `isModified: true` and `lastModifiedAt: Date.now()` on state changes
+- Equipment actions SHALL recalculate targeting computers when weapons change
+- Structure actions SHALL check for equipment displacement when engine/gyro changes
+
+---

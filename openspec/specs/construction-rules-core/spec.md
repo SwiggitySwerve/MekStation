@@ -91,3 +91,133 @@ The system SHALL enforce engine rating limits based on unit type.
 - **WHEN** validating engine rating
 - **THEN** rating MAY be up to 500
 - **AND** higher ratings are feasible due to different weight fractions
+
+### Requirement: BattleMech Location Name Mapping
+
+The system SHALL provide bidirectional mapping between full location names and standard abbreviations.
+
+**Source**: `src/utils/locationUtils.ts:1-26`
+
+#### Scenario: Location shorthand lookup
+
+- **GIVEN** a full location name (e.g., "Center Torso")
+- **WHEN** requesting shorthand via `getLocationShorthand()`
+- **THEN** return standard abbreviation ("CT")
+- **AND** support all 12 locations: HD, CT, LT, RT, LA, RA, LL, RL, FLL, FRL, RLL, RRL
+
+#### Scenario: Location full name reverse lookup
+
+- **GIVEN** a shorthand abbreviation (e.g., "CT")
+- **WHEN** requesting full name via `getLocationFullName()`
+- **THEN** return full location name ("Center Torso")
+- **AND** support all 12 locations including quad mech legs
+
+#### Scenario: Unknown location handling
+
+- **GIVEN** an unknown location name or shorthand
+- **WHEN** requesting conversion
+- **THEN** return the input string unchanged (passthrough behavior)
+- **AND** do not throw errors or return null
+
+### Requirement: UI Layout Constants
+
+The system SHALL define centralized layout constants for responsive design and z-index layering.
+
+**Source**: `src/constants/layout.ts:1-103`
+
+#### Scenario: Sidebar dimension constants
+
+- **WHEN** accessing `SIDEBAR` constants
+- **THEN** provide `COLLAPSED_WIDTH: 64` (pixels, Tailwind w-16)
+- **AND** provide `EXPANDED_WIDTH: 224` (pixels, Tailwind w-56)
+- **AND** provide Tailwind margin classes: `MARGIN_COLLAPSED: 'lg:ml-16'`, `MARGIN_EXPANDED: 'lg:ml-56'`
+- **AND** provide Tailwind width classes: `WIDTH_COLLAPSED: 'w-16'`, `WIDTH_EXPANDED: 'w-56'`
+
+#### Scenario: Z-index layer constants
+
+- **WHEN** accessing `Z_INDEX` constants
+- **THEN** provide layered values from BASE (0) to TOAST (80)
+- **AND** include: BASE, DROPDOWN, STICKY, SIDEBAR_DESKTOP, MOBILE_NAV, SIDEBAR_MOBILE, MODAL, TOOLTIP, TOAST
+- **AND** ensure higher values render above lower values
+
+## Data Model Requirements
+
+### LOCATION_SHORTCUTS Record
+
+**Source**: `src/utils/locationUtils.ts:1-14`
+
+```typescript
+const LOCATION_SHORTCUTS: Record<string, string> = {
+  Head: 'HD',
+  'Center Torso': 'CT',
+  'Left Torso': 'LT',
+  'Right Torso': 'RT',
+  'Left Arm': 'LA',
+  'Right Arm': 'RA',
+  'Left Leg': 'LL',
+  'Right Leg': 'RL',
+  'Front Left Leg': 'FLL', // Quad mech
+  'Front Right Leg': 'FRL', // Quad mech
+  'Rear Left Leg': 'RLL', // Quad mech
+  'Rear Right Leg': 'RRL', // Quad mech
+};
+```
+
+**Requirements**:
+
+- SHALL include all 12 BattleMech locations (8 biped + 4 quad)
+- SHALL use consistent abbreviation format (uppercase, 2-3 letters)
+- SHALL support quad mech leg locations (FLL, FRL, RLL, RRL)
+
+### SIDEBAR Constants Object
+
+**Source**: `src/constants/layout.ts:12-25`
+
+```typescript
+export const SIDEBAR = {
+  COLLAPSED_WIDTH: 64, // pixels
+  EXPANDED_WIDTH: 224, // pixels
+  MARGIN_COLLAPSED: 'lg:ml-16',
+  MARGIN_EXPANDED: 'lg:ml-56',
+  WIDTH_COLLAPSED: 'w-16',
+  WIDTH_EXPANDED: 'w-56',
+} as const;
+```
+
+**Requirements**:
+
+- SHALL provide pixel values matching Tailwind width classes
+- SHALL provide Tailwind utility classes for responsive layout
+- SHALL use `as const` for type safety
+
+### Z_INDEX Constants Object
+
+**Source**: `src/constants/layout.ts:31-50`
+
+```typescript
+export const Z_INDEX = {
+  BASE: 0,
+  DROPDOWN: 10,
+  STICKY: 20,
+  SIDEBAR_DESKTOP: 30,
+  MOBILE_NAV: 40,
+  SIDEBAR_MOBILE: 50,
+  MODAL: 60,
+  TOOLTIP: 70,
+  TOAST: 80,
+} as const;
+```
+
+**Requirements**:
+
+- SHALL define 9 distinct z-index layers
+- SHALL use increments of 10 for extensibility
+- SHALL order from lowest (BASE) to highest (TOAST)
+- SHALL use `as const` for type safety
+
+## Non-Goals
+
+- Location damage tracking (see `damage-system` spec)
+- Location-specific armor allocation (see `armor-system` spec)
+- Responsive breakpoint detection logic (see `mobile-interaction-patterns` spec)
+- Animation timing implementation (see `theming-appearance-system` spec)
