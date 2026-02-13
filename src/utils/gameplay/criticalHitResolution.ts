@@ -28,6 +28,58 @@ import {
 import { D6Roller, roll2d6 } from './hitLocation';
 
 // =============================================================================
+// Constants
+// =============================================================================
+
+/** Engine is destroyed after this many critical hits */
+const ENGINE_DESTRUCTION_THRESHOLD = 3;
+
+/** Heat added per engine critical hit (+5 heat/turn per hit) */
+const ENGINE_HEAT_PER_HIT = 5;
+
+/** Gyro PSR modifier per hit (+3 per gyro hit) */
+const GYRO_PSR_MODIFIER_PER_HIT = 3;
+
+/** Number of gyro hits that prevent standing */
+const GYRO_CANNOT_STAND_THRESHOLD = 2;
+
+/** Sentinel value indicating the unit cannot stand at all */
+const CANNOT_STAND_PENALTY = 999;
+
+/** Number of wounds that instantly kill a pilot (lethal) */
+const LETHAL_PILOT_WOUNDS = 6;
+
+/** To-hit modifier for destroyed shoulder actuator */
+const SHOULDER_TO_HIT_MODIFIER = 4;
+
+/** PSR modifier for destroyed hip actuator */
+const HIP_PSR_MODIFIER = 2;
+
+/** PSR modifier for destroyed upper/lower leg actuator */
+const LEG_ACTUATOR_PSR_MODIFIER = 1;
+
+/** PSR modifier for destroyed foot actuator */
+const FOOT_PSR_MODIFIER = 1;
+
+/** To-hit modifier for destroyed upper arm actuator */
+const UPPER_ARM_TO_HIT_MODIFIER = 1;
+
+/** To-hit modifier for destroyed lower arm actuator */
+const LOWER_ARM_TO_HIT_MODIFIER = 1;
+
+/** To-hit modifier for destroyed hand actuator */
+const HAND_TO_HIT_MODIFIER = 1;
+
+/** To-hit modifier for destroyed upper leg actuator */
+const UPPER_LEG_TO_HIT_MODIFIER = 2;
+
+/** To-hit modifier for destroyed lower leg actuator */
+const LOWER_LEG_TO_HIT_MODIFIER = 2;
+
+/** To-hit modifier for destroyed foot actuator */
+const FOOT_TO_HIT_MODIFIER = 1;
+
+// =============================================================================
 // Types
 // =============================================================================
 
@@ -673,7 +725,7 @@ function applyEngineHit(
   const newHits = componentDamage.engineHits + 1;
   const updatedDamage = { ...componentDamage, engineHits: newHits };
 
-  if (newHits >= 3) {
+  if (newHits >= ENGINE_DESTRUCTION_THRESHOLD) {
     events.push({
       type: 'unit_destroyed',
       payload: {
@@ -686,7 +738,7 @@ function applyEngineHit(
   return {
     effect: {
       type: CriticalEffectType.EngineHit,
-      heatAdded: 5,
+      heatAdded: ENGINE_HEAT_PER_HIT,
     },
     updatedDamage,
   };
@@ -708,7 +760,7 @@ function applyGyroHit(
     payload: {
       unitId,
       reason: 'Gyro hit',
-      additionalModifier: 3 * newHits,
+      additionalModifier: GYRO_PSR_MODIFIER_PER_HIT * newHits,
       triggerSource: 'gyro_critical',
     },
   });
@@ -716,7 +768,8 @@ function applyGyroHit(
   return {
     effect: {
       type: CriticalEffectType.GyroHit,
-      movementPenalty: newHits >= 2 ? 999 : 0, // 999 = cannot stand
+      movementPenalty:
+        newHits >= GYRO_CANNOT_STAND_THRESHOLD ? CANNOT_STAND_PENALTY : 0,
     },
     updatedDamage,
   };
@@ -735,8 +788,8 @@ function applyCockpitHit(
     type: 'pilot_hit',
     payload: {
       unitId,
-      wounds: 6, // Lethal
-      totalWounds: 6,
+      wounds: LETHAL_PILOT_WOUNDS,
+      totalWounds: LETHAL_PILOT_WOUNDS,
       source: 'head_hit',
       consciousnessCheckRequired: false,
     },
@@ -831,10 +884,10 @@ function applyActuatorHit(
   ) {
     const modifier =
       actuatorType === ActuatorType.HIP
-        ? 2
+        ? HIP_PSR_MODIFIER
         : actuatorType === ActuatorType.FOOT
-          ? 1
-          : 1;
+          ? FOOT_PSR_MODIFIER
+          : LEG_ACTUATOR_PSR_MODIFIER;
 
     events.push({
       type: 'psr_triggered',
@@ -1047,8 +1100,8 @@ export function resolveCriticalHits(
       type: 'pilot_hit',
       payload: {
         unitId,
-        wounds: 6,
-        totalWounds: 6,
+        wounds: LETHAL_PILOT_WOUNDS,
+        totalWounds: LETHAL_PILOT_WOUNDS,
         source: 'head_hit',
         consciousnessCheckRequired: false,
       },
@@ -1237,21 +1290,21 @@ function describeEffect(effect: ICriticalEffect): string {
 export function getActuatorToHitModifier(actuatorType: ActuatorType): number {
   switch (actuatorType) {
     case ActuatorType.SHOULDER:
-      return 4;
+      return SHOULDER_TO_HIT_MODIFIER;
     case ActuatorType.UPPER_ARM:
-      return 1;
+      return UPPER_ARM_TO_HIT_MODIFIER;
     case ActuatorType.LOWER_ARM:
-      return 1;
+      return LOWER_ARM_TO_HIT_MODIFIER;
     case ActuatorType.HAND:
-      return 1;
+      return HAND_TO_HIT_MODIFIER;
     case ActuatorType.HIP:
       return 0; // Hip doesn't add to-hit, it prevents kicking
     case ActuatorType.UPPER_LEG:
-      return 2;
+      return UPPER_LEG_TO_HIT_MODIFIER;
     case ActuatorType.LOWER_LEG:
-      return 2;
+      return LOWER_LEG_TO_HIT_MODIFIER;
     case ActuatorType.FOOT:
-      return 1;
+      return FOOT_TO_HIT_MODIFIER;
   }
 }
 
