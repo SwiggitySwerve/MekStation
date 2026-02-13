@@ -73,12 +73,12 @@ Eliminate technical debt from iterative 19-phase development. Make the codebase 
 
 ### Definition of Done
 
-- [ ] `bun test` passes with ≥19,145 tests (zero regressions)
-- [ ] `npx tsc --noEmit` produces zero type errors
-- [ ] `grep -r "undefined as unknown as" src/utils/gameplay/` returns zero results
-- [ ] `grep -r "export type DiceRoller" src/` returns exactly 1 result (in diceTypes.ts)
-- [ ] `grep -r "export type D6Roller" src/` returns exactly 1 result (in diceTypes.ts)
-- [ ] `grep -r "Math.random" src/utils/gameplay/` returns only `terrainGenerator.ts` (seed gen — acceptable) and `diceTypes.ts` (default roller — acceptable)
+- [x] `bun test` passes with ≥19,145 tests (zero regressions)
+- [x] `npx tsc --noEmit` produces zero type errors
+- [x] `grep -r "undefined as unknown as" src/utils/gameplay/` returns zero results
+- [x] `grep -r "export type DiceRoller" src/` returns exactly 1 result (in diceTypes.ts)
+- [x] `grep -r "export type D6Roller" src/` returns exactly 1 result (in diceTypes.ts)
+- [x] `grep -r "Math.random" src/utils/gameplay/` returns only `terrainGenerator.ts` (seed gen — acceptable) and `diceTypes.ts` (default roller — acceptable)
 
 ### Must Have
 
@@ -577,7 +577,7 @@ Wave 4 (After all):
 
 ---
 
-- [ ] 6. Extract Magic Numbers to Named Constants
+- [x] 6. Extract Magic Numbers to Named Constants
 
   **What to do**:
   - Extract hardcoded magic numbers to named constants in EACH module (per-module, NOT a single god-file)
@@ -658,7 +658,7 @@ Wave 4 (After all):
 
 ---
 
-- [ ] 7. Complete Barrel Exports in index.ts
+- [x] 7. Complete Barrel Exports in index.ts
 
   **What to do**:
   - Add missing module exports to `src/utils/gameplay/index.ts`
@@ -730,7 +730,7 @@ Wave 4 (After all):
 
 ---
 
-- [ ] 8. Fix `as any` Casts in Test Files
+- [x] 8. Fix `as any` Casts in Test Files
 
   **What to do**:
   - Address `as any` casts in `damagePipeline.test.ts:690-691,768-769`
@@ -794,7 +794,7 @@ Wave 4 (After all):
 
 ---
 
-- [ ] 9. Remove console.log from Test Files
+- [x] 9. Remove console.log from Test Files
 
   **What to do**:
   - Remove `console.log` and `console.warn` statements from test files:
@@ -855,7 +855,7 @@ Wave 4 (After all):
 
 ---
 
-- [ ] 10. Final Verification + Hardcoded Deployment Fix
+- [x] 10. Final Verification + Hardcoded Deployment Fix
 
   **What to do**:
   - Fix hardcoded deployment positions in `gameState.ts:239-241` — extract `row = isPlayer ? 5 : -5` to named constants (`PLAYER_DEPLOY_ROW = 5`, `OPPONENT_DEPLOY_ROW = -5`)
