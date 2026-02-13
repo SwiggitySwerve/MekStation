@@ -3,6 +3,7 @@
  * Comprehensive tests for all component types and critical hit mechanics.
  */
 
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { CriticalEffectType } from '@/types/gameplay';
 import { IComponentDamageState } from '@/types/gameplay/GameSessionInterfaces';
@@ -19,6 +20,7 @@ import {
   getActuatorToHitModifier,
   actuatorPreventsAttack,
   actuatorHalvesDamage,
+  isHardenedArmor,
   ICriticalSlotEntry,
   CriticalSlotManifest,
 } from '../criticalHitResolution';
@@ -1164,5 +1166,234 @@ describe('life support critical effects', () => {
     const result = applyCriticalHitEffect(lsSlot, 'unit-1', 'head', dmg);
 
     expect(result.updatedComponentDamage.lifeSupport).toBe(2);
+  });
+});
+
+// =============================================================================
+// Hardened Armor Combat Rules
+// =============================================================================
+
+describe('isHardenedArmor', () => {
+  it('returns true for HARDENED armor type', () => {
+    expect(isHardenedArmor(ArmorTypeEnum.HARDENED)).toBe(true);
+  });
+
+  it('returns false for STANDARD armor type', () => {
+    expect(isHardenedArmor(ArmorTypeEnum.STANDARD)).toBe(false);
+  });
+
+  it('returns false for undefined', () => {
+    expect(isHardenedArmor(undefined)).toBe(false);
+  });
+
+  it('returns false for other armor types', () => {
+    expect(isHardenedArmor(ArmorTypeEnum.FERRO_FIBROUS_IS)).toBe(false);
+    expect(isHardenedArmor(ArmorTypeEnum.REACTIVE)).toBe(false);
+    expect(isHardenedArmor(ArmorTypeEnum.STEALTH)).toBe(false);
+  });
+});
+
+describe('hardened armor double crit roll', () => {
+  it('standard armor is unchanged — single roll determines crits', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Roll 4+4=8 → 1 crit (standard), slot selection: 1
+    const roller = makeDiceRoller([4, 4, 1]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.STANDARD,
+    );
+
+    expect(result.hits.length).toBe(1);
+  });
+
+  it('hardened armor: single positive roll negated by second negative roll', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Roll 1: 4+4=8 → 1 crit, Roll 2: 1+3=4 → 0 crits → result: 0 crits
+    const roller = makeDiceRoller([4, 4, 1, 3]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.HARDENED,
+    );
+
+    expect(result.hits.length).toBe(0);
+  });
+
+  it('hardened armor: first negative roll negates second positive', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Roll 1: 1+3=4 → 0 crits, Roll 2: 5+5=10 → 2 crits → result: 0 crits
+    const roller = makeDiceRoller([1, 3, 5, 5]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.HARDENED,
+    );
+
+    expect(result.hits.length).toBe(0);
+  });
+
+  it('hardened armor: both rolls positive uses minimum crit count', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Roll 1: 5+5=10 → 2 crits, Roll 2: 4+4=8 → 1 crit → min(2,1)=1
+    // Then slot selection: 1
+    const roller = makeDiceRoller([5, 5, 4, 4, 1]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.HARDENED,
+    );
+
+    expect(result.hits.length).toBe(1);
+  });
+
+  it('hardened armor: both rolls 12 on torso gives 3 crits', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Roll 1: 6+6=12 → 3 crits (torso), Roll 2: 6+6=12 → 3 crits
+    // Slot selections: 1, 2, 3
+    const roller = makeDiceRoller([6, 6, 6, 6, 1, 2, 3]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.HARDENED,
+    );
+
+    expect(result.hits.length).toBe(3);
+  });
+
+  it('hardened armor: roll 12 on limb requires both to blow off', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Roll 1: 6+6=12 → limb blown off, Roll 2: 6+6=12 → limb blown off
+    const roller = makeDiceRoller([6, 6, 6, 6]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'left_arm',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.HARDENED,
+    );
+
+    expect(result.locationBlownOff).toBe(true);
+  });
+
+  it('hardened armor: single roll 12 on limb does NOT blow off if second roll is low', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Roll 1: 6+6=12 → limb blown off, Roll 2: 1+3=4 → 0 crits
+    const roller = makeDiceRoller([6, 6, 1, 3]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'left_arm',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.HARDENED,
+    );
+
+    expect(result.locationBlownOff).toBe(false);
+    expect(result.hits.length).toBe(0);
+  });
+
+  it('hardened armor: forceCrits bypasses double-roll logic', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    const roller = makeDiceRoller([1, 2]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      2,
+      ArmorTypeEnum.HARDENED,
+    );
+
+    expect(result.hits.length).toBe(2);
+  });
+
+  it('hardened armor: no armorType param behaves as standard (backward compat)', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Roll 4+4=8 → 1 crit, slot selection: 1
+    const roller = makeDiceRoller([4, 4, 1]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+    );
+
+    expect(result.hits.length).toBe(1);
+  });
+});
+
+describe('hardened armor TAC prevention', () => {
+  it('hardened armor prevents TAC entirely', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    const roller = makeDiceRoller([6, 6, 1]);
+    const result = processTAC(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      ArmorTypeEnum.HARDENED,
+    );
+
+    expect(result.hits.length).toBe(0);
+    expect(result.events.length).toBe(0);
+    expect(result.unitDestroyed).toBe(false);
+  });
+
+  it('standard armor still processes TAC normally', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Roll 4+4=8 → 1 crit, slot selection: 1
+    const roller = makeDiceRoller([4, 4, 1]);
+    const result = processTAC(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      ArmorTypeEnum.STANDARD,
+    );
+
+    expect(result.hits.length).toBe(1);
+  });
+
+  it('no armorType param processes TAC normally (backward compat)', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Roll 4+4=8 → 1 crit, slot selection: 1
+    const roller = makeDiceRoller([4, 4, 1]);
+    const result = processTAC(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+    );
+
+    expect(result.hits.length).toBe(1);
   });
 });
