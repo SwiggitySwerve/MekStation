@@ -192,6 +192,18 @@ function addDestroyedLocation(
   return [...destroyedLocations, location];
 }
 
+/**
+ * Get the arm location that should be destroyed when a side torso is destroyed.
+ * Per TechManual / damage-system spec: LT destruction → LA destroyed, RT → RA.
+ */
+function getArmForSideTorso(location: CombatLocation): CombatLocation | null {
+  if (location === 'left_torso' || location === 'left_torso_rear')
+    return 'left_arm';
+  if (location === 'right_torso' || location === 'right_torso_rear')
+    return 'right_arm';
+  return null;
+}
+
 // =============================================================================
 // Damage Application
 // =============================================================================
@@ -300,11 +312,21 @@ export function applyDamageToLocation(
         location,
       );
       if (isRear) {
-        // Also mark front as destroyed
         newDestroyedLocations = addDestroyedLocation(
           newDestroyedLocations,
           armorKey,
         );
+      }
+
+      // Side torso destruction cascades to arm (TechManual / damage-system spec)
+      const cascadedArm = getArmForSideTorso(armorKey);
+      if (cascadedArm && !newDestroyedLocations.includes(cascadedArm)) {
+        newDestroyedLocations = addDestroyedLocation(
+          newDestroyedLocations,
+          cascadedArm,
+        );
+        newArmor = { ...newArmor, [cascadedArm]: 0 };
+        newStructure = { ...newStructure, [cascadedArm]: 0 };
       }
 
       // Transfer remaining damage
