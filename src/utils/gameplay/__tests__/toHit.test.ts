@@ -36,6 +36,7 @@ import {
   calculateProneModifier,
   calculateImmobileModifier,
   calculatePartialCoverModifier,
+  calculateHullDownModifier,
   getTerrainToHitModifier,
   // Phase 10 modifier functions
   calculatePilotWoundModifier,
@@ -1139,6 +1140,35 @@ describe('calculateToHit', () => {
     );
     expect(result.modifiers.some((m) => m.name.includes('TMM'))).toBe(true);
     expect(result.modifiers.some((m) => m.name === 'Heat')).toBe(true);
+  });
+
+  it('should apply +6 modifier for extreme range', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Extreme, 20);
+
+    // Gunnery 4 + Extreme 6 = 10
+    expect(result.finalToHit).toBe(10);
+    expect(result.modifiers.some((m) => m.name.includes('extreme'))).toBe(true);
+    const extremeModifier = result.modifiers.find((m) =>
+      m.name.includes('extreme'),
+    );
+    expect(extremeModifier?.value).toBe(6);
+  });
+
+  it('should handle extreme range with other modifiers', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 3,
+      movementType: MovementType.Walk,
+    });
+    const target = createTestTargetState({
+      movementType: MovementType.Walk,
+      hexesMoved: 5,
+    });
+    const result = calculateToHit(attacker, target, RangeBracket.Extreme, 20);
+
+    // Gunnery 3 + Extreme 6 + Walk 1 + TMM 2 (5 hexes) = 12
+    expect(result.finalToHit).toBe(12);
   });
 });
 
@@ -2349,5 +2379,105 @@ describe('calculateToHit with Phase 10 modifiers', () => {
     // Gunnery 4 + Medium 2 + Jump 3 + TMM 3 + wounds 3 + sensor 2 + called 3 = 20 -> capped 13
     expect(result.finalToHit).toBe(13);
     expect(result.impossible).toBe(true);
+  });
+});
+
+// =============================================================================
+// Hull-Down Position Tests
+// =============================================================================
+
+describe('calculateHullDownModifier', () => {
+  it('should return null when not hull-down', () => {
+    expect(calculateHullDownModifier(false, false)).toBeNull();
+  });
+
+  it('should return +1 when hull-down and no terrain partial cover', () => {
+    const mod = calculateHullDownModifier(true, false);
+    expect(mod).not.toBeNull();
+    expect(mod?.value).toBe(1);
+  });
+
+  it('should return null when hull-down but already has terrain partial cover', () => {
+    // Hull-down does not stack with terrain partial cover
+    expect(calculateHullDownModifier(true, true)).toBeNull();
+  });
+
+  it('should set source to terrain', () => {
+    const mod = calculateHullDownModifier(true, false);
+    expect(mod?.source).toBe('terrain');
+  });
+
+  it('should set name to Hull-Down (Partial Cover)', () => {
+    const mod = calculateHullDownModifier(true, false);
+    expect(mod?.name).toBe('Hull-Down (Partial Cover)');
+  });
+
+  it('should include hull-down description', () => {
+    const mod = calculateHullDownModifier(true, false);
+    expect(mod?.description).toContain('hull-down');
+  });
+});
+
+describe('calculateToHit with hull-down modifier', () => {
+  it('should apply +1 hull-down modifier to attacks against hull-down target', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState({ hullDown: true });
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+
+    // Gunnery 4 + Hull-down +1 = 5
+    expect(result.finalToHit).toBe(5);
+    expect(
+      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
+    ).toBe(true);
+  });
+
+  it('should not apply hull-down when hullDown is false', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState({ hullDown: false });
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+
+    expect(result.finalToHit).toBe(4);
+    expect(
+      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
+    ).toBe(false);
+  });
+
+  it('should not apply hull-down when hullDown is undefined', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState();
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+
+    expect(result.finalToHit).toBe(4);
+    expect(
+      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
+    ).toBe(false);
+  });
+
+  it('should not double-stack hull-down with terrain partial cover', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState({
+      partialCover: true,
+      hullDown: true,
+    });
+    const result = calculateToHit(attacker, target, RangeBracket.Short, 3);
+
+    // Gunnery 4 + partial cover +1 = 5 (hull-down suppressed because partialCover is true)
+    expect(result.finalToHit).toBe(5);
+    expect(
+      result.modifiers.some((m) => m.name === 'Hull-Down (Partial Cover)'),
+    ).toBe(false);
+    expect(result.modifiers.some((m) => m.name === 'Partial Cover')).toBe(true);
+  });
+
+  it('should stack hull-down modifier with other modifiers', () => {
+    const attacker = createTestAttackerState({
+      gunnery: 4,
+      movementType: MovementType.Walk,
+    });
+    const target = createTestTargetState({ hullDown: true });
+    const result = calculateToHit(attacker, target, RangeBracket.Medium, 5);
+
+    // Gunnery 4 + Medium 2 + Walk 1 + Hull-down 1 = 8
+    expect(result.finalToHit).toBe(8);
   });
 });

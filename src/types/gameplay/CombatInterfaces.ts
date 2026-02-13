@@ -581,6 +581,7 @@ export interface IAttackerState {
   readonly secondaryTarget?: ISecondaryTarget;
   readonly indirectFire?: IIndirectFire;
   readonly calledShot?: boolean;
+  readonly teammateCalledShot?: boolean;
   readonly abilities?: readonly string[];
   readonly weaponType?: string;
   readonly designatedWeaponType?: string;

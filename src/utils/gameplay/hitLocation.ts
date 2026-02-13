@@ -148,14 +148,27 @@ export function determineHitLocation(
 }
 
 /**
+ * Options for hit location determination modifiers.
+ */
+export interface IHitLocationOptions {
+  readonly hullDown?: boolean;
+}
+
+/**
  * Determine hit location from a specific roll (for testing/replays).
+ * When the target is hull-down and the arc is Front, leg hits are redirected to center_torso.
  */
 export function determineHitLocationFromRoll(
   arc: FiringArc,
   roll: IDiceRoll,
+  options: IHitLocationOptions = {},
 ): IHitLocationResult {
   const table = getHitLocationTable(arc);
-  const location = table[roll.total];
+  let location = table[roll.total];
+
+  if (options.hullDown && arc === FiringArc.Front && isLegLocation(location)) {
+    location = 'center_torso';
+  }
 
   return {
     roll,
@@ -163,6 +176,13 @@ export function determineHitLocationFromRoll(
     location,
     isCritical: isCriticalLocation(location) || roll.total === 2,
   };
+}
+
+/**
+ * Check if a combat location is a leg.
+ */
+export function isLegLocation(location: CombatLocation): boolean {
+  return location === 'left_leg' || location === 'right_leg';
 }
 
 /**
