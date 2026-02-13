@@ -25,6 +25,7 @@ import {
   BLOODHOUND_ECM_COUNTER_RANGE,
   CLAN_PROBE_ECM_COUNTER_RANGE,
   STEALTH_ARMOR_MODIFIERS,
+  resolveC3ECMDisruption,
   IECMSuite,
   IActiveProbe,
   IElectronicWarfareState,
@@ -765,5 +766,86 @@ describe('Complex Multi-ECM Scenarios', () => {
 
     const result2 = calculateECCMCountering([enemyAngel], [angelECCM]);
     expect(result2.uncounteredEnemyECMs.length).toBe(0);
+  });
+});
+
+// =============================================================================
+// ECM → C3 Disruption Integration
+// =============================================================================
+
+describe('resolveC3ECMDisruption', () => {
+  it('should mark members inside enemy ECM as disrupted', () => {
+    const ewState = createEWState(
+      [
+        makeECM({
+          entityId: 'enemy_ecm',
+          teamId: 'B',
+          position: { q: 5, r: 0 },
+        }),
+      ],
+      [],
+    );
+    const members = [
+      {
+        entityId: 'c3_1',
+        teamId: 'A',
+        position: { q: 3, r: 0 } as IHexCoordinate,
+      },
+      {
+        entityId: 'c3_2',
+        teamId: 'A',
+        position: { q: 20, r: 0 } as IHexCoordinate,
+      },
+    ];
+    const result = resolveC3ECMDisruption(members, ewState);
+    expect(result.get('c3_1')).toBe(true);
+    expect(result.get('c3_2')).toBe(false);
+  });
+
+  it('should return false for all members when no enemy ECM present', () => {
+    const ewState = createEmptyEWState();
+    const members = [
+      {
+        entityId: 'c3_1',
+        teamId: 'A',
+        position: { q: 0, r: 0 } as IHexCoordinate,
+      },
+      {
+        entityId: 'c3_2',
+        teamId: 'A',
+        position: { q: 5, r: 0 } as IHexCoordinate,
+      },
+    ];
+    const result = resolveC3ECMDisruption(members, ewState);
+    expect(result.get('c3_1')).toBe(false);
+    expect(result.get('c3_2')).toBe(false);
+  });
+
+  it('should account for ECCM countering enemy ECM', () => {
+    const ewState = createEWState(
+      [
+        makeECM({
+          entityId: 'enemy_ecm',
+          teamId: 'B',
+          position: { q: 5, r: 0 },
+        }),
+        makeECM({
+          entityId: 'friendly_eccm',
+          teamId: 'A',
+          mode: 'eccm',
+          position: { q: 3, r: 0 },
+        }),
+      ],
+      [],
+    );
+    const members = [
+      {
+        entityId: 'c3_1',
+        teamId: 'A',
+        position: { q: 3, r: 0 } as IHexCoordinate,
+      },
+    ];
+    const result = resolveC3ECMDisruption(members, ewState);
+    expect(result.get('c3_1')).toBe(false);
   });
 });

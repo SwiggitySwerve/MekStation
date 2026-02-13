@@ -40,8 +40,9 @@ export interface IC3NetworkUnit {
   readonly operational: boolean;
   /**
    * Whether this unit's C3 is disrupted by ECM.
-   * TODO: ECM disrupts C3 — Wave 4.1 (impl-ecm) will wire this flag via the
-   * ECM resolution pipeline. For now, callers set this manually.
+   * Set via {@link updateC3UnitECMStatus} after resolving ECM status with
+   * {@link resolveECMStatus} from electronicWarfare.ts, or use the convenience
+   * helper {@link resolveC3ECMDisruption} to batch-update all C3 members.
    */
   readonly ecmDisrupted: boolean;
 }
@@ -244,7 +245,7 @@ export function updateC3UnitPosition(
 
 /**
  * Update a unit's ECM disruption status.
- * TODO: Wave 4.1 (impl-ecm) will call this from the ECM resolution pipeline.
+ * Called after resolving ECM via {@link resolveECMStatus} from electronicWarfare.ts.
  */
 export function updateC3UnitECMStatus(
   state: IC3NetworkState,

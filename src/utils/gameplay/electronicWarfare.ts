@@ -584,6 +584,39 @@ export function getECMProtectedFlag(
 }
 
 // =============================================================================
+// ECM → C3 Disruption Integration
+// =============================================================================
+
+/**
+ * Resolve ECM disruption for all units in a C3-style network member list.
+ *
+ * For each member, checks whether enemy ECM disrupts them (after ECCM/BAP
+ * countering), and returns a map of entityId → ecmDisrupted boolean.
+ *
+ * Callers pass this result to updateC3UnitECMStatus() from c3Network.ts.
+ */
+export function resolveC3ECMDisruption(
+  members: readonly {
+    readonly entityId: string;
+    readonly teamId: string;
+    readonly position: IHexCoordinate;
+  }[],
+  ewState: IElectronicWarfareState,
+): ReadonlyMap<string, boolean> {
+  const result = new Map<string, boolean>();
+  for (const member of members) {
+    const status = resolveECMStatus(
+      member.position,
+      member.teamId,
+      member.entityId,
+      ewState,
+    );
+    result.set(member.entityId, status.ecmDisrupted);
+  }
+  return result;
+}
+
+// =============================================================================
 // Factory Helpers
 // =============================================================================
 
