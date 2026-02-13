@@ -22,6 +22,7 @@ export enum ArmorTypeEnum {
   REACTIVE = 'Reactive',
   REFLECTIVE = 'Reflective',
   HARDENED = 'Hardened',
+  FERRO_LAMELLOR = 'Ferro-Lamellor',
 }
 
 /**
@@ -145,6 +146,17 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     criticalSlots: 0,
     costMultiplier: 2.5,
     introductionYear: 3047,
+    isSpecial: true,
+  },
+  {
+    type: ArmorTypeEnum.FERRO_LAMELLOR,
+    name: 'Ferro-Lamellor',
+    techBase: TechBase.CLAN,
+    rulesLevel: RulesLevel.EXPERIMENTAL,
+    pointsPerTon: 17.6,
+    criticalSlots: 12,
+    costMultiplier: 3.5,
+    introductionYear: 3070,
     isSpecial: true,
   },
 ] as const;

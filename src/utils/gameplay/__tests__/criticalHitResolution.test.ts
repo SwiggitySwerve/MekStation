@@ -21,6 +21,8 @@ import {
   actuatorPreventsAttack,
   actuatorHalvesDamage,
   isHardenedArmor,
+  isFerroLamellorArmor,
+  halveCritCount,
   ICriticalSlotEntry,
   CriticalSlotManifest,
 } from '../criticalHitResolution';
@@ -907,6 +909,211 @@ describe('resolveCriticalHits', () => {
 
     expect(result.unitDestroyed).toBe(true);
     expect(result.updatedComponentDamage.engineHits).toBe(3);
+  });
+});
+
+// =============================================================================
+// Ferro-Lamellor Armor Combat Rules
+// =============================================================================
+
+describe('isFerroLamellorArmor', () => {
+  it('returns true for FERRO_LAMELLOR armor type', () => {
+    expect(isFerroLamellorArmor(ArmorTypeEnum.FERRO_LAMELLOR)).toBe(true);
+  });
+
+  it('returns false for STANDARD armor type', () => {
+    expect(isFerroLamellorArmor(ArmorTypeEnum.STANDARD)).toBe(false);
+  });
+
+  it('returns false for undefined', () => {
+    expect(isFerroLamellorArmor(undefined)).toBe(false);
+  });
+
+  it('returns false for HARDENED armor type', () => {
+    expect(isFerroLamellorArmor(ArmorTypeEnum.HARDENED)).toBe(false);
+  });
+
+  it('returns false for other armor types', () => {
+    expect(isFerroLamellorArmor(ArmorTypeEnum.FERRO_FIBROUS_IS)).toBe(false);
+    expect(isFerroLamellorArmor(ArmorTypeEnum.REACTIVE)).toBe(false);
+    expect(isFerroLamellorArmor(ArmorTypeEnum.STEALTH)).toBe(false);
+  });
+});
+
+describe('halveCritCount', () => {
+  it('returns 0 for 0 crits', () => {
+    expect(halveCritCount(0)).toBe(0);
+  });
+
+  it('returns 1 for 1 crit (minimum 1 rule)', () => {
+    expect(halveCritCount(1)).toBe(1);
+  });
+
+  it('returns 1 for 2 crits', () => {
+    expect(halveCritCount(2)).toBe(1);
+  });
+
+  it('returns 1 for 3 crits (floor(3/2)=1)', () => {
+    expect(halveCritCount(3)).toBe(1);
+  });
+
+  it('returns 0 for negative input', () => {
+    expect(halveCritCount(-1)).toBe(0);
+  });
+});
+
+describe('Ferro-Lamellor armor crit damage halving', () => {
+  it('FL armor: 2 crits halved to 1', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Determination: 5+5=10 → 2 crits, halved to 1. Slot selection: 1
+    const roller = makeDiceRoller([5, 5, 1]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.FERRO_LAMELLOR,
+    );
+
+    expect(result.hits.length).toBe(1);
+  });
+
+  it('FL armor: 1 crit stays at 1 (minimum rule)', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Determination: 4+4=8 → 1 crit, halved → max(floor(0.5),1) = 1. Slot: 1
+    const roller = makeDiceRoller([4, 4, 1]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.FERRO_LAMELLOR,
+    );
+
+    expect(result.hits.length).toBe(1);
+  });
+
+  it('FL armor: 3 crits (torso roll 12) halved to 1', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Determination: 6+6=12 on torso → 3 crits, halved to 1. Slot: 1
+    const roller = makeDiceRoller([6, 6, 1]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.FERRO_LAMELLOR,
+    );
+
+    expect(result.hits.length).toBe(1);
+  });
+
+  it('FL armor: 0 crits remains 0 (no halving on zero)', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Determination: 1+3=4 → 0 crits
+    const roller = makeDiceRoller([1, 3]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.FERRO_LAMELLOR,
+    );
+
+    expect(result.hits.length).toBe(0);
+  });
+
+  it('non-FL armor: damage unchanged', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Determination: 5+5=10 → 2 crits (no halving). Slot selections: 1, 2
+    const roller = makeDiceRoller([5, 5, 1, 2]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.STANDARD,
+    );
+
+    expect(result.hits.length).toBe(2);
+  });
+
+  it('FL armor: forceCrits bypasses halving', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    const roller = makeDiceRoller([1, 2]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      2,
+      ArmorTypeEnum.FERRO_LAMELLOR,
+    );
+
+    expect(result.hits.length).toBe(2);
+  });
+
+  it('FL armor: limb blowoff on roll 12 is NOT affected', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Determination: 6+6=12 on arm → limb blown off (not halved)
+    const roller = makeDiceRoller([6, 6]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'left_arm',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.FERRO_LAMELLOR,
+    );
+
+    expect(result.locationBlownOff).toBe(true);
+    expect(result.hits.length).toBe(4);
+  });
+
+  it('FL armor: head destruction on roll 12 is NOT affected', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Determination: 6+6=12 on head → head destroyed
+    const roller = makeDiceRoller([6, 6]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'head',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      undefined,
+      ArmorTypeEnum.FERRO_LAMELLOR,
+    );
+
+    expect(result.headDestroyed).toBe(true);
+    expect(result.unitDestroyed).toBe(true);
+    expect(result.destructionCause).toBe('pilot_death');
+  });
+
+  it('FL armor: no armorType param behaves as standard (backward compat)', () => {
+    const manifest = buildDefaultCriticalSlotManifest();
+    // Determination: 5+5=10 → 2 crits (no halving). Slot selections: 1, 2
+    const roller = makeDiceRoller([5, 5, 1, 2]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'center_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+    );
+
+    expect(result.hits.length).toBe(2);
   });
 });
 

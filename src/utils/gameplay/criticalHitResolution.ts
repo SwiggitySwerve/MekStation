@@ -201,6 +201,31 @@ export function isHardenedArmor(armorType?: ArmorTypeEnum): boolean {
 }
 
 // =============================================================================
+// Ferro-Lamellor Armor Helpers
+// =============================================================================
+
+/**
+ * Check if an armor type uses Ferro-Lamellor rules (crit count halving).
+ *
+ * @spec openspec/specs/ferro-lamellor-armor-combat/spec.md
+ */
+export function isFerroLamellorArmor(armorType?: ArmorTypeEnum): boolean {
+  return armorType === ArmorTypeEnum.FERRO_LAMELLOR;
+}
+
+/**
+ * Halve a critical hit count for Ferro-Lamellor armor.
+ * Returns floor(critCount / 2) with a minimum of 1 (when critCount > 0).
+ * A critCount of 0 remains 0.
+ *
+ * @spec openspec/specs/ferro-lamellor-armor-combat/spec.md
+ */
+export function halveCritCount(critCount: number): number {
+  if (critCount <= 0) return 0;
+  return Math.max(Math.floor(critCount / 2), 1);
+}
+
+// =============================================================================
 // Critical Hit Determination (Task 5.2, 5.3)
 // =============================================================================
 
@@ -1057,6 +1082,11 @@ export function resolveCriticalHits(
     critCount = determination.criticalHits;
     limbBlownOff = determination.limbBlownOff;
     headDestroyed = determination.headDestroyed;
+
+    // Ferro-Lamellor armor: halve the crit count (floor, min 1)
+    if (isFerroLamellorArmor(armorType) && critCount > 0) {
+      critCount = halveCritCount(critCount);
+    }
   }
 
   const allEvents: CriticalHitEvent[] = [];
