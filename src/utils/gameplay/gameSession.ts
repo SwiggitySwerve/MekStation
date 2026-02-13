@@ -56,6 +56,7 @@ import {
   resolveDamage as resolveDamagePipeline,
   IUnitDamageState,
 } from './damage';
+import { type DiceRoller } from './diceTypes';
 import { resolveFall } from './fallMechanics';
 import { calculateFiringArc } from './firingArc';
 import {
@@ -88,6 +89,7 @@ import {
   determineHitLocationFromRoll,
   isHeadHit,
 } from './hitLocation';
+export { type DiceRoller } from './diceTypes';
 import {
   resolveAllPSRs,
   checkPhaseDamagePSR,
@@ -499,13 +501,6 @@ export function lockAttack(
 
   return appendEvent(session, event);
 }
-
-export type DiceRoller = () => {
-  dice: readonly number[];
-  total: number;
-  isSnakeEyes: boolean;
-  isBoxcars: boolean;
-};
 
 function firingArcToString(
   arc: FiringArc,
