@@ -44,6 +44,10 @@ import { Facing, MovementType, IHexCoordinate } from '@/types/gameplay';
 // Initial State Creation
 // =============================================================================
 
+// Deployment position constants
+const PLAYER_DEPLOY_ROW = 5;
+const OPPONENT_DEPLOY_ROW = -5;
+
 const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
   engineHits: 0,
   gyroHits: 0,
@@ -269,7 +273,7 @@ function applyGameCreated(
     // Simple deployment: players on south edge, opponents on north
     const isPlayer = unit.side === GameSide.Player;
     const col = isPlayer ? playerIndex++ : opponentIndex++;
-    const row = isPlayer ? 5 : -5; // Simplified starting positions
+    const row = isPlayer ? PLAYER_DEPLOY_ROW : OPPONENT_DEPLOY_ROW;
 
     const position: IHexCoordinate = { q: col - 2, r: row };
     const facing = isPlayer ? Facing.North : Facing.South;
