@@ -646,13 +646,7 @@ export function checkPhaseDamagePSR(
   return null;
 }
 
-/**
- * Check if a leg location took structure damage (for PSR trigger).
- * Call after damage resolution when a leg takes structure damage.
- */
-export function isLegLocation(location: string): boolean {
-  return location === 'left_leg' || location === 'right_leg';
-}
+export { isLegLocation } from './hitLocation';
 
 /**
  * Attempt to stand up a prone unit.

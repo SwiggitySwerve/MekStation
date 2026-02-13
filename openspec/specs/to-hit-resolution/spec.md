@@ -391,6 +391,59 @@ The system SHALL apply a penalty for called shots.
 
 ---
 
+### Requirement: Called Shot via Teammate Spotter (OPTIONAL)
+
+When a friendly teammate with line of sight to the target designates a called shot location, the shooter MAY fire a called shot at that location with NO called shot to-hit penalty. The standard called shot penalty of +3 is waived entirely when a valid teammate spotter designates the location.
+
+> **Priority**: OPTIONAL / MEDIUM
+>
+> **Canonical Status**: No confirmed canonical BattleTech rule source (TotalWarfare, TechManual, TacOps) defines this mechanic. The only spotter mechanic in BattleTech applies to indirect fire (TW p. 111), not to called shots. MegaMek does not implement this mechanic either. This is implemented as an optional house rule for gameplay enrichment.
+>
+> **Prerequisites**:
+>
+> - The spotter MUST be a friendly unit on the same team as the shooter
+> - The spotter MUST have line of sight (LOS) to the target
+> - The shooter MUST have a valid attack against the target (LOS or indirect fire)
+> - The spotter and shooter MUST be different units
+> - The `teammateCalledShot` flag on `IAttackerState` activates this mechanic
+
+#### Scenario: Teammate designates called shot location — no penalty
+
+- **GIVEN** a friendly teammate has LOS to the target
+- **AND** the teammate designates a called shot location on the target
+- **WHEN** the shooter fires a called shot at the designated location
+- **THEN** the called shot to-hit penalty SHALL be +0 (waived entirely)
+- **AND** the hit location SHALL be the designated location (per normal called shot resolution)
+
+#### Scenario: No teammate spotter — standard called shot penalty
+
+- **GIVEN** no friendly teammate has designated a called shot location
+- **WHEN** the shooter fires a called shot
+- **THEN** the standard called shot penalty of +3 SHALL apply
+
+#### Scenario: Sharpshooter SPA with teammate spotter
+
+- **GIVEN** a friendly teammate has designated a called shot location
+- **AND** the shooter has the Sharpshooter SPA
+- **WHEN** the shooter fires a called shot at the designated location
+- **THEN** the called shot penalty SHALL be +0 (teammate spotter already waives the penalty)
+- **AND** the Sharpshooter SPA SHALL have no additional effect (penalty cannot go below +0)
+
+#### Scenario: Sharpshooter SPA without teammate spotter
+
+- **GIVEN** no friendly teammate has designated a called shot location
+- **AND** the shooter has the Sharpshooter SPA
+- **WHEN** the shooter fires a called shot
+- **THEN** the called shot penalty SHALL be +2 (standard +3, reduced by -1 from Sharpshooter)
+
+#### Scenario: Indirect fire spotter does not grant called shot benefit
+
+- **WHEN** a spotter designates a target for indirect fire
+- **THEN** the spotter designation SHALL NOT automatically grant called shot location targeting
+- **AND** called shot via teammate spotter requires explicit `teammateCalledShot` activation
+
+---
+
 ### Requirement: Quirk Modifiers Integration
 
 The system SHALL integrate quirk-based to-hit modifiers from quirk-combat-integration.
