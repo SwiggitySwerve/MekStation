@@ -99,6 +99,42 @@ The Cluster Hitter SPA SHALL add +1 to the cluster hit table column shift.
 - **WHEN** a pilot with Cluster Hitter fires a cluster weapon
 - **THEN** the cluster hit roll SHALL receive a +1 column shift (more hits)
 
+### Requirement: Gunnery SPA — Marksman
+
+The Marksman SPA SHALL grant -1 to-hit for aimed/called shots.
+
+#### Scenario: Marksman aimed shot bonus
+
+- **WHEN** a pilot with Marksman makes an aimed shot
+- **THEN** the attack SHALL receive a -1 to-hit modifier
+
+### Requirement: Gunnery SPA — Sandblaster
+
+The Sandblaster SPA SHALL grant +1 cluster hits with ultra/rotary autocannons.
+
+#### Scenario: Sandblaster ultra AC bonus
+
+- **WHEN** a pilot with Sandblaster fires an ultra or rotary autocannon
+- **THEN** the cluster hit roll SHALL receive a +1 bonus
+
+### Requirement: Gunnery SPA — Oblique Attacker
+
+The Oblique Attacker SPA SHALL reduce indirect fire penalty by 1.
+
+#### Scenario: Oblique Attacker indirect fire bonus
+
+- **WHEN** a pilot with Oblique Attacker makes an indirect fire attack
+- **THEN** the indirect fire penalty SHALL be reduced by 1
+
+### Requirement: Gunnery SPA — Sharpshooter
+
+The Sharpshooter SPA SHALL reduce called shot modifier by 1 (from +3 to +2).
+
+#### Scenario: Sharpshooter called shot bonus
+
+- **WHEN** a pilot with Sharpshooter makes a called shot
+- **THEN** the called shot modifier SHALL be +2 (instead of +3)
+
 ### Requirement: Piloting SPA — Jumping Jack
 
 The Jumping Jack SPA SHALL reduce the jump attack to-hit modifier from +3 to +1.
@@ -140,6 +176,70 @@ The Melee Master SPA SHALL improve physical attack damage.
 
 - **WHEN** a pilot with Melee Master lands a physical attack
 - **THEN** the physical attack damage SHALL be increased by 1 point
+
+### Requirement: Piloting SPA — Maneuvering Ace
+
+The Maneuvering Ace SPA SHALL grant -1 PSR for terrain and skidding.
+
+#### Scenario: Maneuvering Ace terrain bonus
+
+- **WHEN** a pilot with Maneuvering Ace makes a PSR for terrain
+- **THEN** the PSR SHALL receive a -1 modifier
+
+#### Scenario: Maneuvering Ace skidding bonus
+
+- **WHEN** a pilot with Maneuvering Ace makes a PSR for skidding
+- **THEN** the PSR SHALL receive a -1 modifier
+
+### Requirement: Piloting SPA — Terrain Master
+
+The Terrain Master SPA SHALL ignore +1 piloting modifier for difficult terrain.
+
+#### Scenario: Terrain Master difficult terrain bonus
+
+- **WHEN** a pilot with Terrain Master moves through difficult terrain
+- **THEN** the +1 piloting modifier for difficult terrain SHALL be ignored
+
+### Requirement: Piloting SPA — Acrobat
+
+The Acrobat SPA SHALL grant -1 to DFA piloting rolls.
+
+#### Scenario: Acrobat DFA bonus
+
+- **WHEN** a pilot with Acrobat makes a DFA attack
+- **THEN** the DFA piloting roll SHALL receive a -1 modifier
+
+### Requirement: Piloting SPA — Cross-Country
+
+The Cross-Country SPA SHALL grant -1 PSR for terrain while running.
+
+#### Scenario: Cross-Country running bonus
+
+- **WHEN** a pilot with Cross-Country makes a PSR for terrain while running
+- **THEN** the PSR SHALL receive a -1 modifier
+
+### Requirement: Defensive SPA — Evasive
+
+The Evasive SPA SHALL grant +1 TMM when running or jumping.
+
+#### Scenario: Evasive running bonus
+
+- **WHEN** a pilot with Evasive is running
+- **THEN** the target movement modifier SHALL be increased by 1
+
+#### Scenario: Evasive jumping bonus
+
+- **WHEN** a pilot with Evasive is jumping
+- **THEN** the target movement modifier SHALL be increased by 1
+
+### Requirement: Defensive SPA — Natural Grace
+
+The Natural Grace SPA SHALL grant -1 PSR for falls.
+
+#### Scenario: Natural Grace fall bonus
+
+- **WHEN** a pilot with Natural Grace makes a PSR for a fall
+- **THEN** the PSR SHALL receive a -1 modifier
 
 ### Requirement: Misc SPA — Tactical Genius
 
@@ -198,6 +298,110 @@ The Edge SPA SHALL provide a trigger-based reroll system with 6 mek-specific tri
 - **WHEN** a pilot uses Edge to reroll
 - **THEN** their remaining Edge points SHALL decrease by 1
 - **AND** when Edge points reach 0, no further Edge uses SHALL be permitted
+
+#### Scenario: Edge state initialization
+
+- **WHEN** a pilot with Edge enters combat
+- **THEN** the system SHALL initialize an IEdgeState with maxPoints and remainingPoints
+- **AND** usageHistory SHALL be an empty array
+
+#### Scenario: Edge trigger validation
+
+- **WHEN** checking if a pilot can use Edge
+- **THEN** the system SHALL verify remainingPoints > 0
+- **AND** the system SHALL verify the trigger is one of the 6 valid types
+
+### Requirement: Misc SPA — Toughness
+
+The Toughness SPA SHALL grant -1 to consciousness check target numbers.
+
+#### Scenario: Toughness consciousness check bonus
+
+- **WHEN** a pilot with Toughness makes a consciousness check
+- **THEN** the consciousness check target number SHALL be reduced by 1
+
+### Requirement: Misc SPA — Cool Under Fire
+
+The Cool Under Fire SPA SHALL reduce heat generated per turn by 1.
+
+#### Scenario: Cool Under Fire heat reduction
+
+- **WHEN** a pilot with Cool Under Fire generates heat
+- **THEN** the heat generated SHALL be reduced by 1 per turn
+
+### Requirement: Misc SPA — Some Like it Hot
+
+The Some Like it Hot SPA SHALL reduce heat to-hit penalty by 1 at all thresholds.
+
+#### Scenario: Some Like it Hot heat penalty reduction
+
+- **WHEN** a pilot with Some Like it Hot has heat-based to-hit penalties
+- **THEN** the heat to-hit penalty SHALL be reduced by 1
+
+### Requirement: Tactical SPA — Speed Demon
+
+The Speed Demon SPA SHALL grant +1 hex when running at +1 heat.
+
+#### Scenario: Speed Demon movement bonus
+
+- **WHEN** a pilot with Speed Demon runs
+- **THEN** the movement SHALL be increased by 1 hex
+- **AND** heat generated SHALL be increased by 1
+
+### Requirement: Tactical SPA — Combat Intuition
+
+The Combat Intuition SPA SHALL allow movement before initiative winner in first round.
+
+#### Scenario: Combat Intuition first round bonus
+
+- **WHEN** the first round of combat begins
+- **AND** a pilot has Combat Intuition
+- **THEN** the pilot SHALL move before the initiative winner
+
+### Requirement: Misc SPA — Multi-Target
+
+The Multi-Target SPA SHALL reduce multi-target penalty.
+
+#### Scenario: Multi-Target penalty reduction
+
+- **WHEN** a pilot with Multi-Target fires at multiple targets
+- **THEN** the multi-target penalty SHALL be reduced
+
+### Requirement: Misc SPA — Iron Will
+
+The Iron Will SPA SHALL grant -2 to consciousness check target numbers (alias for Iron Man).
+
+#### Scenario: Iron Will consciousness check bonus
+
+- **WHEN** a pilot with Iron Will makes a consciousness check
+- **THEN** the consciousness check target number SHALL be reduced by 2
+
+### Requirement: Piloting SPA — Heavy Lifter
+
+The Heavy Lifter SPA SHALL allow carrying and throwing objects in physical combat.
+
+#### Scenario: Heavy Lifter object manipulation
+
+- **WHEN** a pilot with Heavy Lifter is in physical combat
+- **THEN** the pilot SHALL be able to carry and throw objects
+
+### Requirement: Piloting SPA — Animal Mimicry
+
+The Animal Mimicry SPA SHALL grant -1 PSR modifier in specific terrain.
+
+#### Scenario: Animal Mimicry terrain bonus
+
+- **WHEN** a pilot with Animal Mimicry makes a PSR in their designated terrain
+- **THEN** the PSR SHALL receive a -1 modifier
+
+### Requirement: Tactical SPA — Antagonizer
+
+The Antagonizer SPA SHALL force opponents to attack this unit first.
+
+#### Scenario: Antagonizer target priority
+
+- **WHEN** a pilot with Antagonizer is in combat
+- **THEN** opponents SHALL be forced to attack this unit first
 
 ### Requirement: Abilities Field in State Interfaces
 
