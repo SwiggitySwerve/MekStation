@@ -1190,9 +1190,11 @@ The store SHALL support resetting to initial state.
 
 ## Quick Game Store
 
-The Quick Game Store is a Zustand store that manages standalone quick game sessions with session storage persistence.
+The Quick Game Store is a Zustand store that manages standalone quick game sessions with session storage persistence. Quick sessions are designed for fast, standalone battles without campaign integration—units are added from the compendium, adapted for gameplay, and the session is auto-resolved or played interactively. Session storage ensures the game survives page refreshes but clears when the tab closes, maintaining the ephemeral nature of quick play.
 
 **Implementation**: `src/stores/useQuickGameStore.ts`
+
+**Source**: `src/stores/useQuickGameStore.ts:1-681`, `src/types/quickgame/QuickGameInterfaces.ts:1-336`, `src/engine/GameEngine.ts:1-631`
 
 ### Requirement: Session Storage Persistence
 
@@ -1418,6 +1420,199 @@ The store SHALL support restarting a game with or without resetting units.
 - **WHEN** `playAgain(resetUnits=true)` is called
 - **THEN** a new IQuickGameInstance SHALL be created with default empty player force
 - **AND** `isDirty` SHALL be set to true
+
+---
+
+## Quick Session Workflow
+
+The quick session workflow orchestrates the complete flow from unit selection through battle resolution. This section documents the detailed integration between the quick game store, compendium adapter, game engine, and gameplay store.
+
+**Source**: `src/stores/useQuickGameStore.ts:361-551`, `src/engine/GameEngine.ts:113-328`, `src/engine/adapters/CompendiumAdapter.ts`
+
+### Requirement: Unit Setup Flow
+
+The system SHALL support adding units from the compendium, adapting them for gameplay, and configuring pilot skills.
+
+#### Scenario: Add unit from compendium to quick game
+
+- **GIVEN** a user selects a unit from the compendium with sourceUnitId "atlas-as7-d"
+- **AND** the unit has chassis="Atlas", variant="AS7-D", bv=1897, tonnage=100
+- **WHEN** `addUnit(request)` is called with the unit data
+- **THEN** a new IQuickGameUnit SHALL be created via `createQuickGameUnit(request)`
+- **AND** the unit SHALL have a unique `instanceId` generated as `unit-${Date.now()}-${random}`
+- **AND** default pilot skills SHALL be set (gunnery=4, piloting=5) if not provided
+- **AND** `maxArmor` and `maxStructure` SHALL be copied from the request
+- **AND** current `armor` and `structure` SHALL be initialized to max values
+- **AND** `heat`, `isDestroyed`, and `isWithdrawn` SHALL be initialized to 0/false/false
+- **AND** the unit SHALL be added to `game.playerForce.units`
+- **AND** force totals SHALL be recalculated via `calculateForceTotals(units)`
+
+**Source**: `src/stores/useQuickGameStore.ts:94-116`, `src/types/quickgame/QuickGameInterfaces.ts:280-302`
+
+#### Scenario: Configure unit pilot skills
+
+- **GIVEN** a quick game unit with instanceId "unit-123"
+- **AND** the unit has default skills (gunnery=4, piloting=5)
+- **WHEN** `updateUnitSkills("unit-123", 3, 4)` is called
+- **THEN** the unit's `gunnery` SHALL be updated to 3
+- **AND** the unit's `piloting` SHALL be updated to 4
+- **AND** `isDirty` SHALL be set to true
+- **AND** the unit's BV SHALL remain unchanged (BV recalculation is out of scope for quick games)
+
+**Source**: `src/stores/useQuickGameStore.ts:143-169`
+
+#### Scenario: Unit adaptation for game engine
+
+- **GIVEN** a quick game unit with sourceUnitId "atlas-as7-d"
+- **AND** the unit has gunnery=3, piloting=4
+- **WHEN** `startBattle()` or `startSpectatorMode()` is called
+- **THEN** `adaptUnit(sourceUnitId, {side, gunnery, piloting})` SHALL be called from CompendiumAdapter
+- **AND** the adapter SHALL return an IAdaptedUnit with:
+  - `id`: unique game unit ID
+  - `weapons`: array of IWeapon objects with damage, heat, range
+  - `walkMP`, `runMP`, `jumpMP`: movement capabilities
+  - `armor`, `structure`: location-based damage tracking
+- **AND** the adapted unit SHALL be passed to GameEngine for session creation
+
+**Source**: `src/stores/useQuickGameStore.ts:371-387`, `src/engine/adapters/CompendiumAdapter.ts` (referenced)
+
+### Requirement: Session Storage Persistence Behavior
+
+The system SHALL persist quick game state to session storage, survive page refreshes, and clear on tab close.
+
+#### Scenario: Persist on state change
+
+- **GIVEN** a quick game instance exists
+- **WHEN** any state-modifying action is called (addUnit, setScenarioConfig, etc.)
+- **THEN** the `game` field SHALL be serialized to JSON
+- **AND** the JSON SHALL be stored in sessionStorage under key `QUICK_GAME_STORAGE_KEY` ("mekstation-quick-game")
+- **AND** `isDirty` SHALL be set to true
+- **AND** the persistence SHALL be handled automatically by zustand persist middleware
+
+**Source**: `src/stores/useQuickGameStore.ts:628-635`, `src/types/quickgame/QuickGameInterfaces.ts:335`
+
+#### Scenario: Restore after page refresh
+
+- **GIVEN** a persisted quick game exists in sessionStorage
+- **AND** the user refreshes the page (F5 or browser reload)
+- **WHEN** the store is initialized
+- **THEN** the `game` field SHALL be deserialized from sessionStorage
+- **AND** the game state SHALL be restored exactly as it was before refresh
+- **AND** `restoreFromSession()` SHALL return true
+- **AND** the user SHALL be able to continue from the same step (SelectUnits, ConfigureScenario, Review, Playing, Results)
+
+**Source**: `src/stores/useQuickGameStore.ts:616-621`
+
+#### Scenario: Clear on tab close
+
+- **GIVEN** a persisted quick game exists in sessionStorage
+- **WHEN** the user closes the browser tab or window
+- **THEN** sessionStorage SHALL be cleared by the browser
+- **AND** the quick game state SHALL be lost
+- **AND** opening a new tab SHALL start with `game=null` (no persisted state)
+
+**Note**: This is browser-native sessionStorage behavior. Unlike localStorage, sessionStorage is scoped to the tab/window and clears on close.
+
+#### Scenario: Partialize excludes transient state
+
+- **GIVEN** the store has `game`, `isLoading`, `error`, and `isDirty` fields
+- **WHEN** the persist middleware serializes state
+- **THEN** only the `game` field SHALL be persisted
+- **AND** `isLoading`, `error`, and `isDirty` SHALL NOT be persisted (transient UI state)
+- **AND** on restore, `isLoading` and `error` SHALL be initialized to false/null
+
+**Source**: `src/stores/useQuickGameStore.ts:631-633`
+
+### Requirement: Game Engine Integration
+
+The system SHALL integrate with GameEngine for auto-resolved battles and InteractiveSession for spectator mode.
+
+#### Scenario: Auto-resolve battle via GameEngine
+
+- **GIVEN** a quick game with player and opponent forces configured
+- **WHEN** `startBattle()` is called
+- **THEN** `isLoading` SHALL be set to true
+- **AND** all player units SHALL be adapted via `adaptUnit(sourceUnitId, {side: GameSide.Player, gunnery, piloting})`
+- **AND** all opponent units SHALL be adapted via `adaptUnit(sourceUnitId, {side: GameSide.Opponent, gunnery, piloting})`
+- **AND** a GameEngine instance SHALL be created with `seed: Date.now()`
+- **AND** `engine.runToCompletion(playerAdapted, opponentAdapted, gameUnits)` SHALL be called
+- **AND** the engine SHALL run the full battle simulation (all turns, all phases) until completion
+- **AND** the resulting IGameSession SHALL be passed to `useGameplayStore.getState().setSession(session)`
+- **AND** the winner SHALL be extracted from `session.currentState.result.winner`
+- **AND** `game.status` SHALL be set to GameStatus.Completed
+- **AND** `game.step` SHALL be set to QuickGameStep.Results
+- **AND** `game.winner` SHALL be set to 'player', 'opponent', or 'draw'
+- **AND** `game.victoryReason` SHALL be set from `session.currentState.result.reason`
+- **AND** `game.events` SHALL be set to `session.events` (full event log)
+- **AND** `isLoading` SHALL be set to false
+
+**Source**: `src/stores/useQuickGameStore.ts:361-460`, `src/engine/GameEngine.ts:132-285`
+
+#### Scenario: Launch spectator mode via InteractiveSession
+
+- **GIVEN** a quick game with player and opponent forces configured
+- **WHEN** `startSpectatorMode()` is called
+- **THEN** `isLoading` SHALL be set to true
+- **AND** all player and opponent units SHALL be adapted via `adaptUnit()`
+- **AND** a GameEngine instance SHALL be created
+- **AND** `engine.createInteractiveSession(playerAdapted, opponentAdapted, gameUnits)` SHALL be called
+- **AND** the InteractiveSession SHALL be passed to `useGameplayStore.getState().setSpectatorMode(interactiveSession, {enabled: true, playing: true, speed: 1})`
+- **AND** `game.status` SHALL be set to GameStatus.Active
+- **AND** `game.step` SHALL be set to QuickGameStep.Playing
+- **AND** `isLoading` SHALL be set to false
+- **AND** the gameplay store SHALL manage turn-by-turn AI execution
+
+**Source**: `src/stores/useQuickGameStore.ts:462-551`, `src/engine/GameEngine.ts:290-304`
+
+#### Scenario: Handoff to gameplay store
+
+- **GIVEN** a completed auto-resolved battle or active spectator mode session
+- **WHEN** the session is set in the gameplay store
+- **THEN** the gameplay store SHALL take ownership of the IGameSession
+- **AND** the quick game store SHALL retain the `game.events` for replay
+- **AND** the user SHALL be able to view the battle in the gameplay UI
+- **AND** the quick game store SHALL remain in Results or Playing step
+- **AND** the user SHALL be able to return to the quick game UI to start a new game via `playAgain()`
+
+**Source**: `src/stores/useQuickGameStore.ts:426`, `src/stores/useGameplayStore.ts` (referenced)
+
+### Requirement: Scenario Generation Integration
+
+The system SHALL generate scenarios using the scenario generator service and create opponent forces.
+
+#### Scenario: Generate scenario with faction and difficulty
+
+- **GIVEN** a quick game with player force (totalBV=5000, 2 units)
+- **AND** scenarioConfig with difficulty=1.2, enemyFaction=Faction.PIRATES, biome=BiomeType.DESERT
+- **WHEN** `generateScenario()` is called
+- **THEN** `scenarioGenerator.generate()` SHALL be called with:
+  - `playerBV: 5000`
+  - `playerUnitCount: 2`
+  - `faction: Faction.PIRATES`
+  - `era: Era.LATE_SUCCESSION_WARS`
+  - `difficulty: 1.2`
+  - `maxModifiers: scenarioConfig.modifierCount`
+  - `allowNegativeModifiers: scenarioConfig.allowNegativeModifiers`
+  - `biome: BiomeType.DESERT`
+  - `scenarioType: scenarioConfig.scenarioType`
+  - `seed: Date.now()`
+- **AND** the generator SHALL return an IGeneratedScenario with opFor units
+- **AND** opponent units SHALL be created from `scenario.opFor.units` via `createQuickGameUnit()`
+- **AND** `game.opponentForce` SHALL be set with units, totalBV, and totalTonnage
+- **AND** `game.scenario` SHALL be set to the generated scenario
+- **AND** `isLoading` SHALL be set to false
+
+**Source**: `src/stores/useQuickGameStore.ts:191-277`, `src/services/generators` (referenced)
+
+#### Scenario: Scenario generation failure
+
+- **GIVEN** a quick game with no player units
+- **WHEN** `generateScenario()` is called
+- **THEN** `error` SHALL be set to "Add at least one unit to generate scenario"
+- **AND** `isLoading` SHALL remain false
+- **AND** no scenario SHALL be generated
+
+**Source**: `src/stores/useQuickGameStore.ts:198-201`
 
 ---
 
@@ -1699,16 +1894,97 @@ interface IQuickGameActions {
 
 ```typescript
 interface IQuickGameUnitRequest {
-  sourceUnitId: string;
-  name: string;
-  chassis: string;
-  variant: string;
-  bv: number;
-  tonnage: number;
-  gunnery: number;
-  piloting: number;
-  pilotName?: string;
-  maxArmor: Record<string, number>;
-  maxStructure: Record<string, number>;
+  readonly sourceUnitId: string;
+  readonly name: string;
+  readonly chassis: string;
+  readonly variant: string;
+  readonly bv: number;
+  readonly tonnage: number;
+  readonly gunnery?: number; // Default 4
+  readonly piloting?: number; // Default 5
+  readonly pilotName?: string;
+  readonly maxArmor: Record<string, number>;
+  readonly maxStructure: Record<string, number>;
 }
 ```
+
+**Source**: `src/types/quickgame/QuickGameInterfaces.ts:79-102`
+
+### IQuickGameUnit
+
+```typescript
+interface IQuickGameUnit {
+  readonly instanceId: string; // Generated: unit-${Date.now()}-${random}
+  readonly sourceUnitId: string;
+  readonly name: string;
+  readonly chassis: string;
+  readonly variant: string;
+  readonly bv: number;
+  readonly tonnage: number;
+  readonly gunnery: number;
+  readonly piloting: number;
+  readonly pilotName?: string;
+  readonly maxArmor: Record<string, number>;
+  readonly maxStructure: Record<string, number>;
+  armor: Record<string, number>; // Mutable (damage tracking)
+  structure: Record<string, number>; // Mutable (damage tracking)
+  heat: number; // Mutable
+  isDestroyed: boolean; // Mutable
+  isWithdrawn: boolean; // Mutable
+}
+```
+
+**Source**: `src/types/quickgame/QuickGameInterfaces.ts:39-74`
+
+### IAdaptedUnit
+
+```typescript
+interface IAdaptedUnit {
+  id: string;
+  weapons: readonly IWeapon[];
+  walkMP: number;
+  runMP: number;
+  jumpMP: number;
+  armor: Record<string, number>;
+  structure: Record<string, number>;
+  // ... additional game engine fields
+}
+```
+
+**Source**: `src/engine/types.ts` (referenced)
+
+### GameStatus
+
+```typescript
+enum GameStatus {
+  Setup = 'setup',
+  Active = 'active',
+  Completed = 'completed',
+}
+```
+
+**Source**: `src/types/gameplay/GameSessionInterfaces.ts` (referenced)
+
+### Faction
+
+```typescript
+enum Faction {
+  PIRATES = 'pirates',
+  HOUSE_STEINER = 'house_steiner',
+  HOUSE_DAVION = 'house_davion',
+  HOUSE_LIAO = 'house_liao',
+  HOUSE_MARIK = 'house_marik',
+  HOUSE_KURITA = 'house_kurita',
+  // ... additional factions
+}
+```
+
+**Source**: `src/constants/scenario/rats.ts` (referenced)
+
+### QUICK_GAME_STORAGE_KEY
+
+```typescript
+export const QUICK_GAME_STORAGE_KEY = 'mekstation-quick-game';
+```
+
+**Source**: `src/types/quickgame/QuickGameInterfaces.ts:335`
