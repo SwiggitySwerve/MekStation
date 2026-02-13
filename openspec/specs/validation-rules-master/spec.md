@@ -485,7 +485,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 
 **Severity**: Error
 
-**Condition**: `componentTechBase !== unitTechBase && componentTechBase !== TechBase.BOTH` (non-mixed units)
+**Condition**: `componentTechBase !== unitTechBase` (non-mixed units)
 
 **Error Message**: `"Component tech base {componentTechBase} is incompatible with unit tech base {unitTechBase}"`
 

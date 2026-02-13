@@ -52,11 +52,14 @@ The system SHALL enforce valid engine ratings based on unit type.
 
 The system SHALL calculate engine weight based on rating and engine type.
 
-#### Scenario: Engine weight formula
+#### Scenario: Engine weight table lookup
 
 - **WHEN** calculating engine weight
-- **THEN** Standard weight = (rating/100)² × 5 tons
+- **THEN** Standard weight is determined by ENGINE_WEIGHT_TABLE lookup based on rating
 - **AND** XL weight = Standard × 0.5
+- **AND** Light weight = Standard × 1.5
+- **AND** XXL weight = Standard × 2.0
+- **AND** Compact weight = Standard × 1.5
 - **AND** weight SHALL be rounded to nearest 0.5 ton
 
 ### Requirement: Integral Heat Sinks
