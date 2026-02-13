@@ -84,6 +84,7 @@ Kick attacks SHALL use `piloting skill - 2` plus actuator modifiers for to-hit, 
 
 - **WHEN** a kick attack hits
 - **THEN** the hit location SHALL be determined by 1d6 on the kick table
+- **AND** roll 1-3=RL, 4-6=LL
 
 #### Scenario: Target PSR after being kicked
 
@@ -99,6 +100,26 @@ Kick attacks SHALL use `piloting skill - 2` plus actuator modifiers for to-hit, 
 
 - **WHEN** a unit attempts to kick with a leg whose hip actuator is destroyed
 - **THEN** the kick SHALL NOT be permitted with that leg
+
+#### Scenario: Kick with damaged upper leg actuator
+
+- **WHEN** a unit kicks with a leg whose upper leg actuator is destroyed
+- **THEN** the to-hit SHALL receive a +2 modifier
+
+#### Scenario: Kick with damaged lower leg actuator
+
+- **WHEN** a unit kicks with a leg whose lower leg actuator is destroyed
+- **THEN** the to-hit SHALL receive a +2 modifier
+
+#### Scenario: Kick with destroyed foot actuator
+
+- **WHEN** a unit kicks with a leg whose foot actuator is destroyed
+- **THEN** the to-hit SHALL receive a +1 modifier
+
+#### Scenario: Cannot kick while prone
+
+- **WHEN** a unit is prone
+- **THEN** kick attacks SHALL NOT be permitted
 
 ### Requirement: Charge Attack Resolution
 
@@ -117,7 +138,8 @@ Charge attacks SHALL use piloting plus movement modifiers for to-hit, deal `ceil
 #### Scenario: Charge damage to attacker
 
 - **WHEN** a charge hits and the target weighs 75 tons
-- **THEN** the attacker SHALL take damage equal to `ceil(75 / 10) × 1 = 8` (target weight based)
+- **THEN** the attacker SHALL take damage equal to `ceil(75 / 10) = 8` (target weight based)
+- **AND** the damage formula SHALL be `ceil(targetWeight / 10)`
 
 #### Scenario: Both units make PSR after charge
 
@@ -142,8 +164,9 @@ DFA attacks SHALL use piloting plus jump movement modifiers for to-hit, deal `ce
 #### Scenario: DFA damage to attacker legs
 
 - **WHEN** a 70-ton mech lands a DFA
-- **THEN** attacker leg damage SHALL be `ceil(70 / 5) = 14`
+- **THEN** attacker leg damage SHALL be `ceil(70 / 5) = 14` total
 - **AND** damage SHALL be split equally between both legs
+- **AND** each leg SHALL take `ceil(totalDamage / 2) = ceil(14 / 2) = 7` damage
 
 #### Scenario: Both units PSR after DFA
 
@@ -199,16 +222,22 @@ The system SHALL support melee weapon attacks with weapon-specific to-hit modifi
 
 ### Requirement: TSM Melee Damage Bonus
 
-Triple Strength Myomer (TSM) SHALL double weight-based melee damage when active.
+Triple Strength Myomer (TSM) SHALL double weight-based melee damage when active at heat 9 or higher.
+
+#### Scenario: TSM activation threshold
+
+- **WHEN** a unit has TSM installed
+- **THEN** TSM SHALL activate when heat >= 9
+- **AND** effective weight for damage calculations SHALL be doubled
 
 #### Scenario: TSM doubles punch damage
 
-- **WHEN** a 50-ton mech with active TSM punches
+- **WHEN** a 50-ton mech with active TSM (heat >= 9) punches
 - **THEN** punch damage SHALL be `ceil(50 / 10) × 2 = 10`
 
 #### Scenario: TSM doubles kick damage
 
-- **WHEN** a 50-ton mech with active TSM kicks
+- **WHEN** a 50-ton mech with active TSM (heat >= 9) kicks
 - **THEN** kick damage SHALL be `floor(50 / 5) × 2 = 20`
 
 ### Requirement: Underwater Melee Penalty
@@ -219,6 +248,42 @@ Physical attacks performed underwater SHALL deal half damage.
 
 - **WHEN** a unit performs a physical attack while standing in water depth 2+
 - **THEN** all physical attack damage SHALL be halved (round down)
+
+### Requirement: Physical Attack Resolution Flow
+
+The system SHALL resolve physical attacks through a complete flow: restriction check, to-hit calculation, dice roll, damage calculation, and hit location determination.
+
+#### Scenario: Complete attack resolution
+
+- **WHEN** resolving a physical attack
+- **THEN** the system SHALL first check attack restrictions (actuators, weapon firing, prone status)
+- **AND** if restricted, SHALL return a failed result with reason
+- **AND** if allowed, SHALL calculate to-hit target number with all modifiers
+- **AND** SHALL roll 2d6 for to-hit check
+- **AND** if hit, SHALL calculate damage and determine hit location
+- **AND** if miss, SHALL apply miss consequences (kick/DFA PSR)
+
+#### Scenario: Hit location determination
+
+- **WHEN** a physical attack hits and deals damage
+- **THEN** the system SHALL roll 1d6 for hit location
+- **AND** punch/DFA/melee weapons SHALL use punch hit location table
+- **AND** kick SHALL use kick hit location table
+
+#### Scenario: PSR triggers
+
+- **WHEN** a kick hits
+- **THEN** the target SHALL make a PSR to avoid falling
+- **WHEN** a kick misses
+- **THEN** the attacker SHALL make a PSR to avoid falling
+- **WHEN** a DFA hits
+- **THEN** both attacker and target SHALL make PSRs to avoid falling
+- **WHEN** a DFA misses
+- **THEN** the attacker SHALL make a PSR with +4 modifier
+- **WHEN** a charge hits
+- **THEN** both attacker and target SHALL make PSRs to avoid falling
+- **WHEN** a push hits
+- **THEN** the target SHALL make a PSR to avoid falling
 
 ### Requirement: Injectable Randomness for Physical Attacks
 
