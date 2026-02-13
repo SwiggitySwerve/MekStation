@@ -2,7 +2,9 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines firing arc calculations for BattleMech combat. The system determines which firing arc (Front, Left, Right, Rear) a target occupies relative to an attacker's position and facing direction. This specification covers arc determination from hex coordinates, arc-based weapon validation, and arc direction utilities for tactical positioning and hit location table selection.
+
+**Implementation**: `src/utils/gameplay/firingArcs.ts`
 
 ## Requirements
 
@@ -93,6 +95,64 @@ Torso twist SHALL extend the front arc by one hex-side in the twist direction.
 - **THEN** arm-mounted weapons SHALL use the twisted front arc
 - **AND** torso-mounted weapons SHALL use the twisted front arc
 - **AND** rear-mounted weapons SHALL use the twisted rear arc
+
+### Requirement: Arc Direction Utilities
+
+The system SHALL provide utility functions to get the hex directions that correspond to each firing arc.
+
+#### Scenario: Get front arc directions
+
+- **WHEN** calling `getFrontArcDirections(facing)` with facing = 0
+- **THEN** the result SHALL be an array of 3 Facing values: [5, 0, 1]
+- **AND** these represent the three hex directions in the front arc
+
+#### Scenario: Get rear arc directions
+
+- **WHEN** calling `getRearArcDirections(facing)` with facing = 0
+- **THEN** the result SHALL be an array of 3 Facing values: [2, 3, 4]
+- **AND** these represent the three hex directions in the rear arc
+
+#### Scenario: Get left side direction
+
+- **WHEN** calling `getLeftArcDirection(facing)` with facing = 0
+- **THEN** the result SHALL be Facing value 2
+- **AND** this represents the left side direction relative to facing
+
+#### Scenario: Get right side direction
+
+- **WHEN** calling `getRightArcDirection(facing)` with facing = 0
+- **THEN** the result SHALL be Facing value 4
+- **AND** this represents the right side direction relative to facing
+
+### Requirement: Arc Hexes Enumeration
+
+The system SHALL provide a function to enumerate all hexes within a specific arc at a given range.
+
+#### Scenario: Get all hexes in front arc
+
+- **WHEN** calling `getArcHexes(center, facing, FiringArc.Front, maxRange)` with center = (0, 0), facing = 0, maxRange = 2
+- **THEN** the result SHALL be an array of IHexCoordinate values
+- **AND** all returned hexes SHALL be within maxRange distance from center
+- **AND** all returned hexes SHALL fall within the front arc relative to facing
+- **AND** the center hex SHALL NOT be included
+
+#### Scenario: Get all hexes in rear arc
+
+- **WHEN** calling `getArcHexes(center, facing, FiringArc.Rear, maxRange)` with center = (0, 0), facing = 0, maxRange = 2
+- **THEN** the result SHALL be an array of IHexCoordinate values
+- **AND** all returned hexes SHALL fall within the rear arc relative to facing
+
+#### Scenario: Get all hexes in left side arc
+
+- **WHEN** calling `getArcHexes(center, facing, FiringArc.Left, maxRange)` with center = (0, 0), facing = 0, maxRange = 2
+- **THEN** the result SHALL be an array of IHexCoordinate values
+- **AND** all returned hexes SHALL fall within the left side arc relative to facing
+
+#### Scenario: Get all hexes in right side arc
+
+- **WHEN** calling `getArcHexes(center, facing, FiringArc.Right, maxRange)` with center = (0, 0), facing = 0, maxRange = 2
+- **THEN** the result SHALL be an array of IHexCoordinate values
+- **AND** all returned hexes SHALL fall within the right side arc relative to facing
 
 ### Requirement: Replace Hardcoded FiringArc.Front
 

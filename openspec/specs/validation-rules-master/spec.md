@@ -485,7 +485,7 @@ This document consolidates ALL validation rules from all MekStation specificatio
 
 **Severity**: Error
 
-**Condition**: `componentTechBase !== unitTechBase && componentTechBase !== TechBase.BOTH` (non-mixed units)
+**Condition**: `componentTechBase !== unitTechBase` (non-mixed units)
 
 **Error Message**: `"Component tech base {componentTechBase} is incompatible with unit tech base {unitTechBase}"`
 
@@ -641,17 +641,17 @@ This document consolidates ALL validation rules from all MekStation specificatio
 
 ### VAL-RULES-002: Advanced Rules Legality
 
-**Rule**: Experimental components cannot be used in tournament play
+**Rule**: Experimental components cannot be used in Advanced rules level
 
 **Severity**: Warning
 
-**Condition**: `unit.isTournamentUnit && component.rulesLevel === RulesLevel.EXPERIMENTAL`
+**Condition**: `unit.rulesLevel === RulesLevel.ADVANCED && component.rulesLevel === RulesLevel.EXPERIMENTAL`
 
-**Error Message**: `"Experimental components are not legal for tournament play"`
+**Error Message**: `"Experimental components are not legal for Advanced rules level"`
 
 **Source**: Rules Level System (spec.md, lines 227-240)
 
-**User Action**: Remove experimental components or disable tournament mode
+**User Action**: Remove experimental components or increase rules level to Experimental
 
 ---
 

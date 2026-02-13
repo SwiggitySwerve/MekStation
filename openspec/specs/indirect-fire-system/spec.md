@@ -14,7 +14,7 @@ LRM weapons SHALL support indirect fire, allowing attacks against targets withou
 
 - **WHEN** an LRM weapon fires indirectly at a target
 - **THEN** a friendly unit MUST have line of sight to the target
-- **AND** the spotter MUST NOT have moved more than walking speed that turn
+- **AND** the spotter MUST NOT have run or jumped that turn (stationary or walked only)
 - **AND** the attack SHALL be resolved using the standard to-hit calculation plus indirect fire modifiers
 
 #### Scenario: Indirect fire without spotter
@@ -44,7 +44,7 @@ If the spotter unit walked during its movement phase, an additional +1 to-hit pe
 
 #### Scenario: Spotter stood still
 
-- **WHEN** the spotter unit did not move during its movement phase
+- **WHEN** the spotter unit did not move during its movement phase (MovementType.Stationary)
 - **THEN** only the base +1 indirect fire penalty SHALL apply
 
 #### Scenario: Spotter ran or jumped
@@ -76,7 +76,9 @@ Semi-guided LRM attacks SHALL require TAG designation and use a different hit de
 - **WHEN** a semi-guided LRM fires at a target without active TAG designation
 - **THEN** the weapon SHALL fire as a standard LRM (not semi-guided)
 
-### Requirement: Arrow IV Indirect Fire
+### Requirement: Arrow IV Indirect Fire (Future)
+
+> **Note**: Arrow IV artillery is not currently implemented. This requirement is reserved for future implementation.
 
 Arrow IV artillery SHALL use a separate indirect fire mechanic from standard LRM indirect fire.
 
@@ -85,6 +87,8 @@ Arrow IV artillery SHALL use a separate indirect fire mechanic from standard LRM
 - **WHEN** an Arrow IV system fires indirectly
 - **THEN** the attack SHALL use artillery deviation rules
 - **AND** the attack SHALL NOT require a spotter (though a spotter improves accuracy)
+
+> **Implementation Status**: Not implemented. Arrow IV mechanics are planned for future development.
 
 ### Requirement: Indirect Fire LOS Validation
 

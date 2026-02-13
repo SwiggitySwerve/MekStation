@@ -2,7 +2,21 @@
 
 ## Purpose
 
-TBD - created by archiving change add-gameplay-roadmap. Update Purpose after archive.
+**PLANNING DOCUMENT - NOT A CODE SPECIFICATION**
+
+This document describes the development workflow and phasing strategy for implementing gameplay features in MekStation. It is a meta-level planning artifact that organizes feature development into sequential phases with dependency tracking.
+
+**This specification does NOT require code implementation.** The features mentioned here are covered by dedicated specifications:
+
+- Multi-unit support: `force-management`, `force-hierarchy`
+- Pilot management: `personnel-management`, `personnel-progression`, `personnel-status-roles`
+- Game session: `game-session-management`, `quick-session`
+- Combat resolution: `combat-resolution`, `spatial-combat-system`, `weapon-resolution-system`
+- Hex grid: `tactical-map-interface`, `terrain-system`
+- Gameplay UI: `tactical-map-interface`, `campaign-hud`
+- Encounter system: `combat-analytics`, `after-combat-report`
+
+**Disposition**: This document serves as a roadmap for coordinating development across multiple specifications. It should be retained as a planning reference but does not drive implementation directly.
 
 ## Requirements
 

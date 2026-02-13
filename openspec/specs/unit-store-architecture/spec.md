@@ -253,7 +253,7 @@ The setEngineType store action SHALL detect and unallocate equipment displaced b
 - **GIVEN** equipment is allocated in side torso slots that new engine requires
 - **WHEN** setEngineType action is called with an engine requiring more side torso slots
 - **THEN** displaced equipment location SHALL be set to undefined
-- **AND** displaced equipment slots SHALL be set to undefined
+- **AND** displaced equipment critical slots SHALL be set to undefined
 - **AND** engine type SHALL be updated to the new type
 - **AND** isModified SHALL be set to true
 
@@ -273,7 +273,7 @@ The setGyroType store action SHALL detect and unallocate equipment displaced by 
 - **GIVEN** equipment is allocated in center torso slots that new gyro requires
 - **WHEN** setGyroType action is called with a gyro requiring more slots
 - **THEN** displaced equipment location SHALL be set to undefined
-- **AND** displaced equipment slots SHALL be set to undefined
+- **AND** displaced equipment critical slots SHALL be set to undefined
 - **AND** gyro type SHALL be updated to the new type
 - **AND** isModified SHALL be set to true
 

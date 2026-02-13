@@ -114,6 +114,8 @@ export interface IWeaponAttack {
   readonly mediumRange: number;
   /** Long range (medium+1 to N: +4) */
   readonly longRange: number;
+  /** Extreme range (long+1 to N: +6, optional for non-artillery weapons) */
+  readonly extremeRange?: number;
   /** Is this a cluster weapon? */
   readonly isCluster: boolean;
   /** Cluster size (if cluster weapon) */
@@ -579,6 +581,7 @@ export interface IAttackerState {
   readonly secondaryTarget?: ISecondaryTarget;
   readonly indirectFire?: IIndirectFire;
   readonly calledShot?: boolean;
+  readonly teammateCalledShot?: boolean;
   readonly abilities?: readonly string[];
   readonly weaponType?: string;
   readonly designatedWeaponType?: string;
@@ -600,6 +603,8 @@ export interface ITargetState {
   readonly prone: boolean;
   readonly immobile: boolean;
   readonly partialCover: boolean;
+  /** Whether the target is in hull-down position (shields legs from front arc). */
+  readonly hullDown?: boolean;
   readonly unitQuirks?: readonly string[];
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
   readonly abilities?: readonly string[];

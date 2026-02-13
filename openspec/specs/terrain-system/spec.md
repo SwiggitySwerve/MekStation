@@ -59,8 +59,8 @@ The system SHALL define an enumeration of terrain types matching TechManual cate
 - Clear, Pavement, Road
 - LightWoods, HeavyWoods
 - Rough, Rubble
-- Water (with depth levels 0-3+)
-- Building (with CF levels)
+- Water
+- Building
 - Sand, Mud, Snow, Ice, Swamp
 - Bridge
 - Fire, Smoke
@@ -99,26 +99,11 @@ The system SHALL calculate movement point cost based on terrain type, terrain le
 **WHEN** calculating movement cost for Jump movement
 **THEN** the cost SHALL be 1 MP (jumping ignores ground terrain)
 
-#### Scenario: Water depth 1 walking
+#### Scenario: Water walking cost
 
-**GIVEN** a hex with terrain type Water at depth 1
+**GIVEN** a hex with terrain type Water
 **WHEN** calculating movement cost for Walk movement
 **THEN** the cost SHALL be 2 MP (1 base + 1 water)
-**AND** a Piloting Skill Roll (PSR) SHALL be required
-
-#### Scenario: Water depth 2 walking
-
-**GIVEN** a hex with terrain type Water at depth 2
-**WHEN** calculating movement cost for Walk movement
-**THEN** the cost SHALL be 4 MP (1 base + 3 water)
-**AND** Running SHALL be prohibited
-
-#### Scenario: Water depth 3+ impassable for walking
-
-**GIVEN** a hex with terrain type Water at depth 3 or greater
-**WHEN** calculating movement cost for Walk movement
-**THEN** the movement SHALL be marked as impassable
-**AND** only Jump movement SHALL be allowed
 
 #### Scenario: Rough terrain cost
 
@@ -164,23 +149,17 @@ The system SHALL calculate to-hit modifiers based on terrain between attacker an
 **WHEN** calculating the to-hit modifier for attacks against that target
 **THEN** +2 SHALL be added to the target number
 
-#### Scenario: Target in water depth 1
+#### Scenario: Target in water
 
-**GIVEN** a target standing in water at depth 1
+**GIVEN** a target standing in water
 **WHEN** calculating the to-hit modifier for attacks against that target
 **THEN** -1 SHALL be applied (easier to hit due to restricted movement)
 
-#### Scenario: Light smoke intervening
+#### Scenario: Smoke intervening
 
-**GIVEN** an attack where the line of fire passes through light smoke
+**GIVEN** an attack where the line of fire passes through smoke
 **WHEN** calculating the to-hit modifier
-**THEN** each light smoke hex SHALL add +1 to the target number
-
-#### Scenario: Heavy smoke intervening
-
-**GIVEN** an attack where the line of fire passes through heavy smoke
-**WHEN** calculating the to-hit modifier
-**THEN** each heavy smoke hex SHALL add +2 to the target number
+**THEN** each smoke hex SHALL add +1 to the target number
 
 ---
 
@@ -208,11 +187,11 @@ The system SHALL classify terrain into cover levels for partial/full cover deter
 **WHEN** determining cover level
 **THEN** cover SHALL be FULL
 
-#### Scenario: Partial cover in water depth 1
+#### Scenario: Partial cover in water
 
-**GIVEN** a unit standing in Water at depth 1
+**GIVEN** a unit standing in Water
 **WHEN** determining cover level
-**THEN** cover SHALL be PARTIAL (hull down position allowed)
+**THEN** cover SHALL be PARTIAL
 
 ---
 
@@ -222,17 +201,11 @@ The system SHALL calculate heat modifiers based on terrain, particularly water c
 
 **Priority**: High
 
-#### Scenario: Water depth 1 cooling
+#### Scenario: Water cooling
 
-**GIVEN** a BattleMech standing in Water at depth 1
+**GIVEN** a BattleMech standing in Water
 **WHEN** calculating heat dissipation for the Heat Phase
 **THEN** heat sink capacity SHALL be increased by 2
-
-#### Scenario: Water depth 2+ cooling
-
-**GIVEN** a BattleMech standing in Water at depth 2 or greater
-**WHEN** calculating heat dissipation for the Heat Phase
-**THEN** heat sink capacity SHALL be increased by 4
 
 #### Scenario: Fire hex heat
 
@@ -328,81 +301,6 @@ The system SHALL add movement cost for elevation changes.
 **THEN** the movement SHALL be prohibited (must use Jump)
 
 ---
-
-### Requirement: Wire Terrain To-Hit Modifiers into calculateToHit()
-
-The existing terrain to-hit modifiers defined in the terrain-system spec SHALL be wired into the `calculateToHit()` function in the combat pipeline.
-
-#### Scenario: Woods modifier applied in calculateToHit
-
-- **WHEN** calculating to-hit for an attack where the target is in light woods
-- **THEN** `calculateToHit()` SHALL include a +1 terrain modifier for light woods
-- **AND** the modifier SHALL appear in the to-hit modifier breakdown
-
-#### Scenario: Heavy woods modifier applied
-
-- **WHEN** calculating to-hit for an attack where the target is in heavy woods
-- **THEN** `calculateToHit()` SHALL include a +2 terrain modifier for heavy woods
-
-#### Scenario: Partial cover modifier applied
-
-- **WHEN** calculating to-hit for an attack where the target has partial cover
-- **THEN** `calculateToHit()` SHALL include a +1 partial cover modifier
-- **AND** partial cover SHALL also affect hit location (legs more likely)
-
-### Requirement: Terrain Modifiers for Target-In-Terrain
-
-The to-hit calculation SHALL apply modifiers based on the terrain the target occupies.
-
-#### Scenario: Target in water depth 1
-
-- **WHEN** a target is standing in water depth 1
-- **THEN** the to-hit calculation SHALL include the water depth 1 modifier per the terrain properties table
-
-#### Scenario: Target in building
-
-- **WHEN** a target is standing in a building hex
-- **THEN** the to-hit calculation SHALL include the building's to-hit-target-in modifier
-
-### Requirement: Intervening Terrain Modifiers
-
-The to-hit calculation SHALL apply cumulative modifiers for terrain hexes along the line of fire between attacker and target.
-
-#### Scenario: Intervening light woods
-
-- **WHEN** the line of fire passes through one light woods hex
-- **THEN** `calculateToHit()` SHALL include a +1 intervening terrain modifier
-
-#### Scenario: Multiple intervening terrain hexes
-
-- **WHEN** the line of fire passes through two light woods hexes
-- **THEN** `calculateToHit()` SHALL include a +2 intervening terrain modifier (cumulative)
-
-#### Scenario: Intervening heavy woods
-
-- **WHEN** the line of fire passes through a heavy woods hex
-- **THEN** `calculateToHit()` SHALL include a +2 intervening terrain modifier per heavy woods hex
-
-### Requirement: Water Partial Cover for Standing Units
-
-Units standing in water depth 1 SHALL receive partial cover benefits.
-
-#### Scenario: Water depth 1 partial cover
-
-- **WHEN** a unit is standing in water depth 1
-- **THEN** the unit SHALL be treated as having partial cover
-- **AND** the to-hit calculation SHALL include the partial cover modifier
-- **AND** hit location results targeting legs SHALL be more probable (shifted to lower body)
-
-### Requirement: Terrain Modifier Integration Does Not Duplicate
-
-The terrain modifier integration SHALL ensure modifiers are not applied twice (once by terrain system and once by to-hit system).
-
-#### Scenario: No duplicate terrain modifiers
-
-- **WHEN** calculating to-hit with terrain modifiers
-- **THEN** each terrain effect SHALL be applied exactly once
-- **AND** the modifier list SHALL clearly identify terrain-sourced modifiers
 
 ## Data Model Requirements
 
@@ -570,30 +468,24 @@ totalModifier = sumInterveningModifiers + targetTerrainModifier
 
 ## Terrain Properties Table
 
-| Terrain           | Walk Cost | To-Hit Intervening | To-Hit Target In | Heat | Cover   | Blocks LOS |
-| ----------------- | --------- | ------------------ | ---------------- | ---- | ------- | ---------- |
-| Clear             | +0        | +0                 | +0               | 0    | None    | No         |
-| Pavement          | +0        | +0                 | +0               | 0    | None    | No         |
-| Road              | +0        | +0                 | +0               | 0    | None    | No         |
-| LightWoods        | +1        | +1                 | +1               | 0    | Partial | No         |
-| HeavyWoods        | +2        | +2                 | +2               | 0    | Full    | Yes        |
-| Rough             | +1        | +0                 | +0               | 0    | None    | No         |
-| Rubble            | +1        | +0                 | +0               | 0    | None    | No         |
-| Water D1          | +1        | +0                 | -1               | -2   | Partial | No         |
-| Water D2          | +3        | +0                 | +1               | -4   | Partial | No         |
-| Water D3+         | N/A       | +0                 | N/A              | N/A  | N/A     | No         |
-| Sand              | +1        | +0                 | +0               | 0    | None    | No         |
-| Mud               | +1        | +0                 | +0               | 0    | None    | No         |
-| Snow (thin)       | +0        | +0                 | +0               | 0    | None    | No         |
-| Snow (deep)       | +1        | +0                 | +0               | 0    | None    | No         |
-| Ice               | +0        | +0                 | +0               | 0    | None    | No         |
-| Swamp             | +2        | +0                 | +1               | 0    | Partial | No         |
-| Building (light)  | +1        | +1                 | +1               | 0    | Partial | Yes        |
-| Building (medium) | +2        | +2                 | +2               | 0    | Full    | Yes        |
-| Building (heavy)  | +3        | +3                 | +3               | 0    | Full    | Yes        |
-| Fire              | +0        | +0                 | +0               | +5   | None    | No         |
-| Smoke (light)     | +0        | +1                 | +1               | 0    | Partial | No         |
-| Smoke (heavy)     | +0        | +2                 | +2               | 0    | Full    | Yes        |
+| Terrain    | Walk Cost | To-Hit Intervening | To-Hit Target In | Heat | Cover   | Blocks LOS |
+| ---------- | --------- | ------------------ | ---------------- | ---- | ------- | ---------- |
+| Clear      | +0        | +0                 | +0               | 0    | None    | No         |
+| Pavement   | +0        | +0                 | +0               | 0    | None    | No         |
+| Road       | +0        | +0                 | +0               | 0    | None    | No         |
+| LightWoods | +1        | +1                 | +1               | 0    | Partial | No         |
+| HeavyWoods | +2        | +2                 | +2               | 0    | Full    | Yes        |
+| Rough      | +1        | +0                 | +0               | 0    | None    | No         |
+| Rubble     | +1        | +0                 | +0               | 0    | None    | No         |
+| Water      | +1        | +0                 | -1               | -2   | Partial | No         |
+| Sand       | +1        | +0                 | +0               | 0    | None    | No         |
+| Mud        | +1        | +0                 | +0               | 0    | None    | No         |
+| Snow       | +0        | +0                 | +0               | 0    | None    | No         |
+| Ice        | +0        | +0                 | +0               | 0    | None    | No         |
+| Swamp      | +2        | +0                 | +1               | 0    | Partial | No         |
+| Building   | +1        | +1                 | +1               | 0    | Partial | Yes        |
+| Fire       | +0        | +0                 | +0               | +5   | None    | No         |
+| Smoke      | +0        | +1                 | +1               | 0    | Partial | No         |
 
 ---
 

@@ -32,19 +32,19 @@ Heat sinks up to engine capacity SHALL be integral.
 - **WHEN** engine has integral capacity
 - **THEN** integral heat sinks require 0 slots
 - **AND** integral heat sinks add 0 weight
-- **AND** capacity = floor(engineRating / 25) with no maximum cap
+- **AND** capacity = min(10, floor(engineRating / 25))
 
 #### Scenario: High-rating engine integral capacity
 
 - **WHEN** engine rating is 400
-- **THEN** integral capacity SHALL be 16 (400 / 25)
-- **AND** 16 heat sinks can be integrated without slots
+- **THEN** integral capacity SHALL be 10 (capped at min(10, 400 / 25))
+- **AND** 10 heat sinks can be integrated without slots
 
 #### Scenario: Mid-rating engine integral capacity
 
 - **WHEN** engine rating is 300
-- **THEN** integral capacity SHALL be 12 (300 / 25)
-- **AND** 12 heat sinks can be integrated without slots
+- **THEN** integral capacity SHALL be 10 (capped at min(10, 300 / 25))
+- **AND** 10 heat sinks can be integrated without slots
 
 ### Requirement: Minimum Heat Sinks
 

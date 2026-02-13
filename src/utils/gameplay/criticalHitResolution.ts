@@ -9,6 +9,7 @@
  * @spec openspec/changes/full-combat-parity/specs/critical-hit-system/spec.md
  */
 
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
   CombatLocation,
@@ -185,6 +186,44 @@ export type CriticalHitEvent =
       payload: IUnitDestroyedPayload;
     }
   | { type: 'pilot_hit'; payload: IPilotHitPayload };
+
+// =============================================================================
+// Hardened Armor Helpers
+// =============================================================================
+
+/**
+ * Check if an armor type uses hardened armor rules (double crit roll, TAC prevention).
+ *
+ * @spec openspec/specs/hardened-armor-combat/spec.md
+ */
+export function isHardenedArmor(armorType?: ArmorTypeEnum): boolean {
+  return armorType === ArmorTypeEnum.HARDENED;
+}
+
+// =============================================================================
+// Ferro-Lamellor Armor Helpers
+// =============================================================================
+
+/**
+ * Check if an armor type uses Ferro-Lamellor rules (crit count halving).
+ *
+ * @spec openspec/specs/ferro-lamellor-armor-combat/spec.md
+ */
+export function isFerroLamellorArmor(armorType?: ArmorTypeEnum): boolean {
+  return armorType === ArmorTypeEnum.FERRO_LAMELLOR;
+}
+
+/**
+ * Halve a critical hit count for Ferro-Lamellor armor.
+ * Returns floor(critCount / 2) with a minimum of 1 (when critCount > 0).
+ * A critCount of 0 remains 0.
+ *
+ * @spec openspec/specs/ferro-lamellor-armor-combat/spec.md
+ */
+export function halveCritCount(critCount: number): number {
+  if (critCount <= 0) return 0;
+  return Math.max(Math.floor(critCount / 2), 1);
+}
 
 // =============================================================================
 // Critical Hit Determination (Task 5.2, 5.3)
@@ -1016,19 +1055,38 @@ export function resolveCriticalHits(
   componentDamage: IComponentDamageState,
   diceRoller: D6Roller,
   forceCrits?: number,
+  armorType?: ArmorTypeEnum,
 ): ICriticalResolutionResult {
-  // Step 1: Determine number of crits (or use forced value)
   let critCount: number;
   let limbBlownOff = false;
   let headDestroyed = false;
 
   if (forceCrits !== undefined) {
     critCount = forceCrits;
+  } else if (isHardenedArmor(armorType)) {
+    // Hardened armor: roll twice, both must indicate crits
+    const roll1 = rollCriticalHits(location, diceRoller);
+    const roll2 = rollCriticalHits(location, diceRoller);
+
+    if (roll1.criticalHits === 0 || roll2.criticalHits === 0) {
+      critCount = 0;
+    } else {
+      critCount = Math.min(roll1.criticalHits, roll2.criticalHits);
+    }
+
+    // Limb blowoff / head destruction only if BOTH rolls produce that result
+    limbBlownOff = roll1.limbBlownOff && roll2.limbBlownOff;
+    headDestroyed = roll1.headDestroyed && roll2.headDestroyed;
   } else {
     const determination = rollCriticalHits(location, diceRoller);
     critCount = determination.criticalHits;
     limbBlownOff = determination.limbBlownOff;
     headDestroyed = determination.headDestroyed;
+
+    // Ferro-Lamellor armor: halve the crit count (floor, min 1)
+    if (isFerroLamellorArmor(armorType) && critCount > 0) {
+      critCount = halveCritCount(critCount);
+    }
   }
 
   const allEvents: CriticalHitEvent[] = [];
@@ -1226,18 +1284,27 @@ export function checkTACTrigger(
   }
 }
 
-/**
- * Process a Through-Armor Critical at a location.
- * TAC triggers critical hit resolution regardless of remaining armor.
- */
 export function processTAC(
   unitId: string,
   tacLocation: CombatLocation,
   manifest: CriticalSlotManifest,
   componentDamage: IComponentDamageState,
   diceRoller: D6Roller,
+  armorType?: ArmorTypeEnum,
 ): ICriticalResolutionResult {
-  // TAC uses normal critical hit determination roll
+  // Hardened armor completely prevents TAC
+  if (isHardenedArmor(armorType)) {
+    return {
+      hits: [],
+      events: [],
+      updatedManifest: manifest,
+      updatedComponentDamage: componentDamage,
+      locationBlownOff: false,
+      headDestroyed: false,
+      unitDestroyed: false,
+    };
+  }
+
   return resolveCriticalHits(
     unitId,
     tacLocation,

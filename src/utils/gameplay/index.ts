@@ -78,6 +78,7 @@ export {
   getRangeBracket as getToHitRangeBracket, // Renamed to avoid conflict with range.ts
   simpleToHit,
   formatToHitBreakdown,
+  calculateToHitWithC3,
 } from './toHit';
 
 export * from './hitLocation';
@@ -85,6 +86,7 @@ export * from './damage';
 export * from './clusterWeapons';
 export * from './specialWeaponMechanics';
 export * from './electronicWarfare';
+export * from './c3Network';
 export * from './environmentalModifiers';
 
 // Dice Types - Dice rolling utilities

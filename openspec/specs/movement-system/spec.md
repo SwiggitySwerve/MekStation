@@ -181,3 +181,291 @@ A shutdown unit SHALL be unable to move during the movement phase.
 - **WHEN** a shutdown unit's movement phase begins
 - **THEN** the unit SHALL remain in its current hex
 - **AND** movement type SHALL be set to "Stationary"
+
+### Requirement: Movement Calculations Hook
+
+The system SHALL provide a React hook for deriving movement statistics from unit configuration.
+
+**Source**: `src/hooks/useMovementCalculations.ts:131-193`
+
+#### Scenario: Compute Walk/Run MP from engine rating and tonnage
+
+- **GIVEN** a unit with tonnage 50 and engine rating 200
+- **WHEN** useMovementCalculations is called
+- **THEN** walkMP SHALL be 4 (floor(200 / 50))
+- **AND** runMP SHALL be 6 (ceil(4 × 1.5))
+
+#### Scenario: Compute valid Walk MP range from tonnage
+
+- **GIVEN** a unit with tonnage 50
+- **WHEN** useMovementCalculations is called
+- **THEN** walkMPRange.min SHALL be 1 (ceil(10 / 50) = 1)
+- **AND** walkMPRange.max SHALL be 8 (floor(400 / 50) = 8)
+
+#### Scenario: Compute max Jump MP for standard jump jets
+
+- **GIVEN** a unit with walkMP 4 and jumpJetType STANDARD
+- **WHEN** useMovementCalculations is called
+- **THEN** maxJumpMP SHALL be 4 (standard jets limited to walk MP)
+
+#### Scenario: Compute max Jump MP for improved jump jets
+
+- **GIVEN** a unit with walkMP 4 and jumpJetType IMPROVED
+- **WHEN** useMovementCalculations is called
+- **THEN** maxJumpMP SHALL be 6 (improved jets can reach run MP = ceil(4 × 1.5))
+
+#### Scenario: Compute enhanced max Run MP with MASC
+
+- **GIVEN** a unit with walkMP 4 and enhancement MASC
+- **WHEN** useMovementCalculations is called
+- **THEN** maxRunMP SHALL be 8 (floor(4 × 2.0) = 8)
+
+#### Scenario: Compute enhanced max Run MP with TSM
+
+- **GIVEN** a unit with walkMP 4 and enhancement TSM
+- **WHEN** useMovementCalculations is called
+- **THEN** maxRunMP SHALL be 7 (floor(4 × 1.5) + 1 = 7)
+
+#### Scenario: No enhanced max Run MP without enhancement
+
+- **GIVEN** a unit with walkMP 4 and enhancement null
+- **WHEN** useMovementCalculations is called
+- **THEN** maxRunMP SHALL be undefined
+
+#### Scenario: Detect max engine rating
+
+- **GIVEN** a unit with engine rating 400
+- **WHEN** useMovementCalculations is called
+- **THEN** isAtMaxEngineRating SHALL be true
+
+#### Scenario: Clamp Walk MP to valid range
+
+- **GIVEN** a unit with tonnage 50 (valid range 1-8)
+- **WHEN** clampWalkMP(10) is called
+- **THEN** result SHALL be 8 (clamped to max)
+
+#### Scenario: Clamp Jump MP to max allowed
+
+- **GIVEN** a unit with walkMP 4 and jumpJetType STANDARD (maxJumpMP = 4)
+- **WHEN** clampJumpMP(6) is called
+- **THEN** result SHALL be 4 (clamped to maxJumpMP)
+
+#### Scenario: Calculate engine rating for desired Walk MP
+
+- **GIVEN** a unit with tonnage 50
+- **WHEN** getEngineRatingForWalkMP(5) is called
+- **THEN** result SHALL be 250 (50 × 5)
+
+### Requirement: Engine Rating Constraints
+
+Engine rating SHALL be constrained to the range 10-400 per BattleTech TechManual.
+
+**Source**: `src/hooks/useMovementCalculations.ts:26-29`
+
+#### Scenario: Minimum engine rating
+
+- **WHEN** calculating valid Walk MP range
+- **THEN** minimum engine rating SHALL be 10
+
+#### Scenario: Maximum engine rating
+
+- **WHEN** calculating valid Walk MP range
+- **THEN** maximum engine rating SHALL be 400
+
+#### Scenario: Walk MP range for 100-ton unit
+
+- **GIVEN** a unit with tonnage 100
+- **WHEN** calculating valid Walk MP range
+- **THEN** walkMPRange.min SHALL be 1 (ceil(10 / 100) = 1)
+- **AND** walkMPRange.max SHALL be 4 (floor(400 / 100) = 4)
+
+### Requirement: Movement Enhancement Effects
+
+The system SHALL calculate enhanced maximum Run MP based on active movement enhancements.
+
+**Source**: `src/utils/construction/movementCalculations.ts:42-82`
+
+#### Scenario: MASC enhancement
+
+- **GIVEN** a unit with walkMP 4 and MASC equipped
+- **WHEN** calculating enhanced max Run MP
+- **THEN** runMultiplierBonus SHALL be 0.5
+- **AND** maxRunMP SHALL be floor(4 × 2.0) = 8
+
+#### Scenario: Supercharger enhancement
+
+- **GIVEN** a unit with walkMP 4 and Supercharger equipped
+- **WHEN** calculating enhanced max Run MP
+- **THEN** runMultiplierBonus SHALL be 0.5
+- **AND** maxRunMP SHALL be floor(4 × 2.0) = 8
+
+#### Scenario: TSM enhancement
+
+- **GIVEN** a unit with walkMP 4 and TSM equipped
+- **WHEN** calculating enhanced max Run MP
+- **THEN** flatMPBonus SHALL be 1
+- **AND** maxRunMP SHALL be floor(4 × 1.5) + 1 = 7
+
+#### Scenario: Multiple enhancements (MASC + TSM)
+
+- **GIVEN** a unit with walkMP 4, MASC, and TSM equipped
+- **WHEN** calculating enhanced max Run MP
+- **THEN** runMultiplierBonus SHALL be 0.5
+- **AND** flatMPBonus SHALL be 1
+- **AND** maxRunMP SHALL be floor(4 × 2.0) + 1 = 9
+
+### Requirement: Hook Memoization
+
+The hook SHALL memoize all computed values to prevent unnecessary recalculations.
+
+**Source**: `src/hooks/useMovementCalculations.ts:137-180`
+
+#### Scenario: Memoize walkMP
+
+- **GIVEN** a unit with engineRating and tonnage
+- **WHEN** useMovementCalculations is called multiple times with same inputs
+- **THEN** walkMP SHALL be computed only once (useMemo dependency: [engineRating, tonnage])
+
+#### Scenario: Memoize runMP
+
+- **GIVEN** a unit with walkMP
+- **WHEN** useMovementCalculations is called multiple times with same walkMP
+- **THEN** runMP SHALL be computed only once (useMemo dependency: [walkMP])
+
+#### Scenario: Memoize maxRunMP
+
+- **GIVEN** a unit with walkMP and enhancement
+- **WHEN** useMovementCalculations is called multiple times with same inputs
+- **THEN** maxRunMP SHALL be computed only once (useMemo dependency: [enhancement, walkMP])
+
+#### Scenario: Memoize helper functions
+
+- **GIVEN** a unit with tonnage
+- **WHEN** useMovementCalculations is called multiple times with same tonnage
+- **THEN** getEngineRatingForWalkMP, clampWalkMP, clampJumpMP SHALL be stable references
+
+## Data Model Requirements
+
+### JumpJetType
+
+Jump jet type enumeration.
+
+**Source**: `src/utils/construction/movementCalculations.ts:87-91`
+
+```typescript
+enum JumpJetType {
+  STANDARD = 'Standard',
+  IMPROVED = 'Improved',
+  MECHANICAL = 'Mechanical Jump Boosters',
+}
+```
+
+### MovementEnhancementType
+
+Movement enhancement type enumeration.
+
+**Source**: `src/types/construction/MovementEnhancement.ts`
+
+```typescript
+enum MovementEnhancementType {
+  MASC = 'masc',
+  TSM = 'tsm',
+  SUPERCHARGER = 'supercharger',
+}
+```
+
+### MIN_ENGINE_RATING
+
+Minimum engine rating constant.
+
+**Source**: `src/hooks/useMovementCalculations.ts:29`
+
+```typescript
+const MIN_ENGINE_RATING = 10;
+```
+
+### MAX_ENGINE_RATING
+
+Maximum engine rating constant per BattleTech TechManual.
+
+**Source**: `src/hooks/useMovementCalculations.ts:26`
+
+```typescript
+const MAX_ENGINE_RATING = 400;
+```
+
+### MovementCalculationsInput
+
+Input parameters for movement calculations hook.
+
+**Source**: `src/hooks/useMovementCalculations.ts:35-46`
+
+```typescript
+interface MovementCalculationsInput {
+  /** Unit tonnage */
+  readonly tonnage: number;
+  /** Current engine rating */
+  readonly engineRating: number;
+  /** Current jump MP */
+  readonly jumpMP: number;
+  /** Jump jet type */
+  readonly jumpJetType: JumpJetType;
+  /** Movement enhancement (MASC, TSM, etc.) */
+  readonly enhancement: MovementEnhancementType | null;
+}
+```
+
+### MovementCalculationsResult
+
+Result object returned by movement calculations hook.
+
+**Source**: `src/hooks/useMovementCalculations.ts:48-67`
+
+```typescript
+interface MovementCalculationsResult {
+  /** Current Walk MP (derived from engine rating / tonnage) */
+  readonly walkMP: number;
+  /** Current Run MP (ceil of walk × 1.5) */
+  readonly runMP: number;
+  /** Valid Walk MP range for this tonnage */
+  readonly walkMPRange: { min: number; max: number };
+  /** Maximum Jump MP based on walk MP and jump jet type */
+  readonly maxJumpMP: number;
+  /** Enhanced max Run MP when enhancement is active (undefined if no enhancement) */
+  readonly maxRunMP: number | undefined;
+  /** Whether engine is at maximum rating (400) */
+  readonly isAtMaxEngineRating: boolean;
+  /** Calculate new engine rating for a given Walk MP */
+  readonly getEngineRatingForWalkMP: (walkMP: number) => number;
+  /** Clamp Walk MP to valid range */
+  readonly clampWalkMP: (walkMP: number) => number;
+  /** Clamp Jump MP to valid range */
+  readonly clampJumpMP: (jumpMP: number) => number;
+}
+```
+
+### MovementModifiers
+
+Movement enhancement modifiers.
+
+**Source**: `src/utils/construction/movementCalculations.ts:35-40`
+
+```typescript
+interface MovementModifiers {
+  /** Bonus added to base 1.5x run multiplier (e.g., MASC adds 0.5 for 2.0x total) */
+  readonly runMultiplierBonus: number;
+  /** Flat MP added after multiplication (e.g., TSM adds +1) */
+  readonly flatMPBonus: number;
+}
+```
+
+## Non-Goals
+
+This specification does NOT cover:
+
+- **Heat-based movement penalties**: Covered by heat-management spec
+- **Terrain movement costs**: Covered by terrain-system spec
+- **Piloting skill rolls**: Covered by personnel-management spec
+- **Damage-based movement reduction**: Covered by damage-system spec
+- **UI components**: Covered by customizer-tabs spec
+- **Database persistence**: Covered by unit-services spec

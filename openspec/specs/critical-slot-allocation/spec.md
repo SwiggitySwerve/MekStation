@@ -213,7 +213,7 @@ System component slots SHALL NOT be assignable based on configuration.
 - **THEN** assignment SHALL be rejected
 - **AND** only slots 4-5 SHALL be assignable
 
-#### Scenario: LAM fixed equipment slots
+#### Scenario: LAM fixed critical slots
 
 - **GIVEN** user attempts to assign equipment in LAM configuration
 - **WHEN** targeting slots occupied by Landing Gear or Avionics
@@ -270,7 +270,7 @@ When system configuration changes require slots currently occupied by equipment,
 - **WHEN** engine type is changed to XL Engine (IS)
 - **THEN** equipment in slots 0-2 SHALL be unallocated
 - **AND** equipment location SHALL be set to undefined
-- **AND** equipment slots SHALL be set to undefined
+- **AND** equipment critical slots SHALL be set to undefined
 - **AND** equipment SHALL appear in unallocated section of loadout tray
 
 #### Scenario: Engine type change to smaller engine - no displacement

@@ -6,13 +6,13 @@ TBD - created by archiving change enhance-customizer-toolbar. Update Purpose aft
 
 ## Requirements
 
-### Requirement: Tech Level Dropdown
+### Requirement: Rules Level Dropdown
 
-The Overview tab SHALL include a Tech Level dropdown for rules filtering.
+The Overview tab SHALL include a rules level dropdown for rules filtering.
 
-#### Scenario: Tech Level options
+#### Scenario: Rules level options
 
-- **WHEN** Tech Level dropdown is clicked
+- **WHEN** rules level dropdown is clicked
 - **THEN** options displayed are:
   - Introductory
   - Standard
@@ -20,15 +20,15 @@ The Overview tab SHALL include a Tech Level dropdown for rules filtering.
   - Experimental
 - **AND** default selection is "Standard"
 
-#### Scenario: Tech Level display
+#### Scenario: Rules level display
 
-- **WHEN** Tech Level is set
+- **WHEN** rules level is set
 - **THEN** current selection is visible in dropdown
 - **AND** selection persists with unit state
 
-#### Scenario: Tech Level placeholder behavior
+#### Scenario: Rules level placeholder behavior
 
-- **WHEN** Tech Level is changed
+- **WHEN** rules level is changed
 - **THEN** selection is stored in unit state
 - **AND** no filtering is applied (placeholder implementation)
 - **AND** future implementation will filter available equipment

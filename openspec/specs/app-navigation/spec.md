@@ -2,7 +2,14 @@
 
 ## Purpose
 
-TBD - created by archiving change improve-mobile-navigation-ergonomics. Update Purpose after archive.
+Defines the application navigation system including mobile sidebar state management, panel-based navigation for mobile layouts, and page-level type definitions for unit entries and details.
+
+This specification covers:
+
+- Mobile sidebar drawer state (open/close/toggle)
+- Panel navigation stack with history (push/back/forward/reset)
+- Lightweight unit entry types for lists and search results
+- Navigation state preservation across panel transitions
 
 ## Requirements
 
@@ -232,3 +239,299 @@ When the sidebar is in icon-only (collapsed) mode, expandable sections SHALL sho
 - **THEN** expandable sections display in their current expand/collapse state
 - **AND** the collapse/expand toggle remains functional
 - **AND** the tooltip-with-links behavior is NOT used (full labels visible)
+
+---
+
+## Navigation State Management
+
+### Requirement: Mobile Sidebar Store
+
+The mobile sidebar state SHALL be managed via a dedicated Zustand store with open/close/toggle actions.
+
+**Source**: `src/stores/useNavigationStore.ts:25-30`
+
+#### Scenario: Open mobile sidebar
+
+- **GIVEN** the mobile sidebar is closed (isOpen = false)
+- **WHEN** the `open()` action is called
+- **THEN** the store state updates to isOpen = true
+- **AND** all components observing the store re-render with the new state
+
+#### Scenario: Close mobile sidebar
+
+- **GIVEN** the mobile sidebar is open (isOpen = true)
+- **WHEN** the `close()` action is called
+- **THEN** the store state updates to isOpen = false
+- **AND** the sidebar drawer closes
+
+#### Scenario: Toggle mobile sidebar
+
+- **GIVEN** the mobile sidebar is in any state
+- **WHEN** the `toggle()` action is called
+- **THEN** the store state flips to the opposite value
+- **AND** the sidebar opens if closed, or closes if open
+
+---
+
+### Requirement: Panel Navigation Store
+
+The application SHALL provide a panel navigation store with stack-based history for mobile layouts.
+
+**Source**: `src/stores/useNavigationStore.ts:114-193`
+
+#### Scenario: Push panel to navigation stack
+
+- **GIVEN** the navigation history is ['catalog']
+- **AND** currentIndex = 0
+- **WHEN** `pushPanel('unit-detail', { unitId: '123' })` is called
+- **THEN** the history becomes ['catalog', { id: 'unit-detail', state: { unitId: '123' } }]
+- **AND** currentIndex = 1
+- **AND** currentPanel = 'unit-detail'
+- **AND** canGoBack = true
+- **AND** canGoForward = false
+
+#### Scenario: Push panel truncates forward history
+
+- **GIVEN** the navigation history is ['catalog', 'unit-detail', 'editor']
+- **AND** currentIndex = 1 (on 'unit-detail')
+- **WHEN** `pushPanel('equipment-browser')` is called
+- **THEN** the history becomes ['catalog', 'unit-detail', 'equipment-browser']
+- **AND** the 'editor' panel is removed from history
+- **AND** currentIndex = 2
+- **AND** canGoForward = false
+
+#### Scenario: Go back to previous panel
+
+- **GIVEN** the navigation history is ['catalog', 'unit-detail']
+- **AND** currentIndex = 1
+- **WHEN** `goBack()` is called
+- **THEN** currentIndex = 0
+- **AND** currentPanel = 'catalog'
+- **AND** canGoBack = false
+- **AND** canGoForward = true
+
+#### Scenario: Go forward to next panel
+
+- **GIVEN** the navigation history is ['catalog', 'unit-detail']
+- **AND** currentIndex = 0
+- **AND** the user previously went back
+- **WHEN** `goForward()` is called
+- **THEN** currentIndex = 1
+- **AND** currentPanel = 'unit-detail'
+- **AND** canGoBack = true
+- **AND** canGoForward = false
+
+#### Scenario: Reset navigation to default
+
+- **GIVEN** the navigation history is ['catalog', 'unit-detail', 'editor']
+- **AND** currentIndex = 2
+- **WHEN** `resetNavigation()` is called
+- **THEN** the history becomes ['catalog']
+- **AND** currentIndex = 0
+- **AND** currentPanel = 'catalog'
+- **AND** canGoBack = false
+- **AND** canGoForward = false
+
+#### Scenario: Replace current panel
+
+- **GIVEN** the navigation history is ['catalog', 'unit-detail']
+- **AND** currentIndex = 1
+- **WHEN** `replacePanel('editor', { unitId: '456' })` is called
+- **THEN** the history becomes ['catalog', { id: 'editor', state: { unitId: '456' } }]
+- **AND** currentIndex remains 1
+- **AND** currentPanel = 'editor'
+- **AND** the history length is unchanged
+
+#### Scenario: Panel state preservation
+
+- **GIVEN** a panel is pushed with state: `{ unitId: '123', scrollY: 450 }`
+- **WHEN** the user navigates away and then back to this panel
+- **THEN** the panel state is restored from history
+- **AND** the panel can use the state to restore scroll position and selections
+
+---
+
+## Page Type Definitions
+
+### Requirement: Unit Entry Interface
+
+The application SHALL define a lightweight `IUnitEntry` interface for unit lists and search results.
+
+**Source**: `src/types/pages/UnitPageTypes.ts:14-34`
+
+#### Scenario: Unit entry for list display
+
+- **GIVEN** a unit entry with id, name, chassis, variant, tonnage, techBase, era, weightClass, unitType
+- **WHEN** the entry is rendered in a unit list
+- **THEN** all required fields are available for display
+- **AND** optional fields (year, role, rulesLevel, cost, bv) are displayed if present
+
+#### Scenario: Unit entry for search results
+
+- **GIVEN** a search query returns multiple unit entries
+- **WHEN** the results are displayed
+- **THEN** each entry includes name, chassis, variant for identification
+- **AND** includes tonnage, weightClass, techBase, era for filtering
+- **AND** includes optional cost and bv for comparison
+
+#### Scenario: Unit entry type safety
+
+- **GIVEN** a function accepts `IUnitEntry` as a parameter
+- **WHEN** the function is called with a unit entry
+- **THEN** TypeScript enforces all required fields are present
+- **AND** optional fields are typed as `string | undefined` or `number | undefined`
+
+---
+
+## Data Model Requirements
+
+### Mobile Sidebar State
+
+```typescript
+/**
+ * Mobile sidebar state and actions
+ */
+interface MobileSidebarState {
+  /** Whether the mobile sidebar is open */
+  readonly isOpen: boolean;
+  /** Open the mobile sidebar */
+  readonly open: () => void;
+  /** Close the mobile sidebar */
+  readonly close: () => void;
+  /** Toggle the mobile sidebar */
+  readonly toggle: () => void;
+}
+```
+
+**Source**: `src/stores/useNavigationStore.ts:10-19`
+
+---
+
+### Panel Navigation Types
+
+```typescript
+/**
+ * Panel identifiers for mobile navigation
+ */
+type PanelId =
+  | 'catalog'
+  | 'unit-detail'
+  | 'editor'
+  | 'equipment-browser'
+  | 'sidebar';
+
+/**
+ * Panel entry in navigation history
+ */
+interface PanelEntry {
+  readonly id: PanelId;
+  /** Optional data to preserve/restore panel state */
+  readonly state?: Record<string, unknown>;
+}
+
+/**
+ * Navigation state
+ */
+interface NavigationState {
+  /** Array of panels in navigation history */
+  readonly history: PanelEntry[];
+  /** Current panel index in history */
+  readonly currentIndex: number;
+  /** Current panel ID (derived from history[currentIndex]) */
+  readonly currentPanel: PanelId;
+  /** Whether back navigation is available */
+  readonly canGoBack: boolean;
+  /** Whether forward navigation is available */
+  readonly canGoForward: boolean;
+}
+
+/**
+ * Navigation actions
+ */
+interface NavigationActions {
+  /** Push a new panel to the navigation stack */
+  readonly pushPanel: (
+    panelId: PanelId,
+    state?: Record<string, unknown>,
+  ) => void;
+  /** Navigate back to the previous panel */
+  readonly goBack: () => void;
+  /** Navigate forward to the next panel (if available) */
+  readonly goForward: () => void;
+  /** Reset navigation to default state */
+  readonly resetNavigation: () => void;
+  /** Replace current panel (useful for redirects) */
+  readonly replacePanel: (
+    panelId: PanelId,
+    state?: Record<string, unknown>,
+  ) => void;
+}
+
+/**
+ * Navigation store state type
+ */
+type NavigationStore = NavigationState & NavigationActions;
+
+/**
+ * Default panel for mobile app
+ */
+const DEFAULT_PANEL: PanelId = 'catalog';
+```
+
+**Source**: `src/stores/useNavigationStore.ts:39-95`
+
+---
+
+### Unit Entry Types
+
+```typescript
+/**
+ * Lightweight unit entry for lists and search results
+ */
+interface IUnitEntry {
+  readonly id: string;
+  readonly name: string;
+  readonly chassis: string;
+  readonly variant: string;
+  readonly tonnage: number;
+  readonly techBase: TechBase;
+  readonly era: Era;
+  readonly weightClass: WeightClass;
+  readonly unitType: string;
+  /** Introduction year */
+  readonly year?: number;
+  /** Role (e.g., Juggernaut, Scout, Striker) */
+  readonly role?: string;
+  /** Rules level (INTRODUCTORY, STANDARD, ADVANCED, EXPERIMENTAL) */
+  readonly rulesLevel?: string;
+  /** C-Bill cost */
+  readonly cost?: number;
+  /** Battle Value 2.0 */
+  readonly bv?: number;
+}
+```
+
+**Source**: `src/types/pages/UnitPageTypes.ts:14-34`
+
+**Purpose**: Lightweight interface for unit lists, search results, and catalog displays. Includes only essential fields for identification, filtering, and comparison.
+
+**Usage**:
+
+- Unit catalog list items
+- Search result entries
+- Force builder unit selection
+- Comparison tool unit cards
+
+---
+
+## Non-Goals
+
+This specification does NOT cover:
+
+1. **Desktop sidebar state** - Handled by separate desktop layout logic
+2. **Route-based navigation** - Handled by Next.js router
+3. **Full unit details** - See `IUnitDetails` interface for detail pages
+4. **Unit data persistence** - Handled by database layer
+5. **Unit validation** - Handled by construction rules
+6. **Panel rendering logic** - Handled by individual panel components
+7. **Navigation animations** - Handled by UI component library

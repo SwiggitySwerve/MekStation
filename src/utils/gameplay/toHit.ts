@@ -5,7 +5,7 @@
  * @spec openspec/changes/add-combat-resolution/specs/combat-resolution/spec.md
  */
 
-import { MovementType, RangeBracket } from '@/types/gameplay';
+import { IHexCoordinate, MovementType, RangeBracket } from '@/types/gameplay';
 import {
   IToHitModifierDetail,
   IToHitCalculation,
@@ -51,7 +51,13 @@ export const ATTACKER_MOVEMENT_MODIFIERS: Readonly<
 
 import { HEAT_TO_HIT_TABLE } from '@/constants/heat';
 
+import {
+  getC3TargetingBenefit,
+  IC3NetworkState,
+  IC3TargetingResult,
+} from './c3Network';
 import { calculateAttackerQuirkModifiers } from './quirkModifiers';
+import { IWeaponRangeProfile } from './range';
 import {
   calculateAttackerSPAModifiers,
   getEffectiveWounds,
@@ -105,6 +111,7 @@ export function calculateRangeModifier(
   shortRange: number,
   mediumRange: number,
   longRange: number,
+  extremeRange?: number,
 ): IToHitModifierDetail {
   let bracket: RangeBracket;
   let value: number;
@@ -118,6 +125,9 @@ export function calculateRangeModifier(
   } else if (range <= longRange) {
     bracket = RangeBracket.Long;
     value = RANGE_MODIFIERS[RangeBracket.Long];
+  } else if (extremeRange !== undefined && range <= extremeRange) {
+    bracket = RangeBracket.Extreme;
+    value = RANGE_MODIFIERS[RangeBracket.Extreme];
   } else {
     bracket = RangeBracket.OutOfRange;
     value = Infinity;
@@ -312,6 +322,26 @@ export function calculatePartialCoverModifier(
 }
 
 /**
+ * Hull-down partial cover modifier.
+ * +1 to hit target in hull-down position (does not stack with terrain partial cover).
+ */
+export function calculateHullDownModifier(
+  hullDown: boolean,
+  partialCover: boolean,
+): IToHitModifierDetail | null {
+  if (!hullDown || partialCover) {
+    return null;
+  }
+
+  return {
+    name: 'Hull-Down (Partial Cover)',
+    value: 1,
+    source: 'terrain',
+    description: 'Target in hull-down position: +1',
+  };
+}
+
+/**
  * Calculate to-hit modifier from terrain.
  * @param targetTerrain - Terrain features at target hex
  * @param interveningTerrain - Array of terrain features from intervening hexes
@@ -496,20 +526,39 @@ export function calculateIndirectFireModifier(
 }
 
 /**
- * Called shot penalty: +3 to-hit.
+ * Called shot penalty: +3 to-hit (or +0 if teammate designated).
+ * Sharpshooter SPA reduces the penalty by 1 (from +3 to +2).
+ * Teammate designation waives the penalty entirely.
  */
 export function calculateCalledShotModifier(
   calledShot: boolean,
+  teammateCalledShot?: boolean,
+  abilities?: readonly string[],
 ): IToHitModifierDetail | null {
   if (!calledShot) {
     return null;
   }
 
+  if (teammateCalledShot) {
+    return {
+      name: 'Called Shot',
+      value: 0,
+      source: 'other',
+      description: 'Called shot (teammate spotter): +0',
+    };
+  }
+
+  const sharpshooterReduction = abilities?.includes('sharpshooter') ? 1 : 0;
+  const value = 3 - sharpshooterReduction;
+
   return {
     name: 'Called Shot',
-    value: 3,
+    value,
     source: 'other',
-    description: 'Called shot: +3',
+    description:
+      sharpshooterReduction > 0
+        ? `Called shot (Sharpshooter): +${value}`
+        : `Called shot: +${value}`,
   };
 }
 
@@ -557,6 +606,13 @@ export function calculateToHit(
 
   const coverMod = calculatePartialCoverModifier(target.partialCover);
   if (coverMod) modifiers.push(coverMod);
+
+  // Hull-down partial cover (does not stack with terrain partial cover)
+  const hullDownMod = calculateHullDownModifier(
+    target.hullDown ?? false,
+    target.partialCover,
+  );
+  if (hullDownMod) modifiers.push(hullDownMod);
 
   // Add damage modifiers from attacker state
   modifiers.push(...attacker.damageModifiers);
@@ -610,9 +666,12 @@ export function calculateToHit(
     if (indirectMod) modifiers.push(indirectMod);
   }
 
-  // Called shot
   if (attacker.calledShot) {
-    const calledMod = calculateCalledShotModifier(attacker.calledShot);
+    const calledMod = calculateCalledShotModifier(
+      attacker.calledShot,
+      attacker.teammateCalledShot,
+      attacker.abilities,
+    );
     if (calledMod) modifiers.push(calledMod);
   }
 
@@ -693,11 +752,78 @@ export function getRangeBracket(
   shortRange: number,
   mediumRange: number,
   longRange: number,
+  extremeRange?: number,
 ): RangeBracket {
   if (range <= shortRange) return RangeBracket.Short;
   if (range <= mediumRange) return RangeBracket.Medium;
   if (range <= longRange) return RangeBracket.Long;
+  if (extremeRange !== undefined && range <= extremeRange)
+    return RangeBracket.Extreme;
   return RangeBracket.OutOfRange;
+}
+
+// =============================================================================
+// C3 Network Integration
+// =============================================================================
+
+export interface IC3ToHitInput {
+  readonly attackerEntityId: string;
+  readonly targetPosition: IHexCoordinate;
+  readonly weaponRangeProfile: IWeaponRangeProfile;
+  readonly c3State: IC3NetworkState;
+  readonly attackerEcmDisrupted?: boolean;
+}
+
+/**
+ * Calculate to-hit with C3 network range bracket sharing.
+ *
+ * If the attacker is in a C3 network and a networked ally has a better range bracket,
+ * that bracket is used instead. A modifier detail entry is added to the breakdown.
+ */
+export function calculateToHitWithC3(
+  attacker: IAttackerState,
+  target: ITargetState,
+  rangeBracket: RangeBracket,
+  range: number,
+  c3Input: IC3ToHitInput,
+  minRange: number = 0,
+): IToHitCalculation & { readonly c3Result: IC3TargetingResult } {
+  const c3Result = getC3TargetingBenefit(
+    c3Input.attackerEntityId,
+    c3Input.targetPosition,
+    c3Input.weaponRangeProfile,
+    c3Input.c3State,
+    c3Input.attackerEcmDisrupted,
+  );
+
+  const effectiveBracket = c3Result.benefitApplied
+    ? c3Result.bestBracket
+    : rangeBracket;
+
+  const baseCalc = calculateToHit(
+    attacker,
+    target,
+    effectiveBracket,
+    range,
+    minRange,
+  );
+
+  if (!c3Result.benefitApplied) {
+    return { ...baseCalc, c3Result };
+  }
+
+  const c3Modifier: IToHitModifierDetail = {
+    name: 'C3 Network',
+    value: 0,
+    source: 'equipment',
+    description: `C3 Network: using ${c3Result.bestBracket} range bracket (spotter at ${c3Result.spotterRange} hexes)`,
+  };
+
+  return {
+    ...baseCalc,
+    modifiers: [...baseCalc.modifiers, c3Modifier],
+    c3Result,
+  };
 }
 
 // =============================================================================
