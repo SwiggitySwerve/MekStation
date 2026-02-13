@@ -56,7 +56,7 @@ import {
   resolveDamage as resolveDamagePipeline,
   IUnitDamageState,
 } from './damage';
-import { type DiceRoller } from './diceTypes';
+import { type DiceRoller, type D6Roller, defaultD6Roller } from './diceTypes';
 import { resolveFall } from './fallMechanics';
 import { calculateFiringArc } from './firingArc';
 import {
@@ -296,8 +296,8 @@ export function canAdvancePhase(session: IGameSession): boolean {
 /**
  * Roll 2d6.
  */
-export function roll2d6(): number {
-  return Math.floor(Math.random() * 6) + 1 + Math.floor(Math.random() * 6) + 1;
+export function roll2d6(diceRoller: D6Roller = defaultD6Roller): number {
+  return diceRoller() + diceRoller();
 }
 
 /**

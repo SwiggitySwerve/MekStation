@@ -40,16 +40,16 @@ export const defaultD6Roller: D6Roller = () =>
 /**
  * Roll a single d6. Accepts an optional injectable roller for deterministic testing.
  */
-export function rollD6(roller: D6Roller = defaultD6Roller): number {
-  return roller();
+export function rollD6(diceRoller: D6Roller = defaultD6Roller): number {
+  return diceRoller();
 }
 
 /**
  * Roll 2d6 and return detailed result. Accepts an optional injectable roller.
  */
-export function roll2d6(roller: D6Roller = defaultD6Roller): IDiceRoll {
-  const die1 = rollD6(roller);
-  const die2 = rollD6(roller);
+export function roll2d6(diceRoller: D6Roller = defaultD6Roller): IDiceRoll {
+  const die1 = rollD6(diceRoller);
+  const die2 = rollD6(diceRoller);
   const total = die1 + die2;
 
   return {
