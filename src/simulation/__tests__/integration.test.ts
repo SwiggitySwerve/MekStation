@@ -198,15 +198,9 @@ describe('Simulation System Integration', () => {
       const config: ISimulationConfig = { ...STANDARD_LANCE, seed: 50000 };
       const batchRunner = new BatchRunner();
 
-      console.log(
-        `Running ${STATISTICAL_GAME_COUNT} simulations for statistical validation...`,
-      );
       const startTime = Date.now();
       batchResults = batchRunner.runBatch(STATISTICAL_GAME_COUNT, config);
       const elapsed = Date.now() - startTime;
-      console.log(
-        `Completed in ${elapsed}ms (${(elapsed / STATISTICAL_GAME_COUNT).toFixed(2)}ms per game)`,
-      );
 
       metricsCollector = new MetricsCollector();
       for (const result of batchResults) {
@@ -224,12 +218,6 @@ describe('Simulation System Integration', () => {
       const hasCompletedOrIncomplete = aggregate.totalGames > 0;
 
       expect(hasCompletedOrIncomplete).toBe(true);
-      console.log(
-        `Win rates: Player=${aggregate.playerWinRate.toFixed(1)}%, Opponent=${aggregate.opponentWinRate.toFixed(1)}%, Draw=${aggregate.drawRate.toFixed(1)}%`,
-      );
-      console.log(
-        `Completed: ${completedGames}, Incomplete: ${aggregate.incompleteGames}`,
-      );
 
       if (completedGames > 0) {
         const hasWinners =
@@ -248,10 +236,6 @@ describe('Simulation System Integration', () => {
       const violationRate =
         (gamesWithViolations / STATISTICAL_GAME_COUNT) * 100;
 
-      console.log(
-        `Violation rate: ${violationRate.toFixed(1)}% (${gamesWithViolations}/${STATISTICAL_GAME_COUNT} games)`,
-      );
-
       expect(violationRate).toBeLessThan(5);
     });
 
@@ -268,11 +252,6 @@ describe('Simulation System Integration', () => {
 
       const threshold = STATISTICAL_GAME_COUNT * 0.1;
       for (const [type, count] of Object.entries(violationCounts)) {
-        if (count > threshold) {
-          console.warn(
-            `Systematic violation detected: ${type} occurred ${count} times`,
-          );
-        }
         expect(count).toBeLessThanOrEqual(threshold);
       }
     });
@@ -283,10 +262,6 @@ describe('Simulation System Integration', () => {
         0,
       );
       const avgDuration = totalDuration / STATISTICAL_GAME_COUNT;
-
-      console.log(
-        `Performance: total=${totalDuration}ms, avg=${avgDuration.toFixed(2)}ms/game`,
-      );
 
       // Target: 100 games in <60 seconds (600ms/game average)
       expect(avgDuration).toBeLessThan(600);
@@ -556,11 +531,6 @@ describe('Simulation System Integration', () => {
       const metricsEnd = process.hrtime.bigint();
       const metricsMs = Number(metricsEnd - metricsStart) / 1_000_000;
 
-      console.log('Performance profile:');
-      console.log(`  Scenario generation: ${generatorMs.toFixed(2)}ms`);
-      console.log(`  Simulation run: ${runnerMs.toFixed(2)}ms`);
-      console.log(`  Metrics collection: ${metricsMs.toFixed(2)}ms`);
-
       // All operations should be fast
       expect(generatorMs).toBeLessThan(50);
       expect(runnerMs).toBeLessThan(200);
@@ -574,10 +544,6 @@ describe('Simulation System Integration', () => {
       const startTime = Date.now();
       const results = batchRunner.runBatch(100, config);
       const elapsed = Date.now() - startTime;
-
-      console.log(
-        `100-game benchmark: ${elapsed}ms total, ${(elapsed / 100).toFixed(2)}ms/game`,
-      );
 
       expect(results).toHaveLength(100);
       expect(elapsed).toBeLessThan(60000); // 60 seconds

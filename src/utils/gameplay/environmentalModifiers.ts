@@ -9,6 +9,22 @@
 import { IToHitModifierDetail } from '@/types/gameplay';
 
 // =============================================================================
+// Constants
+// =============================================================================
+
+/** Heat dissipation penalty in thin atmosphere */
+const THIN_ATMOSPHERE_HEAT_PENALTY = -2;
+
+/** Heat dissipation penalty in trace/vacuum atmosphere */
+const TRACE_VACUUM_HEAT_PENALTY = -4;
+
+/** Heat dissipation bonus in extreme cold */
+const EXTREME_COLD_HEAT_BONUS = 2;
+
+/** Heat dissipation penalty in extreme heat */
+const EXTREME_HEAT_PENALTY = -2;
+
+// =============================================================================
 // Environmental Condition Types
 // =============================================================================
 
@@ -285,11 +301,11 @@ export function getAtmosphereHeatModifier(
     case 'standard':
       return 0;
     case 'thin':
-      return -2;
+      return THIN_ATMOSPHERE_HEAT_PENALTY;
     case 'trace':
-      return -4;
+      return TRACE_VACUUM_HEAT_PENALTY;
     case 'vacuum':
-      return -4;
+      return TRACE_VACUUM_HEAT_PENALTY;
   }
 }
 
@@ -310,11 +326,11 @@ export function getTemperatureHeatModifier(
 ): number {
   switch (temperature) {
     case 'extreme_cold':
-      return 2;
+      return EXTREME_COLD_HEAT_BONUS;
     case 'normal':
       return 0;
     case 'extreme_heat':
-      return -2;
+      return EXTREME_HEAT_PENALTY;
   }
 }
 

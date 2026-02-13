@@ -16,6 +16,79 @@ import { CombatLocation } from '@/types/gameplay';
 import { D6Roller } from './hitLocation';
 
 // =============================================================================
+// Constants
+// =============================================================================
+
+/** Divisor for punch damage: ceil(weight / PUNCH_DAMAGE_DIVISOR) */
+const PUNCH_DAMAGE_DIVISOR = 10;
+
+/** Divisor for kick damage: floor(weight / KICK_DAMAGE_DIVISOR) */
+const KICK_DAMAGE_DIVISOR = 5;
+
+/** Kick attacks get a to-hit bonus (subtracted from piloting skill) */
+const KICK_TO_HIT_BONUS = 2;
+
+/** Push attacks get a to-hit bonus */
+const PUSH_TO_HIT_BONUS = 1;
+
+/** Charge damage divisor: ceil(weight / CHARGE_DAMAGE_DIVISOR) × (hexes - 1) */
+const CHARGE_DAMAGE_DIVISOR = 10;
+
+/** DFA damage to target: ceil(weight / DFA_TARGET_DAMAGE_DIVISOR) × DFA_DAMAGE_MULTIPLIER */
+const DFA_TARGET_DAMAGE_DIVISOR = 10;
+
+/** DFA damage multiplier applied to base damage */
+const DFA_DAMAGE_MULTIPLIER = 3;
+
+/** DFA attacker damage divisor: ceil(weight / DFA_ATTACKER_DAMAGE_DIVISOR) */
+const DFA_ATTACKER_DAMAGE_DIVISOR = 5;
+
+/** Hatchet damage divisor: floor(weight / HATCHET_DAMAGE_DIVISOR) */
+const HATCHET_DAMAGE_DIVISOR = 5;
+
+/** Sword damage divisor: floor(weight / SWORD_DAMAGE_DIVISOR) + SWORD_DAMAGE_BONUS */
+const SWORD_DAMAGE_DIVISOR = 10;
+
+/** Sword damage bonus added after division */
+const SWORD_DAMAGE_BONUS = 1;
+
+/** Mace weight multiplier: floor(weight × MACE_WEIGHT_MULTIPLIER / MACE_DAMAGE_DIVISOR) */
+const MACE_WEIGHT_MULTIPLIER = 2;
+
+/** Mace damage divisor */
+const MACE_DAMAGE_DIVISOR = 5;
+
+/** Upper arm destroyed to-hit modifier for punch */
+const UPPER_ARM_PUNCH_MODIFIER = 2;
+
+/** Lower arm destroyed to-hit modifier for punch */
+const LOWER_ARM_PUNCH_MODIFIER = 2;
+
+/** Hand actuator destroyed to-hit modifier for punch */
+const HAND_PUNCH_MODIFIER = 1;
+
+/** Upper leg destroyed to-hit modifier for kick */
+const UPPER_LEG_KICK_MODIFIER = 2;
+
+/** Lower leg destroyed to-hit modifier for kick */
+const LOWER_LEG_KICK_MODIFIER = 2;
+
+/** Foot actuator destroyed to-hit modifier for kick */
+const FOOT_KICK_MODIFIER = 1;
+
+/** Hatchet weapon to-hit modifier (bonus) */
+const HATCHET_TO_HIT_MODIFIER = -1;
+
+/** Sword weapon to-hit modifier (bonus) */
+const SWORD_TO_HIT_MODIFIER = -2;
+
+/** Mace weapon to-hit modifier (penalty) */
+const MACE_TO_HIT_MODIFIER = 1;
+
+/** DFA miss PSR modifier for attacker */
+const DFA_MISS_PSR_MODIFIER = 4;
+
+// =============================================================================
 // Types
 // =============================================================================
 
@@ -284,7 +357,7 @@ export function calculatePunchToHit(
   if (actuators[ActuatorType.UPPER_ARM]) {
     modifiers.push({
       name: 'Upper arm actuator destroyed',
-      value: 2,
+      value: UPPER_ARM_PUNCH_MODIFIER,
       source: 'actuator',
     });
   }
@@ -292,7 +365,7 @@ export function calculatePunchToHit(
   if (actuators[ActuatorType.LOWER_ARM]) {
     modifiers.push({
       name: 'Lower arm actuator destroyed',
-      value: 2,
+      value: LOWER_ARM_PUNCH_MODIFIER,
       source: 'actuator',
     });
   }
@@ -300,7 +373,7 @@ export function calculatePunchToHit(
   if (actuators[ActuatorType.HAND]) {
     modifiers.push({
       name: 'Hand actuator destroyed',
-      value: 1,
+      value: HAND_PUNCH_MODIFIER,
       source: 'actuator',
     });
   }
@@ -326,7 +399,7 @@ export function calculateKickToHit(
   const restriction = canKick(input);
   if (!restriction.allowed) {
     return {
-      baseToHit: input.pilotingSkill - 2,
+      baseToHit: input.pilotingSkill - KICK_TO_HIT_BONUS,
       finalToHit: Infinity,
       modifiers: [],
       allowed: false,
@@ -340,7 +413,7 @@ export function calculateKickToHit(
   if (actuators[ActuatorType.UPPER_LEG]) {
     modifiers.push({
       name: 'Upper leg actuator destroyed',
-      value: 2,
+      value: UPPER_LEG_KICK_MODIFIER,
       source: 'actuator',
     });
   }
@@ -348,7 +421,7 @@ export function calculateKickToHit(
   if (actuators[ActuatorType.LOWER_LEG]) {
     modifiers.push({
       name: 'Lower leg actuator destroyed',
-      value: 2,
+      value: LOWER_LEG_KICK_MODIFIER,
       source: 'actuator',
     });
   }
@@ -356,13 +429,13 @@ export function calculateKickToHit(
   if (actuators[ActuatorType.FOOT]) {
     modifiers.push({
       name: 'Foot actuator destroyed',
-      value: 1,
+      value: FOOT_KICK_MODIFIER,
       source: 'actuator',
     });
   }
 
   const totalMod = modifiers.reduce((s, m) => s + m.value, 0);
-  const baseToHit = input.pilotingSkill - 2;
+  const baseToHit = input.pilotingSkill - KICK_TO_HIT_BONUS;
 
   return {
     baseToHit,
@@ -415,7 +488,7 @@ export function calculateDFAToHit(
 export function calculatePushToHit(
   input: IPhysicalAttackInput,
 ): IPhysicalToHitResult {
-  const baseToHit = input.pilotingSkill - 1;
+  const baseToHit = input.pilotingSkill - PUSH_TO_HIT_BONUS;
 
   return {
     baseToHit,
@@ -448,13 +521,13 @@ export function calculateMeleeWeaponToHit(
   let weaponMod = 0;
   switch (input.attackType) {
     case 'hatchet':
-      weaponMod = -1;
+      weaponMod = HATCHET_TO_HIT_MODIFIER;
       break;
     case 'sword':
-      weaponMod = -2;
+      weaponMod = SWORD_TO_HIT_MODIFIER;
       break;
     case 'mace':
-      weaponMod = 1;
+      weaponMod = MACE_TO_HIT_MODIFIER;
       break;
   }
 
@@ -551,7 +624,7 @@ export function calculatePunchDamage(input: IPhysicalAttackInput): number {
     input.hasTSM ?? false,
   );
 
-  let damage = Math.ceil(effectiveWeight / 10);
+  let damage = Math.ceil(effectiveWeight / PUNCH_DAMAGE_DIVISOR);
 
   const actuators = input.componentDamage.actuators;
 
@@ -579,7 +652,7 @@ export function calculateKickDamage(input: IPhysicalAttackInput): number {
     input.hasTSM ?? false,
   );
 
-  const damage = Math.floor(effectiveWeight / 5);
+  const damage = Math.floor(effectiveWeight / KICK_DAMAGE_DIVISOR);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -598,7 +671,8 @@ export function calculateChargeDamageToTarget(
 
   const hexesMoved = input.hexesMoved ?? 0;
   const multiplier = Math.max(0, hexesMoved - 1);
-  const damage = Math.ceil(effectiveWeight / 10) * multiplier;
+  const damage =
+    Math.ceil(effectiveWeight / CHARGE_DAMAGE_DIVISOR) * multiplier;
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -610,7 +684,7 @@ export function calculateChargeDamageToAttacker(
   input: IPhysicalAttackInput,
 ): number {
   const targetTonnage = input.targetTonnage ?? 0;
-  const damage = Math.ceil(targetTonnage / 10);
+  const damage = Math.ceil(targetTonnage / CHARGE_DAMAGE_DIVISOR);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -627,7 +701,9 @@ export function calculateDFADamageToTarget(
     input.hasTSM ?? false,
   );
 
-  const damage = Math.ceil(effectiveWeight / 10) * 3;
+  const damage =
+    Math.ceil(effectiveWeight / DFA_TARGET_DAMAGE_DIVISOR) *
+    DFA_DAMAGE_MULTIPLIER;
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -640,7 +716,9 @@ export function calculateDFADamageToAttacker(
   input: IPhysicalAttackInput,
 ): number {
   // Total attacker damage = ceil(weight / 5), split per leg
-  const totalDamage = Math.ceil(input.attackerTonnage / 5);
+  const totalDamage = Math.ceil(
+    input.attackerTonnage / DFA_ATTACKER_DAMAGE_DIVISOR,
+  );
   // Per leg = ceil(totalDamage / 2)
   return Math.ceil(totalDamage / 2);
 }
@@ -655,7 +733,7 @@ export function calculateHatchetDamage(input: IPhysicalAttackInput): number {
     input.heat ?? 0,
     input.hasTSM ?? false,
   );
-  const damage = Math.floor(effectiveWeight / 5);
+  const damage = Math.floor(effectiveWeight / HATCHET_DAMAGE_DIVISOR);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -669,7 +747,8 @@ export function calculateSwordDamage(input: IPhysicalAttackInput): number {
     input.heat ?? 0,
     input.hasTSM ?? false,
   );
-  const damage = Math.floor(effectiveWeight / 10) + 1;
+  const damage =
+    Math.floor(effectiveWeight / SWORD_DAMAGE_DIVISOR) + SWORD_DAMAGE_BONUS;
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -683,7 +762,9 @@ export function calculateMaceDamage(input: IPhysicalAttackInput): number {
     input.heat ?? 0,
     input.hasTSM ?? false,
   );
-  const damage = Math.floor((effectiveWeight * 2) / 5);
+  const damage = Math.floor(
+    (effectiveWeight * MACE_WEIGHT_MULTIPLIER) / MACE_DAMAGE_DIVISOR,
+  );
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -817,7 +898,7 @@ export function getPhysicalMissConsequences(attackType: PhysicalAttackType): {
     case 'kick':
       return { attackerPSR: true, attackerPSRModifier: 0 };
     case 'dfa':
-      return { attackerPSR: true, attackerPSRModifier: 4 };
+      return { attackerPSR: true, attackerPSRModifier: DFA_MISS_PSR_MODIFIER };
     default:
       return { attackerPSR: false, attackerPSRModifier: 0 };
   }

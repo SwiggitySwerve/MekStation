@@ -65,6 +65,34 @@ const MAX_TURNS = 10;
 const DEFAULT_TONNAGE = 65;
 /** Default piloting skill */
 const DEFAULT_PILOTING = 5;
+/** Default gunnery skill */
+const DEFAULT_GUNNERY = 4;
+/** Base heat sinks for standard mech */
+const BASE_HEAT_SINKS = 10;
+/** Engine heat generated per engine critical hit */
+const ENGINE_HEAT_PER_CRITICAL = 5;
+/** Max damage to head location */
+const HEAD_HIT_DAMAGE_CAP = 3;
+/** Damage threshold for triggering PSR */
+const DAMAGE_PSR_THRESHOLD = 20;
+/** Pilot wounds that cause death */
+const LETHAL_PILOT_WOUNDS = 6;
+/** Walk movement heat */
+const WALK_HEAT = 1;
+/** Run movement heat */
+const RUN_HEAT = 2;
+/** Jump movement heat */
+const JUMP_HEAT = 3;
+/** Medium Laser heat */
+const MEDIUM_LASER_HEAT = 3;
+/** Medium Laser damage */
+const MEDIUM_LASER_DAMAGE = 5;
+/** Medium Laser short range */
+const MEDIUM_LASER_SHORT_RANGE = 3;
+/** Medium Laser medium range */
+const MEDIUM_LASER_MEDIUM_RANGE = 6;
+/** Medium Laser long range */
+const MEDIUM_LASER_LONG_RANGE = 9;
 
 /** Default component damage state (no damage) */
 const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
@@ -121,11 +149,11 @@ function createMinimalWeapon(id: string): IWeapon {
   return {
     id,
     name: 'Medium Laser',
-    shortRange: 3,
-    mediumRange: 6,
-    longRange: 9,
-    damage: 5,
-    heat: 3,
+    shortRange: MEDIUM_LASER_SHORT_RANGE,
+    mediumRange: MEDIUM_LASER_MEDIUM_RANGE,
+    longRange: MEDIUM_LASER_LONG_RANGE,
+    damage: MEDIUM_LASER_DAMAGE,
+    heat: MEDIUM_LASER_HEAT,
     minRange: 0,
     ammoPerTon: -1,
     destroyed: false,
@@ -190,7 +218,7 @@ function toAIUnitState(unit: IUnitGameState): IAIUnitState {
     weapons: [createMinimalWeapon(`${unit.id}-weapon-1`)],
     ammo: {},
     destroyed: unit.destroyed,
-    gunnery: 4,
+    gunnery: DEFAULT_GUNNERY,
     movementType: unit.movementThisTurn,
     hexesMoved: unit.hexesMovedThisTurn,
   };
@@ -599,7 +627,7 @@ export class SimulationRunner {
         if (rangeBracket === RangeBracket.OutOfRange) continue;
 
         const attackerState: IAttackerState = {
-          gunnery: 4,
+          gunnery: DEFAULT_GUNNERY,
           movementType: unit.movementThisTurn,
           heat: unit.heat,
           damageModifiers: [],
@@ -635,8 +663,8 @@ export class SimulationRunner {
           const location = hitLocationResult.location;
 
           let damage = weapon.damage;
-          if (isHeadHit(location) && damage > 3) {
-            damage = 3;
+          if (isHeadHit(location) && damage > HEAD_HIT_DAMAGE_CAP) {
+            damage = HEAD_HIT_DAMAGE_CAP;
           }
 
           const targetBefore = currentState.units[targetId];
@@ -728,7 +756,7 @@ export class SimulationRunner {
           const targetPostDamage = currentState.units[targetId];
           if (
             !targetPostDamage.destroyed &&
-            (targetPostDamage.damageThisPhase ?? 0) >= 20
+            (targetPostDamage.damageThisPhase ?? 0) >= DAMAGE_PSR_THRESHOLD
           ) {
             const existingPSRs = targetPostDamage.pendingPSRs ?? [];
             const hasDamagePSR = existingPSRs.some(
@@ -834,8 +862,8 @@ export class SimulationRunner {
         const damageState = this.buildDamageState(targetBefore);
 
         let damage = result.targetDamage;
-        if (isHeadHit(result.hitLocation) && damage > 3) {
-          damage = 3;
+        if (isHeadHit(result.hitLocation) && damage > HEAD_HIT_DAMAGE_CAP) {
+          damage = HEAD_HIT_DAMAGE_CAP;
         }
 
         const dmgResult = resolveDamage(
@@ -1002,7 +1030,8 @@ export class SimulationRunner {
       if (batchResult.unitFell) {
         const currentUnit = currentState.units[unitId];
         const newPilotWounds = currentUnit.pilotWounds + 1;
-        const pilotConscious = newPilotWounds < 6 && currentUnit.pilotConscious;
+        const pilotConscious =
+          newPilotWounds < LETHAL_PILOT_WOUNDS && currentUnit.pilotConscious;
 
         currentState = {
           ...currentState,
@@ -1068,25 +1097,25 @@ export class SimulationRunner {
 
   private runHeatPhase(state: IGameState): IGameState {
     let currentState = { ...state, phase: GamePhase.Heat };
-    const baseHeatSinks = 10;
-
     for (const unitId of Object.keys(currentState.units)) {
       const unit = currentState.units[unitId];
       if (unit.destroyed) continue;
 
       const weaponsFired = unit.weaponsFiredThisTurn ?? [];
-      const weaponHeat = weaponsFired.length * 3;
+      const weaponHeat = weaponsFired.length * MEDIUM_LASER_HEAT;
 
       let movementHeat = 0;
-      if (unit.movementThisTurn === MovementType.Walk) movementHeat = 1;
-      else if (unit.movementThisTurn === MovementType.Run) movementHeat = 2;
-      else if (unit.movementThisTurn === MovementType.Jump) movementHeat = 3;
+      if (unit.movementThisTurn === MovementType.Walk) movementHeat = WALK_HEAT;
+      else if (unit.movementThisTurn === MovementType.Run)
+        movementHeat = RUN_HEAT;
+      else if (unit.movementThisTurn === MovementType.Jump)
+        movementHeat = JUMP_HEAT;
 
       const componentDamage = unit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE;
-      const engineHeat = componentDamage.engineHits * 5;
+      const engineHeat = componentDamage.engineHits * ENGINE_HEAT_PER_CRITICAL;
 
       const heatSinksLost = componentDamage.heatSinksDestroyed ?? 0;
-      const dissipation = Math.max(0, baseHeatSinks - heatSinksLost);
+      const dissipation = Math.max(0, BASE_HEAT_SINKS - heatSinksLost);
 
       const newHeat = Math.max(
         0,

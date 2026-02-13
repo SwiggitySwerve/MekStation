@@ -11,6 +11,8 @@ import {
   IDiceRoll,
   IHitLocationResult,
 } from '@/types/gameplay';
+export { type D6Roller, defaultD6Roller, rollD6, roll2d6 } from './diceTypes';
+import { type D6Roller, defaultD6Roller, rollD6, roll2d6 } from './diceTypes';
 
 // =============================================================================
 // Hit Location Tables
@@ -113,35 +115,8 @@ export function getHitLocationTable(
 }
 
 // =============================================================================
-// Dice Rolling
+// Dice Rolling (re-exported from diceTypes.ts — single source of truth)
 // =============================================================================
-
-export type D6Roller = () => number;
-
-const defaultD6Roller: D6Roller = () => Math.floor(Math.random() * 6) + 1;
-
-/**
- * Roll a single d6. Accepts an optional injectable roller for deterministic testing.
- */
-export function rollD6(roller: D6Roller = defaultD6Roller): number {
-  return roller();
-}
-
-/**
- * Roll 2d6 and return detailed result. Accepts an optional injectable roller.
- */
-export function roll2d6(roller: D6Roller = defaultD6Roller): IDiceRoll {
-  const die1 = rollD6(roller);
-  const die2 = rollD6(roller);
-  const total = die1 + die2;
-
-  return {
-    dice: [die1, die2],
-    total,
-    isSnakeEyes: total === 2,
-    isBoxcars: total === 12,
-  };
-}
 
 /**
  * Create a dice roll result from a predetermined value (for testing/replays).
@@ -166,9 +141,9 @@ export function createDiceRoll(die1: number, die2: number): IDiceRoll {
  */
 export function determineHitLocation(
   arc: FiringArc,
-  roller: D6Roller = defaultD6Roller,
+  diceRoller: D6Roller = defaultD6Roller,
 ): IHitLocationResult {
-  const roll = roll2d6(roller);
+  const roll = roll2d6(diceRoller);
   return determineHitLocationFromRoll(arc, roll);
 }
 
@@ -253,11 +228,13 @@ export const KICK_HIT_LOCATION_TABLE: Readonly<Record<number, CombatLocation>> =
 /**
  * Determine punch hit location.
  */
-export function determinePunchLocation(roller: D6Roller = defaultD6Roller): {
+export function determinePunchLocation(
+  diceRoller: D6Roller = defaultD6Roller,
+): {
   roll: number;
   location: CombatLocation;
 } {
-  const roll = rollD6(roller);
+  const roll = rollD6(diceRoller);
   return {
     roll,
     location: PUNCH_HIT_LOCATION_TABLE[roll],
@@ -267,11 +244,11 @@ export function determinePunchLocation(roller: D6Roller = defaultD6Roller): {
 /**
  * Determine kick hit location.
  */
-export function determineKickLocation(roller: D6Roller = defaultD6Roller): {
+export function determineKickLocation(diceRoller: D6Roller = defaultD6Roller): {
   roll: number;
   location: CombatLocation;
 } {
-  const roll = rollD6(roller);
+  const roll = rollD6(diceRoller);
   return {
     roll,
     location: KICK_HIT_LOCATION_TABLE[roll],
@@ -290,7 +267,7 @@ export function distributeClusterHits(
   arc: FiringArc,
   numberOfHits: number,
   damagePerHit: number,
-  roller: D6Roller = defaultD6Roller,
+  diceRoller: D6Roller = defaultD6Roller,
 ): { location: CombatLocation; damage: number; roll: IDiceRoll }[] {
   const results: {
     location: CombatLocation;
@@ -299,7 +276,7 @@ export function distributeClusterHits(
   }[] = [];
 
   for (let i = 0; i < numberOfHits; i++) {
-    const hitResult = determineHitLocation(arc, roller);
+    const hitResult = determineHitLocation(arc, diceRoller);
     results.push({
       location: hitResult.location,
       damage: damagePerHit,

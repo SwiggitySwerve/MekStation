@@ -22,15 +22,9 @@ import {
   lookupClusterHits,
   determineClusterHitLocations,
 } from './clusterWeapons';
+import { type DiceRoller } from './diceTypes';
 import { determineHitLocationFromRoll } from './hitLocation';
-
-// Re-export DiceRoller type for use externally
-export type DiceRoller = () => {
-  dice: readonly number[];
-  total: number;
-  isSnakeEyes: boolean;
-  isBoxcars: boolean;
-};
+export { type DiceRoller } from './diceTypes';
 
 // =============================================================================
 // Fire Modes

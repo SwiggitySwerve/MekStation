@@ -18,6 +18,40 @@ import {
 import { D6Roller } from './hitLocation';
 
 // =============================================================================
+// Constants
+// =============================================================================
+
+/** Gauss rifle explosion damage (fixed, not ammo-dependent) */
+const GAUSS_EXPLOSION_DAMAGE = 20;
+
+/** Heat level at or above which ammo auto-explodes (no roll) */
+const HEAT_AUTO_EXPLOSION_THRESHOLD = 30;
+
+/** Heat level at or above which ammo explosion TN is 8 */
+const HEAT_EXPLOSION_TN8_THRESHOLD = 28;
+
+/** Heat level at or above which ammo explosion TN is 6 */
+const HEAT_EXPLOSION_TN6_THRESHOLD = 23;
+
+/** Heat level at or above which ammo explosion TN is 4 */
+const HEAT_EXPLOSION_TN4_THRESHOLD = 19;
+
+/** Target number to avoid ammo explosion at heat 28-29 */
+const HEAT_EXPLOSION_TN_HIGH = 8;
+
+/** Target number to avoid ammo explosion at heat 23-27 */
+const HEAT_EXPLOSION_TN_MEDIUM = 6;
+
+/** Target number to avoid ammo explosion at heat 19-22 */
+const HEAT_EXPLOSION_TN_LOW = 4;
+
+/** CASE II allows only 1 point of transfer damage */
+const CASE_II_TRANSFER_DAMAGE = 1;
+
+/** Pilot takes 1 damage from unprotected ammo explosion */
+const UNPROTECTED_EXPLOSION_PILOT_DAMAGE = 1;
+
+// =============================================================================
 // Types
 // =============================================================================
 
@@ -323,11 +357,14 @@ export function calculateCASEEffects(
       return { transferDamage: 0, pilotDamage: 0 };
     case 'case_ii':
       // Task 6.8: CASE II — only 1 point transfers, no pilot damage
-      return { transferDamage: 1, pilotDamage: 0 };
+      return { transferDamage: CASE_II_TRANSFER_DAMAGE, pilotDamage: 0 };
     case 'none':
     default:
       // Task 6.9: No CASE — normal transfer, pilot takes 1 damage
-      return { transferDamage: totalDamage, pilotDamage: 1 };
+      return {
+        transferDamage: totalDamage,
+        pilotDamage: UNPROTECTED_EXPLOSION_PILOT_DAMAGE,
+      };
   }
 }
 
@@ -379,7 +416,7 @@ export function resolveGaussExplosion(
   location: string,
   caseProtection: CASEProtectionLevel,
 ): IGaussExplosionResult {
-  const totalDamage = 20;
+  const totalDamage = GAUSS_EXPLOSION_DAMAGE;
   const { transferDamage, pilotDamage } = calculateCASEEffects(
     totalDamage,
     caseProtection,
@@ -408,10 +445,11 @@ export function resolveGaussExplosion(
  * Heat 30+: Auto-explosion (TN = Infinity)
  */
 export function getHeatAmmoExplosionTN(heatLevel: number): number | null {
-  if (heatLevel >= 30) return Infinity; // Auto-explode
-  if (heatLevel >= 28) return 8;
-  if (heatLevel >= 23) return 6;
-  if (heatLevel >= 19) return 4;
+  if (heatLevel >= HEAT_AUTO_EXPLOSION_THRESHOLD) return Infinity;
+  if (heatLevel >= HEAT_EXPLOSION_TN8_THRESHOLD) return HEAT_EXPLOSION_TN_HIGH;
+  if (heatLevel >= HEAT_EXPLOSION_TN6_THRESHOLD)
+    return HEAT_EXPLOSION_TN_MEDIUM;
+  if (heatLevel >= HEAT_EXPLOSION_TN4_THRESHOLD) return HEAT_EXPLOSION_TN_LOW;
   return null; // No check needed
 }
 

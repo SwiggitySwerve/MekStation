@@ -44,6 +44,10 @@ import { Facing, MovementType, IHexCoordinate } from '@/types/gameplay';
 // Initial State Creation
 // =============================================================================
 
+// Deployment position constants
+const PLAYER_DEPLOY_ROW = 5;
+const OPPONENT_DEPLOY_ROW = -5;
+
 const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
   engineHits: 0,
   gyroHits: 0,
@@ -212,6 +216,39 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
     case GameEventType.AmmoConsumed:
       return applyAmmoConsumed(state, event.payload as IAmmoConsumedPayload);
 
+    // Info-only events: no state changes needed
+    case GameEventType.TurnEnded:
+      // Turn end bookkeeping event - turn number tracked in event base
+      return state;
+
+    case GameEventType.InitiativeOrderSet:
+      // Initiative order already set via InitiativeRolled handler
+      return state;
+
+    case GameEventType.AttacksRevealed:
+      // Simultaneous resolution marker - no state mutation needed
+      return state;
+
+    case GameEventType.AttackResolved:
+      // Individual attack result - damage applied via DamageApplied events
+      return state;
+
+    case GameEventType.HeatEffectApplied:
+      // Heat effect tracking - heat state managed via HeatGenerated/HeatDissipated
+      return state;
+
+    case GameEventType.CriticalHit:
+      // Legacy/info-only event - actual critical hit handling via CriticalHitResolved
+      return state;
+
+    case GameEventType.FacingChanged:
+      // Legacy/unused event - facing updated via MovementDeclared event
+      return state;
+
+    case GameEventType.AmmoExplosion:
+      // Info-only event for logging - damage applied via separate DamageApplied events
+      return state;
+
     default:
       // Unknown event type, return state unchanged
       return state;
@@ -236,7 +273,7 @@ function applyGameCreated(
     // Simple deployment: players on south edge, opponents on north
     const isPlayer = unit.side === GameSide.Player;
     const col = isPlayer ? playerIndex++ : opponentIndex++;
-    const row = isPlayer ? 5 : -5; // Simplified starting positions
+    const row = isPlayer ? PLAYER_DEPLOY_ROW : OPPONENT_DEPLOY_ROW;
 
     const position: IHexCoordinate = { q: col - 2, r: row };
     const facing = isPlayer ? Facing.North : Facing.South;

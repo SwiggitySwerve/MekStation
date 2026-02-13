@@ -15,6 +15,7 @@ import {
   IUnitGameState,
 } from '@/types/gameplay';
 
+import { defaultD6Roller } from './diceTypes';
 import { D6Roller, roll2d6 } from './hitLocation';
 
 // =============================================================================
@@ -128,7 +129,7 @@ export function resolvePSR(
   psr: IPendingPSR,
   componentDamage: IComponentDamageState,
   pilotWounds: number,
-  diceRoller: D6Roller = undefined as unknown as D6Roller,
+  diceRoller: D6Roller = defaultD6Roller,
 ): IPSRResult {
   const modifiers = calculatePSRModifiers(psr, componentDamage, pilotWounds);
 
@@ -168,7 +169,7 @@ export function resolveAllPSRs(
   pendingPSRs: readonly IPendingPSR[],
   componentDamage: IComponentDamageState,
   pilotWounds: number,
-  diceRoller: D6Roller = undefined as unknown as D6Roller,
+  diceRoller: D6Roller = defaultD6Roller,
 ): IPSRBatchResult {
   if (pendingPSRs.length === 0) {
     return {
