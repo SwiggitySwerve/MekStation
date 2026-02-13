@@ -252,7 +252,7 @@ The customizer SHALL display a persistent status bar showing capacity utilizatio
 - **WHEN** calculating used slots
 - **THEN** count includes Endo Steel slots (14 IS / 7 Clan)
 - **AND** count includes Ferro-Fibrous slots (14 IS / 7 Clan)
-- **AND** count includes all mounted equipment slots
+- **AND** count includes all mounted critical slots
 
 ### Requirement: Structural Equipment Display
 
