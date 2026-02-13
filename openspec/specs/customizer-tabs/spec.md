@@ -279,3 +279,324 @@ The Structure Tab SHALL provide a button to reset the OmniMech chassis.
 - **And** the user clicked "Reset Chassis"
 - **When** the user cancels the dialog
 - **Then** all equipment (fixed and pod) remains unchanged
+
+---
+
+## Customizer Settings Store
+
+### Requirement: Armor Diagram Mode Selection
+
+The customizer settings store SHALL manage armor diagram display mode with two options: schematic and silhouette.
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts:14-14`
+
+**Rationale**: Users need to choose between technical schematic diagrams and visual silhouette representations based on their preference and use case.
+
+#### Scenario: Change diagram mode directly
+
+- **GIVEN** customizer settings store is initialized
+- **WHEN** user calls `setArmorDiagramMode('schematic')`
+- **THEN** `armorDiagramMode` is set to 'schematic'
+- **AND** the change is persisted to localStorage immediately
+- **AND** `hasUnsavedCustomizer` remains false
+
+#### Scenario: Change diagram mode via draft
+
+- **GIVEN** draft customizer is initialized with mode 'silhouette'
+- **WHEN** user calls `setDraftArmorDiagramMode('schematic')`
+- **THEN** `draftCustomizer.armorDiagramMode` is set to 'schematic'
+- **AND** `hasUnsavedCustomizer` is set to true
+- **AND** persisted `armorDiagramMode` remains unchanged
+
+---
+
+### Requirement: Armor Diagram Variant Selection
+
+The customizer settings store SHALL manage armor diagram design variant with five options: clean-tech, neon-operator, tactical-hud, premium-material, and megamek.
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts:19-24`
+
+**Rationale**: Users need to select visual themes for armor diagrams to match their aesthetic preferences and readability needs.
+
+#### Scenario: Change variant directly
+
+- **GIVEN** customizer settings store is initialized
+- **WHEN** user calls `setArmorDiagramVariant('neon-operator')`
+- **THEN** `armorDiagramVariant` is set to 'neon-operator'
+- **AND** the change is persisted to localStorage immediately
+- **AND** `hasUnsavedCustomizer` remains false
+
+#### Scenario: Change variant via draft
+
+- **GIVEN** draft customizer is initialized with variant 'clean-tech'
+- **WHEN** user calls `setDraftArmorDiagramVariant('tactical-hud')`
+- **THEN** `draftCustomizer.armorDiagramVariant` is set to 'tactical-hud'
+- **AND** `hasUnsavedCustomizer` is set to true
+- **AND** persisted `armorDiagramVariant` remains unchanged
+
+---
+
+### Requirement: Draft Preview Workflow
+
+The customizer settings store SHALL support a draft/preview/apply workflow for live preview of settings changes without immediate persistence.
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts:44-57`
+
+**Rationale**: Users need to preview customizer changes (especially visual variants) before committing them, with the ability to revert if unsatisfied.
+
+#### Scenario: Initialize draft customizer
+
+- **GIVEN** customizer settings with mode 'silhouette' and variant 'clean-tech'
+- **WHEN** user calls `initDraftCustomizer()`
+- **THEN** `draftCustomizer` is set to `{ armorDiagramMode: 'silhouette', armorDiagramVariant: 'clean-tech' }`
+- **AND** `hasUnsavedCustomizer` is set to false
+
+#### Scenario: Preview draft changes
+
+- **GIVEN** draft customizer initialized with mode 'silhouette' and variant 'clean-tech'
+- **WHEN** user calls `setDraftArmorDiagramVariant('neon-operator')`
+- **THEN** `getEffectiveArmorDiagramVariant()` returns 'neon-operator'
+- **AND** persisted `armorDiagramVariant` remains 'clean-tech'
+- **AND** `hasUnsavedCustomizer` is true
+
+#### Scenario: Apply draft changes
+
+- **GIVEN** draft customizer with mode 'schematic' and variant 'tactical-hud'
+- **AND** persisted settings are mode 'silhouette' and variant 'clean-tech'
+- **WHEN** user calls `saveCustomizer()`
+- **THEN** `armorDiagramMode` is set to 'schematic'
+- **AND** `armorDiagramVariant` is set to 'tactical-hud'
+- **AND** changes are persisted to localStorage
+- **AND** `hasUnsavedCustomizer` is set to false
+
+#### Scenario: Revert draft changes
+
+- **GIVEN** draft customizer with mode 'schematic' and variant 'tactical-hud'
+- **AND** persisted settings are mode 'silhouette' and variant 'clean-tech'
+- **WHEN** user calls `revertCustomizer()`
+- **THEN** `draftCustomizer` is set to null
+- **AND** `hasUnsavedCustomizer` is set to false
+- **AND** `getEffectiveArmorDiagramMode()` returns 'silhouette'
+- **AND** `getEffectiveArmorDiagramVariant()` returns 'clean-tech'
+
+---
+
+### Requirement: Effective Settings Getters
+
+The customizer settings store SHALL provide getter functions that return the effective settings (draft if exists, otherwise persisted).
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts:60-61`
+
+**Rationale**: UI components need a single source of truth for current settings that automatically reflects draft changes during preview.
+
+#### Scenario: Get effective mode without draft
+
+- **GIVEN** no draft customizer exists
+- **AND** persisted `armorDiagramMode` is 'silhouette'
+- **WHEN** user calls `getEffectiveArmorDiagramMode()`
+- **THEN** 'silhouette' is returned
+
+#### Scenario: Get effective mode with draft
+
+- **GIVEN** draft customizer with `armorDiagramMode` 'schematic'
+- **AND** persisted `armorDiagramMode` is 'silhouette'
+- **WHEN** user calls `getEffectiveArmorDiagramMode()`
+- **THEN** 'schematic' is returned
+
+#### Scenario: Get effective variant without draft
+
+- **GIVEN** no draft customizer exists
+- **AND** persisted `armorDiagramVariant` is 'clean-tech'
+- **WHEN** user calls `getEffectiveArmorDiagramVariant()`
+- **THEN** 'clean-tech' is returned
+
+#### Scenario: Get effective variant with draft
+
+- **GIVEN** draft customizer with `armorDiagramVariant` 'neon-operator'
+- **AND** persisted `armorDiagramVariant` is 'clean-tech'
+- **WHEN** user calls `getEffectiveArmorDiagramVariant()`
+- **THEN** 'neon-operator' is returned
+
+---
+
+### Requirement: Persistence via Zustand Middleware
+
+The customizer settings store SHALL persist settings to localStorage using Zustand persist middleware, excluding draft state.
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts:175-183`
+
+**Rationale**: Settings must survive page refreshes, but draft state is intentionally ephemeral to prevent accidental persistence of unconfirmed changes.
+
+#### Scenario: Persisted state excludes draft
+
+- **GIVEN** customizer settings store with draft customizer
+- **WHEN** Zustand persist middleware serializes state
+- **THEN** `armorDiagramMode`, `armorDiagramVariant`, and `showArmorDiagramSelector` are persisted
+- **AND** `draftCustomizer` and `hasUnsavedCustomizer` are NOT persisted
+
+#### Scenario: Restore persisted settings on load
+
+- **GIVEN** localStorage contains `{ armorDiagramMode: 'schematic', armorDiagramVariant: 'tactical-hud' }`
+- **WHEN** customizer settings store is initialized
+- **THEN** `armorDiagramMode` is 'schematic'
+- **AND** `armorDiagramVariant` is 'tactical-hud'
+- **AND** `draftCustomizer` is null
+- **AND** `hasUnsavedCustomizer` is false
+
+---
+
+### Requirement: Reset to Defaults
+
+The customizer settings store SHALL provide a reset function to restore default settings.
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts:64-64`
+
+**Rationale**: Users need a way to return to known-good default settings if they become confused or want to start fresh.
+
+#### Scenario: Reset to defaults
+
+- **GIVEN** customizer settings with mode 'schematic' and variant 'neon-operator'
+- **AND** draft customizer exists
+- **WHEN** user calls `resetToDefaults()`
+- **THEN** `armorDiagramMode` is set to 'silhouette' (default)
+- **AND** `armorDiagramVariant` is set to 'clean-tech' (default)
+- **AND** `showArmorDiagramSelector` is set to true (default)
+- **AND** `draftCustomizer` is set to null
+- **AND** `hasUnsavedCustomizer` is set to false
+
+---
+
+## Data Model Requirements
+
+### ArmorDiagramMode
+
+```typescript
+/**
+ * Armor diagram display mode
+ */
+export type ArmorDiagramMode = 'schematic' | 'silhouette';
+```
+
+**Values**:
+- `'schematic'`: Technical line-art diagram showing armor locations
+- `'silhouette'`: Visual silhouette representation of the BattleMech
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts:14-14`
+
+---
+
+### ArmorDiagramVariant
+
+```typescript
+/**
+ * Armor diagram design variants
+ */
+export type ArmorDiagramVariant =
+  | 'clean-tech'
+  | 'neon-operator'
+  | 'tactical-hud'
+  | 'premium-material'
+  | 'megamek';
+```
+
+**Values**:
+- `'clean-tech'`: Minimalist design with clean lines (default)
+- `'neon-operator'`: High-contrast neon aesthetic
+- `'tactical-hud'`: Military HUD-inspired design
+- `'premium-material'`: Material Design-inspired variant
+- `'megamek'`: Classic MegaMek visual style
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts:19-24`
+
+---
+
+### CustomizerSettings
+
+```typescript
+/**
+ * Customizer settings that support live preview with save/revert
+ */
+export interface CustomizerSettings {
+  armorDiagramMode: ArmorDiagramMode;
+  armorDiagramVariant: ArmorDiagramVariant;
+}
+```
+
+**Purpose**: Represents the subset of customizer settings that support draft/preview workflow.
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts:29-32`
+
+---
+
+### CustomizerSettingsState
+
+```typescript
+/**
+ * Customizer settings store state
+ */
+export interface CustomizerSettingsState {
+  // Customizer preferences (persisted)
+  armorDiagramMode: ArmorDiagramMode;
+  armorDiagramVariant: ArmorDiagramVariant;
+  showArmorDiagramSelector: boolean; // UAT feature flag
+
+  // Draft customizer for live preview (not persisted)
+  draftCustomizer: CustomizerSettings | null;
+  hasUnsavedCustomizer: boolean;
+
+  // Direct setters (immediately persisted)
+  setArmorDiagramMode: (mode: ArmorDiagramMode) => void;
+  setArmorDiagramVariant: (variant: ArmorDiagramVariant) => void;
+  setShowArmorDiagramSelector: (show: boolean) => void;
+
+  // Draft customizer actions for live preview (requires explicit save)
+  setDraftArmorDiagramMode: (mode: ArmorDiagramMode) => void;
+  setDraftArmorDiagramVariant: (variant: ArmorDiagramVariant) => void;
+  saveCustomizer: () => void;
+  revertCustomizer: () => void;
+  initDraftCustomizer: () => void;
+
+  // Getters for effective (draft or saved) customizer
+  getEffectiveArmorDiagramMode: () => ArmorDiagramMode;
+  getEffectiveArmorDiagramVariant: () => ArmorDiagramVariant;
+
+  // Reset
+  resetToDefaults: () => void;
+}
+```
+
+**Purpose**: Complete Zustand store state including persisted settings, draft state, and actions.
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts:37-65`
+
+---
+
+### DEFAULT_CUSTOMIZER_SETTINGS
+
+```typescript
+const DEFAULT_CUSTOMIZER_SETTINGS: Omit<CustomizerSettingsState, ActionKeys> = {
+  armorDiagramMode: 'silhouette',
+  armorDiagramVariant: 'clean-tech',
+  showArmorDiagramSelector: true, // Enable UAT selector by default
+  draftCustomizer: null,
+  hasUnsavedCustomizer: false,
+};
+```
+
+**Purpose**: Default values for customizer settings on first load.
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts:81-87`
+
+---
+
+## Non-Goals
+
+The following are explicitly **out of scope** for this specification:
+
+1. **Armor Diagram Rendering**: Visual rendering of armor diagrams is handled by separate diagram components
+2. **Armor Allocation Logic**: Armor point allocation and validation is handled by armor tab components
+3. **Theme System Integration**: Global application theming is handled by the theming system
+4. **User Preferences Sync**: Cross-device settings synchronization is handled by vault-sync
+5. **Feature Flag Management**: Application-wide feature flags are handled by app settings store
+6. **Undo/Redo**: Settings change history is not tracked
+7. **Settings Migration**: Version migration for settings schema changes is not specified
