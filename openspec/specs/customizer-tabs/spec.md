@@ -478,6 +478,7 @@ export type ArmorDiagramMode = 'schematic' | 'silhouette';
 ```
 
 **Values**:
+
 - `'schematic'`: Technical line-art diagram showing armor locations
 - `'silhouette'`: Visual silhouette representation of the BattleMech
 
@@ -500,6 +501,7 @@ export type ArmorDiagramVariant =
 ```
 
 **Values**:
+
 - `'clean-tech'`: Minimalist design with clean lines (default)
 - `'neon-operator'`: High-contrast neon aesthetic
 - `'tactical-hud'`: Military HUD-inspired design

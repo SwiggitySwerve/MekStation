@@ -355,12 +355,12 @@ The following are explicitly OUT OF SCOPE for this specification:
  * Haptic feedback patterns for different interactions
  */
 export type HapticPattern =
-  | 'light'      // 10ms - subtle feedback
-  | 'medium'     // 25ms - button presses
-  | 'heavy'      // 50ms - significant actions
-  | 'success'    // [25, 50, 25] - double tap
-  | 'warning'    // [15, 30, 15, 30, 15] - triple tap
-  | 'error'      // [100] - long buzz
+  | 'light' // 10ms - subtle feedback
+  | 'medium' // 25ms - button presses
+  | 'heavy' // 50ms - significant actions
+  | 'success' // [25, 50, 25] - double tap
+  | 'warning' // [15, 30, 15, 30, 15] - triple tap
+  | 'error' // [100] - long buzz
   | 'selection'; // 15ms - quick feedback
 
 /**
@@ -600,15 +600,15 @@ const VIBRATION_PATTERNS: Record<FeedbackType, number | number[]> = {
  */
 function calculateTouchTargetPadding(
   contentSize: number,
-  minSize: number = 44
+  minSize: number = 44,
 ): { padding: number; margin: number } {
   if (contentSize >= minSize) {
     return { padding: 0, margin: 0 };
   }
-  
+
   const padding = (minSize - contentSize) / 2;
   const margin = -padding;
-  
+
   return { padding, margin };
 }
 
@@ -632,18 +632,18 @@ function detectSwipeDirection(
   endX: number,
   endY: number,
   swipeThreshold: number = 50,
-  verticalThreshold: number = 75
+  verticalThreshold: number = 75,
 ): 'left' | 'right' | 'up' | 'down' | null {
   const deltaX = endX - startX;
   const deltaY = endY - startY;
-  
+
   const isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY);
-  
+
   // Cancel if vertical movement exceeds threshold during horizontal swipe
   if (isHorizontalSwipe && Math.abs(deltaY) > verticalThreshold) {
     return null;
   }
-  
+
   if (isHorizontalSwipe) {
     if (Math.abs(deltaX) > swipeThreshold) {
       return deltaX > 0 ? 'right' : 'left';
@@ -653,7 +653,7 @@ function detectSwipeDirection(
       return deltaY > 0 ? 'down' : 'up';
     }
   }
-  
+
   return null;
 }
 ```
@@ -667,11 +667,11 @@ function detectSwipeDirection(
 function calculateKeyboardHeight(
   windowHeight: number,
   viewportHeight: number,
-  threshold: number = 150
+  threshold: number = 150,
 ): { isVisible: boolean; height: number } {
   const heightDifference = windowHeight - viewportHeight;
   const isVisible = heightDifference > threshold;
-  
+
   return {
     isVisible,
     height: isVisible ? heightDifference : 0,
@@ -695,20 +695,33 @@ function calculateKeyboardHeight(
  */
 function validateHapticPattern(pattern: unknown): pattern is HapticPattern {
   const validPatterns: HapticPattern[] = [
-    'light', 'medium', 'heavy', 'success', 'warning', 'error', 'selection'
+    'light',
+    'medium',
+    'heavy',
+    'success',
+    'warning',
+    'error',
+    'selection',
   ];
-  return typeof pattern === 'string' && validPatterns.includes(pattern as HapticPattern);
+  return (
+    typeof pattern === 'string' &&
+    validPatterns.includes(pattern as HapticPattern)
+  );
 }
 
 /**
  * Validate custom vibration pattern
  */
-function validateVibrationPattern(pattern: unknown): pattern is number | number[] {
+function validateVibrationPattern(
+  pattern: unknown,
+): pattern is number | number[] {
   if (typeof pattern === 'number') {
     return pattern >= 0 && Number.isFinite(pattern);
   }
   if (Array.isArray(pattern)) {
-    return pattern.every(n => typeof n === 'number' && n >= 0 && Number.isFinite(n));
+    return pattern.every(
+      (n) => typeof n === 'number' && n >= 0 && Number.isFinite(n),
+    );
   }
   return false;
 }
@@ -723,17 +736,19 @@ function validateVibrationPattern(pattern: unknown): pattern is number | number[
 function validateTouchTargetSize(
   width: number,
   height: number,
-  minSize: number = 44
+  minSize: number = 44,
 ): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
-  
+
   if (width < minSize) {
     errors.push(`Touch target width ${width}px is below minimum ${minSize}px`);
   }
   if (height < minSize) {
-    errors.push(`Touch target height ${height}px is below minimum ${minSize}px`);
+    errors.push(
+      `Touch target height ${height}px is below minimum ${minSize}px`,
+    );
   }
-  
+
   return {
     valid: errors.length === 0,
     errors,
@@ -749,19 +764,25 @@ function validateTouchTargetSize(
  */
 function validateLongPressConfig(config: UseLongPressOptions): string[] {
   const errors: string[] = [];
-  
-  if (config.delay !== undefined && (config.delay < 0 || !Number.isFinite(config.delay))) {
+
+  if (
+    config.delay !== undefined &&
+    (config.delay < 0 || !Number.isFinite(config.delay))
+  ) {
     errors.push('Long press delay must be a positive finite number');
   }
-  
-  if (config.moveThreshold !== undefined && (config.moveThreshold < 0 || !Number.isFinite(config.moveThreshold))) {
+
+  if (
+    config.moveThreshold !== undefined &&
+    (config.moveThreshold < 0 || !Number.isFinite(config.moveThreshold))
+  ) {
     errors.push('Move threshold must be a positive finite number');
   }
-  
+
   if (typeof config.onLongPress !== 'function') {
     errors.push('onLongPress must be a function');
   }
-  
+
   return errors;
 }
 
@@ -770,24 +791,37 @@ function validateLongPressConfig(config: UseLongPressOptions): string[] {
  */
 function validateSwipeConfig(config: SwipeGestureConfig): string[] {
   const errors: string[] = [];
-  
-  if (config.swipeThreshold !== undefined && (config.swipeThreshold < 0 || !Number.isFinite(config.swipeThreshold))) {
+
+  if (
+    config.swipeThreshold !== undefined &&
+    (config.swipeThreshold < 0 || !Number.isFinite(config.swipeThreshold))
+  ) {
     errors.push('Swipe threshold must be a positive finite number');
   }
-  
-  if (config.verticalThreshold !== undefined && (config.verticalThreshold < 0 || !Number.isFinite(config.verticalThreshold))) {
+
+  if (
+    config.verticalThreshold !== undefined &&
+    (config.verticalThreshold < 0 || !Number.isFinite(config.verticalThreshold))
+  ) {
     errors.push('Vertical threshold must be a positive finite number');
   }
-  
-  if (config.edgeWidth !== undefined && (config.edgeWidth < 0 || !Number.isFinite(config.edgeWidth))) {
+
+  if (
+    config.edgeWidth !== undefined &&
+    (config.edgeWidth < 0 || !Number.isFinite(config.edgeWidth))
+  ) {
     errors.push('Edge width must be a positive finite number');
   }
-  
-  const hasCallback = config.onSwipeLeft || config.onSwipeRight || config.onSwipeUp || config.onSwipeDown;
+
+  const hasCallback =
+    config.onSwipeLeft ||
+    config.onSwipeRight ||
+    config.onSwipeUp ||
+    config.onSwipeDown;
   if (!hasCallback) {
     errors.push('At least one swipe callback must be provided');
   }
-  
+
   return errors;
 }
 ```
@@ -870,22 +904,22 @@ import { useHaptics } from '@/hooks/useHaptics';
 
 function EquipmentSlot() {
   const { vibrate, isSupported } = useHaptics();
-  
+
   const handleDrop = () => {
     vibrate('medium'); // 25ms tap on equipment assignment
     assignEquipment();
   };
-  
+
   const handleSave = () => {
     vibrate('success'); // Double tap pattern on save
     saveConfiguration();
   };
-  
+
   const handleError = () => {
     vibrate('error'); // Long buzz on validation error
     showErrorMessage();
   };
-  
+
   return (
     <div onDrop={handleDrop}>
       {isSupported && <span>Haptic feedback enabled</span>}
@@ -901,14 +935,14 @@ import { useLongPress } from '@/hooks/useLongPress';
 
 function UnitCard({ unit }) {
   const [showActions, setShowActions] = useState(false);
-  
+
   const longPressHandlers = useLongPress({
     delay: 500,
     onLongPress: () => setShowActions(true),
     onClick: () => selectUnit(unit),
     moveThreshold: 10,
   });
-  
+
   return (
     <div {...longPressHandlers} className="unit-card">
       <h3>{unit.name}</h3>
@@ -926,13 +960,13 @@ import { useSwipeGestures, useBackSwipeGesture } from '@/hooks/useSwipeGestures'
 // Tab navigation with swipe
 function TabbedInterface() {
   const [activeTab, setActiveTab] = useState(0);
-  
+
   const swipeHandlers = useSwipeGestures({
     onSwipeLeft: () => setActiveTab(prev => Math.min(prev + 1, tabs.length - 1)),
     onSwipeRight: () => setActiveTab(prev => Math.max(prev - 1, 0)),
     swipeThreshold: 50,
   });
-  
+
   return <div {...swipeHandlers}>{tabs[activeTab].content}</div>;
 }
 
@@ -941,7 +975,7 @@ function DetailPanel() {
   const backSwipeHandlers = useBackSwipeGesture({
     onSwipeRight: () => navigation.goBack(),
   });
-  
+
   return <div {...backSwipeHandlers}>Panel content</div>;
 }
 ```
@@ -957,7 +991,7 @@ function CloseButton() {
     contentWidth: 20,
     contentHeight: 20,
   });
-  
+
   return (
     <button style={style} className={className}>
       <CloseIcon size={20} />
@@ -968,7 +1002,7 @@ function CloseButton() {
 // Simple button with class-only
 function ActionButton() {
   const className = useTouchTargetClass();
-  
+
   return <button className={className}>Delete</button>;
 }
 ```
@@ -982,7 +1016,7 @@ import { getPressedStyles, getTouchButtonClasses, getIconButtonClasses } from '@
 function TouchButton() {
   const [pressed, setPressed] = useState(false);
   const pressedStyle = getPressedStyles({ scaleFactor: 0.95 });
-  
+
   return (
     <button
       onTouchStart={() => setPressed(true)}
@@ -1020,19 +1054,19 @@ import { useDeviceType } from '@/hooks/useDeviceType';
 
 function AdaptiveUI() {
   const { isMobile, isTablet, isTouch, isHybrid } = useDeviceType();
-  
+
   if (isMobile && isTouch) {
     return <MobileUI />;
   }
-  
+
   if (isTablet) {
     return <TabletUI />;
   }
-  
+
   if (isHybrid) {
     return <HybridUI />; // Surface tablet, touchscreen laptop
   }
-  
+
   return <DesktopUI />;
 }
 ```
@@ -1044,7 +1078,7 @@ import { useVirtualKeyboard } from '@/hooks/useVirtualKeyboard';
 
 function ChatInput() {
   const { isKeyboardVisible, keyboardHeight, visibleHeight } = useVirtualKeyboard();
-  
+
   useEffect(() => {
     if (isKeyboardVisible && document.activeElement) {
       // Scroll focused input into view
@@ -1054,7 +1088,7 @@ function ChatInput() {
       });
     }
   }, [isKeyboardVisible]);
-  
+
   return (
     <div
       style={{
@@ -1078,7 +1112,7 @@ function InteractiveButton() {
     () => performAction(),
     { haptic: true, intensity: 'medium' }
   );
-  
+
   return (
     <button onClick={handleClick} className={getTouchButtonClasses()}>
       Tap Me
@@ -1092,7 +1126,7 @@ function CustomInteraction() {
     triggerFeedback({ haptic: true, intensity: 'heavy' });
     performHeavyAction();
   };
-  
+
   return <div onTouchStart={handlePress}>Heavy Action</div>;
 }
 ```
