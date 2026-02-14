@@ -4,10 +4,7 @@
 
 import type { KeyMomentType } from '@/types/simulation-viewer/IKeyMoment';
 
-import {
-  GameSide,
-  type IGameEvent,
-} from '@/types/gameplay/GameSessionInterfaces';
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 // =============================================================================
 // Battle Context Types

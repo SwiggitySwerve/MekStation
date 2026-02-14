@@ -17,7 +17,6 @@ import { getPayload } from '../utils/getPayload';
 import {
   type BattleStateSnapshot,
   createSnapshot,
-  serializeSnapshot,
   snapshotsEqual,
 } from './snapshots';
 
