@@ -23,7 +23,6 @@ import { getAllUnits } from '@/types/campaign/Force';
 import { IContract, createContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
-import { calculateUnitBV } from '@/utils/construction/bvAdapter';
 
 import {
   calculateContractLength,

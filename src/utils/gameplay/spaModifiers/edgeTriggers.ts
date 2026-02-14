@@ -3,7 +3,7 @@
  * Handles Edge point state, usage, and trigger validation.
  */
 
-import { EdgeTriggerType, IEdgeState, IEdgeUsage } from './types';
+import { EdgeTriggerType, IEdgeState } from './types';
 
 /**
  * Edge trigger definitions with descriptions.

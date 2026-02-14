@@ -9,7 +9,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useCallback, useMemo } from 'react';
+import { useEffect, useCallback } from 'react';
 
 import type { IUnitGameState } from '@/types/gameplay/GameSessionInterfaces';
 

@@ -27,7 +27,7 @@ import {
 } from '@/types/construction/TechBaseConfiguration';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
-import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
+import { IEquipmentItem } from '@/types/equipment';
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
 import {

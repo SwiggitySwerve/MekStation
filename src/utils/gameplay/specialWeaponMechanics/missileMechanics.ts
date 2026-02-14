@@ -19,8 +19,6 @@ import {
   determineClusterHitLocations,
 } from '../clusterWeapons';
 import { type DiceRoller } from '../diceTypes';
-// isLBXAC is defined in autocannonMechanics
-import { isLBXAC } from './autocannonMechanics';
 // =============================================================================
 // Weapon Type Detection
 // =============================================================================
