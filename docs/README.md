@@ -42,5 +42,6 @@ See [`openspec/specs/`](../openspec/specs/) for 38 comprehensive specifications 
 ## Quick Links
 
 - **Agent Rules**: See [`.cursorrules`](../.cursorrules) for comprehensive development guidelines
+- **File Modularity Spec**: See [`FILE_MODULARITY_SPEC.md`](../FILE_MODULARITY_SPEC.md) for file-size targets and decomposition rules
 - **OpenSpec**: See [`openspec/AGENTS.md`](../openspec/AGENTS.md) for spec-driven development workflow
 - **BattleTech Rules**: See [`openspec/specs/`](../openspec/specs/) for all domain specifications

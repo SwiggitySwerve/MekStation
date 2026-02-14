@@ -1,17 +1,11 @@
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 
-import {
-  halveCritCount,
-  isFerroLamellorArmor,
-  isHardenedArmor,
-} from './criticalHitResolutionArmor';
-import { LETHAL_PILOT_WOUNDS } from './criticalHitResolutionConstants';
-import { applyCriticalHitEffect } from './criticalHitResolutionEffects';
-import { normalizeLocation } from './criticalHitResolutionManifest';
-import {
-  rollCriticalHits,
-  selectCriticalSlot,
-} from './criticalHitResolutionSelection';
+import { D6Roller } from '../hitLocation';
+import { halveCritCount, isFerroLamellorArmor, isHardenedArmor } from './armor';
+import { LETHAL_PILOT_WOUNDS } from './constants';
+import { applyCriticalHitEffect } from './effects';
+import { normalizeLocation } from './manifest';
+import { rollCriticalHits, selectCriticalSlot } from './selection';
 import {
   CriticalSlotManifest,
   CriticalHitEvent,
@@ -19,8 +13,7 @@ import {
   ICriticalHitApplicationResult,
   ICriticalResolutionResult,
   IComponentDamageState,
-} from './criticalHitResolutionTypes';
-import { D6Roller } from './hitLocation';
+} from './types';
 
 export function resolveCriticalHits(
   unitId: string,

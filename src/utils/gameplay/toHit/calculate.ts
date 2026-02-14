@@ -13,28 +13,35 @@ import {
   getEffectiveWounds,
 } from '../spaModifiers';
 import { aggregateModifiers } from './aggregation';
+import { createBaseModifier } from './baseModifier';
 import { RANGE_MODIFIERS } from './constants';
 import {
-  calculateActuatorDamageModifier,
-  calculateAttackerMovementModifier,
-  calculateAttackerProneModifier,
-  calculateCalledShotModifier,
-  calculateHeatModifier,
-  calculateHullDownModifier,
-  calculateImmobileModifier,
-  calculateIndirectFireModifier,
-  calculateMinimumRangeModifier,
-  calculatePartialCoverModifier,
-  calculatePilotWoundModifier,
   calculateProneModifier,
+  calculateImmobileModifier,
+  calculatePilotWoundModifier,
   calculateSecondaryTargetModifier,
   calculateSensorDamageModifier,
-  calculateTargetingComputerModifier,
+  calculateActuatorDamageModifier,
+  calculateAttackerProneModifier,
+  calculateIndirectFireModifier,
+  calculateCalledShotModifier,
+} from './damageModifiers';
+import {
+  calculateHeatModifier,
+  calculatePartialCoverModifier,
+  calculateHullDownModifier,
+} from './environmentModifiers';
+import { calculateTargetingComputerModifier } from './equipmentModifiers';
+import {
+  calculateAttackerMovementModifier,
   calculateTMM,
-  createBaseModifier,
-  getRangeBracket,
+} from './movementModifiers';
+import {
+  calculateRangeModifier,
+  calculateMinimumRangeModifier,
   getRangeModifierForBracket,
-} from './modifiers';
+  getRangeBracket,
+} from './rangeModifiers';
 
 export function calculateToHit(
   attacker: IAttackerState,

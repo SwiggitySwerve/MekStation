@@ -34,6 +34,23 @@ npx openspec show movement-system --type spec
 
 ---
 
+## 📐 **File Modularity Policy (MANDATORY)**
+
+All agents MUST follow `FILE_MODULARITY_SPEC.md` for file-size and
+modularization decisions.
+
+### **Default Guidance**
+- Runtime logic default target: ~300 lines
+- Runtime logic soft max: 400 lines
+- Runtime logic hard guardrail: 500 lines
+
+### **Required Behavior**
+- If a file exceeds its soft max and has multiple responsibilities, split it by concern.
+- Preserve public APIs with facade files when extracting internals.
+- Do not split declarative data-only catalogs unless they exceed hard limits or mix behavior.
+
+---
+
 ## 🛡️ **Code Standards**
 
 ### **Type Safety**

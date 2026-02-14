@@ -4,7 +4,7 @@ import type {
   CombatLocation,
   CriticalSlotManifest,
   ICriticalSlotEntry,
-} from './criticalHitResolutionTypes';
+} from './types';
 
 export function buildDefaultCriticalSlotManifest(): CriticalSlotManifest {
   return {
