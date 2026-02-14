@@ -6,16 +6,15 @@
  * @spec openspec/specs/unit-entity-model/spec.md
  */
 
-import {
-  EngineType,
-  GyroType,
-  InternalStructureType,
-  HeatSinkType,
-  ArmorTypeEnum,
-  CockpitType,
-  MechLocation,
-  IArmorAllocation,
-} from '../construction';
+import type { IArmorAllocation } from '../construction/ComponentInterfaces';
+
+import { ArmorTypeEnum } from '../construction/ArmorType';
+import { CockpitType } from '../construction/CockpitType';
+import { MechLocation } from '../construction/CriticalSlotAllocation';
+import { EngineType } from '../construction/EngineType';
+import { GyroType } from '../construction/GyroType';
+import { HeatSinkType } from '../construction/HeatSinkType';
+import { InternalStructureType } from '../construction/InternalStructureType';
 import {
   IEntity,
   ITechBaseEntity,
