@@ -10,7 +10,7 @@
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
 
-import type { IEquipmentItem } from './index';
+import type { IEquipmentItem } from './EquipmentItem';
 
 import { EquipmentCategory } from './EquipmentCategory';
 

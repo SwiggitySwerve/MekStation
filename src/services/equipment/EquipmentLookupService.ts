@@ -18,12 +18,14 @@ import {
   IEquipmentItem,
   IWeapon,
   IAmmunition,
-  getAllEquipmentItems as getAllEquipmentItemsFallback,
-  getAllWeapons as getAllWeaponsFallback,
-  getAllAmmunition as getAllAmmunitionFallback,
 } from '@/types/equipment';
 import { MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 import { weaponCategoryToEquipmentCategory } from '@/utils/equipment/categoryRegistry';
+import {
+  getAllAmmunition as getAllAmmunitionFallback,
+  getAllEquipmentItems as getAllEquipmentItemsFallback,
+  getAllWeapons as getAllWeaponsFallback,
+} from '@/utils/equipment/equipmentAggregation';
 import { logger } from '@/utils/logger';
 
 import { IEquipmentQueryCriteria } from '../common/types';

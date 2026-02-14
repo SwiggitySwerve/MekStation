@@ -14,6 +14,8 @@ export * from './HexGridInterfaces';
 // Terrain System
 export * from './TerrainTypes';
 
+export * from './EnvironmentalConditions';
+
 // Game Session Core
 export * from './GameSessionInterfaces';
 

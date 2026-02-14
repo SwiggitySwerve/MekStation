@@ -11,8 +11,9 @@
  * @module campaign/medical/advancedMedical
  */
 
-import { ICampaignOptions } from '../../../types/campaign/Campaign';
-import { IPerson, IInjury } from '../../../types/campaign/Person';
+import { ICampaignOptions } from '@/types/campaign/Campaign';
+import { IPerson, IInjury } from '@/types/campaign/Person';
+
 import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
 import { RandomFn } from './standardMedical';
 

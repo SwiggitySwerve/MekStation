@@ -50,7 +50,7 @@ export function ArrowPathIcon({
   className = 'w-5 h-5',
 }: {
   className?: string;
-}) {
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -101,7 +101,7 @@ export function DocumentDuplicateIcon({
   className = 'w-5 h-5',
 }: {
   className?: string;
-}) {
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -170,7 +170,7 @@ export function ExclamationTriangleIcon({
   className = 'w-6 h-6',
 }: {
   className?: string;
-}) {
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -193,7 +193,7 @@ export function ServerStackIcon({
   className = 'w-5 h-5',
 }: {
   className?: string;
-}) {
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -258,7 +258,7 @@ export function ArrowsRightLeftIcon({
   className = 'w-4 h-4',
 }: {
   className?: string;
-}) {
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -310,7 +310,7 @@ export function UserCircleIcon({
   className = 'w-5 h-5',
 }: {
   className?: string;
-}) {
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

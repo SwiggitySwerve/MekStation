@@ -1,5 +1,7 @@
 import React from 'react';
 
+import type { LocationContentProps } from './LocationTypes';
+
 import {
   getArmorStatusColor,
   getTorsoFrontStatusColor,
@@ -14,7 +16,6 @@ import {
   CornerBrackets,
   NumberBadge,
   DotIndicator,
-  LocationContentProps,
 } from './LocationRenderer';
 
 export function TacticalLocationContent({

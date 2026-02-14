@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { tap } from '../../utils/hapticFeedback';
+import { useHaptics } from '@/hooks/useHaptics';
 
 export type PipState = 'empty' | 'filled' | 'destroyed' | 'blown-off';
 
@@ -26,6 +26,7 @@ export function ArmorPip({
 }: ArmorPipProps): React.ReactElement {
   const [previousState, setPreviousState] = useState(state);
   const [isAnimating, setIsAnimating] = useState(false);
+  const { vibrateCustom } = useHaptics();
 
   useEffect(() => {
     if (previousState !== state) {
@@ -45,7 +46,7 @@ export function ArmorPip({
 
     setPreviousState(state);
     onToggle(nextState);
-    tap(); // Haptic feedback
+    vibrateCustom(50);
   };
 
   const getVisualState = () => {

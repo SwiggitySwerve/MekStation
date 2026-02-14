@@ -1,5 +1,7 @@
 import React from 'react';
 
+import type { LocationContentProps } from './LocationTypes';
+
 import {
   getArmorStatusColor,
   getTorsoFrontStatusColor,
@@ -8,7 +10,7 @@ import {
   SELECTED_COLOR,
   SELECTED_STROKE,
 } from './ArmorFills';
-import { LocationContentProps, ProgressRing } from './LocationRenderer';
+import { ProgressRing } from './LocationRenderer';
 
 export function CleanTechLocationContent({
   pos,

@@ -1,9 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+
 import type { ArmorData } from '../ArmorDiagram';
 
-import { MechLocation } from '../../../types/construction/CriticalSlotAllocation';
 import { ArmorDiagram } from '../ArmorDiagram';
 
 const createMockArmor = (): ArmorData => ({

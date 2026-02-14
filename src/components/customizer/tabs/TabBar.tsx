@@ -8,16 +8,11 @@
 
 import React from 'react';
 
+import type { TabDisplayInfo } from './tabTypes';
+
 import { UnitTab as UnitTabComponent } from './UnitTab';
 
-/**
- * Minimal tab info needed for display in tab bar
- */
-export interface TabDisplayInfo {
-  readonly id: string;
-  readonly name: string;
-  readonly isModified?: boolean;
-}
+export type { TabDisplayInfo } from './tabTypes';
 
 interface TabBarProps {
   /** Array of tabs */

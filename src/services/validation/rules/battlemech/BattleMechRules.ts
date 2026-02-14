@@ -11,6 +11,11 @@
  * @spec openspec/specs/validation-rules-master/spec.md
  */
 
+import {
+  BATTLEMECH_TONNAGE,
+  ENGINE_RATING_MIN,
+  ENGINE_RATING_INCREMENT,
+} from '@/services/construction/constructionConstants';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
@@ -22,12 +27,6 @@ import {
   createUnitValidationRuleResult,
 } from '@/types/validation/UnitValidationInterfaces';
 import { isCombatMech } from '@/utils/validation/UnitCategoryMapper';
-
-import {
-  BATTLEMECH_TONNAGE,
-  ENGINE_RATING_MIN,
-  ENGINE_RATING_INCREMENT,
-} from '../../../construction/constructionConstants';
 
 /** Engine rating max for BattleMechs per TechManual (higher than general limit) */
 const ENGINE_RATING_MAX_BATTLEMECH = 500;

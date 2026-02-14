@@ -123,7 +123,7 @@ export function UserPlusIcon({
   className = 'w-5 h-5',
 }: {
   className?: string;
-}) {
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -146,7 +146,7 @@ export function ShieldCheckIcon({
   className = 'w-4 h-4',
 }: {
   className?: string;
-}) {
+}): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

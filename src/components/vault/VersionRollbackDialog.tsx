@@ -11,7 +11,7 @@ import React, { useState, useCallback } from 'react';
 
 import { Button } from '@/components/ui/Button';
 
-import type { VersionRollbackDialogProps } from './VersionHistory';
+import type { VersionRollbackDialogProps } from './VersionHistoryTypes';
 
 import { ArrowPathIcon, ExclamationTriangleIcon } from './VersionHistoryIcons';
 

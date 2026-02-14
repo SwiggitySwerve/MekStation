@@ -12,7 +12,7 @@ import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
 
 import type { UnitMovementType } from './types';
 
-import { isInBounds, getHex } from '../hexGrid';
+import { getHex } from '../hexGrid';
 import { hexDistance } from '../hexMath';
 
 /**

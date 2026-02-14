@@ -8,8 +8,6 @@
  * @spec openspec/changes/full-combat-parity/specs/weapon-system/spec.md
  */
 
-import { IWeaponAttack } from '@/types/gameplay';
-
 import { type DiceRoller } from '../diceTypes';
 import { IAMSResult, ITargetStatusFlags } from './types';
 

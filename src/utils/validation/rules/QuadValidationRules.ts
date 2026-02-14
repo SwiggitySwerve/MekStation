@@ -1,7 +1,7 @@
 import {
   MechLocation,
   LOCATION_SLOT_COUNTS,
-} from '../../../types/construction/CriticalSlotAllocation';
+} from '@/types/construction/CriticalSlotAllocation';
 import {
   IValidationRuleDefinition,
   IValidationRuleResult,
@@ -9,7 +9,8 @@ import {
   IValidationError,
   ValidationCategory,
   ValidationSeverity,
-} from '../../../types/validation/rules/ValidationRuleInterfaces';
+} from '@/types/validation/rules/ValidationRuleInterfaces';
+
 import { pass, fail, warn } from './validationHelpers';
 
 export const QuadNoArmsRule: IValidationRuleDefinition = {

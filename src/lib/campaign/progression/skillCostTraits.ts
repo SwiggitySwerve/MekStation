@@ -7,11 +7,11 @@
  * @module campaign/progression/skillCostTraits
  */
 
-import type { ICampaignOptions } from '../../../types/campaign/Campaign';
-import type { IPerson } from '../../../types/campaign/Person';
-import type { ISkillType } from '../../../types/campaign/skills/ISkillType';
+import type { ICampaignOptions } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
+import type { ISkillType } from '@/types/campaign/skills/ISkillType';
 
-import { SKILL_CATALOG } from '../../../constants/campaign/skillCatalog';
+import { SKILL_CATALOG } from '@/constants/campaign/skillCatalog';
 
 /**
  * Tech skill IDs that are affected by Gremlins and Tech Empathy traits.

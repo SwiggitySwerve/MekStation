@@ -4,7 +4,8 @@ import {
   IValidationContext,
   ValidationCategory,
   ValidationSeverity,
-} from '../../../types/validation/rules/ValidationRuleInterfaces';
+} from '@/types/validation/rules/ValidationRuleInterfaces';
+
 import { pass, fail, warn } from './validationHelpers';
 
 export const OmniMechBaseHeatSinksRule: IValidationRuleDefinition = {

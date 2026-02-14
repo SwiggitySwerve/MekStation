@@ -5,6 +5,12 @@ import type { NextApiRequest, NextApiResponse } from 'next';
  */
 import { createMocks } from 'node-mocks-http';
 
+import {
+  parseErrorResponse,
+  parseApiResponse,
+  parseUnitResponse,
+  createMock,
+} from '@/__tests__/helpers';
 import handler from '@/pages/api/units/custom/[id]';
 import {
   getSQLiteService,
@@ -14,13 +20,6 @@ import {
   getUnitRepository,
   UnitRepository,
 } from '@/services/units/UnitRepository';
-
-import {
-  parseErrorResponse,
-  parseApiResponse,
-  parseUnitResponse,
-  createMock,
-} from '../../../helpers';
 
 // Mock dependencies
 jest.mock('@/services/persistence/SQLiteService');

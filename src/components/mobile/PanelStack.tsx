@@ -1,7 +1,7 @@
 import React, { ReactNode, useRef, useEffect, useState } from 'react';
 
-import { useDeviceType } from '../../hooks/useDeviceType';
-import { useNavigationStore } from '../../stores/useNavigationStore';
+import { useDeviceType } from '@/hooks/useDeviceType';
+import { useNavigationStore } from '@/stores/useNavigationStore';
 
 interface PanelProps {
   id: string;

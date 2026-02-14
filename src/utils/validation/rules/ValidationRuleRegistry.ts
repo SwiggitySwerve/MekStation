@@ -13,7 +13,7 @@ import {
   IValidationContext,
   IValidationRuleResult,
   ValidationCategory,
-} from '../../../types/validation/rules/ValidationRuleInterfaces';
+} from '@/types/validation/rules/ValidationRuleInterfaces';
 
 /**
  * Default rule priority

@@ -1,7 +1,8 @@
 import {
   ArmorTypeEnum,
   getArmorDefinition,
-} from '../../../types/construction/ArmorType';
+} from '@/types/construction/ArmorType';
+
 import { ceilToHalfTon } from '../../physical/weightUtils';
 
 export function calculateArmorWeight(

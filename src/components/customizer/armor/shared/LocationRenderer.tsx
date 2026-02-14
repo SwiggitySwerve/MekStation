@@ -1,20 +1,7 @@
 import React from 'react';
 
 import { lightenColor, darkenColor } from './ArmorFills';
-import { LocationPosition } from './MechSilhouette';
-import { LocationArmorValues } from './VariantLocationRenderer';
-
-/**
- * Shared props for all variant location content components.
- */
-export interface LocationContentProps {
-  pos: LocationPosition;
-  data: LocationArmorValues;
-  showRear: boolean;
-  label: string;
-  isSelected: boolean;
-  isHovered: boolean;
-}
+export type { LocationContentProps } from './LocationTypes';
 
 export function ProgressRing({
   cx,

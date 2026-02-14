@@ -6,7 +6,6 @@
 import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
 
 import {
-  GameEventType,
   GameSide,
   type IGameEvent,
   type IUnitDestroyedPayload,
@@ -15,13 +14,11 @@ import {
 import { getPayload } from '../utils/getPayload';
 import {
   type BattleState,
-  type BattleUnit,
   type DetectorTrackingState,
   ACE_KILL_THRESHOLD,
   COMEBACK_DISADVANTAGE_RATIO,
   LAST_STAND_ENEMY_THRESHOLD,
   BV_SWING_THRESHOLD,
-  TIER_MAP,
   calculateBvAdvantage,
   calculateBvRatio,
   countOperationalUnits,

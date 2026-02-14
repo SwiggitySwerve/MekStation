@@ -8,7 +8,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 
-import { TabDisplayInfo } from './TabBar';
+import type { TabDisplayInfo } from './tabTypes';
 
 interface UnitTabProps {
   /** Tab data */

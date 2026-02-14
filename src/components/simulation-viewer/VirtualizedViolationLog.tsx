@@ -1,7 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import { List } from 'react-window';
 
-import type { IViolation } from '@/components/simulation-viewer/pages/AnalysisBugs';
+import type { IViolation } from '@/types/simulation-viewer/IViolation';
 
 import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 

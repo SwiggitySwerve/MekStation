@@ -3,6 +3,8 @@ import React from 'react';
 import { ArmorDiagramVariant } from '@/stores/useAppSettingsStore';
 import { MechLocation } from '@/types/construction';
 
+import type { LocationArmorValues } from './LocationTypes';
+
 import {
   CleanTechLocationContent,
   NeonLocationContent,
@@ -14,12 +16,7 @@ import {
 } from './LocationValidation';
 import { LocationPosition } from './MechSilhouette';
 
-export interface LocationArmorValues {
-  current: number;
-  maximum: number;
-  rear?: number;
-  rearMaximum?: number;
-}
+export type { LocationArmorValues } from './LocationTypes';
 
 export interface VariantLocationProps {
   location: MechLocation;

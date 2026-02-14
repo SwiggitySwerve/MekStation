@@ -7,7 +7,7 @@
  * @spec openspec/specs/quad-mech-support/spec.md
  */
 
-import { IValidationRuleDefinition } from '../../../types/validation/rules/ValidationRuleInterfaces';
+import { IValidationRuleDefinition } from '@/types/validation/rules/ValidationRuleInterfaces';
 
 // Re-export all rule modules for consumers who need individual rules
 export * from './validationHelpers';

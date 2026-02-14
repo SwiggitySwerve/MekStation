@@ -12,11 +12,11 @@ import React from 'react';
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';
 
 import {
-  CritEntry,
-  LocationData,
-  SlotContent,
+  type CritEntry,
+  type LocationData,
+  type SlotContent,
   slotsToCritEntries,
-} from './CriticalSlotsDisplay';
+} from './criticalSlotTypes';
 import { DoubleSlotRow } from './DoubleSlotRow';
 import { SlotRow } from './SlotRow';
 

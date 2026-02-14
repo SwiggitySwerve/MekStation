@@ -1,7 +1,3 @@
-import {
-  ArmorTypeEnum,
-  getArmorDefinition,
-} from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/MechConfigurationSystem';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 

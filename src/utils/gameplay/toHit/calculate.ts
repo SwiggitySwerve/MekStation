@@ -37,7 +37,6 @@ import {
   calculateTMM,
 } from './movementModifiers';
 import {
-  calculateRangeModifier,
   calculateMinimumRangeModifier,
   getRangeModifierForBracket,
   getRangeBracket,

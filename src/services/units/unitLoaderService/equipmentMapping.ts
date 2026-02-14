@@ -66,7 +66,7 @@ export function mapEquipment(
 
       // Log if we resolved through normalization/aliasing
       if (resolvedId !== item.id) {
-        console.debug(`Equipment ID resolved: "${item.id}" → "${resolvedId}"`);
+        logger.debug(`Equipment ID resolved: "${item.id}" -> "${resolvedId}"`);
       }
 
       return {

@@ -17,7 +17,6 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
   CampaignUnitStatus,
-  CampaignPilotStatus,
   type ICampaignUnitState,
   type ICampaignPilotState,
 } from '@/types/campaign/CampaignInterfaces';

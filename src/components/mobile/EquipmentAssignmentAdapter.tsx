@@ -1,10 +1,7 @@
 import React, { ReactNode, useState, useCallback } from 'react';
 
-import { useDeviceType } from '../../hooks/useDeviceType';
-import {
-  tap as hapticTap,
-  error as hapticError,
-} from '../../utils/hapticFeedback';
+import { useDeviceType } from '@/hooks/useDeviceType';
+import { useHaptics } from '@/hooks/useHaptics';
 
 /**
  * Equipment item data
@@ -104,6 +101,7 @@ export function EquipmentAssignmentAdapter({
   className = '',
 }: EquipmentAssignmentAdapterProps): React.ReactElement {
   const { isTouch: hasTouch } = useDeviceType();
+  const { vibrateCustom } = useHaptics();
   const [placementMode, setPlacementMode] = useState<PlacementModeData>({
     isActive: false,
     equipment: null,
@@ -141,15 +139,15 @@ export function EquipmentAssignmentAdapter({
         // Valid slot - assign equipment
         onAssign(placementMode.equipment, slot);
         setPlacementMode({ isActive: false, equipment: null });
-        hapticTap(); // Success feedback
+        vibrateCustom(50);
       } else {
         // Invalid slot - show error
-        hapticError(); // Error feedback
+        vibrateCustom(200);
         onInvalidSlot?.(placementMode.equipment, slot);
         // Stay in placement mode
       }
     },
-    [placementMode, validSlots, onAssign, onInvalidSlot],
+    [placementMode, validSlots, onAssign, onInvalidSlot, vibrateCustom],
   );
 
   /**

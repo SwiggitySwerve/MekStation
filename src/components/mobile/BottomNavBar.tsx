@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 
-import { useDeviceType } from '../../hooks/useDeviceType';
-import { useNavigationStore, PanelId } from '../../stores/useNavigationStore';
+import { useDeviceType } from '@/hooks/useDeviceType';
+import { PanelId, useNavigationStore } from '@/stores/useNavigationStore';
 
 export interface Tab {
   id: string;

@@ -20,7 +20,7 @@ import {
 } from '@/utils/colors/slotColors';
 import { abbreviateEquipmentName } from '@/utils/equipmentNameAbbreviations';
 
-import { CritEntry, SlotContent } from './CriticalSlotsDisplay';
+import type { CritEntry, SlotContent } from './criticalSlotTypes';
 
 // =============================================================================
 // Context Menu for Double Slot

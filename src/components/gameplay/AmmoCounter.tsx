@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import {
-  tap,
-  error,
-  success as hapticSuccess,
-} from '../../utils/hapticFeedback';
+import { useHaptics } from '@/hooks/useHaptics';
 
 export interface AmmoCounterProps {
   weaponName: string;
@@ -28,6 +24,7 @@ export function AmmoCounter({
   className = '',
 }: AmmoCounterProps): React.ReactElement {
   const [reloadProgress, setReloadProgress] = useState(0);
+  const { vibrateCustom } = useHaptics();
   const ammoPercentage = (shotsRemaining / magazineSize) * 100;
   const isLowAmmo = shotsRemaining <= magazineSize * 0.25 && shotsRemaining > 0;
   const isEmpty = shotsRemaining === 0;
@@ -40,7 +37,7 @@ export function AmmoCounter({
         setReloadProgress((prev) => {
           if (prev >= 100) {
             clearInterval(interval);
-            hapticSuccess(); // Haptic feedback when reload completes
+            vibrateCustom([100, 50, 100]);
             return 100;
           }
           return prev + 100 / (reloadTime * 10); // Update every 100ms
@@ -51,15 +48,15 @@ export function AmmoCounter({
     } else {
       setReloadProgress(0);
     }
-  }, [isReloading, reloadTime]);
+  }, [isReloading, reloadTime, vibrateCustom]);
 
   const handleFire = () => {
     if (isEmpty || isReloading) {
-      error(); // Haptic error feedback
+      vibrateCustom(200);
       return;
     }
     onFire();
-    tap(); // Haptic feedback on successful fire
+    vibrateCustom(50);
   };
 
   const handleReload = () => {

@@ -7,7 +7,6 @@
  */
 
 import { ARMOR_STATUS } from '@/constants/armorStatus';
-
 import {
   IValidationRuleDefinition,
   IValidationRuleResult,
@@ -15,7 +14,7 @@ import {
   IValidationError,
   ValidationCategory,
   ValidationSeverity,
-} from '../../../types/validation/rules/ValidationRuleInterfaces';
+} from '@/types/validation/rules/ValidationRuleInterfaces';
 
 /**
  * Helper to create a passing result

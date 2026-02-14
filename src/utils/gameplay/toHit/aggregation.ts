@@ -8,10 +8,7 @@ import {
   calculateAttackerMovementModifier,
   calculateTMM,
 } from './movementModifiers';
-import {
-  calculateRangeModifier,
-  getRangeModifierForBracket,
-} from './rangeModifiers';
+import { getRangeModifierForBracket } from './rangeModifiers';
 
 export function aggregateModifiers(
   modifiers: readonly IToHitModifierDetail[],

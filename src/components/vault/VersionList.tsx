@@ -15,7 +15,7 @@ import {
 } from '@/utils/formatting';
 import { logger } from '@/utils/logger';
 
-import type { VersionHistoryPanelProps } from './VersionHistory';
+import type { VersionHistoryPanelProps } from './VersionHistoryTypes';
 
 import {
   ClockIcon,

@@ -7,22 +7,23 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { VTOLLocation } from '../../../types/construction/UnitLocation';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
-import { IBlkDocument } from '../../../types/formats/BlkFormat';
+import { VTOLLocation } from '@/types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
   IGroundMovement,
-} from '../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
-import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
+} from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
+import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import {
   IVTOL,
   IVehicleMountedEquipment,
   ITurretConfiguration,
   TurretType,
-} from '../../../types/unit/VehicleInterfaces';
+} from '@/types/unit/VehicleInterfaces';
+
 import {
   AbstractUnitTypeHandler,
   createFailureResult,

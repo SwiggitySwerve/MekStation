@@ -19,7 +19,7 @@ import {
 } from '@/utils/colors/slotColors';
 import { abbreviateEquipmentName } from '@/utils/equipmentNameAbbreviations';
 
-import { SlotContent } from './CriticalSlotsDisplay';
+import type { SlotContent } from './criticalSlotTypes';
 
 // =============================================================================
 // Context Menu Component

@@ -15,7 +15,8 @@ import {
   IValidationRuleResult,
   ValidationCategory,
   ValidationSeverity,
-} from '../../../types/validation/rules/ValidationRuleInterfaces';
+} from '@/types/validation/rules/ValidationRuleInterfaces';
+
 import { createValidationRuleRegistry } from './ValidationRuleRegistry';
 
 /**

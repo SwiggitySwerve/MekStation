@@ -17,7 +17,7 @@ import { Select } from '@/components/ui/Input';
 import { formatRelativeTime } from '@/utils/formatting';
 import { logger } from '@/utils/logger';
 
-import type { VersionDiffViewProps } from './VersionHistory';
+import type { VersionDiffViewProps } from './VersionHistoryTypes';
 
 import {
   SpinnerIcon,

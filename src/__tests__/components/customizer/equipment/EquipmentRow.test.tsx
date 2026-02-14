@@ -8,15 +8,16 @@ import { TechBase } from '@/types/enums/TechBase';
 import {
   EquipmentCategory,
   IEquipmentItem,
-  getAllWeapons,
   IWeapon,
   WeaponCategory,
 } from '@/types/equipment';
+import { getAllWeapons } from '@/utils/equipment/equipmentAggregation';
 
 // Mock getAllWeapons to return our test weapon data
-jest.mock('@/types/equipment', () => {
-  const actual =
-    jest.requireActual<typeof import('@/types/equipment')>('@/types/equipment');
+jest.mock('@/utils/equipment/equipmentAggregation', () => {
+  const actual = jest.requireActual<
+    typeof import('@/utils/equipment/equipmentAggregation')
+  >('@/utils/equipment/equipmentAggregation');
   return {
     ...actual,
     getAllWeapons: jest.fn((): ReturnType<typeof actual.getAllWeapons> => []),

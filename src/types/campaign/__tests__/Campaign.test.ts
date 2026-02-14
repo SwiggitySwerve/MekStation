@@ -11,7 +11,8 @@
  * - Integration tests (campaign with personnel + forces + finances)
  */
 
-import { MedicalSystem } from '../../../lib/campaign/medical/medicalTypes';
+import { MedicalSystem } from '@/lib/campaign/medical/medicalTypes';
+
 import {
   ICampaign,
   IMission,

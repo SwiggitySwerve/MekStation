@@ -6,7 +6,6 @@
 import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
 
 import {
-  GameEventType,
   type IGameEvent,
   type IDamageAppliedPayload,
   type IPilotHitPayload,
@@ -15,7 +14,6 @@ import {
 import { getPayload } from '../utils/getPayload';
 import {
   type BattleState,
-  type BattleUnit,
   type DetectorTrackingState,
   type ICriticalHitPayload,
   type IAmmoExplosionPayload,

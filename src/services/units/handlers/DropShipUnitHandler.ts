@@ -7,13 +7,13 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.7
  */
 
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
-import { IBlkDocument } from '../../../types/formats/BlkFormat';
+import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   AerospaceMotionType,
   IAerospaceMovement,
-} from '../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+} from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   IDropShip,
   ICapitalMountedEquipment,
@@ -24,9 +24,10 @@ import {
   BayType,
   QuartersType,
   CapitalArc,
-} from '../../../types/unit/CapitalShipInterfaces';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
-import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
+} from '@/types/unit/CapitalShipInterfaces';
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
+import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+
 import {
   AbstractUnitTypeHandler,
   createFailureResult,

@@ -10,7 +10,6 @@ import { useMemo } from 'react';
 import type { MechConfigType } from '@/types/construction/MechConfigType';
 
 import { MechLocation } from '@/types/construction';
-import { MECH_CONFIG_DISPLAY_NAMES } from '@/types/construction/MechConfigType';
 import { logger } from '@/utils/logger';
 
 import { resolveLayout } from './LayoutEngine';

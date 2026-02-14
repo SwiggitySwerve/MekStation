@@ -1,6 +1,7 @@
-import { createDefaultCampaignOptions } from '../../../types/campaign/Campaign';
-import { CampaignPreset } from '../../../types/campaign/CampaignPreset';
-import { CampaignType } from '../../../types/campaign/CampaignType';
+import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
+import { CampaignPreset } from '@/types/campaign/CampaignPreset';
+import { CampaignType } from '@/types/campaign/CampaignType';
+
 import {
   getPresetDefinition,
   getAllPresets,

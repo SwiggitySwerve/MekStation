@@ -1,9 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
-import { RulesLevel } from '../../../types/enums/RulesLevel';
-import { TechBase } from '../../../types/enums/TechBase';
-import { IEquipmentItem, EquipmentCategory } from '../../../types/equipment';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { IEquipmentItem, EquipmentCategory } from '@/types/equipment';
+
 import { EquipmentDetail, WeaponDetails } from '../EquipmentDetail';
 
 const mockItem: IEquipmentItem = {

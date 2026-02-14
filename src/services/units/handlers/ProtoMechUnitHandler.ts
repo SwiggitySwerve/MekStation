@@ -6,20 +6,21 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.6
  */
 
-import { ProtoMechLocation } from '../../../types/construction/UnitLocation';
-import { TechBase, Era, WeightClass, RulesLevel } from '../../../types/enums';
-import { IBlkDocument } from '../../../types/formats/BlkFormat';
+import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   SquadMotionType,
   ISquadMovement,
-} from '../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+} from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   IProtoMech,
   IProtoMechMountedEquipment,
-} from '../../../types/unit/PersonnelInterfaces';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
-import { IUnitParseResult } from '../../../types/unit/UnitTypeHandler';
+} from '@/types/unit/PersonnelInterfaces';
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
+import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+
 import {
   AbstractUnitTypeHandler,
   createFailureResult,

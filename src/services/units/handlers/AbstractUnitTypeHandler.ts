@@ -8,13 +8,10 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.3.4
  */
 
-import {
-  IBlkDocument,
-  BLK_UNIT_TYPE_MAP,
-} from '../../../types/formats/BlkFormat';
-import { IBaseUnit } from '../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
-import { ISerializedUnit } from '../../../types/unit/UnitSerialization';
+import { IBlkDocument, BLK_UNIT_TYPE_MAP } from '@/types/formats/BlkFormat';
+import { IBaseUnit } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import {
   IUnitTypeHandler,
   IUnitParseResult,
@@ -22,7 +19,7 @@ import {
   IUnitValidateResult,
   UnitCategory,
   getUnitCategory,
-} from '../../../types/unit/UnitTypeHandler';
+} from '@/types/unit/UnitTypeHandler';
 
 // ============================================================================
 // Abstract Base Handler

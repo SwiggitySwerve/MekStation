@@ -22,7 +22,6 @@ import {
   type UnitReadiness,
 } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
-import { CampaignUnitStatus } from '@/types/campaign/CampaignInterfaces';
 
 // =============================================================================
 // Stat Card Component

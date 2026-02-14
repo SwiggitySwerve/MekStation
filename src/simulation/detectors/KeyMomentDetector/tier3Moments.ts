@@ -10,7 +10,6 @@ import { type IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import { getPayload } from '../utils/getPayload';
 import {
   type BattleState,
-  type BattleUnit,
   type DetectorTrackingState,
   type ICriticalHitPayload,
   type IHeatEffectAppliedPayload,

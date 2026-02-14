@@ -1,7 +1,6 @@
+import { getStructurePoints } from '@/types/construction/InternalStructureType';
 import { getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
-
-import { getStructurePoints } from '../../../types/construction/InternalStructureType';
 
 export const MAX_HEAD_ARMOR = 9;
 

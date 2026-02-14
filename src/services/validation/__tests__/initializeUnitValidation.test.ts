@@ -6,8 +6,9 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { UnitType } from '../../../types/unit/BattleMechInterfaces';
-import { UnitCategory } from '../../../types/validation/UnitValidationInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { UnitCategory } from '@/types/validation/UnitValidationInterfaces';
+
 import {
   initializeUnitValidationRules,
   getValidationRuleStats,

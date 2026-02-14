@@ -449,7 +449,7 @@ export function CriticalSlotsTab({
 
       return assignable;
     },
-    [selectedEquipment, readOnly, getLocationData],
+    [selectedEquipment, readOnly, getLocationData, unitIsSuperheavy],
   );
 
   // Handlers
@@ -550,6 +550,7 @@ export function CriticalSlotsTab({
       readOnly,
       equipment,
       getLocationData,
+      unitIsSuperheavy,
       updateEquipmentLocation,
       onSelectEquipment,
     ],

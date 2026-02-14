@@ -1,6 +1,5 @@
 import {
   CombatLocation,
-  ICriticalHitResult,
   IDamageResult,
   ILocationDamage,
   IPilotDamageResult,

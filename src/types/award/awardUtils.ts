@@ -1,4 +1,4 @@
-import { AWARD_CATALOG } from './AwardCatalog';
+import { AWARD_CATALOG } from './AwardCatalogData';
 import { IAward, AwardRarity, AwardCategory } from './AwardInterfaces';
 
 export function getAwardById(id: string): IAward | undefined {
