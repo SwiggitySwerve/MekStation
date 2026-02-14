@@ -4,6 +4,7 @@
  */
 
 import type { IPendingPSR } from '@/types/gameplay';
+
 import { PSRTrigger } from './types';
 
 /**

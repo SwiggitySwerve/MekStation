@@ -7,13 +7,14 @@
 
 import { logger } from '@/utils/logger';
 
-import { loadEquipmentCatalog, getLoggedUnresolvable } from './catalogLoader';
-import { normalizeEquipmentId } from './normalization';
 import type {
   AmmoBVResult,
   EquipmentBVResult,
   EquipmentCatalogEntry,
 } from './types';
+
+import { loadEquipmentCatalog, getLoggedUnresolvable } from './catalogLoader';
+import { normalizeEquipmentId } from './normalization';
 
 function applyBVHeatOverride(
   baseHeat: number,

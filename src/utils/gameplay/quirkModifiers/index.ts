@@ -13,9 +13,7 @@ export {
   hasLowProfile,
   calculateLowProfileModifier,
 } from './targetingQuirks';
-export {
-  calculatePilotingQuirkPSRModifier,
-} from './pilotingQuirks';
+export { calculatePilotingQuirkPSRModifier } from './pilotingQuirks';
 export {
   calculateAccurateWeaponModifier,
   calculateInaccurateWeaponModifier,
@@ -35,7 +33,4 @@ export {
   getRuggedCritNegations,
   getActuatorCritModifier,
 } from './defensiveQuirks';
-export {
-  calculateAttackerQuirkModifiers,
-  hasQuirk,
-} from './aggregation';
+export { calculateAttackerQuirkModifiers, hasQuirk } from './aggregation';

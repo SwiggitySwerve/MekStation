@@ -14,7 +14,6 @@ import {
 
 import { isInBounds, isOccupied } from '../hexGrid';
 import { hexDistance, hexEquals, hexLine } from '../hexMath';
-
 import { getMaxMP } from './calculations';
 import { calculateMovementHeat } from './modifiers';
 

@@ -4,15 +4,20 @@
  */
 
 import { RangeBracket } from '@/types/gameplay';
-import { IToHitModifierDetail, IAttackerState, ITargetState } from '@/types/gameplay';
-import { calculateWeaponSpecialistModifier } from './weaponSpecialists';
-import { calculateGunnerySpecialistModifier } from './weaponSpecialists';
-import { calculateRangeMasterModifier } from './weaponSpecialists';
-import { calculateSniperModifier } from './weaponSpecialists';
+import {
+  IToHitModifierDetail,
+  IAttackerState,
+  ITargetState,
+} from '@/types/gameplay';
+
 import { calculateBloodStalkerModifier } from './abilityModifiers';
 import { calculateMultiTaskerModifier } from './abilityModifiers';
 import { calculateJumpingJackModifier } from './abilityModifiers';
 import { calculateDodgeManeuverModifier } from './abilityModifiers';
+import { calculateWeaponSpecialistModifier } from './weaponSpecialists';
+import { calculateGunnerySpecialistModifier } from './weaponSpecialists';
+import { calculateRangeMasterModifier } from './weaponSpecialists';
+import { calculateSniperModifier } from './weaponSpecialists';
 
 export function calculateAttackerSPAModifiers(
   attacker: IAttackerState,

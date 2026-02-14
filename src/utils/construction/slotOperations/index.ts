@@ -6,12 +6,6 @@ export {
   isUnhittableEquipment,
 } from './queries';
 
-export {
-  getUnallocatedUnhittables,
-  fillUnhittableSlots,
-} from './filling';
+export { getUnallocatedUnhittables, fillUnhittableSlots } from './filling';
 
-export {
-  compactEquipmentSlots,
-  sortEquipmentBySize,
-} from './assignment';
+export { compactEquipmentSlots, sortEquipmentBySize } from './assignment';

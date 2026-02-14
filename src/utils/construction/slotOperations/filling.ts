@@ -2,14 +2,16 @@ import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { SlotAssignment, SlotOperationResult } from './types';
-import { getAvailableSlotIndices, isUnhittableEquipment } from './queries';
 
-const FILL_LOCATION_PAIRS: readonly (readonly [MechLocation, MechLocation])[] = [
-  [MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO],
-  [MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM],
-  [MechLocation.LEFT_LEG, MechLocation.RIGHT_LEG],
-];
+import { getAvailableSlotIndices, isUnhittableEquipment } from './queries';
+import { SlotAssignment, SlotOperationResult } from './types';
+
+const FILL_LOCATION_PAIRS: readonly (readonly [MechLocation, MechLocation])[] =
+  [
+    [MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO],
+    [MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM],
+    [MechLocation.LEFT_LEG, MechLocation.RIGHT_LEG],
+  ];
 
 const FILL_SINGLE_LOCATIONS: readonly MechLocation[] = [
   MechLocation.CENTER_TORSO,

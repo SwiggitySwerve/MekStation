@@ -5,6 +5,12 @@
  * Provides initialization and reset functions for testing and browser contexts.
  */
 
+import type {
+  EquipmentCatalogEntry,
+  NameMappingsSource,
+  RawCatalogFile,
+} from './types';
+
 import {
   AMMUNITION_CATALOG_FILES,
   ELECTRONICS_CATALOG_FILES,
@@ -12,11 +18,6 @@ import {
   NAME_MAPPINGS_DATA,
   WEAPON_CATALOG_FILES,
 } from './catalogData';
-import type {
-  EquipmentCatalogEntry,
-  NameMappingsSource,
-  RawCatalogFile,
-} from './types';
 
 let catalogCache: Map<string, EquipmentCatalogEntry> | null = null;
 let nameMappingsCache: Record<string, string> | null = null;
@@ -150,8 +151,6 @@ export function getLowerMappingsCache(): Map<string, string> | null {
   return lowerMappingsCache;
 }
 
-export function setLowerMappingsCache(
-  cache: Map<string, string> | null,
-): void {
+export function setLowerMappingsCache(cache: Map<string, string> | null): void {
   lowerMappingsCache = cache;
 }

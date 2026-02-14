@@ -4,7 +4,12 @@
  * Full construction validation orchestration.
  */
 
-import { calculateArmor, validateTonnage } from './tonnage';
+import type {
+  ConstructionResult,
+  ConstructionStepResult,
+  MechBuildConfig,
+} from './types';
+
 import {
   calculateCockpit,
   calculateEngine,
@@ -12,11 +17,7 @@ import {
   calculateHeatSinks,
   calculateInternalStructure,
 } from './components';
-import type {
-  ConstructionResult,
-  ConstructionStepResult,
-  MechBuildConfig,
-} from './types';
+import { calculateArmor, validateTonnage } from './tonnage';
 
 /**
  * Run full construction validation

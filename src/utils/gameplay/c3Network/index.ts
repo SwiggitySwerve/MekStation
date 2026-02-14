@@ -21,7 +21,4 @@ export type {
   IC3NetworkUnit,
   IC3TargetingResult,
 } from './types';
-export {
-  C3_MASTER_SLAVE_MAX_UNITS,
-  C3I_MAX_UNITS,
-} from './types';
+export { C3_MASTER_SLAVE_MAX_UNITS, C3I_MAX_UNITS } from './types';

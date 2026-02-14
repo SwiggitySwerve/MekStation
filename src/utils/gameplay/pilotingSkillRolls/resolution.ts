@@ -4,10 +4,7 @@
  */
 
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import {
-  IComponentDamageState,
-  IPendingPSR,
-} from '@/types/gameplay';
+import { IComponentDamageState, IPendingPSR } from '@/types/gameplay';
 
 import { defaultD6Roller } from '../diceTypes';
 import { D6Roller, roll2d6 } from '../hitLocation';

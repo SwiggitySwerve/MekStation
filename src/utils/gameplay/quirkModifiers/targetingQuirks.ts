@@ -4,6 +4,7 @@
 
 import { RangeBracket } from '@/types/gameplay';
 import { IToHitModifierDetail } from '@/types/gameplay';
+
 import { UNIT_QUIRK_IDS } from './catalog';
 
 /**

@@ -8,10 +8,7 @@ import {
   CANNOT_STAND_PENALTY,
   LETHAL_PILOT_WOUNDS,
 } from './constants';
-import {
-  CriticalHitEvent,
-  IComponentDamageState,
-} from './types';
+import { CriticalHitEvent, IComponentDamageState } from './types';
 
 export function applyEngineHit(
   unitId: string,

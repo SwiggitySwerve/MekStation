@@ -4,15 +4,16 @@
  * Engine, gyro, cockpit, heat sink, and internal structure calculations.
  */
 
-import {
-  getCockpitDefinition,
-} from '../../../types/construction/CockpitType';
-import {
-  getEngineDefinition,
-} from '../../../types/construction/EngineType';
-import {
-  getInternalStructureDefinition,
-} from '../../../types/construction/InternalStructureType';
+import type { CockpitType } from '../../../types/construction/CockpitType';
+import type { EngineType } from '../../../types/construction/EngineType';
+import type { GyroType } from '../../../types/construction/GyroType';
+import type { HeatSinkType } from '../../../types/construction/HeatSinkType';
+import type { InternalStructureType } from '../../../types/construction/InternalStructureType';
+import type { ConstructionStepResult } from './types';
+
+import { getCockpitDefinition } from '../../../types/construction/CockpitType';
+import { getEngineDefinition } from '../../../types/construction/EngineType';
+import { getInternalStructureDefinition } from '../../../types/construction/InternalStructureType';
 import { ceilToHalfTon } from '../../physical/weightUtils';
 import {
   calculateEngineWeight,
@@ -25,16 +26,6 @@ import {
   calculateHeatSinkWeight,
   calculateExternalHeatSinkSlots,
 } from '../heatSinkCalculations';
-import type {
-  ConstructionStepResult,
-} from './types';
-import type { CockpitType } from '../../../types/construction/CockpitType';
-import type { EngineType } from '../../../types/construction/EngineType';
-import type { GyroType } from '../../../types/construction/GyroType';
-import type { HeatSinkType } from '../../../types/construction/HeatSinkType';
-import type {
-  InternalStructureType,
-} from '../../../types/construction/InternalStructureType';
 
 /**
  * Step 2: Install internal structure

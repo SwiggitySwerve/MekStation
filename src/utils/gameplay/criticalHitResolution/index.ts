@@ -1,12 +1,5 @@
-export {
-  isHardenedArmor,
-  isFerroLamellorArmor,
-  halveCritCount,
-} from './armor';
-export {
-  rollCriticalHits,
-  selectCriticalSlot,
-} from './selection';
+export { isHardenedArmor, isFerroLamellorArmor, halveCritCount } from './armor';
+export { rollCriticalHits, selectCriticalSlot } from './selection';
 export {
   buildDefaultCriticalSlotManifest,
   buildCriticalSlotManifest,
@@ -17,11 +10,7 @@ export {
   actuatorPreventsAttack,
   actuatorHalvesDamage,
 } from './effects';
-export {
-  resolveCriticalHits,
-  checkTACTrigger,
-  processTAC,
-} from './resolver';
+export { resolveCriticalHits, checkTACTrigger, processTAC } from './resolver';
 
 export type {
   CriticalSlotComponentType,

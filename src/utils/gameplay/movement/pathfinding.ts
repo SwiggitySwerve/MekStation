@@ -6,7 +6,6 @@ import { IHexCoordinate, IHexGrid } from '@/types/gameplay';
 
 import { isInBounds, isOccupied } from '../hexGrid';
 import { hexDistance, hexEquals, hexNeighbors, coordToKey } from '../hexMath';
-
 import { getHexMovementCost } from './calculations';
 
 /**

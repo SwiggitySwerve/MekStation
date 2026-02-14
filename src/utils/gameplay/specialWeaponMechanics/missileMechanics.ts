@@ -19,6 +19,11 @@ import {
   determineClusterHitLocations,
 } from '../clusterWeapons';
 import { type DiceRoller } from '../diceTypes';
+// isLBXAC is defined in autocannonMechanics
+import { isLBXAC } from './autocannonMechanics';
+// =============================================================================
+// Weapon Type Detection
+// =============================================================================
 import {
   ILBXClusterResult,
   IClusterModifiers,
@@ -26,13 +31,6 @@ import {
   IWeaponEquipmentFlags,
   WeaponFireMode,
 } from './types';
-
-// =============================================================================
-// Weapon Type Detection
-// =============================================================================
-
-// isLBXAC is defined in autocannonMechanics
-import { isLBXAC } from './autocannonMechanics';
 
 export function isMissileWeapon(weaponId: string): boolean {
   const id = weaponId.toLowerCase();

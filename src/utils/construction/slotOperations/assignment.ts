@@ -5,8 +5,9 @@ import {
 } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { SlotAssignment, SlotOperationResult } from './types';
+
 import { getFixedSlotIndices } from './queries';
+import { SlotAssignment, SlotOperationResult } from './types';
 
 export function compactEquipmentSlots(
   equipment: readonly IMountedEquipmentInstance[],

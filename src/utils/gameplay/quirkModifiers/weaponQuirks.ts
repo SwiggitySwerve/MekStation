@@ -4,6 +4,7 @@
 
 import { MovementType } from '@/types/gameplay';
 import { IToHitModifierDetail } from '@/types/gameplay';
+
 import { WEAPON_QUIRK_IDS } from './catalog';
 
 /**

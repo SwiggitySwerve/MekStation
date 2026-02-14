@@ -3,7 +3,12 @@
  * Functions for checking PSR triggers and managing phase-related PSR logic.
  */
 
-import type { IComponentDamageState, IUnitGameState, IPendingPSR } from '@/types/gameplay';
+import type {
+  IComponentDamageState,
+  IUnitGameState,
+  IPendingPSR,
+} from '@/types/gameplay';
+
 import { createDamagePSR } from './damageFactories';
 import { createStandingUpPSR } from './environmentFactories';
 
@@ -52,5 +57,3 @@ export function isGyroDestroyed(
 ): boolean {
   return componentDamage.gyroHits >= 2;
 }
-
-

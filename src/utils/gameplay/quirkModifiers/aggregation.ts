@@ -8,6 +8,11 @@ import {
   IAttackerState,
   ITargetState,
 } from '@/types/gameplay';
+
+import {
+  calculateSensorGhostsModifier,
+  calculateMultiTracModifier,
+} from './defensiveQuirks';
 import {
   calculateTargetingQuirkModifier,
   calculateDistractingModifier,
@@ -19,10 +24,6 @@ import {
   calculateStableWeaponModifier,
   getWeaponQuirks,
 } from './weaponQuirks';
-import {
-  calculateSensorGhostsModifier,
-  calculateMultiTracModifier,
-} from './defensiveQuirks';
 
 /**
  * Calculate all quirk-based to-hit modifiers for an attacker/target pair.

@@ -2,8 +2,8 @@ import { IHexCoordinate, RangeBracket } from '@/types/gameplay';
 
 import { hexDistance } from '../hexMath';
 import { getWeaponRangeBracket, IWeaponRangeProfile } from '../range';
-import { IC3NetworkState, IC3TargetingResult } from './types';
 import { getUnitNetwork } from './state';
+import { IC3NetworkState, IC3TargetingResult } from './types';
 
 /**
  * Get the best range bracket to a target from all operational, non-ECM-disrupted

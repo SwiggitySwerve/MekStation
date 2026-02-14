@@ -4,29 +4,19 @@
  * Tonnage validation, structural weight, remaining tonnage, and armor weight calculations.
  */
 
+import type { ConstructionStepResult, MechBuildConfig } from './types';
+
 import {
   ArmorTypeEnum,
   getArmorDefinition,
 } from '../../../types/construction/ArmorType';
-import {
-  getCockpitDefinition,
-} from '../../../types/construction/CockpitType';
-import {
-  getInternalStructureDefinition,
-} from '../../../types/construction/InternalStructureType';
+import { getCockpitDefinition } from '../../../types/construction/CockpitType';
+import { getInternalStructureDefinition } from '../../../types/construction/InternalStructureType';
 import { ceilToHalfTon } from '../../physical/weightUtils';
 import { calculateArmorWeight } from '../armorCalculations';
-import {
-  calculateEngineWeight,
-} from '../engineCalculations';
+import { calculateEngineWeight } from '../engineCalculations';
 import { calculateGyroWeight } from '../gyroCalculations';
-import {
-  calculateHeatSinkWeight,
-} from '../heatSinkCalculations';
-import type {
-  ConstructionStepResult,
-  MechBuildConfig,
-} from './types';
+import { calculateHeatSinkWeight } from '../heatSinkCalculations';
 
 /**
  * Determine if a unit is a Superheavy BattleMech based on tonnage.

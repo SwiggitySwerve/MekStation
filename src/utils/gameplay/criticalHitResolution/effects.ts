@@ -1,26 +1,19 @@
 import { CriticalEffectType, ICriticalEffect } from '@/types/gameplay';
 
 import {
-  applyEngineHit,
-  applyGyroHit,
-  applyCockpitHit,
-} from './engineEffects';
-import {
-  applySensorHit,
-  applyLifeSupportHit,
-} from './sensorEffects';
+  applyActuatorHit,
+  getActuatorToHitModifier,
+  actuatorPreventsAttack,
+  actuatorHalvesDamage,
+} from './actuatorEffects';
+import { applyEngineHit, applyGyroHit, applyCockpitHit } from './engineEffects';
 import {
   applyWeaponHit,
   applyHeatSinkHit,
   applyJumpJetHit,
   applyAmmoHit,
 } from './equipmentEffects';
-import {
-  applyActuatorHit,
-  getActuatorToHitModifier,
-  actuatorPreventsAttack,
-  actuatorHalvesDamage,
-} from './actuatorEffects';
+import { applySensorHit, applyLifeSupportHit } from './sensorEffects';
 import {
   CriticalHitEvent,
   IComponentDamageState,

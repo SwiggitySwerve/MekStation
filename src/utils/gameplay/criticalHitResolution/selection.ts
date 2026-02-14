@@ -1,3 +1,4 @@
+import { D6Roller, roll2d6 } from '../hitLocation';
 import { normalizeLocation } from './manifest';
 import {
   CombatLocation,
@@ -5,7 +6,6 @@ import {
   ICriticalHitDeterminationResult,
   ICriticalSlotEntry,
 } from './types';
-import { D6Roller, roll2d6 } from '../hitLocation';
 
 export function rollCriticalHits(
   location: CombatLocation,

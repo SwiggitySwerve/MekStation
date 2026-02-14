@@ -1,9 +1,6 @@
 import { CriticalEffectType, ICriticalEffect } from '@/types/gameplay';
 
-import {
-  CriticalHitEvent,
-  IComponentDamageState,
-} from './types';
+import { CriticalHitEvent, IComponentDamageState } from './types';
 
 export function applySensorHit(
   _unitId: string,

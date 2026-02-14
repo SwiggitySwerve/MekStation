@@ -9,6 +9,7 @@
  */
 
 import { IWeaponAttack } from '@/types/gameplay';
+
 import { type DiceRoller } from '../diceTypes';
 import { IAMSResult, ITargetStatusFlags } from './types';
 
