@@ -1,17 +1,3 @@
-/**
- * Tactical HUD Armor Diagram
- *
- * Design Philosophy: Information density and military feel
- * - Geometric/polygonal silhouette
- * - Bottom-up tank fill style
- * - LED segmented number display
- * - Horizontal bar capacity indicator
- * - Stacked front/rear display for torso
- * - Bracket focus interaction
- *
- * Uses the Layout Engine for constraint-based positioning.
- */
-
 import React, { useState } from 'react';
 
 import type { LocationArmorData } from '@/types/construction/LocationArmorData';
@@ -21,419 +7,9 @@ import { ARMOR_STATUS } from '@/constants/armorStatus';
 import { MechLocation } from '@/types/construction';
 
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
-import {
-  GradientDefs,
-  getArmorStatusColor,
-  getTorsoFrontStatusColor,
-  getTorsoRearStatusColor,
-  darkenColor,
-} from '../shared/ArmorFills';
-import {
-  useResolvedLayout,
-  ResolvedPosition,
-  getLayoutIdForConfig,
-} from '../shared/layout';
-import { getLocationLabel, hasTorsoRear } from '../shared/MechSilhouette';
-
-/**
- * LED-style segmented digit display
- */
-function LEDDigit({
-  value,
-  x,
-  y,
-  size = 12,
-  color = '#22d3ee',
-}: {
-  value: string;
-  x: number;
-  y: number;
-  size?: number;
-  color?: string;
-}): React.ReactElement {
-  return (
-    <text
-      x={x}
-      y={y}
-      textAnchor="middle"
-      fontFamily="'Courier New', monospace"
-      fontWeight="bold"
-      fontSize={size}
-      fill={color}
-      style={{
-        textShadow: `0 0 4px ${color}, 0 0 8px ${color}50`,
-        letterSpacing: '1px',
-      }}
-    >
-      {value}
-    </text>
-  );
-}
-
-/**
- * Horizontal bar gauge
- */
-function BarGauge({
-  x,
-  y,
-  width,
-  height,
-  fillPercent,
-  color,
-}: {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fillPercent: number;
-  color: string;
-}): React.ReactElement {
-  const fillWidth = (width - 2) * (fillPercent / 100);
-
-  return (
-    <g>
-      {/* Background */}
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        rx={1}
-        fill="#1e293b"
-        stroke="#334155"
-        strokeWidth={0.5}
-      />
-      {/* Fill */}
-      <rect
-        x={x + 1}
-        y={y + 1}
-        width={Math.max(0, fillWidth)}
-        height={height - 2}
-        rx={0.5}
-        fill={color}
-        className="transition-all duration-300"
-      />
-      {/* Tick marks */}
-      {[25, 50, 75].map((tick) => (
-        <line
-          key={tick}
-          x1={x + (width * tick) / 100}
-          y1={y}
-          x2={x + (width * tick) / 100}
-          y2={y + height}
-          stroke="#475569"
-          strokeWidth={0.5}
-        />
-      ))}
-    </g>
-  );
-}
-
-/**
- * Corner bracket decorations
- */
-function CornerBrackets({
-  x,
-  y,
-  width,
-  height,
-  size = 8,
-  color = '#22d3ee',
-}: {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  size?: number;
-  color?: string;
-}): React.ReactElement {
-  return (
-    <g
-      stroke={color}
-      strokeWidth={1.5}
-      fill="none"
-      style={{ filter: 'url(#armor-glow)' }}
-    >
-      {/* Top-left */}
-      <path d={`M ${x} ${y + size} L ${x} ${y} L ${x + size} ${y}`} />
-      {/* Top-right */}
-      <path
-        d={`M ${x + width - size} ${y} L ${x + width} ${y} L ${x + width} ${y + size}`}
-      />
-      {/* Bottom-left */}
-      <path
-        d={`M ${x} ${y + height - size} L ${x} ${y + height} L ${x + size} ${y + height}`}
-      />
-      {/* Bottom-right */}
-      <path
-        d={`M ${x + width - size} ${y + height} L ${x + width} ${y + height} L ${x + width} ${y + height - size}`}
-      />
-    </g>
-  );
-}
-
-interface TacticalLocationProps {
-  location: MechLocation;
-  /** Resolved position from the layout engine */
-  position: ResolvedPosition;
-  data?: LocationArmorData;
-  isSelected: boolean;
-  isHovered: boolean;
-  onClick: () => void;
-  onHover: (hovered: boolean) => void;
-  /** Mech configuration type for correct label lookup */
-  configType?: MechConfigType;
-}
-
-function TacticalLocation({
-  location,
-  position,
-  data,
-  isSelected,
-  isHovered,
-  onClick,
-  onHover,
-  configType = 'biped',
-}: TacticalLocationProps): React.ReactElement {
-  const label = getLocationLabel(location, configType);
-  const showRear = hasTorsoRear(location);
-  const isHead = location === MechLocation.HEAD;
-
-  // Use position from layout engine
-  const pos = position;
-
-  const center = {
-    x: pos.x + pos.width / 2,
-    y: pos.y + pos.height / 2,
-  };
-
-  const front = data?.current ?? 0;
-  const frontMax = data?.maximum ?? 1;
-  const rear = data?.rear ?? 0;
-  const rearMax = data?.rearMaximum ?? 1;
-
-  // For torso locations, use expected capacity (75/25 split) as baseline
-  const expectedFrontMax = showRear ? Math.round(frontMax * 0.75) : frontMax;
-  const expectedRearMax = showRear ? Math.round(frontMax * 0.25) : 1;
-
-  // Fill percentages based on expected capacity
-  const frontPercent =
-    expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
-  const rearPercent =
-    expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
-
-  // Status-based colors for front and rear
-  const frontColor = isSelected
-    ? '#3b82f6'
-    : showRear
-      ? getTorsoFrontStatusColor(front, frontMax)
-      : getArmorStatusColor(front, frontMax);
-  const rearColor = isSelected
-    ? '#3b82f6'
-    : getTorsoRearStatusColor(rear, frontMax);
-  const darkFrontFill = darkenColor(frontColor, 0.6);
-  const darkRearFill = darkenColor(rearColor, 0.6);
-
-  // Layout for stacked front/rear
-  // 60/40 split for consistency across all variants
-  const frontSectionHeight = showRear ? pos.height * 0.6 : pos.height;
-  const rearSectionHeight = showRear ? pos.height * 0.4 : 0;
-  const dividerY = pos.y + frontSectionHeight;
-
-  // Tank fill calculations
-  const frontFillHeight = frontSectionHeight * (frontPercent / 100);
-  const frontFillY = pos.y + frontSectionHeight - frontFillHeight;
-  const rearFillHeight = rearSectionHeight * (rearPercent / 100);
-  const rearFillY = dividerY + rearSectionHeight - rearFillHeight;
-
-  return (
-    <g
-      role="button"
-      tabIndex={0}
-      aria-label={`${location} armor: ${front} of ${frontMax}${showRear ? `, rear: ${rear} of ${rearMax}` : ''}`}
-      aria-pressed={isSelected}
-      className="cursor-pointer focus:outline-none"
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
-      onFocus={() => onHover(true)}
-      onBlur={() => onHover(false)}
-    >
-      {/* Front section background */}
-      <rect
-        x={pos.x}
-        y={pos.y}
-        width={pos.width}
-        height={frontSectionHeight}
-        fill={darkFrontFill}
-        stroke="#475569"
-        strokeWidth={1}
-        className="transition-colors duration-200"
-      />
-
-      {/* Front tank fill */}
-      <rect
-        x={pos.x}
-        y={frontFillY}
-        width={pos.width}
-        height={frontFillHeight}
-        fill={frontColor}
-        opacity={0.8}
-        className="transition-all duration-300"
-      />
-
-      {/* Front grid overlay */}
-      <rect
-        x={pos.x}
-        y={pos.y}
-        width={pos.width}
-        height={frontSectionHeight}
-        fill="url(#armor-grid)"
-        opacity={0.5}
-      />
-
-      {/* Front label */}
-      <text
-        x={center.x}
-        y={pos.y + (isHead ? 8 : 10)}
-        textAnchor="middle"
-        fontSize={isHead ? 7 : 9}
-        fill="#94a3b8"
-        fontFamily="monospace"
-      >
-        {showRear ? `${label}-F` : label}
-      </text>
-
-      {/* Front LED value */}
-      <LEDDigit
-        value={front.toString().padStart(2, '0')}
-        x={center.x}
-        y={pos.y + frontSectionHeight / 2 + (isHead ? 3 : 4)}
-        size={isHead ? 10 : showRear ? 12 : 14}
-        color={frontColor}
-      />
-
-      {/* Front bar gauge - hide for HEAD due to limited space */}
-      {!isHead && (
-        <BarGauge
-          x={pos.x + 4}
-          y={pos.y + frontSectionHeight - 8}
-          width={pos.width - 8}
-          height={4}
-          fillPercent={frontPercent}
-          color={frontColor}
-        />
-      )}
-
-      {showRear && (
-        <>
-          {/* Divider line */}
-          <line
-            x1={pos.x}
-            y1={dividerY}
-            x2={pos.x + pos.width}
-            y2={dividerY}
-            stroke="#64748b"
-            strokeWidth={1}
-            strokeDasharray="3 2"
-          />
-
-          {/* Rear section background */}
-          <rect
-            x={pos.x}
-            y={dividerY}
-            width={pos.width}
-            height={rearSectionHeight}
-            fill={darkRearFill}
-            stroke="#475569"
-            strokeWidth={1}
-            className="transition-colors duration-200"
-          />
-
-          {/* Rear tank fill */}
-          <rect
-            x={pos.x}
-            y={rearFillY}
-            width={pos.width}
-            height={rearFillHeight}
-            fill={rearColor}
-            opacity={0.8}
-            className="transition-all duration-300"
-          />
-
-          {/* Rear grid overlay */}
-          <rect
-            x={pos.x}
-            y={dividerY}
-            width={pos.width}
-            height={rearSectionHeight}
-            fill="url(#armor-grid)"
-            opacity={0.5}
-          />
-
-          {/* Rear label */}
-          <text
-            x={center.x}
-            y={dividerY + 10}
-            textAnchor="middle"
-            fontSize={9}
-            fill="#94a3b8"
-            fontFamily="monospace"
-          >
-            {label}-R
-          </text>
-
-          {/* Rear LED value */}
-          <LEDDigit
-            value={rear.toString().padStart(2, '0')}
-            x={center.x}
-            y={dividerY + rearSectionHeight / 2 + 4}
-            size={10}
-            color={rearColor}
-          />
-
-          {/* Rear bar gauge */}
-          <BarGauge
-            x={pos.x + 4}
-            y={dividerY + rearSectionHeight - 7}
-            width={pos.width - 8}
-            height={3}
-            fillPercent={rearPercent}
-            color={rearColor}
-          />
-        </>
-      )}
-
-      {/* Outer border */}
-      <rect
-        x={pos.x}
-        y={pos.y}
-        width={pos.width}
-        height={pos.height}
-        fill="none"
-        stroke={isSelected ? '#60a5fa' : '#64748b'}
-        strokeWidth={isSelected ? 2 : 1}
-      />
-
-      {/* Corner brackets on hover/select */}
-      {(isHovered || isSelected) && (
-        <CornerBrackets
-          x={pos.x - 2}
-          y={pos.y - 2}
-          width={pos.width + 4}
-          height={pos.height + 4}
-          color={isSelected ? '#60a5fa' : '#22d3ee'}
-        />
-      )}
-    </g>
-  );
-}
+import { GradientDefs } from '../shared/ArmorFills';
+import { useResolvedLayout, getLayoutIdForConfig } from '../shared/layout';
+import { TacticalLocation } from './TacticalHUDDiagram.parts';
 
 export interface TacticalHUDDiagramProps {
   armorData: LocationArmorData[];
@@ -441,13 +17,9 @@ export interface TacticalHUDDiagramProps {
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
   className?: string;
-  /** Mech configuration type for layout selection */
   mechConfigType?: MechConfigType;
 }
 
-/**
- * Get the locations to render based on mech configuration type
- */
 function getLocationsForConfig(configType: MechConfigType): MechLocation[] {
   switch (configType) {
     case 'quad':
@@ -502,16 +74,8 @@ export function TacticalHUDDiagram({
     null,
   );
 
-  // Get layout ID based on mech configuration type
   const layoutId = getLayoutIdForConfig(mechConfigType, 'geometric');
-
-  // Use the layout engine to get resolved positions
-  const {
-    layout: _layout,
-    getPosition,
-    viewBox,
-    bounds,
-  } = useResolvedLayout(layoutId);
+  const { getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
 
   const getArmorData = (
     location: MechLocation,
@@ -520,15 +84,12 @@ export function TacticalHUDDiagram({
   };
 
   const isOverAllocated = unallocatedPoints < 0;
-
-  // Get locations based on mech configuration type
   const locations = getLocationsForConfig(mechConfigType);
 
   return (
     <div
       className={`bg-surface-deep border-border-theme-subtle rounded-lg border p-4 ${className}`}
     >
-      {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
@@ -539,7 +100,6 @@ export function TacticalHUDDiagram({
         </div>
       </div>
 
-      {/* Diagram - uses auto-calculated viewBox from layout engine */}
       <div className="relative">
         <svg
           viewBox={viewBox}
@@ -548,7 +108,6 @@ export function TacticalHUDDiagram({
         >
           <GradientDefs />
 
-          {/* Render all locations using layout engine positions */}
           {locations.map((loc) => {
             const position = getPosition(loc);
             if (!position) return null;
@@ -562,13 +121,12 @@ export function TacticalHUDDiagram({
                 isSelected={selectedLocation === loc}
                 isHovered={hoveredLocation === loc}
                 onClick={() => onLocationClick(loc)}
-                onHover={(h) => setHoveredLocation(h ? loc : null)}
+                onHover={(hovered) => setHoveredLocation(hovered ? loc : null)}
                 configType={mechConfigType}
               />
             );
           })}
 
-          {/* Scan line animation - uses auto-calculated bounds */}
           <line
             x1={bounds.minX}
             y1="0"
@@ -594,7 +152,6 @@ export function TacticalHUDDiagram({
         </svg>
       </div>
 
-      {/* Legend */}
       <div className="mt-3 flex justify-center gap-3 font-mono text-xs">
         <div className="flex items-center gap-1.5">
           <div className="h-2.5 w-2.5 rounded-sm bg-green-500" />
@@ -622,7 +179,6 @@ export function TacticalHUDDiagram({
         </div>
       </div>
 
-      {/* Status readout */}
       <div className="bg-surface-base/50 mt-3 flex items-center justify-between rounded px-2 py-1.5 font-mono text-xs">
         <div className="flex items-center gap-4">
           <span className="text-text-theme-muted">STATUS:</span>
@@ -640,7 +196,6 @@ export function TacticalHUDDiagram({
         </div>
       </div>
 
-      {/* Instructions */}
       <p className="mt-2 text-center font-mono text-xs text-slate-600">
         SELECT LOCATION TO MODIFY
       </p>
