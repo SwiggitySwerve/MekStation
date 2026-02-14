@@ -13,21 +13,21 @@ import {
   PlacementModeState,
 } from '@/components/mobile/EquipmentAssignmentAdapter';
 import { useDeviceType } from '@/hooks/useDeviceType';
-import * as hapticFeedback from '@/utils/hapticFeedback';
+import { useHaptics } from '@/hooks/useHaptics';
 
 // PlacementModeState already includes activatePlacementMode, handleSlotTap, cancelPlacementMode
 // so we don't need an extended interface
 
 // Mock dependencies
 jest.mock('../../../hooks/useDeviceType');
-jest.mock('../../../utils/hapticFeedback');
+jest.mock('@/hooks/useHaptics');
 
 describe('EquipmentAssignmentAdapter', () => {
   const mockUseDeviceType = useDeviceType as jest.MockedFunction<
     typeof useDeviceType
   >;
-  const mockHapticTap = jest.fn();
-  const mockHapticError = jest.fn();
+  const mockUseHaptics = useHaptics as jest.MockedFunction<typeof useHaptics>;
+  const mockVibrateCustom = jest.fn();
 
   const mockEquipment = {
     id: 'equip-1',
@@ -45,15 +45,13 @@ describe('EquipmentAssignmentAdapter', () => {
   };
 
   beforeEach(() => {
-    mockHapticTap.mockClear();
-    mockHapticError.mockClear();
-
-    (
-      hapticFeedback.tap as jest.MockedFunction<typeof hapticFeedback.tap>
-    ).mockReturnValue(true);
-    (
-      hapticFeedback.error as jest.MockedFunction<typeof hapticFeedback.error>
-    ).mockReturnValue(true);
+    mockVibrateCustom.mockClear();
+    mockUseHaptics.mockReturnValue({
+      vibrate: jest.fn(),
+      vibrateCustom: mockVibrateCustom,
+      cancel: jest.fn(),
+      isSupported: true,
+    });
 
     // Default: touch device
     mockUseDeviceType.mockReturnValue({
@@ -165,7 +163,7 @@ describe('EquipmentAssignmentAdapter', () => {
       fireEvent.click(screen.getByText('Assign to Slot'));
 
       expect(onAssign).toHaveBeenCalledWith(mockEquipment, mockValidSlots[0]);
-      expect(hapticFeedback.tap).toHaveBeenCalledTimes(1);
+      expect(mockVibrateCustom).toHaveBeenCalledWith(50);
 
       // Placement mode should be exited
       expect((placementState as PlacementModeState | null)?.isActive).toBe(
@@ -212,7 +210,7 @@ describe('EquipmentAssignmentAdapter', () => {
         mockEquipment,
         mockInvalidSlot,
       );
-      expect(hapticFeedback.error).toHaveBeenCalledTimes(1);
+      expect(mockVibrateCustom).toHaveBeenCalledWith(200);
 
       // Should stay in placement mode
       expect((placementState as PlacementModeState | null)?.isActive).toBe(

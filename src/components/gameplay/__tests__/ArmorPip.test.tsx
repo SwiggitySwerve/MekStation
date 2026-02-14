@@ -1,20 +1,28 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
-import { tap } from '@/utils/hapticFeedback';
+import { useHaptics } from '@/hooks/useHaptics';
 
 import type { PipState } from '../ArmorPip';
 
 import { ArmorPip, ArmorPipGroup } from '../ArmorPip';
 
 // Mock haptic feedback
-jest.mock('../../../utils/hapticFeedback');
+jest.mock('@/hooks/useHaptics');
 
 describe('ArmorPip', () => {
   const mockOnToggle = jest.fn();
+  const mockVibrateCustom = jest.fn();
+  const mockUseHaptics = useHaptics as jest.MockedFunction<typeof useHaptics>;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseHaptics.mockReturnValue({
+      vibrate: jest.fn(),
+      vibrateCustom: mockVibrateCustom,
+      cancel: jest.fn(),
+      isSupported: true,
+    });
   });
 
   describe('Rendering', () => {
@@ -82,7 +90,7 @@ describe('ArmorPip', () => {
       fireEvent.click(pip);
 
       expect(mockOnToggle).toHaveBeenCalledWith('filled');
-      expect(tap).toHaveBeenCalled();
+      expect(mockVibrateCustom).toHaveBeenCalledWith(50);
     });
 
     it('should cycle from filled to destroyed', () => {
@@ -118,7 +126,7 @@ describe('ArmorPip', () => {
       const pip = screen.getByLabelText('Armor pip: empty');
       fireEvent.click(pip);
 
-      expect(tap).toHaveBeenCalledTimes(1);
+      expect(mockVibrateCustom).toHaveBeenCalledTimes(1);
     });
 
     it('should not trigger callback when disabled', () => {

@@ -1,14 +1,17 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import React from 'react';
 
-import { tap, error, success } from '@/utils/hapticFeedback';
+import { useHaptics } from '@/hooks/useHaptics';
 
 import { AmmoCounter } from '../AmmoCounter';
 
 // Mock haptic feedback
-jest.mock('../../../utils/hapticFeedback');
+jest.mock('@/hooks/useHaptics');
 
 describe('AmmoCounter', () => {
+  const mockVibrateCustom = jest.fn();
+  const mockUseHaptics = useHaptics as jest.MockedFunction<typeof useHaptics>;
+
   const mockProps = {
     weaponName: 'Large Laser',
     shotsRemaining: 10,
@@ -19,6 +22,12 @@ describe('AmmoCounter', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseHaptics.mockReturnValue({
+      vibrate: jest.fn(),
+      vibrateCustom: mockVibrateCustom,
+      cancel: jest.fn(),
+      isSupported: true,
+    });
     jest.useFakeTimers();
   });
 
@@ -84,7 +93,7 @@ describe('AmmoCounter', () => {
       fireEvent.click(fireButton);
 
       expect(mockProps.onFire).toHaveBeenCalledTimes(1);
-      expect(tap).toHaveBeenCalled();
+      expect(mockVibrateCustom).toHaveBeenCalledWith(50);
     });
 
     it('should trigger haptic feedback on fire', () => {
@@ -93,7 +102,7 @@ describe('AmmoCounter', () => {
       const fireButton = screen.getByLabelText('Fire Large Laser');
       fireEvent.click(fireButton);
 
-      expect(tap).toHaveBeenCalled();
+      expect(mockVibrateCustom).toHaveBeenCalledWith(50);
     });
 
     it('should update display when shotsRemaining changes', () => {
@@ -183,7 +192,7 @@ describe('AmmoCounter', () => {
       // Note: When button is disabled, onClick doesn't fire in React
       // The component shows visual feedback ("Empty - Reload Required") instead
       expect(fireButton).toBeDisabled();
-      expect(error).not.toHaveBeenCalled(); // Can't fire when disabled
+      expect(mockVibrateCustom).not.toHaveBeenCalled(); // Can't fire when disabled
       expect(mockProps.onFire).not.toHaveBeenCalled();
     });
 
@@ -323,7 +332,7 @@ describe('AmmoCounter', () => {
         jest.advanceTimersByTime(1100); // 1s reload + 100ms buffer
       });
 
-      expect(success).toHaveBeenCalled();
+      expect(mockVibrateCustom).toHaveBeenCalledWith([100, 50, 100]);
 
       jest.useRealTimers();
     });
