@@ -5,7 +5,7 @@
  * providing battleValue and heat values from the single source of truth.
  *
  * Eliminates hardcoded weapon BV/heat maps by resolving against the equipment
- * catalog at runtime (filesystem read from public/data/equipment/official/).
+ * catalog data bundled from public/data/equipment/official/.
  *
  * BV-context heat overrides (per TechManual BV 2.0):
  * - Ultra AC: base heat × 2 (can fire twice)
@@ -15,10 +15,15 @@
  * @spec openspec/specs/battle-value-system/spec.md
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-
 import { logger } from '@/utils/logger';
+
+import {
+  AMMUNITION_CATALOG_FILES,
+  ELECTRONICS_CATALOG_FILES,
+  MISCELLANEOUS_CATALOG_FILES,
+  NAME_MAPPINGS_DATA,
+  WEAPON_CATALOG_FILES,
+} from './equipmentBVCatalogData';
 
 // ============================================================================
 // TYPES
@@ -41,30 +46,13 @@ export interface EquipmentCatalogEntry {
   damage?: number | string;
 }
 
-interface WeaponCatalogFile {
-  items: EquipmentCatalogEntry[];
+interface NameMappingsSource {
+  $schema?: string;
+  [key: string]: string | undefined;
 }
 
-interface MiscCatalogFile {
-  items: Array<{
-    id: string;
-    name: string;
-    category: string;
-    techBase: string;
-    battleValue: number;
-    [key: string]: unknown;
-  }>;
-}
-
-interface AmmoCatalogFile {
-  items: Array<{
-    id: string;
-    name: string;
-    category: string;
-    techBase: string;
-    battleValue: number;
-    [key: string]: unknown;
-  }>;
+interface RawCatalogFile {
+  items?: Array<Record<string, unknown>>;
 }
 
 // ============================================================================
@@ -84,40 +72,51 @@ const loggedUnresolvable = new Set<string>();
 // CATALOG LOADING
 // ============================================================================
 
-/**
- * Resolve the base path to the equipment catalog data.
- * Works from project root (where npm scripts run) or from src/ context.
- */
-function getEquipmentBasePath(): string {
-  // Try common project root patterns
-  const candidates = [
-    path.resolve(process.cwd(), 'public/data/equipment/official'),
-    path.resolve(__dirname, '../../../public/data/equipment/official'),
-    path.resolve(__dirname, '../../../../public/data/equipment/official'),
-  ];
-
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
-      return candidate;
-    }
+function toCatalogEntry(
+  item: Record<string, unknown>,
+): EquipmentCatalogEntry | null {
+  if (
+    typeof item.id !== 'string' ||
+    typeof item.name !== 'string' ||
+    typeof item.category !== 'string' ||
+    typeof item.techBase !== 'string'
+  ) {
+    return null;
   }
 
-  // Fallback to cwd-based path
-  return path.resolve(process.cwd(), 'public/data/equipment/official');
+  return {
+    id: item.id,
+    name: item.name,
+    category: item.category,
+    techBase: item.techBase,
+    battleValue: typeof item.battleValue === 'number' ? item.battleValue : 0,
+    heat: typeof item.heat === 'number' ? item.heat : undefined,
+    subType: typeof item.subType === 'string' ? item.subType : undefined,
+    damage:
+      typeof item.damage === 'number' || typeof item.damage === 'string'
+        ? item.damage
+        : undefined,
+  };
 }
 
-/**
- * Load a JSON file safely, returning null on failure.
- */
-function loadJsonFile<T>(filePath: string): T | null {
-  try {
-    if (!fs.existsSync(filePath)) {
-      return null;
+function appendCatalogFile(
+  catalog: Map<string, EquipmentCatalogEntry>,
+  file: RawCatalogFile,
+  overwriteExisting: boolean,
+): void {
+  if (!Array.isArray(file.items)) {
+    return;
+  }
+
+  for (const item of file.items) {
+    const normalized = toCatalogEntry(item);
+    if (!normalized) {
+      continue;
     }
-    const content = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(content) as T;
-  } catch {
-    return null;
+    if (!overwriteExisting && catalog.has(normalized.id)) {
+      continue;
+    }
+    catalog.set(normalized.id, normalized);
   }
 }
 
@@ -127,29 +126,19 @@ function loadJsonFile<T>(filePath: string): T | null {
 function loadNameMappings(): Record<string, string> {
   if (nameMappingsCache) return nameMappingsCache;
 
-  const candidates = [
-    path.resolve(process.cwd(), 'public/data/equipment/name-mappings.json'),
-    path.resolve(
-      __dirname,
-      '../../../public/data/equipment/name-mappings.json',
-    ),
-    path.resolve(
-      __dirname,
-      '../../../../public/data/equipment/name-mappings.json',
-    ),
-  ];
-
-  for (const candidate of candidates) {
-    const data = loadJsonFile<Record<string, string>>(candidate);
-    if (data) {
-      const { $schema: _, ...mappings } = data;
-      nameMappingsCache = mappings;
-      return mappings;
+  const source = NAME_MAPPINGS_DATA as NameMappingsSource;
+  const mappings: Record<string, string> = {};
+  for (const [key, value] of Object.entries(source)) {
+    if (key === '$schema') {
+      continue;
+    }
+    if (typeof value === 'string') {
+      mappings[key] = value;
     }
   }
 
-  nameMappingsCache = {};
-  return {};
+  nameMappingsCache = mappings;
+  return mappings;
 }
 
 /**
@@ -160,138 +149,21 @@ function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
   if (catalogCache) return catalogCache;
 
   const catalog = new Map<string, EquipmentCatalogEntry>();
-  const basePath = getEquipmentBasePath();
 
-  // Load weapon files from index.json (data-driven)
-  const indexData = loadJsonFile<{
-    files: {
-      weapons: Record<string, string>;
-      ammunition: Record<string, string> | string;
-      electronics: Record<string, string> | string;
-      miscellaneous: Record<string, string> | string;
-    };
-  }>(path.join(basePath, 'index.json'));
-  const weaponFiles = indexData?.files?.weapons
-    ? Object.values(indexData.files.weapons)
-    : [
-        'weapons/energy-laser.json',
-        'weapons/energy-ppc.json',
-        'weapons/energy-other.json',
-        'weapons/ballistic-autocannon.json',
-        'weapons/ballistic-gauss.json',
-        'weapons/ballistic-machinegun.json',
-        'weapons/ballistic-other.json',
-        'weapons/missile-atm.json',
-        'weapons/missile-lrm.json',
-        'weapons/missile-mrm.json',
-        'weapons/missile-other.json',
-        'weapons/missile-srm.json',
-        'weapons/physical.json',
-      ];
-  for (const file of weaponFiles) {
-    const data = loadJsonFile<WeaponCatalogFile>(path.join(basePath, file));
-    if (data?.items) {
-      for (const item of data.items) {
-        catalog.set(item.id, item);
-      }
-    }
+  for (const file of WEAPON_CATALOG_FILES) {
+    appendCatalogFile(catalog, file, true);
   }
 
-  // Load electronics (data-driven from index.json)
-  const elecEntry = indexData?.files?.electronics;
-  const elecFiles =
-    elecEntry && typeof elecEntry === 'object' && !Array.isArray(elecEntry)
-      ? (Object.values(elecEntry) as string[])
-      : [
-          'electronics/ecm.json',
-          'electronics/active-probe.json',
-          'electronics/c3.json',
-          'electronics/other.json',
-        ];
-  for (const elecFile of elecFiles) {
-    const electronics = loadJsonFile<MiscCatalogFile>(
-      path.join(basePath, elecFile),
-    );
-    if (electronics?.items) {
-      for (const item of electronics.items) {
-        if (!catalog.has(item.id)) {
-          catalog.set(item.id, {
-            id: item.id,
-            name: item.name,
-            category: item.category,
-            techBase: item.techBase,
-            battleValue: item.battleValue,
-          });
-        }
-      }
-    }
+  for (const file of ELECTRONICS_CATALOG_FILES) {
+    appendCatalogFile(catalog, file, false);
   }
 
-  // Load miscellaneous (data-driven from index.json)
-  const miscEntry = indexData?.files?.miscellaneous;
-  const miscFiles =
-    miscEntry && typeof miscEntry === 'object' && !Array.isArray(miscEntry)
-      ? (Object.values(miscEntry) as string[])
-      : [
-          'miscellaneous/heat-sinks.json',
-          'miscellaneous/jump-jets.json',
-          'miscellaneous/movement.json',
-          'miscellaneous/myomer.json',
-          'miscellaneous/defensive.json',
-          'miscellaneous/other.json',
-        ];
-  for (const miscFile of miscFiles) {
-    const misc = loadJsonFile<MiscCatalogFile>(path.join(basePath, miscFile));
-    if (misc?.items) {
-      for (const item of misc.items) {
-        if (!catalog.has(item.id)) {
-          catalog.set(item.id, {
-            id: item.id,
-            name: item.name,
-            category: item.category,
-            techBase: item.techBase,
-            battleValue: item.battleValue,
-          });
-        }
-      }
-    }
+  for (const file of MISCELLANEOUS_CATALOG_FILES) {
+    appendCatalogFile(catalog, file, false);
   }
 
-  // Load ammunition (data-driven from index.json)
-  const ammoFileEntries = indexData?.files?.ammunition;
-  const ammoFiles =
-    ammoFileEntries &&
-    typeof ammoFileEntries === 'object' &&
-    !Array.isArray(ammoFileEntries)
-      ? (Object.values(ammoFileEntries) as string[])
-      : [
-          'ammunition/artillery.json',
-          'ammunition/atm.json',
-          'ammunition/autocannon.json',
-          'ammunition/gauss.json',
-          'ammunition/lrm.json',
-          'ammunition/machinegun.json',
-          'ammunition/mrm.json',
-          'ammunition/narc.json',
-          'ammunition/other.json',
-          'ammunition/srm.json',
-        ];
-  for (const ammoFile of ammoFiles) {
-    const ammo = loadJsonFile<AmmoCatalogFile>(path.join(basePath, ammoFile));
-    if (ammo?.items) {
-      for (const item of ammo.items) {
-        // Don't overwrite weapons entries (weapons have priority)
-        if (!catalog.has(item.id)) {
-          catalog.set(item.id, {
-            id: item.id,
-            name: item.name,
-            category: item.category,
-            techBase: item.techBase,
-            battleValue: item.battleValue,
-          });
-        }
-      }
-    }
+  for (const file of AMMUNITION_CATALOG_FILES) {
+    appendCatalogFile(catalog, file, false);
   }
 
   catalogCache = catalog;
