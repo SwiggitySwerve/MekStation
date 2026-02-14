@@ -1,14 +1,17 @@
 import { MovementType, RangeBracket } from '@/types/gameplay';
 import { IToHitCalculation, IToHitModifierDetail } from '@/types/gameplay';
 
+import { createBaseModifier } from './baseModifier';
 import { PROBABILITY_TABLE } from './constants';
+import { calculateHeatModifier } from './environmentModifiers';
 import {
   calculateAttackerMovementModifier,
-  calculateHeatModifier,
   calculateTMM,
-  createBaseModifier,
+} from './movementModifiers';
+import {
+  calculateRangeModifier,
   getRangeModifierForBracket,
-} from './modifiers';
+} from './rangeModifiers';
 
 export function aggregateModifiers(
   modifiers: readonly IToHitModifierDetail[],

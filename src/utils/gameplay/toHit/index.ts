@@ -10,29 +10,35 @@ export {
   getProbability,
   simpleToHit,
 } from './aggregation';
+export { createBaseModifier } from './baseModifier';
 export {
-  calculateActuatorDamageModifier,
-  calculateAttackerMovementModifier,
-  calculateAttackerProneModifier,
-  calculateCalledShotModifier,
-  calculateHeatModifier,
-  calculateHullDownModifier,
-  calculateImmobileModifier,
-  calculateIndirectFireModifier,
-  calculateMinimumRangeModifier,
-  calculatePartialCoverModifier,
-  calculatePilotWoundModifier,
-  calculateProneModifier,
   calculateRangeModifier,
+  calculateMinimumRangeModifier,
+  getRangeModifierForBracket,
+  getRangeBracket,
+} from './rangeModifiers';
+export {
+  calculateAttackerMovementModifier,
+  calculateTMM,
+} from './movementModifiers';
+export {
+  calculateHeatModifier,
+  calculatePartialCoverModifier,
+  calculateHullDownModifier,
+  getTerrainToHitModifier,
+} from './environmentModifiers';
+export { calculateTargetingComputerModifier } from './equipmentModifiers';
+export {
+  calculateProneModifier,
+  calculateImmobileModifier,
+  calculatePilotWoundModifier,
   calculateSecondaryTargetModifier,
   calculateSensorDamageModifier,
-  calculateTargetingComputerModifier,
-  calculateTMM,
-  createBaseModifier,
-  getRangeBracket,
-  getRangeModifierForBracket,
-  getTerrainToHitModifier,
-} from './modifiers';
+  calculateActuatorDamageModifier,
+  calculateAttackerProneModifier,
+  calculateIndirectFireModifier,
+  calculateCalledShotModifier,
+} from './damageModifiers';
 export { calculateToHit, calculateToHitFromContext } from './calculate';
 export { calculateToHitWithC3 } from './c3';
 export type { IC3ToHitInput } from './c3';
