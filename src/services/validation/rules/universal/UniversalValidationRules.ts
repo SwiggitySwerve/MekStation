@@ -14,7 +14,7 @@ export { ArmorAllocationValidation } from './ArmorAllocationValidation';
 export { WeightOverflowValidation } from './WeightOverflowValidation';
 export { CriticalSlotOverflowValidation } from './CriticalSlotOverflowValidation';
 
-import type { IUnitValidationRuleDefinition } from '../../../../types/validation/UnitValidationInterfaces';
+import type { IUnitValidationRuleDefinition } from '@/types/validation/UnitValidationInterfaces';
 
 import { ArmorAllocationValidation } from './ArmorAllocationValidation';
 import { BattleValueNonNegative } from './BattleValueNonNegative';

@@ -1,5 +1,6 @@
 import type { IPerson } from '@/types/campaign/Person';
 
+import { SKILL_CATALOG, getSkillType } from '@/constants/campaign/skillCatalog';
 import { createDefaultSkills } from '@/lib/campaign/skills/defaultSkills';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
@@ -7,10 +8,6 @@ import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 import type { IAttributes } from '../IAttributes';
 import type { ISkill } from '../ISkill';
 
-import {
-  SKILL_CATALOG,
-  getSkillType,
-} from '../../../../constants/campaign/skillCatalog';
 import { SkillExperienceLevel } from '../experienceLevels';
 import {
   TECH_SKILL_TYPE,

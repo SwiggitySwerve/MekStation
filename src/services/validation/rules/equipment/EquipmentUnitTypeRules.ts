@@ -7,10 +7,10 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { isValidLocationForUnitType } from '../../../../types/construction/UnitLocation';
-import { EquipmentBehaviorFlag } from '../../../../types/enums/EquipmentFlag';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
+import { isValidLocationForUnitType } from '@/types/construction/UnitLocation';
+import { EquipmentBehaviorFlag } from '@/types/enums/EquipmentFlag';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -19,7 +19,7 @@ import {
   createUnitValidationError,
   createUnitValidationRuleResult,
   createPassingResult,
-} from '../../../../types/validation/UnitValidationInterfaces';
+} from '@/types/validation/UnitValidationInterfaces';
 
 /**
  * Equipment item for validation purposes

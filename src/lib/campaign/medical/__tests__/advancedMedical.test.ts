@@ -5,8 +5,9 @@
  * and injury worsening mechanics.
  */
 
-import { ICampaignOptions } from '../../../../types/campaign/Campaign';
-import { IPerson, IInjury } from '../../../../types/campaign/Person';
+import { ICampaignOptions } from '@/types/campaign/Campaign';
+import { IPerson, IInjury } from '@/types/campaign/Person';
+
 import {
   advancedMedicalCheck,
   untreatedAdvanced,

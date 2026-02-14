@@ -7,13 +7,11 @@
  * @module campaign/progression/__tests__/xpAwards
  */
 
-import type { ICampaignOptions } from '../../../../types/campaign/Campaign';
-import type { IPerson } from '../../../../types/campaign/Person';
+import type { ICampaignOptions } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
 
-import {
-  PersonnelStatus,
-  CampaignPersonnelRole,
-} from '../../../../types/campaign/enums';
+import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+
 import { MedicalSystem } from '../../medical/medicalTypes';
 import {
   awardScenarioXP,

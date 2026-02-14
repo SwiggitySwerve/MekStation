@@ -4,7 +4,7 @@ import {
   getSkillsByCategory,
   getAllSkillTypes,
   SKILL_CATEGORIES,
-} from '../../../../constants/campaign/skillCatalog';
+} from '@/constants/campaign/skillCatalog';
 
 describe('Skill Catalog', () => {
   describe('SKILL_CATALOG Structure', () => {

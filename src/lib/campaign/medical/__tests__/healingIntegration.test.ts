@@ -1,12 +1,6 @@
-import {
-  PersonnelStatus,
-  CampaignPersonnelRole,
-} from '../../../../types/campaign/enums';
-import {
-  IPerson,
-  IInjury,
-  createInjury,
-} from '../../../../types/campaign/Person';
+import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { IPerson, IInjury, createInjury } from '@/types/campaign/Person';
+
 import { processHealing } from '../../dayAdvancement';
 
 function createTestPerson(overrides?: Partial<IPerson>): IPerson {

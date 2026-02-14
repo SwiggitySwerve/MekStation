@@ -6,12 +6,13 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { VehicleLocation } from '../../../../types/construction/UnitLocation';
-import { TechBase, RulesLevel, WeightClass } from '../../../../types/enums';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { GroundMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { SupportVehicleSizeClass } from '../../../../types/unit/VehicleInterfaces';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { TechBase, RulesLevel, WeightClass } from '@/types/enums';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { SupportVehicleSizeClass } from '@/types/unit/VehicleInterfaces';
+
 import {
   SupportVehicleUnitHandler,
   createSupportVehicleHandler,

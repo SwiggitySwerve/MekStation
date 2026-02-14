@@ -6,11 +6,12 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2.8
  */
 
-import { VehicleLocation } from '../../../../types/construction/UnitLocation';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { GroundMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { TurretType } from '../../../../types/unit/VehicleInterfaces';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
+
 import {
   VehicleUnitHandler,
   createVehicleHandler,

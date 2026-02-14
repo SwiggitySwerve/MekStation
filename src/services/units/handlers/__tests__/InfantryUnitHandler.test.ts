@@ -4,13 +4,14 @@
  * Comprehensive tests for Infantry BLK parsing, validation, calculations, and serialization
  */
 
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { SquadMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   InfantryArmorKit,
   InfantrySpecialization,
-} from '../../../../types/unit/PersonnelInterfaces';
+} from '@/types/unit/PersonnelInterfaces';
+
 import {
   InfantryUnitHandler,
   createInfantryHandler,

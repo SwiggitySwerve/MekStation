@@ -4,7 +4,7 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -12,8 +12,8 @@ import {
   UnitValidationSeverity,
   createUnitValidationError,
   createUnitValidationRuleResult,
-} from '../../../../types/validation/UnitValidationInterfaces';
-import { isValidUnitType } from '../../../../utils/validation/UnitCategoryMapper';
+} from '@/types/validation/UnitValidationInterfaces';
+import { isValidUnitType } from '@/utils/validation/UnitCategoryMapper';
 
 /**
  * VAL-UNIV-003: Valid Unit Type

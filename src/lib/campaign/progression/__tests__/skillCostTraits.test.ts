@@ -7,10 +7,11 @@
  * @module campaign/progression/__tests__/skillCostTraits.test.ts
  */
 
-import type { ICampaignOptions } from '../../../../types/campaign/Campaign';
-import type { IPerson } from '../../../../types/campaign/Person';
+import type { ICampaignOptions } from '@/types/campaign/Campaign';
+import type { IPerson } from '@/types/campaign/Person';
 
-import { SKILL_CATALOG } from '../../../../constants/campaign/skillCatalog';
+import { SKILL_CATALOG } from '@/constants/campaign/skillCatalog';
+
 import {
   calculateTraitMultiplier,
   getSkillImprovementCostWithTraits,

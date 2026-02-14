@@ -4,7 +4,7 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { RulesLevel } from '../../../../types/enums';
+import { RulesLevel } from '@/types/enums';
 
 /**
  * Rules level hierarchy for comparison

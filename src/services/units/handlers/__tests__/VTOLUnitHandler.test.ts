@@ -6,12 +6,13 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2.8
  */
 
-import { VTOLLocation } from '../../../../types/construction/UnitLocation';
-import { TechBase, WeightClass, RulesLevel } from '../../../../types/enums';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { GroundMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { TurretType, IVTOL } from '../../../../types/unit/VehicleInterfaces';
+import { VTOLLocation } from '@/types/construction/UnitLocation';
+import { TechBase, WeightClass, RulesLevel } from '@/types/enums';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { TurretType, IVTOL } from '@/types/unit/VehicleInterfaces';
+
 import { VTOLUnitHandler, createVTOLHandler } from '../VTOLUnitHandler';
 
 // ============================================================================

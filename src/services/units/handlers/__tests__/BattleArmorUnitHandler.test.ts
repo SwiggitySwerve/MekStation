@@ -7,15 +7,16 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.4
  */
 
-import { BattleArmorLocation } from '../../../../types/construction/UnitLocation';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { SquadMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { BattleArmorLocation } from '@/types/construction/UnitLocation';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   BattleArmorWeightClass,
   BattleArmorChassisType,
   ManipulatorType,
-} from '../../../../types/unit/PersonnelInterfaces';
+} from '@/types/unit/PersonnelInterfaces';
+
 import {
   BattleArmorUnitHandler,
   createBattleArmorHandler,

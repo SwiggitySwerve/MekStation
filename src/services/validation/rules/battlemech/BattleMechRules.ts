@@ -11,8 +11,8 @@
  * @spec openspec/specs/validation-rules-master/spec.md
  */
 
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -20,8 +20,9 @@ import {
   UnitValidationSeverity,
   createUnitValidationError,
   createUnitValidationRuleResult,
-} from '../../../../types/validation/UnitValidationInterfaces';
-import { isCombatMech } from '../../../../utils/validation/UnitCategoryMapper';
+} from '@/types/validation/UnitValidationInterfaces';
+import { isCombatMech } from '@/utils/validation/UnitCategoryMapper';
+
 import {
   BATTLEMECH_TONNAGE,
   ENGINE_RATING_MIN,

@@ -7,8 +7,9 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
 import { UnitTypeRegistry, getUnitTypeRegistry } from '../../UnitTypeRegistry';
 import {
   initializeUnitTypeHandlers,

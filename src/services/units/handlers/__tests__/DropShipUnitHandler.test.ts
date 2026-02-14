@@ -6,15 +6,16 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { TechBase, RulesLevel } from '../../../../types/enums';
-import { IBlkDocument } from '../../../../types/formats/BlkFormat';
-import { AerospaceMotionType } from '../../../../types/unit/BaseUnitInterfaces';
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
+import { TechBase, RulesLevel } from '@/types/enums';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   CapitalArc,
   DropShipDesignType,
   BayType,
-} from '../../../../types/unit/CapitalShipInterfaces';
+} from '@/types/unit/CapitalShipInterfaces';
+
 import {
   DropShipUnitHandler,
   createDropShipHandler,

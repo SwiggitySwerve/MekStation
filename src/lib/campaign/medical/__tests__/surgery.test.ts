@@ -1,9 +1,7 @@
-import {
-  PersonnelStatus,
-  CampaignPersonnelRole,
-} from '../../../../types/campaign/enums';
-import { IPerson, IInjury } from '../../../../types/campaign/Person';
-import { IAttributes } from '../../../../types/campaign/skills/IAttributes';
+import { PersonnelStatus, CampaignPersonnelRole } from '@/types/campaign/enums';
+import { IPerson, IInjury } from '@/types/campaign/Person';
+import { IAttributes } from '@/types/campaign/skills/IAttributes';
+
 import { MedicalSystem } from '../medicalTypes';
 /* oxlint-disable @typescript-eslint/no-unsafe-assignment */
 import { performSurgery, installProsthetic } from '../surgery';

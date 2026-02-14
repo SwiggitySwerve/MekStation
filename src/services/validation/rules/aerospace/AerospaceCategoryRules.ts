@@ -7,8 +7,8 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { UnitType } from '../../../../types/unit/BattleMechInterfaces';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -17,7 +17,7 @@ import {
   createUnitValidationError,
   createUnitValidationRuleResult,
   IValidatableUnit,
-} from '../../../../types/validation/UnitValidationInterfaces';
+} from '@/types/validation/UnitValidationInterfaces';
 
 /**
  * Extended aerospace unit interface for aerospace-specific validation

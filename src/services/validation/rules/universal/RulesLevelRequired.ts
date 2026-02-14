@@ -4,8 +4,8 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { RulesLevel } from '../../../../types/enums';
-import { ValidationCategory } from '../../../../types/validation/rules/ValidationRuleInterfaces';
+import { RulesLevel } from '@/types/enums';
+import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
@@ -13,7 +13,7 @@ import {
   UnitValidationSeverity,
   createUnitValidationError,
   createUnitValidationRuleResult,
-} from '../../../../types/validation/UnitValidationInterfaces';
+} from '@/types/validation/UnitValidationInterfaces';
 
 /**
  * VAL-UNIV-005: Rules Level Required
