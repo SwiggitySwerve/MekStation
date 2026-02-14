@@ -6,7 +6,7 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
-import { IArmorAllocation } from '@/stores/unitState';
+import { IArmorAllocation } from '@/types/construction/ArmorAllocation';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 

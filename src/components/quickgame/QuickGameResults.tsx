@@ -11,18 +11,18 @@ import { useState, useRef, useCallback, useMemo } from 'react';
 
 import type { IGameOutcome, ICombatStats } from '@/services/game-resolution';
 import type { IDamageAssessment } from '@/services/game-resolution/DamageCalculator';
-import type { BattleState } from '@/simulation/detectors/KeyMomentDetector';
 import type { IQuickGameUnit } from '@/types/quickgame/QuickGameInterfaces';
 import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
+import type { BattleState } from '@/types/simulation/BattleState';
 
 import { Button, Card } from '@/components/ui';
 import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
+import { useKeyMoments } from '@/hooks/useKeyMoments';
 import {
   calculateGameOutcome,
   calculateCombatStats,
   assessUnitDamage,
 } from '@/services/game-resolution';
-import { KeyMomentDetector } from '@/simulation/detectors/KeyMomentDetector';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { GameEventType, GamePhase, GameSide } from '@/types/gameplay';
@@ -498,15 +498,14 @@ export function QuickGameResults(): React.ReactElement {
     return calculateCombatStats(session.events, session.currentState.units);
   }, [session]);
 
-  const keyMoments = useMemo((): readonly IKeyMoment[] => {
-    if (!session || !game) return [];
-    const detector = new KeyMomentDetector();
+  const battleState = useMemo((): BattleState | null => {
+    if (!session || !game) return null;
     const allQuickUnits = [
       ...game.playerForce.units,
       ...(game.opponentForce?.units ?? []),
     ];
 
-    const battleState: BattleState = {
+    return {
       units: allQuickUnits.map((u) => {
         const unitState = session.currentState.units[u.instanceId];
         const side = game.playerForce.units.some(
@@ -526,9 +525,12 @@ export function QuickGameResults(): React.ReactElement {
         };
       }),
     };
-
-    return detector.detect(session.events, battleState);
   }, [session, game]);
+
+  const keyMoments = useKeyMoments(
+    session?.events ?? [],
+    battleState ?? { units: [] },
+  );
 
   const unitDamageMap = useMemo((): Map<string, IDamageAssessment> => {
     const map = new Map<string, IDamageAssessment>();

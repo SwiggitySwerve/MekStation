@@ -6,7 +6,6 @@
  */
 
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
-import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -15,6 +14,7 @@ import {
   MiscEquipmentCategory,
   IMiscEquipment,
 } from '@/types/equipment/MiscEquipmentTypes';
+import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { generateUnitId } from '@/utils/uuid';
 
 import { HEAT_SINK_EQUIPMENT_IDS } from './equipmentConstants';

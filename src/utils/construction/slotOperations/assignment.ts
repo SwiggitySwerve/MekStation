@@ -1,10 +1,10 @@
-import { IMountedEquipmentInstance } from '@/stores/unitState';
 import {
   MechLocation,
   LOCATION_SLOT_COUNTS,
 } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
+import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
 import { getFixedSlotIndices } from './queries';
 import { SlotAssignment, SlotOperationResult } from './types';

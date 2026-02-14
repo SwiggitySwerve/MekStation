@@ -7,13 +7,13 @@
  * @spec openspec/specs/critical-slot-allocation/spec.md
  */
 
-import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import {
   EngineType,
   getEngineDefinition,
 } from '@/types/construction/EngineType';
 import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
+import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
 // =============================================================================
 // Types

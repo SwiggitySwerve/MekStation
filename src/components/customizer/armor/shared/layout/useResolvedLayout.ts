@@ -7,7 +7,10 @@
 
 import { useMemo } from 'react';
 
+import type { MechConfigType } from '@/types/construction/MechConfigType';
+
 import { MechLocation } from '@/types/construction';
+import { MECH_CONFIG_DISPLAY_NAMES } from '@/types/construction/MechConfigType';
 import { logger } from '@/utils/logger';
 
 import { resolveLayout } from './LayoutEngine';
@@ -94,21 +97,8 @@ export function getLayoutIds(): string[] {
   return Array.from(LAYOUT_REGISTRY.keys());
 }
 
-/**
- * Mech configuration types for layout selection
- */
-export type MechConfigType = 'biped' | 'quad' | 'tripod' | 'lam' | 'quadvee';
-
-/**
- * Display names for mech configurations
- */
-export const MECH_CONFIG_DISPLAY_NAMES: Record<MechConfigType, string> = {
-  biped: 'Biped',
-  quad: 'Quad',
-  tripod: 'Tripod',
-  lam: 'LAM',
-  quadvee: 'QuadVee',
-};
+export type { MechConfigType };
+export { MECH_CONFIG_DISPLAY_NAMES };
 
 /**
  * Get all available mech configuration types

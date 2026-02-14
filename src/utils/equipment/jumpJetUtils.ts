@@ -6,7 +6,6 @@
  */
 
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
-import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
@@ -14,6 +13,7 @@ import {
   MiscEquipmentCategory,
   IMiscEquipment,
 } from '@/types/equipment/MiscEquipmentTypes';
+import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { generateUnitId } from '@/utils/uuid';
 

@@ -9,6 +9,8 @@
 
 import React, { useState } from 'react';
 
+import type { LocationArmorData } from '@/types/construction/LocationArmorData';
+
 import { SchematicDiagram } from '@/components/armor/schematic';
 import { useAppSettingsStore } from '@/stores/useAppSettingsStore';
 import { MechLocation } from '@/types/construction';
@@ -16,16 +18,7 @@ import { MechLocation } from '@/types/construction';
 import { ArmorLegend } from './ArmorLegend';
 import { ArmorLocation } from './ArmorLocation';
 
-/**
- * Armor allocation data for a single location
- */
-export interface LocationArmorData {
-  readonly location: MechLocation;
-  readonly current: number;
-  readonly maximum: number;
-  readonly rear?: number;
-  readonly rearMaximum?: number;
-}
+export type { LocationArmorData };
 
 export interface ArmorDiagramProps {
   /** Armor allocation for all locations */

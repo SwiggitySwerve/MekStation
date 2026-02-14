@@ -5,12 +5,12 @@
  * All created items are configuration-based (isRemovable: false).
  */
 
-import { IMountedEquipmentInstance } from '@/stores/unitState';
 import {
   ArmorTypeEnum,
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
 import { EquipmentCategory } from '@/types/equipment';
+import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { generateUnitId } from '@/utils/uuid';
 
 import {

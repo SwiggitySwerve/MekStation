@@ -8,10 +8,10 @@
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { IMountedEquipmentInstance } from '@/stores/unitState';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
+import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { logger } from '@/utils/logger';
 
 import { mapMechLocation } from './componentMappers';
