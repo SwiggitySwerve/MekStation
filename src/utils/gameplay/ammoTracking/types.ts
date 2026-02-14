@@ -3,6 +3,11 @@
  * Type definitions for ammunition tracking, consumption, and explosion systems.
  */
 
+import type {
+  IAmmoSlotState,
+  IAmmoConsumedPayload,
+} from '@/types/gameplay/GameSessionInterfaces';
+
 /**
  * CASE protection level for a location.
  */
@@ -36,9 +41,9 @@ export interface IAmmoConstructionData {
  */
 export interface IAmmoConsumeResult {
   /** Updated ammo state (immutable) */
-  readonly updatedAmmoState: Record<string, unknown>;
+  readonly updatedAmmoState: Record<string, IAmmoSlotState>;
   /** The event payload to emit */
-  readonly event: unknown;
+  readonly event: IAmmoConsumedPayload;
   /** Whether ammo was successfully consumed */
   readonly success: boolean;
 }
@@ -60,7 +65,7 @@ export interface IAmmoExplosionResult {
   /** Whether the bin was destroyed */
   readonly binDestroyed: boolean;
   /** Updated ammo state with bin marked as destroyed */
-  readonly updatedAmmoState: Record<string, unknown>;
+  readonly updatedAmmoState: Record<string, IAmmoSlotState>;
   /** The bin that exploded */
   readonly binId: string;
   /** Weapon type of exploded ammo */
