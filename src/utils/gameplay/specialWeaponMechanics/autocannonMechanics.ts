@@ -39,6 +39,14 @@ export function isRotaryAC(weaponId: string): boolean {
   );
 }
 
+export function isLBXAC(weaponId: string): boolean {
+  return (
+    weaponId.toLowerCase().startsWith('lb-') ||
+    weaponId.toLowerCase().includes('lb-x') ||
+    weaponId.toLowerCase().includes('lbx')
+  );
+}
+
 // =============================================================================
 // 13.1: Ultra AC Resolution
 // =============================================================================
@@ -190,6 +198,7 @@ export function resolveRotaryAC(
 export function getDefaultFireMode(weaponId: string): WeaponFireMode {
   if (isUltraAC(weaponId)) return 'ultra';
   if (isRotaryAC(weaponId)) return 'rotary';
+  if (isLBXAC(weaponId)) return 'lbx-cluster';
   return 'standard';
 }
 

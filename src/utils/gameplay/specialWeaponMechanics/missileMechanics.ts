@@ -31,13 +31,8 @@ import {
 // Weapon Type Detection
 // =============================================================================
 
-export function isLBXAC(weaponId: string): boolean {
-  return (
-    weaponId.toLowerCase().startsWith('lb-') ||
-    weaponId.toLowerCase().includes('lb-x') ||
-    weaponId.toLowerCase().includes('lbx')
-  );
-}
+// isLBXAC is defined in autocannonMechanics
+import { isLBXAC } from './autocannonMechanics';
 
 export function isMissileWeapon(weaponId: string): boolean {
   const id = weaponId.toLowerCase();
