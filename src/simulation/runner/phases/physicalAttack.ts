@@ -14,20 +14,20 @@ import {
 } from '@/utils/gameplay/physicalAttacks';
 import { createKickedPSR } from '@/utils/gameplay/pilotingSkillRolls';
 
-import { SeededRandom } from '../core/SeededRandom';
-import { InvariantRunner } from '../invariants/InvariantRunner';
-import { IViolation } from '../invariants/types';
+import { SeededRandom } from '../../core/SeededRandom';
+import { InvariantRunner } from '../../invariants/InvariantRunner';
+import { IViolation } from '../../invariants/types';
 import {
   DEFAULT_COMPONENT_DAMAGE,
   DEFAULT_PILOTING,
   DEFAULT_TONNAGE,
   HEAD_HIT_DAMAGE_CAP,
-} from './SimulationRunnerConstants';
-import { createD6Roller, createGameEvent } from './SimulationRunnerPhaseUtils';
+} from '../SimulationRunnerConstants';
 import {
   applyDamageResultToState,
   buildDamageState,
-} from './SimulationRunnerState';
+} from '../SimulationRunnerState';
+import { createD6Roller, createGameEvent } from './utils';
 
 export function runPhysicalAttackPhase(options: {
   state: IGameState;

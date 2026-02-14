@@ -14,12 +14,12 @@ import {
   SWORD_DAMAGE_BONUS,
   SWORD_DAMAGE_DIVISOR,
   TSM_ACTIVATION_HEAT,
-} from './physicalAttacksConstants';
+} from './constants';
 import {
   IPhysicalAttackInput,
   IPhysicalDamageResult,
   PhysicalAttackType,
-} from './physicalAttacksTypes';
+} from './types';
 
 export function getEffectiveWeight(
   tonnage: number,

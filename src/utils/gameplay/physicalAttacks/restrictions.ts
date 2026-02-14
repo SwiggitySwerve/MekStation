@@ -1,9 +1,6 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
-import {
-  IPhysicalAttackInput,
-  IPhysicalAttackRestriction,
-} from './physicalAttacksTypes';
+import { IPhysicalAttackInput, IPhysicalAttackRestriction } from './types';
 
 export function canPunch(
   input: IPhysicalAttackInput,

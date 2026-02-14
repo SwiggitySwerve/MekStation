@@ -8,7 +8,7 @@ import {
   IUnitGameState,
 } from '@/types/gameplay';
 
-import { DEFAULT_COMPONENT_DAMAGE } from './gameStateInitialization';
+import { DEFAULT_COMPONENT_DAMAGE } from './initialization';
 
 function getArmForSideTorso(location: string): string | null {
   if (location === 'left_torso' || location === 'left_torso_rear') {

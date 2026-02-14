@@ -14,25 +14,25 @@ import { determineHitLocation, isHeadHit } from '@/utils/gameplay/hitLocation';
 import { createDamagePSR } from '@/utils/gameplay/pilotingSkillRolls';
 import { calculateToHit } from '@/utils/gameplay/toHit';
 
-import { BotPlayer } from '../ai/BotPlayer';
-import { SeededRandom } from '../core/SeededRandom';
-import { InvariantRunner } from '../invariants/InvariantRunner';
-import { IViolation } from '../invariants/types';
+import { BotPlayer } from '../../ai/BotPlayer';
+import { SeededRandom } from '../../core/SeededRandom';
+import { InvariantRunner } from '../../invariants/InvariantRunner';
+import { IViolation } from '../../invariants/types';
 import {
   DAMAGE_PSR_THRESHOLD,
   DEFAULT_GUNNERY,
   HEAD_HIT_DAMAGE_CAP,
-} from './SimulationRunnerConstants';
-import { createD6Roller, createGameEvent } from './SimulationRunnerPhaseUtils';
+} from '../SimulationRunnerConstants';
 import {
   applyDamageResultToState,
   buildDamageState,
-} from './SimulationRunnerState';
+} from '../SimulationRunnerState';
 import {
   createMinimalWeapon,
   getRangeBracket,
   toAIUnitState,
-} from './SimulationRunnerSupport';
+} from '../SimulationRunnerSupport';
+import { createD6Roller, createGameEvent } from './utils';
 
 export function runAttackPhase(options: {
   state: IGameState;

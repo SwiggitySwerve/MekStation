@@ -5,6 +5,14 @@ import { SeededRandom } from '../core/SeededRandom';
 import { ISimulationConfig } from '../core/types';
 import { InvariantRunner } from '../invariants/InvariantRunner';
 import { IViolation } from '../invariants/types';
+import {
+  runAttackPhase,
+  runHeatPhase,
+  runMovementPhase,
+  runPhysicalAttackPhase,
+  runPSRPhase,
+} from './phases';
+import { createGameEvent } from './phases/utils';
 import { MAX_TURNS } from './SimulationRunnerConstants';
 import {
   buildAnomalyBattleState,
@@ -15,10 +23,6 @@ import {
   IAnomalyDetectors,
   runAllAnomalyDetectors,
 } from './SimulationRunnerDetection';
-import { runMovementPhase } from './SimulationRunnerMovementPhase';
-import { createGameEvent } from './SimulationRunnerPhaseUtils';
-import { runPhysicalAttackPhase } from './SimulationRunnerPhysicalAttackPhase';
-import { runHeatPhase, runPSRPhase } from './SimulationRunnerPostCombatPhases';
 import {
   createInitialState,
   determineWinner,
@@ -26,7 +30,6 @@ import {
   resetTurnState,
 } from './SimulationRunnerState';
 import { createMinimalGrid } from './SimulationRunnerSupport';
-import { runAttackPhase } from './SimulationRunnerWeaponAttackPhase';
 import { IDetectorConfig, ISimulationRunResult } from './types';
 
 export class SimulationRunner {

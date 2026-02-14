@@ -15,7 +15,7 @@ import {
   createInitialUnitState,
   OPPONENT_DEPLOY_ROW,
   PLAYER_DEPLOY_ROW,
-} from './gameStateInitialization';
+} from './initialization';
 
 export function applyGameCreated(
   state: IGameState,

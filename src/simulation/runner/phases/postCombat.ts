@@ -9,7 +9,7 @@ import {
   resolveAllPSRs,
 } from '@/utils/gameplay/pilotingSkillRolls';
 
-import { SeededRandom } from '../core/SeededRandom';
+import { SeededRandom } from '../../core/SeededRandom';
 import {
   BASE_HEAT_SINKS,
   DEFAULT_COMPONENT_DAMAGE,
@@ -20,8 +20,8 @@ import {
   MEDIUM_LASER_HEAT,
   RUN_HEAT,
   WALK_HEAT,
-} from './SimulationRunnerConstants';
-import { createD6Roller, createGameEvent } from './SimulationRunnerPhaseUtils';
+} from '../SimulationRunnerConstants';
+import { createD6Roller, createGameEvent } from './utils';
 
 export function runPSRPhase(options: {
   state: IGameState;

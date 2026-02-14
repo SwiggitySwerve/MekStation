@@ -12,17 +12,13 @@ import {
   SWORD_TO_HIT_MODIFIER,
   UPPER_ARM_PUNCH_MODIFIER,
   UPPER_LEG_KICK_MODIFIER,
-} from './physicalAttacksConstants';
-import {
-  canKick,
-  canMeleeWeapon,
-  canPunch,
-} from './physicalAttacksRestrictions';
+} from './constants';
+import { canKick, canMeleeWeapon, canPunch } from './restrictions';
 import {
   IPhysicalAttackInput,
   IPhysicalModifier,
   IPhysicalToHitResult,
-} from './physicalAttacksTypes';
+} from './types';
 
 export function calculatePunchToHit(
   input: IPhysicalAttackInput,

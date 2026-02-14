@@ -7,15 +7,15 @@ import {
   IHexGrid,
 } from '@/types/gameplay';
 
-import { BotPlayer } from '../ai/BotPlayer';
-import { InvariantRunner } from '../invariants/InvariantRunner';
-import { IViolation } from '../invariants/types';
-import { createGameEvent } from './SimulationRunnerPhaseUtils';
-import { applyMovementEvent } from './SimulationRunnerState';
+import { BotPlayer } from '../../ai/BotPlayer';
+import { InvariantRunner } from '../../invariants/InvariantRunner';
+import { IViolation } from '../../invariants/types';
+import { applyMovementEvent } from '../SimulationRunnerState';
 import {
   createMovementCapability,
   toAIUnitState,
-} from './SimulationRunnerSupport';
+} from '../SimulationRunnerSupport';
+import { createGameEvent } from './utils';
 
 export function runMovementPhase(options: {
   state: IGameState;

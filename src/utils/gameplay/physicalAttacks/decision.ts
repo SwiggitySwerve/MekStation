@@ -8,18 +8,14 @@ import {
   calculateMaceDamage,
   calculatePunchDamage,
   calculateSwordDamage,
-} from './physicalAttacksDamage';
-import {
-  canKick,
-  canMeleeWeapon,
-  canPunch,
-} from './physicalAttacksRestrictions';
+} from './damage';
+import { canKick, canMeleeWeapon, canPunch } from './restrictions';
 import {
   IChooseBestPhysicalAttackOptions,
   IPhysicalAttackCandidate,
   IPhysicalAttackInput,
   PhysicalAttackType,
-} from './physicalAttacksTypes';
+} from './types';
 
 export function chooseBestPhysicalAttack(
   attackerTonnage: number,

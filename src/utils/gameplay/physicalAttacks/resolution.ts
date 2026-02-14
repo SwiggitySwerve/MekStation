@@ -1,16 +1,10 @@
 import { CombatLocation } from '@/types/gameplay';
 
-import { D6Roller } from './hitLocation';
-import { KICK_HIT_TABLE, PUNCH_HIT_TABLE } from './physicalAttacksConstants';
-import {
-  calculatePhysicalDamage,
-  getPhysicalMissConsequences,
-} from './physicalAttacksDamage';
-import { calculatePhysicalToHit } from './physicalAttacksToHit';
-import {
-  IPhysicalAttackInput,
-  IPhysicalAttackResult,
-} from './physicalAttacksTypes';
+import { D6Roller } from '../hitLocation';
+import { KICK_HIT_TABLE, PUNCH_HIT_TABLE } from './constants';
+import { calculatePhysicalDamage, getPhysicalMissConsequences } from './damage';
+import { calculatePhysicalToHit } from './toHit';
+import { IPhysicalAttackInput, IPhysicalAttackResult } from './types';
 
 export function determinePhysicalHitLocation(
   hitTable: 'punch' | 'kick',
