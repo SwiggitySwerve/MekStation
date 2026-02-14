@@ -1,16 +1,3 @@
-/**
- * Neon Operator Armor Diagram
- *
- * Design Philosophy: Sci-fi aesthetic and visual impact
- * - Wireframe outline silhouette
- * - Glow/neon fills with glowing edges
- * - Stacked progress rings for front/rear
- * - Amber (front) and sky (rear) color coding
- * - Glow pulse interaction
- *
- * Uses the Layout Engine for constraint-based positioning.
- */
-
 import React, { useState } from 'react';
 
 import type { LocationArmorData } from '@/types/construction/LocationArmorData';
@@ -20,332 +7,12 @@ import { ARMOR_STATUS } from '@/constants/armorStatus';
 import { MechLocation } from '@/types/construction';
 
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+import { GradientDefs } from '../shared/ArmorFills';
+import { useResolvedLayout, getLayoutIdForConfig } from '../shared/layout';
 import {
-  GradientDefs,
-  getArmorStatusColor,
-  getTorsoFrontStatusColor,
-  getTorsoRearStatusColor,
-  lightenColor,
-  SELECTED_COLOR,
-} from '../shared/ArmorFills';
-import {
-  useResolvedLayout,
-  ResolvedPosition,
-  getLayoutIdForConfig,
-} from '../shared/layout';
-import { getLocationLabel, hasTorsoRear } from '../shared/MechSilhouette';
-
-interface ProgressRingProps {
-  cx: number;
-  cy: number;
-  radius: number;
-  progress: number;
-  color: string;
-  strokeWidth?: number;
-}
-
-function ProgressRing({
-  cx,
-  cy,
-  radius,
-  progress,
-  color,
-  strokeWidth = 3,
-}: ProgressRingProps): React.ReactElement {
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (progress / 100) * circumference;
-
-  return (
-    <g>
-      {/* Background ring */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={radius}
-        fill="none"
-        stroke="rgba(255,255,255,0.1)"
-        strokeWidth={strokeWidth}
-      />
-      {/* Progress ring */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={radius}
-        fill="none"
-        stroke={color}
-        strokeWidth={strokeWidth}
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-        transform={`rotate(-90 ${cx} ${cy})`}
-        className="transition-all duration-300"
-        style={{ filter: 'url(#armor-glow)' }}
-      />
-    </g>
-  );
-}
-
-interface NeonLocationProps {
-  location: MechLocation;
-  /** Resolved position from the layout engine */
-  position: ResolvedPosition;
-  data?: LocationArmorData;
-  isSelected: boolean;
-  isHovered: boolean;
-  onClick: () => void;
-  onHover: (hovered: boolean) => void;
-  /** Mech configuration type for correct label lookup */
-  configType?: MechConfigType;
-}
-
-function NeonLocation({
-  location,
-  position,
-  data,
-  isSelected,
-  isHovered,
-  onClick,
-  onHover,
-  configType = 'biped',
-}: NeonLocationProps): React.ReactElement {
-  const label = getLocationLabel(location, configType);
-  const showRear = hasTorsoRear(location);
-  const isHead = location === MechLocation.HEAD;
-
-  // Use position from layout engine
-  const pos = position;
-
-  // Use abbreviated labels for torso sections to fit in smaller space
-  const frontLabel = showRear ? `${label}-F` : label;
-  const rearLabel = 'R';
-
-  const front = data?.current ?? 0;
-  const frontMax = data?.maximum ?? 1;
-  const rear = data?.rear ?? 0;
-  const rearMax = data?.rearMaximum ?? 1;
-
-  // For torso locations, use expected capacity (75/25 split) as baseline
-  const expectedFrontMax = showRear ? Math.round(frontMax * 0.75) : frontMax;
-  const expectedRearMax = showRear ? Math.round(frontMax * 0.25) : 1;
-
-  // Fill percentages based on expected capacity
-  const frontPercent =
-    expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
-  const rearPercent =
-    expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
-
-  // Status-based colors for front and rear independently
-  const frontColor = isSelected
-    ? SELECTED_COLOR
-    : showRear
-      ? getTorsoFrontStatusColor(front, frontMax)
-      : getArmorStatusColor(front, frontMax);
-  const rearColor = isSelected
-    ? SELECTED_COLOR
-    : getTorsoRearStatusColor(rear, frontMax);
-
-  const glowColor = isHovered ? lightenColor(frontColor, 0.2) : frontColor;
-
-  const fillOpacity = isHovered ? 0.4 : 0.25;
-
-  // Layout calculations for stacked front/rear - 60/40 split for consistency
-  const frontSectionHeight = showRear ? pos.height * 0.6 : pos.height;
-  const rearSectionHeight = showRear ? pos.height * 0.4 : 0;
-  const frontCenterY = pos.y + frontSectionHeight / 2;
-  const rearCenterY = pos.y + frontSectionHeight + rearSectionHeight / 2;
-  const dividerY = pos.y + frontSectionHeight;
-
-  // Ring sizes
-  const frontRingRadius = showRear
-    ? Math.min(pos.width, frontSectionHeight) * 0.3
-    : Math.min(pos.width, pos.height) * 0.35;
-  const rearRingRadius = showRear
-    ? Math.min(pos.width, rearSectionHeight) * 0.35
-    : 0;
-
-  const center = pos.center;
-
-  return (
-    <g
-      role="button"
-      tabIndex={0}
-      aria-label={`${location} armor: ${front} of ${frontMax}${showRear ? `, rear: ${rear} of ${rearMax}` : ''}`}
-      aria-pressed={isSelected}
-      className="cursor-pointer focus:outline-none"
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
-      onFocus={() => onHover(true)}
-      onBlur={() => onHover(false)}
-    >
-      {/* Glow background */}
-      <rect
-        x={pos.x}
-        y={pos.y}
-        width={pos.width}
-        height={pos.height}
-        rx={4}
-        fill={glowColor}
-        fillOpacity={fillOpacity}
-        className="transition-all duration-200"
-      />
-
-      {/* Neon edge outline */}
-      <rect
-        x={pos.x}
-        y={pos.y}
-        width={pos.width}
-        height={pos.height}
-        rx={4}
-        fill="none"
-        stroke={glowColor}
-        strokeWidth={isSelected ? 2.5 : 1.5}
-        className="transition-all duration-200"
-        style={{
-          filter:
-            isHovered || isSelected
-              ? 'url(#armor-neon-glow)'
-              : 'url(#armor-glow)',
-        }}
-      />
-
-      {showRear ? (
-        <>
-          {/* Front section */}
-          <text
-            x={center.x}
-            y={pos.y + 10}
-            textAnchor="middle"
-            className="pointer-events-none fill-white/70 font-medium"
-            style={{
-              fontSize: '8px',
-              textShadow: `0 0 3px ${frontColor}`,
-            }}
-          >
-            {frontLabel}
-          </text>
-
-          <ProgressRing
-            cx={center.x}
-            cy={frontCenterY + 4}
-            radius={frontRingRadius}
-            progress={frontPercent}
-            color={isHovered ? lightenColor(frontColor, 0.2) : frontColor}
-            strokeWidth={isHovered ? 4 : 3}
-          />
-
-          <text
-            x={center.x}
-            y={frontCenterY + 8}
-            textAnchor="middle"
-            className="pointer-events-none fill-white font-bold"
-            style={{
-              fontSize: '14px',
-              textShadow: `0 0 10px ${frontColor}`,
-            }}
-          >
-            {front}
-          </text>
-
-          {/* Divider line */}
-          <line
-            x1={pos.x + 6}
-            y1={dividerY}
-            x2={pos.x + pos.width - 6}
-            y2={dividerY}
-            stroke="#64748b"
-            strokeWidth={1}
-            strokeDasharray="4 3"
-            opacity={0.6}
-          />
-
-          {/* Rear section */}
-          <text
-            x={center.x}
-            y={dividerY + 9}
-            textAnchor="middle"
-            className="pointer-events-none fill-white/70 font-medium"
-            style={{
-              fontSize: '8px',
-              textShadow: `0 0 3px ${rearColor}`,
-            }}
-          >
-            {rearLabel}
-          </text>
-
-          <ProgressRing
-            cx={center.x}
-            cy={rearCenterY + 2}
-            radius={rearRingRadius}
-            progress={rearPercent}
-            color={isHovered ? lightenColor(rearColor, 0.2) : rearColor}
-            strokeWidth={isHovered ? 3 : 2}
-          />
-
-          <text
-            x={center.x}
-            y={rearCenterY + 5}
-            textAnchor="middle"
-            className="pointer-events-none fill-white font-bold"
-            style={{
-              fontSize: '12px',
-              textShadow: `0 0 10px ${rearColor}`,
-            }}
-          >
-            {rear}
-          </text>
-        </>
-      ) : (
-        <>
-          {/* Non-torso: single ring - HEAD gets special compact layout */}
-          <text
-            x={center.x}
-            y={pos.y + (isHead ? 9 : 12)}
-            textAnchor="middle"
-            className="pointer-events-none fill-white/70 font-medium"
-            style={{
-              fontSize: isHead ? '7px' : '9px',
-              textShadow: `0 0 3px ${glowColor}`,
-            }}
-          >
-            {label}
-          </text>
-
-          {/* Skip ring for HEAD - not enough space */}
-          {!isHead && (
-            <ProgressRing
-              cx={center.x}
-              cy={pos.y + pos.height / 2 + 4}
-              radius={frontRingRadius}
-              progress={frontPercent}
-              color={glowColor}
-              strokeWidth={isHovered ? 4 : 3}
-            />
-          )}
-
-          <text
-            x={center.x}
-            y={pos.y + (isHead ? pos.height / 2 + 4 : pos.height / 2 + 8)}
-            textAnchor="middle"
-            className="pointer-events-none fill-white font-bold"
-            style={{
-              fontSize: isHead ? '12px' : pos.width < 40 ? '12px' : '16px',
-              textShadow: `0 0 10px ${glowColor}`,
-            }}
-          >
-            {front}
-          </text>
-        </>
-      )}
-    </g>
-  );
-}
+  NeonLocation,
+  getLocationsForConfig,
+} from './NeonOperatorDiagram.parts';
 
 export interface NeonOperatorDiagramProps {
   armorData: LocationArmorData[];
@@ -353,53 +20,7 @@ export interface NeonOperatorDiagramProps {
   unallocatedPoints: number;
   onLocationClick: (location: MechLocation) => void;
   className?: string;
-  /** Mech configuration type for layout selection */
   mechConfigType?: MechConfigType;
-}
-
-/**
- * Get the locations to render based on mech configuration type
- */
-function getLocationsForConfig(configType: MechConfigType): MechLocation[] {
-  switch (configType) {
-    case 'quad':
-    case 'quadvee':
-      return [
-        MechLocation.HEAD,
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.FRONT_LEFT_LEG,
-        MechLocation.FRONT_RIGHT_LEG,
-        MechLocation.REAR_LEFT_LEG,
-        MechLocation.REAR_RIGHT_LEG,
-      ];
-    case 'tripod':
-      return [
-        MechLocation.HEAD,
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_ARM,
-        MechLocation.RIGHT_ARM,
-        MechLocation.LEFT_LEG,
-        MechLocation.RIGHT_LEG,
-        MechLocation.CENTER_LEG,
-      ];
-    case 'lam':
-    case 'biped':
-    default:
-      return [
-        MechLocation.HEAD,
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_ARM,
-        MechLocation.RIGHT_ARM,
-        MechLocation.LEFT_LEG,
-        MechLocation.RIGHT_LEG,
-      ];
-  }
 }
 
 export function NeonOperatorDiagram({
@@ -414,10 +35,7 @@ export function NeonOperatorDiagram({
     null,
   );
 
-  // Get layout ID based on mech configuration type
   const layoutId = getLayoutIdForConfig(mechConfigType, 'battlemech');
-
-  // Use the layout engine to get resolved positions
   const { getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
 
   const getArmorData = (
@@ -426,14 +44,12 @@ export function NeonOperatorDiagram({
     return armorData.find((d) => d.location === location);
   };
 
-  // Get locations based on mech configuration type
   const locations = getLocationsForConfig(mechConfigType);
 
   return (
     <div
       className={`bg-surface-deep rounded-lg border border-cyan-900/50 p-4 ${className}`}
     >
-      {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3
@@ -446,7 +62,6 @@ export function NeonOperatorDiagram({
         </div>
       </div>
 
-      {/* Diagram - uses auto-calculated viewBox from layout engine */}
       <div className="relative">
         <svg
           viewBox={viewBox}
@@ -455,7 +70,6 @@ export function NeonOperatorDiagram({
         >
           <GradientDefs />
 
-          {/* Scanline overlay */}
           <rect
             x={bounds.minX}
             y={bounds.minY}
@@ -465,7 +79,6 @@ export function NeonOperatorDiagram({
             opacity="0.3"
           />
 
-          {/* Render all locations using layout engine positions */}
           {locations.map((loc) => {
             const position = getPosition(loc);
             if (!position) return null;
@@ -485,7 +98,6 @@ export function NeonOperatorDiagram({
             );
           })}
 
-          {/* Targeting reticle on hovered */}
           {hoveredLocation &&
             (() => {
               const hoveredPos = getPosition(hoveredLocation);
@@ -509,7 +121,6 @@ export function NeonOperatorDiagram({
         </svg>
       </div>
 
-      {/* Legend */}
       <div className="mt-4 flex items-center justify-center gap-3 text-xs">
         <div className="flex items-center gap-1.5">
           <div
@@ -555,7 +166,6 @@ export function NeonOperatorDiagram({
         </span>
       </div>
 
-      {/* Instructions */}
       <p className="mt-2 text-center text-xs text-cyan-500/70">
         SELECT TARGET LOCATION
       </p>
