@@ -1,7 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import { List } from 'react-window';
 
-import type { IBattleEvent } from '@/components/simulation-viewer/pages/EncounterHistory';
+import type { IBattleEvent } from '@/components/simulation-viewer/pages/encounter-history/types';
 
 import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 

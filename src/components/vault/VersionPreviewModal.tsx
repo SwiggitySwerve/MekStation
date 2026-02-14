@@ -16,7 +16,7 @@ import {
   formatFullDateTime,
 } from '@/utils/formatting';
 
-import type { VersionPreviewProps } from './VersionHistory';
+import type { VersionPreviewProps } from './VersionHistoryTypes';
 
 import {
   ClockIcon,

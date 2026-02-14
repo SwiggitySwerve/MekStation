@@ -5,9 +5,9 @@
  * @spec openspec/changes/add-game-session-core/specs/game-session-core/spec.md
  */
 
-import type { IEnvironmentalConditions } from '@/utils/gameplay/environmentalModifiers';
-
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+
+import type { IEnvironmentalConditions } from './EnvironmentalConditions';
 
 import { IHexCoordinate, Facing, MovementType } from './HexGridInterfaces';
 

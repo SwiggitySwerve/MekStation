@@ -9,9 +9,10 @@
 
 import type { IPilot, IPilotSkills } from '../pilot/PilotInterfaces';
 import type { IPersonTraits } from './progression/progressionTypes';
+import type { IAttributes } from './skills/IAttributes';
+import type { ISkill } from './skills/ISkill';
 
 import { PersonnelStatus, CampaignPersonnelRole } from './enums';
-import { IAttributes, ISkill } from './skills';
 
 // =============================================================================
 // Injury Interface

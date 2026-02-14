@@ -2,11 +2,14 @@ import React, { useState, useCallback, useMemo } from 'react';
 
 import type { IFilterDefinition } from '@/components/simulation-viewer/types';
 import type { IAnomaly } from '@/types/simulation-viewer';
+import type { IViolation } from '@/types/simulation-viewer/IViolation';
 
 import { AnomalyAlertCard } from '@/components/simulation-viewer/AnomalyAlertCard';
 import { FilterPanel } from '@/components/simulation-viewer/FilterPanel';
 import { VirtualizedViolationLog } from '@/components/simulation-viewer/VirtualizedViolationLog';
 import { FOCUS_RING_CLASSES, announce } from '@/utils/accessibility';
+
+export type { IViolation } from '@/types/simulation-viewer/IViolation';
 
 /* ========================================================================== */
 /*  Types                                                                      */
@@ -57,18 +60,6 @@ export interface IPageAnomaly {
   readonly snapshotId: string;
   readonly timestamp: string;
   readonly dismissed: boolean;
-}
-
-/**
- * Represents a violation entry in the log.
- */
-export interface IViolation {
-  readonly id: string;
-  readonly type: string;
-  readonly severity: Severity;
-  readonly message: string;
-  readonly battleId: string;
-  readonly timestamp: string;
 }
 
 /**

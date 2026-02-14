@@ -6,7 +6,26 @@
  * @spec openspec/changes/full-combat-parity/specs/environmental-combat-modifiers/spec.md
  */
 
-import { IToHitModifierDetail } from '@/types/gameplay';
+import type { IToHitModifierDetail } from '@/types/gameplay/CombatInterfaces';
+import type {
+  AtmosphereCondition,
+  FogCondition,
+  IEnvironmentalConditions,
+  LightCondition,
+  PrecipitationCondition,
+  TemperatureCondition,
+  WindCondition,
+} from '@/types/gameplay/EnvironmentalConditions';
+
+export type {
+  AtmosphereCondition,
+  FogCondition,
+  IEnvironmentalConditions,
+  LightCondition,
+  PrecipitationCondition,
+  TemperatureCondition,
+  WindCondition,
+} from '@/types/gameplay/EnvironmentalConditions';
 
 // =============================================================================
 // Constants
@@ -23,65 +42,6 @@ const EXTREME_COLD_HEAT_BONUS = 2;
 
 /** Heat dissipation penalty in extreme heat */
 const EXTREME_HEAT_PENALTY = -2;
-
-// =============================================================================
-// Environmental Condition Types
-// =============================================================================
-
-/**
- * Light conditions affecting combat.
- */
-export type LightCondition = 'daylight' | 'dusk' | 'dawn' | 'night';
-
-/**
- * Precipitation conditions.
- */
-export type PrecipitationCondition =
-  | 'none'
-  | 'light_rain'
-  | 'heavy_rain'
-  | 'snow';
-
-/**
- * Fog conditions.
- */
-export type FogCondition = 'none' | 'light_fog' | 'heavy_fog';
-
-/**
- * Wind conditions.
- */
-export type WindCondition = 'none' | 'moderate' | 'strong';
-
-/**
- * Atmosphere type for combat effects.
- */
-export type AtmosphereCondition = 'standard' | 'thin' | 'trace' | 'vacuum';
-
-/**
- * Temperature extremes affecting heat dissipation.
- */
-export type TemperatureCondition = 'extreme_cold' | 'normal' | 'extreme_heat';
-
-/**
- * Complete environmental conditions for a game session.
- * All fields have sensible defaults (normal/standard conditions).
- */
-export interface IEnvironmentalConditions {
-  /** Light condition (default: daylight) */
-  readonly light: LightCondition;
-  /** Precipitation (default: none) */
-  readonly precipitation: PrecipitationCondition;
-  /** Fog (default: none) */
-  readonly fog: FogCondition;
-  /** Wind (default: none) */
-  readonly wind: WindCondition;
-  /** Gravity in G units (default: 1.0) */
-  readonly gravity: number;
-  /** Atmosphere type (default: standard) */
-  readonly atmosphere: AtmosphereCondition;
-  /** Temperature condition (default: normal) */
-  readonly temperature: TemperatureCondition;
-}
 
 /**
  * Default environmental conditions (normal daylight, standard everything).

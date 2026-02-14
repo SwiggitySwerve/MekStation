@@ -24,18 +24,3 @@ export {
 } from './MountedEquipment';
 
 export type { IEquipmentItem } from './EquipmentItem';
-
-export {
-  getAllWeapons,
-  getAllAmmunition,
-  getAllElectronics,
-  getAllMiscEquipment,
-  getAllPhysicalWeapons,
-  getAllEquipmentItems,
-  getAllEquipmentItemsForLookup,
-  getEquipmentById,
-  filterEquipmentByTechBase,
-  filterEquipmentByRulesLevel,
-  filterEquipmentByYear,
-  filterEquipmentByCategory,
-} from '@/utils/equipment/equipmentAggregation';
