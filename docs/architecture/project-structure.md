@@ -5,40 +5,46 @@ Overview of the MekStation codebase organization.
 ## Directory Layout
 
 ```
-megamek-web/
-├── src/                    # Application source code
-│   ├── components/         # React UI components
-│   │   └── common/         # Shared components (Layout, Pagination, etc.)
-│   ├── pages/              # Next.js pages and API routes
-│   │   └── api/            # API endpoints
-│   ├── services/           # Business logic layer
-│   │   ├── catalog/        # Unit catalog management
-│   │   ├── editor/         # Editor coordination
-│   │   ├── equipment/      # Equipment data access
-│   │   └── integration/    # Service orchestration
-│   ├── types/              # TypeScript type definitions
-│   │   ├── core/           # Core interfaces (IEntity, etc.)
-│   │   ├── enums/          # Enumerations (TechBase, Era, etc.)
-│   │   ├── construction/   # Construction system types
-│   │   ├── equipment/      # Equipment definitions
-│   │   ├── unit/           # Unit-level types
-│   │   └── validation/     # Validation types
-│   ├── utils/              # Utility functions
-│   │   ├── construction/   # Construction calculations
-│   │   ├── equipment/      # Equipment calculations
-│   │   ├── physical/       # Weight and slot utilities
-│   │   ├── temporal/       # Era/availability utilities
-│   │   └── validation/     # Validation utilities
-│   ├── hooks/              # Custom React hooks
-│   └── stores/             # State management
-├── openspec/               # Specifications (domain truth)
-│   ├── specs/              # Current specifications
-│   └── changes/            # Change proposals
-├── data/                   # Data files
-│   ├── megameklab_converted_output/  # Unit JSON files
-│   └── schemas/            # JSON schemas
-├── docs/                   # Documentation
-└── public/                 # Static assets
+src/                    # Application source code
+├── components/         # React UI components
+│   └── common/         # Shared components (Layout, Pagination, etc.)
+├── pages/              # Next.js pages and API routes
+│   └── api/            # API endpoints
+├── services/           # Business logic layer
+│   ├── catalog/        # Unit catalog management
+│   ├── editor/         # Editor coordination
+│   ├── equipment/      # Equipment data access
+│   └── integration/    # Service orchestration
+├── types/              # TypeScript type definitions
+│   ├── core/           # Core interfaces (IEntity, etc.)
+│   ├── enums/          # Enumerations (TechBase, Era, etc.)
+│   ├── construction/   # Construction system types
+│   ├── equipment/      # Equipment definitions
+│   ├── unit/           # Unit-level types
+│   ├── simulation/     # Simulation types (BattleState, etc.)
+│   ├── award/          # Award types and categories
+│   ├── vault/          # Vault domain types
+│   └── validation/     # Validation types
+├── utils/              # Utility functions
+│   ├── construction/   # Construction calculations
+│   ├── equipment/      # Equipment calculations
+│   ├── physical/       # Weight and slot utilities
+│   ├── temporal/       # Era/availability utilities
+│   └── validation/     # Validation utilities
+├── hooks/              # Custom React hooks
+├── stores/             # State management
+├── engine/             # Game engine core
+├── simulation/         # Battle simulation system
+├── lib/                # Shared libraries
+└── constants/          # Application constants
+openspec/               # Specifications (domain truth)
+├── specs/              # Current specifications
+└── changes/            # Change proposals
+data/                   # Data files
+├── megameklab_converted_output/  # Unit JSON files
+└── schemas/            # JSON schemas
+docs/                   # Documentation
+public/                 # Static assets
 ```
 
 ## Key Directories
@@ -51,9 +57,13 @@ Type definitions organized by domain:
 types/
 ├── core/           # Base interfaces (IEntity, ITechBaseEntity, etc.)
 ├── enums/          # TechBase, RulesLevel, Era, WeightClass
-├── construction/   # EngineType, GyroType, ArmorType, etc.
-├── equipment/      # Weapons, ammunition, electronics
+├── construction/   # EngineType, GyroType, ArmorType, ArmorAllocation, LocationArmorData, MechConfigType
+├── equipment/      # Weapons, ammunition, electronics, MountedEquipment, EquipmentItem
 ├── unit/           # BattleMech interfaces, serialization
+├── simulation/     # BattleState, BattleUnit
+├── award/          # Award types
+│   └── categories/ # 11 award category files
+├── vault/          # Vault domain types (VaultCoreTypes, VaultImportExportTypes, VaultSharingTypes, VaultContactTypes, VaultSyncTypes, VaultVersioningTypes)
 └── validation/     # Validation result types
 ```
 
