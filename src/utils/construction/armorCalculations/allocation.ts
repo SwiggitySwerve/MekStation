@@ -24,22 +24,6 @@ export function getRecommendedArmorDistribution(): Record<string, number> {
   };
 }
 
-export function getRecommendedArmorDistribution_old(): Record<string, number> {
-  return {
-    head: 0.05, // 5% - head
-    centerTorso: 0.2, // 20% - CT front
-    centerTorsoRear: 0.05, // 5% - CT rear
-    leftTorso: 0.12, // 12% - LT front
-    leftTorsoRear: 0.03, // 3% - LT rear
-    rightTorso: 0.12, // 12% - RT front
-    rightTorsoRear: 0.03, // 3% - RT rear
-    leftArm: 0.1, // 10% - LA
-    rightArm: 0.1, // 10% - RA
-    leftLeg: 0.1, // 10% - LL
-    rightLeg: 0.1, // 10% - RL
-  };
-}
-
 /**
  * Calculate optimal armor allocation for any mech configuration
  *
